@@ -4,7 +4,7 @@
 
 🧭 State Manager (UCS Runtime, Container Orchestration & Context Control)
 Handles universal container state, memory snapshots, vault decryption, personality gating, 
-runtime time-tracking, and WebSocket sync across AION’s UCS runtime.
+runtime time-tracking, and WebSocket sync across AION's UCS runtime.
 
 Design Rubric:
 - 🧭 UCS Runtime Context .................... ✅
@@ -179,10 +179,10 @@ class StateManager:
 
             # Adjust pause/resume behavior based on SQI thresholds
             if sqi < 0.35 and not self.is_paused():
-                print(f"[⚠] SQI low ({sqi:.2f}) — pausing runtime.")
+                print(f"[⚠] SQI low ({sqi:.2f}) - pausing runtime.")
                 self.pause()
             elif sqi > 0.6 and self.is_paused():
-                print(f"[✅] SQI stable ({sqi:.2f}) — resuming runtime.")
+                print(f"[✅] SQI stable ({sqi:.2f}) - resuming runtime.")
                 self.resume()
 
             # Broadcast via WebSocket (optional)
@@ -395,9 +395,9 @@ class StateManager:
     def set_current_container(self, container: dict):
         self.current_container = container
         print(f"[STATE] Current container set to: {container.get('id', 'unknown')}")
-        # 🧠 SCI symbolic trace — container/mental state switch
+        # 🧠 SCI symbolic trace - container/mental state switch
         try:
-            sci_emit("state_transition", f"State change → {container.get('id')}")
+            sci_emit("state_transition", f"State change -> {container.get('id')}")
         except Exception:
             pass
 

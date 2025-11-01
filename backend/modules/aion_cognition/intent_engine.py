@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-🎯 AION Intent Engine — Phase P2 (Resonant Upgrade)
+🎯 AION Intent Engine - Phase P2 (Resonant Upgrade)
 ────────────────────────────────────────────
-Fuses MotivationLayer DriveVectors + ResonantMemory context → IntentObject.
+Fuses MotivationLayer DriveVectors + ResonantMemory context -> IntentObject.
 Feeds into Tessaris Reasoner (P3).
 Includes ResonantReinforcementMixin for adaptive feedback and coherence tracking.
 """
@@ -20,7 +20,7 @@ INTENT_LOG.parent.mkdir(parents=True, exist_ok=True)
 
 
 # ───────────────────────────────────────────────
-# 🎯 Intent Engine — Resonant Version
+# 🎯 Intent Engine - Resonant Version
 # ───────────────────────────────────────────────
 class IntentEngine(ResonantReinforcementMixin):
     def __init__(self):
@@ -32,7 +32,7 @@ class IntentEngine(ResonantReinforcementMixin):
     # ───────────────────────────────────────────
     def generate_intent(self) -> dict:
         """
-        Fuse DriveVector + memory snapshot → IntentObject.
+        Fuse DriveVector + memory snapshot -> IntentObject.
         Reinforces coherence based on clarity, entropy, and drive balance.
         Emits Θ event for synchronization.
         """
@@ -114,7 +114,7 @@ class IntentEngine(ResonantReinforcementMixin):
 # ───────────────────────────────────────────────
 if __name__ == "__main__":
     engine = IntentEngine()
-    print("🎯 AION Intent Engine — Resonant Intents\n")
+    print("🎯 AION Intent Engine - Resonant Intents\n")
     for i in range(5):
         intent = engine.generate_intent()
         print(

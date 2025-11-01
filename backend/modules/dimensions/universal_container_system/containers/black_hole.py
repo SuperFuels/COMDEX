@@ -42,7 +42,7 @@ class BlackHoleContainer(UCSBaseContainer):
         if target_container and hasattr(target_container, "id"):
             self.connected_containers.add(target_container.id)
             self.portal_manager.create_portal(self.id, target_container.id)
-            print(f"🌀 [Black Hole] Wormhole established → {target_container.name}")
+            print(f"🌀 [Black Hole] Wormhole established -> {target_container.name}")
 
     def pull_from_wormhole(self):
         """Pull data or glyph streams from linked containers."""

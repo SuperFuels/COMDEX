@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-🌐 AION Advanced Cognition — Lexical Task Generator
+🌐 AION Advanced Cognition - Lexical Task Generator
 ──────────────────────────────────────────────────
 Generates semantic reasoning tasks directly from LexMemory.
 Used by the Advanced Cognition Loop to teach AION real-word understanding.
 
-Output → data/tasks/advanced_cognition/tasks_cycle<N>.json
+Output -> data/tasks/advanced_cognition/tasks_cycle<N>.json
 """
 
 import json, random, time, logging
@@ -86,7 +86,7 @@ def generate_tasks(cycle: int = 1, limit: int = 150):
 
     # 🔁 Fallback if none generated
     if not tasks:
-        log.warning("[LCE] ⚠ No tasks generated — inserting default lexical seeds.")
+        log.warning("[LCE] ⚠ No tasks generated - inserting default lexical seeds.")
         tasks = [
             {
                 "id": f"task_{cycle:02d}_seed_01",
@@ -114,5 +114,5 @@ def generate_tasks(cycle: int = 1, limit: int = 150):
     # 🧾 Write tasks to disk
     out = TASK_PATH / f"tasks_cycle{cycle}.json"
     out.write_text(json.dumps({"cycle": cycle, "timestamp": time.time(), "tasks": tasks}, indent=2))
-    log.info(f"[LCE] 🧩 Generated {len(tasks)} tasks → {out}")
+    log.info(f"[LCE] 🧩 Generated {len(tasks)} tasks -> {out}")
     return {"count": len(tasks), "path": str(out)}

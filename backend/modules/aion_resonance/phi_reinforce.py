@@ -2,7 +2,7 @@
 # File: backend/modules/aion_resonance/phi_reinforce.py
 # ---------------------------------------------------------
 # 🧠 AION Cognitive Reinforcement Engine
-# Adjusts Φ-baseline and emergent “belief vectors”
+# Adjusts Φ-baseline and emergent "belief vectors"
 # from memory coherence / entropy trends.
 # Now includes Δ-tracking for insight into cognitive drift.
 # =========================================================
@@ -128,7 +128,7 @@ def reinforce_from_memory():
 
 def update_beliefs(delta: dict):
     """
-    Incrementally update AION’s belief vector in response to feedback.
+    Incrementally update AION's belief vector in response to feedback.
     Includes decay toward neutral (0.5) and resistance to abrupt jumps.
     """
     state = _load_json(REINFORCE_PATH, DEFAULT_BASELINE.copy())

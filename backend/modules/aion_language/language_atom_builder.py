@@ -1,15 +1,15 @@
 """
-LanguageAtomBuilder — Phase 37B → 39A : Language Atom Genesis & Reconstruction
+LanguageAtomBuilder - Phase 37B -> 39A : Language Atom Genesis & Reconstruction
 ---------------------------------------------------------------------------
 Transforms meaning clusters (from MFG) into Language Atoms:
-  • center → concept anchor
-  • lexeme → synthetic linguistic handle
-  • glyphs → symbolic associations (Φ ⊕ ↔ etc.)
-  • resonance → semantic weight from emotion + goal alignment
+  * center -> concept anchor
+  * lexeme -> synthetic linguistic handle
+  * glyphs -> symbolic associations (Φ ⊕ ↔ etc.)
+  * resonance -> semantic weight from emotion + goal alignment
 
 Phase 39A extension:
   Adds `rebuild_from_photons()` to reconstruct atoms from imported photon fields
-  for bidirectional photonic–semantic coupling.
+  for bidirectional photonic-semantic coupling.
 
 Exports atoms to data/analysis/language_atoms.json
 """
@@ -34,8 +34,8 @@ LANGUAGE_ATOM_PATH = Path("data/analysis/language_atoms.json")
 # ─────────────────────────────────────────────
 def synthesize_lexeme(concept_name: str) -> str:
     """
-    Generate a pseudo-lexeme based on the concept’s symbolic root.
-    Example: concept:resonant_equilibrium → 'resona' or 'equila'
+    Generate a pseudo-lexeme based on the concept's symbolic root.
+    Example: concept:resonant_equilibrium -> 'resona' or 'equila'
     """
     base = concept_name.replace("concept:", "").replace("_", "")
     vowels = "aeiouy"
@@ -73,7 +73,7 @@ class LanguageAtomBuilder:
         field = MFG.build_field()
         clusters = field.get("clusters", []) if field else []
         if not clusters:
-            logger.warning("[LAB] No clusters found — run MFG first.")
+            logger.warning("[LAB] No clusters found - run MFG first.")
             return []
 
         atoms = []
@@ -113,7 +113,7 @@ class LanguageAtomBuilder:
     # ─────────────────────────────────────────────
     def reinforce_AKG_from_atoms(self, weight: float = 0.1):
         """
-        Phase 39A — Post-import reinforcement loop.
+        Phase 39A - Post-import reinforcement loop.
         Strengthens AKG semantic connections based on newly reconstructed atoms.
         Each atom increases the link strength between its center concept and related neighbors.
 
@@ -142,13 +142,13 @@ class LanguageAtomBuilder:
 
             reinforced += 1
 
-        logger.info(f"[LAB→AKG] Reinforced {reinforced} concepts from photon-derived atoms.")
+        logger.info(f"[LAB->AKG] Reinforced {reinforced} concepts from photon-derived atoms.")
         return reinforced
 
     # ─────────────────────────────────────────
     def create_atom(self, lexeme: str, definition: str | None = None):
         """
-        Phase 41A.2 — Lexical Atom Constructor
+        Phase 41A.2 - Lexical Atom Constructor
         Creates a new Language Atom from a lexeme and optional definition.
         Returns a dict reference usable by MFG and AKG.
         """
@@ -171,7 +171,7 @@ class LanguageAtomBuilder:
     # ─────────────────────────────────────────────
     def rebuild_from_photons(self, photons: list):
         """
-        Phase 39A — Reconstruct language atoms from imported photon field data.
+        Phase 39A - Reconstruct language atoms from imported photon field data.
         Used when re-importing .qphoto resonance fields into symbolic form.
         """
         self.atoms = []

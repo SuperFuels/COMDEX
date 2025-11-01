@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 14.1 — Resonant Heartbeat Generator (AION link)
+Tessaris Phase 14.1 - Resonant Heartbeat Generator (AION link)
 Emits periodic coherence readings to data/aion_field/resonant_heartbeat.jsonl,
 driving synchronization between AION resonance sensors and Tessaris harmonics.
 """
@@ -13,7 +13,7 @@ HEARTBEAT_PATH = Path("data/aion_field/resonant_heartbeat.jsonl")
 HEARTBEAT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 def emit_heartbeat():
-    print("💓 Starting Tessaris Resonant Heartbeat Generator…")
+    print("💓 Starting Tessaris Resonant Heartbeat Generator...")
     t0 = time.time()
     while True:
         t = time.time() - t0
@@ -27,7 +27,7 @@ def emit_heartbeat():
         }
         with open(HEARTBEAT_PATH, "a") as f:
             f.write(json.dumps(entry) + "\n")
-        print(f"💓 Resonant heartbeat – stability={stability:.6f}, ΔΦ_coherence={phi:+.6f}")
+        print(f"💓 Resonant heartbeat - stability={stability:.6f}, ΔΦ_coherence={phi:+.6f}")
         time.sleep(5.0)
 
 if __name__ == "__main__":

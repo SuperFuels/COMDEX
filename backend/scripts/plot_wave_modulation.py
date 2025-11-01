@@ -1,5 +1,5 @@
 """
-Tessaris • QQC v0.5 — Symatics Lightwave Engine
+Tessaris * QQC v0.5 - Symatics Lightwave Engine
 Wave Modulation Telemetry Plotter
 ──────────────────────────────────────────────
 Visualizes amplitude, phase, frequency, and coherence
@@ -50,7 +50,7 @@ def run_modulation_sequence():
 # ──────────────────────────────────────────────
 def plot_modulation(telemetry):
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-    fig.suptitle("Tessaris QQC v0.5 – Symatics Lightwave Modulation Evolution", fontsize=14, fontweight="bold")
+    fig.suptitle("Tessaris QQC v0.5 - Symatics Lightwave Modulation Evolution", fontsize=14, fontweight="bold")
 
     params = ["amp", "phase", "freq", "coh"]
     titles = ["Amplitude", "Phase (radians)", "Frequency", "Coherence"]

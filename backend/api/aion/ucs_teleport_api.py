@@ -16,5 +16,5 @@ def teleport_between_links(source_id: str, direction: str):
         return {"status": "error", "message": f"No linked container in direction: {direction}"}
 
     # TODO: Invoke teleport orchestration + GlyphPush if required
-    print(f"🛰 Teleporting {source_id} → {target_id} via {direction}")
+    print(f"🛰 Teleporting {source_id} -> {target_id} via {direction}")
     return {"status": "ok", "source": source_id, "target": target_id}

@@ -1,5 +1,5 @@
 """
-🌐 Codex Runtime Resonance Coupling — Phase 48A
+🌐 Codex Runtime Resonance Coupling - Phase 48A
 ------------------------------------------------
 Bridges Aion's reasonfield output into the Symatics Algebra runtime.
 Translates reasoning tensors into quantum-field coefficients usable by QQC.
@@ -59,7 +59,7 @@ def translate_to_symatics(reason_state: dict) -> dict:
 # 💾  Export Cycle
 #───────────────────────────────────────────────
 def runtime_coupling_cycle() -> dict:
-    """Perform ReasonField → Symatics Algebra translation."""
+    """Perform ReasonField -> Symatics Algebra translation."""
     if not REASON_PATH.exists():
         raise FileNotFoundError(f"Missing reasonfield: {REASON_PATH}")
 
@@ -68,7 +68,7 @@ def runtime_coupling_cycle() -> dict:
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(sym_packet, open(OUT_PATH, "w"), indent=2)
-    logger.info(f"[CodexRuntime] Exported Symatics packet → {OUT_PATH}")
+    logger.info(f"[CodexRuntime] Exported Symatics packet -> {OUT_PATH}")
     return sym_packet
 
 

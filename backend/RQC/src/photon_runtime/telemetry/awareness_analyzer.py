@@ -1,13 +1,13 @@
 # backend/RQC/src/photon_runtime/telemetry/awareness_analyzer.py
 """
-Tessaris RQC — Awareness Cascade Analyzer
+Tessaris RQC - Awareness Cascade Analyzer
 ────────────────────────────────────────────
 Monitors the Morphic Ledger for cascaded Φ awareness patterns.
 
 Detects:
-    • Meta-awareness (Φ > 0.95 sustained)
-    • Coherence decay → recovery loops
-    • Cascade chains (length ≥ 3)
+    * Meta-awareness (Φ > 0.95 sustained)
+    * Coherence decay -> recovery loops
+    * Cascade chains (length >= 3)
 
 Outputs rolling summaries and can trigger CodexTrace alerts.
 """
@@ -69,7 +69,7 @@ class AwarenessCascadeAnalyzer:
     # ──────────────────────────────────────
     async def monitor(self, interval: float = 2.0):
         """Continuously watch ledger and analyze awareness cascades."""
-        print("🧠 Tessaris RQC — Awareness Cascade Analyzer running...")
+        print("🧠 Tessaris RQC - Awareness Cascade Analyzer running...")
         while True:
             new_entries = self._read_new_entries()
             for e in new_entries:

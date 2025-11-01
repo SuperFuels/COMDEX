@@ -1,5 +1,5 @@
 """
-Glyph-Math Core — Base-120 Quantized Symbolic Arithmetic
+Glyph-Math Core - Base-120 Quantized Symbolic Arithmetic
 ──────────────────────────────────────────────────────────────
 Used by Photon Encoder v2 for symbolic telemetry compression.
 Implements base-120 quantization and symbolic arithmetic.
@@ -12,7 +12,7 @@ GLYPH_BANDS = (
 BANDS = len(GLYPH_BANDS)
 
 def quantize(value: float, bands=BANDS) -> str:
-    """Quantize a float (0–1) into a symbolic glyph band."""
+    """Quantize a float (0-1) into a symbolic glyph band."""
     if value is None:
         return "∅"
     try:
@@ -23,21 +23,21 @@ def quantize(value: float, bands=BANDS) -> str:
         return "∅"
 
 def add(a: str, b: str) -> str:
-    """⊕ — Symbolic addition (midpoint)."""
+    """⊕ - Symbolic addition (midpoint)."""
     ai, bi = GLYPH_BANDS.find(a), GLYPH_BANDS.find(b)
     if ai < 0 or bi < 0:
         return "∅"
     return GLYPH_BANDS[(ai + bi) // 2]
 
 def multiply(a: str, b: str) -> str:
-    """⟲ — Symbolic resonance (cyclic multiply)."""
+    """⟲ - Symbolic resonance (cyclic multiply)."""
     ai, bi = GLYPH_BANDS.find(a), GLYPH_BANDS.find(b)
     if ai < 0 or bi < 0:
         return "∅"
     return GLYPH_BANDS[(ai + bi) % BANDS]
 
 def collapse(glyph: str) -> float:
-    """μ — Collapse glyph back to float (0–1 range)."""
+    """μ - Collapse glyph back to float (0-1 range)."""
     if glyph not in GLYPH_BANDS:
         return 0.0
     return GLYPH_BANDS.index(glyph) / (BANDS - 1)
@@ -45,7 +45,7 @@ def collapse(glyph: str) -> float:
 def encode_time(timestamp) -> str:
     """Convert timestamp to short symbolic form."""
     try:
-        return f"𝜏{int(float(timestamp)) % 100000}"
+        return f"τ{int(float(timestamp)) % 100000}"
     except Exception:
         return "∅"
 
@@ -57,7 +57,7 @@ def parse_glyph(expr):
     try:
         parts = expr.split("=")
         if len(parts) < 2:
-            # Fallback → treat single token as neutral ψ–κ pair
+            # Fallback -> treat single token as neutral ψ-κ pair
             return {"ψ": 0.0, "κ": 0.0, "expr": expr}
         key, val = parts[0].strip(), float(parts[1])
         return {key: val}

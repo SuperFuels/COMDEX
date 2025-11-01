@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 📜 RuleBookStreamer — Reflex Micro-Rule Evaluation Layer (R5)
+# 📜 RuleBookStreamer - Reflex Micro-Rule Evaluation Layer (R5)
 # ================================================================
 # Streams rule atoms for a given action/context pair and tags
 # potential violations based on simple symbolic heuristics.

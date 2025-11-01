@@ -8,7 +8,7 @@ Heuristics (simple, robust):
 - missing dependency names in `depends_on` that do not exist in the same container
 - any proof node with flags like {"admitted": true} or "proof_status": "incomplete"
 - entries with empty/placeholder logic strings
-- “TODO/???/admit” markers inside logic_raw/logic fields
+- "TODO/???/admit" markers inside logic_raw/logic fields
 """
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple, Set

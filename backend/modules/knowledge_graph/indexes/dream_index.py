@@ -1,5 +1,5 @@
 """
-🌙 Dream Index — Symbolic Introspection Layer
+🌙 Dream Index - Symbolic Introspection Layer
 ------------------------------------------------------------
 Design Rubric:
 - 🔁 Deduplication Logic ............ ✅

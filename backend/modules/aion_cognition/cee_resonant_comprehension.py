@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧠 AION Resonant Comprehension — Phase 18 (Concept Linkage Layer)
+# 🧠 AION Resonant Comprehension - Phase 18 (Concept Linkage Layer)
 # ================================================================
 """
-This module extends AION’s cognitive framework beyond lexical recall,
+This module extends AION's cognitive framework beyond lexical recall,
 introducing phase-level comprehension and contextual resonance.
 
 Functions:
-  • train_phrase_associations() — build concept-pair resonance from lemmas
-  • measure_context_resonance() — compute SQI for multi-word contexts
-  • reinforce_emotive_field() — encode affective tone and contextual emotion
+  * train_phrase_associations() - build concept-pair resonance from lemmas
+  * measure_context_resonance() - compute SQI for multi-word contexts
+  * reinforce_emotive_field() - encode affective tone and contextual emotion
 
 Dependencies:
   - cee_lex_memory (for lemma recall)
@@ -61,7 +61,7 @@ def train_phrase_associations(phrases: List[str]) -> List[Dict]:
 def measure_context_resonance(context: str) -> float:
     """
     Compute average contextual SQI for a given sentence or phrase.
-    This measures how semantically coherent the phrase is within AION’s field.
+    This measures how semantically coherent the phrase is within AION's field.
     """
     tokens = context.lower().split()
     if len(tokens) < 2:
@@ -76,7 +76,7 @@ def measure_context_resonance(context: str) -> float:
         count += 1
 
     avg_sqi = round(total_sqi / max(count, 1), 3)
-    log.info(f"[ContextResonance] Context='{context}' → SQI={avg_sqi}")
+    log.info(f"[ContextResonance] Context='{context}' -> SQI={avg_sqi}")
     return avg_sqi
 
 # ================================================================

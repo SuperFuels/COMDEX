@@ -108,10 +108,10 @@ def _dream_payload_variants(tokens: List[Dict[str, Any]], k: int) -> List[Dict[s
     # Pattern-ish tweaks
     recipes = [
         lambda s: s + " ✦",                   # add milestone
-        lambda s: s.replace("↔", "→ ↔"),      # insert trigger before eq
+        lambda s: s.replace("↔", "-> ↔"),      # insert trigger before eq
         lambda s: "∇ " + s,                   # prepend numeric probe
         lambda s: s + " ⟲",                   # mutate end
-        lambda s: s.replace("→", "→ ✦"),      # trigger then milestone
+        lambda s: s.replace("->", "-> ✦"),      # trigger then milestone
     ]
     for i in range(max(1, int(k))):
         f = recipes[i % len(recipes)]

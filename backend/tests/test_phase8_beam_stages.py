@@ -5,7 +5,7 @@ from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
 @pytest.mark.asyncio
 async def test_phase8_beam_stages_present():
     qpu = CodexVirtualQPU()
-    cells = [GlyphCell(id="s0", logic="⊕ ∇ ↔ ⟲ → ✦", position=[0,0])]
+    cells = [GlyphCell(id="s0", logic="⊕ ∇ ↔ ⟲ -> ✦", position=[0,0])]
     ctx = {"container_id": "phase8_stages", "benchmark_silent": True, "batch_collapse": True}
     await qpu.execute_sheet(cells, ctx)
     beams = getattr(cells[0], "wave_beams", [])

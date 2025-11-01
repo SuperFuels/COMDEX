@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Test Suite — Symatics Dispatcher Law Integration
+Test Suite - Symatics Dispatcher Law Integration
 ────────────────────────────────────────────────────
 Verifies that:
-  • evaluate_symatics_expr() calls SR.check_all_laws()
-  • The result includes a structured 'law_check' dict
-  • The summary and violation fields behave as expected
+  * evaluate_symatics_expr() calls SR.check_all_laws()
+  * The result includes a structured 'law_check' dict
+  * The summary and violation fields behave as expected
 """
 
 import pytest

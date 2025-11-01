@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Photon Algebra Evaluation (PAEV)
-Unified Test 3 Suite — μ / π Stability and Collapse Experiments
+Unified Test 3 Suite - μ / π Stability and Collapse Experiments
 ---------------------------------------------------------------
 Runs all PAEV Test 3 variants:
  - 3μ : Phase noise sweep
@@ -26,7 +26,7 @@ os.makedirs("docs/theory/tables", exist_ok=True)
 print("⚙️ Running unified PAEV Test 3 suite...")
 
 # ================================================================
-# TEST 3μ — PHASE NOISE SWEEP
+# TEST 3μ - PHASE NOISE SWEEP
 # ================================================================
 def test_mu_noise():
     sigmas = [0.0, 0.2, 0.5, 1.0]
@@ -42,7 +42,7 @@ def test_mu_noise():
     return np.array(sigmas), np.array(V)
 
 # ================================================================
-# TEST 3π — RETROSPECTIVE π-SWEEP
+# TEST 3π - RETROSPECTIVE π-SWEEP
 # ================================================================
 def test_pi_sweep():
     phases = [1, 2, 4, 8, 16]
@@ -57,7 +57,7 @@ def test_pi_sweep():
     return np.array(phases), np.array(V)
 
 # ================================================================
-# TEST 3π-DC — DELAYED CHOICE
+# TEST 3π-DC - DELAYED CHOICE
 # ================================================================
 def test_delayed_choice():
     H = W = 512
@@ -71,7 +71,7 @@ def test_delayed_choice():
     return np.array([1, 16]), np.array([V_before, V_after])
 
 # ================================================================
-# TEST 3π-TE — TAG + ERASER
+# TEST 3π-TE - TAG + ERASER
 # ================================================================
 def test_tag_eraser():
     W = 1024
@@ -89,16 +89,16 @@ def test_tag_eraser():
 # ================================================================
 # EXECUTION + AGGREGATION
 # ================================================================
-print("→ Running 3μ noise sweep...")
+print("-> Running 3μ noise sweep...")
 sigma, V_mu = test_mu_noise()
 
-print("→ Running 3π sweep...")
+print("-> Running 3π sweep...")
 pi, V_pi = test_pi_sweep()
 
-print("→ Running 3π delayed choice...")
+print("-> Running 3π delayed choice...")
 pi_dc, V_dc = test_delayed_choice()
 
-print("→ Running 3π tag eraser...")
+print("-> Running 3π tag eraser...")
 labels_te, V_te = test_tag_eraser()
 
 # ================================================================
@@ -126,25 +126,25 @@ plt.subplot(2, 2, 1)
 plt.plot(sigma, V_mu, marker="o")
 plt.xlabel("Phase noise σ")
 plt.ylabel("Visibility V")
-plt.title("3μ — Phase Noise Sweep")
+plt.title("3μ - Phase Noise Sweep")
 plt.grid(True, alpha=0.3)
 
 plt.subplot(2, 2, 2)
 plt.plot(pi, V_pi, marker="o")
 plt.xlabel("π_spatial")
 plt.ylabel("Visibility V")
-plt.title("3π — Retrospective Sweep")
+plt.title("3π - Retrospective Sweep")
 plt.grid(True, alpha=0.3)
 
 plt.subplot(2, 2, 3)
 plt.bar(["Before", "After"], V_dc, color=["#4caf50", "#e91e63"])
 plt.ylabel("Visibility V")
-plt.title("3π — Delayed Choice")
+plt.title("3π - Delayed Choice")
 
 plt.subplot(2, 2, 4)
 plt.bar(labels_te, V_te, color=["#2196f3", "#ff9800", "#9c27b0"])
 plt.ylabel("Visibility V")
-plt.title("3π — Tag Eraser")
+plt.title("3π - Tag Eraser")
 
 plt.tight_layout()
 plt.savefig("docs/theory/figures/PAEV_Test3_Summary.png", dpi=300)

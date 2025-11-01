@@ -5,10 +5,10 @@ Bidirectional interface connecting Aion's symbolic cognition with the
 Quantum Quad Core (QQC) photonic runtime.
 
 Responsible for:
- • Uploading Aion state tensors (tone, habit, resonance)
- • Receiving QQC-computed coherence / drift vectors
- • Managing .atom state sheets for persistence
- • Maintaining QQC tensor schema for interoperability
+ * Uploading Aion state tensors (tone, habit, resonance)
+ * Receiving QQC-computed coherence / drift vectors
+ * Managing .atom state sheets for persistence
+ * Maintaining QQC tensor schema for interoperability
 """
 
 import json, time, logging
@@ -34,15 +34,15 @@ for sheet in ["habits.atom", "goals.atom", "resonance.atom"]:
 # 🧩 QQC Tensor Schema Mapping (Phase 46A)
 # ──────────────────────────────────────────────
 TENSOR_SCHEMA = {
-    "tone": "float ∈ [0,1] — emotional resonance amplitude",
-    "bias.depth": "float — reasoning intensity bias",
-    "bias.exploration": "float — exploratory variance",
-    "bias.phase": "float — phase alignment for feedback loop",
-    "resonance": "float — global field coherence (ρ)",
-    "timestamp": "float — Unix time",
-    "coherence": "float — QQC field coherence metric",
-    "stability": "float — drift stability coefficient",
-    "drift": "float — delta change since last coupling"
+    "tone": "float ∈ [0,1] - emotional resonance amplitude",
+    "bias.depth": "float - reasoning intensity bias",
+    "bias.exploration": "float - exploratory variance",
+    "bias.phase": "float - phase alignment for feedback loop",
+    "resonance": "float - global field coherence (ρ)",
+    "timestamp": "float - Unix time",
+    "coherence": "float - QQC field coherence metric",
+    "stability": "float - drift stability coefficient",
+    "drift": "float - delta change since last coupling"
 }
 
 # Persist schema for downstream inspection
@@ -51,7 +51,7 @@ SCHEMA_PATH.parent.mkdir(parents=True, exist_ok=True)
 try:
     with open(SCHEMA_PATH, "w", encoding="utf-8") as f:
         json.dump(TENSOR_SCHEMA, f, indent=2)
-    logger.info(f"[Aion↔QQC] Tensor schema exported → {SCHEMA_PATH}")
+    logger.info(f"[Aion↔QQC] Tensor schema exported -> {SCHEMA_PATH}")
 except Exception as e:
     logger.warning(f"[Aion↔QQC] Could not export tensor schema: {e}")
 
@@ -67,7 +67,7 @@ def upload_state(state: Dict[str, Any], tag: str = "default") -> Path:
     out_path = STATE_ROOT / f"{tag}_{ts}.atom"
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
-    logger.info(f"[Aion↔QQC] Uploaded {len(state)} keys → {out_path}")
+    logger.info(f"[Aion↔QQC] Uploaded {len(state)} keys -> {out_path}")
     return out_path
 
 
@@ -79,7 +79,7 @@ def download_state(tag: str = "latest") -> Dict[str, Any]:
         latest = sorted(STATE_ROOT.glob("*.atom"))[-1]
         with open(latest, "r", encoding="utf-8") as f:
             data = json.load(f)
-        logger.info(f"[Aion↔QQC] Downloaded tensor state ← {latest.name}")
+        logger.info(f"[Aion↔QQC] Downloaded tensor state <- {latest.name}")
         return data
     except Exception as e:
         logger.warning(f"[Aion↔QQC] No state found ({e})")
@@ -88,7 +88,7 @@ def download_state(tag: str = "latest") -> Dict[str, Any]:
 
 def exchange_cycle(aion_state: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Full upload→compute→return cycle (Phase 46 mock).
+    Full upload->compute->return cycle (Phase 46 mock).
     Later replaced with photonic resonance translation.
     """
     upload_state(aion_state)
@@ -101,7 +101,7 @@ def exchange_cycle(aion_state: Dict[str, Any]) -> Dict[str, Any]:
     }
     out_path = STATE_ROOT / "qqc_return.atom"
     json.dump(result, open(out_path, "w"), indent=2)
-    logger.info(f"[Aion↔QQC] Completed mock exchange → {out_path}")
+    logger.info(f"[Aion↔QQC] Completed mock exchange -> {out_path}")
     return result
 
 

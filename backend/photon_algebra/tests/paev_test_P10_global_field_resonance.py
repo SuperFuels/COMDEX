@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==========================================================
-# P10j — Terminal Phase Convergence (Bias Reinforcement + Adaptive Decay)
+# P10j - Terminal Phase Convergence (Bias Reinforcement + Adaptive Decay)
 # ==========================================================
 
 np.random.seed(13)
@@ -138,7 +138,7 @@ for i in range(M):
 plt.plot(np.unwrap(np.angle(np.exp(1j * phi).mean(axis=0))),
          "k--", label="Global Mean")
 plt.axvline(PERT_TIME, color="purple", linestyle="--", label="Perturbation")
-plt.title("P10j — Global Resonance Phase Evolution (Terminal Convergence)")
+plt.title("P10j - Global Resonance Phase Evolution (Terminal Convergence)")
 plt.xlabel("time step"); plt.ylabel("phase")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_P10j_GlobalField_PhaseEvolution.png")
@@ -151,7 +151,7 @@ plt.plot((Kglob_hist - K_global_min) / (K_global_max - K_global_min),
 plt.plot(align_gain_hist / np.max(align_gain_hist),
          "orange", linestyle=":", alpha=0.8, label="scaled κ_align")
 plt.axvline(PERT_TIME, color="purple", linestyle="--", label="Perturbation")
-plt.title("P10j — Order Parameter R(t) & Adaptive Phase Convergence")
+plt.title("P10j - Order Parameter R(t) & Adaptive Phase Convergence")
 plt.xlabel("time step"); plt.ylabel("Normalized Value")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_P10j_GlobalField_OrderParameter.png")
@@ -189,8 +189,8 @@ results = {
 with open("backend/modules/knowledge/P10j_global_phase_convergence.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== P10j — Terminal Phase Convergence ===")
+print("=== P10j - Terminal Phase Convergence ===")
 print(f"R_tail_mean={R_tail_mean:.3f} | lock_R={lock_ratio_R:.2f} | "
       f"lock_phi={lock_ratio_phi:.2f} | slope={R_tail_slope:.2e} | re-lock={relock}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/P10j_global_phase_convergence.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/P10j_global_phase_convergence.json")

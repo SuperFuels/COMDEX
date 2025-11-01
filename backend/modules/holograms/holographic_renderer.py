@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Holographic Renderer (HQCE-Ready)
+#  Tessaris * Holographic Renderer (HQCE-Ready)
 #  Integrates live GHX rendering + coherence overlay (Stage 4)
 # ──────────────────────────────────────────────
 
@@ -31,16 +31,16 @@ try:
     from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
 except Exception:
     def send_codex_ws_event(event_type: str, payload: dict):
-        print(f"[Fallback HUD] {event_type} → {json.dumps(payload)}")
+        print(f"[Fallback HUD] {event_type} -> {json.dumps(payload)}")
 
 logger = logging.getLogger(__name__)
 
 
 # ──────────────────────────────────────────────
-#  HQCE Stage 4 — Coherence Overlay Extension
+#  HQCE Stage 4 - Coherence Overlay Extension
 # ──────────────────────────────────────────────
 def map_coherence_to_color(value: float) -> str:
-    """Map coherence ∈[0,1] → color gradient (blue→white→gold)."""
+    """Map coherence ∈[0,1] -> color gradient (blue->white->gold)."""
     if value < 0.5:
         return f"rgb({int(0)}, {int(128 + value * 255)}, {int(255)})"
     else:
@@ -221,7 +221,7 @@ class HolographicRenderer:
     def update_visual_intensity(self):
         """
         Adjust color and brightness based on coherence.
-        Maps coherence → hue (violet→white) and alpha (transparency).
+        Maps coherence -> hue (violet->white) and alpha (transparency).
         """
         if not hasattr(self, "field_coherence_map"):
             self.compute_field_coherence_map()

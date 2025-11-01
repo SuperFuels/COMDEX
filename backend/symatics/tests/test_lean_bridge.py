@@ -3,10 +3,10 @@
 Tessaris Lean Bridge Integration Test
 -------------------------------------
 Validates the orchestration of:
-  • parsing Lean proof files
-  • verifying proofs
-  • exporting Codex theorem ledger
-  • generating runtime summary for SRK-8
+  * parsing Lean proof files
+  * verifying proofs
+  * exporting Codex theorem ledger
+  * generating runtime summary for SRK-8
 """
 
 import json

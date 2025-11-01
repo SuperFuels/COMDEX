@@ -15,7 +15,7 @@ class DriftGap:
     name: str
     reason: str
     missing: List[str] = field(default_factory=list)
-    weight: float = 1.0     # how “big” the gap feels
+    weight: float = 1.0     # how "big" the gap feels
     hints: List[str] = field(default_factory=list)
 
 @dataclass

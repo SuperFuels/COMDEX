@@ -39,7 +39,7 @@ def _ingest_kg_event(payload: dict) -> None:
         from backend.modules.knowledge_graph.knowledge_bus_adapter import ingest_bus_event
         ingest_bus_event(payload)
     except Exception:
-        # Knowledge bus not wired yet – ignore silently
+        # Knowledge bus not wired yet - ignore silently
         pass
 
 
@@ -57,10 +57,10 @@ def log_qglyph_resolution(
     Stores to memory engine and console log.
 
     Upgrades:
-      • Adds iso_time
-      • Best-effort broadcast over glyphnet_ws (if available)
-      • Writes a normalized KnowledgeIndex event (if adapter available)
-      • Safe GHX trace hook (guarded by ENABLE_GLYPH_LOGGING)
+      * Adds iso_time
+      * Best-effort broadcast over glyphnet_ws (if available)
+      * Writes a normalized KnowledgeIndex event (if adapter available)
+      * Safe GHX trace hook (guarded by ENABLE_GLYPH_LOGGING)
     """
     timestamp = int(time.time())
     iso_time = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
@@ -83,7 +83,7 @@ def log_qglyph_resolution(
 
     # Console log for monitoring (original behavior)
     logger.info(
-        f"[QGlyph Collapse] ID: {qglyph_id} by {observer_id or 'Unknown'} → {chosen_path} "
+        f"[QGlyph Collapse] ID: {qglyph_id} by {observer_id or 'Unknown'} -> {chosen_path} "
         f"(L:{bias_score_left:.2f}, R:{bias_score_right:.2f}) Reason: {reason}"
     )
 

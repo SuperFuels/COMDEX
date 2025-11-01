@@ -23,7 +23,7 @@ def register_dummy_instructions():
     register_instruction("logic:⊕", DummyInstr("logic:⊕"))
     register_instruction("logic:↔", DummyInstr("logic:↔"))
     yield
-    # no teardown needed — safe to persist
+    # no teardown needed - safe to persist
 
 
 # --- Tests ---

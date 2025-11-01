@@ -88,7 +88,7 @@ def boot():
     global _boot_done
     with _boot_lock:
         if _boot_done:
-            print("[boot_loader] ⏩ Boot sequence already completed — skipping re-run.")
+            print("[boot_loader] ⏩ Boot sequence already completed - skipping re-run.")
             return
 
         print("[boot_loader] 🚀 Starting boot sequence...")
@@ -153,7 +153,7 @@ def load_seed_containers():
     try:
         print("✅ Seed boot complete:", ucs_runtime.debug_state())
     except Exception:
-        # if debug_state() doesn’t exist, this won’t crash boot
+        # if debug_state() doesn't exist, this won't crash boot
         pass
 
 # -----------------------------------------------------------------------------
@@ -164,7 +164,7 @@ BOOTLOADER_FILE = os.path.join(BASE_DIR, "matrix_bootloader.json")
 MEMORY_FILE = os.path.join(BASE_DIR, "aion_memory.json")
 
 # This file lives at backend/modules/hexcore/boot_loader.py
-# parents[0]=hexcore, [1]=modules, [2]=backend  → anchor here.
+# parents[0]=hexcore, [1]=modules, [2]=backend  -> anchor here.
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 # Domain seed & save locations (first that exists wins)
@@ -276,13 +276,13 @@ def load_boot_goals():
     save_json(MEMORY_FILE, updated_memory)
 
     if not new_entries and promoted_count == 0:
-        print("ℹ️ No new bootloader skills added or promoted. Memory is up to date.")
+        print("i️ No new bootloader skills added or promoted. Memory is up to date.")
 
 # -----------------------------------------------------------------------------
-# Seed resolution & persistence helpers — ensure domain packs survive restarts
+# Seed resolution & persistence helpers - ensure domain packs survive restarts
 # -----------------------------------------------------------------------------
 def _resolve_dc_seed_path(container_id: str) -> Optional[Path]:
-    """Find a seed .dc.json by ID, with debug so we see what’s happening."""
+    """Find a seed .dc.json by ID, with debug so we see what's happening."""
     filename = f"{container_id}.dc.json"
     tried = []
     for d in DOMAIN_SEED_DIRS:
@@ -290,15 +290,15 @@ def _resolve_dc_seed_path(container_id: str) -> Optional[Path]:
         tried.append(str(p))
         if p.exists():
             return p
-    print(f"ℹ️ seed not found for {container_id}. Tried:\n  - " + "\n  - ".join(tried))
+    print(f"i️ seed not found for {container_id}. Tried:\n  - " + "\n  - ".join(tried))
     return None
 
 def _get_saved_dc_path(container_id: str) -> Path:
-    """Where we persist domain packs we’ve loaded."""
+    """Where we persist domain packs we've loaded."""
     return DOMAIN_SAVE_DIR / f"{container_id}.dc.json"
 
 def save_domain_pack_to_disk(container: Dict[str, Any]) -> Optional[Path]:
-    """Persist a container dict to disk so it’s available at next boot."""
+    """Persist a container dict to disk so it's available at next boot."""
     if not container or not isinstance(container, dict):
         return None
     cid = container.get("id") or container.get("name")
@@ -346,7 +346,7 @@ def load_container_from_disk(container_id: str) -> Optional[Dict[str, Any]]:
     return ucs_runtime.get_container(container_id)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Generic DC → KG ingest (fallback path used when no domain-specific handler)
+# Generic DC -> KG ingest (fallback path used when no domain-specific handler)
 # ─────────────────────────────────────────────────────────────────────────────
 def _ingest_dc_into_kg(container: Dict[str, Any]) -> int:
     """
@@ -374,7 +374,7 @@ def _ingest_dc_into_kg(container: Dict[str, Any]) -> int:
                 kg_writer.add_edge(src, dst, rel)
                 injected += 1
     except Exception as e:
-        print(f"⚠️ Generic DC→KG ingest failed: {e}")
+        print(f"⚠️ Generic DC->KG ingest failed: {e}")
     return injected
 
 
@@ -443,7 +443,7 @@ def preload_and_persist_domain_pack(container_id: str) -> bool:
         container = load_container_from_disk(container_id)
 
     if not container or not (container.get("nodes") or container.get("links")):
-        print(f"ℹ️ Domain '{container_id}' not found on disk or seed; skipping.")
+        print(f"i️ Domain '{container_id}' not found on disk or seed; skipping.")
         return False
 
     # 2) Persist to disk (snap current UCS state)
@@ -452,7 +452,7 @@ def preload_and_persist_domain_pack(container_id: str) -> bool:
     # 3) Push into KG
     handled = False
     try:
-        # Attach so glyphs land in this container’s space when possible
+        # Attach so glyphs land in this container's space when possible
         try:
             kg_writer.attach_container(container)
         except Exception:
@@ -522,7 +522,7 @@ def preload_all_domain_packs():
     _apply_cross_links_last()
 
     if not any_handled:
-        print("ℹ️ No domain packs were handled this boot (nothing found).")
+        print("i️ No domain packs were handled this boot (nothing found).")
 
 
 # -----------------------------------------------------------------------------
@@ -548,7 +548,7 @@ def load_domain_packs_into_kg():
         try:
             container = ucs_runtime.get_container(domain)
             if not (container and (container.get("nodes") or container.get("links"))):
-                print(f"ℹ️ KG: {domain} not present in UCS yet; skipping KG load.")
+                print(f"i️ KG: {domain} not present in UCS yet; skipping KG load.")
                 continue
 
             # Make KG writer drop glyphs into the same container

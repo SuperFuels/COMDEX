@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Morphic Ledger (HQCE Stage 8)
-#  Append-only runtime ledger for ψ–κ–T tensors
+#  Tessaris * Morphic Ledger (HQCE Stage 8)
+#  Append-only runtime ledger for ψ-κ-T tensors
 #  Records coherence, entropy, stability per tick
 #  Supports both JSONL and SQLite backends
 #  Extended for trend analysis + vault signing
@@ -55,7 +55,7 @@ class MorphicLedger:
             except Exception as e:
                 logger.warning(f"[MorphicLedger] SQLite unavailable: {e}. Falling back to JSONL.")
 
-        logger.info(f"[MorphicLedger] Session initialized → {self.ledger_path}")
+        logger.info(f"[MorphicLedger] Session initialized -> {self.ledger_path}")
 
     # ──────────────────────────────────────────────
     #  JSONL Append Path
@@ -263,7 +263,7 @@ class MorphicLedger:
                     continue
                 try:
                     rec = json.loads(line)
-                    # Normalize escaped Greek keys → plain symbols
+                    # Normalize escaped Greek keys -> plain symbols
                     norm = {
                         "timestamp": rec.get("timestamp"),
                         "Φ": rec.get("Φ", rec.get("\u03a6")),
@@ -313,7 +313,7 @@ class MorphicLedger:
     # ──────────────────────────────────────────────
     def trend_summary(self, window: int = 20) -> Dict[str, Any]:
         """
-        Compute mean & variance of ψ–κ–T–C values over the last N entries.
+        Compute mean & variance of ψ-κ-T-C values over the last N entries.
         Useful for runtime dashboards, stability telemetry, and coherence tracking.
         """
         entries = self.load_all()[-window:]
@@ -340,7 +340,7 @@ class MorphicLedger:
             "last_timestamp": entries[-1]["timestamp"],
         }
 
-        logger.debug(f"[MorphicLedger] Trend summary → {summary}")
+        logger.debug(f"[MorphicLedger] Trend summary -> {summary}")
         return summary
 
     # ──────────────────────────────────────────────
@@ -373,14 +373,14 @@ class MorphicLedger:
             entries = self.load_all()
             with open(output_path, "w", encoding="utf-8") as f:
                 json.dump(entries, f, indent=2)
-            logger.info(f"[MorphicLedger] Exported {len(entries)} records → {output_path}")
+            logger.info(f"[MorphicLedger] Exported {len(entries)} records -> {output_path}")
             return output_path
         except Exception as e:
             logger.error(f"[MorphicLedger] Export failed: {e}")
             return ""
 
     # ──────────────────────────────────────────────
-    #  Knowledge-Graph Integration (Stage 12 → 13)
+    #  Knowledge-Graph Integration (Stage 12 -> 13)
     # ──────────────────────────────────────────────
     def link_to_graph(self, node_id: str, relation: str = "origin") -> None:
         """
@@ -394,7 +394,7 @@ class MorphicLedger:
         try:
             with open(self.ledger_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps({"update_link": latest["id"], "node_id": node_id}) + "\n")
-            logger.debug(f"[MorphicLedger] Linked {latest['id']} → {node_id}")
+            logger.debug(f"[MorphicLedger] Linked {latest['id']} -> {node_id}")
         except Exception as e:
             logger.warning(f"[MorphicLedger] Link write failed: {e}")
 
@@ -423,10 +423,10 @@ class MorphicLedger:
             mod.morphic_ledger.ledger_path = self.ledger_path
             mod.morphic_ledger._test_override = True
             if getattr(self, "enable_logging", True):
-                print(f"[MorphicLedger] 🔄 Global instance path synchronized → {self.ledger_path}")
+                print(f"[MorphicLedger] 🔄 Global instance path synchronized -> {self.ledger_path}")
 
         if getattr(self, "enable_logging", True):
-            print(f"[MorphicLedger] ⚠️ Path override → {self.ledger_path}")
+            print(f"[MorphicLedger] ⚠️ Path override -> {self.ledger_path}")
 
     def record(self, data: Optional[Dict[str, Any]] = None, path: Optional[str] = None) -> str:
         """
@@ -441,7 +441,7 @@ class MorphicLedger:
             f.write("\n")
 
         if getattr(self, "enable_logging", True):
-            print(f"[MorphicLedger] 🧪 Test record appended → {target}")
+            print(f"[MorphicLedger] 🧪 Test record appended -> {target}")
         return target
 
     # ──────────────────────────────────────────────
@@ -532,13 +532,13 @@ class MorphicLedger:
         plt.grid(True)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         plt.savefig(output_path)
-        logger.info(f"[ΦPlot] Saved Φ-awareness trend → {output_path}")
+        logger.info(f"[ΦPlot] Saved Φ-awareness trend -> {output_path}")
 
     # ──────────────────────────────────────────────
-    #  Stage 12 • QFC Bridge Synchronization Layer
+    #  Stage 12 * QFC Bridge Synchronization Layer
     # ──────────────────────────────────────────────
     async def broadcast_qfc_update(self, payload: Dict[str, Any]) -> None:
-        """Asynchronously broadcast Φ–ψ resonance data to Quantum Field Controller."""
+        """Asynchronously broadcast Φ-ψ resonance data to Quantum Field Controller."""
         try:
             import asyncio, json
             await asyncio.sleep(0.01)
@@ -547,7 +547,7 @@ class MorphicLedger:
                 "payload": payload,
                 "timestamp": time.time(),
             })
-            print(f"[QFC↗] Broadcast resonance packet → {msg[:100]}…")
+            print(f"[QFC↗] Broadcast resonance packet -> {msg[:100]}...")
         except Exception as e:
             logger.warning(f"[QFCBridge] Broadcast failed: {e}")
 
@@ -561,11 +561,11 @@ class MorphicLedger:
             asyncio.run(coro_func(*args, **kwargs))
 
     def compute_resonance_coupling(self, window: int = 100) -> Dict[str, Any]:
-        """Analyze Φ–ψ coupling and emit live QFC resonance packet."""
+        """Analyze Φ-ψ coupling and emit live QFC resonance packet."""
         import math, statistics
         entries = self.get_phi_history(window)
         if not entries or len(entries) < 3:
-            logger.warning("[ΦΨResonance] Not enough Φ–ψ data points.")
+            logger.warning("[ΦΨResonance] Not enough Φ-ψ data points.")
             return {"count": 0}
 
         Φ_vals = [e.get("Φ", 0.0) for e in entries]
@@ -620,7 +620,7 @@ class MorphicLedger:
             import matplotlib.pyplot as plt
             entries = self.get_phi_history(200)
             if not entries:
-                logger.warning("[ΦΨPlot] No Φ–ψ history to plot.")
+                logger.warning("[ΦΨPlot] No Φ-ψ history to plot.")
                 return None
 
             t = [e["timestamp"] for e in entries]
@@ -630,7 +630,7 @@ class MorphicLedger:
             plt.figure(figsize=(8, 4))
             plt.plot(t, Φ_vals, label="Φ (awareness)", linestyle="-", marker="o")
             plt.plot(t, ψ_vals, label="ψ (wave field)", linestyle="--", marker="x")
-            plt.title("Φ–ψ Resonance Coupling Over Time")
+            plt.title("Φ-ψ Resonance Coupling Over Time")
             plt.xlabel("Timestamp")
             plt.ylabel("Field Values")
             plt.legend()
@@ -638,10 +638,10 @@ class MorphicLedger:
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
             plt.savefig(save_path, dpi=150, bbox_inches="tight")
 
-            logger.info(f"[ΦΨPlot] Saved Φ–ψ resonance plot → {save_path}")
+            logger.info(f"[ΦΨPlot] Saved Φ-ψ resonance plot -> {save_path}")
             return save_path
         except Exception as e:
-            logger.error(f"[ΦΨPlot] Failed to generate Φ–ψ plot: {e}")
+            logger.error(f"[ΦΨPlot] Failed to generate Φ-ψ plot: {e}")
             return None
 
 # ──────────────────────────────────────────────

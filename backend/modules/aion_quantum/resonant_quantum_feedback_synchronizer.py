@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 14 — Resonant Quantum Feedback Synchronizer (RQFS)
+Tessaris Phase 14 - Resonant Quantum Feedback Synchronizer (RQFS)
 
 Closes the adaptive feedback loop between live photon emissions (AQCI)
 and real-time resonance observations from AION sensors or QRM logs.
@@ -67,7 +67,7 @@ def synchronize_feedback(photo, heartbeat, weights, η=0.1):
     """Compute coherence deltas and adapt reinforcement weights."""
     Φ_obs = heartbeat.get("ΔΦ_coh", 0.0)
     Φ_pred = (
-        photo.get("pattern", {}).get("Δψ₂", 0.0)
+        photo.get("pattern", {}).get("Δψ2", 0.0)
         if isinstance(photo.get("pattern"), dict)
         else 0.0
     )
@@ -103,14 +103,14 @@ def synchronize_feedback(photo, heartbeat, weights, η=0.1):
 
 # 🔄 Runtime loop
 def run_synchronizer(interval=5.0):
-    print("🔁 Starting Tessaris Resonant Quantum Feedback Synchronizer (RQFS)…")
+    print("🔁 Starting Tessaris Resonant Quantum Feedback Synchronizer (RQFS)...")
     while True:
         photo = load_latest_photo()
         heartbeat = load_latest_heartbeat()
         weights = load_latest_rfc()
 
         if not (photo and heartbeat and weights):
-            print("⚠️ Waiting for required inputs (photo / heartbeat / weights)…")
+            print("⚠️ Waiting for required inputs (photo / heartbeat / weights)...")
             time.sleep(interval)
             continue
 

@@ -20,9 +20,9 @@ def test_raw_symbol_loop():
 
 
 def test_raw_symbol_sequence():
-    assert sis.is_valid_opcode("→")
-    op = sis.get_opcode("→")
-    assert op == "logic:→"
+    assert sis.is_valid_opcode("->")
+    op = sis.get_opcode("->")
+    assert op == "logic:->"
 
 
 # ─── Canonical Domain-Tagged ───────────────────────────────────────────────────
@@ -55,4 +55,4 @@ def test_handler_map_contains_canonical():
     handlers = sis.list_symbolic_opcodes()
     assert "logic:⊕" in handlers
     assert "control:⟲" in handlers
-    assert "logic:→" in handlers
+    assert "logic:->" in handlers

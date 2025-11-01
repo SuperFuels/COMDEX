@@ -1,12 +1,12 @@
 """-------------------------
 🧩 Tesseract Injector Module
 ----------------------------
-• Defines TesseractInjector for multi-stage compression.
-• Supports phased multi-cylinder injectors for QWave engine.
-• Adds safe fallback for null particle handling.
-• Auto-fills missing particle fields (x, y, z, mass) to prevent physics errors.
-• Integrates CompressionChamber for staged intake → compression → release.
-• Used by QWave Control Panel for SQI resonance tuning and density amplification.
+* Defines TesseractInjector for multi-stage compression.
+* Supports phased multi-cylinder injectors for QWave engine.
+* Adds safe fallback for null particle handling.
+* Auto-fills missing particle fields (x, y, z, mass) to prevent physics errors.
+* Integrates CompressionChamber for staged intake -> compression -> release.
+* Used by QWave Control Panel for SQI resonance tuning and density amplification.
 """
 
 from backend.modules.dimensions.containers.symbolic_expansion_container import SymbolicExpansionContainer

@@ -1,6 +1,6 @@
 # ────────────────────────────────────────────────────────────────
 # File: backend/modules/wiki_capsules/security/safety_layer.py
-# Tessaris Phase 4 — Safety & Curation Layer
+# Tessaris Phase 4 - Safety & Curation Layer
 # ────────────────────────────────────────────────────────────────
 import os
 import hashlib

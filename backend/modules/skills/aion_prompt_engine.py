@@ -1,5 +1,5 @@
 """
-🧠 AION Prompt Engine – Identity & Skill Boot Context
+🧠 AION Prompt Engine - Identity & Skill Boot Context
 
 Design Rubric:
 - 🔁 Deduplication Logic ............ ✅

@@ -1,12 +1,12 @@
 """
-Ψ₄ — Coherence Feedback Stabilization (Tessaris)
+Ψ4 - Coherence Feedback Stabilization (Tessaris)
 Author: Tessaris Research Collective
 Date: 2025-10-09
 
 Description:
-Extends Ψ₃ by introducing adaptive coupling Γ(t, Φ) to maintain stable coherence
+Extends Ψ3 by introducing adaptive coupling Γ(t, Φ) to maintain stable coherence
 under continuous perturbations. This demonstrates feedback-regulated phase
-alignment in the photon-algebra lattice — a self-stabilizing coherence manifold.
+alignment in the photon-algebra lattice - a self-stabilizing coherence manifold.
 
 Artifacts:
     ✅ backend/modules/knowledge/Ψ4_coherence_feedback_stabilization_summary.json
@@ -100,7 +100,7 @@ for t in range(T):
 # Summary data
 summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-    "series": "Ψ₄",
+    "series": "Ψ4",
     "test_name": "coherence_feedback_stabilization",
     "constants": CONST,
     "metrics": {
@@ -115,7 +115,7 @@ summary = {
     },
     "state": "Adaptive coherence stabilization achieved",
     "notes": [
-        f"η = {η}, Γ₀ = {Γ0}, κ = {κ}",
+        f"η = {η}, Γ0 = {Γ0}, κ = {κ}",
         f"Target coherence Φ_target = {Φ_target}",
         f"Final coherence Φ = {coherence_history[-1]:.6f}",
         f"Final coupling Γ_t = {Γ_t:.3f}",
@@ -149,7 +149,7 @@ plt.plot(coherence_history, color="darkgreen", lw=2, label="Φ (Coherence)")
 plt.plot(coupling_history, color="orange", lw=1.5, label="Γ(t) (Adaptive Coupling)")
 plt.xlabel("Iteration")
 plt.ylabel("Value")
-plt.title("Ψ₄ Coherence Feedback Stabilization (Tessaris)")
+plt.title("Ψ4 Coherence Feedback Stabilization (Tessaris)")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
@@ -160,12 +160,12 @@ plt.close()
 plt.figure(figsize=(6, 5))
 plt.imshow(np.angle(ψ), cmap="twilight", interpolation="nearest")
 plt.colorbar(label="Phase (radians)")
-plt.title("Ψ₄ Phase Field (Final Snapshot)")
+plt.title("Ψ4 Phase Field (Final Snapshot)")
 plt.tight_layout()
 plt.savefig(out_dir / "Tessaris_Ψ4_CoherenceFeedback_Heatmap.png", dpi=300)
 plt.close()
 
-print(f"✅ Ψ₄ summary saved → {summary_path}")
-print(f"✅ Visualization saved → backend/modules/knowledge/Tessaris_Ψ4_CoherenceFeedback.png")
-print(f"✅ Heatmap saved → backend/modules/knowledge/Tessaris_Ψ4_CoherenceFeedback_Heatmap.png")
+print(f"✅ Ψ4 summary saved -> {summary_path}")
+print(f"✅ Visualization saved -> backend/modules/knowledge/Tessaris_Ψ4_CoherenceFeedback.png")
+print(f"✅ Heatmap saved -> backend/modules/knowledge/Tessaris_Ψ4_CoherenceFeedback_Heatmap.png")
 print(f"Ξ  Adaptive coherence feedback stabilized with Φ = {coherence_history[-1]:.6f}, Γ = {Γ_t:.3f}")

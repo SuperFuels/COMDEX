@@ -17,9 +17,9 @@ def collapse_op(a: Signature, ctx: Dict[str, Any] | None = None, **kw) -> Signat
     Converts a possibly superposed Signature into a canonicalized single state.
 
     Rules:
-      • If a.meta['superposed'] → mark as collapsed + measured
-      • Optional ctx['bias'] shifts amplitude weighting
-      • Always returns a normalized Signature (amplitude ∈ [0, 1])
+      * If a.meta['superposed'] -> mark as collapsed + measured
+      * Optional ctx['bias'] shifts amplitude weighting
+      * Always returns a normalized Signature (amplitude ∈ [0, 1])
     """
     amp = a.amplitude
     bias = kw.get("bias", 1.0)

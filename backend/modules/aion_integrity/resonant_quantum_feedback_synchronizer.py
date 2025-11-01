@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 30.2 — Resonant Quantum Feedback Synchronizer (RQFS)
+Tessaris Phase 30.2 - Resonant Quantum Feedback Synchronizer (RQFS)
 ────────────────────────────────────────────────────────────────────
 Receives adaptive bias packets from AQCI and applies live tuning to
-the system’s resonance parameters.
+the system's resonance parameters.
 
 Inbound :
-    ws://localhost:8006/ws/rqfs_feedback     ←  AQCI
+    ws://localhost:8006/ws/rqfs_feedback     <-  AQCI
 
 Outbound (optional future) :
-    ws://localhost:8002/ws/analytics         →  RAL
-    ws://localhost:8005/ws/fusion            →  TCFK
+    ws://localhost:8002/ws/analytics         ->  RAL
+    ws://localhost:8005/ws/fusion            ->  TCFK
 
 Publishes live feedback metrics for monitoring dashboards.
 """
@@ -45,7 +45,7 @@ def update_feedback(bias):
     # Apply simple model for phase/gain modulation
     feedback_state["resonant_phase"] = (
         math.sin(bias["phi_bias"]) * 0.5 + 0.5
-    )  # normalized 0–1
+    )  # normalized 0-1
     feedback_state["resonant_gain"] = 1.0 + bias["amp_bias"] * 0.2
 
     feedback_state["timestamp"] = datetime.now(timezone.utc).isoformat()
@@ -73,7 +73,7 @@ async def rqfs_ws(websocket):
         print(f"🔻 RQFS client disconnected ({len(CLIENTS)} remaining)")
 
 # ─────────────────────────────────────────────
-#  Listener for AQCI → RQFS stream
+#  Listener for AQCI -> RQFS stream
 # ─────────────────────────────────────────────
 async def listen_aqci():
     uri = "ws://localhost:8004/ws/control"
@@ -94,7 +94,7 @@ async def listen_aqci():
                             print(
                                 f"🌀 RQFS phase={new_state['resonant_phase']:.3f} "
                                 f"gain={new_state['resonant_gain']:.3f} "
-                                f"ν={bias['nu_bias']:+.4f} ϕ={bias['phi_bias']:+.4f} α={bias['amp_bias']:+.4f}"
+                                f"ν={bias['nu_bias']:+.4f} φ={bias['phi_bias']:+.4f} α={bias['amp_bias']:+.4f}"
                             )
 
                             if CLIENTS:
@@ -106,14 +106,14 @@ async def listen_aqci():
                     except Exception:
                         continue
         except Exception as e:
-            print(f"⚠️ AQCI stream error: {e}, retrying…")
+            print(f"⚠️ AQCI stream error: {e}, retrying...")
             await asyncio.sleep(3)
 
 # ─────────────────────────────────────────────
 #  Orchestration
 # ─────────────────────────────────────────────
 async def main():
-    print("🔁 Starting Resonant Quantum Feedback Synchronizer (RQFS)…")
+    print("🔁 Starting Resonant Quantum Feedback Synchronizer (RQFS)...")
     await websockets.serve(rqfs_ws, "0.0.0.0", RQFS_PORT)
     print(f"🌐 RQFS running on ws://0.0.0.0:{RQFS_PORT}/ws/rqfs_feedback")
     await listen_aqci()

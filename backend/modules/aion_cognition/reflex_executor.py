@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # ============================================================
-# ⚡ ReflexExecutor — Phase 63 Reflex–Reasoner Fusion
+# ⚡ ReflexExecutor - Phase 63 Reflex-Reasoner Fusion
 # ============================================================
 # Handles rapid micro-actions triggered by ReflexArc or sensors.
-#   • Executes or simulates reflex-scale responses.
-#   • Measures SQI / ΔΦ / entropy drift post-action.
-#   • Sends results to ReflexMemory + TessarisReasoner.
-#   • Emits Θ-pulse feedback via ResonanceHeartbeat.
-#   • (Now) Emits SCI photon capsules for reflex cognition trace
+#   * Executes or simulates reflex-scale responses.
+#   * Measures SQI / ΔΦ / entropy drift post-action.
+#   * Sends results to ReflexMemory + TessarisReasoner.
+#   * Emits Θ-pulse feedback via ResonanceHeartbeat.
+#   * (Now) Emits SCI photon capsules for reflex cognition trace
 # ============================================================
 
 import json, time, random, logging
@@ -20,7 +20,7 @@ from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbea
 from backend.modules.aion_reasoning.tessaris_reasoner import TessarisReasoner
 from backend.modules.aion_cognition.reflex_memory import ReflexMemory
 
-# ✅ SCI hook — safe fallback if overlay unavailable or in lite mode
+# ✅ SCI hook - safe fallback if overlay unavailable or in lite mode
 try:
     from backend.modules.aion_language.sci_overlay import sci_emit
 except Exception:
@@ -43,12 +43,12 @@ class ReflexExecutor:
     def execute_reflex(self, stimulus: Dict[str, Any]) -> Dict[str, Any]:
         """
         Core reflex execution cycle.
-        stimulus → micro-response → measure resonance → record feedback
+        stimulus -> micro-response -> measure resonance -> record feedback
         """
         action = stimulus.get("action", "undefined")
         intensity = float(stimulus.get("intensity", random.uniform(0.2, 0.8)))
 
-        # — Simulate reflex response
+        # - Simulate reflex response
         response_time = max(0.05, random.gauss(0.25, 0.05))
         sqi = round(max(0.0, min(1.0, 0.6 + random.uniform(-0.1, 0.1))), 3)
         delta_phi = round(random.uniform(-0.05, 0.05) * intensity, 3)
@@ -64,7 +64,7 @@ class ReflexExecutor:
             "timestamp": time.time(),
         }
 
-        # — Persist to ReflexMemory + RMC
+        # - Persist to ReflexMemory + RMC
         self.memory.record(action, stimulus, decision={"allowed": True}, outcome=result)
         self.rmc.push_sample(sqi=sqi, delta=delta_phi, entropy=entropy, source="reflex_executor")
         self.rmc.save()
@@ -79,7 +79,7 @@ class ReflexExecutor:
         except Exception:
             pass
 
-        # — Emit Θ feedback + Reasoner update
+        # - Emit Θ feedback + Reasoner update
         self.heartbeat.tick()
         self.reasoner.feedback_from_reflex(result)
 
@@ -89,7 +89,7 @@ class ReflexExecutor:
         except Exception:
             pass
 
-        # — Log trace
+        # - Log trace
         with open(self.log_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(result) + "\n")
 
@@ -108,5 +108,5 @@ class ReflexExecutor:
 # ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     re = ReflexExecutor()
-    print("⚡ Running ReflexExecutor demo…")
+    print("⚡ Running ReflexExecutor demo...")
     re.stress_test(5)

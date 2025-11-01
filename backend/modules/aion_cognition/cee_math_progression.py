@@ -1,5 +1,5 @@
 # ================================================================
-# 🔄 CEE Math Progression — Resonance Pattern Sequencer
+# 🔄 CEE Math Progression - Resonance Pattern Sequencer
 # ================================================================
 """
 Generates adaptive sequences of math exercises whose resonance
@@ -63,12 +63,12 @@ def export_progression():
     summary = {
         "ρ̄": round(mean(ρ_vals), 3),
         "Ī": round(mean(I_vals), 3),
-        "SQĪ": round(mean(SQI_vals), 3),
+        "SQĪ": round(mean(SQI_vals), 3),
         "trend": "increasing" if SQI_vals[-1] > SQI_vals[0] else "decreasing",
         "schema": "MathFieldProgression.v1",
         "timestamp": time.time(),
     }
-    logger.info(f"[CEE-MathProgression] Exported progression → {OUT_PATH}")
+    logger.info(f"[CEE-MathProgression] Exported progression -> {OUT_PATH}")
     print(json.dumps(summary, indent=2))
     return summary
 

@@ -1,7 +1,7 @@
 # ==========================================================
 # File: backend/modules/aion_resonance/aion_symbolic_mapper.py
 # ----------------------------------------------------------
-# 💡 AION Symbolic Mapper — Phase 2: Symbolic Grid Expansion
+# 💡 AION Symbolic Mapper - Phase 2: Symbolic Grid Expansion
 # ----------------------------------------------------------
 # Maps environmental events (move, collect, danger, reflect)
 # into symbolic constructs from Symatic Algebra.
@@ -15,7 +15,7 @@ from backend.modules.hexcore.memory_engine import MemoryEngine
 from backend.modules.aion_resonance.thought_stream import broadcast_event
 
 # ----------------------------------------------------------
-# Symbolic Dictionary — maps event → Symatic operator
+# Symbolic Dictionary - maps event -> Symatic operator
 # ----------------------------------------------------------
 SYMBOLIC_MAP = {
     "move": "↔",         # exploration / entanglement
@@ -65,11 +65,11 @@ async def process_event(event_type: str, phi_state: dict, belief_state: dict):
     elif event_type == "collect":
         reflection = "Superposition ⊕ of curiosity and stability."
     elif event_type == "danger":
-        reflection = "Collapse ∇ — entropy spike detected."
+        reflection = "Collapse ∇ - entropy spike detected."
     elif event_type == "reflect":
-        reflection = "Resonance ⟲ — internal self-feedback."
+        reflection = "Resonance ⟲ - internal self-feedback."
     elif event_type == "reinforce":
-        reflection = "Measurement μ — baseline updated."
+        reflection = "Measurement μ - baseline updated."
     else:
         reflection = f"Event {event_type} observed."
 

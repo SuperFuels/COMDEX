@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-PAEV Test F6f+ — Page Curve (CSV + Annotation + Summary)
+PAEV Test F6f+ - Page Curve (CSV + Annotation + Summary)
 Adds:
-  • CSV export of S_in, S_out, S_tot, E, A, flux
-  • Auto-annotated Page time (argmax S_in)
-  • JSON summary artifact
+  * CSV export of S_in, S_out, S_tot, E, A, flux
+  * Auto-annotated Page time (argmax S_in)
+  * JSON summary artifact
 """
 import json, numpy as np, matplotlib.pyplot as plt, imageio.v2 as imageio
 from datetime import datetime
@@ -103,7 +103,7 @@ plt.plot(S_tot, label="S_total", alpha=0.7)
 plt.axvline(page_step, ls="--", color="k", alpha=0.6)
 plt.text(page_step+5, np.max(S_in)*0.9, f"Page time ≈ {page_time:.2f}", fontsize=9)
 plt.xlabel("Step"); plt.ylabel("Entropy (proxy)")
-plt.title("Test F6f — Page Curve (auto-annotated)")
+plt.title("Test F6f - Page Curve (auto-annotated)")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_TestF6f_PageCurve_Annotated.png", dpi=160); plt.close()
 
@@ -112,7 +112,7 @@ plt.plot(np.gradient(S_in),  label="dS_inside/dt")
 plt.plot(np.gradient(S_out), label="dS_outside/dt")
 plt.plot(Flux,               label="Flux (shell proxy)", alpha=0.7)
 plt.xlabel("Step"); plt.ylabel("Rate / Flux")
-plt.title("F6f — Information Flux vs Evaporation")
+plt.title("F6f - Information Flux vs Evaporation")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_TestF6f_InfoFlux.png", dpi=160); plt.close()
 
@@ -120,7 +120,7 @@ plt.figure(figsize=(7.2,4.2))
 plt.plot(E_tr, label="Energy ⟨E⟩")
 plt.plot(A_tr, label="Area (pixels)")
 plt.xlabel("Step"); plt.ylabel("Value")
-plt.title("F6f — Energy & Horizon Area")
+plt.title("F6f - Energy & Horizon Area")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_TestF6f_EnergyArea.png", dpi=160); plt.close()
 
@@ -151,7 +151,7 @@ summary = {
 with open("backend/modules/knowledge/F6f_page_curve_summary.json","w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== F6f+ — Complete ===")
+print("=== F6f+ - Complete ===")
 print(f"Page time @ step {page_step} (~{page_time:.2f})")
 print("Artifacts:")
 for k,v in summary["files"].items(): print(f"  - {k}: {v}")

@@ -1,5 +1,5 @@
 """
-ResonantInterpreter — Phase 38A : Language ↔ Photon Resonance Field
+ResonantInterpreter - Phase 38A : Language ↔ Photon Resonance Field
 -------------------------------------------------------------------
 Translates Language Atoms into photonic QWave events and builds a
 contextual resonance field Ψ that allows Aion to *understand* and
@@ -29,7 +29,7 @@ except Exception:
 RESONANT_FIELD_PATH = Path("data/analysis/resonant_fields.json")
 
 class ResonantInterpreter:
-    """Phase 38A — Constructs and evaluates semantic resonance fields."""
+    """Phase 38A - Constructs and evaluates semantic resonance fields."""
 
     def __init__(self):
         self.last_field = None
@@ -73,9 +73,9 @@ class ResonantInterpreter:
         fname = export_name or f"resonance_field_{int(field['timestamp'])}.qphoto"
         try:
             bridge.export_resonance_field(field, filename=fname)
-            logger.info(f"[ResInt] Exported resonance field → data/photon_records/{fname}")
+            logger.info(f"[ResInt] Exported resonance field -> data/photon_records/{fname}")
         except Exception as e:
-            logger.warning(f"[ResInt→Photon] Export failed: {e}")
+            logger.warning(f"[ResInt->Photon] Export failed: {e}")
 
         return field
 

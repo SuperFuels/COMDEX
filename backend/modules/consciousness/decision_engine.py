@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ============================================================
-# 🧭 Resonant Decision Engine — P5.1
+# 🧭 Resonant Decision Engine - P5.1
 # ============================================================
 
 import random
@@ -20,7 +20,7 @@ DNA_SWITCH.register(__file__)
 
 class DecisionEngine:
     """
-    AION’s Resonant Decision Engine — evolves decision weights dynamically
+    AION's Resonant Decision Engine - evolves decision weights dynamically
     from resonance feedback, risk analysis, and goal states.
     """
 
@@ -98,7 +98,7 @@ class DecisionEngine:
             base_weights[-1] += 0.10 # idle/recharge
 
         if risk == "high":
-            print("⚠️ High situational risk detected — shifting toward stability.")
+            print("⚠️ High situational risk detected - shifting toward stability.")
             base_weights = [0.2, 0.1, 0.1, 0.05, 0.05, 0.15, 0.05, 0.1, 0.2]
 
         # Normalize safely
@@ -109,7 +109,7 @@ class DecisionEngine:
         self.last_decision = decision
         self.last_timestamp = datetime.utcnow().isoformat()
 
-        print(f"🧭 Resonant DecisionEngine → Decision: {decision}")
+        print(f"🧭 Resonant DecisionEngine -> Decision: {decision}")
         self.situation.log_event(f"Decision made: {decision}", "neutral")
 
         # Behaviors
@@ -165,7 +165,7 @@ class DecisionEngine:
         coherence = metrics.get("coherence", 0.5)
         entropy = metrics.get("entropy", 0.2)
         delta = coherence - entropy
-        print(f"💫 Resonance reflection → coherence={coherence:.2f}, entropy={entropy:.2f}, Δ={delta:.2f}")
+        print(f"💫 Resonance reflection -> coherence={coherence:.2f}, entropy={entropy:.2f}, Δ={delta:.2f}")
         self.resonance_bias = max(-1.0, min(1.0, self.resonance_bias + delta * 0.2))
         print(f"🧠 Updated resonance bias: {self.resonance_bias:+.3f}")
 
@@ -174,10 +174,10 @@ class DecisionEngine:
         """Adjust memory coherence based on recent entropy spikes."""
         entropy = self.rmc.get("system_entropy") or 0.3
         if entropy > 0.6:
-            print("🌀 High entropy detected — triggering symbolic defragmentation.")
+            print("🌀 High entropy detected - triggering symbolic defragmentation.")
             self.rmc.clear_recent_keys()
         else:
-            print("🧘 Memory coherence stable — light optimization performed.")
+            print("🧘 Memory coherence stable - light optimization performed.")
         self.rmc.set("memory_coherence", datetime.utcnow().isoformat())
 
     # ------------------------------------------------------------
@@ -196,7 +196,7 @@ class DecisionEngine:
 
     # ------------------------------------------------------------
     def _on_heartbeat(self, pulse_data: dict):
-        """Called on every Resonance Heartbeat — updates internal biases."""
+        """Called on every Resonance Heartbeat - updates internal biases."""
         delta = float(pulse_data.get("resonance_delta", 0.0))
         entropy = float(pulse_data.get("entropy", 0.0))
 
@@ -205,7 +205,7 @@ class DecisionEngine:
 
         # Adaptive recalibration on spikes
         if abs(delta) > 0.2:
-            print("⚡ Resonant spike detected — adaptive weight recalibration triggered.")
+            print("⚡ Resonant spike detected - adaptive weight recalibration triggered.")
             self.weights["entropy"] = max(0.1, min(0.4, self.weights["entropy"] + delta * 0.1))
 
         self.rmc.set("decision_resonance_update", {
@@ -215,7 +215,7 @@ class DecisionEngine:
             "bias": self.resonance_bias,
             "weights": dict(self.weights),
         })
-        print(f"💓 DecisionEngine heartbeat sync → Δ={delta:.3f}, entropy={entropy:.3f}, bias={self.resonance_bias:+.3f}")
+        print(f"💓 DecisionEngine heartbeat sync -> Δ={delta:.3f}, entropy={entropy:.3f}, bias={self.resonance_bias:+.3f}")
 
     # ------------------------------------------------------------
     def get_last(self) -> Dict[str, Any]:

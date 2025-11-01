@@ -1,5 +1,5 @@
 # ==========================================================
-# UNIFIED ARCHITECTURE SUMMARY — COMDEX Meta-Synthesis
+# UNIFIED ARCHITECTURE SUMMARY - COMDEX Meta-Synthesis
 # Consolidates: All series syntheses + Registry + Verifier
 # Produces: backend/modules/knowledge/unified_architecture_summary.json
 # ==========================================================
@@ -37,17 +37,17 @@ series_names = [s.get("series") for s in series_data]
 
 # --- Narrative synthesis ---
 summary_text = (
-    "The Unified Architecture Summary integrates all verified COMDEX layers — "
+    "The Unified Architecture Summary integrates all verified COMDEX layers - "
     "from field dynamics (F-series) through predictive cognition (P-series). "
     "This synthesis validates cross-domain coherence under a single constant set (v1.2), "
     "demonstrating a reproducible continuum from fundamental geometry to cognitive emergence.\n\n"
     "Evolutionary Hierarchy:\n"
-    "  • F-series → Field & Vacuum Dynamics\n"
-    "  • G-series → Geometric Coupling (Spacetime–Information Unification)\n"
-    "  • H-series → Temporal Emergence (Entropy → Time Directionality)\n"
-    "  • N-series → Nonlinear Feedback (Stability Regulation)\n"
-    "  • O-series → Observer–Causality (Reflective Regulation)\n"
-    "  • P-series → Predictive Resonance (Cognitive Unification)\n\n"
+    "  * F-series -> Field & Vacuum Dynamics\n"
+    "  * G-series -> Geometric Coupling (Spacetime-Information Unification)\n"
+    "  * H-series -> Temporal Emergence (Entropy -> Time Directionality)\n"
+    "  * N-series -> Nonlinear Feedback (Stability Regulation)\n"
+    "  * O-series -> Observer-Causality (Reflective Regulation)\n"
+    "  * P-series -> Predictive Resonance (Cognitive Unification)\n\n"
     "System-wide reproducibility has been confirmed via the registry and verifier, "
     "covering 111 modules and establishing complete internal consistency. "
     "This marks the closure of the COMDEX Unified Framework Phase I."
@@ -78,4 +78,4 @@ with open(out_path, "w") as f:
 print("=== UNIFIED ARCHITECTURE SUMMARY COMPLETE ===")
 print(f"Series integrated: {series_names}")
 print(f"Overall mean stability: {overall_mean_stab}")
-print(f"✅ Saved → {out_path}")
+print(f"✅ Saved -> {out_path}")

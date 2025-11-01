@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-📘 Phase 48B — Semantic Comprehension Benchmark
+📘 Phase 48B - Semantic Comprehension Benchmark
 Generates comprehension tasks from AION LexMemory + RMC cache.
 """
 

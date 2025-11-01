@@ -30,7 +30,7 @@ def test_projection_collapse_numeric_index():
 
 @pytest.mark.parametrize("expr,expected", [
     # raw string distribution form
-    ("(ψ1 ⊕ ψ2)·e^(-0.1·t)", ("⊕", (("↯", ("ψ1", "e^(-0.1·t)")), ("↯", ("ψ2", "e^(-0.1·t)"))))),
+    ("(ψ1 ⊕ ψ2)*e^(-0.1*t)", ("⊕", (("↯", ("ψ1", "e^(-0.1*t)")), ("↯", ("ψ2", "e^(-0.1*t)"))))),
     # raw πμ string form
     ("πμ([[1,2],[3,4]],0)", ("πμ", ("πμ([[1,2],[3,4]],0)",))),
 ])

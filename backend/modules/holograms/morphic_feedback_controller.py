@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Morphic Feedback Controller (Stage 3 HQCE)
-#  Regulates ψ–κ–T field stability and coherence feedback in real time.
+#  Tessaris * Morphic Feedback Controller (Stage 3 HQCE)
+#  Regulates ψ-κ-T field stability and coherence feedback in real time.
 # ──────────────────────────────────────────────
 
 import numpy as np
@@ -19,11 +19,11 @@ logger = logging.getLogger(__name__)
 
 class MorphicFeedbackController:
     """
-    HQCE Stage-3 controller — stabilizes holographic ψ–κ–T field coherence.
+    HQCE Stage-3 controller - stabilizes holographic ψ-κ-T field coherence.
 
-    • Monitors live ψ–κ–T signatures from HSTGenerator
-    • Adjusts resonance field parameters adaptively
-    • Outputs correction maps for renderer + analyzer feedback
+    * Monitors live ψ-κ-T signatures from HSTGenerator
+    * Adjusts resonance field parameters adaptively
+    * Outputs correction maps for renderer + analyzer feedback
     """
 
     def __init__(
@@ -57,7 +57,7 @@ class MorphicFeedbackController:
         """
         if not psi_kappa_T or not field_nodes:
             logger.warning(
-                "[MorphicFeedbackController] Missing ψ–κ–T or field data, skipping regulation."
+                "[MorphicFeedbackController] Missing ψ-κ-T or field data, skipping regulation."
             )
             return {"status": "no_data"}
 
@@ -116,7 +116,7 @@ class MorphicFeedbackController:
                 logger.debug(f"[MorphicFeedbackController] Telemetry broadcast failed: {e}")
 
         logger.info(
-            f"[MorphicFeedbackController] ΔC={deviation:+.4f} → {adjustment['status']} | ψ={adjusted_psi:.3f} κ={adjusted_kappa:.3f}"
+            f"[MorphicFeedbackController] ΔC={deviation:+.4f} -> {adjustment['status']} | ψ={adjusted_psi:.3f} κ={adjusted_kappa:.3f}"
         )
         return adjustment
 
@@ -129,7 +129,7 @@ class MorphicFeedbackController:
         Accepts an HSTGenerator instance instead of a dict.
         """
         try:
-            # Safely extract ψ–κ–T signature
+            # Safely extract ψ-κ-T signature
             psi_kappa_T = {}
             if hasattr(hst_state, "psi_kappa_T"):
                 psi_kappa_T = hst_state.psi_kappa_T
@@ -155,7 +155,7 @@ class MorphicFeedbackController:
     #  Field Diagnostics
     # ────────────────────────────────────────────
     def compute_field_stability(self, field_nodes: List[Dict[str, Any]]) -> float:
-        """Return 0–1 coherence stability metric (1 = uniform)."""
+        """Return 0-1 coherence stability metric (1 = uniform)."""
         coherences = [n.get("coherence", 0.5) for n in field_nodes]
         if not coherences:
             return 0.0

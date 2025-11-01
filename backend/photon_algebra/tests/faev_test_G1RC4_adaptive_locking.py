@@ -1,6 +1,6 @@
 # backend/photon_algebra/tests/faev_test_G1RC4_adaptive_locking.py
 # ================================================================
-# G1-RC4 — Hidden Field Coupling (Adaptive Cross-Locking Controller)
+# G1-RC4 - Hidden Field Coupling (Adaptive Cross-Locking Controller)
 # Goal: raise R↔Rψ correlation and tame unified-energy drift
 # ================================================================
 
@@ -29,12 +29,12 @@ t     = np.linspace(0, T*dt, T)
 # controller params (new)
 k_sync    = 0.035   # increases when R and Rψ diverge
 k_damp    = 0.015   # energy-rate damping
-k_info    = 0.003   # tiny phase info coupling φ→ψ
+k_info    = 0.003   # tiny phase info coupling φ->ψ
 k_leak    = 0.002   # prevents runaway integral term
 psi_gain  = 1.05
 phi_damp  = 0.002
 gamma     = 0.004   # mild Hubble-like damping on R
-mu        = 0.02    # curvature→mass feedback
+mu        = 0.02    # curvature->mass feedback
 
 # --- state ---
 R   = np.zeros(T)      # visible curvature proxy
@@ -107,14 +107,14 @@ else:
 plt.figure(figsize=(9,5))
 plt.plot(t, R,  label="Visible curvature R")
 plt.plot(t, Rψ, label="Hidden curvature Rψ")
-plt.title("G1-RC4 — Hidden Field Coupling (Adaptive Locking)")
+plt.title("G1-RC4 - Hidden Field Coupling (Adaptive Locking)")
 plt.xlabel("time"); plt.ylabel("curvature")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1RC4_CurvatureEvolution.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, E, label="Unified energy (norm)")
-plt.title("G1-RC4 — Unified Energy Evolution (Adaptive-Damped)")
+plt.title("G1-RC4 - Unified Energy Evolution (Adaptive-Damped)")
 plt.xlabel("time"); plt.ylabel("E_total (norm)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1RC4_EnergyEvolution.png")
@@ -122,7 +122,7 @@ plt.savefig("FAEV_G1RC4_EnergyEvolution.png")
 plt.figure(figsize=(9,5))
 plt.plot(t, np.cos(φ), label="cos(φ)")
 plt.plot(t, np.cos(ψ), label="cos(ψ)")
-plt.title("G1-RC4 — Phase Coherence Between φ and ψ (Adaptive)")
+plt.title("G1-RC4 - Phase Coherence Between φ and ψ (Adaptive)")
 plt.xlabel("time"); plt.ylabel("cosine phase")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1RC4_PhaseCoherence.png")
@@ -154,7 +154,7 @@ out = {
 with open("backend/modules/knowledge/G1RC4_coupling_adaptive.json","w") as f:
     json.dump(out, f, indent=2)
 
-print("=== G1-RC4 — Hidden Field Coupling (Adaptive Cross-Locking Controller) ===")
+print("=== G1-RC4 - Hidden Field Coupling (Adaptive Cross-Locking Controller) ===")
 print(f"cross_corr={cc:.3f} | stability={stab:.3f} | energy=({emin:.3e},{emax:.3e})")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/G1RC4_coupling_adaptive.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/G1RC4_coupling_adaptive.json")

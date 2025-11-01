@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-M3d — Geodesic Oscillation (stabilized)
+M3d - Geodesic Oscillation (stabilized)
 Implements Tessaris Unified Constants & Verification Protocol.
 """
 
@@ -13,8 +13,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β, χ = const["ħ"], const["G"], const["Λ"], const["α"], const["β"], const.get("χ", 1.0)
 
-print("=== M3d — Geodesic Oscillation (stabilized) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== M3d - Geodesic Oscillation (stabilized) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # Grid and integrator
 N, steps = 512, 2600
@@ -77,14 +77,14 @@ R_final = float(R_eff_ema)
 # Plot
 fig, (ax1, ax2) = plt.subplots(1,2, figsize=(12,4))
 ax1.plot(centroids, label="Centroid position")
-ax1.set_xlabel("Time step (×10 dt)"); ax1.set_ylabel("x position")
-ax1.set_title("M3d — Geodesic Oscillation (stabilized)"); ax1.grid(True); ax1.legend()
+ax1.set_xlabel("Time step (*10 dt)"); ax1.set_ylabel("x position")
+ax1.set_title("M3d - Geodesic Oscillation (stabilized)"); ax1.grid(True); ax1.legend()
 ax2.hist(vel, bins=40, alpha=0.8)
 ax2.set_xlabel("Velocity estimate"); ax2.set_ylabel("Frequency")
 ax2.set_title("Velocity distribution (geodesic stability)")
 plt.tight_layout()
 plot_path = "PAEV_M3d_geodesic_oscillation.png"; plt.savefig(plot_path, dpi=200)
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Plot saved -> {plot_path}")
 
 # Summary
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -104,19 +104,19 @@ summary = {
     ],
 }
 Path("backend/modules/knowledge/M3d_geodesic_oscillation_summary.json").write_text(json.dumps(summary, indent=2))
-print("✅ Summary saved → backend/modules/knowledge/M3d_geodesic_oscillation_summary.json")
+print("✅ Summary saved -> backend/modules/knowledge/M3d_geodesic_oscillation_summary.json")
 
 # Discovery + verdict
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Final R_eff (EMA) = {R_final:.3e}")
-print(f"• Oscillation amplitude = {amp:.3e}")
-print(f"• Velocity spread σ_v = {sigv:.3e}")
+print(f"* Final R_eff (EMA) = {R_final:.3e}")
+print(f"* Oscillation amplitude = {amp:.3e}")
+print(f"* Velocity spread σ_v = {sigv:.3e}")
 ok = (amp < 1.1) and (sigv < 0.40)
-print("• Interpretation:", "Stable geodesic oscillation achieved." if ok else "Still slightly under-damped — fine-tune γ_v or R_gain.")
+print("* Interpretation:", "Stable geodesic oscillation achieved." if ok else "Still slightly under-damped - fine-tune γ_v or R_gain.")
 print("------------------------------------------------------------")
 print("\n============================================================")
-print("🔎 M3d — Verdict")
+print("🔎 M3d - Verdict")
 print("============================================================")
 print("✅ Stable geodesic confinement detected." if ok else "⚠️ Needs a touch more damping or lower R_gain.")
 print("============================================================")

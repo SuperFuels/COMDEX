@@ -1,5 +1,5 @@
 """
-QQC Resonant Logic Kernel — Live State Controller
+QQC Resonant Logic Kernel - Live State Controller
 ────────────────────────────────────────────────
 Maintains dynamic RLK parameters (ε, audit interval) with persistence.
 Restored automatically on boot to continue from last stable state.
@@ -28,7 +28,7 @@ def load_state():
     if STATE_PATH.exists():
         try:
             RLK_STATE = json.loads(STATE_PATH.read_text())
-            print(f"[QQC::RLK_STATE] Restored persistent state → ε={RLK_STATE['tolerance']:.4f}, "
+            print(f"[QQC::RLK_STATE] Restored persistent state -> ε={RLK_STATE['tolerance']:.4f}, "
                   f"N={RLK_STATE['audit_interval']}")
         except Exception as e:
             print(f"[QQC::RLK_STATE] ⚠ Failed to load state: {e}")
@@ -41,13 +41,13 @@ def set_tolerance(eps: float):
     RLK_STATE["tolerance"] = eps
     RLK_STATE["updated"] = datetime.now(timezone.utc).isoformat()
     save_state()
-    print(f"[QQC::RLK_STATE] ε updated → {eps:.4f}")
+    print(f"[QQC::RLK_STATE] ε updated -> {eps:.4f}")
 
 def set_audit_interval(n: int):
     RLK_STATE["audit_interval"] = n
     RLK_STATE["updated"] = datetime.now(timezone.utc).isoformat()
     save_state()
-    print(f"[QQC::RLK_STATE] Audit interval updated → {n} beats")
+    print(f"[QQC::RLK_STATE] Audit interval updated -> {n} beats")
 
 def get_state():
     return RLK_STATE

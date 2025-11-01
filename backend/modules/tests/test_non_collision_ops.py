@@ -76,7 +76,7 @@ def test_symatics_ops(expr, expected):
     ("¬(P)", "logic:¬"),
     ("∧(A,B)", "logic:∧"),
     ("∨(X,Y)", "logic:∨"),
-    ("→(P,Q)", "logic:→"),
+    ("->(P,Q)", "logic:->"),
 ])
 def test_logic_ops(expr, expected):
     check(expr, expected)

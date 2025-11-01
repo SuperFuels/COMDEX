@@ -202,12 +202,12 @@ def encode_glyphs_to_ghx(container: Dict[str, Any], qglyph_string: str = "", obs
 # Supporting functions remain unchanged
 def generate_symbolic_light_grammar(sequence: List[str]) -> Dict[str, Any]:
     glyph_counts = Counter(sequence)
-    grammar_string = "".join(s for s in sequence if s in ("↔", "⧖", "⬁", "→", "⊕", "🧠"))
+    grammar_string = "".join(s for s in sequence if s in ("↔", "⧖", "⬁", "->", "⊕", "🧠"))
     return {
         "grammar": grammar_string,
         "counts": dict(glyph_counts),
         "total": len(sequence),
-        "operators_only": sum(glyph_counts[g] for g in ("↔", "⧖", "⬁", "→") if g in glyph_counts)
+        "operators_only": sum(glyph_counts[g] for g in ("↔", "⧖", "⬁", "->") if g in glyph_counts)
     }
 
 
@@ -236,7 +236,7 @@ def glyph_color_map(symbol: str) -> str:
         "⧖": "#00ffff",
         "🧠": "#00ff66",
         "⬁": "#ff6666",
-        "→": "#66ccff"
+        "->": "#66ccff"
     }.get(symbol, "#ffffff")
 
 
@@ -247,7 +247,7 @@ def glyph_intensity_map(symbol: str) -> float:
         "⧖": 0.7,
         "🧠": 0.6,
         "⬁": 1.2,
-        "→": 0.8
+        "->": 0.8
     }.get(symbol, 0.5)
 
 
@@ -258,7 +258,7 @@ def generate_narration(symbol: str, label: str) -> Dict[str, Any]:
         "⧖": "Collapsed moment",
         "🧠": "Cognitive glyph",
         "⬁": "Mutation trigger",
-        "→": "Directional execution"
+        "->": "Directional execution"
     }
     spoken = description_map.get(symbol, f"Glyph {symbol}")
     return {

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tessaris Symatics Reasoning Kernel — SRK-8 Proof Kernel (v2.1)
+Tessaris Symatics Reasoning Kernel - SRK-8 Proof Kernel (v2.1)
 ---------------------------------------------------------------
 Purpose:
     Reintegration layer connecting Symatics axioms, invariants, and theorems
@@ -86,7 +86,7 @@ class SRK8ProofKernel:
         return invariants
 
     # ───────────────────────────────────────────────
-    # Run proof sync cycle (A7 Bridge → LeanBridge)
+    # Run proof sync cycle (A7 Bridge -> LeanBridge)
     # ───────────────────────────────────────────────
     def synchronize_with_lean(self, proofs_dir: str = "backend/symatics/proofs") -> dict:
         if run_lean_proofs is None:
@@ -112,14 +112,14 @@ class SRK8ProofKernel:
         passed = True
         diagnostics: Dict[str, Any] = {}
 
-        # Invariant 1 — Energy ↔ Entropy Duality
+        # Invariant 1 - Energy ↔ Entropy Duality
         if "E" in srk_state and "S" in srk_state:
             diff = abs(srk_state["E"] - srk_state["S"])
             diagnostics["energy_entropy_duality"] = diff < 1e-3
             if diff >= 1e-3:
                 passed = False
 
-        # Invariant 2 — λ⊗ψ Stability (structural check)
+        # Invariant 2 - λ⊗ψ Stability (structural check)
         diagnostics["lambda_psi_stable"] = ("λ" in srk_state) and ("ψ" in srk_state)
 
         diagnostics["passed"] = passed

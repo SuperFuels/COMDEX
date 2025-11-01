@@ -1,5 +1,5 @@
 # File: backend/modules/aion_resonance/phi_drift_log.py
-# 🧠 AION Φ-Drift Logger — tracks the temporal evolution of resonance fields.
+# 🧠 AION Φ-Drift Logger - tracks the temporal evolution of resonance fields.
 
 import json, os, time
 from datetime import datetime

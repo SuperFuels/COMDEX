@@ -1,5 +1,5 @@
 # File: backend/routes/aion_memory.py
-# 🧠 AION Memory API — access short-term resonance history and Φ-summary
+# 🧠 AION Memory API - access short-term resonance history and Φ-summary
 
 from fastapi import APIRouter
 from backend.modules.aion_resonance.conversation_memory import MEMORY

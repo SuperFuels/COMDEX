@@ -1,7 +1,7 @@
 """
-Tessaris Σ4 — Quantum Biocomputation Test (Stabilized)
+Tessaris Σ4 - Quantum Biocomputation Test (Stabilized)
 ------------------------------------------------------
-Applies Tessaris Unified Constants (v1.2) to simulate hybrid biological–quantum
+Applies Tessaris Unified Constants (v1.2) to simulate hybrid biological-quantum
 information coherence. This stabilized version introduces normalization and
 Λ-buffer regulation to prevent overflow during ψ evolution.
 """
@@ -24,8 +24,8 @@ constants = load_constants("v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print(f"=== {SERIES} — Quantum Biocomputation (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== {SERIES} - Quantum Biocomputation (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Simulation Parameters ===
 n_nodes = 256
@@ -94,11 +94,11 @@ summary = {
         f"Biological synchrony R_sync = {R_sync_final:.3f}",
         f"Quantum coherence Q_coherence = {Q_coherence_final:.3f}",
         f"Joint causal coherence = {joint_coherence:.3f}",
-        "Λ-buffer maintained ψ–phase entanglement with normalized evolution."
+        "Λ-buffer maintained ψ-phase entanglement with normalized evolution."
     ],
     "discovery": [
         "Stabilized hybrid causal field achieved consistent coherence across ψ and biological layers.",
-        "Λ-damping regulates phase–amplitude feedback, preventing runaway entanglement.",
+        "Λ-damping regulates phase-amplitude feedback, preventing runaway entanglement.",
         "Demonstrates that living-like systems can sustain quantum computation under causal equilibrium.",
         "Links biological order and quantum coherence via information geometry.",
         "Confirms stable universality of Tessaris constants at the quantum-biological interface."
@@ -117,13 +117,13 @@ plt.plot(sync_history, label="R_sync (Biological Coherence)")
 plt.plot(coherence_history, label="Q_coherence (Quantum Coherence)", linestyle="--")
 plt.xlabel("Time Step")
 plt.ylabel("Coherence Metric")
-plt.title("Σ4 — Quantum Biocomputation Coherence Stability (Normalized)")
+plt.title("Σ4 - Quantum Biocomputation Coherence Stability (Normalized)")
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
 
-print(f"✅ Summary saved → {SUMMARY_PATH}")
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

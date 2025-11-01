@@ -1,5 +1,5 @@
 """
-📜 CodexTrace Hooks for QTS — SRK-16 B7
+📜 CodexTrace Hooks for QTS - SRK-16 B7
 Logs security, handshake, and encryption events into CodexTrace.
 """
 

@@ -1,7 +1,7 @@
 """
 Symatics ⋈ Laws Test Suite (v0.1)
 ---------------------------------
-Smoke-test the interference axioms (A1–A8) via LAW_REGISTRY.
+Smoke-test the interference axioms (A1-A8) via LAW_REGISTRY.
 This ensures the registry wiring is correct, independent of Lean injection.
 """
 

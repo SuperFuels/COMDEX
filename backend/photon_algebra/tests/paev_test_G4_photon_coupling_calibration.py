@@ -1,6 +1,6 @@
 # ==========================================================
-# Test G4 — Predictive Photon Coupling Calibration
-#   Derive emergent fine-structure constant α from curvature–
+# Test G4 - Predictive Photon Coupling Calibration
+#   Derive emergent fine-structure constant α from curvature-
 #   phase dual-field propagation and compare to physical α ≈ 1/137
 # ==========================================================
 
@@ -85,10 +85,10 @@ for t in range(steps):
     if t % 20 == 0:
         fig, ax = plt.subplots(1, 2, figsize=(8, 3.6))
         im0 = ax[0].imshow(np.real(psi), cmap="plasma")
-        ax[0].set_title(f"Re(ψ) — photon phase, step {t}")
+        ax[0].set_title(f"Re(ψ) - photon phase, step {t}")
         ax[0].axis("off")
         im1 = ax[1].imshow(np.imag(psi), cmap="magma")
-        ax[1].set_title("Im(ψ) — curvature")
+        ax[1].set_title("Im(ψ) - curvature")
         ax[1].axis("off")
         plt.tight_layout()
         fig.canvas.draw()
@@ -111,7 +111,7 @@ plt.axhline(alpha_mean, color="red", linestyle="--", label=f"mean α ≈ {alpha_
 plt.xlabel("step")
 plt.ylabel("α_emergent")
 plt.legend()
-plt.title("G4 — Emergent Fine-Structure Constant (α)")
+plt.title("G4 - Emergent Fine-Structure Constant (α)")
 plt.tight_layout()
 plt.savefig("PAEV_TestG4_CouplingTrace.png")
 plt.close()
@@ -119,7 +119,7 @@ print("✅ Saved file: PAEV_TestG4_CouplingTrace.png")
 
 plt.figure(figsize=(6,4))
 plt.hist(alpha_arr[-100:], bins=40, color="orchid", alpha=0.8)
-plt.title("G4 — α_emergent distribution (final phase)")
+plt.title("G4 - α_emergent distribution (final phase)")
 plt.tight_layout()
 plt.savefig("PAEV_TestG4_Photon_CouplingHistogram.png")
 plt.close()
@@ -127,9 +127,9 @@ print("✅ Saved file: PAEV_TestG4_Photon_CouplingHistogram.png")
 
 plt.figure(figsize=(6,4))
 plt.plot(entropy_trace, color="teal", label="spectral entropy")
-plt.plot(energy_trace, color="orange", label="⟨ℒ⟩ energy")
+plt.plot(energy_trace, color="orange", label="⟨L⟩ energy")
 plt.legend()
-plt.title("G4 — Photon Field Entropy & Energy Trace")
+plt.title("G4 - Photon Field Entropy & Energy Trace")
 plt.tight_layout()
 plt.savefig("PAEV_TestG4_SpectralPurity.png")
 plt.close()
@@ -142,10 +142,10 @@ print("✅ Saved animation to: PAEV_TestG4_Photon_Propagation.gif")
 # save summary
 # ----------------------------------------------------------
 summary = f"""
-=== Test G4 — Predictive Photon Coupling Calibration Complete ===
-ᾱ (emergent) = {alpha_mean:.6e}
+=== Test G4 - Predictive Photon Coupling Calibration Complete ===
+ᾱ (emergent) = {alpha_mean:.6e}
 68% CI        = [{alpha_ci[0]:.6e}, {alpha_ci[1]:.6e}]
-⟨ℒ⟩ final     = {energy_trace[-1]:.6e}
+⟨L⟩ final     = {energy_trace[-1]:.6e}
 Entropy final = {entropy_trace[-1]:.6e}
 χ final       = {chi:.6e}
 Perturbation mode: ON

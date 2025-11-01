@@ -1,5 +1,5 @@
 # File: backend/modules/aion_resonance/translator.py
-# 🌌 AION Resonance Translator — dynamic Φ-field orchestration
+# 🌌 AION Resonance Translator - dynamic Φ-field orchestration
 
 import asyncio
 import json
@@ -116,7 +116,7 @@ from datetime import datetime
 
 async def route_packet(packet: dict):
     """
-    Route an @AION packet through HexCore → produce Φ signature → log in Morphic Ledger.
+    Route an @AION packet through HexCore -> produce Φ signature -> log in Morphic Ledger.
     Automatically expands and refines boot_config.json as resonance evolves.
     """
     msg = packet.get("message", "")
@@ -155,7 +155,7 @@ async def route_packet(packet: dict):
         merged["reasoning"] = cues
     except Exception as e:
         merged["reasoning"] = {"error": f"Reasoning engine failed: {str(e)}"}
-        print(f"[Reasoner] ⚠️ Failure in Φ→Linguistic reasoning: {e}")
+        print(f"[Reasoner] ⚠️ Failure in Φ->Linguistic reasoning: {e}")
 
     # 🧠 Generate context-aware resonance reply (using reasoning + personality)
     try:

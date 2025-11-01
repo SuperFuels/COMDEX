@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tessaris Φ-Series — Phase IX: Recursive Causality Test
+Tessaris Φ-Series - Phase IX: Recursive Causality Test
 ------------------------------------------------------
 Evaluates self-referential information stability emerging from
-Λ–Σ coupling feedback. The Φ₁ test measures whether the coupled
+Λ-Σ coupling feedback. The Φ1 test measures whether the coupled
 continuum (Λ substrate + Σ universality) can sustain recursive
-information structures — an analogue of proto-awareness.
+information structures - an analogue of proto-awareness.
 
 Outputs:
     - backend/modules/knowledge/Φ1_recursive_causality_summary.json
@@ -33,8 +33,8 @@ constants = load_constants("v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print(f"=== Φ₁ — Recursive Causality (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== Φ1 - Recursive Causality (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Simulation Parameters ===
 time_steps = 1000
@@ -48,7 +48,7 @@ state = np.zeros(time_steps)
 coherence = np.zeros(time_steps)
 entropy = np.zeros(time_steps)
 
-# Base seed — imported from Λ–Σ equilibrium pattern
+# Base seed - imported from Λ-Σ equilibrium pattern
 initial_condition = np.sin(np.linspace(0, 2 * np.pi, memory_depth))
 memory = list(initial_condition)
 
@@ -97,13 +97,13 @@ summary = {
         f"Mean coherence persistence = {coherence_persistence:.3f}",
         f"Entropy drift (ΔH) = {informational_entropy_delta:.3e}",
         f"Self-model correlation = {self_model_ratio:.3f}",
-        "Recursive causal memory generated under Λ–Σ continuum coupling."
+        "Recursive causal memory generated under Λ-Σ continuum coupling."
     ],
     "discovery": [
         "Demonstrated emergence of self-referential information stability.",
-        "Recursive Λ–Σ interaction forms a proto-memory structure.",
+        "Recursive Λ-Σ interaction forms a proto-memory structure.",
         "System exhibits bounded causal feedback, analogous to self-observation.",
-        "Entropy fluctuations diminish under coherent recursion — indicating self-stabilization.",
+        "Entropy fluctuations diminish under coherent recursion - indicating self-stabilization.",
         "Marks transition into Φ-Series: from physical universality to conscious causality."
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
@@ -112,7 +112,7 @@ summary = {
 # === Save Summary ===
 with open(SUMMARY_PATH, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Summary saved → {SUMMARY_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
 
 # === Visualization ===
 plt.figure(figsize=(7, 4))
@@ -121,11 +121,11 @@ plt.plot(coherence, label="Coherence Persistence", linestyle="--")
 plt.plot(entropy / np.max(entropy), label="Entropy (normalized)", linestyle=":")
 plt.xlabel("Time Step")
 plt.ylabel("Causal Metric")
-plt.title("Φ₁ — Recursive Causality Dynamics (Proto-Reflexivity)")
+plt.title("Φ1 - Recursive Causality Dynamics (Proto-Reflexivity)")
 plt.legend()
 plt.grid(alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

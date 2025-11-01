@@ -21,9 +21,9 @@ def _merge_meta(a: Optional[dict], b: Optional[dict], extra: Optional[dict] = No
 def _pol_blend(pa: str, pb: str) -> str:
     """
     Simple polarization blending rule (v0.1):
-    - identical → keep
-    - H/V vs circular → prefer existing pa
-    - H vs V mismatch → keep pa (stable bias)
+    - identical -> keep
+    - H/V vs circular -> prefer existing pa
+    - H vs V mismatch -> keep pa (stable bias)
     """
     if pa == pb:
         return pa
@@ -43,7 +43,7 @@ def _amp_phase_from_complex(z: complex) -> Tuple[float, float]:
 def _freq_blend(fa: float, fb: float) -> float:
     """
     Frequency blending (v0.1):
-    - If nearly equal → average
+    - If nearly equal -> average
     - Else prefer closer to dominant
     """
     if abs(fa - fb) < 1e-9:

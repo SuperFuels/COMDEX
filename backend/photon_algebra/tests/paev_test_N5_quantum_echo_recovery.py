@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-PAEV Test N5 — Quantum Echo & Holographic Recovery
+PAEV Test N5 - Quantum Echo & Holographic Recovery
 ---------------------------------------------------
-Goal: Detect whether information injected into ψ₁ can be holographically
-reconstructed in ψ₂ across the entangled wormhole bridge.
+Goal: Detect whether information injected into ψ1 can be holographically
+reconstructed in ψ2 across the entangled wormhole bridge.
 """
 
 import numpy as np
@@ -12,7 +12,7 @@ from datetime import datetime
 import json
 import os
 
-print("=== N5 — Quantum Echo & Holographic Recovery ===")
+print("=== N5 - Quantum Echo & Holographic Recovery ===")
 
 # Physical constants (scaled)
 ħ = 1e-3
@@ -27,11 +27,11 @@ dx = x[1] - x[0]
 t = np.linspace(0, 12, 600)
 
 # --- Initialize Fields ---
-# ψ₁ and ψ₂ represent entangled states on opposite "boundaries"
+# ψ1 and ψ2 represent entangled states on opposite "boundaries"
 ψ1 = np.exp(-x**2) * np.exp(1j * np.pi * x / 5)
 ψ2 = np.exp(-(x - 1.5)**2) * np.exp(-1j * np.pi * x / 5)
 
-# Inject information pulse into ψ₁ at t=0 (a Gaussian "message")
+# Inject information pulse into ψ1 at t=0 (a Gaussian "message")
 pulse = np.exp(-((x + 1.5)**2) / 0.2)
 ψ1_encoded = ψ1 + 0.2 * pulse
 
@@ -64,9 +64,9 @@ light_cone = 4.0
 
 # --- Plot Echo Fidelity ---
 plt.figure(figsize=(8,5))
-plt.plot(t, echo_fidelity, label="Holographic Echo Fidelity |⟨ψ₂|ψ₁⟩|")
+plt.plot(t, echo_fidelity, label="Holographic Echo Fidelity |⟨ψ2|ψ1⟩|")
 plt.axvline(light_cone, color='r', linestyle=':', label="Light-cone")
-plt.title("N5 — Quantum Echo & Holographic Recovery")
+plt.title("N5 - Quantum Echo & Holographic Recovery")
 plt.xlabel("Time")
 plt.ylabel("Normalized Fidelity")
 plt.legend()
@@ -77,8 +77,8 @@ plt.savefig("PAEV_N5_EchoFidelity.png", dpi=150)
 # --- Reconstructed Map (Spatial) ---
 plt.figure(figsize=(6,5))
 plt.imshow(np.abs(ψ2_recovered.real), extent=[-5,5,0,12], origin='lower', aspect='auto', cmap='plasma')
-plt.colorbar(label="|ψ₂| (Reconstructed field amplitude)")
-plt.title("N5 — Reconstructed ψ₂ Echo Map")
+plt.colorbar(label="|ψ2| (Reconstructed field amplitude)")
+plt.title("N5 - Reconstructed ψ2 Echo Map")
 plt.xlabel("x")
 plt.ylabel("Time")
 plt.tight_layout()
@@ -89,7 +89,7 @@ peak_time = t[np.argmax(echo_fidelity)]
 delay_ratio = peak_time / light_cone
 classification = "Recovered" if 0.8 <= echo_fidelity.max() <= 1.0 else "Decohered"
 
-print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α₀={α0:.3f}")
+print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α0={α0:.3f}")
 print(f"Echo peak at t={peak_time:.3f}")
 print(f"Light-cone time = {light_cone:.3f}")
 print(f"Delay ratio (Δt_signal / Δt_light) = {delay_ratio:.3f}")

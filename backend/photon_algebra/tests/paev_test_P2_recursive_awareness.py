@@ -72,7 +72,7 @@ plt.plot(S_system, label="S_system")
 plt.plot(S_observer, label="S_observer")
 plt.plot(S_pred, label="S_pred (forecast)")
 plt.plot(S_meta, label="S_meta (self-reflective)")
-plt.title("P2 — Recursive Awareness Coupling")
+plt.title("P2 - Recursive Awareness Coupling")
 plt.xlabel("time step")
 plt.ylabel("Entropy")
 plt.legend()
@@ -98,6 +98,6 @@ summary = {
 with open("backend/modules/knowledge/P2_recursive_awareness.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== P2 — Recursive Awareness Coupling ===")
+print("=== P2 - Recursive Awareness Coupling ===")
 print(f"⟨dS_meta/dt⟩={meta_drift:.3e} | Corr_meta={corr_meta:.3f} | Coherence={meta_coherence:.3f} | {cls}")
-print("✅ Results saved → backend/modules/knowledge/P2_recursive_awareness.json")
+print("✅ Results saved -> backend/modules/knowledge/P2_recursive_awareness.json")

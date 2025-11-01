@@ -22,7 +22,7 @@ def valid_packet():
 def test_dispatch_with_invalid_portal():
     """Reject packets with an invalid portal ID or unrecognized route."""
     response = client.post("/api/teleport/invalid_portal_id", json={
-        "glyph": "→", "from": VALID_SOURCE, "to": VALID_DEST
+        "glyph": "->", "from": VALID_SOURCE, "to": VALID_DEST
     })
     assert response.status_code == 404 or response.status_code == 400
     assert "error" in response.text.lower()

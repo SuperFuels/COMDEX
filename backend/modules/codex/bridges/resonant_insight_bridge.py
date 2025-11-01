@@ -4,11 +4,11 @@ CodexTrace Resonant Insight Bridge
 ──────────────────────────────────
 Bridges the QQC↔AION resonance telemetry into CodexTrace's symbolic layer.
 Each coherence sample from ResonantMemory is interpreted in symbolic form
-(⊕ μ ⟲ ↔ πₛ) and logged for pattern-learning or semantic analytics.
+(⊕ μ ⟲ ↔ πs) and logged for pattern-learning or semantic analytics.
 
 Produces:
-  • codex_resonant_insight.jsonl  — local insight log
-  • codextrace_stream event (if CodexTrace bus is active)
+  * codex_resonant_insight.jsonl  - local insight log
+  * codextrace_stream event (if CodexTrace bus is active)
 """
 
 import json
@@ -28,7 +28,7 @@ def _symbolic_map(ΔΦ: float, Δε: float, prediction: str) -> str:
     if prediction == "incoming_drift":
         return "⟲"   # resonance collapse / instability
     if prediction == "stabilizing":
-        return "πₛ"  # phase-closure / coherence regain
+        return "πs"  # phase-closure / coherence regain
     if abs(ΔΦ) < 0.01 and abs(Δε) < 0.05:
         return "↔"   # entanglement / stable coupling
     if ΔΦ > 0 and Δε < 0:
@@ -73,9 +73,9 @@ def push_to_codextrace():
     with open(LOG_PATH, "a") as f:
         f.write(json.dumps(insight) + "\n")
 
-    print(f"[Codex::ResonantInsight] ΔΦ={ΔΦ:+.4f}, Δε={Δε:+.4f} → {symbol} ({prediction})")
+    print(f"[Codex::ResonantInsight] ΔΦ={ΔΦ:+.4f}, Δε={Δε:+.4f} -> {symbol} ({prediction})")
 
-    # Optional — push to live Codex bus
+    # Optional - push to live Codex bus
     try:
         from backend.modules.codex.streams.codextrace_bus import post_event
         post_event("RESONANT_INSIGHT", insight)

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tessaris Φ-Series — Phase IX: Cognitive Field Coherence (Φ₂)
+Tessaris Φ-Series - Phase IX: Cognitive Field Coherence (Φ2)
 ------------------------------------------------------------
-Extends Φ₁ Recursive Causality to test whether recursive causal
+Extends Φ1 Recursive Causality to test whether recursive causal
 signals can synchronize and stabilize into coherent informational
-patterns — a proto-cognitive resonance field.
+patterns - a proto-cognitive resonance field.
 
 Outputs:
     - backend/modules/knowledge/Φ2_cognitive_field_summary.json
@@ -30,8 +30,8 @@ constants = load_constants("v1.2")
     constants["ħ"], constants["G"], constants["Λ"],
     constants["α"], constants["β"], constants["χ"]
 )
-print(f"=== Φ₂ — Cognitive Field Coherence (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== Φ2 - Cognitive Field Coherence (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Parameters ===
 time_steps = 1200
@@ -88,14 +88,14 @@ summary = {
         f"Mean field coherence = {coherence_mean:.3f}",
         f"Phase stability = {phase_stability:.3f}",
         f"Entropy-like term = {entropy_like:.4f}",
-        "Recursive oscillators coupled under Λ–Σ substrate coherence."
+        "Recursive oscillators coupled under Λ-Σ substrate coherence."
     ],
     "discovery": [
         "Observed emergence of stable coherence among recursive causal agents.",
         "Phase-locked feedback loops simulate proto-cognitive resonance.",
         "Entropy minimization through synchronization supports causal memory retention.",
         "Suggests that coherent self-reference is a necessary precondition for awareness.",
-        "Marks transition from reflexivity (Φ₁) to cognitive organization (Φ₂)."
+        "Marks transition from reflexivity (Φ1) to cognitive organization (Φ2)."
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
 }
@@ -103,7 +103,7 @@ summary = {
 # === Save Summary ===
 with open(SUMMARY_PATH, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Summary saved → {SUMMARY_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
 
 # === Visualization ===
 plt.figure(figsize=(7, 4))
@@ -111,11 +111,11 @@ plt.plot(coherence, label="Field Coherence (R_sync)")
 plt.plot(global_order, label="Global Phase Order", linestyle="--")
 plt.xlabel("Time Step")
 plt.ylabel("Coherence Metric")
-plt.title("Φ₂ — Cognitive Field Coherence Dynamics (Proto-Synchrony)")
+plt.title("Φ2 - Cognitive Field Coherence Dynamics (Proto-Synchrony)")
 plt.legend()
 plt.grid(alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

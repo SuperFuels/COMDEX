@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-📊 ReflexMemory Metrics Dashboard — R7 Appendix Exporter
+📊 ReflexMemory Metrics Dashboard - R7 Appendix Exporter
 ───────────────────────────────────────────────────────────────
 Analyzes ReflexMemory and ActionSwitch telemetry to compute:
-  • Success rate and violation frequency
-  • Average Θ coherence and ΔΦ drift
-  • SQI history evolution
-  • Reflex efficiency index (REI)
-Outputs → data/analysis/reflex_memory_dashboard.json
+  * Success rate and violation frequency
+  * Average Θ coherence and ΔΦ drift
+  * SQI history evolution
+  * Reflex efficiency index (REI)
+Outputs -> data/analysis/reflex_memory_dashboard.json
 """
 
 import json, time, math
@@ -63,7 +63,7 @@ def main():
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(json.dumps(summary, indent=2))
-    print(f"📤 ReflexMemory dashboard written → {OUT_PATH}")
+    print(f"📤 ReflexMemory dashboard written -> {OUT_PATH}")
     print(json.dumps(summary, indent=2))
 
 if __name__ == "__main__":

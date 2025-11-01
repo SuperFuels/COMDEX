@@ -37,7 +37,7 @@ def run_profile(n=2000, depth=6, cold=False, top=30, progress=False):
         for i, e in enumerate(exprs, 1):
             normalize(e)
             if progress and i % 100 == 0:
-                print(f"… processed {i}/{n}", file=sys.stderr)
+                print(f"... processed {i}/{n}", file=sys.stderr)
 
     profiler = cProfile.Profile()
     t0 = time.time()

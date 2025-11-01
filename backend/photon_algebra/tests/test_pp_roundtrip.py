@@ -64,14 +64,14 @@ def test_roundtrip(expr, expected_pretty):
 
     # Pretty-print must be exactly as expected
     assert pretty == expected_pretty, (
-        f"Pretty mismatch: {expr} → {pretty}, expected {expected_pretty}"
+        f"Pretty mismatch: {expr} -> {pretty}, expected {expected_pretty}"
     )
 
     # Normalized ASTs must match after roundtrip (double-normalize for stability)
     norm_expr = normalize(normalize(expr))
     norm_parsed = normalize(normalize(parsed))
     assert norm_expr == norm_parsed, (
-        f"Roundtrip failed for {expr} → {pretty} → {parsed}\n"
+        f"Roundtrip failed for {expr} -> {pretty} -> {parsed}\n"
         f"Expected: {norm_expr}\n"
         f"Got: {norm_parsed}"
     )
@@ -134,7 +134,7 @@ def test_hypothesis_roundtrip(expr):
         print("-------------------------------")
 
     assert norm1 == norm2, (
-        f"Hypothesis roundtrip failed for {expr} → {pretty} → {parsed}\n"
+        f"Hypothesis roundtrip failed for {expr} -> {pretty} -> {parsed}\n"
         f"Expected: {norm1}\n"
         f"Got: {norm2}"
     )

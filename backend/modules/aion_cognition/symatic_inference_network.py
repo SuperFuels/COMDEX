@@ -10,7 +10,7 @@ import networkx as nx
 from datetime import datetime
 from collections import deque
 
-print("🧩 Starting Tessaris Symatic Inference Network (SIN)…")
+print("🧩 Starting Tessaris Symatic Inference Network (SIN)...")
 
 # -----------------------------
 # Configuration
@@ -32,7 +32,7 @@ def extract_motif(packet):
         round(packet.get("phi_mean", 0.0), 3),
         round(packet.get("amp_mean", 0.0), 3),
         round(packet.get("drift_entropy", 0.0), 3),
-        packet.get("glyph", "•"),
+        packet.get("glyph", "*"),
     )
 
 def update_graph(motif):
@@ -52,7 +52,7 @@ def update_graph(motif):
 
     if len(G) % 25 == 0:
         nx.write_graphml(G, GRAPH_SAVE_PATH)
-        print(f"🧠 Updated SIN graph — {len(G.nodes())} nodes, {len(G.edges())} edges")
+        print(f"🧠 Updated SIN graph - {len(G.nodes())} nodes, {len(G.edges())} edges")
 
 # -----------------------------
 # WebSocket Listener
@@ -68,7 +68,7 @@ async def listen_ral():
                     buffer.append(motif)
                     update_graph(motif)
         except Exception as e:
-            print(f"⚠️ RAL connection error: {e}, retrying in 5 s…")
+            print(f"⚠️ RAL connection error: {e}, retrying in 5 s...")
             await asyncio.sleep(5)
 
 # -----------------------------
@@ -83,7 +83,7 @@ async def infer_loop():
             for u, v in last_edges:
                 gu = G.nodes[u]["glyph"]
                 gv = G.nodes[v]["glyph"]
-                rule = f"({gu} → {gv})"
+                rule = f"({gu} -> {gv})"
                 print(f"🔍 Derived rule: {rule}")
 
 # -----------------------------

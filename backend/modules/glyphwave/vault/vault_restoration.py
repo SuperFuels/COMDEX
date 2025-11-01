@@ -1,5 +1,5 @@
 """
-🪶 Tessaris SRK-13 D5 — Vault Restoration / Rehydration Protocol
+🪶 Tessaris SRK-13 D5 - Vault Restoration / Rehydration Protocol
 Restores previously saved capsule snapshots from the GlyphVault and
 rehydrates them into the active runtime environment.
 """
@@ -37,7 +37,7 @@ class VaultRestoration:
     # ───────────────────────────────────────────────
     def rehydrate_to_runtime(self, capsule_id: str, runtime: Any) -> bool:
         """
-        Load a capsule’s state and import it into the active runtime.
+        Load a capsule's state and import it into the active runtime.
         Runtime must implement `import_state(state_dict)`.
         """
         state = self.restore(capsule_id)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-LeanAdapter — Unified Bridge between Tessaris QQC Core and Lean proof ecosystem.
+LeanAdapter - Unified Bridge between Tessaris QQC Core and Lean proof ecosystem.
 ──────────────────────────────────────────────────────────────────────────────
 Delegates to Lean parser, converter, exporter, injector, verification, and GHX tools.
 Provides high-level API used by QQC Central Kernel (qqc_central_kernel.py).
@@ -42,7 +42,7 @@ class LeanAdapter:
     # Parsing + conversion
     # ────────────────────────────────────────────────
     def parse(self, lean_path: str) -> List[Dict[str, Any]]:
-        """Parse a single Lean file → declaration dicts."""
+        """Parse a single Lean file -> declaration dicts."""
         if not os.path.isfile(lean_path):
             raise FileNotFoundError(lean_path)
         return self.bridge.parse(lean_path)
@@ -65,7 +65,7 @@ class LeanAdapter:
             container, lean_path, overwrite=overwrite, normalize=normalize
         )
         lean_injector.save_container(injected, container_path)
-        logger.info(f"[LeanAdapter] Injected {lean_path} → {container_path}")
+        logger.info(f"[LeanAdapter] Injected {lean_path} -> {container_path}")
         return injected
 
     # ────────────────────────────────────────────────
@@ -88,11 +88,11 @@ class LeanAdapter:
     ) -> str:
         """Bundle verified theorems into a GHX holographic proof packet."""
         self.last_packets = lean_ghx.bundle_packets(entries, out_path, container_id=container_id, source_path=None)
-        logger.info(f"[LeanAdapter] GHX bundle created → {out_path}")
+        logger.info(f"[LeanAdapter] GHX bundle created -> {out_path}")
         return out_path
 
     # ────────────────────────────────────────────────
-    # Reverse conversion (Codex → Lean)
+    # Reverse conversion (Codex -> Lean)
     # ────────────────────────────────────────────────
     def from_codex(self, container: dict, out_path: str) -> str:
         """Generate a .lean file from a CodexLang container."""
@@ -106,7 +106,7 @@ class LeanAdapter:
                 num_items=len(container.get("symbolic_logic", [])),
             )
         )
-        logger.info(f"[LeanAdapter] Generated Lean file from Codex container → {out_path}")
+        logger.info(f"[LeanAdapter] Generated Lean file from Codex container -> {out_path}")
         return out_path
 
     def from_symatics(self, expr: str, name="symatics_axiom", out_path=None) -> str:
@@ -144,7 +144,7 @@ class LeanAdapter:
         with open(container_path, "r", encoding="utf-8") as f:
             container = json.load(f)
         viz_data = lean_proofviz.attach_visualizations(container, png_path=png_out)
-        logger.info(f"[LeanAdapter] Visualization attached → {png_out}")
+        logger.info(f"[LeanAdapter] Visualization attached -> {png_out}")
         return viz_data
 
     # ────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 """
-Runtime Resonance Energy–Time Invariance Test (v0.4.5)
+Runtime Resonance Energy-Time Invariance Test (v0.4.5)
 ------------------------------------------------------
-Verifies that resonance systems conserve the energy–time product
+Verifies that resonance systems conserve the energy-time product
 (E*T ≈ constant) within 1% tolerance.
 """
 

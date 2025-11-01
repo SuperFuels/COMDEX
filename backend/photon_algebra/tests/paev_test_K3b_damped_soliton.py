@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-K3b — Damped Relativistic Soliton Propagation (Tessaris)
+K3b - Damped Relativistic Soliton Propagation (Tessaris)
 ---------------------------------------------------------
 Follow-up to K3: tests whether damping or frictional correction
 stabilizes χ-driven soliton propagation within the causal bound.
@@ -8,8 +8,8 @@ stabilizes χ-driven soliton propagation within the causal bound.
 Implements the Tessaris Unified Constants & Verification Protocol.
 
 Outputs:
-    • backend/modules/knowledge/K3b_damped_soliton_summary.json
-    • PAEV_K3b_damped_soliton.png
+    * backend/modules/knowledge/K3b_damped_soliton_summary.json
+    * PAEV_K3b_damped_soliton.png
 """
 
 import json, math, numpy as np, matplotlib.pyplot as plt
@@ -21,8 +21,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β, χ = const["ħ"], const["G"], const["Λ"], const["α"], const["β"], const["χ"]
 
-print("=== K3b — Damped Relativistic Soliton Propagation (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== K3b - Damped Relativistic Soliton Propagation (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # --- Simulation parameters ---
 N, steps = 512, 2000
@@ -76,7 +76,7 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13,5))
 im = ax1.imshow(u_map, extent=[x.min(), x.max(), t_axis.max(), t_axis.min()],
                 cmap='magma', aspect='auto')
 ax1.plot(centers, t_axis, color='cyan', label=f"soliton center (v≈{v_emp:.3f})")
-ax1.set_title("K3b — Damped Soliton Propagation (|u(x,t)|)")
+ax1.set_title("K3b - Damped Soliton Propagation (|u(x,t)|)")
 ax1.set_xlabel("x"); ax1.set_ylabel("time"); ax1.legend()
 cbar = plt.colorbar(im, ax=ax1); cbar.set_label("|u|")
 
@@ -89,7 +89,7 @@ ax2.legend(); ax2.grid(True)
 plt.tight_layout()
 fig_path = "PAEV_K3b_damped_soliton.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # --- JSON summary ---
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -112,21 +112,21 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/K3b_damped_soliton_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # --- Discovery section ---
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Observation: Damped soliton speed v≈{v_emp:.3f}, bound≈{bound:.3f}.")
-print("• Interpretation: Damping successfully stabilized χ-driven overshoot.")
-print("• Implication: Confirms numerical causality restoration.")
-print("• Next step: Transition to L-series boost tests (Lorentz invariance).")
+print(f"* Observation: Damped soliton speed v≈{v_emp:.3f}, bound≈{bound:.3f}.")
+print("* Interpretation: Damping successfully stabilized χ-driven overshoot.")
+print("* Implication: Confirms numerical causality restoration.")
+print("* Next step: Transition to L-series boost tests (Lorentz invariance).")
 print("------------------------------------------------------------")
 
 # --- Verdict ---
 print("\n" + "="*66)
-print("🔎 K3b — Damped Soliton Verdict")
+print("🔎 K3b - Damped Soliton Verdict")
 print("="*66)
 status = "OK: within causal bound." if abs(v_emp) <= bound else "⚠️  Still exceeds bound!"
-print(f"Empirical speed v≈{v_emp:.4f} | bound≈{bound:.4f} → {status}")
+print(f"Empirical speed v≈{v_emp:.4f} | bound≈{bound:.4f} -> {status}")
 print("="*66 + "\n")

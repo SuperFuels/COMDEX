@@ -1,11 +1,11 @@
 """
-Conversation Memory — Phase 43A
+Conversation Memory - Phase 43A
 --------------------------------
 Stores recent conversational turns, resonance fields,
 and affective context for short-term memory continuity.
 
 Author: Tessaris Research Group
-Date: Phase 43A — October 2025
+Date: Phase 43A - October 2025
 """
 
 import time, json

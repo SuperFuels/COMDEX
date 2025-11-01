@@ -1,6 +1,6 @@
 """
 Tessaris AION Harmonic Learning & Stability Optimizer (HLSO)
-Phase 6B — Adaptive Gain Tuning Layer
+Phase 6B - Adaptive Gain Tuning Layer
 ------------------------------------------------------------
 Observes resonance_feedback.jsonl from the Resonant Coupling Interface (RCI)
 and adjusts COUPLING_GAIN coefficients dynamically based on stability trends.
@@ -61,7 +61,7 @@ def adjust_coupling_gains():
     feedback = load_recent_feedback(WINDOW)
     stats = compute_stability_stats(feedback)
     if not stats:
-        logger.info("No stability data available — skipping optimization.")
+        logger.info("No stability data available - skipping optimization.")
         return rci.COUPLING_GAIN
 
     mean_stab = stats["mean"]
@@ -76,7 +76,7 @@ def adjust_coupling_gains():
         rci.COUPLING_GAIN[key] = float(np.clip(rci.COUPLING_GAIN[key], -1.0, 1.0))
 
     logger.info(f"🧩 Stability mean={mean_stab:.4f} var={stats['variance']:.4f}")
-    logger.info(f"🔧 Updated COUPLING_GAIN → {rci.COUPLING_GAIN}")
+    logger.info(f"🔧 Updated COUPLING_GAIN -> {rci.COUPLING_GAIN}")
 
     # Persist the updated parameters
     save_path = Path("data/coupling_gain_state.json")

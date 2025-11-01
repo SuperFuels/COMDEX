@@ -22,9 +22,9 @@ class HobermanContainer(UCSBaseContainer):
     """
     🌀 Hoberman Container
     Inherits UCSBaseContainer (micro-grid, time dilation, SQI hooks) and adds:
-        • Seed glyph inflation logic
-        • SoulLaw + recursive unlock gates
-        • Morality fallback for blocked glyphs
+        * Seed glyph inflation logic
+        * SoulLaw + recursive unlock gates
+        * Morality fallback for blocked glyphs
     """
 
     def __init__(self, container_id: Optional[str] = None, runtime: Optional[Any] = None):

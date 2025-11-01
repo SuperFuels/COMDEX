@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────
-#  Tessaris GHXVisualizer — Resonance Feedback Extension
+#  Tessaris GHXVisualizer - Resonance Feedback Extension
 # ─────────────────────────────────────────────
 import logging
 import time
@@ -41,7 +41,7 @@ class GHXVisualizer:
             self.geometries[container]["intensity"] = intensity
             self.geometries[container]["hue_shift"] = hue_shift
             logger.info(
-                f"[GHXVisualizer] ✨ {container} → Intensity={intensity:.3f}, Δφ={phase_diff:.4f}, hue={hue_shift:.1f}"
+                f"[GHXVisualizer] ✨ {container} -> Intensity={intensity:.3f}, Δφ={phase_diff:.4f}, hue={hue_shift:.1f}"
             )
         else:
             logger.warning(f"[GHXVisualizer] Unknown container: {container}")

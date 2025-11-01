@@ -1,10 +1,10 @@
 # backend/symatics/core/resonant_laws.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.6.2 — Resonant Gradient Continuity Engine
+# Tessaris Symatics v0.6.2 - Resonant Gradient Continuity Engine
 # Provides adaptive resonance law updates with gradient feedback
-# and analytic coherence metric ℛ(ψ,t) = E + αC.
+# and analytic coherence metric R(ψ,t) = E + αC.
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v0.6.2 — October 2025
+# Version: v0.6.2 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -21,11 +21,11 @@ except ImportError:
 
 
 # ──────────────────────────────────────────────────────────────
-# Resonance metric helper: ℛ(ψ,t) = E + αC
+# Resonance metric helper: R(ψ,t) = E + αC
 # ──────────────────────────────────────────────────────────────
 def compute_resonance_metric(energy: float, coherence: float, alpha: float = 0.25) -> float:
     """
-    Analytic resonance metric ℛ(ψ,t) = E + αC.
+    Analytic resonance metric R(ψ,t) = E + αC.
     Provides smoother λ feedback via coherence weighting.
     """
     if energy is None:
@@ -40,8 +40,8 @@ def compute_resonance_metric(energy: float, coherence: float, alpha: float = 0.2
 # ──────────────────────────────────────────────────────────────
 class ResonantLawEngine:
     """
-    Maintains λᵢ(t) coefficients for resonance-driven symbolic laws.
-    Extends AdaptiveLawEngine with gradient-aware correction and ℛ(ψ,t) weighting.
+    Maintains λi(t) coefficients for resonance-driven symbolic laws.
+    Extends AdaptiveLawEngine with gradient-aware correction and R(ψ,t) weighting.
     """
 
     def __init__(self, default_weight: float = 1.0, learning_rate: float = 0.05):
@@ -52,7 +52,7 @@ class ResonantLawEngine:
 
     # ──────────────────────────────────────────────────────────────
     def get_weight(self, law_id: str) -> float:
-        """Return λᵢ(t) for given law, default to baseline."""
+        """Return λi(t) for given law, default to baseline."""
         return self.weights.get(law_id, self.default_weight)
 
     # ──────────────────────────────────────────────────────────────
@@ -65,10 +65,10 @@ class ResonantLawEngine:
         coherence: Optional[float] = None,
     ) -> float:
         """
-        Update λᵢ(t) given deviation Δ, gradient magnitude ∇ℛ, and optional energy/coherence.
+        Update λi(t) given deviation Δ, gradient magnitude ∇R, and optional energy/coherence.
         Implements feedback law:
-            dλ/dt = η * (∇ℛ - Δ)
-        where ℛ(ψ,t) = E + αC smooths the correction.
+            dλ/dt = η * (∇R - Δ)
+        where R(ψ,t) = E + αC smooths the correction.
         """
         if deviation is None:
             deviation = 0.0
@@ -76,19 +76,19 @@ class ResonantLawEngine:
             grad_r = 0.0
 
         prev = self.get_weight(law_id)
-        ℛ_val = compute_resonance_metric(energy, coherence)
+        R_val = compute_resonance_metric(energy, coherence)
 
         # Composite correction term
         grad_term = float(grad_r)
         delta_term = float(deviation)
-        correction = self.learning_rate * ((0.5 * grad_term * ℛ_val) - delta_term)
+        correction = self.learning_rate * ((0.5 * grad_term * R_val) - delta_term)
 
         new_lambda = prev + correction
         new_lambda = max(0.0, min(new_lambda, 2.0))
 
         self.weights[law_id] = new_lambda
         self.history.setdefault(law_id, []).append(
-            (time.time(), new_lambda, deviation, grad_term, ℛ_val)
+            (time.time(), new_lambda, deviation, grad_term, R_val)
         )
 
         # Telemetry event
@@ -100,7 +100,7 @@ class ResonantLawEngine:
                 new_weight=new_lambda,
                 deviation=delta_term,
                 grad_magnitude=grad_term,
-                resonance_metric=ℛ_val,
+                resonance_metric=R_val,
             )
         except Exception:
             pass
@@ -109,7 +109,7 @@ class ResonantLawEngine:
 
     # ──────────────────────────────────────────────────────────────
     def summary(self) -> Dict[str, float]:
-        """Return all λᵢ(t) in compact form."""
+        """Return all λi(t) in compact form."""
         return dict(self.weights)
 
     # ──────────────────────────────────────────────────────────────
@@ -121,7 +121,7 @@ class ResonantLawEngine:
 # backend/symatics/core/resonant_laws.py
 def update_with_gradient(self, law_id: str, deviation: float, grad_r: Optional[float] = None) -> float:
     """
-    Update λᵢ(t) given deviation Δ and gradient magnitude grad_r.
+    Update λi(t) given deviation Δ and gradient magnitude grad_r.
     Incorporates analytic coherence weighting for smoother resonance damping.
     """
     if deviation is None:

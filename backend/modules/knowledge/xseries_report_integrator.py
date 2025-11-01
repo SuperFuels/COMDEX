@@ -1,13 +1,13 @@
 # ============================================================
-# === Tessaris Phase IIIb Integrator — X-Series ==============
-# === Quantum–Thermal–Causal Unification Report ==============
+# === Tessaris Phase IIIb Integrator - X-Series ==============
+# === Quantum-Thermal-Causal Unification Report ==============
 # ============================================================
 
 import json, os, datetime
 import numpy as np
 import matplotlib.pyplot as plt
 
-print("=== Tessaris Phase IIIb Integrator — X-Series (Tessaris) ===")
+print("=== Tessaris Phase IIIb Integrator - X-Series (Tessaris) ===")
 
 # ------------------------------------------------------------
 # 1. Locate series summaries
@@ -26,7 +26,7 @@ for file in summaries:
         with open(path, "r") as f:
             data = json.load(f)
         loaded.append(data)
-        print(f"  • Loaded {file}")
+        print(f"  * Loaded {file}")
     else:
         print(f"  ⚠️  Missing: {file}")
 
@@ -60,9 +60,9 @@ global_invariance = np.nanmean(invariance)
 if global_pattern_strength > 0.9 and global_invariance > 0.95:
     state = "Stable causal executable lattice"
 elif global_pattern_strength > 0.8:
-    state = "Partially executable — subcritical coherence"
+    state = "Partially executable - subcritical coherence"
 else:
-    state = "Non-executable — thermal imbalance persists"
+    state = "Non-executable - thermal imbalance persists"
 
 collapse_recovery = 1.0 - abs(mean_E - mean_S) / (abs(mean_E) + 1e-9)
 
@@ -75,7 +75,7 @@ print(f"Global balance residual = {global_balance:.3e}")
 print(f"Global coherence = {global_coherence:.3f}")
 print(f"Pattern strength = {global_pattern_strength:.3f}")
 print(f"Invariance = {global_invariance:.3f}")
-print(f"Collapse→Recovery ratio = {collapse_recovery:.3f}")
+print(f"Collapse->Recovery ratio = {collapse_recovery:.3f}")
 print(f"State: {state}")
 
 summary = {
@@ -93,8 +93,8 @@ summary = {
     "state": state,
     "notes": [
         "Unified X-Series analysis under Tessaris Unified Constants Protocol v1.2.",
-        "Combines quantum–thermal integration, field–computational coupling, and symatic compilation.",
-        "Collapse→Recovery ratio reflects degree of energy–entropy balance.",
+        "Combines quantum-thermal integration, field-computational coupling, and symatic compilation.",
+        "Collapse->Recovery ratio reflects degree of energy-entropy balance.",
         "Pattern strength and invariance define causal executability of the lattice.",
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2",
@@ -103,13 +103,13 @@ summary = {
 out_path = os.path.join(base_path, "unified_summary_v1.6.json")
 with open(out_path, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Unified X-Series summary saved → {out_path}")
+print(f"✅ Unified X-Series summary saved -> {out_path}")
 
 # ------------------------------------------------------------
 # 5. Visualization
 # ------------------------------------------------------------
 fig, ax = plt.subplots(figsize=(7,4))
-x_labels = ["X₁ Thermal", "X₂ Coupling", "X₃ Symatic"]
+x_labels = ["X1 Thermal", "X2 Coupling", "X3 Symatic"]
 strengths = [np.nan_to_num(s, nan=0) for s in pattern_strength]
 invs = [np.nan_to_num(i, nan=0) for i in invariance]
 
@@ -125,7 +125,7 @@ plot_path = os.path.join(base_path, "Tessaris_XSeries_Integration_Map.png")
 plt.tight_layout()
 plt.savefig(plot_path, dpi=200)
 plt.close()
-print(f"✅ Visualization saved → {plot_path}")
+print(f"✅ Visualization saved -> {plot_path}")
 
 print("Phase IIIb (X-Series) integration complete.")
 print("------------------------------------------------------------")

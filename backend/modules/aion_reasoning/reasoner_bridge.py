@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # ================================================================
-# ⚖️ Tessaris Reasoner Bridge — Phase 64 (Core Pulse Closure)
+# ⚖️ Tessaris Reasoner Bridge - Phase 64 (Core Pulse Closure)
 # ================================================================
 # Unifies Tessaris Engine (outer cognition) with TessarisReasoner
 # (inner symbolic reasoner). Handles state exchange between:
-#   • ReflexMemory (fast feedback)
-#   • Motivation + Intent engines (slow reasoning input)
-#   • ReflectionEngine (long-term modulation)
-#   • ResonantHeartbeat (Θ-coupling)
+#   * ReflexMemory (fast feedback)
+#   * Motivation + Intent engines (slow reasoning input)
+#   * ReflectionEngine (long-term modulation)
+#   * ResonantHeartbeat (Θ-coupling)
 # ================================================================
 
 import json, time, logging
@@ -92,17 +92,17 @@ class ReasonerBridge:
             OUT.parent.mkdir(parents=True, exist_ok=True)
             with open(OUT, "a", encoding="utf-8") as f:
                 f.write(json.dumps(self.last_state) + "\n")
-            log.info(f"[ReasonerBridge] ✅ State appended → {OUT}")
+            log.info(f"[ReasonerBridge] ✅ State appended -> {OUT}")
         except Exception as e:
             log.warning(f"[ReasonerBridge] ⚠ Failed to export state: {e}")
 
         theta_val = decision.get("reasoning_score", 0.0)
-        log.info(f"[ReasonerBridge] Reasoning cycle complete — Θ={theta_val:.3f}")
+        log.info(f"[ReasonerBridge] Reasoning cycle complete - Θ={theta_val:.3f}")
         return decision
 
     # ------------------------------------------------------------
     def run_continuous(self, cycles: int = 10, delay: float = 1.5):
-        """Run continuous reasoning–feedback synchronization loop."""
+        """Run continuous reasoning-feedback synchronization loop."""
         for i in range(cycles):
             log.info(f"[ReasonerBridge] Cycle {i+1}/{cycles}")
             self.update_reasoner()

@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-Photon Compressor — Tessaris / CFE v0.3.x
+Photon Compressor - Tessaris / CFE v0.3.x
 -----------------------------------------
 Two-tier Photon compression engine:
 
 Basic mode:
-  • Dedup identical subtrees (structural sharing)
-  • Flatten nested ⊕ (Add) and ⊗ (Mul)
+  * Dedup identical subtrees (structural sharing)
+  * Flatten nested ⊕ (Add) and ⊗ (Mul)
 
 Advanced mode:
-  • Lazy gradient compaction (preserves Grad nodes)
-  • Subtree factoring (x ⊕ y ⊕ x → 2*(x ⊕ y))
-  • Aggressive flattening with structural cache reuse
+  * Lazy gradient compaction (preserves Grad nodes)
+  * Subtree factoring (x ⊕ y ⊕ x -> 2*(x ⊕ y))
+  * Aggressive flattening with structural cache reuse
 
 Upgrades:
-  • Safe bypass for dict/string/non-symbolic payloads
-  • Hashing uses SymPy’s srepr() for structural identity
-  • Iterative flatten/factor with caching (no recursion)
-  • normalize_compressed() guards invalid input
-  • Convenience aliases: compressor_basic, compressor_adv
+  * Safe bypass for dict/string/non-symbolic payloads
+  * Hashing uses SymPy's srepr() for structural identity
+  * Iterative flatten/factor with caching (no recursion)
+  * normalize_compressed() guards invalid input
+  * Convenience aliases: compressor_basic, compressor_adv
 """
 
 import sympy as sp
@@ -92,8 +92,8 @@ class PhotonCompressor:
     def compress_basic(self, expr_sym) -> sp.Expr:
         """
         Basic compression:
-        • Deduplication
-        • Flatten ⊕ / ⊗
+        * Deduplication
+        * Flatten ⊕ / ⊗
         Includes safe bypass for non-symbolic payloads.
         """
         # --- SAFETY BYPASS FOR RAW DATA PAYLOADS ---
@@ -112,8 +112,8 @@ class PhotonCompressor:
     def compress_advanced(self, expr_sym) -> sp.Expr:
         """
         Advanced compression:
-        • Dedup + flatten + repeat factoring
-        • Preserves Grad nodes and symbolic form
+        * Dedup + flatten + repeat factoring
+        * Preserves Grad nodes and symbolic form
         """
         if not hasattr(expr_sym, "args"):
             logger.warning(f"[Compressor] Advanced bypass triggered for {type(expr_sym).__name__}")

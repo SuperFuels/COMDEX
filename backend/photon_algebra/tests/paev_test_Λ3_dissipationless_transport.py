@@ -16,14 +16,14 @@ attenuation = float(1.0 - np.max(u)/ (np.max(packet)+1e-12))
 dissipationless = attenuation < 1e-2
 
 constants = load_constants()
-print("\n=== Λ3 — Dissipationless Transport (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
-print(f"Attenuation = {attenuation:.3e} → {'Dissipationless' if dissipationless else 'Lossy'} transport")
+print("\n=== Λ3 - Dissipationless Transport (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
+print(f"Attenuation = {attenuation:.3e} -> {'Dissipationless' if dissipationless else 'Lossy'} transport")
 
 plt.figure(figsize=(8,3.5))
 plt.plot(x, packet, label="initial")
 plt.plot(x, u, label="after transport")
-plt.title("Λ3 — Dissipationless Transport")
+plt.title("Λ3 - Dissipationless Transport")
 plt.xlabel("x"); plt.ylabel("amplitude"); plt.grid(alpha=0.3); plt.legend()
 plot_path = os.path.join(BASE, "PAEV_Λ3_dissipationless_transport.png")
 plt.savefig(plot_path, dpi=200); plt.close()
@@ -40,6 +40,6 @@ summary = {
 }
 out = os.path.join(BASE, "Λ3_dissipationless_transport_summary.json")
 with open(out, "w", encoding="utf-8") as f: json.dump(summary, f, indent=2)
-print(f"✅ Summary saved → {out}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {out}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

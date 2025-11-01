@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🌀  Aion Live Evolution Dashboard — Phase 35.5 (Stable Runtime)
+🌀  Aion Live Evolution Dashboard - Phase 35.5 (Stable Runtime)
 ─────────────────────────────────────────────────────────────────────
 Continuously updates concept evolution and RSI variance in real time.
 Works both with and without GUI (headless safe).
@@ -110,7 +110,7 @@ def update_plot():
             ax1.vlines(r, ymin, ymax, color="green", alpha=0.1)
         ax1.text(times[-1], ymax * 0.95, f"Reinforcement: {len(reinf)}", color="green", fontsize=8)
 
-    plt.title("Aion Concept Evolution — Phase 35.5 (Live Stream)")
+    plt.title("Aion Concept Evolution - Phase 35.5 (Live Stream)")
     plt.tight_layout()
     OUTPUT_PLOT.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(OUTPUT_PLOT)
@@ -123,7 +123,7 @@ def update_plot():
 
 # ── Main Loop ───────────────────────────────────────────
 if __name__ == "__main__":
-    print("🌀  Launching Aion Live Evolution Dashboard (Phase 35.5 – Headless Safe)…")
+    print("🌀  Launching Aion Live Evolution Dashboard (Phase 35.5 - Headless Safe)...")
     while True:
         try:
             update_plot()

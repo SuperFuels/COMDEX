@@ -68,7 +68,7 @@ plt.plot(S_system, label="S_system")
 plt.plot(S_observer, label="S_observer")
 plt.plot(S_meta, label="S_meta (awareness)")
 plt.plot(S_self, label="S_self (feedback)")
-plt.title("P5 — Conscious Coherence Resonance")
+plt.title("P5 - Conscious Coherence Resonance")
 plt.xlabel("time step"); plt.ylabel("Entropy / awareness coupling")
 plt.legend(); plt.tight_layout()
 os.makedirs("backend/modules/knowledge", exist_ok=True)
@@ -96,6 +96,6 @@ summary = {
 with open("backend/modules/knowledge/P5_conscious_resonance.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== P5 — Conscious Coherence Resonance ===")
+print("=== P5 - Conscious Coherence Resonance ===")
 print(f"⟨Δφ⟩={mean_phase_diff:.3f} | Corr_meta_self={corr_meta_self:.3f} | σφ={resonance_index:.3f} | {cls}")
-print("✅ Results saved → backend/modules/knowledge/P5_conscious_resonance.json")
+print("✅ Results saved -> backend/modules/knowledge/P5_conscious_resonance.json")

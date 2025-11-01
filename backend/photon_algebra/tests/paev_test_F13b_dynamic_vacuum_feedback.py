@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-F13b — Dynamic Λ Feedback Evolution (DC-cancelled, stabilized)
+F13b - Dynamic Λ Feedback Evolution (DC-cancelled, stabilized)
 --------------------------------------------------------------
 Stabilizers (final):
-  • dΛ/dt = γ_eff * Δn  - ζ (Λ - Λ_eq)  - ν * I
-  • I'   = -ρ I + Δn_hp         (leaky integral of *high-passed* error)
-  • DC cancel: ν = γ_base * ρ   (kills steady-state drift)
-  • γ_eff = γ_base / (1 + κ |Δn|)  (adaptive gain)
-  • Dead-band + softsat on Δn to suppress micro-chatter
-  • Anti-windup clamp on I
+  * dΛ/dt = γ_eff * Δn  - ζ (Λ - Λ_eq)  - ν * I
+  * I'   = -ρ I + Δn_hp         (leaky integral of *high-passed* error)
+  * DC cancel: ν = γ_base * ρ   (kills steady-state drift)
+  * γ_eff = γ_base / (1 + κ |Δn|)  (adaptive gain)
+  * Dead-band + softsat on Δn to suppress micro-chatter
+  * Anti-windup clamp on I
 
 Outputs:
-  • PAEV_F13b_LambdaEvolution.png
-  • PAEV_F13b_SEEvolution.png
-  • PAEV_F13b_PhaseFeedback.png
-  • backend/modules/knowledge/F13b_dynamic_vacuum_feedback.json
+  * PAEV_F13b_LambdaEvolution.png
+  * PAEV_F13b_SEEvolution.png
+  * PAEV_F13b_PhaseFeedback.png
+  * backend/modules/knowledge/F13b_dynamic_vacuum_feedback.json
 """
 from pathlib import Path
 from datetime import datetime, timezone
@@ -106,24 +106,24 @@ tail_n = max(200, T // 8)
 stable = (abs(Λ_drift) < 5e-6) and (Λ_tail_std < 8e-5)
 classification = "✅ Λ self-stabilized (attractor reached)" if stable else "⚠️ Λ drift detected (requires tuning)"
 
-print("=== F13b — Dynamic Λ Feedback Evolution Test (DC-cancelled) ===")
+print("=== F13b - Dynamic Λ Feedback Evolution Test (DC-cancelled) ===")
 print(f"ħ={ħ:.1e}, α={α:.2f}, Λ0={Λ0:.2e}, γ={γ_base:.4f}, ζ={ζ:.2f}, κ={κ_adapt:.1f}, ρ={ρ:.3f}, ν={ν:.6f}")
 print(f"Λ_final={Λ[-1]:.6f} | drift={Λ_drift:.6f} | tail σ={Λ_tail_std:.6f}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 
 # ---------- plots
 out = Path(".")
 plt.figure(figsize=(11,4))
 plt.plot(t, Λ, lw=1.8, label="Λ(t)")
-plt.axhline(Λ0, ls="--", c="gray", lw=1, label="Λ₀")
-plt.title("F13b — Dynamic Vacuum Feedback Evolution (stabilized)")
+plt.axhline(Λ0, ls="--", c="gray", lw=1, label="Λ0")
+plt.title("F13b - Dynamic Vacuum Feedback Evolution (stabilized)")
 plt.xlabel("time"); plt.ylabel("Λ(t)"); plt.legend(); plt.tight_layout()
 plt.savefig(out/"PAEV_F13b_LambdaEvolution.png", dpi=160)
 
 plt.figure(figsize=(11,4))
 plt.plot(t, S, label="Entropy S(t)", lw=1.6)
 plt.plot(t, E, label="Curvature Energy E(t)", lw=1.6)
-plt.title("F13b — Entropy and Curvature Energy Evolution")
+plt.title("F13b - Entropy and Curvature Energy Evolution")
 plt.xlabel("time"); plt.ylabel("Magnitude"); plt.legend(); plt.tight_layout()
 plt.savefig(out/"PAEV_F13b_SEEvolution.png", dpi=160)
 
@@ -131,7 +131,7 @@ plt.savefig(out/"PAEV_F13b_SEEvolution.png", dpi=160)
 σ = (σ_sum + 1e-12)
 plt.figure(figsize=(6.4,6))
 plt.plot(ΔS/σ, (ΔS-ΔE)/σ, lw=1.6)
-plt.title("F13b — Feedback Phase Space (ΔS vs ΔΛ)")
+plt.title("F13b - Feedback Phase Space (ΔS vs ΔΛ)")
 plt.xlabel("ΔS (normalized)"); plt.ylabel("ΔΛ (normalized)")
 plt.tight_layout(); plt.savefig(out/"PAEV_F13b_PhaseFeedback.png", dpi=160)
 
@@ -161,4 +161,4 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
 }
 Path("backend/modules/knowledge/F13b_dynamic_vacuum_feedback.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/F13b_dynamic_vacuum_feedback.json")
+print("📄 Summary saved -> backend/modules/knowledge/F13b_dynamic_vacuum_feedback.json")

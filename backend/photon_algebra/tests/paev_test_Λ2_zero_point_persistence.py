@@ -17,14 +17,14 @@ Q_lambda = float(np.mean(after**2) / (np.mean(u[:200]**2) + 1e-12))
 persistent = Q_lambda > 0.5
 
 constants = load_constants()
-print("\n=== Λ2 — Zero-Point Persistence (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
-print(f"Q_Λ (post/drive energy) = {Q_lambda:.3f} → {'Persistent' if persistent else 'Non-persistent'}")
+print("\n=== Λ2 - Zero-Point Persistence (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
+print(f"Q_Λ (post/drive energy) = {Q_lambda:.3f} -> {'Persistent' if persistent else 'Non-persistent'}")
 
 plt.figure(figsize=(8,3.5))
 plt.plot(x, u, label="u(t)")
 plt.axvspan(0, 200, color='0.9', label="drive on")
-plt.title("Λ2 — Zero-Point Persistence")
+plt.title("Λ2 - Zero-Point Persistence")
 plt.xlabel("t"); plt.ylabel("amplitude"); plt.grid(alpha=0.3); plt.legend()
 plot_path = os.path.join(BASE, "PAEV_Λ2_zero_point_persistence.png")
 plt.savefig(plot_path, dpi=200); plt.close()
@@ -41,6 +41,6 @@ summary = {
 }
 out = os.path.join(BASE, "Λ2_zero_point_persistence_summary.json")
 with open(out, "w", encoding="utf-8") as f: json.dump(summary, f, indent=2)
-print(f"✅ Summary saved → {out}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {out}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

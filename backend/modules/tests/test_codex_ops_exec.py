@@ -6,9 +6,9 @@ Iterates over codex_instruction_set.yaml and ensures each mapped
 `execute_*` function exists and runs without raising an exception.
 
 This confirms:
-  • RegistryBridge sync loaded the op
-  • The corresponding backend/modules/codex/ops/execute_*.py exists
-  • Function executes safely (stub or real)
+  * RegistryBridge sync loaded the op
+  * The corresponding backend/modules/codex/ops/execute_*.py exists
+  * Function executes safely (stub or real)
 """
 
 import pytest
@@ -30,10 +30,10 @@ def test_codex_op_executes(sym, meta):
     try:
         result = registry_bridge.resolve_and_execute(canonical, "a", "b")
     except Exception as e:
-        pytest.fail(f"{canonical} → {fn_name} raised error: {e}")
+        pytest.fail(f"{canonical} -> {fn_name} raised error: {e}")
 
     # Structured result check
     assert result is not None, f"{canonical} returned None"
 
     # Optional debug print for clarity
-    print(f"[OK] {canonical} → {fn_name} → {result}")
+    print(f"[OK] {canonical} -> {fn_name} -> {result}")

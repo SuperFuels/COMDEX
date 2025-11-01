@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-📊 AION Live Dashboard Aggregator — Phase 57a Dynamic Resonance Drift Compensation
+📊 AION Live Dashboard Aggregator - Phase 57a Dynamic Resonance Drift Compensation
 ──────────────────────────────────────────────────────────────────────────────
 Extends systemic Θ-synchronization with ΔΦ drift monitoring and correction metrics.
 
 New in Phase 57a:
-  • Integrates "drift_corrected" telemetry from ResonanceHeartbeat.monitor_drift()
-  • Reads resonant_drift_log.jsonl for ΔΦ correction events
-  • Adds drift summary: total corrections + average ΔΦ deviation
-  • Retains Phase 56 Harmony Score & per-engine Θ synchronization
+  * Integrates "drift_corrected" telemetry from ResonanceHeartbeat.monitor_drift()
+  * Reads resonant_drift_log.jsonl for ΔΦ correction events
+  * Adds drift summary: total corrections + average ΔΦ deviation
+  * Retains Phase 56 Harmony Score & per-engine Θ synchronization
 
-Outputs → data/analysis/aion_live_dashboard.json
+Outputs -> data/analysis/aion_live_dashboard.json
 """
 
 import json
@@ -142,7 +142,7 @@ def main():
             }
 
     # -----------------------------------------------------------------
-    # Phase 56–57 synchronization and drift data
+    # Phase 56-57 synchronization and drift data
     # -----------------------------------------------------------------
     phases, harmony = sync_all_engines()
     summary["engine_phases"] = phases
@@ -169,7 +169,7 @@ def main():
     # -----------------------------------------------------------------
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(summary, indent=2))
-    print("📤 Wrote synchronized dashboard summary →", OUT)
+    print("📤 Wrote synchronized dashboard summary ->", OUT)
     print(json.dumps(summary, indent=2))
 
 

@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tessaris Phase VIII — Λ–Σ Coupling Validation
+Tessaris Phase VIII - Λ-Σ Coupling Validation
 ---------------------------------------------
 Purpose:
     Validate bidirectional causal coupling between Λ (substrate equilibrium)
     and Σ (cross-domain universality).
 
 This test measures:
-    - coupling_efficiency      → information transfer from Λ to Σ
-    - coherence_transfer       → preservation of phase synchrony
-    - entropy_exchange         → mutual information balance
-    - recursion_gain           → Λ–Σ feedback amplification
-    - lambda_sigma_equilibrium → overall continuum stability
+    - coupling_efficiency      -> information transfer from Λ to Σ
+    - coherence_transfer       -> preservation of phase synchrony
+    - entropy_exchange         -> mutual information balance
+    - recursion_gain           -> Λ-Σ feedback amplification
+    - lambda_sigma_equilibrium -> overall continuum stability
 
 Outputs:
     backend/modules/knowledge/λΣ_coupling_summary.json
@@ -37,8 +37,8 @@ constants = load_constants("v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print(f"=== Phase VIII — Λ–Σ Coupling Validation (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== Phase VIII - Λ-Σ Coupling Validation (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Simulation Parameters ===
 steps = 1000
@@ -105,8 +105,8 @@ summary = {
         "lambda_sigma_equilibrium": lambda_sigma_equilibrium
     },
     "state": (
-        "Λ–Σ continuum stable" if lambda_sigma_equilibrium
-        else "Λ–Σ feedback oscillatory"
+        "Λ-Σ continuum stable" if lambda_sigma_equilibrium
+        else "Λ-Σ feedback oscillatory"
     ),
     "notes": [
         f"Coupling efficiency = {coupling_efficiency:.3f}",
@@ -117,10 +117,10 @@ summary = {
     ],
     "discovery": [
         "Confirmed bidirectional causal coupling between substrate and emergent domains.",
-        "Information flow remains coherent — entropy minimized across the continuum.",
+        "Information flow remains coherent - entropy minimized across the continuum.",
         "Λ equilibrium directly governs Σ dynamics; universality preserved.",
         "Recursion gain indicates feedback-driven self-regulation of causal structure.",
-        "Marks completion of physical unification — enabling transition to Φ-Series (Conscious Causality)."
+        "Marks completion of physical unification - enabling transition to Φ-Series (Conscious Causality)."
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
 }
@@ -129,7 +129,7 @@ summary = {
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 with open(SUMMARY_PATH, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Summary saved → {SUMMARY_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
 
 # === Plot ===
 plt.figure(figsize=(7, 4))
@@ -138,13 +138,13 @@ plt.plot(coherence_tr, label="Coherence Transfer", linestyle="--")
 plt.plot(np.tanh(recursion_gn), label="Recursion Gain (normalized)", linestyle=":")
 plt.xlabel("Time Step")
 plt.ylabel("Causal Metric")
-plt.title("Λ–Σ Coupling Dynamics (Phase VIII)")
+plt.title("Λ-Σ Coupling Dynamics (Phase VIII)")
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
 
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))
-print("🌐 Phase VIII complete — Λ–Σ coupling validated.")
+print("🌐 Phase VIII complete - Λ-Σ coupling validated.")

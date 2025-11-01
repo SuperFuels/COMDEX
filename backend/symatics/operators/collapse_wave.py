@@ -1,5 +1,5 @@
 # ============================================================
-# Symatics v0.2 — Wave Collapse Operator (∇)
+# Symatics v0.2 - Wave Collapse Operator (∇)
 # ============================================================
 
 from __future__ import annotations
@@ -11,9 +11,9 @@ def collapse_wave(input_state: dict | str | Signature):
     Wave-collapse returns stable symbolic wave truth.
 
     Accepts:
-      • raw glyph string
-      • state dict {seq, coherence, entropy}
-      • Signature
+      * raw glyph string
+      * state dict {seq, coherence, entropy}
+      * Signature
 
     Returns canonical collapse packet:
     {
@@ -26,7 +26,7 @@ def collapse_wave(input_state: dict | str | Signature):
     """
 
     # ─────────────────────────────
-    # Normalize input → seq, coh, ent
+    # Normalize input -> seq, coh, ent
     # ─────────────────────────────
     if isinstance(input_state, Signature):
         seq = input_state.meta.get("seq", "")

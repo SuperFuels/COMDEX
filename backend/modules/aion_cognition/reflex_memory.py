@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧬 ReflexMemory — Phase 63 Reflex–Reasoner Fusion (Unified)
+# 🧬 ReflexMemory - Phase 63 Reflex-Reasoner Fusion (Unified)
 # ================================================================
 # Combines original telemetry logging with new RMC resonance logic.
 # Responsibilities:
-#   • Persist reflex traces (action/context/decision/outcome)
-#   • Compute SQI / ΔΦ / entropy + success rate
-#   • Maintain rolling stability & drift averages
-#   • Feed resonance data to ResonantMemoryCache
-#   • Provide last_state + summary for TessarisReasoner
+#   * Persist reflex traces (action/context/decision/outcome)
+#   * Compute SQI / ΔΦ / entropy + success rate
+#   * Maintain rolling stability & drift averages
+#   * Feed resonance data to ResonantMemoryCache
+#   * Provide last_state + summary for TessarisReasoner
 # ================================================================
 
 import json, time, math, logging
@@ -166,7 +166,7 @@ class ReflexMemory:
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)
-        logger.info(f"[ReflexMemory] Exported summary → {out_path}")
+        logger.info(f"[ReflexMemory] Exported summary -> {out_path}")
         return summary
 
 

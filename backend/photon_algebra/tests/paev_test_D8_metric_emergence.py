@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import imageio.v2 as imageio
 
 # ============================================================
-# Test D8 — Metric Emergence Test (Effective Spacetime Geometry)
+# Test D8 - Metric Emergence Test (Effective Spacetime Geometry)
 # ============================================================
 
 def compute_kappa_field(N=121, seed=8):
@@ -38,7 +38,7 @@ def compute_ricci_scalar(g_xx, g_yy, g_xy):
 def normalize(x): return (x - np.min(x)) / (np.ptp(x) + 1e-12)
 
 # === MAIN ===
-print("=== Test D8 — Metric Emergence from Curvature Tensor ===")
+print("=== Test D8 - Metric Emergence from Curvature Tensor ===")
 
 X, Y, kappa = compute_kappa_field()
 g_xx, g_yy, g_xy, det_g = derive_metric_from_curvature(kappa)
@@ -52,7 +52,7 @@ print(f"Metric determinant mean={mean_det:.4e}, std={std_det:.4e}")
 # === Visualization ===
 plt.figure(figsize=(6,6))
 plt.imshow(kappa, cmap="inferno", extent=[-1,1,-1,1])
-plt.title("Test D8 — Base Curvature Field κ(x,y)")
+plt.title("Test D8 - Base Curvature Field κ(x,y)")
 plt.colorbar(label="κ curvature")
 plt.tight_layout()
 plt.savefig("PAEV_TestD8_CurvatureField.png")
@@ -60,7 +60,7 @@ plt.close()
 
 plt.figure(figsize=(6,6))
 plt.imshow(det_g, cmap="viridis", extent=[-1,1,-1,1])
-plt.title("Test D8 — Metric Determinant det(g)")
+plt.title("Test D8 - Metric Determinant det(g)")
 plt.colorbar(label="det(g)")
 plt.tight_layout()
 plt.savefig("PAEV_TestD8_MetricDeterminant.png")
@@ -68,7 +68,7 @@ plt.close()
 
 plt.figure(figsize=(6,6))
 plt.imshow(R, cmap="coolwarm", extent=[-1,1,-1,1])
-plt.title("Test D8 — Ricci-like Scalar Curvature R(x,y)")
+plt.title("Test D8 - Ricci-like Scalar Curvature R(x,y)")
 plt.colorbar(label="R (arb. units)")
 plt.tight_layout()
 plt.savefig("PAEV_TestD8_RicciScalar.png")

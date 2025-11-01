@@ -15,10 +15,10 @@ def check_instability(engine) -> bool:
     Returns True if instability is detected and tick should halt or SQI dampening should engage.
 
     Integrated with:
-    • Drift instability detection
-    • Harmonic coherence collapse detection
-    • Particle overspeed check
-    • Auto drift damping for minor instability (if engine allows)
+    * Drift instability detection
+    * Harmonic coherence collapse detection
+    * Particle overspeed check
+    * Auto drift damping for minor instability (if engine allows)
     """
 
     # -------------------------

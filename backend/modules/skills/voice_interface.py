@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • Voice Interface (AION v3)
-#  ElevenLabs → Google Cloud Storage voice output bridge
+#  Tessaris * Voice Interface (AION v3)
+#  ElevenLabs -> Google Cloud Storage voice output bridge
 #  Handles AION speech synthesis & public audio publishing.
 # ──────────────────────────────────────────────────────────────
 
@@ -16,7 +16,7 @@ try:
 except ModuleNotFoundError:
     storage = None
     GCS_AVAILABLE = False
-    print("⚠️ [VoiceInterface] Google Cloud Storage not installed — running in local-only mode.")
+    print("⚠️ [VoiceInterface] Google Cloud Storage not installed - running in local-only mode.")
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -49,19 +49,19 @@ class VoiceInterface:
         if self.enabled:
             print(f"✅ ElevenLabs voice interface ready (Voice ID: {self.voice_id})")
         else:
-            print("⚠️ ElevenLabs API key not set — voice output disabled.")
+            print("⚠️ ElevenLabs API key not set - voice output disabled.")
 
     # ──────────────────────────────────────────────
     def speak(self, text: str) -> str:
         """
-        Convert AION’s generated text into speech via ElevenLabs API.
+        Convert AION's generated text into speech via ElevenLabs API.
         Returns the public URL of the generated audio if upload succeeds.
         """
         if not self.enabled:
-            print(f"🔇 (Voice disabled) — AION says: {text}")
+            print(f"🔇 (Voice disabled) - AION says: {text}")
             return None
 
-        print(f"🗣️ Synthesizing AION speech → {text[:60]}{'...' if len(text) > 60 else ''}")
+        print(f"🗣️ Synthesizing AION speech -> {text[:60]}{'...' if len(text) > 60 else ''}")
         try:
             # ElevenLabs synthesis request
             resp = requests.post(

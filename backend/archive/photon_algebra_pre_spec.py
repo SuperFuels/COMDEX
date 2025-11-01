@@ -2,7 +2,7 @@
 ===========================================
 📁 photon_algebra.py
 ===========================================
-Photon Algebra — successor to Boolean Algebra.
+Photon Algebra - successor to Boolean Algebra.
 
 This module defines the algebraic operators over photon states,
 where:
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # -------------------------------------------
 
 PhotonState = Union[str, Dict[str, Any]]  # a glyph ID or structured state
-SQIMap = Dict[str, float]  # glyph_id → quality weight
+SQIMap = Dict[str, float]  # glyph_id -> quality weight
 
 
 # -------------------------------------------
@@ -36,33 +36,33 @@ def identity(a: PhotonState) -> PhotonState:
 
 
 def superpose(*states: PhotonState) -> Dict[str, Any]:
-    """⊕ — place states into superposition"""
+    """⊕ - place states into superposition"""
     return {"op": "⊕", "states": list(states)}
 
 
 def entangle(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
-    """↔ — entangle two states (symmetric)"""
+    """↔ - entangle two states (symmetric)"""
     return {"op": "↔", "states": [a, b]}
 
 
 def fuse(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
-    """⊗ — resonance amplification (reinforce alignment)"""
+    """⊗ - resonance amplification (reinforce alignment)"""
     return {"op": "⊗", "states": [a, b]}
 
 
 def cancel(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
-    """⊖ — destructive cancellation of states"""
+    """⊖ - destructive cancellation of states"""
     return {"op": "⊖", "states": [a, b]}
 
 
 def negate(a: PhotonState) -> Dict[str, Any]:
-    """¬ — invert photon resonance"""
+    """¬ - invert photon resonance"""
     return {"op": "¬", "state": a}
 
 
 def collapse(state: Dict[str, Any], sqi: SQIMap) -> PhotonState:
     """
-    ∇ — collapse superposition into a classical outcome,
+    ∇ - collapse superposition into a classical outcome,
     weighted by SQI distribution.
     """
     if not state or "states" not in state:
@@ -72,12 +72,12 @@ def collapse(state: Dict[str, Any], sqi: SQIMap) -> PhotonState:
     weights = [sqi.get(str(s), 1.0) for s in states]
     chosen = random.choices(states, weights=weights, k=1)[0]
 
-    logger.info(f"[PhotonAlgebra] ∇ collapse {states} → {chosen} (weights={weights})")
+    logger.info(f"[PhotonAlgebra] ∇ collapse {states} -> {chosen} (weights={weights})")
     return chosen
 
 
 def score(state: PhotonState, sqi: SQIMap) -> Dict[str, Any]:
-    """★ — project SQI drift score"""
+    """★ - project SQI drift score"""
     return {
         "op": "★",
         "state": state,
@@ -86,7 +86,7 @@ def score(state: PhotonState, sqi: SQIMap) -> Dict[str, Any]:
 
 
 def broadcast(state: PhotonState, container_id: str) -> Dict[str, Any]:
-    """☄ — broadcast photon state across containers"""
+    """☄ - broadcast photon state across containers"""
     return {
         "op": "☄",
         "state": state,

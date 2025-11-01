@@ -25,11 +25,11 @@ def link_lean_to_kg(atom_ref: Dict[str, Any], lean_path: str) -> Dict[str, Any]:
     Creates or updates a 'lean_proof' node and links it to the harmonic_atom node.
 
     Args:
-        atom_ref: dict — reference returned from commit_atom_to_graph or push_to_lean
-        lean_path: str — path to the generated Lean file
+        atom_ref: dict - reference returned from commit_atom_to_graph or push_to_lean
+        lean_path: str - path to the generated Lean file
 
     Returns:
-        dict — metadata of the created or updated lean_proof node
+        dict - metadata of the created or updated lean_proof node
     """
     try:
         kg = get_kg_writer()
@@ -78,7 +78,7 @@ def link_lean_to_kg(atom_ref: Dict[str, Any], lean_path: str) -> Dict[str, Any]:
         }
         kg.update_node(atom_id, atom_update)
 
-        logging.info(f"[LeanBridge] ✅ Linked {proof_node_id} → {atom_id}")
+        logging.info(f"[LeanBridge] ✅ Linked {proof_node_id} -> {atom_id}")
         return proof_node
 
     except Exception as e:
@@ -93,7 +93,7 @@ def get_linked_lean_for_atom(atom_id: str) -> Dict[str, Any]:
     Retrieve the linked Lean proof node for a given harmonic_atom id.
 
     Returns:
-        dict — proof node metadata or empty dict if not found
+        dict - proof node metadata or empty dict if not found
     """
     try:
         kg = get_kg_writer()

@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-🧭 PlanningEngine — Phase 54 Resonant Context Coupling
+🧭 PlanningEngine - Phase 54 Resonant Context Coupling
 ───────────────────────────────────────────────────────────────
 Integrates Θ-field resonance and ContextEngine environmental entropy
-to dynamically modulate planning “temperature” — i.e., the stochastic
+to dynamically modulate planning "temperature" - i.e., the stochastic
 variance in strategic path selection.
 
 Features:
-  • Context ↔ Planning entropy bridge
-  • Θ-field resonance feedback (SQI, ΔΦ)
-  • Plan temperature modulation based on context entropy
-  • Memory logging + harmonic emission
+  * Context ↔ Planning entropy bridge
+  * Θ-field resonance feedback (SQI, ΔΦ)
+  * Plan temperature modulation based on context entropy
+  * Memory logging + harmonic emission
 """
 
 import random
@@ -42,7 +42,7 @@ class PlanningEngine:
         self.active_plan = []
         self.current_goal = None
         self.last_generated = None
-        self.temperature = 1.0  # dynamic “reasoning temperature”
+        self.temperature = 1.0  # dynamic "reasoning temperature"
 
         # 🧠 Submodules
         from backend.modules.skills.goal_engine import GoalEngine
@@ -64,7 +64,7 @@ class PlanningEngine:
 
     # ------------------------------------------------------------
     def _compute_environment_entropy(self) -> float:
-        """Compute entropy score from ContextEngine (0–1)."""
+        """Compute entropy score from ContextEngine (0-1)."""
         if not self.context:
             return 0.5  # neutral baseline
         ctx = self.context.get_context()
@@ -175,7 +175,7 @@ class PlanningEngine:
         with open(self.resonance_log, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry) + "\n")
 
-        print(f"[Θ🧭] Planning resonance → SQI={sqi:.3f}, ΔΦ={delta_phi:.3f}, T={self.temperature:.2f}")
+        print(f"[Θ🧭] Planning resonance -> SQI={sqi:.3f}, ΔΦ={delta_phi:.3f}, T={self.temperature:.2f}")
         return self.active_plan
 
     # ------------------------------------------------------------

@@ -25,7 +25,7 @@ async def replay_timeline_route(
 ):
     """
     Replay the most recent Photon Telemetry snapshots (.ptn)
-    through the runtime stack (Photon → SQI → QQC → QFC),
+    through the runtime stack (Photon -> SQI -> QQC -> QFC),
     and optionally reinject state into the live SCI workspace.
     """
     try:

@@ -1,6 +1,6 @@
 """
-PAEV Test F6e — Quantum Black Hole Backreaction & Greybody Spectrum
-Simulates Hawking flux with quantum corrections (S = A/4 + η·log(A)).
+PAEV Test F6e - Quantum Black Hole Backreaction & Greybody Spectrum
+Simulates Hawking flux with quantum corrections (S = A/4 + η*log(A)).
 """
 
 import numpy as np
@@ -44,7 +44,7 @@ E = E0
 # ============================================================
 # Main loop
 # ============================================================
-print("🌀 Running F6e — Quantum Hawking Backreaction Simulation")
+print("🌀 Running F6e - Quantum Hawking Backreaction Simulation")
 
 for step in range(steps):
     T = hawking_temp(A)
@@ -61,10 +61,10 @@ for step in range(steps):
     T_trace.append(T)
 
     if step % 100 == 0:
-        print(f"Step {step:03d} — E={E:.5e}, A={A:.1f}, Φ={Φ:.3e}, S={S:.3f}, T={T:.4f}")
+        print(f"Step {step:03d} - E={E:.5e}, A={A:.1f}, Φ={Φ:.3e}, S={S:.3f}, T={T:.4f}")
 
 # ============================================================
-# Convert lists → arrays for math ops
+# Convert lists -> arrays for math ops
 # ============================================================
 A_trace = np.array(A_trace)
 E_trace = np.array(E_trace)
@@ -98,7 +98,7 @@ plt.savefig("PAEV_TestF6e_EntropyEvolution.png", dpi=150)
 
 plt.figure(figsize=(10,6))
 plt.loglog(A_trace, F_trace)
-plt.title("Flux–Area Scaling (Hawking Law Check)")
+plt.title("Flux-Area Scaling (Hawking Law Check)")
 plt.xlabel("Area A")
 plt.ylabel("Flux Φ")
 plt.grid(True)
@@ -115,12 +115,12 @@ plt.savefig("PAEV_TestF6e_QuantumResiduals.png", dpi=150)
 # ============================================================
 # Summary
 # ============================================================
-print("\n=== Test F6e — Quantum Backreaction & Greybody Spectrum Complete ===")
+print("\n=== Test F6e - Quantum Backreaction & Greybody Spectrum Complete ===")
 print(f"⟨E⟩ final  = {E:.6e}")
 print(f"⟨A⟩ final  = {A:.3f}")
 print(f"⟨S⟩ final  = {S:.3f}")
 print(f"⟨T_H⟩ final = {T:.5f}")
-print(f"Flux exponent n = {abs(n_fit):.3f} (R²={R2_flux:.4f})")
+print(f"Flux exponent n = {abs(n_fit):.3f} (R2={R2_flux:.4f})")
 print("Interpretation: n≈1 confirms Hawking flux scaling; ΔS quantifies quantum correction.")
 print("All output files saved in working directory.")
 print("----------------------------------------------------------")

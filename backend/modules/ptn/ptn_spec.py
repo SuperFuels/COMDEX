@@ -7,9 +7,9 @@ Defines structure, metadata, and checksum rules
 for Tessaris Photon Pages (Symbolic Capsules).
 
 Used by:
- - ptn_validator.py  → syntax/import checks
- - ptn_runner.py     → execution
- - ptn_converter.py  → serialization
+ - ptn_validator.py  -> syntax/import checks
+ - ptn_runner.py     -> execution
+ - ptn_converter.py  -> serialization
 
 Author: Tessaris / Aion Systems
 """

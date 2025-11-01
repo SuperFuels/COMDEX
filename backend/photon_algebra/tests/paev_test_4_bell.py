@@ -8,7 +8,7 @@ def E_quantum(delta):
 # ---------- Photon Algebra correlation ----------
 def E_photon_algebra(delta):
     # Symbolic phase duality model
-    # Local structure (¬x)⊕(x) expands to cos²(Δ)−sin²(Δ)=cos(2Δ)
+    # Local structure (¬x)⊕(x) expands to cos2(Δ)-sin2(Δ)=cos(2Δ)
     return np.cos(2 * delta)
 
 # ---------- Local hidden cap (classical) ----------
@@ -36,8 +36,8 @@ E_L_vals = E_local(angles)
 plt.figure(figsize=(9,5))
 plt.plot(angles, E_Q_vals, label='Quantum: E(Δ)=cos 2Δ', color='blue')
 plt.plot(angles, E_PA_vals, '--', label='Photon Algebra: E(Δ)=cos 2Δ', color='orange')
-plt.plot(angles, E_L_vals, ':', label='Local: 0.707·cos 2Δ', color='green')
-plt.title("Test 4 — Bell/CHSH Entanglement Correlations")
+plt.plot(angles, E_L_vals, ':', label='Local: 0.707*cos 2Δ', color='green')
+plt.title("Test 4 - Bell/CHSH Entanglement Correlations")
 plt.xlabel("Analyzer angle difference Δ (radians)")
 plt.ylabel("Correlation E")
 plt.legend()
@@ -54,4 +54,4 @@ print("\n=== CHSH (Quantum vs Photon Algebra) ===")
 print("Angles: a=0°, a'=45°, b=22.5°, b'=67.5°")
 print(f"S (Quantum):     {S_Q:.3f}   [expected ≈ 2.828]")
 print(f"S (PhotonAlg):   {S_PA:.3f}   [matches quantum]")
-print(f"S (Local):       {S_L:.3f}   [≤ 2 by construction]")
+print(f"S (Local):       {S_L:.3f}   [<= 2 by construction]")

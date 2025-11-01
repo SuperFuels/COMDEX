@@ -39,7 +39,7 @@ def main():
     # 1) Import kernel
     Kernel = import_module("backend.symatics.core.srk_kernel").SymaticsReasoningKernel
 
-    # 2) Init kernel (loader should include SRK-3 → SRK-5)
+    # 2) Init kernel (loader should include SRK-3 -> SRK-5)
     srk = Kernel()
 
     # 3) Exercise a small op sequence to produce field activity
@@ -87,7 +87,7 @@ def main():
     print("\n=== SRK-5 Coherent Field Diagnostics ===")
     print(pretty(srk5_diag))
 
-    # 7) Friendly checks (don’t hard-fail; just report)
+    # 7) Friendly checks (don't hard-fail; just report)
     coherent_ok = False
     for key in ("coherent_field_feedback", "coherence_feedback"):
         if isinstance(srk5_diag, dict) and key in srk5_diag:

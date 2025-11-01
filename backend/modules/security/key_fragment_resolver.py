@@ -97,7 +97,7 @@ class KeyFragmentResolver:
             gid = glyph.get("id")
             if frag and gid:
                 self.fragments[gid] = frag
-                print(f"📦 Found glyph key fragment: {gid} → {frag}")
+                print(f"📦 Found glyph key fragment: {gid} -> {frag}")
 
     def resolve_entangled_order(self) -> List[str]:
         """

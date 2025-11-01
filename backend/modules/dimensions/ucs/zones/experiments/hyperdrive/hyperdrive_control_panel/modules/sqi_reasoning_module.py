@@ -11,7 +11,7 @@ SQI_EVENT_LOG = []
 
 # ✅ SQI Drift Logger Function (used for GHX + HUD overlays)
 def log_sqi_drift(container_id: str, beam_id: str, glow: float, frequency: float):
-    print(f"[SQI] Drift beam {beam_id} in {container_id} → glow={glow:.2f}, pulse={frequency:.2f}Hz")
+    print(f"[SQI] Drift beam {beam_id} in {container_id} -> glow={glow:.2f}, pulse={frequency:.2f}Hz")
 
 # Optional: Provide a dummy broadcast function if GHX not connected
 def broadcast_ghx_event(event: Dict):
@@ -50,7 +50,7 @@ class SQIReasoningEngine:
             print("🛑 [SQI] Disabled: Skipping analysis.")
             return {
                 "drift": 0.0,
-                "drift_trend": "—",
+                "drift_trend": "-",
                 "avg_exhaust": 0.0,
                 "fields": trace.get("fields", {}),
             }
@@ -65,9 +65,9 @@ class SQIReasoningEngine:
 
         drift_trend = None
         if self.last_drift is not None:
-            drift_trend = "↑" if drift > self.last_drift else "↓" if drift < self.last_drift else "→"
+            drift_trend = "↑" if drift > self.last_drift else "↓" if drift < self.last_drift else "->"
 
-        print(f"🧠 [SQI] Stage={stage or 'N/A'} | Drift={drift:.3f} ({drift_trend or '—'}) | Exhaust={avg_exhaust:.2f}")
+        print(f"🧠 [SQI] Stage={stage or 'N/A'} | Drift={drift:.3f} ({drift_trend or '-'}) | Exhaust={avg_exhaust:.2f}")
 
         self.last_drift = drift
         self.last_exhaust = avg_exhaust
@@ -113,7 +113,7 @@ class SQIReasoningEngine:
         beam_id = trace.get("beam_id", "unknown")
 
         # ---------------------------------------
-        # 🪩 Log Drift → Glow = drift, Pulse = exhaust
+        # 🪩 Log Drift -> Glow = drift, Pulse = exhaust
         # ---------------------------------------
         try:
             log_sqi_drift(container_id=container_id, beam_id=beam_id, glow=drift, frequency=avg_exhaust)
@@ -188,7 +188,7 @@ class SQIReasoningEngine:
             import asyncio
             asyncio.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
         except Exception as qfc_err:
-            print(f"[⚠️ SQI→QFC] Failed to broadcast collapse: {qfc_err}")
+            print(f"[⚠️ SQI->QFC] Failed to broadcast collapse: {qfc_err}")
 
         # Final enriched analysis object
         return {
@@ -271,9 +271,9 @@ class SQIReasoningEngine:
                 new_freq = max(stage_baseline_freq * 0.8, fields["wave_frequency"] * factor)
                 adjustments["wave_frequency"] = new_freq
                 adjustments["magnetism"] = fields["magnetism"] * factor
-                print(f"⚠️ SQI: Heavy drift detected (Stage={stage}) → Freq={new_freq:.3f}, Magnetism scaled.")
+                print(f"⚠️ SQI: Heavy drift detected (Stage={stage}) -> Freq={new_freq:.3f}, Magnetism scaled.")
             elif drift_trend == "↑":
-                print(f"⚠️ SQI: Minor drift rising (Stage={stage}) → Holding (dead zone).")
+                print(f"⚠️ SQI: Minor drift rising (Stage={stage}) -> Holding (dead zone).")
             else:
                 factor = 0.995
                 adjustments["wave_frequency"] = fields["wave_frequency"] * factor
@@ -325,7 +325,7 @@ class SQIReasoningEngine:
         drift = max(0.0, min(1.0, drift))
         weight = getattr(self, "drift_weight", 1.0)
         cost = drift * weight * base_cost
-        print(f"[SQI] Drift Cost → Drift={drift:.3f} | Weight={weight:.2f} | Cost={cost:.3f}")
+        print(f"[SQI] Drift Cost -> Drift={drift:.3f} | Weight={weight:.2f} | Cost={cost:.3f}")
         return cost
 
 def log_sqi_event(event: Dict):
@@ -352,7 +352,7 @@ def log_sqi_event(event: Dict):
     SQI_EVENT_LOG.append(event)
 
     # ✅ Print to log (optional, or make togglable)
-    logger.info(f"[SQI_EVENT] {event['type']} — {event.get('status', 'ok')}")
+    logger.info(f"[SQI_EVENT] {event['type']} - {event.get('status', 'ok')}")
 
     # ✅ Broadcast to GHX replay if available
     if broadcast_ghx_event:

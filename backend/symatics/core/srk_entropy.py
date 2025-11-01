@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-SRK-3 — Field Entropy Kernel (v1.3 Stable)
+SRK-3 - Field Entropy Kernel (v1.3 Stable)
 ─────────────────────────────────────────────
 Extends SRK-1/2 with entropy-based damping,
-coherence–entropy diagnostics, and CodexTrace integration.
+coherence-entropy diagnostics, and CodexTrace integration.
 """
 
 from backend.symatics.entropy_field import EntropyFieldState

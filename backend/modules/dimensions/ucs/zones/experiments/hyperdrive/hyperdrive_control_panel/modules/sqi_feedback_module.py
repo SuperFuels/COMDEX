@@ -7,11 +7,11 @@ from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_cont
 def run_sqi_feedback(engine):
     """
     SQI Feedback Loop:
-    • Runs SQI symbolic analysis & field adjustments.
-    • Integrates harmonic coherence scoring into tuning.
-    • Auto-pauses SQI on low drift stability lock.
-    • Auto-reactivates SQI on drift or coherence spikes.
-    • Syncs with engine.handle_sqi_lock() if coherence locks.
+    * Runs SQI symbolic analysis & field adjustments.
+    * Integrates harmonic coherence scoring into tuning.
+    * Auto-pauses SQI on low drift stability lock.
+    * Auto-reactivates SQI on drift or coherence spikes.
+    * Syncs with engine.handle_sqi_lock() if coherence locks.
     """
 
     # -----------------------
@@ -19,7 +19,7 @@ def run_sqi_feedback(engine):
     # -----------------------
     if len(engine.resonance_filtered) < engine.sqi_engine.interval:
         engine.resonance_filtered.append(engine.resonance_phase or 0.01)
-        print(f"ℹ️ SQI resonance auto-fill: Added phase {engine.resonance_phase or 0.01:.4f}")
+        print(f"i️ SQI resonance auto-fill: Added phase {engine.resonance_phase or 0.01:.4f}")
 
     # -----------------------
     # SQI Toggle Check

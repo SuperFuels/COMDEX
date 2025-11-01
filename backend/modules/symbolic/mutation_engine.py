@@ -95,7 +95,7 @@ def mutate_container_logic(container_id: str, reason: str) -> None:
 
     glyphs = container.get("glyphs", [])
     if not glyphs:
-        print(f"[ℹ️] No glyphs found in container: {container_id}")
+        print(f"[i️] No glyphs found in container: {container_id}")
         return
 
     mutated_glyphs = []

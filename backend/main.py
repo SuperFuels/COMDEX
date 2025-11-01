@@ -76,7 +76,7 @@ app = FastAPI(
 )
 app.router.redirect_slashes = False
 
-# 🧠 Attach AION Trace Bus subscriber → Replay Reducer
+# 🧠 Attach AION Trace Bus subscriber -> Replay Reducer
 def on_trace_event(event: dict):
     """
     Called whenever a cognition event is emitted.
@@ -190,23 +190,23 @@ async def startup_event():
         logger.warning(f"[HQCE] Tessaris runtime failed to initialize: {e}")
         tessaris_runtime = None
 
-    # ── Start Symbolic–Holographic Convergence Engine (ψ–κ–T Learning Loop)
+    # ── Start Symbolic-Holographic Convergence Engine (ψ-κ-T Learning Loop)
     try:
         from backend.modules.holograms.convergence_engine import ConvergenceEngine
         if qqc_kernel and tessaris_runtime:
             convergence_engine = ConvergenceEngine(qqc_kernel, tessaris_runtime)
             asyncio.create_task(convergence_engine.run())
-            logger.info("[HQCE] ConvergenceEngine started (ψ–κ–T loop).")
+            logger.info("[HQCE] ConvergenceEngine started (ψ-κ-T loop).")
         else:
             logger.warning("[HQCE] ConvergenceEngine skipped: dependencies missing.")
     except Exception as e:
         logger.warning(f"[HQCE] Failed to start ConvergenceEngine: {e}")
 
-    # ── Initialize QuantumMorphicRuntime (ψ–κ–T Field Regulation)
+    # ── Initialize QuantumMorphicRuntime (ψ-κ-T Field Regulation)
     try:
         from backend.modules.holograms.quantum_morphic_runtime import QuantumMorphicRuntime
 
-        # Example GHX packet + avatar placeholder — will be replaced by live feed later
+        # Example GHX packet + avatar placeholder - will be replaced by live feed later
         ghx_packet = {"container_id": "hqce_main_runtime", "phase": "init"}
         avatar_state = {"id": "AION_CORE", "state": "boot"}
 
@@ -214,15 +214,15 @@ async def startup_event():
         qmr_state = qmr.run()
 
         logger.info("[HQCE] QuantumMorphicRuntime executed successfully.")
-        logger.debug(f"[HQCE] ψ–κ–T snapshot → {qmr_state.get('psi_kappa_T')}")
+        logger.debug(f"[HQCE] ψ-κ-T snapshot -> {qmr_state.get('psi_kappa_T')}")
     except Exception as e:
         logger.warning(f"[HQCE] QuantumMorphicRuntime failed to initialize: {e}")
 
-    # ── Start GHX Telemetry Adapter (CodexMetrics → MorphicLedger → GHXVisualizer)
+    # ── Start GHX Telemetry Adapter (CodexMetrics -> MorphicLedger -> GHXVisualizer)
     try:
         from backend.modules.cognitive_fabric.ghx_telemetry_adapter import GHX_TELEMETRY
         GHX_TELEMETRY.start()
-        logger.info("[GHXTelemetry] Adapter started — streaming Φ–ψ–κ–T metrics to GHXVisualizer.")
+        logger.info("[GHXTelemetry] Adapter started - streaming Φ-ψ-κ-T metrics to GHXVisualizer.")
     except Exception as e:
         logger.warning(f"[GHXTelemetry] Adapter not started: {e}")
 
@@ -252,7 +252,7 @@ async def startup_event():
             )
             logger.info(f"✅ AION {role.capitalize()} Heartbeat running in background.")
         else:
-            logger.info(f"💤 AION {role.capitalize()} Heartbeat already running — skipping launch.")
+            logger.info(f"💤 AION {role.capitalize()} Heartbeat already running - skipping launch.")
     except Exception as e:
         logger.warning(f"⚠️ Failed to start AION Dual Heartbeat: {e}")
 
@@ -373,14 +373,14 @@ from backend.api import api_sheets                          # exposes /api/sheet
 
 # ── Optional routers (guarded so boot never breaks)
 try:
-    # ✅ Canonical AtomSheets router → /api/atomsheet, /api/atomsheet/execute, /api/atomsheet/export
+    # ✅ Canonical AtomSheets router -> /api/atomsheet, /api/atomsheet/execute, /api/atomsheet/export
     from backend.routers.atomsheets import router as atomsheets_router
 except Exception as e:
     atomsheets_router = None
     logger.warning("[atomsheets] not mounted: %s", e)
 
 try:
-    # 🔭 LightCone router → /api/lightcone*
+    # 🔭 LightCone router -> /api/lightcone*
     from backend.api.api_lightcone import router as lightcone_router
 except Exception as e:
     lightcone_router = None
@@ -394,13 +394,13 @@ except Exception as e:
     logger.warning("[legacy atomsheet] not mounted: %s", e)
 
 try:
-    # 🌐 QFC extras (stub HUD endpoints) → /api/qfc_entanglement, /api/qfc_entangled
+    # 🌐 QFC extras (stub HUD endpoints) -> /api/qfc_entanglement, /api/qfc_entangled
     from backend.api.api_qfc_extras import router as qfc_extras_router
 except Exception as e:
     qfc_extras_router = None
     logger.warning("[qfc_extras] not mounted: %s", e)
 
-# ── Mount routers (order: canonical → optional → legacy)
+# ── Mount routers (order: canonical -> optional -> legacy)
 if atomsheets_router:
     app.include_router(atomsheets_router)                  # /api/atomsheet*
 
@@ -427,7 +427,7 @@ from backend.routes.ws.qglyph_ws import start_qglyph_ws
 async def qglyph_socket(websocket: WebSocket):
     await start_qglyph_ws(websocket)
 
-# ✅ HQCE WebSocket — live ψκT telemetry bridge
+# ✅ HQCE WebSocket - live ψκT telemetry bridge
 from backend.modules.holograms.hqce_ws_bridge import hqce_ws_bridge
 from fastapi import WebSocketDisconnect  # ensure imported above or here
 import asyncio
@@ -696,7 +696,7 @@ from fastapi import WebSocket
 
 @app.websocket("/api/ws/symatics")
 async def proxy_symatics(ws: WebSocket):
-    """Proxy frontend → internal SREL (8001)"""
+    """Proxy frontend -> internal SREL (8001)"""
     await ws.accept()
     try:
         async with websockets.connect("ws://localhost:8001/ws/symatics") as backend:
@@ -717,7 +717,7 @@ async def proxy_symatics(ws: WebSocket):
 
 @app.websocket("/api/ws/analytics")
 async def proxy_analytics(ws: WebSocket):
-    """Proxy frontend → internal RAL (8002)"""
+    """Proxy frontend -> internal RAL (8002)"""
     await ws.accept()
     try:
         async with websockets.connect("ws://localhost:8002/ws/analytics") as backend:

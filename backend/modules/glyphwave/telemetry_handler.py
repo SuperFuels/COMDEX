@@ -1,12 +1,12 @@
 """
-📡 telemetry_handler.py – Centralized Telemetry Dispatcher for GlyphWave + QWave Integration
+📡 telemetry_handler.py - Centralized Telemetry Dispatcher for GlyphWave + QWave Integration
 
 Purpose:
-    • Logs beam activity via WaveScope
-    • Pushes telemetry to CodexHUD / GHX WebSocket
-    • Emits anomaly warnings (e.g. SNR/coherence issues)
-    • Exposes live metrics for SQI / prediction / collapse overlays
-    • Provides adaptive telemetry stream for CFE Feedback Loop
+    * Logs beam activity via WaveScope
+    * Pushes telemetry to CodexHUD / GHX WebSocket
+    * Emits anomaly warnings (e.g. SNR/coherence issues)
+    * Exposes live metrics for SQI / prediction / collapse overlays
+    * Provides adaptive telemetry stream for CFE Feedback Loop
 """
 import math
 import asyncio
@@ -184,7 +184,7 @@ class TelemetryHandler:
             with open(path, "a") as f:
                 f.write(json.dumps(metrics) + "\n")
         except Exception as e:
-            print(f"[TelemetryHandler] Warning: Failed to export JSONL → {e}")
+            print(f"[TelemetryHandler] Warning: Failed to export JSONL -> {e}")
 
         return metrics
 
@@ -221,7 +221,7 @@ class TelemetryHandler:
             with open(path, "a") as f:
                 f.write(json.dumps(metrics) + "\n")
         except Exception as e:
-            print(f"[TelemetryHandler] Warning: Failed to export JSONL → {e}")
+            print(f"[TelemetryHandler] Warning: Failed to export JSONL -> {e}")
 
         return metrics
 

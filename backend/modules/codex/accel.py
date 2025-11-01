@@ -271,8 +271,8 @@ def phase10_accelerate_sheet(cells: List[GlyphCell], context: Dict[str, Any]) ->
     """
     Run Phase 10 vectorization pass on all cells.
     Guardrails:
-      • If NumPy/numexpr/torch are missing, we transparently fall back to scalar.
-      • Per-opcode precision selected via _precision_for_op(...).
+      * If NumPy/numexpr/torch are missing, we transparently fall back to scalar.
+      * Per-opcode precision selected via _precision_for_op(...).
     """
     summary: Dict[str, Any] = {}
     total = 0

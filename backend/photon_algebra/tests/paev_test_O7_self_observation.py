@@ -24,7 +24,7 @@ S_meta = [0.68]
 for t in range(1, n_steps):
     noise = np.random.normal(0, noise_scale)
     
-    # Observer responds to system–observer entropy difference
+    # Observer responds to system-observer entropy difference
     dS_obs = feedback_gain * (S_system[-1] - S_observer[-1]) + noise
     
     # Meta-layer (recursive observer) follows observer entropy trend
@@ -61,7 +61,7 @@ plt.figure(figsize=(9, 5))
 plt.plot(S_system, label="S_system")
 plt.plot(S_observer, label="S_observer")
 plt.plot(S_meta, label="S_meta (recursive)")
-plt.title("O7 — Recursive Self-Observation Stability")
+plt.title("O7 - Recursive Self-Observation Stability")
 plt.xlabel("time step")
 plt.ylabel("Entropy")
 plt.legend()
@@ -85,6 +85,6 @@ with open("backend/modules/knowledge/O7_self_observation.json", "w") as f:
     json.dump(summary, f, indent=2)
 
 # --- output summary ---
-print("=== O7 — Recursive Self-Observation Stability ===")
+print("=== O7 - Recursive Self-Observation Stability ===")
 print(f"⟨dS_meta/dt⟩={meta_drift:.3e} | Corr_meta={corr_meta:.3f} | {cls}")
-print("✅ Results saved → backend/modules/knowledge/O7_self_observation.json")
+print("✅ Results saved -> backend/modules/knowledge/O7_self_observation.json")

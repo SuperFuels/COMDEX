@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-⚛ ResonanceHeartbeat — Tessaris Adaptive Core (Phase 57a)
+⚛ ResonanceHeartbeat - Tessaris Adaptive Core (Phase 57a)
 ───────────────────────────────────────────────────────────────
-Unified Θ–pulse generator driving all resonant subsystems.
+Unified Θ-pulse generator driving all resonant subsystems.
 Now fully supports AION_SILENT_MODE for background operation.
 """
 
@@ -30,7 +30,7 @@ class ResonanceHeartbeat:
         auto_tick: bool = True
     ):
         """
-        Resonance Heartbeat — passive/active mode.
+        Resonance Heartbeat - passive/active mode.
         Manages rolling Φ metrics (ρ, entropy, SQI, ΔΦ) and emits adaptive
         Θ-frequency pulses for resonance monitoring.
         """
@@ -74,10 +74,10 @@ class ResonanceHeartbeat:
         if self.auto_tick:
             self.start()
             if not QUIET:
-                log.info(f"[Θ] Heartbeat initialized in ACTIVE mode → {namespace}")
+                log.info(f"[Θ] Heartbeat initialized in ACTIVE mode -> {namespace}")
         else:
             if not QUIET:
-                log.info(f"[Θ] Heartbeat initialized in PASSIVE mode → {namespace}")
+                log.info(f"[Θ] Heartbeat initialized in PASSIVE mode -> {namespace}")
 
     # ------------------------------------------------------------
     def register_listener(self, callback):
@@ -100,7 +100,7 @@ class ResonanceHeartbeat:
                 self._delta.append(float(delta))
 
         if not self.auto_tick and not QUIET:
-            log.debug(f"[Θ] Passive sample ({self.namespace}) → SQI={sqi}, ΔΦ={delta}")
+            log.debug(f"[Θ] Passive sample ({self.namespace}) -> SQI={sqi}, ΔΦ={delta}")
 
     # ------------------------------------------------------------
     def tick(self):
@@ -140,10 +140,10 @@ class ResonanceHeartbeat:
             self.log_path.write_text(json.dumps(pulse, indent=2))
         except Exception as e:
             if not QUIET:
-                log.debug(f"[Θ] write_text failed → {e}")
+                log.debug(f"[Θ] write_text failed -> {e}")
 
         if self.auto_tick and not QUIET:
-            log.debug(f"[Θ] Auto-tick → {self.namespace}")
+            log.debug(f"[Θ] Auto-tick -> {self.namespace}")
         return pulse
 
     emit = tick
@@ -200,7 +200,7 @@ class ResonanceHeartbeat:
             with open(log_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(payload) + "\n")
             if not QUIET:
-                log.debug(f"[Θ] Event {name} → {payload}")
+                log.debug(f"[Θ] Event {name} -> {payload}")
         except Exception as e:
             if not QUIET:
                 log.warning(f"[Θ] event() error: {e}")
@@ -221,7 +221,7 @@ class ResonanceHeartbeat:
         hb_files = list(hb_dir.glob("*heartbeat_live.json"))
         if not hb_files:
             if not QUIET:
-                print("[Θ] sync_all → no heartbeat files found.")
+                print("[Θ] sync_all -> no heartbeat files found.")
             return None
 
         phases = []
@@ -252,7 +252,7 @@ class ResonanceHeartbeat:
         self.event("sync_all", harmony_score=harmony, master_frequency=round(master, 3))
 
         if not QUIET:
-            print(f"[Θ] sync_all → Harmony={harmony:.3f}, Θ_master={master:.3f}")
+            print(f"[Θ] sync_all -> Harmony={harmony:.3f}, Θ_master={master:.3f}")
         return harmony
 
     # ------------------------------------------------------------

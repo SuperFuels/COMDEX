@@ -111,7 +111,7 @@ class VirtualCPUBeamCore:
         va = self.registers[a].get()
         vb = self.registers[b].get()
 
-        # 🧠 Defensive fallback — interpret None as 0
+        # 🧠 Defensive fallback - interpret None as 0
         if va is None:
             va = 0
         if vb is None:
@@ -124,13 +124,13 @@ class VirtualCPUBeamCore:
             val = f"{va}{vb}"
 
         self.registers[dest].set(val)
-        print(f"[⊕] {a} + {b} → {dest} = {val}")
+        print(f"[⊕] {a} + {b} -> {dest} = {val}")
 
     def handle_sequence(self, args):
         src, dest = args
         val = self.registers[src].get()
         self.registers[dest].set(val)
-        self._log(f"[→] {src} → {dest} = {val}")
+        self._log(f"[->] {src} -> {dest} = {val}")
 
     def handle_bidir(self, args):
         a, b = args
@@ -159,7 +159,7 @@ class VirtualCPUBeamCore:
         value = args[0]
         reflected = f"🪞{value}"
         self.stack.append(reflected)
-        self._log(f"[🧽] Reflect: {value} → {reflected}")
+        self._log(f"[🧽] Reflect: {value} -> {reflected}")
 
     def handle_dream(self, args):
         topic = args[0]
@@ -176,42 +176,42 @@ class VirtualCPUBeamCore:
         val = self.registers[reg].get()
         mutated = f"{val}*"
         self.registers[reg].set(mutated)
-        self._log(f"[⬁] Mutate {reg}: {val} → {mutated}")
+        self._log(f"[⬁] Mutate {reg}: {val} -> {mutated}")
 
     def handle_q_superpose(self, args):
         reg = args[0]
         val = self.registers[reg].get()
         superposed = f"{val}|ψ⟩"
         self.registers[reg].set(superposed)
-        self._log(f"[⧜] Superpose {reg}: {val} → {superposed}")
+        self._log(f"[⧜] Superpose {reg}: {val} -> {superposed}")
 
     def handle_q_collapse(self, args):
         reg = args[0]
         val = self.registers[reg].get()
         collapsed = str(val).split("|")[0]
         self.registers[reg].set(collapsed)
-        self._log(f"[⧝] Collapse {reg}: {val} → {collapsed}")
+        self._log(f"[⧝] Collapse {reg}: {val} -> {collapsed}")
 
     def handle_q_entangle(self, args):
         a, b = args
         state = f"{a}<=>{b}"
         self.registers[a].set(state)
         self.registers[b].set(state)
-        self._log(f"[⧠] Quantum entangle: {a}, {b} → {state}")
+        self._log(f"[⧠] Quantum entangle: {a}, {b} -> {state}")
 
     def handle_compress(self, args):
         reg = args[0]
         val = self.registers[reg].get()
-        compressed = str(val)[:4] + "…"
+        compressed = str(val)[:4] + "..."
         self.registers[reg].set(compressed)
-        self._log(f"[⋰] Compress {reg}: {val} → {compressed}")
+        self._log(f"[⋰] Compress {reg}: {val} -> {compressed}")
 
     def handle_expand(self, args):
         reg = args[0]
         val = self.registers[reg].get()
         expanded = f"{val}...EXPANDED"
         self.registers[reg].set(expanded)
-        self._log(f"[⋱] Expand {reg}: {val} → {expanded}")
+        self._log(f"[⋱] Expand {reg}: {val} -> {expanded}")
 
     # ------------------------
     # 🧠 Debugging & Logging

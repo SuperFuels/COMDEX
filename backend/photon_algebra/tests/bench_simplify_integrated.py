@@ -2,12 +2,12 @@
 """
 Photon Integrated Simplification Benchmark
 ==========================================
-Task: I4 — End-to-End Simplifier Validation and Profiling
+Task: I4 - End-to-End Simplifier Validation and Profiling
 
 Measures end-to-end performance and semantic consistency of the integrated
 simplification pipeline:
 
-    Photon → Canonicalize → SymPy Simplify → Canonicalize → Photon
+    Photon -> Canonicalize -> SymPy Simplify -> Canonicalize -> Photon
 
 This benchmark confirms that the integrated simplifier preserves equivalence
 and runs efficiently across randomized algebraic expressions.
@@ -86,7 +86,7 @@ def benchmark_simplify_integrated(n_samples: int = 2000):
     if mismatch_rate > tolerance:
         raise AssertionError(
             f"Too many mismatches ({mismatches}/{n_samples}, {mismatch_rate*100:.1f}%) "
-            f"— acceptable threshold is {int(tolerance*100)}%"
+            f"- acceptable threshold is {int(tolerance*100)}%"
         )
 
 

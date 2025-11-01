@@ -1,6 +1,6 @@
 """
-🟠 Resonance Ledger — SRK-14 Task 1–4
-Temporal–coherence graph for entangled photon states.
+🟠 Resonance Ledger - SRK-14 Task 1-4
+Temporal-coherence graph for entangled photon states.
 Tracks symbolic resonance continuity and models time-dependent decay.
 
 New in SRK-14.4:
@@ -25,7 +25,7 @@ class ResonanceLedger:
 
     Each edge (a↔b) represents a resonance link between photon capsules.
     Coherence decays over time according to a configurable decay rate,
-    establishing a temporal trace of symbolic–photonic continuity.
+    establishing a temporal trace of symbolic-photonic continuity.
     """
 
     def __init__(self, decay_rate: float = 0.002):
@@ -150,7 +150,7 @@ class ResonanceLedger:
     # ────────────────────────────────────────────────────────────────
     async def snapshot_async(self) -> dict:
         """
-        🔹 SRK-17 Update — Asynchronous ledger snapshot for GHX Sync Layer.
+        🔹 SRK-17 Update - Asynchronous ledger snapshot for GHX Sync Layer.
         Provides a lightweight state export of current resonance entries.
         """
         return await asyncio.to_thread(self._snapshot_sync)

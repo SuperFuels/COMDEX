@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-🧬  Aion Fusion × Stability Overlay — Phase 35.7
+🧬  Aion Fusion * Stability Overlay - Phase 35.7
 ───────────────────────────────────────────────────────────────────────────────
 Correlates RSI variance (concept drift) with fusion/speciation/decay events
 recorded by the Concept Evolution Engine.
 
 Outputs a timeline showing:
-    • RSI variance trend (red line)
-    • Total concept links (blue line)
-    • Fusion/speciation/decay markers
+    * RSI variance trend (red line)
+    * Total concept links (blue line)
+    * Fusion/speciation/decay markers
 """
 
 import json, time, statistics
@@ -92,7 +92,7 @@ def group_variance(records):
 
 # ── Main Visualization ──────────────────────────────────
 def build_overlay():
-    print("🧬  Generating Fusion × Stability Overlay (Phase 35.7)…")
+    print("🧬  Generating Fusion * Stability Overlay (Phase 35.7)...")
 
     rsi_data = load_rsi_data()
     if not rsi_data:
@@ -131,7 +131,7 @@ def build_overlay():
         plt.axvline(x=ts, color=color, linestyle="--", alpha=0.4, linewidth=1)
         ax1.text(ts, max(variances) * 0.9, etype[0].upper(), color=color, fontsize=7, rotation=90, ha="center", va="center")
 
-    plt.title("Aion Fusion × Stability Overlay — Phase 35.7")
+    plt.title("Aion Fusion * Stability Overlay - Phase 35.7")
     plt.xlabel("Time")
     plt.xticks(times[::max(1, len(times)//10)], time_labels[::max(1, len(times)//10)], rotation=45, ha="right", fontsize=8)
     fig.tight_layout()
@@ -139,7 +139,7 @@ def build_overlay():
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(OUTPUT, dpi=200)
     plt.close()
-    print(f"✅  Fusion × Stability overlay saved → {OUTPUT}")
+    print(f"✅  Fusion * Stability overlay saved -> {OUTPUT}")
 
 # ── Entrypoint ───────────────────────────────────────────
 if __name__ == "__main__":

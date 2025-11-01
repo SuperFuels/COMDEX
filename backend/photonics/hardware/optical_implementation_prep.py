@@ -4,10 +4,10 @@ Tessaris Optical Implementation Preparation
 Prepares the physical photonic loop (MZM/DAC/PD) for live deployment.
 
 Includes:
-  • Hardware configuration schema (YAML-ready)
-  • Calibration routine stubs for MZM bias and DAC linearity
-  • Fiber alignment + PD gain validation
-  • Integration readiness test for AION runtime coupling
+  * Hardware configuration schema (YAML-ready)
+  * Calibration routine stubs for MZM bias and DAC linearity
+  * Fiber alignment + PD gain validation
+  * Integration readiness test for AION runtime coupling
 
 This script bridges the digital simulation layer to real optical bench
 hardware, forming the pre-deployment readiness test for Symatics v0.3.1.
@@ -83,14 +83,14 @@ def log_event(event: dict):
 # ──────────────────────────────────────────────
 def run_optical_predeployment_check():
     """Perform full calibration + config emission for lab readiness."""
-    print("🔬 Tessaris Optical Implementation Prep — Pre-Deployment Check")
+    print("🔬 Tessaris Optical Implementation Prep - Pre-Deployment Check")
 
     cfg = generate_hardware_config()
     with open(CONFIG_PATH, "w") as f:
         import yaml
         yaml.dump(cfg, f)
 
-    print(f"[Config] Hardware schema emitted → {CONFIG_PATH}")
+    print(f"[Config] Hardware schema emitted -> {CONFIG_PATH}")
 
     mzm_cal = calibrate_mzm_bias()
     dac_cal = calibrate_dac_linearity()
@@ -108,7 +108,7 @@ def run_optical_predeployment_check():
     print("[Calibration] MZM bias:", mzm_cal)
     print("[Calibration] DAC linearity:", dac_cal)
     print("[Validation] PD gain:", pd_val)
-    print(f"[OpticalPrep] Summary written → {LOG_PATH}")
+    print(f"[OpticalPrep] Summary written -> {LOG_PATH}")
     return report
 
 

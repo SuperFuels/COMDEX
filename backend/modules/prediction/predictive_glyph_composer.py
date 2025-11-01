@@ -120,7 +120,7 @@ class PredictiveGlyphComposer:
     ) -> List[Dict]:
         """
         Generate forward glyph forks (predictive) and broadcast to GHX viewer.
-        Broadcast is best-effort; it won’t fail your test run if WS is missing.
+        Broadcast is best-effort; it won't fail your test run if WS is missing.
         """
         predictions = await self.engine.generate_future_paths(
             current_glyph=current_glyph,

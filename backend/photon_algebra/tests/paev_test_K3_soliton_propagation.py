@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-K3 — Relativistic Soliton Propagation (Tessaris)
+K3 - Relativistic Soliton Propagation (Tessaris)
 -----------------------------------------------
 Validates soliton propagation under causal constraints.
 Tracks the velocity of χ-driven coherent structures and compares
 against the causal bound c_eff.
 
 Outputs:
-  • backend/modules/knowledge/K3_soliton_propagation_summary.json
-  • PAEV_K3_soliton_propagation.png
+  * backend/modules/knowledge/K3_soliton_propagation_summary.json
+  * PAEV_K3_soliton_propagation.png
 """
 
 import json, math, numpy as np, matplotlib.pyplot as plt
@@ -20,8 +20,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β, χ = const["ħ"], const["G"], const["Λ"], const["α"], const["β"], const["χ"]
 
-print("=== K3 — Relativistic Soliton Propagation (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== K3 - Relativistic Soliton Propagation (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # --- Grid and parameters ---
 N, steps = 512, 2000
@@ -73,7 +73,7 @@ im = ax1.imshow(np.abs(u_map), extent=[x.min(), x.max(), t_axis.max(), t_axis.mi
                 cmap="magma", aspect="auto")
 ax1.plot(centers, t_axis, color="cyan", label=f"soliton center (v≈{v_soliton:.3f})")
 ax1.set_xlabel("x"); ax1.set_ylabel("time")
-ax1.set_title("K3 — Soliton Propagation (|u(x,t)|)")
+ax1.set_title("K3 - Soliton Propagation (|u(x,t)|)")
 ax1.legend(); plt.colorbar(im, ax=ax1, label="|u|")
 
 ax2.plot(t_axis, centers, label="trajectory")
@@ -85,7 +85,7 @@ ax2.legend(); ax2.grid(True)
 plt.tight_layout()
 fig_path = "PAEV_K3_soliton_propagation.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # --- Summary JSON ---
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -109,24 +109,24 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/K3_soliton_propagation_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # --- Discovery section ---
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Observation: Soliton front speed v≈{v_soliton:.3f}, causal bound {c_eff:.3f}.")
+print(f"* Observation: Soliton front speed v≈{v_soliton:.3f}, causal bound {c_eff:.3f}.")
 if abs(v_soliton) <= c_eff:
-    print("• Interpretation: Stable soliton motion within relativistic constraint.")
+    print("* Interpretation: Stable soliton motion within relativistic constraint.")
 else:
-    print("• Interpretation: Apparent overshoot due to nonlinear χ-driven acceleration.")
-print("• Implication: Establishes relativistic propagation model for L-series tests.")
-print("• Next step: Boost the soliton and test Lorentz invariance (L1–L3).")
+    print("* Interpretation: Apparent overshoot due to nonlinear χ-driven acceleration.")
+print("* Implication: Establishes relativistic propagation model for L-series tests.")
+print("* Next step: Boost the soliton and test Lorentz invariance (L1-L3).")
 print("------------------------------------------------------------")
 
 # --- Verdict ---
 print("\n" + "="*66)
-print("🔎 K3 — Relativistic Soliton Propagation Verdict")
+print("🔎 K3 - Relativistic Soliton Propagation Verdict")
 print("="*66)
 status = "✅ Within causal bound" if abs(v_soliton) <= c_eff else "⚠️ Exceeds causal bound"
-print(f"Empirical v≈{v_soliton:.4f} | bound≈{c_eff:.4f} → {status}")
+print(f"Empirical v≈{v_soliton:.4f} | bound≈{c_eff:.4f} -> {status}")
 print("="*66 + "\n")

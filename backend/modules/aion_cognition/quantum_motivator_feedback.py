@@ -4,9 +4,9 @@
 Integrates Aion emotional tone and motivational bias with QQC resonance feedback.
 
 Responsibilities:
- • Receive QQC feedback (Δ⊕, Δ↔, Δ⟲)
- • Adjust tone, intent-bias, and exploration depth
- • Export motivfield.qdata.json for longitudinal tracking
+ * Receive QQC feedback (Δ⊕, Δ↔, Δ⟲)
+ * Adjust tone, intent-bias, and exploration depth
+ * Export motivfield.qdata.json for longitudinal tracking
 """
 
 import json, logging, time, math, random
@@ -21,7 +21,7 @@ OUT_PATH = Path("data/telemetry/motivfield.qdata.json")
 #───────────────────────────────────────────────
 def motivator_cycle(qqc_feedback: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Process resonance deltas from QQC → adjust motivational tone and bias.
+    Process resonance deltas from QQC -> adjust motivational tone and bias.
     """
     Δ⊕ = qqc_feedback.get("Δ⊕", 0.0)
     Δ↔ = qqc_feedback.get("Δ↔", 0.0)
@@ -47,7 +47,7 @@ def motivator_cycle(qqc_feedback: Dict[str, Any]) -> Dict[str, Any]:
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(motiv_state, open(OUT_PATH, "w"), indent=2)
     logger.info(
-        f"[MotivLoop] tone={tone}, depth={depth}, exploration={exploration} → exported → {OUT_PATH}"
+        f"[MotivLoop] tone={tone}, depth={depth}, exploration={exploration} -> exported -> {OUT_PATH}"
     )
     return motiv_state
 

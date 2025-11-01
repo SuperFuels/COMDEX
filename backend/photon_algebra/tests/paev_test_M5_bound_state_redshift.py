@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-M5 — Matter–Field Bound States & Redshift Analogue (Tessaris)
+M5 - Matter-Field Bound States & Redshift Analogue (Tessaris)
 
 Purpose:
   Tests if a localized soliton remains gravitationally bound
@@ -8,8 +8,8 @@ Purpose:
   (redshift analogue). Builds on M4b coupling architecture.
 
 Outputs:
-  • PAEV_M5_bound_state_redshift.png
-  • backend/modules/knowledge/M5_bound_state_redshift_summary.json
+  * PAEV_M5_bound_state_redshift.png
+  * backend/modules/knowledge/M5_bound_state_redshift_summary.json
 """
 
 import json, math
@@ -23,8 +23,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β, χ = const["ħ"], const["G"], const["Λ"], const["α"], const["β"], const.get("χ", 1.0)
 
-print("=== M5 — Bound States & Redshift Analogue (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== M5 - Bound States & Redshift Analogue (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # --- Parameters ---
 N, steps = 512, 6000
@@ -106,8 +106,8 @@ fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.2))
 t_axis = np.arange(len(centroids)) * 10 * dt
 
 axes[0].plot(t_axis, centroids, lw=2)
-axes[0].set_title("M5 — Soliton Centroid (Bound State)")
-axes[0].set_xlabel("Time (×10 dt)")
+axes[0].set_title("M5 - Soliton Centroid (Bound State)")
+axes[0].set_xlabel("Time (*10 dt)")
 axes[0].set_ylabel("x position")
 
 axes[1].plot(t_axis, np.gradient(centroids), lw=1.5)
@@ -123,7 +123,7 @@ axes[2].set_ylabel("ρ_target")
 plt.tight_layout()
 plot_path = "PAEV_M5_bound_state_redshift.png"
 plt.savefig(plot_path, dpi=200)
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Plot saved -> {plot_path}")
 
 # --- Summary ---
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -152,23 +152,23 @@ summary = {
 }
 out = Path("backend/modules/knowledge/M5_bound_state_redshift_summary.json")
 out.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out}")
+print(f"✅ Summary saved -> {out}")
 
 # --- Discovery Notes ---
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Final curvature (EMA) = {ema_R:.3e}")
-print(f"• Frequency shift (Δω/ω) = {freq_shift:.3e}")
-print(f"• Centroid final position = {centroids[-1]:.3f}")
-print("• Interpretation: Bound soliton exhibits measurable redshift analogue within curvature well.")
-print("• Next: Verify invariance under Lorentz–diffusion constraint (M6 optional).")
+print(f"* Final curvature (EMA) = {ema_R:.3e}")
+print(f"* Frequency shift (Δω/ω) = {freq_shift:.3e}")
+print(f"* Centroid final position = {centroids[-1]:.3f}")
+print("* Interpretation: Bound soliton exhibits measurable redshift analogue within curvature well.")
+print("* Next: Verify invariance under Lorentz-diffusion constraint (M6 optional).")
 print("------------------------------------------------------------")
 
 print("\n============================================================")
-print("🔎 M5 — Bound State & Redshift Verdict")
+print("🔎 M5 - Bound State & Redshift Verdict")
 print("============================================================")
 if abs(freq_shift) > 1e-4:
     print(f"✅ Redshift analogue detected (Δω/ω = {freq_shift:.3e})")
 else:
-    print(f"⚠️ No significant shift detected (Δω/ω = {freq_shift:.3e}) — try deeper well or lower damping.")
+    print(f"⚠️ No significant shift detected (Δω/ω = {freq_shift:.3e}) - try deeper well or lower damping.")
 print("============================================================\n")

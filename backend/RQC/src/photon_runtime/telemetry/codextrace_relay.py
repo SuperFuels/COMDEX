@@ -1,17 +1,17 @@
 """
-Tessaris RQC — CodexTrace WebSocket Relay
+Tessaris RQC - CodexTrace WebSocket Relay
 ────────────────────────────────────────────
 Bridges awareness and telemetry streams to frontend GHX widgets.
 
 Sources:
-  • data/ledger/rqc_live_telemetry.jsonl
-  • data/analytics/awareness_summary.jsonl
-  • MorphicLedger (Φ-awareness trend)
+  * data/ledger/rqc_live_telemetry.jsonl
+  * data/analytics/awareness_summary.jsonl
+  * MorphicLedger (Φ-awareness trend)
 
 Broadcasts:
-  • telemetry → ψ, κ, T, Φ, coherence
-  • awareness → meta-awareness updates
-  • phi_trend → rolling Φ trend + stability index
+  * telemetry -> ψ, κ, T, Φ, coherence
+  * awareness -> meta-awareness updates
+  * phi_trend -> rolling Φ trend + stability index
 """
 
 import os
@@ -40,7 +40,7 @@ async def broadcast(message: dict):
             await ws.send(msg_json)
         except Exception:
             CONNECTED_CLIENTS.remove(ws)
-    logger.info(f"📡 Broadcasted: {message.get('type')} Φ≈{message.get('Φ', message.get('mean_Φ', '—'))}")
+    logger.info(f"📡 Broadcasted: {message.get('type')} Φ≈{message.get('Φ', message.get('mean_Φ', '-'))}")
 
 # ────────────────────────────────
 async def tail_file(path, kind):
@@ -96,7 +96,7 @@ async def handle_connection(websocket):
 
 # ────────────────────────────────
 async def main():
-    logger.info("🚀 Tessaris RQC — CodexTrace WebSocket Relay starting...")
+    logger.info("🚀 Tessaris RQC - CodexTrace WebSocket Relay starting...")
     os.makedirs("data/analytics", exist_ok=True)
     os.makedirs("data/ledger", exist_ok=True)
 

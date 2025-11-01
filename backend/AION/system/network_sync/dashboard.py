@@ -10,10 +10,10 @@ Run:
 
 ────────────────────────────────────────────
 Features:
-• Auto-refreshes every few seconds
-• Plots Δφ and Δσ evolution for each node
-• Shows node role, last-seen time, and phase energy
-• Detects drift threshold crossings visually
+* Auto-refreshes every few seconds
+* Plots Δφ and Δσ evolution for each node
+* Shows node role, last-seen time, and phase energy
+* Detects drift threshold crossings visually
 ────────────────────────────────────────────
 """
 
@@ -56,10 +56,10 @@ def safe_read_json(path):
         return {}
 
 # ───────────────────────────────────────────────
-# Utility — Load state file
+# Utility - Load state file
 # ───────────────────────────────────────────────
 # ───────────────────────────────────────────────
-# Utility — Load state file (safe concurrent read)
+# Utility - Load state file (safe concurrent read)
 # ───────────────────────────────────────────────
 def load_state():
     if not os.path.exists(STATE_FILE):
@@ -72,7 +72,7 @@ def load_state():
 # ───────────────────────────────────────────────
 # In-memory buffers
 # ───────────────────────────────────────────────
-state_history = {}  # node_id → list of {time, Δφ, Δσ}
+state_history = {}  # node_id -> list of {time, Δφ, Δσ}
 
 def append_state(snapshot):
     now = time.time()

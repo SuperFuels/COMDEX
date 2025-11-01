@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PAEV Test I3 — Entropic Velocity & Causal Information Front
+PAEV Test I3 - Entropic Velocity & Causal Information Front
 Tessaris Photon Algebra Framework (Registry-aligned)
 """
 
@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 from pathlib import Path
 
-print("=== I3 — Entropic Velocity & Causal Information Front ===")
+print("=== I3 - Entropic Velocity & Causal Information Front ===")
 
 # =====================================================
 # 🔹 Load Tessaris constants (auto-synced via registry)
@@ -83,11 +83,11 @@ def detect_anomalies(v_means, v_critical):
     notes = []
     ratios = np.array(v_means) / v_critical
     if np.any(ratios > 1.05):
-        notes.append("⚠ Super-causal propagation detected — possible tunnelling or coherence breach.")
+        notes.append("⚠ Super-causal propagation detected - possible tunnelling or coherence breach.")
     elif np.all(ratios < 1.0):
-        notes.append("✅ Sub-causal regime — information propagation respects causal limits.")
+        notes.append("✅ Sub-causal regime - information propagation respects causal limits.")
     else:
-        notes.append("⚠ Mixed regime — near-causal transitions detected (ballistic edge).")
+        notes.append("⚠ Mixed regime - near-causal transitions detected (ballistic edge).")
     return notes
 
 # =====================================================
@@ -121,11 +121,11 @@ plt.axhline(v_critical, color="r", linestyle="--", label="Causal limit v_c")
 plt.xlabel("Curvature variance Var(κ)")
 plt.ylabel("Mean entropic velocity v_S")
 plt.legend()
-plt.title("I3 — Entropic Velocity & Causal Information Front")
+plt.title("I3 - Entropic Velocity & Causal Information Front")
 plt.grid(True, which="both", ls="--", alpha=0.4)
 plt.tight_layout()
 plt.savefig("PAEV_I3_EntropyVelocity.png", dpi=200)
-print("✅ Figure saved → PAEV_I3_EntropyVelocity.png")
+print("✅ Figure saved -> PAEV_I3_EntropyVelocity.png")
 
 # =====================================================
 # 💾 Save results
@@ -141,5 +141,5 @@ results_json = {
 
 out_path = Path("backend/modules/knowledge/I3_entropic_velocity.json")
 out_path.write_text(json.dumps(results_json, indent=2))
-print(f"✅ Results saved → {out_path}")
+print(f"✅ Results saved -> {out_path}")
 print(json.dumps(results_json, indent=2))

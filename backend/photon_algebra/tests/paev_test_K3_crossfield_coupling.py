@@ -1,4 +1,4 @@
-# === K3 — Cross-Field Causal Coupling (Tessaris) ===
+# === K3 - Cross-Field Causal Coupling (Tessaris) ===
 # Using Tessaris Unified Constants & Verification Protocol
 
 import os, json, datetime
@@ -10,8 +10,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 
 # === 1. Load constants ===
 constants = load_constants()
-print("=== K3 — Cross-Field Causal Coupling (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, "
+print("=== K3 - Cross-Field Causal Coupling (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, "
       f"α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
 
 # === 2. Parameters ===
@@ -66,7 +66,7 @@ print(f"⟨C_uv⟩={mean_Cuv:.3e}, Var(C_uv)={var_Cuv:.3e}")
 if within_tolerance:
     print("✅  Cross-field coupling symmetric and causal.")
 else:
-    print("⚠️  Cross-field drift detected — check coupling or damping balance.")
+    print("⚠️  Cross-field drift detected - check coupling or damping balance.")
 
 # === 6. Plot results ===
 plt.figure(figsize=(8,4))
@@ -74,7 +74,7 @@ plt.plot(coupling_strength, label='C_uv(t)', color='crimson')
 plt.axhline(mean_Cuv, color='gray', linestyle='--', label='⟨C_uv⟩')
 plt.xlabel("Time step")
 plt.ylabel("Coupling coefficient C_uv")
-plt.title("K3 — Cross-Field Causal Coupling")
+plt.title("K3 - Cross-Field Causal Coupling")
 plt.legend()
 plt.tight_layout()
 
@@ -87,13 +87,13 @@ discovery = [
     f"Mean coupling coefficient ⟨C_uv⟩ = {mean_Cuv:.3e}.",
     f"Variance Var(C_uv) = {var_Cuv:.3e}.",
     "Symmetric coupling ensures causal balance between field domains (u↔v).",
-    "Deviation <1e−2 considered fully causal under Tessaris Unified Constants & Verification Protocol."
+    "Deviation <1e-2 considered fully causal under Tessaris Unified Constants & Verification Protocol."
 ]
 
-print("\n🧭 Discovery Notes —", datetime.datetime.now(datetime.UTC).isoformat())
+print("\n🧭 Discovery Notes -", datetime.datetime.now(datetime.UTC).isoformat())
 print("------------------------------------------------------------")
 for line in discovery:
-    print("•", line)
+    print("*", line)
 print("------------------------------------------------------------")
 
 # === 8. JSON Summary ===
@@ -121,6 +121,6 @@ summary_path = "backend/modules/knowledge/K3_crossfield_coupling_summary.json"
 with open(summary_path, "w", encoding="utf-8") as f:
     json.dump(summary, f, indent=2)
 
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test G′1 — Scaling Lock Calibration
+Test G′1 - Scaling Lock Calibration
 Locks the model's unit system to physical constants using Λ or Planck reference.
 """
 

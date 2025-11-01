@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-✅ RMC Integrity Verifier — Phase 45H.2
+✅ RMC Integrity Verifier - Phase 45H.2
 Ensures that the Resonant Memory Cache (RMC) JSON file is:
-  • Valid JSON (no corruption)
-  • Schema-compliant (timestamp, entries, cache, meta)
-  • Internally consistent (entries == len(cache))
+  * Valid JSON (no corruption)
+  * Schema-compliant (timestamp, entries, cache, meta)
+  * Internally consistent (entries == len(cache))
 """
 
 import json, sys
@@ -51,7 +51,7 @@ def verify_rmc(path: Path):
     else:
         print(f"🧩 Schema: {meta['schema']}")
 
-    print("✅ RMC integrity OK — file is consistent and safe.")
+    print("✅ RMC integrity OK - file is consistent and safe.")
 
 if __name__ == "__main__":
     verify_rmc(CACHE_PATH)

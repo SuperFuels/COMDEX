@@ -50,7 +50,7 @@ def _adapt_execute(engine: Any, req: ResearchRequest) -> ResearchResult:
         elif hasattr(engine, "run"):
             out = engine.run(req.__dict__)
         else:
-            # Bare engine object – no known method
+            # Bare engine object - no known method
             return ResearchResult(
                 ok=False,
                 messages=["Engine has no callable entrypoint (execute/run/execute_symbolic_query)."],

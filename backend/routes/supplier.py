@@ -74,7 +74,7 @@ def supplier_dashboard(
 
 @router.get(
     "/products",
-    summary="List this supplier’s products",
+    summary="List this supplier's products",
 )
 def list_my_products(
     current_user: User = Depends(get_current_user),

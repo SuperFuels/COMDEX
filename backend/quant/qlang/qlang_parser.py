@@ -2,7 +2,7 @@
 # 📁 backend/quant/qlang/qlang_parser.py
 # ===============================
 """
-💡 QLang Parser — Symbolic Syntax Front-End
+💡 QLang Parser - Symbolic Syntax Front-End
 -------------------------------------------
 Parses QLang / Photon Language expressions into
 intermediate QGraph (via QCompilerCore).
@@ -82,7 +82,7 @@ def tokenize(src: str) -> List[Dict[str, str]]:
 # ----------------------------------------------------------------------
 class QLangParser:
     """
-    Converts symbolic source → QCompilerCore graph.
+    Converts symbolic source -> QCompilerCore graph.
     """
 
     def __init__(self):
@@ -100,7 +100,7 @@ class QLangParser:
     def _normalize_tokens(self, tokens: List[Dict[str, str]]) -> str:
         """
         Converts glyph operators to function-like expressions.
-        e.g.  ψ1 ⊕ ψ2  →  superpose(psi1, psi2)
+        e.g.  ψ1 ⊕ ψ2  ->  superpose(psi1, psi2)
         """
         out: List[str] = []
         i = 0
@@ -139,7 +139,7 @@ class QLangParser:
 
     # --------------------------------------------------------------
     def run_test(self) -> Dict[str, Any]:
-        """Quick round-trip test from QLang→Graph→Sim."""
+        """Quick round-trip test from QLang->Graph->Sim."""
         expr = "ψ1 ⊕ ψ2 ⟲ ψ1 ↔ ψ2 ∇ μ"
         toks = tokenize(expr)
         norm = self._normalize_tokens(toks)

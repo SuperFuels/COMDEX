@@ -66,7 +66,7 @@ for label, mark, erase, color in cases:
 
 plt.xlabel("Phase φ (radians)")
 plt.ylabel("Detector D0 Intensity")
-plt.title("Test 2 — Quantum Eraser (Mach–Zehnder)")
+plt.title("Test 2 - Quantum Eraser (Mach-Zehnder)")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_Test2_Eraser.png")

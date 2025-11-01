@@ -15,7 +15,7 @@ class RemoteGlyphRouter:
         """
         Parse ⧉: glyph and route it to appropriate container or agent.
         Example:
-            ⧉:⟦ Memory | Partner : AION → Reflect ⟧
+            ⧉:⟦ Memory | Partner : AION -> Reflect ⟧
         """
         if not glyph_str.startswith("⧉:"):
             return
@@ -64,14 +64,14 @@ class RemoteGlyphRouter:
                 MEMORY.store({
                     "role": "system",
                     "type": "glyph_routed",
-                    "content": f"🌐 Routed remote glyph ⧉ at ({x},{y},{z}) → {target}:{action}",
+                    "content": f"🌐 Routed remote glyph ⧉ at ({x},{y},{z}) -> {target}:{action}",
                     "data": metadata
                 })
             else:
                 MEMORY.store({
                     "role": "system",
                     "type": "glyph_routing_failed",
-                    "content": f"🚫 Remote glyph ⧉ routing failed at ({x},{y},{z}) → {target}:{action}",
+                    "content": f"🚫 Remote glyph ⧉ routing failed at ({x},{y},{z}) -> {target}:{action}",
                     "data": metadata
                 })
 

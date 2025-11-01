@@ -1,6 +1,6 @@
 # ============================================================
 # Tessaris Symatics Reasoning Kernel
-# SRK-6 — Harmonic Coupling Kernel (v0.1-pre)
+# SRK-6 - Harmonic Coupling Kernel (v0.1-pre)
 # ============================================================
 
 import numpy as np

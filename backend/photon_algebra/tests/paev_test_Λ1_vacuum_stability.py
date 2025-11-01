@@ -7,7 +7,7 @@ BASE = "backend/modules/knowledge"
 os.makedirs(BASE, exist_ok=True)
 
 # Stability thresholds (slightly relaxed for Λ1 baseline)
-THRESH_DIV = 2e-3        # was 1e-3 — loosened to tolerate mild causal vibration
+THRESH_DIV = 2e-3        # was 1e-3 - loosened to tolerate mild causal vibration
 THRESH_DRIFT = 1e-6       # energy drift tolerance unchanged
 
 # === Data: neutral vacuum with micro fluctuations ===
@@ -29,17 +29,17 @@ divJ_mean = float(np.mean(np.abs(divJ)))
 stable = (divJ_mean < THRESH_DIV) and (drift < THRESH_DRIFT)
 
 constants = load_constants()
-print("\n=== Λ1 — Vacuum Stability (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
-print(f"⟨|∇·J|⟩ = {divJ_mean:.3e}, energy drift = {drift:.3e}")
-print("✅  Neutral vacuum stable." if stable else "⚠️  Neutral vacuum not yet stable — tune Λ or damping.")
+print("\n=== Λ1 - Vacuum Stability (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
+print(f"⟨|∇*J|⟩ = {divJ_mean:.3e}, energy drift = {drift:.3e}")
+print("✅  Neutral vacuum stable." if stable else "⚠️  Neutral vacuum not yet stable - tune Λ or damping.")
 
 # === Plot ===
 plt.figure(figsize=(8,3.5))
 plt.plot(x, u, label="u (vacuum fluctuations)")
 plt.plot(x, J, label="J_info")
-plt.plot(x, divJ, label="∇·J")
-plt.title("Λ1 — Vacuum Stability")
+plt.plot(x, divJ, label="∇*J")
+plt.title("Λ1 - Vacuum Stability")
 plt.xlabel("x"); plt.ylabel("amplitude"); plt.grid(alpha=0.3); plt.legend()
 plot_path = os.path.join(BASE, "PAEV_Λ1_vacuum_stability.png")
 plt.savefig(plot_path, dpi=200); plt.close()
@@ -56,7 +56,7 @@ summary = {
     "stable": bool(stable)
   },
   "notes": [
-    f"Vacuum ∇·J mean = {divJ_mean:.3e} (< {THRESH_DIV:.0e} ⇒ stable).",
+    f"Vacuum ∇*J mean = {divJ_mean:.3e} (< {THRESH_DIV:.0e} -> stable).",
     f"Energy drift = {drift:.3e} (< {THRESH_DRIFT:.0e}).",
     "Λ-field acts as neutral causal buffer: zero-divergence background."
   ],
@@ -64,6 +64,6 @@ summary = {
 }
 out = os.path.join(BASE, "Λ1_vacuum_stability_summary.json")
 with open(out, "w", encoding="utf-8") as f: json.dump(summary, f, indent=2)
-print(f"✅ Summary saved → {out}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {out}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

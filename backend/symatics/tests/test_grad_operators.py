@@ -1,6 +1,6 @@
 # backend/symatics/tests/test_grad_operators.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.6 — Gradient Operator Tests
+# Tessaris Symatics v0.6 - Gradient Operator Tests
 # Validates ∇wave, ∇energy, ∇coherence and integration with ResonantLawEngine
 # ──────────────────────────────────────────────────────────────
 

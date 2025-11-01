@@ -1,7 +1,7 @@
 """
-Emotional Tone Modulator — Phase 43C v1.1
+Emotional Tone Modulator - Phase 43C v1.1
 -----------------------------------------
-Adapts Aion’s emotional tone based on recent conversation memory
+Adapts Aion's emotional tone based on recent conversation memory
 and semantic context.
 
 Now includes expanded tone set:
@@ -9,7 +9,7 @@ Now includes expanded tone set:
   confident, uncertain, neutral.
 
 Author: Tessaris Research Group
-Date: Phase 43C — October 2025
+Date: Phase 43C - October 2025
 """
 
 import time, json
@@ -31,7 +31,7 @@ class EmotionalToneModulator:
         print("🎭 EmotionalToneModulator global instance initialized as TONE")
 
     def compute_energy(self, emotions):
-        """Map emotion distribution to normalized energy (0–1)."""
+        """Map emotion distribution to normalized energy (0-1)."""
         levels = {
             "calm": 0.2,
             "reflective": 0.3,
@@ -84,7 +84,7 @@ class EmotionalToneModulator:
             "last_update": time.time()
         }
 
-        print(f"[ToneModulator] 🎭 Tone → {self.state['tone']} (conf={self.state['confidence']})")
+        print(f"[ToneModulator] 🎭 Tone -> {self.state['tone']} (conf={self.state['confidence']})")
         self._save()
         return self.state
 
@@ -127,25 +127,25 @@ class EmotionalToneModulator:
 
         # --- Emotional Adaptation Rules ---
         if "drift" in comment or res < 0.3:
-            # Low coherence → calm response
+            # Low coherence -> calm response
             self.state["tone"] = "calm"
             self.state["energy"] = max(0.3, self.state.get("energy", 0.5) - 0.1)
             self.state["confidence"] = max(0.2, conf - 0.1)
             msg = "Detected low resonance; entering CALM tone."
         elif "limited" in comment or conf < 0.4:
-            # Low confidence → analytical focus
+            # Low confidence -> analytical focus
             self.state["tone"] = "analytical"
             self.state["energy"] = min(0.7, self.state.get("energy", 0.5) + 0.1)
             self.state["confidence"] = min(0.6, conf + 0.05)
             msg = "Confidence limited; switching to ANALYTICAL tone."
         elif "stable" in comment or res >= 0.4:
-            # Stable and coherent → reflective tone
+            # Stable and coherent -> reflective tone
             self.state["tone"] = "reflective"
             self.state["energy"] = 0.5
             self.state["confidence"] = min(1.0, conf + 0.2)
             msg = "System stable; reinforcing REFLECTIVE tone."
         else:
-            # Default fallback → keep same tone
+            # Default fallback -> keep same tone
             self.state["tone"] = tone
             msg = "No major change detected; tone maintained."
 
@@ -159,7 +159,7 @@ class EmotionalToneModulator:
             print(f"[ToneModulator] ⚠️ Could not save tone state: {e}")
 
         # Log transition message
-        print(f"[ToneModulator] 🎭 Reflective adjustment → {self.state['tone'].upper()} "
+        print(f"[ToneModulator] 🎭 Reflective adjustment -> {self.state['tone'].upper()} "
             f"(conf={self.state['confidence']:.2f}, energy={self.state['energy']:.2f}) | {msg}")
 
         return self.state

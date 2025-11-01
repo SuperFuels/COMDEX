@@ -13,7 +13,7 @@ SymExpr = Union[str, Dict[str, Any], List[Any]]
 # ──────────────────────────────
 
 def rewrite_idempotence(expr: SymExpr) -> SymExpr:
-    """a ⊕ a → a ; a ↔ a → a"""
+    """a ⊕ a -> a ; a ↔ a -> a"""
     if not isinstance(expr, dict):
         return expr
     if expr.get("op") in {"⊕", "↔"}:
@@ -25,10 +25,10 @@ def rewrite_idempotence(expr: SymExpr) -> SymExpr:
 def _cleanup(expr: Any) -> Any:
     """
     Normalize expression:
-      • Flatten nested ops (+, *)
-      • Drop neutral elements (*1, +0)
-      • Sort multiplication factors (constants first)
-      • Keep chain-rule clarity: if a product contains a trig/exp/log factor,
+      * Flatten nested ops (+, *)
+      * Drop neutral elements (*1, +0)
+      * Sort multiplication factors (constants first)
+      * Keep chain-rule clarity: if a product contains a trig/exp/log factor,
         do NOT flatten nested '*' factors (so cos(u) * (2*x) stays grouped).
     """
     if not isinstance(expr, dict):
@@ -113,13 +113,13 @@ def _cleanup(expr: Any) -> Any:
 def rewrite_derivative(expr: Any, var: str) -> Any:
     """
     Symbolic derivative rules (core subset + cleanup):
-      • d/dx(const) = 0
-      • d/dx(x) = 1
-      • d/dx(x^n) = n * x^(n-1)
-      • d/dx(f + g) = f' + g'
-      • d/dx(f * g) = f' * g + f * g'
-      • d/dx(f(g(x))) = f'(g(x)) * g'(x)
-      • Common trig/exp/log rules
+      * d/dx(const) = 0
+      * d/dx(x) = 1
+      * d/dx(x^n) = n * x^(n-1)
+      * d/dx(f + g) = f' + g'
+      * d/dx(f * g) = f' * g + f * g'
+      * d/dx(f(g(x))) = f'(g(x)) * g'(x)
+      * Common trig/exp/log rules
     """
 
     # --- atomic strings ---
@@ -206,16 +206,16 @@ def rewrite_derivative(expr: Any, var: str) -> Any:
 def rewrite_integral(expr: Any, var: str) -> Any:
     """
     Symbolic integration rules (core subset + trig + substitution):
-      • ∫ c dx = c * x
-      • ∫ x dx = x^2 / 2
-      • ∫ x^n dx = x^(n+1)/(n+1), for n ≠ -1
-      • ∫(f + g) dx = ∫f dx + ∫g dx
-      • ∫ cos(x) dx = sin(x)
-      • ∫ sin(x) dx = -cos(x)
-      • ∫ exp(x) dx = exp(x)
-      • Substitution: ∫ f(g(x))·g'(x) dx → F(g(x))
-      • Other variables treated as constants → c * x
-      • Fallback → wrap in ∫ node
+      * ∫ c dx = c * x
+      * ∫ x dx = x^2 / 2
+      * ∫ x^n dx = x^(n+1)/(n+1), for n != -1
+      * ∫(f + g) dx = ∫f dx + ∫g dx
+      * ∫ cos(x) dx = sin(x)
+      * ∫ sin(x) dx = -cos(x)
+      * ∫ exp(x) dx = exp(x)
+      * Substitution: ∫ f(g(x))*g'(x) dx -> F(g(x))
+      * Other variables treated as constants -> c * x
+      * Fallback -> wrap in ∫ node
     """
     from backend.symatics.rewrite_rules import rewrite_derivative, simplify
 
@@ -369,13 +369,13 @@ def op_integral(expr: Any, var: str, context: Dict) -> Dict[str, Any]:
             ):
                 result_str = f"0.5*{var}^2"
 
-        # Power division → x^(n+1)/(n+1)
+        # Power division -> x^(n+1)/(n+1)
         elif op == "/" and args and isinstance(args[0], dict) and args[0].get("op") in {"^", "pow"}:
             base, power = args[0]["args"]
             if base == {"op": "var", "args": [var]}:
                 result_str = f"{var}^{power}/{args[1]}"
 
-        # Constant multiplication → c*x
+        # Constant multiplication -> c*x
         elif op == "*" and args:
             const_val = args[0]
             if isinstance(const_val, str) and const_val.lstrip("-").isdigit():
@@ -406,7 +406,7 @@ def op_integral(expr: Any, var: str, context: Dict) -> Dict[str, Any]:
 op_integrate = op_integral
 
 def rewrite_combine_like_terms(expr: SymExpr) -> SymExpr:
-    """Collapse x*1 + x*1 → 2*x."""
+    """Collapse x*1 + x*1 -> 2*x."""
     if not isinstance(expr, dict):
         return expr
     if expr.get("op") == "+":
@@ -491,7 +491,7 @@ def rewrite_distributivity(expr: SymExpr) -> SymExpr:
                     ],
                 }
 
-            # Default shallow case: a ⊕ (b ↔ c) → (a ⊕ b) ↔ (a ⊕ c)
+            # Default shallow case: a ⊕ (b ↔ c) -> (a ⊕ b) ↔ (a ⊕ c)
             return {
                 "op": "↔",
                 "args": [
@@ -504,7 +504,7 @@ def rewrite_distributivity(expr: SymExpr) -> SymExpr:
 def rewrite_constant_folding(expr: SymExpr) -> SymExpr:
     """
     Fold numeric constants for arithmetic operators only (e.g. '+').
-    DO NOT fold for Symatics superposition ⊕ — it's not numeric addition.
+    DO NOT fold for Symatics superposition ⊕ - it's not numeric addition.
     """
     if not isinstance(expr, dict):
         return expr
@@ -565,7 +565,7 @@ def simplify(expr: SymExpr) -> SymExpr:
 # ──────────────────────────────
 
 def test_rewrite_identity_simplify():
-    """Identity: a ⊕ ∅ → a via simplify()."""
+    """Identity: a ⊕ ∅ -> a via simplify()."""
     from backend.symatics.symatics_rulebook import op_superpose
     from backend.symatics.rewrite_rules import simplify
     expr = op_superpose("A", "∅", {})
@@ -574,7 +574,7 @@ def test_rewrite_identity_simplify():
 
 
 def test_rewrite_idempotence_simplify():
-    """Idempotence: a ⊕ a → a via simplify()."""
+    """Idempotence: a ⊕ a -> a via simplify()."""
     from backend.symatics.symatics_rulebook import op_superpose
     from backend.symatics.rewrite_rules import simplify
     expr = op_superpose("A", "A", {})

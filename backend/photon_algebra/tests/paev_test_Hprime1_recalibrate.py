@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test H′1 — Tessaris Field Phase Recalibration
+Test H′1 - Tessaris Field Phase Recalibration
 Re-aligns phase deltas from H′1 to match the latest locked G′ constants.
 Supports simplified or structured G′ lock snapshots.
 """
@@ -32,7 +32,7 @@ def extract_constants(data):
     return {k: v for k, v in data.items() if isinstance(v, (int, float))}
 
 def main():
-    print("=== H′1 — Tessaris Field Phase Recalibration ===")
+    print("=== H′1 - Tessaris Field Phase Recalibration ===")
 
     lock = load_json(LOCK_FILE)
     coh = load_json(COH_FILE)
@@ -42,7 +42,7 @@ def main():
     deltas = coh.get("deltas", {})
 
     if not consts or not phases:
-        print("🚨 Missing input data — ensure both lock snapshot and H′1 cohesion exist.")
+        print("🚨 Missing input data - ensure both lock snapshot and H′1 cohesion exist.")
         return
 
     # Apply recalibration by proportionally adjusting each phase and delta
@@ -87,13 +87,13 @@ def main():
     ax.fill(angles, values, "r", alpha=0.25)
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(labels)
-    ax.set_title(f"H′1 — Recalibrated Field Cohesion (FCI={fci:.3f}%)")
+    ax.set_title(f"H′1 - Recalibrated Field Cohesion (FCI={fci:.3f}%)")
     plt.tight_layout()
     plt.savefig(PLOT_FILE)
 
-    print(f"📘 Saved recalibrated JSON → {OUTPUT_JSON}")
-    print(f"📄 Saved recalibrated CSV → {OUTPUT_CSV}")
-    print(f"📈 Saved plot → {PLOT_FILE}")
+    print(f"📘 Saved recalibrated JSON -> {OUTPUT_JSON}")
+    print(f"📄 Saved recalibrated CSV -> {OUTPUT_CSV}")
+    print(f"📈 Saved plot -> {PLOT_FILE}")
     print(f"✅ Recalibration complete. New FCI = {fci:.3f} %")
 
 if __name__ == "__main__":

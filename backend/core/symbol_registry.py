@@ -14,7 +14,7 @@ CODEX_SYMBOLS: Dict[str, str] = {
     "∀": "for_all (universal quantifier)",
     "∃": "exists (existential quantifier)",
     "¬": "not (logical negation)",
-    "→": "implies",
+    "->": "implies",
     "↔": "iff (if and only if)",
     "∧": "and",
     "∨": "or",
@@ -41,7 +41,7 @@ SYMATIC_SYMBOLS: Dict[str, str] = {
     "⊕": "resonance superposition (combine)",
     "⊗": "fusion / reinforcement",
     "⊖": "cancellation (destructive interference)",
-    "∇": "collapse (resonant state → form)",
+    "∇": "collapse (resonant state -> form)",
     "★": "quality projection (SQI weighting)",
     "☄": "broadcast resonance"
 }
@@ -63,8 +63,8 @@ PHOTON_SYMBOLS: Dict[str, str] = {
     # ⚠ conflict with CodexLang: ↔
     # In CodexLang: iff
     # In Photon: entangle
-    # → Keep Photon '↔' but alias an alternate (e.g. '∞' or custom glyph)
-    "↔": "entangle (photon semantics — shadowed by CodexLang iff)",
+    # -> Keep Photon '↔' but alias an alternate (e.g. '∞' or custom glyph)
+    "↔": "entangle (photon semantics - shadowed by CodexLang iff)",
     "∞": "alias for entangle (photon-safe symbol)",
 
     # Photon-unique

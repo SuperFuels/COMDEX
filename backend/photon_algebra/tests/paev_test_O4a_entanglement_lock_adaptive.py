@@ -24,7 +24,7 @@ psi_obs = norm(psi_obs)
 # --- params (tuned for lock) ---
 coupling_strength = 0.18           # slightly weaker than O4
 noise_scale       = 0.006           # less stochastic spread
-lock_gain         = 0.06            # phase servo gain (0.03–0.08 works)
+lock_gain         = 0.06            # phase servo gain (0.03-0.08 works)
 avg_gain          = 0.02            # slow drift cancellation on amplitudes
 timesteps         = 500
 
@@ -81,14 +81,14 @@ os.makedirs("backend/modules/knowledge", exist_ok=True)
 plt.figure(figsize=(9,5))
 plt.plot(ent_fid, label="Entanglement Fidelity")
 plt.plot(I_mut,  label="Mutual Information", alpha=0.8)
-plt.title("O4a — Adaptive Entanglement Lock (phase servo)")
+plt.title("O4a - Adaptive Entanglement Lock (phase servo)")
 plt.xlabel("time step"); plt.ylabel("Fidelity / Information")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_O4a_EntanglementLock.png", dpi=120)
 
 plt.figure(figsize=(9,4))
 plt.plot(phi_hat_series)
-plt.title("O4a — Estimated Phase Error φ̂ (per step)")
+plt.title("O4a - Estimated Phase Error φ̂ (per step)")
 plt.xlabel("time step"); plt.ylabel("radians")
 plt.tight_layout()
 plt.savefig("PAEV_O4a_PhaseError.png", dpi=120)
@@ -113,6 +113,6 @@ summary = {
 with open("backend/modules/knowledge/O4a_entanglement_lock_adaptive.json","w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== O4a — Adaptive Entanglement Lock ===")
-print(f"F_final={F_final:.3f}, I_final={I_final:.3f}, dS/dt={dSdt:.2e} → {cls}")
-print("✅ Results saved → backend/modules/knowledge/O4a_entanglement_lock_adaptive.json")
+print("=== O4a - Adaptive Entanglement Lock ===")
+print(f"F_final={F_final:.3f}, I_final={I_final:.3f}, dS/dt={dSdt:.2e} -> {cls}")
+print("✅ Results saved -> backend/modules/knowledge/O4a_entanglement_lock_adaptive.json")

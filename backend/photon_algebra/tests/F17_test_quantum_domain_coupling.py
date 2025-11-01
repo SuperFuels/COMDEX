@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-F17 — Quantum Domain Coupling Test
+F17 - Quantum Domain Coupling Test
 ----------------------------------
 Purpose:
-  • Test if independent Λ-domains with similar Λ_eff spontaneously synchronize
+  * Test if independent Λ-domains with similar Λ_eff spontaneously synchronize
     via curvature coupling (nonlocal information linkage).
-  • Confirms whether multiverse-like domains communicate through shared vacuum curvature.
+  * Confirms whether multiverse-like domains communicate through shared vacuum curvature.
 
 Core Model:
     dΛ_i/dt = γ * (ΔS_i - ΔE_i) - ζ (Λ_i - Λ_eq) + η * Σ_j w_ij (Λ_j - Λ_i)
 
 Parameters:
-  γ — proportional feedback gain
-  ζ — damping to equilibrium Λ_eq
-  η — inter-domain coupling strength
-  w_ij — normalized adjacency weights between domains
+  γ - proportional feedback gain
+  ζ - damping to equilibrium Λ_eq
+  η - inter-domain coupling strength
+  w_ij - normalized adjacency weights between domains
 
 Outputs:
   - PAEV_F17_LambdaDomains.png
@@ -68,23 +68,23 @@ classification = (
     "⚠️ Partial synchronization (weak coupling)"
 )
 
-print("=== F17 — Quantum Domain Coupling Test ===")
+print("=== F17 - Quantum Domain Coupling Test ===")
 print(f"N={N}, γ={γ:.3f}, ζ={ζ:.2f}, η={η:.3f}")
 print(f"Final sync index={sync_final:.3f}, Λ_drift={final_drift:.3e}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 
 # --- Plots ---
 out = Path(".")
 plt.figure(figsize=(10,5))
 for i in range(N):
     plt.plot(t, Λ[i], lw=1.2, label=f"Domain {i+1}")
-plt.title("F17 — Λ Evolution in Coupled Quantum Domains")
+plt.title("F17 - Λ Evolution in Coupled Quantum Domains")
 plt.xlabel("time"); plt.ylabel("Λ_i(t)"); plt.legend(); plt.tight_layout()
 plt.savefig(out/"PAEV_F17_LambdaDomains.png", dpi=160)
 
 plt.figure(figsize=(8,4))
 plt.plot(t, sync_index, lw=1.6, color='purple')
-plt.title("F17 — Domain Synchronization Index")
+plt.title("F17 - Domain Synchronization Index")
 plt.xlabel("time"); plt.ylabel("Synchronization (1 - σ/μ)")
 plt.tight_layout(); plt.savefig(out/"PAEV_F17_SynchronizationIndex.png", dpi=160)
 
@@ -106,4 +106,4 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 }
 Path("backend/modules/knowledge/F17_quantum_domain_coupling.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/F17_quantum_domain_coupling.json")
+print("📄 Summary saved -> backend/modules/knowledge/F17_quantum_domain_coupling.json")

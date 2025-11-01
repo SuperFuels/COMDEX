@@ -65,7 +65,7 @@ def test_equivalence_collision_default_logic():
 
 
 def test_equivalence_collision_quantum_context():
-    """Resolver should allow forcing ↔ → quantum:↔ with context."""
+    """Resolver should allow forcing ↔ -> quantum:↔ with context."""
     assert resolve_collision("↔", context="quantum") == "quantum:↔"
 
 

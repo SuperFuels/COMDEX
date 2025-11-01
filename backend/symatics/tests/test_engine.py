@@ -103,7 +103,7 @@ def test_measure_superposed_literals():
     """
     Verify that (μ (⊕ 1.0 2.0)) collapses correctly
     into a canonicalized Signature with 'measured' metadata.
-    Updated under Tessaris v0.2 — allows inner superposition tagging.
+    Updated under Tessaris v0.2 - allows inner superposition tagging.
     """
     expr = "(μ (⊕ 1.0 2.0))"
     ast = parse_expr(expr)
@@ -231,5 +231,5 @@ def test_collapse_simple():
     # Should preserve superposition tag
     assert res.meta.get("superposed") is True
 
-    # Amplitude normalized to ≤ 1.0
+    # Amplitude normalized to <= 1.0
     assert 0.0 <= res.amplitude <= 1.0

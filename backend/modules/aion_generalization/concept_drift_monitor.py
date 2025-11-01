@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-🧠 Concept Drift Monitor — Phase 34: Temporal Stability Feedback (Final Closure)
+🧠 Concept Drift Monitor - Phase 34: Temporal Stability Feedback (Final Closure)
 ───────────────────────────────────────────────────────────────────────────────
 Tracks temporal stability of concept fields (from AKG) by analyzing RSI variance
 across recent resonance telemetry. Reinforces stable clusters and decays or
 splits unstable ones. Logs all events for meta-learning.
 
 Stable concept = coherent RSI/ε/k pattern over time.
-Unstable concept = diverging resonance, potential drift → concept evolution.
+Unstable concept = diverging resonance, potential drift -> concept evolution.
 """
 
 import json, time, statistics
@@ -96,7 +96,7 @@ class ConceptDriftMonitor:
                 continue
 
             mean_var = sum(variances) / len(variances)
-            print(f"🧭 concept:{cname} → mean RSI variance = {mean_var:.5f}")
+            print(f"🧭 concept:{cname} -> mean RSI variance = {mean_var:.5f}")
 
             if mean_var < self.stability_threshold:
                 # ── Reinforce stable concept
@@ -107,11 +107,11 @@ class ConceptDriftMonitor:
                 # ── Decay unstable concept
                 akg.adjust_concept_strength(cname, self.decay_factor, mode="scale")
                 self.log_event(f"decay {cname} var={mean_var:.5f}")
-                print(f"💤 Decayed unstable {cname} (×{self.decay_factor})")
+                print(f"💤 Decayed unstable {cname} (*{self.decay_factor})")
 
     # ─────────────────────────────────────────────
     def run(self):
-        print("♻️ Running Concept Drift Monitor (Phase 34 Closure)…")
+        print("♻️ Running Concept Drift Monitor (Phase 34 Closure)...")
         self.analyze_concepts()
         print("✅ Drift monitoring cycle complete.")
 

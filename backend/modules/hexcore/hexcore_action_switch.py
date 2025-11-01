@@ -1,8 +1,8 @@
 # ==========================================================
-#  Tessaris • HexCore Action Switch ↔ Photon Bridge
+#  Tessaris * HexCore Action Switch ↔ Photon Bridge
 #  Encodes symbolic AION actions into Photon packets (.photo)
 #  and emits them to the QQC Photon Bridge resonance bus.
-#  Stage 14.2 — Action Resonance Propagation
+#  Stage 14.2 - Action Resonance Propagation
 # ==========================================================
 
 import json
@@ -85,7 +85,7 @@ class HexCoreActionSwitch:
             with open(packet_path, "w", encoding="utf-8") as f:
                 f.write(encoded if isinstance(encoded, str) else json.dumps(encoded))
 
-            # Optional live broadcast → QQC
+            # Optional live broadcast -> QQC
             if self.bridge:
                 self.bridge.on_ingest(payload)
                 logger.info(f"[HexCoreActionSwitch] 🚀 Photon packet emitted to QQC bus (intent={payload['intent']})")
@@ -94,7 +94,7 @@ class HexCoreActionSwitch:
             if self.qqc and hasattr(self.qqc, "last_summary"):
                 self.qqc.last_summary.setdefault("actions", []).append(payload)
 
-            logger.info(f"[HexCoreActionSwitch] Photon packet saved → {packet_path}")
+            logger.info(f"[HexCoreActionSwitch] Photon packet saved -> {packet_path}")
 
             return {"status": "emitted", "path": packet_path, "payload": payload}
 

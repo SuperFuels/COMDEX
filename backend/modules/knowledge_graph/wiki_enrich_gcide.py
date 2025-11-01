@@ -93,7 +93,7 @@ def now_iso() -> str:
 def normalize_lemma(s: str) -> str:
     """
     Normalize lemma and filenames to lowercase alphanumeric form
-    (e.g. 'Photon', 'photon.', 'photon-' → 'photon').
+    (e.g. 'Photon', 'photon.', 'photon-' -> 'photon').
     This ensures proper matching across GCIDE, Wiktionary, and Lexicon.
     """
     return re.sub(r'[^a-z0-9]+', '', s.lower().strip())
@@ -414,7 +414,7 @@ def enrich_lexicon(
 
         # Progress checkpoint
         if idx % 1000 == 0:
-            log.info(f"[{idx}/{total}] Enriched so far — {counters['enriched']} saved")
+            log.info(f"[{idx}/{total}] Enriched so far - {counters['enriched']} saved")
 
         # Collect examples for early verification
         if any_add and len(sample_matches) < 5:
@@ -427,9 +427,9 @@ def enrich_lexicon(
 
     log.info(f"✅ GCIDE hits: {gcide_hits} / {total}  |  Wikt hits: {wikt_hits} / {total}")
     if sample_matches:
-        log.info(f"Sample filename→lemma matches: {sample_matches}")
+        log.info(f"Sample filename->lemma matches: {sample_matches}")
 
-    log.info(f"🏁 Enrichment complete — processed={counters['processed']}, enriched={counters['enriched']}, skipped={counters['skipped']}")
+    log.info(f"🏁 Enrichment complete - processed={counters['processed']}, enriched={counters['enriched']}, skipped={counters['skipped']}")
     return counters
 
 def main():

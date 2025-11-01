@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 # ============================================
-# P10t — Closed-Loop Stability Margin Analysis
+# P10t - Closed-Loop Stability Margin Analysis
 # ============================================
 
 # --- Load prior metrics (from P10r/s) ---
@@ -69,7 +69,7 @@ ax[1].set_ylabel("Phase (deg)")
 ax[1].grid(which='both', alpha=0.3)
 ax[1].legend()
 
-plt.suptitle("P10t — Closed-Loop Stability Margins")
+plt.suptitle("P10t - Closed-Loop Stability Margins")
 plt.tight_layout()
 plt.savefig("PAEV_P10t_ClosedLoop_Bode.png", dpi=240)
 plt.close()
@@ -81,7 +81,7 @@ plt.axhline(0, color='gray', lw=0.8)
 plt.axvline(-1, color='r', ls='--')
 plt.xlabel("Re(G)")
 plt.ylabel("Im(G)")
-plt.title("P10t — Nyquist Plot (Open-Loop Response)")
+plt.title("P10t - Nyquist Plot (Open-Loop Response)")
 plt.grid(alpha=0.3)
 plt.tight_layout()
 plt.savefig("PAEV_P10t_ClosedLoop_Nyquist.png", dpi=240)
@@ -110,7 +110,7 @@ Path("backend/modules/knowledge").mkdir(parents=True, exist_ok=True)
 with open("backend/modules/knowledge/P10t_closed_loop_stability.json", "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== P10t — Closed-Loop Stability Margin ===")
+print("=== P10t - Closed-Loop Stability Margin ===")
 print(f"Gain Margin = {GM:.2f}, Phase Margin = {PM:.1f}°, ω_gc={omega_gc:.3f}")
 print(f"Verdict: {classification}")
-print("✅ Results saved → backend/modules/knowledge/P10t_closed_loop_stability.json")
+print("✅ Results saved -> backend/modules/knowledge/P10t_closed_loop_stability.json")

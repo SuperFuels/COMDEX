@@ -38,7 +38,7 @@ def repair_resonant_cache():
 
     # Write back cleaned JSON
     cache_path.write_text(json.dumps(data, indent=2))
-    print(f"🧹 Clean JSON restored → {cache_path}")
+    print(f"🧹 Clean JSON restored -> {cache_path}")
 
 if __name__ == "__main__":
     repair_resonant_cache()

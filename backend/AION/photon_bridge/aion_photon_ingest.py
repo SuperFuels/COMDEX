@@ -1,5 +1,5 @@
 """
-AION — Photon Ingest Bridge
+AION - Photon Ingest Bridge
 ────────────────────────────────────────────
 Receives Photon glyph packets (via GHX Awareness Feed or QQC forwarder),
 decodes and normalizes them using PhotonIngestProtocol,
@@ -59,7 +59,7 @@ class AIONPhotonIngestor(PhotonIngestProtocol):
     def __init__(self, name: str = "AIONPhotonIngestor"):
         super().__init__(name)
         self.current_gamma_prime = 1.0  # adaptive feedback gain
-        logger.info(f"[{name}] Initialized and waiting for stream …")
+        logger.info(f"[{name}] Initialized and waiting for stream ...")
 
     # ───────────────────────────────
     # Feedback Gain Handling
@@ -86,7 +86,7 @@ class AIONPhotonIngestor(PhotonIngestProtocol):
         state = data.get("S") or data.get("closure_state")
         gain = data.get("γ") or data.get("gain")
 
-        # Apply feedback gain correction (σ→γ′ coupling)
+        # Apply feedback gain correction (σ->γ′ coupling)
         if gain is not None:
             gain = (gain or 1.0) * getattr(self, "current_gamma_prime", 1.0)
 
@@ -105,7 +105,7 @@ class AIONPhotonIngestor(PhotonIngestProtocol):
     # Internal forward stub
     # ───────────────────────────────
     def _forward_to_cognitive_fabric(self, payload: Dict):
-        """Forward normalized ψ–κ–T–Φ packet to AION Morphic Fabric."""
+        """Forward normalized ψ-κ-T-Φ packet to AION Morphic Fabric."""
         resonance_ingest(payload)
 
 # ────────────────────────────────────────────────
@@ -130,10 +130,10 @@ def run_aion_photon_listener():
 
     while True:
         try:
-            logger.info("🔗 AION Photon Ingestor attempting connection to GHX SSE stream …")
+            logger.info("🔗 AION Photon Ingestor attempting connection to GHX SSE stream ...")
             with requests.get(SSE_URL, stream=True, timeout=None) as resp:
                 if resp.status_code != 200:
-                    logger.warning(f"[AIONPhotonIngestor] Bad status {resp.status_code}, retrying in {retry_delay}s …")
+                    logger.warning(f"[AIONPhotonIngestor] Bad status {resp.status_code}, retrying in {retry_delay}s ...")
                     time.sleep(retry_delay)
                     retry_delay = min(retry_delay * BACKOFF_FACTOR, MAX_RETRY_DELAY)
                     continue
@@ -154,13 +154,13 @@ def run_aion_photon_listener():
             break
 
         except requests.exceptions.ChunkedEncodingError as e:
-            logger.warning(f"[AIONPhotonIngestor] Connection lost: {e}. Retrying in {retry_delay}s …")
+            logger.warning(f"[AIONPhotonIngestor] Connection lost: {e}. Retrying in {retry_delay}s ...")
             time.sleep(retry_delay)
             retry_delay = min(retry_delay * BACKOFF_FACTOR, MAX_RETRY_DELAY)
             continue
 
         except requests.ConnectionError as e:
-            logger.warning(f"[AIONPhotonIngestor] Connection refused: {e}. Retrying in {retry_delay}s …")
+            logger.warning(f"[AIONPhotonIngestor] Connection refused: {e}. Retrying in {retry_delay}s ...")
             time.sleep(retry_delay)
             retry_delay = min(retry_delay * BACKOFF_FACTOR, MAX_RETRY_DELAY)
             continue

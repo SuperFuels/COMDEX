@@ -30,7 +30,7 @@ def _try_save_in_ucs(cid: str, container: Dict[str, Any]) -> None:
 def _seed_kernel_space(cid: str, size: int) -> None:
     """
     Best-effort: create a small logical grid footprint so UIs don't see an empty hub.
-    Non-fatal if DimensionKernel isn’t available.
+    Non-fatal if DimensionKernel isn't available.
     """
     try:
         from backend.modules.dimensions.dimension_kernel import DimensionKernel
@@ -39,7 +39,7 @@ def _seed_kernel_space(cid: str, size: int) -> None:
 
     try:
         k = DimensionKernel(cid)
-        # seed a size×size×size grid at t=0
+        # seed a size*size*size grid at t=0
         for x in range(size):
             for y in range(size):
                 for z in range(size):

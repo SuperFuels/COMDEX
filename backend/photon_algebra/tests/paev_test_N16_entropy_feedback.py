@@ -88,12 +88,12 @@ def classify_entropy_flow(dS_dt, t, window_frac=0.25, thr=1e-3):
 def main():
     ħ, G, Λ, α, β = load_constants()
     # Effective temperature: reuse N8 scaling as heuristic (proportional to sqrt(Λ)/ħ)
-    T_eff = (np.sqrt(max(Λ,1e-18)) / max(ħ,1e-12)) * 1e-3 * 1.0e21  # produce ~1e18–1e19 K scale
+    T_eff = (np.sqrt(max(Λ,1e-18)) / max(ħ,1e-12)) * 1e-3 * 1.0e21  # produce ~1e18-1e19 K scale
 
     t, S, dS_dt, phi_err, S_eq = simulate_entropy_feedback(T_eff, α, β, steps=1200, dt=0.01, seed=1337)
     cls, mean_tail = classify_entropy_flow(dS_dt, t, window_frac=0.3, thr=2e-3)
 
-    print("=== N16 — Entropy Feedback Channel Test ===")
+    print("=== N16 - Entropy Feedback Channel Test ===")
     print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}, β={β:.2f}")
     print(f"Effective T ≈ {T_eff:.3e} K")
     print(f"Mean dS/dt (tail) = {mean_tail:.3e}")
@@ -106,7 +106,7 @@ def main():
     plt.axhline(S_eq, ls="--", alpha=0.6, label="S_eq")
     plt.xlabel("time")
     plt.ylabel("Entropy S(t)")
-    plt.title("N16 — Entropy vs Time (Feedback Active)")
+    plt.title("N16 - Entropy vs Time (Feedback Active)")
     plt.legend()
     out1 = Path("PAEV_N16_EntropyFeedback.png")
     plt.tight_layout()
@@ -119,7 +119,7 @@ def main():
     plt.axhline(0.0, color="k", alpha=0.4, lw=1)
     plt.xlabel("time")
     plt.ylabel("dS/dt")
-    plt.title("N16 — Entropy Flow (dS/dt)")
+    plt.title("N16 - Entropy Flow (dS/dt)")
     out2 = Path("PAEV_N16_EntropyFlow.png")
     plt.tight_layout()
     plt.savefig(out2, dpi=140)

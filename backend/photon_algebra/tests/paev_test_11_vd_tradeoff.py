@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- Visibility–Distinguishability tradeoff ---
+# --- Visibility-Distinguishability tradeoff ---
 def quantum_vd(mu):
     """Ideal quantum relation V^2 + D^2 = 1"""
     D = mu
@@ -27,12 +27,12 @@ for mu in mu_vals:
 
 # --- Plot ---
 plt.figure(figsize=(6,6))
-plt.plot(qD, qV, 'b-', label='Quantum V–D')
-plt.plot(paD, paV, 'r--', label='Photon Algebra V–D')
+plt.plot(qD, qV, 'b-', label='Quantum V-D')
+plt.plot(paD, paV, 'r--', label='Photon Algebra V-D')
 plt.plot([0,1],[1,0],'k:',alpha=0.5)
 plt.xlabel("Distinguishability D")
 plt.ylabel("Visibility V")
-plt.title("Test 11 — V–D Complementarity (Partial Which-Path)")
+plt.title("Test 11 - V-D Complementarity (Partial Which-Path)")
 plt.legend()
 plt.axis("equal")
 plt.tight_layout()

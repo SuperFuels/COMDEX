@@ -71,7 +71,7 @@ os.makedirs("backend/modules/knowledge", exist_ok=True)
 plt.figure(figsize=(9,5))
 plt.plot(ent_fid, label="Entanglement Fidelity")
 plt.plot(I_mut, label="Mutual Information", alpha=0.7)
-plt.title("O4 — Entanglement Lock Evolution")
+plt.title("O4 - Entanglement Lock Evolution")
 plt.xlabel("time step"); plt.ylabel("Fidelity / Information")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_O4_EntanglementLock.png", dpi=120)
@@ -92,6 +92,6 @@ summary = {
 with open("backend/modules/knowledge/O4_entanglement_lock.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== O4 — Observer Entanglement Lock ===")
-print(f"F_final={F_final:.3f}, I_final={I_final:.3f}, dS/dt={dSdt:.2e} → {cls}")
-print("✅ Results saved → backend/modules/knowledge/O4_entanglement_lock.json")
+print("=== O4 - Observer Entanglement Lock ===")
+print(f"F_final={F_final:.3f}, I_final={I_final:.3f}, dS/dt={dSdt:.2e} -> {cls}")
+print("✅ Results saved -> backend/modules/knowledge/O4_entanglement_lock.json")

@@ -1,5 +1,5 @@
 # ==========================================================
-#  Tessaris • Quantum Quad Core (QQC) Boot Harness
+#  Tessaris * Quantum Quad Core (QQC) Boot Harness
 #  Environment-driven runtime loader and orchestrator.
 # ==========================================================
 

@@ -1,15 +1,15 @@
 # ================================================================
-# 🌐 CEE Wordwall Importer — Phase 45G.12 (Tessaris Update)
+# 🌐 CEE Wordwall Importer - Phase 45G.12 (Tessaris Update)
 # ================================================================
 """
-Imports educational exercises from Wordwall’s oEmbed API.
-Used to ground Aion’s symbolic cognition in real, human-designed test structures.
+Imports educational exercises from Wordwall's oEmbed API.
+Used to ground Aion's symbolic cognition in real, human-designed test structures.
 
 Enhancements:
-  • Robust error handling + safe prompt normalization
-  • Synthetic resonance metadata (ρ, I, SQI) for Cognition Engine
-  • Structured fallback when metadata or text is missing
-  • Ready for hybrid Wordwall ↔ LLM enrichment
+  * Robust error handling + safe prompt normalization
+  * Synthetic resonance metadata (ρ, I, SQI) for Cognition Engine
+  * Structured fallback when metadata or text is missing
+  * Ready for hybrid Wordwall ↔ LLM enrichment
 """
 
 import requests
@@ -87,7 +87,7 @@ def wordwall_to_exercise(resource_url: str):
 
     # --- Ensure safe prompt ---
     if not prompt_text:
-        prompt_text = "[Wordwall exercise imported — no prompt text]"
+        prompt_text = "[Wordwall exercise imported - no prompt text]"
 
     packet = {
         "type": "imported_wordwall",

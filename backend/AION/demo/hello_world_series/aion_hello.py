@@ -1,6 +1,6 @@
 """
-🧠 AION Hello — End-to-End Cognitive Feedback Demo
-Simulates AION emitting coherent ψ κ T Φ resonance packets to MorphicLedger → CodexTrace.
+🧠 AION Hello - End-to-End Cognitive Feedback Demo
+Simulates AION emitting coherent ψ κ T Φ resonance packets to MorphicLedger -> CodexTrace.
 """
 
 import time, random, requests, json, hashlib
@@ -18,7 +18,7 @@ def gen_metrics():
     }
 
 def main():
-    print("🧠 Running AION Hello (ψ κ T Φ → Morphic → CodexTrace) …")
+    print("🧠 Running AION Hello (ψ κ T Φ -> Morphic -> CodexTrace) ...")
     for i in range(15):
         metrics = gen_metrics()
         packet = {
@@ -35,7 +35,7 @@ def main():
 
         # Send to Resonant Sync
         r = requests.post(SYNC_URL, json=packet, headers={"Authorization": f"Bearer {SYNC_TOKEN}"})
-        print(f"→ sent AION_HELLO ψ={metrics['psi']:.3f}, φ={metrics['phi']:.3f}, status={r.status_code}")
+        print(f"-> sent AION_HELLO ψ={metrics['psi']:.3f}, φ={metrics['phi']:.3f}, status={r.status_code}")
         time.sleep(2)
 
 if __name__ == "__main__":

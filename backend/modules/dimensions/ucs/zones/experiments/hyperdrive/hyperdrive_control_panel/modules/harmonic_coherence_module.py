@@ -1,8 +1,8 @@
 """
 🎵 Harmonic Coherence Measurement
 --------------------------------
-• Pure measurement utilities (no runtime tick logic).
-• Calculates harmonic coherence & supports harmonic injection/resync.
+* Pure measurement utilities (no runtime tick logic).
+* Calculates harmonic coherence & supports harmonic injection/resync.
 """
 
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants

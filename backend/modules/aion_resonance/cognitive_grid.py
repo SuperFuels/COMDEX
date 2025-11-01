@@ -1,5 +1,5 @@
 # ==========================================================
-# 🧩 AION Cognitive Grid — Phase 2: Curiosity + Symbolic Field Expansion
+# 🧩 AION Cognitive Grid - Phase 2: Curiosity + Symbolic Field Expansion
 # ----------------------------------------------------------
 # Adds symbolic tiles (π, μ, ∇, ⟲, etc.) with semantic field influence.
 # Each symbol adjusts Φ-state and curiosity feedback.
@@ -174,7 +174,7 @@ async def run_cognitive_grid():
             entropy += sym.get("entropy", 0)
             novelty += sym.get("curiosity", 0)
             # Placeholder QAC export hook
-            print(f"[QAC-Link] {obj} → {sym['meaning']} | ΔΦ queued")
+            print(f"[QAC-Link] {obj} -> {sym['meaning']} | ΔΦ queued")
 
         reflection = (
             f"Curiosity={novelty:.2f}, Coherence={coherence:.2f}, "

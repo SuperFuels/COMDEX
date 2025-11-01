@@ -16,8 +16,8 @@ async def initiate_qkd_handshake(sender_id: str, receiver_id: str, wave) -> bool
     Initiates a Quantum Key Distribution (QKD) handshake.
 
     Steps:
-      1. Verify wave’s decoherence fingerprint via DecoherenceFingerprint.
-      2. Verify GKey’s collapse hash.
+      1. Verify wave's decoherence fingerprint via DecoherenceFingerprint.
+      2. Verify GKey's collapse hash.
       3. Log event outcome.
       4. Store wave state if verified.
 

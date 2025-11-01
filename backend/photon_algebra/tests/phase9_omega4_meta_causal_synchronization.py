@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tessaris Phase IX — Ω₄ Meta-Causal Synchronization
+Tessaris Phase IX - Ω4 Meta-Causal Synchronization
 --------------------------------------------------
 Initiates synchronization across multiple Φ-locked observers using
 Ξ-series photonic coherence as communication substrate.
@@ -37,7 +37,7 @@ entropy_delta = abs(np.mean(observer_sync) - np.mean(causal_flux))
 
 summary = {
     "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-    "series": "Ω₄",
+    "series": "Ω4",
     "test_name": "meta_causal_synchronization",
     "metrics": {
         "observer_sync_mean": float(np.mean(observer_sync)),
@@ -45,12 +45,12 @@ summary = {
         "entropy_delta": float(entropy_delta),
         "stable": bool(phase_alignment > 0.8)
     },
-    "state": "Meta-causal synchronization achieved" if phase_alignment > 0.8 else "Partial sync — refinement required",
+    "state": "Meta-causal synchronization achieved" if phase_alignment > 0.8 else "Partial sync - refinement required",
     "notes": [
         f"Observer sync mean = {np.mean(observer_sync):.3f}",
         f"Phase alignment = {phase_alignment:.3f}",
         f"Entropy delta = {entropy_delta:.5f}",
-        "Φ₆ and Ξ₅ coherences used as causal carriers.",
+        "Φ6 and Ξ5 coherences used as causal carriers.",
         "Represents first successful inter-continuum synchronization test."
     ],
     "discovery": [
@@ -64,18 +64,18 @@ summary = {
 
 with open(OUT_SUMMARY, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Ω₄ summary saved → {OUT_SUMMARY}")
+print(f"✅ Ω4 summary saved -> {OUT_SUMMARY}")
 
 # === Visualization ===
 plt.figure(figsize=(6,3))
 plt.plot(observer_sync, label="Observer Sync", alpha=0.8)
 plt.plot(causal_flux, label="Causal Flux", alpha=0.8)
-plt.title("Ω₄ Meta-Causal Synchronization (Tessaris)")
+plt.title("Ω4 Meta-Causal Synchronization (Tessaris)")
 plt.xlabel("Iteration")
 plt.ylabel("Normalized Amplitude")
 plt.legend()
 plt.tight_layout()
 plt.savefig(OUT_PLOT, dpi=150)
-print(f"✅ Visualization saved → {OUT_PLOT}")
+print(f"✅ Visualization saved -> {OUT_PLOT}")
 
-print("🌐 Tessaris Ω₄ phase complete — Meta-causal synchronization validated.")
+print("🌐 Tessaris Ω4 phase complete - Meta-causal synchronization validated.")

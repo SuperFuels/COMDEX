@@ -20,14 +20,14 @@ class TranquilityAutoIteration(PluginInterface):
         self.dream_log: list[str] = []
 
     def register_plugin(self):
-        print(f"✅ Plugin Registered: {self.plugin_id} — {self.name}")
+        print(f"✅ Plugin Registered: {self.plugin_id} - {self.name}")
 
     def trigger(self, context: Optional[Dict[str, Any]] = None) -> None:
         self.status = "active"
-        print(f"🌙 Tranquility Triggered — Context: {context}")
+        print(f"🌙 Tranquility Triggered - Context: {context}")
 
     def mutate(self, logic: str) -> str:
-        refined = logic.replace("⊕", "→") + " ⧖ reflect()"
+        refined = logic.replace("⊕", "->") + " ⧖ reflect()"
         self.last_logic = refined
         self.dream_log.append(refined)
         self.iteration_count += 1

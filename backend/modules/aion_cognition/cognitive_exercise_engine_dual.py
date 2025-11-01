@@ -1,5 +1,5 @@
 # ================================================================
-# 🧩 Phase 45G.5 — Dual-Mode Cognitive Exercise Engine (Lexical + QMath)
+# 🧩 Phase 45G.5 - Dual-Mode Cognitive Exercise Engine (Lexical + QMath)
 # ================================================================
 """
 Extends the adaptive CEE runtime to dual-mode operation.
@@ -62,7 +62,7 @@ class DualModeCEE:
     def generate_symbolic_tasks(self, count: int = 5):
         """Generate symbolic QMath tasks (placeholder / random templates)."""
         if not QMath:
-            logger.warning("[CEE-Dual] QMath not available — symbolic mode skipped.")
+            logger.warning("[CEE-Dual] QMath not available - symbolic mode skipped.")
             return []
         for _ in range(count):
             expr = QMath.random_equation(depth=2)  # assume generator exists
@@ -138,7 +138,7 @@ class DualModeCEE:
                 "μ": r["SQI"],
             })
         RMC.update_from_photons(photons)
-        logger.info(f"[CEE-Dual] Feedback → ResonantMemoryCache ({len(photons)} entries)")
+        logger.info(f"[CEE-Dual] Feedback -> ResonantMemoryCache ({len(photons)} entries)")
 
     # ------------------------------------------------------------
     def compute_metrics(self):
@@ -155,7 +155,7 @@ class DualModeCEE:
         }
         METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
         json.dump(summary, open(METRICS_PATH, "w"), indent=2)
-        logger.info(f"[CEE-Dual] Metrics exported → {METRICS_PATH}")
+        logger.info(f"[CEE-Dual] Metrics exported -> {METRICS_PATH}")
         return summary
 
     # ------------------------------------------------------------
@@ -168,26 +168,26 @@ class DualModeCEE:
             "results": self.results,
             "timestamp": self.start_time,
         }, open(session_path, "w"), indent=2)
-        logger.info(f"[CEE-Dual] Session exported → {session_path}")
+        logger.info(f"[CEE-Dual] Session exported -> {session_path}")
 
     # ------------------------------------------------------------
     def run_full_cycle(self):
         """Run complete dual-mode adaptive session with GHX + Habit feedback."""
         logger.info(f"🧠 Starting Dual-Mode CEE session [{self.session_id}]")
 
-        # Phase 1 — Dual-Mode Cognitive Execution
+        # Phase 1 - Dual-Mode Cognitive Execution
         self.load_atoms()
         self.generate_symbolic_tasks()
         self.run_lexical_round()
         self.run_symbolic_round()
         self.feedback()
 
-        # Phase 2 — Metrics & Session Export
+        # Phase 2 - Metrics & Session Export
         summary = self.compute_metrics()
         self.export_session()
 
         # ------------------------------------------------------------
-        # 🔭 Phase 45G.11 — GHX Telemetry Bridge (Resonance & Gradient Metrics)
+        # 🔭 Phase 45G.11 - GHX Telemetry Bridge (Resonance & Gradient Metrics)
         # ------------------------------------------------------------
         try:
             from backend.bridges.ghx_telemetry_bridge import GHXTelemetryBridge
@@ -222,14 +222,14 @@ class DualModeCEE:
                 })
 
             ghx_summary = ghx.summarize()
-            logger.info(f"[CEE] GHX Telemetry summary → {ghx_summary}")
+            logger.info(f"[CEE] GHX Telemetry summary -> {ghx_summary}")
 
         except Exception as e:
             logger.warning(f"[CEE] GHX Telemetry failed: {e}")
             ghx_summary = {}
 
         # ------------------------------------------------------------
-        # 🌀 Phase 45G.8 — Auto-Habit Feedback Integration
+        # 🌀 Phase 45G.8 - Auto-Habit Feedback Integration
         # ------------------------------------------------------------
         try:
             from backend.modules.aion_cognition.habit_engine_bridge import HabitEngineBridge
@@ -246,7 +246,7 @@ class DualModeCEE:
 
             if habit_state:
                 summary["habit_strength"] = habit_state.get("habit_strength", 0)
-                logger.info(f"[CEE] HabitEngine auto-update → {habit_state}")
+                logger.info(f"[CEE] HabitEngine auto-update -> {habit_state}")
             else:
                 logger.warning("[CEE] HabitEngine update skipped (no telemetry found).")
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧮 Phase 48B — Semantic Benchmark Runner
+🧮 Phase 48B - Semantic Benchmark Runner
 Evaluates meaning consistency (MCI) and contextual accuracy.
 """
 

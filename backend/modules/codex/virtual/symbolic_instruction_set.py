@@ -3,7 +3,7 @@
 """
 Codex Virtual Instruction Set
 
-Maps symbolic ops (→, ↔, ⟲, ⧖, ⊕, 🚨) to execution logic.
+Maps symbolic ops (->, ↔, ⟲, ⧖, ⊕, 🚨) to execution logic.
 Operates on virtual registers and runtime context.
 """
 
@@ -13,12 +13,12 @@ from backend.modules.codex.ops.op_trigger import op_trigger
 
 
 def op_chain(args: List[str], registers: VirtualRegisters, context: Dict[str, Any]) -> str:
-    """Symbolic → Chain: Pass values through sequentially."""
+    """Symbolic -> Chain: Pass values through sequentially."""
     if not args:
         return "[ChainEmpty]"
     result = args[-1]
     registers.store("last_chain", result)
-    return f"[Chain → {result}]"
+    return f"[Chain -> {result}]"
 
 
 def op_reflect(args: List[str], registers: VirtualRegisters, context: Dict[str, Any]) -> str:
@@ -50,7 +50,7 @@ def op_delay(args: List[str], registers: VirtualRegisters, context: Dict[str, An
 
 # Symbolic Operator Map
 SYMBOLIC_OPS = {
-    "→": op_chain,
+    "->": op_chain,
     "⟲": op_reflect,
     "⊕": op_combine,
     "↔": op_bond,

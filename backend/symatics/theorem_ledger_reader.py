@@ -2,10 +2,10 @@
 # ------------------------------------------------
 # Symatics Theorem Ledger Reader (v0.2)
 # Reads docs/rfc/theorem_ledger.jsonl and provides:
-#   • Summary stats by operator
-#   • Violation filtering
-#   • Chronological listing
-#   • CLI query interface
+#   * Summary stats by operator
+#   * Violation filtering
+#   * Chronological listing
+#   * CLI query interface
 # ------------------------------------------------
 
 import os
@@ -110,7 +110,7 @@ def print_recent(limit: int = 10):
         ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(e.get("timestamp", 0)))
         op = e.get("operator", "?")
         summary = e.get("summary", "")
-        print(f"[{ts}] {op} → {summary}")
+        print(f"[{ts}] {op} -> {summary}")
         if e.get("violations"):
             print(f"   ⚠️ Violations: {e['violations']}")
     print()
@@ -139,7 +139,7 @@ if __name__ == "__main__":
         print(f"─── Theorems with Violations ({len(v)}) ───")
         for e in v:
             ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(e.get("timestamp", 0)))
-            print(f"[{ts}] {e.get('operator')} → {e.get('summary')}")
+            print(f"[{ts}] {e.get('operator')} -> {e.get('summary')}")
             print(f"   Violations: {e.get('violations')}")
     elif args.operator:
         hist = get_operator_history(args.operator)

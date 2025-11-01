@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-🧩 Strategic Simulation Engine (SSE) — Phase 2 Expansion
+🧩 Strategic Simulation Engine (SSE) - Phase 2 Expansion
 ────────────────────────────────────────────────────────────
 Enhancements:
-  • Dynamic reflection re-ranking (ΔSQI, ΔEthics, penalize/boost)
-  • Branch variation weights (risk, cost, reward, entropy)
-  • Context-aware intent expansion (RMC + strategy cues)
+  * Dynamic reflection re-ranking (ΔSQI, ΔEthics, penalize/boost)
+  * Branch variation weights (risk, cost, reward, entropy)
+  * Context-aware intent expansion (RMC + strategy cues)
 ────────────────────────────────────────────────────────────
 """
 
@@ -70,7 +70,7 @@ class StrategicSimulationEngine:
         self.out_best = Path("data/analysis/sse_best_path.json")
         self.out_tree.parent.mkdir(parents=True, exist_ok=True)
 
-        log.info("🧩 SSE initialized (Phase 2 — reflection, weights, context)")
+        log.info("🧩 SSE initialized (Phase 2 - reflection, weights, context)")
 
     # ─────────────────────────────────────────────
     # 🎬 Entry Point
@@ -238,7 +238,7 @@ class StrategicSimulationEngine:
                 _walk(c)
 
         _walk(node)
-        log.info("[SSE] Reflection feedback applied — utilities re-ranked.")
+        log.info("[SSE] Reflection feedback applied - utilities re-ranked.")
 
     # ─────────────────────────────────────────────
     # 🧠 Helpers

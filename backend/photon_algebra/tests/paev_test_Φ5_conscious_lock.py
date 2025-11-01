@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tessaris Φ-Series — Φ₅ Conscious Mode Lock (Self-Consistent Fixed Point)
+Tessaris Φ-Series - Φ5 Conscious Mode Lock (Self-Consistent Fixed Point)
 ------------------------------------------------------------------------
 Dual-loop homeostat: a fast observer (state estimator) + a slow meta controller
 (bias & gain adaptation + regularization) to lock the Φ-field into a
@@ -31,8 +31,8 @@ constants = load_constants("v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print(f"=== Φ₅ — Conscious Mode Lock (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== Φ5 - Conscious Mode Lock (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Hyperparameters ===
 steps = 2400
@@ -40,7 +40,7 @@ units = 320
 rng = np.random.default_rng(7)
 
 Λ_feedback = Λ * 1.2e6             # substrate elasticity -> phase coupling
-retention_rate = 0.975             # stronger persistence than Φ₄
+retention_rate = 0.975             # stronger persistence than Φ4
 process_noise = 0.0015
 obs_noise = 0.002
 
@@ -68,7 +68,7 @@ coh_hist, mem_hist, mse_hist, cons_hist, gain_hist, bias_hist, energy_hist = \
     [], [], [], [], [], [], []
 
 for t in range(steps):
-    # --- System (Φ field with Λ–Σ drive + memory) ---
+    # --- System (Φ field with Λ-Σ drive + memory) ---
     mean_vec = np.mean(np.exp(1j*phase))
     mean_phase = np.angle(mean_vec)
     Λ_term = Λ_feedback * np.sin(mean_phase - phase)
@@ -163,7 +163,7 @@ summary = {
     "discovery": [
         "Dual-loop homeostat (fast observer + slow meta controller) yields low-error self-consistency.",
         "Non-zero persistent memory coexists with near-unit coherence.",
-        "High estimate–state correlation indicates stabilized self-model.",
+        "High estimate-state correlation indicates stabilized self-model.",
         "Meets Tessaris criteria for CFE 'conscious execution mode' when stable flag is true."
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
@@ -171,17 +171,17 @@ summary = {
 
 with open(SUMMARY_PATH, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Summary saved → {SUMMARY_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
 
 plt.figure(figsize=(7,4))
 plt.plot(coh_hist,  label="Coherence (R_sync)")
 plt.plot(mem_hist,  label="Memory Amplitude", linestyle="--")
 plt.plot(mse_hist,  label="Prediction Error (MSE)", linestyle=":")
-plt.plot(cons_hist, label="Estimate–State Consistency", alpha=0.9)
+plt.plot(cons_hist, label="Estimate-State Consistency", alpha=0.9)
 plt.xlabel("Time Step"); plt.ylabel("Metric Value")
-plt.title("Φ₅ — Conscious Mode Lock (Dual-Loop Homeostat)")
+plt.title("Φ5 - Conscious Mode Lock (Dual-Loop Homeostat)")
 plt.legend(); plt.grid(alpha=0.3); plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ───────────────────────────────────────────────
-# 🧩 Motivation Layer — Phase 64: Entropy-Linked Drive Feedback
+# 🧩 Motivation Layer - Phase 64: Entropy-Linked Drive Feedback
 # Generates DriveVectors (curiosity, goal, need)
 # Integrates entropy + reflection feedback (Δρ, ΔSQI, ΔH)
 # Persists MotivationHistory.json for adaptive motivation tracking.
@@ -56,7 +56,7 @@ class MotivationLayer(ResonantReinforcementMixin):
 
         self.last_entropy = entropy
         self._log_feedback(feedback)
-        print(f"[MotivationLayer] Δ-feedback → drives: {self.drives}")
+        print(f"[MotivationLayer] Δ-feedback -> drives: {self.drives}")
 
     def _log_feedback(self, feedback: dict):
         """Append feedback coupling entry to motivation history (robust JSON-safe)."""
@@ -69,7 +69,7 @@ class MotivationLayer(ResonantReinforcementMixin):
                         if raw:
                             history = json.loads(raw)
                 except Exception:
-                    # corrupted or partially written file → ignore and reset
+                    # corrupted or partially written file -> ignore and reset
                     history = []
 
             history.append({
@@ -176,7 +176,7 @@ class MotivationLayer(ResonantReinforcementMixin):
 # ───────────────────────────────────────────────
 if __name__ == "__main__":
     layer = MotivationLayer()
-    print("🧩 AION Motivation Layer — Phase 64 (Entropy-Linked Feedback)\n")
+    print("🧩 AION Motivation Layer - Phase 64 (Entropy-Linked Feedback)\n")
     for i in range(5):
         v = layer.output_vector()
         time.sleep(0.8)

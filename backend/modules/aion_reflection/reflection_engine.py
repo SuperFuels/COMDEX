@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-🧠 ReflectionEngine — Phase 63: Bidirectional Θ–Coupled Resonant Reflection
+🧠 ReflectionEngine - Phase 63: Bidirectional Θ-Coupled Resonant Reflection
 ───────────────────────────────────────────────────────────────
 Completes the Reflection Engine within the Resonant Governance Cycle.
 Integrates with Θ.sync_all(), Harmonic Memory Fusion (HMF),
 and the Resonant Integration Bridge (RIB).
 
 Core Loop:
-  • Analyzes recent dream_reflection memories
-  • Computes Δρ, ΔĪ, ΔSQI + ΔH (Harmony delta)
-  • Emits Θ.event("reflection_feedback", …)
-  • Pushes harmonic sample into Resonant Memory Cache
-  • Modulates Personality Profile via resonance mood
-  • Logs reflection + harmony feedback to dashboard
+  * Analyzes recent dream_reflection memories
+  * Computes Δρ, ΔĪ, ΔSQI + ΔH (Harmony delta)
+  * Emits Θ.event("reflection_feedback", ...)
+  * Pushes harmonic sample into Resonant Memory Cache
+  * Modulates Personality Profile via resonance mood
+  * Logs reflection + harmony feedback to dashboard
 """
 
 import json, time, random, requests
@@ -58,7 +58,7 @@ class ReflectionEngine:
     def reflect_on_recent_memories(self, limit=10):
         memories = self.memory.get_all()
         recent = [m for m in memories if m["label"].startswith("dream_reflection_")][-limit:]
-        print(f"[REFLECTION] Analyzing last {len(recent)} reflection memories…")
+        print(f"[REFLECTION] Analyzing last {len(recent)} reflection memories...")
 
         reflections = []
         deltas = {"humility":0,"empathy":0,"curiosity":0,"ambition":0,"risk":0}
@@ -81,7 +81,7 @@ class ReflectionEngine:
                 deltas["empathy"] += 0.03
             else:
                 preview = m.get("content","")[:80].replace("\n"," ")
-                reflections.append(f"🌀 General memory '{label}': {preview}…")
+                reflections.append(f"🌀 General memory '{label}': {preview}...")
                 deltas["empathy"] += 0.01
 
             if "fear" in content or "risk" in content:
@@ -120,7 +120,7 @@ class ReflectionEngine:
             self.RMC.push_sample(rho=rho, entropy=I, sqi=sqi, delta=delta_phi, source="reflection")
             self.RMC.save()
 
-            # --- Feedback coupling → Motivation Layer ---
+            # --- Feedback coupling -> Motivation Layer ---
             try:
                 from backend.modules.aion_cognition.motivation_layer import MotivationLayer
                 motive = MotivationLayer()
@@ -131,7 +131,7 @@ class ReflectionEngine:
                     "ΔH": delta_H
                 }
                 motive.update_from_reflection(feedback_payload)
-                print(f"[ReflectionEngine] ⚡ Sent feedback to MotivationLayer → {feedback_payload}")
+                print(f"[ReflectionEngine] ⚡ Sent feedback to MotivationLayer -> {feedback_payload}")
             except Exception as e:
                 print(f"[ReflectionEngine] ⚠️ Motivation feedback link failed: {e}")
 
@@ -161,7 +161,7 @@ class ReflectionEngine:
                 "ΔH": delta_H, "mood": mood_phase
             }) + "\n")
 
-        print(f"[Θ] Reflection → ρ={rho:.3f}, Ī={I:.3f}, SQI={sqi:.3f}, ΔΦ={delta_phi:.3f}, ΔH={delta_H:.3f}, mood={mood_phase}")
+        print(f"[Θ] Reflection -> ρ={rho:.3f}, Ī={I:.3f}, SQI={sqi:.3f}, ΔΦ={delta_phi:.3f}, ΔH={delta_H:.3f}, mood={mood_phase}")
         # ─────────────────────────────────────────────────────────────
         # 🔄 Integrate Photon Memory Grid feedback (ΔSQI / ΔH)
         # ─────────────────────────────────────────────────────────────

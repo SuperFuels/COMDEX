@@ -1,7 +1,7 @@
 """
 Wiki ↔ AION Resonance Sync
 ────────────────────────────────────────────
-Bridges resonance feedback between Aion’s runtime and Wiki Capsules.
+Bridges resonance feedback between Aion's runtime and Wiki Capsules.
 Synchronizes updated SQI / ρ / Ī metrics back into static capsule metadata.
 """
 

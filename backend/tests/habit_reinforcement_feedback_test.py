@@ -1,5 +1,5 @@
 """
-Test — Phase 45E: Habit Reinforcement Feedback
+Test - Phase 45E: Habit Reinforcement Feedback
 """
 
 from backend.modules.aion_language.habit_reinforcement_feedback import FEED
@@ -9,7 +9,7 @@ from backend.modules.aion_language.temporal_motivation_persistence import MOTIVE
 print("=== 🧪 Habit Reinforcement Feedback Test Start ===")
 
 # ✅ Initialize baseline habit and motivational state
-# Run the engine’s internal encoding method (auto-tone)
+# Run the engine's internal encoding method (auto-tone)
 if hasattr(HABIT, "encode"):
     HABIT.encode()
 elif hasattr(HABIT, "encode_habit"):
@@ -17,7 +17,7 @@ elif hasattr(HABIT, "encode_habit"):
 elif hasattr(HABIT, "store_habit"):
     HABIT.store_habit()
 else:
-    print("[TEST] ⚠️ No known encode/store habit method — skipping manual init.")
+    print("[TEST] ⚠️ No known encode/store habit method - skipping manual init.")
 
 # Set motivational baseline
 MOTIVE.last_persistence = 0.9

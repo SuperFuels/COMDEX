@@ -1,5 +1,5 @@
 """
-AION Resonance Engine — Phase 9
+AION Resonance Engine - Phase 9
 ────────────────────────────────────────────
 Handles SQI / ρ / Ī resonance updates and coherence realignment
 for ingested Wiki Capsules, including symbolic energy E.

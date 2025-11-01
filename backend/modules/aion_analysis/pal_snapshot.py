@@ -2,11 +2,11 @@
 """
 Aion Perceptual Snapshot Monitor (Phase 30+)
 ───────────────────────────────────────────────
-Provides a visual + textual summary of Aion’s cognitive growth:
-    • PAL learning accuracy across self-tune rounds
-    • Exploration parameter (ε) decay
-    • Knowledge Graph reinforcement statistics
-    • Exemplar memory count and distribution
+Provides a visual + textual summary of Aion's cognitive growth:
+    * PAL learning accuracy across self-tune rounds
+    * Exploration parameter (ε) decay
+    * Knowledge Graph reinforcement statistics
+    * Exemplar memory count and distribution
 Outputs:
     - Console summary
     - Plot (accuracy / ε over rounds)
@@ -79,7 +79,7 @@ def plot_progress(log_entries):
     fig.tight_layout()
     plt.title("Aion PAL Learning Dynamics")
     plt.savefig("data/analysis/pal_snapshot_plot.png", dpi=300)
-    print("📊 Plot saved → data/analysis/pal_snapshot_plot.png")
+    print("📊 Plot saved -> data/analysis/pal_snapshot_plot.png")
 
 def create_snapshot():
     """Main entrypoint: summarize current Aion state."""
@@ -97,14 +97,14 @@ def create_snapshot():
     with open(SNAPSHOT_LOG, "a") as f:
         f.write(json.dumps(snapshot) + "\n")
 
-    print("\n🧩 AION SNAPSHOT —", ts)
+    print("\n🧩 AION SNAPSHOT -", ts)
     print(f"Exemplar count: {pal_summary['count']}")
     print(f"Average reward: {pal_summary['avg_reward']:.3f}")
     print(f"Unique prompts: {pal_summary['unique_prompts']}")
     print(f"Unique options: {pal_summary['unique_options']}")
     print("\nTop reinforced knowledge links:")
     for entry in kg_data[:10]:
-        print(f"  {entry['subject']} —[{entry['predicate']}:{entry['strength']:.3f}]→ {entry['object']}")
+        print(f"  {entry['subject']} -[{entry['predicate']}:{entry['strength']:.3f}]-> {entry['object']}")
 
     print("\n✅ Snapshot logged at:", SNAPSHOT_LOG)
     return snapshot

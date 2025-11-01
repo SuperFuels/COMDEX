@@ -1,8 +1,8 @@
 # ================================================================
-# 📘 Phase 45F.5 — LangField → QLang + QTensor Integration
+# 📘 Phase 45F.5 - LangField -> QLang + QTensor Integration
 # ================================================================
 """
-Combines all lexical–semantic resonance layers into a unified
+Combines all lexical-semantic resonance layers into a unified
 QLang QTensor field for the AION cognitive substrate.
 
 Inputs:
@@ -32,7 +32,7 @@ QDATA_PATH = Path("data/qtensor/langfield_resonance.qdata.json")
 
 
 # ─────────────────────────────────────────
-# Helper — Extract robust lexical ID
+# Helper - Extract robust lexical ID
 # ─────────────────────────────────────────
 def _wid_from_entry(entry: Dict[str, Any]) -> str:
     """
@@ -74,7 +74,7 @@ class LangFieldResonanceConverter:
     # ─────────────────────────────────────────
     def _combine_resonances(self, sem, lex, ety, wiki) -> Dict[str, float]:
         """
-        Merge resonance values into Φ–ψ–η–Λ tensor.
+        Merge resonance values into Φ-ψ-η-Λ tensor.
         Weighting emphasizes etymic depth and lexical correlation.
         """
         Φ = sem.get("semantic_score", 1.0)
@@ -89,7 +89,7 @@ class LangFieldResonanceConverter:
     # ─────────────────────────────────────────
     # ─────────────────────────────────────────
     def integrate(self):
-        logger.info("🧬 Integrating LangField resonance layers …")
+        logger.info("🧬 Integrating LangField resonance layers ...")
 
         # Load inputs
         lex  = self._safe_load(LEX_PATH)
@@ -127,7 +127,7 @@ class LangFieldResonanceConverter:
             if wid in lrm_matrix and isinstance(lrm_matrix[wid], dict) and wid in lrm_matrix[wid]:
                 lex_rel["correlation"] = lrm_matrix[wid][wid]
 
-            # Etymology depth — supports list of dicts *or* list of strings
+            # Etymology depth - supports list of dicts *or* list of strings
             ety_rel = {"depth_weight": 1.0}
             for e in ety_lineage:
                 if isinstance(e, dict):
@@ -160,11 +160,11 @@ class LangFieldResonanceConverter:
                 "tensor_field": self.tensor_field,
                 "meta": {
                     "schema": "LangFieldResonance.v1",
-                    "desc": "Unified Φ–ψ–η–Λ QTensor field",
+                    "desc": "Unified Φ-ψ-η-Λ QTensor field",
                     "ready_for_QLang": True
                 }
             }, f, indent=2)
-        logger.info(f"[LangField] Exported unified QTensor → {QDATA_PATH}")
+        logger.info(f"[LangField] Exported unified QTensor -> {QDATA_PATH}")
 
 
 # ================================================================
@@ -176,4 +176,4 @@ if __name__ == "__main__":
     conv = LangFieldResonanceConverter()
     conv.integrate()
     conv.export()
-    print("✅ LangField Resonance → QLang QTensor integration complete.")
+    print("✅ LangField Resonance -> QLang QTensor integration complete.")

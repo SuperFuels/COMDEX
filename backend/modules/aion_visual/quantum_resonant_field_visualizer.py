@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 19 — Quantum Resonant Field Visualizer (QRFV)
+Tessaris Phase 19 - Quantum Resonant Field Visualizer (QRFV)
 
 Aggregates and visualizes multi-source quantum cognition telemetry from Tessaris subsystems.
 Displays harmonic coherence, feedback weights, symbolic entropy, and forecast confidence
@@ -50,7 +50,7 @@ def extract_time_series(rqfs, forecast, asm):
     return times, nu_bias, amp_gain, entropy, conf
 
 def live_plot():
-    print("🌀 Starting Tessaris Quantum Resonant Field Visualizer (QRFV)…")
+    print("🌀 Starting Tessaris Quantum Resonant Field Visualizer (QRFV)...")
     plt.style.use("ggplot")
     fig, ax = plt.subplots(figsize=(10,6))
     plt.title("Tessaris Resonant Field Dynamics")

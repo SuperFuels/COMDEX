@@ -6,7 +6,7 @@
 Converts glyph replay logs into frame-by-frame playback with WebSocket streaming.
 
 ✅ Frame-by-frame playback of glyph replay logs.
-✅ Aligns frames with tick progression (tick_start → tick_end).
+✅ Aligns frames with tick progression (tick_start -> tick_end).
 ✅ Supports pause/play/seek for scrubbable replay.
 ✅ Streams incremental frames via WebSocket (GHX/UI sync).
 ✅ Live WebSocket control (pause/resume/seek/stop/play).

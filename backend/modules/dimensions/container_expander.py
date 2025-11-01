@@ -21,12 +21,12 @@ except Exception:  # pragma: no cover
 Container Expander: Initializes and grows .dc containers
 Uses DimensionKernel to seed runtime cube space and prepare for Avatar spawn.
 Now integrated with:
-    • UCS Runtime & Geometry Sync
-    • SoulLaw Enforcement
-    • Knowledge Graph Indexing
-    • GHX Visualization Hooks
-    • SQI Pi Wave Event Emission
-    • Entanglement-Aware Growth
+    * UCS Runtime & Geometry Sync
+    * SoulLaw Enforcement
+    * Knowledge Graph Indexing
+    * GHX Visualization Hooks
+    * SQI Pi Wave Event Emission
+    * Entanglement-Aware Growth
 """
 
 from .dimension_kernel import DimensionKernel
@@ -42,7 +42,7 @@ from backend.modules.websocket_manager import broadcast_event as broadcast_glyph
 import json
 from pathlib import Path
 
-# Resolve seeds relative to THIS file so pytest/cwd don’t matter
+# Resolve seeds relative to THIS file so pytest/cwd don't matter
 _BASE_DIR = Path(__file__).resolve().parent
 _SEEDS_DIR = _BASE_DIR / "containers"
 
@@ -152,9 +152,9 @@ def _snapshot_with_aliases(container: dict) -> dict:
       1) Backfill base physics categories (mech/thermo/em/qft) from nodes' `cat` fields if missing.
       2) Add physics alias *categories* (N_*) if canonical category OR node IDs are present.
       3) Add physics alias *nodes* (N_force, N_energy, N_maxwell, N_qft) so tests can see them in `nodes`.
-      4) Add alias *links* the test expects (e.g., N_force → N_energy [work-energy]).
+      4) Add alias *links* the test expects (e.g., N_force -> N_energy [work-energy]).
     Does NOT mutate the live kernel/container.
-    “snapshot-only augmentation for physics_core to satisfy alias expectations in tests; does not mutate live kernel”
+    "snapshot-only augmentation for physics_core to satisfy alias expectations in tests; does not mutate live kernel"
     """
     snap = dict(container)
     snap.setdefault("glyph_categories", [])
@@ -429,7 +429,7 @@ class ContainerExpander:
         except Exception as e:
             print(f"⚠️ Wormhole link failed for {self.container_id}: {e}")
 
-        # ✅ Load domain pack into KG (physics_core → KG nodes/edges)
+        # ✅ Load domain pack into KG (physics_core -> KG nodes/edges)
         if self.container_id == "physics_core":
             try:
                 from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer

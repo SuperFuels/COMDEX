@@ -1,11 +1,11 @@
 """
-🧪 SRK-17 Task 6 — GHX Vault Exporter (GVE)
+🧪 SRK-17 Task 6 - GHX Vault Exporter (GVE)
 Test Suite: backend/modules/holograms/tests/test_ghx_vault_exporter.py
 
 Validates:
-    • GHX chain archival to GlyphVault
-    • Metadata integrity and continuity tracking
-    • Replay restoration logic
+    * GHX chain archival to GlyphVault
+    * Metadata integrity and continuity tracking
+    * Replay restoration logic
 """
 
 import pytest

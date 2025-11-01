@@ -7,10 +7,10 @@ the governor tightens RLK tolerance and increases audit frequency until
 stability recovers.
 
 Now includes:
- • Live updates to QQC RLK runtime parameters (ε, audit interval)
- • Persistent state caching (`backend/state/qqc_rlk_state.json`)
- • Governance log tracking for every decision
- • Resonant Memory integration (ΔΦ, Δε predictive trend)
+ * Live updates to QQC RLK runtime parameters (ε, audit interval)
+ * Persistent state caching (`backend/state/qqc_rlk_state.json`)
+ * Governance log tracking for every decision
+ * Resonant Memory integration (ΔΦ, Δε predictive trend)
 """
 
 import json
@@ -20,7 +20,7 @@ from pathlib import Path
 from backend.AION.telemetry.coherence_tracker import _tracker
 from backend.AION.telemetry.cognitive_metrics import compute_cognitive_metrics
 from backend.QQC.core.rlk_state import set_tolerance, set_audit_interval, get_state
-from backend.QQC.core.resonant_memory import record_memory  # ← NEW
+from backend.QQC.core.resonant_memory import record_memory  # <- NEW
 
 LOG_PATH = Path("backend/logs/governance/resonance_governor.jsonl")
 

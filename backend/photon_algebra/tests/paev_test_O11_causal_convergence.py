@@ -8,7 +8,7 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β = const["ħ"], const["G"], const["Λ"], const["α"], const["β"]
 
-# --- load O1–O10 summaries ---
+# --- load O1-O10 summaries ---
 knowledge_dir = "backend/modules/knowledge"
 O_files = [f for f in os.listdir(knowledge_dir) if f.startswith("O") and f.endswith(".json")]
 O_data = []
@@ -48,8 +48,8 @@ else:
 plt.figure(figsize=(8,5))
 plt.bar(range(len(drifts)), drifts, color="steelblue", alpha=0.7)
 plt.axhline(0, color='k', linestyle='--', linewidth=0.8)
-plt.title("O11 — Causal Convergence Validation")
-plt.xlabel("Module index (O1–O10)")
+plt.title("O11 - Causal Convergence Validation")
+plt.xlabel("Module index (O1-O10)")
 plt.ylabel("Drift (ΔS)")
 plt.tight_layout()
 plt.savefig("PAEV_O11_CausalConvergence.png", dpi=120)
@@ -69,6 +69,6 @@ out_path = os.path.join(knowledge_dir, "O11_causal_convergence.json")
 with open(out_path, "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== O11 — Causal Convergence Validation ===")
-print(f"ΔC_total={ΔC_total:.3e} | Corr={C_corr:.3f} | CI={CI:.3f} → {cls}")
-print(f"✅ Results saved → {out_path}")
+print("=== O11 - Causal Convergence Validation ===")
+print(f"ΔC_total={ΔC_total:.3e} | Corr={C_corr:.3f} | CI={CI:.3f} -> {cls}")
+print(f"✅ Results saved -> {out_path}")

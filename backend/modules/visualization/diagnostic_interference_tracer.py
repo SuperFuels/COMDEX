@@ -1,12 +1,12 @@
 """
-🧩 Diagnostic Interference Tracer — SRK-20 Task 1
+🧩 Diagnostic Interference Tracer - SRK-20 Task 1
 Visual diagnostic engine for constructive/destructive interference.
 
 Purpose:
- • Analyze phase relationships across GHX nodes and edges
- • Detect coherence loss zones via CFE feedback + stability metrics
- • Generate diagnostic overlays for CodexHUD / QFC render
- • Optional persistence to GWV for playback inspection
+ * Analyze phase relationships across GHX nodes and edges
+ * Detect coherence loss zones via CFE feedback + stability metrics
+ * Generate diagnostic overlays for CodexHUD / QFC render
+ * Optional persistence to GWV for playback inspection
 """
 
 import math
@@ -19,7 +19,7 @@ from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_upd
 from backend.cfe.cfe_feedback_loop import CFEFeedbackLoop
 
 # ===============================================================
-# Utility — Schema-compliant color expansion
+# Utility - Schema-compliant color expansion
 # ===============================================================
 def _expand_node_colors(nodes):
     """Ensure nodes have schema-required rgb + alpha fields."""
@@ -116,7 +116,7 @@ class DiagnosticInterferenceTracer:
             "edges": frame.get("edges", []),
         }
 
-        # ✅ FIX — remove double wrapping when storing snapshot
+        # ✅ FIX - remove double wrapping when storing snapshot
         self._ring_buffer.add_snapshot(
             inner_frame,  # pass directly; inner_frame already schema-valid
             1.0 - stability,
@@ -193,5 +193,5 @@ class DiagnosticInterferenceTracer:
             }
 
         except Exception as e:
-            print(f"[DiagnosticInterferenceTracer] Export or broadcast failed → {e}")
+            print(f"[DiagnosticInterferenceTracer] Export or broadcast failed -> {e}")
             return {"status": "failed", "error": str(e)}

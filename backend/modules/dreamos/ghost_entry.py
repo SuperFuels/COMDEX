@@ -23,11 +23,11 @@ def inject_ghost_from_gwv(trace_str: str, container_id: str) -> str:
         # ✅ Verify signature before accepting
         public_key = GlyphVault().get_public_key()
         if not public_key:
-            print("[DREAMOS] ❌ No Vault public key available — rejecting ghost trace.")
+            print("[DREAMOS] ❌ No Vault public key available - rejecting ghost trace.")
             return ""
 
         if not verify_waveglyph_signature(trace_obj, public_key):
-            print("[DREAMOS] 🚫 Invalid signature — ghost trace rejected.")
+            print("[DREAMOS] 🚫 Invalid signature - ghost trace rejected.")
             return ""
 
         # 🔍 Capture signed_by before stripping

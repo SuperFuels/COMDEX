@@ -1,12 +1,12 @@
 """
-Ψ₂ — Lattice Coherence Propagation (Tessaris)
+Ψ2 - Lattice Coherence Propagation (Tessaris)
 Author: Tessaris Research Collective
 Date: 2025-10-09
 
 Description:
-Extends Ψ₁ by propagating multi-observer phase states across a coupled lattice.
+Extends Ψ1 by propagating multi-observer phase states across a coupled lattice.
 Each observer ψ_j evolves under coherent coupling with its neighbors, guided by
-the photon-algebra coherence functional Φ(ψ) = ⟨ψ† C₊ ψ⟩₀.
+the photon-algebra coherence functional Φ(ψ) = ⟨ψ† C+ ψ⟩0.
 
 This test verifies that lattice-level phase diffusion preserves coherence invariance
 and leads to global phase alignment across the network.
@@ -40,7 +40,7 @@ T = 3000        # iterations
 ε = 1e-6        # coherence tolerance
 rng = np.random.default_rng(42)
 
-# Initialize lattice phases (from Ψ₁-like baseline)
+# Initialize lattice phases (from Ψ1-like baseline)
 initial_phases = rng.uniform(-np.pi, np.pi, N)
 ψ = np.exp(1j * initial_phases)
 
@@ -73,7 +73,7 @@ for t in range(T):
 # Final summary
 summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-    "series": "Ψ₂",
+    "series": "Ψ2",
     "test_name": "lattice_coherence_propagation",
     "constants": CONST,
     "metrics": {
@@ -120,7 +120,7 @@ plt.figure(figsize=(8, 4))
 plt.plot(coherence_history, color="purple", lw=2)
 plt.xlabel("Iteration")
 plt.ylabel("Global Coherence Φ")
-plt.title("Ψ₂ Lattice Coherence Propagation (Tessaris)")
+plt.title("Ψ2 Lattice Coherence Propagation (Tessaris)")
 plt.grid(True)
 plt.tight_layout()
 
@@ -128,6 +128,6 @@ fig_path = out_dir / "Tessaris_Ψ2_LatticePropagation.png"
 plt.savefig(fig_path, dpi=300)
 plt.close()
 
-print(f"✅ Ψ₂ summary saved → {summary_path}")
-print(f"✅ Visualization saved → {fig_path}")
+print(f"✅ Ψ2 summary saved -> {summary_path}")
+print(f"✅ Visualization saved -> {fig_path}")
 print(f"Ξ  Lattice coherence stabilized with Φ = {coherence_history[-1]:.6f}")

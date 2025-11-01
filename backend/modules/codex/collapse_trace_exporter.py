@@ -76,7 +76,7 @@ def export_collapse_trace(
             json.dump(trace, f, ensure_ascii=False)
             f.write("\n")
 
-        logger.info(f"[CollapseTraceExporter] Exported trace for {expression} → {output}")
+        logger.info(f"[CollapseTraceExporter] Exported trace for {expression} -> {output}")
 
     except Exception as e:
         logger.error(f"[CollapseTraceExporter] Failed to export collapse trace: {e}")
@@ -185,7 +185,7 @@ def log_soullaw_event(
 
 def log_sqi_soullaw_veto(sqi_score: float, glyph: str, threshold: float = 0.35):
     """
-    Bridge SQI gating → SoulLaw event logging.
+    Bridge SQI gating -> SoulLaw event logging.
     """
     verdict = "violation" if sqi_score < threshold else "approval"
     reason = f"SQI={sqi_score:.3f} {'<' if verdict=='violation' else '>='} {threshold}"
@@ -195,7 +195,7 @@ def log_sqi_soullaw_veto(sqi_score: float, glyph: str, threshold: float = 0.35):
         triggered_by="phase_scheduler",
         origin="sqi_soullaw_bridge",
     )
-    logger.info(f"[SoulLawBridge] {glyph} → {verdict.upper()} ({reason})")
+    logger.info(f"[SoulLawBridge] {glyph} -> {verdict.upper()} ({reason})")
 
 # --- Compatibility: provide get_recent_collapse_traces for bundle_builder ----
 def get_recent_collapse_traces(limit: int = 50) -> List[Dict[str, Any]]:
@@ -228,7 +228,7 @@ def get_recent_collapse_traces(limit: int = 50) -> List[Dict[str, Any]]:
     try:
         with path.open("r", encoding="utf-8") as f:
             lines = f.readlines()
-        # latest last → first; take last N then reverse back to chronological
+        # latest last -> first; take last N then reverse back to chronological
         last = list(itertools.islice(reversed(lines), 0, max(0, int(limit))))
         out: List[Dict[str, Any]] = []
         for line in reversed(last):
@@ -243,14 +243,14 @@ def get_recent_collapse_traces(limit: int = 50) -> List[Dict[str, Any]]:
         logger.warning(f"[CollapseTraceExporter] Failed to read local collapse traces: {e}")
         return []
 
-# --- SQI → SoulLaw Bridge ---------------------------------------------------
+# --- SQI -> SoulLaw Bridge ---------------------------------------------------
 
 def log_sqi_soullaw_veto(sqi_score: float, glyph: str, threshold: float = 0.35):
     """
     Bridge SQI gating decisions to SoulLaw event logging.
 
-    When SQI falls below threshold → soullaw_violation
-    Otherwise → soullaw_approval
+    When SQI falls below threshold -> soullaw_violation
+    Otherwise -> soullaw_approval
 
     Args:
         sqi_score: The SQI value from telemetry or scheduler.
@@ -268,10 +268,10 @@ def log_sqi_soullaw_veto(sqi_score: float, glyph: str, threshold: float = 0.35):
             origin="sqi_soullaw_bridge",
         )
 
-        logger.info(f"[SoulLawBridge] {glyph} → {verdict.upper()} ({reason})")
+        logger.info(f"[SoulLawBridge] {glyph} -> {verdict.upper()} ({reason})")
 
     except Exception as e:
-        logger.warning(f"[SoulLawBridge] Failed to log SQI→SoulLaw mapping: {e}")
+        logger.warning(f"[SoulLawBridge] Failed to log SQI->SoulLaw mapping: {e}")
 
 __all__ = [
     "export_collapse_trace",

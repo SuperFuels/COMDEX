@@ -56,7 +56,7 @@ def build_ghx_visual_metadata(glyph: str, confidence: float, emotion: str, entan
         "entangled": bool(entangled_with),
     }
 
-# 🔗 Glyph → Geometry mapping for GHX
+# 🔗 Glyph -> Geometry mapping for GHX
 def map_glyph_to_geometry(glyph: str) -> str:
     if "↔" in glyph: return "Tesseract 🧮"
     if "🧬" in glyph: return "DNA Spiral 🧬"
@@ -66,7 +66,7 @@ def map_glyph_to_geometry(glyph: str) -> str:
     if "🪐" in glyph: return "Black Hole 🪐"
     return "Tetrahedron 🔻"
 
-# 🔮 Emotion → Color mapping
+# 🔮 Emotion -> Color mapping
 def map_emotion_to_color(emotion: str, confidence: float) -> str:
     base_colors = {
         "joy": "#FFD700",       # Gold

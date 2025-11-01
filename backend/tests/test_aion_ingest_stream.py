@@ -1,10 +1,10 @@
 """
-Unit Test — AION Photon Ingest Bridge
+Unit Test - AION Photon Ingest Bridge
 ────────────────────────────────────────────
 Verifies:
-    • Correct Φ, R, γ → ψ, κ, T field mapping
-    • Proper invocation of _forward_to_cognitive_fabric()
-    • Stable ingestion under partial packets and malformed input
+    * Correct Φ, R, γ -> ψ, κ, T field mapping
+    * Proper invocation of _forward_to_cognitive_fabric()
+    * Stable ingestion under partial packets and malformed input
 """
 
 import pytest
@@ -21,7 +21,7 @@ def ingestor():
 
 
 def test_full_packet_ingestion(ingestor):
-    """Verify correct mapping of all Φ, R, γ → ψ, κ, T fields."""
+    """Verify correct mapping of all Φ, R, γ -> ψ, κ, T fields."""
     packet = {"Φ": 0.92, "R": 0.81, "γ": 0.75, "S": "stable"}
 
     ingestor.on_ingest(packet)

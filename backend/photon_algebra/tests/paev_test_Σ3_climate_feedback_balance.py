@@ -1,7 +1,7 @@
 """
-Tessaris Σ3 — Climate Feedback Balance Test
+Tessaris Σ3 - Climate Feedback Balance Test
 -------------------------------------------
-Applies Tessaris Unified Constants (v1.2) to simulate thermodynamic–causal
+Applies Tessaris Unified Constants (v1.2) to simulate thermodynamic-causal
 feedback equilibrium. Purpose: verify that Λ-field stability extends to
 planetary-scale or climatic feedback systems governed by energy-information balance.
 """
@@ -24,8 +24,8 @@ constants = load_constants("v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print(f"=== {SERIES} — Climate Feedback Balance (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== {SERIES} - Climate Feedback Balance (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Simulation Parameters (stabilized version) ===
 rng = np.random.default_rng(42)
@@ -104,7 +104,7 @@ summary = {
     "notes": [
         f"Mean thermodynamic balance = {balance_mean:.3f}",
         f"Mean causal flux divergence = {flux_mean:.3e}",
-        "Climate field maintained causal–thermodynamic balance via Λ feedback."
+        "Climate field maintained causal-thermodynamic balance via Λ feedback."
     ],
     "discovery": [
         "Introduced integral causal feedback achieving global thermal equilibrium.",
@@ -124,16 +124,16 @@ with open(SUMMARY_PATH, "w") as f:
 # === Plot Results ===
 plt.figure(figsize=(7, 4))
 plt.plot(balance_history, label="Energy Balance (σ/μ)")
-plt.plot(flux_history, label="|∇·J| (Causal Flux)", linestyle="--")
+plt.plot(flux_history, label="|∇*J| (Causal Flux)", linestyle="--")
 plt.xlabel("Time Step")
 plt.ylabel("Metric Value")
-plt.title("Σ3 — Climate Feedback Balance (Causal Thermodynamic Stability)")
+plt.title("Σ3 - Climate Feedback Balance (Causal Thermodynamic Stability)")
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
 
-print(f"✅ Summary saved → {SUMMARY_PATH}")
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

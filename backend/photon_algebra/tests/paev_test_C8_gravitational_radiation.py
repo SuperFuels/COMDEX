@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test C8 — Gravitational Radiation via Rewrite Energy Flow
+Test C8 - Gravitational Radiation via Rewrite Energy Flow
 Extends C7: two curvature sources orbit and emit curvature waves.
 """
 
@@ -47,9 +47,9 @@ if __name__ == "__main__":
     # --- Plot total energy decay ---
     plt.figure(figsize=(7,4))
     plt.plot(energy, "b-")
-    plt.title("Test C8 — Gravitational Radiation via Rewrite Energy Flow")
+    plt.title("Test C8 - Gravitational Radiation via Rewrite Energy Flow")
     plt.xlabel("Time step")
-    plt.ylabel("Mean curvature energy ⟨κ²⟩")
+    plt.ylabel("Mean curvature energy ⟨κ2⟩")
     plt.tight_layout()
     plt.savefig("PAEV_TestC8_GravitationalRadiation_Energy.png", dpi=160)
     print("✅ Saved energy plot to: PAEV_TestC8_GravitationalRadiation_Energy.png")
@@ -58,10 +58,10 @@ if __name__ == "__main__":
     plt.figure(figsize=(6,6))
     plt.imshow(normalize(kappa), cmap="inferno")
     plt.colorbar(label="Normalized κ(x,y)")
-    plt.title("Test C8 — Gravitational Radiation Field (final frame)")
+    plt.title("Test C8 - Gravitational Radiation Field (final frame)")
     plt.tight_layout()
     plt.savefig("PAEV_TestC8_GravitationalRadiation_Field.png", dpi=160)
     print("✅ Saved field image to: PAEV_TestC8_GravitationalRadiation_Field.png")
 
-    print(f"Final ⟨κ²⟩={energy[-1]:.3e}, ΔE={energy[0]-energy[-1]:.3e}")
+    print(f"Final ⟨κ2⟩={energy[-1]:.3e}, ΔE={energy[0]-energy[-1]:.3e}")
     print("=== Test C8 complete ===")

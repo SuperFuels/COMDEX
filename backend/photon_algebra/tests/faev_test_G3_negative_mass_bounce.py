@@ -1,6 +1,6 @@
 # ==========================================================
-# G3 — Negative-Mass / Antigravity Bounce (Dark-Sector ψ)
-# Curvature–mass equivalence with hidden negative-mass drive
+# G3 - Negative-Mass / Antigravity Bounce (Dark-Sector ψ)
+# Curvature-mass equivalence with hidden negative-mass drive
 # ==========================================================
 
 import json, numpy as np, matplotlib.pyplot as plt
@@ -18,7 +18,7 @@ G   = C.get("G", 1e-5)
 noise = C.get("noise", 6e-4)
 
 # Dark-sector controls
-k_eq   = 0.035     # R↔Rψ tracking gain (curvature–mass equiv.)
+k_eq   = 0.035     # R↔Rψ tracking gain (curvature-mass equiv.)
 k_sync = 0.030     # phase sync φ↔ψ
 k_neg  = 0.020     # negative-mass (antigravity) strength
 ρc     = 1.0       # LQC-like critical density for bounce regularization
@@ -42,11 +42,11 @@ E_tot  = np.zeros(T)
 
 # Helpers
 def saturation(x, xcrit):
-    # loop-quantum-cosmology–style regulator:  x / (1 + |x|/xcrit)
+    # loop-quantum-cosmology-style regulator:  x / (1 + |x|/xcrit)
     return x / (1.0 + np.abs(x)/xcrit)
 
 for i in range(1, T):
-    # Curvatures: visible ~ ä/a ; hidden ~ k_eq*R + antigravity from negative mass
+    # Curvatures: visible ~ ä/a ; hidden ~ k_eq*R + antigravity from negative mass
     # Visible sector (toy Friedmann with regulator)
     ρ_m  = 1.0 / (a[i-1]**3 + 1e-9)
     ρ_v  = Λ * np.cos(φ[i-1])
@@ -104,22 +104,22 @@ else:
 # --- Plots ---
 plt.figure(figsize=(9,5))
 plt.plot(t, a); plt.axvline(t[bounce_idx], ls='--', c='purple', alpha=0.6, label='min(a)')
-plt.title("G3 — Scale Factor Evolution (Antigravity-Driven)"); plt.xlabel("time"); plt.ylabel("a(t)"); plt.legend()
+plt.title("G3 - Scale Factor Evolution (Antigravity-Driven)"); plt.xlabel("time"); plt.ylabel("a(t)"); plt.legend()
 plt.tight_layout(); plt.savefig("FAEV_G3_ScaleFactor.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, R, label="R (visible)"); plt.plot(t, Rψ, label="Rψ (hidden)")
-plt.title("G3 — Curvature Tracks (R vs Rψ)"); plt.xlabel("time"); plt.ylabel("curvature"); plt.legend()
+plt.title("G3 - Curvature Tracks (R vs Rψ)"); plt.xlabel("time"); plt.ylabel("curvature"); plt.legend()
 plt.tight_layout(); plt.savefig("FAEV_G3_CurvatureTracks.png")
 
 plt.figure(figsize=(9,5))
-plt.plot(t, Mψ, label="Hidden mass Mψ"); plt.title("G3 — Hidden Effective Mass Evolution")
+plt.plot(t, Mψ, label="Hidden mass Mψ"); plt.title("G3 - Hidden Effective Mass Evolution")
 plt.xlabel("time"); plt.ylabel("Mψ (norm)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3_HiddenMass.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, E_tot, label="Unified energy (norm)")
-plt.title("G3 — Unified Energy Evolution"); plt.xlabel("time"); plt.ylabel("E_total (norm)")
+plt.title("G3 - Unified Energy Evolution"); plt.xlabel("time"); plt.ylabel("E_total (norm)")
 plt.legend(); plt.tight_layout(); plt.savefig("FAEV_G3_Energy.png")
 
 # --- Save JSON ---
@@ -146,7 +146,7 @@ out = {
 with open("backend/modules/knowledge/G3_negative_mass_bounce.json","w") as f:
     json.dump(out, f, indent=2)
 
-print("=== G3 — Negative-Mass / Antigravity Bounce ===")
+print("=== G3 - Negative-Mass / Antigravity Bounce ===")
 print(f"a_min={a_min:.4f} | cross_corr={cross_corr:.3f} | E_stab={energy_stab:.3e}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/G3_negative_mass_bounce.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/G3_negative_mass_bounce.json")

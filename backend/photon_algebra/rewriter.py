@@ -15,7 +15,7 @@ def superpose(states, weights=None, phases=None):
     """
     Symatics amplitude-level ⊕ operator:
     Combine wave/field arrays with optional weights and phase offsets.
-    Returns intensity map (|Σ w·e^{iφ}·ψ|²).
+    Returns intensity map (|Σ w*e^{iφ}*ψ|2).
     """
     n = len(states)
     weights = weights or [1/n] * n
@@ -38,10 +38,10 @@ def superpose(states, weights=None, phases=None):
 # Normalization memoization + structural key caching
 # -----------------------------------------------------------------------------
 # We keep:
-#   1) A process-wide memo (_NORM_MEMO) keyed by a structural key string → normalized expr.
+#   1) A process-wide memo (_NORM_MEMO) keyed by a structural key string -> normalized expr.
 #   2) A per-normalize-run context (_NormCtx) that caches:
 #        - memo: local results (can be cleared in tests)
-#        - key_cache: id(node) → _string_key(node) to avoid recomputation
+#        - key_cache: id(node) -> _string_key(node) to avoid recomputation
 # _string_key(node) itself is defined elsewhere in this module.
 # =============================================================================
 
@@ -68,7 +68,7 @@ class _DiagCounters:
     def reset(self) -> None:
         self.rewrites = 0        # how many times rewrite_fixed changed an expr
         self.absorptions = 0     # times a ⊕ (a ⊗ b) collapsed to a
-        self.idempotence = 0     # a ⊗ a → a, a ⊕ a → a, ¬(¬a) → a
+        self.idempotence = 0     # a ⊗ a -> a, a ⊕ a -> a, ¬(¬a) -> a
         self.distributions = 0   # times ⊗ distributed over ⊕
 
     def to_dict(self) -> dict:
@@ -166,9 +166,9 @@ def structural_key(expr: Any, cache: dict[int, tuple] | None = None) -> tuple:
     Compute a structural key for an expression.
 
     Behavior:
-    - Atoms → ("atom", value)
-    - Dicts → ("opN", op, tuple(child_keys))
-    - Lists → ("list", tuple(child_keys))
+    - Atoms -> ("atom", value)
+    - Dicts -> ("opN", op, tuple(child_keys))
+    - Lists -> ("list", tuple(child_keys))
     - For commutative ops (⊕, ⊗, ↔, ≈), child keys are sorted.
       For directional ops (⊖, ⊂), insertion order is preserved.
     - Results are memoized in the given cache.
@@ -262,8 +262,8 @@ def is_var(token: Any) -> bool:
 def _match_pattern_cached(pk: tuple, ek: tuple) -> bool:
     """
     Cached structural match guard.
-    - Exact structural equality → True
-    - Either side is a variable marker → True
+    - Exact structural equality -> True
+    - Either side is a variable marker -> True
     """
     if pk == ek:
         return True
@@ -387,48 +387,48 @@ def substitute(node: Expr, env: Dict[str, Expr]) -> Expr:
 # Rewrite Rules (axioms + derived theorems)
 #
 # Notes:
-# • T14 (Dual Distributivity) is intentionally NOT in this table. Distribution
+# * T14 (Dual Distributivity) is intentionally NOT in this table. Distribution
 #   is handled structurally in normalize(): ⊗ distributes over ⊕; ⊕ does not factor.
-#   Keeping a T14 factoring rule here can ping-pong with ⊗→⊕ distribution.
-# • ⊗ idempotence (a ⊗ a → a) is enforced locally in normalize()’s ⊗ branch
+#   Keeping a T14 factoring rule here can ping-pong with ⊗->⊕ distribution.
+# * ⊗ idempotence (a ⊗ a -> a) is enforced locally in normalize()'s ⊗ branch
 #   (post-commutativity) to keep normal forms stable.
 # =============================================================================
 
 REWRITE_RULES: List[Tuple[Expr, Expr]] = [
-    # P — Associativity: (a ⊕ b) ⊕ c → a ⊕ (b ⊕ c)
+    # P - Associativity: (a ⊕ b) ⊕ c -> a ⊕ (b ⊕ c)
     (
         {"op": "⊕", "states": [{"op": "⊕", "states": ["a", "b"]}, "c"]},
         {"op": "⊕", "states": ["a", {"op": "⊕", "states": ["b", "c"]}]},
     ),
 
-    # P — Commutativity: a ⊕ b → b ⊕ a
+    # P - Commutativity: a ⊕ b -> b ⊕ a
     (
         {"op": "⊕", "states": ["a", "b"]},
         {"op": "⊕", "states": ["b", "a"]},
     ),
 
-    # P — Idempotence: a ⊕ a → a
+    # P - Idempotence: a ⊕ a -> a
     (
         {"op": "⊕", "states": ["a", "a"]},
         "a",
     ),
 
-    # (REMOVED) T14 — Dual Distributivity
+    # (REMOVED) T14 - Dual Distributivity
     # Handled structurally in normalize().
 
-    # P — Cancellation: a ⊖ a → ∅
+    # P - Cancellation: a ⊖ a -> ∅
     (
         {"op": "⊖", "states": ["a", "a"]},
         EMPTY,
     ),
 
-    # P — Double Negation: ¬(¬a) → a
+    # P - Double Negation: ¬(¬a) -> a
     (
         {"op": "¬", "state": {"op": "¬", "state": "a"}},
         "a",
     ),
 
-    # T10 — Entanglement distributivity: (a↔b) ⊕ (a↔c) → a ↔ (b ⊕ c)
+    # T10 - Entanglement distributivity: (a↔b) ⊕ (a↔c) -> a ↔ (b ⊕ c)
     (
         {"op": "⊕", "states": [
             {"op": "↔", "states": ["a", "b"]},
@@ -436,7 +436,7 @@ REWRITE_RULES: List[Tuple[Expr, Expr]] = [
         ]},
         {"op": "↔", "states": ["a", {"op": "⊕", "states": ["b", "c"]}]},
     ),
-    # T10 (commuted): (a↔c) ⊕ (a↔b) → a ↔ (b ⊕ c)
+    # T10 (commuted): (a↔c) ⊕ (a↔b) -> a ↔ (b ⊕ c)
     (
         {"op": "⊕", "states": [
             {"op": "↔", "states": ["a", "c"]},
@@ -445,13 +445,13 @@ REWRITE_RULES: List[Tuple[Expr, Expr]] = [
         {"op": "↔", "states": ["a", {"op": "⊕", "states": ["b", "c"]}]},
     ),
 
-    # T11 — Entanglement idempotence: a ↔ a → a
+    # T11 - Entanglement idempotence: a ↔ a -> a
     (
         {"op": "↔", "states": ["a", "a"]},
         "a",
     ),
 
-    # T12 — Projection fidelity: ★(a↔b) → (★a) ⊕ (★b)
+    # T12 - Projection fidelity: ★(a↔b) -> (★a) ⊕ (★b)
     (
         {"op": "★", "state": {"op": "↔", "states": ["a", "b"]}},
         {"op": "⊕", "states": [
@@ -460,23 +460,23 @@ REWRITE_RULES: List[Tuple[Expr, Expr]] = [
         ]},
     ),
 
-    # T13 — Absorption: a ⊕ (a ⊗ b) → a
+    # T13 - Absorption: a ⊕ (a ⊗ b) -> a
     (
         {"op": "⊕", "states": ["a", {"op": "⊗", "states": ["a", "b"]}]},
         "a",
     ),
-    # T13 (commuted): (a ⊗ b) ⊕ a → a
+    # T13 (commuted): (a ⊗ b) ⊕ a -> a
     (
         {"op": "⊕", "states": [{"op": "⊗", "states": ["a", "b"]}, "a"]},
         "a",
     ),
 
-    # T15 — Falsification: a ⊖ ∅ → a
+    # T15 - Falsification: a ⊖ ∅ -> a
     (
         {"op": "⊖", "states": ["a", EMPTY]},
         "a",
     ),
-    # T15 (swapped): ∅ ⊖ a → a
+    # T15 (swapped): ∅ ⊖ a -> a
     (
         {"op": "⊖", "states": [EMPTY, "a"]},
         "a",
@@ -581,7 +581,7 @@ def _normalize_shallow(expr: Expr, ctx: _NormCtx, skey=None) -> Expr:
         # Remove ∅ (identity)
         flat = [s for s in flat if not (isinstance(s, dict) and s.get("op") == "∅")]
 
-        # Absorption: drop (a⊗…) if any factor is already present
+        # Absorption: drop (a⊗...) if any factor is already present
         atoms = {structural_key(s) for s in flat if not (isinstance(s, dict) and s.get("op") == "⊗")}
         pruned = []
         for s in flat:
@@ -729,7 +729,7 @@ def rewrite_fixed(expr: Expr, max_iter: int = 64, debug: bool = False) -> Expr:
         if nxt == cur:
             break
         if debug:
-            print(f"[rewrite_fixed] Iter {i}: {cur} → {nxt}")
+            print(f"[rewrite_fixed] Iter {i}: {cur} -> {nxt}")
         cur = nxt
     return cur
 
@@ -761,7 +761,7 @@ def _maybe_rewrite(expr: Expr) -> Expr:
 def normalize(expr: Any, strict: bool = False) -> Any:
     """
     Normalize Photon expressions under axioms + calculus rules:
-        - Apply rewrite rules to a fixed point (T8–T15, etc.)
+        - Apply rewrite rules to a fixed point (T8-T15, etc.)
         - Canonicalize ⊕: flatten, drop ∅, absorption, idempotence, commutativity
         - Distribute ⊗ over ⊕ (both sides)
         - Cancellation: a ⊖ a = ∅ ; a ⊖ ∅ = a ; ∅ ⊖ a = a
@@ -859,7 +859,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
     op = expr.get("op")
     states = expr.get("states", [])
 
-    # --- Absorption / annihilation: a ⊗ ¬a → ⊥ ---
+    # --- Absorption / annihilation: a ⊗ ¬a -> ⊥ ---
     if op == "⊗" and len(states) == 2:
         s1, s2 = states
         if (
@@ -874,7 +874,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
             ctx.memo[skey] = {"op": "⊥"}
             return {"op": "⊥"}
 
-    # Duality: a ⊕ ¬a → ⊤
+    # Duality: a ⊕ ¬a -> ⊤
     if op == "⊕" and len(states) == 2:
         s1, s2 = states
         if s1 == {"op": "¬", "state": s2} or s2 == {"op": "¬", "state": s1}:
@@ -888,7 +888,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
         if inner.get("op") == "⊕":
             states = inner.get("states", [])
 
-            # Collapse if any ★x is present → whole sum = ★x
+            # Collapse if any ★x is present -> whole sum = ★x
             for s in states:
                 if isinstance(s, dict) and s.get("op") == "★":
                     t = s.get("state")
@@ -951,7 +951,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
             pruned.append(s)
 
         flat = pruned
-                # --- Explicit absorption collapse: a ⊕ (a ⊗ b) → a ---
+                # --- Explicit absorption collapse: a ⊕ (a ⊗ b) -> a ---
         for s in flat:
             if isinstance(s, dict) and s.get("op") == "⊗":
                 factors = s.get("states", [])
@@ -999,7 +999,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
                     _NORMALIZE_MEMO[skey] = out
                     return out
 
-        # --- Absorption: x ⊕ ★x → ★x (collapse entire sum) ---
+        # --- Absorption: x ⊕ ★x -> ★x (collapse entire sum) ---
         atom_keys = {
             _get_key(s, ctx): s for s in flat if not isinstance(s, dict)
         }
@@ -1038,7 +1038,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
                     _NORMALIZE_MEMO[skey] = out
                     return out
 
-                # Case 1: shared left side → (a ↔ b1) ⊕ (a ↔ b2) = a ↔ (b1 ⊕ b2)
+                # Case 1: shared left side -> (a ↔ b1) ⊕ (a ↔ b2) = a ↔ (b1 ⊕ b2)
                 if a1 == a2:
                     combined = {"op": "⊕", "states": [b1, b2]}
                     out = {"op": "↔", "states": [a1, combined]}
@@ -1047,7 +1047,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
                     _NORMALIZE_MEMO[skey] = out
                     return out
 
-                # Case 2: shared right side → (a1 ↔ b) ⊕ (a2 ↔ b) = b ↔ (a1 ⊕ a2)
+                # Case 2: shared right side -> (a1 ↔ b) ⊕ (a2 ↔ b) = b ↔ (a1 ⊕ a2)
                 if b1 == b2:
                     combined = {"op": "⊕", "states": [a1, a2]}
                     out = {"op": "↔", "states": [b1, combined]}
@@ -1056,7 +1056,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
                     _NORMALIZE_MEMO[skey] = out
                     return out
 
-                # Case 2: shared right side → (a1 ↔ b) ⊕ (a2 ↔ b) = b ↔ (a1 ⊕ a2)
+                # Case 2: shared right side -> (a1 ↔ b) ⊕ (a2 ↔ b) = b ↔ (a1 ⊕ a2)
                 if b1 == b2:
                     combined = {"op": "⊕", "states": [a1, a2]}
                     out = {"op": "↔", "states": [b1, combined]}
@@ -1126,14 +1126,14 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
             else:
                 flat.append(s)
 
-        # --- Annihilator: if any ∅ → whole expr ∅ ---
+        # --- Annihilator: if any ∅ -> whole expr ∅ ---
         if any(s == "∅" or (isinstance(s, dict) and s.get("op") == "∅") for s in flat):
             out = EMPTY
             ctx.memo[skey] = out
             _NORMALIZE_MEMO[skey] = out
             return out
 
-        # --- Absorption: a ⊗ (a ⊕ b) → a ---
+        # --- Absorption: a ⊗ (a ⊕ b) -> a ---
         for s in flat:
             if isinstance(s, dict) and s.get("op") == "⊕":
                 options = s["states"]
@@ -1145,7 +1145,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
                         _NORMALIZE_MEMO[skey] = out
                         return out
 
-        # --- Deduplication (idempotence: a ⊗ a → a) ---
+        # --- Deduplication (idempotence: a ⊗ a -> a) ---
         uniq = {}
         for s in flat:
             k = _get_key(s, ctx)
@@ -1158,14 +1158,14 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
         items = sorted(uniq.values(), key=lambda x: x[1])
         unique_sorted = [s for s, _ in items]
 
-        # --- Collapse singleton: ⊗[a] → a ---
+        # --- Collapse singleton: ⊗[a] -> a ---
         if len(unique_sorted) == 1:
             out = unique_sorted[0]
             ctx.memo[skey] = out
             _NORMALIZE_MEMO[skey] = out
             return out
 
-        # --- Absorption: a ⊗ ¬a → ⊥ ---
+        # --- Absorption: a ⊗ ¬a -> ⊥ ---
         normal_keys = set()
         neg_inner_keys = set()
         for s in unique_sorted:
@@ -1179,7 +1179,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
             _NORMALIZE_MEMO[skey] = out
             return out
 
-        # --- Distribution: a ⊗ (b ⊕ c) → (a ⊗ b) ⊕ (a ⊗ c) ---
+        # --- Distribution: a ⊗ (b ⊕ c) -> (a ⊗ b) ⊕ (a ⊗ c) ---
         for i, s in enumerate(unique_sorted):
             if isinstance(s, dict) and s.get("op") == "⊕":
                 others = unique_sorted[:i] + unique_sorted[i + 1 :]
@@ -1209,25 +1209,25 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
 
             # --- Basic rules ---
             if structural_key(x) == structural_key(y):
-                out = EMPTY  # a ⊖ a → ∅
+                out = EMPTY  # a ⊖ a -> ∅
 
             elif (isinstance(y, dict) and y.get("op") == "∅") or y == "∅":
-                out = x  # a ⊖ ∅ → a
+                out = x  # a ⊖ ∅ -> a
 
             elif (isinstance(x, dict) and x.get("op") == "∅") or x == "∅":
-                out = y  # ∅ ⊖ a → a
+                out = y  # ∅ ⊖ a -> a
 
             # --- Nested cancellation forms ---
             elif isinstance(y, dict) and y.get("op") == "⊖":
                 y1, y2 = y["states"]
                 if structural_key(x) == structural_key(y1):
-                    out = y2  # a ⊖ (a ⊖ b) → b
+                    out = y2  # a ⊖ (a ⊖ b) -> b
                 elif structural_key(x) == structural_key(y2):
-                    out = {"op": "⊖", "states": [x, y1]}  # a ⊖ (b ⊖ a) → a ⊖ b
+                    out = {"op": "⊖", "states": [x, y1]}  # a ⊖ (b ⊖ a) -> a ⊖ b
                 else:
                     out = {"op": "⊖", "states": [x, y]}
 
-            # --- Chained cancellation: (a ⊖ b) ⊖ a → b
+            # --- Chained cancellation: (a ⊖ b) ⊖ a -> b
             elif isinstance(x, dict) and x.get("op") == "⊖":
                 x1, x2 = x["states"]
                 if structural_key(x2) == structural_key(y):
@@ -1238,7 +1238,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
             else:
                 out = {"op": "⊖", "states": [x, y]}
 
-            # --- Special collapse: (a ⊖ (a ⊖ b)) ⊖ (a ⊗ a) → b
+            # --- Special collapse: (a ⊖ (a ⊖ b)) ⊖ (a ⊗ a) -> b
             if (
                 isinstance(out, dict)
                 and out.get("op") == "⊖"
@@ -1277,14 +1277,14 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
     elif op == "¬":
         inner = _normalize_inner(expr.get("state"), ctx)
 
-        # ¬∅ → ∅
+        # ¬∅ -> ∅
         if inner == "∅" or (isinstance(inner, dict) and inner.get("op") == "∅"):
             out = EMPTY
             ctx.memo[skey] = out
             _NORMALIZE_MEMO[skey] = out
             return out
 
-        # ¬(¬a) → a
+        # ¬(¬a) -> a
         if isinstance(inner, dict) and inner.get("op") == "¬":
             DIAG.idempotence += 1
             out = _normalize_inner(inner.get("state"), ctx)
@@ -1350,7 +1350,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
 
         flat_raw = deep_flatten_plus(inner)
 
-        # --- Collapse rule: ★(a ⊕ ★a ⊕ b) → ★a ---
+        # --- Collapse rule: ★(a ⊕ ★a ⊕ b) -> ★a ---
         atom_keys = set()
         star_for_key = {}
         for s in flat_raw:
@@ -1361,7 +1361,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
             elif not isinstance(s, dict):
                 atom_keys.add(_get_key(s, ctx))
 
-        # If both a and ★a appear → collapse to ★a
+        # If both a and ★a appear -> collapse to ★a
         common = atom_keys & set(star_for_key.keys())
         if common:
             k = sorted(common)[0]
@@ -1386,7 +1386,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
             inner_norm = {"op": "⊕", "states": uniq_sorted}
 
         # --- Simplify recursively ---
-        # If inner is a sum, first deep-flatten ⊕ and try the collapse ★(a ⊕ ★a ⊕ …) → ★a
+        # If inner is a sum, first deep-flatten ⊕ and try the collapse ★(a ⊕ ★a ⊕ ...) -> ★a
         if isinstance(inner_norm, dict) and inner_norm.get("op") == "⊕":
             def _deep_flatten_plus(node):
                 if isinstance(node, dict) and node.get("op") == "⊕":
@@ -1398,7 +1398,7 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
 
             flat = _deep_flatten_plus(inner_norm)
 
-            # Collapse rule: if both atom a and ★a are present → ★a
+            # Collapse rule: if both atom a and ★a are present -> ★a
             atom_keys = set()
             star_for = {}
             for s in flat:
@@ -1437,10 +1437,10 @@ def _normalize_inner(expr: Any, ctx: _NormCtx, strict: bool = False) -> Any:
         ):
             out = EMPTY
         elif isinstance(inner_norm, dict) and inner_norm.get("op") == "★":
-            out = inner_norm  # ★★a → ★a
+            out = inner_norm  # ★★a -> ★a
         elif isinstance(inner_norm, dict) and inner_norm.get("op") == "↔":
             states = inner_norm.get("states", [])
-            if len(states) == 2:  # T12: ★(a↔b) → (★a) ⊕ (★b)
+            if len(states) == 2:  # T12: ★(a↔b) -> (★a) ⊕ (★b)
                 a, b = states
                 out = {
                     "op": "⊕",

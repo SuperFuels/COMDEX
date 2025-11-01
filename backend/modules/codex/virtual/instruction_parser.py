@@ -7,9 +7,9 @@ CodexLang Instruction Parser
 Parses symbolic glyph strings into executable nested instruction trees.
 Handles operators, grouping, and implicit structure.
 Now patched to:
-  • Use canonical operator metadata bridge.
-  • Enforce Symatics operator precedence.
-  • Support nested parentheses (⟲(A ⊕ B), ⟲((A ⊕ B) → C)).
+  * Use canonical operator metadata bridge.
+  * Enforce Symatics operator precedence.
+  * Support nested parentheses (⟲(A ⊕ B), ⟲((A ⊕ B) -> C)).
 """
 
 import re
@@ -20,11 +20,11 @@ from backend.codexcore_virtual.instruction_metadata_bridge import get_instructio
 class InstructionParser:
     def __init__(self):
         # Recognized symbolic operators
-        self.operators = ["→", "↔", "⟲", "⊕", "⧖", "⊖"]
+        self.operators = ["->", "↔", "⟲", "⊕", "⧖", "⊖"]
 
-        # Operator precedence (low → high)
+        # Operator precedence (low -> high)
         self.precedence = {
-            "→": 1,
+            "->": 1,
             "⧖": 1,
             "↔": 2,
             "⟲": 2,
@@ -66,7 +66,7 @@ class InstructionParser:
     def tokenize(self, code: str) -> List[str]:
         """
         Tokenize string while respecting parentheses.
-        Example: "⟲(A ⊕ B)" → ["⟲", "(", "A", "⊕", "B", ")"]
+        Example: "⟲(A ⊕ B)" -> ["⟲", "(", "A", "⊕", "B", ")"]
         """
         tokens: List[str] = []
         buf = ""
@@ -116,7 +116,7 @@ class InstructionParser:
                         "args": [x for x in [left, right] if x],
                     }
 
-        # Base case → literal(s)
+        # Base case -> literal(s)
         if len(tokens) == 1:
             return {"op": "lit", "value": tokens[0]}
         return [{"op": "lit", "value": tok} for tok in tokens if tok not in {"(", ")"}]
@@ -133,11 +133,11 @@ def parse_codexlang(code: str, mode: str = None) -> Dict[str, Any]:
 # 🧪 CLI Debug Harness
 if __name__ == "__main__":
     samples = [
-        "⚛ → ✦ ⟲ 🧠",
-        "A ⊕ B → C",
+        "⚛ -> ✦ ⟲ 🧠",
+        "A ⊕ B -> C",
         "X ↔ Y",
         "⟲(A ⊕ B)",
-        "⟲((A ⊕ B) → C)",
+        "⟲((A ⊕ B) -> C)",
         "A ⊖ ∅",
     ]
     for s in samples:

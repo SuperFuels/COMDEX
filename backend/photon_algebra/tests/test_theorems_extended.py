@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Photon Calculus — Derived Theorems (T8–T12)
+Photon Calculus - Derived Theorems (T8-T12)
 -------------------------------------------
-Extends Photon Algebra axioms (P1–P8) with derived theorems:
+Extends Photon Algebra axioms (P1-P8) with derived theorems:
 
 - T8: Distributivity of superposition
 - T9: Double negation stability
@@ -24,35 +24,35 @@ def _norm(x):
 # -------------------------
 
 def theorem_T8(a, b, c):
-    """T8: Distributivity — a ⊗ (b ⊕ c) == (a ⊗ b) ⊕ (a ⊗ c)."""
+    """T8: Distributivity - a ⊗ (b ⊕ c) == (a ⊗ b) ⊕ (a ⊗ c)."""
     lhs = core.fuse(a, core.superpose(b, c))
     rhs = core.superpose(core.fuse(a, b), core.fuse(a, c))
     return _norm(lhs) == _norm(rhs)
 
 
 def theorem_T9(a):
-    """T9: Double negation — ¬(¬a) == a."""
+    """T9: Double negation - ¬(¬a) == a."""
     lhs = core.negate(core.negate(a))
     rhs = a
     return _norm(lhs) == _norm(rhs)
 
 
 def theorem_T10(a, b, c):
-    """T10: Entanglement distributivity — (a↔b) ⊕ (a↔c) == a↔(b⊕c)."""
+    """T10: Entanglement distributivity - (a↔b) ⊕ (a↔c) == a↔(b⊕c)."""
     lhs = core.superpose(core.entangle(a, b), core.entangle(a, c))
     rhs = core.entangle(a, core.superpose(b, c))
     return _norm(lhs) == _norm(rhs)
 
 
 def theorem_T11(a):
-    """T11: Collapse consistency — ∇(a ⊕ ∅) == ∇(a)."""
+    """T11: Collapse consistency - ∇(a ⊕ ∅) == ∇(a)."""
     lhs = core.collapse(core.superpose(a, core.EMPTY))   # symbolic collapse
     rhs = core.collapse(a)                              # symbolic collapse
     return _norm(lhs) == _norm(rhs)
 
 
 def theorem_T12(a, b):
-    """T12: Projection fidelity — ★(a↔b) == ★(a) ⊕ ★(b)."""
+    """T12: Projection fidelity - ★(a↔b) == ★(a) ⊕ ★(b)."""
     lhs = core.project(core.entangle(a, b))  # symbolic project
     rhs = core.superpose(core.project(a), core.project(b))
     return _norm(lhs) == _norm(rhs)

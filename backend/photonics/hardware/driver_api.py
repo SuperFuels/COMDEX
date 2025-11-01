@@ -1,10 +1,10 @@
 """
-Tessaris Photonic Hardware Bridge — Driver API Stubs
+Tessaris Photonic Hardware Bridge - Driver API Stubs
 ────────────────────────────────────────────────────
 Provides unified interfaces for simulated or physical photonic components:
-  • MZMDriver  → Mach–Zehnder Modulator (phase modulation)
-  • DACDriver  → Digital-to-Analog Conversion for optical signal control
-  • PDDriver   → Photodiode readout (intensity / interference)
+  * MZMDriver  -> Mach-Zehnder Modulator (phase modulation)
+  * DACDriver  -> Digital-to-Analog Conversion for optical signal control
+  * PDDriver   -> Photodiode readout (intensity / interference)
 Supports both simulation and eventual lab hardware integration.
 
 Runtime Modes:
@@ -46,7 +46,7 @@ class PhotonicDevice:
 # ──────────────────────────────────────────────────────────────
 
 class MZMDriver(PhotonicDevice):
-    """Mach–Zehnder Modulator driver stub."""
+    """Mach-Zehnder Modulator driver stub."""
 
     def modulate(self, signal: np.ndarray, phase_bias: float = 0.0) -> np.ndarray:
         """Applies phase modulation to input waveform."""
@@ -71,7 +71,7 @@ class PDDriver(PhotonicDevice):
     """Photodiode detector stub."""
 
     def detect(self, optical_field: np.ndarray) -> float:
-        """Measure intensity (power = |E|²)."""
+        """Measure intensity (power = |E|2)."""
         intensity = float(np.mean(optical_field**2))
         self.last_output = intensity
         self.log({"action": "detect", "intensity": intensity})
@@ -83,7 +83,7 @@ class PDDriver(PhotonicDevice):
 # ──────────────────────────────────────────────────────────────
 
 class OpticalFeedbackLoop:
-    """Simulated optical feedback path (DAC→MZM→PD)."""
+    """Simulated optical feedback path (DAC->MZM->PD)."""
 
     def __init__(self):
         self.dac = DACDriver("DAC-1")
@@ -91,7 +91,7 @@ class OpticalFeedbackLoop:
         self.pd = PDDriver("PD-1")
 
     def run_cycle(self, signal: np.ndarray, phase_bias: float = 0.0) -> float:
-        """Propagate a signal through DAC→MZM→PD."""
+        """Propagate a signal through DAC->MZM->PD."""
         analog = self.dac.output_waveform(signal)
         modulated = self.mzm.modulate(analog, phase_bias=phase_bias)
         intensity = self.pd.detect(modulated)

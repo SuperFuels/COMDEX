@@ -1,5 +1,5 @@
 # ==========================================================
-# G4-RC3 — Λ-Memory Feedback Coupling
+# G4-RC3 - Λ-Memory Feedback Coupling
 # Tessaris Unified Equation (TUE) refinement stage
 # Goal: introduce Λ-memory term to link entropy and curvature
 #       through delayed feedback, forming a temporal coherence loop.
@@ -111,20 +111,20 @@ I_s = gaussian_filter1d(I, sigma=10)
 # ---- Plots ----
 plt.figure(figsize=(9,5))
 plt.plot(t, E_total_s, lw=1.6, label="E_total (smoothed)")
-plt.title("G4-RC3 — Energy Conservation (Λ-Memory Feedback)")
+plt.title("G4-RC3 - Energy Conservation (Λ-Memory Feedback)")
 plt.xlabel("time"); plt.ylabel("E_total"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4RC3_EnergyConservation.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, Λ_s, color="green", lw=1.4, label="Λ_eff(t)")
-plt.title("G4-RC3 — Λ Evolution (Memory-Driven Feedback)")
+plt.title("G4-RC3 - Λ Evolution (Memory-Driven Feedback)")
 plt.xlabel("time"); plt.ylabel("Λ_eff"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4RC3_LambdaEvolution.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(S_s, I_s, '.', alpha=0.4, color="purple", markersize=3)
-plt.title("G4-RC3 — Phase Portrait: S vs I (Λ-Memory Coupling)")
-plt.xlabel("Entropy Flux S"); plt.ylabel("Information Flux İ"); plt.tight_layout()
+plt.title("G4-RC3 - Phase Portrait: S vs I (Λ-Memory Coupling)")
+plt.xlabel("Entropy Flux S"); plt.ylabel("Information Flux İ"); plt.tight_layout()
 plt.savefig("FAEV_G4RC3_PhasePortrait.png")
 
 # ---- Save JSON ----
@@ -155,8 +155,8 @@ save_path = "backend/modules/knowledge/G4RC3_lambda_memory_feedback.json"
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== G4-RC3 — Λ-Memory Feedback Coupling (TUE Refinement) ===")
+print("=== G4-RC3 - Λ-Memory Feedback Coupling (TUE Refinement) ===")
 print(f"stability={E_stab:.3f} | corr(S,I)={corr_SI:.3f} | corr(R,Λ)={corr_RΛ:.3f} | "
       f"E_range=({E_min:.3e},{E_max:.3e})")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {save_path}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {save_path}")

@@ -18,14 +18,14 @@ async def broadcast(evt: dict):
     for d in dead:
         clients.discard(d)
 
-# Trace event hook → broadcast to WS listeners
+# Trace event hook -> broadcast to WS listeners
 def hook(evt):
     # ensure safe async scheduling (inside FastAPI loop)
     try:
         loop = asyncio.get_running_loop()
         loop.create_task(broadcast(evt))
     except RuntimeError:
-        # no loop running yet — schedule later
+        # no loop running yet - schedule later
         asyncio.get_event_loop().create_task(broadcast(evt))
 
 # Subscribe once on import
@@ -37,7 +37,7 @@ async def replay_ws(ws: WebSocket):
     clients.add(ws)
     try:
         while True:
-            # Client does not send anything — just keep alive
+            # Client does not send anything - just keep alive
             await ws.receive_text()
     except WebSocketDisconnect:
         clients.discard(ws)

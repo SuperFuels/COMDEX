@@ -2,7 +2,7 @@
 """
 Photon JSON I/O
 ===============
-Task: I6 — Deterministic JSON Serialization Layer
+Task: I6 - Deterministic JSON Serialization Layer
 
 Provides export and import of Photon Algebra expressions in JSON form.
 Guarantees canonical structure (sorted keys, UTF-8 safe) and reversibility

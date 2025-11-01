@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────
-#  Tessaris • QQC Repair Manager (F2 — Rollback / SoulLaw)
-#  Handles rollback, SoulLaw veto checks, and ψ–κ–T state repair.
-#  v0.2 — adds detailed SQI diagnostics + full tensor restoration
+#  Tessaris * QQC Repair Manager (F2 - Rollback / SoulLaw)
+#  Handles rollback, SoulLaw veto checks, and ψ-κ-T state repair.
+#  v0.2 - adds detailed SQI diagnostics + full tensor restoration
 # ──────────────────────────────────────────────
 
 import json
@@ -32,7 +32,7 @@ class QQCRepairManager:
     # ──────────────────────────────────────────────
     def detect_instability(self, txn: Dict[str, Any]) -> bool:
         """
-        Evaluate SQI, ψ–κ divergence, and temporal coherence decay.
+        Evaluate SQI, ψ-κ divergence, and temporal coherence decay.
         """
         sqi = txn.get("C_total", 0.0)
         holographic = txn.get("holographic_state", {}) or {}
@@ -43,12 +43,12 @@ class QQCRepairManager:
 
         # Primary SQI check
         if sqi < SQI_THRESHOLD:
-            logger.warning(f"[QQCRepair] SQI below threshold ({sqi:.3f} < {SQI_THRESHOLD}) — rollback required.")
+            logger.warning(f"[QQCRepair] SQI below threshold ({sqi:.3f} < {SQI_THRESHOLD}) - rollback required.")
             return True
 
-        # ψ–κ divergence check
+        # ψ-κ divergence check
         if abs(psi - kappa) > 0.5:
-            logger.warning(f"[QQCRepair] ψ–κ divergence detected (ψ={psi:.3f}, κ={kappa:.3f})")
+            logger.warning(f"[QQCRepair] ψ-κ divergence detected (ψ={psi:.3f}, κ={kappa:.3f})")
             return True
 
         # Temporal instability check
@@ -69,7 +69,7 @@ class QQCRepairManager:
         meta = txn.get("symbolic_state", {})
         if meta.get("allow_collapse", True) is False:
             reason = meta.get("veto_reason", "disallowed collapse")
-            logger.error(f"[SoulLaw] ❌ Veto triggered — {reason}.")
+            logger.error(f"[SoulLaw] ❌ Veto triggered - {reason}.")
             return True
         return False
 
@@ -90,10 +90,10 @@ class QQCRepairManager:
             return None
 
         if not lines:
-            logger.warning("[QQCRepair] Ledger empty — no state to restore.")
+            logger.warning("[QQCRepair] Ledger empty - no state to restore.")
             return None
 
-        # Prefer most recent committed entry with valid ψ–κ–T
+        # Prefer most recent committed entry with valid ψ-κ-T
         stable_entries = [l for l in lines if "psi_kappa_T" in l.get("psi_kappa_T", {})]
         last_state = stable_entries[-1] if stable_entries else lines[-1]
 
@@ -127,7 +127,7 @@ class QQCRepairManager:
             except Exception as e:
                 logger.warning(f"[QQCRepair] Failed to inject node during rollback: {e}")
 
-        # Recompute ψ–κ–T
+        # Recompute ψ-κ-T
         self.hst._update_field_tensor()
         psi_kappa_T = self.hst.field_tensor
         logger.info(
@@ -152,7 +152,7 @@ class QQCRepairManager:
             if last_stable:
                 self.restore_field_state(last_stable)
 
-                # Reapply ψ–κ–T feedback regulation
+                # Reapply ψ-κ-T feedback regulation
                 try:
                     self.feedback.regulate(self.hst.field_tensor, list(self.hst.nodes.values()))
                 except Exception as e:
@@ -169,7 +169,7 @@ class QQCRepairManager:
                     "timestamp": self.last_repair_time,
                 }
             else:
-                logger.error("[QQCRepair] ❌ Rollback failed — no stable state found.")
+                logger.error("[QQCRepair] ❌ Rollback failed - no stable state found.")
                 return {"status": "rollback_failed", "restored": False}
         else:
             # 🔍 Check for entropy drift (optional fusion repair)
@@ -179,13 +179,13 @@ class QQCRepairManager:
                 new_entropy = txn.get("new_entropy", 0)
 
                 if PatternMatcher.detect_drift(prev_entropy, new_entropy):
-                    logger.warning("[QQCRepair] ⚠️ Pattern drift detected → injecting fusion glyph")
+                    logger.warning("[QQCRepair] ⚠️ Pattern drift detected -> injecting fusion glyph")
                     from backend.modules.qqc.qqc_repair_manager import RepairManager
                     RepairManager.inject_fusion_glyph(txn.get("context", {}))
             except Exception as e:
                 logger.debug(f"[QQCRepair] Drift check failed: {e}")
 
-            logger.debug("[QQCRepair] No rollback required — field stable.")
+            logger.debug("[QQCRepair] No rollback required - field stable.")
             return {"status": "stable", "restored": False}
 
 # ──────────────────────────────────────────────
@@ -202,7 +202,7 @@ class RepairManager:
         Injects a stabilizing fusion glyph into the active wave_beams context.
         """
         try:
-            fusion = {"⊕": ["Φ₁", "Φ₂", "Φ₃"]}
+            fusion = {"⊕": ["Φ1", "Φ2", "Φ3"]}
             context.setdefault("wave_beams", {}).update({"fusion_glyph": fusion})
             logger.info("[⚙️ Repair] Fusion glyph injected to correct drift")
             return True

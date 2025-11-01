@@ -21,7 +21,7 @@ except Exception:
         except Exception:
 
             def log_sqi_drift(container_id: str, wave_id: str, glow: float, pulse: float) -> None:  # type: ignore
-                print(f"[SQI] (stub) Drift beam {wave_id} in {container_id} → glow={glow:.2f}, pulse={pulse:.2f}Hz")
+                print(f"[SQI] (stub) Drift beam {wave_id} in {container_id} -> glow={glow:.2f}, pulse={pulse:.2f}Hz")
 
 
 # Collapse/codex metric
@@ -29,10 +29,10 @@ try:
     from backend.modules.codex.codex_metrics import log_collapse_metric  # ✅ canonical
 except Exception:
     def log_collapse_metric(container_id, wave_id, score, state):  # type: ignore
-        print(f"[CodexMetric] Beam {wave_id} in {container_id} → SQI={score:.3f}, state={state}")
+        print(f"[CodexMetric] Beam {wave_id} in {container_id} -> SQI={score:.3f}, state={state}")
 
 
-# Carrier type (enum) — optional
+# Carrier type (enum) - optional
 try:
     from backend.modules.glyphwave.carrier.carrier_types import CarrierType as _CarrierType  # type: ignore
     CarrierType = _CarrierType
@@ -83,7 +83,7 @@ try:
     from backend.modules.glyphwave.qwave.qwave_emitter import emit_qwave_beam  # async
 except Exception:
     async def emit_qwave_beam(*, wave: WaveState, container_id: str, source: str, metadata: Dict[str, Any]):  # type: ignore
-        print(f"[QWaveEmitter] ⚡ Emitting beam from source: {source} → {getattr(wave, 'wave_id', None)}")
+        print(f"[QWaveEmitter] ⚡ Emitting beam from source: {source} -> {getattr(wave, 'wave_id', None)}")
         # pretend to do I/O
         await asyncio.sleep(0)
 
@@ -94,7 +94,7 @@ except Exception:
         print(f"[📣] Broadcasting to 0 clients on tag: {tag}")
         await asyncio.sleep(0)
 
-# These are OPTIONAL helpers; we’ll use them if available, but never rely on them.
+# These are OPTIONAL helpers; we'll use them if available, but never rely on them.
 try:
     from backend.modules.visualization.glyph_to_qfc import to_qfc_payload  # type: ignore
 except Exception:

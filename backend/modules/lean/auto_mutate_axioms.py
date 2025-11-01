@@ -9,8 +9,8 @@ def mutate_axiom(logic: str) -> Tuple[str, str]:
     Return a mutated form of the axiom and the strategy used.
     """
     strategies = [
-        ("implication_to_equiv", lambda s: s.replace("→", "↔")),
-        ("equality_to_inequality", lambda s: s.replace("=", "≠")),
+        ("implication_to_equiv", lambda s: s.replace("->", "↔")),
+        ("equality_to_inequality", lambda s: s.replace("=", "!=")),
         ("and_to_or", lambda s: s.replace("∧", "∨")),
         ("forall_to_exists", lambda s: s.replace("∀", "∃")),
     ]

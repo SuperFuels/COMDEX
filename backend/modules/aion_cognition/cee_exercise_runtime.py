@@ -1,5 +1,5 @@
 # ================================================================
-# 🎯 CEE Lexical Exercise Runtime — Phase 45G.10 Integration
+# 🎯 CEE Lexical Exercise Runtime - Phase 45G.10 Integration
 # ================================================================
 """
 Runs live lexical training sessions using the Cognitive Exercise Engine (CEE).
@@ -58,7 +58,7 @@ class CEEExerciseRuntime:
 
     # ------------------------------------------------------------------
     def run_exercise(self, ex):
-        """Run a single exercise — handles different CEE types safely."""
+        """Run a single exercise - handles different CEE types safely."""
         ex_type = ex.get("type", "unknown")
         prompt = ex.get("prompt", "")
         options = ex.get("options", [])
@@ -67,7 +67,7 @@ class CEEExerciseRuntime:
         if not options and "items" in ex:
             options = ex["items"]
 
-        logger.info(f"[CEE-Runtime] Exercise → {ex_type}: {prompt}")
+        logger.info(f"[CEE-Runtime] Exercise -> {ex_type}: {prompt}")
 
         if not options:
             logger.warning(f"[CEE-Runtime] Skipping {ex_type} (no options).")
@@ -78,7 +78,7 @@ class CEEExerciseRuntime:
         memory_hit = recall_from_memory(prompt)
         if memory_hit:
             guess = memory_hit["answer"]
-            logger.info(f"[CEE-Runtime] 🧠 Recall → {prompt} → {guess}")
+            logger.info(f"[CEE-Runtime] 🧠 Recall -> {prompt} -> {guess}")
         else:
             guess = random.choice(options)
 
@@ -92,9 +92,9 @@ class CEEExerciseRuntime:
         # 🧩 Reinforcement
         if correct_flag:
             update_lex_memory(prompt, correct, resonance)
-            logger.info(f"[CEE-Runtime] ✅ Correct → {guess}")
+            logger.info(f"[CEE-Runtime] ✅ Correct -> {guess}")
         else:
-            logger.info(f"[CEE-Runtime] ❌ Wrong → {guess} (expected {correct})")
+            logger.info(f"[CEE-Runtime] ❌ Wrong -> {guess} (expected {correct})")
 
         # Log entry
         self.session.append({
@@ -177,7 +177,7 @@ class CEEExerciseRuntime:
             "averages": {
                 "ρ̄": round(mean(ρ_vals), 3) if ρ_vals else 0.0,
                 "Ī": round(mean(I_vals), 3) if I_vals else 0.0,
-                "SQĪ": round(mean(SQI_vals), 3) if SQI_vals else 0.0,
+                "SQĪ": round(mean(SQI_vals), 3) if SQI_vals else 0.0,
                 "performance": round(mean(perf_vals), 3) if perf_vals else 0.0,
             },
             "schema": "LexSession.v1",
@@ -185,7 +185,7 @@ class CEEExerciseRuntime:
 
         OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
         json.dump(summary, open(OUT_PATH, "w"), indent=2)
-        logger.info(f"[CEE-Runtime] Exported session summary → {OUT_PATH}")
+        logger.info(f"[CEE-Runtime] Exported session summary -> {OUT_PATH}")
 
         # Habit update feedback
         update_habit_metrics(summary["averages"])

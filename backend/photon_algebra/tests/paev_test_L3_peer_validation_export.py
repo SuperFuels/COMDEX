@@ -1,5 +1,5 @@
 """
-L3 — Peer Validation & Whitepaper Export
+L3 - Peer Validation & Whitepaper Export
 Generates a full LaTeX whitepaper with title page, constants, L_total equation,
 appendices, and reproducibility summary. Compiles to PDF if pdflatex is available.
 """
@@ -10,7 +10,7 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 
-BANNER = "=== L3 — Peer Validation & Whitepaper Export ==="
+BANNER = "=== L3 - Peer Validation & Whitepaper Export ==="
 
 def load_json(path: Path) -> dict:
     if not path.exists():
@@ -37,7 +37,7 @@ def build_whitepaper_tex(constants: dict, reproducibility: dict) -> str:
 \vspace{{1cm}}
 {{\large COMDEX Research Initiative \par}}
 \vspace{{1cm}}
-{{\large Generated Automatically — {ts} \par}}
+{{\large Generated Automatically - {ts} \par}}
 \vfill
 {{\large \textbf{{Version:}} v1.0 (Post-L3)}}
 \end{{titlepage}}
@@ -85,18 +85,18 @@ SHA256 Checksum (L2 Reproducibility):\\
 
 \section*{{5. Discussion}}
 This framework has demonstrated self-consistent unification across independent domains,
-retaining numerical stability under multiple simulation contexts (H1–H10, J1–J2, K1–K3).
+retaining numerical stability under multiple simulation contexts (H1-H10, J1-J2, K1-K3).
 Remaining open work includes experimental validation of emergent curvature couplings
 and entropic reversibility signatures.
 
-\section*{{Appendix A — Lagrangian Derivation}}
+\section*{{Appendix A - Lagrangian Derivation}}
 \[
 \mathcal{{L}}_{{total}} = \hbar_{{eff}} |\nabla \psi|^2 + G_{{eff}} R - \Lambda_{{eff}} g + \alpha_{{eff}} |\psi|^2 \kappa
 \]
 This symbolic form was validated in K1 (Sympy Roundtrip) and forms the computational kernel
 for multi-domain stability in K2.
 
-\section*{{Appendix B — Provenance Data}}
+\section*{{Appendix B - Provenance Data}}
 Generated constants file: \texttt{{backend/modules/knowledge/constants\_v1.1.json}} \\
 Reproducibility log: \texttt{{backend/modules/knowledge/reproducibility\_v1.json}} \\
 Timestamp: {ts}
@@ -120,7 +120,7 @@ def main():
     pdf_path = docs_dir / "TOE_Whitepaper_v1.pdf"
 
     tex_path.write_text(tex_str, encoding="utf-8")
-    print(f"✅ Exported LaTeX → {tex_path}")
+    print(f"✅ Exported LaTeX -> {tex_path}")
 
     # Attempt PDF build if pdflatex exists
     try:
@@ -131,7 +131,7 @@ def main():
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-        print(f"✅ Compiled PDF → {pdf_path}")
+        print(f"✅ Compiled PDF -> {pdf_path}")
     except Exception as e:
         print(f"⚠️ pdflatex not available or failed: {e}")
 

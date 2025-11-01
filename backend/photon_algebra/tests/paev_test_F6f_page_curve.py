@@ -1,5 +1,5 @@
 # ==========================================================
-# Test F6f — Page Curve & Information Recovery Simulation
+# Test F6f - Page Curve & Information Recovery Simulation
 # ----------------------------------------------------------
 # Purpose:
 #   Track inside/outside entanglement-entropy proxies during
@@ -65,7 +65,7 @@ kappa += 0.01 * rng.standard_normal((N, N))  # small roughness
 dt = 0.02
 steps = 600
 c1 = 0.35      # wave coupling for ψ
-chi = 0.10     # ψ–κ coupling
+chi = 0.10     # ψ-κ coupling
 gamma = 0.02   # damping for ψ
 eta = 0.04     # κ relaxation
 alpha = 0.015  # κ evaporation rate baseline
@@ -92,12 +92,12 @@ inside_mask, outside_mask = masks_from_radius(r_h)
 # Main loop
 # ----------------------------
 for t in range(steps):
-    # --- ψ dynamics (complex Klein-Gordon–like with curvature coupling) ---
+    # --- ψ dynamics (complex Klein-Gordon-like with curvature coupling) ---
     lap_re = laplacian(psi.real)
     lap_im = laplacian(psi.imag)
     lap_psi = lap_re + 1j * lap_im
 
-    # curvature-coupled term: div(kappa ∇ψ) ≈ ∇·(κ∇ψ)
+    # curvature-coupled term: div(kappa ∇ψ) ≈ ∇*(κ∇ψ)
     gx_re = 0.5 * (np.roll(psi.real, -1, 1) - np.roll(psi.real, 1, 1))
     gy_re = 0.5 * (np.roll(psi.real, -1, 0) - np.roll(psi.real, 1, 0))
     gx_im = 0.5 * (np.roll(psi.imag, -1, 1) - np.roll(psi.imag, 1, 1))
@@ -179,7 +179,7 @@ plt.plot(S_out_trace, label="S_outside")
 plt.plot(S_tot_trace, label="S_total", alpha=0.7)
 plt.xlabel("Time step")
 plt.ylabel("Entropy (proxy)")
-plt.title("Test F6f — Page Curve & Information Recovery")
+plt.title("Test F6f - Page Curve & Information Recovery")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_TestF6f_PageCurve.png", dpi=150)
@@ -195,7 +195,7 @@ plt.plot(S_out_dt, label="dS_outside/dt")
 plt.plot(flux_trace, label="Flux (shell, proxy)", alpha=0.7)
 plt.xlabel("Time step")
 plt.ylabel("Rate / Flux (arb.)")
-plt.title("Test F6f — Information Flux vs. Evaporation")
+plt.title("Test F6f - Information Flux vs. Evaporation")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_TestF6f_InfoFlux.png", dpi=150)
@@ -208,7 +208,7 @@ plt.plot(E_trace, label="Energy proxy ⟨E⟩")
 plt.plot(A_trace, label="Area (pixels)")
 plt.xlabel("Time step")
 plt.ylabel("Value")
-plt.title("Test F6f — Energy & Horizon Area")
+plt.title("Test F6f - Energy & Horizon Area")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_TestF6f_EnergyArea.png", dpi=150)
@@ -224,7 +224,7 @@ print("✅ Saved animation to: PAEV_TestF6f_Propagation.gif")
 # ----------------------------
 # Find rough Page time: argmax of S_inside
 page_step = int(np.argmax(np.array(S_in_trace)))
-print("\n=== Test F6f — Page Curve & Information Recovery Complete ===")
+print("\n=== Test F6f - Page Curve & Information Recovery Complete ===")
 print(f"Page time (argmax S_inside): step {page_step}")
 print(f"S_inside(final) = {S_in_trace[-1]:.3f}")
 print(f"S_outside(final)= {S_out_trace[-1]:.3f}")

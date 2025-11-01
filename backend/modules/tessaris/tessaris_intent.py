@@ -50,7 +50,7 @@ class TessarisIntent:
         return f"<Intent {self.intent_type} | {self.glyph} | {self.status}>"
 
     def short(self) -> str:
-        return f"{self.intent_type}: {self.glyph} → {self.description}"
+        return f"{self.intent_type}: {self.glyph} -> {self.description}"
 
 
 # In-memory queue
@@ -87,7 +87,7 @@ def update_intent_status(intent_id: str, new_status: str) -> bool:
     for i in TESSARIS_INTENTS:
         if i.id == intent_id:
             i.status = new_status
-            store_memory(f"🔁 Updated intent {intent_id} → {new_status}")
+            store_memory(f"🔁 Updated intent {intent_id} -> {new_status}")
             save_intents_to_disk()
             return True
     return False

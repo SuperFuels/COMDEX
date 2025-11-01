@@ -65,7 +65,7 @@ def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str,
         return []
 
     # Normalize operators for compatibility
-    codex_str = codex_str.replace("->", "→").replace("<->", "↔")
+    codex_str = codex_str.replace("->", "->").replace("<->", "↔")
 
     instructions: List[Dict[str, Any]] = []
 
@@ -96,7 +96,7 @@ def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str,
             resolved = resolve_opcode(op, mode)
             logger.debug(f"[parser] Function-style op={op} resolved={resolved}")
 
-            if any(sym in inner for sym in ["→", "⊕", "⊗", "↔", "⊖", "⟲"]):
+            if any(sym in inner for sym in ["->", "⊕", "⊗", "↔", "⊖", "⟲"]):
                 inner_instrs = parse_codex_instructions(inner, mode=mode)
                 instructions.append({
                     "opcode": resolved,
@@ -111,13 +111,13 @@ def parse_codex_instructions(codex_str: str, mode: str = None) -> List[Dict[str,
                 })
             continue
 
-        # ── Binary ops (⊕, →, ⊗, ↔, ⊖) ──────────────────────────
+        # ── Binary ops (⊕, ->, ⊗, ↔, ⊖) ──────────────────────────
         tokens = tokenize_with_parens(segment)
         i = 0
         handled = False
         while i < len(tokens):
             tok = tokens[i]
-            if tok in {"→", "⊕", "⊗", "↔", "⊖"}:
+            if tok in {"->", "⊕", "⊗", "↔", "⊖"}:
                 if i > 0 and i + 1 < len(tokens):
                     left, right = tokens[i - 1], tokens[i + 1]
 
@@ -167,13 +167,13 @@ if __name__ == "__main__":
 
     samples = [
         "A ⊕ B",
-        "X → Y",
+        "X -> Y",
         "⟲(Reflect)",
-        "A ⊕ B → C",
-        "A ⊕ B → C => ⟲(Loop)",
+        "A ⊕ B -> C",
+        "A ⊕ B -> C => ⟲(Loop)",
         "⟲(A ⊕ B)",
-        "(A ⊕ B) → C",
-        "⟲((A ⊕ B) → C)",
+        "(A ⊕ B) -> C",
+        "⟲((A ⊕ B) -> C)",
         "A ⊖ ∅",           # ✅ test subtraction
         "NoteThisLiteral",
     ]

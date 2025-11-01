@@ -1,8 +1,8 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v1.1 — Adaptive Runtime Law Weighting + Δ-Telemetry
+# Tessaris Symatics v1.1 - Adaptive Runtime Law Weighting + Δ-Telemetry
 # Extends v0.5.1 AdaptiveLawEngine with CodexTrace and internal TelemetryChannel
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v1.1.0 — October 2025
+# Version: v1.1.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -29,27 +29,27 @@ except ImportError:
 
 
 # ──────────────────────────────────────────────────────────────
-# Adaptive Law Engine — λᵢ(t) dynamic coefficient model
+# Adaptive Law Engine - λi(t) dynamic coefficient model
 # ──────────────────────────────────────────────────────────────
 class AdaptiveLawEngine:
     """
-    Maintains dynamic law coefficients λᵢ(t) that adapt over time
+    Maintains dynamic law coefficients λi(t) that adapt over time
     in response to runtime measurement drift or resonance imbalance.
 
     Differential Concept:
-        dλᵢ/dt = −η * Δ
+        dλi/dt = -η * Δ
     where Δ is the local deviation or symbolic drift metric.
 
-    Each λᵢ(t) corresponds to a symbolic runtime law
+    Each λi(t) corresponds to a symbolic runtime law
     (e.g. "collapse_energy_equivalence") and is continuously adjusted
     during live Symatics evaluation.
 
     Attributes
     ----------
     weights : Dict[str, float]
-        Current λᵢ values for all tracked laws.
+        Current λi values for all tracked laws.
     history : Dict[str, list]
-        Temporal evolution of λᵢ(t) for audit and telemetry.
+        Temporal evolution of λi(t) for audit and telemetry.
     """
 
     def __init__(self, default_weight: float = 1.0, learning_rate: float = 0.05):
@@ -61,13 +61,13 @@ class AdaptiveLawEngine:
 
     # ──────────────────────────────────────────────────────────────
     def get_weight(self, law_id: str) -> float:
-        """Return current λᵢ(t) for given law (defaults to baseline)."""
+        """Return current λi(t) for given law (defaults to baseline)."""
         return self.weights.get(law_id, self.default_weight)
 
     # ──────────────────────────────────────────────────────────────
     def update(self, law_id: str, deviation: Optional[float]) -> float:
         """
-        Update λᵢ(t) given a measured deviation Δ.
+        Update λi(t) given a measured deviation Δ.
 
         Parameters
         ----------
@@ -78,7 +78,7 @@ class AdaptiveLawEngine:
 
         Returns
         -------
-        float : Updated λᵢ(t)
+        float : Updated λi(t)
         """
         if deviation is None:
             deviation = 0.0
@@ -86,7 +86,7 @@ class AdaptiveLawEngine:
         prev = self.get_weight(law_id)
         Δ = float(deviation)
 
-        # Adaptive gradient update — exponential smoothing
+        # Adaptive gradient update - exponential smoothing
         λ_new = prev * (1.0 - self.learning_rate * Δ)
         λ_new = max(0.0, min(λ_new, 2.0))  # clip for stability
 
@@ -121,7 +121,7 @@ class AdaptiveLawEngine:
 
     # ──────────────────────────────────────────────────────────────
     def summary(self) -> Dict[str, float]:
-        """Return all λᵢ(t) in compact form."""
+        """Return all λi(t) in compact form."""
         return dict(self.weights)
 
     def reset(self):
@@ -151,4 +151,4 @@ if __name__ == "__main__":
     print(f"[Telemetry mode: {TELEMETRY_MODE}]")
     for drift in [0.0, 0.05, 0.2, 0.0, -0.1]:
         new_val = ctx.law_weights.update("collapse_energy_equivalence", drift)
-        print(f"λ(t) → {new_val:.3f}")
+        print(f"λ(t) -> {new_val:.3f}")

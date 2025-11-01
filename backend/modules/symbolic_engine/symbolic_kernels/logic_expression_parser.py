@@ -22,7 +22,7 @@ TOKEN_REGEX = [
     ('BOTTOM', r'⊥'),
     ('LPAREN', r'\('),
     ('RPAREN', r'\)'),
-    ('IMPLIES', r'→'),
+    ('IMPLIES', r'->'),
     ('AND', r'∧'),
     ('OR', r'∨'),
     ('NOT', r'¬'),

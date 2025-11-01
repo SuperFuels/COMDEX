@@ -1,5 +1,5 @@
 # ================================================================
-# 🧮 CEE Math Templates — QMath / QTensor Integration
+# 🧮 CEE Math Templates - QMath / QTensor Integration
 # ================================================================
 """
 Upgraded symbolic math template generator using QuantPy / QTensorField
@@ -57,7 +57,7 @@ def generate_equation_match() -> MathExercise:
 # ----------------------------------------------------------------------
 def generate_symbol_fill() -> MathExercise:
     """Physics formula completion using tensor-based resonance."""
-    prompt = "F = m × a"
+    prompt = "F = m * a"
     options = ["F", "m", "a"]
     answer = "a"
 
@@ -93,8 +93,8 @@ def export_mathfield():
     I_mean = round(sum(e.resonance["I"] for e in exercises) / len(exercises), 3)
     SQI_mean = round(sum(e.resonance["SQI"] for e in exercises) / len(exercises), 3)
 
-    summary = {"ρ̄": ρ_mean, "Ī": I_mean, "SQĪ": SQI_mean}
-    logger.info(f"[CEE-MathTemplates] Exported → {OUT_PATH}")
+    summary = {"ρ̄": ρ_mean, "Ī": I_mean, "SQĪ": SQI_mean}
+    logger.info(f"[CEE-MathTemplates] Exported -> {OUT_PATH}")
     print(json.dumps(summary, indent=2))
     return summary
 

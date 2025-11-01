@@ -1,7 +1,7 @@
 """
-Tessaris RQC — Photonic Runtime Operator ⊕ (superpose)
+Tessaris RQC - Photonic Runtime Operator ⊕ (superpose)
 ────────────────────────────────────────────────────────
-Combines two symbolic–photonic waveforms into a coherent
+Combines two symbolic-photonic waveforms into a coherent
 superposed state. Provides phase-normalized amplitude mix and
 coherence metric suitable for telemetry and visualization.
 
@@ -40,7 +40,7 @@ def superpose(phi: Union[np.ndarray, float], psi: Union[np.ndarray, float],
     phi_norm = phi_arr / (np.abs(phi_arr).max() + 1e-12)
     psi_norm = psi_arr / (np.abs(psi_arr).max() + 1e-12)
 
-    # Core superposition — phase-preserving weighted sum
+    # Core superposition - phase-preserving weighted sum
     result = (phi_norm + psi_norm) / 2.0
 
     # Coherence / resonance metrics

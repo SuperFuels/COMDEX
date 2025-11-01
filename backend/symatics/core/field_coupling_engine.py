@@ -1,8 +1,8 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.7 — Symbolic Fluid Dynamics Continuum
-# FieldCouplingEngine — Coupled λ↔ψ Evolution Engine
+# Tessaris Symatics v0.7 - Symbolic Fluid Dynamics Continuum
+# FieldCouplingEngine - Coupled λ↔ψ Evolution Engine
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v0.7.0 — October 2025
+# Version: v0.7.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ except ImportError:
         return None
 
 # ──────────────────────────────────────────────────────────────
-# Gradient–Divergence Operators
+# Gradient-Divergence Operators
 # ──────────────────────────────────────────────────────────────
 def div(field: np.ndarray) -> np.ndarray:
     """Compute divergence (1D or 2D)."""
@@ -35,7 +35,7 @@ def curl(field: np.ndarray) -> np.ndarray:
     return gy - gx
 
 def laplacian(field: np.ndarray) -> np.ndarray:
-    """Discrete Laplacian ∇²ψ."""
+    """Discrete Laplacian ∇2ψ."""
     grad = np.gradient(field)
     if isinstance(grad, list):
         lap = np.zeros_like(field)
@@ -50,7 +50,7 @@ def laplacian(field: np.ndarray) -> np.ndarray:
 # ──────────────────────────────────────────────────────────────
 class FieldCouplingEngine:
     """
-    Symbolic λ–ψ fluid co-evolution engine.
+    Symbolic λ-ψ fluid co-evolution engine.
     Integrates wave and law fields under resonant coupling.
     """
     def __init__(self, viscosity: float = 0.02, damping: float = 0.01, eta: float = 0.05):
@@ -65,7 +65,7 @@ class FieldCouplingEngine:
 
     # ──────────────────────────────────────────────────────────────
     def step(self, ψ_name: str = "ψ", λ_name: str = "λ", dt: float = 0.1) -> Tuple[np.ndarray, np.ndarray]:
-        """Advance coupled λ–ψ fields one timestep."""
+        """Advance coupled λ-ψ fields one timestep."""
         ψ = self.fields[ψ_name]
         λ = self.fields[λ_name]
 

@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────
-# ⚙️ GlyphCore ActionSwitch – QKD Enforcement + Dispatch
+# ⚙️ GlyphCore ActionSwitch - QKD Enforcement + Dispatch
 # ─────────────────────────────────────────────
 from typing import Dict, Any
 from backend.modules.glyphcore.action_policy_map import get_action_policy

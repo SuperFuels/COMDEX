@@ -1,5 +1,5 @@
 """
-L2 — Reproducibility Export Validation
+L2 - Reproducibility Export Validation
 Ensures TOE constants are numerically stable across reloads and re-derivations.
 Generates reproducibility_v1.json and checksum plots.
 """
@@ -12,7 +12,7 @@ from pathlib import Path
 import hashlib
 import time
 
-BANNER = "=== L2 — Reproducibility Export Validation ==="
+BANNER = "=== L2 - Reproducibility Export Validation ==="
 
 def load_constants() -> dict:
     path = Path("backend/modules/knowledge/constants_v1.1.json")
@@ -76,8 +76,8 @@ def main():
     out_path = save_reproducibility_log(constants, recomputed, checksum)
 
     print(f"✅ Loaded constants and recomputed relations.")
-    print(f"SHA256 checksum: {checksum[:16]}…")
-    print(f"📦 Exported reproducibility log → {out_path}")
+    print(f"SHA256 checksum: {checksum[:16]}...")
+    print(f"📦 Exported reproducibility log -> {out_path}")
     plot_verification(constants, recomputed)
     print(f"✅ Plot saved: PAEV_L2_Reproducibility.png")
     print("----------------------------------------------------------")

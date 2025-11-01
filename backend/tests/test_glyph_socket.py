@@ -44,7 +44,7 @@ def test_dispatch_basic_glyph_injection(glyph_socket, setup_environment):
         container_id="test_container_dest",
         portal_id=setup_environment,
         payload={
-            "glyphs": ["✦", "→", "THINK"],
+            "glyphs": ["✦", "->", "THINK"],
             "coords": (1, 1, 1, 0),
         }
     ).to_dict()

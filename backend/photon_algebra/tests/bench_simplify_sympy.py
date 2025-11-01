@@ -2,12 +2,12 @@
 """
 Photon ↔ SymPy Simplify Benchmark
 =================================
-Task: I2.3 — Evaluate SymPy simplification performance and correctness
+Task: I2.3 - Evaluate SymPy simplification performance and correctness
 
 Measures throughput and equivalence of simplifying Photon expressions
 via SymPy roundtrip:
 
-    Photon → SymPy → simplify() → Photon
+    Photon -> SymPy -> simplify() -> Photon
 
 Unknown custom Photon operators (★, ⊖, ≈, ⊂) are skipped from simplification
 to avoid SymPy raising ValueError for unregistered BooleanFunctions.
@@ -58,7 +58,7 @@ def _sample_photon_exprs(n_samples=2000):
 # Benchmark core
 # -------------------------------------------------------------------------
 def benchmark_simplify_sympy(n_samples: int = 2000):
-    """Run benchmark of simplify(to_sympy(expr)) → from_sympy(roundtrip)."""
+    """Run benchmark of simplify(to_sympy(expr)) -> from_sympy(roundtrip)."""
     samples = _sample_photon_exprs(n_samples)
     modes = ["auto", "simplify", "cnf", "dnf"]
 

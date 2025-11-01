@@ -50,7 +50,7 @@ os.makedirs("backend/modules/knowledge", exist_ok=True)
 plt.figure(figsize=(9,5))
 plt.plot(S_sys, label="S_system")
 plt.plot(S_obs, label="S_observer")
-plt.title("O6 — Observer Feedback Entropy Loop")
+plt.title("O6 - Observer Feedback Entropy Loop")
 plt.xlabel("time step")
 plt.ylabel("Entropy")
 plt.legend()
@@ -73,6 +73,6 @@ summary = {
 with open("backend/modules/knowledge/O6_feedback_entropy.json","w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== O6 — Observer Feedback Entropy Loop ===")
+print("=== O6 - Observer Feedback Entropy Loop ===")
 print(f"⟨dS/dt⟩={mean_drift:.3e} | Corr={corr:.3f} | {cls}")
-print("✅ Results saved → backend/modules/knowledge/O6_feedback_entropy.json")
+print("✅ Results saved -> backend/modules/knowledge/O6_feedback_entropy.json")

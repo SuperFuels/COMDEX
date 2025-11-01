@@ -1,5 +1,5 @@
 """
-ResonantDriftMonitor — Phase 39C : Coherence Deviation Watcher
+ResonantDriftMonitor - Phase 39C : Coherence Deviation Watcher
 ---------------------------------------------------------------
 Monitors the Resonant Memory Cache (RMC) for temporal coherence decay.
 When drift exceeds threshold, the system spawns stabilization goals
@@ -51,7 +51,7 @@ class ResonantDriftMonitor:
                 drift_events.append((cid, delta))
                 self._handle_drift(cid, delta)
         self.last_snapshot = {cid: dict(v) for cid, v in RMC.cache.items()}
-        logger.info(f"[Drift] Analyzed {len(RMC.cache)} entries → {len(drift_events)} drift events.")
+        logger.info(f"[Drift] Analyzed {len(RMC.cache)} entries -> {len(drift_events)} drift events.")
         return drift_events
 
     # ─────────────────────────────────────────────
@@ -62,7 +62,7 @@ class ResonantDriftMonitor:
         priority = min(1.0, abs(delta))
         GOALS.create_goal(goal_name, priority=priority)
         akg.add_triplet(f"concept:{cid}", "experiences_drift", str(delta))
-        logger.warning(f"[Drift] Concept {cid} drifted {delta:+.3f} → spawned goal:{goal_name}")
+        logger.warning(f"[Drift] Concept {cid} drifted {delta:+.3f} -> spawned goal:{goal_name}")
 
 
 # ─────────────────────────────────────────────

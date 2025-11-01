@@ -62,7 +62,7 @@ class ExportRequest(BaseModel):
 def _integrated_hooks(container: dict) -> None:
     """Extra processing in integrated mode (Codex/SQI)."""
     # TODO: plug in CodexLangRewriter, SQI scoring, registry, mutation hooks
-    print("[ℹ️] Integrated mode: Codex/SQI hooks would run here.")
+    print("[i️] Integrated mode: Codex/SQI hooks would run here.")
 
 
 from fastapi import Request
@@ -150,7 +150,7 @@ async def inject(
                 else:
                     logic_str = it.get("logic") or it.get("logic_raw") or it.get("codexlang", {}).get("logic") or "???"
                 label = "Define" if "Definition" in sym else "Prove"
-                previews.append(f"{sym} | {name} : {logic_str} → {label} ⟧")
+                previews.append(f"{sym} | {name} : {logic_str} -> {label} ⟧")
             after["previews"] = previews
 
         if auto_clean:
@@ -199,7 +199,7 @@ async def inject(
             except Exception as e:
                 print("[WARN] Integrated enrichment failed:", e)
         else:
-            print("[ℹ️] Standalone mode: skipping Codex/SQI integration.")
+            print("[i️] Standalone mode: skipping Codex/SQI integration.")
 
         # 5) Preview overrides via query (?preview=mermaid|png)
         qp_preview = request.query_params.get("preview")
@@ -253,7 +253,7 @@ async def inject(
             try:
                 from backend.modules.lean.lean_ghx import dump_packets
                 dump_packets(after, ghx_out)
-                print(f"[📦] Wrote GHX packets → {ghx_out}")
+                print(f"[📦] Wrote GHX packets -> {ghx_out}")
             except Exception as e:
                 print(f"[⚠️] GHX packet dump failed: {e}")
 
@@ -261,7 +261,7 @@ async def inject(
             try:
                 from backend.modules.lean.lean_ghx import bundle_packets
                 bundle_packets(after, ghx_bundle)
-                print(f"[📦] Wrote GHX bundle → {ghx_bundle}")
+                print(f"[📦] Wrote GHX bundle -> {ghx_bundle}")
             except Exception as e:
                 print(f"[⚠️] GHX bundle failed: {e}")
 
@@ -374,7 +374,7 @@ async def export_container(
             except Exception as e:
                 print("[WARN] Integrated enrichment failed:", e)
         else:
-            print("[ℹ️] Standalone mode: skipping Codex/SQI integration.")
+            print("[i️] Standalone mode: skipping Codex/SQI integration.")
 
         # 5) Audit log
         if log_audit:
@@ -396,7 +396,7 @@ async def export_container(
             try:
                 from backend.modules.lean.lean_ghx import dump_packets
                 dump_packets(container, ghx_out)
-                print(f"[📦] Wrote GHX packets → {ghx_out}")
+                print(f"[📦] Wrote GHX packets -> {ghx_out}")
             except Exception as e:
                 print(f"[⚠️] GHX packet dump failed: {e}")
 
@@ -404,7 +404,7 @@ async def export_container(
             try:
                 from backend.modules.lean.lean_ghx import bundle_packets
                 bundle_packets(container, ghx_bundle)
-                print(f"[📦] Wrote GHX bundle → {ghx_bundle}")
+                print(f"[📦] Wrote GHX bundle -> {ghx_bundle}")
             except Exception as e:
                 print(f"[⚠️] GHX bundle failed: {e}")
 

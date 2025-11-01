@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PAEV Test I5 — Entropy–Entanglement Coupling (v_S vs CHSH proxy)
+PAEV Test I5 - Entropy-Entanglement Coupling (v_S vs CHSH proxy)
 Tessaris Photon Algebra Framework (Registry-aligned)
 
 Reads E6Omega_vS_trace.json, computes correlation between v_S/v_c and S_CHSH,
@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from datetime import datetime, timezone
 
-print("=== I5 — Entropy–Entanglement Coupling (v_S vs CHSH proxy) ===")
+print("=== I5 - Entropy-Entanglement Coupling (v_S vs CHSH proxy) ===")
 
 # =====================================================
 # 🔹 Load Tessaris constants (auto-synced)
@@ -64,7 +64,7 @@ def pearson(x, y):
 
 corr0 = pearson(vs, Sx)
 
-# Small positive lag sweep: vs(t) → Sx(t+lag)
+# Small positive lag sweep: vs(t) -> Sx(t+lag)
 max_lag = 10  # steps
 lags = np.arange(0, max_lag + 1)
 corrs = []
@@ -83,11 +83,11 @@ best_corr = float(corrs[best_idx])
 # 🧭 Classification logic
 # =====================================================
 if best_corr > 0.5:
-    classification = "✅ Coupled bursts–entanglement (model)"
+    classification = "✅ Coupled bursts-entanglement (model)"
     note = f"v_S bursts precede entanglement rise by {best_lag} step(s)."
 else:
     classification = "⚠ Inconclusive coupling (model)"
-    note = "Correlation ≤ 0.5 for all tested lags."
+    note = "Correlation <= 0.5 for all tested lags."
 
 # =====================================================
 # 🧩 Results package
@@ -114,7 +114,7 @@ results_json = {
 
 out_path = Path("backend/modules/knowledge/I5_entropy_entanglement_corr.json")
 out_path.write_text(json.dumps(results_json, indent=2))
-print(f"✅ Correlation JSON → {out_path}")
+print(f"✅ Correlation JSON -> {out_path}")
 
 # =====================================================
 # 📉 Figures
@@ -124,12 +124,12 @@ plt.figure(figsize=(7, 5))
 plt.scatter(vs, Sx, s=8, alpha=0.35, label="samples")
 plt.xlabel("v_S / v_c")
 plt.ylabel("S_CHSH (proxy)")
-plt.title(f"I5 — v_S vs CHSH (r₀={corr0:.2f}, lag={best_lag}, r*={best_corr:.2f})")
+plt.title(f"I5 - v_S vs CHSH (r0={corr0:.2f}, lag={best_lag}, r*={best_corr:.2f})")
 plt.grid(True, ls="--", alpha=0.4)
 plt.tight_layout()
 fig1 = "PAEV_I5_vS_vs_CHSH_scatter.png"
 plt.savefig(fig1, dpi=200)
-print(f"✅ Figure saved → {fig1}")
+print(f"✅ Figure saved -> {fig1}")
 
 # Correlation vs lag
 plt.figure(figsize=(7, 4))
@@ -138,12 +138,12 @@ plt.axhline(0.5, color="gray", linestyle="--", linewidth=1, label="significance 
 plt.xlabel("Lag (steps)")
 plt.ylabel("Pearson r")
 plt.legend()
-plt.title("I5 — Correlation vs lag (v_S → S_CHSH)")
+plt.title("I5 - Correlation vs lag (v_S -> S_CHSH)")
 plt.grid(True, ls="--", alpha=0.4)
 plt.tight_layout()
 fig2 = "PAEV_I5_vS_vs_CHSH_lag.png"
 plt.savefig(fig2, dpi=200)
-print(f"✅ Figure saved → {fig2}")
+print(f"✅ Figure saved -> {fig2}")
 
 # =====================================================
 # 🧾 Summary output

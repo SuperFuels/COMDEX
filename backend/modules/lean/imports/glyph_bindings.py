@@ -1,7 +1,7 @@
-# Glyph → Lean operator bindings
+# Glyph -> Lean operator bindings
 # =========================================
 # Defines canonical translation between
-# Symatics glyph symbols (⊕, μ, ⟲, π, ↔, πₛ)
+# Symatics glyph symbols (⊕, μ, ⟲, π, ↔, πs)
 # and their corresponding Lean namespace functions.
 
 GLYPH_TO_LEAN = {
@@ -10,5 +10,5 @@ GLYPH_TO_LEAN = {
     "μ": "Symatics.measure",
     "π": "Symatics.project",
     "↔": "Symatics.entangle",
-    "πₛ": "Symatics.πs",
+    "πs": "Symatics.πs",
 }

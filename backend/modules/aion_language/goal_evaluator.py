@@ -1,5 +1,5 @@
 """
-Goal Evaluator — Phase 42B
+Goal Evaluator - Phase 42B
 --------------------------
 Evaluates recently created goals for success, partial progress, or failure
 based on resonance feedback (drift, SRI, and variance stability).
@@ -44,7 +44,7 @@ class GoalEvaluator:
             goal["confidence"] = round(score, 3)
             goal["evaluated_at"] = time.time()
             results.append(goal)
-            print(f"[GoalEvaluator] 🧩 {goal['name']} → {status} ({score:.2f})")
+            print(f"[GoalEvaluator] 🧩 {goal['name']} -> {status} ({score:.2f})")
 
         self.history.extend(results)
         self._save()

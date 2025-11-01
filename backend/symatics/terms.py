@@ -8,7 +8,7 @@ class Var:
 
 @dataclass(frozen=True)
 class Sym:
-    name: str  # e.g., "⊕","↔","μ","⟲","π","𝔽","𝔼","τ","⊖"
+    name: str  # e.g., "⊕","↔","μ","⟲","π","F","E","τ","⊖"
 
 @dataclass(frozen=True)
 class App:

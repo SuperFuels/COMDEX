@@ -7,12 +7,12 @@ Integrates with Raspberry Pi GPIO for hardware signaling, while providing a fall
 mode when running off-Pi (e.g., dev environment).
 
 Additions in this version:
-    • Env-based logging controls (AION_LOG_LEVEL)
-    • Toggle simulated broadcast spam (AION_SQI_SIM_BROADCAST)
-    • Burst-debounce + idempotent guard for knowledge_index.glyph_entry_added
-    • publish_kg_added(payload) convenience publisher (drops dupes)
-    • Safe wiring to KnowledgeIndex via knowledge_bus_adapter.ingest_bus_event
-    • Relation linking: if payload.entry.meta.relates_to is provided, create KG edges
+    * Env-based logging controls (AION_LOG_LEVEL)
+    * Toggle simulated broadcast spam (AION_SQI_SIM_BROADCAST)
+    * Burst-debounce + idempotent guard for knowledge_index.glyph_entry_added
+    * publish_kg_added(payload) convenience publisher (drops dupes)
+    * Safe wiring to KnowledgeIndex via knowledge_bus_adapter.ingest_bus_event
+    * Relation linking: if payload.entry.meta.relates_to is provided, create KG edges
 """
 import os
 
@@ -162,7 +162,7 @@ try:
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)  # BCM pin numbering
     GPIO_AVAILABLE = True
-    _log("info", "✅ SQI: Raspberry Pi GPIO detected — hardware mode enabled.")
+    _log("info", "✅ SQI: Raspberry Pi GPIO detected - hardware mode enabled.")
 except Exception as gpio_error:
     GPIO = None
     # Do NOT mark available if GPIO import failed
@@ -171,7 +171,7 @@ except Exception as gpio_error:
         _log("warn", f"⚠️ SQI: GPIO not detected ({gpio_error}), but hardware mode forced by env. "
                      "Running in simulated hardware mode.")
     else:
-        _log("warn", f"⚠️ SQI: No GPIO module detected — running in simulation mode. ({gpio_error})")
+        _log("warn", f"⚠️ SQI: No GPIO module detected - running in simulation mode. ({gpio_error})")
 
 # ──────────────────────────────────────────────
 #  Safe-guard any GPIO access
@@ -196,9 +196,9 @@ if FORCE_HARDWARE_MODE or GPIO_AVAILABLE:
             hyperdrive.initialize_hyperdrive_guard()
             _log("info", "🛡️ Hyperdrive safety guard engaged (hardware or simulated mode).")
         else:
-            _log("debug", "ℹ️ Hyperdrive safety module found, but no guard init function defined.")
+            _log("debug", "i️ Hyperdrive safety module found, but no guard init function defined.")
     except ModuleNotFoundError:
-        _log("debug", "ℹ️ No hyperdrive_safety module detected — skipping safety guard.")
+        _log("debug", "i️ No hyperdrive_safety module detected - skipping safety guard.")
     except Exception as hyper_err:
         _log("warn", f"⚠️ Failed to initialize Hyperdrive safety guard: {hyper_err}")
 
@@ -272,7 +272,7 @@ def emit_sqi_event(event_type: str, payload: Optional[dict] = None) -> None:
         pin = DEFAULT_PINS[event_type]
         threading.Thread(target=_pulse_pin, args=(pin,), daemon=True).start()
     elif not GPIO_AVAILABLE and SIM_BROADCAST:
-        _log("warn", f"⚠️ SQI simulated pulse → Event: {event_type}")
+        _log("warn", f"⚠️ SQI simulated pulse -> Event: {event_type}")
 
     # Notify listeners
     if event_type in event_listeners:

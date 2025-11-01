@@ -75,7 +75,7 @@ def rebuild_previews(container: Dict[str, Any], spec: Dict[str, str], mode: str 
                 or "???"
             )
         label = "Define" if "Definition" in sym else "Prove"
-        previews.append(f"{sym} | {name} : {logic_str} → {label} ⟧")
+        previews.append(f"{sym} | {name} : {logic_str} -> {label} ⟧")
     container["previews"] = previews
 
 

@@ -16,7 +16,7 @@ from backend.modules.glyphwave.core.beam_logger import emit_qwave_beam  # 🛰�
 
 
 def is_logic_expression(expr: str) -> bool:
-    """Rough check for logic symbols like ∀, ∃, →, ∧, ¬, etc."""
+    """Rough check for logic symbols like ∀, ∃, ->, ∧, ¬, etc."""
     return any(sym in expr for sym in ["\u2200", "\u2203", "\u2192", "\u2227", "\u2228", "\u00ac"])
 
 

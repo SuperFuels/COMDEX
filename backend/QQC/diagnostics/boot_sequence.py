@@ -1,5 +1,5 @@
 """
-QQC Boot Diagnostics — Resonant Logic Kernel Integration
+QQC Boot Diagnostics - Resonant Logic Kernel Integration
 ────────────────────────────────────────────────────────
 Runs the adaptive Resonant Logic Kernel Validator (D5+) at boot or
 resonant reinitialization to ensure coherence invariants hold.
@@ -23,7 +23,7 @@ async def run_rlk_diagnostic(post_to_aion: bool = True, verbose: bool = True) ->
     Executes the Resonant Logic Kernel (D5+) validator at system startup
     or during runtime self-audit. Optionally posts results to AION telemetry.
     """
-    print("\n[QQC] Initializing Resonant Logic Kernel Diagnostic …")
+    print("\n[QQC] Initializing Resonant Logic Kernel Diagnostic ...")
 
     validator = ResonantLogicKernelTests()
     report = validator.run()
@@ -39,7 +39,7 @@ async def run_rlk_diagnostic(post_to_aion: bool = True, verbose: bool = True) ->
     eps = float(report.get("tolerance") or report.get("final_tolerance") or 0.0)
 
     # Console summary
-    print(f"[QQC] RLK Diagnostic → {status} ({rate:.2f}% pass, ε={eps:.5f})")
+    print(f"[QQC] RLK Diagnostic -> {status} ({rate:.2f}% pass, ε={eps:.5f})")
 
     # ──────────────────────────────────────────────────────────────
     # Local Φ-tracker integration
@@ -63,14 +63,14 @@ async def run_rlk_diagnostic(post_to_aion: bool = True, verbose: bool = True) ->
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                 },
             )
-            print("[QQC] RLK telemetry sent → AION stream updated.")
+            print("[QQC] RLK telemetry sent -> AION stream updated.")
         except Exception as e:
             print(f"[QQC] ⚠ Telemetry unavailable: {e}")
 
     # ──────────────────────────────────────────────────────────────
     # Safety layer: coherence drift detection
     if report.get("status") != "ok":
-        print("[QQC] ⚠ Coherence drift detected — review kernel_report.jsonl")
+        print("[QQC] ⚠ Coherence drift detected - review kernel_report.jsonl")
         # TODO: trigger AION cognitive_resonator recalibration event
 
     return report

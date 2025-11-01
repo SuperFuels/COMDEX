@@ -3,7 +3,7 @@ from backend.modules.aion_resonance.resonance_state import load_phi_state, save_
 from backend.modules.aion_resonance.phi_reinforce import update_beliefs
 
 def apply_feedback(event_type: str):
-    """Adjust AION’s Φ-state and belief weights based on grid-world outcomes."""
+    """Adjust AION's Φ-state and belief weights based on grid-world outcomes."""
     phi = load_phi_state()
 
     delta = {

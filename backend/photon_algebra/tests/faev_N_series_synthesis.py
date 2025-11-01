@@ -1,7 +1,7 @@
 # ==========================================================
-# N-Series Synthesis Report — Nonlinear Field Integration
-# Consolidates all N-level JSONs (N1 … N5)
-# Builds stability progression, noise–nonlinearity correlation
+# N-Series Synthesis Report - Nonlinear Field Integration
+# Consolidates all N-level JSONs (N1 ... N5)
+# Builds stability progression, noise-nonlinearity correlation
 # and registry metadata summary.
 # Saves: backend/modules/knowledge/N_series_synthesis.json
 # ==========================================================
@@ -60,13 +60,13 @@ plt.xticks(rotation=30, ha="right")
 plt.tight_layout()
 plt.savefig(os.path.join(base_dir, "N_series_stability_progression.png"))
 
-# ---- Plot 2: noise–nonlinearity correlation ----
+# ---- Plot 2: noise-nonlinearity correlation ----
 plt.figure(figsize=(9,5))
 valid_idx = [i for i, c in enumerate(corrs) if not np.isnan(c)]
 if valid_idx:
     plt.bar([names[i] for i in valid_idx], [corrs[i] for i in valid_idx],
             color="teal", alpha=0.7)
-    plt.title("N-Series Noise–Nonlinearity Coupling Strength")
+    plt.title("N-Series Noise-Nonlinearity Coupling Strength")
     plt.xlabel("Experiment"); plt.ylabel("Correlation Coefficient")
     plt.xticks(rotation=30, ha="right")
     plt.tight_layout()
@@ -109,5 +109,5 @@ print(f"{len(records)} records merged.")
 if mean_stab is not None:
     print(f"Mean stability={mean_stab:.3f}")
 if best_name:
-    print(f"Best run → {best_name}")
-print(f"✅ Saved → {out_path}")
+    print(f"Best run -> {best_name}")
+print(f"✅ Saved -> {out_path}")

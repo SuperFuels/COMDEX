@@ -1,6 +1,6 @@
 """
-Tessaris • QQC v0.5 — Symatics Lightwave Engine
-VirtualWaveEngine — unified symbolic/photonic execution core
+Tessaris * QQC v0.5 - Symatics Lightwave Engine
+VirtualWaveEngine - unified symbolic/photonic execution core
 with Symatics amplitude/phase/frequency modulation hooks.
 """
 
@@ -16,7 +16,7 @@ from backend.modules.glyphwave.core.entangled_wave import EntangledWave
 logger = logging.getLogger(__name__)
 
 # ──────────────────────────────────────────────
-# Symbolic → Photonic modulation map
+# Symbolic -> Photonic modulation map
 # ──────────────────────────────────────────────
 OPCODE_PHOTONICS = {
     "⊕": {"phase_shift": 0.25 * math.pi, "amp_mod": 1.0, "freq_mul": 1.0},   # superposition
@@ -44,10 +44,10 @@ class VirtualWaveEngine:
         print(f"[VirtualWaveEngine] Loaded symbolic program with {len(instructions)} ops.")
 
     # ──────────────────────────────────────────────
-    # Symatics modulation — adjust amp/phase/freq
+    # Symatics modulation - adjust amp/phase/freq
     # ──────────────────────────────────────────────
     def _apply_symatics_modulation(self, wave: WaveState, opcode: str):
-        """Applies symbolic→photonic modulation based on Symatics operator."""
+        """Applies symbolic->photonic modulation based on Symatics operator."""
         if opcode not in OPCODE_PHOTONICS:
             return
 
@@ -72,8 +72,8 @@ class VirtualWaveEngine:
         })
 
         logger.info(
-            f"[SymaticsHook] {opcode} modulated → "
-            f"phase {old_phase:.3f}→{wave.phase:.3f}, "
+            f"[SymaticsHook] {opcode} modulated -> "
+            f"phase {old_phase:.3f}->{wave.phase:.3f}, "
             f"amp={wave.amplitude:.2f}, freq={wave.frequency:.2f}, "
             f"coh={wave.coherence:.3f}"
         )
@@ -82,7 +82,7 @@ class VirtualWaveEngine:
     # Main runtime loop
     # ──────────────────────────────────────────────
     def run(self):
-        """Main execution loop for symbolic–photonic integration."""
+        """Main execution loop for symbolic-photonic integration."""
         self.running = True
         print(f"[QQC] Starting Symatics Lightwave Engine for {self.container_id}")
 
@@ -114,7 +114,7 @@ class VirtualWaveEngine:
             # Collapse event (SQI gating)
             if self.tick_counter % 5 == 0 and self.entangled_wave.waves:
                 result = self.entangled_wave.collapse_all()
-                print(f"[QQC] Collapse metrics → {result.get('collapse_metrics', {})}")
+                print(f"[QQC] Collapse metrics -> {result.get('collapse_metrics', {})}")
 
             # Tick timing
             self.last_tick_time = time.time() - tick_start

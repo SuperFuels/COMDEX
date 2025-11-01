@@ -3,10 +3,10 @@
 Unit tests for Photon Algebra Rewriter
 --------------------------------------
 Ensures core algebraic simplifications behave correctly:
-    A ⊖ ∅ → A
-    A ⊕ ∅ → A
-    A ⊗ ∅ → ∅
-    ¬∅   → ∅
+    A ⊖ ∅ -> A
+    A ⊕ ∅ -> A
+    A ⊗ ∅ -> ∅
+    ¬∅   -> ∅
 """
 
 import pytest
@@ -34,12 +34,12 @@ def test_addition_identity():
 # Absorbing Rules
 # ───────────────────────────────────────────────
 def test_tensor_absorbing():
-    # A ⊗ ∅ → ∅
+    # A ⊗ ∅ -> ∅
     assert normalize({"op": "⊗", "states": ["A", EMPTY]}) == EMPTY
 
 
 def test_negation_empty():
-    # ¬∅ → ∅
+    # ¬∅ -> ∅
     assert normalize({"op": "¬", "state": EMPTY}) == EMPTY
 
 
@@ -62,7 +62,7 @@ def test_idempotent_addition():
 # Nested Expressions
 # ───────────────────────────────────────────────
 def test_nested_subtraction_with_empty():
-    """(A ⊖ ∅) ⊕ ∅ → A"""
+    """(A ⊖ ∅) ⊕ ∅ -> A"""
     expr = {
         "op": "⊕",
         "states": [

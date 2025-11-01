@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 26 — Resonant Analytics Layer (RAL)
+Tessaris Phase 26 - Resonant Analytics Layer (RAL)
 
 Computes rolling harmonic averages, drift entropy, and stability metrics
 from consolidated meta-resonant telemetry (MRTC).
@@ -90,7 +90,7 @@ def compute_metrics(entries):
 
 
 def run_analytics(interval=5.0):
-    print("📈 Starting Tessaris Resonant Analytics Layer (RAL)…")
+    print("📈 Starting Tessaris Resonant Analytics Layer (RAL)...")
 
     # =========================================================
     # WebSocket server: run in its own thread with its own event loop
@@ -120,7 +120,7 @@ def run_analytics(interval=5.0):
 
             print(
                 f"t={metrics['timestamp']} | ν={metrics['mean_nu']:+.4f} "
-                f"ϕ={metrics['mean_phi']:+.4f} A={metrics['mean_amp']:+.4f} "
+                f"φ={metrics['mean_phi']:+.4f} A={metrics['mean_amp']:+.4f} "
                 f"S={metrics['stability']:.3f} H={metrics['drift_entropy']:.4f}"
             )
 

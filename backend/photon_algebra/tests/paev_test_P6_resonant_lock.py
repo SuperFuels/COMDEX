@@ -64,7 +64,7 @@ plt.plot(S_system, label="S_system")
 plt.plot(S_observer, label="S_observer")
 plt.plot(S_meta, label="S_meta (awareness)")
 plt.plot(S_self, label="S_self (feedback)")
-plt.title("P6 — Resonant Awareness Lock")
+plt.title("P6 - Resonant Awareness Lock")
 plt.xlabel("time step"); plt.ylabel("Entropy / awareness coupling")
 plt.legend(); plt.tight_layout()
 os.makedirs("backend/modules/knowledge", exist_ok=True)
@@ -89,6 +89,6 @@ summary = {
 with open("backend/modules/knowledge/P6_resonant_lock.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== P6 — Resonant Awareness Lock ===")
+print("=== P6 - Resonant Awareness Lock ===")
 print(f"⟨|Δφ|⟩={mean_phase_diff:.3e} | Corr_meta_self={corr_meta_self:.3f} | σφ={std_phase:.3f} | {cls}")
-print("✅ Results saved → backend/modules/knowledge/P6_resonant_lock.json")
+print("✅ Results saved -> backend/modules/knowledge/P6_resonant_lock.json")

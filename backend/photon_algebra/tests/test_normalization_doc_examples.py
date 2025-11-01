@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Executable Doc Tests — Photon Normalization Spec
+Executable Doc Tests - Photon Normalization Spec
 ------------------------------------------------
 Parses `docs/rfc/photon_normalization.md` and checks that all
 example reductions actually hold under normalize().
@@ -15,8 +15,8 @@ from backend.photon_algebra import rewriter
 # Path to the spec
 DOC_PATH = pathlib.Path("docs/rfc/photon_normalization.md")
 
-# Pattern: `lhs → rhs`
-EXAMPLE_PATTERN = re.compile(r"^-\s*`(.+?)`\s*→\s*`(.+?)`", re.UNICODE)
+# Pattern: `lhs -> rhs`
+EXAMPLE_PATTERN = re.compile(r"^-\s*`(.+?)`\s*->\s*`(.+?)`", re.UNICODE)
 
 
 def parse_examples():
@@ -41,7 +41,7 @@ def test_doc_examples(lhs, rhs):
         lhs_str = json.dumps(lhs_norm, indent=2, ensure_ascii=False)
         rhs_str = json.dumps(rhs_norm, indent=2, ensure_ascii=False)
         raise AssertionError(
-            f"Failed reduction: {lhs} → {rhs}\n\n"
+            f"Failed reduction: {lhs} -> {rhs}\n\n"
             f"LHS normalized:\n{lhs_str}\n\n"
             f"RHS normalized:\n{rhs_str}\n"
         )

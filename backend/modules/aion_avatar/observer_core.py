@@ -1,7 +1,7 @@
 """
-ObserverCore — Phase 40F (minimal)
+ObserverCore - Phase 40F (minimal)
 ----------------------------------
-Embodied “attention-as-action” interface:
+Embodied "attention-as-action" interface:
 - Focus on a concept (attention = movement = collapse)
 - Emit a focusing beam via Photon bridge
 - Log focus history for later embodiment work
@@ -26,7 +26,7 @@ class ObserverCore:
         self.pose["gaze"] = concept_id
         self.pose["attention"] = strength
 
-        # Photon “focus” event
+        # Photon "focus" event
         PAB.emit({
             "timestamp": ts,
             "type": "attention_focus",

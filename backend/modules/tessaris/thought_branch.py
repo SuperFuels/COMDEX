@@ -141,7 +141,7 @@ class ThoughtBranch:
     @staticmethod
     def _rebuild_branch_node(data: Dict[str, Any]) -> BranchNode:
         node = BranchNode(
-            symbol=data.get("symbol", data.get("symbol_key", "•")),
+            symbol=data.get("symbol", data.get("symbol_key", "*")),
             source=data.get("source", "unknown"),
             metadata=data.get("metadata", {})
         )

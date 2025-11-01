@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-J2 — κ-ablation study (baseline adaptive κ vs κ-frozen)
+J2 - κ-ablation study (baseline adaptive κ vs κ-frozen)
 --------------------------------------------------------
 Paired A/B under identical seed to test necessity of curvature variance dynamics.
 
@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 
-# Defensive extraction — fallback defaults to prevent KeyError
+# Defensive extraction - fallback defaults to prevent KeyError
 ħ = const.get("ħ", 1e-3)
 G = const.get("G", 1e-5)
 Λ = const.get("Λ", 1e-6)
@@ -64,7 +64,7 @@ rng = np.random.default_rng(SEED)
 print("\n🧩 J2 Configuration:")
 print(f"   base_noise={BASE_NOISE}, BURST_TH={BURST_TH}, κ_max={KAPPA_VAR_MAX}")
 print(f"   seed={SEED}, steps={T}, dt={DT}")
-print(f"   Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"   Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 print("------------------------------------------------------------")
 
 # ============================================================
@@ -182,7 +182,7 @@ ax1.bar(x-w/2, p_vals, w, label="p (transport)")
 ax1.bar(x+w/2, nu_vals, w, label="ν (entropy↔MSD)")
 ax1.set_xticks(x); ax1.set_xticklabels(labels)
 ax1.set_ylabel("exponent value")
-ax1.set_title("J2 — Exponents under κ ablation")
+ax1.set_title("J2 - Exponents under κ ablation")
 ax1.legend(); ax1.grid(alpha=0.3)
 
 ax2 = plt.subplot(1,2,2)
@@ -191,12 +191,12 @@ ax2.hist(b1,bins=15,alpha=0.6,label=f"adaptive (n={len(b1)})")
 ax2.hist(b2,bins=15,alpha=0.6,label=f"κ frozen (n={len(b2)})")
 ax2.set_xlabel("burst length (steps)")
 ax2.set_ylabel("count")
-ax2.set_title("J2 — v_S/v_c bursts")
+ax2.set_title("J2 - v_S/v_c bursts")
 ax2.legend(); ax2.grid(alpha=0.3)
 plt.tight_layout()
 fig_path = "PAEV_J2_ablation_kappa.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Figure saved → {fig_path}")
+print(f"✅ Figure saved -> {fig_path}")
 
 # ============================================================
 #  JSON Summary
@@ -225,7 +225,7 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/J2_ablation_kappa_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # ============================================================
 #  Verdict
@@ -233,9 +233,9 @@ print(f"✅ Summary saved → {out_path}")
 def verdict(r0, r1):
     msg = []
     if r1["stats"]["bursts_count"] < r0["stats"]["bursts_count"]:
-        msg.append("κ dynamics amplify bursts — adaptive feedback essential.")
+        msg.append("κ dynamics amplify bursts - adaptive feedback essential.")
     elif r1["stats"]["bursts_count"] > r0["stats"]["bursts_count"]:
-        msg.append("Bursts persist even when κ frozen → redundancy possible.")
+        msg.append("Bursts persist even when κ frozen -> redundancy possible.")
     else:
         msg.append("No bursts detected; regime near equilibrium.")
     dp, dn = r1["p"] - r0["p"], r1["nu"] - r0["nu"]
@@ -244,11 +244,11 @@ def verdict(r0, r1):
     else:
         msg.append(f"Transport exponent shift Δp={dp:.3f}.")
     if abs(dn) > 0.1:
-        msg.append(f"Entropy–MSD coupling changed (Δν={dn:.3f}).")
+        msg.append(f"Entropy-MSD coupling changed (Δν={dn:.3f}).")
     return " ".join(msg)
 
 print("\n" + "="*66)
-print("🔎 J2 — κ-ABLATION VERDICT")
+print("🔎 J2 - κ-ABLATION VERDICT")
 print("="*66)
 print(verdict(res_adapt, res_frozen))
 print("All claims are algebraic/model-level; no spacetime signaling implied.")

@@ -24,12 +24,12 @@ def main():
         backup = rmc.with_suffix(".pre_atomic.bak")
         try:
             rmc.replace(backup)
-            print(f"[Backup] Moved existing cache → {backup}")
+            print(f"[Backup] Moved existing cache -> {backup}")
         except Exception as e:
             print(f"❌ Failed to backup existing cache: {e}")
             sys.exit(1)
     else:
-        print("[Init] No existing cache found — will create a fresh one.")
+        print("[Init] No existing cache found - will create a fresh one.")
 
     # Write a minimal valid structure
     valid_cache = {
@@ -41,7 +41,7 @@ def main():
 
     try:
         rmc.write_text(json.dumps(valid_cache, indent=2), encoding="utf-8")
-        print(f"[Init] Clean valid cache written → {rmc}")
+        print(f"[Init] Clean valid cache written -> {rmc}")
     except Exception as e:
         print(f"❌ Failed to write clean cache: {e}")
         sys.exit(1)

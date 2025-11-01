@@ -1,5 +1,5 @@
 # ================================================================
-# 🧠 CEE LLM Exercise Generator — Phase 45G.11
+# 🧠 CEE LLM Exercise Generator - Phase 45G.11
 # ================================================================
 """
 Generates batches of symbolic or lexical exercises using a large language model.
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 _api_key = os.getenv("OPENAI_API_KEY")
 if not _api_key:
     logger.error("OpenAI API key not found in environment variable OPENAI_API_KEY. Aborting client creation.")
-    raise OpenAIError("The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable. ℹ️ See docs.")
+    raise OpenAIError("The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable. i️ See docs.")
 
 # Initialize client with the key
 client = OpenAI(api_key=_api_key)

@@ -58,7 +58,7 @@ def A(head: str | Sym, *args: Term) -> App:
     return App(S(head) if isinstance(head, str) else head, list(args))
 
 # =====================================================
-# BASE AXIOMS — OPERATOR LAWS (⊕, μ, ↔, ⋈)
+# BASE AXIOMS - OPERATOR LAWS (⊕, μ, ↔, ⋈)
 # =====================================================
 
 AXIOMS: List[Law] = [
@@ -67,25 +67,25 @@ AXIOMS: List[Law] = [
     # ⊕, μ, ↔ fragment
     # -----------------
 
-    # Associativity of ⊕: (x⊕y)⊕z → x⊕(y⊕z)
+    # Associativity of ⊕: (x⊕y)⊕z -> x⊕(y⊕z)
     Law("⊕-assoc",
         lhs=A("⊕", A("⊕", V("x"), V("y")), V("z")),
         rhs=A("⊕", V("x"), A("⊕", V("y"), V("z")))
     ),
 
-    # Commutativity of ⊕: x⊕y → y⊕x
+    # Commutativity of ⊕: x⊕y -> y⊕x
     Law("⊕-comm",
         lhs=A("⊕", V("x"), V("y")),
         rhs=A("⊕", V("y"), V("x"))
     ),
 
-    # Idempotence of μ: μ(μ(x)) → μ(x)
+    # Idempotence of μ: μ(μ(x)) -> μ(x)
     Law("μ-idem",
         lhs=A("μ", A("μ", V("x"))),
         rhs=A("μ", V("x"))
     ),
 
-    # Distribution of ↔ over ⊕: (x⊕y)↔z → (x↔z) ⊕ (y↔z)
+    # Distribution of ↔ over ⊕: (x⊕y)↔z -> (x↔z) ⊕ (y↔z)
     Law("↔-dist-⊕",
         lhs=A("↔", A("⊕", V("x"), V("y")), V("z")),
         rhs=A("⊕", A("↔", V("x"), V("z")), A("↔", V("y"), V("z")))
@@ -96,39 +96,39 @@ AXIOMS: List[Law] = [
     # -----------------
 
     # Commutativity with phase inversion:
-    # (x ⋈[φ] y) → (y ⋈[−φ] x)
+    # (x ⋈[φ] y) -> (y ⋈[-φ] x)
     Law("⋈-comm_phi",
         lhs=A("⋈", V("x"), V("y"), V("φ")),
         rhs=A("⋈", V("y"), V("x"), A("neg", V("φ")))
     ),
 
-    # Self-interference at zero phase: (x ⋈[0] x) → x
+    # Self-interference at zero phase: (x ⋈[0] x) -> x
     Law("⋈-self_zero",
         lhs=A("⋈", V("x"), V("x"), S("0")),
         rhs=V("x")
     ),
 
-    # Self-interference at π phase: (x ⋈[π] x) → ⊥
+    # Self-interference at π phase: (x ⋈[π] x) -> ⊥
     Law("⋈-self_pi",
         lhs=A("⋈", V("x"), V("x"), S("π")),
         rhs=S("⊥")
     ),
 
-    # Neutrality of ⊥: (x ⋈[φ] ⊥) → x
+    # Neutrality of ⊥: (x ⋈[φ] ⊥) -> x
     Law("⋈-neutral_phi",
         lhs=A("⋈", V("x"), S("⊥"), V("φ")),
         rhs=V("x")
     ),
 
     # Phase composition associativity:
-    # ((x ⋈[φ] y) ⋈[ψ] z) → (x ⋈[φ+ψ] (y ⋈[ψ] z))
+    # ((x ⋈[φ] y) ⋈[ψ] z) -> (x ⋈[φ+ψ] (y ⋈[ψ] z))
     Law("⋈-assoc_phase",
         lhs=A("⋈", A("⋈", V("x"), V("y"), V("φ")), V("z"), V("ψ")),
         rhs=A("⋈", V("x"), A("⋈", V("y"), V("z"), V("ψ")), A("add", V("φ"), V("ψ")))
     ),
 
     # Phase cancellation:
-    # (x ⋈[φ] (x ⋈[−φ] y)) → y
+    # (x ⋈[φ] (x ⋈[-φ] y)) -> y
     Law("⋈-inv_phase",
         lhs=A("⋈", V("x"), A("⋈", V("x"), V("y"), A("neg", V("φ"))), V("φ")),
         rhs=V("y")
@@ -136,13 +136,13 @@ AXIOMS: List[Law] = [
 ]
 
 # =====================================================
-# META-AXIOMS (v2.0+) — GEOMETRY → COMPUTATION
+# META-AXIOMS (v2.0+) - GEOMETRY -> COMPUTATION
 # =====================================================
 
 def load_axioms(version: str = "v02") -> List[Dict[str, Any]]:
     """
     Loads both classical operator laws (⊕, μ, ↔, ⋈)
-    and the v2.0+ meta-axioms (G–L–E–I–C–X) used by
+    and the v2.0+ meta-axioms (G-L-E-I-C-X) used by
     the symbolic and photonic runtime.
 
     Returns
@@ -151,7 +151,7 @@ def load_axioms(version: str = "v02") -> List[Dict[str, Any]]:
         Unified rulebook combining symbolic laws and meta-axioms.
     """
     axioms = []
-    # Convert internal Laws → dicts for uniformity
+    # Convert internal Laws -> dicts for uniformity
     for law in AXIOMS:
         axioms.append({
             "id": law.name,
@@ -168,7 +168,7 @@ def load_axioms(version: str = "v02") -> List[Dict[str, Any]]:
 
 def verify_axioms(state: Any) -> List[Dict[str, Any]]:
     """
-    Runtime verifier for πₛ closure and meta-law coherence.
+    Runtime verifier for πs closure and meta-law coherence.
 
     Parameters
     ----------
@@ -215,18 +215,18 @@ def summarize_axioms() -> None:
     print(f"\n[Symatics::Axioms] Loaded {len(all_axioms)} total laws:")
     for ax in all_axioms:
         tag = "META" if ax.get("domain") != "Operator" else "CORE"
-        print(f"  - [{tag}] {ax['id']} → {ax['domain']}")
+        print(f"  - [{tag}] {ax['id']} -> {ax['domain']}")
 
 
 def test_axioms_runtime(state: Dict[str, Any]) -> None:
     """
-    Quick runtime check that validates πₛ closure and prints summary.
+    Quick runtime check that validates πs closure and prints summary.
     """
-    print("\n[Symatics::Verify] Running πₛ closure verification...")
+    print("\n[Symatics::Verify] Running πs closure verification...")
     results = verify_axioms(state)
     passed = sum(1 for r in results if r.get("passed"))
     failed = len(results) - passed
-    print(f"  → {passed} passed, {failed} failed")
+    print(f"  -> {passed} passed, {failed} failed")
     for r in results:
         if not r.get("passed"):
-            print(f"    ❌ {r['axiom_id']} ({r['domain']}) → deviation={r.get('deviation')}")
+            print(f"    ❌ {r['axiom_id']} ({r['domain']}) -> deviation={r.get('deviation')}")

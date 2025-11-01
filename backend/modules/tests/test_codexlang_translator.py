@@ -19,14 +19,14 @@ def test_translate_node_canonicalizes_ops(monkeypatch):
 
 
 @pytest.mark.parametrize("expr,expected", [
-    ("A ∧ B → C", "logic:→"),   # top-level is implication
+    ("A ∧ B -> C", "logic:->"),   # top-level is implication
     ("¬A ∨ B", "logic:∨"),     # top-level is OR
 ])
 def test_logic_to_tree_ops_are_canonical(expr, expected, monkeypatch):
     monkeypatch.setattr(
         clt,
         "CANONICAL_OPS",
-        {"∧": "logic:∧", "∨": "logic:∨", "→": "logic:→"}
+        {"∧": "logic:∧", "∨": "logic:∨", "->": "logic:->"}
     )
     tree = clt.logic_to_tree(expr)
     tree = clt.translate_node(tree)
@@ -34,7 +34,7 @@ def test_logic_to_tree_ops_are_canonical(expr, expected, monkeypatch):
 
 
 def test_parse_codexlang_string_action_is_parsed_dict():
-    glyph = "⟦ Logic | Test: A → ⊕(Grow, Reflect) ⟧"
+    glyph = "⟦ Logic | Test: A -> ⊕(Grow, Reflect) ⟧"
     parsed = clt.parse_codexlang_string(glyph)
     assert "action" in parsed
     action = parsed["action"]

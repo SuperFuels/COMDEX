@@ -26,7 +26,7 @@ def test_mutation_innovation_toolkit_methods():
         pytest.fail(f"Trigger method failed: {e}")
 
     # Mutate a logic string and check output
-    mutated = plugin.mutate("→(x, y)")
+    mutated = plugin.mutate("->(x, y)")
     assert isinstance(mutated, str)
 
     # Test synthesize logic string

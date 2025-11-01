@@ -87,7 +87,7 @@ def push_to_glyphnet(
                     "timestamp": time.time(),
                 })
                 push_mode = "rsa"
-                logger.info(f"[GlyphPush🔐] Encrypted via RSA: {sender} → {target_id}")
+                logger.info(f"[GlyphPush🔐] Encrypted via RSA: {sender} -> {target_id}")
 
             else:
                 # AES Ephemeral fallback
@@ -116,14 +116,14 @@ def push_to_glyphnet(
                         "timestamp": time.time(),
                     })
                     push_mode = "aes"
-                    logger.info(f"[GlyphPush🔐] Encrypted via AES: {sender} → {target_id}")
+                    logger.info(f"[GlyphPush🔐] Encrypted via AES: {sender} -> {target_id}")
                 else:
                     logger.warning(f"[GlyphPush] No AES key available for {target_id}. Skipping encryption.")
 
         # Plain push fallback
         if push_mode == "plain":
             push_symbolic_packet(packet)
-            logger.info(f"[GlyphPush] Sent unencrypted packet: {sender} → {target_id or 'broadcast'}")
+            logger.info(f"[GlyphPush] Sent unencrypted packet: {sender} -> {target_id or 'broadcast'}")
 
         result["push_mode"] = push_mode
 

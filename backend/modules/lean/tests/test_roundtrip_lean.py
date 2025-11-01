@@ -17,10 +17,10 @@ def run(cmd):
     return subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
 def test_roundtrip():
-    # 1. Convert Lean → Glyph
+    # 1. Convert Lean -> Glyph
     run(f"python backend/modules/lean/lean_to_glyph.py {LEAN_FILE} > {TMP_GLYPH}")
 
-    # 2. Convert Glyph → Lean
+    # 2. Convert Glyph -> Lean
     run(f"python -m backend.modules.lean.glyph_to_lean {TMP_GLYPH} --out {ROUNDTRIP}")
 
     # 3. Compare results
@@ -32,7 +32,7 @@ def test_roundtrip():
         print("\n".join(diff))
         raise AssertionError("❌ Roundtrip mismatch detected.")
     else:
-        print("✅ Roundtrip test passed — Lean → Glyph → Lean consistency verified.")
+        print("✅ Roundtrip test passed - Lean -> Glyph -> Lean consistency verified.")
 
 if __name__ == "__main__":
     test_roundtrip()

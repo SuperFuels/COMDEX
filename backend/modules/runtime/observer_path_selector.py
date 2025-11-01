@@ -5,9 +5,9 @@ Resolves QGlyph superpositions (↔) into a single collapsed path
 based on observer bias and symbolic wave-context.
 
 Integrates:
-  • observer bias scoring (compute_observer_bias)
-  • probabilistic symbolic collapse (resolve_qglyph_superposition)
-  • memory trace logging (store_memory)
+  * observer bias scoring (compute_observer_bias)
+  * probabilistic symbolic collapse (resolve_qglyph_superposition)
+  * memory trace logging (store_memory)
 """
 
 import logging
@@ -28,7 +28,7 @@ def select_path_from_superposition(qglyph_pair: dict, context: dict = None) -> d
         right = qglyph_pair.get("right")
         glyph_id = qglyph_pair.get("id", "unknown")
 
-        # 1️⃣ Compute observer bias (0–1 scalar, where >0.5 favors left)
+        # 1️⃣ Compute observer bias (0-1 scalar, where >0.5 favors left)
         bias = compute_observer_bias(context)
         bias_value = getattr(bias, "value", 0.5) if hasattr(bias, "value") else float(bias or 0.5)
 
@@ -46,7 +46,7 @@ def select_path_from_superposition(qglyph_pair: dict, context: dict = None) -> d
         collapsed = resolve_qglyph_superposition(left, right, bias=bias_value)
 
         logger.info(
-            f"[Collapse] QGlyph {glyph_id} → {collapsed} "
+            f"[Collapse] QGlyph {glyph_id} -> {collapsed} "
             f"(L:{left_score:.3f} R:{right_score:.3f} Bias:{bias_value:.3f})"
         )
 

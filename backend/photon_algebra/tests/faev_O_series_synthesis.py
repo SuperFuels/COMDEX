@@ -1,5 +1,5 @@
 # ==========================================================
-# O-Series Synthesis — Observer–Causality Layer (Fixed)
+# O-Series Synthesis - Observer-Causality Layer (Fixed)
 # Auto-detects stability metrics and handles missing data
 # Saves: backend/modules/knowledge/O_series_synthesis.json
 # ==========================================================
@@ -41,7 +41,7 @@ if stabilities:
     plt.bar([r["name"].split(".")[0] for r in records if r["stability"] is not None],
             stabilities, color="skyblue", alpha=0.7)
     plt.xticks(rotation=90, fontsize=7)
-    plt.title("O-Series Stability (Observer–Causality)")
+    plt.title("O-Series Stability (Observer-Causality)")
     plt.tight_layout()
     plt.savefig(os.path.join(base_dir, "O_series_stability.png"))
 else:
@@ -68,4 +68,4 @@ with open(out_path, "w") as f:
 
 print(f"=== O-Series Synthesis Complete ({len(records)} records) ===")
 print(f"Mean stability = {mean_stab}")
-print(f"✅ Saved → {out_path}")
+print(f"✅ Saved -> {out_path}")

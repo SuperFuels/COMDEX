@@ -7,7 +7,7 @@ def mutate_glyph(container, x, y, new_glyph):
     cube = container["grid"][y][x]
     old_glyph = cube.get("glyph", None)
     cube["glyph"] = new_glyph
-    print(f"🔁 Mutated glyph at ({x},{y}): {old_glyph} → {new_glyph}")
+    print(f"🔁 Mutated glyph at ({x},{y}): {old_glyph} -> {new_glyph}")
     return container
 
 def run():

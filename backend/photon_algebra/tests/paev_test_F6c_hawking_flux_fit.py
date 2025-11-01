@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 from scipy.stats import linregress
 
 # ============================================================
-#  Test F6c — Hawking Flux Fit
+#  Test F6c - Hawking Flux Fit
 #  Goal: Verify energy flux ∝ 1/Area scaling (Hawking radiation analogue)
 # ============================================================
 
-print("🌀 Running F6c — Hawking Flux Fit (Entropy–Area Scaling & Hawking Law)")
+print("🌀 Running F6c - Hawking Flux Fit (Entropy-Area Scaling & Hawking Law)")
 
 # Simulation parameters
 steps = 600
@@ -28,7 +28,7 @@ for step in range(steps):
     E -= flux * dt
     A *= 0.999   # slow area shrinkage (radiation)
     
-    # Entropy–area law: S = A / 4 (Bekenstein-Hawking)
+    # Entropy-area law: S = A / 4 (Bekenstein-Hawking)
     S = A / 4.0
 
     # Store data
@@ -38,10 +38,10 @@ for step in range(steps):
     entropy.append(S)
 
     if step % 100 == 0:
-        print(f"Step {step:03d} — E={E:.5e}, A={A:.1f}, Φ={flux:.5e}, S={S:.3f}")
+        print(f"Step {step:03d} - E={E:.5e}, A={A:.1f}, Φ={flux:.5e}, S={S:.3f}")
 
 # ==========================================
-# Fit log–log scaling: Φ ∝ A^-n
+# Fit log-log scaling: Φ ∝ A^-n
 # ==========================================
 logA = np.log(areas)
 logPhi = np.log(fluxes)
@@ -67,7 +67,7 @@ plt.scatter(logA, logPhi, color='deepskyblue', s=14, label='data')
 plt.plot(logA, intercept + slope * logA, color='black', lw=2, label=f'fit slope={slope:.3f}')
 plt.xlabel('log(A)')
 plt.ylabel('log(Φ)')
-plt.title('Flux–Area Power Law (log–log)')
+plt.title('Flux-Area Power Law (log-log)')
 plt.legend()
 plt.grid(True)
 plt.savefig("PAEV_TestF6c_HawkingFlux_LogLog.png", dpi=160)
@@ -76,16 +76,16 @@ plt.figure(figsize=(7,5))
 plt.plot(areas, np.array(entropy), color='crimson')
 plt.xlabel('Area (A)')
 plt.ylabel('Entropy (S)')
-plt.title('Entropy–Area Relation (Bekenstein–Hawking)')
+plt.title('Entropy-Area Relation (Bekenstein-Hawking)')
 plt.grid(True)
 plt.savefig("PAEV_TestF6c_EntropyArea.png", dpi=160)
 
 # ==========================================
 # Summary
 # ==========================================
-print("\n=== Test F6c — Hawking Flux Fit Complete ===")
+print("\n=== Test F6c - Hawking Flux Fit Complete ===")
 print(f"Fitted exponent n = {n:.3f} ± {std_err:.3f}")
-print(f"R² = {r2:.4f}")
+print(f"R2 = {r2:.4f}")
 print(f"⟨S⟩ final = {np.mean(entropy[-10:]):.3f}")
 print("Interpretation: Flux ∝ A^{-n}, consistent with Hawking scaling if n ≈ 1.\n")
 print("All output files saved in working directory.")

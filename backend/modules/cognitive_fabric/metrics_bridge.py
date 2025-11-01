@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Cognitive Fabric Metrics Bridge
-#  Stage 13.3 — Φ–ψ Coherence Telemetry Expansion
+#  Tessaris * Cognitive Fabric Metrics Bridge
+#  Stage 13.3 - Φ-ψ Coherence Telemetry Expansion
 #  Adds derived coherence_energy + resonance tracking
 #  Mirrors into CFA bus (guarded to avoid recursion)
 # ──────────────────────────────────────────────
@@ -28,7 +28,7 @@ class CodexMetrics:
         self._in_commit = False         # recursion guard
         self._cache: List[Dict[str, Any]] = []
 
-        logger.info(f"[CodexMetrics] Initialized → {self.metrics_path}")
+        logger.info(f"[CodexMetrics] Initialized -> {self.metrics_path}")
 
     # ──────────────────────────────────────────────
     #  Core Recording Interface
@@ -42,7 +42,7 @@ class CodexMetrics:
     ) -> None:
         """
         Record a structured telemetry event locally and mirror to CFA bus.
-        Automatically computes Φ–ψ coherence metrics if present,
+        Automatically computes Φ-ψ coherence metrics if present,
         and ensures all data are JSON-serializable (NumPy / complex safe).
         """
         try:
@@ -52,7 +52,7 @@ class CodexMetrics:
             tags = tags or []
             ts = time.time()
 
-            # 🔹 Derived metrics (Φ–ψ coherence)
+            # 🔹 Derived metrics (Φ-ψ coherence)
             phi = payload.get("Φ_mean") or payload.get("phi_mean")
             psi = payload.get("ψ_mean") or payload.get("psi_mean")
             corr = payload.get("correlation")
@@ -80,7 +80,7 @@ class CodexMetrics:
             }
 
             # ──────────────────────────────────────────────
-            # Safe serialization (NumPy + complex → JSON-safe)
+            # Safe serialization (NumPy + complex -> JSON-safe)
             # ──────────────────────────────────────────────
             def safe_convert(obj):
                 if isinstance(obj, np.ndarray):
@@ -99,7 +99,7 @@ class CodexMetrics:
 
             if self.enable_logging:
                 logger.debug(
-                    f"[CodexMetrics] +{event} → EΦψ={coherence_energy} ({domain})"
+                    f"[CodexMetrics] +{event} -> EΦψ={coherence_energy} ({domain})"
                 )
 
             # 🧠 Mirror into CFA bus (guarded)
@@ -148,7 +148,7 @@ class CodexMetrics:
             event_name = f"RQC::{operator}"
             self.record_event(event_name, payload=payload, domain="photon_runtime")
             if self.enable_logging:
-                logger.debug(f"[CodexMetrics] push({operator}) → OK")
+                logger.debug(f"[CodexMetrics] push({operator}) -> OK")
         except Exception as e:
             logger.warning(f"[CodexMetrics] push() failed for {operator}: {e}")
 

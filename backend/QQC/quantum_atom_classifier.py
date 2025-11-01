@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • Quantum Atom Classifier (v1.0)
+#  Tessaris * Quantum Atom Classifier (v1.0)
 #  Symbolic resonance-based intent classifier for AION.
-#  Fallback / companion to the LLMClassifier — uses Symatics logic.
+#  Fallback / companion to the LLMClassifier - uses Symatics logic.
 # ──────────────────────────────────────────────────────────────
 
 import math
@@ -27,8 +27,8 @@ logger = logging.getLogger("QuantumAtomClassifier")
 
 class QuantumAtomClassifier:
     """
-    Symbolic fallback for AION’s LLM classifier.
-    Computes a resonance pattern (ψ–κ–T–Φ) signature and
+    Symbolic fallback for AION's LLM classifier.
+    Computes a resonance pattern (ψ-κ-T-Φ) signature and
     classifies intent based on harmonic ratios.
     """
 
@@ -66,7 +66,7 @@ class QuantumAtomClassifier:
                 except Exception:
                     pass
 
-            logger.debug(f"[QuantumAtomClassifier] {tag} ← ψ={psi:.3f}, κ={kappa:.3f}, Φ={phi:.3f}")
+            logger.debug(f"[QuantumAtomClassifier] {tag} <- ψ={psi:.3f}, κ={kappa:.3f}, Φ={phi:.3f}")
             return tag
 
         except Exception as e:

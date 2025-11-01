@@ -1,8 +1,8 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris CodexRender — Visualization Demo
+# Tessaris CodexRender - Visualization Demo
 # Simulates λ(t), ψ(t), and E(t) evolution in real time.
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v1.2.0 — October 2025
+# Version: v1.2.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 import sys, os
@@ -32,7 +32,7 @@ for t in range(100):
     time.sleep(0.05)  # simulate runtime pacing
 
 # ──────────────────────────────────────────────────────────────
-# Aggregate & render λ–ψ–E feedback visualization
+# Aggregate & render λ-ψ-E feedback visualization
 # ──────────────────────────────────────────────────────────────
 renderer.ingest()
 
@@ -55,4 +55,4 @@ if hasattr(renderer, "buffer"):
     print("Last 5 telemetry events:")
     print(renderer.buffer[-5:])
 else:
-    print("⚠️ No telemetry buffer found — check CodexRender configuration.")
+    print("⚠️ No telemetry buffer found - check CodexRender configuration.")

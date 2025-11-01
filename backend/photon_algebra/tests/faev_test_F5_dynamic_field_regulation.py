@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==========================================================
-# F5 — Dynamic Field Regulation (Stabilized Energy Bounce)
+# F5 - Dynamic Field Regulation (Stabilized Energy Bounce)
 # ==========================================================
 # Purpose:
 #   Prevent runaway energy growth seen in F4 by introducing
@@ -56,7 +56,7 @@ Lambda_eff[0] = Lambda_base
 
 # --- Functions ---
 def V(phi):
-    """Soft-saturation potential preventing runaway φ⁴."""
+    """Soft-saturation potential preventing runaway φ4."""
     return 0.5 * (omega0 ** 2) * phi ** 2 + beta * phi ** 4 / (1 + (phi ** 2 / phi_c ** 2))
 
 def dV(phi):
@@ -114,7 +114,7 @@ else:
 plt.figure(figsize=(9, 5))
 plt.plot(t, a, label="a(t)")
 plt.axvline(t[bounce_index], color="purple", ls="--", label="bounce")
-plt.title("F5 — Scale Factor Evolution (Dynamic Field Regulation)")
+plt.title("F5 - Scale Factor Evolution (Dynamic Field Regulation)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F5_ScaleFactorEvolution.png")
@@ -124,14 +124,14 @@ plt.plot(t, rho_tot, label="ρ_total", lw=1.3)
 plt.plot(t, rho_phi, label="ρ_φ", alpha=0.6)
 plt.plot(t, Lambda_eff, "--", label="Λ_eff(t)", alpha=0.7)
 plt.yscale("log")
-plt.title("F5 — Energy Density and Dynamic Vacuum Feedback")
+plt.title("F5 - Energy Density and Dynamic Vacuum Feedback")
 plt.xlabel("time"); plt.ylabel("Energy (log)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F5_EnergyDecomposition.png")
 
 plt.figure(figsize=(9, 5))
 plt.plot(t, np.cos(phi), lw=1.0, label="cos(φ)")
-plt.title("F5 — Vacuum-Field Phase Coherence")
+plt.title("F5 - Vacuum-Field Phase Coherence")
 plt.xlabel("time"); plt.ylabel("cos(φ)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F5_PhaseCoherence.png")
@@ -176,7 +176,7 @@ results = {
 with open("backend/modules/knowledge/F5_dynamic_field_regulation.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== F5 — Dynamic Field Regulation (Stabilized Energy Bounce) ===")
+print("=== F5 - Dynamic Field Regulation (Stabilized Energy Bounce) ===")
 print(f"a_min={a_min:.4f} | mean_coherence={mean_coherence:.3f} | anti-corr(Λ,E)={anti_corr:.2f}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F5_dynamic_field_regulation.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F5_dynamic_field_regulation.json")

@@ -1,7 +1,7 @@
 """
 AION Fabric Stream Dashboard
 ────────────────────────────────────────────
-Visual dashboard for monitoring live ψ̄–κ̄–σ–γ̄′ resonance tensors
+Visual dashboard for monitoring live ψ̄-κ̄-σ-γ̄′ resonance tensors
 received by the AION Fabric Stream Receiver.
 
 Usage:
@@ -36,7 +36,7 @@ app.layout = dbc.Container(
                 dbc.Col(
                     dbc.Card(
                         [
-                            dbc.CardHeader("σ — Coherence Stability"),
+                            dbc.CardHeader("σ - Coherence Stability"),
                             dbc.CardBody(html.H4(id="sigma-display", className="text-success")),
                         ],
                         color="dark", inverse=True, className="m-2"
@@ -46,7 +46,7 @@ app.layout = dbc.Container(
                 dbc.Col(
                     dbc.Card(
                         [
-                            dbc.CardHeader("γ̄′ — Feedback Gain Mean"),
+                            dbc.CardHeader("γ̄′ - Feedback Gain Mean"),
                             dbc.CardBody(html.H4(id="gamma-display", className="text-info")),
                         ],
                         color="dark", inverse=True, className="m-2"
@@ -84,7 +84,7 @@ def update_dashboard(_):
 
         data = resp.json()
         if not data:
-            return go.Figure(), "–", "–", "⏳ Waiting for data …"
+            return go.Figure(), "-", "-", "⏳ Waiting for data ..."
 
         timestamps = [
             datetime.datetime.fromtimestamp(d.get("timestamp")).strftime("%H:%M:%S")
@@ -112,7 +112,7 @@ def update_dashboard(_):
 
         fig.update_layout(
             template="plotly_dark",
-            title="AION Fabric — Live Resonance Coherence (σ) vs Feedback Gain (γ̄′)",
+            title="AION Fabric - Live Resonance Coherence (σ) vs Feedback Gain (γ̄′)",
             xaxis_title="Time",
             yaxis_title="Coherence (σ, ψ̄, κ̄)",
             legend_title="Tensor Metrics",
@@ -123,15 +123,15 @@ def update_dashboard(_):
 
         sigma_current = f"{sigma_vals[-1]:.3f}"
         gamma_current = f"{gamma_vals[-1]:.3f}"
-        status = f"✅ {len(data)} tensors streamed · σ={sigma_current} · γ̄′={gamma_current}"
+        status = f"✅ {len(data)} tensors streamed * σ={sigma_current} * γ̄′={gamma_current}"
 
         return fig, sigma_current, gamma_current, status
 
     except Exception as e:
         empty = go.Figure().update_layout(template="plotly_dark")
-        return empty, "–", "–", f"⚠️ Stream error: {e}"
+        return empty, "-", "-", f"⚠️ Stream error: {e}"
 
 
 if __name__ == "__main__":
-    print("📡 Launching AION Fabric Stream Dashboard at http://127.0.0.1:8050 …")
+    print("📡 Launching AION Fabric Stream Dashboard at http://127.0.0.1:8050 ...")
     app.run_server(host="0.0.0.0", port=8050, debug=False)

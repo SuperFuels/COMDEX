@@ -38,7 +38,7 @@ def buyer_dashboard(
             detail="Only buyers can access this endpoint"
         )
 
-    # 2) Stub data – replace with real logic as needed
+    # 2) Stub data - replace with real logic as needed
     total_sales     = 0
     open_orders     = 0
     pending_escrow  = 0

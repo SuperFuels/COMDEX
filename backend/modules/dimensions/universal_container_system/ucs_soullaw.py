@@ -20,7 +20,7 @@ class SoulLawEnforcer:
         # Dev/CI toggle to unblock experiments without changing container data
         mode = os.getenv("SOULLAW_MODE", "enforce").lower()
         if mode in ("permissive", "off"):
-            log.info("🔑 SoulLaw (permissive) → allowed: %s", name)
+            log.info("🔑 SoulLaw (permissive) -> allowed: %s", name)
             return True
 
         if not isinstance(container, dict):
@@ -54,7 +54,7 @@ class SoulLawEnforcer:
                 }
                 if missing:
                     detail = ", ".join([f"{k}={cur} < {need}" for k, (cur, need) in missing.items()])
-                    raise PermissionError(f"🔒 SoulLaw: Trait threshold not met for {name} → {detail}")
+                    raise PermissionError(f"🔒 SoulLaw: Trait threshold not met for {name} -> {detail}")
 
             # Optional boolean flags
             if gate.get("verified", False) and not (avatar_state or {}).get("verified", False):

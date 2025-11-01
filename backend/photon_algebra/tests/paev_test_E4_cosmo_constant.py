@@ -1,13 +1,13 @@
 # ==========================================================
-# Test E4 — Emergent Cosmological Constant (Vacuum Curvature Balance)
+# Test E4 - Emergent Cosmological Constant (Vacuum Curvature Balance)
 # ==========================================================
 # Purpose:
 #   Explore whether a stable average curvature offset (Λ_eff)
 #   emerges naturally from the equilibrium of quantum foam fluctuations.
 #
 # Outputs:
-#   - Animation of curvature–vacuum interaction
-#   - Plot of mean curvature (⟨κ⟩) and variance (⟨κ²⟩)
+#   - Animation of curvature-vacuum interaction
+#   - Plot of mean curvature (⟨κ⟩) and variance (⟨κ2⟩)
 #   - Effective cosmological constant Λ_eff evolution
 #   - Correlation between curvature pressure and vacuum noise
 # ==========================================================
@@ -61,7 +61,7 @@ for step in range(steps):
     if step % 20 == 0:
         fig, ax = plt.subplots(figsize=(5,5))
         im = ax.imshow(kappa, cmap='twilight_shifted', extent=[-1,1,-1,1])
-        ax.set_title(f"Test E4 — Vacuum Curvature Field\nStep {step}")
+        ax.set_title(f"Test E4 - Vacuum Curvature Field\nStep {step}")
         plt.colorbar(im, ax=ax, label="κ curvature")
         plt.tight_layout()
         fig.canvas.draw()
@@ -75,8 +75,8 @@ print("✅ Saved animation to: PAEV_TestE4_CosmoConstant.gif")
 # Mean and variance evolution
 plt.figure()
 plt.plot(mean_curv, label="⟨κ⟩ mean curvature", color="blue")
-plt.plot(var_curv, label="⟨κ²⟩ variance", color="orange")
-plt.title("Test E4 — Curvature Mean & Variance Evolution")
+plt.plot(var_curv, label="⟨κ2⟩ variance", color="orange")
+plt.title("Test E4 - Curvature Mean & Variance Evolution")
 plt.xlabel("Time step")
 plt.ylabel("Value")
 plt.legend()
@@ -88,7 +88,7 @@ print("✅ Saved curvature statistics plot: PAEV_TestE4_CosmoConstant_CurvatureS
 # Effective Λ evolution
 plt.figure()
 plt.plot(lambda_eff, color="green")
-plt.title("Test E4 — Effective Cosmological Constant Evolution")
+plt.title("Test E4 - Effective Cosmological Constant Evolution")
 plt.xlabel("Time step")
 plt.ylabel("Λ_eff")
 plt.tight_layout()
@@ -96,9 +96,9 @@ plt.savefig("PAEV_TestE4_CosmoConstant_LambdaEff.png")
 plt.close()
 print("✅ Saved Λ_eff evolution plot: PAEV_TestE4_CosmoConstant_LambdaEff.png")
 
-print("\n=== Test E4 — Emergent Cosmological Constant Complete ===")
+print("\n=== Test E4 - Emergent Cosmological Constant Complete ===")
 print(f"⟨κ⟩ final = {np.mean(mean_curv):.4e}")
-print(f"⟨κ²⟩ final = {np.mean(var_curv):.4e}")
+print(f"⟨κ2⟩ final = {np.mean(var_curv):.4e}")
 print(f"⟨Λ_eff⟩ final = {np.mean(lambda_eff):.4e}")
 print("All output files saved in working directory.")
 print("----------------------------------------------------------")

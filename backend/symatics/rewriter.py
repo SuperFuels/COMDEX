@@ -1,13 +1,13 @@
 # File: backend/symatics/rewriter.py
 """
-Symatics Rewriter (v1.0 – canonical-backed)
+Symatics Rewriter (v1.0 - canonical-backed)
 -------------------------------------------
 Rewriter for Symatics interference algebra.
 
 - Legacy classes (Atom, Bot, SymAdd, SymSub, Interf) are kept as thin wrappers
   that internally construct canonical AST (Sym/App).
 - Canonical AST is defined in symatics/terms.py:
-    • Var, Sym, App, Term
+    * Var, Sym, App, Term
 - normalize(), symatics_equiv(), etc. work transparently on both legacy + canonical.
 - This allows old tests to pass while new code can move to canonical API.
 """
@@ -98,14 +98,14 @@ Expr = Union[Atom, Bot, SymAdd, SymSub, Interf, Term]
 
 
 def to_canonical(expr: Expr) -> Term:
-    """Convert legacy Expr → canonical Term (noop if already canonical)."""
+    """Convert legacy Expr -> canonical Term (noop if already canonical)."""
     if isinstance(expr, (Sym, Var, App)):
         return expr
     raise TypeError(f"Unsupported expression type: {expr}")
 
 
 def from_canonical(term: Term) -> Expr:
-    """Convert canonical Term → legacy-style Expr (deprecated)."""
+    """Convert canonical Term -> legacy-style Expr (deprecated)."""
     if isinstance(term, Sym):
         if term.name == "⊥":
             return Bot()
@@ -140,22 +140,22 @@ def rewrite_once(expr: Term) -> Optional[Term]:
         φ = float(φ_sym.name) if isinstance(φ_sym, Sym) else 0.0
         φ = norm_phase(φ)
 
-        # A6 inv_phase: A ⋈[φ] (A ⋈[-φ] B) → B
+        # A6 inv_phase: A ⋈[φ] (A ⋈[-φ] B) -> B
         if isinstance(right, App) and isinstance(right.head, Sym) and right.head.name == "⋈":
             inner_phase_sym, inner_left, inner_right = right.args
             inner_phase = float(inner_phase_sym.name) if isinstance(inner_phase_sym, Sym) else 0.0
             if inner_left == left and norm_phase(inner_phase) == norm_phase(-φ):
                 return inner_right
 
-        # A4 Neutrality: A ⋈[φ] ⊥ → A
+        # A4 Neutrality: A ⋈[φ] ⊥ -> A
         if right == Sym("⊥"):
             return left
 
         # A2/A3 Self-interference
         if left == right:
-            if is_zero_phase(φ):   # φ = 0 → A
+            if is_zero_phase(φ):   # φ = 0 -> A
                 return left
-            if is_pi_phase(φ):     # φ = π → ⊥
+            if is_pi_phase(φ):     # φ = π -> ⊥
                 return Sym("⊥")
 
         # A1 comm_phi: enforce ordering

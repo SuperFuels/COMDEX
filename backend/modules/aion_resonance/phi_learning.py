@@ -90,7 +90,7 @@ def update_phi_state(phi_vector: dict, last_command: str = None) -> dict:
     except Exception as e:
         print(f"[Φ-Learning] ⚠️ Trace update failed: {e}")
 
-    print(f"[Φ-Learning] Updated Φ-state → {updated}")
+    print(f"[Φ-Learning] Updated Φ-state -> {updated}")
     return updated
 
 
@@ -109,7 +109,7 @@ async def auto_balance_loop():
             coh = state.get("Φ_coherence", 1.0)
             ent = state.get("Φ_entropy", 0.0)
 
-            # If coherence too low or entropy too high → gentle correction
+            # If coherence too low or entropy too high -> gentle correction
             if coh < STABILITY_THRESHOLD or ent > 0.7:
                 correction = {
                     "Φ_load": _clamp(state.get("Φ_load", 0) * 0.8),
@@ -118,7 +118,7 @@ async def auto_balance_loop():
                     "Φ_coherence": _clamp(coh + 0.05),
                 }
                 save_phi_state(correction, last_command="AUTO_BALANCE")
-                print(f"[Φ-AutoBalance] Corrected field → {correction}")
+                print(f"[Φ-AutoBalance] Corrected field -> {correction}")
 
             # Occasionally introduce gentle stochastic drift
             elif random.random() < 0.1:

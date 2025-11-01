@@ -1,5 +1,5 @@
 """
-🧪 SRK-17 Task 7 — GHX Continuity Hooks (GCH)
+🧪 SRK-17 Task 7 - GHX Continuity Hooks (GCH)
 Test Suite: backend/modules/holograms/tests/test_ghx_continuity_hooks.py
 """
 

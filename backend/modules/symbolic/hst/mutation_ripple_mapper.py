@@ -40,7 +40,7 @@ class MutationRippleMapper:
                 node.metadata["mutation_ripple"] = ripple_data
                 ripple_map[node_id] = ripple_data
 
-                logger.info(f"[🧬] Ripple mapped: {node_id} ← {origin_id} | depth={ripple_depth}, div={divergence:.3f}")
+                logger.info(f"[🧬] Ripple mapped: {node_id} <- {origin_id} | depth={ripple_depth}, div={divergence:.3f}")
 
             except Exception as e:
                 logger.warning(f"[⚠️] Failed ripple mapping for {node_id}: {e}")

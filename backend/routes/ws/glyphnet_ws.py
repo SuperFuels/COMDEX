@@ -5,7 +5,7 @@
 Handles real-time streaming of glyph activity, entanglement, SoulLaw verdicts, and symbolic future paths.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔮 Symbolic Broadcast Engine – Design Rubric
+🔮 Symbolic Broadcast Engine - Design Rubric
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Real-Time Glyph Trigger Streaming
 ✅ ↔ Entanglement & QGlyph Metadata Sync

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧠 Cognitive Trajectory Learning — Phase 60 Tessaris Predictive Layer
+🧠 Cognitive Trajectory Learning - Phase 60 Tessaris Predictive Layer
 ────────────────────────────────────────────────────────────────────────
 Analyzes past reflection logs to forecast future resonance drift and
 plan pre-emptive corrections.
@@ -86,7 +86,7 @@ def schedule_preemptive_tuning(predictions, risk_threshold=0.6):
             )
             Theta.event("trajectory_predicted", engine=name, risk=p["predicted_risk"])
             actions.append({"engine": name, "risk": p["predicted_risk"], "action": "preemptive_tuning"})
-            print(f"🔮 Predicted drift for {name} (risk={p['predicted_risk']:.2f}) → tuning scheduled")
+            print(f"🔮 Predicted drift for {name} (risk={p['predicted_risk']:.2f}) -> tuning scheduled")
     return actions
 
 def main():
@@ -101,7 +101,7 @@ def main():
         "predictions": predictions,
         "actions": actions
     }, indent=2))
-    print(f"📊 Trajectory predictions written → {OUT}")
+    print(f"📊 Trajectory predictions written -> {OUT}")
 
 if __name__ == "__main__":
     main()

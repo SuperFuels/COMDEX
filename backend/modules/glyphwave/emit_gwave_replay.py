@@ -1,12 +1,12 @@
 """
-🟢 GWave Replay Emitter — SRK-19 Task 4
+🟢 GWave Replay Emitter - SRK-19 Task 4
 Replays recorded .gwv holographic visualization data into GHX/QFC runtime bridges.
 
 Features:
- • Loads validated .gwv snapshot files
- • Sequentially emits frames back into GHX/QFC visualization layers
- • Supports playback control (pause/resume/loop)
- • Optional validation via safe_validate_gwv()
+ * Loads validated .gwv snapshot files
+ * Sequentially emits frames back into GHX/QFC visualization layers
+ * Supports playback control (pause/resume/loop)
+ * Optional validation via safe_validate_gwv()
 
 Usage Example:
     from backend.modules.glyphwave.emit_gwave_replay import emit_gwave_frames

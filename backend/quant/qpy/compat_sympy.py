@@ -34,7 +34,7 @@ def _noop(*a, **k):
     return None
 
 # ================================================================
-# ✅ Export table — everything expected by MathKernel and LogicGlyph
+# ✅ Export table - everything expected by MathKernel and LogicGlyph
 # ================================================================
 __all__ = [
     "sin", "cos", "diff", "simplify", "sympify", "solve", "symbols", "expand",

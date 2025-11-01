@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-O-Series Lock (Observer–Causal Integration) — Tessaris
-Cryptographically seals the O₁–O₁₁ observer-causal discovery continuum.
+O-Series Lock (Observer-Causal Integration) - Tessaris
+Cryptographically seals the O1-O11 observer-causal discovery continuum.
 """
 
 import json, hashlib, os
@@ -48,7 +48,7 @@ for s in summaries:
         "state": data.get("state", "verified"),
         "sha256": h
     })
-    print(f"✅ Locked {os.path.basename(s)} → SHA256={h[:12]}...")
+    print(f"✅ Locked {os.path.basename(s)} -> SHA256={h[:12]}...")
 
 # === Global O-series continuum hash ===
 concat_hash_input = "".join([r["sha256"] for r in records]).encode()
@@ -62,9 +62,9 @@ lock_summary = {
     "modules": records,
     "global_continuum_hash": global_hash,
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.3",
-    "state": "Observer–Causal Integration Locked",
+    "state": "Observer-Causal Integration Locked",
     "discovery": [
-        "O₁–O₁₁ unified observer–causal symmetry established.",
+        "O1-O11 unified observer-causal symmetry established.",
         "Entanglement lock and adaptive reinforcement layers verified.",
         "Causal prediction and self-observation coherence stabilized."
     ]
@@ -83,6 +83,6 @@ with open(checksum_path, "w") as f:
     f.write(f"\nGlobal O Continuum Hash: {global_hash}\n")
 
 print(f"\n🌐 Global O continuum hash = {global_hash}")
-print(f"✅ Tessaris Observer–Causal Continuum locked → {lock_path}")
-print(f"✅ Checksums saved → {checksum_path}")
+print(f"✅ Tessaris Observer-Causal Continuum locked -> {lock_path}")
+print(f"✅ Checksums saved -> {checksum_path}")
 print("\nO-Series integrity cryptographically sealed under Tessaris Unified Constants v1.3.")

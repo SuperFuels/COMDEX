@@ -72,10 +72,10 @@ metrics = {
     "arrow_direction": arrow_direction
 }
 
-print("=== H2 — Emergent Arrow of Time ===")
+print("=== H2 - Emergent Arrow of Time ===")
 print(f"Entropy drift mean: {metrics['entropy_drift_mean']:.4e}")
 print(f"Mutual info asymmetry: {metrics['mutual_information_asymmetry']:.4e}")
-print(f"→ {metrics['arrow_direction']} Arrow Detected")
+print(f"-> {metrics['arrow_direction']} Arrow Detected")
 
 # 6. Plot entropy vs cycle index
 plt.figure()
@@ -101,4 +101,4 @@ os.makedirs(os.path.dirname(output_path), exist_ok=True)
 with open(output_path, "w") as f:
     json.dump(output, f, indent=2)
 
-print(f"✅ Results saved → {output_path}")
+print(f"✅ Results saved -> {output_path}")

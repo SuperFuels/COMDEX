@@ -10,7 +10,7 @@ GLYPH_API_BASE_URL = os.getenv("GLYPH_API_BASE_URL", "http://localhost:8080/api"
 # 🧠 Logging and feature control
 ENABLE_GLYPH_LOGGING = os.getenv("ENABLE_GLYPH_LOGGING", "true").lower() == "true"
 
-# ⚛️ Symbolic–Photonic Entanglement auto-fusion (SPE)
+# ⚛️ Symbolic-Photonic Entanglement auto-fusion (SPE)
 # Enables automatic recombination of symbolic/photonic traces after drift detection
 SPE_AUTO_FUSE = os.getenv("SPE_AUTO_FUSE", "true").lower() == "true"
 

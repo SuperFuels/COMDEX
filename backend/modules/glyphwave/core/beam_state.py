@@ -24,7 +24,7 @@ def group_beams_by_tick(beams):
         beams (list): List of beam events.
 
     Returns:
-        dict[int, list]: Mapping of tick → list of beams.
+        dict[int, list]: Mapping of tick -> list of beams.
     """
     tick_map = {}
     for b in beams:

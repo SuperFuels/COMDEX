@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-⚛ EnergyEngine — Phase 54 Resonant Amplitude Regulator
+⚛ EnergyEngine - Phase 54 Resonant Amplitude Regulator
 ───────────────────────────────────────────────────────────────
-Maintains AION’s harmonic vitality — simulating fatigue, recovery,
+Maintains AION's harmonic vitality - simulating fatigue, recovery,
 and cognitive resource balance based on Θ-field resonance dynamics.
 
 Features
-• Θ-Amplitude regulation (fatigue ↔ recovery)
-• Integration with ResonantMemoryCache (RMC)
-• Coherence-driven energy state, not token economics
-• Entropy feedback from ContextEngine + other modules
-• Logs harmonic vitality pulses for dashboard telemetry
+* Θ-Amplitude regulation (fatigue ↔ recovery)
+* Integration with ResonantMemoryCache (RMC)
+* Coherence-driven energy state, not token economics
+* Entropy feedback from ContextEngine + other modules
+* Logs harmonic vitality pulses for dashboard telemetry
 """
 
 import random
@@ -42,7 +42,7 @@ class EnergyEngine:
     """
 
     def __init__(self):
-        # “Energy” is harmonic coherence (0 – 1 → fatigue – vitality)
+        # "Energy" is harmonic coherence (0 - 1 -> fatigue - vitality)
         self.energy_level = 1.0
         self.stability = 1.0
         self.last_update = datetime.utcnow()
@@ -66,8 +66,8 @@ class EnergyEngine:
     def tick(self):
         """
         Called periodically to update harmonic amplitude.
-        • High entropy → coherence decay (fatigue)
-        • Low entropy → recovery
+        * High entropy -> coherence decay (fatigue)
+        * Low entropy -> recovery
         """
         env_entropy = self._sample_environment_entropy()
         rho_base = 0.7 + random.uniform(-0.05, 0.05)
@@ -107,7 +107,7 @@ class EnergyEngine:
             f.write(json.dumps(entry) + "\n")
 
         print(
-            f"[Θ⚡] Energy tick → ρ={rho:.3f}, entropy={env_entropy:.2f}, "
+            f"[Θ⚡] Energy tick -> ρ={rho:.3f}, entropy={env_entropy:.2f}, "
             f"energy={self.energy_level:.2f}, stability={self.stability:.2f}"
         )
         return entry
@@ -117,13 +117,13 @@ class EnergyEngine:
         """Manual harmonic boost (reflection, optimization, etc.)."""
         old = self.energy_level
         self.energy_level = min(1.0, self.energy_level + abs(delta))
-        print(f"[⚡] Energy boosted {old:.2f} → {self.energy_level:.2f}")
+        print(f"[⚡] Energy boosted {old:.2f} -> {self.energy_level:.2f}")
 
     def drain(self, delta: float = 0.1):
         """Simulated energy drain (heavy computation or resonance drift)."""
         old = self.energy_level
         self.energy_level = max(0.0, self.energy_level - abs(delta))
-        print(f"[💤] Energy drained {old:.2f} → {self.energy_level:.2f}")
+        print(f"[💤] Energy drained {old:.2f} -> {self.energy_level:.2f}")
 
     # ------------------------------------------------------------
     def get_status(self) -> dict:

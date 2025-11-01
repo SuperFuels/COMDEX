@@ -1,11 +1,11 @@
 """
-Tessaris • UltraQC Build v0.4
+Tessaris * UltraQC Build v0.4
 QWave Core Verification Harness (Phase 1.5 readiness)
 
 Confirms:
-  • all QWave kernel modules import cleanly
-  • runtime + scheduler execute a minimal tick
-  • interference + collapse pipelines produce metrics
+  * all QWave kernel modules import cleanly
+  * runtime + scheduler execute a minimal tick
+  * interference + collapse pipelines produce metrics
 """
 
 import importlib

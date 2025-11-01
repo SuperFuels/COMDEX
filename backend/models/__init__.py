@@ -9,7 +9,7 @@ from .user     import User
 from .deal     import Deal
 from .product  import Product
 from .contract import Contract
-# …and any other models you have:
+# ...and any other models you have:
 # from .admin import Admin
 # from .order import Order
 

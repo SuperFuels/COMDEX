@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🔁 Resonant Feedback Daemon (RFD) — Phase 54 Completion
+🔁 Resonant Feedback Daemon (RFD) - Phase 54 Completion
 ──────────────────────────────────────────────────────────────
 Listens to Θ-pulse events from all cognitive engines (awareness,
 emotion, context, planning, energy, etc.), computes small harmonic
@@ -8,10 +8,10 @@ corrections (ΔSQI drift compensation), and propagates re-balancing
 signals across the AION stack.
 
 Functions:
-  • Monitor shared resonance logs in data/analysis/*
-  • Compute network-wide coherence averages
-  • Adjust Θ frequencies and trait drift in real time
-  • Persist all feedbacks → resonant_feedback_stream.jsonl
+  * Monitor shared resonance logs in data/analysis/*
+  * Compute network-wide coherence averages
+  * Adjust Θ frequencies and trait drift in real time
+  * Persist all feedbacks -> resonant_feedback_stream.jsonl
 """
 import os
 
@@ -59,10 +59,10 @@ RMC = ResonantMemoryCache()
 # ─────────────────────────────────────────────────────────────────
 async def monitor_feedback_loop(interval: float = 5.0):
     """
-    Main loop — scans all resonance logs, computes average SQI and ΔΦ,
+    Main loop - scans all resonance logs, computes average SQI and ΔΦ,
     and redistributes soft corrections to participating modules.
     """
-    print("🌀 [RFD] Resonant Feedback Daemon active — monitoring harmonics...")
+    print("🌀 [RFD] Resonant Feedback Daemon active - monitoring harmonics...")
     last_summary = time.time()
 
     while True:
@@ -134,6 +134,6 @@ def run_daemon():
 if __name__ == "__main__":
     import os
     if os.getenv("AION_SILENT_MODE", "0") == "1":
-        print("🌀 [RFD] Silent mode enabled — feedback daemon not started.")
+        print("🌀 [RFD] Silent mode enabled - feedback daemon not started.")
     else:
         run_daemon()

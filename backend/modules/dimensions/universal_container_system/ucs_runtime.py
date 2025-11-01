@@ -2,12 +2,12 @@
 🧮 UCS Runtime
 -----------------------------------------------------
 Handles:
-    • Container loading/execution
-    • GHXVisualizer integration
-    • SQI runtime + Pi GPIO event output
-    • SoulLaw enforcement
-    • Geometry registration + trigger map events
-    • Legacy container_runtime API compatibility
+    * Container loading/execution
+    * GHXVisualizer integration
+    * SQI runtime + Pi GPIO event output
+    * SoulLaw enforcement
+    * Geometry registration + trigger map events
+    * Legacy container_runtime API compatibility
 """
 
 from __future__ import annotations
@@ -400,8 +400,8 @@ class UCSRuntime:
     def _register_atom_compat(self, container_name: str, atom: dict):
         """
         Calls the appropriate register_atom implementation depending on its signature:
-        • new: register_atom(self, container_name, atom)
-        • old: register_atom(self, atom_id_or_obj, payload=None)
+        * new: register_atom(self, container_name, atom)
+        * old: register_atom(self, atom_id_or_obj, payload=None)
         Always preserves provenance and ensures atom is keyed by its own id.
         """
         import inspect
@@ -413,7 +413,7 @@ class UCSRuntime:
         try:
             sig = inspect.signature(self.register_atom)
             params = list(sig.parameters)
-            # self + container_name + atom  => length ≥ 3 → new form
+            # self + container_name + atom  => length >= 3 -> new form
             if len(params) >= 3:
                 return self.register_atom(container_name, a)
             # else assume legacy (self, atom_dict, payload=None)
@@ -460,7 +460,7 @@ class UCSRuntime:
             raise ValueError(f"Could not determine container id for {path}")
         obj["id"] = cid
 
-        # 4) Normalize atoms → list[dict] with ids; deterministic order
+        # 4) Normalize atoms -> list[dict] with ids; deterministic order
         atoms = obj.get("atoms")
         if isinstance(atoms, dict):
             atoms = [atoms]
@@ -473,7 +473,7 @@ class UCSRuntime:
         # 5) Register container (keeps your address/wormhole behavior)
         self.register_container(cid, obj)
 
-        # 6) Best-effort hooks (don’t fail the load)
+        # 6) Best-effort hooks (don't fail the load)
         try:
             self._ghx_register_once(cid, name=cid)
         except Exception:
@@ -592,11 +592,11 @@ class UCSRuntime:
     def load_container(self, path_or_name: str, register_as_atom: bool = False) -> Dict[str, Any]:
         """
         Back-compat loader:
-        - If `path_or_name` is a file → delegate to load_container_from_path()
-        - Else treat it as a container name → return the registered container (or {})
+        - If `path_or_name` is a file -> delegate to load_container_from_path()
+        - Else treat it as a container name -> return the registered container (or {})
         Always keeps routing indexes up to date via the underlying loader.
         """
-        # File path → modern loader
+        # File path -> modern loader
         try:
             if isinstance(path_or_name, str) and os.path.isfile(path_or_name):
                 return self.load_container_from_path(path_or_name, register_as_atom=register_as_atom)
@@ -604,7 +604,7 @@ class UCSRuntime:
             # Fall through to name mode if os.path checks explode for any reason
             pass
 
-        # Name mode → return whatever we have (don’t raise, for legacy callers)
+        # Name mode -> return whatever we have (don't raise, for legacy callers)
         name = str(path_or_name)
         return self.containers.get(name, {})
 
@@ -706,7 +706,7 @@ class UCSRuntime:
                 "plan": [{"atom_id": a, "mode": "sequential"} for a in atom_ids],
             }
 
-        # Fallback scorer (same weights you’ve been using)
+        # Fallback scorer (same weights you've been using)
         want_caps  = set(goal.get("caps", []))
         want_nodes = set(goal.get("nodes", []))
         want_tags  = set(goal.get("tags", []))
@@ -770,12 +770,12 @@ class UCSRuntime:
         Remove a container from the UCS runtime.
 
         Cleans:
-        • self.containers[container_id]
-        • self.atom_index entries belonging to that container
-        • self.address_index mappings for that container’s address(es)
-        • reverse wormhole references from other containers
-        • self.container_index (if present)
-        • active_container_name fallback to hub (if needed)
+        * self.containers[container_id]
+        * self.atom_index entries belonging to that container
+        * self.address_index mappings for that container's address(es)
+        * reverse wormhole references from other containers
+        * self.container_index (if present)
+        * active_container_name fallback to hub (if needed)
 
         Also attempts to unregister from the global address registry.
         Returns a summary dict.
@@ -892,7 +892,7 @@ class UCSRuntime:
         In dev/test mode, this simply logs the emission.
         """
         try:
-            logger.info(f"[📡 UCSRuntime.broadcast] {tag} → {payload}")
+            logger.info(f"[📡 UCSRuntime.broadcast] {tag} -> {payload}")
             # If event bus exists (SQI or WebSocket), forward there.
             try:
                 from backend.modules.sqi.sqi_event_bus import publish
@@ -989,7 +989,7 @@ class UCSRuntime:
         if key in self.atom_index:
             return key
 
-        # 2) Local address index (address → container_id/atom_id)
+        # 2) Local address index (address -> container_id/atom_id)
         hit = self.address_index.get(key)
         if hit:
             # Might be a container id; if this is also an atom id, return it, else pass-through
@@ -998,7 +998,7 @@ class UCSRuntime:
             # Fallback: allow routing to container id as atom id if naming convention matches
             return hit
 
-        # 3) Global registry lookup (address → container_id)
+        # 3) Global registry lookup (address -> container_id)
         try:
             resolved = resolve_by_address(key)
             return resolved

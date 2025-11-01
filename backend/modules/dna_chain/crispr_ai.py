@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧬 CRISPR-AI Reflex Bridge — Phase R10
+# 🧬 CRISPR-AI Reflex Bridge - Phase R10
 # ================================================================
-# Connects Reflex → DNA mutation proposals → CRISPR-AI executor
+# Connects Reflex -> DNA mutation proposals -> CRISPR-AI executor
 # for safe, ethics-validated symbolic evolution.
 # ================================================================
 
@@ -36,7 +36,7 @@ class CRISPRBridge:
             return []
 
     # ------------------------------------------------------------
-    # CRISPR–AI symbolic mutation proposal (Tessaris)
+    # CRISPR-AI symbolic mutation proposal (Tessaris)
     # ------------------------------------------------------------
     import random
     import time
@@ -97,7 +97,7 @@ class CRISPRBridge:
                 store_proposal(result)
                 self.results.append(result)
 
-                logger.info(f"[CRISPR-AI] Mutation executed for {target_context} — valid={valid}")
+                logger.info(f"[CRISPR-AI] Mutation executed for {target_context} - valid={valid}")
 
             except Exception as e:
                 logger.error(f"[CRISPR-AI] Mutation failed for {target_context}: {e}")
@@ -108,7 +108,7 @@ class CRISPRBridge:
     def save_results(self):
         OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(json.dumps(self.results, indent=2))
-        logger.info(f"[CRISPR-AI] Wrote mutation cycle results → {OUT}")
+        logger.info(f"[CRISPR-AI] Wrote mutation cycle results -> {OUT}")
         return True
 
 # ================================================================
@@ -119,7 +119,7 @@ import time
 
 def generate_mutation_proposal(sequence: str, context: dict = None) -> dict:
     """
-    Top-level CRISPR–AI symbolic mutation generator.
+    Top-level CRISPR-AI symbolic mutation generator.
     Accessible to SymbolicRNA and other biological modules.
     """
     bases = ["A", "T", "C", "G"]

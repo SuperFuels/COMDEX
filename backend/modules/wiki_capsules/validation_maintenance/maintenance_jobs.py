@@ -2,7 +2,7 @@
 # 📙 backend/modules/wiki_capsules/validation_maintenance/maintenance_jobs.py
 # ============================================================
 """
-Maintenance Jobs — Automated Nightly Validation & Pruning
+Maintenance Jobs - Automated Nightly Validation & Pruning
 ----------------------------------------------------------
 Combines linter and reference validator; can be triggered via CLI or CI task.
 """
@@ -30,7 +30,7 @@ def run_full_check(root_dir: str = "data/knowledge") -> dict:
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
 
-    print(f"[Maintenance] Validation report saved → {out_path}")
+    print(f"[Maintenance] Validation report saved -> {out_path}")
     return results
 
 

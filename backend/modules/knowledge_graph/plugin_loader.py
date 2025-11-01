@@ -23,7 +23,7 @@ from backend.modules.knowledge_graph.indexes.plugin_index import (
 # 📁 Recommended plugin location
 PLUGIN_DIRECTORY = "backend/modules/plugins/"
 
-# 🔐 Runtime plugin cache: name → module
+# 🔐 Runtime plugin cache: name -> module
 _loaded_runtime_plugins: Dict[str, Any] = {}
 
 

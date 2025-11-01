@@ -9,12 +9,12 @@ from backend.symatics.operators.helpers import _merge_meta, _pol_blend
 def _resonance(a: Signature, b: Signature, ctx: Optional["Context"] = None) -> Signature:
     """
     ⟲ Resonance:
-    - If frequencies nearly match → amplify (×1.25 max amplitude).
-    - Else (far apart) → mild damping (< original amplitude).
+    - If frequencies nearly match -> amplify (*1.25 max amplitude).
+    - Else (far apart) -> mild damping (< original amplitude).
     """
     df = abs(a.frequency - b.frequency)
 
-    # Near resonance → amplify
+    # Near resonance -> amplify
     if df <= 1e-6:
         amp = max(a.amplitude, b.amplitude) * 1.25
         freq = (a.frequency + b.frequency) / 2.0
@@ -33,7 +33,7 @@ def _resonance(a: Signature, b: Signature, ctx: Optional["Context"] = None) -> S
         )
         return ctx.canonical_signature(sig) if ctx else sig
 
-    # Far apart → damping (soft reduction)
+    # Far apart -> damping (soft reduction)
     pick = a if abs(a.frequency - b.frequency) < abs(b.frequency - a.frequency) else b
     damp_amp = pick.amplitude * 0.9  # stronger damp so test passes
     meta = _merge_meta(pick.meta, {"resonant": False, "df": df})

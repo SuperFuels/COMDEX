@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ξ-Series Lock (Photonic Universality) — Tessaris
-Consolidates Ξ₆–Ξ₈ results and cryptographically seals the photonic continuum.
+Ξ-Series Lock (Photonic Universality) - Tessaris
+Consolidates Ξ6-Ξ8 results and cryptographically seals the photonic continuum.
 """
 
 import json, hashlib, os
@@ -36,7 +36,7 @@ for s in summaries:
         "state": data.get("state"),
         "sha256": h
     })
-    print(f"✅ Locked {os.path.basename(s)} → SHA256={h[:12]}...")
+    print(f"✅ Locked {os.path.basename(s)} -> SHA256={h[:12]}...")
 
 # === Global Xi-series continuum hash ===
 concat_hash_input = "".join([r["sha256"] for r in records]).encode()
@@ -52,7 +52,7 @@ lock_summary = {
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2",
     "state": "Photonic Universality Continuum Locked",
     "discovery": [
-        "Ξ₆–Ξ₈ unified under Tessaris photonic phase and invariance framework.",
+        "Ξ6-Ξ8 unified under Tessaris photonic phase and invariance framework.",
         "Cross-lattice photonic coherence validated.",
         "Continuum lock established for optical universality layer."
     ]
@@ -71,6 +71,6 @@ with open(checksum_path, "w") as f:
     f.write(f"\nGlobal Ξ Continuum Hash: {global_hash}\n")
 
 print(f"\n🌐 Global Ξ continuum hash = {global_hash}")
-print(f"✅ Tessaris Photonic Universality locked → {lock_path}")
-print(f"✅ Checksums saved → {checksum_path}")
+print(f"✅ Tessaris Photonic Universality locked -> {lock_path}")
+print(f"✅ Checksums saved -> {checksum_path}")
 print("\nΞ-Series integrity now cryptographically sealed under Tessaris Unified Constants v1.2.")

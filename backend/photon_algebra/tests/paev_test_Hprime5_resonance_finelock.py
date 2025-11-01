@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test H′5 — Tessaris Resonance Fine-Lock
+Test H′5 - Tessaris Resonance Fine-Lock
 Performs micro-phase refinement on the H′4 temporal lock using adaptive damping.
 Finalizes the Tessaris Temporal Coherence Layer (TTCL).
 """
@@ -67,7 +67,7 @@ def radar_plot(phases, RCI):
     ax.fill(angs, vals, "r", alpha=0.25)
     ax.set_xticks(angs[:-1])
     ax.set_xticklabels(labels)
-    ax.set_title(f"H′5 — Resonance Fine-Lock (RCI₍fine₎={RCI:.3f}%)")
+    ax.set_title(f"H′5 - Resonance Fine-Lock (RCI(fine)={RCI:.3f}%)")
     plt.tight_layout()
     plt.savefig(OUT_PLOT)
 
@@ -93,11 +93,11 @@ def persist(result):
     with open(DISCOVERY_FILE, "w") as f:
         json.dump(discoveries, f, indent=4)
 
-    print(f"📘 Discovery ledger updated → {DISCOVERY_FILE}")
-    print(f"📗 Constants registry updated → {CONST_FILE}")
+    print(f"📘 Discovery ledger updated -> {DISCOVERY_FILE}")
+    print(f"📗 Constants registry updated -> {CONST_FILE}")
 
 def main():
-    print("=== H′5 — Tessaris Resonance Fine-Lock ===")
+    print("=== H′5 - Tessaris Resonance Fine-Lock ===")
     h4 = load_json(H4_FILE)
     if not h4:
         print("🚨 Missing H′4 temporal resonance data.")
@@ -136,15 +136,15 @@ def main():
     radar_plot(best["phases"], RCI_fine)
     persist(result)
 
-    print(f"✅ Fine-Lock complete. RCI₍fine₎ = {RCI_fine:.3f} %, UCI = {UCI:.3f} %")
+    print(f"✅ Fine-Lock complete. RCI(fine) = {RCI_fine:.3f} %, UCI = {UCI:.3f} %")
     print(f"   ↳ gain = {best['gain']:.3f}, harmonic = {best['harmonic']:.3f}")
 
     if RCI_fine > 95 and UCI > 85:
         print("🎯 Tessaris temporal coherence layer fully stabilized.")
     elif RCI_fine > 80:
-        print("⚠️ Near full coherence — residual phase drift negligible.")
+        print("⚠️ Near full coherence - residual phase drift negligible.")
     else:
-        print("🚨 Fine-lock incomplete — review H′4 harmonics or phase scaling.")
+        print("🚨 Fine-lock incomplete - review H′4 harmonics or phase scaling.")
 
 if __name__ == "__main__":
     main()

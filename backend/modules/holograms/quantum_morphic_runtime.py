@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • QuantumMorphicRuntime (HQCE v1.1)
-#  Live ψ–κ–T field regulation with SLE → Holographic Core coupling
+#  Tessaris * QuantumMorphicRuntime (HQCE v1.1)
+#  Live ψ-κ-T field regulation with SLE -> Holographic Core coupling
 #  Includes Morphic Ledger + GlyphVault signing + Telemetry broadcast
 #  (Extended: Field History Buffer, Semantic Gravity Streaming)
 # ──────────────────────────────────────────────
@@ -35,15 +35,15 @@ try:
     from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
 except Exception:
     def send_codex_ws_event(event_type: str, payload: dict):
-        print(f"[Fallback HUD] {event_type} → {json.dumps(payload)}")
+        print(f"[Fallback HUD] {event_type} -> {json.dumps(payload)}")
 
 logger = logging.getLogger(__name__)
 
 
 class QuantumMorphicRuntime:
     """
-    Holographic Runtime with real-time ψ–κ–T regulation.
-    Activated during P5 bridge (SLE → Holographic Core).
+    Holographic Runtime with real-time ψ-κ-T regulation.
+    Activated during P5 bridge (SLE -> Holographic Core).
     """
 
     def __init__(self, ghx_packet: Dict[str, Any], avatar_state: Dict[str, Any]):
@@ -60,7 +60,7 @@ class QuantumMorphicRuntime:
         self.trigger_controller = HolographicTriggerController(ghx_packet, avatar_state)
         self.symbolic_bridge = SymbolicHSXBridge(avatar_state.get("id", "anon"), ghx_packet)
 
-        # HQCE ψ–κ–T regulation
+        # HQCE ψ-κ-T regulation
         self.feedback_controller = MorphicFeedbackController(target_coherence=0.92)
         self.last_field_signature: Optional[Dict[str, float]] = None
         self.last_feedback: Optional[Dict[str, Any]] = None
@@ -89,16 +89,16 @@ class QuantumMorphicRuntime:
     # ────────────────────────────────────────────
     def run(self) -> Dict[str, Any]:
         """
-        Full GHX runtime cycle (ψ–κ–T regulated):
+        Full GHX runtime cycle (ψ-κ-T regulated):
         - Collect holographic field state
         - Sync symbolic + entangled glyphs
-        - Compile ψ–κ–T from telemetry
+        - Compile ψ-κ-T from telemetry
         - Run morphic feedback regulation
         - Broadcast + log results
         - Sign ledger record with GlyphVault
         """
         cid = self.packet.get("container_id")
-        logger.info(f"[QuantumMorphicRuntime] 🧠 HQCE ψ–κ–T loop start: {cid}")
+        logger.info(f"[QuantumMorphicRuntime] 🧠 HQCE ψ-κ-T loop start: {cid}")
 
         # 🔴 Start live GHX WebSocket streaming (background async)
         if self.ghx_bridge:
@@ -145,7 +145,7 @@ class QuantumMorphicRuntime:
                     self.feedback_controller.rate_scale = scale
                     self.trigger_controller.update_rate = getattr(self.trigger_controller, "update_rate", 1.0) * scale
 
-                # Update MorphicFeedbackController’s target if coherence feedback present
+                # Update MorphicFeedbackController's target if coherence feedback present
                 if "target_coherence" in feedback:
                     self.feedback_controller.target_coherence = feedback["target_coherence"]
 
@@ -189,12 +189,12 @@ class QuantumMorphicRuntime:
     def _run_symbolic_overlay(self):
         """Score overlay + compute semantic gravity + propagate ψκT into Fabric Ontology."""
         try:
-            # Step 1 — Identity and scoring
+            # Step 1 - Identity and scoring
             self.symbolic_bridge.inject_identity_trails()
             self.symbolic_bridge.score_overlay_paths()
             self.symbolic_bridge.broadcast_overlay()
 
-            # Step 2 — 🌐 Forward latest semantic gravity map to GHX visual bridge
+            # Step 2 - 🌐 Forward latest semantic gravity map to GHX visual bridge
             try:
                 gravity_map = self.symbolic_bridge.compute_semantic_gravity()
                 if self.ghx_bridge:
@@ -203,14 +203,14 @@ class QuantumMorphicRuntime:
             except Exception as e:
                 logger.warning(f"[QuantumMorphicRuntime] Failed to sync semantic gravity: {e}")
 
-            # Step 3 — 🧩 Propagate ψ–κ–T deltas into Fabric Ontology
+            # Step 3 - 🧩 Propagate ψ-κ-T deltas into Fabric Ontology
             try:
                 if self.last_field_signature:
                     ψΔ = self.last_field_signature.get("psi", 0.0)
                     κΔ = self.last_field_signature.get("kappa", 0.0)
                     coherence = self.last_field_signature.get("coherence", 0.9)
                     self.fabric.propagate_resonance(ψΔ, κΔ, coherence)
-                    logger.debug("[QuantumMorphicRuntime] ψ–κ–T deltas propagated into Fabric Ontology.")
+                    logger.debug("[QuantumMorphicRuntime] ψ-κ-T deltas propagated into Fabric Ontology.")
             except Exception as e:
                 logger.warning(f"[QuantumMorphicRuntime] FabricOntology propagation failed: {e}")
 
@@ -218,7 +218,7 @@ class QuantumMorphicRuntime:
             logger.warning(f"[QuantumMorphicRuntime] SymbolicHSXBridge failed: {e}")
 
     # ────────────────────────────────────────────
-    #  Telemetry + ψ–κ–T Compilation
+    #  Telemetry + ψ-κ-T Compilation
     # ────────────────────────────────────────────
     def _collect_telemetry_snapshot(self) -> Dict[str, Any]:
         """
@@ -240,7 +240,7 @@ class QuantumMorphicRuntime:
             return {}
 
     def _update_field_history(self, ψκT: Dict[str, Any]):
-        """Append current ψ–κ–T field snapshot to rolling buffer and persist to Morphic Ledger."""
+        """Append current ψ-κ-T field snapshot to rolling buffer and persist to Morphic Ledger."""
         try:
             snapshot = {
                 "timestamp": datetime.utcnow().isoformat(),
@@ -255,10 +255,10 @@ class QuantumMorphicRuntime:
             if len(self.field_history_buffer) > self.max_history:
                 self.field_history_buffer.pop(0)
 
-            # 🧩 Auto-commit ψ–κ–T snapshot to Morphic Ledger for learning continuity
+            # 🧩 Auto-commit ψ-κ-T snapshot to Morphic Ledger for learning continuity
             if snapshot:
                 morphic_ledger.append(snapshot, observer=self.avatar.get("id", "default_avatar"))
-                logger.debug("[QuantumMorphicRuntime] ψ–κ–T snapshot committed to Morphic Ledger.")
+                logger.debug("[QuantumMorphicRuntime] ψ-κ-T snapshot committed to Morphic Ledger.")
 
         except Exception as e:
             logger.warning(f"[QuantumMorphicRuntime] Field history update failed: {e}")
@@ -324,7 +324,7 @@ class QuantumMorphicRuntime:
     def _broadcast_runtime(self, runtime_state: Dict[str, Any]):
         """Push live coherence + gravity overlays."""
         try:
-            # ψ–κ–T live state
+            # ψ-κ-T live state
             broadcast_ghx_runtime_update(runtime_state)
 
             # HUD event

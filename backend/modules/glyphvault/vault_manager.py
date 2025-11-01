@@ -1,5 +1,5 @@
 """
-🔐 Tessaris VaultManager — Unified SRK-13/17 Implementation
+🔐 Tessaris VaultManager - Unified SRK-13/17 Implementation
 Integrates:
  - GlyphVault (Fernet-encrypted capsule persistence)
  - GHX metadata injection (SRK-17)
@@ -59,7 +59,7 @@ class VaultManager:
                 del container["cubes"]
 
     def _inject_ghx_metadata(self, snapshot: dict, container_id: str):
-        """SRK-17 — Embed GHX linkage metadata from CodexTrace + QuantumCore."""
+        """SRK-17 - Embed GHX linkage metadata from CodexTrace + QuantumCore."""
         try:
             from backend.modules.codex.codex_trace import CodexTrace
             from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-F18 — Landscape Meta-Equilibrium Test
+F18 - Landscape Meta-Equilibrium Test
 -------------------------------------
 Purpose:
-  • Introduce weak inter-domain diffusion to test convergence of Λ_i toward
-    a global mean Λ̄ — i.e., meta-equilibrium across a vacuum landscape.
-  • Confirms whether multiple vacuum domains reach shared stability.
+  * Introduce weak inter-domain diffusion to test convergence of Λ_i toward
+    a global mean Λ̄ - i.e., meta-equilibrium across a vacuum landscape.
+  * Confirms whether multiple vacuum domains reach shared stability.
 
 Core Model:
     dΛ_i/dt = γ (ΔS - ΔE) - ζ (Λ_i - Λ_eq) - κ (Λ_i - Λ̄)
@@ -54,23 +54,23 @@ classification = (
     "⚠️ Partial equilibrium (diffusion insufficient)"
 )
 
-print("=== F18 — Landscape Meta-Equilibrium Test ===")
+print("=== F18 - Landscape Meta-Equilibrium Test ===")
 print(f"N={N}, γ={γ:.3f}, ζ={ζ:.2f}, κ={κ:.3f}")
 print(f"Λ_convergence={Λ_convergence:.3f}, Λ_spread={Λ_spread:.3e}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 
 # --- Plots ---
 out = Path(".")
 plt.figure(figsize=(10,5))
 for i in range(N):
     plt.plot(t, Λ[i], lw=1.2, label=f"Domain {i+1}")
-plt.title("F18 — Λ Evolution Across Landscape Domains")
+plt.title("F18 - Λ Evolution Across Landscape Domains")
 plt.xlabel("time"); plt.ylabel("Λ_i(t)"); plt.legend(); plt.tight_layout()
 plt.savefig(out/"PAEV_F18_LandscapeConvergence.png", dpi=160)
 
 plt.figure(figsize=(6,4))
 plt.hist(Λ_final, bins=8, color='gray', alpha=0.7)
-plt.title("F18 — Final Λ Distribution Across Domains")
+plt.title("F18 - Final Λ Distribution Across Domains")
 plt.xlabel("Λ_final"); plt.ylabel("count")
 plt.tight_layout(); plt.savefig(out/"PAEV_F18_DriftHistogram.png", dpi=160)
 
@@ -95,4 +95,4 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 }
 Path("backend/modules/knowledge/F18_landscape_equilibrium.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/F18_landscape_equilibrium.json")
+print("📄 Summary saved -> backend/modules/knowledge/F18_landscape_equilibrium.json")

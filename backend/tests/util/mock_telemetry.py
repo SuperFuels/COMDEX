@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Mock Telemetry Generator — Tessaris / CFE v0.3.x
+Mock Telemetry Generator - Tessaris / CFE v0.3.x
 Generates synthetic telemetry logs aligned with last_session.gwv
 so that GHX/QFC overlay validation can compute coherence/time deltas.
 
@@ -45,7 +45,7 @@ def generate_mock_telemetry(gwv_path: str, out_path: str):
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(telem_entries, f, indent=2)
 
-    print(f"✅ Mock telemetry generated → {out_path}")
+    print(f"✅ Mock telemetry generated -> {out_path}")
     print(f"📈 Entries: {len(telem_entries)}, Δt≈±2 ms, Δcoherence≈±0.01")
 
 

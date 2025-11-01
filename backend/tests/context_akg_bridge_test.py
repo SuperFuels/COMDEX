@@ -8,7 +8,7 @@ print("=== 🧪 Context↔AKG Bridge Test Start ===")
 # Simulate recent conversation
 MEM.remember("System feels balanced.", "Affirming equilibrium.", emotion_state="calm", semantic_field="stability")
 MEM.remember("Analyze the resonance pattern.", "Computing harmonic spectrum.", emotion_state="analytical", semantic_field="resonance")
-MEM.remember("Could it self-correct?", "Curious — evaluating self-regulation.", emotion_state="curious", semantic_field="adaptation")
+MEM.remember("Could it self-correct?", "Curious - evaluating self-regulation.", emotion_state="curious", semantic_field="adaptation")
 
 # Update tone based on recent dialogue
 TONE.update()

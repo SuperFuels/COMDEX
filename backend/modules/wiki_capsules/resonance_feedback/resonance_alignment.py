@@ -51,13 +51,13 @@ def align_resonance(meta: Dict[str, Any]) -> ResonanceState:
 # ───────────────────────────────────────────────
 def resonance_realign(title: str, keywords: Optional[list] = None) -> Dict[str, Any]:
     """
-    Force recalibration of a single capsule’s resonance fields.
+    Force recalibration of a single capsule's resonance fields.
     This pulls the current Aion resonance state, recomputes drift,
     and triggers an update_resonance() if necessary.
     """
     current = get_resonance(title)
     if not current:
-        print(f"[Realign] {title} not found — creating baseline.")
+        print(f"[Realign] {title} not found - creating baseline.")
         return update_resonance(title, keywords)
 
     new_state = update_resonance(title, keywords or current.get("keywords", []))

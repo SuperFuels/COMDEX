@@ -1,22 +1,22 @@
 """
-A1d — Stabilized Anti-Gravity / Negative-Energy Bubble (Phase-IV)
+A1d - Stabilized Anti-Gravity / Negative-Energy Bubble (Phase-IV)
 -----------------------------------------------------------------
 Goal:
     Achieve sustained NEC<0 fraction (>15%) and negative entropy slope tail.
 
 Enhancements over A1c:
-    • Stronger Lyapunov feedback (kL = 0.02)
-    • Bursty anti-phase Λ(t) pulses (6–10% duty)
-    • Bubble-local pressure relief pη = |∂xψ|² − η|ψ|²
-    • Optional second field ψ₂ with anti-phase coupling γ_c
-    • Exponential edge sponge (absorbing boundary)
+    * Stronger Lyapunov feedback (kL = 0.02)
+    * Bursty anti-phase Λ(t) pulses (6-10% duty)
+    * Bubble-local pressure relief pη = |∂xψ|2 - η|ψ|2
+    * Optional second field ψ2 with anti-phase coupling γ_c
+    * Exponential edge sponge (absorbing boundary)
 
 Outputs:
-    • PAEV_A1d_NEC_TimeSeries.png
-    • PAEV_A1d_EntropySlope.png
-    • PAEV_A1d_BubbleProfile.png
-    • PAEV_A1d_NEC_Histogram.png
-    • backend/modules/knowledge/A1d_antigravity_bubble.json
+    * PAEV_A1d_NEC_TimeSeries.png
+    * PAEV_A1d_EntropySlope.png
+    * PAEV_A1d_BubbleProfile.png
+    * PAEV_A1d_NEC_Histogram.png
+    * backend/modules/knowledge/A1d_antigravity_bubble.json
 """
 
 import json, numpy as np, matplotlib.pyplot as plt
@@ -180,11 +180,11 @@ elif (frac_exotic >= 0.05 and NEC_time_min < -1e-4):
 else:
     classification = "❌ No Exotic Phase"
 
-print("=== A1d — Stabilized Anti-Gravity / Negative-Energy Bubble ===")
+print("=== A1d - Stabilized Anti-Gravity / Negative-Energy Bubble ===")
 print(f"ħ={ħ:.3e}, G={G:.3e}, Λ0={Λ0:.3e}, α0={α0:.3f}, χ={chi:.2f}, η={eta:.2f}")
 print(f"⟨NEC⟩_bubble = {NEC_time_mean:.3e} | min_t NEC = {NEC_time_min:.3e}")
 print(f"fraction(NEC<0) = {frac_exotic:.2f} | tail ⟨dS/dt⟩ = {dSdt_tail_mean:.3e}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 
 # -------------------------
 # 8) Plots
@@ -194,7 +194,7 @@ plt.figure(figsize=(9,4.5))
 plt.plot(NEC_trace, lw=1.2, label="⟨NEC⟩ in bubble")
 plt.plot(NEC_min_trace, lw=1.0, alpha=0.7, label="min(NEC) in bubble")
 plt.axhline(0.0, color="k", ls="--", lw=0.8)
-plt.title("A1d — NEC Proxy in Bubble (ρ + pη)")
+plt.title("A1d - NEC Proxy in Bubble (ρ + pη)")
 plt.xlabel("time step"); plt.ylabel("NEC proxy")
 plt.legend(); plt.tight_layout()
 plt.savefig(out_dir / "PAEV_A1d_NEC_TimeSeries.png", dpi=160)
@@ -202,7 +202,7 @@ plt.savefig(out_dir / "PAEV_A1d_NEC_TimeSeries.png", dpi=160)
 plt.figure(figsize=(9,4.5))
 plt.plot(dSdt_trace, lw=1.2)
 plt.axhline(0.0, color="k", ls="--", lw=0.8)
-plt.title("A1d — Entropy Slope dS/dt (EMA)")
+plt.title("A1d - Entropy Slope dS/dt (EMA)")
 plt.xlabel("time step"); plt.ylabel("dS/dt")
 plt.tight_layout()
 plt.savefig(out_dir / "PAEV_A1d_EntropySlope.png", dpi=160)
@@ -210,7 +210,7 @@ plt.savefig(out_dir / "PAEV_A1d_EntropySlope.png", dpi=160)
 plt.figure(figsize=(9,4.5))
 plt.plot(alpha_center_trace, label="α(center)")
 plt.plot(Lambda_center_trace, label="Λ(center)")
-plt.title("A1d — Bubble Control Profiles at Center")
+plt.title("A1d - Bubble Control Profiles at Center")
 plt.xlabel("time step"); plt.ylabel("value")
 plt.legend(); plt.tight_layout()
 plt.savefig(out_dir / "PAEV_A1d_BubbleProfile.png", dpi=160)
@@ -218,7 +218,7 @@ plt.savefig(out_dir / "PAEV_A1d_BubbleProfile.png", dpi=160)
 plt.figure(figsize=(6,4))
 plt.hist(NEC_min_trace, bins=60, color="slateblue", alpha=0.75)
 plt.axvline(0, color="k", lw=1, ls="--")
-plt.title("A1d — Distribution of min(NEC) in Bubble")
+plt.title("A1d - Distribution of min(NEC) in Bubble")
 plt.xlabel("NEC value"); plt.ylabel("frequency")
 plt.tight_layout()
 plt.savefig(out_dir / "PAEV_A1d_NEC_Histogram.png", dpi=160)
@@ -254,4 +254,4 @@ summary = {
 
 save_path = Path("backend/modules/knowledge/A1d_antigravity_bubble.json")
 save_path.write_text(json.dumps(summary, indent=2))
-print(f"📄 Summary saved → {save_path}")
+print(f"📄 Summary saved -> {save_path}")

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-🌐  Resonant Integration Bridge — Phase 63 Tessaris Unification
+🌐  Resonant Integration Bridge - Phase 63 Tessaris Unification
 ───────────────────────────────────────────────────────────────
 Bridges Resonance Governance Loop + Harmonic Memory Fusion
 with the Symatics Algebra and Quantum Quad Core (Photon Language).
 
-Feeds harmonic state into Symatic operators for stable symbolic–photonic interchange.
+Feeds harmonic state into Symatic operators for stable symbolic-photonic interchange.
 """
 
 import json, time
@@ -58,7 +58,7 @@ def fuse_resonant_state():
     OUT_PATH.write_text(json.dumps(state, indent=2))
 
     Theta.event("resonant_bridge_update", **state)
-    print(f"🔗 Resonant Bridge update → H={harmony:.3f}, ρ={coherence_boost:.3f}")
+    print(f"🔗 Resonant Bridge update -> H={harmony:.3f}, ρ={coherence_boost:.3f}")
     return state
 
 def main():

@@ -83,9 +83,9 @@ def build_beam_log_packet(beam: WaveState, stage: str = "final") -> Dict:
 def _extract_symbol(beam: WaveState) -> str:
     try:
         if isinstance(beam.collapsed_state, dict):
-            return beam.collapsed_state.get("symbol", "•")
+            return beam.collapsed_state.get("symbol", "*")
         if isinstance(beam.collapsed_state, str):
             return beam.collapsed_state
     except Exception:
         pass
-    return "•"
+    return "*"

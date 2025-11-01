@@ -63,9 +63,9 @@ def _get_primary_symbol(beam: WaveState) -> str:
     """
     try:
         if isinstance(beam.collapsed_state, dict):
-            return beam.collapsed_state.get("symbol", "•")
+            return beam.collapsed_state.get("symbol", "*")
         if isinstance(beam.collapsed_state, str):
             return beam.collapsed_state
     except Exception:
         pass
-    return "•"  # Default fallback
+    return "*"  # Default fallback

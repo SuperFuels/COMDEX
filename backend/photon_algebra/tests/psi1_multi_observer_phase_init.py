@@ -1,11 +1,11 @@
 """
-Ψ₁ — Multi-Observer Phase Initialization (Tessaris)
+Ψ1 - Multi-Observer Phase Initialization (Tessaris)
 ---------------------------------------------------
 Mathematical Verification Version (Lock-In v1.0)
 
 Purpose:
     Establishes the baseline for phase alignment and global coherence across a distributed
-    observer lattice. Each observer ψ_j ∈ ℂ evolves according to a mean-field coupling law,
+    observer lattice. Each observer ψ_j ∈ C evolves according to a mean-field coupling law,
     representing the initialization of coherence in the Tessaris photon-algebra formalism.
 
 Mathematical Formulation:
@@ -18,8 +18,8 @@ Mathematical Formulation:
         θ_j(t+1) = θ_j(t) + η * (⟨sin θ⟩ - sin θ_j)
 
     where:
-        η  → coupling strength (0 < η << 1)
-        ⟨sin θ⟩ → global mean-field interaction term
+        η  -> coupling strength (0 < η << 1)
+        ⟨sin θ⟩ -> global mean-field interaction term
 
     The coherence metric (Φ) is computed as:
         Φ = 1 - σ_sin(θ)
@@ -27,7 +27,7 @@ Mathematical Formulation:
 
 Expected Result:
     - Under mild coupling (η = 0.05), the lattice exhibits global phase alignment.
-    - Provides the baseline initial state for Ψ₂ lattice propagation.
+    - Provides the baseline initial state for Ψ2 lattice propagation.
 
 Artifacts:
     ✅ backend/modules/knowledge/Ψ1_multi_observer_phase_init_summary.json
@@ -100,7 +100,7 @@ summary = {
     "discovery": [
         "Initialized phase coherence across distributed observers.",
         "Demonstrated global phase alignment tendency under Tessaris coupling constants.",
-        "Established baseline for Ψ₂ lattice propagation tests.",
+        "Established baseline for Ψ2 lattice propagation tests.",
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2",
 }
@@ -116,12 +116,12 @@ with open(out_json, "w") as f:
 plt.figure(figsize=(8, 4))
 for i in range(observers):
     plt.plot(phase_matrix[i], alpha=0.7, label=f"Observer {i+1}")
-plt.title("Ψ₁ Multi-Observer Phase Initialization (Tessaris)")
+plt.title("Ψ1 Multi-Observer Phase Initialization (Tessaris)")
 plt.xlabel("Iteration")
 plt.ylabel("sin(θ)")
 plt.legend(loc="upper right", fontsize="small")
 plt.tight_layout()
 plt.savefig(out_png, dpi=150)
 
-print(f"✅ Ψ₁ summary saved → {out_json}")
-print(f"✅ Visualization saved → {out_png}")
+print(f"✅ Ψ1 summary saved -> {out_json}")
+print(f"✅ Visualization saved -> {out_png}")

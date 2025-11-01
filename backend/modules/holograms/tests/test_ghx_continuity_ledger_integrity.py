@@ -1,5 +1,5 @@
 """
-🧪 SRK-18 Task 18.3 — GHX Continuity Ledger Integrity Tests
+🧪 SRK-18 Task 18.3 - GHX Continuity Ledger Integrity Tests
 Covers: hash-link verification, signature validation, tamper detection, and snapshot restore.
 """
 
@@ -51,7 +51,7 @@ def test_detects_broken_linkage():
     ledger.chain[1]["prev_hash"] = "deadbeef"  # break link intentionally
     result = ledger.verify_chain()
     assert result["verified"] is False
-    # since changing prev_hash alters the hash, it’s detected as hash_mismatch first
+    # since changing prev_hash alters the hash, it's detected as hash_mismatch first
     assert result["error"] in ("link_broken", "hash_mismatch")
 
 def test_detects_signature_tampering():

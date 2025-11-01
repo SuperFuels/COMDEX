@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-E5 — Entanglement with Information Flow Shuffle
+E5 - Entanglement with Information Flow Shuffle
 ------------------------------------------------
 Goal:
-  Extend E2–E4 entanglement suite by introducing a stochastic "information shuffle"
-  between entangled field pairs (ψ₁, ψ₂) to test whether randomized feedback exchange
+  Extend E2-E4 entanglement suite by introducing a stochastic "information shuffle"
+  between entangled field pairs (ψ1, ψ2) to test whether randomized feedback exchange
   can reproduce a quantum-like Bell correlation (CHSH > 2).
 
 Background:
-  • E2 (Duan–Simon): CV entanglement detected ✅
-  • E3 (Reid): EPR steering confirmed ✅
-  • E4 (CHSH surrogate): Classical correlation only (S ≈ 2.0) ❌
-  • E5 aims to explore whether stochastic information redistribution restores
+  * E2 (Duan-Simon): CV entanglement detected ✅
+  * E3 (Reid): EPR steering confirmed ✅
+  * E4 (CHSH surrogate): Classical correlation only (S ≈ 2.0) ❌
+  * E5 aims to explore whether stochastic information redistribution restores
     quantum-type nonlocal correlation without explicit measurement collapse.
 
 """
@@ -80,13 +80,13 @@ plt.axhline(0, color='black', lw=0.8)
 plt.axhline(0.5, color='green', ls='--', label="Typical EPR Steering")
 plt.axhline(1.0, color='blue', ls=':', label="Perfect Correlation")
 plt.axhline(S/4, color='red', ls='-', label=f"CHSH ≈ {S:.3f}")
-plt.title("E5 — Entanglement with Information Flow Shuffle")
+plt.title("E5 - Entanglement with Information Flow Shuffle")
 plt.xlabel("Angle pair index"); plt.ylabel("Correlation")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_E5_InformationShuffle.png", dpi=160)
 
-print("=== E5 — Entanglement with Information Flow Shuffle ===")
-print(f"S = {S:.3f} → {classification}")
+print("=== E5 - Entanglement with Information Flow Shuffle ===")
+print(f"S = {S:.3f} -> {classification}")
 print("✅ Plot saved: PAEV_E5_InformationShuffle.png")
 
 # ---------- Knowledge summary ----------
@@ -106,4 +106,4 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
 }
 Path("backend/modules/knowledge/E5_information_shuffle_entanglement.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/E5_information_shuffle_entanglement.json")
+print("📄 Summary saved -> backend/modules/knowledge/E5_information_shuffle_entanglement.json")

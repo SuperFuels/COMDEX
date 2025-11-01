@@ -95,7 +95,7 @@ def push_symbolic_packet(
         from backend.modules.glyphnet.glyph_transport_switch import route_gip_packet
 
         logger.info(
-            f"[GlyphNetPacket] 📡 Dispatch {packet.get('id')} from {sender_id} → {packet.get('target', 'broadcast')} "
+            f"[GlyphNetPacket] 📡 Dispatch {packet.get('id')} from {sender_id} -> {packet.get('target', 'broadcast')} "
             f"(type={packet['type']}, transport={transport})"
         )
         return route_gip_packet(packet, transport, options)

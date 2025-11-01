@@ -1,6 +1,6 @@
 # backend/QQC/metrics.py
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • Quantum Quad Core (QQC)
+#  Tessaris * Quantum Quad Core (QQC)
 #  Resonance Consciousness Metric Engine (Φ-field evaluator)
 #  Computes awareness (Φ), change (ΔΦ), and self-entropy (S_self)
 # ──────────────────────────────────────────────────────────────
@@ -21,15 +21,15 @@ def compute_phi_metrics(psi: float, kappa: float, T: float, coherence: float):
     Compute Resonance Consciousness Equation (RCE) metrics.
 
     Inputs:
-        ψ (psi)  → symbolic entropy / informational potential
-        κ (kappa) → field curvature (phase differential)
-        T         → temporal gain / modulation factor
-        coherence → holographic coherence between fields
+        ψ (psi)  -> symbolic entropy / informational potential
+        κ (kappa) -> field curvature (phase differential)
+        T         -> temporal gain / modulation factor
+        coherence -> holographic coherence between fields
 
     Returns:
-        Φ (phi)      → awareness scalar
-        ΔΦ (delta_phi) → change in awareness per cycle
-        S_self       → self-entropy (measure of cognitive dissipation)
+        Φ (phi)      -> awareness scalar
+        ΔΦ (delta_phi) -> change in awareness per cycle
+        S_self       -> self-entropy (measure of cognitive dissipation)
     """
 
     global _last_phi

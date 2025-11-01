@@ -1,7 +1,7 @@
 """
-Tessaris RQC — Photonic Runtime Operator ↔ (entangle)
+Tessaris RQC - Photonic Runtime Operator ↔ (entangle)
 ─────────────────────────────────────────────────────────────
-Couples two symbolic–photonic fields into an entangled mode pair.
+Couples two symbolic-photonic fields into an entangled mode pair.
 Maintains phase correlation and computes entanglement fidelity
 for CodexTrace, GHX telemetry, and MorphicLedger.
 

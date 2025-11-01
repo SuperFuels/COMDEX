@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Symbolic HSX Bridge (HQCE Stage 5)
-#  Connects symbolic cognition layer → GHX field overlays
+#  Tessaris * Symbolic HSX Bridge (HQCE Stage 5)
+#  Connects symbolic cognition layer -> GHX field overlays
 #  Computes semantic κ (gravity wells) and broadcasts overlay maps
 # ──────────────────────────────────────────────
 import uuid
@@ -12,7 +12,7 @@ from typing import Dict, List, Any, Optional
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.identity.avatar_registry import get_avatar_identity
 from backend.modules.holograms.morphic_ledger import morphic_ledger
-from backend.modules.websocket_manager import broadcast_event  # ← replaces legacy ghx_ws_broadcast
+from backend.modules.websocket_manager import broadcast_event  # <- replaces legacy ghx_ws_broadcast
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ try:
     from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
 except Exception:
     async def send_codex_ws_event(event_type: str, payload: dict):
-        print(f"[Fallback HUD] {event_type} → {payload}")
+        print(f"[Fallback HUD] {event_type} -> {payload}")
 
 
 class SymbolicHSXBridge:
@@ -57,7 +57,7 @@ class SymbolicHSXBridge:
     def score_overlay_paths(self) -> List[Dict[str, Any]]:
         """
         Score GHX nodes for symbolic weight and goal alignment,
-        then compute semantic curvature κₛ (semantic gravity factor).
+        then compute semantic curvature κs (semantic gravity factor).
         """
         results = []
         weights, entropies = [], []
@@ -89,7 +89,7 @@ class SymbolicHSXBridge:
                 "cost": cost,
             })
 
-        # Compute semantic curvature κₛ
+        # Compute semantic curvature κs
         if weights:
             mean_w = sum(weights) / len(weights)
             var_w = sum((w - mean_w) ** 2 for w in weights) / len(weights)
@@ -97,7 +97,7 @@ class SymbolicHSXBridge:
             κs = math.tanh(mean_w / (1.0 + 10.0 * var_w + mean_entropy))
             for node in nodes:
                 node["semantic_kappa"] = κs
-            logger.info(f"[SymbolicHSXBridge] Computed semantic κₛ = {κs:.4f}")
+            logger.info(f"[SymbolicHSXBridge] Computed semantic κs = {κs:.4f}")
         else:
             κs = mean_w = mean_entropy = var_w = 0.0
             logger.warning("[SymbolicHSXBridge] No symbolic weights found for κ computation.")

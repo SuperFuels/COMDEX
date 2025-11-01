@@ -91,7 +91,7 @@ SignatureVector = list[Signature]
 
 def canonical_signature(sig: Signature) -> Signature:
     """
-    Canonicalization used by measurement μ(·).
+    Canonicalization used by measurement μ(*).
     Round/tie-break to nearest stable lattice point in signature space.
     """
     fppm = 1e-6

@@ -14,7 +14,7 @@ class QGlyphGenerator:
     def generate_superposed_glyph(self, base_symbol: str, states: List[str] = ["0", "1"]) -> Dict[str, Any]:
         """
         Generate a Q-Glyph in symbolic superposition: base ↔ states.
-        Example: A ↔ ["0", "1"] → {"↔": ["A:0", "A:1"]}
+        Example: A ↔ ["0", "1"] -> {"↔": ["A:0", "A:1"]}
         """
         qglyph_id = str(uuid.uuid4())
         superposed = { "↔": [f"{base_symbol}:{s}" for s in states] }
@@ -40,7 +40,7 @@ class QGlyphGenerator:
         return self.generated
 
 # -------------------------
-# ✅ ADDITION: String → QGlyph Parser
+# ✅ ADDITION: String -> QGlyph Parser
 # -------------------------
 
 def generate_qglyph_from_string(raw_string: str, metadata: dict = None) -> LogicGlyph:

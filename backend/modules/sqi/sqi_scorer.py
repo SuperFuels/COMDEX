@@ -54,7 +54,7 @@ def score_all_electrons(data: Any) -> Dict[str, Dict[str, Any]]:
     - A list of WaveState or glyph dicts (EntangledWave mode)
 
     Returns:
-        Dict mapping glyph id → score payload
+        Dict mapping glyph id -> score payload
     """
     from backend.modules.sqi.metrics_bus import metrics_bus
 

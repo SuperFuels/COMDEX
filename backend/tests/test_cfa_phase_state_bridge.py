@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • Test Suite: C7 Phase-State Bridge (Fixed Version)
+#  Tessaris * Test Suite: C7 Phase-State Bridge (Fixed Version)
 # ──────────────────────────────────────────────────────────────
 
 import os

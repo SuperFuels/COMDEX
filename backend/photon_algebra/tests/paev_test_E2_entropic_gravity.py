@@ -1,5 +1,5 @@
 # ==========================================================
-# Test E2 — Entropic Gravity Simulation
+# Test E2 - Entropic Gravity Simulation
 # ==========================================================
 # Purpose:
 #   Couple curvature κ(x,y) to local entropy S(x,y)
@@ -7,9 +7,9 @@
 #   Entropy gradients act as curvature sources.
 #
 # Outputs:
-#   - Animation of coupled curvature–entropy fields
+#   - Animation of coupled curvature-entropy fields
 #   - Energy vs entropy trace
-#   - Entropy–curvature correlation plot
+#   - Entropy-curvature correlation plot
 #
 # ==========================================================
 
@@ -66,14 +66,14 @@ for step in range(steps):
     if step % 20 == 0:
         fig, ax = plt.subplots(1, 2, figsize=(9, 4))
         im1 = ax[0].imshow(kappa, cmap="plasma", extent=[-1,1,-1,1])
-        ax[0].set_title(f"Curvature κ(x,y) — Step {step}")
+        ax[0].set_title(f"Curvature κ(x,y) - Step {step}")
         plt.colorbar(im1, ax=ax[0], fraction=0.046, pad=0.04)
 
         im2 = ax[1].imshow(S, cmap="cividis", extent=[-1,1,-1,1])
         ax[1].set_title("Entropy Field S(x,y)")
         plt.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
 
-        plt.suptitle("Test E2 — Entropic Gravity Simulation")
+        plt.suptitle("Test E2 - Entropic Gravity Simulation")
         plt.tight_layout()
 
         fig.canvas.draw()
@@ -86,31 +86,31 @@ print("✅ Saved animation to: PAEV_TestE2_EntropicGravity.gif")
 
 # Plot energy and entropy evolution
 plt.figure()
-plt.plot(energy_trace, label="⟨κ²⟩ (curvature energy)", color="blue")
+plt.plot(energy_trace, label="⟨κ2⟩ (curvature energy)", color="blue")
 plt.plot(entropy_trace, label="⟨S⟩ (entropy mean)", color="orange")
-plt.title("Test E2 — Energy vs Entropy Evolution")
+plt.title("Test E2 - Energy vs Entropy Evolution")
 plt.xlabel("Time step")
 plt.ylabel("Mean value")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_TestE2_EntropicGravity_EnergyEntropy.png")
 plt.close()
-print("✅ Saved energy–entropy evolution plot.")
+print("✅ Saved energy-entropy evolution plot.")
 
 # Correlation trace
 plt.figure()
 plt.plot(corr_trace, color="purple")
-plt.title("Test E2 — Curvature–Entropy Correlation")
+plt.title("Test E2 - Curvature-Entropy Correlation")
 plt.xlabel("Time step")
-plt.ylabel("⟨κ·S⟩ correlation")
+plt.ylabel("⟨κ*S⟩ correlation")
 plt.tight_layout()
 plt.savefig("PAEV_TestE2_EntropicGravity_Correlation.png")
 plt.close()
-print("✅ Saved curvature–entropy correlation plot.")
+print("✅ Saved curvature-entropy correlation plot.")
 
-print("\n=== Test E2 — Entropic Gravity Simulation Complete ===")
-print(f"⟨κ²⟩ final = {np.mean(kappa**2):.4e}")
+print("\n=== Test E2 - Entropic Gravity Simulation Complete ===")
+print(f"⟨κ2⟩ final = {np.mean(kappa**2):.4e}")
 print(f"⟨S⟩ final = {np.mean(S):.4e}")
-print(f"⟨κ·S⟩ correlation = {np.mean(corr_trace):.4e}")
+print(f"⟨κ*S⟩ correlation = {np.mean(corr_trace):.4e}")
 print("All output files saved in working directory.")
 print("----------------------------------------------------------")

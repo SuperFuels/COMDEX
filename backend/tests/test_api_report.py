@@ -26,7 +26,7 @@ def test_api_inject_invalid_lean(tmp_path, client):
         "/api/lean/inject",
         data={
             "container_path": str(container_path),
-            "fail_on_error": "true",   # Form(bool) → FastAPI coerces "true" → True
+            "fail_on_error": "true",   # Form(bool) -> FastAPI coerces "true" -> True
         },
         files={
             "lean_file": ("bad.lean", lean_path.read_bytes(), "text/plain"),

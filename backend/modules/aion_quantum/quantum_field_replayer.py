@@ -1,7 +1,7 @@
 # backend/modules/aion_quantum/quantum_field_replayer.py
 """
 Tessaris Quantum Field Replayer (QFR)
-Phase 12 — Replay recorded resonance meshes (.qrm.gz) into live feedback.
+Phase 12 - Replay recorded resonance meshes (.qrm.gz) into live feedback.
 
 - Loads a .qrm.gz file from data/resonance_mesh/
 - Reconstructs frames (Φ, ν, ψ, t) with tolerant parsing
@@ -50,13 +50,13 @@ def _coalesce(*candidates):
 def detect_frames(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Detects and reconstructs frame lists from .qrm.gz structures.
-    Supports flattened dict-of-lists style (Φ_coh[], ψ₂[], ν_centroid[], t[], stability[]).
+    Supports flattened dict-of-lists style (Φ_coh[], ψ2[], ν_centroid[], t[], stability[]).
     """
-    # Case 1 — top-level list
+    # Case 1 - top-level list
     if isinstance(payload, list):
         return payload
 
-    # Case 2 — dict with expected top-level keys
+    # Case 2 - dict with expected top-level keys
     if isinstance(payload, dict):
         if "data" in payload and isinstance(payload["data"], dict):
             data = payload["data"]
@@ -114,12 +114,12 @@ def summarize_frame(frame: Dict[str, Any]) -> Tuple[float, float, Dict[str, Any]
     # Timestamp best-effort
     ts = _coalesce(frame.get("timestamp"), frame.get("time"), _now_iso())
 
-    # Normalize ψ if missing → derive a neutral standing wave (~1.0)
+    # Normalize ψ if missing -> derive a neutral standing wave (~1.0)
     if not psi:
         psi = {
-            "Δψ₁": 1.0,
-            "Δψ₂": 1.0,
-            "Δψ₃": 1.0,
+            "Δψ1": 1.0,
+            "Δψ2": 1.0,
+            "Δψ3": 1.0,
             "phase_shift": float(_coalesce(frame.get("phase"), 0.0)),
             "stability": stability,
         }
@@ -183,7 +183,7 @@ def replay_qrm(
     payload = load_qrm(path)
     frames = detect_frames(payload)
     if verbose:
-        print(f"🎞️  Starting Tessaris Quantum Field Replayer (QFR) …")
+        print(f"🎞️  Starting Tessaris Quantum Field Replayer (QFR) ...")
         print(f"▶️  Replaying {path.name} (frames={len(frames)})")
 
     # Stats

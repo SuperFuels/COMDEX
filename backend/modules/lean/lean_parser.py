@@ -1,6 +1,6 @@
 # File: backend/modules/lean/lean_parser.py
 """
-Lean Parser → CodexGlyph Translator
+Lean Parser -> CodexGlyph Translator
 ──────────────────────────────────────────────
 Parses Lean source files (axioms, theorems, defs, etc.) into symbolic structures
 usable by Tessaris and CodexGlyph translators.
@@ -74,7 +74,7 @@ def parse_lean_file(lean_text: str) -> List[Dict[str, str]]:
                 body = match.group(3).strip()
 
             # Debug summary
-            print(f"[DEBUG] {kind} matched → name={name!r}, logic={logic!r}")
+            print(f"[DEBUG] {kind} matched -> name={name!r}, logic={logic!r}")
 
             decls.append(
                 {
@@ -158,7 +158,7 @@ def parse_proof_dir(directory: str) -> List[Dict[str, str]]:
             decls = parse_lean_file(text)
             for d in decls:
                 d["source_file"] = str(lean_file)
-                # Mark all theorems and lemmas as “proved” by default
+                # Mark all theorems and lemmas as "proved" by default
                 if d["symbol"] in ("⟦ Theorem ⟧", "⟦ Lemma ⟧"):
                     d["status"] = "proved"
                 else:
@@ -191,7 +191,7 @@ if __name__ == "__main__":
 
     print("\n=== Parsed Declarations ===")
     for d in decls:
-        print(f"• {d['symbol']} {d['name']}")
+        print(f"* {d['symbol']} {d['name']}")
         print(f"  Logic: {d['logic']}")
         if d['body']:
             print(f"  Body: {d['body'][:60]}{'...' if len(d['body']) > 60 else ''}")

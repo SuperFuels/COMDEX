@@ -1,6 +1,6 @@
 # ==========================================================
-# G-Series Synthesis Report — Tessaris Unified Equation (TUE)
-# Consolidates all G-level JSONs (G1 … G4RC4)
+# G-Series Synthesis Report - Tessaris Unified Equation (TUE)
+# Consolidates all G-level JSONs (G1 ... G4RC4)
 # Builds stability progression, coupling histogram,
 # and registry metadata summary.
 # Saves: backend/modules/knowledge/G_series_synthesis.json
@@ -57,7 +57,7 @@ valid_idx = [i for i, c in enumerate(corrs) if not np.isnan(c)]
 if valid_idx:
     plt.bar([names[i] for i in valid_idx], [corrs[i] for i in valid_idx],
             color="purple", alpha=0.7)
-    plt.title("G-Series Entropy–Information Coupling Strength")
+    plt.title("G-Series Entropy-Information Coupling Strength")
     plt.xlabel("Experiment"); plt.ylabel("corr(S,I)")
     plt.xticks(rotation=30, ha="right"); plt.tight_layout()
     plt.savefig(os.path.join(base_dir, "G_series_coupling_histogram.png"))
@@ -88,5 +88,5 @@ with open(out_path, "w") as f:
 
 print("=== G-Series Synthesis Complete ===")
 print(f"{len(records)} records merged | mean stability={mean_stab:.3f}")
-print(f"Best run → {best_name}")
-print(f"✅ Saved → {out_path}")
+print(f"Best run -> {best_name}")
+print(f"✅ Saved -> {out_path}")

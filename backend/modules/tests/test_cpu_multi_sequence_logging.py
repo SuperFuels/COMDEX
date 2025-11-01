@@ -8,7 +8,7 @@ from backend.codexcore_virtual.cpu_executor import VirtualCPU
 def test_multi_instruction_sequence(capsys):
     cpu = VirtualCPU()
 
-    # Program: TELEPORT (will error because CPU doesn’t handle glyph ops),
+    # Program: TELEPORT (will error because CPU doesn't handle glyph ops),
     # then LOG (never reached), then FAKE_OP (never reached).
     cpu.load_program([
         "TELEPORT ZetaSector",

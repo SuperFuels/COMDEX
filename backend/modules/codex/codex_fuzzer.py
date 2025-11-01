@@ -1,6 +1,6 @@
 import random
 
-ops = ["⊕", "⟲", "↔", "→", "⧖"]
+ops = ["⊕", "⟲", "↔", "->", "⧖"]
 op_weights = [4, 2, 1, 2, 5]  # Bias
 
 def generate_random_qglyph_tree(depth=0, max_depth=14):

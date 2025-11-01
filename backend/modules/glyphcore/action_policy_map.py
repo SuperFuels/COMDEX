@@ -1,7 +1,7 @@
 # backend/modules/glyphcore/action_policy_map.py
 
 """
-Defines action → policy mappings for GlyphCore enforcement.
+Defines action -> policy mappings for GlyphCore enforcement.
 
 Each action can specify:
 - require_qkd: whether QKD is mandatory

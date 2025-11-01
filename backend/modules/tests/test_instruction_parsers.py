@@ -12,15 +12,15 @@ def test_tree_parser_literal():
 
 
 def test_tree_parser_simple_chain():
-    result = parse_codexlang("A → B")
-    assert result["op"].endswith("→")
+    result = parse_codexlang("A -> B")
+    assert result["op"].endswith("->")
     assert result["args"][0]["value"] == "A"
     assert result["args"][1]["value"] == "B"
 
 
 def test_tree_parser_nested_expression():
-    result = parse_codexlang("A ⊕ B → C")
-    assert result["op"].endswith("→")
+    result = parse_codexlang("A ⊕ B -> C")
+    assert result["op"].endswith("->")
     left = result["args"][0]
     assert left["op"].endswith("⊕")
     assert left["args"][0]["value"] == "A"
@@ -39,8 +39,8 @@ def test_tree_parser_program_wraps():
 # ─── NEW: PARENTHESIS / NESTED EXPRESSIONS ───────────────────────────────
 
 def test_tree_parser_parentheses_group():
-    result = parse_codexlang("(A ⊕ B) → C")
-    assert result["op"].endswith("→")
+    result = parse_codexlang("(A ⊕ B) -> C")
+    assert result["op"].endswith("->")
     left = result["args"][0]
     assert left["op"].endswith("⊕")
     assert left["args"][0]["value"] == "A"
@@ -59,10 +59,10 @@ def test_tree_parser_reflect_with_inner_op():
 
 
 def test_tree_parser_nested_reflect_chain():
-    result = parse_codexlang("⟲((A ⊕ B) → C)")
+    result = parse_codexlang("⟲((A ⊕ B) -> C)")
     assert result["op"].endswith("⟲")
     inner = result["args"][0]
-    assert inner["op"].endswith("→")
+    assert inner["op"].endswith("->")
     assert inner["args"][0]["op"].endswith("⊕")
     assert inner["args"][1]["value"] == "C"
 
@@ -76,8 +76,8 @@ def test_flat_parser_simple_addition():
 
 
 def test_flat_parser_chain_forward():
-    result = parse_codex_instructions("X → Y")
-    assert result[0]["opcode"].endswith("→")
+    result = parse_codex_instructions("X -> Y")
+    assert result[0]["opcode"].endswith("->")
     assert result[0]["args"] == ["X", "Y"]
 
 
@@ -88,8 +88,8 @@ def test_flat_parser_reflect_action():
 
 
 def test_flat_parser_chained_segments():
-    result = parse_codex_instructions("A ⊕ B → C => ⟲(Loop)")
+    result = parse_codex_instructions("A ⊕ B -> C => ⟲(Loop)")
     ops = [r["opcode"] for r in result]
     assert any(op.endswith("⊕") for op in ops)
-    assert any(op.endswith("→") for op in ops)
+    assert any(op.endswith("->") for op in ops)
     assert any(op.endswith("⟲") for op in ops)

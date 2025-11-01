@@ -26,6 +26,6 @@ def simulate_carrier_delay(carrier: CarrierType, simulate: bool = True) -> float
     delay_ms = random.uniform(min_delay, max_delay)
 
     if simulate:
-        time.sleep(delay_ms / 1000.0)  # Convert ms → seconds
+        time.sleep(delay_ms / 1000.0)  # Convert ms -> seconds
 
     return delay_ms

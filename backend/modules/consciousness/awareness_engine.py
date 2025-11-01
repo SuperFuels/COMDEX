@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # File: backend/modules/consciousness/awareness_engine.py
 """
-🧠 AION Awareness Engine — Phase 54: Harmonic Meta-Awareness Integration
+🧠 AION Awareness Engine - Phase 54: Harmonic Meta-Awareness Integration
 ───────────────────────────────────────────────────────────────
-Awareness now harmonically couples AION’s identity, reflection, emotion,
+Awareness now harmonically couples AION's identity, reflection, emotion,
 and personality feedback into a unified Θ resonance layer.
 
 Core capabilities:
-  • Dynamic confidence and blindspot tracking
-  • Live SQI ↔ ΔΦ feedback from ResonantMemoryCache
-  • Adaptive confidence weighting via personality traits
-  • Dashboard / GlyphNet broadcast with coherent metrics
+  * Dynamic confidence and blindspot tracking
+  * Live SQI ↔ ΔΦ feedback from ResonantMemoryCache
+  * Adaptive confidence weighting via personality traits
+  * Dashboard / GlyphNet broadcast with coherent metrics
 """
 
 import datetime
@@ -51,7 +51,7 @@ from backend.modules.knowledge_graph.indexes.introspection_index import add_intr
 
 # =================================================================
 class AwarenessEngine(ResonantReinforcementMixin):
-    """AION’s Harmonic Awareness Coordinator (Phase 54)."""
+    """AION's Harmonic Awareness Coordinator (Phase 54)."""
 
     def __init__(self, memory_engine=None, container=None, name: str = "awareness_engine"):
         # ✅ initialize the resonance reinforcement mixin properly
@@ -256,7 +256,7 @@ class AwarenessEngine(ResonantReinforcementMixin):
             "blindspots": self.blindspots[-10:],
             "harmonics": {"avg_SQI": avg_sqi, "avg_ΔΦ": avg_delta, "mood": self.last_mood},
             "message": (
-                f"🧠 AION Awareness → Phase 54 Harmonic Sync\n"
+                f"🧠 AION Awareness -> Phase 54 Harmonic Sync\n"
                 f"Traits: {trait_summary}\n"
                 f"Confidence {self.confidence_level:.2f} | Mood {self.last_mood}\n"
                 f"Harmonics: SQI {avg_sqi:.3f} ΔΦ {avg_delta:.3f}"

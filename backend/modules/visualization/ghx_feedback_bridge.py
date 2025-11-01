@@ -2,19 +2,19 @@
 # 📁 backend/quant/ghx/ghx_feedback_bridge.py
 # ===============================
 """
-🌈 GHX Feedback Bridge — Real-Time Coherence Telemetry Relay
+🌈 GHX Feedback Bridge - Real-Time Coherence Telemetry Relay
 ------------------------------------------------------------
 Connects CFE feedback + GlyphWave runtime metrics to the GHX/QFC visualization stack.
 
 Integrated with:
-    • ResonanceTelemetry (ΔΦ, Δε, μ, κ)
-    • QCompilerCore (simulation graph outputs)
-    • GHXVisualizer (if live UI present)
+    * ResonanceTelemetry (ΔΦ, Δε, μ, κ)
+    * QCompilerCore (simulation graph outputs)
+    * GHXVisualizer (if live UI present)
 
 Features:
-    • Subscribes to adaptive parameter updates from CFEFeedbackLoop
-    • Streams live coherence / collapse / decoherence data to GHX/QFC renderers
-    • Provides async broadcast hook for WebSocket, CodexHUD, or local debug console
+    * Subscribes to adaptive parameter updates from CFEFeedbackLoop
+    * Streams live coherence / collapse / decoherence data to GHX/QFC renderers
+    * Provides async broadcast hook for WebSocket, CodexHUD, or local debug console
 """
 import inspect  
 import asyncio

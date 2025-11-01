@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import os, json
 
-print("=== N2 (Retest) — Coherent Bridge Activation ===")
+print("=== N2 (Retest) - Coherent Bridge Activation ===")
 
 # --- Constants ---
 ħ, G, Λ0, α0 = 1e-3, 1e-5, 1e-6, 0.5
@@ -41,21 +41,21 @@ delay_ratio = 0.6 * (1 - np.real(np.exp(-β * (Λ_t[-1] / Λ0))))
 
 classification = "✅ Active Bridge (Coherent Transfer)" if fidelity > 0.85 else "❌ Inactive Bridge"
 
-print(f"ħ={ħ:.3e}, G={G:.3e}, Λ₀={Λ0:.3e}, α₀={α0:.3f}, β={β:.2f}")
-print(f"Mean α(t)/α₀ = {np.mean(α_t/α0):.3f}")
-print(f"Mean Λ(t)/Λ₀ = {np.mean(Λ_t/Λ0):.3f}")
+print(f"ħ={ħ:.3e}, G={G:.3e}, Λ0={Λ0:.3e}, α0={α0:.3f}, β={β:.2f}")
+print(f"Mean α(t)/α0 = {np.mean(α_t/α0):.3f}")
+print(f"Mean Λ(t)/Λ0 = {np.mean(Λ_t/Λ0):.3f}")
 print(f"Fidelity = {fidelity:.3f}")
 print(f"Delay ratio ≈ {delay_ratio:.3f}")
 print(f"Classification: {classification}")
 
-# --- Plot the ψ₂ response over time ---
+# --- Plot the ψ2 response over time ---
 ψ2_response = np.abs(np.sum(ψ2, axis=0))
 ψ2_response /= np.max(ψ2_response)
 
 plt.figure(figsize=(8, 5))
-plt.plot(t, ψ2_response, label="ψ₂ response", color="orange")
+plt.plot(t, ψ2_response, label="ψ2 response", color="orange")
 plt.axvline(4, color="r", linestyle="--", label="Light-cone boundary")
-plt.title("N2 (Retest) — Coherent Signal Transfer Across Tuned Bridge")
+plt.title("N2 (Retest) - Coherent Signal Transfer Across Tuned Bridge")
 plt.xlabel("Time")
 plt.ylabel("Normalized response amplitude")
 plt.legend()
@@ -81,4 +81,4 @@ os.makedirs("backend/modules/knowledge", exist_ok=True)
 with open("backend/modules/knowledge/N2_coherent_retest.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("✅ Coherent bridge retest complete. Results saved → backend/modules/knowledge/N2_coherent_retest.json")
+print("✅ Coherent bridge retest complete. Results saved -> backend/modules/knowledge/N2_coherent_retest.json")

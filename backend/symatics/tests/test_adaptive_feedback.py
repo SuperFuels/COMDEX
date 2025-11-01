@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.5 — Adaptive Feedback Verification
-# Tests for λᵢ(t) drift correction and CodexTrace telemetry
+# Tessaris Symatics v0.5 - Adaptive Feedback Verification
+# Tests for λi(t) drift correction and CodexTrace telemetry
 # Author: Tessaris Core Systems / Codex Intelligence Group
 # ──────────────────────────────────────────────────────────────
 
@@ -24,10 +24,10 @@ class DummyCtx:
 
 
 # ──────────────────────────────────────────────────────────────
-# Test 1 — Adaptive weight reduction with positive deviation
+# Test 1 - Adaptive weight reduction with positive deviation
 # ──────────────────────────────────────────────────────────────
 def test_weight_reduction_on_deviation(monkeypatch):
-    """λᵢ(t) decreases proportionally to deviation drift."""
+    """λi(t) decreases proportionally to deviation drift."""
     ctx = DummyCtx()
     ctx.law_weights.weights = {"collapse_energy_equivalence": 1.0}
     ctx.law_weights.alpha = 0.5
@@ -40,10 +40,10 @@ def test_weight_reduction_on_deviation(monkeypatch):
 
 
 # ──────────────────────────────────────────────────────────────
-# Test 2 — Stability across repeated updates
+# Test 2 - Stability across repeated updates
 # ──────────────────────────────────────────────────────────────
 def test_stability_under_iterative_drift():
-    """λᵢ(t) stabilizes asymptotically under repeated drift inputs."""
+    """λi(t) stabilizes asymptotically under repeated drift inputs."""
     ctx = DummyCtx()
     ctx.law_weights.weights = {"resonance_continuity": 1.0}
     ctx.law_weights.alpha = 0.3
@@ -56,7 +56,7 @@ def test_stability_under_iterative_drift():
 
 
 # ──────────────────────────────────────────────────────────────
-# Test 3 — CodexTrace event emission
+# Test 3 - CodexTrace event emission
 # ──────────────────────────────────────────────────────────────
 def test_codextrace_event_emission(monkeypatch):
     """Trace-enabled adaptive update emits telemetry event."""
@@ -75,7 +75,7 @@ def test_codextrace_event_emission(monkeypatch):
 
 
 # ──────────────────────────────────────────────────────────────
-# Test 4 — Non-negative weight floor
+# Test 4 - Non-negative weight floor
 # ──────────────────────────────────────────────────────────────
 def test_weight_floor():
     """Adaptive weights never go negative under high drift."""
@@ -89,10 +89,10 @@ def test_weight_floor():
 
 
 # ──────────────────────────────────────────────────────────────
-# Test 5 — Multiple laws evolve independently
+# Test 5 - Multiple laws evolve independently
 # ──────────────────────────────────────────────────────────────
 def test_independent_evolution():
-    """Each λᵢ evolves independently based on its own deviation."""
+    """Each λi evolves independently based on its own deviation."""
     ctx = DummyCtx()
     ctx.law_weights.weights = {
         "collapse_energy_equivalence": 1.0,

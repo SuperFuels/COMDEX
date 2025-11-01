@@ -39,7 +39,7 @@ def photon_alg_visibility(marker_on=False, erased=False):
     return 1.0
 
 def photon_alg_intensity(x, lam=633e-9, L=1.0, d=50e-6, I0=1.0, V=1.0):
-    # Same cosine law but V comes from symbolic recombination (“x ⊕ ¬x → ⊤” when coherence present)
+    # Same cosine law but V comes from symbolic recombination ("x ⊕ ¬x -> ⊤" when coherence present)
     k = 2*np.pi/lam
     dphi = k * d * x / L
     return 0.5 * I0 * (1.0 + V * np.cos(dphi))
@@ -108,7 +108,7 @@ def main():
         else:
             plt.plot(x*1e3, Ia_n, '--', label=f"{label} (PhotonAlg)", color='C4', linewidth=2)
 
-    plt.title("Double Slit — Quantum vs Photon Algebra")
+    plt.title("Double Slit - Quantum vs Photon Algebra")
     plt.xlabel("Screen position x (mm)")
     plt.ylabel("Normalized intensity")
     plt.legend()
@@ -131,7 +131,7 @@ def main():
     plt.xticks(X, labels, rotation=0)
     plt.ylim(0, 1.05)
     plt.ylabel("Visibility V")
-    plt.title("Double Slit — Fringe Visibility")
+    plt.title("Double Slit - Fringe Visibility")
     plt.legend()
     plt.tight_layout()
     out2 = "double_slit_visibility_bars.png"

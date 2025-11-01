@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Reverse Photon Capsule → Human Reconstruction (v0.1)
+Reverse Photon Capsule -> Human Reconstruction (v0.1)
 
 Usage:
     PYTHONPATH=. python backend/tools/photon_expand.py --input sample.photo
@@ -26,7 +26,7 @@ def reconstruct_text(glyphs):
     """
     Reverse path:
 
-    glyphs[] → (lookup lemma) → expanded text (placeholder layer)
+    glyphs[] -> (lookup lemma) -> expanded text (placeholder layer)
     """
     registry = get_glyph_registry()
     results = []
@@ -43,7 +43,7 @@ def reconstruct_text(glyphs):
             # Fall back to reversible scaffolding util
             reconstructed = expand_from_glyphs([g])
 
-        results.append(f"{g} → {reconstructed}")
+        results.append(f"{g} -> {reconstructed}")
 
     return "\n".join(results)
 

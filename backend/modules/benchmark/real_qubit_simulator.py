@@ -7,7 +7,7 @@ from ..codex.codex_metrics import log_metric
 def simulate_real_qubit_execution(depth: int = 5) -> float:
     """
     Simulates execution time of a real quantum computer for a circuit of given depth.
-    For comparison purposes only — not physically accurate.
+    For comparison purposes only - not physically accurate.
     """
     # Base time per gate in ns on real hardware (approximate)
     base_gate_time_ns = 500  # 0.5 microseconds per gate

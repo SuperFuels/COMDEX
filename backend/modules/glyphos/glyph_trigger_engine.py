@@ -54,13 +54,13 @@ def trigger_ethics(metadata: Dict[str, Any]):
     glyph_trace.log_trace("⚛", "trigger_ethics", context="trigger")
 
 def trigger_memory_seed(metadata: Dict[str, Any]):
-    print(f"🄁 Storing memory seed: {metadata}")
+    print(f"0, Storing memory seed: {metadata}")
     memory.store({
         "label": "trigger:seed",
         "content": f"Seeded memory: {metadata.get('value', 'unknown')}"
     })
-    bridge.trace_trigger("🄁", {**metadata, "origin": "glyph_trigger_engine", "role": "Seed memory injection"})
-    glyph_trace.log_trace("🄁", "trigger_memory_seed", context="trigger")
+    bridge.trace_trigger("0,", {**metadata, "origin": "glyph_trigger_engine", "role": "Seed memory injection"})
+    glyph_trace.log_trace("0,", "trigger_memory_seed", context="trigger")
 
 def trigger_compression(metadata: Dict[str, Any]):
     print(f"⌜ Compression event: {metadata}")
@@ -83,7 +83,7 @@ def trigger_lock(metadata: Dict[str, Any]):
 def trigger_decay_rewrite(coord: str, meta: Dict[str, Any]):
     age_ms = meta.get("age_ms", 0)
     if age_ms > 60000:
-        print(f"♻️ Glyph at {coord} decayed — proposing rewrite")
+        print(f"♻️ Glyph at {coord} decayed - proposing rewrite")
         propose_mutation({
             "reason": "Decay-triggered glyph rewrite",
             "coord": coord,
@@ -108,7 +108,7 @@ GLYPH_TRIGGER_MAP: Dict[str, Callable[[Dict[str, Any]], None]] = {
     "✦": trigger_dream_core,
     "🧽": trigger_teleport,
     "⚛": trigger_ethics,
-    "🄁": trigger_memory_seed,
+    "0,": trigger_memory_seed,
     "⌜": trigger_compression,
     "⨿": trigger_lock,
 }
@@ -120,7 +120,7 @@ _loop_active = True
 def emit_event_log(event: str, detail: Any = None):
     memory.store({
         "label": "glyph:scan_event",
-        "content": f"Glyph scan event: {event} — {detail}"
+        "content": f"Glyph scan event: {event} - {detail}"
     })
 
 def scan_and_trigger(path: str):
@@ -152,7 +152,7 @@ def glyph_behavior_loop(interval: float = 5.0):
     global _loop_active
 
     if not container_path:
-        print("⚠️ No container loaded — skipping glyph scan")
+        print("⚠️ No container loaded - skipping glyph scan")
         return
 
     print("🔄 Starting glyph behavior loop...")

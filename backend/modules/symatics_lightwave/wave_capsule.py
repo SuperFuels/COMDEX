@@ -1,7 +1,7 @@
 """
-Tessaris • Symatics Lightwave Capsule (WaveCapsule API)
+Tessaris * Symatics Lightwave Capsule (WaveCapsule API)
 -------------------------------------------------------
-Encapsulates symbolic→photonic wave execution
+Encapsulates symbolic->photonic wave execution
 for ⊕ μ ↔ ⟲ π operators via SymaticsDispatcher.
 
 Provides both:
@@ -87,7 +87,7 @@ class WaveCapsule:
             )
         )
 
-        logger.info(f"[WaveCapsule] {self.opcode} executed → coherence={result.get('coherence'):.3f}")
+        logger.info(f"[WaveCapsule] {self.opcode} executed -> coherence={result.get('coherence'):.3f}")
         return result
 
     def __repr__(self):

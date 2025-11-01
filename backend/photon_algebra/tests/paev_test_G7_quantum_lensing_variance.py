@@ -1,5 +1,5 @@
 # ==========================================================
-# G7 — Quantum Lensing Variance Calibration
+# G7 - Quantum Lensing Variance Calibration
 #   Measures phase-variance dynamics Δφ and its correlation
 #   with curvature κ under a weak-lensing potential. Also
 #   tracks spectral entropy stability for ψ.
@@ -67,7 +67,7 @@ A0 = np.exp(-R2 / 1.1) * (1.0 + 0.02 * rng.standard_normal((N, N)))
 phi0 = 0.12 * np.exp(-R2 / 0.8) + 0.03 * rng.standard_normal((N, N))
 psi = A0 * np.exp(1j * phi0)
 
-# Curvature lens κ — centered bump + soft noise
+# Curvature lens κ - centered bump + soft noise
 kappa = 0.8 * np.exp(-R2 / 1.5) + 0.03 * rng.standard_normal((N, N))
 
 # ---------- traces ----------
@@ -79,7 +79,7 @@ pred_deflection_trace = []   # simple proxy, optional
 
 frames = []
 
-print("💥 Perturbation mode enabled — injecting Gaussian phase/curvature pulse.")
+print("💥 Perturbation mode enabled - injecting Gaussian phase/curvature pulse.")
 
 # ---------- evolution ----------
 for t in range(steps):
@@ -139,7 +139,7 @@ for t in range(steps):
     if t % 20 == 0 or t == steps - 1:
         fig, ax = plt.subplots(1, 2, figsize=(8.4, 3.6))
         im0 = ax[0].imshow(np.real(psi), cmap="twilight")
-        ax[0].set_title(f"Re(ψ) — step {t}")
+        ax[0].set_title(f"Re(ψ) - step {t}")
         ax[0].axis("off")
         im1 = ax[1].imshow(kappa, cmap="magma")
         ax[1].set_title("κ lens")
@@ -154,7 +154,7 @@ for t in range(steps):
 taxis = np.arange(steps)
 
 fig, ax1 = plt.subplots(figsize=(8.6, 4.6))
-ax1.plot(taxis, energy_trace, label="⟨ℒ⟩ proxy", color="steelblue")
+ax1.plot(taxis, energy_trace, label="⟨L⟩ proxy", color="steelblue")
 ax1.plot(taxis, varphi_trace, label="Var(Δφ)", color="purple", alpha=0.75)
 ax1.set_xlabel("step")
 ax1.set_ylabel("energy / variance")
@@ -164,31 +164,31 @@ ax2.plot(taxis, corr_trace, label="corr(Δφ, κ)", color="orange")
 ax2.set_ylabel("entropy / correlation")
 ax1.legend(loc="upper left")
 ax2.legend(loc="upper right")
-ax1.set_title("G7 — Variance, Entropy, and Phase–Curvature Coherence")
+ax1.set_title("G7 - Variance, Entropy, and Phase-Curvature Coherence")
 plt.tight_layout()
 plt.savefig("PAEV_TestG7_VarianceTrace.png", dpi=140)
 plt.close()
 print("✅ Saved file: PAEV_TestG7_VarianceTrace.png")
 
-# 2) Phase–Curvature Correlation vs Entropy (phase portrait)
+# 2) Phase-Curvature Correlation vs Entropy (phase portrait)
 plt.figure(figsize=(6.2, 5.1))
 plt.plot(entropy_trace, corr_trace, color="darkorange")
 plt.xlabel("spectral entropy (ψ magnitude)")
 plt.ylabel("corr(Δφ, κ)")
-plt.title("G7 — Phase–Curvature Coherence Portrait")
+plt.title("G7 - Phase-Curvature Coherence Portrait")
 plt.grid(alpha=0.25)
 plt.tight_layout()
 plt.savefig("PAEV_TestG7_PhaseCurvatureCorr.png", dpi=140)
 plt.close()
 print("✅ Saved file: PAEV_TestG7_PhaseCurvatureCorr.png")
 
-# 3) Spectral stability — log power of ψ at final step
+# 3) Spectral stability - log power of ψ at final step
 F = np.fft.fftshift(np.fft.fft2(np.abs(psi)))
 P = np.log10(np.maximum(np.abs(F)**2, 1e-12))
 plt.figure(figsize=(6.3, 5.6))
 im = plt.imshow(P, cmap="magma")
-plt.colorbar(im, label="log10 |Ψ(k)|²")
-plt.title("G7 — ψ Spectrum (final)")
+plt.colorbar(im, label="log10 |Ψ(k)|2")
+plt.title("G7 - ψ Spectrum (final)")
 plt.tight_layout()
 plt.savefig("PAEV_TestG7_SpectralStability.png", dpi=140)
 plt.close()
@@ -205,8 +205,8 @@ V_final = float(varphi_trace[-1])
 C_final = float(corr_trace[-1])
 D_final = float(pred_deflection_trace[-1])
 
-print("\n=== Test G7 — Quantum Lensing Variance Calibration Complete ===")
-print(f"⟨ℒ⟩ (proxy) final = {E_final:.6e}")
+print("\n=== Test G7 - Quantum Lensing Variance Calibration Complete ===")
+print(f"⟨L⟩ (proxy) final = {E_final:.6e}")
 print(f"S (final)         = {S_final:.6f}")
 print(f"Var(Δφ) (final)   = {V_final:.6e}")
 print(f"corr(Δφ, κ) final = {C_final:.3f}")

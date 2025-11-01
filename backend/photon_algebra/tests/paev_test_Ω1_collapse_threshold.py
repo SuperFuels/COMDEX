@@ -1,4 +1,4 @@
-# === Ω1 — Causal Collapse Threshold (Tessaris) ===
+# === Ω1 - Causal Collapse Threshold (Tessaris) ===
 # Implements Tessaris Unified Constants & Verification Protocol
 # Purpose: Detect gravitational / informational collapse onset
 # Output: Ω1_collapse_threshold_summary.json + PAEV_Ω1_collapse_threshold.png
@@ -41,21 +41,21 @@ collapse_threshold = 1e-3
 collapsed = collapse_index > collapse_threshold
 
 # === 5. Discovery log ===
-print("\n=== Ω1 — Causal Collapse Threshold (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
+print("\n=== Ω1 - Causal Collapse Threshold (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
 print(f"⟨|div J|⟩ = {collapse_index:.3e}, J_flux = {J_flux:.3e}, R_eff = {R_eff:.3e}")
 if collapsed:
-    print("⚠️  Collapse threshold exceeded — causal closure detected.")
+    print("⚠️  Collapse threshold exceeded - causal closure detected.")
 else:
-    print("✅  Lattice within causal capacity — no collapse.\n")
+    print("✅  Lattice within causal capacity - no collapse.\n")
 
 # === 6. Discovery notes ===
 timestamp = datetime.datetime.now(datetime.UTC).isoformat()
 notes = [
-    f"Mean divergence of information flux |∇·J| = {collapse_index:.3e}.",
+    f"Mean divergence of information flux |∇*J| = {collapse_index:.3e}.",
     f"Effective curvature variance R_eff = {R_eff:.3e}.",
-    "Collapse condition: |∇·J| > 1e−3 → onset of causal closure.",
-    "Represents quantum–gravitational cutoff in Tessaris lattice dynamics."
+    "Collapse condition: |∇*J| > 1e-3 -> onset of causal closure.",
+    "Represents quantum-gravitational cutoff in Tessaris lattice dynamics."
 ]
 
 summary = {
@@ -80,7 +80,7 @@ with open(summary_path, "w", encoding="utf-8") as f:
 plt.figure(figsize=(8,4))
 plt.plot(u, label="u-field")
 plt.plot(v, label="v-field")
-plt.title("Ω1 — Causal Collapse Threshold")
+plt.title("Ω1 - Causal Collapse Threshold")
 plt.xlabel("Lattice index")
 plt.ylabel("Amplitude")
 plt.legend()
@@ -89,6 +89,6 @@ plot_path = os.path.join(base_path, "PAEV_Ω1_collapse_threshold.png")
 plt.savefig(plot_path, dpi=200)
 plt.close()
 
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

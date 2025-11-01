@@ -7,7 +7,7 @@ def compute_visibility(intensity_1d):
 
 def project_with_pi(frame_stack, pi_spatial=1, pi_temporal=1):
     """
-    Symatics π projection — spatial & temporal coherence collapse.
+    Symatics π projection - spatial & temporal coherence collapse.
     """
     arr = np.asarray(frame_stack, dtype=float)
     if arr.ndim == 2:
@@ -22,7 +22,7 @@ def project_with_pi(frame_stack, pi_spatial=1, pi_temporal=1):
 
     field = arr.mean(axis=0)
 
-    # Spatial coherence projection — low-pass in Fourier domain
+    # Spatial coherence projection - low-pass in Fourier domain
     if pi_spatial > 1:
         H, W = field.shape
         fy, fx = np.fft.fftfreq(H), np.fft.fftfreq(W)

@@ -15,7 +15,7 @@ TEST_CAPSULE = {
 
 def test_photon_codex_bridge_scroll(tmp_path: Path):
     """
-    Verify Photon → Codex bridge correctly normalizes glyphs and renders symbolic scroll.
+    Verify Photon -> Codex bridge correctly normalizes glyphs and renders symbolic scroll.
     Expect scroll to equal: ⊕(ψ1, ψ2); ↔(ψ3, ψ4); μ(ψ5)
     """
     # Execute capsule through full bridge
@@ -40,4 +40,4 @@ def test_photon_codex_bridge_scroll(tmp_path: Path):
     # We don't import PMG directly; just confirm execution included results
     assert any("⊕" in str(r) or "↔" in str(r) or "μ" in str(r) for r in result["execution"])
 
-    print("\n✅ Bridge validation successful — scroll rendering correct and execution coherent.")
+    print("\n✅ Bridge validation successful - scroll rendering correct and execution coherent.")

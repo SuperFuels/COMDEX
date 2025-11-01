@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-J4 — α-ablation study (baseline α vs α=0)
+J4 - α-ablation study (baseline α vs α=0)
 -----------------------------------------
 Tests the role of α (diffusion coefficient) in sustaining transport and
-entropy–MSD coupling. Completes the J-series minimal-term ablations.
+entropy-MSD coupling. Completes the J-series minimal-term ablations.
 
 Outputs
 -------
@@ -53,7 +53,7 @@ rng = np.random.default_rng(SEED)
 print("\n🧩 J4 Configuration:")
 print(f"   base_noise={BASE_NOISE}, BURST_TH={BURST_TH}")
 print(f"   seed={SEED}, steps={T}, dt={DT}")
-print(f"   Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"   Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 print("------------------------------------------------------------")
 
 # ============================================================
@@ -159,7 +159,7 @@ ax1.bar(x - w / 2, p_vals, w, label="p (transport)")
 ax1.bar(x + w / 2, nu_vals, w, label="ν (entropy↔MSD)")
 ax1.set_xticks(x); ax1.set_xticklabels(labels)
 ax1.set_ylabel("Exponent value")
-ax1.set_title("J4 — Exponents under α ablation")
+ax1.set_title("J4 - Exponents under α ablation")
 ax1.legend(); ax1.grid(alpha=0.3)
 
 ax2 = plt.subplot(1, 2, 2)
@@ -168,12 +168,12 @@ ax2.hist(b1, bins=15, alpha=0.6, label=f"α={α} (n={len(b1)})")
 ax2.hist(b2, bins=15, alpha=0.6, label=f"α=0 (n={len(b2)})")
 ax2.set_xlabel("Burst length (steps)")
 ax2.set_ylabel("Count")
-ax2.set_title("J4 — v_S/v_c bursts")
+ax2.set_title("J4 - v_S/v_c bursts")
 ax2.legend(); ax2.grid(alpha=0.3)
 plt.tight_layout()
 fig_path = "PAEV_J4_ablation_alpha.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Figure saved → {fig_path}")
+print(f"✅ Figure saved -> {fig_path}")
 
 # ============================================================
 #  JSON Summary
@@ -200,7 +200,7 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/J4_ablation_alpha_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # ============================================================
 #  Verdict
@@ -208,22 +208,22 @@ print(f"✅ Summary saved → {out_path}")
 def verdict(r0, r1):
     msg = []
     if r1["stats"]["bursts_count"] < r0["stats"]["bursts_count"]:
-        msg.append("Removing α halts diffusion — reduced transport observed.")
+        msg.append("Removing α halts diffusion - reduced transport observed.")
     elif r1["stats"]["bursts_count"] > r0["stats"]["bursts_count"]:
-        msg.append("Without α, instability grows → diffusion stabilizes dynamics.")
+        msg.append("Without α, instability grows -> diffusion stabilizes dynamics.")
     else:
-        msg.append("No burst difference — equilibrium regime.")
+        msg.append("No burst difference - equilibrium regime.")
     dp, dn = r1["p"] - r0["p"], r1["nu"] - r0["nu"]
     if abs(dp) < 0.02:
         msg.append("Transport exponent p ~ invariant (possible frozen field).")
     else:
         msg.append(f"Transport exponent shift Δp={dp:.3f}.")
     if abs(dn) > 0.1:
-        msg.append(f"Entropy–MSD coupling changed (Δν={dn:.3f}).")
+        msg.append(f"Entropy-MSD coupling changed (Δν={dn:.3f}).")
     return " ".join(msg)
 
 print("\n" + "=" * 66)
-print("🔎 J4 — α-ABLATION VERDICT")
+print("🔎 J4 - α-ABLATION VERDICT")
 print("=" * 66)
 print(verdict(res_baseline, res_zero))
 print("All claims are algebraic/model-level; no spacetime signaling implied.")

@@ -1,5 +1,5 @@
 # =============================================================
-# 📜 Photon PageRunner — v0.1 + Legacy Compatibility (lanes/timeout)
+# 📜 Photon PageRunner - v0.1 + Legacy Compatibility (lanes/timeout)
 # - Keeps legacy file-based runner (JSON .ptn w/ metadata)
 # - Adds PageRunner(max_lanes, timeout_sec).run_page(lines)
 # - Exports CapsuleExecutionError expected by tests
@@ -108,13 +108,13 @@ class PageRunner:
     """
     Dual-mode runner:
 
-    1) run_page(lines: List[str])  ← used by your tests
+    1) run_page(lines: List[str])  <- used by your tests
        - Round-robin scheduling across lanes
        - Per-line timeout
        - Emits SQI telemetry events containing {lane, sqi, timestamp, ...}
 
     2) run_page_text(page_text: str)
-       - Parser → validator → execute_capsule per block (new path)
+       - Parser -> validator -> execute_capsule per block (new path)
        - Falls back to legacy interpreter if new stack unavailable
     """
     def __init__(self, max_lanes: int = 1, timeout_sec: float = 5.0) -> None:
@@ -126,8 +126,8 @@ class PageRunner:
     async def _emit(self, event: dict) -> bool:
         """
         Send a telemetry event, tolerating both signatures:
-        - emit_sqi_event(event: str, payload: dict)   ← repo style
-        - emit_sqi_event(event_dict)                  ← test monkeypatch style
+        - emit_sqi_event(event: str, payload: dict)   <- repo style
+        - emit_sqi_event(event_dict)                  <- test monkeypatch style
         Also soft-fallbacks to sqi_engine.push_sqi(event, payload).
         Returns True if any path succeeds.
         """
@@ -298,7 +298,7 @@ class PageRunner:
     ) -> Dict[str, Any]:
         """
         Run Photon page *source text*:
-          - Uses new parser→executor if available
+          - Uses new parser->executor if available
           - Falls back to legacy run_source(page_text) if not
         Returns: {"ok": bool, "blocks": int, "results": [ ... ]}
         """
@@ -314,7 +314,7 @@ class PageRunner:
                 "results": [{"status": "ok", "result": res, "entropy": entropy}],
             }
 
-        # New path: parse → (optional) validate → execute per block
+        # New path: parse -> (optional) validate -> execute per block
         parsed = parse_photon_program(page_text)
         if validate_page_new is not None:
             try:
@@ -515,7 +515,7 @@ def count_lines(blocks: list[str]) -> int:
                 }
                 continue
 
-            # New path: parse → validate → execute per block
+            # New path: parse -> validate -> execute per block
             parsed = parse_photon_program(block_text)
             if validate_page_new is not None:
                 validate_page_new(parsed)

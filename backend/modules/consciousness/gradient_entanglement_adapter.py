@@ -5,7 +5,7 @@
 Propagates QGlyph collapse and symbolic gradient feedback across entangled ancestry.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌌 Entanglement Bias Adapter – Design Rubric
+🌌 Entanglement Bias Adapter - Design Rubric
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Pull ↔ ancestry from `symbolic_entangler`
 ✅ Propagate QGlyph collapse influence to entangled glyphs

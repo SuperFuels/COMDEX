@@ -7,7 +7,7 @@ from backend.modules.holograms.hst_field_analyzer import HSTFieldAnalyzer
 async def main():
     # Initialize HST generator session
     hst = HSTGenerator()
-    print(f"🧠 Initialized HST Session → {hst.session_id}")
+    print(f"🧠 Initialized HST Session -> {hst.session_id}")
 
     # Broadcast initial state (forces feedback + coherence updates)
     for i in range(5):

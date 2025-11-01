@@ -4,10 +4,10 @@
 🌐 FieldBridge Server (Raspberry Pi)
 -----------------------------------------------------
 Runs on the Raspberry Pi to interface with the QWave FieldBridge hardware:
-    • Async WebSocket server for real-time control from MacBook
-    • Supports emit_wave, harmonics, burst mode, feedback read, and auto-calibration
-    • Secure token-based authentication (optional)
-    • Closes the loop for live coil feedback and tuning
+    * Async WebSocket server for real-time control from MacBook
+    * Supports emit_wave, harmonics, burst mode, feedback read, and auto-calibration
+    * Secure token-based authentication (optional)
+    * Closes the loop for live coil feedback and tuning
 """
 
 import asyncio

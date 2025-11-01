@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 22 — Meta-Resonant Telemetry Consolidator (MRTC)
+Tessaris Phase 22 - Meta-Resonant Telemetry Consolidator (MRTC)
 
 Aggregates and time-aligns live resonance telemetry across all active subsystems:
-  • RFC  – Reinforcement Feedback Coupler
-  • RQFS – Resonant Quantum Feedback Synchronizer
-  • CLRA – Cross-Layer Resonance Auditor
-  • ASP  – Auto-Stabilization Protocol
-  • AQCI – Adaptive Quantum Control Interface
-  • SFAE – Symbolic Forecast Engine
-  • HCO  – Harmonic Coherence Orchestrator
+  * RFC  - Reinforcement Feedback Coupler
+  * RQFS - Resonant Quantum Feedback Synchronizer
+  * CLRA - Cross-Layer Resonance Auditor
+  * ASP  - Auto-Stabilization Protocol
+  * AQCI - Adaptive Quantum Control Interface
+  * SFAE - Symbolic Forecast Engine
+  * HCO  - Harmonic Coherence Orchestrator
 
-Produces unified resonance telemetry → data/telemetry/meta_resonant_telemetry.jsonl
+Produces unified resonance telemetry -> data/telemetry/meta_resonant_telemetry.jsonl
 """
 
 import json, time
@@ -70,7 +70,7 @@ def consolidate_once():
     photo = latest_photo_meta()
 
     if not any([rfc, rqfs, clra, asp, photo]):
-        print("⚠️  No telemetry available yet…")
+        print("⚠️  No telemetry available yet...")
         return
 
     entry = {
@@ -86,15 +86,15 @@ def consolidate_once():
         f.write(json.dumps(entry) + "\n")
 
     ν = (rqfs or {}).get("nu_bias", 0.0)
-    ϕ = (rfc or {}).get("phase_offset", 0.0)
+    φ = (rfc or {}).get("phase_offset", 0.0)
     A = (asp or {}).get("amp_gain", (rfc or {}).get("amp_gain", 1.0))
-    print(f"📡  Consolidated | ν={ν:+.4f} ϕ={ϕ:+.4f} A={A:+.4f}")
+    print(f"📡  Consolidated | ν={ν:+.4f} φ={φ:+.4f} A={A:+.4f}")
 
 # --------------------------------------------------------------------------- #
 # Main loop
 # --------------------------------------------------------------------------- #
 def main(interval=5.0):
-    print("📡 Starting Tessaris Meta-Resonant Telemetry Consolidator (MRTC)…")
+    print("📡 Starting Tessaris Meta-Resonant Telemetry Consolidator (MRTC)...")
     while True:
         consolidate_once()
         time.sleep(interval)

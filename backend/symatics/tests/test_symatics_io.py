@@ -4,8 +4,8 @@ Tessaris Symatics SDK v2.2
 Test Suite: Experimental Interface Layer
 ───────────────────────────────────────────────
 Covers:
-    • sym_io_photonics.py
-    • sym_io_qubit.py
+    * sym_io_photonics.py
+    * sym_io_qubit.py
 ───────────────────────────────────────────────
 """
 
@@ -27,7 +27,7 @@ def test_photonics_trace_generation_and_validation(tmp_path):
     trace = SymIOPhotonics.generate_trace(freq, R)
     assert SymIOPhotonics.validate_trace(trace, tol=0.05)
 
-    # Export → Import → Revalidate
+    # Export -> Import -> Revalidate
     json_path = tmp_path / "trace.json"
     SymIOPhotonics.export_trace(trace, json_path)
     trace_loaded = SymIOPhotonics.import_trace(json_path)

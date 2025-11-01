@@ -1,7 +1,7 @@
 # ==========================================================
-#  Tessaris • Cognitive Fabric Resonance Link
-#  Unifies Φ–ψ–κ–T–CFA telemetry across AION / QQC / Morphic
-#  Stage 14.1 — Resonance Telemetry Bridge
+#  Tessaris * Cognitive Fabric Resonance Link
+#  Unifies Φ-ψ-κ-T-CFA telemetry across AION / QQC / Morphic
+#  Stage 14.1 - Resonance Telemetry Bridge
 # ==========================================================
 
 import time
@@ -25,7 +25,7 @@ class FabricResonanceLink:
         self.qqc = qqc_core
         self.last_packet: Optional[Dict[str, Any]] = None
         self.history: list[Dict[str, Any]] = []
-        logger.info("[FabricResonanceLink] Initialized and listening for live Φ–ψ coupling tensors.")
+        logger.info("[FabricResonanceLink] Initialized and listening for live Φ-ψ coupling tensors.")
 
     # ------------------------------------------------------
     #  Primary Ingest
@@ -117,6 +117,6 @@ class FabricResonanceLink:
         try:
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(self.history[-100:], f, indent=2)
-            logger.info(f"[FabricResonanceLink] Exported last {min(len(self.history),100)} entries → {path}")
+            logger.info(f"[FabricResonanceLink] Exported last {min(len(self.history),100)} entries -> {path}")
         except Exception as e:
             logger.error(f"[FabricResonanceLink] Log export failed: {e}")

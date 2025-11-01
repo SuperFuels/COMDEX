@@ -9,7 +9,7 @@ from backend.modules.glyphos.codexlang_translator import CodexLangTranslator
 async def test_executor_end_to_end(monkeypatch):
     """
     🚀 End-to-End Test
-    Glyph input → CodexLangTranslator → CodexExecutor
+    Glyph input -> CodexLangTranslator -> CodexExecutor
     Ensures:
       - Rewrite + canonicalization occurs
       - Collision resolution works
@@ -33,7 +33,7 @@ async def test_executor_end_to_end(monkeypatch):
     executor = CodexExecutor(test_mode=True)
     translator = CodexLangTranslator()
 
-    # --- Simulate glyph → parse tree
+    # --- Simulate glyph -> parse tree
     glyph_input = {"glyphs": [{"op": "⊕", "args": ["A", "B"]}]}
     tree = {"op": "⊕", "args": ["A", "B"]}
 

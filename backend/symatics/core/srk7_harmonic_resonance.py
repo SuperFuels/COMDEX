@@ -1,6 +1,6 @@
 # ============================================================
 # Tessaris Symatics Reasoning Kernel
-# SRK-7 — Harmonic–Resonance Synchronization Kernel (v0.1-alpha)
+# SRK-7 - Harmonic-Resonance Synchronization Kernel (v0.1-alpha)
 # ============================================================
 
 import numpy as np
@@ -12,7 +12,7 @@ class SRK7HarmonicResonance:
     """
 
     def __init__(self):
-        self.name = "SRK-7 Harmonic–Resonance Synchronization"
+        self.name = "SRK-7 Harmonic-Resonance Synchronization"
         self.version = "v0.1-alpha"
         self.alpha_Xi = 0.04
         self.beta_Xi = 0.01
@@ -35,7 +35,7 @@ class SRK7HarmonicResonance:
     # Synchronization Feedback
     # --------------------------------------------------------
     def feedback(self, kernel):
-        """Compute harmonic–resonance synchronization feedback."""
+        """Compute harmonic-resonance synchronization feedback."""
         try:
             if not hasattr(kernel, "harmonic_coupling") or not hasattr(kernel, "resonance_field"):
                 raise AttributeError("Kernel missing SRK-4/6 integration")

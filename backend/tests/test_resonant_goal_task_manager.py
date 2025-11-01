@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-✅ Integration Test — GoalTaskManager (Phase 55 Task 3)
+✅ Integration Test - GoalTaskManager (Phase 55 Task 3)
 
 What this verifies:
-  • Instantiates GoalTaskManager and links to ResonanceHeartbeat + RMC
-  • Ensures at least one goal is available (monkeypatch fallback if empty)
-  • Runs next task and asserts output structure
-  • Triggers two heartbeat pulses to exercise GSI + tension events
-  • Gracefully stops the heartbeat loop
+  * Instantiates GoalTaskManager and links to ResonanceHeartbeat + RMC
+  * Ensures at least one goal is available (monkeypatch fallback if empty)
+  * Runs next task and asserts output structure
+  * Triggers two heartbeat pulses to exercise GSI + tension events
+  * Gracefully stops the heartbeat loop
 """
 
 import time
@@ -55,7 +55,7 @@ def test_goal_task_manager():
 
     # Simulate two heartbeats to trigger GSI & possible tension events
     pulse_a = {"sqi": 0.55, "Φ_entropy": 0.30}   # relatively stable
-    pulse_b = {"sqi": 0.30, "Φ_entropy": 0.45}   # induce drop → tension_spike likely
+    pulse_b = {"sqi": 0.30, "Φ_entropy": 0.45}   # induce drop -> tension_spike likely
 
     mgr._on_heartbeat(pulse_a)
     time.sleep(0.2)

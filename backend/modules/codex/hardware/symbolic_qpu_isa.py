@@ -140,9 +140,9 @@ def op_EQ(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str
     """
     EQUIVALENCE (↔)
     Phase 8:
-      • Deterministically groups cells into an entanglement bucket per sheet run,
+      * Deterministically groups cells into an entanglement bucket per sheet run,
         using sheet_run_id + hash(normalized tokens).
-      • Always records an entanglement entry & emits staged beams
+      * Always records an entanglement entry & emits staged beams
         (entangle/predict/ingest/collapse), even with insufficient args.
     """
     log_qpu_op("EQUIVALENCE ↔")
@@ -225,7 +225,7 @@ def op_DELAY(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[
     return [f"[Delayed {args}]"]
 
 def op_TRIGGER(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
-    log_qpu_op("TRIGGER →")
+    log_qpu_op("TRIGGER ->")
     target = args[0] if args else "default_trigger"
     context.setdefault("triggered_ops", []).append(target)
     return [f"[Triggered {target}]"]
@@ -338,7 +338,7 @@ def execute_qpu_opcode(
         apply_collapse(cell)
         apply_superpose(cell)
         update_cell_prediction(cell)
-        record_trace(cell.id, f"[QPU EXEC] {op}({args}) → {result}")
+        record_trace(cell.id, f"[QPU EXEC] {op}({args}) -> {result}")
 
         # collapse beam (after collapse stage)
         emit_beam(cell, "collapse", {"op": op, "result": result}, context, parent_id=ingest_beam["beam_id"], state="collapsed")
@@ -372,7 +372,7 @@ SYMBOLIC_QPU_OPS: Dict[str, Any] = {
     "↔": op_EQ,
     "⟲": op_MUTATE,
     "⧖": op_DELAY,
-    "→": op_TRIGGER,
+    "->": op_TRIGGER,
     # G3: numeric profiling opcode
     "∇": _op_nabla,
     # keep COMPRESS available under an alias to avoid functionality loss
@@ -398,7 +398,7 @@ def get_qpu_metrics() -> Dict[str, float]:
 # Standalone Test
 # -------------------------------
 if __name__ == "__main__":
-    test_cell = GlyphCell(id="cell_001", logic="⊕ ↔ ⟲ → ✦ ∇ ∇c", position=[0,0])
+    test_cell = GlyphCell(id="cell_001", logic="⊕ ↔ ⟲ -> ✦ ∇ ∇c", position=[0,0])
     context: Dict[str, Any] = {}
     print(execute_qpu_opcode("⊕", ["a", "b"], test_cell, context))
     print(execute_qpu_opcode("↔", ["x", "y"], test_cell, context))

@@ -17,14 +17,14 @@ from backend.modules.symbolic.symbolic_parser import (
 
 console = Console()
 
-SKIP_GLYPHS = {"∀", "→", "∧", "∨", "¬", "∅", "=", "≠", "<", ">", "≥", "≤"}
+SKIP_GLYPHS = {"∀", "->", "∧", "∨", "¬", "∅", "=", "!=", "<", ">", ">=", "<="}
 
 def test_symbolnet_enrichment(input_text: str, sources: list[str]):
     """
     Full enrichment pipeline:
-    1. Parse input → CodexAST (raw input or CodexLang)
+    1. Parse input -> CodexAST (raw input or CodexLang)
     2. Convert to CodexLang for canonical normalization
-    3. Parse CodexLang → CodexAST → LogicGlyphs
+    3. Parse CodexLang -> CodexAST -> LogicGlyphs
     4. Enrich each glyph using SymbolNetPlugin
     5. If parsing fails, fallback to symbolic glyph creation
     """
@@ -49,7 +49,7 @@ def test_symbolnet_enrichment(input_text: str, sources: list[str]):
             # Step 1c: Fallback to freeform glyph (e.g., "photon")
             stripped = input_text.strip()
             if stripped:
-                console.print(f"\n[bold yellow]⚠️ Parsing failed — treating as symbolic glyph:[/bold yellow] '[white]{stripped}[/white]'\n")
+                console.print(f"\n[bold yellow]⚠️ Parsing failed - treating as symbolic glyph:[/bold yellow] '[white]{stripped}[/white]'\n")
                 glyphs = [SymbolGlyph.from_dict({
                     "type": "symbol",
                     "symbol": stripped,
@@ -91,7 +91,7 @@ def test_symbolnet_enrichment(input_text: str, sources: list[str]):
             diff_data = {k: after[k] for k in new_keys}
             console.print(Panel.fit(
                 f"[bold cyan]Glyph:[/bold cyan] {label}\n\n"
-                f"[bold yellow]→ New Metadata:[/bold yellow]\n{diff_data}",
+                f"[bold yellow]-> New Metadata:[/bold yellow]\n{diff_data}",
                 title="🧠 Enriched Glyph",
                 subtitle=", ".join(sources),
                 border_style="green"

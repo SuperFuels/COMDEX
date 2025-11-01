@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AION Cognitive↔Interactive Bridge — Phase 13 + Resonant Recall
+AION Cognitive↔Interactive Bridge - Phase 13 + Resonant Recall
 ──────────────────────────────────────────────────────────────
 Combines the AION Resonance Console with the Cognitive Exercise Engine (CEE)
 and introduces long-term Resonant Recall via LexMemory + ResonantMemoryCache.
@@ -87,7 +87,7 @@ def update_bridge_dashboard(snapshot: dict):
     drift = snapshot.get("semantic_benchmark", {}).get("avg_drift", 0.0)
 
     # 🟢 Rich CLI Dashboard (KEEP THIS)
-    table = Table(title=f"AION Dashboard — Cycle {cycle}")
+    table = Table(title=f"AION Dashboard - Cycle {cycle}")
     table.add_column("Metric", style="cyan", justify="left")
     table.add_column("Value", style="magenta", justify="right")
     table.add_row("Symatic Quality Index (SQI)", f"{sqi:.3f}")
@@ -100,7 +100,7 @@ def update_bridge_dashboard(snapshot: dict):
     # 🧾 Save as JSON instead of HTML (Codespaces-safe)
     out_json = Path("data/analysis/aion_live_dashboard.json")
     out_json.write_text(json.dumps(snapshot, indent=2))
-    console.print(f"[green]📈 Dashboard snapshot saved → {out_json}[/green]")
+    console.print(f"[green]📈 Dashboard snapshot saved -> {out_json}[/green]")
 
 # ─────────────────────────────────────────────────────────────
 def resonant_recall(prompt: str):
@@ -133,7 +133,7 @@ def _list_caps(limit=15):
         if i >= limit:
             break
         e = meta.get("E", 0)
-        print(f"  • {lemma:<20} E={e:.5f}")
+        print(f"  * {lemma:<20} E={e:.5f}")
 
 def _query_res(term: str):
     res = get_resonance(term)
@@ -155,7 +155,7 @@ def _teach(engine: CognitiveExerciseEngine, term: str, level=1):
         print(f"\nQ{i}. {q['prompt']}")
         ans = engine.evaluate_answer(q, q.get("answer", ""))
         time.sleep(0.2)
-        print(f"→ {ans['feedback']}")
+        print(f"-> {ans['feedback']}")
         resonance["SQI"] = ans.get("SQI", 0.85)
         update_lex_memory(q["prompt"], q["answer"], resonance)
         RMC.update_from_photons([{"λ": term, "φ": resonance["ρ"], "μ": resonance["SQI"]}])
@@ -219,7 +219,7 @@ def main():
     # Initialize Θ Orchestrator in passive mode (no auto-tick spam)
     theta = ThetaOrchestrator(auto_tick=False)
     interrupt = InterruptionManager()
-    print("🌐 AION Cognitive Bridge — Phase 13 (Resonant Recall Ready)")
+    print("🌐 AION Cognitive Bridge - Phase 13 (Resonant Recall Ready)")
     print("Type 'help' for commands. Ctrl-D or 'exit' to quit.\n")
 
     while True:
@@ -237,20 +237,20 @@ def main():
         if cmd == "help":
             print("""
 Commands:
-  list [n]               → list first n memory capsules
-  res <term>             → view resonance state
-  recall <term>          → recall learned concept (Lex + Resonant)
-  teach <term> [level]   → start guided teaching session
-  wall [level]           → run Wordwall simulation
-  ask "<question>"       → ask Aion a cognitive question
-  define <word>          → retrieve stored lexical definition
-  symbol <word>          → show symbolic QMath or photon representation
-  unjumble <letters>     → solve anagram (lexical cognition test)
-  compare <w1> and <w2>  → measure semantic + resonance similarity (MCI)
-  context <word> in <p>  → evaluate contextual meaning consistency
-  connect A → B → C      → reinforce associative link chain
-  stats                  → show live SQI, stability, and MCI
-  top [n]                → show top-E capsules
+  list [n]               -> list first n memory capsules
+  res <term>             -> view resonance state
+  recall <term>          -> recall learned concept (Lex + Resonant)
+  teach <term> [level]   -> start guided teaching session
+  wall [level]           -> run Wordwall simulation
+  ask "<question>"       -> ask Aion a cognitive question
+  define <word>          -> retrieve stored lexical definition
+  symbol <word>          -> show symbolic QMath or photon representation
+  unjumble <letters>     -> solve anagram (lexical cognition test)
+  compare <w1> and <w2>  -> measure semantic + resonance similarity (MCI)
+  context <word> in <p>  -> evaluate contextual meaning consistency
+  connect A -> B -> C      -> reinforce associative link chain
+  stats                  -> show live SQI, stability, and MCI
+  top [n]                -> show top-E capsules
   help / exit
 """)
         elif cmd.startswith("list"):
@@ -352,7 +352,7 @@ Commands:
             pulse = hb.tick()
             # keep last pulse for subsequent logs
             LAST_PULSE = pulse
-            print(f"🩶 Resonance pulse → Φ_coherence={pulse['Φ_coherence']:.3f}, "
+            print(f"🩶 Resonance pulse -> Φ_coherence={pulse['Φ_coherence']:.3f}, "
                 f"Φ_entropy={pulse['Φ_entropy']:.3f}, SQI={pulse['sqi']:.3f}")
             log_bridge_event(cmd, LAST_PULSE)
 
@@ -368,17 +368,17 @@ Commands:
             hb.push_sample(rho=0.90, entropy=0.20, sqi=0.93, delta=0.02)
             pulse = hb.tick()
             LAST_PULSE = pulse
-            print(f"✅ Memory coherence stabilized → SQI={pulse['sqi']:.3f}, ΔΦ={pulse['resonance_delta']:.3f}")
+            print(f"✅ Memory coherence stabilized -> SQI={pulse['sqi']:.3f}, ΔΦ={pulse['resonance_delta']:.3f}")
             log_bridge_event(cmd, LAST_PULSE)
 
         elif cmd.startswith("think slow"):
             topic = cmd.replace("think slow", "").strip()
-            print(f"🧘 Engaging Θ Orchestrator (slow loop) → {topic or 'general reflection'}")
+            print(f"🧘 Engaging Θ Orchestrator (slow loop) -> {topic or 'general reflection'}")
             theta.run_loop(mode="slow", topic=topic)
 
         elif cmd.startswith("think fast"):
             topic = cmd.replace("think fast", "").strip()
-            print(f"⚡ Reflex loop activation → {topic or 'quick reasoning'}")
+            print(f"⚡ Reflex loop activation -> {topic or 'quick reasoning'}")
             theta.run_loop(mode="fast", topic=topic)
 
         elif cmd.startswith("reflect"):
@@ -387,7 +387,7 @@ Commands:
 
         elif cmd.startswith(("override", "interrupt")):
             reason = cmd.split(" ", 1)[-1] if " " in cmd else "manual"
-            print(f"🛑 Triggering override → {reason}")
+            print(f"🛑 Triggering override -> {reason}")
             interrupt.trigger(reason=reason, source="aion_cli")
 
         elif cmd == "status":
@@ -397,7 +397,7 @@ Commands:
 
         elif cmd.startswith(("override", "interrupt")):
             reason = cmd.split(" ", 1)[-1] if " " in cmd else "manual"
-            print(f"🛑 Triggering override → {reason}")
+            print(f"🛑 Triggering override -> {reason}")
             interrupt.trigger(reason=reason, source="aion_cli")
 
         elif cmd == "status":

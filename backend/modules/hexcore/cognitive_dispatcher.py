@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • AION Cognitive Dispatcher (v3)
+#  Tessaris * AION Cognitive Dispatcher (v3)
 #  Unified semantic routing layer for consciousness engines.
 #  Uses LLM or Quantum Atom classification for adaptive routing.
 # ──────────────────────────────────────────────────────────────
@@ -145,7 +145,7 @@ class CognitiveDispatcher:
         """
         try:
             tag = await self._classify_intent(intent)
-            self.logger.info(f"[Dispatcher] Intent classified → {tag}")
+            self.logger.info(f"[Dispatcher] Intent classified -> {tag}")
 
             # ─── Core Routing Logic ───────────────────────────
             # Cognition

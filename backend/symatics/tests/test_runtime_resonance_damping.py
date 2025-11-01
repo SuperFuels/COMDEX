@@ -17,9 +17,9 @@ def test_damping_consistency_passes():
     """Expected Δf/f ≈ 1/(2Q) within tolerance should pass."""
     ctx = DummyCtx()
     expr = {
-        "op": "ℚ↯",
+        "op": "Q↯",
         "f_prev": 100.0,
-        "f_curr": 105.0,   # 5% drift → matches Q=10
+        "f_curr": 105.0,   # 5% drift -> matches Q=10
         "Q": 10.0,
         "tolerance": 0.1,
     }
@@ -32,7 +32,7 @@ def test_damping_consistency_fails_for_large_deviation():
     """Large Δf/f deviation should fail."""
     ctx = DummyCtx()
     expr = {
-        "op": "ℚ↯",
+        "op": "Q↯",
         "f_prev": 100.0,
         "f_curr": 130.0,  # 30% drift
         "Q": 10.0,

@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-PAEV Test I5c — Enhanced Burst-Aligned v_S ↦ S_CHSH Correlation Analysis
+PAEV Test I5c - Enhanced Burst-Aligned v_S ↦ S_CHSH Correlation Analysis
 Tessaris Photon Algebra Framework (v1.0+ Registry Aligned)
 
 Works with E6-Ω v5c enhanced trace with multiple bursts.
 
 Enhancements:
-  • Multi-burst robust correlation (Spearman, Kendall)
-  • Event-triggered window analysis pre/post bursts
-  • Lag correlation (to detect delayed response)
-  • Bootstrap confidence intervals
-  • Burst-by-burst diagnostics
-  • Dynamic run-type detection (v5b/v5c)
-  • Auto-timestamped output files
-  • Clean reproducibility and adaptive parameter summary
-  • Optional regeneration if adaptive environment is set
+  * Multi-burst robust correlation (Spearman, Kendall)
+  * Event-triggered window analysis pre/post bursts
+  * Lag correlation (to detect delayed response)
+  * Bootstrap confidence intervals
+  * Burst-by-burst diagnostics
+  * Dynamic run-type detection (v5b/v5c)
+  * Auto-timestamped output files
+  * Clean reproducibility and adaptive parameter summary
+  * Optional regeneration if adaptive environment is set
 
 Artifacts:
   - backend/modules/knowledge/I5c_burst_corr.json
@@ -223,7 +223,7 @@ plt.axvline(best_lag * dt, ls='--', c='red')
 plt.title("Lag Correlation")
 plt.tight_layout()
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # ============================================================
 #  Save Summary JSON
@@ -265,13 +265,13 @@ summary = {
 }
 
 Path("backend/modules/knowledge/I5c_burst_corr.json").write_text(json.dumps(summary, indent=2))
-print("✅ Summary saved → backend/modules/knowledge/I5c_burst_corr.json")
+print("✅ Summary saved -> backend/modules/knowledge/I5c_burst_corr.json")
 
 # ============================================================
 #  Console Summary
 # ============================================================
 print("\n======================================================================")
-print("🔬 I5c — ENHANCED BURST-CORRELATION ANALYSIS COMPLETE")
+print("🔬 I5c - ENHANCED BURST-CORRELATION ANALYSIS COMPLETE")
 print("======================================================================")
 print(f"Source: {TRACE_PATH}")
 print(f"Bursts: {len(bursts)}, Valid: {len(delta)}")

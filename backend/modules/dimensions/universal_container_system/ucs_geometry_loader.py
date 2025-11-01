@@ -2,12 +2,12 @@
 🌌 UCS Geometry Loader
 -----------------------------------------------------
 Registers symbolic container geometries for:
-    • Visualization (GHX)
-    • Runtime orchestration (UCSRuntime)
-    • Exotic physics containers (Quantum Orb, Vortex, Black Hole, etc.)
-    • Symmetry containers (Tetrahedron, Octahedron, Icosahedron, etc.)
-    • Capital containers (e.g., Tesseract Central Command)
-    • Engine-specific geometries (Field Resonance, Compression Core, Exhaust Nozzle)
+    * Visualization (GHX)
+    * Runtime orchestration (UCSRuntime)
+    * Exotic physics containers (Quantum Orb, Vortex, Black Hole, etc.)
+    * Symmetry containers (Tetrahedron, Octahedron, Icosahedron, etc.)
+    * Capital containers (e.g., Tesseract Central Command)
+    * Engine-specific geometries (Field Resonance, Compression Core, Exhaust Nozzle)
 """
 
 import os
@@ -41,7 +41,7 @@ class UCSGeometryLoader:
             "capital": capital
         }
         flag = " (CAPITAL)" if capital else ""
-        print(f"🔗 Registered geometry: {name} {symbol}{flag} – {description}")
+        print(f"🔗 Registered geometry: {name} {symbol}{flag} - {description}")
 
     def register_default_geometries(self):
         """

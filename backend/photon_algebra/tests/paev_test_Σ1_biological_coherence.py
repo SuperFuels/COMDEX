@@ -1,11 +1,11 @@
 """
-Tessaris Σ1 — Biological Coherence Test
+Tessaris Σ1 - Biological Coherence Test
 ---------------------------------------
 Applies Tessaris Unified Constants (v1.2) to a biological resonance field.
 Purpose:
-    • Verify that Λ-field stability persists in a morphogenetic (biological) system.
-    • Test whether biological coherence obeys the same causal equilibrium principles
-      observed in Ω–Ξ–X–Λ domains.
+    * Verify that Λ-field stability persists in a morphogenetic (biological) system.
+    * Test whether biological coherence obeys the same causal equilibrium principles
+      observed in Ω-Ξ-X-Λ domains.
 """
 
 import json, os, numpy as np, matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ SUMMARY_PATH = os.path.join(BASE, f"{SERIES}_{TEST_NAME}_summary.json")
 PLOT_PATH = os.path.join(BASE, f"PAEV_{SERIES}_{TEST_NAME}.png")
 
 # === Load Constants ===
-# Only pass the version — the loader auto-adds prefix and .json
+# Only pass the version - the loader auto-adds prefix and .json
 constants = load_constants("v1.2")
 
 ħ, G, Λ, α, β, χ = (
@@ -28,8 +28,8 @@ constants = load_constants("v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print(f"=== {SERIES} — Biological Coherence (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== {SERIES} - Biological Coherence (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Simulation Parameters ===
 n_cells = 256                     # number of biological nodes
@@ -103,17 +103,17 @@ with open(SUMMARY_PATH, "w") as f:
 # === Visualization ===
 plt.figure(figsize=(7, 4))
 plt.plot(sync_history, label="R_sync (global coherence)", color="blue")
-plt.plot(np.abs(divJ_history), label="|∇·J| (causal divergence)", color="orange", linestyle="--")
+plt.plot(np.abs(divJ_history), label="|∇*J| (causal divergence)", color="orange", linestyle="--")
 plt.xlabel("Time Step")
 plt.ylabel("Metric Value")
-plt.title("Σ1 — Biological Coherence Stability (Tessaris)")
+plt.title("Σ1 - Biological Coherence Stability (Tessaris)")
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
 
 # === Console Output ===
-print(f"✅ Summary saved → {SUMMARY_PATH}")
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

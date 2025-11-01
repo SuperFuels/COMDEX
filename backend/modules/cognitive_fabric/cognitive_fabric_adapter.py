@@ -2,10 +2,10 @@
 🧠 Cognitive Fabric Adapter (CFA)
 ────────────────────────────────────────────
 Unifies:
-    • Knowledge Graph (symbolic / semantic memory)
-    • UCS Runtime (container + atom substrate)
-    • Morphic Ledger (wave coherence / state)
-    • SQI Event Bus + Codex Metrics
+    * Knowledge Graph (symbolic / semantic memory)
+    * UCS Runtime (container + atom substrate)
+    * Morphic Ledger (wave coherence / state)
+    * SQI Event Bus + Codex Metrics
 
 Allows any subsystem (AION, QQC, Morphic, Tessaris) to
 commit knowledge, data, or symbolic events through one interface.
@@ -133,7 +133,7 @@ class CognitiveFabricAdapter:
                     tags=tags,
                 )
             except Exception as e:
-                self.logger.warning(f"[CFA→Metrics] Mirror failed: {e}")
+                self.logger.warning(f"[CFA->Metrics] Mirror failed: {e}")
 
             # 5️⃣ SQI + WaveScope Bridge
             try:

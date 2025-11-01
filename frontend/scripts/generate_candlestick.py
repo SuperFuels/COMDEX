@@ -22,7 +22,7 @@ end_date   = datetime.now()
 start_date = end_date - timedelta(days=29)
 dates      = pd.date_range(start=start_date, end=end_date, freq='D')
 
-# 2) Create dummy “close” prices and derive OHLC
+# 2) Create dummy "close" prices and derive OHLC
 np.random.seed(42)
 base_price = 100.0
 price      = np.cumsum(np.random.randn(len(dates)) * 2) + base_price

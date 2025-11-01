@@ -1,6 +1,6 @@
 # ==========================================================
-# Test F6 — Meta-Adaptive Resonance Calibration
-#   Self-learning curvature–phase coupling via dual adaptation
+# Test F6 - Meta-Adaptive Resonance Calibration
+#   Self-learning curvature-phase coupling via dual adaptation
 # ==========================================================
 
 import numpy as np
@@ -34,7 +34,7 @@ c1, c3 = 1.0, 0.5
 d1, d2, d3 = 0.1, 0.5, -0.05
 
 # meta-adaptation parameters
-chi = 0.2          # adaptive curvature–phase coupling
+chi = 0.2          # adaptive curvature-phase coupling
 alpha = 0.05       # meta-adaptive rate
 mu = 0.015         # meta-damping (learning viscosity)
 H0 = 0.1           # reference energy
@@ -124,13 +124,13 @@ for t in range(steps):
 
 # 1. Trace plot
 plt.figure(figsize=(7, 4))
-plt.plot(energy_trace, label="⟨ℒ⟩", lw=1.5)
-plt.plot(corr_trace, label="⟨θ·κ⟩", lw=1.5)
+plt.plot(energy_trace, label="⟨L⟩", lw=1.5)
+plt.plot(corr_trace, label="⟨θ*κ⟩", lw=1.5)
 plt.plot(np.array(entropy_trace)/np.max(entropy_trace), label="Spectral entropy (norm.)", lw=1.5)
-plt.plot(np.array(chi_trace)/max(chi_trace), "--", color="red", label="χ(t) / χₘₐₓ")
+plt.plot(np.array(chi_trace)/max(chi_trace), "--", color="red", label="χ(t) / χmax")
 plt.axvline(0, color="magenta", ls="--", lw=1.0, label="transition")
 plt.legend()
-plt.title("F6 — Meta-Adaptive Resonance Evolution")
+plt.title("F6 - Meta-Adaptive Resonance Evolution")
 plt.tight_layout()
 plt.savefig("PAEV_TestF6_MetaAdaptive_Trace.png", dpi=160)
 plt.close()
@@ -141,7 +141,7 @@ plt.figure(figsize=(5.5, 5))
 plt.plot(chi_trace, alpha_trace, color="orange", lw=1.8)
 plt.xlabel("χ (adaptive coupling)")
 plt.ylabel("α (meta-adaptive rate)")
-plt.title("F6 — χ–α Resonance Map")
+plt.title("F6 - χ-α Resonance Map")
 plt.tight_layout()
 plt.savefig("PAEV_TestF6_ResonanceMap.png", dpi=160)
 plt.close()
@@ -155,9 +155,9 @@ print("✅ Saved animation to: PAEV_TestF6_Propagation.gif")
 # summary report
 # ----------------------------
 summary = f"""
-=== Test F6 — Meta-Adaptive Resonance Calibration ===
-⟨ℒ⟩ final = {energy_trace[-1]:.4e}
-⟨θ·κ⟩ final = {corr_trace[-1]:.4e}
+=== Test F6 - Meta-Adaptive Resonance Calibration ===
+⟨L⟩ final = {energy_trace[-1]:.4e}
+⟨θ*κ⟩ final = {corr_trace[-1]:.4e}
 Spectral entropy final = {entropy_trace[-1]:.4e}
 χ final = {chi_trace[-1]:.4e}
 α final = {alpha_trace[-1]:.4e}

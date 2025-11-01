@@ -1,5 +1,5 @@
 # ================================================================
-# 🧩 QuantPy Schema Exporter — v0.5 Resonant State Export
+# 🧩 QuantPy Schema Exporter - v0.5 Resonant State Export
 # ================================================================
 """
 Converts .sqs.qpy.json symbolic state files into .photo packets
@@ -52,7 +52,7 @@ class QPySchemaExporter:
         out_dir.mkdir(parents=True, exist_ok=True)
         with open(out_path, "w") as f:
             json.dump(packet, f, indent=2)
-        logger.info(f"[QPySchemaExporter] Exported {source.name} → {out_path}")
+        logger.info(f"[QPySchemaExporter] Exported {source.name} -> {out_path}")
         return out_path
 
 

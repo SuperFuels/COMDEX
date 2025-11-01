@@ -4,7 +4,7 @@ import logging
 import time
 from typing import Dict
 
-# Simulated persistent store — in a real system, replace with DB hooks
+# Simulated persistent store - in a real system, replace with DB hooks
 SYMBOLGRAPH_MEASUREMENTS: Dict[str, list[dict]] = {}
 
 logger = logging.getLogger(__name__)
@@ -36,11 +36,11 @@ def store_measurement_result(glyph_id: str, result: str, score: float):
     recent_entries = SYMBOLGRAPH_MEASUREMENTS[glyph_id][-5:]
     for e in recent_entries:
         if e["result"] == result and abs(e["timestamp"] - timestamp) < 2.0:
-            logger.info(f"[SymbolGraphStore] Duplicate measurement ignored for '{glyph_id}' → {result}")
+            logger.info(f"[SymbolGraphStore] Duplicate measurement ignored for '{glyph_id}' -> {result}")
             return
 
     SYMBOLGRAPH_MEASUREMENTS[glyph_id].append(entry)
-    logger.info(f"[SymbolGraphStore] ✅ Stored collapse: {glyph_id} → {result} (score={score:.2f})")
+    logger.info(f"[SymbolGraphStore] ✅ Stored collapse: {glyph_id} -> {result} (score={score:.2f})")
 
 
 def get_measurements(glyph_id: str) -> list[dict]:

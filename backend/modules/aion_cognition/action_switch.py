@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # ================================================================
-# ⚙️ Tessaris ActionSwitch — Reflex Routing Core (P5 + R4–R6 Integrated)
+# ⚙️ Tessaris ActionSwitch - Reflex Routing Core (P5 + R4-R6 Integrated)
 # ================================================================
 # Combines high-level plan routing with deep reflex reasoning:
-#   • HexCore Strategy + Prediction routing
-#   • AION Reflex cognition (RuleBooks, Violations, ReflexMemory)
-#   • ResonantHeartbeat Θ coupling for live adjustment
-#   • Teleport/GWave traversal across rule domains
+#   * HexCore Strategy + Prediction routing
+#   * AION Reflex cognition (RuleBooks, Violations, ReflexMemory)
+#   * ResonantHeartbeat Θ coupling for live adjustment
+#   * Teleport/GWave traversal across rule domains
 # ================================================================
 
 import time, json, logging
@@ -20,7 +20,7 @@ from backend.modules.consciousness.prediction_engine import PredictionEngine
 from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
 from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 
-# ─────────── Reflex R4–R6 components ───────────
+# ─────────── Reflex R4-R6 components ───────────
 from backend.modules.aion_cognition.cognitive_intent_loop import CognitiveIntentLoop
 from backend.modules.aion_cognition.rulebook_streamer import RuleBookStreamer
 from backend.modules.aion_cognition.violation_logger import ViolationLogger
@@ -34,7 +34,7 @@ OUT = Path("data/telemetry/action_switch_trace.json")
 class ActionSwitch:
     """
     Central execution router that merges plan routing (P5)
-    with symbolic reflex cognition (R4–R6).
+    with symbolic reflex cognition (R4-R6).
     """
 
     def __init__(self, tau_theta: float = 0.35):
@@ -54,7 +54,7 @@ class ActionSwitch:
         self.reflex = ReflexMemory()
 
         self.last_routed = None
-        print("⚙️ ActionSwitch initialized (P5+R6) — Reflex Beam online and Θ-linked.")
+        print("⚙️ ActionSwitch initialized (P5+R6) - Reflex Beam online and Θ-linked.")
 
     # ============================================================
     # 🔁 PLAN ROUTING (P5)
@@ -69,7 +69,7 @@ class ActionSwitch:
         resonance_score = plan.get("resonance_score", 0.0)
         deferred = plan.get("deferred", False)
 
-        print(f"⚙️ [ActionSwitch] Routing plan → Goal: {goal} | Resonance: {resonance_score:.3f}")
+        print(f"⚙️ [ActionSwitch] Routing plan -> Goal: {goal} | Resonance: {resonance_score:.3f}")
         feasibility = self.prediction_engine.assess_feasibility(goal)
         print(f"🔮 Feasibility prediction: {feasibility:.2f}")
 
@@ -95,7 +95,7 @@ class ActionSwitch:
             self._store_deferred(plan)
 
     # ============================================================
-    # 🧠 REFLEX EXECUTION (R4–R6)
+    # 🧠 REFLEX EXECUTION (R4-R6)
     # ============================================================
     def _tick_theta(self, resonance: Dict[str, float], memory_stats: Dict[str, float], drift: float = 0.0):
         rho = float(resonance.get("ρ", 0.0))
@@ -161,7 +161,7 @@ class ActionSwitch:
     # 🧩 Synchronization + Deferred Plans
     # ============================================================
     def _store_deferred(self, plan):
-        """Internal helper — store deferred plans into resonant cache."""
+        """Internal helper - store deferred plans into resonant cache."""
         try:
             deferred_plans = self.rmc.get("deferred_plans") or []
             deferred_plans.append({
@@ -192,7 +192,7 @@ class ActionSwitch:
     # 💓 Resonance Coupling (Θ-feedback)
     # ============================================================
     def _on_heartbeat(self, pulse_data: dict):
-        """Called every Resonance Heartbeat tick — update active plan weighting."""
+        """Called every Resonance Heartbeat tick - update active plan weighting."""
         delta = pulse_data.get("resonance_delta", 0.0)
         entropy = pulse_data.get("entropy", 0.0)
 

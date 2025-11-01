@@ -1,5 +1,5 @@
 """
-PAEV Test F8 — Predictive Cosmogenesis (Stabilized)
+PAEV Test F8 - Predictive Cosmogenesis (Stabilized)
 ---------------------------------------------------
 Simulates meta-adaptive cosmogenesis dynamics:
 inflation, expansion, and reheating phases with bounded field evolution.
@@ -39,8 +39,8 @@ theta = np.exp(-(X**2 + Y**2))
 kappa = np.exp(-0.8 * (X**2 + Y**2))
 theta_t = np.zeros_like(theta)
 
-print("🌌 Initiating F8 — Predictive Cosmogenesis Mode...")
-print("💥 Perturbation mode enabled — injecting Gaussian curvature pulse.")
+print("🌌 Initiating F8 - Predictive Cosmogenesis Mode...")
+print("💥 Perturbation mode enabled - injecting Gaussian curvature pulse.")
 
 # === Helper functions ===
 def laplacian(Z):
@@ -137,20 +137,20 @@ for step in range(steps):
 
 # Energy, correlation, entropy, and coupling evolution
 plt.figure(figsize=(7, 4))
-plt.plot(energy_trace, label="⟨ℒ⟩")
-plt.plot(corr_trace, label="⟨θ·κ⟩")
+plt.plot(energy_trace, label="⟨L⟩")
+plt.plot(corr_trace, label="⟨θ*κ⟩")
 plt.plot(np.array(entropy_trace)/np.max(entropy_trace), label="Spectral entropy (norm.)")
 plt.plot(np.array(chi_trace)/np.max(chi_trace), "--", label="χ(t)/χmax")
 plt.axvline(0, color="magenta", linestyle="--", label="transition")
 plt.legend()
-plt.title("F8 — Predictive Cosmogenesis Dynamics")
+plt.title("F8 - Predictive Cosmogenesis Dynamics")
 plt.savefig("PAEV_TestF8_Cosmogenesis_Trace.png")
 plt.close()
 
 # Scale factor evolution
 plt.figure()
 plt.plot(a_trace, color="orange")
-plt.title("F8 — Cosmic Scale Factor a(t)")
+plt.title("F8 - Cosmic Scale Factor a(t)")
 plt.xlabel("Step")
 plt.ylabel("a(t)")
 plt.savefig("PAEV_TestF8_ScaleFactor.png")
@@ -166,10 +166,10 @@ plt.tight_layout()
 plt.savefig("PAEV_TestF8_StructureFormation.png")
 plt.close()
 
-# Vacuum energy vs expansion rate (inflation→reheating)
+# Vacuum energy vs expansion rate (inflation->reheating)
 plt.figure()
 plt.plot(Lambda_trace, a_trace, color="teal")
-plt.title("F8 — Vacuum Energy vs Expansion Rate")
+plt.title("F8 - Vacuum Energy vs Expansion Rate")
 plt.xlabel("Λ(t)")
 plt.ylabel("a(t)")
 plt.grid(True)
@@ -183,9 +183,9 @@ print("✅ Saved animation to: PAEV_TestF8_Propagation.gif")
 
 # === Summary output ===
 summary = f"""
-=== Test F8 — Predictive Cosmogenesis Complete ===
-⟨ℒ⟩ final = {energy_trace[-1]:.4e}
-⟨θ·κ⟩ final = {corr_trace[-1]:.4e}
+=== Test F8 - Predictive Cosmogenesis Complete ===
+⟨L⟩ final = {energy_trace[-1]:.4e}
+⟨θ*κ⟩ final = {corr_trace[-1]:.4e}
 Spectral entropy final = {entropy_trace[-1]:.4e}
 a(t) final = {a_trace[-1]:.4e}
 Λ final = {Lambda_trace[-1]:.4e}

@@ -1,6 +1,6 @@
 """
 Tessaris AION Resonant Coupling Interface (RCI)
-Phase 6 — ΔΦ → Δν Translation Layer
+Phase 6 - ΔΦ -> Δν Translation Layer
 ------------------------------------------------
 Bridges AION's Unified Cognition Cycle with the Quantum Quad Core (QQC).
 Maps cognitive field deltas (ΔΦ) to harmonic frequency adjustments (Δν)
@@ -28,7 +28,7 @@ logger.setLevel(logging.INFO)
 # 🧭 Coupling Configuration
 # ==========================================================
 
-HARMONIC_CHANNELS = ["ν₁", "ν₂", "ν₃", "ν₄"]  # coherence, entropy, flux, load
+HARMONIC_CHANNELS = ["ν1", "ν2", "ν3", "ν4"]  # coherence, entropy, flux, load
 COUPLING_GAIN = {
     "Φ_coherence": 0.42,
     "Φ_entropy": -0.38,
@@ -69,7 +69,7 @@ def compute_resonant_stability(delta_phi: dict, delta_nu: dict) -> float:
 
 async def apply_resonant_feedback(delta_phi: dict):
     """
-    Main driver — computes Δν, applies to QQC, and logs resonance stability.
+    Main driver - computes Δν, applies to QQC, and logs resonance stability.
     """
     delta_nu = await map_delta_phi_to_resonance(delta_phi)
     stability = compute_resonant_stability(delta_phi, delta_nu)
@@ -89,8 +89,8 @@ async def apply_resonant_feedback(delta_phi: dict):
         "stability": stability
     }
 
-    logger.info(f"[Φ→ν] Coupling: ΔΦ={delta_phi}")
-    logger.info(f"→ Δν={delta_nu}")
+    logger.info(f"[Φ->ν] Coupling: ΔΦ={delta_phi}")
+    logger.info(f"-> Δν={delta_nu}")
     logger.info(f"⚖️ Resonant stability: {stability:.3f}")
 
     # Optionally write telemetry to GHX or a local log file

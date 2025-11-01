@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test H′2 — Tessaris Dynamic Drift Monitor
+Test H′2 - Tessaris Dynamic Drift Monitor
 Evaluates the stability of field phase cohesion (FCI) under small perturbations.
 """
 
@@ -32,13 +32,13 @@ def compute_FCI_shift(constants, deltas):
     return np.mean(vals) * 100  # pseudo FCI %
 
 def main():
-    print("=== H′2 — Tessaris Dynamic Drift Monitor ===")
+    print("=== H′2 - Tessaris Dynamic Drift Monitor ===")
 
     base_constants = load_json(LOCK_FILE)
     base_phases = load_json(COH_FILE).get("phases", {})
 
     if not base_constants or not base_phases:
-        print("🚨 Missing input data — ensure G′ lock and H′1 cohesion files exist.")
+        print("🚨 Missing input data - ensure G′ lock and H′1 cohesion files exist.")
         return
 
     results = []
@@ -57,25 +57,25 @@ def main():
         writer.writerow(["Drift_%", "FCI_%"])
         for d, fci in results:
             writer.writerow([d, fci])
-    print(f"📄 Saved drift results → {RESULTS_FILE}")
+    print(f"📄 Saved drift results -> {RESULTS_FILE}")
 
     # Plot
     plt.figure(figsize=(7,4))
     plt.plot(drift_vals, fci_vals, "r-", linewidth=2)
     plt.xlabel("Constant Drift (%)")
     plt.ylabel("FCI (%)")
-    plt.title(f"H′2 — Dynamic Drift Stability (mean={mean_fci:.3f}%, σ={std_fci:.3f}%)")
+    plt.title(f"H′2 - Dynamic Drift Stability (mean={mean_fci:.3f}%, σ={std_fci:.3f}%)")
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(PLOT_FILE)
-    print(f"📈 Saved plot → {PLOT_FILE}")
+    print(f"📈 Saved plot -> {PLOT_FILE}")
 
     if std_fci < 0.5:
-        print("✅ Field stability maintained — coherent drift response.")
+        print("✅ Field stability maintained - coherent drift response.")
     elif std_fci < 2.0:
-        print("⚠️ Moderate drift — partial decoherence risk.")
+        print("⚠️ Moderate drift - partial decoherence risk.")
     else:
-        print("🚨 High instability detected — recheck phase mapping.")
+        print("🚨 High instability detected - recheck phase mapping.")
 
     print(f"Mean FCI = {mean_fci:.3f} %, Std Dev = {std_fci:.3f} %")
 

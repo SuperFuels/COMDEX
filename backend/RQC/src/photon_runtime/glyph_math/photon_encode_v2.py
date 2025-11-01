@@ -1,5 +1,5 @@
 """
-Photon Encoder v2 — Symbolic Telemetry Compression
+Photon Encoder v2 - Symbolic Telemetry Compression
 ──────────────────────────────────────────────────────────────
 Encodes Φ, R, S, γ as glyph-math numbers for Photon output mode.
 """
@@ -15,5 +15,5 @@ def photon_encode(record: dict) -> str:
     γ = quantize(record.get("gain"))
     t = encode_time(record.get("timestamp"))
 
-    # Photon packet — symbolic capsule, not JSON
+    # Photon packet - symbolic capsule, not JSON
     return f"data: ⏱:{t} Φ:{Φ} R:{R} S:{S} γ:{γ}\n\n"

@@ -66,7 +66,7 @@ def run_batch(episodes: int, curriculum):
     out = Path("data/perception/metrics.jsonl"); out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "a") as f:
         for h in history: f.write(json.dumps(h) + "\n")
-    print("📝 metrics appended →", out)
+    print("📝 metrics appended ->", out)
 
 def run_interactive():
     pal = PAL(); pal.load()
@@ -77,7 +77,7 @@ def run_interactive():
         opts = [o.strip() for o in opts if o.strip()]
         ans  = input("Correct option exactly (must match one option): ").strip()
         choice, conf, vec = pal.ask(prompt, opts)
-        print(f"→ PAL chose: {choice} (p≈{conf:.2f})")
+        print(f"-> PAL chose: {choice} (p≈{conf:.2f})")
         reward = 1.0 if choice == ans else 0.0
         pal.feedback(prompt, choice, ans, vec, reward)
         print(f"   {'✅ correct' if reward>0 else '❌ incorrect'} | mem={len(pal.memory)} ε={pal.epsilon:.2f}")

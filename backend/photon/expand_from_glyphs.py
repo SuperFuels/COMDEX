@@ -10,7 +10,7 @@ Priority:
 
 Example:
     [{"text":"Ω"}, {"text":"⊕"}, {"text":"A"}]
-→  "Omega superpose A"
+->  "Omega superpose A"
 """
 
 from typing import List, Dict, Any
@@ -48,7 +48,7 @@ except Exception:
 @lru_cache(maxsize=4096)
 def resolve_candidate(glyph_txt: str) -> str:
     """
-    Resolve glyph → natural language token via:
+    Resolve glyph -> natural language token via:
     - canonical operator metadata (primary)
     - canonical ops namespace (secondary)
     - resonance weighted choice (if ambiguous)
@@ -61,10 +61,10 @@ def resolve_candidate(glyph_txt: str) -> str:
     if meta and isinstance(meta, dict) and "name" in meta:
         return meta["name"].replace("_", " ")
 
-    # 2) Canonical ops namespace → strip domain prefix to readable form
+    # 2) Canonical ops namespace -> strip domain prefix to readable form
     if glyph_txt in CANONICAL_OPS:
         namespaced = CANONICAL_OPS[glyph_txt]
-        # e.g. "quantum:⊕" → "quantum superpose"
+        # e.g. "quantum:⊕" -> "quantum superpose"
         if ":" in namespaced:
             domain, sym = namespaced.split(":", 1)
             # map domain back to english and symbol to readable
@@ -81,7 +81,7 @@ def resolve_candidate(glyph_txt: str) -> str:
     if isinstance(base, list) and len(base) == 1:
         return base[0]
 
-    # 4) Multi-mapping → resonance score choice
+    # 4) Multi-mapping -> resonance score choice
     best = None
     best_score = -1.0
 

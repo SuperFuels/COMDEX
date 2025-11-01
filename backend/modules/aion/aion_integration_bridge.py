@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Aion Integration Bridge (Stage 9)
-#  Couples QQC ψ–κ–T–Φ state → Aion Symbolic Field (A1–A3)
+#  Tessaris * Aion Integration Bridge (Stage 9)
+#  Couples QQC ψ-κ-T-Φ state -> Aion Symbolic Field (A1-A3)
 #  Provides ascending / descending coherence feedback
 # ──────────────────────────────────────────────
 import math
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class AionIntegrationBridge:
     """
     Couples QQC field state (ψ, κ, T, Φ) to Aion Symbolic Fields.
-    Performs normalization, projection (A1→A3) and learning feedback (A3→A1).
+    Performs normalization, projection (A1->A3) and learning feedback (A3->A1).
     """
 
     def __init__(self, qqc_core, resonance_bridge=None):
@@ -23,7 +23,7 @@ class AionIntegrationBridge:
         logger.info("[AionIntegrationBridge] Initialized.")
 
     # ──────────────────────────────────────────────
-    #  ψ–κ–T–Φ → A1–A3 Projection
+    #  ψ-κ-T-Φ -> A1-A3 Projection
     # ──────────────────────────────────────────────
     def project_to_aion_field(self) -> Dict[str, Any]:
         """Normalize and project QQC state into Aion symbolic field space."""
@@ -66,17 +66,17 @@ class AionIntegrationBridge:
                     observer="aion_bridge",
                 )
             except Exception:
-                # ledger is optional — never fail the projection
+                # ledger is optional - never fail the projection
                 pass
 
-            logger.debug(f"[AionIntegrationBridge] Projected ψκTΦ→Aion field {projection}")
+            logger.debug(f"[AionIntegrationBridge] Projected ψκTΦ->Aion field {projection}")
             return projection
         except Exception as e:
             logger.error(f"[AionIntegrationBridge] Projection failed: {e}")
             return {}
 
     # ──────────────────────────────────────────────
-    #  Feedback to QQC/Morphic layer (A3→A1)
+    #  Feedback to QQC/Morphic layer (A3->A1)
     # ──────────────────────────────────────────────
     def propagate_feedback(self):
         """Compute Aion gradient feedback and apply to QQC resonance target."""
@@ -84,7 +84,7 @@ class AionIntegrationBridge:
             return
         try:
             grad = self.last_projection["gradient"]
-            # smaller gradient → higher confidence → slightly nudge target upward
+            # smaller gradient -> higher confidence -> slightly nudge target upward
             adjust = 1.0 - min(grad * 2.0, 1.0)
             if hasattr(self.qqc, "feedback_controller") and getattr(self.qqc.feedback_controller, "target_coherence", None) is not None:
                 base = float(self.qqc.feedback_controller.target_coherence)

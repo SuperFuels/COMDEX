@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 16 — Quantum Cognitive Layer (QCL)
+Tessaris Phase 16 - Quantum Cognitive Layer (QCL)
 
 Translates continuous resonance and control data into symbolic cognition
 glyphs representing the Symatics Algebra primitives (⊕, ↔, ⟲, ∇, μ, π).
@@ -62,7 +62,7 @@ def cognitive_cycle():
     photo = load_latest_photo()
 
     if not (rqfs and rfc and photo):
-        print("⚠️ Waiting for resonance/coupler inputs (RQFS/RFC/Photo)…")
+        print("⚠️ Waiting for resonance/coupler inputs (RQFS/RFC/Photo)...")
         return
 
     phi = rqfs.get("ΔΦ_obs", 0.0)
@@ -89,7 +89,7 @@ def cognitive_cycle():
           f"ν={nu_bias:+.3f} amp={amp_gain:+.3f}")
 
 def run_qcl(interval: float = 5.0):
-    print("🧠 Starting Tessaris Quantum Cognitive Layer (QCL)…")
+    print("🧠 Starting Tessaris Quantum Cognitive Layer (QCL)...")
     while True:
         cognitive_cycle()
         time.sleep(interval)

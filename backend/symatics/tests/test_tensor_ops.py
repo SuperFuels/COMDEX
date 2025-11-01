@@ -23,7 +23,7 @@ def test_tensor_grad_and_measure():
 
 def test_tensor_engine_coupling_and_flux():
     engine = TensorEngine()
-    # Non-uniform field — ensures nonzero gradient
+    # Non-uniform field - ensures nonzero gradient
     x = np.linspace(0, 1, 4)
     a = np.outer(x, x)        # gradient across ψ-space
     b = np.ones((4, 4)) * 2

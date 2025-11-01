@@ -3,10 +3,10 @@
 """
 ⚠ Drift Damping Module (Enhanced with Multi-Seed Harmonic Fallback)
 --------------------------------------------------------------------
-• Detects resonance drift Δ beyond thresholds.
-• Applies SQI damping (gravity/magnetism reduction).
-• Monitors coherence stability over time.
-• If coherence remains critically low, dynamically injects a fallback harmonic seed
+* Detects resonance drift Δ beyond thresholds.
+* Applies SQI damping (gravity/magnetism reduction).
+* Monitors coherence stability over time.
+* If coherence remains critically low, dynamically injects a fallback harmonic seed
   selected from the best of N prior stable states.
 """
 
@@ -45,8 +45,8 @@ def apply_drift_damping(engine: "HyperdriveEngine") -> float:
         engine.fields["magnetism"] *= damping_scale
         engine.decay_rate *= (1.0 + (drift / HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD) * 0.01)
 
-        engine.log_event(f"⚠ Drift spike: Δ={drift:.4f} | Coherence={coherence:.3f} → Damping={damping_scale:.3f}")
-        print(f"⚠ Drift spike detected: Δ={drift:.3f} | Harmonic Coherence={coherence:.3f} → SQI damping applied.")
+        engine.log_event(f"⚠ Drift spike: Δ={drift:.4f} | Coherence={coherence:.3f} -> Damping={damping_scale:.3f}")
+        print(f"⚠ Drift spike detected: Δ={drift:.3f} | Harmonic Coherence={coherence:.3f} -> SQI damping applied.")
 
     # --- Seed Capture: store stable states ---
     if coherence > 0.08:  # threshold for "good stability"
@@ -70,7 +70,7 @@ def apply_drift_damping(engine: "HyperdriveEngine") -> float:
         if _seed_history:
             # Select seed with highest coherence
             best_seed = max(_seed_history, key=lambda s: s["coherence"])
-            print(f"[⚠️ SQI] Low coherence ({coherence:.3f}) + drift Δ={drift:.3f} → Injecting best fallback seed (coherence={best_seed['coherence']:.3f}).")
+            print(f"[⚠️ SQI] Low coherence ({coherence:.3f}) + drift Δ={drift:.3f} -> Injecting best fallback seed (coherence={best_seed['coherence']:.3f}).")
 
             # Apply selected seed parameters
             engine.gain = best_seed["gain"]
@@ -83,10 +83,10 @@ def apply_drift_damping(engine: "HyperdriveEngine") -> float:
                 engine.injector_controller.set_all(base_frequency)
                 engine.chamber_controller.set_all(base_frequency)
 
-            engine.log_event(f"[✅ Fallback] Seed restored → Base={base_frequency:.3f}Hz | Gain={best_seed['gain']:.3f}")
-            print(f"[✅ Fallback] Harmonic seed injection → Base={base_frequency:.3f}, Gain={best_seed['gain']:.3f}, Gravity={best_seed['gravity']:.3f}")
+            engine.log_event(f"[✅ Fallback] Seed restored -> Base={base_frequency:.3f}Hz | Gain={best_seed['gain']:.3f}")
+            print(f"[✅ Fallback] Harmonic seed injection -> Base={base_frequency:.3f}, Gain={best_seed['gain']:.3f}, Gravity={best_seed['gravity']:.3f}")
         else:
-            print("[⚠️ SQI] Low coherence detected but no seeds in memory → fallback skipped.")
+            print("[⚠️ SQI] Low coherence detected but no seeds in memory -> fallback skipped.")
 
         _low_coherence_counter = 0  # reset counter
 

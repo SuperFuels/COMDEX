@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-J1 — χ-ablation study (baseline vs χ=0)
+J1 - χ-ablation study (baseline vs χ=0)
 Paired A/B under identical seed to test necessity of the χ-term.
 
 Outputs
@@ -155,7 +155,7 @@ ax1.bar(x-w/2, p_vals, w, label="p (transport)")
 ax1.bar(x+w/2, nu_vals, w, label="ν (entropy↔MSD)")
 ax1.set_xticks(x); ax1.set_xticklabels(labels)
 ax1.set_ylabel("Exponent value")
-ax1.set_title("J1 — Exponents under χ ablation")
+ax1.set_title("J1 - Exponents under χ ablation")
 ax1.legend(); ax1.grid(alpha=0.3)
 
 ax2 = plt.subplot(1,2,2)
@@ -165,12 +165,12 @@ ax2.hist(b1,bins=15,alpha=0.6,label=f"χ={χ:.1f} (n={len(b1)})")
 ax2.hist(b2,bins=15,alpha=0.6,label=f"χ=0 (n={len(b2)})")
 ax2.set_xlabel("Burst length (steps)")
 ax2.set_ylabel("Count")
-ax2.set_title("J1 — v_S/v_c bursts")
+ax2.set_title("J1 - v_S/v_c bursts")
 ax2.legend(); ax2.grid(alpha=0.3)
 plt.tight_layout()
 fig_path = "PAEV_J1_ablation_chi.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Figure saved → {fig_path}")
+print(f"✅ Figure saved -> {fig_path}")
 
 # -------------------- JSON summary -----------------------------------
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -197,7 +197,7 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/J1_ablation_chi_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # -------------------- verdict ----------------------------------------
 def verdict(r0, r1):
@@ -208,11 +208,11 @@ def verdict(r0, r1):
         msg.append("χ appears necessary for original transport/burst profile.")
     dp, dn = r1["p"] - r0["p"], r1["nu"] - r0["nu"]
     if abs(dn) > 0.1:
-        msg.append(f"Entropy–MSD coupling changed (Δν={dn:.3f}).")
+        msg.append(f"Entropy-MSD coupling changed (Δν={dn:.3f}).")
     return " ".join(msg)
 
 print("\n" + "="*66)
-print("🔎 J1 — χ-ABLATION VERDICT")
+print("🔎 J1 - χ-ABLATION VERDICT")
 print("="*66)
 print(verdict(res_baseline, res_ablated))
 print("All claims are algebraic/model-level; no spacetime signaling implied.")

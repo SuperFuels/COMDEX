@@ -1,5 +1,5 @@
 # ==========================================================
-# G3-RC2 — Info-Regulated Negative-Mass Bounce (Adaptive)
+# G3-RC2 - Info-Regulated Negative-Mass Bounce (Adaptive)
 # Adds: phase-lock control, adaptive Λ_eff, soft saturation,
 #       and energy cap to prevent runaway spikes.
 # ==========================================================
@@ -24,7 +24,7 @@ dt, T = 0.002, 4000
 t = np.linspace(0, T*dt, T)
 
 # Controllers (tuned)
-k_eq   = 0.035     # curvature–mass equalization
+k_eq   = 0.035     # curvature-mass equalization
 k_sync = 0.05      # visible/hidden phase sync (↑ from RC1)
 k_neg0 = 0.02      # base negative-mass coupling
 k_infoR = 0.015    # information feedback on curvature (↑)
@@ -58,7 +58,7 @@ for i in range(1, T):
     pressure = rho_v - 0.33 * rho_m
 
     # curvature dynamics (visible & hidden)
-    # target: R tracks Rψ (curvature–mass equivalence + sync)
+    # target: R tracks Rψ (curvature-mass equivalence + sync)
     dR  = (-γd*R[i-1] 
            + k_eq*(Rψ[i-1] - R[i-1])
            + k_sync*np.cos(ψ[i-1]-φ[i-1])
@@ -99,7 +99,7 @@ for i in range(1, T):
 
     # unified energy (soft-capped to avoid numeric blow-up)
     E_geom = (c := 299792458.0); pref = (c**4)/(8*np.pi*G)
-    E_geom *= 0  # (keep namespace clean; we’ll just use pref*R)
+    E_geom *= 0  # (keep namespace clean; we'll just use pref*R)
     E = pref*R[i] + (Λ_eff[i]*rho_m*a[i]**3) + ħ*np.cos(φ[i]-ψ[i])
     # soft cap
     E_total[i] = np.sign(E) * min(abs(E), E_cap)
@@ -121,25 +121,25 @@ else:
 # ---- Plots ----
 plt.figure(figsize=(9,5))
 plt.plot(t, a); plt.axvline(t[bounce_idx], ls='--', c='purple', alpha=0.7, label='min(a)')
-plt.title("G3-RC2 — Scale Factor Evolution (Adaptive Neg-Mass)")
+plt.title("G3-RC2 - Scale Factor Evolution (Adaptive Neg-Mass)")
 plt.xlabel("time"); plt.ylabel("a(t)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC2_ScaleFactor.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, R, label="R (visible)"); plt.plot(t, Rψ, label="Rψ (hidden)")
-plt.title("G3-RC2 — Curvature Tracks (R vs Rψ)")
+plt.title("G3-RC2 - Curvature Tracks (R vs Rψ)")
 plt.xlabel("time"); plt.ylabel("curvature"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC2_CurvatureTracks.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, Mψ, label="Hidden mass Mψ")
-plt.title("G3-RC2 — Hidden Effective Mass Evolution")
+plt.title("G3-RC2 - Hidden Effective Mass Evolution")
 plt.xlabel("time"); plt.ylabel("Mψ (norm)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC2_HiddenMass.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, E_total, label="Unified energy (norm)")
-plt.title("G3-RC2 — Unified Energy Evolution (Capped)"); plt.legend()
+plt.title("G3-RC2 - Unified Energy Evolution (Capped)"); plt.legend()
 plt.xlabel("time"); plt.ylabel("E_total (norm)"); plt.tight_layout()
 plt.savefig("FAEV_G3RC2_Energy.png")
 
@@ -172,7 +172,7 @@ outpath = "backend/modules/knowledge/G3RC2_adaptive_negmass_bounce.json"
 with open(outpath, "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== G3-RC2 — Information-Regulated Negative-Mass Bounce (Adaptive) ===")
+print("=== G3-RC2 - Information-Regulated Negative-Mass Bounce (Adaptive) ===")
 print(f"a_min={a_min:.4f} | cross_corr={cross_corr:.3f} | E_stab={E_stab:.3e}")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {outpath}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {outpath}")

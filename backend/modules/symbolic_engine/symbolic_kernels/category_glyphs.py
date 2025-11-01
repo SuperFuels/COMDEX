@@ -24,12 +24,12 @@ class ObjectGlyph(CategoryGlyph):  # A, B, C
     def evaluate(self): return {"object": self.operands[0]}
 
 
-class MorphismGlyph(CategoryGlyph):  # f: A → B
+class MorphismGlyph(CategoryGlyph):  # f: A -> B
     def __init__(self, source: Any, target: Any, name: Optional[str] = None):
         metadata = {"name": name} if name else {}
-        super().__init__('→', [source, target], metadata)
+        super().__init__('->', [source, target], metadata)
     def evaluate(self): return {
-        "morphism": self.metadata.get("name", f"{self.operands[0]}→{self.operands[1]}"),
+        "morphism": self.metadata.get("name", f"{self.operands[0]}->{self.operands[1]}"),
         "from": self.operands[0],
         "to": self.operands[1]
     }
@@ -51,7 +51,7 @@ class CompositionGlyph(CategoryGlyph):  # g ∘ f
     }
 
 
-class FunctorGlyph(CategoryGlyph):  # F: C → D
+class FunctorGlyph(CategoryGlyph):  # F: C -> D
     def __init__(self, source_cat: Any, target_cat: Any, name: Optional[str] = None):
         metadata = {"name": name} if name else {}
         super().__init__('F', [source_cat, target_cat], metadata)
@@ -62,10 +62,10 @@ class FunctorGlyph(CategoryGlyph):  # F: C → D
     }
 
 
-class NaturalTransformationGlyph(CategoryGlyph):  # η: F ⇒ G
+class NaturalTransformationGlyph(CategoryGlyph):  # η: F -> G
     def __init__(self, F: Any, G: Any, name: Optional[str] = None):
         metadata = {"name": name} if name else {}
-        super().__init__('⇒', [F, G], metadata)
+        super().__init__('->', [F, G], metadata)
     def evaluate(self): return {
         "transformation": self.metadata.get("name", "η"),
         "from": self.operands[0],

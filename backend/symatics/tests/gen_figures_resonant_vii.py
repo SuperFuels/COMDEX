@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics – Figure Generator (Volume VII)
+# Tessaris Symatics - Figure Generator (Volume VII)
 # Generates publication figures:
 #   1. resonant_feedback_loop.png
 #   2. resonant_gradient_flow.png
@@ -23,8 +23,8 @@ os.makedirs("docs/figures", exist_ok=True)
 
 
 # ──────────────────────────────────────────────────────────────
-# FIGURE 1 — Resonant Continuity Feedback Loop
-# λ → ψ → E → ℛ → λ schematic
+# FIGURE 1 - Resonant Continuity Feedback Loop
+# λ -> ψ -> E -> R -> λ schematic
 # ──────────────────────────────────────────────────────────────
 def draw_feedback_loop():
     fig, ax = plt.subplots(figsize=(7, 4))
@@ -56,7 +56,7 @@ def draw_feedback_loop():
         ("lambda", "psi", "modulates"),
         ("psi", "E", "drives"),
         ("E", "R", ""),
-        ("R", "lambda", "∇ψℛ feedback")
+        ("R", "lambda", "∇ψR feedback")
     ]
 
     def add_arrow(a, b, label=None, bend=0.0, color="#4F90C2"):
@@ -88,7 +88,7 @@ def draw_feedback_loop():
 
 
 # ──────────────────────────────────────────────────────────────
-# FIGURE 2 — λ–E–∇ψℛ Gradient Flow Plot
+# FIGURE 2 - λ-E-∇ψR Gradient Flow Plot
 # Derived from telemetry buffer + computed gradients
 # ──────────────────────────────────────────────────────────────
 def plot_gradient_flow():
@@ -101,7 +101,7 @@ def plot_gradient_flow():
     t = np.arange(min(len(λ), len(E)))
 
     if not λ or not E:
-        print("⚠️  No telemetry data found — run a simulation first.")
+        print("⚠️  No telemetry data found - run a simulation first.")
         return
 
     plt.figure(figsize=(8, 5))
@@ -118,7 +118,7 @@ def plot_gradient_flow():
         gmag = [abs(g["grad_energy"]) for g in grads]
         plt.plot(t[:len(gmag)], gmag, label=r"$\nabla_\psi\mathcal{R}$", color="tab:purple", alpha=0.7)
 
-    plt.title("Resonant Gradient Flow — λ, E, ∇ψℛ")
+    plt.title("Resonant Gradient Flow - λ, E, ∇ψR")
     plt.xlabel("Time index (t)")
     plt.ylabel("Magnitude")
     plt.legend()

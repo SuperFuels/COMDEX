@@ -1,5 +1,5 @@
 # ============================================================
-# 🧠 SCI Core — Spatial Cognition Interface + Photon Runtime Gateway
+# 🧠 SCI Core - Spatial Cognition Interface + Photon Runtime Gateway
 # ============================================================
 # Combines the classical SCI workspace model (scrolls, tabs, QFC fields)
 # with the new PhotonLang runtime engine for real-time execution,
@@ -58,7 +58,7 @@ try:
 except Exception:
     def save_telemetry_snapshot(container_id, label, state, sqi_feedback, qqc_feedback):
         path = f"artifacts/telemetry/fake_snapshot_{datetime.utcnow().timestamp()}.ptn"
-        print(f"[StubTelemetry] Would save → {path}")
+        print(f"[StubTelemetry] Would save -> {path}")
         return path
 
 try:
@@ -166,7 +166,7 @@ class SpatialCognitionInterface:
 
 
 # ============================================================
-# 🧬 SCI Runtime Gateway — PhotonLang Execution
+# 🧬 SCI Runtime Gateway - PhotonLang Execution
 # ============================================================
 
 class SCIRuntimeGateway:
@@ -234,17 +234,17 @@ class SCIRuntimeGateway:
                     },
                 })
 
-                print(f"[SCI Runtime] ⚡ SQI broadcast → SQI={current_sqi:.3f}, QQC={resonance_energy:.3f}")
+                print(f"[SCI Runtime] ⚡ SQI broadcast -> SQI={current_sqi:.3f}, QQC={resonance_energy:.3f}")
 
                 # ------------------------------------------------------------
-                # 3️⃣b Auto-Commit High SQI State → Knowledge Graph + Lean
+                # 3️⃣b Auto-Commit High SQI State -> Knowledge Graph + Lean
                 # ------------------------------------------------------------
                 import aiohttp
                 THRESHOLD = float(os.getenv("SCI_SQI_AUTOCOMMIT_THRESHOLD", "0.95"))
                 BACKEND_URL = os.getenv("SCI_BACKEND_URL", "http://localhost:8080")
 
                 if current_sqi >= THRESHOLD:
-                    print(f"[AutoCommit] High SQI detected ({current_sqi:.3f}) — committing to Knowledge Graph…")
+                    print(f"[AutoCommit] High SQI detected ({current_sqi:.3f}) - committing to Knowledge Graph...")
 
                     payload = {
                         "label": f"HarmonicAtom_{datetime.utcnow().strftime('%Y%m%dT%H%M%S')}",
@@ -260,7 +260,7 @@ class SCIRuntimeGateway:
                         if r.status != 200:
                             raise RuntimeError(f"commit_atom HTTP {r.status}: {await r.text()}")
                         resp = await r.json()
-                        print(f"[AutoCommit] ✅ KG+Lean commit ok → {resp.get('atom_ref')}")
+                        print(f"[AutoCommit] ✅ KG+Lean commit ok -> {resp.get('atom_ref')}")
 
             except Exception as e:
                 print(f"[SCI Runtime] ⚠️ SQI broadcast or auto-commit failed: {e}")
@@ -313,7 +313,7 @@ class SCIRuntimeGateway:
             # ------------------------------------------------------------
             await update_active_workspace(self.container_id, state)
 
-            print(f"✅ [SCI Runtime] Photon execution complete → {telemetry_path}")
+            print(f"✅ [SCI Runtime] Photon execution complete -> {telemetry_path}")
             return {"ok": True, "frame": frame, "telemetry_path": telemetry_path}
 
         except Exception as e:

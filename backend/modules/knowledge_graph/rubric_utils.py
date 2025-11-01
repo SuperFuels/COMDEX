@@ -83,7 +83,7 @@ def _evaluate_result(flags: Dict[str, bool]) -> str:
         return "FAIL"
 
 def validate_file(file_path: str) -> Dict:
-    """Main entrypoint — automatically picks parser based on file type."""
+    """Main entrypoint - automatically picks parser based on file type."""
     if file_path.endswith(".py"):
         return check_rubric_in_docstring(file_path)
     elif file_path.endswith(".dc.json"):

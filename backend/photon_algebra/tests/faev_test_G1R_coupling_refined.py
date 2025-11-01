@@ -1,5 +1,5 @@
 # ==========================================================
-# G1-RC2 — Hidden Field Coupling (Refined Stability Model)
+# G1-RC2 - Hidden Field Coupling (Refined Stability Model)
 # Adds damping feedback and exponential normalization
 # ==========================================================
 
@@ -71,7 +71,7 @@ energy_max = float(np.max(energy))
 
 # --- Classification ---
 if stability > 0.85 and abs(cross_corr) > 0.7:
-    verdict = "✅ Coherent Hidden–Visible Coupling (Stable)"
+    verdict = "✅ Coherent Hidden-Visible Coupling (Stable)"
 elif stability > 0.6:
     verdict = "⚠️ Weak or Partial Coupling"
 else:
@@ -81,14 +81,14 @@ else:
 plt.figure(figsize=(9, 5))
 plt.plot(t, R, label='Visible curvature R', lw=1.2)
 plt.plot(t, R_psi, label='Hidden curvature Rψ', lw=1.0, alpha=0.7)
-plt.title("G1-RC2 — Hidden Field Coupling Dynamics (Refined)")
+plt.title("G1-RC2 - Hidden Field Coupling Dynamics (Refined)")
 plt.xlabel("time"); plt.ylabel("curvature")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1RC2_CurvatureEvolution.png")
 
 plt.figure(figsize=(9, 5))
 plt.plot(t, energy, label='Normalized unified energy', lw=1.2)
-plt.title("G1-RC2 — Unified Energy Evolution (Stabilized)")
+plt.title("G1-RC2 - Unified Energy Evolution (Stabilized)")
 plt.xlabel("time"); plt.ylabel("E_total (normalized)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1RC2_EnergyEvolution.png")
@@ -96,7 +96,7 @@ plt.savefig("FAEV_G1RC2_EnergyEvolution.png")
 plt.figure(figsize=(9, 5))
 plt.plot(t, np.cos(phi), label='cos(φ)', lw=1.0)
 plt.plot(t, np.cos(psi), label='cos(ψ)', lw=1.0, alpha=0.7)
-plt.title("G1-RC2 — Phase Coherence Between φ and ψ (Refined)")
+plt.title("G1-RC2 - Phase Coherence Between φ and ψ (Refined)")
 plt.xlabel("time"); plt.ylabel("cosine phase")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1RC2_PhaseCoherence.png")
@@ -128,7 +128,7 @@ results = {
 with open("backend/modules/knowledge/G1RC2_coupling_refined.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== G1-RC2 — Hidden Field Coupling (Refined Stability Model) ===")
+print("=== G1-RC2 - Hidden Field Coupling (Refined Stability Model) ===")
 print(f"cross_corr={cross_corr:.3f} | stability={stability:.3f} | energy=({energy_min:.3e},{energy_max:.3e})")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/G1RC2_coupling_refined.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/G1RC2_coupling_refined.json")

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==============================================================
-# F7b-RC — Multi-Bounce Cyclic Evolution Test
+# F7b-RC - Multi-Bounce Cyclic Evolution Test
 # Refined Dual-Field Quantum Bounce with Recurrent Entropy Tracking
 # ==============================================================
 
@@ -135,21 +135,21 @@ plt.figure(figsize=(9,5))
 plt.plot(t, a, label="a(t)")
 for b in bounce_times:
     plt.axvline(b, ls='--', color='purple', alpha=0.5)
-plt.title("F7b-RC — Scale Factor Evolution (Multi-Bounce Cycles)")
+plt.title("F7b-RC - Scale Factor Evolution (Multi-Bounce Cycles)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7bR_Cyclic_ScaleFactor.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, entropy_flux, color="red", lw=0.8)
-plt.title("F7b-RC — Entropy Flux Evolution Across Bounces")
+plt.title("F7b-RC - Entropy Flux Evolution Across Bounces")
 plt.xlabel("time"); plt.ylabel("S(t)")
 plt.tight_layout()
 plt.savefig("FAEV_F7bR_Cyclic_EntropyFlux.png")
 
 plt.figure(figsize=(7,5))
 plt.plot(range(len(coherence_per_cycle)), coherence_per_cycle, marker='o')
-plt.title("F7b-RC — Coherence Retention per Bounce")
+plt.title("F7b-RC - Coherence Retention per Bounce")
 plt.xlabel("Bounce #"); plt.ylabel("<cos Δφ>")
 plt.tight_layout()
 plt.savefig("FAEV_F7bR_Cyclic_CoherencePerBounce.png")
@@ -176,8 +176,8 @@ results = {
 with open("backend/modules/knowledge/F7bR_cyclic_test.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== F7b-RC — Multi-Bounce Cyclic Evolution ===")
+print("=== F7b-RC - Multi-Bounce Cyclic Evolution ===")
 print(f"num_bounces={num_bounces} | mean_coherence={mean_coherence:.3f} | cycle_decay={cycle_coherence_decay:.3f}")
 print(f"entropy_mean={entropy_cycle_mean:.5f} | entropy_drift={entropy_drift:.5f}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F7bR_cyclic_test.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F7bR_cyclic_test.json")

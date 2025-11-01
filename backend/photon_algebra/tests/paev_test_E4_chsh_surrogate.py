@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-E4 — CHSH Surrogate on Deterministic Fields (expect S ≤ 2)
+E4 - CHSH Surrogate on Deterministic Fields (expect S <= 2)
 ----------------------------------------------------------
 Goal:
   Emulate local measurement settings by projecting each field onto two local
   phase angles (a, a') and (b, b'), then sign-binning to ±1 outcomes.
 
 Note:
-  In this deterministic mean-field model, we expect NO violation (S ≤ 2).
+  In this deterministic mean-field model, we expect NO violation (S <= 2).
   Useful to confirm classicality unless explicit stochastic measurement
   channels are introduced.
 
 Outputs:
-  • PAEV_E4_CHSH.png
-  • backend/modules/knowledge/E4_chsh_surrogate.json
+  * PAEV_E4_CHSH.png
+  * backend/modules/knowledge/E4_chsh_surrogate.json
 """
 import json, numpy as np, matplotlib.pyplot as plt
 from datetime import datetime, timezone
@@ -59,12 +59,12 @@ b, b2 = np.pi/8, -np.pi/8
 S = abs( corr(a,b) - corr(a,b2) + corr(a2,b) + corr(a2,b2) )
 classification = "❌ No Bell violation (classical correlation)" if S <= 2.0 else "⚠️ Apparent CHSH > 2"
 
-print("=== E4 — CHSH Surrogate ===")
-print(f"S = {S:.3f} → {classification}")
+print("=== E4 - CHSH Surrogate ===")
+print(f"S = {S:.3f} -> {classification}")
 
 plt.figure(figsize=(6,4))
 plt.bar(["S"], [S]); plt.axhline(2.0, ls="--", c="k", lw=1, label="CHSH classical bound")
-plt.title("E4 — CHSH Surrogate (deterministic field)"); plt.legend(); plt.tight_layout()
+plt.title("E4 - CHSH Surrogate (deterministic field)"); plt.legend(); plt.tight_layout()
 Path(".").mkdir(exist_ok=True)
 plt.savefig("PAEV_E4_CHSH.png", dpi=160)
 
@@ -75,4 +75,4 @@ summary = {
   "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 }
 Path("backend/modules/knowledge/E4_chsh_surrogate.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/E4_chsh_surrogate.json")
+print("📄 Summary saved -> backend/modules/knowledge/E4_chsh_surrogate.json")

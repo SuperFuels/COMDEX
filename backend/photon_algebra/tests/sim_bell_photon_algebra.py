@@ -1,6 +1,6 @@
 # backend/photon_algebra/tests/sim_bell_photon_algebra.py
 """
-Bell/CHSH — Quantum vs Photon Algebra (final working version)
+Bell/CHSH - Quantum vs Photon Algebra (final working version)
 """
 
 import numpy as np
@@ -39,7 +39,7 @@ print("=== CHSH (Quantum vs Photon Algebra) ===")
 print("Angles: a=0°, a'=45°, b=22.5°, b'=67.5°")
 print(f"S (Quantum):     {S_Q:.3f}   [expected ≈ 2.828]")
 print(f"S (PA-Quantum):  {S_PAQ:.3f}   [matches quantum]")
-print(f"S (PA-Local):    {S_PAL:.3f}   [≤ 2 by construction]")
+print(f"S (PA-Local):    {S_PAL:.3f}   [<= 2 by construction]")
 
 # --- Plot correlations ---
 phis = np.linspace(0, np.pi, 400)
@@ -50,8 +50,8 @@ E_pal = L * np.cos(2 * phis)
 
 plt.figure(figsize=(10, 6))
 plt.plot(phis, E_q, label="Quantum: E(Δ)=cos 2Δ")
-plt.plot(phis, E_paq, "--", label="PA-Quantum: 2cos²Δ−1 (≡ cos 2Δ)")
-plt.plot(phis, E_pal, ":", label=f"PA-Local: {L:.3f}·cos 2Δ (local cap)")
+plt.plot(phis, E_paq, "--", label="PA-Quantum: 2cos2Δ-1 (≡ cos 2Δ)")
+plt.plot(phis, E_pal, ":", label=f"PA-Local: {L:.3f}*cos 2Δ (local cap)")
 
 # Mark CHSH test points
 a, a2, b, b2 = map(deg, [0, 45, 22.5, 67.5])
@@ -62,7 +62,7 @@ for (A, B), label in zip(pairs, labels):
     plt.scatter([Δ], [np.cos(2 * Δ)], color="black")
     plt.text(Δ, np.cos(2 * Δ) + 0.05, label, ha="center", fontsize=9)
 
-plt.title("Bell/CHSH — Quantum vs Photon Algebra")
+plt.title("Bell/CHSH - Quantum vs Photon Algebra")
 plt.xlabel("Analyzer angle difference Δ (radians)")
 plt.ylabel("Correlation E")
 plt.ylim(-1.05, 1.05)

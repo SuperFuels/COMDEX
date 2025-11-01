@@ -2,13 +2,13 @@
 AION Resonant Network Synchronization Layer (v0.3)
 ────────────────────────────────────────────
 Maintains coherence between AION, QQC, Photon, and RQC nodes by exchanging
-periodic ψ–κ–T–Φ packets (Resonant Sync Packets).
+periodic ψ-κ-T-Φ packets (Resonant Sync Packets).
 
 Each node:
-  • Sends sync packets every SYNC_INTERVAL seconds
-  • Receives packets via /sync/update endpoint
-  • Logs Δφ (phase drift) and Δσ (stability deviation)
-  • Writes state deltas into MorphicLedger (if available)
+  * Sends sync packets every SYNC_INTERVAL seconds
+  * Receives packets via /sync/update endpoint
+  * Logs Δφ (phase drift) and Δσ (stability deviation)
+  * Writes state deltas into MorphicLedger (if available)
 
 Usage:
     PYTHONPATH=. python backend/AION/system/network_sync/orchestrator.py --node AION_CORE --role primary --port 7090
@@ -16,10 +16,10 @@ Usage:
 ────────────────────────────────────────────
 Configuration Notes
 ────────────────────────────────────────────
-• By default, PEER_HOSTS are read from `backend/config/network_nodes.json`
+* By default, PEER_HOSTS are read from `backend/config/network_nodes.json`
   to support flexible multi-node setups.
-• If that file doesn’t exist, it falls back to the static local demo list.
-• Each node should list *other* peers — not itself.
+* If that file doesn't exist, it falls back to the static local demo list.
+* Each node should list *other* peers - not itself.
 ────────────────────────────────────────────
 """
 import os
@@ -97,7 +97,7 @@ except Exception as e:
 # Node Registry
 # ───────────────────────────────────────────────
 class NodeRegistry:
-    """Tracks all nodes and their ψ–κ–Φ metrics."""
+    """Tracks all nodes and their ψ-κ-Φ metrics."""
     def __init__(self):
         self.nodes = {}
         self.lock = threading.Lock()
@@ -184,7 +184,7 @@ def sync_update():
         registry.update(data)
         ingest_sync_packet(data)
         write_state_to_file()
-        logger.info(f"[←] Sync update from {data['node_id']} φ={data['phi']:.3f}")
+        logger.info(f"[<-] Sync update from {data['node_id']} φ={data['phi']:.3f}")
         return jsonify({"status": "ok"}), 200
     except Exception as e:
         logger.warning(f"[Receiver] Error: {e}")
@@ -199,7 +199,7 @@ def sync_state():
 # Packet Construction + Broadcast
 # ───────────────────────────────────────────────
 def generate_local_metrics():
-    """Simulate live ψ–κ–T–Φ values for demo (or pull from MorphicLedger)."""
+    """Simulate live ψ-κ-T-Φ values for demo (or pull from MorphicLedger)."""
     base = time.time() % 60 / 60  # oscillating base phase
     return {
         "psi": 0.8 + 0.05 * random.uniform(-1, 1),
@@ -234,7 +234,7 @@ def broadcast_loop(node_id: str, role: str):
                     timeout=2,
                 )
                 if r.status_code == 200:
-                    logger.info(f"[→] Sent sync to {host} φ={packet['phi']:.3f}")
+                    logger.info(f"[->] Sent sync to {host} φ={packet['phi']:.3f}")
             except Exception as e:
                 logger.warning(f"[Broadcast] Failed to reach {host}: {e}")
         registry.update(packet)
@@ -250,7 +250,7 @@ def write_state_to_file():
     try:
         with open(STATE_FILE, "w", encoding="utf-8") as f:
             json.dump(registry.summary(), f, indent=2)
-        prune_state_file()  # ✅ move this here — run after successful write
+        prune_state_file()  # ✅ move this here - run after successful write
     except Exception as e:
         logger.warning(f"Failed to write state file: {e}")
 
@@ -275,7 +275,7 @@ def prune_state_file():
                 trimmed = parsed[-MAX_STATE_ENTRIES:]
                 with open(STATE_FILE, "w", encoding="utf-8") as wf:
                     json.dump(trimmed, wf, indent=2)
-                logger.info(f"🧹 Pruned state file → kept {len(trimmed)} entries.")
+                logger.info(f"🧹 Pruned state file -> kept {len(trimmed)} entries.")
     except Exception as e:
         logger.warning(f"⚠️ Failed to prune state file: {e}")
 

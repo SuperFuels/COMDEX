@@ -37,7 +37,7 @@ def build_bootstrap_map():
     report["resonance_sync"] = "ok" if all(r.get("status") == "ok" for r in report.values()) else "desync"
     with open(MAP_PATH, "w") as f:
         json.dump(report, f, indent=2)
-    print(f"💾 Bootstrap map saved → {MAP_PATH}")
+    print(f"💾 Bootstrap map saved -> {MAP_PATH}")
     return report
 
 if __name__ == "__main__":

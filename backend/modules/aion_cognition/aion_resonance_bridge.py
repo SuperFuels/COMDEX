@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🌐 Aion Resonance Bridge — LexMemory → Symatics Field Export
+# 🌐 Aion Resonance Bridge - LexMemory -> Symatics Field Export
 # ================================================================
 """
 Converts LexMemory state into a graph suitable for the Symatics Algebra
@@ -16,7 +16,7 @@ import json, logging
 from pathlib import Path
 from .cee_lex_memory import _load_memory
 
-# ✅ Optional SCI overlay — silent fallback if unavailable
+# ✅ Optional SCI overlay - silent fallback if unavailable
 try:
     from backend.modules.aion_language.sci_overlay import sci_emit
 except Exception:
@@ -58,9 +58,9 @@ def build_graph():
     graph = {"nodes": nodes, "edges": edges}
     json.dump(graph, open(OUT_PATH, "w"), indent=2)
 
-    logger.info(f"[AionBridge] Exported {len(nodes)} nodes, {len(edges)} edges → {OUT_PATH}")
+    logger.info(f"[AionBridge] Exported {len(nodes)} nodes, {len(edges)} edges -> {OUT_PATH}")
 
-    # 🌟 SCI photon export — symbolic field snapshot
+    # 🌟 SCI photon export - symbolic field snapshot
     try:
         sci_emit("resonance_graph",
                  f"Exported resonance field with {len(nodes)} nodes and {len(edges)} entanglements.")

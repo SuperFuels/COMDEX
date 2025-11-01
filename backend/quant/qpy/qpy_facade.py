@@ -11,5 +11,5 @@ class QPy:
 
     @staticmethod
     def eval(expr):
-        logger.info("[QPy] Route op → SymPy.simplify()")
+        logger.info("[QPy] Route op -> SymPy.simplify()")
         return simplify(expr)

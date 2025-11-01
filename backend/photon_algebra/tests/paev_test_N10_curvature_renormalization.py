@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 def main():
-    print("=== N10 — Curvature Renormalization Map ===")
+    print("=== N10 - Curvature Renormalization Map ===")
 
     ħ = 1e-3
     G = 1e-5
@@ -38,28 +38,28 @@ def main():
     else:
         classification = "Runaway curvature"
     
-    print(f"ħ={ħ:.3e}, G={G:.3e}, Λ₀={Λ0:.3e}, α={α:.3f}, β={β:.2f}")
+    print(f"ħ={ħ:.3e}, G={G:.3e}, Λ0={Λ0:.3e}, α={α:.3f}, β={β:.2f}")
     print(f"Mean curvature-energy ratio = {mean_Xi:.3e}")
     print(f"Classification: {classification}")
     
     # --- Plot 1: Curvature-Energy Ratio over time ---
     plt.figure(figsize=(8,5))
-    plt.plot(t, Xi, color='blue', label='Ξ(t) — Renormalized Ratio')
+    plt.plot(t, Xi, color='blue', label='Ξ(t) - Renormalized Ratio')
     plt.axhline(1, color='gray', linestyle='--', label='Equilibrium (Ξ=1)')
-    plt.title("N10 — Curvature Renormalization Stability")
+    plt.title("N10 - Curvature Renormalization Stability")
     plt.xlabel("Time")
-    plt.ylabel("Ξ(t) = (R/E)·exp(-βR/Rc)")
+    plt.ylabel("Ξ(t) = (R/E)*exp(-βR/Rc)")
     plt.legend()
     plt.tight_layout()
     plt.savefig("PAEV_N10_CurvatureRenormalization.png")
 
     # --- Plot 2: Λ feedback map ---
     plt.figure(figsize=(8,5))
-    plt.plot(t, Λ_t / Λ0, color='purple', label='Λ(t)/Λ₀ — Feedback Response')
+    plt.plot(t, Λ_t / Λ0, color='purple', label='Λ(t)/Λ0 - Feedback Response')
     plt.axhline(1, color='gray', linestyle=':', label='Baseline')
-    plt.title("N10 — Λ(t) Feedback Damping Map")
+    plt.title("N10 - Λ(t) Feedback Damping Map")
     plt.xlabel("Time")
-    plt.ylabel("Λ(t)/Λ₀ (relative)")
+    plt.ylabel("Λ(t)/Λ0 (relative)")
     plt.legend()
     plt.tight_layout()
     plt.savefig("PAEV_N10_LambdaFeedback.png")

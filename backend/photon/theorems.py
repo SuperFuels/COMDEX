@@ -61,4 +61,4 @@ def export_results_md(path: str = "docs/rfc/photon_results.md"):
 
 if __name__ == "__main__":
     export_results_md()
-    print("📄 Photon theorem results exported → docs/rfc/photon_results.md")
+    print("📄 Photon theorem results exported -> docs/rfc/photon_results.md")

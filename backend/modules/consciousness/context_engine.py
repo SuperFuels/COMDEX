@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-🌐 ContextEngine — Phase 54–55 Situational Resonance Integration
+🌐 ContextEngine - Phase 54-55 Situational Resonance Integration
 ───────────────────────────────────────────────────────────────────────────────
 Provides full contextual awareness across AION systems.
 
 Enhancements:
-  • Temporal, spatial, situational, and conversational context tracking
-  • Context inference from text (semantic, emotional, and environmental)
-  • Environmental entropy estimator (feeds PlanningEngine)
-  • Θ-field resonance feedback for context stability
-  • Integration with ResonantMemoryCache (RMC) + dashboard logging
+  * Temporal, spatial, situational, and conversational context tracking
+  * Context inference from text (semantic, emotional, and environmental)
+  * Environmental entropy estimator (feeds PlanningEngine)
+  * Θ-field resonance feedback for context stability
+  * Integration with ResonantMemoryCache (RMC) + dashboard logging
 """
 
 import datetime
@@ -94,7 +94,7 @@ class ContextEngine:
         words = [w for w in text_lower.split() if len(w) > 3]
         topic = random.choice(words) if words else "general"
 
-        # Estimate situational entropy (semantic density × mood)
+        # Estimate situational entropy (semantic density * mood)
         base_entropy = min(1.0, 0.4 + len(set(words)) / 50)
         if mood == "negative":
             base_entropy += 0.2
@@ -138,7 +138,7 @@ class ContextEngine:
         with open(self.resonance_log, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry) + "\n")
 
-        print(f"[Θ🌐] Context inferred → mood={mood}, topic={topic}, entropy={entropy}, SQI={sqi:.3f}")
+        print(f"[Θ🌐] Context inferred -> mood={mood}, topic={topic}, entropy={entropy}, SQI={sqi:.3f}")
 
     # ────────────────────────────────────────────────────────────────
     def log_event(self, event_name: str):

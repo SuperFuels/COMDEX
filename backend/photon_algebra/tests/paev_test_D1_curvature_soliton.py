@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 # ==============================================================
-#  Test D1 — Curvature Soliton Localization (Self-Stabilizing Graviton Packet)
+#  Test D1 - Curvature Soliton Localization (Self-Stabilizing Graviton Packet)
 # ==============================================================
 # Purpose:
 #   Demonstrate formation of a self-trapped curvature soliton under nonlinear rewrite coupling.
 #   Equation of motion (discrete form):
-#       ∂²κ/∂t² = c²∇²κ − λκ³
+#       ∂2κ/∂t2 = c2∇2κ - λκ3
 #   The cubic term counteracts wave spreading.
 # ==============================================================
 
@@ -24,7 +24,7 @@ def laplacian(Z):
     )
 
 def main():
-    print("=== Test D1 — Curvature Soliton Localization ===")
+    print("=== Test D1 - Curvature Soliton Localization ===")
 
     # Parameters
     N = 121              # lattice size
@@ -47,7 +47,7 @@ def main():
     # Prepare figure for animation
     fig, ax = plt.subplots(figsize=(5,5))
     im = ax.imshow(normalize(kappa), cmap="inferno", animated=True)
-    ax.set_title("Test D1 — Curvature Soliton Evolution")
+    ax.set_title("Test D1 - Curvature Soliton Evolution")
 
     frames = []
 
@@ -73,7 +73,7 @@ def main():
     # Plot total energy evolution
     plt.figure(figsize=(6,4))
     plt.plot(energy, color="blue")
-    plt.title("Test D1 — Total Rewrite Energy (Soliton Stability)")
+    plt.title("Test D1 - Total Rewrite Energy (Soliton Stability)")
     plt.xlabel("Time step")
     plt.ylabel("Total energy (arb. units)")
     plt.tight_layout()

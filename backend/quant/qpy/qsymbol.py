@@ -1,5 +1,5 @@
 # ================================================================
-# 🌊 QSymbol — Symbolic primitive wrapper
+# 🌊 QSymbol - Symbolic primitive wrapper
 # ================================================================
 from sympy import Symbol
 

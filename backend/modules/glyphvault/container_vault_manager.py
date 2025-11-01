@@ -195,7 +195,7 @@ class ContainerVaultManager:
                     return False  # fail closed
             except Exception as e:
                 logger.warning(f"[Vault] SoulLaw check failed for {key} at {coord}: {e}")
-                # fail open – continue
+                # fail open - continue
             finally:
                 _vmanager_seen.add(key)
 

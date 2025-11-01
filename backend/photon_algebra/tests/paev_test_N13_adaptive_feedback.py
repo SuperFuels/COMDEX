@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import json
 
-print("=== N13 — Adaptive Feedback Phase Correction & Stability ===")
+print("=== N13 - Adaptive Feedback Phase Correction & Stability ===")
 
 # Constants
 ħ = 1e-3
@@ -59,9 +59,9 @@ else:
 
 # --- Plot 1: Fidelity evolution ---
 plt.figure(figsize=(8, 4))
-plt.plot(t, fidelity, label="Instantaneous Fidelity |⟨ψ₁|ψ₂⟩|", color="blue")
+plt.plot(t, fidelity, label="Instantaneous Fidelity |⟨ψ1|ψ2⟩|", color="blue")
 plt.axhline(0.9, color="red", linestyle="--", label="90% coherence threshold")
-plt.title("N13 — Adaptive Feedback Fidelity")
+plt.title("N13 - Adaptive Feedback Fidelity")
 plt.xlabel("Time")
 plt.ylabel("Fidelity")
 plt.legend()
@@ -70,10 +70,10 @@ plt.savefig("PAEV_N13_FidelityEvolution.png")
 
 # --- Plot 2: α(t) and Λ(t) dynamics ---
 plt.figure(figsize=(8, 4))
-plt.plot(t, α_t/α0, label="α(t)/α₀ — Feedback coupling", color="purple")
-plt.plot(t, Λ_t/Λ0, label="Λ(t)/Λ₀ — Vacuum drift", color="green")
+plt.plot(t, α_t/α0, label="α(t)/α0 - Feedback coupling", color="purple")
+plt.plot(t, Λ_t/Λ0, label="Λ(t)/Λ0 - Vacuum drift", color="green")
 plt.axhline(1.0, color="gray", linestyle=":")
-plt.title("N13 — Dynamic Feedback Response")
+plt.title("N13 - Dynamic Feedback Response")
 plt.xlabel("Time")
 plt.ylabel("Relative magnitude")
 plt.legend()
@@ -99,9 +99,9 @@ summary = {
 with open("backend/modules/knowledge/N13_feedback_summary.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print(f"ħ={ħ:.3e}, G={G:.1e}, Λ₀={Λ0:.1e}, α₀={α0:.3f}, β={β:.2f}, feedback_gain={feedback_gain:.2f}")
+print(f"ħ={ħ:.3e}, G={G:.1e}, Λ0={Λ0:.1e}, α0={α0:.3f}, β={β:.2f}, feedback_gain={feedback_gain:.2f}")
 print(f"Mean fidelity = {mean_fidelity:.3f}")
-print(f"Mean α/α₀ = {mean_α_ratio:.3f}, Mean Λ/Λ₀ = {mean_Λ_ratio:.3f}")
+print(f"Mean α/α0 = {mean_α_ratio:.3f}, Mean Λ/Λ0 = {mean_Λ_ratio:.3f}")
 print(f"Classification: {classification}")
 print("✅ Plots saved: PAEV_N13_FidelityEvolution.png, PAEV_N13_FeedbackDynamics.png")
 print("📄 Summary: backend/modules/knowledge/N13_feedback_summary.json")

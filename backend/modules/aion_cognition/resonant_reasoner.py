@@ -1,5 +1,5 @@
 """
-🧩  Resonant Reasoner — Phase 47 Integration
+🧩  Resonant Reasoner - Phase 47 Integration
 --------------------------------------------
 Ingests LexMemory, patternfield, and motivfield data to bias reasoning
 depth, exploration, and tone dynamically during cognitive cycles.
@@ -15,7 +15,7 @@ from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
-# ✅ SCI overlay — optional, silent fallback
+# ✅ SCI overlay - optional, silent fallback
 try:
     from backend.modules.aion_language.sci_overlay import sci_emit
 except Exception:
@@ -98,7 +98,7 @@ def compute_reasoning_bias(
         f"[ResonantReasoner] depth={reasoning_depth}, exploration={exploration_rate}, tone={tone_weight}"
     )
     logger.info(
-        f"[ResonantReasoner] SQĪ={mean_SQI}, coherence={coherence}, lex_count={len(lex_data)}"
+        f"[ResonantReasoner] SQĪ={mean_SQI}, coherence={coherence}, lex_count={len(lex_data)}"
     )
 
     # ✅ SCI emit reasoning bias state capsule
@@ -131,7 +131,7 @@ def reasoner_cycle() -> Dict[str, Any]:
     with open(REASONFIELD, "w", encoding="utf-8") as f:
         json.dump(reasonfield, f, indent=2)
 
-    logger.info(f"[ResonantReasoner] Exported reasonfield → {REASONFIELD}")
+    logger.info(f"[ResonantReasoner] Exported reasonfield -> {REASONFIELD}")
 
     # ✅ SCI emit export event
     try:

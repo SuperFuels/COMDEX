@@ -74,7 +74,7 @@ classification = (
 
 plt.figure(figsize=(8,5))
 plt.scatter(metrics["Phi_mean"], metrics["curvature_exp"], s=80, c='navy')
-plt.title("E3c — Boundary & Geometry Robustness (Universal)")
+plt.title("E3c - Boundary & Geometry Robustness (Universal)")
 plt.xlabel("⟨Φ⟩"); plt.ylabel("Curvature exponent (fit)")
 plt.grid(True); plt.tight_layout()
 plt.savefig("PAEV_E3c_BoundaryGeometry.png", dpi=160)
@@ -95,6 +95,6 @@ save_path = Path("backend/modules/knowledge/E3c_boundary_geometry_universal.json
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== E3c — Boundary & Geometry Robustness (Universal) ===")
+print("=== E3c - Boundary & Geometry Robustness (Universal) ===")
 print(json.dumps(out, indent=2))
-print(f"✅ Results saved → {save_path}")
+print(f"✅ Results saved -> {save_path}")

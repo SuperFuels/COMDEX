@@ -1,9 +1,9 @@
 """
 Tessaris AION Resonant Coupling Daemon (RCD)
-Phase 6C — Live Harmonic Feedback Engine
+Phase 6C - Live Harmonic Feedback Engine
 -----------------------------------------------------------
 Runs the Resonant Coupling Interface (RCI) and Harmonic Learning
-Optimizer (HLSO) continuously, synchronizing ΔΦ → Δν feedback and
+Optimizer (HLSO) continuously, synchronizing ΔΦ -> Δν feedback and
 adaptive gain learning for real-time resonance stability.
 
 Author: Tessaris Symbolic Intelligence Lab, 2025
@@ -24,7 +24,7 @@ logger.setLevel(logging.INFO)
 # ==========================================================
 # ⚙️ Daemon Parameters
 # ==========================================================
-COUPLING_INTERVAL = 6.0       # seconds between ΔΦ→Δν updates
+COUPLING_INTERVAL = 6.0       # seconds between ΔΦ->Δν updates
 LEARNING_INTERVAL = 60.0      # seconds between HLSO adjustments
 TELEMETRY_FILE = "data/resonant_coupling_daemon.jsonl"
 
@@ -62,7 +62,7 @@ async def coupling_loop():
 
         # Log live status
         logger.info(
-            f"🧭 Coupled ΔΦ→Δν | Stability={event.get('stability', 0):.4f} "
+            f"🧭 Coupled ΔΦ->Δν | Stability={event.get('stability', 0):.4f} "
             f"| CoherenceΔ={delta_phi['Φ_coherence']:+.4f}"
         )
 

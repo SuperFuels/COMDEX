@@ -46,7 +46,7 @@ def emit_fusion_tensor():
     Continuously poll the fusion buffer or shared file and POST live tensors
     to the Fabric stream endpoint. Emits only when new or updated tensors appear.
     """
-    logger.info("🌐 Starting AION Fabric Stream emitter …")
+    logger.info("🌐 Starting AION Fabric Stream emitter ...")
     last_tensor = None
     no_data_count = 0
 
@@ -58,7 +58,7 @@ def emit_fusion_tensor():
             if not tensor:
                 no_data_count += 1
                 if no_data_count % 5 == 0:
-                    logger.info("[AIONFabricStream] ⏳ No fusion tensor detected yet …")
+                    logger.info("[AIONFabricStream] ⏳ No fusion tensor detected yet ...")
                 time.sleep(EMIT_INTERVAL)
                 continue
 
@@ -78,7 +78,7 @@ def emit_fusion_tensor():
                 Φ̄ = tensor.get("Φ̄", 0)
 
                 logger.info(
-                    f"[AION→FabricStream] σ={σ:.3f} ψ̄={ψ̄:.3f} κ̄={κ̄:.3f} T̄={T̄:.3f} Φ̄={Φ̄:.3f}"
+                    f"[AION->FabricStream] σ={σ:.3f} ψ̄={ψ̄:.3f} κ̄={κ̄:.3f} T̄={T̄:.3f} Φ̄={Φ̄:.3f}"
                 )
 
                 try:
@@ -88,7 +88,7 @@ def emit_fusion_tensor():
                     else:
                         logger.warning(f"⚠️ Stream endpoint returned {resp.status_code}.")
                 except requests.exceptions.RequestException:
-                    logger.warning("⚠️ Stream endpoint not reachable — buffering locally.")
+                    logger.warning("⚠️ Stream endpoint not reachable - buffering locally.")
 
             time.sleep(EMIT_INTERVAL)
 

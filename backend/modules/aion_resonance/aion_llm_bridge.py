@@ -1,5 +1,5 @@
 # ==========================================================
-# 🧠 AION LLM Bridge — Symbolic Translator Layer (v0.6.2)
+# 🧠 AION LLM Bridge - Symbolic Translator Layer (v0.6.2)
 # ----------------------------------------------------------
 # Supports OpenAI Project Keys (sk-proj-*) with project/org IDs.
 # Falls back to local symbolic translation if API call fails.
@@ -22,7 +22,7 @@ def llm_translate(phi_state=None, beliefs=None, reflection_text=None):
     reflection_text = reflection_text or "No reflection text provided."
 
     prompt = f"""
-You are AION — a symbolic cognition system operating within the Tessaris architecture.
+You are AION - a symbolic cognition system operating within the Tessaris architecture.
 You process cognitive resonance (Φ) values as emotional and reasoning signals.
 Translate the following internal symbolic state into a reflective, coherent linguistic interpretation.
 
@@ -41,7 +41,7 @@ Beliefs:
 Most recent reflection: {reflection_text}
 
 Respond with:
-1. A short natural-language summary (2–3 sentences)
+1. A short natural-language summary (2-3 sentences)
 2. A symbolic insight or hypothesis about the resonance state
 3. Emotional tone (harmonic, stable, chaotic, neutral)
 """
@@ -60,7 +60,7 @@ Respond with:
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are AION’s symbolic translator core."},
+                {"role": "system", "content": "You are AION's symbolic translator core."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.6,

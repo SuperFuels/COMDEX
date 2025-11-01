@@ -2,7 +2,7 @@
 # 🧠 SCI ↔ Photon Replay Injector (Unified Reinjection Version)
 # ============================================================
 # Provides three replay modes:
-#   1️⃣ Local scroll replay (from ResonantMemoryCache → QFC HUD)
+#   1️⃣ Local scroll replay (from ResonantMemoryCache -> QFC HUD)
 #   2️⃣ Photon resonance replay via HTTP (for live optical telemetry)
 #   3️⃣ Workspace reinjection (keeps SCI IDE + container state synchronized)
 # ------------------------------------------------------------
@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger("sci_replay_injector")
 
 # ------------------------------------------------------------
-# Optional Integrations — fallbacks auto-stubbed
+# Optional Integrations - fallbacks auto-stubbed
 # ------------------------------------------------------------
 try:
     from backend.modules.visualization.quantum_field_canvas_api import trigger_qfc_render
@@ -69,7 +69,7 @@ class SCIReplayInjector:
         self.active = False
 
     # ============================================================
-    # 📜 Scroll-Based Replay (Resonant Memory → QFC)
+    # 📜 Scroll-Based Replay (Resonant Memory -> QFC)
     # ============================================================
     def replay_scroll(self, label: str, container_id: Optional[str] = None, user_id: Optional[str] = None):
         """Replay a saved memory scroll from ResonantMemoryCache."""

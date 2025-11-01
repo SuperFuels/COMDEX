@@ -27,7 +27,7 @@ def main():
         }
         rmc.cache.update(seeds)
         rmc.save()
-        print(f"✅ Seeded {len(seeds)} base entries → data/memory/resonant_memory_cache.json")
+        print(f"✅ Seeded {len(seeds)} base entries -> data/memory/resonant_memory_cache.json")
     else:
         print("No --bootstrap flag supplied (nothing done).")
 

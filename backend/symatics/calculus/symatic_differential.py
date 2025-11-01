@@ -1,11 +1,11 @@
 """
-Symatic Differential Calculus — ∇⊕, ∇μ
+Symatic Differential Calculus - ∇⊕, ∇μ
 ────────────────────────────────────────────
 Defines symbolic differential operators over resonance algebraic forms.
 
 Extends the Symatics Core by introducing:
-    ∇⊕ → Resonant Gradient Operator (superposition rate-of-change)
-    ∇μ → Measurement Divergence Operator (information flux under collapse)
+    ∇⊕ -> Resonant Gradient Operator (superposition rate-of-change)
+    ∇μ -> Measurement Divergence Operator (information flux under collapse)
 
 Each operator works over symbolic waves (ψ) and measurement functions (μ),
 producing differential tensors representing the local gradient of coherence
@@ -96,7 +96,7 @@ def log_to_codextrace(record: Dict[str, Any]):
     record["timestamp"] = datetime.now(timezone.utc).isoformat()
     with open(CODEXTRACE_PATH, "a") as f:
         f.write(json.dumps(record) + "\n")
-    print(f"[CodexTrace::∇] {record['operator']} logged → ΔΦ={record['ΔΦ']:+.4f}, Δε={record['Δε']:+.4f}, κ={record['curvature']:.4f}")
+    print(f"[CodexTrace::∇] {record['operator']} logged -> ΔΦ={record['ΔΦ']:+.4f}, Δε={record['Δε']:+.4f}, κ={record['curvature']:.4f}")
 
 
 def compute_differentials(psi: np.ndarray, mu: np.ndarray,
@@ -127,7 +127,7 @@ def compute_differentials(psi: np.ndarray, mu: np.ndarray,
 # ──────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("🧮 Symatic Differential Calculus — test run")
+    print("🧮 Symatic Differential Calculus - test run")
     Φ = np.linspace(0, 2 * np.pi, 100)
     ε = np.linspace(0.1, 1.0, 100)
     ψ = np.sin(Φ) ** 2

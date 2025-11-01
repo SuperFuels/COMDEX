@@ -37,92 +37,92 @@ compressed_qglyph_tree = {
             ]
         },
         {
-            "→": [
+            "->": [
                 {
                     "⊕": [
-                        {"→": ["A3", "B3"]},
+                        {"->": ["A3", "B3"]},
                         {"⊕": ["A4", "B4"]}
                     ]
                 },
                 {
-                    "→": [
+                    "->": [
                         {
                             "⧖": [
                                 {"⟲": ["A5", "B5"]},
                                 {
                                     "↔": [
                                         {"⟲": ["C1", "D1"]},
-                                        {"→": ["C2", "D2"]}
+                                        {"->": ["C2", "D2"]}
                                     ]
                                 }
                             ]
                         },
                         {
-                            "→": [
+                            "->": [
                                 {"⊕": ["E1", {"⧖": ["E2", "E3"]}]},
                                 {
-                                    "→": [
-                                        {"→": ["F1", "F2"]},
+                                    "->": [
+                                        {"->": ["F1", "F2"]},
                                         {
-                                            "→": [
+                                            "->": [
                                                 {"⟲": ["G1", "G2"]},
                                                 {
-                                                    "→": [
+                                                    "->": [
                                                         {"⊕": ["H1", {"↔": ["H2", "H3"]}]},
                                                         {
-                                                            "→": [
+                                                            "->": [
                                                                 {"⧖": ["I1", "I2"]},
                                                                 {
-                                                                    "→": [
+                                                                    "->": [
                                                                         {"⊕": ["J1", "J2"]},
                                                                         {
-                                                                            "→": [
-                                                                                {"→": ["K1", "K2"]},
+                                                                            "->": [
+                                                                                {"->": ["K1", "K2"]},
                                                                                 {
-                                                                                    "→": [
+                                                                                    "->": [
                                                                                         {"⟲": ["L1", "L2"]},
                                                                                         {
-                                                                                            "→": [
+                                                                                            "->": [
                                                                                                 {"⊕": ["M1", "M2"]},
                                                                                                 {
-                                                                                                    "→": [
+                                                                                                    "->": [
                                                                                                         {"⧖": ["N1", "N2"]},
                                                                                                         {
-                                                                                                            "→": [
+                                                                                                            "->": [
                                                                                                                 {"↔": ["O1", "O2"]},
                                                                                                                 {
-                                                                                                                    "→": [
-                                                                                                                        {"→": ["P1", "P2"]},
+                                                                                                                    "->": [
+                                                                                                                        {"->": ["P1", "P2"]},
                                                                                                                         {
-                                                                                                                            "→": [
+                                                                                                                            "->": [
                                                                                                                                 {"⟲": ["Q1", "Q2"]},
                                                                                                                                 {
-                                                                                                                                    "→": [
+                                                                                                                                    "->": [
                                                                                                                                         {"⊕": ["R1", "R2"]},
                                                                                                                                         {
-                                                                                                                                            "→": [
+                                                                                                                                            "->": [
                                                                                                                                                 {"⧖": ["S1", "S2"]},
                                                                                                                                                 {
-                                                                                                                                                    "→": [
+                                                                                                                                                    "->": [
                                                                                                                                                         {"↔": ["T1", "T2"]},
                                                                                                                                                         {
-                                                                                                                                                            "→": [
-                                                                                                                                                                {"→": ["U1", "U2"]},
+                                                                                                                                                            "->": [
+                                                                                                                                                                {"->": ["U1", "U2"]},
                                                                                                                                                                 {
-                                                                                                                                                                    "→": [
+                                                                                                                                                                    "->": [
                                                                                                                                                                         {"⟲": ["V1", "V2"]},
                                                                                                                                                                         {
-                                                                                                                                                                            "→": [
+                                                                                                                                                                            "->": [
                                                                                                                                                                                 {"⊕": ["W1", "W2"]},
                                                                                                                                                                                 {
-                                                                                                                                                                                    "→": [
+                                                                                                                                                                                    "->": [
                                                                                                                                                                                         {"⧖": ["X1", "X2"]},
                                                                                                                                                                                         {
-                                                                                                                                                                                            "→": [
+                                                                                                                                                                                            "->": [
                                                                                                                                                                                                 {"↔": ["Y1", "Y2"]},
                                                                                                                                                                                                 {
-                                                                                                                                                                                                    "→": [
-                                                                                                                                                                                                        {"→": ["Z1", "Z2"]},
+                                                                                                                                                                                                    "->": [
+                                                                                                                                                                                                        {"->": ["Z1", "Z2"]},
                                                                                                                                                                                                         {"⟲": ["Z3", "Z4"]}
                                                                                                                                                                                                     ]
                                                                                                                                                                                                 }
@@ -181,7 +181,7 @@ compressed_qglyph_tree = {
 # ==============================
 def run_full_stack_benchmark(hyperdrive_enabled=True):
     """
-    Runs a full Codex → QQC → SQI benchmark with optional Hyperdrive guard toggling.
+    Runs a full Codex -> QQC -> SQI benchmark with optional Hyperdrive guard toggling.
     """
     print(f"\n⚡ Running QQC Benchmark | Hyperdrive={'ON' if hyperdrive_enabled else 'OFF'}")
 
@@ -194,8 +194,8 @@ def run_full_stack_benchmark(hyperdrive_enabled=True):
 
     # Run CodexLang programs with your symbolic tree
     programs = [
-        "⟦ Logic | Test: A ⊕ B → ↔(Ψ₁, Ψ₂) ⟧",
-        "⟦ Logic | Cascade: (A ⊕ B) ⟲ C → ⧖(Ψ₁, ↔(Ψ₂, Ψ₃)) ⟧"
+        "⟦ Logic | Test: A ⊕ B -> ↔(Ψ1, Ψ2) ⟧",
+        "⟦ Logic | Cascade: (A ⊕ B) ⟲ C -> ⧖(Ψ1, ↔(Ψ2, Ψ3)) ⟧"
     ]
 
     for codex_program in programs:
@@ -274,7 +274,7 @@ async def async_run():
 
     print("📊 Final Comparative Report")
     print(f"   ΔSymbolic Score (HD vs NOHD): {diff:+.2f}%")
-    print(f"   ΔExecution Time (NOHD → HD): {time_diff:+.2f}% faster with Hyperdrive")
+    print(f"   ΔExecution Time (NOHD -> HD): {time_diff:+.2f}% faster with Hyperdrive")
     print("✅ Benchmark completed.\n")
 
 

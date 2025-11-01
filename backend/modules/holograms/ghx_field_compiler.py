@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • GHX Field Compiler (HQCE Stage 2+)
-#  Computes ψ–κ–T tensor and coherence metrics
+#  Tessaris * GHX Field Compiler (HQCE Stage 2+)
+#  Computes ψ-κ-T tensor and coherence metrics
 #  from holographic field snapshots (nodes + links)
 #  Compatible with HSTGenerator + QuantumMorphicRuntime
 # ──────────────────────────────────────────────
@@ -44,11 +44,11 @@ def compile_field_tensor(field_data: Dict[str, Any]) -> Dict[str, Any]:
                 "metadata": {"id": snapshot_id, "timestamp": time.time()}
             }
 
-        # ψ — mean field entropy
+        # ψ - mean field entropy
         entropy_values = np.array([n.get("entropy", 0.5) for n in nodes], dtype=float)
         ψ = float(np.mean(entropy_values))
 
-        # κ — curvature: node-connectivity × coherence variance attenuation
+        # κ - curvature: node-connectivity * coherence variance attenuation
         node_degree = {n.get("node_id", str(i)): 0 for i, n in enumerate(nodes)}
         for link in links:
             a, b = link.get("a"), link.get("b")
@@ -62,16 +62,16 @@ def compile_field_tensor(field_data: Dict[str, Any]) -> Dict[str, Any]:
         coherence_var = np.var(coherence_values)
         κ = float(np.tanh(avg_degree / (1.0 + 10.0 * coherence_var)))
 
-        # T — normalized temporal flux
+        # T - normalized temporal flux
         T = float(tick_time / max(field_decay, 1e-6))
 
-        # C — global coherence mean
+        # C - global coherence mean
         C = float(np.mean(coherence_values))
 
-        # ∇ψ — entropy gradient magnitude (field diversity)
+        # ∇ψ - entropy gradient magnitude (field diversity)
         gradient = float(np.std(entropy_values))
 
-        # stability index — coherence / (1 + gradient)
+        # stability index - coherence / (1 + gradient)
         stability = float(C / (1.0 + gradient))
 
         tensor = {

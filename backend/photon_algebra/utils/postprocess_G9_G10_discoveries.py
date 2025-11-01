@@ -14,7 +14,7 @@ import numpy as np
 from pathlib import Path
 
 here = Path(__file__).resolve()
-# utils → photon_algebra → backend → <repo-root>
+# utils -> photon_algebra -> backend -> <repo-root>
 REPO = here.parents[3]  # was parents[2]
 TEST_DIR  = REPO / "backend/photon_algebra" / "tests"
 TEST_DIR.mkdir(parents=True, exist_ok=True)
@@ -42,7 +42,7 @@ def read_csv_generic(path: Path):
 
     # normalize header -> lower, strip spaces and special chars
     hdr_raw = [str(h).strip() for h in rows[0]]
-    hdr_norm = [re.sub(r"[^a-zA-Z0-9_<>\.\-·κψ_]+", "", h.strip().lower()) for h in hdr_raw]
+    hdr_norm = [re.sub(r"[^a-zA-Z0-9_<>\.\-*κψ_]+", "", h.strip().lower()) for h in hdr_raw]
 
     data = {h: [] for h in hdr_raw}
     for row in rows[1:]:
@@ -153,8 +153,8 @@ def contraction_score(series, step=50):
 G9_ALIASES = {
     # energy
     "E": ("e","<e>","energy","total_e","e_mean","mean_e","⟨e⟩"),
-    # psi·kappa coupling
-    "PK": ("psi_kappa","psi.kappa","psi·κ","psikappa","<psi·κ>","coupling","psi_kappacorr"),
+    # psi*kappa coupling
+    "PK": ("psi_kappa","psi.kappa","psi*κ","psikappa","<psi*κ>","coupling","psi_kappacorr"),
     # spectral entropy
     "SE": ("spectralentropy","spectral_entropy","entropy","s_entropy","entropy_spectrum")
 }
@@ -218,7 +218,7 @@ def main():
             "entropy_coupling_R2": R2,
             "composite_invariant_cv": I_cv
         }
-        print(f"• G9 source: {g9p}")
+        print(f"* G9 source: {g9p}")
 
     # --- G10 metrics ---
     if g10:
@@ -230,25 +230,25 @@ def main():
             "file": str(g10p.relative_to(REPO)),
             "contraction_score": ctr
         }
-        print(f"• G10 source: {g10p}")
+        print(f"* G10 source: {g10p}")
 
     # save candidates
     with CANDS.open("w") as f:
         json.dump(cand, f, indent=2)
-    print(f"✅ Candidates saved → {CANDS.relative_to(REPO)}")
+    print(f"✅ Candidates saved -> {CANDS.relative_to(REPO)}")
 
     # promote strong hits to ledger
     hits = []
     if "G9" in cand:
         g9m = cand["G9"]
         if (g9m.get("xcorr") or 0) > 0.3 and (g9m.get("lag_maxcorr") or 0) > 0:
-            hits.append({"event":"Directional ψ→κ emergence","metrics":g9m})
+            hits.append({"event":"Directional ψ->κ emergence","metrics":g9m})
         if 0.8 <= (g9m.get("psd_beta") or 0) <= 1.2:
-            hits.append({"event":"Scale-free ψ·κ spectrum (β≈1)","metrics":g9m})
+            hits.append({"event":"Scale-free ψ*κ spectrum (β≈1)","metrics":g9m})
         if (g9m.get("entropy_coupling_R2") or 0) > 0.7:
-            hits.append({"event":"Entropy–curvature reciprocity (high R²)","metrics":g9m})
+            hits.append({"event":"Entropy-curvature reciprocity (high R2)","metrics":g9m})
         if (g9m.get("composite_invariant_cv") or 1) < 0.05:
-            hits.append({"event":"Composite invariant conserved (I = E + λ⟨ψ·κ⟩)","metrics":g9m})
+            hits.append({"event":"Composite invariant conserved (I = E + λ⟨ψ*κ⟩)","metrics":g9m})
 
     if "G10" in cand:
         g10m = cand["G10"]
@@ -272,11 +272,11 @@ def main():
             ledger.append(entry)
             with LEDGER.open("w") as f:
                 json.dump(ledger, f, indent=2)
-            print(f"📘 Discovery ledger updated → {LEDGER.relative_to(REPO)}")
+            print(f"📘 Discovery ledger updated -> {LEDGER.relative_to(REPO)}")
         except Exception as e:
             print(f"⚠️ Could not append to ledger: {e}")
     else:
-        print("ℹ️ No strong discovery thresholds hit (data may be missing or headers unmatched).")
+        print("i️ No strong discovery thresholds hit (data may be missing or headers unmatched).")
 
 if __name__ == "__main__":
     main()

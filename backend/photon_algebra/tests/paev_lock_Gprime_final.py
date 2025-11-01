@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris — G′ Lock Protocol
+Tessaris - G′ Lock Protocol
 Locks the finalized G′ constants and concordance data for archival integrity.
 This script freezes the current constants, computes a registry hash,
 and updates the discovery ledger with a timestamped entry.
@@ -41,7 +41,7 @@ def lock_constants():
     os.makedirs(LOCK_PATH.parent, exist_ok=True)
     with open(LOCK_PATH, "w") as f:
         json.dump(snapshot, f, indent=4)
-    print(f"🔒 Locked constants snapshot → {LOCK_PATH}")
+    print(f"🔒 Locked constants snapshot -> {LOCK_PATH}")
 
     # Update discovery ledger
     os.makedirs(DISCOVERY_PATH.parent, exist_ok=True)
@@ -64,7 +64,7 @@ def lock_constants():
 
     with open(DISCOVERY_PATH, "w") as f:
         json.dump(ledger, f, indent=4)
-    print(f"🧾 Discovery ledger updated → {DISCOVERY_PATH}")
+    print(f"🧾 Discovery ledger updated -> {DISCOVERY_PATH}")
 
     print("\n✅ Tessaris G′ constants successfully locked and archived.")
     return True

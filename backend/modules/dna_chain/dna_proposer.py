@@ -24,7 +24,7 @@ def propose_dna_mutation(reason: str = "No reason provided", file: str = "unknow
     proposals.append(proposal)
     save_proposals(proposals)
 
-    print(f"[🧬] DNA mutation proposed: {proposal_id} — File: {file} — Reason: {reason}")
+    print(f"[🧬] DNA mutation proposed: {proposal_id} - File: {file} - Reason: {reason}")
     return {
         "status": "proposed",
         "proposal_id": proposal_id,

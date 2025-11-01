@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 # ==========================================================
-# P9c — Cross-Field Predictive Feedback (Adaptive Meta-Field)
+# P9c - Cross-Field Predictive Feedback (Adaptive Meta-Field)
 # ==========================================================
 
 np.random.seed(42)
@@ -85,7 +85,7 @@ derr_lpf = 0.0
 integ = 0.0
 noise = noise_base
 
-# we’ll treat cross-field signal as the average phase in each field
+# we'll treat cross-field signal as the average phase in each field
 phi1 = np.mean(ABC, axis=0).copy()
 phi2 = np.mean(DEF, axis=0).copy()
 
@@ -155,7 +155,7 @@ plt.plot(np.abs(phi1 - phi2), color="k", alpha=0.35, label="|Δφ_cross| raw")
 plt.plot(err_mov_full, color="black", lw=2, label="|Δφ_cross| moving mean")
 plt.axhline(lock_threshold, ls="--", color="crimson", label=f"lock threshold={lock_threshold}")
 plt.axvline(perturb_time, ls=":", color="purple", label="perturbation")
-plt.title("P9c — Cross-Field Predictive Feedback (Meta-Field Coherence)")
+plt.title("P9c - Cross-Field Predictive Feedback (Meta-Field Coherence)")
 plt.xlabel("time step"); plt.ylabel("|Δφ|")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_P9c_MetaField_PhaseEvolution.png")
@@ -170,7 +170,7 @@ plt.savefig("PAEV_P9c_MetaField_Gain.png")
 plt.figure(figsize=(8,4))
 plt.hist(tail_err, bins=48, color="teal", alpha=0.8, edgecolor="white")
 plt.axvline(lock_threshold, ls="--", color="crimson", label="lock threshold")
-plt.title("P9c — Cross-Field Tail Error Distribution")
+plt.title("P9c - Cross-Field Tail Error Distribution")
 plt.xlabel("|Δφ_cross|"); plt.ylabel("Frequency"); plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_P9c_MetaField_TailDistribution.png")
@@ -211,7 +211,7 @@ out = {
 with open("backend/modules/knowledge/P9c_cross_field_feedback_adaptive.json", "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== P9c — Cross-Field Predictive Feedback (Adaptive Meta-Field) ===")
+print("=== P9c - Cross-Field Predictive Feedback (Adaptive Meta-Field) ===")
 print(f"tail⟨|Δφ_cross|⟩={tail_mean:.3e} | lock_ratio={tail_lock_ratio:.2f} | slope={slope:.2e} | relock={rl}")
-print(f"→ {classification}")
-print("✅ Results saved → backend/modules/knowledge/P9c_cross_field_feedback_adaptive.json")
+print(f"-> {classification}")
+print("✅ Results saved -> backend/modules/knowledge/P9c_cross_field_feedback_adaptive.json")

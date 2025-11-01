@@ -1,5 +1,5 @@
 """
-🧪 Test — Wiki Importer (Phase 2)
+🧪 Test - Wiki Importer (Phase 2)
 --------------------------------
 Validates that JSON data is converted into .wiki.phn capsules,
 saved to disk, and registered in the Knowledge Graph registry.

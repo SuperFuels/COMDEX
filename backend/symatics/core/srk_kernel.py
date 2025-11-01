@@ -3,14 +3,14 @@
 """
 Symatics Reasoning Kernel (SRK-1)
 ─────────────────────────────────────────────
-Tessaris Core v1.0 — Λ-Field Decoherence Interface
+Tessaris Core v1.0 - Λ-Field Decoherence Interface
 
 Extends v0.9 with:
-  • Dynamic λ(t) decoherence tracking and ρ(t) entanglement correlation
-  • Field export to Symatics Rulebook for telemetry use
-  • Adaptive λ update based on ΔE stability feedback
-  • Expanded diagnostics block "decoherence_field"
-  • Full backward compatibility with v0.9
+  * Dynamic λ(t) decoherence tracking and ρ(t) entanglement correlation
+  * Field export to Symatics Rulebook for telemetry use
+  * Adaptive λ update based on ΔE stability feedback
+  * Expanded diagnostics block "decoherence_field"
+  * Full backward compatibility with v0.9
 """
 
 import cmath
@@ -22,7 +22,7 @@ from backend.symatics.symatics_dispatcher import evaluate_symatics_expr
 from backend.symatics import symatics_rulebook as SR
 from backend.core.registry_bridge import registry_bridge
 from backend.modules.codex.codex_trace import CodexTrace
-from backend.symatics.photonic_field import PhotonFieldState  # ← uses your photonic_field.py
+from backend.symatics.photonic_field import PhotonFieldState  # <- uses your photonic_field.py
 from importlib import import_module
 
 try:
@@ -32,7 +32,7 @@ except ImportError:
 
 
 class SymaticsReasoningKernel:
-    """SRK-1 (v1.0) — tensor-aware quantum kernel with Λ-Field decoherence loop."""
+    """SRK-1 (v1.0) - tensor-aware quantum kernel with Λ-Field decoherence loop."""
 
     def __init__(self, auto_stabilize: bool = True, decoherence_lambda: float = 0.03, alpha: float = 0.02):
         self.registry = registry_bridge
@@ -62,7 +62,7 @@ class SymaticsReasoningKernel:
         self.diagnostics_registry = {}
 
         # ──────────────────────────────────────────────
-        # Load SRK extensions (SRK-3 → SRK-5)
+        # Load SRK extensions (SRK-3 -> SRK-5)
         # ──────────────────────────────────────────────
         self.entangled_pairs = {}
         self.last_rho = 1.0
@@ -73,7 +73,7 @@ class SymaticsReasoningKernel:
             "srk4_resonance",             # SRK-4
             "srk41_resonant_entropy",     # SRK-4.1
             "srk5_coherent_field",        # SRK-5
-            "srk6_harmonic_coupling"      # SRK-6 ← new harmonic coupling layer
+            "srk6_harmonic_coupling"      # SRK-6 <- new harmonic coupling layer
         ]:
             try:
                 module = import_module(f"backend.symatics.core.{mod}")
@@ -99,7 +99,7 @@ class SymaticsReasoningKernel:
                 print(f"[SRK] Skipped extension {mod}: {e}")
 
     # ──────────────────────────────────────────────
-    # Extension management (SRK-3, SRK-4, …)
+    # Extension management (SRK-3, SRK-4, ...)
     # ──────────────────────────────────────────────
     def load_extension(self, extension_cls):
         """
@@ -150,7 +150,7 @@ class SymaticsReasoningKernel:
     # ─────────────────────────────────────────────────────────────
     def _entropy_feedback_update(self):
         """
-        Universal SRK-3 feedback hook — invoked after each operator evaluation.
+        Universal SRK-3 feedback hook - invoked after each operator evaluation.
         Updates entropy field state and logs SRK-3 law telemetry if available.
         """
         try:
@@ -172,7 +172,7 @@ class SymaticsReasoningKernel:
     # Evaluation pipeline + ψ(t) + Λ-feedback
     # ─────────────────────────────────────────────────────────────
     # ─────────────────────────────────────────────────────────────
-    # Evaluation pipeline — ψ(t), Λ(t), and ν(t) coupling
+    # Evaluation pipeline - ψ(t), Λ(t), and ν(t) coupling
     # ─────────────────────────────────────────────────────────────
     def _evaluate(self, op, *args, entangle=False):
         result = self.dispatch({"op": op, "args": list(args)})
@@ -198,7 +198,7 @@ class SymaticsReasoningKernel:
             except Exception as e:
                 energy_balance = {"error": str(e)}
 
-        # 4️⃣ Tensor feedback (ψ–Λ–ν coupling tensor)
+        # 4️⃣ Tensor feedback (ψ-Λ-ν coupling tensor)
         feedback = self._compute_tensor_feedback(op, args, energy_balance)
         self.field_feedback = feedback
 
@@ -272,7 +272,7 @@ class SymaticsReasoningKernel:
     # Tensor feedback
     # ─────────────────────────────────────────────────────────────
     # ─────────────────────────────────────────────────────────────
-    # Tensor feedback — ψ(t), Λ(t), ν(t) coupling
+    # Tensor feedback - ψ(t), Λ(t), ν(t) coupling
     # ─────────────────────────────────────────────────────────────
     def _compute_tensor_feedback(self, op, args, energy_balance):
         try:
@@ -290,14 +290,14 @@ class SymaticsReasoningKernel:
             except Exception:
                 pass
 
-        # Photonic field coupling — ν(x,t) ↔ ψ(t)
+        # Photonic field coupling - ν(x,t) ↔ ψ(t)
         try:
             from backend.symatics.photonic_field import (
                 propagate_photon_field,
                 compute_spectral_gradient,
             )
 
-            # update ν and φ to reflect current ψ–Λ interaction
+            # update ν and φ to reflect current ψ-Λ interaction
             self.photonic_field.frequency = base
             target_phase = math.atan2(psi, max(1e-9, f_int))
             self.photonic_field.amplitude = complex(psi, f_int)
@@ -317,7 +317,7 @@ class SymaticsReasoningKernel:
             spectral_gradient = 0.0
             feedback_coeff = 1.0
 
-        # Composite feedback field — merges ψ, Λ, ν dynamics
+        # Composite feedback field - merges ψ, Λ, ν dynamics
         return {
             "field_intensity": round(f_int, 6),
             "psi_density": round(psi, 6),
@@ -345,7 +345,7 @@ class SymaticsReasoningKernel:
         return complex(round(ψ_next.real, 6), round(ψ_next.imag, 6))
 
     # ─────────────────────────────────────────────────────────────
-    # Entangled ψ₁↔ψ₂ propagation
+    # Entangled ψ1↔ψ2 propagation
     # ─────────────────────────────────────────────────────────────
     def _propagate_entangled_state(self, feedback):
         φ = math.pi * (1 - feedback.get("deltaE_stability", 1.0))
@@ -422,11 +422,11 @@ class SymaticsReasoningKernel:
     # ─────────────────────────────────────────────────────────────
     def _derive_law_signature(self, op):
         return {
-            "⊕": "⊕→⟲→μ",
-            "⟲": "⟲→μ→π",
-            "μ": "μ→π",
-            "↔": "↔→μ→πμ",
-            "π": "π→∇⊗ψ",
+            "⊕": "⊕->⟲->μ",
+            "⟲": "⟲->μ->π",
+            "μ": "μ->π",
+            "↔": "↔->μ->πμ",
+            "π": "π->∇⊗ψ",
         }.get(op, op)
 
     def diagnostics(self):
@@ -435,9 +435,9 @@ class SymaticsReasoningKernel:
         from the SymaticsReasoningKernel and all attached SRK extensions.
 
         Now includes:
-          • SRK-3 Entropy Feedback (v0.4.6+)
-          • SRK-4 Resonant Coupling (Λ↔ψ↔⟲R)
-          • SRK-4.1 Resonant-Entropy Coupling (Λ↔ψ↔⟲R↔S)
+          * SRK-3 Entropy Feedback (v0.4.6+)
+          * SRK-4 Resonant Coupling (Λ↔ψ↔⟲R)
+          * SRK-4.1 Resonant-Entropy Coupling (Λ↔ψ↔⟲R↔S)
         """
 
         trace_count = 0

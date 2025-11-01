@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-📊  Aion Evolution Dashboard — Phase 35.4
+📊  Aion Evolution Dashboard - Phase 35.4
 ───────────────────────────────────────────────────────────────────────────────
 Visualizes concept evolution and overlays RSI variance stability.
 
 Inputs:
-  • data/feedback/concept_evolution_snapshot.jsonl
-  • data/feedback/concept_reinforcement.log   (optional)
-  • data/feedback/resonance_stream.jsonl      (RSI variance overlay)
+  * data/feedback/concept_evolution_snapshot.jsonl
+  * data/feedback/concept_reinforcement.log   (optional)
+  * data/feedback/resonance_stream.jsonl      (RSI variance overlay)
 
 Outputs:
-  • data/analysis/concept_evolution_plot.png
+  * data/analysis/concept_evolution_plot.png
 """
 
 import json
@@ -121,14 +121,14 @@ def plot_evolution():
                  f"Reinforcement events: {len(reinf)}",
                  fontsize=8, color="green")
 
-    plt.title("Aion Concept Evolution — Phase 35.4 (RSI Variance Overlay)")
+    plt.title("Aion Concept Evolution - Phase 35.4 (RSI Variance Overlay)")
     plt.tight_layout()
     OUTPUT_PLOT.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(OUTPUT_PLOT)
-    print(f"✅  Evolution plot with RSI overlay saved → {OUTPUT_PLOT}")
+    print(f"✅  Evolution plot with RSI overlay saved -> {OUTPUT_PLOT}")
 
 
 # ── Entry ────────────────────────────────────────────
 if __name__ == "__main__":
-    print("📊  Launching Aion Evolution Dashboard (Phase 35.4)…")
+    print("📊  Launching Aion Evolution Dashboard (Phase 35.4)...")
     plot_evolution()

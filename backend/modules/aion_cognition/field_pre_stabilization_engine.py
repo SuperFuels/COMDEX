@@ -1,5 +1,5 @@
 """
-🧭  Field Pre-Stabilization Engine — Phase 53
+🧭  Field Pre-Stabilization Engine - Phase 53
 ---------------------------------------------
 Stabilizes resonance forecast fields (ρ, Ī, SQI) before Codex fusion.
 
@@ -58,7 +58,7 @@ def pre_stabilization_cycle() -> Dict[str, Any]:
     STABIL_OUT.parent.mkdir(parents=True, exist_ok=True)
     json.dump(stabilized, open(STABIL_OUT, "w"), indent=2)
     logger.info(
-        f"[Pre-Stabilizer] Exported stabilized field → {STABIL_OUT} | "
+        f"[Pre-Stabilizer] Exported stabilized field -> {STABIL_OUT} | "
         f"ρ={ρ_stable}, Ī={Ī_stable}, SQI={SQI_stable}, α={alpha}"
     )
     return stabilized

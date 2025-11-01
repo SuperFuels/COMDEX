@@ -79,7 +79,7 @@ class AtomSheetRegistry:
             normalized: Dict[str, Dict[str, str]] = {}
             for sid, val in self._registry.items():
                 if isinstance(val, str):
-                    # legacy in-memory shape → upgrade on save
+                    # legacy in-memory shape -> upgrade on save
                     normalized[sid] = {"path": os.path.abspath(val), "registered_at": now_utc_iso()}
                 elif isinstance(val, dict) and "path" in val:
                     p = os.path.abspath(val["path"])
@@ -147,7 +147,7 @@ class AtomSheetRegistry:
         sheet_id = self._sheet_id_for_path(ap)
 
         with self._lock:
-            # Duplicate sheet_id pointing to a different path → error
+            # Duplicate sheet_id pointing to a different path -> error
             existing = self._registry.get(sheet_id)
             if isinstance(existing, str) and os.path.abspath(existing) != ap:
                 raise ValueError(f"Duplicate sheet_id mapped to different path: {sheet_id}")
@@ -172,8 +172,8 @@ class AtomSheetRegistry:
     def resolve(self, id_or_path: str) -> Optional[str]:
         """
         Resolve a sheet ID or path to an absolute file path.
-        - If id_or_path matches a known sheet_id → return mapped path
-        - Else if id_or_path is an existing path → return its absolute path
+        - If id_or_path matches a known sheet_id -> return mapped path
+        - Else if id_or_path is an existing path -> return its absolute path
         - Else None
         """
         if not id_or_path:

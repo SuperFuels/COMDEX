@@ -8,7 +8,7 @@ from backend.photon_algebra.core import (
 )
 
 # -----------------------
-# P1 — Identity
+# P1 - Identity
 # -----------------------
 def test_identity():
     a = "a"
@@ -18,7 +18,7 @@ def test_identity():
     assert identity(expr) == expr
 
 # -----------------------
-# P2 — Superposition
+# P2 - Superposition
 # -----------------------
 def test_superpose_basic():
     assert superpose() == EMPTY
@@ -36,7 +36,7 @@ def test_superpose_flattening_via_rewrite():
     assert len(flat["states"]) == 3
 
 # -----------------------
-# P3 — Entanglement
+# P3 - Entanglement
 # -----------------------
 def test_entangle_symmetry():
     ab = entangle("a", "b")
@@ -45,7 +45,7 @@ def test_entangle_symmetry():
     assert set(ab["states"]) == set(ba["states"])
 
 # -----------------------
-# P4 — Fuse (⊗)
+# P4 - Fuse (⊗)
 # -----------------------
 def test_fuse_commutativity():
     ab = fuse("a", "b")
@@ -54,7 +54,7 @@ def test_fuse_commutativity():
     assert set(ab["states"]) == set(ba["states"])
 
 # -----------------------
-# P5 — Cancel (⊖)
+# P5 - Cancel (⊖)
 # -----------------------
 def test_cancel_self_is_empty():
     assert cancel("a", "a") == EMPTY
@@ -65,7 +65,7 @@ def test_cancel_diff():
     assert expr["states"] == ["a", "b"]
 
 # -----------------------
-# P6 — Negate
+# P6 - Negate
 # -----------------------
 def test_negate_basic_and_double():
     n = negate("a")
@@ -75,7 +75,7 @@ def test_negate_basic_and_double():
     assert nn == "a"
 
 # -----------------------
-# P7 — Collapse (∇)
+# P7 - Collapse (∇)
 # -----------------------
 def test_collapse_symbolic_and_weighted():
     expr = superpose("a", "b")
@@ -90,7 +90,7 @@ def test_collapse_non_superposition_is_noop():
     assert collapse("a") == "a"
 
 # -----------------------
-# P8 — Projection (★)
+# P8 - Projection (★)
 # -----------------------
 def test_project_symbolic_and_weighted():
     symbolic = project("a")

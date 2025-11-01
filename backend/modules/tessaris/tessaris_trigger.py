@@ -116,7 +116,7 @@ def trigger_tessaris_from_goal(goal_data: dict):
     scroll = build_scroll_from_glyph(branch.to_glyph_tree())
     memory.write(role="scribe", content=scroll, tags=["external", "tessaris", "goal"])
 
-    print(f"[🧠] External Tessaris goal triggered → result: {result}")
+    print(f"[🧠] External Tessaris goal triggered -> result: {result}")
     return result
 
 

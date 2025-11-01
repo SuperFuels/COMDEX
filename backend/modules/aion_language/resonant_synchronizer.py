@@ -1,7 +1,7 @@
 """
-ResonantSynchronizer — Phase 39A
+ResonantSynchronizer - Phase 39A
 --------------------------------
-Aligns imported photon-based meaning fields with Aion’s current
+Aligns imported photon-based meaning fields with Aion's current
 internal semantic resonance state.
 """
 

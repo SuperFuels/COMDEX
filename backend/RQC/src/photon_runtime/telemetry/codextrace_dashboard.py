@@ -1,19 +1,19 @@
 """
-Tessaris RQC — CodexTrace Resonance Dashboard
+Tessaris RQC - CodexTrace Resonance Dashboard
 ---------------------------------------------
-Visual interface for ψ–κ–T–Φ metrics and phase coherence stability.
+Visual interface for ψ-κ-T-Φ metrics and phase coherence stability.
 
 Reads live data from MorphicLedger (jsonl) or AionTelemetryStream,
-and overlays symbolic resonance transitions (⊕ μ ⟲ ↔ πₛ)
+and overlays symbolic resonance transitions (⊕ μ ⟲ ↔ πs)
 from CodexTrace Resonant Insight Bridge.
 
 Metrics visualized:
-    • ψ  → Wave amplitude stability
-    • κ  → Entropy / information flow
-    • T  → Temporal coherence factor
-    • Φ  → Awareness / closure resonance
-    • C  → Coherence ratio (∑ normalized phases)
-    • ⊕ μ ⟲ ↔ πₛ  → Symbolic resonance events
+    * ψ  -> Wave amplitude stability
+    * κ  -> Entropy / information flow
+    * T  -> Temporal coherence factor
+    * Φ  -> Awareness / closure resonance
+    * C  -> Coherence ratio (∑ normalized phases)
+    * ⊕ μ ⟲ ↔ πs  -> Symbolic resonance events
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ SYMBOL_COLORS = {
     "μ": "purple",
     "⟲": "red",
     "↔": "blue",
-    "πₛ": "orange",
+    "πs": "orange",
 }
 
 # ──────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ def load_resonant_insights(limit: int = 30) -> List[Dict[str, Any]]:
 
 
 def compute_metrics(entries: List[Dict[str, Any]]) -> Dict[str, float]:
-    """Aggregate ψ–κ–T–Φ coherence metrics."""
+    """Aggregate ψ-κ-T-Φ coherence metrics."""
     if not entries:
         return {}
     ψ_vals = [e.get("ψ", 0) for e in entries]
@@ -102,7 +102,7 @@ async def live_dashboard():
     """Continuously refresh resonance metrics and overlay symbolic events."""
     plt.ion()
     fig, ax = plt.subplots(figsize=(9, 5))
-    ax.set_title("Tessaris RQC — CodexTrace Resonance Dashboard", color="cyan")
+    ax.set_title("Tessaris RQC - CodexTrace Resonance Dashboard", color="cyan")
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Coherence / Awareness (Φ)")
     ax.grid(True, linestyle="--", alpha=0.5)
@@ -133,7 +133,7 @@ async def live_dashboard():
         ax.legend()
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("Normalized amplitude")
-        ax.set_title("Tessaris RQC — Live Resonance Trace", color="cyan")
+        ax.set_title("Tessaris RQC - Live Resonance Trace", color="cyan")
 
         # Overlay symbolic resonance events
         if insights:
@@ -146,7 +146,7 @@ async def live_dashboard():
                 # Position symbolic event roughly along timeline
                 t_pos = t - (len(recent_insights) - idx) * REFRESH_INTERVAL
                 ax.scatter(t_pos, metrics["Φ"], color=color, label=sym, s=65, alpha=0.75, edgecolors="none")
-                print(f"[CodexTrace::Insight] {sym} → ΔΦ={ΔΦ:+.4f}, Δε={Δε:+.4f}, pred={event.get('prediction')}")
+                print(f"[CodexTrace::Insight] {sym} -> ΔΦ={ΔΦ:+.4f}, Δε={Δε:+.4f}, pred={event.get('prediction')}")
 
         plt.pause(0.001)
         print(f"[{datetime.utcnow().isoformat()}] Φ={metrics['Φ']:.3f}, C={metrics['coherence']:.3f}")
@@ -157,7 +157,7 @@ async def live_dashboard():
 # Entry point
 # ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    print("🔭 Tessaris RQC — Starting CodexTrace Resonance Dashboard...")
+    print("🔭 Tessaris RQC - Starting CodexTrace Resonance Dashboard...")
     try:
         asyncio.run(live_dashboard())
     except KeyboardInterrupt:

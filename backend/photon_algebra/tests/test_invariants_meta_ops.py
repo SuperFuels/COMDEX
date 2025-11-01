@@ -6,22 +6,22 @@ from backend.photon_algebra.core import (
 )
 
 def test_similarity_reflexive():
-    # a ≈ a → ⊤
+    # a ≈ a -> ⊤
     expr = similar("x", "x")
     assert normalize(expr) == TOP
 
 def test_containment_bottom_left():
-    # ⊥ ⊂ a → ⊤
+    # ⊥ ⊂ a -> ⊤
     expr = contains(BOTTOM, "y")
     assert normalize(expr) == TOP
 
 def test_containment_top_right():
-    # a ⊂ ⊤ → ⊤
+    # a ⊂ ⊤ -> ⊤
     expr = contains("z", TOP)
     assert normalize(expr) == TOP
 
 def test_similarity_inert_for_different_terms():
-    # a ≈ b (a ≠ b) stays inert
+    # a ≈ b (a != b) stays inert
     expr = similar("a", "b")
     out = normalize(expr)
     assert out.get("op") == "≈"

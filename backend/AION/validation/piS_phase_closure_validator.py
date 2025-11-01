@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • D4 — πₛ Phase Closure Validator (v2)
+#  Tessaris * D4 - πs Phase Closure Validator (v2)
 #  Validates global phase loop closure in resonance sync.
 # ──────────────────────────────────────────────────────────────
 
@@ -15,7 +15,7 @@ logger = logging.getLogger("PiSPhaseClosureValidator")
 class PiSPhaseClosureValidator:
     """
     Verifies the halting / closure condition for resonance cycles:
-        Σ φ_i mod 2πₛ ≈ 0
+        Σ φ_i mod 2πs ≈ 0
     ensuring that cumulative phase error remains within tolerance.
     """
 
@@ -31,14 +31,14 @@ class PiSPhaseClosureValidator:
         try:
             phi_values = self._load_phi_values()
             if not phi_values:
-                logger.warning("[πₛ] No φ values found — skipping validation.")
-                return {"status": "empty", "Δφₛ": None}
+                logger.warning("[πs] No φ values found - skipping validation.")
+                return {"status": "empty", "Δφs": None}
 
             closure_error = self._compute_closure_error(phi_values)
             report = {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "count": len(phi_values),
-                "Δφₛ": closure_error,
+                "Δφs": closure_error,
                 "status": "ok" if closure_error <= self.tolerance else "drift",
                 "threshold": self.tolerance,
             }
@@ -48,15 +48,15 @@ class PiSPhaseClosureValidator:
                 f.write(json.dumps(report) + "\n")
 
             msg = (
-                f"[✅] πₛ closure maintained (Δφₛ = {closure_error:.3f} rad)"
+                f"[✅] πs closure maintained (Δφs = {closure_error:.3f} rad)"
                 if closure_error <= self.tolerance
-                else f"[⚠️] πₛ drift detected (Δφₛ = {closure_error:.3f} rad)"
+                else f"[⚠️] πs drift detected (Δφs = {closure_error:.3f} rad)"
             )
             logger.info(msg)
             return report
 
         except Exception as e:
-            logger.error(f"[πₛ] Validation failed: {e}", exc_info=True)
+            logger.error(f"[πs] Validation failed: {e}", exc_info=True)
             return {"status": "error", "error": str(e)}
 
     # ──────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ class PiSPhaseClosureValidator:
 
     # ──────────────────────────────────────────────────────────────
     def _compute_closure_error(self, phi_values):
-        """Compute closure error modulo 2πₛ."""
+        """Compute closure error modulo 2πs."""
         total_phase = sum(phi_values)
         mod_phase = total_phase % (2 * math.pi)
         closure_error = min(mod_phase, 2 * math.pi - mod_phase)

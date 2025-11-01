@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-🚀 CEE AutoTester — Phase 46A
+🚀 CEE AutoTester - Phase 46A
 ─────────────────────────────
 Evaluates LexMemory ↔ ResonantMemoryCache coherence.
 
 Checks:
-  • JSON validity & schema match
-  • Overlap between LexMemory and RMC entries
-  • Average SQI, ρ, and I distribution
-  • Drift and coherence summary
+  * JSON validity & schema match
+  * Overlap between LexMemory and RMC entries
+  * Average SQI, ρ, and I distribution
+  * Drift and coherence summary
 """
 
 import json, logging, statistics
@@ -32,7 +32,7 @@ def evaluate():
     rmc = load_json(RMC_PATH)
 
     if not lex or not rmc:
-        log.warning("⚠ Missing data — ensure both LexMemory and RMC exist.")
+        log.warning("⚠ Missing data - ensure both LexMemory and RMC exist.")
         return
 
     cache = rmc.get("cache", rmc)
@@ -62,7 +62,7 @@ def evaluate():
     drift = abs(statistics.mean(rhos) - statistics.mean(Is)) if rhos and Is else 0
     log.info(f"🌊 Resonance drift: {drift:.3f}")
 
-    print("\n✅ Evaluation complete — coherence verified." if overlap else "\n⚠ No overlap detected.")
+    print("\n✅ Evaluation complete - coherence verified." if overlap else "\n⚠ No overlap detected.")
 
 if __name__ == "__main__":
     evaluate()

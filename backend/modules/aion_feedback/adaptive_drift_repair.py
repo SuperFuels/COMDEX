@@ -44,36 +44,36 @@ class AdaptiveDriftRepair:
         """
         repaired = False
 
-        # Step 1 — RSI trend monitoring
+        # Step 1 - RSI trend monitoring
         if rsi < self.threshold:
             self.low_counter += 1
         else:
             self.low_counter = 0
 
-        # Step 2 — Repair condition check
+        # Step 2 - Repair condition check
         if force or self.low_counter >= self.persist_cycles:
             self.low_counter = 0
             repaired = True
             self.last_repair_time = time.time()
 
-            # Step 3 — Dampen unstable transitions
+            # Step 3 - Dampen unstable transitions
             if hasattr(pb, "transitions") and isinstance(pb.transitions, dict):
                 for k in list(pb.transitions.keys()):
                     pb.transitions[k] *= 0.95
 
-            # Step 4 — Lower confidence to promote re-exploration
+            # Step 4 - Lower confidence to promote re-exploration
             if hasattr(pb, "prediction_confidence"):
                 pb.prediction_confidence *= 0.9
 
-            # Step 5 — Normalize ε and k back toward baseline
+            # Step 5 - Normalize ε and k back toward baseline
             pb.epsilon = max(0.1, getattr(pb, "epsilon", 0.2) * 0.95)
             pb.k = max(3, int(getattr(pb, "k", 5) * 0.95))
 
-            # Step 6 — Reduce gradient feedback intensity
+            # Step 6 - Reduce gradient feedback intensity
             if hasattr(grad, "avg_strength"):
                 grad.avg_strength *= 0.9
 
-            # Step 7 — Compose log entry
+            # Step 7 - Compose log entry
             entry = {
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "RSI": round(rsi, 4),
@@ -83,12 +83,12 @@ class AdaptiveDriftRepair:
                 "forced": force,
             }
 
-            # Step 8 — Write to log file
+            # Step 8 - Write to log file
             with open(self.log_path, "a", buffering=1) as f:
                 f.write(json.dumps(entry) + "\n")
                 f.flush()
 
-            # Step 9 — Emit telemetry pulse
+            # Step 9 - Emit telemetry pulse
             pulse = {
                 "event": "drift_repair",
                 "timestamp": entry["timestamp"],
@@ -104,7 +104,7 @@ class AdaptiveDriftRepair:
 
             print(
                 f"🩹 Drift repair triggered "
-                f"(RSI={rsi:.3f}) → reset ε={pb.epsilon:.2f}, k={pb.k}"
+                f"(RSI={rsi:.3f}) -> reset ε={pb.epsilon:.2f}, k={pb.k}"
                 f"{' [FORCED]' if force else ''}"
             )
 
@@ -115,7 +115,7 @@ class AdaptiveDriftRepair:
 # Diagnostic entry point
 # ─────────────────────────────────────────────
 if __name__ == "__main__":
-    # Quick verification run — ensures file writing and telemetry pulse works
+    # Quick verification run - ensures file writing and telemetry pulse works
     from backend.modules.aion_prediction.predictive_bias_layer import PredictiveBias
     from backend.modules.aion_learning.gradient_correction_layer import GradientCorrectionLayer
 
@@ -130,4 +130,4 @@ if __name__ == "__main__":
         print(f"✅ Log written to: {adr.log_path}")
         print(adr.log_path.read_text().splitlines()[-1])
     else:
-        print("❌ Log file missing — check permissions or path.")
+        print("❌ Log file missing - check permissions or path.")

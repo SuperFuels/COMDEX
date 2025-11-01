@@ -3,10 +3,10 @@
 -----------------------------------------------------
 Connects UCS containers (Tesseract, Quantum Orb, etc.) to GHXVisualizer.
 Handles:
-    • Auto-injection of container geometries into GHX
-    • Runtime highlight when UCS containers are executed
-    • Legacy-safe: works directly with UCSRuntime
-    • Backend-safe: stores sync state for frontend GHXVisualizer (React)
+    * Auto-injection of container geometries into GHX
+    * Runtime highlight when UCS containers are executed
+    * Legacy-safe: works directly with UCSRuntime
+    * Backend-safe: stores sync state for frontend GHXVisualizer (React)
 """
 
 from typing import TYPE_CHECKING

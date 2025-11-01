@@ -1,13 +1,13 @@
 """
-Tessaris RQC — Interferometric Read-Out (μ)
+Tessaris RQC - Interferometric Read-Out (μ)
 -------------------------------------------
 Performs photonic measurement of symbolic resonance fields.
 
 This module evaluates:
-    • Interference visibility (V)
-    • Phase error (Δφ)
-    • Closure stability (πₛ)
-    • Energy–coherence relation (E_res)
+    * Interference visibility (V)
+    * Phase error (Δφ)
+    * Closure stability (πs)
+    * Energy-coherence relation (E_res)
 
 μ() acts as the perceptual projection in the Resonance Quantum Computer:
     Φ = μ(⟲Ψ)
@@ -55,7 +55,7 @@ class InterferenceResult:
 
 
 # ────────────────────────────────────────────────────────────────
-#   μ() — Interferometric Readout
+#   μ() - Interferometric Readout
 # ────────────────────────────────────────────────────────────────
 
 def measure_interference(symbol_a: str, symbol_b: str, noise: float = 0.002) -> InterferenceResult:
@@ -94,7 +94,7 @@ def measure_interference(symbol_a: str, symbol_b: str, noise: float = 0.002) -> 
     # Phase error (radians)
     phase_error = abs(desc_a.phase - desc_b.phase) % (2 * math.pi)
 
-    # Closure stability πₛ = |1 - Δφ / 2π|
+    # Closure stability πs = |1 - Δφ / 2π|
     closure_stability = 1.0 - (phase_error / (2 * math.pi))
 
     # Coherence ratio |⟨e^{iΔφ}⟩|
@@ -118,7 +118,7 @@ def measure_interference(symbol_a: str, symbol_b: str, noise: float = 0.002) -> 
 #   Resonant Scan Utility
 # ────────────────────────────────────────────────────────────────
 
-def scan_all_pairs(symbols: Tuple[str, ...] = ("⊕", "μ", "⟲", "↔", "π", "πₛ")) -> Dict[str, Dict[str, Any]]:
+def scan_all_pairs(symbols: Tuple[str, ...] = ("⊕", "μ", "⟲", "↔", "π", "πs")) -> Dict[str, Dict[str, Any]]:
     """Perform pairwise interferometric measurement across the given symbols."""
     results: Dict[str, Dict[str, Any]] = {}
     for i, a in enumerate(symbols):
@@ -134,7 +134,7 @@ def scan_all_pairs(symbols: Tuple[str, ...] = ("⊕", "μ", "⟲", "↔", "π", 
 # ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("Tessaris RQC — Interferometric Readout (μ)")
+    print("Tessaris RQC - Interferometric Readout (μ)")
     print("──────────────────────────────────────────────")
 
     # Example measurement: resonance feedback μ(⟲Ψ)
@@ -145,4 +145,4 @@ if __name__ == "__main__":
     print("\nPairwise scan summary:")
     scan = scan_all_pairs()
     for pair, data in scan.items():
-        print(f"  {pair:6s} → V={data['visibility']:.3f} | Δφ={data['phase_error']:.3f} | πₛ={data['closure_stability']:.3f}")
+        print(f"  {pair:6s} -> V={data['visibility']:.3f} | Δφ={data['phase_error']:.3f} | πs={data['closure_stability']:.3f}")

@@ -15,7 +15,7 @@ def run_tessaris(glyph, depth):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run TessarisEngine from CLI")
-    parser.add_argument("glyph", type=str, help="Glyph input to seed the thought (e.g. '⟦ Goal | Learn → Reflect ⟧')")
+    parser.add_argument("glyph", type=str, help="Glyph input to seed the thought (e.g. '⟦ Goal | Learn -> Reflect ⟧')")
     parser.add_argument("--depth", type=int, default=2, help="Recursion depth for thought expansion")
 
     args = parser.parse_args()

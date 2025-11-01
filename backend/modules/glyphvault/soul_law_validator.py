@@ -22,7 +22,7 @@ try:
     from backend.modules.glyphnet.glyphnet_ws import broadcast_event_throttled as broadcast_event  # type: ignore
 except Exception:
     def broadcast_event(event_type: str, payload: dict):
-        print(f"[SIM:FALLBACK] Broadcast: {event_type} → {payload}")
+        print(f"[SIM:FALLBACK] Broadcast: {event_type} -> {payload}")
 
 # Minimal local throttle guard (belt & suspenders; still useful if throttled import fails)
 _MIN_EMIT_INTERVAL = float(os.getenv("SOULLAW_MIN_EMIT_INTERVAL", "0.75"))
@@ -196,7 +196,7 @@ class SoulLawValidator:
         target_container: dict,
         link_metadata: Optional[dict] = None
     ):
-        """Block forbidden container links (e.g., secure → public), unless long-range quantum/optical override applies."""
+        """Block forbidden container links (e.g., secure -> public), unless long-range quantum/optical override applies."""
         source_tags = source_container.get("tags", [])
         target_tags = target_container.get("tags", [])
 
@@ -212,12 +212,12 @@ class SoulLawValidator:
                     carrier in ("QUANTUM", "OPTICAL") and
                     (intent == "long_range" or distance >= 1000 or override_flag is True)
                 ):
-                    print(f"⚠️ SoulLaw override: secure→public allowed via long-range {carrier} link ({distance}km)")
+                    print(f"⚠️ SoulLaw override: secure->public allowed via long-range {carrier} link ({distance}km)")
                     return  # ✅ Override allowed
 
             raise PermissionError("❌ SoulLaw: Secure container cannot link to public.")
 
-        print(f"✅ SoulLaw: Navigation link allowed {source_container.get('id', '?')} → {target_container.get('id', '?')}")
+        print(f"✅ SoulLaw: Navigation link allowed {source_container.get('id', '?')} -> {target_container.get('id', '?')}")
 
     # -----------------------
     # 🔐 Seed locks
@@ -257,7 +257,7 @@ class SoulLawValidator:
                 {"rule": rule, "status": "approval", "reason": reason},
                 key=f"approval:{rule}",
             )
-            print(f"✅ [SoulLaw] Approval: {rule} – {reason}")
+            print(f"✅ [SoulLaw] Approval: {rule} - {reason}")
         except Exception as e:
             logger.error(f"[SoulLaw] Approval glyph injection failed: {e}")
 
@@ -282,7 +282,7 @@ class SoulLawValidator:
                 {"rule": rule, "status": "violation", "reason": reason},
                 key=f"violation:{rule}",
             )
-            print(f"❌ [SoulLaw] Violation: {rule} – {reason}")
+            print(f"❌ [SoulLaw] Violation: {rule} - {reason}")
         except Exception as e:
             logger.error(f"[SoulLaw] Violation glyph injection failed: {e}")
 
@@ -296,7 +296,7 @@ class SoulLawValidator:
         Returns False to veto unsafe or unethical transitions.
         """
         try:
-            # Simple placeholder — expand later using enforce_soul_laws()
+            # Simple placeholder - expand later using enforce_soul_laws()
             from backend.modules.soul.soul_laws import enforce_soul_laws
 
             # If context explicitly disables ethics (for tests), allow

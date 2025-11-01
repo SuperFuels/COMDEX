@@ -1,5 +1,5 @@
 """
-💾 SRK-17 Task 6 — GHX Vault Exporter (GVE)
+💾 SRK-17 Task 6 - GHX Vault Exporter (GVE)
 Module: backend/modules/holograms/ghx_vault_exporter.py
 
 Purpose:
@@ -7,10 +7,10 @@ Purpose:
     enabling replay and restoration of distributed resonance state.
 
 Responsibilities:
-    • Import GHX chain records from GHX-DLS
-    • Package verified bundle sets into a vault snapshot
-    • Maintain continuity metadata (chain_head, chain_length, timestamp)
-    • Provide replay and verification hooks
+    * Import GHX chain records from GHX-DLS
+    * Package verified bundle sets into a vault snapshot
+    * Maintain continuity metadata (chain_head, chain_length, timestamp)
+    * Provide replay and verification hooks
 """
 
 import time
@@ -23,7 +23,7 @@ from backend.modules.codex.codex_trace import CodexTrace
 
 
 # ────────────────────────────────────────────────────────────────
-# 🔹 SRK-13 D6 — Entropy Signature + GHX Metadata Injection
+# 🔹 SRK-13 D6 - Entropy Signature + GHX Metadata Injection
 # ────────────────────────────────────────────────────────────────
 def inject_entropy_signature(bundle: dict) -> dict:
     """
@@ -44,7 +44,7 @@ def inject_entropy_signature(bundle: dict) -> dict:
 # 💾 GHX Vault Exporter (SRK-17 Task 6)
 # ────────────────────────────────────────────────────────────────
 class GHXVaultExporter:
-    """SRK-17 Task 6 — GHX Vault Exporter (GVE)"""
+    """SRK-17 Task 6 - GHX Vault Exporter (GVE)"""
 
     def __init__(self, container_id: str = "ghx_vault_export"):
         self.vault = GlyphVault(container_id)
@@ -74,7 +74,7 @@ class GHXVaultExporter:
             ).hexdigest(),
         }
 
-        # 🔹 SRK-13 D6 — inject entropy + metadata
+        # 🔹 SRK-13 D6 - inject entropy + metadata
         snapshot = inject_entropy_signature(snapshot)
 
         # 🔸 Persist to GlyphVault
@@ -90,7 +90,7 @@ class GHXVaultExporter:
         return snapshot
 
     async def replay_from_vault(self) -> Dict[str, Any]:
-        """Simulate continuity restoration — returns the last exported snapshot."""
+        """Simulate continuity restoration - returns the last exported snapshot."""
         if not self._last_export:
             raise RuntimeError("No prior export found in GHXVaultExporter")
 

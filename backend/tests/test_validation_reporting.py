@@ -8,7 +8,7 @@ def test_audit_event_includes_validation_errors():
         container_id="c1",
         lean_path="dummy.lean",
         num_items=1,
-        previews=["⊢ A → B"],
+        previews=["⊢ A -> B"],
         validation_errors=errors,
     )
     assert "validation_errors" in evt

@@ -1,6 +1,6 @@
 # ==========================================================
-# G5 — Planck-Scale Unification Calibration
-#   Curvature–Information density → (G, ħ) in normalized units
+# G5 - Planck-Scale Unification Calibration
+#   Curvature-Information density -> (G, ħ) in normalized units
 #   Robust to NumPy 2.0; overflow-safe; matches COMDEX tracing style
 # ==========================================================
 
@@ -71,7 +71,7 @@ G_eff_trace, hbar_eff_trace = [], []
 Lambda_proxy_trace = []
 frames = []
 
-# scaling knobs (heuristic → dimensionless “Planck” units)
+# scaling knobs (heuristic -> dimensionless "Planck" units)
 # We treat information density I ~ ⟨(∇θ)^2⟩ + ε ⟨(∇κ)^2⟩
 # and curvature density K ~ ⟨κ^2⟩ + δ ⟨(∇κ)^2⟩
 eps_grad = 0.5
@@ -84,8 +84,8 @@ alpha_K = 1.0
 
 # mapping:
 #   ρ_P ~ alpha_I * I * alpha_K * K
-#   G_eff ~ 1 / sqrt(ρ_P + ϵ)     (so higher info×curv → stronger “quantum gravity”)
-#   ħ_eff ~ sqrt(I / (K + ϵ))     (information vs curvature balance)
+#   G_eff ~ 1 / sqrt(ρ_P + ε)     (so higher info*curv -> stronger "quantum gravity")
+#   ħ_eff ~ sqrt(I / (K + ε))     (information vs curvature balance)
 #   Λ_proxy ~ K - I (qualitative check vs G1)
 eps = 1e-12
 
@@ -163,14 +163,14 @@ for t in range(steps):
 # ----------------------------
 # 1) Energy / Entropy / Effective constants trace
 fig, ax = plt.subplots(1, 1, figsize=(8, 4.6))
-ax.plot(E_trace, label="⟨ℒ⟩", lw=2)
+ax.plot(E_trace, label="⟨L⟩", lw=2)
 ax.plot(S_trace, label="spectral entropy (norm.)", lw=2)
 ax2 = ax.twinx()
 ax2.plot(G_eff_trace, "r--", lw=2, label="G_eff")
 ax2.plot(hbar_eff_trace, "g--", lw=2, label="ħ_eff")
-ax.set_title("G5 — Energy, Entropy, and Effective (G, ħ)")
+ax.set_title("G5 - Energy, Entropy, and Effective (G, ħ)")
 ax.set_xlabel("step")
-ax.set_ylabel("⟨ℒ⟩ / entropy")
+ax.set_ylabel("⟨L⟩ / entropy")
 ax2.set_ylabel("effective constants")
 lns = ax.get_lines() + ax2.get_lines()
 labs = [l.get_label() for l in lns]
@@ -184,7 +184,7 @@ print("✅ Saved file: PAEV_TestG5_Unification_Trace.png")
 plt.figure(figsize=(7.5, 3.6))
 plt.plot(Lambda_proxy_trace, lw=2, color="black")
 plt.axhline(0.0, color="gray", ls="--", lw=1)
-plt.title("G5 — Λ proxy = K − I (qualitative consistency with G1)")
+plt.title("G5 - Λ proxy = K - I (qualitative consistency with G1)")
 plt.xlabel("step")
 plt.ylabel("Λ_proxy (arb.)")
 plt.tight_layout()
@@ -204,7 +204,7 @@ xs = np.linspace(max(I_arr.min(), 1e-6), max(I_arr.max(), 1e-6)*1.05, 200)
 plt.plot(xs, rp/np.clip(xs, 1e-9, None), "k--", lw=1.5, label="iso-ρ_P (median)")
 plt.xlabel("Information density I")
 plt.ylabel("Curvature density K")
-plt.title("G5 — Phase Portrait: I vs K")
+plt.title("G5 - Phase Portrait: I vs K")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_TestG5_PhasePortrait_IK.png", dpi=160)
@@ -226,13 +226,13 @@ h_final = hbar_eff_trace[-1]
 Lam_final = Lambda_proxy_trace[-1]
 
 summary = f"""
-=== Test G5 — Planck-Scale Unification Calibration ===
+=== Test G5 - Planck-Scale Unification Calibration ===
 Final diagnostics (dimensionless, normalized units):
-  ⟨ℒ⟩ final            = {E_final:.6e}
+  ⟨L⟩ final            = {E_final:.6e}
   Spectral entropy S    = {S_final:.6f}
   G_eff (final)         = {G_final:.6e}
   ħ_eff (final)         = {h_final:.6e}
-  Λ_proxy (final = K−I) = {Lam_final:.6e}
+  Λ_proxy (final = K-I) = {Lam_final:.6e}
 
 Heuristic mappings:
   ρ_P  ~ I * K
@@ -250,8 +250,8 @@ with open("PAEV_TestG5_Summary.txt", "w", encoding="utf-8") as f:
     f.write(summary)
 print("✅ Saved file: PAEV_TestG5_Summary.txt")
 
-print("\n=== Test G5 — Planck-Scale Unification Calibration Complete ===")
-print(f"⟨ℒ⟩ final = {E_final:.6e}")
+print("\n=== Test G5 - Planck-Scale Unification Calibration Complete ===")
+print(f"⟨L⟩ final = {E_final:.6e}")
 print(f"S (final) = {S_final:.6f}")
 print(f"G_eff     = {G_final:.6e}")
 print(f"ħ_eff     = {h_final:.6e}")

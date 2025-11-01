@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Log-to-Photon Daemon — Unified Mode (Files + Directory)
+Log-to-Photon Daemon - Unified Mode (Files + Directory)
 ------------------------------------------------------
 
 ✅ Watches one or more .log/.jsonl files OR a directory
-✅ Streams each new line → compress_to_glyphs()
+✅ Streams each new line -> compress_to_glyphs()
 ✅ Emits .photo capsules into data/qqc_field/log_photos/
 
 Usage examples:
@@ -42,7 +42,7 @@ def emit_capsule(line: str, source: str, out_dir: Path):
     out_file = out_dir / f"log_{ts}_{Path(source).name}.photo"
     out_file.write_text(json.dumps(pkt, ensure_ascii=False, indent=2))
 
-    print(f"🌀 log→photo: {out_file}")
+    print(f"🌀 log->photo: {out_file}")
 
 
 def follow_file(path: Path, pos: int, out_dir: Path):

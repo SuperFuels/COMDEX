@@ -145,7 +145,7 @@ from typing import Any, Dict
 
 class SQIEntropyField:
     """
-    Symbolic–Quantum Intelligence (SQI) entropy field controller.
+    Symbolic-Quantum Intelligence (SQI) entropy field controller.
     Provides evaluate_entropy() and measure() used by QQC Central Kernel.
     """
 

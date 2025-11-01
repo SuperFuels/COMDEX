@@ -23,7 +23,7 @@ def lint_code(code: str) -> int:
     # --- Raw alias detection before parsing ---
     for alias in ALIASES.keys():
         if alias in code:
-            issues.append(f"Alias used: {alias} → {ALIASES[alias]}")
+            issues.append(f"Alias used: {alias} -> {ALIASES[alias]}")
 
     parsed = parse_codexlang_string(code)
     if not parsed:

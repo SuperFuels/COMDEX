@@ -15,7 +15,7 @@ def test_fingerprint_stability(tracker):
     wave = {"amplitude": 1.23, "phase": 0.77, "coherence": 0.95, "timestamp": 123456.789}
     fp1 = tracker.fingerprint(wave)
     fp2 = tracker.fingerprint(wave)
-    # Same inputs → same fingerprint
+    # Same inputs -> same fingerprint
     assert fp1 == fp2
     # Verify SHA3-512 length
     assert len(fp1) == 128
@@ -28,7 +28,7 @@ def test_track_updates_coherence_and_sqi(tracker):
     assert "ΔC" in initial and "SQI_drift" in initial
     assert round(initial["SQI_drift"], 4) == round((1 - 0.9) ** 2, 4)
 
-    # Update with new coherence → drift should reflect delta
+    # Update with new coherence -> drift should reflect delta
     tracker.track(eid, 0.8)
     updated = tracker.history[eid]
     assert updated["ΔC"] == pytest.approx(-0.1, abs=1e-6)

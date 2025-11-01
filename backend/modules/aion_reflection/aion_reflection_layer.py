@@ -1,6 +1,6 @@
 """
 ==========================================================
-🧠 AION Reflection Layer — Phase 3: Linguistic Summarization
+🧠 AION Reflection Layer - Phase 3: Linguistic Summarization
 ----------------------------------------------------------
 Consumes symbolic + cognitive events and produces
 short natural-language reflections for the Thought Stream.
@@ -28,18 +28,18 @@ TEMPLATES = {
         "AION moved within stable Φ-field."
     ],
     "collect": [
-        "Pattern recognized and integrated — coherence amplified.",
+        "Pattern recognized and integrated - coherence amplified.",
         "Symbolic object acquired; entropy stabilized.",
         "AION collected a semantic construct from the grid."
     ],
     "danger": [
         "Entropy spike detected; Φ-stability breached.",
         "Encountered destabilizing resonance; self-correction initiated.",
-        "Collapse ∇ event — danger acknowledged."
+        "Collapse ∇ event - danger acknowledged."
     ],
     "symbol": [
         "New symbolic form emerged; reflective encoding updated.",
-        "Resonant glyph observed — meaning expansion in progress.",
+        "Resonant glyph observed - meaning expansion in progress.",
         "Symbolic resonance logged for later abstraction."
     ]
 }
@@ -58,7 +58,7 @@ def summarize_event(event: Dict[str, Any]) -> str:
 # 🌀 Main reflection handler
 # ----------------------------------------------------------
 async def process_reflection(event: Dict[str, Any]):
-    """Consume raw event → produce linguistic reflection → broadcast + store."""
+    """Consume raw event -> produce linguistic reflection -> broadcast + store."""
     summary = summarize_event(event)
 
     reflection_event = {

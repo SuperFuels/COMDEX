@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-⚖️ EthicsEngine — Phase 55 Upgrade
+⚖️ EthicsEngine - Phase 55 Upgrade
 ───────────────────────────────────────────────
 Evaluates AION's intended actions against Soul Laws and now interfaces
 with the global Θ-field for moral resonance feedback.
 
 Upgrades:
-  • Integrates Θ.phase_shift(confidence) for low-confidence evaluations.
-  • Emits 'ethical_reconsideration' events to the live dashboard.
+  * Integrates Θ.phase_shift(confidence) for low-confidence evaluations.
+  * Emits 'ethical_reconsideration' events to the live dashboard.
 """
 
 import yaml, os
@@ -100,7 +100,7 @@ class EthicsEngine:
             try:
                 # Phase shift + log dashboard event
                 Theta.event("ethical_reconsideration", confidence=confidence, action=action_description)
-                print(f"[Θ] Phase shift triggered → confidence={confidence:.2f}")
+                print(f"[Θ] Phase shift triggered -> confidence={confidence:.2f}")
             except Exception as e:
                 print(f"[Θ] phase shift error: {e}")
 

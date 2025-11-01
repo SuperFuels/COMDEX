@@ -21,7 +21,7 @@ def test_simple_superpose(cpu_photon):
 
 
 def test_absorption_rule(cpu_photon):
-    # a ⊕ (a ⊗ b) → a
+    # a ⊕ (a ⊗ b) -> a
     instrs = [
         {"opcode": "⊕", "args": [
             "a",
@@ -43,7 +43,7 @@ def test_double_negation(cpu_photon):
 
 
 def test_bottom_subset_any(cpu_photon):
-    # ⊥ ⊂ a → ⊤
+    # ⊥ ⊂ a -> ⊤
     instrs = [
         {"opcode": "⊂", "args": [BOTTOM, "z"]}
     ]
@@ -52,7 +52,7 @@ def test_bottom_subset_any(cpu_photon):
 
 
 def test_similarity_reflexive(cpu_photon):
-    # x ≈ x → ⊤
+    # x ≈ x -> ⊤
     instrs = [
         {"opcode": "≈", "args": ["x", "x"]}
     ]
@@ -61,7 +61,7 @@ def test_similarity_reflexive(cpu_photon):
 
 
 def test_projection_expansion(cpu_photon):
-    # ★(a↔b) → (★a) ⊕ (★b)
+    # ★(a↔b) -> (★a) ⊕ (★b)
     instrs = [
         {"opcode": "★", "args": [
             {"opcode": "↔", "args": ["m", "n"]}
@@ -78,5 +78,5 @@ def test_empty_identity(cpu_photon):
         {"opcode": "⊕", "args": ["p", EMPTY]}
     ]
     out = cpu_photon.execute_instruction_list(instrs)
-    # p ⊕ ∅ → p
+    # p ⊕ ∅ -> p
     assert out[0] == "p"

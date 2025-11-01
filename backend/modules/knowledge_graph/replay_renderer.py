@@ -119,7 +119,7 @@ class GlyphReplayRenderer:
         """
         self.current_replay = replay_entry
         self.current_frame_index = 0
-        print(f"🎞️ Loaded replay: {len(replay_entry['glyphs'])} glyphs, ticks {replay_entry['tick_start']} → {replay_entry['tick_end']}")
+        print(f"🎞️ Loaded replay: {len(replay_entry['glyphs'])} glyphs, ticks {replay_entry['tick_start']} -> {replay_entry['tick_end']}")
 
     def play(self, frame_delay: float = 0.2):
         """

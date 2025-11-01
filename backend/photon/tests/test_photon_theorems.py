@@ -42,4 +42,4 @@ def test_theorem_results():
 
     path = pathlib.Path("docs/rfc/photon_core_spec.md")
     path.write_text("\n".join(lines), encoding="utf-8")
-    print(f"📄 Photon Core RFC updated → {path}")
+    print(f"📄 Photon Core RFC updated -> {path}")

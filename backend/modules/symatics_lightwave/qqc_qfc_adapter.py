@@ -1,5 +1,5 @@
 """
-Tessaris • QQC–QFC Adapter (πₛ Phase Closure Bridge)
+Tessaris * QQC-QFC Adapter (πs Phase Closure Bridge)
 ----------------------------------------------------
 Bridges Symatics LightWave Engine events (BeamEventBus)
 with GHX/QFC visual telemetry channels.
@@ -7,7 +7,7 @@ with GHX/QFC visual telemetry channels.
 Listens for beam collapse & coherence metrics, and
 forwards them to GHX/QFC overlays via GHXVisualBridge.
 
-Implements πₛ closure — completing the feedback
+Implements πs closure - completing the feedback
 between symbolic, photonic, and holographic layers.
 """
 
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class QQCQFCAdapter:
-    """Bridges beam telemetry from LightWave → GHX/QFC Visualizer."""
+    """Bridges beam telemetry from LightWave -> GHX/QFC Visualizer."""
 
     def __init__(self, max_buffer: int = 128):
         self.metrics_buffer = deque(maxlen=max_buffer)
@@ -30,7 +30,7 @@ class QQCQFCAdapter:
         self._ghx_bridge = None
 
     def start(self):
-        """Subscribe to BeamEventBus and activate πₛ closure bridge."""
+        """Subscribe to BeamEventBus and activate πs closure bridge."""
         if self.active:
             logger.warning("[QQCQFCAdapter] Bridge already active.")
             return
@@ -52,12 +52,12 @@ class QQCQFCAdapter:
             self._ghx_bridge = None
 
         self.active = True
-        logger.info("[QQCQFCAdapter] 🌐 GHX↔QWave bridge activated (πₛ closure on).")
+        logger.info("[QQCQFCAdapter] 🌐 GHX↔QWave bridge activated (πs closure on).")
 
     def stop(self):
         """Deactivate the feedback bridge."""
         self.active = False
-        logger.info("[QQCQFCAdapter] 💤 Bridge deactivated (πₛ closure off).")
+        logger.info("[QQCQFCAdapter] 💤 Bridge deactivated (πs closure off).")
 
     def _on_event(self, event: BeamEvent):
         """Receive BeamEvent and forward to GHX/QFC channel."""
@@ -82,7 +82,7 @@ class QQCQFCAdapter:
         if self._ghx_bridge:
             try:
                 asyncio.create_task(self._ghx_bridge.broadcast_frame())
-                logger.info(f"[QQCQFCAdapter] 📡 Forwarded event → {event.event_type} | q={payload['qscore']:.2f}")
+                logger.info(f"[QQCQFCAdapter] 📡 Forwarded event -> {event.event_type} | q={payload['qscore']:.2f}")
             except Exception as e:
                 logger.warning(f"[QQCQFCAdapter] ⚠️ Broadcast failed: {e}")
         else:

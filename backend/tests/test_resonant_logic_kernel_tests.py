@@ -13,7 +13,7 @@ def test_resonant_logic_kernel_tests(tmp_path):
     validator = ResonantLogicKernelTests(output_path=str(output_path))
     report = validator.run()
 
-    # Check run status — must be either 'ok' or 'drift'
+    # Check run status - must be either 'ok' or 'drift'
     assert report["status"] in ("ok", "drift"), f"RLK validator failed: {report}"
     assert 0.0 <= report["pass_rate"] <= 1.0
 

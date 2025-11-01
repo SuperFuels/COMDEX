@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test C1 — Spacetime Rewrite Equivalence (Toy Discrete Manifold)
+Test C1 - Spacetime Rewrite Equivalence (Toy Discrete Manifold)
 
 Goal
 ----
@@ -12,7 +12,7 @@ Setup
 -----
 - 2D lattice (NxN) with coordinates (i,j), i,j ∈ {0..N-1}.
 - Synthetic curvature field κ(i,j): a Gaussian "mass" bump.
-- Geometric cost (local line element): w(i,j) = 1 + κ(i,j) ≥ 1.
+- Geometric cost (local line element): w(i,j) = 1 + κ(i,j) >= 1.
 - Geodesic distance from a source s via Dijkstra using edge cost = average of w.
 
 Rewrite metric
@@ -148,7 +148,7 @@ def main():
     sigma = 9.0
     amp = 1.5                        # curvature amplitude
     kappa = gaussian_bump(N, cx, cy, sigma, amp)  # "mass/curvature"
-    w = 1.0 + kappa                  # local cost ≥ 1
+    w = 1.0 + kappa                  # local cost >= 1
 
     src = (N//2, N//2 - 18)          # source to the left of the bump
 
@@ -156,7 +156,7 @@ def main():
     D_geo = dijkstra_geodesic(w, src)
     D_rw_steps = rewrite_distance(w, src, eps=1e-4, max_steps=4000)
 
-    # mask unreachable (shouldn’t happen), normalize both to [0,1] for comparison
+    # mask unreachable (shouldn't happen), normalize both to [0,1] for comparison
     geo = D_geo.copy()
     rw = D_rw_steps.copy()
     # avoid infinities
@@ -171,7 +171,7 @@ def main():
     r = correlate(geo_n, rw_n)
     mse = float(np.mean((geo_n - rw_n)**2))
 
-    print("=== Test C1 — Spacetime Rewrite Equivalence (Toy Manifold) ===")
+    print("=== Test C1 - Spacetime Rewrite Equivalence (Toy Manifold) ===")
     print(f"Lattice: {N}x{N}, Gaussian curvature bump amp={amp}, sigma={sigma}")
     print(f"Source at {src}")
     print(f"Pearson r( D_geo , D_rw )   = {r:.4f}")
@@ -213,7 +213,7 @@ def main():
 
     plt.xlabel("Geodesic distance (normalized)")
     plt.ylabel("Rewrite distance (normalized)")
-    plt.title("Test C1 — Rewrite vs Geodesic Distance")
+    plt.title("Test C1 - Rewrite vs Geodesic Distance")
     plt.legend()
     plt.tight_layout()
     plt.savefig("PAEV_TestC1_SpacetimeRewrite_Scatter.png", dpi=180)

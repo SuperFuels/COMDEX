@@ -83,7 +83,7 @@ class ExhaustModule:
     def _check_and_inject_harmonics(self, engine):
         coherence = measure_harmonic_coherence(engine)
         if coherence < 0.5:
-            print(f"🎼 Harmonic coherence low ({coherence:.3f}) → Injecting harmonics")
+            print(f"🎼 Harmonic coherence low ({coherence:.3f}) -> Injecting harmonics")
             if hasattr(engine, "injectors") and hasattr(engine, "chambers"):
                 inject_harmonics(engine, HyperdriveTuningConstants.HARMONIC_DEFAULTS)
             else:
@@ -101,7 +101,7 @@ class ExhaustModule:
         if energy > 5.0:
             engine.fields["gravity"] = max(engine.fields["gravity"] - 0.02, 0.1)
             engine.fields["magnetism"] = max(engine.fields["magnetism"] - 0.01, 0.1)
-            print(f"🫀 SQI Damp: High exhaust energy ({energy:.3f}) → Gravity/Magnetism reduced")
+            print(f"🫀 SQI Damp: High exhaust energy ({energy:.3f}) -> Gravity/Magnetism reduced")
 
     def _apply_oscillation_damp(self, engine):
         if engine.sqi_enabled and len(engine.exhaust_log) > 10:
@@ -109,7 +109,7 @@ class ExhaustModule:
             oscillation = max(last_exhaust) - min(last_exhaust)
             if oscillation > 50:
                 engine.fields["wave_frequency"] *= 0.98
-                print(f"🔧 [SQI-inline] Oscillation damp: wave_frequency → {engine.fields['wave_frequency']:.3f}")
+                print(f"🔧 [SQI-inline] Oscillation damp: wave_frequency -> {engine.fields['wave_frequency']:.3f}")
 
     def _emit_exhaust_wave(self, engine, energy):
         phase = engine.resonance_filtered[-1] if engine.resonance_filtered else 0
@@ -130,7 +130,7 @@ class ExhaustModule:
     def _check_sqi_signature(self, engine, impacts):
         recent_energies = [imp["energy"] for imp in impacts[-5:] if "energy" in imp]
         if len(recent_energies) >= 5 and max(recent_energies) - min(recent_energies) < 0.2:
-            print("🫀 Pulse signature confirmed in exhaust oscillation → SQI tuning engaged")
+            print("🫀 Pulse signature confirmed in exhaust oscillation -> SQI tuning engaged")
             HyperdriveAutoTuner.dynamic_adjust(engine, measure_harmonic_coherence(engine))
 
     def _log_snapshot(self, engine, impacts):

@@ -1,5 +1,5 @@
 # ================================================================
-# 🔮  Aion Resonant Forecast Engine — Phase 52A–B
+# 🔮  Aion Resonant Forecast Engine - Phase 52A-B
 # Predicts next-session resonance states from historical trends
 # and spectral harmonic modulation (Phase 51 integration)
 # ================================================================
@@ -70,7 +70,7 @@ def compute_resonant_forecast() -> Dict[str, Any]:
     FORECAST_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(forecast, open(FORECAST_PATH, "w"), indent=2)
     logger.info(
-        f"[Forecast] Exported forecast → {FORECAST_PATH} | ρ_next={rho_next}, Ī_next={I_next}, SQI_next={SQI_next}"
+        f"[Forecast] Exported forecast -> {FORECAST_PATH} | ρ_next={rho_next}, Ī_next={I_next}, SQI_next={SQI_next}"
     )
     return forecast
 

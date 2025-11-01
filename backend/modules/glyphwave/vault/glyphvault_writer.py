@@ -1,5 +1,5 @@
 """
-🟣 GlyphVaultWriter — SRK-14 Task 5
+🟣 GlyphVaultWriter - SRK-14 Task 5
 Unified Photon Memory Grid + Resonance Ledger Snapshot Exporter.
 
 Combines live photonic state persistence (PMG) with the temporal
@@ -7,9 +7,9 @@ resonance graph (ResonanceLedger) to produce a consolidated
 GlyphVault artifact (.ghx bundle).
 
 New in SRK-14.5:
- • Vault merge of PMG + Ledger snapshots
- • Lyapunov stability & entropy signature metadata
- • AES-QKD hybrid encryption persistence path
+ * Vault merge of PMG + Ledger snapshots
+ * Lyapunov stability & entropy signature metadata
+ * AES-QKD hybrid encryption persistence path
 """
 
 import json

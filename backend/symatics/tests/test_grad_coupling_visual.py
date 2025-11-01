@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.6 — Visualization: λ↔ψ Coupling Dynamics
+# Tessaris Symatics v0.6 - Visualization: λ↔ψ Coupling Dynamics
 # Produces Figure 3 for Volume VII specification.
 # ──────────────────────────────────────────────────────────────
 
@@ -30,7 +30,7 @@ engine.register_field("λ", λ0)
 energy_trace, coherence_trace, lambda_trace = [], [], []
 
 # ──────────────────────────────────────────────────────────────
-# Simulation loop — coupled evolution
+# Simulation loop - coupled evolution
 # ──────────────────────────────────────────────────────────────
 for t in range(150):
     ψ_prev = engine.fields["ψ"].copy()
@@ -83,9 +83,9 @@ ax[0].set_ylabel("λ")
 ax[1].set_ylabel("Energy")
 ax[2].set_ylabel("Coherence")
 
-fig.suptitle("Tessaris Symatics — Resonant Coupling Dynamics (λ↔ψ↔E↔C)", fontsize=12)
+fig.suptitle("Tessaris Symatics - Resonant Coupling Dynamics (λ↔ψ↔E↔C)", fontsize=12)
 plt.savefig(output_path, dpi=200)
 plt.close(fig)
 
 print(f"✅ Saved {output_path}")
-print("🎨 Visualization complete — ready for Volume VII Figure Set.")
+print("🎨 Visualization complete - ready for Volume VII Figure Set.")

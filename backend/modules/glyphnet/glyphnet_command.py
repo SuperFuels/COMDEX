@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 # Regex now captures command keyword + payload
 COMMAND_PATTERN = re.compile(r"⌘\s*(\w+)\s*(⟦.+⟧)")
 
-# Registry of command → handler
+# Registry of command -> handler
 COMMAND_HANDLERS: Dict[str, Callable[[str, Optional[Dict[str, Any]]], Dict[str, Any]]] = {}
 
 def register_command(name: str, handler: Callable[[str, Optional[Dict[str, Any]]], Dict[str, Any]]):

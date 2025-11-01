@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 30 — Adaptive Quantum Control Interface (AQCI)
+Tessaris Phase 30 - Adaptive Quantum Control Interface (AQCI)
 ──────────────────────────────────────────────────────────────
 The AQCI forms the adaptive feedback layer in the Tessaris Resonant Stack.
-It receives coherence-delta packets (Δ𝒞) from TCFK and continuously
+It receives coherence-delta packets (ΔC) from TCFK and continuously
 adjusts the global bias parameters applied to RQFS and MRTC.
 
 Core update law:
-    ν_bias(t+1) = ν_bias(t) + kν · Δ𝒞
-    ϕ_bias(t+1) = ϕ_bias(t) + kϕ · Δ𝒞
-    α_bias(t+1) = α_bias(t) + kα · Δ𝒞
+    ν_bias(t+1) = ν_bias(t) + kν * ΔC
+    φ_bias(t+1) = φ_bias(t) + kφ * ΔC
+    α_bias(t+1) = α_bias(t) + kα * ΔC
 
 WebSocket roles:
-    • Input  ←  ws://localhost:8005/ws/fusion (from TCFK)
-    • Output →  ws://localhost:8006/ws/rqfs_feedback (to RQFS)
-    • Dashboard →  ws://localhost:8004/ws/control (for live bias view)
+    * Input  <-  ws://localhost:8005/ws/fusion (from TCFK)
+    * Output ->  ws://localhost:8006/ws/rqfs_feedback (to RQFS)
+    * Dashboard ->  ws://localhost:8004/ws/control (for live bias view)
 """
 
 import asyncio, json, websockets
@@ -65,7 +65,7 @@ async def aqci_ws(websocket):
 # Adaptive Control Law
 # ─────────────────────────────────────────────
 def apply_control_law(delta_c: float):
-    """Integrate Δ𝒞 into adaptive biases."""
+    """Integrate ΔC into adaptive biases."""
     bias_state["nu_bias"]  += GAINS["k_nu"]  * delta_c
     bias_state["phi_bias"] += GAINS["k_phi"] * delta_c
     bias_state["amp_bias"]  = max(0.0, min(1.0,
@@ -74,13 +74,13 @@ def apply_control_law(delta_c: float):
     return bias_state.copy()
 
 async def handle_coherence_adjustment(delta: float):
-    """React to new Δ𝒞 from TCFK."""
+    """React to new ΔC from TCFK."""
     new_bias = apply_control_law(delta)
     # Log
     with open(CONTROL_LOG, "a") as f:
         f.write(json.dumps({"delta": delta, "bias": new_bias}) + "\n")
 
-    print(f"🧬 ΔC={delta:+.5f} → ν={new_bias['nu_bias']:+.5f} ϕ={new_bias['phi_bias']:+.5f} α={new_bias['amp_bias']:+.5f}")
+    print(f"🧬 ΔC={delta:+.5f} -> ν={new_bias['nu_bias']:+.5f} φ={new_bias['phi_bias']:+.5f} α={new_bias['amp_bias']:+.5f}")
 
     # Broadcast to dashboards
     if CLIENTS:
@@ -102,7 +102,7 @@ async def handle_coherence_adjustment(delta: float):
 # Input Listener (from TCFK)
 # ─────────────────────────────────────────────
 async def listen_tcfk():
-    """Subscribe to TCFK fusion stream and extract Δ𝒞."""
+    """Subscribe to TCFK fusion stream and extract ΔC."""
     print(f"🧠 Listening for TCFK coherence deltas on {TCFK_STREAM}")
     while True:
         try:
@@ -115,14 +115,14 @@ async def listen_tcfk():
                     except Exception:
                         continue
         except Exception as e:
-            print(f"⚠️ TCFK stream error: {e}, retrying…")
+            print(f"⚠️ TCFK stream error: {e}, retrying...")
             await asyncio.sleep(3)
 
 # ─────────────────────────────────────────────
 # Orchestration
 # ─────────────────────────────────────────────
 async def main():
-    print("🧬 Starting Tessaris Adaptive Quantum Control Interface (AQCI)…")
+    print("🧬 Starting Tessaris Adaptive Quantum Control Interface (AQCI)...")
     await websockets.serve(aqci_ws, "0.0.0.0", AQCI_PORT)
     print(f"🌐 AQCI running on ws://0.0.0.0:{AQCI_PORT}/ws/control")
     await listen_tcfk()  # single main loop

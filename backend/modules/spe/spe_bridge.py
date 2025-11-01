@@ -2,7 +2,7 @@
 # 📁 backend/modules/spe/spe_bridge.py
 # ===============================
 """
-SPE Bridge — Symbolic Pattern Engine ↔ QWave/SQI interface
+SPE Bridge - Symbolic Pattern Engine ↔ QWave/SQI interface
 
 Provides recombination and drift-repair entrypoints for beams.
 Hooks into DNA mutation tracker + autofuse flag.
@@ -92,7 +92,7 @@ def maybe_autofuse(beams: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     Otherwise return beams untouched.
     """
     if SPE_AUTO_FUSE:
-        logger.info("[SPE] Autofuse enabled → recombining beams")
+        logger.info("[SPE] Autofuse enabled -> recombining beams")
         return recombine_from_beams(beams)
     return beams
 

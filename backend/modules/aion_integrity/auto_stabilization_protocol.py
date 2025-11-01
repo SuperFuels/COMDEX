@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 21 — Auto-Stabilization Protocol (ASP)
+Tessaris Phase 21 - Auto-Stabilization Protocol (ASP)
 
 Responds to CLRA coherence alerts and dynamically re-biases
 the AION ↔ QQC field parameters to restore harmonic balance.
@@ -47,13 +47,13 @@ def apply_correction(weights, coherence, status):
     return weights
 
 def stabilization_loop():
-    print("🩺 Starting Tessaris Auto-Stabilization Protocol (ASP)…")
+    print("🩺 Starting Tessaris Auto-Stabilization Protocol (ASP)...")
     while True:
         audit = load_last(CLRA_LOG)
         weights = load_last(RFC_PATH)
 
         if not (audit and weights):
-            print("⚠️ Waiting for CLRA and RFC telemetry …")
+            print("⚠️ Waiting for CLRA and RFC telemetry ...")
             time.sleep(INTERVAL)
             continue
 
@@ -79,9 +79,9 @@ def stabilization_loop():
         with open(RFC_PATH, "a") as f:
             f.write(json.dumps(new_weights) + "\n")
 
-        print(f"t={entry['timestamp']} | {status}→ applied Δ ("
+        print(f"t={entry['timestamp']} | {status}-> applied Δ ("
               f"ν={new_weights['nu_bias']:+.4f}, "
-              f"ϕ={new_weights['phase_offset']:+.4f}, "
+              f"φ={new_weights['phase_offset']:+.4f}, "
               f"A={new_weights['amp_gain']:+.4f})")
 
         time.sleep(INTERVAL)

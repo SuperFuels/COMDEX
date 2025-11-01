@@ -36,9 +36,9 @@ class SymIOPhotonics:
         freq_range : array-like
             Optical frequency values (Hz)
         tap_ratios : array-like
-            Detector tap ratios R (0–1)
+            Detector tap ratios R (0-1)
         k_phi : float or None
-            Optional phase–collapse constant (default c^2)
+            Optional phase-collapse constant (default c^2)
 
         Returns
         -------

@@ -1,5 +1,5 @@
 # ================================================================
-# 🌀 Phase 45F.7 — Resonant Feedback Learning Engine
+# 🌀 Phase 45F.7 - Resonant Feedback Learning Engine
 # ================================================================
 """
 Adapts the MeaningFieldEngine (MFG) resonance weights based on
@@ -70,7 +70,7 @@ class ResonantFeedbackEngine:
                     "learning_rate": self.learning_rate
                 }
             }, f, indent=2)
-        logger.info(f"[Feedback] Exported adapted tensor → {OUT_PATH}")
+        logger.info(f"[Feedback] Exported adapted tensor -> {OUT_PATH}")
 
 # ------------------------------------------------------------
 # CLI Entry

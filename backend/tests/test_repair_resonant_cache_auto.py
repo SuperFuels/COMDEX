@@ -18,7 +18,7 @@ def auto_repair():
         return
 
     CACHE.replace(BACKUP)
-    print(f"[Backup] Created → {BACKUP}")
+    print(f"[Backup] Created -> {BACKUP}")
 
     text = BACKUP.read_text(errors="ignore")
 
@@ -35,12 +35,12 @@ def auto_repair():
     try:
         data = json.loads(text)
         CACHE.write_text(json.dumps(data, indent=2))
-        print(f"✅ Auto-repaired and saved → {CACHE}")
+        print(f"✅ Auto-repaired and saved -> {CACHE}")
         print(f"✅ Valid entries: {len(data)}")
     except Exception as e:
         print(f"❌ Still invalid: {e}")
         print("Please inspect the backup manually:")
-        print(f"   → {BACKUP}")
+        print(f"   -> {BACKUP}")
 
 if __name__ == "__main__":
     auto_repair()

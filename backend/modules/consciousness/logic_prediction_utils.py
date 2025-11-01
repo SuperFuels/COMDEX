@@ -4,7 +4,7 @@ from typing import Dict, Any, Optional
 
 class LogicPredictionUtils:
     """
-    LogicPredictionUtils — wrapper around symbolic logic analysis tools.
+    LogicPredictionUtils - wrapper around symbolic logic analysis tools.
     Provides contradiction detection for logical ASTs (used by CognitiveDispatcher).
     """
 

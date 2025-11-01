@@ -1,5 +1,5 @@
 """
-🔷 Photon Capsule Validator — Schema Enforcement Layer (SRK-10)
+🔷 Photon Capsule Validator - Schema Enforcement Layer (SRK-10)
 Ensures all photon capsules conform to the canonical
 `photon_capsule_schema.json` definition before QKD or Codex transfer.
 

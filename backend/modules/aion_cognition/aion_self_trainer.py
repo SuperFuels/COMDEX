@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-🧠 AION Self-Trainer — Phase 47D
+🧠 AION Self-Trainer - Phase 47D
 ────────────────────────────────────────────
 Adaptive reinforcement for weak or low-stability
 concepts across LexMemory and ResonantMemoryCache.
 
 Integrations:
-  • SQI trend persistence and plotting
-  • Live dashboard JSONL logging
-  • Bridge sync via aion_bridge_feed.json (for Aion🧠 dashboard)
+  * SQI trend persistence and plotting
+  * Live dashboard JSONL logging
+  * Bridge sync via aion_bridge_feed.json (for Aion🧠 dashboard)
 """
 
 import json, random, time, logging
@@ -81,7 +81,7 @@ def log_dashboard_event(cycle: int, sqi: float, stability: float, success_rate: 
         f.write(json.dumps(event) + "\n")
 
     BRIDGE_FEED.write_text(json.dumps(event, indent=2))
-    log.info(f"[Dashboard] 📡 Synced training event → {DASHBOARD_LOG}")
+    log.info(f"[Dashboard] 📡 Synced training event -> {DASHBOARD_LOG}")
 
 
 def reinforce_entry(lemma: str, definition: str, sqi: float, stability: float):
@@ -137,7 +137,7 @@ def run_self_training(limit: int = 500):
         and (v.get("SQI", 0.0) < 0.7 or v.get("stability", 1.0) < 0.8)
     ]
     random.shuffle(weak)
-    log.info(f"[SelfTrainer] Detected {len(weak)} weak entries (reinforcing ≤ {limit})")
+    log.info(f"[SelfTrainer] Detected {len(weak)} weak entries (reinforcing <= {limit})")
 
     sqi_samples, stab_samples = [], []
     count = success = 0
@@ -191,17 +191,17 @@ def run_self_training(limit: int = 500):
     plt.ylabel("Symatic Quality Index (SQI)")
     plt.grid(True)
     plt.savefig(PLOT_PATH)
-    log.info(f"📈 SQI progress plot saved → {PLOT_PATH}")
+    log.info(f"📈 SQI progress plot saved -> {PLOT_PATH}")
 
     log_dashboard_event(len(SQI_HISTORY), avg_sqi, avg_stab, success_rate)
 
     # ✅ SCI cycle complete
     sci_emit("selftrain_cycle", summary)
 
-    log.info(f"[SelfTrainer] ✅ Completed → {REPORT_PATH}")
+    log.info(f"[SelfTrainer] ✅ Completed -> {REPORT_PATH}")
     return summary
 
 
 if __name__ == "__main__":
-    log.info("🧠 AION Self-Trainer — Phase 47D starting...")
+    log.info("🧠 AION Self-Trainer - Phase 47D starting...")
     run_self_training(limit=400)

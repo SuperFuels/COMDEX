@@ -1,13 +1,13 @@
 """
-Phase 45G — Brain Resonance Test Harness
+Phase 45G - Brain Resonance Test Harness
 ──────────────────────────────────────────────
 Validates live cognitive behaviors inside the inflated
 Hoberman Knowledge Sphere (AION Brain).
 
 Tests:
-    • Symbolic superposition (⊕)
-    • Entanglement linkage (↔)
-    • Resonance / collapse (⟲ / ∇)
+    * Symbolic superposition (⊕)
+    * Entanglement linkage (↔)
+    * Resonance / collapse (⟲ / ∇)
 Outputs:
     data/metrics/resonance_tests.log
     data/metrics/resonance_spectrum.json
@@ -22,7 +22,7 @@ from pathlib import Path
 from statistics import mean
 from random import random
 
-# ✅ Updated imports — direct from QMathWaveOps
+# ✅ Updated imports - direct from QMathWaveOps
 from backend.quant.qmath.qmath_waveops import superpose, entangle, resonate, collapse, measure
 from backend.modules.dimensions.containers.hoberman_container import HobermanContainer
 
@@ -48,7 +48,7 @@ class BrainResonanceTest:
 
     # ─────────────────────────────────────────
     def test_superposition(self):
-        """⊕ — Symbolic superposition test"""
+        """⊕ - Symbolic superposition test"""
         a, b = cmath.exp(1j * random()), cmath.exp(1j * random())
         ψ = superpose(a, b)
         coherence = abs(ψ)
@@ -58,7 +58,7 @@ class BrainResonanceTest:
 
     # ─────────────────────────────────────────
     def test_entanglement(self):
-        """↔ — Entanglement linkage test"""
+        """↔ - Entanglement linkage test"""
         a, b = cmath.exp(1j * random()), cmath.exp(1j * random())
         ea, eb, ρ = entangle(a, b)
         self.results["entanglement"].append(ρ)
@@ -67,7 +67,7 @@ class BrainResonanceTest:
 
     # ─────────────────────────────────────────
     def test_resonance_and_collapse(self):
-        """⟲ / ∇ — Resonance and collapse cycle test"""
+        """⟲ / ∇ - Resonance and collapse cycle test"""
         a = cmath.exp(1j * random())
         r = resonate(a, feedback=0.15, damping=0.92, steps=5)
         I = collapse(r)
@@ -87,7 +87,7 @@ class BrainResonanceTest:
         SPECTRUM_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(SPECTRUM_PATH, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)
-        self._log(f"✅ Exported resonance spectrum → {SPECTRUM_PATH}")
+        self._log(f"✅ Exported resonance spectrum -> {SPECTRUM_PATH}")
         return summary
 
     # ─────────────────────────────────────────
@@ -105,7 +105,7 @@ class BrainResonanceTest:
 # CLI Entry
 # ─────────────────────────────────────────
 if __name__ == "__main__":
-    print("🧠 Running AION Brain Resonance Tests…")
+    print("🧠 Running AION Brain Resonance Tests...")
     test = BrainResonanceTest()
     results = test.run_all()
     print(json.dumps(results, indent=2))

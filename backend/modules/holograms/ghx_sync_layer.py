@@ -1,5 +1,5 @@
 """
-🧩 SRK-17 — GHX-Link Ledger Binding & Continuity Export
+🧩 SRK-17 - GHX-Link Ledger Binding & Continuity Export
 Module: backend/modules/holograms/ghx_sync_layer.py
 
 Purpose:
@@ -9,10 +9,10 @@ Purpose:
     CodexTrace continuity tracking.
 
 Phases:
-    • SRK-17 Task 1 — Resonance Ledger ⇄ GHX Sync Layer
-    • SRK-17 Task 2 — PMG Snapshot Binder (temporal-state linkage)
-    • SRK-17 Task 3 — USR Telemetry → GHX Trace Encoder
-    • SRK-17 Task 4 — GHX Bundle Validator
+    * SRK-17 Task 1 - Resonance Ledger ⇄ GHX Sync Layer
+    * SRK-17 Task 2 - PMG Snapshot Binder (temporal-state linkage)
+    * SRK-17 Task 3 - USR Telemetry -> GHX Trace Encoder
+    * SRK-17 Task 4 - GHX Bundle Validator
 """
 
 import time
@@ -32,7 +32,7 @@ from backend.modules.holograms.ghx_bundle_validator import GHXBundleValidator
 
 
 class GHXSyncLayer:
-    """SRK-17 — GHX-Link Ledger Binding & Continuity Export"""
+    """SRK-17 - GHX-Link Ledger Binding & Continuity Export"""
 
     def __init__(self, container_id: str = "ghx_sync"):
         """
@@ -49,12 +49,12 @@ class GHXSyncLayer:
     # ────────────────────────────────────────────────────────────────
     async def assemble_bundle(self) -> dict:
         """
-        SRK-17 Task 1 — collect state from all layers and create a verified GHX bundle.
+        SRK-17 Task 1 - collect state from all layers and create a verified GHX bundle.
         Includes:
-            • PMG snapshot
-            • Resonance Ledger snapshot
-            • USR telemetry
-            • Encoded GHX Trace (Task 3)
+            * PMG snapshot
+            * Resonance Ledger snapshot
+            * USR telemetry
+            * Encoded GHX Trace (Task 3)
         """
         pmg_snapshot = await self.pmg.snapshot_async()
         ledger_snapshot = await self.ledger.snapshot_async()
@@ -87,10 +87,10 @@ class GHXSyncLayer:
     # ────────────────────────────────────────────────────────────────
     def _bind_pmg_snapshot(self, pmg_snapshot: Dict[str, Any]) -> Dict[str, Any]:
         """
-        SRK-17 Task 2 — PMG Snapshot Binder (temporal-state linkage)
+        SRK-17 Task 2 - PMG Snapshot Binder (temporal-state linkage)
         Attaches temporal linkage info to a PMG snapshot:
-            • binder_seq — monotonic binder ID (ms)
-            • prev_hash / curr_hash — continuity chain
+            * binder_seq - monotonic binder ID (ms)
+            * prev_hash / curr_hash - continuity chain
         """
         states = pmg_snapshot.get("states", {})
         bind_seq = int(time.time() * 1_000)
@@ -111,7 +111,7 @@ class GHXSyncLayer:
     # ────────────────────────────────────────────────────────────────
     async def assemble_bundle_with_pmg_binder(self) -> dict:
         """
-        SRK-17 Task 2 + Task 3 — Assemble GHX bundle including PMG Binder
+        SRK-17 Task 2 + Task 3 - Assemble GHX bundle including PMG Binder
         and GHX Trace for temporal-state continuity and telemetry verification.
         """
         pmg_snapshot = (
@@ -157,7 +157,7 @@ class GHXSyncLayer:
     # ────────────────────────────────────────────────────────────────
     async def verify_trace_integrity(self, bundle: Dict[str, Any]) -> bool:
         """
-        SRK-17 Task 3 — verify embedded GHX trace integrity before export.
+        SRK-17 Task 3 - verify embedded GHX trace integrity before export.
         """
         ghx_trace = bundle.get("ghx_trace", {})
         if not ghx_trace:
@@ -167,7 +167,7 @@ class GHXSyncLayer:
     # ────────────────────────────────────────────────────────────────
     async def validate_bundle(self, bundle: Dict[str, Any]) -> Dict[str, Any]:
         """
-        SRK-17 Task 4 — Validate GHX bundle integrity and trace signatures.
+        SRK-17 Task 4 - Validate GHX bundle integrity and trace signatures.
         """
         validator = GHXBundleValidator()
         result = validator.validate_bundle(bundle)
@@ -180,7 +180,7 @@ class GHXSyncLayer:
 
     async def propagate_validated_bundle(self, bundle: Dict[str, Any]) -> Dict[str, Any]:
         """
-        SRK-17 Task 5 — Propagate a validated GHX bundle into the distributed ledger.
+        SRK-17 Task 5 - Propagate a validated GHX bundle into the distributed ledger.
         """
         dls = GHXDistributedSynchronizer()
         record = await dls.register_bundle(bundle)

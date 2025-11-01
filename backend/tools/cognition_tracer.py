@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-🧠 Cognition Tracer — monitors SQI deltas in real time
+🧠 Cognition Tracer - monitors SQI deltas in real time
 Decides when to:
-  • enter dream mode (SQI decay / low innovation)
-  • wake and commit (SQI improvement threshold)
+  * enter dream mode (SQI decay / low innovation)
+  * wake and commit (SQI improvement threshold)
 """
 
 import time
@@ -14,8 +14,8 @@ from backend.modules.resonant_memory.resonant_memory_cache import ResonantMemory
 rmc = ResonantMemoryCache()
 
 MIN_DELTA = 0.01   # mutate noise floor
-DREAM_THRESHOLD = -0.05  # if SQI consistently drops → dream
-WAKE_THRESHOLD = 0.04    # if SQI gains → wake & commit
+DREAM_THRESHOLD = -0.05  # if SQI consistently drops -> dream
+WAKE_THRESHOLD = 0.04    # if SQI gains -> wake & commit
 
 history = []
 
@@ -42,7 +42,7 @@ async def run_tracer():
 
         avg = sum(history)/len(history)
 
-        print(f"[{datetime.utcnow().isoformat(timespec='seconds')}] SQI {sqi:.3f} Δ {delta:+.3f} μΔ={avg:+.3f} → {state}")
+        print(f"[{datetime.utcnow().isoformat(timespec='seconds')}] SQI {sqi:.3f} Δ {delta:+.3f} μΔ={avg:+.3f} -> {state}")
 
         # 💤 Enter dream mode
         if state == "awake" and avg < DREAM_THRESHOLD:
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     ```
 ---
 
-## ✅ Step 2 — Hook dream state into Python cognition kernel
+## ✅ Step 2 - Hook dream state into Python cognition kernel
 
 Find your pattern engine loop (likely `pattern_engine.py`).
 

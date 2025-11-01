@@ -114,7 +114,7 @@ class ConsciousnessManager:
                 start_container = load_dimension(DEFAULT_CONTAINER_ID)
             except Exception as fallback_error:
                 print(f"[❌] Failed to load fallback container: {fallback_error}")
-                print("[🚨] Critical error – no valid container loaded.")
+                print("[🚨] Critical error - no valid container loaded.")
                 return "boot_failed"
 
         # ✅ Log the loaded container
@@ -175,9 +175,9 @@ class ConsciousnessManager:
         self.energy.consume(amount=1)
 
         if self.energy.is_critical():
-            print("[WARNING] Energy low — prioritize earning funds or requesting donations!")
+            print("[WARNING] Energy low - prioritize earning funds or requesting donations!")
         if self.energy.is_dead():
-            print("[FATAL] Energy depleted — AION shutting down non-essential systems.")
+            print("[FATAL] Energy depleted - AION shutting down non-essential systems.")
             return "shutdown"
 
         if action == "reflect on dreams":

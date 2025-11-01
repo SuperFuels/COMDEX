@@ -7,7 +7,7 @@ try:
     from backend.modules.visualization.qfc_websocket_bridge import broadcast_qfc_update
 except ImportError:
     broadcast_qfc_update = None
-    print("⚠️ QFC bridge not found — QWave transfer disabled.")
+    print("⚠️ QFC bridge not found - QWave transfer disabled.")
 
 
 def build_qwave_packet(source: str, beam_data: Dict[str, Any]) -> Dict[str, Any]:

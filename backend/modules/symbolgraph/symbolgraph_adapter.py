@@ -56,7 +56,7 @@ class SymbolGraphAdapter:
                 result=collapse_value,
                 score=score
             )
-            logger.info(f"[SymbolGraph] 📥 Recorded collapse for {glyph_id} → {collapse_value} (score={score})")
+            logger.info(f"[SymbolGraph] 📥 Recorded collapse for {glyph_id} -> {collapse_value} (score={score})")
         except Exception as e:
             logger.warning(f"[SymbolGraph] ⚠️ Failed to record collapse for {glyph_id}: {e}")
 

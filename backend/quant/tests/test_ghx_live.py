@@ -5,7 +5,7 @@
 🧭 GHX Live Telemetry Stream Test
 ---------------------------------
 Continuously emits coherence / resonance metrics from the Tessaris runtime
-via ResonanceTelemetry → GHXFeedbackBridge.
+via ResonanceTelemetry -> GHXFeedbackBridge.
 
 Demonstrates live feedback streaming from symbolic quantum runtime to GHX/QFC layer.
 """
@@ -38,7 +38,7 @@ class MockRuntime:
 
 
 async def main():
-    print("🌈 [Tessaris] GHX Live Telemetry Relay — starting stream...\n")
+    print("🌈 [Tessaris] GHX Live Telemetry Relay - starting stream...\n")
     runtime = MockRuntime()
     bridge = GHXFeedbackBridge()
 

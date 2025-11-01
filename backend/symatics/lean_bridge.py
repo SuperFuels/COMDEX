@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tessaris Symatics–Lean Bridge (v1.0)
+Tessaris Symatics-Lean Bridge (v1.0)
 ------------------------------------
 Unifies parser, exporter, proof verifier, and CodexLang translator.
 
@@ -10,8 +10,8 @@ Acts as the orchestration layer between:
     - CodexTrace / SRK-8 Proof Kernel
 
 Provides two APIs:
-    • LeanBridge class — full interactive API
-    • run_lean_proofs() — one-shot batch function used by SRK-8
+    * LeanBridge class - full interactive API
+    * run_lean_proofs() - one-shot batch function used by SRK-8
 """
 
 from __future__ import annotations
@@ -22,8 +22,8 @@ from pathlib import Path
 
 # ───────────────────────────────────────────────────────────────
 # Module resolution hierarchy
-#   1. backend.modules.lean.* → preferred location
-#   2. backend.symatics.*      → fallback (legacy support)
+#   1. backend.modules.lean.* -> preferred location
+#   2. backend.symatics.*      -> fallback (legacy support)
 # ───────────────────────────────────────────────────────────────
 
 # --- Parser ---
@@ -112,7 +112,7 @@ class LeanBridge:
         return self.last_verification
 
     # ---------------------------------------
-    # Convert Lean expression → CodexLang
+    # Convert Lean expression -> CodexLang
     # ---------------------------------------
     def convert_to_codex(self, lean_expr: str):
         if convert_lean_expr is None:
@@ -159,7 +159,7 @@ def run_lean_proofs(
     """
 
     # ───────────────────────────────────────────────
-    # Step 0 — Locate Lean proofs directory
+    # Step 0 - Locate Lean proofs directory
     # ───────────────────────────────────────────────
     search_paths = [
         Path(proofs_dir),
@@ -186,7 +186,7 @@ def run_lean_proofs(
         }
 
     # ───────────────────────────────────────────────
-    # Step 1 — Parse
+    # Step 1 - Parse
     # ───────────────────────────────────────────────
     parsed = []
     if parse_proof_dir:
@@ -197,7 +197,7 @@ def run_lean_proofs(
             print(f"[LeanBridge] parse_proof_dir failed: {e}")
 
     # ───────────────────────────────────────────────
-    # Step 2 — Verify
+    # Step 2 - Verify
     # ───────────────────────────────────────────────
     verified, failed = [], []
     if verify_proofs:
@@ -212,7 +212,7 @@ def run_lean_proofs(
         failed = [t.get("name", "unknown") for t in parsed]
 
     # ───────────────────────────────────────────────
-    # Step 3 — Export to Codex ledger
+    # Step 3 - Export to Codex ledger
     # ───────────────────────────────────────────────
     if update_codex and export_theorems_to_ledger:
         try:
@@ -222,7 +222,7 @@ def run_lean_proofs(
             print(f"[LeanBridge] export_theorems_to_ledger failed: {e}")
 
     # ───────────────────────────────────────────────
-    # Step 4 — Summarize
+    # Step 4 - Summarize
     # ───────────────────────────────────────────────
     summary = {
         "ok": len(failed) == 0,

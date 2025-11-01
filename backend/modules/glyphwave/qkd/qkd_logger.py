@@ -11,7 +11,7 @@ try:
 except ImportError:
     def log_sqi_event(event):
         """Fallback SQI logger for test environments."""
-        print(f"[MOCK:SQI] QKD Event → {event}")
+        print(f"[MOCK:SQI] QKD Event -> {event}")
 
 try:
     from backend.modules.knowledge_graph.kg_writer_singleton import write_glyph_event
@@ -44,9 +44,9 @@ def log_qkd_event(
     """
     Log a QKD event to SQI and the Knowledge Graph.
 
-    • Always writes to SQI reasoning pipeline if available.
-    • Gracefully degrades to stdout during isolated tests.
-    • Produces a structured triple for KG ingestion.
+    * Always writes to SQI reasoning pipeline if available.
+    * Gracefully degrades to stdout during isolated tests.
+    * Produces a structured triple for KG ingestion.
     """
 
     # ✅ Compose log payload

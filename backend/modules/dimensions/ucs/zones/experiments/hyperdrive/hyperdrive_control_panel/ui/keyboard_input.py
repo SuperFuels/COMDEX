@@ -3,8 +3,8 @@
 """
 ⌨ Hyperdrive Keyboard Input
 ----------------------------
-• Provides non-blocking keyboard input during runtime.
-• Supports manual stage transitions, pause/resume, and emergency stop.
+* Provides non-blocking keyboard input during runtime.
+* Supports manual stage transitions, pause/resume, and emergency stop.
 """
 
 import sys

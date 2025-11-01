@@ -1,5 +1,5 @@
 """
-M2 — Wormhole Traversability Check
+M2 - Wormhole Traversability Check
 Verifies whether entangled curvature wells allow nonlocal correlation 
 without classical information transfer (ER=EPR non-traversable wormhole analogue).
 """
@@ -35,7 +35,7 @@ def evolve_fields(ψ1, ψ2, κ1, κ2, ħ, G, Λ, α, steps=400, dt=0.01):
     return np.array(mutual_info), np.array(classical_flux)
 
 if __name__ == "__main__":
-    print("=== M2 — Wormhole Traversability Check ===")
+    print("=== M2 - Wormhole Traversability Check ===")
 
     # Spatial grid
     x = np.linspace(-5, 5, 200)
@@ -62,11 +62,11 @@ if __name__ == "__main__":
 
     # Plot results
     plt.figure()
-    plt.plot(mutual_info, label="Mutual Information I(ψ₁; ψ₂)")
+    plt.plot(mutual_info, label="Mutual Information I(ψ1; ψ2)")
     plt.plot(classical_flux / np.max(classical_flux), '--', label="Normalized Classical Flux")
     plt.xlabel("Time step")
     plt.ylabel("Correlation / Flux (normalized)")
-    plt.title("M2 — Wormhole Traversability Check")
+    plt.title("M2 - Wormhole Traversability Check")
     plt.legend()
     plt.tight_layout()
     plt.savefig("PAEV_M2_Traversability.png")
@@ -77,6 +77,6 @@ if __name__ == "__main__":
     if mutual_info[-1] > 1e-3 and classical_flux[-1]/classical_flux[0] < 1.1:
         print("✅ Non-traversable wormhole confirmed (correlation sustained, no classical transfer).")
     else:
-        print("⚠️ Traversable behavior detected — review causality conditions.")
+        print("⚠️ Traversable behavior detected - review causality conditions.")
     print("✅ Plot saved: PAEV_M2_Traversability.png")
     print("----------------------------------------------------------")

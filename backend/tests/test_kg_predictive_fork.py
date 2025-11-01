@@ -10,7 +10,7 @@ def test_predictive_fork_publish_and_relations(monkeypatch):
 
     def fake_publish(payload: dict) -> bool:
         published["calls"].append(payload)
-        return True  # simulate “published, not deduped”
+        return True  # simulate "published, not deduped"
 
     # monkeypatch the module-level getter to return our fake publisher
     monkeypatch.setattr(

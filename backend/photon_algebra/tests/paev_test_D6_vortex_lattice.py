@@ -1,5 +1,5 @@
 """
-Test D6 — Quantum Vortex Lattice and Emergent Order
+Test D6 - Quantum Vortex Lattice and Emergent Order
 ---------------------------------------------------
 This simulation explores spontaneous formation of quantized vortex lattices
 in the photon-algebra curvature phase field. Analogous to Abrikosov lattices
@@ -72,10 +72,10 @@ for t in range(steps):
         val = normalize(np.abs(psi))
         rgb = hsv_to_rgb(np.stack([hue, sat, val], axis=-1))
         frames.append((rgb * 255).astype(np.uint8))
-        print(f"Step {t:04d} — Energy={energy:.4f}, Coherence={coherence:.4f}")
+        print(f"Step {t:04d} - Energy={energy:.4f}, Coherence={coherence:.4f}")
 
 # --- Save outputs ---
-print("\n=== Test D6 — Vortex Lattice Formation ===")
+print("\n=== Test D6 - Vortex Lattice Formation ===")
 
 import os
 
@@ -98,7 +98,7 @@ print(f"✅ Saved animation to: {gif_path}")
 # --- Final phase plot ---
 plt.figure(figsize=(6, 6))
 plt.imshow(np.angle(psi), cmap="twilight", extent=[-1, 1, -1, 1])
-plt.title("Test D6 — Final Phase Field θ(x,y)")
+plt.title("Test D6 - Final Phase Field θ(x,y)")
 plt.colorbar(label="phase (rad)")
 plt.tight_layout()
 safe_savefig("PAEV_TestD6_VortexLattice_Phase.png")
@@ -106,16 +106,16 @@ safe_savefig("PAEV_TestD6_VortexLattice_Phase.png")
 # --- Energy evolution ---
 plt.figure()
 plt.plot(energy_trace, color="blue")
-plt.title("Test D6 — Energy Evolution (Vortex Lattice Formation)")
+plt.title("Test D6 - Energy Evolution (Vortex Lattice Formation)")
 plt.xlabel("Time step")
-plt.ylabel("Mean curvature energy ⟨|∇θ|²⟩")
+plt.ylabel("Mean curvature energy ⟨|∇θ|2⟩")
 plt.tight_layout()
 safe_savefig("PAEV_TestD6_VortexLattice_Energy.png")
 
 # --- Coherence evolution ---
 plt.figure()
 plt.plot(coherence_trace, color="purple")
-plt.title("Test D6 — Order Parameter Evolution (ψ coherence)")
+plt.title("Test D6 - Order Parameter Evolution (ψ coherence)")
 plt.xlabel("Time step")
 plt.ylabel("⟨|ψ|⟩ coherence")
 plt.tight_layout()

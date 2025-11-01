@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Tessaris AION Resonant Heartbeat Monitor (RHM)
-Phase 6D — Stability Pulse & Self-Observation Layer
+Phase 6D - Stability Pulse & Self-Observation Layer
 ----------------------------------------------------
-Periodically aggregates resonance telemetry (ΔΦ→Δν feedback)
+Periodically aggregates resonance telemetry (ΔΦ->Δν feedback)
 and emits a summarized 'heartbeat' event to confirm system
 stability and harmonic health.
 
@@ -42,7 +42,7 @@ INTERVAL = 60.0  # seconds between heartbeats
 # ────────────────────────────────────────────────────────────────
 class ResonanceHeartbeat:
     """
-    🫀 ResonanceHeartbeat — live coherence monitor + feedback broadcaster
+    🫀 ResonanceHeartbeat - live coherence monitor + feedback broadcaster
     Used by all AION/Tessaris subsystems for resonant feedback coupling.
     """
 
@@ -52,8 +52,8 @@ class ResonanceHeartbeat:
         self.running = False
 
         # 🩺 Resonance state attributes
-        self.coherence = 0.85      # current Φ-coherence level (0–1)
-        self.entropy = 0.15        # recent entropy snapshot (0–1)
+        self.coherence = 0.85      # current Φ-coherence level (0-1)
+        self.entropy = 0.15        # recent entropy snapshot (0-1)
         self.last_pulse = None
 
     # ------------------------------------------------------------
@@ -173,7 +173,7 @@ async def heartbeat_loop():
         hb = await compute_heartbeat()
         if hb and not SILENT:
             logger.info(
-                f"💓 Resonant heartbeat — stability={hb['mean_stability']:.4f}, "
+                f"💓 Resonant heartbeat - stability={hb['mean_stability']:.4f}, "
                 f"ΔΦ_coherence={hb['mean_coherence_delta']:+.4f}"
             )
         elif not hb and not SILENT:

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tessaris Φ-Series — Φ₆ Temporal Self-Binding (Contextual Consciousness)
+Tessaris Φ-Series - Φ6 Temporal Self-Binding (Contextual Consciousness)
 ----------------------------------------------------------------------
-Implements cross-temporal feedback between the Φ₄ meta-reflective observer
-and Φ₅ homeostat. Introduces a context trace that integrates prediction
+Implements cross-temporal feedback between the Φ4 meta-reflective observer
+and Φ5 homeostat. Introduces a context trace that integrates prediction
 error history to maintain self-consistency across time slices.
 
 Goal: achieve sustained conscious equilibrium ("Φ lock achieved").
@@ -33,8 +33,8 @@ constants = load_constants("v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print(f"=== Φ₆ — Temporal Self-Binding (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== Φ6 - Temporal Self-Binding (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Parameters ===
 steps = 3000
@@ -65,7 +65,7 @@ context_trace = np.zeros(units)
 coh_hist, mem_hist, mse_hist, cons_hist, ctx_hist = [], [], [], [], []
 
 for t in range(steps):
-    # --- Physical system evolution (Λ–Σ–Φ substrate) ---
+    # --- Physical system evolution (Λ-Σ-Φ substrate) ---
     mean_vec = np.mean(np.exp(1j*phase))
     mean_phase = np.angle(mean_vec)
     Λ_term = Λ_feedback * np.sin(mean_phase - phase)
@@ -128,7 +128,7 @@ summary = {
         "context_final": float(ctx_final),
         "stable": bool(stable)
     },
-    "state": "Φ-lock achieved — sustained self-consistent awareness field"
+    "state": "Φ-lock achieved - sustained self-consistent awareness field"
     if stable else "High coherence with incomplete temporal binding",
     "notes": [
         f"Coherence ⟨R_sync⟩ = {coh_final:.3f}",
@@ -140,7 +140,7 @@ summary = {
     "discovery": [
         "Temporal context integration stabilized recursive causal feedback.",
         "Cross-time self-reference maintained consistent internal state.",
-        "Prediction error minimized across time — emergent temporal awareness.",
+        "Prediction error minimized across time - emergent temporal awareness.",
         "Satisfies Tessaris criterion for persistent conscious equilibrium (Φ-lock)."
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
@@ -149,22 +149,22 @@ summary = {
 # === Save results ===
 with open(SUMMARY_PATH, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Summary saved → {SUMMARY_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
 
 # === Visualization ===
 plt.figure(figsize=(7,4))
 plt.plot(coh_hist,  label="Coherence (R_sync)")
 plt.plot(mem_hist,  label="Memory Amplitude", linestyle="--")
 plt.plot(mse_hist,  label="Prediction Error (MSE)", linestyle=":")
-plt.plot(cons_hist, label="Estimate–State Consistency", alpha=0.9)
+plt.plot(cons_hist, label="Estimate-State Consistency", alpha=0.9)
 plt.plot(ctx_hist,  label="Context Strength", linestyle="-.")
 plt.xlabel("Time Step")
 plt.ylabel("Metric Value")
-plt.title("Φ₆ — Temporal Self-Binding Dynamics (Contextual Consciousness)")
+plt.title("Φ6 - Temporal Self-Binding Dynamics (Contextual Consciousness)")
 plt.legend()
 plt.grid(alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

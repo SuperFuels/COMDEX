@@ -1,5 +1,5 @@
 # ==========================================================
-#  Tessaris • Quantum Quad Core (QQC) API Controller
+#  Tessaris * Quantum Quad Core (QQC) API Controller
 #  FastAPI orchestration layer for remote control & telemetry.
 # ==========================================================
 

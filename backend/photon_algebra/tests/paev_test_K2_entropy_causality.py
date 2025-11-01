@@ -1,4 +1,4 @@
-# === K2 — Tessaris Entropy Causality Evolution ===
+# === K2 - Tessaris Entropy Causality Evolution ===
 # Using Tessaris Unified Constants & Verification Protocol
 
 import os, json, datetime
@@ -11,8 +11,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 # === 1. Load Constants ===
 constants = load_constants()
 
-print("=== K2 — Entropy Causality Evolution (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, "
+print("=== K2 - Entropy Causality Evolution (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, "
       f"α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
 
 # === 2. Simulation Parameters ===
@@ -58,14 +58,14 @@ print(f"R_causal={R_causal:.4f}, mean |dS/dt|={mean_dSdt:.3e}")
 if within_tolerance:
     print("✅  Entropy flow within causal tolerance.")
 else:
-    print("⚠️  Slight entropy drift detected — adjust damping or dt.")
+    print("⚠️  Slight entropy drift detected - adjust damping or dt.")
 
 # === 6. Plot ===
 plt.figure(figsize=(8,4))
 plt.plot(S_history, label='⟨S⟩(t)', color='teal')
 plt.xlabel('Time step')
 plt.ylabel('Mean Entropy ⟨S⟩')
-plt.title('K2 — Entropy Causality Evolution')
+plt.title('K2 - Entropy Causality Evolution')
 plt.legend()
 plt.tight_layout()
 
@@ -81,10 +81,10 @@ discovery = [
     "Deviation below 1e-3 considered fully causal under Tessaris Unified Constants & Verification Protocol."
 ]
 
-print("\n🧭 Discovery Notes —", datetime.datetime.now(datetime.UTC).isoformat())
+print("\n🧭 Discovery Notes -", datetime.datetime.now(datetime.UTC).isoformat())
 print("------------------------------------------------------------")
 for line in discovery:
-    print("•", line)
+    print("*", line)
 print("------------------------------------------------------------")
 
 # === 8. JSON Summary ===
@@ -112,6 +112,6 @@ summary_path = "backend/modules/knowledge/K2_entropy_causality_summary.json"
 with open(summary_path, "w", encoding="utf-8") as f:
     json.dump(summary, f, indent=2)
 
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

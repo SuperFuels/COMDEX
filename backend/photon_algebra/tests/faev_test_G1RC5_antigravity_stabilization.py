@@ -1,5 +1,5 @@
 # ==========================================================
-# G1-RC5 — Antigravity / Negative-Mass Balancing Stabilization
+# G1-RC5 - Antigravity / Negative-Mass Balancing Stabilization
 # Final refinement of G1 hidden-field coupling.
 # Introduces selective curvature inversion when |R - Rψ| exceeds threshold.
 # ==========================================================
@@ -90,7 +90,7 @@ energy_max = float(np.max(E))
 
 # --- Classification ---
 if stability > 0.85 and cross_corr > 0.8:
-    verdict = "✅ Coherent Hidden–Visible Coupling (Stable Equilibrium)"
+    verdict = "✅ Coherent Hidden-Visible Coupling (Stable Equilibrium)"
 elif stability > 0.6:
     verdict = "⚠️ Partially Coupled (Marginally Stable)"
 else:
@@ -100,14 +100,14 @@ else:
 plt.figure(figsize=(9,5))
 plt.plot(t, R, label="Visible curvature R", lw=1.2)
 plt.plot(t, Rψ, label="Hidden curvature Rψ", lw=1.0, alpha=0.8)
-plt.title("G1-RC5 — Hidden Field Coupling (Antigravity Stabilization)")
+plt.title("G1-RC5 - Hidden Field Coupling (Antigravity Stabilization)")
 plt.xlabel("time"); plt.ylabel("curvature")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1RC5_CurvatureEvolution.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, E, label="Unified energy (stabilized)", lw=1.2)
-plt.title("G1-RC5 — Unified Energy Evolution (Balanced via Antigravity)")
+plt.title("G1-RC5 - Unified Energy Evolution (Balanced via Antigravity)")
 plt.xlabel("time"); plt.ylabel("E_total (norm)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1RC5_EnergyEvolution.png")
@@ -115,7 +115,7 @@ plt.savefig("FAEV_G1RC5_EnergyEvolution.png")
 plt.figure(figsize=(9,5))
 plt.plot(t, np.cos(φ), label="cos(φ)", lw=1.0)
 plt.plot(t, np.cos(ψ), label="cos(ψ)", lw=1.0, alpha=0.8)
-plt.title("G1-RC5 — Phase Coherence Between φ and ψ (Balanced)")
+plt.title("G1-RC5 - Phase Coherence Between φ and ψ (Balanced)")
 plt.xlabel("time"); plt.ylabel("cosine phase")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1RC5_PhaseCoherence.png")
@@ -150,7 +150,7 @@ results = {
 with open("backend/modules/knowledge/G1RC5_antigravity_stabilization.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== G1-RC5 — Antigravity / Negative-Mass Balancing Stabilization ===")
+print("=== G1-RC5 - Antigravity / Negative-Mass Balancing Stabilization ===")
 print(f"cross_corr={cross_corr:.3f} | stability={stability:.3f} | energy=({energy_min:.3e},{energy_max:.3e})")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/G1RC5_antigravity_stabilization.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/G1RC5_antigravity_stabilization.json")

@@ -1,5 +1,5 @@
 # ================================================================
-# 🧩 Phase 45G.4 — Adaptive Cognitive Exercise Engine (CEE+)
+# 🧩 Phase 45G.4 - Adaptive Cognitive Exercise Engine (CEE+)
 # ================================================================
 """
 Manages adaptive cognitive sessions that self-tune difficulty and
@@ -48,7 +48,7 @@ class CognitiveExerciseEngine:
         akg.load_knowledge()
         all_atoms = list({s for (s, _, _) in akg.triplets.keys()})
         if not all_atoms:
-            logger.warning("[CEE] No atoms found in AION.brain.KGC — check AKG load.")
+            logger.warning("[CEE] No atoms found in AION.brain.KGC - check AKG load.")
             return []
         self.active_atoms = random.sample(all_atoms, min(limit, len(all_atoms)))
         logger.info(f"[CEE] Loaded {len(self.active_atoms)} active atoms for session.")
@@ -69,7 +69,7 @@ class CognitiveExerciseEngine:
         elif sqi < 0.65:
             self.difficulty = min(1.5, self.difficulty + 0.05)
         self.difficulty = round(self.difficulty, 3)
-        logger.info(f"[CEE] Adjusted difficulty → {self.difficulty}")
+        logger.info(f"[CEE] Adjusted difficulty -> {self.difficulty}")
 
     # ------------------------------------------------------------
     def run_session(self):
@@ -131,7 +131,7 @@ class CognitiveExerciseEngine:
         METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(METRICS_PATH, "w") as f:
             json.dump(summary, f, indent=2)
-        logger.info(f"[CEE] Adaptive metrics exported → {METRICS_PATH}")
+        logger.info(f"[CEE] Adaptive metrics exported -> {METRICS_PATH}")
         return summary
 
     # ------------------------------------------------------------
@@ -146,24 +146,24 @@ class CognitiveExerciseEngine:
                 "results": self.results,
                 "timestamp": self.start_time,
             }, f, indent=2)
-        logger.info(f"[CEE] Exported session log → {session_path}")
+        logger.info(f"[CEE] Exported session log -> {session_path}")
 
     # ------------------------------------------------------------
     def run_full_cycle(self):
         """Run complete adaptive session pipeline with GHX + Habit feedback."""
         logger.info(f"🧠 Starting adaptive CEE session [{self.session_id}]")
 
-        # Phase 1 — Core adaptive session
+        # Phase 1 - Core adaptive session
         self.load_atoms()
         self.run_session()
         self.feedback()
 
-        # Phase 2 — Compute metrics + export
+        # Phase 2 - Compute metrics + export
         summary = self.compute_adaptive_metrics()
         self.export_session()
 
         # ------------------------------------------------------------
-        # 🔭 Phase 45G.11 — GHX Telemetry Bridge (Resonance-Enhanced)
+        # 🔭 Phase 45G.11 - GHX Telemetry Bridge (Resonance-Enhanced)
         # ------------------------------------------------------------
         try:
             from backend.bridges.ghx_telemetry_bridge import GHXTelemetryBridge
@@ -197,14 +197,14 @@ class CognitiveExerciseEngine:
                 })
 
             ghx_summary = ghx.summarize()
-            logger.info(f"[CEE] GHX Telemetry summary → {ghx_summary}")
+            logger.info(f"[CEE] GHX Telemetry summary -> {ghx_summary}")
 
         except Exception as e:
             logger.warning(f"[CEE] GHX Telemetry failed: {e}")
             ghx_summary = {}
 
         # ------------------------------------------------------------
-        # 🌀 Phase 45G.8 — Auto-Habit Feedback Integration
+        # 🌀 Phase 45G.8 - Auto-Habit Feedback Integration
         # ------------------------------------------------------------
         try:
             from backend.modules.aion_cognition.habit_engine_bridge import HabitEngineBridge
@@ -221,7 +221,7 @@ class CognitiveExerciseEngine:
 
             if habit_state:
                 summary["habit_strength"] = habit_state.get("habit_strength", 0)
-                logger.info(f"[CEE] HabitEngine auto-update → {habit_state}")
+                logger.info(f"[CEE] HabitEngine auto-update -> {habit_state}")
             else:
                 logger.warning("[CEE] HabitEngine update skipped (no telemetry found).")
 

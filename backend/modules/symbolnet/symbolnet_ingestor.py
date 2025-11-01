@@ -65,7 +65,7 @@ class SymbolNetIngestor:
             if not glyph.metadata.get("symbolnet_enriched"):
                 glyph.metadata.update(merged)
             else:
-                print(f"[SymbolNetIngestor] ⏭ Glyph already enriched — skipping metadata update.")
+                print(f"[SymbolNetIngestor] ⏭ Glyph already enriched - skipping metadata update.")
 
         return merged
 

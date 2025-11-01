@@ -297,7 +297,7 @@ class CodexVirtualQPU:
                     record_trace(token_key, f"[PrecisionProfile Warn] {_e}")
 
             else:
-                # non-numeric result → still create a placeholder sample
+                # non-numeric result -> still create a placeholder sample
                 # so the opcode appears in the precision profile.
                 # We record zero timings & zero relative error.
                 try:
@@ -844,7 +844,7 @@ if __name__ == "__main__":
         # Example test GlyphCell
         test_cell = GlyphCell(
             id="cell_001",
-            logic="⊕ ↔ ⟲ → ✦",
+            logic="⊕ ↔ ⟲ -> ✦",
             position=[0, 0],
             emotion="curious",
             prediction="Initial",
@@ -862,7 +862,7 @@ if __name__ == "__main__":
 
         print("\n💡 Executing a small sheet of 3 cells on QPU...")
         sheet = [
-            GlyphCell(id=f"cell_{i}", logic="⊕ ↔ ⟲ → ✦", position=[i, 0], wave_beams=[])
+            GlyphCell(id=f"cell_{i}", logic="⊕ ↔ ⟲ -> ✦", position=[i, 0], wave_beams=[])
             for i in range(3)
         ]
         sheet_results = await qpu.execute_sheet(sheet, context={"container_id": "default_container"})

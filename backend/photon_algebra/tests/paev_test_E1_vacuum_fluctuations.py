@@ -1,5 +1,5 @@
 # ==========================================================
-# Test E1 — Curvature Vacuum Fluctuations (Emergent Quantum Foam)
+# Test E1 - Curvature Vacuum Fluctuations (Emergent Quantum Foam)
 # ==========================================================
 # Purpose:
 #   Observe spontaneous curvature and phase-field fluctuations
@@ -25,7 +25,7 @@ x = np.linspace(-1, 1, N)
 y = np.linspace(-1, 1, N)
 X, Y = np.meshgrid(x, y)
 
-# Small random initial curvature field — “vacuum jitter”
+# Small random initial curvature field - "vacuum jitter"
 kappa = 0.001 * np.random.randn(N, N)
 
 # Parameters
@@ -62,7 +62,7 @@ for step in range(steps):
     if step % 20 == 0:
         fig, ax = plt.subplots(figsize=(5,5))
         im = ax.imshow(kappa, cmap='plasma', extent=[-1,1,-1,1])
-        ax.set_title(f"Test E1 — Curvature Vacuum Fluctuations\nStep {step}")
+        ax.set_title(f"Test E1 - Curvature Vacuum Fluctuations\nStep {step}")
         plt.colorbar(im, ax=ax, label="κ curvature")
         plt.tight_layout()
 
@@ -89,15 +89,15 @@ print(f"✅ Saved animation to: {os.path.abspath(anim_path)}")
 # Energy trace
 fig = plt.figure()
 plt.plot(energy_trace, color='blue')
-plt.title("Test E1 — Residual Vacuum Energy Evolution")
+plt.title("Test E1 - Residual Vacuum Energy Evolution")
 plt.xlabel("Time step")
-plt.ylabel("⟨κ²⟩ vacuum energy")
+plt.ylabel("⟨κ2⟩ vacuum energy")
 save_and_print(fig, "PAEV_TestE1_VacuumFluctuations_Energy.png", "energy trace")
 
 # Correlation trace
 fig = plt.figure()
 plt.plot(corr_trace, color='purple')
-plt.title("Test E1 — Vacuum Curvature Correlation Decay")
+plt.title("Test E1 - Vacuum Curvature Correlation Decay")
 plt.xlabel("Time step")
 plt.ylabel("Autocorrelation amplitude")
 save_and_print(fig, "PAEV_TestE1_VacuumFluctuations_Correlation.png", "correlation decay plot")
@@ -106,15 +106,15 @@ save_and_print(fig, "PAEV_TestE1_VacuumFluctuations_Correlation.png", "correlati
 fft_spectrum = np.fft.fftshift(np.abs(np.fft.fft2(kappa))**2)
 fig = plt.figure(figsize=(6,6))
 plt.imshow(np.log(fft_spectrum + 1e-8), cmap='magma', extent=[-1,1,-1,1])
-plt.title("Test E1 — Vacuum Curvature Spectrum (log power)")
-plt.colorbar(label="log |κ(k)|²")
+plt.title("Test E1 - Vacuum Curvature Spectrum (log power)")
+plt.colorbar(label="log |κ(k)|2")
 save_and_print(fig, "PAEV_TestE1_VacuumFluctuations_Spectrum.png", "Fourier spectrum")
 
 # ----------------------------------------------------------
 # Summary
 # ----------------------------------------------------------
-print("\n=== Test E1 — Curvature Vacuum Fluctuations Complete ===")
-print(f"⟨κ²⟩ final = {np.mean(kappa**2):.4e}")
+print("\n=== Test E1 - Curvature Vacuum Fluctuations Complete ===")
+print(f"⟨κ2⟩ final = {np.mean(kappa**2):.4e}")
 print(f"⟨corr⟩ final = {np.mean(corr_trace):.4f}")
 print("📁 All output files saved in:")
 print(f"   {os.getcwd()}")

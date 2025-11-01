@@ -1,5 +1,5 @@
 # ============================================================
-# Tessaris Symatics Reasoning Kernel — SRK-6 Test Suite
+# Tessaris Symatics Reasoning Kernel - SRK-6 Test Suite
 # ============================================================
 # Purpose:
 # Validate SRK-6 Harmonic Coupling feedback, diagnostics,

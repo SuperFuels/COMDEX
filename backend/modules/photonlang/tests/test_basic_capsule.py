@@ -2,7 +2,7 @@ import pytest
 from backend.modules.photonlang.interpreter import run_source
 
 # ───────────────────────────────────────────────
-#  PhotonLang Integration Test • v0.1
+#  PhotonLang Integration Test * v0.1
 # ───────────────────────────────────────────────
 
 def test_basic_photon_capsule_execution():

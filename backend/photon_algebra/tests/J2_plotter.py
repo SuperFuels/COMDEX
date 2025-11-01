@@ -1,6 +1,6 @@
 # backend/photon_algebra/tests/paev_test_J2_plotter.py
 """
-Visual TOE Closure Plot — J2 Grand Synchronization Summary
+Visual TOE Closure Plot - J2 Grand Synchronization Summary
 Shows Energy, Entropy, and Holographic Drift vs. Time Steps.
 """
 
@@ -10,7 +10,7 @@ from pathlib import Path
 import json
 
 def plot_j2_results(data_path: str | Path = None):
-    # Synthetic fallback (if you didn’t log the step data)
+    # Synthetic fallback (if you didn't log the step data)
     steps = np.arange(0, 800, 100)
     E = 4.22809e-02 + 2.0e-05 * (steps / steps[-1])
     S = 0.0423 + 1.0e-05 * (steps / steps[-1])
@@ -39,7 +39,7 @@ def plot_j2_results(data_path: str | Path = None):
     out = Path("/workspaces/COMDEX/PAEV_J2_TOE_Closure.png")
     plt.tight_layout()
     plt.savefig(out, dpi=200)
-    print(f"✅ TOE Closure Plot saved → {out}")
+    print(f"✅ TOE Closure Plot saved -> {out}")
 
 if __name__ == "__main__":
     plot_j2_results()

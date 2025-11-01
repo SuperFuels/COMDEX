@@ -1,5 +1,5 @@
 # ==========================================================
-# G1 — Hidden Field Coupling (Dual Curvature Interaction)
+# G1 - Hidden Field Coupling (Dual Curvature Interaction)
 # First test of dark-sector field ψ coupled to visible curvature R
 # ==========================================================
 
@@ -64,7 +64,7 @@ energy_max = float(np.max(energy))
 
 # --- Classification ---
 if stability > 0.85 and abs(cross_corr) > 0.7:
-    verdict = "✅ Coherent Hidden–Visible Coupling"
+    verdict = "✅ Coherent Hidden-Visible Coupling"
 elif stability > 0.6:
     verdict = "⚠️ Weak or Partial Coupling"
 else:
@@ -74,14 +74,14 @@ else:
 plt.figure(figsize=(9, 5))
 plt.plot(t, R, label='Visible curvature R', lw=1.2)
 plt.plot(t, R_psi, label='Hidden curvature Rψ', lw=1.0, alpha=0.7)
-plt.title("G1 — Hidden Field Coupling Dynamics")
+plt.title("G1 - Hidden Field Coupling Dynamics")
 plt.xlabel("time"); plt.ylabel("curvature")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1_CurvatureEvolution.png")
 
 plt.figure(figsize=(9, 5))
 plt.plot(t, energy, label='Unified energy density', lw=1.2)
-plt.title("G1 — Unified Energy Evolution")
+plt.title("G1 - Unified Energy Evolution")
 plt.xlabel("time"); plt.ylabel("E_total")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1_EnergyEvolution.png")
@@ -89,7 +89,7 @@ plt.savefig("FAEV_G1_EnergyEvolution.png")
 plt.figure(figsize=(9, 5))
 plt.plot(t, np.cos(phi), label='cos(φ)', lw=1.0)
 plt.plot(t, np.cos(psi), label='cos(ψ)', lw=1.0, alpha=0.7)
-plt.title("G1 — Phase Coherence Between φ and ψ")
+plt.title("G1 - Phase Coherence Between φ and ψ")
 plt.xlabel("time"); plt.ylabel("cosine phase")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G1_PhaseCoherence.png")
@@ -126,7 +126,7 @@ results = {
 with open("backend/modules/knowledge/G1_hidden_field_coupling.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== G1 — Hidden Field Coupling (Dual Curvature Interaction) ===")
+print("=== G1 - Hidden Field Coupling (Dual Curvature Interaction) ===")
 print(f"cross_corr={cross_corr:.3f} | stability={stability:.3f} | energy=({energy_min:.3e},{energy_max:.3e})")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/G1_hidden_field_coupling.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/G1_hidden_field_coupling.json")

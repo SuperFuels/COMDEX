@@ -76,7 +76,7 @@ class EphemeralKeyManager:
                     logger.warning(f"[EphemeralKeyManager] Access denied by lock for session {session_id}")
                     return None
                 else:
-                    # Lock condition passed — clear the lock
+                    # Lock condition passed - clear the lock
                     self.lock_manager.clear_lock(session_id)
                     logger.info(f"[EphemeralKeyManager] Lock cleared for session {session_id} after successful unlock")
 

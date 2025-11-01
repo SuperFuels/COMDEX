@@ -3,7 +3,7 @@ import random
 import pytest
 from backend.modules.photonlang.binary_mode import to_binary, from_binary
 
-GLYPHS = "⊕↔⟲μπ⇒∇⧖"
+GLYPHS = "⊕↔⟲μπ->∇⧖"
 
 def random_glyph_seq(n=8):
     return "".join(random.choice(GLYPHS) for _ in range(n))
@@ -16,7 +16,7 @@ def test_binary_round_trip_fuzz(size):
         assert bits, f"Binary encoder returned empty for seq {seq}"
 
         decoded = from_binary(bits)
-        # remove unknown glyphs — this system doesn't emit any, but stay safe
+        # remove unknown glyphs - this system doesn't emit any, but stay safe
         filtered = "".join(ch for ch in seq if ch in GLYPHS)
 
         assert decoded == filtered, f"Round-trip mismatch: {seq} -> {bits} -> {decoded}"

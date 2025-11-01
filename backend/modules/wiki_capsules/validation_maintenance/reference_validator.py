@@ -2,7 +2,7 @@
 # 📗 backend/modules/wiki_capsules/validation_maintenance/reference_validator.py
 # ============================================================
 """
-Reference Validator — Cross-Link and Entanglement Consistency Checker
+Reference Validator - Cross-Link and Entanglement Consistency Checker
 ---------------------------------------------------------------------
 Ensures all entangled_links and cross-domain references exist within the KG registry.
 """

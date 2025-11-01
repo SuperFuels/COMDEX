@@ -202,7 +202,7 @@ def validate_logic_trees(container: Dict[str, Any]) -> List[str]:
         if not isinstance(logic, str) or not logic.strip():
             errors.append(f"{e.get('name')} has missing/empty logic")
             continue
-        if not any(op in logic for op in ["→", "∧", "∨", "¬", "⊢", "↔"]):
+        if not any(op in logic for op in ["->", "∧", "∨", "¬", "⊢", "↔"]):
             errors.append(f"{e.get('name')} logic string looks malformed: {logic}")
 
     # --- Law 5: Symbol validity ---
@@ -288,7 +288,7 @@ def inject_preview_and_links(container: Dict[str, Any]) -> None:
 
             entry["preview"] = f"{glyph_symbol} | {name} : {logic} ⟧"
             if not entry.get("glyph_string"):
-                entry["glyph_string"] = f"{glyph_symbol} | {name} : {logic} → {label} ⟧"
+                entry["glyph_string"] = f"{glyph_symbol} | {name} : {logic} -> {label} ⟧"
 
             # depends_on backlinks (body + logic)
             deps: List[str] = []

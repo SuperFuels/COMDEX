@@ -1,7 +1,7 @@
 # backend/modules/photonlang/pgc.py
 """
 Photon Grammar Compiler (PGC)
-Pure glyph → PhotonLang AST bridge
+Pure glyph -> PhotonLang AST bridge
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from .parser import (
     SendThrough, SaveAs, ImportStmt, FromImport, WormholeImport
 )
 
-GLYPH_CHARS = "⊕↔⟲μπ⇒∇⧖"
+GLYPH_CHARS = "⊕↔⟲μπ->∇⧖"
 
 glyph_pattern = re.compile(f"[{GLYPH_CHARS}]+")
 param_pattern = re.compile(r"\{([^}]*)\}")
@@ -51,7 +51,7 @@ def tokenize_glyphs(src: str) -> List[Dict[str, Any]]:
 
 def glyphs_to_ast(tokens: List[Dict[str, Any]]) -> Program:
     """
-    Convert glyph stream → Program with GlyphInit + optional calls
+    Convert glyph stream -> Program with GlyphInit + optional calls
     """
     stmts = []
     for t in tokens:

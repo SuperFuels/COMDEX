@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Test D5 — Vortex Pair Annihilation & Recombination
+Test D5 - Vortex Pair Annihilation & Recombination
 
 Goal
-- Create a vortex–antivortex pair in a 2D phase field θ(x,y).
-- Evolve θ with a diffusion-like wave equation + weak “drive” and damping.
+- Create a vortex-antivortex pair in a 2D phase field θ(x,y).
+- Evolve θ with a diffusion-like wave equation + weak "drive" and damping.
 - Track total topological charge Q(t) and count of vortices/antivortices.
 - Show: (i) annihilation (Q conserved; local ±1 charges cancel); and
         (ii) possible recombination under weak noise/drive.
@@ -43,7 +43,7 @@ def grad_theta(theta):
 
 def vorticity(theta):
     """
-    Lattice ‘plaquette’ winding number density in integers.
+    Lattice 'plaquette' winding number density in integers.
     Sum wrapped phase differences around each unit square.
     """
     dtx, dty = grad_theta(theta)
@@ -99,7 +99,7 @@ def seed_vortex_pair(N=121, sep=30, core=2.5):
 def step(theta, dt, kappa=0.35, gamma=0.03, drive_amp=0.04, noise=1e-3, t=0):
     """
     Semi-discrete update:
-      θ_{t+dt} = θ + dt*( κ∇²θ - γθ + drive + noise )
+      θ_{t+dt} = θ + dt*( κ∇2θ - γθ + drive + noise )
     drive = weak ring driver that can promote recombination after annihilation.
     """
     N = theta.shape[0]
@@ -134,7 +134,7 @@ def run(
             # render phase (nice for seeing annihilation line)
             fig, ax = plt.subplots(figsize=(5,5))
             im = ax.imshow(theta, cmap=cmap, vmin=-np.pi, vmax=np.pi)
-            ax.set_title("Test D5 — Vortex Pair (phase)")
+            ax.set_title("Test D5 - Vortex Pair (phase)")
             ax.set_xticks([]); ax.set_yticks([])
             plt.tight_layout()
             # save frame to memory for gif
@@ -172,7 +172,7 @@ def save_artifacts(theta, charges, nv, na, energy_trace, frames):
     plt.figure(figsize=(5.2,5.2))
     plt.imshow(theta, cmap="twilight", vmin=-np.pi, vmax=np.pi)
     plt.colorbar(label="phase θ (rad)")
-    plt.title("Test D5 — Final Phase θ(x,y)")
+    plt.title("Test D5 - Final Phase θ(x,y)")
     plt.xticks([]); plt.yticks([])
     plt.tight_layout()
     plt.savefig(out_phase, dpi=160)
@@ -184,7 +184,7 @@ def save_artifacts(theta, charges, nv, na, energy_trace, frames):
     plt.figure(figsize=(5.2,5.2))
     plt.imshow(W, cmap="bwr", vmin=-1, vmax=1)
     plt.colorbar(label="winding (±1)")
-    plt.title("Test D5 — Final Vorticity (winding)")
+    plt.title("Test D5 - Final Vorticity (winding)")
     plt.xticks([]); plt.yticks([])
     plt.tight_layout()
     plt.savefig(out_vort, dpi=160)
@@ -199,7 +199,7 @@ def save_artifacts(theta, charges, nv, na, energy_trace, frames):
     ax.plot(t, na, 'r--', label="# antivortices (-1)")
     ax.set_xlabel("Time step")
     ax.set_ylabel("Count / charge")
-    ax.set_title("Test D5 — Vortex Annihilation & Recombination Trace")
+    ax.set_title("Test D5 - Vortex Annihilation & Recombination Trace")
     ax.legend()
     plt.tight_layout()
     plt.savefig(out_charge, dpi=160)
@@ -210,8 +210,8 @@ def save_artifacts(theta, charges, nv, na, energy_trace, frames):
     plt.figure(figsize=(7.5,4.2))
     plt.plot(energy_trace)
     plt.xlabel("Time step")
-    plt.ylabel("Total curvature energy (~|∇θ|²)")
-    plt.title("Test D5 — Energy Evolution")
+    plt.ylabel("Total curvature energy (~|∇θ|2)")
+    plt.title("Test D5 - Energy Evolution")
     plt.tight_layout()
     plt.savefig(out_energy, dpi=160)
     plt.close()
@@ -231,7 +231,7 @@ if __name__ == "__main__":
     annihilated = (np.min(nv + na) == 0) or (np.any((nv+na)[:-1] > (nv+na)[1:]))
     recomb_possible = np.any((nv+na)[1:] > (nv+na)[:-1])  # count rises again
 
-    print("=== Test D5 — Vortex Pair Annihilation & Recombination ===")
+    print("=== Test D5 - Vortex Pair Annihilation & Recombination ===")
     print(f"Initial total charge Q0 = {Q0}")
     print(f"Final   total charge Qf = {Qf}")
     print(f"Charge conserved? {'YES' if Q0 == Qf else 'NO'}")

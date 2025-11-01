@@ -1,6 +1,6 @@
 # backend/symatics/tests/test_sym_tactics.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v2.1 — Proof Tactics Validation Suite
+# Tessaris Symatics v2.1 - Proof Tactics Validation Suite
 # Fix: properly evaluate symbolic tactics from .lean source
 # ──────────────────────────────────────────────────────────────
 

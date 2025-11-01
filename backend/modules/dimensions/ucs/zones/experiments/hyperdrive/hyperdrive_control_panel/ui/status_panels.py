@@ -3,7 +3,7 @@
 """
 📊 Hyperdrive Status Panels
 ----------------------------
-• Displays event logs and SQI tuning feedback in runtime UI.
+* Displays event logs and SQI tuning feedback in runtime UI.
 """
 
 def log_event(message: str):

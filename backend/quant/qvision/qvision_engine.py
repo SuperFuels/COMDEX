@@ -2,15 +2,15 @@
 # 📁 backend/quant/qvision/qvision_engine.py
 # ===============================
 """
-👁️  QVision Engine — Symbolic Vision Bridge
+👁️  QVision Engine - Symbolic Vision Bridge
 --------------------------------------------
 Detects and interprets glyphs, photon traces, and field patterns,
 then translates them into QLang / QTensor symbolic structures.
 
 Purpose:
-    • Bridge visual inputs → symbolic algebra (QLang)
-    • Map photon interference / field patterns → wave operators
-    • Provide introspection layer for GHX HUD or AION observers
+    * Bridge visual inputs -> symbolic algebra (QLang)
+    * Map photon interference / field patterns -> wave operators
+    * Provide introspection layer for GHX HUD or AION observers
 """
 
 from __future__ import annotations
@@ -73,7 +73,7 @@ class QVisionEngine:
     # --------------------------------------------------------------
     def interpret_frame(self, frame: np.ndarray) -> Dict[str, Any]:
         """
-        Full visual → symbolic interpretation pipeline.
+        Full visual -> symbolic interpretation pipeline.
         """
         glyphs = self.detect_glyphs(frame)
         qlang_expr = self.glyphs_to_qlang(glyphs)
@@ -89,7 +89,7 @@ class QVisionEngine:
     # --------------------------------------------------------------
     def _simulate_from_frame(self, frame: np.ndarray) -> Dict[str, Any]:
         """
-        Convert frame → QTensorField → symbolic simulation.
+        Convert frame -> QTensorField -> symbolic simulation.
         """
         ψ = QTensorField(frame + 0j)
         ref = random_field(frame.shape)
@@ -101,7 +101,7 @@ class QVisionEngine:
 
     # --------------------------------------------------------------
     def run_test(self) -> Dict[str, Any]:
-        """Self-test: create synthetic frame → run detection & simulation."""
+        """Self-test: create synthetic frame -> run detection & simulation."""
         frame = np.random.rand(8, 8)
         out = self.interpret_frame(frame)
         return {

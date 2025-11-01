@@ -48,13 +48,13 @@ class GlyphExecutor:
     # --- 🔒 Safety & fallback support ---
     def ensure_active_container(self):
         """
-        Ensures an active container exists. If none found, fallback to StateManager’s current container.
+        Ensures an active container exists. If none found, fallback to StateManager's current container.
         Prevents NoneType errors during glyph reads or execution.
         """
         if self.active_container is None:
             container = self.state_manager.get_current_container()
             if not container:
-                print("⚠️ [GlyphExecutor] No active container — using fallback stub.")
+                print("⚠️ [GlyphExecutor] No active container - using fallback stub.")
                 container = {"id": "default_stub", "cubes": {}}
             self.active_container = container
             self.container_id = container.get("id", "unknown")

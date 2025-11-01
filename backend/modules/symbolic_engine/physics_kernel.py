@@ -61,7 +61,7 @@ class PhysicsKernel:
         return node
 
     def div(self, vec: Vector, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
-        node = sym("∇·", vec, coords)
+        node = sym("∇*", vec, coords)
         self.ingestion_engine.ingest_data(
             {
                 "op": "div",
@@ -77,7 +77,7 @@ class PhysicsKernel:
         return node
 
     def curl(self, vec: Vector, coords: Tuple[str, ...] = ("x", "y", "z")) -> GlyphNode:
-        node = sym("∇×", vec, coords)
+        node = sym("∇*", vec, coords)
         self.ingestion_engine.ingest_data(
             {
                 "op": "curl",
@@ -115,10 +115,10 @@ class PhysicsKernel:
         return sym("⊗", a, b)
 
     def dot(self, a: Any, b: Any) -> GlyphNode:
-        return sym("·", a, b)
+        return sym("*", a, b)
 
     def cross(self, a: Any, b: Any) -> GlyphNode:
-        return sym("×", a, b)
+        return sym("*", a, b)
 
     # ---------- Quantum Glyphs ----------
 
@@ -138,7 +138,7 @@ class PhysicsKernel:
         return sym("[ , ]", A, B)
 
     def schrodinger_evolution(self, psi: Any, H: Any, t: str = "t") -> GlyphNode:
-        lhs = self.dot("iℏ", self.d_dt(psi, t))
+        lhs = self.dot("iħ", self.d_dt(psi, t))
         rhs = self.dot(H, psi)
         node = sym("≐", lhs, rhs, equation="Schr")
 
@@ -183,7 +183,7 @@ class PhysicsKernel:
         return sym("G_{μν}")
 
     def einstein_equation(self, G: Any, T: Any) -> GlyphNode:
-        node = sym("≐", G, sym("·", "8πG", T), equation="Einstein")
+        node = sym("≐", G, sym("*", "8πG", T), equation="Einstein")
 
         self.ingestion_engine.ingest_data(
             {

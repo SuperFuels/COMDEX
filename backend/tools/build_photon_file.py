@@ -17,8 +17,8 @@ import os
 # ------------------------------------------------------------
 def activate_lite_mode(force=False):
     """
-    Enables AION/Tessaris lite mode — no heartbeat, no KG boot,
-    no consciousness stack — only glyph compression core.
+    Enables AION/Tessaris lite mode - no heartbeat, no KG boot,
+    no consciousness stack - only glyph compression core.
     """
     if force or os.getenv("PHOTON_BOOT_MODE") == "lite":
         os.environ["AION_LITE"] = "1"

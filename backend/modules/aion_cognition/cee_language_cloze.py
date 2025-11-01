@@ -1,12 +1,12 @@
 # ================================================================
-# ✍️ CEE Language Path — Cloze + Group Sort Generators
+# ✍️ CEE Language Path - Cloze + Group Sort Generators
 # ================================================================
 """
 Adds advanced language exercises for the Cognitive Exercise Engine (CEE).
 
 Implements:
-  • Cloze (fill-in-the-blank) questions using LexiCoreBridge
-  • Group-Sort classification tasks (semantic grouping)
+  * Cloze (fill-in-the-blank) questions using LexiCoreBridge
+  * Group-Sort classification tasks (semantic grouping)
 
 Each exercise includes resonance metadata (ρ, I, SQI) compatible with
 GHX↔Habit↔CodexMetrics feedback pipelines.

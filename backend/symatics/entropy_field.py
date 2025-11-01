@@ -1,7 +1,7 @@
 # backend/symatics/entropy_field.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris SRK-3 — Field Entropy Kernel (v1.3 Stable)
-# Symbolic–Photonic Entropy Feedback Layer + CodexTrace Telemetry
+# Tessaris SRK-3 - Field Entropy Kernel (v1.3 Stable)
+# Symbolic-Photonic Entropy Feedback Layer + CodexTrace Telemetry
 # Author: Tessaris Core Systems / Codex Intelligence Group
 # ──────────────────────────────────────────────────────────────
 
@@ -26,7 +26,7 @@ class EntropyFieldState:
     Attributes
     ----------
     psi_density : float
-        Average |ψ|² density of the photonic field.
+        Average |ψ|2 density of the photonic field.
     lambda_t : float
         Current λ-field value or proxy from SRK kernel.
     S : float
@@ -44,13 +44,13 @@ class EntropyFieldState:
     # ──────────────────────────────────────────────
     @staticmethod
     def compute_entropy(psi_values: np.ndarray) -> float:
-        """Compute field entropy S = -Σ(p log p) where p = |ψ|²."""
+        """Compute field entropy S = -Σ(p log p) where p = |ψ|2."""
         p = np.clip(np.abs(psi_values) ** 2, 1e-12, 1.0)
         return float(-np.sum(p * np.log(p)))
 
     @staticmethod
     def entropy_damping(S: float, gamma0: float = 0.05, alpha: float = 0.05) -> float:
-        """Entropy-dependent damping γ(S) = γ₀ + α·S / (1 + S)."""
+        """Entropy-dependent damping γ(S) = γ0 + α*S / (1 + S)."""
         return float(gamma0 + alpha * S / (1.0 + S))
 
     @staticmethod
@@ -92,7 +92,7 @@ class EntropyFieldState:
             if hasattr(photonic_field, "lambda_t"):
                 self.lambda_t = float(photonic_field.lambda_t)
             else:
-                # Default to entropy–based adaptive λ(t)
+                # Default to entropy-based adaptive λ(t)
                 self.lambda_t = max(1e-6, 1.0 / (1.0 + self.S))
 
             # Log base entropy update

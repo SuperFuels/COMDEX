@@ -86,5 +86,5 @@ class PrivacyVault:
         return list(self._vault.keys())
 
     def export_debug(self):
-        """For debugging – prints decrypted vault contents"""
+        """For debugging - prints decrypted vault contents"""
         return self._vault

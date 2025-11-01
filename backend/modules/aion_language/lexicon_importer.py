@@ -1,8 +1,8 @@
 """
-Lexicon Importer — Phase 41A
+Lexicon Importer - Phase 41A
 ----------------------------
 Initial linguistic ingestion layer for Aion.
-Loads lexical data (word → definition → synonyms/antonyms)
+Loads lexical data (word -> definition -> synonyms/antonyms)
 and registers it as LanguageAtoms within the Meaning Field Generator (MFG).
 
 Author: Tessaris Research Group
@@ -88,7 +88,7 @@ class LexiconImporter:
                 "atom_ref": atom.get("id", None),
                 "semantic_strength": 1.0,
             })
-            logger.debug(f"[LexiconImporter] Registered '{entry.word}' → MFG")
+            logger.debug(f"[LexiconImporter] Registered '{entry.word}' -> MFG")
         except Exception as e:
             logger.error(f"[LexiconImporter] Failed to register {entry.word}: {e}")
 
@@ -99,7 +99,7 @@ class LexiconImporter:
         data = {w: asdict(e) for w, e in self.entries.items()}
         with open(path, "w") as f:
             json.dump(data, f, indent=2)
-        logger.info(f"[LexiconImporter] Exported {len(self.entries)} entries → {path}")
+        logger.info(f"[LexiconImporter] Exported {len(self.entries)} entries -> {path}")
         return path
 
 

@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import List, Dict, Tuple, TypedDict, Optional
 
 # Define common logic glyphs in the activation chain
-DEFAULT_GLYPH_CHAIN = ["🧠", "✧", "🪄"]  # 🧠 → ✧ → 🪄
+DEFAULT_GLYPH_CHAIN = ["🧠", "✧", "🪄"]  # 🧠 -> ✧ -> 🪄
 
 # Valid 3D neighbor offsets (6 directions: N/S/E/W/Up/Down)
 NEIGHBOR_OFFSETS = [
@@ -28,7 +28,7 @@ def scan_microgrid_for_patterns(
     glyph_chain: Optional[List[str]] = None
 ) -> List[PatternMatch]:
     """
-    Scans the microgrid of a container for recognizable logic chains (e.g. 🧠→✧→🪄).
+    Scans the microgrid of a container for recognizable logic chains (e.g. 🧠->✧->🪄).
     
     Args:
         container (Dict): The container JSON with a 'microgrid' key.

@@ -23,22 +23,22 @@ import numpy as np
 
 # Fundamental constants
 C_LIGHT = 2.99792458e8      # m/s
-H_BAR = 1.054571817e-34     # J·s
+H_BAR = 1.054571817e-34     # J*s
 
 
 class SymPhysics:
     # ---------------------------------------------------------------------
-    #  Phase–Collapse Equivalence Laws
+    #  Phase-Collapse Equivalence Laws
     # ---------------------------------------------------------------------
     @staticmethod
     def infer_mass_from_trace(phi_dot, mu, k_phi=None):
         """
-        Infer resonant mass equivalent from a phase–collapse trace.
+        Infer resonant mass equivalent from a phase-collapse trace.
 
         Args:
             phi_dot (array-like): Phase rotation rate (rad/s).
             mu (array-like): Collapse or measurement rate.
-            k_phi (float, optional): Phase–collapse constant. If None, uses c^2.
+            k_phi (float, optional): Phase-collapse constant. If None, uses c^2.
 
         Returns:
             float: Inferred effective mass (kg).
@@ -63,7 +63,7 @@ class SymPhysics:
         Args:
             mu (float): Collapse or measurement rate.
             m (float): Particle mass (kg).
-            k_phi (float, optional): Phase–collapse constant (default c^2).
+            k_phi (float, optional): Phase-collapse constant (default c^2).
 
         Returns:
             float: Threshold photon frequency (Hz).
@@ -85,7 +85,7 @@ class SymPhysics:
         Args:
             phi_dot (array-like): Phase rotation rate (rad/s).
             mu (array-like): Collapse rate or measurement intensity.
-            k_phi (float, optional): Phase–collapse constant. If None, uses c^2.
+            k_phi (float, optional): Phase-collapse constant. If None, uses c^2.
             dt (float): Sampling interval (s).
 
         Returns:
@@ -101,12 +101,12 @@ class SymPhysics:
         return e_int
 
     # ---------------------------------------------------------------------
-    #  Phase 10 — Feynman–Vernon Coherence Layer
+    #  Phase 10 - Feynman-Vernon Coherence Layer
     # ---------------------------------------------------------------------
     @staticmethod
     def compute_FV_decay(mu, delta_phi):
         """
-        Compute the Feynman–Vernon coherence suppression factor:
+        Compute the Feynman-Vernon coherence suppression factor:
             FV = exp[-mu^2 * delta_phi^2]
 
         Parameters

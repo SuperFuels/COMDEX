@@ -1,7 +1,7 @@
 """
-Tessaris RQC — GHX Awareness Feed
+Tessaris RQC - GHX Awareness Feed
 ──────────────────────────────────────────────
-Phase 4 · Real-time Φ(t) visualization stream.
+Phase 4 * Real-time Φ(t) visualization stream.
 
 Reads MorphicLedger v2 entries and streams Φ, R, S to GHX Visualizer or CLI.
 Provides both a console mode and SSE (Server-Sent Events) endpoint.
@@ -63,7 +63,7 @@ def run_console_feed(duration: Optional[float] = None):
     """Print a real-time stream of Φ(t), R, S from ledger."""
     start = time.time()
     photon_mode = os.getenv("PHOTON_OUTPUT", "false").lower() == "true"
-    print("🧠 GHX Awareness Feed — Monitoring Φ(t) …\n")
+    print("🧠 GHX Awareness Feed - Monitoring Φ(t) ...\n")
 
     for record in tail_ledger():
         phi = record.get("Φ_mean") or record.get("Phi")
@@ -72,16 +72,16 @@ def run_console_feed(duration: Optional[float] = None):
         t = record.get("timestamp")
 
         # Safe formatting
-        phi_str = f"{phi:.6f}" if isinstance(phi, (int, float)) else "–"
-        res_str = f"{res:.6f}" if isinstance(res, (int, float)) else "–"
-        t_str = f"{t:.2f}" if isinstance(t, (int, float)) else "–"
+        phi_str = f"{phi:.6f}" if isinstance(phi, (int, float)) else "-"
+        res_str = f"{res:.6f}" if isinstance(res, (int, float)) else "-"
+        t_str = f"{t:.2f}" if isinstance(t, (int, float)) else "-"
 
         print(f"[t={t_str}] Φ={phi_str}  R={res_str}  S={state}")
 
         # Photon dual-mode output
         if photon_mode and encode_record:
             photon_line = encode_record(record)
-            print(f"⚡ Photon → {photon_line}")
+            print(f"⚡ Photon -> {photon_line}")
 
         if duration and time.time() - start > duration:
             break
@@ -90,7 +90,7 @@ def run_console_feed(duration: Optional[float] = None):
 #  Server-Sent Events (SSE) stream for GHX Visualizer
 # ────────────────────────────────────────────────
 def stream_sse() -> Generator[str, None, None]:
-    """Yield SSE lines for each ledger update → used by frontend dashboard."""
+    """Yield SSE lines for each ledger update -> used by frontend dashboard."""
     photon_mode = os.getenv("PHOTON_OUTPUT", "false").lower() == "true"
     logger.info(f"[GHXFeed] Photon Output Mode: {'ON 🔆' if photon_mode else 'OFF'}")
 
@@ -132,8 +132,8 @@ class GHXFeedThread(threading.Thread):
                 break
             phi = rec.get("Φ_mean") or rec.get("Phi")
             res = rec.get("resonance_index")
-            phi_str = f"{phi:.5f}" if isinstance(phi, (int, float)) else "–"
-            res_str = f"{res:.5f}" if isinstance(res, (int, float)) else "–"
+            phi_str = f"{phi:.5f}" if isinstance(phi, (int, float)) else "-"
+            res_str = f"{res:.5f}" if isinstance(res, (int, float)) else "-"
             print(f"[GHXFeed] Φ={phi_str}  R={res_str}")
             time.sleep(self.interval)
 

@@ -1,9 +1,9 @@
 """
-🧪 PhotonBinaryBridge — SRK-10 → SRK-16 Integration Test Suite
+🧪 PhotonBinaryBridge - SRK-10 -> SRK-16 Integration Test Suite
 Validates:
- • GWIP → Photon Capsule conversion
- • QKD + coherence enforcement
- • QTS encryption / decryption via EncryptedPhotonChannel
+ * GWIP -> Photon Capsule conversion
+ * QKD + coherence enforcement
+ * QTS encryption / decryption via EncryptedPhotonChannel
 """
 
 import pytest
@@ -22,7 +22,7 @@ class DummyWave:
 # ────────────────────────────────────────────────────────────────
 @pytest.mark.asyncio
 async def test_gwip_to_photon_capsule_roundtrip_with_qts():
-    """Validate GWIP → Photon Capsule pipeline including QTS encryption."""
+    """Validate GWIP -> Photon Capsule pipeline including QTS encryption."""
     bridge = PhotonBinaryBridge(mode="photon")
 
     payload = '{"data":"test"}'
@@ -71,13 +71,13 @@ async def test_gwip_to_photon_capsule_roundtrip_with_qts():
     decrypted = epc.decrypt(encrypted_blob)
 
     assert b"data" in decrypted, "Decrypted payload missing original content"
-    print("\n✅ PhotonBinaryBridge GWIP→Capsule + QTS encryption test passed.")
+    print("\n✅ PhotonBinaryBridge GWIP->Capsule + QTS encryption test passed.")
 
 
 # ────────────────────────────────────────────────────────────────
 @pytest.mark.asyncio
 async def test_secure_transmit_encryption_roundtrip():
-    """Validate direct secure_transmit() AES–QKD hybrid encryption."""
+    """Validate direct secure_transmit() AES-QKD hybrid encryption."""
     bridge = PhotonBinaryBridge(mode="photon")
 
     gwip_packet = {

@@ -24,7 +24,7 @@ def codex_to_photon_ast(codex_scroll: Any) -> Dict[str, Any]:
     """
     Convert a Codex scroll (AST from CodexLang parser) into a Photon AST.
     """
-    # ✅ Unwrap CodexAST → dict
+    # ✅ Unwrap CodexAST -> dict
     if CodexAST and isinstance(codex_scroll, CodexAST):
         codex_scroll = codex_scroll.data
 

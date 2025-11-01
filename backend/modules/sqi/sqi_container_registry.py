@@ -62,7 +62,7 @@ def register_container(container: Union[Dict[str, Any], Any]) -> None:
         else:
             print(f"[⚠️] Empty symbolic tree generated for: {container_id}")
     except Exception as e:
-        print(f"[‼️] Symbolic Tree export failed for {container_id}: {e}")
+        print(f"[!!️] Symbolic Tree export failed for {container_id}: {e}")
 
 def _age_hours(iso: Optional[str]) -> float:
     """Convert ISO8601 to approximate age in hours. Missing/bad -> very old."""
@@ -355,7 +355,7 @@ class SQIContainerRegistry:
         """
         out: List[Dict[str, Any]] = []
 
-        # 1) SQI registry’s own entries (support several internal names)
+        # 1) SQI registry's own entries (support several internal names)
         entry_maps = []
         for attr in ("entries", "_entries", "registry", "_registry", "index", "_index"):
             m = getattr(self, attr, None)

@@ -1,9 +1,9 @@
 """
-Tessaris RQC — Resonance → CodexTrace Bridge (v2)
+Tessaris RQC - Resonance -> CodexTrace Bridge (v2)
 ────────────────────────────────────────────────────────────
-Stage B2d · Telemetry → CodexTrace v2 integration.
+Stage B2d * Telemetry -> CodexTrace v2 integration.
 
-Collects live Φ–ψ–κ–T metrics from photonic operators (⊕, ⟲, ↔)
+Collects live Φ-ψ-κ-T metrics from photonic operators (⊕, ⟲, ↔)
 and publishes them to both CodexMetrics (for GHX Visualizer)
 and the MorphicLedger (for persistent time-series telemetry).
 
@@ -54,7 +54,7 @@ def publish_metrics(op_name: str, payload: Dict[str, Any]) -> None:
             "phi_dot": payload.get("phi_dot"),
         }
 
-        # 1️⃣  Push to CodexMetrics → CFA / GHX
+        # 1️⃣  Push to CodexMetrics -> CFA / GHX
         try:
             CODEX_METRICS.record_event(
                 event=f"RQC::{op_name}",
@@ -62,7 +62,7 @@ def publish_metrics(op_name: str, payload: Dict[str, Any]) -> None:
                 domain="photon_runtime",
                 tags=["telemetry", "resonance", op_name],
             )
-            logger.info(f"[ResonanceBridge] Published ({op_name}) → CodexMetrics")
+            logger.info(f"[ResonanceBridge] Published ({op_name}) -> CodexMetrics")
         except Exception as e:
             logger.warning(f"[ResonanceBridge] Publish failed ({op_name}): {e}")
 
@@ -72,7 +72,7 @@ def publish_metrics(op_name: str, payload: Dict[str, Any]) -> None:
 
         # 3️⃣  Optional log
         logger.debug(
-            f"[ResonanceBridge] Ledger← {op_name} Φ={entry.get('Φ_mean')} ψ={entry.get('ψ_mean')} "
+            f"[ResonanceBridge] Ledger<- {op_name} Φ={entry.get('Φ_mean')} ψ={entry.get('ψ_mean')} "
             f"gain={entry.get('gain')} state={entry.get('closure_state')}"
         )
 

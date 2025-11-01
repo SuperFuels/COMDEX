@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Riemann Photonic Driver – bridges symbolic primes to the QWave/SLE stack.
+Riemann Photonic Driver - bridges symbolic primes to the QWave/SLE stack.
 """
 
 import numpy as np

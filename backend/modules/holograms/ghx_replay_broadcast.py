@@ -100,7 +100,7 @@ async def stream_symbolic_tree_replay(tree: SymbolicMeaningTree, container_id: s
         )
 
     except Exception as e:
-        print(f"[GHX→QWave] ⚠️ Failed to emit QWave beam: {e}")
+        print(f"[GHX->QWave] ⚠️ Failed to emit QWave beam: {e}")
     # ─────────────────────────────────────────────────────────────
     # 📈 Collapse/Decoherence Metrics
     # ─────────────────────────────────────────────────────────────
@@ -199,7 +199,7 @@ async def stream_symbolic_tree_replay(tree: SymbolicMeaningTree, container_id: s
                 private_key = vault.get_private_key()
 
                 if not private_key:
-                    print("[GWV] ❌ No private key found in Vault — cannot sign snapshot.")
+                    print("[GWV] ❌ No private key found in Vault - cannot sign snapshot.")
                 else:
                     signed_trace = sign_waveglyph(trace_obj, private_key)
                     with open(snapshot_path, "w", encoding="utf-8") as out_f:
@@ -256,7 +256,7 @@ async def emit_gwave_replay(wave):
         print(f"[GWIP] ⚠️ Failed to emit carrier trace: {e}")
 
 # ──────────────────────────────────────────────
-#  Tessaris • Symbolic HSX Bridge (HQCE Stage 5)
+#  Tessaris * Symbolic HSX Bridge (HQCE Stage 5)
 #  Adds semantic κ, gravity wells, and GHX overlay broadcast
 # ──────────────────────────────────────────────
 import uuid
@@ -274,7 +274,7 @@ try:
     from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
 except Exception:
     async def send_codex_ws_event(event_type: str, payload: dict):
-        print(f"[Fallback HUD] {event_type} → {payload}")
+        print(f"[Fallback HUD] {event_type} -> {payload}")
 
 logger = logging.getLogger(__name__)
 
@@ -332,7 +332,7 @@ class SymbolicHSXBridge:
             κs = math.tanh(mean_w / (1.0 + 10.0 * var_w + mean_entropy))
             for node in nodes:
                 node["semantic_kappa"] = κs
-            logger.info(f"[HSXBridge] Semantic κₛ={κs:.4f}")
+            logger.info(f"[HSXBridge] Semantic κs={κs:.4f}")
         else:
             κs, mean_w, mean_entropy, var_w = 0.0, 0.0, 0.0, 0.0
             logger.warning("[HSXBridge] No symbolic weights found for κ computation.")

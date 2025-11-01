@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧬 Evolutionary Memory Replay — Phase R16
+# 🧬 Evolutionary Memory Replay - Phase R16
 # ================================================================
-# Replays historical symbolic generations (DNA→RNA→Ribosome)
+# Replays historical symbolic generations (DNA->RNA->Ribosome)
 # to forecast drift, coherence, and ethics stability over time.
 # ================================================================
 
@@ -94,7 +94,7 @@ class EvolutionaryMemoryReplay:
                     forecast_harmony=forecast_harmony,
                     ethics_ratio=ethics_ratio)
 
-        logger.info(f"[R16] Evolutionary forecast generated → {OUT}")
+        logger.info(f"[R16] Evolutionary forecast generated -> {OUT}")
         print(json.dumps(report, indent=2))
         return report
 

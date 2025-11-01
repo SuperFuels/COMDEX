@@ -105,10 +105,10 @@ def execute_qfc_container_beams(
       }
 
     Extras (world-class enhancements):
-      • Dynamic SQI refresh per cell after op execution.
-      • Optional jsonschema validation of batch items (no hard dependency).
-      • Lightweight metrics in `context["qpu_metrics"]`.
-      • Opt-in parallelization via context["parallel_container_exec"] (default False)
+      * Dynamic SQI refresh per cell after op execution.
+      * Optional jsonschema validation of batch items (no hard dependency).
+      * Lightweight metrics in `context["qpu_metrics"]`.
+      * Opt-in parallelization via context["parallel_container_exec"] (default False)
         and context["container_exec_workers"] (default 4). Sequential remains default.
     """
     # Ensure metrics dict
@@ -190,7 +190,7 @@ def execute_qfc_container_beams(
         for i, item in enumerate(batch or []):
             results.append(_exec_one(i, item))
     else:
-        # Parallel execution – keep modest defaults; caller controls workers
+        # Parallel execution - keep modest defaults; caller controls workers
         with ThreadPoolExecutor(max_workers=max_workers) as ex:
             fut_map = {ex.submit(_exec_one, i, item): i for i, item in enumerate(batch or [])}
             for fut in as_completed(fut_map):
@@ -214,7 +214,7 @@ def execute_qfc_container_beams(
     return summary
 
 # ============================================================
-# 📦 DimensionContainerExec – High-level QFC container runtime adapter
+# 📦 DimensionContainerExec - High-level QFC container runtime adapter
 # ============================================================
 
 class DimensionContainerExec:

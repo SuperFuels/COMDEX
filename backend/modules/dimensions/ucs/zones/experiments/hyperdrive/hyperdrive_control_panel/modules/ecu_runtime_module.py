@@ -113,9 +113,9 @@ def pre_ignition_harmonics(engine):
 def ecu_runtime_loop(engine_a, engine_b=None):
     """
     ECU Runtime Loop (Trimmed):
-    • Performs pre-ignition stabilization.
-    • Seeds plasma particles if missing.
-    • Leaves all runtime tick orchestration, drift damping, SQI feedback,
+    * Performs pre-ignition stabilization.
+    * Seeds plasma particles if missing.
+    * Leaves all runtime tick orchestration, drift damping, SQI feedback,
       and telemetry to TickOrchestrator.
     """
     print(f"🚦 ECU Runtime Loop Start (TickOrchestrator handles runtime control).")

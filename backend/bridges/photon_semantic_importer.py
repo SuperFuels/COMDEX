@@ -1,7 +1,7 @@
 """
-Photon ↔ Semantic Importer — Phase 39A–39D
+Photon ↔ Semantic Importer - Phase 39A-39D
 -------------------------------------------
-Reads .qphoto resonance fields exported by Aion’s photonic layer
+Reads .qphoto resonance fields exported by Aion's photonic layer
 and reconstructs semantic clusters and Language Atoms back into
 the Aion Knowledge Graph (AKG).
 
@@ -36,7 +36,7 @@ class PhotonSemanticImporter:
 
     def import_field(self, filename: str):
         """
-        Phase 39A → 39D — Photon → Symbolic Import + Resonant Memory + Drift + Predictive Harmonics
+        Phase 39A -> 39D - Photon -> Symbolic Import + Resonant Memory + Drift + Predictive Harmonics
         Loads a .qphoto resonance field, reconstructs photons, clusters, and atoms,
         updates long-term resonance memory (RMC), analyzes drift (RDM),
         and performs harmonic forecasting (THM).

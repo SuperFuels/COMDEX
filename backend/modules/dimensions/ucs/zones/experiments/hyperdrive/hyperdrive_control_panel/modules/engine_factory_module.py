@@ -16,11 +16,11 @@ def create_engine(name, args):
     🏭 Engine Factory Module
     ------------------------
     Creates and configures a HyperdriveEngine instance:
-    • Initializes container, injectors, and compression chambers.
-    • Applies CLI/config overrides (gravity, magnetism, harmonics, SQI state).
-    • Auto-attaches SQI Controller with feedback if enabled.
-    • Auto-initializes AwarenessEngine (IGI monitoring).
-    • Auto-saves idle snapshot if engine stabilizes.
+    * Initializes container, injectors, and compression chambers.
+    * Applies CLI/config overrides (gravity, magnetism, harmonics, SQI state).
+    * Auto-attaches SQI Controller with feedback if enabled.
+    * Auto-initializes AwarenessEngine (IGI monitoring).
+    * Auto-saves idle snapshot if engine stabilizes.
     """
     print(f"\n⚙️ [ENGINE FACTORY] Creating engine '{name}'...")
 

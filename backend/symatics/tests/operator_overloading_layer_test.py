@@ -1,5 +1,5 @@
 """
-⚙️  Operator Overloading Layer Tests — SRK-15 Task 2
+⚙️  Operator Overloading Layer Tests - SRK-15 Task 2
 Verifies adaptive routing between Symatic OPS and PhotonAlgebraRuntime
 based on coherence context.
 """
@@ -11,7 +11,7 @@ from backend.symatics.operator_overloading_layer import OperatorOverloadingLayer
 
 @pytest.mark.asyncio
 async def test_photonic_dispatch_above_threshold():
-    """Operators should route to PhotonAlgebraRuntime when coherence ≥ threshold."""
+    """Operators should route to PhotonAlgebraRuntime when coherence >= threshold."""
     layer = OperatorOverloadingLayer(coherence_threshold=0.7)
     layer.set_context(0.95)
 

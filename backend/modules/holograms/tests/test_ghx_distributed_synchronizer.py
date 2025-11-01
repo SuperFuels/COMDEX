@@ -1,11 +1,11 @@
 """
-🧪 SRK-17 Task 5 — GHX Distributed Ledger Synchronizer (GHX-DLS)
+🧪 SRK-17 Task 5 - GHX Distributed Ledger Synchronizer (GHX-DLS)
 Test Suite: backend/modules/holograms/tests/test_ghx_distributed_synchronizer.py
 
 Validates:
-    • Peer registration and broadcast simulation
-    • Local bundle registration (chain hash continuity)
-    • Distributed hash-chain integrity verification
+    * Peer registration and broadcast simulation
+    * Local bundle registration (chain hash continuity)
+    * Distributed hash-chain integrity verification
 """
 
 import pytest

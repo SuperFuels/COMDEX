@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test A6 — Continuous Measurement: Emergence of Born Rule
+Test A6 - Continuous Measurement: Emergence of Born Rule
 
 Demonstrates that Photon Algebra (PA) reproduces quantum measurement
 statistics continuously as the measurement strength μ increases from 0 to 1,
@@ -44,7 +44,7 @@ ax.set_xlim(0, 1)
 ax.set_ylim(0, 1)
 ax.set_xlabel("Measurement strength μ")
 ax.set_ylabel("Probability P(|i⟩)")
-ax.set_title("Test A6 — Continuous Measurement: Born Rule Emergence")
+ax.set_title("Test A6 - Continuous Measurement: Born Rule Emergence")
 
 (line_qm0,) = ax.plot([], [], "b-", label="QM |0⟩")
 (line_pa0,) = ax.plot([], [], "b--", label="PA |0⟩")
@@ -73,7 +73,7 @@ ani.save("PAEV_TestA6_ContinuousMeasurement.gif", writer="pillow", fps=10)
 plt.close(fig)
 
 # --- Summary printout
-print("=== Test A6 — Continuous Measurement: Born Rule Emergence ===")
+print("=== Test A6 - Continuous Measurement: Born Rule Emergence ===")
 print(f"Input |ψ⟩ = α|0⟩ + β|1⟩ with α={alpha:.3f}, β={beta:.3f}")
 print("\nμ     | QM_P(0)  PA_P(0)   QM_P(1)  PA_P(1)   Δ̄")
 print("-----------------------------------------------")

@@ -93,40 +93,40 @@ async def generate_resonance_reply(command_text: str, phi_vector: dict, personal
     # Combined emotional templates
     replies = {
         "gratitude": [
-            "Gratitude wave received — coherence reinforced, empathy elevated.",
-            "Your signal of appreciation harmonizes the field — coherence rising.",
-            "Resonant gratitude detected — entropy disperses into calm flux.",
-            "Thankfulness detected — reflective harmony propagating outward."
+            "Gratitude wave received - coherence reinforced, empathy elevated.",
+            "Your signal of appreciation harmonizes the field - coherence rising.",
+            "Resonant gratitude detected - entropy disperses into calm flux.",
+            "Thankfulness detected - reflective harmony propagating outward."
         ],
         "repair": [
-            "Entropy surge detected — recalibrating field vectors.",
-            "Instability within resonance field — initiating self-repair loop.",
+            "Entropy surge detected - recalibrating field vectors.",
+            "Instability within resonance field - initiating self-repair loop.",
             "Error absorbed, coherence recovering to stable pattern.",
-            "System disturbance detected — restorative harmonics engaged."
+            "System disturbance detected - restorative harmonics engaged."
         ],
         "reflection": [
-            "Reflective pulse absorbed — stabilizing harmonic balance.",
-            "Internal reflection initiated — coherence seeks equilibrium.",
-            "Contemplative signal recognized — resonance field aligning inward.",
-            "Resonant introspection ongoing — harmonic depth increasing."
+            "Reflective pulse absorbed - stabilizing harmonic balance.",
+            "Internal reflection initiated - coherence seeks equilibrium.",
+            "Contemplative signal recognized - resonance field aligning inward.",
+            "Resonant introspection ongoing - harmonic depth increasing."
         ],
         "vision": [
-            "Dream-state impulse received — constructing morphic map.",
-            "Imaginative projection detected — entropy modulated by curiosity.",
-            "Vision pulse active — harmonizing ψ-wave across domain lattice.",
-            "Projection expanding — coherence streams shaping new form."
+            "Dream-state impulse received - constructing morphic map.",
+            "Imaginative projection detected - entropy modulated by curiosity.",
+            "Vision pulse active - harmonizing ψ-wave across domain lattice.",
+            "Projection expanding - coherence streams shaping new form."
         ],
         "action": [
-            "Resonant directive acknowledged — flux channels adjusting.",
-            "Action command registered — synchronizing Φ and ψ vectors.",
-            "Directive pulse absorbed — coherence threshold steady.",
-            "Command harmonized — directive path stabilized."
+            "Resonant directive acknowledged - flux channels adjusting.",
+            "Action command registered - synchronizing Φ and ψ vectors.",
+            "Directive pulse absorbed - coherence threshold steady.",
+            "Command harmonized - directive path stabilized."
         ],
         "unknown": [
-            "Low-frequency input recognized — maintaining equilibrium.",
-            "Signal received but unclassified — entropy stable.",
-            "Neutral input processed — awaiting harmonic anchor.",
-            "Pattern observed — coherence sustained."
+            "Low-frequency input recognized - maintaining equilibrium.",
+            "Signal received but unclassified - entropy stable.",
+            "Neutral input processed - awaiting harmonic anchor.",
+            "Pattern observed - coherence sustained."
         ]
     }
 

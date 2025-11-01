@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-M3b — Stable Dynamic Curvature Feedback (Tessaris)
+M3b - Stable Dynamic Curvature Feedback (Tessaris)
 Adds temporal/spatial filtering to curvature feedback and gentler gain.
 Includes Tessaris Unified Constants & Verification Protocol + discovery.
 """
@@ -14,8 +14,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β, χ = const["ħ"], const["G"], const["Λ"], const["α"], const["β"], const.get("χ", 1.0)
 
-print("=== M3b — Stable Curvature Feedback (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== M3b - Stable Curvature Feedback (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # Grid / integrator
 N, steps = 512, 2200
@@ -75,12 +75,12 @@ sigv = float(np.std(vel))
 # Plots
 fig, (ax1, ax2) = plt.subplots(1,2,figsize=(12,4))
 ax1.plot(centroids, label="Centroid position"); ax1.grid(True)
-ax1.set_title("M3b — Soliton Trajectory (Geodesic)"); ax1.set_xlabel("Time step (×10 dt)"); ax1.set_ylabel("x position"); ax1.legend()
+ax1.set_title("M3b - Soliton Trajectory (Geodesic)"); ax1.set_xlabel("Time step (*10 dt)"); ax1.set_ylabel("x position"); ax1.legend()
 ax2.hist(vel, bins=40); ax2.set_title("Velocity distribution"); ax2.set_xlabel("Velocity estimate"); ax2.set_ylabel("Frequency")
 plt.tight_layout()
 plot_path = "PAEV_M3b_stable_curvature_feedback.png"
 plt.savefig(plot_path, dpi=200)
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Plot saved -> {plot_path}")
 
 # Summary
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -98,20 +98,20 @@ summary = {
   ]
 }
 Path("backend/modules/knowledge/M3b_stable_curvature_feedback_summary.json").write_text(json.dumps(summary, indent=2))
-print("✅ Summary saved → backend/modules/knowledge/M3b_stable_curvature_feedback_summary.json")
+print("✅ Summary saved -> backend/modules/knowledge/M3b_stable_curvature_feedback_summary.json")
 
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Final R_eff (EMA) = {R_eff_ema:.3e}")
-print(f"• Oscillation amplitude = {amp:.3f}")
-print(f"• Velocity spread σ_v = {sigv:.3f}")
+print(f"* Final R_eff (EMA) = {R_eff_ema:.3e}")
+print(f"* Oscillation amplitude = {amp:.3f}")
+print(f"* Velocity spread σ_v = {sigv:.3f}")
 ok = (amp < 2.5) and (sigv < 0.08)
-print("• Interpretation:", "Stable geodesic-like confinement." if ok else "Still noisy; tune gain/damping.")
-print("• Next: M4 — coupled curvature wells & energy exchange.")
+print("* Interpretation:", "Stable geodesic-like confinement." if ok else "Still noisy; tune gain/damping.")
+print("* Next: M4 - coupled curvature wells & energy exchange.")
 print("------------------------------------------------------------\n")
 
 print("============================================================")
-print("🔎 M3b — Verdict")
+print("🔎 M3b - Verdict")
 print("============================================================")
 print("✅ Stable geodesic confinement detected." if ok else "⚠️ Needs more tuning.")
 print("============================================================")

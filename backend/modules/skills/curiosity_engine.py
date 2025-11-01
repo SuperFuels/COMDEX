@@ -14,7 +14,7 @@ from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
 MEMORY_FILE = os.path.join(os.path.dirname(__file__), "aion_memory.json")
 INFERENCE_LOG = os.path.join(os.path.dirname(__file__), "aion_inference_chain.log")
 
-# 🧠 Curiosity Chain — symbolic next steps per learned tag
+# 🧠 Curiosity Chain - symbolic next steps per learned tag
 CURIOSITY_CHAIN = {
     "communication": ["public speaking", "negotiation"],
     "logic": ["formal logic", "systems thinking"],
@@ -40,7 +40,7 @@ def save_memory(data):
 
 def log_inference(skill_from, skill_to):
     with open(INFERENCE_LOG, "a") as log:
-        log.write(f"[{datetime.utcnow().isoformat()}] 🧠 AION inferred: '{skill_from}' → '{skill_to}'\n")
+        log.write(f"[{datetime.utcnow().isoformat()}] 🧠 AION inferred: '{skill_from}' -> '{skill_to}'\n")
 
 def run_inference():
     memory = load_memory()
@@ -90,7 +90,7 @@ def run_inference():
         save_memory(memory)
         print(f"🔁 Inferred and queued {added_count} new skills.")
     else:
-        print("ℹ️ No new inferences made.")
+        print("i️ No new inferences made.")
 
 if __name__ == "__main__":
     run_inference()

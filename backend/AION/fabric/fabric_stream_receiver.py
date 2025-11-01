@@ -5,9 +5,9 @@ Listens on HTTP endpoint /fabric/stream and receives live resonance tensors
 (ψ̄ κ̄ T̄ Φ̄ σ) from the AION Fabric Stream emitter.
 
 The receiver logs, stores, and can forward these tensors to:
-  • Morphic Fabric state visualizer
-  • CodexTrace dashboards
-  • Cognitive coherence monitors
+  * Morphic Fabric state visualizer
+  * CodexTrace dashboards
+  * Cognitive coherence monitors
 
 Usage:
     PYTHONPATH=. python backend/AION/fabric/fabric_stream_receiver.py
@@ -45,7 +45,7 @@ def receive_tensor():
         Φ̄ = tensor.get("Φ̄")
         σ = tensor.get("σ")
 
-        logger.info(f"[AION⇐Stream] σ={σ:.3f} ψ̄={ψ̄:.3f} κ̄={κ̄:.3f} T̄={T̄:.3f} Φ̄={Φ̄:.3f}")
+        logger.info(f"[AION<-Stream] σ={σ:.3f} ψ̄={ψ̄:.3f} κ̄={κ̄:.3f} T̄={T̄:.3f} Φ̄={Φ̄:.3f}")
 
         record = {
             "timestamp": data.get("timestamp", time.time()),
@@ -83,5 +83,5 @@ def all_tensors():
 
 
 if __name__ == "__main__":
-    logger.info("🛰️  Starting AION Fabric Stream Receiver on port 5090 …")
+    logger.info("🛰️  Starting AION Fabric Stream Receiver on port 5090 ...")
     app.run(host="0.0.0.0", port=5090)

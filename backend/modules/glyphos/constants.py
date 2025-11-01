@@ -34,7 +34,7 @@ DEFAULT_GLYPH = "✦"
 # --- Build RESERVED_GLYPHS from maps (ops + code tokens) + Greek + default ---
 _BASE = Path(__file__).resolve().parents[1]  # .../backend/modules
 _PH_MAP = _BASE / "photonlang" / "photon_reserved_map.json"
-_PY_TOKEN_MAP = _BASE / "photonlang" / "python_token_map.json"  # keywords/operators/punct → glyphs
+_PY_TOKEN_MAP = _BASE / "photonlang" / "python_token_map.json"  # keywords/operators/punct -> glyphs
 
 # Greek block (upper + lower)
 _GREEK_UPPER = "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
@@ -63,7 +63,7 @@ def _load_reserved_from_json() -> set[str]:
         return op_chars
     except Exception:
         # Safe minimal fallback if JSON is missing / malformed
-        return set("⊕↔∇⟲μπ→⇒⧖≈ΦΨΩΣΔΛΘΞΓ")
+        return set("⊕↔∇⟲μπ->->⧖≈ΦΨΩΣΔΛΘΞΓ")
 
 def _load_code_glyphs() -> set[str]:
     """
@@ -84,7 +84,7 @@ def _load_code_glyphs() -> set[str]:
         # Optional file; if absent, just reserve nothing from it
         return set()
 
-# 🔐 Single source of truth for “do not use for words”
+# 🔐 Single source of truth for "do not use for words"
 RESERVED_GLYPHS: set[str] = (
     _load_reserved_from_json()   # ops/glyphs from photon_reserved_map.json
     | _load_code_glyphs()        # code token glyphs from python_token_map.json

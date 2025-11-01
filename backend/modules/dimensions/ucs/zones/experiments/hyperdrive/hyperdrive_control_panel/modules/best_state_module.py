@@ -11,10 +11,10 @@ class BestStateModule:
     def _compute_score(self):
         """
         Computes a performance score based on:
-        • Drift stability (lower = better)
-        • Exhaust penalty (lower = better)
-        • SQI correction effectiveness (bonus if SQI reduces drift)
-        • Harmonic coherence (bonus for phase alignment)
+        * Drift stability (lower = better)
+        * Exhaust penalty (lower = better)
+        * SQI correction effectiveness (bonus if SQI reduces drift)
+        * Harmonic coherence (bonus for phase alignment)
         """
         drift_window = self.engine.resonance_filtered[-10:]
         drift_penalty = (max(drift_window) - min(drift_window)) if drift_window else 0.0
@@ -35,7 +35,7 @@ class BestStateModule:
 
         # Final weighted score
         score = -(drift_penalty * 1.5 + exhaust_penalty) + sqi_bonus + harmonic_bonus
-        print(f"🏆 [Score] Drift={drift_penalty:.3f}, Exhaust={exhaust_penalty:.2f}, SQI Bonus={sqi_bonus:.2f}, Harmonics={harmonic_bonus:.2f} → Score={score:.4f}")
+        print(f"🏆 [Score] Drift={drift_penalty:.3f}, Exhaust={exhaust_penalty:.2f}, SQI Bonus={sqi_bonus:.2f}, Harmonics={harmonic_bonus:.2f} -> Score={score:.4f}")
         return score
 
     def _update_best_state(self):

@@ -41,7 +41,7 @@ def test_integration_constant():
 
 @pytest.mark.parametrize("a,b,gamma,expected", [
     ("ψ1", "ψ2", 0.1, True),   # linear damping distributes
-    ("ψ1", "ψ2", -0.5, False), # invalid gamma → fail
+    ("ψ1", "ψ2", -0.5, False), # invalid gamma -> fail
 ])
 def test_damping_linearity(a, b, gamma, expected):
     results = check_all_laws("↯⊕", a, b, gamma)
@@ -50,7 +50,7 @@ def test_damping_linearity(a, b, gamma, expected):
 
 @pytest.mark.parametrize("seq,n,expected", [
     ([[1, 2], [3, 4]], 0, True),  # valid projection collapse consistency
-    ([[1, 2], [3, 4]], 5, False), # out of range index → fail
+    ([[1, 2], [3, 4]], 5, False), # out of range index -> fail
 ])
 def test_projection_collapse_consistency(seq, n, expected):
     results = check_all_laws("πμ", seq, n)
@@ -59,11 +59,11 @@ def test_projection_collapse_consistency(seq, n, expected):
 
 @pytest.mark.parametrize("expr,q,gamma,expected", [
     ("ψ", 1.0, 0.1, True),    # valid resonance+damping
-    ("ψ", -1.0, 0.1, False),  # invalid q → fail
-    ("ψ", 1.0, -0.5, False),  # invalid gamma → fail
+    ("ψ", -1.0, 0.1, False),  # invalid q -> fail
+    ("ψ", 1.0, -0.5, False),  # invalid gamma -> fail
 ])
 def test_resonance_damping_consistency(expr, q, gamma, expected):
-    results = check_all_laws("ℚ↯", expr, q, gamma)
+    results = check_all_laws("Q↯", expr, q, gamma)
     assert results["resonance_damping_consistency"] is expected
 
 
@@ -99,7 +99,7 @@ def test_invalid_w_symmetry():
 
 def test_invalid_resonance_qfactor():
     state = "ψ"
-    results = check_all_laws("ℚ", state, -0.9, 10)  # invalid q
+    results = check_all_laws("Q", state, -0.9, 10)  # invalid q
     assert results["resonance_decay"] is False
 
 
@@ -119,7 +119,7 @@ def test_invalid_resonance_qfactor():
     ("↯", ("ψ", 0.1, 10), "damping", True),
     ("⊗GHZ", (["a", "b", "c"],), "ghz_symmetry", True),
     ("⊗W", (["α", "β", "γ"],), "w_symmetry", True),
-    ("ℚ", ("ψ", 0.9, 10), "resonance_decay", True),
+    ("Q", ("ψ", 0.9, 10), "resonance_decay", True),
     ("ε", ("ψ", 0.05), "measurement_noise", True),   # valid epsilon
     ("ε", ("ψ", 1.5), "measurement_noise", False),   # out of range
 ])

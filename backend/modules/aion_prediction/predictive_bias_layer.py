@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-AION Phase 31 — Predictive Bias Layer (Unified)
+AION Phase 31 - Predictive Bias Layer (Unified)
 ───────────────────────────────────────────────
 Learns short-term temporal transitions between perceptual events.
 Builds a Markov-style temporal model predicting next glyph or concept.
 Integrates with PAL and resonance feedback to reinforce accurate
-anticipation. Functions as Aion’s temporal coherence engine.
+anticipation. Functions as Aion's temporal coherence engine.
 
 Inputs:
   - data/analysis/pal_events.jsonl
@@ -144,7 +144,7 @@ class PredictiveBias:
 
         # Optional diagnostic output
         if getattr(self, "verbose", False):
-            print(f"🧩 Updated transition {prev_symbol} → {next_symbol} "
+            print(f"🧩 Updated transition {prev_symbol} -> {next_symbol} "
                   f"(Δ={delta:.3f}, total={self.transitions[key]:.3f}, count={self.counts[key]})")
 
         # Apply small decay to all transitions for temporal smoothing
@@ -233,7 +233,7 @@ class PredictiveBias:
         out = {k: dict(v) for k, v in self.markov_graph.items()}
         with open(path, "w") as f:
             json.dump(out, f, indent=2)
-        print(f"🧮 Temporal model saved → {path}")
+        print(f"🧮 Temporal model saved -> {path}")
 
     # ─────────────────────────────────────────────
     # Save predictive bias (resonance state)
@@ -241,9 +241,9 @@ class PredictiveBias:
     def save_state(self):
         """Safely serialize predictive bias state with tuple-key encoding."""
         
-        # Helper to convert tuple keys → string "A→B"
+        # Helper to convert tuple keys -> string "A->B"
         def _encode_keys(d):
-            return {f"{k[0]}→{k[1]}": v for k, v in d.items()}
+            return {f"{k[0]}->{k[1]}": v for k, v in d.items()}
 
         # Build export data
         data = {
@@ -258,20 +258,20 @@ class PredictiveBias:
         with open(STATE_PATH, "w") as f:
             json.dump(data, f, indent=2)
 
-        print(f"💾 PredictiveBias saved → {STATE_PATH.name} ({len(self.transitions)} transitions)")
+        print(f"💾 PredictiveBias saved -> {STATE_PATH.name} ({len(self.transitions)} transitions)")
 
     def load_state(self):
         """Load predictive bias state safely with tuple-key decoding and auto-heal."""
         if not STATE_PATH.exists():
-            print("⚠️ No predictive state found — creating fresh baseline.")
+            print("⚠️ No predictive state found - creating fresh baseline.")
             self.save_state()
             return
 
         def _decode_keys(d):
             out = {}
             for k, v in d.items():
-                if isinstance(k, str) and "→" in k:
-                    a, b = k.split("→", 1)
+                if isinstance(k, str) and "->" in k:
+                    a, b = k.split("->", 1)
                     out[(a, b)] = v
             return out
 
@@ -284,13 +284,13 @@ class PredictiveBias:
             self.counts = _decode_keys(data.get("counts", {}))
             self.prediction_confidence = data.get("confidence", 0.0)
 
-            print(f"🔁 PredictiveBias state restored → {len(self.transitions)} transitions")
+            print(f"🔁 PredictiveBias state restored -> {len(self.transitions)} transitions")
 
         except json.JSONDecodeError as e:
             print(f"⚠️ Corrupted predictive_bias_state.json detected: {e}")
             backup = STATE_PATH.with_suffix(".corrupt.json")
             STATE_PATH.rename(backup)
-            print(f"🩹 Backup saved → {backup.name}, regenerating fresh state...")
+            print(f"🩹 Backup saved -> {backup.name}, regenerating fresh state...")
             self.save_state()
         except Exception as e:
             print(f"⚠️ Unexpected error loading predictive state: {e}")
@@ -303,7 +303,7 @@ class PredictiveBias:
         print("\n🔮 Predictive Transition Summary")
         sorted_trans = sorted(self.transitions.items(), key=lambda kv: kv[1], reverse=True)[:top_n]
         for (a, b), w in sorted_trans:
-            print(f"  {a} → {b}  (w={w:.3f})")
+            print(f"  {a} -> {b}  (w={w:.3f})")
         print(f"📈 Confidence: {self.prediction_confidence:.3f}")
 
     # ─────────────────────────────────────────────
@@ -349,7 +349,7 @@ def run_predictive_cycle(n=12):
     print(f"🔹 Starting symbol: {cur}")
     for i in range(n):
         nxt, prob = pb.predict_next(cur)
-        print(f"→ predicts {nxt}  (p≈{prob:.2f})")
+        print(f"-> predicts {nxt}  (p≈{prob:.2f})")
         pb.update("demo", nxt, reward=1.0, vec=[0.1, 0.2, 0.3, 0.9, 0.1])
         pb.evaluate(nxt)
         cur = nxt

@@ -1,8 +1,8 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.7 — Symbolic Flow Operators
-# Core divergence, curl, and Laplacian operators for λ–ψ dynamics
+# Tessaris Symatics v0.7 - Symbolic Flow Operators
+# Core divergence, curl, and Laplacian operators for λ-ψ dynamics
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v0.7.0 — October 2025
+# Version: v0.7.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ Array = Union[np.ndarray, float]
 # ──────────────────────────────────────────────────────────────
 def divergence(field: Array) -> np.ndarray:
     """
-    ∇·field — symbolic divergence operator.
+    ∇*field - symbolic divergence operator.
     Works for 1D, 2D, or ND arrays.
     """
     if np.ndim(field) == 1:
@@ -45,7 +45,7 @@ def divergence(field: Array) -> np.ndarray:
 # ──────────────────────────────────────────────────────────────
 def curl(field: Array) -> np.ndarray:
     """
-    ∇×field — symbolic curl operator (2D+ only).
+    ∇*field - symbolic curl operator (2D+ only).
     For 1D arrays, returns zero array.
     """
     if np.ndim(field) < 2:
@@ -64,7 +64,7 @@ def curl(field: Array) -> np.ndarray:
 # ──────────────────────────────────────────────────────────────
 def laplacian(field: Array) -> np.ndarray:
     """
-    ∇²ψ — discrete Laplacian operator.
+    ∇2ψ - discrete Laplacian operator.
     Compatible with arbitrary-dimensional grids.
     """
     grads = np.gradient(field)

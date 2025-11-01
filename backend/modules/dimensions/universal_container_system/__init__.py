@@ -1,12 +1,12 @@
 """
-🧮 Universal Container System (UCS) – Initialization
+🧮 Universal Container System (UCS) - Initialization
 -----------------------------------------------------
 Exposes the full Universal Container System runtime:
-    • Tesseract Central Command (Capital container)
-    • Exotic Geometry Containers (Quantum Orb, Vortex, Black Hole, Torus, etc.)
-    • Multi-Container Orchestration (Quantum → Vortex → Compression → Exhaust)
-    • GHX Visualizer & Knowledge Graph Integration
-    • SoulLaw Enforcement Layer (safety + access control)
+    * Tesseract Central Command (Capital container)
+    * Exotic Geometry Containers (Quantum Orb, Vortex, Black Hole, Torus, etc.)
+    * Multi-Container Orchestration (Quantum -> Vortex -> Compression -> Exhaust)
+    * GHX Visualizer & Knowledge Graph Integration
+    * SoulLaw Enforcement Layer (safety + access control)
 
 Usage:
     from backend.modules.dimensions.universal_container_system import (

@@ -41,7 +41,7 @@ def collect_series(series_tag: str):
 # -----------------------------------------------------------
 def generate_markdown(series_tag: str, synthesis, entries: list):
     now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
-    md = [f"# Tessaris Discovery Report — {series_tag}-Series",
+    md = [f"# Tessaris Discovery Report - {series_tag}-Series",
           f"**Generated:** {now}",
           "",
           f"**Series Tag:** `{series_tag}`",

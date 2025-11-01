@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Phase 1 — Encode Trial Logs into the Aion Knowledge Graph
+Phase 1 - Encode Trial Logs into the Aion Knowledge Graph
 ────────────────────────────────────────────────────────────
 Reads trial results JSONL (choice, ans, conf, acc)
-→ Creates nodes and weighted edges in Aion’s Knowledge Graph.
+-> Creates nodes and weighted edges in Aion's Knowledge Graph.
 """
 
 import json, time

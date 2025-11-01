@@ -1,5 +1,5 @@
 """
-Tessaris • QQC v0.5 — Symatics Lightwave Engine Test
+Tessaris * QQC v0.5 - Symatics Lightwave Engine Test
 Test Script: Wave Modulation Evolution
 ----------------------------------------------------
 Runs each Symatics operator (⊕, ↔, μ, ⟲, π) through
@@ -46,7 +46,7 @@ def run_wave_modulation_test():
         instructions = [{"opcode": opcode}]
         engine.load_wave_program(instructions)
 
-        # Run a short 3–tick loop per operator
+        # Run a short 3-tick loop per operator
         for i in range(3):
             wave_before = (wave.amplitude, wave.phase, wave.frequency, wave.coherence)
             engine._apply_symatics_modulation(wave, opcode)

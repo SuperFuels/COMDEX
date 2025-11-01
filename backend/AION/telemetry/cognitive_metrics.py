@@ -2,9 +2,9 @@
 AION Cognitive Telemetry Metrics
 ────────────────────────────────
 Extends the Φ-stability telemetry with derived cognitive-state metrics:
-  • Φ_load    → instantaneous symbolic processing load
-  • Φ_flux    → rate of change of Φ_stability_index
-  • Φ_entropy → informational disorder across recent coherence samples
+  * Φ_load    -> instantaneous symbolic processing load
+  * Φ_flux    -> rate of change of Φ_stability_index
+  * Φ_entropy -> informational disorder across recent coherence samples
 """
 
 import math
@@ -21,11 +21,11 @@ def compute_cognitive_metrics():
     if not records:
         return {"Φ_load": 0.0, "Φ_flux": 0.0, "Φ_entropy": 0.0}
 
-    # 1. Φ_load — normalized current activity
+    # 1. Φ_load - normalized current activity
     recent = records[-1]
     Φ_load = min(1.0, max(0.0, recent["pass_rate"] * (1 / (1 + recent["tolerance"]))))
 
-    # 2. Φ_flux — rate of change of stability index
+    # 2. Φ_flux - rate of change of stability index
     if len(records) >= 2:
         Φ_prev = _tracker._compute_stability_index()
         Φ_old = _tracker._compute_stability_index() if len(records) < 2 else (
@@ -35,7 +35,7 @@ def compute_cognitive_metrics():
     else:
         Φ_flux = 0.0
 
-    # 3. Φ_entropy — normalized variance / disorder
+    # 3. Φ_entropy - normalized variance / disorder
     pass_rates = [r["pass_rate"] for r in records]
     σ = pstdev(pass_rates) if len(pass_rates) > 1 else 0.0
     Φ_entropy = min(1.0, σ * 10)  # scale into 0-1 band
@@ -54,7 +54,7 @@ async def post_cognitive_metrics():
 
     try:
         await post_metric("Φ_COGNITION", payload)
-        print(f"[AION::Telemetry] Φ_COGNITION logged → {payload}")
+        print(f"[AION::Telemetry] Φ_COGNITION logged -> {payload}")
     except Exception as e:
         print(f"[AION::Telemetry] ⚠ Cognitive metrics post failed: {e}")
 

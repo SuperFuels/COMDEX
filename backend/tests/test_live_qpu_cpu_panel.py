@@ -14,7 +14,7 @@ async def mock_broadcast_qfc_update(container_id: str, payload: Dict[str, Any]):
 class MockCell:
     def __init__(self, cell_id: str):
         self.id = cell_id
-        self.logic = random.choice(["⊕", "↔", "⟲", "→", "⊗"])
+        self.logic = random.choice(["⊕", "↔", "⟲", "->", "⊗"])
         self.sqi_score = round(random.random(), 3)
         self.prediction_forks = []
         self.result = None
@@ -27,7 +27,7 @@ async def simulate_cell_execution(container_id: str, cell: MockCell):
     opcode_metrics = {}
 
     # Simulate per-token execution
-    for token in ["⊕", "↔", "⟲", "→", "⊗"]:
+    for token in ["⊕", "↔", "⟲", "->", "⊗"]:
         token_start = perf_counter()
         # random FP times
         fp4 = random.uniform(0.0001, 0.001)

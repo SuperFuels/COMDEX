@@ -66,7 +66,7 @@ plt.plot(S_system, label="S_system")
 plt.plot(S_observer, label="S_observer")
 plt.plot(S_meta, label="S_meta (awareness)")
 plt.plot(S_self, label="S_self (recognition)")
-plt.title("P3 — Meta-Stable Self-Recognition")
+plt.title("P3 - Meta-Stable Self-Recognition")
 plt.xlabel("time step")
 plt.ylabel("Entropy")
 plt.legend()
@@ -94,6 +94,6 @@ summary = {
 with open("backend/modules/knowledge/P3_self_recognition.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== P3 — Meta-Stable Self-Recognition ===")
+print("=== P3 - Meta-Stable Self-Recognition ===")
 print(f"Overlap={meta_overlap:.3f} | Stability={recognition_stability:.3e} | Drift={mean_drift:.3e} | {cls}")
-print("✅ Results saved → backend/modules/knowledge/P3_self_recognition.json")
+print("✅ Results saved -> backend/modules/knowledge/P3_self_recognition.json")

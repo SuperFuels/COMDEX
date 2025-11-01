@@ -1,5 +1,5 @@
 """
-📦 Wiki Capsule Serializer — Phase 3.1 (YAML-safe + Symbolic Unified)
+📦 Wiki Capsule Serializer - Phase 3.1 (YAML-safe + Symbolic Unified)
 --------------------------------------------------------------------
 Preserves symbolic ^wiki_capsule framing while keeping YAML strictly single-document
 for linter and importer validation.
@@ -52,7 +52,7 @@ def serialize_to_phn(capsule: WikiCapsule) -> str:
 
     yaml_text = yaml.safe_dump(capsule_dict, sort_keys=False, allow_unicode=True)
 
-    # Symbolic framing kept as comments → YAML still valid
+    # Symbolic framing kept as comments -> YAML still valid
     return (
         "# ^wiki_capsule {\n"
         f"{yaml_text}"
@@ -68,4 +68,4 @@ def save_wiki_capsule(capsule: WikiCapsule, out_path: Path):
     out_path.parent.mkdir(parents=True, exist_ok=True)
     phn_text = serialize_to_phn(capsule)
     out_path.write_text(phn_text, encoding="utf-8")
-    print(f"[Serializer] Saved Wiki capsule → {out_path}")
+    print(f"[Serializer] Saved Wiki capsule -> {out_path}")

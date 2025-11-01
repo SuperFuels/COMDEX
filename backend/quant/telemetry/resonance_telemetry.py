@@ -25,5 +25,5 @@ class ResonanceTelemetry:
 
     def emit(self) -> Dict[str, Any]:
         packet = {"type": "telemetry", "data": self.update()}
-        logger.info(f"📡 Telemetry update → {packet['data']}")
+        logger.info(f"📡 Telemetry update -> {packet['data']}")
         return packet

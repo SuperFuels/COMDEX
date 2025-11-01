@@ -9,7 +9,7 @@ DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
 router = APIRouter()
 
-# Sample static suggestions – later this can be dynamic based on AION state or memory
+# Sample static suggestions - later this can be dynamic based on AION state or memory
 STATIC_COMMANDS = [
     "run dream cycle",
     "show boot progress",

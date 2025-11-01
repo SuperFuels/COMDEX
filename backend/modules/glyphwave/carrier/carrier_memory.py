@@ -1,5 +1,5 @@
 """
-📡 Carrier Memory — SRK-12 Task E3
+📡 Carrier Memory - SRK-12 Task E3
 Caches photonic carrier fields for persistence and recovery.
 """
 

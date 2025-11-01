@@ -1,5 +1,5 @@
 """
-TemporalHarmonicsMonitor — Phase 39D : Predictive Resonance Analysis
+TemporalHarmonicsMonitor - Phase 39D : Predictive Resonance Analysis
 -------------------------------------------------------------------
 Analyzes resonance-coherence history from the Resonant Memory Cache (RMC)
 to detect oscillatory or decaying temporal patterns.
@@ -25,7 +25,7 @@ class TemporalHarmonicsMonitor:
 
     def predict_instability(self):
         """
-        Phase 40A — Predict upcoming semantic or resonance instability.
+        Phase 40A - Predict upcoming semantic or resonance instability.
         Returns a drift-like vector when harmonic oscillations exceed thresholds.
         Used by the Harmonic Stabilizer Engine (HSE) for anticipatory correction.
         """
@@ -79,7 +79,7 @@ class TemporalHarmonicsMonitor:
                 self._predictive_goal(cid, h_energy)
                 events.append((cid, h_energy))
 
-        logger.info(f"[THM] Evaluated {len(self.history)} concepts → {len(events)} harmonic alerts.")
+        logger.info(f"[THM] Evaluated {len(self.history)} concepts -> {len(events)} harmonic alerts.")
         return events
 
     # ─────────────────────────────────────────────
@@ -89,7 +89,7 @@ class TemporalHarmonicsMonitor:
         priority = min(1.0, 0.5 + 0.5 * energy)
         GOALS.create_goal(goal_name, priority=priority)
         akg.add_triplet(cid, "predicts_phase_instability", str(round(energy, 3)))
-        logger.warning(f"[THM] ⚠️ Predicted phase oscillation in {cid} → spawned goal:{goal_name} (E={energy:.3f})")
+        logger.warning(f"[THM] ⚠️ Predicted phase oscillation in {cid} -> spawned goal:{goal_name} (E={energy:.3f})")
 
 
 # ─────────────────────────────────────────────

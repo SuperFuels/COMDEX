@@ -19,7 +19,7 @@ def run():
         proj = project_with_pi(stack, pi_spatial=pi_s)
         V = compute_visibility(proj.mean(axis=0))
         visibilities.append(V)
-        print(f"π_spatial={pi_s} → V={V:.3f}")
+        print(f"π_spatial={pi_s} -> V={V:.3f}")
     plt.plot(pi_spatial_values, visibilities, marker='o')
     plt.xlabel("π_spatial (bin width)"); plt.ylabel("Visibility V")
     plt.title("Symatics π-sweep: V vs projection bandwidth")

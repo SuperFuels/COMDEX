@@ -4,7 +4,7 @@ from backend.modules.codex.collapse_trace_exporter import log_soullaw_event
 
 class QKDPolicyEnforcer:
     def __init__(self):
-        # ✅ Use class reference directly — no .get_instance() needed
+        # ✅ Use class reference directly - no .get_instance() needed
         self.gkey_store = GKeyStore
 
     def is_qkd_required(self, wave_packet: dict) -> bool:

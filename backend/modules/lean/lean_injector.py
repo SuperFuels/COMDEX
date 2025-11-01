@@ -23,7 +23,7 @@ def _rebuild_from_logic(container: Dict[str, Any], glyph_field: str, logic_field
         name = e.get("name", "?")
         logic = e.get("logic", "?")
         label = "Define" if "Definition" in sym else "Prove"
-        glyphs.append(f"{sym} | {name} : {logic} → {label} ⟧")
+        glyphs.append(f"{sym} | {name} : {logic} -> {label} ⟧")
         thought_tree.append({
             "name": name,
             "glyph": sym,
@@ -79,7 +79,7 @@ def inject_theorems_into_container(
     container.setdefault(logic_field, [])
     container.setdefault(tree_field, [])
 
-    # Build name → index map for overwrite semantics
+    # Build name -> index map for overwrite semantics
     name_to_idx = {
         e.get("name"): i
         for i, e in enumerate(container.get(logic_field, []))
@@ -141,7 +141,7 @@ def inject_theorems_into_container(
     if errors:
         print("⚠️  Logic validation errors:")
         for e in errors:
-            print("  •", e)
+            print("  *", e)
 
     return container
 

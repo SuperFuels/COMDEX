@@ -1,14 +1,14 @@
 # ================================================================
-# 🛰️ Phase 45G.11 — GHX Telemetry Bridge (ρ∇ψ Enhanced)
+# 🛰️ Phase 45G.11 - GHX Telemetry Bridge (ρ∇ψ Enhanced)
 # ================================================================
 """
 Live telemetry bridge between AION Cognitive Engines and GHX/CodexMetrics.
 
 Streams:
-    • Cognitive session metrics (SQI, emotion tone, difficulty)
-    • Resonance coherence (ρ), intensity (I), gradient coherence (ρ∇ψ)
-    • Adaptive difficulty + emotional trend
-    • Real-time bridge to HabitEngine via GHX-Habit subsystem
+    * Cognitive session metrics (SQI, emotion tone, difficulty)
+    * Resonance coherence (ρ), intensity (I), gradient coherence (ρ∇ψ)
+    * Adaptive difficulty + emotional trend
+    * Real-time bridge to HabitEngine via GHX-Habit subsystem
 
 Outputs:
     data/telemetry/ghx_stream.json   (local mirror for GHXVisualizer)
@@ -43,7 +43,7 @@ class GHXTelemetryBridge:
         self.stream.append(payload)
         self.last_update = payload["timestamp"]
         self._save()
-        logger.info(f"[GHX] Emitted telemetry packet → {payload}")
+        logger.info(f"[GHX] Emitted telemetry packet -> {payload}")
 
     # ------------------------------------------------------------
     def _save(self):
@@ -55,7 +55,7 @@ class GHXTelemetryBridge:
             "stream": self.stream[-300:],  # keep recent 300 events
             "meta": {
                 "schema": "GHXTelemetry.v2",
-                "desc": "AION→GHX live cognitive telemetry with resonance gradients",
+                "desc": "AION->GHX live cognitive telemetry with resonance gradients",
                 "fields": [
                     "SQI", "emotion", "difficulty", "ρ", "I", "ρ∇ψ", "phase"
                 ],
@@ -84,7 +84,7 @@ class GHXTelemetryBridge:
             "timestamp": time.time(),
         }
 
-        logger.info(f"[GHX] Live summary → {summary}")
+        logger.info(f"[GHX] Live summary -> {summary}")
         return summary
 
     # ------------------------------------------------------------

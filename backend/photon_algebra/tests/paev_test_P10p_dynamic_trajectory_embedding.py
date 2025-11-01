@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timezone
 
 # =====================================================
-# P10p — Dynamic Trajectory Embedding on Fusion Surface
+# P10p - Dynamic Trajectory Embedding on Fusion Surface
 # =====================================================
 
 np.random.seed(42)
@@ -73,10 +73,10 @@ ax.plot_surface(dphi1, dphi2, R_surface, cmap='viridis', alpha=0.75, linewidth=0
 ax.plot(dphi1_hist, dphi2_hist, R_hist, color='red', linewidth=2.0, label="Phase Trajectory")
 ax.scatter(dphi1_hist[-1], dphi2_hist[-1], R_hist[-1], color='black', s=50, label="Final Equilibrium")
 
-ax.set_xlabel("Δφ₁ (rad)")
-ax.set_ylabel("Δφ₂ (rad)")
+ax.set_xlabel("Δφ1 (rad)")
+ax.set_ylabel("Δφ2 (rad)")
 ax.set_zlabel("R (coherence)")
-ax.set_title("P10p — Dynamic Trajectory Embedding on Global Fusion Surface")
+ax.set_title("P10p - Dynamic Trajectory Embedding on Global Fusion Surface")
 ax.legend()
 plt.tight_layout()
 plt.savefig("PAEV_P10p_DynamicTrajectoryEmbedding.png", dpi=240)
@@ -101,6 +101,6 @@ results = {
 with open("backend/modules/knowledge/P10p_dynamic_trajectory_embedding.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== P10p — Dynamic Trajectory Embedding ===")
+print("=== P10p - Dynamic Trajectory Embedding ===")
 print(f"Final R={results['metrics']['R_final']:.4f}, Mean R={results['metrics']['mean_R']:.4f}")
-print("✅ Results saved → backend/modules/knowledge/P10p_dynamic_trajectory_embedding.json")
+print("✅ Results saved -> backend/modules/knowledge/P10p_dynamic_trajectory_embedding.json")

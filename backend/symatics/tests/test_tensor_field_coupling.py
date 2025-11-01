@@ -1,6 +1,6 @@
 # backend/symatics/tests/test_tensor_field_coupling.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.8 — Integration Test: Tensor λ⊗ψ Coupling
+# Tessaris Symatics v0.8 - Integration Test: Tensor λ⊗ψ Coupling
 # Validates stability, coherence, and event emission for the
 # Resonant Tensor Field Continuum.
 # Author: Tessaris Core Systems / Codex Intelligence Group

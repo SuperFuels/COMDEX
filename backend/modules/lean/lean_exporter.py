@@ -15,13 +15,13 @@ except Exception:
     def emit_codexlang_glyph(node: Dict[str, Any], glyph_label: str = "⟦ Theorem ⟧") -> str:  # type: ignore
         name = node.get("name", "unknown")
         logic = node.get("logic", "???")
-        # Match the project’s preview conventions with explicit label
-        return f"{glyph_label} | {name} : {logic} → {'Define' if 'Definition' in glyph_label else 'Prove'} ⟧"
+        # Match the project's preview conventions with explicit label
+        return f"{glyph_label} | {name} : {logic} -> {'Define' if 'Definition' in glyph_label else 'Prove'} ⟧"
 
 try:
     from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
 except Exception:
-    # Soft shim if rewriter module isn’t present; preserves interface
+    # Soft shim if rewriter module isn't present; preserves interface
     class CodexLangRewriter:  # type: ignore
         @staticmethod
         def simplify(expr: str, mode: str = "soft") -> str:
@@ -181,7 +181,7 @@ def main():
         if args.out:
             with open(args.out, "w", encoding="utf-8") as f:
                 json.dump(container, f, indent=2, ensure_ascii=False)
-            print(f"[✅] Wrote container → {args.out}")
+            print(f"[✅] Wrote container -> {args.out}")
         else:
             print(json.dumps(container, indent=2, ensure_ascii=False))
     except Exception as e:
@@ -189,7 +189,7 @@ def main():
         sys.exit(2)
 
 # -*- coding: utf-8 -*-
-"""Lean Exporter (Stub) — compatibility layer for SRK-8."""
+"""Lean Exporter (Stub) - compatibility layer for SRK-8."""
 
 def export_axioms_to_lean(*args, **kwargs):
     print("[LeanExporter] Stub: export_axioms_to_lean called.")

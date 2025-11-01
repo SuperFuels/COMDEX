@@ -1,5 +1,5 @@
 """
-MeaningFieldEngine — Phase 37A : Meaning Field Generator (MFG)
+MeaningFieldEngine - Phase 37A : Meaning Field Generator (MFG)
 ---------------------------------------------------------------
 Extracts semantic topology from the Aion Knowledge Graph (AKG)
 and emotion/goal context to produce the first internal "meaning field".
@@ -54,7 +54,7 @@ class MeaningFieldEngine:
         data = cur.fetchall()
         conn.close()
 
-        # Only include concept–concept edges
+        # Only include concept-concept edges
         return [
             (s, p, o, w)
             for (s, p, o, w) in data
@@ -119,7 +119,7 @@ class MeaningFieldEngine:
     # ─────────────────────────────────────────
     def register(self, concept: str, data: dict):
         """
-        Phase 41A.3 — Register lexical or semantic entry.
+        Phase 41A.3 - Register lexical or semantic entry.
         Inserts or updates a concept node in the Meaning Field.
         """
         if not hasattr(self, "field"):
@@ -156,7 +156,7 @@ class MeaningFieldEngine:
 
 
 # ─────────────────────────────────────────────
-# Phase 37A — Global Instance
+# Phase 37A - Global Instance
 # ─────────────────────────────────────────────
 try:
     MFG

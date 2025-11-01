@@ -1,5 +1,5 @@
 # ==========================================================
-# G4 — Cross-Domain Coupling (Tessaris Unified Equation)
+# G4 - Cross-Domain Coupling (Tessaris Unified Equation)
 # Goal: enforce conservation of geometric, thermodynamic,
 #       and informational energies under dynamic feedback.
 # Saves: backend/modules/knowledge/G4_cross_domain_coupling.json
@@ -58,7 +58,7 @@ for i in range(2, T):
     # curvature proxy (second-order finite difference, scalar-safe)
     R[i] = np.real((ψ[i] - 2*ψ[i-1] + ψ[i-2]) / (dt**2))
 
-    # entropy proxy (Shannon–von Neumann analogue)
+    # entropy proxy (Shannon-von Neumann analogue)
     amp = np.abs(ψ[i])
     S[i] = -np.sum(amp**2 * np.log(amp**2 + 1e-12))
 
@@ -92,20 +92,20 @@ else:
 # ---- Plots ----
 plt.figure(figsize=(9,5))
 plt.plot(t, E_total, lw=1.6, label="E_total")
-plt.title("G4 — Energy Conservation (Tessaris Unified Equation)")
+plt.title("G4 - Energy Conservation (Tessaris Unified Equation)")
 plt.xlabel("time"); plt.ylabel("E_total"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4_EnergyConservation.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, S, color="orange", lw=1.5, label="Entropy Flux S(t)")
-plt.title("G4 — Entropy Flux Evolution")
+plt.title("G4 - Entropy Flux Evolution")
 plt.xlabel("time"); plt.ylabel("S(t)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4_EntropyFlux.png")
 
 plt.figure(figsize=(9,5))
-plt.plot(t, I, color="purple", lw=1.5, label="Information Flux İ(t)")
-plt.title("G4 — Information Coupling Dynamics")
-plt.xlabel("time"); plt.ylabel("İ(t)"); plt.legend(); plt.tight_layout()
+plt.plot(t, I, color="purple", lw=1.5, label="Information Flux İ(t)")
+plt.title("G4 - Information Coupling Dynamics")
+plt.xlabel("time"); plt.ylabel("İ(t)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4_InfoCoupling.png")
 
 # ---- Save JSON ----
@@ -134,8 +134,8 @@ save_path = "backend/modules/knowledge/G4_cross_domain_coupling.json"
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== G4 — Cross-Domain Coupling (Tessaris Unified Equation) ===")
+print("=== G4 - Cross-Domain Coupling (Tessaris Unified Equation) ===")
 print(f"stability={E_stab:.3f} | cross_corr={cross_corr:.3f} | "
       f"E_range=({E_min:.3e},{E_max:.3e})")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {save_path}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {save_path}")

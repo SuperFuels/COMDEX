@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==========================================================
-# F3 — Vacuum Energy Cancellation (Coherent Bounce Test)
+# F3 - Vacuum Energy Cancellation (Coherent Bounce Test)
 # ==========================================================
 # Goal: Add an adaptive counter-vacuum term Λ_dyn(t) that cancels
 # the energy spike near the bounce, improving rebound coherence.
@@ -91,7 +91,7 @@ def total_energy(a_now, phi_now, phid_now, Lam_now):
     return rho_m_now, rho_k_now, rho_phi_now, rho_vac_now, (rho_m_now + rho_k_now + rho_phi_now + rho_vac_now)
 
 def hubble_from_energy(rho_total):
-    # Simple “Friedmann-like” surrogate: H^2 ~ alpha * rho_total
+    # Simple "Friedmann-like" surrogate: H^2 ~ alpha * rho_total
     # (alpha plays the role of 8πG/3 up to units)
     Hsq = np.maximum(1e-10, alpha * rho_total)
     return np.sign(H[0]) * np.sqrt(Hsq)  # sign carried from dynamics (updated below)
@@ -133,7 +133,7 @@ for i in range(1, T):
     phi[i]  = phi[i-1]  + dt*phid[i]
     Rcoh[i] = np.cos(phi[i])
 
-    # 5) Adaptive Λ_dyn control — cancel surges near bounce
+    # 5) Adaptive Λ_dyn control - cancel surges near bounce
     # Error signal: excess total energy above a soft baseline
     E = rtot
     e = E - 0.20   # soft bias so we don't kill expansion energy far from bounce
@@ -150,7 +150,7 @@ for i in range(1, T):
     u = (ctrl["kp"]*e + ctrl["ki"]*e_int + ctrl["kd"]*e_der) * (1.0 + ctrl["boost_near_bounce"]*nb)
 
     # clamp Λ_dyn
-    Lambda_dyn[i] = np.clip(Lambda_dyn[i-1] - u*dt, ctrl["soft_floor"], ctrl["soft_ceil"])  # minus sign → counter-pressure
+    Lambda_dyn[i] = np.clip(Lambda_dyn[i-1] - u*dt, ctrl["soft_floor"], ctrl["soft_ceil"])  # minus sign -> counter-pressure
 
 # final energy slice
 Lam_now = Lambda_base + Lambda_dyn[-1]
@@ -184,7 +184,7 @@ else:
 plt.figure(figsize=(9.5, 4.6))
 plt.plot(t, a, label="a(t)")
 plt.axvline(t[bounce_idx], color="purple", ls="--", alpha=0.8, label="bounce")
-plt.title("F3 — Scale Factor Evolution (Vacuum Cancellation)")
+plt.title("F3 - Scale Factor Evolution (Vacuum Cancellation)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.legend()
 plt.tight_layout()
@@ -198,7 +198,7 @@ plt.plot(t, rho_phi, label="ρ_φ", alpha=0.6)
 plt.plot(t, rho_curv,label="ρ_curv", alpha=0.6)
 plt.plot(t, Lambda_base + Lambda_dyn, "--", color="gray", label="Λ(t)")
 plt.yscale("log")
-plt.title("F3 — Energy Density and Dynamic Vacuum Λ(t)")
+plt.title("F3 - Energy Density and Dynamic Vacuum Λ(t)")
 plt.xlabel("time"); plt.ylabel("Energy (arb. units, log)")
 plt.legend(ncol=3)
 plt.tight_layout()
@@ -208,7 +208,7 @@ plt.savefig("FAEV_F3_EnergyDecomposition.png")
 plt.figure(figsize=(9.5, 4.4))
 plt.plot(t, np.clip(Rcoh, -1, 1), label="cos(φ)")
 plt.axvline(t[bounce_idx], color="purple", ls="--", alpha=0.7)
-plt.title("F3 — Vacuum-Field Phase Coherence")
+plt.title("F3 - Vacuum-Field Phase Coherence")
 plt.xlabel("time"); plt.ylabel("cos(φ)")
 plt.legend()
 plt.tight_layout()
@@ -246,7 +246,7 @@ result = {
 with open("backend/modules/knowledge/F3_vacuum_cancellation.json", "w") as f:
     json.dump(result, f, indent=2)
 
-print("=== F3 — Vacuum Energy Cancellation (Coherent Bounce Test) ===")
+print("=== F3 - Vacuum Energy Cancellation (Coherent Bounce Test) ===")
 print(f"a_min={a_min:.4f} | mean_coherence={mean_coh:.3f} | anti-corr(Λ,E)={anti_corr:.2f}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F3_vacuum_cancellation.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F3_vacuum_cancellation.json")

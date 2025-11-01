@@ -1,5 +1,5 @@
 # File: backend/modules/aion_resonance/lexicon_reasoner.py
-# 🧩 AION Lexicon Reasoner — Semantic comparison and relation analysis between Φ-fields
+# 🧩 AION Lexicon Reasoner - Semantic comparison and relation analysis between Φ-fields
 
 import json
 import os

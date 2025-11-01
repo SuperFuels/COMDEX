@@ -67,7 +67,7 @@ def recv_packet() -> Optional[Dict[str, Any]]:
 
 
 # ═══════════════════════════════════════════════════
-# ✴ WaveState → GWIP (GlyphNet Interchange Packet)
+# ✴ WaveState -> GWIP (GlyphNet Interchange Packet)
 # ═══════════════════════════════════════════════════
 
 def wave_to_gwip(wave: WaveState) -> Dict:

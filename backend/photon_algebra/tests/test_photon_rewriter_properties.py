@@ -48,26 +48,26 @@ def test_normalize_idempotent(expr):
     assert n1 == n2
 
 def test_duality_negation():
-    # a ⊕ ¬a → ⊤
+    # a ⊕ ¬a -> ⊤
     expr = {"op": "⊕", "states": ["x", {"op": "¬", "state": "x"}]}
     norm = normalize(expr)
     assert norm == TOP or render(norm) == "⊤"
 
 def test_distribution_tensor_over_plus():
-    # a ⊗ (b ⊕ c) → (a ⊗ b) ⊕ (a ⊗ c)
+    # a ⊗ (b ⊕ c) -> (a ⊗ b) ⊕ (a ⊗ c)
     expr = {"op": "⊗", "states": ["a", {"op": "⊕", "states": ["b", "c"]}]}
     norm = normalize(expr)
     rendered = render(norm)
     assert rendered in ("((a ⊗ b) ⊕ (a ⊗ c))", "((a ⊗ c) ⊕ (a ⊗ b))")
 
 def test_de_morgan_or_to_and():
-    # ¬(a ⊕ b) → (¬a ⊗ ¬b)
+    # ¬(a ⊕ b) -> (¬a ⊗ ¬b)
     expr = {"op": "¬", "state": {"op": "⊕", "states": ["a", "b"]}}
     norm = normalize(expr)
     assert render(norm) in ("(¬a ⊗ ¬b)", "(¬b ⊗ ¬a)")
 
 def test_de_morgan_and_to_or():
-    # ¬(a ⊗ b) → (¬a ⊕ ¬b)
+    # ¬(a ⊗ b) -> (¬a ⊕ ¬b)
     expr = {"op": "¬", "state": {"op": "⊗", "states": ["a", "b"]}}
     norm = normalize(expr)
     assert render(norm) in ("(¬a ⊕ ¬b)", "(¬b ⊕ ¬a)")
@@ -76,49 +76,49 @@ def test_de_morgan_and_to_or():
 # -----------------------------------------------------------------------------
 
 def test_idempotence_superpose():
-    # a ⊕ a → a
+    # a ⊕ a -> a
     expr = {"op": "⊕", "states": ["a", "a"]}
     norm = normalize(expr)
     assert render(norm) == "a"
 
 def test_absorption_negation():
-    # a ⊗ ¬a → ⊥
+    # a ⊗ ¬a -> ⊥
     expr = {"op": "⊗", "states": ["a", {"op": "¬", "state": "a"}]}
     norm = normalize(expr)
     assert norm == {"op": "⊥"} or render(norm) == "⊥"
 
 def test_absorption_superpose():
-    # a ⊕ (a ⊗ b) → a
+    # a ⊕ (a ⊗ b) -> a
     expr = {"op": "⊕", "states": ["a", {"op": "⊗", "states": ["a", "b"]}]}
     norm = normalize(expr)
     assert render(norm) == "a"
 
 def test_double_negation():
-    # ¬(¬a) → a
+    # ¬(¬a) -> a
     expr = {"op": "¬", "state": {"op": "¬", "state": "x"}}
     norm = normalize(expr)
     assert render(norm) == "x"
 
 def test_empty_identity():
-    # a ⊕ ∅ → a
+    # a ⊕ ∅ -> a
     expr = {"op": "⊕", "states": ["p", {"op": "∅"}]}
     norm = normalize(expr)
     assert render(norm) == "p"
 
 def test_bottom_subset_any():
-    # ⊥ ⊂ x → ⊤
+    # ⊥ ⊂ x -> ⊤
     expr = {"op": "⊂", "states": [{"op": "⊥"}, "z"]}
     norm = normalize(expr)
     assert norm == {"op": "⊤"} or render(norm) == "⊤"
 
 def test_similarity_reflexive():
-    # x ≈ x → ⊤
+    # x ≈ x -> ⊤
     expr = {"op": "≈", "states": ["x", "x"]}
     norm = normalize(expr)
     assert norm == {"op": "⊤"} or render(norm) == "⊤"
 
 def test_projection_distribution():
-    # ★(a↔b) → (★a ⊕ ★b)
+    # ★(a↔b) -> (★a ⊕ ★b)
     expr = {"op": "★", "state": {"op": "↔", "states": ["m", "n"]}}
     norm = normalize(expr)
     r = render(norm)
@@ -131,7 +131,7 @@ from backend.photon_algebra.renderer import render_photon
 
 
 def test_associativity_flattening_plus():
-    # a ⊕ (b ⊕ a) → a ⊕ b
+    # a ⊕ (b ⊕ a) -> a ⊕ b
     expr = {"op": "⊕", "states": ["a", {"op": "⊕", "states": ["b", "a"]}]}
     norm = normalize(expr)
     rendered = render_photon(norm)
@@ -139,7 +139,7 @@ def test_associativity_flattening_plus():
 
 
 def test_associativity_flattening_tensor():
-    # a ⊗ (b ⊗ a) → a ⊗ b
+    # a ⊗ (b ⊗ a) -> a ⊗ b
     expr = {"op": "⊗", "states": ["a", {"op": "⊗", "states": ["b", "a"]}]}
     norm = normalize(expr)
     rendered = render_photon(norm)
@@ -147,7 +147,7 @@ def test_associativity_flattening_tensor():
 
 
 def test_distributivity_tensor_over_plus_left():
-    # a ⊗ (b ⊕ c) → (a ⊗ b) ⊕ (a ⊗ c)
+    # a ⊗ (b ⊕ c) -> (a ⊗ b) ⊕ (a ⊗ c)
     expr = {"op": "⊗", "states": ["a", {"op": "⊕", "states": ["b", "c"]}]}
     norm = normalize(expr)
     rendered = render_photon(norm)
@@ -155,7 +155,7 @@ def test_distributivity_tensor_over_plus_left():
 
 
 def test_distributivity_tensor_over_plus_right():
-    # (a ⊕ b) ⊗ c → (a ⊗ c) ⊕ (b ⊗ c)
+    # (a ⊕ b) ⊗ c -> (a ⊗ c) ⊕ (b ⊗ c)
     expr = {"op": "⊗", "states": [{"op": "⊕", "states": ["a", "b"]}, "c"]}
     norm = normalize(expr)
     rendered = render_photon(norm)
@@ -164,7 +164,7 @@ def test_distributivity_tensor_over_plus_right():
 
 def random_expr(depth=2):
     """Generate a random photon expression with limited depth."""
-    atoms = list(string.ascii_lowercase[:5])  # a–e
+    atoms = list(string.ascii_lowercase[:5])  # a-e
     if depth == 0:
         return random.choice(atoms)
 

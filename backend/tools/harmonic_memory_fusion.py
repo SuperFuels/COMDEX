@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🌌 Harmonic Memory Fusion — Phase 62 Tessaris Long-Term Integration
+🌌 Harmonic Memory Fusion - Phase 62 Tessaris Long-Term Integration
 ────────────────────────────────────────────────────────────────────────────
 Combines reflection and governance histories into a single
 temporal harmonic memory structure for persistent resonance learning.
@@ -64,7 +64,7 @@ def fuse_memories():
     )
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(harmony_memory, indent=2))
-    print(f"📘 Harmonic memory fused → {OUT}")
+    print(f"📘 Harmonic memory fused -> {OUT}")
     return harmony_memory
 
 def main():

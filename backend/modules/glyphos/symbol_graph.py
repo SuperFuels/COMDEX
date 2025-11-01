@@ -49,7 +49,7 @@ class SymbolGraph:
             message=reflection,
             trigger=source_glyph
         )
-        logger.info(f"[SymbolGraph] Reflection linked: {source_glyph} → {reflection_node}")
+        logger.info(f"[SymbolGraph] Reflection linked: {source_glyph} -> {reflection_node}")
 
     def add_tag_links(self, glyph: str, tags: List[str]):
         for tag in tags:

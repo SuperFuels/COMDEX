@@ -1,6 +1,6 @@
 # ============================================================
-# === X₂ — Field–Computational Coupling (Tessaris) ===========
-# Phase IIIb — Information–Flux and Cross-Domain Universality
+# === X2 - Field-Computational Coupling (Tessaris) ===========
+# Phase IIIb - Information-Flux and Cross-Domain Universality
 # Purpose: Apply CIS operators to optical-thermal lattice
 # ============================================================
 
@@ -43,7 +43,7 @@ def CURV(E, S):
     return curvature, coupling
 
 def EXECUTE(E, S, J):
-    """Execute causal update — feedback from J to E and S."""
+    """Execute causal update - feedback from J to E and S."""
     E_new = E + constants["α"] * J
     S_new = S + constants["β"] * np.gradient(J)
     variance = np.var(E_new - E)
@@ -61,7 +61,7 @@ def LINK(E, S):
     return flux
 
 # === 4. Apply CIS sequence ===
-print("\n=== X₂ — Field–Computational Coupling (Tessaris) ===")
+print("\n=== X2 - Field-Computational Coupling (Tessaris) ===")
 E1, S1, balance_resid = BALANCE(E, S)
 E2, S2, phase_diff = SYNCH(E1, S1)
 curv, curv_coupling = CURV(E2, S2)
@@ -73,7 +73,7 @@ stability_index = np.mean([balance_resid, phase_diff, exec_var, rec_flux])
 stable = stability_index < 0.1
 
 # === 5. Display ===
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
 print(f"Balance residual = {balance_resid:.3e}")
 print(f"Phase diff = {phase_diff:.3e}")
 print(f"Curvature coupling = {curv_coupling:.3e}")
@@ -82,9 +82,9 @@ print(f"Recovery flux = {rec_flux:.3e}")
 print(f"Cross-link flux = {link_flux:.3e}")
 
 if stable:
-    print("✅ Causal–field coupling achieved — lattice self-regulating.")
+    print("✅ Causal-field coupling achieved - lattice self-regulating.")
 else:
-    print("⚠️  Partial stability — coupling incomplete, refine CIS weights.")
+    print("⚠️  Partial stability - coupling incomplete, refine CIS weights.")
 
 # === 6. Save summary ===
 timestamp = datetime.datetime.now(datetime.UTC).isoformat()
@@ -102,7 +102,7 @@ summary = {
         "stable": bool(stable)
     },
     "notes": [
-        f"Applied CIS operators BALANCE→SYNCH→CURV→EXECUTE→RECOVER→LINK.",
+        f"Applied CIS operators BALANCE->SYNCH->CURV->EXECUTE->RECOVER->LINK.",
         f"Residual ratio = {balance_resid:.3e}, mean phase difference = {phase_diff:.3e}.",
         "Stable regime indicates coupling between computation and field behavior.",
         "Represents real-time unification of CIS logic with photonic dynamics.",
@@ -120,7 +120,7 @@ plt.figure(figsize=(8,4))
 plt.plot(x, E, label="Initial E(x)", alpha=0.5)
 plt.plot(x, E4, label="Coupled E'(x)", linewidth=2)
 plt.plot(x, S3, label="Adjusted S(x)", linestyle="--")
-plt.title("X₂ — Field–Computational Coupling (Tessaris)")
+plt.title("X2 - Field-Computational Coupling (Tessaris)")
 plt.xlabel("x (lattice coordinate)")
 plt.ylabel("Amplitude")
 plt.legend()
@@ -129,6 +129,6 @@ plot_path = os.path.join(base_path, "PAEV_X2_field_coupling.png")
 plt.savefig(plot_path, dpi=200)
 plt.close()
 
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

@@ -41,7 +41,7 @@ def measure(a):
     """Measurement μ (dict form). Collapses superpositions if present."""
     if isinstance(a, dict) and a.get("op") == "⊕":
         collapsed = random.choice(a.get("args", []))
-        logger.debug(f"[Quantum μ] Collapsed superposition → {collapsed}")
+        logger.debug(f"[Quantum μ] Collapsed superposition -> {collapsed}")
         return {"op": "μ", "args": [a], "collapsed": collapsed}
     return {"op": "μ", "args": [a], "collapsed": a}
 
@@ -52,22 +52,22 @@ def measurement_noisy(a, eps: float):
 
 
 # -----------------
-# Phase 1 — Extended Quantum Operators
+# Phase 1 - Extended Quantum Operators
 # -----------------
 
 def tensor(a, b):
-    """Tensor Fusion ⊗ — combines two waves into a single tensor product."""
+    """Tensor Fusion ⊗ - combines two waves into a single tensor product."""
     return {"op": "⊗", "args": [a, b], "fused": True}
 
 
 def equivalence(a, b):
-    """Equivalence ≡ — symbolic coherence or equality operator."""
+    """Equivalence ≡ - symbolic coherence or equality operator."""
     equal = a == b
     return {"op": "≡", "args": [a, b], "coherent": equal}
 
 
 def negation(a):
-    """Negation ¬ — flips phase or symbolic sense of the argument."""
+    """Negation ¬ - flips phase or symbolic sense of the argument."""
     return {"op": "¬", "args": [a], "inverted": True}
 
 
@@ -118,4 +118,4 @@ def inject_into_law_registry():
         return False
 
 
-# NOTE: ⚠️ No automatic injection here — must be called explicitly
+# NOTE: ⚠️ No automatic injection here - must be called explicitly

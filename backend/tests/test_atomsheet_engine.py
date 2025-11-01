@@ -3,7 +3,7 @@ import json
 import pytest
 
 from backend.modules.atomsheets.atomsheet_engine import (
-    load_sqs,        # alias → load_atom
+    load_sqs,        # alias -> load_atom
     execute_sheet,   # async
     to_dc_json,      # export helper
 )
@@ -16,7 +16,7 @@ async def test_atomsheet_load_execute_and_export_from_atom(tmp_path):
         "title": "AtomSheet Exec Smoke",
         "dims": [1, 1, 1, 1],
         "cells": [
-            {"id": "c1", "logic": "⊕ ∇ ↔ ⟲ → ✦", "position": [0, 0, 0, 0], "emotion": "neutral"},
+            {"id": "c1", "logic": "⊕ ∇ ↔ ⟲ -> ✦", "position": [0, 0, 0, 0], "emotion": "neutral"},
             {"id": "c2", "logic": "⊕ ↔",           "position": [0, 0, 0, 1]},
         ],
         "meta": {"owner": "tests"},

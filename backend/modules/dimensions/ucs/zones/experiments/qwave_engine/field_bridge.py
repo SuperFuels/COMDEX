@@ -2,13 +2,13 @@
 ⚡ FieldBridge: Physical Exhaust Bridge
 -----------------------------------------------------
 Bridges the QWave engine exhaust to Raspberry Pi hardware:
-    • PWM coil driving for resonance field output
-    • Dual-coil phased output (0° / 180°)
-    • Multi-harmonic stacking (base + overtone)
-    • Pulse bursting for exhaust phase intensification
-    • Real-time feedback loop via ADC (coil voltage/current sensing)
-    • Auto-calibration per exhaust tick
-    • Safe-mode simulation for bench testing
+    * PWM coil driving for resonance field output
+    * Dual-coil phased output (0° / 180°)
+    * Multi-harmonic stacking (base + overtone)
+    * Pulse bursting for exhaust phase intensification
+    * Real-time feedback loop via ADC (coil voltage/current sensing)
+    * Auto-calibration per exhaust tick
+    * Safe-mode simulation for bench testing
 """
 
 import time
@@ -101,7 +101,7 @@ class FieldBridge:
         adjustment = self.auto_calibrate(target_voltage)
         duty = max(0, min(100, self.base_duty + adjustment))
 
-        print(f"🎚 Exhaust Drive → freq={base_freq:.2f}Hz, harmonics={harmonics}, duty={duty:.1f}%, feedback={feedback:.2f}V")
+        print(f"🎚 Exhaust Drive -> freq={base_freq:.2f}Hz, harmonics={harmonics}, duty={duty:.1f}%, feedback={feedback:.2f}V")
         self.emit_multi_harmonic(base_freq, duty, harmonics=harmonics, burst=burst)
 
     # ---------------------------------------------------------

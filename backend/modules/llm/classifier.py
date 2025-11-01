@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • AION LLM Classifier (v1.1 Quantum-Ready)
-#  Semantic brainstem for AION — interprets intents via OpenAI or Quantum Atom.
+#  Tessaris * AION LLM Classifier (v1.1 Quantum-Ready)
+#  Semantic brainstem for AION - interprets intents via OpenAI or Quantum Atom.
 #  Can self-adapt to offline symbolic fallback when OpenAI is unavailable.
 # ──────────────────────────────────────────────────────────────
 
@@ -19,7 +19,7 @@ logger = logging.getLogger("LLMClassifier")
 
 class LLMClassifier:
     """
-    AION’s semantic brainstem.
+    AION's semantic brainstem.
     Performs low-entropy classification of natural-language or symbolic input
     into intent tags used by the CognitiveDispatcher.
     """
@@ -37,19 +37,19 @@ class LLMClassifier:
         if self.client:
             logger.info(f"✅ LLMClassifier initialized using model: {self.model}")
         else:
-            logger.warning("⚠️ OpenAI client not configured — using symbolic fallback only.")
+            logger.warning("⚠️ OpenAI client not configured - using symbolic fallback only.")
 
     # ──────────────────────────────────────────────────────────────
     async def classify_intent(self, text: str) -> str:
         """
-        Asynchronously classify text → intent tag.
+        Asynchronously classify text -> intent tag.
         Example outputs: 'reflect', 'plan', 'predict', 'dream', 'emotion', etc.
         """
         try:
             if self.client:
                 # Compose the classification prompt
                 prompt = (
-                    "You are AION’s cognitive classifier.\n"
+                    "You are AION's cognitive classifier.\n"
                     "Given the following text, return one concise lowercase intent keyword "
                     "that best describes what cognitive engine should process it.\n\n"
                     "Valid tags:\n"
@@ -66,7 +66,7 @@ class LLMClassifier:
                 response = await self.client.chat.completions.create(
                     model=self.model,
                     messages=[
-                        {"role": "system", "content": "You are AION’s semantic intent classifier."},
+                        {"role": "system", "content": "You are AION's semantic intent classifier."},
                         {"role": "user", "content": prompt},
                     ],
                     temperature=self.temperature,
@@ -74,17 +74,17 @@ class LLMClassifier:
                 )
 
                 tag = response.choices[0].message.content.strip().lower()
-                logger.debug(f"[LLMClassifier] → {tag}")
+                logger.debug(f"[LLMClassifier] -> {tag}")
 
             elif self.quantum_atom:
                 # Quantum Atom fallback: use internal resonance classifier
                 tag = await self.quantum_atom.resonate_intent(text)
-                logger.debug(f"[QuantumAtomClassifier] → {tag}")
+                logger.debug(f"[QuantumAtomClassifier] -> {tag}")
 
             else:
                 # Offline symbolic heuristic
                 tag = self._symbolic_fallback(text)
-                logger.debug(f"[LLMClassifier-Fallback] → {tag}")
+                logger.debug(f"[LLMClassifier-Fallback] -> {tag}")
 
             # Record classification history and ledger trace
             entry = {"input": text, "tag": tag, "model": self.model}
@@ -109,7 +109,7 @@ class LLMClassifier:
     def _symbolic_fallback(self, text: str) -> str:
         """
         Simple local heuristic for offline operation.
-        Maps keywords → best-guess intent tags.
+        Maps keywords -> best-guess intent tags.
         """
         t = text.lower()
         if any(k in t for k in ["plan", "strategy", "goal"]):

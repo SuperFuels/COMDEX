@@ -95,7 +95,7 @@ def load_container_by_id(container_id: str) -> Dict[str, Any]:
 
     # 🔍 Case 1: Full path (file)
     if os.path.exists(container_id) and container_id.endswith(".dc.json"):
-        print(f"📂 [VaultBridge] Detected full path — loading from path: {container_id}")
+        print(f"📂 [VaultBridge] Detected full path - loading from path: {container_id}")
         container_data = vault_manager.load_container_from_path(container_id)
 
     # 🔍 Case 2: Treat as ID

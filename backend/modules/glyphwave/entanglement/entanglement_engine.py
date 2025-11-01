@@ -1,5 +1,5 @@
 """
-🌌 Entanglement Engine — SRK-13 Upgrade
+🌌 Entanglement Engine - SRK-13 Upgrade
 Computes entanglement potentials Φ(a↔b), coherence C, and records
 entropy drift ΔS into the Photon Memory Grid (PMG).
 """
@@ -61,7 +61,7 @@ class EntanglementEngine:
     # ───────────────────────────────────────────────
     def collapse_all(self) -> Dict[str, Any]:
         """
-        SRK-15 — Collapse all entangled pairs and archive them into PhotonMemoryGrid.
+        SRK-15 - Collapse all entangled pairs and archive them into PhotonMemoryGrid.
         Each collapsed entanglement is logged with coherence loss and SQI drift.
         """
         start = time.time()

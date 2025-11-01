@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test H′4 — Tessaris Temporal Resonance Lock (Auto-Tuned, Refined, Persistent)
+Test H′4 - Tessaris Temporal Resonance Lock (Auto-Tuned, Refined, Persistent)
 Performs harmonic resonance tuning to maximize lock RCI.
 Auto-writes verified results to the discovery ledger and constants registry.
 """
@@ -42,7 +42,7 @@ def compute_RCI(phases_dict):
     return float(np.clip(RCI, 0, 100))
 
 def base_freq_ratios(lock):
-    """Log-amplitude fingerprint → [0,1) phase-like ratios."""
+    """Log-amplitude fingerprint -> [0,1) phase-like ratios."""
     ratios = {}
     for k in ("alpha", "hbar", "m_e", "G"):
         base = abs(float(lock.get(k, 0) or 0.0))
@@ -77,7 +77,7 @@ def radar_plot(locked_deltas, RCI):
     ax.fill(angs, vals, "r", alpha=0.25)
     ax.set_xticks(angs[:-1])
     ax.set_xticklabels(labels)
-    ax.set_title(f"H′4 — Temporal Resonance Lock (RCI={RCI:.3f}%)")
+    ax.set_title(f"H′4 - Temporal Resonance Lock (RCI={RCI:.3f}%)")
     plt.tight_layout()
     plt.savefig(PLOT_FILE)
 
@@ -112,16 +112,16 @@ def persist_discovery(entry):
     with open(CONSTANTS_REGISTRY, "w") as f:
         json.dump(registry, f, indent=4)
 
-    print(f"📘 Discovery ledger updated → {DISCOVERY_LEDGER}")
-    print(f"📗 Constants registry updated → {CONSTANTS_REGISTRY}")
+    print(f"📘 Discovery ledger updated -> {DISCOVERY_LEDGER}")
+    print(f"📗 Constants registry updated -> {CONSTANTS_REGISTRY}")
 
 def main():
-    print("=== H′4 — Tessaris Temporal Resonance Lock (Auto-Tuned, Persistent) ===")
+    print("=== H′4 - Tessaris Temporal Resonance Lock (Auto-Tuned, Persistent) ===")
 
     comp = load_json(COMP_FILE)
     lock = load_json(LOCK_FILE)
     if not comp or not lock:
-        print("🚨 Missing input data — ensure H′3 and G′ lock exist.")
+        print("🚨 Missing input data - ensure H′3 and G′ lock exist.")
         return
 
     phases = comp.get("corrected_phases", {})
@@ -188,9 +188,9 @@ def main():
 
     radar_plot(locked_deltas, RCI)
 
-    print(f"📘 Saved resonance JSON → {OUTPUT_JSON}")
-    print(f"📄 Saved resonance CSV → {OUTPUT_CSV}")
-    print(f"📈 Saved plot → {PLOT_FILE}")
+    print(f"📘 Saved resonance JSON -> {OUTPUT_JSON}")
+    print(f"📄 Saved resonance CSV -> {OUTPUT_CSV}")
+    print(f"📈 Saved plot -> {PLOT_FILE}")
     print(f"✅ Temporal Resonance Lock (auto-tuned). "
           f"RCI = {RCI:.3f} %, Unified Stability = {unified_stability:.3f} %")
     print(f"   ↳ best gain = {best['gain']}, best harmonic = {best['harmonic']}")
@@ -199,14 +199,14 @@ def main():
     if RCI >= 70:
         persist_discovery(result)
     else:
-        print("⚠️ RCI below archival threshold (70%) — result not persisted.")
+        print("⚠️ RCI below archival threshold (70%) - result not persisted.")
 
     if RCI > 95 and unified_stability > 80:
-        print("🎯 Full temporal lock achieved — dynamic field coherence verified.")
+        print("🎯 Full temporal lock achieved - dynamic field coherence verified.")
     elif RCI > 70:
-        print("⚠️ Partial lock — harmonic synchronization stable but incomplete.")
+        print("⚠️ Partial lock - harmonic synchronization stable but incomplete.")
     else:
-        print("🚨 Temporal desynchronization persists — consider re-running H′3 with a tighter compensator window.")
+        print("🚨 Temporal desynchronization persists - consider re-running H′3 with a tighter compensator window.")
 
 if __name__ == "__main__":
     main()

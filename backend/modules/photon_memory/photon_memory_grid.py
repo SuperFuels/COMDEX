@@ -7,7 +7,7 @@ from backend.modules.photon_memory.photon_memory_entry import PhotonMemoryEntry
 
 class PhotonMemoryGrid:
     """
-    Central photon state archive — stores coherence and resonance traces.
+    Central photon state archive - stores coherence and resonance traces.
     Supports in-memory caching + JSON persistence.
     """
 
@@ -43,7 +43,7 @@ class PhotonMemoryGrid:
         with self._lock:
             self.entries[entry.uid] = entry
         self._save_to_disk()
-        print(f"[PMG] Recorded wave {entry.wave_id} → coh={entry.coherence:.3f} ent={entry.entropy:.3f}")
+        print(f"[PMG] Recorded wave {entry.wave_id} -> coh={entry.coherence:.3f} ent={entry.entropy:.3f}")
 
     # ─────────────────────────────────────────────────────
     def query(self, *, operator: Optional[str] = None, min_coh: float = 0.0) -> List[PhotonMemoryEntry]:

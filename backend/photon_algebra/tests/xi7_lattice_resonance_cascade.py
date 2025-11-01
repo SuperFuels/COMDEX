@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ξ₇ — Lattice Resonance Cascade (Tessaris)
+Ξ7 - Lattice Resonance Cascade (Tessaris)
 Tests cascade resonance between photonic sub-lattices.
 """
 
@@ -37,7 +37,7 @@ for t in range(steps):
 # === Metrics (late-window statistics) ===
 window = slice(-500, None)
 cascade_intensity = float(np.mean(resonance_a[window] * resonance_b[window]))
-# Convert “difference” into a correlation-like score and clamp to [0,1]
+# Convert "difference" into a correlation-like score and clamp to [0,1]
 phase_correlation = float(np.clip(1.0 - np.mean(phase_diff[window]), 0.0, 1.0))
 stable = bool(phase_correlation > 0.98)  # native bool for JSON safety
 
@@ -76,7 +76,7 @@ plt.figure(figsize=(8, 4))
 plt.plot(resonance_a, label="Resonance A", alpha=0.9)
 plt.plot(resonance_b, label="Resonance B", alpha=0.9)
 plt.plot(phase_diff, label="|Phase Difference|", alpha=0.6)
-plt.title("Ξ₇ Lattice Resonance Cascade (Tessaris)")
+plt.title("Ξ7 Lattice Resonance Cascade (Tessaris)")
 plt.xlabel("Time Step")
 plt.ylabel("Normalized Amplitude")
 plt.legend()
@@ -84,5 +84,5 @@ plt.tight_layout()
 out_png = "backend/modules/knowledge/Tessaris_Ξ7_LatticeResonanceCascade.png"
 plt.savefig(out_png, dpi=150)
 
-print(f"✅ Ξ₇ summary saved → {out_json}")
-print(f"✅ Visualization saved → {out_png}")
+print(f"✅ Ξ7 summary saved -> {out_json}")
+print(f"✅ Visualization saved -> {out_png}")

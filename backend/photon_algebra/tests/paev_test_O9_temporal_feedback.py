@@ -58,7 +58,7 @@ plt.figure(figsize=(9,5))
 plt.plot(S_sys, label="S_system")
 plt.plot(S_obs, label="S_observer")
 plt.plot(S_pred, label="S_pred (mirror)")
-plt.title("O9 — Temporal Causality Feedback")
+plt.title("O9 - Temporal Causality Feedback")
 plt.xlabel("time step")
 plt.ylabel("Entropy / coupling")
 plt.legend()
@@ -83,6 +83,6 @@ summary = {
 with open("backend/modules/knowledge/O9_temporal_feedback.json","w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== O9 — Temporal Causality Feedback ===")
+print("=== O9 - Temporal Causality Feedback ===")
 print(f"⟨ΔS⟩={mean_drift:.3e} | Corr={corr:.3f} | {cls}")
-print("✅ Results saved → backend/modules/knowledge/O9_temporal_feedback.json")
+print("✅ Results saved -> backend/modules/knowledge/O9_temporal_feedback.json")

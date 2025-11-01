@@ -194,7 +194,7 @@ def ghx_encode_get(
 ) -> Dict[str, Any]:
     """
     Returns a full GHX export for a container, respecting HOV3 flags.
-    - collapsed=True → light header (no heavy glyph/node arrays)
+    - collapsed=True -> light header (no heavy glyph/node arrays)
     - density + snapshot_rate honored where applicable
     """
     container = _get_container(cid)

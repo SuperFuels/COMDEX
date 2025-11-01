@@ -4,10 +4,10 @@
 🌐 FieldBridge WebSocket Server (Hyperdrive)
 ----------------------------------------
 Runs on the Raspberry Pi to:
-    • Expose live PWM coil control (frequency & duty)
-    • Provide ADC feedback (voltage/current sensing)
-    • Enable closed-loop tuning from remote clients (e.g., MacBook HyperdriveEngine)
-    • Secure connection with optional auth token
+    * Expose live PWM coil control (frequency & duty)
+    * Provide ADC feedback (voltage/current sensing)
+    * Enable closed-loop tuning from remote clients (e.g., MacBook HyperdriveEngine)
+    * Secure connection with optional auth token
 """
 
 import asyncio

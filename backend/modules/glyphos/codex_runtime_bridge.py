@@ -47,7 +47,7 @@ async def execute_codex_for_glyph(glyph: str, context: Dict[str, Any]) -> Dict[s
             "output": output,
         })
 
-        print(f"[⚡ CodexBridge] Executed glyph '{glyph}' → {output['status']} in {output['duration']:.4f}s")
+        print(f"[⚡ CodexBridge] Executed glyph '{glyph}' -> {output['status']} in {output['duration']:.4f}s")
         return output
 
     except Exception as e:

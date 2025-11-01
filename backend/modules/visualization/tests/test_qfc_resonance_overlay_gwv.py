@@ -55,7 +55,7 @@ async def test_overlay_and_gwv_recording(monkeypatch):
             return real_join(tmpdir, filename)
         return real_join(*args)
 
-    # Patch only gwv_writer’s join and makedirs (not global os.path)
+    # Patch only gwv_writer's join and makedirs (not global os.path)
     monkeypatch.setattr(
         "backend.modules.glyphwave.gwv_writer.os.makedirs", lambda d, exist_ok=True: None
     )

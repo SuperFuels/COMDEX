@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # ==========================================================
-# G10-RC3 — Multiscale Invariance (CFL-stable + auto-renorm)
-# Runs ψ–κ evolution on three grids and checks Page-curve collapse.
+# G10-RC3 - Multiscale Invariance (CFL-stable + auto-renorm)
+# Runs ψ-κ evolution on three grids and checks Page-curve collapse.
 # Captures plots + JSON registry with constants & metrics.
 # ==========================================================
 
@@ -31,8 +31,8 @@ L = 6.0
 steps = 600                   # a bit longer so t* is well-defined
 D_psi, D_kappa = 0.30, 0.02   # baseline Laplacian coeffs
 gamma_psi, gamma_k = 0.020, 0.010
-couple = 0.050                # ψ–κ coupling strength at reference grid (N=128)
-source_k = 0.010              # |ψ|^2 → κ source @ reference grid
+couple = 0.050                # ψ-κ coupling strength at reference grid (N=128)
+source_k = 0.010              # |ψ|^2 -> κ source @ reference grid
 damping = 0.994               # global envelope damping
 amp_limit = 2.5               # soft clipping to avoid blowups
 rng = np.random.default_rng(42)
@@ -73,7 +73,7 @@ def evolve_one_scale(N):
     # scale-by-grid renormalization:
     # - Laplacian already has 1/dx^2. Keep D fixed.
     # - Interaction terms scale with local volume/gradient scales ~ dx (1D).
-    #   Empirically we get best collapse if we scale ψ–κ couplings as (dx/dx_ref)
+    #   Empirically we get best collapse if we scale ψ-κ couplings as (dx/dx_ref)
     #   and the |ψ|^2 source the same way.
     scale_int = (dx / dx_ref)
 
@@ -184,8 +184,8 @@ else:
 plt.figure(figsize=(9, 5))
 for N in scales:
     plt.plot(curves[N]["S"], label=f"N={N}", lw=1.4)
-plt.title("G10-RC3 — Raw Entropy Evolution (CFL-stable)")
-plt.xlabel("Step"); plt.ylabel("Entropy (Shannon of |ψ|²)")
+plt.title("G10-RC3 - Raw Entropy Evolution (CFL-stable)")
+plt.xlabel("Step"); plt.ylabel("Entropy (Shannon of |ψ|2)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G10RC3_EntropyEvolution.png", dpi=150)
 
@@ -193,19 +193,19 @@ plt.savefig("FAEV_G10RC3_EntropyEvolution.png", dpi=150)
 plt.figure(figsize=(9, 5))
 for N in scales:
     plt.plot(u, normed[N], label=f"N={N}", lw=1.4)
-plt.title("G10-RC3 — Multiscale Page Curve Collapse (Normalized)")
+plt.title("G10-RC3 - Multiscale Page Curve Collapse (Normalized)")
 plt.xlabel("Normalized time t/t*"); plt.ylabel("S/Smax")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G10RC3_PageCollapse.png", dpi=150)
 
-# 3) Energy–Entropy scaling (each scale normalized by its own max)
+# 3) Energy-Entropy scaling (each scale normalized by its own max)
 plt.figure(figsize=(9, 5))
 for N in scales:
     S = curves[N]["S"]; E = curves[N]["E"]
     S_n = (S - S.min()) / (S.max() - S.min() + 1e-12)
     E_n = (E - E.min()) / (E.max() - E.min() + 1e-12)
     plt.plot(S_n, E_n, label=f"N={N}", lw=1.2)
-plt.title("G10-RC3 — Energy–Entropy Scaling Across Scales")
+plt.title("G10-RC3 - Energy-Entropy Scaling Across Scales")
 plt.xlabel("Normalized Entropy"); plt.ylabel("Normalized Energy")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G10RC3_EnergyEntropy.png", dpi=150)
@@ -227,7 +227,7 @@ results = {
         "dt_ref": dt_ref
     },
     "renormalization": {
-        "method": "CFL-stable dt ~ dx^2; ψ–κ couplings ~ (dx/dx_ref)",
+        "method": "CFL-stable dt ~ dx^2; ψ-κ couplings ~ (dx/dx_ref)",
         "dx_ref": dx_ref,
         "notes": "Keeps diffusion physics invariant across N; rescales local interactions by physical cell size."
     },
@@ -254,7 +254,7 @@ out_path = "backend/modules/knowledge/G10RC3_multiscale.json"
 with open(out_path, "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== G10-RC3 — Multiscale Invariance (CFL + auto-renorm) ===")
+print("=== G10-RC3 - Multiscale Invariance (CFL + auto-renorm) ===")
 print(f"collapse_deviation={collapse_dev:.6f}")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {out_path}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {out_path}")

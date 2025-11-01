@@ -1,6 +1,6 @@
 """
 🌀 Relevance Scroll Engine (A3)
-Merged + Enhanced Version — Part of Spatial Cognition Interface (SCI)
+Merged + Enhanced Version - Part of Spatial Cognition Interface (SCI)
 
 Supports:
 - Relevance-based memory scroll loading

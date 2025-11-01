@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # File: backend/modules/glyphwave/core/wave_glyph.py
 """
-Tessaris GlyphNet Core — WaveGlyph Definition & CodexLang Parsing
+Tessaris GlyphNet Core - WaveGlyph Definition & CodexLang Parsing
 -----------------------------------------------------------------
 
 This module defines the WaveGlyph class, which serves as the
@@ -12,7 +12,7 @@ Enhancements include:
  - Schema validation (phase, coherence ranges)
  - Fingerprinting and metadata enrichment
  - Compatibility with existing amplitude/origin_trace fields
- - Deterministic phase normalization (0–2π)
+ - Deterministic phase normalization (0-2π)
  - Granular validation errors and consistent timestamps
 
 Author: Tessaris Research Group
@@ -136,15 +136,15 @@ def validate_glyph(g: WaveGlyph) -> bool:
 
     pmin, pmax = GLYPH_SCHEMA["phase_range"]
     if not (pmin <= g.phase <= pmax):
-        raise GlyphValidationError(f"Phase {g.phase} out of range {pmin}–{pmax}")
+        raise GlyphValidationError(f"Phase {g.phase} out of range {pmin}-{pmax}")
 
     cmin, cmax = GLYPH_SCHEMA["coherence_range"]
     if not (cmin <= g.coherence <= cmax):
-        raise GlyphValidationError(f"Coherence {g.coherence} out of range {cmin}–{cmax}")
+        raise GlyphValidationError(f"Coherence {g.coherence} out of range {cmin}-{cmax}")
 
     amin, amax = GLYPH_SCHEMA["amplitude_range"]
     if not (amin <= g.amplitude <= amax):
-        raise GlyphValidationError(f"Amplitude {g.amplitude} out of range {amin}–{amax}")
+        raise GlyphValidationError(f"Amplitude {g.amplitude} out of range {amin}-{amax}")
 
     return True
 

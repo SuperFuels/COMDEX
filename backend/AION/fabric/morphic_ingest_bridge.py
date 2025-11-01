@@ -1,13 +1,13 @@
 """
 Morphic Ingest Bridge
 ────────────────────────────────────────────
-Records ψ–κ–T–Φ resonance metrics and coherence drift (Δφ, Δσ)
+Records ψ-κ-T-Φ resonance metrics and coherence drift (Δφ, Δσ)
 from the Resonant Synchronization Layer into the MorphicLedger.
 
 Each received sync packet:
-  • Computes local deltas between previous and current ψ–κ–T–Φ values
-  • Writes coherent state deltas into the MorphicLedger (if available)
-  • Falls back to JSONL backup log if Ledger unavailable
+  * Computes local deltas between previous and current ψ-κ-T-Φ values
+  * Writes coherent state deltas into the MorphicLedger (if available)
+  * Falls back to JSONL backup log if Ledger unavailable
 
 Used by:
   backend/AION/system/network_sync/orchestrator.py

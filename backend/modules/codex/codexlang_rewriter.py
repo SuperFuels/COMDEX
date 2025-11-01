@@ -7,7 +7,7 @@ class CodexLangRewriter:
 
     - Soft mode keeps original surface form and only prunes trivial sub-terms.
     - Aggressive mode canonicalizes simple algebraic terms.
-    - Includes structured rendering of symbolic ASTs (∧, ∨, ∀, ∃, →, etc).
+    - Includes structured rendering of symbolic ASTs (∧, ∨, ∀, ∃, ->, etc).
     """
 
     @classmethod
@@ -56,10 +56,10 @@ class CodexLangRewriter:
     @classmethod
     def ast_to_codexlang(cls, symbolic_ast: Union[str, dict, list]) -> str:
         """
-        Class-level fallback for AST → CodexLang rendering.
+        Class-level fallback for AST -> CodexLang rendering.
         Accepts:
         - Raw strings
-        - Dict-style symbolic ASTs (used in ∀, ∃, →, ∧, etc)
+        - Dict-style symbolic ASTs (used in ∀, ∃, ->, ∧, etc)
         - Lists of terms
         """
         renderer = cls()
@@ -92,7 +92,7 @@ class CodexLangRewriter:
         """
         Recursively render structured AST into CodexLang.
         Supports symbolic logic trees like:
-          ∀x. P(x) → Q(x)
+          ∀x. P(x) -> Q(x)
           ¬(P ∧ Q) ∨ R
           equals(f(x), y)
         """
@@ -120,7 +120,7 @@ class CodexLangRewriter:
         elif node_type == "implies":
             left = self.render_ast(ast.get("left"))
             right = self.render_ast(ast.get("right"))
-            return f"{left} → {right}"
+            return f"{left} -> {right}"
 
         elif node_type == "and":
             terms = [self.render_ast(t) for t in ast.get("terms", [])]
@@ -170,7 +170,7 @@ def suggest_rewrite_candidates(ast: Union[str, dict]) -> list[dict]:
     if isinstance(ast, dict) and ast.get("type") == "not":
         inner = ast.get("term", {})
         if isinstance(inner, dict) and inner.get("type") == "not":
-            # ¬(¬P) → P
+            # ¬(¬P) -> P
             suggestions.append({
                 "reason": "Double negation",
                 "rewrite": inner.get("term")
@@ -182,7 +182,7 @@ def suggest_rewrite_candidates(ast: Union[str, dict]) -> list[dict]:
             simplified = [t for t in terms if t != "True" and t != {"type": "constant", "value": "True"}]
             if simplified:
                 suggestions.append({
-                    "reason": "Identity: P ∧ True → P",
+                    "reason": "Identity: P ∧ True -> P",
                     "rewrite": {"type": "and", "terms": simplified}
                 })
 

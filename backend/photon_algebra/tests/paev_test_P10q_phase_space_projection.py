@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import json
 
 # ================================================
-# P10q — Global Resonance Phase-Space Projection
+# P10q - Global Resonance Phase-Space Projection
 # ================================================
 
 np.random.seed(42)
@@ -76,7 +76,7 @@ colors = cmap(np.linspace(0, 1, T))
 
 plt.scatter(X_pca[:,0], X_pca[:,1], c=colors, s=6, alpha=0.7, edgecolors='none')
 plt.scatter(X_pca[-1,0], X_pca[-1,1], c='black', s=60, label='Final Equilibrium')
-plt.title("P10q — Global Resonance Phase-Space Projection")
+plt.title("P10q - Global Resonance Phase-Space Projection")
 plt.xlabel(f"PC1 ({explained[0]*100:.1f}% variance)")
 plt.ylabel(f"PC2 ({explained[1]*100:.1f}% variance)")
 plt.legend()
@@ -103,7 +103,7 @@ results = {
 with open("backend/modules/knowledge/P10q_phase_space_projection.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== P10q — Global Resonance Phase-Space Projection ===")
+print("=== P10q - Global Resonance Phase-Space Projection ===")
 print(f"Final R={results['metrics']['R_final']:.4f}, Mean R={results['metrics']['mean_R']:.4f}")
 print(f"Explained variance: {explained[0]*100:.1f}% + {explained[1]*100:.1f}%")
-print("✅ Results saved → backend/modules/knowledge/P10q_phase_space_projection.json")
+print("✅ Results saved -> backend/modules/knowledge/P10q_phase_space_projection.json")

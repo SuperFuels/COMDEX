@@ -1,5 +1,5 @@
 # ==========================================================
-# Test F7 — Predictive Resonance & Self-Tuning Phase Dynamics
+# Test F7 - Predictive Resonance & Self-Tuning Phase Dynamics
 # ==========================================================
 #
 # Objective:
@@ -7,7 +7,7 @@
 #   The field estimates future entropy shifts and pre-emptively tunes
 #   χ (coupling) and α (meta-rate) to maintain coherence.
 #
-#   This establishes a closed predictive feedback loop — the algebra
+#   This establishes a closed predictive feedback loop - the algebra
 #   learns to stabilize itself in time.
 # ==========================================================
 
@@ -127,13 +127,13 @@ transition_step = int(np.argmax(np.abs(dS) > 0.02))
 # plots
 # ----------------------------
 plt.figure(figsize=(7,4))
-plt.plot(energy_trace,label='⟨ℒ⟩')
-plt.plot(corr_trace,label='⟨θ·κ⟩')
+plt.plot(energy_trace,label='⟨L⟩')
+plt.plot(corr_trace,label='⟨θ*κ⟩')
 plt.plot(np.array(entropy_trace)/max(entropy_trace),label='Spectral entropy (norm.)',color='green')
 plt.plot(np.array(chi_trace)/max(chi_trace),'r--',label='χ(t)/χmax')
 plt.axvline(transition_step,color='magenta',ls='--',label='transition')
 plt.legend()
-plt.title("F7 — Predictive Self-Tuning Dynamics")
+plt.title("F7 - Predictive Self-Tuning Dynamics")
 plt.tight_layout()
 plt.savefig("PAEV_TestF7_Predictive_Trace.png",dpi=160)
 plt.close()
@@ -142,8 +142,8 @@ print("✅ Saved file: PAEV_TestF7_Predictive_Trace.png")
 plt.figure(figsize=(5,4))
 plt.plot(entropy_trace,corr_trace,color='orange')
 plt.xlabel("Spectral entropy")
-plt.ylabel("⟨θ·κ⟩")
-plt.title("F7 — Predictive Phase Portrait")
+plt.ylabel("⟨θ*κ⟩")
+plt.title("F7 - Predictive Phase Portrait")
 plt.tight_layout()
 plt.savefig("PAEV_TestF7_PredictivePhasePortrait.png",dpi=160)
 plt.close()
@@ -151,7 +151,7 @@ print("✅ Saved file: PAEV_TestF7_PredictivePhasePortrait.png")
 
 plt.figure(figsize=(6,4))
 plt.plot(forecast_error_trace,color='purple')
-plt.title("F7 — Forecast Error Evolution")
+plt.title("F7 - Forecast Error Evolution")
 plt.xlabel("Step")
 plt.ylabel("Entropy Forecast Error")
 plt.tight_layout()
@@ -167,9 +167,9 @@ print("✅ Saved animation to: PAEV_TestF7_Propagation.gif")
 # summary
 # ----------------------------
 summary = f"""
-=== Test F7 — Predictive Self-Tuning Phase Dynamics ===
-⟨ℒ⟩ final = {energy_trace[-1]:.4e}
-⟨θ·κ⟩ final = {corr_trace[-1]:.4e}
+=== Test F7 - Predictive Self-Tuning Phase Dynamics ===
+⟨L⟩ final = {energy_trace[-1]:.4e}
+⟨θ*κ⟩ final = {corr_trace[-1]:.4e}
 Spectral entropy final = {entropy_trace[-1]:.4e}
 χ final = {chi_trace[-1]:.4e}
 α final = {alpha_trace[-1]:.4e}

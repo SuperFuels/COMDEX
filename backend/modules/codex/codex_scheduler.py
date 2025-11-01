@@ -79,7 +79,7 @@ class CodexScheduler:
 
             # ✅ Hybrid Router
             if QWAVE_EXEC_ON and glyph in {"∇", "⊗", "□"}:
-                print(f"🌊 Routing glyph {glyph} → QWave (cost={cost.total()})")
+                print(f"🌊 Routing glyph {glyph} -> QWave (cost={cost.total()})")
                 emit_qwave_beam_ff(
                     source="codex_scheduler",
                     payload={
@@ -108,7 +108,7 @@ class CodexScheduler:
         try:
             result = self.executor.execute(glyph, metadata)
             self.metrics.record_execution()
-            print(f"✅ CodexScheduler executed: {glyph} → {result}")
+            print(f"✅ CodexScheduler executed: {glyph} -> {result}")
 
             MEMORY.store({
                 "label": "codex_scheduler_execution",

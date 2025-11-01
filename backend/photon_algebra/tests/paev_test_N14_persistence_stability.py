@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import json
 from datetime import datetime
 
-# === N14 — Quantum Information Persistence & Closed-Loop Stability ===
+# === N14 - Quantum Information Persistence & Closed-Loop Stability ===
 
 ħ = 1e-3
 G = 1e-5
@@ -54,8 +54,8 @@ plt.figure(figsize=(8,4))
 plt.plot(range(1, cycles+1), fidelities, 'o-', label='Fidelity per cycle')
 plt.axhline(0.9, color='r', ls='--', label='90% threshold')
 plt.xlabel('Cycle')
-plt.ylabel('Fidelity |⟨ψ₁|ψᵢ⟩|²')
-plt.title('N14 — Information Persistence per Feedback Cycle')
+plt.ylabel('Fidelity |⟨ψ1|ψi⟩|2')
+plt.title('N14 - Information Persistence per Feedback Cycle')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
@@ -63,7 +63,7 @@ plt.savefig("PAEV_N14_PersistenceCycles.png")
 
 plt.figure(figsize=(8,4))
 plt.plot(range(1, cycles+1), np.unwrap(phase_errors), 'o-', color='orange')
-plt.title("N14 — Phase Drift Across Feedback Cycles")
+plt.title("N14 - Phase Drift Across Feedback Cycles")
 plt.xlabel("Cycle")
 plt.ylabel("Phase error (radians)")
 plt.grid(True)
@@ -89,8 +89,8 @@ summary = {
 with open("backend/modules/knowledge/N14_persistence_summary.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== N14 — Quantum Information Persistence & Closed-Loop Stability ===")
-print(f"ħ={ħ:.3e}, G={G:.1e}, Λ₀={Λ0:.1e}, α₀={α0:.3f}, β={β:.2f}")
+print("=== N14 - Quantum Information Persistence & Closed-Loop Stability ===")
+print(f"ħ={ħ:.3e}, G={G:.1e}, Λ0={Λ0:.1e}, α0={α0:.3f}, β={β:.2f}")
 print(f"Feedback gain={feedback_gain:.2f}, cycles={cycles}")
 print(f"Mean fidelity={mean_fid:.3f}")
 print(f"Classification: {classification}")

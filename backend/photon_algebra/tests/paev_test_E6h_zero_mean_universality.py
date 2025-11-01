@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-E6h — Zero-Mean Normalized Universality
+E6h - Zero-Mean Normalized Universality
 ---------------------------------------
 Final refinement of the E6 series.
 Adds mean-field normalization to the log-adaptive curvature feedback model
@@ -136,7 +136,7 @@ for k, c in zip(IC_types, colors):
     plt.scatter(metrics["Phi_mean"][i], metrics["curv_exp"][i], s=180, color=c, label=k)
 plt.xlabel("⟨Φ⟩ (normalized)")
 plt.ylabel("Curvature exponent")
-plt.title("E6h — Zero-Mean Normalized Universality")
+plt.title("E6h - Zero-Mean Normalized Universality")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_E6h_ZeroMeanUniversality.png")
@@ -144,9 +144,9 @@ plt.savefig("PAEV_E6h_ZeroMeanUniversality.png")
 # Adaptive curvature feedback trace
 plt.figure(figsize=(8, 4))
 for k, c in zip(IC_types, colors):
-    plt.plot(t, gamma_records[k], label=f"{k} γₖ(t)", lw=1.2, color=c)
+    plt.plot(t, gamma_records[k], label=f"{k} γk(t)", lw=1.2, color=c)
 plt.xlabel("time")
-plt.ylabel("γₖ(t)")
+plt.ylabel("γk(t)")
 plt.title("Adaptive Curvature Feedback (Zero-Mean Stabilized)")
 plt.legend()
 plt.tight_layout()
@@ -177,10 +177,10 @@ results = {
     },
 }
 
-print("=== E6h — Zero-Mean Normalized Universality ===")
+print("=== E6h - Zero-Mean Normalized Universality ===")
 print(json.dumps(results, indent=2))
 
 outf = Path("backend/modules/knowledge/E6h_zero_mean_universality.json")
 outf.parent.mkdir(parents=True, exist_ok=True)
 outf.write_text(json.dumps(results, indent=2))
-print(f"✅ Results saved → {outf}")
+print(f"✅ Results saved -> {outf}")

@@ -9,16 +9,16 @@ from backend.modules.symbolic_engine.physics_kernel import (
 def node(x): return x.to_dict() if isinstance(x, GlyphNode) else x
 
 def test_vector_calculus_nodes():
-    f = "ϕ(x,y,z)"
+    f = "φ(x,y,z)"
     V = {"type":"Vector","name":"V","components":["Vx","Vy","Vz"]}
     assert node(grad(f))["op"] == "∇"
-    assert node(div(V))["op"] == "∇·"
-    assert node(curl(V))["op"] == "∇×"
-    assert node(laplacian(f))["op"] == "∇²"
+    assert node(div(V))["op"] == "∇*"
+    assert node(curl(V))["op"] == "∇*"
+    assert node(laplacian(f))["op"] == "∇2"
     assert node(d_dt(f))["op"] == "∂/∂t"
     assert node(tensor_product("A","B"))["op"] == "⊗"
-    assert node(dot("A","B"))["op"] == "·"
-    assert node(cross("A","B"))["op"] == "×"
+    assert node(dot("A","B"))["op"] == "*"
+    assert node(cross("A","B"))["op"] == "*"
 
 def test_quantum_nodes():
     ψ = ket("ψ")

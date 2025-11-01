@@ -61,7 +61,7 @@ def save_scroll_to_memory(user_id: str, label: str, content: str, metadata: Dict
     try:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(entry, f, indent=2, ensure_ascii=False)
-        print(f"💾 [ResonantMemory] Saved scroll '{label}' for [{user_id}] → {path}")
+        print(f"💾 [ResonantMemory] Saved scroll '{label}' for [{user_id}] -> {path}")
     except Exception as e:
         print(f"⚠️ [ResonantMemory] Failed to save scroll '{label}': {e}")
         raise

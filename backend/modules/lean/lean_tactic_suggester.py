@@ -43,7 +43,7 @@ def is_negation_of(a: Dict, b: Dict) -> bool:
 def detect_contradictions(ast: Dict) -> Optional[str]:
     """
     Simple AST-based contradiction detector.
-    Looks for patterns like: ¬A ∧ A, A → ¬A, A ↔ ¬A.
+    Looks for patterns like: ¬A ∧ A, A -> ¬A, A ↔ ¬A.
     """
     if not isinstance(ast, dict):
         return None
@@ -58,7 +58,7 @@ def detect_contradictions(ast: Dict) -> Optional[str]:
     if node_type == "implies":
         premise, conclusion = ast.get("left"), ast.get("right")
         if is_negation_of(premise, conclusion):
-            return "Contradiction: A → ¬A"
+            return "Contradiction: A -> ¬A"
 
     if node_type == "iff":
         left, right = ast.get("left"), ast.get("right")

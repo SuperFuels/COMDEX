@@ -9,14 +9,14 @@ SUMMARY_FILE = Path("data/ledger/awareness_sessions_summary.jsonl")
 EXPORT_FILE  = Path("docs/latex/appendix_c_awareness_sessions.tex")
 IMG_DIR      = Path("data/visualizations/awareness_sessions")
 MAX_ENTRIES  = 10  # most recent N to show in table
-APPEND_MODE  = True  # ✅ Phase 6.4 — append new session blocks
+APPEND_MODE  = True  # ✅ Phase 6.4 - append new session blocks
 
 # ────────────────────────────────────────────────
 #  TeX template
 # ────────────────────────────────────────────────
 TEX_TEMPLATE = Template(r"""
-\section*{Appendix C — GHX Awareness Session Timeline}
-\addcontentsline{toc}{section}{Appendix C — GHX Awareness Session Timeline}
+\section*{Appendix C - GHX Awareness Session Timeline}
+\addcontentsline{toc}{section}{Appendix C - GHX Awareness Session Timeline}
 
 \subsection*{Run ID: $run_id}
 \textbf{Date:} $timestamp\\
@@ -104,7 +104,7 @@ def export_latest():
     S_s    = fmt_num(Sval, ".3f") if isinstance(Sval, (int, float)) else str(Sval or "--")
     ts_s   = fmt_ts(ts)
 
-    run_id = f"RQC–Φ{len(summary):03d}"
+    run_id = f"RQC-Φ{len(summary):03d}"
     img_path = find_latest_image()
 
     tex_sub = rf"""
@@ -125,7 +125,7 @@ def export_latest():
 
     table_rows = []
     for i, j in enumerate(summary, start=1):
-        rid = f"RQC–Φ{i:03d}"
+        rid = f"RQC-Φ{i:03d}"
         date = fmt_ts(j.get("timestamp"))
         phi  = fmt_num(j.get("Phi") or j.get("Φ_mean"), ".6f")
         Rv   = fmt_num(j.get("R") or j.get("resonance_index"), ".6f")
@@ -143,15 +143,15 @@ Run ID & Date (UTC) & Φ (coh.) & R (res.) & State \\
 """ + "\n".join(table_rows) + r"""
 \bottomrule
 \end{tabular}
-\caption{Chronological awareness sessions recorded through MorphicLedger v2 → GHX Visualizer pipeline.}
+\caption{Chronological awareness sessions recorded through MorphicLedger v2 -> GHX Visualizer pipeline.}
 \end{table}
 """
 
     EXPORT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     header = (
-        "\\section*{Appendix C — GHX Awareness Session Timeline}\n"
-        "\\addcontentsline{toc}{section}{Appendix C — GHX Awareness Session Timeline}\n\n"
+        "\\section*{Appendix C - GHX Awareness Session Timeline}\n"
+        "\\addcontentsline{toc}{section}{Appendix C - GHX Awareness Session Timeline}\n\n"
     )
 
     # ─── Smart header & dedup append mode ───────────────────────────────
@@ -166,7 +166,7 @@ Run ID & Date (UTC) & Φ (coh.) & R (res.) & State \\
     else:
         content = ""
 
-    # If this run already exists → skip
+    # If this run already exists -> skip
     if run_id in existing_runs:
         print(f"⚠️  {run_id} already present in appendix; skipping duplicate append.")
         return
@@ -176,7 +176,7 @@ Run ID & Date (UTC) & Φ (coh.) & R (res.) & State \\
         # first creation
         new_content = header + tex_sub.strip() + "\n" + table_block.strip() + "\n"
         EXPORT_FILE.write_text(new_content, encoding="utf-8")
-        print(f"[✓] Created Appendix C → {EXPORT_FILE}")
+        print(f"[✓] Created Appendix C -> {EXPORT_FILE}")
     else:
         # append only new run + refresh table
         cutoff = content.rfind(r"\subsection*{Session Summary}")
@@ -184,7 +184,7 @@ Run ID & Date (UTC) & Φ (coh.) & R (res.) & State \\
             content = content[:cutoff].rstrip()
         with EXPORT_FILE.open("w", encoding="utf-8") as f:
             f.write(content + "\n\n" + tex_sub.strip() + "\n" + table_block.strip() + "\n")
-        print(f"[➕] Appended new run → {run_id}")
+        print(f"[➕] Appended new run -> {run_id}")
 
     print(f"🧠 Latest Run ID: {run_id}")
     print(f"📁 Image Path:   {img_path}")
@@ -194,7 +194,7 @@ Run ID & Date (UTC) & Φ (coh.) & R (res.) & State \\
 #  Main entrypoint
 # ────────────────────────────────────────────────
 if __name__ == "__main__":
-    print("🚀 GHX Awareness → LaTeX Appendix Exporter (Phase 6.4b)")
+    print("🚀 GHX Awareness -> LaTeX Appendix Exporter (Phase 6.4b)")
     try:
         export_latest()
     except Exception as e:

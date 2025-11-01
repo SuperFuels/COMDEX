@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Photon Algebra Evaluation (PAEV)
-Series I — Summary Dashboard (Tests 1 → 7)
+Series I - Summary Dashboard (Tests 1 -> 7)
 """
 
 import os
@@ -58,10 +58,10 @@ for ax, (name, df) in zip(axes, data_summary):
 for ax in axes[len(data_summary):]:
     ax.axis("off")
 
-plt.suptitle("PAEV Series I — Unified Visibility Overview", fontsize=14)
+plt.suptitle("PAEV Series I - Unified Visibility Overview", fontsize=14)
 plt.tight_layout(rect=[0, 0, 1, 0.97])
 fig.savefig(os.path.join(FIG_DIR, "PAEV_SeriesI_Summary.png"), dpi=300)
-print("✅ Saved figure → docs/theory/figures/PAEV_SeriesI_Summary.png")
+print("✅ Saved figure -> docs/theory/figures/PAEV_SeriesI_Summary.png")
 
 # ---------------------------------------------------------------------
 # Numerical Synthesis Table
@@ -82,6 +82,6 @@ for name, df in data_summary:
 summary_df = pd.DataFrame(summary_rows)
 summary_path = os.path.join(TABLE_DIR, "PAEV_SeriesI_Summary.csv")
 summary_df.to_csv(summary_path, index=False, float_format="%.5f")
-print(f"✅ Saved summary table → {summary_path}")
+print(f"✅ Saved summary table -> {summary_path}")
 
 print("🏁 PAEV Series I Summary complete.")

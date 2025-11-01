@@ -13,7 +13,7 @@ class CarrierMemory:
     def __init__(self):
         self.live_buffer = []
         self.entangled_buffer: List[EntangledWave] = []
-        self.timestamped_packets: Dict[str, float] = {}  # wave_id → timestamp
+        self.timestamped_packets: Dict[str, float] = {}  # wave_id -> timestamp
 
     def send_wave(self, wave) -> str:
         """Emit a WaveState into carrier memory with trace timestamp."""

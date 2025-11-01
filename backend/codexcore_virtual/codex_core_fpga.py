@@ -3,7 +3,7 @@ CodexCoreFPGA
 =============
 A lightweight FPGA-style wrapper around the Codex executor pipeline.
 
-- Parses CodexLang → AST
+- Parses CodexLang -> AST
 - Executes instruction tree via CodexExecutor
 - Logs execution feedback
 - Advances a symbolic virtual clock (via QWave beam tick loop)
@@ -36,14 +36,14 @@ class CodexCoreFPGA:
     def run_codex_program(self, codex_str: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Parse and execute a CodexLang string.
-        - Parse CodexLang → AST
+        - Parse CodexLang -> AST
         - Execute AST via CodexExecutor
         - Record metrics + feedback
         - Advance symbolic clock (beam_tick_loop)
         """
         context = context or {}
 
-        # 1. Parse CodexLang → AST
+        # 1. Parse CodexLang -> AST
         ast = parse_codexlang(codex_str)
         if not ast:
             raise ValueError("CodexLang parse failed: empty AST")
@@ -76,7 +76,7 @@ class CodexCoreFPGA:
 
 # 🔁 Simple test runner
 if __name__ == "__main__":
-    program = "⟦ Logic | Reflect: Self → ⟲(Dream) ⟧"
+    program = "⟦ Logic | Reflect: Self -> ⟲(Dream) ⟧"
     codex = CodexCoreFPGA()
     output = codex.run_codex_program(program)
     print("Execution Output:", output)

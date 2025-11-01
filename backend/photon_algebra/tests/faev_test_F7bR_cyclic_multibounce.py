@@ -39,7 +39,7 @@ def run_sim(cfg):
     lam_amp   = cfg["cycle"]["lam_amp"]          # ~ 1e-3 to 1e-2
     lam_omega = cfg["cycle"]["lam_omega"]        # period scale
     lam_gate_w= cfg["cycle"]["gate_width"]       # time window around a_min
-    reinject  = cfg["cycle"]["reinject_frac"]    # 1–3% KE restore per bounce
+    reinject  = cfg["cycle"]["reinject_frac"]    # 1-3% KE restore per bounce
 
     # State
     a  = np.zeros(N);  a[0]  = 1.0
@@ -116,12 +116,12 @@ def run_sim(cfg):
         a[i] = max(1e-6, a[i-1] * (1.0 + H[i]*dt))
         rho_tot[i-1] = rho_eff
 
-        # crude “information/entropy” flux: |d/dt ln coherence|
+        # crude "information/entropy" flux: |d/dt ln coherence|
         coh = np.cos(phi1[i-1]-phi2[i-1])
         dcoh = (np.cos(phi1[i-1]-phi2[i-1]) - np.cos(phi1[i-2]-phi2[i-2]))/dt if i>1 else 0.0
         entropy_flux[i-1] = abs(dcoh)/(abs(coh)+1e-4)
 
-        # bounce handling (we’ll refine after loop once a[] known)
+        # bounce handling (we'll refine after loop once a[] known)
 
     # finalize last samples
     rho_tot[-1]=rho_tot[-2]; rho_phi[-1]=rho_phi[-2]; lam_eff[-1]=lam_eff[-2]
@@ -186,29 +186,29 @@ if __name__ == "__main__":
     mean_S = float(np.mean(S[int(0.1*len(S)):]))
 
     cls = "✅ Multi-bounce achieved" if bcount >= 2 else "⚠️ Single bounce"
-    print(f"=== F7b-RC2 — Cyclic Multi-Bounce Test ===")
+    print(f"=== F7b-RC2 - Cyclic Multi-Bounce Test ===")
     print(f"bounces={bcount} | mean_entropy_flux={mean_S:.4g}")
-    print(f"→ {cls}")
+    print(f"-> {cls}")
 
     # Plots
     plt.figure(figsize=(8,4.6))
     plt.plot(t, a, lw=2, label="a(t)")
     for bt in bts: plt.axvline(bt, ls="--", c="purple", alpha=0.6)
-    plt.title("F7b-RC2 — Scale Factor (multi-bounce)")
+    plt.title("F7b-RC2 - Scale Factor (multi-bounce)")
     plt.xlabel("time"); plt.ylabel("a(t)"); plt.legend(); plt.tight_layout()
     plt.savefig("FAEV_F7bRC2_Scale.png", dpi=130)
 
     plt.figure(figsize=(8,4.6))
     plt.semilogy(t, rho, lw=1.8, label="ρ_total")
     plt.semilogy(t, lam, lw=1.4, ls="--", label="Λ_eff(t)")
-    plt.title("F7b-RC2 — Energy & Λ_eff(t)")
+    plt.title("F7b-RC2 - Energy & Λ_eff(t)")
     plt.xlabel("time"); plt.ylabel("energy (log)"); plt.legend(); plt.tight_layout()
     plt.savefig("FAEV_F7bRC2_Energy.png", dpi=130)
 
     plt.figure(figsize=(8,4.6))
     plt.plot(t, S, lw=1.5, c="crimson", label="entropy flux")
     for bt in bts: plt.axvline(bt, ls="--", c="gray", alpha=0.4)
-    plt.title("F7b-RC2 — Entropy / Information Flux")
+    plt.title("F7b-RC2 - Entropy / Information Flux")
     plt.xlabel("time"); plt.ylabel("S(t)"); plt.legend(); plt.tight_layout()
     plt.savefig("FAEV_F7bRC2_Entropy.png", dpi=130)
 

@@ -15,7 +15,7 @@ class FailureLogger:
         self.disable_glyphs = DISABLE_FAILURE_GLYPHS
 
     def log_failure(self, failure_type, message, context=None):
-        print(f"❌ Failure logged: {failure_type} – {message} | Context: {context}")
+        print(f"❌ Failure logged: {failure_type} - {message} | Context: {context}")
 
         if self.disable_glyphs:
             print("🚫 Failure glyph injection disabled by toggle.")
@@ -37,6 +37,6 @@ class FailureLogger:
                 },
                 plugin="FailureLogger"
             )
-            print(f"📦 Injected failure glyph: {failure_type} – {message}")
+            print(f"📦 Injected failure glyph: {failure_type} - {message}")
         except Exception as e:
             print(f"⚠️ Failed to inject failure glyph into KG: {e}")

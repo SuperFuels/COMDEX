@@ -24,7 +24,7 @@ try:
     from backend.modules.visualization.quantum_field_canvas_api import trigger_qfc_render
 except Exception:
     async def trigger_qfc_render(payload: Dict[str, Any], source: str = "photon_sqi_bridge"):
-        print(f"[Stub QFC] Would trigger render from [{source}] → {list(payload.keys())}")
+        print(f"[Stub QFC] Would trigger render from [{source}] -> {list(payload.keys())}")
 
 try:
     from backend.modules.teleportation.teleport_api import teleport_to_container
@@ -110,7 +110,7 @@ class PhotonSQIResonanceBridge:
         )
 
         combined = {**packet, **sqi}
-        print(f"🌀 Bridge integrated resonance → SQI:{sqi.get('sqi_score')} QQC/QFC/Teleport complete")
+        print(f"🌀 Bridge integrated resonance -> SQI:{sqi.get('sqi_score')} QQC/QFC/Teleport complete")
         return combined
 
 

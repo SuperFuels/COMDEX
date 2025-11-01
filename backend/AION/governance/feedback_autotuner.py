@@ -1,7 +1,7 @@
 """
 AION Feedback Loop Autotuner
 ────────────────────────────
-Links Temporal Resonance Predictor outputs to AION–QQC control weights.
+Links Temporal Resonance Predictor outputs to AION-QQC control weights.
 
 When σ̂ (stability score) drops or ΔΦ̂ shows drift,
 the autotuner increases corrective gain and audit frequency.
@@ -53,7 +53,7 @@ def compute_adjustment(forecast):
 
 
 def autotune():
-    """Main entrypoint — run predictor, read output, adjust QQC parameters."""
+    """Main entrypoint - run predictor, read output, adjust QQC parameters."""
     run_temporal_predictor()  # ensure fresh forecast
     forecast = read_latest_forecast()
     if not forecast:
@@ -91,8 +91,8 @@ def autotune():
         f.write(json.dumps(record) + "\n")
 
     print(
-        f"[Autotuner] σ̂={σ̂:.3f}, ε→{new_tolerance:.4f}, "
-        f"N→{new_audit}, gain_adj={gain_adj:.3f}, audit_adj={audit_adj:.3f}"
+        f"[Autotuner] σ̂={σ̂:.3f}, ε->{new_tolerance:.4f}, "
+        f"N->{new_audit}, gain_adj={gain_adj:.3f}, audit_adj={audit_adj:.3f}"
     )
 
     return record

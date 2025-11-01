@@ -1,11 +1,11 @@
 """
-ResonantReflection — Phase 38B : Intent Reflection Engine
+ResonantReflection - Phase 38B : Intent Reflection Engine
 ---------------------------------------------------------
-Compares resonance fields Ψ₁ (input) and Ψ₂ (intent/goal)
+Compares resonance fields Ψ1 (input) and Ψ2 (intent/goal)
 to quantify understanding and semantic alignment.
 
-Implements the final reflective loop between Aion’s
-semantic atoms and intrinsic goals — allowing the system
+Implements the final reflective loop between Aion's
+semantic atoms and intrinsic goals - allowing the system
 to measure how well its current meaning field aligns with
 its internal intent.
 """
@@ -76,10 +76,10 @@ class ResonantReflection:
     # ─────────────────────────────────────────────
     def reflect_from_context(self):
         """
-        Build a new resonance field (Ψ₁) from LAB,
+        Build a new resonance field (Ψ1) from LAB,
         then compare it either to:
-          - a saved baseline resonance field Ψ₀, or
-          - a synthetic intent field Ψ₂ derived from goals.
+          - a saved baseline resonance field Ψ0, or
+          - a synthetic intent field Ψ2 derived from goals.
         """
         input_field = RI.interpret_atoms(LAB.build_atoms())
 
@@ -94,7 +94,7 @@ class ResonantReflection:
 
         # Fallback to goal-derived intent reflection
         if not GOALS or not GOALS.active_goals:
-            logger.warning("[Ref] No active goals — using input field only.")
+            logger.warning("[Ref] No active goals - using input field only.")
             return input_field
 
         intent_field = {"clusters": []}

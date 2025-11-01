@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-🎯 GoalTaskManager — Phase 55 Task 3
+🎯 GoalTaskManager - Phase 55 Task 3
 ───────────────────────────────────────────────────────────────
 Resonant-aware goal orchestration with tension detection and GSI feedback.
 
 Upgrades:
-  • Integrates ResonanceHeartbeat for continuous SQI feedback
-  • Computes per-goal Goal Stability Index (GSI)
-  • Detects and resolves resonance tension events
-  • Logs to ResonantMemoryCache + broadcasts via WebSocket
-  • Adapts goal priority using personality traits + entropy feedback
+  * Integrates ResonanceHeartbeat for continuous SQI feedback
+  * Computes per-goal Goal Stability Index (GSI)
+  * Detects and resolves resonance tension events
+  * Logs to ResonantMemoryCache + broadcasts via WebSocket
+  * Adapts goal priority using personality traits + entropy feedback
 """
 
 import random
@@ -91,7 +91,7 @@ class GoalTaskManager:
     # ------------------------------------------------------------
     def compute_goal_stability_index(self, goal_name: str, sqi: float, entropy: float) -> float:
         """
-        Compute GSI = SQI × (1 − entropy) to represent harmonic goal stability.
+        Compute GSI = SQI * (1 - entropy) to represent harmonic goal stability.
         """
         return round(max(0.0, min(1.0, sqi * (1.0 - entropy))), 4)
 
@@ -152,7 +152,7 @@ class GoalTaskManager:
             self.rmc.update_resonance_link(self.active_goal, "gsi", gsi)
             self.rmc.save()
 
-            log.info(f"[Θ] Updated GSI for {self.active_goal} → {gsi:.3f}")
+            log.info(f"[Θ] Updated GSI for {self.active_goal} -> {gsi:.3f}")
 
     # ------------------------------------------------------------
     def get_next_task(self):

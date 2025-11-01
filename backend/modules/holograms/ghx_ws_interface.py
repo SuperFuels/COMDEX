@@ -45,7 +45,7 @@ def _resolve_load_container_by_id():
 
             return load_container_by_id
         except Exception:
-            # Ultra-safe stub so the WS doesn’t hard-crash; you can replace with a hard error if preferred.
+            # Ultra-safe stub so the WS doesn't hard-crash; you can replace with a hard error if preferred.
             def load_container_by_id(_container_id: str):
                 return {}
 
@@ -60,7 +60,7 @@ try:
 except Exception:
     ENABLE_GLYPH_LOGGING = True  # safe default
 
-# ✅ Optional: safe GHX log shim — never raises even if interface changes
+# ✅ Optional: safe GHX log shim - never raises even if interface changes
 try:
     from backend.modules.holograms.ghx_logging import safe_ghx_log  # plural path
 except Exception:
@@ -179,7 +179,7 @@ class GHXWebSocketHandler:
                             "activation": triggered
                         }))
                     except Exception:
-                        # Fallback to a tag-based broadcast signature if that’s what you use
+                        # Fallback to a tag-based broadcast signature if that's what you use
                         try:
                             await manager.broadcast(
                                 {"event": "glyph_triggered", "glyph_id": glyph_id, "activation": triggered},

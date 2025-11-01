@@ -6,10 +6,10 @@ Test: Virtual CPU Executor Delegation
 Validates that VirtualCPU routes all ops via the global
 instruction_registry (no CPU hardcoding).
 Covers:
-  • Registry delegation with a fake op
-  • Error handling for unknown ops
-  • Register/memory behavior with MOV/STORE/PRINT
-  • HALT stopping the CPU
+  * Registry delegation with a fake op
+  * Error handling for unknown ops
+  * Register/memory behavior with MOV/STORE/PRINT
+  * HALT stopping the CPU
 """
 
 import pytest
@@ -83,7 +83,7 @@ def test_cpu_store_and_print(monkeypatch):
     ir.registry.override("logic:PRINT", handle_print)
     ir.registry.alias("PRINT", "logic:PRINT")
 
-    # Program: MOV → STORE → PRINT
+    # Program: MOV -> STORE -> PRINT
     cpu.program = [
         {"operation": "MOV", "args": ["R1", 42]},
         {"operation": "STORE", "args": ["R1", "100"]},

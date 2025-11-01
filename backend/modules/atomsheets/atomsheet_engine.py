@@ -2,7 +2,7 @@
 # 📁 backend/modules/atomsheets/atomsheet_engine.py
 # ===============================
 # ============================================================================
-# 🚧 NOTE: Temporary Fallback Imports — Replace When Symatics Is Active
+# 🚧 NOTE: Temporary Fallback Imports - Replace When Symatics Is Active
 # ----------------------------------------------------------------------------
 # The following block provides defensive stubs for:
 #   - compute_resonance_metrics
@@ -237,7 +237,7 @@ def _compute_e7_metrics(cells: Dict[str, "GlyphCell"]) -> None:
 def _evaluate_codexlang(text: str, ctx: Dict[str, Any]) -> Tuple[Optional[str], Optional[str]]:
     """
     Best-effort CodexLang evaluation.
-    Tries backend.modules.codex.codexlang_eval.evaluate(text, ctx) → str
+    Tries backend.modules.codex.codexlang_eval.evaluate(text, ctx) -> str
     Returns (render, error). If evaluator is missing, returns (text, None).
     """
     try:
@@ -448,14 +448,14 @@ def _validate_sqs_schema(data: Dict[str, Any]) -> None:
         except Exception as e:
             raise ValueError(f"SQS/ATOM schema validation failed: {e}") from e
 
-    # Fallback: jsonschema not installed → minimal required-field enforcement
+    # Fallback: jsonschema not installed -> minimal required-field enforcement
     required = DEFAULT_SCHEMA["required"]
     missing = [k for k in required if k not in data]
     if missing:
         raise ValueError(f"SQS/ATOM validation failed: missing required fields {missing}")
 
     # Passed minimal checks
-    record_trace("atomsheet", "[Schema] jsonschema unavailable — passed minimal required-field check")
+    record_trace("atomsheet", "[Schema] jsonschema unavailable - passed minimal required-field check")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Public API (module-level functions kept for compatibility)
@@ -532,11 +532,11 @@ async def execute_sheet(sheet: AtomSheet, context: Dict[str, Any]) -> Dict[str, 
     Returns: {cell_id: results}
 
     Adds:
-      • Sheet-level collapse beam with counts
-      • Defensive SQI refresh per cell
-      • (A5) Nested expansion
-      • (E7) Compute entropy / novelty / harmony per cell post-execution
-      • (B6) CodexLang render for cells marked logic_type=codexlang (or meta.logic_type)
+      * Sheet-level collapse beam with counts
+      * Defensive SQI refresh per cell
+      * (A5) Nested expansion
+      * (E7) Compute entropy / novelty / harmony per cell post-execution
+      * (B6) CodexLang render for cells marked logic_type=codexlang (or meta.logic_type)
     """
     qpu = SymaticQPU() if SYMATICS_ENABLED else CodexVirtualQPU()
 

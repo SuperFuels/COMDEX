@@ -82,12 +82,12 @@ def build_scroll_as_photon_ast(code: str) -> Dict[str, Any]:
 if __name__ == "__main__":
     from pprint import pprint
 
-    test_string = "A ⊕ B → C"
+    test_string = "A ⊕ B -> C"
     parser = _get_parser()
     parsed = parser(test_string)
 
     pprint(parsed)
-    scroll = build_scroll_from_glyph([{"symbol": "⊕", "value": "A,B", "action": "→ C"}])
+    scroll = build_scroll_from_glyph([{"symbol": "⊕", "value": "A,B", "action": "-> C"}])
     print("\n--- Codex Scroll ---")
     print(scroll)
 

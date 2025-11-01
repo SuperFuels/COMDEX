@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tessaris Phase VII Integrator — Σ (Cross-Domain Universality)
+Tessaris Phase VII Integrator - Σ (Cross-Domain Universality)
 --------------------------------------------------------------
 Integrates Λ-Series (neutral substrate) with the Σ-Series (cross-domain
 causal universality): biological, plasma, climate, quantum-biological,
-and cross-domain coherence (Σ₁–Σ₅).
+and cross-domain coherence (Σ1-Σ5).
 
 Generates unified_summary_v2.0_sigma.json
 and visualization Tessaris_Sigma_Map.png
@@ -56,7 +56,7 @@ metrics_data = {
 
 for key, data in loaded.items():
     m = data.get("metrics", {})
-    # Extract what’s relevant from both Λ and Σ domains
+    # Extract what's relevant from both Λ and Σ domains
     if "divJ_mean" in m:
         metrics_data["divJ"].append(m["divJ_mean"])
     if "E_mean" in m:
@@ -106,7 +106,7 @@ summary = {
     "notes": [
         "Phase VII integrates Λ (neutral substrate) with Σ (cross-domain universality).",
         "Confirms consistency of Tessaris constants across quantum, biological, plasma, and climatic regimes.",
-        "Σ1 – Biological Σ2 – Plasma Σ3 – Climate Σ4 – QuantumBio Σ5 – Cross-domain Lock",
+        "Σ1 - Biological Σ2 - Plasma Σ3 - Climate Σ4 - QuantumBio Σ5 - Cross-domain Lock",
         f"Universality index = {universality_index:.3f} quantifies continuum coherence.",
         "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
     ],
@@ -116,7 +116,7 @@ summary = {
 # === Save unified summary ===
 with open(UNIFIED_PATH, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Unified Σ summary saved → {UNIFIED_PATH}")
+print(f"✅ Unified Σ summary saved -> {UNIFIED_PATH}")
 
 # === Visualization ===
 plt.figure(figsize=(7, 4))
@@ -135,8 +135,8 @@ plt.ylabel("Mean Metric Value")
 plt.grid(alpha=0.3, linestyle="--", axis="y")
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
-print(f"✅ Visualization saved → {PLOT_PATH}")
+print(f"✅ Visualization saved -> {PLOT_PATH}")
 
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))
-print("🌐 Phase VII (Σ) integration complete — Tessaris Universality mapped.")
+print("🌐 Phase VII (Σ) integration complete - Tessaris Universality mapped.")

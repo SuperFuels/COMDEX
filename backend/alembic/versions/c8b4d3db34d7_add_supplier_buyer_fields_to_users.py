@@ -24,9 +24,9 @@ def upgrade() -> None:
     op.add_column('users', sa.Column('products', sa.JSON(), nullable=True))
     op.add_column('users', sa.Column('monthly_spend', sa.String(), nullable=True))
 
-    # --- products table: if it doesn’t already exist, create only the missing foreign-key link ---
+    # --- products table: if it doesn't already exist, create only the missing foreign-key link ---
     # (assuming your products table is already defined; if not, keep your existing create_table below)
-    # Here, we only add the owner_email→users.email foreign key if not present:
+    # Here, we only add the owner_email->users.email foreign key if not present:
     try:
         op.create_foreign_key(
             'fk_products_owner_email_users',
@@ -38,7 +38,7 @@ def upgrade() -> None:
         # foreign key already exists
         pass
 
-    # (all your existing indexes on users are retained—no need to recreate)
+    # (all your existing indexes on users are retained-no need to recreate)
 
 
 def downgrade() -> None:

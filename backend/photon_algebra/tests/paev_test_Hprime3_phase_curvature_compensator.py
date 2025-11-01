@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test H′3 — Tessaris Phase–Curvature Compensation
+Test H′3 - Tessaris Phase-Curvature Compensation
 Applies curvature correction to stabilize field drift using G′ curvature deltas.
 Inputs: 
   - H′1 recalibrated cohesion data
@@ -33,12 +33,12 @@ def normalize(v):
     return (v - np.min(v)) / (np.max(v) - np.min(v)) if np.max(v) != np.min(v) else v
 
 def main():
-    print("=== H′3 — Tessaris Phase–Curvature Compensation ===")
+    print("=== H′3 - Tessaris Phase-Curvature Compensation ===")
 
     coh = load_json(COH_FILE)
     lock = load_json(LOCK_FILE)
     if not coh or not lock:
-        print("🚨 Missing inputs — ensure recalibrated H′1 and G′ lock snapshot exist.")
+        print("🚨 Missing inputs - ensure recalibrated H′1 and G′ lock snapshot exist.")
         return
 
     phases = coh.get("phases", {})
@@ -103,15 +103,15 @@ def main():
     ax.fill(angles, values, "r", alpha=0.25)
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(labels)
-    ax.set_title(f"H′3 — Phase–Curvature Compensation (TSI={tsi:.3f}%)")
+    ax.set_title(f"H′3 - Phase-Curvature Compensation (TSI={tsi:.3f}%)")
     plt.tight_layout()
     plt.savefig(PLOT_FILE)
 
     # --- Display summary ---
-    print(f"📘 Saved compensated JSON → {OUTPUT_JSON}")
-    print(f"📄 Saved compensated CSV → {OUTPUT_CSV}")
-    print(f"📈 Saved plot → {PLOT_FILE}")
-    print(f"✅ Phase–Curvature Compensation complete.")
+    print(f"📘 Saved compensated JSON -> {OUTPUT_JSON}")
+    print(f"📄 Saved compensated CSV -> {OUTPUT_CSV}")
+    print(f"📈 Saved plot -> {PLOT_FILE}")
+    print(f"✅ Phase-Curvature Compensation complete.")
     print(f"   Mean FCI = {mean_fci:.3f} %, Std = {std_fci:.3f} %, TSI = {tsi:.3f} %")
 
 if __name__ == "__main__":

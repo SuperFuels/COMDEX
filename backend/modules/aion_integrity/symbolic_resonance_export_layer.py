@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 23 — Symbolic Resonance Export Layer (SREL)
+Tessaris Phase 23 - Symbolic Resonance Export Layer (SREL)
 
 Translates consolidated meta-resonant telemetry into symbolic glyph streams
 for Symatics Algebra integration (⊕, ⟲, ↔, ∇, μ, π).  Each line represents
@@ -27,7 +27,7 @@ OUT_PATH.mkdir(parents=True, exist_ok=True)
 # Symbolic quantization map
 # ---------------------------------------------------------------------
 def glyph_from_params(nu, phi, amp):
-    """Map resonance parameters → Symatics glyph."""
+    """Map resonance parameters -> Symatics glyph."""
     # Frequency drift ν
     if abs(nu) < 0.5:
         base = "⊕"   # harmonic superposition
@@ -36,7 +36,7 @@ def glyph_from_params(nu, phi, amp):
     else:
         base = "↔"   # entangled / divergent
 
-    # Phase offset ϕ
+    # Phase offset φ
     if phi > 0.2:
         mod = "μ"    # measurement / positive phase
     elif phi < -0.2:
@@ -50,7 +50,7 @@ def glyph_from_params(nu, phi, amp):
     elif amp < 3:
         energy = "🌊"
     else:
-        energy = "•"
+        energy = "*"
 
     return f"{energy}{base}{mod}"
 
@@ -79,7 +79,7 @@ def process_latest_entry(line):
         with open(OUT_FILE, "a") as f:
             f.write(json.dumps(symbol, ensure_ascii=False) + "\n")
 
-        print(f"🪶  t={symbol['timestamp']} | ν={nu:+.3f} ϕ={phi:+.3f} A={amp:+.3f} ⇒ glyph={glyph}")
+        print(f"🪶  t={symbol['timestamp']} | ν={nu:+.3f} φ={phi:+.3f} A={amp:+.3f} -> glyph={glyph}")
 
     except Exception as e:
         print(f"⚠️  Parse error: {e}")
@@ -88,9 +88,9 @@ def process_latest_entry(line):
 # Main loop
 # ---------------------------------------------------------------------
 def run_exporter(interval=5.0):
-    print("🪶  Starting Tessaris Symbolic Resonance Export Layer (SREL)…")
+    print("🪶  Starting Tessaris Symbolic Resonance Export Layer (SREL)...")
     if not META_FILE.exists():
-        print("⚠️  Waiting for meta_resonant_telemetry.jsonl …")
+        print("⚠️  Waiting for meta_resonant_telemetry.jsonl ...")
     last_size = 0
     while True:
         if META_FILE.exists():

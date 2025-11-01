@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Knowledge Pack Generator (GHX + HQCE Ready)
-#  Integrates symbolic hologram generation with ψ–κ–T tensor augmentation.
+#  Tessaris * Knowledge Pack Generator (GHX + HQCE Ready)
+#  Integrates symbolic hologram generation with ψ-κ-T tensor augmentation.
 # ──────────────────────────────────────────────
 
 import uuid
@@ -48,7 +48,7 @@ def gradient_color(entropy: float, cost: float) -> str:
 
 
 # ──────────────────────────────────────────────
-#  HQCE Stage 1 — ψ–κ–T Tensor Augmentation
+#  HQCE Stage 1 - ψ-κ-T Tensor Augmentation
 # ──────────────────────────────────────────────
 def curvature_estimate(links: List[Dict[str, Any]]) -> float:
     """Simple curvature proxy from link density."""
@@ -58,7 +58,7 @@ def curvature_estimate(links: List[Dict[str, Any]]) -> float:
 
 def compute_psikappaT(nodes: List[Dict[str, Any]], links: List[Dict[str, Any]],
                       tick_time: float = 1.0, coherence_decay: float = 1e-3) -> Dict[str, float]:
-    """Compute the ψ–κ–T tensor signature for this holographic frame."""
+    """Compute the ψ-κ-T tensor signature for this holographic frame."""
     if nodes:
         psi = float(np.mean([n.get("entropy_score", 0.0) for n in nodes]))
     else:
@@ -74,7 +74,7 @@ def compute_psikappaT(nodes: List[Dict[str, Any]], links: List[Dict[str, Any]],
 def generate_knowledge_pack(glyph_tree: List[Dict[str, Any]], container_id: str) -> Dict[str, Any]:
     """
     Bundle a recursive logic tree into a portable GHX hologram pack.
-    Includes HQCE ψ–κ–T tensor augmentation for field analysis.
+    Includes HQCE ψ-κ-T tensor augmentation for field analysis.
     """
     projection = []
     links = []
@@ -136,7 +136,7 @@ def generate_knowledge_pack(glyph_tree: List[Dict[str, Any]], container_id: str)
         }
     }
 
-    # ─── Compute ψ–κ–T Signature (HQCE v0.1) ────
+    # ─── Compute ψ-κ-T Signature (HQCE v0.1) ────
     psi_kappa_T = compute_psikappaT(projection, links)
     ghx_pack["psi_kappa_T_signature"] = psi_kappa_T
 

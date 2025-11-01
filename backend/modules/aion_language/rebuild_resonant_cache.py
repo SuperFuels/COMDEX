@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧠 Phase 45F.11 — Verified Rebuild of Resonant Memory Cache (with Locking)
+# 🧠 Phase 45F.11 - Verified Rebuild of Resonant Memory Cache (with Locking)
 # ================================================================
 """
 Rebuilds the Resonant Memory Cache (RMC) from LexMemory data
 under strict atomic and concurrency-safe conditions.
 
 Features:
-  • Exclusive file lock during rebuild (prevents concurrent writes)
-  • Verified JSON structure before commit
-  • Backup + fallback recovery for cache and lex data
-  • JSON-serializable enforcement for all values
+  * Exclusive file lock during rebuild (prevents concurrent writes)
+  * Verified JSON structure before commit
+  * Backup + fallback recovery for cache and lex data
+  * JSON-serializable enforcement for all values
 """
 
 import json, os, tempfile, time, logging, shutil
@@ -36,7 +36,7 @@ def atomic_write_json(path: Path, data: dict):
         bak = path.with_suffix(".bak")
         try:
             shutil.copy2(path, bak)
-            log.info(f"[Rebuild] 💾 Backup saved → {bak}")
+            log.info(f"[Rebuild] 💾 Backup saved -> {bak}")
         except Exception as e:
             log.warning(f"[Rebuild] ⚠ Could not backup cache: {e}")
 
@@ -56,7 +56,7 @@ def atomic_write_json(path: Path, data: dict):
         raise
 
     os.replace(tmp.name, path)
-    log.info(f"[Rebuild] ✅ Atomic save verified → {path}")
+    log.info(f"[Rebuild] ✅ Atomic save verified -> {path}")
 
 # ============================================================
 # 🧩 Safe Value Conversion
@@ -85,7 +85,7 @@ def rebuild():
     except Exception as e:
         corrupt = LEX_PATH.with_suffix(".corrupt")
         os.replace(LEX_PATH, corrupt)
-        log.error(f"[Rebuild] ⚠ LexMemory corrupt ({e}) → moved to {corrupt}")
+        log.error(f"[Rebuild] ⚠ LexMemory corrupt ({e}) -> moved to {corrupt}")
         lex_data = {}
 
     cache = {}
@@ -106,7 +106,7 @@ def rebuild():
         "cache": cache,
         "meta": {
             "schema": "ResonantMemoryCache.v2",
-            "desc": "Rebuilt from LexMemory — atomic verified save",
+            "desc": "Rebuilt from LexMemory - atomic verified save",
         },
     }
 
@@ -117,7 +117,7 @@ def rebuild():
             atomic_write_json(CACHE_PATH, safe_value(result))
             log.info(f"[Rebuild] ✅ Wrote {len(cache)} entries under lock.")
     except Timeout:
-        log.warning(f"[Rebuild] ⚠ Another process is writing — rebuild skipped.")
+        log.warning(f"[Rebuild] ⚠ Another process is writing - rebuild skipped.")
         return 0
 
     return len(cache)

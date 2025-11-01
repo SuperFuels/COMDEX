@@ -25,7 +25,7 @@ def save_memory(memory):
 
 def log_request(skill_title, reason):
     with open(REQUEST_LOG, "a") as f:
-        f.write(f"[{datetime.utcnow().isoformat()}] 🤖 AION requested: {skill_title} — Reason: {reason}\n")
+        f.write(f"[{datetime.utcnow().isoformat()}] 🤖 AION requested: {skill_title} - Reason: {reason}\n")
 
 def inference_request():
     memory = load_memory()
@@ -54,7 +54,7 @@ def inference_request():
         save_memory(memory)
         print(f"🧠 AION inferred {len(suggestions)} new skills to learn.")
     else:
-        print("ℹ️ No new inferences. All curiosity paths explored.")
+        print("i️ No new inferences. All curiosity paths explored.")
 
 if __name__ == "__main__":
     inference_request()

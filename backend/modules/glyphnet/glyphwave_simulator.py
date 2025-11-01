@@ -75,7 +75,7 @@ def simulate_waveform_transmission(
         }
 
         simulation_log.append(trace)
-        logger.info(f"[Simulator] Glyphs encoded → {save_path}, loopback={loopback}, status={trace['status']}")
+        logger.info(f"[Simulator] Glyphs encoded -> {save_path}, loopback={loopback}, status={trace['status']}")
         return {"status": trace["status"], "trace": trace}
 
     except Exception as e:

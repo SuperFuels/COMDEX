@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics — Δ-Telemetry Live Visualization Test
+# Tessaris Symatics - Δ-Telemetry Live Visualization Test
 # Verifies live CodexRender animation loop.
 # ──────────────────────────────────────────────────────────────
 

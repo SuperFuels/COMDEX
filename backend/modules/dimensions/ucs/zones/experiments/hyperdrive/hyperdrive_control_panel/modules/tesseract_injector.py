@@ -1,13 +1,13 @@
 """
 🧩 Hyperdrive Tesseract Injector Module
 --------------------------------------
-• Defines TesseractInjector for multi-stage compression.
-• Supports phased multi-cylinder injectors for Hyperdrive engine.
-• Adds safe fallback for null particle handling.
-• Auto-fills missing particle fields (x, y, z, mass) to prevent physics errors.
-• Integrates CompressionChamber for staged intake → compression → release.
-• ✅ Extended: SQI runtime scaling hooks for particle density, decay, and pulse strength.
-• ✅ New: Harmonic coherence checks, SQI drift-adaptive density damp, injector-to-chamber auto-link, and telemetry logging.
+* Defines TesseractInjector for multi-stage compression.
+* Supports phased multi-cylinder injectors for Hyperdrive engine.
+* Adds safe fallback for null particle handling.
+* Auto-fills missing particle fields (x, y, z, mass) to prevent physics errors.
+* Integrates CompressionChamber for staged intake -> compression -> release.
+* ✅ Extended: SQI runtime scaling hooks for particle density, decay, and pulse strength.
+* ✅ New: Harmonic coherence checks, SQI drift-adaptive density damp, injector-to-chamber auto-link, and telemetry logging.
 """
 
 import os
@@ -101,12 +101,12 @@ class TesseractInjector:
         drift = max(engine.resonance_filtered[-20:], default=0) - min(engine.resonance_filtered[-20:], default=0)
         if drift > HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD:
             particle["density"] *= 0.95
-            print(f"⚠ [Injector {self.id}] Drift high ({drift:.3f}) → Density damp applied.")
+            print(f"⚠ [Injector {self.id}] Drift high ({drift:.3f}) -> Density damp applied.")
 
         # 🎼 Harmonic Coherence Check & Resync
         coherence = measure_harmonic_coherence(engine)
         if coherence < 0.6:
-            print(f"🎼 [Injector {self.id}] Low coherence ({coherence:.3f}) → Auto harmonic resync")
+            print(f"🎼 [Injector {self.id}] Low coherence ({coherence:.3f}) -> Auto harmonic resync")
             self.sync_to_frequency(engine.fields.get("wave_frequency", 1.0))
 
         # Apply pulse strength (velocity impulse)
@@ -118,7 +118,7 @@ class TesseractInjector:
         engine.particles.append(particle)
         print(f"🔥 [Tesseract Injector {self.id}] Fired | Density={particle['density']:.3f} | Pulse={self.pulse_strength:.2f}")
 
-        # 🔄 Auto-Link: Injector → Chamber intake
+        # 🔄 Auto-Link: Injector -> Chamber intake
         if hasattr(engine, "chambers") and engine.chambers:
             target_chamber = engine.chambers[self.id % len(engine.chambers)]
             target_chamber.intake(particle)

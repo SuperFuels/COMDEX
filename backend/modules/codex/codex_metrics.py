@@ -80,7 +80,7 @@ def log_collapse_metric(container_id: str, beam_id: str, score: float, state: st
     Logs collapse outcome for Codex beams with SQI score.
     """
     try:
-        print(f"[CodexMetric] Beam {beam_id} in {container_id} → SQI={score}, state={state}")
+        print(f"[CodexMetric] Beam {beam_id} in {container_id} -> SQI={score}, state={state}")
     except Exception as e:
         print(f"[CodexMetric] Failed to log collapse metric: {e}")
 # ─────────────────────────────────────────────────────────────────────────────
@@ -342,7 +342,7 @@ def record_mutation_event(event: dict) -> None:
     if not isinstance(event, dict):
         return
 
-    print(f"[CodexMetrics] Mutation recorded — reason: {event.get('metadata', {}).get('reason', 'unknown')}")
+    print(f"[CodexMetrics] Mutation recorded - reason: {event.get('metadata', {}).get('reason', 'unknown')}")
 
     entropy = event.get("metadata", {}).get("entropy_delta")
     success = event.get("metadata", {}).get("rewrite_success_prob")
@@ -370,7 +370,7 @@ def record_sqi_score_event(event: dict) -> None:
     }
 
     # You can later route this to a metrics DB or .dc file
-    print(f"[CodexMetrics] SQI Score Event → {log_entry}")
+    print(f"[CodexMetrics] SQI Score Event -> {log_entry}")
 
 def score_glyph_tree(tree):
     score = 0
@@ -379,7 +379,7 @@ def score_glyph_tree(tree):
         score += depth
         if isinstance(node, dict):
             for key, val in node.items():
-                if key in ["↔", "⧖", "⟲", "⊕", "→"]:
+                if key in ["↔", "⧖", "⟲", "⊕", "->"]:
                     score += 3
                 traverse(val, depth + 1)
         elif isinstance(node, list):
@@ -514,13 +514,13 @@ def log_benchmark_result(result: dict, to_file: Optional[str] = None):
 
     def fmt_ratio(val, digits=2):
         try:
-            return f"{float(val):.{digits}f}×"
+            return f"{float(val):.{digits}f}*"
         except (TypeError, ValueError):
             return "N/A"
 
     print(f"  ⏱️  Classical Time: {fmt_float(classical_time)}")
     print(f"  🧬 QGlyph Time:    {fmt_float(qglyph_time)}")
-    print(f"  📏 Depths → Classical: {depth_classical or 'N/A'} | QGlyph: {depth_qglyph or 'N/A'}")
+    print(f"  📏 Depths -> Classical: {depth_classical or 'N/A'} | QGlyph: {depth_qglyph or 'N/A'}")
     print(f"  🔁 Compression Ratio: {fmt_ratio(compression_ratio)}")
     print(f"  ⚡ Speedup Ratio:      {fmt_ratio(speedup_ratio)}")
     print(f"  🧿 QGlyph ID: {qglyph_id or '[none]'}")
@@ -541,7 +541,7 @@ from backend.RQC.src.photon_runtime.telemetry.ghx_awareness_feed import get_late
 # Optional if utils.py exists
 # from backend.RQC.src.photon_runtime.telemetry.utils import render_awareness_plot
 
-# If codexmetrics doesn’t yet define record_event, use this inline fallback
+# If codexmetrics doesn't yet define record_event, use this inline fallback
 try:
     from backend.modules.codex.codexmetrics import record_event
 except ImportError:
@@ -554,7 +554,7 @@ LEDGER_PATH = Path("data/ledger/rqc_live_telemetry.jsonl")
 REFRESH_INTERVAL = 2.0  # seconds
 
 def run_listener(duration: float = 60.0):
-    print("🧠 GHX Awareness Listener — Streaming Φ(t), R(t), S …")
+    print("🧠 GHX Awareness Listener - Streaming Φ(t), R(t), S ...")
     t0 = time.time()
     while time.time() - t0 < duration:
         frame = get_latest_awareness_frame(LEDGER_PATH)

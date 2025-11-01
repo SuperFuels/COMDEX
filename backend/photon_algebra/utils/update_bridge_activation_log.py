@@ -8,7 +8,7 @@ hash_file = "backend/modules/knowledge/constants_hash.json"
 if not os.path.exists(bridge_log):
     raise FileNotFoundError("❌ bridge_activation_log.json not found")
 if not os.path.exists(hash_file):
-    raise FileNotFoundError("❌ constants_hash.json not found — run check_constants_hash.py first")
+    raise FileNotFoundError("❌ constants_hash.json not found - run check_constants_hash.py first")
 
 with open(hash_file) as f:
     hdata = json.load(f)
@@ -24,4 +24,4 @@ with open(bridge_log, "w") as f:
     json.dump(blog, f, indent=2)
 
 print(f"✅ Bridge activation log linked to constants_v{hdata['constants_version']}")
-print(f"   → SHA256: {hdata['sha256'][:16]}…")
+print(f"   -> SHA256: {hdata['sha256'][:16]}...")

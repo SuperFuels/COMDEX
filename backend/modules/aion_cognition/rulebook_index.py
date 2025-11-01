@@ -1,5 +1,5 @@
 # ================================================================
-# 📖 RuleBookIndex — persistent .dc container registry
+# 📖 RuleBookIndex - persistent .dc container registry
 # ================================================================
 import json, logging, time
 from pathlib import Path
@@ -59,5 +59,5 @@ class RuleBookIndex:
         out_path = EXPORT_DIR / f"rulebooks_{int(time.time())}.dc.json"
         with open(out_path, "w") as f:
             json.dump(self.rulebooks, f, indent=2)
-        logger.info(f"[RuleBookIndex] Exported {len(self.rulebooks)} rulebooks → {out_path}")
+        logger.info(f"[RuleBookIndex] Exported {len(self.rulebooks)} rulebooks -> {out_path}")
         return out_path

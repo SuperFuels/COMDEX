@@ -13,11 +13,11 @@ def create_test_container(path: str):
         "cubes": [
             {
                 "x": 0, "y": 0, "z": 0,
-                "bytecode": "⟦ Memory | Note : 'Test' → Save ⟧"
+                "bytecode": "⟦ Memory | Note : 'Test' -> Save ⟧"
             },
             {
                 "x": 1, "y": 1, "z": 1,
-                "bytecode": "⟦ Skill | Learn : Python → Boot ⟧"
+                "bytecode": "⟦ Skill | Learn : Python -> Boot ⟧"
             },
             {
                 "x": 2, "y": 2, "z": 2,

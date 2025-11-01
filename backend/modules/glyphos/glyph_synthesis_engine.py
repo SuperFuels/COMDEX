@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🌌 Glyph Synthesis Engine — Tessaris / AION Unified Compression v3.1
+# 🌌 Glyph Synthesis Engine - Tessaris / AION Unified Compression v3.1
 # ================================================================
 """
 Enhancements:
@@ -56,7 +56,7 @@ except Exception:
                 rev.setdefault(glyph, lemma)
         return rev
 
-# Semantic estimators (we’ll use our local _estimate_semantics wrapper)
+# Semantic estimators (we'll use our local _estimate_semantics wrapper)
 from backend.modules.aion_resonance.semantic_estimator import (
     estimate_resonance,
     estimate_intensity,
@@ -191,12 +191,12 @@ def generate_unique_symbol(
     Deterministic base-N mapping over a RESERVED-filtered alphabet.
 
     Process:
-      • seed = SHA3-256(f"{context}:{base_text}:{salt}")
-      • core = base-N(seed) over filtered alphabet
-      • try lengths L ∈ [min_len..max_len]
-      • skip: reserved runes (already filtered), session duplicates, registry duplicates,
+      * seed = SHA3-256(f"{context}:{base_text}:{salt}")
+      * core = base-N(seed) over filtered alphabet
+      * try lengths L ∈ [min_len..max_len]
+      * skip: reserved runes (already filtered), session duplicates, registry duplicates,
               and repeated single-rune sequences (e.g., ✱✱) unless allow_repeats=True
-      • on exhaustion, increment salt and retry (deterministic & collision-free)
+      * on exhaustion, increment salt and retry (deterministic & collision-free)
     """
     assert min_len >= 1 and max_len >= min_len, "invalid length bounds"
 
@@ -463,7 +463,7 @@ class GlyphSynthesisEngine:
         else:
             seed_text = "Balance entanglement, collapse, and mutation."
 
-        print(f"[🧠 Adaptive Synthesis] Density={total_glyphs}, Entropy={entropy:.2f} → Seed: {seed_text}")
+        print(f"[🧠 Adaptive Synthesis] Density={total_glyphs}, Entropy={entropy:.2f} -> Seed: {seed_text}")
         packet = self.compress_input(seed_text, source="adaptive_synthesis")["glyph_packet"]
         self.store_packet(packet, tag="adaptive")
         self.push_to_glyph_grid(packet)

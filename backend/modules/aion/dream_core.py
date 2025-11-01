@@ -292,7 +292,7 @@ class DreamCore:
                 for glyph in branch.glyphs:
                     result = self.codex.execute(glyph)
                     self.codex_metrics.record_execution()
-                    print(f"🧪 Codex executed: {glyph} → {result}")
+                    print(f"🧪 Codex executed: {glyph} -> {result}")
             except Exception as e:
                 self.codex_metrics.record_error()
                 print(f"🚨 Codex execution error: {e}")

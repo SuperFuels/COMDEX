@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Mach–Zehnder Interferometer Simulation
+Mach-Zehnder Interferometer Simulation
 Quantum vs Photon Algebra (Parametric)
 Includes visibility (V) comparison metrics.
 """
@@ -61,7 +61,7 @@ def photon_alg_intensity(phi, marker_on=False, theta=None):
     if marker_on and theta is None:
         return 0.5
     if marker_on and theta is not None:
-        # restore interference with eraser (scaled by sin²θ)
+        # restore interference with eraser (scaled by sin2θ)
         return 0.5 + 0.5 * np.cos(phi) * np.sin(theta)**2
     return phi_norm
 
@@ -86,7 +86,7 @@ for label, mark, th, color in cases:
     Va = (max(a_vals)-min(a_vals)) / (max(a_vals)+min(a_vals))
     results.append((label, Vq, Va))
 
-plt.title("Mach–Zehnder Interferometer — Quantum vs Photon Algebra (Parametric)")
+plt.title("Mach-Zehnder Interferometer - Quantum vs Photon Algebra (Parametric)")
 plt.xlabel("Phase φ (radians)")
 plt.ylabel("Detector D0 Intensity (normalized)")
 plt.legend()

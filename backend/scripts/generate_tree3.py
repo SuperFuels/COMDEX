@@ -52,7 +52,7 @@ if __name__ == "__main__":
     old_stdout = sys.stdout
     sys.stdout = mystdout = StringIO()
 
-    print("📦 TREE 3 – FULL CLEAN PROJECT STRUCTURE\n")
+    print("📦 TREE 3 - FULL CLEAN PROJECT STRUCTURE\n")
     generate_tree(ROOT_DIR)
 
     sys.stdout = old_stdout

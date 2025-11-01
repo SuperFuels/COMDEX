@@ -71,7 +71,7 @@ class CreativeSynthesisEngine:
                     mutated["created_on"] = datetime.utcnow().isoformat()
 
                 score = self.evaluate_mutation(mutated, goal)
-                options.append(MutationOption(f"{feature} → {alt}", mutated, score))
+                options.append(MutationOption(f"{feature} -> {alt}", mutated, score))
 
         return sorted(options, key=lambda o: o.score, reverse=True)
 

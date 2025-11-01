@@ -13,11 +13,11 @@ CANONICAL_OPS = {
     "∧": "logic:∧",
     "∨": "logic:∨",
     "¬": "logic:¬",
-    "→": "logic:→",
+    "->": "logic:->",
     "↔": "logic:↔",
 
     # ─── Quantum ─────────────────────────
-    # ⚠️ “↔” remains in COLLISIONS for dual meaning
+    # ⚠️ "↔" remains in COLLISIONS for dual meaning
     "⊕_q": "quantum:⊕",
     "⊗_q": "quantum:⊗",
     "μ": "quantum:μ",
@@ -52,7 +52,7 @@ CANONICAL_OPS = {
 
     # ─── Control / Flow ─────────────────
     "⧖": "control:⧖",
-    "→_c": "control:→",
+    "->_c": "control:->",
     "⟲_c": "control:⟲",
 
     # ─── Photon ─────────────────────────
@@ -102,9 +102,9 @@ OP_METADATA = {
         "description": "Logical AND / conjunction",
         "symbols": ["∧"],
     },
-    "logic:→": {
+    "logic:->": {
         "description": "Logical implication",
-        "symbols": ["→"],
+        "symbols": ["->"],
     },
     "logic:↔": {
         "description": "Logical equivalence (biconditional)",
@@ -220,9 +220,9 @@ OP_METADATA = {
         "description": "Temporal delay / deferred execution",
         "symbols": ["⧖"],
     },
-    "control:→": {
+    "control:->": {
         "description": "Flow implication / runtime trigger",
-        "symbols": ["→_c"],
+        "symbols": ["->_c"],
     },
     "control:⟲": {
         "description": "Control reflection / update loop",

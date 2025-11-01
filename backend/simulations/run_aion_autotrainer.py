@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-🧠 AION Full Lexical–Conceptual Trainer — Phase 17 (Safe Auto-Resume)
+🧠 AION Full Lexical-Conceptual Trainer - Phase 17 (Safe Auto-Resume)
 ────────────────────────────────────────────────────────────────────
 Trains Aion on enriched lexical capsules (~41 k) and
 feeds them into LexMemory + ResonantMemoryCache.
 
 Features:
-  • Auto-detects enriched corpus (/tmp fallback)
-  • Skips malformed or unreadable capsules
-  • Auto-resumes from checkpoint
-  • Periodic autosave of RMC + checkpoint
+  * Auto-detects enriched corpus (/tmp fallback)
+  * Skips malformed or unreadable capsules
+  * Auto-resumes from checkpoint
+  * Periodic autosave of RMC + checkpoint
 """
 
 import json, time, random, logging, gc
@@ -50,7 +50,7 @@ def parse_enriched_capsule(path: Path):
             return None, None, None
         lines = [l.strip() for l in text.splitlines() if l.strip()]
         defs = [l for l in lines if "definition" in l.lower() or "means" in l.lower()]
-        examples = [l for l in lines if l.startswith("•") or "example" in l.lower()]
+        examples = [l for l in lines if l.startswith("*") or "example" in l.lower()]
         definition = defs[0][:300] if defs else lines[0][:300]
         example = examples[0][:300] if examples else None
         return lemma, definition, example
@@ -112,7 +112,7 @@ def train_from_capsules():
             avg = {
                 "ρ̄": round(rho_sum / max(stored, 1), 3),
                 "Ī̄": round(I_sum / max(stored, 1), 3),
-                "SQĪ": round(SQI_sum / max(stored, 1), 3),
+                "SQĪ": round(SQI_sum / max(stored, 1), 3),
             }
             log.info(f"[{i+1}/{total}] ✅ Trained={stored}, Skipped={skipped}, Avg={avg}")
         if (i + 1) % 1000 == 0:
@@ -133,8 +133,8 @@ def train_from_capsules():
     }
 
     json.dump(summary, open(LOG_PATH, "w"), indent=2)
-    log.info(f"✅ Training complete in {dur}s — stored={stored}, skipped={skipped}")
-    log.info(f"🧾 Summary → {LOG_PATH}")
+    log.info(f"✅ Training complete in {dur}s - stored={stored}, skipped={skipped}")
+    log.info(f"🧾 Summary -> {LOG_PATH}")
     return summary
 
 # ──────────────────────────────────────────────

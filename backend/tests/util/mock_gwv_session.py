@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Mock GWV Session Generator — Tessaris / UltraQFC Integration Test
+Mock GWV Session Generator - Tessaris / UltraQFC Integration Test
 
 Purpose:
-    • Generate a synthetic holographic wave session (.gwv)
-    • Each frame simulates beam coherence + phase data
-    • Enables GHX/QFC overlay validation & replay testing
+    * Generate a synthetic holographic wave session (.gwv)
+    * Each frame simulates beam coherence + phase data
+    * Enables GHX/QFC overlay validation & replay testing
 
 Usage:
     PYTHONPATH=. python backend/tests/util/mock_gwv_session.py
@@ -47,5 +47,5 @@ for i in range(10):
 with open(OUT_PATH, "w", encoding="utf-8") as f:
     json.dump(session, f, indent=2)
 
-print(f"✅ Mock GWV session created → {OUT_PATH}")
+print(f"✅ Mock GWV session created -> {OUT_PATH}")
 print(f"📊 Frames: {len(session['frames'])}, coherence≈{session['frames'][0]['coherence']}")

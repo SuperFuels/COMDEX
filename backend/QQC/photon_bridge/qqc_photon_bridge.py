@@ -1,5 +1,5 @@
 """
-Quantum Quad Core (QQC) — Photon Bridge
+Quantum Quad Core (QQC) - Photon Bridge
 ────────────────────────────────────────────
 Listens to Photon glyph packets from GHX Awareness Feed (SSE or file tail),
 decodes them via PhotonIngestProtocol, and forwards normalized fields
@@ -54,10 +54,10 @@ class QQCPhotonBridge(PhotonIngestProtocol):
 
     def __init__(self, name: str = "QQCPhotonBridge"):
         super().__init__(name)
-        logger.info(f"[{name}] Initialized and waiting for stream …")
+        logger.info(f"[{name}] Initialized and waiting for stream ...")
 
     def on_ingest(self, data: Dict):
-        """Handle incoming Photon data — forward to QQC Resonant Core."""
+        """Handle incoming Photon data - forward to QQC Resonant Core."""
         phi = data.get("Φ") or data.get("Phi")
         res = data.get("R") or data.get("resonance_index")
         state = data.get("S") or data.get("closure_state")
@@ -84,11 +84,11 @@ def run_qqc_photon_listener():
 
     while True:
         try:
-            logger.info("🔗 QQC Photon Bridge attempting connection to GHX SSE stream …")
+            logger.info("🔗 QQC Photon Bridge attempting connection to GHX SSE stream ...")
             with requests.get(SSE_URL, stream=True, timeout=None) as resp:
                 if resp.status_code != 200:
                     logger.warning(
-                        f"[QQCPhotonBridge] Bad status {resp.status_code}, retrying in {retry_delay}s …"
+                        f"[QQCPhotonBridge] Bad status {resp.status_code}, retrying in {retry_delay}s ..."
                     )
                     time.sleep(retry_delay)
                     retry_delay = min(retry_delay * BACKOFF_FACTOR, MAX_RETRY_DELAY)
@@ -110,13 +110,13 @@ def run_qqc_photon_listener():
             break
 
         except requests.exceptions.ChunkedEncodingError as e:
-            logger.warning(f"[QQCPhotonBridge] Connection lost: {e}. Retrying in {retry_delay}s …")
+            logger.warning(f"[QQCPhotonBridge] Connection lost: {e}. Retrying in {retry_delay}s ...")
             time.sleep(retry_delay)
             retry_delay = min(retry_delay * BACKOFF_FACTOR, MAX_RETRY_DELAY)
             continue
 
         except requests.ConnectionError as e:
-            logger.warning(f"[QQCPhotonBridge] Connection refused: {e}. Retrying in {retry_delay}s …")
+            logger.warning(f"[QQCPhotonBridge] Connection refused: {e}. Retrying in {retry_delay}s ...")
             time.sleep(retry_delay)
             retry_delay = min(retry_delay * BACKOFF_FACTOR, MAX_RETRY_DELAY)
             continue

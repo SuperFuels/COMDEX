@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-L1c — Boost Invariance via Time-Resolved MSD (Tessaris)
+L1c - Boost Invariance via Time-Resolved MSD (Tessaris)
 -------------------------------------------------------
 Fixes L1/L1b by estimating transport exponent p from MSD(t) over time
 in both the lab and c_eff-based boosted frame with per-snapshot (x,t)->(x',t')
 mapping. Also checks correlation-length consistency at t_final.
 
 Outputs:
-  • PAEV_L1c_boost_invariance_timelike.png
-  • backend/modules/knowledge/L1c_boost_invariance_timelike_summary.json
+  * PAEV_L1c_boost_invariance_timelike.png
+  * backend/modules/knowledge/L1c_boost_invariance_timelike_summary.json
 """
 
 from __future__ import annotations
@@ -24,8 +24,8 @@ const = load_constants()
 ħ, G, Λ = const["ħ"], const["G"], const["Λ"]
 α, β, χ = const["α"], const["β"], const.get("χ", 1.0)
 
-print("=== L1c — Boost Invariance via Time-Resolved MSD (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== L1c - Boost Invariance via Time-Resolved MSD (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # ── Grid/params ────────────────────────────────────────────────────
 N, steps = 512, 2200
@@ -120,7 +120,7 @@ fig, (ax1, ax2) = plt.subplots(1,2, figsize=(13,5))
 
 ax1.plot(x, snap_u[-1], label="|u(x,t_f)| lab")
 ax1.plot(x, snap_u_boost[-1], '--', label="|u'(x',t_f)| boost")
-ax1.set_title("L1c — Field Envelope (t_final)")
+ax1.set_title("L1c - Field Envelope (t_final)")
 ax1.set_xlabel("x or x'")
 ax1.set_ylabel("|u|")
 ax1.legend(); ax1.grid(alpha=0.3)
@@ -134,7 +134,7 @@ ax2.legend(); ax2.grid(alpha=0.3)
 plt.tight_layout()
 fig_path = "PAEV_L1c_boost_invariance_timelike.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # ── Summary JSON ───────────────────────────────────────────────────
 ts_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -157,24 +157,24 @@ summary = {
     "notes": [
         "Transport exponent from time-resolved MSD(t) fit.",
         "Per-snapshot Lorentz-like transform used before MSD in boost frame.",
-        "FWHM→ξ proxy avoids unstable exp-fit overflows.",
+        "FWHM->ξ proxy avoids unstable exp-fit overflows.",
         "Model-level test; no physical signaling implied."
     ]
 }
 out_path = Path("backend/modules/knowledge/L1c_boost_invariance_timelike_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # ── Discovery ──────────────────────────────────────────────────────
-print("\n🧭 Discovery Notes —", ts_now)
+print("\n🧭 Discovery Notes -", ts_now)
 print("------------------------------------------------------------")
-print(f"• Observation: p_lab≈{p_lab:.3f}, p_boost≈{p_boost:.3f}, Δp≈{dp:.3e}; "
+print(f"* Observation: p_lab≈{p_lab:.3f}, p_boost≈{p_boost:.3f}, Δp≈{dp:.3e}; "
       f"ξ_lab≈{xi_lab:.3f}, ξ_boost≈{xi_boost:.3f}, Δξ≈{dxi:.3e}.")
-print("• Interpretation: Time-domain MSD yields a robust transport exponent; "
+print("* Interpretation: Time-domain MSD yields a robust transport exponent; "
       "ξ from FWHM is stable across frames.")
-print("• Implication: Boost invariance is supported when transport is assessed "
+print("* Implication: Boost invariance is supported when transport is assessed "
       "in the proper (t-resolved) metric.")
-print("• Next: L2 multi-boost collapse; L3 boosted soliton scattering.")
+print("* Next: L2 multi-boost collapse; L3 boosted soliton scattering.")
 print("------------------------------------------------------------")
 
 # ── Verdict ────────────────────────────────────────────────────────
@@ -183,10 +183,10 @@ tol_xi = 0.10 * max(abs(xi_lab), 1.0)
 ok = (abs(dp) <= tol_p) and (abs(dxi) <= tol_xi)
 
 print("\n" + "="*66)
-print("🔎 L1c — Boost Invariance Verdict")
+print("🔎 L1c - Boost Invariance Verdict")
 print("="*66)
 if ok:
-    print(f"✅ Invariance upheld: |Δp|≤{tol_p:.3f}, |Δξ|≤{tol_xi:.3f}.")
+    print(f"✅ Invariance upheld: |Δp|<={tol_p:.3f}, |Δξ|<={tol_xi:.3f}.")
 else:
     print(f"⚠️  Partial/failed invariance: Δp={dp:.3f}, Δξ={dxi:.3f}.")
 print("="*66 + "\n")

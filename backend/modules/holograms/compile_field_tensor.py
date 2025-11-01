@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Field Tensor Compiler (SLE→HQCE Bridge)
-#  Converts SLE telemetry & collapse traces → normalized ψ–κ–T tensors
+#  Tessaris * Field Tensor Compiler (SLE->HQCE Bridge)
+#  Converts SLE telemetry & collapse traces -> normalized ψ-κ-T tensors
 # ──────────────────────────────────────────────
 
 import numpy as np
@@ -15,15 +15,15 @@ logger = logging.getLogger(__name__)
 # ──────────────────────────────────────────────
 def compile_field_tensor(telemetry: Dict[str, Any]) -> Optional[Dict[str, float]]:
     """
-    Convert a block of SLE / collapse telemetry into a ψ–κ–T tensor signature.
+    Convert a block of SLE / collapse telemetry into a ψ-κ-T tensor signature.
 
     Expected telemetry fields:
-      - drift_entropy: float       → entropy drift per tick
-      - resonance_curve: List[float] or float → beam coherence curve
-      - collapse_count: int        → # of beam collapses in window
-      - avg_coherence: float       → mean field coherence
-      - tick_time: float           → runtime tick interval (s)
-      - field_decay: float         → coherence decay constant
+      - drift_entropy: float       -> entropy drift per tick
+      - resonance_curve: List[float] or float -> beam coherence curve
+      - collapse_count: int        -> # of beam collapses in window
+      - avg_coherence: float       -> mean field coherence
+      - tick_time: float           -> runtime tick interval (s)
+      - field_decay: float         -> coherence decay constant
 
     Returns:
         { "psi": ψ, "kappa": κ, "T": T, "coherence": C }
@@ -45,11 +45,11 @@ def compile_field_tensor(telemetry: Dict[str, Any]) -> Optional[Dict[str, float]
     resonance_curve = np.array(resonance_curve) if resonance_curve else np.zeros(1)
     curvature_estimate = np.tanh(len(resonance_curve) / 50.0)
 
-    # ψ — symbolic wave energy (entropy-field)
+    # ψ - symbolic wave energy (entropy-field)
     psi = max(0.0, min(1.0, 1.0 - drift_entropy))
-    # κ — morphic curvature (from entanglement/resonance density)
+    # κ - morphic curvature (from entanglement/resonance density)
     kappa = curvature_estimate * (1.0 - avg_coherence)
-    # T — temporal coherence lifetime
+    # T - temporal coherence lifetime
     T = float(tick_time / max(field_decay, 1e-6))
 
     coherence = avg_coherence
@@ -65,8 +65,8 @@ def compile_field_tensor(telemetry: Dict[str, Any]) -> Optional[Dict[str, float]
 # ──────────────────────────────────────────────
 def compile_from_log(path: str) -> List[Dict[str, float]]:
     """
-    Parse an SLE telemetry log (.json or .jsonl) into a sequence of ψ–κ–T tensors.
-    Each line or entry represents one tick’s telemetry snapshot.
+    Parse an SLE telemetry log (.json or .jsonl) into a sequence of ψ-κ-T tensors.
+    Each line or entry represents one tick's telemetry snapshot.
     """
     tensors = []
     try:
@@ -103,7 +103,7 @@ def compile_from_log(path: str) -> List[Dict[str, float]]:
 #  Example Integration Snippet
 # ──────────────────────────────────────────────
 """
-Example usage within QuantumMorphicRuntime after SLE→HST coupling:
+Example usage within QuantumMorphicRuntime after SLE->HST coupling:
 
     from backend.modules.holograms.compile_field_tensor import compile_field_tensor
     from backend.modules.holograms.morphic_feedback_controller import MorphicFeedbackController

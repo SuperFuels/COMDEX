@@ -1,21 +1,21 @@
 # backend/photon_algebra/tests/paev_test_D1_dark_matter_geometry.py
 """
-D1 — Dark Matter Geometry (Hidden-Sector Curvature Energy)
+D1 - Dark Matter Geometry (Hidden-Sector Curvature Energy)
 -----------------------------------------------------------
 Goal:
-  Quantify “invisible” curvature energy that influences geometry
-  but is not encoded in ψ₁, ψ₂ field observables — a dark matter analogue.
+  Quantify "invisible" curvature energy that influences geometry
+  but is not encoded in ψ1, ψ2 field observables - a dark matter analogue.
 
 Concept:
-  ψ₁, ψ₂ : visible sector (standard photon algebra observers)
-  ψ₃, ψ₄ : hidden sector (gravitationally coupled only)
+  ψ1, ψ2 : visible sector (standard photon algebra observers)
+  ψ3, ψ4 : hidden sector (gravitationally coupled only)
 
 Observables:
-  • Visible curvature energy E_vis = ⟨|∇ψ₁|² + |∇ψ₂|²⟩
-  • Hidden curvature energy E_hid = ⟨|∇ψ₃|² + |∇ψ₄|²⟩
-  • Curvature difference ΔE = E_hid − E_vis
-  • NEC proxy N = ⟨ρ + p⟩  (negative → exotic curvature)
-  • “Dark fraction” f_dark = E_hid / (E_vis + E_hid)
+  * Visible curvature energy E_vis = ⟨|∇ψ1|2 + |∇ψ2|2⟩
+  * Hidden curvature energy E_hid = ⟨|∇ψ3|2 + |∇ψ4|2⟩
+  * Curvature difference ΔE = E_hid - E_vis
+  * NEC proxy N = ⟨ρ + p⟩  (negative -> exotic curvature)
+  * "Dark fraction" f_dark = E_hid / (E_vis + E_hid)
 """
 
 import json, numpy as np, matplotlib.pyplot as plt
@@ -83,7 +83,7 @@ for t in range(steps):
     psi1 += dt * (1j*ħ*lap1 - α*psi1 + 1j*Λ_vis*kappa*psi1)
     psi2 += dt * (1j*ħ*lap2 - α*psi2 - 1j*Λ_vis*kappa*psi2)
 
-    # hidden sector evolution (no α coupling → purely gravitational)
+    # hidden sector evolution (no α coupling -> purely gravitational)
     psi3 += dt * (1j*ħ*lap3 + 1j*Λ_hid*kappa*psi3)
     psi4 += dt * (1j*ħ*lap4 - 1j*Λ_hid*kappa*psi4)
 
@@ -107,32 +107,32 @@ classification = (
     "⚠️ Weak hidden energy coupling"
 )
 
-print("=== D1 — Dark Matter Geometry Test ===")
+print("=== D1 - Dark Matter Geometry Test ===")
 print(f"E_vis={E_vis_final:.3e}, E_hid={E_hid_final:.3e}, f_dark={f_dark:.3f}")
 print(f"NEC proxy mean={np.mean(N_trace[-200:]):.3e}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 
 # --- Plots
 out_dir = Path(".")
 plt.figure(figsize=(9,4.5))
 plt.plot(E_vis_trace, label="Visible curvature energy")
 plt.plot(E_hid_trace, label="Hidden curvature energy")
-plt.xlabel("time step"); plt.ylabel("⟨|∇ψ|²⟩")
-plt.legend(); plt.title("D1 — Visible vs Hidden Curvature Energy")
+plt.xlabel("time step"); plt.ylabel("⟨|∇ψ|2⟩")
+plt.legend(); plt.title("D1 - Visible vs Hidden Curvature Energy")
 plt.tight_layout(); plt.savefig(out_dir/"PAEV_D1_EnergyTraces.png", dpi=160)
 
 plt.figure(figsize=(9,4.5))
 plt.plot(N_trace, lw=1.2)
-plt.title("D1 — NEC Proxy (ρ+p)")
+plt.title("D1 - NEC Proxy (ρ+p)")
 plt.xlabel("time step"); plt.ylabel("⟨ρ+p⟩")
 plt.tight_layout(); plt.savefig(out_dir/"PAEV_D1_NECProxy.png", dpi=160)
 
 plt.figure(figsize=(10,4.5))
 plt.subplot(1,2,1)
-plt.imshow(np.abs(psi1), cmap="magma", extent=[-L,L,-L,L]); plt.title("|ψ₁|(final)")
+plt.imshow(np.abs(psi1), cmap="magma", extent=[-L,L,-L,L]); plt.title("|ψ1|(final)")
 plt.colorbar()
 plt.subplot(1,2,2)
-plt.imshow(np.abs(psi3), cmap="cividis", extent=[-L,L,-L,L]); plt.title("|ψ₃|(final)")
+plt.imshow(np.abs(psi3), cmap="cividis", extent=[-L,L,-L,L]); plt.title("|ψ3|(final)")
 plt.colorbar()
 plt.tight_layout(); plt.savefig(out_dir/"PAEV_D1_VisibleHiddenMaps.png", dpi=160)
 
@@ -162,4 +162,4 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 }
 Path("backend/modules/knowledge/D1_dark_matter_geometry.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/D1_dark_matter_geometry.json")
+print("📄 Summary saved -> backend/modules/knowledge/D1_dark_matter_geometry.json")

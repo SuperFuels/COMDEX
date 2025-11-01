@@ -2,15 +2,15 @@
 # 📁 backend/quant/qweb/qweb_gateway.py
 # ===============================
 """
-🌐 QWeb Gateway — Resonant API Layer for Q-Series
+🌐 QWeb Gateway - Resonant API Layer for Q-Series
 -------------------------------------------------
 Provides a symbolic API bridge between Tessaris core and external clients.
 
 Capabilities:
-    • Accept JSON/Photon-language requests
-    • Parse QLang or symbolic expressions
-    • Execute via QCompilerCore + QTensor
-    • Stream symbolic/numeric results to AION or QQC dashboards
+    * Accept JSON/Photon-language requests
+    * Parse QLang or symbolic expressions
+    * Execute via QCompilerCore + QTensor
+    * Stream symbolic/numeric results to AION or QQC dashboards
 
 All handlers are designed to be embeddable in FastAPI, Flask,
 or local notebook contexts.

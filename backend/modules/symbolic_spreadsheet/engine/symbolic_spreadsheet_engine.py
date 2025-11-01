@@ -157,7 +157,7 @@ def generate_prediction_forks(cell: GlyphCell) -> List[str]:
     return forks
 
 
-# 🔢 Executes a single cell’s logic
+# 🔢 Executes a single cell's logic
 def execute_cell(cell: GlyphCell, context: Optional[Dict] = None):
     """
     Executes a GlyphCell:
@@ -347,7 +347,7 @@ def execute_sheet(cells: List[GlyphCell], context: Optional[Dict] = None):
 def set_flag(key: str, value: bool):
     if key in GLOBAL_FLAGS:
         GLOBAL_FLAGS[key] = value
-        print(f"[Flag] Set {key} → {value}")
+        print(f"[Flag] Set {key} -> {value}")
     else:
         print(f"[Flag] Unknown toggle key: {key}")
 
@@ -442,7 +442,7 @@ def detect_patterns(logic: str) -> List[str]:
                 if 0.5 < similarity < 0.75:
                     suggestions = suggest_pattern_repairs(" ".join(g["value"] for g in preprocessed if "value" in g))
                     for s in suggestions:
-                        print(f"🛠 Suggested patch for near-match ({pattern_name}): {s['issues']} → {s['patch']}")
+                        print(f"🛠 Suggested patch for near-match ({pattern_name}): {s['issues']} -> {s['patch']}")
                 continue
 
             match = all(
@@ -460,7 +460,7 @@ def detect_patterns(logic: str) -> List[str]:
                 if 0.5 < similarity < 0.75:
                     suggestions = suggest_pattern_repairs(" ".join(g["value"] for g in preprocessed if "value" in g))
                     for s in suggestions:
-                        print(f"🛠 Suggested patch for near-match ({pattern_name}): {s['issues']} → {s['patch']}")
+                        print(f"🛠 Suggested patch for near-match ({pattern_name}): {s['issues']} -> {s['patch']}")
 
         print(f"🌟 Final matched patterns: {matched}")
         return matched

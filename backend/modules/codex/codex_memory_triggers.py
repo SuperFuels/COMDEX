@@ -31,6 +31,6 @@ class CodexMemoryTrigger:
         return (
             isinstance(text, str)
             and "⟦" in text
-            and ("→" in text or "↔" in text or "⊕" in text or "⟲" in text)
+            and ("->" in text or "↔" in text or "⊕" in text or "⟲" in text)
             and text.strip().endswith("⟧")
         )

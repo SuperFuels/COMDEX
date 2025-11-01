@@ -29,11 +29,11 @@ def main():
 
     # === Plot ===
     plt.figure(figsize=(8,5))
-    plt.plot(fidelities, balance_ratio, label="Energy–Curvature Balance Ratio", color='blue')
+    plt.plot(fidelities, balance_ratio, label="Energy-Curvature Balance Ratio", color='blue')
     plt.axhline(1.0, color='gray', linestyle='--', label='Equilibrium (1.0)')
     plt.axvline(0.9, color='red', linestyle=':', label='90% fidelity')
-    plt.title("N9 — Thermodynamic Backreaction & Energy Balance")
-    plt.xlabel("Fidelity |⟨ψ₁|ψ₂⟩|²")
+    plt.title("N9 - Thermodynamic Backreaction & Energy Balance")
+    plt.xlabel("Fidelity |⟨ψ1|ψ2⟩|2")
     plt.ylabel("Curvature / Energy ratio (normalized)")
     plt.legend()
     plt.grid(True)
@@ -41,7 +41,7 @@ def main():
     plt.savefig("PAEV_N9_BackreactionBalance.png")
 
     # === Print summary ===
-    print("=== N9 — Thermodynamic Backreaction & Energy Balance ===")
+    print("=== N9 - Thermodynamic Backreaction & Energy Balance ===")
     print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}")
     print(f"Mean balance ratio = {mean_balance:.3f}")
     print(f"Classification: {classification}")

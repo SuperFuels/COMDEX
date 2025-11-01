@@ -39,7 +39,7 @@ def main():
         if args.broadcast:
             # Optional broadcast integration (if implemented)
             # broadcast_qfc_view(qfc_payload)
-            print("📡 Broadcast requested — WebSocket handler not yet active in this tool.")
+            print("📡 Broadcast requested - WebSocket handler not yet active in this tool.")
 
     except Exception as e:
         print(f"❌ Failed to generate QFC view: {e}")

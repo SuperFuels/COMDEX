@@ -1,5 +1,5 @@
 # ============================================================
-# 🧠 Lean Integration — Formal Commit Bridge
+# 🧠 Lean Integration - Formal Commit Bridge
 # File: backend/modules/lean/lean_integration.py
 # ============================================================
 from __future__ import annotations
@@ -74,7 +74,7 @@ def push_to_lean(atom_ref: Dict[str, Any]) -> Dict[str, Any]:
     """
     path = _emit_lean(atom_ref)
     # Heuristic module name (for later use with a Lean project)
-    # e.g., data/lean/atoms/HarmonicAtom_… → Lean module "atoms.HarmonicAtom_…"
+    # e.g., data/lean/atoms/HarmonicAtom_... -> Lean module "atoms.HarmonicAtom_..."
     rel  = os.path.relpath(path, LEAN_EXPORT_DIR)
     mod  = os.path.splitext(rel)[0].replace(os.sep, ".")
     return {"ok": True, "path": path, "module": f"atoms.{mod}"}

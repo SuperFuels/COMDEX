@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧠 CognitiveIntentLoop — Reflex Integration (R4–R6)
+# 🧠 CognitiveIntentLoop - Reflex Integration (R4-R6)
 # ================================================================
 # Simulates intent oscillation using SQI + ρ resonance metrics.
 # Provides a Θ-phase (theta) output and an intent action signal.
@@ -11,7 +11,7 @@ import math, random, logging, time
 
 log = logging.getLogger(__name__)
 
-# ✅ SCI overlay — optional, silent fallback
+# ✅ SCI overlay - optional, silent fallback
 try:
     from backend.modules.aion_language.sci_overlay import sci_emit
 except Exception:
@@ -27,7 +27,7 @@ class CognitiveIntentLoop:
 
     def tick(self, rho: float, drift: float, memory_stats: dict, sqi: float):
         """
-        Perform one intent–resonance synchronization cycle.
+        Perform one intent-resonance synchronization cycle.
         Returns (action, theta_value).
         """
 

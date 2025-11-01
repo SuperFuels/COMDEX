@@ -1,11 +1,11 @@
 """
-🧠 CFE Feedback Loop — Step 1
+🧠 CFE Feedback Loop - Step 1
 Integrates CodexLang runtime with QWave telemetry.
 
 Monitors:
-  • collapse_rate
-  • decoherence_rate
-  • coherence_stability (SQI)
+  * collapse_rate
+  * decoherence_rate
+  * coherence_stability (SQI)
 
 Feeds telemetry back into the CodexLang reasoning model to
 adapt symbolic temperature, exploration depth, and resonance gain.
@@ -28,7 +28,7 @@ except ModuleNotFoundError:
         # lightweight mocks for CI/test environments
         class CodexRuntime:
             def update_parameters(self, feedback):
-                print(f"[Mock CodexRuntime] params → {feedback}")
+                print(f"[Mock CodexRuntime] params -> {feedback}")
 
         class TelemetryHandler:
             async def collect_metrics(self):
@@ -81,7 +81,7 @@ class CFEFeedbackLoop:
         while self._running:
             try:
                 fb = await self.tick()
-                print(f"[CFE] feedback → {fb}")
+                print(f"[CFE] feedback -> {fb}")
             except Exception as e:
                 print(f"[CFE] Error: {e}")
             await asyncio.sleep(interval)

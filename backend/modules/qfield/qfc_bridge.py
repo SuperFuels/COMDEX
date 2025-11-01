@@ -3,7 +3,7 @@
 # ============================================================
 
 """
-QFCBridge — unifies Quantum Field Computation (QFC) operations for QQC runtime.
+QFCBridge - unifies Quantum Field Computation (QFC) operations for QQC runtime.
 Provides programmatic and CLI interfaces for generating, broadcasting, and saving
 QFC (Quantum Field Computation) payloads from container data.
 """
@@ -79,7 +79,7 @@ class QFCBridge:
     def broadcast(self, container: Dict[str, Any], mode: Optional[str] = None) -> bool:
         """Broadcast the QFC payload via WebSocket."""
         if send_qfc_payload is None:
-            logger.warning("[QFCBridge] send_qfc_payload not available — broadcast skipped.")
+            logger.warning("[QFCBridge] send_qfc_payload not available - broadcast skipped.")
             return False
 
         payload = self.generate_view(container, mode or self.last_mode)

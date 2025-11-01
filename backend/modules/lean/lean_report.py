@@ -5,10 +5,10 @@ Lean Report Generator
 Render container injection/export reports in Markdown, JSON, or (stub) HTML.
 
 Goals:
-• Single-source: both CLI + API call here.
-• Always embed validation_errors + audit metadata.
-• Support Markdown (human-readable) + JSON (machine-readable).
-• Extensible: HTML/Mermaid in Stage B.
+* Single-source: both CLI + API call here.
+* Always embed validation_errors + audit metadata.
+* Support Markdown (human-readable) + JSON (machine-readable).
+* Extensible: HTML/Mermaid in Stage B.
 
 Usage:
     from backend.modules.lean.lean_report import render_report, save_report
@@ -60,7 +60,7 @@ def _short_preview(items: List[Any], max_items: int = 5) -> List[str]:
     previews: List[str] = []
     for i, it in enumerate(items):
         if i >= max_items:
-            previews.append("…")
+            previews.append("...")
             break
         if isinstance(it, dict):
             previews.append(json.dumps(it, ensure_ascii=False)[:80])
@@ -184,7 +184,7 @@ def render_report(
     elif fmt == "html":
         return (
             "<html><body><h1>Lean Report (HTML)</h1>"
-            "<p>Stub only — full HTML/Mermaid/PNG support comes in Stage B.</p>"
+            "<p>Stub only - full HTML/Mermaid/PNG support comes in Stage B.</p>"
             "</body></html>"
         )
 

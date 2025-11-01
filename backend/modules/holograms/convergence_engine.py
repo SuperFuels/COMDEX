@@ -1,4 +1,4 @@
-# ── Symbolic–Holographic Convergence Engine (ψ–κ–T Learning Loop) ──────────────
+# ── Symbolic-Holographic Convergence Engine (ψ-κ-T Learning Loop) ──────────────
 import asyncio
 import logging
 from datetime import datetime
@@ -13,11 +13,11 @@ class ConvergenceEngine:
     """
     Links Tessaris symbolic reasoning with HQCE holographic coherence.
 
-    Periodically samples ψ–κ–T–C tensors from the Morphic Ledger and
+    Periodically samples ψ-κ-T-C tensors from the Morphic Ledger and
     adjusts both the TessarisRuntime (symbolic cognition field) and
     QuantumQuadCore (holographic resonance engine) parameters.
 
-    Stage 13: Symbolic–Holographic Convergence Loop
+    Stage 13: Symbolic-Holographic Convergence Loop
     """
 
     def __init__(self, qqc_kernel: QuantumQuadCore, tessaris: TessarisRuntime):
@@ -28,9 +28,9 @@ class ConvergenceEngine:
         self.interval = 2.0  # seconds between feedback iterations
 
     async def run(self):
-        """Start adaptive ψ–κ–T feedback loop."""
+        """Start adaptive ψ-κ-T feedback loop."""
         self.running = True
-        logger.info("[CONVERGENCE] Symbolic–Holographic loop active.")
+        logger.info("[CONVERGENCE] Symbolic-Holographic loop active.")
 
         while self.running:
             try:

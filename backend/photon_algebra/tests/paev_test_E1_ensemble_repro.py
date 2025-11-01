@@ -59,12 +59,12 @@ with open(save_path, "w") as f:
 
 # --- visualization ---
 plt.hist(metrics["Phi_mean"], bins=20)
-plt.title("E1 — Ensemble Φ Mean Distribution")
+plt.title("E1 - Ensemble Φ Mean Distribution")
 plt.xlabel("⟨Φ⟩"); plt.ylabel("count")
 plt.grid(True); plt.tight_layout()
 plt.savefig("PAEV_E1_EnsemblePhiHist.png", dpi=160)
 
 # --- log ---
-print("=== E1 — Ensemble Reproducibility ===")
+print("=== E1 - Ensemble Reproducibility ===")
 print(json.dumps(out, indent=2))
-print(f"✅ Results saved → {save_path}")
+print(f"✅ Results saved -> {save_path}")

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 20 — Cross-Layer Resonance Auditor (CLRA)
+Tessaris Phase 20 - Cross-Layer Resonance Auditor (CLRA)
 
 Monitors consistency between AION / QQC subsystems:
-  • Resonant Feedback (RQFS)
-  • Symbolic Memory (ASM)
-  • Forecast Engine (SFAE)
-  • Harmonic Coherence (HCO)
+  * Resonant Feedback (RQFS)
+  * Symbolic Memory (ASM)
+  * Forecast Engine (SFAE)
+  * Harmonic Coherence (HCO)
 
 Computes coherence metrics and raises alerts when divergence exceeds tolerance.
 """
@@ -59,7 +59,7 @@ def compute_coherence(rqfs, asm, forecast):
     return coherence, drift, entropy, conf
 
 def audit_loop():
-    print("🧭 Starting Tessaris Cross-Layer Resonance Auditor (CLRA)…")
+    print("🧭 Starting Tessaris Cross-Layer Resonance Auditor (CLRA)...")
     while True:
         rqfs     = load_last(RQFS_PATH)
         asm      = load_last(ASM_PATH)
@@ -67,7 +67,7 @@ def audit_loop():
 
         result = compute_coherence(rqfs, asm, forecast)
         if not result:
-            print("⚠️ Waiting for input telemetry (RQFS / ASM / SFAE)…")
+            print("⚠️ Waiting for input telemetry (RQFS / ASM / SFAE)...")
             time.sleep(INTERVAL)
             continue
 

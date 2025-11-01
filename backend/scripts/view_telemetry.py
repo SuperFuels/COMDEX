@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris • SLE Telemetry Viewer
+Tessaris * SLE Telemetry Viewer
 ──────────────────────────────────────────────
 Loads telemetry exports (sle_validation_*.json)
 and plots coherence (qscore) evolution over time.
@@ -47,7 +47,7 @@ def plot_qscores(report):
     plt.grid(True, alpha=0.3)
 
     threshold = report.get("closure_report", {}).get("threshold", 0.8)
-    plt.axhline(y=threshold, color="red", linestyle="--", alpha=0.6, label=f"πₛ Threshold {threshold}")
+    plt.axhline(y=threshold, color="red", linestyle="--", alpha=0.6, label=f"πs Threshold {threshold}")
     plt.legend()
     plt.tight_layout()
     plt.show()
@@ -59,7 +59,7 @@ def summarize(report):
     avg_q = sum([m.get("qscore", 0.0) for m in report.get("metrics", [])]) / max(1, len(report.get("metrics", [])))
     print("───────────────────────────────────────")
     print(f"Session ID: {session_id}")
-    print(f"πₛ Closure: {'✅ Stable' if closure_ok else '⚠️ Incomplete'}")
+    print(f"πs Closure: {'✅ Stable' if closure_ok else '⚠️ Incomplete'}")
     print(f"Average Coherence: {avg_q:.3f}")
     print("───────────────────────────────────────")
 

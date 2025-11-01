@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧫 RibosomeEngine — Phase R12: Symbolic Protein Translator
+# 🧫 RibosomeEngine - Phase R12: Symbolic Protein Translator
 # ================================================================
 # Translates SymbolicRNA scrolls into symbolic protein chains and
 # photon traces for QQC/Aion execution. Integrates Symatics codon
@@ -54,12 +54,12 @@ class RibosomeEngine:
         out_path = Path("data/tmp/ribosome_output.prot")
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(product)
-        logger.info(f"[✅ Ribosome] Synthesis complete → {out_path}")
+        logger.info(f"[✅ Ribosome] Synthesis complete -> {out_path}")
 
         if self.emit_photon_trace:
             photo_path = Path("data/tmp/ribosome_photon_trace.photo")
             photo_path.write_text(json.dumps(photon_trace, indent=2))
-            logger.info(f"[💡 PhotonTrace] Emitted → {photo_path}")
+            logger.info(f"[💡 PhotonTrace] Emitted -> {photo_path}")
 
         self.last_synthesis = {
             "timestamp": time.time(),
@@ -82,7 +82,7 @@ class RibosomeEngine:
             "⊕": ("SYN", "Superposition", "💠"),
             "↔": ("ENT", "Entanglement", "🪞"),
             "⟲": ("RES", "Resonance", "🔁"),
-            "⇒": ("TRG", "Trigger", "🎯"),
+            "->": ("TRG", "Trigger", "🎯"),
             "μ": ("MES", "Measurement", "📏"),
             "π": ("PRO", "Projection", "📡"),
         }
@@ -118,7 +118,7 @@ class RibosomeEngine:
         header = (
             f"🧬 SYMBOLIC PROTEIN CHAIN\n"
             f"Origin: {metadata.get('source', 'unknown')}\n"
-            f"Phase: R12 — Symatic Translation\n"
+            f"Phase: R12 - Symatic Translation\n"
             f"Codons processed: {len(protein_chain)}\n"
             f"Ethics: {'✅' if ethical else '⚠️'}\n"
             f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}\n"
@@ -131,5 +131,5 @@ class RibosomeEngine:
     def export_results(self, path="data/exports/symbolic_synthesis.json"):
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         json.dump(self.history, open(path, "w"), indent=2)
-        logger.info(f"[Ribosome] Exported synthesis results → {path}")
+        logger.info(f"[Ribosome] Exported synthesis results -> {path}")
         return path

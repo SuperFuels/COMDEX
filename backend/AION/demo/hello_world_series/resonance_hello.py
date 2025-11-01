@@ -1,7 +1,7 @@
 from base_hello import send_hello
 import math, time
 
-print("🧩 Running Resonance Hello-World …")
+print("🧩 Running Resonance Hello-World ...")
 
 for i in range(6):
     phi = (math.sin(time.time()/3) + 1) / 2  # gentle oscillation

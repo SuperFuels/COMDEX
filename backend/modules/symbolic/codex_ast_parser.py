@@ -12,9 +12,9 @@ def parse_codexlang_to_ast(expression: str) -> CodexAST:
 
     ✅ Supports:
        - Quantifiers: ∀, ∃
-       - Connectives: ¬, →, ↔, ∧, ∨, ⊕, ↑, ↓, =
+       - Connectives: ¬, ->, ↔, ∧, ∨, ⊕, ↑, ↓, =
        - Predicates/functions: P(x), likes(John, y)
-       - Zero-arity symbols like Human, ψ₀, A, B
+       - Zero-arity symbols like Human, ψ0, A, B
 
     ⚙️ Enhancements:
        - Gracefully handles malformed or incomplete expressions

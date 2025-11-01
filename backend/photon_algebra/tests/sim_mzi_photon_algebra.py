@@ -6,7 +6,7 @@ from math import cos, sin
 from backend.photon_algebra.rewriter import normalize
 
 # ==========================================================
-#  Quantum Mach–Zehnder Interferometer model
+#  Quantum Mach-Zehnder Interferometer model
 # ==========================================================
 H_bs = (1/np.sqrt(2)) * np.array([[1, 1],
                                   [1,-1]], dtype=complex)  # 50/50 beamsplitter
@@ -69,7 +69,7 @@ def photon_algebra_intensity(phi, marker_on=False, theta=None):
     # Path amplitudes: |U>, |L>
     amps = [cmath.exp(1j * 0.0), cmath.exp(1j * phi)]
 
-    # Phase π → complement (sign flip)
+    # Phase π -> complement (sign flip)
     if abs((phi % (2*np.pi)) - np.pi) < 1e-6:
         amps[0] *= -1
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     plt.plot(phis, q_marker_erase, "g-", label="Marker+Eraser (Quantum)")
     plt.plot(phis, pa_marker_erase, "g--", label="Marker+Eraser (PhotonAlg)")
 
-    plt.title("Mach–Zehnder Interferometer — Quantum vs Photon Algebra")
+    plt.title("Mach-Zehnder Interferometer - Quantum vs Photon Algebra")
     plt.xlabel("Phase φ (radians)")
     plt.ylabel("Detector D0 Intensity")
     plt.legend()

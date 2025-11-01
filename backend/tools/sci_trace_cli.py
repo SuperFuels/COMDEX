@@ -50,7 +50,7 @@ async def run():
 
             elif et == "pattern_mutation":
                 print(f"{col}[{ts()}] 🧬 Mutate {RESET}{name} "
-                      f"Δ={delta:+.3f} → {CYAN}{sqi:.3f}{RESET}")
+                      f"Δ={delta:+.3f} -> {CYAN}{sqi:.3f}{RESET}")
 
             elif et == "pattern_collapse":
                 print(f"{RED}[{ts()}] 💀 Collapse {RESET}{name} SQI={sqi:.3f}")

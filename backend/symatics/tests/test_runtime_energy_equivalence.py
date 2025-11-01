@@ -1,7 +1,7 @@
 """
 Runtime Collapse Energy Equivalence Test (v0.3.5)
 -------------------------------------------------
-Ensures that μ(⊕ψ₁,ψ₂) and ∇(⊕ψ₁,ψ₂) preserve energy equivalence
+Ensures that μ(⊕ψ1,ψ2) and ∇(⊕ψ1,ψ2) preserve energy equivalence
 within a 1% tolerance under the runtime law validator.
 """
 

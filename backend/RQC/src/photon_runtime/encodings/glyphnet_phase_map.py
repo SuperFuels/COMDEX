@@ -1,22 +1,22 @@
 """
-Tessaris RQC — Symbol→Wave Encoding Map (v0.4)
+Tessaris RQC - Symbol->Wave Encoding Map (v0.4)
 ----------------------------------------------
 
-Maps Symatic operators and meta-symbols to phase–amplitude wave descriptors
+Maps Symatic operators and meta-symbols to phase-amplitude wave descriptors
 for use in the Resonance Quantum Computer photonic runtime.
 
 Each symbol corresponds to a resonant field with:
-    • amplitude  (A)
-    • phase       (φ)
-    • frequency   (f)
-    • polarization (P)
+    * amplitude  (A)
+    * phase       (φ)
+    * frequency   (f)
+    * polarization (P)
 
-The encodings below form the “resonance alphabet” — the symbolic modes that
+The encodings below form the "resonance alphabet" - the symbolic modes that
 propagate through the photonic simulation (propagation.py), feed telemetry (AION),
 and couple via QQC harmonic cores.
 
 Updated for Symatics v0.4 / AION integration:
-    - Includes ψ–κ–T–Φ base fields
+    - Includes ψ-κ-T-Φ base fields
     - Adds dynamic coherence weighting
     - Introduces harmonic mode families for QQC subcores
 """
@@ -43,11 +43,11 @@ class WaveDescriptor:
     coherence_weight: float = 1.0  # relative stability factor (for AION tuning)
 
     def complex(self) -> complex:
-        """Return complex representation A·e^{iφ}."""
+        """Return complex representation A*e^{iφ}."""
         return self.amplitude * cmath.exp(1j * self.phase)
 
     def coherence_with(self, other: "WaveDescriptor") -> float:
-        """Return normalized coherence magnitude |⟨e^{i(φ_i−φ_j)}⟩| weighted by stability."""
+        """Return normalized coherence magnitude |⟨e^{i(φ_i-φ_j)}⟩| weighted by stability."""
         phase_diff = self.phase - other.phase
         base = abs(cmath.exp(1j * phase_diff))
         return base * ((self.coherence_weight + other.coherence_weight) / 2.0)
@@ -58,7 +58,7 @@ class WaveDescriptor:
 # ────────────────────────────────────────────────────────────────
 
 class GlyphNetPhaseMap:
-    """Symbol→wave encoding registry for Tessaris RQC."""
+    """Symbol->wave encoding registry for Tessaris RQC."""
 
     def __init__(self) -> None:
         self._registry: Dict[str, WaveDescriptor] = {}
@@ -70,13 +70,13 @@ class GlyphNetPhaseMap:
         base = 1.0
         ω = 1.0  # base frequency (normalized harmonic)
 
-        # Core Symatic Operators — symbolic → photonic encoding
+        # Core Symatic Operators - symbolic -> photonic encoding
         self.register_symbol("⊕",  amplitude=base, phase=0.0,          frequency=ω)
         self.register_symbol("μ",  amplitude=base, phase=math.pi/4,    frequency=ω)
         self.register_symbol("⟲",  amplitude=base, phase=math.pi/2,    frequency=ω)
         self.register_symbol("↔",  amplitude=base, phase=3*math.pi/4,  frequency=ω)
         self.register_symbol("π",  amplitude=base, phase=math.pi,      frequency=ω)
-        self.register_symbol("πₛ", amplitude=base, phase=2*math.pi,    frequency=ω)
+        self.register_symbol("πs", amplitude=base, phase=2*math.pi,    frequency=ω)
 
         # AION Cognitive Field Components
         self.register_symbol("ψ", amplitude=0.95, phase=0.0,            frequency=ω*0.95, coherence_weight=1.0)

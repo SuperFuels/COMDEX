@@ -1,5 +1,5 @@
 # ================================================================
-# 🧪 QuantPy v0.5 Validation Runner — GHX↔Habit↔CodexMetrics Chain
+# 🧪 QuantPy v0.5 Validation Runner - GHX↔Habit↔CodexMetrics Chain
 # ================================================================
 """
 Runs an integrated regression validation for QuantPy v0.5:
@@ -53,7 +53,7 @@ def run_validation():
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(summary, open(OUTPUT_PATH, "w"), indent=2)
-    logger.info(f"[QuantPyV0.5] Validation summary → {OUTPUT_PATH}")
+    logger.info(f"[QuantPyV0.5] Validation summary -> {OUTPUT_PATH}")
     print(json.dumps(summary, indent=2))
     print("✅ QuantPy v0.5 regression validation complete.")
     return summary

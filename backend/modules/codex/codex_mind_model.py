@@ -13,8 +13,8 @@ class CodexMindModel:
     def observe(self, glyph: str):
         self.recent_glyphs.append(glyph)
 
-        # Count symbolic operators (⊕, ↔, ⟲, →, ⧖)
-        operators = re.findall(r"[⊕↔⟲→⧖]", glyph)
+        # Count symbolic operators (⊕, ↔, ⟲, ->, ⧖)
+        operators = re.findall(r"[⊕↔⟲->⧖]", glyph)
         for op in operators:
             self.symbol_predictions[op] += 1
 
@@ -33,7 +33,7 @@ class CodexMindModel:
     def suggest_next_operator(self) -> str:
         """Suggest the most commonly used symbolic operator."""
         if not self.symbol_predictions:
-            return "→"
+            return "->"
         return self.symbol_predictions.most_common(1)[0][0]
 
     def dump(self):

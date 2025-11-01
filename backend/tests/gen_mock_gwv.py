@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Mock GWV Session Generator — Tessaris / CFE v0.3.x
+Mock GWV Session Generator - Tessaris / CFE v0.3.x
 Generates synthetic .gwv holographic visualization data
 for testing GHX/QFC replay and overlay alignment.
 """
@@ -39,7 +39,7 @@ def generate_mock_gwv(
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(session, f, indent=2)
 
-    print(f"✅ Mock GWV session generated → {out_path}")
+    print(f"✅ Mock GWV session generated -> {out_path}")
 
 if __name__ == "__main__":
     generate_mock_gwv()

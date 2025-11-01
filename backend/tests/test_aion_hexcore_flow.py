@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-#  Tessaris AION → HexCore Integration Test
+#  Tessaris AION -> HexCore Integration Test
 #  Verifies knowledge propagation from AION through QQC,
 #  Morphic Ledger, and Cognitive Fabric into the Tessaris Graph.
 # ──────────────────────────────────────────────────────────────
@@ -56,7 +56,7 @@ async def test_aion_hexcore_end_to_end(tmp_path):
     assert len(lines) > 0, "No ledger entries written by HexCore."
     record = json.loads(lines[-1])
     assert "timestamp" in record
-    assert any(k in record for k in ["psi", "phi", "coherence"]), "Missing ψ–κ–T–Φ metrics in ledger."
+    assert any(k in record for k in ["psi", "phi", "coherence"]), "Missing ψ-κ-T-Φ metrics in ledger."
 
     # ─────────────────────────────────────
     # Step 3: Trigger a telemetry sync (AionTelemetryStream)
@@ -90,6 +90,6 @@ async def test_aion_hexcore_end_to_end(tmp_path):
     assert abs(phi_out - phi_in) < 0.05, "Φ drift too high between AION and Fabric commit."
 
     print(
-        f"\n✅ [AION→HexCore Flow] Decision: {decision[:48]} | "
+        f"\n✅ [AION->HexCore Flow] Decision: {decision[:48]} | "
         f"Φ_in={phi_in:.3f}, Φ_out={phi_out:.3f}, awareness={state['self_awareness']:.3f}"
     )

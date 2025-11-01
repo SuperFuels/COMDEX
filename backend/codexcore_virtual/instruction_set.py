@@ -21,7 +21,7 @@ class Opcode(str, Enum):
 
     # Symbolic Opcodes
     SYMBOLIC_ADD = "⊕"
-    SYMBOLIC_SEND = "→"
+    SYMBOLIC_SEND = "->"
     SYMBOLIC_LOOP = "⟲"
     SYMBOLIC_LINK = "↔"
     SYMBOLIC_DELAY = "⧖"
@@ -45,7 +45,7 @@ OPCODE_DOCS = {
     "NOOP": "Do nothing",
     "HALT": "Stop execution",
     "⊕": "Symbolic merge or synthesis operation",
-    "→": "Symbolic data transmission or intention",
+    "->": "Symbolic data transmission or intention",
     "⟲": "Symbolic loop or reflection",
     "↔": "Symbolic link or entanglement",
     "⧖": "Symbolic delay or cost computation",

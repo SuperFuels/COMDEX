@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 29 — Cognitive Fusion Kernel (TCFK)
+Tessaris Phase 29 - Cognitive Fusion Kernel (TCFK)
 ────────────────────────────────────────────────────
 Unifies symbolic cognition (SIN), resonant analytics (RAL),
 and adaptive control feedback (AQCI) into a single coherent
@@ -227,7 +227,7 @@ async def fusion_loop():
 # Orchestration
 # ─────────────────────────────────────────────
 async def main():
-    print("🧠 Starting Tessaris Cognitive Fusion Kernel (TCFK)…")
+    print("🧠 Starting Tessaris Cognitive Fusion Kernel (TCFK)...")
 
     await websockets.serve(fusion_ws, "0.0.0.0", FUSION_WS_PORT)
     print(f"🌐 Fusion WS running on ws://0.0.0.0:{FUSION_WS_PORT}/ws/fusion")

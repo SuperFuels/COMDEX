@@ -17,7 +17,7 @@ from backend.quant.qtensor.qtensor_field import QTensorField
 
 
 # ------------------------------------------------------------
-# ∇ψ — Gradient Operator
+# ∇ψ - Gradient Operator
 # ------------------------------------------------------------
 def gradient(field: QTensorField) -> QTensorField:
     """
@@ -36,11 +36,11 @@ def gradient(field: QTensorField) -> QTensorField:
 
 
 # ------------------------------------------------------------
-# ∇ collapse — Gradient Collapse & Resonance Sync
+# ∇ collapse - Gradient Collapse & Resonance Sync
 # ------------------------------------------------------------
 def collapse_gradient(field: QTensorField) -> Dict[str, Any]:
     """
-    Compute intensity |ψ|², gradient field ∇ψ, and coherence summary.
+    Compute intensity |ψ|2, gradient field ∇ψ, and coherence summary.
     Returns dict with collapsed intensity, gradient magnitude, and phase stats.
     """
     ψ = field.data

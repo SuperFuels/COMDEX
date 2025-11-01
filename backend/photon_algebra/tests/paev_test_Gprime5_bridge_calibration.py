@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test G′5 — Dimensional Bridge Calibration
+Test G′5 - Dimensional Bridge Calibration
 Adds curvature ratio bridge Xi^β to rescale G_eff into physical regime.
 """
 
@@ -54,14 +54,14 @@ plt.figure(figsize=(8,5))
 plt.plot(records[:,0], records[:,1], 'r-', lw=2)
 plt.axhline(0, color='k', ls='--')
 plt.axvline(best["beta"], color='b', ls=':')
-plt.title("G′5 — Dimensional Bridge Calibration (β Sweep)")
+plt.title("G′5 - Dimensional Bridge Calibration (β Sweep)")
 plt.xlabel("β (bridge exponent)")
 plt.ylabel("ΔG (%) vs Physical Constant")
 plt.tight_layout()
 plt.savefig("PAEV_TestGprime5_BridgeSweep.png")
 
 # --- Report ---
-print("=== G′5 — Dimensional Bridge Calibration Results ===")
+print("=== G′5 - Dimensional Bridge Calibration Results ===")
 print(f"Reference scaling : {REF}")
 print(f"Curvature ratio Xi = {Xi:.3e}")
 print(f"Best β : {best['beta']:.3f}")

@@ -25,7 +25,7 @@ pal = PAL(k=3, epsilon=0.08)
 pal.load()
 pal.verbose = True
 
-print(f"\n🧠 Loaded {len(pal.memory)} exemplars — beginning resonance test")
+print(f"\n🧠 Loaded {len(pal.memory)} exemplars - beginning resonance test")
 
 prompts = ["align token", "stabilize field", "trace resonance", "harmonize pattern"]
 options = ["Ω", "λ", "ψ", "Φ"]

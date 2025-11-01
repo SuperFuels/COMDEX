@@ -2,7 +2,7 @@
 # 📁 backend/quant/qcore/qcore_metrics.py
 # ===============================
 """
-📊 QCoreMetrics — Aggregation & Telemetry Layer
+📊 QCoreMetrics - Aggregation & Telemetry Layer
 ------------------------------------------------
 Collects and aggregates symbolic-photonic metrics produced by
 QCoreExecutor runs.  Provides both numerical summaries and
@@ -32,7 +32,7 @@ class QCoreMetrics:
         Aggregate resonance and symbolic cognition metrics from all QSheetCells.
 
         Args:
-            qcells: mapping of id → QSheetCell
+            qcells: mapping of id -> QSheetCell
             run_id: identifier for the QQC execution batch
 
         Returns:

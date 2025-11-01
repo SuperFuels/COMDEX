@@ -45,7 +45,7 @@ class ResonantReinforcementMixin:
     def update_resonance_feedback(self, outcome_score: float, reason: str = ""):
         """
         Adjust resonance metrics based on subsystem performance.
-        outcome_score ∈ ℝ (recommend 0..1) — positive improves coherence / reduces entropy.
+        outcome_score ∈ R (recommend 0..1) - positive improves coherence / reduces entropy.
         """
         try:
             outcome = float(outcome_score)
@@ -88,7 +88,7 @@ class ResonantReinforcementMixin:
 
     def apply_optimizer_delta(self, deltas: dict):
         """
-        Generic knobs — if the engine defines an attribute, nudge it a tiny amount.
+        Generic knobs - if the engine defines an attribute, nudge it a tiny amount.
         Safe, bounded, and observable (advisory-only mode).
         """
         def _n(name: str, default: float = 0.0):

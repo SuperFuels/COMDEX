@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==============================================================
-# F7b-R+ — Entropy / Information Flux Tracking
+# F7b-R+ - Entropy / Information Flux Tracking
 # Refined Dual-Field Quantum Bounce with Entropy Metric
 # ==============================================================
 
@@ -116,14 +116,14 @@ else:
 # --- Plots ---
 plt.figure(figsize=(9,5))
 plt.plot(t, entropy_flux, label="Entropy Flux", color="crimson")
-plt.title("F7b-R+ — Information / Entropy Flux over Time")
+plt.title("F7b-R+ - Information / Entropy Flux over Time")
 plt.xlabel("time"); plt.ylabel("S(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7bR_EntropyFlux.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, np.cos(phi1 - phi2), label="cos(Δφ)")
-plt.title("F7b-R+ — Vacuum Field Phase Coherence")
+plt.title("F7b-R+ - Vacuum Field Phase Coherence")
 plt.xlabel("time"); plt.ylabel("cos(Δφ)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7bR_PhaseCoherence.png")
@@ -153,8 +153,8 @@ results = {
 with open("backend/modules/knowledge/F7bR_entropy_flux.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== F7b-R+ — Entropy / Information Flux Tracking ===")
+print("=== F7b-R+ - Entropy / Information Flux Tracking ===")
 print(f"a_min={a_min:.4f} | coherence={mean_coherence:.3f} | mean_entropy_flux={mean_entropy_flux:.5f}")
 print(f"entropy_growth={entropy_growth:.5f} | anti-corr(Λ,E)={anti_corr:.2f}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F7bR_entropy_flux.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F7bR_entropy_flux.json")

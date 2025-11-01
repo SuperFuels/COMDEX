@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-L1 — Boost Invariance (Tessaris)
+L1 - Boost Invariance (Tessaris)
 --------------------------------
 Question: Are key exponents/lengths invariant when observed from a boosted frame?
 
 We evolve a damped χ-driven lattice (stable hyperbolic dynamics), then
 compare:
-  • transport exponent p from MSD ~ t^p
-  • correlation length ξ from C(r) ~ exp(-r/ξ)
+  * transport exponent p from MSD ~ t^p
+  * correlation length ξ from C(r) ~ exp(-r/ξ)
 in the lab frame vs. a Lorentz-like boosted frame defined by c_eff.
 
 Outputs
@@ -36,8 +36,8 @@ const = load_constants()  # ensures v1.2 constants registry coherence
 ħ = const["ħ"]; G = const["G"]; Λ = const["Λ"]; α = const["α"]; β = const["β"]
 χ = const.get("χ", 1.0)   # keep robust if χ absent in old registries
 
-print("=== L1 — Boost Invariance (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== L1 - Boost Invariance (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # ── Grid & integration params (stable per K3b) ─────────────────────
 N, steps = 512, 2000
@@ -119,7 +119,7 @@ msd_trace = np.array(msd_trace)
 t_axis = np.array(t_axis)
 
 # ── boosted-frame sampling (Lorentz map built from c_eff) ─────────
-# map lab (x_i, t_k) → x' = γ (x_i - v t_k), t' = γ (t_k - v x_i / c_eff^2)
+# map lab (x_i, t_k) -> x' = γ (x_i - v t_k), t' = γ (t_k - v x_i / c_eff^2)
 # We build a boosted field U'(x', t') by resampling nearest-neighbor on x-grid.
 xprime_grid = x.copy()
 boost_frames = []
@@ -159,7 +159,7 @@ fig, axes = plt.subplots(1, 2, figsize=(13,5))
 # left: snapshot comparison (final frame)
 axes[0].plot(x, np.abs(frames[-1]), label="|u(x,t_f)| lab")
 axes[0].plot(x, np.abs(boost_frames[-1]), '--', label="|u'(x',t'_f)| boost")
-axes[0].set_title("L1 — Field Envelope (final)")
+axes[0].set_title("L1 - Field Envelope (final)")
 axes[0].set_xlabel("x or x'"); axes[0].set_ylabel("|u|")
 axes[0].legend(); axes[0].grid(True, alpha=0.3)
 
@@ -174,7 +174,7 @@ axes[1].legend(); axes[1].grid(True, which="both", alpha=0.3)
 plt.tight_layout()
 fig_path = "PAEV_L1_boost_invariance.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # ── summary JSON ───────────────────────────────────────────────────
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -206,18 +206,18 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/L1_boost_invariance_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # ── discovery section ──────────────────────────────────────────────
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Observation: p_lab≈{p_lab:.3f}, p_boost≈{p_boost:.3f}, Δp≈{dp:.3e}; "
+print(f"* Observation: p_lab≈{p_lab:.3f}, p_boost≈{p_boost:.3f}, Δp≈{dp:.3e}; "
       f"ξ_lab≈{xi_lab:.2f}, ξ_boost≈{xi_boost:.2f}, Δξ≈{dxi:.2f}.")
-print("• Interpretation: Small deltas indicate approximate boost invariance of"
+print("* Interpretation: Small deltas indicate approximate boost invariance of"
       " transport scaling and correlation length under the c_eff-based transform.")
-print("• Implication: Supports Lorentz-like symmetry of the Tessaris lattice in "
+print("* Implication: Supports Lorentz-like symmetry of the Tessaris lattice in "
       "the stable (damped) regime.")
-print("• Next step: L2 — scaling collapse across multiple boosts; L3 — boosted "
+print("* Next step: L2 - scaling collapse across multiple boosts; L3 - boosted "
       "soliton reflection/transmission tests.")
 print("------------------------------------------------------------")
 
@@ -228,10 +228,10 @@ ok_p   = abs(dp) <= tol_p
 ok_xi  = (abs(dxi) <= tol_xi) if np.isfinite(dxi) else False
 
 print("\n" + "="*66)
-print("🔎 L1 — Boost Invariance Verdict")
+print("🔎 L1 - Boost Invariance Verdict")
 print("="*66)
 if ok_p and ok_xi:
-    print(f"✅ Invariance upheld: |Δp|≤{tol_p} and |Δξ|≤{tol_xi:.3g}.")
+    print(f"✅ Invariance upheld: |Δp|<={tol_p} and |Δξ|<={tol_xi:.3g}.")
 else:
     why = []
     if not ok_p:  why.append(f"|Δp|>{tol_p}")

@@ -86,8 +86,8 @@ class VirtualCPU:
 def render_expr(expr: Any) -> str:
     """
     Recursively pretty-print instruction dicts into glyph expressions.
-    - Dict with {"opcode": X, "args": [...]} → formatted glyph expression
-    - List → join elements with commas
+    - Dict with {"opcode": X, "args": [...]} -> formatted glyph expression
+    - List -> join elements with commas
     - Fallback: str(expr)
     """
     if isinstance(expr, dict):
@@ -104,7 +104,7 @@ def render_expr(expr: Any) -> str:
             return glyph
 
         rendered_args = [render_expr(a) for a in args]
-        if glyph in {"⊕", "→", "↔", "⟲", "⧖", "⊗"} and len(rendered_args) == 2:
+        if glyph in {"⊕", "->", "↔", "⟲", "⧖", "⊗"} and len(rendered_args) == 2:
             return f"({rendered_args[0]} {glyph} {rendered_args[1]})"
         elif glyph in {"⟲"} and len(rendered_args) == 1:
             return f"⟲({rendered_args[0]})"
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "code",
         nargs="?",
-        default="Memory:Dream → Plan => ⟲(Think)",
+        default="Memory:Dream -> Plan => ⟲(Think)",
         help="CodexLang input (default sample if omitted)",
     )
     args = parser.parse_args()

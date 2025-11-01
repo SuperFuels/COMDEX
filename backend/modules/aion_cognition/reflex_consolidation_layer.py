@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧠 ReflexConsolidationLayer — Phase R8: Cognitive Reflex Atlas
+# 🧠 ReflexConsolidationLayer - Phase R8: Cognitive Reflex Atlas
 # ================================================================
 # Combines ReflexMemory metrics (REI, ΔΦ, Θ) and RuleRecipeEngine
 # bundles (ρ, Ī, SQI, domains) into a unified resonance map.
@@ -74,5 +74,5 @@ class ReflexConsolidationLayer:
 
         OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(json.dumps(atlas_summary, indent=2))
-        logger.info(f"[ReflexConsolidation] Cognitive Reflex Atlas written → {OUT}")
+        logger.info(f"[ReflexConsolidation] Cognitive Reflex Atlas written -> {OUT}")
         return atlas_summary

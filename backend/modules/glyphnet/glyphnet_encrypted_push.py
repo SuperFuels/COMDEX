@@ -28,7 +28,7 @@ def push_encrypted_packet(
         dict containing status and metadata about the push attempt.
     """
     try:
-        # Defensive copy (don’t mutate caller’s packet dict)
+        # Defensive copy (don't mutate caller's packet dict)
         packet_copy = dict(packet)
 
         encrypted = encrypt_packet_for_identity(
@@ -46,7 +46,7 @@ def push_encrypted_packet(
 
         logger.info(
             f"[EncryptedPush] Encrypted packet sent "
-            f"type={packet_copy.get('type')} → target={target_identity}"
+            f"type={packet_copy.get('type')} -> target={target_identity}"
         )
 
         return {"status": "ok", "target": target_identity, "method": encrypted.get("method", "unknown")}

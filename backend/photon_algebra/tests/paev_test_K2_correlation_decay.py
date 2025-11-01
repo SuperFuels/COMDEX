@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-K2 — Correlation Decay Test (Tessaris)
+K2 - Correlation Decay Test (Tessaris)
 --------------------------------------
 Measures how spatial correlations weaken with distance under the
 Tessaris causal field model, confirming finite causal reach.
 
 Implements the Tessaris Unified Constants & Verification Protocol.
 Outputs:
-    • backend/modules/knowledge/K2_correlation_decay_summary.json
-    • PAEV_K2_correlation_decay.png
+    * backend/modules/knowledge/K2_correlation_decay_summary.json
+    * PAEV_K2_correlation_decay.png
 """
 
 import json, math, numpy as np, matplotlib.pyplot as plt
@@ -25,8 +25,8 @@ G = const.get("G", 1e-5)
 β = const.get("β", 0.2)
 χ = const.get("χ", 1.0)  # default if missing
 
-print("=== K2 — Correlation Decay Test (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== K2 - Correlation Decay Test (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # --- Parameters ---
 N, steps = 512, 1500
@@ -74,12 +74,12 @@ if not math.isnan(decay_len):
     plt.plot(r, np.exp(-r/decay_len), '--', label=f"fit ξ≈{decay_len:.2f}")
 plt.xlabel("distance r")
 plt.ylabel("C(r)")
-plt.title("K2 — Correlation Decay (Tessaris)")
+plt.title("K2 - Correlation Decay (Tessaris)")
 plt.legend(); plt.grid(True)
 plt.tight_layout()
 fig_path = "PAEV_K2_correlation_decay.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # --- Summary JSON ---
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -98,23 +98,23 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/K2_correlation_decay_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # --- Discovery section ---
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Observation: Correlation decays exponentially with ξ≈{decay_len:.2f}.")
-print("• Interpretation: Finite causal reach — confirms information confinement.")
-print("• Implication: Locality preserved under Tessaris field evolution.")
-print("• Next step: Extend to moving solitons (K3).")
+print(f"* Observation: Correlation decays exponentially with ξ≈{decay_len:.2f}.")
+print("* Interpretation: Finite causal reach - confirms information confinement.")
+print("* Implication: Locality preserved under Tessaris field evolution.")
+print("* Next step: Extend to moving solitons (K3).")
 print("------------------------------------------------------------")
 
 # --- Verdict ---
 print("\n" + "="*66)
-print("🔎 K2 — Correlation Decay Verdict")
+print("🔎 K2 - Correlation Decay Verdict")
 print("="*66)
 if math.isnan(decay_len) or decay_len <= 0:
     print("⚠️  Decay fit unstable or infinite correlation length.")
 else:
-    print(f"✅ Finite correlation length ξ≈{decay_len:.3f} → locality preserved.")
+    print(f"✅ Finite correlation length ξ≈{decay_len:.3f} -> locality preserved.")
 print("="*66 + "\n")

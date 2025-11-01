@@ -1,8 +1,8 @@
 # ================================================================
-# 🧠 Phase 45G — Atomize Knowledge Graph (Lexical + Resonant)
+# 🧠 Phase 45G - Atomize Knowledge Graph (Lexical + Resonant)
 # ================================================================
 """
-Transforms the entire lexical–semantic layer into a living,
+Transforms the entire lexical-semantic layer into a living,
 resonant atomic lattice within AION.brain.KGC.
 
 Inputs:
@@ -69,11 +69,11 @@ class AtomizeKnowledgeGraph:
             "wiki": self._safe_load(WIKI_PATH),
             "qdat": self._safe_load(QDATA_PATH),
         }
-        logger.info("[Atomize] Loaded all lexical–semantic sources.")
+        logger.info("[Atomize] Loaded all lexical-semantic sources.")
 
     # ------------------------------------------------------------
     def _extract_resonance(self, wid: str) -> Dict[str, Any]:
-        """Gather Φ–ψ–η–Λ resonance data for a word id."""
+        """Gather Φ-ψ-η-Λ resonance data for a word id."""
         qfield = self.sources.get("qdat", {}).get("tensor_field", {})
         ety_ln = self.sources.get("ety", {}).get("lineage", [])
         lrm_mx = self.sources.get("lrm", {}).get("matrix", {})
@@ -166,7 +166,7 @@ class AtomizeKnowledgeGraph:
     def inject_into_KGC(self):
         """Push atoms and edges into the live AION.brain.KGC runtime."""
         if not hasattr(KGC, "add_triplet"):
-            logger.warning("[Atomize] KGC interface not found — skipping live injection.")
+            logger.warning("[Atomize] KGC interface not found - skipping live injection.")
             return
 
         for atom in self.atoms:
@@ -198,7 +198,7 @@ class AtomizeKnowledgeGraph:
                 "hash": generate_hash(atom_pack),
                 "atoms": atom_pack
             }, f, indent=2)
-        logger.info(f"[Atomize] Exported atom data → {ATOMIZED_PATH}")
+        logger.info(f"[Atomize] Exported atom data -> {ATOMIZED_PATH}")
 
         HOBERMAN_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(HOBERMAN_PATH, "w", encoding="utf-8") as f:
@@ -213,7 +213,7 @@ class AtomizeKnowledgeGraph:
                     "address": f"ucs://aion/knowledge/{self.hoberman.container_id}#container"
                 }
             }, f, indent=2)
-        logger.info(f"[Atomize] Exported Hoberman container → {HOBERMAN_PATH}")
+        logger.info(f"[Atomize] Exported Hoberman container -> {HOBERMAN_PATH}")
 
     # ------------------------------------------------------------
     def summarize(self):
@@ -223,7 +223,7 @@ class AtomizeKnowledgeGraph:
             "avg_links": round(avg_links, 2),
             "timestamp": time.time(),
         }
-        logger.info(f"[Atomize] Summary → {self.summary}")
+        logger.info(f"[Atomize] Summary -> {self.summary}")
         return self.summary
 
     # ------------------------------------------------------------
@@ -242,7 +242,7 @@ class AtomizeKnowledgeGraph:
 if __name__ == "__main__":
     import logging
     logging.basicConfig(level=logging.INFO)
-    print("🧠 Running AION Full Knowledge Graph Atomization…")
+    print("🧠 Running AION Full Knowledge Graph Atomization...")
     builder = AtomizeKnowledgeGraph()
     summary = builder.run_full_atomization()
     print("✅ Full Atomization Complete.")

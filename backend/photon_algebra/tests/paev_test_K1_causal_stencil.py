@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-K1 — Causal Stencil & Finite-Speed Propagation (Tessaris)
+K1 - Causal Stencil & Finite-Speed Propagation (Tessaris)
 ----------------------------------------------------------
 Tests whether correlation propagation in the unified field
 obeys finite causal speed. Based on hyperbolic update scheme.
@@ -39,8 +39,8 @@ c_eff = math.sqrt(α)
 expected_max_speed = math.sqrt(α)
 cfl_bound = (dx / dt) * cfl
 
-print(f"=== K1 — Causal Stencil & Finite-Speed Propagation (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== K1 - Causal Stencil & Finite-Speed Propagation (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 print(f"Grid N={N}, steps={steps}, dt={dt}, dx={dx}, seed={seed}")
 
 # ============================================================
@@ -100,7 +100,7 @@ im = axs[0].imshow(
     origin="lower",
     cmap="magma"
 )
-axs[0].set_title("K1 — Correlation Cone (|u(x,t)|)")
+axs[0].set_title("K1 - Correlation Cone (|u(x,t)|)")
 axs[0].set_xlabel("x")
 axs[0].set_ylabel("time")
 axs[0].plot(np.interp(t_vals, t_vals, front_radius), t_vals, "c-", label="front radius (50%)")
@@ -118,7 +118,7 @@ axs[1].grid(True)
 plt.tight_layout()
 plot_path = "PAEV_K1_causal_stencil.png"
 plt.savefig(plot_path, dpi=200)
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Plot saved -> {plot_path}")
 
 # ============================================================
 # Summary + Discovery Logging
@@ -148,15 +148,15 @@ summary = {
 # Discovery / Interpretation
 # ============================================================
 discovery_text = f"""
-🧭 Discovery Notes — {timestamp}
+🧭 Discovery Notes - {timestamp}
 ------------------------------------------------------------
-• Observation: Correlation front propagates with finite speed (v≈{v_emp:.3f}),
+* Observation: Correlation front propagates with finite speed (v≈{v_emp:.3f}),
   consistent with causal bound v_max≈{expected_max_speed:.3f}.
-• Interpretation: Confirms that Tessaris field updates preserve local causality
+* Interpretation: Confirms that Tessaris field updates preserve local causality
   and no superluminal correlation leakage occurs under α={α}, β={β}, Λ={Λ}.
-• Implication: This validates the K-series foundation for relativistic
-  propagation (to be extended in K2–K3).
-• Next step: Introduce χ-driven solitons and evaluate reflection/transmission
+* Implication: This validates the K-series foundation for relativistic
+  propagation (to be extended in K2-K3).
+* Next step: Introduce χ-driven solitons and evaluate reflection/transmission
   under boost transformations (L-series preparation).
 ------------------------------------------------------------
 """
@@ -166,15 +166,15 @@ summary["discovery"] = discovery_text.strip()
 # Save JSON
 out_path = Path("backend/modules/knowledge/K1_causal_stencil_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # ============================================================
 # Verdict
 # ============================================================
 print("\n" + "="*66)
-print("🔎 K1 — Causal Stencil Verdict")
+print("🔎 K1 - Causal Stencil Verdict")
 print("="*66)
-print(f"Empirical speed v≈{v_emp:.4f} | bound≈{expected_max_speed:.4f} → ", end="")
+print(f"Empirical speed v≈{v_emp:.4f} | bound≈{expected_max_speed:.4f} -> ", end="")
 if abs(v_emp) <= expected_max_speed:
     print("OK: within bound.")
 else:

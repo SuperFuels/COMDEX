@@ -2,10 +2,10 @@
 """
 Photon Serialization & Interop Validation
 ========================================
-Task: I5 — End-to-End Serialization Consistency
+Task: I5 - End-to-End Serialization Consistency
 
 Ensures that Photon algebraic expressions can safely round-trip between
-JSON → Photon IR → SymPy → Simplified Photon → JSON without semantic loss.
+JSON -> Photon IR -> SymPy -> Simplified Photon -> JSON without semantic loss.
 
 Primary goal:
     Guarantee stable interoperability between Photon and SymPy layers.

@@ -1,5 +1,5 @@
 """
-Glyph → Lean Translator
+Glyph -> Lean Translator
 ──────────────────────────────────────────────
 Reconstructs Lean axioms or theorems from symbolic CodexLang expressions.
 
@@ -58,7 +58,7 @@ def build_lean_from_codex(container: Dict[str, Any], out_path: str) -> None:
 if __name__ == "__main__":
     import argparse
 
-    ap = argparse.ArgumentParser(description="Glyph → Lean translator")
+    ap = argparse.ArgumentParser(description="Glyph -> Lean translator")
     ap.add_argument("glyph_path", help="Path to .glyph JSON or plaintext glyph file")
     ap.add_argument("--out", "-o", help="Write Lean output to file")
     args = ap.parse_args()
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         print(f"[DEBUG] loaded {len(glyph_objects)} glyphs from JSON container")
     except json.JSONDecodeError:
         glyph_objects = []
-        pattern = re.compile(r"⟦ (\w+) ⟧\s+(\w+).*?Logic:\s*(.+?)(?=\n•|$)", re.DOTALL)
+        pattern = re.compile(r"⟦ (\w+) ⟧\s+(\w+).*?Logic:\s*(.+?)(?=\n*|$)", re.DOTALL)
         for m in pattern.finditer(text):
             kind, name, logic = m.groups()
             glyph_objects.append({"symbol": kind, "name": name, "logic": logic})

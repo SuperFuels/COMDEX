@@ -47,7 +47,7 @@ def _collapse_equivalent(expr_a: Any, expr_b: Any) -> bool:
 # ─────────────────────────────────────────────────────────────
 def law_collapse_equivalence(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Any]:
     """
-    Runtime equivalence between μ(⊕ψ₁,ψ₂) and ∇(⊕ψ₁,ψ₂).
+    Runtime equivalence between μ(⊕ψ1,ψ2) and ∇(⊕ψ1,ψ2).
 
     Verifies that measurement (μ) and collapse (∇) applied to the same
     superposed state are canonically equivalent at runtime.
@@ -111,18 +111,18 @@ def law_collapse_energy_equivalence(expr: Any, ctx: Optional[Any] = None) -> Dic
         return {"passed": False, "error": str(e), "details": "Runtime check failed"}
 
 # ─────────────────────────────────────────────────────────────
-# v0.3.6 — Temporal Resonance Continuity Law (⟲)
+# v0.3.6 - Temporal Resonance Continuity Law (⟲)
 # ─────────────────────────────────────────────────────────────
 def law_resonance_continuity(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Any]:
     """
     Ensures amplitude and phase continuity between consecutive timesteps
-    in resonant (ℚ) systems within tolerance εₐ, εφ.
+    in resonant (Q) systems within tolerance εa, εφ.
 
     Expected expr format (runtime form):
         {
             "op": "⟲",
-            "amplitude": [A₀, A₁, ...],
-            "phase": [φ₀, φ₁, ...],
+            "amplitude": [A0, A1, ...],
+            "phase": [φ0, φ1, ...],
             "tolerance": 0.05
         }
     """
@@ -148,7 +148,7 @@ def law_resonance_continuity(expr: Any, ctx: Optional[Any] = None) -> Dict[str, 
         return {"passed": False, "error": str(e), "details": "Continuity check failed"}
 
 # ─────────────────────────────────────────────────────────────
-# v0.3.7 — Resonance Damping Consistency Law (ℚ↯)
+# v0.3.7 - Resonance Damping Consistency Law (Q↯)
 # ─────────────────────────────────────────────────────────────
 def law_resonance_damping_consistency(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Any]:
     """
@@ -157,7 +157,7 @@ def law_resonance_damping_consistency(expr: Any, ctx: Optional[Any] = None) -> D
 
     Expected expr format:
         {
-            "op": "ℚ↯",
+            "op": "Q↯",
             "f_prev": <float>,
             "f_curr": <float>,
             "Q": <float>,
@@ -186,7 +186,7 @@ def law_resonance_damping_consistency(expr: Any, ctx: Optional[Any] = None) -> D
         return {"passed": False, "error": str(e), "details": "Damping consistency check failed"}
 
 # ─────────────────────────────────────────────────────────────
-# v0.3.8 — Entanglement Symmetry Law (↔)
+# v0.3.8 - Entanglement Symmetry Law (↔)
 # ─────────────────────────────────────────────────────────────
 def law_entanglement_symmetry(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Any]:
     """
@@ -228,14 +228,14 @@ def law_entanglement_symmetry(expr: Any, ctx: Optional[Any] = None) -> Dict[str,
         return {"passed": False, "error": str(e), "details": "entanglement symmetry check failed"}
 
 # ─────────────────────────────────────────────────────────────
-# v0.3.9 — Projection–Collapse Consistency Law (πμ)
+# v0.3.9 - Projection-Collapse Consistency Law (πμ)
 # ─────────────────────────────────────────────────────────────
 # ─────────────────────────────────────────────────────────────
-# v0.3.9b — Projection–Collapse Consistency (πμ)
+# v0.3.9b - Projection-Collapse Consistency (πμ)
 # ─────────────────────────────────────────────────────────────
 def law_projection_collapse_consistency(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Any]:
     """
-    Ensures that projection–measurement order does not affect outcome.
+    Ensures that projection-measurement order does not affect outcome.
     π(μ(ψ)) ≈ μ(π(ψ)) within runtime symbolic equivalence.
     """
     try:
@@ -267,10 +267,10 @@ def law_projection_collapse_consistency(expr: Any, ctx: Optional[Any] = None) ->
         return {"passed": passed, "details": details}
 
     except Exception as e:
-        return {"passed": False, "error": str(e), "details": "projection–collapse check failed"}
+        return {"passed": False, "error": str(e), "details": "projection-collapse check failed"}
 
 # ─────────────────────────────────────────────────────────────
-# v0.4.0 — Fundamental Theorem Consistency (Δ/∫)
+# v0.4.0 - Fundamental Theorem Consistency (Δ/∫)
 # ─────────────────────────────────────────────────────────────
 import math
 
@@ -321,7 +321,7 @@ def law_fundamental_consistency(expr: Any, ctx: Optional[Any] = None) -> Dict[st
         return {"passed": False, "error": str(e), "details": "fundamental consistency check failed"}
 
 # ─────────────────────────────────────────────────────────────
-# v0.4.2 — Fundamental Theorem Consistency (Δ/∫) [final tuned]
+# v0.4.2 - Fundamental Theorem Consistency (Δ/∫) [final tuned]
 # ─────────────────────────────────────────────────────────────
 import math
 import statistics
@@ -382,13 +382,13 @@ def law_fundamental_consistency(expr: Any, ctx: Optional[Any] = None) -> Dict[st
         return {"passed": False, "error": str(e), "details": "fundamental consistency check failed"}
 
 # ─────────────────────────────────────────────────────────────
-# v0.4.3a — Fixed Runtime Interference Non-Idempotence Law (⋈[φ])
+# v0.4.3a - Fixed Runtime Interference Non-Idempotence Law (⋈[φ])
 # ─────────────────────────────────────────────────────────────
 import math
 
 def law_interference_non_idem(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Any]:
     """
-    Runtime Non-Idempotence: (A ⋈[φ] A) ≠ A for φ ∉ {0, π}.
+    Runtime Non-Idempotence: (A ⋈[φ] A) != A for φ ∉ {0, π}.
     Even when operands are symbolically identical, a nontrivial φ must
     yield a distinct resultant (phase-shifted or amplitude-altered).
     """
@@ -421,7 +421,7 @@ def law_interference_non_idem(expr: Any, ctx: Optional[Any] = None) -> Dict[str,
         return {"passed": False, "error": str(e), "details": "runtime non-idempotence check failed"}
 
 # ─────────────────────────────────────────────────────────────
-# v0.4.4 — Runtime Collapse Conservation Law (μ)
+# v0.4.4 - Runtime Collapse Conservation Law (μ)
 # ─────────────────────────────────────────────────────────────
 def law_collapse_conservation(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Any]:
     """
@@ -453,12 +453,12 @@ def law_collapse_conservation(expr: Any, ctx: Optional[Any] = None) -> Dict[str,
         return {"passed": False, "error": str(e), "details": "runtime collapse conservation failed"}
 
 # ─────────────────────────────────────────────────────────────
-# v0.4.5 — Runtime Resonance Energy–Time Invariance (⟲t)
+# v0.4.5 - Runtime Resonance Energy-Time Invariance (⟲t)
 # ─────────────────────────────────────────────────────────────
 def law_resonance_energy_time_invariance(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Any]:
     """
     Ensures E*T ≈ constant across resonance states.
-    Checks |E₁T₁ - E₂T₂| / (E₁T₁) ≤ ε (default 1%).
+    Checks |E1T1 - E2T2| / (E1T1) <= ε (default 1%).
     """
     try:
         if not isinstance(expr, dict) or expr.get("op") not in {"⟲", "⟲t"}:
@@ -480,14 +480,14 @@ def law_resonance_energy_time_invariance(expr: Any, ctx: Optional[Any] = None) -
         return {
             "passed": passed,
             "deviation": inv_ratio,
-            "details": f"E₁T₁={E1*T1:.4f}, E₂T₂={E2*T2:.4f}, Δ={inv_ratio:.3%}, tol={tolerance:.3%}"
+            "details": f"E1T1={E1*T1:.4f}, E2T2={E2*T2:.4f}, Δ={inv_ratio:.3%}, tol={tolerance:.3%}"
         }
 
     except Exception as e:
-        return {"passed": False, "error": str(e), "details": "runtime resonance energy–time check failed"}
+        return {"passed": False, "error": str(e), "details": "runtime resonance energy-time check failed"}
 
 # ─────────────────────────────────────────────────────────────
-# v0.4.6 — Field Entropy Regularization Law (SRK-3)
+# v0.4.6 - Field Entropy Regularization Law (SRK-3)
 # ─────────────────────────────────────────────────────────────
 def law_entropy_regularization(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Any]:
     """
@@ -520,7 +520,7 @@ def law_entropy_regularization(expr: Any, ctx: Optional[Any] = None) -> Dict[str
         deviation = abs(delta - expected_max) / max(expected_max, 1e-6)
 
         details = (
-            f"S={S:.3f}, Δλ={delta:.4f}, limit≤{expected_max:.4f}, "
+            f"S={S:.3f}, Δλ={delta:.4f}, limit<={expected_max:.4f}, "
             f"Δ={deviation:.3%}, tol={tol:.3%}"
         )
 
@@ -557,7 +557,7 @@ def check_all_laws(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Dict[str, 
 
 
 # -------------------------------------------------------------------------
-# Runtime Orchestration (v0.4.2 → v0.5 Adaptive Integration)
+# Runtime Orchestration (v0.4.2 -> v0.5 Adaptive Integration)
 # -------------------------------------------------------------------------
 try:
     from backend.symatics.core.adaptive_laws import AdaptiveLawEngine
@@ -569,9 +569,9 @@ def run_law_checks(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Dict[str, 
     """
     Execute all runtime law checks conditionally based on context flags.
     Includes:
-      • Standard v0.4.2 law validations
-      • CodexTrace telemetry emission
-      • v0.5 Adaptive λᵢ(t) feedback for drift correction
+      * Standard v0.4.2 law validations
+      * CodexTrace telemetry emission
+      * v0.5 Adaptive λi(t) feedback for drift correction
     """
     if not getattr(ctx, "validate_runtime", False):
         return {}
@@ -591,15 +591,15 @@ def run_law_checks(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Dict[str, 
         if expr.get("op") == "⟲":
             results["resonance_continuity"] = law_resonance_continuity(expr, ctx)
 
-        # Resonance damping consistency (ℚ↯)
-        if expr.get("op") == "ℚ↯":
+        # Resonance damping consistency (Q↯)
+        if expr.get("op") == "Q↯":
             results["resonance_damping_consistency"] = law_resonance_damping_consistency(expr, ctx)
 
         # Entanglement symmetry (↔)
         if expr.get("op") in {"⊗GHZ", "⊗W"}:
             results["entanglement_symmetry"] = law_entanglement_symmetry(expr, ctx)
 
-        # Projection–collapse consistency (πμ)
+        # Projection-collapse consistency (πμ)
         if expr.get("op") == "πμ":
             results["projection_collapse_consistency"] = law_projection_collapse_consistency(expr, ctx)
 
@@ -615,7 +615,7 @@ def run_law_checks(expr: Any, ctx: Optional[Any] = None) -> Dict[str, Dict[str, 
         if expr.get("op") == "μ":
             results["collapse_conservation"] = law_collapse_conservation(expr, ctx)
 
-        # Resonance energy–time invariance (⟲t)
+        # Resonance energy-time invariance (⟲t)
         if expr.get("op") in {"⟲", "⟲t"}:
             results["resonance_energy_time_invariance"] = law_resonance_energy_time_invariance(expr, ctx)
 
@@ -678,14 +678,14 @@ RUNTIME_LAW_REGISTRY = {
         "version": "v0.4.1",
     },
     "resonance_damping_consistency": {
-        "symbol": "ℚ↯",
+        "symbol": "Q↯",
         "description": "Damping consistency Δf/f ≈ 1/(2Q)",
         "function": law_resonance_damping_consistency,
         "version": "v0.4.2",
     },
     "resonance_energy_time_invariance": {
         "symbol": "⟲t",
-        "description": "Resonance preserves the energy–time product (E·T ≈ constant)",
+        "description": "Resonance preserves the energy-time product (E*T ≈ constant)",
         "function": law_resonance_energy_time_invariance,
         "version": "v0.4.5",
     },
@@ -719,7 +719,7 @@ RUNTIME_LAW_REGISTRY = {
     },
     "interference_non_idem": {
         "symbol": "⋈[φ]",
-        "description": "Non-idempotence under phase interference (φ ≠ 0, π)",
+        "description": "Non-idempotence under phase interference (φ != 0, π)",
         "function": law_interference_non_idem,
         "version": "v0.4.4",
     },
@@ -732,7 +732,7 @@ def list_runtime_laws(verbose: bool = False):
     Args:
         verbose (bool): If True, include the function reference and extra metadata.
     Returns:
-        dict: law_name → {symbol, description, version, (function if verbose=True)}
+        dict: law_name -> {symbol, description, version, (function if verbose=True)}
     """
     summary = {}
     for name, info in RUNTIME_LAW_REGISTRY.items():

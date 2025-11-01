@@ -34,7 +34,7 @@ def mutate_glyph_in_container():
                 "reason": "Testing glyph mutation from ✦ to 🧭",
                 "replaced_code": json.dumps(old_meta, indent=2),
                 "new_code": json.dumps(meta, indent=2),
-                "diff": f"{GLYPH_TO_MUTATE} → 🧭 at {coord}",
+                "diff": f"{GLYPH_TO_MUTATE} -> 🧭 at {coord}",
                 "approved": False,
                 "timestamp": datetime.utcnow().isoformat()
             }

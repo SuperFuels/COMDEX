@@ -25,7 +25,7 @@ class SymbolNetBridge:
 
     def expand_glyph(self, glyph: LogicGlyph, mode: str = "default") -> List[Dict[str, Any]]:
         results = []
-        SKIP_LOGIC_SYMBOLS = {"∀", "→", "∧", "∨", "¬", "∅", "=", "≠", "<", ">", "≥", "≤"}
+        SKIP_LOGIC_SYMBOLS = {"∀", "->", "∧", "∨", "¬", "∅", "=", "!=", "<", ">", ">=", "<="}
 
         try:
             label = getattr(glyph, "label", None) or getattr(glyph, "symbol", None) or glyph.metadata.get("label")

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==========================================================
-# F6 — Quantum Backreaction Closure (Bounce Stabilization)
+# F6 - Quantum Backreaction Closure (Bounce Stabilization)
 # ==========================================================
 # Purpose:
 #   Introduce quantum curvature damping and vacuum fluctuation coupling
@@ -117,7 +117,7 @@ else:
 plt.figure(figsize=(9, 5))
 plt.plot(t, a, label="a(t)")
 plt.axvline(t[bounce_index], color="purple", ls="--", label="bounce")
-plt.title("F6 — Scale Factor Evolution (Quantum Backreaction Closure)")
+plt.title("F6 - Scale Factor Evolution (Quantum Backreaction Closure)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F6_ScaleFactorEvolution.png")
@@ -127,14 +127,14 @@ plt.plot(t, rho_tot, label="ρ_total", lw=1.3)
 plt.plot(t, rho_phi, label="ρ_φ", alpha=0.6)
 plt.plot(t, Lambda_eff, "--", label="Λ_eff(t)", alpha=0.7)
 plt.yscale("log")
-plt.title("F6 — Energy Density and Quantum-Modified Vacuum")
+plt.title("F6 - Energy Density and Quantum-Modified Vacuum")
 plt.xlabel("time"); plt.ylabel("Energy (log)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F6_EnergyDecomposition.png")
 
 plt.figure(figsize=(9, 5))
 plt.plot(t, np.cos(phi), lw=1.0, label="cos(φ)")
-plt.title("F6 — Vacuum-Field Phase Coherence")
+plt.title("F6 - Vacuum-Field Phase Coherence")
 plt.xlabel("time"); plt.ylabel("cos(φ)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F6_PhaseCoherence.png")
@@ -179,7 +179,7 @@ results = {
 with open("backend/modules/knowledge/F6_quantum_backreaction.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== F6 — Quantum Backreaction Closure (Bounce Stabilization) ===")
+print("=== F6 - Quantum Backreaction Closure (Bounce Stabilization) ===")
 print(f"a_min={a_min:.4f} | mean_coherence={mean_coherence:.3f} | anti-corr(Λ,E)={anti_corr:.2f}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F6_quantum_backreaction.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F6_quantum_backreaction.json")

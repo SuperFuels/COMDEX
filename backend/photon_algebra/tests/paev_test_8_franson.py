@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Test 8 — Franson interferometer (energy–time entanglement)
+Test 8 - Franson interferometer (energy-time entanglement)
 Compares quantum coincidences vs Photon Algebra (PA) prediction.
 
 Physics recap
 -------------
-Energy–time–entangled pairs enter two unbalanced MZIs (Alice, Bob).
-Only indistinguishable EE/LL (early–early / late–late) paths contribute
+Energy-time-entangled pairs enter two unbalanced MZIs (Alice, Bob).
+Only indistinguishable EE/LL (early-early / late-late) paths contribute
 to 2-photon interference. The coincidence rate varies as:
 
     C_QM(φA, φB) = 1/2 * [1 + V * cos(φA + φB)]
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         Vp = visibility_from_curve(cp)
         print(f"{label:18s}  Quantum V={Vq:.3f}  PhotonAlg V={Vp:.3f}")
 
-    plt.title("Test 8 — Franson Interferometer (energy–time entanglement)")
+    plt.title("Test 8 - Franson Interferometer (energy-time entanglement)")
     plt.xlabel("Phase sum φA + φB (radians)")
     plt.ylabel("Coincidence probability C(φA+φB)")
     plt.ylim(-0.05, 1.05)
@@ -93,4 +93,4 @@ if __name__ == "__main__":
     for ang in [0, np.pi/2, np.pi, 3*np.pi/2]:
         v = C_photon_algebra(ang, mu=1.0)
         # Prints should line up with 0.5*(1 ± 1) = {0,1} at these points
-        print(f"φΣ = {ang:5.2f} → C_PA = {v:.3f}")
+        print(f"φΣ = {ang:5.2f} -> C_PA = {v:.3f}")

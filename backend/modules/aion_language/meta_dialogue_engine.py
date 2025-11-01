@@ -1,11 +1,11 @@
 """
-Meta-Dialogue Engine — Phase 44A
+Meta-Dialogue Engine - Phase 44A
 --------------------------------
-Generates reflective statements about Aion’s internal state
+Generates reflective statements about Aion's internal state
 based on tone, resonance, and goal evaluation metrics.
 
 Author: Tessaris Research Group
-Date: Phase 44A — October 2025
+Date: Phase 44A - October 2025
 """
 
 import time, json
@@ -29,7 +29,7 @@ class MetaDialogueEngine:
         goals = getattr(EVAL, "last_eval", {})
         resonance = getattr(CTX_AKG, "last_export", {}) or {}
 
-        # Defensive handling — ensure all metrics exist
+        # Defensive handling - ensure all metrics exist
         metrics = {
             "timestamp": time.time(),
             "tone": tone.get("tone", "neutral"),

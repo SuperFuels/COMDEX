@@ -1,5 +1,5 @@
 """
-PhotonLang ⧖ — Parametric Modulation Operator
+PhotonLang ⧖ - Parametric Modulation Operator
 Applies harmonic shaping to resonance output.
 """
 
@@ -14,7 +14,7 @@ def modulate(wave: dict, params: dict):
     df = params.get("freq", 1.0)
     da = params.get("amp", 1.0)
 
-    # gentle envelope — prevent runaway energy
+    # gentle envelope - prevent runaway energy
     df = max(0.95, min(df, 1.05))
     da = max(0.95, min(da, 1.05))
 

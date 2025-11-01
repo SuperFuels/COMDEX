@@ -45,7 +45,7 @@ def test_fuse_metadata_and_op_tag():
 # -----------------------------------------------------------------------------
 
 def test_fuse_destructive_interference_intrinsic():
-    """Intrinsic phase difference = π → destructive interference."""
+    """Intrinsic phase difference = π -> destructive interference."""
     s1 = make_sig(A=1.0, f=2.0, phi=0.0)
     s2 = make_sig(A=1.0, f=2.0, phi=math.pi)
 
@@ -57,7 +57,7 @@ def test_fuse_destructive_interference_intrinsic():
 
 
 def test_fuse_constructive_interference_intrinsic():
-    """Intrinsic phase alignment → constructive interference (doubling)."""
+    """Intrinsic phase alignment -> constructive interference (doubling)."""
     s1 = make_sig(A=1.0, f=2.0, phi=0.0)
     s2 = make_sig(A=1.0, f=2.0, phi=0.0)
 
@@ -74,7 +74,7 @@ def test_fuse_constructive_interference_intrinsic():
 # -----------------------------------------------------------------------------
 
 def test_fuse_destructive_interference_explicit_phi():
-    """Explicit φ = π → destructive interference, amplitudes cancel."""
+    """Explicit φ = π -> destructive interference, amplitudes cancel."""
     s1 = make_sig(A=1.0, f=2.0, phi=0.0)
     s2 = make_sig(A=1.0, f=2.0, phi=0.0)
 
@@ -85,7 +85,7 @@ def test_fuse_destructive_interference_explicit_phi():
 
 
 def test_fuse_constructive_interference_explicit_phi():
-    """Explicit φ = 0 → constructive interference, amplitudes add."""
+    """Explicit φ = 0 -> constructive interference, amplitudes add."""
     s1 = make_sig(A=1.0, f=2.0, phi=0.0)
     s2 = make_sig(A=1.0, f=2.0, phi=0.0)
 
@@ -134,7 +134,7 @@ def test_axiom_A8_destructive_pi_phase():
     # Amplitudes must agree
     assert fuse_out.amplitude == pytest.approx(cancel_out.amplitude, abs=1e-6)
 
-    # If amplitude ~ 0, phase is undefined → skip phase check
+    # If amplitude ~ 0, phase is undefined -> skip phase check
     if abs(fuse_out.amplitude) > 1e-9:
         assert fuse_out.phase == pytest.approx(cancel_out.phase, abs=1e-6)
 

@@ -1,5 +1,5 @@
 """
-AION Cognitive Bridge — Extended Commands
+AION Cognitive Bridge - Extended Commands
 ────────────────────────────────────────────
 Provides live cognitive reasoning and lexical utilities for AION.
 """
@@ -47,8 +47,8 @@ def anagram_word(word: str):
     random.shuffle(chars)
     jumbled = "".join(chars)
     if solved and solved != word:
-        return f"🧩 Anagram of '{word}' → '{jumbled}'  (solve: {solved})"
-    return f"🧩 Anagram of '{word}' → '{jumbled}'"
+        return f"🧩 Anagram of '{word}' -> '{jumbled}'  (solve: {solved})"
+    return f"🧩 Anagram of '{word}' -> '{jumbled}'"
 
 def complete_word(word: str):
     """Produce a simple definitional completion cue from LexMemory / RMC."""
@@ -62,7 +62,7 @@ def complete_word(word: str):
     if not definition:
         return f"🤷 No stored definition for '{word}'. Try teaching first: teach {word} 2"
     first = definition.split(".", 1)[0].strip()
-    return f"✍️ Completion: {word.capitalize()} is… {first}"
+    return f"✍️ Completion: {word.capitalize()} is... {first}"
 
 def match_word(word: str):
     """Emit a simple definition-match style prompt from memory."""
@@ -81,12 +81,12 @@ def match_word(word: str):
     choices = distractors + [word]
     random.shuffle(choices)
     pretty = "\n".join(f"  {i+1}. {c}" for i, c in enumerate(choices))
-    return f"🧠 Match the definition:\n“{definition}”\nChoices:\n{pretty}\n(answer: {word})"
+    return f"🧠 Match the definition:\n"{definition}"\nChoices:\n{pretty}\n(answer: {word})"
 # ──────────────────────────────────────────────
 # Lexical + Symbolic
 # ──────────────────────────────────────────────
 def define_word(word: str):
-    """Return a concept’s recalled definition + resonance info (guaranteed fallback)."""
+    """Return a concept's recalled definition + resonance info (guaranteed fallback)."""
     from backend.modules.aion_cognition.cee_lex_memory import recall_from_memory, _load_memory
 
     # 1️⃣ Try lexical fuzzy recall
@@ -150,7 +150,7 @@ def symbol_word(word: str):
     symbol = entry.get("symbol", None)
     if not symbol:
         return f"💡 {word}: (symbolic tensor undefined)"
-    return f"💡 Symbolic QMath({word}) → {symbol}"
+    return f"💡 Symbolic QMath({word}) -> {symbol}"
 
 
 # ──────────────────────────────────────────────
@@ -166,7 +166,7 @@ def unjumble_word(letters: str):
 
     match = difflib.get_close_matches(letters, candidates, n=1, cutoff=0.5)
     if match:
-        return f"🧩 Unjumble → '{letters}' = '{match[0]}'"
+        return f"🧩 Unjumble -> '{letters}' = '{match[0]}'"
     return f"❌ No matching lemma for '{letters}'"
 
 
@@ -179,11 +179,11 @@ def compare_words(w1: str, w2: str):
         return f"⚠️ Unable to compare '{w1}' and '{w2}'."
     mci = round(result.get("MCI", 0.0), 3)
     sim = round(result.get("similarity", 0.0), 3)
-    return f"🔍 Compare '{w1}' ↔ '{w2}' → MCI={mci}, sim={sim}"
+    return f"🔍 Compare '{w1}' ↔ '{w2}' -> MCI={mci}, sim={sim}"
 
 
 def context_word(word: str, phrase: str):
-    """Evaluate a word’s meaning stability within a phrase."""
+    """Evaluate a word's meaning stability within a phrase."""
     if not benchmark_runner or not hasattr(benchmark_runner, "context_eval"):
         return "⚠️ Contextual benchmark unavailable."
     result = benchmark_runner.context_eval(word, phrase)
@@ -191,12 +191,12 @@ def context_word(word: str, phrase: str):
         return f"⚠️ No contextual data for '{word}' in '{phrase}'."
     mci = round(result.get("MCI", 0.0), 3)
     drift = round(result.get("drift", 0.0), 3)
-    return f"🧠 Context('{word}' in '{phrase}') → MCI={mci}, drift={drift}"
+    return f"🧠 Context('{word}' in '{phrase}') -> MCI={mci}, drift={drift}"
 
 
 def connect_concepts(chain: str):
     """Link related concepts in the resonance graph."""
-    nodes = [x.strip() for x in chain.replace("→", "->").split("->") if x.strip()]
+    nodes = [x.strip() for x in chain.replace("->", "->").split("->") if x.strip()]
     if len(nodes) < 2:
         return "⚠️ Need at least two concepts to connect."
     for i in range(len(nodes) - 1):
@@ -204,7 +204,7 @@ def connect_concepts(chain: str):
             RMC.link(nodes[i], nodes[i + 1])
         except Exception:
             pass
-    return f"🔗 Connected: {' → '.join(nodes)}"
+    return f"🔗 Connected: {' -> '.join(nodes)}"
 
 
 def stats_summary():

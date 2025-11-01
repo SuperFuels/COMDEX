@@ -1,5 +1,5 @@
 """
-AION Symbolic Memory Store — Phase 10
+AION Symbolic Memory Store - Phase 10
 ────────────────────────────────────────────
 Persistent memory layer for capsule metadata and resonance snapshots.
 Integrates with the Knowledge Graph and Resonance Engine.
@@ -84,7 +84,7 @@ def store_capsule_metadata(capsule: CapsuleLike, domain: str = "Lexicon") -> Non
     state[lemma] = meta
     _save(state)
 
-    print(f"[AION-Memory] Stored metadata for {lemma} (Lexicon) → E={meta.get('E')}")
+    print(f"[AION-Memory] Stored metadata for {lemma} (Lexicon) -> E={meta.get('E')}")
 
 
 # ───────────────────────────────

@@ -1,7 +1,7 @@
 """
-Test H9.1 — Stabilized Temporal Symmetry & Unified Lagrangian Closure
+Test H9.1 - Stabilized Temporal Symmetry & Unified Lagrangian Closure
 --------------------------------------------------------------------
-Models ψ–κ–T interaction with temporal reversal (dt → -dt)
+Models ψ-κ-T interaction with temporal reversal (dt -> -dt)
 and applies normalization + damping to prevent overflow.
 Goal: Achieve reversible energy and entropy closure.
 """
@@ -83,12 +83,12 @@ for step in range(steps):
         dt *= -1  # reverse time direction
 
     if step % 100 == 0:
-        print(f"Step {step:03d} — ⟨E⟩={energy:.5f}, ⟨ψ·κ⟩={coupling:.5e}, ⟨ψ·T⟩={coherence:.5e}, S={spectral_entropy:.5f}")
+        print(f"Step {step:03d} - ⟨E⟩={energy:.5f}, ⟨ψ*κ⟩={coupling:.5e}, ⟨ψ*T⟩={coherence:.5e}, S={spectral_entropy:.5f}")
 
 # ---------------------------------------------
 # Results Summary
 # ---------------------------------------------
-print("\n=== Test H9.1 — Stabilized Temporal Symmetry Closure Complete ===")
+print("\n=== Test H9.1 - Stabilized Temporal Symmetry Closure Complete ===")
 print(f"⟨E⟩ drift = {E_vals[-1] - E_vals[0]:.5e}")
 print(f"⟨S⟩ drift = {S_vals[-1] - S_vals[0]:.5e}")
 print(f"Final Coupling = {coupling_vals[-1]:.5e}")
@@ -100,9 +100,9 @@ print("All output files saved:")
 # ---------------------------------------------
 plt.figure()
 plt.plot(E_vals, label="Energy ⟨E⟩")
-plt.plot(coupling_vals, label="ψ·κ Coupling")
-plt.plot(coherence_vals, label="ψ·T Coherence")
-plt.title("H9.1 — Temporal Symmetry Closure (Energy & Couplings)")
+plt.plot(coupling_vals, label="ψ*κ Coupling")
+plt.plot(coherence_vals, label="ψ*T Coherence")
+plt.title("H9.1 - Temporal Symmetry Closure (Energy & Couplings)")
 plt.xlabel("Step")
 plt.ylabel("Value")
 plt.legend()
@@ -110,7 +110,7 @@ plt.savefig("PAEV_TestH9_Stable_EnergyCoupling.png")
 
 plt.figure()
 plt.plot(S_vals, color='purple')
-plt.title("H9.1 — Spectral Entropy Evolution")
+plt.title("H9.1 - Spectral Entropy Evolution")
 plt.xlabel("Step")
 plt.ylabel("Entropy")
 plt.savefig("PAEV_TestH9_Stable_SpectralEntropy.png")
@@ -118,7 +118,7 @@ plt.savefig("PAEV_TestH9_Stable_SpectralEntropy.png")
 plt.figure()
 plt.imshow(np.real(psi), cmap="magma")
 plt.colorbar(label="Re(ψ)")
-plt.title("H9.1 — Final ψ Field (Stable Regime)")
+plt.title("H9.1 - Final ψ Field (Stable Regime)")
 plt.savefig("PAEV_TestH9_Stable_FinalField.png")
 
 print(" - PAEV_TestH9_Stable_EnergyCoupling.png")

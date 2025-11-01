@@ -1,6 +1,6 @@
 # backend/modules/consciousness/qglyph_loop_runner.py
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • QGlyph Loop Runner
+#  Tessaris * QGlyph Loop Runner
 #  Runs a continuous loop generating and collapsing QGlyphs
 #  via the GlyphQuantumCore, harmonized for QQC stack.
 # ──────────────────────────────────────────────────────────────
@@ -13,7 +13,7 @@ from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
 class QGlyphLoopRunner:
     """
     Runs a background resonance loop that generates and collapses QGlyphs.
-    Used by the AION Cognitive Dispatcher’s symbolic system group.
+    Used by the AION Cognitive Dispatcher's symbolic system group.
     """
 
     def __init__(self, container_id="main", interval_sec=2.0):
@@ -30,7 +30,7 @@ class QGlyphLoopRunner:
         print(f"[QGlyphLoopRunner] ⚛️ Starting loop for container {self.container_id}")
 
         while self._running:
-            glyph = random.choice(["⊕", "→", "⟲", "↔", "⧖"])
+            glyph = random.choice(["⊕", "->", "⟲", "↔", "⧖"])
             coord = f"{random.randint(0,5)}x{random.randint(0,5)}"
             qbit = self.core.generate_qbit(glyph, coord)
             print(f"[+] QBit Generated: {qbit}")

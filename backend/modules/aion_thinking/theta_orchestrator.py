@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-🧠 Θ Orchestrator — Phase 64 (Thinking Loop Controller)
+🧠 Θ Orchestrator - Phase 64 (Thinking Loop Controller)
 ────────────────────────────────────────────────────────────
 Supervises cognitive routing between FAST (ReflexArc) and
-SLOW (Resonant–Strategic) loops based on context complexity,
+SLOW (Resonant-Strategic) loops based on context complexity,
 entropy, and resonance stability. Integrates downstream Strategy
 Planner and Reflection feedback. Back-compat export:
 `ThetaOrchestrator = ThinkingLoop`.
@@ -89,7 +89,7 @@ class ThinkingLoop:
         self.action_switch = ActionSwitch()
         self.strategy = ResonantStrategyPlanner()
 
-        log.info(f"🧠 Θ Orchestrator initialized ({namespace}) — auto_tick={auto_tick}")
+        log.info(f"🧠 Θ Orchestrator initialized ({namespace}) - auto_tick={auto_tick}")
 
     # ───────────────────────────────────────────
     def classify_complexity(self, query: Optional[str], entropy: float = None) -> str:
@@ -111,7 +111,7 @@ class ThinkingLoop:
 
     # ───────────────────────────────────────────
     def fast_loop(self, stimulus: str) -> Dict[str, Any]:
-        """FAST loop — reflexive, quick-response path."""
+        """FAST loop - reflexive, quick-response path."""
         log.info(f"[FAST_LOOP] Processing '{stimulus}'")
         computed = _safe_calc(stimulus)
         response = computed if computed is not None else "quick_recall"
@@ -126,17 +126,17 @@ class ThinkingLoop:
 
     # ───────────────────────────────────────────
     # ───────────────────────────────────────────
-    # 🌌 Deep Resonance Loop – Strategic Reasoning
+    # 🌌 Deep Resonance Loop - Strategic Reasoning
     # ───────────────────────────────────────────
     def deep_resonance_loop(self, query: str) -> Dict[str, Any]:
         """
-        🌌 Deep Resonance Loop – Strategic Reasoning (SLOW_LOOP)
+        🌌 Deep Resonance Loop - Strategic Reasoning (SLOW_LOOP)
         Executes sequential harmonic reasoning phases:
-            S1 → Motivation
-            S2 → Intent
-            S3 → Reasoner
-            S4 → Strategy Planner
-            S5 → Reflection Feedback
+            S1 -> Motivation
+            S2 -> Intent
+            S3 -> Reasoner
+            S4 -> Strategy Planner
+            S5 -> Reflection Feedback
         Each phase emits Θ heartbeat events and RMC resonance samples.
         """
 
@@ -155,23 +155,23 @@ class ThinkingLoop:
         mood = getattr(self.emotion, "current_emotion", "neutral")
         self.Theta.event("context_sync", confidence=conf, mood=mood)
 
-        # 🧩 S1 — Motivation
+        # 🧩 S1 - Motivation
         motivation = self._motivation_phase(query)
         self.Theta.event("slow_loop_S1_motivation", vector=motivation)
 
-        # 🧭 S2 — Intent
+        # 🧭 S2 - Intent
         intent = self._intent_phase(motivation)
         self.Theta.event("slow_loop_S2_intent", intent=intent)
 
-        # 🧮 S3 — Reasoner
+        # 🧮 S3 - Reasoner
         decision = self._reasoner_phase(intent, motivation)
         self.Theta.event("slow_loop_S3_reasoner", decision=decision)
 
-        # 🎯 S4 — Strategy Planner
+        # 🎯 S4 - Strategy Planner
         strategy = self._strategy_phase(decision)
         self.Theta.event("slow_loop_S4_strategy", strategy=strategy)
 
-        # 🧩 S6 — Strategic Simulation Engine (SSE)
+        # 🧩 S6 - Strategic Simulation Engine (SSE)
         intent_ctx = {
             "motivation": motivation,
             "strategy": strategy,
@@ -183,7 +183,7 @@ class ThinkingLoop:
             log.warning(f"[SLOW_LOOP] SSE simulation error: {e}")
             sse_result = {"best_path": [], "best_utility": 0.0}
 
-        # 🔁 S5 — Reflection Feedback
+        # 🔁 S5 - Reflection Feedback
         reflection = self._reflection_phase(decision, strategy)
 
         # 🔂 Apply Reflection feedback into SSE (R6)
@@ -246,7 +246,7 @@ class ThinkingLoop:
     # 🧩 Sub-Phases
     # ───────────────────────────────────────────
     def _motivation_phase(self, query: str) -> Dict[str, Any]:
-        """S1 — Motivation: derive internal drive state from context."""
+        """S1 - Motivation: derive internal drive state from context."""
         try:
             vec = self.motivation.output_vector(context=query)
         except Exception:
@@ -254,7 +254,7 @@ class ThinkingLoop:
         return {"motivation_vector": vec, "source": "MotivationLayer"}
 
     def _intent_phase(self, motivation: Dict[str, Any]) -> Dict[str, Any]:
-        """S2 — Intent: convert motivation into actionable symbolic intent."""
+        """S2 - Intent: convert motivation into actionable symbolic intent."""
         try:
             intent = self.intent.generate_intent(motivation=motivation)
         except Exception:
@@ -262,7 +262,7 @@ class ThinkingLoop:
         return intent
 
     def _reasoner_phase(self, intent: Dict[str, Any], motivation: Dict[str, Any]) -> Dict[str, Any]:
-        """S3 — Reasoner: perform symbolic reasoning on intent + motivation."""
+        """S3 - Reasoner: perform symbolic reasoning on intent + motivation."""
         try:
             decision = self.reasoner.reason(intent, motivation)
 
@@ -295,7 +295,7 @@ class ThinkingLoop:
         return decision
 
     def _strategy_phase(self, decision: Dict[str, Any]) -> Dict[str, Any]:
-        """S4 — Strategy Planner: derive multi-step resonant plan from decision output."""
+        """S4 - Strategy Planner: derive multi-step resonant plan from decision output."""
         try:
             # Extract a safe string goal name from the decision object
             if isinstance(decision, dict):
@@ -336,7 +336,7 @@ class ThinkingLoop:
 
 
     def _reflection_phase(self, decision: Dict[str, Any], strategy: Dict[str, Any]) -> Dict[str, Any]:
-        """S5 — Reflection Feedback: consolidate reasoning and feed back to RMC."""
+        """S5 - Reflection Feedback: consolidate reasoning and feed back to RMC."""
         try:
             if hasattr(self.reflection, "run_feedback"):
                 reflection = self.reflection.run_feedback(decision, strategy)
@@ -367,12 +367,12 @@ class ThinkingLoop:
 
     # Compatibility alias
     def slow_loop(self, query: str) -> Dict[str, Any]:
-        """Legacy alias — routes to deep_resonance_loop()"""
+        """Legacy alias - routes to deep_resonance_loop()"""
         return self.deep_resonance_loop(query)
 
     # ───────────────────────────────────────────
     def think(self, input_signal: str) -> Dict[str, Any]:
-        """Master entrypoint — chooses FAST or SLOW loop."""
+        """Master entrypoint - chooses FAST or SLOW loop."""
         entropy = random.uniform(0.3, 0.8)
         mode = self.classify_complexity(input_signal, entropy)
 
@@ -416,7 +416,7 @@ class ThinkingLoop:
                 # hard fallback to fast_loop
                 return self.fast_loop(topic)
             elif mode == "slow":
-                # Always route 'think slow' to Deep Resonance (S1–S5)
+                # Always route 'think slow' to Deep Resonance (S1-S5)
                 return self.deep_resonance_loop(topic)
             else:
                 log.warning(f"[Θ] Unknown run_loop mode '{mode}', defaulting to FAST.")
@@ -429,9 +429,9 @@ class ThinkingLoop:
     # 🧘 Default reflection / reflex loops for AION CLI
     # ------------------------------------------------------------
     def reflex_loop(self, topic: str = "general"):
-        """FAST/reflex loop shim for CLI 'think fast' — routes to fast_loop()."""
+        """FAST/reflex loop shim for CLI 'think fast' - routes to fast_loop()."""
         try:
-            log.info(f"[Θ] Reflex loop engaged — topic: {topic}")
+            log.info(f"[Θ] Reflex loop engaged - topic: {topic}")
             start = time.time()
             result = self.fast_loop(topic)
                         # 🧮 Simple reasoning fallback: try to interpret math-like input
@@ -450,10 +450,10 @@ class ThinkingLoop:
             duration = round(time.time() - start, 3)
 
             # keep CLI prints consistent
-            print(f"[Θ] Reflex loop engaged — topic: {topic}")
-            print(f"[Θ] Reflex computation 1/2 — response vector aligned.")
-            print(f"[Θ] Reflex computation 2/2 — response vector aligned.")
-            print(f"[Θ] Reflex reasoning complete → topic '{topic}' integrated. (duration={duration}s)\n")
+            print(f"[Θ] Reflex loop engaged - topic: {topic}")
+            print(f"[Θ] Reflex computation 1/2 - response vector aligned.")
+            print(f"[Θ] Reflex computation 2/2 - response vector aligned.")
+            print(f"[Θ] Reflex reasoning complete -> topic '{topic}' integrated. (duration={duration}s)\n")
 
             return result
         except Exception as e:
@@ -466,32 +466,32 @@ class ThinkingLoop:
             }
 
     # ------------------------------------------------------------
-    # 🌌 True reflection cycle — activates full SLOW_LOOP
+    # 🌌 True reflection cycle - activates full SLOW_LOOP
     # ------------------------------------------------------------
     def reflect_cycle(self, topic: str = "general"):
         """
         Execute a full deep resonance reasoning cycle.
         Invoked by AION Cognitive Bridge (CLI 'reflect' command).
-        Routes through: Motivation → Intent → Reasoner → Strategy → Reflection.
+        Routes through: Motivation -> Intent -> Reasoner -> Strategy -> Reflection.
         """
         log.info(f"[Θ] Reflection cycle started for topic: '{topic}'")
         try:
             result = self.deep_resonance_loop(topic)
-            print(f"[Θ] Reflection cycle complete — topic '{topic}' integrated "
+            print(f"[Θ] Reflection cycle complete - topic '{topic}' integrated "
                 f"(duration={round(result.get('duration', 0), 3)}s)\n")
             return result
         except Exception as e:
             log.warning(f"[Θ] Reflection cycle failed: {e}")
-            print(f"⚠️ Reflection failed — falling back to reflex loop.")
+            print(f"⚠️ Reflection failed - falling back to reflex loop.")
             return self.reflex_loop(topic=topic)
 
     # ─────────────────────────────────────────────
-    # Legacy alias — support older commands
+    # Legacy alias - support older commands
     # ─────────────────────────────────────────────
     def reflect_loop(self, topic=None):
         """
         Legacy compatibility for older AION commands.
-        Maps reflect_loop → reflex_loop so 'reflect' command still works.
+        Maps reflect_loop -> reflex_loop so 'reflect' command still works.
         """
         return self.reflex_loop(topic=topic)
 
@@ -508,7 +508,7 @@ ThetaOrchestrator = ThinkingLoop
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     loop = ThinkingLoop(auto_tick=False)
-    print("🧠 Θ Orchestrator — Cognitive Routing Demo\n")
+    print("🧠 Θ Orchestrator - Cognitive Routing Demo\n")
 
     while True:
         try:
@@ -519,5 +519,5 @@ if __name__ == "__main__":
         if query.lower().strip() == "exit":
             break
         output = loop.think(query)
-        print("→", output)
+        print("->", output)
         print()

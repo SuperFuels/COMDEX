@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-E6-Ω v3 EXTREME — Near-Maximum Entanglement Push
+E6-Ω v3 EXTREME - Near-Maximum Entanglement Push
 -------------------------------------------------
-Targeting S → 2.65-2.75 (94-97% Tsirelson)
+Targeting S -> 2.65-2.75 (94-97% Tsirelson)
 
 Ultimate enhancements:
 - 1.5M shots for ultra-precision
-- Quadratic Λ² coupling for nonlinear amplification
+- Quadratic Λ2 coupling for nonlinear amplification
 - Adaptive CHSH angles based on Λ-state
 - Coherence-weighted post-selection (top 85%)
 - Warm-start from best v2 trajectory
@@ -173,7 +173,7 @@ def run_entanglement_test(η, eps_nl, α, return_traces=False):
 ε_vals = np.linspace(0.0815, 0.0850, 8)   # Tight around 0.083
 α_vals = np.linspace(0.560, 0.570, 6)     # Tight around 0.564
 param_grid = list(itertools.product(η_vals, ε_vals, α_vals))
-logger.info(f"Scanning {len(param_grid)} ultra-refined parameter sets (7×8×6=336)...")
+logger.info(f"Scanning {len(param_grid)} ultra-refined parameter sets (7*8*6=336)...")
 
 def run_param_set(params):
     η, ε, α = params
@@ -230,7 +230,7 @@ ax1.scatter([best["η"]], [best["eps_nl"]], c='cyan', s=300, marker='★',
 plt.colorbar(sc, ax=ax1, label="S value")
 ax1.set_title("E6-Ω v4 BALLISTIC: Parameter Space", fontweight='bold')
 ax1.set_xlabel("η (entanglement amplitude)")
-ax1.set_ylabel("εₙₗ (nonlocal gain)")
+ax1.set_ylabel("εnl (nonlocal gain)")
 ax1.legend()
 ax1.grid(alpha=0.3)
 
@@ -335,24 +335,24 @@ Path("backend/modules/knowledge/E6_bell_violation_feedback_v3_extreme.json").wri
 # 8) Final report
 # -------------------------
 print("\n" + "="*70)
-print("🔥 E6-Ω v3 EXTREME — MAXIMUM ENTANGLEMENT PUSH")
+print("🔥 E6-Ω v3 EXTREME - MAXIMUM ENTANGLEMENT PUSH")
 print("="*70)
 print(f"Peak S:              {best['S']:.4f} ({best['S']/2.828*100:.2f}% of Tsirelson)")
 print(f"Confirmed S:         {S_mean:.4f} ± {S_std:.4f}")
 print(f"Max confirmed:       {S_max:.4f}")
 print(f"\nOptimal parameters:")
 print(f"  η (amplitude):     {best['η']:.6f}")
-print(f"  εₙₗ (nonlocal):    {best['eps_nl']:.6f}")
+print(f"  εnl (nonlocal):    {best['eps_nl']:.6f}")
 print(f"  α (mixing):        {best['α']:.6f}")
 print(f"\nVersion progression:")
-print(f"  v1 → v2:           {(2.623 - 2.357) / 2.357 * 100:.1f}% improvement")
-print(f"  v2 → v3:           {(best['S'] - 2.623) / 2.623 * 100:.1f}% improvement")
-print(f"  v1 → v3:           {(best['S'] - 2.357) / 2.357 * 100:.1f}% TOTAL improvement")
+print(f"  v1 -> v2:           {(2.623 - 2.357) / 2.357 * 100:.1f}% improvement")
+print(f"  v2 -> v3:           {(best['S'] - 2.623) / 2.623 * 100:.1f}% improvement")
+print(f"  v1 -> v3:           {(best['S'] - 2.357) / 2.357 * 100:.1f}% TOTAL improvement")
 print(f"\nQuantum metrics:")
 print(f"  Classical gap:     {best['S'] - 2.0:.4f}")
 print(f"  Tsirelson gap:     {2.828 - best['S']:.4f}")
 print(f"  Quantum fraction:  {(best['S'] - 2.0) / (2.828 - 2.0) * 100:.2f}%")
 print("="*70)
-print("📄 Summary → backend/modules/knowledge/E6_bell_violation_feedback_v3_extreme.json")
-print("📊 Plot    → PAEV_E6v3_EXTREME_Analysis.png")
+print("📄 Summary -> backend/modules/knowledge/E6_bell_violation_feedback_v3_extreme.json")
+print("📊 Plot    -> PAEV_E6v3_EXTREME_Analysis.png")
 print("="*70)

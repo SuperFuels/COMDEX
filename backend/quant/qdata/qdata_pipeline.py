@@ -2,16 +2,16 @@
 # 📁 backend/quant/qdata/qdata_pipeline.py
 # ===============================
 """
-🗂️  QDataPipeline — Resonant Data Ingestion & Persistence Layer
+🗂️  QDataPipeline - Resonant Data Ingestion & Persistence Layer
 ----------------------------------------------------------------
 Captures, normalizes, and persists Q-Series runtime data
 (Φ, ψ, κ, entropy, harmony, novelty, SQI, coherence) from
 executions managed by QCoreExecutor and QCoreMetrics.
 
 Supported backends:
-    • JSONL (stream append)
-    • CSV (batch summary)
-    • Parquet (if pyarrow available)
+    * JSONL (stream append)
+    * CSV (batch summary)
+    * Parquet (if pyarrow available)
 
 Intended for telemetry persistence and offline analytics.
 """
@@ -74,7 +74,7 @@ class QDataPipeline:
     # ------------------------------------------------------------------
     def export_parquet(self, out_path: Optional[str] = None) -> Optional[str]:
         """
-        Export JSONL → Parquet if pandas/pyarrow available.
+        Export JSONL -> Parquet if pandas/pyarrow available.
         """
         if pd is None:
             return None

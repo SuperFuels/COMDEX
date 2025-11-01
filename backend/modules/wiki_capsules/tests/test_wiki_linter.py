@@ -10,7 +10,7 @@ from backend.modules.wiki_capsules.validation_maintenance.wiki_linter import (
 )
 
 # ─────────────────────────────────────────────────────────────
-# Test: Single file lint — Missing metadata block
+# Test: Single file lint - Missing metadata block
 # ─────────────────────────────────────────────────────────────
 def test_linter_detects_missing_meta(tmp_path: Path):
     bad_file = tmp_path / "broken.wiki.phn"

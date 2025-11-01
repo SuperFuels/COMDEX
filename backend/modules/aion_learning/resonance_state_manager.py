@@ -36,7 +36,7 @@ class ResonanceStateManager:
                 with open(STATE_PATH, "r") as f:
                     self.state = json.load(f)
             except Exception:
-                print("⚠️ Corrupt resonance_state.json — using defaults.")
+                print("⚠️ Corrupt resonance_state.json - using defaults.")
                 self.state = DEFAULT_STATE.copy()
 
     def save(self):

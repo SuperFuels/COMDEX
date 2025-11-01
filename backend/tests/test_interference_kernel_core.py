@@ -21,7 +21,7 @@ def generate_random_waves(n: int, vector_length: int = 1) -> list:
     ]
 
 def benchmark_join_methods(n_waves: int, vector_length: int = 1):
-    print(f"\n=== 🔬 Benchmarking {n_waves} waves × {vector_length} length ===")
+    print(f"\n=== 🔬 Benchmarking {n_waves} waves * {vector_length} length ===")
 
     waves = generate_random_waves(n_waves, vector_length)
 

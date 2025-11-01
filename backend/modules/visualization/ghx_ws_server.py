@@ -2,7 +2,7 @@
 # 📁 backend/modules/visualization/ghx_ws_server.py
 # ===============================
 """
-🌐 GHX WebSocket Server — Live Coherence Stream
+🌐 GHX WebSocket Server - Live Coherence Stream
 ------------------------------------------------
 Bridges Tessaris GHXFeedbackBridge telemetry packets into a real-time
 WebSocket broadcast endpoint for CodexHUD, GHXVisualizer, or custom dashboards.

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-H5 — Self-Observation Closure Test
+H5 - Self-Observation Closure Test
 ----------------------------------
 Objective:
   Introduce recursion through an observer field O(t) that depends on its own delayed output.
   Check for recursive stability and bounded evolution.
 
 Outputs:
-  • PAEV_H5_SelfObservation.png
-  • backend/modules/knowledge/H5_self_observation_closure.json
+  * PAEV_H5_SelfObservation.png
+  * backend/modules/knowledge/H5_self_observation_closure.json
 """
 from pathlib import Path
 from datetime import datetime, timezone
@@ -34,13 +34,13 @@ O_std, O_mean = np.std(O[-300:]), np.mean(O[-300:])
 stable = O_std < 0.02 and abs(O_mean) < 0.1
 classification = "✅ Stable recursion (self-observation closure achieved)" if stable else "⚠️ Recursive divergence detected"
 
-print("=== H5 — Self-Observation Closure Test ===")
+print("=== H5 - Self-Observation Closure Test ===")
 print(f"O_mean={O_mean:.4e}, O_std={O_std:.4e}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 
 plt.figure(figsize=(10,4))
 plt.plot(t, O, lw=1.4)
-plt.title("H5 — Self-Observation Recursion Dynamics")
+plt.title("H5 - Self-Observation Recursion Dynamics")
 plt.xlabel("time"); plt.ylabel("O(t)")
 plt.tight_layout(); plt.savefig("PAEV_H5_SelfObservation.png", dpi=160)
 print("✅ Plot saved: PAEV_H5_SelfObservation.png")
@@ -52,4 +52,4 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
 }
 Path("backend/modules/knowledge/H5_self_observation_closure.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/H5_self_observation_closure.json")
+print("📄 Summary saved -> backend/modules/knowledge/H5_self_observation_closure.json")

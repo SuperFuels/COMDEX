@@ -1,11 +1,11 @@
 # ================================================================
-# ✅ CEE Grammar Rules — Minimal Rule Checks for CEE
+# ✅ CEE Grammar Rules - Minimal Rule Checks for CEE
 # ================================================================
 import re
 
 def is_agreement_correct(subject: str, verb: str) -> bool:
     """
-    Very simple subject–verb agreement:
+    Very simple subject-verb agreement:
       - singular 3rd person: he/she/it + verb+s
       - plural/others: I/you/we/they + base form
     """

@@ -1,6 +1,6 @@
 """
-Photon Algebra — Benchmark normalize() performance and caching efficiency
-(Task: I1.4 — Runtime Performance Loop Benchmark + Cache Warm Run)
+Photon Algebra - Benchmark normalize() performance and caching efficiency
+(Task: I1.4 - Runtime Performance Loop Benchmark + Cache Warm Run)
 """
 
 import time
@@ -76,8 +76,8 @@ def benchmark_normalize(N=5000, depth=5, warmup=200):
     print("==================================\n")
 
     # Sanity check
-    assert cold_elapsed < 30, "Cold normalization took too long — check recursion"
-    assert warm_elapsed < cold_elapsed, "Warm (cached) run slower than cold — cache issue?"
+    assert cold_elapsed < 30, "Cold normalization took too long - check recursion"
+    assert warm_elapsed < cold_elapsed, "Warm (cached) run slower than cold - cache issue?"
 
 # -----------------------------------------------------------------------------
 # Pytest-compatible test

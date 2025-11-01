@@ -5,7 +5,7 @@ import time
 
 class MicrogridIndex:
     def __init__(self):
-        # Maps (x, y, z, optional layer) → glyph metadata dict
+        # Maps (x, y, z, optional layer) -> glyph metadata dict
         self.glyph_map: Dict[Tuple[int, int, int, Optional[int]], Dict] = {}
 
     def register_glyph(
@@ -50,7 +50,7 @@ class MicrogridIndex:
             glyph_data["activations"] += 1
             glyph_data["energy"] *= 0.98  # symbolic decay logic
             glyph_data["timestamp"] = time.time()
-            print(f"⚡ Activated glyph at {coord} → {glyph_data}")
+            print(f"⚡ Activated glyph at {coord} -> {glyph_data}")
 
     def sweep_region(
         self,

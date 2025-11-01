@@ -72,10 +72,10 @@ def sanitize_memory_file_at(path) -> None:
     except Exception as e:
         print(f"🚨 sanitize_memory_file_at failed for {path}: {e}")
 
-# 2) Local sanitizer for this engine’s per-container memory file (expects 'label')
+# 2) Local sanitizer for this engine's per-container memory file (expects 'label')
 def sanitize_engine_memory_file(path) -> None:
     """
-    Ensure MemoryEngine’s own on-disk file is a JSON list of dicts with 'label' and 'content'.
+    Ensure MemoryEngine's own on-disk file is a JSON list of dicts with 'label' and 'content'.
     """
     try:
         if not os.path.exists(path):
@@ -472,7 +472,7 @@ class MemoryEngine:
         print(f"✅ Memory stored: {label}")
         self.send_message_to_agents({"type": "new_memory", "memory": memory_obj})
 
-        # 🧬 Trigger synthesis → glyph service (best-effort, safe + non-blocking)
+        # 🧬 Trigger synthesis -> glyph service (best-effort, safe + non-blocking)
         try:
             import json as _json
             print("🧬 Synthesizing glyphs from memory...")
@@ -484,7 +484,7 @@ class MemoryEngine:
             synth_response = requests.post(
                 f"{GLYPH_API_BASE_URL}/api/aion/synthesize-glyphs",
                 json=payload,
-                timeout=8,  # ⏳ increased from 2.5s → 8s
+                timeout=8,  # ⏳ increased from 2.5s -> 8s
             )
 
             # Handle response
@@ -496,7 +496,7 @@ class MemoryEngine:
                 print(f"⚠️ Glyph synthesis failed: {synth_response.status_code} {synth_response.text}")
 
         except requests.exceptions.Timeout:
-            print("⏳ Glyph synthesis timeout — continuing without blocking cognition.")
+            print("⏳ Glyph synthesis timeout - continuing without blocking cognition.")
         except requests.exceptions.ConnectionError as e:
             print(f"🔌 Glyph synthesis connection error: {e}")
         except Exception as e:
@@ -561,7 +561,7 @@ def store_container_metadata(container: dict):
     label = f"container:{container_id}"
 
     exits = container.get("exits", {})
-    connections = ", ".join([f"{k} → {v}" for k, v in exits.items()]) if exits else "None"
+    connections = ", ".join([f"{k} -> {v}" for k, v in exits.items()]) if exits else "None"
 
     dna = container.get("dna_switch", {})
     dna_id = dna.get("id", "none")
@@ -706,7 +706,7 @@ def store_container_metadata(container: dict):
     container_id = container.get("id", "unknown")
     label = f"container:{container_id}"
     exits = container.get("exits", {})
-    connections = ", ".join([f"{k} → {v}" for k, v in exits.items()]) if exits else "None"
+    connections = ", ".join([f"{k} -> {v}" for k, v in exits.items()]) if exits else "None"
     dna = container.get("dna_switch", {})
     dna_id = dna.get("id", "none")
     dna_state = dna.get("state", "undefined")

@@ -14,7 +14,7 @@ from backend.modules.ptn.ptn_runner import run_photon_page
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Tessaris Photon Page Console — run and inspect .ptn capsules"
+        description="Tessaris Photon Page Console - run and inspect .ptn capsules"
     )
     parser.add_argument("command", choices=["run", "inspect"], help="Action to perform")
     parser.add_argument("target", help="Path to .ptn file or keyword 'last'")
@@ -26,7 +26,7 @@ def main():
 
     elif args.command == "inspect":
         # TODO: Hook into PhotonMemoryGrid later
-        print("Inspection mode placeholder — will attach to PhotonMemoryGrid trace.")
+        print("Inspection mode placeholder - will attach to PhotonMemoryGrid trace.")
 
 
 if __name__ == "__main__":

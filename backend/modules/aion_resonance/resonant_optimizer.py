@@ -159,7 +159,7 @@ class ResonantOptimizer:
             if deltas:
                 plan[name] = deltas
 
-            # Advisory (DNA switch hint) — log only
+            # Advisory (DNA switch hint) - log only
             if low_coh and high_ent and sqi_trend < 0:
                 self._log_advisory(name,
                     "coherence<low & entropy>high & sqi falling",
@@ -174,7 +174,7 @@ class ResonantOptimizer:
                 if not eng: continue
                 try:
                     eng.apply_optimizer_delta(deltas)  # mixin default handles common knobs
-                    print(f"🧠 ROL applied → {name}: {deltas}")
+                    print(f"🧠 ROL applied -> {name}: {deltas}")
                 except Exception as e:
                     print(f"[ROL] apply failed for {name}: {e}")
 

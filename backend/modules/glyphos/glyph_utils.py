@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple
 from backend.modules.glyphos.constants import GLYPH_ALPHABET, DEFAULT_GLYPH
 
 # ─────────────────────────────────────────────
-# ✅ Base natural-language → glyph mapping (existing behavior)
+# ✅ Base natural-language -> glyph mapping (existing behavior)
 # ─────────────────────────────────────────────
 
 def parse_to_glyphos(data: str) -> List[str]:
@@ -63,7 +63,7 @@ _ALPHABET_SET = set(GLYPH_ALPHABET)
 # ✅ Document Format Header Glyph Layer
 # ─────────────────────────────────────────────
 
-# Format → Glyph
+# Format -> Glyph
 FORMAT_GLYPHS = {
     "json": "◧",
     "yaml": "◨",

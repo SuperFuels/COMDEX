@@ -1,5 +1,5 @@
 # ================================================================
-# 💡 QEquation — Symbolic equation container
+# 💡 QEquation - Symbolic equation container
 # ================================================================
 import time
 from dataclasses import dataclass, field

@@ -36,7 +36,7 @@ def save_teleport_registry(data):
 
 def register_teleport(source_key, destination_key, gate_type="code", requires_approval=False):
     registry = load_teleport_registry()
-    route_key = f"{source_key}→{destination_key}"
+    route_key = f"{source_key}->{destination_key}"
     if route_key in registry:
         return  # Skip if already exists
 
@@ -48,7 +48,7 @@ def register_teleport(source_key, destination_key, gate_type="code", requires_ap
         "last_used": None
     }
     save_teleport_registry(registry)
-    print(f"[🌀] Registered teleport from {source_key} → {destination_key}")
+    print(f"[🌀] Registered teleport from {source_key} -> {destination_key}")
 
 # --- 🔐 Navigation/Ethical Gate Logic ---
 def ethical_gate_pass(container):
@@ -92,7 +92,7 @@ initialize_teleports()
 
 def teleport(source_key, destination_key, reason, requester="AION"):
     registry = load_teleport_registry()
-    route_key = f"{source_key}→{destination_key}"
+    route_key = f"{source_key}->{destination_key}"
     route = registry.get(route_key)
 
     if not route:
@@ -117,7 +117,7 @@ def teleport(source_key, destination_key, reason, requester="AION"):
     if route.get("requires_approval"):
         proposal = {
             "proposal_id": f"teleport_{source_key}_{destination_key}_{datetime.datetime.utcnow().isoformat()}",
-            "file": f"{source_key} → {destination_key}",
+            "file": f"{source_key} -> {destination_key}",
             "reason": reason,
             "replaced_code": "N/A",
             "new_code": "N/A",
@@ -128,7 +128,7 @@ def teleport(source_key, destination_key, reason, requester="AION"):
             "requested_by": requester
         }
         register_proposal(proposal)
-        print(f"[⚠️] Approval required — request stored.")
+        print(f"[⚠️] Approval required - request stored.")
         return "awaiting_approval"
 
     try:
@@ -138,13 +138,13 @@ def teleport(source_key, destination_key, reason, requester="AION"):
 
         required_traits = new_container.get("gate_lock", {}).get("traits_required", {})
         if required_traits and not trait_gate_pass(new_container, required_traits):
-            print(f"[🔐] Gate lock triggered — traits missing.")
+            print(f"[🔐] Gate lock triggered - traits missing.")
             MEMORY.log_gate_lock(destination_key, required_traits)
             return "gate_lock_failed"
 
         required_keys = new_container.get("gate_lock", {}).get("keys_required", [])
         if required_keys and not key_gate_pass(new_container, MEMORY, required_keys):
-            print(f"[🔑] Gate lock triggered — key(s) missing: {required_keys}")
+            print(f"[🔑] Gate lock triggered - key(s) missing: {required_keys}")
             MEMORY.log_gate_lock(destination_key, {"missing_keys": required_keys})
             return "key_gate_failed"
 
@@ -177,16 +177,16 @@ def teleport(source_key, destination_key, reason, requester="AION"):
 
     MEMORY.log_teleport_event(source_key, destination_key, trigger="manual")
 
-    reverse_key = f"{destination_key}→{source_key}"
+    reverse_key = f"{destination_key}->{source_key}"
     if reverse_key not in registry:
-        print(f"[🔁] Auto-adding reverse route: {destination_key} → {source_key}")
+        print(f"[🔁] Auto-adding reverse route: {destination_key} -> {source_key}")
         register_teleport(destination_key, source_key, gate_type=route.get("gate_type", "code"))
 
     route["last_used"] = datetime.datetime.utcnow().isoformat()
     registry[route_key] = route
     save_teleport_registry(registry)
 
-    print(f"[✅] Teleport complete: {source_key} → {destination_key}")
+    print(f"[✅] Teleport complete: {source_key} -> {destination_key}")
     return "teleport_complete"
 
 # ✅ New exportable function

@@ -27,5 +27,5 @@ hash_info = {
 with open(hash_path, "w") as f:
     json.dump(hash_info, f, indent=2)
 
-print(f"✅ Constants hash recorded → {hash_path}")
+print(f"✅ Constants hash recorded -> {hash_path}")
 print(json.dumps(hash_info, indent=2))

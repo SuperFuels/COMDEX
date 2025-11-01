@@ -1,15 +1,15 @@
 """
-Context ↔ AKG Bridge — Phase 43D
+Context ↔ AKG Bridge - Phase 43D
 ---------------------------------
 Exports active conversation and emotional context
 into the Aion Knowledge Graph (AKG).
 
-This bridge forms the cognitive “snapshot layer” — each export represents
-a temporal state of Aion’s mind: what it is talking about, how it feels,
+This bridge forms the cognitive "snapshot layer" - each export represents
+a temporal state of Aion's mind: what it is talking about, how it feels,
 and how its resonance field is behaving.
 
 Author: Tessaris Research Group
-Date: Phase 43D — October 2025
+Date: Phase 43D - October 2025
 """
 
 import time, json
@@ -21,7 +21,7 @@ from backend.bridges.photon_AKG_bridge import PAB
 
 
 class ContextAKGBridge:
-    """Bridge Aion’s conversational context ↔ Photon AKG system."""
+    """Bridge Aion's conversational context ↔ Photon AKG system."""
 
     def __init__(self):
         self.last_export = None
@@ -90,7 +90,7 @@ class ContextAKGBridge:
         self._save(node)
 
         print(
-            f"[ContextAKGBridge] 📡 Exported context node → AKG "
+            f"[ContextAKGBridge] 📡 Exported context node -> AKG "
             f"(tone={node['tone']}, topic={node['dominant_topic']}, "
             f"resonance={node['resonance_score']})"
         )

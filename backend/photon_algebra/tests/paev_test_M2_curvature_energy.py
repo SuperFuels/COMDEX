@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-M2 — Curvature–Energy Correspondence (Tessaris)
+M2 - Curvature-Energy Correspondence (Tessaris)
 ------------------------------------------------
 Tests whether the emergent curvature R_eff scales proportionally
 to the mean field energy density ⟨ρ⟩ across varying nonlinearities χ.
-This serves as a discrete analogue to Einstein’s field relation:
+This serves as a discrete analogue to Einstein's field relation:
 
     R_eff ∝ ⟨ρ⟩   (emergent Einstein correspondence)
 
@@ -20,8 +20,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β, χ_base = const["ħ"], const["G"], const["Λ"], const["α"], const["β"], const["χ"]
 
-print("=== M2 — Curvature–Energy Correspondence (Tessaris) ===")
-print(f"Base constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ_base={χ_base}")
+print("=== M2 - Curvature-Energy Correspondence (Tessaris) ===")
+print(f"Base constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ_base={χ_base}")
 
 # --- Simulation parameters ---
 N, steps = 512, 1800
@@ -41,7 +41,7 @@ print(f"Effective speed c_eff≈{c_eff:.6f}")
 
 # --- Main loop over nonlinearity χ ---
 for χ in χ_values:
-    print(f"→ Running χ={χ:.2f}")
+    print(f"-> Running χ={χ:.2f}")
     u = np.exp(-0.05 * x**2) + 0.01 * rng.standard_normal(N)
     v[:] = 0.0
 
@@ -74,13 +74,13 @@ plt.loglog(ρ_arr, np.abs(R_arr), "o-", label="Measured R_eff")
 plt.loglog(ρ_arr, np.abs(R_pred), "--", label=f"Fit (slope={fit_coeff[0]:.2e})")
 plt.xlabel("Mean energy density ⟨ρ⟩")
 plt.ylabel("|Effective curvature| R_eff")
-plt.title("M2 — Curvature–Energy Correspondence (Tessaris)")
+plt.title("M2 - Curvature-Energy Correspondence (Tessaris)")
 plt.legend()
 plt.grid(True, which="both", ls=":")
 plt.tight_layout()
 plot_path = "PAEV_M2_curvature_energy.png"
 plt.savefig(plot_path, dpi=200)
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Plot saved -> {plot_path}")
 
 # --- Save JSON summary ---
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -101,7 +101,7 @@ summary = {
     },
     "files": {"plot": plot_path},
     "notes": [
-        "Curvature–energy proportionality tested under variable χ.",
+        "Curvature-energy proportionality tested under variable χ.",
         "R_eff derived from mean energy density curvature.",
         "Linear correspondence implies Einstein-like emergent relation.",
         "Model verified under Tessaris Unified Constants & Verification Protocol."
@@ -109,26 +109,26 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/M2_curvature_energy_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # --- Discovery Log ---
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Correlation slope={fit_coeff[0]:.3e}, fit error={fit_err:.3e}")
+print(f"* Correlation slope={fit_coeff[0]:.3e}, fit error={fit_err:.3e}")
 if abs(fit_err) < 0.05*abs(np.mean(R_arr)):
-    print("• Interpretation: Linear proportionality confirmed — curvature follows energy.")
-    print("• Implication: Tessaris lattice obeys Einstein-like relation R ∝ ⟨ρ⟩.")
+    print("* Interpretation: Linear proportionality confirmed - curvature follows energy.")
+    print("* Implication: Tessaris lattice obeys Einstein-like relation R ∝ ⟨ρ⟩.")
 else:
-    print("• Interpretation: Nonlinear deviation detected — further refinement required.")
-print("• Next step: M3 — dynamic curvature feedback and geodesic stability.")
+    print("* Interpretation: Nonlinear deviation detected - further refinement required.")
+print("* Next step: M3 - dynamic curvature feedback and geodesic stability.")
 print("------------------------------------------------------------")
 
 print("\n============================================================")
-print("🔎 M2 — Curvature–Energy Verdict")
+print("🔎 M2 - Curvature-Energy Verdict")
 print("============================================================")
 print(f"Fit slope={fit_coeff[0]:.3e}, error={fit_err:.3e}")
 if abs(fit_err) < 0.05*abs(np.mean(R_arr)):
     print("✅ Einstein-like correspondence upheld (within 5%).")
 else:
-    print("⚠️ Deviation exceeds threshold — check damping/nonlinearity.")
+    print("⚠️ Deviation exceeds threshold - check damping/nonlinearity.")
 print("============================================================\n")

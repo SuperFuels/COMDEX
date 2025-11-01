@@ -22,17 +22,17 @@ def test_resolve_collision_with_context():
 
 
 def test_resolve_collision_with_priority_order():
-    # No context → fallback to PRIORITY_ORDER
+    # No context -> fallback to PRIORITY_ORDER
     # "⊗" has options [logic, physics, symatics], priority says logic first
     assert resolve_collision("⊗") == "logic:⊗"
-    # "⊕" → logic preferred over quantum
+    # "⊕" -> logic preferred over quantum
     assert resolve_collision("⊕") == "logic:⊕"
-    # "↔" → logic preferred over quantum
+    # "↔" -> logic preferred over quantum
     assert resolve_collision("↔") == "logic:↔"
 
 
 def test_resolve_collision_unknown_symbol():
-    # Non-collision or unknown → None
+    # Non-collision or unknown -> None
     assert resolve_collision("∧") is None
     assert resolve_collision("???") is None
 
@@ -47,12 +47,12 @@ def test_resolve_op_aliases():
 
 
 def test_resolve_op_with_collision_priority():
-    # Ambiguous symbol → should follow PRIORITY_ORDER
+    # Ambiguous symbol -> should follow PRIORITY_ORDER
     assert resolve_op("⊗") == "logic:⊗"  # logic wins
     assert resolve_op("⊕") == "logic:⊕"  # logic wins
     assert resolve_op("↔") == "logic:↔"  # logic wins
 
 
 def test_resolve_op_fallback():
-    # Unknown operator → returned as-is
+    # Unknown operator -> returned as-is
     assert resolve_op("??") == "??"

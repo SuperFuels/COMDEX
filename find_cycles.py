@@ -50,6 +50,6 @@ sorted_cycles = sorted(all_cycles, key=lambda x: (len(x), x))
 for i, cycle in enumerate(sorted_cycles[:25], 1):  # Top 25 only
     print(f"🌀 Cycle {i}:")
     for step in cycle:
-        print(f"  → {step}")
+        print(f"  -> {step}")
     print()
 print(f"✅ Found {len(all_cycles)} unique cycles (showing top 25)")

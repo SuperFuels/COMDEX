@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Tessaris Riemann Probe v0.2
-Calibrated photonic–algebraic approximation of the Riemann zeta resonance field.
+Calibrated photonic-algebraic approximation of the Riemann zeta resonance field.
 """
 
 import math, sys
@@ -31,7 +31,7 @@ def primes_upto(n: int):
 
 def resonance_curve(t_grid, sigma=0.5, pmax=10000, phase_scale=10.0):
     """
-    Build R(t) ≈ |Σ_p [ p^{-σ} e^{-i·t·log p·k} ]| including 1st and 2nd harmonics.
+    Build R(t) ≈ |Σ_p [ p^{-σ} e^{-i*t*log p*k} ]| including 1st and 2nd harmonics.
     The phase_scale ~10 empirically aligns the synthetic minima with true ζ zeros.
     """
     ps = primes_upto(pmax)
@@ -40,7 +40,7 @@ def resonance_curve(t_grid, sigma=0.5, pmax=10000, phase_scale=10.0):
 
     R = []
     for t in t_grid:
-        # scaled phase term to approximate Riemann–Siegel compression
+        # scaled phase term to approximate Riemann-Siegel compression
         phase = -1j * (t * phase_scale) * logs
         z1 = np.sum(amps * np.exp(phase))
         # add a weak 2nd-harmonic correction term (prime powers)
@@ -59,7 +59,7 @@ def find_local_minima(y):
 
 
 def hardy_Z(t):
-    """Reference Hardy Z(t) = Re[e^{iθ(t)} ζ(½+it)] if mpmath available."""
+    """Reference Hardy Z(t) = Re[e^{iθ(t)} ζ(1⁄2+it)] if mpmath available."""
     if not HAVE_MPMATH:
         return None
     s = 0.5 + 1j*t
@@ -127,7 +127,7 @@ def test_A_zero_alignment_and_correlation():
 
 
 def test_B_functional_symmetry_evenness():
-    """Validate R(t) ≈ R(−t)."""
+    """Validate R(t) ≈ R(-t)."""
     t0, t1, step = 5.0, 35.0, 0.002
     t_plus = np.arange(t0, t1, step)
     t_minus = -t_plus[::-1]

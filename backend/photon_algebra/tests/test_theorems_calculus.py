@@ -11,7 +11,7 @@ def sample_states():
 
 
 # -------------------------------
-# T13 — Absorption
+# T13 - Absorption
 #   a ⊕ (a ⊗ b) == a
 #   (a ⊗ b) ⊕ a == a  (left form)
 # -------------------------------
@@ -38,7 +38,7 @@ def test_T13_absorption_left(a, b):
 
 
 # -------------------------------
-# T14 — Dual distributivity
+# T14 - Dual distributivity
 #   a ⊕ (b ⊗ c) == (a ⊕ b) ⊗ (a ⊕ c)
 # -------------------------------
 @pytest.mark.parametrize("a,b,c", [
@@ -50,7 +50,7 @@ def test_T14_dual_distributivity(a, b, c):
 
 
 # -------------------------------
-# T15 — Falsification
+# T15 - Falsification
 #   a ⊖ ∅ == a
 #   ∅ ⊖ a == a  (symmetric form)
 # -------------------------------

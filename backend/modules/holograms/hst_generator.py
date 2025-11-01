@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-#  Tessaris • HST Generator (P5 Field Constructor)
+#  Tessaris * HST Generator (P5 Field Constructor)
 #  Builds in-memory HST tensor graphs from LightWave beam injections
 #  Integrates with VisualizationBridge + WebSocketStreamer
 # ──────────────────────────────────────────────
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class HSTGenerator:
     """
     The Holographic Spatial Tensor (HST) generator.
-    Maintains the live holographic node graph (ψ–κ–T field) and
+    Maintains the live holographic node graph (ψ-κ-T field) and
     synchronizes it with the HST visualization + websocket layers.
     """
 
@@ -62,9 +62,9 @@ class HSTGenerator:
                 node = self._create_node_from_beam(beam_packet)
                 self.nodes[node_id] = node
 
-            # Update the ψ–κ–T field tensor after beam injection
+            # Update the ψ-κ-T field tensor after beam injection
             self._update_field_tensor()
-            logger.debug(f"[HSTGenerator] Beam injected → {node_id}")
+            logger.debug(f"[HSTGenerator] Beam injected -> {node_id}")
 
         except Exception as e:
             logger.error(f"[HSTGenerator] Beam injection failed: {e}")
@@ -105,7 +105,7 @@ class HSTGenerator:
 
     def _color_from_coherence(self, value: float) -> str:
         """
-        Map coherence (0–1) → perceptual color.
+        Map coherence (0-1) -> perceptual color.
         """
         v = np.clip(value, 0.0, 1.0)
         if v < 0.5:
@@ -114,7 +114,7 @@ class HSTGenerator:
             return f"rgb(255, {int(255 * (1 - (v - 0.5) * 2))}, {int(150 + 100 * v)})"
 
     # ──────────────────────────────────────────────
-    #  Field Tensor Computation (ψ–κ–T)
+    #  Field Tensor Computation (ψ-κ-T)
     # ──────────────────────────────────────────────
     def _update_field_tensor(self):
         if not self.nodes:
@@ -132,7 +132,7 @@ class HSTGenerator:
         logger.debug(f"[HSTGenerator] Field tensor updated ψ={ψ:.3f} κ={κ:.3f} T={T:.3f}")
 
     # ──────────────────────────────────────────────
-    #  HQCE Stage 3 Integration — Broadcast + Feedback
+    #  HQCE Stage 3 Integration - Broadcast + Feedback
     # ──────────────────────────────────────────────
     import time
     from datetime import datetime
@@ -142,7 +142,7 @@ class HSTGenerator:
     def broadcast_state(self, force: bool = False):
         """
         Broadcast the current field tensor and node states,
-        applying Morphic Feedback regulation if ψ–κ–T data is present.
+        applying Morphic Feedback regulation if ψ-κ-T data is present.
         """
         now = time.time()
         if not force and (now - getattr(self, "last_update_time", 0)) < getattr(self, "update_interval", 0.5):
@@ -186,7 +186,7 @@ class HSTGenerator:
         }
         with open(path, "w", encoding="utf-8") as f:
             json.dump(snapshot, f, indent=2)
-        logger.info(f"[HSTGenerator] Snapshot exported → {path}")
+        logger.info(f"[HSTGenerator] Snapshot exported -> {path}")
 
     def clear(self):
         """Reset all nodes and field data."""

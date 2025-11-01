@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==========================================================
-# P10k — Global Phase Fusion via Nonlinear Merge Torque
+# P10k - Global Phase Fusion via Nonlinear Merge Torque
 # ==========================================================
 
 np.random.seed(17)
@@ -140,7 +140,7 @@ for i in range(M):
 plt.plot(np.unwrap(np.angle(np.exp(1j * phi).mean(axis=0))),
          "k--", label="Global Mean")
 plt.axvline(PERT_TIME, color="purple", linestyle="--", label="Perturbation")
-plt.title("P10k — Global Phase Fusion (Nonlinear Merge Torque)")
+plt.title("P10k - Global Phase Fusion (Nonlinear Merge Torque)")
 plt.xlabel("time step"); plt.ylabel("phase")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_P10k_GlobalField_PhaseEvolution.png")
@@ -153,7 +153,7 @@ plt.plot((Kglob_hist - K_global_min) / (K_global_max - K_global_min),
 plt.plot(align_gain_hist / np.max(align_gain_hist),
          "orange", linestyle=":", alpha=0.8, label="scaled κ_align")
 plt.axvline(PERT_TIME, color="purple", linestyle="--", label="Perturbation")
-plt.title("P10k — Order Parameter R(t) & Nonlinear Fusion Control")
+plt.title("P10k - Order Parameter R(t) & Nonlinear Fusion Control")
 plt.xlabel("time step"); plt.ylabel("Normalized Value")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_P10k_GlobalField_OrderParameter.png")
@@ -191,8 +191,8 @@ results = {
 with open("backend/modules/knowledge/P10k_global_phase_fusion_nonlinear.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== P10k — Global Phase Fusion (Nonlinear) ===")
+print("=== P10k - Global Phase Fusion (Nonlinear) ===")
 print(f"R_tail_mean={R_tail_mean:.3f} | lock_R={lock_ratio_R:.2f} | "
       f"lock_phi={lock_ratio_phi:.2f} | slope={R_tail_slope:.2e} | re-lock={relock}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/P10k_global_phase_fusion_nonlinear.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/P10k_global_phase_fusion_nonlinear.json")

@@ -10,7 +10,7 @@ class QExpr:
     def to_dict(self) -> Dict[str, Any]:
         return {"type": "QuantumExpr", "op": self.op, "args": self.args}
 
-# Minimal stubs — deterministic + side-effect free so they’re testable
+# Minimal stubs - deterministic + side-effect free so they're testable
 def schrodinger_step(psi: Any, H: Any, dt: float) -> QExpr:
     # In real impl: psi' = psi - i * H * psi * dt (discretized)
     return QExpr("schrodinger_step", [psi, H, dt])

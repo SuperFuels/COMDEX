@@ -1,23 +1,23 @@
 """-----------------------------------------
 ⚙️ QWave Engine Control Panel (Orchestrator)
 --------------------------------------------
-• Coordinates ignition, ECU runtime tuning, gear shifting, SQI, and multi-engine sync.
-• Imports modular subsystems:
+* Coordinates ignition, ECU runtime tuning, gear shifting, SQI, and multi-engine sync.
+* Imports modular subsystems:
     - 🧩 Tesseract Injector: Multi-stage compression injectors + compression chambers.
     - 🧩 Gear Shift Manager: Pulse-gated gear shifting with drift dampener.
-    - 🧩 Engine Sync: Twin-engine resonance lock + exhaust → intake chaining.
+    - 🧩 Engine Sync: Twin-engine resonance lock + exhaust -> intake chaining.
     - 🧩 Idle Manager: Ignition sequence, idle detection, and auto-recovery.
-• SQI Integration: Inline drift auto-corrections and resonance feedback.
-• ECU Runtime Loop: Harmonics-fuel-injector orchestration with velocity clamps.
+* SQI Integration: Inline drift auto-corrections and resonance feedback.
+* ECU Runtime Loop: Harmonics-fuel-injector orchestration with velocity clamps.
 
 🔥 Features Included:
-    • Full ignition → idle stabilization with SQI drift feedback.
-    • Tesseract injector with staged density amplification.
-    • ECU runtime driver (harmonics ↔ injectors ↔ SQI tuning).
-    • Pulse-gated gear shifting with sub-step gears (1.2, 1.5 before Gear 2).
-    • Twin-engine resonance synchronization (F2).
-    • Exhaust → intake chaining for multi-engine amplification (F3).
-    • Auto-recovery: Reload idle state post-collapse.
+    * Full ignition -> idle stabilization with SQI drift feedback.
+    * Tesseract injector with staged density amplification.
+    * ECU runtime driver (harmonics ↔ injectors ↔ SQI tuning).
+    * Pulse-gated gear shifting with sub-step gears (1.2, 1.5 before Gear 2).
+    * Twin-engine resonance synchronization (F2).
+    * Exhaust -> intake chaining for multi-engine amplification (F3).
+    * Auto-recovery: Reload idle state post-collapse.
 """
 
 import os
@@ -161,7 +161,7 @@ if __name__ == "__main__":
 
     if engine_b:
         for g in [1, 2]:
-            print(f"🔧 Gear Shift: Engine A → Gear {g}")
+            print(f"🔧 Gear Shift: Engine A -> Gear {g}")
             gear_shift(engine_a, g, [
                 {"gravity": 0.8, "magnetism": 0.5, "wave_frequency": 0.5},
                 {"gravity": 1.0, "magnetism": 1.2, "wave_frequency": 1.0},
@@ -170,7 +170,7 @@ if __name__ == "__main__":
                 {"gravity": 1.2, "magnetism": 1.5, "wave_frequency": 1.5},
                 {"gravity": 1.5, "magnetism": 1.8, "wave_frequency": 2.0},
             ])
-            print(f"🔧 Gear Shift: Engine B → Gear {g}")
+            print(f"🔧 Gear Shift: Engine B -> Gear {g}")
             gear_shift(engine_b, g, [
                 {"gravity": 0.8, "magnetism": 0.5, "wave_frequency": 0.5},
                 {"gravity": 1.0, "magnetism": 1.2, "wave_frequency": 1.0},

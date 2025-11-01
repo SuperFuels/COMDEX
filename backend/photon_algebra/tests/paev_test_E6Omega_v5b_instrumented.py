@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-I5c — Enhanced Burst-Aligned v_S ↦ S_CHSH Correlation Analysis
+I5c - Enhanced Burst-Aligned v_S ↦ S_CHSH Correlation Analysis
 Works with E6-Ω v5c enhanced trace with multiple bursts.
 
 Enhancements:
-  • Multi-burst robust correlation (Spearman, Kendall)
-  • Event-triggered window analysis pre/post bursts
-  • Lag correlation (to detect delayed response)
-  • Bootstrap confidence intervals
-  • Burst-by-burst diagnostics
-  • Dynamic run-type detection (v5b/v5c)
-  • Auto-timestamped output files
-  • Adaptive parameter injection (from environment)
-  • Optional trace regeneration per run
+  * Multi-burst robust correlation (Spearman, Kendall)
+  * Event-triggered window analysis pre/post bursts
+  * Lag correlation (to detect delayed response)
+  * Bootstrap confidence intervals
+  * Burst-by-burst diagnostics
+  * Dynamic run-type detection (v5b/v5c)
+  * Auto-timestamped output files
+  * Adaptive parameter injection (from environment)
+  * Optional trace regeneration per run
 
 Artifacts:
   - backend/modules/knowledge/I5c_burst_corr.json
@@ -188,7 +188,7 @@ plt.plot(np.array(list(lags)) * dt, lag_corrs, 'purple')
 plt.axvline(best_lag * dt, ls='--', color='red')
 plt.tight_layout()
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # ============================================================
 #  Save Summary
@@ -222,10 +222,10 @@ summary = {
     ],
 }
 Path("backend/modules/knowledge/I5c_burst_corr.json").write_text(json.dumps(summary, indent=2))
-print("✅ Summary saved → backend/modules/knowledge/I5c_burst_corr.json")
+print("✅ Summary saved -> backend/modules/knowledge/I5c_burst_corr.json")
 
 print("\n======================================================================")
-print("🔬 I5c — ENHANCED BURST-CORRELATION ANALYSIS COMPLETE")
+print("🔬 I5c - ENHANCED BURST-CORRELATION ANALYSIS COMPLETE")
 print("======================================================================")
 print(f"Global ρ={rho:.4f}, ΔS={obs:.4f}, lag={best_lag*dt:.2f}s, p_perm={p_perm:.4f}")
 print("======================================================================\n")

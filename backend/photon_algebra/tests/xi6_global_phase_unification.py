@@ -1,5 +1,5 @@
 """
-Ξ₆ — Global Photonic Phase Unification (Tessaris)
+Ξ6 - Global Photonic Phase Unification (Tessaris)
 Completes optical lattice unification across all prior Ξ nodes.
 """
 
@@ -54,8 +54,8 @@ with open("backend/modules/knowledge/Ξ6_global_phase_unification_summary.json",
 plt.figure(figsize=(8,4))
 plt.plot(coherence_trace, label="Coherence")
 plt.plot(alignment_error, label="Alignment Error")
-plt.legend(); plt.title("Ξ₆ Global Photonic Phase Unification (Tessaris)")
+plt.legend(); plt.title("Ξ6 Global Photonic Phase Unification (Tessaris)")
 plt.tight_layout()
 plt.savefig("backend/modules/knowledge/Tessaris_Ξ6_GlobalPhaseUnification.png", dpi=150)
-print("✅ Ξ₆ summary saved → backend/modules/knowledge/Ξ6_global_phase_unification_summary.json")
-print("✅ Visualization saved → backend/modules/knowledge/Tessaris_Ξ6_GlobalPhaseUnification.png")
+print("✅ Ξ6 summary saved -> backend/modules/knowledge/Ξ6_global_phase_unification_summary.json")
+print("✅ Visualization saved -> backend/modules/knowledge/Tessaris_Ξ6_GlobalPhaseUnification.png")

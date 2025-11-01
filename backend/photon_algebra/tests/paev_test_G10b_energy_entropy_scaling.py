@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # ==========================================================
-# G10b–RC5 — Scale-Invariant Energy–Entropy Law
+# G10b-RC5 - Scale-Invariant Energy-Entropy Law
 # Detects diffusive (p ≈ 1/2) or general scale-invariant behavior
-# across grid scales using integrated energy–entropy curves.
+# across grid scales using integrated energy-entropy curves.
 # ==========================================================
 
 import json
@@ -40,7 +40,7 @@ damping, amp_limit = 0.994, 2.5
 
 
 def evolve_integrated(N):
-    """Evolve ψ–κ system and compute integrated energy vs. entropy."""
+    """Evolve ψ-κ system and compute integrated energy vs. entropy."""
     x = np.linspace(-L / 2, L / 2, N)
     dx = x[1] - x[0]
     dt = 0.18 * (dx**2 / max(D_psi, D_kappa))  # CFL-stable
@@ -61,7 +61,7 @@ def evolve_integrated(N):
         kappa = damping * (kappa + dt * k_t)
         psi = np.clip(psi.real, -amp_limit, amp_limit) + 1j * np.clip(psi.imag, -amp_limit, amp_limit)
 
-        # Shannon entropy of |ψ|²
+        # Shannon entropy of |ψ|2
         prob = np.abs(psi)**2
         p = prob / (np.trapezoid(prob, x) + 1e-12)
         S = float(np.trapezoid(-p * np.log(p + 1e-12), x))
@@ -84,7 +84,7 @@ def evolve_integrated(N):
 # ---------------- Run for all scales ----------------
 SE = {N: evolve_integrated(N) for N in scales}
 
-# ---------------- Fit log–log scaling ----------------
+# ---------------- Fit log-log scaling ----------------
 fits = {}
 for N, (S, E) in SE.items():
     mask = (S > 1e-4) & (E > 1e-6)
@@ -132,7 +132,7 @@ else:
     verdict = "❌ Non-universal scaling (exponent varies across scales)."
 
 
-# ---------------- Plot: Energy–Entropy curves ----------------
+# ---------------- Plot: Energy-Entropy curves ----------------
 plt.figure(figsize=(8, 5))
 for N, (S, E) in SE.items():
     mask = (S > 1e-4) & (E > 1e-6)
@@ -140,7 +140,7 @@ for N, (S, E) in SE.items():
     if N in fits:
         p = fits[N]["p"]
         plt.text(S[mask][-1] * 0.9, E[mask][-1] * 0.9, f"p={p:.2f}")
-plt.title("G10b–RC5 — Integrated Energy–Entropy Scaling Across Scales")
+plt.title("G10b-RC5 - Integrated Energy-Entropy Scaling Across Scales")
 plt.xlabel("Entropy S (normalized)")
 plt.ylabel("Integrated Energy E_int (normalized)")
 plt.legend()
@@ -153,7 +153,7 @@ Ns = list(fits.keys())
 ps = [fits[n]["p"] for n in Ns]
 plt.plot(Ns, ps, "o-", lw=1.2)
 plt.axhline(0.5, ls="--", alpha=0.6, label="diffusive fixed point (p=0.5)")
-plt.title("G10b–RC5 — Fitted Exponent p vs. Scale")
+plt.title("G10b-RC5 - Fitted Exponent p vs. Scale")
 plt.xlabel("Grid size N")
 plt.ylabel("Exponent p")
 plt.legend()
@@ -196,7 +196,7 @@ out_path = "backend/modules/knowledge/G10bRC5_energy_entropy_universality.json"
 with open(out_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== G10b–RC5 — Scale-Invariant Energy–Entropy Law ===")
+print("=== G10b-RC5 - Scale-Invariant Energy-Entropy Law ===")
 print(f"p_mean={p_mean:.3f} | p_std={p_std:.3f} | collapse_dev={collapse_dev:.4f}")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {out_path}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {out_path}")

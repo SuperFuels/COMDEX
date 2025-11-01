@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🔁 Symbolic Replay Loop — Phase R13
+# 🔁 Symbolic Replay Loop - Phase R13
 # ================================================================
 # Feeds synthesized logic (from RibosomeEngine) back into Codex DNA
 # containers, forming a self-sustaining symbolic evolution cycle.

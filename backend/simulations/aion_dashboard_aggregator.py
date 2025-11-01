@@ -36,7 +36,7 @@ def main():
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(summary, indent=2))
-    print(f"Wrote dashboard summary → {OUT}")
+    print(f"Wrote dashboard summary -> {OUT}")
 
 if __name__ == "__main__":
     main()

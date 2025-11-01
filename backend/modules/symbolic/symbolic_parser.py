@@ -12,7 +12,7 @@ def parse_raw_input_to_ast(raw: Union[str, Dict[str, Any]]) -> CodexAST:
     Normalize raw symbolic input into a CodexAST with SoulLaw compliance.
 
     Supports:
-    - Natural language: "x is greater than y" → CodexLang → CodexAST
+    - Natural language: "x is greater than y" -> CodexLang -> CodexAST
     - Raw CodexLang: "add(x, y)"
     - Dict-based glyph trees:
         {
@@ -27,7 +27,7 @@ def parse_raw_input_to_ast(raw: Union[str, Dict[str, Any]]) -> CodexAST:
     - Integrates natural-language + CodexLang fusion
     """
     try:
-        # 🧠 String inputs — could be natural or CodexLang
+        # 🧠 String inputs - could be natural or CodexLang
         if isinstance(raw, str):
             raw_str = raw.strip()
             if not raw_str:
@@ -35,7 +35,7 @@ def parse_raw_input_to_ast(raw: Union[str, Dict[str, Any]]) -> CodexAST:
                 return CodexAST({"type": "empty", "tokens": [], "soul_law_compliance": "skip"})
 
             try:
-                # Try NL → CodexLang → CodexAST path
+                # Try NL -> CodexLang -> CodexAST path
                 ast_nl = parse_nl_to_ast(raw_str)
                 codexlang = CodexLangRewriter().ast_to_codexlang(ast_nl)
                 return parse_codexlang_to_ast(codexlang)
@@ -43,7 +43,7 @@ def parse_raw_input_to_ast(raw: Union[str, Dict[str, Any]]) -> CodexAST:
                 # Fallback to raw CodexLang parsing
                 return parse_codexlang_to_ast(raw_str)
 
-        # 🌐 Dict inputs — glyph or structured ASTs
+        # 🌐 Dict inputs - glyph or structured ASTs
         elif isinstance(raw, dict):
             root = raw.get("root") or raw.get("operator") or raw.get("type")
             if not root:

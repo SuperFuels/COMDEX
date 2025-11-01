@@ -3,8 +3,8 @@
 """
 🖥 Hyperdrive UI Renderer
 ----------------------------
-• Provides live terminal output for Hyperdrive ECU and tuning.
-• Displays drift, resonance, fields, SQI phase sync, and stage info.
+* Provides live terminal output for Hyperdrive ECU and tuning.
+* Displays drift, resonance, fields, SQI phase sync, and stage info.
 """
 
 import sys

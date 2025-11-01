@@ -1,12 +1,12 @@
 """
-Goal Reinforcement Engine — Phase 42C
+Goal Reinforcement Engine - Phase 42C
 -------------------------------------
 Learns from goal evaluation outcomes to adjust Aion's internal motivation weights.
 Successful goals strengthen resonance and confidence weighting,
 failed goals reduce them or trigger adaptive recalibration.
 
 Author: Tessaris Research Group
-Date: Phase 42C — October 2025
+Date: Phase 42C - October 2025
 """
 
 import time, json, math, logging
@@ -87,22 +87,22 @@ class GoalReinforcementEngine:
 
         Args:
             learning_rate (float, optional): Direct override of learning rate.
-            stability_factor (float, optional): Emotional–reasoning stability measure.
-            drift_factor (float, optional): Cognitive drift deviation (0–1).
+            stability_factor (float, optional): Emotional-reasoning stability measure.
+            drift_factor (float, optional): Cognitive drift deviation (0-1).
 
         Returns:
             dict: Updated reinforcement parameters.
         """
 
         # --------------------------------------------
-        # Case 1 — direct feedback control (Phase 45E)
+        # Case 1 - direct feedback control (Phase 45E)
         # --------------------------------------------
         if learning_rate is not None and stability_factor is not None:
             self.learning_rate = learning_rate
             self.stability_factor = stability_factor
 
         # --------------------------------------------
-        # Case 2 — calibration from motivation (Phase 45C)
+        # Case 2 - calibration from motivation (Phase 45C)
         # --------------------------------------------
         elif stability_factor is not None or drift_factor is not None:
             stability_factor = max(0.0, min(stability_factor or 1.0, 2.0))
@@ -111,14 +111,14 @@ class GoalReinforcementEngine:
             self.stability_factor = round(max(0.5, 1.0 - drift_factor), 3)
 
         # --------------------------------------------
-        # Default fallback — no external signal
+        # Default fallback - no external signal
         # --------------------------------------------
         else:
             self.learning_rate = getattr(self, "learning_rate", 0.1)
             self.stability_factor = getattr(self, "stability_factor", 1.0)
 
         print(
-            f"[REINF] 🔧 Reinforcement parameters updated → "
+            f"[REINF] 🔧 Reinforcement parameters updated -> "
             f"learning_rate={self.learning_rate}, stability_factor={self.stability_factor}"
         )
 
@@ -128,7 +128,7 @@ class GoalReinforcementEngine:
         }
 
     def _log_reinforcement(self, goal, status, old, new):
-        logger.info(f"[Reinforcement] 🔁 {goal}: {status} ({old:.2f} → {new:.2f})")
+        logger.info(f"[Reinforcement] 🔁 {goal}: {status} ({old:.2f} -> {new:.2f})")
         self.history.append({
             "goal": goal,
             "status": status,

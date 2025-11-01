@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-H5 — Self-Observation Closure Test (Registry-Compliant Edition)
+H5 - Self-Observation Closure Test (Registry-Compliant Edition)
 ---------------------------------------------------------------
 Goal:
   Couple an observer field O(t) that references its past state via delayed feedback,
   evaluating recursion stability (no divergence).
 
 Outputs:
-  • H5_SelfObservation.png
-  • backend/modules/knowledge/H5_self_observation.json
+  * H5_SelfObservation.png
+  * backend/modules/knowledge/H5_self_observation.json
 """
 
 from pathlib import Path
@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 import numpy as np, json, matplotlib.pyplot as plt
 
 # ---------------------------------------------------------------------
-# 1) Constants — Tessaris unified registry loader
+# 1) Constants - Tessaris unified registry loader
 # ---------------------------------------------------------------------
 from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
@@ -51,7 +51,7 @@ classification = (
 # ---------------------------------------------------------------------
 plt.figure(figsize=(10, 4))
 plt.plot(O, lw=1.5, label="O(t)")
-plt.title("H5 — Self-Observation Closure Test")
+plt.title("H5 - Self-Observation Closure Test")
 plt.xlabel("Time")
 plt.ylabel("Observer Field O(t)")
 plt.grid(alpha=0.3)
@@ -60,10 +60,10 @@ plt.tight_layout()
 plt.savefig("H5_SelfObservation.png", dpi=150)
 plt.close()
 
-print("=== H5 — Self-Observation Closure ===")
+print("=== H5 - Self-Observation Closure ===")
 print(f"ħ={ħ:.1e}, G={G:.1e}, α={α:.2f}, Λ0={Λ0:.1e}, β={β:.2f}")
 print(f"O_mean={O_mean:.4f}, σ={O_std:.4f}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 print("✅ Plot saved: H5_SelfObservation.png")
 
 # ---------------------------------------------------------------------
@@ -83,4 +83,4 @@ summary = {
 
 out_path = Path("backend/modules/knowledge/H5_self_observation.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"📄 Summary saved → {out_path}")
+print(f"📄 Summary saved -> {out_path}")

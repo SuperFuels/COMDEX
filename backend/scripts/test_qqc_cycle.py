@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • QQC Test Harness (v0.2)
-#  Verifies Two-Phase Commit and ψ–κ–T regulation
+#  Tessaris * QQC Test Harness (v0.2)
+#  Verifies Two-Phase Commit and ψ-κ-T regulation
 # ──────────────────────────────────────────────
 
 import asyncio
@@ -25,7 +25,7 @@ async def main():
     print("⚙️ Running QQC feedback cycles...")
     for beam_data in beam_sequence:
         summary = await kernel.run_cycle(beam_data)
-        print(f"Cycle {beam_data['beam_id']} → ⌀C={summary['avg_coherence']:.3f} | SQI={summary['txn']['C_total']:.3f}")
+        print(f"Cycle {beam_data['beam_id']} -> ⌀C={summary['avg_coherence']:.3f} | SQI={summary['txn']['C_total']:.3f}")
         await asyncio.sleep(0.05)
 
     # Display summary

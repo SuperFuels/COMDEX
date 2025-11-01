@@ -8,11 +8,11 @@ from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import Encode
 def parse_codexlang_to_ast(expression: str) -> dict:
     """
     Converts a simple CodexLang expression to a pseudo-AST structure.
-    Currently supports patterns like: ∀x. P(x) → Q(x)
+    Currently supports patterns like: ∀x. P(x) -> Q(x)
     """
-    if "∀" in expression and "→" in expression:
-        # Match ∀x. P(x) → Q(x)
-        match = re.match(r"∀(\w+)\.\s*(\w+)\((\w+)\)\s*→\s*(\w+)\((\w+)\)", expression)
+    if "∀" in expression and "->" in expression:
+        # Match ∀x. P(x) -> Q(x)
+        match = re.match(r"∀(\w+)\.\s*(\w+)\((\w+)\)\s*->\s*(\w+)\((\w+)\)", expression)
         if match:
             var, pred1, arg1, pred2, arg2 = match.groups()
             return {
@@ -89,7 +89,7 @@ def encode_codex_ast_to_glyphs(ast: Union[CodexAST, Dict[str, Any]]) -> List[Log
 
             elif node_type == "Implies":
                 glyph = LogicGlyph.create(
-                    symbol="→",
+                    symbol="->",
                     operands=[
                         safe_id(traverse(node["left"])),
                         safe_id(traverse(node["right"]))

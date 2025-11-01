@@ -72,7 +72,7 @@ plt.plot(entropies_obs, label="S_observer")
 plt.plot(mutual_info, label="Mutual Info")
 plt.xlabel("time step")
 plt.ylabel("Entropy / Information")
-plt.title("O1 — Observer Channel Activation")
+plt.title("O1 - Observer Channel Activation")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_O1_ObserverChannel.png", dpi=120)
 
@@ -92,6 +92,6 @@ summary = {
 with open("backend/modules/knowledge/O1_observer_channel.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== O1 — Observer Channel Activation ===")
+print("=== O1 - Observer Channel Activation ===")
 print(f"Final Fidelity={F_obs:.3f} | ⟨MI⟩={MI_mean:.3e} | {cls}")
-print("✅ Results saved → backend/modules/knowledge/O1_observer_channel.json")
+print("✅ Results saved -> backend/modules/knowledge/O1_observer_channel.json")

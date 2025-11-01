@@ -5,24 +5,24 @@ from backend.photon_algebra.rewriter import normalize
 from backend.photon_algebra.core import TOP, BOTTOM, EMPTY
 
 def test_similarity_reflexive():
-    """a ≈ a → ⊤"""
+    """a ≈ a -> ⊤"""
     expr = {"op": "≈", "states": ["x", "x"]}
     assert normalize(expr) == TOP
 
 def test_similarity_nonreflexive_inert():
-    """a ≈ b stays inert if a ≠ b"""
+    """a ≈ b stays inert if a != b"""
     expr = {"op": "≈", "states": ["a", "b"]}
     result = normalize(expr)
     assert result["op"] == "≈"
     assert result["states"] == ["a", "b"]
 
 def test_containment_bottom_left():
-    """⊥ ⊂ a → ⊤"""
+    """⊥ ⊂ a -> ⊤"""
     expr = {"op": "⊂", "states": [BOTTOM, "a"]}
     assert normalize(expr) == TOP
 
 def test_containment_top_right():
-    """a ⊂ ⊤ → ⊤"""
+    """a ⊂ ⊤ -> ⊤"""
     expr = {"op": "⊂", "states": ["a", TOP]}
     assert normalize(expr) == TOP
 
@@ -46,6 +46,6 @@ def test_nested_similarity_stability():
     assert result["op"] == "≈"
 
 def test_nested_containment_bottom_top():
-    """⊥ ⊂ ⊤ → ⊤"""
+    """⊥ ⊂ ⊤ -> ⊤"""
     expr = {"op": "⊂", "states": [BOTTOM, TOP]}
     assert normalize(expr) == TOP

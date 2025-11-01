@@ -1,15 +1,15 @@
 """
-🎯 StrategyEngine — Resonant Strategic Reasoning Core
+🎯 StrategyEngine - Resonant Strategic Reasoning Core
 ──────────────────────────────────────────────────────────────
 Phase 55 upgrade:
 Integrates Θ resonance, context entropy, and ethics metrics into
 planning evaluation and optimization.
 
 Features:
-  • Θ heartbeat coupling → reasoning temperature modulation
-  • RMC coherence feedback → adaptive weighting
-  • Ethics influence → bias correction for moral alignment
-  • Plan coherence scoring → symbolic + semantic evaluation
+  * Θ heartbeat coupling -> reasoning temperature modulation
+  * RMC coherence feedback -> adaptive weighting
+  * Ethics influence -> bias correction for moral alignment
+  * Plan coherence scoring -> symbolic + semantic evaluation
 """
 import time
 import math
@@ -38,7 +38,7 @@ STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 class StrategyEngine:
     def __init__(self):
-        self.temperature = 0.5              # reasoning entropy temperature (0–1)
+        self.temperature = 0.5              # reasoning entropy temperature (0-1)
         self.last_eval = None
         self.last_resonance = 0.7
         self.last_ethics = 1.0
@@ -64,7 +64,7 @@ class StrategyEngine:
     # 🧭 Evaluation logic
     def evaluate(self, plan):
         """
-        Evaluate a plan’s symbolic and harmonic viability.
+        Evaluate a plan's symbolic and harmonic viability.
         Uses resonance, ethics, and entropy-adjusted scoring.
         """
         goal = plan.get("goal", "undefined")
@@ -107,7 +107,7 @@ class StrategyEngine:
             return None
         scored = [(p, self.evaluate(p)) for p in plans]
         best_plan, best_score = max(scored, key=lambda x: x[1])
-        print(f"[🎯] Best plan selected → {best_plan.get('goal')} (score={best_score:.3f})")
+        print(f"[🎯] Best plan selected -> {best_plan.get('goal')} (score={best_score:.3f})")
         return best_plan
 
     # ─────────────────────────────────────────────────────────────

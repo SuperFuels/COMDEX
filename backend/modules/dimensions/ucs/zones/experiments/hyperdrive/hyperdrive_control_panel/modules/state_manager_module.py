@@ -51,7 +51,7 @@ def set_state(engine, state: Dict[str, Any]):
     if "harmonic_coherence" in state and state["harmonic_coherence"] is not None:
         engine.last_harmonic_coherence = state["harmonic_coherence"]
     else:
-        print("🎼 Harmonic coherence missing in snapshot → Triggering resync...")
+        print("🎼 Harmonic coherence missing in snapshot -> Triggering resync...")
         if hasattr(engine, "_resync_harmonics"):
             engine._resync_harmonics()
 
@@ -79,7 +79,7 @@ def compute_score(engine):
     exhaust_penalty = min(exhaust_penalty, 10.0)
 
     score = -(drift_penalty * 1.5 + exhaust_penalty) + sqi_bonus + harmonic_bonus
-    print(f"🏆 [Score] Drift={drift_penalty:.3f}, Exhaust={exhaust_penalty:.2f}, SQI Bonus={sqi_bonus:.2f}, Harmonic Bonus={harmonic_bonus:.2f} → Score={score:.4f}")
+    print(f"🏆 [Score] Drift={drift_penalty:.3f}, Exhaust={exhaust_penalty:.2f}, SQI Bonus={sqi_bonus:.2f}, Harmonic Bonus={harmonic_bonus:.2f} -> Score={score:.4f}")
 
     if engine.best_score is None or score > engine.best_score:
         engine.best_score = score
@@ -127,15 +127,15 @@ class StateManager:
 
     @staticmethod
     def get_current_container():
-        """Stub to satisfy ContainerRuntime contract — unused in CreativeCore."""
+        """Stub to satisfy ContainerRuntime contract - unused in CreativeCore."""
         return None
 
     @staticmethod
     def get_current_container_id() -> str:
-        """Stub to satisfy ContainerRuntime contract — static test ID."""
+        """Stub to satisfy ContainerRuntime contract - static test ID."""
         return "atom_electrons_test"
 
     @staticmethod
     def set_current_container(container_id: str):
-        """Stub — no runtime container switching in this context."""
+        """Stub - no runtime container switching in this context."""
         pass

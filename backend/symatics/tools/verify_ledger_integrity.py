@@ -3,14 +3,14 @@
 Tessaris SRK-8 / SRK-9 Ledger Integrity Verifier
 ────────────────────────────────────────────────
 Verifies theorem ledger integrity and hash consistency
-for the Symatics–Codex proof ledger system.
+for the Symatics-Codex proof ledger system.
 
 Checks:
-    • Unique + non-empty hashes
-    • Valid timestamps
-    • CodexLang AST presence
-    • Missing or null symbolic data
-    • Ledger continuity (chronological + semantic)
+    * Unique + non-empty hashes
+    * Valid timestamps
+    * CodexLang AST presence
+    * Missing or null symbolic data
+    * Ledger continuity (chronological + semantic)
 
 Usage:
     PYTHONPATH=. python backend/symatics/tools/verify_ledger_integrity.py
@@ -73,7 +73,7 @@ def verify_record(record):
     # recompute semantic hash consistency
     recomputed = compute_semantic_hash(record)
     if record.get("hash") != recomputed:
-        issues.append(f"ℹ recomputed semantic hash: {recomputed}")
+        issues.append(f"i recomputed semantic hash: {recomputed}")
 
     return ok, issues
 
@@ -132,7 +132,7 @@ def verify_ledger(path: Path = LEDGER_PATH):
             for r in records:
                 f.write(json.dumps(r, ensure_ascii=False) + "\n")
         print(f"\n🧩 Repaired {repaired} placeholder hashes.")
-        print(f"💾 Wrote repaired ledger → {repaired_path}")
+        print(f"💾 Wrote repaired ledger -> {repaired_path}")
 
 
 if __name__ == "__main__":

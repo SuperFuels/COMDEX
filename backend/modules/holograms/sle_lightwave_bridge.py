@@ -1,8 +1,8 @@
 # ──────────────────────────────────────────────
-#  Tessaris • SLE → HST LightWave Coupling Layer
+#  Tessaris * SLE -> HST LightWave Coupling Layer
 #  (Stage 4 HQCE Integration)
 #  Feeds live beam data from the Symbolic Light Engine into
-#  the HST field tensor for dynamic ψ–κ–T field regulation.
+#  the HST field tensor for dynamic ψ-κ-T field regulation.
 # ──────────────────────────────────────────────
 
 import uuid
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class SLELightWaveBridge:
     """
     Couples real-time LightWave beam data from SLE into the HST field tensor.
-    The bridge translates physical coherence + drift metrics into ψ–κ–T
+    The bridge translates physical coherence + drift metrics into ψ-κ-T
     tensor updates for the holographic runtime.
     """
 
@@ -30,7 +30,7 @@ class SLELightWaveBridge:
         self.last_update: Optional[Dict[str, Any]] = None
         self.session_id = str(uuid.uuid4())
         self._beam_counter = 0
-        logger.info(f"[SLELightWaveBridge] Initialized bridge session → {self.session_id}")
+        logger.info(f"[SLELightWaveBridge] Initialized bridge session -> {self.session_id}")
 
     # ────────────────────────────────────────────
     #  Ingestion of Beam Data
@@ -38,7 +38,7 @@ class SLELightWaveBridge:
     def inject_beam_feedback(self, beam_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Accept a beam feedback packet from SLE and translate it into
-        an HST field node update + ψ–κ–T tensor correction.
+        an HST field node update + ψ-κ-T tensor correction.
         Expected input keys:
             {
                 "beam_id": str,
@@ -80,7 +80,7 @@ class SLELightWaveBridge:
             )
             self.last_update = adjustment
 
-            logger.info(f"[SLELightWaveBridge] Beam {beam_id} → ΔC={adjustment.get('correction', 0):.4f}")
+            logger.info(f"[SLELightWaveBridge] Beam {beam_id} -> ΔC={adjustment.get('correction', 0):.4f}")
             return adjustment
 
         except Exception as e:
@@ -91,7 +91,7 @@ class SLELightWaveBridge:
     #  Live Monitoring and Broadcast
     # ────────────────────────────────────────────
     async def broadcast_field_state(self):
-        """Push the current HST + ψ–κ–T state over WebSocket (async safe)."""
+        """Push the current HST + ψ-κ-T state over WebSocket (async safe)."""
         try:
             from backend.modules.symbolic.hst.hst_websocket_streamer import broadcast_replay_paths
             payload = {
@@ -103,7 +103,7 @@ class SLELightWaveBridge:
             }
             # Non-blocking broadcast
             asyncio.create_task(broadcast_replay_paths(self.session_id, []))
-            logger.info(f"[SLELightWaveBridge] Broadcasted HST field state → {self.session_id}")
+            logger.info(f"[SLELightWaveBridge] Broadcasted HST field state -> {self.session_id}")
         except Exception as e:
             logger.warning(f"[SLELightWaveBridge] Broadcast failed: {e}")
 

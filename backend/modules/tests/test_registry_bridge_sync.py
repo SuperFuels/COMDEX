@@ -4,8 +4,8 @@
 Smoke tests for RegistryBridge sync.
 
 Checks:
-  • symatics:⊕ delegates to rulebook
-  • glyph:teleport stub is registered
+  * symatics:⊕ delegates to rulebook
+  * glyph:teleport stub is registered
 """
 
 import pytest

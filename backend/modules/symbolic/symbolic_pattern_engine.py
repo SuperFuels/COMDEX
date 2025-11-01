@@ -123,7 +123,7 @@ class SymbolicPatternEngine:
         except Exception as e:
             print(f"⚠️ Confidence scoring failed: {e}")
 
-        print(f"[🧩] Fused {len(fragments)} fragments → {fused_glyph['name']}")
+        print(f"[🧩] Fused {len(fragments)} fragments -> {fused_glyph['name']}")
         return fused_glyph
 
     @classmethod

@@ -1,14 +1,14 @@
 """
-GoalEngine — Phase 36B : Autonomous Goal Formation
+GoalEngine - Phase 36B : Autonomous Goal Formation
 --------------------------------------------------
 Implements self-generated goal objects within the Aion substrate.
 Goals emerge from RSI drift, entropy balance, and PAL reflection metrics.
 
 Each goal has:
-  • intent        — textual description ("seek equilibrium")
-  • priority      — derived from RSI variance / entropy imbalance
-  • satisfaction  — dynamic reinforcement level (0 – 1)
-  • lineage       — links to concept(s) and emotional state vectors
+  * intent        - textual description ("seek equilibrium")
+  * priority      - derived from RSI variance / entropy imbalance
+  * satisfaction  - dynamic reinforcement level (0 - 1)
+  * lineage       - links to concept(s) and emotional state vectors
 """
 
 import time
@@ -41,7 +41,7 @@ class Goal:
 # ─────────────────────────────────────────────
 class GoalEngine:
     """
-    Phase 36B — Autonomous Goal Formation Engine
+    Phase 36B - Autonomous Goal Formation Engine
     --------------------------------------------
     Handles creation, persistence, and reinforcement of introspective goals.
     Goals emerge from RSI variance, entropy fluctuations, and self-accuracy drift.
@@ -109,7 +109,7 @@ class GoalEngine:
 
         Args:
             intent or name: Textual goal description.
-            priority: Importance (0.0 – 1.0).
+            priority: Importance (0.0 - 1.0).
             origin: Source system or process spawning it.
         """
         # Back-compat: allow 'name' arg
@@ -144,9 +144,9 @@ class GoalEngine:
     def evaluate_goals(self, rsi_var: float, entropy: float):
         """
         Periodically called by introspective_goal_bridge.
-        - High entropy → spawn 'seek equilibrium'
-        - RSI variance ↑ → spawn 'reduce drift'
-        - Stability plateau → reinforce 'preserve Φ'
+        - High entropy -> spawn 'seek equilibrium'
+        - RSI variance ↑ -> spawn 'reduce drift'
+        - Stability plateau -> reinforce 'preserve Φ'
         """
         if entropy > 0.7:
             self.create_goal("seek equilibrium", priority=entropy)
@@ -185,7 +185,7 @@ class GoalEngine:
             )
 
 # ─────────────────────────────────────────────
-# Phase 36B — Global GoalEngine Instance
+# Phase 36B - Global GoalEngine Instance
 # Tessaris / Aion Research Division
 # ─────────────────────────────────────────────
 try:

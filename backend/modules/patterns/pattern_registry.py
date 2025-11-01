@@ -132,7 +132,7 @@ class PatternRegistry:
             qfc_payload = to_qfc_payload(node_payload, context)
             asyncio.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
         except Exception as e:
-            print(f"[PatternRegistry→QFC] ⚠️ Failed to broadcast pattern: {e}")
+            print(f"[PatternRegistry->QFC] ⚠️ Failed to broadcast pattern: {e}")
 
     def remove(self, pattern_id: str):
         if pattern_id in self.patterns:
@@ -189,7 +189,7 @@ class PatternRegistry:
         self.save()
 
 # ─────────────────────────────────────────────────────────────
-# 🧩 Pattern Drift Detection — used by QQCRepairManager
+# 🧩 Pattern Drift Detection - used by QQCRepairManager
 # ─────────────────────────────────────────────────────────────
 class PatternMatcher:
     @staticmethod

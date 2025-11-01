@@ -124,7 +124,7 @@ class TessarisEngine(ResonantReinforcementMixin):
 
     def _on_heartbeat(self, pulse_data: dict):
         """
-        🔁 Called each Resonance Heartbeat tick — evolve Tessaris reasoning weights.
+        🔁 Called each Resonance Heartbeat tick - evolve Tessaris reasoning weights.
         """
         try:
             delta = pulse_data.get("resonance_delta", 0.0)
@@ -158,7 +158,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                 elif hasattr(self.kg_writer, "append_entry"):
                     self.kg_writer.append_entry("resonance_heartbeat_sync", event_data)
                 else:
-                    print("[TessarisEngine] ℹ️ KG writer has no log_event or append_entry — skipping KG log.")
+                    print("[TessarisEngine] i️ KG writer has no log_event or append_entry - skipping KG log.")
             except Exception as inner_e:
                 print(f"[TessarisEngine] ⚠️ Failed to log resonance heartbeat: {inner_e}")
 
@@ -191,20 +191,20 @@ class TessarisEngine(ResonantReinforcementMixin):
             if context:
                 container = context.get("container", "no-container")
                 coord = context.get("coord", "no-coord")
-                reasoning_parts.append(f"Context → Container: {container}, Coord: {coord}")
+                reasoning_parts.append(f"Context -> Container: {container}, Coord: {coord}")
 
             # Include execution trace summary
             if trace:
                 steps = [f"{step['operator']} {step['action']}" for step in trace]
-                reasoning_parts.append(f"Trace → {' → '.join(steps)}")
+                reasoning_parts.append(f"Trace -> {' -> '.join(steps)}")
 
             # Add cost estimation (symbolic check)
             try:
                 cost = self.codex_estimator.estimate_glyph_cost(glyph, context or {})
-                reasoning_parts.append(f"Cost → {cost.total():.2f} (E:{cost.energy} / R:{cost.ethics_risk})")
+                reasoning_parts.append(f"Cost -> {cost.total():.2f} (E:{cost.energy} / R:{cost.ethics_risk})")
             except Exception as e:
                 sci_emit("tessaris_error", f"{str(e)[:200]}")
-                reasoning_parts.append(f"Cost → unavailable ({e})")
+                reasoning_parts.append(f"Cost -> unavailable ({e})")
 
             # Join reasoning parts
             reasoning_text = " | ".join(reasoning_parts)
@@ -314,12 +314,12 @@ class TessarisEngine(ResonantReinforcementMixin):
         })
 
         for idx, glyph in enumerate(branch.glyphs):
-            sci_emit("tessaris_step", f"Glyph {idx} → {glyph}")
+            sci_emit("tessaris_step", f"Glyph {idx} -> {glyph}")
             # 🕊 Soul Law enforcement (global validator)
             from backend.modules.glyphvault.soul_law_validator import soul_law_validator
 
             if not soul_law_validator.verify_transition(branch.metadata or {}, glyph):
-                print(f"⚠️ SoulLaw violation: glyph {idx} blocked → {glyph}")
+                print(f"⚠️ SoulLaw violation: glyph {idx} blocked -> {glyph}")
                 MEMORY.store({
                     "label": "soul_law_violation",
                     "role": "tessaris",
@@ -354,7 +354,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                             "breakdown": vars(cost)
                         }
                     })
-                    print(f"⚠️ Self-reflection: high-cost glyph {glyph} → total cost {cost.total():.2f}")
+                    print(f"⚠️ Self-reflection: high-cost glyph {glyph} -> total cost {cost.total():.2f}")
 
                 result = interpret_glyph(glyph, context={
                     "branch": branch,
@@ -362,7 +362,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                     "index": idx,
                     "metadata": branch.metadata
                 })
-                print(f"  ➤ Glyph {idx}: {glyph} → {result}")
+                print(f"  ➤ Glyph {idx}: {glyph} -> {result}")
 
                 coord = branch.position.get("coord")
                 container_path = branch.metadata.get("container_path") if branch.metadata else None
@@ -725,7 +725,7 @@ class TessarisEngine(ResonantReinforcementMixin):
     def _parse_glyph(self, glyph: str) -> dict:
         try:
             inner = glyph.strip("⟦⟧").strip()
-            parts = inner.split("→")
+            parts = inner.split("->")
             left = parts[0].strip()
             action = parts[1].strip() if len(parts) > 1 else "Reflect"
             type_tag, value = left.split(":", 1)
@@ -774,7 +774,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                 }
 
             if intent_type:
-                sci_emit("tessaris_action", f"Intent → {intent_type} | {payload}")
+                sci_emit("tessaris_action", f"Intent -> {intent_type} | {payload}")
                 intent_data = {
                     "type": intent_type,
                     "data": payload,
@@ -820,7 +820,7 @@ class TessarisEngine(ResonantReinforcementMixin):
         Tries existing methods if present; otherwise returns a shallow echo result.
         """
         ctx = context or {}
-        sci_emit("tessaris_start", f"Instruction → {str(instruction_tree)[:240]}")
+        sci_emit("tessaris_start", f"Instruction -> {str(instruction_tree)[:240]}")
 
         # Prefer an existing concrete method if you already implemented one
         if hasattr(self, "execute") and callable(getattr(self, "execute")):

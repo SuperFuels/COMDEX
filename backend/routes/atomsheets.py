@@ -35,7 +35,7 @@ def _broadcast(container_id: Optional[str], payload: Dict[str, Any]) -> None:
 
         asyncio.create_task(broadcast_qfc_update(container_id, payload))
     except Exception:
-        # Defensive: don’t crash REST if WS layer isn’t loaded
+        # Defensive: don't crash REST if WS layer isn't loaded
         record_trace("atomsheet", "[WS] Broadcast helper not available")
 
 
@@ -43,7 +43,7 @@ def _broadcast(container_id: Optional[str], payload: Dict[str, Any]) -> None:
 # Router + (optional) auth
 # -----------------------
 router = APIRouter(prefix="/api", tags=["atomsheets"])
-security = HTTPBearer(auto_error=False)  # token optional; if present and wrong → 401
+security = HTTPBearer(auto_error=False)  # token optional; if present and wrong -> 401
 
 
 # -----------------------
@@ -263,7 +263,7 @@ async def upsert_cell(
             sheet.cells[cid] = c
 
         p = Path(req.file)
-        if not p.suffix:  # allow bare name → .atom
+        if not p.suffix:  # allow bare name -> .atom
             p = p.with_suffix(".atom")
 
         data = {

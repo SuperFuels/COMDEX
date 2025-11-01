@@ -58,7 +58,7 @@ def valid_photon_capsule():
             {
                 "name": "Emit",
                 "operator": "⊕",
-                "logic": "wave→photon",
+                "logic": "wave->photon",
                 "args": [2.45e9, 0.5],
                 "meta": {"coherence": 0.97},
             }
@@ -162,7 +162,7 @@ def test_photon_to_gwip_conversion(valid_photon_capsule):
 
 @pytest.mark.asyncio
 async def test_bidirectional_consistency(valid_gwip_packet):
-    """GWIP → Capsule → GWIP roundtrip should preserve coherence bounds."""
+    """GWIP -> Capsule -> GWIP roundtrip should preserve coherence bounds."""
     bridge = PhotonBinaryBridge()
     wave = SimpleNamespace(metadata={"wave_id": "W999"})
 

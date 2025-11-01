@@ -27,7 +27,7 @@ class EntanglementLink(BaseModel):
     event_type: Literal["EntanglementLink"] = "EntanglementLink"
     link_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     beam_ids: List[str]
-    strength: float  # 0.0 → no link, 1.0 → fully entangled
+    strength: float  # 0.0 -> no link, 1.0 -> fully entangled
     origin: Literal["qwave", "codex", "photon"] = "qwave"
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
@@ -117,7 +117,7 @@ def validate_event(event: dict):
 # ============================================================
 
 if __name__ == "__main__":
-    # Pydantic model → dict
+    # Pydantic model -> dict
     be = BeamEvent(origin="photon", opcode="⊗", args=["R1", "R2"])
     print(be.json(indent=2))
 

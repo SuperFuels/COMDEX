@@ -1,5 +1,5 @@
 """
-[Tessaris v0.2] — Legacy COMDEX Operator Stub (↔ Entanglement)
+[Tessaris v0.2] - Legacy COMDEX Operator Stub (↔ Entanglement)
 ───────────────────────────────────────────────────────────────
 This file is inactive. The active entanglement logic resides in:
 backend/symatics/quantum_ops.py  (`entangle` function)

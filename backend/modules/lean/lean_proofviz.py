@@ -178,7 +178,7 @@ def main():
 
     if args.mermaid_out:
         save_text(args.mermaid_out, mermaidify(c))
-        print(f"[🧭] wrote mermaid → {args.mermaid_out}")
+        print(f"[🧭] wrote mermaid -> {args.mermaid_out}")
 
     if args.dot_out:
         ok, msg = dot_for_dependencies(c, args.dot_out)

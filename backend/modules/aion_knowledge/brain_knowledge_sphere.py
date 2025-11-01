@@ -1,8 +1,8 @@
 """
 🧠 AION Brain Knowledge Sphere
 ──────────────────────────────────────────────────────────────
-Inflates AION’s semantic core from atomized WikiGraph data into
-a live HobermanContainer — the "Knowledge Sphere" of the brain.
+Inflates AION's semantic core from atomized WikiGraph data into
+a live HobermanContainer - the "Knowledge Sphere" of the brain.
 
 Inputs:
     data/knowledge/atoms/wikigraph_atoms.qkg.json
@@ -36,7 +36,7 @@ else:
 class BrainKnowledgeSphere:
     """
     🧩 BrainKnowledgeSphere
-    Initializes and inflates AION’s Hoberman Knowledge Sphere from atomized data.
+    Initializes and inflates AION's Hoberman Knowledge Sphere from atomized data.
     """
 
     def __init__(self, container_id: str = "hoberman_knowledge_sphere"):
@@ -81,7 +81,7 @@ class BrainKnowledgeSphere:
         self.state = self.hoberman.inflate(avatar_state=avatar_state)
         logger.info(
             f"[BrainSphere] Inflation complete for {self.container_id} "
-            f"({len(self.seed_glyphs)} glyphs → {len(self.state.get('expanded_logic', []))} logic nodes)"
+            f"({len(self.seed_glyphs)} glyphs -> {len(self.state.get('expanded_logic', []))} logic nodes)"
         )
         return self.state
 
@@ -106,7 +106,7 @@ class BrainKnowledgeSphere:
 # CLI Entry Point
 # ─────────────────────────────────────────
 if __name__ == "__main__":
-    print("🧠 Bootstrapping AION Brain Knowledge Sphere…")
+    print("🧠 Bootstrapping AION Brain Knowledge Sphere...")
     try:
         sphere = BrainKnowledgeSphere()
         sphere.load_atomized_knowledge()

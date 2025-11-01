@@ -5,7 +5,7 @@
 Handles symbolic backpropagation-like feedback, goal drift correction, and adaptive reasoning over glyph traces.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔮 Symbolic Gradient Engine – Design Rubric
+🔮 Symbolic Gradient Engine - Design Rubric
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Backpropagate Failures Across Glyph Traces (⮌)  
 ✅ ↔ Inject Gradient Feedback into Knowledge Graph & Entangled Links  
@@ -14,8 +14,8 @@ Handles symbolic backpropagation-like feedback, goal drift correction, and adapt
 ✅ Codex Metrics Integration (Blindspot & Entropy Events)  
 ✅ Reinforce Successful Glyph Chains (🏆)  
 ✅ Multi-Vector Distance & Drift Measurement (Advanced Ready)  
-✅ ⚛ Live QGlyph Collapse Feedback → KG Weight Adjustment  
-✅ 🔴 Bi-Directional KG Weight Streaming → BrainMap Visualization  
+✅ ⚛ Live QGlyph Collapse Feedback -> KG Weight Adjustment  
+✅ 🔴 Bi-Directional KG Weight Streaming -> BrainMap Visualization  
 ✅ 🌐 Multi-Agent EntanglementFusion Confidence Sync  
 """
 

@@ -28,7 +28,7 @@ for series_tag in ["K", "X"]:
     files = sorted(glob(os.path.join(BASE, f"{series_tag}[0-9]*_*.json")))
     series_data = [load_json(f) for f in files if os.path.isfile(f)]
     summary["layers"][f"{series_tag}_series"] = series_data
-    print(f"  • Loaded {len(series_data)} {series_tag}-series summaries")
+    print(f"  * Loaded {len(series_data)} {series_tag}-series summaries")
 
 # --- Add meta section
 summary["meta"] = {
@@ -39,7 +39,7 @@ summary["meta"] = {
 # --- Save combined summary
 out_path = os.path.join(BASE, "unified_summary_v1.2.json")
 save_json(out_path, summary)
-print(f"✅ Unified Phase III summary saved → {out_path}")
+print(f"✅ Unified Phase III summary saved -> {out_path}")
 
 print("Phase III integration complete.")
 print("------------------------------------------------------------")

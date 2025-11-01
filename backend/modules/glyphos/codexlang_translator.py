@@ -34,7 +34,7 @@ class CodexLangTranslator:
 
     def run(self, glyph_string: str, context: dict = None, trace: bool = False):
         """
-        Full parse → translate → execute pipeline.
+        Full parse -> translate -> execute pipeline.
         If trace=True, returns detailed step log.
         """
         trace_log = []
@@ -92,8 +92,8 @@ def translate_node(node, context: str = None):
     Walk a parsed node and normalize all ops into canonical domain-tagged keys.
 
     Resolution order:
-      1) Explicit ALIASES (⊕_q → quantum:⊕, ⊗_p → physics:⊗, etc.)
-      2) CANONICAL_OPS (flat, non-colliding map — respects monkeypatching in tests)
+      1) Explicit ALIASES (⊕_q -> quantum:⊕, ⊗_p -> physics:⊗, etc.)
+      2) CANONICAL_OPS (flat, non-colliding map - respects monkeypatching in tests)
       3) resolve_op (handles collisions + priority fallback, optionally using context)
     """
     if isinstance(node, dict) and "op" in node:
@@ -124,13 +124,13 @@ def translate_node(node, context: str = None):
 def parse_logic_expression(expr: str):
     """
     Parses logical expressions like:
-    A ∧ B → C
+    A ∧ B -> C
     ¬A ∨ B
     Returns nested LogicGlyph trees.
     """
     expr = expr.strip()
-    if "→" in expr:
-        left, right = expr.split("→", 1)
+    if "->" in expr:
+        left, right = expr.split("->", 1)
         return ImplicationGlyph(parse_logic_expression(left), parse_logic_expression(right))
     elif "∧" in expr:
         left, right = expr.split("∧", 1)
@@ -150,9 +150,9 @@ def logic_to_tree(expr: str):
     Used for bytecode encoding and Codex export.
     """
     expr = expr.strip()
-    if "→" in expr:
-        left, right = expr.split("→", 1)
-        return {"op": "→", "args": [logic_to_tree(left), logic_to_tree(right)]}
+    if "->" in expr:
+        left, right = expr.split("->", 1)
+        return {"op": "->", "args": [logic_to_tree(left), logic_to_tree(right)]}
     elif "∧" in expr:
         left, right = expr.split("∧", 1)
         return {"op": "∧", "args": [logic_to_tree(left), logic_to_tree(right)]}
@@ -174,7 +174,7 @@ from backend.modules.codex.canonical_ops import CANONICAL_OPS
 def parse_codexlang_string(code_str):
     """
     Converts a symbolic CodexLang string like:
-    ⟦ Logic | If: x > 5 → ⊕(Grow, Reflect) ⟧
+    ⟦ Logic | If: x > 5 -> ⊕(Grow, Reflect) ⟧
     into a structured AST-like dictionary with canonicalized ops.
 
     ✅ SoulLaw-compliant and unpack-safe.
@@ -191,7 +191,7 @@ def parse_codexlang_string(code_str):
         print(f"[🧠 DEBUG] parse_codexlang_string CALLED with: {repr(stripped)}")
 
         # 🩹 Atomic single-symbol guard
-        if not any(sym in stripped for sym in ["→", ":", "⊕", "⊗", "↔", "="]):
+        if not any(sym in stripped for sym in ["->", ":", "⊕", "⊗", "↔", "="]):
             print(f"[DEBUG] Treating '{stripped}' as atomic Codex term")
             return {"type": "atom", "value": stripped, "ast": None, "soul_state": "trusted"}
 
@@ -200,8 +200,8 @@ def parse_codexlang_string(code_str):
         if not body:
             return {"type": "empty", "soul_state": "violated", "message": "Empty glyph string"}
 
-        # 🧩 Case 1 — shorthand form (no →)
-        if "→" not in body:
+        # 🧩 Case 1 - shorthand form (no ->)
+        if "->" not in body:
             print(f"[DEBUG] Shorthand CodexLang detected: {body}")
             if ":" not in body or "|" not in body:
                 return {
@@ -233,15 +233,15 @@ def parse_codexlang_string(code_str):
                 "soul_state": "trusted"
             }
 
-        # 🧩 Case 2 — full form (→)
-        parts = body.split("→", 1)
-        print(f"[DEBUG] parts after split('→',1): {len(parts)} -> {parts}")
+        # 🧩 Case 2 - full form (->)
+        parts = body.split("->", 1)
+        print(f"[DEBUG] parts after split('->',1): {len(parts)} -> {parts}")
         if len(parts) != 2:
             return {
                 "type": "incomplete",
                 "expr": body,
                 "soul_state": "partial",
-                "message": "Missing right-hand operand after '→'"
+                "message": "Missing right-hand operand after '->'"
             }
 
         left, action = parts
@@ -280,7 +280,7 @@ def parse_codexlang_string(code_str):
         if parsed["type"] == "logic":
             parsed["tree"] = translate_node(logic_to_tree(action.strip()), context="logic")
 
-        print(f"[✅ DEBUG] Parsed full CodexLang OK → type={parsed['type']}, tag={parsed['tag']}")
+        print(f"[✅ DEBUG] Parsed full CodexLang OK -> type={parsed['type']}, tag={parsed['tag']}")
         return parsed
 
     except Exception as e:
@@ -405,7 +405,7 @@ def run_codexlang_string(glyph_string: str, context: dict = {}):
 
 # Debug entry point
 if __name__ == "__main__":
-    test = "⟦ Logic | Test: A ∧ B → ¬C ⟧"
+    test = "⟦ Logic | Test: A ∧ B -> ¬C ⟧"
     print("\n[🔍] Parsing:", test)
     parsed = parse_codexlang_string(test)
     print("Parsed AST:", parsed)

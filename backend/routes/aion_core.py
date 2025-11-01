@@ -50,7 +50,7 @@ async def run_learning_cycle(seed_req: SeedRequest):
         # Reward tokens
         wallet.earn("STK", 10)
 
-        # Generate strategies → milestones → goals
+        # Generate strategies -> milestones -> goals
         planner.generate_with_ids()
         for strat in planner.strategies:
             milestone_name = f"milestone_for_{strat['id'][:8]}"

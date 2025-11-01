@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-# === M4 — Wormhole Throat Diagnostics ===
-print("=== M4 — Wormhole Throat Diagnostics ===")
+# === M4 - Wormhole Throat Diagnostics ===
+print("=== M4 - Wormhole Throat Diagnostics ===")
 
 ħ = 1e-3
 G = 1e-5
@@ -20,7 +20,7 @@ X, Y = np.meshgrid(x, y)
 κ2 = -1.0 / np.sqrt((X - 2)**2 + Y**2 + 0.1)
 κ_total = κ1 + κ2
 
-# Field amplitudes (ψ₁, ψ₂)
+# Field amplitudes (ψ1, ψ2)
 ψ1 = np.exp(-((X + 2)**2 + Y**2)) * np.exp(1j * α * κ1)
 ψ2 = np.exp(-((X - 2)**2 + Y**2)) * np.exp(1j * α * κ2)
 
@@ -49,9 +49,9 @@ outdir = Path("backend/photon_algebra/tests/plots")
 outdir.mkdir(parents=True, exist_ok=True)
 
 plt.figure(figsize=(7,5))
-plt.plot(x, midline, label="|ψ₁ − ψ₂|")
+plt.plot(x, midline, label="|ψ1 - ψ2|")
 plt.axhline(half_max, color='r', linestyle='--', label='Half max')
-plt.title("M4 — Throat Profile (|ψ₁−ψ₂|)")
+plt.title("M4 - Throat Profile (|ψ1-ψ2|)")
 plt.xlabel("x-axis (midline)")
 plt.ylabel("Amplitude")
 plt.legend()
@@ -59,9 +59,9 @@ plt.tight_layout()
 plt.savefig(outdir / "PAEV_M4_ThroatProfile.png")
 
 plt.figure(figsize=(7,5))
-plt.plot(x, NEC_line, label="NEC proxy (ρ + Σpᵢ)")
+plt.plot(x, NEC_line, label="NEC proxy (ρ + Σpi)")
 plt.axhline(0, color='r', linestyle='--', label='NEC = 0')
-plt.title("M4 — NEC Violation Proxy")
+plt.title("M4 - NEC Violation Proxy")
 plt.xlabel("x-axis (midline)")
 plt.ylabel("NEC proxy")
 plt.legend()
@@ -70,7 +70,7 @@ plt.savefig(outdir / "PAEV_M4_NEC_Proxy.png")
 
 plt.figure(figsize=(6,5))
 plt.imshow(geo_proxy, extent=[-5,5,-5,5], origin='lower', cmap='viridis')
-plt.title("M4 — Geodesic Distance Proxy")
+plt.title("M4 - Geodesic Distance Proxy")
 plt.colorbar(label="exp(-|κ|)")
 plt.tight_layout()
 plt.savefig(outdir / "PAEV_M4_GeodesicMap.png")

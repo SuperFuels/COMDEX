@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AION Cognitive↔Interactive Bridge — Phase 13 + Resonant Recall
+AION Cognitive↔Interactive Bridge - Phase 13 + Resonant Recall
 ──────────────────────────────────────────────────────────────
 Combines the AION Resonance Console with the Cognitive Exercise Engine (CEE)
 and introduces long-term Resonant Recall via LexMemory + ResonantMemoryCache.
@@ -69,7 +69,7 @@ if USE_HEXCORE:
         # Try pinging external HexCore process first
         resp = requests.get("http://127.0.0.1:8500/health", timeout=2)
         if resp.status_code == 200:
-            print("🌌 HexCore detected — remote cognition bridge active.")
+            print("🌌 HexCore detected - remote cognition bridge active.")
         else:
             print("⚠️ HexCore running externally but unresponsive.")
     except Exception:
@@ -115,7 +115,7 @@ def update_bridge_dashboard(snapshot: dict):
     mci = snapshot.get("semantic_benchmark", {}).get("avg_MCI", 0.0)
     drift = snapshot.get("semantic_benchmark", {}).get("avg_drift", 0.0)
 
-    table = Table(title=f"AION Dashboard — Cycle {cycle}")
+    table = Table(title=f"AION Dashboard - Cycle {cycle}")
     table.add_column("Metric", style="cyan", justify="left")
     table.add_column("Value", style="magenta", justify="right")
     table.add_row("Symatic Quality Index (SQI)", f"{sqi:.3f}")
@@ -127,7 +127,7 @@ def update_bridge_dashboard(snapshot: dict):
 
     out_json = Path("data/analysis/aion_live_dashboard.json")
     out_json.write_text(json.dumps(snapshot, indent=2))
-    console.print(f"[green]📈 Dashboard snapshot saved → {out_json}[/green]")
+    console.print(f"[green]📈 Dashboard snapshot saved -> {out_json}[/green]")
 
 # ─────────────────────────────────────────────────────────────
 def resonant_recall(prompt: str):
@@ -160,7 +160,7 @@ def _list_caps(limit=15):
         if i >= limit:
             break
         e = meta.get("E", 0)
-        print(f"  • {lemma:<20} E={e:.5f}")
+        print(f"  * {lemma:<20} E={e:.5f}")
 
 def _query_res(term: str):
     res = get_resonance(term)
@@ -182,7 +182,7 @@ def _teach(engine: CognitiveExerciseEngine, term: str, level=1):
         print(f"\nQ{i}. {q['prompt']}")
         ans = engine.evaluate_answer(q, q.get("answer", ""))
         time.sleep(0.2)
-        print(f"→ {ans['feedback']}")
+        print(f"-> {ans['feedback']}")
         resonance["SQI"] = ans.get("SQI", 0.85)
         update_lex_memory(q["prompt"], q["answer"], resonance)
         RMC.update_from_photons([{"λ": term, "φ": resonance["ρ"], "μ": resonance["SQI"]}])
@@ -246,7 +246,7 @@ def main():
     # Initialize Θ Orchestrator in passive mode (no auto-tick spam)
     theta = ThetaOrchestrator(auto_tick=False)
     interrupt = InterruptionManager()
-    print("🌐 AION Cognitive Bridge — Phase 13 (Resonant Recall Ready)")
+    print("🌐 AION Cognitive Bridge - Phase 13 (Resonant Recall Ready)")
     print("Type 'help' for commands. Ctrl-D or 'exit' to quit.\n")
 
     while True:
@@ -264,20 +264,20 @@ def main():
         if cmd == "help":
             print("""
 Commands:
-  list [n]               → list first n memory capsules
-  res <term>             → view resonance state
-  recall <term>          → recall learned concept (Lex + Resonant)
-  teach <term> [level]   → start guided teaching session
-  wall [level]           → run Wordwall simulation
-  ask "<question>"       → ask Aion a cognitive question
-  define <word>          → retrieve stored lexical definition
-  symbol <word>          → show symbolic QMath or photon representation
-  unjumble <letters>     → solve anagram (lexical cognition test)
-  compare <w1> and <w2>  → measure semantic + resonance similarity (MCI)
-  context <word> in <p>  → evaluate contextual meaning consistency
-  connect A → B → C      → reinforce associative link chain
-  stats                  → show live SQI, stability, and MCI
-  top [n]                → show top-E capsules
+  list [n]               -> list first n memory capsules
+  res <term>             -> view resonance state
+  recall <term>          -> recall learned concept (Lex + Resonant)
+  teach <term> [level]   -> start guided teaching session
+  wall [level]           -> run Wordwall simulation
+  ask "<question>"       -> ask Aion a cognitive question
+  define <word>          -> retrieve stored lexical definition
+  symbol <word>          -> show symbolic QMath or photon representation
+  unjumble <letters>     -> solve anagram (lexical cognition test)
+  compare <w1> and <w2>  -> measure semantic + resonance similarity (MCI)
+  context <word> in <p>  -> evaluate contextual meaning consistency
+  connect A -> B -> C      -> reinforce associative link chain
+  stats                  -> show live SQI, stability, and MCI
+  top [n]                -> show top-E capsules
   help / exit
 """)
         elif cmd.startswith("list"):
@@ -379,7 +379,7 @@ Commands:
             pulse = hb.tick()
             # keep last pulse for subsequent logs
             LAST_PULSE = pulse
-            print(f"🩶 Resonance pulse → Φ_coherence={pulse['Φ_coherence']:.3f}, "
+            print(f"🩶 Resonance pulse -> Φ_coherence={pulse['Φ_coherence']:.3f}, "
                 f"Φ_entropy={pulse['Φ_entropy']:.3f}, SQI={pulse['sqi']:.3f}")
             log_bridge_event(cmd, LAST_PULSE)
 
@@ -395,17 +395,17 @@ Commands:
             hb.push_sample(rho=0.90, entropy=0.20, sqi=0.93, delta=0.02)
             pulse = hb.tick()
             LAST_PULSE = pulse
-            print(f"✅ Memory coherence stabilized → SQI={pulse['sqi']:.3f}, ΔΦ={pulse['resonance_delta']:.3f}")
+            print(f"✅ Memory coherence stabilized -> SQI={pulse['sqi']:.3f}, ΔΦ={pulse['resonance_delta']:.3f}")
             log_bridge_event(cmd, LAST_PULSE)
 
         elif cmd.startswith("think slow"):
             topic = cmd.replace("think slow", "").strip()
-            print(f"🧘 Engaging Θ Orchestrator (slow loop) → {topic or 'general reflection'}")
+            print(f"🧘 Engaging Θ Orchestrator (slow loop) -> {topic or 'general reflection'}")
             theta.run_loop(mode="slow", topic=topic)
 
         elif cmd.startswith("think fast"):
             topic = cmd.replace("think fast", "").strip()
-            print(f"⚡ Reflex loop activation → {topic or 'quick reasoning'}")
+            print(f"⚡ Reflex loop activation -> {topic or 'quick reasoning'}")
             theta.run_loop(mode="fast", topic=topic)
 
         elif cmd.startswith("think sse "):
@@ -415,14 +415,14 @@ Commands:
                 "why": "optimize",
                 "how": "evaluate",
             }
-            print(f"🧩 Engaging Θ Orchestrator (SSE mode) → {topic}")
+            print(f"🧩 Engaging Θ Orchestrator (SSE mode) -> {topic}")
             try:
                 # run the full deep resonance loop (includes motivation, reasoner, strategy)
                 slow_result = theta.deep_resonance_loop(topic)
 
                 # manually trigger Strategic Simulation Engine on the same intent/context
                 sse_result = theta.sse.simulate(intent=intent, context=slow_result)
-                best_path = " → ".join(sse_result.get("best_path", []))
+                best_path = " -> ".join(sse_result.get("best_path", []))
                 best_u = sse_result.get("best_utility", 0.0)
 
                 # reflection integration
@@ -439,7 +439,7 @@ Commands:
         # ─────────────────────────────────────────────
         elif cmd.startswith(("think ", "calculate ", "train ")) and HEX:
             query = cmd.strip()
-            print(f"🌌 Sending to AION HexCore → {query}")
+            print(f"🌌 Sending to AION HexCore -> {query}")
             import asyncio
             try:
                 asyncio.run(HEX.run_loop(query))
@@ -463,7 +463,7 @@ Commands:
             ctx = {"source": "cli"}
             try:
                 res = theta.sse.simulate(intent=intent, context=ctx)
-                best_path = " → ".join(res.get("best_path", []))
+                best_path = " -> ".join(res.get("best_path", []))
                 best_u = res.get("best_utility", 0.0)
                 print(f"🥇 SSE best path: {best_path or '(none)'} | U* = {best_u:.3f}")
             except Exception as e:
@@ -471,7 +471,7 @@ Commands:
 
         elif cmd.startswith(("override", "interrupt")):
             reason = cmd.split(" ", 1)[-1] if " " in cmd else "manual"
-            print(f"🛑 Triggering override → {reason}")
+            print(f"🛑 Triggering override -> {reason}")
             interrupt.trigger(reason=reason, source="aion_cli")
 
         elif cmd == "status":
@@ -481,7 +481,7 @@ Commands:
 
         elif cmd.startswith(("override", "interrupt")):
             reason = cmd.split(" ", 1)[-1] if " " in cmd else "manual"
-            print(f"🛑 Triggering override → {reason}")
+            print(f"🛑 Triggering override -> {reason}")
             interrupt.trigger(reason=reason, source="aion_cli")
 
         elif cmd == "status":
@@ -494,11 +494,11 @@ Commands:
         # ─────────────────────────────────────────────
         elif cmd.startswith("compute") or any(op in cmd for op in ["⊕", "⟲", "↔", "∇", "Ψ"]):
             expr = cmd.replace("compute", "").strip()
-            print(f"🧮 Quantum expression detected → {expr}")
+            print(f"🧮 Quantum expression detected -> {expr}")
 
             if USE_HEXCORE and HEX:
                 try:
-                    print("[HexCore→QQC] Offloading computation to Quantum Quad Core...")
+                    print("[HexCore->QQC] Offloading computation to Quantum Quad Core...")
 
                     # Preferred unified interface for QQC dispatch
                     if hasattr(HEX, "dispatch_quantum"):
@@ -517,12 +517,12 @@ Commands:
                         else:
                             result = f"[QQC] HTTP {resp.status_code}: {resp.text}"
 
-                    print(f"[QQC] Result → {result}")
+                    print(f"[QQC] Result -> {result}")
 
                 except Exception as e:
                     print(f"❌ Quantum computation failed: {e}")
             else:
-                print("⚠️ HexCore inactive — cannot route quantum computation.")
+                print("⚠️ HexCore inactive - cannot route quantum computation.")
 
             log_bridge_event(cmd, {})
             

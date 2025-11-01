@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fast version of Test B1+B2 — Weak Measurement & Sequential Contextual Normalization
+Fast version of Test B1+B2 - Weak Measurement & Sequential Contextual Normalization
 Avoids exponential branching by aggregating ensemble statistics per iteration.
 """
 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     mus = [0.05, 0.1, 0.2, 0.4, 0.7, 1.0]
     tau = 1e-6
 
-    print("=== B1+B2 — Weak Measurement & Sequential Contextual Normalization (FAST) ===")
+    print("=== B1+B2 - Weak Measurement & Sequential Contextual Normalization (FAST) ===")
     print(f"Input |ψ⟩ = α|0⟩+β|1⟩ with α={psi[0]:.3f}, β={psi[1]:.3f}")
     print(f"Born target: P(0)={true_p0:.4f}, P(1)={true_p1:.4f}\n")
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     ax.plot([r[0] for r in rows], [r[2] for r in rows], "-o", label="Photon Algebra")
     ax.set_xlabel("Weak-measurement strength μ")
     ax.set_ylabel("Final P(0)")
-    ax.set_title("B1+B2 — Weak Measurement Convergence to Born Rule")
+    ax.set_title("B1+B2 - Weak Measurement Convergence to Born Rule")
     ax.legend()
     plt.tight_layout()
     plt.savefig("PAEV_TestB1B2_WeakMeas_Convergence.png", dpi=160)

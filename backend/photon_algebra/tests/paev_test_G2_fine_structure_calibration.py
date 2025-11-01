@@ -1,6 +1,6 @@
 """
-PAEV Test G2 — Fine-Structure Constant Calibration (Stable Version)
-Derives emergent α from θ–κ field correlations with energy damping and normalization.
+PAEV Test G2 - Fine-Structure Constant Calibration (Stable Version)
+Derives emergent α from θ-κ field correlations with energy damping and normalization.
 """
 
 import numpy as np
@@ -51,7 +51,7 @@ for t in range(steps):
     theta += dt * theta_t
     kappa += dt * kappa_t
 
-    # Stabilization — prevent blow-up
+    # Stabilization - prevent blow-up
     theta /= np.max(np.abs(theta)) + 1e-8
     kappa /= np.max(np.abs(kappa)) + 1e-8
 
@@ -77,8 +77,8 @@ alpha_final = np.nanmean(alpha_t[-50:])
 plt.figure(figsize=(8, 5))
 plt.plot(alpha_t, label="α(t)", color="purple")
 plt.axhline(alpha_nominal, linestyle="--", color="black", label="known α = 7.297e-3")
-plt.axhline(alpha_final, linestyle="--", color="orange", label=f"emergent ᾱ = {alpha_final:.3e}")
-plt.title("G2 — Fine-Structure Constant Calibration (Stabilized)")
+plt.axhline(alpha_final, linestyle="--", color="orange", label=f"emergent ᾱ = {alpha_final:.3e}")
+plt.title("G2 - Fine-Structure Constant Calibration (Stabilized)")
 plt.xlabel("step")
 plt.ylabel("α estimate")
 plt.legend()
@@ -90,7 +90,7 @@ plt.figure(figsize=(6, 4))
 plt.hist(alpha_mean, bins=40, color="mediumpurple", alpha=0.8)
 plt.axvline(alpha_nominal, color="black", linestyle="--", label=f"known α={alpha_nominal:.3e}")
 plt.axvline(alpha_final, color="orange", linestyle="--", label=f"emergent α={alpha_final:.3e}")
-plt.title("G2 — Bootstrap α Distribution")
+plt.title("G2 - Bootstrap α Distribution")
 plt.xlabel("α estimate")
 plt.ylabel("count")
 plt.legend()
@@ -110,18 +110,18 @@ plt.savefig("PAEV_TestG2_FieldResonance.png", dpi=150)
 print("✅ Saved file: PAEV_TestG2_FieldResonance.png")
 
 with open("PAEV_TestG2_Summary.txt", "w") as f:
-    f.write("=== Test G2 — Fine-Structure Constant Calibration ===\n")
+    f.write("=== Test G2 - Fine-Structure Constant Calibration ===\n")
     f.write(f"α (known)       = {alpha_nominal:.6e}\n")
-    f.write(f"ᾱ (emergent)   = {alpha_final:.6e}\n")
+    f.write(f"ᾱ (emergent)   = {alpha_final:.6e}\n")
     f.write(f"68% CI          = [{alpha_CI[0]:.6e}, {alpha_CI[1]:.6e}]\n")
-    f.write(f"Final ⟨θ·κ⟩     = {corr_t[-1]:.6e}\n")
+    f.write(f"Final ⟨θ*κ⟩     = {corr_t[-1]:.6e}\n")
     f.write(f"Final entropy   = {entropy_t[-1]:.6e}\n")
     f.write("Perturbation mode: ON\n")
 
-print("\n=== Test G2 — Fine-Structure Constant Calibration Complete ===")
-print(f"ᾱ (emergent) = {alpha_final:.6e}")
+print("\n=== Test G2 - Fine-Structure Constant Calibration Complete ===")
+print(f"ᾱ (emergent) = {alpha_final:.6e}")
 print(f"68% CI        = [{alpha_CI[0]:.6e}, {alpha_CI[1]:.6e}]")
-print(f"⟨θ·κ⟩ final    = {corr_t[-1]:.6e}")
+print(f"⟨θ*κ⟩ final    = {corr_t[-1]:.6e}")
 print(f"Entropy final  = {entropy_t[-1]:.6e}")
 print("Perturbation mode: ON")
 print("All output files saved in working directory.")

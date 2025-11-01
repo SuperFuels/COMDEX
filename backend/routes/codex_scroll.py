@@ -88,8 +88,8 @@ async def run_ptn(body: dict):
     """
     Execute a Photon Page (.ptn) capsule sent via API.
     Accepts either:
-      • path → to .ptn file
-      • content → dict representing PhotonPage JSON
+      * path -> to .ptn file
+      * content -> dict representing PhotonPage JSON
     """
     try:
         if "content" in body:

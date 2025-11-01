@@ -24,13 +24,13 @@ def test_grad():
 
 
 def test_div():
-    d = run("∇·", vec={"expr": ["x", "y", "z"]}, coords=["x", "y", "z"])
-    assert d["op"] == "∇·"
+    d = run("∇*", vec={"expr": ["x", "y", "z"]}, coords=["x", "y", "z"])
+    assert d["op"] == "∇*"
 
 
 def test_curl():
-    c = run("∇×", vec={"expr": ["y", "-x", "0"]}, coords=["x", "y", "z"])
-    assert c["op"] == "∇×"
+    c = run("∇*", vec={"expr": ["y", "-x", "0"]}, coords=["x", "y", "z"])
+    assert c["op"] == "∇*"
 
 
 def test_laplacian():
@@ -47,13 +47,13 @@ def test_d_dt():
 # ------------ Linear algebra / tensor ------------
 
 def test_dot():
-    d = run("·", A={"expr": ["1", "0"]}, B={"expr": ["0", "1"]})
-    assert d["op"] == "·"
+    d = run("*", A={"expr": ["1", "0"]}, B={"expr": ["0", "1"]})
+    assert d["op"] == "*"
 
 
 def test_cross():
-    x = run("×", A={"expr": ["1", "0", "0"]}, B={"expr": ["0", "1", "0"]})
-    assert x["op"] == "×"
+    x = run("*", A={"expr": ["1", "0", "0"]}, B={"expr": ["0", "1", "0"]})
+    assert x["op"] == "*"
 
 
 def test_tensor_product():
@@ -68,7 +68,7 @@ def test_aliases_vector_and_tensor():
     assert g["op"] == "∇"
 
     d = run("DOT", A={"expr": ["a1", "a2"]}, B={"expr": ["b1", "b2"]})
-    assert d["op"] == "·"
+    assert d["op"] == "*"
 
     t = run("TENSOR", A={"expr": ["a1", "a2"]}, B={"expr": ["b1", "b2"]})
     assert t["op"] == "⊗"

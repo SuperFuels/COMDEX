@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==============================================================
-# F7b-R — Refined Stabilized Entangled Geometry (Tessaris Framework)
+# F7b-R - Refined Stabilized Entangled Geometry (Tessaris Framework)
 # Adaptive dt + Dual-Field Coupling
 # ==============================================================
 
@@ -27,7 +27,7 @@ noise = 0.0006
 rho_c = 1.0
 
 # --- Entangled field coupling ---
-g_couple = 0.015  # weak coupling between φ₁ and φ₂
+g_couple = 0.015  # weak coupling between φ1 and φ2
 
 # --- PID controller for Λ_eff ---
 kp, ki, kd = 0.2, 0.005, 0.04
@@ -132,7 +132,7 @@ else:
 plt.figure(figsize=(9,5))
 plt.plot(t, a, label="a(t)")
 plt.axvline(t[bounce_index], color="purple", ls="--", label="bounce")
-plt.title("F7b-R — Scale Factor Evolution (Refined Dual-Field LQC Bounce)")
+plt.title("F7b-R - Scale Factor Evolution (Refined Dual-Field LQC Bounce)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7bR_ScaleFactorEvolution.png")
@@ -142,14 +142,14 @@ plt.plot(t, rho_tot, label="ρ_total", lw=1.3)
 plt.plot(t, rho_phi, label="ρ_φ", alpha=0.7)
 plt.plot(t, Lambda_eff, "--", label="Λ_eff(t)", alpha=0.8)
 plt.yscale("log")
-plt.title("F7b-R — Energy Density and Damped Dual-Field Feedback")
+plt.title("F7b-R - Energy Density and Damped Dual-Field Feedback")
 plt.xlabel("time"); plt.ylabel("Energy (log)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7bR_EnergyDecomposition.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, np.cos(phi1 - phi2), lw=1.0, label="cos(Δφ)")
-plt.title("F7b-R — Vacuum-Field Phase Coherence (φ₁ ↔ φ₂)")
+plt.title("F7b-R - Vacuum-Field Phase Coherence (φ1 ↔ φ2)")
 plt.xlabel("time"); plt.ylabel("cos(Δφ)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7bR_PhaseCoherence.png")
@@ -194,7 +194,7 @@ results = {
 with open("backend/modules/knowledge/F7bR_refined_dualfield.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== F7b-R — Refined Dual-Field Bounce (Adaptive LQC) ===")
+print("=== F7b-R - Refined Dual-Field Bounce (Adaptive LQC) ===")
 print(f"a_min={a_min:.4f} | coherence={mean_coherence:.3f} | anti-corr(Λ,E)={anti_corr:.2f}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F7bR_refined_dualfield.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F7bR_refined_dualfield.json")

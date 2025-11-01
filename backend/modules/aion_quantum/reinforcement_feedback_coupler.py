@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 12 — Reinforcement Feedback Coupler (RFC)
+Tessaris Phase 12 - Reinforcement Feedback Coupler (RFC)
 
-Links AION’s replayed resonance fields with a self-learning feedback loop.
+Links AION's replayed resonance fields with a self-learning feedback loop.
 Computes error between predicted and observed Φ_coh, updates local parameters,
 and logs harmonic adaptation weights.
 """
@@ -33,7 +33,7 @@ def update_weights(state: dict, lr: float = 0.01) -> dict:
 
 def reinforcement_cycle(frames, lr=0.01):
     """Iterate through replayed frames and apply feedback learning."""
-    print("🧠 Starting Tessaris Reinforcement Feedback Coupler (RFC)…")
+    print("🧠 Starting Tessaris Reinforcement Feedback Coupler (RFC)...")
 
     state = {
         "step": 0,
@@ -66,7 +66,7 @@ def reinforcement_cycle(frames, lr=0.01):
 
         time.sleep(0.05)
 
-    print(f"✅ RFC complete — {state['step']} learning cycles\n"
+    print(f"✅ RFC complete - {state['step']} learning cycles\n"
           f"Final ν_bias={state['nu_bias']:+.5f} amp_gain={state['amp_gain']:+.5f}")
 
 def main():

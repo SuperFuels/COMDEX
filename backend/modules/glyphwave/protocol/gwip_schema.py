@@ -1,5 +1,5 @@
 """
-📘 GWIP Schema — Unified Validation Layer (SRK-9)
+📘 GWIP Schema - Unified Validation Layer (SRK-9)
 Combines:
  - Pydantic model validation for structured metadata (compile-time)
  - JSON Schema validation for runtime packet integrity (coherence, hash, signature)
@@ -17,7 +17,7 @@ from backend.modules.glyphwave.carrier.carrier_types import CarrierType
 
 
 # ────────────────────────────────────────────────────────────────
-# 📦 Pydantic Model — Metadata Structure
+# 📦 Pydantic Model - Metadata Structure
 # ----------------------------------------------------------------
 class GWIPMetadata(BaseModel):
     """Metadata fields for a GlyphWave Information Packet (GWIP)."""
@@ -39,7 +39,7 @@ class GWIPMetadata(BaseModel):
         default=None,
         ge=0.0,
         le=1.0,
-        description="Carrier coherence score [0.0–1.0]"
+        description="Carrier coherence score [0.0-1.0]"
     )
 
     # 🔐 Security Layer
@@ -68,7 +68,7 @@ class GWIPMetadata(BaseModel):
 
 
 # ────────────────────────────────────────────────────────────────
-# 🧩 JSON Schema Validation — Full GWIP Packet Structure
+# 🧩 JSON Schema Validation - Full GWIP Packet Structure
 # ----------------------------------------------------------------
 # ✅ Corrected schema path (matches actual file location)
 SCHEMA_PATH = Path(__file__).resolve().parent / "gwip_packet_schema_v3.json"

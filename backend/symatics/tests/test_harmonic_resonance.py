@@ -3,11 +3,11 @@ from backend.symatics.core.srk7_harmonic_resonance import SRKExtension
 from backend.symatics.core.srk_kernel import SymaticsReasoningKernel
 
 def run_harmonic_resonance_test():
-    print("\n=== Running SRK-7 Harmonic–Resonance Synchronization Test ===")
+    print("\n=== Running SRK-7 Harmonic-Resonance Synchronization Test ===")
 
     kernel = SymaticsReasoningKernel()
 
-    # Load prior SRK layers manually (SRK-3 → SRK-6)
+    # Load prior SRK layers manually (SRK-3 -> SRK-6)
     for ext_name in [
         "srk3_entropy", 
         "srk4_resonance", 
@@ -38,9 +38,9 @@ def run_harmonic_resonance_test():
     print(json.dumps(diag, indent=2))
 
     if feedback.get("passed"):
-        print("✅ SRK-7 harmonic–resonance synchronization passed.")
+        print("✅ SRK-7 harmonic-resonance synchronization passed.")
     else:
-        print("⚠️ SRK-7 harmonic–resonance synchronization unstable.")
+        print("⚠️ SRK-7 harmonic-resonance synchronization unstable.")
 
 if __name__ == "__main__":
     run_harmonic_resonance_test()

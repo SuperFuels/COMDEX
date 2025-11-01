@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────
-#  Tessaris • GHX Telemetry Adapter
-#  Stage 13.4 → 13.5 — Live Metrics ↔ GHXVisualizer + MorphicLedger
-#  Streams Φ–ψ resonance and coherence metrics into GHX front-end
+#  Tessaris * GHX Telemetry Adapter
+#  Stage 13.4 -> 13.5 - Live Metrics ↔ GHXVisualizer + MorphicLedger
+#  Streams Φ-ψ resonance and coherence metrics into GHX front-end
 #  and appends to data/ledger/rqc_live_telemetry.jsonl for SSE feeds.
 # ──────────────────────────────────────────────
 
@@ -53,7 +53,7 @@ class GHXTelemetryAdapter:
 
     def latest_payload(self) -> Dict[str, Any]:
         """
-        Return most recent Φ–ψ–κ–T telemetry packet.
+        Return most recent Φ-ψ-κ-T telemetry packet.
         Falls back to last ledger entry or stub.
         """
         if self._latest:
@@ -144,7 +144,7 @@ class GHXTelemetryAdapter:
                 tag="ghx_telemetry_update",
                 payload={"type": "resonance", "data": data},
             )
-            logger.debug(f"[GHXTelemetry] → GHX broadcast {data}")
+            logger.debug(f"[GHXTelemetry] -> GHX broadcast {data}")
         except Exception as e:
             logger.info(f"[GHXTelemetry] (stub) {data} | reason: {e}")
 

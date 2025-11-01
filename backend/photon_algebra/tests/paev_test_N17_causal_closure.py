@@ -8,7 +8,7 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β = const["ħ"], const["G"], const["Λ"], const["α"], const["β"]
 
-print("=== N17 — Causal Loop Closure Test ===")
+print("=== N17 - Causal Loop Closure Test ===")
 
 # Temporal grid
 t = np.linspace(0, 10, 2000)
@@ -72,4 +72,4 @@ summary = {
 with open("backend/modules/knowledge/N17_causal_closure.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("✅ Plots saved and results recorded → backend/modules/knowledge/N17_causal_closure.json")
+print("✅ Plots saved and results recorded -> backend/modules/knowledge/N17_causal_closure.json")

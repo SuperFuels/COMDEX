@@ -95,15 +95,15 @@ def main():
         json.dump(report, f, indent=2)
 
     # Summary
-    print(f"\n[✔] Integrity report generated → {out_path}")
+    print(f"\n[✔] Integrity report generated -> {out_path}")
     if report["verified_targets"]:
         print("✅ Verified:")
         for t in report["verified_targets"]:
-            print(f"   • {t}")
+            print(f"   * {t}")
     if report["missing_targets"]:
         print("\n⚠️  Skipped (not found):")
         for t in report["missing_targets"]:
-            print(f"   • {t}")
+            print(f"   * {t}")
 
 if __name__ == "__main__":
     main()

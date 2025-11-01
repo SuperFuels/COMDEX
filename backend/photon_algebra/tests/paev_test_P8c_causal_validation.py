@@ -113,9 +113,9 @@ for t in range(perturb_time+1, T - relock_window):
 delta_meta = np.gradient(A["meta"] - B["meta"])
 causal_sign = np.sign(np.mean(delta_meta[perturb_time+1:perturb_time+50]))
 if causal_sign < 0:
-    direction = "B→A predictive recovery"
+    direction = "B->A predictive recovery"
 elif causal_sign > 0:
-    direction = "A→B predictive recovery"
+    direction = "A->B predictive recovery"
 else:
     direction = "Symmetric"
 
@@ -131,7 +131,7 @@ plt.plot(phi_diff_AB, label="|Δφ_AB|")
 plt.axhline(lock_threshold, color="r", linestyle="--", label=f"lock threshold={lock_threshold}")
 plt.axvline(perturb_time, color="purple", linestyle=":", alpha=0.7, label="perturbation")
 plt.legend()
-plt.title("P8c — Phase Error Evolution (Causal Validation Test)")
+plt.title("P8c - Phase Error Evolution (Causal Validation Test)")
 plt.xlabel("time step")
 plt.ylabel("|Δφ_AB|")
 plt.tight_layout()
@@ -139,10 +139,10 @@ plt.savefig("PAEV_P8c_CausalValidation_Phase.png")
 plt.close()
 
 # === Output summary ===
-print("=== P8c — Causal Validation Test (Directional Perturbation) ===")
+print("=== P8c - Causal Validation Test (Directional Perturbation) ===")
 print(f"Re-lock time = {relock_time} | Tail lock ratio = {lock_ratio_tail:.3f} | Direction = {direction}")
-print(f"→ {classification}")
-print("✅ Results saved → backend/modules/knowledge/P8c_causal_validation.json")
+print(f"-> {classification}")
+print("✅ Results saved -> backend/modules/knowledge/P8c_causal_validation.json")
 
 # === Save results ===
 results = {

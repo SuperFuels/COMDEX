@@ -60,8 +60,8 @@ class AIONAvatar:
         glyphs = self.kernel.get_glyph_at(**self.position)
         reactions = []
         for glyph in glyphs:
-            if "→" in glyph:
-                trigger, action = map(str.strip, glyph.split("→", 1))
+            if "->" in glyph:
+                trigger, action = map(str.strip, glyph.split("->", 1))
                 if "action:move" in action:
                     reactions.append(self.random_step())
                 elif "action:focus" in action:
@@ -98,7 +98,7 @@ class AIONAvatar:
             "tick_rate": self.tick_rate
         }
 
-    # 🔐 Inventory Logic — Key Support
+    # 🔐 Inventory Logic - Key Support
     def add_key(self, key):
         if key not in self.inventory:
             self.inventory.append(key)

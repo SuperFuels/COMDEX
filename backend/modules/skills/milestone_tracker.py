@@ -64,7 +64,7 @@ class MilestoneTracker:
         # ✅ Known model search paths
         model_paths = [
             "/srv/backend/models/all-MiniLM-L6-v2",  # Docker absolute path
-            str(Path(__file__).resolve().parent.parent / "models/all-MiniLM-L6-v2"),  # /backend/modules/... → /backend/models/
+            str(Path(__file__).resolve().parent.parent / "models/all-MiniLM-L6-v2"),  # /backend/modules/... -> /backend/models/
             "./backend/models/all-MiniLM-L6-v2",  # dev relative path
             "./models/all-MiniLM-L6-v2",          # fallback
         ]

@@ -6,8 +6,8 @@ Maps textual Photon/Python code into glyph-plane representations
 using the canonical reserved manifest.
 
 Provides:
-  • translate_line(line:str) → glyph-string
-  • compile_file(path:str)   → compiled structure
+  * translate_line(line:str) -> glyph-string
+  * compile_file(path:str)   -> compiled structure
 """
 
 import json, re
@@ -51,12 +51,12 @@ class PhotonTranslator:
 
     # ─── Translate one line ───────────────────────────────────────────────
     def translate_line(self, line: str) -> str:
-        """Convert reserved text & glyphs inline → symbolic representation."""
+        """Convert reserved text & glyphs inline -> symbolic representation."""
         if not line.strip():
             return ""
 
         out = line
-        # Replace keywords → [kw]
+        # Replace keywords -> [kw]
         for kw in sorted(self.reserved_kw, key=len, reverse=True):
             out = re.sub(rf"\b{kw}\b", f"[{kw}]", out)
 

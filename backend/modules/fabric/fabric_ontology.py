@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Fabric Ontology Engine (Stage 14)
+#  Tessaris * Fabric Ontology Engine (Stage 14)
 #  Knowledge Graph Propagation & Resonance Coupling
-#  Enables ψ–κ–T–Φ field deltas to update ontology nodes
+#  Enables ψ-κ-T-Φ field deltas to update ontology nodes
 #  and propagate meaning through connected graph edges.
 # ──────────────────────────────────────────────
 
@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 
 class FabricOntology:
     """
-    The Fabric Ontology represents the semantic substrate of Tessaris —
+    The Fabric Ontology represents the semantic substrate of Tessaris -
     a knowledge graph where every node embodies a concept, glyph, or symbol
-    that can resonate, update, or collapse according to ψ–κ–T–Φ deltas.
+    that can resonate, update, or collapse according to ψ-κ-T-Φ deltas.
     """
 
     def __init__(self, fabric_path: str = FABRIC_PATH):
@@ -84,9 +84,9 @@ class FabricOntology:
     # ──────────────────────────────────────────────
     def propagate_resonance(self, psi_delta: float, kappa_delta: float, coherence: float):
         """
-        Propagate ψ–κ–T deltas through the graph.
+        Propagate ψ-κ-T deltas through the graph.
         Each node receives an influence proportional to:
-            ΔΦ = (ψΔ + κΔ) × link_weight × coherence
+            ΔΦ = (ψΔ + κΔ) * link_weight * coherence
         """
         try:
             if not self.graph:

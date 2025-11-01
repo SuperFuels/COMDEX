@@ -112,7 +112,7 @@ def export_collapse_trace_from_sheet(
         print("[⚠️] No cells to export.")
         return
 
-    print(f"[📦] Exporting collapse trace for {len(cells)} cells → {out_path}")
+    print(f"[📦] Exporting collapse trace for {len(cells)} cells -> {out_path}")
 
     snapshot = {
         "type": "DimensionContainer",

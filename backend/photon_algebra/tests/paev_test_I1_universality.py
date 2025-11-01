@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PAEV Test I1 — Informational Universality (Diffusive–Ballistic Crossover)
+PAEV Test I1 - Informational Universality (Diffusive-Ballistic Crossover)
 Tessaris Photon Algebra Framework (Tessaris v1.0 Core)
 """
 
@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 from pathlib import Path
 
-print("=== I1 — Informational Universality (Diffusive–Ballistic Crossover) ===")
+print("=== I1 - Informational Universality (Diffusive-Ballistic Crossover) ===")
 
 # =====================================================
 # 🔹 Load Tessaris constants (auto-resolved via unified registry)
@@ -50,7 +50,7 @@ def compute_msd(phi_series):
     return np.mean((phi_series - phi0) ** 2, axis=1)
 
 # =====================================================
-# 🌀 Evolve state — simplified photon-algebra transport
+# 🌀 Evolve state - simplified photon-algebra transport
 # =====================================================
 def evolve_state(N, T, dt, var_k, α, Λ, χ, noise_amp):
     phi = initialize_field(N, var_k)
@@ -80,11 +80,11 @@ def estimate_transport_exponent(time, msd):
 def detect_anomalies(p_values):
     notes = []
     if np.any(np.array(p_values) > 1.05):
-        notes.append("⚠ Super-ballistic regime detected — possible acausal front or coherence overshoot.")
+        notes.append("⚠ Super-ballistic regime detected - possible acausal front or coherence overshoot.")
     if np.any(np.diff(p_values) < 0):
-        notes.append("⚠ Non-monotonic crossover in transport scaling — check local curvature variance thresholds.")
+        notes.append("⚠ Non-monotonic crossover in transport scaling - check local curvature variance thresholds.")
     if not notes:
-        notes.append("✅ Smooth diffusive–ballistic transition; no anomalies detected.")
+        notes.append("✅ Smooth diffusive-ballistic transition; no anomalies detected.")
     return notes
 
 # =====================================================
@@ -116,11 +116,11 @@ for i, var_k in enumerate(params["var_kappa"]):
 plt.xlabel("time (t)")
 plt.ylabel("MSD(t)")
 plt.legend()
-plt.title("I1 — Diffusive–Ballistic Crossover")
+plt.title("I1 - Diffusive-Ballistic Crossover")
 plt.tight_layout()
 plt.grid(True, which="both", ls="--", alpha=0.4)
 plt.savefig("PAEV_I1_MSD.png", dpi=200)
-print("✅ Figure saved → PAEV_I1_MSD.png")
+print("✅ Figure saved -> PAEV_I1_MSD.png")
 
 # =====================================================
 # 💾 Save results
@@ -130,11 +130,11 @@ results_json = {
     "constants": const,
     "params": params,
     "results": results,
-    "classification": "✅ Informational universality (diffusive–ballistic crossover detected)",
+    "classification": "✅ Informational universality (diffusive-ballistic crossover detected)",
     "files": {"msd_plot": "PAEV_I1_MSD.png"},
 }
 
 out_path = Path("backend/modules/knowledge/I1_universality.json")
 out_path.write_text(json.dumps(results_json, indent=2))
-print(f"✅ Results saved → {out_path}")
+print(f"✅ Results saved -> {out_path}")
 print(json.dumps(results_json, indent=2))

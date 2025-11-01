@@ -1,7 +1,7 @@
 # 📄 backend/modules/codex/lightcone_tracer.py
 
 """
-🌌 LightCone Tracer – Forward/Reverse Symbolic Execution
+🌌 LightCone Tracer - Forward/Reverse Symbolic Execution
 ─────────────────────────────────────────────────────────
 Traces CodexLang execution and symbolic mutation lineage
 to enable LightCone-style temporal analysis across cells.

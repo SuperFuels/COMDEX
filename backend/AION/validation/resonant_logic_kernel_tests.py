@@ -2,8 +2,8 @@
 Resonant Logic Kernel Validator (D5+ Adaptive)
 ──────────────────────────────────────────────
 Verifies that all Symatics operators preserve algebraic
-and coherence invariants under πₛ closure, with automatic
-tolerance calibration to maintain ≥ 90 % stability.
+and coherence invariants under πs closure, with automatic
+tolerance calibration to maintain >= 90 % stability.
 """
 
 import math
@@ -19,9 +19,9 @@ from backend.symatics.quantum_ops import superpose, entangle, measure, equivalen
 
 class ResonantLogicKernelTests:
     """
-    D5+ — Adaptive Resonant Logic Kernel Validator
+    D5+ - Adaptive Resonant Logic Kernel Validator
     Dynamically tunes its ε-tolerance until the pass rate
-    meets a defined coherence threshold (≥ target_rate).
+    meets a defined coherence threshold (>= target_rate).
     """
 
     def __init__(
@@ -143,7 +143,7 @@ class ResonantLogicKernelTests:
             f.write(json.dumps(report) + "\n")
 
         print(
-            f"[✅ RLK-Adaptive] {status.upper()} → "
+            f"[✅ RLK-Adaptive] {status.upper()} -> "
             f"{pass_rate*100:.2f}% pass rate after {len(history)} iters "
             f"(ε≈{self.tolerance:.5f})"
         )

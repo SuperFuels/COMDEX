@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import itertools
 
-# Define the Peres–Mermin square relations
+# Define the Peres-Mermin square relations
 contexts = [
     ["XI", "IX", "XX"],  # Row 1
     ["IY", "YI", "YY"],  # Row 2
@@ -11,7 +11,7 @@ contexts = [
     ["XX", "YY", "ZZ"],  # Col 3
 ]
 
-# Target parity: +1 for all except last column (−1)
+# Target parity: +1 for all except last column (-1)
 expected = [+1, +1, +1, +1, +1, -1]
 
 def product(vals):
@@ -28,13 +28,13 @@ def check_assignment(assignment):
     results = [product([mapping[o] for o in ctx]) for ctx in contexts]
     return all(r == e for r, e in zip(results, expected))
 
-# --- Photon Algebra “normalizer”: attempt to find consistent assignment
+# --- Photon Algebra "normalizer": attempt to find consistent assignment
 consistent = [a for a in assignments if check_assignment(a)]
 
-print("=== Kochen–Specker Contextuality Test (Peres–Mermin) ===")
+print("=== Kochen-Specker Contextuality Test (Peres-Mermin) ===")
 print(f"Total assignments checked: {len(assignments)}")
 if not consistent:
-    print("❌ No consistent assignment exists — Contextuality confirmed (unsatisfiable).")
+    print("❌ No consistent assignment exists - Contextuality confirmed (unsatisfiable).")
 else:
     print("⚠️ Consistent assignments found (unexpected):")
     for sol in consistent:

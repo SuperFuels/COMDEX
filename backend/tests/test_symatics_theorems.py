@@ -2,7 +2,7 @@
 """
 Symatics Theorems Test Suite (v0.3)
 -----------------------------------
-Tests axioms (A1–A8) of ⋈[φ] interference plus new irreducibility results.
+Tests axioms (A1-A8) of ⋈[φ] interference plus new irreducibility results.
 Also integrates Lean ↔ CodexLang bridge to ensure consistency.
 """
 
@@ -56,7 +56,7 @@ def test_self_annihilation_unique():
 
 
 def test_phase_cancellation():
-    stmt = "A ⋈[φ] (A ⋈[−φ] B) ↔ B"
+    stmt = "A ⋈[φ] (A ⋈[-φ] B) ↔ B"
     φ = 1.23
     lhs = R.interf(φ, A, R.interf(-φ, A, B))
     ok = R.symatics_equiv(lhs, B)
@@ -82,7 +82,7 @@ def test_no_distributivity_nontrivial():
 
 
 def test_no_fixed_point_nontrivial():
-    stmt = "X = A ⋈[φ] X has no solutions for φ ≠ 0,π"
+    stmt = "X = A ⋈[φ] X has no solutions for φ != 0,π"
     φ = 0.5
     X = C
     lhs = R.interf(φ, A, X)
@@ -91,7 +91,7 @@ def test_no_fixed_point_nontrivial():
 
 
 def test_no_distrib_formal():
-    stmt = "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C)) for φ ≠ 0,π"
+    stmt = "((A ⋈[φ] B) ∧ C) != ((A ∧ C) ⋈[φ] (B ∧ C)) for φ != 0,π"
     φ = 0.7
     lhs = R.interf(φ, R.interf(φ, A, B), C)
     rhs = R.interf(φ, R.interf(0, A, C), R.interf(0, B, C))
@@ -133,7 +133,7 @@ def test_lean_axioms_bridge_consistency():
 
         status = norm_logic is not None and norm_logic != ""
         BRIDGE_RESULTS.append((nm, raw_logic, norm_logic, status))
-        assert status, f"Lean→CodexLang conversion failed for {nm}"
+        assert status, f"Lean->CodexLang conversion failed for {nm}"
 
 
 # ------------------------

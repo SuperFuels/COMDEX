@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ============================================================
-# 🧠 Tessaris SCI Overlay — Dual Stream Output (Text + Photon) v0.2
+# 🧠 Tessaris SCI Overlay - Dual Stream Output (Text + Photon) v0.2
 # ============================================================
 """
 SCI overlay intercepts cognition events and emits:
@@ -11,7 +11,7 @@ SCI overlay intercepts cognition events and emits:
 ✅ Lite mode = symbolic layer disabled
 
 Future:
-- SCI → PhotonLens streaming
+- SCI -> PhotonLens streaming
 - Reverse cognitive reconstruction via photon_expand
 """
 
@@ -25,7 +25,7 @@ from pathlib import Path
 # ----------------------------------
 LITE = os.getenv("AION_LITE") == "1"
 
-# Try load compressor — degrade safely if unavailable
+# Try load compressor - degrade safely if unavailable
 try:
     from backend.modules.glyphos.glyph_synthesis_engine import compress_to_glyphs
 except Exception:

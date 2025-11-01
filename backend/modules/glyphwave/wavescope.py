@@ -1,11 +1,11 @@
 """
-📊 WaveScope – Telemetry + Signal Metrics for GlyphWave
+📊 WaveScope - Telemetry + Signal Metrics for GlyphWave
 
 Provides:
-    • Beam event logging
-    • Signal-to-noise ratio (SNR) tracking
-    • Throughput stats (beams/sec, dropped %)
-    • WebSocket HUD + GHX trace streaming
+    * Beam event logging
+    * Signal-to-noise ratio (SNR) tracking
+    * Throughput stats (beams/sec, dropped %)
+    * WebSocket HUD + GHX trace streaming
 """
 
 from typing import Dict, Any, List

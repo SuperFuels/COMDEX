@@ -7,7 +7,7 @@ Symbolic Instruction Set (Shim)
 Use `instruction_registry.registry` directly for canonical ops.
 
 - Provides `is_valid_opcode()` and `get_opcode()` wrappers.
-- Auto-aliases legacy raw symbols (⊕, ⟲, →) to domain-tagged keys.
+- Auto-aliases legacy raw symbols (⊕, ⟲, ->) to domain-tagged keys.
 """
 
 import warnings
@@ -20,7 +20,7 @@ from backend.codexcore_virtual import instruction_registry as ir
 LEGACY_ALIASES = {
     "⊕": "logic:⊕",       # addition / combine
     "⟲": "control:⟲",     # loop / iteration
-    "→": "logic:→",       # sequence / trigger
+    "->": "logic:->",       # sequence / trigger
 }
 
 # -----------------------------------------------------------------------------

@@ -1,8 +1,8 @@
 """
-Tessaris RQC — Photonic Runtime Operator ⟲ (resonate)
+Tessaris RQC - Photonic Runtime Operator ⟲ (resonate)
 ─────────────────────────────────────────────────────────────
 Stabilizes a superposed field through feedback iterations.
-Models resonance feedback → energy damping → coherence equilibrium.
+Models resonance feedback -> energy damping -> coherence equilibrium.
 
 Input:
     field : np.ndarray | complex | float

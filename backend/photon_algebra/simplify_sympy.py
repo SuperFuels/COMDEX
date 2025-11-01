@@ -2,7 +2,7 @@
 """
 Photon Simplification via SymPy
 ===============================
-Task: I2.2 — SymPy-based simplifier using the Photon↔SymPy bridge.
+Task: I2.2 - SymPy-based simplifier using the Photon↔SymPy bridge.
 
 Performs symbolic simplification of Photon expressions by round-tripping
 through SymPy (using simplify(), to_cnf(), to_dnf(), etc.) while preserving
@@ -12,10 +12,10 @@ Usage:
     simplified = simplify_via_sympy(expr, mode="auto")
 
 Modes:
-    - "auto"   → sp.simplify()
-    - "cnf"    → convert to conjunctive normal form
-    - "dnf"    → convert to disjunctive normal form
-    - "sat"    → reduce tautologies / contradictions
+    - "auto"   -> sp.simplify()
+    - "cnf"    -> convert to conjunctive normal form
+    - "dnf"    -> convert to disjunctive normal form
+    - "sat"    -> reduce tautologies / contradictions
 """
 
 import sympy as sp
@@ -69,7 +69,7 @@ def simplify_via_sympy(expr, mode: str = "auto"):
 # Roundtrip self-test (pytest)
 # -------------------------------------------------------------------------
 def test_simplify_photon_roundtrip():
-    """Property test — simplified form should remain logically equivalent."""
+    """Property test - simplified form should remain logically equivalent."""
     expr = photon_exprs().example()
     simplified = simplify_via_sympy(expr)
 

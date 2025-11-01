@@ -1,5 +1,5 @@
 # ==========================================================
-# F2 — Vacuum Reversal Stability (Dynamic Λ-field coupling)
+# F2 - Vacuum Reversal Stability (Dynamic Λ-field coupling)
 # Advanced Cosmology: Singularity Bounce with adaptive vacuum response
 # ==========================================================
 
@@ -85,7 +85,7 @@ else:
 plt.figure(figsize=(9, 5))
 plt.plot(t, a, label='Scale factor a(t)', lw=1.5)
 plt.axvline(t[R_bounce], color='purple', ls='--', alpha=0.7, label='Bounce')
-plt.title("F2 — Scale Factor Evolution (Vacuum Reversal Stability)")
+plt.title("F2 - Scale Factor Evolution (Vacuum Reversal Stability)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F2_ScaleFactorEvolution.png")
@@ -93,14 +93,14 @@ plt.savefig("FAEV_F2_ScaleFactorEvolution.png")
 plt.figure(figsize=(9, 5))
 plt.plot(t, energy_total, label='Total Energy Density', lw=1.2)
 plt.plot(t, Lambda_t * 100, "gray", ls='--', alpha=0.7, label='Scaled Λ(t)')
-plt.title("F2 — Energy Density and Dynamic Vacuum Λ(t)")
+plt.title("F2 - Energy Density and Dynamic Vacuum Λ(t)")
 plt.xlabel("time"); plt.ylabel("Energy (arb. units)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F2_EnergyDensity.png")
 
 plt.figure(figsize=(9, 5))
 plt.plot(t, np.cos(phi), lw=1.0, label='cos(φ)')
-plt.title("F2 — Vacuum-Field Phase Coherence")
+plt.title("F2 - Vacuum-Field Phase Coherence")
 plt.xlabel("time"); plt.ylabel("cos(φ)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F2_PhaseCoherence.png")
@@ -141,7 +141,7 @@ results = {
 with open("backend/modules/knowledge/F2_vacuum_reversal_stability.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== F2 — Vacuum Reversal Stability (Dynamic Λ-field coupling) ===")
+print("=== F2 - Vacuum Reversal Stability (Dynamic Λ-field coupling) ===")
 print(f"a_min={a_min:.4f} | mean_coherence={mean_coherence:.3f} | energy_range=({energy_min:.3e},{energy_max:.3e})")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F2_vacuum_reversal_stability.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F2_vacuum_reversal_stability.json")

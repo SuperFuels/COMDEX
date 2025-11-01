@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PAEV Test F12 — Higgs Analogue & Collider Smash
+PAEV Test F12 - Higgs Analogue & Collider Smash
 Run: PYTHONPATH=. python backend/photon_algebra/tests/paev_test_F12_higgs_analogue.py
 """
 
@@ -97,7 +97,7 @@ def add_solitons(phi, amp, sigma, t):
 # -------------------------
 # Main loop
 # -------------------------
-print("💥 Running F12 — Higgs analogue collider-smash. Knock it up with soliton_amp or chi to 'do damage'.")
+print("💥 Running F12 - Higgs analogue collider-smash. Knock it up with soliton_amp or chi to 'do damage'.")
 for t in range(steps):
     # laplacians
     lap_phi = laplacian(phi)
@@ -172,7 +172,7 @@ plt.plot(energy_trace, label="<E> (phi energy)")
 plt.plot(np.array(phi_entropy_trace) * np.max(energy_trace), label="spectral entropy (scaled)", alpha=0.9)
 plt.xlabel("step")
 plt.legend()
-plt.title("F12 — Higgs analogue: energy & entropy")
+plt.title("F12 - Higgs analogue: energy & entropy")
 fn = os.path.join(OUT_DIR, "PAEV_TestF12_Higgs_EnergyEntropy.png")
 plt.savefig(fn, dpi=160, bbox_inches="tight")
 plt.close()
@@ -202,7 +202,7 @@ phi_fft_log = np.log10(phi_fft + 1e-30)
 plt.figure(figsize=(5,5))
 plt.imshow(phi_fft_log, origin='lower', cmap='magma')
 plt.colorbar(label='log10 |phi(k)|^2')
-plt.title("F12 — φ Field Spectrum (final)")
+plt.title("F12 - φ Field Spectrum (final)")
 fn = os.path.join(OUT_DIR, "PAEV_TestF12_Higgs_Spectrum.png")
 plt.savefig(fn, dpi=160, bbox_inches="tight")
 plt.close()
@@ -216,7 +216,7 @@ if frames:
 
 # textual summary
 summary = f"""
-=== Test F12 — Higgs Analogue Collider-smash ===
+=== Test F12 - Higgs Analogue Collider-smash ===
 Parameters:
   lambda_h = {lambda_h:.3g}, v = {v:.3g}, chi = {chi:.3g}
   soliton_amp = {soliton_amp:.3g}, smash_step = {smash_step}

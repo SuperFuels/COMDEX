@@ -25,7 +25,7 @@ class DCContainerIO:
 
         with open(path, "w") as f:
             json.dump(dc_data, f, indent=2)
-        print(f"📦 Exported .dc container → {path} | Stage={stage or 'N/A'} | SQI={sqi_enabled}")
+        print(f"📦 Exported .dc container -> {path} | Stage={stage or 'N/A'} | SQI={sqi_enabled}")
 
     @staticmethod
     def import_dc(path: str) -> Dict[str, Any]:

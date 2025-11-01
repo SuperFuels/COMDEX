@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test H′1 — Tessaris Field Phase Cohesion
+Test H′1 - Tessaris Field Phase Cohesion
 Evaluates harmonic phase alignment between locked constants (G′ snapshot).
 """
 
@@ -50,8 +50,8 @@ def save_results(phases, deltas, FCI):
         for k in phases:
             writer.writerow([k, f"{phases[k]:.6f}", f"{deltas[k]:.6f}"])
         writer.writerow(["FCI(%)", FCI])
-    print(f"📄 Saved results → {OUTPUT_CSV}")
-    print(f"📘 Saved JSON → {OUTPUT_JSON}")
+    print(f"📄 Saved results -> {OUTPUT_CSV}")
+    print(f"📘 Saved JSON -> {OUTPUT_JSON}")
 
 def plot_cohesion(phases, deltas, FCI):
     labels = list(phases.keys())
@@ -62,12 +62,12 @@ def plot_cohesion(phases, deltas, FCI):
     fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
     ax.plot(theta, phase_vals, "r-", linewidth=2)
     ax.fill(theta, phase_vals, "r", alpha=0.3)
-    ax.set_title(f"H′1 — Field Phase Cohesion Map (FCI={FCI:.3f}%)")
+    ax.set_title(f"H′1 - Field Phase Cohesion Map (FCI={FCI:.3f}%)")
     plt.savefig(OUTPUT_PLOT, dpi=300)
-    print(f"📈 Saved plot → {OUTPUT_PLOT}")
+    print(f"📈 Saved plot -> {OUTPUT_PLOT}")
 
 def main():
-    print("=== H′1 — Tessaris Field Phase Cohesion Test ===")
+    print("=== H′1 - Tessaris Field Phase Cohesion Test ===")
     consts = load_constants()
     phases, deltas, FCI = compute_cohesion(consts)
     print(f"Field Cohesion Index (FCI): {FCI:.3f} %")
@@ -76,9 +76,9 @@ def main():
     if FCI < 1.0:
         print("✅ Field harmonic alignment maintained.")
     elif FCI < 5.0:
-        print("⚠️ Mild field phase drift — monitor under H′2.")
+        print("⚠️ Mild field phase drift - monitor under H′2.")
     else:
-        print("🚨 Field incoherence detected — review G′ baseline.")
+        print("🚨 Field incoherence detected - review G′ baseline.")
 
 if __name__ == "__main__":
     main()

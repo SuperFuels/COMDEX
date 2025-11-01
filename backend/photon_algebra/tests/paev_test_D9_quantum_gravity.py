@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import imageio
 
-print("=== Test D9 — Quantum–Gravitational Coupling ===")
+print("=== Test D9 - Quantum-Gravitational Coupling ===")
 
 # Simulation grid
 N = 121
@@ -54,7 +54,7 @@ for t in range(timesteps):
     if t % 40 == 0:
         fig, ax = plt.subplots(figsize=(6,6))
         im = ax.imshow(np.angle(psi), cmap="twilight", extent=[-1,1,-1,1])
-        ax.set_title(f"Test D9 — Coupled Quantum–Curvature Field\nStep {t}")
+        ax.set_title(f"Test D9 - Coupled Quantum-Curvature Field\nStep {t}")
         plt.colorbar(im, ax=ax, label="Phase θ (rad)")
         fig.tight_layout()
         fig.canvas.draw()
@@ -69,9 +69,9 @@ print("✅ Saved animation to: PAEV_TestD9_QuantumGravity.gif")
 # Energy evolution plot
 plt.figure()
 plt.plot(energy_trace, color="blue")
-plt.title("Test D9 — Energy Evolution (Quantum–Curvature Coupling)")
+plt.title("Test D9 - Energy Evolution (Quantum-Curvature Coupling)")
 plt.xlabel("Time step")
-plt.ylabel("Mean curvature energy ⟨|∇θ|²⟩")
+plt.ylabel("Mean curvature energy ⟨|∇θ|2⟩")
 plt.tight_layout()
 plt.savefig("PAEV_TestD9_QuantumGravity_Energy.png")
 plt.close()
@@ -80,7 +80,7 @@ print("✅ Saved energy evolution plot.")
 # Curvature evolution plot
 plt.figure()
 plt.plot(curvature_energy, color="green")
-plt.title("Test D9 — Mean Curvature Evolution (Einstein Feedback)")
+plt.title("Test D9 - Mean Curvature Evolution (Einstein Feedback)")
 plt.xlabel("Time step")
 plt.ylabel("Mean curvature ⟨κ⟩")
 plt.tight_layout()
@@ -91,9 +91,9 @@ print("✅ Saved curvature evolution plot.")
 # Probability density evolution
 plt.figure()
 plt.plot(prob_density, color="purple")
-plt.title("Test D9 — Probability Density Evolution (|ψ|²)")
+plt.title("Test D9 - Probability Density Evolution (|ψ|2)")
 plt.xlabel("Time step")
-plt.ylabel("⟨|ψ|²⟩ mean density")
+plt.ylabel("⟨|ψ|2⟩ mean density")
 plt.tight_layout()
 plt.savefig("PAEV_TestD9_QuantumGravity_Probability.png")
 plt.close()
@@ -102,4 +102,4 @@ print("✅ Saved probability density plot.")
 print("\n=== Test D9 complete ===")
 print(f"⟨E⟩ = {np.mean(energy_trace):.4f}")
 print(f"⟨κ⟩ = {np.mean(curvature_energy):.4f}")
-print(f"⟨|ψ|²⟩ = {np.mean(prob_density):.4f}")
+print(f"⟨|ψ|2⟩ = {np.mean(prob_density):.4f}")

@@ -114,7 +114,7 @@ def auto_mutate_if_expired(container_path: str, coord: str, now_ms: Optional[int
         return False
 
     if age >= int(decay_limit):
-        print(f"♻️ Glyph at {coord} exceeded decay limit — rewriting...")
+        print(f"♻️ Glyph at {coord} exceeded decay limit - rewriting...")
         mutation = {
             "value": fallback_value,
             "tag": "reborn",
@@ -142,7 +142,7 @@ def run_self_rewrite(container_path: str, coord: str) -> bool:
 
     glyph = grid[coord]
     value = glyph.get("value", "")
-    if "⬁" in value or "→ ⬁" in value:
+    if "⬁" in value or "-> ⬁" in value:
         print(f"[🔁] Self-rewriting triggered for glyph at {coord}")
         mutated_value = rewrite_value(value)
         mutation = {
@@ -155,8 +155,8 @@ def run_self_rewrite(container_path: str, coord: str) -> bool:
 
 def rewrite_value(old_value: str) -> str:
     """Basic symbolic rewrite simulation for ⬁ logic."""
-    if "→ ⬁" in old_value:
-        return old_value.replace("→ ⬁", "→ Reflect")
+    if "-> ⬁" in old_value:
+        return old_value.replace("-> ⬁", "-> Reflect")
     return f"{old_value} + Echo"
 
 # ─── 📊 Mutation Scoring + Ethics ──────────────────────────────────────────────
@@ -211,7 +211,7 @@ def score_and_propose_mutation(glyph: str, context: str = "runtime", result: Opt
         impact = score_impact(old, new)
         safety = score_safety({"value": new})
 
-        print(f"🧮 [Autopilot] Mutation scoring — impact={impact:.2f}, safety={safety:.2f}")
+        print(f"🧮 [Autopilot] Mutation scoring - impact={impact:.2f}, safety={safety:.2f}")
 
         return propose_mutation(glyph_dict, reason=f"Autopilot ({context}) feedback")
 

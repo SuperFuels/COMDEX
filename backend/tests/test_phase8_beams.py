@@ -7,8 +7,8 @@ from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
 async def test_phase8_beam_lineage_and_entanglement():
     qpu = CodexVirtualQPU()
     cells = [
-        GlyphCell(id="c0", logic="⊕ ∇ ↔ ⟲ → ✦", position=[0,0]),
-        GlyphCell(id="c1", logic="⊕ ∇ ↔ ⟲ → ✦", position=[1,0]),
+        GlyphCell(id="c0", logic="⊕ ∇ ↔ ⟲ -> ✦", position=[0,0]),
+        GlyphCell(id="c1", logic="⊕ ∇ ↔ ⟲ -> ✦", position=[1,0]),
     ]
     ctx = {
         "container_id": "phase8_test_container",

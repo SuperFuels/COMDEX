@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────
-#  Tessaris • GHX WebSocket Bridge (HQCE Stage 13)
-#  Live ψ–κ–T, Φ–coherence, and semantic gravity stream bridge
-#  Unifies ResonanceLedger → GHX/QFC overlays + GWV replay
+#  Tessaris * GHX WebSocket Bridge (HQCE Stage 13)
+#  Live ψ-κ-T, Φ-coherence, and semantic gravity stream bridge
+#  Unifies ResonanceLedger -> GHX/QFC overlays + GWV replay
 # ──────────────────────────────────────────────
 
 import asyncio
@@ -19,16 +19,16 @@ try:
     from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
 except Exception:
     async def send_codex_ws_event(event_type: str, payload: dict):
-        print(f"[Fallback HUD] {event_type} → {payload}")
+        print(f"[Fallback HUD] {event_type} -> {payload}")
 
 
 # ──────────────────────────────────────────────
 #  Color mapping helper
 # ──────────────────────────────────────────────
 def _coherence_to_color(coherence: float) -> Dict[str, Any]:
-    """Map coherence [0,1] → HSL color, RGB tuple, and alpha channel."""
+    """Map coherence [0,1] -> HSL color, RGB tuple, and alpha channel."""
     c = max(0.0, min(1.0, coherence))
-    hue = 270 * (1 - c)            # violet → white hue gradient
+    hue = 270 * (1 - c)            # violet -> white hue gradient
     val = 80 + int(c * 120)        # brightness range
     rgb = [
         round(255 * c),            # R
@@ -59,11 +59,11 @@ class GHXVisualBridge:
     #  Frame Construction
     # ────────────────────────────────────────────
     async def build_frame(self) -> Dict[str, Any]:
-        """Create GHX frame enriched with ψ–κ–T + gravity overlays."""
+        """Create GHX frame enriched with ψ-κ-T + gravity overlays."""
         links = self.ledger.active_links()
         stability = await self.ledger.compute_lyapunov_stability()
 
-        # Fetch latest ψ–κ–T snapshot from Morphic Ledger if available
+        # Fetch latest ψ-κ-T snapshot from Morphic Ledger if available
         latest_entry = morphic_ledger.latest_metrics() if hasattr(morphic_ledger, "latest_metrics") else {}
         psi = latest_entry.get("ψ", 0.0)
         kappa = latest_entry.get("κ", 0.0)

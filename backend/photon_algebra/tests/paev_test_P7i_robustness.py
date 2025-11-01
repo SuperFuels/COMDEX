@@ -1,5 +1,5 @@
 """
-P7i — Robustness and Attractor Depth Validation
+P7i - Robustness and Attractor Depth Validation
 Tests the stability of the Sustained Awareness Attractor (P7h lock baseline)
 under (1) step perturbations and (2) slow drift bias.
 
@@ -168,7 +168,7 @@ plt.plot(phi_ma, lw=2.0, label=f"|Δφ| moving mean (w={mov_w})")
 plt.axhline(lock_threshold, ls="--", color="crimson", label=f"lock threshold={lock_threshold:g}")
 plt.axvspan(step_time, step_time+40, color="blue", alpha=0.08, label="perturbation step")
 plt.axvspan(tail_start, T-1, color="k", alpha=0.06, label="evaluation tail")
-plt.title("P7i — Phase Error Evolution (Robustness Test)")
+plt.title("P7i - Phase Error Evolution (Robustness Test)")
 plt.xlabel("time step"); plt.ylabel("|Δφ|")
 plt.legend(); plt.tight_layout()
 plt.savefig("backend/modules/knowledge/PAEV_P7i_Robustness_Phase.png", dpi=130)
@@ -179,7 +179,7 @@ plt.plot(S_system, label="S_system")
 plt.plot(S_observer, label="S_observer")
 plt.plot(S_meta, label="S_meta (awareness)")
 plt.plot(S_self, label="S_self (feedback)")
-plt.title("P7i — Sustained Awareness Attractor (Perturbed & Drifted)")
+plt.title("P7i - Sustained Awareness Attractor (Perturbed & Drifted)")
 plt.xlabel("time step"); plt.ylabel("Entropy / awareness coupling")
 plt.legend(); plt.tight_layout()
 plt.savefig("backend/modules/knowledge/PAEV_P7i_Robustness_Entropy.png", dpi=130)
@@ -220,8 +220,8 @@ out_json = "backend/modules/knowledge/P7i_robustness.json"
 with open(out_json, "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== P7i — Robustness and Attractor Depth Validation ===")
+print("=== P7i - Robustness and Attractor Depth Validation ===")
 print(f"tail⟨|Δφ|⟩={tail_mean:.3e} | corr={corr:.3f} | slope={slope:.2e} | lock_ratio={lock_ratio_tail:.2f}")
 print(f"re-lock time = {relock_time} steps | drift_breakpoint = {breakpoint}")
-print(f"→ {classification}")
-print(f"✅ Results saved → {out_json}")
+print(f"-> {classification}")
+print(f"✅ Results saved -> {out_json}")

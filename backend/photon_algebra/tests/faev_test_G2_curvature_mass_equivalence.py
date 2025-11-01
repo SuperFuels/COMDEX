@@ -1,5 +1,5 @@
 # ==========================================================
-# G2 — Curvature–Mass Equivalence (Baseline Coupled Sectors)
+# G2 - Curvature-Mass Equivalence (Baseline Coupled Sectors)
 # Tests unified exchange between visible curvature R and
 # hidden-sector effective mass M_ψ via Tessaris unified law.
 # ==========================================================
@@ -29,8 +29,8 @@ Rψ     = np.zeros(T)   # hidden curvature proxy
 Mψ     = np.zeros(T)   # hidden effective mass
 E_tot  = np.zeros(T)   # unified energy (normalized)
 
-# controls (gentle; we’ll tune in RC steps later)
-k_x    = 0.035   # curvature–mass transfer gain
+# controls (gentle; we'll tune in RC steps later)
+k_x    = 0.035   # curvature-mass transfer gain
 k_rel  = 0.012   # relaxation of hidden mass to curvature
 k_leak = 0.004   # leakage / dissipation
 noise  = const.get("noise", 6e-4)
@@ -73,7 +73,7 @@ stability = float(np.std(np.diff(E_tot[-800:])))  # small = steadier
 
 # classification heuristics
 if cross_corr > 0.8 and stability < 0.05:
-    verdict = "✅ Curvature–Mass Equivalence (Stable Coupling)"
+    verdict = "✅ Curvature-Mass Equivalence (Stable Coupling)"
 elif cross_corr > 0.4 and stability < 0.2:
     verdict = "⚠️ Partial Coupling (needs damping)"
 else:
@@ -83,19 +83,19 @@ else:
 plt.figure(figsize=(9,5))
 plt.plot(t, R,  label="Visible curvature R")
 plt.plot(t, Rψ, label="Hidden curvature Rψ")
-plt.title("G2 — Curvature–Mass Equivalence (R vs Rψ)")
+plt.title("G2 - Curvature-Mass Equivalence (R vs Rψ)")
 plt.xlabel("time"); plt.ylabel("curvature"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G2_CurvatureTracks.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, Mψ, lw=1.5, label="Hidden mass Mψ")
-plt.title("G2 — Hidden Effective Mass Evolution")
+plt.title("G2 - Hidden Effective Mass Evolution")
 plt.xlabel("time"); plt.ylabel("Mψ (norm)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G2_HiddenMass.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, E_tot, lw=1.2, label="Unified energy")
-plt.title("G2 — Unified Energy Evolution (Baseline)")
+plt.title("G2 - Unified Energy Evolution (Baseline)")
 plt.xlabel("time"); plt.ylabel("E_total (norm)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G2_Energy.png")
 
@@ -122,7 +122,7 @@ results = {
 with open("backend/modules/knowledge/G2_curvature_mass_equivalence.json","w") as f:
     json.dump(results, f, indent=2)
 
-print("=== G2 — Curvature–Mass Equivalence (Baseline) ===")
+print("=== G2 - Curvature-Mass Equivalence (Baseline) ===")
 print(f"cross_corr={cross_corr:.3f} | stability={stability:.3f} | energy=({energy_min:.3e},{energy_max:.3e})")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/G2_curvature_mass_equivalence.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/G2_curvature_mass_equivalence.json")

@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • HQCE Session Replay Engine (Stage 12)
-#  Reconstruct ψ–κ–T–C field evolution over time
+#  Tessaris * HQCE Session Replay Engine (Stage 12)
+#  Reconstruct ψ-κ-T-C field evolution over time
 #  Uses stored MorphicLedger / TelemetryDB records
 # ──────────────────────────────────────────────
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class HQCESessionReplay:
     """
     Loads telemetry or ledger data, generates temporal frames,
-    and replays ψ–κ–T–C field evolution with adjustable speed.
+    and replays ψ-κ-T-C field evolution with adjustable speed.
     """
 
     def __init__(self, source: str = "db", session_id: Optional[str] = None):
@@ -66,7 +66,7 @@ class HQCESessionReplay:
     #  Replay Loop
     # ──────────────────────────────────────────────
     async def replay(self, interval: float = 0.5):
-        """Animate ψ–κ–T–C over time in terminal + Plotly graph."""
+        """Animate ψ-κ-T-C over time in terminal + Plotly graph."""
         if not self.records:
             self.load_records()
 
@@ -76,7 +76,7 @@ class HQCESessionReplay:
         T_vals = [r["T"] for r in self.records]
         C_vals = [r["coherence"] for r in self.records]
 
-        print("\n🧠 HQCE Session Replay — ψ–κ–T–C Evolution\n")
+        print("\n🧠 HQCE Session Replay - ψ-κ-T-C Evolution\n")
         for i, r in enumerate(self.records):
             print(f"[{i+1:03}/{len(self.records)}] "
                   f"ψ={r['psi']:.3f} κ={r['kappa']:.3f} "
@@ -91,7 +91,7 @@ class HQCESessionReplay:
         fig.add_trace(go.Scatter(x=timestamps, y=κ_vals, name="κ", mode="lines"), 1, 2)
         fig.add_trace(go.Scatter(x=timestamps, y=T_vals, name="T", mode="lines"), 2, 1)
         fig.add_trace(go.Scatter(x=timestamps, y=C_vals, name="C", mode="lines"), 2, 2)
-        fig.update_layout(height=800, title_text="HQCE ψ–κ–T–C Replay (Temporal Evolution)")
+        fig.update_layout(height=800, title_text="HQCE ψ-κ-T-C Replay (Temporal Evolution)")
         fig.show()
 
     # ──────────────────────────────────────────────
@@ -106,7 +106,7 @@ class HQCESessionReplay:
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(rec, f, indent=2)
             paths.append(path)
-        logger.info(f"[HQCESessionReplay] Exported {len(paths)} frames → {out_dir}")
+        logger.info(f"[HQCESessionReplay] Exported {len(paths)} frames -> {out_dir}")
         return paths
 
 

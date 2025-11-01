@@ -1,10 +1,10 @@
 """
 🎛 QWave Engine Tuning Module
 ----------------------------
-• Centralizes QWaveTuning constants, harmonic configs, and runtime ECU loop.
-• Auto-loads last known idle state if available; falls back to baseline.
-• CLI flags allow runtime overrides for harmonics, injectors, and field tuning.
-• Fixes circular import with lazy `load_idle_state` import.
+* Centralizes QWaveTuning constants, harmonic configs, and runtime ECU loop.
+* Auto-loads last known idle state if available; falls back to baseline.
+* CLI flags allow runtime overrides for harmonics, injectors, and field tuning.
+* Fixes circular import with lazy `load_idle_state` import.
 """
 
 import os
@@ -360,7 +360,7 @@ class QWaveAutoTuner:
         trace_path = os.path.join(self.engine.LOG_DIR, f"resonance_trace_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
         with open(trace_path, "w") as f:
             json.dump(self.engine.resonance_filtered[-200:], f, indent=2)
-        print(f"📑 Resonance trace saved → {trace_path}")
+        print(f"📑 Resonance trace saved -> {trace_path}")
         print("=====================================\n")
 
     def _export_final_snapshot(self):
@@ -380,4 +380,4 @@ class QWaveAutoTuner:
         with open(report_path, "w") as f:
             json.dump(snapshot, f, indent=2)
 
-        print(f"📦 Final tuning snapshot exported → {report_path}")
+        print(f"📦 Final tuning snapshot exported -> {report_path}")

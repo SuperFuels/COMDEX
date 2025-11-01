@@ -1,5 +1,5 @@
 """
-🎛  Dynamic Resonance Equalizer — Phase 50
+🎛  Dynamic Resonance Equalizer - Phase 50
 -----------------------------------------
 Continuously learns from Symatic Drift reports and applies adaptive tuning
 to LexMemory decay rates, resonance weights, and field coherence.
@@ -64,7 +64,7 @@ def update_equalizer_state():
     eq = compute_equalizer(drift, habit)
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(eq, open(OUT_PATH, "w"), indent=2)
-    logger.info(f"[Equalizer] Exported adaptive state → {OUT_PATH}")
+    logger.info(f"[Equalizer] Exported adaptive state -> {OUT_PATH}")
     return eq
 
 if __name__ == "__main__":

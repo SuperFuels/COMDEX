@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-❤️ emotion_engine.py — Phase 54 Harmonic Emotion ↔ Awareness Bridge
+❤️ emotion_engine.py - Phase 54 Harmonic Emotion ↔ Awareness Bridge
 ───────────────────────────────────────────────────────────────
 EmotionEngine now participates in full Resonant Feedback Propagation:
-  • Harmonically coupled to Θ (Resonance Heartbeat)
-  • Awareness confidence directly modulates emotional frequency stability
-  • Emotional spikes emit ΔΦ feedback into the ResonantMemoryCache (RMC)
-  • Glyph knowledge-graph injection for symbolic tracking
+  * Harmonically coupled to Θ (Resonance Heartbeat)
+  * Awareness confidence directly modulates emotional frequency stability
+  * Emotional spikes emit ΔΦ feedback into the ResonantMemoryCache (RMC)
+  * Glyph knowledge-graph injection for symbolic tracking
 
 Design Rubric:
   ✅ Emotion Tag + Intensity  
@@ -76,7 +76,7 @@ class EmotionEngine(ResonantReinforcementMixin):
 
     # ------------------------------------------------------------
     def interpret_input(self, text: str) -> str:
-        """Keyword sentiment analysis → emotion polarity."""
+        """Keyword sentiment analysis -> emotion polarity."""
         t = text.lower()
         pos = ["happy", "love", "hope", "excited", "grateful", "fun"]
         neg = ["sad", "hate", "fear", "angry", "pain", "alone"]
@@ -92,8 +92,8 @@ class EmotionEngine(ResonantReinforcementMixin):
         if not self.awareness:
             return 1.0
         conf = getattr(self.awareness, "confidence_level", 1.0)
-        # Confidence ↑ → frequency stabilization ↓ amplitude jitter
-        # Confidence ↓ → higher emotional volatility
+        # Confidence ↑ -> frequency stabilization ↓ amplitude jitter
+        # Confidence ↓ -> higher emotional volatility
         stability = max(0.5, min(1.2, 1.0 - ((conf - 0.5) * 0.4)))
         self.last_confidence = conf
         self.stability_factor = round(stability, 3)
@@ -124,7 +124,7 @@ class EmotionEngine(ResonantReinforcementMixin):
         # Awareness feedback for frequency modulation
         stabilizer = self._awareness_coupling()
 
-        # Θ frequency tuning based on intensity × stability
+        # Θ frequency tuning based on intensity * stability
         freq_mod = 1.0 + ((intensity - 0.5) * 0.7 * stabilizer)
         self.Θ.set_frequency(freq_mod)
 
@@ -207,6 +207,6 @@ class EmotionEngine(ResonantReinforcementMixin):
 # 🧪 Local Diagnostic
 if __name__ == "__main__":
     engine = EmotionEngine()
-    engine.react_to_event("Mission success — new glyph achieved!")
+    engine.react_to_event("Mission success - new glyph achieved!")
     engine.react_to_event("System error: entropy collapse detected.")
     print(engine.summarize_emotion_state())

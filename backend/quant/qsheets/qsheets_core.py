@@ -2,12 +2,12 @@
 # 📁 backend/quant/qsheets/qsheets_core.py
 # ===============================
 """
-🧮 QSheets Core — Quantum Symbolic Spreadsheet Engine
+🧮 QSheets Core - Quantum Symbolic Spreadsheet Engine
 -----------------------------------------------------
 Provides a 4D spreadsheet abstraction layer that fuses:
-  • QLang symbolic expressions
-  • QTensorField resonance computation
-  • Symatics Φ–ψ coherence analytics
+  * QLang symbolic expressions
+  * QTensorField resonance computation
+  * Symatics Φ-ψ coherence analytics
 
 Each cell stores:
     id, logic (QLang), ψ-field state, resonance metrics, and beam traces.
@@ -128,7 +128,7 @@ class QSheetsCore:
     # --------------------------------------------------------------
     async def execute(self, sheet: QSheet, ctx: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
-        Execute all cells using QLang → QTensor → resonance evaluation.
+        Execute all cells using QLang -> QTensor -> resonance evaluation.
         """
         ctx = ctx or {}
         results: Dict[str, Any] = {}
@@ -190,7 +190,7 @@ class QSheetsCore:
 
     # --------------------------------------------------------------
     def run_test(self) -> Dict[str, Any]:
-        """Self-test for symbolic–tensor fusion."""
+        """Self-test for symbolic-tensor fusion."""
         sheet = QSheet(
             id="test_qsheet",
             title="Resonance Demo",

@@ -1,11 +1,11 @@
 """
-Goal Reasoning Alignment Layer — Phase 45A
+Goal Reasoning Alignment Layer - Phase 45A
 ------------------------------------------
 Propagates emotional-reasoning bias vectors into Goal Evaluation
-and Reinforcement processes, completing affective–motivational coupling.
+and Reinforcement processes, completing affective-motivational coupling.
 
 Author: Tessaris Research Group
-Date: Phase 45A — October 2025
+Date: Phase 45A - October 2025
 """
 
 import time, json
@@ -55,7 +55,7 @@ class GoalReasoningAlignment:
         self.log.append(entry)
         self._save(entry)
 
-        print(f"[ALIGN] 🔄 Propagated reasoning bias → GOALS (depth={bias['depth']:.2f}, "
+        print(f"[ALIGN] 🔄 Propagated reasoning bias -> GOALS (depth={bias['depth']:.2f}, "
               f"exploration={bias['exploration']:.2f}, verbosity={bias['verbosity']:.2f})")
 
         self.last_sync = time.time()

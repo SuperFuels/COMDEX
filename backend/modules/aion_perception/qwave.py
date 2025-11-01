@@ -1,6 +1,6 @@
 # ================================================================
 # File: backend/modules/aion_perception/qwave.py
-# Tessaris SQI Field Stub – Resonance Synchronization Layer (v1.4)
+# Tessaris SQI Field Stub - Resonance Synchronization Layer (v1.4)
 # ================================================================
 import json
 import os
@@ -23,7 +23,7 @@ class SQIField:
             try:
                 with open(path, "r") as f:
                     instance.state = json.load(f)
-                print(f"🔁 Loaded previous SQI state → ε={instance.state.get('epsilon',0):.3f}, "
+                print(f"🔁 Loaded previous SQI state -> ε={instance.state.get('epsilon',0):.3f}, "
                       f"k={instance.state.get('k',0)}, w={instance.state.get('weight',1.0):.2f}")
             except Exception as e:
                 print(f"⚠️ Failed to load SQI state: {e}")
@@ -62,14 +62,14 @@ class SQIField:
         self.state["stability"] = round(stability, 3)
 
         print(
-            f"🔁 SQI feedback applied → ε={self.state['epsilon']:.3f}, "
+            f"🔁 SQI feedback applied -> ε={self.state['epsilon']:.3f}, "
             f"w={self.state['weight']:.3f}, damp={adaptive_damp:.3f}, "
             f"gain={gain:.2f}, ⟲={self.state['stability']:.3f}"
         )
 
         # --- check for equilibrium lock ---
         if self.state["stability"] > 0.975 and 0.42 <= self.state["epsilon"] <= 0.44:
-            print("✅ Resonant equilibrium detected — field stabilized.")
+            print("✅ Resonant equilibrium detected - field stabilized.")
             self.save_checkpoint(tag="equilibrium_lock")
 
     def sync_pal_state(self, epsilon_target: float, k: int, weight_bias: float, commit: bool = False):
@@ -84,7 +84,7 @@ class SQIField:
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w") as f:
                 json.dump(self.state, f, indent=2)
-            print(f"💾 SQI→PAL state committed → ε={self.state['epsilon']:.3f}, "
+            print(f"💾 SQI->PAL state committed -> ε={self.state['epsilon']:.3f}, "
                   f"k={self.state['k']}, w={self.state['weight']:.2f}")
         return type("PALState", (), self.state)
 
@@ -93,7 +93,7 @@ class SQIField:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w") as f:
             json.dump(self.state, f, indent=2)
-        print(f"💾 SQI checkpoint saved → {path}")
+        print(f"💾 SQI checkpoint saved -> {path}")
 
 # === Meta-Equilibrium Controller (F18) ======================================
 import json, os, time
@@ -148,7 +148,7 @@ class MetaEquilibrium:
 _meta_eq = MetaEquilibrium(zeta=0.02)
 
 def meta_eq_bias(domain: str, epsilon_i: float) -> float:
-    """Return a small epsilon bias to nudge domain → global mean (F18)."""
+    """Return a small epsilon bias to nudge domain -> global mean (F18)."""
     return _meta_eq.update(domain, epsilon_i)
 # =========================================================================== 
 

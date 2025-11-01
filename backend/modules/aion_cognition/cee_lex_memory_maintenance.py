@@ -1,14 +1,14 @@
 # ================================================================
-# ⚙️ CEE LexMemory Maintenance — Resonance Drift Correction
-# Phase 46A — Entropy Cleanup & SQI Normalization
+# ⚙️ CEE LexMemory Maintenance - Resonance Drift Correction
+# Phase 46A - Entropy Cleanup & SQI Normalization
 # ================================================================
 """
 Performs background maintenance on the LexMemory store.
 Tasks:
-  • Decay old resonance fields over time
-  • Normalize SQI distributions
-  • Prune weak/noisy associations
-  • Keep the resonance field coherent across sessions
+  * Decay old resonance fields over time
+  * Normalize SQI distributions
+  * Prune weak/noisy associations
+  * Keep the resonance field coherent across sessions
 """
 
 import time, math, logging

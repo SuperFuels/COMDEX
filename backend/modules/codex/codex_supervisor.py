@@ -70,7 +70,7 @@ class CodexSupervisor:
             result = self.executor.execute(glyph, metadata)  # ✅ Updated execution path
             self.metrics.record_execution()
             self.mind_model.observe(glyph)  # ✅ Symbolic prediction update
-            print(f"✅ Supervisor executed: {glyph} → {result}")
+            print(f"✅ Supervisor executed: {glyph} -> {result}")
 
             MEMORY.store({
                 "label": "codex_supervisor_execution",

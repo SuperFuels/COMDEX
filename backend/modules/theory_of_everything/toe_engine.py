@@ -8,7 +8,7 @@ from typing import Dict, Any
 
 from backend.modules.theory_of_everything.toe_lagrangian import define_lagrangian
 
-BANNER = "=== I-Series Integration — TOE Engine Bootstrap ==="
+BANNER = "=== I-Series Integration - TOE Engine Bootstrap ==="
 
 
 # ------------------------------------------------------------
@@ -56,7 +56,7 @@ def compose_l_total(state: Dict[str, Any]) -> Dict[str, Any]:
 # ------------------------------------------------------------
 def self_consistency_checks(state: Dict[str, Any]) -> Dict[str, float]:
     """
-    Simple ‘does it look like what H-layer said?’ sanity deltas.
+    Simple 'does it look like what H-layer said?' sanity deltas.
     In a full engine, this would re-run short sims and re-measure.
     """
     expected = {
@@ -101,10 +101,10 @@ def main() -> None:
     state = load_state(state_path)
     print(f"✅ Loaded state from {state_path}")
 
-    # Compose ℒ_total
+    # Compose L_total
     diagnostics = compose_l_total(state)
-    print("✅ ℒ_total composed from fitted constants")
-    print(f"ℒ_total = {diagnostics['L_total']:.6e}")
+    print("✅ L_total composed from fitted constants")
+    print(f"L_total = {diagnostics['L_total']:.6e}")
     print("Derived effective constants:")
     print(f"  ħ_eff = {diagnostics['ħ_eff']:.6e}")
     print(f"  G_eff = {diagnostics['G_eff']:.6e}")
@@ -115,16 +115,16 @@ def main() -> None:
 
     # Self-consistency checks
     deltas = self_consistency_checks(state)
-    print(f"⟨E⟩ check → Δ={deltas['delta_E']:.3e}")
-    print(f"⟨S⟩ check → Δ={deltas['delta_S']:.3e}")
+    print(f"⟨E⟩ check -> Δ={deltas['delta_E']:.3e}")
+    print(f"⟨S⟩ check -> Δ={deltas['delta_S']:.3e}")
     print("✅ Self-consistency verified (I2 check)")
 
     # Export constants
     out_path = export_constants(state_path, state, diagnostics)
-    print(f"📦 Exported constants → {out_path}")
+    print(f"📦 Exported constants -> {out_path}")
 
     # Recap
-    print("—— Recap ————————————————————————————————————————————")
+    print("-- Recap --------------------------------------------")
     print(f" State in : {state_path}")
     print(f" Exported : {out_path}")
     print(" Notes    : Use PAEV_STATE_PATH to override state file location.")

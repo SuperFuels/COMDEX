@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧩 Genomic Stability Monitor — Phase R14
+# 🧩 Genomic Stability Monitor - Phase R14
 # ================================================================
 # Watches symbolic DNA (.dc) containers, RNA scrolls, and synthesis traces
 # for entropy drift, SQI decay, or ethical violations.
@@ -93,7 +93,7 @@ class GenomicStabilityMonitor:
 
         REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
         REPORT_PATH.write_text(json.dumps(self.report, indent=2))
-        logger.info(f"[GSM] Wrote genomic stability report → {REPORT_PATH}")
+        logger.info(f"[GSM] Wrote genomic stability report -> {REPORT_PATH}")
         return self.report
 
     # ------------------------------------------------------------

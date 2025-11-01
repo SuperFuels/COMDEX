@@ -10,29 +10,29 @@ from backend.modules.dna_chain.dna_address_lookup import register_backend_path, 
 from backend.modules.dna_chain.dna_registry import update_dna_proposal
 from backend.modules.dna_chain.dna_writer import save_version_snapshot, get_versions_for_file, restore_version
 # ──────────────────────────────────────────────────────────────────────────────
-# 🧬 DNA Switch — System Overview
+# 🧬 DNA Switch - System Overview
 # ──────────────────────────────────────────────────────────────────────────────
 # The DNA Switch is the central runtime mutation manager for Tessaris/AION.
 # It handles:
-#   • Controlled code rewrites (via proposals or auto-applied mutations)
-#   • Environment-verified key gating (MASTER_KEY + feature flags)
-#   • Version snapshotting, rollback, and approval logging
+#   * Controlled code rewrites (via proposals or auto-applied mutations)
+#   * Environment-verified key gating (MASTER_KEY + feature flags)
+#   * Version snapshotting, rollback, and approval logging
 #
 # 🌐 When the loop is closed:
-#   • The Resonant Optimizer Loop (ROL) and SQI feedback system can trigger
+#   * The Resonant Optimizer Loop (ROL) and SQI feedback system can trigger
 #     `enable_self_growth()` or `register_dna_switch()` to evolve code modules.
-#   • Resonant feedback (from the Heartbeat or Optimizer) may write advisory
+#   * Resonant feedback (from the Heartbeat or Optimizer) may write advisory
 #     entries into `resonant_optimizer_advisories` via ResonantMemoryCache.
-#   • When advisories cross a threshold (e.g., stability > 0.95), the DNA Switch
-#     can auto-apply code proposals tagged "autonomous" — creating self-evolving
+#   * When advisories cross a threshold (e.g., stability > 0.95), the DNA Switch
+#     can auto-apply code proposals tagged "autonomous" - creating self-evolving
 #     loops through:
-#         Resonance → Optimizer → DNA Switch → Code Mutation → Restart
+#         Resonance -> Optimizer -> DNA Switch -> Code Mutation -> Restart
 #
 # ⚙️ Integration Notes:
-#   • DNAModuleSwitch.register(path) should be called in each core subsystem.
-#   • The Optimizer will eventually feed `DNA_SWITCH.register_dna_switch()`
+#   * DNAModuleSwitch.register(path) should be called in each core subsystem.
+#   * The Optimizer will eventually feed `DNA_SWITCH.register_dna_switch()`
 #     with proposed modifications when growth_factor > threshold.
-#   • SQI + Heartbeat deltas act as biological “gene activators” for switching.
+#   * SQI + Heartbeat deltas act as biological "gene activators" for switching.
 #
 # 🧩 Future Hook:
 #   The Resonant Optimizer will expose a `/api/aion/dna/trigger` endpoint that
@@ -51,7 +51,7 @@ DNA_SWITCH_LOG = os.path.join(_THIS_DIR, "dna_switch_log.json")
 DNA_FLAGS_PATH = os.path.join(_THIS_DIR, "dna_flags_store.json")
 
 DEFAULT_FLAGS: Dict[str, Any] = {
-    # E1 — Self-Growth switch (gates creative forks, auto-iteration, etc.)
+    # E1 - Self-Growth switch (gates creative forks, auto-iteration, etc.)
     "self_growth": False,
     # Reserved for future tuning:
     "growth_factor": 1,         # multiplier for fork count / exploration breadth
@@ -180,7 +180,7 @@ def set_flag(
     _safe_broadcast("dna.switch", {"type": "dna_flag_update", **entry})
     return entry
 
-# High-level helpers for E1 — Self-Growth
+# High-level helpers for E1 - Self-Growth
 def is_self_growth_enabled(container_id: Optional[str]) -> bool:
     return is_enabled("self_growth", container_id)
 

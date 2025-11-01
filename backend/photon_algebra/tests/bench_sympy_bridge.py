@@ -3,8 +3,8 @@
 Photon ↔ SymPy Bridge Benchmark
 ===============================
 Measures throughput and correctness of conversions:
-  Photon → SymPy → Photon (lossless)
-  Photon → SymPy (boolean-lowered)
+  Photon -> SymPy -> Photon (lossless)
+  Photon -> SymPy (boolean-lowered)
 """
 
 import time
@@ -35,7 +35,7 @@ def _canonicalize(expr):
 
 
 def _equalish(a, b):
-    """Looser equality allowing tautological equivalences (↔(x,x)→⊤, ⊂(⊥,x)→⊤)."""
+    """Looser equality allowing tautological equivalences (↔(x,x)->⊤, ⊂(⊥,x)->⊤)."""
     if a == b:
         return True
 

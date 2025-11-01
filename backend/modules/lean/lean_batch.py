@@ -24,7 +24,7 @@ def cmd_export(args: argparse.Namespace) -> int:
             out_path = os.path.join(args.out_dir, out_name)
             with open(out_path, "w", encoding="utf-8") as f:
                 json.dump(container, f, indent=2 if args.pretty else None, ensure_ascii=False)
-            print(f"[✅] {path} → {out_path}")
+            print(f"[✅] {path} -> {out_path}")
             count += 1
         except Exception as e:
             print(f"[❌] export failed for {path}: {e}")

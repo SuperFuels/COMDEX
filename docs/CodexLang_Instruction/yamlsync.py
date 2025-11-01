@@ -1,7 +1,7 @@
 # 📁 docs/CodexLang_Instruction/yamlsync.py
 # -*- coding: utf-8 -*-
 """
-YAML Sync Script — Photon Algebra (flat OP_METADATA)
+YAML Sync Script - Photon Algebra (flat OP_METADATA)
 ----------------------------------------------------
 Merges Photon ops into docs/CodexLang_Instruction/instruction_registry.yaml
 from backend/photon_algebra/core.py. Writes flat OP_METADATA keys:

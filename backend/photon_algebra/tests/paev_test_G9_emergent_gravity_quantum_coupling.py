@@ -6,7 +6,7 @@ from pathlib import Path
 # Resolve repo root robustly
 here = Path(__file__).resolve()
 # tests -> photon_algebra -> backend -> <repo-root>
-REPO = here.parents[3]  # correct root (…/COMDEX)
+REPO = here.parents[3]  # correct root (.../COMDEX)
 TESTS_DIR = REPO / "backend/photon_algebra/tests"
 CONST_DIR = REPO / "backend/photon_algebra/constants"
 TESTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -16,7 +16,7 @@ CSV_FILE  = TESTS_DIR / "results_G9_emergent_gravity_coupling.csv"
 PLOT_FILE = TESTS_DIR / "PAEV_TestG9_EmergentCoupling.png"
 JSON_FILE = CONST_DIR / "G9_emergent_gravity_coupling.json"
 
-print("=== Test G9 — Emergent Gravity–Quantum Coupling ===")
+print("=== Test G9 - Emergent Gravity-Quantum Coupling ===")
 
 # --- simulation parameters ---
 steps = 1000
@@ -44,7 +44,7 @@ final_PK = float(np.mean(psi_kappa[-100:]))
 final_SE = float(np.nanmean(spectral_entropy[-100:]))
 
 print(f"⟨E⟩ final = {final_E:.6e}")
-print(f"⟨ψ·κ⟩ final = {final_PK:.6e}")
+print(f"⟨ψ*κ⟩ final = {final_PK:.6e}")
 print(f"Spectral Entropy final = {final_SE:.6e}")
 
 # --- save CSV ---
@@ -59,10 +59,10 @@ with CSV_FILE.open("w", newline="") as f:
 plt.figure(figsize=(8,4))
 plt.plot(t, psi, label="ψ (quantum field)", alpha=0.7)
 plt.plot(t, kappa, label="κ (curvature)", alpha=0.7)
-plt.plot(t, psi_kappa, label="ψ·κ coupling", alpha=0.7)
+plt.plot(t, psi_kappa, label="ψ*κ coupling", alpha=0.7)
 plt.xlabel("Time")
 plt.ylabel("Amplitude / Coupling")
-plt.title("Test G9 — Emergent Gravity–Quantum Coupling")
+plt.title("Test G9 - Emergent Gravity-Quantum Coupling")
 plt.legend()
 plt.tight_layout()
 plt.savefig(PLOT_FILE, dpi=160)
@@ -80,6 +80,6 @@ summary = {
 with JSON_FILE.open("w") as f:
     json.dump(summary, f, indent=2)
 
-print(f"✅ Output written → {CSV_FILE}")
-print(f"🧾 Summary saved → {JSON_FILE}")
+print(f"✅ Output written -> {CSV_FILE}")
+print(f"🧾 Summary saved -> {JSON_FILE}")
 print("----------------------------------------------------------")

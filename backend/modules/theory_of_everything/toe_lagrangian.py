@@ -1,11 +1,11 @@
 """
-TOE Lagrangian Composer — backend/modules/theory_of_everything/toe_lagrangian.py
+TOE Lagrangian Composer - backend/modules/theory_of_everything/toe_lagrangian.py
 
-Constructs ℒ_total from learned parameters (E, S, ψ·κ, ψ·T, etc.)
+Constructs L_total from learned parameters (E, S, ψ*κ, ψ*T, etc.)
 and computes derived invariants: curvature coupling, entropic balance,
 and holographic consistency.
 
-This uses the final values observed through the F–G–H series tests.
+This uses the final values observed through the F-G-H series tests.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ import math
 
 def define_lagrangian(state: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Build ℒ_total using fitted means from the knowledge state.
+    Build L_total using fitted means from the knowledge state.
     Returns effective constants (ħ_eff, G_eff, Λ_eff, α_eff)
     and a normalized L_total magnitude.
     """
@@ -64,6 +64,6 @@ if __name__ == "__main__":
         "a_drift": 0.001
     }
     result = define_lagrangian(sample_state)
-    print("ℒ_total diagnostics:")
+    print("L_total diagnostics:")
     for k, v in result.items():
         print(f"  {k}: {v:.6e}")

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-⚖️  Resonant Governance Loop — Phase 61 Tessaris Self-Regulation Layer
+⚖️  Resonant Governance Loop - Phase 61 Tessaris Self-Regulation Layer
 ────────────────────────────────────────────────────────────────────────
 Transforms predictive risk metrics into adaptive policy updates.
 
 Inputs :
-    • data/analysis/trajectory_predictions.json
+    * data/analysis/trajectory_predictions.json
 Outputs:
-    • data/analysis/governance_state.jsonl
-    • "governance_update" telemetry events
+    * data/analysis/governance_state.jsonl
+    * "governance_update" telemetry events
 """
 
 import json, time
@@ -58,7 +58,7 @@ def apply_policy(policy):
                 avg_risk=policy["avg_risk"],
                 gain_mod=policy["gain_mod"],
                 ethics_score=ethics_test)
-    print(f"[Θ] Governance updated → risk={policy['avg_risk']:.2f}, gain={policy['gain_mod']:.2f}")
+    print(f"[Θ] Governance updated -> risk={policy['avg_risk']:.2f}, gain={policy['gain_mod']:.2f}")
 
 def log_policy(policy):
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -70,7 +70,7 @@ def main():
     policy = derive_policy(preds)
     apply_policy(policy)
     log_policy(policy)
-    print(f"📘 Governance policy applied → {LOG_PATH}")
+    print(f"📘 Governance policy applied -> {LOG_PATH}")
 
 if __name__ == "__main__":
     main()

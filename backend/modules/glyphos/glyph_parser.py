@@ -12,7 +12,7 @@ from backend.modules.glyphos.codexlang_translator import parse_logic_expression
 from backend.codexcore_virtual.instruction_metadata_bridge import get_instruction_metadata
 
 # ─── 🔠 Symbol Table ────────────────────────────────────────────────────────────
-# GlyphOS-only symbols (don’t exist in CodexCore)
+# GlyphOS-only symbols (don't exist in CodexCore)
 glyph_index = {
     "🜁": {"name": "memory_seed", "type": "instruction", "tags": ["init", "load"]},
     "⚛": {"name": "ethic_filter", "type": "modifier", "tags": ["soul_law"]},
@@ -68,7 +68,7 @@ class StructuredGlyph:
     def _parse(self) -> Dict:
         """
         Parse glyphs in the canonical structure:
-            ⟦ Type | Target : Value → Action ⟧
+            ⟦ Type | Target : Value -> Action ⟧
 
         - Adds SoulLaw compliance metadata
         - Guards against malformed CodexLang
@@ -79,11 +79,11 @@ class StructuredGlyph:
         from backend.modules.glyphos.symbol_resolver import resolve_symbol
         from backend.modules.logic.logic_parser import parse_logic_expression
 
-        pattern = r"⟦\s*(\w+)\s*\|\s*(\w+)\s*:\s*([^\→]+?)\s*→\s*(.+?)\s*⟧"
+        pattern = r"⟦\s*(\w+)\s*\|\s*(\w+)\s*:\s*([^\->]+?)\s*->\s*(.+?)\s*⟧"
         match = re.match(pattern, self.raw)
 
         # ─────────────────────────────────────────────
-        # Invalid glyph structure → return compliant stub
+        # Invalid glyph structure -> return compliant stub
         # ─────────────────────────────────────────────
         if not match:
             logging.warning(f"[GlyphParser] ⚠️ Invalid structured glyph: {self.raw}")
@@ -195,7 +195,7 @@ def parse_glyph(symbol: str) -> dict:
 def parse_glyph_string(glyph_str: str) -> List[Dict]:
     """
     Parses a raw glyph string into tokenized glyph objects.
-    E.g. "🜁⚛✦" → [{"symbol": "🜁", ...}, {"symbol": "⚛", ...}, {"symbol": "✦", ...}]
+    E.g. "🜁⚛✦" -> [{"symbol": "🜁", ...}, {"symbol": "⚛", ...}, {"symbol": "✦", ...}]
     """
     return [Glyph(sym).to_dict() for sym in glyph_str if sym.strip()]
 
@@ -214,9 +214,9 @@ def parse_codexlang_string(input_str: str) -> Dict:
 if __name__ == "__main__":
     test_cases = [
         "🜁⚛✦🧭⌬⟁",
-        "⟦ Write | Glyph : Self → ⬁ ⟧",
-        "⟦ Logic | X : A ∧ B → ¬C ⟧",  # should show tree
-        "⟦ Mutate | Cube : Logic → Dual ⟧",
+        "⟦ Write | Glyph : Self -> ⬁ ⟧",
+        "⟦ Logic | X : A ∧ B -> ¬C ⟧",  # should show tree
+        "⟦ Mutate | Cube : Logic -> Dual ⟧",
         "⟦ Invalid ⟧",
         "💀✪🌌",  # invalid glyphs
     ]

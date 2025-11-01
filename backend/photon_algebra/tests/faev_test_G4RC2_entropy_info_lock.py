@@ -1,5 +1,5 @@
 # ==========================================================
-# G4-RC2 — Entropy–Information Lock (Λ-Feedback Coupling)
+# G4-RC2 - Entropy-Information Lock (Λ-Feedback Coupling)
 # Tessaris Unified Equation (TUE) refinement stage
 # Goal: establish phase-locked equilibrium between entropy S(t)
 #       and information flux I(t), while dynamically stabilizing
@@ -35,7 +35,7 @@ t  = np.linspace(0, T*dt, T)
 η_G = 0.0004   # geometry feedback
 η_T = 0.0003   # thermal feedback
 η_Λ = 0.0005   # vacuum/curvature coupling
-γ_sync = 0.002 # S–I synchronizer gain
+γ_sync = 0.002 # S-I synchronizer gain
 E_cap = 8.0e4  # energy cap softened slightly
 
 # ---- Initialize fields ----
@@ -68,7 +68,7 @@ for i in range(2, T):
     # information flux
     I[i] = np.real(ψ_dot[i] * np.conj(ψ[i]))
 
-    # synchronizer between S and I (entropy–info lock)
+    # synchronizer between S and I (entropy-info lock)
     sync_term = γ_sync * (S[i-1] - np.mean(S[max(0, i-50):i])) * I[i-1]
     I[i] -= sync_term  # self-balancing mutual damping
 
@@ -78,7 +78,7 @@ for i in range(2, T):
     E_info[i]  = ħ * I[i]
     E_total[i] = soft_clip(E_geom[i] + E_therm[i] + E_info[i], E_cap)
 
-    # feedback update with Λ–curvature coupling
+    # feedback update with Λ-curvature coupling
     G_eff += -η_G * I[i] * dt
     T_eff +=  η_T * (I[i] - 0.5*S[i]) * dt
     Λ_eff += -η_Λ * (S[i] - np.tanh(R[i])) * dt
@@ -90,7 +90,7 @@ E_stab = float(1.0 - np.var(E_total) / (1 + np.mean(E_total)**2))
 cross_corr = float(np.corrcoef(S, I)[0,1])
 
 if E_stab > 0.92 and abs(cross_corr) > 0.8:
-    verdict = "✅ Stable Conservation (Entropy–Information Lock Achieved)"
+    verdict = "✅ Stable Conservation (Entropy-Information Lock Achieved)"
 elif E_stab > 0.7:
     verdict = "⚠️ Partial Coupling (Moderate Stability)"
 else:
@@ -104,21 +104,21 @@ I_s = gaussian_filter1d(I, sigma=10)
 # ---- Plots ----
 plt.figure(figsize=(9,5))
 plt.plot(t, E_total_s, lw=1.6, label="E_total (smoothed)")
-plt.title("G4-RC2 — Energy Conservation (Entropy–Information Lock)")
+plt.title("G4-RC2 - Energy Conservation (Entropy-Information Lock)")
 plt.xlabel("time"); plt.ylabel("E_total"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4RC2_EnergyConservation.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, S_s, color="orange", lw=1.5, label="Entropy Flux S(t)")
-plt.plot(t, I_s, color="purple", lw=1.0, alpha=0.8, label="Information Flux İ(t)")
-plt.title("G4-RC2 — Entropy–Information Coupling Dynamics")
+plt.plot(t, I_s, color="purple", lw=1.0, alpha=0.8, label="Information Flux İ(t)")
+plt.title("G4-RC2 - Entropy-Information Coupling Dynamics")
 plt.xlabel("time"); plt.ylabel("Flux amplitude"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4RC2_EntropyInfoCoupling.png")
 
 plt.figure(figsize=(9,5))
 plt.scatter(S_s[::10], I_s[::10], s=4, alpha=0.6, color="green")
-plt.title("G4-RC2 — Phase Portrait: S vs I (Lock Formation)")
-plt.xlabel("Entropy Flux S"); plt.ylabel("Information Flux İ"); plt.tight_layout()
+plt.title("G4-RC2 - Phase Portrait: S vs I (Lock Formation)")
+plt.xlabel("Entropy Flux S"); plt.ylabel("Information Flux İ"); plt.tight_layout()
 plt.savefig("FAEV_G4RC2_PhasePortrait.png")
 
 # ---- Save JSON ----
@@ -147,8 +147,8 @@ save_path = "backend/modules/knowledge/G4RC2_entropy_info_lock.json"
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== G4-RC2 — Entropy–Information Lock (Λ-Feedback Coupling) ===")
+print("=== G4-RC2 - Entropy-Information Lock (Λ-Feedback Coupling) ===")
 print(f"stability={E_stab:.3f} | corr(S,I)={cross_corr:.3f} | "
       f"E_range=({E_min:.3e},{E_max:.3e})")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {save_path}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {save_path}")

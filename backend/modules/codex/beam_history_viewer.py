@@ -30,7 +30,7 @@ def summarize_beam(beam_id: str) -> str:
     for i, entry in enumerate(history):
         ts = entry["timestamp"]
         mut = entry.get("mutation", {})
-        summary += f" {i+1}. [{ts}] Type: {mut.get('type', 'unknown')} → {mut.get('details', {})}\n"
+        summary += f" {i+1}. [{ts}] Type: {mut.get('type', 'unknown')} -> {mut.get('details', {})}\n"
     return summary
 
 def replay_beam_chain(beam_id: str) -> List[Dict[str, Any]]:

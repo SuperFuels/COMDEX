@@ -1,10 +1,10 @@
 # ================================================================
-# 🎬 CEE Exercise Playback Engine — Phase 45G.10 Integration
+# 🎬 CEE Exercise Playback Engine - Phase 45G.10 Integration
 # ================================================================
 """
 Plays back CEE-generated exercises in either:
-  • simulate mode → automatic answers (with LexMemory recall)
-  • interactive mode → user answers via console input
+  * simulate mode -> automatic answers (with LexMemory recall)
+  * interactive mode -> user answers via console input
 
 Expanded with advanced exercise generators:
   - Flash Card (definition recall)
@@ -91,7 +91,7 @@ class CEEPlayback:
         resonance = ex.get("resonance", {"ρ": 0, "I": 0, "SQI": 0})
 
         # --- Display the exercise ---
-        print(f"\n▶ {ex_type} — {safe_prompt}")
+        print(f"\n▶ {ex_type} - {safe_prompt}")
         if options:
             print(f"Options: {', '.join(str(o) for o in options if o)}")
 
@@ -100,7 +100,7 @@ class CEEPlayback:
         memory_hit = recall_from_memory(prompt)
         if memory_hit and memory_hit.get("answer"):
             guess = memory_hit["answer"]
-            logger.info(f"[CEE-Playback] 🧠 Recall → {prompt} → {guess}")
+            logger.info(f"[CEE-Playback] 🧠 Recall -> {prompt} -> {guess}")
 
             # ⚠ Recall mismatch diagnostic
             if guess and answer and guess != answer:
@@ -126,7 +126,7 @@ class CEEPlayback:
         # --------------------------------------------------------
         # Evaluate correctness or handle missing answer
         if not answer:
-            logger.info(f"[CEE-Playback] ⚠ No answer provided for {ex_type} — skipping scoring.")
+            logger.info(f"[CEE-Playback] ⚠ No answer provided for {ex_type} - skipping scoring.")
             correct = None
         else:
             correct = (guess == answer)
@@ -139,7 +139,7 @@ class CEEPlayback:
                 # 🧩 Auto-correct memory drift when recall was wrong
                 if memory_hit and answer:
                     update_lex_memory(prompt, answer, resonance)
-                    logger.info(f"[LexMemory] 🔧 Auto-corrected memory for '{prompt}' → {answer}")
+                    logger.info(f"[LexMemory] 🔧 Auto-corrected memory for '{prompt}' -> {answer}")
 
         # --------------------------------------------------------
         # Log attempt safely
@@ -162,10 +162,10 @@ class CEEPlayback:
         Run multiple randomized exercises from selected feed.
 
         feed:
-            - "local"   → run built-in randomized generators
-            - "wordwall" → import from Wordwall URLs
-            - "llm"      → generate batch via LLM
-            - "hybrid"   → combine both Wordwall + LLM
+            - "local"   -> run built-in randomized generators
+            - "wordwall" -> import from Wordwall URLs
+            - "llm"      -> generate batch via LLM
+            - "hybrid"   -> combine both Wordwall + LLM
         """
         exercises = []
 
@@ -232,7 +232,7 @@ class CEEPlayback:
                             "Water freezes at zero ____.",
                             "He is reading a ____ book."
                         ])
-                        # Map sentence → required missing word
+                        # Map sentence -> required missing word
                         if "sun rises" in sentence:
                             missing_word = "east"
                         elif "plays the" in sentence:
@@ -297,10 +297,10 @@ class CEEPlayback:
 
         OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
         json.dump(summary, open(OUT_PATH, "w"), indent=2)
-        logger.info(f"[CEE-Playback] Exported playback log → {OUT_PATH}")
+        logger.info(f"[CEE-Playback] Exported playback log -> {OUT_PATH}")
 
         # Update overall habit metrics
-        update_habit_metrics({"ρ̄": 0.0, "Ī": 0.0, "SQĪ": avg_SQI})
+        update_habit_metrics({"ρ̄": 0.0, "Ī": 0.0, "SQĪ": avg_SQI})
         print(json.dumps(summary, indent=2))
 
         # --------------------------------------------------------
@@ -313,7 +313,7 @@ class CEEPlayback:
             logger.warning(f"[CEE-Playback] Could not snapshot resonance analytics: {e}")
 
         # --------------------------------------------------------
-        # 🪶 Phase 46A — Aion ↔ QQC Bridge Trigger
+        # 🪶 Phase 46A - Aion ↔ QQC Bridge Trigger
         try:
             from backend.bridges.aion_qqc_bridge import exchange_cycle
             from backend.modules.aion_cognition.cee_lex_memory import _load_memory
@@ -328,7 +328,7 @@ class CEEPlayback:
             qqc_input, result = {}, {}
 
         # --------------------------------------------------------
-        # ⚙️ Phase 46B — Pattern Engine Resonance Coupling
+        # ⚙️ Phase 46B - Pattern Engine Resonance Coupling
         try:
             from backend.modules.aion_cognition.pattern_engine_resonance import pattern_cycle
             if qqc_input and result:
@@ -338,12 +338,12 @@ class CEEPlayback:
             logger.warning(f"[CEE-Playback] Pattern Engine coupling failed: {e}")
 
         # --------------------------------------------------------
-        # 🔁 Phase 46C — Quantum Motivator Feedback Loop
+        # 🔁 Phase 46C - Quantum Motivator Feedback Loop
         try:
             from backend.modules.aion_cognition.quantum_motivator_feedback import motivator_cycle
             motiv_state = motivator_cycle()
             logger.info(
-                f"[CEE-Playback] Motivator loop completed → "
+                f"[CEE-Playback] Motivator loop completed -> "
                 f"tone={motiv_state['tone']['amplitude']}, "
                 f"depth={motiv_state['bias']['depth']}"
             )
@@ -351,12 +351,12 @@ class CEEPlayback:
             logger.warning(f"[CEE-Playback] Motivator feedback failed: {e}")
 
         # --------------------------------------------------------
-        # 🧩 Phase 47 — Resonant Reasoner Integration
+        # 🧩 Phase 47 - Resonant Reasoner Integration
         try:
             from backend.modules.aion_cognition.resonant_reasoner import reasoner_cycle
             reason_state = reasoner_cycle()
             logger.info(
-                f"[CEE-Playback] Reasoner state exported → "
+                f"[CEE-Playback] Reasoner state exported -> "
                 f"depth={reason_state['bias']['depth']}, "
                 f"exploration={reason_state['bias']['exploration']}, "
                 f"tone={reason_state['tone']}"
@@ -365,12 +365,12 @@ class CEEPlayback:
             logger.warning(f"[CEE-Playback] Resonant Reasoner integration failed: {e}")
 
         # --------------------------------------------------------
-        # 🌐 Phase 48A — Codex Runtime Resonance Coupling
+        # 🌐 Phase 48A - Codex Runtime Resonance Coupling
         try:
             from backend.bridges.codex_runtime_resonance import runtime_coupling_cycle
             sym_packet = runtime_coupling_cycle()
             logger.info(
-                f"[CEE-Playback] Symatics packet emitted → "
+                f"[CEE-Playback] Symatics packet emitted -> "
                 f"⊕={sym_packet['operators']['⊕']}, "
                 f"↔={sym_packet['operators']['↔']}, "
                 f"⟲={sym_packet['operators']['⟲']}"
@@ -379,63 +379,63 @@ class CEEPlayback:
             logger.warning(f"[CEE-Playback] Codex Runtime Resonance coupling failed: {e}")
 
         # --------------------------------------------------------
-        # 🌌 Phase 48B — Live QQC Feedback Integration
+        # 🌌 Phase 48B - Live QQC Feedback Integration
         try:
             from backend.bridges.qqc_feedback_loop import qqc_feedback_cycle
             fb = qqc_feedback_cycle()
             logger.info(
                 f"[CEE-Playback] QQC feedback Δ⊕={fb['Δ⊕']}, Δ↔={fb['Δ↔']}, Δ⟲={fb['Δ⟲']} "
-                f"→ coherenceΔ={fb['coherence_delta']}"
+                f"-> coherenceΔ={fb['coherence_delta']}"
             )
         except Exception as e:
             logger.warning(f"[CEE-Playback] QQC Feedback loop failed: {e}")
 
         # --------------------------------------------------------
-        # ⚛ Phase 49 — Symatic Drift Correction
+        # ⚛ Phase 49 - Symatic Drift Correction
         try:
             from backend.modules.aion_cognition.symatic_drift_corrector import apply_drift_correction
             drift = apply_drift_correction()
             if drift:
                 logger.info(
-                    f"[CEE-Playback] Drift correction → "
+                    f"[CEE-Playback] Drift correction -> "
                     f"ρ={drift['ρ_corr']}, Ī={drift['Ī_corr']}, SQI={drift['SQI_corr']}"
                 )
         except Exception as e:
             logger.warning(f"[CEE-Playback] Symatic drift correction failed: {e}")
 
         # --------------------------------------------------------
-        # 🎛 Phase 50 — Dynamic Resonance Equalizer
+        # 🎛 Phase 50 - Dynamic Resonance Equalizer
         try:
             from backend.modules.aion_cognition.dynamic_resonance_equalizer import update_equalizer_state
             eq = update_equalizer_state()
             if eq:
                 logger.info(
-                    f"[CEE-Playback] Equalizer tuned → "
+                    f"[CEE-Playback] Equalizer tuned -> "
                     f"decay={eq['adaptive_decay']}, coherence={eq['coherence_gain']}"
                 )
         except Exception as e:
             logger.warning(f"[CEE-Playback] Equalizer tuning failed: {e}")
 
         # --------------------------------------------------------
-        # 🎶 Phase 51 — Temporal Harmonics Learner
+        # 🎶 Phase 51 - Temporal Harmonics Learner
         try:
             from backend.modules.aion_cognition.temporal_harmonics_learner import compute_temporal_harmonics
             harmonics = compute_temporal_harmonics()
             if harmonics:
                 logger.info(
-                    f"[CEE-Playback] Harmonics detected → "
+                    f"[CEE-Playback] Harmonics detected -> "
                     f"freq={harmonics['dominant_freq']}, strength={harmonics['harmonic_strength']}"
                 )
         except Exception as e:
             logger.warning(f"[CEE-Playback] Temporal harmonics analysis failed: {e}")
 
         # --------------------------------------------------------
-        # 🔮 Phase 52 — Resonant Forecast Engine
+        # 🔮 Phase 52 - Resonant Forecast Engine
         try:
             from backend.modules.aion_cognition.resonant_forecast_engine import compute_resonant_forecast
             forecast = compute_resonant_forecast()
             if forecast:
-                logger.info(f"[CEE-Playback] Forecast computed → SQI_next={forecast['SQI_next']}, confidence={forecast['confidence']}")
+                logger.info(f"[CEE-Playback] Forecast computed -> SQI_next={forecast['SQI_next']}, confidence={forecast['confidence']}")
         except Exception as e:
             logger.warning(f"[CEE-Playback] Resonant Forecast Engine failed: {e}")
 

@@ -48,7 +48,7 @@ def _maybe_emit_ghx(container: Dict[str, Any], args: argparse.Namespace) -> None
         try:
             from backend.modules.lean.lean_ghx import dump_packets
             dump_packets(container, args.ghx_out)
-            print(f"[📦] Wrote GHX packets → {args.ghx_out}")
+            print(f"[📦] Wrote GHX packets -> {args.ghx_out}")
         except Exception as e:
             print(f"[⚠️] GHX packet dump failed: {e}")
 
@@ -56,7 +56,7 @@ def _maybe_emit_ghx(container: Dict[str, Any], args: argparse.Namespace) -> None
         try:
             from backend.modules.lean.lean_ghx import bundle_packets
             bundle_packets(container, args.ghx_bundle)
-            print(f"[📦] Wrote GHX bundle → {args.ghx_bundle}")
+            print(f"[📦] Wrote GHX bundle -> {args.ghx_bundle}")
         except Exception as e:
             print(f"[⚠️] GHX bundle failed: {e}")
 # -----------------------------
@@ -75,7 +75,7 @@ def _print_summary(container: Dict[str, Any], logic_field_guess: Optional[str] =
     ]
     logic_field = next((f for f in fields_in_priority if f and f in container), None)
     logic_items = container.get(logic_field, []) if logic_field else []
-    print("\n— Summary —")
+    print("\n- Summary -")
     print(f"type: {container.get('type')}")
     print(f"id:   {container.get('id')}")
     print(f"theorems/entries: {len(logic_items)}")
@@ -83,9 +83,9 @@ def _print_summary(container: Dict[str, Any], logic_field_guess: Optional[str] =
     if previews:
         print("\nPreviews:")
         for p in previews[:6]:
-            print("  •", p)
+            print("  *", p)
         if len(previews) > 6:
-            print(f"  … (+{len(previews) - 6} more)")
+            print(f"  ... (+{len(previews) - 6} more)")
         return list(previews or [])
 
 def _diff_strings(a: str, b: str) -> str:
@@ -190,13 +190,13 @@ def _write_report(container: Dict[str, Any], kind: str, out: Optional[str]) -> N
     if out:
         with open(out, "w", encoding="utf-8") as f:
             f.write(report)
-        print(f"[📝] Wrote report → {out}")
+        print(f"[📝] Wrote report -> {out}")
     else:
         print(report)
 
 
 def _emit_dot(container: Dict[str, Any], dot_path: str) -> None:
-    """Emit Graphviz DOT for theorem→dependency edges."""
+    """Emit Graphviz DOT for theorem->dependency edges."""
     _, entries = _collect_logic_entries(container)
     names = {e.get("name"): True for e in entries if e.get("name")}
     lines = []
@@ -235,7 +235,7 @@ def _emit_dot(container: Dict[str, Any], dot_path: str) -> None:
     lines.append("}")
     with open(dot_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    print(f"[📈] Wrote dependency graph DOT → {dot_path}  (run: dot -Tpng {dot_path} -o deps.png)")
+    print(f"[📈] Wrote dependency graph DOT -> {dot_path}  (run: dot -Tpng {dot_path} -o deps.png)")
 
 # -----------------------------
 # Inject / Export commands
@@ -257,7 +257,7 @@ def _maybe_validate(container: Dict[str, Any], do_validate: bool) -> List[Dict[s
     if do_validate and errors:
         print("⚠️  Logic validation errors:")
         for e in errors:
-            print(f"  • [{e['code']}] {e['message']}")
+            print(f"  * [{e['code']}] {e['message']}")
 
     return errors
 
@@ -286,7 +286,7 @@ def _integrated_hooks(container: Dict[str, Any]) -> None:
     Placeholder: wire CodexLangRewriter normalization, SQI scoring,
     mutation hooks, and symbolic_registry registration here.
     """
-    print("[ℹ️] Integrated mode: Codex/SQI hooks would run here.")
+    print("[i️] Integrated mode: Codex/SQI hooks would run here.")
 
 
 def cmd_inject(args: argparse.Namespace) -> int:
@@ -348,7 +348,7 @@ def cmd_inject(args: argparse.Namespace) -> int:
                                      or it.get("codexlang", {}).get("logic")
                                      or "???")
                     label = "Define" if "Definition" in sym else "Prove"
-                    after["previews"].append(f"{sym} | {name} : {logic_str} → {label} ⟧")
+                    after["previews"].append(f"{sym} | {name} : {logic_str} -> {label} ⟧")
 
             elif args.preview == "mermaid":
                 mmd = mermaid_for_dependencies(after)
@@ -360,7 +360,7 @@ def cmd_inject(args: argparse.Namespace) -> int:
                 out_path = args.container + ".preview.png"
                 ok, msg = png_for_dependencies(after, out_path)
                 after["previews"] = [out_path if ok else msg]
-                print(("[✅] PNG preview saved → " + out_path) if ok else ("[⚠️] " + msg))
+                print(("[✅] PNG preview saved -> " + out_path) if ok else ("[⚠️] " + msg))
 
         if args.auto_clean:
             _auto_clean(after)
@@ -375,7 +375,7 @@ def cmd_inject(args: argparse.Namespace) -> int:
         if args.validate and errors:
             print("⚠️  Logic validation errors:")
             for e in errors:
-                print(f"  • [{e['code']}] {e['message']}")
+                print(f"  * [{e['code']}] {e['message']}")
 
         # ✅ Always attach validation; print only if --validate
         errors = _maybe_validate(after, args.validate)
@@ -387,7 +387,7 @@ def cmd_inject(args: argparse.Namespace) -> int:
         if args.mode == "integrated":
             _integrated_hooks(after)
         else:
-            print("[ℹ️] Standalone mode: skipping Codex/SQI integration.")
+            print("[i️] Standalone mode: skipping Codex/SQI integration.")
 
         if args.summary:
             _print_summary(after)
@@ -402,7 +402,7 @@ def cmd_inject(args: argparse.Namespace) -> int:
             mmd = mermaid_for_dependencies(after)
             with open(args.mermaid_out, "w", encoding="utf-8") as f:
                 f.write(mmd)
-            print(f"[🧭] wrote mermaid → {args.mermaid_out}")
+            print(f"[🧭] wrote mermaid -> {args.mermaid_out}")
         if args.png_out:
             ok, msg = png_for_dependencies(after, args.png_out)
             print(("[✅] " + msg) if ok else ("[⚠️] " + msg))
@@ -411,7 +411,7 @@ def cmd_inject(args: argparse.Namespace) -> int:
             before_s = json.dumps(before, indent=2, ensure_ascii=False)
             after_s  = json.dumps(after,  indent=2, ensure_ascii=False)
             if args.diff:
-                print("\n— Diff —")
+                print("\n- Diff -")
                 print(_diff_strings(before_s, after_s))
             if args.dry_run:
                 print("\n(dry-run) Not saving changes.")
@@ -478,7 +478,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         if args.validate and errors:
             print("⚠️  Logic validation errors:")
             for e in errors:
-                print(f"  • [{e['code']}] {e['message']}")
+                print(f"  * [{e['code']}] {e['message']}")
 
         # ✅ Always attach validation; print only if --validate
         errors = _maybe_validate(container, args.validate)
@@ -490,7 +490,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         if args.mode == "integrated":
             _integrated_hooks(container)
         else:
-            print("[ℹ️] Standalone mode: skipping Codex/SQI integration.")
+            print("[i️] Standalone mode: skipping Codex/SQI integration.")
 
         if args.summary:
             logic_hint = {
@@ -506,7 +506,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         if args.out:
             with open(args.out, "w", encoding="utf-8") as f:
                 json.dump(container, f, indent=2 if args.pretty else None, ensure_ascii=False)
-            print(f"[✅] Wrote {args.container_type} container → {args.out}")
+            print(f"[✅] Wrote {args.container_type} container -> {args.out}")
         else:
             print(json.dumps(container, indent=2 if args.pretty else None, ensure_ascii=False))
 
@@ -548,7 +548,7 @@ def cmd_export(args: argparse.Namespace) -> int:
 # -----------------------------
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="lean_inject", description="Lean→Glyph injection/export CLI")
+    p = argparse.ArgumentParser(prog="lean_inject", description="Lean->Glyph injection/export CLI")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     # inject

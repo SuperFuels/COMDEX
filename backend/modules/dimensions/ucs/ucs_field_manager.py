@@ -77,6 +77,6 @@ class UCSFieldManager:
         """Broadcast current field states to frontend HUD."""
         if self.container:
             self.container.log_event(
-                f"📡 Field Update → Gravity: {self.fields['gravity']:.2f}, "
+                f"📡 Field Update -> Gravity: {self.fields['gravity']:.2f}, "
                 f"EM: {self.fields['magnetic']:.2f}, Wave: {self.fields['wave_intensity']:.2f}"
             )

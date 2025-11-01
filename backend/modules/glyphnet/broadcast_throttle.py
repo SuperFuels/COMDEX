@@ -53,7 +53,7 @@ class BroadcastThrottle:
                 batch.clear()
                 self.q.task_done()
             except queue.Empty:
-                # idle → nothing to do
+                # idle -> nothing to do
                 pass
 
     def submit(self, event_type, payload):

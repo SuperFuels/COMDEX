@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧬 Glyph Storage + Global Registry — Tessaris/GlyphOS Core (v2)
+# 🧬 Glyph Storage + Global Registry - Tessaris/GlyphOS Core (v2)
 # ================================================================
 """
 Responsibilities:
@@ -158,9 +158,9 @@ def _normalize_loaded(data: Any) -> Dict[str, Dict[str, Any]]:
     """
     Normalize registry to a simple dict: {lemma: {lemma, glyph, ...}}.
     Accepts:
-      • v2: {"by_lemma": {...}, "by_glyph": {...}, "_meta": {...}}
-      • v1: {lemma: "✦"}  (flat string map)
-      • v1.1: {lemma: {"lemma": ..., "glyph": ...}}
+      * v2: {"by_lemma": {...}, "by_glyph": {...}, "_meta": {...}}
+      * v1: {lemma: "✦"}  (flat string map)
+      * v1.1: {lemma: {"lemma": ..., "glyph": ...}}
     """
     if isinstance(data, dict) and "by_lemma" in data:
         reg = data.get("by_lemma", {})
@@ -203,7 +203,7 @@ def _ensure_loaded() -> None:
 
 
 def get_glyph_registry() -> Dict[str, Dict[str, Any]]:
-    """Public read API: lemma → entry."""
+    """Public read API: lemma -> entry."""
     _ensure_loaded()
     return _GLYPH_REG
 
@@ -255,7 +255,7 @@ def store_glyph_entry(
 
     if not QUIET:
         action = "updated" if prev else "created"
-        print(f"[GlyphOS] Registered glyph: {lemma} → {glyph} ({action})")
+        print(f"[GlyphOS] Registered glyph: {lemma} -> {glyph} ({action})")
 
     return {"glyph": glyph, "reason": ("updated" if prev else "created")}
 

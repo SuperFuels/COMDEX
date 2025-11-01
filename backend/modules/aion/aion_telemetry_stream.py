@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Aion Telemetry Stream (Stage 10)
-#  ψ–κ–T–Φ resonance logging • KG + CFA sync
+#  Tessaris * Aion Telemetry Stream (Stage 10)
+#  ψ-κ-T-Φ resonance logging * KG + CFA sync
 # ──────────────────────────────────────────────
 import asyncio
 import logging
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class AionTelemetryStream:
     """
-    Captures Aion bridge ψ–κ–T–Φ projections over time.
+    Captures Aion bridge ψ-κ-T-Φ projections over time.
     Maintains rolling averages and propagates resonance deltas
     to the Tessaris Knowledge Graph and Cognitive Fabric.
     """
@@ -33,7 +33,7 @@ class AionTelemetryStream:
     #  Ingestion
     # ──────────────────────────────────────────────
     def ingest_projection(self, projection: Dict[str, Any]):
-        """Push new ψ–κ–T–Φ frame from Aion Integration Bridge."""
+        """Push new ψ-κ-T-Φ frame from Aion Integration Bridge."""
         if not projection:
             return
         projection["timestamp"] = datetime.now(UTC).isoformat()

@@ -8,7 +8,7 @@ to their operator implementations via the
 central registry bridge.
 
 Enhancements:
- - Operator alias normalization (superpose → ⊕, entangle → ↔, etc.)
+ - Operator alias normalization (superpose -> ⊕, entangle -> ↔, etc.)
  - Context propagation for downstream traces
  - Fallback handling for unregistered ops
  - Extended post-law verification (commutativity, associativity, resonance, collapse, projection)
@@ -99,8 +99,8 @@ def evaluate_symatics_expr(expr: Any, context: Dict = None) -> Dict[str, Any]:
     Evaluate a Symatics expression.
 
     Accepts:
-      • LogicGlyph object
-      • dict with {"op"/"operator": "...", "args": [...]}
+      * LogicGlyph object
+      * dict with {"op"/"operator": "...", "args": [...]}
 
     Returns:
       dict(status, result, engine="symatics", operator, args, context)
@@ -266,7 +266,7 @@ def evaluate_symatics_expr(expr: Any, context: Dict = None) -> Dict[str, Any]:
             if violations:
                 logger.warning(f"[Symatics] Law violations detected for {op}: {violations} ({summary})")
             else:
-                logger.debug(f"[Symatics] {op} → all {summary}")
+                logger.debug(f"[Symatics] {op} -> all {summary}")
         except Exception as e3:
             logger.warning(f"[Symatics] Law validation skipped for {op}: {e3}")
             result["law_check"] = {

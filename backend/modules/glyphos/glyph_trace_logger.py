@@ -28,7 +28,7 @@ try:
 except Exception:
     ENABLE_GLYPH_LOGGING = True
 
-# ✅ Optional: safe GHX log shim — never raises even if interface changes/missing
+# ✅ Optional: safe GHX log shim - never raises even if interface changes/missing
 try:
     from backend.modules.hologram.ghx_logging import safe_ghx_log
 except Exception:
@@ -107,7 +107,7 @@ class GlyphTraceLogger:
         return False
 
     def _safe_broadcast(self, payload: Dict) -> None:
-        """Call ws broadcast in whatever context we’re in."""
+        """Call ws broadcast in whatever context we're in."""
         try:
             broadcast = get_broadcast_event()
             if inspect.iscoroutinefunction(broadcast):
@@ -140,7 +140,7 @@ class GlyphTraceLogger:
             elif hasattr(rr, "enqueue") and callable(rr.enqueue):
                 rr.enqueue(replay_entry)
             else:
-                # No known API—silently ignore
+                # No known API-silently ignore
                 pass
         except Exception as e:
             print(f"[⚠️] Failed to auto-load replay into renderer: {e}")
@@ -327,7 +327,7 @@ class GlyphTraceLogger:
         except Exception as e:
             print(f"[⚠️] Failed to auto-load replay into renderer: {e}")
 
-        print(f"🛰️ Logged glyph replay: {len(glyphs)} glyphs, ticks {tick_start} → {tick_end}, snapshot={snapshot_id}")
+        print(f"🛰️ Logged glyph replay: {len(glyphs)} glyphs, ticks {tick_start} -> {tick_end}, snapshot={snapshot_id}")
         return replay_entry
 
     # ──────────────────────────────

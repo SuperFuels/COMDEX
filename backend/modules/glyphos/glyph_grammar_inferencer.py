@@ -9,7 +9,7 @@ class GlyphGrammarInferencer:
     def __init__(self):
         self.learned_grammar: set[str] = set()
         self.grammar_frequencies: dict[str, int] = defaultdict(int)
-        self.known_operators: set[str] = {"→", "⊕", "↔", "⟲", "⧖", "⬁", "🧬", "🜁"}
+        self.known_operators: set[str] = {"->", "⊕", "↔", "⟲", "⧖", "⬁", "🧬", "🜁"}
 
     def infer_from_glyph(self, glyph: str) -> Optional[Dict[str, Any]]:
         """
@@ -19,10 +19,10 @@ class GlyphGrammarInferencer:
             "type": "Memory",
             "tag": "Emotion",
             "value": "Love",
-            "actions": [{"operator": "→", "action": "Store"}]
+            "actions": [{"operator": "->", "action": "Store"}]
         }
         """
-        if "|" in glyph and ":" in glyph and "→" in glyph:
+        if "|" in glyph and ":" in glyph and "->" in glyph:
             structure = self._extract_structure(glyph)
             if structure:
                 signature = self._grammar_signature(structure)
@@ -34,11 +34,11 @@ class GlyphGrammarInferencer:
     def _extract_structure(self, glyph: str) -> Optional[Dict[str, Any]]:
         try:
             stripped = glyph.strip("⟦⟧").strip()
-            left, rhs = map(str.strip, stripped.split("→", 1))
+            left, rhs = map(str.strip, stripped.split("->", 1))
             type_tag, value = map(str.strip, left.split(":", 1))
             gtype, tag = map(str.strip, type_tag.split("|", 1))
 
-            actions = self._decompose_rhs("→ " + rhs)
+            actions = self._decompose_rhs("-> " + rhs)
             return {
                 "type": gtype,
                 "tag": tag,
@@ -53,7 +53,7 @@ class GlyphGrammarInferencer:
         """
         Break the RHS into operator-action pairs.
         """
-        pattern = r"(→|⊕|↔|⟲|⧖|⬁|🧬|🜁)"
+        pattern = r"(->|⊕|↔|⟲|⧖|⬁|🧬|🜁)"
         parts = re.split(pattern, rhs)
         result = []
         i = 0
@@ -67,7 +67,7 @@ class GlyphGrammarInferencer:
             else:
                 # Handle first item without leading operator
                 if part:
-                    result.append({"operator": "→", "action": part})
+                    result.append({"operator": "->", "action": part})
                 i += 1
         return result
 

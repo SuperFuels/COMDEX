@@ -34,7 +34,7 @@ def op_trigger(source, target, memory=None):
             "type": "glyph_trigger",
             "content": f"{source} triggered {target}"
         })
-    return f"{source} → {target}"
+    return f"{source} -> {target}"
 
 
 def op_equivalence(left, right):
@@ -52,7 +52,7 @@ def op_mutate(symbol, memory=None):
 
 
 def op_loop(symbol, count=3):
-    return [f"Loop[{i}] → {symbol}" for i in range(count)]
+    return [f"Loop[{i}] -> {symbol}" for i in range(count)]
 
 
 def op_union(set1, set2):
@@ -63,10 +63,10 @@ def op_combine(*args, **kwargs):
     """
     Legacy ⊕ operator.
     Behaviors:
-      • ⊕(value) → "[STORE] value"
-      • ⊕(context, value) → "[STORE] value"
-      • ⊕(a, b) → "⊕(a, b)"
-      • ⊕(context, a, b) → "⊕(a, b)"
+      * ⊕(value) -> "[STORE] value"
+      * ⊕(context, value) -> "[STORE] value"
+      * ⊕(a, b) -> "⊕(a, b)"
+      * ⊕(context, a, b) -> "⊕(a, b)"
     """
     if len(args) == 1:
         (a,) = args
@@ -74,7 +74,7 @@ def op_combine(*args, **kwargs):
 
     elif len(args) == 2:
         first, second = args
-        # If first is not a string → treat as context
+        # If first is not a string -> treat as context
         if not isinstance(first, str) or first == "context":
             return f"[STORE] {second}"
         return f"⊕({first}, {second})"
@@ -84,7 +84,7 @@ def op_combine(*args, **kwargs):
         return f"⊕({a}, {b})"
 
     else:
-        raise TypeError(f"op_combine expected 1–3 args, got {args}")
+        raise TypeError(f"op_combine expected 1-3 args, got {args}")
 
 
 def op_multiply(a, b):
@@ -124,7 +124,7 @@ def op_teleport(*, target: str, context=None, **kwargs):
 # --- Instruction Set Registry ---
 
 INSTRUCTION_SET: Dict[str, GlyphInstruction] = {
-    "→": GlyphInstruction("→", "trigger", op_trigger, "Triggers a symbolic action"),
+    "->": GlyphInstruction("->", "trigger", op_trigger, "Triggers a symbolic action"),
     "↔": GlyphInstruction("↔", "equivalence", op_equivalence, "Checks bidirectional equivalence"),
     "⟲": GlyphInstruction("⟲", "mutate", op_mutate, "Performs self-mutation or update"),
     "⤾": GlyphInstruction("⤾", "loop", op_loop, "Loops over a symbol"),

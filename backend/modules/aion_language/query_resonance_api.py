@@ -1,11 +1,11 @@
 """
-Query Resonance API — Phase 41C
+Query Resonance API - Phase 41C
 --------------------------------
 Enables semantic querying and similarity computation
 over the Language Resonance Matrix (LRM).
 
 Author: Tessaris Research Group
-Date: Phase 41C — October 2025
+Date: Phase 41C - October 2025
 """
 
 import json

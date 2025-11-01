@@ -1,4 +1,4 @@
-# === X1 — Information Flux Conservation (Tessaris) ===
+# === X1 - Information Flux Conservation (Tessaris) ===
 # Implements Tessaris Unified Constants & Verification Protocol (TUCVP)
 # Version: Phase II / Unified Architecture v1.2
 # ----------------------------------------------------------------------
@@ -15,8 +15,8 @@ from backend.photon_algebra.utils import field_ops
 # =====================================================
 constants = load_constants(version="v1.2")
 
-print("=== X1 — Information Flux Conservation (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, "
+print("=== X1 - Information Flux Conservation (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, "
       f"Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
 
 # =====================================================
@@ -42,7 +42,7 @@ v_field = field_ops.velocity_field(u, v)          # Local velocity
 # J_info = ρ_E * v - ∇S
 J_info = rho_E * v_field - np.gradient(S)
 
-# Handle multidimensional ∇·J_info correctly
+# Handle multidimensional ∇*J_info correctly
 div_J = np.zeros_like(u)
 if isinstance(J_info, (list, tuple)):
     for comp in J_info:
@@ -79,9 +79,9 @@ summary = {
         "within_tolerance": within_tolerance
     },
     "notes": [
-        "Information flux J_info = ρ_E·v − ∇S computed from lattice energy and entropy fields.",
-        "Conservation test: ∂_t S + ∇·J_info ≈ 0.",
-        "Residual mean error < 10⁻³ confirms Tessaris Law of Informational Universality.",
+        "Information flux J_info = ρ_E*v - ∇S computed from lattice energy and entropy fields.",
+        "Conservation test: ∂_t S + ∇*J_info ≈ 0.",
+        "Residual mean error < 10-3 confirms Tessaris Law of Informational Universality.",
         "Verified under Tessaris Unified Constants & Verification Protocol (TUCVP)."
     ],
     "files": {
@@ -105,12 +105,12 @@ field_ops.save_plot("PAEV_X1_information_flux.png", J_info)
 # =====================================================
 # 9. Final printout
 # =====================================================
-print("✅ Plot saved → PAEV_X1_information_flux.png")
-print(f"✅ Summary saved → {out_path}")
-print("\n🧭 Discovery Notes —", timestamp)
+print("✅ Plot saved -> PAEV_X1_information_flux.png")
+print(f"✅ Summary saved -> {out_path}")
+print("\n🧭 Discovery Notes -", timestamp)
 print("------------------------------------------------------------")
-print(f"• Mean residual error = {mean_error:.3e}")
-print(f"• Tolerance = {tolerance:.1e}")
-print(f"• Result → {'✅ Within tolerance' if within_tolerance else '⚠️ Outside tolerance'}")
+print(f"* Mean residual error = {mean_error:.3e}")
+print(f"* Tolerance = {tolerance:.1e}")
+print(f"* Result -> {'✅ Within tolerance' if within_tolerance else '⚠️ Outside tolerance'}")
 print("------------------------------------------------------------")
 print("Verified under Tessaris Unified Constants & Verification Protocol (TUCVP).")

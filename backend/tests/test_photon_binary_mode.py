@@ -5,7 +5,7 @@ from backend.modules.photonlang.binary_mode import (
     to_binary, from_binary, export_replay_frame, to_pulse_graph, GLYPH_BINARY_MAP
 )
 
-GLYPHS = "⊕↔⟲μπ⇒∇⧖"
+GLYPHS = "⊕↔⟲μπ->∇⧖"
 BITS = [GLYPH_BINARY_MAP[g] for g in GLYPHS]
 
 def test_round_trip_basic():

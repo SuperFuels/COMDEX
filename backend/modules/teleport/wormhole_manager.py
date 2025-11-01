@@ -3,7 +3,7 @@
 # ============================================================
 
 """
-WormholeManager — symbolic teleportation and inter-container state transport.
+WormholeManager - symbolic teleportation and inter-container state transport.
 Part of the Tessaris Quantum Quad Core (QQC) teleportation subsystem.
 
 Handles creation, stabilization, and transfer of symbolic container states
@@ -40,7 +40,7 @@ def broadcast_glyph_event(event_type_or_dict, payload=None):
         # ✅ call with both args (new signature)
         throttled_broadcast(event_type, payload)
 
-        print(f"[WormholeManager] Broadcasted → {event_type} | {payload}")
+        print(f"[WormholeManager] Broadcasted -> {event_type} | {payload}")
     except Exception as e:
         import logging
         logging.warning(f"[⚠️ Wormhole Broadcast] Failed to send event: {e}")
@@ -109,7 +109,7 @@ def teleport_to_container(container_id: str, source: str = "GHX") -> Dict[str, A
             ContainerVaultManager.update_container_state(container_id, container_data)
             logger.info(f"[VaultBridge] 🔄 Updated runtime state for container '{container_id}'")
         else:
-            logger.debug("[VaultBridge] No update_container_state() available — skipping.")
+            logger.debug("[VaultBridge] No update_container_state() available - skipping.")
     except Exception as e:
         logger.warning(f"[Teleport] ⚠️ Vault update failed: {e}")
 
@@ -182,7 +182,7 @@ class WormholeManager:
 
     def teleport(self, src_container: str, dst_container: str, source: str = "QQC") -> Dict[str, Any]:
         """
-        High-level teleport operation: extract → transfer → verify.
+        High-level teleport operation: extract -> transfer -> verify.
         """
         state = self.extract_state(src_container)
         if not state:
@@ -191,5 +191,5 @@ class WormholeManager:
         result = self.transfer_state(state, dst_container)
         if result.get("status") == "ok":
             teleport_to_container(dst_container, source)
-            logger.info(f"[WormholeManager] 🌀 Teleport successful: {src_container} → {dst_container}")
+            logger.info(f"[WormholeManager] 🌀 Teleport successful: {src_container} -> {dst_container}")
         return result

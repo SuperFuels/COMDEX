@@ -34,7 +34,7 @@ class Deal(Base):
     supplier   = relationship("User",     back_populates="supplier_deals", foreign_keys=[supplier_id])
     contract   = relationship("Contract", back_populates="deal", uselist=False)
 
-    # ←── reciprocal side of Shipment⇄Deal
+    # <-── reciprocal side of Shipment⇄Deal
     shipments  = relationship(
         "Shipment",
         back_populates="deal",

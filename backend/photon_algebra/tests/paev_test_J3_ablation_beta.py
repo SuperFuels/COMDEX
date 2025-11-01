@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-J3 — β-ablation study (baseline β vs β=0)
+J3 - β-ablation study (baseline β vs β=0)
 -----------------------------------------
 Tests the role of the β-term (linear coupling/damping) in sustaining or stabilizing
 Tessaris dynamics. Paired A/B runs with identical seeds.
@@ -58,7 +58,7 @@ rng = np.random.default_rng(SEED)
 print("\n🧩 J3 Configuration:")
 print(f"   base_noise={BASE_NOISE}, BURST_TH={BURST_TH}")
 print(f"   seed={SEED}, steps={T}, dt={DT}")
-print(f"   Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"   Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 print("------------------------------------------------------------")
 
 # ============================================================
@@ -164,7 +164,7 @@ ax1.bar(x - w / 2, p_vals, w, label="p (transport)")
 ax1.bar(x + w / 2, nu_vals, w, label="ν (entropy↔MSD)")
 ax1.set_xticks(x); ax1.set_xticklabels(labels)
 ax1.set_ylabel("Exponent value")
-ax1.set_title("J3 — Exponents under β ablation")
+ax1.set_title("J3 - Exponents under β ablation")
 ax1.legend(); ax1.grid(alpha=0.3)
 
 ax2 = plt.subplot(1, 2, 2)
@@ -174,12 +174,12 @@ ax2.hist(b1, bins=15, alpha=0.6, label=f"β={β} (n={len(b1)})")
 ax2.hist(b2, bins=15, alpha=0.6, label=f"β=0 (n={len(b2)})")
 ax2.set_xlabel("Burst length (steps)")
 ax2.set_ylabel("Count")
-ax2.set_title("J3 — v_S/v_c bursts")
+ax2.set_title("J3 - v_S/v_c bursts")
 ax2.legend(); ax2.grid(alpha=0.3)
 plt.tight_layout()
 fig_path = "PAEV_J3_ablation_beta.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Figure saved → {fig_path}")
+print(f"✅ Figure saved -> {fig_path}")
 
 # ============================================================
 #  JSON Summary
@@ -207,7 +207,7 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/J3_ablation_beta_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # ============================================================
 #  Verdict
@@ -215,22 +215,22 @@ print(f"✅ Summary saved → {out_path}")
 def verdict(r0, r1):
     msg = []
     if r1["stats"]["bursts_count"] > r0["stats"]["bursts_count"]:
-        msg.append("Removing β increases bursts → β stabilizes transport.")
+        msg.append("Removing β increases bursts -> β stabilizes transport.")
     elif r1["stats"]["bursts_count"] < r0["stats"]["bursts_count"]:
-        msg.append("Fewer bursts without β → β suppresses feedback coupling.")
+        msg.append("Fewer bursts without β -> β suppresses feedback coupling.")
     else:
-        msg.append("No burst difference → β neutral at this regime.")
+        msg.append("No burst difference -> β neutral at this regime.")
     dp, dn = r1["p"] - r0["p"], r1["nu"] - r0["nu"]
     if abs(dp) < 0.02:
         msg.append("Transport exponent p ~ invariant.")
     else:
         msg.append(f"Transport exponent shift Δp={dp:.3f}.")
     if abs(dn) > 0.1:
-        msg.append(f"Entropy–MSD coupling changed (Δν={dn:.3f}).")
+        msg.append(f"Entropy-MSD coupling changed (Δν={dn:.3f}).")
     return " ".join(msg)
 
 print("\n" + "=" * 66)
-print("🔎 J3 — β-ABLATION VERDICT")
+print("🔎 J3 - β-ABLATION VERDICT")
 print("=" * 66)
 print(verdict(res_baseline, res_zero))
 print("All claims are algebraic/model-level; no spacetime signaling implied.")

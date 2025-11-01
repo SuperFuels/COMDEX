@@ -1,15 +1,15 @@
 """
 ⚙️ Gear Shift Manager Module
 ----------------------------
-• Handles gear shifting logic for QWave engines.
-• Implements pulse-gated field ramping with drift dampening.
-• Supports slow clutch ramping to stabilize resonance during transitions.
+* Handles gear shifting logic for QWave engines.
+* Implements pulse-gated field ramping with drift dampening.
+* Supports slow clutch ramping to stabilize resonance during transitions.
 
 🔥 Features:
-    • Pulse-gated gear ramping (only shift during stable resonance pulses).
-    • Drift dampener to auto-correct instability during gear shifts.
-    • Slow clutch ramp duration (20–30s) to prevent collapse.
-    • Inline harmonic injection during plasma/wave stages.
+    * Pulse-gated gear ramping (only shift during stable resonance pulses).
+    * Drift dampener to auto-correct instability during gear shifts.
+    * Slow clutch ramp duration (20-30s) to prevent collapse.
+    * Inline harmonic injection during plasma/wave stages.
 """
 
 import time
@@ -26,7 +26,7 @@ def gear_shift(engine, gear_idx, GEAR_MAP, clutch_duration=25):
         clutch_duration: Time (seconds) to complete the shift.
     """
     target_fields = GEAR_MAP[gear_idx]
-    print(f"\n⚙ Gear Shift → {gear_idx} | Clutch engaged.")
+    print(f"\n⚙ Gear Shift -> {gear_idx} | Clutch engaged.")
     engine.stability_threshold *= 2  # Relax stability during ramp
 
     start = time.time()

@@ -8,7 +8,7 @@ with C_PATH.open() as f:
     C = json.load(f)
 ħ, G, Λ, α = C["ħ_eff"], C["G_eff"], C["Λ_eff"], C["α_eff"]
 
-# Synthetic sender/receiver “bridge” signals
+# Synthetic sender/receiver "bridge" signals
 T = 2000
 t = np.linspace(0, 10, T)
 s_tx = np.exp(-0.5*((t-3.5)/0.8)**2) * np.cos(4*t)           # encoded pattern
@@ -34,7 +34,7 @@ thr = 0.90
 idx = np.where(fids>=thr)[0]
 sigma_thr = sigmas[idx[-1]] if len(idx)>0 else np.nan
 
-print("=== N6 — Noise Robustness ===")
+print("=== N6 - Noise Robustness ===")
 print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}")
 print(f"90% fidelity noise threshold σ ≈ {sigma_thr:.3e}")
 
@@ -42,8 +42,8 @@ print(f"90% fidelity noise threshold σ ≈ {sigma_thr:.3e}")
 plt.figure(figsize=(8,5))
 plt.semilogx(sigmas, fids, lw=2)
 plt.axhline(thr, ls="--", alpha=0.5, label="0.90 fidelity")
-plt.xlabel("Noise σ"); plt.ylabel("Fidelity |⟨rx|tx⟩|²")
-plt.title("N6 — Entanglement Transport Noise Robustness")
+plt.xlabel("Noise σ"); plt.ylabel("Fidelity |⟨rx|tx⟩|2")
+plt.title("N6 - Entanglement Transport Noise Robustness")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_N6_NoiseRobustness.png", dpi=160)
 

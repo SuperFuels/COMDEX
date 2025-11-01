@@ -1,6 +1,6 @@
 # ================================================================
-# 🧮 CEE — MathExercise Schema (Symbolic Ops)
-# Phase 45G – Task g9
+# 🧮 CEE - MathExercise Schema (Symbolic Ops)
+# Phase 45G - Task g9
 # ================================================================
 """
 Defines the MathExercise data schema and generation logic for
@@ -9,9 +9,9 @@ a symbolic reasoning or semantic grouping task grounded in
 QuantPy / QTensorField resonance evaluation.
 
 Supported exercise types:
-    • equation_match  → find equivalent or simplified expression
-    • symbol_fill     → complete a missing symbol or term
-    • group_sort      → categorize symbols into conceptual groups
+    * equation_match  -> find equivalent or simplified expression
+    * symbol_fill     -> complete a missing symbol or term
+    * group_sort      -> categorize symbols into conceptual groups
 
 Output examples are resonance-tagged and ready for inclusion in
 .mathfield.qdata.json or .lexfield.qdata.json datasets.

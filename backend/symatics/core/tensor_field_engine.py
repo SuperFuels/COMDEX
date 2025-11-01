@@ -1,7 +1,7 @@
 # backend/symatics/core/tensor_field_engine.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.8 — Resonant Tensor Field Engine
-# Extends λ–ψ symbolic fluids into λ⊗ψ tensor resonance dynamics.
+# Tessaris Symatics v0.8 - Resonant Tensor Field Engine
+# Extends λ-ψ symbolic fluids into λ⊗ψ tensor resonance dynamics.
 # Author: Tessaris Core Systems / Codex Intelligence Group
 # ──────────────────────────────────────────────────────────────
 
@@ -15,14 +15,14 @@ except ImportError:
     def record_event(event_type: str, **kwargs): return None
 
 def grad_tensor(field: np.ndarray) -> np.ndarray:
-    """∇⊗ψ — tensor gradient (outer derivative)"""
+    """∇⊗ψ - tensor gradient (outer derivative)"""
     grad_components = np.gradient(field)
     rank2 = np.stack(grad_components, axis=-1)
     return rank2
 
 def divergence_tensor(tensor: np.ndarray) -> np.ndarray:
     """
-    ∇·T — Generalized divergence for rank-2+ tensors.
+    ∇*T - Generalized divergence for rank-2+ tensors.
     For tensors with shape (..., N, M), this computes
     divergence along the last axis and sums partials across N dimensions.
     """
@@ -48,7 +48,7 @@ def divergence_tensor(tensor: np.ndarray) -> np.ndarray:
 class ResonantTensorField:
     """
     Symbolic λ⊗ψ tensor continuum.
-    Couples wave ψ and law λ fields via divergence–gradient dynamics.
+    Couples wave ψ and law λ fields via divergence-gradient dynamics.
     """
 
     def __init__(self, shape=(64, 64), ν=0.2, η=0.05, γ=0.01):
@@ -71,13 +71,13 @@ class ResonantTensorField:
 
     def step(self, dt: float = 0.1):
         """
-        Advance λ–ψ tensor field system one time step.
+        Advance λ-ψ tensor field system one time step.
         Uses scalar Laplacian contraction and tensor divergence feedback.
         Numerically stable version with finite guards and smooth λ damping.
         """
         ψ, λ = self.ψ, self.λ
 
-        # Compute Laplacian (scalar contraction of ∇²ψ)
+        # Compute Laplacian (scalar contraction of ∇2ψ)
         gradψ = np.gradient(ψ)
         lapψ = sum(np.gradient(g, axis=i) for i, g in enumerate(gradψ))
 

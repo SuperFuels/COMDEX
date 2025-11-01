@@ -1,9 +1,9 @@
 """
 🫀 Pulse Detection Module
 -------------------------
-• Detects resonance pulses and stability signatures.
-• Auto-enables SQI when drift falls within threshold.
-• Supports SQI lock, idle-state save, and stage-aware context.
+* Detects resonance pulses and stability signatures.
+* Auto-enables SQI when drift falls within threshold.
+* Supports SQI lock, idle-state save, and stage-aware context.
 """
 
 from datetime import datetime
@@ -64,6 +64,6 @@ def tick_pulse_handler(engine):
     Called within tick orchestrator after harmonic & exhaust updates.
     """
     if detect_pulse(engine):
-        engine.log_event("✅ Resonance stable → eligible for stage advancement.")
+        engine.log_event("✅ Resonance stable -> eligible for stage advancement.")
         return True
     return False

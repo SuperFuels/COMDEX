@@ -4,8 +4,8 @@
 Collision Resolver for CodexLang Operators
 
 Centralizes how raw symbols map to canonical, domain-tagged operator keys.
-- Prefer explicit aliases (e.g., ⊕_q → quantum:⊕).
-- For ambiguous raw symbols (⊗, ⊕, ↔, …), resolve by priority or optional context.
+- Prefer explicit aliases (e.g., ⊕_q -> quantum:⊕).
+- For ambiguous raw symbols (⊗, ⊕, ↔, ...), resolve by priority or optional context.
 - Fall back to the flat CANONICAL_OPS map only for non-colliding symbols.
 - Supports overrides from config/resolver_config.yaml (hot-reloadable).
 """
@@ -112,7 +112,7 @@ def resolve_op(op: str, context: Optional[str] = None) -> str:
     Public API for canonicalizing operators.
 
     Resolution order:
-      1) ALIASES (explicit disambiguation like ⊕_q → quantum:⊕)
+      1) ALIASES (explicit disambiguation like ⊕_q -> quantum:⊕)
       2) COLLISIONS (ambiguous raw symbols resolved by context/priority)
       3) CANONICAL_OPS (simple, non-colliding mappings)
       4) Fallback (raw input)
@@ -131,7 +131,7 @@ def resolve_op(op: str, context: Optional[str] = None) -> str:
     if op in CANONICAL_OPS:
         return CANONICAL_OPS[op]
 
-    # 4️⃣ Fallback — return as-is
+    # 4️⃣ Fallback - return as-is
     return op
 
 

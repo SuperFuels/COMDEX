@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 # ==========================================================
-# P9d — Self-Adaptive Meta-Learning Coupling
+# P9d - Self-Adaptive Meta-Learning Coupling
 # ==========================================================
 
 np.random.seed(42)
@@ -118,7 +118,7 @@ servo_ps = [h["servo_p"] for h in history]
 
 plt.figure(figsize=(7, 4))
 plt.plot(epochs, lock_scores, marker="o")
-plt.title("P9d — Meta-Learning Lock Ratio Progression")
+plt.title("P9d - Meta-Learning Lock Ratio Progression")
 plt.xlabel("Epoch")
 plt.ylabel("Lock Ratio")
 plt.tight_layout()
@@ -127,7 +127,7 @@ plt.savefig("PAEV_P9d_MetaLearning_LockProgress.png")
 plt.figure(figsize=(7, 4))
 plt.plot(epochs, K_values, label="K_meta")
 plt.plot(epochs, servo_ps, label="servo_p")
-plt.title("P9d — Adaptive Gains Across Epochs")
+plt.title("P9d - Adaptive Gains Across Epochs")
 plt.xlabel("Epoch")
 plt.ylabel("Gain Value")
 plt.legend()
@@ -162,8 +162,8 @@ result_json = {
 with open("backend/modules/knowledge/P9d_meta_learning.json", "w") as f:
     json.dump(result_json, f, indent=2)
 
-print("=== P9d — Self-Adaptive Meta-Learning Coupling ===")
+print("=== P9d - Self-Adaptive Meta-Learning Coupling ===")
 print(f"Best lock ratio = {best_lock:.3f} @ epoch {best_params.get('epoch', '-')}")
 print(f"Final K_meta = {best_params.get('K_meta', 'N/A'):.3f} | servo_i = {best_params.get('servo_i', 'N/A'):.4f}")
-print(f"→ {result_json['classification']}")
-print("✅ Results saved → backend/modules/knowledge/P9d_meta_learning.json")
+print(f"-> {result_json['classification']}")
+print("✅ Results saved -> backend/modules/knowledge/P9d_meta_learning.json")

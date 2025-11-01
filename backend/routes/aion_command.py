@@ -78,7 +78,7 @@ async def execute_command(input: CommandInput):
         try:
             from backend.modules.aion_resonance.phi_reinforce import reinforce_from_memory
             baseline = reinforce_from_memory()
-            print(f"[AION Cognitive Reinforcement] Baseline updated → Φ_coherence={baseline['Φ_coherence']:.3f}, beliefs={baseline['beliefs']}")
+            print(f"[AION Cognitive Reinforcement] Baseline updated -> Φ_coherence={baseline['Φ_coherence']:.3f}, beliefs={baseline['beliefs']}")
         except Exception as e:
             print(f"[AION Cognitive Reinforcement] ⚠️ Reinforcement failed: {e}")
 

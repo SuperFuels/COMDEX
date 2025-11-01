@@ -14,7 +14,7 @@ def test_registry_structure_valid():
     """Ensure registry exists and contains valid entries."""
     registry = getattr(law_check, "RUNTIME_LAW_REGISTRY", None)
     assert registry is not None and isinstance(registry, dict)
-    assert len(registry) >= 5, "Registry too small — missing runtime law entries."
+    assert len(registry) >= 5, "Registry too small - missing runtime law entries."
 
     for name, meta in registry.items():
         assert isinstance(meta, dict), f"{name} entry must be dict"

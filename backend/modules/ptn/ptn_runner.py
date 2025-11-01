@@ -4,7 +4,7 @@
 ⚙️ Photon Page Runner
 ────────────────────────────────────────────
 Executes .ptn Photon Pages through Photon Language engine.
-Bridges WikiCapsule layer → PhotonExecutor pipeline.
+Bridges WikiCapsule layer -> PhotonExecutor pipeline.
 
 Usage:
     from backend.modules.ptn.ptn_runner import run_photon_page

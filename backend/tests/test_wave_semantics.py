@@ -4,9 +4,9 @@ Wave Semantics Test Suite (v0.9)
 --------------------------------
 Checks physical consistency of symatic wave operators:
 
-  • ⋈  (fusion/interference)
-  • ⟲  (resonance)
-  • ↯  (damping)
+  * ⋈  (fusion/interference)
+  * ⟲  (resonance)
+  * ↯  (damping)
 
 Operators are applied via the canonical operator registry.
 """
@@ -24,7 +24,7 @@ from backend.symatics.terms import Sym, App
 # ---------------------
 
 def test_fusion_constructive():
-    """φ = 0 → amplitudes add directly."""
+    """φ = 0 -> amplitudes add directly."""
     w1 = Wave(frequency=10, amplitude=1.0, phase=0.0, polarization="H")
     w2 = Wave(frequency=10, amplitude=1.0, phase=0.0, polarization="H")
 
@@ -35,7 +35,7 @@ def test_fusion_constructive():
 
 
 def test_fusion_destructive():
-    """φ = π → perfect cancellation."""
+    """φ = π -> perfect cancellation."""
     w1 = Wave(frequency=10, amplitude=1.0, phase=0.0, polarization="H")
     w2 = Wave(frequency=10, amplitude=1.0, phase=0.0, polarization="H")
 
@@ -46,7 +46,7 @@ def test_fusion_destructive():
 
 
 def test_fusion_arbitrary_phase():
-    """Intermediate φ → cosine law of interference."""
+    """Intermediate φ -> cosine law of interference."""
     w1 = Wave(frequency=10, amplitude=1.0, phase=0.0, polarization="H")
     w2 = Wave(frequency=10, amplitude=1.0, phase=0.0, polarization="H")
     phi = math.pi / 3
@@ -63,7 +63,7 @@ def test_fusion_arbitrary_phase():
 # ------------
 
 def test_resonance_near_match():
-    """Frequencies almost identical → amplification > max input amplitude."""
+    """Frequencies almost identical -> amplification > max input amplitude."""
     w1 = Wave(frequency=10.0000001, amplitude=1.0, phase=0.0, polarization="H")
     w2 = Wave(frequency=10.0, amplitude=2.0, phase=0.0, polarization="H")
 
@@ -76,7 +76,7 @@ def test_resonance_near_match():
 
 
 def test_resonance_far_apart():
-    """Frequencies far apart → amplitude should damp relative to stronger input."""
+    """Frequencies far apart -> amplitude should damp relative to stronger input."""
     w1 = Wave(frequency=10.0, amplitude=2.0, phase=0.0, polarization="H")
     w2 = Wave(frequency=20.0, amplitude=1.0, phase=0.0, polarization="H")
 

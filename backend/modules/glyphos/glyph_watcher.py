@@ -67,7 +67,7 @@ class GlyphWatcher:
             asyncio.run_coroutine_threadsafe(coro, self.async_loop)
 
         elif glyph.startswith("⧉:"):
-            print(f"📡 Deferred glyph at ({x},{y},{z}) → Routing placeholder")
+            print(f"📡 Deferred glyph at ({x},{y},{z}) -> Routing placeholder")
             MEMORY.store({
                 "timestamp": timestamp,
                 "role": "system",

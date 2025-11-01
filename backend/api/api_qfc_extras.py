@@ -41,7 +41,7 @@ async def qfc_entanglement(
         "file": file,
         "container_id": container_id,
         "direction": direction,
-        "updates": [],   # ← fill later with real events
+        "updates": [],   # <- fill later with real events
         "count": 0,      # convenience field for HUD counters
     }
 
@@ -61,6 +61,6 @@ async def qfc_entangled(
     return {
         "cell_id": cell_id,
         "container_id": container_id,
-        "updates": [],  # ← fill later with summarized entanglements
+        "updates": [],  # <- fill later with summarized entanglements
         "count": 0,
     }

@@ -1,12 +1,12 @@
 """
-Adaptive Reasoning Refiner — Phase 44C
+Adaptive Reasoning Refiner - Phase 44C
 -------------------------------------
-Links EmotionalToneModulator → reasoning control.
+Links EmotionalToneModulator -> reasoning control.
 Dynamically scales reasoning depth, exploration, and response style.
 Now includes persistent bias_state for introspective habit and goal alignment.
 
 Author: Tessaris Research Group
-Date: Phase 44C — October 2025
+Date: Phase 44C - October 2025
 """
 
 import time
@@ -52,7 +52,7 @@ class AdaptiveReasoningRefiner:
         self.reasoning_bias = bias
         self.bias_state = bias  # ✅ Persist for access by HabitEngine, Alignment layers
         self.last_adjustment = time.time()
-        print(f"[AdaptiveReasoningRefiner] 🧭 Bias set → {bias}")
+        print(f"[AdaptiveReasoningRefiner] 🧭 Bias set -> {bias}")
         return bias
 
     def refine_reasoning(self, query: str):

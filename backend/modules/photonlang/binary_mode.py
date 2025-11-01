@@ -1,13 +1,13 @@
 """
-PhotonLang Binary Mode — v0.2
-Symbolic → reversible binary tape for photon microcode lanes.
+PhotonLang Binary Mode - v0.2
+Symbolic -> reversible binary tape for photon microcode lanes.
 Ensures deterministic round-trip & SQI-pulse propagation.
 """
 
 from __future__ import annotations
 
 # ------------------------------------------------------------
-# Symbol → Bit mapping (4-bit lane, v0.2)
+# Symbol -> Bit mapping (4-bit lane, v0.2)
 # ------------------------------------------------------------
 GLYPH_BINARY_MAP = {
     "⊕": "0001",  # superpose
@@ -15,7 +15,7 @@ GLYPH_BINARY_MAP = {
     "⟲": "0011",  # resonate
     "μ": "0100",  # measure
     "π": "0101",  # project
-    "⇒": "0110",  # trigger
+    "->": "0110",  # trigger
     "∇": "0111",  # collapse
     "⧖": "1000",  # modulate
 }

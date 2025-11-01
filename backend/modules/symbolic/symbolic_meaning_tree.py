@@ -75,8 +75,8 @@ class SymbolicMeaningTree:
         """
         print(f"\n🔎 [bold]Tree Summary:[/bold]")
         for node in self.nodes:
-            print(f"• [blue]{node['id']}[/blue] — {node['label']} ({node['type']})")
+            print(f"* [blue]{node['id']}[/blue] - {node['label']} ({node['type']})")
 
         print(f"\n🔗 [bold]Connections:[/bold]")
         for edge in self.edges:
-            print(f"→ {edge['source']} → {edge['target']}")
+            print(f"-> {edge['source']} -> {edge['target']}")

@@ -44,7 +44,7 @@ def export_snapshot():
                 except Exception as e:
                     log.warning(f"[Export] Failed {path.name}: {e}")
             OUT_PATH.write_text(json.dumps(data, indent=2, ensure_ascii=False))
-            log.info(f"[Export] ✅ Wrote {len(data)} entries → {OUT_PATH}")
+            log.info(f"[Export] ✅ Wrote {len(data)} entries -> {OUT_PATH}")
             return
     log.error("[Export] ❌ No valid source directory found.")
 

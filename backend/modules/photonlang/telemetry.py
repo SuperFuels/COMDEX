@@ -1,5 +1,5 @@
 # ============================================================
-# photonlang/telemetry.py — SQI event hook (v0.3)
+# photonlang/telemetry.py - SQI event hook (v0.3)
 # ============================================================
 
 from __future__ import annotations

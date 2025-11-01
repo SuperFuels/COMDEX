@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-🎵 Harmonic Memory Profile — Phase 47B (Unified)
+🎵 Harmonic Memory Profile - Phase 47B (Unified)
 ────────────────────────────────────────────────
 Tracks harmonic stabilization, resonance drift,
 and adaptive gain tuning for all reinforcement events.
 
 Combines:
-    • Phase 40B persistence & memory logging
-    • Phase 47 statistical summarization & pruning
+    * Phase 40B persistence & memory logging
+    * Phase 47 statistical summarization & pruning
 
 Functions:
-    • log_event() — record resonance/gain events
-    • log_entry() — append reinforcement/learning entry
-    • summarize() — compute avg gain/drift/stability
-    • prune_old() — trim stale harmonic data
+    * log_event() - record resonance/gain events
+    * log_entry() - append reinforcement/learning entry
+    * summarize() - compute avg gain/drift/stability
+    * prune_old() - trim stale harmonic data
 """
 
 import json, time, logging

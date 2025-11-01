@@ -3,7 +3,7 @@
 # ============================================================
 
 """
-QFCWebSocketBroadcast — handles Quantum Field Cognition (QFC)
+QFCWebSocketBroadcast - handles Quantum Field Cognition (QFC)
 WebSocket communication for Tessaris QQC runtime.
 Provides a unified class interface for live payload and beam broadcasts.
 """

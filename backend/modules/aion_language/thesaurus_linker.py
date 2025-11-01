@@ -1,5 +1,5 @@
 """
-Phase 41B — Thesaurus Linker + Language Resonance Matrix (LRM)
+Phase 41B - Thesaurus Linker + Language Resonance Matrix (LRM)
 ----------------------------------------------------------------
 Builds a resonance-weighted graph linking lexical atoms in the
 Meaning Field Engine (MFG) by synonym/antonym relations.
@@ -16,7 +16,7 @@ LRM_PATH = Path("data/lexicons/language_resonance_matrix.json")
 
 class ThesaurusLinker:
     def __init__(self):
-        self.matrix = {}        # word → {other_word: resonance_strength}
+        self.matrix = {}        # word -> {other_word: resonance_strength}
         self.last_update = None
 
     # ─────────────────────────────────────────
@@ -30,7 +30,7 @@ class ThesaurusLinker:
 
     # ─────────────────────────────────────────
     def build_from_MFG(self):
-        """Scan Meaning Field clusters → build resonance matrix."""
+        """Scan Meaning Field clusters -> build resonance matrix."""
         clusters = getattr(MFG, "field", {}).get("clusters", [])
         if not clusters:
             logger.warning("[ThesaurusLinker] No clusters found in MFG.")
@@ -57,7 +57,7 @@ class ThesaurusLinker:
                 "timestamp": self.last_update,
                 "matrix": self.matrix
             }, f, indent=2)
-        logger.info(f"[ThesaurusLinker] Exported LRM → {LRM_PATH}")
+        logger.info(f"[ThesaurusLinker] Exported LRM -> {LRM_PATH}")
 
     # ─────────────────────────────────────────
     def link_strength(self, w1: str, w2: str) -> float:
@@ -78,7 +78,7 @@ except NameError:
 
 if __name__ == "__main__":
     from backend.modules.aion_language.meaning_field_engine import MFG
-    print("🔗 Building Language Resonance Matrix (LRM)…")
+    print("🔗 Building Language Resonance Matrix (LRM)...")
     LRM.build_from_MFG()
     LRM.export()
     print("✅ ThesaurusLinker completed and exported successfully.")

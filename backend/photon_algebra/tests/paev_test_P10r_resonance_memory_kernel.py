@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import json
 
 # ================================================
-# P10r — Resonance Memory Kernel Reconstruction
+# P10r - Resonance Memory Kernel Reconstruction
 # ================================================
 
 np.random.seed(42)
@@ -79,8 +79,8 @@ plt.figure(figsize=(7,5))
 plt.plot(tau, K_tau, label='Measured Kernel', color='royalblue', lw=2)
 if not np.isnan(tau_mem):
     plt.plot(tau[:400], exp_decay(tau[:400], *popt), '--', color='darkorange',
-             label=f'Exp Fit: τₘ={tau_mem:.3f}')
-plt.title("P10r — Resonance Memory Kernel (Autocorrelation of R(t))")
+             label=f'Exp Fit: τm={tau_mem:.3f}')
+plt.title("P10r - Resonance Memory Kernel (Autocorrelation of R(t))")
 plt.xlabel("Time lag τ")
 plt.ylabel("K(τ)")
 plt.legend()
@@ -113,7 +113,7 @@ results = {
 with open("backend/modules/knowledge/P10r_resonance_memory_kernel.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== P10r — Resonance Memory Kernel Reconstruction ===")
+print("=== P10r - Resonance Memory Kernel Reconstruction ===")
 print(f"Mean R={results['metrics']['R_mean']:.4f}, Final R={results['metrics']['R_final']:.4f}")
-print(f"Estimated Memory τₘ={results['metrics']['tau_memory']:.3f}")
-print("✅ Results saved → backend/modules/knowledge/P10r_resonance_memory_kernel.json")
+print(f"Estimated Memory τm={results['metrics']['tau_memory']:.3f}")
+print("✅ Results saved -> backend/modules/knowledge/P10r_resonance_memory_kernel.json")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Test A3 — Analytical Born Rule Derivation + Numeric Checks
+Test A3 - Analytical Born Rule Derivation + Numeric Checks
 
 What this script does
 ---------------------
@@ -14,8 +14,8 @@ What this script does
    This is exactly the Born rule, recovered as a fixed point of rewrite-idempotence.
 
 2) NUMERIC VERIFICATION (quantum check):
-   For random complex ψ ∈ ℂ^N and the computational basis projectors,
-   compute p_i^QM = |⟨i|ψ⟩|^2 and verify Σ_i p_i^QM = 1 and p_i^QM ≥ 0.
+   For random complex ψ ∈ C^N and the computational basis projectors,
+   compute p_i^QM = |⟨i|ψ⟩|^2 and verify Σ_i p_i^QM = 1 and p_i^QM >= 0.
 
 3) PHOTON ALGEBRA "REWRITE" CHECK (ensemble determinism):
    Model an "N-branch rewrite" that splits an ensemble of K identical ψ-tokens
@@ -49,16 +49,16 @@ def projector(i: int, N: int) -> np.ndarray:
     return e @ e.conj().T  # rank-1 projector
 
 # ---------------------------
-# Analytical “proof” printout
+# Analytical "proof" printout
 # ---------------------------
 def print_derivation(N: int):
     print("=== Analytical Born Rule (as rewrite-idempotence) ===\n")
     print("Assume measurement outcomes {i=0..N-1} correspond to idempotent rewrites R_i.")
     print("Let R_i act linearly on |ψ⟩ as the orthogonal projector P_i = |i⟩⟨i|.")
-    print("Properties: P_i^2 = P_i (idempotent),   P_i P_j = 0 (i≠j),   Σ_i P_i = I (completeness).")
+    print("Properties: P_i^2 = P_i (idempotent),   P_i P_j = 0 (i!=j),   Σ_i P_i = I (completeness).")
     print()
     print("Decompose the state:")
-    print("    |ψ⟩ = Σ_i P_i |ψ⟩  with  P_i |ψ⟩ ⟂ P_j |ψ⟩ for i≠j.")
+    print("    |ψ⟩ = Σ_i P_i |ψ⟩  with  P_i |ψ⟩ ⟂ P_j |ψ⟩ for i!=j.")
     print("Hence the squared norm splits:")
     print("    ⟨ψ|ψ⟩ = Σ_i ⟨ψ|P_i|ψ⟩ = Σ_i ||P_i |ψ⟩||^2.")
     print()
@@ -102,18 +102,18 @@ if __name__ == "__main__":
     # Quantum check
     p_qm = quantum_probabilities(psi)
     p_qm /= p_qm.sum()
-    print("=== Quantum check (random state in ℂ^N) ===")
+    print("=== Quantum check (random state in C^N) ===")
     print(f"N = {N}")
     for i, p in enumerate(p_qm):
         print(f"  p_qm({i}) = {p:.6f}")
     print(f"Sum p_qm = {p_qm.sum():.6f} (should be 1.0)\n")
 
-    # Photon Algebra “rewrite as projector” ensemble check
+    # Photon Algebra "rewrite as projector" ensemble check
     K = 100000  # size of the ensemble (deterministic proportional split)
     f_pa = pa_ensemble_frequencies(psi, K)
 
     print("=== Photon Algebra (ensemble rewrite split) ===")
-    print(f"K = {K} copies of |ψ⟩ → split by ||P_i ψ||^2")
+    print(f"K = {K} copies of |ψ⟩ -> split by ||P_i ψ||^2")
     for i, f in enumerate(f_pa):
         print(f"  f_pa({i}) = {f:.6f}")
     print(f"Sum f_pa = {f_pa.sum():.6f} (should be 1.0)")
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     # Write short artifact
     out = Path("PAEV_TestA3_BornRule_analytic.txt")
     with out.open("w", encoding="utf-8") as f:
-        f.write("Test A3 — Analytical Born Rule (Rewrite → Projector)\n")
+        f.write("Test A3 - Analytical Born Rule (Rewrite -> Projector)\n")
         f.write(f"N={N}, K={K}\n\n")
         f.write("Quantum probabilities p_qm(i):\n")
         for i, p in enumerate(p_qm):

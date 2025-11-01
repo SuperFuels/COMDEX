@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Perceptual Association Layer (PAL) — terminal-only core.
+Perceptual Association Layer (PAL) - terminal-only core.
 ───────────────────────────────────────────────────────────────
 - Stores (prompt, option, feature_vector, reward) exemplars in JSONL
-- Chooses via k-NN over last resonance feature (ν, ϕ, A, S, H)
+- Chooses via k-NN over last resonance feature (ν, φ, A, S, H)
 - ε-greedy exploration
 - Reads latest feature from data/learning/ral_metrics.jsonl (if present)
 - Logs successful exemplars into the Knowledge Graph (Aion brain)
@@ -22,7 +22,7 @@ import json
 
 import argparse
 
-parser = argparse.ArgumentParser(description="Tessaris PAL Core — Perceptual Association Layer")
+parser = argparse.ArgumentParser(description="Tessaris PAL Core - Perceptual Association Layer")
 parser.add_argument("--mode", type=str, default="train", help="Mode: train | resonance-feedback")
 parser.add_argument("--prompt", type=str, help="Prompt or symbolic label")
 parser.add_argument("--max_rounds", type=int, default=250, help="Max tuning rounds")
@@ -106,7 +106,7 @@ class PAL:
                 for e in self.memory:
                     f.write(json.dumps(e.__dict__) + "\n")
         if getattr(self, "verbose", False):
-            print(f"💾 Stored exemplar → ({ex.prompt} → {ex.option}) | total={len(self.memory)}")
+            print(f"💾 Stored exemplar -> ({ex.prompt} -> {ex.option}) | total={len(self.memory)}")
 
     # ---------- features ----------
     def current_feature(self) -> List[float]:
@@ -128,7 +128,7 @@ class PAL:
         t = time.time()
         return [
             math.tanh(math.sin(t / 7.0)),              # ν
-            math.tanh(math.cos(t / 11.0)),             # ϕ
+            math.tanh(math.cos(t / 11.0)),             # φ
             1.0 + 0.1 * math.sin(t / 5.0),             # A
             0.9 + 0.1 * abs(math.sin(t / 13.0)),       # S
             0.05 + 0.02 * abs(math.cos(t / 17.0)),     # H
@@ -170,7 +170,7 @@ class PAL:
         if chosen == correct and reward > 0:
             self.append(Exemplar(prompt=prompt, option=correct, vec=vec, reward=reward * self.memory_weight))
             if getattr(self, "verbose", False):
-                print(f"✅ Reinforced {prompt} → {correct} (reward={reward:.2f}, ε={self.epsilon:.3f})")
+                print(f"✅ Reinforced {prompt} -> {correct} (reward={reward:.2f}, ε={self.epsilon:.3f})")
             # Knowledge Graph logging...
             try:
                 concept = prompt.split()[-1] if prompt else "unknown"
@@ -238,14 +238,14 @@ class PALState:
         with open(path, "w") as f:
             json.dump(state, f, indent=2)
 
-        print(f"💾 Checkpoint saved → {fname} | ε={state['epsilon']:.3f}, k={state['k']}, w={state['w']}")
+        print(f"💾 Checkpoint saved -> {fname} | ε={state['epsilon']:.3f}, k={state['k']}, w={state['w']}")
 
     # ─────────────────────────────────────────────
     # Resonance Feedback Integration
     # ─────────────────────────────────────────────
     def apply_resonance_feedback(pal):
         """
-        Integrate Predictive Bias → PAL → SQI resonance feedback loop.
+        Integrate Predictive Bias -> PAL -> SQI resonance feedback loop.
         Reinforces PAL exemplars based on the latest predictive transitions.
         """
         from pathlib import Path
@@ -271,7 +271,7 @@ class PALState:
                 pal.feedback(a, b, b, vec, reward=min(3.0, weight / 10))
                 count += 1
 
-            print(f"✅ Reinforced {count} predictive→perceptual associations.")
+            print(f"✅ Reinforced {count} predictive->perceptual associations.")
 
             # SQI stabilization pulse
             try:
@@ -289,7 +289,7 @@ class PALState:
                     w=getattr(pal, "memory_weight", 1.0)
                 )
                 pal_state.save_checkpoint(tag="SQI_Stabilized_v2")
-                print("💾 SQI checkpoint saved → pal_state_SQI_Stabilized_v2.json")
+                print("💾 SQI checkpoint saved -> pal_state_SQI_Stabilized_v2.json")
             except Exception as e:
                 print(f"⚠️ SQI feedback skipped or failed: {e}")
 
@@ -304,7 +304,7 @@ class PALState:
                     "weight": getattr(pal, "memory_weight", 1.0)
                 }) + "\n")
 
-            print(f"🪶 Logged resonance feedback → {LOG_PATH}")
+            print(f"🪶 Logged resonance feedback -> {LOG_PATH}")
 
         except Exception as e:
             print(f"⚠️ Resonance feedback failed: {e}")
@@ -334,7 +334,7 @@ def self_tune(
             pal.epsilon = state.get("epsilon", pal.epsilon)
             pal.k = state.get("k", pal.k)
             pal.memory_weight = state.get("memory_weight", pal.memory_weight)
-            print(f"🔁 Restored PAL tuning state → ε={pal.epsilon:.3f}, k={pal.k}, w={pal.memory_weight:.2f}")
+            print(f"🔁 Restored PAL tuning state -> ε={pal.epsilon:.3f}, k={pal.k}, w={pal.memory_weight:.2f}")
         except Exception as e:
             print(f"⚠️ Failed to load tuning state: {e}")
 
@@ -348,13 +348,13 @@ def self_tune(
     if len(acc_trace) > 50:
     drift = abs(np.mean(acc_trace[-10:]) - np.mean(acc_trace[-30:-20]))
     if drift > 0.05:
-        print(f"⚠️ Drift detected (Δ={drift:.3f}) → triggering micro-feedback pulse.")
+        print(f"⚠️ Drift detected (Δ={drift:.3f}) -> triggering micro-feedback pulse.")
         from backend.modules.aion_perception.qwave import SQIField, ResonancePulse
         sqi_field = SQIField.load_last_state()
         sqi_field.apply(ResonancePulse(frequency=1.35, gain=0.28, damping=0.90))
 
     # ─────────────────────────────────────────────
-    # SQI-style warmup — small pre-training loop
+    # SQI-style warmup - small pre-training loop
     # ─────────────────────────────────────────────
     print("🧠 SQI Feedback Warmup Sequence (3 cycles)")
     for i in range(3):
@@ -363,7 +363,7 @@ def self_tune(
             vec = np.random.randn(8).tolist()
             pal.feedback(p, ans, ans, vec, 1.0)
         pal.epsilon = max(ε_floor, pal.epsilon * 0.9)
-        print(f"🌀 Warmup {i+1}/3 complete → ε={pal.epsilon:.3f}")
+        print(f"🌀 Warmup {i+1}/3 complete -> ε={pal.epsilon:.3f}")
         time.sleep(0.2)
 
     # ─────────────────────────────────────────────
@@ -391,12 +391,12 @@ def self_tune(
         print(f"[Round {r + 1}] Accuracy={acc:.3f}  ε={pal.epsilon:.3f}  k={pal.k}  ⟲={reward_momentum:.3f}")
 
         # ─────────────────────────────────────────────
-        # Drift detection → micro-feedback pulse
+        # Drift detection -> micro-feedback pulse
         # ─────────────────────────────────────────────
         if len(acc_trace) > 50 and sqi_cooldown == 0:
             drift = abs(np.mean(acc_trace[-10:]) - np.mean(acc_trace[-30:-20]))
             if drift > 0.05:
-                print(f"⚠️ Drift detected (Δ={drift:.3f}) → triggering micro-feedback pulse.")
+                print(f"⚠️ Drift detected (Δ={drift:.3f}) -> triggering micro-feedback pulse.")
                 try:
                     from backend.modules.aion_perception.qwave import SQIField, ResonancePulse
                     sqi_field = SQIField.load_last_state()
@@ -445,7 +445,7 @@ def self_tune(
             drift = abs(acc_trace[-1] - acc_trace[-5])
 
         if drift < 0.01 and sqi_cooldown == 0:
-            print("🧠 Resonance stagnation detected → SQI feedback pulse.")
+            print("🧠 Resonance stagnation detected -> SQI feedback pulse.")
             pal.memory_weight = min(3.0, pal.memory_weight * 1.15)
             pal.epsilon = max(ε_floor, pal.epsilon * 0.85)
             sqi_cooldown = 10
@@ -460,7 +460,7 @@ def self_tune(
             eps_bias = meta_eq_bias(domain_key, pal.epsilon)
             pal.epsilon = max(0.05, min(0.60, pal.epsilon + eps_bias))
             if getattr(pal, "verbose", False):
-                print(f"⚙️  Meta-eq bias applied → Δε={eps_bias:+.4f} → ε={pal.epsilon:.3f}")
+                print(f"⚙️  Meta-eq bias applied -> Δε={eps_bias:+.4f} -> ε={pal.epsilon:.3f}")
         except Exception as _e:
             if getattr(pal, "verbose", False):
                 print(f"⚠️ meta_eq_bias skipped: {_e}")
@@ -501,14 +501,14 @@ def self_tune(
                     "memory_weight": pal.memory_weight
                 }, open(state_path, "w"), indent=2)
                 if getattr(pal, "verbose", False):
-                    print(f"💾 Saved PAL state → ε={pal.epsilon:.3f}, k={pal.k}, w={pal.memory_weight:.2f}")
+                    print(f"💾 Saved PAL state -> ε={pal.epsilon:.3f}, k={pal.k}, w={pal.memory_weight:.2f}")
             except Exception as e:
                 print(f"⚠️ Failed to save PAL state: {e}")
 
     if stable_rounds == 0:
         print(f"⚠️ Max rounds reached ({max_rounds}) without resonance equilibrium.")
     else:
-        print("🎯 Tuning session complete — state persisted.")
+        print("🎯 Tuning session complete - state persisted.")
 
 # ─────────────────────────────────────────────
 # (end of your self_tune() function)
@@ -516,7 +516,7 @@ def self_tune(
     if stable_rounds == 0:
         print(f"⚠️ Max rounds reached ({max_rounds}) without resonance equilibrium.")
     else:
-        print("🎯 Tuning session complete — state persisted.")
+        print("🎯 Tuning session complete - state persisted.")
 
     # === SQI RESONANCE STABILIZATION BLOCK (TESSARIS PAL AUGMENT) ===
     from backend.modules.aion_perception.qwave import SQIField, ResonancePulse
@@ -542,7 +542,7 @@ def self_tune(
         weight_bias=+0.02,
         commit=True,
     )
-    print(f"✅ SQI stabilization complete → ε={pal_state.epsilon:.3f}, k={pal_state.k}, w={pal_state.weight:.2f}")
+    print(f"✅ SQI stabilization complete -> ε={pal_state.epsilon:.3f}, k={pal_state.k}, w={pal_state.weight:.2f}")
 
     # --- Ensure checkpoint persistence through proper PALState wrapper ---
     if not isinstance(pal_state, PALState):
@@ -572,7 +572,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_rounds", type=int, default=400, help="Number of training rounds")
     args = parser.parse_args()
 
-    print(f"\n🚀 Launching Tessaris PAL Core — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"\n🚀 Launching Tessaris PAL Core - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     pal = PAL(k=3, epsilon=0.08)
     pal.load()
     pal.verbose = True
@@ -582,7 +582,7 @@ if __name__ == "__main__":
     try:
         last_ckpt = Path("backend/modules/aion_perception/checkpoints/pal_state_SQI_Stabilized_v2.json")
         if last_ckpt.exists():
-            print(f"🔁 Loading last PAL checkpoint → {last_ckpt.name}")
+            print(f"🔁 Loading last PAL checkpoint -> {last_ckpt.name}")
             state = json.load(open(last_ckpt))
             pal.epsilon = state.get("epsilon", pal.epsilon)
             pal.k = state.get("k", pal.k)
@@ -591,7 +591,7 @@ if __name__ == "__main__":
         print(f"⚠️ Could not restore checkpoint: {e}")
 
     # ─────────────────────────────────────────────
-    # MODE 1 — Full Training Cycle (default)
+    # MODE 1 - Full Training Cycle (default)
     # ─────────────────────────────────────────────
     if args.mode == "train":
         print("🔹 Mode: Full Multi-Phase Training")
@@ -646,14 +646,14 @@ if __name__ == "__main__":
                 w=getattr(pal, "memory_weight", 1.0)
             )
             pal_state.save_checkpoint(tag="SQI_Stabilized_v2")
-            print("✅ SQI stabilization complete — checkpoint v2 saved.")
+            print("✅ SQI stabilization complete - checkpoint v2 saved.")
         except Exception as e:
             print(f"⚠️ SQI phase skipped or failed: {e}")
 
         print("\n🏁 Tessaris PAL multi-phase training complete.")
 
     # ─────────────────────────────────────────────
-    # MODE 2 — Resonance Feedback Integration
+    # MODE 2 - Resonance Feedback Integration
     # ─────────────────────────────────────────────
     elif args.mode == "resonance-feedback":
         print("🔹 Mode: Resonance Feedback Integration")
@@ -664,7 +664,7 @@ if __name__ == "__main__":
             pb.load_state()
             print(f"🔮 Loaded PredictiveBias model with {len(pb.transitions)} transitions")
 
-            # Feedback loop — reinforce PAL exemplars based on predictive transitions
+            # Feedback loop - reinforce PAL exemplars based on predictive transitions
             count = 0
             for (a, b), weight in pb.transitions.items():
                 vec = pal.current_feature()
@@ -685,7 +685,7 @@ if __name__ == "__main__":
                 w=getattr(pal, "memory_weight", 1.0)
             )
             pal_state.save_checkpoint(tag="SQI_Stabilized_v2")
-            print("💾 Checkpoint saved after feedback → pal_state_SQI_Stabilized_v2.json")
+            print("💾 Checkpoint saved after feedback -> pal_state_SQI_Stabilized_v2.json")
 
         except Exception as e:
             print(f"⚠️ Resonance feedback failed: {e}")
@@ -700,13 +700,13 @@ if __name__ == "__main__":
         with open(log_path, "a") as log:
             log.write(
                 f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Applied resonance feedback for "
-                f"{len(pb.transitions)} transitions — ε={pal.epsilon:.3f}, "
+                f"{len(pb.transitions)} transitions - ε={pal.epsilon:.3f}, "
                 f"k={pal.k}, w={pal.memory_weight:.3f}\n"
             )
 
-        print(f"💾 Log entry written → {log_path}")
+        print(f"💾 Log entry written -> {log_path}")
 
         print("🏁 Tessaris PAL resonance-feedback cycle complete.")
 
     else:
-        print(f"⚠️ Unknown mode '{args.mode}' — defaulting to train.")
+        print(f"⚠️ Unknown mode '{args.mode}' - defaulting to train.")

@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-E3 — EPR Steering (Reid criterion) in ER=EPR throat
+E3 - EPR Steering (Reid criterion) in ER=EPR throat
 ---------------------------------------------------
 Goal:
   Demonstrate EPR steering via conditional-variance product:
-  V(X1|X2) * V(P1|P2) < (ħ/2)^2  → steering.
+  V(X1|X2) * V(P1|P2) < (ħ/2)^2  -> steering.
 
 Construction:
   X = Re(ψ), P = Im(ψ) (balanced scaling). Conditional variances computed
   by linear regression over throat-averaged samples (per step).
 
 Outputs:
-  • PAEV_E3_Reid_Product.png
-  • PAEV_E3_Conditional_Variances.png
-  • backend/modules/knowledge/E3_epr_steering.json
+  * PAEV_E3_Reid_Product.png
+  * PAEV_E3_Conditional_Variances.png
+  * backend/modules/knowledge/E3_epr_steering.json
 """
 import json, numpy as np, matplotlib.pyplot as plt
 from datetime import datetime, timezone
@@ -85,21 +85,21 @@ steered = prod_tail < threshold
 
 classification = "✅ EPR steering (Reid) detected" if steered else "❌ No EPR steering (Reid)"
 
-print("=== E3 — EPR Steering (Reid) ===")
+print("=== E3 - EPR Steering (Reid) ===")
 print(f"<V(X1|X2)V(P1|P2)>_tail = {prod_tail:.3e} vs (ħ/2)^2 = {threshold:.3e}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 
 out = Path(".")
 plt.figure(figsize=(10,4))
 plt.plot(prod_trace, lw=1.3, label="Reid product")
 plt.axhline(threshold, ls="--", c="k", lw=1, label="(ħ/2)^2")
-plt.title("E3 — Reid EPR Steering Product (throat-averaged)")
-plt.xlabel("step"); plt.ylabel("Vx|* · Vp|*"); plt.legend(); plt.tight_layout()
+plt.title("E3 - Reid EPR Steering Product (throat-averaged)")
+plt.xlabel("step"); plt.ylabel("Vx|* * Vp|*"); plt.legend(); plt.tight_layout()
 plt.savefig(out/"PAEV_E3_Reid_Product.png", dpi=160)
 
 plt.figure(figsize=(10,4))
 plt.plot(VX_trace, label="V(X1|X2)"); plt.plot(VP_trace, label="V(P1|P2)")
-plt.title("E3 — Conditional Variances")
+plt.title("E3 - Conditional Variances")
 plt.xlabel("step"); plt.ylabel("variance"); plt.legend(); plt.tight_layout()
 plt.savefig(out/"PAEV_E3_Conditional_Variances.png", dpi=160)
 
@@ -116,4 +116,4 @@ summary = {
   "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 }
 Path("backend/modules/knowledge/E3_epr_steering.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/E3_epr_steering.json")
+print("📄 Summary saved -> backend/modules/knowledge/E3_epr_steering.json")

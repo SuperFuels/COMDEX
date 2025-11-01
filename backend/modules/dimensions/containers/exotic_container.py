@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Exotic Container (Stage 15)
+#  Tessaris * Exotic Container (Stage 15)
 #  AST Compression + Wave Signature Encoding
 #  Black-hole-style symbolic storage (reversible)
 # ──────────────────────────────────────────────
@@ -15,10 +15,10 @@ class ExoticContainer(UCSBaseContainer):
     """
     ⚫ ExoticContainer
     Inherits UCSBaseContainer and provides:
-        • AST / logic-tree compression
-        • ψ-κ-T signature generation
-        • entropy-sink (black-hole) simulation
-        • reversible decompression / recall
+        * AST / logic-tree compression
+        * ψ-κ-T signature generation
+        * entropy-sink (black-hole) simulation
+        * reversible decompression / recall
     """
 
     def __init__(
@@ -56,7 +56,7 @@ class ExoticContainer(UCSBaseContainer):
         encoded = base64.b64encode(packed).decode()
         self.compressed_payload = encoded
         self.wave_signature = self._generate_wave_signature(logic_tree)
-        logger.debug(f"[ExoticContainer] Compressed AST: {len(raw)}→{len(encoded)} bytes.")
+        logger.debug(f"[ExoticContainer] Compressed AST: {len(raw)}->{len(encoded)} bytes.")
         return encoded
 
     def decompress_ast(self) -> Optional[Dict[str, Any]]:

@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 # backend/routes/sqi_route.py
 from __future__ import annotations
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+
 from typing import Dict, Any, Optional
 
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+
 from backend.modules.sqi.sqi_container_registry import sqi_registry
+from backend.modules.dimensions.containers.container_loader import load_decrypted_container
 from backend.modules.glyphos.ghx_export import encode_glyphs_to_ghx
 
-router = APIRouter(prefix="/sqi", tags=["SQI-Routing"])
+router = APIRouter(prefix="/sqi", tags=["SQI"])
 
 # In-memory weights (tweak at runtime); keep defaults sane.
 _WEIGHTS: Dict[str, float] = {
-    "freshness": 0.35,   # newer updated containers win
-    "domain_match": 0.40,# exact domain kind
-    "size_penalty": 0.10,# very large containers score lower for speed
-    "priority_hint": 0.15# explicit 'priority' meta wins
+    "freshness": 0.35,     # newer updated containers win
+    "domain_match": 0.40,  # exact domain kind
+    "size_penalty": 0.10,  # very large containers score lower for speed
+    "priority_hint": 0.15, # explicit 'priority' meta wins
 }
 
 class RouteReq(BaseModel):
@@ -29,10 +32,14 @@ class WeightPatch(BaseModel):
 def _score(entry: Dict[str, Any], req: RouteReq) -> Dict[str, Any]:
     meta = (entry.get("meta") or {})
     s = 0.0
-    breakdown = {}
+    breakdown: Dict[str, float] = {}
 
     # Domain match
-    dm = 1.0 if entry.get("domain") == req.domain and entry.get("type") == "container" and entry.get("kind") == req.kind else 0.0
+    dm = 1.0 if (
+        entry.get("domain") == req.domain
+        and entry.get("type") == "container"
+        and entry.get("kind") == req.kind
+    ) else 0.0
     breakdown["domain_match"] = dm * _WEIGHTS["domain_match"]; s += breakdown["domain_match"]
 
     # Freshness (if last_updated present)
@@ -55,9 +62,11 @@ def _score(entry: Dict[str, Any], req: RouteReq) -> Dict[str, Any]:
 def choose_route(domain: str, kind: str = "fact", hint: str | None = None):
     # list registered candidates
     try:
-        entries = sqi_registry.list(domain=domain, kind=kind)  # implement .list(...) if you don’t already; otherwise get all and filter
+        # Prefer dedicated filter if registry supports it
+        entries = sqi_registry.list(domain=domain, kind=kind)
     except Exception:
-        entries = sqi_registry.list_all()  # fallback then filter
+        # Fallback: list all then filter
+        entries = sqi_registry.list_all()
         entries = [e for e in entries if e.get("domain") == domain and e.get("kind") == kind]
 
     if not entries:
@@ -68,13 +77,13 @@ def choose_route(domain: str, kind: str = "fact", hint: str | None = None):
     for e in entries:
         sc = _score(e, req)
         ranked.append({"entry": e, **sc})
+
     ranked.sort(key=lambda x: x["score"], reverse=True)
     choice = ranked[0]
     return {"status": "ok", "choice": choice, "candidates": ranked[:10], "weights": _WEIGHTS}
 
 @router.post("/route/weights")
 def patch_weights(patch: WeightPatch):
-    global _WEIGHTS
     # normalize and clamp to [0..1] basic safety
     for k, v in patch.weights.items():
         if k in _WEIGHTS:
@@ -84,17 +93,10 @@ def patch_weights(patch: WeightPatch):
                 pass
     return {"status": "ok", "weights": _WEIGHTS}
 
-from fastapi import APIRouter, HTTPException
-from backend.modules.dimensions.containers.container_loader import load_decrypted_container
-from backend.modules.glyphos.ghx_export import encode_glyphs_to_ghx
-
-router = APIRouter(prefix="/sqi", tags=["SQI"])
-
 @router.get("/ghx/encode/{container_id}")
 def encode_container_to_ghx(container_id: str):
     container = load_decrypted_container(container_id)
     if not container:
         raise HTTPException(status_code=404, detail="Container not found")
-    
     ghx = encode_glyphs_to_ghx(container)
     return {"ghx": ghx}

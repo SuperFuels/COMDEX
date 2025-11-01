@@ -20,18 +20,18 @@ class MutationInnovationToolkit(PluginInterface):
         self.history: list[str] = []
 
     def register_plugin(self):
-        print(f"✅ Plugin Registered: {self.plugin_id} — {self.name}")
+        print(f"✅ Plugin Registered: {self.plugin_id} - {self.name}")
 
     def trigger(self, context: Optional[Dict[str, Any]] = None) -> None:
         self.status = "active"
         print(f"🧪 Mutation Toolkit triggered with context: {context}")
 
     def mutate(self, logic: str) -> str:
-        # Example symbolic mutation — flip operator or inject exploratory pattern
-        mutated = logic.replace("→", "⊕").replace("⊕", "→", 1)
+        # Example symbolic mutation - flip operator or inject exploratory pattern
+        mutated = logic.replace("->", "⊕").replace("⊕", "->", 1)
         self.last_mutation = mutated
         self.history.append(mutated)
-        print(f"🔁 Mutated: {logic} → {mutated}")
+        print(f"🔁 Mutated: {logic} -> {mutated}")
         return mutated
 
     def synthesize(self, goal: str) -> str:
@@ -47,7 +47,7 @@ class MutationInnovationToolkit(PluginInterface):
 if __name__ == "__main__":
     plugin = MutationInnovationToolkit()
     plugin.register_plugin()
-    plugin.trigger({"mode": "test", "logic": "optimize() → expand()"})
-    plugin.mutate("optimize() → expand()")
+    plugin.trigger({"mode": "test", "logic": "optimize() -> expand()"})
+    plugin.mutate("optimize() -> expand()")
     plugin.synthesize("maximize_clarity")
     plugin.broadcast_qfc_update()

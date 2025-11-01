@@ -227,7 +227,7 @@ def png_for_dependencies(container: dict, out_path: str) -> tuple[bool, str]:
                 check=True,
                 capture_output=True,
             )
-            return True, f"PNG written → {out_path}"
+            return True, f"PNG written -> {out_path}"
         except subprocess.CalledProcessError as e:
             return False, f"mmdc failed: {e.stderr.decode() if e.stderr else e}"
         finally:
@@ -236,7 +236,7 @@ def png_for_dependencies(container: dict, out_path: str) -> tuple[bool, str]:
     # Fallback: just dump Mermaid text to .mmd
     alt_path = out_path.with_suffix(".mmd")
     alt_path.write_text(mermaid, encoding="utf-8")
-    return False, f"mmdc not found. Mermaid text written → {alt_path}"
+    return False, f"mmdc not found. Mermaid text written -> {alt_path}"
 
 # ----------------------------
 # Basic file IO helpers
@@ -272,7 +272,7 @@ def main():
 
     if args.mermaid_out:
         save_text(args.mermaid_out, mermaid_for_dependencies(c))
-        print(f"[🧭] wrote mermaid → {args.mermaid_out}")
+        print(f"[🧭] wrote mermaid -> {args.mermaid_out}")
 
     if args.png_out:
         ok, msg = png_for_dependencies(c, args.png_out)

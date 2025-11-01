@@ -6,8 +6,8 @@ Instruction Reference Builder (YAML-first)
 Generates instruction_reference.md from docs/CodexLang_Instruction/instruction_registry.yaml.
 - Groups by domain (top-level keys like logic, quantum, photon, symatics, etc.)
 - For each canonical op, shows symbols merged from:
-  • the raw symbol keys under each domain (e.g., logic: { ⊕: { canonical: logic:⊕, ... } })
-  • OP_METADATA symbols for the same canonical key (if present)
+  * the raw symbol keys under each domain (e.g., logic: { ⊕: { canonical: logic:⊕, ... } })
+  * OP_METADATA symbols for the same canonical key (if present)
 - Appends collision cheat sheet, alias table, and priority order from YAML keys:
   collisions, aliases, priority_order
 """
@@ -85,7 +85,7 @@ def build_reference():
     lines = []
     lines.append("# 📖 CodexLang Instruction Reference\n")
     lines.append("This document is auto-generated from instruction_registry.yaml.\n")
-    lines.append("> Do not edit manually — run `python docs/CodexLang_Instruction/instruction_reference_builder.py`.\n")
+    lines.append("> Do not edit manually - run `python docs/CodexLang_Instruction/instruction_reference_builder.py`.\n")
     lines.append("\n---\n")
 
     # TOC
@@ -104,7 +104,7 @@ def build_reference():
     for d in sorted(domain_map.keys()):
         lines.append(f"## {d.capitalize()}\n")
         for canonical, desc, symbols in domain_map[d]:
-            sym_str = ", ".join(symbols) if symbols else "—"
+            sym_str = ", ".join(symbols) if symbols else "-"
             anchor = canonical.replace(":", "")
             lines.append(f"### `{canonical}`\n")
             lines.append(f"**Symbols:** {sym_str}\n")
@@ -139,7 +139,7 @@ def build_reference():
     lines.append("## 📊 Priority Order\n")
     prio = reg.get("priority_order", [])
     if prio:
-        lines.append("\n`" + " → ".join(prio) + "`\n")
+        lines.append("\n`" + " -> ".join(prio) + "`\n")
         lines.append("\nExample: bare `↔` resolves to `logic:↔` because *logic outranks quantum*.\n")
     else:
         lines.append("\n_(none defined in YAML)_\n")

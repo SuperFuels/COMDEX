@@ -1,5 +1,5 @@
 """
-⚛ Operator Overloading Layer — SRK-15 Task 2 + 15.4 (Finalized)
+⚛ Operator Overloading Layer - SRK-15 Task 2 + 15.4 (Finalized)
 Adds per-operator coherence thresholds, adaptive dispatch, and telemetry.
 Safe integration with all DynamicCoherenceOptimizer variants.
 """
@@ -27,12 +27,12 @@ class OperatorOverloadingLayer:
         # Global + per-operator thresholds
         self.coherence_threshold = coherence_threshold
         self.operator_thresholds: Dict[str, float] = {
-            "⊕": 0.6,  # superposition — moderate
-            "↔": 0.75, # entanglement — high
-            "⟲": 0.65, # resonance — moderate-high
-            "∇": 0.5,  # collapse — tolerant
-            "μ": 0.3,  # measurement — robust
-            "π": 0.5,  # projection — hybrid symbolic
+            "⊕": 0.6,  # superposition - moderate
+            "↔": 0.75, # entanglement - high
+            "⟲": 0.65, # resonance - moderate-high
+            "∇": 0.5,  # collapse - tolerant
+            "μ": 0.3,  # measurement - robust
+            "π": 0.5,  # projection - hybrid symbolic
         }
 
         self._context_state: Dict[str, Any] = {"coherence": 1.0}
@@ -134,5 +134,5 @@ def initialize_overloads():
 try:
     ADAPTIVE_LAYER = initialize_overloads()
 except RuntimeError:
-    # In event loop already — fallback silent init
+    # In event loop already - fallback silent init
     ADAPTIVE_LAYER = OperatorOverloadingLayer()

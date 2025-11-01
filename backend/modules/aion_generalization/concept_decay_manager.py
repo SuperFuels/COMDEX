@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-♻️  Aion Concept Decay Manager — Phase 35.2
+♻️  Aion Concept Decay Manager - Phase 35.2
 ───────────────────────────────────────────────────────────────────────────────
 Scans AKG for obsolete or weak links (low strength, old timestamp),
 decays or removes them, and exports a snapshot for evolution visualization.
 
-• Reads reinforcement history from concept_reinforcement.log
-• Decays neglected concept edges
-• Exports summary for evolution_dashboard
+* Reads reinforcement history from concept_reinforcement.log
+* Decays neglected concept edges
+* Exports summary for evolution_dashboard
 """
 
 import json, time, sqlite3
@@ -21,7 +21,7 @@ SNAPSHOT_PATH = Path("data/feedback/concept_evolution_snapshot.jsonl")
 # ─────────────────────────────────────────────
 # Parameters
 # ─────────────────────────────────────────────
-DECAY_INTERVAL = 3600 * 4        # 4 hours without reinforcement → decay
+DECAY_INTERVAL = 3600 * 4        # 4 hours without reinforcement -> decay
 DECAY_FACTOR = 0.97              # decay multiplier
 MIN_STRENGTH = 0.25              # remove links weaker than this
 EXPORT_LIMIT = 1000
@@ -83,7 +83,7 @@ def export_snapshot():
     print(f"📤 Snapshot written to {SNAPSHOT_PATH} ({len(concepts)} concepts).")
 
 def main():
-    print("🧹 Running Aion Concept Decay Manager (Phase 35.2)…")
+    print("🧹 Running Aion Concept Decay Manager (Phase 35.2)...")
     last_seen = parse_reinforcement_log()
     decay_stale_links(last_seen)
     export_snapshot()

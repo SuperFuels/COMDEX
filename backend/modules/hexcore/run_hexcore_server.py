@@ -50,11 +50,11 @@ def evaluate_symatic_expr(expr: str):
     """
     Evaluate numeric + symbolic Symatics expressions.
     Supports:
-      ⊕(a,b)  → superposition = (a+b)/2
-      ↔(a,b)  → entanglement = a*b
-      ⟲(a,b)  → resonance = 2ab/(a+b)
-      ∇(...)  → collapse = mean(...)
-      ⇒(x)    → trigger = exp(x)
+      ⊕(a,b)  -> superposition = (a+b)/2
+      ↔(a,b)  -> entanglement = a*b
+      ⟲(a,b)  -> resonance = 2ab/(a+b)
+      ∇(...)  -> collapse = mean(...)
+      ->(x)    -> trigger = exp(x)
     Emits coherence (ρ) and entropy (Ī) metrics.
     """
     expr = expr.strip()
@@ -76,18 +76,18 @@ def evaluate_symatic_expr(expr: str):
             return {"error": f"Math eval error: {e}"}
 
     # 2️⃣ Pattern match symbolic operators
-    m = re.search(r"([\⊕↔⟲∇⇒])\s*\(([^)]+)\)", expr)
+    m = re.search(r"([\⊕↔⟲∇->])\s*\(([^)]+)\)", expr)
     if m:
         op = m.group(1)
         args = [a.strip() for a in m.group(2).split(",")]
-        if len(args) < 2 and op != "⇒":
+        if len(args) < 2 and op != "->":
             return {"error": f"Operator {op} requires two arguments."}
 
         a = safe_float(args[0])
         b = safe_float(args[1]) if len(args) > 1 else None
 
         # handle numeric operands
-        if a is not None and (b is not None or op == "⇒"):
+        if a is not None and (b is not None or op == "->"):
             if op == "⊕":
                 val = compute_superposition(a, b)
             elif op == "↔":
@@ -96,7 +96,7 @@ def evaluate_symatic_expr(expr: str):
                 val = compute_resonance(a, b)
             elif op == "∇":
                 val = (a + b) / 2.0
-            elif op == "⇒":
+            elif op == "->":
                 val = math.exp(a)
             else:
                 val = None
@@ -122,7 +122,7 @@ def evaluate_symatic_expr(expr: str):
                 meaning = "resonance"
             elif op == "∇":
                 meaning = "collapse"
-            elif op == "⇒":
+            elif op == "->":
                 meaning = "trigger"
             else:
                 meaning = "unknown"
@@ -137,9 +137,9 @@ def evaluate_symatic_expr(expr: str):
     if "photon" in expr and "wave" in expr:
         return {"result": "Ψ = coherent(superposition(photon, wave))", "ρ": 0.92, "Ī": 0.12}
     if "resonance" in expr:
-        return {"result": "ρ⊕Ī → balanced field state", "ρ": 0.85, "Ī": 0.25}
+        return {"result": "ρ⊕Ī -> balanced field state", "ρ": 0.85, "Ī": 0.25}
     if "entanglement" in expr:
-        return {"result": "↔ → dual-phase coupling", "ρ": 0.78, "Ī": 0.30}
+        return {"result": "↔ -> dual-phase coupling", "ρ": 0.78, "Ī": 0.30}
 
     return {"result": f"[QQC symbolic] evaluated {expr}", "ρ": 0.5, "Ī": 0.5}
 

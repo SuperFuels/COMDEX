@@ -1,15 +1,15 @@
 # ================================================================
-# 🧠 Habit Integration Validation — GHX ↔ Habit Auto-Feedback Loop
+# 🧠 Habit Integration Validation - GHX ↔ Habit Auto-Feedback Loop
 # ================================================================
 """
 Validates synchronization between GHX telemetry stream and
 Habit auto-feedback system.
 
 Checks:
-  • habit_auto_update.json exists and contains valid metrics
-  • Recent timestamp (within 30s)
-  • All expected keys present
-  • Logs summary → data/telemetry/habit_integration_validation.json
+  * habit_auto_update.json exists and contains valid metrics
+  * Recent timestamp (within 30s)
+  * All expected keys present
+  * Logs summary -> data/telemetry/habit_integration_validation.json
 """
 
 import json, time, logging
@@ -23,7 +23,7 @@ OUT_PATH = Path("data/telemetry/habit_integration_validation.json")
 
 def run_validation():
     if not HABIT_PATH.exists():
-        logger.error("[HabitValidation] Missing habit_auto_update.json — GHX feedback may not have run.")
+        logger.error("[HabitValidation] Missing habit_auto_update.json - GHX feedback may not have run.")
         return
 
     data = json.load(open(HABIT_PATH))
@@ -42,7 +42,7 @@ def run_validation():
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(summary, open(OUT_PATH, "w"), indent=2)
-    logger.info(f"[HabitValidation] Summary → {OUT_PATH}")
+    logger.info(f"[HabitValidation] Summary -> {OUT_PATH}")
     print(json.dumps(summary, indent=2))
 
 if __name__ == "__main__":

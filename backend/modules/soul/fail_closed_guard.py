@@ -1,7 +1,7 @@
 # backend/modules/fail_closed_guard.py
 
 """
-Fail-Closed Guard – GlyphWave Security Phase E03c
+Fail-Closed Guard - GlyphWave Security Phase E03c
 Immediately blocks execution of toxic glyphs or kernel logic under SoulLaw.
 """
 

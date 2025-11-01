@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────────────────────
-#  Tessaris · C7 — Cognitive Fabric Phase-State Bridge
-#  Propagates ψ–κ–T–Φ metrics from MorphicLedger → Cognitive Fabric Adapter.
+#  Tessaris * C7 - Cognitive Fabric Phase-State Bridge
+#  Propagates ψ-κ-T-Φ metrics from MorphicLedger -> Cognitive Fabric Adapter.
 #  Enables synchronized reasoning between AION ↔ QQC ↔ CFA.
 # ──────────────────────────────────────────────────────────────
 
@@ -21,13 +21,13 @@ os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
 
 class PhaseStateBridge:
     """
-    Bridge for real-time ψ–κ–T–Φ propagation into the Cognitive Fabric Adapter (CFA).
+    Bridge for real-time ψ-κ-T-Φ propagation into the Cognitive Fabric Adapter (CFA).
     """
 
     def __init__(self):
         self.fabric = CFA
         self.state_cache = {"psi": 0.0, "kappa": 0.0, "T": 0.0, "phi": 0.0}
-        logger.info("✅ PhaseStateBridge initialized (ψ–κ–T–Φ link active).")
+        logger.info("✅ PhaseStateBridge initialized (ψ-κ-T-Φ link active).")
 
     def ingest(self, packet: Dict[str, Any]):
         """
@@ -63,7 +63,7 @@ class PhaseStateBridge:
 
     def log_event(self, ψ: float, κ: float, T: float, Φ: float):
         """
-        Append ψ–κ–T–Φ update event to persistent log for validation tracking.
+        Append ψ-κ-T-Φ update event to persistent log for validation tracking.
         """
         record = {
             "timestamp": datetime.utcnow().isoformat(),
@@ -94,7 +94,7 @@ class PhaseStateBridge:
                 return True
             delta = abs(φ_values[-1] - φ_values[-2])
             stable = delta < tolerance
-            logger.info(f"[C7] Phase stability check: Δφ={delta:.6f} → {'stable' if stable else 'unstable'}")
+            logger.info(f"[C7] Phase stability check: Δφ={delta:.6f} -> {'stable' if stable else 'unstable'}")
             return stable
         except Exception as e:
             logger.warning(f"[C7] Stability check failed: {e}")

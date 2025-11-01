@@ -18,7 +18,7 @@ def upgrade() -> None:
     op.execute(
         "ALTER TABLE products ADD COLUMN IF NOT EXISTS owner_id INTEGER"
     )
-    # 2) backfill from owner_email → users.id
+    # 2) backfill from owner_email -> users.id
     op.execute("""
         UPDATE products
         SET owner_id = u.id

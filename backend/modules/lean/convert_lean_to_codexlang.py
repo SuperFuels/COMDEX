@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Tessaris Lean → CodexLang Bridge (v2.0, SRK-9 Enhanced)
+Tessaris Lean -> CodexLang Bridge (v2.0, SRK-9 Enhanced)
 ────────────────────────────────────────────────────────
 Converts Lean declarations (axioms, theorems, lemmas) into normalized
 CodexLang ASTs ({op, args}) using Symatics adapter and rewriter,
 then exports verified entries into the Codex theorem ledger.
 
 Upgrades over v1:
-  • Semantic SHA-256 hash per normalized logic
-  • Dependency + axiom inference
-  • Full CodexLang AST embedding for introspection
-  • Compatible with lean_parser outputs
+  * Semantic SHA-256 hash per normalized logic
+  * Dependency + axiom inference
+  * Full CodexLang AST embedding for introspection
+  * Compatible with lean_parser outputs
 """
 
 import os
@@ -24,7 +24,7 @@ from datetime import datetime
 from backend.symatics import adapter, rewriter as R
 
 def convert_lean_expr(expr: str):
-    """Stub translator from Lean syntax → CodexLang symbolic form."""
+    """Stub translator from Lean syntax -> CodexLang symbolic form."""
     return {"converted_expr": expr, "status": "ok"}
 # ───────────────────────────────────────────────────────────────
 # Helpers
@@ -48,7 +48,7 @@ def _infer_dependencies(body: str) -> list[str]:
 
 
 # ───────────────────────────────────────────────────────────────
-# Lean → CodexLang AST Translator
+# Lean -> CodexLang AST Translator
 # ───────────────────────────────────────────────────────────────
 def lean_to_ast(logic: str) -> Dict[str, Any]:
     """
@@ -94,7 +94,7 @@ def lean_to_ast(logic: str) -> Dict[str, Any]:
 
 
 # ───────────────────────────────────────────────────────────────
-# Lean → CodexLang Conversion
+# Lean -> CodexLang Conversion
 # ───────────────────────────────────────────────────────────────
 def convert_lean_to_codexlang(lean_path: str) -> Dict[str, List[Dict[str, Any]]]:
     """
@@ -204,7 +204,7 @@ def export_theorems_to_ledger(verified, ledger_path):
             }
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
             count += 1
-    print(f"[Ledger v2] Exported {count} verified theorems → {ledger_path}")
+    print(f"[Ledger v2] Exported {count} verified theorems -> {ledger_path}")
     return True
 
 

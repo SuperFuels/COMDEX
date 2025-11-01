@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-SRK-3 Integration Test — Field Entropy Kernel v1.2
+SRK-3 Integration Test - Field Entropy Kernel v1.2
 ─────────────────────────────────────────────────────────────
 Ensures the SRK-3 entropy feedback system integrates
 correctly with the Symatics Reasoning Kernel (SRK-1/2).
 
 Validates:
-  • Entropy increases with random ψ-fields
-  • Damping γ(S) moderates λ(t) oscillations
-  • SRK-3 diagnostics are available and populated
+  * Entropy increases with random ψ-fields
+  * Damping γ(S) moderates λ(t) oscillations
+  * SRK-3 diagnostics are available and populated
 """
 
 import numpy as np
@@ -69,12 +69,12 @@ def test_entropy_diagnostics_available(srk):
     print("\n[SRK-3 Diagnostics]", entropy_diag)
 
 # ─────────────────────────────────────────────────────────────
-# SRK-3 — Entropy Regularization Runtime Law Test
+# SRK-3 - Entropy Regularization Runtime Law Test
 # ─────────────────────────────────────────────────────────────
 def test_entropy_regularization_law():
     """
     Verifies that the Field Entropy Regularization Law (SRK-3)
-    passes under normal entropy–λ(t) conditions.
+    passes under normal entropy-λ(t) conditions.
     """
     from backend.symatics.core.validators.law_check import law_entropy_regularization
 

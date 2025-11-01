@@ -1,4 +1,4 @@
-# Photon v0.2 — Parallel Capsule Engine
+# Photon v0.2 - Parallel Capsule Engine
 # Async + fairness + telemetry
 
 import asyncio

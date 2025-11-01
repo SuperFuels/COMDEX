@@ -1,6 +1,6 @@
 # ============================================================
-# === X₃ — Symatic Compilation (Tessaris) ===================
-# Phase IIIb: Information–Flux Universality (Final)
+# === X3 - Symatic Compilation (Tessaris) ===================
+# Phase IIIb: Information-Flux Universality (Final)
 # Purpose: Compile field geometries into causal-executable patterns
 # ============================================================
 
@@ -15,7 +15,7 @@ constants = load_constants()
 base_path = "backend/modules/knowledge/"
 os.makedirs(base_path, exist_ok=True)
 
-# === 2. Load synthetic field (simulate from X₂ output) ===
+# === 2. Load synthetic field (simulate from X2 output) ===
 x = np.linspace(-10, 10, 2048)
 E = np.exp(-x**2 / 12) * np.cos(2 * np.pi * x / 6)
 S = np.gradient(E) * 0.3
@@ -47,12 +47,12 @@ def INVARIANCE_TEST(E, S, J):
     return 1 / (1 + delta)
 
 # === 4. Run symatic compilation ===
-print("\n=== X₃ — Symatic Compilation (Tessaris) ===")
+print("\n=== X3 - Symatic Compilation (Tessaris) ===")
 curv, density, symmetry, coherence = SYMATIC_MAP(E, S, J_info)
 n_modes, invariant_signature, pattern_strength, executable = PATTERN_COMPILE(E, S, curv)
 invariance = INVARIANCE_TEST(E, S, J_info)
 
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
 print(f"Spectral density = {density:.3e}")
 print(f"Field symmetry = {symmetry:.3f}")
 print(f"Causal coherence = {coherence:.3f}")
@@ -95,7 +95,7 @@ with open(summary_path, "w", encoding="utf-8") as f:
 plt.figure(figsize=(9,4))
 plt.plot(x, E, label="Energy Field E(x)", color='C0')
 plt.plot(x, S, label="Entropy Field S(x)", color='C1', linestyle='--')
-plt.title("X₃ — Symatic Compilation (Tessaris)")
+plt.title("X3 - Symatic Compilation (Tessaris)")
 plt.xlabel("x (lattice coordinate)")
 plt.ylabel("Amplitude")
 plt.legend()
@@ -104,6 +104,6 @@ plot_path = os.path.join(base_path, "PAEV_X3_symatic_compilation.png")
 plt.savefig(plot_path, dpi=200)
 plt.close()
 
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

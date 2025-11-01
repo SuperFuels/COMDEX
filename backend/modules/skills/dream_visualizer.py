@@ -21,7 +21,7 @@ def list_dreams(filter_keyword=None):
         if filter_keyword and filter_keyword.lower() not in content.lower():
             continue
 
-        print(f"\n[bold cyan]🌙 Dream {idx} — {label}[/bold cyan]")
+        print(f"\n[bold cyan]🌙 Dream {idx} - {label}[/bold cyan]")
         print(f"[dim]{content[:500]}...[/dim]")  # Show preview
 
 if __name__ == "__main__":

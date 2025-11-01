@@ -22,8 +22,8 @@ for ax,img,title in [
     (axs[0,1],B0,"B decoupled"),
     (axs[0,2],B1,"B resonant"),
     (axs[1,0],B2,"B entangled"),
-    (axs[1,1],(A-B0)**2,"Δ² decoupled"),
-    (axs[1,2],(A-B2)**2,"Δ² entangled"),
+    (axs[1,1],(A-B0)**2,"Δ2 decoupled"),
+    (axs[1,2],(A-B2)**2,"Δ2 entangled"),
 ]:
     im=ax.imshow(img,origin="lower"); ax.set_title(title); ax.axis("off")
 fig.tight_layout(); plt.savefig("docs/theory/figures/PAEV_Test4B_Maps.png",dpi=300)

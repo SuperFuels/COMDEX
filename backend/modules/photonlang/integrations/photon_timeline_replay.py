@@ -48,7 +48,7 @@ try:
 except Exception:
     class SCIWorkspace:
         def __init__(self, container_id="default"): self.container_id = container_id
-        def inject_state(self, state): print(f"[Stub SCIWorkspace] Injected state → {self.container_id}")
+        def inject_state(self, state): print(f"[Stub SCIWorkspace] Injected state -> {self.container_id}")
     def load_container_workspace(container_id, state): print(f"[StubContainer] Loaded {container_id}")
 
 # -----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ async def replay_snapshot(
     sqi = SQI.optimize()
     qqc = QQCResonanceBridge.emit(intensity)
 
-    # Reinjection layer — rehydrate SCI and container state
+    # Reinjection layer - rehydrate SCI and container state
     if reinject:
         try:
             load_container_workspace(container_id, state=data.get("state", {}))
@@ -163,7 +163,7 @@ async def replay_timeline(
         print("⚠️ No saved resonance telemetry snapshots found.")
         return []
 
-    snapshots.reverse()  # old → new
+    snapshots.reverse()  # old -> new
     frames: List[Dict[str, Any]] = []
     print(f"🎞️ Replaying {len(snapshots)} frames (reinjection={'on' if reinject else 'off'})...")
 

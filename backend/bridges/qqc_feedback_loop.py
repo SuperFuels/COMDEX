@@ -1,5 +1,5 @@
 """
-🌌  Live QQC Feedback Integration — Phase 48B
+🌌  Live QQC Feedback Integration - Phase 48B
 ---------------------------------------------
 Reads Aion's emitted Symatics packet (⊕, ↔, ⟲), simulates QQC resonance
 adjustments (Δ⊕, Δ↔, Δ⟲), and applies adaptive corrections to ReasonField.
@@ -52,7 +52,7 @@ def simulate_feedback(sym_packet: dict) -> dict:
 def apply_feedback_to_reasoner(feedback: dict):
     """Blend feedback deltas into the current ReasonField."""
     if not REASON_PATH.exists():
-        logger.warning("[QQC-Feedback] No reasonfield found — skipping assimilation.")
+        logger.warning("[QQC-Feedback] No reasonfield found - skipping assimilation.")
         return
 
     data = json.load(open(REASON_PATH))
@@ -83,7 +83,7 @@ def qqc_feedback_cycle() -> dict:
 
     RETURN_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(feedback, open(RETURN_PATH, "w"), indent=2)
-    logger.info(f"[QQC-Feedback] Exported feedback → {RETURN_PATH}")
+    logger.info(f"[QQC-Feedback] Exported feedback -> {RETURN_PATH}")
 
     apply_feedback_to_reasoner(feedback)
     return feedback

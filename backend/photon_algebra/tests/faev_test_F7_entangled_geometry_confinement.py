@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==========================================================
-# F7 — Entangled Geometry Confinement (Nonlocal Quantum Memory)
+# F7 - Entangled Geometry Confinement (Nonlocal Quantum Memory)
 # ==========================================================
 
 np.random.seed(42)
@@ -120,7 +120,7 @@ else:
 plt.figure(figsize=(9,5))
 plt.plot(t, a, label="a(t)")
 plt.axvline(t[bounce_index], color="purple", ls="--", label="bounce")
-plt.title("F7 — Scale Factor Evolution (Entangled Geometry Confinement)")
+plt.title("F7 - Scale Factor Evolution (Entangled Geometry Confinement)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7_ScaleFactorEvolution.png")
@@ -130,14 +130,14 @@ plt.plot(t, rho_tot, label="ρ_total", lw=1.3)
 plt.plot(t, rho_phi, label="ρ_φ", alpha=0.6)
 plt.plot(t, Lambda_eff, "--", label="Λ_eff(t)", alpha=0.7)
 plt.yscale("log")
-plt.title("F7 — Energy Density and Entangled Vacuum Feedback")
+plt.title("F7 - Energy Density and Entangled Vacuum Feedback")
 plt.xlabel("time"); plt.ylabel("Energy (log)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7_EnergyDecomposition.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, np.cos(phi), lw=1.0, label="cos(φ)")
-plt.title("F7 — Vacuum-Field Phase Coherence")
+plt.title("F7 - Vacuum-Field Phase Coherence")
 plt.xlabel("time"); plt.ylabel("cos(φ)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7_PhaseCoherence.png")
@@ -185,7 +185,7 @@ results = {
 with open("backend/modules/knowledge/F7_entangled_geometry_confinement.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== F7 — Entangled Geometry Confinement (Nonlocal Quantum Memory) ===")
+print("=== F7 - Entangled Geometry Confinement (Nonlocal Quantum Memory) ===")
 print(f"a_min={a_min:.4f} | mean_coherence={mean_coherence:.3f} | anti-corr(Λ,E)={anti_corr:.2f}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F7_entangled_geometry_confinement.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F7_entangled_geometry_confinement.json")

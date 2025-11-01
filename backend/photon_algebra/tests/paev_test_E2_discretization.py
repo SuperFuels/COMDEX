@@ -59,7 +59,7 @@ plt.plot(x, metrics["Phi_std"], "s--", label="σ(Φ)")
 plt.plot(x, metrics["TH"], "d-.", label="T_H")
 plt.xlabel("Grid size N")
 plt.ylabel("Metric value")
-plt.title("E2 — Discretization Invariance Test")
+plt.title("E2 - Discretization Invariance Test")
 plt.legend(); plt.grid(True); plt.tight_layout()
 plt.savefig("PAEV_E2_Discretization.png", dpi=160)
 
@@ -80,6 +80,6 @@ with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
 # --- log ---
-print("=== E2 — Discretization Universality ===")
+print("=== E2 - Discretization Universality ===")
 print(json.dumps(out, indent=2))
-print(f"✅ Results saved → {save_path}")
+print(f"✅ Results saved -> {save_path}")

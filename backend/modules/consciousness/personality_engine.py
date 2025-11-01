@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # File: backend/modules/consciousness/personality_engine.py
 """
-🧬 PersonalityProfile — Phase 54 Resonant Behavioral Dynamics
+🧬 PersonalityProfile - Phase 54 Resonant Behavioral Dynamics
 ───────────────────────────────────────────────────────────────
 Deep integration of Θ-pulse and ResonantMemoryCache for evolving
-AION’s personality across emotional, reflective, and harmonic states.
+AION's personality across emotional, reflective, and harmonic states.
 
 Highlights:
-  • Multi-axis resonance feedback (SQI ↔ ΔΦ)
-  • Live tone adaptation (humor ↔ professional ↔ focused)
-  • Stabilization loop via Θ heartbeat + RMC
-  • Personality drift dampening and history logging
+  * Multi-axis resonance feedback (SQI ↔ ΔΦ)
+  * Live tone adaptation (humor ↔ professional ↔ focused)
+  * Stabilization loop via Θ heartbeat + RMC
+  * Personality drift dampening and history logging
 """
 
 import json
@@ -91,7 +91,7 @@ class PersonalityProfile:
         }
         self.history.append(entry)
         self._save()
-        print(f"[🧠] Trait '{trait}' changed: {prev:.2f} → {self.traits[trait]:.2f} ({reason})")
+        print(f"[🧠] Trait '{trait}' changed: {prev:.2f} -> {self.traits[trait]:.2f} ({reason})")
 
     # ------------------------------------------------------------
     def resonant_trait_modulator(self, sqi_delta: float, mood_phase: str = "neutral"):
@@ -102,7 +102,7 @@ class PersonalityProfile:
         factor = sqi_delta * 0.5
         tone = "balanced"
 
-        # Positive ΔSQI → expansion and calm coherence
+        # Positive ΔSQI -> expansion and calm coherence
         if sqi_delta > 0:
             self.traits["curiosity"] += factor * 0.3
             self.traits["empathy"] += factor * 0.25
@@ -110,7 +110,7 @@ class PersonalityProfile:
             self.traits["stability"] += factor * 0.4
             self.traits["confidence"] += factor * 0.35
             tone = "calm"
-        # Negative ΔSQI → contraction and grounding
+        # Negative ΔSQI -> contraction and grounding
         elif sqi_delta < 0:
             self.traits["humility"] += abs(factor) * 0.3
             self.traits["focus"] -= abs(factor) * 0.25
@@ -137,7 +137,7 @@ class PersonalityProfile:
 
         self._save()
 
-        print(f"[Θ🧭] Resonant modulation ({tone}/{mood_phase}) → ΔSQI={sqi_delta:+.3f}")
+        print(f"[Θ🧭] Resonant modulation ({tone}/{mood_phase}) -> ΔSQI={sqi_delta:+.3f}")
         for t in ("humor", "professionalism", "stability", "focus", "confidence", "composure"):
             print(f"   {t:<15}: {self.traits[t]:.2f}")
 
@@ -196,7 +196,7 @@ class PersonalityProfile:
 
     # ------------------------------------------------------------
     def describe(self):
-        print("\n🧬 AION Personality Resonance Profile — Live State:")
+        print("\n🧬 AION Personality Resonance Profile - Live State:")
         for k, v in self.traits.items():
             bar = "█" * int(v * 20)
             print(f" - {k.capitalize():<15}: {v:.2f} {bar}")

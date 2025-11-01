@@ -68,7 +68,7 @@ def get_estimate_codex_cost():
 
 class PredictionEngine:
     def __init__(self, container_id: str = "global", memory_engine=None, tessaris_engine=None, dream_core=None):
-        log.info("[PredictionEngine] Initialized — ready for feasibility assessments.")
+        log.info("[PredictionEngine] Initialized - ready for feasibility assessments.")
         self.container_id = container_id
         self.memory_engine = memory_engine or (MemoryEngine() if MemoryEngine else None)
         self.tessaris_engine = tessaris_engine or (TessarisEngine() if TessarisEngine else None)
@@ -100,14 +100,14 @@ class PredictionEngine:
         return False
 
     def extract_prediction_path(text):
-        # crude fallback – customize for your AST/glyph format
+        # crude fallback - customize for your AST/glyph format
         try:
             return text.split("Predicts(")[1].split(")")[0]
         except:
             return "Unknown"
 
     def score_predictive_path(path):
-        # stub – replace with actual SQI scoring logic if needed
+        # stub - replace with actual SQI scoring logic if needed
         return {
             "stability": round(random.uniform(0.4, 1.0), 3),
             "resonance": round(random.uniform(0.2, 0.9), 3),
@@ -117,7 +117,7 @@ class PredictionEngine:
 
     def assess_feasibility(self, goal: Union[str, dict]) -> float:
         """
-        Returns a pseudo-probabilistic feasibility score (0–1)
+        Returns a pseudo-probabilistic feasibility score (0-1)
         based on symbolic goal complexity and random harmonics.
         """
         if not goal:
@@ -208,7 +208,7 @@ class PredictionEngine:
     def _normalize_codexlang_ast(self, ast: dict) -> dict:
         """
         Converts lowercase internal CodexLang-style AST to normalized form.
-        Example: 'forall' → 'ForAll', 'predicate' → Codex predicate structure.
+        Example: 'forall' -> 'ForAll', 'predicate' -> Codex predicate structure.
         """
         if ast["type"] == "forall":
             return {
@@ -581,7 +581,7 @@ class PredictionEngine:
             top3 = sorted(electron_predictions, key=lambda x: x.get("confidence", 0), reverse=True)[:3]
             print("[PredictionEngine] Top 3 electrons by SQI confidence:")
             for ep in top3:
-                print(f" • {ep['electron']} → {ep['selected_prediction']} ({ep['confidence']:.3f})")
+                print(f" * {ep['electron']} -> {ep['selected_prediction']} ({ep['confidence']:.3f})")
         except Exception as e:
             print(f"[PredictionEngine] ⚠️ Failed to print top electrons: {e}")
 
@@ -977,7 +977,7 @@ class PredictionEngine:
             # 🛠 Automatic corrective glyph injection if drift is critical
             if drift > 0.6:
                 corrective_glyph = f"{current_glyph} ⧖ SQI↺[stabilize]"
-                print(f"⚠️ High drift detected ({drift:.2f}) → Injecting corrective glyph: {corrective_glyph}")
+                print(f"⚠️ High drift detected ({drift:.2f}) -> Injecting corrective glyph: {corrective_glyph}")
                 try:
                     from backend.modules.codex.codex_executor import trigger_glyph
                     await trigger_glyph(
@@ -1105,7 +1105,7 @@ class PredictionEngine:
 
             bias_score = collapsed_qbit.get("observer_bias", {}).get("decision", 0)
             if abs(bias_score) > 0.6:
-                print("🔁 Strong collapse bias detected → triggering recursive re-prediction...")
+                print("🔁 Strong collapse bias detected -> triggering recursive re-prediction...")
                 await self.generate_future_paths(current_glyph, container_path, goal, coord, agent_id=agent_id)
 
         except Exception as e:
@@ -1118,7 +1118,7 @@ class PredictionEngine:
         elif entangled:
             return f"{glyph} ↔ {random.choice(entangled)}"
         else:
-            suffix = random.choice(["→", "⮕", "⋯", "⊕"])
+            suffix = random.choice(["->", "⮕", "⋯", "⊕"])
             goal_hint = f"⟦{random.choice(['align','expand','mirror'])}⟧" if goal_vector else "?"
             return f"{glyph} {suffix} {goal_hint}"
 
@@ -1207,12 +1207,12 @@ class PredictionEngine:
             return False
 
     def summarize_prediction_trace(self) -> List[str]:
-        return [f"{p['input_glyph']} → {p['predicted_glyph']} ({p['confidence']})" for p in self.history]
+        return [f"{p['input_glyph']} -> {p['predicted_glyph']} ({p['confidence']})" for p in self.history]
 
     def reset_history(self):
         self.history.clear()
 
-    # === SQI A2–A5: PredictionEngine for atoms/electrons with SoulLaw ===
+    # === SQI A2-A5: PredictionEngine for atoms/electrons with SoulLaw ===
 
     try:
         from backend.modules.soullaw.soul_law_validator import get_soul_laws
@@ -1224,7 +1224,7 @@ class PredictionEngine:
         predictions = []
 
         for idx, electron in enumerate(electrons):
-            label = electron.get("meta", {}).get("label", f"e⁻ {idx+1}")
+            label = electron.get("meta", {}).get("label", f"e- {idx+1}")
             glyphs = electron.get("glyphs", [])
 
             # ✅ A5: SoulLaw validation
@@ -1278,7 +1278,7 @@ log = logging.getLogger(__name__)
 
 def assess_feasibility(self, goal):
     """
-    Returns a pseudo-probabilistic feasibility score (0–1)
+    Returns a pseudo-probabilistic feasibility score (0-1)
     based on symbolic goal complexity and random harmonics.
     """
     if not goal:

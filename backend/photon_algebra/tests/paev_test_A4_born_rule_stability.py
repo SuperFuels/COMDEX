@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test A4 — Born Rule Stability under Decoherence
+Test A4 - Born Rule Stability under Decoherence
 ------------------------------------------------
 
 Goal:
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         plt.plot(coherence_levels, p_pa_all[:, i], colors[i] + "--", label=f"PA {labels[i]}")
     plt.xlabel("Coherence γ_c")
     plt.ylabel("Probability P(i)")
-    plt.title("Test A4 — Born Rule Stability under Decoherence (Qutrit)")
+    plt.title("Test A4 - Born Rule Stability under Decoherence (Qutrit)")
     plt.legend()
     plt.tight_layout()
     plt.savefig("PAEV_TestA4_BornRule_Stability.png", dpi=160)

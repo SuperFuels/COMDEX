@@ -19,7 +19,7 @@ ENABLE_PLOT = True
 OUTPUT_DIR = Path("a9f1_batches")
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-ops = ["⊕", "⟲", "↔", "→", "⧖"]
+ops = ["⊕", "⟲", "↔", "->", "⧖"]
 op_weights = [4, 2, 1, 2, 5]  # Compression/contradiction bias
 
 def log(msg: str, file=None):

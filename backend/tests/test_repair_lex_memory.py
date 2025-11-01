@@ -5,10 +5,10 @@
 Scans and repairs corrupted entries in:
    data/memory/cee_lex_memory.json
 
-• Creates an automatic backup (.lexbak)
-• Recovers valid JSON fragments
-• Removes syntax errors and incomplete entries
-• Reports recovery statistics
+* Creates an automatic backup (.lexbak)
+* Recovers valid JSON fragments
+* Removes syntax errors and incomplete entries
+* Reports recovery statistics
 """
 
 import json, re, pathlib
@@ -23,7 +23,7 @@ if not LEX_PATH.exists():
 # ───────────────────────────────────────────────
 # Backup and load
 LEX_PATH.replace(BACKUP_PATH)
-print(f"[Backup] Created → {BACKUP_PATH}")
+print(f"[Backup] Created -> {BACKUP_PATH}")
 
 text = BACKUP_PATH.read_text(errors="ignore")
 text = text.replace("\r", " ").replace("\n", " ")
@@ -36,7 +36,7 @@ if "{" in text and "}" in text:
 # Try to load as-is first
 try:
     data = json.loads(text)
-    print(f"✅ Loaded cleanly ({len(data)} entries) — no repair needed.")
+    print(f"✅ Loaded cleanly ({len(data)} entries) - no repair needed.")
     LEX_PATH.write_text(json.dumps(data, indent=2))
     raise SystemExit(0)
 except Exception:
@@ -58,6 +58,6 @@ for frag in fragments:
 if valid:
     with open(LEX_PATH, "w", encoding="utf-8") as f:
         json.dump(valid, f, indent=2)
-    print(f"✅ Repaired LexMemory — {len(valid)} valid entries recovered.")
+    print(f"✅ Repaired LexMemory - {len(valid)} valid entries recovered.")
 else:
-    print("❌ No valid fragments could be recovered — check backup manually.")
+    print("❌ No valid fragments could be recovered - check backup manually.")

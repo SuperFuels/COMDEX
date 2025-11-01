@@ -1,8 +1,8 @@
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • Quantum Quad Core (QQC) Central Kernel (v2)
+#  Tessaris * Quantum Quad Core (QQC) Central Kernel (v2)
 #  (HQCE + Multi-Core Integration Backbone)
 #  Integrates Codex ↔ SQI ↔ Resonance ↔ Observer ↔ Knowledge ↔ Portal ↔ QFC
-#  with ψ–κ–T holographic regulation and Lean theorem feedback.
+#  with ψ-κ-T holographic regulation and Lean theorem feedback.
 # ──────────────────────────────────────────────────────────────
 
 import asyncio
@@ -55,7 +55,7 @@ logger = logging.getLogger(__name__)
 
 
 # ──────────────────────────────────────────────────────────────
-#  Quantum Quad Core v2 – Unified Orchestrator
+#  Quantum Quad Core v2 - Unified Orchestrator
 # ──────────────────────────────────────────────────────────────
 class QuantumQuadCore:
     """
@@ -81,7 +81,7 @@ class QuantumQuadCore:
         self.boot_ts = time.time()
         self.cycle_counter = 0
 
-        self.logger.info(f"[QQC v2] Initialized Tessaris Quantum Quad Core session → {self.session_id}")
+        self.logger.info(f"[QQC v2] Initialized Tessaris Quantum Quad Core session -> {self.session_id}")
 
         # ─── Core Subsystems ──────────────────────────────
         self.codex = CodexCore()
@@ -113,7 +113,7 @@ class QuantumQuadCore:
         self.qfc_trigger = QFCTriggerEngine()
         self.qfc_broadcast = QFCWebSocketBroadcast()
 
-        # πₛ Phase Closure Bridge (QQC ↔ QFC ↔ GHX)
+        # πs Phase Closure Bridge (QQC ↔ QFC ↔ GHX)
         from backend.modules.symatics_lightwave.qqc_qfc_adapter import qqc_qfc_adapter
         self.qqc_qfc_adapter = qqc_qfc_adapter
         self.qqc_qfc_adapter.start()
@@ -134,7 +134,7 @@ class QuantumQuadCore:
 
             self.morphic_runtime = QuantumMorphicRuntime({}, {"id": "qqc_core"})
             self.resonance_bridge = QQCResonanceBridge(self, self.morphic_runtime)
-            self.logger.info("[QQC v2] Linked Morphic runtime → QQCResonanceBridge active.")
+            self.logger.info("[QQC v2] Linked Morphic runtime -> QQCResonanceBridge active.")
         except Exception as e:
             self.resonance_bridge = None
             self.logger.warning(f"[QQC v2] Resonance bridge initialization failed: {e}")
@@ -142,7 +142,7 @@ class QuantumQuadCore:
         # ─── Aion Integration Bridge (Stage 9)
         try:
             from backend.modules.aion.aion_integration_bridge import AionIntegrationBridge
-            # If you don’t have a resonance_bridge yet, pass None
+            # If you don't have a resonance_bridge yet, pass None
             self.aion_bridge = AionIntegrationBridge(self, getattr(self, "resonance_bridge", None))
             self.logger.info("[QQC v2] Linked Aion Integration Bridge successfully.")
         except Exception as e:
@@ -160,7 +160,7 @@ class QuantumQuadCore:
     #  Boot Sequence
     # ──────────────────────────────────────────────
     async def boot(self, mode: str = "resonant"):
-        logger.info(f"[QQC Boot] Starting in {mode} mode …")
+        logger.info(f"[QQC Boot] Starting in {mode} mode ...")
         await self.holo_cortex.initialize()
         self.sqi_logger.start_session(self.session_id)
         self.feedback_loop.initialize()
@@ -173,7 +173,7 @@ class QuantumQuadCore:
     async def run_cycle(self, beam_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Core execution loop for a single QQC resonance cycle.
-        Returns ψ–κ–T–Φ metrics used by AION awareness and Morphic Ledger.
+        Returns ψ-κ-T-Φ metrics used by AION awareness and Morphic Ledger.
         """
         self.cycle_counter += 1
         try:
@@ -189,7 +189,7 @@ class QuantumQuadCore:
             codex_payload.pop("physics", None)
             self.codex_executor.execute_photon_capsule(codex_payload)
 
-            # 4️⃣ ψ–κ–T holographic feedback loop
+            # 4️⃣ ψ-κ-T holographic feedback loop
             self.sle_bridge.inject_beam_feedback(beam_state)
             await self.feedback_controller.adjust_field(self.hst, sqi_score)
 
@@ -211,9 +211,9 @@ class QuantumQuadCore:
             # 8️⃣ Repair cycle check
             repair_status = self.repair_manager.run_repair_cycle(txn)
             if repair_status.get("status") != "stable":
-                logger.warning(f"[QQC Repair] Unstable coherence → {repair_status['status']}")
+                logger.warning(f"[QQC Repair] Unstable coherence -> {repair_status['status']}")
 
-            # ✅ Structured ψ–κ–T–Φ snapshot (AION reads this)
+            # ✅ Structured ψ-κ-T-Φ snapshot (AION reads this)
             coherence_vals = [n.get("coherence", 0.5) for n in self.hst.nodes.values()]
             coherence = sum(coherence_vals) / len(coherence_vals) if coherence_vals else 0.0
 
@@ -230,7 +230,7 @@ class QuantumQuadCore:
                 },
             }
 
-            # 🧠 Awareness Metrics — Φ, ΔΦ, S_self
+            # 🧠 Awareness Metrics - Φ, ΔΦ, S_self
             try:
                 from backend.QQC.metrics import compute_phi_metrics
                 phi, dphi, s_self = compute_phi_metrics(
@@ -251,15 +251,15 @@ class QuantumQuadCore:
             # 🪞 Synchronize Morphic ↔ QQC resonance states
             try:
                 if hasattr(self, "resonance_bridge") and self.resonance_bridge:
-                    # First pull ψ–κ–T from Morphic → QQC
+                    # First pull ψ-κ-T from Morphic -> QQC
                     self.resonance_bridge.sync_from_morphic()
-                    # Then push QQC Φ / ΔΦ feedback → Morphic
+                    # Then push QQC Φ / ΔΦ feedback -> Morphic
                     self.resonance_bridge.propagate_to_morphic()
                     logger.debug("[QQCResonanceBridge] Bidirectional resonance sync complete.")
             except Exception as e:
                 logger.warning(f"[QQC] Resonance sync failed: {e}")
 
-            # 🔶 Cognitive Fabric Commit — push state to KG + UCS + Ledger
+            # 🔶 Cognitive Fabric Commit - push state to KG + UCS + Ledger
             try:
                 CFA.commit(
                     source="QQC",
@@ -331,7 +331,7 @@ class QuantumQuadCore:
     def sync_lean_proofs(self):
         """
         Perform a full Lean proof synchronization cycle:
-        1. Export Codex/Symatics → Lean
+        1. Export Codex/Symatics -> Lean
         2. Verify Lean containers
         3. Generate visual proof graphs
         """
@@ -341,7 +341,7 @@ class QuantumQuadCore:
             self.lean.from_codex(container, "proofs/generated_axioms.lean")
 
             # Export a Symatics algebra expression as Lean axiom
-            self.lean.from_symatics("∇⊗(λ⊗ψ) ⇒ λ∇⊗ψ", name="wave_resonance_axiom")
+            self.lean.from_symatics("∇⊗(λ⊗ψ) -> λ∇⊗ψ", name="wave_resonance_axiom")
 
             # Verify the active container proofs
             from pathlib import Path
@@ -352,9 +352,9 @@ class QuantumQuadCore:
             # Generate proof visualization graph
             self.lean.visualize("backend/modules/dimensions/containers/core.dc.json", png_out="viz/core_graph.png")
 
-            logger.info("[QQC → Lean] Proof sync and verification completed successfully.")
+            logger.info("[QQC -> Lean] Proof sync and verification completed successfully.")
         except Exception as e:
-            logger.error(f"[QQC → Lean] Proof sync failed: {e}", exc_info=True)
+            logger.error(f"[QQC -> Lean] Proof sync failed: {e}", exc_info=True)
 
     # ──────────────────────────────────────────────
     #  Broadcast / Telemetry Layer
@@ -378,7 +378,7 @@ class QuantumQuadCore:
         try:
             state = self.portal.extract_state(src_container)
             result = self.wormhole.transfer_state(state, dst_container)
-            logger.info(f"[QQC Teleport] {src_container} → {dst_container} [{result}]")
+            logger.info(f"[QQC Teleport] {src_container} -> {dst_container} [{result}]")
             return result
         except Exception as e:
             logger.error(f"[QQC Teleport] Failed: {e}")
@@ -388,7 +388,7 @@ class QuantumQuadCore:
     #  Shutdown
     # ──────────────────────────────────────────────
     async def shutdown(self):
-        logger.info("[QQC v2] Gracefully shutting down subsystems …")
+        logger.info("[QQC v2] Gracefully shutting down subsystems ...")
         await self.qfc_broadcast.stop()
         await self.holo_cortex.teardown()
         self.sqi_logger.end_session(self.session_id)
@@ -403,18 +403,18 @@ class QuantumQuadCore:
         self.hyperdrive_enabled = bool(enable)
 
         if enable:
-            print("⚡ [QQC] Hyperdrive Mode ENABLED — full physical coupling active.")
+            print("⚡ [QQC] Hyperdrive Mode ENABLED - full physical coupling active.")
             # Here you can enable direct GPIO / hardware interfaces
             # e.g., self.hardware_bridge.activate_full_output()
         else:
-            print("🛑 [QQC] Safety Mode ENABLED — running in simulation (no GPIO).")
+            print("🛑 [QQC] Safety Mode ENABLED - running in simulation (no GPIO).")
             # Ensure fallback to software-only loop
             # e.g., self.hardware_bridge.enter_safe_mode()
 
         # Optional: notify broadcast or logs
         try:
             from backend.modules.sqi.sqi_event_bus import log_info
-            log_info(f"[QQC] Hyperdrive guard set → {enable}")
+            log_info(f"[QQC] Hyperdrive guard set -> {enable}")
         except Exception:
             pass
 
@@ -466,7 +466,7 @@ class QuantumQuadCore:
                 self._last_entropy = new_entropy  # persist for next run comparison
 
                 if PatternMatcher.detect_drift(last_entropy, new_entropy):
-                    self.logger.warning(f"[⚠️ QQC] Pattern drift detected ({last_entropy} → {new_entropy})")
+                    self.logger.warning(f"[⚠️ QQC] Pattern drift detected ({last_entropy} -> {new_entropy})")
                     RepairManager.inject_fusion_glyph(context)
             except Exception as e:
                 self.logger.debug(f"[QQC] Drift detection failed: {e}")
@@ -512,7 +512,7 @@ class QuantumQuadCore:
         """Monitors SQI and triggers rollback if coherence lost."""
         if sqi_score < self.MIN_SQI_THRESHOLD:
             self.logger.warning(
-                f"[⚠️ QQC] SQI below threshold ({sqi_score} < {self.MIN_SQI_THRESHOLD}) → initiating rollback"
+                f"[⚠️ QQC] SQI below threshold ({sqi_score} < {self.MIN_SQI_THRESHOLD}) -> initiating rollback"
             )
             from backend.modules.codex.codex_feedback_loop import CodexFeedbackLoop
             CodexFeedbackLoop.rollback_to_last_stable_state(context)
@@ -529,9 +529,9 @@ class QuantumQuadCore:
     def shutdown(self):
         """
         Gracefully shut down the QQC runtime:
-        • Stop QFC adapter bridge
-        • Validate πₛ closure
-        • Dump telemetry + closure report to sle_validation.json
+        * Stop QFC adapter bridge
+        * Validate πs closure
+        * Dump telemetry + closure report to sle_validation.json
         """
         # ────────────────────────────────────────────────
         # 1️⃣ Stop QFC Adapter Bridge
@@ -540,7 +540,7 @@ class QuantumQuadCore:
             self.qqc_qfc_adapter.stop()
 
         # ────────────────────────────────────────────────
-        # 2️⃣ Validate πₛ Phase Closure
+        # 2️⃣ Validate πs Phase Closure
         # ────────────────────────────────────────────────
         try:
             from backend.symatics.pi_phase_validator import PhaseClosureValidator
@@ -557,7 +557,7 @@ class QuantumQuadCore:
             closure_report = {"error": str(e)}
 
         # ────────────────────────────────────────────────
-        # 3️⃣ Export Telemetry → sle_validation.json
+        # 3️⃣ Export Telemetry -> sle_validation.json
         # ────────────────────────────────────────────────
         try:
             export_dir = "./exports/telemetry"
@@ -577,7 +577,7 @@ class QuantumQuadCore:
             with open(export_path, "w") as f:
                 json.dump(payload, f, indent=2)
 
-            self.logger.info(f"[QQC] 🧭 Telemetry exported → {export_path}")
+            self.logger.info(f"[QQC] 🧭 Telemetry exported -> {export_path}")
         except Exception as e:
             self.logger.warning(f"[QQC] Telemetry export failed: {e}")
 
@@ -585,7 +585,7 @@ class QuantumQuadCore:
         # 4️⃣ Final Log
         # ────────────────────────────────────────────────
         self.logger.info("[QQC] Graceful shutdown completed.")
-        self.logger.info(f"[QQC] πₛ closure = {'✅ stable' if closure_ok else '⚠️ incomplete'}")
+        self.logger.info(f"[QQC] πs closure = {'✅ stable' if closure_ok else '⚠️ incomplete'}")
 
 # ──────────────────────────────────────────────────────────────
 #  CLI Harness / Standalone Mode

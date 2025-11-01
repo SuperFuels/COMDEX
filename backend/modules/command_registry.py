@@ -15,7 +15,7 @@ DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 COMMANDS: List[Dict] = [
     {
         "name": "run-learning-cycle",
-        "description": "Run full memory → dream → goal → skill cycle",
+        "description": "Run full memory -> dream -> goal -> skill cycle",
         "endpoint": "/api/aion/run-learning-cycle",
         "method": "POST",
         "aliases": ["learn", "cycle", "run-cycle"],

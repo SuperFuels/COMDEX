@@ -1,7 +1,7 @@
 # ==========================================================
-# Test F3 — Nonlinear Feedback & Coherence Lifetime
+# Test F3 - Nonlinear Feedback & Coherence Lifetime
 #   Explore nonlinear curvature feedback, decoherence, and
-#   dynamic stability using θ–κ coupled propagation.
+#   dynamic stability using θ-κ coupled propagation.
 # ==========================================================
 
 import numpy as np
@@ -48,7 +48,7 @@ dt = 0.02
 
 # Physical constants (moderate-nonlinear regime)
 c1 = 0.8      # wave coupling
-c3 = 0.3      # curvature–phase coupling
+c3 = 0.3      # curvature-phase coupling
 chi = 0.35    # nonlinear feedback
 gamma = 0.015 # mild damping
 eta = 0.05    # curvature relaxation
@@ -68,7 +68,7 @@ theta_t = np.zeros_like(theta)
 kappa = 0.08 * np.exp(-(X**2 + Y**2) / 0.3)
 
 if perturb:
-    print("💥 Perturbation mode enabled — injecting Gaussian pulse.")
+    print("💥 Perturbation mode enabled - injecting Gaussian pulse.")
     theta += 0.05 * np.exp(-((X-0.3)**2 + (Y+0.2)**2) / 0.1)
     kappa += 0.02 * np.exp(-((X+0.2)**2 + (Y-0.1)**2) / 0.1)
 
@@ -132,25 +132,25 @@ transition_step = np.argmax(np.gradient(entropy_trace) > 0.05 * np.max(np.gradie
 # ----------------------------
 # Energy / correlation / entropy evolution
 plt.figure(figsize=(7,4))
-plt.plot(energy_trace, label="⟨ℒ⟩")
-plt.plot(corr_trace, label="⟨θ·κ⟩")
+plt.plot(energy_trace, label="⟨L⟩")
+plt.plot(corr_trace, label="⟨θ*κ⟩")
 plt.plot(entropy_trace, label="Spectral entropy")
 plt.axvline(transition_step, color='magenta', ls='--', lw=1.2, label="transition")
 plt.legend()
-plt.title("F3 — Energy, Correlation, and Entropy Evolution")
+plt.title("F3 - Energy, Correlation, and Entropy Evolution")
 plt.tight_layout()
 plt.savefig("PAEV_TestF3_Coherence_Trace.png")
 plt.close()
 print("✅ Saved file: PAEV_TestF3_Coherence_Trace.png")
 
-# Entropy–lifetime overlay
+# Entropy-lifetime overlay
 plt.figure(figsize=(6,4))
 plt.plot(entropy_trace, label="Spectral entropy", color="orange")
 plt.axhline(np.mean(entropy_trace), color="gray", ls="--", lw=1)
 plt.text(0.7*steps, np.mean(entropy_trace)+0.05, f"τ_c ≈ {tau_c} steps", color="blue")
 plt.xlabel("Step")
 plt.ylabel("Entropy / τ_c")
-plt.title("F3 — Entropy & Coherence Lifetime")
+plt.title("F3 - Entropy & Coherence Lifetime")
 plt.tight_layout()
 plt.savefig("PAEV_TestF3_Entropy_Coherence.png")
 plt.close()
@@ -164,9 +164,9 @@ print("✅ Saved animation to: PAEV_TestF3_Propagation.gif")
 # Summary
 # ----------------------------
 summary = f"""
-=== Test F3 — Nonlinear Feedback & Coherence Lifetime ===
-⟨ℒ⟩ final = {energy_trace[-1]:.4e}
-⟨θ·κ⟩ final = {corr_trace[-1]:.4e}
+=== Test F3 - Nonlinear Feedback & Coherence Lifetime ===
+⟨L⟩ final = {energy_trace[-1]:.4e}
+⟨θ*κ⟩ final = {corr_trace[-1]:.4e}
 Spectral entropy final = {entropy_trace[-1]:.4e}
 Estimated coherence lifetime τ_c ≈ {tau_c} steps
 Transition detected at step {transition_step}

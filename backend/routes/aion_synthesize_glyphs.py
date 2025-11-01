@@ -1,6 +1,6 @@
 # 📁 backend/routes/aion_synthesize_glyphs.py
 # ==========================================================
-# 💠 AION Glyph Synthesizer — Unified API
+# 💠 AION Glyph Synthesizer - Unified API
 # ----------------------------------------------------------
 # Handles synthesis of glyphs from text, structured content,
 # and integrates with the Symatic Log + Thought Stream feed.
@@ -101,7 +101,7 @@ async def synthesize_glyphs(request: SynthesisRequest = Body(...)):
         # Step 4: Broadcast to Thought Stream
         await broadcast_event({
             "type": "symatic",
-            "message": f"μ synthesis → {len(glyphs)} glyphs generated",
+            "message": f"μ synthesis -> {len(glyphs)} glyphs generated",
             "tone": "active",
             "timestamp": log_entry["timestamp"]
         })
@@ -134,7 +134,7 @@ async def synthesize_glyphs(request: SynthesisRequest = Body(...)):
 
         await broadcast_event({
             "type": "error",
-            "message": f"∇ synthesis failure — {e}",
+            "message": f"∇ synthesis failure - {e}",
             "tone": "critical",
             "timestamp": datetime.utcnow().isoformat()
         })

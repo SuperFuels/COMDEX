@@ -21,13 +21,13 @@ def preview_summary(container: dict):
     nodes = tree.get("nodes", [])
 
     print("\n🔍 SymbolicMeaningTree Summary:")
-    print(f" • Root: {root.get('label', 'N/A')}")
-    print(f" • Node Count: {len(nodes)}")
+    print(f" * Root: {root.get('label', 'N/A')}")
+    print(f" * Node Count: {len(nodes)}")
 
     if len(nodes) > 0:
-        print(f" • First 3 Nodes:")
+        print(f" * First 3 Nodes:")
         for node in nodes[:3]:
-            print(f"   - {node.get('label')} → {node.get('glyph', {}).get('symbol')}")
+            print(f"   - {node.get('label')} -> {node.get('glyph', {}).get('symbol')}")
 
 def main():
     parser = argparse.ArgumentParser(description="Inject SymbolicMeaningTree into a .dc.json container.")
@@ -66,7 +66,7 @@ def main():
             print(f"⚠️ Replay broadcast failed: {e}")
 
     if args.save:
-        print(f"💾 Saving updated container → {out_path}")
+        print(f"💾 Saving updated container -> {out_path}")
         save_container(container, out_path)
     else:
         print("⚠️ Not saving container. Use --save to persist changes.")

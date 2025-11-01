@@ -72,7 +72,7 @@ def get_active_container():
         ucs = sm.get_active_universal_container_system()
         return ucs.get("active_container", _EPHEMERAL_CONTAINER)
     except Exception:
-        # CLI/test mode: no UCS – return ephemeral container so inject_glyph still works
+        # CLI/test mode: no UCS - return ephemeral container so inject_glyph still works
         return _EPHEMERAL_CONTAINER
 
 # ──────────────────────────────
@@ -402,7 +402,7 @@ class KnowledgeGraphWriter:
                 "id": container.get("id") or container.get("container_id", "unknown"),
                 "meta": container.get("meta", {}),
             },
-            expand=expand,  # False by default → collapsed/lazy
+            expand=expand,  # False by default -> collapsed/lazy
         )
 
     # --- NEW: collect UCS/SQI containers as KG nodes (collapsed by default) ---
@@ -460,12 +460,12 @@ class KnowledgeGraphWriter:
         """
         Export the container's KG content (from glyph_grid) to a compact JSON pack
         so it can be reloaded without recomputing. Also appends UCS/SQI containers
-        as collapsed KG nodes with HOV1–HOV3 flags baked.
+        as collapsed KG nodes with HOV1-HOV3 flags baked.
 
         This version is aware of inject_node()'s 'kg_node' insertion shape so
         it will always export the latest injected KG nodes without recomputation.
         """
-        # --- Defensive copy and HOV1–HOV3 injection for the primary container ---
+        # --- Defensive copy and HOV1-HOV3 injection for the primary container ---
         container = bake_hologram_meta(dict(container or {}))  # HOV1 flags
 
         # --- K9b: Hover Geometry Metadata + Entanglement Links ---
@@ -913,7 +913,7 @@ class KnowledgeGraphWriter:
                 qfc_payload = to_qfc_payload(node_payload, context)
                 asyncio.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
             except Exception as qfc_err:
-                print(f"[⚠️ KG→QFC] Failed to broadcast injected glyph: {qfc_err}")
+                print(f"[⚠️ KG->QFC] Failed to broadcast injected glyph: {qfc_err}")
 
             if anchor:
                 try:
@@ -953,7 +953,7 @@ class KnowledgeGraphWriter:
         """
         Adds a directional link edge between containers to the KG.
         """
-        print(f"🧠 KG: Linking {source_id} → {target_id} ({direction})")
+        print(f"🧠 KG: Linking {source_id} -> {target_id} ({direction})")
         edge_entry = {
             "id": generate_uuid(),
             "type": "link",
@@ -1117,7 +1117,7 @@ class KnowledgeGraphWriter:
 
     def inject_soullaw_violation(self, rule: str, reason: str, context: Optional[Dict[str, Any]] = None):
         return self.inject_glyph(
-            content=f"SoulLaw Violation: {rule} – {reason}", glyph_type="violation",
+            content=f"SoulLaw Violation: {rule} - {reason}", glyph_type="violation",
             metadata={"rule": rule, "type": "SoulLaw", "reason": reason, "context": context or {}, "tags": ["📜", "🧠", "❌"]},
             plugin="SoulLaw"
         )
@@ -1333,7 +1333,7 @@ def store_container_metadata(container_path: str, coord: str, metadata: dict):
         Appends into container['metadata']['injectionLog'].
         """
         if not os.path.exists(container_path):
-            logger.warning(f"[KG] Metadata injection failed — container not found: {container_path}")
+            logger.warning(f"[KG] Metadata injection failed - container not found: {container_path}")
             return
 
         try:
@@ -1520,7 +1520,7 @@ def write_glyph_event(
     if container is not None:
         container.setdefault("trace", {}).setdefault(event_type, []).append(event)
 
-    print(f"[KGWriter] Event: {event_type} → {container_id} | {event.get('reason', '')}")
+    print(f"[KGWriter] Event: {event_type} -> {container_id} | {event.get('reason', '')}")
 
 # === [A2a] Export QWave Beams for Container ===
 
@@ -1600,7 +1600,7 @@ def commit_atom_to_graph(label: str,
         except Exception as e:
             print(f"[KGWriter] ⚠️ Broadcast skipped: {e}")
 
-        print(f"🧠 [KGWriter] Harmonic Atom committed via singleton → {label} (SQI={sqi:.3f})")
+        print(f"🧠 [KGWriter] Harmonic Atom committed via singleton -> {label} (SQI={sqi:.3f})")
         return {"ref": f"{label}@{container_id}", "glyph_id": glyph_id, "status": "ok"}
 
     except Exception as e:

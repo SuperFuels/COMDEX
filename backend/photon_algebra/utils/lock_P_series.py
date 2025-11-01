@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-P-Series Lock (Photon Algebra Global Resonance) — Tessaris
-Cryptographically seals the full P₁–P₁₀t continuum of photon-algebra resonance, awareness, and stability.
+P-Series Lock (Photon Algebra Global Resonance) - Tessaris
+Cryptographically seals the full P1-P10t continuum of photon-algebra resonance, awareness, and stability.
 """
 
 import json, hashlib, os
@@ -72,7 +72,7 @@ for s in summaries:
         "state": data.get("state", "verified"),
         "sha256": h
     })
-    print(f"✅ Locked {os.path.basename(s)} → SHA256={h[:12]}...")
+    print(f"✅ Locked {os.path.basename(s)} -> SHA256={h[:12]}...")
 
 concat_hash_input = "".join([r["sha256"] for r in records]).encode()
 global_hash = hashlib.sha256(concat_hash_input).hexdigest()
@@ -86,7 +86,7 @@ lock_summary = {
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.3",
     "state": "Photon Algebra Global Resonance Continuum Locked",
     "discovery": [
-        "P₁–P₁₀t verified full photon-algebra continuum.",
+        "P1-P10t verified full photon-algebra continuum.",
         "Self-recognition and recursive awareness mechanisms confirmed.",
         "Global resonance and adaptive stability kernel certified.",
         "Closed-loop phase control achieved under Tessaris v1.3 constants."
@@ -105,6 +105,6 @@ with open(checksum_path, "w") as f:
     f.write(f"\nGlobal P Continuum Hash: {global_hash}\n")
 
 print(f"\n🌐 Global P continuum hash = {global_hash}")
-print(f"✅ Tessaris Photon Algebra Continuum locked → {lock_path}")
-print(f"✅ Checksums saved → {checksum_path}")
+print(f"✅ Tessaris Photon Algebra Continuum locked -> {lock_path}")
+print(f"✅ Checksums saved -> {checksum_path}")
 print("\nP-Series integrity cryptographically sealed under Tessaris Unified Constants v1.3.")

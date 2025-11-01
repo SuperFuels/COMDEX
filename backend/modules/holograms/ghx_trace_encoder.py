@@ -1,5 +1,5 @@
 """
-🧩 SRK-17 Task 3 — USR Telemetry → GHX Trace Encoder
+🧩 SRK-17 Task 3 - USR Telemetry -> GHX Trace Encoder
 Module: backend/modules/holograms/ghx_trace_encoder.py
 
 Purpose:
@@ -7,7 +7,7 @@ Purpose:
     record suitable for CodexTrace ingestion and GHX bundle embedding.
 
 Phase:
-    SRK-17 Task 3 — USR Telemetry → GHX Trace Encoder
+    SRK-17 Task 3 - USR Telemetry -> GHX Trace Encoder
 """
 
 import time
@@ -30,7 +30,7 @@ class GHXTraceEncoder:
             usr_telemetry: Dict output from UnifiedSymbolicRuntime.export_telemetry().
 
         Returns:
-            dict — structured GHX trace with integrity hash and stability metrics.
+            dict - structured GHX trace with integrity hash and stability metrics.
         """
         coherence = usr_telemetry.get("coherence", 1.0)
         avg_coh = usr_telemetry.get("avg_coherence", coherence)

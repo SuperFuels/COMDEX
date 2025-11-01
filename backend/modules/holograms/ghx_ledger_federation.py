@@ -1,5 +1,5 @@
 """
-🧩 SRK-18.4 — GHX Ledger Federation (DLF)
+🧩 SRK-18.4 - GHX Ledger Federation (DLF)
 Module: backend/modules/holograms/ghx_ledger_federation.py
 Subsystem: Holograms / GHX Continuity Layer
 
@@ -9,10 +9,10 @@ Purpose:
     across distributed DLF nodes.
 
 Overview:
-    • Federation mesh between GHXContinuityLedger instances
-    • Propagation of sealed events to registered peers
-    • Deterministic merge with rebroadcast deduplication
-    • Cross-node integrity verification via SHA3-512 federation root
+    * Federation mesh between GHXContinuityLedger instances
+    * Propagation of sealed events to registered peers
+    * Deterministic merge with rebroadcast deduplication
+    * Cross-node integrity verification via SHA3-512 federation root
 
 Dependencies:
     - backend.modules.holograms.ghx_continuity_ledger.GHXContinuityLedger
@@ -40,7 +40,7 @@ class GHXLedgerFederation:
 
     # ────────────────────────────────────────────────────────────────
     def register_peer(self, peer_id: str, ledger: GHXContinuityLedger) -> None:
-        """Attach another node’s ledger into the federation mesh."""
+        """Attach another node's ledger into the federation mesh."""
         self.peers[peer_id] = ledger
 
     # ────────────────────────────────────────────────────────────────
@@ -72,10 +72,10 @@ class GHXLedgerFederation:
         Merge peer ledgers into the local ledger.
 
         Behavior:
-            • Pulls in unseen base events from peers
-            • Ignores rebroadcast variants (e.g. beta@B)
-            • Removes redundant rebroadcasts once a base is received
-            • Skips duplicates, self-origin, and loopbacks
+            * Pulls in unseen base events from peers
+            * Ignores rebroadcast variants (e.g. beta@B)
+            * Removes redundant rebroadcasts once a base is received
+            * Skips duplicates, self-origin, and loopbacks
         """
         merged = False
 

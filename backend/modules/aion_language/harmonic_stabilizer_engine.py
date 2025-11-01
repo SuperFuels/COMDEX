@@ -1,9 +1,9 @@
 """
-Harmonic Stabilizer Engine — Phase 40A
+Harmonic Stabilizer Engine - Phase 40A
 --------------------------------------
 Actively corrects resonance drift detected by RDM or predicted by THM.
 Computes inverse harmonic fields via EFS and emits them through the
-Photon–AKG bridge. Logs all corrections to HMP for adaptive learning.
+Photon-AKG bridge. Logs all corrections to HMP for adaptive learning.
 """
 
 import time, logging, math, random
@@ -49,7 +49,7 @@ class HarmonicStabilizerEngine:
             logger.warning("[HSE] No correction vector computed.")
             return None
 
-        # Emit correction to Photon–AKG Bridge
+        # Emit correction to Photon-AKG Bridge
         packet = {
             "timestamp": time.time(),
             "type": "harmonic_correction",
@@ -91,7 +91,7 @@ class HarmonicStabilizerEngine:
         return {"magnitude": m, "phase": phase, "target": drift.get("target", "unknown")}
 
     # ─────────────────────────────────────────────
-    # Phase 40D — Adaptive Gain Learning
+    # Phase 40D - Adaptive Gain Learning
     # ─────────────────────────────────────────────
     def adapt_gain(self):
         """
@@ -128,7 +128,7 @@ class HarmonicStabilizerEngine:
 
         # Clamp γ between 0.1 and 1.0
         self.gamma = max(0.1, min(self.gamma, 1.0))
-        logger.info(f"[HSE] Adaptive gain adjusted → γ={self.gamma:.3f}")
+        logger.info(f"[HSE] Adaptive gain adjusted -> γ={self.gamma:.3f}")
         return self.gamma
 
 

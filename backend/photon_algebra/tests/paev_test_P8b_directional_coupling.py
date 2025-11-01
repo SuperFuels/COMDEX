@@ -108,7 +108,7 @@ lead_index = np.argmax(corrs)
 lead_lag = lags[lead_index]
 max_corr = corrs[lead_index]
 
-direction = "A→B" if lead_lag > 0 else ("B→A" if lead_lag < 0 else "bidirectional")
+direction = "A->B" if lead_lag > 0 else ("B->A" if lead_lag < 0 else "bidirectional")
 
 # === Classification ===
 if abs(lead_lag) <= 1:
@@ -120,7 +120,7 @@ else:
 plt.figure(figsize=(9,5))
 plt.plot(lags, corrs, color="blue")
 plt.axvline(0, color="gray", linestyle="--")
-plt.title("P8b — Cross-Attractor Lag Correlation (Predictive Directionality)")
+plt.title("P8b - Cross-Attractor Lag Correlation (Predictive Directionality)")
 plt.xlabel("Lag (steps)")
 plt.ylabel("Cross-correlation")
 plt.tight_layout()
@@ -128,8 +128,8 @@ plt.savefig("PAEV_P8b_LagCorrelation.png")
 plt.close()
 
 # === Output summary ===
-print("=== P8b — Directional Predictive Coupling (Causality Layer) ===")
-print(f"Peak corr={max_corr:.3f} at lag={lead_lag} ({direction}) → {classification}")
+print("=== P8b - Directional Predictive Coupling (Causality Layer) ===")
+print(f"Peak corr={max_corr:.3f} at lag={lead_lag} ({direction}) -> {classification}")
 
 # === Save results ===
 results = {

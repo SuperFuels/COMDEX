@@ -43,13 +43,13 @@ class UCSBaseContainer:
     🧩 UCSBaseContainer
     -----------------------------------------------------
     Shared mechanics for all Universal Container System geometries:
-        • Micro-grid layout (spatial symbolic memory)
-        • Time dilation per container
-        • Glyph storage abstraction
-        • SoulLaw enforcement
-        • GHX visualization hooks
-        • SQI runtime event integration
-        • DNA Switch-like feature management (gravity, micro-grid toggling, etc.)
+        * Micro-grid layout (spatial symbolic memory)
+        * Time dilation per container
+        * Glyph storage abstraction
+        * SoulLaw enforcement
+        * GHX visualization hooks
+        * SQI runtime event integration
+        * DNA Switch-like feature management (gravity, micro-grid toggling, etc.)
     """
 
     # 🌐 Global DNA-Switch-Like Features (applies to all containers unless overridden)
@@ -153,7 +153,7 @@ class UCSBaseContainer:
             _ucsb_checked.add(key)
             print(f"🔒 SoulLaw validated once for {key}")
         else:
-            # Keep a breadcrumb so we know why we’re not re-validating every time
+            # Keep a breadcrumb so we know why we're not re-validating every time
             pass
 
     # ---------------------------------------------------------

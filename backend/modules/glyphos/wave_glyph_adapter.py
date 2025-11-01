@@ -1,6 +1,6 @@
 # backend/modules/glyphos/wave_glyph_adapter.py
 # 🌊 WaveGlyphAdapter
-# Converts glyph execution metadata into quantum wave schemas for CodexLang → GlyphOS coherence
+# Converts glyph execution metadata into quantum wave schemas for CodexLang -> GlyphOS coherence
 
 import time
 from typing import Dict, Any

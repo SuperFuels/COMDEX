@@ -100,7 +100,7 @@ summary = {
     "overall_mean_stability": overall_mean_stability,
     "best_series": best_series,
     "series_records": records,
-    "evolutionary_phase": " → ".join([phase_labels.get(k, k) for k in names]),
+    "evolutionary_phase": " -> ".join([phase_labels.get(k, k) for k in names]),
     "files": {
         "stability_plot": "series_master_stability.png",
         "counts_plot": "series_master_counts.png"
@@ -119,6 +119,6 @@ with open(out_path, "w") as f:
 
 print("=== SERIES MASTER SYNTHESIS (Auto-Detected) COMPLETE ===")
 print(f"{len(records)} series integrated | overall mean stability={overall_mean_stability:.3f}")
-print(f"Most stable series → {best_series}")
-print(f"Evolutionary phase → {summary['evolutionary_phase']}")
-print(f"✅ Saved → {out_path}")
+print(f"Most stable series -> {best_series}")
+print(f"Evolutionary phase -> {summary['evolutionary_phase']}")
+print(f"✅ Saved -> {out_path}")

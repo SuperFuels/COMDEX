@@ -45,7 +45,7 @@ def revert_unintended():
     if reverted:
         print("✅ Reverted unintended rewrites:\n")
         for filepath, line_num, line in reverted:
-            print(f"{filepath}:{line_num} → {line}")
+            print(f"{filepath}:{line_num} -> {line}")
     else:
         print("✅ No unintended rewrites found.")
 

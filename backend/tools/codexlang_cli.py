@@ -37,7 +37,7 @@ def run_rewrite(expression: str) -> None:
     candidates = suggest_rewrite_candidates(glyph.to_ast())
 
     if not candidates:
-        print("ℹ️ No rewrite candidates found.")
+        print("i️ No rewrite candidates found.")
         return
 
     rewriter = CodexLangRewriter()

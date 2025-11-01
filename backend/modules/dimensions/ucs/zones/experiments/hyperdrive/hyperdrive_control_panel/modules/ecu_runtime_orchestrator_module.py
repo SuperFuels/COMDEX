@@ -86,7 +86,7 @@ def ecu_runtime_orchestrator(engine_a, engine_b=None, args=None):
                 drift_var = max(engine_a.resonance_filtered[-100:], default=0) - min(engine_a.resonance_filtered[-100:], default=0)
                 coherence = measure_harmonic_coherence(engine_a)
                 sqi_state = "✅" if getattr(engine_a, "sqi_locked", False) else "❌"
-                print(f"🔎 Warp Check → PI={pi_val:.0f} | Drift={drift_var:.4f} | Coherence={coherence:.2f} | SQI={sqi_state}")
+                print(f"🔎 Warp Check -> PI={pi_val:.0f} | Drift={drift_var:.4f} | Coherence={coherence:.2f} | SQI={sqi_state}")
 
             # -------------------------
             # 📡 Telemetry Logging

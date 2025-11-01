@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Phase 34 — Latent Concept Topology Map
+Phase 34 - Latent Concept Topology Map
 - Builds per-concept feature vectors from evolution + resonance logs
 - Reduces to 2D (PCA fallback; uses only stdlib deps + numpy/pandas/matplotlib)
 - Saves scatter + CSV for downstream analytics
@@ -80,7 +80,7 @@ def main():
             for c in e.get("concepts", []):
                 bump(c,"cooldown")
 
-    # --- Stream RSI per symbol → concept aggregation
+    # --- Stream RSI per symbol -> concept aggregation
     try:
         from backend.modules.aion_knowledge import knowledge_graph_core as akg
         cmap = akg.export_concepts()  # concept -> [symbols]
@@ -146,8 +146,8 @@ def main():
     plt.xlabel("PC1"); plt.ylabel("PC2")
     plt.tight_layout()
     plt.savefig(OUT_IMG, dpi=140)
-    print(f"✅ Latent map saved → {OUT_IMG}")
-    print(f"🧾 CSV saved → {OUT_CSV}")
+    print(f"✅ Latent map saved -> {OUT_IMG}")
+    print(f"🧾 CSV saved -> {OUT_CSV}")
 
 if __name__ == "__main__":
     main()

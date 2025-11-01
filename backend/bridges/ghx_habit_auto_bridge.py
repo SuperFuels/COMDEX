@@ -1,5 +1,5 @@
 # ================================================================
-# 🌱 Phase 45G.13 — GHX ↔ Habit Auto-Feedback Bridge
+# 🌱 Phase 45G.13 - GHX ↔ Habit Auto-Feedback Bridge
 # ================================================================
 """
 Automatically propagates GHX telemetry summaries into the HabitEngineBridge.
@@ -59,7 +59,7 @@ class GHXHabitAutoBridge:
             OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
             with open(OUTPUT_PATH, "w") as f:
                 json.dump(snapshot, f, indent=2)
-            logger.info(f"[GHX-HabitAuto] Synced habit trend → {OUTPUT_PATH}")
+            logger.info(f"[GHX-HabitAuto] Synced habit trend -> {OUTPUT_PATH}")
             self.last_update = snapshot["timestamp"]
             return snapshot
 

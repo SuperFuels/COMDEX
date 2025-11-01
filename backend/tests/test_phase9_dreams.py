@@ -39,7 +39,7 @@ async def test_phase9_projects_k_dreams_per_cell():
 
 def test_phase9_pruning_marks_low_sqi_as_pruned():
     """
-    Unit: project → prune. If sqi_score < min_sqi, dream beams should be marked 'pruned'.
+    Unit: project -> prune. If sqi_score < min_sqi, dream beams should be marked 'pruned'.
     """
     cell = GlyphCell(id="p0", logic="↔", position=[0, 0])
     cell.sqi_score = 0.40  # force low SQI

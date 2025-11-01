@@ -67,7 +67,7 @@ def render_phase_log():
         table.add_row(
             entry.get("from", "?"),
             entry.get("to", "?"),
-            entry.get("reason", "—"),
+            entry.get("reason", "-"),
             entry.get("timestamp", "")
         )
 

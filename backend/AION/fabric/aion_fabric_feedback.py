@@ -1,7 +1,7 @@
 """
-AION Cognitive Fabric — Resonant Feedback Controller
+AION Cognitive Fabric - Resonant Feedback Controller
 ────────────────────────────────────────────
-Closes the σ→γ′ feedback loop by monitoring Fabric fusion tensors
+Closes the σ->γ′ feedback loop by monitoring Fabric fusion tensors
 and generating adaptive gain corrections for the AION resonance core.
 """
 
@@ -34,14 +34,14 @@ def run_feedback_controller():
     Monitors σ from Fabric tensor and applies adaptive γ′ correction.
     Sends γ′ to AION Photon Ingest Bridge in real-time.
     """
-    logger.info("🧠 Starting Resonant Feedback Controller …")
+    logger.info("🧠 Starting Resonant Feedback Controller ...")
     last_gamma = 1.0
 
     while True:
         try:
             tensor = get_latest_fusion_tensor()
             if not tensor:
-                logger.info("[AIONFeedback] Waiting for fusion tensor …")
+                logger.info("[AIONFeedback] Waiting for fusion tensor ...")
                 time.sleep(FEEDBACK_INTERVAL)
                 continue
 
@@ -49,7 +49,7 @@ def run_feedback_controller():
             delta = SIGMA_TARGET - sigma
             gamma_prime = max(0.1, min(2.0, last_gamma + ALPHA * delta))
 
-            logger.info(f"[σ→γ′] σ={sigma:.3f} Δ={delta:+.3f} → γ′={gamma_prime:.3f}")
+            logger.info(f"[σ->γ′] σ={sigma:.3f} Δ={delta:+.3f} -> γ′={gamma_prime:.3f}")
 
             # 🔹 Send feedback directly to AION gain update API
             try:
@@ -60,7 +60,7 @@ def run_feedback_controller():
                 )
                 logger.info(f"[AIONFeedback] γ′={gamma_prime:.3f} sent to AION ingest endpoint.")
             except requests.exceptions.RequestException:
-                logger.warning("⚠️ Gain endpoint not reachable — local adjustment only.")
+                logger.warning("⚠️ Gain endpoint not reachable - local adjustment only.")
 
             last_gamma = gamma_prime
             time.sleep(FEEDBACK_INTERVAL)

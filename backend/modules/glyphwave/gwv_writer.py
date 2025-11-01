@@ -1,13 +1,13 @@
 """
-🟢 GWV Writer — SRK-19 Task 3
+🟢 GWV Writer - SRK-19 Task 3
 Graphical Wave Visualization Writer.
 Persists real-time holographic QFC frames into timestamped `.gwv` playback files.
 
 Features:
- • Maintains circular buffer of visual frames (SnapshotRingBuffer)
- • Supports QFC/GHX hybrid frame input
- • Exports coherent time-series playback data
- • Computes frame stability metrics for analysis
+ * Maintains circular buffer of visual frames (SnapshotRingBuffer)
+ * Supports QFC/GHX hybrid frame input
+ * Exports coherent time-series playback data
+ * Computes frame stability metrics for analysis
 """
 
 import os
@@ -27,8 +27,8 @@ class SnapshotRingBuffer:
         Append a visual snapshot to the ring buffer.
 
         Accepts both:
-          • add_snapshot(frame_data, collapse_rate, decoherence_rate)
-          • add_snapshot(collapse_rate, decoherence_rate, frame_data)
+          * add_snapshot(frame_data, collapse_rate, decoherence_rate)
+          * add_snapshot(collapse_rate, decoherence_rate, frame_data)
         """
 
         frame_data = None
@@ -129,7 +129,7 @@ class SnapshotRingBuffer:
                 from backend.modules.visualization.diagnostic_interference_tracer import _expand_node_colors
                 payload["nodes"] = _expand_node_colors(payload["nodes"])
             except Exception as e:
-                print(f"[GWVWriter] Warning: failed to expand node colors → {e}")
+                print(f"[GWVWriter] Warning: failed to expand node colors -> {e}")
 
         # ✅ Ensure edges have RGB (schema-required)
         if "edges" in payload and isinstance(payload["edges"], list):
@@ -141,14 +141,14 @@ class SnapshotRingBuffer:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=2)
 
-        # Non-fatal validation (tests don’t require a pass; warnings are okay)
+        # Non-fatal validation (tests don't require a pass; warnings are okay)
         try:
             from backend.modules.glyphwave.schema.validate_gwv import safe_validate_gwv
             safe_validate_gwv(path)
         except Exception as e:
             print(f"[GWVWriter] Validation warning: {e}")
 
-        print(f"[GWVWriter] Exported {len(frames_for_export)} frames → {path}")
+        print(f"[GWVWriter] Exported {len(frames_for_export)} frames -> {path}")
         return path
         
 class GWVWriter:
@@ -171,14 +171,14 @@ class GWVWriter:
         decoherence_rate: float = 0.0,
     ) -> None:
         """
-        Record a live QFC or GHX frame into the container’s buffer.
+        Record a live QFC or GHX frame into the container's buffer.
         """
         buffer = self.get_buffer(container_id)
         buffer.add_snapshot(frame_data, collapse_rate, decoherence_rate)
 
     def flush_to_disk(self, container_id: str) -> Optional[str]:
         """
-        Persist a container’s ring buffer to disk as a .gwv file.
+        Persist a container's ring buffer to disk as a .gwv file.
         Returns the file path, or None if no buffer exists.
         """
         if container_id not in self._buffers:

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 18 — Symbolic Forecasting & Resonant Anticipation Engine (SFAE)
+Tessaris Phase 18 - Symbolic Forecasting & Resonant Anticipation Engine (SFAE)
 
 Reads symbolic memories (ASM) and recent resonance weights (RFC/RQFS),
 forecasts the next likely glyph transition, and emits a predictive photon control
-vector.  Completes Tessaris' cognitive feedback loop from perception → prediction → action.
+vector.  Completes Tessaris' cognitive feedback loop from perception -> prediction -> action.
 
 Now includes SCI emission hooks:
 - sci_emit("forecast_cycle_start")
@@ -78,7 +78,7 @@ def forecast_next_symbol(mem, weights):
 
     last = mem[-1]
     seq = last.get("sequence", "")
-    recent = seq.split("→")[-1] if "→" in seq else seq
+    recent = seq.split("->")[-1] if "->" in seq else seq
 
     mapping = {
         "⊕": ("⟲", 0.92),
@@ -128,7 +128,7 @@ def emit_forecast_photo(pred, weights):
     fname = PHOTO_OUT / f"forecast_{ts}.photo"
     with open(fname, "w") as f:
         json.dump(data, f)
-    print(f"💡 Emitted forecast photon → {fname.name} (glyph={pred['glyph']} conf={pred['confidence']:.2f})")
+    print(f"💡 Emitted forecast photon -> {fname.name} (glyph={pred['glyph']} conf={pred['confidence']:.2f})")
 
     # ✅ sci emit photon emission
     try:
@@ -163,7 +163,7 @@ def update_metrics(pred, actual_glyph):
 
 # ── Runtime Loop ────────────────────────────────────────────────────────────────
 def run_forecasting_engine():
-    print("🔮 Starting Tessaris Symbolic Forecasting & Resonant Anticipation Engine (SFAE)…")
+    print("🔮 Starting Tessaris Symbolic Forecasting & Resonant Anticipation Engine (SFAE)...")
     last_seen_pattern = None
 
     while True:
@@ -181,7 +181,7 @@ def run_forecasting_engine():
             pass
 
         if not mem:
-            print("⚠️ Waiting for symbolic memory entries…")
+            print("⚠️ Waiting for symbolic memory entries...")
             time.sleep(SLEEP_INTERVAL)
             continue
 

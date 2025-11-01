@@ -74,7 +74,7 @@ def build_inject_event(
     validation_errors: Optional[List[Any]] = None,
     origin: str = "CLI",
 ) -> Dict[str, Any]:
-    """Build an audit record for a container → Lean injection."""
+    """Build an audit record for a container -> Lean injection."""
     v_errors = _normalize_validation_errors(validation_errors or [])
     evt: Dict[str, Any] = {
         "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -132,7 +132,7 @@ def build_export_event(
     validation_errors: Optional[List[Any]] = None,
     origin: str = "CLI",
 ) -> Dict[str, Any]:
-    """Build an audit record for a Lean → container export."""
+    """Build an audit record for a Lean -> container export."""
     v_errors = _normalize_validation_errors(validation_errors or [])
     evt: Dict[str, Any] = {
         "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

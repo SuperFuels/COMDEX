@@ -35,7 +35,7 @@ def _init_engine():
     except PermissionError as e:
         # Dev-friendly fallback: let the service start; logs make it obvious.
         log.warning(
-            "SEC expand blocked by SoulLaw at import: %s — retrying with SOULLAW_MODE=permissive",
+            "SEC expand blocked by SoulLaw at import: %s - retrying with SOULLAW_MODE=permissive",
             e,
         )
         os.environ.setdefault("SOULLAW_MODE", "permissive")

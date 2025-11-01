@@ -10,7 +10,7 @@ def compute_innovation_score(idea: Dict[str, Any], mutated: bool = False) -> flo
         mutated (bool): Whether this idea is a mutated fork.
 
     Returns:
-        float: Final innovation score (0.0–1.0)
+        float: Final innovation score (0.0-1.0)
     """
     # Extract values with fallback defaults
     novelty = idea.get("novelty", 0.5)

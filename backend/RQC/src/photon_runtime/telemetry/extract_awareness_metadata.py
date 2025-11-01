@@ -6,7 +6,7 @@ LEDGER_PATH = Path("data/ledger/awareness_sessions_summary.jsonl")
 OUTPUT_PATH = Path("data/ledger/awareness_latest.json")
 
 def _as_float(val):
-    """Convert Timestamp or string → float safely."""
+    """Convert Timestamp or string -> float safely."""
     import datetime
     if val is None:
         return 0.0
@@ -46,7 +46,7 @@ def extract_metadata():
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(latest, f, indent=2)
-    print(f"✅ Awareness metadata extracted → {OUTPUT_PATH}")
+    print(f"✅ Awareness metadata extracted -> {OUTPUT_PATH}")
 
 if __name__ == "__main__":
     extract_metadata()

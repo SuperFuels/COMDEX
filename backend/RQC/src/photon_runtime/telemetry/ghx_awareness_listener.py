@@ -1,7 +1,7 @@
 """
-Tessaris RQC — GHX Awareness Listener
+Tessaris RQC - GHX Awareness Listener
 ──────────────────────────────────────────────
-Phase 6.5 · Awareness feed consumer + auto-export.
+Phase 6.5 * Awareness feed consumer + auto-export.
 
 Listens to the MorphicLedger v2 file via GHX Feed,
 prints Φ(t), R(t), S in real time, logs awareness frames
@@ -15,7 +15,7 @@ from pathlib import Path
 
 from backend.RQC.src.photon_runtime.telemetry.ghx_awareness_feed import get_latest_awareness_frame
 
-# Optional import — only if you later add visualization hooks
+# Optional import - only if you later add visualization hooks
 # from backend.RQC.src.photon_runtime.telemetry.utils import render_awareness_plot
 
 # Safe import / fallback for CodexMetrics integration
@@ -43,7 +43,7 @@ EXPORT_DEBOUNCE = 30.0  # seconds between auto-exports
 #  Main listener
 #───────────────────────────────────────────────
 def run_listener(duration: float = 60.0):
-    print("🧠 GHX Awareness Listener — Streaming Φ(t), R(t), S …")
+    print("🧠 GHX Awareness Listener - Streaming Φ(t), R(t), S ...")
     t0 = time.time()
     last_export_ts = 0.0
 
@@ -63,25 +63,25 @@ def run_listener(duration: float = 60.0):
             # Record to CodexMetrics or fallback
             record_event("GHX::awareness_frame", frame)
 
-            # 🧩 Phase 6.5 — Auto-export trigger
+            # 🧩 Phase 6.5 - Auto-export trigger
             if state == "stable" and time.time() - last_export_ts > EXPORT_DEBOUNCE:
                 try:
                     SUMMARY_FILE.parent.mkdir(parents=True, exist_ok=True)
                     with SUMMARY_FILE.open("a", encoding="utf-8") as f:
                         f.write(json.dumps(frame) + "\n")
-                    print("📦 Logged stable session → awareness_sessions_summary.jsonl")
+                    print("📦 Logged stable session -> awareness_sessions_summary.jsonl")
 
                     if appendix_exporter:
                         appendix_exporter.export_latest()
                         print("📜 Appendix C auto-updated.")
                     else:
-                        print("⚠️  Exporter unavailable — skipped LaTeX update.")
+                        print("⚠️  Exporter unavailable - skipped LaTeX update.")
 
                     last_export_ts = time.time()
                 except Exception as e:
                     print(f"❌ Auto-export failed: {e}")
         else:
-            print("[GHXFeed] Waiting for next frame …")
+            print("[GHXFeed] Waiting for next frame ...")
 
         time.sleep(REFRESH_INTERVAL)
 

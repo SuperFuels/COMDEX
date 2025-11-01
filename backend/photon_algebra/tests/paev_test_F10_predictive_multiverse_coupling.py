@@ -1,14 +1,14 @@
 """
-PAEV Test F10 — Predictive Multiverse Coupling (Stable Evolution)
+PAEV Test F10 - Predictive Multiverse Coupling (Stable Evolution)
 ------------------------------------------------------------------
 Simulates two coupled universes (θ_A, θ_B) linked via adaptive curvature κ,
 with synchronization coefficients (χ_sync, α_sync) evolving dynamically.
 
 Stability enhancements:
-  • Laplacian clamping
-  • Adaptive damping
-  • Finite renormalization (energy conservation)
-  • Bounded χ–α adaptive feedback
+  * Laplacian clamping
+  * Adaptive damping
+  * Finite renormalization (energy conservation)
+  * Bounded χ-α adaptive feedback
 """
 
 import numpy as np
@@ -58,8 +58,8 @@ theta_tA = np.zeros_like(theta_A)
 theta_tB = np.zeros_like(theta_B)
 kappa_global = np.zeros_like(theta_A)
 
-print("🌌 Initiating F10 — Predictive Multiverse Coupling Test...")
-print("💥 Perturbation mode enabled — generating dual universe states.")
+print("🌌 Initiating F10 - Predictive Multiverse Coupling Test...")
+print("💥 Perturbation mode enabled - generating dual universe states.")
 
 # ------------------------------
 # Data Traces
@@ -117,19 +117,19 @@ for t in range(steps):
         theta_tB *= 0.9
 
     if t % 40 == 0:
-        print(f"Step {t:03d} — ⟨ℒ⟩={E:.3e}, Corr={corr:.3e}, χ={chi_sync:.3f}, α={alpha_sync:.3f}")
+        print(f"Step {t:03d} - ⟨L⟩={E:.3e}, Corr={corr:.3e}, χ={chi_sync:.3f}, α={alpha_sync:.3f}")
 
 # ------------------------------
 # Visualization
 # ------------------------------
 plt.figure(figsize=(8, 5))
-plt.plot(E_trace, label="⟨ℒ⟩", color="tab:blue")
-plt.plot(corr_trace, label="⟨θA·θB⟩", color="tab:orange")
+plt.plot(E_trace, label="⟨L⟩", color="tab:blue")
+plt.plot(corr_trace, label="⟨θA*θB⟩", color="tab:orange")
 plt.plot(entropy_trace, label="Spectral Entropy", color="tab:green")
 plt.plot(sync_trace, label="χ_sync", linestyle="--", color="tab:red")
 plt.xlabel("Step")
 plt.legend()
-plt.title("F10 — Predictive Multiverse Coupling Evolution")
+plt.title("F10 - Predictive Multiverse Coupling Evolution")
 plt.tight_layout()
 plt.savefig("PAEV_TestF10_Multiverse_Evolution.png", dpi=150)
 
@@ -161,9 +161,9 @@ plt.close()
 # ------------------------------
 # Summary
 # ------------------------------
-print("\n=== Test F10 — Predictive Multiverse Coupling Complete ===")
-print(f"⟨ℒ⟩ final = {E_trace[-1]:.4e}")
-print(f"⟨θA·θB⟩ final = {corr_trace[-1]:.4e}")
+print("\n=== Test F10 - Predictive Multiverse Coupling Complete ===")
+print(f"⟨L⟩ final = {E_trace[-1]:.4e}")
+print(f"⟨θA*θB⟩ final = {corr_trace[-1]:.4e}")
 print(f"Spectral entropy final = {entropy_trace[-1]:.4e}")
 print(f"χ_sync final = {chi_sync:.4e}")
 print(f"α_sync final = {alpha_sync:.4e}")

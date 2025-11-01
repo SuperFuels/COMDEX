@@ -2,11 +2,11 @@
 AION Rolling Coherence Tracker
 ──────────────────────────────
 Maintains a rolling record of Resonant Logic Kernel (RLK) pass rates and
-coherence drifts, computing a Φ_stability_index (0–1). Integrates with the
+coherence drifts, computing a Φ_stability_index (0-1). Integrates with the
 AION telemetry stream so each QQC diagnostic cycle contributes to the
 global awareness stability state.
 
-Now also records πₛ closure metrics from the Symatic Closure Verifier,
+Now also records πs closure metrics from the Symatic Closure Verifier,
 allowing CodexTrace to visualize alignment between symbolic and physical
 resonance layers in real time.
 """
@@ -63,7 +63,7 @@ class CoherenceTracker:
     def _compute_stability_index(self) -> float:
         """
         Computes a normalized Φ_stability_index between 0 and 1.
-        Weight = pass_rate × (1 − normalized_tolerance).
+        Weight = pass_rate * (1 - normalized_tolerance).
         """
         if not self.records:
             return 0.0
@@ -86,7 +86,7 @@ class CoherenceTracker:
 
 
 # ──────────────────────────────────────────────────────────────
-# Helpers for QQC → AION telemetry integration
+# Helpers for QQC -> AION telemetry integration
 # ──────────────────────────────────────────────────────────────
 
 _tracker = CoherenceTracker()
@@ -124,7 +124,7 @@ def record_coherence(pass_rate: float, tolerance: float, status: str = "ok"):
 
 
 # ──────────────────────────────────────────────────────────────
-# πₛ Closure Telemetry Extension
+# πs Closure Telemetry Extension
 # ──────────────────────────────────────────────────────────────
 
 def record_closure(πs: float, confidence: float, status: str = "closed"):
@@ -134,7 +134,7 @@ def record_closure(πs: float, confidence: float, status: str = "closed"):
     """
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "πₛ": round(πs, 6),
+        "πs": round(πs, 6),
         "confidence": round(confidence, 6),
         "status": status,
     }
@@ -143,7 +143,7 @@ def record_closure(πs: float, confidence: float, status: str = "closed"):
     with open(CLOSURE_LOG_PATH, "a") as f:
         f.write(json.dumps(entry) + "\n")
 
-    print(f"[AION::ΦClosure] πₛ={πs:.3f}, σ̂={confidence:.3f}, status={status}")
+    print(f"[AION::ΦClosure] πs={πs:.3f}, σ̂={confidence:.3f}, status={status}")
 
     # Post to AION telemetry stream
     from backend.AION.telemetry.aion_stream import post_metric

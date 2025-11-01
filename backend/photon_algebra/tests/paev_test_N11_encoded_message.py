@@ -1,6 +1,6 @@
 # backend/photon_algebra/tests/paev_test_N11_encoded_message.py
 """
-N11 — Encoded Message Transmission & Recovery
+N11 - Encoded Message Transmission & Recovery
 Tests full entanglement-mediated communication across the tuned wormhole bridge.
 """
 
@@ -44,19 +44,19 @@ energy_ratio = np.trapz(np.abs(ψ2[-1])**2, x) / np.trapz(np.abs(ψ1[0])**2, x)
 
 classification = "Recovered" if F > 0.95 else "Degraded"
 
-print("=== N11 — Encoded Message Transmission & Recovery ===")
-print(f"ħ={ħ:.3e}, G={G:.3e}, Λ₀={Λ0:.3e}, α₀={α0:.3f}, β={β:.2f}")
+print("=== N11 - Encoded Message Transmission & Recovery ===")
+print(f"ħ={ħ:.3e}, G={G:.3e}, Λ0={Λ0:.3e}, α0={α0:.3f}, β={β:.2f}")
 print(f"Fidelity = {F:.3f}")
 print(f"Energy ratio (out/in) = {energy_ratio:.3f}")
 print(f"Classification: {classification}")
 
 # Plots
 plt.figure(figsize=(10,4))
-plt.plot(t, M_in, label="Input signal ψ₁")
-plt.plot(t, M_out, '--', label="Recovered ψ₂")
+plt.plot(t, M_in, label="Input signal ψ1")
+plt.plot(t, M_out, '--', label="Recovered ψ2")
 plt.xlabel("t")
 plt.ylabel("Signal amplitude")
-plt.title("N11 — Encoded Message Transmission & Recovery")
+plt.title("N11 - Encoded Message Transmission & Recovery")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_N11_MessageRecovery.png")

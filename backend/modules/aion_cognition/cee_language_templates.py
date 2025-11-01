@@ -1,5 +1,5 @@
 # ================================================================
-# 🧠 CEE Language Templates — Phase 45G.9 Step 2
+# 🧠 CEE Language Templates - Phase 45G.9 Step 2
 # ================================================================
 """
 Provides template generators for lexical and symbolic cognitive exercises.

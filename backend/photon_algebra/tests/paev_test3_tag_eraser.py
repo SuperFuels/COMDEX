@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Photon Algebra Evaluation (PAEV)
-Test 3π — Which-Path Tag + Erasure Visibility Recovery
+Test 3π - Which-Path Tag + Erasure Visibility Recovery
 """
 
 import os
@@ -15,7 +15,7 @@ os.makedirs("docs/theory/tables", exist_ok=True)
 
 W = 1024
 x = np.linspace(-10e-3, 10e-3, W)
-phi = 2 * np.pi * 36 * x  # more fringes → higher initial visibility
+phi = 2 * np.pi * 36 * x  # more fringes -> higher initial visibility
 
 # High-contrast interference (baseline)
 I_coh = 0.5 + 0.45 * np.cos(phi)
@@ -43,7 +43,7 @@ plt.plot(x * 1e3, I_mark, label=f"Marker ON (V={V_mark:.2f})", lw=1.2)
 plt.plot(x * 1e3, I_erase, label=f"Eraser (V={V_erase:.2f})", lw=1.2)
 plt.xlabel("x [mm]")
 plt.ylabel("Intensity (normalized)")
-plt.title("Test 3π — Which-Path Tag Erasure")
+plt.title("Test 3π - Which-Path Tag Erasure")
 plt.legend()
 plt.grid(alpha=0.3)
 plt.tight_layout()

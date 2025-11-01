@@ -20,14 +20,14 @@ def tokenize_symbol_text_to_glyphs(text: str) -> List[Dict[str, str]]:
     tokens: List[Dict[str, str]] = []
 
     # IMPORTANT: put multi-character tokens first (longest-match wins), then single-char classes.
-    # Added Phase-7 symbolic opcodes: ∇ (numeric), ∇c (compress alias), ↔, ⟲, ⧖, →, ✦
+    # Added Phase-7 symbolic opcodes: ∇ (numeric), ∇c (compress alias), ↔, ⟲, ⧖, ->, ✦
     pattern = (
-        r"(∇c|↔|⟲|⧖|→|✦|∇|"                # symbolic multi/single glyph ops (new)
+        r"(∇c|↔|⟲|⧖|->|✦|∇|"                # symbolic multi/single glyph ops (new)
         r"[A-Za-z_]\w*|"                     # identifiers
         r"\d+\.?\d*|"                        # numbers
         r"==|!=|<=|>=|\*\*|"                 # multi-char ASCII ops
         r"[\+\-\*/\^=<>!()]|"                # single-char ASCII ops/parens
-        r"[≡⊕⊗≤≥∧∨¬:,])"                    # other symbolic singles we already supported
+        r"[≡⊕⊗<=>=∧∨¬:,])"                    # other symbolic singles we already supported
     )
 
     for match in re.finditer(pattern, text):
@@ -65,14 +65,14 @@ def classify_token(token: str) -> str:
         return "variable"
 
     # operators (ASCII + symbolic)
-    # Added Phase-7 ops here: ∇, ∇c, ↔, ⟲, ⧖, →, ✦
+    # Added Phase-7 ops here: ∇, ∇c, ↔, ⟲, ⧖, ->, ✦
     if token in {
         # ASCII
         "+", "-", "*", "/", "^", "=", "==", "!=", "<", ">", "<=", ">=", "**",
         # symbolic (existing)
-        "⊕", "⊗", "≡", "≤", "≥", "∧", "∨", "¬",
+        "⊕", "⊗", "≡", "<=", ">=", "∧", "∨", "¬",
         # symbolic (new)
-        "∇", "∇c", "↔", "⟲", "⧖", "→", "✦",
+        "∇", "∇c", "↔", "⟲", "⧖", "->", "✦",
     }:
         return "operator"
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         "overwrite('memory')",
         "x**2 + y**2 == z**2",
         # Phase-7 glyph opcodes
-        "⊕ ∇ ↔ ⟲ ⧖ → ✦",
+        "⊕ ∇ ↔ ⟲ ⧖ -> ✦",
         "∇c(a, b) ↔ c",
     ]
 

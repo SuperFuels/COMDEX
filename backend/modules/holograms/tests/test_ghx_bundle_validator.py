@@ -1,5 +1,5 @@
 """
-✅ SRK-17 Task 4 — Test: GHX Bundle Validator
+✅ SRK-17 Task 4 - Test: GHX Bundle Validator
 Verifies that GHXBundleValidator correctly validates bundle integrity,
 trace signature, and PMG binder continuity.
 """

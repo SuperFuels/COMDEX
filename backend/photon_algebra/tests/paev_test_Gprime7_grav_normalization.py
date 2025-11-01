@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test G′7 — Gravitational Normalization & Cosmometric Closure
+Test G′7 - Gravitational Normalization & Cosmometric Closure
 Applies curvature compensation exponent δ to refine G magnitude.
 """
 
@@ -38,14 +38,14 @@ plt.figure(figsize=(7,5))
 plt.plot(deltas, devs, "r-", lw=2)
 plt.axhline(0, color="black", ls="--", lw=1)
 plt.axvline(best_delta, color="blue", ls=":")
-plt.title("G′7 — Gravitational Normalization (δ Sweep)")
+plt.title("G′7 - Gravitational Normalization (δ Sweep)")
 plt.xlabel("δ (curvature compensation exponent)")
 plt.ylabel("ΔG (%) vs Physical Constant")
 plt.tight_layout()
 plt.savefig("PAEV_TestGprime7_NormalizationSweep.png")
 
 # --- Report ---
-print("=== G′7 — Gravitational Normalization & Cosmometric Closure ===")
+print("=== G′7 - Gravitational Normalization & Cosmometric Closure ===")
 print(f"Reference G_ref = {G_ref:.4e}")
 print(f"Curvature ratio Xi = {Xi:.3e}")
 print(f"Best δ = {best_delta:.6f}")

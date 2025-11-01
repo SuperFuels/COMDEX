@@ -1,6 +1,6 @@
 # backend/bridges/introspective_goal_bridge.py
 # ============================================================
-# Phase 36 — Introspective → Goal Bridge
+# Phase 36 - Introspective -> Goal Bridge
 # Tessaris / Aion Research Division
 # ============================================================
 
@@ -57,7 +57,7 @@ class IntrospectiveGoalBridge:
             if hasattr(GOALS, "create_goal"):
                 g = GOALS.create_goal(name=name, description=desc, origin="IntrospectiveGoalBridge")
             else:
-                # Fallback: manually append to active_goals if it’s a list
+                # Fallback: manually append to active_goals if it's a list
                 g = {"name": name, "description": desc, "origin": "IntrospectiveGoalBridge"}
                 if hasattr(GOALS, "active_goals"):
                     GOALS.active_goals.append(g)
@@ -73,14 +73,14 @@ class IntrospectiveGoalBridge:
         acc = self._read_self_accuracy()
         drift = self._read_rsi_drift()
 
-        # Condition 1 — low self-accuracy
+        # Condition 1 - low self-accuracy
         if acc is not None and acc < self.acc_threshold:
             return self._spawn_goal(
                 "low_self_accuracy",
                 {"self_accuracy": acc, "threshold": self.acc_threshold},
             )
 
-        # Condition 2 — excessive RSI drift
+        # Condition 2 - excessive RSI drift
         if drift is not None and drift > self.drift_threshold:
             return self._spawn_goal(
                 "high_rsi_drift",

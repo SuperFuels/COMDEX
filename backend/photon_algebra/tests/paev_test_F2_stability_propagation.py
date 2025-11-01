@@ -1,8 +1,8 @@
 # ==========================================================
-# Test F2 — Stability & Propagation (Effective Lagrangian Dynamics)
+# Test F2 - Stability & Propagation (Effective Lagrangian Dynamics)
 # ==========================================================
 # Purpose:
-#   Propagate the θ–κ system using extracted PDE coefficients
+#   Propagate the θ-κ system using extracted PDE coefficients
 #   from Test F1, testing the dynamic stability of the Lagrangian.
 #   Optionally injects a Gaussian perturbation and tracks soliton
 #   or dissipative wave behavior.
@@ -10,8 +10,8 @@
 # Outputs:
 #   - Animated θ, κ fields over time
 #   - Lagrangian density map
-#   - Energy (⟨ℒ⟩) evolution
-#   - θ–κ correlation trace
+#   - Energy (⟨L⟩) evolution
+#   - θ-κ correlation trace
 #   - Fourier spectrum of κ(t)
 #
 # ==========================================================
@@ -43,7 +43,7 @@ theta_t = np.zeros_like(theta)
 kappa = 0.01 * np.random.randn(N, N)
 
 if perturbation_mode:
-    print("💥 Perturbation mode enabled — injecting Gaussian pulse.")
+    print("💥 Perturbation mode enabled - injecting Gaussian pulse.")
     pulse = np.exp(-((X**2 + Y**2) / 0.1))
     theta += 0.1 * pulse
     kappa += 0.05 * pulse
@@ -90,7 +90,7 @@ for step in range(steps):
     kappa_dot = d1 * laplacian(kappa) + d2 * grad_theta2 + d3 * kappa
     kappa += dt * kappa_dot
 
-    # Lagrangian density ℒ(x,y)
+    # Lagrangian density L(x,y)
     L = 0.5 * (theta_t**2 - c1 * grad_theta2) - 0.5 * c3 * kappa * grad_theta2 \
         + 0.04 * kappa**2 - 0.02 * grad_kappa2
 
@@ -112,9 +112,9 @@ print("✅ Saved animation to: PAEV_TestF2_Propagation.gif")
 # ----------------------------------------------------------
 plt.figure()
 plt.plot(energy_trace, color="blue")
-plt.title("Test F2 — Energy Evolution (Lagrangian Stability)")
+plt.title("Test F2 - Energy Evolution (Lagrangian Stability)")
 plt.xlabel("Time step")
-plt.ylabel("Mean Lagrangian ⟨ℒ⟩")
+plt.ylabel("Mean Lagrangian ⟨L⟩")
 plt.tight_layout()
 plt.savefig("PAEV_TestF2_Energy.png")
 plt.close()
@@ -125,9 +125,9 @@ print("✅ Saved file: PAEV_TestF2_Energy.png")
 # ----------------------------------------------------------
 plt.figure()
 plt.plot(corr_trace, color="purple")
-plt.title("Test F2 — Phase–Curvature Correlation Evolution")
+plt.title("Test F2 - Phase-Curvature Correlation Evolution")
 plt.xlabel("Time step")
-plt.ylabel("⟨θ·κ⟩ correlation")
+plt.ylabel("⟨θ*κ⟩ correlation")
 plt.tight_layout()
 plt.savefig("PAEV_TestF2_Correlation.png")
 plt.close()
@@ -138,21 +138,21 @@ print("✅ Saved file: PAEV_TestF2_Correlation.png")
 # ----------------------------------------------------------
 plt.figure(figsize=(6,6))
 plt.imshow(L, cmap="inferno", extent=[-1,1,-1,1])
-plt.colorbar(label="ℒ value")
-plt.title(f"Test F2 — Lagrangian Density ⟨ℒ⟩={np.nanmean(L):.2e}")
+plt.colorbar(label="L value")
+plt.title(f"Test F2 - Lagrangian Density ⟨L⟩={np.nanmean(L):.2e}")
 plt.tight_layout()
 plt.savefig("PAEV_TestF2_Lagrangian.png")
 plt.close()
 print("✅ Saved file: PAEV_TestF2_Lagrangian.png")
 
 # ----------------------------------------------------------
-# Fourier diagnostic — spectral structure of κ field
+# Fourier diagnostic - spectral structure of κ field
 # ----------------------------------------------------------
 fft_spectrum = np.fft.fftshift(np.abs(np.fft.fft2(kappa))**2)
 plt.figure(figsize=(6,6))
 plt.imshow(np.log(fft_spectrum + 1e-8), cmap="magma", extent=[-1,1,-1,1])
-plt.colorbar(label="log |κ(k)|²")
-plt.title("Test F2 — Fourier Spectrum of κ Field (log power)")
+plt.colorbar(label="log |κ(k)|2")
+plt.title("Test F2 - Fourier Spectrum of κ Field (log power)")
 plt.tight_layout()
 plt.savefig("PAEV_TestF2_FourierSpectrum.png")
 plt.close()
@@ -161,9 +161,9 @@ print("✅ Saved file: PAEV_TestF2_FourierSpectrum.png")
 # ----------------------------------------------------------
 # Summary
 # ----------------------------------------------------------
-print("\n=== Test F2 — Stability & Propagation Complete ===")
-print(f"⟨ℒ⟩ final = {np.nanmean(L):.4e}")
-print(f"⟨θ·κ⟩ final = {np.nanmean(corr_trace):.4e}")
+print("\n=== Test F2 - Stability & Propagation Complete ===")
+print(f"⟨L⟩ final = {np.nanmean(L):.4e}")
+print(f"⟨θ*κ⟩ final = {np.nanmean(corr_trace):.4e}")
 print(f"Perturbation mode: {'ON' if perturbation_mode else 'OFF'}")
 print("All output files saved in working directory.")
 print("----------------------------------------------------------")

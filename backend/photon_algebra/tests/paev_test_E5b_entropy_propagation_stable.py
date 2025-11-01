@@ -131,14 +131,14 @@ plt.figure(figsize=(10,5))
 plt.plot(t, spec_lock, lw=2, label="spectral lock (ref)")
 plt.axvline(t[t_pert], ls="--", color="r", alpha=0.7, label="perturb")
 plt.axhline(spec_lock_tail, ls=":", color="gray", label=f"tail mean={spec_lock_tail:.3f}")
-plt.title("E5 — Spectral Coherence During Propagation")
+plt.title("E5 - Spectral Coherence During Propagation")
 plt.xlabel("time"); plt.ylabel("p_lock"); plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_E5b_SpectralLock.png", dpi=160)
 
 plt.figure(figsize=(10,5))
 plt.plot(t, S_s, lw=2, label="S(t) (smoothed)")
 plt.axvline(t[t_pert], ls="--", color="r", alpha=0.7, label="perturb")
-plt.title("E5 — Entropy Propagation & Recovery")
+plt.title("E5 - Entropy Propagation & Recovery")
 plt.xlabel("time"); plt.ylabel("entropy S"); plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_E5b_EntropyPropagation.png", dpi=160)
 
@@ -168,6 +168,6 @@ save_path = "backend/modules/knowledge/E5b_entropy_propagation_stable.json"
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== E5b — Entropy Propagation & Reversibility (stabilized) ===")
+print("=== E5b - Entropy Propagation & Reversibility (stabilized) ===")
 print(json.dumps(out, indent=2))
-print(f"✅ Results saved → {save_path}")
+print(f"✅ Results saved -> {save_path}")

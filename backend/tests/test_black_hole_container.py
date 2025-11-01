@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # Compress symbolic structure
     bh.compress_ast(logic_tree)
 
-    # Trigger collapse simulation (emits ψ–κ–T gravity event)
+    # Trigger collapse simulation (emits ψ-κ-T gravity event)
     bh.collapse()
 
     print("\n✅ BlackHoleContainer test completed.")

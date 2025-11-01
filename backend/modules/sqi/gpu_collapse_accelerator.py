@@ -72,7 +72,7 @@ def _collapse_symbolic_wave_jax(weights_jnp, temperature=DEFAULT_TEMPERATURE):
 
 def collapse_symbolic_wave_gpu(weights: list, options: list, temperature=DEFAULT_TEMPERATURE, seed=None):
     if not JAX_AVAILABLE:
-        raise RuntimeError("JAX is not installed — install it or use the CPU fallback.")
+        raise RuntimeError("JAX is not installed - install it or use the CPU fallback.")
 
     if len(weights) != len(options):
         raise ValueError("Weights and options length mismatch")

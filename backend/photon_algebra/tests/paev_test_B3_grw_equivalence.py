@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Test B3 — GRW / CSL Equivalence via Deterministic Contextual Dynamics
+Test B3 - GRW / CSL Equivalence via Deterministic Contextual Dynamics
 ---------------------------------------------------------------------
 
 Goal:
-Compare a stochastic GRW-style collapse process with Photon Algebra’s
+Compare a stochastic GRW-style collapse process with Photon Algebra's
 deterministic contextual normalization dynamics. Show that their ensemble
 averages ⟨p0(t)⟩ follow the same curve toward Born probabilities.
 
 Concept:
-- Start with |ψ⟩ = α|0⟩ + β|1⟩  ⇒  p0(0)=|α|², p1(0)=|β|²
+- Start with |ψ⟩ = α|0⟩ + β|1⟩  ->  p0(0)=|α|2, p1(0)=|β|2
 - GRW/CSL model: dp0 = μ*(1-2ξ_t)*p0*p1*dt, with ξ_t ~ N(0,1) noise
 - Photon Algebra model: dp0/dt = μ*(p0 - p1)*p0*p1 (deterministic)
 - Evolve both for t∈[0,T], plot ensemble average ⟨p0(t)⟩
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     dt = 0.01
     T = 4.0
 
-    print("=== Test B3 — GRW/CSL vs Photon Algebra ===")
+    print("=== Test B3 - GRW/CSL vs Photon Algebra ===")
     print(f"Initial |ψ⟩: α={alpha:.3f}, β={beta:.3f}")
     print(f"Born target: P(0)={p0_init:.3f}, P(1)={p1_init:.3f}\n")
 
@@ -96,12 +96,12 @@ if __name__ == "__main__":
 
     # Plot
     plt.figure(figsize=(7.2, 4.4))
-    plt.plot(t, p_grw, label="⟨p₀⟩ GRW/CSL (stochastic ensemble)", lw=1.5)
-    plt.plot(t, p_pa, "--", label="p₀ Photon Algebra (deterministic)", lw=2)
-    plt.axhline(p0_init, color='k', ls=':', lw=1, label="Born |α|²")
+    plt.plot(t, p_grw, label="⟨p0⟩ GRW/CSL (stochastic ensemble)", lw=1.5)
+    plt.plot(t, p_pa, "--", label="p0 Photon Algebra (deterministic)", lw=2)
+    plt.axhline(p0_init, color='k', ls=':', lw=1, label="Born |α|2")
     plt.xlabel("Time (arb. units)")
-    plt.ylabel("p₀(t)")
-    plt.title("Test B3 — GRW/CSL vs Deterministic Photon Algebra Collapse")
+    plt.ylabel("p0(t)")
+    plt.title("Test B3 - GRW/CSL vs Deterministic Photon Algebra Collapse")
     plt.legend()
     plt.tight_layout()
     plt.savefig("PAEV_TestB3_GRWvsPA.png", dpi=160)

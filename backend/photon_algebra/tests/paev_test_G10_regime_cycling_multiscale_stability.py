@@ -6,7 +6,7 @@ from pathlib import Path
 # Resolve repo root robustly
 here = Path(__file__).resolve()
 # tests -> photon_algebra -> backend -> <repo-root>
-REPO = here.parents[3]  # correct root (…/COMDEX)
+REPO = here.parents[3]  # correct root (.../COMDEX)
 TESTS_DIR = REPO / "backend/photon_algebra/tests"
 CONST_DIR = REPO / "backend/photon_algebra/constants"
 TESTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -16,7 +16,7 @@ CSV_FILE  = TESTS_DIR / "results_G10_regime_cycling_multiscale_stability.csv"
 PLOT_FILE = TESTS_DIR / "PAEV_TestG10_RegimeCycling.png"
 JSON_FILE = CONST_DIR / "G10_regime_cycling_multiscale_stability.json"
 
-print("=== Test G10 — Regime Cycling & Multiscale Stability ===")
+print("=== Test G10 - Regime Cycling & Multiscale Stability ===")
 
 # --- simulate multiscale transition ---
 steps = 1000
@@ -52,7 +52,7 @@ plt.plot(t, stability, label="Stability", alpha=0.8)
 plt.plot(t, spectral_entropy, label="Spectral Entropy", alpha=0.8)
 plt.xlabel("Time")
 plt.ylabel("Amplitude")
-plt.title("Test G10 — Regime Cycling & Multiscale Stability")
+plt.title("Test G10 - Regime Cycling & Multiscale Stability")
 plt.legend()
 plt.tight_layout()
 plt.savefig(PLOT_FILE, dpi=160)
@@ -70,6 +70,6 @@ summary = {
 with JSON_FILE.open("w") as f:
     json.dump(summary, f, indent=2)
 
-print(f"✅ Output written → {CSV_FILE}")
-print(f"🧾 Summary saved → {JSON_FILE}")
+print(f"✅ Output written -> {CSV_FILE}")
+print(f"🧾 Summary saved -> {JSON_FILE}")
 print("----------------------------------------------------------")

@@ -38,7 +38,7 @@ async def test_inject_xor_axiom_into_real_container():
     lean_path.parent.mkdir(exist_ok=True)
     lean_path.write_text(
         "import ./symatics_prelude\n\n"
-        "axiom xor_axiom : (A ⊕ B) → (B ⊕ A)\n"
+        "axiom xor_axiom : (A ⊕ B) -> (B ⊕ A)\n"
     )
     _copy_prelude(lean_path)
 
@@ -66,7 +66,7 @@ async def test_inject_xor_axiom_into_real_container():
 
     assert logic_str, "Logic string is empty or missing"
     # ✅ exact match instead of just checking symbols
-    assert logic_str == "(A ⊕ B) → (B ⊕ A)", f"Unexpected logic: {logic_str}"
+    assert logic_str == "(A ⊕ B) -> (B ⊕ A)", f"Unexpected logic: {logic_str}"
     assert e.get("symbol") == "⟦ Axiom ⟧"
 
     glyphs = updated.get("glyphs", [])
@@ -81,7 +81,7 @@ async def test_inject_nand_axiom_into_real_container():
     lean_path.parent.mkdir(exist_ok=True)
     lean_path.write_text(
         "import ./symatics_prelude\n\n"
-        "axiom nand_axiom : (A ↑ B) → ¬(A ∧ B)\n"
+        "axiom nand_axiom : (A ↑ B) -> ¬(A ∧ B)\n"
     )
     _copy_prelude(lean_path)
 
@@ -109,7 +109,7 @@ async def test_inject_nand_axiom_into_real_container():
 
     assert logic_str, "Logic string is empty or missing"
     # ✅ exact match
-    assert logic_str == "(A ↑ B) → ¬(A ∧ B)", f"Unexpected logic: {logic_str}"
+    assert logic_str == "(A ↑ B) -> ¬(A ∧ B)", f"Unexpected logic: {logic_str}"
     assert e.get("symbol") == "⟦ Axiom ⟧"
 
     glyphs = updated.get("glyphs", [])

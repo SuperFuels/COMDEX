@@ -69,7 +69,7 @@ def _safe_ws_broadcast_message(message: Dict[str, Any]) -> None:
                 print(f"⚠️ WS broadcast skipped: {e}")
 
 # ---------- CLI/Test fallback ----------
-# In-memory UCS stub used when the real state_manager/ucs isn’t available.
+# In-memory UCS stub used when the real state_manager/ucs isn't available.
 _EPHEMERAL_UCS: Dict[str, Any] = {
     "active_container": {
         "id": "ucs_ephemeral",
@@ -205,7 +205,7 @@ def add_to_index(index_name: str, entry: Dict[str, Any]):
     except Exception as e:
         container["soul_law_error"] = f"SoulLaw validation failed: {e}"
 
-    # ✅ UCS runtime sync (persist updated state) — skip in ephemeral mode
+    # ✅ UCS runtime sync (persist updated state) - skip in ephemeral mode
     try:
         if not (ucs is _EPHEMERAL_UCS or ucs.get("_ephemeral") is True):
             cid = container.get("id") or "unknown_container"

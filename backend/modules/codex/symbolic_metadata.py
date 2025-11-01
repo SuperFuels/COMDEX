@@ -71,7 +71,7 @@ def infer_tags(logic_tree: Dict[str, Any]) -> list:
         tags.add("⚠️ error")
     if op in ("AND", "OR", "¬"):
         tags.add("🧠 logic")
-    if op in ("→", "←", "↔"):
+    if op in ("->", "<-", "↔"):
         tags.add("🔁 implication")
     if "contradiction" in logic_tree:
         tags.add("❗ contradiction")
@@ -86,7 +86,7 @@ def infer_tags(logic_tree: Dict[str, Any]) -> list:
 
 def estimate_trust(tree: Dict[str, Any]) -> float:
     """
-    Simulate a basic symbolic trust score (0.0–1.0).
+    Simulate a basic symbolic trust score (0.0-1.0).
     Placeholder for deeper contextual inference.
     """
     base = 0.5

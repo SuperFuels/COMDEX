@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Test: Aion Integration Bridge
-#  Validates ψ–κ–T–Φ → A1–A3 projection & feedback
+#  Tessaris * Test: Aion Integration Bridge
+#  Validates ψ-κ-T-Φ -> A1-A3 projection & feedback
 # ──────────────────────────────────────────────
 import math
 import pytest
@@ -37,7 +37,7 @@ class DummyQQC:
 #  Tests
 # ──────────────────────────────────────────────
 def test_projection_generates_expected_fields(monkeypatch):
-    """Ensure ψκTΦ projection creates normalized A1–A3 output."""
+    """Ensure ψκTΦ projection creates normalized A1-A3 output."""
     qqc = DummyQQC()
     bridge = AionIntegrationBridge(qqc)
 

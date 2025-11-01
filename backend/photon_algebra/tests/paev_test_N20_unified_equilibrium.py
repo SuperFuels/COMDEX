@@ -73,19 +73,19 @@ os.makedirs("backend/modules/knowledge", exist_ok=True)
 plt.figure(figsize=(9,5))
 plt.plot(t, S)
 plt.axhline(S_tail_mean, ls="--", alpha=0.6, label="⟨S⟩ tail")
-plt.title("N20 — Entropy S(t)"); plt.xlabel("time"); plt.ylabel("S"); plt.legend(); plt.tight_layout()
+plt.title("N20 - Entropy S(t)"); plt.xlabel("time"); plt.ylabel("S"); plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_N20_Entropy.png", dpi=120)
 
 plt.figure(figsize=(9,5))
 plt.plot(t, dSdt)
 plt.axhline(0, color="k", lw=0.7, alpha=0.5)
-plt.title("N20 — Entropy Flow dS/dt"); plt.xlabel("time"); plt.ylabel("dS/dt"); plt.tight_layout()
+plt.title("N20 - Entropy Flow dS/dt"); plt.xlabel("time"); plt.ylabel("dS/dt"); plt.tight_layout()
 plt.savefig("PAEV_N20_EntropyFlow.png", dpi=120)
 
 plt.figure(figsize=(9,5))
 plt.plot(x, np.real(psi_t[0]), label="Re[ψ(0)]")
 plt.plot(x, np.real(psi_t[-1]), "--", label="Re[ψ(final)]")
-plt.title(f"N20 — Coherence final vs initial • |⟨ψ0|ψf⟩|={coh:.3f}")
+plt.title(f"N20 - Coherence final vs initial * |⟨ψ0|ψf⟩|={coh:.3f}")
 plt.xlabel("x"); plt.ylabel("Re[ψ]"); plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_N20_Coherence.png", dpi=120)
 
@@ -108,7 +108,7 @@ summary = {
 with open("backend/modules/knowledge/N20_unified_equilibrium.json","w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== N20 — Unified Equilibrium ===")
-print(f"S_tail={S_tail_mean:.3f} • dS/dt_tail={dS_tail_mean:.3e} • coherence={coh:.3f}")
+print("=== N20 - Unified Equilibrium ===")
+print(f"S_tail={S_tail_mean:.3f} * dS/dt_tail={dS_tail_mean:.3e} * coherence={coh:.3f}")
 print(f"Classification: {cls}")
-print("✅ Plots saved and results recorded → backend/modules/knowledge/N20_unified_equilibrium.json")
+print("✅ Plots saved and results recorded -> backend/modules/knowledge/N20_unified_equilibrium.json")

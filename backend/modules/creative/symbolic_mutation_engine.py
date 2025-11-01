@@ -53,7 +53,7 @@ def pick_weighted_operation(emotion: str) -> str:
 
 def mutate_beam(original_beam: WaveState, max_variants: int = 3) -> WaveState:
     """
-    Generate symbolic variants of the beam’s internal logic and mutate beam metadata.
+    Generate symbolic variants of the beam's internal logic and mutate beam metadata.
     Returns one selected mutated beam. Beam fork logic handled by fork_beam_paths().
     """
     base_tree = getattr(original_beam, "logic_tree", None)
@@ -95,7 +95,7 @@ def mutate_beam(original_beam: WaveState, max_variants: int = 3) -> WaveState:
         adjusted_score = adjust_sqi_for_mutation(raw_score, mutated_beam.logic_tree)
         mutated_beam.sqi_score = adjusted_score
     except Exception as sqi_err:
-        print(f"[Mutation→SQI] ⚠️ Failed to apply mutation-aware SQI: {sqi_err}")
+        print(f"[Mutation->SQI] ⚠️ Failed to apply mutation-aware SQI: {sqi_err}")
         mutated_beam.sqi_score = raw_score
 
     mutated_beam.entropy = compute_entropy_metrics(mutated_beam)
@@ -176,7 +176,7 @@ def mutate_beam(original_beam: WaveState, max_variants: int = 3) -> WaveState:
         ))
 
     except Exception as qfc_err:
-        print(f"[Mutation→QFC] ⚠️ Failed to stream mutation to QFC: {qfc_err}")
+        print(f"[Mutation->QFC] ⚠️ Failed to stream mutation to QFC: {qfc_err}")
 
     return mutated_beam
 
@@ -302,12 +302,12 @@ def flip_operator(op: str) -> str:
     opposites = {
         "AND": "OR",
         "OR": "AND",
-        "→": "←",
-        "←": "→",
+        "->": "<-",
+        "<-": "->",
         "↔": "¬↔",
         "¬↔": "↔",
-        "=": "≠",
-        "≠": "=",
+        "=": "!=",
+        "!=": "=",
         ">": "<",
         "<": ">",
     }

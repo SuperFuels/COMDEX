@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Test C2 — Curvature–Amplitude Correspondence
+Test C2 - Curvature-Amplitude Correspondence
 ---------------------------------------------
 Goal:
-Show that curvature fields κ(x) correspond to quantum phase curvature ∇²φ(x),
+Show that curvature fields κ(x) correspond to quantum phase curvature ∇2φ(x),
 and that Photon Algebra rewrite cost reproduces the same pattern deterministically.
 
 Artifacts:
@@ -57,9 +57,9 @@ def main():
     corr = np.corrcoef(φ_curv_n.ravel(), rw_n.ravel())[0,1]
     mse = np.mean((φ_curv_n - rw_n)**2)
 
-    print("=== Test C2 — Curvature ↔ Quantum Phase Correspondence ===")
-    print(f"Lattice size: {N}×{N}, curvature amp={amp}, sigma={sigma}")
-    print(f"Pearson r(∇²φ, κ_rw) = {corr:.4f}")
+    print("=== Test C2 - Curvature ↔ Quantum Phase Correspondence ===")
+    print(f"Lattice size: {N}*{N}, curvature amp={amp}, sigma={sigma}")
+    print(f"Pearson r(∇2φ, κ_rw) = {corr:.4f}")
     print(f"MSE(normalized fields) = {mse:.4e}")
 
     # --- Heatmaps ---
@@ -69,7 +69,7 @@ def main():
     plt.colorbar(im0, ax=axs[0], fraction=0.046, pad=0.04)
 
     im1 = axs[1].imshow(φ_curv_n, cmap="magma")
-    axs[1].set_title("Quantum phase curvature ∇²φ (normalized)")
+    axs[1].set_title("Quantum phase curvature ∇2φ (normalized)")
     plt.colorbar(im1, ax=axs[1], fraction=0.046, pad=0.04)
 
     im2 = axs[2].imshow(rw_n, cmap="plasma")
@@ -87,9 +87,9 @@ def main():
     a, b = np.linalg.lstsq(A, rw_n.ravel(), rcond=None)[0]
     xs = np.linspace(0,1,200)
     plt.plot(xs, a*xs+b, 'r-', lw=2, label=f"fit: y≈{a:.2f}x+{b:.2f}")
-    plt.xlabel("Quantum ∇²φ (normalized)")
+    plt.xlabel("Quantum ∇2φ (normalized)")
     plt.ylabel("Photon Algebra rewrite curvature")
-    plt.title("Test C2 — Curvature ↔ Phase Correspondence")
+    plt.title("Test C2 - Curvature ↔ Phase Correspondence")
     plt.legend()
     plt.tight_layout()
     plt.savefig("PAEV_TestC2_CurvatureAmplitude_Scatter.png", dpi=160)

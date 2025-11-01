@@ -1,12 +1,12 @@
 """
 ⚙️  Pattern Engine ↔ QQC Resonance Coupling  (Phase 46B)
 ────────────────────────────────────────────────────────
-Bridges Aion’s pattern subsystem to the QQC resonance field.
+Bridges Aion's pattern subsystem to the QQC resonance field.
 
 Responsibilities:
- • Translate QQC coherence/drift values into pattern SQI adjustments
- • Maintain QuantumPatternMap (Ψ-field ↔ symbolic pattern)
- • Export patternfield.qdata.json for CodexMetrics overlay
+ * Translate QQC coherence/drift values into pattern SQI adjustments
+ * Maintain QuantumPatternMap (Ψ-field ↔ symbolic pattern)
+ * Export patternfield.qdata.json for CodexMetrics overlay
 """
 
 import json, logging, time
@@ -33,7 +33,7 @@ def pattern_cycle(aion_state: Dict[str, Any], qqc_result: Dict[str, Any]) -> Dic
     Returns patternfield summary.
     """
 
-    # ✅ SCI — cycle begin
+    # ✅ SCI - cycle begin
     try:
         sci_emit("pattern_cycle_start", {
             "coherence": qqc_result.get("coherence"),
@@ -50,10 +50,10 @@ def pattern_cycle(aion_state: Dict[str, Any], qqc_result: Dict[str, Any]) -> Dic
     drift = qqc_result.get("drift", {})
 
     logger.info(
-        f"[PatternEngine] Applying resonance field → coherence={coherence}, entanglement={entanglement}, drift={len(drift)}"
+        f"[PatternEngine] Applying resonance field -> coherence={coherence}, entanglement={entanglement}, drift={len(drift)}"
     )
 
-    # Adjust all known patterns’ SQI values proportionally to coherence & entanglement
+    # Adjust all known patterns' SQI values proportionally to coherence & entanglement
     pattern_summary = []
     try:
         for pattern in engine.registry.get_all_patterns():
@@ -106,9 +106,9 @@ def pattern_cycle(aion_state: Dict[str, Any], qqc_result: Dict[str, Any]) -> Dic
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(field_data, open(OUT_PATH, "w"), indent=2)
-    logger.info(f"[PatternEngine] Exported pattern field → {OUT_PATH}")
+    logger.info(f"[PatternEngine] Exported pattern field -> {OUT_PATH}")
 
-    # ✅ SCI — pattern field export
+    # ✅ SCI - pattern field export
     try:
         sci_emit("pattern_export", field_data)
     except Exception:

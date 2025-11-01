@@ -1,8 +1,8 @@
 # backend/modules/hexcore/dispatcher.py
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • Cognitive Dispatcher (v2)
+#  Tessaris * Cognitive Dispatcher (v2)
 #  Routes AION intents to active subsystems:
-#   QQC • Lean • KnowledgeGraph • MorphicLedger • Reflection
+#   QQC * Lean * KnowledgeGraph * MorphicLedger * Reflection
 #  Enables command-level orchestration of all Tessaris engines
 # ──────────────────────────────────────────────────────────────
 
@@ -31,7 +31,7 @@ logger = logging.getLogger("CognitiveDispatcher")
 class CognitiveDispatcher:
     """
     Central orchestration bridge between AION (HexCore) and Tessaris subsystems.
-    Parses intent → routes execution → returns structured telemetry.
+    Parses intent -> routes execution -> returns structured telemetry.
     """
 
     def __init__(self):
@@ -49,19 +49,19 @@ class CognitiveDispatcher:
         Returns a structured result object.
         """
         intent = intent.lower().strip()
-        logger.info(f"[Dispatcher] Received intent → '{intent}'")
+        logger.info(f"[Dispatcher] Received intent -> '{intent}'")
 
         try:
             # 1️⃣ Quantum Resonance / QQC task
             if any(k in intent for k in ["qqc", "resonance", "solve", "math", "tensor", "qfield"]):
-                logger.info("[Dispatcher] → Routing to QQC")
+                logger.info("[Dispatcher] -> Routing to QQC")
                 result = await self.qqc.run_cycle(payload)
                 self._log_to_ledger("QQC", payload, result)
                 return {"source": "QQC", "status": "ok", "result": result}
 
             # 2️⃣ Lean Proof / Formal Verification
             elif any(k in intent for k in ["lean", "proof", "verify", "axiom"]):
-                logger.info("[Dispatcher] → Routing to Lean")
+                logger.info("[Dispatcher] -> Routing to Lean")
                 path = payload.get("path", "backend/modules/dimensions/containers/core.dc.json")
                 self.lean.verify_container(path)
                 self._log_to_ledger("Lean", payload, {"verified_path": path})
@@ -69,14 +69,14 @@ class CognitiveDispatcher:
 
             # 3️⃣ Knowledge Graph Storage
             elif any(k in intent for k in ["knowledge", "graph", "store", "record", "export"]):
-                logger.info("[Dispatcher] → Routing to KnowledgeGraph")
+                logger.info("[Dispatcher] -> Routing to KnowledgeGraph")
                 self.kg.write_entry(payload)
                 self._log_to_ledger("KnowledgeGraph", payload, {"stored": True})
                 return {"source": "KnowledgeGraph", "status": "stored"}
 
             # 4️⃣ Reflective / Awareness task (Φ computation)
             elif any(k in intent for k in ["reflect", "awareness", "observe", "resonate"]):
-                logger.info("[Dispatcher] → Internal reflective computation")
+                logger.info("[Dispatcher] -> Internal reflective computation")
                 if compute_phi_metrics:
                     psi = payload.get("psi", 0.0)
                     kappa = payload.get("kappa", 0.0)
@@ -113,6 +113,6 @@ class CognitiveDispatcher:
                 "result_snapshot": result,
             }
             self.ledger.record(entry)
-            logger.debug(f"[Dispatcher] Logged {subsystem} → MorphicLedger")
+            logger.debug(f"[Dispatcher] Logged {subsystem} -> MorphicLedger")
         except Exception as e:
             logger.warning(f"[Dispatcher] Failed to record ledger entry: {e}")

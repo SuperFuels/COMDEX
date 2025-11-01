@@ -3,9 +3,9 @@
 Generates the unified reserved glyph/operator manifest.
 ───────────────────────────────────────────────
 Scans parser modules and PhotonLang grammar to extract:
-  • symbolic operators
-  • reserved keywords
-  • glyph identifiers
+  * symbolic operators
+  * reserved keywords
+  * glyph identifiers
 Outputs -> backend/modules/photonlang/photon_reserved_map.json
 """
 
@@ -30,7 +30,7 @@ manifest = {
 }
 
 def extract_ops_from_text(text: str) -> list[str]:
-    return sorted(set(re.findall(r"[⊕⊖⊗↔⟲∇μπ⇒≈⧖✦→]", text)))
+    return sorted(set(re.findall(r"[⊕⊖⊗↔⟲∇μπ->≈⧖✦->]", text)))
 
 def extract_keywords_from_text(text: str) -> list[str]:
     kw = re.findall(r"\"(import|from|wormhole|send|through|save|as|theorem|lemma|def|axiom|constant)\"", text)
@@ -67,4 +67,4 @@ MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
 with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
     json.dump(manifest, f, indent=2, ensure_ascii=False)
 
-print(f"✅ Reserved manifest generated → {MANIFEST_PATH}")
+print(f"✅ Reserved manifest generated -> {MANIFEST_PATH}")

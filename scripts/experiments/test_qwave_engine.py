@@ -1,11 +1,11 @@
 """
 🚀 QWave Engine Continuous Test Runner (Engine-Like Mode + SQI Analysis + Auto-Plot)
 -----------------------------------------------------------------------------------
-• Runs SupercontainerEngine like a real engine with fueling.
-• Logs resonance/drift metrics and harmonics injection.
-• Saves best state, full sweep history, and generates auto-plots of trends.
-• ✅ SQI micro-analysis suggests tuning improvements based on top runs.
-• ✅ Auto-plot of resonance curves, drift history, and field evolution.
+* Runs SupercontainerEngine like a real engine with fueling.
+* Logs resonance/drift metrics and harmonics injection.
+* Saves best state, full sweep history, and generates auto-plots of trends.
+* ✅ SQI micro-analysis suggests tuning improvements based on top runs.
+* ✅ Auto-plot of resonance curves, drift history, and field evolution.
 """
 
 import os

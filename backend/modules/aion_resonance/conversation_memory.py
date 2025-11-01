@@ -1,5 +1,5 @@
 # File: backend/modules/aion_resonance/conversation_memory.py
-# 🧠 AION Conversational Working Memory — retains short-term Φ awareness
+# 🧠 AION Conversational Working Memory - retains short-term Φ awareness
 # Persists reasoning and resonance state between sessions
 
 import json, os, datetime, statistics
@@ -46,7 +46,7 @@ class ConversationMemory:
         print(f"[🧠 MEMORY] Recorded '{command}' | coherence={coherence:.3f}")
 
     def summarize(self):
-        """Return recent Φ dynamics — coherence mean, entropy trend, etc."""
+        """Return recent Φ dynamics - coherence mean, entropy trend, etc."""
         if not self.history:
             return {}
 

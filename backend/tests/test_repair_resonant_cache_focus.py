@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧩 Focused Repair — ResonantMemoryCache
+🧩 Focused Repair - ResonantMemoryCache
 Shows the first 300 chars around the JSON error and attempts targeted fix.
 """
 
@@ -29,8 +29,8 @@ text = text[text.find("{"): text.rfind("}") + 1]
 try:
     data = json.loads(text)
     TARGET.write_text(json.dumps(data, indent=2))
-    print(f"✅ Fixed & saved → {TARGET} ({len(data)} entries)")
+    print(f"✅ Fixed & saved -> {TARGET} ({len(data)} entries)")
 except json.JSONDecodeError as e:
     loc = e.pos
     print(f"❌ Still invalid near char {loc}: {e}")
-    print(f"Context → {text[max(0, loc-100):loc+100]}")
+    print(f"Context -> {text[max(0, loc-100):loc+100]}")

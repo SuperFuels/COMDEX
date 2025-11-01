@@ -3,16 +3,16 @@
 """
 SRK-4.1 Resonant-Entropy Coupling
 ─────────────────────────────────────────────
-Tessaris Core v1.1 — Λ↔ψ↔⟲R↔S Feedback Loop
+Tessaris Core v1.1 - Λ↔ψ↔⟲R↔S Feedback Loop
 
 Extends SRK-4 Resonant Coupling (v1.1) with direct modulation:
-    γS' = γS * (1 − R)
-    λt' = λt * (1 − 0.5 R)
+    γS' = γS * (1 - R)
+    λt' = λt * (1 - 0.5 R)
 
 Purpose
 -------
 Allows high-resonance states to dynamically reduce entropy damping,
-achieving self-stabilizing coherent modes (“resonant intelligence”).
+achieving self-stabilizing coherent modes ("resonant intelligence").
 
 Diagnostics
 -----------

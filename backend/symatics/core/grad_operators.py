@@ -1,9 +1,9 @@
 # backend/symatics/core/grad_operators.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.6 — Gradient Operator Layer (∇ Engine)
+# Tessaris Symatics v0.6 - Gradient Operator Layer (∇ Engine)
 # Provides differential primitives for Symatics Calculus
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v0.6.1 — October 2025
+# Version: v0.6.1 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -33,21 +33,21 @@ except ImportError:
 # ---------------------------------------------------------------------
 def grad_wave(amplitude: float, frequency: float, phase: float) -> float:
     """
-    grad_wave (∇wave) — symbolic gradient of wave energy density
+    grad_wave (∇wave) - symbolic gradient of wave energy density
     with respect to phase-space. Returns resonance slope magnitude.
     """
     return amplitude * frequency * math.cos(phase)
 
 
 def grad_energy(E_prev: float, E_next: float, dt: float = 1.0) -> float:
-    """grad_energy (∇E) — differential energy drift per timestep."""
+    """grad_energy (∇E) - differential energy drift per timestep."""
     if dt <= 0:
         return 0.0
     return (E_next - E_prev) / dt
 
 
 def grad_coherence(phi_prev: float, phi_next: float, dt: float = 1.0) -> float:
-    """grad_coherence (∇φ) — phase differential representing coherence gradient."""
+    """grad_coherence (∇φ) - phase differential representing coherence gradient."""
     if dt <= 0:
         return 0.0
     delta = math.sin(phi_next - phi_prev)

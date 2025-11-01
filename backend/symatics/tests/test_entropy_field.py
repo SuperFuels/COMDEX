@@ -1,6 +1,6 @@
 # backend/symatics/tests/test_entropy_field.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris SRK-3 — Unit Test: Entropy Field Model
+# Tessaris SRK-3 - Unit Test: Entropy Field Model
 # Verifies entropy computation, damping, and gradient stability.
 # ──────────────────────────────────────────────────────────────
 

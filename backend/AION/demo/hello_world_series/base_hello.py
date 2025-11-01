@@ -18,4 +18,4 @@ def send_hello(node_id, role, psi, kappa, T, phi):
         headers={"Authorization": f"Bearer {SYNC_TOKEN}"},
         timeout=3
     )
-    print(f"→ sent {node_id}: φ={phi:.3f}, status={r.status_code}")
+    print(f"-> sent {node_id}: φ={phi:.3f}, status={r.status_code}")

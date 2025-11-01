@@ -1,13 +1,13 @@
 """
-🧩 SRK-18 Task 18.2 — GHX Continuity Hooks + Ledger Integration (GCH)
+🧩 SRK-18 Task 18.2 - GHX Continuity Hooks + Ledger Integration (GCH)
 Module: backend/modules/holograms/ghx_continuity_hooks.py
 
 Purpose:
     Extend continuity monitoring to emit signed GHX Continuity Ledger (GCL)
     events for trust anchoring. Integrates with:
-        • GHXVaultExporter (state snapshots)
-        • CodexTrace (runtime telemetry)
-        • GHXContinuityLedger (event ledger)
+        * GHXVaultExporter (state snapshots)
+        * CodexTrace (runtime telemetry)
+        * GHXContinuityLedger (event ledger)
 """
 
 import time
@@ -21,7 +21,7 @@ from backend.modules.holograms.ghx_continuity_ledger import GHXContinuityLedger
 
 
 class GHXContinuityHooks:
-    """SRK-18 — GHX Continuity Hooks with Ledger Event Recording"""
+    """SRK-18 - GHX Continuity Hooks with Ledger Event Recording"""
 
     def __init__(self, node_id: str = "Tessaris.Node.Local"):
         self.vault_exporter = GHXVaultExporter()
@@ -61,7 +61,7 @@ class GHXContinuityHooks:
     async def _verify_continuity(self) -> float:
         """
         Compare CodexTrace vs last Vault Exporter snapshot integrity hashes.
-        Returns a float 0–1 representing agreement ratio.
+        Returns a float 0-1 representing agreement ratio.
         Emits a GCL validation event.
         """
         if not self.vault_exporter._last_export:
@@ -89,7 +89,7 @@ class GHXContinuityHooks:
             replay = await self.vault_exporter.replay_from_vault()
             status = "replay_success"
         except RuntimeError:
-            # No prior export — create synthetic recovery entry
+            # No prior export - create synthetic recovery entry
             replay = {"status": "no_prior_export", "recovered": False}
             status = "no_export"
 

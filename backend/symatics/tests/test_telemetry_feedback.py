@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v1.1 — Δ-Telemetry Integration Test Suite
+# Tessaris Symatics v1.1 - Δ-Telemetry Integration Test Suite
 # Validates real-time emission from AdaptiveLawEngine + WaveDiffEngine
 # ──────────────────────────────────────────────────────────────
 

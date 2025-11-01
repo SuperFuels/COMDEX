@@ -1,9 +1,9 @@
 # backend/symatics/core/lambda_field.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.7 — λ-Field Tensorization Layer
+# Tessaris Symatics v0.7 - λ-Field Tensorization Layer
 # Defines λ(ψ, t): continuous adaptive weighting field
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v0.7.0 — October 2025
+# Version: v0.7.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -21,14 +21,14 @@ except ImportError:
 class LambdaField:
     """
     Represents a dynamic λ(ψ, t) field across symbolic wave-space ψ.
-    Each law’s adaptive weight becomes a continuous field evolving over time.
+    Each law's adaptive weight becomes a continuous field evolving over time.
 
     Attributes
     ----------
     field : Dict[str, np.ndarray]
         Continuous λ(ψ, t) values per symbolic law key.
     grid_shape : Tuple[int, int]
-        Discretization grid for ψ-space (phase × energy, typically).
+        Discretization grid for ψ-space (phase * energy, typically).
     learning_rate : float
         Rate of adaptive diffusion across the field.
     """
@@ -48,7 +48,7 @@ class LambdaField:
     def update(self, law_id: str, deviation_map: np.ndarray):
         """
         Diffuse λ over ψ-space using deviation_map as local perturbation.
-        λ(ψ, t+Δt) = λ(ψ, t) * (1 − η·Δψ)
+        λ(ψ, t+Δt) = λ(ψ, t) * (1 - η*Δψ)
         """
         if law_id not in self.field:
             self.initialize_law(law_id)

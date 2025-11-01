@@ -42,16 +42,16 @@ class LogicNode:
         """
         Simplifies logic expressions using classical simplification rules.
         Examples:
-          - A ∧ ⊤ → A
-          - A ∨ ⊥ → A
-          - ¬¬A → A
+          - A ∧ ⊤ -> A
+          - A ∨ ⊥ -> A
+          - ¬¬A -> A
         """
         simplified = LogicNode(self.op, [child.simplify() for child in self.children], self.symbol, deepcopy(self.metadata))
 
         if simplified.op == '¬':
             child = simplified.children[0]
             if child.op == '¬':
-                return child.children[0]  # ¬¬A → A
+                return child.children[0]  # ¬¬A -> A
 
         elif simplified.op == '∧':
             left, right = simplified.children
@@ -83,7 +83,7 @@ class LogicNode:
         return mutation_fn(mutated_node)
 
     def to_glyph(self) -> LogicGlyph:
-        if self.op == '→':
+        if self.op == '->':
             return ImplicationGlyph(*(child.to_glyph() for child in self.children))
         elif self.op == '∧':
             return AndGlyph(*(child.to_glyph() for child in self.children))
@@ -121,7 +121,7 @@ class LogicNode:
         elif isinstance(glyph, OrGlyph):
             return LogicNode(op='∨', children=[LogicNode.from_glyph(op) for op in glyph.operands])
         elif isinstance(glyph, ImplicationGlyph):
-            return LogicNode(op='→', children=[LogicNode.from_glyph(op) for op in glyph.operands])
+            return LogicNode(op='->', children=[LogicNode.from_glyph(op) for op in glyph.operands])
         elif isinstance(glyph, ProvableGlyph):
             return LogicNode(op='⊢', children=[LogicNode.from_glyph(glyph.operands[0]), LogicNode.from_glyph(glyph.operands[1])])
         elif isinstance(glyph, EntailmentGlyph):

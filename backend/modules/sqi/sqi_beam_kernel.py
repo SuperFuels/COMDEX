@@ -3,7 +3,7 @@
 # ============================================================
 
 """
-SQIBeamKernel — symbolic quantum intelligence beam processing kernel.
+SQIBeamKernel - symbolic quantum intelligence beam processing kernel.
 Provides class-based orchestration for wave collapse, mutation, scoring,
 SoulLaw validation, and QFC broadcast synchronization.
 """
@@ -45,7 +45,7 @@ def process_beams(beams: List[Beam]) -> List[Beam]:
 class SQIBeamKernel:
     """
     Manages full SQI beam lifecycle:
-    collapse → mutate → score → validate → broadcast.
+    collapse -> mutate -> score -> validate -> broadcast.
     """
 
     def __init__(self, parallel: bool = True):
@@ -170,7 +170,7 @@ class SQIBeamKernel:
                 processed_beams.append(mutated)
 
             except Exception as e:
-                logger.error(f"[SQI] ❌ Beam processing failed: {beam.id} — {e}", exc_info=True)
+                logger.error(f"[SQI] ❌ Beam processing failed: {beam.id} - {e}", exc_info=True)
                 beam.status = "error"
                 processed_beams.append(beam)
 

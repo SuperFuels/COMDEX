@@ -26,7 +26,7 @@ def theorem_to_packet(
     source_path: Optional[str],
     extra_meta: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    """Convert a Lean theorem entry → GHX packet."""
+    """Convert a Lean theorem entry -> GHX packet."""
     # Fallback logic ordering
     logic_raw = entry.get("logic_raw") or entry.get("logic") or ""
     codexlang = entry.get("codexlang") or {}

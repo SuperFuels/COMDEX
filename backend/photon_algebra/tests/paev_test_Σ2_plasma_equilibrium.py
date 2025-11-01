@@ -1,5 +1,5 @@
 """
-Tessaris Σ2 — Plasma Equilibrium Test
+Tessaris Σ2 - Plasma Equilibrium Test
 -------------------------------------
 Applies Tessaris Unified Constants (v1.2) to simulate plasma-like causal containment.
 Purpose: verify that Λ-field equilibrium stabilizes high-energy, fusion-like systems
@@ -24,8 +24,8 @@ constants = load_constants("v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print(f"=== {SERIES} — Plasma Equilibrium (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== {SERIES} - Plasma Equilibrium (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Simulation Parameters ===
 n_particles = 512
@@ -102,16 +102,16 @@ with open(SUMMARY_PATH, "w") as f:
 # === Plot Results ===
 plt.figure(figsize=(7, 4))
 plt.plot(energy_history, label="Total Energy")
-plt.plot(divJ_history, label="|∇·J|", linestyle="--")
+plt.plot(divJ_history, label="|∇*J|", linestyle="--")
 plt.xlabel("Time Step")
 plt.ylabel("Metric Value")
-plt.title("Σ2 — Plasma Equilibrium (Causal Containment Stability)")
+plt.title("Σ2 - Plasma Equilibrium (Causal Containment Stability)")
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
 
-print(f"✅ Summary saved → {SUMMARY_PATH}")
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

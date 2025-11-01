@@ -76,7 +76,7 @@ class Photon:
         Uses λ = c / f and E = h f.
         """
         c = 3e8  # m/s
-        h = 6.626e-34  # J·s
+        h = 6.626e-34  # J*s
         wavelength = c / wave.frequency if wave.frequency > 0 else float("inf")
         energy = h * wave.frequency
         return cls(
@@ -88,7 +88,7 @@ class Photon:
         )
 
 # ----------------------------
-# ⊕ ↔ ⟲ ∇ ⇒ Operators
+# ⊕ ↔ ⟲ ∇ -> Operators
 # ----------------------------
 
 def superpose(w1: Wave, w2: Wave) -> Wave:
@@ -147,8 +147,8 @@ def collapse(w: Wave, emit: bool = False, glyph: Optional[str] = None):
 
 
 def trigger(glyph: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """⇒ Trigger: glyph execution primitive (Qwave beams, CodexCore hooks)."""
-    return {"op": "⇒", "glyph": glyph, "payload": payload or {}}
+    """-> Trigger: glyph execution primitive (Qwave beams, CodexCore hooks)."""
+    return {"op": "->", "glyph": glyph, "payload": payload or {}}
 
 
 # ----------------------------

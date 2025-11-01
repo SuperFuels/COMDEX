@@ -139,7 +139,7 @@ def debug_print_glyph_chain(chain: List[Dict[str, Any]]):
     logger.info("===========================")
 
 # ──────────────────────────────────────────────
-# 🔠 Logic Expression Parser (→ sympy)
+# 🔠 Logic Expression Parser (-> sympy)
 # ──────────────────────────────────────────────
 import re
 from sympy import sympify, Symbol
@@ -149,7 +149,7 @@ def parse_logical_operators(expr: str):
     """
     Parses a string containing symbolic logic operators into a sympy logic expression.
     Supports standard and symbolic forms:
-    ∧, ∨, ¬, →, ↔, ⇒, ⇔
+    ∧, ∨, ¬, ->, ↔, ->, ⇔
     """
     if not expr or not isinstance(expr, str):
         raise ValueError("Expected string input for logical expression.")
@@ -158,8 +158,8 @@ def parse_logical_operators(expr: str):
         "∧": "&",
         "∨": "|",
         "¬": "~",
-        "→": ">>",
-        "⇒": ">>",
+        "->": ">>",
+        "->": ">>",
         "↔": "<<>>",
         "⇔": "<<>>",
     }

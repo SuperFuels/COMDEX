@@ -1,8 +1,8 @@
 # backend/photon_algebra/tests/paev_test_L4_fullpaper_populator.py
 """
-L4 — TOE Whitepaper Populator
+L4 - TOE Whitepaper Populator
 Populates the whitepaper with all finalized constants, reproducibility results,
-and summaries from the H → L series runs.
+and summaries from the H -> L series runs.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
 
-print("=== L4 — TOE Whitepaper Population ===")
+print("=== L4 - TOE Whitepaper Population ===")
 
 # --------------------------------------------------------------------
 # Load constants and reproducibility data
@@ -45,7 +45,7 @@ story = []
 # --------------------------------------------------------------------
 # Title Page
 # --------------------------------------------------------------------
-story.append(Paragraph("Unified TOE Framework — Full Whitepaper", title))
+story.append(Paragraph("Unified TOE Framework - Full Whitepaper", title))
 story.append(Spacer(1, 12))
 story.append(Paragraph(f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}", normal))
 story.append(Spacer(1, 12))
@@ -58,8 +58,8 @@ story.append(Spacer(1, 36))
 story.append(Paragraph("<b>Abstract</b>", heading))
 story.append(Paragraph(
     "This whitepaper consolidates the computational unification established through the "
-    "H → L series. It represents a complete, reproducible framework for the unified Lagrangian "
-    "ℒ_total integrating quantum, relativistic, and thermodynamic domains under shared constants.",
+    "H -> L series. It represents a complete, reproducible framework for the unified Lagrangian "
+    "L_total integrating quantum, relativistic, and thermodynamic domains under shared constants.",
     normal
 ))
 story.append(Spacer(1, 12))
@@ -122,8 +122,8 @@ story.append(Paragraph("<b>Discussion and Findings</b>", heading))
 story.append(Paragraph(
     "Following the H10 stabilization and J2 synchronization, the system demonstrated full conservation "
     "across energy, entropy, and holographic invariants. The L-series confirmed consistency, reproducibility, "
-    "and symbolic closure of ℒ_total. Minor coherence drifts observed during K2 suggest numerical rather than "
-    "physical instability. The unification metrics (quantum-gravity ratio ≈ 10^2–10^3) are stable under domain "
+    "and symbolic closure of L_total. Minor coherence drifts observed during K2 suggest numerical rather than "
+    "physical instability. The unification metrics (quantum-gravity ratio ≈ 10^2-10^3) are stable under domain "
     "transformations, indicating convergence of field couplings.",
     normal
 ))
@@ -143,4 +143,4 @@ story.append(Paragraph("✅ TOE Whitepaper (Populated Edition) completed.", norm
 # Save
 # --------------------------------------------------------------------
 doc.build(story)
-print(f"✅ Full whitepaper populated → {out_path.resolve()}")
+print(f"✅ Full whitepaper populated -> {out_path.resolve()}")

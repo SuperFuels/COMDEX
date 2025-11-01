@@ -1,6 +1,6 @@
 """
-🧩 Test — CFE Feedback Loop
-Verifies CodexLang–QWave integration and adaptive modulation logic.
+🧩 Test - CFE Feedback Loop
+Verifies CodexLang-QWave integration and adaptive modulation logic.
 """
 
 import asyncio

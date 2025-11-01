@@ -1,5 +1,5 @@
 # ============================================================
-#  🧠 SCI IDE API — PhotonLang Execution & Tab Management
+#  🧠 SCI IDE API - PhotonLang Execution & Tab Management
 # ============================================================
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
@@ -22,7 +22,7 @@ REPLAY = SCIReplayInjector()
 
 
 # ============================================================
-#  /api/sci/run — Execute PhotonLang or SCI source
+#  /api/sci/run - Execute PhotonLang or SCI source
 # ============================================================
 @router.post("/run")
 async def sci_run(request: Request):
@@ -59,7 +59,7 @@ async def sci_run(request: Request):
 
 
 # ============================================================
-#  /api/sci/tabs — List or persist IDE tab metadata
+#  /api/sci/tabs - List or persist IDE tab metadata
 # ============================================================
 @router.get("/tabs")
 async def list_sci_tabs():

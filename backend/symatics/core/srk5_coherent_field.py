@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 # File: backend/symatics/core/srk5_coherent_field.py
 """
-SRK-5 — Coherent Field Layer (v0.1-draft)
+SRK-5 - Coherent Field Layer (v0.1-draft)
 ─────────────────────────────────────────────
-Tessaris Core v1.2 — Λ↔ψ↔⟲R↔S⇒Φ Feedback Unification
+Tessaris Core v1.2 - Λ↔ψ↔⟲R↔S->Φ Feedback Unification
 
 Purpose
 -------
 Aggregates feedback from SRK-3 (entropy), SRK-4 (resonance),
-and SRK-4.1 (resonant–entropy) layers into a unified
+and SRK-4.1 (resonant-entropy) layers into a unified
 coherence field Φ(t).  This field represents global
 phase alignment and self-stabilizing symbolic coherence.
 
 Formulas
 --------
-Φ = αR + (1−α)(1−γS)
+Φ = αR + (1-α)(1-γS)
 σΦ = Var(Φ)
-λt' = λt(1 − σΦ)
+λt' = λt(1 - σΦ)
 
 Diagnostics
 -----------
@@ -30,7 +30,7 @@ from statistics import mean
 
 
 class SRK5CoherentField:
-    """SRK-5 Coherent Field Layer (Λ↔ψ↔⟲R↔S⇒Φ)"""
+    """SRK-5 Coherent Field Layer (Λ↔ψ↔⟲R↔S->Φ)"""
 
     name = "SRK-5 Coherent Field"
     version = "0.1-draft"

@@ -1,6 +1,6 @@
 # backend/tools/lean_to_dc.py
 """
-Thin CLI wrapper for Lean → .dc.json export, matching the whitepaper UX.
+Thin CLI wrapper for Lean -> .dc.json export, matching the whitepaper UX.
 Usage examples (run from repo root where 'backend' is the top-level dir):
   PYTHONPATH=. python backend/tools/lean_to_dc.py --input examples/theorem.lean --output containers/theorem.dc.json
   python -m backend.tools.lean_to_dc --input examples/theorem.lean --output containers/theorem.dc.json
@@ -37,7 +37,7 @@ def main(argv=None) -> int:
             out.parent.mkdir(parents=True, exist_ok=True)
             with out.open("w", encoding="utf-8") as f:
                 json.dump(container, f, indent=2 if args.pretty else None, ensure_ascii=False)
-            print(f"[✅] Wrote container → {out}")
+            print(f"[✅] Wrote container -> {out}")
         else:
             print(json.dumps(container, indent=2 if args.pretty else None, ensure_ascii=False))
         return 0

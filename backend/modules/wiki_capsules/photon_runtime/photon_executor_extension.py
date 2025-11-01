@@ -1,13 +1,13 @@
 """
-⚡ Photon Executor Extension — Phase 7
+⚡ Photon Executor Extension - Phase 7
 -------------------------------------
 Extends the Photon execution environment to support 📚 Wiki imports
 and integrate Knowledge Graph lookups via get_wiki().
 
 Bridges symbolic execution flow:
-  .wiki.phn  → Knowledge Graph capsule
-  .phn       → Photon executable
-  .ptn       → Composite Photon Page (system orchestrator)
+  .wiki.phn  -> Knowledge Graph capsule
+  .phn       -> Photon executable
+  .ptn       -> Composite Photon Page (system orchestrator)
 """
 
 from pathlib import Path

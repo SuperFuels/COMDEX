@@ -76,7 +76,7 @@ class LogicGlyph(ABC):
 
 # Logical Connectives
 class ImplicationGlyph(LogicGlyph):
-    def __init__(self, premise, conclusion): super().__init__('→', [premise, conclusion])
+    def __init__(self, premise, conclusion): super().__init__('->', [premise, conclusion])
     def evaluate(self, env: Optional[Dict[str, Any]] = None) -> bool:
         left = self.operands[0].evaluate(env) if isinstance(self.operands[0], LogicGlyph) else self.operands[0]
         right = self.operands[1].evaluate(env) if isinstance(self.operands[1], LogicGlyph) else self.operands[1]
@@ -216,7 +216,7 @@ logic_registry.register("proof", ProofStepGlyph)
 
 # Expression Tree Composer (Preview for GHX/CodexLang)
 def compose_logic_tree(glyphs: List[LogicGlyph]) -> str:
-    return ' ⇒ '.join(map(str, glyphs))
+    return ' -> '.join(map(str, glyphs))
 
 # -- Safe Concrete Glyph for AST Encoding --
 class EncodedLogicGlyph(LogicGlyph):

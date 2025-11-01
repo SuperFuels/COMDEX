@@ -1,19 +1,19 @@
 """
 🛠 Idle Manager Module
 ----------------------
-• Manages ignition-to-idle stabilization with SQI feedback (toggle-aware).
-• Handles saving/loading of idle resonance state for recovery.
-• Captures ignition traces (resonance, drift, density) for diagnostics.
-• Integrates particle injectors, compression chambers, and harmonic tuning.
-• Provides auto-recovery by reloading last known good idle state if lock fails.
+* Manages ignition-to-idle stabilization with SQI feedback (toggle-aware).
+* Handles saving/loading of idle resonance state for recovery.
+* Captures ignition traces (resonance, drift, density) for diagnostics.
+* Integrates particle injectors, compression chambers, and harmonic tuning.
+* Provides auto-recovery by reloading last known good idle state if lock fails.
 
 🔥 Features:
-    • Ignition-to-idle stabilization loop with pulse detection.
-    • SQI drift-based auto-correction (toggle-aware).
-    • Safe density logging from particle history (last 10).
-    • Auto-save & reload of idle state after collapse.
-    • Logs ignition traces with resonance, drift, density, and particle counts.
-    • Exports resonance traces, graphs, and best idle state.
+    * Ignition-to-idle stabilization loop with pulse detection.
+    * SQI drift-based auto-correction (toggle-aware).
+    * Safe density logging from particle history (last 10).
+    * Auto-save & reload of idle state after collapse.
+    * Logs ignition traces with resonance, drift, density, and particle counts.
+    * Exports resonance traces, graphs, and best idle state.
 """
 
 import os

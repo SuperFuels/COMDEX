@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Section C4 — Emergent Gravity from Local Rewrite Mass
+Section C4 - Emergent Gravity from Local Rewrite Mass
 
 Goal:
   Demonstrate that local "information density" (mass term M)
@@ -9,8 +9,8 @@ Goal:
 
 Process:
   1. Define lattice with Gaussian mass term M(x).
-  2. Evolve curvature κ(x,t) with a diffusion–mass feedback rule:
-         κ_{t+1} = κ_t + η(α∇²κ_t + βM)
+  2. Evolve curvature κ(x,t) with a diffusion-mass feedback rule:
+         κ_{t+1} = κ_t + η(α∇2κ_t + βM)
   3. Compute rewrite-distance field D_rw(x)
      from curvature-weighted propagation.
   4. Compare D_rw(x) to geodesic distance D_geo(x).
@@ -108,8 +108,8 @@ def main():
     r_final = pearsonr(geo_n, rw_n)[0]
     mse_final = np.mean((geo_n - rw_n)**2)
 
-    print("=== Test C4 — Emergent Gravity from Rewrite Mass ===")
-    print(f"Lattice {N}×{N}, steps={steps}, η={eta}, α={alpha}, β={beta}")
+    print("=== Test C4 - Emergent Gravity from Rewrite Mass ===")
+    print(f"Lattice {N}*{N}, steps={steps}, η={eta}, α={alpha}, β={beta}")
     print(f"Final Pearson r( D_geo , D_rw ) = {r_final:.4f}")
     print(f"MSE(normalized distances) = {mse_final:.4e}")
 
@@ -140,7 +140,7 @@ def main():
     plt.plot(corr_hist, "b-", lw=2)
     plt.xlabel("Step")
     plt.ylabel("Correlation r(κ, D_rw)")
-    plt.title("Test C4 — Gravity Well Correlation Convergence")
+    plt.title("Test C4 - Gravity Well Correlation Convergence")
     plt.tight_layout()
     plt.savefig("PAEV_TestC4_GravityWell_Correlation.png", dpi=180)
     print("✅ Saved plot to: PAEV_TestC4_GravityWell_Correlation.png")

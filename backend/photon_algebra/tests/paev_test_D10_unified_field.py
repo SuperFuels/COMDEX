@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import imageio.v2 as imageio
 
 # ============================================================
-# Test D10 — Full Field Unification Benchmark (Unified Stability Test)
+# Test D10 - Full Field Unification Benchmark (Unified Stability Test)
 # ============================================================
 
 N = 121
@@ -51,7 +51,7 @@ for t in range(steps):
     if t % 40 == 0:
         fig, ax = plt.subplots(figsize=(6,6))
         ax.imshow(np.angle(psi), cmap="twilight", extent=[-1,1,-1,1])
-        ax.set_title(f"Test D10 — Unified Field Phase\nStep {t}")
+        ax.set_title(f"Test D10 - Unified Field Phase\nStep {t}")
         plt.tight_layout()
         fig.canvas.draw()
         img = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8)
@@ -65,7 +65,7 @@ print("✅ Saved animation to: PAEV_TestD10_UnifiedField.gif")
 
 plt.figure()
 plt.plot(energy_trace, color="blue")
-plt.title("Test D10 — Total Energy Evolution (Unified Stability)")
+plt.title("Test D10 - Total Energy Evolution (Unified Stability)")
 plt.xlabel("Time step")
 plt.ylabel("⟨H⟩ total energy")
 plt.tight_layout()
@@ -75,7 +75,7 @@ print("✅ Saved energy evolution plot.")
 
 plt.figure()
 plt.plot(curvature_trace, color="green")
-plt.title("Test D10 — Mean Curvature Evolution")
+plt.title("Test D10 - Mean Curvature Evolution")
 plt.xlabel("Time step")
 plt.ylabel("⟨κ⟩ mean curvature")
 plt.tight_layout()
@@ -85,7 +85,7 @@ print("✅ Saved curvature evolution plot.")
 
 plt.figure()
 plt.plot(charge_trace, color="red")
-plt.title("Test D10 — Topological Charge Conservation")
+plt.title("Test D10 - Topological Charge Conservation")
 plt.xlabel("Time step")
 plt.ylabel("⟨Q⟩ total charge")
 plt.tight_layout()
@@ -93,8 +93,8 @@ plt.savefig("PAEV_TestD10_UnifiedField_Charge.png")
 plt.close()
 print("✅ Saved charge conservation plot.")
 
-print("\n=== Test D10 — Full Field Unification Complete ===")
+print("\n=== Test D10 - Full Field Unification Complete ===")
 print(f"⟨Energy⟩ = {np.mean(energy_trace):.4f}")
 print(f"⟨κ⟩ = {np.mean(curvature_trace):.4f}")
-print(f"⟨|ψ|²⟩ = {np.mean(psi_norm):.4e}")
+print(f"⟨|ψ|2⟩ = {np.mean(psi_norm):.4e}")
 print(f"⟨Q⟩ = {np.mean(charge_trace):.4f}")

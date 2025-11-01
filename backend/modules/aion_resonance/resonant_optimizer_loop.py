@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # ============================================================
 # ⚙️ Tessaris Resonant Optimizer Loop (ROL)
-# Phase: Advisory Mode — Non-Mutating
+# Phase: Advisory Mode - Non-Mutating
 # ============================================================
 # Reads resonance telemetry (SQI, coherence, entropy)
 # and emits advisory adjustments for subsystem tuning.
@@ -97,16 +97,16 @@ class ResonantOptimizerLoop:
     def _analyze_deltas(self, sqi, entropy, coherence, delta_sqi, delta_entropy) -> str:
         """Produce an advisory text based on trends."""
         if abs(delta_sqi) < 0.001 and abs(delta_entropy) < 0.001:
-            return "System stable — no adjustment needed."
+            return "System stable - no adjustment needed."
         if delta_sqi < 0 and entropy > 0.4:
-            return "Entropy rising — reduce exploration_rate slightly (-0.01)."
+            return "Entropy rising - reduce exploration_rate slightly (-0.01)."
         if delta_sqi > 0.01 and coherence > 0.8:
-            return "Coherence increasing — allow minor risk_bias expansion (+0.02)."
+            return "Coherence increasing - allow minor risk_bias expansion (+0.02)."
         if sqi < 0.5:
-            return "Low SQI — consider increasing reflection weighting (+0.03)."
+            return "Low SQI - consider increasing reflection weighting (+0.03)."
         if entropy < 0.2 and sqi > 0.7:
-            return "Stable harmony — maintain current parameters."
-        return "Minor fluctuations — monitor without change."
+            return "Stable harmony - maintain current parameters."
+        return "Minor fluctuations - monitor without change."
 
 # ============================================================
 # ⏯️ Launch Loop
@@ -114,7 +114,7 @@ class ResonantOptimizerLoop:
 if __name__ == "__main__":
     import os
     if os.getenv("AION_SILENT_MODE", "0") == "1":
-        print("⚙️ [ROL] Silent mode enabled — optimizer loop not started.")
+        print("⚙️ [ROL] Silent mode enabled - optimizer loop not started.")
     else:
         try:
             loop = ResonantOptimizerLoop()

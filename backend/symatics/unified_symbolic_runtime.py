@@ -1,13 +1,13 @@
 """
-⚛ Unified Symbolic Runtime (USR) — SRK-15 Task 3 + 15.5
+⚛ Unified Symbolic Runtime (USR) - SRK-15 Task 3 + 15.5
 Bridges symbolic algebra (Symatics) and photonic computation (Photon Algebra Runtime)
 through adaptive operator dispatch and coherence-aware routing.
 
 New in SRK-15.5:
 ────────────────
-• Telemetry integration from OperatorOverloadingLayer.
-• Coherence analytics (average, trend, and mode ratios).
-• get_status() endpoint for GHX and monitoring export.
+* Telemetry integration from OperatorOverloadingLayer.
+* Coherence analytics (average, trend, and mode ratios).
+* get_status() endpoint for GHX and monitoring export.
 """
 
 import asyncio
@@ -20,7 +20,7 @@ from backend.symatics.photon_symatics_bridge import PhotonSymaticsBridge
 
 
 class UnifiedSymbolicRuntime:
-    """Central orchestration layer for hybrid symbolic–photonic computation."""
+    """Central orchestration layer for hybrid symbolic-photonic computation."""
 
     def __init__(self, coherence_threshold: float = 0.6):
         self.coherence_threshold = coherence_threshold
@@ -58,7 +58,7 @@ class UnifiedSymbolicRuntime:
             coherence = self._coherence_context
             trace = {"start": start, "coherence": coherence, "mode": None}
 
-            # Case 1 – Symbolic expression capsule (Symatic Core)
+            # Case 1 - Symbolic expression capsule (Symatic Core)
             if isinstance(expression, dict) and "glyphs" in expression:
                 trace["mode"] = "photonic"
                 result = await self.bridge.sym_to_photon(expression)
@@ -72,7 +72,7 @@ class UnifiedSymbolicRuntime:
                 self._record_trace(trace)
                 return trace
 
-            # Case 2 – Direct operator symbol
+            # Case 2 - Direct operator symbol
             if isinstance(expression, str):
                 trace["mode"] = (
                     "photon" if coherence >= self.coherence_threshold else "symbolic"
@@ -146,7 +146,7 @@ class UnifiedSymbolicRuntime:
 
     def export_telemetry(self) -> dict:
         """
-        🔹 SRK-17 Update — Export symbolic runtime telemetry for GHX bundle.
+        🔹 SRK-17 Update - Export symbolic runtime telemetry for GHX bundle.
         Captures basic Symatics operator statistics and state metrics.
         """
         try:

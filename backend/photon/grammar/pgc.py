@@ -5,7 +5,7 @@ TOKENS = {
   "∇": "COLLAPSE",
   "μ": "MEASURE",
   "π": "PROJECT",
-  "⇒": "TRIGGER",
+  "->": "TRIGGER",
 }
 
 def tokenize(src: str):

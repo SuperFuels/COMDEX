@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🌐 Glyph Registry Updater — Tessaris Lexicon ↔ GlyphOS Sync v3
+# 🌐 Glyph Registry Updater - Tessaris Lexicon ↔ GlyphOS Sync v3
 # ================================================================
 """
 Rebuilds/repairs glyph registry across enriched lexicon capsules.
@@ -75,7 +75,7 @@ def _current_symbol_is_reserved(content: str) -> bool:
     """
     m = _GLYPH_RE.search(content)
     if not m:
-        return True  # no glyph block yet → needs writing
+        return True  # no glyph block yet -> needs writing
     sym = m.group(1).strip()
     return (sym == DEFAULT_GLYPH) or any(ch in RESERVED_GLYPHS for ch in sym)
 
@@ -111,7 +111,7 @@ def extract_lemma_and_def(content: str) -> Dict[str, Any]:
 
 
 # ================================================================
-# 🧪 Glyph block injection — replace the *last* block
+# 🧪 Glyph block injection - replace the *last* block
 # ================================================================
 def inject_or_replace_glyph_block(content: str, glyph_str: str, glyph_checksum: str) -> str:
     header = "# === GlyphOS Registration Block ==="
@@ -158,7 +158,7 @@ def propose_glyph(lemma: str, definition: str) -> str:
         try:
             return _GEN_IMPL(phrase, context="lexicon", min_len=1, max_len=3)  # type: ignore
         except TypeError:
-            # Signature mismatch → ignore extras
+            # Signature mismatch -> ignore extras
             try:
                 return _GEN_IMPL(phrase)  # type: ignore
             except Exception:
@@ -182,7 +182,7 @@ def propose_glyph(lemma: str, definition: str) -> str:
 # 🔄 Main updater
 # ================================================================
 def update_glyph_registry() -> Dict[str, int]:
-    log.info("🌐 [GlyphOS] Rebuilding dynamic glyph registry…")
+    log.info("🌐 [GlyphOS] Rebuilding dynamic glyph registry...")
     counters = {"scanned": 0, "updated": 0, "skipped": 0, "conflicts": 0}
 
     if not LEXICON_PATH.exists():
@@ -247,10 +247,10 @@ def update_glyph_registry() -> Dict[str, int]:
         counters["scanned"] += 1
 
         if not QUIET and counters["scanned"] % 5000 == 0:
-            log.info(f"… {counters['scanned']} scanned | {counters['updated']} updated")
+            log.info(f"... {counters['scanned']} scanned | {counters['updated']} updated")
 
     log.info(
-        f"✅ Glyph Registry Sync — "
+        f"✅ Glyph Registry Sync - "
         f"{counters['scanned']} scanned | "
         f"{counters['updated']} updated | "
         f"{counters['skipped']} skipped | "

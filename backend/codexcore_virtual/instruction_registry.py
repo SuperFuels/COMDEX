@@ -22,7 +22,7 @@ class InstructionRegistry:
     def __init__(self):
         # Handlers take signature: handler(ctx, *args, **kwargs) -> Any
         self.registry: Dict[str, Callable[..., Any]] = {}
-        self.aliases: Dict[str, str] = {}  # raw_symbol → canonical domain:key
+        self.aliases: Dict[str, str] = {}  # raw_symbol -> canonical domain:key
 
     def register(self, key: str, handler: Callable[..., Any]):
         """Register a canonical domain-tagged instruction."""
@@ -47,7 +47,7 @@ class InstructionRegistry:
         """
         Back-compat single-operand entrypoint.
         Resolves legacy or canonical instruction keys via alias shim.
-        Executes symbolic → photonic operations with context-safety.
+        Executes symbolic -> photonic operations with context-safety.
         """
         # --- Normalize the instruction key ---
         if key not in self.registry:
@@ -75,7 +75,7 @@ class InstructionRegistry:
                 args = operand.get("args", [])
                 kwargs = operand.get("kwargs", {})
                 return fn(None, *args, **kwargs)  # ctx=None for CPU core
-            # flat dict → kwargs style
+            # flat dict -> kwargs style
             return fn(None, **operand)
 
         # --- Handle single operand or None ---
@@ -135,8 +135,8 @@ def handle_sequence(_ctx, left=None, right=None, context=None, **_kw):
     return {"sequence": [left, right]}
 
 # Register canonical + alias
-registry.register("logic:→", handle_sequence)
-registry.alias("→", "logic:→")
+registry.register("logic:->", handle_sequence)
+registry.alias("->", "logic:->")
 
 # Canonical domain-tag registrations
 registry.register("control:⟲", handle_reflect)
@@ -177,12 +177,12 @@ def _h_grad(ctx, field=None, coords=None, context=None, **kw):      # ∇
     _need_pk("∇")
     return _to_python(PK.grad(field, coords))
 
-def _h_div(ctx, vec=None, coords=None, context=None, **kw):        # ∇·
-    _need_pk("∇·")
+def _h_div(ctx, vec=None, coords=None, context=None, **kw):        # ∇*
+    _need_pk("∇*")
     return _to_python(PK.div(vec, coords))
 
-def _h_curl(ctx, vec=None, coords=None, context=None, **kw):       # ∇×
-    _need_pk("∇×")
+def _h_curl(ctx, vec=None, coords=None, context=None, **kw):       # ∇*
+    _need_pk("∇*")
     return _to_python(PK.curl(vec, coords))
 
 def _h_laplacian(ctx, field=None, coords=None, context=None, **kw):  # Δ
@@ -194,12 +194,12 @@ def _h_d_dt(ctx, expr=None, t: Optional[str] = None, context=None, **kw):  # d/d
     return _to_python(PK.d_dt(expr, t or "t"))
 
 # Linear algebra / tensor ops
-def _h_dot(ctx, A=None, B=None, context=None, **kw):               # •
-    _need_pk("•")
+def _h_dot(ctx, A=None, B=None, context=None, **kw):               # *
+    _need_pk("*")
     return _to_python(PK.dot(A, B))
 
-def _h_cross(ctx, A=None, B=None, context=None, **kw):             # ×
-    _need_pk("×")
+def _h_cross(ctx, A=None, B=None, context=None, **kw):             # *
+    _need_pk("*")
     return _to_python(PK.cross(A, B))
 
 def _h_tensor(ctx, A=None, B=None, context=None, **kw):            # ⊗
@@ -207,8 +207,8 @@ def _h_tensor(ctx, A=None, B=None, context=None, **kw):            # ⊗
     return _to_python(PK.tensor_product(A, B))
 
 # Quantum / wave ops
-def _h_hbar(ctx, context=None, **kw):                               # ℏ
-    _need_pk("ℏ")
+def _h_hbar(ctx, context=None, **kw):                               # ħ
+    _need_pk("ħ")
     if hasattr(PK, "hbar"):
         return _to_python(PK.hbar())
     raise NotImplementedError
@@ -288,16 +288,16 @@ _safe_register("π", _h_project, "symatics")
 # --------------------------
 
 _safe_register("∇", _h_grad, "physics")
-_safe_register("∇·", _h_div, "physics")
-_safe_register("∇×", _h_curl, "physics")
+_safe_register("∇*", _h_div, "physics")
+_safe_register("∇*", _h_curl, "physics")
 _safe_register("Δ", _h_laplacian, "physics")
 _safe_register("d/dt", _h_d_dt, "physics")
 
-_safe_register("•", _h_dot, "physics")
-_safe_register("×", _h_cross, "physics")
+_safe_register("*", _h_dot, "physics")
+_safe_register("*", _h_cross, "physics")
 _safe_register("⊗", _h_tensor, "physics")
 
-_safe_register("ℏ", _h_hbar, "physics")
+_safe_register("ħ", _h_hbar, "physics")
 _safe_register("iħ∂/∂t", _h_schrod, "physics")
 _safe_register("□", _h_box, "physics")
 _safe_register("∂_μ", _h_partial_mu, "physics")
@@ -312,7 +312,7 @@ _safe_register("DDT", _h_d_dt, "physics")
 _safe_register("DOT", _h_dot, "physics")
 _safe_register("CROSS", _h_cross, "physics")
 _safe_register("TENSOR", _h_tensor, "physics")
-_safe_register("·", _h_dot, "physics")
+_safe_register("*", _h_dot, "physics")
 _safe_register("∂t", _h_d_dt, "physics")
 
 
@@ -390,7 +390,7 @@ _safe_register("¬", _h_negation, "logic")
 registry.aliases.update({
     "⊕": "logic:⊕",       # addition / combine
     "⟲": "control:⟲",     # loop / iteration
-    "→": "logic:→",       # sequence / trigger
+    "->": "logic:->",       # sequence / trigger
 })
 
 # --------------------------
@@ -402,17 +402,17 @@ INSTRUCTION_METADATA: Dict[str, Dict[str, str]] = {
     # Physics Operators
     # --------------------------
     "physics:∇":    {"type": "physics_op", "impl": "gradient_operator"},
-    "physics:∇·":   {"type": "physics_op", "impl": "divergence_operator"},
-    "physics:∇×":   {"type": "physics_op", "impl": "curl_operator"},
+    "physics:∇*":   {"type": "physics_op", "impl": "divergence_operator"},
+    "physics:∇*":   {"type": "physics_op", "impl": "curl_operator"},
     "physics:Δ":    {"type": "physics_op", "impl": "laplacian_operator"},
     "physics:⊗":    {"type": "physics_op", "impl": "tensor_product"},
-    "physics:×":    {"type": "physics_op", "impl": "cross_product"},
-    "physics:•":    {"type": "physics_op", "impl": "dot_product"},
+    "physics:*":    {"type": "physics_op", "impl": "cross_product"},
+    "physics:*":    {"type": "physics_op", "impl": "dot_product"},
     "physics:□":    {"type": "physics_op", "impl": "dalembertian_operator"},
     "physics:d/dt": {"type": "physics_op", "impl": "time_derivative"},
     "physics:∂_μ":  {"type": "physics_op", "impl": "partial_derivative"},
     "physics:∇_μ":  {"type": "physics_op", "impl": "covariant_derivative"},
-    "physics:ℏ":    {"type": "physics_op", "impl": "planck_constant"},
+    "physics:ħ":    {"type": "physics_op", "impl": "planck_constant"},
     "physics:iħ∂/∂t": {"type": "physics_op", "impl": "schrodinger_operator"},
 
     # Aliases (ASCII etc.)
@@ -424,7 +424,7 @@ INSTRUCTION_METADATA: Dict[str, Dict[str, str]] = {
     "physics:DOT":    {"type": "physics_op", "impl": "dot_product"},
     "physics:CROSS":  {"type": "physics_op", "impl": "cross_product"},
     "physics:TENSOR": {"type": "physics_op", "impl": "tensor_product"},
-    "physics:·":      {"type": "physics_op", "impl": "dot_product"},
+    "physics:*":      {"type": "physics_op", "impl": "dot_product"},
     "physics:∂t":     {"type": "physics_op", "impl": "time_derivative"},
 
     # --------------------------
@@ -439,7 +439,7 @@ INSTRUCTION_METADATA: Dict[str, Dict[str, str]] = {
     # --------------------------
     # Logic / Control / Memory
     # --------------------------
-    "logic:→":   {"type": "logic_op", "impl": "sequence"},
+    "logic:->":   {"type": "logic_op", "impl": "sequence"},
     "logic:⊕":   {"type": "logic_op", "impl": "store"},
     "logic:¬":   {"type": "logic_op", "impl": "negation"},
     "control:⟲": {"type": "control_op", "impl": "reflect"},
@@ -496,7 +496,7 @@ class SymbolicOpCode(str):
 # -----------------------------------------------------------------------------
 OPCODE_HANDLER_MAP = {
     SymbolicOpCode("⊕"): "handle_add",
-    SymbolicOpCode("→"): "handle_sequence",
+    SymbolicOpCode("->"): "handle_sequence",
     SymbolicOpCode("↔"): "handle_bidir",
     SymbolicOpCode("⟲"): "handle_loop",
     SymbolicOpCode("⧖"): "handle_delay",

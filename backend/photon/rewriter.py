@@ -24,7 +24,7 @@ LogicalNot = sp.Function("Not")
 
 
 class GradPower(sp.Function):
-    """Symbolic shorthand for higher-order gradients ∇ⁿ(expr)."""
+    """Symbolic shorthand for higher-order gradients ∇n(expr)."""
     nargs = 2  # (expr, n)
 
     @classmethod
@@ -42,14 +42,14 @@ GLYPH_MAP = {
     "⊕": "+",     # symbolic add
     "⊖": "-",     # symbolic subtract
     "⊗": "*",     # symbolic multiply
-    "÷": "/",     # symbolic divide
-    "↔": "Eq",    # equivalence → Eq(a,b)
-    "≠": "Ne",    # inequality → Ne(a,b)
+    "/": "/",     # symbolic divide
+    "↔": "Eq",    # equivalence -> Eq(a,b)
+    "!=": "Ne",    # inequality -> Ne(a,b)
     "∧": "And",   # logical and
     "∨": "Or",    # logical or
     "¬": "Not",   # logical not
-    "≥": ">=",    # greater or equal
-    "≤": "<=",    # less or equal
+    ">=": ">=",    # greater or equal
+    "<=": "<=",    # less or equal
     # Note: '∘' handled specially
 }
 
@@ -71,11 +71,11 @@ def _glyph_to_sympy(expr: str) -> str:
     if "↔" in expr:
         lhs, rhs = expr.split("↔", 1)
         return f"Eq({_glyph_to_sympy(lhs.strip())}, {_glyph_to_sympy(rhs.strip())})"
-    if "≠" in expr:
-        lhs, rhs = expr.split("≠", 1)
+    if "!=" in expr:
+        lhs, rhs = expr.split("!=", 1)
         return f"Ne({_glyph_to_sympy(lhs.strip())}, {_glyph_to_sympy(rhs.strip())})"
 
-    # 2) Normalize (A ∘ B) → Compose(A,B)
+    # 2) Normalize (A ∘ B) -> Compose(A,B)
     def _compose_repl(m):
         A = _glyph_to_sympy(m.group(1).strip())
         B = _glyph_to_sympy(m.group(2).strip())
@@ -91,7 +91,7 @@ def _glyph_to_sympy(expr: str) -> str:
         inner = expr[2:-1]
         return f"Grad({_glyph_to_sympy(inner.strip())})"
 
-    # 4) Handle ∇f(args) → Grad(f(args))
+    # 4) Handle ∇f(args) -> Grad(f(args))
     def _grad_fun_repl(m):
         name = m.group(1)
         args = m.group(2)
@@ -99,13 +99,13 @@ def _glyph_to_sympy(expr: str) -> str:
 
     expr = re.sub(r"∇\s*([A-Za-z_]\w*)\s*\(([^()]*)\)", _grad_fun_repl, expr)
 
-    # 5) Bare ∇x → Grad(x)
+    # 5) Bare ∇x -> Grad(x)
     expr = re.sub(r"∇\s*([A-Za-z_]\w*)", r"Grad(\1)", expr)
 
     # 6) Translate remaining glyph operators
     out = expr
     for glyph, op in GLYPH_MAP.items():
-        if glyph in ("↔", "≠"):
+        if glyph in ("↔", "!="):
             continue
         out = out.replace(glyph, op)
 
@@ -139,11 +139,11 @@ def _expand_gradient(expr, lazy=False, max_terms=3):
         if isinstance(arg, GradPower):
             return GradPower(arg.args[0], int(arg.args[1]) + 1)
 
-        # Linearity: ∇(a + b) → ∇a + ∇b
+        # Linearity: ∇(a + b) -> ∇a + ∇b
         if isinstance(arg, sp.Add):
             return sp.Add(*[Grad(term) for term in arg.args])
 
-        # Product rule — lazy mode avoids full expansion for large products
+        # Product rule - lazy mode avoids full expansion for large products
         if isinstance(arg, sp.Mul):
             if lazy and len(arg.args) > max_terms:
                 return Grad(arg)
@@ -160,7 +160,7 @@ def _expand_gradient(expr, lazy=False, max_terms=3):
             f = arg.func
             return Compose(Grad(sp.Symbol(str(f))), inner) * Grad(inner)
 
-        # Constants → 0
+        # Constants -> 0
         if arg.is_Number:
             return sp.Integer(0)
         if arg.is_Symbol and getattr(arg, "is_constant", lambda: False)():
@@ -230,14 +230,14 @@ class PhotonRewriter:
             )
 
             if sp.srepr(expr_sym) != before:
-                _dprint("Gradient expanded →", expr_sym)
+                _dprint("Gradient expanded ->", expr_sym)
 
             # Apply axioms
             for lhs, rhs, lhs_sym, rhs_sym in self._axioms_parsed:
                 try:
                     new_expr = expr_sym.xreplace({lhs_sym: rhs_sym})
                     if new_expr != expr_sym:
-                        _dprint(f"Axiom applied {lhs} → {rhs}: {expr_sym} → {new_expr}")
+                        _dprint(f"Axiom applied {lhs} -> {rhs}: {expr_sym} -> {new_expr}")
                         expr_sym = new_expr
                 except Exception:
                     continue
@@ -249,7 +249,7 @@ class PhotonRewriter:
         n1 = self.normalize(expr1)
         n2 = self.normalize(expr2)
 
-        _dprint("Compare:", expr1, "→", n1, "VS", expr2, "→", n2)
+        _dprint("Compare:", expr1, "->", n1, "VS", expr2, "->", n2)
 
         if sp.srepr(n1) == sp.srepr(n2):
             return True

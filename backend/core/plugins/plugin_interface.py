@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 
 class PluginInterface(ABC):
     """
-    Abstract base class for all cognitive plugins (C1–C5).
+    Abstract base class for all cognitive plugins (C1-C5).
     Enforces standard interfaces across the plugin runtime.
     """
 
@@ -33,7 +33,7 @@ class PluginInterface(ABC):
 
     @abstractmethod
     def synthesize(self, goal: str) -> str:
-        """Scroll/memory → logic synthesis (used in C5)."""
+        """Scroll/memory -> logic synthesis (used in C5)."""
         pass
 
     @abstractmethod

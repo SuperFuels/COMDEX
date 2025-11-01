@@ -1,9 +1,9 @@
 # backend/symatics/core/calc_ops.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.9 — Symbolic Calculus Precursor Layer
-# Defines ∇λ, ∇·λ, and ∇×ψ differential operators
+# Tessaris Symatics v0.9 - Symbolic Calculus Precursor Layer
+# Defines ∇λ, ∇*λ, and ∇*ψ differential operators
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v0.9.0 — October 2025
+# Version: v0.9.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ except ImportError:
 # Fundamental Differential Operators
 # ──────────────────────────────────────────────────────────────
 def grad_lambda(field: np.ndarray) -> np.ndarray:
-    """∇λ — symbolic gradient of λ-field."""
+    """∇λ - symbolic gradient of λ-field."""
     gx, gy = np.gradient(field)
     grad = np.stack((gx, gy), axis=-1)
     record_event("grad_lambda", mean=float(np.mean(grad)))
@@ -29,7 +29,7 @@ def grad_lambda(field: np.ndarray) -> np.ndarray:
 
 
 def div_lambda(field: np.ndarray) -> np.ndarray:
-    """∇·λ — divergence of λ-field."""
+    """∇*λ - divergence of λ-field."""
     gx, gy = np.gradient(field)
     div = gx + gy
     record_event("div_lambda", mean=float(np.mean(div)))
@@ -37,7 +37,7 @@ def div_lambda(field: np.ndarray) -> np.ndarray:
 
 
 def curl_psi(field: np.ndarray) -> np.ndarray:
-    """∇×ψ — symbolic curl analogue for 2-D ψ-space."""
+    """∇*ψ - symbolic curl analogue for 2-D ψ-space."""
     fx, fy = np.gradient(field)
     curl = fy - fx
     record_event("curl_psi", mean=float(np.mean(curl)))
@@ -47,7 +47,7 @@ def curl_psi(field: np.ndarray) -> np.ndarray:
 def continuity_eq(lambda_field: np.ndarray, psi_field: np.ndarray) -> float:
     """
     Symbolic continuity law:
-        ∂λ/∂t + ∇·(λψ) ≈ 0
+        ∂λ/∂t + ∇*(λψ) ≈ 0
     Returns residual magnitude (deviation from conservation).
     """
     grad_l = grad_lambda(lambda_field)

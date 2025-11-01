@@ -1,5 +1,5 @@
 """
-🧩 GWV Schema Validator — SRK-19 Task 4
+🧩 GWV Schema Validator - SRK-19 Task 4
 Validates Graphical Wave Visualization (.gwv) files against the official
 schema definition (v1.1). Ensures data integrity before analysis or replay.
 """

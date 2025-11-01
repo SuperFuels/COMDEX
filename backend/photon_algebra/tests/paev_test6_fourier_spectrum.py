@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Photon Algebra Evaluation (PAEV)
-Test 6 — Fourier-Spectral Entanglement Bandwidth (μ–⟲–↔ domain)
+Test 6 - Fourier-Spectral Entanglement Bandwidth (μ-⟲-↔ domain)
 """
 
 import os
@@ -15,7 +15,7 @@ from backend.photon_algebra.utils.visibility import compute_visibility
 # ---------------------------------------------------------------------
 os.makedirs("docs/theory/figures", exist_ok=True)
 os.makedirs("docs/theory/tables", exist_ok=True)
-print("⚙️ Running PAEV Test 6 — Spectral Entanglement Bandwidth analysis...")
+print("⚙️ Running PAEV Test 6 - Spectral Entanglement Bandwidth analysis...")
 
 # ---------------------------------------------------------------------
 # Parameters
@@ -68,7 +68,7 @@ Sc = {m: np.abs(np.fft.rfft(Vc_t[m] - Vc_t[m].mean())) for m in modes}
 Sc_norm = {m: Sc[m] / np.max(Sc[m]) for m in modes}
 
 # ---------------------------------------------------------------------
-# Compute half-power bandwidth (Δf₍1/2₎)
+# Compute half-power bandwidth (Δf(1/2))
 # ---------------------------------------------------------------------
 def half_power_bw(S, f):
     th = 0.5
@@ -96,7 +96,7 @@ ax[0].grid(alpha=0.3)
 ax[0].legend()
 
 for m in modes:
-    ax[1].plot(freqs, Sc_norm[m], label=f"{m} Δf₍1/2₎={bandwidths[m]:.3f}")
+    ax[1].plot(freqs, Sc_norm[m], label=f"{m} Δf(1/2)={bandwidths[m]:.3f}")
 ax[1].set_title("Spectral Coherence Density $S_c(f)$")
 ax[1].set_xlabel("Frequency f (arb)")
 ax[1].set_ylabel("Normalized Amplitude")

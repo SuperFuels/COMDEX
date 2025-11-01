@@ -1,5 +1,5 @@
 """
-Runtime Projection–Collapse Consistency Test (v0.3.9)
+Runtime Projection-Collapse Consistency Test (v0.3.9)
 -----------------------------------------------------
 Validates that π(μ(ψ)) ≈ μ(π(ψ)) under runtime law evaluation.
 """

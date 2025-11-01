@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🚨 ViolationLogger — Reflex Audit Layer (R5)
+# 🚨 ViolationLogger - Reflex Audit Layer (R5)
 # ================================================================
 # Records rule violations detected by RuleBookStreamer and stores
 # structured evidence traces for analysis and ethics review.
@@ -16,7 +16,7 @@ OUT = Path("data/analysis/violation_log.jsonl")
 class ViolationLogger:
     def __init__(self):
         OUT.parent.mkdir(parents=True, exist_ok=True)
-        log.info("[ViolationLogger] Initialized — logging to violation_log.jsonl")
+        log.info("[ViolationLogger] Initialized - logging to violation_log.jsonl")
 
     def record(self, action: str, context: Dict[str, Any], violations: List[Dict[str, Any]]):
         """

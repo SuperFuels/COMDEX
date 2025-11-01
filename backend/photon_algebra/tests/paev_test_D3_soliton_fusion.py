@@ -21,7 +21,7 @@ def curvature_evolution(kappa, alpha=0.1, beta=0.5, dt=0.1, steps=300):
     return kappa, np.array(E_total)
 
 def main():
-    print("=== Starting Test D3 — Soliton Fusion and Bound-State Formation ===")
+    print("=== Starting Test D3 - Soliton Fusion and Bound-State Formation ===")
 
     try:
         N = 121
@@ -42,7 +42,7 @@ def main():
 
         fig, ax = plt.subplots()
         im = ax.imshow(kappa, cmap="inferno", animated=True)
-        ax.set_title("Test D3 — Soliton Fusion Dynamics")
+        ax.set_title("Test D3 - Soliton Fusion Dynamics")
 
         def update(frame):
             nonlocal kappa
@@ -67,15 +67,15 @@ def main():
 
         plt.figure()
         plt.plot(E_total, "b-")
-        plt.title("Test D3 — Total Energy Evolution (Fusion Stability)")
+        plt.title("Test D3 - Total Energy Evolution (Fusion Stability)")
         plt.xlabel("Time step")
-        plt.ylabel("Total curvature energy (κ²)")
+        plt.ylabel("Total curvature energy (κ2)")
         plt.tight_layout()
         plt.savefig("PAEV_TestD3_SolitonFusion_Energy.png", dpi=180)
         plt.close()
         print("✅ Energy plot saved.")
 
-        print("\n=== Test D3 — Soliton Fusion Results ===")
+        print("\n=== Test D3 - Soliton Fusion Results ===")
         print(f"Grid size: {N}x{N}, Steps: {steps}, dt={dt}")
         print(f"Initial energy = {E_total[0]:.4e}")
         print(f"Final energy   = {E_total[-1]:.4e}")

@@ -3,8 +3,8 @@
 Axioms Consistency Tests
 ------------------------
 Cross-checks:
-  • LAW_REGISTRY in Python
-  • Lean axioms in symatics_axioms.lean
+  * LAW_REGISTRY in Python
+  * Lean axioms in symatics_axioms.lean
 Ensures naming and coverage are consistent across sources.
 """
 

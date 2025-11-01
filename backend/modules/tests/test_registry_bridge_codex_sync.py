@@ -9,7 +9,7 @@ def test_codex_and_glyph_and_symatics_handlers_present():
     assert registry_bridge.has_handler("core:⊕"), "Codex ⊕ not synced into registry"
 
     # GlyphInstructionSet op
-    assert registry_bridge.has_handler("glyph:→"), "Glyph → not synced into registry"
+    assert registry_bridge.has_handler("glyph:->"), "Glyph -> not synced into registry"
 
     # Symatics op
     assert registry_bridge.has_handler("symatics:⊕"), "Symatics ⊕ not synced into registry"
@@ -20,7 +20,7 @@ def test_codex_op_executes_stub_or_fn():
     assert isinstance(result, dict) or isinstance(result, str)
 
 def test_glyph_op_executes():
-    result = registry_bridge.resolve_and_execute("glyph:→", "X", "Y")
+    result = registry_bridge.resolve_and_execute("glyph:->", "X", "Y")
     assert result is not None
 
 def test_symatics_op_executes():

@@ -7,8 +7,8 @@ from typing import List, Dict, Optional
 from backend.modules.glyphos.glyph_synthesis_engine import compress_to_glyphs
 from backend.modules.hexcore.memory_engine import store_memory_entry
 
-# Glyph rendering template: ⟦ type | tag : value → action ⟧
-GLYPH_TEMPLATE = "\u27E6 {type} | {tag} : {value} → {action} \u27E7"
+# Glyph rendering template: ⟦ type | tag : value -> action ⟧
+GLYPH_TEMPLATE = "\u27E6 {type} | {tag} : {value} -> {action} \u27E7"
 
 class GlyphGenerator:
     def __init__(self):
@@ -28,7 +28,7 @@ class GlyphGenerator:
 
     def reverse_generate_glyph(self, data: Dict[str, str]) -> str:
         """
-        Convert a dictionary to a glyph string: ⟦ type | tag : value → action ⟧
+        Convert a dictionary to a glyph string: ⟦ type | tag : value -> action ⟧
         """
         try:
             return GLYPH_TEMPLATE.format(

@@ -20,7 +20,7 @@ class EmotionStrategySynthesizer(PluginInterface):
         self.history: list[Dict[str, Any]] = []
 
     def register_plugin(self):
-        print(f"✅ Plugin Registered: {self.plugin_id} — {self.name}")
+        print(f"✅ Plugin Registered: {self.plugin_id} - {self.name}")
 
     def trigger(self, context: Optional[Dict[str, Any]] = None) -> None:
         self.status = "active"

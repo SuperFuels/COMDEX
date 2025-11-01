@@ -1,5 +1,5 @@
 """
-Habit Encoding Engine — Phase 45D v1.1
+Habit Encoding Engine - Phase 45D v1.1
 --------------------------------------
 Consolidates persistent motivational and emotional cycles into
 Habit Signatures. Enables Aion to retain long-term behavior patterns
@@ -10,7 +10,7 @@ Now synchronized with HabitReinforcementFeedback (Phase 45E):
  - consistent access via `get_all_habits()`
 
 Author: Tessaris Research Group
-Date: Phase 45D — October 2025
+Date: Phase 45D - October 2025
 """
 
 import time, json
@@ -79,7 +79,7 @@ class HabitEncodingEngine:
                 h["last_seen"] = signature["timestamp"]
                 self.habits[h["tone"]] = h
                 reinforced = True
-                print(f"[HABIT] 🔁 Reinforced existing habit ({h['tone']}) → weight={h['weight']}")
+                print(f"[HABIT] 🔁 Reinforced existing habit ({h['tone']}) -> weight={h['weight']}")
                 break
 
         if not reinforced:
@@ -121,7 +121,7 @@ class HabitEncodingEngine:
 
         Parameters:
             tone (str): tone associated with the habit (e.g. 'reflective', 'neutral')
-            delta (float): reinforcement increment (+) or decrement (−)
+            delta (float): reinforcement increment (+) or decrement (-)
         """
         if tone not in self.habits:
             print(f"[HABIT] ⚠️ No existing habit found for tone '{tone}'.")
@@ -140,7 +140,7 @@ class HabitEncodingEngine:
                 break
 
         self._save()
-        print(f"[HABIT] 🔄 Reinforcement update → ({tone}) Δw={delta:+.3f} → {habit['weight']}")
+        print(f"[HABIT] 🔄 Reinforcement update -> ({tone}) Δw={delta:+.3f} -> {habit['weight']}")
         return habit
 
 

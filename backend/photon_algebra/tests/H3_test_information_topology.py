@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-H3 — Information Topology Test (Registry-Compliant Dual-Mode Edition)
+H3 - Information Topology Test (Registry-Compliant Dual-Mode Edition)
 ---------------------------------------------------------------------
 Goal:
   Measure curvature of the information manifold via gradients in entropy density.
-  At equilibrium, R_I → 0 indicates a flat (stable) information geometry.
+  At equilibrium, R_I -> 0 indicates a flat (stable) information geometry.
 
 Modes:
-  • classical — baseline (no entanglement correlations)
-  • entangled — introduces cross-field coherence and mutual-information modulation
+  * classical - baseline (no entanglement correlations)
+  * entangled - introduces cross-field coherence and mutual-information modulation
 
 Outputs:
-  • H3_InformationTopology_classical.png
-  • H3_InformationTopology_entangled.png
-  • backend/modules/knowledge/H3_information_topology.json
+  * H3_InformationTopology_classical.png
+  * H3_InformationTopology_entangled.png
+  * backend/modules/knowledge/H3_information_topology.json
 """
 
 from pathlib import Path
@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 import numpy as np, json, matplotlib.pyplot as plt
 
 # ---------------------------------------------------------------------
-# 1) Constants — Tessaris unified registry loader
+# 1) Constants - Tessaris unified registry loader
 # ---------------------------------------------------------------------
 from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
@@ -71,9 +71,9 @@ for mode in ["classical", "entangled"]:
 
     # --- plot
     plt.figure(figsize=(10, 4))
-    plt.plot(t, R_I, label=f"R_I(t) — {mode}", lw=1.5)
+    plt.plot(t, R_I, label=f"R_I(t) - {mode}", lw=1.5)
     plt.axhline(R_I_eq, ls="--", c="gray", lw=1)
-    plt.title(f"H3 — Information Curvature Evolution ({mode} mode)")
+    plt.title(f"H3 - Information Curvature Evolution ({mode} mode)")
     plt.xlabel("Time")
     plt.ylabel("R_I")
     plt.legend()
@@ -83,10 +83,10 @@ for mode in ["classical", "entangled"]:
     plt.savefig(fname, dpi=150)
     plt.close()
 
-    print(f"=== H3 — Information Topology Test ({mode}) ===")
+    print(f"=== H3 - Information Topology Test ({mode}) ===")
     print(f"ħ={ħ:.1e}, G={G:.1e}, α={α:.2f}, Λ0={Λ0:.1e}, β={β:.2f}")
     print(f"R_I_eq={R_I_eq:.6e}")
-    print(f"→ {classification}")
+    print(f"-> {classification}")
     print(f"✅ Plot saved: {fname}")
 
     # --- store mode results
@@ -111,4 +111,4 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/H3_information_topology.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"📄 Summary saved → {out_path}")
+print(f"📄 Summary saved -> {out_path}")

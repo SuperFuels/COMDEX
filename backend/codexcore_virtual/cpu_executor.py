@@ -43,8 +43,8 @@ class VirtualCPU:
         """
         Normalize instruction into (op, args).
         Supports:
-          • dict: {"operation": "MOV", "args": ["R1", "42"]}
-          • tuple: ("MOV", ["R1", "42"])
+          * dict: {"operation": "MOV", "args": ["R1", "42"]}
+          * tuple: ("MOV", ["R1", "42"])
         """
         if isinstance(instr, dict):
             return instr["operation"], instr.get("args", [])
@@ -59,7 +59,7 @@ class VirtualCPU:
     def execute(self, op, args):
         """Route execution through instruction_registry with normalized keys."""
         try:
-            normalized_op = op.lower()  # normalize ops like LOG → log
+            normalized_op = op.lower()  # normalize ops like LOG -> log
             return registry.execute_v2(normalized_op, *args, ctx=self)
         except KeyError:
             raise ValueError(f"Unknown instruction: {op}")
@@ -78,7 +78,7 @@ class VirtualCPU:
             payload = make_log_event(
                 event="registry_execute",
                 op=op,
-                canonical=op,  # VirtualCPU doesn’t remap aliases
+                canonical=op,  # VirtualCPU doesn't remap aliases
                 args=args,
                 kwargs={},
                 status="ok",

@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 # Allowed operators from Photonic glyph alphabet
-GLYPHS = set("⊕↔⟲μπ⇒∇⧖")
+GLYPHS = set("⊕↔⟲μπ->∇⧖")
 
 def _validate_glyph_stream(stream: List[str]):
     for g in stream:

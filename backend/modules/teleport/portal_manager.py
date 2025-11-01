@@ -36,7 +36,7 @@ class PortalManager:
     """
 
     def __init__(self):
-        self.portal_map: Dict[str, Dict[str, str]] = {}  # portal_id → { source: container_id, target: container_id }
+        self.portal_map: Dict[str, Dict[str, str]] = {}  # portal_id -> { source: container_id, target: container_id }
 
     def register_portal(self, source: str, target: str) -> str:
         portal_id = str(uuid.uuid4())

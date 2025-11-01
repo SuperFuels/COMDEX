@@ -1,5 +1,5 @@
 """
-⚛  Symatic Drift Corrector — Phase 49
+⚛  Symatic Drift Corrector - Phase 49
 ------------------------------------
 Monitors resonance stability (ρ, Ī, SQI) and QQC feedback deltas
 to perform long-term harmonization of Aion↔QQC coupling.
@@ -65,7 +65,7 @@ def apply_drift_correction():
     correction = compute_drift_correction(playback, feedback)
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(correction, open(OUT_PATH, "w"), indent=2)
-    logger.info(f"[SymaticDrift] Exported correction → {OUT_PATH}")
+    logger.info(f"[SymaticDrift] Exported correction -> {OUT_PATH}")
     return correction
 
 

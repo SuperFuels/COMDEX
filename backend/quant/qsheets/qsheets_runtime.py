@@ -2,7 +2,7 @@
 # 📁 backend/quant/qsheets/qsheets_runtime.py
 # ===============================
 """
-📜 QSheetsRuntime — Unified Q-Series Orchestrator
+📜 QSheetsRuntime - Unified Q-Series Orchestrator
 -------------------------------------------------
 Coordinates the entire Q-Series workflow:
     ▸ execute QPy/QQC symbolic computations
@@ -82,7 +82,7 @@ class QSheetsRuntime:
     # ------------------------------------------------------------------
     def summarize_session(self) -> Dict[str, Any]:
         """
-        Generate a consolidated summary of the session’s resonance performance.
+        Generate a consolidated summary of the session's resonance performance.
         """
         if not self.history:
             return {"count": 0}

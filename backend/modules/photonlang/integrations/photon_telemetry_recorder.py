@@ -1,9 +1,9 @@
 # ============================================================
-# 🧠 Photon Telemetry Recorder — Unified Edition (pytest aware)
+# 🧠 Photon Telemetry Recorder - Unified Edition (pytest aware)
 # ------------------------------------------------------------
-# • EXACTLY ONE .ptn per event (tests depend on this)
-# • When pytest overrides base_dir → write ONLY there
-# • Runtime: artifacts/telemetry + data/telemetry JSON stream
+# * EXACTLY ONE .ptn per event (tests depend on this)
+# * When pytest overrides base_dir -> write ONLY there
+# * Runtime: artifacts/telemetry + data/telemetry JSON stream
 # ============================================================
 
 from __future__ import annotations
@@ -106,7 +106,7 @@ class PhotonTelemetryRecorder:
                 safe_evt[k] = _safe(v)
 
         # ===================================================
-        # ✅ PYTEST MODE — write ONLY to base_dir
+        # ✅ PYTEST MODE - write ONLY to base_dir
         # ===================================================
         is_pytest = "PYTEST_CURRENT_TEST" in os.environ
 
@@ -116,7 +116,7 @@ class PhotonTelemetryRecorder:
             ptn_path = os.path.join(out_dir, f"{label}_{ts.replace(':','-')}.ptn")
             with open(ptn_path, "w", encoding="utf-8") as f:
                 json.dump(safe_evt, f, indent=2, ensure_ascii=False)
-            print(f"🧪 [PhotonTelemetry] Test write → {ptn_path}")
+            print(f"🧪 [PhotonTelemetry] Test write -> {ptn_path}")
             return evt
 
         # ===================================================
@@ -136,7 +136,7 @@ class PhotonTelemetryRecorder:
             pass
 
         publish("photon-telemetry-pulse", evt)
-        print(f"🪶 [PhotonTelemetry] Saved → {ptn_path}")
+        print(f"🪶 [PhotonTelemetry] Saved -> {ptn_path}")
         return evt
 
     # =======================================================

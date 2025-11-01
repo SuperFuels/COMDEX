@@ -1,8 +1,8 @@
 # ============================================================
-# 🧭 Deprecated Redirect Stub — SCI Commit Atom API
+# 🧭 Deprecated Redirect Stub - SCI Commit Atom API
 # ============================================================
 # This file has been superseded by:
-#   → backend/api/sci_commit_atom.py
+#   -> backend/api/sci_commit_atom.py
 #
 # It remains as a lightweight redirect layer to avoid import errors
 # or broken routes in older modules that may still reference it.

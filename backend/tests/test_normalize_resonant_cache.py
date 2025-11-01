@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-🧩 Resonant Memory Cache — Normalize + Reindex Utility
+🧩 Resonant Memory Cache - Normalize + Reindex Utility
 ──────────────────────────────────────────────────────
 Cleans malformed JSON, merges duplicate resonance keys,
 and rewrites a stable `resonant_memory_cache.json`.
 
 Outputs:
-  • data/memory/resonant_memory_cache.cleanbak
-  • data/memory/resonant_memory_cache.json (cleaned)
+  * data/memory/resonant_memory_cache.cleanbak
+  * data/memory/resonant_memory_cache.json (cleaned)
 """
 
 import json, re, pathlib, time
@@ -22,7 +22,7 @@ if not CACHE_PATH.exists():
     raise SystemExit(1)
 
 CACHE_PATH.replace(BACKUP_PATH)
-print(f"[Backup] Created → {BACKUP_PATH}")
+print(f"[Backup] Created -> {BACKUP_PATH}")
 
 text = BACKUP_PATH.read_text(errors="ignore")
 text = text.replace("\r", " ").replace("\n", " ")
@@ -34,7 +34,7 @@ if "{" in text and "}" in text:
 # Try fast load
 try:
     cache = json.loads(text)
-    print(f"✅ Cache loaded directly ({len(cache)} entries) — no normalization needed.")
+    print(f"✅ Cache loaded directly ({len(cache)} entries) - no normalization needed.")
     CACHE_PATH.write_text(json.dumps(cache, indent=2))
     raise SystemExit(0)
 except Exception:
@@ -73,5 +73,5 @@ for key, entries in merged.items():
 
 # ───────────────────────────────────────────────
 CACHE_PATH.write_text(json.dumps(final_cache, indent=2))
-print(f"✅ Normalized {len(final_cache)} resonance entries → {CACHE_PATH}")
+print(f"✅ Normalized {len(final_cache)} resonance entries -> {CACHE_PATH}")
 print(f"🕒 Completed at {time.strftime('%H:%M:%S')}")

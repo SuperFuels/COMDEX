@@ -1,6 +1,6 @@
 """
 AION Cognition Trace Bus
-Unified event bus → Replay engine → HUD Pulse → SCI bridge.
+Unified event bus -> Replay engine -> HUD Pulse -> SCI bridge.
 
 This bus is intentionally minimal and non-blocking.
 Multiple subscribers (replay reducer, live HUD, logs) can attach here.
@@ -23,7 +23,7 @@ def subscribe(callback: Callable):
 def emit(event: dict):
     """
     Emit a cognition trace event to all subscribers.
-    No guarantees about async/ordering – subscribers handle buffering.
+    No guarantees about async/ordering - subscribers handle buffering.
     """
     for cb in _subscribers:
         try:

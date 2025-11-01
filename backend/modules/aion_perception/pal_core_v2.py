@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Perceptual Association Layer (PAL v2) — with Knowledge Graph recall.
+Perceptual Association Layer (PAL v2) - with Knowledge Graph recall.
 ───────────────────────────────────────────────────────────────
 - Builds on PAL v1 with bidirectional memory retrieval.
 - Uses the Knowledge Graph to bias selections by reinforced glyphs.
@@ -41,7 +41,7 @@ random.seed(42)
 class Exemplar:
     prompt: str
     option: str
-    vec: List[float]         # [ν, ϕ, A, S, H]
+    vec: List[float]         # [ν, φ, A, S, H]
     reward: float = 1.0
 
 

@@ -1,5 +1,5 @@
 """
-🧪 Test Suite — GWave Replay Emitter
+🧪 Test Suite - GWave Replay Emitter
 Covers async frame emission, file validation, and replay control behavior.
 """
 

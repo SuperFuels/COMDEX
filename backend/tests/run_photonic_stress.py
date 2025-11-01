@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Photonic Kernel Stress Harness — Tessaris / CFE v0.3.3
-Sweeps QWave emission frequency tiers (1 kHz → 25 kHz)
+Photonic Kernel Stress Harness - Tessaris / CFE v0.3.3
+Sweeps QWave emission frequency tiers (1 kHz -> 25 kHz)
 and logs latency, coherence, and loss metrics.
 
 Enhancements (v0.3.3):
-    • Adds symbolic wrapping for payloads (avoids compressor dict errors)
-    • Failsafe bypass if compression detects non-symbolic payloads
-    • Ensures telemetry report directory exists automatically
-    • Adds synthetic feedback simulation if no frames are received
+    * Adds symbolic wrapping for payloads (avoids compressor dict errors)
+    * Failsafe bypass if compression detects non-symbolic payloads
+    * Ensures telemetry report directory exists automatically
+    * Adds synthetic feedback simulation if no frames are received
 """
 
 import asyncio
@@ -91,8 +91,8 @@ async def stress_sweep(start_khz=1, end_khz=25, step_khz=4, duration=30):
     # 📊 Quick run summary
     avg_coh = sum(r["coherence"] for r in results) / max(len(results), 1)
     avg_loss = sum(r["loss_ratio"] for r in results) / max(len(results), 1)
-    print(f"\n📈 Summary → mean coherence={avg_coh:.3f}, avg loss={avg_loss:.3f}")
-    print(f"✅ Stress sweep complete → {out}")
+    print(f"\n📈 Summary -> mean coherence={avg_coh:.3f}, avg loss={avg_loss:.3f}")
+    print(f"✅ Stress sweep complete -> {out}")
 
 
 if __name__ == "__main__":

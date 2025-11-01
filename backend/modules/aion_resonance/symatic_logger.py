@@ -1,5 +1,5 @@
 # ==========================================================
-# 🔺 Symatic Logger — placeholder until v0.9 integration
+# 🔺 Symatic Logger - placeholder until v0.9 integration
 # ==========================================================
 
 import datetime

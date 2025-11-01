@@ -6,10 +6,10 @@ Usage:
     PYTHONPATH=. python -m backend.modules.aion_knowledge.tools.add_to_concept concept_field_1 Φ λ Ω
 
 Features:
-    • Adds each symbol to the specified concept via "is_a" triplets.
-    • Automatically links lineage with "derived_from" and "subclass_of" relations.
-    • Reinforces existing connections if symbols already exist.
-    • Displays updated membership after modification.
+    * Adds each symbol to the specified concept via "is_a" triplets.
+    * Automatically links lineage with "derived_from" and "subclass_of" relations.
+    * Reinforces existing connections if symbols already exist.
+    * Displays updated membership after modification.
 """
 
 import sys
@@ -53,7 +53,7 @@ def main():
                 strength=0.1
             )
 
-            print(f"  ✅ Linked symbol:{sym} → concept:{concept_name} (+lineage)")
+            print(f"  ✅ Linked symbol:{sym} -> concept:{concept_name} (+lineage)")
 
         except Exception as e:
             print(f"  ⚠️  Failed to add {sym} to {concept_name}: {e}")
@@ -67,7 +67,7 @@ def main():
     if DEFAULT_SUPERCONCEPT in akg.export_concepts():
         print(f"\n🌐 Superconcept lineage maintained under {DEFAULT_SUPERCONCEPT}")
     else:
-        print(f"⚠️  Superconcept node {DEFAULT_SUPERCONCEPT} not found — lineage links created but may be latent.")
+        print(f"⚠️  Superconcept node {DEFAULT_SUPERCONCEPT} not found - lineage links created but may be latent.")
 
     print("\n✅ Operation complete.")
 

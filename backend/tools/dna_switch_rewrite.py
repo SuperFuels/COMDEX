@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧬 DNA Switch Self-Rewrite — Phase 58 Adaptive Integration (v2)
+🧬 DNA Switch Self-Rewrite - Phase 58 Adaptive Integration (v2)
 ───────────────────────────────────────────────────────────────
 Integrates with dna_writer to auto-generate symbolic rewrite proposals
 for unstable or drifted modules detected by the resonance audit.
@@ -101,7 +101,7 @@ def execute_rewrites(plan):
                 print(f"🧬 Executed {act} for {name}")
 
             except Exception as e:
-                print(f"❌ Rewrite failed for {name}:{act} → {e}")
+                print(f"❌ Rewrite failed for {name}:{act} -> {e}")
 
     return executed
 
@@ -119,7 +119,7 @@ def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(report, indent=2))
 
-    print(f"📄 DNA Switch rewrite plan → {OUT}")
+    print(f"📄 DNA Switch rewrite plan -> {OUT}")
     print(json.dumps(report, indent=2))
 
 

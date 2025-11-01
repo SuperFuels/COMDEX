@@ -1,5 +1,5 @@
 """
-🛰️ SRK-17 Task 5 — GHX Distributed Ledger Synchronizer (GHX-DLS)
+🛰️ SRK-17 Task 5 - GHX Distributed Ledger Synchronizer (GHX-DLS)
 Module: backend/modules/holograms/ghx_distributed_synchronizer.py
 
 Purpose:
@@ -8,10 +8,10 @@ Purpose:
     consensus framework.
 
 Responsibilities:
-    • Register locally validated GHX bundles
-    • Broadcast bundles to peer nodes
-    • Maintain a verified hash-linked continuity chain
-    • Perform remote integrity validation and ledger merge
+    * Register locally validated GHX bundles
+    * Broadcast bundles to peer nodes
+    * Maintain a verified hash-linked continuity chain
+    * Perform remote integrity validation and ledger merge
 """
 
 import asyncio
@@ -25,11 +25,11 @@ from backend.modules.codex.codex_trace import CodexTrace
 
 
 class GHXDistributedSynchronizer:
-    """SRK-17 Task 5 — GHX Distributed Ledger Synchronizer (GHX-DLS)"""
+    """SRK-17 Task 5 - GHX Distributed Ledger Synchronizer (GHX-DLS)"""
 
     def __init__(self):
         self.chain: List[Dict[str, any]] = []
-        self.peers: Dict[str, str] = {}  # node_id → endpoint
+        self.peers: Dict[str, str] = {}  # node_id -> endpoint
         self.trace = CodexTrace()
         self._lock = asyncio.Lock()
 

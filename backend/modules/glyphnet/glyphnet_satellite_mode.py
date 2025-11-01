@@ -31,7 +31,7 @@ def _is_expired(ts: float, now: float) -> bool:
 
 
 # ──────────────────────────────────────────────
-# Public API — synchronous (backward compatible)
+# Public API - synchronous (backward compatible)
 # ──────────────────────────────────────────────
 def store_packet_for_forwarding(packet: Dict, target: str):
     """
@@ -93,7 +93,7 @@ def set_target_status(target: str, is_online: bool):
     available_targets[target] = is_online
 
     if is_online and not previous:
-        logger.info(f"[SatelliteMode] Target {target} came online — flushing packets...")
+        logger.info(f"[SatelliteMode] Target {target} came online - flushing packets...")
         flush_available_packets()
     elif not is_online and previous:
         logger.info(f"[SatelliteMode] Target {target} went offline.")
@@ -153,7 +153,7 @@ def load_buffer_from_disk(path: str = "/tmp/glyphnet_satellite_buffer.json"):
 
 
 # ──────────────────────────────────────────────
-# Public API — asynchronous (non-blocking)
+# Public API - asynchronous (non-blocking)
 # ──────────────────────────────────────────────
 async def flush_available_packets_async() -> Dict[str, int]:
     """
@@ -179,7 +179,7 @@ async def flush_available_packets_async() -> Dict[str, int]:
 
         if not item["delivered"] and available_targets.get(target):
             try:
-                # push_symbolic_packet is synchronous → run in a thread
+                # push_symbolic_packet is synchronous -> run in a thread
                 success = await loop.run_in_executor(None, push_symbolic_packet, item["packet"])
                 if success:
                     item["delivered"] = True
@@ -201,7 +201,7 @@ async def set_target_status_async(target: str, is_online: bool):
     available_targets[target] = is_online
 
     if is_online and not previous:
-        logger.info(f"[SatelliteMode] Target {target} came online — async flushing packets...")
+        logger.info(f"[SatelliteMode] Target {target} came online - async flushing packets...")
         await flush_available_packets_async()
     elif not is_online and previous:
         logger.info(f"[SatelliteMode] Target {target} went offline.")
@@ -224,7 +224,7 @@ async def simulate_orbit_tick_async(delay: float = 2.0, stop_event: Optional[asy
             else:
                 await asyncio.sleep(delay)
         except asyncio.TimeoutError:
-            # timeout → loop again
+            # timeout -> loop again
             pass
 
 

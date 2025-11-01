@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-🛑 InterruptionManager — Phase 63 + (A7 Complete)
+🛑 InterruptionManager - Phase 63 + (A7 Complete)
 ───────────────────────────────────────────────────────────────
 Conscious override decision engine for Tessaris Core.
 
 Responsibilities:
-  • Monitor external stop or override commands
-  • Detect internal contradictions / ethical re-evaluations
-  • Snapshot + pause ActionSwitch context
-  • Consult EthicsEngine + TessarisReasoner for arbitration
-  • Resume or abort execution per Θ consensus
+  * Monitor external stop or override commands
+  * Detect internal contradictions / ethical re-evaluations
+  * Snapshot + pause ActionSwitch context
+  * Consult EthicsEngine + TessarisReasoner for arbitration
+  * Resume or abort execution per Θ consensus
 """
 
 import time, json, threading, signal
@@ -48,12 +48,12 @@ class InterruptionManager:
     # ------------------------------------------------------------
     def _handle_external_interrupt(self, signum, frame):
         """Handles SIGINT/SIGTERM from environment."""
-        print(f"🛑 External interrupt ({signum}) detected — initiating snapshot.")
+        print(f"🛑 External interrupt ({signum}) detected - initiating snapshot.")
         self.trigger(reason="external_signal", source="system")
 
     # ------------------------------------------------------------
     def trigger(self, reason: str, source: str = "unknown", details: dict | None = None):
-        """Primary trigger entry — sets override flag and initiates evaluation."""
+        """Primary trigger entry - sets override flag and initiates evaluation."""
         with self._lock:
             self.override_flag = True
             self._snapshot_context(reason, source)
@@ -84,7 +84,7 @@ class InterruptionManager:
 
         # Persist snapshot
         self.snapshot_path.write_text(json.dumps(snapshot, indent=2))
-        print(f"💾 Snapshot saved → {self.snapshot_path}")
+        print(f"💾 Snapshot saved -> {self.snapshot_path}")
 
         # Log to JSONL file
         with open(self.log_path, "a", encoding="utf-8") as f:
@@ -145,7 +145,7 @@ class InterruptionManager:
             pass
 
         print(
-            f"[Θ] Interruption arbitration → decision={decision}, "
+            f"[Θ] Interruption arbitration -> decision={decision}, "
             f"resonance={resonance_factor:.3f}, ethics={ethics_conf:.3f}, goal={goal_conf:.3f}"
         )
 
@@ -180,15 +180,15 @@ class InterruptionManager:
 
     # ------------------------------------------------------------
     def _resolve(self, decision: str):
-        """Finalize resolution — resume or abort execution."""
+        """Finalize resolution - resume or abort execution."""
         if decision == "resume":
-            print("✅ Interruption cleared — resuming ActionSwitch execution.")
+            print("✅ Interruption cleared - resuming ActionSwitch execution.")
             try:
                 self.action_switch.resume_all()
             except Exception as e:
                 print(f"[INTERRUPTION] ⚠ Resume error: {e}")
         else:
-            print("⛔ Interruption vetoed — aborting current ActionSwitch execution.")
+            print("⛔ Interruption vetoed - aborting current ActionSwitch execution.")
             try:
                 self.action_switch.abort_all()
             except Exception as e:
@@ -198,7 +198,7 @@ class InterruptionManager:
     # ------------------------------------------------------------
     def monitor_loop(self, interval: float = 1.5):
         """Continuously monitors for internal contradictions + entropy drift."""
-        print("🧭 InterruptionManager active — monitoring contradictions + overrides.")
+        print("🧭 InterruptionManager active - monitoring contradictions + overrides.")
         while True:
             time.sleep(interval)
             if self.override_flag:
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     mgr = InterruptionManager()
     t = threading.Thread(target=mgr.monitor_loop, daemon=True)
     t.start()
-    print("🛑 InterruptionManager demo running — press Ctrl + C to trigger.")
+    print("🛑 InterruptionManager demo running - press Ctrl + C to trigger.")
     try:
         while True:
             time.sleep(2)

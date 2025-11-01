@@ -88,12 +88,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         cur = _mtime(args.lean)
         if cur > 0 and cur != last:
             last = cur
-            print("\n— change detected —")
+            print("\n- change detected -")
             _run_inject(args.container, args.lean, extra_args, args.pythonpath)
         time.sleep(POLL_SEC)
 
 # -*- coding: utf-8 -*-
-"""Lean Watcher (Stub) — monitors Lean workspace for changes."""
+"""Lean Watcher (Stub) - monitors Lean workspace for changes."""
 
 def watch_lean_session(path=".", callback=None):
     print(f"[LeanWatch] Stub: monitoring {path} (no-op)")

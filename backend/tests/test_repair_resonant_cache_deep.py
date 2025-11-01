@@ -22,7 +22,7 @@ if not CACHE_PATH.exists():
 
 # Backup
 CACHE_PATH.replace(BACKUP_PATH)
-print(f"[Backup] Created → {BACKUP_PATH}")
+print(f"[Backup] Created -> {BACKUP_PATH}")
 
 # Try to parse
 try:

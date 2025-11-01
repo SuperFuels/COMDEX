@@ -3,11 +3,11 @@
 Tessaris Symatics SDK v2.2 (Phase 11)
 Module: sym_dynamics.py
 ───────────────────────────────────────────────
-Minimal resonance–collapse time evolution to generate
+Minimal resonance-collapse time evolution to generate
 φ̇(t), μ(t), E_meas(t) traces for the Physics/SDK layer.
 
 Model (simple open-system surrogate):
-    dψ/dt = i·ω(t)·ψ  - (μ(t)/2)·ψ
+    dψ/dt = i*ω(t)*ψ  - (μ(t)/2)*ψ
 where ω(t) is phase-rotation rate (rad/s), μ(t) is
 dimensionless collapse/measurement coupling.
 
@@ -15,7 +15,7 @@ Outputs:
     - psi(t): complex state
     - phi_dot(t): ω(t)
     - mu(t): μ(t)
-    - E_meas(t): k_φ · φ̇(t) · μ(t)
+    - E_meas(t): k_φ * φ̇(t) * μ(t)
 
 Notes:
     - This is a dynamics surrogate to feed SymTactics validators.
@@ -49,7 +49,7 @@ class SymDynamics:
         dt : float (s)
             Timestep.
         k_phi : float or None
-            Phase–collapse constant; defaults to c^2.
+            Phase-collapse constant; defaults to c^2.
 
         Returns
         -------

@@ -37,9 +37,9 @@ def convert_tex_to_pdf(tex_path: str):
     # Table formatting (replace any LaTeX table with simple text table)
     content = re.sub(r"\\begin{tabular}.*?\\end{tabular}", "[Table omitted in fallback PDF]", content, flags=re.S)
 
-    elements.append(Paragraph("<i>Generated via COMDEX TOE Engine — Python fallback exporter.</i>", styles["Italic"]))
+    elements.append(Paragraph("<i>Generated via COMDEX TOE Engine - Python fallback exporter.</i>", styles["Italic"]))
     doc.build(elements)
-    print(f"✅ PDF exported → {pdf_path.resolve()}")
+    print(f"✅ PDF exported -> {pdf_path.resolve()}")
 
 if __name__ == "__main__":
     convert_tex_to_pdf("docs/rfc/TOE_Whitepaper_v1.tex")

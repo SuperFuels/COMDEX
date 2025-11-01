@@ -199,13 +199,13 @@ class TickOrchestrator:
         if not hasattr(self, "_last_drift"):
             self._last_drift = None
 
-        drift_trend = "—"
+        drift_trend = "-"
         if self._last_drift is not None:
-            drift_trend = "↑" if drift > self._last_drift else "↓" if drift < self._last_drift else "→"
+            drift_trend = "↑" if drift > self._last_drift else "↓" if drift < self._last_drift else "->"
         self._last_drift = drift
 
         if drift > HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD:
-            print(f"⚠ Drift spike detected: Drift={drift:.3f} ({drift_trend}) → SQI damping applied.")
+            print(f"⚠ Drift spike detected: Drift={drift:.3f} ({drift_trend}) -> SQI damping applied.")
 
         # ✅ Telemetry Snapshot (per tick)
         telemetry = {
@@ -241,14 +241,14 @@ class TickOrchestrator:
 
             if warp_ready:
                 self.engine.log_event(
-                    f"🚀 [TickOrchestrator] Warp PI milestone achieved! (PI ≥ {HyperdriveTuningConstants.WARP_PI_THRESHOLD:.2f})"
+                    f"🚀 [TickOrchestrator] Warp PI milestone achieved! (PI >= {HyperdriveTuningConstants.WARP_PI_THRESHOLD:.2f})"
                 )
                 save_idle_state(self.engine, label="warp_pi_milestone")
                 print("✅ Warp PI snapshot saved. Preparing for pre-warp sequence...")
                 return  # Exit tick cycle early on warp milestone
             else:
                 self.engine.log_event(
-                    f"ℹ [TickOrchestrator] Warp PI not yet reached "
+                    f"i [TickOrchestrator] Warp PI not yet reached "
                     f"(avg exhaust PI={avg_exhaust_pi:.2f}, threshold={HyperdriveTuningConstants.WARP_PI_THRESHOLD})"
                 )
 
@@ -256,7 +256,7 @@ class TickOrchestrator:
             if avg_exhaust_pi >= HyperdriveTuningConstants.WARP_PI_THRESHOLD * 0.98:
                 new_damping = HyperdriveTuningConstants.DAMPING_FACTOR * 1.015
                 self.set_damping_factor(new_damping)
-                self.engine.log_event(f"🔮 PI pre-lock detected → Damping boosted ({new_damping:.4f})")
+                self.engine.log_event(f"🔮 PI pre-lock detected -> Damping boosted ({new_damping:.4f})")
 
         # ✅ Particle velocity safety enforcement
         HyperdriveTuningConstants.enforce_particle_safety(self.engine)
@@ -334,25 +334,25 @@ class TickOrchestrator:
     def set_harmonic_gain(self, value: float):
         HyperdriveTuningConstants.HARMONIC_GAIN = value
         self.engine.gain = value
-        self.engine.log_event(f"🎵 Harmonic gain updated → {value:.4f}")
+        self.engine.log_event(f"🎵 Harmonic gain updated -> {value:.4f}")
         self._persist_harmonic_constants()
 
     def set_decay_rate(self, value: float):
         HyperdriveTuningConstants.DECAY_RATE = value
         self.engine.decay_rate = value
-        self.engine.log_event(f"🎼 Harmonic decay updated → {value:.4f}")
+        self.engine.log_event(f"🎼 Harmonic decay updated -> {value:.4f}")
         self._persist_harmonic_constants()
 
     def set_damping_factor(self, value: float):
         HyperdriveTuningConstants.DAMPING_FACTOR = value
         self.engine.damping_factor = value
-        self.engine.log_event(f"🛡 Damping factor updated → {value:.4f}")
+        self.engine.log_event(f"🛡 Damping factor updated -> {value:.4f}")
         self._persist_harmonic_constants()
 
     def set_resonance_threshold(self, value: float):
         HyperdriveTuningConstants.RESONANCE_DRIFT_THRESHOLD = value
         self.engine.stability_threshold = value
-        self.engine.log_event(f"🎯 Resonance drift threshold updated → {value:.4f}")
+        self.engine.log_event(f"🎯 Resonance drift threshold updated -> {value:.4f}")
         self._persist_harmonic_constants()
 
     def _persist_harmonic_constants(self):

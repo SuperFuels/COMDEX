@@ -23,9 +23,9 @@ def enforce_qkd_policy(packet: dict, gkey: GKey) -> bool:
     must succeed.
 
     Modes:
-        - qkd_required=False → bypass (no enforcement).
-        - qkd_required=True  → must verify GKey + integrity.
-        - qkd_required="strict" → must verify GKey + integrity, else renegotiate.
+        - qkd_required=False -> bypass (no enforcement).
+        - qkd_required=True  -> must verify GKey + integrity.
+        - qkd_required="strict" -> must verify GKey + integrity, else renegotiate.
 
     Returns:
         bool: True if the packet passes QKD policy.
@@ -52,7 +52,7 @@ def enforce_qkd_policy(packet: dict, gkey: GKey) -> bool:
         gkey.verified = False
         gkey.compromised = True
 
-        # Strict mode → attempt renegotiation
+        # Strict mode -> attempt renegotiation
         if qkd_required == "strict":
             try:
                 renegotiate_gkey(gkey)
@@ -63,10 +63,10 @@ def enforce_qkd_policy(packet: dict, gkey: GKey) -> bool:
                     raise QKDPolicyError("Handshake failed after renegotiation.")
             except Exception as reneg_err:
                 logger.error("❌ QKD renegotiation failed: %s", reneg_err)
-                raise QKDPolicyError("GKey verification failed – renegotiation unsuccessful.")
+                raise QKDPolicyError("GKey verification failed - renegotiation unsuccessful.")
 
         else:
-            raise QKDPolicyError("GKey verification failed – possible tamper or decoherence.")
+            raise QKDPolicyError("GKey verification failed - possible tamper or decoherence.")
 
     # 🔎 Second: verify wave state integrity (fingerprint + collapse hash)
     try:
@@ -106,7 +106,7 @@ def route_packet(packet: dict, gkey: GKey) -> bool:
             return True
     except QKDPolicyError as e:
         logger.error("📡 ❌ Routing blocked: %s", str(e))
-        # TODO: Optional → quarantine or alternate route
+        # TODO: Optional -> quarantine or alternate route
         return False
 
     return False

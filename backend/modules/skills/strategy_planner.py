@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-🧭 StrategyPlanner — Phase 55 Resonant Upgrade + Goal Cluster Bridge
+🧭 StrategyPlanner - Phase 55 Resonant Upgrade + Goal Cluster Bridge
 ─────────────────────────────────────────────────────────────────────
 Extends strategic reasoning with Θ-feedback, resonance scoring,
 and adaptive goal-cluster coupling.
 
 Core Upgrades:
-  • SQI evaluation for each generated plan
-  • Continuous Θ-feedback via ResonanceHeartbeat
-  • Predictive refinement and adaptive weighting
-  • ResonantMemoryCache (RMC) harmonic persistence
-  • Automatic goal-cluster creation / reinforcement (P55 T4)
-  • Bidirectional GSI⇄SQI resonance exchange
+  * SQI evaluation for each generated plan
+  * Continuous Θ-feedback via ResonanceHeartbeat
+  * Predictive refinement and adaptive weighting
+  * ResonantMemoryCache (RMC) harmonic persistence
+  * Automatic goal-cluster creation / reinforcement (P55 T4)
+  * Bidirectional GSI⇄SQI resonance exchange
 """
 
 import uuid
@@ -36,7 +36,7 @@ from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbea
 # 🌐 Global Θ-field instance for unified resonance events
 Theta = ResonanceHeartbeat(namespace="global_theta")
 
-# 🔗 Dynamic bridge to Goal Task Manager – loaded lazily
+# 🔗 Dynamic bridge to Goal Task Manager - loaded lazily
 GOAL_CLUSTER = None
 def get_goal_cluster():
     """
@@ -65,7 +65,7 @@ STRATEGY_FILE = Path("data/memory/aion_strategies.json")
 # 🧠 Base Resonant Strategy Planner
 # ============================================================
 class StrategyPlanner:
-    """Resonant Strategy Planner — Base Layer for Phase 55."""
+    """Resonant Strategy Planner - Base Layer for Phase 55."""
 
     def __init__(self, enable_glyph_logging: bool = True):
         self.enable_glyph_logging = enable_glyph_logging
@@ -111,14 +111,14 @@ class StrategyPlanner:
         self.rmc.save()
 
         log.info(
-            f"🎯 Plan generated → SQI={plan['resonance_score']:.3f}, "
+            f"🎯 Plan generated -> SQI={plan['resonance_score']:.3f}, "
             f"confidence={plan['predicted_confidence']:.3f}"
         )
         return plan
 
     # ------------------------------------------------------------
     def _evaluate_plan_resonance(self, plan):
-        """Compute semantic–resonant alignment (SQI) of plan steps."""
+        """Compute semantic-resonant alignment (SQI) of plan steps."""
         total, count = 0.0, 0
         for step in plan.get("steps", []):
             entry = self.rmc.lookup(step)
@@ -206,11 +206,11 @@ class StrategyPlanner:
         ]
         with open(path, "w") as f:
             json.dump(data, f, indent=2)
-        log.info(f"📤 Exported resonant summary → {path}")
+        log.info(f"📤 Exported resonant summary -> {path}")
 
 
 # ============================================================
-# 🧭 P4 — Advanced Resonant Strategy Planner (Cluster Edition)
+# 🧭 P4 - Advanced Resonant Strategy Planner (Cluster Edition)
 # ============================================================
 class ResonantStrategyPlanner(StrategyPlanner):
     """
@@ -243,7 +243,7 @@ class ResonantStrategyPlanner(StrategyPlanner):
         self.rmc.save()
 
         # ──────────────────────────────────────────────
-        # 🌀 Resonant Goal Cluster Bridge (Phase 55 Task 4 – Stabilized)
+        # 🌀 Resonant Goal Cluster Bridge (Phase 55 Task 4 - Stabilized)
         # ──────────────────────────────────────────────
         try:
             cluster = get_goal_cluster()
@@ -258,7 +258,7 @@ class ResonantStrategyPlanner(StrategyPlanner):
             if early_stage or sqi_score < 0.7:
                 normalized_sqi = round(0.75 + sqi_score * 0.25, 3)
                 log.info(
-                    f"[ClusterBridge] ⚛ Bootstrap normalization applied — SQI {sqi_score:.3f} → {normalized_sqi:.3f} "
+                    f"[ClusterBridge] ⚛ Bootstrap normalization applied - SQI {sqi_score:.3f} -> {normalized_sqi:.3f} "
                     f"(cache={cache_size})"
                 )
 
@@ -285,13 +285,13 @@ class ResonantStrategyPlanner(StrategyPlanner):
                         old = g.get("priority", 1.0)
                         g["priority"] = round(old + (normalized_sqi * 2), 2)
                         log.info(
-                            f"[ClusterBridge] 🔁 Reinforced {g['name']} priority {old:.2f}→{g['priority']:.2f}"
+                            f"[ClusterBridge] 🔁 Reinforced {g['name']} priority {old:.2f}->{g['priority']:.2f}"
                         )
                     cluster.goal_engine.save_goals()
             else:
                 # Force creation if no goals exist (testing bootstrap)
                 if not goals:
-                    log.warning("⚠️ Planner GoalEngine has no cluster goals yet — bootstrapping one for test phase.")
+                    log.warning("⚠️ Planner GoalEngine has no cluster goals yet - bootstrapping one for test phase.")
                     new_goal = {
                         "name": f"cluster_goal_{goal.replace(' ', '_')}",
                         "description": f"[AutoTest] Bootstrap goal for '{goal}'",
@@ -304,14 +304,14 @@ class ResonantStrategyPlanner(StrategyPlanner):
                     }
                     cluster.goal_engine.assign_goal(new_goal)
                     cluster.goal_engine.save_goals()
-                    log.info(f"[ClusterBridge] 🌱 Bootstrap cluster goal created → {new_goal['name']}")
+                    log.info(f"[ClusterBridge] 🌱 Bootstrap cluster goal created -> {new_goal['name']}")
                 else:
                     log.info(f"[ClusterBridge] ⏸ Skipped cluster creation (SQI={normalized_sqi:.3f})")
 
         except Exception as e:
             log.warning(f"[ClusterBridge] ⚠ Resonant bridge error: {e}")
 
-        # 🔁 Bidirectional coupling — boost plan from goal resonance (GSI)
+        # 🔁 Bidirectional coupling - boost plan from goal resonance (GSI)
         try:
             cluster = get_goal_cluster()
             gsi_avg = getattr(cluster, "latest_gsi", 0.5)
@@ -320,7 +320,7 @@ class ResonantStrategyPlanner(StrategyPlanner):
             pass
 
         log.info(
-            f"[P4] ✅ Plan generated → SQI={sqi_score:.3f}, "
+            f"[P4] ✅ Plan generated -> SQI={sqi_score:.3f}, "
             f"confidence={plan['predicted_confidence']:.3f}"
         )
         return plan
@@ -339,7 +339,7 @@ class ResonantStrategyPlanner(StrategyPlanner):
         ]
         with open(path, "w") as f:
             json.dump(data, f, indent=2)
-        log.info(f"[P4] 📤 Exported resonant summary → {path}")
+        log.info(f"[P4] 📤 Exported resonant summary -> {path}")
 
 
 # ============================================================

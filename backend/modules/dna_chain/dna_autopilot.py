@@ -1,8 +1,8 @@
 # backend/modules/dna_chain/dna_autopilot.py
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • DNA Autopilot
+#  Tessaris * DNA Autopilot
 #  Self-growth bridge between AION/QQC awareness ↔ DNA Chain
-#  Monitors Φ/coherence + logs → proposes CRISPR mutations safely.
+#  Monitors Φ/coherence + logs -> proposes CRISPR mutations safely.
 # ──────────────────────────────────────────────────────────────
 
 import asyncio
@@ -25,9 +25,9 @@ MAX_PROPOSALS_PER_RUN = 2         # to prevent runaway spawning
 async def monitor_self_growth(aion_ref):
     """
     Continuous coroutine:
-      • Reads recent Φ/coherence from Morphic Ledger
-      • Detects degradation / drifts
-      • Generates CRISPR mutation proposals via LLM interface
+      * Reads recent Φ/coherence from Morphic Ledger
+      * Detects degradation / drifts
+      * Generates CRISPR mutation proposals via LLM interface
     """
     print("[🧬 DNA-Autopilot] Activated self-growth monitor.")
     while True:

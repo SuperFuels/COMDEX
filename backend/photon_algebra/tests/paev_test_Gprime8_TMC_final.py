@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Test G′8 — Tessaris Model Concordance (TMC Evaluation)
-Verifies unified closure across α, ħ, mₑ, and corrected G.
+Test G′8 - Tessaris Model Concordance (TMC Evaluation)
+Verifies unified closure across α, ħ, me, and corrected G.
 """
 
 import numpy as np, matplotlib.pyplot as plt, csv, time
@@ -54,19 +54,19 @@ ax.fill(angles, values, "r", alpha=0.2)
 ax.set_xticks(angles[:-1])
 ax.set_xticklabels(labels)
 ax.set_yticks(np.linspace(0, max(values), 6))
-ax.set_title("G′8 — Tessaris Model Concordance Radar Map", va='bottom')
+ax.set_title("G′8 - Tessaris Model Concordance Radar Map", va='bottom')
 plt.tight_layout()
 plt.savefig("PAEV_TestGprime8_TMC_Radar.png")
 
 # --- Report ---
-print("=== G′8 — Tessaris Model Concordance (TMC Evaluation) ===")
+print("=== G′8 - Tessaris Model Concordance (TMC Evaluation) ===")
 for k, v in devs.items():
     print(f"{k:5s} : Δ {v:+.3f} %")
 print(f"\nTMC Index = {TMC:.3f} %")
 if TMC < 10:
     print("✅ Tessaris Model Concordance achieved (Unified Closure)")
 else:
-    print("⚠️  Partial Concordance — further curvature refinement may be needed.")
+    print("⚠️  Partial Concordance - further curvature refinement may be needed.")
 
 print("\n✅ Saved data: results_Gprime8_TMC_final.csv")
 print("✅ Saved radar: PAEV_TestGprime8_TMC_Radar.png")

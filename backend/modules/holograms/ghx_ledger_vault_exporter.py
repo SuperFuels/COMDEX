@@ -1,5 +1,5 @@
 """
-🧩 SRK-18.5 — GHX Ledger Vault Exporter (DLF → GlyphVault)
+🧩 SRK-18.5 - GHX Ledger Vault Exporter (DLF -> GlyphVault)
 Module: backend/modules/holograms/ghx_ledger_vault_exporter.py
 Subsystem: Holograms / GHX Continuity Layer
 
@@ -9,9 +9,9 @@ Purpose:
     and continuity trace replay.
 
 Features:
-    • Deterministic SHA3-512 signature for snapshot verification
-    • Automatic vault rotation (default max_keep=5)
-    • Compatible with GHXContinuityLedger.restore()
+    * Deterministic SHA3-512 signature for snapshot verification
+    * Automatic vault rotation (default max_keep=5)
+    * Compatible with GHXContinuityLedger.restore()
 
 Author: Tessaris Core Engineering
 Spec Ref: SRK-18 / Phase 18.5

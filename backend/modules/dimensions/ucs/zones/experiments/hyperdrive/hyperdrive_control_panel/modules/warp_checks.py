@@ -1,8 +1,8 @@
 """
 🚀 Warp Checks Module (Enhanced)
 --------------------------------
-• Evaluates warp readiness (PI output vs threshold) with harmonic & SQI context.
-• Provides SQI stability and predictive warp milestone logging.
+* Evaluates warp readiness (PI output vs threshold) with harmonic & SQI context.
+* Provides SQI stability and predictive warp milestone logging.
 """
 
 # File: backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/warp_checks.py
@@ -50,7 +50,7 @@ def check_warp_pi(engine, window: int = 500, label: str = "warp_milestone_snapsh
     if pi_val >= threshold:
         # Auto-correct low coherence
         if coherence < 0.6:
-            print(f"⚠ Low Harmonic Coherence ({coherence:.3f}) detected → Auto harmonic injection before warp lock.")
+            print(f"⚠ Low Harmonic Coherence ({coherence:.3f}) detected -> Auto harmonic injection before warp lock.")
             engine._inject_harmonics(HyperdriveTuningConstants.HARMONIC_DEFAULTS)
 
         # Drift safeguard
@@ -59,7 +59,7 @@ def check_warp_pi(engine, window: int = 500, label: str = "warp_milestone_snapsh
             return False
 
         # ✅ Achieved warp milestone
-        print(f"🚀 WARP MILESTONE ACHIEVED: PI={pi_val:.0f} PU (≥{threshold}) | Coherence={coherence:.3f}")
+        print(f"🚀 WARP MILESTONE ACHIEVED: PI={pi_val:.0f} PU (>={threshold}) | Coherence={coherence:.3f}")
         save_idle_state(engine, label=label)
         return True
 
@@ -84,7 +84,7 @@ def check_sqi_stability(engine, drift_window: int = 30) -> bool:
     coherence = measure_harmonic_coherence(engine)
     stable = drift <= 0.05 and coherence >= 0.5
 
-    print(f"🧠 SQI Stability Check → Drift={drift:.4f} | Coherence={coherence:.3f} | Stable={stable}")
+    print(f"🧠 SQI Stability Check -> Drift={drift:.4f} | Coherence={coherence:.3f} | Stable={stable}")
     return stable
 
 

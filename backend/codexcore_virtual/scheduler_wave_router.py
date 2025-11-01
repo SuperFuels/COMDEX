@@ -1,5 +1,5 @@
 """
-Tessaris • Codex → Symatics Lightwave Router
+Tessaris * Codex -> Symatics Lightwave Router
 ---------------------------------------------
 Intercepts Codex scheduler dispatch calls and routes {kind:"wave"}
 instructions to the Symatics Lightwave Engine (SLE).
@@ -67,7 +67,7 @@ class SchedulerWaveRouter:
             )
         )
 
-        # Perform symbolic→photonic collapse cycle
+        # Perform symbolic->photonic collapse cycle
         result = self.engine.entangled_wave.collapse_all()
 
         return {

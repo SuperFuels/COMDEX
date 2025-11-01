@@ -3,8 +3,8 @@
 # ============================================================
 
 """
-HolographicCortex — symbolic projection and light-field synthesis layer.
-Provides visual–symbolic mappings for CodexCore state projections.
+HolographicCortex - symbolic projection and light-field synthesis layer.
+Provides visual-symbolic mappings for CodexCore state projections.
 """
 
 import datetime

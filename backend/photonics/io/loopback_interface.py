@@ -5,9 +5,9 @@ Abstract layer enabling seamless transition between simulated optical
 feedback and real hardware integration (MZM/DAC/PD modules).
 
 Implements:
-  • LoopbackInterface   – virtual optical bus bridge
-  • HardwareAdapter     – hardware proxy mapping (future)
-  • ResonantIOLink      – unified entrypoint for AION/QQC signal exchange
+  * LoopbackInterface   - virtual optical bus bridge
+  * HardwareAdapter     - hardware proxy mapping (future)
+  * ResonantIOLink      - unified entrypoint for AION/QQC signal exchange
 
 Runtime Modes:
   mode = {"sim", "hardware"}
@@ -47,7 +47,7 @@ class LoopbackInterface:
         if self.mode == "sim":
             self.last_intensity = self.feedback_loop.run_cycle(data, phase_bias)
         else:
-            # In hardware mode, call DAC→MZM→PD through device drivers
+            # In hardware mode, call DAC->MZM->PD through device drivers
             # (future physical API)
             self.last_intensity = self.feedback_loop.run_cycle(data, phase_bias)
 
@@ -86,7 +86,7 @@ class HardwareAdapter:
 
     def calibrate(self):
         """Perform calibration sequence (simulated)."""
-        print("[HardwareAdapter] Calibration complete — nominal alignment achieved.")
+        print("[HardwareAdapter] Calibration complete - nominal alignment achieved.")
 
 
 # ──────────────────────────────────────────────────────────────
@@ -122,9 +122,9 @@ class ResonantIOLink:
 # ──────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("🔁 Tessaris Photonic Loopback Interface — Test Run")
+    print("🔁 Tessaris Photonic Loopback Interface - Test Run")
     t = np.linspace(0, 2 * np.pi, 128)
     signal = np.sin(2 * t)
     io = ResonantIOLink(mode="sim")
     res = io.propagate(signal, phase_bias=np.pi / 6)
-    print(f"[Test] Resonant propagation → Φ_measured={res['Φ_measured']:.4f}, ΔΦ_est={res['ΔΦ_est']:.4f}")
+    print(f"[Test] Resonant propagation -> Φ_measured={res['Φ_measured']:.4f}, ΔΦ_est={res['ΔΦ_est']:.4f}")

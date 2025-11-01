@@ -9,13 +9,13 @@ from backend.modules.glyphvault.soul_law_validator import get_soul_law_validator
 def transition_stage(engine, new_stage: str, reseed_particles: bool = True):
     """
     Handles stage transition logic, including:
-    • Engine reconfiguration
-    • Harmonic resync & coherence validation
-    • SQI drift reset
-    • Optional particle reseeding
-    • .dc snapshot auto-export
-    • Telemetry log binding
-    • SoulLaw-validated container expansion
+    * Engine reconfiguration
+    * Harmonic resync & coherence validation
+    * SQI drift reset
+    * Optional particle reseeding
+    * .dc snapshot auto-export
+    * Telemetry log binding
+    * SoulLaw-validated container expansion
     """
     if new_stage not in engine.stages:
         raise ValueError(f"❌ Invalid stage: {new_stage}")
@@ -56,7 +56,7 @@ def transition_stage(engine, new_stage: str, reseed_particles: bool = True):
         "tick_count": engine.tick_count,
     }, engine.last_dc_trace, stage=new_stage, sqi_enabled=engine.sqi_enabled)
 
-    print(f"📦 Auto-exported .dc snapshot for stage '{new_stage}' → {engine.last_dc_trace}")
+    print(f"📦 Auto-exported .dc snapshot for stage '{new_stage}' -> {engine.last_dc_trace}")
 
     # 🖥 Telemetry snapshot logging
     TelemetryLogger(log_dir=engine.LOG_DIR).log({

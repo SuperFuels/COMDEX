@@ -1,14 +1,14 @@
 """
 Tessaris Cognitive-Field Resonance Logger (CFRL)
-Phase 9 — Unified 4-D Field Recorder
+Phase 9 - Unified 4-D Field Recorder
 -------------------------------------
 Collects and correlates data from:
- • resonant_heartbeat.jsonl (ΔΦ + stability)
- • photon_output (.photo files, Δψ patterns)
- • harmonic_spectrum_analyzer (centroid ν)
+ * resonant_heartbeat.jsonl (ΔΦ + stability)
+ * photon_output (.photo files, Δψ patterns)
+ * harmonic_spectrum_analyzer (centroid ν)
 and stores a continuous 4-D timeline:
 
-    (time × Φ × ν × ψ)
+    (time * Φ * ν * ψ)
 
 Author: Tessaris Symbolic Intelligence Lab, 2025
 """
@@ -68,7 +68,7 @@ def merge_entries(hb, photo, centroid):
 # 🧠 Main Loop
 # ---------------------------------------------------------
 def run_cognitive_field_logger():
-    print("🧠 Starting Tessaris Cognitive-Field Resonance Logger …")
+    print("🧠 Starting Tessaris Cognitive-Field Resonance Logger ...")
     session_count = 0
 
     while True:
@@ -99,7 +99,7 @@ def run_cognitive_field_logger():
             st = merged.get("stability")
             print(
                 f"{session_count:04d} ▸ ΔΦ_coh={mean_phi:.6f}  stability={st:.3f}  "
-                f"centroid={centroid_val if centroid_val else '—'}"
+                f"centroid={centroid_val if centroid_val else '-'}"
             )
 
             # Trim file size if needed

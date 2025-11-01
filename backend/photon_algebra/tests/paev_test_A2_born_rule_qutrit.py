@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Test A2 — Born Rule Emergence (Qutrit: 3 outcomes)
+Test A2 - Born Rule Emergence (Qutrit: 3 outcomes)
 
-Demonstrates that Photon Algebra rewrite normalization converges to |α|²,|β|²,|γ|²
+Demonstrates that Photon Algebra rewrite normalization converges to |α|2,|β|2,|γ|2
 for a 3-level superposition without assuming probabilistic postulates.
 """
 
@@ -24,7 +24,7 @@ def born_rule_qutrit(alpha, beta, gamma):
 def photon_algebra_rewrite(alpha, beta, gamma, n_steps=60):
     """
     Simulate PA iterative rewrite/normalization.
-    At each step, we reweight by contextual overlaps + noise → emergent frequencies.
+    At each step, we reweight by contextual overlaps + noise -> emergent frequencies.
     """
     rng = np.random.default_rng(42)
     psi = np.array([alpha, beta, gamma], dtype=complex)
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     α, β, γ = r / np.linalg.norm(r)
     Pq = born_rule_qutrit(α, β, γ)
 
-    print("=== Born Rule (3-Level) — Quantum vs Photon Algebra ===")
+    print("=== Born Rule (3-Level) - Quantum vs Photon Algebra ===")
     print(f"State: |ψ⟩ = α|0⟩ + β|1⟩ + γ|2⟩")
     print(f"Quantum probabilities: P(0)={Pq[0]:.3f}, P(1)={Pq[1]:.3f}, P(2)={Pq[2]:.3f}")
 
@@ -78,11 +78,11 @@ if __name__ == "__main__":
     for i, color in enumerate(["b","g","r"]):
         plt.plot(steps, empirical[:,i], color=color, label=f"PA Empirical P({i})")
         plt.hlines(Pq[i], 0, len(empirical), color=color, linestyle="--", alpha=0.6,
-                   label=f"Quantum |α{i}|²")
+                   label=f"Quantum |α{i}|2")
 
     plt.xlabel("Iteration")
     plt.ylabel("Probability P(i)")
-    plt.title("Test A2 — Emergence of Born Rule (3-level system)")
+    plt.title("Test A2 - Emergence of Born Rule (3-level system)")
     plt.legend()
     plt.tight_layout()
     plt.savefig("PAEV_TestA2_BornRule_Qutrit.png")

@@ -61,7 +61,7 @@ plt.plot(S_system, label="S_system")
 plt.plot(S_observer, label="S_observer")
 plt.plot(S_meta, label="S_meta (awareness)")
 plt.plot(S_self, label="S_self (feedback)")
-plt.title("P4 — Awareness Feedback Stabilization")
+plt.title("P4 - Awareness Feedback Stabilization")
 plt.xlabel("time step")
 plt.ylabel("Entropy")
 plt.legend()
@@ -88,6 +88,6 @@ summary = {
 with open("backend/modules/knowledge/P4_awareness_feedback.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== P4 — Awareness Feedback Stabilization ===")
+print("=== P4 - Awareness Feedback Stabilization ===")
 print(f"⟨drift⟩={recursive_drift:.3e} | Corr={meta_feedback_corr:.3f} | σ={self_consistency:.3f} | {cls}")
-print("✅ Results saved → backend/modules/knowledge/P4_awareness_feedback.json")
+print("✅ Results saved -> backend/modules/knowledge/P4_awareness_feedback.json")

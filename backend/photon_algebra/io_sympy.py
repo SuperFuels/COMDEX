@@ -2,7 +2,7 @@
 """
 Photon JSON ↔ SymPy Interop (Fully Structural, Non-Evaluating, Strict)
 ======================================================================
-Ensures exact structural fidelity — no collapsing, no simplification.
+Ensures exact structural fidelity - no collapsing, no simplification.
 """
 
 import sympy as sp
@@ -44,7 +44,7 @@ class PhotonLiteral(_PhotonBase):
 
 
 class PhotonOr(_PhotonBase):
-    """Explicit OR node — always preserved."""
+    """Explicit OR node - always preserved."""
     @classmethod
     def eval(cls, *args): return None
     def __new__(cls, *args, **kwargs):
@@ -55,7 +55,7 @@ class PhotonOr(_PhotonBase):
 
 
 class PhotonAnd(_PhotonBase):
-    """Explicit AND node — always preserved."""
+    """Explicit AND node - always preserved."""
     @classmethod
     def eval(cls, *args): return None
     def __new__(cls, *args, **kwargs):
@@ -89,10 +89,10 @@ class PhotonStar(_PhotonBase): nargs = 1
 
 
 # -------------------------------------------------------------------------
-# JSON → SymPy
+# JSON -> SymPy
 # -------------------------------------------------------------------------
 def json_to_sympy(expr):
-    """Convert Photon JSON IR → SymPy structurally."""
+    """Convert Photon JSON IR -> SymPy structurally."""
     if isinstance(expr, str):
         return PhotonLiteral(sp.Symbol(expr))
     if not isinstance(expr, dict):
@@ -131,10 +131,10 @@ def json_to_sympy(expr):
 
 
 # -------------------------------------------------------------------------
-# SymPy → JSON
+# SymPy -> JSON
 # -------------------------------------------------------------------------
 def sympy_to_json(sexpr):
-    """Convert SymPy → Photon JSON structurally."""
+    """Convert SymPy -> Photon JSON structurally."""
     if isinstance(sexpr, PhotonLiteral):
         (inner,) = sexpr.args
         return sympy_to_json(inner)
@@ -230,12 +230,12 @@ def json_to_sympy(expr):
     res = _orig_json_to_sympy(expr)
     if isinstance(expr, dict) and expr.get("op") in {"⊕", "↔"}:
         _debug_trace(expr, "INPUT JSON")
-        _debug_trace(res, "→ SYMPY STRUCTURE")
+        _debug_trace(res, "-> SYMPY STRUCTURE")
     return res
 
 def sympy_to_json(sexpr):
     res = _orig_sympy_to_json(sexpr)
     if isinstance(sexpr, (_PhotonBase, sp.Function, sp.Symbol)):
-        _debug_trace(sexpr, "← FROM SYMPY")
+        _debug_trace(sexpr, "<- FROM SYMPY")
         _debug_trace(res, "OUTPUT JSON")
     return res

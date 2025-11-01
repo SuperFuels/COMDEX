@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-E6g — Log-Adaptive Universality (tanh-bounded curvature feedback)
+E6g - Log-Adaptive Universality (tanh-bounded curvature feedback)
 -----------------------------------------------------------------
 Adaptive curvature feedback with bounded hyperbolic tangent control:
-    γ_κ(t) = γ_κ⁰ * [1 + β * tanh(|dS/dt|)]
+    γ_κ(t) = γ_κ0 * [1 + β * tanh(|dS/dt|)]
 This prevents runaway gain spikes seen in E6f while retaining 
 responsiveness to entropy-rate fluctuations.
 """
@@ -126,7 +126,7 @@ for k, c in zip(IC_types, colors):
     plt.scatter(metrics["Phi_mean"][i], metrics["curv_exp"][i], s=180, color=c, label=k)
 plt.xlabel("⟨Φ⟩ (normalized)")
 plt.ylabel("Curvature exponent")
-plt.title("E6g — Log-Adaptive Universality (tanh-bounded γₖ)")
+plt.title("E6g - Log-Adaptive Universality (tanh-bounded γk)")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_E6g_LogAdaptive.png")
@@ -134,9 +134,9 @@ plt.savefig("PAEV_E6g_LogAdaptive.png")
 # Adaptive feedback traces
 plt.figure(figsize=(8, 4))
 for k, c in zip(IC_types, colors):
-    plt.plot(t, gamma_records[k], label=f"{k} γₖ(t)", lw=1.2, color=c)
+    plt.plot(t, gamma_records[k], label=f"{k} γk(t)", lw=1.2, color=c)
 plt.xlabel("time")
-plt.ylabel("γₖ(t)")
+plt.ylabel("γk(t)")
 plt.title("Adaptive Curvature Feedback Evolution (tanh-bounded)")
 plt.legend()
 plt.tight_layout()
@@ -165,10 +165,10 @@ results = {
     },
 }
 
-print("=== E6g — Log-Adaptive Universality (tanh-bounded) ===")
+print("=== E6g - Log-Adaptive Universality (tanh-bounded) ===")
 print(json.dumps(results, indent=2))
 
 outf = Path("backend/modules/knowledge/E6g_log_adaptive_universality.json")
 outf.parent.mkdir(parents=True, exist_ok=True)
 outf.write_text(json.dumps(results, indent=2))
-print(f"✅ Results saved → {outf}")
+print(f"✅ Results saved -> {outf}")

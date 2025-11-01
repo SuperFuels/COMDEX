@@ -1,8 +1,8 @@
 """
 🚀 Hyperdrive Main Runtime
 --------------------------
-• Unified entrypoint: CLI → Engine Init → SQI Engage → ECU Loop → Terminal/Dashboard.
-• Supports dual-engine sync, SQI phase-aware runs, GHX dashboard, and safety recovery.
+* Unified entrypoint: CLI -> Engine Init -> SQI Engage -> ECU Loop -> Terminal/Dashboard.
+* Supports dual-engine sync, SQI phase-aware runs, GHX dashboard, and safety recovery.
 """
 
 import sys
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         ENGINE_REGISTRY["engine_a"] = engine_a
 
         if not ignition_to_idle(engine_a, sqi=engine_a.sqi_engine if hasattr(engine_a, "sqi_engine") else None):
-            print("⚠ Ignition failed → Attempting idle state reload for Engine A...")
+            print("⚠ Ignition failed -> Attempting idle state reload for Engine A...")
             load_idle_state(engine_a)
             print("⏳ Retrying ignition after idle load...")
             ignition_to_idle(engine_a, sqi=engine_a.sqi_engine if hasattr(engine_a, "sqi_engine") else None)
@@ -73,9 +73,9 @@ if __name__ == "__main__":
             engine_b = create_engine("engine-B", args)
             ENGINE_REGISTRY["engine_b"] = engine_b
 
-            # 🔥 Attempt ignition → fallback to idle recovery if needed
+            # 🔥 Attempt ignition -> fallback to idle recovery if needed
             if not ignition_to_idle(engine_b, sqi=getattr(engine_b, "sqi_engine", None)):
-                print("⚠ Ignition failed on Engine B → Attempting idle state reload...")
+                print("⚠ Ignition failed on Engine B -> Attempting idle state reload...")
                 load_idle_state(engine_b)
                 print("⏳ Retrying ignition after idle load for Engine B...")
                 ignition_to_idle(engine_b, sqi=getattr(engine_b, "sqi_engine", None))

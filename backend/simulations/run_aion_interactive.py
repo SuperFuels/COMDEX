@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AION Interactive Simulation Console — Phase 12
+AION Interactive Simulation Console - Phase 12
 ───────────────────────────────────────────────
 Live REPL for symbolic resonance interaction.
 Loads AION memory + KG registry and allows direct resonance queries.
@@ -32,12 +32,12 @@ def list_capsules(limit=20):
     for i, (lemma, meta) in enumerate(memory.items()):
         if i >= limit: break
         e = meta.get("E")
-        print(f"  • {lemma:<20}  E={e:.5f}" if e else f"  • {lemma}")
+        print(f"  * {lemma:<20}  E={e:.5f}" if e else f"  * {lemma}")
 
 def query_resonance(term: str):
     res = get_resonance(term)
     if not res:
-        print(f"⚠️ No resonance data for '{term}', attempting fresh update…")
+        print(f"⚠️ No resonance data for '{term}', attempting fresh update...")
         res = update_resonance(term)
     print(f"🌀 {term}: SQI={res.get('SQI')} ρ={res.get('ρ')} Ī={res.get('Ī')} E={res.get('E')}")
     return res
@@ -49,7 +49,7 @@ def top_energy(n=10):
         print(f"{i+1:02d}. {k:<20} E={e:.5f}")
 
 def main():
-    print("🌐 AION Interactive Console — Phase 12")
+    print("🌐 AION Interactive Console - Phase 12")
     print("Type 'help' for commands. Ctrl-D or 'exit' to quit.\n")
 
     while True:
@@ -66,10 +66,10 @@ def main():
         elif cmd == "help":
             print("""
 Commands:
-  list [n]             → list first n capsules from memory
-  res <term>           → show resonance state for a term
-  top [n]              → show top-n by symbolic energy E
-  reload               → reload memory and KG
+  list [n]             -> list first n capsules from memory
+  res <term>           -> show resonance state for a term
+  top [n]              -> show top-n by symbolic energy E
+  reload               -> reload memory and KG
   help / exit
 """)
         elif cmd.startswith("list"):

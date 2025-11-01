@@ -1,7 +1,7 @@
 # ============================================================
 # 🧪 Photon Timeline Replay Test
 # ============================================================
-# Verifies .ptn snapshots can be replayed through Photon → SQI → QQC → QFC.
+# Verifies .ptn snapshots can be replayed through Photon -> SQI -> QQC -> QFC.
 
 import asyncio
 import pytest

@@ -1,6 +1,6 @@
-# === Ω2 — Gravitational Cutoff Simulation (Tessaris) ===
+# === Ω2 - Gravitational Cutoff Simulation (Tessaris) ===
 # Purpose: Identify saturation point where curvature and information flux
-# reach dynamic equilibrium — analog of event horizon stability.
+# reach dynamic equilibrium - analog of event horizon stability.
 # Complies with Tessaris Unified Constants & Verification Protocol v1.2
 
 import numpy as np
@@ -21,7 +21,7 @@ if os.path.exists(omega1_path):
     print(f"Loaded Ω1 collapse level = {collapse_level:.3e}")
 else:
     collapse_level = 1e-3
-    print("⚠️  Ω1 data not found — using default collapse level = 1e−3.")
+    print("⚠️  Ω1 data not found - using default collapse level = 1e-3.")
 
 # === 3. Generate or load curvature/flux arrays ===
 x = np.linspace(-8, 8, 512)
@@ -40,19 +40,19 @@ equilibrium_ratio = np.mean(np.abs(R_damped)) / (collapse_level + 1e-9)
 
 # === 4. Classification ===
 if 0.8 <= equilibrium_ratio <= 1.2:
-    state = "Stable equilibrium — cutoff achieved"
+    state = "Stable equilibrium - cutoff achieved"
     stable = True
 elif equilibrium_ratio > 1.2:
-    state = "Supercritical collapse — over-threshold curvature"
+    state = "Supercritical collapse - over-threshold curvature"
     stable = False
 else:
-    state = "Subcritical — curvature below equilibrium threshold"
+    state = "Subcritical - curvature below equilibrium threshold"
     stable = False
 
-print("\n=== Ω2 — Gravitational Cutoff Simulation (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
+print("\n=== Ω2 - Gravitational Cutoff Simulation (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
 print(f"⟨|R_damped|⟩ = {np.mean(np.abs(R_damped)):.3e}, J_flux_mean = {np.mean(np.abs(J_flux)):.3e}")
-print(f"Equilibrium ratio = {equilibrium_ratio:.3f} → {state}\n")
+print(f"Equilibrium ratio = {equilibrium_ratio:.3f} -> {state}\n")
 
 # === 5. Discovery notes ===
 timestamp = datetime.datetime.now(datetime.UTC).isoformat()
@@ -60,7 +60,7 @@ notes = [
     f"Equilibrium ratio = {equilibrium_ratio:.3f}.",
     f"Mean damped curvature ⟨|R_damped|⟩ = {np.mean(np.abs(R_damped)):.3e}.",
     f"Flux balance = {flux_balance:.3e}.",
-    "Stable equilibrium corresponds to gravitational cutoff — event horizon analogue.",
+    "Stable equilibrium corresponds to gravitational cutoff - event horizon analogue.",
     "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
 ]
 
@@ -86,7 +86,7 @@ with open(summary_path, "w", encoding="utf-8") as f:
 plt.figure(figsize=(8, 4))
 plt.plot(x, R_damped, label="Damped curvature (R_damped)")
 plt.plot(x, J_flux, label="Information flux (J_flux)")
-plt.title("Ω2 — Gravitational Cutoff Simulation")
+plt.title("Ω2 - Gravitational Cutoff Simulation")
 plt.xlabel("x (lattice coordinate)")
 plt.ylabel("Amplitude")
 plt.legend()
@@ -95,6 +95,6 @@ plot_path = os.path.join(base_path, "PAEV_Ω2_gravitational_cutoff.png")
 plt.savefig(plot_path, dpi=200)
 plt.close()
 
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

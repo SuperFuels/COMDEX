@@ -2,10 +2,10 @@
 # 📁 backend/modules/aion_language/etym_engine.py
 # ======================================================
 """
-Phase 45F.4 — EtymEngine (Root Lineage Tracker)
+Phase 45F.4 - EtymEngine (Root Lineage Tracker)
 ───────────────────────────────────────────────────────
 Parses and links etymological roots across the LexiCore,
-ThesauriNet, and Meaning Field Engine to generate Φ–ψ–η
+ThesauriNet, and Meaning Field Engine to generate Φ-ψ-η
 resonance lineages.
 
 Output:
@@ -21,7 +21,7 @@ ETY_PATH = Path("data/lexicons/etymology_lineage.ety.json")
 
 class EtymEngine:
     def __init__(self):
-        self.lineage = {}       # word → {root, origin, resonance_score}
+        self.lineage = {}       # word -> {root, origin, resonance_score}
         self.last_update = None
 
     # ─────────────────────────────────────────
@@ -32,7 +32,7 @@ class EtymEngine:
 
     # ─────────────────────────────────────────
     def add_entry(self, word: str, root: str, origin: str, depth: int = 1):
-        """Register a single word → root lineage mapping."""
+        """Register a single word -> root lineage mapping."""
         self.lineage[word] = {
             "root": root,
             "origin": origin,
@@ -62,7 +62,7 @@ class EtymEngine:
                 }
             }, f, indent=2)
         self.last_update = time.time()
-        logger.info(f"[EtymEngine] Exported lineage → {ETY_PATH}")
+        logger.info(f"[EtymEngine] Exported lineage -> {ETY_PATH}")
 
 # ─────────────────────────────────────────
 # Global instance
@@ -77,7 +77,7 @@ except NameError:
 # Optional CLI entry
 # ─────────────────────────────────────────
 if __name__ == "__main__":
-    print("🌱 Building Etymology Lineage …")
+    print("🌱 Building Etymology Lineage ...")
     ETYM.add_entry("photon", "phōs", "Greek φῶς (light)", depth=1)
     ETYM.add_entry("wave", "wafian", "Old English wafian (to move)", depth=2)
     ETYM.add_entry("light", "leuk", "Proto-Indo-European *leuk- (bright)", depth=3)

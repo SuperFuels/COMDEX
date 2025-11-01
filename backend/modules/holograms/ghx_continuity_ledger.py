@@ -1,5 +1,5 @@
 """
-🧩 SRK-18 — GHX Continuity Ledger (GCL)
+🧩 SRK-18 - GHX Continuity Ledger (GCL)
 Module: backend/modules/holograms/ghx_continuity_ledger.py
 
 Purpose:
@@ -8,10 +8,10 @@ Purpose:
     containing event metadata, signatures, and continuity verification.
 
 Phases:
-    • 18.1 — GCL Core Ledger implementation
-    • 18.2 — Hook Integration (GCH)
-    • 18.3 — Chain Integrity Enforcement (prev↔curr hash, signature)
-    • 18.4+ — Federation, Vault Export, and Auditing
+    * 18.1 - GCL Core Ledger implementation
+    * 18.2 - Hook Integration (GCH)
+    * 18.3 - Chain Integrity Enforcement (prev↔curr hash, signature)
+    * 18.4+ - Federation, Vault Export, and Auditing
 """
 
 import json
@@ -80,9 +80,9 @@ class GHXContinuityLedger:
     def verify_chain(self) -> Dict[str, Any]:
         """
         Verify full chain continuity:
-            • curr_hash integrity
-            • prev↔curr linkage
-            • signature consistency
+            * curr_hash integrity
+            * prev↔curr linkage
+            * signature consistency
         Returns diagnostic dict.
         """
         if not self.chain:

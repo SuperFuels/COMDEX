@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class AgentIdentityRegistry:
     def __init__(self):
         self.agents: Dict[str, Dict] = {}
-        self.token_map: Dict[str, str] = {}  # token → agent_id
+        self.token_map: Dict[str, str] = {}  # token -> agent_id
 
     def register_agent(self, name: str, public_key: str, color: str = None, token: Optional[str] = None) -> str:
         agent_id = str(uuid.uuid4())

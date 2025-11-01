@@ -22,30 +22,30 @@ class PhysicsGlyph(ABC):
 
 class ForceGlyph(PhysicsGlyph):  # F = m * a
     def __init__(self, mass, acceleration):
-        super().__init__('𝐅', [mass, acceleration])
+        super().__init__('F', [mass, acceleration])
     def evaluate(self):
         return f"Force = {self.operands[0]} * {self.operands[1]}"
 
 
 class EnergyKineticGlyph(PhysicsGlyph):  # E = 1/2 m v^2
     def __init__(self, mass, velocity):
-        super().__init__('𝐄ₖ', [mass, velocity])
+        super().__init__('Ek', [mass, velocity])
     def evaluate(self):
-        return f"Kinetic Energy = 0.5 * {self.operands[0]} * {self.operands[1]}²"
+        return f"Kinetic Energy = 0.5 * {self.operands[0]} * {self.operands[1]}2"
 
 
 class EnergyRelativityGlyph(PhysicsGlyph):  # E = mc^2
     def __init__(self, mass, c='c'):
-        super().__init__('𝐄=mc²', [mass, c])
+        super().__init__('E=mc2', [mass, c])
     def evaluate(self):
-        return f"Energy = {self.operands[0]} * {self.operands[1]}²"
+        return f"Energy = {self.operands[0]} * {self.operands[1]}2"
 
 
-class MotionEquationGlyph(PhysicsGlyph):  # x = x₀ + vt + ½at²
+class MotionEquationGlyph(PhysicsGlyph):  # x = x0 + vt + 1⁄2at2
     def __init__(self, x0, v, t, a):
         super().__init__('x', [x0, v, t, a])
     def evaluate(self):
-        return f"x = {self.operands[0]} + {self.operands[1]}*{self.operands[2]} + 0.5*{self.operands[3]}*{self.operands[2]}²"
+        return f"x = {self.operands[0]} + {self.operands[1]}*{self.operands[2]} + 0.5*{self.operands[3]}*{self.operands[2]}2"
 
 
 # --- Vector & Unit Glyphs ---
@@ -68,7 +68,7 @@ class UnitGlyph(PhysicsGlyph):
 
 class NewtonsSecondLawGlyph(PhysicsGlyph):
     def __init__(self, force, mass, acceleration):
-        super().__init__('𝐅=ma', [force, mass, acceleration])
+        super().__init__('F=ma', [force, mass, acceleration])
     def evaluate(self):
         return f"{self.operands[0]} = {self.operands[1]} * {self.operands[2]}"
 
@@ -102,4 +102,4 @@ physics_registry.register("units", UnitGlyph)
 
 # --- Composer (for symbolic trace or GHX view) ---
 def compose_physics_trace(glyphs: List[PhysicsGlyph]) -> str:
-    return ' ⇒ '.join(map(str, glyphs))
+    return ' -> '.join(map(str, glyphs))

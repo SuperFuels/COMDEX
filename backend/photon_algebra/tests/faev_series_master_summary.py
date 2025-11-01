@@ -1,5 +1,5 @@
 # ==========================================================
-# SERIES MASTER SYNTHESIS — Global Knowledge Summary
+# SERIES MASTER SYNTHESIS - Global Knowledge Summary
 # Aggregates all verified series syntheses (N, G, H, etc.)
 # into one unified meta-summary for registry indexing.
 # Saves: backend/modules/knowledge/series_master_summary.json
@@ -80,7 +80,7 @@ summary = {
     "summary_text": (
         "This master synthesis consolidates all verified series syntheses "
         "(e.g., N, G, H) into one unified meta-record. Each series represents "
-        "a phase of the COMDEX simulation architecture — from nonlinear feedback "
+        "a phase of the COMDEX simulation architecture - from nonlinear feedback "
         "(N-series), to cross-domain coupling (G-series), to temporal emergence (H-series). "
         "The combined data demonstrates system-wide coherence and stability consistency "
         "under unified constants (v1.2)."
@@ -92,5 +92,5 @@ with open(out_path, "w") as f:
 
 print("=== SERIES MASTER SYNTHESIS COMPLETE ===")
 print(f"{len(records)} series merged | overall mean stability={overall_mean_stability:.3f}")
-print(f"Most stable series → {best_series}")
-print(f"✅ Saved → {out_path}")
+print(f"Most stable series -> {best_series}")
+print(f"✅ Saved -> {out_path}")

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Photon Algebra Evaluation (PAEV)
-Test 3π — Retrospective Reconstruction from π-phase sweep
+Test 3π - Retrospective Reconstruction from π-phase sweep
 """
 
 import os
@@ -25,7 +25,7 @@ x = np.linspace(-1, 1, 512)
 y = np.linspace(-1, 1, 512)
 X, Y = np.meshgrid(x, y)
 
-# Rich fringe spectrum — covers multiple coherence bands
+# Rich fringe spectrum - covers multiple coherence bands
 phi1 = 2 * np.pi * 80 * X
 phi2 = 2 * np.pi * 140 * X + 0.6 * np.sin(5 * Y)
 phi3 = 2 * np.pi * 220 * X + 0.3 * np.cos(7 * Y)
@@ -57,7 +57,7 @@ for p in phases:
     np.save(os.path.join(RAW_DIR, f"pi_{p}.npy"), projected)
     v = compute_visibility(projected)
     V.append(v)
-    print(f"π_spatial={p:<2d} → reconstructed V={v:.3f}")
+    print(f"π_spatial={p:<2d} -> reconstructed V={v:.3f}")
 
 # ------------------------------------------------------------
 # Plot and export
@@ -66,7 +66,7 @@ plt.figure(figsize=(6, 4))
 plt.plot(phases, V, marker="o", linewidth=2)
 plt.xlabel("Spatial phase multiplier π_spatial")
 plt.ylabel("Visibility V")
-plt.title("Test 3π — Retrospective π-Sweep Reconstruction")
+plt.title("Test 3π - Retrospective π-Sweep Reconstruction")
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig("docs/theory/figures/PAEV_Test3_RetroPi.png", dpi=300)

@@ -56,34 +56,34 @@ def run_test_cycle():
     forker = EntangledRuntimeForker(ucs)
     repair_engine = PatternEngineRepair()
 
-    # Step 1 — Create base container
+    # Step 1 - Create base container
     base = create_mock_container()
     ucs.register_container(base["id"], base)
     print(f"✅ Created container: {base['id']}")
 
-    # Step 2 — Fork entangled containers
+    # Step 2 - Fork entangled containers
     forks = forker.fork_container(base, coord="A1", glyph="[⚛:0 ↔ 1]")
     print(f"✅ Created forks: {[f['id'] for f in forks]}")
 
-    # Step 3 — Simulate drift
+    # Step 3 - Simulate drift
     last_txn = {"C_total": 0.6, "field_signature": {"psi": 0.12}}
     print(f"📉 Simulating SQI drift: {last_txn}")
 
-    # Step 4 — Run repair cycle
+    # Step 4 - Run repair cycle
     result = repair_engine.run_repair_cycle(last_txn)
     print(f"\n🩺 Repair cycle result:")
     pprint(result)
 
-    # Step 5 — Inspect UCS state
+    # Step 5 - Inspect UCS state
     print("\n📦 UCS containers after repair:")
     pprint(list(ucs.containers.keys()))
 
-    # Step 6 — Inspect reinjected beams
+    # Step 6 - Inspect reinjected beams
     ready = get_active_beams()
     print(f"\n💡 Reinjected Beams in Queue: {len(ready)}")
     for beam in ready:
         print(
-            f"  • Beam ID: {getattr(beam, 'id', getattr(beam, 'wave_id', '?'))}, "
+            f"  * Beam ID: {getattr(beam, 'id', getattr(beam, 'wave_id', '?'))}, "
             f"State: {getattr(beam, 'state', getattr(beam, 'status', 'unknown'))}, "
             f"Coherence: {beam.coherence}"
         )

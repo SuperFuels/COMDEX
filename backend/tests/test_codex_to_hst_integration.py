@@ -11,7 +11,7 @@ def base_context():
     return {"container_id": "test_hst_cycle", "source": "integration_test"}
 
 def test_codex_to_hst_cycle(codex_executor, base_context):
-    codex_expr = "Φ₁ ⊕ Φ₂"
+    codex_expr = "Φ1 ⊕ Φ2"
     result = codex_executor.execute_codex_program(codex_expr, context=base_context)
     assert "telemetry" in result
     assert "symbolic_score" in result["telemetry"]

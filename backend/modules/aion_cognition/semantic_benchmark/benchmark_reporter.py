@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-📊 Phase 48B — Semantic Benchmark Reporter
+📊 Phase 48B - Semantic Benchmark Reporter
 Stores MCI and comprehension trends across cycles.
 """
 

@@ -14,7 +14,7 @@ BACKUP = CACHE.with_suffix(".hardbak")
 
 # 1. Backup first
 CACHE.replace(BACKUP)
-print(f"[Backup] Created → {BACKUP}")
+print(f"[Backup] Created -> {BACKUP}")
 
 # 2. Read all
 txt = BACKUP.read_text(errors="ignore")
@@ -33,7 +33,7 @@ while cut > 0:
     try:
         json.loads(txt[:cut])
         CACHE.write_text(txt[:cut])
-        print(f"✅ Recovered clean JSON → {CACHE}")
+        print(f"✅ Recovered clean JSON -> {CACHE}")
         break
     except Exception as e:
         cut = txt.rfind("}", 0, cut - 1)

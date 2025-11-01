@@ -1,5 +1,5 @@
 # ============================================================
-# 🧩 SCI → Lean Export API
+# 🧩 SCI -> Lean Export API
 # ============================================================
 """
 Manual endpoint to export all Harmonic Atoms from the Knowledge Graph
@@ -85,7 +85,7 @@ async def export_lean_atoms(limit: int = 100, domain: str = "physics_core") -> D
         if not exported_paths:
             raise HTTPException(status_code=404, detail="No Lean files exported from KG.")
 
-        logging.info(f"[SCI] ✅ Export complete — {len(exported_paths)} files in {duration:.2f}s")
+        logging.info(f"[SCI] ✅ Export complete - {len(exported_paths)} files in {duration:.2f}s")
 
         return {
             "ok": True,

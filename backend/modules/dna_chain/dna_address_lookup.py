@@ -13,7 +13,7 @@ WORLD_MAP_PATH   = os.path.join(DATA_DIR, "dna_world_map.json")            # leg
 
 # NEW: canonical registries used by UCS + teleport
 CONTAINER_REGISTRY_PATH = os.path.join(DATA_DIR, "container_registry.json")  # { container_id: {address, meta, ...} }
-WORMHOLE_REGISTRY_PATH  = os.path.join(DATA_DIR, "wormhole_registry.json")   # { "from→to": {from, to, meta...} }
+WORMHOLE_REGISTRY_PATH  = os.path.join(DATA_DIR, "wormhole_registry.json")   # { "from->to": {from, to, meta...} }
 
 # ───────────────────────────── Helpers ─────────────────────────────
 
@@ -50,7 +50,7 @@ def _write_json(path: str, data: Dict[str, Any]) -> None:
     os.replace(tmp_name, path)
 
 def _route_key(src: str, dst: str) -> str:
-    return f"{src}→{dst}"
+    return f"{src}->{dst}"
 
 def _norm_id(value: Optional[str]) -> Optional[str]:
     if value is None:
@@ -83,7 +83,7 @@ def register_backend_path(name: str, path: str):
     data[name] = {"name": name, "path": abs_path}
     _write_json(ADDRESS_BOOK_PATH, data)
     BACKEND_PATHS[name] = abs_path
-    print(f"[📁] Registered backend path: {name} → {abs_path}")
+    print(f"[📁] Registered backend path: {name} -> {abs_path}")
 
 def register_frontend_path(name: str, path: str):
     data = _load_json(ADDRESS_BOOK_PATH)
@@ -93,7 +93,7 @@ def register_frontend_path(name: str, path: str):
     data[name] = {"name": name, "path": path}
     _write_json(ADDRESS_BOOK_PATH, data)
     FRONTEND_PATHS[name] = path
-    print(f"[🌐] Registered frontend path: {name} → {path}")
+    print(f"[🌐] Registered frontend path: {name} -> {path}")
 
 def load_json(path):  # kept for legacy imports
     return _load_json(path)
@@ -228,7 +228,7 @@ def list_address_pairs() -> List[Tuple[str, str]]:
 
 def link_wormhole(src_id: str, dst_id: str, meta: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Idempotently link src → dst in the global wormhole registry.
+    Idempotently link src -> dst in the global wormhole registry.
     """
     src = _norm_id(src_id)
     dst = _norm_id(dst_id)
@@ -243,7 +243,7 @@ def link_wormhole(src_id: str, dst_id: str, meta: Optional[Dict[str, Any]] = Non
     else:
         links[key] = {"from": src, "to": dst, "meta": meta or {}}
     _write_json(WORMHOLE_REGISTRY_PATH, links)
-    print(f"[🕳️] Wormhole linked: {src} → {dst}")
+    print(f"[🕳️] Wormhole linked: {src} -> {dst}")
     return links[key]
 
 def unlink_wormhole(src_id: str, dst_id: str) -> bool:
@@ -257,7 +257,7 @@ def unlink_wormhole(src_id: str, dst_id: str) -> bool:
         return False
     del links[key]
     _write_json(WORMHOLE_REGISTRY_PATH, links)
-    print(f"[🕳️] Wormhole unlinked: {src} → {dst}")
+    print(f"[🕳️] Wormhole unlinked: {src} -> {dst}")
     return True
 
 def list_wormholes() -> Dict[str, Any]:

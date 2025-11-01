@@ -1,11 +1,11 @@
 """
-🌀 Dynamic Coherence Optimizer — SRK-11 Task 3
+🌀 Dynamic Coherence Optimizer - SRK-11 Task 3
 Adaptive feedback loop for photon coherence, phase stability, and entropy control.
 
 Integrates with:
- • glyphwave.core.coherence_engine        (signal sampling + coherence metrics)
- • glyphwave.qkd.qkd_policy_enforcer      (security thresholds)
- • photon.photon_binary_bridge            (pre-emission stabilization)
+ * glyphwave.core.coherence_engine        (signal sampling + coherence metrics)
+ * glyphwave.qkd.qkd_policy_enforcer      (security thresholds)
+ * photon.photon_binary_bridge            (pre-emission stabilization)
 
 Implements real-time phase-locking and self-correction of photon streams.
 """
@@ -35,7 +35,7 @@ class DynamicCoherenceOptimizer:
                  tolerance: float = 5e-3):  # was 1e-3
         """
         Args:
-            target_coherence: Desired coherence ratio [0–1].
+            target_coherence: Desired coherence ratio [0-1].
             max_iterations: Maximum feedback correction cycles.
             tolerance: Minimal delta considered stable.
         """
@@ -50,7 +50,7 @@ class DynamicCoherenceOptimizer:
         Attempt to stabilize the given wave_state until target coherence is reached.
 
         Returns:
-            (bool, report) → True if stabilized, else False.
+            (bool, report) -> True if stabilized, else False.
         """
         current = measure_coherence(wave_state)
         report = {

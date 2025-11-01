@@ -2,7 +2,7 @@
 # 📁 backend/quant/qcore/qcore_executor.py
 # ===============================
 """
-⚙️  QCoreExecutor — Q-Series Symbolic Execution Engine
+⚙️  QCoreExecutor - Q-Series Symbolic Execution Engine
 -------------------------------------------------------
 
 The QCoreExecutor coordinates symbolic computation, resonance propagation,
@@ -12,8 +12,8 @@ It operates as the runtime driver behind QPy/QTensor/QLearn,
 executing 4-D AtomSheets transformed through the QSeriesBridge.
 
 Execution Flow:
-    1.  Initialize bridge and convert AtomSheet → QSheetCells
-    2.  Compute Φ–ψ resonance for each cell
+    1.  Initialize bridge and convert AtomSheet -> QSheetCells
+    2.  Compute Φ-ψ resonance for each cell
     3.  Propagate resonance and update metrics (entropy, harmony, novelty)
     4.  Aggregate run-level metrics into QCoreMetrics
     5.  Sync results back into AtomSheet for Codex/AION layers
@@ -33,7 +33,7 @@ from backend.quant.qcore.qcore_metrics import QCoreMetrics
 
 class QCoreExecutor:
     """
-    🧠 QCoreExecutor — central runtime orchestrator for Q-Series.
+    🧠 QCoreExecutor - central runtime orchestrator for Q-Series.
     """
 
     def __init__(self):
@@ -55,16 +55,16 @@ class QCoreExecutor:
         bridge = QSeriesBridge(sheet)
         bridge.initialize_qsheet()
 
-        # Phase 1 — Compute per-cell Φ–ψ resonance
+        # Phase 1 - Compute per-cell Φ-ψ resonance
         resonance_data = bridge.compute_all_resonances()
 
-        # Phase 2 — Relational (entropy / harmony / novelty)
+        # Phase 2 - Relational (entropy / harmony / novelty)
         bridge.compute_relational_metrics()
 
-        # Phase 3 — Aggregate metrics
+        # Phase 3 - Aggregate metrics
         agg = self.metrics.aggregate(bridge.qcells, run_id=self.run_id)
 
-        # Phase 4 — Sync results back to AtomSheet
+        # Phase 4 - Sync results back to AtomSheet
         bridge.sync_back_to_atomsheet()
 
         # Finalize

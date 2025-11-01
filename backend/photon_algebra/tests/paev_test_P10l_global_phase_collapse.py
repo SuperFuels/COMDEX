@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==========================================================
-# P10l — Asymmetric Phase Collapse (Final Global Fusion)
+# P10l - Asymmetric Phase Collapse (Final Global Fusion)
 # ==========================================================
 
 np.random.seed(27)
@@ -162,7 +162,7 @@ for i in range(M):
 plt.plot(np.unwrap(np.angle(np.exp(1j * phi).mean(axis=0))),
          "k--", label="Global Mean")
 plt.axvline(PERT_TIME, color="purple", linestyle="--", label="Perturbation")
-plt.title("P10l — Asymmetric Phase Collapse (Final Global Fusion)")
+plt.title("P10l - Asymmetric Phase Collapse (Final Global Fusion)")
 plt.xlabel("time step"); plt.ylabel("phase")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_P10l_GlobalField_PhaseEvolution.png")
@@ -175,7 +175,7 @@ plt.plot((Kglob_hist - K_global_min) / (K_global_max - K_global_min),
 plt.plot(align_gain_hist / np.max(align_gain_hist),
          "orange", linestyle=":", alpha=0.8, label="scaled κ_align")
 plt.axvline(PERT_TIME, color="purple", linestyle="--", label="Perturbation")
-plt.title("P10l — Order Parameter R(t) & Collapse Dynamics")
+plt.title("P10l - Order Parameter R(t) & Collapse Dynamics")
 plt.xlabel("time step"); plt.ylabel("Normalized Value")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_P10l_GlobalField_OrderParameter.png")
@@ -214,8 +214,8 @@ results = {
 with open("backend/modules/knowledge/P10l_global_phase_collapse.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== P10l — Asymmetric Phase Collapse (Final Global Fusion) ===")
+print("=== P10l - Asymmetric Phase Collapse (Final Global Fusion) ===")
 print(f"R_tail_mean={R_tail_mean:.3f} | lock_R={lock_ratio_R:.2f} | "
       f"lock_phi={lock_ratio_phi:.2f} | slope={R_tail_slope:.2e} | re-lock={relock}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/P10l_global_phase_collapse.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/P10l_global_phase_collapse.json")

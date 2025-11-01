@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PAEV Test — N7: Quantum Channel Capacity vs Noise
+PAEV Test - N7: Quantum Channel Capacity vs Noise
 Models how much entanglement-encoded information can survive
 as environmental noise increases.
 """
@@ -12,7 +12,7 @@ from math import erf, log2
 from datetime import datetime
 
 # ------------------------------------------------------------
-# Constants — consistent with prior tests
+# Constants - consistent with prior tests
 # ------------------------------------------------------------
 ħ = 1e-3
 G = 1e-5
@@ -33,7 +33,7 @@ def quantum_capacity(fidelity):
     return np.log2(2 * F - 1)
 
 def main():
-    print("=== N7 — Channel Capacity vs Noise ===")
+    print("=== N7 - Channel Capacity vs Noise ===")
     print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}")
 
     # Noise range (log spaced)
@@ -77,13 +77,13 @@ def main():
     # Visualization
     # ------------------------------------------------------------
     plt.figure(figsize=(8, 5))
-    plt.semilogx(sigmas, classical_capacity, 'r--', label='Classical Capacity log₂(1+SNR)')
-    plt.semilogx(sigmas, quantum_capacity_bits, 'b-', label='Quantum Capacity log₂(2F−1)')
-    plt.axvline(sigma_90, color='gray', linestyle=':', label=f'σ₉₀={sigma_90:.2e}')
+    plt.semilogx(sigmas, classical_capacity, 'r--', label='Classical Capacity log2(1+SNR)')
+    plt.semilogx(sigmas, quantum_capacity_bits, 'b-', label='Quantum Capacity log2(2F-1)')
+    plt.axvline(sigma_90, color='gray', linestyle=':', label=f'σ90={sigma_90:.2e}')
     plt.axhline(0, color='black', lw=0.5)
     plt.xlabel("Noise σ (standard deviation)")
     plt.ylabel("Channel Capacity (bits/use)")
-    plt.title("N7 — Channel Capacity vs Noise")
+    plt.title("N7 - Channel Capacity vs Noise")
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()

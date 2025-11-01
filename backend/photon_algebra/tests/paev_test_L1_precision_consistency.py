@@ -1,5 +1,5 @@
 """
-L1 — Precision Consistency Sweep
+L1 - Precision Consistency Sweep
 Validates numerical stability and cross-domain consistency of TOE constants.
 Outputs energy/entropy coherence plots and drift distributions.
 """
@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-BANNER = "=== L1 — Precision Consistency Sweep ==="
+BANNER = "=== L1 - Precision Consistency Sweep ==="
 
 def load_constants() -> dict:
     path = Path("backend/modules/knowledge/constants_v1.1.json")
@@ -25,7 +25,7 @@ def simulate_precision_drift(constants: dict, n_steps: int = 500):
     Λ = constants["Λ_eff"]
     α = constants["α_eff"]
 
-    # Simulated domain scaling (quantum → relativistic)
+    # Simulated domain scaling (quantum -> relativistic)
     x = np.linspace(0, 1, n_steps)
     drift_energy = ħ * np.exp(-x) + G * np.sin(5 * x) + Λ * x**2
     drift_entropy = α * (1 - np.exp(-x)) + 0.5 * G * np.cos(3 * x)
@@ -46,12 +46,12 @@ def main():
           f"Λ={constants['Λ_eff']:.3e}, α={constants['α_eff']:.3f}")
     print(f"Coherence (E↔S): {coherence:.6f}")
 
-    # Plot Energy–Entropy evolution
+    # Plot Energy-Entropy evolution
     plt.figure(figsize=(7,5))
     plt.plot(x, E, label="Energy (E)", lw=2)
     plt.plot(x, S, label="Entropy (S)", lw=2, ls="--")
     plt.title("L1 Precision Consistency Sweep")
-    plt.xlabel("Domain scale (0→1)")
+    plt.xlabel("Domain scale (0->1)")
     plt.ylabel("Normalized magnitude")
     plt.legend()
     plt.grid(True)

@@ -1,5 +1,5 @@
 """
-🌐 Tessaris QTS API Gateway — SRK-16 B5
+🌐 Tessaris QTS API Gateway - SRK-16 B5
 Provides lightweight REST + GraphQL interfaces for QTS operations.
 """
 

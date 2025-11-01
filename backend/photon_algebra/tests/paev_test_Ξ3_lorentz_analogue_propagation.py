@@ -1,5 +1,5 @@
 """
-Ξ₃ — Lorentz Analogue Propagation (Tessaris)
+Ξ3 - Lorentz Analogue Propagation (Tessaris)
 --------------------------------------------
 Purpose:
 Simulate optical "boosts" (phase velocity shifts) in a refractive lattice and 
@@ -45,12 +45,12 @@ if ratio_std < 1e-3:
     state = "Optical Lorentz invariance confirmed"
     invariant = True
 else:
-    state = "Partial invariance — weak frame dependence"
+    state = "Partial invariance - weak frame dependence"
     invariant = False
 
-print("=== Ξ₃ — Lorentz Analogue Propagation (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
-print(f"Mean flux ratio = {ratio_mean:.3e}, σ = {ratio_std:.3e} → {state}\n")
+print("=== Ξ3 - Lorentz Analogue Propagation (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
+print(f"Mean flux ratio = {ratio_mean:.3e}, σ = {ratio_std:.3e} -> {state}\n")
 
 # === 5. Discovery Notes ===
 timestamp = datetime.datetime.now(datetime.UTC).isoformat()
@@ -83,16 +83,16 @@ with open(summary_path, "w", encoding="utf-8") as f:
 
 # === 7. Visualization ===
 plt.figure(figsize=(7,4))
-plt.plot(velocities, ratios, 'o-', label='Flux–Entropy Ratio vs Boost')
+plt.plot(velocities, ratios, 'o-', label='Flux-Entropy Ratio vs Boost')
 plt.axhline(ratio_mean, color='gray', linestyle='--', label='Mean Ratio')
-plt.title("Ξ₃ — Lorentz Analogue Propagation (Tessaris)")
+plt.title("Ξ3 - Lorentz Analogue Propagation (Tessaris)")
 plt.xlabel("Optical Boost Velocity (normalized units)")
-plt.ylabel("Flux–Entropy Ratio")
+plt.ylabel("Flux-Entropy Ratio")
 plt.legend(); plt.grid(True, alpha=0.3)
 plot_path = os.path.join(base_path, "PAEV_Ξ3_lorentz_analogue.png")
 plt.savefig(plot_path, dpi=200)
 plt.close()
 
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

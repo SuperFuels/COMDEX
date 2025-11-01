@@ -23,7 +23,7 @@ def verify_or_mutate(container) -> bool:
 
     emit_websocket_event("logic_verification", {
         "containerId": container_id,
-        "status": "❌ Initial proof failed – attempting auto-rewrite..."
+        "status": "❌ Initial proof failed - attempting auto-rewrite..."
     })
 
     mutated = auto_mutate_container(container)
@@ -123,7 +123,7 @@ def validate_lean_container(container: Union[str, dict], autosave: bool = False)
                 "error": "No lean_path found"
             })
         else:
-            print(f"[LeanVerifier] ⚠️ CodexMetrics unavailable — skipping metrics log.")
+            print(f"[LeanVerifier] ⚠️ CodexMetrics unavailable - skipping metrics log.")
 
         return False
 
@@ -147,7 +147,7 @@ def validate_lean_container(container: Union[str, dict], autosave: bool = False)
             "error": err,
         })
     else:
-        print(f"[LeanVerifier] ⚠️ CodexMetrics missing — skipping lean verification log.")
+        print(f"[LeanVerifier] ⚠️ CodexMetrics missing - skipping lean verification log.")
 
     # ✅ WebSocket broadcast
     from backend.routes.ws.glyphnet_ws import emit_websocket_event
@@ -171,7 +171,7 @@ def validate_lean_container(container: Union[str, dict], autosave: bool = False)
 
     # ✅ Automatic mutation fallback
     if not success:
-        print(f"❌ Lean proof failed for {container_id} — attempting Codex rewrite.")
+        print(f"❌ Lean proof failed for {container_id} - attempting Codex rewrite.")
         return verify_or_mutate(container)
 
     print(f"✅ Lean verification passed for {lean_path}")

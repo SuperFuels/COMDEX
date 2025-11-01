@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test G′2 — Parameter-Free Prediction
+Test G′2 - Parameter-Free Prediction
 Re-runs core field evolution using fixed scaling; derives emergent constants.
 
 This version includes dimensionally-correct scaling corrections
@@ -22,7 +22,7 @@ def get_G_eff(): return 3.60e-02             # from G5
 
 # --- Physical constants (CODATA 2022) ---
 PLANCK_MASS  = 2.176e-8          # kg
-PLANCK_HBAR  = 1.055e-34         # J·s
+PLANCK_HBAR  = 1.055e-34         # J*s
 PLANCK_G     = 6.6743e-11
 PLANCK_ALPHA = 7.297e-3
 M_ELECTRON   = 9.109e-31         # kg
@@ -35,7 +35,7 @@ C_LIGHT      = 2.99792458e8
 # Derived heuristically from Λ ~ L^-2 dimensional dependencies.
 # ============================================================
 ALPHA_EXP = 0.0       # dimensionless coupling (no scaling)
-MASS_EXP  = +0.50     # Λ^+1/2 scales as inverse length → mass
+MASS_EXP  = +0.50     # Λ^+1/2 scales as inverse length -> mass
 HBAR_EXP  = -0.25     # action scales weakly inverse to length
 G_EXP     = +0.75     # curvature-gravity coupling scaling
 # ============================================================
@@ -97,14 +97,14 @@ devs = [results[f"{p}_dev_%"] for p in params]
 plt.figure(figsize=(7,4))
 bars = plt.bar(params, devs, color=["#44aaff" if abs(d)<20 else "#ff4444" for d in devs])
 plt.axhline(0, color="black", lw=1)
-plt.title("G′2 — Parameter-Free Prediction Deviations")
+plt.title("G′2 - Parameter-Free Prediction Deviations")
 plt.ylabel("Deviation (%) vs. Physical Constant")
 plt.tight_layout()
 plt.savefig("PAEV_TestGprime2_Deviations.png")
 plt.close()
 
 # --- Display console summary ---
-print("=== G′2 — Free-Run Prediction Results (Dimensional Scaling Applied) ===")
+print("=== G′2 - Free-Run Prediction Results (Dimensional Scaling Applied) ===")
 print(f"Reference scaling: {REF} (scale_factor = {SCALE:.3e})")
 for k,v in results.items():
     print(f"{k:15s}: {v:.4e}")
@@ -114,7 +114,7 @@ success = abs(results["alpha_dev_%"]) < 2.0
 if success:
     print("\n✅ DISCOVERY THRESHOLD: Achieved parameter-free electromagnetic constant prediction (α within ±2%)")
 else:
-    print("\n⚠ α outside discovery threshold — check scaling exponents or Λ lock normalization.")
+    print("\n⚠ α outside discovery threshold - check scaling exponents or Λ lock normalization.")
 
 print("📄 Saved results:", out_csv)
 print("📈 Saved plot:   PAEV_TestGprime2_Deviations.png")

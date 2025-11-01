@@ -10,7 +10,7 @@ from datetime import datetime
 params = {
     "alpha": 0.7,
     "beta": 0.08,
-    "Lambda_base": -0.0035,     # flipped sign → negative cosmological term
+    "Lambda_base": -0.0035,     # flipped sign -> negative cosmological term
     "kappa": 0.065,
     "omega0": 0.18,
     "xi": 0.015,
@@ -61,11 +61,11 @@ curvature_max = np.max(np.abs(R))
 # Classification Logic
 # -----------------------------
 if a_min > 0.1 and nec_violation > 0.2:
-    classification = "✅ Quantum Bridge Formed — Singularity Resolved"
+    classification = "✅ Quantum Bridge Formed - Singularity Resolved"
 elif a_min > 0.1:
     classification = "⚠️ Non-singular Bounce (Weak NEC activity)"
 else:
-    classification = "❌ Collapse — No Resolution"
+    classification = "❌ Collapse - No Resolution"
 
 # -----------------------------
 # Plots
@@ -73,7 +73,7 @@ else:
 # Scale factor evolution
 plt.figure(figsize=(6,4))
 plt.plot(t, a, label="a(t)")
-plt.title("F13/G9 — Scale Factor Evolution (Quantum Bounce Geometry)")
+plt.title("F13/G9 - Scale Factor Evolution (Quantum Bounce Geometry)")
 plt.xlabel("time")
 plt.ylabel("a(t)")
 plt.legend()
@@ -85,7 +85,7 @@ plt.close()
 plt.figure(figsize=(6,4))
 plt.plot(t, R, label="Ricci Proxy")
 plt.axhline(0, color='gray', ls='--', lw=0.8)
-plt.title("F13/G9 — Curvature Evolution / NEC Proxy")
+plt.title("F13/G9 - Curvature Evolution / NEC Proxy")
 plt.xlabel("time")
 plt.ylabel("R(t)")
 plt.legend()
@@ -115,12 +115,12 @@ result = {
     "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%MZ")
 }
 
-print("=== F13/G9 — Singularity Resolution Test ===")
+print("=== F13/G9 - Singularity Resolution Test ===")
 for k, v in metrics.items():
     print(f"{k} = {v}")
-print("→", classification)
+print("->", classification)
 
 with open("backend/modules/knowledge/F13G9_singularity_resolution.json", "w") as f:
     json.dump(result, f, indent=2)
 
-print("✅ Results saved → backend/modules/knowledge/F13G9_singularity_resolution.json")
+print("✅ Results saved -> backend/modules/knowledge/F13G9_singularity_resolution.json")

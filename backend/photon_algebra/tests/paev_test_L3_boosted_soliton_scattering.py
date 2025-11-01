@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-L3 — Boosted Soliton Scattering (Tessaris)
+L3 - Boosted Soliton Scattering (Tessaris)
 ------------------------------------------
 A χ-driven soliton hits a static barrier. We compare reflection (R) and
 transmission (T) across several Lorentz-like boosts v = {0..0.4} c_eff.
 
 Protocol: Tessaris Unified Constants & Verification Protocol
 Outputs:
-  • PAEV_L3_boosted_soliton_scattering.png
-  • backend/modules/knowledge/L3_boosted_soliton_scattering_summary.json
+  * PAEV_L3_boosted_soliton_scattering.png
+  * backend/modules/knowledge/L3_boosted_soliton_scattering_summary.json
 """
 
 from __future__ import annotations
@@ -22,8 +22,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β = const["ħ"], const["G"], const["Λ"], const["α"], const["β"]
 χ = const.get("χ", 1.0)
-print("=== L3 — Boosted Soliton Scattering (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== L3 - Boosted Soliton Scattering (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # --- Grid / numerics (damped causal regime as in K3b/L1c/L2) ---
 N, steps = 512, 2400
@@ -35,7 +35,7 @@ rng = np.random.default_rng(8585)
 x = np.linspace(-N//2, N//2, N)
 c_eff = math.sqrt(α/(1+Λ))
 
-# Barrier: a localized bump in Λ → effective “mass” barrier
+# Barrier: a localized bump in Λ -> effective "mass" barrier
 bar_center, bar_width, bar_height = -20.0, 8.0, 6e-6  # gentle barrier to avoid blowups
 Λ_profile = Λ + bar_height * np.exp(-0.5 * ((x - bar_center)/bar_width)**2)
 
@@ -116,11 +116,11 @@ def evolve_and_scatter(v_frac: float):
 boost_fracs = [0.0, 0.1, 0.2, 0.3, 0.4]
 results = []
 for frac in boost_fracs:
-    print(f"→ simulate boost {frac:.1f} c_eff")
+    print(f"-> simulate boost {frac:.1f} c_eff")
     results.append(evolve_and_scatter(frac))
 print("✅ Scattering runs complete.")
 
-# --- Plots: space–time amplitude and R/T vs boost ---
+# --- Plots: space-time amplitude and R/T vs boost ---
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
 # pick two frames to show spacetime: lab and max boost
@@ -130,7 +130,7 @@ for i, frac in enumerate(show_fracs):
     im = ax1.imshow(res["snaps"], extent=[x.min(), x.max(), res["ts"].max(), res["ts"].min()],
                     cmap='magma', aspect='auto', alpha=0.55 if i==1 else 0.9)
 ax1.axvline(bar_center, color='cyan', lw=1.8, ls='--', label='barrier')
-ax1.set_title("L3 — Soliton scattering (|u|, spacetime)")
+ax1.set_title("L3 - Soliton scattering (|u|, spacetime)")
 ax1.set_xlabel("x or x'"); ax1.set_ylabel("time")
 ax1.legend()
 cbar = plt.colorbar(im, ax=ax1); cbar.set_label("|u|")
@@ -149,10 +149,10 @@ ax2.grid(True); ax2.legend()
 plt.tight_layout()
 fig_path = "PAEV_L3_boosted_soliton_scattering.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # --- Invariance metrics ---
-# (i) R,T should be ~constant across boosts; (ii) R+T ~ 1; (iii) |v_emp| ≤ c_eff
+# (i) R,T should be ~constant across boosts; (ii) R+T ~ 1; (iii) |v_emp| <= c_eff
 R_std = float(np.std(R))
 T_std = float(np.std(T))
 closure_err = float(np.max(np.abs(R+T - 1.0)))
@@ -177,34 +177,34 @@ summary = {
     },
     "files": {"plot": fig_path},
     "notes": [
-        "Barrier modeled via Λ(x)=Λ+ΔΛ·exp(-(x-x0)^2/2σ^2).",
+        "Barrier modeled via Λ(x)=Λ+ΔΛ*exp(-(x-x0)^2/2σ^2).",
         "Boost snapshots use x' = γ(x - vt).",
-        "Invariance targets: small std(R,T), R+T≈1, |v_emp| ≤ c_eff.",
+        "Invariance targets: small std(R,T), R+T≈1, |v_emp| <= c_eff.",
         "Model-level test; no physical signaling implied."
     ]
 }
 out_path = Path("backend/modules/knowledge/L3_boosted_soliton_scattering_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # --- Discovery section ---
-print("\n🧭 Discovery Notes —", ts_now)
+print("\n🧭 Discovery Notes -", ts_now)
 print("------------------------------------------------------------")
 for r in results:
-    print(f"• v={r['v_frac']:.1f}c_eff → R={r['R']:.3f}, T={r['T']:.3f}, v_emp≈{r['v_emp']:.3f}, ξ_f≈{r['xi_final']:.2f}")
-print(f"• Std(R)≈{R_std:.3e}, Std(T)≈{T_std:.3e}, max|R+T-1|≈{closure_err:.3e}")
-print(f"• Causality check: max |v_emp|≈{max_speed:.3f} vs c_eff≈{c_eff:.3f}")
-print("• Interpretation: constancy of R/T across boosts supports Lorentz-like scattering symmetry.")
-print("• Next: L-series wrap-up & TeX note.")
+    print(f"* v={r['v_frac']:.1f}c_eff -> R={r['R']:.3f}, T={r['T']:.3f}, v_emp≈{r['v_emp']:.3f}, ξ_f≈{r['xi_final']:.2f}")
+print(f"* Std(R)≈{R_std:.3e}, Std(T)≈{T_std:.3e}, max|R+T-1|≈{closure_err:.3e}")
+print(f"* Causality check: max |v_emp|≈{max_speed:.3f} vs c_eff≈{c_eff:.3f}")
+print("* Interpretation: constancy of R/T across boosts supports Lorentz-like scattering symmetry.")
+print("* Next: L-series wrap-up & TeX note.")
 print("------------------------------------------------------------")
 
 # --- Verdict ---
 print("\n" + "="*66)
-print("🔎 L3 — Boosted Scattering Verdict")
+print("🔎 L3 - Boosted Scattering Verdict")
 print("="*66)
 ok_collapse = R_std < 0.05 and T_std < 0.05
 ok_closure  = closure_err < 0.02
 ok_speed    = (not np.isnan(max_speed)) and (abs(max_speed) <= c_eff + 1e-6)
 status = "✅ Invariance upheld" if (ok_collapse and ok_closure and ok_speed) else "⚠️ Partial/failed invariance"
-print(f"{status}: σ_R≈{R_std:.3e}, σ_T≈{T_std:.3e}, closure≤{closure_err:.3e}, |v_emp|max≈{max_speed:.3f}")
+print(f"{status}: σ_R≈{R_std:.3e}, σ_T≈{T_std:.3e}, closure<={closure_err:.3e}, |v_emp|max≈{max_speed:.3f}")
 print("="*66 + "\n")

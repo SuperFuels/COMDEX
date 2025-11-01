@@ -18,7 +18,7 @@ GW_DEFAULT_ENABLED = False                   # Default: disabled unless explicit
 # ════════════════════════════════════════════════════════════════
 DEFAULT_FREQ_HZ = 1_000.0                    # Default frequency in Hz
 DEFAULT_PHASE_RAD = 0.0                      # Default phase in radians
-DEFAULT_COHERENCE = 1.0                      # Default coherence level (0.0–1.0)
+DEFAULT_COHERENCE = 1.0                      # Default coherence level (0.0-1.0)
 DEFAULT_DRIFT_RATE = 0.01                    # Default simulated phase drift per tick
 DEFAULT_JITTER_STDDEV = 0.005                # Default std deviation for phase jitter
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Photon Algebra Evaluation (PAEV)
-Test 4 — Resonant Coupling (⟲) and Entanglement (↔) Stability
+Test 4 - Resonant Coupling (⟲) and Entanglement (↔) Stability
 """
 
 import os
@@ -16,7 +16,7 @@ from backend.photon_algebra.utils.visibility import compute_visibility
 os.makedirs("docs/theory/figures", exist_ok=True)
 os.makedirs("docs/theory/tables", exist_ok=True)
 
-print("⚙️ Running PAEV Test 4 — Resonant Coupling and Entanglement Stability...")
+print("⚙️ Running PAEV Test 4 - Resonant Coupling and Entanglement Stability...")
 
 # ---------------------------------------------------------------------
 # Simulation Parameters
@@ -88,7 +88,7 @@ for mode in modes:
     V_corr_mean.append(np.mean(vis_corr))
     V_corr_std.append(np.std(vis_corr))
 
-    print(f"{mode:<10s} → "
+    print(f"{mode:<10s} -> "
           f"⟨V_A⟩={np.mean(vis_A):.3f}, "
           f"⟨V_B⟩={np.mean(vis_B):.3f}, "
           f"⟨V_corr⟩={np.mean(vis_corr):.3f} ± {np.std(vis_corr):.3f}")
@@ -101,7 +101,7 @@ plt.figure(figsize=(6, 4))
 plt.bar(modes, V_corr_mean, yerr=V_corr_std,
         color=["#607d8b", "#4caf50", "#9c27b0"], capsize=6)
 plt.ylabel("Correlation Visibility $V_c$")
-plt.title("Test 4 — Resonant Coupling (⟲) and Entanglement (↔) Stability")
+plt.title("Test 4 - Resonant Coupling (⟲) and Entanglement (↔) Stability")
 plt.grid(axis="y", alpha=0.3)
 plt.tight_layout()
 plt.savefig("docs/theory/figures/PAEV_Test4_ResonantCoupling.png", dpi=300)

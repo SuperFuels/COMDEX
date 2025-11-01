@@ -1,5 +1,5 @@
 """
-🧪 Photon–Symatics Bridge Test — SRK-15 Task 1.1
+🧪 Photon-Symatics Bridge Test - SRK-15 Task 1.1
 Validates bidirectional translation and operator routing between symbolic
 and photonic computation layers.
 """

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test C7 — Curvature Orbital Dynamics (Soft Coupling)
+Test C7 - Curvature Orbital Dynamics (Soft Coupling)
 Simulates two curvature 'masses' orbiting due to deterministic rewrite geometry.
 Baseline model: smooth, stable, non-chaotic orbital behavior.
 """
@@ -74,13 +74,13 @@ def run_orbital_sim(N=121, steps=400, dt=0.1, eta=0.015, sigma=5.0):
 
 def main():
     frames, E_total, (x, y) = run_orbital_sim()
-    print("✅ Test C7 — Curvature Orbital Dynamics (soft) complete.")
+    print("✅ Test C7 - Curvature Orbital Dynamics (soft) complete.")
     print(f"Frames: {len(frames)}, Energy mean={np.mean(E_total):.4e}, std={np.std(E_total):.4e}")
 
     # --- Animation ---
     fig, ax = plt.subplots(figsize=(6, 6))
     im = ax.imshow(frames[0], cmap='inferno', extent=[x.min(), x.max(), y.min(), y.max()])
-    ax.set_title("Test C7 — Curvature Orbital Dynamics (Photon Algebra)")
+    ax.set_title("Test C7 - Curvature Orbital Dynamics (Photon Algebra)")
     def update(i):
         im.set_data(frames[i])
         ax.set_title(f"t={i*5}")
@@ -93,7 +93,7 @@ def main():
     # --- Energy plot ---
     plt.figure(figsize=(6.4, 4.2))
     plt.plot(E_total, 'b-', lw=1.5)
-    plt.title("Test C7 — Total Rewrite Energy (Soft Coupling)")
+    plt.title("Test C7 - Total Rewrite Energy (Soft Coupling)")
     plt.xlabel("Time step")
     plt.ylabel("E_total (arb. units)")
     plt.tight_layout()

@@ -54,7 +54,7 @@ def run_codex_mutation_test(data):
     print(f"📦 Result Status: {result['status']}")
     print(f"🧠 Raw Result: {json.dumps(result.get('result'), indent=2)}")
 
-    # If contradiction found → track metrics
+    # If contradiction found -> track metrics
     if result["status"] == "success" and result["result"].get("status") == "contradiction":
         suggestion = result["result"].get("suggestion")
         print(f"\n🔁 Contradiction detected! Suggested rewrite:")

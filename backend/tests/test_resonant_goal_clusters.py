@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-🧪 Resonant Cluster Bridge Integration Test — Phase 55 T4 (Stabilized)
+🧪 Resonant Cluster Bridge Integration Test - Phase 55 T4 (Stabilized)
 ───────────────────────────────────────────────────────────────
 Validates dynamic coupling between:
-  • ResonantStrategyPlanner  (Plan → Goal creation)
-  • GoalTaskManager / GoalEngine  (Goal → Strategy feedback)
+  * ResonantStrategyPlanner  (Plan -> Goal creation)
+  * GoalTaskManager / GoalEngine  (Goal -> Strategy feedback)
 Includes propagation delay handling + reload logic for async persistence.
 """
 
@@ -34,7 +34,7 @@ def test_cluster_bridge():
 
     # ────────────────────────────────────────────────
     # 1️⃣  Generate high-SQI plan to trigger cluster creation
-    print("→ Generating first high-SQI plan...")
+    print("-> Generating first high-SQI plan...")
     intent = {"what": "expand harmonic coherence"}
     plan = planner.generate_plan(intent)
     # 🔎 Inspect planner's own goal storage
@@ -55,7 +55,7 @@ def test_cluster_bridge():
                 try:
                     with found_file.open() as f:
                         data = json.load(f)
-                    print(f"📁 Found planner goal file → {found_file} ({len(data)} entries)")
+                    print(f"📁 Found planner goal file -> {found_file} ({len(data)} entries)")
                     matches = [
                         g for g in data
                         if "cluster_goal_expand_harmonic" in str(g).lower()
@@ -148,8 +148,8 @@ def test_cluster_bridge():
     print(f"✅ Created cluster goal: {new_goals[0]['name']}  priority={new_goals[0]['priority']}")
 
     # ────────────────────────────────────────────────
-    # 2️⃣  Re-generate same plan → should reinforce goal
-    print("→ Regenerating plan to test reinforcement...")
+    # 2️⃣  Re-generate same plan -> should reinforce goal
+    print("-> Regenerating plan to test reinforcement...")
     plan2 = planner.generate_plan(intent)
     time.sleep(1.0)
 
@@ -163,7 +163,7 @@ def test_cluster_bridge():
                    if "cluster_goal_expand_harmonic" in g.get("name", "")]
 
     assert g_match, "❌ Reinforcement goal not found"
-    print(f"🔁 Reinforced goal priority → {g_match[0]['priority']}")
+    print(f"🔁 Reinforced goal priority -> {g_match[0]['priority']}")
     assert g_match[0]["priority"] >= new_goals[0]["priority"], "❌ Goal not reinforced"
 
     # ────────────────────────────────────────────────
@@ -177,7 +177,7 @@ def test_cluster_bridge():
     planner.export_resonant_summary(str(summary_path))
     time.sleep(0.5)
     assert summary_path.exists(), "❌ Summary file missing or not written"
-    print(f"📊 Summary exported successfully → {summary_path}")
+    print(f"📊 Summary exported successfully -> {summary_path}")
 
     print("✅ Resonant Cluster Bridge integration test complete.")
 

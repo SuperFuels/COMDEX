@@ -1,9 +1,9 @@
 # backend/symatics/core/resonant_laws.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.6 — Resonant Gradient Continuity Engine
+# Tessaris Symatics v0.6 - Resonant Gradient Continuity Engine
 # Extends AdaptiveLawEngine with gradient-based λ-field evolution
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v0.6.0 — October 2025
+# Version: v0.6.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -37,11 +37,11 @@ class ResonantLawEngine(AdaptiveLawEngine):
     The new update equation integrates resonant feedback ∇R(ψ,t)
     into the λ evolution rule:
 
-        λᵢ(t+Δt) = λᵢ(t) + η(∇Rᵢ - Δᵢ)
+        λi(t+Δt) = λi(t) + η(∇Ri - Δi)
 
     where:
-      • grad_r — local resonance gradient (coherence potential)
-      • deviation — observed law deviation (instability)
+      * grad_r - local resonance gradient (coherence potential)
+      * deviation - observed law deviation (instability)
     """
 
     def update_with_gradient(
@@ -54,7 +54,7 @@ class ResonantLawEngine(AdaptiveLawEngine):
 
         prev = self.get_weight(law_id)
         delta = float(deviation)
-        grad_R = float(grad_r)  # symbolic equivalent of ∇ℛ
+        grad_R = float(grad_r)  # symbolic equivalent of ∇R
 
         # Resonant gradient update rule
         new_lambda = prev + self.learning_rate * (grad_R - delta)
@@ -94,7 +94,7 @@ class ResonantLawEngine(AdaptiveLawEngine):
 
     # -----------------------------------------------------------------
     def summary(self) -> Dict[str, float]:
-        """Return concise λᵢ(t) field summary."""
+        """Return concise λi(t) field summary."""
         return dict(self.weights)
 
 

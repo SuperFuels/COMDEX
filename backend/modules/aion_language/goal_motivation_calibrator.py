@@ -1,12 +1,12 @@
 """
-Motivational Resonance Calibration — Phase 45B
+Motivational Resonance Calibration - Phase 45B
 ----------------------------------------------
-Bridges Aion’s emotional + reasoning coherence with its motivational stability.
+Bridges Aion's emotional + reasoning coherence with its motivational stability.
 Calibrates goal persistence and reinforcement weights according to harmonic
 resonance among tone, reasoning depth, and goal success.
 
 Author: Tessaris Research Group
-Date: Phase 45B — October 2025
+Date: Phase 45B - October 2025
 """
 
 import time, json

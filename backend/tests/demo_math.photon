@@ -1,0 +1,11 @@
+# examples/demo_math.photon
+
+# This is glyph-DSL, not Python. The importer expands it on the fly.
+
+
+⚙ add_and_measure ⟮a ‚b ⟯∶
+    z ⩴⊕ ⟮a ‚b ⟯# -> __OPS__["⊕"](a,b)
+
+    m ⩴μ ⟮z ⟯# -> __OPS__["μ"](z)
+
+    ⮐ {"z"∶z ‚"m"∶m }

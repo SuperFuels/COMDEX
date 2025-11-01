@@ -32,9 +32,9 @@ SLEEP_INTERVAL = 4.0        # seconds between dream mutations
 SESSION_LENGTH = 60 * 5     # ~5-minute default dream window
 
 def is_night_cycle() -> bool:
-    """Naive night detector — Phase 1 (circadian scheduler later)"""
+    """Naive night detector - Phase 1 (circadian scheduler later)"""
     hr = datetime.now().hour
-    return hr >= 23 or hr <= 6  # 11pm–6am
+    return hr >= 23 or hr <= 6  # 11pm-6am
 
 def dream_mutate_once():
     """Pick a pattern and mutation-walk it"""

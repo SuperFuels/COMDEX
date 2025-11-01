@@ -2,7 +2,7 @@
 # 📁 backend/symatics/photon_symatics_bridge.py
 # =========================================================
 """
-⚛ Photon–Symatics Bridge — SRK-15
+⚛ Photon-Symatics Bridge - SRK-15
 Bidirectional interface between Symatics Algebra and Photon Algebra Runtime.
 
 Executes symbolic operators (⊕, ↔, ⟲, ∇, μ) in the photonic domain while keeping

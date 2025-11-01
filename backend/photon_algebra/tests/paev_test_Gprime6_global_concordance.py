@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test G′6 — Global Concordance Report
+Test G′6 - Global Concordance Report
 Aggregates α′, ħ′, m′, G′ effective constants into a unified coherence map.
 """
 
@@ -57,7 +57,7 @@ ax = plt.subplot(111, polar=True)
 ax.plot(angles, stats, 'r-', lw=2)
 ax.fill(angles, stats, 'r', alpha=0.2)
 ax.set_thetagrids(np.degrees(angles[:-1]), labels)
-ax.set_title("G′6 — Global Concordance Radar Map", va='bottom')
+ax.set_title("G′6 - Global Concordance Radar Map", va='bottom')
 ax.set_rlabel_position(0)
 plt.tight_layout()
 plt.savefig("PAEV_TestGprime6_GlobalConcordance.png")
@@ -65,7 +65,7 @@ plt.savefig("PAEV_TestGprime6_GlobalConcordance.png")
 end = time.time()
 
 # --- Report ---
-print("=== G′6 — Global Concordance Summary ===")
+print("=== G′6 - Global Concordance Summary ===")
 for r in records:
     print(f"{r[0]:>5s} : Δ{r[3]:8.3f}%  (Eff={r[1]:.3e}, Ref={r[2]:.3e})")
 print(f"\nConcordance Index = {index:.3f} %")

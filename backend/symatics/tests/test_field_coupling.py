@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.7 — Integration Test
+# Tessaris Symatics v0.7 - Integration Test
 # FieldCouplingEngine Stability & Coherence Validation
 # ──────────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ def test_field_coupling_stability():
         # Step evolution
         ψ_next, λ_next = engine.step("ψ", "λ", dt=0.1)
 
-        # Energy = ∫ψ², Coherence = ⟨e^{-||∇ψ||}⟩
+        # Energy = ∫ψ2, Coherence = ⟨e^{-||∇ψ||}⟩
         energy = np.sum(ψ_next ** 2)
         flux = coherence_flux(ψ_next)
         coherence = np.mean(np.abs(flux))

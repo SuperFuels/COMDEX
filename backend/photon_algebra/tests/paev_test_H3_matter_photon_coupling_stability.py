@@ -1,4 +1,4 @@
-# PAEV Test H3 — Matter–Photon Coupling Stability
+# PAEV Test H3 - Matter-Photon Coupling Stability
 # Stable hybrid of scalar "matter" field φ, photon/quantum field ψ, and curvature κ
 # Saves: traces, entropy, and final-field snapshots, then prints their paths.
 
@@ -22,7 +22,7 @@ X, Y = np.meshgrid(x, x, indexing="ij")
 psi = 0.05 * (rng.normal(size=(N, N)) + 1j * rng.normal(size=(N, N))) * np.exp(
     -((X**2 + Y**2) / 0.5)
 )
-phi = 0.9 + 0.05 * rng.normal(size=(N, N))  # “mass/Higgs-like” scalar near vev
+phi = 0.9 + 0.05 * rng.normal(size=(N, N))  # "mass/Higgs-like" scalar near vev
 kappa = 0.02 * np.exp(-((X**2 + Y**2) / 0.4)) + 0.002 * rng.normal(size=(N, N))
 
 psi = psi.astype(np.complex128)
@@ -66,11 +66,11 @@ def grad2(Z):
 # ----------------------------
 # ψ evolution (Schrödinger-like with curvature & φ coupling)
 gamma_rel = 0.9           # mild relativistic factor
-g_phi = 0.25              # ψ–φ coupling
-g_kappa = 0.25            # ψ–κ coupling
+g_phi = 0.25              # ψ-φ coupling
+g_kappa = 0.25            # ψ-κ coupling
 nu_damp = 0.01            # small damping for stability
 
-# φ evolution (Ginzburg–Landau-like)
+# φ evolution (Ginzburg-Landau-like)
 D_phi = 0.15
 lam = 0.20                # self-coupling (quartic)
 v = 1.0                   # vacuum expectation value
@@ -137,7 +137,7 @@ for t in range(steps):
     S_trace.append(S)
 
     if t % 120 == 0 or t == steps - 1:
-        print(f"Step {t:03d} — ⟨E⟩={E_proxy:.4e}, ⟨|ψ|·κ⟩={coupling:.4e}, S={S:.4f}")
+        print(f"Step {t:03d} - ⟨E⟩={E_proxy:.4e}, ⟨|ψ|*κ⟩={coupling:.4e}, S={S:.4f}")
 
 # ----------------------------
 # Save figures
@@ -148,8 +148,8 @@ fields_path = "PAEV_TestH3_FinalFields.png"
 
 plt.figure(figsize=(7, 4))
 plt.plot(E_trace, label="Energy ⟨E⟩")
-plt.plot(C_trace, label="Coupling ⟨|ψ|·κ⟩")
-plt.title("H3 — Energy & Coupling Stability")
+plt.plot(C_trace, label="Coupling ⟨|ψ|*κ⟩")
+plt.title("H3 - Energy & Coupling Stability")
 plt.xlabel("step")
 plt.legend()
 plt.tight_layout()
@@ -158,7 +158,7 @@ plt.close()
 
 plt.figure(figsize=(7, 4))
 plt.plot(S_trace, color="purple")
-plt.title("H3 — Spectral Entropy (|ψ|)")
+plt.title("H3 - Spectral Entropy (|ψ|)")
 plt.xlabel("step")
 plt.ylabel("entropy (normalized)")
 plt.tight_layout()
@@ -167,24 +167,24 @@ plt.close()
 
 fig, axs = plt.subplots(1, 3, figsize=(12, 4))
 im0 = axs[0].imshow(np.real(psi), cmap="magma")
-axs[0].set_title("Re(ψ) — final")
+axs[0].set_title("Re(ψ) - final")
 plt.colorbar(im0, ax=axs[0], fraction=0.046, pad=0.04)
 
 im1 = axs[1].imshow(phi, cmap="viridis")
-axs[1].set_title("φ — final")
+axs[1].set_title("φ - final")
 plt.colorbar(im1, ax=axs[1], fraction=0.046, pad=0.04)
 
 im2 = axs[2].imshow(kappa, cmap="inferno")
-axs[2].set_title("κ — final")
+axs[2].set_title("κ - final")
 plt.colorbar(im2, ax=axs[2], fraction=0.046, pad=0.04)
 
 plt.tight_layout()
 plt.savefig(fields_path, dpi=160)
 plt.close()
 
-print("\n=== Test H3 — Matter–Photon Coupling Stability Complete ===")
+print("\n=== Test H3 - Matter-Photon Coupling Stability Complete ===")
 print(f"⟨E⟩ final          = {E_trace[-1]:.6e}")
-print(f"⟨|ψ|·κ⟩ final      = {C_trace[-1]:.6e}")
+print(f"⟨|ψ|*κ⟩ final      = {C_trace[-1]:.6e}")
 print(f"Spectral Entropy   = {S_trace[-1]:.6f}")
 print("All output files saved:")
 print(f" - {trace_path}")

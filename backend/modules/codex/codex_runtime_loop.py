@@ -53,7 +53,7 @@ class CodexRuntimeLoop:
                     "attempt": attempt,
                 })
 
-                print(f"[Codex Loop ✅] Executed: {glyph} → {result}")
+                print(f"[Codex Loop ✅] Executed: {glyph} -> {result}")
                 return result
             except Exception as e:
                 self.metrics.record_error()
@@ -92,7 +92,7 @@ class CodexRuntimeLoop:
 if __name__ == "__main__":
     loop = CodexRuntimeLoop()
     loop.load_schedule([
-        "⟦ Logic | Reflect: Self → ⟲(Dream) ⟧",
-        "⟦ Memory | Save: Truth → ⊕(Store, Recall) ⟧"
+        "⟦ Logic | Reflect: Self -> ⟲(Dream) ⟧",
+        "⟦ Memory | Save: Truth -> ⊕(Store, Recall) ⟧"
     ])
     loop.run_forever()

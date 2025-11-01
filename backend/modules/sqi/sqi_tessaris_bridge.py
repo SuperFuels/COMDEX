@@ -139,7 +139,7 @@ def choose_route(goal: Dict[str, Any], k: int = 3) -> Dict[str, Any]:
     """
     Entry used by ucs_paths.py.
     Resolution order:
-       1) Address override (goal.address → resolve_atom)
+       1) Address override (goal.address -> resolve_atom)
        2) Runtime compose_path (uses UCSRuntime.atom_index scoring)
        3) Metadata fallback (subset match w/ scoring on caps/nodes/tags)
     """

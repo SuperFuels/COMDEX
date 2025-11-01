@@ -74,7 +74,7 @@ async def workspace_ws(ws: WebSocket):
 
             await ws.send_json({"type": "ack", "ok": True, "result": result})
     except WebSocketDisconnect:
-        # client closed – nothing to do
+        # client closed - nothing to do
         return
     except Exception as e:
         await ws.send_json({"type": "error", "ok": False, "message": str(e)})

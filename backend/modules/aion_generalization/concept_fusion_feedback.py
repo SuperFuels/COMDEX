@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧬  Aion Stability → Fusion Feedback Loop — Phase 35.8
+🧬  Aion Stability -> Fusion Feedback Loop - Phase 35.8
 ───────────────────────────────────────────────────────────────────────────────
 Continuously adjusts the concept fusion threshold according to global RSI
 variance (stability index) computed from the resonance stream.
@@ -42,7 +42,7 @@ def compute_threshold(rsi_values):
     return round(fusion_threshold, 5), var
 
 def main():
-    print("🔁  Running Stability → Fusion Feedback Loop (Phase 35.8)…")
+    print("🔁  Running Stability -> Fusion Feedback Loop (Phase 35.8)...")
     rsi_values = load_rsi_values()
     if not rsi_values:
         print("⚠️ No RSI data available.")
@@ -62,7 +62,7 @@ def main():
 
     print(f"📊 Mean RSI variance = {var:.5f}")
     print(f"⚙️  Adjusted fusion threshold = {threshold:.5f}")
-    print(f"✅ Saved → {OUTPUT_PATH}")
+    print(f"✅ Saved -> {OUTPUT_PATH}")
 
 if __name__ == "__main__":
     main()

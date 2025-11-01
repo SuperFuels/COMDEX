@@ -1,5 +1,5 @@
 """
-🧠 Wiki Importer — Phase 2
+🧠 Wiki Importer - Phase 2
 --------------------------
 Converts external dictionary / thesaurus JSON into .wiki.phn capsules
 and writes them into the Knowledge Graph container.
@@ -64,7 +64,7 @@ def load_source(source_path: str, capsule_domain: str = "Lexicon") -> None:
 
         imported += 1
 
-    print(f"✅ [WikiImporter] Imported {imported} entries → data/knowledge/{capsule_domain}/")
+    print(f"✅ [WikiImporter] Imported {imported} entries -> data/knowledge/{capsule_domain}/")
 
 
 # ──────────────────────────────────────────────

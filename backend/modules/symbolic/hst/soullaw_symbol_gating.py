@@ -17,7 +17,7 @@ class SoulLawSymbolGate:
         Evaluate each node in the symbolic tree for SoulLaw compliance,
         including coherence-based gating from carrier metadata.
 
-        Returns a map of node_id → gating status and violations.
+        Returns a map of node_id -> gating status and violations.
         """
         gating_report = {}
 
@@ -76,7 +76,7 @@ class SoulLawSymbolGate:
 
                 if gating_status == "blocked":
                     logger.warning(
-                        f"[SoulLaw] 🚫 Blocked collapse: Node {node_id} — Violations: {result['violations']}"
+                        f"[SoulLaw] 🚫 Blocked collapse: Node {node_id} - Violations: {result['violations']}"
                     )
 
             except Exception as e:

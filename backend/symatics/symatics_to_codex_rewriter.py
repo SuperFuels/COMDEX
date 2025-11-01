@@ -1,5 +1,5 @@
 """
-Symatics → CodexLang Rewriter
+Symatics -> CodexLang Rewriter
 ─────────────────────────────
 Transforms symbolic "Symatics" ops (experimental operators and glyphs) 
 into canonical CodexLang equivalents.
@@ -16,7 +16,7 @@ from typing import Dict, Any
 
 # 🔑 Mapping table: extend as Symatics operators are defined
 SYMATIC_OPS_MAP = {
-    "⊕": "logic:⊕",        # XOR → canonical logic XOR
+    "⊕": "logic:⊕",        # XOR -> canonical logic XOR
     "⋈": "interf:⋈",       # Join/Merge operator
     "⟁": "barrier:⟁",      # Dimension lock
     "⌬": "mod:⌬",          # Compression lens
@@ -60,7 +60,7 @@ def is_symatic_op(op: str) -> bool:
 
 def list_supported_symatics() -> Dict[str, str]:
     """
-    Return mapping of supported Symatics ops → Codex equivalents.
+    Return mapping of supported Symatics ops -> Codex equivalents.
     Useful for debugging or exposing through APIs.
     """
     return dict(SYMATIC_OPS_MAP)

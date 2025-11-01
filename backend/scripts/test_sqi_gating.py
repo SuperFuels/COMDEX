@@ -40,7 +40,7 @@ if __name__ == "__main__":
         env = scheduled.get("envelope", {})
         status = "🚫 GATED" if env.get("gated") else "✅ TRANSMITTED"
         reason = env.get("reason", "")
-        print(f"[Tick {tick}] SQI={sqi_value:.3f} → {status} | {reason}")
+        print(f"[Tick {tick}] SQI={sqi_value:.3f} -> {status} | {reason}")
 
         time.sleep(0.5)
 

@@ -1,5 +1,5 @@
 # ==========================================================
-# G6 — Gravitational Lensing & Phase-Shift Prediction
+# G6 - Gravitational Lensing & Phase-Shift Prediction
 #   Predict light deflection and interference fringe shift
 #   under a localized curvature (kappa) "lens".
 #   Outputs compare measured deflection to a GR-like model
@@ -78,7 +78,7 @@ kappa = lens_amp * np.exp(-(X**2 + Y**2)/(2*lens_w**2))
 # slight roughness
 kappa += 0.02*rng.standard_normal((N,N))
 
-# two-slit phase mask (Mach–Zehnder analog in phase)
+# two-slit phase mask (Mach-Zehnder analog in phase)
 slit_sep = 0.35
 slit_w   = 0.06
 phase_mask = np.exp(1j*( np.exp(-((Y-slit_sep/2)/slit_w)**2)*0.6
@@ -165,7 +165,7 @@ for t in range(steps):
 # ----------------------------
 # 1) Energy / Entropy / Deflection
 fig, ax1 = plt.subplots(figsize=(7.6,4.2))
-ax1.plot(E_trace, label="⟨ℒ⟩ (proxy)", lw=2)
+ax1.plot(E_trace, label="⟨L⟩ (proxy)", lw=2)
 ax1.set_xlabel("step")
 ax1.set_ylabel("energy proxy")
 ax2 = ax1.twinx()
@@ -173,7 +173,7 @@ ax2.plot(S_trace, color="seagreen", label="spectral entropy (norm.)", lw=2)
 ax2.plot(defl_meas_trace, color="darkorange", lw=2, alpha=0.9, label="deflection (meas.)")
 ax2.hlines(alpha_pred, 0, len(S_trace)-1, colors="crimson", linestyles="--", label="deflection (pred.)")
 ax2.set_ylabel("entropy / deflection")
-ax1.set_title("G6 — Energy, Entropy, and Deflection")
+ax1.set_title("G6 - Energy, Entropy, and Deflection")
 ax1.legend(loc="upper left")
 ax2.legend(loc="upper right")
 plt.tight_layout()
@@ -184,8 +184,8 @@ print("✅ Saved file: PAEV_TestG6_Lensing_Trace.png")
 # 2) Interference pattern snapshot (intensity)
 plt.figure(figsize=(6.2,5.3))
 plt.imshow(np.log10(np.abs(np.fft.fftshift(np.fft.fft2(psi)))**2 + 1e-8), cmap="magma")
-plt.colorbar(label="log10|Ψ(k)|²")
-plt.title("G6 — ψ Spectrum (interference signature)")
+plt.colorbar(label="log10|Ψ(k)|2")
+plt.title("G6 - ψ Spectrum (interference signature)")
 plt.tight_layout()
 plt.savefig("PAEV_TestG6_PsiSpectrum.png", dpi=160)
 plt.close()
@@ -194,7 +194,7 @@ print("✅ Saved file: PAEV_TestG6_PsiSpectrum.png")
 # 3) Final fields side-by-side
 fig, ax = plt.subplots(1,2, figsize=(8.2,3.6))
 ax[0].imshow(np.real(psi), cmap="twilight_shifted")
-ax[0].set_title(f"Re(ψ) — final")
+ax[0].set_title(f"Re(ψ) - final")
 ax[0].axis("off")
 ax[1].imshow(kappa, cmap="magma")
 ax[1].set_title("κ lens (final)")
@@ -212,8 +212,8 @@ print("✅ Saved animation to: PAEV_TestG6_Lensing_Propagation.gif")
 # console summary
 # ----------------------------
 defl_meas_final = defl_meas_trace[-1] if defl_meas_trace else 0.0
-print("\n=== Test G6 — Gravitational Lensing & Phase-Shift Prediction Complete ===")
-print(f"⟨ℒ⟩ final (proxy) = {E_trace[-1]:.6e}")
+print("\n=== Test G6 - Gravitational Lensing & Phase-Shift Prediction Complete ===")
+print(f"⟨L⟩ final (proxy) = {E_trace[-1]:.6e}")
 print(f"S (final)         = {S_trace[-1]:.6e}")
 print(f"Deflection (pred) = {alpha_pred:.6e}")
 print(f"Deflection (meas) = {defl_meas_final:.6e}")

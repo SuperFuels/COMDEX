@@ -1,5 +1,5 @@
 # File: backend/modules/aion_resonance/personality_feedback.py
-# 🌱 Dynamic Personality–Field Feedback Loop
+# 🌱 Dynamic Personality-Field Feedback Loop
 # Adjusts AION's personality traits in response to Φ-field resonance.
 
 from backend.modules.consciousness.personality_engine import PROFILE

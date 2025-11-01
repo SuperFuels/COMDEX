@@ -46,7 +46,7 @@ def register_skills_by_tag(tag):
         save_json(MEMORY_FILE, memory)
         print(f"✅ Registered {len(new_skills)} skills with tag '{tag}'.")
     else:
-        print(f"ℹ️ No new skills found with tag '{tag}'.")
+        print(f"i️ No new skills found with tag '{tag}'.")
 
 if __name__ == "__main__":
     import sys

@@ -86,9 +86,9 @@ def test_idempotence_mixed_tree():
 
 # ------------------------------------------------------------------------------
 # Calculus sanity checks in mixed contexts
-#   - Double negation: ¬(¬a) → a
-#   - T12: ★(a↔b) → (★a) ⊕ (★b)
-#   - T10: (a↔b) ⊕ (a↔c) → a ↔ (b ⊕ c)  (OPTIONAL -> xfail if not active)
+#   - Double negation: ¬(¬a) -> a
+#   - T12: ★(a↔b) -> (★a) ⊕ (★b)
+#   - T10: (a↔b) ⊕ (a↔c) -> a ↔ (b ⊕ c)  (OPTIONAL -> xfail if not active)
 # ------------------------------------------------------------------------------
 
 def test_double_negation_basics():
@@ -96,25 +96,25 @@ def test_double_negation_basics():
     # inside a larger tree (relaxed check; core is that ¬¬ collapses)
     expr = plus(times("p", neg(neg("q"))), star(neg(neg("r"))))
     n = normalize(expr)
-    # just ensure we didn’t reintroduce ⊕ under ⊗ by accident
+    # just ensure we didn't reintroduce ⊕ under ⊗ by accident
     assert not is_plus_under_times(n)
 
 def test_T12_projection_fidelity_star_over_entangle():
-    # ★(a↔b) → (★a) ⊕ (★b)
+    # ★(a↔b) -> (★a) ⊕ (★b)
     a, b = "α", "β"
     left  = star(entangle(a, b))
     right = plus(star(a), star(b))
     assert normalize(left) == normalize(right)
 
 def test_T10_entanglement_distributivity_sample():
-    # (a↔b) ⊕ (a↔c) → a ↔ (b ⊕ c)
+    # (a↔b) ⊕ (a↔c) -> a ↔ (b ⊕ c)
     a, b, c = "a", "b", "c"
     left  = plus(entangle(a, b), entangle(a, c))
     right = entangle(a, plus(b, c))
     assert normalize(left) == normalize(right)
 
 def test_T10_entanglement_distributivity_commuted():
-    # (a↔c) ⊕ (a↔b) → a ↔ (b ⊕ c)
+    # (a↔c) ⊕ (a↔b) -> a ↔ (b ⊕ c)
     a, b, c = "a", "b", "c"
     left  = plus(entangle(a, c), entangle(a, b))
     right = entangle(a, plus(b, c))

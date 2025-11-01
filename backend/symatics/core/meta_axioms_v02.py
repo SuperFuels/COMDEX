@@ -1,7 +1,7 @@
 """
 Symatics v2.0 Meta-Axioms Layer
 Tessaris / CodexCore 2025
-Defines the foundational Geometry→Computation laws (G–L–E–I–C–X)
+Defines the foundational Geometry->Computation laws (G-L-E-I-C-X)
 in executable structured form, with runtime registry export.
 """
 
@@ -26,12 +26,12 @@ META_AXIOMS = [
     {
         "id": "G2",
         "domain": "Geometry",
-        "title": "Phase Closure (πₛ Constant)",
+        "title": "Phase Closure (πs Constant)",
         "statement": (
-            "πₛ defines the minimal closure angle of self-referential resonance; "
-            "metric π is a derived projection of πₛ."
+            "πs defines the minimal closure angle of self-referential resonance; "
+            "metric π is a derived projection of πs."
         ),
-        "expression": "∮ Δφ = 2πₛ n",
+        "expression": "∮ Δφ = 2πs n",
         "validated_by": ["validate_pi_s_closure"],
     },
 
@@ -44,7 +44,7 @@ META_AXIOMS = [
             "Measurement (μ) yields a determinate projection for any stable resonance; "
             "apparent randomness is unresolved superposition."
         ),
-        "symbolic": "μ(⟲ψ) → ψ′ where ψ′ = π(μ(⟲ψ))",
+        "symbolic": "μ(⟲ψ) -> ψ′ where ψ′ = π(μ(⟲ψ))",
     },
     {
         "id": "L2",
@@ -54,7 +54,7 @@ META_AXIOMS = [
             "Entanglement (↔) establishes bidirectional influence; "
             "causality is symmetric across collapse boundaries."
         ),
-        "symbolic": "A ↔ B  ⇒  μ(A) ⇔ μ(B)",
+        "symbolic": "A ↔ B  ->  μ(A) ⇔ μ(B)",
     },
 
     # --- Energy ---
@@ -77,7 +77,7 @@ META_AXIOMS = [
         "statement": (
             "Information is preserved phase coherence, not discrete entropy."
         ),
-        "symbolic": "I ∝ |⟨ψ|ψ⟩|²",
+        "symbolic": "I ∝ |⟨ψ|ψ⟩|2",
     },
 
     # --- Cognition ---
@@ -97,10 +97,10 @@ META_AXIOMS = [
         "domain": "Computation",
         "title": "Phase-Closure Halting Condition",
         "statement": (
-            "A computation halts when the system achieves πₛ closure; "
+            "A computation halts when the system achieves πs closure; "
             "symbolic termination equals phase coherence completion."
         ),
-        "symbolic": "halt ⇔ ∮ Δφ = 2πₛ n",
+        "symbolic": "halt ⇔ ∮ Δφ = 2πs n",
         "validated_by": ["validate_pi_s_closure"],
     },
 ]

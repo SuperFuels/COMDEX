@@ -1,6 +1,6 @@
 """
 📄 photon_executor.py
-Photon Executor — runs Photon ASTs by compiling them into QWave programs
+Photon Executor - runs Photon ASTs by compiling them into QWave programs
 """
 
 import logging
@@ -14,7 +14,7 @@ def execute_photon_ast(photon_ast: list, container_id: str = "global", source: s
     Run a Photon AST by compiling to WaveProgram + emitting beams.
     """
     try:
-        # 1) Compile AST → wave program
+        # 1) Compile AST -> wave program
         program = to_wave_program(photon_ast, container_id=container_id)
 
         # 2) Emit each wave

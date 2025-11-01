@@ -10,7 +10,7 @@ print("=== COMDEX Photon Algebra Demo ===\n")
 DIAG.reset()
 
 # ----------------------------------------------------------------------
-print("1. Photon-only duality law: a ⊕ ¬a → ⊤\n")
+print("1. Photon-only duality law: a ⊕ ¬a -> ⊤\n")
 
 expr1 = {"op":"⊕","states":["a", {"op":"¬","state":"a"}]}
 print("Input:", expr1)
@@ -45,7 +45,7 @@ variants = [
 for i, v in enumerate(variants, 1):
     print(f"Variant {i}:", v)
     out = normalize(v)
-    print(" → Normalized:", json.dumps(out, ensure_ascii=False))
+    print(" -> Normalized:", json.dumps(out, ensure_ascii=False))
 print()
 
 # ----------------------------------------------------------------------

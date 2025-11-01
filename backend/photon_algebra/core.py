@@ -1,8 +1,8 @@
 """
-Photon Algebra (Phase 1) — Successor to Boolean Algebra.
+Photon Algebra (Phase 1) - Successor to Boolean Algebra.
 --------------------------------------------------------
 
-Defines the foundational axioms (P1–P8), the collapse operator,
+Defines the foundational axioms (P1-P8), the collapse operator,
 and a rewriter for normalization.
 
 Boolean {0,1} ⊂ PhotonStates
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # -------------------------------
 
 PhotonState = Union[str, Dict[str, Any]]  # atomic glyph ID or structured op
-SQIMap = Dict[str, float]  # glyph_id → Semantic Quality Index
+SQIMap = Dict[str, float]  # glyph_id -> Semantic Quality Index
 
 # -------------------------------
 # Constants
@@ -55,35 +55,35 @@ __all__ = [
 ]
 
 # -------------------------------
-# Core Axioms (P1–P8)
+# Core Axioms (P1-P8)
 # -------------------------------
 
 def identity(a: PhotonState) -> PhotonState:
-    """P1: Identity — a ⊕ ∅ = a"""
+    """P1: Identity - a ⊕ ∅ = a"""
     return a
 
 def superpose(*states: PhotonState) -> Dict[str, Any]:
-    """P2: Superposition — combine states into ⊕"""
+    """P2: Superposition - combine states into ⊕"""
     if not states:
         return EMPTY
     return {"op": "⊕", "states": list(states)}
 
 def entangle(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
-    """P3: Entanglement — symmetric ↔"""
+    """P3: Entanglement - symmetric ↔"""
     return {"op": "↔", "states": [a, b]}
 
 def fuse(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
-    """P4: Resonance / Amplification — ⊗"""
+    """P4: Resonance / Amplification - ⊗"""
     return {"op": "⊗", "states": [a, b]}
 
 def cancel(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
-    """P5: Cancellation — ⊖"""
+    """P5: Cancellation - ⊖"""
     if a == b:
         return EMPTY
     return {"op": "⊖", "states": [a, b]}
 
 def negate(a: PhotonState) -> Dict[str, Any]:
-    """P6: Negation — ¬"""
+    """P6: Negation - ¬"""
     # Double negation elimination
     if isinstance(a, dict) and a.get("op") == "¬":
         return a.get("state", EMPTY)
@@ -91,7 +91,7 @@ def negate(a: PhotonState) -> Dict[str, Any]:
 
 def collapse(state: PhotonState, sqi: Optional[SQIMap] = None) -> PhotonState:
     """
-    P7: Collapse — ∇ selects a state based on SQI weights.
+    P7: Collapse - ∇ selects a state based on SQI weights.
     If `sqi` is None, return symbolic collapse operator instead of sampling.
     """
     if not isinstance(state, dict) or state.get("op") != "⊕":
@@ -109,12 +109,12 @@ def collapse(state: PhotonState, sqi: Optional[SQIMap] = None) -> PhotonState:
     # probabilistic collapse by SQI
     weights = [sqi.get(str(s), 1.0) for s in states]
     chosen = random.choices(states, weights=weights, k=1)[0]
-    logger.info(f"[PhotonAlgebra] ∇ collapse {states} → {chosen} (weights={weights})")
+    logger.info(f"[PhotonAlgebra] ∇ collapse {states} -> {chosen} (weights={weights})")
     return chosen
 
 def project(state: PhotonState, sqi: Optional[SQIMap] = None) -> Dict[str, Any]:
     """
-    P8: Projection — ★ returns SQI drift score.
+    P8: Projection - ★ returns SQI drift score.
     If `sqi` is None, return symbolic ★(state).
     """
     if sqi is None:
@@ -126,11 +126,11 @@ def project(state: PhotonState, sqi: Optional[SQIMap] = None) -> Dict[str, Any]:
 # -------------------------------
 
 def similar(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
-    """E2: Similarity operator — a ≈ b (inert in Phase 1)"""
+    """E2: Similarity operator - a ≈ b (inert in Phase 1)"""
     return {"op": "≈", "states": [a, b]}
 
 def contains(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
-    """E2: Containment operator — a ⊂ b (inert in Phase 1)"""
+    """E2: Containment operator - a ⊂ b (inert in Phase 1)"""
     return {"op": "⊂", "states": [a, b]}
 
 # -------------------------------
@@ -138,7 +138,7 @@ def contains(a: PhotonState, b: PhotonState) -> Dict[str, Any]:
 # -------------------------------
 
 def to_boolean(state: PhotonState, sqi: SQIMap, threshold: float = 0.5) -> int:
-    """Boolean ⊂ Photon — map state → {0,1} by SQI threshold."""
+    """Boolean ⊂ Photon - map state -> {0,1} by SQI threshold."""
     return 1 if sqi.get(str(state), 0.0) >= threshold else 0
 
 # -------------------------------

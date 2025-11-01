@@ -1,5 +1,5 @@
 # ==========================================================
-# Test F5 — Adaptive Feedback Response (Hierarchical Control)
+# Test F5 - Adaptive Feedback Response (Hierarchical Control)
 # ==========================================================
 
 import numpy as np
@@ -119,13 +119,13 @@ if transition_step == 0:
 # ----------------------------
 # 1. Energy, correlation, entropy, chi evolution
 plt.figure(figsize=(7, 4))
-plt.plot(energy_trace, label="⟨ℒ⟩")
-plt.plot(corr_trace, label="⟨θ·κ⟩")
+plt.plot(energy_trace, label="⟨L⟩")
+plt.plot(corr_trace, label="⟨θ*κ⟩")
 plt.plot(entropy_trace, label="Spectral entropy (norm.)")
-plt.plot(np.array(chi_trace)/max(chi_trace), label="χ(t) / χₘₐₓ", linestyle="--")
+plt.plot(np.array(chi_trace)/max(chi_trace), label="χ(t) / χmax", linestyle="--")
 plt.axvline(transition_step, color="magenta", linestyle="--", label="transition")
 plt.legend()
-plt.title("F5 — Adaptive Feedback Response")
+plt.title("F5 - Adaptive Feedback Response")
 plt.tight_layout()
 plt.savefig("PAEV_TestF5_AdaptiveFeedback_Trace.png")
 plt.close()
@@ -135,8 +135,8 @@ print("✅ Saved file: PAEV_TestF5_AdaptiveFeedback_Trace.png")
 plt.figure(figsize=(5.5, 4))
 plt.plot(entropy_trace, corr_trace, color="orange")
 plt.xlabel("Spectral entropy")
-plt.ylabel("⟨θ·κ⟩")
-plt.title("F5 — Phase Portrait (Adaptive Coherence)")
+plt.ylabel("⟨θ*κ⟩")
+plt.title("F5 - Phase Portrait (Adaptive Coherence)")
 plt.tight_layout()
 plt.savefig("PAEV_TestF5_AdaptiveFeedback_PhasePortrait.png")
 plt.close()
@@ -150,9 +150,9 @@ print("✅ Saved animation to: PAEV_TestF5_Propagation.gif")
 # summary
 # ----------------------------
 summary = f"""
-=== Test F5 — Adaptive Feedback Response (Hierarchical Control) ===
-⟨ℒ⟩ final = {energy_trace[-1]:.4e}
-⟨θ·κ⟩ final = {corr_trace[-1]:.4e}
+=== Test F5 - Adaptive Feedback Response (Hierarchical Control) ===
+⟨L⟩ final = {energy_trace[-1]:.4e}
+⟨θ*κ⟩ final = {corr_trace[-1]:.4e}
 Spectral entropy final = {entropy_trace[-1]:.4e}
 Adaptive coupling χ final = {chi_trace[-1]:.4e}
 Transition detected at step {transition_step}

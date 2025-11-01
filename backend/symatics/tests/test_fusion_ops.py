@@ -1,9 +1,9 @@
 # backend/symatics/tests/test_fusion_ops.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.5 — Quantum–Temporal Fusion Tests
-# Verifies adaptive λᵢ(t) weighting & coherence behavior
+# Tessaris Symatics v0.5 - Quantum-Temporal Fusion Tests
+# Verifies adaptive λi(t) weighting & coherence behavior
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v0.5.0 — October 2025
+# Version: v0.5.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 import math
@@ -45,7 +45,7 @@ def test_fusion_runs_without_error(base_exprs):
 
 
 def test_fusion_respects_adaptive_weights(base_exprs):
-    """Changing λᵢ weights should modify fused output."""
+    """Changing λi weights should modify fused output."""
     ctx = DummyCtx()
     mu_expr, res_expr, ent_expr = base_exprs
 

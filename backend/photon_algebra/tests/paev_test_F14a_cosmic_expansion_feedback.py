@@ -1,20 +1,20 @@
 """
-F14a — Cosmic Expansion from Λ_eff (Tessaris mapping)
+F14a - Cosmic Expansion from Λ_eff (Tessaris mapping)
 -----------------------------------------------------
 Goal:
   Map the Tessaris vacuum-energy proxy Λ_eff to a toy FRW scale factor a(t)
-  and verify late-time acceleration (ä > 0).
+  and verify late-time acceleration (ä > 0).
 
 Strategy:
-  • Try to read Λ_final from F13b_dynamic_vacuum_feedback.json; fallback to constants Λ.
-  • Integrate:   H(t) = sqrt(max( (Λ_eff/3) + 8πG/3 * ρ_m(a), 0 ))
-    with ρ_m(a) = ρ0 / a^3 (dust-like), ρ0 small; ȧ = H a.
-  • Report acceleration sign on the tail window; save plots + JSON.
+  * Try to read Λ_final from F13b_dynamic_vacuum_feedback.json; fallback to constants Λ.
+  * Integrate:   H(t) = sqrt(max( (Λ_eff/3) + 8πG/3 * ρ_m(a), 0 ))
+    with ρ_m(a) = ρ0 / a^3 (dust-like), ρ0 small; ȧ = H a.
+  * Report acceleration sign on the tail window; save plots + JSON.
 
 Outputs:
-  • PAEV_F14a_ScaleFactor.png
-  • PAEV_F14a_Hubble.png
-  • backend/modules/knowledge/F14a_cosmic_expansion_feedback.json
+  * PAEV_F14a_ScaleFactor.png
+  * PAEV_F14a_Hubble.png
+  * backend/modules/knowledge/F14a_cosmic_expansion_feedback.json
 """
 import json, numpy as np, matplotlib.pyplot as plt
 from datetime import datetime, timezone
@@ -64,22 +64,22 @@ acc_pos  = acc_mean > 0
 
 classification = "✅ Accelerating expansion from Λ_eff" if acc_pos else "❌ No acceleration (tune Λ_eff/ρ0)"
 
-print("=== F14a — Cosmic Expansion from Λ_eff ===")
+print("=== F14a - Cosmic Expansion from Λ_eff ===")
 print(f"Λ_eff={Λ_eff:.6f}, G={G:.1e}, ρ0={ρ0:.3f}")
-print(f"a(T)={a[-1]:.3f},  ⟨ä⟩_tail={acc_mean:.3e}")
-print(f"→ {classification}")
+print(f"a(T)={a[-1]:.3f},  ⟨ä⟩_tail={acc_mean:.3e}")
+print(f"-> {classification}")
 
 # plots
 out = Path(".")
 plt.figure(figsize=(10,4))
 plt.plot(t, a, lw=1.8)
-plt.title("F14a — Scale Factor a(t)")
+plt.title("F14a - Scale Factor a(t)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.tight_layout(); plt.savefig(out/"PAEV_F14a_ScaleFactor.png", dpi=160)
 
 plt.figure(figsize=(10,4))
 plt.plot(t, H, lw=1.6)
-plt.title("F14a — Hubble Proxy H(t)")
+plt.title("F14a - Hubble Proxy H(t)")
 plt.xlabel("time"); plt.ylabel("H(t)")
 plt.tight_layout(); plt.savefig(out/"PAEV_F14a_Hubble.png", dpi=160)
 
@@ -95,4 +95,4 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 }
 Path("backend/modules/knowledge/F14a_cosmic_expansion_feedback.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/F14a_cosmic_expansion_feedback.json")
+print("📄 Summary saved -> backend/modules/knowledge/F14a_cosmic_expansion_feedback.json")

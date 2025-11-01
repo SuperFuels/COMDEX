@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-📈 coherence_metrics.py – Phase Drift, Entropy, and Visibility Computation
+📈 coherence_metrics.py - Phase Drift, Entropy, and Visibility Computation
 Part of Tessaris Symatics Lightwave Engine (SLE v0.5+)
 
 Purpose:
@@ -10,12 +10,12 @@ Purpose:
 Inputs:
     - Phase samples (radians)
     - Amplitude samples or intensity stream
-    - Coherence values (0–1)
+    - Coherence values (0-1)
 
 Outputs:
     - Phase drift Δφ
     - Entropy H (Shannon-style, normalized)
-    - Visibility V = (Imax − Imin) / (Imax + Imin)
+    - Visibility V = (Imax - Imin) / (Imax + Imin)
 """
 
 import numpy as np
@@ -29,7 +29,7 @@ from typing import List, Dict
 def phase_drift(phases: List[float]) -> float:
     """
     Compute mean absolute phase drift (Δφ) across samples.
-    Returns value in radians (0–π).
+    Returns value in radians (0-π).
     """
     if len(phases) < 2:
         return 0.0
@@ -43,7 +43,7 @@ def phase_drift(phases: List[float]) -> float:
 def wave_entropy(amplitudes: List[float]) -> float:
     """
     Compute normalized entropy of amplitude distribution.
-    Returns 0.0–1.0 range, where 0 = ordered, 1 = chaotic.
+    Returns 0.0-1.0 range, where 0 = ordered, 1 = chaotic.
     """
     if not amplitudes:
         return 0.0
@@ -60,8 +60,8 @@ def wave_entropy(amplitudes: List[float]) -> float:
 def visibility_index(intensities: List[float]) -> float:
     """
     Compute classical fringe visibility metric:
-        V = (Imax − Imin) / (Imax + Imin)
-    Returns 0.0–1.0 (0 = dark/no contrast, 1 = high coherence).
+        V = (Imax - Imin) / (Imax + Imin)
+    Returns 0.0-1.0 (0 = dark/no contrast, 1 = high coherence).
     """
     if not intensities:
         return 0.0

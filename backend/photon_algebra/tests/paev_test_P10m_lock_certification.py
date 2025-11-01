@@ -1,5 +1,5 @@
 # backend/photon_algebra/tests/paev_test_P10m_lock_certification.py
-# P10m — Global Lock Certification (stress sweeps + relock)
+# P10m - Global Lock Certification (stress sweeps + relock)
 import json, numpy as np, matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
@@ -68,7 +68,7 @@ def simulate_once(seed, noise=0.0023, K_field=0.08, damping=0.04, leak=0.0085):
             # global pull to psi
             global_term = K_global * np.sin(psi - phi[i, t-1])
 
-            # nonlinear “fusion” (curvature reduces large errors, saturates near lock)
+            # nonlinear "fusion" (curvature reduces large errors, saturates near lock)
             err = (psi - phi[i, t-1])
             err = np.arctan2(np.sin(err), np.cos(err))
             nonlin = ALIGN["curvature_gain"] * np.tanh(5.0*err)
@@ -172,7 +172,7 @@ im = plt.imshow(results_mat, origin="lower", cmap="viridis",
                 aspect="auto", vmin=0, vmax=1)
 plt.colorbar(im, label="pass rate")
 plt.xticks(Kfield_grid); plt.yticks(noise_grid)
-plt.xlabel("K_field"); plt.ylabel("noise"); plt.title("P10m — Global Lock Certification (pass rate)")
+plt.xlabel("K_field"); plt.ylabel("noise"); plt.title("P10m - Global Lock Certification (pass rate)")
 plt.tight_layout()
 plt.savefig("PAEV_P10m_LockCertification_Heatmap.png")
 
@@ -184,7 +184,7 @@ plt.axvline(PERT_T, color="purple", ls="--", alpha=0.8, label="perturbation")
 Kg_scaled = (best_example["Kg_hist"] - K_global_min) / max(1e-9, (K_global_max - K_global_min))
 plt.plot(Kg_scaled, "k--", alpha=0.6, label="scaled K_global(t)")
 plt.ylim(0.94, 1.005)
-plt.title(f"P10m — Best Trial R(t)  (noise={best_key[0]:.4f}, K_field={best_key[1]:.2f}, seed={best_key[2]})")
+plt.title(f"P10m - Best Trial R(t)  (noise={best_key[0]:.4f}, K_field={best_key[1]:.2f}, seed={best_key[2]})")
 plt.xlabel("time step"); plt.ylabel("Normalized value")
 plt.legend()
 plt.tight_layout()
@@ -220,10 +220,10 @@ summary = {
 with open("backend/modules/knowledge/P10m_lock_certification.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== P10m — Global Lock Certification (stress sweeps) ===")
+print("=== P10m - Global Lock Certification (stress sweeps) ===")
 print(f"Grid pass rates (rows=noise, cols=K_field):")
 print(np.array_str(results_mat, precision=2))
 print(f"Best: noise={best_key[0]:.4f}, K_field={best_key[1]:.2f}, seed={best_key[2]} | "
       f"R_tail_mean={best_example['R_tail_mean']:.4f}, lock_R={best_example['lock_ratio_R']:.2f}, "
       f"relock={best_example['relock_time']}, slope={best_example['R_tail_slope']:.2e}")
-print("✅ Results saved → backend/modules/knowledge/P10m_lock_certification.json")
+print("✅ Results saved -> backend/modules/knowledge/P10m_lock_certification.json")

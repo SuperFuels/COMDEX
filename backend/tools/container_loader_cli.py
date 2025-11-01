@@ -45,7 +45,7 @@ def register_container(container_path: str):
     if kg_writer:
         data = container_to_dict(container)
         kg_writer.attach_container(data)
-        print(f"[green]✅ Registered container '{container_id}' → KG + UCS runtime.[/green]")
+        print(f"[green]✅ Registered container '{container_id}' -> KG + UCS runtime.[/green]")
     else:
         print(f"[yellow]⚠️ No KnowledgeGraphWriter available. UCS-only registration complete.[/yellow]")
 

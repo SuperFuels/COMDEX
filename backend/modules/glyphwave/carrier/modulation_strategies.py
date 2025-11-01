@@ -30,7 +30,7 @@ class ModulationStrategy(str, Enum):
 class ModulationInfo:
     description: str
     coherence_penalty: float  # e.g. 0.1 = 10% coherence loss
-    security_score: int       # 0–5 scale
+    security_score: int       # 0-5 scale
     optical_required: bool
     symbolic_mode: bool
 

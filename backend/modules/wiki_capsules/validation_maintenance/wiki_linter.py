@@ -1,5 +1,5 @@
 """
-🧩 Wiki Linter — Phase 6
+🧩 Wiki Linter - Phase 6
 ------------------------
 Validates `.wiki.phn` capsules for syntax + metadata completeness.
 """

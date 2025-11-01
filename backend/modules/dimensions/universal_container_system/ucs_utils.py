@@ -1,7 +1,7 @@
 # File: backend/modules/dimensions/universal_container_system/ucs_utils.py
 
 """
-🔧 UCS Utils — Universal Container Helpers
+🔧 UCS Utils - Universal Container Helpers
 ------------------------------------------
 Provides utility functions for normalizing, validating, or describing UCS container inputs.
 
@@ -128,9 +128,9 @@ def resolve_wormhole_path(source: str, destination: str) -> str:
     Example:
         source: 'container_alpha'
         destination: 'container_beta'
-        → 'wormhole://container_alpha→container_beta'
+        -> 'wormhole://container_alpha->container_beta'
     """
-    return f"wormhole://{source}→{destination}"
+    return f"wormhole://{source}->{destination}"
 
 # -------------------------------
 # 🧠 Microgrid + Time Helpers

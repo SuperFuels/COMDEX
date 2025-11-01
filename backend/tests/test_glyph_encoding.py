@@ -17,7 +17,7 @@ def test_basic_encoding():
 
 def test_epsilon_glyph_math():
     encoded = photon_encode({"Phi": 1.0})
-    assert "𝜀0" in encoded  # 1.0 should encode to epsilon zero offset
+    assert "ε0" in encoded  # 1.0 should encode to epsilon zero offset
 
 def test_roundtrip_decode():
     original = {"Phi": 1.0, "resonance_index": 0.995, "gain": 0.96, "closure_state": "stable"}

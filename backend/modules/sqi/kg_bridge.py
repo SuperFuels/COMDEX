@@ -88,7 +88,7 @@ class KnowledgeGraphBridge:
             from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
             kg_writer.write_node(data)
             self.total_written += 1
-            logger.debug(f"[KnowledgeGraphBridge] Wrote event → {data.get('type', 'unknown')}")
+            logger.debug(f"[KnowledgeGraphBridge] Wrote event -> {data.get('type', 'unknown')}")
         except Exception as e:
             self.buffer.append(data)
             logger.debug(f"[KnowledgeGraphBridge] Buffered event (KG unavailable): {e}")
@@ -161,7 +161,7 @@ class KnowledgeGraphBridge:
                 "type": "UnifiedTrace",
                 "data": unified
             })
-            logger.info(f"[📡 KGBridge] Unified trace injected into KG → {container_id}")
+            logger.info(f"[📡 KGBridge] Unified trace injected into KG -> {container_id}")
             return unified
         except Exception as e:
             # Fallback to local export
@@ -169,5 +169,5 @@ class KnowledgeGraphBridge:
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w") as f:
                 json.dump(unified, f, indent=2)
-            logger.warning(f"[📁 KGBridge] KG unavailable, exported locally → {path} ({e})")
+            logger.warning(f"[📁 KGBridge] KG unavailable, exported locally -> {path} ({e})")
             return unified

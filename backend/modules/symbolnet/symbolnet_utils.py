@@ -86,7 +86,7 @@ def get_embedding(text: str) -> np.ndarray:
 def concept_match(label_a: str, label_b: str) -> float:
     """
     Returns cosine similarity between the embeddings of two labels.
-    Range: [-1.0, 1.0] → Scaled to [0.0, 1.0]
+    Range: [-1.0, 1.0] -> Scaled to [0.0, 1.0]
     """
     if not label_a or not label_b:
         return 0.0
@@ -99,6 +99,6 @@ def concept_match(label_a: str, label_b: str) -> float:
 def semantic_distance(label_a: str, label_b: str) -> float:
     """
     Returns 1 - concept match similarity (distance measure).
-    Range: 0.0 (identical) → 1.0 (maximally different)
+    Range: 0.0 (identical) -> 1.0 (maximally different)
     """
     return round(1.0 - concept_match(label_a, label_b), 4)

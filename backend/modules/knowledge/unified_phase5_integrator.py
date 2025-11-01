@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Tessaris — Unified Phase V (Ξ-Series) Integrator
-Aggregates Ξ1–Ξ5 optical/photonic realisation results into one summary.
+Tessaris - Unified Phase V (Ξ-Series) Integrator
+Aggregates Ξ1-Ξ5 optical/photonic realisation results into one summary.
 Outputs:
-  • unified_summary_v1.5.json
-  • Tessaris_Optical_Realisation_Map.png
+  * unified_summary_v1.5.json
+  * Tessaris_Optical_Realisation_Map.png
 """
 
 import os, json, datetime
@@ -31,7 +31,7 @@ for fn in FILES:
     p = BASE / fn
     if p.exists():
         loaded.append(load_json(p))
-        print(f"  • Loaded {fn}")
+        print(f"  * Loaded {fn}")
 
 # Extract a few headline metrics if present
 def get(d, *keys, default=None):
@@ -68,7 +68,7 @@ for doc in loaded:
 
 summary = {
     "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
-    "series": "Ξ — Physical Implementation (Optical/Photonic)",
+    "series": "Ξ - Physical Implementation (Optical/Photonic)",
     "records_loaded": len(loaded),
     "headlines": headlines,
     "notes": [
@@ -82,7 +82,7 @@ summary = {
 out_json = BASE / "unified_summary_v1.5.json"
 with open(out_json, "w", encoding="utf-8") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Unified Ξ summary saved → {out_json}")
+print(f"✅ Unified Ξ summary saved -> {out_json}")
 
 # Simple diagnostic plot if Ξ3/Ξ5 present
 plt.figure(figsize=(7.2,4))
@@ -96,13 +96,13 @@ if headlines["Ξ4_R_sync"] is not None:
 
 if vals:
     plt.bar(labels, vals)
-    plt.title("Ξ-Series — Key Optical Metrics")
+    plt.title("Ξ-Series - Key Optical Metrics")
     plt.ylabel("Value")
     plt.grid(True, axis="y", alpha=0.3)
     out_png = BASE / "Tessaris_Optical_Realisation_Map.png"
     plt.savefig(out_png, dpi=200, bbox_inches="tight")
     plt.close()
-    print(f"✅ Visualization saved → {out_png}")
+    print(f"✅ Visualization saved -> {out_png}")
 
 print("Phase V (Ξ) integration complete.")
 print("------------------------------------------------------------")

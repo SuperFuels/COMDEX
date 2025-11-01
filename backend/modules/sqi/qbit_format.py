@@ -14,7 +14,7 @@ class QBitFormat:
     def encode_qbit(self, base: str, states: Union[List[str], str]) -> Dict[str, Union[str, List[str]]]:
         """
         Encode a symbolic QBit from base and states.
-        Example: encode_qbit("A", ["0", "1"]) → {'↔': ['A:0', 'A:1']}
+        Example: encode_qbit("A", ["0", "1"]) -> {'↔': ['A:0', 'A:1']}
         """
         if isinstance(states, str):
             states = states.split("↔")

@@ -4,7 +4,7 @@ import json
 from datetime import datetime, timezone
 
 # =====================================================
-# P10n — Global Fusion Energy Landscape Visualization
+# P10n - Global Fusion Energy Landscape Visualization
 # =====================================================
 
 np.random.seed(77)
@@ -61,12 +61,12 @@ energy = np.zeros_like(dphi1)
 grad_norm = np.zeros_like(dphi1)
 Rvals = np.zeros_like(dphi1)
 
-# base center (φ₃ = 0)
+# base center (φ3 = 0)
 for i in range(len(grid)):
     for j in range(len(grid)):
         phi = np.array([dphi1[i,j], dphi2[i,j], 0.0])
         dphi_vec, R, _ = phase_dynamics(phi)
-        energy[i,j] = -R  # “potential-like”: high R = low energy
+        energy[i,j] = -R  # "potential-like": high R = low energy
         grad_norm[i,j] = np.linalg.norm(dphi_vec)
         Rvals[i,j] = R
 
@@ -90,28 +90,28 @@ for i, a in enumerate(sample_idx):
 # --- 4. Plot (3 panels) ---
 fig, axes = plt.subplots(1, 3, figsize=(15, 4.8))
 
-# (a) Energy landscape (R → potential)
+# (a) Energy landscape (R -> potential)
 im0 = axes[0].imshow(energy, extent=[-np.pi, np.pi, -np.pi, np.pi],
                      origin="lower", cmap="magma", aspect="auto")
-axes[0].set_title("P10n — Global Fusion Energy Landscape")
-axes[0].set_xlabel("Δφ₁ (rad)")
-axes[0].set_ylabel("Δφ₂ (rad)")
-plt.colorbar(im0, ax=axes[0], label="Normalized Energy (−R)")
+axes[0].set_title("P10n - Global Fusion Energy Landscape")
+axes[0].set_xlabel("Δφ1 (rad)")
+axes[0].set_ylabel("Δφ2 (rad)")
+plt.colorbar(im0, ax=axes[0], label="Normalized Energy (-R)")
 
 # (b) Convergence vector field (phase flow)
 axes[1].imshow(Rvals, extent=[-np.pi, np.pi, -np.pi, np.pi],
                origin="lower", cmap="viridis", aspect="auto", alpha=0.9)
 axes[1].quiver(grid[sample_idx], grid[sample_idx], U, V, color="white", scale=40)
 axes[1].set_title("Phase Flow Field (Convergence toward ψ)")
-axes[1].set_xlabel("Δφ₁")
-axes[1].set_ylabel("Δφ₂")
+axes[1].set_xlabel("Δφ1")
+axes[1].set_ylabel("Δφ2")
 
 # (c) Gradient magnitude (stability contour)
 im2 = axes[2].imshow(grad_norm, extent=[-np.pi, np.pi, -np.pi, np.pi],
                      origin="lower", cmap="plasma", aspect="auto")
 axes[2].set_title("Effective Stability (‖∂φ̇‖ norm)")
-axes[2].set_xlabel("Δφ₁")
-axes[2].set_ylabel("Δφ₂")
+axes[2].set_xlabel("Δφ1")
+axes[2].set_ylabel("Δφ2")
 plt.colorbar(im2, ax=axes[2], label="‖gradient‖")
 
 plt.tight_layout()
@@ -139,6 +139,6 @@ results = {
 with open("backend/modules/knowledge/P10n_global_fusion_landscape.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== P10n — Global Fusion Energy Landscape ===")
+print("=== P10n - Global Fusion Energy Landscape ===")
 print(f"Equilibrium min: Δφ1={phi_min[0]:.3f}, Δφ2={phi_min[1]:.3f}, R={R_min:.3f}, grad_norm={grad_min:.3e}")
-print("✅ Results saved → backend/modules/knowledge/P10n_global_fusion_landscape.json")
+print("✅ Results saved -> backend/modules/knowledge/P10n_global_fusion_landscape.json")

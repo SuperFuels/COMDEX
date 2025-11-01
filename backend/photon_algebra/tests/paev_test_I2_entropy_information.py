@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PAEV Test I2 — Entropy–Information Correlation (Dynamic Universality)
+PAEV Test I2 - Entropy-Information Correlation (Dynamic Universality)
 Tessaris Photon Algebra Framework (Registry-aligned)
 """
 
@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 from pathlib import Path
 
-print("=== I2 — Entropy–Information Correlation (Dynamic Universality) ===")
+print("=== I2 - Entropy-Information Correlation (Dynamic Universality) ===")
 
 # =====================================================
 # 🔹 Load Tessaris constants from unified registry
@@ -76,7 +76,7 @@ def compute_msd(phi_series):
     return np.mean((phi_series - phi0) ** 2, axis=1)
 
 # =====================================================
-# 🔍 Estimate ν (entropy–information coupling exponent)
+# 🔍 Estimate ν (entropy-information coupling exponent)
 # =====================================================
 def estimate_correlation_exponent(entropy, msd):
     valid = (entropy > 1e-12) & (msd > 1e-12)
@@ -92,11 +92,11 @@ def estimate_correlation_exponent(entropy, msd):
 def detect_anomalies(nu_values):
     notes = []
     if np.any(np.array(nu_values) > 1.1):
-        notes.append("⚠ Superlinear entropy growth detected — potential coherence amplification.")
+        notes.append("⚠ Superlinear entropy growth detected - potential coherence amplification.")
     if np.any(np.array(nu_values) < 0.8):
-        notes.append("⚠ Sublinear entropy coupling — possible energy bottleneck or re-diffusion.")
+        notes.append("⚠ Sublinear entropy coupling - possible energy bottleneck or re-diffusion.")
     if not notes:
-        notes.append("✅ Entropy–information coupling within expected universal bounds (ν≈1).")
+        notes.append("✅ Entropy-information coupling within expected universal bounds (ν≈1).")
     return notes
 
 # =====================================================
@@ -133,11 +133,11 @@ for i, var_k in enumerate(params["var_kappa"]):
 plt.xlabel("MSD(t)")
 plt.ylabel("Entropy S(t)")
 plt.legend()
-plt.title("I2 — Entropy–Information Correlation (Dynamic Universality)")
+plt.title("I2 - Entropy-Information Correlation (Dynamic Universality)")
 plt.grid(True, which="both", ls="--", alpha=0.4)
 plt.tight_layout()
 plt.savefig("PAEV_I2_EntropyCorrelation.png", dpi=200)
-print("✅ Figure saved → PAEV_I2_EntropyCorrelation.png")
+print("✅ Figure saved -> PAEV_I2_EntropyCorrelation.png")
 
 # =====================================================
 # 💾 Save results
@@ -147,11 +147,11 @@ results_json = {
     "constants": const,
     "params": params,
     "results": results,
-    "classification": "✅ Dynamic informational universality (entropy–information coupling detected)",
+    "classification": "✅ Dynamic informational universality (entropy-information coupling detected)",
     "files": {"entropy_plot": "PAEV_I2_EntropyCorrelation.png"},
 }
 
 out_path = Path("backend/modules/knowledge/I2_entropy_information.json")
 out_path.write_text(json.dumps(results_json, indent=2))
-print(f"✅ Results saved → {out_path}")
+print(f"✅ Results saved -> {out_path}")
 print(json.dumps(results_json, indent=2))

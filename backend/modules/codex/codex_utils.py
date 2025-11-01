@@ -2,9 +2,9 @@
 🧮 Codex Utils
 -----------------------------------------------------
 Utility functions for Codex-related operations:
-    • Hash generation (content addressing)
-    • Symbol-safe encoding for glyph and container IDs
-    • Miscellaneous helpers for Codex runtime
+    * Hash generation (content addressing)
+    * Symbol-safe encoding for glyph and container IDs
+    * Miscellaneous helpers for Codex runtime
 """
 
 import hashlib

@@ -1,7 +1,7 @@
 """
-🌊 WaveScope — Simulated Resonance Field Monitor
+🌊 WaveScope - Simulated Resonance Field Monitor
 ───────────────────────────────────────────────
-Provides a simplified simulated layer for Φ–ψ resonance coupling
+Provides a simplified simulated layer for Φ-ψ resonance coupling
 visualization and SQI bus emission.
 
 Used when hardware WaveScope or SQI bus is unavailable.
@@ -26,7 +26,7 @@ class WaveScope:
     # ────────────────────────────────────────────────
     def emit(self, payload: Dict[str, Any]) -> None:
         """
-        Process and broadcast Φ–ψ resonance data to the SQI layer.
+        Process and broadcast Φ-ψ resonance data to the SQI layer.
         """
         try:
             R = float(payload.get("resonance_index", 0.0))
@@ -41,7 +41,7 @@ class WaveScope:
                     "payload": payload,
                     "simulated": self.simulated,
                 })
-                logger.info("[WaveScope] SQI publish → resonance_update")
+                logger.info("[WaveScope] SQI publish -> resonance_update")
             except Exception as e:
                 logger.warning(f"[WaveScope] SQI publish failed: {e}")
 

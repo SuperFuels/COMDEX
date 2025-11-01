@@ -60,7 +60,7 @@ class CodexTrace:
 
             # Developer console output
             try:
-                print(f"[Trace:Codex] {evt.get('action', 'event')} → {json.dumps(evt, ensure_ascii=False)}")
+                print(f"[Trace:Codex] {evt.get('action', 'event')} -> {json.dumps(evt, ensure_ascii=False)}")
             except Exception:
                 print("[Trace:Codex] event logged (fallback)")
         except Exception as e:
@@ -218,7 +218,7 @@ class CodexTrace:
         except Exception:
             pass
 
-        print(f"[Trace:Theorem] {operator} → {summary}, violations: {violations or 'none'}")
+        print(f"[Trace:Theorem] {operator} -> {summary}, violations: {violations or 'none'}")
 
     # === Legacy Execution Trace ===
     def trace_execution(self, codex_str: str, result: str, context: Optional[dict] = None, source: str = "codex_executor"):

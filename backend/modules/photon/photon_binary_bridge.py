@@ -1,13 +1,13 @@
 """
-🔶 PhotonBinaryBridge — Adaptive Symbolic ↔ Binary Bridge Layer (SRK-10 → SRK-16)
+🔶 PhotonBinaryBridge - Adaptive Symbolic ↔ Binary Bridge Layer (SRK-10 -> SRK-16)
 Bridges GlyphWave Information Packets (GWIP) with Photon Capsules.
 
-Final SRK-11 → SRK-16 integration:
- • Adds QKDPolicyEnforcer for entanglement-key compliance.
- • Adds DynamicCoherenceOptimizer for live photon-wave stabilization.
- • Adds PhotonMemoryGrid persistence (SRK-12).
- • Adds QTS layer — QuantumPolicyEngine + EncryptedPhotonChannel (SRK-16).
- • Supports runtime mode switching (photon / binary / auto).
+Final SRK-11 -> SRK-16 integration:
+ * Adds QKDPolicyEnforcer for entanglement-key compliance.
+ * Adds DynamicCoherenceOptimizer for live photon-wave stabilization.
+ * Adds PhotonMemoryGrid persistence (SRK-12).
+ * Adds QTS layer - QuantumPolicyEngine + EncryptedPhotonChannel (SRK-16).
+ * Supports runtime mode switching (photon / binary / auto).
 """
 import os
 import time
@@ -28,14 +28,14 @@ from backend.modules.photon.photon_capsule_validator import validate_photon_caps
 from backend.modules.photon.memory.photon_memory_grid import PhotonMemoryGrid  # 🆕 SRK-12
 from backend.modules.codex.collapse_trace_exporter import log_soullaw_event    # 🆕 telemetry
 
-# 🛰 SRK-16 — Quantum Transport Security (QTS)
+# 🛰 SRK-16 - Quantum Transport Security (QTS)
 from backend.qts.encrypted_photon_channel import EncryptedPhotonChannel
 from backend.qts.quantum_policy_engine import QuantumPolicyEngine
 
 
 class PhotonBinaryBridge:
     """
-    🌉 PhotonBinaryBridge — Adaptive translation layer.
+    🌉 PhotonBinaryBridge - Adaptive translation layer.
     SRK-11 integrates QKD enforcement + dynamic coherence stabilization.
     SRK-12 adds persistent photon memory storage for traceability.
     SRK-16 adds Quantum Transport Security for policy-based encryption.
@@ -73,7 +73,7 @@ class PhotonBinaryBridge:
         print(f"[PhotonBinaryBridge] ✅ Operating in {self._active_mode.upper()} mode")
 
     # ────────────────────────────────────────────────────────────────
-    # Mode Control Utilities — SRK-11 Feature Flag
+    # Mode Control Utilities - SRK-11 Feature Flag
     # ----------------------------------------------------------------
     def toggle_mode(self, enable_photon: bool):
         """Manually toggle bridge operation mode."""
@@ -114,11 +114,11 @@ class PhotonBinaryBridge:
         if not self.is_photon_mode():
             return self._simulate_binary_capsule(gwip_packet)
 
-        # Step 1 — Schema validation
+        # Step 1 - Schema validation
         validate_gwip_schema(gwip_packet)
         envelope = gwip_packet.get("envelope", {})
 
-        # Step 2 — QKD policy enforcement
+        # Step 2 - QKD policy enforcement
         self.qkd_enforcer.enforce_policy({
             "sender_id": sender_id,
             "recipient_id": receiver_id,
@@ -126,13 +126,13 @@ class PhotonBinaryBridge:
             "qkd_policy": {"require_qkd": include_qkd},
         })
 
-        # Step 3 — Dynamic coherence optimization
+        # Step 3 - Dynamic coherence optimization
         try:
             self.coherence_optimizer.optimize_if_needed(wave)
         except Exception as e:
             print(f"[PhotonBinaryBridge] ⚠️ Coherence optimization failed: {e}")
 
-        # Step 4 — Optional QKD handshake
+        # Step 4 - Optional QKD handshake
         qkd_verified = False
         if include_qkd:
             qkd_verified = await initiate_qkd_handshake(
@@ -141,14 +141,14 @@ class PhotonBinaryBridge:
                 wave=wave,
             )
 
-        # Step 5 — Payload parsing
+        # Step 5 - Payload parsing
         payload_raw = gwip_packet.get("payload")
         try:
             payload = json.loads(payload_raw) if isinstance(payload_raw, str) else payload_raw or {}
         except Exception:
             payload = {"raw": payload_raw}
 
-        # Step 6 — Photon Capsule assembly
+        # Step 6 - Photon Capsule assembly
         capsule = {
             "name": envelope.get("packet_id", f"capsule_{int(time.time())}"),
             "version": f"1.0-schema-{self.schema_version}",
@@ -156,7 +156,7 @@ class PhotonBinaryBridge:
                 {
                     "name": envelope.get("source_container", "unknown_src"),
                     "operator": "⊕",
-                    "logic": "wave→photon",
+                    "logic": "wave->photon",
                     "args": [envelope.get("freq"), envelope.get("phase")],
                     "meta": {
                         "coherence": envelope.get("coherence"),
@@ -169,10 +169,10 @@ class PhotonBinaryBridge:
             ],
         }
 
-        # Step 7 — Validate Photon Capsule
+        # Step 7 - Validate Photon Capsule
         validate_photon_capsule(capsule)
 
-        # Step 8 — Persist capsule to PhotonMemoryGrid (non-blocking)
+        # Step 8 - Persist capsule to PhotonMemoryGrid (non-blocking)
         asyncio.create_task(
             self.memory_grid.store_capsule_state(
                 capsule["name"],
@@ -184,7 +184,7 @@ class PhotonBinaryBridge:
             )
         )
 
-        # Step 9 — Log event to SoulLaw
+        # Step 9 - Log event to SoulLaw
         log_soullaw_event({
             "type": "capsule_generated",
             "capsule_name": capsule["name"],
@@ -195,7 +195,7 @@ class PhotonBinaryBridge:
             "timestamp": time.time(),
         }, glyph=None)
 
-        # Step 🔟 — Apply QTS secure transport encryption
+        # Step 🔟 - Apply QTS secure transport encryption
         try:
             encrypted = await self.secure_transmit(gwip_packet)
             capsule["encrypted_payload"] = encrypted.decode() if isinstance(encrypted, bytes) else encrypted
@@ -208,9 +208,9 @@ class PhotonBinaryBridge:
     async def secure_transmit(self, gwip_packet: Dict[str, Any]) -> str:
         """
         Apply SRK-16 Quantum Transport Security (QTS) to a GWIP packet:
-         • Policy enforcement via QuantumPolicyEngine
-         • AES–QKD hybrid encryption via EncryptedPhotonChannel
-         • Always returns Base64-encoded ciphertext for transport safety
+         * Policy enforcement via QuantumPolicyEngine
+         * AES-QKD hybrid encryption via EncryptedPhotonChannel
+         * Always returns Base64-encoded ciphertext for transport safety
         """
         meta = gwip_packet.get("meta", gwip_packet.get("envelope", {}))
         self.qpe = getattr(self, "qpe", QuantumPolicyEngine())  # ensure QPE exists

@@ -2,7 +2,7 @@
 
 from typing import Dict, Optional, Any
 
-# Glyph → Environment Object mapping
+# Glyph -> Environment Object mapping
 GLYPH_ANCHOR_INDEX: Dict[str, Dict[str, Any]] = {}
 
 def set_anchor(glyph_id: str, env_obj_id: str, anchor_type: str, coord: Optional[Dict[str, float]] = None) -> None:

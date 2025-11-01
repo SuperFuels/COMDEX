@@ -39,7 +39,7 @@ class SQIReasoningEngine:
     def analyze_trace(self, trace: Dict[str, Any]) -> Dict[str, Any]:
         if not self.enabled:
             print("🛑 [SQI] Disabled: Skipping analysis.")
-            return {"drift": 0.0, "drift_trend": "—", "avg_exhaust": 0.0, "fields": trace.get("fields", {})}
+            return {"drift": 0.0, "drift_trend": "-", "avg_exhaust": 0.0, "fields": trace.get("fields", {})}
 
         resonance = trace.get("resonance", [])
         fields = trace.get("fields", {})
@@ -51,9 +51,9 @@ class SQIReasoningEngine:
         drift_trend = None
 
         if self.last_drift is not None:
-            drift_trend = "↑" if drift > self.last_drift else "↓" if drift < self.last_drift else "→"
+            drift_trend = "↑" if drift > self.last_drift else "↓" if drift < self.last_drift else "->"
 
-        print(f"🧠 [SQI] Stage={stage or 'N/A'} | Drift={drift:.3f} ({drift_trend or '—'}) | Exhaust={avg_exhaust:.2f}")
+        print(f"🧠 [SQI] Stage={stage or 'N/A'} | Drift={drift:.3f} ({drift_trend or '-'}) | Exhaust={avg_exhaust:.2f}")
 
         self.last_drift = drift
         self.last_exhaust = avg_exhaust
@@ -82,9 +82,9 @@ class SQIReasoningEngine:
                 new_freq = max(stage_baseline_freq * 0.8, fields["wave_frequency"] * factor)
                 adjustments["wave_frequency"] = new_freq
                 adjustments["magnetism"] = fields["magnetism"] * factor
-                print(f"⚠️ SQI: Heavy drift detected (Stage={stage}) → Freq={new_freq:.3f}")
+                print(f"⚠️ SQI: Heavy drift detected (Stage={stage}) -> Freq={new_freq:.3f}")
             elif drift_trend == "↑":
-                print(f"⚠️ SQI: Minor drift rising (Stage={stage}) → Holding (dead zone).")
+                print(f"⚠️ SQI: Minor drift rising (Stage={stage}) -> Holding (dead zone).")
 
         # ✅ Exhaust Balancing
         if avg_exhaust < self.target_exhaust_speed:
@@ -119,7 +119,7 @@ class DCContainerIO:
 
         with open(path, "w") as f:
             json.dump(dc_data, f, indent=2)
-        print(f"📦 Exported .dc container → {path} | Stage={stage or 'N/A'} | SQI={sqi_enabled}")
+        print(f"📦 Exported .dc container -> {path} | Stage={stage or 'N/A'} | SQI={sqi_enabled}")
 
     @staticmethod
     def import_dc(path: str) -> Dict[str, Any]:
@@ -403,7 +403,7 @@ class SupercontainerEngine:
                     stage=new_stage,
                     sqi_enabled=self.sqi_enabled
                 )
-                print(f"📦 Exported .dc container → {self.last_dc_trace} | Stage={new_stage} | SQI={self.sqi_enabled}")
+                print(f"📦 Exported .dc container -> {self.last_dc_trace} | Stage={new_stage} | SQI={self.sqi_enabled}")
 
                 if self.sqi_enabled:
                     print("🎯 SQI: Running micro-tune after stage advance.")
@@ -438,7 +438,7 @@ class SupercontainerEngine:
             print(f"⚠ Stage '{stage}' not in QWaveTuning.STAGE_CONFIGS. Using defaults.")
             return
         self.fields.update(QWaveTuning.STAGE_CONFIGS[stage])
-        print(f"⚙ Stage configured: {stage} → {self.fields}")
+        print(f"⚙ Stage configured: {stage} -> {self.fields}")
 
     def advance_stage(self):
         """Advance to the next stage if not locked or at max."""
@@ -480,7 +480,7 @@ class SupercontainerEngine:
             "glyphs": [],
             "timestamp": datetime.utcnow().isoformat()
         }, self.last_dc_trace, stage=new_stage, sqi_enabled=self.sqi_enabled)
-        print(f"📦 Auto-exported .dc snapshot for stage '{new_stage}' → {self.last_dc_trace}")
+        print(f"📦 Auto-exported .dc snapshot for stage '{new_stage}' -> {self.last_dc_trace}")
 
 # -------------------------
 # ⚠ Instability Check (SQI-Aware)
@@ -513,7 +513,7 @@ class SupercontainerEngine:
     def _load_best_state(self):
         best_path = os.path.join(self.LOG_DIR, "qwave_best_state.json")
         if not os.path.exists(best_path):
-            print("ℹ️ No prior best state found. Starting fresh.")
+            print("i️ No prior best state found. Starting fresh.")
             return
 
         try:
@@ -550,7 +550,7 @@ class SupercontainerEngine:
             self._log_graph_snapshot()
 
             print(f"🔁 Loaded best state: score={self.best_score:.4f} ({len(self.particles)} particles)")
-            print(f"ℹ️ SQI fine-tuning will {'run after initial stabilization ticks' if self.sqi_enabled else 'remain OFF until manually enabled'}.")
+            print(f"i️ SQI fine-tuning will {'run after initial stabilization ticks' if self.sqi_enabled else 'remain OFF until manually enabled'}.")
 
             # ✅ Delay SQI feedback only if SQI is enabled
             self.pending_sqi_ticks = 500 if self.sqi_enabled else None
@@ -607,7 +607,7 @@ class SupercontainerEngine:
         with open(self.last_dc_trace, "w") as f:
             json.dump(payload, f, indent=2)
 
-        print(f"📦 Best state exported → {self.last_dc_trace} | Score={safe_score:.4f}")
+        print(f"📦 Best state exported -> {self.last_dc_trace} | Score={safe_score:.4f}")
 
 # -----------------------------
 # ✅ NEW: Stage Stability Checker
@@ -660,7 +660,7 @@ def _check_stage_stability(self):
             self.pending_sqi_ticks = 10  # Light SQI kickstart
 
     if drift <= self.stability_threshold:
-        print(f"✅ Resonance stable (drift={drift:.3f}) → Advancing stage.")
+        print(f"✅ Resonance stable (drift={drift:.3f}) -> Advancing stage.")
         self._log_graph_snapshot()
         return True
     return False
@@ -686,7 +686,7 @@ def _simulate_virtual_exhaust(self):
         if energy > 5.0:
             self.fields["gravity"] = max(self.fields["gravity"] - 0.02, 0.1)
             self.fields["magnetism"] = max(self.fields["magnetism"] - 0.01, 0.1)
-            print(f"🫀 SQI Damp: High exhaust energy ({energy:.3f}) → Gravity/Magnetism reduced")
+            print(f"🫀 SQI Damp: High exhaust energy ({energy:.3f}) -> Gravity/Magnetism reduced")
 
         # 🚀 Inline SQI micro-tune if energy oscillations persist
         if self.sqi_enabled and len(self.exhaust_log) > 10:
@@ -694,7 +694,7 @@ def _simulate_virtual_exhaust(self):
             drift = max(last_exhaust) - min(last_exhaust)
             if drift > 50:  # oscillation detected
                 self.fields["wave_frequency"] *= 0.98
-                print(f"🔧 [SQI-inline] Oscillation damp: wave_frequency → {self.fields['wave_frequency']:.3f}")
+                print(f"🔧 [SQI-inline] Oscillation damp: wave_frequency -> {self.fields['wave_frequency']:.3f}")
 
         # Emit exhaust wave
         phase = self.resonance_filtered[-1] if self.resonance_filtered else 0
@@ -815,7 +815,7 @@ def _simulate_virtual_exhaust(self):
         exhaust_penalty = min(exhaust_penalty, 10.0)
 
         score = -(drift_penalty * 1.5 + exhaust_penalty) + sqi_bonus
-        print(f"🏆 [Score] Drift={drift_penalty:.3f}, Exhaust={exhaust_penalty:.2f}, SQI Bonus={sqi_bonus:.2f} → Score={score:.4f}")
+        print(f"🏆 [Score] Drift={drift_penalty:.3f}, Exhaust={exhaust_penalty:.2f}, SQI Bonus={sqi_bonus:.2f} -> Score={score:.4f}")
         return score
 
     def _export_best_state(self):

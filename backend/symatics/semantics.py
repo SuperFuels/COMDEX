@@ -7,7 +7,7 @@ from .signature import Signature
 def evaluate(t: Term, env: Dict[str, Any]) -> Any:
     """
     v0.1 evaluator: if term is App with primitive operator head and arguments
-    evaluate to concrete semantics (Signatures-in → Signature/Dict out).
+    evaluate to concrete semantics (Signatures-in -> Signature/Dict out).
     """
     if isinstance(t, Sym):
         return env.get(t.name, t)

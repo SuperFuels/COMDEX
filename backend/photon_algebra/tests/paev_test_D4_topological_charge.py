@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test D4 — Topological Charge Conservation (vortex defects)
+Test D4 - Topological Charge Conservation (vortex defects)
 
 We evolve a complex field Ψ = A e^{iθ} under a damped wave/Schrödinger-like
 update that keeps phase dynamics, seed two opposite-charge vortices, and
@@ -107,7 +107,7 @@ plt.figure(figsize=(6.6,4.2))
 plt.plot(ts, Qs, '-o', lw=2, ms=3)
 plt.xlabel("Time step")
 plt.ylabel("Total topological charge")
-plt.title("Test D4 — Topological Charge Conservation")
+plt.title("Test D4 - Topological Charge Conservation")
 plt.grid(alpha=0.25)
 plt.tight_layout()
 plt.savefig("PAEV_TestD4_Topology_ChargeTrace.png", dpi=160)
@@ -118,14 +118,14 @@ Qf = discrete_winding(theta_f)
 
 plt.figure(figsize=(5.8,5.4))
 plt.imshow(theta_f, cmap="twilight", origin="lower")
-plt.title("Test D4 — Final Phase θ(x,y)")
+plt.title("Test D4 - Final Phase θ(x,y)")
 plt.colorbar(label="phase (rad)")
 plt.tight_layout()
 plt.savefig("PAEV_TestD4_Topology_Phase.png", dpi=160)
 
 plt.figure(figsize=(5.8,5.4))
 plt.imshow(Qf, cmap="bwr", origin="lower", vmin=-1, vmax=1)
-plt.title("Test D4 — Integer Vorticity (winding)")
+plt.title("Test D4 - Integer Vorticity (winding)")
 plt.colorbar(label="charge per cell")
 plt.tight_layout()
 plt.savefig("PAEV_TestD4_Topology_Vorticity.png", dpi=160)
@@ -133,7 +133,7 @@ plt.savefig("PAEV_TestD4_Topology_Vorticity.png", dpi=160)
 # Animation of phase
 fig, ax = plt.subplots(figsize=(5.8,5.4))
 im = ax.imshow(frames[0], cmap="twilight", origin="lower", animated=True)
-ax.set_title("Test D4 — Phase evolution")
+ax.set_title("Test D4 - Phase evolution")
 ax.set_axis_off()
 
 def update(i):
@@ -147,7 +147,7 @@ except Exception:
     ani.save("PAEV_TestD4_Topology.gif", dpi=140)
 
 # Print summary
-print("=== Test D4 — Topological Charge Conservation ===")
+print("=== Test D4 - Topological Charge Conservation ===")
 print(f"Grid {N}x{N}, steps={steps}, dt={dt}, kappa={kappa}, gamma={gamma}")
 print(f"Initial total charge Q0 = {Qs[0]}")
 print(f"Final   total charge Qf = {Qs[-1]}")

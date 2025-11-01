@@ -15,7 +15,7 @@ def main():
     const = load_constants()
     ħ, G, Λ, α, β = const["ħ"], const["G"], const["Λ"], const["α"], const["β"]
 
-    print("=== N18 — Quantum Memory Retention ===")
+    print("=== N18 - Quantum Memory Retention ===")
     print(f"ħ={ħ:.3e}, G={G:.1e}, Λ={Λ:.1e}, α={α:.3f}, β={β:.2f}")
 
     # Spatial grid (1D profile) and initial encoded state
@@ -23,7 +23,7 @@ def main():
     psi0 = np.exp(-x**2) * (1 + 0.15*np.cos(2.0*x))          # a bit of structure
     psi0 = normalize(psi0.astype(np.complex128))
 
-    # Iterative “cycle” map: phase kick + gentle diffusion (decoherence proxy)
+    # Iterative "cycle" map: phase kick + gentle diffusion (decoherence proxy)
     cycles = 24
     omega = 0.5                       # base phase rate
     gamma = 0.06                      # diffusion strength (memory loss proxy)
@@ -66,8 +66,8 @@ def main():
         else ("⚠️ Moderate retention" if (half_life and half_life >= cycles//2) else "❌ Short-lived")
     )
 
-    print(f"Half-life (≤0.707 fidelity): {half_life if half_life is not None else '≥ %d'%cycles}")
-    print(f"90% retention limit: {life_90 if life_90 is not None else '≥ %d'%cycles}")
+    print(f"Half-life (<=0.707 fidelity): {half_life if half_life is not None else '>= %d'%cycles}")
+    print(f"90% retention limit: {life_90 if life_90 is not None else '>= %d'%cycles}")
     print(f"Final fidelity: {fidelities[-1]:.3f}")
     print(f"Classification: {classification}")
 
@@ -92,7 +92,7 @@ def main():
     plt.grid(True)
     plt.savefig("PAEV_N18_MemoryCurve.png", bbox_inches="tight")
 
-    # Summary → knowledge
+    # Summary -> knowledge
     summary = {
         "ħ": ħ, "G": G, "Λ": Λ, "α": α, "β": β,
         "cycles": cycles,

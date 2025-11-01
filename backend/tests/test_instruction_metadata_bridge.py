@@ -18,7 +18,7 @@ import backend.modules.codex.canonical_ops as cop
 def test_metadata_structure():
     """Ensure OPERATOR_METADATA is non-empty and properly structured."""
     assert isinstance(imb.OPERATOR_METADATA, dict)
-    assert len(imb.OPERATOR_METADATA) >= 40, f"Expected ≥ 40 operator definitions, got {len(imb.OPERATOR_METADATA)}"
+    assert len(imb.OPERATOR_METADATA) >= 40, f"Expected >= 40 operator definitions, got {len(imb.OPERATOR_METADATA)}"
 
     for symbol, meta in imb.OPERATOR_METADATA.items():
         assert "domain" in meta, f"Missing domain for {symbol}"

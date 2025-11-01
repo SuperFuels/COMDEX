@@ -1,8 +1,8 @@
 # backend/symatics/tests/test_grad_coupling.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.6.3 — Integration Test: λ↔ψ Coupling
+# Tessaris Symatics v0.6.3 - Integration Test: λ↔ψ Coupling
 # Validates feedback between ResonantLawEngine and WaveDiffEngine.
-# Includes analytic resonance metric ℛ(ψ,t) = E + αC.
+# Includes analytic resonance metric R(ψ,t) = E + αC.
 # ──────────────────────────────────────────────────────────────
 
 import numpy as np
@@ -13,7 +13,7 @@ from backend.symatics.core.wave_diff_engine import WaveDiffEngine
 
 
 def test_lambda_psi_coupling_stability():
-    """Integration test verifying λ–ψ feedback loop stability."""
+    """Integration test verifying λ-ψ feedback loop stability."""
     ctx = ResonantContext()
     engine = WaveDiffEngine()
 

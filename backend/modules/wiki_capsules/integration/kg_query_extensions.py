@@ -1,5 +1,5 @@
 """
-🔍 KG Query Extensions — Phase 2
+🔍 KG Query Extensions - Phase 2
 ──────────────────────────────────────────────
 Adds capsule CRUD helpers for the Knowledge Graph and enables
 querying Wiki Capsules with file + metadata access.
@@ -25,7 +25,7 @@ def _load_registry() -> Dict[str, Any]:
     try:
         return json.load(open(KG_PATH, "r", encoding="utf-8"))
     except json.JSONDecodeError:
-        print("[KG] Registry JSON corrupted — resetting empty registry.")
+        print("[KG] Registry JSON corrupted - resetting empty registry.")
         return {}
 
 
@@ -76,7 +76,7 @@ def get_wiki(lemma: str, domain: str = "Lexicon") -> Dict[str, Any]:
     reg = _load_registry()
     dom = reg.get(domain, {})
 
-    # normalize lookup — match lowercase or titlecase
+    # normalize lookup - match lowercase or titlecase
     entry = dom.get(lemma) or dom.get(lemma.lower()) or dom.get(lemma.title())
 
     if not entry:
@@ -89,7 +89,7 @@ def get_wiki(lemma: str, domain: str = "Lexicon") -> Dict[str, Any]:
         matches = list(tmp_dir.rglob(f"{lemma}.wiki.phn"))
         if matches:
             capsule_path = matches[0]
-            print(f"[KG] Self-healed capsule path → {capsule_path}")
+            print(f"[KG] Self-healed capsule path -> {capsule_path}")
         else:
             raise FileNotFoundError(f"Capsule file missing: {capsule_path}")
 
@@ -121,7 +121,7 @@ def register_kg_entry(title: str, content: str, domain: str = "Lexicon") -> None
     Ensures backward compatibility with legacy `title` key capsules.
     """
     try:
-        # Normalize title → lemma
+        # Normalize title -> lemma
         lemma = title.strip()
         definitions = [content.strip()] if content.strip() else []
 
@@ -171,7 +171,7 @@ def update_capsule_meta(lemma: str, domain: str, meta: dict):
     node_meta = node.get("meta", {})
     node_meta.update(meta)
 
-    # ⬡ Phase 11 — embed symbolic resonance energy if present
+    # ⬡ Phase 11 - embed symbolic resonance energy if present
     if "E" in meta:
         node_meta["E"] = meta["E"]
 
@@ -182,4 +182,4 @@ def update_capsule_meta(lemma: str, domain: str, meta: dict):
     with open(REGISTRY_PATH, "w", encoding="utf-8") as f:
         json.dump(registry, f, indent=2)
 
-    print(f"[KG] Updated meta for {node_key} → E={meta.get('E')}")
+    print(f"[KG] Updated meta for {node_key} -> E={meta.get('E')}")

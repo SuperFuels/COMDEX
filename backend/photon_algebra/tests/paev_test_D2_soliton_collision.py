@@ -55,7 +55,7 @@ for t in range(steps):
 # --- Visualization ---
 fig, ax = plt.subplots()
 im = ax.imshow(frames[0], cmap="inferno", animated=True)
-plt.title("Test D2 — Soliton Collision Dynamics")
+plt.title("Test D2 - Soliton Collision Dynamics")
 
 def update(frame):
     im.set_array(frame)
@@ -69,8 +69,8 @@ print("✅ Saved animation to: PAEV_TestD2_SolitonCollision.gif")
 plt.figure()
 plt.plot(energy, color="blue")
 plt.xlabel("Time step")
-plt.ylabel("Total curvature energy (κ²)")
-plt.title("Test D2 — Total Energy Evolution (Collision Stability)")
+plt.ylabel("Total curvature energy (κ2)")
+plt.title("Test D2 - Total Energy Evolution (Collision Stability)")
 plt.tight_layout()
 plt.savefig("PAEV_TestD2_SolitonCollision_Energy.png", dpi=160)
 print("✅ Saved energy plot to: PAEV_TestD2_SolitonCollision_Energy.png")
@@ -79,6 +79,6 @@ print("✅ Saved energy plot to: PAEV_TestD2_SolitonCollision_Energy.png")
 e_init = energy[0]
 e_final = energy[-1]
 deltaE = e_final - e_init
-print("\n=== Test D2 — Soliton Collision Complete ===")
+print("\n=== Test D2 - Soliton Collision Complete ===")
 print(f"Energy initial={e_init:.3e}, final={e_final:.3e}, ΔE={deltaE:.3e}")
 print(f"Frames: {len(frames)}, N={N}, dt={dt}, steps={steps}")

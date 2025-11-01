@@ -4,7 +4,7 @@ from backend.modules.glyphos.codexlang_translator import CodexLangTranslator
 
 def test_pipeline_glyph_to_executor(monkeypatch):
     """
-    End-to-end: glyph string → CodexLang translator → CodexExecutor.
+    End-to-end: glyph string -> CodexLang translator -> CodexExecutor.
     Ensures rewrites + canonicalization occur and executor runs.
     """
 

@@ -13,7 +13,7 @@ print("\n🚀 Running Symbolic Sycamore Benchmark...\n")
 
 start_classical = time.time()
 # Simulated classical interpretation (linear parse only)
-_ = codex_program.count("→") + codex_program.count("⊕") + codex_program.count("⧖") + codex_program.count("↔")
+_ = codex_program.count("->") + codex_program.count("⊕") + codex_program.count("⧖") + codex_program.count("↔")
 end_classical = time.time()
 
 start_qglyph = time.time()

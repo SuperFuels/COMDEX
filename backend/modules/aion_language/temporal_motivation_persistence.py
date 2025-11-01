@@ -43,7 +43,7 @@ class TemporalMotivationPersistence:
         """Apply smoothing to REINF learning parameters."""
         if hasattr(REINF, "learning_rate"):
             REINF.learning_rate = round(REINF.learning_rate * (0.8 + 0.4 * self.persistence_index), 3)
-            print(f"[MOTIVE] ⚙️ Adjusted learning_rate → {REINF.learning_rate}")
+            print(f"[MOTIVE] ⚙️ Adjusted learning_rate -> {REINF.learning_rate}")
 
     def _save(self, avg_stab, avg_drift):
         OUT_PATH.parent.mkdir(parents=True, exist_ok=True)

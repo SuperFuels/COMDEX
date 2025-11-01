@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧪 RibosomeEngine Phase R12 — Functional Test
+# 🧪 RibosomeEngine Phase R12 - Functional Test
 # ================================================================
 # Generates a symbolic RNA scroll with Symatics operators and runs
-# the full synthesis → protein (.prot) + photon trace (.photo)
+# the full synthesis -> protein (.prot) + photon trace (.photo)
 # ================================================================
 
 from backend.modules.symbolic_biology.ribosome_engine import RibosomeEngine
@@ -19,7 +19,7 @@ rna_scroll = {
     "timestamp": time.time(),
     "content": {
         "glyphs": [
-            {"id": "g1", "logic": "⊕ ↔ ⟲ ⇒ μ π", "entropy": 0.62, "coherence": 0.81, "tags": ["test", "resonance"]}
+            {"id": "g1", "logic": "⊕ ↔ ⟲ -> μ π", "entropy": 0.62, "coherence": 0.81, "tags": ["test", "resonance"]}
         ]
     },
     "mutation_proposal": {
@@ -37,7 +37,7 @@ Path("data/tmp").mkdir(parents=True, exist_ok=True)
 with open("data/tmp/test_scroll.rna", "w") as f:
     json.dump(rna_scroll, f, indent=2)
 
-print("✅ Created RNA scroll → data/tmp/test_scroll.rna")
+print("✅ Created RNA scroll -> data/tmp/test_scroll.rna")
 
 # ------------------------------------------------------------
 # Run synthesis via RibosomeEngine

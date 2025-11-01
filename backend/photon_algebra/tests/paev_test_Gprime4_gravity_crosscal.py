@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Test G′4 — Gravitational Cross-Calibration
-Refines G scaling by including entropy–curvature feedback.
+Test G′4 - Gravitational Cross-Calibration
+Refines G scaling by including entropy-curvature feedback.
 """
 
 import numpy as np, json, csv, matplotlib.pyplot as plt, time
@@ -18,7 +18,7 @@ ALPHA_EMERGENT = 7.23e-3
 
 # --- Physical constants ---
 PLANCK_MASS = 2.176e-8      # kg
-PLANCK_HBAR = 1.055e-34     # J·s
+PLANCK_HBAR = 1.055e-34     # J*s
 PLANCK_G = 6.6743e-11
 ALPHA_PHYS = 7.297e-3
 M_PHYS = 9.109e-31
@@ -60,14 +60,14 @@ plt.figure(figsize=(7,5))
 plt.plot(records[:,0], records[:,1], 'r-', lw=2)
 plt.axhline(0, color='k', ls='--')
 plt.axvline(best["eta"], color='b', ls=':')
-plt.title("G′4 — Gravitational Cross-Calibration (η Sweep)")
+plt.title("G′4 - Gravitational Cross-Calibration (η Sweep)")
 plt.xlabel("η (entropy coupling coefficient)")
 plt.ylabel("ΔG (%) vs Physical Constant")
 plt.tight_layout()
 plt.savefig("PAEV_TestGprime4_EtaSweep.png")
 
 # --- Print summary ---
-print("=== G′4 — Gravitational Cross-Calibration Results ===")
+print("=== G′4 - Gravitational Cross-Calibration Results ===")
 print(f"Reference scaling : {REF}")
 print(f"Best η : {best['eta']:.3f}")
 print(f"G_eff : {best['G_eff']:.3e}")

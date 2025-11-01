@@ -24,7 +24,7 @@ def keyboard_control(engine, sqi: SQIController):
     o: Auto optimize (SQI-driven)
     t: Toggle SQI feedback loop
     r: Reset drift filters
-    1–5: Quick-load SQI profiles (85, 90, 95, 99, 100)
+    1-5: Quick-load SQI profiles (85, 90, 95, 99, 100)
     p: Save current state profile
     q: Export best state & quit
     """

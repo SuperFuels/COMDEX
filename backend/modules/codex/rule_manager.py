@@ -37,4 +37,4 @@ class RuleManager:
         self.weights["μ"] = round(coherence, 4)
         self.weights["↔"] = round(total_weight / (1 + abs(entropy_shift)), 4)
 
-        print(f"[CFE] Updated rule weights → {self.weights}")
+        print(f"[CFE] Updated rule weights -> {self.weights}")

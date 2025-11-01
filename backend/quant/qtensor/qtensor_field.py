@@ -2,7 +2,7 @@
 # 📁 backend/quant/qtensor/qtensor_field.py
 # ===============================
 """
-🧩 QTensorField — Tensorized Wave Algebra Core
+🧩 QTensorField - Tensorized Wave Algebra Core
 ----------------------------------------------
 Extends QMathWaveOps to vector/tensor domains.
 
@@ -71,12 +71,12 @@ class QTensorField:
 
     # ------------------------------------------------------------------
     def collapse(self) -> np.ndarray:
-        """∇ collapse → measurable intensity field (|ψ|²)."""
+        """∇ collapse -> measurable intensity field (|ψ|2)."""
         return np.abs(self.data) ** 2
 
     # ------------------------------------------------------------------
     def measure(self) -> Dict[str, Any]:
-        """μ measurement → amplitude / phase / intensity stats."""
+        """μ measurement -> amplitude / phase / intensity stats."""
         amp = np.abs(self.data)
         phase = np.angle(self.data)
         return {
@@ -89,7 +89,7 @@ class QTensorField:
 
     # ------------------------------------------------------------------
     def interact(self, other: "QTensorField") -> Dict[str, Any]:
-        """Composite interaction pipeline (⊕ → ↔ → ⟲ → ∇ → μ)."""
+        """Composite interaction pipeline (⊕ -> ↔ -> ⟲ -> ∇ -> μ)."""
         s = self.superpose(other)
         ea, eb, ρ = s.entangle(other)
         r = ea.resonate()
@@ -115,7 +115,7 @@ class QTensorField:
 
     # ------------------------------------------------------------------
     def __repr__(self):
-        shp = "×".join(map(str, self.data.shape))
+        shp = "*".join(map(str, self.data.shape))
         return f"QTensorField(shape={shp}, mean|ψ|={np.mean(np.abs(self.data)):.3f})"
 
 

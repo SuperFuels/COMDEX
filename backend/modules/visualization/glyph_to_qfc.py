@@ -1,7 +1,7 @@
 # 📁 backend/modules/visualization/glyph_to_qfc.py
 
 """
-🎯 Glyph → QFC Payload Converter
+🎯 Glyph -> QFC Payload Converter
 ────────────────────────────────────────
 Converts executed glyphs and entangled wave logic into QFC canvas format:
   - nodes: visual glyph or beam representations
@@ -67,7 +67,7 @@ def to_qfc_payload(glyph: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, 
         "source": source_node,
         "target": node_id,
         "type": glyph.get("link_type", "execution"),
-        "label": glyph.get("op", "→"),
+        "label": glyph.get("op", "->"),
         "metadata": {
             "timestamp": timestamp,
             "container": container_id,
@@ -87,7 +87,7 @@ def to_qfc_payload(glyph: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, 
 
 
 # ─────────────────────────────────────────────
-# 🎨 Emotion → Color Mapping
+# 🎨 Emotion -> Color Mapping
 # ─────────────────────────────────────────────
 def _get_color_by_emotion(emotion: Optional[str]) -> str:
     """

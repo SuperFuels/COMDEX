@@ -1,6 +1,6 @@
 """
 Tessaris Standing-Wave Glyph Visualizer
-Phase 7B — Quantum Feedback Visualization Layer
+Phase 7B - Quantum Feedback Visualization Layer
 ------------------------------------------------
 Reads photon (.photo) emission packets from the QFC and renders
 ASCII harmonic waveforms and stability indicators in real time.
@@ -23,7 +23,7 @@ POLL_INTERVAL = 5  # seconds between scans
 # ----------------------------------------------------------
 def render_wave(pattern: dict):
     """Render Δψ values as harmonic ASCII bars."""
-    amp1, amp2, amp3 = pattern.get("Δψ₁", 0), pattern.get("Δψ₂", 0), pattern.get("Δψ₃", 0)
+    amp1, amp2, amp3 = pattern.get("Δψ1", 0), pattern.get("Δψ2", 0), pattern.get("Δψ3", 0)
     phase = pattern.get("phase_shift", 0)
     stab = pattern.get("stability", 1.0)
 
@@ -31,16 +31,16 @@ def render_wave(pattern: dict):
     for i in range(0, 80):
         y = math.sin(i / 80 * 2 * math.pi + math.radians(phase))
         h = int((y * amp2) * 10)
-        wave += "█" if h > 0 else "·"
-    print(f"\n🕊️  Standing Wave Glyph — phase {phase:.1f}°  stability {stab:.3f}")
+        wave += "█" if h > 0 else "*"
+    print(f"\n🕊️  Standing Wave Glyph - phase {phase:.1f}°  stability {stab:.3f}")
     print(wave)
-    print(f"Δψ₁ {amp1:+.3f}  Δψ₂ {amp2:+.3f}  Δψ₃ {amp3:+.3f}\n")
+    print(f"Δψ1 {amp1:+.3f}  Δψ2 {amp2:+.3f}  Δψ3 {amp3:+.3f}\n")
 
 # ----------------------------------------------------------
 # 🧠 Monitor Loop
 # ----------------------------------------------------------
 def run_visualizer():
-    print("🌈 Starting Standing-Wave Glyph Visualizer …")
+    print("🌈 Starting Standing-Wave Glyph Visualizer ...")
     seen = set()
 
     while True:

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-K1 — Stable Causal Stencil Test (Tessaris)
+K1 - Stable Causal Stencil Test (Tessaris)
 ------------------------------------------
 Validates finite-speed propagation of field correlations under stabilized
 hyperbolic evolution. Ensures no superluminal correlation leakage occurs.
 
 Implements the Tessaris Unified Constants & Verification Protocol.
 Outputs:
-    • backend/modules/knowledge/K1_stable_causal_stencil_summary.json
-    • PAEV_K1_stable_causal_stencil.png
+    * backend/modules/knowledge/K1_stable_causal_stencil_summary.json
+    * PAEV_K1_stable_causal_stencil.png
 """
 
 import json, math, numpy as np, matplotlib.pyplot as plt
@@ -20,8 +20,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β, χ = const["ħ"], const["G"], const["Λ"], const["α"], const["β"], const["χ"]
 
-print("=== K1 — Stable Causal Stencil (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== K1 - Stable Causal Stencil (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # --- Grid setup ---
 N, steps = 256, 2000
@@ -79,7 +79,7 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13,5))
 im = ax1.imshow(u_map, extent=[x.min(), x.max(), t_axis.max(), t_axis.min()],
                 cmap='magma', aspect='auto')
 ax1.plot(front_r, t_axis, color='cyan', label='front radius (50%)')
-ax1.set_title("K1 — Correlation Cone (|u(x,t)|)")
+ax1.set_title("K1 - Correlation Cone (|u(x,t)|)")
 ax1.set_xlabel("x"); ax1.set_ylabel("time"); ax1.legend()
 cbar = plt.colorbar(im, ax=ax1); cbar.set_label("|u|")
 
@@ -92,7 +92,7 @@ ax2.legend(); ax2.grid(True)
 plt.tight_layout()
 fig_path = "PAEV_K1_stable_causal_stencil.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # --- Summary JSON ---
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -109,28 +109,28 @@ summary = {
     },
     "files": {"plot": fig_path},
     "notes": [
-        "Stabilized with dt=0.002 and |u|≤50 clipping.",
+        "Stabilized with dt=0.002 and |u|<=50 clipping.",
         "Empirical front fitted on first outward expansion only.",
         "Model-level causality check; no physical signaling implied."
     ],
 }
 out_path = Path("backend/modules/knowledge/K1_stable_causal_stencil_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # --- Discovery section ---
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Observation: Finite-speed front (v≈{v_emp:.3f}), within causal bound ({bound:.3f}).")
-print("• Interpretation: Causality preserved after timestep reduction and amplitude clamping.")
-print("• Implication: Confirms K-series foundation for relativistic propagation.")
-print("• Next step: Measure correlation decay (K2).")
+print(f"* Observation: Finite-speed front (v≈{v_emp:.3f}), within causal bound ({bound:.3f}).")
+print("* Interpretation: Causality preserved after timestep reduction and amplitude clamping.")
+print("* Implication: Confirms K-series foundation for relativistic propagation.")
+print("* Next step: Measure correlation decay (K2).")
 print("------------------------------------------------------------")
 
 # --- Verdict ---
 print("\n" + "="*66)
-print("🔎 K1 — Stable Causal Stencil Verdict")
+print("🔎 K1 - Stable Causal Stencil Verdict")
 print("="*66)
 status = "OK: within causal bound." if abs(v_emp) <= bound else "⚠️  Exceeds causal bound!"
-print(f"Empirical speed v≈{v_emp:.4f} | bound≈{bound:.4f} → {status}")
+print(f"Empirical speed v≈{v_emp:.4f} | bound≈{bound:.4f} -> {status}")
 print("="*66 + "\n")

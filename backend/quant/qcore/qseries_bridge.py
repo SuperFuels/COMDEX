@@ -2,7 +2,7 @@
 # 📁 backend/quant/qcore/qseries_bridge.py
 # ===============================
 """
-🔗 QSeriesBridge — AtomSheet ↔ QSheet Synchronization Layer
+🔗 QSeriesBridge - AtomSheet ↔ QSheet Synchronization Layer
 -----------------------------------------------------------
 
 This module converts between classic 4-D AtomSheet / GlyphCell structures
@@ -46,7 +46,7 @@ from backend.quant.qcore.qsheet_cell import QSheetCell
 # --------------------------------------------------------------------------
 class QSeriesBridge:
     """
-    🌉 QSeriesBridge — manages conversion and synchronization between
+    🌉 QSeriesBridge - manages conversion and synchronization between
     AtomSheet/GlyphCells and QSheetCells.
     """
 
@@ -79,8 +79,8 @@ class QSeriesBridge:
     # ------------------------------------------------------------------
     def compute_all_resonances(self) -> Dict[str, Dict[str, float]]:
         """
-        ⚛️ Compute Φ–ψ resonance state for all QSheetCells.
-        Returns mapping of cell_id → resonance metrics.
+        ⚛️ Compute Φ-ψ resonance state for all QSheetCells.
+        Returns mapping of cell_id -> resonance metrics.
         """
         results: Dict[str, Dict[str, float]] = {}
         for cid, qc in self.qcells.items():

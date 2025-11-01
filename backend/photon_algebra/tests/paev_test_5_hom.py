@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-PAEV Test 5 — Hong–Ou–Mandel (HOM) Dip
+PAEV Test 5 - Hong-Ou-Mandel (HOM) Dip
 ---------------------------------------
 Goal:
-    Verify that Photon Algebra (PA) reproduces two-photon interference (“bunching”)
+    Verify that Photon Algebra (PA) reproduces two-photon interference ("bunching")
     at a 50/50 beamsplitter, the signature of photon indistinguishability.
 
 Concept:
-    • In quantum optics, two identical photons entering a 50/50 beamsplitter from
-      opposite sides will always exit together (bunching) — zero coincidences.
-    • Distinguishability (temporal delay τ) reduces interference and restores coincidences.
-    • In PA, identical photons share a symmetric dual term (⊕); distinguishability δ
+    * In quantum optics, two identical photons entering a 50/50 beamsplitter from
+      opposite sides will always exit together (bunching) - zero coincidences.
+    * Distinguishability (temporal delay τ) reduces interference and restores coincidences.
+    * In PA, identical photons share a symmetric dual term (⊕); distinguishability δ
       breaks perfect cancellation in the coincidence path.
 
 Expected outcome:
     Quantum and PA coincidence curves C(τ) match:
-        τ = 0 → C ≈ 0   (complete interference)
-        τ → ∞ → C ≈ 0.5 (classical limit)
+        τ = 0 -> C ≈ 0   (complete interference)
+        τ -> ∞ -> C ≈ 0.5 (classical limit)
 """
 
 import numpy as np
@@ -58,7 +58,7 @@ plt.plot(taus, quantum, "b", label="Quantum HOM")
 plt.plot(taus, pa_alg, "r--", label="Photon Algebra")
 plt.xlabel("Relative delay τ / σ")
 plt.ylabel("Coincidence probability C(τ)")
-plt.title("Test 5 — Hong–Ou–Mandel (HOM) Dip")
+plt.title("Test 5 - Hong-Ou-Mandel (HOM) Dip")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_Test5_HOM.png")
@@ -78,4 +78,4 @@ print(f"Photon Algebra visibility V = {Vp:.3f}")
 if abs(Vq - Vp) < 0.05:
     print("✅ Photon Algebra reproduces HOM interference (bunching).")
 else:
-    print("⚠️  Visibility mismatch — check symbolic weighting.")
+    print("⚠️  Visibility mismatch - check symbolic weighting.")

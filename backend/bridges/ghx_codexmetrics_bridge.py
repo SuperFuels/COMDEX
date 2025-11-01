@@ -1,5 +1,5 @@
 # ================================================================
-# 🌐 Phase 45G.14 — CodexMetrics Telemetry Overlay Bridge
+# 🌐 Phase 45G.14 - CodexMetrics Telemetry Overlay Bridge
 # ================================================================
 """
 Streams GHX↔Habit feedback metrics into CodexMetrics overlay.
@@ -8,7 +8,7 @@ Inputs:
     data/learning/habit_auto_update.json
 Outputs:
     data/telemetry/codexmetrics_overlay.json
-    (optionally → GHX UI WebSocket endpoint)
+    (optionally -> GHX UI WebSocket endpoint)
 """
 
 import json, time, logging
@@ -81,7 +81,7 @@ class GHXCodexMetricsBridge:
             self.OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
             with open(self.OUTPUT_PATH, "w") as f:
                 json.dump(overlay, f, indent=2)
-            logger.info(f"[CodexMetrics] Overlay updated → {self.OUTPUT_PATH}")
+            logger.info(f"[CodexMetrics] Overlay updated -> {self.OUTPUT_PATH}")
             return overlay
 
         except Exception as e:
@@ -94,15 +94,15 @@ class GHXCodexMetricsBridge:
         OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
         json.dump(overlay, open(OUTPUT_PATH, "w"), indent=2)
         self.last_update = overlay["timestamp"]
-        logger.info(f"[CodexMetrics] Overlay updated → {OUTPUT_PATH}")
+        logger.info(f"[CodexMetrics] Overlay updated -> {OUTPUT_PATH}")
         return overlay
 
     # ------------------------------------------------------------
     def sync(self):
-        """Perform full GHX→Habit→Codex sync pipeline."""
+        """Perform full GHX->Habit->Codex sync pipeline."""
         habit_data = self.load_habit_feedback()
         if not habit_data:
-            logger.warning("[CodexMetrics] Skipped — no habit data.")
+            logger.warning("[CodexMetrics] Skipped - no habit data.")
             return {}
         overlay = self.generate_overlay(habit_data)
         return self.export_overlay(overlay)
@@ -117,4 +117,4 @@ if __name__ == "__main__":
     bridge = GHXCodexMetricsBridge()
     overlay = bridge.sync()
     print(json.dumps(overlay, indent=2))
-    print("✅ GHX↔Habit→CodexMetrics telemetry overlay complete.")
+    print("✅ GHX↔Habit->CodexMetrics telemetry overlay complete.")

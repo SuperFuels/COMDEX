@@ -1,8 +1,8 @@
 """
-🌱 Wiki Capsule Schema — Phase 2
+🌱 Wiki Capsule Schema - Phase 2
 ──────────────────────────────────────────────
 Defines the canonical .wiki.phn capsule structure and dataclass model
-for static knowledge units (lexicon, grammar, culture, science…).
+for static knowledge units (lexicon, grammar, culture, science...).
 
 Each capsule = one self-contained fact cluster:
 lemma / concept + definitions + examples + entanglement metadata.
@@ -83,7 +83,7 @@ class WikiCapsule:
                 clean.append(line)
         text = "\n".join(clean).strip()
 
-        # ── Try JSON → YAML ───────────────────────────────
+        # ── Try JSON -> YAML ───────────────────────────────
         data = None
         try:
             data = json.loads(text)

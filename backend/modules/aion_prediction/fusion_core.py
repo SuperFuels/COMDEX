@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-AION Fusion Core — Predictive Bias + Resonant Reinforcement Integration
+AION Fusion Core - Predictive Bias + Resonant Reinforcement Integration
 ────────────────────────────────────────────────────────────────────────
-Bridges PAL (Perception–Action Loop), PBL (Predictive Bias Layer),
+Bridges PAL (Perception-Action Loop), PBL (Predictive Bias Layer),
 and Temporal Coherence Memory (TCM) with Resonance Feedback (Phase 32).
 
 Handles:
-    • Δt temporal vector computation (νϕA)
-    • probabilistic next-symbol prediction
-    • PAL reinforcement feedback
-    • gradient-based resonance correction
-    • RSI-driven adaptive drift repair
-    • telemetry emission + dynamic ε/k feedback
+    * Δt temporal vector computation (νφA)
+    * probabilistic next-symbol prediction
+    * PAL reinforcement feedback
+    * gradient-based resonance correction
+    * RSI-driven adaptive drift repair
+    * telemetry emission + dynamic ε/k feedback
 """
 
 import math
@@ -48,7 +48,7 @@ class FusionCore:
     # Temporal Δt vector computation
     # ─────────────────────────────────────────────
     def compute_temporal_vector(self, event_a, event_b):
-        """Compute Δt temporal embedding vector νϕA."""
+        """Compute Δt temporal embedding vector νφA."""
         try:
             dt = max(1e-9, event_b["timestamp"] - event_a["timestamp"])
             vec = np.array([dt, math.log1p(dt), 1.0 / dt])
@@ -65,7 +65,7 @@ class FusionCore:
 
         event = {
             "symbol": "Φ",
-            "vector": [float, …],
+            "vector": [float, ...],
             "timestamp": float,
             "reward": optional float
         }
@@ -96,7 +96,7 @@ class FusionCore:
             event["temporal_vector"] = vec_dt.tolist()
 
             if self.last_event_vec is not None and len(vec) > 0:
-                # Gradient correction → resonance reinforcement
+                # Gradient correction -> resonance reinforcement
                 delta_reward = self.grad.reinforce(self.last_event_vec.tolist(), vec.tolist())
 
                 # Apply reinforcement to Predictive Bias
@@ -123,7 +123,7 @@ class FusionCore:
                     self.last_rsi = 0.0
 
                 # ─────────────────────────────────────────────
-                # Stability feedback → dynamic ε & k
+                # Stability feedback -> dynamic ε & k
                 # ─────────────────────────────────────────────
                 fb_state = self.feedback.step()
                 self.pb.epsilon = fb_state["ε"]

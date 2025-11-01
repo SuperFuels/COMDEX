@@ -57,7 +57,7 @@ for label, mark, erase, late, color in cases:
 
 plt.xlabel("Phase φ (radians)")
 plt.ylabel("Detector D0 Intensity")
-plt.title("Test 6 — Delayed-Choice Quantum Eraser (Time-Ordered)")
+plt.title("Test 6 - Delayed-Choice Quantum Eraser (Time-Ordered)")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_Test6_DelayedEraser.png")

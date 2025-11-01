@@ -75,8 +75,8 @@ class AtomSheet:
 # ============================================================
 class QuantumFieldCanvas:
     """
-    Photon–Wave resonance orchestrator.
-    Orchestrates symbolic → waveform → telemetry pipeline.
+    Photon-Wave resonance orchestrator.
+    Orchestrates symbolic -> waveform -> telemetry pipeline.
     """
 
     def __init__(self, dim: int = 2):
@@ -104,7 +104,7 @@ class QuantumFieldCanvas:
         # --- Parse symbolic ops ---
         for ch in seq:
             # Symatics operator dispatch
-            if ch in "⊕↔⟲μπ⇒∇":
+            if ch in "⊕↔⟲μπ->∇":
                 ops.append(evaluate_symatics_expr({"op": ch, "args": []}))
 
             # Parametric modulation marker
@@ -254,7 +254,7 @@ def execute(program: Program, *, initial_env: Dict[str, Any] | None = None) -> D
             last = eval_expr(s, env)
 
 
-    # 🔹 Optional: Photon → Binary synthesis hook
+    # 🔹 Optional: Photon -> Binary synthesis hook
     # --- Binary synthesis ---
     binary = ""
 
@@ -265,11 +265,11 @@ def execute(program: Program, *, initial_env: Dict[str, Any] | None = None) -> D
         if glyph_boot_done:
             if isinstance(last, dict) and "seq" in last:
                 binary = to_binary(last["seq"])
-            elif isinstance(last, str) and last.strip() and all(ch in "⊕↔⟲μπ⇒∇⧖" for ch in last.strip()):
+            elif isinstance(last, str) and last.strip() and all(ch in "⊕↔⟲μπ->∇⧖" for ch in last.strip()):
                 binary = to_binary(last.strip())
 
         # Final fallback for glyph-return values
-        elif isinstance(last, str) and last.strip() and all(ch in "⊕↔⟲μπ⇒∇⧖" for ch in last.strip()):
+        elif isinstance(last, str) and last.strip() and all(ch in "⊕↔⟲μπ->∇⧖" for ch in last.strip()):
             binary = to_binary(last.strip())
 
     except Exception:
@@ -291,7 +291,7 @@ def run_source(source: str, **kwargs):
         from backend.modules.photonlang.page_runner import run_ptn_page
         return run_ptn_page(src)
 
-    # ✅ pure glyph → compile & execute Photon program
+    # ✅ pure glyph -> compile & execute Photon program
     if is_pure_glyph_program(src):
         prog = compile_photon(src)
         if prog and prog.stmts:
@@ -304,7 +304,7 @@ def run_source(source: str, **kwargs):
         out = execute(parse_source(source), **kwargs)
 
     # ✅ Pure glyph? enforce binary
-    glyph_chars = "⊕↔⟲μπ⇒∇⧖"
+    glyph_chars = "⊕↔⟲μπ->∇⧖"
     if src and all(ch in glyph_chars for ch in src):
         out["glyph_boot"] = True
         try:
@@ -317,7 +317,7 @@ def run_source(source: str, **kwargs):
     if "binary" not in out:
         out["binary"] = ""
 
-    # ✅ FINAL safety — if pure glyph and still empty binary → force encode
+    # ✅ FINAL safety - if pure glyph and still empty binary -> force encode
     if out["binary"] == "" and src and all(ch in glyph_chars for ch in src):
         out["glyph_boot"] = True
         try:

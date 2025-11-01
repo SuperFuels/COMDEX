@@ -1,5 +1,5 @@
 """
-Equilibrium Field Solver — Phase 40B
+Equilibrium Field Solver - Phase 40B
 ------------------------------------
 Computes harmonic inverse fields (Ψ_c) that counteract semantic drift.
 Used by the Harmonic Stabilizer Engine (HSE) to restore coherence.
@@ -33,7 +33,7 @@ class EquilibriumFieldSolver:
 
         field = {"amplitude": amp, "phase": inv_phase, "target": target}
         self.last_field = field
-        logger.info(f"[EFS] Generated inverse field → amp={amp}, phase={inv_phase:.3f}")
+        logger.info(f"[EFS] Generated inverse field -> amp={amp}, phase={inv_phase:.3f}")
         return field
 
 

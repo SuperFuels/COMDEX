@@ -1,5 +1,5 @@
 """
-Conversation Memory Test — Phase 43A
+Conversation Memory Test - Phase 43A
 ------------------------------------
 Validates short-term conversational memory:
 - Storage of user ↔ system exchanges
@@ -29,7 +29,7 @@ def run_tests():
     last_two = MEM.recall(2)
     print("\n--- Last 2 Exchanges ---")
     for turn in last_two:
-        print(f"{turn['user_text']} → {turn['system_response']}")
+        print(f"{turn['user_text']} -> {turn['system_response']}")
 
     # 4️⃣ Summarize memory
     summary = MEM.summarize_context()

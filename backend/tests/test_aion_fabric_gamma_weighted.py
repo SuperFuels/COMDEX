@@ -1,5 +1,5 @@
 """
-Test Suite — AION Fabric γ′-Weighted Fusion
+Test Suite - AION Fabric γ′-Weighted Fusion
 ────────────────────────────────────────────
 Verifies that γ′ (feedback gain) correctly influences
 the stability (σ) computation in the fusion tensor.
@@ -24,7 +24,7 @@ def test_gamma_weight_increases_stability_weighting():
         {"ψ": 0.8, "κ": 0.9, "T": 0.95, "Φ": 1.0, "γ′": 1.0},
         {"ψ": 0.81, "κ": 0.89, "T": 0.96, "Φ": 1.0, "γ′": 1.0},
     ]
-    # Higher gain — same data, but with larger γ′
+    # Higher gain - same data, but with larger γ′
     packets_high_gain = [
         {"ψ": 0.8, "κ": 0.9, "T": 0.95, "Φ": 1.0, "γ′": 1.8},
         {"ψ": 0.81, "κ": 0.89, "T": 0.96, "Φ": 1.0, "γ′": 1.8},

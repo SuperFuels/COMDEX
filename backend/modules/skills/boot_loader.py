@@ -55,7 +55,7 @@ def load_boot_goals():
         save_json(MEMORY_FILE, memory_data)
         print(f"✅ {len(new_entries)} new skills queued or ready based on milestones.")
     else:
-        print("ℹ️ No new bootloader skills added. Memory is up to date.")
+        print("i️ No new bootloader skills added. Memory is up to date.")
 
 if __name__ == "__main__":
     load_boot_goals()

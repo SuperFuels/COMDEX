@@ -1,5 +1,5 @@
 # ============================================================
-# 🧩 SCI File Manager — Resonant Memory Integration
+# 🧩 SCI File Manager - Resonant Memory Integration
 # ============================================================
 # Handles saving and loading SCI session data, scrolls, and field
 # exports with persistent links to Resonant Memory (.json scrolls).
@@ -66,7 +66,7 @@ class SCIFileManager:
             metadata={"timestamp": timestamp, "origin": "sci_session"},
         )
 
-        print(f"💾 [SCIFileManager] Session saved → {path}")
+        print(f"💾 [SCIFileManager] Session saved -> {path}")
         return path
 
     # ============================================================

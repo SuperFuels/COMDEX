@@ -1,5 +1,5 @@
 """
-🔗 Entangle Hello — AION↔QQC Phase Correlation Demo
+🔗 Entangle Hello - AION↔QQC Phase Correlation Demo
 Creates two linked nodes (entangled φ states) and propagates correlated updates.
 """
 
@@ -16,7 +16,7 @@ def correlated_phase():
     return base % 1.0, offset % 1.0
 
 def main():
-    print("🔗 Running Entangle Hello (↔ correlation) …")
+    print("🔗 Running Entangle Hello (↔ correlation) ...")
     for i in range(20):
         phi_aion, phi_qqc = correlated_phase()
         packet_aion = {"node_id": "AION_ENTANGLE", "role": "entangle", "phi": phi_aion}

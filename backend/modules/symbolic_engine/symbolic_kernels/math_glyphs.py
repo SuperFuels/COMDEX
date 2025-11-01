@@ -26,11 +26,11 @@ class SubtractGlyph(MathGlyph):
     def evaluate(self): return self.operands[0] - self.operands[1]
 
 class MultiplyGlyph(MathGlyph):
-    def __init__(self, a, b): super().__init__('×', [a, b])
+    def __init__(self, a, b): super().__init__('*', [a, b])
     def evaluate(self): return self.operands[0] * self.operands[1]
 
 class DivideGlyph(MathGlyph):
-    def __init__(self, a, b): super().__init__('÷', [a, b])
+    def __init__(self, a, b): super().__init__('/', [a, b])
     def evaluate(self): return self.operands[0] / self.operands[1]
 
 class PowerGlyph(MathGlyph):
@@ -49,7 +49,7 @@ class IntegralGlyph(MathGlyph):
 class LimitGlyph(MathGlyph):
     def __init__(self, func, var, approaching): 
         super().__init__('lim', [func, var, approaching])
-    def evaluate(self): return f"lim {self.operands[1]}→{self.operands[2]} {self.operands[0]}"
+    def evaluate(self): return f"lim {self.operands[1]}->{self.operands[2]} {self.operands[0]}"
 
 class PartialDerivativeGlyph(MathGlyph):
     def __init__(self, func, var): super().__init__('∂/∂x', [func, var])
@@ -94,4 +94,4 @@ math_registry.register("differential_equations", DifferentialEquationGlyph)
 
 # Expression composer (stub for GHX/SQI usage)
 def compose_expression_tree(glyphs: List[MathGlyph]) -> str:
-    return ' → '.join(map(str, glyphs))
+    return ' -> '.join(map(str, glyphs))

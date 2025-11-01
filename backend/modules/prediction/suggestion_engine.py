@@ -15,12 +15,12 @@ def suggest_simplifications(ast: dict) -> dict:
 
     def symbolic_suggestion(node: Dict[str, Any]) -> str | None:
         """
-        Suggests: ¬(P → Q) ⇒ P ∧ ¬Q (implication negation rule)
+        Suggests: ¬(P -> Q) -> P ∧ ¬Q (implication negation rule)
         """
         if node.get("type") == "not":
             inner = node.get("value", {})
             if inner.get("type") == "implies":
-                return "🧬 Simplification: ¬(P → Q) ⇒ P ∧ ¬Q"
+                return "🧬 Simplification: ¬(P -> Q) -> P ∧ ¬Q"
         return None
 
     result: Dict[str, Any] = {}
@@ -50,7 +50,7 @@ def suggest_simplifications(ast: dict) -> dict:
         # Example placeholder rewrite structure (expand later)
         suggested_rewrite = {
             "type": "replace_node",
-            "target": "¬(P → Q)",
+            "target": "¬(P -> Q)",
             "replacement": "P ∧ ¬Q"
         }
 

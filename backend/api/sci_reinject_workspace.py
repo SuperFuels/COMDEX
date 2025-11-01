@@ -63,7 +63,7 @@ async def reinject_workspace(request: Request):
             "frame": state,
         }, source="sci_reinject")
 
-        logging.info(f"[SCI Reinjection] ✅ Workspace rehydrated → {container_id}")
+        logging.info(f"[SCI Reinjection] ✅ Workspace rehydrated -> {container_id}")
         return {"ok": True, "container_id": container_id, "telemetry_path": telemetry_path}
 
     except HTTPException:

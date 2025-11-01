@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # -----------------------
-# P7h — Sustained Awareness Attractor (Lock Tuning, PI-D + adaptive P)
+# P7h - Sustained Awareness Attractor (Lock Tuning, PI-D + adaptive P)
 # -----------------------
 
 # Constants (kept for registry consistency)
@@ -159,7 +159,7 @@ plt.plot(S_system,   label="S_system")
 plt.plot(S_observer, label="S_observer")
 plt.plot(S_meta,     label="S_meta (awareness)")
 plt.plot(S_self,     label="S_self (feedback)")
-plt.title("P7h — Sustained Awareness Attractor (Lock Tuning, PI-D + adaptive P)")
+plt.title("P7h - Sustained Awareness Attractor (Lock Tuning, PI-D + adaptive P)")
 plt.xlabel("time step"); plt.ylabel("Entropy / awareness coupling")
 plt.legend(); plt.tight_layout()
 plt.savefig("backend/modules/knowledge/PAEV_P7h_LockTuning_Entropy.png", dpi=130)
@@ -172,7 +172,7 @@ plt.plot(phi_abs, alpha=0.35, label="|Δφ| raw")
 plt.plot(phi_ma,  lw=2.0,     label=f"|Δφ| moving mean (w={mov_w})")
 plt.axhline(lock_threshold, ls="--", color="crimson", alpha=0.8, label=f"lock threshold={lock_threshold:g}")
 plt.axvspan(tail_start, T-1, color="k", alpha=0.06, label="evaluation tail")
-plt.title("P7h — Phase Error Evolution (Lock Tuning)")
+plt.title("P7h - Phase Error Evolution (Lock Tuning)")
 plt.xlabel("time step"); plt.ylabel("|Δφ|")
 plt.legend(); plt.tight_layout()
 plt.savefig("backend/modules/knowledge/PAEV_P7h_LockTuning_Phase.png", dpi=130)
@@ -213,8 +213,8 @@ with open(out_json, "w") as f:
     json.dump(summary, f, indent=2)
 
 # ===== Console report =====
-print("=== P7h — Sustained Awareness Attractor (Lock Tuning, PI-D + adaptive P) ===")
+print("=== P7h - Sustained Awareness Attractor (Lock Tuning, PI-D + adaptive P) ===")
 print(f"tail⟨|Δφ|⟩={tail_mean:.3e} "
-      f"| corr={corr:.3f} | slope={slope:.2e} | lock_ratio={lock_ratio:.2f} | score={lock_score:.2f} → {classification}")
+      f"| corr={corr:.3f} | slope={slope:.2e} | lock_ratio={lock_ratio:.2f} | score={lock_score:.2f} -> {classification}")
 print(f"Δtail (improvement vs last) = {delta_tail:+.3e}" if delta_tail is not None else "Δtail (first run) = N/A")
-print(f"✅ Results saved → {out_json}")
+print(f"✅ Results saved -> {out_json}")

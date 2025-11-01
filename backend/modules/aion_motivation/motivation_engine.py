@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-🧠 MotivationEngine — Dynamic Cognitive Drive Core
+🧠 MotivationEngine - Dynamic Cognitive Drive Core
 ────────────────────────────────────────────────────────────
-Implements AION’s S1 (Motivation) subsystem:
-• Maintains internal drive and goal resonance
-• Syncs with Θ heartbeat
-• Reinforces drive via ΔΦ (change in potential) and SQI
-• Emits motivation vectors for downstream intent and reasoning
+Implements AION's S1 (Motivation) subsystem:
+* Maintains internal drive and goal resonance
+* Syncs with Θ heartbeat
+* Reinforces drive via ΔΦ (change in potential) and SQI
+* Emits motivation vectors for downstream intent and reasoning
 """
 
 import random, time, math, logging
@@ -115,7 +115,7 @@ class MotivationEngine:
         self.stability = (self.stability + avg_sqi) / 2
         self.energy = (self.energy + self.current_drive) / 2
         self.heartbeat.event("motivation_stabilize", drive=self.current_drive, stability=self.stability)
-        log.info(f"[MotivationEngine] Stabilized → drive={self.current_drive:.3f}, stability={self.stability:.3f}")
+        log.info(f"[MotivationEngine] Stabilized -> drive={self.current_drive:.3f}, stability={self.stability:.3f}")
 
     # ─────────────────────────────────────────────
     # 📊 Diagnostics
@@ -137,7 +137,7 @@ class MotivationEngine:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
     engine = MotivationEngine()
-    print("🧠 MotivationEngine — Live Drive Simulation\n")
+    print("🧠 MotivationEngine - Live Drive Simulation\n")
 
     for i in range(5):
         print(engine.output_vector("demo"))

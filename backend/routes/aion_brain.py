@@ -1,5 +1,5 @@
 # File: backend/routes/aion_brain.py
-# 🧠 AION Brain Dashboard — Real-time Φ-Telemetry + Personality & Memory Visualizer
+# 🧠 AION Brain Dashboard - Real-time Φ-Telemetry + Personality & Memory Visualizer
 
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
@@ -118,7 +118,7 @@ async def aion_brain_dashboard():
     </head>
     <body>
       <header>
-        <h1>🧠 AION Brain — Φ-Field Telemetry</h1>
+        <h1>🧠 AION Brain - Φ-Field Telemetry</h1>
         <p>Live coherence, entropy, flux, personality feedback, and memory timeline</p>
       </header>
 
@@ -187,7 +187,7 @@ async def aion_brain_dashboard():
           entry.innerHTML = `
             <div class="timeline-time">${ts}</div>
             <div class="timeline-msg">
-              <strong>${tone.toUpperCase()}</strong> — coherence=${(state["Φ_coherence"]||0).toFixed(3)}, entropy=${(state["Φ_entropy"]||0).toFixed(3)}
+              <strong>${tone.toUpperCase()}</strong> - coherence=${(state["Φ_coherence"]||0).toFixed(3)}, entropy=${(state["Φ_entropy"]||0).toFixed(3)}
             </div>
           `;
           timeline.appendChild(entry);
@@ -517,7 +517,7 @@ async def aion_brain_dashboard():
             if (e.type === 'symatic') icon = "🔺";
             else if (e.type === 'self_reflection') icon = "🧘";
             else if (e.type === 'llm_reflection') icon = "💬";
-            const tone = e.tone ? e.tone.toUpperCase() : "–";
+            const tone = e.tone ? e.tone.toUpperCase() : "-";
             const msg = e.message || e.llm_output || "";
             return `
               <div>
@@ -546,7 +546,7 @@ async def aion_brain_dashboard():
           if (e.type === "symatic") icon = "🔺";
           else if (e.type === "self_reflection") icon = "🧘";
           else if (e.type === "llm_reflection") icon = "💬";
-          const tone = e.tone ? e.tone.toUpperCase() : "–";
+          const tone = e.tone ? e.tone.toUpperCase() : "-";
           return `
             <div>
               <strong>${icon} [${tone}]</strong> ${e.message}<br>
@@ -586,7 +586,7 @@ from backend.modules.aion_resonance.symatic_logger import SYMATIC_LOG
 @router.websocket("/api/aion/thought-stream")
 async def thought_stream_ws(websocket: WebSocket):
     """
-    Streams AION cognitive events — reflections, LLM outputs, and Symatic equations —
+    Streams AION cognitive events - reflections, LLM outputs, and Symatic equations -
     as a unified real-time feed for the dashboard and test clients.
     """
     await websocket.accept()
@@ -611,7 +611,7 @@ async def thought_stream_ws(websocket: WebSocket):
                 combined.append({
                     "type": "symatic",
                     "message": f"{s.get('operator')} {s.get('equation')}",
-                    "tone": "–",
+                    "tone": "-",
                     "timestamp": s.get("timestamp", "")
                 })
 

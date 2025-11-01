@@ -1,5 +1,5 @@
 """
-🎶 Temporal Harmonics Learner — Phase 51
+🎶 Temporal Harmonics Learner - Phase 51
 ---------------------------------------
 Detects cyclic patterns in resonance data (ρ, Ī, SQI) across sessions.
 Uses FFT-based spectral analysis to identify dominant harmonic frequencies
@@ -75,7 +75,7 @@ def analyze_harmonics(ts, sqi):
 # 💾 Processing Cycle
 #───────────────────────────────────────────────
 def compute_temporal_harmonics():
-    """End-to-end execution: load → analyze → export harmonics report."""
+    """End-to-end execution: load -> analyze -> export harmonics report."""
     ts, sqi = _safe_load_trends()
     report = analyze_harmonics(ts, sqi)
     if not report:
@@ -83,7 +83,7 @@ def compute_temporal_harmonics():
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(report, open(OUT_PATH, "w"), indent=2)
-    logger.info(f"[Harmonics] Exported harmonics report → {OUT_PATH}")
+    logger.info(f"[Harmonics] Exported harmonics report -> {OUT_PATH}")
     return report
 
 

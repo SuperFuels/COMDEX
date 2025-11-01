@@ -28,7 +28,7 @@ def _make_temp_container():
         "type": "dc",
         "id": "test-container",
         "symbolic_logic": [
-            {"name": "A_implies_B", "symbol": "⊢", "logic": "A → B"}
+            {"name": "A_implies_B", "symbol": "⊢", "logic": "A -> B"}
         ],
         "glyphs": [],
         "tree": [],

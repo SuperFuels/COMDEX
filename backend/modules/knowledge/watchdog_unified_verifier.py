@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tessaris Unified Watchdog — auto-verifier for unified summary"""
+"""Tessaris Unified Watchdog - auto-verifier for unified summary"""
 import time, json, hashlib, subprocess
 from pathlib import Path
 
@@ -26,6 +26,6 @@ while True:
         except FileNotFoundError:
             continue
     if changed:
-        print(f"🔁 Change detected in: {changed} — re-running integrator …")
+        print(f"🔁 Change detected in: {changed} - re-running integrator ...")
         subprocess.run(["python3", str(BASE / "unified_phase2_integrator.py")])
     time.sleep(10)

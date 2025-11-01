@@ -1,8 +1,8 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v1.1 — Δ-Telemetry Channel
+# Tessaris Symatics v1.1 - Δ-Telemetry Channel
 # Real-time feedback bus for λ(t), ψ(t), and symbolic resonance metrics
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v1.1.0 — October 2025
+# Version: v1.1.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations

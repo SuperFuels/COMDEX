@@ -129,7 +129,7 @@ for i, name in enumerate(IC_types):
     ax.scatter(metrics["Phi_mean"][i], metrics["curv_exp"][i], s=120, label=name)
 ax.set_xlabel("⟨Φ⟩ / normalized")
 ax.set_ylabel("Curvature exponent")
-ax.set_title("E6e — Curvature-Regularized Entropy Lock")
+ax.set_title("E6e - Curvature-Regularized Entropy Lock")
 ax.legend(); ax.grid(True)
 plt.tight_layout()
 plt.savefig("PAEV_E6e_CurvatureRegularizedUniversality.png", dpi=160)
@@ -152,6 +152,6 @@ save_path = "backend/modules/knowledge/E6e_curvature_regularized_universality.js
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== E6e — Curvature-Regularized Entropy Lock ===")
+print("=== E6e - Curvature-Regularized Entropy Lock ===")
 print(json.dumps(out, indent=2))
-print(f"✅ Results saved → {save_path}")
+print(f"✅ Results saved -> {save_path}")

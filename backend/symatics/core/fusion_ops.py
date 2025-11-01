@@ -1,8 +1,8 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.5 — Quantum–Temporal Fusion Layer
-# μ–⟲–↔ Adaptive Coupling
+# Tessaris Symatics v0.5 - Quantum-Temporal Fusion Layer
+# μ-⟲-↔ Adaptive Coupling
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v0.5.0 — October 2025
+# Version: v0.5.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -30,21 +30,21 @@ except ImportError:
 
 
 # ---------------------------------------------------------------------
-# Fusion Operator — couples μ, ⟲, ↔ domains adaptively
+# Fusion Operator - couples μ, ⟲, ↔ domains adaptively
 # ---------------------------------------------------------------------
 def fuse_quantum_temporal(expr_mu: Any, expr_res: Any, expr_ent: Any,
                           ctx: Optional[Any] = None) -> Dict[str, Any]:
     """
-    Quantum–Temporal Fusion Operator.
+    Quantum-Temporal Fusion Operator.
 
-    Blends three domains using adaptive weights λᵢ(t):
-      μ  → measurement / collapse field
-      ⟲  → temporal resonance continuity
-      ↔  → entanglement coherence symmetry
+    Blends three domains using adaptive weights λi(t):
+      μ  -> measurement / collapse field
+      ⟲  -> temporal resonance continuity
+      ↔  -> entanglement coherence symmetry
 
     Formula (conceptual):
         Φ_fused = λ_μ * μ + λ_⟲ * ⟲ + λ_↔ * ↔
-    where λᵢ(t) are adaptive and normalized over total system weight.
+    where λi(t) are adaptive and normalized over total system weight.
 
     Returns a fused response with aggregate energy & coherence.
     """

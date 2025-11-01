@@ -1,5 +1,5 @@
 # ================================================================
-# 🧩 Phase 45F.6 — MeaningField ↔ QMath Entanglement Test
+# 🧩 Phase 45F.6 - MeaningField ↔ QMath Entanglement Test
 # ================================================================
 """
 Couples the MeaningFieldEngine (MFG) semantic layer with the
@@ -43,7 +43,7 @@ class MeaningFieldQMathEntangler:
 
     # ─────────────────────────────────────────
     def _encode_wave(self, tensor_entry):
-        """Convert Φ–ψ–η–Λ tensor entry → complex wave ψ."""
+        """Convert Φ-ψ-η-Λ tensor entry -> complex wave ψ."""
         Φ = tensor_entry.get("Φ", 1.0)
         ψ = tensor_entry.get("ψ", 1.0)
         η = tensor_entry.get("η", 1.0)
@@ -54,7 +54,7 @@ class MeaningFieldQMathEntangler:
 
     # ─────────────────────────────────────────
     def run_entanglement_tests(self):
-        logger.info("🔮 Running MeaningField ↔ QMath entanglement tests …")
+        logger.info("🔮 Running MeaningField ↔ QMath entanglement tests ...")
         qtensors = self._load_qtensor()
         if not qtensors:
             logger.warning("No QTensor entries found. Aborting.")
@@ -70,11 +70,11 @@ class MeaningFieldQMathEntangler:
             ψa = self._encode_wave(t)
             ψb = self._encode_wave(random.choice(list(qtensors.values())))
 
-            # Step 1 — superposition
+            # Step 1 - superposition
             ψs = QW.superpose(ψa, ψb)
-            # Step 2 — entanglement
+            # Step 2 - entanglement
             ψe_a, ψe_b, ρ = QW.entangle(ψa, ψb)
-            # Step 3 — resonance and collapse
+            # Step 3 - resonance and collapse
             ψr = QW.resonate(ψe_a)
             I  = QW.collapse(ψr)
 
@@ -97,7 +97,7 @@ class MeaningFieldQMathEntangler:
         OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(OUT_PATH, "w", encoding="utf-8") as f:
             json.dump(self.results, f, indent=2)
-        logger.info(f"[Entangler] Exported results → {OUT_PATH}")
+        logger.info(f"[Entangler] Exported results -> {OUT_PATH}")
 
 
 # ─────────────────────────────────────────

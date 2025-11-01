@@ -1,8 +1,8 @@
 """
-M1 — Wormhole Geometry Seed Test (Fixed Laplacian)
+M1 - Wormhole Geometry Seed Test (Fixed Laplacian)
 --------------------------------------------------
-Simulates two curvature wells (κ₁, κ₂) with entangled ψ fields
-to test for Einstein–Rosen (ER) bridge emergence (ER = EPR analogue).
+Simulates two curvature wells (κ1, κ2) with entangled ψ fields
+to test for Einstein-Rosen (ER) bridge emergence (ER = EPR analogue).
 """
 
 import numpy as np
@@ -66,24 +66,24 @@ for t in range(steps):
 
 # === Diagnostics ===
 ΔI = mutual_info[-1] - mutual_info[0]
-print("=== M1 — Wormhole Geometry Seed Test ===")
+print("=== M1 - Wormhole Geometry Seed Test ===")
 print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}")
 print(f"Initial Mutual Info = {mutual_info[0]:.3e}")
 print(f"Final   Mutual Info = {mutual_info[-1]:.3e}")
 print(f"ΔI (Correlation Drift) = {ΔI:.3e}")
 
 if ΔI > 1e-3:
-    print("✅ Nonlocal correlation sustained — ER bridge analogue detected.")
+    print("✅ Nonlocal correlation sustained - ER bridge analogue detected.")
 else:
-    print("⚠️ No significant entanglement persistence — refine coupling terms.")
+    print("⚠️ No significant entanglement persistence - refine coupling terms.")
 
 # === Plots ===
 out_dir = Path(".")
 plt.figure()
-plt.plot(mutual_info, label="I(ψ₁; ψ₂)")
+plt.plot(mutual_info, label="I(ψ1; ψ2)")
 plt.xlabel("Time step")
 plt.ylabel("Mutual Information (proxy)")
-plt.title("Wormhole Formation — Mutual Information Flow")
+plt.title("Wormhole Formation - Mutual Information Flow")
 plt.legend()
 plt.grid(True)
 plt.savefig(out_dir / "PAEV_M1_MutualInformation.png", dpi=200)
@@ -96,7 +96,7 @@ plt.savefig(out_dir / "PAEV_M1_CurvatureMap.png", dpi=200)
 
 plt.figure()
 plt.imshow(np.abs(ψ1 - ψ2), extent=[-5,5,-5,5], cmap="viridis")
-plt.colorbar(label="|ψ₁ - ψ₂|")
+plt.colorbar(label="|ψ1 - ψ2|")
 plt.title("ψ Field Bridge Formation (Throat Map)")
 plt.savefig(out_dir / "PAEV_M1_ThroatFormation.png", dpi=200)
 
@@ -126,4 +126,4 @@ result = {
 
 out_path = Path("backend/modules/knowledge/M1_wormhole_geometry.json")
 out_path.write_text(json.dumps(result, indent=2))
-print(f"📄 Summary saved → {out_path}")
+print(f"📄 Summary saved -> {out_path}")

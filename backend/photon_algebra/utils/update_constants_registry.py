@@ -33,7 +33,7 @@ def update_constants_registry(base_path="backend/modules/knowledge"):
     with open(out_path, "w") as f:
         json.dump(constants_out, f, indent=2)
 
-    print(f"✅ Aggregated constants written → {out_path}")
+    print(f"✅ Aggregated constants written -> {out_path}")
     print(json.dumps(constants_out, indent=2))
 
 if __name__ == "__main__":

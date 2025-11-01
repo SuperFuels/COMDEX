@@ -1,17 +1,17 @@
 """
 Symatic Closure Verifier
 ────────────────────────
-Validates symbolic ↔ telemetry coherence closure under πₛ constraints.
+Validates symbolic ↔ telemetry coherence closure under πs constraints.
 
 Reads:
-  • Symbolic resonance events → backend/logs/codex/codex_resonant_insight.jsonl
-  • AION telemetry stream → backend/logs/telemetry/Φ_stream.jsonl
-  • Predictor forecast → backend/logs/codex/predictor_forecast.jsonl
+  * Symbolic resonance events -> backend/logs/codex/codex_resonant_insight.jsonl
+  * AION telemetry stream -> backend/logs/telemetry/Φ_stream.jsonl
+  * Predictor forecast -> backend/logs/codex/predictor_forecast.jsonl
 
 Computes:
-  • ΔΦ(symbolic) vs ΔΦ(telemetry)
-  • closure ratio πₛ = 1 − |ΔΦ_sym − ΔΦ_phys|
-  • weighted confidence = πₛ × σ̂ (predictor confidence)
+  * ΔΦ(symbolic) vs ΔΦ(telemetry)
+  * closure ratio πs = 1 - |ΔΦ_sym - ΔΦ_phys|
+  * weighted confidence = πs * σ̂ (predictor confidence)
 
 Logs:
   backend/logs/verifiers/symatic_closure.jsonl
@@ -42,7 +42,7 @@ def load_jsonl(path: Path, limit: int = 50):
     return records
 
 def compute_closure(insights, telemetry, forecast):
-    """Compute πₛ closure ratio from symbolic vs physical Φ deltas."""
+    """Compute πs closure ratio from symbolic vs physical Φ deltas."""
     if not insights or not telemetry:
         return None
 
@@ -56,14 +56,14 @@ def compute_closure(insights, telemetry, forecast):
     ΔΦ_phys = phys_values[-1] - phys_values[0]
     σ̂ = forecast.get("stability", 1.0) if forecast else 1.0
 
-    πₛ = max(0.0, min(1.0, 1.0 - abs(ΔΦ_sym - ΔΦ_phys)))
-    confidence = πₛ * σ̂
+    πs = max(0.0, min(1.0, 1.0 - abs(ΔΦ_sym - ΔΦ_phys)))
+    confidence = πs * σ̂
 
     record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "ΔΦ_sym": ΔΦ_sym,
         "ΔΦ_phys": ΔΦ_phys,
-        "πₛ": πₛ,
+        "πs": πs,
         "σ̂": σ̂,
         "closure_confidence": confidence,
     }
@@ -85,9 +85,9 @@ def verify_symatic_closure():
     with open(LOG_PATH, "a") as f:
         f.write(json.dumps(record) + "\n")
 
-    status = "closed" if record["πₛ"] > 0.85 else "open"
+    status = "closed" if record["πs"] > 0.85 else "open"
     print(
-        f"[Verifier] πₛ={record['πₛ']:.3f}, "
+        f"[Verifier] πs={record['πs']:.3f}, "
         f"ΔΦ_sym={record['ΔΦ_sym']:+.4f}, ΔΦ_phys={record['ΔΦ_phys']:+.4f}, "
         f"σ̂={record['σ̂']:.3f}, status={status}"
     )

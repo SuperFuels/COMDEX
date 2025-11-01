@@ -41,7 +41,7 @@ class PatternPredictionHooks:
 
     def predict_from_context(self, context: Dict[str, str], current_glyphs: List[str]) -> List[str]:
         """
-        Advanced context-aware glyph prediction — e.g., based on goal, emotion, or state.
+        Advanced context-aware glyph prediction - e.g., based on goal, emotion, or state.
         """
         goal = context.get("goal", "").lower()
         emotion = context.get("emotion", "").lower()

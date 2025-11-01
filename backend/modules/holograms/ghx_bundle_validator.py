@@ -1,5 +1,5 @@
 """
-🧩 SRK-17 Task 4 — GHX Bundle Validator
+🧩 SRK-17 Task 4 - GHX Bundle Validator
 Module: backend/modules/holograms/ghx_bundle_validator.py
 
 Purpose:
@@ -7,13 +7,13 @@ Purpose:
     synchronization or GlyphVault archival.
 
 Responsibilities:
-    • Verify SHA3-512 integrity signature.
-    • Recompute deterministic bundle hash and compare to embedded value.
-    • Validate GHX Trace entropy signature (via GHXTraceEncoder).
-    • Optionally check PMG Binder continuity.
+    * Verify SHA3-512 integrity signature.
+    * Recompute deterministic bundle hash and compare to embedded value.
+    * Validate GHX Trace entropy signature (via GHXTraceEncoder).
+    * Optionally check PMG Binder continuity.
 
 Integrates with:
-    GHXSyncLayer (SRK-17 Tasks 1–3)
+    GHXSyncLayer (SRK-17 Tasks 1-3)
 """
 
 import json

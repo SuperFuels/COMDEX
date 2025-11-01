@@ -15,13 +15,13 @@ def test_law_associativity_symbolic():
 
 
 def test_law_resonance_stability_symbolic():
-    """ℚ operator (Q-factor) must preserve resonance stability law."""
-    expr = {"op": "ℚ", "args": ["ψ", 10], "result": "ψ·cos(ω₀t)·e^(-t/(2·10))"}
+    """Q operator (Q-factor) must preserve resonance stability law."""
+    expr = {"op": "Q", "args": ["ψ", 10], "result": "ψ*cos(ω0t)*e^(-t/(2*10))"}
     assert SR.law_resonance_stability(expr) is True
 
 
 def test_law_collapse_integrity_symbolic():
-    """μ collapse should produce a valid collapsed ψ₀ under integrity check."""
+    """μ collapse should produce a valid collapsed ψ0 under integrity check."""
     expr = {"op": "μ", "collapsed": "ψ0"}
     assert SR.law_collapse_integrity(expr) is True
 

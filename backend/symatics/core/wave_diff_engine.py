@@ -1,8 +1,8 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v1.1 — Continuous Wave Calculus + Δ-Telemetry
-# Unified differential–integral engine with CodexTrace and internal telemetry
+# Tessaris Symatics v1.1 - Continuous Wave Calculus + Δ-Telemetry
+# Unified differential-integral engine with CodexTrace and internal telemetry
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v1.1.0 — October 2025
+# Version: v1.1.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def d_dt(field_t: np.ndarray, field_t1: np.ndarray, dt: float = 1.0) -> np.ndarr
 
 
 def laplacian(field: np.ndarray) -> np.ndarray:
-    """∇²ψ — discrete Laplacian operator.
+    """∇2ψ - discrete Laplacian operator.
     Handles both 1D and 2D fields automatically.
     """
     grads = np.gradient(field)
@@ -49,11 +49,11 @@ def laplacian(field: np.ndarray) -> np.ndarray:
     # Handle 1D and 2D cases dynamically
     if isinstance(grads, (list, tuple)):
         if len(grads) == 1:
-            # 1D case: ∇²ψ = ∂²ψ/∂x²
+            # 1D case: ∇2ψ = ∂2ψ/∂x2
             gx = grads[0]
             lap = np.gradient(gx)
         elif len(grads) == 2:
-            # 2D case: ∇²ψ = ∂²ψ/∂x² + ∂²ψ/∂y²
+            # 2D case: ∇2ψ = ∂2ψ/∂x2 + ∂2ψ/∂y2
             gx, gy = grads
             gxx = np.gradient(gx, axis=0)
             gyy = np.gradient(gy, axis=1)
@@ -78,7 +78,7 @@ def laplacian(field: np.ndarray) -> np.ndarray:
 
 
 def integrate_wave(field: np.ndarray, dx: float = 1.0, dy: float = 1.0) -> float:
-    """∫ψ dψ — symbolic area integral (approximated)."""
+    """∫ψ dψ - symbolic area integral (approximated)."""
     integral = np.sum(field) * dx * dy
     try:
         record_event("integrate_wave", value=float(integral), telemetry_mode=TELEMETRY_MODE)
@@ -93,7 +93,7 @@ def integrate_wave(field: np.ndarray, dx: float = 1.0, dy: float = 1.0) -> float
 def evolve_wavefield(ψ_t: np.ndarray, λ_t: np.ndarray, dt: float = 1.0, damping: float = 0.01) -> np.ndarray:
     """
     Time-step evolution of ψ-field under λ influence:
-        ∂ψ/∂t = λ ∇²ψ − γ ψ
+        ∂ψ/∂t = λ ∇2ψ - γ ψ
     Returns ψ_{t+Δt}.
     """
     lap = laplacian(ψ_t)

@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # ============================================
-# P10s — Kernel Spectral Decomposition
+# P10s - Kernel Spectral Decomposition
 # ============================================
 
 # --- Load K(τ) from P10r (or recompute from R(t) if needed) ---
@@ -14,7 +14,7 @@ with open(jpath, "r") as f:
     j = json.load(f)
 
 eta = j["eta"]
-# We’ll reconstruct K(τ) from the saved plot data source if present; otherwise,
+# We'll reconstruct K(τ) from the saved plot data source if present; otherwise,
 # re-estimate from the model by regenerating a short R(t) run matching P10r.
 
 # For simplicity, re-generate R_hist using the same params and compute K(τ)
@@ -89,14 +89,14 @@ else:
 
 # --- Plots ---
 plt.figure(figsize=(9,4.8))
-plt.plot(freq, PSD, lw=2, label="|FFT{K(τ)}|² (norm)")
+plt.plot(freq, PSD, lw=2, label="|FFT{K(τ)}|2 (norm)")
 plt.axvline(f_peak, color='crimson', ls='--', label=f"f_peak={f_peak:.3f}")
 if np.isfinite(bw_3db):
     plt.hlines(half_pow, freq[left], freq[right], colors='orange', linestyles='--',
                label=f"-3 dB BW={bw_3db:.3f}")
 plt.yscale("log")
 plt.xlabel("frequency (a.u.)"); plt.ylabel("normalized power (log)")
-plt.title("P10s — Kernel Spectrum (Resonance & Bandwidth)")
+plt.title("P10s - Kernel Spectrum (Resonance & Bandwidth)")
 plt.grid(alpha=0.25, which='both')
 plt.legend()
 plt.tight_layout()
@@ -107,7 +107,7 @@ plt.close()
 plt.figure(figsize=(9,4.2))
 plt.plot(freq, PSD, lw=2)
 plt.xlabel("frequency (a.u.)"); plt.ylabel("normalized power")
-plt.title("P10s — Kernel Spectrum (linear)")
+plt.title("P10s - Kernel Spectrum (linear)")
 plt.grid(alpha=0.25)
 plt.tight_layout()
 plt.savefig("PAEV_P10s_KernelSpectrum_linear.png", dpi=240)
@@ -136,6 +136,6 @@ Path("backend/modules/knowledge").mkdir(parents=True, exist_ok=True)
 with open("backend/modules/knowledge/P10s_kernel_spectrum.json", "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== P10s — Kernel Spectral Decomposition ===")
+print("=== P10s - Kernel Spectral Decomposition ===")
 print(f"f_peak={f_peak:.4f}, BW_3dB={bw_3db:.4f}, Q={Q:.2f}")
-print("✅ Results saved → backend/modules/knowledge/P10s_kernel_spectrum.json")
+print("✅ Results saved -> backend/modules/knowledge/P10s_kernel_spectrum.json")

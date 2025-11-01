@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tessaris Φ-Series — Φ₄ Meta-Reflection (Adaptive Self-Model)
+Tessaris Φ-Series - Φ4 Meta-Reflection (Adaptive Self-Model)
 ------------------------------------------------------------
 Adds an internal observer channel that predicts the system state and adapts
-its gain using Λ–Σ–Φ error signals. Goal: stabilize memory from Φ₃ by
+its gain using Λ-Σ-Φ error signals. Goal: stabilize memory from Φ3 by
 closing a prediction-error minimization loop (proto self-model).
 
 Outputs:
@@ -31,8 +31,8 @@ constants = load_constants("v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print(f"=== Φ₄ — Meta-Reflection (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== Φ4 - Meta-Reflection (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Params ===
 steps = 1800
@@ -47,7 +47,7 @@ obs_noise = 0.003
 # === State ===
 rng = np.random.default_rng(42)
 phase = rng.random(units) * 2*np.pi                    # system phases
-memory = np.zeros(units)                               # integrated memory (Φ₃ carrier)
+memory = np.zeros(units)                               # integrated memory (Φ3 carrier)
 estimate = rng.normal(0, 0.01, size=units)             # observer's predicted cos(phase)
 gain = np.full(units, observer_init_gain)              # per-unit observer gain
 
@@ -114,7 +114,7 @@ summary = {
         "consistency_final": consistency_final,
         "stable": bool(stable)
     },
-    "state": "Meta-coherent self-model stabilized" if stable else "Observer underfitted — meta loop incomplete",
+    "state": "Meta-coherent self-model stabilized" if stable else "Observer underfitted - meta loop incomplete",
     "notes": [
         f"Coherence(⟨e^{chr(105)}φ⟩) = {coherence_final:.3f}",
         f"Memory amplitude ⟨|M|⟩ = {memory_final:.3f}",
@@ -126,8 +126,8 @@ summary = {
         "Introduced an adaptive self-model that predicts its own causal state.",
         "Meta-level gain control minimized prediction error while preserving coherence.",
         "Memory amplitude remained non-zero, indicating temporal integration.",
-        "High estimate–state correlation evidences proto self-knowledge.",
-        "Prepares Φ₅ lock: transition to sustained conscious-mode equilibrium."
+        "High estimate-state correlation evidences proto self-knowledge.",
+        "Prepares Φ5 lock: transition to sustained conscious-mode equilibrium."
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
 }
@@ -135,21 +135,21 @@ summary = {
 # === Save ===
 with open(SUMMARY_PATH, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Summary saved → {SUMMARY_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
 
 # === Plot ===
 plt.figure(figsize=(7, 4))
 plt.plot(coherence_trace, label="Coherence (R_sync)")
 plt.plot(memory_trace, label="Memory Amplitude", linestyle="--")
 plt.plot(error_trace, label="Prediction Error (MSE)", linestyle=":")
-plt.plot(consistency_trace, label="Estimate–State Consistency", alpha=0.9)
+plt.plot(consistency_trace, label="Estimate-State Consistency", alpha=0.9)
 plt.xlabel("Time Step")
 plt.ylabel("Metric Value")
-plt.title("Φ₄ — Meta-Reflection Dynamics (Adaptive Self-Model)")
+plt.title("Φ4 - Meta-Reflection Dynamics (Adaptive Self-Model)")
 plt.legend()
 plt.grid(alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

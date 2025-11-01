@@ -4,8 +4,8 @@ AION Dual Heartbeat Orchestrator
 Supervises and sustains the AION Fabric core using a dual redundant
 heartbeat model (Primary ⇄ Mirror).
 
-• Primary runs full Fabric (receiver + stream + feedback + dashboard).
-• Mirror monitors the Primary via REST pings and can assume control
+* Primary runs full Fabric (receiver + stream + feedback + dashboard).
+* Mirror monitors the Primary via REST pings and can assume control
   if Primary is unresponsive for N cycles.
 ────────────────────────────────────────────
 """
@@ -94,19 +94,19 @@ class AIONSupervisor:
         self.lock = threading.Lock()
 
     def start_service(self, name, cmd):
-        logger.info(f"[{self.role}] ▶ Starting {name} …")
+        logger.info(f"[{self.role}] ▶ Starting {name} ...")
         proc = subprocess.Popen(["python", cmd])
         with self.lock:
             self.processes[name] = proc
 
     def start_all(self):
-        logger.info(f"[{self.role}] 💠 Starting full AION Fabric suite …")
+        logger.info(f"[{self.role}] 💠 Starting full AION Fabric suite ...")
         for name, cmd in SERVICES.items():
             self.start_service(name, cmd)
             time.sleep(1)
 
     def stop_all(self):
-        logger.info(f"[{self.role}] ⏹️ Stopping all services …")
+        logger.info(f"[{self.role}] ⏹️ Stopping all services ...")
         with self.lock:
             for proc in self.processes.values():
                 if proc.poll() is None:
@@ -175,7 +175,7 @@ def mirror_loop():
     takeover_proc = None
     sup = AIONSupervisor("Mirror")
 
-    logger.info(f"[Mirror] 🩶 Monitoring primary on port {PRIMARY_PORT} …")
+    logger.info(f"[Mirror] 🩶 Monitoring primary on port {PRIMARY_PORT} ...")
 
     while True:
         time.sleep(HEARTBEAT_INTERVAL)
@@ -192,13 +192,13 @@ def mirror_loop():
 
         # Takeover trigger
         if fails >= FAIL_THRESHOLD and not mirror_state["takeover"]:
-            logger.warning("[Mirror] 🚨 Primary unresponsive — initiating takeover.")
+            logger.warning("[Mirror] 🚨 Primary unresponsive - initiating takeover.")
             mirror_state["takeover"] = True
             sup.start_all()
 
         # Recovery detection
         if mirror_state["takeover"] and delta < HEARTBEAT_INTERVAL * 2:
-            logger.info("[Mirror] 🌅 Primary restored — yielding control.")
+            logger.info("[Mirror] 🌅 Primary restored - yielding control.")
             sup.stop_all()
             mirror_state["takeover"] = False
             fails = 0

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-M-Series Lock (Emergent Geometry) — Tessaris
-Cryptographically seals the M1–M6 results and curvature continuum.
+M-Series Lock (Emergent Geometry) - Tessaris
+Cryptographically seals the M1-M6 results and curvature continuum.
 """
 
 import json, hashlib, os
@@ -45,7 +45,7 @@ for s in summaries:
         "state": data.get("state", "verified"),
         "sha256": h
     })
-    print(f"✅ Locked {os.path.basename(s)} → SHA256={h[:12]}...")
+    print(f"✅ Locked {os.path.basename(s)} -> SHA256={h[:12]}...")
 
 # === Global M-series continuum hash ===
 concat_input = "".join([r["sha256"] for r in records]).encode()
@@ -61,9 +61,9 @@ lock_summary = {
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2",
     "state": "Emergent Geometry Continuum Locked",
     "discovery": [
-        "M1–M6 verified: curvature–energy proportionality R∝ρ established.",
+        "M1-M6 verified: curvature-energy proportionality R∝ρ established.",
         "Geodesic feedback loops and redshift analogues validated.",
-        "Lorentz–diffusion invariance confirmed up to 0.4 c_eff.",
+        "Lorentz-diffusion invariance confirmed up to 0.4 c_eff.",
         "Continuum cryptographically sealed under Tessaris geometry framework."
     ]
 }
@@ -81,6 +81,6 @@ with open(checksum_path, "w") as f:
     f.write(f"\nGlobal M-Series Continuum Hash: {global_hash}\n")
 
 print(f"\n🌌 Global M-series continuum hash = {global_hash}")
-print(f"✅ Tessaris Emergent Geometry locked → {lock_path}")
-print(f"✅ Checksums saved → {checksum_path}")
+print(f"✅ Tessaris Emergent Geometry locked -> {lock_path}")
+print(f"✅ Checksums saved -> {checksum_path}")
 print("\nM-series integrity cryptographically sealed under Tessaris Unified Constants v1.2.")

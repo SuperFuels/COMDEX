@@ -45,7 +45,7 @@ def scan_and_fix(auto_fix=False):
     if matches_found:
         print("⚠️ Legacy imports found:\n")
         for filepath, line_number, code_line in matches_found:
-            print(f"{filepath}:{line_number} → {code_line}")
+            print(f"{filepath}:{line_number} -> {code_line}")
 
         if auto_fix:
             print("\n✅ Auto-fix applied: All imports rewritten to 'universal_container_system'.")

@@ -1,5 +1,5 @@
 """
-PAEV Test F6 — Black Hole Horizon Dynamics
+PAEV Test F6 - Black Hole Horizon Dynamics
 Goal: simulate curvature singularity & test algebraic horizon formation,
 entropy-area scaling, and Hawking-like radiation analogues.
 """
@@ -59,25 +59,25 @@ for step in range(steps):
 plt.figure(figsize=(6,4))
 plt.plot(entropy_trace, label='Entropy (S)')
 plt.plot(np.array(area_trace)/4, '--', label='Area/4')
-plt.title('F6 — Horizon Entropy–Area Scaling')
+plt.title('F6 - Horizon Entropy-Area Scaling')
 plt.legend()
 plt.savefig("PAEV_TestF6_EntropyArea.png")
 
 plt.figure(figsize=(5,5))
 plt.imshow(np.log10(np.abs(psi)**2 + 1e-6), cmap='inferno')
-plt.title("F6 — ψ field intensity (log10)")
-plt.colorbar(label='log10 |ψ|²')
+plt.title("F6 - ψ field intensity (log10)")
+plt.colorbar(label='log10 |ψ|2')
 plt.savefig("PAEV_TestF6_Field.png")
 
 plt.figure(figsize=(5,5))
 plt.imshow(kappa, cmap='plasma')
-plt.title("F6 — Curvature κ (horizon)")
+plt.title("F6 - Curvature κ (horizon)")
 plt.colorbar(label='κ')
 plt.savefig("PAEV_TestF6_Curvature.png")
 
-print("=== Test F6 — Black Hole Horizon Dynamics Complete ===")
+print("=== Test F6 - Black Hole Horizon Dynamics Complete ===")
 print(f"⟨Entropy⟩ final = {entropy_trace[-1]:.6e}")
 print(f"⟨Area⟩ final    = {area_trace[-1]:.6e}")
 print(f"⟨Energy⟩ final  = {energy_trace[-1]:.6e}")
-print("Check if S ≈ A/4 (entropy–area relation).")
+print("Check if S ≈ A/4 (entropy-area relation).")
 print("All output files saved in working directory.")

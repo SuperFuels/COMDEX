@@ -24,7 +24,7 @@ PHOTON_SCI_DIR = Path("data/photon_sci/events/")
 PHOTON_SCI_DIR.mkdir(parents=True, exist_ok=True)
 
 def mirror_sci_to_photon(event_type: str, payload: dict):
-    """Append SCI event to Photon archive (.photo) — graceful fallback"""
+    """Append SCI event to Photon archive (.photo) - graceful fallback"""
     if not compress_to_glyphs:
         return
 
@@ -34,9 +34,9 @@ def mirror_sci_to_photon(event_type: str, payload: dict):
         ts = capsule["timestamp"].replace(":", "_").replace(".", "_")
         out = PHOTON_SCI_DIR / f"sci_{ts}.photo"
         out.write_text(json.dumps(capsule, indent=2, ensure_ascii=False))
-        print(f"[SCI→Photon] 📦 {out.name}")
+        print(f"[SCI->Photon] 📦 {out.name}")
     except Exception as e:
-        print(f"[SCI→Photon mirror] ⚠️ {e}")
+        print(f"[SCI->Photon mirror] ⚠️ {e}")
 
 
 # ------------------------------------------------------------

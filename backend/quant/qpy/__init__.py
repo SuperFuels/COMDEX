@@ -3,7 +3,7 @@
 # ================================================================
 """
 QuantPy Compatibility Layer (Phase 45F)
-Bridges SymPy-based symbolic ops with QuantPy’s resonance field logic.
+Bridges SymPy-based symbolic ops with QuantPy's resonance field logic.
 """
 
 from .qsymbol import QSymbol

@@ -1,5 +1,5 @@
 # ==========================================================
-# G3-RC1 — Information-Regulated Antigravity Bounce
+# G3-RC1 - Information-Regulated Antigravity Bounce
 # ==========================================================
 
 import json, numpy as np, matplotlib.pyplot as plt
@@ -102,25 +102,25 @@ else:
 # --- Plots ---
 plt.figure(figsize=(9,5))
 plt.plot(t,a); plt.axvline(t[bounce_idx],ls='--',c='purple',alpha=0.6,label='min(a)')
-plt.title("G3-RC1 — Scale Factor Evolution (Info-Regulated Bounce)")
+plt.title("G3-RC1 - Scale Factor Evolution (Info-Regulated Bounce)")
 plt.xlabel("time"); plt.ylabel("a(t)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC1_ScaleFactor.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t,R,label="R (visible)")
 plt.plot(t,Rψ,label="Rψ (hidden)")
-plt.title("G3-RC1 — Curvature Tracks (R vs Rψ, Info Coupled)")
+plt.title("G3-RC1 - Curvature Tracks (R vs Rψ, Info Coupled)")
 plt.xlabel("time"); plt.ylabel("curvature"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC1_CurvatureTracks.png")
 
 plt.figure(figsize=(9,5))
-plt.plot(t,Mψ,label="Hidden mass Mψ"); plt.title("G3-RC1 — Hidden Mass Evolution (Feedback)")
+plt.plot(t,Mψ,label="Hidden mass Mψ"); plt.title("G3-RC1 - Hidden Mass Evolution (Feedback)")
 plt.xlabel("time"); plt.ylabel("Mψ (norm)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC1_HiddenMass.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t,E_tot,label="Unified energy (norm)")
-plt.title("G3-RC1 — Unified Energy Evolution (Info-Stabilized)")
+plt.title("G3-RC1 - Unified Energy Evolution (Info-Stabilized)")
 plt.xlabel("time"); plt.ylabel("E_total (norm)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC1_Energy.png")
 
@@ -150,7 +150,7 @@ data = {
 with open("backend/modules/knowledge/G3RC1_info_regulated_bounce.json","w") as f:
     json.dump(data,f,indent=2)
 
-print("=== G3-RC1 — Information-Regulated Antigravity Bounce ===")
+print("=== G3-RC1 - Information-Regulated Antigravity Bounce ===")
 print(f"a_min={a_min:.4f} | cross_corr={cross_corr:.3f} | E_stab={E_stab:.3e}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/G3RC1_info_regulated_bounce.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/G3RC1_info_regulated_bounce.json")

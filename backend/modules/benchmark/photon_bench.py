@@ -9,9 +9,9 @@ Compare Photon Rewriter vs Photon Compressor (basic + adv) vs Classical SymPy on
   - Stress scaling (large N chains)
 
 Results:
-  - Markdown → docs/rfc/photon_benchmarks.md
-  - JSON     → docs/rfc/photon_benchmarks.json
-  - CSV      → docs/rfc/photon_benchmarks.csv
+  - Markdown -> docs/rfc/photon_benchmarks.md
+  - JSON     -> docs/rfc/photon_benchmarks.json
+  - CSV      -> docs/rfc/photon_benchmarks.csv
 """
 
 import time
@@ -190,7 +190,7 @@ def export_markdown(rows_core, rows_stress, path="docs/rfc/photon_benchmarks.md"
 
     def table(rows, title):
         lines = [
-            f"## {title} — Raw Numbers",
+            f"## {title} - Raw Numbers",
             "",
             "| Expr | Photon ms | PhotonC Basic ms | PhotonC Adv ms | SymPy ms | "
             "Photon size | Basic size | Adv size | SymPy size | "
@@ -203,7 +203,7 @@ def export_markdown(rows_core, rows_stress, path="docs/rfc/photon_benchmarks.md"
                 f"| {r['expr']} | {r['t_photon']['median']:.3f} | {r['t_basic']['median']:.3f} | {r['t_adv']['median']:.3f} | {r['t_sympy']['median']:.3f} | "
                 f"{r['size_photon']} | {r['size_basic']} | {r['size_adv']} | {r['size_sympy']} | "
                 f"{r['comp_raw']:.2%} | {r['comp_basic']:.2%} | {r['comp_adv']:.2%} | "
-                f"{r['speed_raw']:.2f}× | {r['speed_basic']:.2f}× | {r['speed_adv']:.2f}× |"
+                f"{r['speed_raw']:.2f}* | {r['speed_basic']:.2f}* | {r['speed_adv']:.2f}* |"
             )
         return lines
 
@@ -214,7 +214,7 @@ def export_markdown(rows_core, rows_stress, path="docs/rfc/photon_benchmarks.md"
 
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    print(f"📊 Benchmarks exported → {path}")
+    print(f"📊 Benchmarks exported -> {path}")
 
 
 def export_json(rows_core, rows_stress, path="docs/rfc/photon_benchmarks.json"):
@@ -229,7 +229,7 @@ def export_json(rows_core, rows_stress, path="docs/rfc/photon_benchmarks.json"):
     }
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
-    print(f"📊 JSON exported → {path}")
+    print(f"📊 JSON exported -> {path}")
 
 
 def export_csv(rows_core, rows_stress, path="docs/rfc/photon_benchmarks.csv"):
@@ -251,7 +251,7 @@ def export_csv(rows_core, rows_stress, path="docs/rfc/photon_benchmarks.csv"):
                     r["speed_raw"], r["speed_basic"], r["speed_adv"],
                     r["t_photon"]["median"], r["t_basic"]["median"], r["t_adv"]["median"], r["t_sympy"]["median"]
                 ])
-    print(f"📊 CSV exported → {path}")
+    print(f"📊 CSV exported -> {path}")
 
 
 if __name__ == "__main__":

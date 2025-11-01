@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-🧠 AION Resonance Field Audit — Phase 57b Cognitive Self-Tuning
+🧠 AION Resonance Field Audit - Phase 57b Cognitive Self-Tuning
 ───────────────────────────────────────────────────────────────
 Scans all resonance heartbeat logs, computes coherence / entropy / SQI stability,
 and issues auto-tuning advisories for underperforming modules.
 
-Output → data/analysis/resonance_audit_report.json
+Output -> data/analysis/resonance_audit_report.json
 """
 
 import json
@@ -87,7 +87,7 @@ def main():
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(report, indent=2))
-    print(f"📘 Wrote resonance audit → {OUT}")
+    print(f"📘 Wrote resonance audit -> {OUT}")
     print(json.dumps(report, indent=2))
 
 if __name__ == "__main__":

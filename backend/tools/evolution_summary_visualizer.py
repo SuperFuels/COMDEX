@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Evolution Summary Visualizer — Phase 35.10 (Closure)
+Evolution Summary Visualizer - Phase 35.10 (Closure)
 Tessaris / Aion Research Division
 
 Combines:
- • Evolution metrics summary (fusion / decay / RSI)
- • Introspective entropy–order metrics (Phase 34)
- • concept:self_accuracy node reflection
- • PAL readiness for Phase 36
+ * Evolution metrics summary (fusion / decay / RSI)
+ * Introspective entropy-order metrics (Phase 34)
+ * concept:self_accuracy node reflection
+ * PAL readiness for Phase 36
 """
 
 import json, time, math
@@ -86,7 +86,7 @@ with OUT_JSONL.open("a") as f:
 # Visualization
 # ─────────────────────────────────────────────
 plt.figure(figsize=(10,6))
-plt.suptitle("Aion Concept Evolution Summary — Phase 35.9", fontsize=14, weight="bold")
+plt.suptitle("Aion Concept Evolution Summary - Phase 35.9", fontsize=14, weight="bold")
 plt.subplot(2,1,1)
 labels = ["Fusions","Reinforcements","Decays","Cooldowns"]
 values = [total_fusions,total_reinforcements,total_decays,cooldown_events]
@@ -108,7 +108,7 @@ plt.savefig(OUT_PNG, dpi=200)
 plt.close()
 
 # ─────────────────────────────────────────────
-# Phase 34 — Introspective Entropy / Order Metrics
+# Phase 34 - Introspective Entropy / Order Metrics
 # ─────────────────────────────────────────────
 def _entropy_norm(cnts):
     total = float(sum(cnts))
@@ -144,10 +144,10 @@ if "concept" in df.columns:
 METRICS_JSON.parent.mkdir(parents=True, exist_ok=True)
 with METRICS_JSON.open("w") as f:
     json.dump({"timestamp": summary["timestamp"], "metrics": metrics}, f, indent=2)
-print(f"🧮 Entropy/order metrics → {METRICS_JSON}")
+print(f"🧮 Entropy/order metrics -> {METRICS_JSON}")
 
 # ─────────────────────────────────────────────
-# Phase 35 — concept:self_accuracy node write-back
+# Phase 35 - concept:self_accuracy node write-back
 # ─────────────────────────────────────────────
 try:
     from backend.modules.aion_knowledge import knowledge_graph_core as akg
@@ -172,5 +172,5 @@ except Exception as e:
 print("✅ Evolution summary complete:")
 for k,v in summary.items():
     print(f"   {k:<15}: {v}")
-print(f"📊 Saved visualization → {OUT_PNG}")
-print(f"🧾 Summary log appended → {OUT_JSONL}")
+print(f"📊 Saved visualization -> {OUT_PNG}")
+print(f"🧾 Summary log appended -> {OUT_JSONL}")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AION Phase 32 — Gradient Correction Layer (Resonant Reinforcement)
+AION Phase 32 - Gradient Correction Layer (Resonant Reinforcement)
 ──────────────────────────────────────────────────────────────────
 Compares predicted vs. actual temporal feature vectors to compute
 resonance deltas and emit corrective gradients back to PredictiveBias
@@ -51,7 +51,7 @@ class GradientCorrectionLayer:
     # Reinforcement signal generation
     # ─────────────────────────────────────────────
     def compute_resonance_feedback(self, delta: float) -> float:
-        """Map delta magnitude → reinforcement scalar in [−1, 1]."""
+        """Map delta magnitude -> reinforcement scalar in [-1, 1]."""
         if delta == 0:
             return 1.0
         r = max(-1.0, min(1.0, 1.0 - math.tanh(delta)))

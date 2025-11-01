@@ -47,7 +47,7 @@ def extract_glyphs_from_container(dc_path: str) -> List[Dict[str, Any]]:
 def extract_glyph_chain(microgrid: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Reconstruct a chain of symbolic glyphs from a microgrid.
-    Looks for sequential or clustered logic patterns like 🧠 → ✧ → 🪄
+    Looks for sequential or clustered logic patterns like 🧠 -> ✧ -> 🪄
     """
     chain = []
     for coord, cube in microgrid.items():

@@ -15,9 +15,9 @@ class HyperdriveAutoTuner:
     """
     🔧 Hyperdrive Auto-Tuner (Unified)
     ----------------------------------
-    • ECU-aligned SQI resonance tuner w/ staged warm-up & safety guards.
-    • SQI feedback, drift-based corrections, and runtime persistence.
-    • Exports resonance traces + stabilized engine .dc snapshots.
+    * ECU-aligned SQI resonance tuner w/ staged warm-up & safety guards.
+    * SQI feedback, drift-based corrections, and runtime persistence.
+    * Exports resonance traces + stabilized engine .dc snapshots.
     """
 
     def __init__(self, engine):
@@ -191,14 +191,14 @@ class HyperdriveAutoTuner:
             old_gain = engine.fields.get("wave_frequency", 1.0)
             new_gain = old_gain * 1.05
             engine.fields["wave_frequency"] = new_gain
-            print(f"⚠ Low coherence ({coherence:.3f}) → boosted wave freq from {old_gain:.3f} to {new_gain:.3f}")
+            print(f"⚠ Low coherence ({coherence:.3f}) -> boosted wave freq from {old_gain:.3f} to {new_gain:.3f}")
             engine.resync_harmonics()
 
         # If coherence is high, stabilize damping slightly
         elif coherence > 0.9:
             old_damping = engine.damping_factor
             engine.damping_factor *= 0.98
-            print(f"✅ High coherence ({coherence:.3f}) → reduced damping from {old_damping:.4f} to {engine.damping_factor:.4f}")
+            print(f"✅ High coherence ({coherence:.3f}) -> reduced damping from {old_damping:.4f} to {engine.damping_factor:.4f}")
 
         # Log adjustment event
         engine.log_event(f"AutoTuner adjusted engine for coherence={coherence:.3f}")
@@ -222,7 +222,7 @@ class HyperdriveAutoTuner:
         trace_path = os.path.join(trace_dir, f"resonance_trace_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
         with open(trace_path, "w") as f:
             json.dump(self.engine.resonance_filtered[-200:], f, indent=2)
-        print(f"📑 Resonance trace saved → {trace_path}")
+        print(f"📑 Resonance trace saved -> {trace_path}")
 
     def _export_final_snapshot(self):
         """Save stabilized engine state to .dc.json snapshot."""
@@ -240,4 +240,4 @@ class HyperdriveAutoTuner:
         }
         with open(report_path, "w") as f:
             json.dump(snapshot, f, indent=2)
-        print(f"📦 Final tuning snapshot exported → {report_path}")
+        print(f"📦 Final tuning snapshot exported -> {report_path}")

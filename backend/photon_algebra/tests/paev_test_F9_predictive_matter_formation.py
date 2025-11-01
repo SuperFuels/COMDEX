@@ -1,16 +1,16 @@
 # ==========================================================
-# Test F9 — Predictive Matter Formation
+# Test F9 - Predictive Matter Formation
 #   Goal: add a "matter" scalar ψ coupled to (θ, κ),
 #         watch clumping/structure emerge, track spectra,
-#         clump counts, and ψ–κ correlation.
+#         clump counts, and ψ-κ correlation.
 #
-#   ψ obeys a stabilized Klein–Gordon-like flow with
+#   ψ obeys a stabilized Klein-Gordon-like flow with
 #   curvature-modulated mass and weak self-interaction:
-#       ψ̈ = u1 ∇²ψ - μ_eff^2 ψ - λ ψ³ + β κ + ξ θ
-#   with μ_eff^2 = μ0^2 + aκ κ + aθ θ²  (all small & stable)
+#       ψ̈ = u1 ∇2ψ - μ_eff^2 ψ - λ ψ3 + β κ + ξ θ
+#   with μ_eff^2 = μ0^2 + aκ κ + aθ θ2  (all small & stable)
 #
 #   θ, κ reuse your stable F6/F7-style updates (safe dt,
-#   small couplings, diffusion + relaxation + k–θ coupling).
+#   small couplings, diffusion + relaxation + k-θ coupling).
 # ==========================================================
 
 import numpy as np
@@ -101,7 +101,7 @@ psi_t   = np.zeros_like(psi)
 
 # Couplings (small, stable)
 c1  = 0.75      # θ wave speed^2 (on laplacian)
-chi = 0.14      # θ–κ cross-coupling
+chi = 0.14      # θ-κ cross-coupling
 gamma_theta = 0.018  # θ damping
 zeta_k  = 0.035      # κ diffusion
 eta_k   = 0.06       # κ relaxation
@@ -194,9 +194,9 @@ for t in range(steps):
 tarr = np.arange(steps)
 
 plt.figure(figsize=(8.6,4.6))
-plt.title("F9 — Matter Formation: Energy, Corr., Entropy, Clumps")
-plt.plot(tarr, E_trace,      label="⟨ℒ⟩")
-plt.plot(tarr, corr_trace,   label="⟨ψ·κ⟩")
+plt.title("F9 - Matter Formation: Energy, Corr., Entropy, Clumps")
+plt.plot(tarr, E_trace,      label="⟨L⟩")
+plt.plot(tarr, corr_trace,   label="⟨ψ*κ⟩")
 # normalize entropy & clumps for common axis (visual only)
 Hn = (np.array(H_trace) - np.min(H_trace)) / (np.ptp(H_trace)+1e-12)
 Cn = (np.array(clump_trace) - np.min(clump_trace)) / (max(np.ptp(clump_trace),1)+1e-12)
@@ -212,9 +212,9 @@ print("✅ Saved file: PAEV_TestF9_Matter_EnergyTrace.png")
 Fpsi = np.fft.fftshift(np.abs(np.fft.fft2(psi))**2)
 Fpsi = np.log10(np.maximum(Fpsi, 1e-14))
 plt.figure(figsize=(5.6,5.2))
-plt.title("F9 — ψ Field Spectrum (log power)")
+plt.title("F9 - ψ Field Spectrum (log power)")
 im = plt.imshow(Fpsi, cmap="magma")
-plt.colorbar(im, label="log |ψ(k)|²")
+plt.colorbar(im, label="log |ψ(k)|2")
 plt.xticks([]); plt.yticks([])
 plt.tight_layout()
 plt.savefig("PAEV_TestF9_Matter_Spectrum.png", dpi=160)
@@ -223,7 +223,7 @@ print("✅ Saved file: PAEV_TestF9_Matter_Spectrum.png")
 
 # 3) Clump count evolution
 plt.figure(figsize=(6.4,4.4))
-plt.title("F9 — Matter Clump Count")
+plt.title("F9 - Matter Clump Count")
 plt.plot(tarr, clump_trace)
 plt.xlabel("step"); plt.ylabel("# clumps (ψ > μ+1.5σ)")
 plt.tight_layout()
@@ -231,11 +231,11 @@ plt.savefig("PAEV_TestF9_Matter_Clumps.png", dpi=160)
 plt.close()
 print("✅ Saved file: PAEV_TestF9_Matter_Clumps.png")
 
-# 4) Phase portrait: entropy vs ψ·κ (organization curve)
+# 4) Phase portrait: entropy vs ψ*κ (organization curve)
 plt.figure(figsize=(6.2,4.8))
-plt.title("F9 — Phase Portrait (Entropy vs ⟨ψ·κ⟩)")
+plt.title("F9 - Phase Portrait (Entropy vs ⟨ψ*κ⟩)")
 plt.plot(H_trace, corr_trace, color="orange")
-plt.xlabel("spectral entropy(ψ)"); plt.ylabel("⟨ψ·κ⟩")
+plt.xlabel("spectral entropy(ψ)"); plt.ylabel("⟨ψ*κ⟩")
 plt.tight_layout()
 plt.savefig("PAEV_TestF9_Matter_PhasePortrait.png", dpi=160)
 plt.close()
@@ -255,9 +255,9 @@ imageio.mimsave("PAEV_TestF9_Matter_Formation.gif", frames, fps=12)
 print("✅ Saved animation to: PAEV_TestF9_Matter_Formation.gif")
 
 # Console summary
-print("\n=== Test F9 — Predictive Matter Formation Complete ===")
-print(f"⟨ℒ⟩ final = {np.array(E_trace)[-1]:.4e}")
-print(f"⟨ψ·κ⟩ final = {np.array(corr_trace)[-1]:.4e}")
+print("\n=== Test F9 - Predictive Matter Formation Complete ===")
+print(f"⟨L⟩ final = {np.array(E_trace)[-1]:.4e}")
+print(f"⟨ψ*κ⟩ final = {np.array(corr_trace)[-1]:.4e}")
 print(f"Spectral entropy(ψ) final = {np.array(H_trace)[-1]:.4e}")
 print(f"Clumps(final) = {clump_trace[-1]}")
 print("Perturbation mode: ON")

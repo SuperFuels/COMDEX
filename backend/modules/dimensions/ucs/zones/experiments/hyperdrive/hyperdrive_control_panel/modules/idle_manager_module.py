@@ -150,8 +150,8 @@ def export_traces(engine_name: str, ignition_trace, resonance_trace):
     with open(res_path, "w") as f:
         json.dump(resonance_trace, f, indent=4)
 
-    print(f"📊 Ignition trace saved → {ign_path}")
-    print(f"📈 Resonance trace saved → {res_path}")
+    print(f"📊 Ignition trace saved -> {ign_path}")
+    print(f"📈 Resonance trace saved -> {res_path}")
 
     # ✅ Plot Ignition Trace (Resonance, Drift, Threshold)
     ticks = [entry["tick"] for entry in ignition_trace]
@@ -170,7 +170,7 @@ def export_traces(engine_name: str, ignition_trace, resonance_trace):
     plt.grid(True)
     plt.savefig(ign_plot)
     plt.close()
-    print(f"📉 Ignition graph saved → {ign_plot}")
+    print(f"📉 Ignition graph saved -> {ign_plot}")
 
     # ✅ Plot Resonance Trace (Raw Resonance)
     plt.figure(figsize=(10, 4))
@@ -181,7 +181,7 @@ def export_traces(engine_name: str, ignition_trace, resonance_trace):
     plt.grid(True)
     plt.savefig(res_plot)
     plt.close()
-    print(f"📈 Resonance graph saved → {res_plot}")
+    print(f"📈 Resonance graph saved -> {res_plot}")
 
 
 # ==========================
@@ -198,7 +198,7 @@ def save_idle_state(engine, label="idle_state"):
     os.makedirs(os.path.dirname(IDLE_STATE_PATH), exist_ok=True)
     with open(IDLE_STATE_PATH, "w") as f:
         json.dump(snapshot, f, indent=4)
-    print(f"💾 Idle state saved → {IDLE_STATE_PATH}")
+    print(f"💾 Idle state saved -> {IDLE_STATE_PATH}")
     engine.log_event(f"💾 Idle snapshot saved: {label}")
 
 

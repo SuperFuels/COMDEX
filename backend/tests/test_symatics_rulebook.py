@@ -187,7 +187,7 @@ def test_derivative_stub_variable():
 
 
 def test_check_all_laws_derivative_constant():
-    """LAW_REGISTRY should include Δ with derivative law (constant → 0)."""
+    """LAW_REGISTRY should include Δ with derivative law (constant -> 0)."""
     from backend.symatics.symatics_rulebook import check_all_laws
     laws = check_all_laws("Δ", "7", "x")
     assert "derivative" in laws
@@ -201,7 +201,7 @@ def test_check_all_laws_derivative_constant():
 def test_non_commutative_operator_is_not_commutative():
     """Sanity: '+' is not registered as commutative in Symatics laws."""
     laws = check_all_laws("+", "a", "b")
-    # '+' is not in LAW_REGISTRY → no laws should apply
+    # '+' is not in LAW_REGISTRY -> no laws should apply
     assert laws == {}
 
 
@@ -277,7 +277,7 @@ def test_derivative_of_variable():
 
 
 def test_derivative_of_square():
-    """Δ(x²) = 2x"""
+    """Δ(x2) = 2x"""
     from backend.symatics.symatics_rulebook import op_derivative, _canonical
     x = {"op": "var", "args": ["x"]}
     expr = {"op": "*", "args": [x, x]}
@@ -314,15 +314,15 @@ def test_check_all_laws_derivative():
 # ──────────────────────────────
 
 def test_integration_constant():
-    """∫ c dx = c·x for constant c."""
+    """∫ c dx = c*x for constant c."""
     from backend.symatics.symatics_rulebook import op_integrate, _canonical
     expr = op_integrate(5, "x", {})
-    # Expected: 5·x → represented canonically as (∫, 5, 'x')
+    # Expected: 5*x -> represented canonically as (∫, 5, 'x')
     assert _canonical(expr) == ("∫", 5, "x")
 
 
 def test_integration_polynomial():
-    """∫ x^n dx = x^(n+1)/(n+1), here n=2 → x³/3."""
+    """∫ x^n dx = x^(n+1)/(n+1), here n=2 -> x3/3."""
     from backend.symatics.symatics_rulebook import op_integrate
     expr = {"op": "pow", "args": ["x", 2]}
     result = op_integrate(expr, "x", {})
@@ -356,10 +356,10 @@ def test_derivative_of_variable():
 
 
 def test_derivative_of_square():
-    """Δ(x²) = 2x"""
+    """Δ(x2) = 2x"""
     from backend.symatics.symatics_rulebook import op_derivative, _canonical
     x = {"op": "var", "args": ["x"]}
-    expr = {"op": "*", "args": [x, x]}  # x² as x * x
+    expr = {"op": "*", "args": [x, x]}  # x2 as x * x
     deriv = op_derivative(expr, "x", {})
     can = _canonical(deriv)
     # Should simplify structurally to 2x
@@ -381,7 +381,7 @@ def test_derivative_of_constant():
 # ──────────────────────────────
 
 def test_integral_of_constant():
-    """∫ c dx = c·x"""
+    """∫ c dx = c*x"""
     from backend.symatics.symatics_rulebook import _canonical, rewrite_integral
     expr = {"op": "const", "args": ["5"]}
     integ = rewrite_integral(expr, "x")
@@ -390,7 +390,7 @@ def test_integral_of_constant():
 
 
 def test_integral_of_variable():
-    """∫ x dx = x²/2"""
+    """∫ x dx = x2/2"""
     from backend.symatics.symatics_rulebook import _canonical, rewrite_integral
     expr = {"op": "var", "args": ["x"]}
     integ = rewrite_integral(expr, "x")
@@ -437,7 +437,7 @@ def test_check_all_laws_integration_power_meta():
     assert laws["integration_power"] is True
 
 def test_derivative_sum_rule():
-    """Δ(x + x) = Δx + Δx = 1 + 1 → 2"""
+    """Δ(x + x) = Δx + Δx = 1 + 1 -> 2"""
     from backend.symatics.symatics_rulebook import op_derivative, _canonical
     expr = {"op": "+", "args": [
         {"op": "var", "args": ["x"]},
@@ -453,7 +453,7 @@ def test_derivative_sum_rule():
 
 
 def test_integral_sum_rule():
-    """∫(x + 5) dx = ∫x dx + ∫5 dx = x²/2 + 5x"""
+    """∫(x + 5) dx = ∫x dx + ∫5 dx = x2/2 + 5x"""
     from backend.symatics.symatics_rulebook import rewrite_integral, _canonical
     expr = {"op": "+", "args": [
         {"op": "var", "args": ["x"]},
@@ -500,7 +500,7 @@ def test_derivative_chain_rule_simple():
 
 
 def test_derivative_chain_rule_nested():
-    """Δ(sin(x²)) = cos(x²)·2x."""
+    """Δ(sin(x2)) = cos(x2)*2x."""
     from backend.symatics.symatics_rulebook import op_derivative, _canonical
     expr = {"op": "sin", "args": [{"op": "^", "args": [{"op": "var", "args": ["x"]}, "2"]}]}
     deriv = op_derivative(expr, "x", {})
@@ -518,7 +518,7 @@ def test_integral_substitution_simple():
 
 
 def test_integral_substitution_chain():
-    """∫ cos(x²)·2x dx = sin(x²)."""
+    """∫ cos(x2)*2x dx = sin(x2)."""
     from backend.symatics.symatics_rulebook import rewrite_integral, _canonical
     expr = {"op": "*", "args": [
         {"op": "cos", "args": [{"op": "^", "args": [{"op": "var", "args": ["x"]}, "2"]}]},

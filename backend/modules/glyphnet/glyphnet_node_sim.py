@@ -45,7 +45,7 @@ class GlyphNetNode:
         Broadcast a packet to all connected peers (including self-log).
         """
         self.packet_log.append(packet)
-        logger.info(f"[GlyphNet:{self.node_id}] Broadcasting packet to {len(self.connected_nodes)} peers…")
+        logger.info(f"[GlyphNet:{self.node_id}] Broadcasting packet to {len(self.connected_nodes)} peers...")
 
         tasks = [node.receive_packet(packet) for node in self.connected_nodes]
         if tasks:
@@ -59,14 +59,14 @@ class GlyphNetNode:
 
     async def replay_packets(self, delay: float = 0.5, limit: Optional[int] = None) -> None:
         """
-        Step-through replay of this node’s packet log.
+        Step-through replay of this node's packet log.
         Replays packets in order with optional delay (seconds) between them.
         """
         packets = self.packet_log if limit is None else self.packet_log[:limit]
         logger.info(f"[GlyphNet:{self.node_id}] Replaying {len(packets)} packets with delay={delay}s")
         for idx, packet in enumerate(packets, 1):
             glyph_id = packet.get("id") or packet.get("glyph") or "?"
-            logger.debug(f"[GlyphNet:{self.node_id}] Replay {idx}/{len(packets)} → {glyph_id}")
+            logger.debug(f"[GlyphNet:{self.node_id}] Replay {idx}/{len(packets)} -> {glyph_id}")
             try:
                 await execute_gip_packet(packet)
             except Exception as e:

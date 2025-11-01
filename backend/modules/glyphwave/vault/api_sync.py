@@ -4,7 +4,7 @@ from backend.modules.glyphwave.qkd.qkd_manager import QKDManager
 
 class GlyphVaultAPI:
     """
-    🔹 SRK-13 D7 — GlyphVault API Harmonization Layer
+    🔹 SRK-13 D7 - GlyphVault API Harmonization Layer
     Integrates VaultManager with QKD metadata synchronization.
     """
 

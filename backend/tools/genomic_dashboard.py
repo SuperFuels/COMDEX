@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🌐 Genomic Dashboard & Evolutionary Telemetry — Phase R15
+# 🌐 Genomic Dashboard & Evolutionary Telemetry - Phase R15
 # ================================================================
 # Aggregates metrics from all symbolic-biology layers (DNA, RNA,
 # Ribosome, Replay, Stability Monitor) into a unified telemetry view.
@@ -82,7 +82,7 @@ def aggregate_genomic_metrics():
     Theta.push_sample(rho=avg_coherence, entropy=avg_entropy, sqi=avg_sqi, delta=drift)
     Theta.event("genomic_dashboard_update", harmony=harmony, ethics_ratio=ethics_ratio)
 
-    logger.info(f"[R15] Updated Genomic Dashboard → {OUT}")
+    logger.info(f"[R15] Updated Genomic Dashboard -> {OUT}")
     print(json.dumps(dashboard, indent=2))
     return dashboard
 

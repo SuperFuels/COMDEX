@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 17 — Aion Symbolic Memory (ASM) & Glyph Stream Integration
+Tessaris Phase 17 - Aion Symbolic Memory (ASM) & Glyph Stream Integration
 
 Builds the cognitive memory system for Tessaris:
  - Ingests glyph emissions from Quantum Cognitive Layer (QCL)
@@ -88,14 +88,14 @@ def predict_next(seq):
 
 def detect_pattern(seq):
     """Detect basic symbolic transition motifs."""
-    s = "→".join(seq[-3:])
-    if "⊕→⟲→⊕" in s:
+    s = "->".join(seq[-3:])
+    if "⊕->⟲->⊕" in s:
         return "harmonic loop"
-    elif "↔→∇" in s:
+    elif "↔->∇" in s:
         return "entanglement collapse"
-    elif "⟲→⊕" in s:
+    elif "⟲->⊕" in s:
         return "resonance stabilization"
-    elif "μ→⊕" in s:
+    elif "μ->⊕" in s:
         return "noise recovery"
     return None
 
@@ -107,7 +107,7 @@ def consolidate_memory(pattern, glyphs, avg_phi, avg_drift):
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "pattern": pattern,
-        "sequence": "→".join(glyphs[-5:]),
+        "sequence": "->".join(glyphs[-5:]),
         "entropy": entropy,
         "prediction": pred,
         "avg_Φ": avg_phi,
@@ -121,13 +121,13 @@ def consolidate_memory(pattern, glyphs, avg_phi, avg_drift):
 
 
 def run_symbolic_memory():
-    print("🧩 Starting Tessaris Aion Symbolic Memory (ASM)…")
+    print("🧩 Starting Tessaris Aion Symbolic Memory (ASM)...")
     glyph_window = deque(maxlen=WINDOW)
 
     while True:
         latest = load_latest_glyph()
         if not latest:
-            print("⚠️ Waiting for QCL cognitive input…")
+            print("⚠️ Waiting for QCL cognitive input...")
             time.sleep(SLEEP_INTERVAL)
             continue
 
@@ -143,7 +143,7 @@ def run_symbolic_memory():
 
         entropy = symbolic_entropy(list(glyph_window))
         pred = predict_next(list(glyph_window))
-        print(f"🧠 seq={'→'.join(glyph_window)} | entropy={entropy:.3f} | pred={pred}")
+        print(f"🧠 seq={'->'.join(glyph_window)} | entropy={entropy:.3f} | pred={pred}")
         time.sleep(SLEEP_INTERVAL)
 
 

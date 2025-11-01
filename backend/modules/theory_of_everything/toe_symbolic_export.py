@@ -1,7 +1,7 @@
 # backend/modules/theory_of_everything/toe_symbolic_export.py
 """
 Symbolic TOE Functional Export
-Builds a readable ℒ_total from v1.1 constants.
+Builds a readable L_total from v1.1 constants.
 """
 
 from pathlib import Path
@@ -19,14 +19,14 @@ def export_symbolic_lagrangian():
     α = constants["α_eff"]
 
     expression = f"""
-    ℒ_total = {ħ:.3e} * (|∇ψ|²)
+    L_total = {ħ:.3e} * (|∇ψ|2)
              + {G:.3e} * (R)
              - {Λ:.3e} * (g)
-             + {α:.3f} * (|ψ|² κ)
+             + {α:.3f} * (|ψ|2 κ)
     """
-    out_path = Path("backend/modules/theory_of_everything/ℒ_total_symbolic.txt")
+    out_path = Path("backend/modules/theory_of_everything/L_total_symbolic.txt")
     out_path.write_text(expression.strip())
-    print(f"✅ Exported symbolic ℒ_total to {out_path.resolve()}")
+    print(f"✅ Exported symbolic L_total to {out_path.resolve()}")
 
 if __name__ == "__main__":
     export_symbolic_lagrangian()

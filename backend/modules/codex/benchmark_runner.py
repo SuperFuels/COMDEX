@@ -83,12 +83,12 @@ def benchmark_lean_containers() -> List[Dict]:
         try:
             container = load_container_from_file(file)
             if not isinstance(container, dict):
-                print(f"⚠️ Skipping {file.name} — not a valid container dict (got {type(container)})")
+                print(f"⚠️ Skipping {file.name} - not a valid container dict (got {type(container)})")
                 continue
             for coord, cube in container.get("glyphs", {}).items():
                 glyph = cube.get("value")
                 if glyph:
-                    print(f"🧪 Benchmarking glyph from {file.name} at {coord} → {glyph}")
+                    print(f"🧪 Benchmarking glyph from {file.name} at {coord} -> {glyph}")
                     res = benchmark_execution(glyph, context={"coord": coord, "container": file.name})
                     res["container"] = file.name
                     res["coord"] = coord
@@ -110,7 +110,7 @@ def benchmark_lean_containers() -> List[Dict]:
 
 if __name__ == "__main__":
     print("🔬 Running benchmark on sample symbolic glyphs...")
-    sample_glyphs = ["A ⊕ B", "A → B", "[A:0 ↔ 1] → D", "(A ⟲ B) ⧖ C"]
+    sample_glyphs = ["A ⊕ B", "A -> B", "[A:0 ↔ 1] -> D", "(A ⟲ B) ⧖ C"]
     sample_results = run_batch_benchmarks(sample_glyphs)
     print(json.dumps(sample_results, indent=2))
 

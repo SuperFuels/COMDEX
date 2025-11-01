@@ -86,7 +86,7 @@ def check_gate_lock(data):
     for trait, min_value in required_traits.items():
         current = current_traits.get(trait, 0)
         if current < min_value:
-            raise PermissionError(f"[🔒] Access denied: Trait '{trait}' is {current}, required ≥ {min_value}")
+            raise PermissionError(f"[🔒] Access denied: Trait '{trait}' is {current}, required >= {min_value}")
     return True
 
 def load_dimension(container_id):

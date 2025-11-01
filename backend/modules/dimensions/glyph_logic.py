@@ -10,9 +10,9 @@ from backend.modules.hexcore.memory_engine import MEMORY
 def _apply_proof_ops(glyph: str):
     """
     Tiny shim for proof glyph operators:
-      • ⧖ (collapse): mark constraint resolved / branch pruned.
-      • ↔ (entangle): unify/equate expressions (best-effort parse "A ↔ B").
-      • 🧭 (guide): bias next-step lemma selection (parse "🧭 lemma_name" or "🧭: hint").
+      * ⧖ (collapse): mark constraint resolved / branch pruned.
+      * ↔ (entangle): unify/equate expressions (best-effort parse "A ↔ B").
+      * 🧭 (guide): bias next-step lemma selection (parse "🧭 lemma_name" or "🧭: hint").
     Returns either None (no proof operator found) or a dict with a human-readable result and score delta.
     """
     result = None
@@ -77,23 +77,23 @@ def _apply_proof_ops(glyph: str):
 
 def process_glyph_logic(glyph, avatar=None):
     """
-    Evaluate and act on the glyph logic at the avatar’s current location.
+    Evaluate and act on the glyph logic at the avatar's current location.
     """
     if not isinstance(glyph, str):
-        return "⚪ Non-symbolic data — no action taken."
+        return "⚪ Non-symbolic data - no action taken."
 
-    # 0) Proof operator shim (works even if glyph isn't an ⟦…⟧ form)
+    # 0) Proof operator shim (works even if glyph isn't an ⟦...⟧ form)
     proof_effect = _apply_proof_ops(glyph)
     if proof_effect:
         # Log a condensed trace line as a convenience return
         return f"{proof_effect['result']} (Δscore={proof_effect['score']:+.2f})"
 
-    # 1) Structured action glyphs: ⟦ … → ACTION: … ⟧
+    # 1) Structured action glyphs: ⟦ ... -> ACTION: ... ⟧
     if glyph.startswith("⟦"):
         try:
             action = None
-            if "→" in glyph:
-                _, action = glyph.split("→", 1)
+            if "->" in glyph:
+                _, action = glyph.split("->", 1)
                 action = action.strip()
             else:
                 return "⚪ No action marker found."
@@ -141,7 +141,7 @@ def process_glyph_logic(glyph, avatar=None):
         except Exception as e:
             return f"⚠️ Error processing glyph: {str(e)}"
     else:
-        return "⚪ Non-symbolic data — no action taken."
+        return "⚪ Non-symbolic data - no action taken."
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -18,7 +18,7 @@ def to_qfc_payload(*args, **kwargs) -> dict:
         glyph = kwargs.get("glyph", {})
 
     if not isinstance(glyph, dict):
-        logger.warning(f"[qfc_payload_utils] Expected dict, got {type(glyph)} — using empty payload.")
+        logger.warning(f"[qfc_payload_utils] Expected dict, got {type(glyph)} - using empty payload.")
         glyph = {}
 
     return {

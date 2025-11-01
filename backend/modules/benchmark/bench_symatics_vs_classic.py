@@ -3,11 +3,11 @@
 Benchmark: Symatics ⋈ rewriter vs Classical Boolean ∧/∨
 ──────────────────────────────────────────────────────────────
 Measures:
-  • normalize() speed on ⋈ expressions
-  • equivalence checks (symatics_equiv vs structural eqv on ∧/∨)
-  • expression size reduction (nodes before vs after normalize)
-  • scaling behavior for larger expressions (10, 50, 100, 200, …)
-  • stability profile: % converged, avg time, avg size reduction
+  * normalize() speed on ⋈ expressions
+  * equivalence checks (symatics_equiv vs structural eqv on ∧/∨)
+  * expression size reduction (nodes before vs after normalize)
+  * scaling behavior for larger expressions (10, 50, 100, 200, ...)
+  * stability profile: % converged, avg time, avg size reduction
 """
 
 import math
@@ -163,10 +163,10 @@ def main():
     e_bool = chain_bool_expr(3)
 
     t0 = time.perf_counter(); R.normalize(e_sym); t1 = time.perf_counter()
-    print(f"symatics.normalize {1/(t1-t0):.1f} ops/sec (avg {(t1-t0)*1e6:.1f} µs)")
+    print(f"symatics.normalize {1/(t1-t0):.1f} ops/sec (avg {(t1-t0)*1e6:.1f} μs)")
 
     t0 = time.perf_counter(); normalize_bool(e_bool); t1 = time.perf_counter()
-    print(f"bool.normalize     {1/(t1-t0):.1f} ops/sec (avg {(t1-t0)*1e6:.1f} µs)")
+    print(f"bool.normalize     {1/(t1-t0):.1f} ops/sec (avg {(t1-t0)*1e6:.1f} μs)")
 
     # Scaling stability runs (extended stress)
     print("\n--- Scaling stability benchmarks ---")
@@ -174,8 +174,8 @@ def main():
         profile = stability_profile(n, trials=20, step_factor=20)
         print(
             f"n={n:4d} | conv={profile['conv_rate']:.1f}% "
-            f"| avg={profile['avg_time']:.1f} µs "
-            f"| med={profile['med_time']:.1f} µs "
+            f"| avg={profile['avg_time']:.1f} μs "
+            f"| med={profile['med_time']:.1f} μs "
             f"| avg Δsize={profile['avg_reduction']:.1f}"
         )
 

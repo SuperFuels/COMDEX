@@ -6,9 +6,9 @@ from cryptography.hazmat.primitives.asymmetric import rsa, ec
 
 logger = logging.getLogger(__name__)
 
-# In-memory identity key store (identity → PEM public key)
+# In-memory identity key store (identity -> PEM public key)
 _identity_keys: Dict[str, str] = {}
-_identity_tokens: Dict[str, str] = {}  # Identity → token mapping for validation
+_identity_tokens: Dict[str, str] = {}  # Identity -> token mapping for validation
 _lock = threading.Lock()
 
 

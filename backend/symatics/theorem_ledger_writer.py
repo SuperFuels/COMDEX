@@ -27,7 +27,7 @@ def _rotate_ledger_if_needed(path: str):
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         rotated = f"{path}.{timestamp}.bak"
         os.rename(path, rotated)
-        print(f"[Ledger] Rotated old ledger → {rotated}")
+        print(f"[Ledger] Rotated old ledger -> {rotated}")
 
 
 def append_theorem_entry(entry: Dict[str, Any]):
@@ -54,7 +54,7 @@ def append_theorem_entry(entry: Dict[str, Any]):
         with open(LEDGER_PATH, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
-        print(f"[Ledger] ✅ Recorded theorem entry for {entry.get('operator', '?')} → {entry.get('summary')}")
+        print(f"[Ledger] ✅ Recorded theorem entry for {entry.get('operator', '?')} -> {entry.get('summary')}")
     except Exception as e:
         print(f"[⚠️ Ledger] Failed to write theorem entry: {e}")
 

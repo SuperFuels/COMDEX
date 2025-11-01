@@ -39,7 +39,7 @@ def test_structuredglyph_parsing_action_and_raw(monkeypatch):
         lambda node: {"op": "logic:⊕", "args": ["A", "B"]},
     )
 
-    sg = gp.StructuredGlyph("⟦ Logic | Test : A → ⊕(A,B) ⟧")
+    sg = gp.StructuredGlyph("⟦ Logic | Test : A -> ⊕(A,B) ⟧")
     parsed = sg.to_dict()
 
     assert "action_raw" in parsed
@@ -82,6 +82,6 @@ def test_parse_codexlang_string_roundtrip(monkeypatch):
         "backend.modules.glyphos.glyph_parser.StructuredGlyph._parse",
         lambda self: {"type": "logic", "action": {"op": "logic:⊕"}, "action_raw": "⊕(X,Y)"},
     )
-    out = gp.parse_codexlang_string("⟦ Logic | Test : A → ⊕(X,Y) ⟧")
+    out = gp.parse_codexlang_string("⟦ Logic | Test : A -> ⊕(X,Y) ⟧")
     assert "action" in out
     assert "action_raw" in out

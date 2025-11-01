@@ -39,7 +39,7 @@ class TestCodexLangRewriter(unittest.TestCase):
             "right": {"type": "predicate", "name": "R", "arg": "x"}
         }
         output = CodexLangRewriter.ast_to_codexlang(ast)
-        self.assertEqual(output, "P(x) ∧ Q(x) → R(x)")
+        self.assertEqual(output, "P(x) ∧ Q(x) -> R(x)")
 
     def test_suggest_double_negation(self):
         ast = {
@@ -64,7 +64,7 @@ class TestCodexLangRewriter(unittest.TestCase):
         }
         suggestions = suggest_rewrite_candidates(ast)
         self.assertEqual(len(suggestions), 1)
-        self.assertEqual(suggestions[0]["reason"], "Identity: P ∧ True → P")
+        self.assertEqual(suggestions[0]["reason"], "Identity: P ∧ True -> P")
         self.assertIn("rewrite", suggestions[0])
 
 

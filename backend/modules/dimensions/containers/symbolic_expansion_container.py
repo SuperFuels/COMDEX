@@ -36,10 +36,10 @@ class SymbolicExpansionContainer(UCSBaseContainer):
     - Wraps a Hoberman Sphere for inflation
     - Compresses inflated logic trees into symbolic runtime format
     - Inherits UCSBaseContainer features:
-        • Micro-grid (for distributed symbolic storage)
-        • Time dilation control
-        • GHX visualization hooks
-        • SQI event emitters
+        * Micro-grid (for distributed symbolic storage)
+        * Time dilation control
+        * GHX visualization hooks
+        * SQI event emitters
     """
 
     def __init__(self, container_id: Optional[str] = None, runtime: Optional[Any] = None):

@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-AION Heartbeat Orchestrator — v2.3
+AION Heartbeat Orchestrator - v2.3
 ────────────────────────────────────────────
 Supervises and sustains the AION Fabric Core:
 Receiver ⇄ Stream ⇄ Feedback ⇄ Dashboard ⇄ Simulator
 
 Features:
- • Continuous health monitoring + auto-restart
- • Rotating logs and JSON state file
- • Restart cooldowns and safe counter updates
- • Optional quiet mode (AION_QUIET_MODE=1)
- • Stage-2 mirror redundancy (prototype)
+ * Continuous health monitoring + auto-restart
+ * Rotating logs and JSON state file
+ * Restart cooldowns and safe counter updates
+ * Optional quiet mode (AION_QUIET_MODE=1)
+ * Stage-2 mirror redundancy (prototype)
 """
 
 import subprocess
@@ -83,7 +83,7 @@ class HeartbeatSupervisor:
     def start_service(self, name: str, cmd: str):
         """Start a single service."""
         try:
-            logger.info(f"[AIONHeartbeat] ▶ Starting {name} …")
+            logger.info(f"[AIONHeartbeat] ▶ Starting {name} ...")
             proc = subprocess.Popen(
                 [sys.executable, cmd],
                 stdout=open(os.devnull, "w"),
@@ -107,7 +107,7 @@ class HeartbeatSupervisor:
 
         # If process exited
         if proc.poll() is not None:
-            logger.warning(f"[AIONHeartbeat] ⚠️ {name} terminated. Restarting …")
+            logger.warning(f"[AIONHeartbeat] ⚠️ {name} terminated. Restarting ...")
             self.restart_service(name)
             return
 
@@ -128,7 +128,7 @@ class HeartbeatSupervisor:
         """Restart a service after failure, respecting cooldown."""
         now = time.time()
         if now - self.last_restart.get(name, 0) < RESTART_COOLDOWN:
-            logger.info(f"[AIONHeartbeat] ⏳ Cooldown active — skipping rapid restart of {name}")
+            logger.info(f"[AIONHeartbeat] ⏳ Cooldown active - skipping rapid restart of {name}")
             return
         self.last_restart[name] = now
 
@@ -141,7 +141,7 @@ class HeartbeatSupervisor:
                 proc.kill()
 
         time.sleep(RESTART_DELAY)
-        logger.info(f"[AIONHeartbeat] 🔁 Restarting {name} …")
+        logger.info(f"[AIONHeartbeat] 🔁 Restarting {name} ...")
         self.start_service(name, SERVICES[name])
         self.state.setdefault(name, {"restarts": 0})
         self.state[name]["restarts"] += 1
@@ -165,7 +165,7 @@ class HeartbeatSupervisor:
 
     def stop_all(self):
         """Graceful shutdown."""
-        logger.info("[AIONHeartbeat] ⏹️ Stopping all services …")
+        logger.info("[AIONHeartbeat] ⏹️ Stopping all services ...")
         self.running = False
         for proc in self.processes.values():
             if proc.poll() is None:
@@ -224,7 +224,7 @@ def run_heartbeat():
     signal.signal(signal.SIGINT, shutdown_handler)
     signal.signal(signal.SIGTERM, shutdown_handler)
 
-    logger.info("💓 AION Heartbeat running — supervising all core processes.")
+    logger.info("💓 AION Heartbeat running - supervising all core processes.")
     while True:
         time.sleep(30)
 

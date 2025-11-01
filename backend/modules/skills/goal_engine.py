@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-🎯 GoalEngine — Phase 55 Resonant Convergence Edition (Unified)
+🎯 GoalEngine - Phase 55 Resonant Convergence Edition (Unified)
 ──────────────────────────────────────────────────────────────
 Integrates goals, awareness traces, and milestones with:
-  • Resonant Memory Cache (RMC) coupling
-  • GSI-weighted prioritization
-  • Tessaris + Photon Language triggers
-  • Auto-healing persistence + entropy decay
-  • Knowledge-Graph + WebSocket broadcasting
-  • Shared persistence across StrategyPlanner + GoalTaskManager
+  * Resonant Memory Cache (RMC) coupling
+  * GSI-weighted prioritization
+  * Tessaris + Photon Language triggers
+  * Auto-healing persistence + entropy decay
+  * Knowledge-Graph + WebSocket broadcasting
+  * Shared persistence across StrategyPlanner + GoalTaskManager
 """
 
 import json, requests, asyncio, logging
@@ -109,12 +109,12 @@ class GoalEngine:
     def save_goals(self):
         try:
             if not self.goals:
-                log.warning(f"⚠️ Attempting to save empty goal list to {self.goal_file} — skipping overwrite.")
+                log.warning(f"⚠️ Attempting to save empty goal list to {self.goal_file} - skipping overwrite.")
                 return
             self.goal_file.parent.mkdir(parents=True, exist_ok=True)
             with open(self.goal_file, "w") as f:
                 json.dump({"goals": self.goals, "completed": self.completed}, f, indent=2)
-            log.info(f"💾 Saved {len(self.goals)} goals → {self.goal_file}")
+            log.info(f"💾 Saved {len(self.goals)} goals -> {self.goal_file}")
         except Exception as e:
             log.warning(f"⚠️ Failed to save goals: {e}")
 
@@ -156,7 +156,7 @@ class GoalEngine:
                 entry = {"goal": goal_name, **meta, "timestamp": datetime.now().isoformat()}
                 self.log.append(entry)
                 self.save_log()
-                log.info(f"✅ Goal complete → {goal_name}")
+                log.info(f"✅ Goal complete -> {goal_name}")
                 return g
         log.warning(f"⚠️ Goal not found or already complete: {goal_name}")
 

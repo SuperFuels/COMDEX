@@ -4,7 +4,7 @@ from scipy.fftpack import fft2, fftshift
 from scipy.signal import find_peaks
 from scipy.stats import linregress
 
-print("🎯 Initiating G3 — Predictive Mass–Spin Spectrum Reconstruction...")
+print("🎯 Initiating G3 - Predictive Mass-Spin Spectrum Reconstruction...")
 
 # ================================================================
 # Simulation parameters
@@ -39,7 +39,7 @@ def spectral_entropy(field):
     return -np.sum(p * np.log(p)) / np.log(len(p))
 
 # ================================================================
-# Time evolution (simulate curvature–information coupling)
+# Time evolution (simulate curvature-information coupling)
 # ================================================================
 for t in range(steps):
     lap_kappa = laplacian(kappa)
@@ -72,7 +72,7 @@ mass_modes = np.array(mass_modes)
 spin_modes = np.array(spin_modes)
 
 if len(mass_modes) == 0:
-    print("⚠️ No stable modes detected — curvature oscillations dissipated.")
+    print("⚠️ No stable modes detected - curvature oscillations dissipated.")
 else:
     norm_mass = (mass_modes - np.min(mass_modes)) / (np.ptp(mass_modes) + 1e-9)
 
@@ -84,7 +84,7 @@ else:
     # Effective masses
     m_eff = np.sqrt(np.abs(intercept))
     print(f"🧮 Effective mass scale: m_eff ≈ {m_eff:.4e} (normalized units)")
-    print(f"Dispersion fit R² = {r**2:.4f}")
+    print(f"Dispersion fit R2 = {r**2:.4f}")
 
     # Comparative fitting
     m_e, m_mu, m_pi = 0.511, 105.7, 139.6  # MeV
@@ -102,7 +102,7 @@ else:
 # Plot outputs
 # ================================================================
 plt.figure(figsize=(10, 6))
-plt.title("G3 — Emergent Mass Spectrum (log scale)")
+plt.title("G3 - Emergent Mass Spectrum (log scale)")
 plt.plot(np.sort(mass_modes), np.log10(1 + np.arange(len(mass_modes))), "goldenrod")
 plt.xlabel("Mode index (k)")
 plt.ylabel("log Amplitude")
@@ -111,16 +111,16 @@ plt.savefig("PAEV_TestG3_MassSpectrum.png", dpi=200)
 plt.close()
 
 plt.figure(figsize=(8, 6))
-plt.title("G3 — Dispersion Curve: ω² vs k²")
+plt.title("G3 - Dispersion Curve: ω2 vs k2")
 plt.plot(k_vals**2, omega_vals**2, color="purple", lw=2)
-plt.xlabel("k²")
-plt.ylabel("ω²")
+plt.xlabel("k2")
+plt.ylabel("ω2")
 plt.savefig("PAEV_TestG3_DispersionCurve.png", dpi=200)
 plt.close()
 
 plt.figure(figsize=(8, 6))
 plt.scatter(norm_mass, spin_modes, c=spin_modes, cmap="plasma", s=40, alpha=0.7)
-plt.title("G3 — Spin–Mass Distribution")
+plt.title("G3 - Spin-Mass Distribution")
 plt.xlabel("Normalized mass mode")
 plt.ylabel("Spin harmonic (approx.)")
 plt.savefig("PAEV_TestG3_SpinMassMap.png", dpi=200)
@@ -131,4 +131,4 @@ print(" - PAEV_TestG3_MassSpectrum.png")
 print(" - PAEV_TestG3_DispersionCurve.png")
 print(" - PAEV_TestG3_SpinMassMap.png")
 print(" - PAEV_TestG3_ComparativeRatios.txt")
-print("\n=== Test G3 — Predictive Mass–Spin Spectrum Complete ===")
+print("\n=== Test G3 - Predictive Mass-Spin Spectrum Complete ===")

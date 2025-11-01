@@ -82,7 +82,7 @@ def auto_mutate_container(container: dict, autosave: bool = False) -> dict:
                 json.dump(mutated, f, indent=2)
             print(f"📦 Saved auto-mutated container to: {out_path}")
     else:
-        print("ℹ️ No rewrites were applicable.")
+        print("i️ No rewrites were applicable.")
 
     return mutated
 

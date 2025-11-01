@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timezone
 
 # =====================================================
-# P10o — 3D Global Fusion Surface (R Landscape)
+# P10o - 3D Global Fusion Surface (R Landscape)
 # =====================================================
 
 np.random.seed(77)
@@ -75,10 +75,10 @@ fig = plt.figure(figsize=(10, 6))
 ax = fig.add_subplot(111, projection='3d')
 
 surf = ax.plot_surface(dphi1, dphi2, Rvals, cmap='viridis', linewidth=0, antialiased=True, alpha=0.95)
-ax.set_xlabel("Δφ₁ (rad)")
-ax.set_ylabel("Δφ₂ (rad)")
+ax.set_xlabel("Δφ1 (rad)")
+ax.set_ylabel("Δφ2 (rad)")
 ax.set_zlabel("R (coherence)")
-ax.set_title("P10o — 3D Global Fusion Surface (R vs Phase Dispersion)")
+ax.set_title("P10o - 3D Global Fusion Surface (R vs Phase Dispersion)")
 
 # Add contours + equilibrium marker
 ax.contour(dphi1, dphi2, Rvals, zdir='z', offset=Rvals.min(), cmap='viridis', alpha=0.6)
@@ -106,6 +106,6 @@ results = {
 with open("backend/modules/knowledge/P10o_global_fusion_surface.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== P10o — 3D Global Fusion Surface ===")
-print(f"Equilibrium: Δφ₁={phi_eq[0]:.3f}, Δφ₂={phi_eq[1]:.3f}, R_eq={R_eq:.4f}")
-print("✅ Results saved → backend/modules/knowledge/P10o_global_fusion_surface.json")
+print("=== P10o - 3D Global Fusion Surface ===")
+print(f"Equilibrium: Δφ1={phi_eq[0]:.3f}, Δφ2={phi_eq[1]:.3f}, R_eq={R_eq:.4f}")
+print("✅ Results saved -> backend/modules/knowledge/P10o_global_fusion_surface.json")

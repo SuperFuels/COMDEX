@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v2.1 — Proof Reintegration Test Harness
+# Tessaris Symatics v2.1 - Proof Reintegration Test Harness
 # Verifies that all symbolic theorems/invariants evaluate True.
 # Author: Tessaris Core Systems / Codex Intelligence Group
 # ──────────────────────────────────────────────────────────────

@@ -68,13 +68,13 @@ def build_summary(entries: List[Dict[str, Any]]) -> str:
         lines.append(
             f"| `{op}` | {count} | {passes} | {fails} | "
             f"{latest.get('summary', '')} | "
-            f"{', '.join(latest.get('violations', [])) if latest.get('violations') else '—'} |"
+            f"{', '.join(latest.get('violations', [])) if latest.get('violations') else '-'} |"
         )
 
     summary_table = "\n".join(lines)
     footer = (
         "\n\n---\n"
-        "_End of report — generated automatically by Tessaris Symatics._\n"
+        "_End of report - generated automatically by Tessaris Symatics._\n"
     )
 
     return header + summary_table + footer
@@ -92,7 +92,7 @@ def write_summary():
     os.makedirs(os.path.dirname(SUMMARY_PATH), exist_ok=True)
     with open(SUMMARY_PATH, "w", encoding="utf-8") as f:
         f.write(md)
-    print(f"[TheoremSummary] Markdown summary written → {SUMMARY_PATH}")
+    print(f"[TheoremSummary] Markdown summary written -> {SUMMARY_PATH}")
 
 
 # ─────────────────────────────────────────────

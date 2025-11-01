@@ -70,7 +70,7 @@ def query_wordnet(term: str, context: Optional[str] = None, mode: str = "default
     Returns a list of dicts compatible with SymbolNet format:
 
       {
-        "label": str,            # human-friendly lemma (underscores → spaces)
+        "label": str,            # human-friendly lemma (underscores -> spaces)
         "source": "wordnet",
         "type": "synonym"|"hypernym",
         "description": str,      # synset definition

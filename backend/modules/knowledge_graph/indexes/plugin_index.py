@@ -25,7 +25,7 @@ PLUGIN_INDEX_ID = "plugin_index"
 
 # 📦 In-memory store
 _plugin_log: List[Dict[str, Any]] = []
-_loaded_plugins: Dict[str, Dict[str, Any]] = {}  # plugin_name → metadata
+_loaded_plugins: Dict[str, Dict[str, Any]] = {}  # plugin_name -> metadata
 
 # 🧠 Register with central index registry
 register_index(PLUGIN_INDEX_ID, _plugin_log)

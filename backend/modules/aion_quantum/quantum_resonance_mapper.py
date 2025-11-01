@@ -1,10 +1,10 @@
 """
 Tessaris Quantum Resonance Mapper (QRM)
-Phase 10 — 4-D Harmonic Field Topology Visualization
+Phase 10 - 4-D Harmonic Field Topology Visualization
 -----------------------------------------------------
 Reads cognitive_field_resonance.jsonl produced by Phase 9 (CFRL)
 and renders the evolving harmonic field surface:
-    (time × Φ × ν × ψ)
+    (time * Φ * ν * ψ)
 
 Author: Tessaris Symbolic Intelligence Lab, 2025
 """
@@ -50,13 +50,13 @@ def plot_field_surface(records):
     times = np.arange(len(records))
     phi_vals = [r.get("phi_state", 0.0) or 0.0 for r in records]
     stab = [r.get("stability", 1.0) or 1.0 for r in records]
-    psi2 = [r.get("photon_pattern", {}).get("Δψ₂", 0.0) or 0.0 for r in records]
+    psi2 = [r.get("photon_pattern", {}).get("Δψ2", 0.0) or 0.0 for r in records]
     centroid = [r.get("spectrum_centroid", 0.0) or 0.0 for r in records]
 
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     ax.plot3D(phi_vals, psi2, centroid, color="cyan")
     ax.set_xlabel("ΔΦ_coh")
-    ax.set_ylabel("Δψ₂ amplitude")
+    ax.set_ylabel("Δψ2 amplitude")
     ax.set_zlabel("ν centroid (Hz)")
     ax.set_title("Tessaris Quantum Resonance Topology")
 
@@ -71,7 +71,7 @@ def plot_field_surface(records):
 # 🚀 Live Mapper
 # ---------------------------------------------------------
 def run_resonance_mapper():
-    print("🌐 Starting Tessaris Quantum Resonance Mapper (QRM) …")
+    print("🌐 Starting Tessaris Quantum Resonance Mapper (QRM) ...")
     plt.ion()
     fig, ax = None, None
     stability_prev = None

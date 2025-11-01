@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-L1b — Corrected Boost Invariance (Tessaris)
+L1b - Corrected Boost Invariance (Tessaris)
 -------------------------------------------
 Improved Lorentz-like invariance test under c_eff-based boosts.
 Fixes ξ (correlation length) overflow from L1 by bounding exponential fits
 and normalizing the correlation decay region.
 
 Outputs:
-  • PAEV_L1b_boost_invariance_corrected.png
-  • backend/modules/knowledge/L1b_boost_invariance_corrected_summary.json
+  * PAEV_L1b_boost_invariance_corrected.png
+  * backend/modules/knowledge/L1b_boost_invariance_corrected_summary.json
 """
 
 import json, math, numpy as np, matplotlib.pyplot as plt
@@ -23,8 +23,8 @@ const = load_constants()
 ħ = const["ħ"]; G = const["G"]; Λ = const["Λ"]
 α = const["α"]; β = const["β"]; χ = const.get("χ", 1.0)
 
-print("=== L1b — Corrected Boost Invariance (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== L1b - Corrected Boost Invariance (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # ── Grid and parameters ─────────────────────────────────────────────
 N, steps = 512, 2000
@@ -102,7 +102,7 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13,5))
 
 ax1.plot(x, u_lab, label="|u(x,t_f)| lab")
 ax1.plot(x, u_boost, '--', label="|u'(x',t_f)| boost")
-ax1.set_title("L1b — Field Envelope (corrected)")
+ax1.set_title("L1b - Field Envelope (corrected)")
 ax1.set_xlabel("x or x'")
 ax1.set_ylabel("|u|")
 ax1.legend()
@@ -120,7 +120,7 @@ ax2.grid(alpha=0.3)
 plt.tight_layout()
 fig_path = "PAEV_L1b_boost_invariance_corrected.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # ── Summary JSON ───────────────────────────────────────────────────
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -141,7 +141,7 @@ summary = {
     },
     "files": {"plot": fig_path},
     "notes": [
-        "Correlation fit stabilized with monotonic window and bounded ξ≤1e4.",
+        "Correlation fit stabilized with monotonic window and bounded ξ<=1e4.",
         "Boost based on c_eff for Lorentz-like frame mapping.",
         "Target: p_boost≈p_lab, ξ_boost≈ξ_lab under Tessaris Unified Constants.",
         "Model-level test; no physical signaling implied."
@@ -150,18 +150,18 @@ summary = {
 
 out_path = Path("backend/modules/knowledge/L1b_boost_invariance_corrected_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # ── Discovery Section ───────────────────────────────────────────────
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Observation: p_lab≈{p_lab:.3f}, p_boost≈{p_boost:.3f}, Δp≈{dp:.3e}; "
+print(f"* Observation: p_lab≈{p_lab:.3f}, p_boost≈{p_boost:.3f}, Δp≈{dp:.3e}; "
       f"ξ_lab≈{xi_lab:.2f}, ξ_boost≈{xi_boost:.2f}, Δξ≈{xi_delta:.2f}.")
-print("• Interpretation: Corrected ξ fit removes overflow and confirms approximate "
+print("* Interpretation: Corrected ξ fit removes overflow and confirms approximate "
       "boost invariance within tolerance.")
-print("• Implication: Establishes Lorentz-like consistency in the Tessaris field "
+print("* Implication: Establishes Lorentz-like consistency in the Tessaris field "
       "for both transport and correlation metrics.")
-print("• Next step: L2 — scaling collapse test with multiple boosts.")
+print("* Next step: L2 - scaling collapse test with multiple boosts.")
 print("------------------------------------------------------------")
 
 # ── Verdict ─────────────────────────────────────────────────────────
@@ -170,10 +170,10 @@ ok_p = abs(dp) <= tol_p
 ok_xi = abs(xi_delta) <= tol_xi
 
 print("\n" + "="*66)
-print("🔎 L1b — Corrected Boost Invariance Verdict")
+print("🔎 L1b - Corrected Boost Invariance Verdict")
 print("="*66)
 if ok_p and ok_xi:
-    print(f"✅ Invariance upheld: |Δp|≤{tol_p:.3f}, |Δξ|≤{tol_xi:.3f}.")
+    print(f"✅ Invariance upheld: |Δp|<={tol_p:.3f}, |Δξ|<={tol_xi:.3f}.")
 else:
     print(f"⚠️ Partial/failed invariance: Δp={dp:.3f}, Δξ={xi_delta:.2f}.")
 print("="*66 + "\n")

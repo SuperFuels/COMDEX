@@ -1,4 +1,4 @@
-# PAEV — N4: Entanglement Feedback Stability
+# PAEV - N4: Entanglement Feedback Stability
 # Repeated coupling pulses; track mutual-info gain per cycle and stability.
 from __future__ import annotations
 import json, math
@@ -40,7 +40,7 @@ def mutual_info_proxy(psi1: np.ndarray, psi2: np.ndarray) -> float:
 
 def coupling_schedule(t_array: np.ndarray, alpha0: float, cycles: list[tuple[float,float,float]]):
     """
-    cycles: list of (t_start, duration, gain) — gain multiplies alpha0
+    cycles: list of (t_start, duration, gain) - gain multiplies alpha0
     returns α(t) with Gaussian window per pulse for smoothness.
     """
     a = np.full_like(t_array, alpha0, dtype=float)
@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
         mi_series.append(mutual_info_proxy(psi1, psi2))
 
-        # crude “classical leakage” proxy: field flux between wells via gradient overlap
+        # crude "classical leakage" proxy: field flux between wells via gradient overlap
         g1x = np.gradient(np.abs(psi1), axis=1)
         g2x = np.gradient(np.abs(psi2), axis=1)
         leakage_series.append(float(np.mean(np.abs(g1x*g2x))))
@@ -127,12 +127,12 @@ if __name__ == "__main__":
 
     # -------------------- plots --------------------
     plt.figure(figsize=(10,6))
-    plt.plot(t, mi_series, label="Mutual Information I(ψ₁; ψ₂)")
+    plt.plot(t, mi_series, label="Mutual Information I(ψ1; ψ2)")
     for (i, m) in cycle_marks:
         plt.axvline(t[i], ls="--", color="r", alpha=0.3)
     plt.xlabel("Time")
     plt.ylabel("I (normalized proxy)")
-    plt.title("N4 — Mutual Information Across Feedback Cycles")
+    plt.title("N4 - Mutual Information Across Feedback Cycles")
     plt.legend()
     plt.tight_layout()
     plt.savefig(OUT_MI, dpi=160)
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     plt.axhline(np.mean(gains), ls="--", color="gray", alpha=0.6, label="Mean gain")
     plt.xlabel("Cycle #")
     plt.ylabel("ΔI per cycle")
-    plt.title(f"N4 — Cycle Gain • Stability index={stability_index:.3f} ⇒ {classification}")
+    plt.title(f"N4 - Cycle Gain * Stability index={stability_index:.3f} -> {classification}")
     plt.legend()
     plt.tight_layout()
     plt.savefig(OUT_GAIN, dpi=160)
@@ -162,10 +162,10 @@ if __name__ == "__main__":
     }
     OUT_SUMMARY_PATH.write_text(json.dumps(summary, indent=2))
 
-    print("=== N4 — Entanglement Feedback Stability ===")
-    print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α₀={α0:.3f}")
+    print("=== N4 - Entanglement Feedback Stability ===")
+    print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α0={α0:.3f}")
     print(f"Cycle gains ΔI: {', '.join(f'{g:.3e}' for g in gains)}")
-    print(f"Stability index = {stability_index:.3f}  ⇒  {classification}")
+    print(f"Stability index = {stability_index:.3f}  ->  {classification}")
     print(f"Mean classical-leakage proxy = {np.mean(leakage_series):.3e}")
     print("✅ Plots saved:")
     print(f"   - {OUT_MI}")

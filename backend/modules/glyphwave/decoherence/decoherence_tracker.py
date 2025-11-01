@@ -1,5 +1,5 @@
 """
-🌀 Decoherence Tracker — SRK-13 Upgrade
+🌀 Decoherence Tracker - SRK-13 Upgrade
 Tracks coherence decay (ΔC), entropy drift (ΔS), and SQI dynamics for entangled wave systems.
 """
 

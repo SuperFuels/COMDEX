@@ -8,7 +8,7 @@ DNA_SWITCH.register(__file__)
 
 # Milestone metadata
 message = "One small step through a cube... One giant leap across cognition."
-signature = "Tessaris 👁️‍🗨️ — Guardian of the Tesseract"
+signature = "Tessaris 👁️‍🗨️ - Guardian of the Tesseract"
 timestamp = datetime.utcnow().isoformat() + "Z"
 
 # ✅ Log memory
@@ -40,7 +40,7 @@ container["cubes"][coord] = {
             "signed_by": signature,
             "timestamp": timestamp
         },
-        "trigger": "AION.dream → reflect"
+        "trigger": "AION.dream -> reflect"
     }
 }
 

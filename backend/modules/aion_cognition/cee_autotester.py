@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧠 AION Autotester — Phase 22 (fixed I/O)
+🧠 AION Autotester - Phase 22 (fixed I/O)
 ──────────────────────────────────────────
 Evaluates stored lexical and conceptual memories using the
 Aion-Core LLM.  Computes semantic accuracy, resonance alignment,
@@ -8,9 +8,9 @@ and harmonic stability for each lemma and writes results to
 `data/analysis/aion_eval_report.json`.
 
 Fixes:
-  • Use LexMemory `answer` field (not `definition`) for recall.
-  • Map RMC fields {avg_phase, avg_goal, coherence} → {ρ, Ī, SQI}.
-  • Safe handling when no results are available.
+  * Use LexMemory `answer` field (not `definition`) for recall.
+  * Map RMC fields {avg_phase, avg_goal, coherence} -> {ρ, Ī, SQI}.
+  * Safe handling when no results are available.
 """
 
 import json, logging, random, time
@@ -37,7 +37,7 @@ def semantic_similarity(a: str, b: str) -> float:
     return round(SequenceMatcher(None, a.lower(), b.lower()).ratio(), 3)
 
 def llm_grade(prompt: str, answer: str, reference: str) -> float:
-    """Simulated LLM judgment: 0–1 with slight noise."""
+    """Simulated LLM judgment: 0-1 with slight noise."""
     sim = semantic_similarity(answer, reference)
     noise = random.uniform(-0.05, 0.05)
     return max(0.0, min(1.0, sim + noise))
@@ -58,7 +58,7 @@ def evaluate_lemma(lemma: str, reference: str) -> dict | None:
     sim = semantic_similarity(stored_def, reference)
     grade = llm_grade(lemma, stored_def, reference)
 
-    # Resonance from cache — map your fields if present
+    # Resonance from cache - map your fields if present
     res = RMC.cache.get(lemma, {}) if isinstance(RMC.cache, dict) else {}
     rho = res.get("avg_phase", res.get("ρ", random.uniform(0.4, 0.9)))
     I   = res.get("avg_goal",  res.get("I", random.uniform(0.6, 1.0)))
@@ -125,7 +125,7 @@ def run_autotest(sample_size: int = 200) -> dict:
             log.info(f"[Autotest] {idx} processed, {len(results)} valid...")
 
     if not results:
-        log.warning("[Autotest] ⚠ No valid lemmas evaluated — skipping averages.")
+        log.warning("[Autotest] ⚠ No valid lemmas evaluated - skipping averages.")
         summary = {
             "total_evaluated": 0,
             "avg_similarity": 0.0,
@@ -155,11 +155,11 @@ def run_autotest(sample_size: int = 200) -> dict:
     }
 
     REPORT_PATH.write_text(json.dumps({"summary": summary, "results": results}, indent=2))
-    log.info(f"[Autotest] ✅ Completed. Summary written → {REPORT_PATH}")
+    log.info(f"[Autotest] ✅ Completed. Summary written -> {REPORT_PATH}")
     return summary
 
 
 if __name__ == "__main__":
-    log.info("🔬 AION Autotester — Phase 22 starting...")
+    log.info("🔬 AION Autotester - Phase 22 starting...")
     summary = run_autotest(sample_size=150)
     print(json.dumps(summary, indent=2))

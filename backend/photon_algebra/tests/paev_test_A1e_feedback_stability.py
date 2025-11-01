@@ -1,5 +1,5 @@
 """
-A1e — Nonlinear Feedback Stability Bubble Test
+A1e - Nonlinear Feedback Stability Bubble Test
 ----------------------------------------------
 Purpose:
     Explore stability and oscillatory regimes in coupled nonlinear fields with
@@ -11,10 +11,10 @@ Interpretation:
     and not physical gravitational quantities.
 
 Key improvements:
-    • Added small stochastic noise to avoid full damping
-    • Slightly stronger feedback gains (kL, k_alpha)
-    • Removes over-stabilizing term η
-    • Uses smoother EMA tracking for entropy change
+    * Added small stochastic noise to avoid full damping
+    * Slightly stronger feedback gains (kL, k_alpha)
+    * Removes over-stabilizing term η
+    * Uses smoother EMA tracking for entropy change
 """
 
 import json, numpy as np, matplotlib.pyplot as plt
@@ -160,10 +160,10 @@ if frac_dynamic > 0.05 and abs(entropy_tail) > 1e-4:
 else:
     classification = "⚠️ Stable equilibrium / frozen state"
 
-print("=== A1e — Nonlinear Feedback Stability Bubble Test ===")
+print("=== A1e - Nonlinear Feedback Stability Bubble Test ===")
 print(f"ħ={ħ:.1e}, G={G:.1e}, Λ0={Λ0:.1e}, α0={α0:.2f}")
 print(f"<NEC>={NEC_time_mean:.3e} | min(NEC)={NEC_time_min:.3e} | dynamic={frac_dynamic:.3f}")
-print(f"entropy_tail={entropy_tail:.3e} → {classification}")
+print(f"entropy_tail={entropy_tail:.3e} -> {classification}")
 
 # -------------------------
 # Plots
@@ -172,7 +172,7 @@ plt.figure(figsize=(9,4.5))
 plt.plot(NEC_trace, label="⟨proxy⟩ in bubble")
 plt.plot(NEC_min_trace, label="min(proxy) in bubble", alpha=0.7)
 plt.axhline(0, color='k', ls='--')
-plt.title("A1e — Feedback Stability Proxy vs Time")
+plt.title("A1e - Feedback Stability Proxy vs Time")
 plt.xlabel("time step"); plt.ylabel("proxy value")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_A1e_Proxy_TimeSeries.png", dpi=160)
@@ -180,7 +180,7 @@ plt.savefig("PAEV_A1e_Proxy_TimeSeries.png", dpi=160)
 plt.figure(figsize=(9,4.5))
 plt.plot(dSdt_trace)
 plt.axhline(0, color='k', ls='--')
-plt.title("A1e — Entropy Rate dS/dt (EMA)")
+plt.title("A1e - Entropy Rate dS/dt (EMA)")
 plt.xlabel("time step"); plt.ylabel("dS/dt")
 plt.tight_layout()
 plt.savefig("PAEV_A1e_EntropySlope.png", dpi=160)
@@ -188,7 +188,7 @@ plt.savefig("PAEV_A1e_EntropySlope.png", dpi=160)
 plt.figure(figsize=(6,4))
 plt.hist(NEC_min_trace, bins=60, color="slateblue", alpha=0.75)
 plt.axvline(0, color='k', lw=1, ls='--')
-plt.title("A1e — Distribution of Proxy(min) in Bubble")
+plt.title("A1e - Distribution of Proxy(min) in Bubble")
 plt.xlabel("proxy value"); plt.ylabel("frequency")
 plt.tight_layout()
 plt.savefig("PAEV_A1e_Proxy_Histogram.png", dpi=160)
@@ -196,12 +196,12 @@ plt.savefig("PAEV_A1e_Proxy_Histogram.png", dpi=160)
 plt.figure(figsize=(9,4.5))
 plt.plot(alpha_center_trace, label="α(center)")
 plt.plot(Lambda_center_trace, label="Λ(center)")
-plt.title("A1e — Control Parameters at Center")
+plt.title("A1e - Control Parameters at Center")
 plt.xlabel("time step"); plt.ylabel("value")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_A1e_ControlProfiles.png", dpi=160)
 
-print("✅ Plots saved → PAEV_A1e_*")
+print("✅ Plots saved -> PAEV_A1e_*")
 
 # -------------------------
 # Save JSON summary
@@ -220,4 +220,4 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 }
 Path("backend/modules/knowledge/A1e_feedback_stability.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/A1e_feedback_stability.json")
+print("📄 Summary saved -> backend/modules/knowledge/A1e_feedback_stability.json")

@@ -10,13 +10,13 @@ def _project(a: Signature, subspace: Union[str, "Context"] = "H", ctx: Optional[
     """
     π Projection to subspace (v0.1):
     - Supported: H, V, RHC, LHC
-    - If forcing change, apply gentle attenuation (×0.9)
+    - If forcing change, apply gentle attenuation (*0.9)
     - Metadata includes projection target + attenuation factor
 
     Defensive features:
-    • Automatically wraps primitive (float/int) inputs into a minimal Signature.
-    • Supports legacy form where the second arg is Context instead of subspace string.
-    • Gracefully handles missing attributes with sensible defaults.
+    * Automatically wraps primitive (float/int) inputs into a minimal Signature.
+    * Supports legacy form where the second arg is Context instead of subspace string.
+    * Gracefully handles missing attributes with sensible defaults.
     """
     # ────────────────────────────────────────────────────────────────
     # Defensive normalization

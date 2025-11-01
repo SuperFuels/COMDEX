@@ -37,7 +37,7 @@ def extract_glyphs_from_cube(cube_data: Dict, coord: Optional[str] = None) -> Li
 def reverse_load_all_cubes(dc_path: str, verbose: bool = False) -> Dict[str, List[Dict]]:
     """
     Load all .dc cubes from a given file and extract glyphs from each.
-    Returns mapping: coord_str → [glyphs]
+    Returns mapping: coord_str -> [glyphs]
     """
     if not os.path.exists(dc_path):
         raise FileNotFoundError(f".dc file not found at: {dc_path}")

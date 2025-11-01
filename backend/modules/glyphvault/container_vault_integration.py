@@ -49,7 +49,7 @@ def decrypt_glyph_vault(container_data: dict, avatar_state: dict = None) -> dict
             soul_law.validate_container(container_data)
             _vault_seen.add(cid)
         except Exception as e:
-            print(f"❌ SoulLaw: Container decryption blocked – {e}")
+            print(f"❌ SoulLaw: Container decryption blocked - {e}")
             return container_data
 
     # ✅ Avatar validation before decrypt
@@ -106,7 +106,7 @@ def encrypt_and_embed_glyph_vault(container_data: dict) -> dict:
     try:
         soul_law.validate_container(container_data)
     except Exception as e:
-        print(f"❌ SoulLaw: Vault encryption blocked – {e}")
+        print(f"❌ SoulLaw: Vault encryption blocked - {e}")
         return container_data
 
     # Encrypt glyph metadata

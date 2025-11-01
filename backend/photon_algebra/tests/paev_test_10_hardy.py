@@ -51,7 +51,7 @@ plt.bar(x - w/2, q_vals, w, label="Quantum")
 plt.bar(x + w/2, pa_vals, w, label="Photon Algebra", alpha=0.7)
 plt.xticks(x, labels)
 plt.ylabel("Probability")
-plt.title("Test 10 — Hardy’s Paradox (Nonlocality without inequalities)")
+plt.title("Test 10 - Hardy's Paradox (Nonlocality without inequalities)")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_Test10_Hardy.png")
@@ -66,4 +66,4 @@ hardy_p = pa_probs['A0B0']
 if hardy_p > 0:
     print(f"\n✅ Paradox survives in Photon Algebra: P(A0B0) = {hardy_p:.3f}")
 else:
-    print("\n❌ No paradox event — check symbolic normalization.")
+    print("\n❌ No paradox event - check symbolic normalization.")

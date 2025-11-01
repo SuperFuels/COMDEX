@@ -20,7 +20,7 @@ class AIONEngineDock:
     def __init__(self):
         self.plugin_id = "C1"
         self.name = "AION Engine Dock"
-        self.description = "Central strategy + emotion module (goal → logic driver)"
+        self.description = "Central strategy + emotion module (goal -> logic driver)"
         self.status = "inactive"
         self.internal_state: Dict[str, Any] = {
             "emotion": None,
@@ -31,7 +31,7 @@ class AIONEngineDock:
 
     def register_plugin(self):
         # Optional registration hook
-        print(f"✅ Plugin Registered: {self.plugin_id} — {self.name}")
+        print(f"✅ Plugin Registered: {self.plugin_id} - {self.name}")
 
     def trigger(self, context: Optional[Dict[str, Any]] = None) -> None:
         """
@@ -57,7 +57,7 @@ class AIONEngineDock:
         if emotion == "curious":
             logic += " ⊕ explore()"
         elif emotion == "focused":
-            logic += " → complete()"
+            logic += " -> complete()"
 
         print(f"🔁 Mutated logic under emotion '{emotion}': {logic}")
         return logic

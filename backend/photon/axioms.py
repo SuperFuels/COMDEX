@@ -12,26 +12,26 @@ GLYPHS = {
     "ADD": "⊕",
     "SUB": "⊖",
     "MUL": "⊗",
-    "DIV": "÷",
+    "DIV": "/",
     "EQ": "↔",
-    "NEQ": "≠",
+    "NEQ": "!=",
     "GRAD": "∇",
     "MUTATE": "⟲",
     "MILESTONE": "✦",
-    "TRIGGER": "→",
+    "TRIGGER": "->",
 }
 
-# --- Glyph → Sympy translation rules ---
+# --- Glyph -> Sympy translation rules ---
 def _glyph_to_sympy(expr: str) -> str:
     """
     Convert a glyph expression into a Sympy-safe string.
-    Handles special cases (↔, ≠, ∇) → Eq/Ne/Grad().
+    Handles special cases (↔, !=, ∇) -> Eq/Ne/Grad().
     """
     if "↔" in expr:
         lhs, rhs = expr.split("↔")
         return f"Eq({lhs.strip()}, {rhs.strip()})"
-    if "≠" in expr:
-        lhs, rhs = expr.split("≠")
+    if "!=" in expr:
+        lhs, rhs = expr.split("!=")
         return f"Ne({lhs.strip()}, {rhs.strip()})"
     if expr.startswith("∇"):
         inner = expr[1:].strip("() ")
@@ -50,7 +50,7 @@ AXIOMS: Dict[str, Tuple[str, str, str]] = {
     "comm_mul": ("a ⊗ b", "b ⊗ a", "Commutativity of ⊗"),
     "assoc_mul": ("(a ⊗ b) ⊗ c", "a ⊗ (b ⊗ c)", "Associativity of ⊗"),
     "id_mul": ("a ⊗ 1", "a", "Identity element of ⊗"),
-    "inv_mul": ("a ⊗ (÷a)", "1", "Inverse under ⊗"),
+    "inv_mul": ("a ⊗ (/a)", "1", "Inverse under ⊗"),
 
     # Equivalence & Entanglement
     "sym_eq": ("a ↔ b", "b ↔ a", "Symmetry of entanglement ↔"),
@@ -115,11 +115,11 @@ def axioms_to_markdown_sympy() -> str:
 if __name__ == "__main__":
     print("Photon Axioms (glyphs):")
     for k, (lhs, rhs, desc) in AXIOMS.items():
-        print(f" - {k}: {lhs} → {rhs}  # {desc}")
+        print(f" - {k}: {lhs} -> {rhs}  # {desc}")
 
     print("\nPhoton Axioms (Sympy-safe):")
     for k, (lhs, rhs, desc) in axioms_sympy().items():
-        print(f" - {k}: {lhs} → {rhs}  # {desc}")
+        print(f" - {k}: {lhs} -> {rhs}  # {desc}")
 
     print("\nMarkdown Export (glyphs):\n")
     print(axioms_to_markdown())

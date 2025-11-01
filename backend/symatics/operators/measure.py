@@ -1,5 +1,5 @@
 """
-[Tessaris v0.2] — Legacy COMDEX Operator Stub (μ Measurement)
+[Tessaris v0.2] - Legacy COMDEX Operator Stub (μ Measurement)
 ──────────────────────────────────────────────────────────────
 Inactive archival operator stub. Use quantum_ops.measure instead.
 """

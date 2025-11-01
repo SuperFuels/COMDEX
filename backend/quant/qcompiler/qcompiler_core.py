@@ -2,7 +2,7 @@
 # 📁 backend/quant/qcompiler/qcompiler_core.py
 # ===============================
 """
-⚙️  QCompilerCore — Symbolic→Wave Graph Compiler (v0.4)
+⚙️  QCompilerCore - Symbolic->Wave Graph Compiler (v0.4)
 --------------------------------------------------------
 Translates QLang or PhotonLanguage expressions into
 QPy/QMath/QTensor execution graphs for QQC runtime.
@@ -29,7 +29,7 @@ from backend.quant.qtensor.qtensor_field import QTensorField, random_field
 
 
 # ----------------------------------------------------------------------
-# QGraph — minimal symbolic execution graph
+# QGraph - minimal symbolic execution graph
 # ----------------------------------------------------------------------
 class QGraph:
     """Internal node-based graph for compiled QLang expressions."""
@@ -65,7 +65,7 @@ class QGraph:
 # ----------------------------------------------------------------------
 class QCompilerCore:
     """
-    The heart of QLang → QGraph compilation.
+    The heart of QLang -> QGraph compilation.
     Produces an executable wave-graph from symbolic input.
     """
 
@@ -103,7 +103,7 @@ class QCompilerCore:
                 g.edges.extend(expr.get("edges", []))
                 return g
 
-        # Case 2: string → parse to AST
+        # Case 2: string -> parse to AST
         if isinstance(expr, str):
             tree = self.parse(expr)
         else:

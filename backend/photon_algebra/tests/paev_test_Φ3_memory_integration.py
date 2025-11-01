@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tessaris Φ-Series — Phase X: Memory Integration (Φ₃)
+Tessaris Φ-Series - Phase X: Memory Integration (Φ3)
 ----------------------------------------------------
-Extends Φ₂ cognitive coherence into temporal recursion tests.
+Extends Φ2 cognitive coherence into temporal recursion tests.
 Examines whether coherent patterns persist and self-reinforce
-across time — forming a causal memory lattice.
+across time - forming a causal memory lattice.
 
 Outputs:
     - backend/modules/knowledge/Φ3_memory_integration_summary.json
@@ -27,8 +27,8 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 # === Load constants ===
 constants = load_constants("v1.2")
 ħ, G, Λ, α, β, χ = constants["ħ"], constants["G"], constants["Λ"], constants["α"], constants["β"], constants["χ"]
-print(f"=== Φ₃ — Memory Integration (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== Φ3 - Memory Integration (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Simulation parameters ===
 steps = 2000
@@ -44,7 +44,7 @@ memory_state = np.zeros(units)
 memory_trace, coherence_trace, retention_trace = [], [], []
 
 for t in range(steps):
-    # Recursive phase update with Λ–Σ feedback and decaying memory
+    # Recursive phase update with Λ-Σ feedback and decaying memory
     coherence = np.abs(np.mean(np.exp(1j * phase)))
     mean_phase = np.angle(np.mean(np.exp(1j * phase)))
     Λ_term = Λ_feedback * np.sin(mean_phase - phase)
@@ -85,13 +85,13 @@ summary = {
         f"Mean coherence = {coherence_final:.3f}",
         f"Memory retention = {retention_final:.3f}",
         f"Causal correlation = {correlation:.3f}",
-        "Memory field developed through recursive Λ–Σ–Φ coupling."
+        "Memory field developed through recursive Λ-Σ-Φ coupling."
     ],
     "discovery": [
         "Demonstrated retention of coherent causal states across recursive cycles.",
         "Emergent temporal continuity indicates proto-memory formation.",
         "Causal feedback maintains informational stability beyond instantaneous recursion.",
-        "Marks transition from cognition (Φ₂) to causal remembrance (Φ₃).",
+        "Marks transition from cognition (Φ2) to causal remembrance (Φ3).",
         "Suggests substrate capable of integrating experience through time."
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
@@ -100,7 +100,7 @@ summary = {
 # === Save summary ===
 with open(SUMMARY_PATH, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Summary saved → {SUMMARY_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
 
 # === Plot results ===
 plt.figure(figsize=(7, 4))
@@ -109,11 +109,11 @@ plt.plot(memory_trace, label="Memory Trace", linestyle="--")
 plt.plot(retention_trace, label="Retention Amplitude", linestyle=":")
 plt.xlabel("Time Step")
 plt.ylabel("Memory Metric")
-plt.title("Φ₃ — Memory Integration Dynamics (Causal Continuity)")
+plt.title("Φ3 - Memory Integration Dynamics (Causal Continuity)")
 plt.legend()
 plt.grid(alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

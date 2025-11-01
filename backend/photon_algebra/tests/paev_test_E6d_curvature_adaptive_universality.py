@@ -125,7 +125,7 @@ for i, name in enumerate(IC_types):
     ax.scatter(metrics["Phi_mean"][i], metrics["curv_exp"][i], s=120, label=name)
 ax.set_xlabel("⟨Φ⟩ / normalized")
 ax.set_ylabel("Curvature exponent")
-ax.set_title("E6d — Curvature-Adaptive Entropy Lock")
+ax.set_title("E6d - Curvature-Adaptive Entropy Lock")
 ax.legend(); ax.grid(True)
 plt.tight_layout()
 plt.savefig("PAEV_E6d_CurvatureAdaptiveUniversality.png", dpi=160)
@@ -147,6 +147,6 @@ save_path = "backend/modules/knowledge/E6d_curvature_adaptive_universality.json"
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== E6d — Curvature-Adaptive Entropy Lock ===")
+print("=== E6d - Curvature-Adaptive Entropy Lock ===")
 print(json.dumps(out, indent=2))
-print(f"✅ Results saved → {save_path}")
+print(f"✅ Results saved -> {save_path}")

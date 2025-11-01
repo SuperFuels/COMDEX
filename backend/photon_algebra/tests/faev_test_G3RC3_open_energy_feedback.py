@@ -1,5 +1,5 @@
 # ==========================================================
-# G3-RC3 — Open Energy Feedback (Soft-Capped Bounce)
+# G3-RC3 - Open Energy Feedback (Soft-Capped Bounce)
 # ==========================================================
 
 import json, numpy as np, matplotlib.pyplot as plt
@@ -79,24 +79,24 @@ else:
 # ---- plots ----
 plt.figure(figsize=(9,5))
 plt.plot(t,a); plt.axvline(t[bounce_idx],ls='--',c='purple',alpha=0.6,label='min(a)')
-plt.title("G3-RC3 — Scale Factor Evolution (Open Energy Bounce)")
+plt.title("G3-RC3 - Scale Factor Evolution (Open Energy Bounce)")
 plt.xlabel("time"); plt.ylabel("a(t)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC3_ScaleFactor.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t,R,label="R (visible)"); plt.plot(t,Rψ,label="Rψ (hidden)")
-plt.title("G3-RC3 — Curvature Synchrony (R vs Rψ)")
+plt.title("G3-RC3 - Curvature Synchrony (R vs Rψ)")
 plt.xlabel("time"); plt.ylabel("curvature"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC3_Curvature.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t,Mψ,label="Hidden mass Mψ")
-plt.title("G3-RC3 — Hidden Mass Evolution"); plt.xlabel("time"); plt.ylabel("Mψ")
+plt.title("G3-RC3 - Hidden Mass Evolution"); plt.xlabel("time"); plt.ylabel("Mψ")
 plt.legend(); plt.tight_layout(); plt.savefig("FAEV_G3RC3_Mass.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t,E_total,label="Unified energy (norm)")
-plt.title("G3-RC3 — Unified Energy Evolution (Soft-Capped)")
+plt.title("G3-RC3 - Unified Energy Evolution (Soft-Capped)")
 plt.xlabel("time"); plt.ylabel("E_total (norm)")
 plt.legend(); plt.tight_layout(); plt.savefig("FAEV_G3RC3_Energy.png")
 
@@ -120,7 +120,7 @@ data={
 out="backend/modules/knowledge/G3RC3_open_energy_feedback.json"
 with open(out,"w") as f: json.dump(data,f,indent=2)
 
-print("=== G3-RC3 — Open Energy Feedback (Soft-Capped Bounce) ===")
+print("=== G3-RC3 - Open Energy Feedback (Soft-Capped Bounce) ===")
 print(f"a_min={a_min:.4f} | cross_corr={cross_corr:.3f} | E_stab={E_stab:.3e}")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {out}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {out}")

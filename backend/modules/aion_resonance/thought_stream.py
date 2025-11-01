@@ -1,5 +1,5 @@
 # ==========================================================
-# 🧠 AION Thought Stream — WebSocket Live Feed
+# 🧠 AION Thought Stream - WebSocket Live Feed
 # ----------------------------------------------------------
 # Streams cognitive reflections, LLM interpretations,
 # Symatic encodings, and now conceptual updates
@@ -55,7 +55,7 @@ async def fetch_recent_activity():
         {
             "type": e.get("type", "self_reflection"),
             "message": e.get("message", e.get("llm_output", "")),
-            "tone": e.get("tone", "–"),
+            "tone": e.get("tone", "-"),
             "timestamp": e.get("timestamp", ""),
         }
         for e in memory[-10:]
@@ -66,7 +66,7 @@ async def fetch_recent_activity():
         {
             "type": "symatic",
             "message": f"{e.get('operator', '?')} {e.get('equation', '')}",
-            "tone": "–",
+            "tone": "-",
             "timestamp": e.get("timestamp", ""),
         }
         for e in symatic_log[-10:]

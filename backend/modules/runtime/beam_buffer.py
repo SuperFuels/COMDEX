@@ -20,7 +20,7 @@ class BeamBuffer:
     def __init__(self):
         self._lock = threading.Lock()
         self._buffer: Dict[str, WaveState] = {}       # Indexed by beam ID
-        self._tags: Dict[str, str] = {}               # beam_id → tag (e.g., new, gpu, mutated)
+        self._tags: Dict[str, str] = {}               # beam_id -> tag (e.g., new, gpu, mutated)
     
     def add_beam(self, beam: WaveState, tag: str = "new"):
         with self._lock:

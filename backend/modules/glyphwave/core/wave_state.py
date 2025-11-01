@@ -7,7 +7,7 @@ from backend.modules.codex.collapse_trace_exporter import log_beam_prediction
 from backend.modules.codex.codex_metrics import log_collapse_metric
 from backend.modules.collapse.collapse_trace_exporter import log_beam_collapse
 
-# 🧠 Runtime wave store: container_id → EntangledWave
+# 🧠 Runtime wave store: container_id -> EntangledWave
 ENTANGLED_WAVE_STORE: Dict[str, "EntangledWave"] = {}
 
 # ✅ NEW: Fast vectorized interference kernels with GPU fallback
@@ -342,7 +342,7 @@ def determine_collapse_state(wave) -> str:
 
 def finalize_collapse(self) -> Dict:
     """
-    Perform full collapse → merge pipeline for all entangled waves.
+    Perform full collapse -> merge pipeline for all entangled waves.
     Includes:
         - Vectorized interference (join_waves_batch)
         - SQI score computation

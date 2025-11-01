@@ -1,5 +1,5 @@
 # ==========================================================
-# 🌐 AION Resonance State — Φ-state persistence layer
+# 🌐 AION Resonance State - Φ-state persistence layer
 # ----------------------------------------------------------
 # Safely loads/saves symbolic Φ metrics (coherence, entropy,
 # flux, load) used by the cognitive feedback grid.
@@ -41,12 +41,12 @@ def load_phi_state():
         return data
 
     except json.JSONDecodeError as e:
-        # Corrupted file — backup and restore defaults
-        print(f"⚠️ Corrupted Φ-state: {e} — restoring default values.")
+        # Corrupted file - backup and restore defaults
+        print(f"⚠️ Corrupted Φ-state: {e} - restoring default values.")
         try:
             backup_path = _STATE_PATH.with_suffix(".corrupt.json")
             os.rename(_STATE_PATH, backup_path)
-            print(f"🩹 Saved corrupted backup → {backup_path}")
+            print(f"🩹 Saved corrupted backup -> {backup_path}")
         except Exception as rename_err:
             print(f"⚠️ Failed to backup corrupted Φ-state: {rename_err}")
         return _DEFAULT_STATE.copy()

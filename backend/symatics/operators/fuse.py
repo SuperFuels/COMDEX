@@ -17,7 +17,7 @@ def _fuse(a: Signature, b: Signature, *, phi: float = 0.0, ctx: Optional["Contex
     """
     ⋈ Interference/Fusion operator (v0.3):
     - Combines two signatures with explicit phase offset φ
-    - Uses amplitude norm + phase averaging consistent with axioms A7–A8
+    - Uses amplitude norm + phase averaging consistent with axioms A7-A8
     - Metadata includes φ for traceability.
     """
     z1 = _complex_from_amp_phase(a.amplitude, a.phase)

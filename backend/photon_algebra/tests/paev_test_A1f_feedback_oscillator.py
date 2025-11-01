@@ -1,5 +1,5 @@
 """
-A1f — Adaptive Feedback Oscillator (Tessaris)
+A1f - Adaptive Feedback Oscillator (Tessaris)
 ---------------------------------------------
 Purpose:
     Follows A1e and adds adaptive timestep, noise cooling, and entropy-targeted
@@ -99,7 +99,7 @@ for t in range(T_steps):
     psi += noise_scale * (np.random.randn(N) + 1j*np.random.randn(N))
     noise_trace.append(noise_scale)
 
-    # Adaptive feedback — now safe with dSdt_sm fallback
+    # Adaptive feedback - now safe with dSdt_sm fallback
     alpha = α0 - k_alpha*dSdt_sm*bubble_gain + k_entropy*entropy_error*bubble_gain
     Lambda = Λ0 - k_lambda*dSdt_sm*bubble_gain
 
@@ -118,30 +118,30 @@ if frac_dynamic > 0.05 and abs(entropy_tail) < 1e-3:
 else:
     classification = "⚠️ Weak or over-damped regime"
 
-print("=== A1f — Adaptive Feedback Oscillator (Tessaris) ===")
+print("=== A1f - Adaptive Feedback Oscillator (Tessaris) ===")
 print(f"ħ={ħ:.1e}, Λ0={Λ0:.1e}, α0={α0:.2f}")
 print(f"<proxy>={proxy_mean:.3e} | min(proxy)={proxy_min:.3e}")
 print(f"entropy_tail={entropy_tail:.3e}, noise_final={noise_final:.3e}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 
 # --- Plots ---
 plt.figure(figsize=(9,4.5))
 plt.plot(proxy_trace, label="proxy mean")
 plt.plot(proxy_min_trace, label="proxy min", alpha=0.7)
 plt.axhline(0, color="k", ls="--")
-plt.legend(); plt.title("A1f — Proxy Dynamics")
+plt.legend(); plt.title("A1f - Proxy Dynamics")
 plt.xlabel("time step"); plt.ylabel("proxy value")
 plt.tight_layout(); plt.savefig("PAEV_A1f_Proxy_TimeSeries.png", dpi=160)
 
 plt.figure(figsize=(9,4.5))
 plt.plot(dSdt_trace); plt.axhline(0, color="k", ls="--")
-plt.title("A1f — Entropy Rate dS/dt (EMA)")
+plt.title("A1f - Entropy Rate dS/dt (EMA)")
 plt.xlabel("time step"); plt.ylabel("dS/dt")
 plt.tight_layout(); plt.savefig("PAEV_A1f_EntropySlope.png", dpi=160)
 
 plt.figure(figsize=(9,4.5))
 plt.plot(noise_trace)
-plt.title("A1f — Noise Amplitude Schedule")
+plt.title("A1f - Noise Amplitude Schedule")
 plt.xlabel("time step"); plt.ylabel("noise amplitude")
 plt.tight_layout(); plt.savefig("PAEV_A1f_NoiseSchedule.png", dpi=160)
 
@@ -150,7 +150,7 @@ print("✅ Plots saved: PAEV_A1f_*")
 # --- Knowledge record (Tessaris) ---
 summary = {
     "tessaris_id": "A1f_feedback_oscillator",
-    "title": "A1f — Adaptive Feedback Oscillator",
+    "title": "A1f - Adaptive Feedback Oscillator",
     "description": "Extends A1e by adding adaptive timestep and entropy-controlled noise cooling, demonstrating bounded oscillations under feedback. All quantities are abstract proxies.",
     "ħ": ħ,
     "Λ0": Λ0,
@@ -175,4 +175,4 @@ summary = {
 
 out_path = Path("backend/modules/knowledge/A1f_feedback_oscillator.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"📄 Knowledge saved → {out_path}")
+print(f"📄 Knowledge saved -> {out_path}")

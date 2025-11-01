@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧬 DNA Bridge Integration — Phase R9
+# 🧬 DNA Bridge Integration - Phase R9
 # ================================================================
-# Connects ReflexConsolidationLayer → dna_writer mutation engine
+# Connects ReflexConsolidationLayer -> dna_writer mutation engine
 # enabling self-directed symbolic code evolution based on reflex data.
 # ================================================================
 
@@ -51,7 +51,7 @@ class DNABridgeIntegration:
                         new_logic="# Auto-generated DNA self-tuning suggestion"
                     )
                     proposals.append(proposal)
-                    logger.info(f"[DNA Bridge] Proposed mutation → {proposal['proposal_id']}")
+                    logger.info(f"[DNA Bridge] Proposed mutation -> {proposal['proposal_id']}")
                 else:
                     logger.warning(f"[DNA Bridge] Write not allowed for {context}")
             except Exception as e:
@@ -66,6 +66,6 @@ class DNABridgeIntegration:
         """Persist all generated proposals."""
         OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(json.dumps(self.outbox, indent=2))
-        logger.info(f"[DNA Bridge] Saved {len(self.outbox)} mutation proposals → {OUT}")
+        logger.info(f"[DNA Bridge] Saved {len(self.outbox)} mutation proposals -> {OUT}")
         DNA_SWITCH.register(__file__)
         return True

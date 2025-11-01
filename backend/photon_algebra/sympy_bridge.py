@@ -2,28 +2,28 @@
 """
 Photon ↔ SymPy Bridge
 =====================
-Task: I2.1 — Define translation rules (Photon ↔ SymPy)
+Task: I2.1 - Define translation rules (Photon ↔ SymPy)
 
 Provides bidirectional, lossless conversion between Photon Algebra JSON IR
 and symbolic SymPy expressions for mathematical interop and simplification.
 
 Modes:
-    - lossless=True  → preserve full photon semantics (custom symbols, ops)
-    - lossless=False → lower to SymPy booleans (for simplify(), CNF, SAT)
+    - lossless=True  -> preserve full photon semantics (custom symbols, ops)
+    - lossless=False -> lower to SymPy booleans (for simplify(), CNF, SAT)
 
 Operators:
-    ⊕  → Or
-    ⊗  → And
-    ¬  → Not
-    ↔  → Equivalent
-    ★  → PhotonStar (custom BooleanFunction)
-    ⊖  → PhotonMinus (custom BooleanFunction)
-    ≈  → PhotonApprox (custom BooleanFunction)
-    ⊂  → PhotonSubset (custom BooleanFunction)
+    ⊕  -> Or
+    ⊗  -> And
+    ¬  -> Not
+    ↔  -> Equivalent
+    ★  -> PhotonStar (custom BooleanFunction)
+    ⊖  -> PhotonMinus (custom BooleanFunction)
+    ≈  -> PhotonApprox (custom BooleanFunction)
+    ⊂  -> PhotonSubset (custom BooleanFunction)
 Constants:
-    ∅  → PH_EMPTY
-    ⊤  → PH_TOP
-    ⊥  → PH_BOTTOM
+    ∅  -> PH_EMPTY
+    ⊤  -> PH_TOP
+    ⊥  -> PH_BOTTOM
 """
 
 from __future__ import annotations
@@ -87,7 +87,7 @@ PH_BOTTOM = Symbol("PH_BOTTOM")
 COMMUTATIVE_OPS = {"⊕", "⊗", "↔", "≈"}  # ⊖ and ⊂ are not commutative
 
 # -------------------------------------------------------------------------
-# Photon → SymPy
+# Photon -> SymPy
 # -------------------------------------------------------------------------
 def to_sympy(node: Expr, *, lossless: bool = True) -> sp.Expr:
     """Convert a Photon IR expression into a SymPy expression (Boolean-safe)."""
@@ -157,7 +157,7 @@ def to_sympy(node: Expr, *, lossless: bool = True) -> sp.Expr:
 
 
 # -------------------------------------------------------------------------
-# SymPy → Photon
+# SymPy -> Photon
 # -------------------------------------------------------------------------
 def from_sympy(sexpr) -> Expr:
     """Convert SymPy expression back into Photon IR with full recursive canonical ordering."""

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-🪞 Self-Reflection Loop — Phase 59 Tessaris Adaptive Framework
+🪞 Self-Reflection Loop - Phase 59 Tessaris Adaptive Framework
 ───────────────────────────────────────────────────────────────
 Evaluates the effectiveness of Phase 58 DNA self-rewrites.
 
 Inputs :
-    • data/analysis/resonance_audit_report.json
-    • data/analysis/dna_switch_rewrite_plan.json
+    * data/analysis/resonance_audit_report.json
+    * data/analysis/dna_switch_rewrite_plan.json
 Outputs:
-    • data/analysis/reflection_log.json
-    • "reflection_assessed" events in aion_live_dashboard.jsonl
+    * data/analysis/reflection_log.json
+    * "reflection_assessed" events in aion_live_dashboard.jsonl
 """
 
 import json, time
@@ -81,7 +81,7 @@ def emit_reflection_event(mean_s, mean_d):
     with open(log_path, "a") as f:
         f.write(json.dumps(payload) + "\n")
     Theta.push_sample(rho=mean_s, delta=mean_d)
-    print(f"[Θ] Reflection event emitted → ΔS={mean_s:.3f}, ΔΔΦ={mean_d:.3f}")
+    print(f"[Θ] Reflection event emitted -> ΔS={mean_s:.3f}, ΔΔΦ={mean_d:.3f}")
 
 
 def main():
@@ -104,7 +104,7 @@ def main():
     }, indent=2))
 
     emit_reflection_event(mean_s, mean_d)
-    print(f"📘 Reflection log saved → {ROL_PATH}")
+    print(f"📘 Reflection log saved -> {ROL_PATH}")
 
 
 if __name__ == "__main__":

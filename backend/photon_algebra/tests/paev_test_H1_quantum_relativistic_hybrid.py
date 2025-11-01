@@ -1,6 +1,6 @@
 # backend/photon_algebra/tests/paev_test_H1_quantum_relativistic_hybrid_stable.py
 """
-Test H1 (Stabilized) — Quantum–Relativistic Hybrid Field
+Test H1 (Stabilized) - Quantum-Relativistic Hybrid Field
 Goal: Couple ψ (quantum) and κ (relativistic curvature) in a balanced regime.
 This is a stable version of the original H1 test with renormalized coupling.
 """
@@ -14,7 +14,7 @@ N = 128
 steps = 600
 dt = 0.01
 gamma = 0.1          # quantum-relativistic coupling scale
-curv_coupling = 0.01 # reduced from 0.15 → stabilizes feedback
+curv_coupling = 0.01 # reduced from 0.15 -> stabilizes feedback
 damping = 0.002      # small energy dissipation term
 
 # --- Initialize Fields ---
@@ -55,32 +55,32 @@ for step in range(steps):
     entropy_trace.append(entropy)
     
     if step % 100 == 0:
-        print(f"Step {step:03d} — ⟨E⟩={energy:.4e}, ⟨ψ·κ⟩={coupling:.4e}, S={entropy:.4f}")
+        print(f"Step {step:03d} - ⟨E⟩={energy:.4e}, ⟨ψ*κ⟩={coupling:.4e}, S={entropy:.4f}")
 
 # --- Save Outputs ---
 plt.figure()
 plt.plot(energy_trace, label="Energy ⟨E⟩")
-plt.plot(coupling_trace, label="Coupling ⟨ψ·κ⟩")
-plt.legend(); plt.title("H1 — Energy & Coupling Trace (Stabilized)")
+plt.plot(coupling_trace, label="Coupling ⟨ψ*κ⟩")
+plt.legend(); plt.title("H1 - Energy & Coupling Trace (Stabilized)")
 plt.xlabel("Steps"); plt.ylabel("Value")
 plt.savefig("PAEV_TestH1_EnergyCoupling_Stable.png", dpi=150)
 
 plt.figure()
 plt.plot(entropy_trace, color="purple")
-plt.title("H1 — Spectral Entropy (Stabilized Quantum–Relativistic Field)")
+plt.title("H1 - Spectral Entropy (Stabilized Quantum-Relativistic Field)")
 plt.xlabel("Steps"); plt.ylabel("Entropy")
 plt.savefig("PAEV_TestH1_SpectralEntropy_Stable.png", dpi=150)
 
 plt.figure()
 plt.imshow(np.real(psi), cmap="plasma")
-plt.title("H1 — Final ψ Field (Real Part)")
+plt.title("H1 - Final ψ Field (Real Part)")
 plt.colorbar()
 plt.savefig("PAEV_TestH1_FieldSnapshot_Stable.png", dpi=150)
 
 # --- Summary Output ---
-print("\n=== Test H1 (Stabilized) — Quantum–Relativistic Hybrid Complete ===")
+print("\n=== Test H1 (Stabilized) - Quantum-Relativistic Hybrid Complete ===")
 print(f"⟨E⟩ final = {energy_trace[-1]:.6e}")
-print(f"⟨ψ·κ⟩ final = {coupling_trace[-1]:.6e}")
+print(f"⟨ψ*κ⟩ final = {coupling_trace[-1]:.6e}")
 print(f"Spectral Entropy final = {entropy_trace[-1]:.6e}")
 print("All output files saved:")
 print(" - PAEV_TestH1_EnergyCoupling_Stable.png")

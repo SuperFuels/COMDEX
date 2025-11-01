@@ -1,9 +1,9 @@
 # backend/symatics/core/tensor_ops.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.8 — Tensor Calculus Layer
+# Tessaris Symatics v0.8 - Tensor Calculus Layer
 # Symbolic tensor algebra over λ-fields and ψ-space
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v0.8.1 — October 2025
+# Version: v0.8.1 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ def tensor_outer(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 
 
 def tensor_contract(tensor: np.ndarray, axes: Tuple[int, int]) -> np.ndarray:
-    """Contract a tensor along two axes — inner product ⊗ → ·"""
+    """Contract a tensor along two axes - inner product ⊗ -> *"""
     res = np.tensordot(tensor, tensor, axes=axes)
     record_event("tensor_contract", axes=str(axes), shape=str(res.shape))
     return res
@@ -43,7 +43,7 @@ def tensor_grad(field: np.ndarray) -> np.ndarray:
 
 
 def tensor_divergence(tensor: np.ndarray) -> np.ndarray:
-    """∇·T — Divergence of a rank-2 tensor field."""
+    """∇*T - Divergence of a rank-2 tensor field."""
     div = np.zeros_like(tensor[..., 0])
     for i in range(tensor.shape[-1]):
         div += np.gradient(tensor[..., i])[i]
@@ -52,7 +52,7 @@ def tensor_divergence(tensor: np.ndarray) -> np.ndarray:
 
 
 def tensor_measure(field: np.ndarray) -> float:
-    """Measurement tensor μ⊗ — quantifies global coherence magnitude."""
+    """Measurement tensor μ⊗ - quantifies global coherence magnitude."""
     norm = float(np.linalg.norm(field))
     record_event("tensor_measure", norm=norm)
     return norm

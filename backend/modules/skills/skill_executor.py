@@ -84,7 +84,7 @@ if __name__ == "__main__":
     memory = load_memory()
     queued_skills = [s for s in memory if s.get("status") == "queued"]
     if not queued_skills:
-        print("ℹ️ No queued skills found.")
+        print("i️ No queued skills found.")
     else:
         # For standalone runs, no linkage info available, pass None
         execute_skill(queued_skills[0])

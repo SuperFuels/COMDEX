@@ -104,8 +104,8 @@ class SymbolicInferenceEngine:
         """
         return any([
             "⊥" in glyph,
-            "→ ⊥" in glyph,
-            "¬" in glyph and "→" in glyph,
+            "-> ⊥" in glyph,
+            "¬" in glyph and "->" in glyph,
             "False" in glyph and "implies" in glyph
         ])
 

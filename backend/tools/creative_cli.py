@@ -40,7 +40,7 @@ def print_top_electrons_by_sqi(container: dict, top_n: int = 3):
     scored.sort(reverse=True)
     print(f"[cyan]📊 Top {top_n} Electrons by SQI:[/cyan]")
     for i, (score, label) in enumerate(scored[:top_n]):
-        print(f"  {i+1}. {label} — SQI: {score:.4f}")
+        print(f"  {i+1}. {label} - SQI: {score:.4f}")
 
 
 def run_creative_session(container_id: str, prompt: str, max_depth: int = 3, verbose: bool = False, inject_sqi: bool = False):

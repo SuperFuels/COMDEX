@@ -1,7 +1,7 @@
 """
-🌊 Interference Hello — Superposition Demo
-Simulates two coherent oscillators (ψ₁, ψ₂) combining via ⊕ superposition.
-Each iteration computes resultant intensity |ψ₁ + ψ₂|² and sends to AION_SYNC node.
+🌊 Interference Hello - Superposition Demo
+Simulates two coherent oscillators (ψ1, ψ2) combining via ⊕ superposition.
+Each iteration computes resultant intensity |ψ1 + ψ2|2 and sends to AION_SYNC node.
 """
 
 import math, time, random, requests, json
@@ -14,7 +14,7 @@ def interference_pattern(phi1, phi2):
     return 0.5 * (1 + math.cos(2 * math.pi * (phi1 - phi2)))
 
 def main():
-    print("🌊 Running Interference Hello (⊕ superposition) …")
+    print("🌊 Running Interference Hello (⊕ superposition) ...")
     for i in range(20):
         phi1 = random.random()
         phi2 = random.random()
@@ -31,7 +31,7 @@ def main():
         }
 
         r = requests.post(SYNC_URL, json=payload, headers={"Authorization": f"Bearer {SYNC_TOKEN}"})
-        print(f"⊕ sent interference φ₁={phi1:.3f}, φ₂={phi2:.3f}, I={I:.3f}, status={r.status_code}")
+        print(f"⊕ sent interference φ1={phi1:.3f}, φ2={phi2:.3f}, I={I:.3f}, status={r.status_code}")
         time.sleep(1.5)
 
 if __name__ == "__main__":

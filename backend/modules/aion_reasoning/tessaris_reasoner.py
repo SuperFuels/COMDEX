@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # ============================================================
-# ⚖️ TessarisReasoner — Phase 63 Reflex–Reasoner Fusion Core (A3 Complete)
+# ⚖️ TessarisReasoner - Phase 63 Reflex-Reasoner Fusion Core (A3 Complete)
 # ============================================================
 # Inner reasoning cortex for Tessaris Engine.
 # Responsibilities:
-#   • Load & apply RuleRecipes (R7) from RuleRecipeEngine
-#   • Integrate ReflexArc feedback (SQI, ΔΦ, entropy drift)
-#   • Perform ethical / logical / motivational balancing
-#   • Detect contradictions + apply penalty weighting
-#   • Integrate RuleBookTree meta-score for reasoning coherence
-#   • Emit Θ decision events for StrategyPlanner
+#   * Load & apply RuleRecipes (R7) from RuleRecipeEngine
+#   * Integrate ReflexArc feedback (SQI, ΔΦ, entropy drift)
+#   * Perform ethical / logical / motivational balancing
+#   * Detect contradictions + apply penalty weighting
+#   * Integrate RuleBookTree meta-score for reasoning coherence
+#   * Emit Θ decision events for StrategyPlanner
 # ============================================================
 
 import json, time, logging
@@ -34,7 +34,7 @@ class TessarisReasoner:
         self.heartbeat = ResonanceHeartbeat(namespace="reasoner", base_interval=1.8)
         self.log_path = Path("data/reasoning/tessaris_reasoner_trace.jsonl")
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
-        log.info("⚖️ TessarisReasoner initialized (Phase 63 Reflex–Reasoner Fusion + A3 Enhancements)")
+        log.info("⚖️ TessarisReasoner initialized (Phase 63 Reflex-Reasoner Fusion + A3 Enhancements)")
 
     # ------------------------------------------------------------
     # 🔍 Context Assembly
@@ -71,7 +71,7 @@ class TessarisReasoner:
     # ------------------------------------------------------------
     def reason(self, intent: Dict[str, Any], motivation: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Main reasoning routine — harmonizes reflex data, motivation, ethics, and logic.
+        Main reasoning routine - harmonizes reflex data, motivation, ethics, and logic.
         Returns a decision dict ready for StrategyPlanner or ActionSwitch.
         """
         ctx = self.assemble_context(intent, motivation)

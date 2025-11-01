@@ -52,17 +52,17 @@ def visualize_tree(tree, mode="ascii"):
 
 def print_replay_paths(container):
     """
-    If trace → replayPaths exist, print a summary of replay trails.
+    If trace -> replayPaths exist, print a summary of replay trails.
     """
     trace = container.get("trace", {})
     replay_paths = trace.get("replayPaths", [])
     if not replay_paths:
-        print("\nℹ️ No replay paths found in trace.")
+        print("\ni️ No replay paths found in trace.")
         return
 
     print(f"\n📽️ [bold]Replay Paths Found:[/bold] {len(replay_paths)} total")
     for i, path in enumerate(replay_paths):
-        path_str = " → ".join(path)
+        path_str = " -> ".join(path)
         print(f"  [{i+1}] {path_str}")
 
 

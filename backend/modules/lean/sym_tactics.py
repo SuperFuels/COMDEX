@@ -1,7 +1,7 @@
 from __future__ import annotations
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v2.1 — Symbolic Proof Reintegration Layer
-# Implements SymTactics — Python interface to symbolic theorems
+# Tessaris Symatics v2.1 - Symbolic Proof Reintegration Layer
+# Implements SymTactics - Python interface to symbolic theorems
 # and invariants defined in Lean-like DSL files.
 # Author: Tessaris Core Systems / Codex Intelligence Group
 # ──────────────────────────────────────────────────────────────
@@ -20,7 +20,7 @@ class SymTactics:
     def resonant_tac(expr: str) -> bool:
         """
         Simplifies symbolic resonance expressions of the form:
-        ∇⊗(λ⊗ψ) → λ∇⊗ψ or ψ∇⊗λ
+        ∇⊗(λ⊗ψ) -> λ∇⊗ψ or ψ∇⊗λ
         """
         if "∇⊗" in expr and "λ⊗ψ" in expr:
             return True
@@ -55,11 +55,11 @@ class SymTactics:
     @staticmethod
     def energy_mass_equivalence(phi_dot, mu, e_meas, tol=1e-3):
         """
-        Verify the collapse–resonance equivalence law:
-            E_meas ≈ kφ · φ_dot · μ
+        Verify the collapse-resonance equivalence law:
+            E_meas ≈ kφ * φ_dot * μ
 
         Strong test:
-        - Ratio constancy (E/(φ̇·μ))
+        - Ratio constancy (E/(φ̇*μ))
         - Low rank separability (SVD)
         - Low correlation of residuals
         """

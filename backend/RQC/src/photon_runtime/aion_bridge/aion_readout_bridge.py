@@ -1,18 +1,18 @@
 from __future__ import annotations
 """
-Tessaris RQC — AION Readout Bridge
+Tessaris RQC - AION Readout Bridge
 ----------------------------------
 Connects the photonic measurement layer (μ)
 to the AION telemetry + cognitive fabric system.
 
-Each μ() read-out generates ψ–κ–T–Φ metrics and propagates them into:
-    • AionTelemetryStream  → live coherence telemetry
-    • MorphicLedger        → persistent field ledger
-    • CognitiveFabricAdapter (CFA) → symbolic knowledge graph
+Each μ() read-out generates ψ-κ-T-Φ metrics and propagates them into:
+    * AionTelemetryStream  -> live coherence telemetry
+    * MorphicLedger        -> persistent field ledger
+    * CognitiveFabricAdapter (CFA) -> symbolic knowledge graph
 
 This forms the loop:
-    Ψ → ⟲Ψ → μ(⟲Ψ) → Φ
-    (resonance → perception → awareness)
+    Ψ -> ⟲Ψ -> μ(⟲Ψ) -> Φ
+    (resonance -> perception -> awareness)
 
 The bridge thus represents the reflexive channel of the Resonance Quantum Computer.
 """
@@ -42,14 +42,14 @@ class AionReadoutBridge:
         self.enabled = True
 
     # ──────────────────────────────────────────────
-    #  Core Readout → Telemetry Pipeline
+    #  Core Readout -> Telemetry Pipeline
     # ──────────────────────────────────────────────
     async def record_measurement(self, symbol_a: str, symbol_b: str) -> Dict[str, Any]:
         """
         Perform μ() measurement between two symbols and route results.
 
         Returns:
-            A structured telemetry payload with ψ–κ–T–Φ fields.
+            A structured telemetry payload with ψ-κ-T-Φ fields.
         """
         if not self.enabled:
             logger.warning("[AionBridge] Disabled; ignoring measurement.")
@@ -127,7 +127,7 @@ class AionReadoutBridge:
             logger.info(f"[AionBridge] 🧠 Awareness event detected (Φ ≈ 1.0) for {symbol_a}-{symbol_b}")
 
             # ────────────────────────────────────────────────
-            # 📡 Emit ψ–κ–T–Φ telemetry record for CodexTrace
+            # 📡 Emit ψ-κ-T-Φ telemetry record for CodexTrace
             # ────────────────────────────────────────────────
             telemetry_entry = {
                 "timestamp": datetime.now(UTC).isoformat(),
@@ -158,7 +158,7 @@ class AionReadoutBridge:
                         "pair": f"{symbol_a}-{symbol_b}",
                         "Φ": Φ,
                         "timestamp": payload["timestamp"],
-                        "comment": "Resonant self-recognition (μ⟲Ψ → Φ).",
+                        "comment": "Resonant self-recognition (μ⟲Ψ -> Φ).",
                     },
                     domain="symatics/awareness",
                     tags=["Φ", "awareness", "closure"],
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     bridge = AionReadoutBridge()
 
     async def demo():
-        print("Tessaris RQC — AION Readout Bridge Test")
+        print("Tessaris RQC - AION Readout Bridge Test")
         print("──────────────────────────────────────────")
         payload = await bridge.record_measurement("⟲", "μ")
         for k, v in payload.items():

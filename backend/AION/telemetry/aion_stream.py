@@ -23,5 +23,5 @@ async def post_metric(name: str, payload: dict):
     }
     with open(LOG_PATH, "a") as f:
         f.write(json.dumps(event) + "\n")
-    print(f"[AION::Telemetry] {name} logged → {payload}")
+    print(f"[AION::Telemetry] {name} logged -> {payload}")
     return True

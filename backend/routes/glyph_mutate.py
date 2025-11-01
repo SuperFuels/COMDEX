@@ -17,7 +17,7 @@ DNA_SWITCH.register(__file__)
 router = APIRouter()
 
 # You can extend this set
-VALID_GLYPHS = {"🧠", "⚙", "✧", "✦", "⬁", "🧬", "⟲", "⧉", "🪄", "🪞", "🧽", "⚛", "→", "↔"}
+VALID_GLYPHS = {"🧠", "⚙", "✧", "✦", "⬁", "🧬", "⟲", "⧉", "🪄", "🪞", "🧽", "⚛", "->", "↔"}
 
 class GlyphMutationRequest(BaseModel):
     container_id: str

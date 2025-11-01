@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-E2 — Continuous-Variable Entanglement (Duan–Simon) via ER=EPR throat
+E2 - Continuous-Variable Entanglement (Duan-Simon) via ER=EPR throat
 --------------------------------------------------------------------
 Goal:
-  Detect inseparability of two coupled fields (ψ1, ψ2) using the Duan–Simon
+  Detect inseparability of two coupled fields (ψ1, ψ2) using the Duan-Simon
   criterion on quadrature-like variables extracted from complex fields.
 
 Witness (ħ-normalized):
@@ -12,9 +12,9 @@ Witness (ħ-normalized):
   Inseparable if:  V < 2 * σ_vac   (σ_vac is the vacuum-like baseline)
 
 Outputs:
-  • PAEV_E2_DuanSimon_Timeseries.png
-  • PAEV_E2_FieldMaps.png
-  • backend/modules/knowledge/E2_cv_entanglement.json
+  * PAEV_E2_DuanSimon_Timeseries.png
+  * PAEV_E2_FieldMaps.png
+  * backend/modules/knowledge/E2_cv_entanglement.json
 """
 import json, numpy as np, matplotlib.pyplot as plt
 from datetime import datetime, timezone
@@ -70,7 +70,7 @@ def entropy(ψ):
 V_trace, Vx_trace, Vp_trace = [], [], []
 S_trace = []
 
-# Baseline “vacuum-like” variance from early transient (estimated online)
+# Baseline "vacuum-like" variance from early transient (estimated online)
 vac_buf = []
 
 for t in range(T):
@@ -86,7 +86,7 @@ for t in range(T):
     vX = np.var(X1 - X2); vP = np.var(P1 + P2)
     Vx_trace.append(vX); Vp_trace.append(vP); V_trace.append(vX+vP)
 
-    # Online “vacuum” ref from the first 10% window
+    # Online "vacuum" ref from the first 10% window
     if t < max(20, T//10): vac_buf.append(vX+vP)
     S_trace.append(0.5*(entropy(psi1)+entropy(psi2)))
 
@@ -99,18 +99,18 @@ for t in range(T):
 σ_vac = float(np.median(vac_buf)) if vac_buf else float(np.mean(V_trace[:50]))
 V_tail = float(np.mean(V_trace[-max(50, T//10):]))
 
-inseparable = V_tail < 2.0*σ_vac   # Duan–Simon (balanced, heuristic σ_vac)
-classification = "✅ CV entanglement (Duan–Simon) detected" if inseparable else "❌ No inseparability (DS)"
+inseparable = V_tail < 2.0*σ_vac   # Duan-Simon (balanced, heuristic σ_vac)
+classification = "✅ CV entanglement (Duan-Simon) detected" if inseparable else "❌ No inseparability (DS)"
 
-print("=== E2 — CV Entanglement (Duan–Simon) ===")
-print(f"σ_vac≈{σ_vac:.3e}, V_tail={V_tail:.3e} → {classification}")
+print("=== E2 - CV Entanglement (Duan-Simon) ===")
+print(f"σ_vac≈{σ_vac:.3e}, V_tail={V_tail:.3e} -> {classification}")
 
 # Plots
 out = Path(".")
 plt.figure(figsize=(10,4))
 plt.plot(V_trace, label="V=Var(X1-X2)+Var(P1+P2)")
 plt.axhline(2*σ_vac, ls="--", c="k", lw=1, label="DS threshold (heuristic)")
-plt.title("E2 — Duan–Simon Inseparability (throat-averaged)")
+plt.title("E2 - Duan-Simon Inseparability (throat-averaged)")
 plt.xlabel("step"); plt.ylabel("V"); plt.legend(); plt.tight_layout()
 plt.savefig(out/"PAEV_E2_DuanSimon_Timeseries.png", dpi=160)
 
@@ -133,4 +133,4 @@ summary = {
   "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 }
 Path("backend/modules/knowledge/E2_cv_entanglement.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/E2_cv_entanglement.json")
+print("📄 Summary saved -> backend/modules/knowledge/E2_cv_entanglement.json")

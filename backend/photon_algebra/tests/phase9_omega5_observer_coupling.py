@@ -1,5 +1,5 @@
 """
-Ω₅ — Observer Coupling (Tessaris)
+Ω5 - Observer Coupling (Tessaris)
 Adaptive phase alignment between dual observer loops.
 """
 
@@ -59,7 +59,7 @@ summary = {
     "discovery": [
         "Observers dynamically adjusted to minimize phase difference.",
         "Adaptive coupling stabilized cross-observer prediction loop.",
-        "Partial phase lock achieved — step toward causal resonance."
+        "Partial phase lock achieved - step toward causal resonance."
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
 }
@@ -69,7 +69,7 @@ with open("backend/modules/knowledge/Ω5_observer_coupling_summary.json", "w") a
     json.dump(summary, f, indent=2)
 
 plt.figure(figsize=(8, 4))
-plt.title("Ω₅ Observer Coupling (Tessaris)")
+plt.title("Ω5 Observer Coupling (Tessaris)")
 plt.plot(observer_a, label="Observer A", alpha=0.8)
 plt.plot(observer_b, label="Observer B", alpha=0.8)
 plt.plot(coupling_gain, label="Coupling Gain", alpha=0.6)
@@ -78,5 +78,5 @@ plt.ylabel("Normalized Value")
 plt.legend()
 plt.tight_layout()
 plt.savefig("backend/modules/knowledge/Tessaris_Ω5_ObserverCoupling.png", dpi=150)
-print("✅ Ω₅ summary saved → backend/modules/knowledge/Ω5_observer_coupling_summary.json")
-print("✅ Visualization saved → backend/modules/knowledge/Tessaris_Ω5_ObserverCoupling.png")
+print("✅ Ω5 summary saved -> backend/modules/knowledge/Ω5_observer_coupling_summary.json")
+print("✅ Visualization saved -> backend/modules/knowledge/Tessaris_Ω5_ObserverCoupling.png")

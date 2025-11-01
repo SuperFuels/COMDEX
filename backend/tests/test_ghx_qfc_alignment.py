@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-GHX/QFC Overlay Alignment Validation — Tessaris / CFE v0.3.x
+GHX/QFC Overlay Alignment Validation - Tessaris / CFE v0.3.x
 Replays GWV session and compares overlay frames with telemetry.
 
 Enhancements (v0.3.2):
-    • Adds fallback to mock telemetry logs (/telemetry/logs/mock_telem.json)
-    • Maintains compatibility with both legacy and modern TelemetryHandler APIs
-    • Writes Δt / Δcoherence summary to telemetry/reports/
+    * Adds fallback to mock telemetry logs (/telemetry/logs/mock_telem.json)
+    * Maintains compatibility with both legacy and modern TelemetryHandler APIs
+    * Writes Δt / Δcoherence summary to telemetry/reports/
 """
 import json
 import os
@@ -17,7 +17,7 @@ from backend.modules.glyphwave.wavescope import WaveScope
 
 def _find_telemetry_entry(telem: TelemetryHandler, beam_id: str):
     """
-    Compatibility helper for old 'lookup' → new buffer-based telemetry.
+    Compatibility helper for old 'lookup' -> new buffer-based telemetry.
     """
     # Try modern interface first
     if hasattr(telem, "get_entry_by_id"):
@@ -79,7 +79,7 @@ def validate_overlay(source_path: str):
     if results:
         avg_dt = sum(r["dt"] for r in results) / len(results)
         avg_dc = sum(r["d_coherence"] for r in results) / len(results)
-        print(f"✅ Overlay validated: Δt≈{avg_dt:.3f}s, Δcoherence≈{avg_dc:.3f} → {out}")
+        print(f"✅ Overlay validated: Δt≈{avg_dt:.3f}s, Δcoherence≈{avg_dc:.3f} -> {out}")
     else:
         print(f"⚠️ No matching telemetry entries found for frames in {source_path}")
 

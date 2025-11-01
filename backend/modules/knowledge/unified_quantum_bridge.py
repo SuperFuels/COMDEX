@@ -1,13 +1,13 @@
 # ============================================================
-# === Tessaris Phase IIIc Integrator — Ω–Ξ Quantum Bridge ====
-# === Quantum–Gravitational and Causal Feedback Unification ===
+# === Tessaris Phase IIIc Integrator - Ω-Ξ Quantum Bridge ====
+# === Quantum-Gravitational and Causal Feedback Unification ===
 # ============================================================
 
 import os, json, datetime
 import numpy as np
 import matplotlib.pyplot as plt
 
-print("=== Tessaris Phase IIIc — Ω/Ξ Quantum Bridge Integrator ===")
+print("=== Tessaris Phase IIIc - Ω/Ξ Quantum Bridge Integrator ===")
 
 # ------------------------------------------------------------
 # 1. Locate relevant summary files
@@ -38,7 +38,7 @@ def load_json_list(files):
         if os.path.exists(path):
             with open(path, "r") as fh:
                 loaded.append(json.load(fh))
-                print(f"  • Loaded {f}")
+                print(f"  * Loaded {f}")
         else:
             print(f"  ⚠️  Missing: {f}")
     return loaded
@@ -48,7 +48,7 @@ xi = load_json_list(xi_files)
 x = load_json_list(x_files)
 
 if not (omega and xi and x):
-    print("⚠️ Missing data — cannot complete bridge integration.")
+    print("⚠️ Missing data - cannot complete bridge integration.")
     exit()
 
 # ------------------------------------------------------------
@@ -87,11 +87,11 @@ causal_closure = (pattern_strength * invariance * synchrony) / (1 + abs(flux_bal
 # 4. Classify global state
 # ------------------------------------------------------------
 if causal_closure > 0.9:
-    state = "Full causal closure — light field self-executing"
+    state = "Full causal closure - light field self-executing"
 elif causal_closure > 0.6:
-    state = "Partial causal closure — quantum-thermal coupling stable"
+    state = "Partial causal closure - quantum-thermal coupling stable"
 else:
-    state = "Subcritical — incomplete bridge (requires tuning)"
+    state = "Subcritical - incomplete bridge (requires tuning)"
 
 # ------------------------------------------------------------
 # 5. Print and save summary
@@ -132,7 +132,7 @@ summary = {
 out_json = os.path.join(base_path, "unified_summary_v1.7_quantum_bridge.json")
 with open(out_json, "w") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Unified Ω–Ξ–X Quantum Bridge summary saved → {out_json}")
+print(f"✅ Unified Ω-Ξ-X Quantum Bridge summary saved -> {out_json}")
 
 # ------------------------------------------------------------
 # 6. Visualization
@@ -152,6 +152,6 @@ plt.tight_layout()
 plt.savefig(plot_path, dpi=200)
 plt.close()
 
-print(f"✅ Visualization saved → {plot_path}")
+print(f"✅ Visualization saved -> {plot_path}")
 print("Phase IIIc (Ω/Ξ Quantum Bridge) integration complete.")
 print("------------------------------------------------------------")

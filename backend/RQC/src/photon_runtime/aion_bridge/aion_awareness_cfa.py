@@ -1,6 +1,6 @@
 from __future__ import annotations
 """
-Tessaris RQC — AION Awareness → CFA Bridge
+Tessaris RQC - AION Awareness -> CFA Bridge
 ────────────────────────────────────────────
 Bridges CodexTrace narrator outputs (Φ≈1.0 meta-awareness events)
 into the Cognitive Fabric Adapter (CFA), forming a live learning loop.
@@ -35,7 +35,7 @@ class AionAwarenessCFA:
 
     async def monitor(self, poll_interval: float = 3.0):
         """Continuously tail the insights file and inject new awareness events into CFA."""
-        logger.info("🧠 AION Awareness → CFA Bridge active.")
+        logger.info("🧠 AION Awareness -> CFA Bridge active.")
         while True:
             await self._check_for_updates()
             await asyncio.sleep(poll_interval)
@@ -80,7 +80,7 @@ class AionAwarenessCFA:
                 domain="symatics/awareness_log",
                 tags=["Φ", "awareness", "learning", "codextrace"],
             )
-            logger.info(f"[CFA] Committed Φ≈{payload['Φ']:.3f} awareness event → Cognitive Fabric.")
+            logger.info(f"[CFA] Committed Φ≈{payload['Φ']:.3f} awareness event -> Cognitive Fabric.")
         except Exception as e:
             logger.warning(f"[CFA] Commit failed: {e}")
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     bridge = AionAwarenessCFA()
 
     async def main():
-        print("🧠 Tessaris RQC — Awareness → CFA Bridge running...")
+        print("🧠 Tessaris RQC - Awareness -> CFA Bridge running...")
         await bridge.monitor(poll_interval=2.5)
 
     asyncio.run(main())

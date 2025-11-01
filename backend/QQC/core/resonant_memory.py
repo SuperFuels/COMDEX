@@ -73,7 +73,7 @@ class ResonantMemory:
         else:
             prediction = "steady"
 
-        print(f"[QQC::ResonantMemory] ΔΦ={ΔΦ:+.4f}, Δε={Δε:+.4f} → {prediction}")
+        print(f"[QQC::ResonantMemory] ΔΦ={ΔΦ:+.4f}, Δε={Δε:+.4f} -> {prediction}")
         return {"ΔΦ": ΔΦ, "Δε": Δε, "prediction": prediction}
 
     # ──────────────────────────────────────────────

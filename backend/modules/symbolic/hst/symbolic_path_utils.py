@@ -35,7 +35,7 @@ def build_symbolic_path_chain(container: dict, trace_key: str = "logic_trace") -
         chain.append(parent)
         current = parent
 
-    # Return in chronological order (root → latest)
+    # Return in chronological order (root -> latest)
     return list(reversed(chain))
 
 

@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-#  Tessaris • GlyphVault Signing Module (HQCE Stage 7)
+#  Tessaris * GlyphVault Signing Module (HQCE Stage 7)
 #  Provides signing, verification, and persistence of
 #  GHX frames and Morphic Ledger snapshots.
 # ──────────────────────────────────────────────
@@ -78,7 +78,7 @@ class GlyphVaultSigner:
         }
 
         payload["vault_signature"] = sig_block
-        logger.debug(f"[GlyphVaultSigner] Signed payload for {avatar_id} → {sig_block['signature_id']}")
+        logger.debug(f"[GlyphVaultSigner] Signed payload for {avatar_id} -> {sig_block['signature_id']}")
         return payload
 
     # ──────────────────────────────────────────────
@@ -118,7 +118,7 @@ class GlyphVaultSigner:
         try:
             with open(out_path, "w", encoding="utf-8") as f:
                 json.dump(payload, f, indent=2)
-            logger.info(f"[GlyphVaultSigner] Snapshot saved → {out_path}")
+            logger.info(f"[GlyphVaultSigner] Snapshot saved -> {out_path}")
         except Exception as e:
             logger.error(f"[GlyphVaultSigner] Failed to persist snapshot: {e}")
         return out_path

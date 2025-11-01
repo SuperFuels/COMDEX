@@ -1,6 +1,6 @@
 # backend/modules/vault/phase_resonance_recorder.py
 """
-💡 Tessaris SRK-13.D4 — Phase-Locked Resonance Recorder
+💡 Tessaris SRK-13.D4 - Phase-Locked Resonance Recorder
 Records time-evolving photonic field metrics (amplitude, phase, coherence)
 and persists them to GlyphVault or Photon Memory Grid (PMG).
 

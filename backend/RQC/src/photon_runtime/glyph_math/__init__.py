@@ -1,5 +1,5 @@
 """
-Photon Runtime — Glyph-Math Module
+Photon Runtime - Glyph-Math Module
 ──────────────────────────────────────────────
 Symbolic arithmetic and encoding utilities used by PhotonLang.
 Provides quantized (base-120) glyph-number system for compression

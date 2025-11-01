@@ -3,7 +3,7 @@
 """
 Photon Algebra Evaluation (PAEV)
 ───────────────────────────────────────────────
-Test 3 — Double-Slit Interference + Quantum Eraser
+Test 3 - Double-Slit Interference + Quantum Eraser
 Tessaris / Symatics Research 2025-10-11
 
 Purpose:
@@ -13,8 +13,8 @@ reproduces double-slit interference, its loss under which-path marking,
 and its recovery under erasure.
 
 Outputs:
- • PAEV_Test3_DoubleSlit.png — interference/erasure curves
- • Console visibility summary for Quantum vs Photon Algebra
+ * PAEV_Test3_DoubleSlit.png - interference/erasure curves
+ * Console visibility summary for Quantum vs Photon Algebra
 """
 
 import numpy as np
@@ -28,8 +28,8 @@ def quantum_double_slit(x, wavelength=500e-9, d=1e-3, L=1.0,
                         marker=False, eraser=False):
     """
     Normalized double-slit intensity pattern.
-    marker=True  → destroys interference (which-path info)
-    eraser=True  → restores interference visibility
+    marker=True  -> destroys interference (which-path info)
+    eraser=True  -> restores interference visibility
     """
     k = 2 * np.pi / wavelength
     phi = k * d * x / L
@@ -53,9 +53,9 @@ def quantum_double_slit(x, wavelength=500e-9, d=1e-3, L=1.0,
 def photon_algebra_double_slit(x, marker=False, eraser=False):
     """
     Symbolic reproduction using Photon Algebra primitives.
-    ⊕ → superposition
-    ⊗ → tagging / path marking
-    ¬ → complementary phase (interference term)
+    ⊕ -> superposition
+    ⊗ -> tagging / path marking
+    ¬ -> complementary phase (interference term)
     """
     results = []
     for xi in x:
@@ -111,7 +111,7 @@ for (label, mark, erase), color in zip(cases, colors):
     plt.plot(x * 1e3, IPA, color=color, linestyle="--",
              label=f"{label} (PhotonAlg)")
 
-plt.title("Test 3 — Double-Slit Interference and Erasure")
+plt.title("Test 3 - Double-Slit Interference and Erasure")
 plt.xlabel("Screen position x (mm)")
 plt.ylabel("Normalized intensity")
 plt.legend()
@@ -124,7 +124,7 @@ print("✅ Saved plot to: PAEV_Test3_DoubleSlit.png")
 # Visibility metrics
 # ─────────────────────────────────────────────────────────────
 def visibility(I):
-    """Fringe visibility V = (Imax − Imin)/(Imax + Imin)."""
+    """Fringe visibility V = (Imax - Imin)/(Imax + Imin)."""
     return (np.max(I) - np.min(I)) / (np.max(I) + np.min(I))
 
 print("\nVisibility summary:")

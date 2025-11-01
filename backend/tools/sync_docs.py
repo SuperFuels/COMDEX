@@ -68,11 +68,11 @@ def run_builder():
     # If md is None (or not a str), assume the builder wrote the file and printed already.
 
 def main():
-    print("🔧 Step 1/3: Merging Photon ops into instruction_registry.yaml …")
+    print("🔧 Step 1/3: Merging Photon ops into instruction_registry.yaml ...")
     sync_yaml()
     print("✅ YAML sync complete.\n")
 
-    print("🔧 Step 2/3: Generating Photon docs via backend/photon_algebra/docgen.py …")
+    print("🔧 Step 2/3: Generating Photon docs via backend/photon_algebra/docgen.py ...")
     try:
         run_docgen()
         print("✅ Photon docgen complete.\n")
@@ -80,7 +80,7 @@ def main():
         print("❌ docgen.py failed:", e)
         sys.exit(e.returncode)
 
-    print("🔧 Step 3/3: Rebuilding CodexLang instruction reference …")
+    print("🔧 Step 3/3: Rebuilding CodexLang instruction reference ...")
     try:
         run_builder()
         print()  # spacing

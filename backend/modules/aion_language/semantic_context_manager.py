@@ -1,11 +1,11 @@
 """
-Semantic Context Manager — Phase 43B
+Semantic Context Manager - Phase 43B
 ------------------------------------
 Maintains short-term and long-term conversational context windows.
 Aggregates semantic + emotional continuity for reasoning across turns.
 
 Author: Tessaris Research Group
-Date: Phase 43B — October 2025
+Date: Phase 43B - October 2025
 """
 
 import json, time

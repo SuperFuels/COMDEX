@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-H′ — Tessaris Lock Protocol
+H′ - Tessaris Lock Protocol
 Consolidates all H′ phase-series constants into a unified snapshot.
 """
 
@@ -66,8 +66,8 @@ def main():
     with open(DISCOVERY_FILE, "w") as f:
         json.dump(discoveries, f, indent=4)
 
-    print(f"🔒 Locked constants snapshot → {LOCK_FILE}")
-    print(f"🧾 Discovery ledger updated → {DISCOVERY_FILE}")
+    print(f"🔒 Locked constants snapshot -> {LOCK_FILE}")
+    print(f"🧾 Discovery ledger updated -> {DISCOVERY_FILE}")
     print("\n✅ Tessaris H′ constants successfully locked and archived.")
 
 if __name__ == "__main__":

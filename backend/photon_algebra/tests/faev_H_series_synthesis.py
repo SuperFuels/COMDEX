@@ -1,5 +1,5 @@
 # ==========================================================
-# H-Series Synthesis — Temporal Emergence Layer
+# H-Series Synthesis - Temporal Emergence Layer
 # Consolidates all H*.json results (arrow of time, entropy flow)
 # Saves: backend/modules/knowledge/H_series_synthesis.json
 # ==========================================================
@@ -45,7 +45,7 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
     "summary_text": (
         "The H-series explores temporal emergence, entropy flow, and arrow-of-time coherence. "
-        "This synthesis consolidates H-series tests (e.g., H1–H3) and evaluates their stability "
+        "This synthesis consolidates H-series tests (e.g., H1-H3) and evaluates their stability "
         "and phase-locking progression under unified constants."
     )
 }
@@ -55,4 +55,4 @@ with open(out_path, "w") as f:
 
 print(f"=== H-Series Synthesis Complete ({len(records)} records) ===")
 print(f"Mean stability = {mean_stab}")
-print(f"✅ Saved → {out_path}")
+print(f"✅ Saved -> {out_path}")

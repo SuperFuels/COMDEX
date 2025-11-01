@@ -5,13 +5,13 @@
 Streams live metrics from ResonanceTelemetry, GradientCorrectionLayer,
 and Adaptive Drift Repair events. Displays:
 
-• Drift (ΔΦ, Δε)
-• Coherence (μ, κ)
-• Reinforcement Strength & Decay
-• Resonance Stability Index (RSI)
-• Exploration (ε) and Neighborhood (k)
-• 🩹 Drift-Repair Pulses (visual markers + console output)
-• Optional stream logging → data/feedback/resonance_stream.jsonl
+* Drift (ΔΦ, Δε)
+* Coherence (μ, κ)
+* Reinforcement Strength & Decay
+* Resonance Stability Index (RSI)
+* Exploration (ε) and Neighborhood (k)
+* 🩹 Drift-Repair Pulses (visual markers + console output)
+* Optional stream logging -> data/feedback/resonance_stream.jsonl
 """
 
 import time
@@ -52,7 +52,7 @@ class ResonanceDashboard:
         # plotting
         plt.style.use("ggplot")
         self.fig, self.axs = plt.subplots(3, 1, figsize=(8, 8))
-        self.fig.suptitle("🔵 AION Resonance Dashboard — RSI, ε, k & Drift-Repair Pulses")
+        self.fig.suptitle("🔵 AION Resonance Dashboard - RSI, ε, k & Drift-Repair Pulses")
         self._ani = None  # keep animation alive
 
     # ─────────────────────────────────────────────
@@ -152,7 +152,7 @@ class ResonanceDashboard:
 
         import os
         if not os.environ.get("DISPLAY"):
-            print("⚠️  No GUI display detected — running headless mode (text only).")
+            print("⚠️  No GUI display detected - running headless mode (text only).")
             try:
                 while True:
                     self.update_plot(None)

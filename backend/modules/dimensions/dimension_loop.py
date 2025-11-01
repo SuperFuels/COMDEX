@@ -163,8 +163,8 @@ class DimensionKernel:
                             "portal_id": portal_id
                         })
 
-                elif "→" in glyph:
-                    parts = glyph.split("→")
+                elif "->" in glyph:
+                    parts = glyph.split("->")
                     if len(parts) == 2:
                         trigger = parts[0].strip()
                         action = parts[1].strip()

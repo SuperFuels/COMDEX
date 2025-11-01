@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-WikiCapsule → AION Ingestion Bridge
+WikiCapsule -> AION Ingestion Bridge
 ────────────────────────────────────────────
 Loads static .wiki.enriched.phn capsules and injects them
-into AION’s symbolic memory and resonance fabric.
+into AION's symbolic memory and resonance fabric.
 
 Usage:
     PYTHONPATH=. python backend/modules/wiki_capsules/ingestion/wiki_ingest.py \
@@ -25,8 +25,8 @@ try:
     from backend.modules.wiki_capsules.integration.kg_query_extensions import register_kg_entry
 except ImportError:
     def register_kg_entry(title: str, content: str):
-        logging.getLogger("WikiIngest→AION").warning(
-            f"[Fallback] Missing kg_query_extensions — simulated KG entry for: {title}"
+        logging.getLogger("WikiIngest->AION").warning(
+            f"[Fallback] Missing kg_query_extensions - simulated KG entry for: {title}"
         )
         return {"title": title, "content_len": len(content)}
 
@@ -37,19 +37,19 @@ try:
 except ImportError:
     # Graceful degradation when AION modules are not mounted
     def store_capsule_metadata(title, meta):
-        logging.getLogger("WikiIngest→AION").warning(f"[Fallback] store_capsule_metadata missing for {title}")
+        logging.getLogger("WikiIngest->AION").warning(f"[Fallback] store_capsule_metadata missing for {title}")
 
     def commit_memory():
-        logging.getLogger("WikiIngest→AION").warning("[Fallback] commit_memory not available")
+        logging.getLogger("WikiIngest->AION").warning("[Fallback] commit_memory not available")
 
     def update_resonance(title, keywords=None):
-        logging.getLogger("WikiIngest→AION").warning(f"[Fallback] update_resonance missing for {title}")
+        logging.getLogger("WikiIngest->AION").warning(f"[Fallback] update_resonance missing for {title}")
 
 
 # ───────────────────────────────
 # Logging Setup
 # ───────────────────────────────
-log = logging.getLogger("WikiIngest→AION")
+log = logging.getLogger("WikiIngest->AION")
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s - %(message)s")
 
 

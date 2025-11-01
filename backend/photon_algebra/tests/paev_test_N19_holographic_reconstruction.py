@@ -8,7 +8,7 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β = const["ħ"], const["G"], const["Λ"], const["α"], const["β"]
 
-# --- synthetic pair (ψ1 → channel K → ψ2), then try to reconstruct ψ1 from ψ2 ---
+# --- synthetic pair (ψ1 -> channel K -> ψ2), then try to reconstruct ψ1 from ψ2 ---
 np.random.seed(42)
 x = np.linspace(-5, 5, 800)
 dx = x[1] - x[0]
@@ -49,16 +49,16 @@ F = fidelity(psi1_true, psi1_rec)
 # --- plots ---
 os.makedirs("backend/modules/knowledge", exist_ok=True)
 plt.figure(figsize=(9, 5))
-plt.plot(x, np.real(psi1_true), label="Re[ψ₁ true]")
-plt.plot(x, np.real(psi1_rec), "--", label="Re[ψ₁ reconstructed]")
-plt.title("N19 — Holographic Reconstruction (real parts)")
+plt.plot(x, np.real(psi1_true), label="Re[ψ1 true]")
+plt.plot(x, np.real(psi1_rec), "--", label="Re[ψ1 reconstructed]")
+plt.title("N19 - Holographic Reconstruction (real parts)")
 plt.xlabel("x"); plt.ylabel("Re[ψ]"); plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_N19_Reconstruction_Real.png", dpi=120)
 
 plt.figure(figsize=(9, 5))
-plt.plot(x, np.imag(psi1_true), label="Im[ψ₁ true]")
-plt.plot(x, np.imag(psi1_rec), "--", label="Im[ψ₁ reconstructed]")
-plt.title("N19 — Holographic Reconstruction (imag parts)")
+plt.plot(x, np.imag(psi1_true), label="Im[ψ1 true]")
+plt.plot(x, np.imag(psi1_rec), "--", label="Im[ψ1 reconstructed]")
+plt.title("N19 - Holographic Reconstruction (imag parts)")
 plt.xlabel("x"); plt.ylabel("Im[ψ]"); plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_N19_Reconstruction_Imag.png", dpi=120)
 
@@ -83,6 +83,6 @@ summary = {
 with open("backend/modules/knowledge/N19_holographic_reconstruction.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== N19 — Holographic Reconstruction ===")
-print(f"Fidelity = {F:.3f} • {cls}")
-print("✅ Plots saved and results recorded → backend/modules/knowledge/N19_holographic_reconstruction.json")
+print("=== N19 - Holographic Reconstruction ===")
+print(f"Fidelity = {F:.3f} * {cls}")
+print("✅ Plots saved and results recorded -> backend/modules/knowledge/N19_holographic_reconstruction.json")

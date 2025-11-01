@@ -1,5 +1,5 @@
 """
-🧪 Phase 1 Integration Test — Entanglement + Decoherence + Carrier Memory
+🧪 Phase 1 Integration Test - Entanglement + Decoherence + Carrier Memory
 Verifies SRK-11 / SRK-12 core photonic computation layer.
 """
 

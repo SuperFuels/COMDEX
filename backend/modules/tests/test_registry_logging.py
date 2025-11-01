@@ -24,8 +24,8 @@ def capture_stdout(monkeypatch):
 
 
 def test_logging_for_valid_op(capture_stdout):
-    # Pick a known registered op (sequence operator "logic:→")
-    result = registry_bridge.resolve_and_execute("→", 1, 2)
+    # Pick a known registered op (sequence operator "logic:->")
+    result = registry_bridge.resolve_and_execute("->", 1, 2)
 
     output = capture_stdout.getvalue()
     assert "[LOG]" in output, "Expected [LOG] entry for valid op"
@@ -59,8 +59,8 @@ def test_logging_for_stubbed_op(capture_stdout):
     assert result["unhandled_op"] == "FAKE_OP"
 
 def test_logging_for_valid_op(capture_stdout):
-    # Pick a known registered op (sequence operator "→")
-    result = registry_bridge.resolve_and_execute("→", 1, 2)
+    # Pick a known registered op (sequence operator "->")
+    result = registry_bridge.resolve_and_execute("->", 1, 2)
 
     output = capture_stdout.getvalue()
     assert "[LOG]" in output, "Expected [LOG] entry for valid op"
@@ -71,7 +71,7 @@ def test_logging_for_valid_op(capture_stdout):
 
     assert payload["event"] == "registry_execute"
     assert payload["status"] == "ok"
-    # Don’t hardcode domain — just check it’s not stub
+    # Don't hardcode domain - just check it's not stub
     assert ":" in payload["canonical"], f"Expected domain prefix, got {payload['canonical']}"
     assert "result" in payload
     assert result == payload["result"]

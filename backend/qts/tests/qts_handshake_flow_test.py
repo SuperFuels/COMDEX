@@ -1,5 +1,5 @@
 """
-🧪 QTS Handshake Flow Test — SRK-16 Integration (B1 → B2 → B3)
+🧪 QTS Handshake Flow Test - SRK-16 Integration (B1 -> B2 -> B3)
 Validates end-to-end quantum node authentication and encrypted photon transmission.
 """
 
@@ -33,7 +33,7 @@ async def test_qts_handshake_and_encryption_flow():
 
     response = eap.respond_handshake(receiver_cert, challenge)
     verified = eap.verify(sender_cert, receiver_cert, challenge, response)
-    assert verified, "EAP verification failed — entanglement link not authenticated"
+    assert verified, "EAP verification failed - entanglement link not authenticated"
 
     # ───────────────────────────────────────────────
     # 3️⃣ Encrypted Photon Channel (B3)

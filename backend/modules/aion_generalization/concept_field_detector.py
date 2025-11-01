@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧩 Concept Field Detector — Phase 33: Conceptual Generalization Feedback
+🧩 Concept Field Detector - Phase 33: Conceptual Generalization Feedback
 ────────────────────────────────────────────────────────────────────────
 Analyzes recent resonance telemetry (RSI, ε, k, symbol) and detects
 co-activation clusters representing emergent conceptual fields.
@@ -123,7 +123,7 @@ class ConceptFieldDetector:
         if clusters:
             self.reinforce_clusters(clusters)
         else:
-            print("… No stable concept fields detected this cycle.")
+            print("... No stable concept fields detected this cycle.")
 
 
 # ─────────────────────────────────────────────

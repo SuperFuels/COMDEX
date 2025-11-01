@@ -2,13 +2,13 @@
 """
 Round-Trip Translator Test
 ──────────────────────────────────────────────
-Ensures that Lean → Glyph → Lean translation preserves
+Ensures that Lean -> Glyph -> Lean translation preserves
 operator semantics via glyph_bindings.
 
 Flow:
-    1.  Convert Lean file → CodexLang container  (lean_to_glyph)
-    2.  Convert container → Lean file           (glyph_to_lean)
-    3.  Re-parse Lean output → container again
+    1.  Convert Lean file -> CodexLang container  (lean_to_glyph)
+    2.  Convert container -> Lean file           (glyph_to_lean)
+    3.  Re-parse Lean output -> container again
     4.  Compare logic fields and operator counts
 """
 
@@ -28,8 +28,8 @@ def _glyph_count(expr: str) -> int:
 def test_roundtrip_minimal():
     """
     1️⃣  Create temporary Lean input.
-    2️⃣  Convert → container.
-    3️⃣  Convert back → Lean.
+    2️⃣  Convert -> container.
+    3️⃣  Convert back -> Lean.
     4️⃣  Compare symbolic content.
     """
 
@@ -41,18 +41,18 @@ def test_roundtrip_minimal():
         lean_path = tmp.name
 
     try:
-        # Step 1: Lean → container
+        # Step 1: Lean -> container
         container = lean_to_dc_container(lean_path)
         assert "symbolic_logic" in container, "Missing symbolic_logic field"
         entry = container["symbolic_logic"][0]
         logic = entry["logic"]
 
-        # Step 2: Container → Lean
+        # Step 2: Container -> Lean
         with tempfile.NamedTemporaryFile("w", suffix=".lean", delete=False) as tmp_out:
             lean_out = tmp_out.name
         build_lean_from_codex(container, lean_out)
 
-        # Step 3: Re-parse Lean → new container
+        # Step 3: Re-parse Lean -> new container
         container2 = lean_to_dc_container(lean_out)
         logic2 = container2["symbolic_logic"][0]["logic"]
 
@@ -60,8 +60,8 @@ def test_roundtrip_minimal():
         g1 = _glyph_count(logic)
         g2 = _glyph_count(logic2)
 
-        print(f"\n[Roundtrip] Logic₁ = {logic}")
-        print(f"[Roundtrip] Logic₂ = {logic2}")
+        print(f"\n[Roundtrip] Logic1 = {logic}")
+        print(f"[Roundtrip] Logic2 = {logic2}")
         print(f"[Glyph count] before={g1}, after={g2}")
 
         assert logic.strip() == logic2.strip() or g1 == g2, \

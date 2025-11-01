@@ -1,7 +1,7 @@
 # ==========================================================
-# G4-RC1 — Stabilized Cross-Domain Coupling
-# (Tessaris Unified Equation — Λ-Renormalization Test)
-# Goal: stabilize triune feedback loop (geometry–entropy–info)
+# G4-RC1 - Stabilized Cross-Domain Coupling
+# (Tessaris Unified Equation - Λ-Renormalization Test)
+# Goal: stabilize triune feedback loop (geometry-entropy-info)
 #       under dynamic effective-constant renormalization.
 # Saves: backend/modules/knowledge/G4RC1_stabilized_feedback.json
 # ==========================================================
@@ -98,20 +98,20 @@ I_s = gaussian_filter1d(I, sigma=10)
 # ---- Plots ----
 plt.figure(figsize=(9,5))
 plt.plot(t, E_total_s, lw=1.6, label="E_total (smoothed)")
-plt.title("G4-RC1 — Energy Conservation (Stabilized Feedback)")
+plt.title("G4-RC1 - Energy Conservation (Stabilized Feedback)")
 plt.xlabel("time"); plt.ylabel("E_total"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4RC1_EnergyConservation.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, S_s, color="orange", lw=1.5, label="Entropy Flux S(t)")
-plt.title("G4-RC1 — Entropy Flux Evolution (Stabilized)")
+plt.title("G4-RC1 - Entropy Flux Evolution (Stabilized)")
 plt.xlabel("time"); plt.ylabel("S(t)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4RC1_EntropyFlux.png")
 
 plt.figure(figsize=(9,5))
-plt.plot(t, I_s, color="purple", lw=1.5, label="Information Flux İ(t)")
-plt.title("G4-RC1 — Information Coupling Dynamics (Stabilized)")
-plt.xlabel("time"); plt.ylabel("İ(t)"); plt.legend(); plt.tight_layout()
+plt.plot(t, I_s, color="purple", lw=1.5, label="Information Flux İ(t)")
+plt.title("G4-RC1 - Information Coupling Dynamics (Stabilized)")
+plt.xlabel("time"); plt.ylabel("İ(t)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4RC1_InfoCoupling.png")
 
 # ---- Save JSON ----
@@ -140,8 +140,8 @@ save_path = "backend/modules/knowledge/G4RC1_stabilized_feedback.json"
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== G4-RC1 — Stabilized Cross-Domain Coupling (TUE Feedback) ===")
+print("=== G4-RC1 - Stabilized Cross-Domain Coupling (TUE Feedback) ===")
 print(f"stability={E_stab:.3f} | cross_corr={cross_corr:.3f} | "
       f"E_range=({E_min:.3e},{E_max:.3e})")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {save_path}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {save_path}")

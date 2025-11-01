@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Test C6 — Two-Mass Curvature Interaction (Emergent Gravitational Coupling)
+Test C6 - Two-Mass Curvature Interaction (Emergent Gravitational Coupling)
 ------------------------------------------------------------------------
 Goal:
 Simulate two localized curvature wells that attract and merge under
-rewrite-based curvature evolution — demonstrating emergent gravity-like coupling.
+rewrite-based curvature evolution - demonstrating emergent gravity-like coupling.
 
 Artifacts:
   - PAEV_TestC6_TwoMass_Interaction.png
@@ -60,7 +60,7 @@ for t in range(steps):
 # -------------------- visualization --------------------
 fig, ax = plt.subplots(figsize=(5,5))
 im = ax.imshow(frames[0], cmap='inferno', vmin=0, vmax=1)
-ax.set_title("Test C6 — Two-Mass Curvature Interaction")
+ax.set_title("Test C6 - Two-Mass Curvature Interaction")
 ax.axis('off')
 
 def update(frame):
@@ -73,4 +73,4 @@ plt.savefig("PAEV_TestC6_TwoMass_Interaction.png", dpi=180)
 
 print("✅ Saved plot to: PAEV_TestC6_TwoMass_Interaction.png")
 print("✅ Saved animation to: PAEV_TestC6_TwoMass_Animation.gif")
-print(f"=== Test C6 — complete: N={N}, steps={steps}, η={eta}, α={alpha} ===")
+print(f"=== Test C6 - complete: N={N}, steps={steps}, η={eta}, α={alpha} ===")

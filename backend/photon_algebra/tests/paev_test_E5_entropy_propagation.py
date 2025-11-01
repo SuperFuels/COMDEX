@@ -8,7 +8,7 @@ const = load_constants()
 ħ, G, Λ, α, β = const["ħ"], const["G"], const["Λ"], const["α"], const["β"]
 
 # --------------------
-# E5 — Entropy Propagation & Reversibility
+# E5 - Entropy Propagation & Reversibility
 # --------------------
 
 # --- parameters ---
@@ -22,7 +22,7 @@ noise_amp = 0.015
 seed = int(time.time())
 rng = np.random.default_rng(seed)
 
-# perturbation ("information shuffle") — blockwise permutation at t_pert
+# perturbation ("information shuffle") - blockwise permutation at t_pert
 t_pert = 800
 block = 64                          # must divide N
 assert N % block == 0
@@ -134,8 +134,8 @@ S_s = moving_avg(S, 41)
 R_s = moving_avg(R_spec, 41)
 
 # --- classification ---
-# Tight pass: monotonic ≥ 0.9, recovery < 0.2T, tail lock ≥ 0.92, energy drift < 1e-3
-# Marginal:   monotonic ≥ 0.75, recovery < 0.4T, tail lock ≥ 0.88, energy drift < 3e-3
+# Tight pass: monotonic >= 0.9, recovery < 0.2T, tail lock >= 0.92, energy drift < 1e-3
+# Marginal:   monotonic >= 0.75, recovery < 0.4T, tail lock >= 0.88, energy drift < 3e-3
 if (monotonicity >= 0.90 and recovery_steps < 0.2*T and
     spec_lock_tail >= 0.92 and E_drift_rel < 1e-3):
     verdict = "✅ Stable propagation"
@@ -152,7 +152,7 @@ Path("backend/modules/knowledge").mkdir(parents=True, exist_ok=True)
 plt.figure(figsize=(10,5))
 plt.plot(t, S_s, lw=1.7, label="S(t) (smoothed)")
 plt.axvline(t_pert*dt, color="red", ls="--", lw=1.2, label="perturb")
-plt.title("E5 — Entropy Propagation & Recovery")
+plt.title("E5 - Entropy Propagation & Recovery")
 plt.xlabel("time"); plt.ylabel("entropy S"); plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_E5_EntropyPropagation.png", dpi=160)
 
@@ -160,7 +160,7 @@ plt.figure(figsize=(10,5))
 plt.plot(t, R_s, lw=1.7, label="spectral lock (ref)")
 plt.axhline(spec_lock_tail, color="gray", ls=":", label=f"tail mean={spec_lock_tail:.3f}")
 plt.axvline(t_pert*dt, color="red", ls="--", lw=1.2)
-plt.title("E5 — Spectral Coherence During Propagation")
+plt.title("E5 - Spectral Coherence During Propagation")
 plt.xlabel("time"); plt.ylabel("ρ_lock"); plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_E5_SpectralLock.png", dpi=160)
 
@@ -190,6 +190,6 @@ save_path = "backend/modules/knowledge/E5_entropy_propagation.json"
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== E5 — Entropy Propagation & Reversibility ===")
+print("=== E5 - Entropy Propagation & Reversibility ===")
 print(json.dumps(out, indent=2))
-print(f"✅ Results saved → {save_path}")
+print(f"✅ Results saved -> {save_path}")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test G′9 — Tessaris AutoVerifier
+Test G′9 - Tessaris AutoVerifier
 Automated TMC monitoring system for continuous model coherence verification.
 Supports both continuous watch mode and single-shot (--once) verification.
 
@@ -118,14 +118,14 @@ def log_update(devs, TMC):
             round(TMC, 6),
         ])
 
-    print(f"[{color(timestamp, 36)}] AutoVerifier → TMC = {color(f'{TMC:.3f} %', 35)}")
+    print(f"[{color(timestamp, 36)}] AutoVerifier -> TMC = {color(f'{TMC:.3f} %', 35)}")
 
     if TMC < 1.0:
-        print(color("✅ Concordance maintained — system coherent.", 32))
+        print(color("✅ Concordance maintained - system coherent.", 32))
     elif TMC < 5.0:
-        print(color("⚠️ Minor drift — check recent curvature deltas.", 33))
+        print(color("⚠️ Minor drift - check recent curvature deltas.", 33))
     else:
-        print(color("🚨 Concordance failure — re-run gravitational normalization!", 31))
+        print(color("🚨 Concordance failure - re-run gravitational normalization!", 31))
 
 
 def update_constants_registry(devs, TMC):
@@ -149,7 +149,7 @@ def update_constants_registry(devs, TMC):
 
     with open(CONSTANTS_FILE, "w") as f:
         json.dump(existing, f, indent=2)
-    print(color(f"📘 Updated constants registry → {CONSTANTS_FILE}", 36))
+    print(color(f"📘 Updated constants registry -> {CONSTANTS_FILE}", 36))
 
 
 def update_discovery_ledger(devs, TMC):
@@ -163,7 +163,7 @@ def update_discovery_ledger(devs, TMC):
             ledger = []
 
     entry = {
-        "test": "G′9 — Tessaris AutoVerifier",
+        "test": "G′9 - Tessaris AutoVerifier",
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
         "type": "verification",
         "status": (
@@ -178,7 +178,7 @@ def update_discovery_ledger(devs, TMC):
     ledger.append(entry)
     with open(DISCOVERY_FILE, "w") as f:
         json.dump(ledger, f, indent=2)
-    print(color(f"🧾 Discovery ledger updated → {DISCOVERY_FILE}", 36))
+    print(color(f"🧾 Discovery ledger updated -> {DISCOVERY_FILE}", 36))
 
 
 # ------------------------- Main Entry -------------------------
@@ -188,7 +188,7 @@ def main():
     parser.add_argument("--once", action="store_true", help="Run one verification and exit")
     args = parser.parse_args()
 
-    print(color("=== G′9 — Tessaris AutoVerifier (Realtime TMC Monitor) ===", 36))
+    print(color("=== G′9 - Tessaris AutoVerifier (Realtime TMC Monitor) ===", 36))
     print(f"Monitoring: {', '.join(WATCHED_RESULTS)}\n")
 
     # Read constants
@@ -197,12 +197,12 @@ def main():
         synthesize_missing_csvs()
         devs = read_latest_constants()
         if not devs:
-            print(color("⚠️ No constants found — ensure prior G′ results exist.", 33))
+            print(color("⚠️ No constants found - ensure prior G′ results exist.", 33))
             sys.exit(1)
 
     TMC = compute_TMC(devs)
     if TMC is None:
-        print(color("⚠️ Could not compute TMC — missing deviations.", 33))
+        print(color("⚠️ Could not compute TMC - missing deviations.", 33))
         sys.exit(1)
 
     # Logging and registry updates

@@ -1,11 +1,11 @@
 """
 🌐 FieldBridge Client (Adaptive Feedback Control + Live HUD + Trend Tuning)
 -----------------------------------------------------
-    • Streams exhaust wave commands from HyperdriveEngine to Pi FieldBridge
-    • Auto-harmonics + burst mode per exhaust tick
-    • Adaptive tuning: dynamically adjusts drive params based on live coil feedback
-    • Live HUD: real-time voltage, duty, harmonics visualization
-    • Trend-based harmonics scaling: stabilize voltage oscillations using HUD metrics
+    * Streams exhaust wave commands from HyperdriveEngine to Pi FieldBridge
+    * Auto-harmonics + burst mode per exhaust tick
+    * Adaptive tuning: dynamically adjusts drive params based on live coil feedback
+    * Live HUD: real-time voltage, duty, harmonics visualization
+    * Trend-based harmonics scaling: stabilize voltage oscillations using HUD metrics
 """
 
 import asyncio
@@ -90,7 +90,7 @@ class HyperdriveFieldBridgeClient:
             "token": self.token
         }
 
-        print(f"🎵 Exhaust Wave → freq={freq:.1f}Hz | duty={duty:.1f}% | harmonics={harmonics} | burst={burst}")
+        print(f"🎵 Exhaust Wave -> freq={freq:.1f}Hz | duty={duty:.1f}% | harmonics={harmonics} | burst={burst}")
         await self.websocket.send(json.dumps(payload))
 
     # ---------------------------------------------------------

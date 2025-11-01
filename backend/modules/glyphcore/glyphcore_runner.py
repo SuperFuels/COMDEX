@@ -9,7 +9,7 @@ from backend.modules.glyphwave.holographic.ghx_replay_broadcast import emit_gwav
 from backend.modules.glyphwave.core.wave_state_store import WaveStateStore  # Needed to fetch wave
 from typing import Dict, Optional
 
-# You may have a shared store instance — adjust as needed
+# You may have a shared store instance - adjust as needed
 _wave_store = WaveStateStore()
 
 

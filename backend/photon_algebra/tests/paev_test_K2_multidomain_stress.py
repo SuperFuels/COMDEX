@@ -1,5 +1,5 @@
 """
-K2 — Multi-Domain Energy Verification
+K2 - Multi-Domain Energy Verification
 Tests TOE consistency across quantum, thermal, and relativistic domains.
 """
 
@@ -12,7 +12,7 @@ constants = json.loads(const_path.read_text())
 
 ħ, G, Λ, α = constants["ħ_eff"], constants["G_eff"], constants["Λ_eff"], constants["α_eff"]
 
-print("=== K2 — Multi-Domain Stress Verification ===")
+print("=== K2 - Multi-Domain Stress Verification ===")
 print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}")
 
 # Domains
@@ -41,14 +41,14 @@ plt.plot(t, E_q, label="Quantum")
 plt.plot(t, E_t, label="Thermal")
 plt.plot(t, E_r, label="Relativistic")
 plt.legend(); plt.xlabel("t"); plt.ylabel("Energy")
-plt.title("K2 — Multi-Domain Energy Regimes")
+plt.title("K2 - Multi-Domain Energy Regimes")
 plt.savefig("PAEV_K2_MultiDomainEnergy.png", dpi=200)
 plt.close()
 
 plt.figure(figsize=(4,3))
 plt.bar(["Quantum","Thermal","Relativistic"], [ΔE_q, ΔE_t, ΔE_r])
 plt.ylabel("Energy Drift")
-plt.title("K2 — Drift Decomposition")
+plt.title("K2 - Drift Decomposition")
 plt.savefig("PAEV_K2_DriftDecomposition.png", dpi=200)
 plt.close()
 

@@ -1,5 +1,5 @@
 """
-🧪 SRK-18 Task 18.4 — GHX Ledger Federation Tests
+🧪 SRK-18 Task 18.4 - GHX Ledger Federation Tests
 Verifies peer registration, event propagation, merge reconciliation, and federation integrity.
 """
 

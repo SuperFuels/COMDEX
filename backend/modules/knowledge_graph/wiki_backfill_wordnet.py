@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧠 AION Lexicon Backfill — Phase 17b (WordNet + LLM + Merge)
+# 🧠 AION Lexicon Backfill - Phase 17b (WordNet + LLM + Merge)
 # ================================================================
 """
 Fills remaining unenriched lexical capsules using WordNet and, if absent,
 LLM-based fallback generation.  Produces a unified corpus ready for
-AION’s full lexical–conceptual training.
+AION's full lexical-conceptual training.
 
 Inputs:
     /tmp/Lexicon_enriched           (≈41 k existing)
@@ -50,7 +50,7 @@ try:
     from backend.modules.aion_cognition.cee_llm_exercise_generator import generate_llm_exercise_batch
 except Exception:
     generate_llm_exercise_batch = None
-    log.warning("[Backfill] LLM generator not available – WordNet-only mode.")
+    log.warning("[Backfill] LLM generator not available - WordNet-only mode.")
 
 # ------------------------------------------------------------
 def wordnet_enrich(lemma: str):
@@ -96,14 +96,14 @@ def render_capsule(lemma: str, entry: dict):
 
 # ------------------------------------------------------------
 def merge_all():
-    """Merge enriched + backfill → merged full."""
+    """Merge enriched + backfill -> merged full."""
     log.info("🔄 Merging all enriched and backfill capsules...")
     for src_dir in (ENRICHED_DIR, BACKFILL_DIR):
         for file in src_dir.rglob("*.phn"):
             dst = MERGED_DIR / file.name
             shutil.copy2(file, dst)
     total = sum(1 for _ in MERGED_DIR.rglob("*.phn"))
-    log.info(f"✅ Merge complete — total {total:,} capsules in {MERGED_DIR}")
+    log.info(f"✅ Merge complete - total {total:,} capsules in {MERGED_DIR}")
     return total
 
 # ------------------------------------------------------------
@@ -112,7 +112,7 @@ def main():
     all_caps = [p for p in LEXICON_SRC.rglob("*.phn")]
     missing = [p for p in all_caps if p.stem not in enriched]
 
-    log.info(f"🧩 Found {len(enriched):,} enriched | {len(missing):,} missing — starting backfill...")
+    log.info(f"🧩 Found {len(enriched):,} enriched | {len(missing):,} missing - starting backfill...")
 
     counters = {"wordnet": 0, "llm": 0, "skipped": 0}
     for path in tqdm(missing, total=len(missing)):
@@ -131,10 +131,10 @@ def main():
         counters[entry["source"]] = counters.get(entry["source"], 0) + 1
 
     total_new = sum(v for v in counters.values())
-    log.info(f"🏁 Backfill complete — new={total_new:,} (WordNet={counters.get('wordnet',0):,}, LLM={counters.get('llm_fallback',0):,}, skipped={counters['skipped']:,})")
+    log.info(f"🏁 Backfill complete - new={total_new:,} (WordNet={counters.get('wordnet',0):,}, LLM={counters.get('llm_fallback',0):,}, skipped={counters['skipped']:,})")
 
     merge_all()
-    log.info("🎯 Phase 17b complete — unified corpus ready for AION training.")
+    log.info("🎯 Phase 17b complete - unified corpus ready for AION training.")
 
 # ------------------------------------------------------------
 if __name__ == "__main__":

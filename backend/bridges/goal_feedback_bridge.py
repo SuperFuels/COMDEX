@@ -1,5 +1,5 @@
 """
-GoalFeedbackBridge — Phase 36C : Awareness–Emotion Feedback Coupling
+GoalFeedbackBridge - Phase 36C : Awareness-Emotion Feedback Coupling
 --------------------------------------------------------------------
 Synchronizes GoalEngine satisfaction levels with Awareness and Emotion states.
 """

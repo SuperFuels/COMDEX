@@ -3,10 +3,10 @@
 Quantum Ops Unification Tests
 -----------------------------
 Validates the unified quantum operators exposed via backend.symatics.quantum_ops:
-  • superpose (⊕)
-  • entangle (↔)
-  • measure  (μ)
-  • measurement_noisy (ε) [optional until implemented]
+  * superpose (⊕)
+  * entangle (↔)
+  * measure  (μ)
+  * measurement_noisy (ε) [optional until implemented]
 and their exposure through INSTRUCTION_REGISTRY.
 
 These tests check:
@@ -133,7 +133,7 @@ def test_measure_of_superposition_collapses_to_one_branch():
 
 
 # -------------------------
-# Noisy measurement (ε) — optional
+# Noisy measurement (ε) - optional
 # -------------------------
 
 @pytest.mark.skipif(measurement_noisy is None, reason="measurement_noisy not implemented")

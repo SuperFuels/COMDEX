@@ -59,7 +59,7 @@ def test_memory_recall():
 @pytest.mark.parametrize("symbol,args", [
     ("physics:∇", {"field": [1, 2, 3], "coords": [0, 1, 2]}),
     ("physics:Δ", {"field": [1, 2, 3], "coords": [0, 1, 2]}),
-    ("physics:×", {"A": [1, 0, 0], "B": [0, 1, 0]}),
+    ("physics:*", {"A": [1, 0, 0], "B": [0, 1, 0]}),
 ])
 def test_physics_ops_safe(symbol, args):
     """

@@ -1,19 +1,19 @@
 """
-🔵 QFC Resonance Overlay — SRK-19.3 Fusion Update
-Bridges GHX resonance frames → QFC holographic overlay payloads
+🔵 QFC Resonance Overlay - SRK-19.3 Fusion Update
+Bridges GHX resonance frames -> QFC holographic overlay payloads
 and records each broadcasted frame into GWV visual logs.
 
 Now integrates:
- • Live CFE feedback telemetry (collapse_rate, decoherence_rate, stability)
- • Adaptive hue modulation based on cognitive coherence feedback
- • GHX + CFE fusion stream for CodexHUD live overlays
+ * Live CFE feedback telemetry (collapse_rate, decoherence_rate, stability)
+ * Adaptive hue modulation based on cognitive coherence feedback
+ * GHX + CFE fusion stream for CodexHUD live overlays
 
 Features:
- • Translates GHX nodes/edges into QFC packets
- • Maps coherence → RGB hue, stability → global brightness
- • Supports holographic_projection() for 3-D visualization layers
- • Streams overlays to QFC WebSocket via broadcast_qfc_update()
- • Archives resonance frames using GWVWriter for playback analysis
+ * Translates GHX nodes/edges into QFC packets
+ * Maps coherence -> RGB hue, stability -> global brightness
+ * Supports holographic_projection() for 3-D visualization layers
+ * Streams overlays to QFC WebSocket via broadcast_qfc_update()
+ * Archives resonance frames using GWVWriter for playback analysis
 """
 
 import math
@@ -28,7 +28,7 @@ from backend.modules.glyphwave.gwv_writer import SnapshotRingBuffer
 
 
 def _hsv_to_rgb(h, s, v):
-    """Convert HSV (0-1) → RGB tuple (0-255)."""
+    """Convert HSV (0-1) -> RGB tuple (0-255)."""
     i = int(h * 6)
     f = h * 6 - i
     p = v * (1 - s)

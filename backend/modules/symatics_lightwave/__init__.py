@@ -1,6 +1,6 @@
 """
-Tessaris • Quantum Quad Core (QQC)
-Symatics Lightwave Engine (SLE) — Core Bridge Package
+Tessaris * Quantum Quad Core (QQC)
+Symatics Lightwave Engine (SLE) - Core Bridge Package
 
 This package forms the Symbolic ↔ Photonic interface layer.
 It handles:

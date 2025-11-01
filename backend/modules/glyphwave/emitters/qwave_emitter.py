@@ -47,7 +47,7 @@ async def emit_qwave_beam(
         broadcast_modes = ["qwave", "websocket", "ghx", "qfc", "metrics"]
 
     wave_id = getattr(wave, 'wave_id', 'unknown')
-    print(f"[QWaveEmitter] ⚡ Emitting beam from source: {source} → {wave_id}")
+    print(f"[QWaveEmitter] ⚡ Emitting beam from source: {source} -> {wave_id}")
 
     # 1. QWave Transfer
     if "qwave" in broadcast_modes:

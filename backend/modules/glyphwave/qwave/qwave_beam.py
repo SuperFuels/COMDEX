@@ -69,7 +69,7 @@ class QWaveBeam:
 
     def describe(self) -> str:
         return (
-            f"QWaveBeam {self.id}: {self.sourceGlyph} → {self.targetGlyph} "
+            f"QWaveBeam {self.id}: {self.sourceGlyph} -> {self.targetGlyph} "
             f"[{self.beamType}, {self.state}, strength={self.strength}]"
         )
 

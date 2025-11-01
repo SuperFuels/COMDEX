@@ -2,9 +2,9 @@
 """
 QGlyph Core Utilities
 =====================
-Provides fundamental symbolic–quantum glyph operations:
-  • resolve_qglyph_superposition — collapse superposed glyphs (↔)
-  • normalize_glyph — optional utility to clean or canonicalize glyphs
+Provides fundamental symbolic-quantum glyph operations:
+  * resolve_qglyph_superposition - collapse superposed glyphs (↔)
+  * normalize_glyph - optional utility to clean or canonicalize glyphs
 """
 
 import random
@@ -75,8 +75,8 @@ def preload_qglyph_logic(verbose: bool = True) -> dict:
     }
 
     if verbose:
-        print("⚛️  QGlyph logic preloaded — symbolic quantum primitives available:")
+        print("⚛️  QGlyph logic preloaded - symbolic quantum primitives available:")
         for sym, name in qglyph_registry["operators"].items():
-            print(f"   • {sym}  → {name}")
+            print(f"   * {sym}  -> {name}")
 
     return qglyph_registry

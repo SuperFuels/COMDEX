@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧬 Concept Evolution Engine — Phase 35: Evolutionary Concept Refinement
+🧬 Concept Evolution Engine - Phase 35: Evolutionary Concept Refinement
 ───────────────────────────────────────────────────────────────────────────────
 Analyzes RSI variance trends across concept fields and evolves the Aion
 Knowledge Graph (AKG) structure accordingly:
@@ -57,7 +57,7 @@ class ConceptEvolutionEngine:
     # ─────────────────────────────────────────────
     def compute_concept_statistics(self, stream: List[Dict[str, Any]]) -> Dict[str, Dict[str, float]]:
         """Aggregate mean RSI and variance per concept."""
-        concept_map = akg.export_concepts()  # concept → [symbols]
+        concept_map = akg.export_concepts()  # concept -> [symbols]
         stats = {}
 
         # Normalize symbols in stream
@@ -148,10 +148,10 @@ class ConceptEvolutionEngine:
         import sys
         from backend.modules.aion_knowledge import knowledge_graph_core as akg
 
-        # 🧱 Corrected Cooldown Guard — check AKG module directly
+        # 🧱 Corrected Cooldown Guard - check AKG module directly
         akg_mod = sys.modules.get("backend.modules.aion_knowledge.knowledge_graph_core")
         if getattr(akg_mod, "disable_auto_merge", False):
-            print("🚫 Auto-merge suppressed — AKG cooldown active (checked module directly).")
+            print("🚫 Auto-merge suppressed - AKG cooldown active (checked module directly).")
             return []
 
     # ─────────────────────────────────────────────
@@ -204,10 +204,10 @@ class ConceptEvolutionEngine:
             self.log_events(all_events)
             print(f"✅ Evolutionary cycle complete: {len(all_events)} structural updates applied.")
         else:
-            print("… No evolutionary changes detected this cycle.")
+            print("... No evolutionary changes detected this cycle.")
 
     # ─────────────────────────────────────────────
-    # Phase 35.2 – Concept Fusion & Speciation
+    # Phase 35.2 - Concept Fusion & Speciation
     # ─────────────────────────────────────────────
     def evolve_concepts(self, concept_stats: dict):
         """Perform fusion, speciation, and reinforcement (stabilized)."""
@@ -255,17 +255,17 @@ class ConceptEvolutionEngine:
                 # Stop conditions
                 if fusion_count >= MAX_FUSIONS_PER_CYCLE:
                     print("⚖️ Fusion limit reached; stopping this cycle.")
-                    print("🕒 Cooling down fusion engine for 3 s…")
+                    print("🕒 Cooling down fusion engine for 3 s...")
                     time.sleep(3)
 
                     # ── Post-fusion merge suppression ──
-                    print("🧱  Suppressing downstream merges — cooldown in effect.")
+                    print("🧱  Suppressing downstream merges - cooldown in effect.")
                     try:
                         akg.start_auto_merge_cooldown(60)
                     except Exception:
                         pass
 
-                    return  # hard stop — prevents downstream merges
+                    return  # hard stop - prevents downstream merges
 
                 if any(sub in ci for sub in ["_fusion_", "_merged"]) or any(sub in cj for sub in ["_fusion_", "_merged"]):
                     continue
@@ -280,7 +280,7 @@ class ConceptEvolutionEngine:
                                 "mean": np.mean([si["mean_RSI"], sj["mean_RSI"]]),
                                 "var": np.mean([si["var_RSI"], sj["var_RSI"]]),
                             }
-                            print(f"🧬 Fusing {ci} + {cj} → {new_name}")
+                            print(f"🧬 Fusing {ci} + {cj} -> {new_name}")
 
                             try:
                                 new_id = akg.create_concept_node(
@@ -311,11 +311,11 @@ class ConceptEvolutionEngine:
 
                             fusion_count += 1
                             if fusion_count > MAX_TOTAL_FUSIONS:
-                                print("🧯 Fusion runaway detected — aborting evolution cycle for safety.")
-                                print("🕒 Cooling down fusion engine for 5 s…")
+                                print("🧯 Fusion runaway detected - aborting evolution cycle for safety.")
+                                print("🕒 Cooling down fusion engine for 5 s...")
 
                                 # ── Post-fusion merge suppression ──
-                                print("🧱  Suppressing downstream merges — cooldown in effect.")
+                                print("🧱  Suppressing downstream merges - cooldown in effect.")
                                 try:
                                     akg.start_auto_merge_cooldown(60)
                                 except Exception:
@@ -329,7 +329,7 @@ class ConceptEvolutionEngine:
             if stats["n"] > 3 and stats["var_RSI"] > 0.05:
                 sub1, sub2 = f"{cname}_α", f"{cname}_β"
                 split.append((cname, sub1, sub2))
-                print(f"🌱 Speciating {cname} → {sub1}, {sub2}")
+                print(f"🌱 Speciating {cname} -> {sub1}, {sub2}")
                 self.record_evolution_event("speciation", [cname], [sub1, sub2])
 
         # ── Reinforcement pass ──
@@ -341,7 +341,7 @@ class ConceptEvolutionEngine:
 
         # ── Summary ──
         if not (fused or split or reinforced):
-            print("… No evolutionary changes detected this cycle.")
+            print("... No evolutionary changes detected this cycle.")
         else:
             print(f"✅ Evolutionary cycle complete: "
                   f"{len(fused)} fusions, {len(split)} speciations, {len(reinforced)} reinforcements.")
@@ -360,7 +360,7 @@ class ConceptEvolutionEngine:
             symbols=symbols,
             meta=meta
         )
-        print(f"[Evolution] Created new concept node → {concept_name} ({origin}) [{node_id}]")
+        print(f"[Evolution] Created new concept node -> {concept_name} ({origin}) [{node_id}]")
         return node_id
 
     # ─────────────────────────────────────────────
@@ -381,7 +381,7 @@ class ConceptEvolutionEngine:
             f.write(json.dumps(entry) + "\n")
 
     def reinforce_concept(self, concept, gain=0.01):
-        """Reinforce all symbol→concept links in AKG."""
+        """Reinforce all symbol->concept links in AKG."""
         from backend.modules.aion_knowledge import knowledge_graph_core as akg
         concept_map = akg.export_concepts()
         if concept not in concept_map:

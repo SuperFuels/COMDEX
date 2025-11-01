@@ -12,7 +12,7 @@ async def test_ghx_pmg_binder_temporal_linkage():
     assert b1["pmg_binder"]["prev_hash"] is None
     assert b1["pmg_binder"]["linked"] is False
 
-    # Capture checksum of the first saved bundle *before it’s replaced*
+    # Capture checksum of the first saved bundle *before it's replaced*
     first_checksum = sync.vault._last_saved_bundle["checksum"]
 
     # Second bundle (should link to first via prev_hash = first_checksum)

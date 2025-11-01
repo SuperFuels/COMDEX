@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Black Hole Container (Stage 15-B)
+#  Tessaris * Black Hole Container (Stage 15-B)
 #  Specialized ExoticContainer for total compression
 #  Simulates gravitational collapse and entropy sink
 # ──────────────────────────────────────────────
@@ -21,9 +21,9 @@ class BlackHoleContainer(ExoticContainer):
     high-density symbolic compression (entropy sink).
 
     Adds:
-      • gravitational compression model
-      • ψ-κ-T collapse visualization
-      • event emission to Morphic / GHX fabric
+      * gravitational compression model
+      * ψ-κ-T collapse visualization
+      * event emission to Morphic / GHX fabric
     """
 
     def __init__(
@@ -63,7 +63,7 @@ class BlackHoleContainer(ExoticContainer):
         }
 
     # ──────────────────────────────────────────────
-    #  Override Collapse → full gravitational sink
+    #  Override Collapse -> full gravitational sink
     # ──────────────────────────────────────────────
     def collapse(self):
         """Override to include gravitational entropy sink visualization."""
@@ -83,14 +83,14 @@ class BlackHoleContainer(ExoticContainer):
             logger.warning(f"[BlackHoleContainer] Collapse simulation failed: {e}")
 
     # ──────────────────────────────────────────────
-    #  Event emission → Morphic / HUD
+    #  Event emission -> Morphic / HUD
     # ──────────────────────────────────────────────
     def _emit_collapse_event(self, metrics: Dict[str, float]):
         try:
             from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
         except Exception:
             def send_codex_ws_event(event_type: str, payload: dict):
-                print(f"[Fallback HUD] {event_type} → {payload}")
+                print(f"[Fallback HUD] {event_type} -> {payload}")
 
         payload = {
             "event": "black_hole_collapse",

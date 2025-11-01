@@ -8,7 +8,7 @@ from backend.photon_algebra.core import EMPTY
 # --- Hypothesis strategies for random Photon expressions ---
 
 def photon_atoms():
-    """Generate atomic glyphs (a, b, c, …)."""
+    """Generate atomic glyphs (a, b, c, ...)."""
     return st.sampled_from(["a", "b", "c", "d", "e", "f", "g"])
 
 def photon_exprs(max_depth=4):

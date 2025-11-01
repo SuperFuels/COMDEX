@@ -69,7 +69,7 @@ plt.figure(figsize=(9,5))
 plt.plot(S_sys, label="S_system")
 plt.plot(S_obs, label="S_observer")
 plt.plot(I_mut, label="Mutual Info")
-plt.title("O2 — Information Exchange Equilibrium")
+plt.title("O2 - Information Exchange Equilibrium")
 plt.xlabel("time step")
 plt.ylabel("Entropy / Information")
 plt.legend()
@@ -96,6 +96,6 @@ out_path = "backend/modules/knowledge/O2_info_equilibrium.json"
 with open(out_path, "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== O2 — Information Exchange Equilibrium ===")
-print(f"Mean drift={mean_drift:.3e} → {cls}")
-print(f"✅ Results saved → {out_path}")
+print("=== O2 - Information Exchange Equilibrium ===")
+print(f"Mean drift={mean_drift:.3e} -> {cls}")
+print(f"✅ Results saved -> {out_path}")

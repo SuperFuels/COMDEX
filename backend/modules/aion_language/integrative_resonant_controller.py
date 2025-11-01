@@ -1,5 +1,5 @@
 """
-Integrative Resonant Controller — Phase 40G
+Integrative Resonant Controller - Phase 40G
 -------------------------------------------
 Couples forecaster (RFE), attention (AVATAR), and stabilizer (HSE)
 into a continuous self-regulating feedback loop.
@@ -26,7 +26,7 @@ class IntegrativeResonantController:
 
     # ─────────────────────────────────────────
     def run_cycle(self):
-        """Run a single prediction → focus → stabilization cycle."""
+        """Run a single prediction -> focus -> stabilization cycle."""
         fc = RFE.forecast()
         sri = fc.get("SRI", 0.0)
         target = fc.get("target", "concept:unknown")
@@ -34,7 +34,7 @@ class IntegrativeResonantController:
         logger.info(f"[IRC] SRI={sri:.3f} for {target}")
 
         if sri > self.sri_threshold:
-            logger.warning(f"[IRC] Rising instability detected → focusing on {target}")
+            logger.warning(f"[IRC] Rising instability detected -> focusing on {target}")
             focus_evt = AVATAR.focus(target, strength=min(1.0, sri * 2.0))
             packet = HSE.stabilize()
             if packet:

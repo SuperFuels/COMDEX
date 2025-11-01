@@ -1,5 +1,5 @@
 # ================================================================
-# 🧠 CEE Language Path — LexField Resonance Exporter
+# 🧠 CEE Language Path - LexField Resonance Exporter
 # ================================================================
 """
 Aggregates all lexical exercise generators into a unified resonance
@@ -20,7 +20,7 @@ Schema Example:
     {"type": "cloze", "prompt": "...", "ρ": 0.74, "I": 0.91, "SQI": 0.82},
     ...
   ],
-  "averages": {"ρ̄": 0.76, "Ī": 0.89, "SQĪ": 0.83},
+  "averages": {"ρ̄": 0.76, "Ī": 0.89, "SQĪ": 0.83},
   "schema": "LexFieldQData.v1"
 }
 """
@@ -72,7 +72,7 @@ class LexFieldExporter:
         return {
             "ρ̄": round(sum(rhos) / len(rhos), 3),
             "Ī": round(sum(intensities) / len(intensities), 3),
-            "SQĪ": round(sum(sqis) / len(sqis), 3),
+            "SQĪ": round(sum(sqis) / len(sqis), 3),
         }
 
     # ------------------------------------------------------------
@@ -90,7 +90,7 @@ class LexFieldExporter:
         OUT_DIR.mkdir(parents=True, exist_ok=True)
         outpath = OUT_DIR / f"{self.session_id}.qdata.json"
         json.dump(packet, open(outpath, "w"), indent=2)
-        logger.info(f"[LexFieldExporter] Exported resonance map → {outpath}")
+        logger.info(f"[LexFieldExporter] Exported resonance map -> {outpath}")
         return outpath, packet
 
 

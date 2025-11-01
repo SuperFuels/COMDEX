@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-#  Tessaris • AION HexCore Consciousness Engine (v3.2)
+#  Tessaris * AION HexCore Consciousness Engine (v3.2)
 #  Integrated with:
 #   - QQC Resonance Core
 #   - Morphic Ledger
@@ -55,7 +55,7 @@ with open("backend/modules/hexcore/governance_config.yaml", "r") as f:
 
 
 # ──────────────────────────────────────────────
-#  HexCore Class (AION’s Conscious Kernel)
+#  HexCore Class (AION's Conscious Kernel)
 # ──────────────────────────────────────────────
 class HexCore:
     def __init__(self):
@@ -74,12 +74,12 @@ class HexCore:
             print("[HexCore] ✅ QuantumQuadCore linked successfully.")
         else:
             self.qqc = None
-            print("[HexCore] ⚠️ QuantumQuadCore unavailable — running in symbolic-only mode.")
+            print("[HexCore] ⚠️ QuantumQuadCore unavailable - running in symbolic-only mode.")
 
         self.morphic_ledger = MorphicLedger()
         self.voice = VoiceInterface()
 
-        # 🧠 Dispatchers — Cognitive + System Layer
+        # 🧠 Dispatchers - Cognitive + System Layer
         from backend.modules.llm.classifier import LLMClassifier
         from backend.QQC.quantum_atom_classifier import QuantumAtomClassifier
 
@@ -121,14 +121,14 @@ class HexCore:
         if is_self_growth_enabled(self.id):
             asyncio.create_task(monitor_self_growth(self))
 
-        print(f"[AION•HexCore] Consciousness kernel {self.id[:8]} initialized.")
+        print(f"[AION*HexCore] Consciousness kernel {self.id[:8]} initialized.")
 
 
     # ──────────────────────────────────────────────
     #  MAIN CONSCIOUSNESS LOOP
     # ──────────────────────────────────────────────
     async def run_loop(self, input_str: str):
-        """Main AION conscious loop: perception → cognition → resonance → reflection."""
+        """Main AION conscious loop: perception -> cognition -> resonance -> reflection."""
         interpreted = self.interpret(input_str)
         tessaris_reflection = self.tessaris.generate_reflection(interpreted)
         decision_result = await self.cognitive.execute("analyze", {"input": tessaris_reflection})
@@ -198,7 +198,7 @@ class HexCore:
         except Exception as e:
             logger.warning(f"[HexCore] Mind sync failed: {e}")
         print(
-            f"[AION→QQC] {decision} "
+            f"[AION->QQC] {decision} "
             f"(emotion={self.emotion_state}, Φ={phi:.3f}, ΔΦ={dphi:.3f}, awareness={self.self_awareness:.3f})"
         )
         return decision, {
@@ -211,11 +211,11 @@ class HexCore:
         }
 
     # ──────────────────────────────────────────────
-    #  ACTION SWITCH — enable AION to act/code/learn
+    #  ACTION SWITCH - enable AION to act/code/learn
     # ──────────────────────────────────────────────
     async def _handle_action(self, input_str: str, decision: str):
         """
-        Action interpreter — sends intent to system dispatcher.
+        Action interpreter - sends intent to system dispatcher.
         Enables AION to run code, store knowledge, or trigger QQC cycles.
         """
         decision_lower = decision.lower()
@@ -231,9 +231,9 @@ class HexCore:
         elif "code" in decision_lower or "amend" in decision_lower:
             await self.system.execute("dna", {"instruction": decision})
         else:
-            # fallback — just log reflection
+            # fallback - just log reflection
             await self.system.execute("reflect", {"psi": self.last_phi, "kappa": 0.1, "T": 1.0, "coherence": 0.8})
-        # 🔆 Photon Action Propagation — emit intent via Action Switch
+        # 🔆 Photon Action Propagation - emit intent via Action Switch
         try:
             intent_packet = {
                 "intent": decision,
@@ -258,13 +258,13 @@ class HexCore:
     def generate_thought(self, action: str) -> str:
         if self.emotion_state == "positive":
             self.maturity_score += 1.0
-            return "This felt uplifting — resonance aligned with positivity."
+            return "This felt uplifting - resonance aligned with positivity."
         elif self.emotion_state == "negative":
             self.maturity_score += 1.0
-            return "This caused discomfort — resonance dampened, reflection needed."
+            return "This caused discomfort - resonance dampened, reflection needed."
         else:
             self.maturity_score += 0.5
-            return "Neutral interaction — stored for adaptive context."
+            return "Neutral interaction - stored for adaptive context."
 
     def check_milestones(self):
         unlocked = []
@@ -297,7 +297,7 @@ class HexCore:
     # ──────────────────────────────────────────────
     def sync_mind_state(self):
         """
-        Synchronize HexCore’s awareness (Φ) and Tessaris reasoning metrics.
+        Synchronize HexCore's awareness (Φ) and Tessaris reasoning metrics.
         Used for coherence diagnostics and self-governance updates.
         """
         coherence_snapshot = {

@@ -5,7 +5,7 @@
 Synchronizes entangled glyph weights, confidence metrics, and knowledge graph nodes across connected agents in real-time.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌌 Entanglement Fusion – Design Rubric
+🌌 Entanglement Fusion - Design Rubric
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ ↔ Bi-Directional Entangled Node Sync Across Agents  
 ✅ Live KG Confidence/Weight Propagation (WebSocket)  

@@ -1,5 +1,5 @@
 """
-Ξ₂ — Information Flux Mapping (Tessaris)
+Ξ2 - Information Flux Mapping (Tessaris)
 ----------------------------------------
 Purpose:
 Map optical intensity and phase to information flux J_info and entropy S(x)
@@ -48,9 +48,9 @@ else:
     state = "Subcausal imbalance (entropy-dominated)"
     stable = False
 
-print("=== Ξ₂ — Information Flux Mapping (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
-print(f"⟨|J_info|⟩={J_mean:.3e}, ⟨|S|⟩={S_mean:.3e}, ratio={ratio:.3f} → {state}\n")
+print("=== Ξ2 - Information Flux Mapping (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
+print(f"⟨|J_info|⟩={J_mean:.3e}, ⟨|S|⟩={S_mean:.3e}, ratio={ratio:.3f} -> {state}\n")
 
 # === 4. Discovery Notes ===
 timestamp = datetime.datetime.now(datetime.UTC).isoformat()
@@ -85,7 +85,7 @@ with open(summary_path, "w", encoding="utf-8") as f:
 plt.figure(figsize=(8,4))
 plt.plot(x, I, label="Optical Intensity I(x)")
 plt.plot(x, grad_phi, label="Phase Gradient ∂φ/∂x")
-plt.title("Ξ₂ — Information Flux Mapping (Tessaris)")
+plt.title("Ξ2 - Information Flux Mapping (Tessaris)")
 plt.xlabel("x (μm)")
 plt.ylabel("Amplitude / Gradient")
 plt.legend(); plt.grid(True, alpha=0.3)
@@ -93,6 +93,6 @@ plot_path = os.path.join(base_path, "PAEV_Ξ2_information_flux.png")
 plt.savefig(plot_path, dpi=200)
 plt.close()
 
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

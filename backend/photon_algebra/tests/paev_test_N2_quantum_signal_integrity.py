@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import json
 from pathlib import Path
 
-print("=== N2 — Quantum Signal Integrity Test ===")
+print("=== N2 - Quantum Signal Integrity Test ===")
 
 # Load constants (reuse same TOE constants)
 const_path = Path("backend/photon_algebra/constants_v1.1.json")
@@ -57,16 +57,16 @@ print(f"Delay ratio (Δt_signal / Δt_light) = {delay_ratio:.3f}")
 if delay_ratio < 1.0 and np.max(fidelity) > 0.9:
     print("✅ Entanglement-assisted signal transmission verified.")
 elif np.max(fidelity) > 0.9:
-    print("⚠️ High fidelity but classical timing — possibly non-traversable bridge.")
+    print("⚠️ High fidelity but classical timing - possibly non-traversable bridge.")
 else:
-    print("❌ No coherent transfer detected — bridge inactive.")
+    print("❌ No coherent transfer detected - bridge inactive.")
 
 # --- Plot results ---
 plt.figure(figsize=(8,5))
-plt.plot(t, fidelity, label="Fidelity |⟨ψ₂|ψ₁_encoded⟩|²", color="tab:blue")
+plt.plot(t, fidelity, label="Fidelity |⟨ψ2|ψ1_encoded⟩|2", color="tab:blue")
 plt.plot(t, decoherence / np.max(decoherence), "--", label="Normalized Decoherence", color="tab:orange")
 plt.axvline(lightcone_t, color="r", linestyle=":", label="Light-cone")
-plt.title("N2 — Quantum Signal Fidelity and Decoherence")
+plt.title("N2 - Quantum Signal Fidelity and Decoherence")
 plt.xlabel("Time")
 plt.ylabel("Normalized magnitude")
 plt.legend()

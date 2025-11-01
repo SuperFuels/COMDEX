@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-🧠  Aion Cognitive Stability Heatmap — Phase 35.6.1
+🧠  Aion Cognitive Stability Heatmap - Phase 35.6.1
 ───────────────────────────────────────────────────────────────────────────────
 Visualizes RSI variance (stability) across concept fields over time windows.
 Now optimized for readability and relevance:
-    • Blue = stable / coherent resonance
-    • Red  = high variance / drift
-    • Sorted by dynamic intensity (top concepts only)
+    * Blue = stable / coherent resonance
+    * Red  = high variance / drift
+    * Sorted by dynamic intensity (top concepts only)
 """
 
 import json, statistics, time
@@ -65,7 +65,7 @@ def group_by_window(records, window_size):
 
 # ── Main Process ─────────────────────────────────────────
 def build_heatmap():
-    print("🧠  Generating Cognitive Stability Heatmap (Phase 35.6.1)…")
+    print("🧠  Generating Cognitive Stability Heatmap (Phase 35.6.1)...")
     records = load_rsi_stream()
     if not records:
         print("⚠️  No RSI records available.")
@@ -95,7 +95,7 @@ def build_heatmap():
             row.append(var if var is not None else np.nan)
         heatmap_data.append(row)
 
-    # Convert → NumPy matrix
+    # Convert -> NumPy matrix
     matrix = np.array(heatmap_data).T
     if matrix.size == 0:
         print("⚠️  No sufficient RSI data for heatmap.")
@@ -140,7 +140,7 @@ def build_heatmap():
         ha="right",
         fontsize=7
     )
-    plt.title("Aion Cognitive Stability Heatmap — Top 30 Concept Fields (Phase 35.6.1)")
+    plt.title("Aion Cognitive Stability Heatmap - Top 30 Concept Fields (Phase 35.6.1)")
     plt.xlabel("Time Windows")
     plt.ylabel("Concept Fields")
 
@@ -148,7 +148,7 @@ def build_heatmap():
     plt.tight_layout()
     plt.savefig(OUTPUT, dpi=200)
     plt.close()
-    print(f"✅  Stability heatmap (Top 30) saved → {OUTPUT}")
+    print(f"✅  Stability heatmap (Top 30) saved -> {OUTPUT}")
 
 # ────────────────────────────────────────────────────────
 if __name__ == "__main__":

@@ -3,20 +3,20 @@
 pattern_engine_repair.py
 =========================
 
-F3 Pattern Engine — Symbolic Resonance & Repair Layer
+F3 Pattern Engine - Symbolic Resonance & Repair Layer
 -----------------------------------------------------
 Responsible for detecting coherence drift, resolving entangled container forks,
-and restoring stable ψ–κ–T equilibrium in the UCS runtime.
+and restoring stable ψ-κ-T equilibrium in the UCS runtime.
 
 Integrates:
-    • UCSRuntime (container registry & atom index)
-    • EntangledRuntimeForker (for branch lineage detection)
-    • ObserverPathSelector (for collapse decisioning)
-    • SQI Kernel metrics (for coherence scoring)
-    • QQC Scheduler (for reinjection of stabilized beams)
+    * UCSRuntime (container registry & atom index)
+    * EntangledRuntimeForker (for branch lineage detection)
+    * ObserverPathSelector (for collapse decisioning)
+    * SQI Kernel metrics (for coherence scoring)
+    * QQC Scheduler (for reinjection of stabilized beams)
 
 Repair Cycle Phases:
-    1. Detect drift (SQI < threshold or ψ–κ–T delta > ε)
+    1. Detect drift (SQI < threshold or ψ-κ-T delta > ε)
     2. Identify entangled forks via lineage metadata
     3. Collapse or merge branches using ⟲ resonance
     4. Reinstate coherent container state in UCS
@@ -48,12 +48,12 @@ class PatternEngineRepair:
     # ───────────────────────────────────────────────
     def detect_drift(self, coherence: float, field_signature: Dict[str, Any]) -> bool:
         """
-        Determine if symbolic coherence has dropped or ψ–κ–T drifted beyond tolerance.
+        Determine if symbolic coherence has dropped or ψ-κ-T drifted beyond tolerance.
         """
         psi_val = field_signature.get("psi", 0.0)
         drift_detected = coherence < self.sqi_threshold or abs(psi_val) > self.psi_delta_threshold
         if drift_detected:
-            logger.warning(f"[Repair] Drift detected — coherence={coherence:.3f}, ψ={psi_val:.3f}")
+            logger.warning(f"[Repair] Drift detected - coherence={coherence:.3f}, ψ={psi_val:.3f}")
         return drift_detected
 
     # ───────────────────────────────────────────────
@@ -103,7 +103,7 @@ class PatternEngineRepair:
                 if fid in self.ucs.containers:
                     self.ucs.remove_container(fid)
 
-            logger.info(f"[Repair] Recombined forks into origin {origin} → {chosen}")
+            logger.info(f"[Repair] Recombined forks into origin {origin} -> {chosen}")
 
         return repairs
 

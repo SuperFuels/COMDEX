@@ -115,7 +115,7 @@ def verify_siwe(
     user = db.query(User).filter_by(wallet_address=signer).first()
     if not user:
         user = User(
-            name=f"{signer[:6]}…",        # placeholder
+            name=f"{signer[:6]}...",        # placeholder
             email="",
             password_hash="",
             role="buyer",

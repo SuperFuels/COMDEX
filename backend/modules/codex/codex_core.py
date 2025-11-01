@@ -16,7 +16,7 @@ class CodexCore:
     Core symbolic execution engine.
     - Executes CodexLang glyphs or photon capsules
     - Handles symbolic hashing, mutation triggers, and cost estimation
-    - Fully compatible with QQC → SQI → Codex pipeline
+    - Fully compatible with QQC -> SQI -> Codex pipeline
     """
 
     def __init__(self):
@@ -39,9 +39,9 @@ class CodexCore:
         """
         Execute symbolic glyph(s) or a photon capsule (dict-based beam payload).
         Accepts:
-          - str  → single glyph string
-          - dict → capsule or beam_data with "glyphs" key
-          - list → direct list of glyphs
+          - str  -> single glyph string
+          - dict -> capsule or beam_data with "glyphs" key
+          - list -> direct list of glyphs
         """
         from backend.modules.glyphos.codexlang_translator import (
             parse_codexlang_string,

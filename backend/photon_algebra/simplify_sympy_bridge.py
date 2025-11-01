@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Photon Algebra — SymPy Simplification Bridge
+Photon Algebra - SymPy Simplification Bridge
 ============================================
-Task I2.2 — Symbolic Simplification Pipeline
+Task I2.2 - Symbolic Simplification Pipeline
 
 This module uses the established Photon ↔ SymPy bridge to perform
 boolean or symbolic simplifications *safely*, i.e. without losing

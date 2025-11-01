@@ -4,7 +4,7 @@ from datetime import datetime
 import json
 import os
 
-# === N8 — Quantum Thermodynamic Limit: Energy Cost of Entanglement Transport ===
+# === N8 - Quantum Thermodynamic Limit: Energy Cost of Entanglement Transport ===
 ħ = 1e-3
 G = 1e-5
 Λ = 1e-6
@@ -35,9 +35,9 @@ E_threshold = E_cost_eV[threshold_idx]
 plt.figure(figsize=(8, 6))
 plt.plot(fidelities, E_cost_eV, color='blue', label='Energy cost per qubit (eV)')
 plt.axhline(E_threshold, color='red', linestyle='--', label=f'90% fidelity cost ≈ {E_threshold:.2e} eV')
-plt.xlabel('Fidelity |⟨ψ₁|ψ₂⟩|²')
+plt.xlabel('Fidelity |⟨ψ1|ψ2⟩|2')
 plt.ylabel('Energy per bit (eV)')
-plt.title('N8 — Quantum Thermodynamic Limit: Energy Cost of Entanglement Transport')
+plt.title('N8 - Quantum Thermodynamic Limit: Energy Cost of Entanglement Transport')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
@@ -63,7 +63,7 @@ os.makedirs("backend/modules/knowledge", exist_ok=True)
 with open("backend/modules/knowledge/N8_energy_summary.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== N8 — Quantum Thermodynamic Limit ===")
+print("=== N8 - Quantum Thermodynamic Limit ===")
 print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}")
 print(f"Effective temperature T = {T:.3e} K")
 print(f"Energy cost per bit at 90% fidelity = {E_threshold:.3e} eV")

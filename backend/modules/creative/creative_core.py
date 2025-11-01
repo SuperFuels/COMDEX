@@ -10,7 +10,7 @@ load_dotenv()
 import os
 password = os.environ.get("POSTGRES_PASSWORD")  # kept (no code loss)
 
-# --- SQI drift import (canonical → legacy → scorer → stub) ---
+# --- SQI drift import (canonical -> legacy -> scorer -> stub) ---
 try:
     # ✅ canonical path
     from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import (
@@ -24,7 +24,7 @@ except Exception:
             from backend.modules.sqi.sqi_scorer import log_sqi_drift  # fallback
         except Exception:
             def log_sqi_drift(container_id: str, wave_id: str, glow: float, pulse: float) -> None:
-                print(f"[SQI] (stub) Drift {wave_id} in {container_id} → glow={glow:.2f}, pulse={pulse:.2f}Hz")
+                print(f"[SQI] (stub) Drift {wave_id} in {container_id} -> glow={glow:.2f}, pulse={pulse:.2f}Hz")
 
 # --- Carrier type import with graceful fallback ---
 try:
@@ -47,7 +47,7 @@ from backend.modules.glyphwave.qwave.qwave_transfer_sender import send_qwave_tra
 from backend.modules.visualization.glyph_to_qfc import to_qfc_payload  # retained (no loss)
 from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update  # retained (no loss)
 
-# --- Codex collapse metric import (canonical → legacy → stub) ---
+# --- Codex collapse metric import (canonical -> legacy -> stub) ---
 try:
     from backend.modules.codex.codex_metrics import log_collapse_metric  # ✅ canonical
 except Exception:
@@ -55,7 +55,7 @@ except Exception:
         from backend.modules.codex.codex_metric import log_collapse_metric  # legacy singular
     except Exception:
         def log_collapse_metric(container_id, wave_id, score, state):
-            print(f"[CodexMetric] (stub) Beam {wave_id} in {container_id} → score={score:.3f}, state={state}")
+            print(f"[CodexMetric] (stub) Beam {wave_id} in {container_id} -> score={score:.3f}, state={state}")
 
 from backend.modules.dna_chain.dna_switch import (
     is_self_growth_enabled,
@@ -71,8 +71,8 @@ MAX_FORKS = 5
 def _fire_and_forget(coro):
     """
     Schedule an async coroutine without requiring callers to manage an event loop.
-    - If we're inside a running loop → create_task
-    - If not → run it to completion in a fresh loop (simple/contained)
+    - If we're inside a running loop -> create_task
+    - If not -> run it to completion in a fresh loop (simple/contained)
     """
     try:
         loop = asyncio.get_running_loop()
@@ -94,12 +94,12 @@ def emit_creative_fork(
 
     # ---- DNA self-growth gating ----
     if not is_self_growth_enabled(container_id):
-        print("[CreativeCore] 🧬 self_growth OFF — aborting fork emission")
+        print("[CreativeCore] 🧬 self_growth OFF - aborting fork emission")
         return []
 
     # Optional scaling via DNA (clamped for safety)
     growth_factor = get_growth_factor(container_id)
-    # e.g., growth_factor=1 → MAX_FORKS; gf=2 → 2*MAX_FORKS; hard cap at 12 total
+    # e.g., growth_factor=1 -> MAX_FORKS; gf=2 -> 2*MAX_FORKS; hard cap at 12 total
     local_max_forks = max(1, min(int(growth_factor) * MAX_FORKS, 12))
 
     print(f"[CreativeCore] 🚀 Generating up to {local_max_forks} creative forks for container {container_id}...")
@@ -231,14 +231,14 @@ def emit_creative_fork(
             "timestamp": getattr(fork_wave, "timestamp", time.time()),
         }
 
-        # ✅ Step 7: Emit via GlyphWave/WebSocket — fire-and-forget to avoid await in sync fn
+        # ✅ Step 7: Emit via GlyphWave/WebSocket - fire-and-forget to avoid await in sync fn
         print(f"[CreativeCore] 📡 Emitting fork beam {fork_id} (score={score:.3f})")
         try:
             _fire_and_forget(broadcast_event("glyphwave.fork_beam", broadcast_payload))
         except Exception as e:
             print(f"[CreativeCore] ⚠️ WebSocket broadcast failed: {e}")
 
-        # ✅ Step 7.5: Realtime QWave Transfer (via emitter) — single, canonical call
+        # ✅ Step 7.5: Realtime QWave Transfer (via emitter) - single, canonical call
         try:
             from backend.modules.gglyphwave.emitters.qwave_emitter import emit_qwave_beam  # NOTE: correct path is backend.modules.glyphwave.emitters...
         except Exception:

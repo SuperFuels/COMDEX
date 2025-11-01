@@ -1,12 +1,12 @@
 """
 🎛 Hyperdrive Tuning Constants Module
 --------------------------------------
-• Centralizes all Hyperdrive + QWave tuning constants and utility methods.
-• Shared across ECU runtime, Auto-Tuner, SQI Controllers, Gear Shift, and Engine logic.
-• ✅ Supports runtime persistence (load/save last-tuned values).
-• 🔮 SQI adjustment integration, particle velocity enforcement, plasma dwell gating.
-• 🛡 Auto-validates and injects missing constants to prevent boot-time AttributeErrors.
-• 🔧 Fully merged with QWave tuning (legacy harmonic maps, stages, auto-tuning).
+* Centralizes all Hyperdrive + QWave tuning constants and utility methods.
+* Shared across ECU runtime, Auto-Tuner, SQI Controllers, Gear Shift, and Engine logic.
+* ✅ Supports runtime persistence (load/save last-tuned values).
+* 🔮 SQI adjustment integration, particle velocity enforcement, plasma dwell gating.
+* 🛡 Auto-validates and injects missing constants to prevent boot-time AttributeErrors.
+* 🔧 Fully merged with QWave tuning (legacy harmonic maps, stages, auto-tuning).
 """
 
 import os
@@ -260,10 +260,10 @@ class HyperdriveTuningConstants:
                 cls.THERMAL_SLOPE_MAX = constants.get("thermal_slope_max", cls.THERMAL_SLOPE_MAX)
                 print(f"♻ HyperdriveTuningConstants restored: {constants}")
             except (json.JSONDecodeError, IOError) as e:
-                print(f"⚠ Failed to load runtime constants: {e} → Resetting to defaults.")
+                print(f"⚠ Failed to load runtime constants: {e} -> Resetting to defaults.")
                 cls.seed_defaults()
         else:
-            print("🔄 No runtime file found → Seeding with known stable constants.")
+            print("🔄 No runtime file found -> Seeding with known stable constants.")
             cls.seed_defaults()
         cls.validate_constants()
 
@@ -300,7 +300,7 @@ class HyperdriveTuningConstants:
     def debug_stages(cls):
         print("🚀 Hyperdrive Stage Configurations:")
         for stage, cfg in cls.STAGE_CONFIGS.items():
-            print(f"  • {stage}: {cfg}")
+            print(f"  * {stage}: {cfg}")
 
     @classmethod
     def validate_constants(cls):
@@ -392,4 +392,4 @@ class HyperdriveAutoTuner:
         }
         with open(snapshot_path, "w") as f:
             json.dump(snapshot, f, indent=2)
-        print(f"📦 Final tuning snapshot exported → {snapshot_path}")
+        print(f"📦 Final tuning snapshot exported -> {snapshot_path}")

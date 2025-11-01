@@ -1,7 +1,7 @@
 """
-🛰 QGN-Identity Registry — SRK-16 Task B1
+🛰 QGN-Identity Registry - SRK-16 Task B1
 Manages quantum node identity certificates (QNCs) for Tessaris QGN nodes.
-Each QNC binds a node’s coherence fingerprint, QKD keypair, and signature metadata.
+Each QNC binds a node's coherence fingerprint, QKD keypair, and signature metadata.
 """
 
 import time, hashlib, json

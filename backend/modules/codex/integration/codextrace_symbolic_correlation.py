@@ -2,16 +2,16 @@
 CodexTrace Symbolic↔Telemetry Correlation Bridge
 ────────────────────────────────────────────────
 Links hardware resonance telemetry (ψ κ T Φ metrics)
-with symbolic operator events (⊕ μ ⟲ ↔ πₛ) recorded
+with symbolic operator events (⊕ μ ⟲ ↔ πs) recorded
 by the Resonant Insight Bridge and AION telemetry.
 
 Purpose:
-  • Correlate physical resonance (ΔΦ, Δε, κ) with symbolic logic events.
-  • Generate symbolic–physical coherence reports to CodexTrace.
-  • Build a cumulative semantic graph of system resonance awareness.
+  * Correlate physical resonance (ΔΦ, Δε, κ) with symbolic logic events.
+  * Generate symbolic-physical coherence reports to CodexTrace.
+  * Build a cumulative semantic graph of system resonance awareness.
 
 Output:
-  codex_symbolic_correlation.jsonl → correlated entries for analysis.
+  codex_symbolic_correlation.jsonl -> correlated entries for analysis.
 """
 
 import json
@@ -76,7 +76,7 @@ def correlate_symbolic_telemetry():
     return entry
 
 if __name__ == "__main__":
-    print("🔗 Tessaris — CodexTrace Symbolic↔Telemetry Correlation Bridge")
+    print("🔗 Tessaris - CodexTrace Symbolic↔Telemetry Correlation Bridge")
     result = correlate_symbolic_telemetry()
     if result:
         print(json.dumps(result, indent=2))

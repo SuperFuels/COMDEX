@@ -1,5 +1,5 @@
 # ================================================================
-# 🌐 Phase 45G.10 — GHX ↔ Habit Telemetry Bridge
+# 🌐 Phase 45G.10 - GHX ↔ Habit Telemetry Bridge
 # ================================================================
 """
 Streams habit evolution metrics (habit_strength, Δhabit, trend slope)
@@ -77,7 +77,7 @@ class GHXHabitTelemetryBridge:
             json.dump(payload, f, indent=2)
 
         self.output = payload
-        logger.info(f"[GHX-Habit] Feed exported → {GHX_HABIT_FEED_PATH}")
+        logger.info(f"[GHX-Habit] Feed exported -> {GHX_HABIT_FEED_PATH}")
         return payload
 
     # ------------------------------------------------------------

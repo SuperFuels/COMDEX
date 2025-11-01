@@ -1,5 +1,5 @@
 """
-💡 Wiki ↔ Photon Integration — Phase 3
+💡 Wiki ↔ Photon Integration - Phase 3
 --------------------------------------
 Registers the 📚 glyph as a Photon plugin.
 When a Photon script encounters 📚Domain>Lemma, this plugin
@@ -44,7 +44,7 @@ def handle_wiki(instruction: str) -> dict:
 #───────────────────────────────────────────────
 def register_with_photon(photon_executor):
     """
-    Register 📚 handler into Photon’s plugin registry.
+    Register 📚 handler into Photon's plugin registry.
     Expected to be called from photon_executor initialization.
     """
     try:

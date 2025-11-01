@@ -2,7 +2,7 @@
 """
 Photon Serialization & Interop Benchmark
 ========================================
-Task: I5 — Validate JSON↔Photon↔SymPy roundtrip fidelity.
+Task: I5 - Validate JSON↔Photon↔SymPy roundtrip fidelity.
 """
 
 import time

@@ -1,13 +1,13 @@
 # backend/RQC/src/photon_runtime/telemetry/ledger_feed.py
 """
-Tessaris RQC — Morphic Ledger Feed
+Tessaris RQC - Morphic Ledger Feed
 ────────────────────────────────────────────────────────
-Serves real-time Φ–ψ–κ–T telemetry entries from the MorphicLedger
-(JSONL ledger → Web API → CodexTrace Visualizer).
+Serves real-time Φ-ψ-κ-T telemetry entries from the MorphicLedger
+(JSONL ledger -> Web API -> CodexTrace Visualizer).
 
 Endpoints:
-    GET /telemetry/ledger/latest   → last N entries (JSON)
-    GET /telemetry/ledger/stream   → live Server-Sent Events (SSE)
+    GET /telemetry/ledger/latest   -> last N entries (JSON)
+    GET /telemetry/ledger/stream   -> live Server-Sent Events (SSE)
 """
 
 import os

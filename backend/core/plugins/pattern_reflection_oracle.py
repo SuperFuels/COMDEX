@@ -17,11 +17,11 @@ class PatternReflectionOracle(PluginInterface):
         self.last_triggered = None
 
     def register_plugin(self):
-        print(f"🔮 Plugin Registered: {self.plugin_id} — {self.name}")
+        print(f"🔮 Plugin Registered: {self.plugin_id} - {self.name}")
 
     def trigger(self, context: Optional[Dict[str, Any]] = None) -> None:
         self.last_triggered = datetime.utcnow().isoformat()
-        print(f"🧠 Pattern Oracle Triggered — Context: {context}")
+        print(f"🧠 Pattern Oracle Triggered - Context: {context}")
 
     def mutate(self, logic: str) -> str:
         mutated = logic.replace("↔", "⟲") + " ⧖ reflect_pattern()"
@@ -36,4 +36,4 @@ class PatternReflectionOracle(PluginInterface):
         return logic
 
     def broadcast_qfc_update(self) -> None:
-        print(f"📡 [Pattern Oracle] Active Patterns: {len(self.active_patterns)} — Last = {self.last_reflection}")
+        print(f"📡 [Pattern Oracle] Active Patterns: {len(self.active_patterns)} - Last = {self.last_reflection}")

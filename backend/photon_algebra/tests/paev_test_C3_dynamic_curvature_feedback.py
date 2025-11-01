@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Test C3 — Dynamic Curvature Feedback (Symbolic Einstein Analogue)
+Test C3 - Dynamic Curvature Feedback (Symbolic Einstein Analogue)
 ------------------------------------------------------------------
 Goal:
   Show how curvature κ(x) and rewrite distance D_rw(x) can co-evolve
-  toward a self-consistent equilibrium — an algebraic analogue of
-  Einstein’s equation G ≈ T.
+  toward a self-consistent equilibrium - an algebraic analogue of
+  Einstein's equation G ≈ T.
 
 Mechanism:
   - Rewrite distance D_rw is computed by diffusive propagation.
   - Curvature field κ(x) evolves according to:
         dκ/dt = η * (D_rw - <D_rw>)
-    which drives κ up where rewrites “feel long,” and down where
+    which drives κ up where rewrites "feel long," and down where
     rewrites are short (local cost is low).
 
 Outputs:
@@ -109,7 +109,7 @@ def evolve_curvature(N=81, amp=1.5, sigma=10.0, n_steps=50, eta=0.02):
 # Main
 # ----------------------------------------------------------
 if __name__ == "__main__":
-    print("=== Test C3 — Dynamic Curvature Feedback (Symbolic Einstein Analogue) ===")
+    print("=== Test C3 - Dynamic Curvature Feedback (Symbolic Einstein Analogue) ===")
     N = 81
     amp = 1.5
     sigma = 10.0
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         N=N, amp=amp, sigma=sigma, n_steps=n_steps, eta=eta
     )
 
-    print(f"Lattice {N}×{N}, η={eta}, steps={n_steps}")
+    print(f"Lattice {N}*{N}, η={eta}, steps={n_steps}")
     print(f"Final Pearson r(κ, D_rw) = {corrs[-1]:.4f}")
     print(f"Mean square Δκ at last step = {mses[-1]:.4e}")
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         axs[i].set_title(f"κ(x) at t={int(i*(n_steps/len(snaps)))}")
         axs[i].axis("off")
         fig.colorbar(im, ax=axs[i], fraction=0.046, pad=0.04)
-    plt.suptitle("Test C3 — Curvature Evolution under Rewrite Feedback")
+    plt.suptitle("Test C3 - Curvature Evolution under Rewrite Feedback")
     plt.tight_layout()
     plt.savefig("PAEV_TestC3_CurvatureFeedback_Evolution.png", dpi=160)
     print("✅ Saved plot to: PAEV_TestC3_CurvatureFeedback_Evolution.png")
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     ax2.set_ylabel("Mean square Δκ", color="r")
     ax2.tick_params(axis="y", labelcolor="r")
 
-    plt.title("Test C3 — Curvature–Rewrite Coupling Convergence")
+    plt.title("Test C3 - Curvature-Rewrite Coupling Convergence")
     plt.tight_layout()
     plt.savefig("PAEV_TestC3_CurvatureFeedback_Correlation.png", dpi=160)
     print("✅ Saved plot to: PAEV_TestC3_CurvatureFeedback_Correlation.png")

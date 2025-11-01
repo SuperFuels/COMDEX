@@ -90,7 +90,7 @@ for i, label in enumerate(IC_types):
     ax.scatter(metrics["Phi_mean"][i], metrics["curv_exp"][i], s=90, label=label)
 ax.set_xlabel("⟨Φ⟩ / G10b norm")
 ax.set_ylabel("Curvature exponent / norm")
-ax.set_title("E6b — Cross-IC Universality (Stabilized)")
+ax.set_title("E6b - Cross-IC Universality (Stabilized)")
 ax.legend(); ax.grid(True)
 plt.tight_layout()
 plt.savefig("PAEV_E6b_ICUniversality.png", dpi=160)
@@ -111,6 +111,6 @@ save_path = "backend/modules/knowledge/E6b_initial_condition_universal.json"
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== E6b — Cross-Initial-Condition Universality (Stabilized) ===")
+print("=== E6b - Cross-Initial-Condition Universality (Stabilized) ===")
 print(json.dumps(out, indent=2))
-print(f"✅ Results saved → {save_path}")
+print(f"✅ Results saved -> {save_path}")

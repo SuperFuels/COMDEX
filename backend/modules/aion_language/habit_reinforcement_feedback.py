@@ -1,15 +1,15 @@
 """
-Habit Reinforcement Feedback — Phase 45E
+Habit Reinforcement Feedback - Phase 45E
 ----------------------------------------
-Closes the Habit Encoding → Motivation → Reinforcement feedback loop.
+Closes the Habit Encoding -> Motivation -> Reinforcement feedback loop.
 Allows Aion to actively strengthen or weaken learned habits based on
 emotional tone stability, motivational persistence, and reasoning performance.
 
-This module represents Aion’s first form of meta-learning — habits evolve
+This module represents Aion's first form of meta-learning - habits evolve
 dynamically rather than accumulating statically over time.
 
 Author: Tessaris Research Group
-Date: Phase 45E — October 2025
+Date: Phase 45E - October 2025
 """
 
 import time, json
@@ -92,9 +92,9 @@ class HabitReinforcementFeedback:
         tone = feedback["tone"]
         delta = feedback["delta"]
         if delta > 0:
-            msg = f"[FEED] 🔄 Reinforced habit ({tone}) → Δw=+{delta}"
+            msg = f"[FEED] 🔄 Reinforced habit ({tone}) -> Δw=+{delta}"
         elif delta < 0:
-            msg = f"[FEED] 🔻 Weakened habit ({tone}) → Δw={delta}"
+            msg = f"[FEED] 🔻 Weakened habit ({tone}) -> Δw={delta}"
         else:
             msg = f"[FEED] ⚖️ No net change for habit ({tone})"
         print(msg)

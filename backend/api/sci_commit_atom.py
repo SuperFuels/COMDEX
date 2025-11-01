@@ -43,7 +43,7 @@ async def commit_atom(body: CommitAtomIn):
     """
 
     if body.sqi < 0.95:
-        raise HTTPException(status_code=400, detail="SQI too low for commit (requires ≥ 0.95)")
+        raise HTTPException(status_code=400, detail="SQI too low for commit (requires >= 0.95)")
 
     try:
         kg = get_kg_writer()
@@ -81,7 +81,7 @@ async def commit_atom(body: CommitAtomIn):
             "timestamp": atom_node["timestamp"],
         })
 
-        print(f"[CommitAtom] ✅ Committed → KG + Lean ({lean_ref})")
+        print(f"[CommitAtom] ✅ Committed -> KG + Lean ({lean_ref})")
 
         return {
             "ok": True,

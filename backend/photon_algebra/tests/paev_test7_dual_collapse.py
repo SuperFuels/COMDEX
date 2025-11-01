@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Photon Algebra Evaluation (PAEV)
-Test 7 — Photon–Wave Dual Collapse (∇ μ → π)
+Test 7 - Photon-Wave Dual Collapse (∇ μ -> π)
 """
 
 import os
@@ -16,7 +16,7 @@ from backend.photon_algebra.utils.visibility import compute_visibility, project_
 os.makedirs("docs/theory/figures", exist_ok=True)
 os.makedirs("docs/theory/tables", exist_ok=True)
 
-print("⚙️ Running PAEV Test 7 — Photon–Wave Dual Collapse (∇ μ → π)...")
+print("⚙️ Running PAEV Test 7 - Photon-Wave Dual Collapse (∇ μ -> π)...")
 
 # ---------------------------------------------------------------------
 # Parameters
@@ -45,14 +45,14 @@ def generate_field(mode="decoupled", mu=0.1):
     return np.clip(A, 0, 1)
 
 # ---------------------------------------------------------------------
-# Collapse simulation — π projection after μ perturbation
+# Collapse simulation - π projection after μ perturbation
 # ---------------------------------------------------------------------
 def collapse_and_measure(mode, mu):
     I_wave = generate_field(mode, mu)
     # inject decoherence proportional to μ
     noise2D = np.random.normal(0, mu, (I_wave.size, I_wave.size))
     I2D = np.tile(I_wave, (I_wave.size, 1))
-    I2D *= (1 + 0.2 * noise2D)      # simulate μ–dependent fluctuation
+    I2D *= (1 + 0.2 * noise2D)      # simulate μ-dependent fluctuation
     I_proj2D = project_with_pi(I2D, pi_spatial=4)
     I_proj = np.mean(I_proj2D, axis=0)
     V_wave = compute_visibility(I_wave)
@@ -71,7 +71,7 @@ for mode in modes:
         results[mode]["μ"].append(mu)
         results[mode]["V_wave"].append(Vw)
         results[mode]["V_proj"].append(Vp)
-        print(f"{mode:<10s} μ={mu:<.2f} → V_wave={Vw:.3f}, V_proj={Vp:.3f}")
+        print(f"{mode:<10s} μ={mu:<.2f} -> V_wave={Vw:.3f}, V_proj={Vp:.3f}")
 
 # ---------------------------------------------------------------------
 # Plot
@@ -91,7 +91,7 @@ for ax in axes:
     ax.grid(alpha=0.3)
     ax.legend()
 
-plt.suptitle("Test 7 — Photon–Wave Dual Collapse (∇ μ → π)")
+plt.suptitle("Test 7 - Photon-Wave Dual Collapse (∇ μ -> π)")
 plt.tight_layout()
 plt.savefig("docs/theory/figures/PAEV_Test7_DualCollapse.png", dpi=300)
 print("✅ Saved figure to docs/theory/figures/PAEV_Test7_DualCollapse.png")

@@ -29,7 +29,7 @@ def register_all_plugins() -> None:
             plugin_instance = plugin_class()
             plugin_instance.register_plugin()
             ACTIVE_PLUGINS[plugin_instance.plugin_id] = plugin_instance
-            logger.info(f"[PluginManager] ✅ Registered plugin: {plugin_instance.plugin_id} — {plugin_instance.name}")
+            logger.info(f"[PluginManager] ✅ Registered plugin: {plugin_instance.plugin_id} - {plugin_instance.name}")
         except Exception as e:
             logger.error(f"[PluginManager] ❌ Failed to load {module_path}.{class_name}: {e}", exc_info=True)
 

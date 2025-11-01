@@ -1,5 +1,5 @@
 """
-Manual Test — Fabric Stream Heartbeat
+Manual Test - Fabric Stream Heartbeat
 ────────────────────────────────────────────
 Simulates AION fusion events so the Fabric Stream
 emitter outputs live σ ψ̄ κ̄ values.

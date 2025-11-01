@@ -1,5 +1,5 @@
 # ==========================================================
-# P-Series Synthesis — Predictive Resonance Layer (Fixed)
+# P-Series Synthesis - Predictive Resonance Layer (Fixed)
 # Auto-detects stability metrics and handles missing data.
 # Saves: backend/modules/knowledge/P_series_synthesis.json
 # ==========================================================
@@ -60,7 +60,7 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
     "summary_text": (
         "The P-series models predictive resonance and global phase synchronization. "
-        "This synthesis consolidates P-series tests (P1–P10) representing cognitive "
+        "This synthesis consolidates P-series tests (P1-P10) representing cognitive "
         "and anticipatory coupling within the unified field framework."
     )
 }
@@ -70,4 +70,4 @@ with open(out_path, "w") as f:
 
 print(f"=== P-Series Synthesis Complete ({len(records)} records) ===")
 print(f"Mean stability = {mean_stab}")
-print(f"✅ Saved → {out_path}")
+print(f"✅ Saved -> {out_path}")

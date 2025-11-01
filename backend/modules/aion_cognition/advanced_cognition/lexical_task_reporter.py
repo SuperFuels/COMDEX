@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-📊 AION Advanced Cognition — Reporter
+📊 AION Advanced Cognition - Reporter
 ─────────────────────────────────────
 Aggregates task performance metrics and exports to analysis reports.
 """

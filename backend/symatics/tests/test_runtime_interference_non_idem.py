@@ -1,7 +1,7 @@
 """
 Runtime Interference Non-Idempotence Test (v0.4.3)
 --------------------------------------------------
-Ensures (A ⋈[φ] A) ≠ A for φ ≠ 0, π at runtime.
+Ensures (A ⋈[φ] A) != A for φ != 0, π at runtime.
 """
 
 import pytest

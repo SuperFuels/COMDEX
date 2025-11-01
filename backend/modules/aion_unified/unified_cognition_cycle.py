@@ -1,12 +1,12 @@
 # ==========================================================
-# 🧠 AION Unified Cognition Cycle — Phase 5
+# 🧠 AION Unified Cognition Cycle - Phase 5
 # ----------------------------------------------------------
-# Continuous symbolic–conceptual feedback loop combining:
-#   • Φ-Resonance Core (coherence, entropy, flux, load)
-#   • Reflection Loop (linguistic summarization)
-#   • Concept Graph (semantic abstraction)
+# Continuous symbolic-conceptual feedback loop combining:
+#   * Φ-Resonance Core (coherence, entropy, flux, load)
+#   * Reflection Loop (linguistic summarization)
+#   * Concept Graph (semantic abstraction)
 # ----------------------------------------------------------
-# Goal: Maintain dynamic equilibrium (ΔΦ → 0)
+# Goal: Maintain dynamic equilibrium (ΔΦ -> 0)
 # while expanding conceptual awareness and symbolic coherence.
 # ==========================================================
 
@@ -127,11 +127,11 @@ async def unified_cognition_cycle(iterations: int = 20, delay: float = 1.0):
     """
     Main feedback cycle uniting Φ-resonance, reflection, and concept learning.
     """
-    print("🌀 Starting Unified Cognition Cycle …")
+    print("🌀 Starting Unified Cognition Cycle ...")
     for step in range(iterations):
         # 1. Reflect on current Φ state
         reflection = phi_reflection()
-        print(f"[{step:02d}] 🧠 Reflection →", reflection["message"])
+        print(f"[{step:02d}] 🧠 Reflection ->", reflection["message"])
 
         # 2. Conceptual reasoning / feedback
         delta = await apply_conceptual_feedback(reflection)
@@ -150,9 +150,9 @@ async def unified_cognition_cycle(iterations: int = 20, delay: float = 1.0):
 
         # 5. Equilibrium check
         eq = dphi_equilibrium()
-        print(f"   ⚖️ Equilibrium ΔΦ → {eq:.4f}")
+        print(f"   ⚖️ Equilibrium ΔΦ -> {eq:.4f}")
         if eq < ε:
-            print("✅ Φ field stabilized — proto-awareness achieved.")
+            print("✅ Φ field stabilized - proto-awareness achieved.")
             break
 
         await asyncio.sleep(delay)

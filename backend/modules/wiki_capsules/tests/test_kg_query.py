@@ -1,5 +1,5 @@
 """
-🧪 Test — KG Query Extensions (Phase 2)
+🧪 Test - KG Query Extensions (Phase 2)
 --------------------------------------
 Ensures capsule addition, retrieval, and domain listing work as expected.
 """

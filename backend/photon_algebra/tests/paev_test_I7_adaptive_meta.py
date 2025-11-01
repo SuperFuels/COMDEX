@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-I7 — Adaptive Meta-Analysis for Tessaris Burst-Correlation Studies
+I7 - Adaptive Meta-Analysis for Tessaris Burst-Correlation Studies
 ------------------------------------------------------------------
-Iteratively launches E6-Ω v5c–style simulations (via I5c) with adaptive
+Iteratively launches E6-Ω v5c-style simulations (via I5c) with adaptive
 parameter tuning across base_noise and BURST_TH, aggregating correlations.
 
 Enhancements:
-  • Multi-seed, multi-param adaptive sweep
-  • Robust parsing from I5c console or JSON outputs
-  • Automatic error resilience and retry
-  • Detailed statistical aggregation + plots
-  • Structured JSON summary (for future I8/I9 pipelines)
+  * Multi-seed, multi-param adaptive sweep
+  * Robust parsing from I5c console or JSON outputs
+  * Automatic error resilience and retry
+  * Detailed statistical aggregation + plots
+  * Structured JSON summary (for future I8/I9 pipelines)
 
 Artifacts:
   - backend/modules/knowledge/I7_adaptive_meta.json
@@ -115,7 +115,7 @@ results = []
 trial_counter = 0
 
 print("\n====================================================================")
-print("🧮 I7 — Adaptive Meta-Analysis for Tessaris Algebra")
+print("🧮 I7 - Adaptive Meta-Analysis for Tessaris Algebra")
 print("====================================================================\n")
 
 for base_noise in base_noise_values:
@@ -124,7 +124,7 @@ for base_noise in base_noise_values:
             break
         seed = int(RNG.integers(100, 10000))
         trial_counter += 1
-        print(f"🚀 Trial {trial_counter}/{N_TRIALS} — noise={base_noise:.3f}, TH={burst_th:.1f}, seed={seed}")
+        print(f"🚀 Trial {trial_counter}/{N_TRIALS} - noise={base_noise:.3f}, TH={burst_th:.1f}, seed={seed}")
 
         env = {
             "TESSARIS_BASE_NOISE": str(base_noise),
@@ -148,7 +148,7 @@ for base_noise in base_noise_values:
         }
         results.append(entry)
 
-        print(f"   → ρ={entry['rho']:.4f}, p={entry['rho_p']:.4f}, ΔS={entry['ΔS_mean']:.4f} ({duration:.1f}s)\n")
+        print(f"   -> ρ={entry['rho']:.4f}, p={entry['rho_p']:.4f}, ΔS={entry['ΔS_mean']:.4f} ({duration:.1f}s)\n")
 
 # ============================================================
 #  Aggregate Statistics
@@ -192,14 +192,14 @@ plt.grid(alpha=0.3)
 plt.tight_layout()
 plot_path = "PAEV_I7_adaptive_meta.png"
 plt.savefig(plot_path, dpi=200)
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Plot saved -> {plot_path}")
 
 # ============================================================
 #  Save JSON Summary
 # ============================================================
 timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 summary = {
-    "meta_analysis": "I7 — Adaptive Multi-Param Burst Correlation (Tessaris)",
+    "meta_analysis": "I7 - Adaptive Multi-Param Burst Correlation (Tessaris)",
     "constants": const,
     "timestamp": timestamp,
     "n_trials": len(results),
@@ -217,5 +217,5 @@ summary = {
     ],
 }
 OUT_SUMMARY.write_text(json.dumps(summary, indent=2, default=to_native))
-print(f"✅ Summary saved → {OUT_SUMMARY}")
+print(f"✅ Summary saved -> {OUT_SUMMARY}")
 print("====================================================================\n")

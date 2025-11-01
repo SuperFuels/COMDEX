@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PAEV Test I4 — Entropy–Flux Synchronization (Information Lead / Tunnelling Detection)
+PAEV Test I4 - Entropy-Flux Synchronization (Information Lead / Tunnelling Detection)
 Tessaris Photon Algebra Framework (Registry-aligned)
 """
 
@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from scipy.signal import correlate
 
-print("=== I4 — Entropy–Flux Synchronization (Information Lead / Tunnelling Detection) ===")
+print("=== I4 - Entropy-Flux Synchronization (Information Lead / Tunnelling Detection) ===")
 
 # =====================================================
 # 🔹 Load Tessaris constants from unified registry
@@ -44,7 +44,7 @@ def initialize_field(N, var_k):
     return np.random.normal(0, np.sqrt(var_k), N)
 
 def evolve_state(N, T, dt, var_k, α, Λ, χ, noise_amp):
-    """Evolve field under α–Λ–χ coupling (diffusive–entropic dynamics)."""
+    """Evolve field under α-Λ-χ coupling (diffusive-entropic dynamics)."""
     phi = initialize_field(N, var_k)
     phi_series = np.zeros((T, N))
     phi_series[0] = phi
@@ -97,9 +97,9 @@ def detect_anomalies(phase_leads):
     notes = []
     leads = np.array(phase_leads)
     if np.any(leads < 0):
-        notes.append("⚠ Information-first regime detected (Δt < 0) — tunnelling-like behavior.")
+        notes.append("⚠ Information-first regime detected (Δt < 0) - tunnelling-like behavior.")
     if np.any(leads > 0.05):
-        notes.append("⚠ Energy-lag regime detected — delayed entropy response.")
+        notes.append("⚠ Energy-lag regime detected - delayed entropy response.")
     if not notes:
         notes.append("✅ Entropy and flux remain synchronized within resolution.")
     return notes
@@ -134,11 +134,11 @@ plt.axhline(0, color="gray", linestyle="--", label="Synchronized boundary")
 plt.xlabel("Curvature variance Var(κ)")
 plt.ylabel("Phase lead Δt (entropy vs flux)")
 plt.legend()
-plt.title("I4 — Entropy–Flux Synchronization (Phase Analysis)")
+plt.title("I4 - Entropy-Flux Synchronization (Phase Analysis)")
 plt.grid(True, which="both", ls="--", alpha=0.4)
 plt.tight_layout()
 plt.savefig("PAEV_I4_EntropyFluxSync.png", dpi=200)
-print("✅ Figure saved → PAEV_I4_EntropyFluxSync.png")
+print("✅ Figure saved -> PAEV_I4_EntropyFluxSync.png")
 
 # =====================================================
 # 💾 Save results
@@ -148,11 +148,11 @@ results_json = {
     "constants": const,
     "params": params,
     "results": results,
-    "classification": "✅ Entropy–flux synchronization characterized",
+    "classification": "✅ Entropy-flux synchronization characterized",
     "files": {"sync_plot": "PAEV_I4_EntropyFluxSync.png"},
 }
 
 out_path = Path("backend/modules/knowledge/I4_entropy_flux_sync.json")
 out_path.write_text(json.dumps(results_json, indent=2))
-print(f"✅ Results saved → {out_path}")
+print(f"✅ Results saved -> {out_path}")
 print(json.dumps(results_json, indent=2))

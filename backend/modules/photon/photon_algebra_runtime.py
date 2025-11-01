@@ -1,9 +1,9 @@
 """
-💡 Photon Algebra Runtime — SRK-12 Task 1.1
+💡 Photon Algebra Runtime - SRK-12 Task 1.1
 Core computational substrate for Tessaris photonic processing with persistent state logging.
 
 This engine interprets photon capsules, applies symbolic algebraic operations,
-and performs wave-based computation entirely in the photonic domain — no binary fallback.
+and performs wave-based computation entirely in the photonic domain - no binary fallback.
 
 New in SRK-12.1:
  - Integration with PhotonMemoryGrid (entanglement persistence)
@@ -24,7 +24,7 @@ from backend.modules.photon.memory.photon_memory_grid import PhotonMemoryGrid  #
 
 class PhotonAlgebraRuntime:
     """
-    ⚛ Photon Algebra Runtime — executes symbolic operations
+    ⚛ Photon Algebra Runtime - executes symbolic operations
     directly over photon capsules (entangled wave representations).
     """
 
@@ -98,7 +98,7 @@ class PhotonAlgebraRuntime:
             "timestamp": time.time(),
         }
 
-        # 🔷 SRK-12.1 — Persist result state to Photon Memory Grid asynchronously
+        # 🔷 SRK-12.1 - Persist result state to Photon Memory Grid asynchronously
         asyncio.create_task(
             self.memory_grid.store_capsule_state(
                 capsule.get("name", f"capsule_{int(time.time())}"),

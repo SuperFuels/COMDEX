@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
 #  Tessaris SQI Resonance Bridge
-#  Stage 14 — WaveScope + Hardware Pulse Relay
+#  Stage 14 - WaveScope + Hardware Pulse Relay
 # ──────────────────────────────────────────────
 
 import time
@@ -13,7 +13,7 @@ logger = logging.getLogger("SQIResonanceBridge")
 #  SQI Event Bus (safe import with guaranteed callable)
 # ──────────────────────────────────────────────
 def _safe_sqi_publish(packet: Dict[str, Any]):
-    logger.debug(f"[WaveScope] (sim) fallback publish → {packet.get('type', '?')}")
+    logger.debug(f"[WaveScope] (sim) fallback publish -> {packet.get('type', '?')}")
 
 try:
     from backend.modules.sqi.sqi_event_bus import publish as sqi_publish
@@ -45,7 +45,7 @@ except Exception as e:
     logger.warning(f"[WaveScope] SQI publish not available yet (lazy init): {e}")
 
     def sqi_publish(packet: dict):
-        logger.debug(f"[WaveScope] (sim) SQI publish placeholder → {packet.get('type', '?')}")
+        logger.debug(f"[WaveScope] (sim) SQI publish placeholder -> {packet.get('type', '?')}")
 
 
 # ──────────────────────────────────────────────
@@ -53,7 +53,7 @@ except Exception as e:
 # ──────────────────────────────────────────────
 class WaveScope:
     """
-    🌊 WaveScope — Simulated or hardware-bound coherence bus.
+    🌊 WaveScope - Simulated or hardware-bound coherence bus.
     Routes resonance metrics into GPIO or virtual analog channels.
     """
 
@@ -72,14 +72,14 @@ class WaveScope:
                 self.gpio = GPIO
                 logger.info("🪩 WaveScope initialized on GPIO 18.")
             except Exception as e:
-                logger.warning(f"[WaveScope] Hardware init failed → fallback sim: {e}")
+                logger.warning(f"[WaveScope] Hardware init failed -> fallback sim: {e}")
                 self.simulated = True
 
     # ──────────────────────────────────────────────
     #  Emit resonance
     # ──────────────────────────────────────────────
     def emit(self, resonance: Dict[str, Any]) -> None:
-        """Forward Φ–ψ resonance data to SQI bus and hardware/sim layer."""
+        """Forward Φ-ψ resonance data to SQI bus and hardware/sim layer."""
         if not self.active:
             return
 
@@ -94,7 +94,7 @@ class WaveScope:
         }
         try:
             sqi_publish(packet)
-            logger.debug("[WaveScope] SQI publish → resonance_update")
+            logger.debug("[WaveScope] SQI publish -> resonance_update")
         except Exception as e:
             logger.warning(f"[WaveScope] SQI publish failed: {e}")
 

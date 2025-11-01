@@ -2,12 +2,12 @@
 # 📁 backend/api/api_atomsheet.py
 # ===============================
 """
-🔌 AtomSheet API – Serves symbolic AtomSheet (.atom / .sqs.json) to SCI panel
+🔌 AtomSheet API - Serves symbolic AtomSheet (.atom / .sqs.json) to SCI panel
 
 Features:
 - Async file loading (with aiofiles shim)
 - Safe base-folder path enforcement
-- Execute via AtomSheets engine (QPU stack Ph7–10)
+- Execute via AtomSheets engine (QPU stack Ph7-10)
 - Optional nested expansion (A5)
 - Optional glyph/schema validation
 - Optional QFC broadcast payload
@@ -25,7 +25,7 @@ import traceback
 try:
     import aiofiles  # type: ignore
 except Exception:
-    # Lightweight compatibility shim so tests don’t require aiofiles.
+    # Lightweight compatibility shim so tests don't require aiofiles.
     import asyncio
 
     class _AsyncFile:
@@ -120,7 +120,7 @@ async def get_atomsheet(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to load AtomSheet: {e}")
 
-    # ✅ Validate AtomSheet (optional strictness — keep defensive)
+    # ✅ Validate AtomSheet (optional strictness - keep defensive)
     ok_sheet, sheet_msg = validate_atomsheet(raw_sheet)
     if not ok_sheet:
         raise HTTPException(status_code=400, detail={"sheet_error": sheet_msg})

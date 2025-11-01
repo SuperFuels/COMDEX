@@ -1,5 +1,5 @@
 """
-TOE Whitepaper Full Export — backend/modules/theory_of_everything/toe_whitepaper_export_full.py
+TOE Whitepaper Full Export - backend/modules/theory_of_everything/toe_whitepaper_export_full.py
 
 Generates a full-color PDF of the Unified TOE Framework (Post-L Series),
 combining constants, equations, and plots into a formatted report.
@@ -42,7 +42,7 @@ def generate_pdf():
     story.append(Spacer(1, 1.5 * inch))
     story.append(Paragraph("Unified Theory of Everything Framework", title_style))
     story.append(Spacer(1, 0.3 * inch))
-    story.append(Paragraph("Post-L Series Consolidation — COMDEX Research Initiative", normal))
+    story.append(Paragraph("Post-L Series Consolidation - COMDEX Research Initiative", normal))
     story.append(Spacer(1, 0.2 * inch))
     story.append(Paragraph(f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}", normal))
     story.append(Spacer(1, 0.5 * inch))
@@ -70,7 +70,7 @@ def generate_pdf():
     data = [["Constant", "Value", "Description"]]
     for key, val in constants.items():
         if isinstance(val, (float, int)):
-            data.append([key, f"{val:.6e}", "—"])
+            data.append([key, f"{val:.6e}", "-"])
     tbl = Table(data, colWidths=[2*inch, 2*inch, 2*inch])
     tbl.setStyle(TableStyle([
         ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#004488")),
@@ -103,19 +103,19 @@ def generate_pdf():
     story.append(Paragraph("Discussion", section_style))
     story.append(Paragraph(
         "The results demonstrate stable cross-domain coherence within tolerance bounds. "
-        "Residual drift across quantum–relativistic–thermal coupling was minimized post-J2. "
+        "Residual drift across quantum-relativistic-thermal coupling was minimized post-J2. "
         "Future work includes empirical correlation to observed cosmological data and "
         "possible integration with high-energy datasets for validation.", normal))
     story.append(Spacer(1, 0.4 * inch))
 
     # === Footer ===
-    story.append(Paragraph("<b>COMDEX Research Initiative — Internal TOE Framework Export</b>", normal))
+    story.append(Paragraph("<b>COMDEX Research Initiative - Internal TOE Framework Export</b>", normal))
     story.append(Spacer(1, 0.1 * inch))
-    story.append(Paragraph("© 2025 COMDEX — All rights reserved", normal))
+    story.append(Paragraph("© 2025 COMDEX - All rights reserved", normal))
 
     # === Build PDF ===
     doc.build(story)
-    print(f"✅ TOE whitepaper successfully generated → {pdf_path}")
+    print(f"✅ TOE whitepaper successfully generated -> {pdf_path}")
 
 if __name__ == "__main__":
     generate_pdf()

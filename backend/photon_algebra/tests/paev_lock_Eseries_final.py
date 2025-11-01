@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Photon Algebra — E-Series Lock Protocol
+Tessaris Photon Algebra - E-Series Lock Protocol
 ------------------------------------------------
 Final archival lock for the E-series (Ensemble Universality & Geometry Invariance).
 This script consolidates all verified E-series JSON results, generates SHA-256
@@ -60,7 +60,7 @@ def main():
                     "file": path, "hash": h})
             elif "E4" in name:
                 discoveries.append({"id":"D-E4",
-                    "event":"Noise–Curvature Resilience Law",
+                    "event":"Noise-Curvature Resilience Law",
                     "file": path, "hash": h})
             elif "E6h" in name:
                 discoveries.append({"id":"D-E6h",
@@ -97,15 +97,15 @@ def main():
         json.dump(ledger, f, indent=2)
 
     # Print summary
-    print(f"🔒 Locked constants snapshot → {LOCK_PATH}")
-    print(f"🧾 Discovery ledger updated → {DISC_PATH}")
+    print(f"🔒 Locked constants snapshot -> {LOCK_PATH}")
+    print(f"🧾 Discovery ledger updated -> {DISC_PATH}")
     print(f"✅ {len(discoveries)} discoveries classified and archived.\n")
 
     if discoveries:
         for d in discoveries:
-            print(f"  • {d['id']}: {d['event']}")
+            print(f"  * {d['id']}: {d['event']}")
     else:
-        print("ℹ️ No discovery-class results found.")
+        print("i️ No discovery-class results found.")
 
     print("\n✅ Tessaris E′ constants successfully locked and archived.")
 

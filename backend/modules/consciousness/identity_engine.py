@@ -43,7 +43,7 @@ class IdentityEngine:
 
     def update_phase(self, new_phase):
         """
-        Change AION’s development phase (e.g., child → learner → explorer).
+        Change AION's development phase (e.g., child -> learner -> explorer).
         """
         self.identity["phase"] = new_phase
         self.identity["last_updated"] = datetime.utcnow().isoformat()
@@ -52,7 +52,7 @@ class IdentityEngine:
 
     def describe_self(self):
         """
-        Returns a narrative description of AION’s current self with personality traits.
+        Returns a narrative description of AION's current self with personality traits.
         """
         traits = self.personality.get_profile()
         trait_descriptions = [f"{k}: {v:.2f}" for k, v in traits.items()]

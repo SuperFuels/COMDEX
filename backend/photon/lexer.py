@@ -1,6 +1,6 @@
 # backend/photon/lexer.py
 """
-Minimal Photon text → glyph stream converter
+Minimal Photon text -> glyph stream converter
 """
 
 from typing import List, Dict

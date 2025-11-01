@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Tessaris — Unified Phase II Integrator
+Tessaris - Unified Phase II Integrator
 --------------------------------------
-Integrates J1–J4 (stability-refinement layer) into the verified
+Integrates J1-J4 (stability-refinement layer) into the verified
 unified architecture summary, producing `unified_summary_v1.1.json`.
 
 Also generates:
- • Tessaris_Architecture_Map.png  (flow F→G→H→N→J→O→P)
- • watchdog_unified_verifier.py   (auto-revalidation script)
+ * Tessaris_Architecture_Map.png  (flow F->G->H->N->J->O->P)
+ * watchdog_unified_verifier.py   (auto-revalidation script)
 
 All paths are relative to: backend/modules/knowledge/
 """
@@ -57,7 +57,7 @@ J_series = [load_json(FILES[k]) for k in ("J1", "J2", "J3", "J4")]
 print("=== Tessaris Phase II Integrator ===")
 print("Loaded:")
 for k, v in FILES.items():
-    print(f"  • {k}: {v.name}")
+    print(f"  * {k}: {v.name}")
 
 # ---------------------------------------------------------------------
 # Aggregate J-series (stability refinement layer)
@@ -88,18 +88,18 @@ unified_v11["version"] = "v1.1"
 unified_v11["timestamp"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 unified_v11["hashes"] = {k: sha1_of(v) for k, v in FILES.items()}
 unified_v11["summary_text"] += (
-    "\n\nPhase II adds J1–J4 stability-refinement results beneath the N-series, "
-    "completing the unified feedback–diffusion–stability hierarchy."
+    "\n\nPhase II adds J1-J4 stability-refinement results beneath the N-series, "
+    "completing the unified feedback-diffusion-stability hierarchy."
 )
 
 out_path = BASE / "unified_summary_v1.1.json"
 out_path.write_text(json.dumps(unified_v11, indent=2))
-print(f"\n✅ Unified summary updated → {out_path}")
+print(f"\n✅ Unified summary updated -> {out_path}")
 
 # ---------------------------------------------------------------------
 # Generate architecture map
 # ---------------------------------------------------------------------
-print("🧩 Generating Tessaris_Architecture_Map.png …")
+print("🧩 Generating Tessaris_Architecture_Map.png ...")
 
 G = nx.DiGraph()
 flow = ["F", "G", "H", "N", "J", "O", "P"]
@@ -113,21 +113,21 @@ nx.draw_networkx_edges(G, pos, width=2, arrows=True, arrowstyle="->")
 nx.draw_networkx_labels(G, pos, font_size=10, font_weight="bold")
 
 caption = (
-    f"Constants drift ≤ {abs(mean_stability_refine):.2e}\n"
+    f"Constants drift <= {abs(mean_stability_refine):.2e}\n"
     f"Refinement mean stability: {mean_stability_refine:.3e}"
 )
-plt.title("Tessaris Unified Architecture Map — Phase II", fontsize=12, pad=20)
+plt.title("Tessaris Unified Architecture Map - Phase II", fontsize=12, pad=20)
 plt.text(0.02, -1.15, caption, fontsize=9, transform=plt.gca().transAxes)
 plt.axis("off")
 map_path = BASE / "Tessaris_Architecture_Map.png"
 plt.savefig(map_path, dpi=200, bbox_inches="tight")
-print(f"✅ Architecture map saved → {map_path}")
+print(f"✅ Architecture map saved -> {map_path}")
 
 # ---------------------------------------------------------------------
 # Write lightweight watchdog script
 # ---------------------------------------------------------------------
 watchdog_code = f"""#!/usr/bin/env python3
-\"\"\"Tessaris Unified Watchdog — auto-verifier for unified summary\"\"\"
+\"\"\"Tessaris Unified Watchdog - auto-verifier for unified summary\"\"\"
 import time, json, hashlib, subprocess
 from pathlib import Path
 
@@ -154,13 +154,13 @@ while True:
         except FileNotFoundError:
             continue
     if changed:
-        print(f"🔁 Change detected in: {{changed}} — re-running integrator …")
+        print(f"🔁 Change detected in: {{changed}} - re-running integrator ...")
         subprocess.run(["python3", str(BASE / "unified_phase2_integrator.py")])
     time.sleep(10)
 """
 watchdog_path = BASE / "watchdog_unified_verifier.py"
 watchdog_path.write_text(watchdog_code)
-print(f"✅ Watchdog script created → {watchdog_path}")
+print(f"✅ Watchdog script created -> {watchdog_path}")
 
 print("\nPhase II integration complete.")
 print("------------------------------------------------------------")

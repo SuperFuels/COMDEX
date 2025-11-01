@@ -90,7 +90,7 @@ class GKeyStore:
     def set_key_pair(cls, sender: str, recipient: str, key_data: dict):
         key = (sender, recipient)
         cls._key_pairs[key] = key_data
-        log_info(f"[GKeyStore] Set QKD key pair ({sender} → {recipient})")
+        log_info(f"[GKeyStore] Set QKD key pair ({sender} -> {recipient})")
 
     # ✅ Get QKD pair record
     @classmethod
@@ -137,7 +137,7 @@ class GKeyStore:
 
 
 # -------------------------------------------------------------------------
-# QKDHandshake Adapter Class — for compatibility with QKDManager
+# QKDHandshake Adapter Class - for compatibility with QKDManager
 # -------------------------------------------------------------------------
 import secrets
 import hashlib

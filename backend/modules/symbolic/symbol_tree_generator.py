@@ -831,7 +831,7 @@ def export_tree_to_kg(tree: SymbolicMeaningTree):
                         relation=node.glyph.metadata.get("kg_origin_path", "supports") if node.glyph else "supports"
                     )
                 except Exception as e:
-                    logger.warning(f"[KG] Failed to link node {glyph_id} → {source_id}: {e}")
+                    logger.warning(f"[KG] Failed to link node {glyph_id} -> {source_id}: {e}")
         
         # 🌳 Export full symbolic tree to KG
         kg_writer.export_symbol_tree(tree)

@@ -1,5 +1,5 @@
 """
-Semantic Context Manager Test — Phase 43B
+Semantic Context Manager Test - Phase 43B
 ------------------------------------------
 Verifies:
   - Synchronization with ConversationMemory

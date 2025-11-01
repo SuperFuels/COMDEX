@@ -32,7 +32,7 @@ if "shipments" not in inspector.get_table_names():
 # 2) dump shipments columns
 print("\n>>> Columns in 'shipments':")
 for col in inspector.get_columns("shipments"):
-    print(f"  • {col['name']}  (type={col['type']}, nullable={col['nullable']})")
+    print(f"  * {col['name']}  (type={col['type']}, nullable={col['nullable']})")
 
 # 3) dump foreign keys
 print("\n\n>>> Foreign keys on 'shipments':")
@@ -43,9 +43,9 @@ else:
     for fk in fks:
         cols = fk['constrained_columns']
         ref  = f"{fk['referred_table']}({', '.join(fk['referred_columns'])})"
-        print(f"  • {cols} → {ref}")
+        print(f"  * {cols} -> {ref}")
 
 # 4) dump indexes
 print("\n\n>>> Indexes on 'shipments':")
 for idx in inspector.get_indexes("shipments"):
-    print(f"  • {idx['name']}: columns={idx['column_names']}, unique={idx['unique']}")
+    print(f"  * {idx['name']}: columns={idx['column_names']}, unique={idx['unique']}")

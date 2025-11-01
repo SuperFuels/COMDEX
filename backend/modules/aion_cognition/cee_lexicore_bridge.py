@@ -1,14 +1,14 @@
 # ================================================================
-# 🧠 LexiCore + ThesauriNet Bridge — Cognitive Exercise Engine
+# 🧠 LexiCore + ThesauriNet Bridge - Cognitive Exercise Engine
 # ================================================================
 """
 Provides unified access to lexical data for language-based cognitive
 exercises in the CEE (Cognitive Exercise Engine).
 
 Connects to:
-  • LexiCore: internal JSON/SQLite word index (synonyms, antonyms)
-  • ThesauriNet: extended semantic web of related words
-  • ResonantLex: optional layer for semantic resonance mapping (ρ, I, SQI)
+  * LexiCore: internal JSON/SQLite word index (synonyms, antonyms)
+  * ThesauriNet: extended semantic web of related words
+  * ResonantLex: optional layer for semantic resonance mapping (ρ, I, SQI)
 
 Outputs:
   Synonym, antonym, and related word sets for any input token.
@@ -55,7 +55,7 @@ class LexiCoreBridge:
             synonyms.extend(self.thesauri[word]["synonyms"])
         else:
             synonyms = self._approximate(word)
-        logger.debug(f"[LexiCoreBridge] Synonyms({word}) → {synonyms}")
+        logger.debug(f"[LexiCoreBridge] Synonyms({word}) -> {synonyms}")
         return list(set(synonyms))
 
     # --------------------------------------------------------
@@ -68,7 +68,7 @@ class LexiCoreBridge:
             antonyms.extend(self.thesauri[word]["antonyms"])
         else:
             antonyms = self._approximate(word, negative=True)
-        logger.debug(f"[LexiCoreBridge] Antonyms({word}) → {antonyms}")
+        logger.debug(f"[LexiCoreBridge] Antonyms({word}) -> {antonyms}")
         return list(set(antonyms))
 
     # --------------------------------------------------------
@@ -96,7 +96,7 @@ class LexiCoreBridge:
 
 
 # ================================================================
-# 🔤 Runtime Helpers — Lexical Access API for CEE
+# 🔤 Runtime Helpers - Lexical Access API for CEE
 # ================================================================
 
 def get_synonyms(word: str):
@@ -138,5 +138,5 @@ if __name__ == "__main__":
     print("Antonyms:", bridge.get_antonyms(w))
     print("Related:", bridge.get_related(w))
     # direct API test
-    print("get_synonyms('fast') →", get_synonyms("fast"))
-    print("get_antonyms('bright') →", get_antonyms("bright"))
+    print("get_synonyms('fast') ->", get_synonyms("fast"))
+    print("get_antonyms('bright') ->", get_antonyms("bright"))

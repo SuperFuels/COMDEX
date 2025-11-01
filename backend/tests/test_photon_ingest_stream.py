@@ -5,7 +5,7 @@ from backend.AION.photon_bridge.aion_photon_ingest import AIONPhotonIngestor
 
 @pytest.fixture
 def fake_packet():
-    return "⏱:1760791027.87 Φ:𝜀0 R:𝜀5000000000 S:stable γ:𝜀40000000000"
+    return "⏱:1760791027.87 Φ:ε0 R:ε5000000000 S:stable γ:ε40000000000"
 
 def test_qqc_bridge_ingest(fake_packet):
     bridge = QQCPhotonBridge()

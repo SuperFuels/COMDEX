@@ -1,6 +1,6 @@
 """
 Tessaris Quantum Standing-Wave Synth Panel
-Phase 8 — Harmonic Audio Resonance Layer
+Phase 8 - Harmonic Audio Resonance Layer
 -----------------------------------------
 Turns photon emission data (.photo) into harmonic tones or simulated audio output.
 Maps Δψ amplitudes and stability into audible waveforms or MIDI events.
@@ -42,13 +42,13 @@ def generate_tone(freq: float, duration: float = 0.4, volume: float = 0.5):
     play_obj.wait_done()
 
 # ---------------------------------------------------------
-# 🎵 Resonance → Frequency Mapping
+# 🎵 Resonance -> Frequency Mapping
 # ---------------------------------------------------------
 def map_pattern_to_frequencies(pattern):
     """Translate Δψ amplitudes into harmonic frequencies."""
-    ψ1 = pattern.get("Δψ₁", 0.0)
-    ψ2 = pattern.get("Δψ₂", 0.0)
-    ψ3 = pattern.get("Δψ₃", 0.0)
+    ψ1 = pattern.get("Δψ1", 0.0)
+    ψ2 = pattern.get("Δψ2", 0.0)
+    ψ3 = pattern.get("Δψ3", 0.0)
     stability = pattern.get("stability", 1.0)
 
     # Frequencies modulate around A4 (440 Hz)
@@ -64,7 +64,7 @@ def map_pattern_to_frequencies(pattern):
 # ---------------------------------------------------------
 def print_wave_summary(ts, pattern, freqs):
     print(f"\n⏱️ Photon Emission @ {ts}")
-    print(f"Δψ₁={pattern.get('Δψ₁',0):+.3f}  Δψ₂={pattern.get('Δψ₂',0):+.3f}  Δψ₃={pattern.get('Δψ₃',0):+.3f}")
+    print(f"Δψ1={pattern.get('Δψ1',0):+.3f}  Δψ2={pattern.get('Δψ2',0):+.3f}  Δψ3={pattern.get('Δψ3',0):+.3f}")
     print(f"stability={pattern.get('stability',1.0):.3f}")
     print("🎶 Harmonic frequencies:")
     for i, (f, v) in enumerate(freqs, 1):
@@ -74,7 +74,7 @@ def print_wave_summary(ts, pattern, freqs):
 # 🔄 Synth Loop
 # ---------------------------------------------------------
 def run_standing_wave_synth():
-    print("🎵 Starting Tessaris Quantum Standing-Wave Synth Panel …")
+    print("🎵 Starting Tessaris Quantum Standing-Wave Synth Panel ...")
     seen = set()
 
     while True:

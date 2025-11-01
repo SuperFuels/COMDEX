@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test I — Informational Universality (Diffusive–Ballistic Crossover)
+Test I - Informational Universality (Diffusive-Ballistic Crossover)
 Part of Tessaris Photon Algebra Framework
 """
 
@@ -29,7 +29,7 @@ psi0 = np.exp(-x**2 * 10)
 var_k = [0.0, 0.02, 0.05, 0.08]
 msd_all = {}
 
-print("=== Test I — Informational Universality (Diffusive–Ballistic Crossover) ===")
+print("=== Test I - Informational Universality (Diffusive-Ballistic Crossover) ===")
 
 for v in var_k:
     psi = psi0.copy().astype(np.complex128)
@@ -45,18 +45,18 @@ for v in var_k:
     positions = np.array(positions)
     msd = np.mean((positions - positions[0]) ** 2)
     msd_all[round(v, 3)] = float(msd)
-    print(f"κ variance={v:.3f} → MSD={msd:.6f}")
+    print(f"κ variance={v:.3f} -> MSD={msd:.6f}")
 
 # -------------------- plot MSD vs κ variance --------------------
 plt.figure(figsize=(6, 4))
 plt.plot(list(msd_all.keys()), list(msd_all.values()), "o-", lw=2)
 plt.xlabel("κ variance")
 plt.ylabel("Mean Squared Displacement (MSD)")
-plt.title("Test I — Diffusive–Ballistic Crossover")
+plt.title("Test I - Diffusive-Ballistic Crossover")
 plt.grid(True, which="both", ls="--", alpha=0.4)
 plt.tight_layout()
 plt.savefig("PAEV_TestI_MSD.png", dpi=150)
-print("✅ Figure saved → PAEV_TestI_MSD.png")
+print("✅ Figure saved -> PAEV_TestI_MSD.png")
 
 # -------------------- classification logic --------------------
 v_keys = list(msd_all.keys())
@@ -94,7 +94,7 @@ out = {
 
 out_path = Path("backend/modules/knowledge/I_universality.json")
 out_path.write_text(json.dumps(out, indent=2))
-print(f"✅ Results saved → {out_path}")
+print(f"✅ Results saved -> {out_path}")
 
 # -------------------- summary printout --------------------
 print(json.dumps(out, indent=2))

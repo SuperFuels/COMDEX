@@ -88,7 +88,7 @@ def analyze_drift_patterns(current_beam: Dict[str, Any]) -> Dict[str, Any]:
         "is_stable": is_stable,
     }
 
-    logger.info(f"[DriftAnalyzer] Beam '{beam_id}' drift analysis → {result}")
+    logger.info(f"[DriftAnalyzer] Beam '{beam_id}' drift analysis -> {result}")
     return result
 
 

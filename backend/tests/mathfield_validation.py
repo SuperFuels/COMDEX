@@ -1,5 +1,5 @@
 # ================================================================
-# 🧩 MathField Validation — Resonance Dataset Consistency
+# 🧩 MathField Validation - Resonance Dataset Consistency
 # ================================================================
 """
 Verifies that mathfield_v1.qdata.json and mathfield_progression_v1.qdata.json
@@ -36,9 +36,9 @@ def validate(path: Path):
         "count": len(data),
         "ρ̄": round(mean(ρ_vals), 3),
         "Ī": round(mean(I_vals), 3),
-        "SQĪ": round(mean(SQI_vals), 3),
+        "SQĪ": round(mean(SQI_vals), 3),
     }
-    logger.info(f"[MathFieldValidation] {path.name} → OK ({len(data)} items)")
+    logger.info(f"[MathFieldValidation] {path.name} -> OK ({len(data)} items)")
     return summary
 
 if __name__ == "__main__":

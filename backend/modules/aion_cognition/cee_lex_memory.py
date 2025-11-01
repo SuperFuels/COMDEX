@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧠 CEE LexMemory — Resonant Knowledge Reinforcement Engine
-# Phase 45G.13 — Atomic Persistent Symbolic Resonance Memory
+# 🧠 CEE LexMemory - Resonant Knowledge Reinforcement Engine
+# Phase 45G.13 - Atomic Persistent Symbolic Resonance Memory
 # ================================================================
 """
 Stores and recalls resonance-weighted associations learned during
@@ -24,13 +24,13 @@ MEMORY_PATH = Path("data/memory/lex_memory.json")
 MEMORY_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 # ================================================================
-# 🧩 Auto-Recovery Bootstrap — Phase 45G.14
+# 🧩 Auto-Recovery Bootstrap - Phase 45G.14
 # ================================================================
 def _auto_recover_json(path: Path, fallback: dict = None):
     """
     Auto-repair loader for JSON memory files.
-    - If file is missing → create new.
-    - If file corrupt → move to .corrupt + restore from .bak or recreate clean.
+    - If file is missing -> create new.
+    - If file corrupt -> move to .corrupt + restore from .bak or recreate clean.
     """
     fallback = fallback or {}
     if not path.exists():
@@ -50,12 +50,12 @@ def _auto_recover_json(path: Path, fallback: dict = None):
 
         try:
             os.replace(path, corrupt)
-            logger.warning(f"[Recovery] Renamed bad file → {corrupt}")
+            logger.warning(f"[Recovery] Renamed bad file -> {corrupt}")
         except Exception:
             pass
 
         if backup.exists():
-            logger.info(f"[Recovery] Restoring from backup → {backup}")
+            logger.info(f"[Recovery] Restoring from backup -> {backup}")
             data = json.loads(backup.read_text(encoding="utf-8"))
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
@@ -77,7 +77,7 @@ def _atomic_write_json(path: Path, data: dict):
     try:
         json.loads(Path(tmp.name).read_text(encoding="utf-8"))
         os.replace(tmp.name, path)
-        logger.info(f"[LexMemory] ✅ Atomic save verified → {path}")
+        logger.info(f"[LexMemory] ✅ Atomic save verified -> {path}")
     except Exception as e:
         logger.error(f"[LexMemory] ❌ Validation failed, aborting write: {e}")
         os.unlink(tmp.name)
@@ -99,8 +99,8 @@ def _safe_val(v):
 def _load_memory() -> Dict[str, Any]:
     """
     Safely load LexMemory from disk.
-    - If file missing → create new.
-    - If corrupted → move to .corrupt, restore from .bak if available.
+    - If file missing -> create new.
+    - If corrupted -> move to .corrupt, restore from .bak if available.
     - Always returns a valid dict.
     """
     if not MEMORY_PATH.exists():
@@ -120,7 +120,7 @@ def _load_memory() -> Dict[str, Any]:
 
         try:
             os.replace(MEMORY_PATH, corrupt)
-            logger.warning(f"[LexMemory] Renamed bad file → {corrupt}")
+            logger.warning(f"[LexMemory] Renamed bad file -> {corrupt}")
         except Exception:
             pass
 
@@ -129,7 +129,7 @@ def _load_memory() -> Dict[str, Any]:
                 data = json.loads(backup.read_text(encoding="utf-8"))
                 with open(MEMORY_PATH, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2)
-                logger.info(f"[LexMemory] ✅ Restored from backup → {backup}")
+                logger.info(f"[LexMemory] ✅ Restored from backup -> {backup}")
                 return data
             except Exception as e2:
                 logger.warning(f"[LexMemory] Backup restore failed: {e2}")
@@ -161,7 +161,7 @@ def update_lex_memory(prompt: str, answer: str, resonance: Dict[str, float]):
     entry["last_update"] = time.time()
     mem[key] = entry
     _save_memory(mem)
-    logger.info(f"[LexMemory] Reinforced {key} → SQI={entry['SQI']}, count={entry['count']}")
+    logger.info(f"[LexMemory] Reinforced {key} -> SQI={entry['SQI']}, count={entry['count']}")
 
 # ================================================================
 # 🧩 Concept-Level Storage for Direct Recall
@@ -182,7 +182,7 @@ def store_concept_definition(term: str, definition: str, resonance: Dict[str, fl
     }
     mem[key] = entry
     _save_memory(mem)
-    logger.info(f"[LexMemory] 📘 Stored concept '{term}' → '{definition}'")
+    logger.info(f"[LexMemory] 📘 Stored concept '{term}' -> '{definition}'")
 
 # ================================================================
 # 🔍 Field-Coherent Recall
@@ -216,7 +216,7 @@ def recall_from_memory(prompt: str) -> Dict[str, Any]:
 
     if best_key:
         answer = best_key.split("↔")[-1]
-        logger.info(f"[LexMemory] 🔍 Top candidate ({best_score:.2f}) → {answer}")
+        logger.info(f"[LexMemory] 🔍 Top candidate ({best_score:.2f}) -> {answer}")
         if best_score > 0.25:
             return {"prompt": prompt, "answer": answer, "resonance": best_val, "confidence": round(best_score, 2)}
 

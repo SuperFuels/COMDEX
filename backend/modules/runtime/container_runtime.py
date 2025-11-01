@@ -48,7 +48,7 @@ def container_id_to_path(container_id: str) -> str:
         return f"backend/modules/dimensions/containers/{container_id}.dc.json"
 
 # --- QWave Beam Buffer -------------------------------------
-_container_beam_buffers = {}  # container_id → list of beam dicts
+_container_beam_buffers = {}  # container_id -> list of beam dicts
 
 def append_beam_to_container(container_id: str, beam: dict):
     if container_id not in _container_beam_buffers:
@@ -500,7 +500,7 @@ class ContainerRuntime:
         - Encrypt + save glyph data
         - Inject QWave beams
         - SCI serializer export to ./saved_sessions/session_*.dc.json
-        - Final persistence (Vault → StateManager fallback)
+        - Final persistence (Vault -> StateManager fallback)
         All steps are best-effort with clear logs.
         """
         # Fetch the current container dict, fall back to stub
@@ -534,7 +534,7 @@ class ContainerRuntime:
                 if isinstance(maybe_container, dict):
                     container = maybe_container
             else:
-                print("ℹ️ HST injection helper not found; skipping.")
+                print("i️ HST injection helper not found; skipping.")
         except Exception as e:
             print(f"⚠️ HST injection failed: {e}")
 
@@ -602,7 +602,7 @@ class ContainerRuntime:
                 container["qwave_beams"] = beams
                 print(f"📡 Injected {len(beams)} QWave beams into container.")
             elif not get_beams:
-                print("ℹ️ get_beams_for_container not available; skipping beam injection.")
+                print("i️ get_beams_for_container not available; skipping beam injection.")
         except Exception as e:
             print(f"⚠️ Failed to inject QWave beams: {e}")
 
@@ -794,7 +794,7 @@ class ContainerRuntime:
             "snapshot": replay_trace[-1] if replay_trace else {}
         })
 
-        print(f"✅ Glyph replay completed: {len(replay_glyphs)} glyphs from tick {start_tick} → {end_tick}")
+        print(f"✅ Glyph replay completed: {len(replay_glyphs)} glyphs from tick {start_tick} -> {end_tick}")
 
 
 from backend.modules.dimensions.container_expander import ContainerExpander
@@ -921,7 +921,7 @@ def _collapse_side_effects(container_id: str, reason: str) -> None:
         except Exception:
             pass
 
-    # WS notify (best-effort; don’t error if no loop)
+    # WS notify (best-effort; don't error if no loop)
     try:
         from backend.modules.websocket_manager import broadcast_event  # async
         payload = {
@@ -962,7 +962,7 @@ def teleport_to_linked_container(link_container_id: str) -> Dict[str, Any]:
     """
     try:
         snapshot_id = vault_bridge.get_container_snapshot_id(link_container_id)
-        print(f"[TELEPORT] Resolving snapshot for container: {link_container_id} → {snapshot_id}")
+        print(f"[TELEPORT] Resolving snapshot for container: {link_container_id} -> {snapshot_id}")
 
         teleport_packet = TeleportPacket(
             source_container_id="electronic_atom",

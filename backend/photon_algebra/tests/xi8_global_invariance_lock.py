@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ξ₈ — Global Photonic Invariance Lock (Tessaris)
-Final phase — verifies sustained invariance across the photonic continuum.
+Ξ8 - Global Photonic Invariance Lock (Tessaris)
+Final phase - verifies sustained invariance across the photonic continuum.
 """
 
 import numpy as np
@@ -70,7 +70,7 @@ with open(out_json, "w") as f:
 # === Visualization ===
 plt.figure(figsize=(8, 4))
 plt.plot(field, label="Photonic Field", color="orange", linewidth=1.2)
-plt.title("Ξ₈ Global Photonic Invariance Lock (Tessaris)")
+plt.title("Ξ8 Global Photonic Invariance Lock (Tessaris)")
 plt.xlabel("Time Step")
 plt.ylabel("Field Amplitude")
 plt.legend()
@@ -79,5 +79,5 @@ out_png = "backend/modules/knowledge/Tessaris_Ξ8_GlobalInvarianceLock.png"
 plt.savefig(out_png, dpi=150)
 
 # === Console Feedback ===
-print(f"✅ Ξ₈ summary saved → {out_json}")
-print(f"✅ Visualization saved → {out_png}")
+print(f"✅ Ξ8 summary saved -> {out_json}")
+print(f"✅ Visualization saved -> {out_png}")

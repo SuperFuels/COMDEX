@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧠 Phase 45F.9 — Semantic Memory Stabilization
+# 🧠 Phase 45F.9 - Semantic Memory Stabilization
 # ================================================================
 """
 Extends the Phase 39B Photon Persistence Layer into a unified,
 atomic-safe Resonant Memory Cache (RMC).
 
 Features:
-    • Photon + lexical–semantic persistence
-    • Φ–ψ–η–Λ tensor integration
-    • Atomic JSON writes (no mid-write corruption)
-    • Self-verifying saves and drift stabilization
+    * Photon + lexical-semantic persistence
+    * Φ-ψ-η-Λ tensor integration
+    * Atomic JSON writes (no mid-write corruption)
+    * Self-verifying saves and drift stabilization
 
 Inputs:
     data/qtensor/langfield_resonance_adapted.qdata.json
@@ -25,7 +25,7 @@ from filelock import FileLock, Timeout
 QUIET = os.getenv("AION_QUIET_MODE", "0") == "1"
 log = logging.getLogger(__name__)
 
-# Optional — reinforcement hook
+# Optional - reinforcement hook
 try:
     from backend.modules.aion_knowledge import knowledge_graph_core as akg
 except Exception:
@@ -71,21 +71,21 @@ def atomic_write_json(path: Path, data: dict):
                 pass
 
             if not QUIET:
-                log.info(f"[RMC] 💾 Backup created → {bak}")
+                log.info(f"[RMC] 💾 Backup created -> {bak}")
             return True
 
     except Timeout:
-        log.warning(f"[RMC] ⚠ Cache locked — another process is writing, skipping save.")
+        log.warning(f"[RMC] ⚠ Cache locked - another process is writing, skipping save.")
         return False
 
 # ================================================================
-# 🧩 Auto-Recovery Bootstrap — Phase 45G.14
+# 🧩 Auto-Recovery Bootstrap - Phase 45G.14
 # ================================================================
 def _auto_recover_json(path: Path, fallback: dict = None):
     """
     Auto-repair loader for JSON memory files.
-    - If file is missing → create new.
-    - If file corrupt → move to .corrupt + restore from .bak or recreate clean.
+    - If file is missing -> create new.
+    - If file corrupt -> move to .corrupt + restore from .bak or recreate clean.
     - Supports structured cache format ({"timestamp":..., "cache": {...}}).
     """
     fallback = fallback or {}
@@ -130,12 +130,12 @@ def _auto_recover_json(path: Path, fallback: dict = None):
 
         try:
             os.replace(path, corrupt)
-            log.warning(f"[Recovery] Renamed bad file → {corrupt}")
+            log.warning(f"[Recovery] Renamed bad file -> {corrupt}")
         except Exception:
             pass
 
         if backup.exists():
-            log.info(f"[Recovery] Restoring from backup → {backup}")
+            log.info(f"[Recovery] Restoring from backup -> {backup}")
             data = json.loads(backup.read_text(encoding="utf-8"))
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
@@ -174,13 +174,13 @@ class ResonantMemoryCache:
                 "cache": {},
                 "meta": {
                     "schema": "ResonantMemoryCache.v2",
-                    "desc": "Unified photon + semantic Φ–ψ–η–Λ resonance cache",
+                    "desc": "Unified photon + semantic Φ-ψ-η-Λ resonance cache",
                 },
             }
             CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
             with open(CACHE_PATH, "w", encoding="utf-8") as f:
                 json.dump(fallback, f, indent=2)
-            log.warning(f"[RMC] Creating new cache (first run) → {CACHE_PATH}")
+            log.warning(f"[RMC] Creating new cache (first run) -> {CACHE_PATH}")
 
         # Load once, using recovery logic
         raw = _auto_recover_json(CACHE_PATH)
@@ -212,7 +212,7 @@ class ResonantMemoryCache:
     def save(self):
         """Thread-/process-safe JSON save with backup and lock."""
         if not isinstance(self.cache, dict):
-            log.warning("[RMC] ⚠ Skip save — cache not a dict.")
+            log.warning("[RMC] ⚠ Skip save - cache not a dict.")
             return
 
         self.last_update = time.time()
@@ -222,7 +222,7 @@ class ResonantMemoryCache:
             "cache": self.cache,
             "meta": {
                 "schema": "ResonantMemoryCache.v2",
-                "desc": "Unified photon + semantic Φ–ψ–η–Λ resonance cache",
+                "desc": "Unified photon + semantic Φ-ψ-η-Λ resonance cache",
             },
         }
 
@@ -232,7 +232,7 @@ class ResonantMemoryCache:
             try:
                 os.replace(CACHE_PATH, bak)
                 if not QUIET:
-                    log.info(f"[RMC] 💾 Backup created → {bak}")
+                    log.info(f"[RMC] 💾 Backup created -> {bak}")
             except Exception as e:
                 log.warning(f"[RMC] ⚠ Could not backup cache: {e}")
 
@@ -298,7 +298,7 @@ class ResonantMemoryCache:
                 if sqi is not None:
                     entry["SQI"] = round(float(sqi), 4)
 
-                # Inject into resonance link map if atom→atom
+                # Inject into resonance link map if atom->atom
                 lemma = p.get("lemma") or cid
                 glyph = p.get("glyph") or cid
                 if glyph != lemma and sqi is not None:
@@ -359,7 +359,7 @@ class ResonantMemoryCache:
                 self.save()
 
             if not QUIET:
-                log.info(f"[RMC] Linked {a_norm}↔{b_norm} → SQI_avg={entry['SQI_avg']}, count={entry['count']:.2f}")
+                log.info(f"[RMC] Linked {a_norm}↔{b_norm} -> SQI_avg={entry['SQI_avg']}, count={entry['count']:.2f}")
 
         except Exception as e:
             log.warning(f"[RMC] Failed to link {a}↔{b}: {e}")
@@ -480,7 +480,7 @@ class ResonantMemoryCache:
             "cache": self.cache,
             "meta": {
                 "schema": "ResonantMemoryCache.v2",
-                "desc": "Unified photon + semantic Φ–ψ–η–Λ resonance cache",
+                "desc": "Unified photon + semantic Φ-ψ-η-Λ resonance cache",
             },
         }
         lock = FileLock(str(LOCK_PATH))
@@ -488,13 +488,13 @@ class ResonantMemoryCache:
             with lock.acquire(timeout=30):
                 atomic_write_json(CACHE_PATH, data)
                 if not QUIET:
-                    log.info(f"[RMC] ✅ Exported unified cache → {CACHE_PATH}")
+                    log.info(f"[RMC] ✅ Exported unified cache -> {CACHE_PATH}")
         except Timeout:
             if not QUIET:
-                log.warning(f"[RMC] ⚠ Cache locked — export skipped.")
+                log.warning(f"[RMC] ⚠ Cache locked - export skipped.")
 
     # ------------------------------------------------------------
-    # 🌀 Phase 53 — Harmonic Resonance Tracking
+    # 🌀 Phase 53 - Harmonic Resonance Tracking
     # ------------------------------------------------------------
     def push_sample(self, rho: float, entropy: float, sqi: float, delta: float, source: str = "unknown"):
         """
@@ -542,7 +542,7 @@ class ResonantMemoryCache:
                 self._last_save = now
 
             if not QUIET:
-                log.info(f"[RMC] ↑ Pushed harmonic sample from {source} → SQI={sqi:.3f}, ΔΦ={delta:.3f}")
+                log.info(f"[RMC] ↑ Pushed harmonic sample from {source} -> SQI={sqi:.3f}, ΔΦ={delta:.3f}")
 
         except Exception as e:
             log.warning(f"[RMC] push_sample error ({source}): {e}")

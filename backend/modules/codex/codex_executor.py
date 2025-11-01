@@ -1,7 +1,7 @@
 # 📁 backend/modules/codex/codex_executor.py
 
 """
-⚡ Codex Executor – Ultimate Symbolic Execution Engine
+⚡ Codex Executor - Ultimate Symbolic Execution Engine
 ───────────────────────────────────────────────────────
 Executes CodexLang & glyphs with:
 ✅ SQI entanglement ↔ + collapse tracing
@@ -107,7 +107,7 @@ def resolve_op(op_symbol: str):
         "⟲": "resonate",
         "∇": "collapse",
         "⧖": "delay",
-        "→": "trigger",
+        "->": "trigger",
     }
     return mapping.get(op_symbol, op_symbol)
 
@@ -169,7 +169,7 @@ try:
     from backend.modules.glyphwave.emitters.qwave_emitter import emit_qwave_beam as _emit_qwave_beam
 except Exception:  # fallback for test/CI
     async def _emit_qwave_beam(*, wave, container_id, source, metadata=None):
-        print(f"[QWaveEmitter] (stub) emit_qwave_beam: {wave} → {container_id}, src={source}, meta={metadata}")
+        print(f"[QWaveEmitter] (stub) emit_qwave_beam: {wave} -> {container_id}, src={source}, meta={metadata}")
 
 from backend.modules.glyphwave.core.wave_state import WaveState
 
@@ -200,7 +200,7 @@ def emit_qwave_beam_ff(*, source: str, payload: dict, context: dict = None):
         container_id = payload.get("container_id", context.get("container_id") if context else "unknown")
         metadata = {k: v for k, v in payload.items() if k not in ["wave_id", "container_id"]}
 
-        # 🔒 SoulLaw veto check — BEFORE reinjection
+        # 🔒 SoulLaw veto check - BEFORE reinjection
         try:
             from backend.modules.soullaw.soul_law_hooks import log_soullaw_event, validate_against_soullaws
             from backend.modules.symbolic.symbolic_broadcast import broadcast_glyph_event
@@ -230,7 +230,7 @@ def emit_qwave_beam_ff(*, source: str, payload: dict, context: dict = None):
         except Exception as e:
             logger.error(f"[SoulLaw] Hook failed: {e}", exc_info=True)
 
-        # ✅ If not vetoed → emit as normal
+        # ✅ If not vetoed -> emit as normal
         event_coro = _emit_qwave_beam(
             wave=wave,
             container_id=container_id,
@@ -349,11 +349,11 @@ class CodexExecutor:
         Execute a Photon capsule (.phn file, dict, or already-parsed object).
         Pipeline:
         1. Load + normalize capsule
-        2. Photon → LogicGlyphs (with multi-glyph split support)
+        2. Photon -> LogicGlyphs (with multi-glyph split support)
         3. Register into symbolic_registry
         4. Render Codex scroll
         5. Detect & evaluate Symatics operators (if present)
-        6. Otherwise: compile Codex scroll → instruction tree → execute
+        6. Otherwise: compile Codex scroll -> instruction tree -> execute
 
         Always guarantees an "engine" field in the result.
         """
@@ -528,7 +528,7 @@ class CodexExecutor:
             from backend.symatics.symatics_to_codex_rewriter import rewrite_symatics_to_codex
             from backend.modules.codex.codexlang_rewriter import CodexLangRewriter
 
-            # Step 1: Symatics → Codex
+            # Step 1: Symatics -> Codex
             instruction_tree = rewrite_symatics_to_codex(instruction_tree) or instruction_tree
 
             # Step 2: canonicalize ops
@@ -708,7 +708,7 @@ class CodexExecutor:
                 # 🧮 Cost Estimation
                 cost = self.metrics.estimate_cost(instruction_tree)
 
-                # ✅ Photon → QWave bridge (after cost estimation, before Tessaris interpret)
+                # ✅ Photon -> QWave bridge (after cost estimation, before Tessaris interpret)
                 if source == "photon":
                     try:
                         from backend.modules.qwave.photon_qwave_bridge import to_qglyph, to_wave_program
@@ -729,7 +729,7 @@ class CodexExecutor:
                             context=context
                         )
                     except Exception as e:
-                        logger.error(f"[CodexExecutor] Photon→QWave bridge failed: {e}", exc_info=True)
+                        logger.error(f"[CodexExecutor] Photon->QWave bridge failed: {e}", exc_info=True)
 
                 # ✅ High-entropy SQI spike emission
                 if cost > 0.85:

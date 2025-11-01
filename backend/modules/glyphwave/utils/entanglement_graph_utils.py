@@ -14,7 +14,7 @@ def attach_entangled_graph_to_container(container: dict, entangled_wave: Entangl
         src = link.get("source")
         tgt = link.get("target")
         if src not in node_ids or tgt not in node_ids:
-            raise ValueError(f"🚫 Spoofed entanglement link detected: {src} → {tgt}")
+            raise ValueError(f"🚫 Spoofed entanglement link detected: {src} -> {tgt}")
 
     # ✅ Safe to inject entanglement graph
     container.setdefault("trace", {})

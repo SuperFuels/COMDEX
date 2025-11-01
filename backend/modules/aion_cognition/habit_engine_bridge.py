@@ -1,5 +1,5 @@
 # ================================================================
-# 🧭 Phase 45G.8+ — Unified HabitEngine Telemetry Interface
+# 🧭 Phase 45G.8+ - Unified HabitEngine Telemetry Interface
 # ================================================================
 import json, time, logging
 from pathlib import Path
@@ -41,7 +41,7 @@ class HabitEngineBridge:
     # 🌀 New unified telemetry-based update for auto-feedback
     # ------------------------------------------------------------
     # ------------------------------------------------------------
-    # 🌀 Phase 45G.10 — GHX ↔ Habit Telemetry Bridge Integration
+    # 🌀 Phase 45G.10 - GHX ↔ Habit Telemetry Bridge Integration
     # ------------------------------------------------------------
     def update_from_telemetry(self):
         """
@@ -49,7 +49,7 @@ class HabitEngineBridge:
         broadcast updates back into GHX telemetry feeds.
 
         This closes the feedback loop:
-            CEE → GHX → HabitEngine → Trend → GHX (live sync)
+            CEE -> GHX -> HabitEngine -> Trend -> GHX (live sync)
         """
         metrics_path = Path("data/learning/cee_adaptive_metrics.json")
         if not metrics_path.exists() and GHX_METRICS_PATH.exists():
@@ -87,11 +87,11 @@ class HabitEngineBridge:
         ghx_sync.sync_to_ghx()
         ghx_sync.broadcast()
 
-        logger.info(f"[Habit] Updated habit state → {self.habit_state}")
+        logger.info(f"[Habit] Updated habit state -> {self.habit_state}")
         return self.habit_state
 
     # ================================================================
-    # 📈 Phase 45G.9 — Habit Trend & Reinforcement Curves
+    # 📈 Phase 45G.9 - Habit Trend & Reinforcement Curves
     # ================================================================
     import matplotlib.pyplot as plt
     import pandas as pd
@@ -154,6 +154,6 @@ class HabitEngineBridge:
             HABIT_TREND_IMG.parent.mkdir(parents=True, exist_ok=True)
             plt.savefig(HABIT_TREND_IMG)
             plt.close()
-            logger.info(f"[HabitTrend] Chart saved → {HABIT_TREND_IMG}")
+            logger.info(f"[HabitTrend] Chart saved -> {HABIT_TREND_IMG}")
         except Exception as e:
             logger.warning(f"[HabitTrend] Plotting failed: {e}")

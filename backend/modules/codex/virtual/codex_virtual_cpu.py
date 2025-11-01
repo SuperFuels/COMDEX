@@ -203,7 +203,7 @@ class CodexVirtualCPU:
 # -------------------------------
 if __name__ == "__main__":
     cpu = CodexVirtualCPU(enable_metrics=True, low_precision="FP4")
-    code = "⚛ → ✦ ⟲ 🧠"
+    code = "⚛ -> ✦ ⟲ 🧠"
     try:
         output = cpu.run(code)
         print("💡 CodexLang Output:", output)

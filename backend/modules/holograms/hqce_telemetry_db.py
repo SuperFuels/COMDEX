@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • HQCE Telemetry Database (Stage 10)
-#  Persistent store for ψ–κ–T–C metrics
+#  Tessaris * HQCE Telemetry Database (Stage 10)
+#  Persistent store for ψ-κ-T-C metrics
 #  Supports trend queries and dashboard integration
 # ──────────────────────────────────────────────
 
@@ -121,7 +121,7 @@ class HQCETelemetryDB:
         return {"ψ_mean": ψ or 0, "κ_mean": κ or 0, "C_mean": C or 0, "stability_mean": S or 0}
 
     def coherence_trend(self, limit: int = 100) -> List[Tuple[float, float]]:
-        """Return timestamp → coherence pairs for visualization."""
+        """Return timestamp -> coherence pairs for visualization."""
         cur = self.conn.cursor()
         cur.execute("SELECT timestamp, coherence FROM telemetry ORDER BY timestamp DESC LIMIT ?", (limit,))
         return cur.fetchall()
@@ -136,7 +136,7 @@ class HQCETelemetryDB:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
-        logger.info(f"[HQCETelemetryDB] Exported {len(data)} entries → {path}")
+        logger.info(f"[HQCETelemetryDB] Exported {len(data)} entries -> {path}")
         return path
 
     # ──────────────────────────────────────────────

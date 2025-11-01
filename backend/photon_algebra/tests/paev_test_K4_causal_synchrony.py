@@ -1,4 +1,4 @@
-# === K4 — Causal Synchrony Matrix (Tessaris) ===
+# === K4 - Causal Synchrony Matrix (Tessaris) ===
 # Using Tessaris Unified Constants & Verification Protocol
 
 import os, json, datetime
@@ -9,8 +9,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 
 # === 1. Load constants ===
 constants = load_constants()
-print("=== K4 — Causal Synchrony Matrix (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, "
+print("=== K4 - Causal Synchrony Matrix (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, "
       f"α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
 
 # === 2. Parameters ===
@@ -67,16 +67,16 @@ print(f"R_sync={R_sync:.4f}, std_sync={std_sync:.3e}")
 if R_sync > 0.9:
     verdict = "✅  Strong causal synchrony achieved."
 elif R_sync > 0.7:
-    verdict = "⚠️  Partial synchrony — moderate causal drift."
+    verdict = "⚠️  Partial synchrony - moderate causal drift."
 else:
-    verdict = "❌  Weak synchrony — check coupling constants."
+    verdict = "❌  Weak synchrony - check coupling constants."
 print(verdict)
 
 # === 7. Plot synchrony matrix ===
 plt.figure(figsize=(6, 5))
 plt.imshow(corr_matrix, cmap="plasma", origin="lower")
 plt.colorbar(label="|Correlation(u_i, v_j)|")
-plt.title(f"K4 — Causal Synchrony Matrix (R_sync={R_sync:.3f})")
+plt.title(f"K4 - Causal Synchrony Matrix (R_sync={R_sync:.3f})")
 plt.tight_layout()
 
 plot_path = "backend/modules/knowledge/PAEV_K4_causal_synchrony.png"
@@ -88,13 +88,13 @@ discovery = [
     f"Global synchrony coefficient R_sync = {R_sync:.4f}.",
     f"Synchrony dispersion σ = {std_sync:.3e}.",
     "High R_sync indicates strong causal ordering between lattice domains.",
-    "Deviation σ < 1e−2 satisfies Tessaris Unified Constants & Verification Protocol.",
+    "Deviation σ < 1e-2 satisfies Tessaris Unified Constants & Verification Protocol.",
 ]
 
-print("\n🧭 Discovery Notes —", datetime.datetime.now(datetime.UTC).isoformat())
+print("\n🧭 Discovery Notes -", datetime.datetime.now(datetime.UTC).isoformat())
 print("------------------------------------------------------------")
 for line in discovery:
-    print("•", line)
+    print("*", line)
 print("------------------------------------------------------------")
 
 # === 9. JSON Summary ===
@@ -121,6 +121,6 @@ summary_path = "backend/modules/knowledge/K4_causal_synchrony_summary.json"
 with open(summary_path, "w", encoding="utf-8") as f:
     json.dump(summary, f, indent=2)
 
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

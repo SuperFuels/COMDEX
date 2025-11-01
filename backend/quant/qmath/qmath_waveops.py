@@ -2,7 +2,7 @@
 # 📁 backend/quant/qmath/qmath_waveops.py
 # ===============================
 """
-🌊 QMathWaveOps — Core Wave–Math Primitives for Q-Series
+🌊 QMathWaveOps - Core Wave-Math Primitives for Q-Series
 --------------------------------------------------------
 Implements symbolic and numeric operators aligned with
 Symatics Algebra v0.1:
@@ -32,7 +32,7 @@ def clamp(x: float, lo: float = -1.0, hi: float = 1.0) -> float:
 
 
 def normalize_phase(angle: float) -> float:
-    """Normalize an angle to [−π, π]."""
+    """Normalize an angle to [-π, π]."""
     while angle > math.pi:
         angle -= 2 * math.pi
     while angle < -math.pi:
@@ -83,7 +83,7 @@ def resonate(a: complex, feedback: float = 0.1, damping: float = 0.95, steps: in
 # ----------------------------------------------------------------------
 def collapse(a: complex) -> float:
     """
-    Collapse a wave to measurable intensity (|ψ|²).
+    Collapse a wave to measurable intensity (|ψ|2).
     """
     return abs(a) ** 2
 
@@ -116,7 +116,7 @@ def project(a: complex, axis_phase: float = 0.0) -> complex:
 def interact(a: complex, b: complex) -> Dict[str, Any]:
     """
     Full symbolic wave interaction pipeline:
-      ⊕ → ↔ → ⟲ → ∇ → μ
+      ⊕ -> ↔ -> ⟲ -> ∇ -> μ
     """
     s = superpose(a, b)
     ea, eb, ρ = entangle(s, b)

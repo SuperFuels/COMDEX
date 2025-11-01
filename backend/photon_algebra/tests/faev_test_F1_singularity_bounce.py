@@ -1,6 +1,6 @@
 # ==========================================================
-# F1 — Singularity Bounce (Full Dynamic Mode)
-# Cosmological scale-factor evolution with vacuum–field coupling
+# F1 - Singularity Bounce (Full Dynamic Mode)
+# Cosmological scale-factor evolution with vacuum-field coupling
 # ==========================================================
 
 import json
@@ -20,9 +20,9 @@ adot0 = -0.25                # initial contraction velocity
 alpha = 0.8      # matter gravity term
 beta = 0.15      # radiation-like repulsion
 Lambda = 0.0018  # vacuum energy density
-kappa = 0.02     # phase–field coupling
+kappa = 0.02     # phase-field coupling
 omega0 = 0.2     # base field frequency
-xi = 0.015       # curvature–phase coupling
+xi = 0.015       # curvature-phase coupling
 delta = 0.07     # damping on field phase
 noise = 0.0015   # stochastic vacuum fluctuation scale
 
@@ -76,21 +76,21 @@ else:
 plt.figure(figsize=(9, 5))
 plt.plot(t, a, label='Scale factor a(t)', lw=1.5)
 plt.axvline(t[R_bounce], color='purple', ls='--', alpha=0.7, label='Bounce')
-plt.title("F1 — Scale Factor Evolution (Singularity Bounce)")
+plt.title("F1 - Scale Factor Evolution (Singularity Bounce)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F1_ScaleFactorEvolution.png")
 
 plt.figure(figsize=(9, 5))
 plt.plot(t, energy_total, label='Energy density (total)', lw=1.2)
-plt.title("F1 — Total Energy Density Evolution")
+plt.title("F1 - Total Energy Density Evolution")
 plt.xlabel("time"); plt.ylabel("Energy (arb. units)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F1_EnergyDensity.png")
 
 plt.figure(figsize=(9, 5))
 plt.plot(t, np.cos(phi), lw=1.0, label='cos(φ)')
-plt.title("F1 — Vacuum-Field Phase Coherence")
+plt.title("F1 - Vacuum-Field Phase Coherence")
 plt.xlabel("time"); plt.ylabel("cos(φ)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F1_PhaseCoherence.png")
@@ -131,7 +131,7 @@ results = {
 with open("backend/modules/knowledge/F1_singularity_bounce.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== F1 — Singularity Bounce (Full Dynamic Mode) ===")
+print("=== F1 - Singularity Bounce (Full Dynamic Mode) ===")
 print(f"a_min={a_min:.4f} | mean_coherence={mean_coherence:.3f} | energy_range=({energy_min:.3e},{energy_max:.3e})")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F1_singularity_bounce.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F1_singularity_bounce.json")

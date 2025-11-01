@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-🧪 Test — ResonantStrategyPlanner Integration
+🧪 Test - ResonantStrategyPlanner Integration
 ──────────────────────────────────────────────
 Validates Phase 55 Task 1:
-  • Plan generation + Θ event(“plan_eval”, SQI)
-  • RMC persistence + feedback propagation
-  • Adaptive resonance updates on heartbeat tick
+  * Plan generation + Θ event("plan_eval", SQI)
+  * RMC persistence + feedback propagation
+  * Adaptive resonance updates on heartbeat tick
 """
 
 import time
@@ -43,7 +43,7 @@ def test_resonant_plan_generation():
 
     summary_path = Path("data/analysis/resonant_strategy_summary.json")
     if summary_path.exists():
-        print(f"📊 Resonant summary exported → {summary_path}")
+        print(f"📊 Resonant summary exported -> {summary_path}")
     else:
         print("⚠️ Summary file missing; check write permissions.")
 

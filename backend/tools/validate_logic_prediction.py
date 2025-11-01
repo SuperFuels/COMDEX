@@ -79,7 +79,7 @@ def validate_logic_prediction(container_path: str, output_trace: bool = False, r
     result = run_prediction_on_ast(ast)
 
     if result is None:
-        print("⚠️ Prediction returned None — likely unhandled AST or missing kernel.")
+        print("⚠️ Prediction returned None - likely unhandled AST or missing kernel.")
         return
 
     status = result.get("status")

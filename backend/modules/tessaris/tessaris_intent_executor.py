@@ -127,7 +127,7 @@ def route_intent(intent):
             return "retry"
 
         dt = perf_counter() - t0
-        store_memory(f"✅ Executed intent: {kind} in {dt:.3f}s — {payload}")
+        store_memory(f"✅ Executed intent: {kind} in {dt:.3f}s - {payload}")
         log_intent(intent, "executed")
 
         # ✅ symbolic intent trace (after successful execution)
@@ -190,7 +190,7 @@ def scan_snapshot_for_intents(snapshot_path):
 def parse_symbolic_glyph(glyph: str) -> dict | None:
     try:
         inner = glyph.strip("⟦⟧").strip()
-        parts = inner.split("→")
+        parts = inner.split("->")
         left = parts[0].strip()
         action = parts[1].strip() if len(parts) > 1 else "Reflect"
         type_tag, value = left.split(":", 1)

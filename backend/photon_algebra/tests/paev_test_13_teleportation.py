@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test 13 — Quantum Teleportation (Logic-Flow Equivalence)
+Test 13 - Quantum Teleportation (Logic-Flow Equivalence)
 
 - Quantum: simulate 3-qubit teleportation with NumPy; verify Bob's output equals ψ for all
   Bell outcomes (b0,b1) ∈ {0,1}^2 after applying Z^b0 X^b1.
@@ -125,7 +125,7 @@ def photon_algebra_logic_flow(alpha, beta):
     for (b0,b1), ops in rewrites.items():
         α, β = psi_token["ψ"]
 
-        # Step 1 — simulate the "teleported" pre-correction state:
+        # Step 1 - simulate the "teleported" pre-correction state:
         # In quantum teleportation, the receiver gets Z^b0 X^b1 |ψ⟩.
         α_t, β_t = α, β
         if b1 == 1:  # X before Z
@@ -133,13 +133,13 @@ def photon_algebra_logic_flow(alpha, beta):
         if b0 == 1:  # Z flips |1>
             β_t = -β_t
 
-        # Step 2 — apply the classical correction (inverse of the same ops)
+        # Step 2 - apply the classical correction (inverse of the same ops)
         if b0 == 1:
             β_t = -β_t
         if b1 == 1:
             α_t, β_t = β_t, α_t
 
-        # Step 3 — check equivalence to original
+        # Step 3 - check equivalence to original
         eq = np.allclose([α_t, β_t], psi_token["ψ"], atol=1e-12)
         results[(b0,b1)] = (eq, ops)
     return results
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     outcomes = teleport_quantum(alpha, beta)
     pa_results = photon_algebra_logic_flow(alpha, beta)
 
-    print("=== Quantum Teleportation — Quantum vs Photon Algebra ===")
+    print("=== Quantum Teleportation - Quantum vs Photon Algebra ===")
     print(f"Input state: ψ = α|0⟩ + β|1⟩  with α={alpha:.3f}, β={beta:.3f}")
     print("\nOutcome  |  Quantum Fidelity  |  PA Equivalence  |  Corrections")
     print("---------+---------------------+------------------+------------------------")
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     if all(abs(f-1.0) < 1e-12 for f in outcomes.values()):
         print("\n✅ Quantum output fidelity: 1.000 for all outcomes.")
     else:
-        print("\n❌ Quantum fidelity not perfect — check implementation.")
+        print("\n❌ Quantum fidelity not perfect - check implementation.")
 
     if all(ok for (ok, _) in pa_results.values()):
         print("✅ Photon Algebra logical equivalence: TRUE for all outcomes.")

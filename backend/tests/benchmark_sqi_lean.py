@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 LEAN_TEXT = """
-theorem example_lean_theorem : (A ↔ B) ⊕ (B ↔ C) → (A ↔ C) := by {
+theorem example_lean_theorem : (A ↔ B) ⊕ (B ↔ C) -> (A ↔ C) := by {
     -- Simplified proof placeholder
     sorry
 }
@@ -47,7 +47,7 @@ _mem_mod.MEMORY.store = _safe_store  # monkey-patch for test run
 # ---------------- Classical baseline ----------------
 def classical_evaluate(a_b: bool, b_c: bool) -> bool:
     """
-    (A↔B) ⊕ (B↔C) → (A↔C)
+    (A↔B) ⊕ (B↔C) -> (A↔C)
     a_b == b_c  means A↔C holds (transitivity under equal truth of equivalences)
     a_b != b_c  is the XOR of equivalences (the premise)
     implication is (not premise) or (a_c)
@@ -59,7 +59,7 @@ def classical_evaluate(a_b: bool, b_c: bool) -> bool:
 
 # ---------------- Benchmark ----------------
 def run_benchmark() -> None:
-    # 1) Prepare Lean → DC container
+    # 1) Prepare Lean -> DC container
     with open("temp_lean.lean", "w") as f:
         f.write(LEAN_TEXT)
 
@@ -71,7 +71,7 @@ def run_benchmark() -> None:
         "id": "example_lean_theorem",
         "metadata": {
             "origin": "lean_import",
-            "description": "A=B, B=C ⇒ A=C under XOR implication"
+            "description": "A=B, B=C -> A=C under XOR implication"
         },
         "gates": {"traits": {"logic": 0.6}},
         "glyphs": {"0,0": parsed[0]},

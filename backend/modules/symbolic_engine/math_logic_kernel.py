@@ -141,7 +141,7 @@ class MathLogicKernel:
             return {
                 "status": "✅ Axiom Stored",
                 "expression": lean_expr,
-                "parsed": str(parsed)  # keep debug string but don’t overwrite logic
+                "parsed": str(parsed)  # keep debug string but don't overwrite logic
             }
         except Exception as e:
             return {"status": "❌ Failed", "error": str(e)}
@@ -232,10 +232,10 @@ class MathLogicKernel:
             # ✅ Parse using the new symbolic Codex AST parser
             ast = parse_codexlang_to_ast(raw_input)
 
-            # Convert AST → CodexLang representation
+            # Convert AST -> CodexLang representation
             codexlang = self.rewriter.ast_to_codexlang(ast)
 
-            # Encode CodexAST → glyph structures for KG injection
+            # Encode CodexAST -> glyph structures for KG injection
             glyphs = encode_codex_ast_to_glyphs(ast)
 
             return codexlang, ast, glyphs

@@ -9,7 +9,7 @@ from copy import deepcopy
 class TimeController:
     def __init__(self):
         self.container_time: Dict[str, int] = defaultdict(int)  # tick per container
-        self.snapshots: Dict[str, Dict[int, dict]] = defaultdict(dict)  # container_id → tick → snapshot
+        self.snapshots: Dict[str, Dict[int, dict]] = defaultdict(dict)  # container_id -> tick -> snapshot
         self.loop_enabled: Dict[str, bool] = defaultdict(lambda: False)
         self.loop_range: Dict[str, tuple] = defaultdict(lambda: (0, 0))
         self.decay_enabled: Dict[str, bool] = defaultdict(lambda: False)

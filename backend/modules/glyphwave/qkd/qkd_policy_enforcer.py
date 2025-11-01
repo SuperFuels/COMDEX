@@ -1,13 +1,13 @@
 """
-🧩 QKD Policy Enforcer — SRK-11 Task 2 (Tessaris Secure Layer)
+🧩 QKD Policy Enforcer - SRK-11 Task 2 (Tessaris Secure Layer)
 Adaptive enforcement of QKD security, coherence, and GKey integrity policies.
 
 This module forms the trust governor between:
- • GlyphWave transmission layer (GWIP / Photon)
- • Codex GKeyStore (quantum key repository)
- • SoulLaw trace engine (compliance and anomaly logging)
+ * GlyphWave transmission layer (GWIP / Photon)
+ * Codex GKeyStore (quantum key repository)
+ * SoulLaw trace engine (compliance and anomaly logging)
 
-Validated under SRK-11 milestone — part of the Photon/Binary Bridge pipeline.
+Validated under SRK-11 milestone - part of the Photon/Binary Bridge pipeline.
 """
 import os
 import math
@@ -144,10 +144,10 @@ class QKDPolicyEnforcer:
         # Retrieve and validate the GKey pair
         gkey = GKeyStore.get_key_pair(sender_id, recipient_id)
         if not gkey or gkey.get("status") != "verified":
-            raise QKDPolicyViolationError(f"Missing or invalid GKey for {sender_id} → {recipient_id}")
+            raise QKDPolicyViolationError(f"Missing or invalid GKey for {sender_id} -> {recipient_id}")
 
         # Tamper detection for integrity assurance
         if GKeyStore.detect_tampering(sender_id, recipient_id):
-            raise QKDPolicyViolationError(f"GKey tampering detected for {sender_id} → {recipient_id}")
+            raise QKDPolicyViolationError(f"GKey tampering detected for {sender_id} -> {recipient_id}")
 
-        logger.debug(f"[🔐 QKD] Enforcement passed for {sender_id} → {recipient_id}")
+        logger.debug(f"[🔐 QKD] Enforcement passed for {sender_id} -> {recipient_id}")

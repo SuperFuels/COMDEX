@@ -33,14 +33,14 @@ def test_normalize_logic_entry_with_codexlang(tmp_path):
     # Decl with codexlang already defined
     decl = {
         "name": "lemma1",
-        "codexlang": {"logic": "A → B", "normalized": "A → B"},
+        "codexlang": {"logic": "A -> B", "normalized": "A -> B"},
         "glyph_tree": {"type": "LogicGlyph"},
         "body": "proof goes here",
     }
     logic_entry = normalize_logic_entry(decl, str(tmp_path / "lemma.lean"))
 
     assert logic_entry["name"] == "lemma1"
-    assert logic_entry["logic_raw"] == "A → B"
+    assert logic_entry["logic_raw"] == "A -> B"
     assert logic_entry["logic"]  # should be simplified form
     assert isinstance(logic_entry["codexlang"], dict)
     assert logic_entry["glyph_tree"]["type"] == "LogicGlyph"

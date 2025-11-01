@@ -70,7 +70,7 @@ classification = (
 plt.figure(figsize=(8,5))
 plt.scatter(metrics["E_drift"], metrics["curv_std"], c=metrics["spectral_lock"], cmap="plasma", s=80)
 plt.colorbar(label="Spectral lock")
-plt.title("E4 — Noise & Greybody Perturbation Stability")
+plt.title("E4 - Noise & Greybody Perturbation Stability")
 plt.xlabel("Energy drift ΔE/⟨E⟩")
 plt.ylabel("Curvature std")
 plt.grid(True); plt.tight_layout()
@@ -93,6 +93,6 @@ save_path = Path("backend/modules/knowledge/E4_noise_greybody.json")
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== E4 — Noise & Greybody Perturbation Stability ===")
+print("=== E4 - Noise & Greybody Perturbation Stability ===")
 print(json.dumps(out, indent=2))
-print(f"✅ Results saved → {save_path}")
+print(f"✅ Results saved -> {save_path}")

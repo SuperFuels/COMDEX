@@ -30,7 +30,7 @@ def reconstruct_gip_signal(packet: Dict[str, Any]) -> Dict[str, Any]:
             "confidence": 1.0,
         }
     except Exception:
-        logger.info(f"[Reconstructor] Direct parse failed, running heuristic repair…")
+        logger.info(f"[Reconstructor] Direct parse failed, running heuristic repair...")
 
     try:
         suggestions = suggest_repair_candidates(raw_content, max_attempts=5)

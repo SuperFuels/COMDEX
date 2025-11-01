@@ -1,5 +1,5 @@
 """
-🧠 Aion Reflection Feedback — PMG Coupling Layer
+🧠 Aion Reflection Feedback - PMG Coupling Layer
 Computes ΔSQI (coherence shift) and ΔH (entropy shift)
 from Photon Memory Grid (PMG) metrics for reflection feedback.
 """

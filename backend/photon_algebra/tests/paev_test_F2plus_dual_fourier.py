@@ -1,5 +1,5 @@
 # ==========================================================
-# Test F2++ — Stabilized Dual-Fourier + Time–Frequency Entropy Map
+# Test F2++ - Stabilized Dual-Fourier + Time-Frequency Entropy Map
 # ==========================================================
 import numpy as np
 import matplotlib.pyplot as plt
@@ -43,7 +43,7 @@ kappa = 0.05 * np.exp(-(X**2 + Y**2) / 0.4) + 0.02 * rng.standard_normal((N, N))
 frames, energy_trace, corr_trace, entropy_trace = [], [], [], []
 entropy_spectrum = []
 
-print("💥 Perturbation mode enabled — injecting Gaussian pulse.")
+print("💥 Perturbation mode enabled - injecting Gaussian pulse.")
 
 # -------------------------------------
 # Time evolution
@@ -113,18 +113,18 @@ imageio.mimsave("PAEV_TestF2pp_Propagation.gif", frames, fps=10)
 print("✅ Saved animation to: PAEV_TestF2pp_Propagation.gif")
 
 plt.figure(figsize=(6,4))
-plt.plot(energy_trace, label="⟨ℒ⟩")
-plt.plot(corr_trace, label="⟨θ·κ⟩")
+plt.plot(energy_trace, label="⟨L⟩")
+plt.plot(corr_trace, label="⟨θ*κ⟩")
 plt.xlabel("step")
 plt.legend()
-plt.title("F2++ — Energy & Correlation")
+plt.title("F2++ - Energy & Correlation")
 plt.tight_layout()
 plt.savefig("PAEV_TestF2pp_EnergyCorrelation.png")
 plt.close()
 
 plt.figure(figsize=(6,4))
 plt.plot(entropy_trace, color="green")
-plt.title("F2++ — Spectral Entropy Evolution")
+plt.title("F2++ - Spectral Entropy Evolution")
 plt.xlabel("time step")
 plt.ylabel("S")
 plt.tight_layout()
@@ -134,7 +134,7 @@ plt.close()
 theta_fft_final = np.abs(np.fft.fftshift(np.fft.fft2(theta)))**2
 plt.figure(figsize=(5,4))
 plt.imshow(theta_fft_final + 1e-8, norm=LogNorm(), cmap="plasma")
-plt.title("F2++ — Final Fourier Spectrum")
+plt.title("F2++ - Final Fourier Spectrum")
 plt.colorbar(label="Power")
 plt.tight_layout()
 plt.savefig("PAEV_TestF2pp_DualFourier.png")
@@ -145,8 +145,8 @@ plt.figure(figsize=(7,4))
 plt.imshow(entropy_spectrum.T, aspect="auto", cmap="inferno", origin="lower")
 plt.xlabel("time step")
 plt.ylabel("wavenumber index")
-plt.title("F2++ — Time–Frequency Entropy Map")
-plt.colorbar(label="log ⟨|θ(k,t)|²⟩")
+plt.title("F2++ - Time-Frequency Entropy Map")
+plt.colorbar(label="log ⟨|θ(k,t)|2⟩")
 plt.tight_layout()
 plt.savefig("PAEV_TestF2pp_TimeFrequencyEntropyMap.png")
 plt.close()
@@ -158,9 +158,9 @@ L_final = np.nanmean(L)
 corr_final = np.nanmean(theta * kappa)
 entropy_final = entropy_trace[-1]
 
-print("\n=== Test F2++ — Dual-Fourier + Entropy Map Complete ===")
-print(f"⟨ℒ⟩ final = {L_final:.4e}")
-print(f"⟨θ·κ⟩ final = {corr_final:.4e}")
+print("\n=== Test F2++ - Dual-Fourier + Entropy Map Complete ===")
+print(f"⟨L⟩ final = {L_final:.4e}")
+print(f"⟨θ*κ⟩ final = {corr_final:.4e}")
 print(f"Spectral entropy final = {entropy_final:.4e}")
 print("Perturbation mode: ON")
 print("All output files saved in working directory.")

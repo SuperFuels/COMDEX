@@ -1,11 +1,11 @@
 """
-Tessaris • SBAL Dispatcher (Substrate Bridge Abstraction Layer)
+Tessaris * SBAL Dispatcher (Substrate Bridge Abstraction Layer)
 ---------------------------------------------------------------
 Routes symbolic or photonic operations to the correct substrate handler:
-  • Digital   → CPU/GPU simulation backends
-  • Optical   → LightWave engine
-  • RF        → Resonance field oscillators
-  • Laser     → Quantum coherence amplifiers
+  * Digital   -> CPU/GPU simulation backends
+  * Optical   -> LightWave engine
+  * RF        -> Resonance field oscillators
+  * Laser     -> Quantum coherence amplifiers
 
 Each substrate module registers itself here with a handler callable or class.
 QQC and Symatics engines dispatch through this bridge to ensure
@@ -33,7 +33,7 @@ def register_substrate(name: str, handler: Callable[..., Any]) -> None:
     """
     name = name.lower()
     _SUBSTRATE_REGISTRY[name] = handler
-    logger.info(f"[SBAL] Registered substrate → {name}")
+    logger.info(f"[SBAL] Registered substrate -> {name}")
 
 
 def get_substrate(name: str) -> Callable[..., Any] | None:
@@ -59,7 +59,7 @@ def dispatch_to_substrate(name: str, payload: Dict[str, Any]) -> Any:
 
     try:
         result = handler(payload)
-        logger.debug(f"[SBAL] → Dispatched to {name} substrate successfully.")
+        logger.debug(f"[SBAL] -> Dispatched to {name} substrate successfully.")
         return result
     except Exception as e:
         logger.error(f"[SBAL] ❌ Dispatch failed for {name}: {e}")
@@ -75,12 +75,12 @@ def list_substrates() -> Dict[str, str]:
 # 🧩 Example Default Handlers (stubs)
 # ────────────────────────────────────────────────
 def _default_digital_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
-    logger.debug(f"[SBAL:DIGITAL] Processing payload → {payload}")
+    logger.debug(f"[SBAL:DIGITAL] Processing payload -> {payload}")
     return {"status": "ok", "backend": "digital"}
 
 
 def _default_optical_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
-    logger.debug(f"[SBAL:OPTICAL] LightWave simulated → {payload}")
+    logger.debug(f"[SBAL:OPTICAL] LightWave simulated -> {payload}")
     return {"status": "ok", "backend": "optical"}
 
 

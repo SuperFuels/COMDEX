@@ -10,7 +10,7 @@ def main():
     else:
         print("⚠️ Soul law violations found:")
         for v in violations:
-            print(f" - [{v['severity'].upper()}] Law {v['law_id']} – {v['title']} (trigger: '{v['trigger']}')")
+            print(f" - [{v['severity'].upper()}] Law {v['law_id']} - {v['title']} (trigger: '{v['trigger']}')")
 
 if __name__ == "__main__":
     main()

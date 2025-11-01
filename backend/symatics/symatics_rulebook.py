@@ -4,12 +4,12 @@ Symatics Algebra Rulebook v0.1 (Expanded)
 Defines Symatics core operators and axioms/laws.
 
 Operators:
-  ⊕(a, b)     → superposition
-  μ(x)        → measurement
-  ↔(a, b)     → entanglement / equivalence
-  ⟲(f, n)     → recursion / loop
-  π(seq, n)   → projection / extraction
-  ⋈[φ](a, b)  → interference with relative phase φ
+  ⊕(a, b)     -> superposition
+  μ(x)        -> measurement
+  ↔(a, b)     -> entanglement / equivalence
+  ⟲(f, n)     -> recursion / loop
+  π(seq, n)   -> projection / extraction
+  ⋈[φ](a, b)  -> interference with relative phase φ
 """
 
 from typing import Any, Dict, List, Union
@@ -69,13 +69,13 @@ def op_integral(expr: Any, var: str, context: Dict) -> Dict[str, Any]:
         op = simplified.get("op")
         args = simplified.get("args", [])
 
-        # Power division → x^(n+1)/(n+1)
+        # Power division -> x^(n+1)/(n+1)
         if op == "/" and args and isinstance(args[0], dict) and args[0].get("op") in {"^", "pow"}:
             base, power = args[0]["args"]
             if base == {"op": "var", "args": [var]}:
                 result_str = f"{var}^{power}/{args[1]}"
 
-        # Constant multiplication → c*x
+        # Constant multiplication -> c*x
         elif op == "*" and args and (isinstance(args[0], int) or (isinstance(args[0], str) and args[0].isdigit())):
             c = int(args[0]) if isinstance(args[0], str) and args[0].isdigit() else args[0]
             if isinstance(args[1], dict) and args[1].get("op") == "var":
@@ -167,7 +167,7 @@ def op_measure_noisy(x: Any, epsilon: float, context: Dict) -> Dict[str, Any]:
 def op_entangle(a: Any, b: Any, context: Dict) -> Dict[str, Any]:
     """
     ↔ : Entanglement / Equivalence
-    Signature: ↔ : A × A → Entangled(A, A)
+    Signature: ↔ : A * A -> Entangled(A, A)
     """
     expr = {
         "op": "↔",
@@ -182,7 +182,7 @@ def op_entangle(a: Any, b: Any, context: Dict) -> Dict[str, Any]:
 def op_recurse(f: Any, depth: int, context: Dict) -> Dict[str, Any]:
     """
     ⟲ : Recursion / Loop operator
-    Signature: ⟲ : (A, n ∈ ℕ) → {A}
+    Signature: ⟲ : (A, n ∈ N) -> {A}
 
     Safely supports float depths by converting to int(abs(depth)).
     Ensures at least one iteration for physical resonance feedback loops.
@@ -190,7 +190,7 @@ def op_recurse(f: Any, depth: int, context: Dict) -> Dict[str, Any]:
     results = []
     current = f
 
-    # 🔸 Normalize depth → safe integer iteration count
+    # 🔸 Normalize depth -> safe integer iteration count
     try:
         n = int(abs(depth))
     except Exception:
@@ -270,7 +270,7 @@ def op_damp(expr: Any, gamma: float, context: Dict) -> Dict[str, Any]:
     A(t) = A0 * exp(-γt)
 
     If the input is a superposition (⊕), distribute damping to each branch:
-        ↯(a ⊕ b) → (↯a ⊕ ↯b)
+        ↯(a ⊕ b) -> (↯a ⊕ ↯b)
     """
     # Distribute if input is a superposition
     if isinstance(expr, dict) and expr.get("op") == "⊕":
@@ -290,7 +290,7 @@ def op_damp(expr: Any, gamma: float, context: Dict) -> Dict[str, Any]:
 
     # Build readable result string
     expr_str = _val(expr) if not isinstance(expr, dict) else expr.get("result", str(expr))
-    damped["result"] = f"{expr_str}·e^(-{gamma}·t)"
+    damped["result"] = f"{expr_str}*e^(-{gamma}*t)"
 
     return damped
 
@@ -323,13 +323,13 @@ def op_entangle_w(states: List[Any], context: Dict) -> Dict[str, Any]:
 
 def op_resonance(expr: Any, q: float, context: Dict) -> Dict[str, Any]:
     """
-    ℚ : Resonance envelope with decay
-    A(t) = A0 cos(ω₀ t) e^(-t/(2Q))
+    Q : Resonance envelope with decay
+    A(t) = A0 cos(ω0 t) e^(-t/(2Q))
     """
     return {
-        "op": "ℚ",
+        "op": "Q",
         "args": [expr, q],
-        "result": f"{expr}·cos(ω₀t)·e^(-t/(2·{q}))",
+        "result": f"{expr}*cos(ω0t)*e^(-t/(2*{q}))",
         "context": context,
     }
 
@@ -361,13 +361,13 @@ def _canonical(expr: Any) -> Any:
     """
     Convert Symatics expression into canonical tuple form for law checks.
     Rules:
-      • Constants normally stringified ("0","1","2",...) 
-      • ∫ returns ("∫", const, var) with const as int if numeric
-      • Δ returns fully canonicalized derivative body
-      • Commutative ops (+,*) get sorted args
-      • New: ↯⊕ expands to damped superposition
-      • New: πμ keeps index as int if numeric
-      • New: string forms like "(ψ1 ⊕ ψ2)·e^(-0.1·t)" handled minimally
+      * Constants normally stringified ("0","1","2",...) 
+      * ∫ returns ("∫", const, var) with const as int if numeric
+      * Δ returns fully canonicalized derivative body
+      * Commutative ops (+,*) get sorted args
+      * New: ↯⊕ expands to damped superposition
+      * New: πμ keeps index as int if numeric
+      * New: string forms like "(ψ1 ⊕ ψ2)*e^(-0.1*t)" handled minimally
     """
     from backend.symatics.rewrite_rules import simplify
     expr = simplify(expr)
@@ -397,7 +397,7 @@ def _canonical(expr: Any) -> Any:
 
         # --- collapse (∇) ---
         if op == "∇":
-            # Collapse canonicalization is simple — it acts like a unary wrapper.
+            # Collapse canonicalization is simple - it acts like a unary wrapper.
             # The operand is canonicalized, preserving symbolic form.
             return ("∇", tuple(_canonical(a) for a in args))
 
@@ -461,7 +461,7 @@ def _canonical(expr: Any) -> Any:
             except Exception:
                 phi_val = None
 
-            # Case 1: left is itself a ⋈ → reassociate
+            # Case 1: left is itself a ⋈ -> reassociate
             if isinstance(cleft, tuple) and cleft[0] == "⋈" and len(cleft[1]) == 3:
                 inner_left, inner_right, inner_phi = cleft[1]
 
@@ -491,7 +491,7 @@ def _canonical(expr: Any) -> Any:
 
         # --- Tensor / Equivalence / Negation (v0.2 symbolic ops) ---
         if op in {"⊗", "≡", "¬"}:
-            # Each is symbolic — canonicalize their args and preserve op identity
+            # Each is symbolic - canonicalize their args and preserve op identity
             return (op, tuple(_canonical(a) for a in args))
 
         # --- generic ops ---
@@ -512,14 +512,14 @@ def _canonical(expr: Any) -> Any:
         # direct πμ string like "πμ([[1,2],[3,4]],0)"
         if expr.startswith("πμ("):
             return ("πμ", (expr,))
-        # distribution-like form "(ψ1 ⊕ ψ2)·e^(-0.1·t)"
+        # distribution-like form "(ψ1 ⊕ ψ2)*e^(-0.1*t)"
         if "⊕" in expr and "e^(" in expr:
-            # NOTE: minimal handling; assumes form "(ψ1 ⊕ ψ2)·e^(-γ·t)"
+            # NOTE: minimal handling; assumes form "(ψ1 ⊕ ψ2)*e^(-γ*t)"
             return (
                 "⊕",
                 (
-                    ("↯", ("ψ1", "e^(-0.1·t)")),
-                    ("↯", ("ψ2", "e^(-0.1·t)")),
+                    ("↯", ("ψ1", "e^(-0.1*t)")),
+                    ("↯", ("ψ2", "e^(-0.1*t)")),
                 ),
             )
         return expr
@@ -529,9 +529,9 @@ def _canonical(expr: Any) -> Any:
 def _val(obj: Any, key: str = "value") -> Any:
     """
     Multi-stage normalization:
-    1. For π/πμ → prefer 'value'
-    2. For μ/measurement → prefer 'collapsed' then 'value'
-    3. For new v0.2 ops (⊗, ≡, ¬) → prefer 'value' if present, else canonicalize
+    1. For π/πμ -> prefer 'value'
+    2. For μ/measurement -> prefer 'collapsed' then 'value'
+    3. For new v0.2 ops (⊗, ≡, ¬) -> prefer 'value' if present, else canonicalize
     4. Otherwise: prefer 'value', then 'result', else canonicalize
     """
     if isinstance(obj, dict):
@@ -682,7 +682,7 @@ def law_duality(op: str, *args: Any) -> bool:
         return False
 
 # ──────────────────────────────
-# ⋈[φ] Laws / Axioms (A1–A8)
+# ⋈[φ] Laws / Axioms (A1-A8)
 # ──────────────────────────────
 
 import math
@@ -712,7 +712,7 @@ def _phases_equiv(expr1, expr2) -> bool:
 
 def law_comm_phi(a, b, φ) -> bool:
     """
-    Law: (A ⋈[φ] B) ≡ (B ⋈[−φ] A), modulo 2π phase equivalence.
+    Law: (A ⋈[φ] B) ≡ (B ⋈[-φ] A), modulo 2π phase equivalence.
     """
     lhs = interf(φ, a, b)
     rhs = interf(-φ, b, a)
@@ -739,7 +739,7 @@ def law_self_pi(a) -> bool:
 
 
 def law_non_idem(a, φ) -> bool:
-    """For φ ≠ 0,π → (A ⋈[φ] A) ≠ A."""
+    """For φ != 0,π -> (A ⋈[φ] A) != A."""
     if is_zero_phase(φ) or is_pi_phase(φ):
         return False
     lhs = normalize(interf(φ, a, a))
@@ -760,7 +760,7 @@ def law_assoc_phase(a, b, c, φ, ψ) -> bool:
 
 
 def law_inv_phase(a, b, φ) -> bool:
-    """A ⋈[φ] (A ⋈[−φ] B) ↔ B."""
+    """A ⋈[φ] (A ⋈[-φ] B) ↔ B."""
     lhs = interf(φ, a, interf(-φ, a, b))
     return symatics_equiv(lhs, b)
 
@@ -788,7 +788,7 @@ def law_identity(op: str, a: Any) -> bool:
 
 def law_integration_constant(op: str, expr: Any, var: str) -> bool:
     """
-    ∫ c dx = c·x   (constant integration law)
+    ∫ c dx = c*x   (constant integration law)
     """
     if op != "∫":
         return True
@@ -881,7 +881,7 @@ def law_integration_power(op: str, expr: Any, var: str) -> bool:
     return _canonical(out) == _canonical(expected)
 
 def law_chain_rule(expr: Any, var: str) -> bool:
-    """Check Δ(sin(x²)) = cos(x²)·2x style chain rule."""
+    """Check Δ(sin(x2)) = cos(x2)*2x style chain rule."""
     try:
         from backend.symatics.rewrite_rules import rewrite_derivative, simplify
         deriv = simplify(rewrite_derivative(expr, var))
@@ -915,8 +915,8 @@ DEBUG = False  # set True for verbose prints
 
 def law_projection(seq: List[Any], n: int, m: int, tri_valued: bool = False) -> bool | None:
     """π law: π(π(seq, n), m) == π(seq, n+m).
-       - If tri_valued=True → return None for vacuous cases (v0.2+ behavior).
-       - If tri_valued=False → treat vacuous as True (v0.1 behavior).
+       - If tri_valued=True -> return None for vacuous cases (v0.2+ behavior).
+       - If tri_valued=False -> treat vacuous as True (v0.1 behavior).
     """
     try:
         if not isinstance(seq, (list, tuple)):
@@ -957,7 +957,7 @@ def law_projection_collapse_consistency(seq: List[Any], n: int) -> bool:
 
 
 def law_interference(a: Any, b: Any) -> bool:
-    """Destructive interference: a ⊖ (-a) = 0. Non-cancel → still passes."""
+    """Destructive interference: a ⊖ (-a) = 0. Non-cancel -> still passes."""
     expr = op_interfere(a, b, {})
     return True if _val(expr, "collapsed") == 0 else True
 
@@ -974,7 +974,7 @@ def law_damping(expr: Any, gamma: float, steps: int = 1) -> bool:
 
 
 def law_ghz_symmetry(states: List[Any]) -> bool:
-    """GHZ entanglement is invariant under permutation of states (requires ≥3)."""
+    """GHZ entanglement is invariant under permutation of states (requires >=3)."""
     if len(states) < 3:
         return False
     try:
@@ -986,7 +986,7 @@ def law_ghz_symmetry(states: List[Any]) -> bool:
 
 
 def law_w_symmetry(states: List[Any]) -> bool:
-    """W-state entanglement is invariant under permutation of states (requires ≥2)."""
+    """W-state entanglement is invariant under permutation of states (requires >=2)."""
     if len(states) < 2:
         return False
     try:
@@ -1023,7 +1023,7 @@ def law_measurement_noise(x: Any, epsilon: float) -> bool:
 # ──────────────────────────────
 
 def law_damping_linearity(a: Any, b: Any, gamma: float) -> bool:
-    """Linearity: ↯(a ⊕ b) == ↯a ⊕ ↯b, requires gamma ≥ 0."""
+    """Linearity: ↯(a ⊕ b) == ↯a ⊕ ↯b, requires gamma >= 0."""
     try:
         if gamma < 0:
             return False
@@ -1097,7 +1097,7 @@ def law_associativity(op: str, a: Any, b: Any, c: Any) -> bool:
 def law_resonance_stability(expr: Any) -> bool:
     """
     Law of Resonance Stability:
-    Resonant systems (ℚ) must contain both oscillatory (cos/sin)
+    Resonant systems (Q) must contain both oscillatory (cos/sin)
     and decaying (e^(-t/...)) components.
     """
     try:
@@ -1145,7 +1145,7 @@ def law_collapse_equivalence(a=None, b=None) -> bool:
     """
     μ(⊕a,b) ≡ ∇(⊕a,b)
     Treat μ and ∇ as equivalent when applied to the SAME superposition.
-    Falls back to comparing μ’s collapsed value to collapse_rule(⊕...).
+    Falls back to comparing μ's collapsed value to collapse_rule(⊕...).
     """
     try:
         aa = a if a is not None else "a"
@@ -1172,7 +1172,7 @@ def law_collapse_equivalence(a=None, b=None) -> bool:
         meas = op_measure(sup, {})
         return _canonical(meas.get("collapsed", meas)) == _canonical(collapse_rule(sup))
     except Exception:
-        # Don’t fail the theorem on structural oddities
+        # Don't fail the theorem on structural oddities
         return True
 
 def law_collapse_conservation_vacuous_ok(a, tolerance: float = 1e-2) -> bool:
@@ -1185,7 +1185,7 @@ def law_collapse_conservation_vacuous_ok(a, tolerance: float = 1e-2) -> bool:
     pre_coh = getattr(a, "pre_coherence", None)
     post_coh = getattr(a, "coherence", None)
     if None in (pre_energy, post_energy, pre_coh, post_coh):
-        return True  # vacuous → pass in symbolic contexts
+        return True  # vacuous -> pass in symbolic contexts
     return law_collapse_conservation(a, tolerance)
 # ─────────────────────────────────────────────
 # v0.3 Physical Correspondence Laws
@@ -1281,7 +1281,7 @@ def law_entanglement_symmetry(states: List[Any]) -> bool:
 # -----------------
 def non_idem(A, φ):
     """
-    Law: (A ⋈[φ] A) ≠ A for φ ≠ 0, π.
+    Law: (A ⋈[φ] A) != A for φ != 0, π.
     Matches Lean axiom `non_idem`.
     """
     if R.is_zero_phase(φ) or R.is_pi_phase(φ):
@@ -1319,7 +1319,7 @@ LAW_REGISTRY = {
     ],
     "μ": [
         _wrap("duality",               lambda a       : law_duality("μ", a)),
-        _wrap("collapse_conservation", lambda a       : law_collapse_conservation_vacuous_ok(a)),  # ← use wrapper
+        _wrap("collapse_conservation", lambda a       : law_collapse_conservation_vacuous_ok(a)),  # <- use wrapper
         _wrap("collapse_equivalence",  lambda a=None, b=None: law_collapse_equivalence()),
     
     ],
@@ -1350,7 +1350,7 @@ LAW_REGISTRY = {
     "⊗W": [
         _wrap("w_symmetry",       lambda states          : law_w_symmetry(states)),
     ],
-    "ℚ": [
+    "Q": [
         _wrap("resonance_decay",  lambda expr, q, steps=1: law_resonance_decay(expr, q, steps)),
     ],
     "ε": [
@@ -1366,7 +1366,7 @@ LAW_REGISTRY = {
     "πμ": [
         _wrap("projection_collapse_consistency", lambda seq, n: law_projection_collapse_consistency(seq, n)),
     ],
-    "ℚ↯": [
+    "Q↯": [
         _wrap("resonance_damping_consistency", lambda expr, q, gamma: law_resonance_damping_consistency(expr, q, gamma)),
     ],
 
@@ -1414,7 +1414,7 @@ except Exception as e:
     print(f"[SymaticsRulebook] ⚠️ QuantumOps injection deferred: {e}")
 
 # =====================================================
-# 🔗 Manual Integration — Symatics Meta-Axioms (v2.0+)
+# 🔗 Manual Integration - Symatics Meta-Axioms (v2.0+)
 # =====================================================
 
 from backend.symatics.axioms import load_axioms
@@ -1458,7 +1458,7 @@ def check_all_laws(
     Args:
         symbol: Algebraic operator symbol ("⊕", "↔", "μ", etc.)
         *args:  Operator arguments
-        strict: If True → raise Exception when any law fails
+        strict: If True -> raise Exception when any law fails
         context: Optional evaluation context passed through for richer logging
         **kwargs: Extra keyword arguments for laws requiring var/expr
 
@@ -1503,9 +1503,9 @@ def check_all_laws(
     verdict = (len(violations) == 0)
 
     if violations:
-        logger.warning(f"[SymaticsLawCheck] {symbol} → {summary}, violations: {violations}")
+        logger.warning(f"[SymaticsLawCheck] {symbol} -> {summary}, violations: {violations}")
     else:
-        logger.debug(f"[SymaticsLawCheck] {symbol} → all {total} passed")
+        logger.debug(f"[SymaticsLawCheck] {symbol} -> all {total} passed")
 
     if strict and violations:
         raise AssertionError(f"Law violations for {symbol}: {violations}")

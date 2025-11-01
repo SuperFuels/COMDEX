@@ -1,13 +1,13 @@
 """
 Tessaris Colorized Interference Visualizer
-Phase 7C — Harmonic Field Coherence Display
+Phase 7C - Harmonic Field Coherence Display
 -------------------------------------------
 Reads .photo emissions from the Quantum Feedback Coupler (QFC)
 and renders colored harmonic waveforms with interference overlays.
 
-Blue → stable field
-Yellow → modulated field
-Red → unstable / decohering field
+Blue -> stable field
+Yellow -> modulated field
+Red -> unstable / decohering field
 Author : Tessaris Symbolic Intelligence Lab (2025)
 """
 
@@ -31,7 +31,7 @@ POLL_INTERVAL = 5  # seconds
 # 🎨 Color mapping
 # ---------------------------------------------------------
 def stability_to_color(stability: float):
-    """Map stability (0–1) to RGB gradient."""
+    """Map stability (0-1) to RGB gradient."""
     if stability > 0.95:
         return rgb(0, 170, 255)      # Blue: perfectly stable
     elif stability > 0.8:
@@ -43,15 +43,15 @@ def stability_to_color(stability: float):
 # 🌊 Waveform Rendering
 # ---------------------------------------------------------
 def render_interference(pattern):
-    """Render interference pattern for Δψ₂ and Δψ₃."""
-    amp1 = pattern.get("Δψ₁", 0.0)
-    amp2 = pattern.get("Δψ₂", 0.0)
-    amp3 = pattern.get("Δψ₃", 0.0)
+    """Render interference pattern for Δψ2 and Δψ3."""
+    amp1 = pattern.get("Δψ1", 0.0)
+    amp2 = pattern.get("Δψ2", 0.0)
+    amp3 = pattern.get("Δψ3", 0.0)
     phase = pattern.get("phase_shift", 0.0)
     stab = pattern.get("stability", 1.0)
 
     color = stability_to_color(stab)
-    print(f"{color}\n🌀 Resonant Field Snapshot — stability={stab:.3f} phase={phase:.1f}°{RESET}")
+    print(f"{color}\n🌀 Resonant Field Snapshot - stability={stab:.3f} phase={phase:.1f}°{RESET}")
 
     # Generate interference pattern
     bars = ""
@@ -61,16 +61,16 @@ def render_interference(pattern):
         y2 = math.sin(θ + math.radians(phase + 45)) * amp3  # shifted interference
         inter = (y + y2) / 2
         h = int(inter * 10)
-        bars += "█" if h > 0 else "·"
+        bars += "█" if h > 0 else "*"
 
     print(f"{color}{bars}{RESET}")
-    print(f"Δψ₁ {amp1:+.3f}  Δψ₂ {amp2:+.3f}  Δψ₃ {amp3:+.3f}\n")
+    print(f"Δψ1 {amp1:+.3f}  Δψ2 {amp2:+.3f}  Δψ3 {amp3:+.3f}\n")
 
 # ---------------------------------------------------------
 # 🧭 Monitor Loop
 # ---------------------------------------------------------
 def run_colorized_visualizer():
-    print("🌌 Starting Tessaris Colorized Interference Visualizer …")
+    print("🌌 Starting Tessaris Colorized Interference Visualizer ...")
     seen = set()
 
     while True:

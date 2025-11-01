@@ -18,7 +18,7 @@ server = WebsocketServer(room)  # ✅ single-room mode
 async def main():
     host = "0.0.0.0"
     port = 8765
-    print(f"✅ Photon CRDT server live → ws://{host}:{port}/")
+    print(f"✅ Photon CRDT server live -> ws://{host}:{port}/")
 
     async with websockets.serve(server.serve, host, port):
         await asyncio.Future()  # run forever

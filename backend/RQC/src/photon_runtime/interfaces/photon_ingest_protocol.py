@@ -1,5 +1,5 @@
 """
-Photon Runtime — Ingest Protocol Interface
+Photon Runtime - Ingest Protocol Interface
 ──────────────────────────────────────────────
 Defines a unified interface for ingesting Photon glyph packets
 across the Tessaris cognitive stack (QQC, AION, RQC).
@@ -32,10 +32,10 @@ logger.setLevel(logging.INFO)
 # ────────────────────────────────────────────────
 def decode_epsilon_number(symbol: str) -> Optional[float]:
     """
-    Convert compact ε-symbolic numbers (𝜀x) back to float approximation.
-    Example: "𝜀0" → 1.0, "𝜀5000000000" → 0.995
+    Convert compact ε-symbolic numbers (εx) back to float approximation.
+    Example: "ε0" -> 1.0, "ε5000000000" -> 0.995
     """
-    if not isinstance(symbol, str) or not symbol.startswith("𝜀"):
+    if not isinstance(symbol, str) or not symbol.startswith("ε"):
         return None
     try:
         exp = int(symbol[1:])
@@ -83,7 +83,7 @@ class PhotonIngestProtocol(ABC):
         normalized = {}
         for k, v in data.items():
             # Decode ε-values if present
-            if isinstance(v, str) and v.startswith("𝜀"):
+            if isinstance(v, str) and v.startswith("ε"):
                 decoded = decode_epsilon_number(v)
                 normalized[k] = decoded if decoded is not None else v
             else:

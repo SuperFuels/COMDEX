@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • HQCE Telemetry Viewer (Stage 9)
-#  Visualizes ψ–κ–T + coherence evolution over time
+#  Tessaris * HQCE Telemetry Viewer (Stage 9)
+#  Visualizes ψ-κ-T + coherence evolution over time
 #  Supports static and live modes from MorphicLedger
 # ──────────────────────────────────────────────
 
@@ -25,7 +25,7 @@ def load_entries(path: str) -> List[Dict[str, Any]]:
 
 
 def plot_metrics(entries: List[Dict[str, Any]]):
-    """Plot ψ–κ–T–C metrics from ledger."""
+    """Plot ψ-κ-T-C metrics from ledger."""
     if not entries:
         print("[!] No entries to plot.")
         return
@@ -41,7 +41,7 @@ def plot_metrics(entries: List[Dict[str, Any]]):
     plt.plot(timestamps, κ_vals, label="κ (Curvature)")
     plt.plot(timestamps, C_vals, label="C (Coherence)")
     plt.plot(timestamps, T_vals, label="T (Temporal Flux)")
-    plt.title("HQCE ψ–κ–T–C Telemetry Trend")
+    plt.title("HQCE ψ-κ-T-C Telemetry Trend")
     plt.xlabel("Time (s)")
     plt.ylabel("Value")
     plt.legend()
@@ -72,7 +72,7 @@ def live_watch(path: str, interval: float = 2.0):
         ax.plot(x, κ_vals, label="κ")
         ax.plot(x, C_vals, label="C")
         ax.plot(x, T_vals, label="T")
-        ax.set_title("Live HQCE Telemetry (ψ–κ–T–C)")
+        ax.set_title("Live HQCE Telemetry (ψ-κ-T-C)")
         ax.legend()
         ax.grid(True)
         plt.pause(interval)

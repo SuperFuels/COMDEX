@@ -1,11 +1,11 @@
 """
-Tessaris Σ5 — Cross-Domain Lock Test
+Tessaris Σ5 - Cross-Domain Lock Test
 ------------------------------------
-Integrates Σ1–Σ4 summaries to verify global causal phase alignment.
+Integrates Σ1-Σ4 summaries to verify global causal phase alignment.
 Purpose: confirm that all domains (biological, plasma, thermodynamic, quantum-biological)
 converge under the same Λ equilibrium, achieving a universal causal lock.
 
-This marks the completion of the Σ-Series — the "world" layer of Tessaris.
+This marks the completion of the Σ-Series - the "world" layer of Tessaris.
 """
 
 import json, os, numpy as np, matplotlib.pyplot as plt
@@ -26,8 +26,8 @@ constants = load_constants("v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print(f"=== {SERIES} — Cross-Domain Lock (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print(f"=== {SERIES} - Cross-Domain Lock (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # === Load Previous Σ-Series Summaries ===
 def load_summary(name):
@@ -55,7 +55,7 @@ stability_flags = [
     Σ4["metrics"]["stable"]
 ]
 
-# Normalize values (0–1 range)
+# Normalize values (0-1 range)
 sync_values = np.clip(sync_values, 0, 1)
 
 # === Compute Global Metrics ===
@@ -90,14 +90,14 @@ summary = {
         f"Mean cross-domain lock value = {global_lock:.3f}",
         f"Variance across domains = {domain_variance:.3e}",
         f"Cross-entropy = {cross_entropy:.3f}",
-        "Tests Σ1–Σ4 unified under common Λ equilibrium."
+        "Tests Σ1-Σ4 unified under common Λ equilibrium."
     ],
     "discovery": [
         "Cross-domain causal coherence successfully demonstrated.",
         "All major natural domains share the same equilibrium constants.",
         "Λ-field synchronizes physical, biological, and quantum processes in one causal continuum.",
         "Supports the hypothesis of a unified world-field governed by Tessaris constants.",
-        "Marks completion of the Σ-Series — establishing universality across all natural domains."
+        "Marks completion of the Σ-Series - establishing universality across all natural domains."
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
 }
@@ -113,13 +113,13 @@ for i, curve in enumerate(phase_curves):
     plt.plot(curve, label=f"{domains[i]} Domain")
 plt.xlabel("Time Step")
 plt.ylabel("Normalized Phase Amplitude")
-plt.title("Σ5 — Cross-Domain Causal Lock (Λ-Equilibrium Alignment)")
+plt.title("Σ5 - Cross-Domain Causal Lock (Λ-Equilibrium Alignment)")
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(PLOT_PATH, dpi=200)
 
-print(f"✅ Summary saved → {SUMMARY_PATH}")
-print(f"✅ Plot saved → {PLOT_PATH}")
+print(f"✅ Summary saved -> {SUMMARY_PATH}")
+print(f"✅ Plot saved -> {PLOT_PATH}")
 print("------------------------------------------------------------")
 print(json.dumps(summary, indent=2))

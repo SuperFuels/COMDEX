@@ -1,15 +1,15 @@
 # ================================================================
-# 🌐 Phase 45G.12 — GHX Streaming Replay Bridge
+# 🌐 Phase 45G.12 - GHX Streaming Replay Bridge
 # ================================================================
 """
 Extends QPhotonRuntime with real-time GHX telemetry streaming.
 
 Each photon instruction executed emits live data to GHXTelemetryBridge:
-    • op (PHOTON_SUPERPOSE, PHOTON_ENTANGLE, etc.)
-    • resonance coherence (ρ)
-    • intensity (I)
-    • gradient coherence (rho_grad)
-    • optional phase (φ)
+    * op (PHOTON_SUPERPOSE, PHOTON_ENTANGLE, etc.)
+    * resonance coherence (ρ)
+    * intensity (I)
+    * gradient coherence (rho_grad)
+    * optional phase (φ)
 
 Outputs:
     data/telemetry/ghx_stream.json   (live mirror for GHXVisualizer)
@@ -59,11 +59,11 @@ class QPhotonRuntimeGHX(QPhotonRuntime):
         logger.info(f"[QPhotonGHX] Streamed {len(packet.get('instructions', []))} photon ops to GHX.")
 
         # ------------------------------------------------------------------
-        # 🧠 Phase 45G.12.b — Force persistence for downstream Habit bridge
+        # 🧠 Phase 45G.12.b - Force persistence for downstream Habit bridge
         # ------------------------------------------------------------------
         try:
             self.ghx._save()
-            logger.info("[QPhotonGHX] GHX stream persisted → data/telemetry/ghx_stream.json")
+            logger.info("[QPhotonGHX] GHX stream persisted -> data/telemetry/ghx_stream.json")
         except Exception as e:
             logger.warning(f"[QPhotonGHX] Failed to persist GHX stream: {e}")
 
@@ -82,7 +82,7 @@ class QPhotonRuntimeGHX(QPhotonRuntime):
             "avg_grad": avg_grad,
             "timestamp": time.time(),
         }
-        logger.info(f"[QPhotonGHX] Summary → {summary}")
+        logger.info(f"[QPhotonGHX] Summary -> {summary}")
         return summary
 
 

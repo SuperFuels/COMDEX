@@ -146,7 +146,7 @@ def decode_waveform_to_glyphs(
             dtype = np.int16 if sampwidth == 2 else np.int8
             audio = np.frombuffer(raw, dtype=dtype)
 
-            if n_channels == 2:  # stereo → take one channel
+            if n_channels == 2:  # stereo -> take one channel
                 audio = audio[::2]
 
     segment_len = int(framerate * segment_duration)

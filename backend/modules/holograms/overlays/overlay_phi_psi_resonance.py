@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • Morphic Holograms Overlay
-#  Stage 13.1 — Φ–ψ Resonance Coupling Stream Bridge
+#  Tessaris * Morphic Holograms Overlay
+#  Stage 13.1 - Φ-ψ Resonance Coupling Stream Bridge
 #  Connects Morphic Ledger ↔ GHXVisualizer (via CFA telemetry)
 # ──────────────────────────────────────────────
 
@@ -18,7 +18,7 @@ def get_overlay_metadata():
     """Return overlay manifest for GHXVisualizer registration."""
     return {
         "id": OVERLAY_ID,
-        "name": "Φ–ψ Resonance Coupling",
+        "name": "Φ-ψ Resonance Coupling",
         "category": "Symatics Telemetry",
         "version": "1.0",
         "refresh_interval": 3.0,
@@ -28,13 +28,13 @@ def get_overlay_metadata():
 
 def fetch_live_resonance_data():
     """
-    Retrieve Φ–ψ coupling metrics from Morphic Ledger.
+    Retrieve Φ-ψ coupling metrics from Morphic Ledger.
     Push data to CFA bus for GHXVisualizer overlay updates.
     """
     try:
         result = morphic_ledger.compute_resonance_coupling()
         if not result or result.get("count", 0) == 0:
-            logger.warning("[ΦψOverlay] No Φ–ψ resonance data yet.")
+            logger.warning("[ΦψOverlay] No Φ-ψ resonance data yet.")
             return {}
 
         packet = {
@@ -48,7 +48,7 @@ def fetch_live_resonance_data():
             "stability_index": result.get("resonance_index"),
         }
 
-        # 🔁 Publish to Cognitive Fabric → GHXVisualizer domain
+        # 🔁 Publish to Cognitive Fabric -> GHXVisualizer domain
         CFA.commit(
             source="MORPHIC_OVERLAY",
             intent="overlay_update",
@@ -58,7 +58,7 @@ def fetch_live_resonance_data():
         )
 
         logger.info(
-            f"[ΦψOverlay] → R={packet['resonance_index']:.4f}, Δφ={packet['phase_diff']:.4f}, "
+            f"[ΦψOverlay] -> R={packet['resonance_index']:.4f}, Δφ={packet['phase_diff']:.4f}, "
             f"r={packet['correlation']:.4f}"
         )
         return packet
@@ -69,7 +69,7 @@ def fetch_live_resonance_data():
 
 
 def start_overlay_stream(interval: float = 5.0):
-    """Continuously stream Φ–ψ resonance data to the overlay bus."""
+    """Continuously stream Φ-ψ resonance data to the overlay bus."""
     logger.info(f"[ΦψOverlay] Starting resonance telemetry stream (interval={interval}s)")
     while True:
         fetch_live_resonance_data()

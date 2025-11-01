@@ -1,5 +1,5 @@
 """
-AION Conceptual Learning Arena — Phase 4
+AION Conceptual Learning Arena - Phase 4
 ----------------------------------------
 Transforms reflective events into conceptual graphs for symbolic reasoning.
 Author: Tessaris Symbolic Intelligence Lab (2025)
@@ -114,7 +114,7 @@ class ConceptGraph:
         nodes = len(self.graph.nodes)
         edges = len(self.graph.edges)
         top = [n for n, _ in sorted(self.graph.degree, key=lambda x: -x[1])[:4]]
-        return f"ConceptGraph: {nodes} nodes, {edges} edges → {top}"
+        return f"ConceptGraph: {nodes} nodes, {edges} edges -> {top}"
 
     # ----------------------------------------------------------
     def __len__(self):
@@ -173,7 +173,7 @@ async def _test_run():
         {"message": "Movement registered. Coherence steady, curiosity intact."},
         {"message": "Entropy spike detected; stability breached."},
         {"message": "Symbolic resonance logged for later abstraction."},
-        {"message": "Pattern recognized and integrated — coherence amplified."},
+        {"message": "Pattern recognized and integrated - coherence amplified."},
     ]
 
     for ev in test_events:

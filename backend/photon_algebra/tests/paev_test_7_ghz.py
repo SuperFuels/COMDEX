@@ -50,4 +50,4 @@ print("\nParity product (should = -1):", f"{logical_parity:.3f}")
 if abs(logical_parity + 1) < 1e-3:
     print("✅ GHZ logical contradiction reproduced.")
 else:
-    print("❌ GHZ parity mismatch — check rewrite rules.")
+    print("❌ GHZ parity mismatch - check rewrite rules.")

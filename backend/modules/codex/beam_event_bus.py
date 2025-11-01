@@ -1,8 +1,8 @@
 from __future__ import annotations
 # File: backend/modules/codex/beam_event_bus.py
 """
-Tessaris • QQC–SLE v0.7
-BeamEventBus — unified symbolic/photonic beam event dispatcher.
+Tessaris * QQC-SLE v0.7
+BeamEventBus - unified symbolic/photonic beam event dispatcher.
 Bridges symbolic, photonic, holographic, and field-layer telemetry.
 """
 
@@ -50,7 +50,7 @@ class BeamEvent:
     def __repr__(self) -> str:
         return (
             f"<BeamEvent {self.event_type} "
-            f"{self.source}→{self.target} drift={self.drift:.3f} q={self.qscore:.2f}>"
+            f"{self.source}->{self.target} drift={self.drift:.3f} q={self.qscore:.2f}>"
         )
 
 

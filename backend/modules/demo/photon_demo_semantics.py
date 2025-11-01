@@ -9,14 +9,14 @@ print("----------------------------------\n")
 
 # --- Helpers ---
 SUPERSCRIPTS = {
-    "²": "2",
-    "³": "3",
-    "⁴": "4",
-    "⁵": "5",
-    "⁶": "6",
-    "⁷": "7",
-    "⁸": "8",
-    "⁹": "9",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
+    "7": "7",
+    "8": "8",
+    "9": "9",
 }
 
 
@@ -27,11 +27,11 @@ def sup_to_int(s: str) -> int:
 
 def expand_grad_power(expr: str):
     """
-    Expand ∇ⁿx into GradPower(x, n).
+    Expand ∇nx into GradPower(x, n).
     Examples:
-      ∇²a     → GradPower(a,2)
-      ∇³a     → GradPower(a,3)
-      ∇2a     → GradPower(a,2)
+      ∇2a     -> GradPower(a,2)
+      ∇3a     -> GradPower(a,3)
+      ∇2a     -> GradPower(a,2)
     """
 
     def repl_var(match):
@@ -52,14 +52,14 @@ def expand_grad_power(expr: str):
             power = int(power_str)
         return f"GradPower({arg}, {power})"
 
-    # ∇²a, ∇3a
-    expr = re.sub(r"∇([²³⁴⁵⁶⁷⁸⁹0-9]+)([a-zA-Z]\w*)", repl_var, expr)
-    # ∇²(f(x))
-    expr = re.sub(r"∇([²³⁴⁵⁶⁷⁸⁹0-9]+)\(([^)]+)\)", repl_func, expr)
+    # ∇2a, ∇3a
+    expr = re.sub(r"∇([234567890-9]+)([a-zA-Z]\w*)", repl_var, expr)
+    # ∇2(f(x))
+    expr = re.sub(r"∇([234567890-9]+)\(([^)]+)\)", repl_func, expr)
 
-    # Handle ∇f(x) → Grad(f(x))
+    # Handle ∇f(x) -> Grad(f(x))
     expr = re.sub(r"∇([a-zA-Z]\w*)\(([^)]+)\)", r"Grad(\1(\2))", expr)
-    # Bare ∇f → Grad(f)
+    # Bare ∇f -> Grad(f)
     expr = re.sub(r"∇([a-zA-Z]\w*)", r"Grad(\1)", expr)
 
     return expr
@@ -67,11 +67,11 @@ def expand_grad_power(expr: str):
 
 def pretty_grad(expr):
     """
-    Pretty-print GradPower back into ∇ⁿ(arg).
+    Pretty-print GradPower back into ∇n(arg).
     """
     if isinstance(expr, GradPower):
         arg, n = expr.args
-        sup_map = {"2": "²", "3": "³", "4": "⁴", "5": "⁵"}
+        sup_map = {"2": "2", "3": "3", "4": "4", "5": "5"}
         n_str = sup_map.get(str(n), f"^{n}")
         return f"∇{n_str}{pretty_grad(arg)}"
     if isinstance(expr, Grad):
@@ -116,8 +116,8 @@ prove_equiv("a ⊗ 0", "0", "Multiplicative Annihilation")
 # --- Gradient demos ---
 prove_equiv("∇(a ⊕ b)", "∇a ⊕ ∇b", "Gradient Add Rule")
 prove_equiv("∇(a ⊗ b)", "(∇a ⊗ b) ⊕ (a ⊗ ∇b)", "Gradient Product Rule")
-prove_equiv("∇(∇a)", "∇²a", "Second Derivative")
-prove_equiv("∇(∇(∇a))", "∇³a", "Third Derivative")
+prove_equiv("∇(∇a)", "∇2a", "Second Derivative")
+prove_equiv("∇(∇(∇a))", "∇3a", "Third Derivative")
 
 # --- Advanced demos ---
 prove_equiv("∇(f(g(x)))", "Compose(Grad(f), g(x)) ⊗ Compose(Grad(g), x)", "Chain Rule")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test G′3 — Exponent Optimization for Parameter-Free Prediction
+Test G′3 - Exponent Optimization for Parameter-Free Prediction
 Searches Λ-scaling exponents (mass_exp, hbar_exp, G_exp)
 to minimize deviation of emergent constants vs. physical constants.
 """
@@ -12,7 +12,7 @@ cfg = json.load(open("backend/photon_algebra/config_physics_scale.json"))
 SCALE = cfg["scale_factor"]
 REF = f"Lambda (scale_factor = {SCALE:.3e})"
 
-# --- Emergent normalized constants (from G2–G5 results) ---
+# --- Emergent normalized constants (from G2-G5 results) ---
 ALPHA_EMERGENT = 7.23e-3
 M_NORM = 4.19e-1
 HBAR_NORM = 9.27e-1
@@ -20,7 +20,7 @@ G_NORM = 3.60e-2
 
 # --- Physical constants (targets) ---
 PLANCK_MASS = 2.176e-8        # kg
-PLANCK_HBAR = 1.055e-34       # J·s
+PLANCK_HBAR = 1.055e-34       # J*s
 PLANCK_G = 6.6743e-11
 ALPHA_PHYS = 7.297e-3
 M_PHYS = 9.109e-31            # electron
@@ -72,7 +72,7 @@ plt.figure(figsize=(7,5))
 plt.tricontourf(subset[:,0], subset[:,1], subset[:,3], levels=30, cmap="plasma")
 plt.colorbar(label="Mean |Deviation| %")
 plt.scatter(best["m_exp"], best["hbar_exp"], c="white", s=80, edgecolor="k", label="Best")
-plt.title(f"G′3 — Scaling Exponent Optimization\n(reference: {REF})")
+plt.title(f"G′3 - Scaling Exponent Optimization\n(reference: {REF})")
 plt.xlabel("mass exponent")
 plt.ylabel("ħ exponent")
 plt.legend()
@@ -80,7 +80,7 @@ plt.tight_layout()
 plt.savefig("PAEV_TestGprime3_ExponentMap.png")
 
 # --- Display best fit summary ---
-print("=== G′3 — Exponent Optimization Results ===")
+print("=== G′3 - Exponent Optimization Results ===")
 print(f"Reference scaling : {REF}")
 print(f"Search space size : {len(records)} combos")
 print(f"Best-fit exponents:")

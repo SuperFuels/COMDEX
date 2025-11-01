@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 # ==========================================================
-# P9b — Predictive Field Resilience (Perturbation & Drift)
+# P9b - Predictive Field Resilience (Perturbation & Drift)
 # ==========================================================
 
 np.random.seed(42)
@@ -31,11 +31,11 @@ drift_amp = 0.0012
 tau_drift = 1200.0
 
 # --- initialize 3 attractors ---
-ϕ_A = np.zeros(N)
-ϕ_B = np.zeros(N)
-ϕ_C = np.zeros(N)
+φ_A = np.zeros(N)
+φ_B = np.zeros(N)
+φ_C = np.zeros(N)
 
-ϕ_A[0], ϕ_B[0], ϕ_C[0] = 0.0, 0.05, -0.03
+φ_A[0], φ_B[0], φ_C[0] = 0.0, 0.05, -0.03
 
 damping_A, damping_B, damping_C = damping, damping * 1.03, damping * 0.97
 
@@ -47,23 +47,23 @@ for t in range(1, N):
 
     # introduce perturbation at t=perturb_time
     if t == perturb_time:
-        ϕ_B[t-1] += perturb_mag
+        φ_B[t-1] += perturb_mag
 
     # apply slow drift bias
     drift_term = drift_amp * (1 - np.exp(-t / tau_drift))
 
-    dϕ_A = -damping_A * ϕ_A[t-1] + K_field * (ϕ_B[t-1] + ϕ_C[t-1] - 2 * ϕ_A[t-1]) + noise_A + drift_term
-    dϕ_B = -damping_B * ϕ_B[t-1] + K_field * (ϕ_A[t-1] + ϕ_C[t-1] - 2 * ϕ_B[t-1]) + noise_B + drift_term
-    dϕ_C = -damping_C * ϕ_C[t-1] + K_field * (ϕ_A[t-1] + ϕ_B[t-1] - 2 * ϕ_C[t-1]) + noise_C + drift_term
+    dφ_A = -damping_A * φ_A[t-1] + K_field * (φ_B[t-1] + φ_C[t-1] - 2 * φ_A[t-1]) + noise_A + drift_term
+    dφ_B = -damping_B * φ_B[t-1] + K_field * (φ_A[t-1] + φ_C[t-1] - 2 * φ_B[t-1]) + noise_B + drift_term
+    dφ_C = -damping_C * φ_C[t-1] + K_field * (φ_A[t-1] + φ_B[t-1] - 2 * φ_C[t-1]) + noise_C + drift_term
 
-    ϕ_A[t] = ϕ_A[t-1] + dϕ_A
-    ϕ_B[t] = ϕ_B[t-1] + dϕ_B
-    ϕ_C[t] = ϕ_C[t-1] + dϕ_C
+    φ_A[t] = φ_A[t-1] + dφ_A
+    φ_B[t] = φ_B[t-1] + dφ_B
+    φ_C[t] = φ_C[t-1] + dφ_C
 
 # --- metrics ---
-Δ_AB = np.abs(ϕ_A - ϕ_B)
-Δ_BC = np.abs(ϕ_B - ϕ_C)
-Δ_AC = np.abs(ϕ_A - ϕ_C)
+Δ_AB = np.abs(φ_A - φ_B)
+Δ_BC = np.abs(φ_B - φ_C)
+Δ_AC = np.abs(φ_A - φ_C)
 
 mov_w = 31
 Δ_field = np.mean([Δ_AB, Δ_BC, Δ_AC], axis=0)
@@ -96,7 +96,7 @@ plt.axvline(perturb_time, color="purple", linestyle=":", label="perturbation")
 plt.axhline(lock_threshold, color="r", linestyle="--", label=f"lock threshold={lock_threshold}")
 if drift_breakpoint:
     plt.axvline(drift_breakpoint, color="gray", linestyle="--", label="drift breakpoint")
-plt.title("P9b — Field Phase Error Evolution (Perturbed + Drifted)")
+plt.title("P9b - Field Phase Error Evolution (Perturbed + Drifted)")
 plt.xlabel("time step")
 plt.ylabel("|Δφ|")
 plt.legend()
@@ -107,7 +107,7 @@ plt.savefig("PAEV_P9b_Field_PhaseEvolution.png")
 plt.figure(figsize=(6, 4))
 plt.hist(Δ_field[tail], bins=40, color="skyblue", edgecolor="k")
 plt.axvline(lock_threshold, color="r", linestyle="--", label="lock threshold")
-plt.title("P9b — Tail Phase Error Distribution")
+plt.title("P9b - Tail Phase Error Distribution")
 plt.xlabel("|Δφ_field|")
 plt.ylabel("Frequency")
 plt.legend()
@@ -148,8 +148,8 @@ result = {
 with open("backend/modules/knowledge/P9b_field_resilience.json", "w") as f:
     json.dump(result, f, indent=2)
 
-print("=== P9b — Predictive Field Resilience (Perturbation + Drift) ===")
+print("=== P9b - Predictive Field Resilience (Perturbation + Drift) ===")
 print(f"Tail ⟨|Δφ_field|⟩={tail_mean:.3e} | Lock Ratio={tail_lock_ratio:.2f}")
 print(f"Re-lock time={relock_time} | Drift break={drift_breakpoint}")
-print(f"→ {classification}")
-print("✅ Results saved → backend/modules/knowledge/P9b_field_resilience.json")
+print(f"-> {classification}")
+print("✅ Results saved -> backend/modules/knowledge/P9b_field_resilience.json")

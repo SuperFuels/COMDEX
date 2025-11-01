@@ -30,11 +30,11 @@ fidelity = np.abs(np.vdot(ψ1, ψ2_corrected)) / (np.linalg.norm(ψ1) * np.linal
 
 # --- Plot corrected signal recovery ---
 plt.figure(figsize=(10,5))
-plt.plot(t, np.real(ψ1[len(x)//2]), label='Input ψ₁', color='blue')
-plt.plot(t, np.real(ψ2_corrected[len(x)//2]), label='Recovered ψ₂ (corrected)', linestyle='--', color='orange')
+plt.plot(t, np.real(ψ1[len(x)//2]), label='Input ψ1', color='blue')
+plt.plot(t, np.real(ψ2_corrected[len(x)//2]), label='Recovered ψ2 (corrected)', linestyle='--', color='orange')
 plt.xlabel("t")
 plt.ylabel("Signal amplitude")
-plt.title("N12 — Phase Correction & Echo Re-stabilization")
+plt.title("N12 - Phase Correction & Echo Re-stabilization")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
@@ -52,8 +52,8 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
 }
 
-print("=== N12 — Phase Correction & Echo Re-stabilization ===")
-print(f"ħ={ħ:.3e}, G={G:.3e}, Λ₀={Λ0:.3e}, α₀={α0:.3f}, β={β:.2f}")
+print("=== N12 - Phase Correction & Echo Re-stabilization ===")
+print(f"ħ={ħ:.3e}, G={G:.3e}, Λ0={Λ0:.3e}, α0={α0:.3f}, β={β:.2f}")
 print(f"Corrected fidelity = {fidelity:.3f}")
 print(f"Classification: {summary['classification']}")
 print("✅ Plot saved: PAEV_N12_PhaseCorrection.png")

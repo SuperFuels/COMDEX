@@ -1,5 +1,5 @@
 # File: backend/modules/glyphos/glyph_quantum_core.py
-# Description: Symbolic Quantum Core — glyph-based QBit simulation and codex trace logging
+# Description: Symbolic Quantum Core - glyph-based QBit simulation and codex trace logging
 
 import random
 import uuid

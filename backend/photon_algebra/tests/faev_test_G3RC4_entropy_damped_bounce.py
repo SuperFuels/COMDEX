@@ -1,5 +1,5 @@
 # ==========================================================
-# G3-RC4 — Entropy-Damped Bounce (Thermodynamic Stabilization)
+# G3-RC4 - Entropy-Damped Bounce (Thermodynamic Stabilization)
 # ==========================================================
 import json, numpy as np, matplotlib.pyplot as plt
 from datetime import datetime, timezone
@@ -91,19 +91,19 @@ else:
 # --- plots ---
 plt.figure(figsize=(9,5))
 plt.plot(t, a); plt.axvline(t[bounce_idx], ls="--", c="purple", alpha=0.6, label="min(a)")
-plt.title("G3-RC4 — Scale Factor Evolution (Entropy-Damped Bounce)")
+plt.title("G3-RC4 - Scale Factor Evolution (Entropy-Damped Bounce)")
 plt.xlabel("time"); plt.ylabel("a(t)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC4_ScaleFactor.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, R, label="R (visible)"); plt.plot(t, Rψ, label="Rψ (hidden)")
-plt.title("G3-RC4 — Curvature Synchrony (Entropy-Damped)")
+plt.title("G3-RC4 - Curvature Synchrony (Entropy-Damped)")
 plt.xlabel("time"); plt.ylabel("curvature"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC4_Curvature.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, E_total, label="Unified energy (norm)")
-plt.title("G3-RC4 — Unified Energy Evolution (Soft-Capped + Entropy Damping)")
+plt.title("G3-RC4 - Unified Energy Evolution (Soft-Capped + Entropy Damping)")
 plt.xlabel("time"); plt.ylabel("E_total (norm)")
 plt.legend(); plt.tight_layout(); plt.savefig("FAEV_G3RC4_Energy.png")
 
@@ -128,7 +128,7 @@ data = {
 out = "backend/modules/knowledge/G3RC4_entropy_damped_bounce.json"
 with open(out, "w") as f: json.dump(data, f, indent=2)
 
-print("=== G3-RC4 — Entropy-Damped Bounce (Thermodynamic Stabilization) ===")
+print("=== G3-RC4 - Entropy-Damped Bounce (Thermodynamic Stabilization) ===")
 print(f"a_min={a_min:.4f} | cross_corr={cross_corr:.3f} | E_stab={E_stab:.3e} | S_final={S_final:.3f}")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {out}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {out}")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-L2 — Multi-Boost Scaling Collapse (Tessaris)
+L2 - Multi-Boost Scaling Collapse (Tessaris)
 --------------------------------------------
 Tests Lorentz-like invariance of transport by comparing MSD(t) scaling
 for several boosts (fractions of c_eff).  Curves should collapse after
@@ -8,8 +8,8 @@ rescaling by gamma factors.
 
 Implements the Tessaris Unified Constants & Verification Protocol.
 Outputs:
-    • PAEV_L2_multi_boost_collapse.png
-    • backend/modules/knowledge/L2_multi_boost_collapse_summary.json
+    * PAEV_L2_multi_boost_collapse.png
+    * backend/modules/knowledge/L2_multi_boost_collapse_summary.json
 """
 
 from __future__ import annotations
@@ -24,8 +24,8 @@ const = load_constants()
 ħ, G, Λ = const["ħ"], const["G"], const["Λ"]
 α, β, χ = const["α"], const["β"], const.get("χ", 1.0)
 
-print("=== L2 — Multi-Boost Scaling Collapse (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== L2 - Multi-Boost Scaling Collapse (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # ── Grid & parameters ──────────────────────────────────────────────
 N, steps = 512, 2200
@@ -88,7 +88,7 @@ def slope_loglog(t,y):
 boost_data=[]
 for frac in boost_fracs:
     v_boost=frac*c_eff
-    print(f"→ Running boost v={v_boost:.4f}")
+    print(f"-> Running boost v={v_boost:.4f}")
     ts,msd,gamma=evolve_field(v_boost)
     p=slope_loglog(ts[(ts>0.05)&(ts<2.5)],msd[(ts>0.05)&(ts<2.5)])
     boost_data.append(dict(frac=frac,v=v_boost,gamma=gamma,ts=ts,msd=msd,p=p))
@@ -101,15 +101,15 @@ for d in boost_data:
     t_scaled=d["ts"]*d["gamma"]
     m_scaled=d["msd"]/d["gamma"]**2
     plt.loglog(t_scaled,m_scaled,label=f"v={d['frac']:.1f}c_eff, p≈{d['p']:.3f}")
-plt.xlabel("scaled time γ·t")
-plt.ylabel("scaled MSD / γ²")
-plt.title("L2 — Multi-Boost Scaling Collapse (Tessaris)")
+plt.xlabel("scaled time γ*t")
+plt.ylabel("scaled MSD / γ2")
+plt.title("L2 - Multi-Boost Scaling Collapse (Tessaris)")
 plt.legend()
 plt.grid(alpha=0.4)
 plt.tight_layout()
 fig_path="PAEV_L2_multi_boost_collapse.png"
 plt.savefig(fig_path,dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # ── Collapse metric (variance across boosts) ───────────────────────
 # Interpolate all curves to common t grid, measure std(log(MSD))
@@ -140,30 +140,30 @@ summary={
   "files":{"plot":fig_path},
   "notes":[
     "MSD(t) computed in lab and boosted frames at multiple velocities.",
-    "Lorentz-like scaling applied: t' = γ·t, MSD' = MSD / γ².",
+    "Lorentz-like scaling applied: t' = γ*t, MSD' = MSD / γ2.",
     "Collapse metric = mean std(log(MSD')) across boosts.",
     "Model-level verification under Tessaris Unified Constants."
   ]
 }
 out_path=Path("backend/modules/knowledge/L2_multi_boost_collapse_summary.json")
 out_path.write_text(json.dumps(summary,indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # ── Discovery Section ──────────────────────────────────────────────
-print("\n🧭 Discovery Notes —",ts_now)
+print("\n🧭 Discovery Notes -",ts_now)
 print("------------------------------------------------------------")
 for d in boost_data:
-    print(f"• v={d['frac']:.1f}c_eff → p≈{d['p']:.3f}, γ≈{d['gamma']:.3f}")
-print(f"• Collapse variance (log-space) ≈ {collapse_std:.3e}")
-print("• Interpretation: low variance implies strong invariance of transport scaling.")
-print("• Implication: Tessaris field obeys Lorentz-like similarity under frame boosts.")
-print("• Next step: L3 — Boosted soliton reflection/transmission test.")
+    print(f"* v={d['frac']:.1f}c_eff -> p≈{d['p']:.3f}, γ≈{d['gamma']:.3f}")
+print(f"* Collapse variance (log-space) ≈ {collapse_std:.3e}")
+print("* Interpretation: low variance implies strong invariance of transport scaling.")
+print("* Implication: Tessaris field obeys Lorentz-like similarity under frame boosts.")
+print("* Next step: L3 - Boosted soliton reflection/transmission test.")
 print("------------------------------------------------------------")
 
 # ── Verdict ────────────────────────────────────────────────────────
 threshold=0.05   # acceptable std(logMSD) for invariance
 print("\n" + "="*66)
-print("🔎 L2 — Multi-Boost Collapse Verdict")
+print("🔎 L2 - Multi-Boost Collapse Verdict")
 print("="*66)
 if collapse_std<threshold:
     print(f"✅ Collapse achieved (σ≈{collapse_std:.3e} < {threshold})")

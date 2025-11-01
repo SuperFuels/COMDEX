@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.7 — Visualization Generator
-# Figure: λ–ψ Symbolic Fluid Topology (Field Flow)
+# Tessaris Symatics v0.7 - Visualization Generator
+# Figure: λ-ψ Symbolic Fluid Topology (Field Flow)
 # Output: docs/figures/field_flow_topology.png
 # ──────────────────────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ lapψ = laplacian(ψ_final)
 # ──────────────────────────────────────────────────────────────
 # Visualization
 plt.figure(figsize=(10, 5))
-plt.suptitle("Tessaris Symatics — λ–ψ Symbolic Field Flow (v0.7)", fontsize=14)
+plt.suptitle("Tessaris Symatics - λ-ψ Symbolic Field Flow (v0.7)", fontsize=14)
 
 # Coherence coloration field
 plt.subplot(1, 1, 1)
@@ -60,7 +60,7 @@ plt.scatter(x, λ_final, c=colors, s=15, label="λ (law field)", zorder=5)
 plt.text(
     np.pi * 0.5,
     0.9,
-    "λ(t) follows ∇·ψ feedback\ncoherence flux Φ stabilizes oscillation",
+    "λ(t) follows ∇*ψ feedback\ncoherence flux Φ stabilizes oscillation",
     ha="center",
     fontsize=9,
     color="dimgray",
@@ -75,4 +75,4 @@ out_path = "docs/figures/field_flow_topology.png"
 plt.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="white")
 
 print(f"✅ Saved {out_path}")
-print("🎨 λ–ψ symbolic fluid flow visualization complete — ready for Volume VIII.")
+print("🎨 λ-ψ symbolic fluid flow visualization complete - ready for Volume VIII.")

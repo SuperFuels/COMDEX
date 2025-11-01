@@ -84,7 +84,7 @@ def run_kg_writer_compression_benchmark():
     logic_count = len(trace.get("logic", []))
     replay_count = len(trace.get("replayPaths", []))
     glyph_count = len(container.get("glyphs", []))
-    logging.info(f"📊 Final stats — Logic: {logic_count}, Glyphs: {glyph_count}, Traces: {replay_count}")
+    logging.info(f"📊 Final stats - Logic: {logic_count}, Glyphs: {glyph_count}, Traces: {replay_count}")
 
 async def async_run():
     logging.basicConfig(level=logging.INFO)

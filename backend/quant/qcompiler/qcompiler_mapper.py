@@ -1,5 +1,5 @@
 # ================================================================
-# 🧩 QCompilerMapper — Resonant Symbolic → Photon Packet Translator
+# 🧩 QCompilerMapper - Resonant Symbolic -> Photon Packet Translator
 # ================================================================
 """
 Bridges QuantPy symbolic equations and AION Photon-Language runtime.
@@ -9,11 +9,11 @@ serialized QuantPy state files (.sqs.qpy.json) into photon
 instruction packets (.photo) for QQC / AION replay.
 
 Each symbolic or tensor term becomes one or more photon ops:
-    • Wave / Tensor   → PHOTON_SUPERPOSE
-    • Entangled pair  → PHOTON_ENTANGLE
-    • Resonant loop   → PHOTON_RESONATE
-    • Collapse / Meas → PHOTON_COLLAPSE / PHOTON_MEASURE
-    • Projection      → PHOTON_PROJECT
+    * Wave / Tensor   -> PHOTON_SUPERPOSE
+    * Entangled pair  -> PHOTON_ENTANGLE
+    * Resonant loop   -> PHOTON_RESONATE
+    * Collapse / Meas -> PHOTON_COLLAPSE / PHOTON_MEASURE
+    * Projection      -> PHOTON_PROJECT
 
 Outputs:
     data/quantum/qcompiler_output/<session_id>.photo
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 OUT_DIR = Path("data/quantum/qcompiler_output")
 
 # --------------------------------------------------------------
-# Operator → Photon Opcode map
+# Operator -> Photon Opcode map
 # --------------------------------------------------------------
 OPCODES = {
     "⊕": "PHOTON_SUPERPOSE",
@@ -58,7 +58,7 @@ class QCompilerMapper:
             "meta": {
                 "schema": "QPhotoPacket.v1",
                 "source": "Equation",
-                "desc": "Symbolic expression → Photon instructions",
+                "desc": "Symbolic expression -> Photon instructions",
             },
         }
         logger.info(f"[QCompilerMapper] Compiled {len(ops)} ops from equation '{text}'")
@@ -81,7 +81,7 @@ class QCompilerMapper:
             "meta": {
                 "schema": "QPhotoPacket.v1",
                 "source_state": state.get("id", "unknown"),
-                "desc": "Compiled from .sqs.qpy.json → .photo",
+                "desc": "Compiled from .sqs.qpy.json -> .photo",
             },
         }
         logger.info(f"[QCompilerMapper] Mapped {len(ops)} ops from state {state.get('id', 'unnamed')}")
@@ -107,5 +107,5 @@ class QCompilerMapper:
         outpath = OUT_DIR / f"{session_id}.photo"
         with open(outpath, "w") as f:
             json.dump(packet, f, indent=2)
-        logger.info(f"[QCompilerMapper] Exported photon instructions → {outpath}")
+        logger.info(f"[QCompilerMapper] Exported photon instructions -> {outpath}")
         return outpath

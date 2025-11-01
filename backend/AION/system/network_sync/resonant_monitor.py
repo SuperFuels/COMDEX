@@ -1,7 +1,7 @@
 """
 Resonant Network Live Monitor
 ──────────────────────────────
-Displays live ψ–κ–T–Φ metrics and Δφ/Δσ coherence drift
+Displays live ψ-κ-T-Φ metrics and Δφ/Δσ coherence drift
 for AION_CORE, QQC_CORE, and any other active nodes.
 
 Reads continuously from:

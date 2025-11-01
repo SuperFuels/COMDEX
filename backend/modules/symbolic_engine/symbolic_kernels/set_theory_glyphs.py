@@ -54,10 +54,10 @@ class EmptySetGlyph(SetGlyph):  # ∅
     def __init__(self): super().__init__('∅', [])
     def evaluate(self): return set()
 
-class UniversalSetGlyph(SetGlyph):  # 𝕌
+class UniversalSetGlyph(SetGlyph):  # U
     def __init__(self, domain_scope: Optional[List[Any]] = None):
         domain_scope = domain_scope or []
-        super().__init__('𝕌', [domain_scope])
+        super().__init__('U', [domain_scope])
 
     def evaluate(self):
         return set(self.operands[0])

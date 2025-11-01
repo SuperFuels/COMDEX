@@ -1,5 +1,5 @@
 """
-🌐 Tessaris Wiki Capsule Ingestor — WordNet Bridge
+🌐 Tessaris Wiki Capsule Ingestor - WordNet Bridge
 --------------------------------------------------
 Automates creation of Wiki Capsules from WordNet data.
 
@@ -76,7 +76,7 @@ def build_wordnet_seed(limit=None):
 def save_seed(entries):
     SEED_PATH.parent.mkdir(parents=True, exist_ok=True)
     SEED_PATH.write_text(json.dumps(entries, indent=2, ensure_ascii=False))
-    print(f"[Seed] Saved {len(entries)} entries → {SEED_PATH}")
+    print(f"[Seed] Saved {len(entries)} entries -> {SEED_PATH}")
 
 #───────────────────────────────────────────────
 # 🔐 Safe filename helper
@@ -128,13 +128,13 @@ def export_capsules(entries, batch_size=1000):
         if count % batch_size == 0:
             print(f"[Batch] {count} capsules written...")
 
-    print(f"[Serializer] Exported {count} capsules → {OUT_DIR}")
+    print(f"[Serializer] Exported {count} capsules -> {OUT_DIR}")
 
 #───────────────────────────────────────────────
 # 🚀 Main Entry
 #───────────────────────────────────────────────
 def main():
-    print("=== Tessaris Wiki Ingestor — WordNet Phase ===")
+    print("=== Tessaris Wiki Ingestor - WordNet Phase ===")
     try:
         entries = build_wordnet_seed(limit=None)
         save_seed(entries)

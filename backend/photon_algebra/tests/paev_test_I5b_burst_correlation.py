@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-E6-Ω v5c — Enhanced instrumented run with improved burst generation.
+E6-Ω v5c - Enhanced instrumented run with improved burst generation.
 Tessaris Photon Algebra Framework (Registry v1.2+)
 
 Key improvements:
-  • 2× longer simulation (T=8000) for more bursts
-  • Relaxed burst thresholds (easier detection)
-  • Increased stochastic forcing for dynamic exploration
-  • Lower EMA smoothing for sharper v_S tracking
-  • Enhanced CHSH computation with more trials
-  • Multi-scale noise injection
+  * 2* longer simulation (T=8000) for more bursts
+  * Relaxed burst thresholds (easier detection)
+  * Increased stochastic forcing for dynamic exploration
+  * Lower EMA smoothing for sharper v_S tracking
+  * Enhanced CHSH computation with more trials
+  * Multi-scale noise injection
 
 Artifacts:
   - backend/modules/knowledge/E6Omega_vS_trace_v5c.json
@@ -202,7 +202,7 @@ ax1.axvline(BURST_TH, ls="--", lw=1, color='red', label=f'Burst threshold ({BURS
 ax1.axhline(2.0, ls="--", lw=1, color='green', alpha=0.5, label='Classical limit')
 ax1.set_xlabel("v_S / v_c")
 ax1.set_ylabel("S_CHSH")
-ax1.set_title(f"E6-Ω v5c — v_S bursts vs S_CHSH ({len(bursts)} bursts)")
+ax1.set_title(f"E6-Ω v5c - v_S bursts vs S_CHSH ({len(bursts)} bursts)")
 ax1.legend(fontsize=8)
 ax1.grid(alpha=0.3)
 
@@ -237,7 +237,7 @@ summary = {
         },
         "EMA_ALPHA": EMA_ALPHA,
         "enhancements": [
-            "2× simulation duration (T=8000)",
+            "2* simulation duration (T=8000)",
             "50% higher base noise (0.018)",
             "Relaxed burst threshold (1.3)",
             "Multi-scale noise injection",
@@ -285,7 +285,7 @@ Path("backend/modules/knowledge/E6Omega_v5c_summary.json").write_text(json.dumps
 #  Console Output
 # ============================================================
 print("\n" + "=" * 70)
-print("🔥 E6-Ω v5c — ENHANCED INSTRUMENTED RUN COMPLETE")
+print("🔥 E6-Ω v5c - ENHANCED INSTRUMENTED RUN COMPLETE")
 print("=" * 70)
 print(f"Duration:        {T} steps ({T*dt:.0f}s)")
 print(f"Bursts detected: {len(bursts)} (vs 1 in v5b)")
@@ -294,9 +294,9 @@ print(f"S_CHSH range:    [{np.min(S_CHSH_hist):.3f}, {np.max(S_CHSH_hist):.3f}]"
 print(f"S_CHSH mean:     {np.mean(S_CHSH_hist):.3f} ± {np.std(S_CHSH_hist):.3f}")
 print(f"v_S/v_c max:     {np.max(vs_over_vc_hist):.2f}")
 print("=" * 70)
-print("✅ Trace saved   → backend/modules/knowledge/E6Omega_vS_trace_v5c.json")
-print("✅ Summary saved → backend/modules/knowledge/E6Omega_v5c_summary.json")
-print("✅ Analysis plot → PAEV_E6Omega_v5c_analysis.png")
+print("✅ Trace saved   -> backend/modules/knowledge/E6Omega_vS_trace_v5c.json")
+print("✅ Summary saved -> backend/modules/knowledge/E6Omega_v5c_summary.json")
+print("✅ Analysis plot -> PAEV_E6Omega_v5c_analysis.png")
 print("=" * 70)
 print("\n🎯 Next: Run I5c burst correlation analysis on this trace")
 print("   PYTHONPATH=. python backend/photon_algebra/tests/paev_test_I5c_burst_correlation.py")

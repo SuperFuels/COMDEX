@@ -20,7 +20,7 @@ import traceback
 
 
 # ----------------------------------------------------------------------
-# Module registry — each Q-Series subsystem must have a run_test() entry
+# Module registry - each Q-Series subsystem must have a run_test() entry
 # ----------------------------------------------------------------------
 MODULES = [
     ("QPy", "backend.quant.qpy.qpy_module", "QPyModule"),

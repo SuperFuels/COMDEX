@@ -19,4 +19,4 @@ print(f"📜 AION Dream Reflection Log ({len(dreams)} entries):\n")
 for i, dream in enumerate(dreams, start=1):
     label = dream.get("label", "unknown")
     content = dream.get("content", "[No Content]")
-    print(f"\n🌙 Dream #{i} — {label}:\n{content}\n{'-'*60}")
+    print(f"\n🌙 Dream #{i} - {label}:\n{content}\n{'-'*60}")

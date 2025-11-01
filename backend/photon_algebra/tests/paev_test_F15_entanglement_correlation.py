@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-F15 — Entanglement Correlation in Photon Algebra
+F15 - Entanglement Correlation in Photon Algebra
 ------------------------------------------------
 Goal:
 Reproduce entangled qubit correlations and decoherence behavior using
-symbolic duality and normalization principles within the photon–algebra framework.
+symbolic duality and normalization principles within the photon-algebra framework.
 
 Scientific motivation:
-If the Tessaris photon–algebra reproduces the correlation strength of quantum
+If the Tessaris photon-algebra reproduces the correlation strength of quantum
 entanglement (violating classical Bell limits), it would imply that entanglement
-is an emergent deterministic symmetry — not probabilistic collapse — arising
+is an emergent deterministic symmetry - not probabilistic collapse - arising
 from contextual normalization.
 
 Outputs:
-  • PAEV_F15_EntanglementCorrelation.png
-  • backend/modules/knowledge/F15_entanglement_correlation.json
+  * PAEV_F15_EntanglementCorrelation.png
+  * backend/modules/knowledge/F15_entanglement_correlation.json
 """
 from pathlib import Path
 from datetime import datetime, timezone
@@ -41,7 +41,7 @@ def quantum_bell_correlation(theta1, theta2, n_trials=1000):
         outcomes[i] = np.sign(a0 * a1)
     return np.mean(outcomes)
 
-# ---------- photon–algebra correlation ----------
+# ---------- photon-algebra correlation ----------
 def pa_entanglement_correlation(theta1, theta2, sigma=0.0, n_trials=1000):
     """Photon-algebra symbolic duality version with contextual rewrites."""
     outcomes = np.zeros(n_trials)
@@ -95,7 +95,7 @@ plt.axhline(2.828, color='r', ls='--', label="Quantum max (2√2)")
 plt.axhline(2.0, color='g', ls='--', label="Classical limit (2)")
 plt.xlabel("Phase noise σ")
 plt.ylabel("CHSH correlation")
-plt.title("F15 — Entanglement Correlation in Photon Algebra")
+plt.title("F15 - Entanglement Correlation in Photon Algebra")
 plt.legend(); plt.grid(True); plt.tight_layout()
 plt.savefig("PAEV_F15_EntanglementCorrelation.png", dpi=160)
 print("✅ Plot saved: PAEV_F15_EntanglementCorrelation.png")
@@ -117,10 +117,10 @@ summary = {
 
 # ---------- save knowledge summary ----------
 Path("backend/modules/knowledge/F15_entanglement_correlation.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/F15_entanglement_correlation.json")
+print("📄 Summary saved -> backend/modules/knowledge/F15_entanglement_correlation.json")
 
 # ---------- terminal output ----------
-print("\n=== F15 — Entanglement Correlation Test ===")
+print("\n=== F15 - Entanglement Correlation Test ===")
 for i, σ in enumerate(sigmas):
-    print(f"σ={σ:.1f} → CHSH_QM={qm_results[i]:.3f}, CHSH_PA={pa_results[i]:.3f}")
-print(f"→ {summary['classification']}")
+    print(f"σ={σ:.1f} -> CHSH_QM={qm_results[i]:.3f}, CHSH_PA={pa_results[i]:.3f}")
+print(f"-> {summary['classification']}")

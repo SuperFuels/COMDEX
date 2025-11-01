@@ -1,5 +1,5 @@
 """
-🔐 QKD Manager — GlyphWave Quantum Key Distribution Layer
+🔐 QKD Manager - GlyphWave Quantum Key Distribution Layer
 Provides a unified interface for retrieving active QKD keys
 and managing handshake lifecycle for vault synchronization.
 

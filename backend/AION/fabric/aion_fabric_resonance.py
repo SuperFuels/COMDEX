@@ -1,10 +1,10 @@
 """
-AION Cognitive Fabric — Resonance Fusion Layer
+AION Cognitive Fabric - Resonance Fusion Layer
 ────────────────────────────────────────────
-Receives normalized ψ–κ–T–Φ packets (optionally carrying γ′ feedback gain)
+Receives normalized ψ-κ-T-Φ packets (optionally carrying γ′ feedback gain)
 from the Photon Ingest bridge, accumulates them into a transient fusion buffer,
 and produces a live fusion tensor. This layer now provides cross-process visibility
-via a shared JSON file for AION’s Morphic Fabric coupling logic.
+via a shared JSON file for AION's Morphic Fabric coupling logic.
 """
 
 import logging
@@ -28,7 +28,7 @@ FUSION_FILE = "/tmp/aion_fusion_tensor.json"
 # ────────────────────────────────────────────────
 def resonance_ingest(packet: Dict, timestamp: Optional[float] = None):
     """
-    Accepts an incoming ψ–κ–T–Φ cognitive packet (optionally with γ′),
+    Accepts an incoming ψ-κ-T-Φ cognitive packet (optionally with γ′),
     validates it, and stores it in the AION Morphic buffer.
     """
     if not isinstance(packet, dict):
@@ -58,15 +58,15 @@ def get_fusion_buffer() -> List[Dict]:
 
 
 def clear_fusion_buffer():
-    """Reset the resonance buffer — used in tests or during reload."""
+    """Reset the resonance buffer - used in tests or during reload."""
     _FABRIC_BUFFER.clear()
 
 # ────────────────────────────────────────────────
-# Phase II — Tensor Fusion Logic (γ′-weighted stability)
+# Phase II - Tensor Fusion Logic (γ′-weighted stability)
 # ────────────────────────────────────────────────
 def fuse_resonance_window(window_size: int = 10) -> Optional[Dict]:
     """
-    Compute a ψ–κ–T–Φ–γ′ fusion tensor from the most recent N packets.
+    Compute a ψ-κ-T-Φ-γ′ fusion tensor from the most recent N packets.
     Performs temporal averaging and derives a γ′-weighted stability index.
 
     Returns a dict like:
@@ -111,7 +111,7 @@ def fuse_resonance_window(window_size: int = 10) -> Optional[Dict]:
     }
 
     logger.info(
-        f"[AIONFabric] Fused {n} packets → ψ̄={fused['ψ̄']} κ̄={fused['κ̄']} "
+        f"[AIONFabric] Fused {n} packets -> ψ̄={fused['ψ̄']} κ̄={fused['κ̄']} "
         f"T̄={fused['T̄']} γ̄′={fused['γ̄′']} σ={fused['σ']}"
     )
 

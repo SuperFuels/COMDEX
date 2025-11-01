@@ -82,4 +82,4 @@ def log_hash(
     """
     full = symbolic_hash(glyph)
     short = full[:8]
-    print(f"🔗 {label} hash → {short}… ({full})")
+    print(f"🔗 {label} hash -> {short}... ({full})")

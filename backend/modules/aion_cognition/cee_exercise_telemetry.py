@@ -1,5 +1,5 @@
 # ================================================================
-# 📡 CEE Exercise Telemetry Bridge — Phase 45G.8
+# 📡 CEE Exercise Telemetry Bridge - Phase 45G.8
 # ================================================================
 """
 Links CEE Lexical Exercise Runtime sessions to CodexMetrics/GHX telemetry.
@@ -49,13 +49,13 @@ def push_to_codexmetrics(summary: dict):
         "entries": summary["entries"],
         "resonance": summary["averages"]["ρ̄"],
         "intensity": summary["averages"]["Ī"],
-        "SQI": summary["averages"]["SQĪ"],
+        "SQI": summary["averages"]["SQĪ"],
         "performance": summary["averages"]["performance"],
         "schema": "LexTelemetryOverlay.v1",
     }
     OUT_OVERLAY.parent.mkdir(parents=True, exist_ok=True)
     json.dump(metrics, open(OUT_OVERLAY, "w"), indent=2)
-    logger.info(f"[CEE-Telemetry] Overlay exported → {OUT_OVERLAY}")
+    logger.info(f"[CEE-Telemetry] Overlay exported -> {OUT_OVERLAY}")
     return metrics
 
 # ----------------------------------------------------------------------
@@ -86,7 +86,7 @@ def sync_to_ghx(metrics: dict):
 
 # ----------------------------------------------------------------------
 def transmit():
-    """Main telemetry pipeline: session → metrics overlay → GHX log."""
+    """Main telemetry pipeline: session -> metrics overlay -> GHX log."""
     summary = load_session()
     if not summary:
         return None

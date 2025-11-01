@@ -23,14 +23,14 @@ def save_page(page: PhotonPage, out_path: Path):
     out_path.parent.mkdir(parents=True, exist_ok=True)
     content = page_to_json(page)
     out_path.write_text(content, encoding="utf-8")
-    print(f"[PhotonPage] Saved → {out_path}")
+    print(f"[PhotonPage] Saved -> {out_path}")
 
 def load_page(json_path: Path) -> PhotonPage:
     data = json.loads(json_path.read_text(encoding="utf-8"))
     return json_to_page(data)
 
 def wiki_to_page(wiki_data: dict, name: str) -> PhotonPage:
-    """Convert Wiki capsule dict → Photon Page scaffold."""
+    """Convert Wiki capsule dict -> Photon Page scaffold."""
     body = "\n".join(wiki_data.get("definitions", []))
     imports = [wiki_data.get("lemma")]
     meta = wiki_data.get("metadata", {})

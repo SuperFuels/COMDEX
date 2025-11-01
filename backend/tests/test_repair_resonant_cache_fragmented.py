@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧩 Fragmented Repair — Resonant Memory Cache
+🧩 Fragmented Repair - Resonant Memory Cache
 ────────────────────────────────────────────
 Scans the corrupted cache file and reconstructs as many
 valid { ... } JSON fragments as possible into a clean dict.
@@ -14,7 +14,7 @@ BACKUP = CACHE.with_suffix(".fragbak")
 
 if CACHE.exists():
     CACHE.replace(BACKUP)
-    print(f"[Backup] Created → {BACKUP}")
+    print(f"[Backup] Created -> {BACKUP}")
 else:
     print("❌ No cache file found.")
     exit()
@@ -41,4 +41,4 @@ for frag in fragments:
 with CACHE.open("w", encoding="utf-8") as f:
     json.dump(data, f, indent=2)
 
-print(f"✅ Rebuilt clean cache with {count} valid fragments → {CACHE}")
+print(f"✅ Rebuilt clean cache with {count} valid fragments -> {CACHE}")

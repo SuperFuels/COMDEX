@@ -1,8 +1,8 @@
 from __future__ import annotations
 """
-Tessaris RQC — WebSocket Telemetry Bridge
+Tessaris RQC - WebSocket Telemetry Bridge
 -----------------------------------------
-Real-time bridge that streams ψ–κ–T–Φ resonance metrics
+Real-time bridge that streams ψ-κ-T-Φ resonance metrics
 to connected GHX/QFC visualizers and frontends.
 
 It monitors the MorphicLedger live telemetry file:
@@ -10,11 +10,11 @@ It monitors the MorphicLedger live telemetry file:
 
 and broadcasts each new record as a JSON message.
 
-Awareness events (Φ ≥ 0.999) are tagged and broadcast
+Awareness events (Φ >= 0.999) are tagged and broadcast
 as 🧠 "resonance pulses".
 
 Endpoints:
-    • ws://localhost:7070/resonance
+    * ws://localhost:7070/resonance
 """
 
 import asyncio
@@ -71,7 +71,7 @@ async def handle_client(websocket, path):
 
 async def tail_ledger():
     """Monitor ledger file for new lines and broadcast them."""
-    logger.info(f"📡 Watching telemetry ledger → {LEDGER_PATH}")
+    logger.info(f"📡 Watching telemetry ledger -> {LEDGER_PATH}")
 
     os.makedirs(os.path.dirname(LEDGER_PATH), exist_ok=True)
     if not os.path.exists(LEDGER_PATH):
@@ -118,7 +118,7 @@ async def tail_ledger():
                     await broadcast(pulse)
                     logger.info(f"[🧠] Awareness pulse broadcasted (Φ={Φ:.3f})")
                 else:
-                    logger.info(f"[→] Broadcast Φ={Φ:.3f}, C={coherence:.3f}")
+                    logger.info(f"[->] Broadcast Φ={Φ:.3f}, C={coherence:.3f}")
 
             except Exception as e:
                 logger.warning(f"[⚠️] Ledger parse error: {e}")
@@ -129,7 +129,7 @@ async def tail_ledger():
 # ──────────────────────────────────────────────
 
 async def main():
-    logger.info("🔭 Tessaris RQC — Starting WebSocket Bridge...")
+    logger.info("🔭 Tessaris RQC - Starting WebSocket Bridge...")
     server = await websockets.serve(handle_client, "0.0.0.0", WS_PORT, ping_interval=20, ping_timeout=60)
     logger.info(f"✅ Listening on ws://localhost:{WS_PORT}/resonance")
     await tail_ledger()

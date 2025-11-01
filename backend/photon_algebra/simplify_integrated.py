@@ -2,7 +2,7 @@
 """
 Photon Integrated Simplifier
 ============================
-Task: I4 — Unified simplification pipeline
+Task: I4 - Unified simplification pipeline
 
 Combines:
   1. Canonicalization (algebraic normalization)
@@ -48,13 +48,13 @@ def simplify_pipeline(expr):
     from backend.photon_algebra.simplify_sympy import simplify_via_sympy
     from backend.photon_algebra.simplify_canonical import canonicalize
 
-    # Step 1 — canonicalize input
+    # Step 1 - canonicalize input
     canon = canonicalize(expr)
 
-    # Step 2 — run SymPy simplification
+    # Step 2 - run SymPy simplification
     simplified = simplify_via_sympy(canon)
 
-    # Step 3 — canonicalize output
+    # Step 3 - canonicalize output
     final = canonicalize(simplified)
     return final
 

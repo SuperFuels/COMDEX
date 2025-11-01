@@ -37,7 +37,7 @@ class StabilityFeedbackLoop:
     # ─────────────────────────────────────────────
     def adapt(self, entropy: float):
         drift = entropy - self.last_entropy
-        # if resonance becoming unstable → lower exploration
+        # if resonance becoming unstable -> lower exploration
         if drift > 0.002:
             self.epsilon = max(0.05, self.epsilon - 0.01)
             self.k = min(12, self.k + 1)

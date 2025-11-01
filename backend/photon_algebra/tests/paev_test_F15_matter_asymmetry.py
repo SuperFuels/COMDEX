@@ -1,9 +1,9 @@
 # backend/photon_algebra/tests/paev_test_F15_matter_asymmetry.py
 """
-F15 — Matter–Antimatter Asymmetry (Enhanced CP-like Bias Test)
+F15 - Matter-Antimatter Asymmetry (Enhanced CP-like Bias Test)
 ---------------------------------------------------------------
 Goal:
-    Detect and quantify ψ₁/ψ₂ symmetry breaking (CP violation analogue)
+    Detect and quantify ψ1/ψ2 symmetry breaking (CP violation analogue)
     in the Tessaris photon-algebra feedback lattice.
 
 Enhancements:
@@ -13,11 +13,11 @@ Enhancements:
     ✅ Clean summary output (registry-ready)
 
 Outputs:
-    • PAEV_F15_Asymmetry.png
-    • PAEV_F15_PhaseSkew.png
-    • PAEV_F15_MutualInfo.png
-    • PAEV_F15_DensityMaps.png
-    • backend/modules/knowledge/F15_matter_asymmetry.json
+    * PAEV_F15_Asymmetry.png
+    * PAEV_F15_PhaseSkew.png
+    * PAEV_F15_MutualInfo.png
+    * PAEV_F15_DensityMaps.png
+    * backend/modules/knowledge/F15_matter_asymmetry.json
 """
 
 import json, numpy as np, matplotlib.pyplot as plt
@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # -------------------------
-# 1) Load constants (v1.2 → fallback)
+# 1) Load constants (v1.2 -> fallback)
 # -------------------------
 CANDIDATES = [
     Path("backend/modules/knowledge/constants_v1.2.json"),
@@ -68,7 +68,7 @@ def gaussian(cx, cy, s=0.9):
 kappa = -gaussian(-1.2, 0.0, 0.8) - gaussian(1.2, 0.0, 0.8)
 
 # -------------------------
-# 3) Initialize ψ₁ / ψ₂ fields
+# 3) Initialize ψ1 / ψ2 fields
 # -------------------------
 base = gaussian(-1.2, 0.0, 0.9) + gaussian(1.2, 0.0, 0.9)
 phase_seed = 0.35 * np.tanh(X / 1.2)
@@ -155,11 +155,11 @@ elif A_tail_abs >= 0.005 and I_drift > 0:
 else:
     classification = "❌ No persistent asymmetry"
 
-print("=== F15 — Matter–Antimatter Asymmetry (Enhanced) ===")
+print("=== F15 - Matter-Antimatter Asymmetry (Enhanced) ===")
 print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}")
 print(f"A_tail_mean={A_tail_mean:.3e} | |A|_tail={A_tail_abs:.3e}")
 print(f"phase_tail_mean={phase_tail_mean:.3e} | ΔI={I_drift:.3e}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 
 # -------------------------
 # 7) Plots
@@ -167,27 +167,27 @@ print(f"→ {classification}")
 out_dir = Path(".")
 plt.figure(figsize=(9, 4.5))
 plt.plot(A_trace, lw=1.3); plt.axhline(0, color="k", ls="--", lw=0.8)
-plt.title("F15 — Energy-Density Asymmetry A(t)")
+plt.title("F15 - Energy-Density Asymmetry A(t)")
 plt.xlabel("time step"); plt.ylabel("A(t)")
 plt.tight_layout(); plt.savefig(out_dir / "PAEV_F15_Asymmetry.png", dpi=160)
 
 plt.figure(figsize=(9, 4.5))
 plt.plot(phase_skew, lw=1.2); plt.axhline(0, color="k", ls="--", lw=0.8)
-plt.title("F15 — CP-like Phase Skew Δφ(t)")
+plt.title("F15 - CP-like Phase Skew Δφ(t)")
 plt.xlabel("time step"); plt.ylabel("Δφ (radians)")
 plt.tight_layout(); plt.savefig(out_dir / "PAEV_F15_PhaseSkew.png", dpi=160)
 
 plt.figure(figsize=(9, 4.5))
 plt.plot(I_trace, lw=1.2); plt.axhline(I_trace[0], color="k", ls=":", lw=0.8, label="initial I")
-plt.title("F15 — Mutual-Information Proxy I(t)")
-plt.xlabel("time step"); plt.ylabel("I = ⟨Re(ψ₁ψ₂*)⟩")
+plt.title("F15 - Mutual-Information Proxy I(t)")
+plt.xlabel("time step"); plt.ylabel("I = ⟨Re(ψ1ψ2*)⟩")
 plt.legend(); plt.tight_layout(); plt.savefig(out_dir / "PAEV_F15_MutualInfo.png", dpi=160)
 
 plt.figure(figsize=(10, 4.5))
 plt.subplot(1, 2, 1); plt.imshow(np.abs(psi1), cmap="magma", extent=[-L, L, -L, L])
-plt.colorbar(); plt.title("|ψ₁|(final)")
+plt.colorbar(); plt.title("|ψ1|(final)")
 plt.subplot(1, 2, 2); plt.imshow(np.abs(psi2), cmap="viridis", extent=[-L, L, -L, L])
-plt.colorbar(); plt.title("|ψ₂|(final)")
+plt.colorbar(); plt.title("|ψ2|(final)")
 plt.tight_layout(); plt.savefig(out_dir / "PAEV_F15_DensityMaps.png", dpi=160)
 
 print("✅ Plots saved:")
@@ -225,4 +225,4 @@ summary = {
 
 save_path = Path("backend/modules/knowledge/F15_matter_asymmetry.json")
 save_path.write_text(json.dumps(summary, indent=2))
-print(f"📄 Summary saved → {save_path}")
+print(f"📄 Summary saved -> {save_path}")

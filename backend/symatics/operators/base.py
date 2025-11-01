@@ -16,7 +16,7 @@ class Operator:
     arity : int
         Number of required arguments.
     impl : Callable[..., Any]
-        Callable implementing the operator’s semantics.
+        Callable implementing the operator's semantics.
 
     Notes
     -----

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Optional, Dict, Any
 from .signature import Signature
 
-# Planck constant [J·s]
+# Planck constant [J*s]
 PLANCK_H = 6.62607015e-34
 
 

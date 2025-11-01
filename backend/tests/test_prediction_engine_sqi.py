@@ -63,12 +63,12 @@ def test_maybe_autofuse(monkeypatch):
 
     beams = [{"id": "b1"}, {"id": "b2"}]
 
-    # Case 1: SPE_AUTO_FUSE = False → beams unchanged
+    # Case 1: SPE_AUTO_FUSE = False -> beams unchanged
     monkeypatch.setattr("backend.modules.spe.spe_bridge.SPE_AUTO_FUSE", False)
     result = maybe_autofuse(beams)
     assert result == beams  # unchanged
 
-    # Case 2: SPE_AUTO_FUSE = True → should call recombine_from_beams
+    # Case 2: SPE_AUTO_FUSE = True -> should call recombine_from_beams
     recombined = [{"id": "recombined"}]
     monkeypatch.setattr("backend.modules.spe.spe_bridge.SPE_AUTO_FUSE", True)
     monkeypatch.setattr(

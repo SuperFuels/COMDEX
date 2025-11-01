@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-🧠 GlyphWaveRuntime – High-Level Runtime for GWIP Routing + Adaptive CFE Feedback
+🧠 GlyphWaveRuntime - High-Level Runtime for GWIP Routing + Adaptive CFE Feedback
 
 Now includes:
-    • Automatic CFEFeedbackLoop startup on initialization
-    • Background async feedback coroutine
-    • RuleManager (Codex) with SQI Drift integration
-    • Graceful shutdown and loop stop handling
+    * Automatic CFEFeedbackLoop startup on initialization
+    * Background async feedback coroutine
+    * RuleManager (Codex) with SQI Drift integration
+    * Graceful shutdown and loop stop handling
 """
 
 import asyncio
@@ -62,7 +62,7 @@ class GlyphWaveRuntime:
     def _init_feedback_loop(self):
         """Initialize and asynchronously launch the feedback loop."""
         try:
-            # Lazy import — avoids circular dependency on import
+            # Lazy import - avoids circular dependency on import
             from backend.cfe.cfe_feedback_loop import CFEFeedbackLoop
 
             self._feedback_loop = CFEFeedbackLoop(codex_runtime=self, telemetry=self.telemetry)
@@ -149,7 +149,7 @@ class GlyphWaveRuntime:
     # ===============================================================
     def update_parameters(self, params: Dict[str, Any]) -> None:
         self.parameters.update(params)
-        print(f"[GlyphWaveRuntime] Adaptive parameters updated → {params}")
+        print(f"[GlyphWaveRuntime] Adaptive parameters updated -> {params}")
 
     # ===============================================================
     # Lifecycle Management

@@ -2,9 +2,9 @@
 🎛 UCS Orchestrator
 -----------------------------------------------------
 Handles:
-    • Multi-container execution sequences (Quantum Orb → Vortex → Black Hole → Torus)
-    • SQI-linked GPIO pulse triggers for physical Pi bench experiments
-    • Integration with UCSRuntime for container execution
+    * Multi-container execution sequences (Quantum Orb -> Vortex -> Black Hole -> Torus)
+    * SQI-linked GPIO pulse triggers for physical Pi bench experiments
+    * Integration with UCSRuntime for container execution
 """
 
 import time
@@ -27,7 +27,7 @@ class UCSOrchestrator:
             ["Quantum Orb", "Vortex", "Black Hole", "Torus"]
         """
         self.chain = sequence
-        print(f"🔗 Chain defined: {' → '.join(sequence)}")
+        print(f"🔗 Chain defined: {' -> '.join(sequence)}")
 
     def execute_chain(self, delay: float = 0.5):
         """
@@ -41,7 +41,7 @@ class UCSOrchestrator:
         print("✅ Chain execution complete.")
 
     # ---------------------------------------------------------
-    # ⚡ SQI → GPIO Pulse Integration
+    # ⚡ SQI -> GPIO Pulse Integration
     # ---------------------------------------------------------
     def trigger_sqi_pulse(self, container_id: str):
         """

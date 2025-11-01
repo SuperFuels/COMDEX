@@ -1,5 +1,5 @@
 """
-M5 — Wormhole Stability and Collapse Dynamics
+M5 - Wormhole Stability and Collapse Dynamics
 ---------------------------------------------
 Analyzes the dynamic stability of the entangled curvature bridge (ER=EPR analogue)
 under small perturbations to the throat curvature κ.
@@ -63,7 +63,7 @@ plt.plot(t, S, label="Stability Metric S", color="purple")
 plt.axhline(0.9, color="gray", ls="--", label="Stable threshold (S=0.9)")
 plt.xlabel("Time")
 plt.ylabel("Stability S")
-plt.title("M5 — Throat Stability Evolution")
+plt.title("M5 - Throat Stability Evolution")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_M5_ThroatStability.png", dpi=150)
@@ -74,13 +74,13 @@ plt.figure(figsize=(8,5))
 plt.plot(t, E_flux / np.max(E_flux), label="Normalized Energy Flux", color="orange")
 plt.xlabel("Time")
 plt.ylabel("Normalized flux")
-plt.title("M5 — Energy Flux Evolution")
+plt.title("M5 - Energy Flux Evolution")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_M5_EnergyFluxEvolution.png", dpi=150)
 plt.close()
 
-print("=== M5 — Wormhole Stability and Collapse Dynamics ===")
+print("=== M5 - Wormhole Stability and Collapse Dynamics ===")
 print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}")
 print(f"Δκ_final={Δκ_final:.3e}")
 print(f"Classification: {stability}")
@@ -94,7 +94,7 @@ doc = SimpleDocTemplate(str(report_path), pagesize=A4)
 styles = getSampleStyleSheet()
 story = []
 
-story.append(Paragraph("<b>Appendix M — Wormhole Stability & Collapse Dynamics</b>", styles["Title"]))
+story.append(Paragraph("<b>Appendix M - Wormhole Stability & Collapse Dynamics</b>", styles["Title"]))
 story.append(Spacer(1, 12))
 story.append(Paragraph(f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}", styles["Normal"]))
 story.append(Spacer(1, 12))
@@ -124,5 +124,5 @@ story.append(Paragraph("- PAEV_M5_EnergyFluxEvolution.png", styles["Normal"]))
 
 doc.build(story)
 
-print(f"📘 Exported Appendix → {report_path.resolve()}")
+print(f"📘 Exported Appendix -> {report_path.resolve()}")
 print("----------------------------------------------------------")

@@ -1,5 +1,5 @@
 """
-🌀 GWIP (GlyphWave Interchange Protocol) Codec — SRK-9
+🌀 GWIP (GlyphWave Interchange Protocol) Codec - SRK-9
 Encodes and decodes GlyphWave Information Packets (GWIP) between symbolic and binary domains.
 
 Integrates:

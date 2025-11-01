@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-J2 — Tessaris TOE Grand Synchronization Test
+J2 - Tessaris TOE Grand Synchronization Test
 --------------------------------------------
 Validates full multi-regime unification:
 Quantum ↔ Relativistic ↔ Thermal coherence consistency.
 
 Checks:
- • Energy–Entropy balance under unified ℒ_total.
- • Cross-coupling of ψ, κ, and T fields under effective constants.
- • Holographic correlation conservation.
+ * Energy-Entropy balance under unified L_total.
+ * Cross-coupling of ψ, κ, and T fields under effective constants.
+ * Holographic correlation conservation.
 
 Outputs
 -------
@@ -38,10 +38,10 @@ G = const.get("G", 1e-5)
 α = const.get("α", 0.5)
 β = const.get("β", 0.2)
 χ = const.get("χ", 1.0)
-ℒ_total = const.get("ℒ_total", 1.0)
+L_total = const.get("L_total", 1.0)
 
-print("=== J2 — TOE Grand Synchronization Test (Tessaris) ===")
-print(f"Loaded constants → ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3e}, β={β:.3e}, χ={χ:.3e}, |ℒ_total|={ℒ_total:.3e}")
+print("=== J2 - TOE Grand Synchronization Test (Tessaris) ===")
+print(f"Loaded constants -> ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3e}, β={β:.3e}, χ={χ:.3e}, |L_total|={L_total:.3e}")
 
 # ============================================================
 #  Initialize ψ (quantum), κ (curvature), T (thermal tensor)
@@ -64,14 +64,14 @@ def laplacian(field):
     )
 
 # ============================================================
-#  Evolution loop — unified regime
+#  Evolution loop - unified regime
 # ============================================================
 dt = 0.01
 steps = 700
 E_list, S_list, H_list = [], [], []
 
 for step in range(steps + 1):
-    # Unified field dynamics under ℒ_total
+    # Unified field dynamics under L_total
     psi_t = (
         1j * ħ * laplacian(psi)
         - G * kappa * psi
@@ -95,7 +95,7 @@ for step in range(steps + 1):
     H_list.append(H_corr)
 
     if step % 100 == 0:
-        print(f"Step {step:03d} — ⟨E⟩={E:.5e}, S={S:.4f}, H_corr={H_corr:.3e}")
+        print(f"Step {step:03d} - ⟨E⟩={E:.5e}, S={S:.4f}, H_corr={H_corr:.3e}")
 
 # ============================================================
 #  Summary metrics
@@ -110,9 +110,9 @@ print(f"ΔS (entropy drift)        = {S_drift:.3e}")
 print(f"ΔH (holographic drift)    = {H_drift:.3e}")
 
 if E_drift < 1e-3 and S_drift < 1e-2 and H_drift < 1e-4:
-    print("✅ Tessaris TOE closure achieved — conservation and coherence hold.")
+    print("✅ Tessaris TOE closure achieved - conservation and coherence hold.")
 else:
-    print("⚠️  Deviations detected — refinement or recalibration may be required.")
+    print("⚠️  Deviations detected - refinement or recalibration may be required.")
 
 # ============================================================
 #  Visualization
@@ -123,13 +123,13 @@ plt.plot(S_list, label="Entropy ⟨S⟩")
 plt.plot(H_list, label="Holographic Corr. ⟨H⟩")
 plt.xlabel("Step")
 plt.ylabel("Value")
-plt.title("J2 — Tessaris TOE Synchronization Dynamics")
+plt.title("J2 - Tessaris TOE Synchronization Dynamics")
 plt.legend()
 plt.grid(alpha=0.3)
 plt.tight_layout()
 plot_path = "PAEV_J2_toe_synchronization.png"
 plt.savefig(plot_path, dpi=200)
-print(f"✅ Diagnostic plot saved → {plot_path}")
+print(f"✅ Diagnostic plot saved -> {plot_path}")
 # ============================================================
 #  JSON summary output (safe for NumPy types)
 # ============================================================
@@ -172,5 +172,5 @@ summary = {
 
 out_path = Path("backend/modules/knowledge/J2_toe_grand_synchronization.json")
 out_path.write_text(json.dumps(to_native(summary), indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 print("----------------------------------------------------------")

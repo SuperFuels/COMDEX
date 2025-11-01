@@ -82,7 +82,7 @@ class Parser:
             op = self.eat()
             rhs = self.parse_prod()
             acc.append(rhs)
-            # Only build once at the end — n-ary ⊕ instead of binary chaining
+            # Only build once at the end - n-ary ⊕ instead of binary chaining
             if op != "⊕":  # ⊖ stays binary
                 node = {"op": op, "states": [node, rhs]}
             else:

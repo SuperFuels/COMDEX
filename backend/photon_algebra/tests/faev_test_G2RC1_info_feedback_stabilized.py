@@ -1,5 +1,5 @@
 # ==========================================================
-# G2-RC1 — Curvature–Mass Equivalence with Information Feedback
+# G2-RC1 - Curvature-Mass Equivalence with Information Feedback
 # Refined model introducing entropic damping + phase-based info coupling
 # ==========================================================
 
@@ -31,7 +31,7 @@ Mψ = np.zeros(T)
 E_tot = np.zeros(T)
 
 # --- Coupling coefficients ---
-k_x = 0.035     # curvature–mass exchange
+k_x = 0.035     # curvature-mass exchange
 k_rel = 0.012   # relaxation term
 k_leak = 0.004  # energy leak
 γ_info = 0.005  # entropic damping gain
@@ -74,7 +74,7 @@ stability = 1.0 / (1.0 + np.std(E_tot[-1000:]) / (np.mean(np.abs(E_tot[-1000:]))
 
 # --- Classification ---
 if cross_corr > 0.95 and stability > 0.9:
-    verdict = "✅ Information-Stabilized Curvature–Mass Coupling (Coherent)"
+    verdict = "✅ Information-Stabilized Curvature-Mass Coupling (Coherent)"
 elif cross_corr > 0.7:
     verdict = "⚠️ Partial Coupling (Moderate Info Response)"
 else:
@@ -84,19 +84,19 @@ else:
 plt.figure(figsize=(9,5))
 plt.plot(t, R, label="Visible curvature R", lw=1.2)
 plt.plot(t, Rψ, label="Hidden curvature Rψ", lw=1.0)
-plt.title("G2-RC1 — Curvature–Mass Equivalence (Info Feedback)")
+plt.title("G2-RC1 - Curvature-Mass Equivalence (Info Feedback)")
 plt.xlabel("time"); plt.ylabel("curvature"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G2RC1_CurvatureTracks.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, Mψ, label="Hidden mass Mψ", lw=1.3)
-plt.title("G2-RC1 — Hidden Mass Evolution with Info Feedback")
+plt.title("G2-RC1 - Hidden Mass Evolution with Info Feedback")
 plt.xlabel("time"); plt.ylabel("Mψ (norm)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G2RC1_MassEvolution.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, E_tot, label="Unified energy", lw=1.1)
-plt.title("G2-RC1 — Unified Energy Evolution (Info-Stabilized)")
+plt.title("G2-RC1 - Unified Energy Evolution (Info-Stabilized)")
 plt.xlabel("time"); plt.ylabel("E_total (norm)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G2RC1_Energy.png")
 
@@ -124,7 +124,7 @@ results = {
 with open("backend/modules/knowledge/G2RC1_info_feedback_stabilized.json","w") as f:
     json.dump(results, f, indent=2)
 
-print("=== G2-RC1 — Curvature–Mass Equivalence (Info Feedback) ===")
+print("=== G2-RC1 - Curvature-Mass Equivalence (Info Feedback) ===")
 print(f"cross_corr={cross_corr:.3f} | stability={stability:.3f} | energy=({energy_min:.3e},{energy_max:.3e})")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/G2RC1_info_feedback_stabilized.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/G2RC1_info_feedback_stabilized.json")

@@ -1,7 +1,7 @@
 # File: backend/modules/symbolic/natural_language_parser.py
 
 """
-Hybrid parser: Natural language → CodexAST via rules + OpenAI GPT fallback
+Hybrid parser: Natural language -> CodexAST via rules + OpenAI GPT fallback
 """
 
 import os

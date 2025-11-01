@@ -1,5 +1,5 @@
 # ==========================================================
-# Test F4 — Adaptive Transition Map
+# Test F4 - Adaptive Transition Map
 #   Self-adaptive coupling decay and nonlinear damping
 #   Detects regime transitions (coherent ↔ decoherent)
 # ==========================================================
@@ -52,7 +52,7 @@ kappa = 0.4 * np.exp(-(X**2 + Y**2) / 0.3)
 theta_t = np.zeros_like(theta)
 
 if perturbation:
-    print("💥 Perturbation mode enabled — injecting Gaussian pulse.")
+    print("💥 Perturbation mode enabled - injecting Gaussian pulse.")
     theta += 0.03 * np.exp(-((X**2 + Y**2)/0.1)) * (1 + 0.1 * rng.standard_normal((N,N)))
 
 # ----------------------------
@@ -128,11 +128,11 @@ tau_c = np.argmax(entropy_trace < 0.9 * np.max(entropy_trace))
 # plots
 # ----------------------------
 plt.figure(figsize=(7, 4))
-plt.plot(L_trace, label="⟨ℒ⟩")
-plt.plot(corr_trace, label="⟨θ·κ⟩")
+plt.plot(L_trace, label="⟨L⟩")
+plt.plot(corr_trace, label="⟨θ*κ⟩")
 plt.plot(entropy_trace / np.max(entropy_trace), label="Spectral entropy (norm.)")
 plt.axvline(transition_idx, color="magenta", ls="--", label="transition")
-plt.title("F4 — Adaptive Energy, Correlation, and Entropy")
+plt.title("F4 - Adaptive Energy, Correlation, and Entropy")
 plt.legend()
 plt.tight_layout()
 plt.savefig("PAEV_TestF4_Adaptive_EnergyTrace.png")
@@ -143,8 +143,8 @@ print("✅ Saved file: PAEV_TestF4_Adaptive_EnergyTrace.png")
 plt.figure(figsize=(6, 5))
 plt.plot(entropy_trace, corr_trace, color="orange", lw=1.8)
 plt.xlabel("Spectral entropy")
-plt.ylabel("⟨θ·κ⟩")
-plt.title("F4 — Adaptive Phase Trajectory")
+plt.ylabel("⟨θ*κ⟩")
+plt.title("F4 - Adaptive Phase Trajectory")
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig("PAEV_TestF4_Adaptive_PhaseMap.png")
@@ -157,7 +157,7 @@ plt.figure(figsize=(7, 3))
 plt.imshow(mask[np.newaxis, :], cmap="cividis", aspect="auto")
 plt.yticks([])
 plt.xlabel("Step")
-plt.title("F4 — Coherence→Decoherence Transition Map")
+plt.title("F4 - Coherence->Decoherence Transition Map")
 plt.tight_layout()
 plt.savefig("PAEV_TestF4_Adaptive_TransitionMap.png")
 plt.close()
@@ -170,9 +170,9 @@ print("✅ Saved animation to: PAEV_TestF4_Propagation.gif")
 # ----------------------------
 # summary
 # ----------------------------
-print("\n=== Test F4 — Adaptive Transition Map Complete ===")
-print(f"⟨ℒ⟩ final = {L_trace[-1]:.4e}")
-print(f"⟨θ·κ⟩ final = {corr_trace[-1]:.4e}")
+print("\n=== Test F4 - Adaptive Transition Map Complete ===")
+print(f"⟨L⟩ final = {L_trace[-1]:.4e}")
+print(f"⟨θ*κ⟩ final = {corr_trace[-1]:.4e}")
 print(f"Spectral entropy final = {entropy_trace[-1]:.4e}")
 print(f"Transition detected at step {transition_idx}")
 print(f"Estimated coherence lifetime τ_c ≈ {tau_c} steps")

@@ -1,14 +1,14 @@
 """
 CodexTrace Ingest Bridge
 ───────────────────────────────────────────────
-Bridges MorphicLedger ψ–κ–T–Φ resonance metrics into the CodexTrace
+Bridges MorphicLedger ψ-κ-T-Φ resonance metrics into the CodexTrace
 symbolic tracing layer.
 
 Each incoming Morphic Ingest frame is:
-  • Normalized into symbolic tags (Ψ, Κ, Τ, Φ)
-  • Reduced into coherence events (Δφ, Δσ)
-  • Appended to CodexTrace via append_trace_entry()
-  • Correlated with prior symbolic states for resonance lineage
+  * Normalized into symbolic tags (Ψ, Κ, Τ, Φ)
+  * Reduced into coherence events (Δφ, Δσ)
+  * Appended to CodexTrace via append_trace_entry()
+  * Correlated with prior symbolic states for resonance lineage
 
 Usage:
     PYTHONPATH=. python backend/AION/fabric/codextrace_ingest_bridge.py
@@ -137,5 +137,5 @@ def tail_morphic_feed():
 # Main
 # ───────────────────────────────────────────────
 if __name__ == "__main__":
-    logger.info("🚀 Launching CodexTrace Ingest Bridge …")
+    logger.info("🚀 Launching CodexTrace Ingest Bridge ...")
     tail_morphic_feed()

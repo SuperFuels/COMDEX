@@ -1,10 +1,10 @@
 """
-[Tessaris v0.2] — Legacy COMDEX Operator Stub
+[Tessaris v0.2] - Legacy COMDEX Operator Stub
 ──────────────────────────────────────────────
 This module is **deprecated** and retained only for archival / backward
 compatibility with legacy COMDEX tests or external tools.
 
-It is no longer active in the operator registry — the canonical implementation
+It is no longer active in the operator registry - the canonical implementation
 lives in:  backend/symatics/quantum_ops.py  (function: `superpose`).
 
 DO NOT import or modify this file. It will be removed in v0.3.

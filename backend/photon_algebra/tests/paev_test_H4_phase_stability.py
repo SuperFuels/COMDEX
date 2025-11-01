@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-H4 — Phase Stability & Coherence Test
+H4 - Phase Stability & Coherence Test
 -------------------------------------
 Objective:
   Test whether informational phase coherence persists under weak perturbations.
   Reuses cyclic dataset structure (F7b baseline).
 
 Outputs:
-  • PAEV_H4_PhaseCoherence.png
-  • backend/modules/knowledge/H4_phase_stability.json
+  * PAEV_H4_PhaseCoherence.png
+  * backend/modules/knowledge/H4_phase_stability.json
 """
 from pathlib import Path
 from datetime import datetime, timezone
@@ -29,13 +29,13 @@ C_std = np.std(C[-300:])
 stable = C_std < 1e-2 and C_mean > 0.95
 classification = "✅ Persistent coherence (informational memory preserved)" if stable else "⚠️ Coherence decay detected"
 
-print("=== H4 — Phase Stability & Coherence Test ===")
+print("=== H4 - Phase Stability & Coherence Test ===")
 print(f"C_mean={C_mean:.4f}, C_std={C_std:.4e}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 
 plt.figure(figsize=(10,4))
 plt.plot(t, C, lw=1.4, label="C(t)")
-plt.title("H4 — Informational Phase Coherence")
+plt.title("H4 - Informational Phase Coherence")
 plt.xlabel("time"); plt.ylabel("C(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_H4_PhaseCoherence.png", dpi=160)
@@ -48,4 +48,4 @@ summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
 }
 Path("backend/modules/knowledge/H4_phase_stability.json").write_text(json.dumps(summary, indent=2))
-print("📄 Summary saved → backend/modules/knowledge/H4_phase_stability.json")
+print("📄 Summary saved -> backend/modules/knowledge/H4_phase_stability.json")

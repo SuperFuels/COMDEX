@@ -1,5 +1,5 @@
 """
-Tessaris RQC — Operator Registry
+Tessaris RQC - Operator Registry
 ───────────────────────────────────────────────
 Central registry for photonic runtime operators.
 Unifies ⊕ (superpose), ⟲ (resonate), and ↔ (entangle)

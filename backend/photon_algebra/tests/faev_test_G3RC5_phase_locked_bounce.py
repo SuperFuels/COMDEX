@@ -1,5 +1,5 @@
 # ==========================================================
-# G3-RC5 — Phase-Locked Antigravity Bounce (Info + Entropy)
+# G3-RC5 - Phase-Locked Antigravity Bounce (Info + Entropy)
 # Goal: lock negative-mass response to visible curvature phase,
 #       keep energy soft-capped, and add entropy-aware damping.
 # Saves: backend/modules/knowledge/G3RC5_phase_locked_bounce.json
@@ -119,27 +119,27 @@ else:
 plt.figure(figsize=(9,5))
 plt.plot(t, a, lw=1.7)
 plt.axvline(t[bounce_idx], ls='--', color='purple', alpha=0.7, label='min(a)')
-plt.title("G3-RC5 — Scale Factor Evolution (Phase-Locked Bounce)")
+plt.title("G3-RC5 - Scale Factor Evolution (Phase-Locked Bounce)")
 plt.xlabel("time"); plt.ylabel("a(t)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC5_ScaleFactor.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, R, label='R (visible)')
 plt.plot(t, Rψ, label='Rψ (hidden)')
-plt.title("G3-RC5 — Curvature Tracks (Phase-Locked)")
+plt.title("G3-RC5 - Curvature Tracks (Phase-Locked)")
 plt.xlabel("time"); plt.ylabel("curvature"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC5_Curvature.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, E, label='Unified energy (soft-capped)')
-plt.title("G3-RC5 — Unified Energy Evolution (Phase-Locked)")
+plt.title("G3-RC5 - Unified Energy Evolution (Phase-Locked)")
 plt.xlabel("time"); plt.ylabel("E_total (norm)"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC5_Energy.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, np.cos(φ), label='cos(φ)')
 plt.plot(t, np.cos(ψ), label='cos(ψ)')
-plt.title("G3-RC5 — Phase Coherence")
+plt.title("G3-RC5 - Phase Coherence")
 plt.xlabel("time"); plt.ylabel("cosine phase"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G3RC5_Phase.png")
 
@@ -171,7 +171,7 @@ save_path = "backend/modules/knowledge/G3RC5_phase_locked_bounce.json"
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== G3-RC5 — Phase-Locked Antigravity Bounce (Info + Entropy) ===")
+print("=== G3-RC5 - Phase-Locked Antigravity Bounce (Info + Entropy) ===")
 print(f"a_min={a_min:.4f} | cross_corr={cross_corr:.3f} | E_stab={E_stab:.3e} | S_final={S_final:.3f}")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {save_path}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {save_path}")

@@ -19,7 +19,7 @@ PHOTON_OUTPUT = os.getenv("PHOTON_OUTPUT", "false").lower() in ("1", "true", "ye
 app = Flask(__name__)
 
 # ────────────────────────────────────────────────────────────────
-# Streaming wrapper: converts JSON/telemetry → Photon glyphs
+# Streaming wrapper: converts JSON/telemetry -> Photon glyphs
 def photon_stream_wrapper():
     """Wrap the base telemetry stream with optional Photon encoding."""
     for event in stream_sse():

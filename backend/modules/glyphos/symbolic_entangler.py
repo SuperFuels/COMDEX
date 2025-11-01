@@ -74,7 +74,7 @@ def get_entangled_targets(container_id: str) -> List[str]:
 
 # ✅ Alias for backward compatibility with GHX and older modules
 def get_entangled_links(container_id: str) -> List[str]:
-    """Alias for backward compatibility – forwards to get_entangled_targets."""
+    """Alias for backward compatibility - forwards to get_entangled_targets."""
     return get_entangled_targets(container_id)
 
 __all__ = [

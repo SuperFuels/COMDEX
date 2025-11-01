@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────
-#  Tessaris • HST Visualization Bridge (P5 Core)
-#  Connects SLE LightWave beam collapse data → Holographic Spatial Tensor (HST)
-#  Supports live replay, semantic overlays, and ψ–κ–T coherence streaming
+#  Tessaris * HST Visualization Bridge (P5 Core)
+#  Connects SLE LightWave beam collapse data -> Holographic Spatial Tensor (HST)
+#  Supports live replay, semantic overlays, and ψ-κ-T coherence streaming
 # ──────────────────────────────────────────────
 
 import json
@@ -19,7 +19,7 @@ except Exception:
     def broadcast_replay_paths(payload):
         print(f"[HST Bridge Fallback] {json.dumps(payload)[:200]}...")
 
-# Field tensor compiler (ψ–κ–T computation)
+# Field tensor compiler (ψ-κ-T computation)
 from backend.modules.holograms.compile_field_tensor import compile_field_tensor
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class HSTVisualizationBridge:
     """
     Bridge between SLE LightWave telemetry and HST renderer.
-    Injects collapsed beams as semantic nodes, computes ψ–κ–T field signatures,
+    Injects collapsed beams as semantic nodes, computes ψ-κ-T field signatures,
     and broadcasts replay streams for GHX/HST hybrid visualization.
     """
 
@@ -50,7 +50,7 @@ class HSTVisualizationBridge:
         try:
             node = self._convert_beam_to_node(beam_packet)
             self.node_buffer.append(node)
-            logger.info(f"[HST Bridge] Beam injected → Node {node['node_id']}")
+            logger.info(f"[HST Bridge] Beam injected -> Node {node['node_id']}")
         except Exception as e:
             logger.error(f"[HST Bridge] Beam injection failed: {e}")
 
@@ -62,7 +62,7 @@ class HSTVisualizationBridge:
         coherence = float(beam.get("coherence", 0.9))
         timestamp = beam.get("timestamp", time.time())
 
-        # Compute local ψ–κ–T signature for this beam
+        # Compute local ψ-κ-T signature for this beam
         tensor = compile_field_tensor({
             "drift_entropy": entropy,
             "avg_coherence": coherence,
@@ -96,7 +96,7 @@ class HSTVisualizationBridge:
     # ────────────────────────────────────────────
     def broadcast_update(self, force: bool = False):
         """
-        Broadcast current node buffer + ψ–κ–T overlays to the HST renderer.
+        Broadcast current node buffer + ψ-κ-T overlays to the HST renderer.
         """
         now = time.time()
         if not force and (now - self.last_broadcast_time) < self.broadcast_interval:
@@ -122,7 +122,7 @@ class HSTVisualizationBridge:
     # ────────────────────────────────────────────
     def _color_from_coherence(self, value: float) -> str:
         """
-        Map coherence (0–1) → spectral gradient color (blue→gold).
+        Map coherence (0-1) -> spectral gradient color (blue->gold).
         """
         v = np.clip(value, 0.0, 1.0)
         if v < 0.5:
@@ -143,7 +143,7 @@ class HSTVisualizationBridge:
 # Example Integration
 # ──────────────────────────────────────────────
 """
-# Inside SLE → Holographic Core coupling:
+# Inside SLE -> Holographic Core coupling:
 
 from backend.modules.holograms.hst_visualization_bridge import HSTVisualizationBridge
 

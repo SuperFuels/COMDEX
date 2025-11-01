@@ -20,6 +20,6 @@ def test_bus_ingests_once():
     assert publish_kg_added(payload) is True
     assert knowledge_index.get_by_hash(h) is not None
     assert len(knowledge_index.entries) == n0 + 1
-    # re-publish same hash → no new entry
+    # re-publish same hash -> no new entry
     publish_kg_added(payload)
     assert len(knowledge_index.entries) == n0 + 1

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-🧠 AION Self-Training Loop — Phase 47B + 48A/48B
+🧠 AION Self-Training Loop - Phase 47B + 48A/48B
 ─────────────────────────────────────────────────
 Closed-loop harmonic reinforcement cycle with:
-  • Phase 47A  : aion_self_trainer (reinforcement)
-  • Phase 22   : cee_autotester (evaluation)
-  • Phase 48A  : Advanced Lexical Cognition (task gen+run+report)
-  • Phase 48B  : Semantic Comprehension Benchmark (MCI)
-  • Harmonic feedback + adaptive decay
-  • Live dashboard sync
+  * Phase 47A  : aion_self_trainer (reinforcement)
+  * Phase 22   : cee_autotester (evaluation)
+  * Phase 48A  : Advanced Lexical Cognition (task gen+run+report)
+  * Phase 48B  : Semantic Comprehension Benchmark (MCI)
+  * Harmonic feedback + adaptive decay
+  * Live dashboard sync
 
 Outputs:
   data/analysis/aion_selftrain_cycle<N>.json
@@ -50,32 +50,32 @@ def run_training_cycle(
     """Run one full harmonic + cognition + benchmark cycle."""
     log.info(f"\n🌀 Starting harmonic cycle {cycle} (limit={limit})")
 
-    # Phase 47A — Self-training reinforcement
+    # Phase 47A - Self-training reinforcement
     self_summary = aion_self_trainer.run_self_training(limit=limit)
-    log.info(f"[Cycle {cycle}] Self-training completed → {self_summary.get('successful', 0)} reinforced")
+    log.info(f"[Cycle {cycle}] Self-training completed -> {self_summary.get('successful', 0)} reinforced")
 
-    # Phase 22 — Evaluation pass
+    # Phase 22 - Evaluation pass
     metrics = cee_autotester.run_autotest(sample_size=150)
     log.info(f"[Cycle {cycle}] Autotest summary: {metrics}")
 
-    # Phase 48A — Advanced Cognition Layer (task gen → run → report)
+    # Phase 48A - Advanced Cognition Layer (task gen -> run -> report)
     cognition_summary = {"active": False}
     if lce_enabled:
         try:
-            log.info(f"[Cycle {cycle}] 🔥 Entering LCE (Advanced Cognition) — size={lce_size}")
+            log.info(f"[Cycle {cycle}] 🔥 Entering LCE (Advanced Cognition) - size={lce_size}")
             from backend.modules.aion_cognition.advanced_cognition import (
                 lexical_task_generator, lexical_task_runner, lexical_task_reporter
             )
 
             gen_info = lexical_task_generator.generate_tasks(cycle=cycle, limit=lce_size)
-            log.info(f"[Cycle {cycle}] 🧩 LCE task generation completed → {gen_info}")
+            log.info(f"[Cycle {cycle}] 🧩 LCE task generation completed -> {gen_info}")
 
             task_path = Path(gen_info["path"])
             cognition_summary = lexical_task_runner.run_taskset(task_path)
             lexical_task_reporter.log_cycle(cycle, cognition_summary)
 
             log.info(
-                f"[Cycle {cycle}] 🧠 Advanced Cognition completed → "
+                f"[Cycle {cycle}] 🧠 Advanced Cognition completed -> "
                 f"acc={cognition_summary.get('avg_accuracy', 0.0):.3f}, "
                 f"SQI={cognition_summary.get('avg_SQI', 0.0):.3f}"
             )
@@ -83,7 +83,7 @@ def run_training_cycle(
             log.warning(f"[Cycle {cycle}] ⚠ Advanced Cognition skipped: {e}")
             cognition_summary = {"active": False, "error": str(e)}
 
-    # Phase 48B — Semantic Comprehension Benchmark (MCI)
+    # Phase 48B - Semantic Comprehension Benchmark (MCI)
     benchmark_summary = {"active": False}
     if bench_enabled:
         try:
@@ -95,7 +95,7 @@ def run_training_cycle(
             benchmark_summary = benchmark_runner.run_taskset(bench_path)
             benchmark_reporter.log_cycle(cycle, benchmark_summary)
             log.info(
-                f"[Cycle {cycle}] 📘 Semantic Benchmark → "
+                f"[Cycle {cycle}] 📘 Semantic Benchmark -> "
                 f"MCI={benchmark_summary.get('avg_MCI', 0.0):.3f}, "
                 f"sim={benchmark_summary.get('avg_similarity', 0.0):.3f}"
             )
@@ -131,7 +131,7 @@ def run_training_cycle(
     }
     out = REPORT_DIR / f"aion_selftrain_cycle{cycle}.json"
     out.write_text(json.dumps(snapshot, indent=2))
-    log.info(f"[Cycle {cycle}] ✅ Snapshot saved → {out}")
+    log.info(f"[Cycle {cycle}] ✅ Snapshot saved -> {out}")
 
     # Live dashboard
     update_bridge_dashboard(snapshot)
@@ -186,7 +186,7 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    log.info("🔗 AION Harmonic Self-Training Loop — Phase 47B/48A/48B (Adaptive)")
+    log.info("🔗 AION Harmonic Self-Training Loop - Phase 47B/48A/48B (Adaptive)")
     summary = run_closed_loop(
         total_cycles=args.cycles,
         limit=args.limit,
@@ -219,4 +219,4 @@ plt.ylabel("Symatic Quality Index (SQI)")
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("data/analysis/aion_sqi_progress.png")
-print("📈 SQI progress plot saved → data/analysis/aion_sqi_progress.png")
+print("📈 SQI progress plot saved -> data/analysis/aion_sqi_progress.png")

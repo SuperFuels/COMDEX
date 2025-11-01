@@ -1,9 +1,9 @@
-from backend.modules.skills.milestone_tracker import MilestoneTracker
+frombackend.modules.skills.milestone_trackerimportMilestoneTracker
 
 # ✅ DNA Switch
-from backend.modules.dna.dna_switch import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+frombackend.modules.dna.dna_switchimportDNA_SWITCH
+DNA_SWITCH.register(__file__)# Allow tracking + upgrades to this file
 
-tracker = MilestoneTracker()
+tracker=MilestoneTracker()
 tracker.unlock("memory_access")
-print("Memory access unlocked:", tracker.is_unlocked("memory_access"))
+print("Memory access unlocked:",tracker.is_unlocked("memory_access"))

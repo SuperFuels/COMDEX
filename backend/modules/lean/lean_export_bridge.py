@@ -1,5 +1,5 @@
 # ============================================================
-# 🔁 Knowledge Graph → Lean Export Bridge
+# 🔁 Knowledge Graph -> Lean Export Bridge
 # ============================================================
 """
 Allows bidirectional synchronization between the Knowledge Graph (KG)
@@ -66,16 +66,16 @@ def export_atom_to_lean(atom_id: str, out_dir: str = LEAN_EXPORT_DIR) -> str:
             f.write(f"\n-- Embedded waveform metadata\n")
             f.write(f"def waveform_meta : String := '{json.dumps(waveform)[:400]}'\n")
 
-        logging.info(f"[LeanExportBridge] ✅ Exported {label} → {path}")
+        logging.info(f"[LeanExportBridge] ✅ Exported {label} -> {path}")
         return path
 
     except Exception as e:
-        logging.error(f"[LeanExportBridge] ❌ Failed to export Atom {atom_id} → Lean: {e}")
+        logging.error(f"[LeanExportBridge] ❌ Failed to export Atom {atom_id} -> Lean: {e}")
         return ""
 
 
 # ------------------------------------------------------------
-# 🔁 Sync All Harmonic Atoms from KG → Lean directory
+# 🔁 Sync All Harmonic Atoms from KG -> Lean directory
 # ------------------------------------------------------------
 def export_all_atoms_to_lean(out_dir: str = LEAN_EXPORT_DIR) -> list[str]:
     """
@@ -91,7 +91,7 @@ def export_all_atoms_to_lean(out_dir: str = LEAN_EXPORT_DIR) -> list[str]:
                 p = export_atom_to_lean(node["id"], out_dir)
                 if p:
                     paths.append(p)
-        logging.info(f"[LeanExportBridge] Exported {len(paths)} harmonic_atoms → Lean")
+        logging.info(f"[LeanExportBridge] Exported {len(paths)} harmonic_atoms -> Lean")
         return paths
     except Exception as e:
         logging.error(f"[LeanExportBridge] ❌ Bulk export failed: {e}")

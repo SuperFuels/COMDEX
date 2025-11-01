@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==========================================================
-# F4 — Vacuum Energy Renormalization (Stabilized Bounce)
+# F4 - Vacuum Energy Renormalization (Stabilized Bounce)
 # ==========================================================
 # Purpose:
 #   Stabilize the F3 instability by introducing a renormalized
@@ -127,7 +127,7 @@ else:
 plt.figure(figsize=(9, 5))
 plt.plot(t, a, label="a(t)")
 plt.axvline(t[bounce_index], color="purple", ls="--", label="bounce")
-plt.title("F4 — Scale Factor Evolution (Renormalized Vacuum)")
+plt.title("F4 - Scale Factor Evolution (Renormalized Vacuum)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F4_ScaleFactorEvolution.png")
@@ -137,14 +137,14 @@ plt.plot(t, rho_tot, label="ρ_total", lw=1.3)
 plt.plot(t, rho_phi, label="ρ_φ", alpha=0.6)
 plt.plot(t, rho_vac, "--", label="Λ_eff(t)", alpha=0.7)
 plt.yscale("log")
-plt.title("F4 — Energy Density and Renormalized Vacuum")
+plt.title("F4 - Energy Density and Renormalized Vacuum")
 plt.xlabel("time"); plt.ylabel("Energy (arb. units, log)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F4_EnergyDecomposition.png")
 
 plt.figure(figsize=(9, 5))
 plt.plot(t, np.cos(phi), lw=1.0, label="cos(φ)")
-plt.title("F4 — Vacuum-Field Phase Coherence")
+plt.title("F4 - Vacuum-Field Phase Coherence")
 plt.xlabel("time"); plt.ylabel("cos(φ)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F4_PhaseCoherence.png")
@@ -189,7 +189,7 @@ results = {
 with open("backend/modules/knowledge/F4_vacuum_renormalization.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== F4 — Vacuum Energy Renormalization (Stabilized Bounce) ===")
+print("=== F4 - Vacuum Energy Renormalization (Stabilized Bounce) ===")
 print(f"a_min={a_min:.4f} | mean_coherence={mean_coherence:.3f} | anti-corr(Λ,E)={anti_corr:.2f}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F4_vacuum_renormalization.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F4_vacuum_renormalization.json")

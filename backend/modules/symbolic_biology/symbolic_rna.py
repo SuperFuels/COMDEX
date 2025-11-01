@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧬 SymbolicRNA — Messenger Layer (DNA → RNA)
+# 🧬 SymbolicRNA - Messenger Layer (DNA -> RNA)
 # ================================================================
 # Extracts symbolic scrolls from Codex memory or .dc containers.
 # Acts as a messenger for glyph fragments, rewrite tags, and mutation
@@ -62,13 +62,13 @@ class SymbolicRNA:
 
         OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(json.dumps(self.scrolls, indent=2))
-        logger.info(f"[RNA] Transcribed {len(self.scrolls)} symbolic scrolls → {OUT}")
+        logger.info(f"[RNA] Transcribed {len(self.scrolls)} symbolic scrolls -> {OUT}")
         return self.scrolls
 
     # ------------------------------------------------------------
     def extract_from_container(self, container_path: str):
         """
-        Alternate mode: direct .dc → RNA scroll extraction
+        Alternate mode: direct .dc -> RNA scroll extraction
         (used by symbolic biology and Ribosome pipelines).
         """
         path = Path(container_path)
@@ -100,5 +100,5 @@ class SymbolicRNA:
     def export_scroll(self, path="data/exports/symbolic_scroll.json"):
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         json.dump(self.scrolls, open(path, "w"), indent=2)
-        logger.info(f"[RNA] Exported symbolic scroll → {path}")
+        logger.info(f"[RNA] Exported symbolic scroll -> {path}")
         return path

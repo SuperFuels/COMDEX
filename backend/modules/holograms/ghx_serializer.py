@@ -46,7 +46,7 @@ class GHXSerializer:
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(dc_data, f, indent=2)
 
-        logger.info(f"[GHXSerializer:{self.container_id}] Exported GHX container → {file_path}")
+        logger.info(f"[GHXSerializer:{self.container_id}] Exported GHX container -> {file_path}")
         return file_path
 
     def import_from_dc(self, file_path: str) -> Dict:

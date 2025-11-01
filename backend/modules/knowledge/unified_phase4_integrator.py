@@ -1,5 +1,5 @@
 # === Tessaris Phase IV Integrator ===
-# Consolidates Ω1–Ω3 results (Collapse → Cutoff → Recovery)
+# Consolidates Ω1-Ω3 results (Collapse -> Cutoff -> Recovery)
 # Produces unified causal-closure summary and visualization
 # Complies with Tessaris Unified Constants & Verification Protocol v1.2
 
@@ -26,7 +26,7 @@ for f in omega_files:
     with open(path, "r", encoding="utf-8") as j:
         entry = json.load(j)
     data.append(entry)
-    print(f"  • Loaded {f}")
+    print(f"  * Loaded {f}")
 
 # --- 2. Merge constants (use last valid) ---
 constants = data[-1].get("constants", {})
@@ -42,19 +42,19 @@ collapse_to_recovery_ratio = (recovery_ratio or 0) / (cutoff_mean or 1e-9)
 if 0.8 <= collapse_to_recovery_ratio <= 1.2:
     phase_state = "Causal closure and recovery equilibrium achieved"
 elif collapse_to_recovery_ratio > 1.2:
-    phase_state = "Over-recovery regime — super-causal expansion"
+    phase_state = "Over-recovery regime - super-causal expansion"
 else:
-    phase_state = "Partial recovery — subcritical re-expansion"
+    phase_state = "Partial recovery - subcritical re-expansion"
 
 print(f"\n🧠 Phase IV Summary")
-print(f"Collapse→Recovery ratio = {collapse_to_recovery_ratio:.3f}")
+print(f"Collapse->Recovery ratio = {collapse_to_recovery_ratio:.3f}")
 print(f"State: {phase_state}")
 
 # --- 5. Unified summary ---
 timestamp = datetime.datetime.now(datetime.UTC).isoformat()
 summary = {
     "timestamp": timestamp,
-    "phase": "Ω-series (Collapse → Recovery)",
+    "phase": "Ω-series (Collapse -> Recovery)",
     "constants": constants,
     "integrated_metrics": {
         "collapse_to_recovery_ratio": float(collapse_to_recovery_ratio),
@@ -69,7 +69,7 @@ summary = {
 
 with open(output_file, "w", encoding="utf-8") as f:
     json.dump(summary, f, indent=2)
-print(f"✅ Unified Phase IV summary saved → {output_file}")
+print(f"✅ Unified Phase IV summary saved -> {output_file}")
 
 # --- 6. Visualization ---
 labels = ["Ω1 Collapse", "Ω2 Cutoff", "Ω3 Recovery"]
@@ -81,7 +81,7 @@ values = [
 
 plt.figure(figsize=(7, 4))
 plt.bar(labels, values, color=["#d9534f", "#f0ad4e", "#5cb85c"])
-plt.title("Tessaris Ω-Series — Collapse to Recovery Progression")
+plt.title("Tessaris Ω-Series - Collapse to Recovery Progression")
 plt.ylabel("Normalized metric amplitude")
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
@@ -89,6 +89,6 @@ plot_path = os.path.join(base_path, "Tessaris_Collapse_Map.png")
 plt.savefig(plot_path, dpi=200)
 plt.close()
 
-print(f"✅ Visualization saved → {plot_path}")
+print(f"✅ Visualization saved -> {plot_path}")
 print("Phase IV integration complete.")
 print("------------------------------------------------------------")

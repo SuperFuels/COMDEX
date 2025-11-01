@@ -162,7 +162,7 @@ def summarize_beam_history(beam_id: str) -> str:
         event = entry.get("event", "unknown")
         if event == "mutation":
             mut = entry.get("mutation", {})
-            summary += f" - {ts} | Mutation: {mut.get('type', '?')} → {mut.get('details', {})}\n"
+            summary += f" - {ts} | Mutation: {mut.get('type', '?')} -> {mut.get('details', {})}\n"
         elif event == "collapse":
             details = entry.get("details", {})
             summary += f" - {ts} | 🛑 Collapse: {details}\n"

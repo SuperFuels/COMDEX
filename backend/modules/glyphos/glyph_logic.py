@@ -54,7 +54,7 @@ def get_strategy_planner():
 
 DNA_SWITCH.register(__file__)  # ✅ Track evolution of this logic
 
-# Glyph → symbolic meaning
+# Glyph -> symbolic meaning
 GLYPH_SYMBOL_MAP = {
         "Δ": "intent",
         "⊕": "condition",
@@ -97,13 +97,13 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
     memory_traces: List[Dict[str, Any]] = []
 
     if "value" in meta and isinstance(meta["value"], str) and any(c in meta["value"] for c in GLYPH_SYMBOL_MAP):
-        logs.append(f"🔁 Nested glyph expression found: {meta['value']} — [parser pending]")
+        logs.append(f"🔁 Nested glyph expression found: {meta['value']} - [parser pending]")
 
     try:
         if glyph == "🧠":
             result = reflector.run(limit=5)
             store_memory({"label": "glyph_reflection", "content": result})
-            logs.append("→ 🪞 Reflection triggered.")
+            logs.append("-> 🪞 Reflection triggered.")
             triggered_modules.append("ReflectionEngine")
             memory_traces.append({"type": "reflection", "content": result})
             # Feed reflection into Symbol Graph
@@ -113,12 +113,12 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
             planner = get_strategy_planner()
             plan = planner.generate()
             store_memory({"label": "glyph_strategy_plan", "content": plan})
-            logs.append("→ ⚙ Strategy planned.")
+            logs.append("-> ⚙ Strategy planned.")
             triggered_modules.append("StrategyPlanner")
             memory_traces.append({"type": "plan", "content": plan})
 
         elif glyph == "✧":
-            logs.append("→ ✧ Trigger activated.")
+            logs.append("-> ✧ Trigger activated.")
             triggered_modules.append("Trigger")
             if op_trigger:
                 try:
@@ -128,41 +128,41 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
                     logs.append(f"⚠️ Trigger error: {trigger_error}")
 
         elif glyph == "ψ":
-            logs.append("→ 💤 Dream marker encountered.")
+            logs.append("-> 💤 Dream marker encountered.")
             triggered_modules.append("Dream")
 
         elif glyph == "🪄":
-            logs.append("→ 🔁 Transformation logic placeholder.")
+            logs.append("-> 🔁 Transformation logic placeholder.")
             triggered_modules.append("Transform")
 
         elif glyph == "Σ":
-            logs.append("→ 🧾 Summarization logic.")
+            logs.append("-> 🧾 Summarization logic.")
             triggered_modules.append("Summarizer")
 
         elif glyph == "☼":
-            logs.append("→ ☀️ Light expansion behavior.")
+            logs.append("-> ☀️ Light expansion behavior.")
             triggered_modules.append("Light")
 
         elif glyph == "λ":
-            logs.append("→ 📜 Plan expansion initiated.")
+            logs.append("-> 📜 Plan expansion initiated.")
             triggered_modules.append("Planner")
 
         elif glyph == "Δ":
-            logs.append("→ 🚩 Intent declared.")
+            logs.append("-> 🚩 Intent declared.")
             triggered_modules.append("Intent")
 
         elif glyph == "⊕":
-            logs.append("→ 🔄 Conditional logic triggered.")
+            logs.append("-> 🔄 Conditional logic triggered.")
             triggered_modules.append("Condition")
 
         elif glyph == "⇌":
-            logs.append("→ 🔁 Adjustment logic.")
+            logs.append("-> 🔁 Adjustment logic.")
             triggered_modules.append("Adjust")
 
         elif glyph == "↔":
             # Entangle: unify/equate expressions
             strength = OPERATOR_WEIGHTS.get("↔", 1.0)
-            logs.append(f"→ 🔗 Entangle: unified expressions (strength={strength:.2f}).")
+            logs.append(f"-> 🔗 Entangle: unified expressions (strength={strength:.2f}).")
             triggered_modules.append("Entangle")
             meta.setdefault("hints", {})["prefer_equivalence"] = True
             try:
@@ -174,14 +174,14 @@ def interpret_glyph(glyph: str, context: Dict[str, Any]) -> Dict[str, Any]:
         elif glyph == "⧖":
             # Collapse: resolve a constraint / prune a branch
             bias = OPERATOR_WEIGHTS.get("⧖", 1.0)
-            logs.append(f"→ ⧖ Collapse: constraint resolved (bias={bias:.2f}).")
+            logs.append(f"-> ⧖ Collapse: constraint resolved (bias={bias:.2f}).")
             triggered_modules.append("Collapse")
             meta.setdefault("hints", {})["constraint_resolved"] = True
 
         elif glyph == "🧭":
             # Guide: bias next-step lemma selection
             weight = OPERATOR_WEIGHTS.get("🧭", 1.0)
-            logs.append(f"→ 🧭 Guide: lemma selection biased (weight={weight:.2f}).")
+            logs.append(f"-> 🧭 Guide: lemma selection biased (weight={weight:.2f}).")
             triggered_modules.append("Guide")
             meta.setdefault("hints", {})["lemma_bias"] = {
                 "weight": weight,
@@ -249,7 +249,7 @@ def analyze_branch(branch) -> List[str]:
     for i, glyph in enumerate(branch.glyphs):
         context = {"branch": branch, "index": i}
         result = interpret_glyph(glyph, context)
-        summaries.append(f"{i}. Glyph {glyph} → {result['symbol']}: {result['log']}")
+        summaries.append(f"{i}. Glyph {glyph} -> {result['symbol']}: {result['log']}")
     return summaries
 
 
@@ -361,7 +361,7 @@ def _normalize_text(s: str) -> str:
     return " ".join(str(s).strip().split())
 
 def _split_header_payload_action(text: str) -> Tuple[list, str, str]:
-    # Parses:  "LabelA | LabelB : payload → Action"
+    # Parses:  "LabelA | LabelB : payload -> Action"
     labels, payload, action = [], "", ""
     head, sep, tail = text.partition(":")
     if sep:
@@ -369,7 +369,7 @@ def _split_header_payload_action(text: str) -> Tuple[list, str, str]:
         payload = tail.strip()
     else:
         payload = text.strip()
-    body, sep2, act = payload.partition("→")
+    body, sep2, act = payload.partition("->")
     if sep2:
         payload = body.strip()
         action = act.strip()
@@ -379,7 +379,7 @@ def _labels_to_glyphs(labels: list) -> list:
     out = []
     for lab in labels:
         if lab in _LABEL_TO_GLYPH:
-            out.append(_LABEL_TO_GLYPH[lab])     # map known label → glyph
+            out.append(_LABEL_TO_GLYPH[lab])     # map known label -> glyph
         elif lab in GLYPH_SYMBOL_MAP:
             out.append(lab)                       # already a glyph
         else:
@@ -391,9 +391,9 @@ def compile_glyphs(glyph_data: Union[str, list, dict], *, tags: list = None, met
     Compile a glyph expression into a normalized glyph block.
 
     Accepts:
-      • str  — DSL:  'LabelA | LabelB : payload → Action'
-      • list — sequence of glyphs, e.g. ['Δ','λ','Σ']
-      • dict — pass-through; fills defaults
+      * str  - DSL:  'LabelA | LabelB : payload -> Action'
+      * list - sequence of glyphs, e.g. ['Δ','λ','Σ']
+      * dict - pass-through; fills defaults
 
     Returns:
       {
@@ -472,8 +472,8 @@ def parse_logic(glyph_block: Union[dict, str, list]) -> str:
     Convert a glyph block back into readable DSL.
 
     Priority:
-      1) If 'original' exists → return it (lossless).
-      2) Reconstruct: 'LabelA | LabelB : payload → Action'
+      1) If 'original' exists -> return it (lossless).
+      2) Reconstruct: 'LabelA | LabelB : payload -> Action'
     """
     if isinstance(glyph_block, str):
         return glyph_block
@@ -505,6 +505,6 @@ def parse_logic(glyph_block: Union[dict, str, list]) -> str:
     if payload:
         parts.append(payload)
     if action:
-        parts.append(f"→ {action}")
+        parts.append(f"-> {action}")
 
     return _normalize_text(" ".join(parts)) or "(empty)"

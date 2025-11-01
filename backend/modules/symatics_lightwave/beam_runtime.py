@@ -1,5 +1,5 @@
 """
-BeamRuntime — Photonic Execution Core (v0.5-B3)
+BeamRuntime - Photonic Execution Core (v0.5-B3)
 -----------------------------------------------
 Executes WaveCapsules with mode-specific kernel behavior.
 """

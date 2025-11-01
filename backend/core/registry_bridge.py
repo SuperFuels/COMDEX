@@ -5,11 +5,11 @@ Registry Bridge
 ---------------
 
 Unifies:
-  • symbol_registry (static symbol tables)
-  • instruction_registry (runtime handlers)
-  • symbolic_registry (glyph tree/object store)
-  • codex_instruction_set.yaml (YAML-defined ops)
-  • glyph_instruction_set (runtime glyph ops)
+  * symbol_registry (static symbol tables)
+  * instruction_registry (runtime handlers)
+  * symbolic_registry (glyph tree/object store)
+  * codex_instruction_set.yaml (YAML-defined ops)
+  * glyph_instruction_set (runtime glyph ops)
 
 Ensures:
   - Every symbol in symbol_registry has a runtime handler (or explicit stub).
@@ -49,7 +49,7 @@ def _load_codex_instruction_set():
         return ops
 
 # ------------------------------------------------------------------
-# Utility: Convert instruction dicts → Photon AST
+# Utility: Convert instruction dicts -> Photon AST
 # ------------------------------------------------------------------
 def _to_photon_ast(obj):
     """
@@ -73,7 +73,7 @@ def _to_photon_ast(obj):
         else:
             return {"op": opcode, "states": [_to_photon_ast(a) for a in args]}
 
-    # Lists → recursively convert
+    # Lists -> recursively convert
     if isinstance(obj, list):
         return [_to_photon_ast(x) for x in obj]
 
@@ -94,7 +94,7 @@ class RegistryBridge:
         return symbol_registry.lookup_symbol(symbol)
 
     def _canonicalize(self, symbol: str) -> str:
-        """Map raw symbol → canonical domain:key if alias exists."""
+        """Map raw symbol -> canonical domain:key if alias exists."""
         if symbol in self.instruction_registry.registry:
             return symbol
         if symbol in self.instruction_registry.aliases:
@@ -170,9 +170,9 @@ class RegistryBridge:
     def sync_from_symbol_registry(self) -> None:
         """
         Ensure all symbols from:
-        • symbol_registry
-        • codex_instruction_set.yaml
-        • glyph_instruction_set
+        * symbol_registry
+        * codex_instruction_set.yaml
+        * glyph_instruction_set
         exist in instruction_registry.
         Missing ones get stub handlers.
         """
@@ -208,7 +208,7 @@ class RegistryBridge:
                     fn = getattr(mod, fn_name)
                     return fn(*args, **kwargs)
                 except Exception as e:
-                    warnings.warn(f"[Stub] Failed {sym} → {fn_name}: {e}", RuntimeWarning)
+                    warnings.warn(f"[Stub] Failed {sym} -> {fn_name}: {e}", RuntimeWarning)
                     return {"stub": sym, "error": str(e)}
             return _wrap
 
@@ -221,7 +221,7 @@ class RegistryBridge:
                 try:
                     self.instruction_registry.register(canonical, _make_codex_wrap(fn_name, sym))
                     self.instruction_registry.alias(sym, canonical)
-                    print(f"[DEBUG] Registering Codex op {sym} as {canonical} → {fn_name}")
+                    print(f"[DEBUG] Registering Codex op {sym} as {canonical} -> {fn_name}")
                 except ValueError:
                     pass
 
@@ -241,7 +241,7 @@ class RegistryBridge:
                     pass
 
     # ------------------------------------------------------------------
-    # Extra Sync — Symatics Ops
+    # Extra Sync - Symatics Ops
     # ------------------------------------------------------------------
     def sync_symatics_ops(self) -> None:
         """Ensure Symatics ops are bound into the registry."""
@@ -263,8 +263,8 @@ class RegistryBridge:
         """
         Alias symbolic-prefixed ops to their base handlers for both symatics and photon modes.
         Example:
-            symatics:symbolic:⊕ → symatics:⊕
-            photon:symbolic:⊕   → photon:⊕
+            symatics:symbolic:⊕ -> symatics:⊕
+            photon:symbolic:⊕   -> photon:⊕
         """
         def _alias_mode(symbol: str):
             for mode in ("symatics", "photon"):
@@ -273,12 +273,12 @@ class RegistryBridge:
                 if dst in self.instruction_registry.registry:
                     try:
                         self.instruction_registry.alias(src, dst)
-                        print(f"[DEBUG] Aliased {src} → {dst}")
+                        print(f"[DEBUG] Aliased {src} -> {dst}")
                     except ValueError:
                         # Already aliased, skip
                         pass
 
-        for sym in ["⊕", "→", "⟲", "↔", "⧖", "⊖"]:
+        for sym in ["⊕", "->", "⟲", "↔", "⧖", "⊖"]:
             _alias_mode(sym)
 
     # ------------------------------------------------------------------
@@ -297,7 +297,7 @@ class RegistryBridge:
     # ------------------------------------------------------------------
     def resolve_and_execute(self, op: str, *args, **kwargs) -> Any:
         """
-        Resolve symbol → canonical key → execute handler.
+        Resolve symbol -> canonical key -> execute handler.
         Falls back to stub if not implemented.
         Adds C13 structured logging.
         """
@@ -331,7 +331,7 @@ class RegistryBridge:
             raise
 
     # ------------------------------------------------------------------
-    # Extra Sync — Photon Ops
+    # Extra Sync - Photon Ops
     # ------------------------------------------------------------------
     def sync_photon_ops(self) -> None:
         """Ensure Photon algebra ops are bound into the registry."""
@@ -363,7 +363,7 @@ class RegistryBridge:
                 for alias in aliases:
                     self.instruction_registry.alias(f"{domain}:{alias}", key)
             except ValueError:
-                # Already registered — safe to ignore
+                # Already registered - safe to ignore
                 pass
 
         # Core Photon operators (include meta-ops)

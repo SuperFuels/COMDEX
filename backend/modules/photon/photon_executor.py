@@ -197,7 +197,7 @@ def execute_capsule(
         try:
             res = execute_instruction(instr, context)
             if isinstance(res, dict) and "status" in res:
-                logger.info(f"[Photon:Symatics] {op} → {res.get('status')}")
+                logger.info(f"[Photon:Symatics] {op} -> {res.get('status')}")
             results.append(res)
         except Exception as exec_err:
             logger.error(f"[Photon] Execution error on {op}: {exec_err}")
@@ -251,7 +251,7 @@ def execute_capsule(
 # ───────────────────────────────────────────────
 
 def handle_knowledge(instr: Dict[str, Any]) -> str:
-    return f"[KG] Storing: {instr.get('id')} → {instr.get('block')}"
+    return f"[KG] Storing: {instr.get('id')} -> {instr.get('block')}"
 
 
 def handle_qwave(instr: Dict[str, Any]) -> str:
@@ -299,8 +299,8 @@ def execute_photon_capsule(
     Execute a Photon capsule (.phn file or dict) through the Symatics / Photon pipeline.
 
     Accepts:
-      • Path or string ending in .phn
-      • dict with {"engine": "...", "body" or "glyphs": [...]}
+      * Path or string ending in .phn
+      * dict with {"engine": "...", "body" or "glyphs": [...]}
 
     Returns a standardized execution envelope:
       {
@@ -396,7 +396,7 @@ def execute_photon_capsule(
         result = execute_capsule(capsule_obj, context=context)
 
         # ──────────────────────────────
-        # 🔗 4. Photon → Codex Bridge
+        # 🔗 4. Photon -> Codex Bridge
         # ──────────────────────────────
         glyphs_info = photon_to_codex(
             {

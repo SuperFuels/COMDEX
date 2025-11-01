@@ -108,7 +108,7 @@ def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
     qkd_enforcer = QKDPolicyEnforcer()
 
     if not qkd_enforcer.enforce_policy(wave_packet):
-        logger.warning("[QKD] Policy enforcement failed — wave blocked")
+        logger.warning("[QKD] Policy enforcement failed - wave blocked")
         log_beam("blocked", signal_power=0.0, noise_power=1e-4, meta={"sender": sender, "recipient": recipient})
         return {
             "status": "blocked",
@@ -148,7 +148,7 @@ def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
     while attempts <= max_retries:
         gkey_pair = gkey_store.get_key_pair(sender, recipient)
         if not gkey_pair:
-            logger.error(f"[QKD] No GKey found for {sender} → {recipient}")
+            logger.error(f"[QKD] No GKey found for {sender} -> {recipient}")
             log_beam("error", signal_power=0.0, noise_power=1e-4, meta={"error": "Missing GKey", "sender": sender})
             return {
                 "status": "error",
@@ -176,7 +176,7 @@ def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
         try:
             # Test decryption (simulate receiver validation)
             _ = encryptor.decrypt_payload({"encrypted": encrypted_blob})
-            logger.info(f"[QKD] Payload encrypted successfully for {sender} → {recipient}")
+            logger.info(f"[QKD] Payload encrypted successfully for {sender} -> {recipient}")
 
             log_beam(
                 "emitted",
@@ -200,7 +200,7 @@ def push_wave(wave_packet: dict, max_retries: int = 1) -> dict:
             }
 
         except TamperedPayloadError:
-            logger.warning(f"[QKD] Decryption failed — triggering renegotiation attempt {attempts + 1}/{max_retries}")
+            logger.warning(f"[QKD] Decryption failed - triggering renegotiation attempt {attempts + 1}/{max_retries}")
             gkey_store.renegotiate(sender, recipient)
             attempts += 1
             time.sleep(2 ** attempts)

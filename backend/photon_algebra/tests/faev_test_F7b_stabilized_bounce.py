@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
 # ==============================================================
-# F7b — Stabilized Entangled Geometry (LQC + Damped Λ feedback)
+# F7b - Stabilized Entangled Geometry (LQC + Damped Λ feedback)
 # ==============================================================
 
 np.random.seed(42)
@@ -71,7 +71,7 @@ for i in range(1, T):
     rho_tot[i] = rho_m[i] + rho_phi[i] + rho_curv[i] + Lambda_eff[i-1]
     rho_tot[i] = np.clip(rho_tot[i], 0, 1.5 * rho_c)  # avoid runaway
 
-    # --- LQC correction: modifies H² evolution ---
+    # --- LQC correction: modifies H2 evolution ---
     H_sq = rho_tot[i] * (1 - rho_tot[i] / rho_c)
     H[i] = np.sign(H[i-1]) * np.sqrt(abs(H_sq)) if H_sq >= 0 else 0.0
 
@@ -115,7 +115,7 @@ else:
 plt.figure(figsize=(9,5))
 plt.plot(t, a, label="a(t)")
 plt.axvline(t[bounce_index], color="purple", ls="--", label="bounce")
-plt.title("F7b — Scale Factor Evolution (Stabilized LQC Bounce)")
+plt.title("F7b - Scale Factor Evolution (Stabilized LQC Bounce)")
 plt.xlabel("time"); plt.ylabel("a(t)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7b_ScaleFactorEvolution.png")
@@ -125,14 +125,14 @@ plt.plot(t, rho_tot, label="ρ_total", lw=1.3)
 plt.plot(t, rho_phi, label="ρ_φ", alpha=0.6)
 plt.plot(t, Lambda_eff, "--", label="Λ_eff(t)", alpha=0.7)
 plt.yscale("log")
-plt.title("F7b — Energy Density and Damped Vacuum Feedback")
+plt.title("F7b - Energy Density and Damped Vacuum Feedback")
 plt.xlabel("time"); plt.ylabel("Energy (log)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7b_EnergyDecomposition.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, np.cos(phi), lw=1.0, label="cos(φ)")
-plt.title("F7b — Vacuum-Field Phase Coherence")
+plt.title("F7b - Vacuum-Field Phase Coherence")
 plt.xlabel("time"); plt.ylabel("cos(φ)")
 plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_F7b_PhaseCoherence.png")
@@ -178,7 +178,7 @@ results = {
 with open("backend/modules/knowledge/F7b_stabilized_bounce.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== F7b — Stabilized Entangled Geometry (LQC + Damped Λ feedback) ===")
+print("=== F7b - Stabilized Entangled Geometry (LQC + Damped Λ feedback) ===")
 print(f"a_min={a_min:.4f} | mean_coherence={mean_coherence:.3f} | anti-corr(Λ,E)={anti_corr:.2f}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/F7b_stabilized_bounce.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/F7b_stabilized_bounce.json")

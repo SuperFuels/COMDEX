@@ -14,7 +14,7 @@ OPERATOR_METADATA: Dict[str, Dict] = {
     "∧": {"name": "and", "domain": "logic", "type": "operator", "tags": ["boolean", "conjunction"]},
     "∨": {"name": "or", "domain": "logic", "type": "operator", "tags": ["boolean", "disjunction"]},
     "¬": {"name": "not", "domain": "logic", "type": "operator", "tags": ["boolean", "negation"]},
-    "→": {"name": "implies", "domain": "logic", "type": "operator", "tags": ["flow", "conditional"]},
+    "->": {"name": "implies", "domain": "logic", "type": "operator", "tags": ["flow", "conditional"]},
     "↔": {"name": "equivalence", "domain": "logic", "type": "relation", "tags": ["compare", "biconditional"]},
     "⊕": {"name": "xor", "domain": "logic", "type": "operator", "tags": ["boolean", "exclusive"]},
     "⊗": {"name": "tensor_logic", "domain": "logic", "type": "operator", "tags": ["structure", "product"]},
@@ -60,7 +60,7 @@ OPERATOR_METADATA: Dict[str, Dict] = {
 
     # ─── Control / Flow ───────────────────
     "⧖": {"name": "delay", "domain": "control", "type": "operator", "tags": ["time", "defer"]},
-    "→_c": {"name": "trigger", "domain": "control", "type": "operator", "tags": ["execution", "flow"]},
+    "->_c": {"name": "trigger", "domain": "control", "type": "operator", "tags": ["execution", "flow"]},
     "⟲_c": {"name": "update_loop", "domain": "control", "type": "operator", "tags": ["recursion", "mutation"]},
 
     # ─── GlyphOS Unique ───────────────────

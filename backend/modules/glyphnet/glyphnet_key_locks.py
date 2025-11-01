@@ -16,7 +16,7 @@ class GlyphNetKeyLockManager:
     """
 
     def __init__(self) -> None:
-        # session_id → dict with: "lock_expr" (CodexLang str), "created" (float), "ttl" (float or None)
+        # session_id -> dict with: "lock_expr" (CodexLang str), "created" (float), "ttl" (float or None)
         self._locks: Dict[str, Dict[str, Any]] = {}
 
     def register_lock(self, session_id: str, lock_expression: str, ttl_seconds: Optional[float] = None) -> None:
@@ -73,7 +73,7 @@ class GlyphNetKeyLockManager:
         try:
             result = run_codexlang_string(expr)
 
-            # Normalize CodexLang result → boolean
+            # Normalize CodexLang result -> boolean
             passed = False
             if isinstance(result, dict):
                 passed = result.get("success", bool(result))

@@ -1,14 +1,14 @@
 # ================================================================
-# 🧩 CodexMetrics Consistency Validation — GHX ↔ Habit ↔ Codex
+# 🧩 CodexMetrics Consistency Validation - GHX ↔ Habit ↔ Codex
 # ================================================================
 """
 Ensures that CodexMetrics overlay matches GHX summary
 values (ρ, I) within tolerance.
 
 Checks:
-  • codexmetrics_overlay.json and ghx_stream.json exist
-  • avg_ρ and avg_I differ ≤ 5%
-  • Logs result → data/telemetry/codexmetrics_consistency.json
+  * codexmetrics_overlay.json and ghx_stream.json exist
+  * avg_ρ and avg_I differ <= 5%
+  * Logs result -> data/telemetry/codexmetrics_consistency.json
 """
 
 import json, math, time, logging
@@ -58,7 +58,7 @@ def run_validation():
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     json.dump(summary, open(OUT_PATH, "w"), indent=2)
-    logger.info(f"[CodexConsistency] Summary → {OUT_PATH}")
+    logger.info(f"[CodexConsistency] Summary -> {OUT_PATH}")
     print(json.dumps(summary, indent=2))
 
 if __name__ == "__main__":

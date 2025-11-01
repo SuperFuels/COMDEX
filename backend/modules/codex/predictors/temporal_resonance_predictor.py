@@ -1,8 +1,8 @@
 """
-Tessaris Codex — Temporal Resonance Predictor
+Tessaris Codex - Temporal Resonance Predictor
 ---------------------------------------------
 Predicts near-term coherence drift by modelling ΔΦ / Δε trends
-from CodexTrace Resonant Insight and AION–QQC telemetry.
+from CodexTrace Resonant Insight and AION-QQC telemetry.
 """
 
 from __future__ import annotations
@@ -73,7 +73,7 @@ def save_forecast(result: Dict[str, Any]):
 
 
 def run_temporal_predictor():
-    """Main entrypoint: load → compute → save → print."""
+    """Main entrypoint: load -> compute -> save -> print."""
     events = load_recent_insights(WINDOW)
     result = compute_trend(events)
     save_forecast(result)

@@ -19,7 +19,7 @@ servo_i = 0.0008
 servo_d = 0.02
 d_lpf_alpha = 0.15
 noise_scale = 0.0035
-coupling_gain = 0.025     # <— new: cross-attractor coupling strength
+coupling_gain = 0.025     # <- new: cross-attractor coupling strength
 predictive_lead = 1       # number of steps A leads B (anticipation)
 lock_threshold = 0.009
 
@@ -75,7 +75,7 @@ for t in range(1, T):
     cross_AB = coupling_gain * np.tanh(B["meta"][max(t-predictive_lead,0)] - A["self"][t-1])
     cross_BA = coupling_gain * np.tanh(A["meta"][t-1] - B["self"][t-1])
 
-    # === PI–D servo control ===
+    # === PI-D servo control ===
     # derivative filters (LPF)
     dA = d_lpf_alpha * (phase_err_A - dA_prev) + (1 - d_lpf_alpha) * dA_prev
     dB = d_lpf_alpha * (phase_err_B - dB_prev) + (1 - d_lpf_alpha) * dB_prev
@@ -115,7 +115,7 @@ else:
     classification = "❌ No cross-attractor lock"
 
 # === Output summary ===
-print("=== P8 — Cross-Attractor Coherence (Predictive Coupling Layer) ===")
+print("=== P8 - Cross-Attractor Coherence (Predictive Coupling Layer) ===")
 print(f"Tail ⟨|Δφ_AB|⟩={tail_mean_phi:.3e} | Corr_AB={corr_AB:.3f} | lock_ratio={lock_ratio:.2f} | {classification}")
 
 # === Plots ===
@@ -123,7 +123,7 @@ plt.figure(figsize=(9,5))
 plt.plot(A["meta"], label="A_meta (awareness A)")
 plt.plot(B["meta"], label="B_meta (awareness B)")
 plt.legend()
-plt.title("P8 — Cross-Attractor Awareness Coherence")
+plt.title("P8 - Cross-Attractor Awareness Coherence")
 plt.xlabel("time step")
 plt.ylabel("Entropy / awareness coupling")
 plt.tight_layout()
@@ -133,7 +133,7 @@ plt.close()
 plt.figure(figsize=(9,5))
 plt.plot(phi_diff_AB, label="|Δφ_AB|")
 plt.axhline(lock_threshold, color="red", linestyle="--", label="lock threshold")
-plt.title("P8 — Cross-Attractor Phase Difference Evolution")
+plt.title("P8 - Cross-Attractor Phase Difference Evolution")
 plt.xlabel("time step")
 plt.ylabel("|Δφ_AB|")
 plt.legend()

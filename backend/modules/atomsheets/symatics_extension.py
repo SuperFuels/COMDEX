@@ -30,7 +30,7 @@ except Exception:
 
 class SymaticQPU(CodexVirtualQPU):
     """
-    Extension of CodexVirtualQPU that injects Φ–ψ resonance metrics
+    Extension of CodexVirtualQPU that injects Φ-ψ resonance metrics
     into each execution cycle. Can be used as a drop-in replacement.
     """
 
@@ -62,7 +62,7 @@ class SymaticQPU(CodexVirtualQPU):
 
 def compute_resonant_metrics_bulk(cells: Dict[str, Any]) -> None:
     """
-    Compute and attach Φ–ψ resonance metrics to all cells.
+    Compute and attach Φ-ψ resonance metrics to all cells.
     """
     for c in cells.values():
         try:

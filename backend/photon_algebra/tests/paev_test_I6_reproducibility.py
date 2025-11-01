@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-I6 — Multi-Trial Meta-Analysis of v_S ↦ S_CHSH Correlation
+I6 - Multi-Trial Meta-Analysis of v_S ↦ S_CHSH Correlation
 ===========================================================
 Runs multiple E6-Ω v5c simulations with varying RNG seeds and aggregates
 their correlation and burst statistics.
 
 Enhancements:
-  • Parallel-safe multi-seed reproducibility
-  • Comprehensive per-trial statistics (ρ, τ, ΔS, bursts)
-  • Confidence intervals and reproducibility test
-  • Visualization suite (correlations, ΔS, burst count, forest plot)
-  • JSON summary compatible with I7 adaptive pipelines
+  * Parallel-safe multi-seed reproducibility
+  * Comprehensive per-trial statistics (ρ, τ, ΔS, bursts)
+  * Confidence intervals and reproducibility test
+  * Visualization suite (correlations, ΔS, burst count, forest plot)
+  * JSON summary compatible with I7 adaptive pipelines
 
 Artifacts:
   - backend/modules/knowledge/I6_meta_analysis.json
@@ -156,7 +156,7 @@ def run_e6omega_trial(seed, T=8000, verbose=False):
     }
 
     if verbose:
-        print(f"  → Seed {seed}: {len(bursts)} bursts | S_mean={summary['S_CHSH_mean']:.3f}")
+        print(f"  -> Seed {seed}: {len(bursts)} bursts | S_mean={summary['S_CHSH_mean']:.3f}")
 
     return trace, summary
 
@@ -169,7 +169,7 @@ SEEDS = [42, 123, 456, 789, 1011]
 T = 8000
 
 print("\n" + "=" * 70)
-print("🔬 I6 — MULTI-TRIAL META-ANALYSIS")
+print("🔬 I6 - MULTI-TRIAL META-ANALYSIS")
 print("=" * 70)
 print(f"Running {N_TRIALS} trials across seeds {SEEDS}")
 print("=" * 70 + "\n")
@@ -245,7 +245,7 @@ axes[0, 0].legend(); axes[0, 0].grid(alpha=0.3)
 
 axes[0, 1].bar(x, deltas, color="tab:green", edgecolor="black", alpha=0.7)
 axes[0, 1].axhline(0, ls="--", lw=1, color="gray")
-axes[0, 1].set_title("ΔS (Post–Pre Burst)", fontweight="bold"); axes[0, 1].grid(alpha=0.3)
+axes[0, 1].set_title("ΔS (Post-Pre Burst)", fontweight="bold"); axes[0, 1].grid(alpha=0.3)
 
 axes[1, 0].bar(x, bursts, color="tab:purple", alpha=0.7, edgecolor="black")
 axes[1, 0].set_title("Burst Counts", fontweight="bold"); axes[1, 0].grid(alpha=0.3)
@@ -260,14 +260,14 @@ axes[1, 1].set_title("S_CHSH Mean ± SEM", fontweight="bold"); axes[1, 1].grid(a
 
 plt.tight_layout()
 plt.savefig("PAEV_I6_meta_analysis.png", dpi=200)
-print("✅ Figure saved → PAEV_I6_meta_analysis.png\n")
+print("✅ Figure saved -> PAEV_I6_meta_analysis.png\n")
 
 # ============================================================
 #  Save Summary
 # ============================================================
 timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 summary = {
-    "meta_analysis": "I6 — v_S ↦ S_CHSH Multi-Trial Correlation",
+    "meta_analysis": "I6 - v_S ↦ S_CHSH Multi-Trial Correlation",
     "constants": const,
     "params": {"n_trials": N_TRIALS, "seeds": SEEDS, "T_per_trial": T},
     "trials": trials,
@@ -284,7 +284,7 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/I6_meta_analysis.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # ============================================================
 #  Console Recap

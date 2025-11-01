@@ -1,4 +1,4 @@
-# === Ω3 — Quantum Bounce & Recovery (Tessaris) ===
+# === Ω3 - Quantum Bounce & Recovery (Tessaris) ===
 # Purpose: Model post-collapse information re-expansion following gravitational cutoff.
 # Represents emergent quantum rebound of causal geometry after Ω2 saturation.
 # Complies with Tessaris Unified Constants & Verification Protocol v1.2
@@ -21,7 +21,7 @@ if os.path.exists(omega2_path):
     print(f"Loaded Ω2 equilibrium curvature = {R_damped_mean:.3e}")
 else:
     R_damped_mean = 0.1
-    print("⚠️  Ω2 data not found — using default R_damped_mean = 0.1")
+    print("⚠️  Ω2 data not found - using default R_damped_mean = 0.1")
 
 # === 3. Generate lattice state for post-collapse simulation ===
 x = np.linspace(-8, 8, 512)
@@ -46,24 +46,24 @@ recovery_ratio = flux_rebound / (R_damped_mean + 1e-9)
 
 # === 4. Classification ===
 if 0.8 <= recovery_ratio <= 1.5:
-    state = "Quantum bounce achieved — stable post-collapse recovery"
+    state = "Quantum bounce achieved - stable post-collapse recovery"
     recovered = True
 elif recovery_ratio > 1.5:
-    state = "Over-rebound — excessive post-collapse flux"
+    state = "Over-rebound - excessive post-collapse flux"
     recovered = False
 else:
-    state = "Partial recovery — weak post-collapse response"
+    state = "Partial recovery - weak post-collapse response"
     recovered = False
 
-print("\n=== Ω3 — Quantum Bounce & Recovery (Tessaris) ===")
-print(f"Constants → ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
-print(f"⟨u²⟩ = {energy_rebound:.3e}, ⟨|J_recovery|⟩ = {flux_rebound:.3e}, Recovery ratio = {recovery_ratio:.3f}")
-print(f"→ {state}\n")
+print("\n=== Ω3 - Quantum Bounce & Recovery (Tessaris) ===")
+print(f"Constants -> ħ={constants['ħ']}, G={constants['G']}, Λ={constants['Λ']}, α={constants['α']}, β={constants['β']}, χ={constants['χ']}")
+print(f"⟨u2⟩ = {energy_rebound:.3e}, ⟨|J_recovery|⟩ = {flux_rebound:.3e}, Recovery ratio = {recovery_ratio:.3f}")
+print(f"-> {state}\n")
 
 # === 5. Discovery Notes ===
 timestamp = datetime.datetime.now(datetime.UTC).isoformat()
 notes = [
-    f"Mean energy rebound ⟨u²⟩ = {energy_rebound:.3e}.",
+    f"Mean energy rebound ⟨u2⟩ = {energy_rebound:.3e}.",
     f"Flux recovery ⟨|J_recovery|⟩ = {flux_rebound:.3e}.",
     f"Curvature variation ΔR = {curvature_variation:.3e}.",
     f"Recovery ratio = {recovery_ratio:.3f}.",
@@ -91,11 +91,11 @@ summary_path = os.path.join(base_path, "Ω3_quantum_bounce_summary.json")
 with open(summary_path, "w", encoding="utf-8") as f:
     json.dump(summary, f, indent=2)
 
-# Plot — recovery vs curvature
+# Plot - recovery vs curvature
 plt.figure(figsize=(8, 4))
 plt.plot(x, J_recovery, label="Information flux (recovery)")
 plt.plot(x, R_eff, label="Curvature R_eff")
-plt.title("Ω3 — Quantum Bounce & Recovery")
+plt.title("Ω3 - Quantum Bounce & Recovery")
 plt.xlabel("x (lattice coordinate)")
 plt.ylabel("Amplitude")
 plt.legend()
@@ -104,6 +104,6 @@ plot_path = os.path.join(base_path, "PAEV_Ω3_quantum_bounce.png")
 plt.savefig(plot_path, dpi=200)
 plt.close()
 
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Plot saved -> {plot_path}")
 print("------------------------------------------------------------")

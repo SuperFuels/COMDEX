@@ -2,7 +2,7 @@
 # 📁 backend/modules/symbolic_spreadsheet/models/glyph_cell.py
 # ===============================
 """
-⚛️ GlyphCell — Core symbolic data model for 4D AtomSheet in the SQS system.
+⚛️ GlyphCell - Core symbolic data model for 4D AtomSheet in the SQS system.
 
 Each GlyphCell contains symbolic logic, emotion, prediction, trace history,
 SQI scoring, execution result, wave_beams history, and references to linked or nested logic.

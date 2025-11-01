@@ -61,15 +61,15 @@ def test_special_cases(atom):
     """Special phases reduce correctly for self-interference."""
     A = R.Sym(atom)
 
-    # φ = 0 → A
+    # φ = 0 -> A
     e0 = R.interf(0.0, A, A)
     assert R.symatics_equiv(R.normalize(e0), A)
 
-    # φ = π → ⊥
+    # φ = π -> ⊥
     epi = R.interf(math.pi, A, A)
     assert R.symatics_equiv(R.normalize(epi), R.Bot())
 
-    # φ nontrivial → neither A nor ⊥
+    # φ nontrivial -> neither A nor ⊥
     ephi = R.interf(0.7, A, A)
     norm = R.normalize(ephi)
     assert not R.symatics_equiv(norm, A)

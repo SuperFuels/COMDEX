@@ -1,10 +1,10 @@
 """
 Tessaris Resonance Mesh Exporter (RME)
-Phase 11 — 4-D Cognitive Resonance Mesh Archival
+Phase 11 - 4-D Cognitive Resonance Mesh Archival
 ------------------------------------------------
 Captures harmonic surface evolution from Quantum Resonance Mapper (QRM)
-and exports a .qrm file — JSON-encoded mesh representation of the
-Φ–ν–ψ–t topology for replay or external rendering.
+and exports a .qrm file - JSON-encoded mesh representation of the
+Φ-ν-ψ-t topology for replay or external rendering.
 
 Author: Tessaris Symbolic Intelligence Lab, 2025
 """
@@ -52,17 +52,17 @@ def build_mesh(records):
 
     t_vals = np.arange(len(records))
     phi_vals = [r.get("phi_state", 0.0) or 0.0 for r in records]
-    psi_vals = [r.get("photon_pattern", {}).get("Δψ₂", 0.0) or 0.0 for r in records]
+    psi_vals = [r.get("photon_pattern", {}).get("Δψ2", 0.0) or 0.0 for r in records]
     nu_vals = [r.get("spectrum_centroid", 0.0) or 0.0 for r in records]
     stab_vals = [r.get("stability", 1.0) or 1.0 for r in records]
 
     mesh = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "dimensions": ["Φ_coh", "ψ₂", "ν_centroid", "t"],
+        "dimensions": ["Φ_coh", "ψ2", "ν_centroid", "t"],
         "data": {
             "t": t_vals.tolist(),
             "Φ_coh": phi_vals,
-            "ψ₂": psi_vals,
+            "ψ2": psi_vals,
             "ν_centroid": nu_vals,
             "stability": stab_vals,
         },
@@ -92,7 +92,7 @@ def export_mesh(mesh):
         with open(out_path, "w") as f:
             f.write(data)
 
-    print(f"🪶 Mesh exported → {out_path.name}")
+    print(f"🪶 Mesh exported -> {out_path.name}")
     return out_path
 
 
@@ -100,7 +100,7 @@ def export_mesh(mesh):
 # 🚀 Main loop
 # ---------------------------------------------------------
 def run_mesh_exporter():
-    print("🧩 Starting Tessaris Resonance Mesh Exporter (RME)…")
+    print("🧩 Starting Tessaris Resonance Mesh Exporter (RME)...")
     while True:
         try:
             records = load_records()

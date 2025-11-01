@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 24 — Symatics Dashboard Bridge (SDB)
+Tessaris Phase 24 - Symatics Dashboard Bridge (SDB)
 
 Bridges the live symbolic resonance stream (.glyph)
 to FastAPI WebSocket clients for real-time visualization.

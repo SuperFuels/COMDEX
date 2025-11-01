@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PAEV — E6-Ω v5 (Instrumented)
+PAEV - E6-Ω v5 (Instrumented)
 Entanglement proxy + v_S instrumentation + adaptive variance controller
 
 This test evolves a two-channel Tessaris-like field, computes an entanglement
@@ -26,10 +26,10 @@ from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 
-print("=== E6-Ω v5 — Instrumented Entanglement + v_S ===")
+print("=== E6-Ω v5 - Instrumented Entanglement + v_S ===")
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Constants loader (compatible with v1.0–v1.2 knowledge registry)
+# Constants loader (compatible with v1.0-v1.2 knowledge registry)
 # ──────────────────────────────────────────────────────────────────────────────
 CANDIDATES = [
     Path("backend/modules/knowledge/constants_v1.2.json"),
@@ -252,7 +252,7 @@ if vs.size > 50:
 
 plt.xlabel("v_S / v_c")
 plt.ylabel("S_CHSH (proxy)")
-plt.title("E6-Ω v5 — v_S bursts vs entanglement proxy (model)")
+plt.title("E6-Ω v5 - v_S bursts vs entanglement proxy (model)")
 plt.tight_layout()
 fig_path = "PAEV_E6Omega_vS_vs_CHSH.png"
 plt.savefig(fig_path, dpi=200)
@@ -263,6 +263,6 @@ summary["files"] = {"scatter": fig_path, "trace": str(trace_path)}
 summary_path.write_text(json.dumps(summary, indent=2))
 
 print(json.dumps(summary, indent=2))
-print(f"✅ Trace saved → {trace_path}")
-print(f"✅ Summary saved → {summary_path}")
-print(f"✅ Figure saved → {fig_path}")
+print(f"✅ Trace saved -> {trace_path}")
+print(f"✅ Summary saved -> {summary_path}")
+print(f"✅ Figure saved -> {fig_path}")

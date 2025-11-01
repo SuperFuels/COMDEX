@@ -48,7 +48,7 @@ def normalize_to_fixpoint(e, max_iters: int = 4):
 # --- T10 samples (explicit) --------------------------------------------------
 
 def test_T10_entanglement_distributivity_sample():
-    # (a↔b) ⊕ (a↔c) → a ↔ (b ⊕ c)
+    # (a↔b) ⊕ (a↔c) -> a ↔ (b ⊕ c)
     a, b, c = "a", "b", "c"
     left  = plus(entangle(a, b), entangle(a, c))
     right = entangle(a, plus(b, c))

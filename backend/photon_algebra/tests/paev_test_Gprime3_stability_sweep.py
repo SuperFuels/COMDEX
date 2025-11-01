@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test G′3 — Stability Sweep
+Test G′3 - Stability Sweep
 Runs prediction under variable noise/grid to check robustness.
 """
 

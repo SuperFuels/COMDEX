@@ -61,7 +61,7 @@ for step in range(steps):
     Flux_trace.append(Flux)
 
     if step % 100 == 0:
-        print(f"Step {step:03d} — E={E:.4e}, A={A}, Flux={Flux:.3e}, S={S:.3f}")
+        print(f"Step {step:03d} - E={E:.4e}, A={A}, Flux={Flux:.3e}, S={S:.3f}")
 
 # === Derived relations ===
 A_arr = np.array(A_trace)
@@ -93,7 +93,7 @@ plt.title("Horizon Shrinkage and Hawking Temperature")
 plt.savefig("PAEV_TestF6b_HorizonShrinkage.png")
 
 # === Summary Output ===
-print("\n=== Test F6b — Hawking Radiation Analogue Complete ===")
+print("\n=== Test F6b - Hawking Radiation Analogue Complete ===")
 print(f"⟨E⟩ final  = {E_arr[-1]:.6e}")
 print(f"⟨S⟩ final  = {S_arr[-1]:.6e}")
 print(f"⟨A⟩ final  = {A_arr[-1]:.6e}")

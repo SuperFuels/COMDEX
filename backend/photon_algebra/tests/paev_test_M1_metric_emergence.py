@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-M1 — Metric Emergence and Effective Curvature (Tessaris, stabilized)
+M1 - Metric Emergence and Effective Curvature (Tessaris, stabilized)
 -------------------------------------------------------------------
 Evaluates whether spacetime-like metric structure emerges from field gradients
 within the Tessaris lattice. Includes damping and field clipping to prevent
-divergent χ·u³ blow-up. Computes effective metric tensor and Ricci-like curvature.
+divergent χ*u3 blow-up. Computes effective metric tensor and Ricci-like curvature.
 
 Implements the Tessaris Unified Constants & Verification Protocol.
 """
@@ -18,8 +18,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β, χ = const["ħ"], const["G"], const["Λ"], const["α"], const["β"], const["χ"]
 
-print("=== M1 — Metric Emergence (Tessaris, stabilized) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== M1 - Metric Emergence (Tessaris, stabilized) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # --- Simulation parameters ---
 N, steps = 512, 2000
@@ -76,14 +76,14 @@ plt.figure(figsize=(8,5))
 plt.imshow(energy_density, extent=[x.min(), x.max(), t_axis.max(), t_axis.min()],
            cmap="magma", aspect="auto")
 plt.colorbar(label="Energy density ρ(x,t)")
-plt.title("M1 — Metric Emergence: Effective Energy–Curvature Map (Stabilized)")
+plt.title("M1 - Metric Emergence: Effective Energy-Curvature Map (Stabilized)")
 plt.xlabel("x")
 plt.ylabel("time")
 plt.tight_layout()
 
 fig_path = "PAEV_M1_metric_emergence.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # --- Summary JSON ---
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -114,25 +114,25 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/M1_metric_emergence_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # --- Discovery Log ---
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Observation: g_tt={g_tt:.3e}, g_xx={g_xx:.3e}, R_eff={R_eff:.3e}")
-print("• Interpretation: Stable curvature signal detected — field gradients now")
+print(f"* Observation: g_tt={g_tt:.3e}, g_xx={g_xx:.3e}, R_eff={R_eff:.3e}")
+print("* Interpretation: Stable curvature signal detected - field gradients now")
 print("  yield consistent metric-like coefficients without overflow.")
-print("• Implication: Confirms that nonlinear self-organization produces")
+print("* Implication: Confirms that nonlinear self-organization produces")
 print("  an emergent spacetime geometry under damping equilibrium.")
-print("• Next step: M2 — test Einstein-like curvature–energy proportionality.")
+print("* Next step: M2 - test Einstein-like curvature-energy proportionality.")
 print("------------------------------------------------------------")
 
 print("\n============================================================")
-print("🔎 M1 — Metric Emergence Verdict")
+print("🔎 M1 - Metric Emergence Verdict")
 print("============================================================")
 if np.isfinite(R_eff):
     verdict = "✅ Stable curvature detected."
 else:
     verdict = "⚠️ Metric unstable (non-finite curvature)."
-print(f"Metric trace={g_tt+g_xx:.3e}, curvature R_eff={R_eff:.3e} → {verdict}")
+print(f"Metric trace={g_tt+g_xx:.3e}, curvature R_eff={R_eff:.3e} -> {verdict}")
 print("============================================================\n")

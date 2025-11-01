@@ -86,7 +86,7 @@ classification = (
 # --- plot ---
 plt.figure(figsize=(8,5))
 plt.scatter(metrics["Phi_mean"], metrics["curvature_exp"], s=80, c='mediumblue')
-plt.title("E3b — Boundary & Geometry Robustness (Refined)")
+plt.title("E3b - Boundary & Geometry Robustness (Refined)")
 plt.xlabel("⟨Φ⟩"); plt.ylabel("Curvature exponent (fit)")
 plt.grid(True); plt.tight_layout()
 plt.savefig("PAEV_E3b_BoundaryGeometry.png", dpi=160)
@@ -108,6 +108,6 @@ save_path = Path("backend/modules/knowledge/E3b_boundary_geometry_refined.json")
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== E3b — Boundary & Geometry Robustness (Refined) ===")
+print("=== E3b - Boundary & Geometry Robustness (Refined) ===")
 print(json.dumps(out, indent=2))
-print(f"✅ Results saved → {save_path}")
+print(f"✅ Results saved -> {save_path}")

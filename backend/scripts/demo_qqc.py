@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-#  Tessaris • Quantum Quad Core (QQC)
+#  Tessaris * Quantum Quad Core (QQC)
 #  Symatics Lightwave Engine (SLE) Demonstration Harness v0.7
 # ================================================================
 import os, json, time, uuid
@@ -21,7 +21,7 @@ if not (is_qqc_enabled() and is_lightwave_enabled()):
     exit(0)
 
 RUN_ID = f"SLE_RUN_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-print(f"\n🌊 Tessaris Quantum Quad Core — Symatics Lightwave Engine (SLE) v0.7")
+print(f"\n🌊 Tessaris Quantum Quad Core - Symatics Lightwave Engine (SLE) v0.7")
 print(f"Run ID: {RUN_ID}")
 print(f"Timestamp: {datetime.now().isoformat()}")
 print("========================================================\n")
@@ -39,7 +39,7 @@ print(f"⚙️ QuantumQuadCore initialized for container/session: {container_ref
 # --------------------------------------------------------
 # Load CodexLang demonstration program
 # --------------------------------------------------------
-codex_program = "Φ₁ ⊕ Φ₂ ↔ Ψ₃ ⟲ Ω₄"
+codex_program = "Φ1 ⊕ Φ2 ↔ Ψ3 ⟲ Ω4"
 print(f"🧠 Loaded CodexLang demo program: {codex_program}\n")
 
 # --------------------------------------------------------
@@ -64,10 +64,10 @@ def emit_event(event_type, **meta):
 print("🔧 Engine initialized. Beginning QQC orchestration cycle...\n")
 
 # --------------------------------------------------------
-# Main demo loop (5 symbolic–photonic–holographic ticks)
+# Main demo loop (5 symbolic-photonic-holographic ticks)
 # --------------------------------------------------------
 for tick in range(1, 6):
-    print(f"\n——— [Tick {tick}] ———")
+    print(f"\n--- [Tick {tick}] ---")
 
     t0 = time.perf_counter()
     # simulate SQI drift
@@ -87,11 +87,11 @@ for tick in range(1, 6):
 
     # SoulLaw or SQI rollback
     if kernel.monitor_sqi_and_repair(sqi_score, context):
-        print(f"[⚠️ Rollback] SQI below threshold ({sqi_score}) — restoring stable state")
+        print(f"[⚠️ Rollback] SQI below threshold ({sqi_score}) - restoring stable state")
         emit_event("rollback", tick=tick, sqi=sqi_score)
         continue
 
-    # Execute symbolic–photonic pipeline
+    # Execute symbolic-photonic pipeline
     result = kernel.run_codex_program(codex_program, context=context)
     telemetry = result.get("telemetry", {})
 
@@ -140,12 +140,12 @@ for tick in range(1, 6):
 with open(VALIDATION_FILE, "w") as f:
     json.dump(telemetry_log, f, indent=2)
 with open(LOG_FILE, "w") as f:
-    f.write(f"Tessaris SLE Run Log — {RUN_ID}\n")
+    f.write(f"Tessaris SLE Run Log - {RUN_ID}\n")
     f.write("=" * 60 + "\n\n")
     for entry in telemetry_log:
         f.write(json.dumps(entry) + "\n")
 
 print("\n✅ QQC demonstration complete.")
 print("📊 Telemetry exported to sle_validation.json.")
-print("📄 Full run log saved to sle_run_log.txt — include in Appendix A of SLE v0.7 spec.")
+print("📄 Full run log saved to sle_run_log.txt - include in Appendix A of SLE v0.7 spec.")
 print("========================================================")

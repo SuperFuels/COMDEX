@@ -1,5 +1,5 @@
 """
-ResonantForecaster — Phase 40E (Updated)
+ResonantForecaster - Phase 40E (Updated)
 ----------------------------------------
 Forecasts near-future resonance stability using recent harmonic memory (HMP),
 drift (RDM), and temporal harmonics (THM). Outputs a short-horizon forecast

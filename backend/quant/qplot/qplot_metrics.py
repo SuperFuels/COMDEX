@@ -2,7 +2,7 @@
 # 📁 backend/quant/qplot/qplot_metrics.py
 # ===============================
 """
-📈 QPlotMetrics — Visualization & Analysis Tools
+📈 QPlotMetrics - Visualization & Analysis Tools
 -------------------------------------------------
 Provides plotting utilities for Q-Series runtime metrics.
 Supports static Matplotlib rendering and headless export for telemetry dashboards.
@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 # ----------------------------------------------------------------------
 def plot_resonance_timeseries(history: List[Dict[str, Any]], show: bool = False):
     """
-    🌀 Plot Φ–ψ resonance evolution over time.
+    🌀 Plot Φ-ψ resonance evolution over time.
     """
     if not history:
         return None
@@ -40,7 +40,7 @@ def plot_resonance_timeseries(history: List[Dict[str, Any]], show: bool = False)
     plt.plot(t, coherence, label="Coherence Index", linestyle="--")
     plt.xlabel("Run #")
     plt.ylabel("Resonance Magnitude")
-    plt.title("Φ–ψ Resonance Evolution")
+    plt.title("Φ-ψ Resonance Evolution")
     plt.legend()
     plt.grid(True, alpha=0.3)
     if show:
@@ -67,7 +67,7 @@ def plot_entropy_harmony(history: List[Dict[str, Any]], show: bool = False):
     plt.plot(t, novelty, label="Novelty", color="tab:green")
     plt.xlabel("Run #")
     plt.ylabel("E7 Metric Value")
-    plt.title("E7 Metrics — Entropy / Harmony / Novelty")
+    plt.title("E7 Metrics - Entropy / Harmony / Novelty")
     plt.legend()
     plt.grid(True, alpha=0.3)
     if show:
@@ -88,7 +88,7 @@ def plot_coherence_map(metrics: Dict[str, Any], show: bool = False):
     plt.scatter(coh, sqi, c=sqi, cmap="viridis", s=60, alpha=0.7)
     plt.xlabel("Coherence Mean")
     plt.ylabel("SQI Mean")
-    plt.title("Coherence–SQI Phase Map")
+    plt.title("Coherence-SQI Phase Map")
     plt.grid(True, alpha=0.3)
     if show:
         plt.show()
@@ -105,7 +105,7 @@ def export_all_plots(metrics_obj, out_dir: str = "backend/qplot/exports") -> Lis
     history = metrics_obj.history
     filenames = []
 
-    # Φ–ψ resonance
+    # Φ-ψ resonance
     fig1 = plot_resonance_timeseries(history)
     p1 = os.path.join(out_dir, f"resonance_timeseries_{datetime.utcnow().strftime('%H%M%S')}.png")
     fig1.savefig(p1, dpi=160)

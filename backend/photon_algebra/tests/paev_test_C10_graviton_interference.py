@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Test C10 — Graviton Interference and Superposition Stability
+Test C10 - Graviton Interference and Superposition Stability
 ------------------------------------------------------------
 This simulation tests whether curvature quanta (graviton-like rewrite waves)
 obey linear superposition and energy conservation.
 
 Setup:
-  • Two Gaussian curvature packets κ₁, κ₂ initialized on opposite sides.
-  • Propagate under deterministic rewrite-wave evolution.
-  • Check interference, total energy, and spectral stability.
+  * Two Gaussian curvature packets κ1, κ2 initialized on opposite sides.
+  * Propagate under deterministic rewrite-wave evolution.
+  * Check interference, total energy, and spectral stability.
 
 Outputs:
-  • PAEV_TestC10_GravitonInterference_Field.gif
-  • PAEV_TestC10_GravitonInterference_Energy.png
-  • PAEV_TestC10_GravitonInterference_Spectrum.png
+  * PAEV_TestC10_GravitonInterference_Field.gif
+  * PAEV_TestC10_GravitonInterference_Energy.png
+  * PAEV_TestC10_GravitonInterference_Spectrum.png
 """
 
 import numpy as np
@@ -68,7 +68,7 @@ def compute_spectrum(E):
 
 # ---------- main ----------
 def main():
-    print("=== Test C10 — Graviton Interference and Superposition Stability ===")
+    print("=== Test C10 - Graviton Interference and Superposition Stability ===")
 
     frames, E = evolve_graviton_field()
     f, S = compute_spectrum(E)
@@ -76,7 +76,7 @@ def main():
     # --- animation ---
     fig, ax = plt.subplots()
     im = ax.imshow(frames[0], cmap="inferno", animated=True)
-    plt.title("Test C10 — Graviton Interference Field")
+    plt.title("Test C10 - Graviton Interference Field")
     plt.axis("off")
 
     def update(i):
@@ -92,8 +92,8 @@ def main():
     plt.figure(figsize=(7,4))
     plt.plot(E, "b-")
     plt.xlabel("Time step")
-    plt.ylabel("Total curvature energy ⟨κ²⟩")
-    plt.title("Test C10 — Total Energy Evolution (Superposition Stability)")
+    plt.ylabel("Total curvature energy ⟨κ2⟩")
+    plt.title("Test C10 - Total Energy Evolution (Superposition Stability)")
     plt.tight_layout()
     plt.savefig("PAEV_TestC10_GravitonInterference_Energy.png", dpi=160)
     print("✅ Saved energy plot to: PAEV_TestC10_GravitonInterference_Energy.png")
@@ -103,7 +103,7 @@ def main():
     plt.plot(f, S, "r-", lw=2)
     plt.xlabel("Frequency (arb. units)")
     plt.ylabel("Normalized spectral power")
-    plt.title("Test C10 — Quantized Curvature Spectrum After Interference")
+    plt.title("Test C10 - Quantized Curvature Spectrum After Interference")
     plt.tight_layout()
     plt.savefig("PAEV_TestC10_GravitonInterference_Spectrum.png", dpi=160)
     print("✅ Saved spectrum to: PAEV_TestC10_GravitonInterference_Spectrum.png")
@@ -111,7 +111,7 @@ def main():
     # --- summary ---
     dominant = f[np.argmax(S)]
     print(f"Top spectral mode: f = {dominant:.3f}")
-    print(f"Energy range: {E.min():.3e} → {E.max():.3e}")
+    print(f"Energy range: {E.min():.3e} -> {E.max():.3e}")
     print("=== Test C10 complete ===")
 
 if __name__ == "__main__":

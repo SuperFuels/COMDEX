@@ -22,7 +22,7 @@ class GlyphVault:
         self.engine = TessarisEngine()
 
     def encrypt(self, plaintext: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        glyphs = compile_glyphs(f"Memory | Confidential : {plaintext} → Vault")
+        glyphs = compile_glyphs(f"Memory | Confidential : {plaintext} -> Vault")
         logic_tree = self.engine.generate_thought_tree(glyphs, context)
 
         vault = {
@@ -46,7 +46,7 @@ class GlyphVault:
 
         required_state = vault.get("requires_state")
         if required_state and avatar_state != required_state:
-            raise PermissionError("Avatar state mismatch — decryption denied.")
+            raise PermissionError("Avatar state mismatch - decryption denied.")
 
         decrypted = parse_logic(vault["glyph_block"])
         logger.info("[GlyphVault] Decryption successful")

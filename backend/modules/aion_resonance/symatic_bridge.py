@@ -1,8 +1,8 @@
 # ==========================================================
-# 🔺 AION–Symatic Bridge (v0.7)
+# 🔺 AION-Symatic Bridge (v0.7)
 # ----------------------------------------------------------
 # Translates Φ-field transitions and LLM reflections into
-# symbolic algebraic expressions (⊕, ↔, ⟲, ∇, ⇒, μ, π)
+# symbolic algebraic expressions (⊕, ↔, ⟲, ∇, ->, μ, π)
 # ==========================================================
 
 import datetime, random, json, os

@@ -3,10 +3,10 @@
 -----------------------------------------------------
 Handles loading and instantiation of all container types (Hoberman, Symbolic Expansion, UCSBase, etc.)
 Integrates with:
-    • UCSBaseContainer for shared features (micro-grid, time dilation, gravity)
-    • HobermanContainer + SymbolicExpansionContainer (legacy compatibility)
-    • ucs_runtime + geometry templates (.dc.json)
-    • sqi_container_registry for KG-aware symbolic registration
+    * UCSBaseContainer for shared features (micro-grid, time dilation, gravity)
+    * HobermanContainer + SymbolicExpansionContainer (legacy compatibility)
+    * ucs_runtime + geometry templates (.dc.json)
+    * sqi_container_registry for KG-aware symbolic registration
 """
 
 import json
@@ -25,7 +25,7 @@ from backend.modules.dimensions.universal_container_system.ucs_runtime import ge
 # ✅ Symbolic Container Registration Hook
 from backend.modules.sqi.sqi_container_registry import _registry_register
 
-# ✅ UCS Utils — normalize input
+# ✅ UCS Utils - normalize input
 from backend.modules.dimensions.universal_container_system.ucs_utils import normalize_container_dict
 
 SQI_NS = "ucs://knowledge"
@@ -96,7 +96,7 @@ def load_container_from_json(container_json: Dict[str, Any]) -> Union[UCSBaseCon
 
         return sec
 
-    # ❌ Fallback (raw JSON) – register if ID exists
+    # ❌ Fallback (raw JSON) - register if ID exists
     fallback_id = container_json.get("id")
     if fallback_id:
         _registry_register(fallback_id, SQI_NS)
@@ -152,7 +152,7 @@ def load_container_from_file(file_path: str):
 def auto_load_all_templates():
     """
     Auto-load and instantiate all containers from the UCS templates directory.
-    Useful for bootstrapping the full container ecosystem (e.g., Tesseract → Quantum → Vortex → Black Hole → Torus).
+    Useful for bootstrapping the full container ecosystem (e.g., Tesseract -> Quantum -> Vortex -> Black Hole -> Torus).
     """
     containers = {}
 

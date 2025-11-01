@@ -29,7 +29,7 @@ def run_cli(argv, input_text=None):
 # --- Tests ---
 def test_cli_ok(tmp_path):
     glyph_file = tmp_path / "ok.glyph"
-    glyph_file.write_text("⟦ Logic | Test: A → B ⟧", encoding="utf-8")
+    glyph_file.write_text("⟦ Logic | Test: A -> B ⟧", encoding="utf-8")
 
     code, out, err = run_cli([str(glyph_file)])
     assert code == 0
@@ -38,7 +38,7 @@ def test_cli_ok(tmp_path):
 
 def test_cli_collision_detected(tmp_path):
     glyph_file = tmp_path / "collision.glyph"
-    glyph_file.write_text("⟦ Logic | Test: X → ⊕(A, B) ⟧", encoding="utf-8")
+    glyph_file.write_text("⟦ Logic | Test: X -> ⊕(A, B) ⟧", encoding="utf-8")
 
     code, out, err = run_cli([str(glyph_file)])
     assert code != 0
@@ -55,6 +55,6 @@ def test_cli_alias_detected(tmp_path):
 
 
 def test_cli_stdin_ok():
-    code, out, err = run_cli(["-"], input_text="⟦ Logic | Test: A → B ⟧")
+    code, out, err = run_cli(["-"], input_text="⟦ Logic | Test: A -> B ⟧")
     assert code == 0
     assert "✅ OK" in out

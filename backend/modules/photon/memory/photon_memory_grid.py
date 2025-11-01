@@ -1,5 +1,5 @@
 """
-🔷 Photon Memory Grid (PMG) — SRK-12 Task 2 / SRK-14 Task 3 / SRK-17 Sync Update
+🔷 Photon Memory Grid (PMG) - SRK-12 Task 2 / SRK-14 Task 3 / SRK-17 Sync Update
 Entanglement-aware persistence layer for photon computation states.
 Handles state persistence, entanglement linkage, integrity validation,
 and optional synchronization with the Resonance Ledger.
@@ -39,7 +39,7 @@ class PhotonMemoryGrid:
 
     def store_entanglement_state(self, entanglement_id: str, record: dict):
         """
-        SRK-14 — Persist entanglement coherence + resonance state into PMG ledger.
+        SRK-14 - Persist entanglement coherence + resonance state into PMG ledger.
         This is called by the EntanglementEngine whenever a new entanglement is registered.
         """
         if not hasattr(self, "_entanglement_ledger"):
@@ -60,7 +60,7 @@ class PhotonMemoryGrid:
         # ───────────────────────────────────────────────
     def archive_collapse_event(self, entanglement_id: str, coherence_loss: float, sqi_drift: float):
         """
-        SRK-15 — Archive collapsed entanglement into the Resonant Decay Ledger.
+        SRK-15 - Archive collapsed entanglement into the Resonant Decay Ledger.
 
         When an entanglement collapses (either naturally or by forced coherence failure),
         we record the energy/coherence loss and SQI drift for resonance continuity mapping.
@@ -102,7 +102,7 @@ class PhotonMemoryGrid:
             self.grid[capsule_id] = record
             self._photon_state_map[capsule_id] = record
 
-            # 🔶 SRK-14 Task 3 — register event in resonance ledger
+            # 🔶 SRK-14 Task 3 - register event in resonance ledger
             if self._ledger:
                 await self._ledger.register_link(
                     capsule_id,
@@ -148,7 +148,7 @@ class PhotonMemoryGrid:
         }
         self._entanglement_links[key] = link
 
-        # 🔶 SRK-14 Task 3 — ledger synchronization
+        # 🔶 SRK-14 Task 3 - ledger synchronization
         if self._ledger:
             asyncio.create_task(
                 self._ledger.register_link(
@@ -212,7 +212,7 @@ class PhotonMemoryGrid:
     # ────────────────────────────────────────────────────────────────
     async def snapshot_async(self) -> Dict[str, Any]:
         """
-        🔹 SRK-17 Update — Asynchronous state snapshot for GHX Sync Layer.
+        🔹 SRK-17 Update - Asynchronous state snapshot for GHX Sync Layer.
         Provides a lightweight export of PMG state and entanglement map.
         """
         return await asyncio.to_thread(self._snapshot_sync)
@@ -231,7 +231,7 @@ class PhotonMemoryGrid:
     def retrieve_capsule_state(self, capsule_id: str) -> Dict[str, Any]:
         """
         SRK-14 Compatibility Alias:
-        Retrieve a capsule’s photon state. Automatically unwraps nested `state`
+        Retrieve a capsule's photon state. Automatically unwraps nested `state`
         dicts for legacy test and BeamPersistence compatibility.
         """
         record = self.restore_capsule_state(capsule_id)

@@ -1,5 +1,5 @@
 # ==========================================================
-# Test F1 — Effective Field Extraction
+# Test F1 - Effective Field Extraction
 #   Fit an effective PDE and Lagrangian from simulated data
 # ==========================================================
 
@@ -55,7 +55,7 @@ theta_t = 0.0 * theta
 kappa = 0.05 * np.exp(-(X**2 + Y**2) / 0.4) + 0.02 * rng.standard_normal((N, N))
 
 # storage for system ID
-# we’ll collect (inputs, targets) after a warmup
+# we'll collect (inputs, targets) after a warmup
 collect_from = 20
 theta_tt_list = []
 theta_feat_list = []
@@ -91,12 +91,12 @@ for t in range(steps):
 
     # collect supervised pairs after warmup
     if t >= collect_from:
-        # θ̈ target and features: [∇²θ, κ θ, ∇·(κ∇θ)]
+        # θ̈ target and features: [∇2θ, κ θ, ∇*(κ∇θ)]
         feats_theta = np.stack([lap_th, kappa * theta, div_J], axis=-1)
         theta_feat_list.append(feats_theta.reshape(-1, 3))
         theta_tt_list.append(theta_tt.reshape(-1))
 
-        # κ̇ target and features: [∇²κ, (∇θ)², κ]
+        # κ̇ target and features: [∇2κ, (∇θ)2, κ]
         feats_kappa = np.stack([laplacian(kappa), grad2, kappa], axis=-1)
         kappa_feat_list.append(feats_kappa.reshape(-1, 3))
         kappa_t_list.append(kappa_t.reshape(-1))
@@ -123,7 +123,7 @@ Theta_y = np.concatenate(theta_tt_list, axis=0)           # (M,)
 Kappa_X = np.concatenate(kappa_feat_list, axis=0)         # (M, 3)
 Kappa_y = np.concatenate(kappa_t_list, axis=0)            # (M,)
 
-# least squares + basic uncertainty (diag from (X^T X)⁻¹ σ²)
+# least squares + basic uncertainty (diag from (X^T X)-1 σ2)
 def fit_with_uncertainty(X, y):
     w, residuals, rank, s = np.linalg.lstsq(X, y, rcond=None)
     # estimated noise variance
@@ -138,10 +138,10 @@ def fit_with_uncertainty(X, y):
 
 # ----------------------------
 # map to an effective Lagrangian (heuristic)
-# θ̈ ≈ c1 ∇²θ + c2 κθ + c3 ∇·(κ∇θ)
-# κ̇ ≈ d1 ∇²κ + d2 (∇θ)² + d3 κ
-# A minimal quadratic ℒ consistent with these flows:
-# ℒ ≈ a (∂tθ)² − b (∇θ)² − e κ(∇θ)² − f κ² − g (∇κ)²
+# θ̈ ≈ c1 ∇2θ + c2 κθ + c3 ∇*(κ∇θ)
+# κ̇ ≈ d1 ∇2κ + d2 (∇θ)2 + d3 κ
+# A minimal quadratic L consistent with these flows:
+# L ≈ a (∂tθ)2 - b (∇θ)2 - e κ(∇θ)2 - f κ2 - g (∇κ)2
 # identify: b ~ - c1/2, e ~ - c3/2, f ~ - d3/2, g ~ - d1/2
 # a is set to +1/2 by convention (units choice).
 # ----------------------------
@@ -157,7 +157,7 @@ g = -0.5 * d1
 # residual histograms
 plt.figure(figsize=(6,4))
 plt.hist(Theta_y - Theta_X @ np.array([c1,c2,c3]), bins=80, alpha=0.8)
-plt.title("F1 — Residuals (θ̈ fit)")
+plt.title("F1 - Residuals (θ̈ fit)")
 plt.tight_layout()
 plt.savefig("PAEV_TestF1_EffectiveField_Residuals_theta.png")
 plt.close()
@@ -165,7 +165,7 @@ print("✅ Saved file: PAEV_TestF1_EffectiveField_Residuals_theta.png")
 
 plt.figure(figsize=(6,4))
 plt.hist(Kappa_y - Kappa_X @ np.array([d1,d2,d3]), bins=80, alpha=0.8, color="orange")
-plt.title("F1 — Residuals (κ̇ fit)")
+plt.title("F1 - Residuals (κ̇ fit)")
 plt.tight_layout()
 plt.savefig("PAEV_TestF1_EffectiveField_Residuals_kappa.png")
 plt.close()
@@ -192,11 +192,11 @@ def scatter_pred_actual(X, y, w, title, fname):
     print(f"✅ Saved file: {fname}")
 
 scatter_pred_actual(Theta_X, Theta_y, np.array([c1,c2,c3]),
-                    "F1 — θ̈ predicted vs actual",
+                    "F1 - θ̈ predicted vs actual",
                     "PAEV_TestF1_EffectiveField_PredVsActual_theta.png")
 
 scatter_pred_actual(Kappa_X, Kappa_y, np.array([d1,d2,d3]),
-                    "F1 — κ̇ predicted vs actual",
+                    "F1 - κ̇ predicted vs actual",
                     "PAEV_TestF1_EffectiveField_PredVsActual_kappa.png")
 
 # quick animation (sanity)
@@ -207,28 +207,28 @@ print("✅ Saved animation to: PAEV_TestF1_EffectiveField_Fields.gif")
 # save a text summary you can cite
 # ----------------------------
 summary = f"""
-=== Test F1 — Effective Field Extraction ===
+=== Test F1 - Effective Field Extraction ===
 
 Fitted PDE (least-squares, ±1σ):
-  θ̈ ≈ c1 ∇²θ + c2 κ θ + c3 ∇·(κ∇θ)
+  θ̈ ≈ c1 ∇2θ + c2 κ θ + c3 ∇*(κ∇θ)
       c1 = {c1:.5f} ± {ec1:.5f}
       c2 = {c2:.5f} ± {ec2:.5f}
       c3 = {c3:.5f} ± {ec3:.5f}
-  Residual variance (θ̈): σ² ≈ {sig_t:.3e}
+  Residual variance (θ̈): σ2 ≈ {sig_t:.3e}
 
-  κ̇ ≈ d1 ∇²κ + d2 (∇θ)² + d3 κ
+  κ̇ ≈ d1 ∇2κ + d2 (∇θ)2 + d3 κ
       d1 = {d1:.5f} ± {ed1:.5f}
       d2 = {d2:.5f} ± {ed2:.5f}
       d3 = {d3:.5f} ± {ed3:.5f}
-  Residual variance (κ̇): σ² ≈ {sig_k:.3e}
+  Residual variance (κ̇): σ2 ≈ {sig_k:.3e}
 
 Heuristic effective Lagrangian density (quadratic, units choice):
-  ℒ(θ, κ) ≈ a (∂tθ)² − b (∇θ)² − e κ(∇θ)² − f κ² − g (∇κ)²
+  L(θ, κ) ≈ a (∂tθ)2 - b (∇θ)2 - e κ(∇θ)2 - f κ2 - g (∇κ)2
     a = {a:.3f}
-    b ≈ {-0.5:.1f} * c1  → {b:.5f}
-    e ≈ {-0.5:.1f} * c3  → {e:.5f}
-    f ≈ {-0.5:.1f} * d3  → {f:.5f}
-    g ≈ {-0.5:.1f} * d1  → {g:.5f}
+    b ≈ {-0.5:.1f} * c1  -> {b:.5f}
+    e ≈ {-0.5:.1f} * c3  -> {e:.5f}
+    f ≈ {-0.5:.1f} * d3  -> {f:.5f}
+    g ≈ {-0.5:.1f} * d1  -> {g:.5f}
 
 Files:
   - PAEV_TestF1_EffectiveField_Fields.gif
@@ -243,7 +243,7 @@ with open("PAEV_TestF1_EffectiveField_Summary.txt", "w", encoding="utf-8") as f:
 print("✅ Saved file: PAEV_TestF1_EffectiveField_Summary.txt")
 
 # Final console report
-print("\n=== Test F1 — Effective Field Extraction Complete ===")
+print("\n=== Test F1 - Effective Field Extraction Complete ===")
 print(f"θ̈ fit coeffs: c1={c1:.5f}±{ec1:.5f}, c2={c2:.5f}±{ec2:.5f}, c3={c3:.5f}±{ec3:.5f}")
 print(f"κ̇ fit coeffs: d1={d1:.5f}±{ed1:.5f}, d2={d2:.5f}±{ed2:.5f}, d3={d3:.5f}±{ed3:.5f}")
 print("All output files saved in working directory.")

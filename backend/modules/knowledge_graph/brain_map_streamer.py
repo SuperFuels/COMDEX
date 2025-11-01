@@ -5,7 +5,7 @@
 Streams live KG node updates, QGlyph collapse ripples, and entangled confidence feedback to the frontend.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌌 Brain Map Streamer – Design Rubric
+🌌 Brain Map Streamer - Design Rubric
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Live WebSocket Streaming of KG Node & Link Events
 ✅ Confidence & Entropy Weight Broadcasting (CodexMetrics)

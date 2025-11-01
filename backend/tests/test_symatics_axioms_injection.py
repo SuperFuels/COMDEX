@@ -37,22 +37,22 @@ def _normalize(s: str) -> str:
     """Normalize for stable comparison: strip spaces, normalize minus, drop stray 'axiom/theorem' fragments."""
     if not isinstance(s, str):
         return ""
-    out = s.replace("−", "-").replace(" ", "")
+    out = s.replace("-", "-").replace(" ", "")
     out = re.sub(r"(axiom|theorem)[a-zA-Z0-9_']*", "", out)
     return out.strip()
 
 
-# Mix of axioms (A1–A8) and Theorem 7
+# Mix of axioms (A1-A8) and Theorem 7
 DECLS = {
     "comm_phi": ("axiom", "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)"),
     "self_pi_bot": ("axiom", "(A ⋈[π] A) ↔ ⊥"),
     "self_zero_id": ("axiom", "(A ⋈[0] A) ↔ A"),
-    "non_idem": ("axiom", "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A"),
+    "non_idem": ("axiom", "∀ φ, φ != 0 ∧ φ != π -> (A ⋈[φ] A) != A"),
     "neutral_phi": ("axiom", "(A ⋈[φ] ⊥) ↔ A"),
     "no_distrib": ("axiom", "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"),
     "no_distrib_formal": (
         "theorem",
-        "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+        "((A ⋈[φ] B) ∧ C) != ((A ∧ C) ⋈[φ] (B ∧ C))",
     ),
     "assoc_phase": ("axiom", "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)"),
     "inv_phase": ("axiom", "A ⋈[φ] (A ⋈[-φ] B) ↔ B"),

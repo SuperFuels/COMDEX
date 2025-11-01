@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 13 — Adaptive Quantum Control Interface (AQCI)
+Tessaris Phase 13 - Adaptive Quantum Control Interface (AQCI)
 
 Bridges the Reinforcement Feedback Coupler (RFC) with the Quantum Quad Core (QQC)
 Photon Interface. Applies learned ν-bias, phase, and amplitude adjustments to live
@@ -43,12 +43,12 @@ def synthesize_photon_pattern(weights, base_freq=440.0):
     Δψ3 = math.cos(phase)
 
     pattern = {
-        "Δψ₁": Δψ1,
-        "Δψ₂": Δψ2,
-        "Δψ₃": Δψ3,
-        "ν₁": ν1,
-        "ν₂": ν2,
-        "ν₃": ν3,
+        "Δψ1": Δψ1,
+        "Δψ2": Δψ2,
+        "Δψ3": Δψ3,
+        "ν1": ν1,
+        "ν2": ν2,
+        "ν3": ν3,
         "stability": 1.0,
         "phase_shift": phase,
     }
@@ -64,15 +64,15 @@ def emit_to_photon_interface(pattern):
             "pattern": pattern,
             "source": "AION_AQCI"
         }, f, indent=2)
-    print(f"💡 Emitted adaptive photon control → {out_path.name}")
+    print(f"💡 Emitted adaptive photon control -> {out_path.name}")
 
 def adaptive_loop(interval=5.0):
     """Continuous adaptive emission loop."""
-    print("🔄 Starting Tessaris Adaptive Quantum Control Interface (AQCI)…")
+    print("🔄 Starting Tessaris Adaptive Quantum Control Interface (AQCI)...")
     while True:
         weights = load_latest_weights()
         if weights is None:
-            print("⚠️ Waiting for RFC weights …")
+            print("⚠️ Waiting for RFC weights ...")
             time.sleep(interval)
             continue
 

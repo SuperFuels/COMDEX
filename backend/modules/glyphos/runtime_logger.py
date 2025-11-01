@@ -24,7 +24,7 @@ def _rotate_log(log_file: str = LOG_FILE, max_size_mb: int = MAX_SIZE_MB):
         with open(log_file, "rb") as f_in, gzip.open(archived, "wb") as f_out:
             f_out.writelines(f_in)
         os.remove(log_file)
-        print(f"[📦] Rotated log file → {archived}")
+        print(f"[📦] Rotated log file -> {archived}")
 
 def log_glyph_trace(glyph: str, metadata: dict, log_file: str = LOG_FILE):
     """Log a glyph trigger event to disk."""

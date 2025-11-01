@@ -1,6 +1,6 @@
 """
-🧪 Test — QFC Resonance Overlay + CFE Feedback Integration
-Verifies that live CFE feedback telemetry is merged into GHX→QFC overlay frames.
+🧪 Test - QFC Resonance Overlay + CFE Feedback Integration
+Verifies that live CFE feedback telemetry is merged into GHX->QFC overlay frames.
 """
 
 import asyncio

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-M6 — Lorentz–Diffusion Invariance (Tessaris)
+M6 - Lorentz-Diffusion Invariance (Tessaris)
 
 Purpose:
   Verify invariance of redshift analogue and curvature-bound states
@@ -10,8 +10,8 @@ Builds upon:
   M5 (Bound State & Redshift Analogue)
 
 Outputs:
-  • PAEV_M6_invariance_redshift.png
-  • backend/modules/knowledge/M6_invariance_redshift_summary.json
+  * PAEV_M6_invariance_redshift.png
+  * backend/modules/knowledge/M6_invariance_redshift_summary.json
 """
 
 import json, math
@@ -24,8 +24,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 # --- Tessaris Constants ---
 const = load_constants()
 ħ, G, Λ, α, β, χ = const["ħ"], const["G"], const["Λ"], const["α"], const["β"], const.get("χ", 1.0)
-print("=== M6 — Lorentz–Diffusion Invariance (Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== M6 - Lorentz-Diffusion Invariance (Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # --- Parameters ---
 N, steps = 512, 4000
@@ -68,7 +68,7 @@ x = np.linspace(-N//2, N//2, N)
 freq_shifts, R_vals = [], []
 for v_frac in boost_fracs:
     γ = 1.0 / math.sqrt(1 - v_frac**2)
-    print(f"→ Boost {v_frac:.2f} c_eff | γ={γ:.3f}")
+    print(f"-> Boost {v_frac:.2f} c_eff | γ={γ:.3f}")
 
     u = 0.6 * np.exp(-0.02 * (x - 5.0)**2)
     v = np.zeros_like(u)
@@ -104,7 +104,7 @@ fig, ax1 = plt.subplots(figsize=(7, 4.5))
 ax1.plot(boost_fracs, freq_shifts, "o-", lw=2, label="Δω/ω (boosted)")
 ax1.set_xlabel("Boost velocity (fraction of c_eff)")
 ax1.set_ylabel("Relative frequency shift Δω/ω")
-ax1.set_title("M6 — Lorentz–Diffusion Invariance (Tessaris)")
+ax1.set_title("M6 - Lorentz-Diffusion Invariance (Tessaris)")
 ax1.grid(True)
 
 ax2 = ax1.twinx()
@@ -115,7 +115,7 @@ fig.legend(loc="upper left")
 plt.tight_layout()
 plot_path = "PAEV_M6_invariance_redshift.png"
 plt.savefig(plot_path, dpi=200)
-print(f"✅ Plot saved → {plot_path}")
+print(f"✅ Plot saved -> {plot_path}")
 
 # --- Summary ---
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -146,23 +146,23 @@ summary = {
 }
 out_path = Path("backend/modules/knowledge/M6_invariance_redshift_summary.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out_path}")
+print(f"✅ Summary saved -> {out_path}")
 
 # --- Discovery Notes ---
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
 for v, f, R in zip(boost_fracs, freq_shifts, R_vals):
-    print(f"Boost {v:.1f} c_eff → Δω/ω={f:.3e}, R_eff={R:.3e}")
+    print(f"Boost {v:.1f} c_eff -> Δω/ω={f:.3e}, R_eff={R:.3e}")
 print("------------------------------------------------------------")
-print("• Interpretation: Invariance holds if Δω/ω remains constant across boosts.")
-print("• Deviations >10⁻³ indicate Lorentz–diffusion breakdown.")
+print("* Interpretation: Invariance holds if Δω/ω remains constant across boosts.")
+print("* Deviations >10-3 indicate Lorentz-diffusion breakdown.")
 print("------------------------------------------------------------")
 
 print("\n============================================================")
-print("🔎 M6 — Lorentz–Diffusion Invariance Verdict")
+print("🔎 M6 - Lorentz-Diffusion Invariance Verdict")
 print("============================================================")
 if np.std(freq_shifts) < 1e-3:
     print("✅ Redshift analogue invariant under boosts and diffusion.")
 else:
-    print("⚠️ Variation detected — investigate damping/feedback coupling.")
+    print("⚠️ Variation detected - investigate damping/feedback coupling.")
 print("============================================================\n")

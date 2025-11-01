@@ -1,7 +1,7 @@
 """
-Phase 45F — WikiGraph Builder (Atomized-Ready Revision)
+Phase 45F - WikiGraph Builder (Atomized-Ready Revision)
 ────────────────────────────────────────────────────────
-Builds an entity–concept lattice from Wikipedia or local data dumps.
+Builds an entity-concept lattice from Wikipedia or local data dumps.
 Each node represents a resonance-bearing concept that will later
 be atomized into the AION Knowledge Graph Container.
 
@@ -54,7 +54,7 @@ class WikiGraphBuilder:
         Build WikiGraph from parsed Wikipedia JSON or API results.
         Expects dump_data = [{title, links[], categories[]} ...]
         """
-        logger.info("[WikiGraph] Building concept lattice …")
+        logger.info("[WikiGraph] Building concept lattice ...")
         for entry in dump_data:
             self.add_entity(
                 entry.get("title"),
@@ -84,7 +84,7 @@ class WikiGraphBuilder:
         }
         with open(GRAPH_PATH, "w") as f:
             json.dump(out, f, indent=2)
-        logger.info(f"[WikiGraph] Exported graph → {GRAPH_PATH}")
+        logger.info(f"[WikiGraph] Exported graph -> {GRAPH_PATH}")
 
     # ─────────────────────────────────────────
     def integrate_with_MFG(self):
@@ -116,7 +116,7 @@ class WikiGraphBuilder:
 
     # ─────────────────────────────────────────
     def emit_to_atoms(self, atom_factory):
-        """Optional hook — feed blueprint to AtomContainer builder."""
+        """Optional hook - feed blueprint to AtomContainer builder."""
         blueprint = self.to_atom_blueprint()
         for atom in blueprint:
             atom_factory.create(atom)

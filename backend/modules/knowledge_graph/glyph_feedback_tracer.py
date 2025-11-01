@@ -5,7 +5,7 @@
 Maps glyph ancestry, traces causal paths, and injects symbolic gradient zones for failures & reinforcements.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔮 Glyph Feedback Tracer – Design Rubric
+🔮 Glyph Feedback Tracer - Design Rubric
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Ancestry Reconstruction via Entanglement & Memory (↔ 🧠)
 ✅ Failure Gradient Zone Injection (❌ ➔ KG)

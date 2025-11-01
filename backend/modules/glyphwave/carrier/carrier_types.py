@@ -15,7 +15,7 @@ class CarrierType(str, Enum):
     def _missing_(cls, value):
         """
         Allow case-insensitive matching for schema and protocol alignment.
-        Converts 'SIMULATED' → CarrierType.SIMULATED, etc.
+        Converts 'SIMULATED' -> CarrierType.SIMULATED, etc.
         """
         if isinstance(value, str):
             normalized = value.strip().lower()

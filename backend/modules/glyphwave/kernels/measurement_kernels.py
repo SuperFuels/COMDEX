@@ -27,7 +27,7 @@ def measure_wave(wave: WaveState, policy: str = "greedy", selector: Optional[Dic
         }
 
     elif policy == "probabilistic":
-        # Collapse stochastically using amplitude² as weight
+        # Collapse stochastically using amplitude2 as weight
         chance = wave.amplitude ** 2
         if random.random() < min(chance, 1.0):
             result["collapse_result"] = {

@@ -1,8 +1,8 @@
 """
 Tessaris AION Quantum Feedback Coupler (QFC)
-Phase 7 — ΔΦ → Δν → Δψ Translation Layer
+Phase 7 - ΔΦ -> Δν -> Δψ Translation Layer
 ----------------------------------------------------------
-Bridges AION’s Resonant Heartbeat with the Quantum Quad Core (QQC)
+Bridges AION's Resonant Heartbeat with the Quantum Quad Core (QQC)
 photon lattice. Converts mean Φ-field deltas into photonic amplitude
 signals (.photo) for harmonic projection and visualization.
 
@@ -49,7 +49,7 @@ def read_latest_heartbeat():
 
 
 # ----------------------------------------------------------
-# 🌈 Convert ΔΦ → Δψ (Amplitude Translation)
+# 🌈 Convert ΔΦ -> Δψ (Amplitude Translation)
 # ----------------------------------------------------------
 def phi_to_psi_mapping(delta_phi_coh: float, stability: float) -> dict:
     """
@@ -61,9 +61,9 @@ def phi_to_psi_mapping(delta_phi_coh: float, stability: float) -> dict:
     phase_shift = (1.0 - stability) * 90.0  # degrees
 
     pattern = {
-        "Δψ₁": base_amplitude * math.sin(math.radians(phase_shift)),
-        "Δψ₂": base_amplitude * math.cos(math.radians(phase_shift)),
-        "Δψ₃": coherence_mod,
+        "Δψ1": base_amplitude * math.sin(math.radians(phase_shift)),
+        "Δψ2": base_amplitude * math.cos(math.radians(phase_shift)),
+        "Δψ3": coherence_mod,
         "phase_shift": round(phase_shift, 3),
         "stability": round(stability, 4),
     }
@@ -96,7 +96,7 @@ def emit_photo_signal(pattern: dict):
     # Always store local .photo artifact
     with open(filename, "w") as f:
         json.dump(payload, f, indent=2)
-    logger.info(f"🪶 Photon pattern written → {filename.name}")
+    logger.info(f"🪶 Photon pattern written -> {filename.name}")
 
 
 # ----------------------------------------------------------
@@ -104,7 +104,7 @@ def emit_photo_signal(pattern: dict):
 # ----------------------------------------------------------
 async def quantum_feedback_loop(interval: int = 60):
     """
-    Continuously reads latest heartbeat, maps ΔΦ→Δψ,
+    Continuously reads latest heartbeat, maps ΔΦ->Δψ,
     and emits photonic resonance packets.
     """
     logger.info("🌌 Starting Quantum Feedback Coupler (QFC)...")
@@ -117,7 +117,7 @@ async def quantum_feedback_loop(interval: int = 60):
             pattern = phi_to_psi_mapping(delta_phi_coh, stability)
             emit_photo_signal(pattern)
             logger.info(
-                f"🧠 ΔΦ→Δψ mapping complete | ΔΦ={delta_phi_coh:+.4f} | Stability={stability:.4f}"
+                f"🧠 ΔΦ->Δψ mapping complete | ΔΦ={delta_phi_coh:+.4f} | Stability={stability:.4f}"
             )
         await asyncio.sleep(interval)
 

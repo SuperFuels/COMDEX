@@ -416,7 +416,7 @@ async def run_simulation(self, tick_limit: int = 1000, export_trace: bool = Fals
     self.log_event(f"✅ Simulation complete at tick {self.tick_count}.")
 
     # -------------------------
-    # 🛠 VIRTUAL EXHAUST → PARTICLE LINK (Delegated)
+    # 🛠 VIRTUAL EXHAUST -> PARTICLE LINK (Delegated)
     # -------------------------
     def _simulate_virtual_exhaust(self):
         """

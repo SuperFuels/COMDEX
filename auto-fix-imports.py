@@ -1,43 +1,43 @@
-import os
-import re
+importos
+importre
 
 # ✅ DNA Switch
-from backend.modules.dna.dna_switch import DNA_SWITCH
-DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
+frombackend.modules.dna.dna_switchimportDNA_SWITCH
+DNA_SWITCH.register(__file__)# Allow tracking + upgrades to this file
 
-BASE_DIR = 'backend'
+BASE_DIR='backend'
 
-replacements = [
-    (re.compile(r'from \.\.database import'), 'from database import'),
-    (re.compile(r'from backend\.database import'), 'from database import'),
-    (re.compile(r'from \.\.models'), 'from models'),
-    (re.compile(r'from backend\.models'), 'from models'),
-    (re.compile(r'from \.\.modules'), 'from modules'),
+replacements=[
+(re.compile(r'from \.\.database import'),'from database import'),
+(re.compile(r'from backend\.database import'),'from database import'),
+(re.compile(r'from \.\.models'),'from models'),
+(re.compile(r'from backend\.models'),'from models'),
+(re.compile(r'from \.\.modules'),'from modules'),
 ]
 
-def process_file(filepath):
+defprocess_file(filepath):
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-    except UnicodeDecodeError:
+        withopen(filepath,'r',encoding='utf-8')asf:
+            content=f.read()
+exceptUnicodeDecodeError:
         print(f'Skipping non-utf8 file: {filepath}')
-        return
+return
 
-    original_content = content
-    for pattern, replacement in replacements:
-        content = pattern.sub(replacement, content)
+original_content=content
+forpattern,replacementinreplacements:
+        content=pattern.sub(replacement,content)
 
-    if content != original_content:
-        with open(filepath, 'w', encoding='utf-8') as f:
+ifcontent!=original_content:
+        withopen(filepath,'w',encoding='utf-8')asf:
             f.write(content)
-        print(f'Fixed imports in: {filepath}')
+print(f'Fixed imports in: {filepath}')
 
-def main():
-    for root, dirs, files in os.walk(BASE_DIR):
-        for file in files:
-            if file.endswith('.py'):
-                filepath = os.path.join(root, file)
-                process_file(filepath)
+defmain():
+    forroot,dirs,filesinos.walk(BASE_DIR):
+        forfileinfiles:
+            iffile.endswith('.py'):
+                filepath=os.path.join(root,file)
+process_file(filepath)
 
-if __name__ == '__main__':
+if__name__=='__main__':
     main()

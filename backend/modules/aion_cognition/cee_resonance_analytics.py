@@ -1,5 +1,5 @@
 # ================================================================
-# 📊 CEE Resonance Analytics — Cross-Session Drift Tracker
+# 📊 CEE Resonance Analytics - Cross-Session Drift Tracker
 # ================================================================
 """
 Logs and visualizes LexMemory resonance dynamics over time.
@@ -65,7 +65,7 @@ def plot_concept_trends(top_n: int = 10):
     plt.tight_layout()
     IMG_PATH.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(IMG_PATH, dpi=150)
-    logger.info(f"[ResonanceAnalytics] Saved trend plot → {IMG_PATH}")
+    logger.info(f"[ResonanceAnalytics] Saved trend plot -> {IMG_PATH}")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

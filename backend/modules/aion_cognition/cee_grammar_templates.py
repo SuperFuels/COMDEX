@@ -1,5 +1,5 @@
 # ================================================================
-# 🧠 CEE Grammar Templates — Exercise Generators
+# 🧠 CEE Grammar Templates - Exercise Generators
 # ================================================================
 import time, random
 
@@ -45,7 +45,7 @@ def grammar_fix_sentence():
 # ---------------------------------------------------------------
 def grammar_agreement_mcq():
     """
-    Subject–verb agreement multiple choice.
+    Subject-verb agreement multiple choice.
     """
     items = [
         ("He", ["runs", "run"]),
@@ -93,7 +93,7 @@ def grammar_punctuation_insert():
 # ---------------------------------------------------------------
 def grammar_word_order():
     """
-    Grammar ‘unjumble’: reorder words into a correct sentence.
+    Grammar 'unjumble': reorder words into a correct sentence.
     """
     target = "The quick brown fox jumps over the lazy dog."
     words = target[:-1].split()

@@ -24,5 +24,5 @@ class MemoryBridge:
 
     def store_trace(self, glyph: str, reason: str):
         """Store a readable log note into memory about glyph trigger reason."""
-        note = f"🧠 Glyph '{glyph}' triggered — Reason: {reason}"
+        note = f"🧠 Glyph '{glyph}' triggered - Reason: {reason}"
         self.memory.store(role="trigger_log", content=note)

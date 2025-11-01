@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ==========================================================
-# G9 — Emergent Gravity from ψ–κ Correlations (Stable Tessaris Standard)
+# G9 - Emergent Gravity from ψ-κ Correlations (Stable Tessaris Standard)
 # Demonstrates gravitational-like attraction arising algebraically from
 # correlated ψ (information) and κ (curvature) fields.
 # ==========================================================
@@ -81,18 +81,18 @@ else:
 
 # --- Plots ---
 plt.figure(figsize=(8, 4))
-plt.plot(-accel, label='−acceleration', lw=1.2)
-plt.plot(corr_t / np.max(corr_t), label='|ψ·κ| (normalized)', lw=1.0, alpha=0.7)
+plt.plot(-accel, label='-acceleration', lw=1.2)
+plt.plot(corr_t / np.max(corr_t), label='|ψ*κ| (normalized)', lw=1.0, alpha=0.7)
 plt.xlabel("Step")
 plt.ylabel("Normalized Values")
-plt.title("G9 — Emergent Gravity: ψ–κ Correlation Dynamics")
+plt.title("G9 - Emergent Gravity: ψ-κ Correlation Dynamics")
 plt.legend()
 plt.tight_layout()
 plt.savefig("FAEV_G9_ForceCorrelation.png")
 
 plt.figure(figsize=(8, 4))
 plt.plot(centroid, label='ψ centroid')
-plt.title("G9 — ψ Centroid Trajectory (Emergent Potential)")
+plt.title("G9 - ψ Centroid Trajectory (Emergent Potential)")
 plt.xlabel("Step")
 plt.ylabel("Centroid Position")
 plt.legend()
@@ -100,8 +100,8 @@ plt.tight_layout()
 plt.savefig("FAEV_G9_CentroidTrajectory.png")
 
 plt.figure(figsize=(8, 4))
-plt.plot(corr_t, label='|ψ·κ| Coupling Strength')
-plt.title("G9 — ψ–κ Coupling Strength Evolution")
+plt.plot(corr_t, label='|ψ*κ| Coupling Strength')
+plt.title("G9 - ψ-κ Coupling Strength Evolution")
 plt.xlabel("Step")
 plt.ylabel("Coupling Magnitude")
 plt.legend()
@@ -135,7 +135,7 @@ results = {
 with open("backend/modules/knowledge/G9_emergent_gravity.json", "w") as f:
     json.dump(results, f, indent=2)
 
-print("=== G9 — Emergent Gravity from ψ–κ Correlations ===")
+print("=== G9 - Emergent Gravity from ψ-κ Correlations ===")
 print(f"mean_accel={mean_accel:.3e} | mean_corr={mean_corr:.3e} | stability={stability:.3f}")
-print(f"→ {verdict}")
-print("✅ Results saved → backend/modules/knowledge/G9_emergent_gravity.json")
+print(f"-> {verdict}")
+print("✅ Results saved -> backend/modules/knowledge/G9_emergent_gravity.json")

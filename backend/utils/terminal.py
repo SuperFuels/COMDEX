@@ -22,7 +22,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def run_query(prompt: str, db: Session) -> Dict[str, Any]:
     """
-    AI + DB integration for your “terminal” endpoint.
+    AI + DB integration for your "terminal" endpoint.
     Returns a dict with:
       - analysisText: str
       - visualPayload: { products, chartData, suppliers, volumes }
@@ -51,7 +51,7 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
     # 2) Build price‐history chart (last 30 days)
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
 
-    # join Deal → Product so we can filter on Product.title instead of a missing Deal.product_title
+    # join Deal -> Product so we can filter on Product.title instead of a missing Deal.product_title
     deals: List[Deal] = (
         db.query(Deal)
           .join(Product, Deal.product_id == Product.id)
@@ -96,7 +96,7 @@ def run_query(prompt: str, db: Session) -> Dict[str, Any]:
         "Provide concise bullet-point summaries."
     )
     user_prompt = (
-        f"Market overview for “{term}”:\n"
+        f"Market overview for "{term}":\n"
         f"- {len(chart_payload)} points over last 30d\n"
         f"- Active suppliers: {suppliers_count}\n"
         f"- Volume last 30d: {volumes_sum:.0f} kg\n"

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # File: backend/symatics/core/srk4_resonance.py
 """
-SRK-4 — Resonant Field Coupling Kernel (v1.1-stable)
+SRK-4 - Resonant Field Coupling Kernel (v1.1-stable)
 ─────────────────────────────────────────────────────────────
-Tessaris Core v1.1 — Λ↔ψ↔⟲R Coupling Layer
+Tessaris Core v1.1 - Λ↔ψ↔⟲R Coupling Layer
 
 Extends SRK-3 with ⟲-based resonance coupling between ψ and Λ,
-enabling phase-locked feedback and resonance–coherence alignment.
+enabling phase-locked feedback and resonance-coherence alignment.
 """
 import numpy as np
 from backend.symatics.entropy_field import EntropyFieldState
@@ -134,5 +134,5 @@ class SRKExtension:
 
 
 # ──────────────────────────────────────────────
-# [Manifest Tag] SRK-4.x family finalized — ready for SRK-5 Coherent Field Layer
+# [Manifest Tag] SRK-4.x family finalized - ready for SRK-5 Coherent Field Layer
 # ──────────────────────────────────────────────

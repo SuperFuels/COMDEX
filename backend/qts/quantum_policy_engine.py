@@ -1,5 +1,5 @@
 """
-⚖ Quantum Policy Engine (QPE) — SRK-16 B4
+⚖ Quantum Policy Engine (QPE) - SRK-16 B4
 Evaluates per-wave transport and coherence policies.
 """
 

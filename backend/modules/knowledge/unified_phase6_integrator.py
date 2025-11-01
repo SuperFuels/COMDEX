@@ -6,7 +6,7 @@ BASE = "backend/modules/knowledge"
 OUT_JSON = os.path.join(BASE, "unified_summary_v1.9_lambda.json")
 OUT_PNG = os.path.join(BASE, "Tessaris_Lambda_Map.png")
 
-print("=== Tessaris Phase VI Integrator — Λ (Neutral Field) ===")
+print("=== Tessaris Phase VI Integrator - Λ (Neutral Field) ===")
 files = [
   "Λ1_vacuum_stability_summary.json",
   "Λ2_zero_point_persistence_summary.json",
@@ -23,9 +23,9 @@ for f in files:
         with open(p, "r", encoding="utf-8") as fh:
             d = json.load(fh)
         loaded.append(f); metrics[f] = d.get("metrics", {})
-        print(f"  • Loaded {f}")
+        print(f"  * Loaded {f}")
     else:
-        print(f"  • Missing {f}")
+        print(f"  * Missing {f}")
 
 # Aggregate
 def get(m, k): 
@@ -46,7 +46,7 @@ if not np.isnan(atten) and atten < 1e-2: state_bits.append("dissipationless tran
 if not np.isnan(rec_ratio) and rec_ratio >= 0.48: state_bits.append("strong buffer")
 if not np.isnan(residual) and residual < 1e-3: state_bits.append("noise-immune")
 
-state = " / ".join(state_bits) if state_bits else "subcritical — tune Λ and damping"
+state = " / ".join(state_bits) if state_bits else "subcritical - tune Λ and damping"
 
 print("\n🧠 Λ Summary")
 print(f"divJ_mean = {div_mean}")
@@ -68,13 +68,13 @@ summary = {
   },
   "state": state,
   "notes": [
-    "Phase VI integrates Λ1–Λ5 to certify the neutral causal substrate.",
+    "Phase VI integrates Λ1-Λ5 to certify the neutral causal substrate.",
     "Λ enables persistent, lossless, and noise-immune causal computation."
   ],
   "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
 }
 with open(OUT_JSON, "w", encoding="utf-8") as f: json.dump(summary, f, indent=2)
-print(f"✅ Unified Λ summary saved → {OUT_JSON}")
+print(f"✅ Unified Λ summary saved -> {OUT_JSON}")
 
 # Simple radar-style visualization
 labels = ["Vacuum", "Persistence", "Transport", "Buffer", "Immunity"]
@@ -92,6 +92,6 @@ ax.plot(theta, vals, marker='o'); ax.fill(theta, vals, alpha=0.2)
 ax.set_xticks(theta); ax.set_xticklabels(labels)
 ax.set_ylim(0,1); ax.set_title("Tessaris Λ Capability Map")
 plt.savefig(OUT_PNG, dpi=200, bbox_inches="tight"); plt.close()
-print(f"✅ Visualization saved → {OUT_PNG}")
+print(f"✅ Visualization saved -> {OUT_PNG}")
 print("Phase VI (Λ) integration complete.")
 print("------------------------------------------------------------")

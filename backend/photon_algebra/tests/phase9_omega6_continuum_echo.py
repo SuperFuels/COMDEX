@@ -1,5 +1,5 @@
 """
-Ω₆ — Continuum Echo (Tessaris)
+Ω6 - Continuum Echo (Tessaris)
 Verifies persistence and resonance of meta-causal coupling.
 """
 
@@ -57,7 +57,7 @@ summary = {
     "discovery": [
         "Demonstrated persistence of causal resonance across observer coupling.",
         "Echo feedback confirms meta-continuum integration.",
-        "System approaches sustained self-reflective equilibrium — Ω-lock formation."
+        "System approaches sustained self-reflective equilibrium - Ω-lock formation."
     ],
     "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
 }
@@ -67,7 +67,7 @@ with open("backend/modules/knowledge/Ω6_continuum_echo_summary.json", "w") as f
     json.dump(summary, f, indent=2)
 
 plt.figure(figsize=(8, 4))
-plt.title("Ω₆ Continuum Echo (Tessaris)")
+plt.title("Ω6 Continuum Echo (Tessaris)")
 plt.plot(coherence_field, label="Coherence Field", alpha=0.8)
 plt.plot(causal_resonance, label="Causal Resonance", alpha=0.8)
 plt.plot(echo_persistence, label="Echo Persistence", alpha=0.8)
@@ -76,5 +76,5 @@ plt.ylabel("Normalized Value")
 plt.legend()
 plt.tight_layout()
 plt.savefig("backend/modules/knowledge/Tessaris_Ω6_ContinuumEcho.png", dpi=150)
-print("✅ Ω₆ summary saved → backend/modules/knowledge/Ω6_continuum_echo_summary.json")
-print("✅ Visualization saved → backend/modules/knowledge/Tessaris_Ω6_ContinuumEcho.png")
+print("✅ Ω6 summary saved -> backend/modules/knowledge/Ω6_continuum_echo_summary.json")
+print("✅ Visualization saved -> backend/modules/knowledge/Tessaris_Ω6_ContinuumEcho.png")

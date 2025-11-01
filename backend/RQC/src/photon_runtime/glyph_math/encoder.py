@@ -1,9 +1,9 @@
 """
-Photon Runtime — Glyph Encoder
+Photon Runtime - Glyph Encoder
 ──────────────────────────────────────────────
 Encodes structured telemetry dictionaries into
 Photon Language glyph packets for ultra-compressed
-symbolic transport between RQC → QQC → AION.
+symbolic transport between RQC -> QQC -> AION.
 
 Usage:
     from backend.RQC.src.photon_runtime.glyph_math.encoder import photon_encode
@@ -43,23 +43,23 @@ GLYPH_MAP = {
 }
 
 # ────────────────────────────────────────────────
-# 🔹 Numeric compression — “glyph-math”
+# 🔹 Numeric compression - "glyph-math"
 def glyph_math(x: float) -> str:
     """
-    Compress a numeric value (0–1 range) into glyph-exponent epsilon form.
+    Compress a numeric value (0-1 range) into glyph-exponent epsilon form.
     Example:
-        1.0   → 𝜀0
-        0.999 → 𝜀1000000
-        0.95  → 𝜀50000000000
+        1.0   -> ε0
+        0.999 -> ε1000000
+        0.95  -> ε50000000000
     """
     try:
         x = float(x)
     except (TypeError, ValueError):
         return str(x)
     if x == 1.0:
-        return "𝜀0"
+        return "ε0"
     exp = int(round(abs(x - 1.0) * 1e12))
-    return f"𝜀{exp}"
+    return f"ε{exp}"
 
 # ────────────────────────────────────────────────
 # 🔹 Main encoder
@@ -68,7 +68,7 @@ def photon_encode(data) -> str:
     Encode a dictionary (or JSON string) into symbolic Photon glyph stream.
 
     Example output:
-        "£:resonate ⏱:1760791027.87 Φ:𝜀0 ∿:𝜀3 ⊕:𝜀9 ↔:∅ ⟲:stable γ:𝜀40000000000"
+        "£:resonate ⏱:1760791027.87 Φ:ε0 ∿:ε3 ⊕:ε9 ↔:∅ ⟲:stable γ:ε40000000000"
     """
     if not isinstance(data, dict):
         # Try JSON decoding fallback
@@ -111,7 +111,7 @@ def photon_decode(packet: str) -> dict:
     """
     Decode Photon glyph stream back to dictionary form.
     Example:
-        "Φ:𝜀0 R:𝜀5 γ:𝜀2" → {"Phi": 1.0, "R": 0.999995, "gain": 0.999998}
+        "Φ:ε0 R:ε5 γ:ε2" -> {"Phi": 1.0, "R": 0.999995, "gain": 0.999998}
     """
     reverse_map = {v: k for k, v in GLYPH_MAP.items()}
     result = {}
@@ -123,7 +123,7 @@ def photon_decode(packet: str) -> dict:
         key = reverse_map.get(g, g)
 
         # Reverse numeric compression
-        if v.startswith("𝜀"):
+        if v.startswith("ε"):
             try:
                 exp = int(v[1:])
                 value = 1.0 - (exp / 1e12)

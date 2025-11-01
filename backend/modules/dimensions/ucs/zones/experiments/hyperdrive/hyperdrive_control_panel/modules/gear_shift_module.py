@@ -3,21 +3,21 @@
 """
 ⚙️ Gear Shift Manager Module (Hyperdrive)
 -----------------------------------------
-• Handles gear shifting logic for Hyperdrive engines.
-• Implements pulse-gated field ramping with drift dampening.
-• Supports slow clutch ramping to stabilize resonance during transitions.
-• Integrates with SQI drift locks, PI surge safeguards, ECU pacing, and stability checks.
+* Handles gear shifting logic for Hyperdrive engines.
+* Implements pulse-gated field ramping with drift dampening.
+* Supports slow clutch ramping to stabilize resonance during transitions.
+* Integrates with SQI drift locks, PI surge safeguards, ECU pacing, and stability checks.
 
 🔥 Features:
-    • Pulse-gated gear ramping (only shift during stable resonance pulses).
-    • Drift dampener to auto-correct instability during gear shifts.
-    • Slow clutch ramp duration (20–30s) to prevent collapse.
-    • Inline harmonic injection during plasma/wave stages (aligned to SQI interval).
-    • PI Surge safeguard for G4.5 stage (requires PI > 100k & SQI drift lock).
-    • SQI-driven auto gear sequencing (G1 → G2 → G3 → G4 → G4.5).
-    • ✅ ECU pacing, stability index validation, and safety abort checks.
-    • 🔮 Predictive pre-shift SQI analysis to anticipate instability and auto-tune fields.
-    • 🎯 NEW: Pre-shift harmonic injection bursts and SQI micro-corrections for ultra-smooth transitions.
+    * Pulse-gated gear ramping (only shift during stable resonance pulses).
+    * Drift dampener to auto-correct instability during gear shifts.
+    * Slow clutch ramp duration (20-30s) to prevent collapse.
+    * Inline harmonic injection during plasma/wave stages (aligned to SQI interval).
+    * PI Surge safeguard for G4.5 stage (requires PI > 100k & SQI drift lock).
+    * SQI-driven auto gear sequencing (G1 -> G2 -> G3 -> G4 -> G4.5).
+    * ✅ ECU pacing, stability index validation, and safety abort checks.
+    * 🔮 Predictive pre-shift SQI analysis to anticipate instability and auto-tune fields.
+    * 🎯 NEW: Pre-shift harmonic injection bursts and SQI micro-corrections for ultra-smooth transitions.
 """
 
 import time
@@ -100,13 +100,13 @@ class GearShiftManager:
             drift_window = max(engine.resonance_filtered[-30:], default=0) - min(engine.resonance_filtered[-30:], default=0)
             pi_val = sum(e.get("impact_speed", 0) for e in engine.exhaust_log[-500:])
             if drift_window < 0.01 and check_pi_threshold(engine, required_pi=100000):
-                print(f"⚡ PI Surge Ready: Drift={drift_window:.5f} | PI={pi_val:.2f} → Engaging G4.5")
+                print(f"⚡ PI Surge Ready: Drift={drift_window:.5f} | PI={pi_val:.2f} -> Engaging G4.5")
             else:
                 print(f"⚠ PI Surge Aborted: Drift={drift_window:.5f}, PI={pi_val:.2f} (lock not met)")
                 return
 
         target_fields = gear_map[gear_idx]
-        print(f"\n⚙ Gear Shift → {gear_idx} | Clutch engaged.")
+        print(f"\n⚙ Gear Shift -> {gear_idx} | Clutch engaged.")
         engine.stability_threshold *= 2
 
         start = time.time()

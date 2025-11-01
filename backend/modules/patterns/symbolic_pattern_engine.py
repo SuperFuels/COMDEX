@@ -93,7 +93,7 @@ class SymbolicPatternEngine:
                 except Exception:
                     pass
 
-                # Convert → dict
+                # Convert -> dict
                 pattern_dict = pattern.to_dict()
                 pattern_dict["matched_in"] = container_id
                 matches.append(pattern_dict)
@@ -109,7 +109,7 @@ class SymbolicPatternEngine:
                 self.broadcaster.broadcast_pattern_prediction(pattern.name, glyphs)
 
             else:
-                # ❌ NOT MATCHED — check collapse
+                # ❌ NOT MATCHED - check collapse
                 sqi_val = getattr(pattern, "sqi_score", 0.3)
                 if sqi_val < 0.15:
                     try:

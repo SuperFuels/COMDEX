@@ -22,8 +22,8 @@ def _op_class() -> str:
         esc = "".join(re.escape(c) for c in sorted(runes))
         return f"[{esc}]+"
     except Exception:
-        # Fallback – keep small, safe set
-        return r"[⊕↔⟲μπ⇒∇⊗→⧖≈]+"
+        # Fallback - keep small, safe set
+        return r"[⊕↔⟲μπ->∇⊗->⧖≈]+"
 
 GLYPHSEQ_RE = _op_class()
 
@@ -54,7 +54,7 @@ TOK_SPEC = [
     ("EQ",     r"="),
     ("COLON",  r":"),
 
-    # Photon symbolic operators — built from JSON
+    # Photon symbolic operators - built from JSON
     ("GLYPHSEQ", GLYPHSEQ_RE),
 
     # Literals

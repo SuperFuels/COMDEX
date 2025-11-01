@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-H4 — Cosmological Scale Stability Test (Registry-Compliant Edition)
+H4 - Cosmological Scale Stability Test (Registry-Compliant Edition)
 -------------------------------------------------------------------
 Goal:
-    Evaluate large-scale energy and entropy balance of photon–curvature
+    Evaluate large-scale energy and entropy balance of photon-curvature
     fields under slow cosmological expansion (Λ-driven scaling).
 
 Significance:
     Confirms that the photon-algebra system maintains global energy
-    and entropy consistency under expansion — a macro-scale stability
+    and entropy consistency under expansion - a macro-scale stability
     analogue to the micro feedback equilibrium.
 
 Outputs:
-    • PAEV_TestH4_EnergyEntropy.png
-    • PAEV_TestH4_ScaleFactor.png
-    • PAEV_TestH4_FinalField.png
-    • backend/modules/knowledge/H4_cosmological_stability.json
+    * PAEV_TestH4_EnergyEntropy.png
+    * PAEV_TestH4_ScaleFactor.png
+    * PAEV_TestH4_FinalField.png
+    * backend/modules/knowledge/H4_cosmological_stability.json
 """
 
 import numpy as np
@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 import json, os
 
 # ---------------------------------------------------------------------
-# 1) Constants — Tessaris unified registry loader
+# 1) Constants - Tessaris unified registry loader
 # ---------------------------------------------------------------------
 from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
@@ -109,7 +109,7 @@ classification = (
 plt.figure(figsize=(6, 4))
 plt.plot(energy_trace, label="Energy ⟨E⟩", color="#1E88E5")
 plt.plot(entropy_trace, label="Spectral Entropy", color="#F57C00")
-plt.title("H4 — Cosmological Energy & Entropy Evolution")
+plt.title("H4 - Cosmological Energy & Entropy Evolution")
 plt.xlabel("Step")
 plt.legend()
 plt.grid(alpha=0.3)
@@ -119,7 +119,7 @@ plt.close()
 
 plt.figure(figsize=(6, 4))
 plt.plot(a_trace, color="#2E7D32")
-plt.title("H4 — Scale Factor a(t)")
+plt.title("H4 - Scale Factor a(t)")
 plt.xlabel("Step")
 plt.ylabel("a(t)")
 plt.grid(alpha=0.3)
@@ -129,7 +129,7 @@ plt.close()
 
 plt.figure(figsize=(6, 3))
 plt.imshow(np.real(psi), cmap="magma")
-plt.title("H4 — ψ Field (Final Real Part)")
+plt.title("H4 - ψ Field (Final Real Part)")
 plt.colorbar(label="Re(ψ)")
 plt.tight_layout()
 plt.savefig("PAEV_TestH4_FinalField.png", dpi=160)
@@ -138,12 +138,12 @@ plt.close()
 # ---------------------------------------------------------------------
 # 7) Summary & JSON export
 # ---------------------------------------------------------------------
-print("\n=== Test H4 — Cosmological Scale Stability Complete ===")
+print("\n=== Test H4 - Cosmological Scale Stability Complete ===")
 print(f"ħ={ħ:.1e}, G={G:.1e}, α={α:.2f}, Λ0={Λ0:.1e}, β={β:.2f}")
 print(f"⟨E⟩ drift  = {energy_drift:.6e}")
 print(f"⟨S⟩ drift  = {entropy_drift:.6e}")
 print(f"a(final)   = {a_final:.6e}")
-print(f"→ {classification}")
+print(f"-> {classification}")
 print("All output files saved:")
 for p in [
     "PAEV_TestH4_EnergyEntropy.png",
@@ -169,4 +169,4 @@ summary = {
 
 out_path = Path("backend/modules/knowledge/H4_cosmological_stability.json")
 out_path.write_text(json.dumps(summary, indent=2))
-print(f"📄 Summary saved → {out_path}")
+print(f"📄 Summary saved -> {out_path}")

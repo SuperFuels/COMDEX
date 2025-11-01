@@ -35,5 +35,5 @@ index = {
 with open(index_path, "w") as f:
     json.dump(index, f, indent=2)
 
-print(f"✅ Registry index built → {index_path}")
+print(f"✅ Registry index built -> {index_path}")
 print(f"🧩 Indexed {len(entries)} knowledge modules")

@@ -1,8 +1,8 @@
 """
-🧠 LexiCore Loader — Phase 45F (Language Substrate)
+🧠 LexiCore Loader - Phase 45F (Language Substrate)
 ────────────────────────────────────────────────────
 Parses lexical data (e.g. Wiktionary JSON dump) into a
-normalized structure for the AION Lexical–Semantic Core.
+normalized structure for the AION Lexical-Semantic Core.
 
 Output:
     data/lexicons/lexicore.lex.json
@@ -67,7 +67,7 @@ def build_lexicore():
     logger.info(f"✅ Normalized {len(normalized)} lexical entries.")
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(normalized, f, indent=2, ensure_ascii=False)
-    logger.info(f"💾 Saved LexiCore → {OUTPUT_PATH}")
+    logger.info(f"💾 Saved LexiCore -> {OUTPUT_PATH}")
     return {"entries": len(normalized), "path": str(OUTPUT_PATH)}
 
 if __name__ == "__main__":

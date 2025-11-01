@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Phase 15 — Harmonic Coherence Orchestrator (HCO)
+Tessaris Phase 15 - Harmonic Coherence Orchestrator (HCO)
 
 Central orchestration layer synchronizing Tessaris adaptive subsystems:
 RFC ↔ AQCI ↔ RQFS ↔ AION.
@@ -67,7 +67,7 @@ def compute_harmonic_state(rfc, rqfs, heartbeat, photo):
     Φ_rfc = rfc.get("phase_offset", 0.0)
     Φ_rqfs = rqfs.get("error", 0.0)
     Φ_beat = heartbeat.get("ΔΦ_coh", 0.0)
-    Φ_photo = photo.get("pattern", {}).get("Δψ₂", 0.0)
+    Φ_photo = photo.get("pattern", {}).get("Δψ2", 0.0)
 
     # Harmonic mean of coherence terms (avoid div-by-zero)
     values = np.array([Φ_rfc, Φ_rqfs, Φ_beat, Φ_photo], dtype=float)
@@ -104,7 +104,7 @@ def apply_rebalance(rfc, rqfs, drift, η=0.05):
 # -------------------------------------------------------------------
 
 def run_orchestrator(interval=5.0):
-    print("🎛️  Starting Tessaris Harmonic Coherence Orchestrator (HCO)…")
+    print("🎛️  Starting Tessaris Harmonic Coherence Orchestrator (HCO)...")
 
     while True:
         # Load subsystem states
@@ -114,7 +114,7 @@ def run_orchestrator(interval=5.0):
         photo = read_latest_photo()
 
         if not (rfc and rqfs and heartbeat and photo):
-            print("⚠️ Waiting for subsystem telemetry (RFC/RQFS/Heartbeat/Photo)…")
+            print("⚠️ Waiting for subsystem telemetry (RFC/RQFS/Heartbeat/Photo)...")
             time.sleep(interval)
             continue
 
@@ -126,7 +126,7 @@ def run_orchestrator(interval=5.0):
         if new_rfc != rfc:
             with open(RFC_PATH, "a") as f:
                 f.write(json.dumps(new_rfc) + "\n")
-            print(f"♻️  Rebalanced RFC (Δ={state['drift']:+.4f}) → ν={new_rfc['nu_bias']:+.6f}")
+            print(f"♻️  Rebalanced RFC (Δ={state['drift']:+.4f}) -> ν={new_rfc['nu_bias']:+.6f}")
 
         # Log harmonic coherence state
         with open(HCO_LOG, "a") as f:

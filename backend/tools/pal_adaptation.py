@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-PAL Adaptation Tool — Phase 35.10 (Closure)
+PAL Adaptation Tool - Phase 35.10 (Closure)
 Tessaris / Aion Research Division
 
-Reflects entropy–order metrics and meta-accuracy into
-PAL (Perception–Action Loop) configuration parameters.
+Reflects entropy-order metrics and meta-accuracy into
+PAL (Perception-Action Loop) configuration parameters.
 
 If no concept-level metrics are found, synthesizes a
 fallback reflection from latest evolution summary.
@@ -37,7 +37,7 @@ else:
 # Fallback synthesis from evolution summary
 # ─────────────────────────────────────────────
 if not metrics:
-    print("ℹ️  Synthesizing fallback metric from evolution summary...")
+    print("i️  Synthesizing fallback metric from evolution summary...")
     mean_order = 0.7
     mean_entropy = 0.3
     mean_acc = 0.5
@@ -90,7 +90,7 @@ OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
 with OUT_JSON.open("w") as f:
     json.dump(pal_cfg, f, indent=2)
 
-print(f"✅ PAL reflection written → {OUT_JSON}")
+print(f"✅ PAL reflection written -> {OUT_JSON}")
 print(json.dumps(pal_cfg, indent=2))
 
 # ─────────────────────────────────────────────

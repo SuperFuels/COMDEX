@@ -67,17 +67,17 @@ class GHXPacketValidator:
         # 🔒 Spoof protection: check if entangled IDs exist as containers
         for eid in entangled_ids:
             if not get_container_by_id(eid):
-                self.errors.append(f"Invalid entangled reference — container not found: {eid}")
+                self.errors.append(f"Invalid entangled reference - container not found: {eid}")
 
     def _check_entropy_score(self):
         score = self.packet.get("meta", {}).get("entropy_score", 0)
         if score < 0.5:
-            self.warnings.append("Entropy score low — may not compress optimally.")
+            self.warnings.append("Entropy score low - may not compress optimally.")
 
     def _validate_signature_block(self):
         sig_block = self.packet.get("signature_block", {})
         if not sig_block:
-            self.warnings.append("GHX packet is unsigned — no signature_block found.")
+            self.warnings.append("GHX packet is unsigned - no signature_block found.")
             return
 
         for field in self.REQUIRED_SIGNATURE_FIELDS:

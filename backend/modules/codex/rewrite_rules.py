@@ -14,25 +14,25 @@ from backend.symatics.adapter import codex_ast_to_sym, sym_to_codex_ast
 
 def _local_simplify(node):
     """Codex local simplifications (fast-path, cheap checks)."""
-    # ¬¬A → A
+    # ¬¬A -> A
     if node["op"] == "logic:¬" and len(node["args"]) == 1:
         inner = node["args"][0]
         if isinstance(inner, dict) and inner.get("op") == "logic:¬":
             return inner["args"][0]
 
-    # A ⊕ A → false
+    # A ⊕ A -> false
     if node["op"] == "logic:⊕" and len(node["args"]) == 2:
         a, b = node["args"]
         if a == b:
             return {"op": "logic:false"}
 
-    # A ∨ A → A
+    # A ∨ A -> A
     if node["op"] == "logic:∨" and len(node["args"]) == 2:
         a, b = node["args"]
         if a == b:
             return a
 
-    # A ∧ A → A
+    # A ∧ A -> A
     if node["op"] == "logic:∧" and len(node["args"]) == 2:
         a, b = node["args"]
         if a == b:
@@ -72,7 +72,7 @@ def rewrite_tree(node, use_symatics: bool = True):
             sym_norm = sym_rewrite.simplify(sym_term)
             return sym_to_codex_ast(sym_norm)
         except Exception:
-            # Fail safe → keep Codex node
+            # Fail safe -> keep Codex node
             return node
 
     return node

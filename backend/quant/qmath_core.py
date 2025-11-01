@@ -1,5 +1,5 @@
 # ================================================================
-# 💠 Phase 45G.6 — QMath Core Symbolic Generator (∇ψ Enhanced)
+# 💠 Phase 45G.6 - QMath Core Symbolic Generator (∇ψ Enhanced)
 # ================================================================
 """
 Symbolic mathematics core for AION Dual-Mode CEE.
@@ -64,7 +64,7 @@ class QMath:
             a, b = random.choice(SYMBOLS), random.choice(SYMBOLS)
             op = random.choice(OPERATORS)
             parts.append(f"{a} {op} {b}")
-        expr = " ⇒ ".join(parts)
+        expr = " -> ".join(parts)
 
         # Compute pseudo resonance metrics
         phase = round(random.uniform(-math.pi, math.pi), 3)
@@ -93,7 +93,7 @@ class QMath:
     @staticmethod
     def evaluate_resonance(eq: QEquation) -> float:
         """Compute symbolic SQI proxy = mean(ρ, I, normalized phase, ρ∇ψ)."""
-        norm_phase = 1 - abs(eq.phase) / math.pi  # normalize 0–1
+        norm_phase = 1 - abs(eq.phase) / math.pi  # normalize 0-1
         components = [eq.coherence, eq.intensity, norm_phase]
         if eq.grad_coherence > 0:
             components.append(eq.grad_coherence)

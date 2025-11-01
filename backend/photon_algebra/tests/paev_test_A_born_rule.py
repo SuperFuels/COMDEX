@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Test A — Deriving the Born Rule from Photon Algebra Rewrite Symmetries
+Test A - Deriving the Born Rule from Photon Algebra Rewrite Symmetries
 
 Goal:
   Show that in Photon Algebra, repeated contextual normalization reproduces
-  the Born rule probabilities P(i) = |ψ_i|² without invoking a postulate.
+  the Born rule probabilities P(i) = |ψ_i|2 without invoking a postulate.
 
 Approach:
   - Define a symbolic superposition ψ = α|0⟩ ⊕ β|1⟩.
@@ -28,7 +28,7 @@ def normalize_state(alpha, beta):
 def rewrite_collapse(alpha, beta):
     """
     Perform one symbolic 'collapse' step:
-    - With probability proportional to |α|² or |β|²,
+    - With probability proportional to |α|2 or |β|2,
       the system rewrites to ⊤ (true) for that branch.
     - Return 0 for |0⟩ outcome, 1 for |1⟩ outcome.
     """
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     # Print convergence table
     print("=== Born Rule Convergence Test ===")
-    print(f"Quantum P(0) = {Pq:.4f}   (|α|²)")
+    print(f"Quantum P(0) = {Pq:.4f}   (|α|2)")
     print("Iter |   Photon Algebra empirical P(0)")
     print("--------------------------------------")
     for i, val in enumerate(conv):
@@ -78,10 +78,10 @@ if __name__ == "__main__":
     # Plot convergence
     plt.figure(figsize=(7,4))
     plt.plot(conv, label="Photon Algebra empirical P(0)", lw=2)
-    plt.axhline(Pq, color="r", ls="--", label="Quantum |α|²")
+    plt.axhline(Pq, color="r", ls="--", label="Quantum |α|2")
     plt.xlabel("Iteration")
     plt.ylabel("Probability P(0)")
-    plt.title("Test A — Emergence of Born Rule from Rewrite Symmetry")
+    plt.title("Test A - Emergence of Born Rule from Rewrite Symmetry")
     plt.legend()
     plt.tight_layout()
     plt.savefig("PAEV_TestA_BornRule.png")

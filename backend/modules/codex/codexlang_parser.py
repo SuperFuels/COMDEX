@@ -272,7 +272,7 @@ class MemoryEngine:
                 else:
                     print(f"⚠️ Glyph synthesis HTTP error: {synth_response.status_code}")
             except requests.exceptions.ConnectionError:
-                print("🕳️ AION offline — skipping synthesis.")
+                print("🕳️ AION offline - skipping synthesis.")
             except Exception as e:
                 print(f"⚠️ AION synth exception: {e}")
 
@@ -341,20 +341,20 @@ import ast
 from typing import List, Dict, Any
 from backend.modules.symbolic.codex_ast_types import CodexAST
 
-# ✅ TOKENIZER — required by symbolic.codex_ast_parser
+# ✅ TOKENIZER - required by symbolic.codex_ast_parser
 def tokenize_codexlang(expr: str) -> List[str]:
     """
     Tokenize CodexLang logical expressions into symbols/operators.
-    Supports operators like ∀, ∃, ¬, →, ↔, ⊕, ↑, ↓, ∈, =, etc.
+    Supports operators like ∀, ∃, ¬, ->, ↔, ⊕, ↑, ↓, ∈, =, etc.
     """
-    token_pattern = r"(∀|∃|¬|→|↔|⊕|↑|↓|∈|=|[A-Za-z_]\w*|\(|\)|\.|,)"
+    token_pattern = r"(∀|∃|¬|->|↔|⊕|↑|↓|∈|=|[A-Za-z_]\w*|\(|\)|\.|,)"
     return re.findall(token_pattern, expr)
 
-# ✅ PARSER — required by symbolic.codex_ast_parser
+# ✅ PARSER - required by symbolic.codex_ast_parser
 def parse_expression(tokens: List[str]) -> Any:
     """
     Parse a list of CodexLang tokens into an AST-like dictionary structure.
-    Supports: ∀, ∃, ¬, →, ↔, ∧, ∨, ⊕, ↑, ↓, =, predicates/functions.
+    Supports: ∀, ∃, ¬, ->, ↔, ∧, ∨, ⊕, ↑, ↓, =, predicates/functions.
 
     Adds:
       - Defensive parsing for malformed tokens.
@@ -403,11 +403,11 @@ def parse_expression(tokens: List[str]) -> Any:
         return {"type": "symbol", "value": token}, index + 1
 
     def parse_binary_ops(start_index: int):
-        """Parse chained binary operations like A → B ↔ C."""
+        """Parse chained binary operations like A -> B ↔ C."""
         left, index = parse_term(start_index)
         while index < len(tokens):
             op = tokens[index]
-            if op in ("→", "↔", "∧", "∨", "⊕", "↑", "↓", "="):
+            if op in ("->", "↔", "∧", "∨", "⊕", "↑", "↓", "="):
                 # Guard for incomplete or malformed RHS
                 if index + 1 >= len(tokens):
                     logging.warning(f"[CodexLang] Missing right-hand operand after operator '{op}'")
@@ -444,7 +444,7 @@ def get_runtime_entropy_snapshot():
 def parse_codexlang_string(code_str):
     """
     Converts a symbolic CodexLang string like:
-    ⟦ Logic | If: x > 5 → ⊕(Grow, Reflect) ⟧
+    ⟦ Logic | If: x > 5 -> ⊕(Grow, Reflect) ⟧
     into a structured AST-like dictionary with canonicalized ops.
 
     ✅ SoulLaw-compliant: gracefully handles partial or malformed glyphs.
@@ -454,14 +454,14 @@ def parse_codexlang_string(code_str):
     import traceback
 
     # 🧩 Pre-check: detect atomic (single-symbol) expressions
-    if not any(sym in code_str for sym in ["→", ":", "⊕", "⊗", "↔", "="]):
+    if not any(sym in code_str for sym in ["->", ":", "⊕", "⊗", "↔", "="]):
         # treat single symbol as atomic Codex term
         return {"type": "atom", "value": code_str, "ast": None}
 
     try:
         caller = inspect.stack()[1]
         print("\n[🧠 DEBUG] parse_codexlang_string CALLED")
-        print(f"   📍 Caller: {caller.filename}:{caller.lineno} → {caller.function}")
+        print(f"   📍 Caller: {caller.filename}:{caller.lineno} -> {caller.function}")
         print(f"   🧩 Raw code_str: {repr((code_str or '')[:100])}")
 
         body = (code_str or "").strip("⟦⟧ ").strip()
@@ -469,8 +469,8 @@ def parse_codexlang_string(code_str):
             print("   ⚠️ Empty CodexLang body")
             return {"type": "empty", "soul_state": "violated", "message": "Empty glyph string"}
 
-        # 🧩 Case 1 — shorthand (no →)
-        if "→" not in body:
+        # 🧩 Case 1 - shorthand (no ->)
+        if "->" not in body:
             if ":" not in body or "|" not in body:
                 print("   ⚠️ Missing ':' or '|' in shorthand CodexLang")
                 return {
@@ -504,16 +504,16 @@ def parse_codexlang_string(code_str):
             print("   ✅ Parsed shorthand CodexLang successfully.")
             return parsed
 
-        # 🧩 Case 2 — full form with →
-        parts = body.split("→", 1)
-        print(f"   🔍 parts after split('→',1): {len(parts)} parts")
+        # 🧩 Case 2 - full form with ->
+        parts = body.split("->", 1)
+        print(f"   🔍 parts after split('->',1): {len(parts)} parts")
         if len(parts) != 2:
-            print("   ⚠️ Detected malformed CodexLang (missing RHS after →)")
+            print("   ⚠️ Detected malformed CodexLang (missing RHS after ->)")
             return {
                 "type": "incomplete",
                 "expr": body,
                 "soul_state": "partial",
-                "message": "Missing right-hand operand after '→'",
+                "message": "Missing right-hand operand after '->'",
             }
 
         left, action = parts

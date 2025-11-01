@@ -17,9 +17,9 @@ class EntangledWave:
         self.entanglement_map: Dict[int, List[int]] = {}
 
         # ✅ B6a additions
-        self.forward_links: Dict[str, List[str]] = {}  # wave_id → entangled wave_ids
-        self.reverse_links: Dict[str, List[str]] = {}  # entangled wave_id → source wave_ids
-        self.entangled_ids: Dict[int, str] = {}        # index → entangled_id
+        self.forward_links: Dict[str, List[str]] = {}  # wave_id -> entangled wave_ids
+        self.reverse_links: Dict[str, List[str]] = {}  # entangled wave_id -> source wave_ids
+        self.entangled_ids: Dict[int, str] = {}        # index -> entangled_id
 
     def add_wave(self, wave: "WaveState", index: Optional[int] = None):
         """
@@ -166,7 +166,7 @@ class EntangledWave:
 
         return result
         
-    # ✅ NEW: From glyphs → builds an EntangledWave object from glyph list
+    # ✅ NEW: From glyphs -> builds an EntangledWave object from glyph list
     @classmethod
     def from_glyphs(cls, glyphs: List[Dict]) -> "EntangledWave":
         """

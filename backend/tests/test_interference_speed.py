@@ -22,7 +22,7 @@ def generate_waves(n: int, length: int) -> list:
 def benchmark_join_methods(n_waves=500, vector_length=128):
     waves = generate_waves(n_waves, vector_length)
 
-    print(f"\n=== 🔬 Benchmarking {n_waves} waves × {vector_length} length ===")
+    print(f"\n=== 🔬 Benchmarking {n_waves} waves * {vector_length} length ===")
 
     # Sequential join
     t1 = time.time()

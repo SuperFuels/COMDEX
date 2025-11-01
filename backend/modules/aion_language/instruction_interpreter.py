@@ -1,16 +1,16 @@
 """
-Instruction Interpreter — Phase 42A
+Instruction Interpreter - Phase 42A
 -----------------------------------
 Maps natural-language instructions to internal Aion actions.
-Bridges QueryResonanceAPI (semantic field) → GoalEngine (intent) → subsystem calls.
+Bridges QueryResonanceAPI (semantic field) -> GoalEngine (intent) -> subsystem calls.
 
 Examples:
-  "focus on equilibrium"  → AVATAR.focus(target="equilibrium")
-  "stabilize drift"       → HSE.stabilize()
-  "forecast next harmonic"→ RFE.forecast()
+  "focus on equilibrium"  -> AVATAR.focus(target="equilibrium")
+  "stabilize drift"       -> HSE.stabilize()
+  "forecast next harmonic"-> RFE.forecast()
 
 Author: Tessaris Research Group
-Date: Phase 42A — October 2025
+Date: Phase 42A - October 2025
 """
 
 import re, time, logging
@@ -43,7 +43,7 @@ class InstructionInterpreter:
     # ─────────────────────────────────────────────
     def interpret(self, text: str):
         """
-        Main entry point — interpret a natural language command
+        Main entry point - interpret a natural language command
         and trigger the corresponding internal goal and subsystem action.
         """
         if not text or not isinstance(text, str):
@@ -86,7 +86,7 @@ class InstructionInterpreter:
         goal_name = f"{action}_{target or 'none'}"
         GOALS.create(goal_name, priority=0.6, source="InstructionInterpreter")
 
-        logger.info(f"[Interpreter] Matched '{text}' → action={action}, target={target}")
+        logger.info(f"[Interpreter] Matched '{text}' -> action={action}, target={target}")
         fn = self.action_map.get(action)
         result = fn(target)
         return {"action": action, "target": target, "result": result, "goal": goal_name}
@@ -107,19 +107,19 @@ class InstructionInterpreter:
     def _act_focus(self, target):
         if not target:
             target = "equilibrium"
-        print(f"[Interpreter] → AVATAR.focus('{target}')")
+        print(f"[Interpreter] -> AVATAR.focus('{target}')")
         return AVATAR.focus(f"concept:{target}", strength=0.85)
 
     def _act_stabilize(self, target):
-        print(f"[Interpreter] → HSE.stabilize() for '{target}'")
+        print(f"[Interpreter] -> HSE.stabilize() for '{target}'")
         return HSE.stabilize()
 
     def _act_forecast(self, target):
-        print(f"[Interpreter] → RFE.forecast() horizon=5")
+        print(f"[Interpreter] -> RFE.forecast() horizon=5")
         return RFE.forecast(horizon=5)
 
     def _act_control(self, target):
-        print(f"[Interpreter] → IRC.start(duration=10)")
+        print(f"[Interpreter] -> IRC.start(duration=10)")
         return IRC.start(duration=10)
 
 # ─────────────────────────────────────────────

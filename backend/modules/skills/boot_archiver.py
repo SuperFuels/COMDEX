@@ -40,7 +40,7 @@ def archive_learned_skills():
         save_json(MEMORY_FILE, still_learning)
         print(f"✅ Archived {len(newly_learned)} learned skills and cleaned memory.")
     else:
-        print("ℹ️ No learned skills to archive.")
+        print("i️ No learned skills to archive.")
 
 if __name__ == "__main__":
     archive_learned_skills()

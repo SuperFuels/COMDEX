@@ -1,7 +1,7 @@
 """
-Tessaris RQC — GHX Awareness Renderer
+Tessaris RQC - GHX Awareness Renderer
 ──────────────────────────────────────────────
-Phase 5 · Visual renderer for Φ(t) and R(t)
+Phase 5 * Visual renderer for Φ(t) and R(t)
 
 Reads the MorphicLedger v2 telemetry log, plots Φ (coherence)
 and R (resonance index) over time, and saves a PNG snapshot for GHX Visualizer.
@@ -71,7 +71,7 @@ def render_awareness_plot(save: bool = True) -> str:
         out_path = os.path.join(OUT_DIR, f"awareness_{ts_label}.png")
         plt.savefig(out_path, dpi=150)
         plt.close()
-        logger.info(f"[GHXRenderer] Saved Φ(t) snapshot → {out_path}")
+        logger.info(f"[GHXRenderer] Saved Φ(t) snapshot -> {out_path}")
         print(f"✅ Saved awareness snapshot: {out_path}")
         return out_path
     else:
@@ -80,5 +80,5 @@ def render_awareness_plot(save: bool = True) -> str:
 
 #───────────────────────────────────────────────
 if __name__ == "__main__":
-    print("🧠 Generating RQC awareness snapshot from ledger …")
+    print("🧠 Generating RQC awareness snapshot from ledger ...")
     render_awareness_plot()

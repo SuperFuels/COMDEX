@@ -42,7 +42,7 @@ async def test_inject_xor_axiom_into_real_container():
     lean_path.parent.mkdir(exist_ok=True)
     lean_path.write_text(
         "import ./symatics_prelude\n\n"
-        "axiom xor_axiom : (A ⊕ B) → (B ⊕ A)\n"
+        "axiom xor_axiom : (A ⊕ B) -> (B ⊕ A)\n"
     )
     _copy_prelude(lean_path)
 
@@ -56,7 +56,7 @@ async def test_inject_xor_axiom_into_real_container():
 
     updated = safe_load_container_by_id(str(container_path))
     e = next(e for e in updated["symbolic_logic"] if e["name"] == "xor_axiom")
-    expected_logic = "(A ⊕ B) → (B ⊕ A)"
+    expected_logic = "(A ⊕ B) -> (B ⊕ A)"
 
     # 🔒 regression checks
     assert e["logic"] == expected_logic
@@ -74,7 +74,7 @@ async def test_inject_nand_axiom_into_real_container():
     lean_path.parent.mkdir(exist_ok=True)
     lean_path.write_text(
         "import ./symatics_prelude\n\n"
-        "axiom nand_axiom : (A ↑ B) → ¬(A ∧ B)\n"
+        "axiom nand_axiom : (A ↑ B) -> ¬(A ∧ B)\n"
     )
     _copy_prelude(lean_path)
 
@@ -88,7 +88,7 @@ async def test_inject_nand_axiom_into_real_container():
 
     updated = safe_load_container_by_id(str(container_path))
     e = next(e for e in updated["symbolic_logic"] if e["name"] == "nand_axiom")
-    expected_logic = "(A ↑ B) → ¬(A ∧ B)"
+    expected_logic = "(A ↑ B) -> ¬(A ∧ B)"
 
     # 🔒 regression checks
     assert e["logic"] == expected_logic
@@ -106,7 +106,7 @@ async def test_roundtrip_consistency():
     lean_path.parent.mkdir(exist_ok=True)
     lean_path.write_text(
         "import ./symatics_prelude\n\n"
-        "axiom xor_axiom_roundtrip : (A ⊕ B) → (B ⊕ A)\n"
+        "axiom xor_axiom_roundtrip : (A ⊕ B) -> (B ⊕ A)\n"
     )
     _copy_prelude(lean_path)
 
@@ -120,7 +120,7 @@ async def test_roundtrip_consistency():
 
     reloaded = safe_load_container_by_id(str(container_path))
     entry = next(e for e in reloaded["symbolic_logic"] if e["name"] == "xor_axiom_roundtrip")
-    expected = "(A ⊕ B) → (B ⊕ A)"
+    expected = "(A ⊕ B) -> (B ⊕ A)"
 
     assert entry["logic"] == expected
     assert entry["logic_raw"] == expected
@@ -136,7 +136,7 @@ async def test_inject_nand_axiom_roundtrip():
     lean_path.parent.mkdir(exist_ok=True)
     lean_path.write_text(
         "import ./symatics_prelude\n\n"
-        "axiom nand_axiom_roundtrip : (A ↑ B) → ¬(A ∧ B)\n"
+        "axiom nand_axiom_roundtrip : (A ↑ B) -> ¬(A ∧ B)\n"
     )
     _copy_prelude(lean_path)
 
@@ -150,7 +150,7 @@ async def test_inject_nand_axiom_roundtrip():
 
     updated = safe_load_container_by_id(str(container_path))
     e = next(e for e in updated["symbolic_logic"] if e["name"] == "nand_axiom_roundtrip")
-    expected = "(A ↑ B) → ¬(A ∧ B)"
+    expected = "(A ↑ B) -> ¬(A ∧ B)"
 
     assert e["logic"] == expected
     assert e["logic_raw"] == expected
@@ -165,10 +165,10 @@ async def test_inject_nand_axiom_roundtrip():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("name,axiom", [
-    ("comm_phi",     "axiom comm_phi     : (A ⋈[φ] B) ↔ (B ⋈[−φ] A)"),
+    ("comm_phi",     "axiom comm_phi     : (A ⋈[φ] B) ↔ (B ⋈[-φ] A)"),
     ("self_pi_bot",  "axiom self_pi_bot  : (A ⋈[π] A) ↔ ⊥"),
     ("self_zero_id", "axiom self_zero_id : (A ⋈[0] A) ↔ A"),
-    ("non_idem",     "axiom non_idem     : ∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A"),
+    ("non_idem",     "axiom non_idem     : ∀ φ, φ != 0 ∧ φ != π -> (A ⋈[φ] A) != A"),
     ("neutral_phi",  "axiom neutral_phi  : (A ⋈[φ] ⊥) ↔ A"),
     ("no_distrib",   "axiom no_distrib   : ¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"),
 ])
@@ -210,10 +210,10 @@ async def test_inject_symatics_axioms_batch_roundtrip():
     lean_path.parent.mkdir(exist_ok=True)
     lean_path.write_text(
         "import ./symatics_prelude\n\n"
-        "axiom comm_phi     : (A ⋈[φ] B) ↔ (B ⋈[−φ] A)\n"
+        "axiom comm_phi     : (A ⋈[φ] B) ↔ (B ⋈[-φ] A)\n"
         "axiom self_pi_bot  : (A ⋈[π] A) ↔ ⊥\n"
         "axiom self_zero_id : (A ⋈[0] A) ↔ A\n"
-        "axiom non_idem     : ∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A\n"
+        "axiom non_idem     : ∀ φ, φ != 0 ∧ φ != π -> (A ⋈[φ] A) != A\n"
         "axiom neutral_phi  : (A ⋈[φ] ⊥) ↔ A\n"
         "axiom no_distrib   : ¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))\n"
     )
@@ -232,10 +232,10 @@ async def test_inject_symatics_axioms_batch_roundtrip():
     entries = {e["name"]: e for e in updated.get("symbolic_logic", [])}
 
     expected = {
-        "comm_phi":     "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)",
+        "comm_phi":     "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)",
         "self_pi_bot":  "(A ⋈[π] A) ↔ ⊥",
         "self_zero_id": "(A ⋈[0] A) ↔ A",
-        "non_idem":     "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A",
+        "non_idem":     "∀ φ, φ != 0 ∧ φ != π -> (A ⋈[φ] A) != A",
         "neutral_phi":  "(A ⋈[φ] ⊥) ↔ A",
         "no_distrib":   "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
     }

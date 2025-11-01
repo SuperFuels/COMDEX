@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-M4b — Coupled Curvature Wells (Tessaris, strong-coupling & FFT detection)
+M4b - Coupled Curvature Wells (Tessaris, strong-coupling & FFT detection)
 
 Purpose:
   Demonstrates energy exchange between two emergent curvature wells
@@ -8,8 +8,8 @@ Purpose:
   Adds FFT-based detection of normal-mode beating frequency.
 
 Outputs:
-  • PAEV_M4b_coupled_curvature_wells.png
-  • backend/modules/knowledge/M4b_coupled_curvature_wells_summary.json
+  * PAEV_M4b_coupled_curvature_wells.png
+  * backend/modules/knowledge/M4b_coupled_curvature_wells_summary.json
 """
 
 import json, math
@@ -23,8 +23,8 @@ from backend.photon_algebra.utils.load_constants import load_constants
 const = load_constants()
 ħ, G, Λ, α, β, χ = const["ħ"], const["G"], const["Λ"], const["α"], const["β"], const.get("χ", 1.0)
 
-print("=== M4b — Coupled Curvature Wells (strong coupling, Tessaris) ===")
-print(f"Constants → ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
+print("=== M4b - Coupled Curvature Wells (strong coupling, Tessaris) ===")
+print(f"Constants -> ħ={ħ}, G={G}, Λ={Λ}, α={α}, β={β}, χ={χ}")
 
 # --- Grid & physical parameters ---
 N, steps = 512, 4800
@@ -122,8 +122,8 @@ ax1 = fig.add_subplot(gs[0, 1])
 ax2 = fig.add_subplot(gs[0, 2])
 
 ax0.plot(np.arange(len(centroids)) * 10 * dt, centroids, lw=2)
-ax0.set_title("M4b — Centroid (two wells)")
-ax0.set_xlabel("Time step (×10 dt)")
+ax0.set_title("M4b - Centroid (two wells)")
+ax0.set_xlabel("Time step (*10 dt)")
 ax0.set_ylabel("x position")
 
 ax1.plot(np.arange(len(ef)) * 10 * dt, ef, label="E_left/E_tot")
@@ -139,7 +139,7 @@ ax2.set_ylabel("ρ_target")
 plt.tight_layout()
 fig_path = "PAEV_M4b_coupled_curvature_wells.png"
 plt.savefig(fig_path, dpi=200)
-print(f"✅ Plot saved → {fig_path}")
+print(f"✅ Plot saved -> {fig_path}")
 
 # --- Summary ---
 ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
@@ -168,23 +168,23 @@ summary = {
 }
 out = Path("backend/modules/knowledge/M4b_coupled_curvature_wells_summary.json")
 out.write_text(json.dumps(summary, indent=2))
-print(f"✅ Summary saved → {out}")
+print(f"✅ Summary saved -> {out}")
 
 # --- Discovery Notes ---
-print("\n🧭 Discovery Notes —", ts)
+print("\n🧭 Discovery Notes -", ts)
 print("------------------------------------------------------------")
-print(f"• Energy-exchange amplitude (std) = {transfer_amp:.3e}")
-print(f"• Beat frequency ≈ {beat_freq:.3e} (normalized units)")
-print(f"• Final EMA curvature = {ema_R:.3e}")
-print("• Interpretation: Observable energy beating between curvature wells → normal-mode coupling confirmed.")
-print("• Next: M5 — Matter–Field Bound States & Redshift Analogue.")
+print(f"* Energy-exchange amplitude (std) = {transfer_amp:.3e}")
+print(f"* Beat frequency ≈ {beat_freq:.3e} (normalized units)")
+print(f"* Final EMA curvature = {ema_R:.3e}")
+print("* Interpretation: Observable energy beating between curvature wells -> normal-mode coupling confirmed.")
+print("* Next: M5 - Matter-Field Bound States & Redshift Analogue.")
 print("------------------------------------------------------------")
 
 print("\n============================================================")
-print("🔎 M4b — Coupled Curvature Wells Verdict")
+print("🔎 M4b - Coupled Curvature Wells Verdict")
 print("============================================================")
 if transfer_amp >= 5e-4:
     print(f"✅ Coupling observed: transfer_amp={transfer_amp:.3e}, beat_freq={beat_freq:.3e}")
 else:
-    print(f"⚠️ Weak coupling (transfer_amp={transfer_amp:.3e}) — may still increase well_amp or reduce damping further.")
+    print(f"⚠️ Weak coupling (transfer_amp={transfer_amp:.3e}) - may still increase well_amp or reduce damping further.")
 print("============================================================\n")

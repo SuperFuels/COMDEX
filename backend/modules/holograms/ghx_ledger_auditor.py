@@ -1,5 +1,5 @@
 """
-🧩 SRK-18.6 — GHX Ledger Verifier & Auditor
+🧩 SRK-18.6 - GHX Ledger Verifier & Auditor
 Module: backend/modules/holograms/ghx_ledger_auditor.py
 Subsystem: Holograms / GHX Continuity Layer
 
@@ -8,10 +8,10 @@ Purpose:
     Detects tampering, hash inconsistencies, and divergence between nodes.
 
 Features:
-    • Snapshot verification and chain replay
-    • Tamper detection via SHA3 re-hash validation
-    • Diff comparison between snapshots
-    • Structured audit reporting
+    * Snapshot verification and chain replay
+    * Tamper detection via SHA3 re-hash validation
+    * Diff comparison between snapshots
+    * Structured audit reporting
 
 Author: Tessaris Core Engineering
 Spec Ref: SRK-18 / Phase 18.6

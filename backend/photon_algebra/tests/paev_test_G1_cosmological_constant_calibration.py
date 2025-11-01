@@ -1,6 +1,6 @@
 # ==========================================================
-# G1 — Cosmological Constant Calibration
-#   Derive an effective Λ from mean Lagrangian density ⟨ℒ⟩
+# G1 - Cosmological Constant Calibration
+#   Derive an effective Λ from mean Lagrangian density ⟨L⟩
 #   and spectral entropy of the emergent fields.
 #   - NumPy 2.0 safe (no ndarray.ptp, etc.)
 #   - Stable parameters (no overflow)
@@ -57,9 +57,9 @@ d2 = 0.20    # curvature drive from |∇θ|^2
 d3 = -0.03   # curvature leak (gentle decay)
 noise_amp = 3e-4
 
-# Entropy→Λ mapping (dimensionless -> "Planck units" style)
+# Entropy->Λ mapping (dimensionless -> "Planck units" style)
 beta  = 1.0     # scales energy density into Λ density
-gamma = 2.0     # steeper suppression as entropy→1
+gamma = 2.0     # steeper suppression as entropy->1
 
 # ----------------------------
 # grid & initial conditions
@@ -152,7 +152,7 @@ if len(Lambda_win) > 0:
     guide = np.interp(np.arange(len(Lambda_trace)), centers, Lambda_win)
     plt.plot(guide, lw=2.2, alpha=0.8, label="Λ (windowed mean)")
 plt.axhline(lam_mean, color="k", ls="--", lw=1.2, label=f"Λ̄ ≈ {lam_mean:.3e}")
-plt.title("G1 — Cosmological Constant Calibration (unitless)")
+plt.title("G1 - Cosmological Constant Calibration (unitless)")
 plt.xlabel("step")
 plt.ylabel("Λ estimate")
 plt.legend()
@@ -164,11 +164,11 @@ print("✅ Saved file: PAEV_TestG1_LambdaTrace.png")
 # 2) Energy & Entropy traces
 fig, ax = plt.subplots(1, 1, figsize=(8.2, 4.8))
 ax2 = ax.twinx()
-ax.plot(E_trace, label="⟨ℒ⟩", lw=1.6, color="#1f77b4")
+ax.plot(E_trace, label="⟨L⟩", lw=1.6, color="#1f77b4")
 ax2.plot(S_trace, label="Spectral entropy (norm.)", lw=1.6, color="#2ca02c")
-ax.set_title("G1 — Energy & Spectral Entropy")
+ax.set_title("G1 - Energy & Spectral Entropy")
 ax.set_xlabel("step")
-ax.set_ylabel("⟨ℒ⟩")
+ax.set_ylabel("⟨L⟩")
 ax2.set_ylabel("entropy")
 lns = ax.get_lines() + ax2.get_lines()
 labs = [l.get_label() for l in lns]
@@ -184,7 +184,7 @@ plt.hist(boot, bins=40, alpha=0.85)
 plt.axvline(lam_mean, color="k", lw=1.5, ls="--", label=f"Λ̄={lam_mean:.3e}")
 plt.axvline(lam_lo, color="k", lw=1.0, ls=":")
 plt.axvline(lam_hi, color="k", lw=1.0, ls=":")
-plt.title("G1 — Bootstrap Λ distribution (window means)")
+plt.title("G1 - Bootstrap Λ distribution (window means)")
 plt.xlabel("Λ")
 plt.ylabel("count")
 plt.legend()
@@ -197,13 +197,13 @@ print("✅ Saved file: PAEV_TestG1_LambdaHistogram.png")
 # summary
 # ----------------------------
 summary = f"""
-=== Test G1 — Cosmological Constant Calibration ===
+=== Test G1 - Cosmological Constant Calibration ===
 
 Grid: {N}x{N}, steps={steps}, dt={dt}
 Coeffs: c1={c1}, c3={c3}, d1={d1}, d2={d2}, d3={d3}
 Noise amplitude: {noise_amp}
 
-Mapping: Λ = β * max(⟨ℒ⟩,0) * (1 - S)^γ
+Mapping: Λ = β * max(⟨L⟩,0) * (1 - S)^γ
   β={beta}, γ={gamma}
 Where S is normalized spectral entropy of θ's spectrum.
 
@@ -211,7 +211,7 @@ Results:
   Λ̄ (window-mean)  = {lam_mean:.6e}
   68% CI (bootstrap)= [{lam_lo:.6e}, {lam_hi:.6e}]
   Final Λ(t)        = {Lambda_trace[-1]:.6e}
-  Final ⟨ℒ⟩         = {E_trace[-1]:.6e}
+  Final ⟨L⟩         = {E_trace[-1]:.6e}
   Final entropy S   = {S_trace[-1]:.6e}
 
 Files:
@@ -222,8 +222,8 @@ Files:
 Path("PAEV_TestG1_Summary.txt").write_text(summary.strip() + "\n", encoding="utf-8")
 print("✅ Saved file: PAEV_TestG1_Summary.txt")
 
-print("\n=== Test G1 — Cosmological Constant Calibration Complete ===")
-print(f"Λ̄ ≈ {lam_mean:.3e}  (68% CI: {lam_lo:.3e} … {lam_hi:.3e})")
-print(f"Final ⟨ℒ⟩ = {E_trace[-1]:.3e}, Final S = {S_trace[-1]:.3e}")
+print("\n=== Test G1 - Cosmological Constant Calibration Complete ===")
+print(f"Λ̄ ≈ {lam_mean:.3e}  (68% CI: {lam_lo:.3e} ... {lam_hi:.3e})")
+print(f"Final ⟨L⟩ = {E_trace[-1]:.3e}, Final S = {S_trace[-1]:.3e}")
 print("All output files saved in working directory.")
 print("----------------------------------------------------------")

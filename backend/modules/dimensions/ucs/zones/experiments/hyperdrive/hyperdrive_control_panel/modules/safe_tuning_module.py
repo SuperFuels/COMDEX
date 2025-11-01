@@ -63,7 +63,7 @@ def export_safe_constants_to_json(path: str = "data/qwave_safe_constants.json") 
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         json.dump(constants, f, indent=4)
-    print(f"✅ Safe QWave tuning constants exported → {path}")
+    print(f"✅ Safe QWave tuning constants exported -> {path}")
     return path
 
 

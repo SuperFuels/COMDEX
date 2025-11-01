@@ -99,7 +99,7 @@ summary = {
     },
     "notes": [
         f"CIS operators validated under Tessaris Unified Constants v1.2.",
-        f"Residual divergence (∇·J + ∂S/∂t) = {divergence:.3e}.",
+        f"Residual divergence (∇*J + ∂S/∂t) = {divergence:.3e}.",
         f"Synchrony coefficient R_sync = {R_sync:.4f}.",
         f"Curvature feedback mean |R| = {curvature:.3e}.",
         f"Flux recovery (γ=0.05) restored {recovered:.3e}.",
@@ -120,10 +120,10 @@ plt.plot(A.energy, label="Energy")
 plt.plot(A.flux, label="Flux")
 plt.plot(A.phase / (2*np.pi), label="Phase/2π")
 plt.legend(); plt.grid(True, alpha=0.3)
-plt.title("Tessaris CIS v0.1 Test Bench — Field Evolution")
+plt.title("Tessaris CIS v0.1 Test Bench - Field Evolution")
 plt.savefig(out_plot, dpi=200)
 plt.close()
 
-print(f"✅ Summary saved → {out_json}")
-print(f"✅ Plot saved → {out_plot}")
+print(f"✅ Summary saved -> {out_json}")
+print(f"✅ Plot saved -> {out_plot}")
 print("------------------------------------------------------------")

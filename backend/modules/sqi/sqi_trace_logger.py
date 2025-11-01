@@ -20,7 +20,7 @@ class SQITraceLogger:
     @staticmethod
     def log_trace(engine, message: str) -> None:
         """
-        Legacy trace logging — writes to logger only.
+        Legacy trace logging - writes to logger only.
         """
         logger.info(f"[SQITrace] {message}")
 

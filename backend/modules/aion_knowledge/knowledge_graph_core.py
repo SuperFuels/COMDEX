@@ -2,11 +2,11 @@
 """
 Aion Knowledge Graph Core (AKG)
 ───────────────────────────────────────────────
-Persistent symbolic–resonant memory substrate for Aion.
+Persistent symbolic-resonant memory substrate for Aion.
 
-• Stores triplets: (subject, predicate, object, strength, vec, timestamp)
-• Triplets represent symbolic–resonant associations learned by PAL, RAL, TCFK.
-• Provides semantic search, reinforcement, and recall.
+* Stores triplets: (subject, predicate, object, strength, vec, timestamp)
+* Triplets represent symbolic-resonant associations learned by PAL, RAL, TCFK.
+* Provides semantic search, reinforcement, and recall.
 
 Backend: lightweight SQLite (local) for permanence and speed.
 """
@@ -208,7 +208,7 @@ def dump_concepts(limit: int = 20):
 
     print("🌐 Concept Field Relations:")
     for s, p, o, w in rows:
-        print(f"  {s} —[{p}:{w:.3f}]→ {o}")
+        print(f"  {s} -[{p}:{w:.3f}]-> {o}")
 
 
 import uuid
@@ -273,13 +273,13 @@ def create_concept_node(name: str, symbols: list[str], meta: dict | None = None)
     except Exception as e:
         logger.warning(f"[AKG] Could not save concept node {concept_id}: {e}")
 
-    # Phase 36A — Photon Bridge export (optional)
+    # Phase 36A - Photon Bridge export (optional)
     try:
         if _photon_bridge:
             _photon_bridge.export_concept(concept_id)
-            logger.info(f"[AKG→Photon] Exported photonic record for {concept_id}")
+            logger.info(f"[AKG->Photon] Exported photonic record for {concept_id}")
     except Exception as e:
-        logger.warning(f"[AKG→Photon] Failed to export {concept_id}: {e}")
+        logger.warning(f"[AKG->Photon] Failed to export {concept_id}: {e}")
 
     logger.info(
         f"[AKG] Created concept node: {concept_id} "
@@ -306,8 +306,8 @@ def merge_concepts(a: str, b: str):
         print("🚫 Auto-merge skipped due to active cooldown (timer or flag).")
         return None
 
-    # Placeholder (safe) behavior — avoids runaway recursive merges
-    print(f"🔗 Merging {a} + {b} → {a}_{b}_merged")
+    # Placeholder (safe) behavior - avoids runaway recursive merges
+    print(f"🔗 Merging {a} + {b} -> {a}_{b}_merged")
     return f"{a}_{b}_merged"
 
 
@@ -329,7 +329,7 @@ def check_auto_merge_cooldown():
 # ─────────────────────────────────────────────
 # Knowledge Graph Loader + Exporter
 # ─────────────────────────────────────────────
-triplets = {}  # In-memory cache of (subject, predicate, object) → strength
+triplets = {}  # In-memory cache of (subject, predicate, object) -> strength
 
 def load_knowledge():
     """
@@ -359,7 +359,7 @@ def save_knowledge():
 
 def export_concepts() -> dict[str, list[str]]:
     """
-    Export a mapping of concept → [symbols] from the current AKG triplet store.
+    Export a mapping of concept -> [symbols] from the current AKG triplet store.
 
     - Automatically loads triplets if not yet in memory.
     - Returns a dict where each concept maps to its associated symbol list.
@@ -411,7 +411,7 @@ def inspect_node(concept_name: str):
         return
 
     for s, p, o, w in related_entries:
-        arrow = "→" if s == concept_id else "←"
+        arrow = "->" if s == concept_id else "<-"
         print(f"  {s} {arrow} [{p}:{w}] {o}")
 
 def print_concept_tree(limit: int = 50, indent: int = 0):
@@ -484,7 +484,7 @@ def adjust_concept_strength(concept_name: str, delta: float, mode: str = "add"):
     conn.close()
 
 # ─────────────────────────────────────────────
-# Phase 35.95 — Self-Accuracy Integration
+# Phase 35.95 - Self-Accuracy Integration
 # ─────────────────────────────────────────────
 def update_self_accuracy(concept_name: str, meta_accuracy: float):
     """
@@ -496,7 +496,7 @@ def update_self_accuracy(concept_name: str, meta_accuracy: float):
     except Exception:
         acc_val = 0.0
 
-    print(f"🧠  Updating self-accuracy for {concept_name} → {acc_val}")
+    print(f"🧠  Updating self-accuracy for {concept_name} -> {acc_val}")
     add_triplet(f"concept:{concept_name}", "self_accuracy", acc_val)
 
 
@@ -512,7 +512,7 @@ def dump_summary(limit: int = 10):
     conn.close()
     print("🧩 Top Knowledge Links:")
     for s,p,o,w in rows:
-        print(f"  {s} —[{p}:{w:.3f}]→ {o}")
+        print(f"  {s} -[{p}:{w:.3f}]-> {o}")
 
 # ─────────────────────────────────────────────
 # Test harness (manual verification)

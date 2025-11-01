@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Test C9 — Quantization of Curvature Energy (Emergent Graviton Modes)
+Test C9 - Quantization of Curvature Energy (Emergent Graviton Modes)
 
 Goal:
     Examine whether continuous rewrite curvature energy exhibits
-    self-discretization — i.e. quantized curvature “modes” — when
+    self-discretization - i.e. quantized curvature "modes" - when
     analyzed in the frequency domain.
 
 Method:
     1. Simulate curvature oscillations κ(x,y,t) using a simple
        rewrite feedback wave equation.
-    2. Record spatial mean ⟨κ²⟩ over time (energy trace).
-    3. Perform FFT of ⟨κ²⟩(t) → spectral power density.
+    2. Record spatial mean ⟨κ2⟩ over time (energy trace).
+    3. Perform FFT of ⟨κ2⟩(t) -> spectral power density.
     4. Compare to a smooth Gaussian control (no discrete modes).
-    5. Identify emergent peaks — candidates for quantized modes.
+    5. Identify emergent peaks - candidates for quantized modes.
 
 Outputs:
     - PAEV_TestC9_QuantizedCurvature_Spectrum.png
@@ -55,7 +55,7 @@ def main():
     energy_trace = []
     frames = []
 
-    print("=== Test C9 — Quantization of Curvature Energy (Emergent Graviton Modes) ===")
+    print("=== Test C9 - Quantization of Curvature Energy (Emergent Graviton Modes) ===")
     for t in range(steps):
         lap = laplacian(kappa)
         kappa_next = (2 - gamma) * kappa - (1 - gamma) * kappa_prev + c**2 * dt**2 * lap
@@ -76,7 +76,7 @@ def main():
     # --- Plot spectral power ---
     plt.figure(figsize=(7.5, 4.3))
     plt.plot(freqs, power / np.max(power), 'b-', lw=1.8)
-    plt.title("Test C9 — Quantized Curvature Spectrum (Emergent Modes)")
+    plt.title("Test C9 - Quantized Curvature Spectrum (Emergent Modes)")
     plt.xlabel("Frequency (arb. units)")
     plt.ylabel("Normalized power")
     plt.grid(alpha=0.3)
@@ -87,7 +87,7 @@ def main():
     # --- Optional: animate curvature field ---
     fig, ax = plt.subplots(figsize=(4.2, 4.2))
     img = ax.imshow(frames[0], cmap="inferno", vmin=0, vmax=1)
-    ax.set_title("Test C9 — Curvature Field Evolution")
+    ax.set_title("Test C9 - Curvature Field Evolution")
     ax.axis("off")
 
     def update(frame):

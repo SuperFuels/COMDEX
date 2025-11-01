@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
-print("=== N1 — Causal Entanglement Transport Test ===", flush=True)
+print("=== N1 - Causal Entanglement Transport Test ===", flush=True)
 
 ħ, G, Λ, α = 1e-3, 1e-5, 1e-6, 0.5
 print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}", flush=True)
@@ -20,7 +20,7 @@ X, T = np.meshgrid(x, t)
 ψ1 = np.exp(-((X + 2)**2)) * np.exp(1j * 0.2 * X)
 ψ2 = np.exp(-((X - 2)**2)) * np.exp(1j * 0.2 * X)
 
-# Inject message pulse into ψ₁
+# Inject message pulse into ψ1
 pulse_center, pulse_width = 0, 0.5
 pulse = np.exp(-((x - pulse_center)**2) / (2 * pulse_width**2))
 ψ1_t0 = ψ1.copy()
@@ -55,24 +55,24 @@ print(f"Delay ratio (Δt_signal / Δt_light) = {delay_ratio:.3f}", flush=True)
 if delay_ratio < 1.0:
     print("✅ Nonclassical entanglement transport detected (ER=EPR regime).", flush=True)
 else:
-    print("⚠️ Classical propagation — no wormhole traversability yet.", flush=True)
+    print("⚠️ Classical propagation - no wormhole traversability yet.", flush=True)
 
-# Plot 1 — Entanglement Response
+# Plot 1 - Entanglement Response
 plt.figure(figsize=(7,5))
-plt.plot(t, mutual_info / np.max(mutual_info), label="Mutual Information I(ψ₁; ψ₂)")
-plt.plot(t, response_signal / np.max(response_signal), "--", label="ψ₂ Response")
+plt.plot(t, mutual_info / np.max(mutual_info), label="Mutual Information I(ψ1; ψ2)")
+plt.plot(t, response_signal / np.max(response_signal), "--", label="ψ2 Response")
 plt.axvline(light_travel_time, color="r", linestyle=":", label="Light-cone")
 plt.xlabel("Time"); plt.ylabel("Normalized magnitude")
-plt.title("N1 — Entanglement Transport Response")
+plt.title("N1 - Entanglement Transport Response")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_N1_EntanglementResponse.png")
 
-# Plot 2 — Signal Delay Map
+# Plot 2 - Signal Delay Map
 plt.figure(figsize=(7,5))
-plt.plot(t, response_signal / np.max(response_signal), color="orange", label="ψ₂ response")
+plt.plot(t, response_signal / np.max(response_signal), color="orange", label="ψ2 response")
 plt.axvline(light_travel_time, color="r", linestyle="--", label="Light-cone boundary")
 plt.xlabel("Time"); plt.ylabel("Response amplitude")
-plt.title("N1 — Signal Delay vs Light Cone")
+plt.title("N1 - Signal Delay vs Light Cone")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_N1_SignalDelay.png")
 

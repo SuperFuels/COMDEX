@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🧩 RuleRecipeEngine — Phase R7: Compressed Rule Bundling
+# 🧩 RuleRecipeEngine - Phase R7: Compressed Rule Bundling
 # ================================================================
-# Generates symbolic rule “recipes” derived from multiple rulebooks.
+# Generates symbolic rule "recipes" derived from multiple rulebooks.
 # Each recipe stores coherence (ρ), entropy (Ī), and SQI weights
 # and can be entangled across domains for rapid reuse.
 # ================================================================
@@ -65,7 +65,7 @@ class RuleRecipeEngine:
         with open(out_path, "w") as f:
             json.dump(recipe, f, indent=2)
 
-        logger.info(f"[RuleRecipeEngine] Synthesized recipe for {len(domains)} domains → {out_path}")
+        logger.info(f"[RuleRecipeEngine] Synthesized recipe for {len(domains)} domains -> {out_path}")
         return recipe
 
     # ------------------------------------------------------------

@@ -85,7 +85,7 @@ def coerce_thought_glyph_from_lean(lean_like: dict) -> dict:
     return {
         "id": lean_like["id"],
         "origin_id": lean_like["origin_id"],
-        "symbol": "THINK",               # ← keep this a STRING for ThoughtBranch
+        "symbol": "THINK",               # <- keep this a STRING for ThoughtBranch
         "payload": {"logic": logic_str, "source": "lean"},
     }
 

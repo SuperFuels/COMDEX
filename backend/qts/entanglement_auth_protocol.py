@@ -1,5 +1,5 @@
 """
-🛰 Entanglement Authentication Protocol (EAP) — SRK-16 B2
+🛰 Entanglement Authentication Protocol (EAP) - SRK-16 B2
 Implements quantum-safe authentication for QGN node pairs.
 Ensures both nodes share an entangled trust context derived from their QGN certificates.
 """
@@ -12,7 +12,7 @@ from backend.qts.qgn_identity_registry import QuantumNodeCertificate
 class EntanglementAuthProtocol:
     """
     Validates entangled link authenticity between two QGN nodes.
-    Produces challenge–response tokens bound to node certificates.
+    Produces challenge-response tokens bound to node certificates.
     """
 
     def __init__(self):
@@ -31,7 +31,7 @@ class EntanglementAuthProtocol:
 
     # ────────────────────────────────────────────────────────────────
     def respond_handshake(self, responder_cert: QuantumNodeCertificate, challenge: str) -> str:
-        """Respond to challenge using responder’s certificate signature."""
+        """Respond to challenge using responder's certificate signature."""
         base = f"{responder_cert.signature}:{challenge}"
         response = hashlib.sha3_512(base.encode()).hexdigest()
         return response

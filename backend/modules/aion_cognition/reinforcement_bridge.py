@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-🧠 AION Reinforcement Bridge — Phase 46C
+🧠 AION Reinforcement Bridge - Phase 46C
 ────────────────────────────────────────
 Unifies semantic, resonant, and harmonic reinforcement.
 Ensures every learned association is stored coherently across
 LexMemory, ResonantMemoryCache, and HarmonicMemoryProfile.
 
 Functions:
-    • reinforce_all() – coherent multi-layer reinforcement
-    • schedule_replay() – recall & reinforce selected lemmas
-    • decay_and_adapt() – adaptive decay + replay scheduling
-    • report_metrics() – emit real-time learning statistics
+    * reinforce_all() - coherent multi-layer reinforcement
+    * schedule_replay() - recall & reinforce selected lemmas
+    * decay_and_adapt() - adaptive decay + replay scheduling
+    * report_metrics() - emit real-time learning statistics
 """
 
 import time, random, logging
@@ -98,7 +98,7 @@ def reinforce_all(prompt: str, answer: str, resonance: dict):
         except Exception as e:
             log.warning(f"[Bridge] ⚠ HMP log failed: {e}")
 
-    log.info(f"[Bridge] ✅ Reinforced '{prompt}' → {answer} ({resonance})")
+    log.info(f"[Bridge] ✅ Reinforced '{prompt}' -> {answer} ({resonance})")
 
 
 # ────────────────────────────────────────────────────────────────
@@ -156,7 +156,7 @@ def report_metrics() -> dict:
 
 # ────────────────────────────────────────────────────────────────
 def run_reinforcement_cycle(iterations: int = 3, batch_size: int = 10):
-    """Main control loop for replay–decay–metrics cycles."""
+    """Main control loop for replay-decay-metrics cycles."""
     for i in range(iterations):
         log.info(f"\n🌀 Reinforcement Cycle {i+1}/{iterations}")
         schedule_replay(batch_size=batch_size)
@@ -167,5 +167,5 @@ def run_reinforcement_cycle(iterations: int = 3, batch_size: int = 10):
 
 # ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    log.info("🔗 AION Reinforcement Bridge — Phase 46C (Unified Semantic–Resonant–Harmonic)")
+    log.info("🔗 AION Reinforcement Bridge - Phase 46C (Unified Semantic-Resonant-Harmonic)")
     run_reinforcement_cycle(iterations=2, batch_size=8)

@@ -2,7 +2,7 @@
 """
 Photon Canonical Simplifier
 ===========================
-Task: I3 — Canonicalization Layer
+Task: I3 - Canonicalization Layer
 
 Performs algebraic normalization on Photon Algebra JSON IR.
 Guarantees structural determinism under commutative, associative,
@@ -14,20 +14,20 @@ Rules:
         ⊗(a,b) == ⊗(b,a)
 
     Identity / Null:
-        ⊕(∅,x) → x
-        ⊗(⊤,x) → x
-        ⊕(⊥,x) → x
-        ⊗(∅,x) → ∅
-        ⊕(⊤,x) → ⊤
-        ⊗(⊥,x) → ⊥
+        ⊕(∅,x) -> x
+        ⊗(⊤,x) -> x
+        ⊕(⊥,x) -> x
+        ⊗(∅,x) -> ∅
+        ⊕(⊤,x) -> ⊤
+        ⊗(⊥,x) -> ⊥
 
     Idempotency:
-        ⊕(a,a) → a
-        ⊗(a,a) → a
+        ⊕(a,a) -> a
+        ⊗(a,a) -> a
 
     Nest flattening:
-        ⊕(a,⊕(b,c)) → ⊕(a,b,c)
-        ⊗(a,⊗(b,c)) → ⊗(a,b,c)
+        ⊕(a,⊕(b,c)) -> ⊕(a,b,c)
+        ⊗(a,⊗(b,c)) -> ⊗(a,b,c)
 """
 
 from __future__ import annotations
@@ -109,7 +109,7 @@ def canonicalize(expr: Expr) -> Expr:
         a, b = canonicalize(a), canonicalize(b)
         return {"op": op, "states": [a, b]}
 
-    # fallback — unknown operator
+    # fallback - unknown operator
     return expr
 
 

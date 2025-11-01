@@ -34,7 +34,7 @@ async def mock_broadcast(container_id: str, payload: dict):
             print(f"  {k}: {v}")
 
 
-def create_test_sheet(num_cells: int = 5, logic: str = "⊕ ∇ ↔ ⟲ → ✦") -> List[GlyphCell]:
+def create_test_sheet(num_cells: int = 5, logic: str = "⊕ ∇ ↔ ⟲ -> ✦") -> List[GlyphCell]:
     sheet = []
     for i in range(num_cells):
         cell = GlyphCell(

@@ -23,11 +23,11 @@ def test_piS_phase_closure_validator(tmp_path):
 
     # ✅ Expect closure maintained
     assert report["status"] == "ok", f"Unexpected status: {report}"
-    assert report["Δφₛ"] <= 0.05, f"Δφₛ too large: {report['Δφₛ']}"
+    assert report["Δφs"] <= 0.05, f"Δφs too large: {report['Δφs']}"
     assert os.path.exists(output_path)
 
     # ✅ Ensure report logged properly
     with open(output_path, "r") as f:
         lines = [json.loads(l) for l in f.readlines()]
     assert len(lines) >= 1
-    assert "Δφₛ" in lines[-1]
+    assert "Δφs" in lines[-1]

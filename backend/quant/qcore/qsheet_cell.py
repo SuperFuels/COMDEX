@@ -2,7 +2,7 @@
 # 📁 backend/quant/qcore/qsheet_cell.py
 # ===============================
 """
-💠 QSheetCell — Symbolic-Photonic Extension of GlyphCell
+💠 QSheetCell - Symbolic-Photonic Extension of GlyphCell
 -------------------------------------------------------
 
 A QSheetCell represents the Q-Series version of a GlyphCell:
@@ -50,7 +50,7 @@ def now_utc_iso() -> str:
 @dataclass
 class QSheetCell:
     """
-    🧬 QSheetCell — Symbolic-Photonic state carrier.
+    🧬 QSheetCell - Symbolic-Photonic state carrier.
 
     Extends GlyphCell with physical resonance metrics and
     symbolic introspection data for Q-Series modules.
@@ -132,7 +132,7 @@ class QSheetCell:
     # =========================================================================
     def compute_resonance_state(self) -> Dict[str, float]:
         """
-        🔬 Compute Φ–ψ resonance metrics and update the cell.
+        🔬 Compute Φ-ψ resonance metrics and update the cell.
         This simplified model uses symbolic heuristics that will later
         be replaced by the QTensor physics engine.
         """

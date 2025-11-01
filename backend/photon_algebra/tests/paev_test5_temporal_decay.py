@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Photon Algebra Evaluation (PAEV)
-Test 5 — Temporal Coherence Decay (μ–⟲–↔ Coupled Dynamics)
+Test 5 - Temporal Coherence Decay (μ-⟲-↔ Coupled Dynamics)
 """
 
 import os
@@ -15,7 +15,7 @@ from backend.photon_algebra.utils.visibility import compute_visibility
 # ---------------------------------------------------------------------
 os.makedirs("docs/theory/figures", exist_ok=True)
 os.makedirs("docs/theory/tables", exist_ok=True)
-print("⚙️ Running PAEV Test 5 — Temporal Coherence Decay (μ–⟲–↔ dynamics)...")
+print("⚙️ Running PAEV Test 5 - Temporal Coherence Decay (μ-⟲-↔ dynamics)...")
 
 # ---------------------------------------------------------------------
 # Parameters
@@ -54,7 +54,7 @@ def evolve_fields(mu=0.05, coupling="decoupled"):
             B = 0.5 + 0.5 * np.cos(phase_B)
 
         elif coupling == "entangled":
-            # perfect shared μ-phase → correlated evolution
+            # perfect shared μ-phase -> correlated evolution
             A = 0.5 + 0.5 * np.cos(phi_base + shared_phase)
             B = 0.5 + 0.5 * np.cos(phi_base + shared_phase + np.pi / 12)
         else:
@@ -104,7 +104,7 @@ for i, mode in enumerate(modes):
     axes[0].plot(t, Vc_mean, label=f"{mode}")
 axes[0].set_title("Temporal Cross-Correlation Decay")
 axes[0].set_xlabel("Time t (arb)")
-axes[0].set_ylabel("⟨V₍c₎(t)⟩")
+axes[0].set_ylabel("⟨V(c)(t)⟩")
 axes[0].legend()
 axes[0].grid(alpha=0.3)
 

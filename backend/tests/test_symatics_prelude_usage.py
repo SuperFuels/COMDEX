@@ -7,17 +7,17 @@ from pathlib import Path
         "xor_axiom",
         """\
 import ./symatics_prelude
-axiom xor_axiom : (A ⊕ B) → (B ⊕ A)
+axiom xor_axiom : (A ⊕ B) -> (B ⊕ A)
 """,
-        "(A ⊕ B) → (B ⊕ A)"
+        "(A ⊕ B) -> (B ⊕ A)"
     ),
     (
         "nand_axiom",
         """\
 import ./symatics_prelude
-axiom nand_axiom : (A ↑ B) → ¬(A ∧ B)
+axiom nand_axiom : (A ↑ B) -> ¬(A ∧ B)
 """,
-        "(A ↑ B) → ¬(A ∧ B)"
+        "(A ↑ B) -> ¬(A ∧ B)"
     ),
 ])
 def test_symatics_prelude_snapshot(tmp_path, client, axiom_name, lean_code, formula):

@@ -2,7 +2,7 @@
 # 📁 backend/quant/qlearn/qlearn_engine.py
 # ===============================
 """
-🧠  QLearnEngine — Adaptive Resonance Learning Core
+🧠  QLearnEngine - Adaptive Resonance Learning Core
 ----------------------------------------------------
 Implements reinforcement-style adaptation for Q-Series metrics.
 Learns from QCoreMetrics history and adjusts resonance weighting

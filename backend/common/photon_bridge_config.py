@@ -63,6 +63,6 @@ def get_backoff_delay(attempt: int) -> float:
 # ────────────────────────────────────────────────
 if __name__ == "__main__":
     log = init_bridge_logger("PhotonBridgeTest")
-    log.info(f"Bridge Config → {CONFIG}")
+    log.info(f"Bridge Config -> {CONFIG}")
     for i in range(1, 8):
-        log.info(f"Retry {i} → delay={get_backoff_delay(i):.1f}s")
+        log.info(f"Retry {i} -> delay={get_backoff_delay(i):.1f}s")

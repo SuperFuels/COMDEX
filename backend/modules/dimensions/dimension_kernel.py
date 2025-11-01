@@ -12,7 +12,7 @@ from backend.modules.teleport.teleport_packet import TeleportPacket
 from backend.modules.teleport.portal_registry import PORTALS
 from backend.modules.consciousness.state_manager import STATE
 
-# ✅ Optional hub connector (safe fallback if helper isn’t present)
+# ✅ Optional hub connector (safe fallback if helper isn't present)
 try:
     from backend.modules.dimensions.container_helpers import connect_container_to_hub
 except Exception:  # pragma: no cover
@@ -139,8 +139,8 @@ class DimensionKernel:
                             "portal_id": portal_id
                         })
 
-                elif "→" in glyph:
-                    parts = glyph.split("→")
+                elif "->" in glyph:
+                    parts = glyph.split("->")
                     if len(parts) == 2:
                         trigger = parts[0].strip()
                         action = parts[1].strip()

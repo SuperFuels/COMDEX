@@ -6,7 +6,7 @@ Module: sym_io_qubit.py
 Superconducting qubit interface layer.
 
 Purpose:
-    - Map μ ↔ measurement strength (Γₘ)
+    - Map μ ↔ measurement strength (Γm)
     - Map φ̇ ↔ Rabi frequency (Ω_R)
     - Enable export/import of experimental traces
 ───────────────────────────────────────────────

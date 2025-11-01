@@ -1,5 +1,5 @@
 # ==========================================================
-# G4-RC4 — Lyapunov-Controlled Cross-Domain Coupling (TUE)
+# G4-RC4 - Lyapunov-Controlled Cross-Domain Coupling (TUE)
 # Goal: Stabilize triune energy balance with filtered proxies,
 #       anti-windup, and a Lyapunov descent controller.
 # Saves: backend/modules/knowledge/G4RC4_lyapunov_controller.json
@@ -28,7 +28,7 @@ T  = 6000
 dt = 0.002
 t  = np.linspace(0, T*dt, T)
 
-# Controller gains (small; we’ll let Lyapunov descent do the work)
+# Controller gains (small; we'll let Lyapunov descent do the work)
 kG   = 2.0e-4        # feedback to G_eff
 kT   = 1.5e-4        # feedback to T_eff
 kL   = 2.0e-4        # feedback to Λ_eff
@@ -126,7 +126,7 @@ E_max = float(np.max(E_total))
 # Stability metric: variance reduction of smoothed energy vs. raw
 num = np.var(E_s[int(0.7*T):]) + 1e-9
 den = np.var(E_total[:int(0.3*T)]) + 1e-9
-E_stab = float(1.0 - num/den)  # → 1 means late-time is much calmer than early-time
+E_stab = float(1.0 - num/den)  # -> 1 means late-time is much calmer than early-time
 
 corr_S_I = float(np.corrcoef(S[int(0.2*T):], I[int(0.2*T):])[0,1])
 corr_R_L = float(np.corrcoef(R[int(0.2*T):], np.full(T-int(0.2*T), Λ_eff))[0,1])  # Λ_eff ~ const late
@@ -142,20 +142,20 @@ else:
 plt.figure(figsize=(9,5))
 plt.plot(t, E_total, lw=1.0, alpha=0.35, label="E_total (raw)")
 plt.plot(t, E_s, lw=1.8, label="E_total (smoothed)")
-plt.title("G4-RC4 — Energy Conservation (Lyapunov-Controlled)")
+plt.title("G4-RC4 - Energy Conservation (Lyapunov-Controlled)")
 plt.xlabel("time"); plt.ylabel("E_total"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4RC4_EnergyConservation.png")
 
 plt.figure(figsize=(9,5))
 plt.plot(t, S, color="orange", lw=1.5, label="Entropy Flux S(t)")
 plt.plot(t, I, color="purple", lw=1.0, label="Information Flux I(t)")
-plt.title("G4-RC4 — Entropy–Information Dynamics (Filtered)")
+plt.title("G4-RC4 - Entropy-Information Dynamics (Filtered)")
 plt.xlabel("time"); plt.ylabel("flux"); plt.legend(); plt.tight_layout()
 plt.savefig("FAEV_G4RC4_EntropyInfo.png")
 
 plt.figure(figsize=(9,5))
 plt.scatter(S[::10], I[::10], s=9, alpha=0.35, c="tab:green")
-plt.title("G4-RC4 — Phase Portrait: S vs I (Lock Formation)")
+plt.title("G4-RC4 - Phase Portrait: S vs I (Lock Formation)")
 plt.xlabel("Entropy Flux S"); plt.ylabel("Information Flux I")
 plt.tight_layout(); plt.savefig("FAEV_G4RC4_PhasePortrait.png")
 
@@ -186,7 +186,7 @@ save_path = "backend/modules/knowledge/G4RC4_lyapunov_controller.json"
 with open(save_path, "w") as f:
     json.dump(out, f, indent=2)
 
-print("=== G4-RC4 — Lyapunov-Controlled Cross-Domain Coupling (TUE) ===")
+print("=== G4-RC4 - Lyapunov-Controlled Cross-Domain Coupling (TUE) ===")
 print(f"stability={E_stab:.3f} | corr(S,I)={corr_S_I:.3f} | E_range=({E_min:.3e},{E_max:.3e})")
-print(f"→ {verdict}")
-print(f"✅ Results saved → {save_path}")
+print(f"-> {verdict}")
+print(f"✅ Results saved -> {save_path}")

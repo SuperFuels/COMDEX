@@ -3,7 +3,7 @@
 # ============================================================
 
 """
-QFCTriggerEngine — symbolic quantum field trigger manager.
+QFCTriggerEngine - symbolic quantum field trigger manager.
 Used by Tessaris QQC to execute and orchestrate QFC sheets (Symbolic Quantum Sheets)
 in dynamic resonance contexts.
 """
@@ -42,7 +42,7 @@ def trigger_qfc_sheet(sheet: Dict[str, Any], context: Dict[str, Any]) -> Dict[st
     label = sheet.get("label", "Unnamed QFC Sheet")
     session_id = f"qfc_session_{uuid.uuid4().hex[:8]}"
 
-    logger.info(f"[QFCTriggerEngine] Triggering QFC Sheet: {label} ({sheet_type}) → Session ID: {session_id}")
+    logger.info(f"[QFCTriggerEngine] Triggering QFC Sheet: {label} ({sheet_type}) -> Session ID: {session_id}")
 
     # Simulated execution result
     return {
@@ -86,7 +86,7 @@ class QFCTriggerEngine:
         Optional hook called by QQC to update the QFC field tensor
         before running new triggers (placeholder for future physics layer).
         """
-        logger.debug(f"[QFCTriggerEngine] Updating field tensor → {str(field_tensor)[:80]}")
+        logger.debug(f"[QFCTriggerEngine] Updating field tensor -> {str(field_tensor)[:80]}")
 
     def get_last_result(self) -> Optional[Dict[str, Any]]:
         """Retrieve the most recent trigger result."""

@@ -2,16 +2,16 @@
 # 📁 backend/quant/qtools/qtools_utils.py
 # ===============================
 """
-🧰 QTools — Core Symbolic Utility Library
+🧰 QTools - Core Symbolic Utility Library
 -----------------------------------------
 Shared mathematical and symbolic helpers for the Q-Series stack.
 
 Includes:
-    • Glyph ⇄ Operator mappings
-    • Resonance + coherence validators
-    • Numeric normalization utilities
-    • Serialization and pretty-print tools
-    • Random state initializers for quantum sheets
+    * Glyph ⇄ Operator mappings
+    * Resonance + coherence validators
+    * Numeric normalization utilities
+    * Serialization and pretty-print tools
+    * Random state initializers for quantum sheets
 
 All components are lightweight and dependency-safe.
 """
@@ -53,7 +53,7 @@ def op_to_glyph(op: str) -> str:
 # ----------------------------------------------------------------------
 def compute_resonance(a: np.ndarray, b: np.ndarray) -> Dict[str, float]:
     """
-    Compute Φ–ψ resonance between two wavefields.
+    Compute Φ-ψ resonance between two wavefields.
 
     Returns:
         {

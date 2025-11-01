@@ -34,7 +34,7 @@ class GlyphRuntime:
 
         # --- Safety guard: handle missing container gracefully ---
         if not container:
-            print("⚠️ [GlyphRuntime] No active container found — using fallback stub.")
+            print("⚠️ [GlyphRuntime] No active container found - using fallback stub.")
             container = {"id": "default_stub", "cubes": {}}
 
         container_id = container.get("id", "unknown")
@@ -50,7 +50,7 @@ class GlyphRuntime:
             if glyph:
                 try:
                     x, y, z = map(int, coord.split(","))
-                    print(f"⏱️ Runtime tick found glyph at ({coord}) in container [{container_id}] → Executing")
+                    print(f"⏱️ Runtime tick found glyph at ({coord}) in container [{container_id}] -> Executing")
 
                     # ✅ Structured memory log
                     self.memory_engine.store({

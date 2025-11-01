@@ -11,7 +11,7 @@ class PatternCRDTSync:
 
     def __init__(self):
         self.registry = PatternRegistry()
-        self.crdt_docs: dict = {}  # pattern_id → CRDTDocument
+        self.crdt_docs: dict = {}  # pattern_id -> CRDTDocument
 
     def load_or_create_doc(self, pattern_id: str) -> CRDTDocument:
         if pattern_id not in self.crdt_docs:

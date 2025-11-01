@@ -35,21 +35,21 @@ def test_annihilator_in_times():
 
 
 def test_dual_absorption_times_over_plus():
-    # a ⊗ (a ⊕ b) → a
+    # a ⊗ (a ⊕ b) -> a
     assert normalize(times("a", plus("a", "b"))) == "a"
-    # (a ⊕ b) ⊗ a → a
+    # (a ⊕ b) ⊗ a -> a
     assert normalize(times(plus("a", "b"), "a")) == "a"
 
 
 def test_plus_absorption_against_product():
-    # a ⊕ (a ⊗ b) → a
+    # a ⊕ (a ⊗ b) -> a
     assert normalize(plus("a", times("a", "b"))) == "a"
-    # (a ⊗ b) ⊕ a → a
+    # (a ⊗ b) ⊕ a -> a
     assert normalize(plus(times("a", "b"), "a")) == "a"
 
 
 def test_distribution_happens_only_from_times_branch():
-    # a ⊗ (b ⊕ c) → (a⊗b) ⊕ (a⊗c)
+    # a ⊗ (b ⊕ c) -> (a⊗b) ⊕ (a⊗c)
     a, b, c = "a", "b", "c"
     n = normalize(times(a, {"op": "⊕", "states": [b, c]}))
     assert n == {
@@ -112,17 +112,17 @@ def test_no_plus_under_times_invariant_and_idempotence():
 
 
 def test_similarity_reflexive_to_top():
-    # a ≈ a → ⊤
+    # a ≈ a -> ⊤
     expr = {"op": "≈", "states": ["x", "x"]}
     assert normalize(expr) == TOP
 
 
 def test_containment_bottom_top_shortcuts():
-    # ⊥ ⊂ a → ⊤
+    # ⊥ ⊂ a -> ⊤
     expr = {"op": "⊂", "states": [BOTTOM, "a"]}
     assert normalize(expr) == TOP
 
-    # a ⊂ ⊤ → ⊤
+    # a ⊂ ⊤ -> ⊤
     expr2 = {"op": "⊂", "states": ["a", TOP]}
     assert normalize(expr2) == TOP
 

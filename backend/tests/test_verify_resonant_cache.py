@@ -44,14 +44,14 @@ def verify_cache():
 
     total, valid = count_entries(data)
     pct = (valid / max(total, 1)) * 100
-    print(f"🔍 Verified {valid}/{total} resonance entries — {pct:.2f}% valid")
+    print(f"🔍 Verified {valid}/{total} resonance entries - {pct:.2f}% valid")
 
     if pct >= 99.9:
-        print("✅ Cache integrity GOOD — safe for reinforcement and training.")
+        print("✅ Cache integrity GOOD - safe for reinforcement and training.")
     elif pct >= 95:
-        print("⚠ Partial corruption — training possible, but clean soon.")
+        print("⚠ Partial corruption - training possible, but clean soon.")
     else:
-        print("❌ Significant corruption — inspect backup files immediately.")
+        print("❌ Significant corruption - inspect backup files immediately.")
 
 
 if __name__ == "__main__":

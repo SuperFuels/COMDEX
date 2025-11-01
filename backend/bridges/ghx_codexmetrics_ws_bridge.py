@@ -1,5 +1,5 @@
 # ================================================================
-# ⚡ Phase 45G.15 — GHX CodexMetrics WebSocket Push Bridge
+# ⚡ Phase 45G.15 - GHX CodexMetrics WebSocket Push Bridge
 # ================================================================
 """
 Broadcasts CodexMetrics overlay updates over WebSocket for GHX UI dashboards.
@@ -50,7 +50,7 @@ class CodexMetricsWSPush:
             if ts > self.last_sent_timestamp:
                 await websocket.send(json.dumps(data))
                 self.last_sent_timestamp = ts
-                logger.info(f"[CodexWS] Broadcasted update → {data}")
+                logger.info(f"[CodexWS] Broadcasted update -> {data}")
         except Exception as e:
             logger.error(f"[CodexWS] Failed to broadcast: {e}")
 

@@ -1,16 +1,16 @@
 """
 🔗 Engine Sync Module
 ---------------------
-• Handles twin-engine resonance synchronization (phase lock).
-• Manages exhaust → intake chaining for multi-engine amplification.
-• Ensures resonance frequencies are averaged for stable phase alignment.
-• Validates exhaust particle transfers safely before intake injection.
+* Handles twin-engine resonance synchronization (phase lock).
+* Manages exhaust -> intake chaining for multi-engine amplification.
+* Ensures resonance frequencies are averaged for stable phase alignment.
+* Validates exhaust particle transfers safely before intake injection.
 
 🔥 Features:
-    • Twin-engine resonance sync (F2) with averaged phase correction.
-    • Exhaust-to-intake linkage for downstream chaining (F3).
-    • Safe particle validation during exhaust transfer.
-    • Future-ready: Supports expansion to multi-engine chaining pipelines (A → B → C).
+    * Twin-engine resonance sync (F2) with averaged phase correction.
+    * Exhaust-to-intake linkage for downstream chaining (F3).
+    * Safe particle validation during exhaust transfer.
+    * Future-ready: Supports expansion to multi-engine chaining pipelines (A -> B -> C).
 """
 
 def sync_twin_engines(engine_a, engine_b):
@@ -46,6 +46,6 @@ def exhaust_to_intake(source_engine, target_engine):
                 target_engine.inject_proton(custom_particle=particle)
             else:
                 target_engine.inject_proton()
-        print(f"🔄 Exhaust → Intake: {len(particles)} particles transferred.")
+        print(f"🔄 Exhaust -> Intake: {len(particles)} particles transferred.")
     else:
         print("⚠ No exhaust particles available for transfer.")

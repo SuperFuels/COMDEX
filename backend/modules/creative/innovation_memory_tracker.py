@@ -274,7 +274,7 @@ def track_innovation(
     cause: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Record a parent→fork lineage with innovation metrics.
+    Record a parent->fork lineage with innovation metrics.
     Compatible with creative_core.py expectations.
     """
     container_id = getattr(fork_wave, "container_id", None) or getattr(parent_wave, "container_id", None) or "unknown"

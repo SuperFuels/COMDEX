@@ -1,6 +1,6 @@
 # backend/symatics/tests/gen_figures_tensor_field.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v0.8 — Tensor Field Visualization Script
+# Tessaris Symatics v0.8 - Tensor Field Visualization Script
 # Generates docs/figures/tensor_resonance_manifold.png
 # Visualizes λ⊗ψ resonance manifold and coherence flux.
 # ──────────────────────────────────────────────────────────────
@@ -41,7 +41,7 @@ def generate_tensor_resonance_figure():
     plt.savefig(output_path, dpi=200)
     plt.close(fig)
     print(f"✅ Saved {output_path}")
-    print("🎨 Tensor resonance manifold visualization complete — ready for Volume IX.")
+    print("🎨 Tensor resonance manifold visualization complete - ready for Volume IX.")
 
 if __name__ == "__main__":
     generate_tensor_resonance_figure()

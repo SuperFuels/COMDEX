@@ -52,7 +52,7 @@ def main():
         plt.tight_layout()
         out_path = os.path.join(KNOWLEDGE_DIR, "ReproducibilityDriftMap.png")
         plt.savefig(out_path)
-        print(f"\n📊 Drift map saved → {out_path}")
+        print(f"\n📊 Drift map saved -> {out_path}")
     else:
         print("\n✅ All knowledge modules reproducible under constants_v1.2")
 
@@ -68,7 +68,7 @@ def main():
     out_path = os.path.join(KNOWLEDGE_DIR, "reproducibility_check_summary.json")
     with open(out_path, "w") as f:
         json.dump(out_summary, f, indent=2)
-    print(f"\n📄 Summary saved → {out_path}")
+    print(f"\n📄 Summary saved -> {out_path}")
 
 if __name__ == "__main__":
     main()

@@ -15,14 +15,14 @@ Issued At: 2025-05-27T10:47:22Z"""
 
 try:
     # try both the old and new entrypoints:
-    print("→ parse_message:")
+    print("-> parse_message:")
     msg1 = SiweMessage.parse_message(RAW)
     print(msg1)
 except Exception:
     traceback.print_exc()
 
 try:
-    print("→ constructor fallback:")
+    print("-> constructor fallback:")
     msg2 = SiweMessage(RAW)
     print(msg2)
 except Exception:

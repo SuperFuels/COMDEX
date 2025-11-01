@@ -17,11 +17,11 @@ from typing import Dict, Any
 from backend.symatics.terms import Var, Sym, App, Term
 
 # --------------------------
-# Codex → Symatics
+# Codex -> Symatics
 # --------------------------
 
 def codex_ast_to_sym(node: Dict[str, Any]) -> Term:
-    """Convert Codex AST node {op, args, ...} → Symatics Term."""
+    """Convert Codex AST node {op, args, ...} -> Symatics Term."""
     if node is None:
         return Sym("⊥")
 
@@ -45,16 +45,16 @@ def codex_ast_to_sym(node: Dict[str, Any]) -> Term:
     if not extra:
         extra = None
 
-    # General operator → App(Sym(op), args, attrs)
+    # General operator -> App(Sym(op), args, attrs)
     return App(Sym(op), [codex_ast_to_sym(a) for a in args], attrs=extra)
 
 
 # --------------------------
-# Symatics → Codex
+# Symatics -> Codex
 # --------------------------
 
 def sym_to_codex_ast(expr: Term) -> Dict[str, Any]:
-    """Convert Symatics Term → Codex canonical AST dict."""
+    """Convert Symatics Term -> Codex canonical AST dict."""
     if isinstance(expr, Var):
         return {"op": "lit", "value": expr.name}
 
@@ -68,7 +68,7 @@ def sym_to_codex_ast(expr: Term) -> Dict[str, Any]:
         if isinstance(head, Sym):
             op = head.name
         else:
-            # nested App as head (rare) → convert recursively
+            # nested App as head (rare) -> convert recursively
             op_ast = sym_to_codex_ast(head)
             op = op_ast.get("op", "lit")
 

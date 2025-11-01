@@ -1,5 +1,5 @@
 # ==========================================================
-# Test F2++ — Dual-Fourier + Entropy Map + Spectral Centroid
+# Test F2++ - Dual-Fourier + Entropy Map + Spectral Centroid
 #   Tracks Fourier-space evolution and entropy in time
 # ==========================================================
 
@@ -47,7 +47,7 @@ theta = np.exp(-(X**2 + Y**2) / 0.4)
 kappa = np.exp(-(X**2 + Y**2) / 0.5)
 
 if perturb_mode:
-    print("💥 Perturbation mode enabled — injecting Gaussian pulse.")
+    print("💥 Perturbation mode enabled - injecting Gaussian pulse.")
     theta += 0.05 * np.exp(-(X**2 + Y**2) / 0.1)
     kappa += 0.02 * rng.standard_normal((N, N))
 
@@ -119,7 +119,7 @@ for t in range(steps):
         plt.close(fig)
 
 # ----------------------------
-# entropy–frequency map
+# entropy-frequency map
 # ----------------------------
 entropy_map = np.array(entropy_map).T
 plt.figure(figsize=(7, 4))
@@ -127,7 +127,7 @@ plt.imshow(entropy_map, aspect='auto', origin='lower', cmap='inferno')
 plt.colorbar(label=r'$\log_{10}|\theta(k)|^2$')
 plt.xlabel("time step")
 plt.ylabel("k (wavenumber index)")
-plt.title("Entropy–Frequency Evolution (θ field)")
+plt.title("Entropy-Frequency Evolution (θ field)")
 plt.tight_layout()
 plt.savefig("PAEV_TestF2pp_EntropyMap.png", dpi=160)
 plt.close()
@@ -158,9 +158,9 @@ print("✅ Saved animation to: PAEV_TestF2pp_Propagation.gif")
 L_final = energy_trace[-1]
 corr_final = corr_trace[-1]
 entropy_final = entropy_trace[-1]
-print("\n=== Test F2++ — Dual-Fourier + Entropy Map Complete ===")
-print(f"⟨ℒ⟩ final = {L_final:.4e}")
-print(f"⟨θ·κ⟩ final = {corr_final:.4e}")
+print("\n=== Test F2++ - Dual-Fourier + Entropy Map Complete ===")
+print(f"⟨L⟩ final = {L_final:.4e}")
+print(f"⟨θ*κ⟩ final = {corr_final:.4e}")
 print(f"Spectral entropy final = {entropy_final:.4e}")
 if np.argmax(np.gradient(entropy_trace)) < len(entropy_trace) // 2:
     print(f"🌀 Transition detected at step {np.argmax(np.gradient(entropy_trace))} (entropy surge).")

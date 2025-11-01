@@ -52,7 +52,7 @@ def _attach_validation(container: Dict[str, Any]) -> Dict[str, Any]:
         container["validation_errors"] = errors
         container["validation_errors_version"] = "v1"
     except Exception as e:
-        # Don’t break API on validation failure; just log in container
+        # Don't break API on validation failure; just log in container
         container["validation_errors"] = [{"code": "validation_failed", "message": str(e)}]
         container["validation_errors_version"] = "v1"
     return container

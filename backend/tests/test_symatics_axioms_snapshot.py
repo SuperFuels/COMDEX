@@ -23,10 +23,10 @@ async def test_inject_symatics_interference_axioms_roundtrip():
     lean_path.parent.mkdir(exist_ok=True)
     lean_path.write_text(
         "import ./symatics_prelude\n\n"
-        "axiom comm_phi     : (A ⋈[φ] B) ↔ (B ⋈[−φ] A)\n"
+        "axiom comm_phi     : (A ⋈[φ] B) ↔ (B ⋈[-φ] A)\n"
         "axiom self_pi_bot  : (A ⋈[π] A) ↔ ⊥\n"
         "axiom self_zero_id : (A ⋈[0] A) ↔ A\n"
-        "axiom non_idem     : ∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A\n"
+        "axiom non_idem     : ∀ φ, φ != 0 ∧ φ != π -> (A ⋈[φ] A) != A\n"
         "axiom neutral_phi  : (A ⋈[φ] ⊥) ↔ A\n"
         "axiom no_distrib   : ¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))\n"
     )
@@ -44,10 +44,10 @@ async def test_inject_symatics_interference_axioms_roundtrip():
     entries = {e["name"]: e for e in updated.get("symbolic_logic", [])}
 
     expected = {
-        "comm_phi":     "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)",
+        "comm_phi":     "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)",
         "self_pi_bot":  "(A ⋈[π] A) ↔ ⊥",
         "self_zero_id": "(A ⋈[0] A) ↔ A",
-        "non_idem":     "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A",
+        "non_idem":     "∀ φ, φ != 0 ∧ φ != π -> (A ⋈[φ] A) != A",
         "neutral_phi":  "(A ⋈[φ] ⊥) ↔ A",
         "no_distrib":   "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
     }
@@ -63,6 +63,6 @@ lean_path = Path("tmp") / "symatics_axioms.lean"
 lean_path.parent.mkdir(exist_ok=True)
 lean_path.write_text(
     "import ./symatics_prelude\n\n"
-    "axiom comm_phi     : (A ⋈[φ] B) ↔ (B ⋈[−φ] A)\n"
+    "axiom comm_phi     : (A ⋈[φ] B) ↔ (B ⋈[-φ] A)\n"
     ...
 )

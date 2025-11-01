@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-N15 — Active Rephasing with Thermal Compensation
+N15 - Active Rephasing with Thermal Compensation
 Tests whether introducing a Boltzmann-synced thermal phase correction
-can recover stability across cycles and close the energy–information loop.
+can recover stability across cycles and close the energy-information loop.
 """
 
 import numpy as np
@@ -73,8 +73,8 @@ plt.figure(figsize=(8,5))
 plt.plot(range(1, cycles+1), fidelities, 'bo-', label="Rephased Fidelity")
 plt.axhline(0.9, color='r', linestyle='--', label='90% stability threshold')
 plt.xlabel("Cycle #")
-plt.ylabel("Fidelity |⟨ψₙ|ψₙ₊₁⟩|")
-plt.title("N15 — Thermal Rephasing Stability Across Cycles")
+plt.ylabel("Fidelity |⟨ψn|ψn+1⟩|")
+plt.title("N15 - Thermal Rephasing Stability Across Cycles")
 plt.legend()
 plt.grid(alpha=0.3)
 plt.tight_layout()
@@ -85,14 +85,14 @@ plt.figure(figsize=(8,5))
 plt.plot(range(1, cycles+1), phase_errors, 'o-', color='orange', label="Phase error (radians)")
 plt.xlabel("Cycle #")
 plt.ylabel("Phase Error (Δφ)")
-plt.title("N15 — Phase Drift vs Thermal Compensation")
+plt.title("N15 - Phase Drift vs Thermal Compensation")
 plt.legend()
 plt.grid(alpha=0.3)
 plt.tight_layout()
 plt.savefig("PAEV_N15_PhaseDrift.png")
 
-print("=== N15 — Thermal Rephasing & Feedback Equilibrium Test ===")
-print(f"ħ={ħ:.3e}, G={G:.1e}, Λ₀={Λ0:.1e}, α₀={α0:.3f}, β={β:.2f}, T_eff={T_eff:.3e} K")
+print("=== N15 - Thermal Rephasing & Feedback Equilibrium Test ===")
+print(f"ħ={ħ:.3e}, G={G:.1e}, Λ0={Λ0:.1e}, α0={α0:.3f}, β={β:.2f}, T_eff={T_eff:.3e} K")
 print(f"Mean fidelity={mean_fidelity:.3f}, Mean Δφ={mean_phase_error:.3f} rad")
 print(f"Classification: {classification}")
 print("✅ Plots saved: PAEV_N15_FidelityCycles.png, PAEV_N15_PhaseDrift.png")

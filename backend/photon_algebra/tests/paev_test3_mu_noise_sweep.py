@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Photon Algebra Evaluation (PAEV)
-Test 3μ — Measurement Stability Sweep (μ-noise → visibility)
+Test 3μ - Measurement Stability Sweep (μ-noise -> visibility)
 """
 
 import os
@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from backend.photon_algebra.utils.visibility import project_with_pi
 
 # ---------------------------------------------------------------
-# μ — measurement noise interpreted as phase instability (σ)
+# μ - measurement noise interpreted as phase instability (σ)
 # ---------------------------------------------------------------
 
 def generate_with_noise(sigma, n_samples=256):
@@ -51,14 +51,14 @@ def run():
         V_value = (Imax - Imin) / (Imax + Imin + 1e-12)  # small epsilon avoids divide-by-zero
 
         V.append(V_value)
-        print(f"σ={s:.2f} → Visibility V={V_value:.3f}")
+        print(f"σ={s:.2f} -> Visibility V={V_value:.3f}")
 
     # Plot results
     plt.figure(figsize=(6, 4))
     plt.plot(sigmas, V, marker="o", linewidth=2)
     plt.xlabel("Phase noise σ (radians)")
     plt.ylabel("Visibility V")
-    plt.title("μ-Stability Sweep — Phase Noise vs Visibility")
+    plt.title("μ-Stability Sweep - Phase Noise vs Visibility")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig("docs/theory/figures/PAEV_Test3_MuNoise.png", dpi=300)

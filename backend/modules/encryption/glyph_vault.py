@@ -1,5 +1,5 @@
 """
-🔐 Tessaris GlyphVault — SRK-17 Extension
+🔐 Tessaris GlyphVault - SRK-17 Extension
 Back-compat adapter: exposes GlyphVault at the expected module path.
 Adds async GHX bundle persistence support for the GHX Sync Layer.
 """
@@ -13,7 +13,7 @@ from cryptography.fernet import Fernet
 
 
 # ────────────────────────────────────────────────────────────────
-# Base GlyphVault — Encrypted local capsule persistence
+# Base GlyphVault - Encrypted local capsule persistence
 # ────────────────────────────────────────────────────────────────
 class GlyphVault:
     """Encrypted holographic persistence container for photon/symbolic state."""

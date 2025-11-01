@@ -1,6 +1,6 @@
 """
-🧪 Unified Symbolic Runtime Tests — SRK-15 Task 3
-Validates hybrid symbolic–photonic orchestration, coherence-aware routing,
+🧪 Unified Symbolic Runtime Tests - SRK-15 Task 3
+Validates hybrid symbolic-photonic orchestration, coherence-aware routing,
 and temporal execution sequences.
 """
 

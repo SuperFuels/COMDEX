@@ -1,9 +1,9 @@
 # backend/symatics/tests/test_visual_feedback.py
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v1.2 — Visualization Feedback Tests
+# Tessaris Symatics v1.2 - Visualization Feedback Tests
 # Verifies CodexRender telemetry ingestion and visualization logic
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v1.2.0 — October 2025
+# Version: v1.2.0 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 import time

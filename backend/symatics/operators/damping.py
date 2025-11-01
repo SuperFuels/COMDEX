@@ -4,7 +4,7 @@ import math
 from typing import Optional
 
 from backend.symatics.signature import Signature
-from backend.symatics.operators.base import Operator  # ✅ fixed import — no circular import
+from backend.symatics.operators.base import Operator  # ✅ fixed import - no circular import
 
 
 def _damp(
@@ -16,7 +16,7 @@ def _damp(
 ) -> Signature:
     """
     ↯ Damping operator (v0.1):
-    - Exponential amplitude decay: A' = A * exp(-γ·steps)
+    - Exponential amplitude decay: A' = A * exp(-γ*steps)
     - Phase, frequency, and polarization unchanged
     - Metadata records damping parameters
 

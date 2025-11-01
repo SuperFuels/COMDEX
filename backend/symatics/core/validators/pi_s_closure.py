@@ -1,6 +1,6 @@
 """
-πₛ-Closure Validator
-Numerically confirms that total phase differential integrates to 2πₛ n
+πs-Closure Validator
+Numerically confirms that total phase differential integrates to 2πs n
 within a given tolerance. Used for verifying field coherence and runtime law checks.
 """
 
@@ -14,7 +14,7 @@ def validate_pi_s_closure(field, tolerance: float = 1e-6):
     field : object or dict
         Must expose either `phase` (array-like) or `field['phase']`.
     tolerance : float
-        Acceptable error margin from exact 2πₛ n closure.
+        Acceptable error margin from exact 2πs n closure.
 
     Returns
     -------
@@ -38,7 +38,7 @@ def validate_pi_s_closure(field, tolerance: float = 1e-6):
     phase = np.asarray(phase, dtype=float)
     unwrapped = np.unwrap(phase)
 
-    # Use trapezoidal integration (NumPy ≥2.0 standard)
+    # Use trapezoidal integration (NumPy >=2.0 standard)
     total_phase = np.trapezoid(np.gradient(unwrapped))
     n = int(round(total_phase / (2 * np.pi)))
     deviation = abs(total_phase - 2 * np.pi * n)

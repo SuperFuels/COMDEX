@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ================================================================
-# 🔁 RuleFeedbackEngine — Reflex Feedback & Mutation Advisor (R6)
+# 🔁 RuleFeedbackEngine - Reflex Feedback & Mutation Advisor (R6)
 # ================================================================
 # Analyzes rule violations and suggests corrective symbolic mutations.
 # Works in tandem with ViolationLogger and ReflexMemory.
@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 class RuleFeedbackEngine:
     def __init__(self):
         self.last_feedback = None
-        log.info("[RuleFeedbackEngine] Initialized — ready for reflex corrections.")
+        log.info("[RuleFeedbackEngine] Initialized - ready for reflex corrections.")
 
     def suggest_mutation(self, action: str, context: Dict[str, Any], violations: List[Dict[str, Any]]) -> Dict[str, Any]:
         """

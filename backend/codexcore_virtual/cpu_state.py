@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 class CPUState:
     def __init__(self):
-        # General-purpose registers (R0–R7)
+        # General-purpose registers (R0-R7)
         self.registers: Dict[str, Any] = {f"R{i}": 0 for i in range(8)}
 
         # Special registers

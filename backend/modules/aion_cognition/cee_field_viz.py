@@ -1,5 +1,5 @@
 # ================================================================
-# 🪐 CEE FieldViz — Resonant Concept Glyph Mapper
+# 🪐 CEE FieldViz - Resonant Concept Glyph Mapper
 # ================================================================
 """
 Visualizes the active resonance field by grouping LexMemory keys into

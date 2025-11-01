@@ -62,7 +62,7 @@ def process_milestones_and_goals(strategies_with_ids):
             origin_strategy_id=strat_id
         )
 
-        log(f"🔗 Linked strategy ID {strat_id} → milestone '{milestone_name}' + goal")
+        log(f"🔗 Linked strategy ID {strat_id} -> milestone '{milestone_name}' + goal")
         created += 1
     return created
 

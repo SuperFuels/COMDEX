@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────
-#  Tessaris • HST WebSocket Streamer (Unified)
+#  Tessaris * HST WebSocket Streamer (Unified)
 #  Combines symbolic overlay + P5 replay streaming
 #  for GHX/QFC + Holographic Core integration
 # ──────────────────────────────────────────────
@@ -65,7 +65,7 @@ import websockets
 class HSTWebSocketStreamer:
     """
     Real-time WebSocket broadcaster for HST field nodes,
-    ψ–κ–T tensors, LightWave beams, and replay visualization.
+    ψ-κ-T tensors, LightWave beams, and replay visualization.
     """
 
     def __init__(self, uri: str = "ws://localhost:8765/hst", buffer_limit: int = 256):
@@ -154,7 +154,7 @@ class HSTWebSocketStreamer:
         """
         Handle client replay history requests.
         """
-        logger.info(f"[HSTStreamer] Replay request → {len(self.replay_buffer)} frames available")
+        logger.info(f"[HSTStreamer] Replay request -> {len(self.replay_buffer)} frames available")
         for frame in self.replay_buffer[-50:]:
             await websocket.send(json.dumps(frame))
             await asyncio.sleep(0.05)

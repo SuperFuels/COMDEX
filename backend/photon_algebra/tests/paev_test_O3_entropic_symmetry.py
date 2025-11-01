@@ -70,7 +70,7 @@ plt.plot(S_sys, label="S_system")
 plt.plot(S_obs, label="S_observer")
 plt.plot(I_mut, label="Mutual Info")
 plt.xlabel("time step"); plt.ylabel("Entropy / Info")
-plt.title("O3 — Entropic Symmetry Break")
+plt.title("O3 - Entropic Symmetry Break")
 plt.legend(); plt.tight_layout()
 plt.savefig("PAEV_O3_EntropySymmetry.png", dpi=120)
 
@@ -89,6 +89,6 @@ summary = {
 with open("backend/modules/knowledge/O3_entropic_symmetry.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== O3 — Entropic Symmetry Break ===")
-print(f"⟨dS/dt⟩={mean_dSdt:.3e}, ⟨dI/dt⟩={mean_dIdt:.3e} • {cls}")
-print("✅ Results saved → backend/modules/knowledge/O3_entropic_symmetry.json")
+print("=== O3 - Entropic Symmetry Break ===")
+print(f"⟨dS/dt⟩={mean_dSdt:.3e}, ⟨dI/dt⟩={mean_dIdt:.3e} * {cls}")
+print("✅ Results saved -> backend/modules/knowledge/O3_entropic_symmetry.json")

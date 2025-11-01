@@ -1,9 +1,9 @@
 """
 🎶 Harmonics Runtime Module
 ---------------------------
-• Handles tick-time harmonic stability control.
-• Integrates resonance, coherence, drift damping, and awareness.
-• Uses measure_harmonic_coherence from harmonic_coherence_module.
+* Handles tick-time harmonic stability control.
+* Integrates resonance, coherence, drift damping, and awareness.
+* Uses measure_harmonic_coherence from harmonic_coherence_module.
 """
 
 import asyncio
@@ -38,7 +38,7 @@ async def update_harmonics(engine, dt):
     # ⏸ Cooldown entry
     if engine._stability_counter >= 10 and not getattr(engine, "_cooldown_active", False):
         engine._cooldown_active = True
-        engine.log_event("✅ Harmonic equilibrium locked — entering cooldown.")
+        engine.log_event("✅ Harmonic equilibrium locked - entering cooldown.")
         asyncio.create_task(_reset_cooldown(engine))
         return coherence, drift
 
@@ -46,12 +46,12 @@ async def update_harmonics(engine, dt):
     if engine._stability_counter in {3, 6}:
         engine.fields["wave_frequency"] *= 1.002
         engine.fields["magnetism"] *= 0.998
-        engine.log_event("⚠ Stability plateau detected — injecting gentle perturbation.")
+        engine.log_event("⚠ Stability plateau detected - injecting gentle perturbation.")
 
     # ⚠ Flatline breaker
     if coherence >= 1.0 and drift < 0.0001:
         engine.fields["wave_frequency"] *= 1.0005
-        engine.log_event("⚠ Harmonic flatline detected → micro-perturbation applied.")
+        engine.log_event("⚠ Harmonic flatline detected -> micro-perturbation applied.")
 
     # 🌪 Drift damping
     _entropy_drift_damping(engine)
@@ -129,4 +129,4 @@ async def _reset_cooldown(engine):
     await asyncio.sleep(2.0)  # Non-blocking wait
     engine._cooldown_active = False
     engine._stability_counter = 0
-    engine.log_event("🔄 Cooldown expired — resuming normal tick flow.")
+    engine.log_event("🔄 Cooldown expired - resuming normal tick flow.")

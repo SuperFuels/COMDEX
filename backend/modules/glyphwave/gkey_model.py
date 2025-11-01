@@ -38,7 +38,7 @@ class GKey:
 
     # Security Properties
     entropy: float = 1.0  # Ideal = 1.0 (full entropy)
-    coherence_level: float = 1.0  # 0.0–1.0, may degrade
+    coherence_level: float = 1.0  # 0.0-1.0, may degrade
     decoherence_fingerprint: Optional[str] = None  # Calculated from wave state
     collapse_hash: Optional[str] = None  # Tamper detection
 
@@ -128,7 +128,7 @@ class GKey:
 
     def mark_compromised(self, reason: Optional[str] = None):
         """
-        Marks this GKey as compromised — sets entropy/coherence to 0.
+        Marks this GKey as compromised - sets entropy/coherence to 0.
         Logs the reason in origin_trace.
         """
         self.compromised = True

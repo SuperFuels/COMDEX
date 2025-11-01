@@ -1,12 +1,12 @@
 """
-Tessaris • UltraQC v0.4-SLE
+Tessaris * UltraQC v0.4-SLE
 Feature flag configuration module.
 Used to toggle core systems at runtime (for development and testing).
 """
 
 import os
 
-# Global feature flags — can be overridden by environment variables
+# Global feature flags - can be overridden by environment variables
 LIGHTWAVE_ENGINE_ON = os.getenv("LIGHTWAVE_ENGINE_ON", "true").lower() == "true"
 QQC_ON = os.getenv("QQC_ON", "true").lower() == "true"
 

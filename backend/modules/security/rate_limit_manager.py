@@ -136,7 +136,7 @@ class RateLimitManager:
 
                 if tokens >= 1.0:
                     tokens -= 1.0
-                    # Persist new state + TTL; (hmset deprecated → hset(mapping=...))
+                    # Persist new state + TTL; (hmset deprecated -> hset(mapping=...))
                     pipe = self.redis.pipeline()
                     pipe.hset(key, mapping={"tokens": tokens, "last": now})
                     pipe.expire(key, 60)

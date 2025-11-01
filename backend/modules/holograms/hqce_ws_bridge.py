@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • HQCE WebSocket Bridge (Stage 12)
-#  Real-time ψ–κ–T telemetry broadcast service
+#  Tessaris * HQCE WebSocket Bridge (Stage 12)
+#  Real-time ψ-κ-T telemetry broadcast service
 #  Used by GHX HUD + Codex runtime dashboards
 # ──────────────────────────────────────────────
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class HQCEWebSocketBridge:
     """
-    Broadcast ψ–κ–T–C deltas to all connected clients.
+    Broadcast ψ-κ-T-C deltas to all connected clients.
     Designed for integration into HQCE Dashboard + GHX HUD.
     """
 
@@ -33,19 +33,19 @@ class HQCEWebSocketBridge:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.add(websocket)
-        logger.info(f"[HQCEWebSocketBridge] 🟢 Client connected → {len(self.active_connections)} active")
+        logger.info(f"[HQCEWebSocketBridge] 🟢 Client connected -> {len(self.active_connections)} active")
 
     async def disconnect(self, websocket: WebSocket):
         if websocket.application_state != WebSocketState.DISCONNECTED:
             await websocket.close()
         self.active_connections.discard(websocket)
-        logger.info(f"[HQCEWebSocketBridge] 🔴 Client disconnected → {len(self.active_connections)} active")
+        logger.info(f"[HQCEWebSocketBridge] 🔴 Client disconnected -> {len(self.active_connections)} active")
 
     # ────────────────────────────────────────────
     #  Broadcast
     # ────────────────────────────────────────────
     async def broadcast(self, tensor_data: Dict[str, Any]):
-        """Send ψ–κ–T–C packet to all connected clients."""
+        """Send ψ-κ-T-C packet to all connected clients."""
         if not self.active_connections:
             return
 
@@ -74,7 +74,7 @@ class HQCEWebSocketBridge:
     async def run_periodic_broadcast(self, get_tensor_state):
         """
         Continuously fetch ψκT state via callback and broadcast to clients.
-        :param get_tensor_state: callable → returns Dict[ψ, κ, T, C]
+        :param get_tensor_state: callable -> returns Dict[ψ, κ, T, C]
         """
         logger.info("[HQCEWebSocketBridge] 🔁 Live broadcast loop started")
         while True:

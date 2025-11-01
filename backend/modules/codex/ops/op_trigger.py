@@ -19,7 +19,7 @@ def op_trigger(*args, **kwargs) -> str:
       A) op_trigger(args: List[Any], registers: VirtualRegisters, context: Dict[str, Any])
       B) op_trigger(context=..., target="foo")
       C) op_trigger(target="foo", context={...})
-      D) op_trigger(context=...)  # no target → "default_trigger"
+      D) op_trigger(context=...)  # no target -> "default_trigger"
 
     Always returns a string summary and never raises on signature mismatches.
     """

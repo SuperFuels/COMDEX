@@ -1,4 +1,4 @@
-# === K1 — Causal Mesh Verification (Tessaris Phase III) ===
+# === K1 - Causal Mesh Verification (Tessaris Phase III) ===
 # Using Tessaris Unified Constants & Verification Protocol (TUCVP)
 
 import os, json, datetime
@@ -14,8 +14,8 @@ constants = load_constants(version="v1.2")
     constants["α"], constants["β"], constants["χ"]
 )
 
-print("=== K1 — Tessaris Causal Mesh Verification ===")
-print("Constants → ħ=%.3g, G=%.1e, Λ=%.1e, α=%.2f, β=%.2f, χ=%.1f"
+print("=== K1 - Tessaris Causal Mesh Verification ===")
+print("Constants -> ħ=%.3g, G=%.1e, Λ=%.1e, α=%.2f, β=%.2f, χ=%.1f"
       % (ħ, G, Λ, α, β, χ))
 
 # ---------------------------------------------------------------------
@@ -51,7 +51,7 @@ within_tolerance = bool(entropy_balance < tolerance and R_causal <= 1.0)
 if within_tolerance:
     verdict = "✅ Causality preserved and entropy flow stable."
 else:
-    verdict = "⚠️  Causality deviation detected — check damping or dt."
+    verdict = "⚠️  Causality deviation detected - check damping or dt."
 
 print(verdict)
 
@@ -59,14 +59,14 @@ print(verdict)
 # 5. Discovery Notes (console)
 # ---------------------------------------------------------------------
 now = datetime.datetime.now(datetime.UTC).isoformat()
-print("\n🧭 Discovery Notes —", now)
+print("\n🧭 Discovery Notes -", now)
 print("------------------------------------------------------------")
-print(f"• Observation: mean |∂S/∂x| = {entropy_balance:.3e}")
-print(f"• Interpretation: local entropy flow bounded within causal cone.")
+print(f"* Observation: mean |∂S/∂x| = {entropy_balance:.3e}")
+print(f"* Interpretation: local entropy flow bounded within causal cone.")
 if within_tolerance:
-    print("• Verdict: causal information flux stable (no super-causal leakage).")
+    print("* Verdict: causal information flux stable (no super-causal leakage).")
 else:
-    print("• Warning: marginal causal drift detected; retune damping (γ≈0.03–0.05).")
+    print("* Warning: marginal causal drift detected; retune damping (γ≈0.03-0.05).")
 print("------------------------------------------------------------\n")
 
 # ---------------------------------------------------------------------
@@ -90,7 +90,7 @@ summary = {
     "within_tolerance": bool(within_tolerance),
     "notes": [
         "Tests local causal coherence of the lattice field.",
-        "Ensures ∂S/∂x below threshold and |v| ≤ c_eff.",
+        "Ensures ∂S/∂x below threshold and |v| <= c_eff.",
         "Verified under Tessaris Unified Constants & Verification Protocol (TUCVP)."
     ]
 }
@@ -99,7 +99,7 @@ summary_path = os.path.join(out_dir, "K1_causal_mesh_summary.json")
 with open(summary_path, "w", encoding="utf-8") as f:
     json.dump(summary, f, indent=2)
 
-print(f"✅ Summary saved → {summary_path}")
+print(f"✅ Summary saved -> {summary_path}")
 
 # ---------------------------------------------------------------------
 # 7. Plot generation (optional)
@@ -108,7 +108,7 @@ try:
     import matplotlib.pyplot as plt
     plt.figure(figsize=(8, 3))
     plt.plot(x, np.abs(causal_speed) / c_eff, label="|v_causal| / c_eff")
-    plt.title("K1 — Causal Mesh Verification (Tessaris)")
+    plt.title("K1 - Causal Mesh Verification (Tessaris)")
     plt.xlabel("x (lattice)")
     plt.ylabel("Normalized causal velocity")
     plt.ylim(0, 1.2)
@@ -118,7 +118,7 @@ try:
     plot_path = os.path.join(out_dir, "PAEV_K1_causal_mesh.png")
     plt.savefig(plot_path)
     plt.close()
-    print(f"✅ Plot saved → {plot_path}")
+    print(f"✅ Plot saved -> {plot_path}")
 except Exception as e:
     print(f"(Plot skipped: {e})")
 

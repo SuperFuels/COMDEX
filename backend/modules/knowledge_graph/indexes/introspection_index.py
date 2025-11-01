@@ -7,10 +7,10 @@ Tracks system-generated thoughts, contradictions, confidence drops, blindspots,
 predictions, and internal reasoning traces across Codex, AION, DreamCore, and GlyphNet.
 
 Usage:
-  - awareness_engine.py → add_introspection_event(...)
-  - codex_executor.py → add_introspection_event(...)
-  - dreamcore.py → record_dream_trace(...)
-  - predictive_glyph_composer.py → log_predictive_fork(...)
+  - awareness_engine.py -> add_introspection_event(...)
+  - codex_executor.py -> add_introspection_event(...)
+  - dreamcore.py -> record_dream_trace(...)
+  - predictive_glyph_composer.py -> log_predictive_fork(...)
 """
 
 from __future__ import annotations
@@ -112,7 +112,7 @@ def add_introspection_event(
         description: Human-readable insight or reflection.
         source_module: Name of the component generating this entry.
         tags: Optional list of logic/emotion/identity tags.
-        confidence: Optional float [0–1] indicating introspective certainty.
+        confidence: Optional float [0-1] indicating introspective certainty.
         blindspot_trigger: Optional label that caused this awareness.
         glyph_trace_ref: Optional ID reference to glyph trace.
         persona_state: Optional identity/personality context string.
@@ -157,7 +157,7 @@ def log_predictive_fork(
     Logs a predictive fork event into the introspection index.
     Automatically hashes the fork and stores metadata for replay.
     """
-    description = f"🔮 Predicted fork: {fork.get('glyph')} → {fork.get('outcome', 'unknown outcome')}"
+    description = f"🔮 Predicted fork: {fork.get('glyph')} -> {fork.get('outcome', 'unknown outcome')}"
     prediction_meta = {
         "fork_id":    fork.get("id"),
         "glyph":      fork.get("glyph"),

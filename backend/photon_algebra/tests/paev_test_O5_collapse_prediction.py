@@ -84,7 +84,7 @@ plt.figure(figsize=(9,5))
 plt.plot(F, label="Fidelity (Entanglement)")
 plt.plot(P_pred, label="Prediction Confidence", linestyle="--")
 plt.axhline(y=collapse_threshold, color="r", linestyle=":", label="Collapse threshold")
-plt.title("O5 — Observer-State Collapse Prediction")
+plt.title("O5 - Observer-State Collapse Prediction")
 plt.xlabel("time step")
 plt.ylabel("Fidelity / Confidence")
 plt.legend()
@@ -111,7 +111,7 @@ summary = {
 with open("backend/modules/knowledge/O5_collapse_prediction.json", "w") as f:
     json.dump(summary, f, indent=2)
 
-print("=== O5 — Observer-State Collapse Prediction ===")
+print("=== O5 - Observer-State Collapse Prediction ===")
 print(f"Final Fidelity={final_F:.3f} | ⟨S_drift⟩={mean_S_drift:.3e} | ⟨P_pred⟩={mean_P_pred:.3f}")
 print(f"Classification: {cls}")
-print("✅ Results saved → backend/modules/knowledge/O5_collapse_prediction.json")
+print("✅ Results saved -> backend/modules/knowledge/O5_collapse_prediction.json")

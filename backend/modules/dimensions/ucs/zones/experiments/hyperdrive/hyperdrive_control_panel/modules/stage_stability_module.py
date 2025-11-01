@@ -45,7 +45,7 @@ def check_stage_stability(engine, extended: bool = True) -> bool:
 
     # ✅ Stage advancement (SQI lock + coherence alignment)
     if drift <= engine.stability_threshold and coherence >= 0.65:
-        print(f"✅ Resonance stable (Drift={drift:.3f}, Coherence={coherence:.3f}) → Advancing stage.")
+        print(f"✅ Resonance stable (Drift={drift:.3f}, Coherence={coherence:.3f}) -> Advancing stage.")
         engine._log_graph_snapshot()
 
         # 🔒 Auto SQI lock if stability persists
@@ -55,7 +55,7 @@ def check_stage_stability(engine, extended: bool = True) -> bool:
 
     # 🛡 Safety rollback if drift unstable or coherence poor
     if drift > engine.stability_threshold * 1.5 or coherence < 0.4:
-        print(f"🛑 Stability degraded: Drift={drift:.3f}, Coherence={coherence:.3f} → Triggering SQI damping.")
+        print(f"🛑 Stability degraded: Drift={drift:.3f}, Coherence={coherence:.3f} -> Triggering SQI damping.")
         if hasattr(engine, "sqi_engine") and hasattr(engine.sqi_engine, "apply_damping"):
             engine.sqi_engine.apply_damping(engine.fields)
 

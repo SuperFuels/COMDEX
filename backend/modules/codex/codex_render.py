@@ -1,8 +1,8 @@
 # ──────────────────────────────────────────────────────────────
-# Tessaris Symatics v1.2 — CodexRender Visualization Engine
-# Unified telemetry ingestion and visualization for λ–ψ–E feedback
+# Tessaris Symatics v1.2 - CodexRender Visualization Engine
+# Unified telemetry ingestion and visualization for λ-ψ-E feedback
 # Author: Tessaris Core Systems / Codex Intelligence Group
-# Version: v1.2.1 — October 2025
+# Version: v1.2.1 - October 2025
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -57,7 +57,7 @@ def record_event(event_type: str, **fields):
 # ──────────────────────────────────────────────────────────────
 class CodexRender:
     """
-    Visual analytics engine for λ–ψ–E telemetry streams.
+    Visual analytics engine for λ-ψ-E telemetry streams.
     Provides live plotting, historical export, and file output.
     """
 
@@ -114,7 +114,7 @@ class CodexRender:
         plot_series(axes[1], "energy", "E(t)", "tab:green")
         plot_series(axes[2], "coherence", "C(t)", "tab:orange")
 
-        fig.suptitle("Tessaris Symatics Telemetry — λ/ψ/E Evolution", fontsize=12)
+        fig.suptitle("Tessaris Symatics Telemetry - λ/ψ/E Evolution", fontsize=12)
         plt.tight_layout()
 
         # Handle save/show modes
@@ -163,7 +163,7 @@ class CodexRender:
                 self.axes[i].set_ylabel(lbl)
                 self.axes[i].legend()
                 self.axes[i].grid(True, alpha=0.3)
-            self.fig.suptitle("Tessaris Δ-Telemetry — Live λ/ψ/E Stream", fontsize=12)
+            self.fig.suptitle("Tessaris Δ-Telemetry - Live λ/ψ/E Stream", fontsize=12)
 
         start_time = time.time()
 

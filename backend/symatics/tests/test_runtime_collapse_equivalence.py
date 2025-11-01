@@ -1,5 +1,5 @@
 """
-Runtime Law Validation — μ↔∇ Equivalence Test
+Runtime Law Validation - μ↔∇ Equivalence Test
 ----------------------------------------------
 Ensures the runtime law validator (v0.3) correctly recognizes
 μ(⊕a,b) ≡ ∇(⊕a,b) equivalence during live evaluation.
@@ -37,7 +37,7 @@ def test_runtime_collapse_equivalence_basic(monkeypatch):
 
 
 def test_runtime_collapse_equivalence_non_superposed():
-    """Should not mark μ↔∇ equivalent when inner op ≠ ⊕."""
+    """Should not mark μ↔∇ equivalent when inner op != ⊕."""
     ctx = DummyCtx()
     mu_expr = {"op": "μ", "args": [{"op": "Δ", "args": ["ψ"]}]}
     results = law_check.run_law_checks(mu_expr, ctx)

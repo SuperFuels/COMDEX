@@ -1,20 +1,20 @@
 from __future__ import annotations
 """
 ───────────────────────────────────────────────────────────────
-Tessaris RQC — Photonic Propagation Simulator
+Tessaris RQC - Photonic Propagation Simulator
 ───────────────────────────────────────────────────────────────
 Simulates symbolic wave propagation and coherence evolution
-using the symbol→wave encodings from GlyphNetPhaseMap.
+using the symbol->wave encodings from GlyphNetPhaseMap.
 
 Supports both:
-  • Linear propagation (open) — for ⊕, ↔ operations.
-  • Resonant loopback (closed) — for ⟲, πₛ phase-closure testing.
+  * Linear propagation (open) - for ⊕, ↔ operations.
+  * Resonant loopback (closed) - for ⟲, πs phase-closure testing.
 
 Outputs:
-  • Phase error evolution
-  • Coherence (|⟨e^{i(φ_i−φ_j)}⟩|)
-  • Closure stability index
-  • Energy–information trace
+  * Phase error evolution
+  * Coherence (|⟨e^{i(φ_i-φ_j)}⟩|)
+  * Closure stability index
+  * Energy-information trace
 
 This module forms the dynamic substrate of the Tessaris
 Resonance Quantum Computer (RQC) photonic runtime.

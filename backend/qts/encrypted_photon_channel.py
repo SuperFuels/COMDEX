@@ -1,6 +1,6 @@
 """
-🔐 Encrypted Photon Channel (EPC-1 Layer) — SRK-16 B3
-Performs AES–QKD hybrid encryption for photonic transmissions.
+🔐 Encrypted Photon Channel (EPC-1 Layer) - SRK-16 B3
+Performs AES-QKD hybrid encryption for photonic transmissions.
 """
 
 import base64, hashlib

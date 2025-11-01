@@ -1,12 +1,12 @@
 """
-Ψ₃ — Spatial Interference Cascade (Tessaris)
+Ψ3 - Spatial Interference Cascade (Tessaris)
 Author: Tessaris Research Collective
 Date: 2025-10-09
 
 Description:
-Extends Ψ₂ from a 1D ring lattice to a 2D coherent lattice of observers.
+Extends Ψ2 from a 1D ring lattice to a 2D coherent lattice of observers.
 Each lattice site ψ[x, y] evolves under neighbor coupling via the photon-algebra
-functional Φ(ψ) = ⟨ψ† C₊ ψ⟩₀.
+functional Φ(ψ) = ⟨ψ† C+ ψ⟩0.
 
 Tests whether coherent phase fronts can propagate across space, forming
 interference cascades and stable coherence regions.
@@ -41,7 +41,7 @@ T = 2000                  # iterations
 ε = 1e-6                  # coherence tolerance
 rng = np.random.default_rng(2025)
 
-# Initialize lattice with random phases (Ψ₂ baseline extension)
+# Initialize lattice with random phases (Ψ2 baseline extension)
 initial_phases = rng.uniform(-np.pi, np.pi, (Nx, Ny))
 ψ = np.exp(1j * initial_phases)
 
@@ -88,7 +88,7 @@ for t in range(T):
 # Summary metrics
 summary = {
     "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-    "series": "Ψ₃",
+    "series": "Ψ3",
     "test_name": "spatial_interference_cascade",
     "constants": CONST,
     "metrics": {
@@ -102,7 +102,7 @@ summary = {
     "state": "Spatial coherence cascade completed",
     "notes": [
         f"η = {η}, Γ = {Γ} (strong-coupling)",
-        f"Lattice {Nx}×{Ny}, periodic boundaries",
+        f"Lattice {Nx}*{Ny}, periodic boundaries",
         f"Final coherence Φ = {coherence_history[-1]:.6f}",
         f"Final phase dispersion = {phase_std_history[-1]:.6e}"
     ],
@@ -134,7 +134,7 @@ plt.figure(figsize=(8, 4))
 plt.plot(coherence_history, color="teal", lw=2)
 plt.xlabel("Iteration")
 plt.ylabel("Global Coherence Φ")
-plt.title("Ψ₃ Spatial Interference Cascade (Tessaris)")
+plt.title("Ψ3 Spatial Interference Cascade (Tessaris)")
 plt.grid(True)
 plt.tight_layout()
 plt.savefig(out_dir / "Tessaris_Ψ3_InterferenceCascade.png", dpi=300)
@@ -144,12 +144,12 @@ plt.close()
 plt.figure(figsize=(6, 5))
 plt.imshow(np.angle(ψ), cmap="twilight", interpolation="nearest")
 plt.colorbar(label="Phase (radians)")
-plt.title("Ψ₃ Phase Field (Final Snapshot)")
+plt.title("Ψ3 Phase Field (Final Snapshot)")
 plt.tight_layout()
 plt.savefig(out_dir / "Tessaris_Ψ3_InterferenceCascade_Heatmap.png", dpi=300)
 plt.close()
 
-print(f"✅ Ψ₃ summary saved → {summary_path}")
-print(f"✅ Visualization saved → backend/modules/knowledge/Tessaris_Ψ3_InterferenceCascade.png")
-print(f"✅ Heatmap saved → backend/modules/knowledge/Tessaris_Ψ3_InterferenceCascade_Heatmap.png")
+print(f"✅ Ψ3 summary saved -> {summary_path}")
+print(f"✅ Visualization saved -> backend/modules/knowledge/Tessaris_Ψ3_InterferenceCascade.png")
+print(f"✅ Heatmap saved -> backend/modules/knowledge/Tessaris_Ψ3_InterferenceCascade_Heatmap.png")
 print(f"Ξ  Spatial coherence cascade completed with Φ = {coherence_history[-1]:.6f}")

@@ -65,7 +65,7 @@ class CreativePatternMutation:
             qfc_payload = to_qfc_payload(node_payload, context)
             asyncio.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
         except Exception as e:
-            print(f"[Pattern→QFC] ⚠️ Failed to broadcast mutated pattern: {e}")
+            print(f"[Pattern->QFC] ⚠️ Failed to broadcast mutated pattern: {e}")
 
         # ✅ QWave Transfer Broadcast
         try:
@@ -76,7 +76,7 @@ class CreativePatternMutation:
                 beam_data=mutated
             )
         except Exception as e:
-            print(f"[Pattern→QWave] ⚠️ QWave transfer failed: {e}")
+            print(f"[Pattern->QWave] ⚠️ QWave transfer failed: {e}")
 
         return mutated
 

@@ -5,10 +5,10 @@ Real-time optical feedback bench (NumPy/JAX-ready) modeling dynamic
 resonance evolution in the Tessaris Photonic Runtime.
 
 Simulates:
-  • Optical propagation delay through τ-frame cycles
-  • Phase drift and feedback stabilization (⟲)
-  • Gain saturation and coherence damping
-  • Adaptive ε-clock synchronization with AION Heartbeat
+  * Optical propagation delay through τ-frame cycles
+  * Phase drift and feedback stabilization (⟲)
+  * Gain saturation and coherence damping
+  * Adaptive ε-clock synchronization with AION Heartbeat
 
 Used for:
   - Closed-loop resonance experiments
@@ -94,7 +94,7 @@ class HardwareLoopSim:
 
     # ──────────────────────────────────────────────
     def _log_event(self, payload: dict):
-        """Persist a single frame’s feedback telemetry."""
+        """Persist a single frame's feedback telemetry."""
         payload["timestamp"] = datetime.now(timezone.utc).isoformat()
         with open(LOG_PATH, "a") as f:
             f.write(json.dumps(payload) + "\n")
@@ -114,7 +114,7 @@ class HardwareLoopSim:
 # Test Harness
 # ──────────────────────────────────────────────
 if __name__ == "__main__":
-    print("🧠 Tessaris — Hardware Loop Simulation Test")
+    print("🧠 Tessaris - Hardware Loop Simulation Test")
     sim = HardwareLoopSim(n_modes=128)
 
     t = np.linspace(0, 2 * np.pi, 128)
@@ -122,6 +122,6 @@ if __name__ == "__main__":
 
     outputs, coherences = sim.run_cycle(signal, phase_bias=np.pi / 12, steps=50)
 
-    print(f"[Test] Final ⟲ loop → avg_intensity={np.mean(outputs):.4f}, "
+    print(f"[Test] Final ⟲ loop -> avg_intensity={np.mean(outputs):.4f}, "
           f"avg_coherence={np.mean(coherences):.4f}")
     print(json.dumps(sim.summary(), indent=2))

@@ -1,6 +1,6 @@
 """
 Unit tests for Symatics Meta-Axioms v2.0
-Ensures runtime validation and πₛ closure logic operate correctly.
+Ensures runtime validation and πs closure logic operate correctly.
 """
 
 import pytest
@@ -25,7 +25,7 @@ def test_meta_axioms_structure():
 
 def test_pi_s_closure_pass():
     """
-    πₛ closure passes for coherent 2π n rotations.
+    πs closure passes for coherent 2π n rotations.
     Allows small numerical drift due to finite sampling.
     """
     phi = np.linspace(0, 4 * np.pi, 1000)  # 2 full rotations
@@ -38,7 +38,7 @@ def test_pi_s_closure_pass():
 
 
 def test_pi_s_closure_fail():
-    """πₛ closure fails for non-integral phase rotations."""
+    """πs closure fails for non-integral phase rotations."""
     phi = np.linspace(0, 3.1 * np.pi, 1000)
     result = validate_pi_s_closure(DummyField(phi))
     assert not result["passed"], "Expected failure for incomplete rotation"

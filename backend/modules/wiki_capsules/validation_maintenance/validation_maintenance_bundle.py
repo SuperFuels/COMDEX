@@ -1,13 +1,13 @@
 """
-Tessaris Validation & Maintenance Suite — Phase 6
+Tessaris Validation & Maintenance Suite - Phase 6
 -------------------------------------------------
 Performs unified validation across .wiki.phn capsules and Knowledge Graph.
 
 Modules included:
- - wiki_linter.py           → syntax + metadata validation
- - reference_validator.py   → cross-link & KG reference integrity
- - maintenance_jobs.py      → orchestration & nightly routines
- - tests/test_validation_suite.py  → end-to-end chain tests
+ - wiki_linter.py           -> syntax + metadata validation
+ - reference_validator.py   -> cross-link & KG reference integrity
+ - maintenance_jobs.py      -> orchestration & nightly routines
+ - tests/test_validation_suite.py  -> end-to-end chain tests
 """
 
 import os
@@ -110,7 +110,7 @@ class ReferenceValidator:
                         for target in targets:
                             if target not in self.registry.get(ref_domain, {}):
                                 errors.append(
-                                    f"Broken reference: {domain}>{lemma} → {ref_domain}>{target}"
+                                    f"Broken reference: {domain}>{lemma} -> {ref_domain}>{target}"
                                 )
         return errors
 

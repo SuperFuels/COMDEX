@@ -1,6 +1,6 @@
 # ──────────────────────────────────────────────
-#  Tessaris • HST Field Analyzer (P5+ Diagnostic Layer)
-#  Monitors coherence, ψ–κ–T evolution, and semantic drift trends.
+#  Tessaris * HST Field Analyzer (P5+ Diagnostic Layer)
+#  Monitors coherence, ψ-κ-T evolution, and semantic drift trends.
 # ──────────────────────────────────────────────
 
 import os
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class HSTFieldAnalyzer:
     """
-    Diagnostic analyzer for HST-generated ψ–κ–T tensor fields.
+    Diagnostic analyzer for HST-generated ψ-κ-T tensor fields.
     Tracks coherence, entropy flow, and semantic drift trends
     across time for stability visualization and research analysis.
     """
@@ -84,7 +84,7 @@ class HSTFieldAnalyzer:
     # ──────────────────────────────────────────────
     def compute_stability_index(self) -> float:
         """
-        Computes a stability index (0–1) based on coherence/entropy ratio.
+        Computes a stability index (0-1) based on coherence/entropy ratio.
         """
         if not self.coherence_trend:
             return 0.0
@@ -135,7 +135,7 @@ class HSTFieldAnalyzer:
         }
         with open(path, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2)
-        logger.info(f"[HSTFieldAnalyzer] Exported analysis → {path}")
+        logger.info(f"[HSTFieldAnalyzer] Exported analysis -> {path}")
 
     # ──────────────────────────────────────────────
     #  Summary Output for Field Feedback
@@ -143,7 +143,7 @@ class HSTFieldAnalyzer:
     def summarize_field(self) -> dict:
         """
         Return a summary snapshot of the current HST field state.
-        Includes stability index, drift vector, and last ψ–κ–T signature.
+        Includes stability index, drift vector, and last ψ-κ-T signature.
         """
         summary = {
             "session_id": self.session_id,

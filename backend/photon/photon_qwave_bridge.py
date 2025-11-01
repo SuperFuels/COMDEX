@@ -1,7 +1,7 @@
 """
 Photon ↔ QWave Bridge (v0.5)
 -----------------------------
-Extends the Photon→QWave bridge to route compiled programs
+Extends the Photon->QWave bridge to route compiled programs
 directly through the Symatics Lightwave Engine.
 """
 
@@ -100,10 +100,10 @@ def compile_photon_ast(photon_ast: Dict[str, Any], run_dispatch=True) -> Dict[st
             data.append(record)
             EXPORT_PATH.write_text(json.dumps(data, indent=2))
         except Exception as e:
-            logger.warning(f"[Photon→QWave] Could not export telemetry: {e}")
+            logger.warning(f"[Photon->QWave] Could not export telemetry: {e}")
 
         return {"status": "compiled", **record}
 
     except Exception as e:
-        logger.error(f"[Photon→QWave] Failed: {e}", exc_info=True)
+        logger.error(f"[Photon->QWave] Failed: {e}", exc_info=True)
         return {"status": "error", "error": str(e)}

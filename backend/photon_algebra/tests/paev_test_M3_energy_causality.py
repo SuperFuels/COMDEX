@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-# === M3 — Wormhole Energy & Causality Validation ===
+# === M3 - Wormhole Energy & Causality Validation ===
 
 ħ = 1.0e-3
 G = 1.0e-5
@@ -68,10 +68,10 @@ is_causal = np.abs(lag_time) <= causal_threshold
 # === Plot 1: Energy and Correlation Evolution ===
 plt.figure(figsize=(7,5))
 plt.plot(energy_flux, label='Normalized Energy Flux', linestyle='--')
-plt.plot(cross_corr, label='Cross-Correlation |⟨ψ₁|ψ₂⟩|')
+plt.plot(cross_corr, label='Cross-Correlation |⟨ψ1|ψ2⟩|')
 plt.xlabel("Time step")
 plt.ylabel("Normalized magnitude")
-plt.title("M3 — Energy and Correlation Evolution")
+plt.title("M3 - Energy and Correlation Evolution")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
@@ -83,7 +83,7 @@ plt.figure(figsize=(6,5))
 plt.bar(["Lag Time"], [lag_time], color='tab:blue')
 plt.axhline(causal_threshold, color='r', linestyle='--', label='Causality threshold')
 plt.axhline(-causal_threshold, color='r', linestyle='--')
-plt.title("M3 — Causality Lag Assessment")
+plt.title("M3 - Causality Lag Assessment")
 plt.ylabel("Lag Time (Δt units)")
 plt.legend()
 plt.tight_layout()
@@ -91,14 +91,14 @@ plt.savefig("PAEV_M3_CausalityMap.png", dpi=200)
 plt.close()
 
 # === Print results ===
-print("=== M3 — Wormhole Energy & Causality Validation ===")
+print("=== M3 - Wormhole Energy & Causality Validation ===")
 print(f"ħ={ħ:.3e}, G={G:.3e}, Λ={Λ:.3e}, α={α:.3f}")
 print(f"Max Cross-Correlation: {np.max(cross_corr):.3e}")
 print(f"Max Energy Flux: {np.max(energy_flux):.3e}")
 print(f"Lag Time (proxy): {lag_time:.3f}")
 if is_causal:
-    print("✅ System respects causal limits — no superluminal entanglement.")
+    print("✅ System respects causal limits - no superluminal entanglement.")
 else:
-    print("⚠️ Non-causal correlation detected — possible ER=EPR signature.")
+    print("⚠️ Non-causal correlation detected - possible ER=EPR signature.")
 print(f"✅ Plots saved:\n   - PAEV_M3_EnergyFlux.png\n   - PAEV_M3_CausalityMap.png")
 print("----------------------------------------------------------")

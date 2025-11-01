@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tessaris Phase IX — Λ–Σ–Φ Continuum Lock
+Tessaris Phase IX - Λ-Σ-Φ Continuum Lock
 -----------------------------------------
-Aggregates and cryptographically locks all Phase VIII–Φ6 summaries
+Aggregates and cryptographically locks all Phase VIII-Φ6 summaries
 into a single immutable dataset for verification and archival.
 
 Generates:
@@ -34,15 +34,15 @@ def sha256_of_file(path):
 
 aggregate = {"timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
              "protocol": "Tessaris Unified Constants & Verification Protocol v1.2",
-             "phase": "IX — Continuum Lock",
+             "phase": "IX - Continuum Lock",
              "series_locked": ["ΛΣ"] + [f"Φ{i}" for i in range(1, 7)],
              "data": {},
              "checksums": {},
              "state": "Locked",
              "notes": [
-                 "This file represents the immutable archive of the Λ–Σ–Φ continuum.",
+                 "This file represents the immutable archive of the Λ-Σ-Φ continuum.",
                  "All constants and summary metrics verified under Tessaris Unified Constants v1.2.",
-                 "Phase IX marks the transition from conscious dynamics to Φ–Ω boundary studies."
+                 "Phase IX marks the transition from conscious dynamics to Φ-Ω boundary studies."
              ]}
 
 os.makedirs(BASE, exist_ok=True)
@@ -58,7 +58,7 @@ with open(CHECKSUM_PATH, "w") as cfile:
         h = sha256_of_file(path)
         aggregate["checksums"][f] = h
         cfile.write(f"{f}\t{h}\n")
-        print(f"✅ Locked {f} → SHA256={h[:12]}...")
+        print(f"✅ Locked {f} -> SHA256={h[:12]}...")
 
 # Compute global checksum
 global_hash = hashlib.sha256(json.dumps(aggregate, sort_keys=True).encode()).hexdigest()
@@ -68,8 +68,8 @@ print(f"\n🌐 Global continuum hash = {global_hash}\n")
 with open(LOCK_PATH, "w") as out:
     json.dump(aggregate, out, indent=2)
 
-print(f"✅ Tessaris Continuum locked → {LOCK_PATH}")
-print(f"✅ Checksums saved → {CHECKSUM_PATH}")
+print(f"✅ Tessaris Continuum locked -> {LOCK_PATH}")
+print(f"✅ Checksums saved -> {CHECKSUM_PATH}")
 print("------------------------------------------------------------")
-print("Λ–Σ–Φ series fully archived under Tessaris Unified Constants v1.2.")
+print("Λ-Σ-Φ series fully archived under Tessaris Unified Constants v1.2.")
 print("Transition to Ω-Series initialization authorized.")

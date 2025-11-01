@@ -1,5 +1,5 @@
 # 📁 backend/api/photon_api.py
-print("🛰️ [Photon API] Initializing PhotonLang routes…")
+print("🛰️ [Photon API] Initializing PhotonLang routes...")
 
 """
 PhotonLang API
@@ -7,7 +7,7 @@ PhotonLang API
 Provides endpoints for:
 - Translating PhotonLang to glyph-plane form
 - Compiling PhotonLang source
-- Executing glyph code through Photon–Symatics Bridge
+- Executing glyph code through Photon-Symatics Bridge
 """
 
 from fastapi import APIRouter, HTTPException, Request
@@ -40,7 +40,7 @@ class CompileFileRequest(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 🌊 Translate a single PhotonLang line → glyphs
+# 🌊 Translate a single PhotonLang line -> glyphs
 # ─────────────────────────────────────────────────────────────────────────────
 @router.post("/translate_line")
 async def translate_line(req: TranslateLineRequest):
@@ -52,7 +52,7 @@ async def translate_line(req: TranslateLineRequest):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 📜 Translate multi-line PhotonLang block → glyphs
+# 📜 Translate multi-line PhotonLang block -> glyphs
 # ─────────────────────────────────────────────────────────────────────────────
 @router.post("/translate_block")
 async def translate_block(request: Request):
@@ -76,9 +76,9 @@ async def translate_block(request: Request):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ⚛ Execute glyph-plane or PhotonLang source via Photon–Symatics Bridge
+# ⚛ Execute glyph-plane or PhotonLang source via Photon-Symatics Bridge
 # ─────────────────────────────────────────────────────────────────────────────
-print("🛰️ [Photon API] Router active → /api/photon/execute_raw")
+print("🛰️ [Photon API] Router active -> /api/photon/execute_raw")
 
 @router.post("/execute_raw")
 async def execute_raw(payload: Dict[str, Any]):
@@ -86,7 +86,7 @@ async def execute_raw(payload: Dict[str, Any]):
     Executes either:
       - Raw PhotonLang code (💡 = 🌊 ⊕ 🌀)
       - Pre-compiled glyph capsules
-    through the Photon–Symatics Bridge, auto-translating as needed.
+    through the Photon-Symatics Bridge, auto-translating as needed.
     """
     if bridge is None:
         raise HTTPException(status_code=500, detail="PhotonSymaticsBridge unavailable.")
@@ -97,7 +97,7 @@ async def execute_raw(payload: Dict[str, Any]):
             raise HTTPException(status_code=400, detail="Missing 'source' field")
 
         # ─────────────────────────────────────────
-        # 🧩 Auto-translate raw PhotonLang → capsule
+        # 🧩 Auto-translate raw PhotonLang -> capsule
         # ─────────────────────────────────────────
         capsule = None
         if isinstance(source, str):
@@ -113,7 +113,7 @@ async def execute_raw(payload: Dict[str, Any]):
             raise HTTPException(status_code=400, detail="Invalid source format; must be string or capsule object.")
 
         # ─────────────────────────────────────────
-        # 🚀 Execute through Photon–Symatics Bridge
+        # 🚀 Execute through Photon-Symatics Bridge
         # ─────────────────────────────────────────
         results = await bridge.execute_raw(capsule)
         return results
@@ -124,7 +124,7 @@ async def execute_raw(payload: Dict[str, Any]):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 🧩 Compile a Photon source file → symbolic structure
+# 🧩 Compile a Photon source file -> symbolic structure
 # ─────────────────────────────────────────────────────────────────────────────
 @router.post("/compile_file")
 async def compile_file(req: CompileFileRequest):

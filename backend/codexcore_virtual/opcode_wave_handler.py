@@ -1,5 +1,5 @@
 """
-Tessaris • Symatics Wave Opcode Handler
+Tessaris * Symatics Wave Opcode Handler
 ---------------------------------------
 Maps symbolic opcodes (⊕ μ ↔ ⟲ π) to executable
 wave functions via the VirtualWaveEngine.
@@ -52,7 +52,7 @@ class OpcodeWaveHandler:
             "collapse_metrics": collapse.get("collapse_metrics", {}),
             "timestamp": time.time(),
         }
-        logger.info(f"[OpcodeWaveHandler] Executed {opcode} → {result['collapse_metrics']}")
+        logger.info(f"[OpcodeWaveHandler] Executed {opcode} -> {result['collapse_metrics']}")
         return result
 
 

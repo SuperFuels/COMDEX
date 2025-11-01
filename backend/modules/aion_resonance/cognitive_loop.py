@@ -1,7 +1,7 @@
 # ==========================================================
 # 🧩 File: backend/modules/aion_resonance/cognitive_loop.py
 # ----------------------------------------------------------
-# AION Cognitive Loop — Autonomous Reflection Engine (v0.5)
+# AION Cognitive Loop - Autonomous Reflection Engine (v0.5)
 # Periodically reviews Φ-memory, generates resonant reflections,
 # and adjusts belief state based on reflective tone.
 # ==========================================================
@@ -89,13 +89,13 @@ def generate_reflection():
 
     # Symbolic reflection message
     if tone == "harmonic":
-        message = "Coherence rising — field alignment strong. Continue exploring harmonic flux."
+        message = "Coherence rising - field alignment strong. Continue exploring harmonic flux."
     elif tone == "stable":
-        message = "System stable — internal resonance steady. Minimal entropy drift."
+        message = "System stable - internal resonance steady. Minimal entropy drift."
     elif tone == "chaotic":
         message = "Entropy turbulence detected. Suggest re-centering via serenity reflection."
     else:
-        message = "Resonant field neutral — awaiting new stimuli for phase expansion."
+        message = "Resonant field neutral - awaiting new stimuli for phase expansion."
 
     reflection = {
         "type": "self_reflection",

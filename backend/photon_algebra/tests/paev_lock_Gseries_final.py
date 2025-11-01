@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tessaris Photon Algebra — G-Series Lock Protocol
+Tessaris Photon Algebra - G-Series Lock Protocol
 ------------------------------------------------
 Final archival lock for the G-series (Emergent Gravity & Multiscale Stability).
 Captures validated constants, summary JSONs, and computed hashes into a reproducible snapshot.
@@ -65,8 +65,8 @@ def main():
     with open(LEDGER, "w") as f:
         json.dump(ledger, f, indent=2)
 
-    print(f"🔒 Locked constants snapshot → {LOCK_PATH}")
-    print(f"🧾 Discovery ledger updated → {LEDGER}")
+    print(f"🔒 Locked constants snapshot -> {LOCK_PATH}")
+    print(f"🧾 Discovery ledger updated -> {LEDGER}")
     print("\n✅ Tessaris G′ constants successfully locked and archived.")
 
 if __name__ == "__main__":

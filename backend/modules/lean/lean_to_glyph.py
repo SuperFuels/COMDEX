@@ -162,14 +162,14 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
 
             kind, nm, params_part, logic_part = match.groups()
             name = nm
-            params = params_part or ""   # ← capture (a b : Nat) or empty if none
+            params = params_part or ""   # <- capture (a b : Nat) or empty if none
             typ = logic_part.strip()
             body = ""
             glyph_symbol = KIND_TO_GLYPH.get(kind, "⟦ Theorem ⟧")
             current_decl = [line]
 
             # 🧩 optional debug
-            print(f"[DEBUG] new decl → kind={kind}, name={name}, params={params}, logic={typ}", file=sys.stderr)
+            print(f"[DEBUG] new decl -> kind={kind}, name={name}, params={params}, logic={typ}", file=sys.stderr)
         elif name:
 
             # Continuation line
@@ -247,7 +247,7 @@ def lean_decl_to_codexlang(decl: Dict[str, str]) -> Dict[str, Any]:
     logic = (
         logic.replace("∀", "∀")
              .replace("∃", "∃")
-             .replace("→", "→")
+             .replace("->", "->")
              .replace("↔", "↔")
              .replace("∧", "∧")
              .replace("∨", "∨")
@@ -298,7 +298,7 @@ def emit_codexlang_glyph(node: Dict[str, Any], glyph_symbol: str = "⟦ Theorem 
         label = "Assume"
     else:
         label = "Prove"
-    return f"{glyph_symbol} | {name} : {logic} → {label} ⟧"
+    return f"{glyph_symbol} | {name} : {logic} -> {label} ⟧"
 
 
 def lean_to_dc_container(path: str) -> Dict[str, Any]:

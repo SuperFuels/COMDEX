@@ -1,7 +1,7 @@
 """
 lock_omega_series_results.py
 Consolidates and cryptographically locks all Ω-series results
-(Ω₄ – Ω₆) under the Tessaris Unified Constants v1.2 protocol.
+(Ω4 - Ω6) under the Tessaris Unified Constants v1.2 protocol.
 """
 
 import json
@@ -48,10 +48,10 @@ for fpath in omega_files:
             "sha256": file_hash
         })
         with open(checksums_output, "a") as f:
-            f.write(f"{Path(fpath).name} → SHA256={file_hash}\n")
-        print(f"✅ Locked {Path(fpath).name} → SHA256={file_hash[:12]}...")
+            f.write(f"{Path(fpath).name} -> SHA256={file_hash}\n")
+        print(f"✅ Locked {Path(fpath).name} -> SHA256={file_hash[:12]}...")
     else:
-        print(f"⚠️ Missing {fpath} — skipped.")
+        print(f"⚠️ Missing {fpath} - skipped.")
 
 # === Global continuum hash ===
 aggregate["global_hash"] = hashlib.sha256(combined).hexdigest()
@@ -61,6 +61,6 @@ with open(lock_output, "w") as f:
     json.dump(aggregate, f, indent=2)
 
 print("\n🌐 Global Ω continuum hash =", aggregate["global_hash"])
-print(f"✅ Tessaris Meta-Causal Continuum locked → {lock_output}")
-print(f"✅ Checksums saved → {checksums_output}")
+print(f"✅ Tessaris Meta-Causal Continuum locked -> {lock_output}")
+print(f"✅ Checksums saved -> {checksums_output}")
 print("\nΩ-Series integrity now cryptographically sealed under Tessaris Unified Constants v1.2.")

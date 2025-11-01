@@ -14,4 +14,4 @@ with open(OUT, "w", newline="", encoding="utf-8") as f:
         sqi = 0.7 + 0.2 * math.sin(i / 8.0) + random.uniform(-0.03, 0.03)
         writer.writerow({"ts": base + i * 60, "SQI": round(sqi, 4)})
 
-print(f"[Seed] Wrote synthetic trend data → {OUT}")
+print(f"[Seed] Wrote synthetic trend data -> {OUT}")

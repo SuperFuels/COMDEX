@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Doc Sync Script — Photon Algebra
+Doc Sync Script - Photon Algebra
 --------------------------------
 
 Generates:
@@ -42,13 +42,13 @@ def write_instruction_reference(axioms, rules):
     path = DOCS_DIR / "CodexLang_Instruction" / "instruction_reference.md"
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
-        f.write("# Photon Algebra — Instruction Reference\n\n")
-        f.write("## Axioms (P1–P8)\n\n")
+        f.write("# Photon Algebra - Instruction Reference\n\n")
+        f.write("## Axioms (P1-P8)\n\n")
         for name, doc in axioms:
-            f.write(f"- **{name}** → {doc}\n")
+            f.write(f"- **{name}** -> {doc}\n")
         f.write("\n## Rewrite Rules\n\n")
         for pat, repl in rules:
-            f.write(f"- `{pat}` → `{repl}`\n")
+            f.write(f"- `{pat}` -> `{repl}`\n")
 
 def write_symatics_axioms(axioms):
     path = DOCS_DIR / "SYMATICS_AXIOMS.md"

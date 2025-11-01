@@ -1,5 +1,5 @@
 """
-SymaticsDispatcher — Symbolic ↔ Photonic Translator (v0.5-B3)
+SymaticsDispatcher - Symbolic ↔ Photonic Translator (v0.5-B3)
 --------------------------------------------------------------
 Now includes operator mapping to VirtualWaveEngine kernels.
 """
@@ -71,7 +71,7 @@ class SymaticsDispatcher:
         return result
 
 """
-Photon–Symatics Bridge
+Photon-Symatics Bridge
 ─────────────────────────────────────────────
 Connects Photon executor operators (⊕, ↔, μ, ⟲, π)
 to the Symatics runtime (Lightwave or Symbolic).
