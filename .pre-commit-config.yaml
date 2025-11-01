@@ -4,11 +4,9 @@ repos:
     hooks:
       - id: check-ascii-punct
         name: Check ASCII punctuation in Python
-        entry: python tools/check_ascii_tokens.py
-        language: system        # use system Python so imports from repo work
-        files: \.py$
-        pass_filenames: true
-        env:
-          - PYTHONPATH=.        # belt + suspenders; also handled by the script
-        # If you want it to auto-fix on commit, uncomment:
+        language: system
+        entry: bash -c 'PYTHONPATH="${PYTHONPATH}:." python tools/check_ascii_tokens.py'
+        types_or: [python]   # run on .py files
+        pass_filenames: false
+        # If you want auto-fix behavior (only if your script supports it):
         # args: [--write]
