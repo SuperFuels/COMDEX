@@ -1,10 +1,35 @@
 # examples/demo_math.photon
 
-# This is glyph-DSL, not Python. The importer expands it on the fly.
+# -*- coding: utf-8 -*-
 
+
+"""
+Minimal Photon glyph demo.
+Expanded at import time by the photon importer + translator.
+
+Expected expansion for ops:
+  ⊕(a, b)  -> __OPS__["⊕"](a, b)
+  μ(x)     -> __OPS__["μ"](x)
+"""
+
+# Fallback runtime (only used if the translator doesn't inject one)
+
+⤴ ∶
+    __OPS__ # type: ignore[name-defined]
+
+⤳ NameError ∶
+    ⚙ _op_add ⟮a ‚b ⟯∶
+        ⮐ a ＋b 
+
+    ⚙ _op_measure ⟮x ⟯∶
+    # keep it simple for the demo
+
+        ⮐ {"value"∶x }
+
+    __OPS__ ⩴{"⊕"∶_op_add ‚"μ"∶_op_measure }
 
 ⚙ add_and_measure ⟮a ‚b ⟯∶
-    z ⩴⊕ ⟮a ‚b ⟯# -> __OPS__["⊕"](a,b)
+    z ⩴⊕ ⟮a ‚b ⟯# -> __OPS__["⊕"](a, b)
 
     m ⩴μ ⟮z ⟯# -> __OPS__["μ"](z)
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
+from textwrap import dedent
 """
 Photon importer: load modules written in compressed Photon form.
 
@@ -162,8 +163,15 @@ class PhotonSourceLoader(importlib.abc.SourceLoader):
             # 3) normalize & sanitize like tests do
             py_src = _normalize(py_src)
             py_src = sanitize_python_code_ascii(py_src)
-
-        return compile(py_src, path, "exec", dont_inherit=True, optimize=-1)
+            py_src = dedent(py_src).lstrip()
+            prolog_injected = ("__OPS__" not in raw) and ("__OPS__" in py_src)
+            self._photonmap = {
+                "source": path,
+                "version": 1,
+                "mapping": "identity-lines",
+                "line_offset": 1 if prolog_injected else 0,
+            }
+            return compile(py_src, path, "exec", dont_inherit=True, optimize=-1)
 
     def create_module(self, spec):  # noqa: D401
         """Default module creation."""
@@ -171,6 +179,10 @@ class PhotonSourceLoader(importlib.abc.SourceLoader):
 
     def exec_module(self, module: ModuleType) -> None:
         code = self.get_code(module.__name__)
+        # attach photon sourcemap if we set it in source_to_code()
+        pmap = getattr(self, "_photonmap", None)
+        if pmap is not None:
+            module.__dict__["__photonmap__"] = pmap
         exec(code, module.__dict__)
 
 # ----------------------------- registration --------------------------------
@@ -214,7 +226,13 @@ def unregister_photon_importer() -> None:
     # Clear importer cache so Python rebuilds FileFinders without our hook
     sys.path_importer_cache.clear()
 
+def install() -> None:
+    register_photon_importer()
+
+def uninstall() -> None:
+    unregister_photon_importer()
+
 # Register at import time (idempotent by sentinel)
 register_photon_importer()
 
-__all__ = ["register_photon_importer", "unregister_photon_importer", "PhotonSourceLoader"]
+__all__ = ["register_photon_importer", "unregister_photon_importer", "PhotonSourceLoader", "install", "uninstall",]
