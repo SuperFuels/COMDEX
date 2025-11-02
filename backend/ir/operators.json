@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "operators": [
+    { "name": "superpose", "glyph": "⊕", "py_callable": true,  "js_emit": null, "arity": 2 },
+    { "name": "measure",   "glyph": "μ", "py_callable": true,  "js_emit": null, "arity": 1 },
+    { "name": "entangle",  "glyph": "↔", "py_callable": true,  "js_emit": null, "arity": 2 },
+    { "name": "resonance", "glyph": "⟲", "py_callable": true,  "js_emit": null, "arity": 1 },
+    { "name": "project",   "glyph": "π", "py_callable": true,  "js_emit": null, "arity": 1 },
+
+    { "name": "assign",    "glyph": "≔", "py_callable": false, "js_emit": ":=", "arity": 2 },
+    { "name": "equals",    "glyph": "≟", "py_callable": false, "js_emit": "==", "arity": 2 },
+    { "name": "arrow",     "glyph": "⟶", "py_callable": false, "js_emit": "=>", "arity": 2 },
+    { "name": "land",      "glyph": "∧", "py_callable": false, "js_emit": "&&", "arity": 2 },
+    { "name": "lor",       "glyph": "∨", "py_callable": false, "js_emit": "||", "arity": 2 }
+  ],
+  "punctuation": [
+    { "name": "lparen_curved",  "glyph": "⟮", "js_emit": "(" },
+    { "name": "rparen_curved",  "glyph": "⟯", "js_emit": ")" },
+    { "name": "lbrack",         "glyph": "⟦", "js_emit": "[" },
+    { "name": "rbrack",         "glyph": "⟧", "js_emit": "]" },
+    { "name": "lbrace",         "glyph": "⦃", "js_emit": "{" },
+    { "name": "rbrace",         "glyph": "⦄", "js_emit": "}" },
+    { "name": "comma_low",      "glyph": "‚", "js_emit": "," },
+    { "name": "semicolon_mid",  "glyph": "⁏", "js_emit": ";" },
+    { "name": "dot_mid",        "glyph": "·", "js_emit": "." }
+  ]
+}

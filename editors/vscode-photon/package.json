@@ -1,0 +1,89 @@
+{
+  "name": "tessaris-photon",
+  "displayName": "Photon (Tessaris)",
+  "description": "Syntax, snippets, hovers, and diagnostics for Photon/Symatics glyph code.",
+  "publisher": "tessaris",
+  "version": "0.2.1",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Programming Languages"],
+  "keywords": ["photon", "symatics", "tessaris", "glyphs", "language"],
+  "extensionKind": ["ui", "workspace"],
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": { "supported": true }
+  },
+
+  "main": "./out/extension.js",
+  "browser": "./out/extension.js",
+
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -w -p tsconfig.json"
+  },
+
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/vscode": "^1.84.0",
+    "@types/node": "^18.19.0"
+  },
+
+  "contributes": {
+    "languages": [
+      {
+        "id": "photon",
+        "aliases": ["Photon", "photon"],
+        "extensions": [".photon", ".ph"],
+        "configuration": "./language-configuration.jsonc"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "photon",
+        "scopeName": "source.photon",
+        "path": "./syntaxes/photon.tmLanguage.json"
+      }
+    ],
+    "themes": [
+      {
+        "label": "Photon Minimal",
+        "uiTheme": "vs-dark",
+        "path": "./themes/photon-minimal-color-theme.json"
+      }
+    ],
+    "snippets": [
+      { "language": "photon", "path": "./snippets/photon.code-snippets" }
+    ],
+    "commands": [
+      { "command": "photon.showCheatsheet", "title": "Photon: Show Operator Cheatsheet" }
+    ],
+    "menus": {
+      "commandPalette": [
+        { "command": "photon.showCheatsheet", "when": "editorLangId == photon", "group": "navigation" }
+      ]
+    },
+    "configurationDefaults": {
+      "[photon]": {
+        "editor.wordSeparators": "`~!@#$%^&*()-=+[{}]\\|;:'\\\",.<>/?",
+        "editor.autoClosingBrackets": "languageDefined",
+        "files.insertFinalNewline": true
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Photon",
+      "properties": {
+        "photon.enableDiagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Underline unmatched Photon glyph brackets."
+        }
+      }
+    }
+  },
+
+  "icon": "media/icon.png",
+  "repository": { "type": "git", "url": "https://github.com/tessaris/COMDEX" },
+  "bugs": { "url": "https://github.com/tessaris/COMDEX/issues" },
+  "license": "MIT",
+  "sideEffects": false
+}

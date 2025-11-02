@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "MAJOR UPDATE PHOTON LANGUAGE v2"
+git commit -m "MAJOR UPDATE PHOTON LANGUAGE v3"
 git push origin main
 
 

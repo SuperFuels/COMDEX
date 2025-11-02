@@ -1,0 +1,21 @@
+{
+  "operators": [
+    { "glyph": "⊕",  "name": "superpose",    "arity": "2" },
+    { "glyph": "μ",  "name": "measure",      "arity": "1" },
+    { "glyph": "↔",  "name": "entangle",     "arity": "2" },
+    { "glyph": "⟲",  "name": "resonate",     "arity": "n" },
+    { "glyph": "π",  "name": "project",      "arity": "1" },
+
+    { "glyph": "≔",  "name": "define",       "arity": "2" },
+    { "glyph": "≟",  "name": "equiv_test",   "arity": "2" },
+    { "glyph": "⟶",  "name": "arrow",        "arity": "2" },
+    { "glyph": "∧",  "name": "and",          "arity": "2" },
+    { "glyph": "∨",  "name": "or",           "arity": "2" },
+
+    { "glyph": "∶",  "name": "ratio_colon",  "arity": "2" },
+
+    { "glyph": "≟≟", "name": "js_eq_test",   "arity": "2" },
+    { "glyph": "≠≟", "name": "js_neq_test",  "arity": "2" },
+    { "glyph": "∧̄", "name": "and_overbar",  "arity": "2" }
+  ]
+}
