@@ -1,0 +1,5 @@
+⚙ oops ⟮n ⟯∶
+    z ⩴⊕ ⟮n ‚1 ⟯
+    # The next line triggers NameError on purpose:
+
+    ⮐ missing_name ＋z 

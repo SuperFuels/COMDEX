@@ -41,3 +41,24 @@ ignore = ["E501"]         # Ignore long line warning (optional)
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-sort-within-sections = true
+
+[project.scripts]
+photonlang = "backend.modules.photonlang.cli:main"
+photon-compress = "backend.modules.photonlang.cli:main_compress"
+photon-expand = "backend.modules.photonlang.cli:main_expand"
+photon-run = "backend.modules.photonlang.cli:main_run"
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "photonlang"
+version = "0.1.0"
+description = "Photonlang wrapper that re-exports Tessaris importer and can auto-install the Photon finder."
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Tessaris" }]
+
+[tool.setuptools]
+packages = ["photonlang"]

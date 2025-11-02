@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 from textwrap import dedent
+import ast
+import hashlib
+
 """
 Photon importer: load modules written in compressed Photon form.
 
@@ -53,7 +56,7 @@ def _to_str(data: bytes | str) -> str:
 
 # --- normalization + sanitize (mirror test pipeline) --------------------
 
-from backend.utils.code_sanitize import sanitize_python_code_ascii
+# from backend.utils.code_sanitize import sanitize_python_code_ascii
 
 _ASCII_TABLE = {
     # dashes/minus
@@ -122,16 +125,69 @@ def _normalize(src: str) -> str:
     )
     return s
 
+def _policy_check(raw_src: str, py_src: str, path: str) -> None:
+    """
+    Enforce simple, dependency-free policy:
+      • Host import allow-list (via PHOTON_HOST_ALLOW / PHOTON_HOST_DENY)
+      • Optional SHA256 gating (PHOTON_SIG_SHA256 or companion .sha256 file)
+    """
+    # ---- signature / integrity (optional) ----
+    expected_hex = os.getenv("PHOTON_SIG_SHA256", "").strip().lower()
+    if not expected_hex:
+        sig_path = path + ".sha256"
+        if os.path.exists(sig_path):
+            try:
+                expected_hex = Path(sig_path).read_text(encoding="utf-8").strip().lower()
+            except Exception:
+                expected_hex = ""
+
+    if expected_hex:
+        got = hashlib.sha256(raw_src.encode("utf-8")).hexdigest().lower()
+        if got != expected_hex:
+            raise ImportError(f"SHA256 mismatch for {path} (policy)")
+
+    # ---- host import allow/deny (optional; defaults are lenient but safe) ----
+    allow_csv = os.getenv(
+        "PHOTON_HOST_ALLOW",
+        # allow common stdlib + our own tree
+        "backend,math,random,re,typing,dataclasses,json,collections,functools,itertools"
+    )
+    deny_csv = os.getenv("PHOTON_HOST_DENY", "")
+
+    allow = [p.strip() for p in allow_csv.split(",") if p.strip()]
+    deny  = [p.strip() for p in deny_csv.split(",") if p.strip()]
+
+    def _ok(mod: str) -> bool:
+        if any(mod == d or mod.startswith(d + ".") for d in deny):
+            return False
+        return any(mod == a or mod.startswith(a + ".") for a in allow)
+
+    try:
+        tree = ast.parse(py_src, filename=path)
+    except SyntaxError:
+        # Let the normal compiler raise; policy isn’t the blocker here.
+        return
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for n in node.names:
+                m = n.name
+                # top-level package (keep full too, so prefixes work)
+                head = m.split(".", 1)[0]
+                if not _ok(m) and not _ok(head):
+                    raise ImportError(f"host import not allowed by policy: {m}")
+        elif isinstance(node, ast.ImportFrom):
+            # relative imports within package are allowed
+            if getattr(node, "level", 0):
+                continue
+            m = node.module or ""
+            head = m.split(".", 1)[0] if m else ""
+            if m and not _ok(m) and not _ok(head):
+                raise ImportError(f"host import not allowed by policy: from {m} import …")
+
 # ----------------------------- loader -----------------------------------
 
 class PhotonSourceLoader(importlib.abc.SourceLoader):
-    """
-    Loads and expands *.photon / *.pthon modules:
-      1) code glyph tokens -> Python tokens
-      2) Symatics ops -> runtime calls (optional)
-      3) normalize + sanitize (ASCII-safe tokens)
-    Then compiles the expanded Python.
-    """
     def __init__(self, fullname: str, path: str):
         self.fullname = fullname
         self.path = path
@@ -142,28 +198,31 @@ class PhotonSourceLoader(importlib.abc.SourceLoader):
     def get_data(self, path: str) -> bytes:  # type: ignore[override]
         return Path(path).read_bytes()
 
-    def source_to_code(self, data: bytes, path: str, _opt: Any = None):  # type: ignore[override]
+    def source_to_code(self, data: bytes, path: str, _opt: Any = None):  # <-- INSIDE CLASS
         raw = _to_str(data)
 
-        # Bypass: import raw Photon text (debug)
         if os.getenv("PHOTON_IMPORT_BYPASS", "0") == "1":
             py_src = raw
         else:
-            # 1) expand code-glyph tokens -> Python tokens
             py_src = _expand_python_tokens(raw)
-            # 2) expand Symatics ops -> runtime calls (optional)
             py_src = _maybe_expand_symatics_ops(py_src)
 
-            # Strict mode: ensure no code-glyphs remain
             if os.getenv("PHOTON_IMPORT_STRICT", "0") == "1":
                 from backend.modules.photonlang.adapters.python_tokens import contains_code_glyphs
                 if contains_code_glyphs(py_src):
                     raise SyntaxError("PHOTON_IMPORT_STRICT: code glyphs remain after expansion")
 
-            # 3) normalize & sanitize like tests do
+            # normalize + sanitize (lazy import for sanitize)
             py_src = _normalize(py_src)
-            py_src = sanitize_python_code_ascii(py_src)
+            try:
+                from backend.utils.code_sanitize import sanitize_python_code_ascii as _sanitize
+            except Exception:
+                def _sanitize(s: str) -> str: return s
+            py_src = _sanitize(py_src)
             py_src = dedent(py_src).lstrip()
+
+            _policy_check(raw, py_src, path)
+
             prolog_injected = ("__OPS__" not in raw) and ("__OPS__" in py_src)
             self._photonmap = {
                 "source": path,
@@ -171,26 +230,59 @@ class PhotonSourceLoader(importlib.abc.SourceLoader):
                 "mapping": "identity-lines",
                 "line_offset": 1 if prolog_injected else 0,
             }
-            return compile(py_src, path, "exec", dont_inherit=True, optimize=-1)
 
-    def create_module(self, spec):  # noqa: D401
-        """Default module creation."""
+        return compile(py_src, path, "exec", dont_inherit=True, optimize=-1)
+
+    def create_module(self, spec):
         return None
 
     def exec_module(self, module: ModuleType) -> None:
         code = self.get_code(module.__name__)
-        # attach photon sourcemap if we set it in source_to_code()
         pmap = getattr(self, "_photonmap", None)
         if pmap is not None:
             module.__dict__["__photonmap__"] = pmap
         exec(code, module.__dict__)
 
 # ----------------------------- registration --------------------------------
+# ----------------------------- registration (meta-finder) ----------------------
+class PhotonMetaFinder(importlib.abc.MetaPathFinder):
+    SUFFIXES = (".photon", ".pthon")
 
-def register_photon_importer() -> None:
+    def find_spec(self, fullname, path, target=None):  # type: ignore[override]
+        search_paths = path if path is not None else sys.path
+        rel = fullname.replace(".", "/")
+
+        for base in search_paths:
+            basepath = Path(base)
+            try:
+                # Package: <base>/<rel>/__init__.<ext>
+                for ext in self.SUFFIXES:
+                    pkg_init = basepath / rel / ("__init__" + ext)
+                    if pkg_init.is_file():
+                        loader = PhotonSourceLoader(fullname, str(pkg_init))
+                        return importlib.util.spec_from_file_location(
+                            fullname, str(pkg_init), loader=loader,
+                            submodule_search_locations=[str(pkg_init.parent)]
+                        )
+                # Module: <base>/<rel>.<ext>
+                for ext in self.SUFFIXES:
+                    mod = basepath / (rel + ext)
+                    if mod.is_file():
+                        loader = PhotonSourceLoader(fullname, str(mod))
+                        return importlib.util.spec_from_file_location(
+                            fullname, str(mod), loader=loader
+                        )
+            except Exception:
+                continue
+        return None
+
+# ... keep everything above unchanged ...
+
+# ----------------------------- registration --------------------------------
+def register_photon_importer() -> bool:
     """
     Install a FileFinder path hook that supports *.photon/*.pthon alongside
-    the default Python/extension loaders. Keeps default behavior intact.
+    the default Python/extension loaders. Startup-safe and idempotent.
     """
     from importlib.machinery import (
         FileFinder,
@@ -212,27 +304,50 @@ def register_photon_importer() -> None:
     hook = FileFinder.path_hook(*loader_details)
     setattr(hook, "_tessaris_photon_hook", True)  # sentinel
 
+    # Idempotent insert; DO NOT touch importlib caches here.
     if not any(getattr(h, "_tessaris_photon_hook", False) for h in sys.path_hooks):
         sys.path_hooks.insert(0, hook)
-        sys.path_importer_cache.clear()
+    return True
 
-def unregister_photon_importer() -> None:
-    """
-    Remove the Photon path hook and clear the importer cache so future imports
-    use default behavior only.
-    """
-    # Drop our sentinel-marked hooks
+
+def unregister_photon_importer() -> bool:
+    before = len(sys.path_hooks)
     sys.path_hooks[:] = [h for h in sys.path_hooks if not getattr(h, "_tessaris_photon_hook", False)]
-    # Clear importer cache so Python rebuilds FileFinders without our hook
-    sys.path_importer_cache.clear()
+    # no cache clearing; importlib will rebuild lazily
+    return len(sys.path_hooks) != before
 
-def install() -> None:
-    register_photon_importer()
 
-def uninstall() -> None:
-    unregister_photon_importer()
+def refresh_importers() -> None:
+    """
+    Safely re-scan sys.path so *.photon suffixes are recognized for entries
+    that already had a FileFinder cached before our hook was installed.
+    """
+    import importlib as _il
+    _il.invalidate_caches()
+    try:
+        keys = list(sys.path_importer_cache.keys())
+    except Exception:
+        return
+    for k in keys:
+        try:
+            sys.path_importer_cache.pop(k, None)
+        except Exception:
+            # Never break import pipeline on refresh
+            pass
 
-# Register at import time (idempotent by sentinel)
-register_photon_importer()
 
-__all__ = ["register_photon_importer", "unregister_photon_importer", "PhotonSourceLoader", "install", "uninstall",]
+def install() -> bool:
+    return register_photon_importer()
+
+
+def uninstall() -> bool:
+    return unregister_photon_importer()
+
+__all__ = [
+    "register_photon_importer",
+    "unregister_photon_importer",
+    "refresh_importers",
+    "PhotonSourceLoader",
+    "install",
+    "uninstall",
+]

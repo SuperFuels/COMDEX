@@ -1,7 +1,10 @@
-import os
-if os.getenv("PHOTON_IMPORT", "1") not in ("0", "false", "False"):
+# /workspaces/COMDEX/sitecustomize.py
+from __future__ import annotations
+import os, sys
+
+if os.getenv("PHOTON_SITE_INSTALL", "").lower() in {"1", "true", "yes"}:
     try:
-        from backend.modules.photonlang.runtime import photon_importer as _ph
-        _ph.install()
+        from backend.modules.photonlang.importer import install as _install
+        _install()
     except Exception as e:
-        print(f"[photon] import hook not installed: {e}")
+        sys.stderr.write(f"[sitecustomize] photon importer not installed: {e}\n")

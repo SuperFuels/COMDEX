@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import re
 import io
 import json
 import re
@@ -365,11 +365,141 @@ def expand_text_py(src: str | bytes) -> str:
     toks = list(tokenize.tokenize(buf.readline))
     out  = list(_expand_tokens(toks))
     s = _untok_to_str(out)
-    s = _fix_untokenize_artifacts(s)  # safe now (real braces/parens restored)
-    return s
+    s = _fix_untokenize_artifacts(s)
+    return normalize_roundtrip(s)
 
 def contains_code_glyphs(text: str) -> bool:
     return bool(_CODE_GLYPH_RE and _CODE_GLYPH_RE.search(text))
+
+def _parenthesize_rhs_walrus_tokenwise(text: str) -> str:
+    """
+    Ensure lines of the form 'LHS = <RHS-with-:=>' become 'LHS = (<RHS-with-:=>)'.
+    Token-based (ignores strings/comments), only triggers when the first significant
+    token after '=' isn't '(' and a ':=' appears before the line end/comment.
+    """
+    rd = io.BytesIO(_as_bytes(text)).readline
+    toks = list(tokenize.tokenize(rd))
+
+    out = []
+    depth = 0
+    i = 0
+    need_close_paren_until_eol = False
+
+    def _append(tok_type, tok_str, proto):
+        # Reuse positions to keep untokenize happy; they’re not semantically used.
+        out.append(tokenize.TokenInfo(tok_type, tok_str, proto.start, proto.end, proto.line))
+
+    while i < len(toks):
+        t = toks[i]
+        tt, ts = t.type, t.string
+
+        # If we owe a ')', emit it right before COMMENT/NL/NEWLINE
+        if need_close_paren_until_eol and tt in (tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE, tokenize.ENDMARKER):
+            _append(tokenize.OP, ")", t)
+            need_close_paren_until_eol = False
+
+        # Track bracket depth (just to avoid weirdness; normal '=' is depth 0)
+        if tt == tokenize.OP and ts in "([{":
+            depth += 1
+        elif tt == tokenize.OP and ts in ")]}":
+            depth = max(0, depth - 1)
+
+        # Detect single '=' at depth 0
+        if depth == 0 and tt == tokenize.OP and ts == "=":
+            # Look ahead to find: first significant token after '=' and whether ':=' exists before EOL/COMMENT
+            j = i + 1
+            first_sig = None
+            saw_walrus = False
+            while j < len(toks):
+                tj = toks[j]
+                if tj.type in (tokenize.NL, tokenize.NEWLINE, tokenize.ENDMARKER, tokenize.COMMENT):
+                    break
+                if tj.type in (tokenize.INDENT, tokenize.DEDENT):
+                    j += 1
+                    continue
+                if tj.type == tokenize.OP and tj.string == ":=":
+                    saw_walrus = True
+                    # keep scanning to still record first_sig if not set
+                if first_sig is None and not (tj.type == tokenize.NL):
+                    # ignore pure whitespace — tokenize never yields a WS token, so
+                    # first non-NL/non-INDENT/DEDENT/COMMENT token is our first_sig
+                    first_sig = tj
+                j += 1
+
+            # If we saw a walrus on RHS and the first significant token after '=' is not '(',
+            # inject '(' right after '=' and remember to close before EOL/COMMENT.
+            if saw_walrus and not (first_sig and first_sig.type == tokenize.OP and first_sig.string == "("):
+                out.append(t)  # '='
+                _append(tokenize.OP, "(", t)
+                need_close_paren_until_eol = True
+                i += 1
+                continue  # do not double-append '='
+
+        out.append(t)
+        i += 1
+
+    # If file ended while we still owe ')', close it (edge case)
+    if need_close_paren_until_eol:
+        # Reuse the last token’s coords
+        last = toks[-1]
+        _append(tokenize.OP, ")", last)
+
+    return _untok_to_str(out)
+
+def _wrap_rhs_walrus_lines(text: str) -> str:
+    """
+    Per-line fallback: for a single-assignment '=' whose RHS contains ':=',
+    wrap RHS as '(...)' unless already parenthesized. Skips comment tails.
+    """
+    single_eq = re.compile(r'(?<![<>=!])=\s*(?![=])')
+    out = []
+    for line in text.splitlines():
+        head, sep, tail = line.partition('#')  # never cross comments
+        s = head
+        i = 0
+        while True:
+            m = single_eq.search(s, i)
+            if not m:
+                break
+            rhs = s[m.end():]
+            if ':=' in rhs:
+                j = 0
+                while j < len(rhs) and rhs[j].isspace():
+                    j += 1
+                if j < len(rhs) and rhs[j] != '(':
+                    s = s[:m.end()] + '(' + rhs + ')'
+                break
+            i = m.end()
+        out.append(s + (sep + tail if sep else ''))
+    return '\n'.join(out) + ('\n' if text.endswith('\n') else '')
+
+# --- Round-trip formatting normalizer (idempotent) ----------------------
+import re as _re
+
+_OPS_INDEX_CALL = _re.compile(r'__OPS__\s*\[\s*(".*?")\s*\]\s*\(')
+_BRACKET_TO_PAREN = _re.compile(r'\]\s+\(')
+_OPS_OPENBRACKET_SPACE = _re.compile(r'__OPS__\s+\[')
+# collapse 3+ blanklines -> 2
+_MULTI_BLANKS = _re.compile(r'\n{3,}')
+
+def normalize_roundtrip(py: str) -> str:
+    # Token-wise fix first
+    py = _parenthesize_rhs_walrus_tokenwise(py)
+
+    # Canonicalize __OPS__ calls/spaces
+    py = _OPS_INDEX_CALL.sub(r'__OPS__[\1](', py)
+    py = _BRACKET_TO_PAREN.sub(r'](', py)
+    py = _OPS_OPENBRACKET_SPACE.sub(r'__OPS__[', py)
+
+    # Collapse excessive blank lines
+    py = _MULTI_BLANKS.sub('\n\n', py)
+
+    # Line-wise fallback to catch any remaining 'x = a := ...'
+    py = _wrap_rhs_walrus_lines(py)
+
+    if not py.endswith('\n'):
+        py += '\n'
+    return py
 
 __all__ = [
     "compress_text_py", "expand_text_py", "contains_code_glyphs",

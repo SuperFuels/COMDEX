@@ -2920,4 +2920,135 @@ Unit tests verify:
   \item attachment of normalized imports during validation,
   \item end–to–end import and execution of \texttt{.photon}/\texttt{.pthon} modules from a page context.
 \end{itemize}
+\section{Photon/Importer Hardening \& Tooling Update (2025-11-01)}
+\label{sec:photon-hardening-2025-11-01}
+
+\subsection{Highlights}
+\begin{itemize}
+  \item Robust tokenize-based adapter with faithful round-trip for \texttt{async}/\texttt{match}/f-strings and walrus \texttt{:=}.
+  \item Import-time expansion hook enabled; photon-aware traceback mapping verified.
+  \item CLI triad (\texttt{compress}/\texttt{expand}/\texttt{run}) usable via \texttt{python -m ...}.
+  \item Policy hooks shipped: environment allow/deny and optional SHA256 signature checking.
+  \item Randomized AST/bytecode equivalence tests and corpus smoke tests are green.
+  \item Token table doc generator produces \texttt{docs/photon/token\_table.md}.
+\end{itemize}
+
+\subsection{Implemented Features}
+
+\paragraph{Token Adapter (Python $\leftrightarrow$ Photon).}
+The adapter (\texttt{backend/modules/photonlang/adapters/python\_tokens.py}) now:
+\begin{itemize}
+  \item Operates at the tokenizer level; does not mutate string/comment bodies or f-string internals.
+  \item Preserves f-strings by respecting \texttt{FSTRING\_START/MIDDLE/END}.
+  \item Repairs common untokenize artifacts: exponent joins (\verb|1e-9|), decimal splits (e.g., \verb|0 . 98| $\rightarrow$ \verb|0.98|), attribute spacing (\verb|obj . attr| $\rightarrow$ \verb|obj.attr|).
+  \item Enforces newline after comments to avoid merges across logical lines.
+  \item Ensures walrus expressions on an assignment RHS are parenthesized when required (e.g., \verb|z = a := f()| $\rightarrow$ \verb|z = (a := f())|).
+  \item Leaves curly braces alone during compression to avoid bracket-context loss; normalizes them safely on expand.
+\end{itemize}
+
+\paragraph{Import Hook and Tracebacks.}
+\begin{itemize}
+  \item Importer expands Photon to Python before execution; \texttt{PHOTON\_TB=1} enables photon-aware frames in tracebacks.
+  \item Unit test \texttt{backend/tests/test\_photon\_traceback\_map.py} passes and shows correct \texttt{.photon} line mapping.
+\end{itemize}
+
+\paragraph{CLI Triad.}
+Usable via module entrypoint:
+\begin{verbatim}
+python -m backend.modules.photonlang.cli expand  backend/tests/demo_math.photon
+python -m backend.modules.photonlang.cli compress backend/tests/demo_math.py
+python -m backend.modules.photonlang.cli run      backend/tests/demo_math.photon -e 'add_and_measure(2,3)'
+\end{verbatim}
+Key environment flags:
+\begin{itemize}
+  \item \texttt{PHOTON\_TB=1} – enrich tracebacks with photon source lines.
+  \item \texttt{PHOTON\_HOST\_DENY=os,subprocess} – block host imports from Photon modules.
+  \item \texttt{PHOTON\_SIG\_SHA256=<hash>} – enforce SHA256 match for trusted Photon sources.
+\end{itemize}
+
+\paragraph{Policy Hooks.}
+\begin{itemize}
+  \item Tests in \texttt{backend/tests/test\_policy\_hooks.py} confirm:
+    \begin{itemize}
+      \item Deny-list prevents importing restricted host modules from \texttt{.photon}.
+      \item Signature mismatch raises \texttt{ImportError}; matching signature allows import.
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Randomized Equivalence (AST/Bytecode).}
+\begin{itemize}
+  \item \texttt{backend/tests/test\_random\_equiv.py} generates small programs (ifs, matches, comprehensions, walrus) and asserts:
+    \begin{itemize}
+      \item \verb|ast.dump(ast.parse(src)) == ast.dump(ast.parse(expand(compress(src))))|
+      \item \verb|compile(src).co_code == compile(roundtrip).co_code|
+    \end{itemize}
+  \item Edge cases covered: distinct parameter names, RHS walrus, numeric canonicalization.
+\end{itemize}
+
+\paragraph{Corpus Smoke Test.}
+\begin{itemize}
+  \item \texttt{backend/tests/test\_corpus\_smoke.py} walks a curated Python corpus, applies compress$\rightarrow$expand, and ensures \texttt{ast.parse} and \texttt{compile} succeed.
+  \item Safe normalizers included (whitespace harmonization; scientific-notation glue like \verb|1 e -12| $\rightarrow$ \verb|1e-12|).
+  \item Green with \texttt{PHOTON\_CORPUS\_LIMIT=200}.
+\end{itemize}
+
+\paragraph{Documentation Artifacts.}
+\begin{itemize}
+  \item \texttt{scripts/gen\_token\_table.py} emits \texttt{docs/photon/token\_table.md} directly from \texttt{python\_token\_map.json}.
+  \item The generated table lists keywords, operators, and punctuation mappings used by the adapter.
+\end{itemize}
+
+\subsection{Reproducibility Commands}
+\begin{verbatim}
+# Quick CLI checks
+python -m backend.modules.photonlang.cli expand backend/tests/demo_math.photon | head -n 12
+python -m backend.modules.photonlang.cli run    backend/tests/demo_math.photon -e 'add_and_measure(2,3)'
+
+# Traceback mapping (expected to raise)
+PHOTON_TB=1 python -m backend.modules.photonlang.cli run backend/tests/demo_error.photon -e 'oops(3)'
+
+# Randomized equivalence
+pytest -q backend/tests/test_random_equiv.py
+
+# Corpus smoke
+PHOTON_CORPUS_LIMIT=200 pytest -q backend/tests/test_corpus_smoke.py
+
+# Policy hooks
+pytest -q backend/tests/test_policy_hooks.py
+
+# Token table doc
+python scripts/gen_token_table.py
+\end{verbatim}
+
+\subsection{Status Board (Condensed)}
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Area} & \textbf{Status} \\
+\hline
+T2 Expand-hook uses token expander & Done \\
+T3 Round-trip edgecases (async/match/f-strings) & Done \\
+T4 AST/bytecode equivalence (randomized) & Done \\
+T5 CLI compress/expand/run (basic) & Done (polish pending) \\
+T6 Git clean/smudge & Done \\
+T7 VS Code syntax tokens & Todo \\
+T9 Importer env flags & Done \\
+T10 Docs: token table + reserved policy & Token table done; policy doc pending \\
+A0 Token map JSON & Done \\
+A1 Tokenize-based adapter & Done \\
+A2 Import hook & Done \\
+A3 Round-trip \& AST parity tests & Done \\
+A4 CLI utils & Done (polish pending) \\
+B1 Don’t touch strings/comments/f-strings & Done \\
+B2 Corpus smoke test & Done \\
+\end{tabular}
+\end{center}
+
+\subsection{Known Limitations \& Next Steps}
+\begin{itemize}
+  \item \textbf{CLI polish}: enrich \texttt{--help}, add \texttt{--version}, and friendlier error messages.
+  \item \textbf{Docs policy page}: author \texttt{docs/photon/PHOTON\_POLICY.md} (env surfaces, examples, signing).
+  \item \textbf{Editor integration}: basic VS Code tokenization for Photon glyphs.
+  \item \textbf{Optional LibCST mode}: fidelity-first path for future refactors.
+  \item \textbf{Cross-language prep}: JS/TS adapter skeleton (tree-sitter) and shared IR stubs.
+\end{itemize}
 \end{document}

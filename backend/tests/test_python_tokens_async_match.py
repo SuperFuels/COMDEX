@@ -1,3 +1,4 @@
+# backend/tests/test_python_tokens_async_match.py
 import ast
 from backend.modules.photonlang.adapters.python_tokens import compress_text_py, expand_text_py
 
@@ -12,7 +13,7 @@ async def af(x: int) -> int:
 
 @dec
 def f(a: int, b: str="t") -> tuple[int, str]:
-    z = a := (len(b) if b else 3)
+    z = (a := (len(b) if b else 3))
     return (z, f"{b!r}:{a:04d}")
 '''
 

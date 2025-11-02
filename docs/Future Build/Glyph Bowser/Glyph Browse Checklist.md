@@ -1,3 +1,19 @@
+send a WAVE - is like a message
+Send a teleport - email
+
+or both are waves, emails merged into messages, 
+
+the browser is the internet, its the access to the glyphnet, the url is the wormhole address
+ones the addres is located it takes you to the dc container, a business container or your personal container or a shared container
+personal container is like your way to message, email , communicate with people, communicate with aion, setup tasks etc
+business containers is purchasing services, browsing the new net, buying things,
+
+the glyphnet sdhould be dual, works off normal net and has access / uses the glyphnet radio frequency as a mesh
+
+the browser is literally the access to the glyphnet, it is the receiver and antenna, that is the radio basically
+
+there should be a dev tools sections which provides access to essentailly build new agents or business aplications
+
 graph TD
   %% =============== PHASE 0: FOUNDATIONS ===============
   A0[🏁 P0 • Foundations]:::phase

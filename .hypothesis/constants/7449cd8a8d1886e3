@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/photonlang/adapters/python_tokens.py
+# hypothesis_version: 6.139.2
+
+['#', '(', '([{', ')', ')]}', '+', '-', '.', ':=', '=', 'FSTRING_END', 'FSTRING_MIDDLE', 'FSTRING_START', 'GLYPH_TO_TOKEN', 'TOKEN_TO_GLYPH', '[0-9_]+', '\\1.\\2', '\\]\\s+\\(', '\\n{3,}', '](', '__OPS__[', '__OPS__[\\1](', '__OPS__\\s+\\[', '__PH_DBL_LBRACE__', '__PH_DBL_RBRACE__', '__PH_LBRACE__', '__PH_RBRACE__', 'compress_text_py', 'contains_code_glyphs', 'expand_text_py', 'keywords', 'operators', 'photonlang', 'punct', 'punctuation', 'rRbBuUfF', 'replace', 'utf-8', '{', '|', '}']

@@ -7,8 +7,9 @@ GLYPH_CALLS = {"⊕", "μ", "↔", "⟲", "π"}
 def expand_symatics_ops(src: str) -> str:
     """
     Rewrite call-like glyphs outside strings/comments to __OPS__["<glyph>"](...).
-    Also injects: `from backend.symatics.operators import OPS as __OPS__`
-    at the top if __OPS__ isn't already referenced in the file.
+    Also injects: `from backend.symatics.operators import OPS as __RAW_OPS` and
+    resolves each operator to a callable (__OPS__) so call sites fail cleanly
+    (with a good traceback) if an operator isn't directly callable.
     """
     out: list[str] = []
     i = 0
@@ -84,10 +85,39 @@ def expand_symatics_ops(src: str) -> str:
         i += 1
 
     body = "".join(out)
-    # Inject runtime import once if file doesn't already reference __OPS__
+
+    # Inject runtime import + resolver once if file doesn't already reference __OPS__
     if "__OPS__" not in src:
-        prolog = 'from backend.symatics.operators import OPS as __OPS__\n'
+        prolog = (
+            'from backend.symatics.operators import OPS as __RAW_OPS\n'
+            'def __resolve_op(name, v):\n'
+            '    if callable(v):\n'
+            '        return v\n'
+            '    # try common method/attr names on objects\n'
+            '    for nm in (\n'
+            '        "__call__", "apply", "call", "invoke", "run",\n'
+            '        "evaluate", "eval", "exec", "execute",\n'
+            '        "op", "fn", "func", "function", "impl", "implementation",\n'
+            '    ):\n'
+            '        attr = getattr(v, nm, None)\n'
+            '        if callable(attr):\n'
+            '            return (lambda attr=attr: (lambda *a, **k: attr(*a, **k)))()\n'
+            '    # mapping-like containers\n'
+            '    if isinstance(v, dict):\n'
+            '        for nm in ("call", "apply", "fn", "func", "impl", "implementation"):\n'
+            '            attr = v.get(nm)\n'
+            '            if callable(attr):\n'
+            '                return attr\n'
+            '    # fallback: keep import working; raise at call site for clean tracebacks\n'
+            '    def __missing(*a, **k):\n'
+            '        raise TypeError(\n'
+            '            f\'Photon operator "{name}" isn\\\'t callable (no apply/call/invoke/etc). Type={type(v).__name__}\'\n'
+            '        )\n'
+            '    return __missing\n'
+            '__OPS__ = {k: __resolve_op(k, v) for k, v in __RAW_OPS.items()}\n'
+        )
         return prolog + body
+
     return body
 
 # Back-compat: some older code may call translator.expand(...)
