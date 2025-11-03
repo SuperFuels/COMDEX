@@ -23,6 +23,8 @@ import uvicorn
 # ── Boot imports
 from backend.modules.hexcore.boot_loader import load_boot_goals, preload_all_domain_packs, boot
 
+from fastapi import Query  # add if not present
+from backend.modules.teleport.wormhole_resolver import resolve_wormhole
 # ── UCS template loader + optional Tesseract HQ
 from backend.modules.dimensions.universal_container_system import container_loader
 try:
@@ -94,6 +96,10 @@ from fastapi.openapi.docs import get_redoc_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
+@app.get("/api/wormhole/resolve")
+def api_resolve(name: str = Query(..., min_length=1)):
+    return resolve_wormhole(name)
+
 @app.get("/openapi.json", include_in_schema=False)
 async def custom_openapi():
     """Serve raw OpenAPI schema for tools or /redoc."""
@@ -107,6 +113,7 @@ async def custom_redoc():
 # ── CORS
 if ENV != "production":
     allow_origins = [
+        "http://localhost:5173",
         "http://localhost:3000",
         "https://comdex-fawn.vercel.app",
     ]
@@ -364,6 +371,9 @@ from backend.api import replay
 from backend.routes.replay_apply import router as replay_apply_router
 from backend.routes.replay_ws import router as replay_ws_router
 from backend.routes.replay_log import router as replay_log_router
+from backend.routes.wormholes import router as wormholes_router
+from backend.api.aion.container_api import router as aion_container_router
+from backend.api import ghx
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -516,7 +526,6 @@ app.include_router(container_api.router, prefix="/api/aion")
 app.include_router(vault_api.router, prefix="/api/aion")  # if vault_api exists
 app.include_router(glyph_socket_api.router, prefix="/api")
 app.include_router(glyph_socket_ws.router)
-app.include_router(ghx_ws.router)
 app.include_router(replay_api.router)
 app.include_router(sqi_drift.router)
 app.include_router(sqi_kg.router)
@@ -547,7 +556,6 @@ app.include_router(api_sheets.router)
 app.include_router(qfc_extras_router)
 app.include_router(lean_inject_api.router, prefix="/api")
 app.include_router(ledger_router)
-app.include_router(ghx.router, prefix="/api", tags=["ghx"])
 app.include_router(aion_lexicon.router, prefix="/api/aion")
 app.include_router(aion_graph.router, prefix="/api/aion")
 app.include_router(aion_llm_bridge.router, prefix="/api/aion")
@@ -569,6 +577,10 @@ app.include_router(replay.router, prefix="/api")
 app.include_router(replay_apply_router)
 app.include_router(replay_ws_router)
 app.include_router(replay_log_router)
+app.include_router(wormholes_router)
+app.include_router(aion_container_router, prefix="/api/aion")
+app.include_router(ghx.router, prefix="/api", tags=["ghx"])  # => /api/ghx/stream
+app.include_router(ghx.ws_router)                            # => /ws/ghx/{container_id}
 seed_builtin_patterns()
 install_deprecation_hook()
 

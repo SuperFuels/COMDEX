@@ -14,7 +14,7 @@ import useAION from '../hooks/useAION';
 import ContainerStatus from '@/components/AION/ContainerStatus';
 import GlyphGrid from './AION/GlyphGrid';
 import GlyphInspector from './AION/GlyphInspector';
-import ContainerMap from './AION/ContainerMap2D';
+import ContainerMap from '../../Glyph_Net_Browser/src/components/maps/ContainerMap2D';
 import GlyphMutator from './AION/GlyphMutator';
 import TessarisVisualizer from '@/components/AION/TessarisVisualizer';
 import { ScrollArea } from "@/components/ui/scroll-area";

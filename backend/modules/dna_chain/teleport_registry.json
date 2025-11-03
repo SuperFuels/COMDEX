@@ -82,5 +82,89 @@
     "gate_type": "code",
     "requires_approval": false,
     "last_used": null
+  },
+  "aion_start->fallback": {
+    "source": "aion_start",
+    "destination": "fallback",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "fallback->aion_start": {
+    "source": "fallback",
+    "destination": "aion_start",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "aion_start->jungle": {
+    "source": "aion_start",
+    "destination": "jungle",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "jungle->aion_start": {
+    "source": "jungle",
+    "destination": "aion_start",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "aion_start->lab": {
+    "source": "aion_start",
+    "destination": "lab",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "lab->aion_start": {
+    "source": "lab",
+    "destination": "aion_start",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "jungle->lab": {
+    "source": "jungle",
+    "destination": "lab",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "lab->jungle": {
+    "source": "lab",
+    "destination": "jungle",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "jungle->fallback": {
+    "source": "jungle",
+    "destination": "fallback",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "lab->fallback": {
+    "source": "lab",
+    "destination": "fallback",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "fallback->jungle": {
+    "source": "fallback",
+    "destination": "jungle",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
+  },
+  "fallback->lab": {
+    "source": "fallback",
+    "destination": "lab",
+    "gate_type": "code",
+    "requires_approval": false,
+    "last_used": null
   }
 }

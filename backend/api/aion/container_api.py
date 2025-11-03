@@ -1,144 +1,199 @@
+# backend/api/aion/container_api.py
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
-from typing import List, Optional
-import os
-import json
-import asyncio
+from typing import Any, Dict, List, Optional
+from datetime import datetime, timezone
+from backend.events.ghx_bus import broadcast  # 🟢 notify frontends on updates
 
-from backend.modules.consciousness.state_manager import STATE
-from backend.modules.dna_chain.dc_handler import (
-    list_available_containers,
-    load_dc_container,
-    save_dc_container,
-    inject_glyphs_into_container,
-)
-from backend.modules.hexcore.memory_engine import MEMORY
-from backend.modules.dimensions.glyph_logic import get_entangled_links_for_universal_container_system
+router = APIRouter(tags=["AION Containers"])
 
-router = APIRouter()
+# --------------------------- helpers ---------------------------
 
-class GlyphInjectRequest(BaseModel):
-    glyphs: List[dict]  # [{ "symbol": str, "meta": Optional[dict] }]
-    source: Optional[str] = "manual"
+def _normalize_id(raw: str) -> str:
+    v = (raw or "").strip()
+    return v[:-3] if v.endswith(".tp") else v
 
-class TeleportRequest(BaseModel):
-    source: str
-    destination: str
-    reason: Optional[str] = None
+def _ensure_dc_shape(dc: Dict[str, Any], cid: str) -> Dict[str, Any]:
+    dc.setdefault("id", cid)
+    dc.setdefault("type", dc.get("type") or "container")
+    dc.setdefault("glyphs", dc.get("glyphs") or [])
+    dc.setdefault("meta", dc.get("meta") or {})
+    return dc
 
-
-# 🔑 Permission Helper
-def _apply_permissions(glyphs: List[dict], agent_id: str) -> List[dict]:
-    """
-    Apply permission tagging to glyphs based on requesting agent.
-    """
-    filtered = []
-    for g in glyphs:
-        meta = g.get("metadata", {})
-        owner = meta.get("agent_id", "system")
-        private = meta.get("private", False)
-
-        if owner == agent_id or agent_id == "system":
-            meta["permission"] = "editable"
-            filtered.append(g)
-        elif private:
-            meta["permission"] = "hidden"
-            continue
-        else:
-            meta["permission"] = "read-only"
-            filtered.append(g)
-        g["metadata"] = meta
-    return filtered
-
+# --------------------------- routes ----------------------------
 
 @router.get("/containers")
-async def get_containers():
+def list_containers() -> Dict[str, Any]:
+    """
+    List known containers. Prefer on-disk list, fallback to STATE registry.
+    """
+    # try file-backed list
     try:
-        containers = list_available_containers()
-        container_map = {c["id"]: c for c in containers}
+        from backend.modules.dna_chain.dc_handler import list_available_containers
+        containers = list_available_containers()  # [{id,...}, ...]
+        return {"containers": containers}
+    except Exception:
+        pass
 
-        # Inject ↔ entangled container links
-        for container in containers:
-            try:
-                entangled_ids = get_entangled_links_for_container(container["id"])
-                container["connected"] = [eid for eid in entangled_ids if eid in container_map]
-            except Exception:
-                container["connected"] = []
-
-        return JSONResponse(content={"containers": containers})
+    # fallback: STATE registry
+    try:
+        from backend.modules.consciousness.state_manager import STATE
+        return {"containers": STATE.list_containers_with_status()}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to list containers: {e}")
-
+        raise HTTPException(500, f"Failed to list containers: {e}")
 
 @router.get("/container/{container_id}")
-async def get_container(container_id: str, request: Request):
+def get_container(container_id: str) -> Dict[str, Any]:
+    """
+    Minimal decrypted .dc view: { id, type, glyphs, meta }
+    Try filesystem .dc first, then STATE registry.
+    """
+    cid = _normalize_id(container_id)
+
+    # 1) on-disk .dc
     try:
-        agent_id = request.headers.get("X-Agent-ID", "anonymous")
-        container = load_dc_container(container_id)
-
-        # ✅ Apply permissions to glyphs in container
-        if "glyph_grid" in container:
-            container["glyph_grid"] = _apply_permissions(container["glyph_grid"], agent_id)
-
-        return JSONResponse(content=container)
+        from backend.modules.dna_chain.dc_handler import load_dc_container
+        dc = load_dc_container(cid)
+        return _ensure_dc_shape(dc, cid)
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Container '{container_id}' not found")
+        pass
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error loading container: {e}")
+        raise HTTPException(500, f"Load failed: {e}")
 
+    # 2) STATE registry fallback
+    try:
+        from backend.modules.consciousness.state_manager import STATE
+        containers = STATE.list_containers_with_status()
+    except Exception as e:
+        raise HTTPException(500, f"STATE unavailable: {e}")
+
+    rec = next((c for c in containers if c.get("id") == cid or c.get("name") == cid), None)
+    if not rec:
+        raise HTTPException(404, f"Container not found: {cid}")
+
+    dc = (rec.get("dc") or rec.get("meta", {}).get("dc")) or {
+        "id": rec.get("id") or cid,
+        "type": rec.get("kind") or "container",
+        "glyphs": rec.get("glyphs") or [],
+        "meta": {k: v for k, v in rec.items() if k not in {"dc", "glyphs"} and v is not None},
+    }
+    return _ensure_dc_shape(dc, cid)
 
 @router.post("/container/save/{container_id}")
-async def save_container(container_id: str, request: Request):
+async def save_container(container_id: str, req: Request) -> Dict[str, Any]:
+    cid = _normalize_id(container_id)
+    data = await req.json()
     try:
-        agent_id = request.headers.get("X-Agent-ID", "anonymous")
-        data = await request.json()
-        save_dc_container(container_id, data)
+        from backend.modules.dna_chain.dc_handler import save_dc_container
+        save_dc_container(cid, data)
+    except Exception as e:
+        raise HTTPException(500, f"Save failed: {e}")
 
+    glyph_count = len((data or {}).get("glyphs") or [])
+
+    # best-effort memory log (optional)
+    try:
+        from backend.modules.hexcore.memory_engine import MEMORY
         MEMORY.store({
             "role": "system",
             "label": "container_saved",
-            "content": f"Agent {agent_id} saved container '{container_id}'."
+            "content": f"saved {cid} ({glyph_count} glyphs)"
         })
-        return {"status": "success", "message": f"Container '{container_id}' saved by {agent_id}."}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save container: {e}")
+    except Exception:
+        pass
 
+    # notify clients so the UI auto-refreshes
+    try:
+        await broadcast(cid, {
+            "type": "glyphs_updated",
+            "container_id": cid,
+            "glyph_count": glyph_count,
+            "ts": datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception:
+        pass
+
+    return {"status": "ok", "id": cid}
 
 @router.post("/container/inject-glyphs/{container_id}")
-async def inject_glyphs(container_id: str, payload: GlyphInjectRequest, request: Request):
+async def inject_glyphs(container_id: str, req: Request) -> Dict[str, Any]:
+    """
+    Append glyphs to the container's .dc.
+    Body: { "glyphs": [ {id?, symbol?, text?, meta?}, ... ], "source"?: str }
+    """
+    cid = _normalize_id(container_id)
+    body = await req.json()
+    glyphs: List[dict] = list(body.get("glyphs") or [])
+    if not glyphs:
+        raise HTTPException(400, "No glyphs provided.")
+
+    # load or create
     try:
-        agent_id = request.headers.get("X-Agent-ID", "anonymous")
-        # Tag injected glyphs with agent identity
-        for g in payload.glyphs:
-            g.setdefault("metadata", {})["agent_id"] = agent_id
-
-        success = inject_glyphs_into_container(container_id, payload.glyphs, payload.source)
-        if not success:
-            raise HTTPException(status_code=400, detail="Failed to inject glyphs.")
-
-        MEMORY.store({
-            "role": "system",
-            "label": "glyph_injection",
-            "content": f"Agent {agent_id} injected {len(payload.glyphs)} glyph(s) into container '{container_id}'."
-        })
-        return {"status": "success", "message": f"Injected {len(payload.glyphs)} glyph(s) by {agent_id}."}
+        from backend.modules.dna_chain.dc_handler import load_dc_container, save_dc_container
+        try:
+            dc = load_dc_container(cid)
+        except FileNotFoundError:
+            dc = {"id": cid, "type": "container", "glyphs": [], "meta": {}}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Glyph injection error: {e}")
+        raise HTTPException(500, f"Load failed: {e}")
 
+    _ensure_dc_shape(dc, cid)
+    dc["glyphs"].extend(glyphs)
+
+    # update stamp
+    dc["meta"]["last_updated"] = datetime.now(timezone.utc).isoformat()
+
+    try:
+        save_dc_container(cid, dc)
+    except Exception as e:
+        raise HTTPException(500, f"Save failed: {e}")
+
+    # 🟢 notify GHX listeners so frontends can live-refresh
+    try:
+        await broadcast(cid, {
+            "type": "glyphs_updated",
+            "container_id": cid,
+            "added": len(glyphs),
+            "glyph_count": len(dc["glyphs"]),
+            "ts": datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception:
+        # non-fatal if bus is not available
+        pass
+
+    # optional memory note
+    try:
+        from backend.modules.hexcore.memory_engine import MEMORY
+        MEMORY.store({"role": "system", "label": "glyph_injection",
+                      "content": f"Injected {len(glyphs)} glyphs into {cid}"})
+    except Exception:
+        pass
+
+    return {"status": "ok", "id": cid, "glyph_count": len(dc["glyphs"])}
 
 @router.post("/container/teleport")
-async def teleport_container(request: TeleportRequest, http_req: Request):
-    try:
-        agent_id = http_req.headers.get("X-Agent-ID", "anonymous")
-        from backend.modules.dna_chain.teleport import teleport
-        teleport(request.source, request.destination, reason=request.reason or "api_call")
+async def teleport_container(req: Request) -> Dict[str, Any]:
+    """
+    Body: { "source": str, "destination": str, "reason"?: str }
+    """
+    body = await req.json()
+    source: str = body.get("source")
+    dest: str = body.get("destination")
+    reason: Optional[str] = body.get("reason") or "api_call"
+    if not source or not dest:
+        raise HTTPException(400, "source and destination required")
 
-        MEMORY.store({
-            "role": "system",
-            "label": "teleport",
-            "content": f"Agent {agent_id} teleported from {request.source} to {request.destination} (reason: {request.reason})"
-        })
-        return {"status": "success", "message": f"Teleported from {request.source} to {request.destination} by {agent_id}."}
+    try:
+        from backend.modules.dna_chain.teleport import teleport
+        teleport(source, dest, reason=reason)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Teleport failed: {e}")
+        raise HTTPException(500, f"Teleport failed: {e}")
+
+    # optional memory note
+    try:
+        from backend.modules.hexcore.memory_engine import MEMORY
+        MEMORY.store({"role": "system", "label": "teleport",
+                      "content": f"teleport {source} -> {dest} ({reason})"})
+    except Exception:
+        pass
+
+    return {"status": "ok", "from": source, "to": dest, "reason": reason}

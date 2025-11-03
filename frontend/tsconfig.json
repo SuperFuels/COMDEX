@@ -40,7 +40,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "../Glyph_Net_Browser/src/components/maps/ContainerMap2D.tsx", "../Glyph_Net_Browser/src/components/maps/ContainerMap3D.tsx", "../Glyph_Net_Browser/src/components/maps/map-2d.tsx", "../Glyph_Net_Browser/src/components/maps/map-3d.tsx"  ],
   "exclude": [
     "node_modules"
   ]

@@ -5,7 +5,7 @@
   "domain": "physics.kernel",
   "meta": {
     "created_by": "SQI",
-    "last_updated": "2025-08-14T19:33:44.723415",
+    "last_updated": "2025-11-03T23:21:34.981679+00:00",
     "ghx": {
       "hover": true,
       "collapsed": true
@@ -37,7 +37,208 @@
       ]
     }
   ],
-  "glyphs": [],
+  "glyphs": [
+    {
+      "id": "g1",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g2",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g3",
+      "symbol": "⊕",
+      "text": "more"
+    },
+    {
+      "id": "g4",
+      "symbol": "↔",
+      "text": "links"
+    },
+    {
+      "id": "g-1762211221884",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211221885",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211223484",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211223485",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211224039",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211224040",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211442383",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211442384",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211444236",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211444237",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211444667",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211444668",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211444891",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211444892",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211445168",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211445169",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211445675",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211445676",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211454057",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211454058",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211647270",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211647271",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211945168",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211945169",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211947174",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211947175",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762211949015",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762211949016",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762212090695",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762212090696",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762212092611",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762212092612",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762212093410",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762212093411",
+      "symbol": "↔",
+      "text": "link"
+    },
+    {
+      "id": "g-1762212094745",
+      "symbol": "⊕",
+      "text": "hello"
+    },
+    {
+      "id": "g-1762212094746",
+      "symbol": "↔",
+      "text": "link"
+    }
+  ],
   "glyph_grid": [
     {
       "type": "kg_node",

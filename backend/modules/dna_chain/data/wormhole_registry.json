@@ -215,5 +215,19 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "tesseract_hq->ucs_hub": {
+    "from": "tesseract_hq",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_morphic_field->ucs_hub": {
+    "from": "symatics_morphic_field",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }
