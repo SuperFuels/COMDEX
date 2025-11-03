@@ -1,0 +1,21 @@
+{
+  "package": { "productName": "Glyph_Net_Browser", "version": "0.1.0" },
+  "tauri": {
+    "windows": [
+      { "title": "Glyph_Net_Browser (Alpha)", "fullscreen": false, "resizable": true, "width": 1200, "height": 800 }
+    ],
+    "bundle": {
+      "identifier": "com.tessaris.glyph_net_browser",
+      "targets": ["dmg", "msi", "appimage"],
+      "icon": []
+    },
+    "updater": { "active": false },
+    "allowlist": { "shell": { "all": true }, "dialog": { "all": true } }
+  },
+  "build": {
+    "beforeDevCommand": "pnpm dev -- --host 0.0.0.0",
+    "beforeBuildCommand": "pnpm build",
+    "devPath": "http://localhost:5173",
+    "distDir": "dist"
+  }
+}
