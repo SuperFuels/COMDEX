@@ -16,6 +16,7 @@ from typing import Dict, Any
 
 from backend.modules.glyphwave.core.wave_state import WaveState
 from backend.modules.codex.beam_event_bus import beam_event_bus, BeamEvent
+from backend.events.ghx_bus import broadcast as ghx_broadcast
 
 logger = logging.getLogger(__name__)
 
@@ -53,21 +54,52 @@ class WaveCapsule:
         meta = {"origin": "symatics_dispatcher"}
         return cls(opcode, args, meta)
 
+
+    # replace run() with:
     def run(self) -> Dict[str, Any]:
-        """Execute the symbolic opcode via SymaticsDispatcher."""
-        from backend.modules.symatics_lightwave import SymaticsDispatcher
+        """Execute the symbolic opcode via SymaticsDispatcher and emit GHX telemetry."""
+        # resilient import path(s)
+        try:
+            from backend.modules.symatics_lightwave import SymaticsDispatcher  # old path
+        except Exception:
+            from backend.modules.photonlang.executor import SymaticsDispatcher  # fallback if present
+
         dispatcher = SymaticsDispatcher()
 
-        beam_event_bus.publish(
-            BeamEvent(
-                event_type="wavecapsule_start",
-                source=self.container_id,
-                target="symatics_lightwave",
-                drift=0.0,
-                qscore=1.0,
-                metadata=self.wave_state.metadata
+        start_meta = {
+            **self.wave_state.metadata,
+            "opcode": self.opcode,
+            "args": self.args,
+            "container_id": self.container_id,
+            "timestamp": self.timestamp,
+        }
+
+        # Beam bus (if available)
+        try:
+            beam_event_bus.publish(
+                BeamEvent(
+                    event_type="wavecapsule_start",
+                    source=self.container_id,
+                    target="symatics_lightwave",
+                    drift=0.0,
+                    qscore=1.0,
+                    metadata=start_meta
+                )
             )
-        )
+        except Exception:
+            pass
+
+        # GHX: start pulse
+        try:
+            # unified "event" key (your GHX consumers expect it)
+            import asyncio; asyncio.create_task(ghx_broadcast(self.container_id or "ucs_hub", {
+                "event": "wavecapsule_start",
+                "container_id": self.container_id or "ucs_hub",
+                "payload": start_meta,
+                "ts": time.time(),
+            }))
+        except Exception:
+            pass
 
         result = dispatcher.dispatch({"opcode": self.opcode, "args": self.args})
         result.update({
@@ -76,18 +108,36 @@ class WaveCapsule:
             "timestamp": self.timestamp
         })
 
-        beam_event_bus.publish(
-            BeamEvent(
-                event_type="wavecapsule_complete",
-                source=self.container_id,
-                target="symatics_lightwave",
-                drift=0.0,
-                qscore=result.get("coherence", 1.0),
-                metadata=result
+        # Beam bus complete
+        try:
+            beam_event_bus.publish(
+                BeamEvent(
+                    event_type="wavecapsule_complete",
+                    source=self.container_id,
+                    target="symatics_lightwave",
+                    drift=0.0,
+                    qscore=result.get("coherence", 1.0),
+                    metadata=result
+                )
             )
-        )
+        except Exception:
+            pass
 
-        logger.info(f"[WaveCapsule] {self.opcode} executed -> coherence={result.get('coherence'):.3f}")
+        # GHX: completion pulse
+        try:
+            import asyncio; asyncio.create_task(ghx_broadcast(self.container_id or "ucs_hub", {
+                "event": "wavecapsule_complete",
+                "container_id": self.container_id or "ucs_hub",
+                "coherence": result.get("coherence"),
+                "opcode": self.opcode,
+                "args": self.args,
+                "result": result,
+                "ts": time.time(),
+            }))
+        except Exception:
+            pass
+
+        logger.info(f"[WaveCapsule] {self.opcode} executed -> coherence={result.get('coherence')!s}")
         return result
 
     def __repr__(self):

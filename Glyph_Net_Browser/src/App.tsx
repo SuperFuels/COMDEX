@@ -82,10 +82,10 @@ export default function App() {
       <main style={{ flex: 1, padding: 16, background: "#f8fafc", overflow: "auto" }}>
         {active === "home" && (
           <>
-            <h1>Glyph_Net_Browser — Alpha Shell</h1>
+            <h1>Glyph Net</h1>
             <p>
-              Home: your personal container (AION entry). Try <code>nike</code> or{" "}
-              <code>www.wikipedia.org</code>.
+              Send your first wave{" "}
+              <code>www.tessaris.tp</code>.
             </p>
           </>
         )}

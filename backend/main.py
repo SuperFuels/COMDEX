@@ -374,6 +374,11 @@ from backend.routes.replay_log import router as replay_log_router
 from backend.routes.wormholes import router as wormholes_router
 from backend.api.aion.container_api import router as aion_container_router
 from backend.api import ghx
+from backend.api.aion import prompt_api
+from backend.api.aion import time_api
+from backend.routers.gip_api import router as gip_api_router
+from backend.api.photon_api import router as photon_api_router          
+from backend.api.photon_reverse import router as photon_reverse_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -581,6 +586,11 @@ app.include_router(wormholes_router)
 app.include_router(aion_container_router, prefix="/api/aion")
 app.include_router(ghx.router, prefix="/api", tags=["ghx"])  # => /api/ghx/stream
 app.include_router(ghx.ws_router)                            # => /ws/ghx/{container_id}
+app.include_router(prompt_api.router, prefix="/api/aion", tags=["AION Prompt"])
+app.include_router(time_api.router, prefix="/api/aion", tags=["AION Time"])
+app.include_router(gip_api_router)
+app.include_router(photon_api_router)
+app.include_router(photon_reverse_router)
 seed_builtin_patterns()
 install_deprecation_hook()
 
@@ -598,6 +608,12 @@ if os.path.isdir("static"):
 else:
     logger.warning("⚠️ 'static' directory not found. Frontend must be built into /backend/static")
 
+# If not already mounted, also include your existing WS router:
+try:
+    from backend.modules.gip.gip_websocket_interface import router as gip_ws_router
+    app.include_router(gip_ws_router)  # exposes /ws/gip/{cid} (assumed)
+except Exception:
+    pass
 
 from backend.modules.sqi.sqi_container_registry import sqi_registry
 

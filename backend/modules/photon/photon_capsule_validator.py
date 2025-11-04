@@ -1,3 +1,5 @@
+# backend/modules/photon/photon_capsule_validator.py
+
 """
 🔷 Photon Capsule Validator - Schema Enforcement Layer (SRK-10)
 Ensures all photon capsules conform to the canonical
@@ -7,44 +9,45 @@ Integrates seamlessly with:
  - photon_executor.py (runtime emission)
  - photon_to_codex.py (symbolic export)
  - qwave bridge layers (binary ↔ photon)
+
+Implementation note:
+This module intentionally delegates schema loading and validation to the
+canonical utilities in `backend.modules.photon.validation` to avoid
+duplication and path drift between photon/ and photonlang/. The public
+API remains compatible and also re-exports the loaded schema for callers
+that previously imported it from here.
 """
 
-import json
-import jsonschema
-from pathlib import Path
-from typing import Dict, Any
+from __future__ import annotations
 
+from typing import Any, Dict
 
-# ────────────────────────────────────────────────────────────────
-# 📘 Load canonical Photon Capsule schema
-# ----------------------------------------------------------------
-SCHEMA_PATH = Path(__file__).with_name("photon_capsule_schema.json")
+# Canonical single-source validator + schema loader
+from .validation import (
+    validate_photon_capsule as _validate_photon_capsule,
+    load_photon_capsule_schema,
+)
 
-try:
-    with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
-        CAPSULE_SCHEMA = json.load(f)
-except FileNotFoundError as e:
-    raise FileNotFoundError(f"Photon capsule schema not found at: {SCHEMA_PATH}") from e
+# Optional: expose the schema for legacy callers that import from this module
+CAPSULE_SCHEMA: Dict[str, Any] = load_photon_capsule_schema()
 
+__all__ = [
+    "assert_valid_capsule",
+    "validate_photon_capsule",
+    "CAPSULE_SCHEMA",
+]
 
-# ────────────────────────────────────────────────────────────────
-# ✅ Validation Function
-# ----------------------------------------------------------------
 def validate_photon_capsule(capsule: Dict[str, Any]) -> None:
     """
-    Validate a Photon Capsule instance against its JSON schema.
+    Validate a Photon Capsule instance against the canonical JSON schema.
 
-    Args:
-        capsule (Dict[str, Any]): Photon capsule to validate.
-
-    Raises:
-        jsonschema.ValidationError: if capsule violates schema.
-        FileNotFoundError: if schema file missing.
+    Raises jsonschema.ValidationError on failure.
     """
-    try:
-        jsonschema.validate(instance=capsule, schema=CAPSULE_SCHEMA)
-    except jsonschema.ValidationError as e:
-        raise jsonschema.ValidationError(
-            f"[Photon Capsule Validation Error] {e.message} at path: "
-            f"{'/'.join(map(str, e.path))}"
-        ) from e
+    _validate_photon_capsule(capsule)
+
+def assert_valid_capsule(capsule: Dict[str, Any]) -> None:
+    """
+    Alias for validate_photon_capsule(); kept for callers that used
+    assert_* semantics.
+    """
+    _validate_photon_capsule(capsule)

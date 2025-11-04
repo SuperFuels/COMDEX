@@ -4,9 +4,29 @@ import useWebSocket from "@/hooks/useWebSocket";
 import type { ResolveReply } from "@/lib/api/wormholes";
 import type { DcContainer } from "@/lib/types/dc";
 import DimensionRenderer from "@/components/DimensionRenderer";
+import PromptBar from "@/components/PromptBar";
+import TimeControls from "@/components/TimeControls";
+
+type TimeStatus = {
+  tick?: number;
+  playing?: boolean;
+  ratio?: number;
+  loop_enabled?: boolean;
+  loop_range?: [number, number];
+  decay_enabled?: boolean;
+};
 
 export default function ContainerView() {
   const [res, setRes] = useState<ResolveReply | null>(null);
+  const [timeStatus, setTimeStatus] = useState<Partial<TimeStatus> | null>(null);
+
+  // track URL hash so we react to #/container/<id> changes
+  const [hash, setHash] = useState<string>(location.hash || "");
+  useEffect(() => {
+    const onHash = () => setHash(location.hash || "");
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
   // Listen for wormhole resolution events
   useEffect(() => {
@@ -19,13 +39,29 @@ export default function ContainerView() {
   const containerId = useMemo(() => {
     if (res?.to) return res.to;
     if (res?.name) return res.name.replace(/\.tp$/i, "");
-    const [, second, third] = (location.hash || "").split("/");
+    const [, second, third] = (hash || "").split("/");
     return second === "container" && third ? decodeURIComponent(third) : "";
-  }, [res]);
+  }, [res, hash]);
 
   // GHX socket for this container
   const wsPath = containerId ? `/ws/ghx/${encodeURIComponent(containerId)}` : "";
   const { connected, lastJsonMessage } = useWebSocket(wsPath);
+
+  // Feed time updates from GHX into local status (for TimeControls)
+  useEffect(() => {
+    const msg: any = lastJsonMessage;
+    if (!msg || msg.container_id !== containerId) return;
+    if (msg.type === "time_update") {
+      setTimeStatus({
+        tick: msg.tick,
+        playing: msg.status?.playing,
+        ratio: msg.status?.ratio,
+        loop_enabled: msg.status?.loop_enabled,
+        loop_range: msg.status?.loop_range,
+        decay_enabled: msg.status?.decay_enabled,
+      });
+    }
+  }, [lastJsonMessage, containerId]);
 
   // Fetch the .dc when we know the id
   const [dc, setDc] = useState<DcContainer | null>(null);
@@ -50,7 +86,7 @@ export default function ContainerView() {
     loadDc(containerId);
   }, [containerId, loadDc]);
 
-  // 🔄 Reflect GHX projection events into dc.meta (so DimensionRenderer shows them)
+  // Reflect GHX projection events into dc.meta (so DimensionRenderer can show them)
   useEffect(() => {
     if (!lastJsonMessage || !containerId) return;
     const evt: any = lastJsonMessage;
@@ -68,15 +104,16 @@ export default function ContainerView() {
     }
   }, [lastJsonMessage, containerId]);
 
-  // 🔁 On glyphs_updated, refetch the container to get the new glyphs
+  // On glyphs_updated, refetch the container to get the new glyphs
   useEffect(() => {
-    if (!lastJsonMessage || (lastJsonMessage as any).container_id !== containerId) return;
-    if ((lastJsonMessage as any).type === "glyphs_updated") {
+    const msg: any = lastJsonMessage;
+    if (!msg || msg.container_id !== containerId) return;
+    if (msg.type === "glyphs_updated") {
       loadDc(containerId);
     }
   }, [lastJsonMessage, containerId, loadDc]);
 
-  // ➕ Quick action: inject two sample glyphs into the current container (optimistic UI)
+  // ➕ Inject two sample glyphs (optimistic UI)
   const [injecting, setInjecting] = useState(false);
   const injectSample = useCallback(async () => {
     if (!containerId || injecting) return;
@@ -99,12 +136,11 @@ export default function ContainerView() {
         body: JSON.stringify({ glyphs: sample }),
       });
       if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-      // GHX broadcast will refresh; also force-refresh as safety:
+      // Bus will refresh; safety reload if needed:
       // loadDc(containerId);
     } catch (e) {
       console.warn("Inject sample glyphs failed:", e);
-      // Roll back by reloading the server truth
-      loadDc(containerId);
+      loadDc(containerId); // rollback to server truth
     } finally {
       setInjecting(false);
     }
@@ -118,17 +154,18 @@ export default function ContainerView() {
         ...(dc ?? { id: containerId, type: "container", meta: {} }),
         glyphs: [],
       };
-      await fetch(`/api/aion/container/save/${encodeURIComponent(containerId)}`, {
+      const r = await fetch(`/api/aion/container/save/${encodeURIComponent(containerId)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      // GHX broadcast will trigger auto-refresh; fallback:
-      // loadDc(containerId);
+      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      // ensure immediate UI update (even if GHX push lags)
+      loadDc(containerId);
     } catch (e) {
       console.warn("Clear glyphs failed:", e);
     }
-  }, [containerId, dc /*, loadDc*/]);
+  }, [containerId, dc, loadDc]);
 
   // Empty / loading state before we have an id
   if (!containerId) {
@@ -184,6 +221,19 @@ export default function ContainerView() {
           </button>
         </div>
 
+        {/* Prompt input */}
+        <div style={{ marginBottom: 8 }}>
+          <PromptBar
+            containerId={containerId}
+            onAfterAction={() => loadDc(containerId)} // force-refresh after /inject or /clear
+          />
+        </div>
+
+        {/* Time controls */}
+        <div style={{ marginBottom: 8 }}>
+          <TimeControls containerId={containerId} status={timeStatus} />
+        </div>
+
         {dcLoading && (
           <div style={{ padding: 12, border: "1px solid #e5e7eb", borderRadius: 8, background: "#fff" }}>
             Loading container…
@@ -199,7 +249,15 @@ export default function ContainerView() {
         {dc && <DimensionRenderer dc={dc} />}
 
         {res?.container?.meta && (
-          <pre style={{ marginTop: 10, background: "#f8fafc", padding: 8, borderRadius: 6, overflow: "auto" }}>
+          <pre
+            style={{
+              marginTop: 10,
+              background: "#f8fafc",
+              padding: 8,
+              borderRadius: 6,
+              overflow: "auto",
+            }}
+          >
 {JSON.stringify(res.container.meta, null, 2)}
           </pre>
         )}
@@ -210,11 +268,22 @@ export default function ContainerView() {
         <div style={{ padding: 12, border: "1px solid #e5e7eb", borderRadius: 8, background: "#fff" }}>
           <strong>GHX feed</strong>
           {lastJsonMessage ? (
-            <pre style={{ marginTop: 8, background: "#f8fafc", padding: 8, borderRadius: 6, maxHeight: 360, overflow: "auto" }}>
+            <pre
+              style={{
+                marginTop: 8,
+                background: "#f8fafc",
+                padding: 8,
+                borderRadius: 6,
+                maxHeight: 360,
+                overflow: "auto",
+              }}
+            >
 {JSON.stringify(lastJsonMessage, null, 2)}
             </pre>
           ) : (
-            <div style={{ marginTop: 8, fontSize: 12, color: "#64748b" }}>Waiting for events…</div>
+            <div style={{ marginTop: 8, fontSize: 12, color: "#64748b" }}>
+              Waiting for events…
+            </div>
           )}
         </div>
       </div>

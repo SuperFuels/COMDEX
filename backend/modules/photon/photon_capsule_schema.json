@@ -4,7 +4,6 @@
   "title": "Photon Capsule",
   "type": "object",
   "additionalProperties": false,
-
   "properties": {
     "_physics_snapshot": { "type": "object" },
     "id": { "type": "string" },
@@ -23,23 +22,97 @@
     "engine": { "type": "string" },
     "metadata": { "type": "object" },
 
+    "type": { "type": "string" },
+    "timestamp": { "type": "number" },
+    "hash": { "type": "string" },
+    "checksum": { "type": "string" },
+    "source": { "type": "string" },
+    "meta": { "type": "object" },
+    "semantics": { "type": "object" },
+
+    "hdr": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ver": { "type": "integer" },
+        "ts": { "type": "number" },
+        "trace": { "type": "string" },
+        "source": { "type": "string" },
+        "session": { "type": "string" },
+        "tag": { "type": "string" }
+      }
+    },
+
+    "resonance": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "n": { "type": "number" },
+        "rho_mean": { "type": ["number", "null"] },
+        "I_mean": { "type": ["number", "null"] },
+        "SQI_mean": { "type": ["number", "null"] }
+      }
+    },
+
     "glyphs": {
       "type": "array",
       "minItems": 0,
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": { "type": "string" },
-          "logic": { "type": "string" },
-          "operator": { "type": "string", "minLength": 1 },
-          "args": {
-            "type": "array",
-            "items": { "type": ["string", "number", "boolean"] }
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string" },
+              "logic": { "type": "string" },
+              "operator": { "type": "string", "minLength": 1 },
+              "symbol": { "type": "string", "minLength": 1 },
+              "expr": { "type": "string" },
+              "args": {
+                "type": "array",
+                "items": { "type": ["string", "number", "boolean"] }
+              },
+              "meta": { "type": "object" }
+            },
+            "anyOf": [
+              { "required": ["operator"] },
+              { "required": ["symbol"] },
+              { "required": ["expr"] }
+            ]
           },
-          "meta": { "type": "object" }
-        },
-        "required": ["operator"]
+          { "type": "string" }
+        ]
+      }
+    },
+
+    "glyph_stream": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string" },
+              "logic": { "type": "string" },
+              "operator": { "type": "string", "minLength": 1 },
+              "symbol": { "type": "string", "minLength": 1 },
+              "expr": { "type": "string" },
+              "args": {
+                "type": "array",
+                "items": { "type": ["string", "number", "boolean"] }
+              },
+              "meta": { "type": "object" }
+            },
+            "anyOf": [
+              { "required": ["operator"] },
+              { "required": ["symbol"] },
+              { "required": ["expr"] }
+            ]
+          },
+          { "type": "string" }
+        ]
       }
     },
 
@@ -63,8 +136,9 @@
     }
   },
 
-  "oneOf": [
+  "anyOf": [
     { "required": ["glyphs"] },
-    { "required": ["steps"] }
+    { "required": ["steps"] },
+    { "required": ["glyph_stream"] }
   ]
 }

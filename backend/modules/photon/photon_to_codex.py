@@ -9,6 +9,8 @@ Converts Photon Capsules (.phn JSON) into Codex structures:
 This makes Photon capsules first-class citizens inside CodexCore.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from pathlib import Path
@@ -16,6 +18,8 @@ from typing import Any, Dict, List, Union
 
 from backend.modules.codex.logic_tree import LogicGlyph
 from backend.modules.codex.symbolic_registry import symbolic_registry
+# ✅ Canonical validator (kept old schema machinery as fallback, but prefer this)
+from backend.modules.photon.validation import validate_photon_capsule
 
 logger = logging.getLogger(__name__)
 
@@ -83,9 +87,26 @@ else:
 
 
 def _validate_capsule(data: Dict[str, Any]) -> None:
-    """Validate capsule JSON with jsonschema if available."""
+    """
+    Validate capsule JSON.
+    Prefer canonical validator; fall back to local jsonschema if needed.
+    """
+    # First try canonical validator (raises jsonschema.ValidationError on failure)
+    try:
+        validate_photon_capsule(data)
+        return
+    except Exception as e:
+        # If the canonical path fails because jsonschema is not available, we still try local fallback.
+        if not _HAS_JSONSCHEMA:
+            # Repackage as standardized error
+            raise ValueError({
+                "validation_errors": [{"code": "E001", "message": str(e)}],
+                "validation_errors_version": "v1",
+            })
+
+    # Fallback to local jsonschema validation
     if not _HAS_JSONSCHEMA:
-        logger.debug("[PhotonBridge] jsonschema not installed; skipping validation")
+        logger.debug("[PhotonBridge] jsonschema not installed; skipping fallback validation")
         return
 
     try:
@@ -108,7 +129,10 @@ def _validate_capsule(data: Dict[str, Any]) -> None:
 def load_photon_capsule(path_or_dict: Union[str, Path, Dict[str, Any]]) -> Dict[str, Any]:
     """
     Load a Photon capsule from path or dict and validate against schema.
-    Handles legacy 'steps' and 'body' fields with auto-upgrade + warnings.
+    Handles:
+      • new 'glyph_stream' → normalized into 'glyphs' (keeps glyph_stream)
+      • legacy 'steps' → converted to 'glyphs'
+      • legacy 'body'  → converted to 'glyphs'
     Always validates after migration.
     """
     if isinstance(path_or_dict, (str, Path)):
@@ -121,12 +145,15 @@ def load_photon_capsule(path_or_dict: Union[str, Path, Dict[str, Any]]) -> Dict[
         raise TypeError(f"Unsupported capsule input: {type(path_or_dict)}")
 
     # ──────────────────────────────
-    # Legacy upgrade paths
+    # New canonical stream -> glyphs (but keep glyph_stream for tooling)
     # ──────────────────────────────
-    if "body" in capsule and "glyphs" not in capsule:
-        logger.warning("Legacy capsule format detected: field 'body' -> migrated to 'glyphs'.")
-        capsule["glyphs"] = capsule.pop("body")
+    if "glyphs" not in capsule and "glyph_stream" in capsule:
+        gs = capsule.get("glyph_stream") or []
+        capsule["glyphs"] = gs
 
+    # ──────────────────────────────
+    # Legacy upgrade: steps -> glyphs (structured)
+    # ──────────────────────────────
     if "steps" in capsule and "glyphs" not in capsule:
         logger.warning("Legacy capsule format detected: field 'steps' -> auto-converted to 'glyphs'.")
         converted: List[Dict[str, Any]] = []
@@ -136,47 +163,32 @@ def load_photon_capsule(path_or_dict: Union[str, Path, Dict[str, Any]]) -> Dict[
                 "logic": step.get("value", ""),
                 "operator": step.get("symbol", "⊕"),
                 "args": step.get("args", []),
+                "meta": step.get("meta", {}),
             })
         capsule["glyphs"] = converted
-        capsule.pop("steps")
 
-    # ✅ Schema validation (after migration)
-    _validate_capsule(capsule)
-
-    return capsule
-    
     # ──────────────────────────────
-    # Legacy compatibility upgrades
+    # Legacy upgrade: body -> glyphs (structured)
     # ──────────────────────────────
-    if "steps" in capsule and "glyphs" not in capsule:
-        logger.warning("[PhotonBridge] Legacy capsule with 'steps' -> auto-converted to 'glyphs'.")
-        capsule["glyphs"] = [
-            {
-                "name": s.get("value", "unknown"),
-                "logic": s.get("value", ""),
-                "operator": s.get("symbol"),
-                "args": s.get("args", []),
-                "meta": s.get("meta", {}),
-            }
-            for s in capsule.pop("steps", [])
-        ]
-
     if "body" in capsule and "glyphs" not in capsule:
-        logger.warning("[PhotonBridge] Non-schema field 'body' -> migrated to 'glyphs'.")
-        capsule["glyphs"] = [
-            {
+        logger.warning("Legacy capsule format detected: field 'body' -> migrated to 'glyphs'.")
+        converted: List[Dict[str, Any]] = []
+        for g in capsule.get("body", []):
+            converted.append({
                 "name": g.get("name", "unknown"),
                 "logic": g.get("logic", ""),
-                "operator": g.get("operator"),
+                "operator": g.get("operator", "⊕"),
                 "args": g.get("args", []),
                 "meta": g.get("meta", {}),
-            }
-            for g in capsule.pop("body", [])
-        ]
+            })
+        capsule["glyphs"] = converted
 
-    # ──────────────────────────────
-    # Schema validation
-    # ──────────────────────────────
+    # Drop legacy keys (schemas often use additionalProperties=false)
+    for legacy_key in ("steps", "body"):
+        if legacy_key in capsule:
+            capsule.pop(legacy_key, None)
+
+    # ✅ Schema validation (after migration)
     _validate_capsule(capsule)
 
     return capsule
@@ -189,13 +201,22 @@ def photon_capsule_to_glyphs(capsule: Dict[str, Any]) -> List[LogicGlyph]:
     """
     Convert Photon capsule JSON into LogicGlyph objects.
     Supports:
-      * new capsules with "glyphs"
-      * legacy capsules with "steps"/"body"
+      * new capsules with "glyphs" (preferred)
+      * fallback to "glyph_stream" if present
     """
-    raw_items: List[Dict[str, Any]] = capsule.get("glyphs", [])
+    raw_items: List[Dict[str, Any]] = (
+        capsule.get("glyphs")
+        or capsule.get("glyph_stream")
+        or []
+    )
 
     glyphs: List[LogicGlyph] = []
     for item in raw_items:
+        # Defensive: ensure dict shape
+        if not isinstance(item, dict):
+            glyphs.append(LogicGlyph(name=str(item), logic=str(item), operator="⊕", args=[]))
+            continue
+
         g = LogicGlyph(
             name=item.get("name", "unknown"),
             logic=item.get("logic", ""),
@@ -243,7 +264,7 @@ def photon_to_codex(
 ) -> Dict[str, Any]:
     capsule = load_photon_capsule(path_or_dict)
 
-    # Extract validation errors if schema had issues
+    # Extract validation errors if schema had issues (kept for back-compat callers)
     validation_errors = capsule.pop("validation_errors", [])
     if validation_errors:
         # Normalize to v1 format if they aren't already

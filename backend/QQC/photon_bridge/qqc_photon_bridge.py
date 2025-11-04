@@ -28,7 +28,7 @@ except Exception:
 # ────────────────────────────────────────────────
 #  Configuration
 # ────────────────────────────────────────────────
-SSE_URL = "http://127.0.0.1:5005/stream/ghx"
+SSE_URL = "http://127.0.0.1:8080/stream/ghx"
 BASE_RETRY_DELAY = 3      # initial seconds between reconnect attempts
 MAX_RETRY_DELAY = 30      # cap for exponential backoff
 BACKOFF_FACTOR = 1.5      # growth multiplier for retry delay

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 type Mode = "wormhole" | "http";
+
 export default function WormholeBar(props: {
   onNavigate: (t: { mode: Mode; address: string }) => void;
 }) {
@@ -8,42 +9,66 @@ export default function WormholeBar(props: {
   const [value, setValue] = useState("");
 
   const placeholder = useMemo(
-    () => (mode === "wormhole" ? "nike  •  partner.home  •  kevin.tp" : "www.wikipedia.org"),
+    () =>
+      mode === "wormhole"
+        ? "nike  •  partner.home  •  kevin.tp"
+        : "www.wikipedia.org",
     [mode]
   );
 
   function normalizeWormhole(input: string): string {
     let v = input.trim();
-    // strip any leading wormhole glyph if user pasted it
+    v = v.replace(/^🌀/u, "");         // strip emoji if pasted
+    if (!/\.tp$/i.test(v)) v = `${v}.tp`; // ensure .tp
+    return `🌀${v}`;                   // canonical display
+  }
+
+  function toContainerId(input: string): string {
+    // produce bare id used by #/container/<id>
+    let v = input.trim();
     v = v.replace(/^🌀/u, "");
-    // accept raw names (nike) or dotted (brand.shop)
-    // ensure .tp suffix; allow user-provided .tp to pass through
-    if (!v.endsWith(".tp")) v = `${v}.tp`;
-    // canonical display form is 🌀name.tp
-    return `🌀${v}`;
+    v = v.replace(/\.tp$/i, "");
+    return v;
   }
 
   function normalizeHttp(input: string): string {
     const v = input.trim();
     if (/^https?:\/\//i.test(v)) return v;
     if (v.startsWith("www.")) return `https://${v}`;
-    // simple heuristic: if it has a dot, treat as domain; else search fallback
     if (v.includes(".")) return `https://${v}`;
     return `https://www.google.com/search?q=${encodeURIComponent(v)}`;
   }
 
   function inferModeFromValue(v: string): Mode {
     const s = v.trim();
-    if (/^https?:\/\//i.test(s) || s.startsWith("www.") || s.includes(".")) return "http";
+    if (/^https?:\/\//i.test(s) || s.startsWith("www.") || s.includes("."))
+      return "http";
     return "wormhole";
   }
 
   function go() {
     if (!value.trim()) return;
+
     if (mode === "wormhole") {
-      props.onNavigate({ mode, address: normalizeWormhole(value) });
+      const addr = normalizeWormhole(value);   // 🌀name.tp
+      const cid = toContainerId(addr);         // name
+
+      // keep original callback contract
+      props.onNavigate({ mode, address: addr });
+
+      // 🔗 drive the SPA directly
+      window.location.hash = `#/container/${encodeURIComponent(cid)}`;
+
+      // 📣 notify any listeners that rely on the event
+      const reply = { to: cid, name: `${cid}.tp` };
+      window.dispatchEvent(
+        new CustomEvent("wormhole:resolved", { detail: reply })
+      );
     } else {
-      props.onNavigate({ mode, address: normalizeHttp(value) });
+      const url = normalizeHttp(value);
+      props.onNavigate({ mode, address: url });
+      // You can also navigate immediately if desired:
+      // window.location.href = url;
     }
   }
 
@@ -93,7 +118,7 @@ export default function WormholeBar(props: {
         onChange={(e) => {
           const v = e.target.value;
           setValue(v);
-          // mild QoL: if user types http/www, auto switch mode to http
+          // QoL: auto-switch to http if user types http/www
           const inferred = inferModeFromValue(v);
           if (inferred !== mode && (v.startsWith("http") || v.startsWith("www."))) {
             setMode(inferred);
