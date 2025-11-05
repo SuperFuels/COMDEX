@@ -1,1 +1,30 @@
-⚙ hello ⟮⟯∶print ⟮ "hi"⟯ 
+⇠ backend ·symatics ·operators ⇢ OPS ≘ __RAW_OPS 
+⚙ __resolve_op ⟮name ‚v ⟯∶
+    ⧁ callable ⟮v ⟯∶
+        ⮐ v 
+        # try common method/attr names on objects
+
+    ⥁ nm ∈ ⟮
+    "__call__"‚"apply"‚"call"‚"invoke"‚"run"‚
+    "evaluate"‚"eval"‚"exec"‚"execute"‚
+    "op"‚"fn"‚"func"‚"function"‚"impl"‚"implementation"‚
+    ⟯∶
+        attr ⩴getattr ⟮v ‚nm ‚None ⟯
+        ⧁ callable ⟮attr ⟯∶
+            ⮐ ⟮λ̄ attr ⩴attr ∶⟮λ̄ ⭑a ‚⭑⭑k ∶attr ⟮⭑a ‚⭑⭑k ⟯⟯⟯⟮⟯
+            # mapping-like containers
+
+    ⧁ isinstance ⟮v ‚dict ⟯∶
+        ⥁ nm ∈ ⟮"call"‚"apply"‚"fn"‚"func"‚"impl"‚"implementation"⟯∶
+            attr ⩴v ·get ⟮nm ⟯
+            ⧁ callable ⟮attr ⟯∶
+                ⮐ attr 
+                # fallback: keep import working; raise at call site for clean tracebacks
+
+    ⚙ __missing ⟮⭑a ‚⭑⭑k ⟯∶
+        ↥ TypeError ⟮
+        f'Photon operator "{name }" isn\'t callable (no apply/call/invoke/etc). Type={type (v ).__name__ }'
+        ⟯
+    ⮐ __missing 
+__OPS__ ⩴{k ∶__resolve_op ⟮k ‚v ⟯⥁ k ‚v ∈ __RAW_OPS ·items ⟮⟯}
+⚙ hello ⟮⟯∶print ⟮"hi"⟯
