@@ -1,32 +1,38 @@
-#──────────────────────────────
+# ──────────────────────────────
 # 🧠 Tessaris / Symatics Attributes
-#──────────────────────────────
+# ──────────────────────────────
+
+# Normalize everything to LF by default
+* text=auto eol=lf
+
+# LFS-tracked native blobs (avoid committing node_modules if possible)
 node_modules/@next/swc-darwin-arm64/next-swc.darwin-arm64.node filter=lfs diff=lfs merge=lfs -text
 
-# Treat all knowledge capsules as binary (no text diff, no merge)
+# Treat large/binary capsules & archives as binary
 *.wiki.phn binary
 *.qkg.json binary
 *.log.json binary
 *.tar.gz binary
 *.zip binary
 *.db binary
+*.photo binary
 
-# Normalize line endings for code
-*.py text eol=lf
-*.js text eol=lf
-*.ts text eol=lf
-*.md text eol=lf
+# Generated telemetry/log streams — don’t diff/merge
+*.jsonl -diff -merge
+*.trace.json -diff -merge
+
+# Code line endings
+*.py   text eol=lf diff=python
+*.js   text eol=lf diff=javascript
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.jsx  text eol=lf
+*.md   text eol=lf
 *.yaml text eol=lf
-*.yml text eol=lf
-
-# Keep JSONs consistent
+*.yml  text eol=lf
 *.json text eol=lf diff=json
+*.css  text eol=lf
 
-# Ignore whitespace changes in diffs for these
-*.py diff=python
-*.js diff=javascript
-
+# Photon filters
 *.photon filter=photon
-
-photon_src/*.py filter=photonlangphoton_src/*.py filter=photonlang
 photon_src/*.py filter=photonlang

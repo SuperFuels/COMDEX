@@ -3,22 +3,21 @@
 # =========================================================
 """
 ⚛ Photon-Symatics Bridge - SRK-15
-Bidirectional interface between Symatics Algebra and Photon Algebra Runtime.
-
-Executes symbolic operators (⊕, ↔, ⟲, ∇, μ) in the photonic domain while keeping
-a structured trace suitable for front-end visualization.
+Accepts JSONL (one JSON object per line) or free text lines.
+Each item is coerced into a dict like {"operator": "⊕", "args":[...]} or {"expr":"..."}.
+Photonic ops (⊕, ↔, ⟲, ∇, μ) are executed in Photon runtime; others route to Symatics.
 """
 
 from __future__ import annotations
+import json
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from backend.modules.photon.photon_algebra_runtime import PhotonAlgebraRuntime
 from backend.symatics.operators import OPS
 
-
 # ────────────────────────────────────────────────────────────────
-# Helpers
+# Config
 # ────────────────────────────────────────────────────────────────
 
 OP_SYMBOL_TO_NAME = {
@@ -28,6 +27,7 @@ OP_SYMBOL_TO_NAME = {
     "∇": "collapse",
     "μ": "measure",
 }
+PHOTON_OPS = set(OP_SYMBOL_TO_NAME.keys())
 
 def op_color(op_symbol: str) -> str:
     return {
@@ -36,14 +36,12 @@ def op_color(op_symbol: str) -> str:
         "⟲": "#EAB308",  # yellow
         "∇": "#EF4444",  # red
         "μ": "#FFFFFF",  # white
-    }.get(op_symbol, "#8B5CF6")  # fallback indigo
+    }.get(op_symbol, "#8B5CF6")  # indigo fallback
 
 
 class _SymaticOperatorProxy:
-    """
-    Adapter to expose Symatics OPS via .apply() interface if needed.
-    """
-    def __init__(self, ops_dict):
+    """Adapter exposing Symatics OPS via .apply()."""
+    def __init__(self, ops_dict: Dict[str, Any]):
         self.ops = ops_dict
 
     def apply(self, op_symbol: str, *args, **kwargs):
@@ -52,9 +50,69 @@ class _SymaticOperatorProxy:
             raise ValueError(f"Unknown symbolic operator: {op_symbol}")
         if hasattr(op, "impl"):
             return op.impl(*args, **kwargs)
-        elif callable(op):
+        if callable(op):
             return op(*args, **kwargs)
         raise TypeError(f"Operator {op_symbol} is not callable")
+
+
+# ────────────────────────────────────────────────────────────────
+# Coercion
+# ────────────────────────────────────────────────────────────────
+
+EMIT_RX = re.compile(r'^emit\s+["\'](.+?)["\']\s*$')
+
+def _coerce_line_to_item(line: str) -> Optional[Dict[str, Any]]:
+    """
+    Best-effort coercion:
+      - JSON → dict or {"expr": ...}
+      - bare op token (⊕/↔/⟲/∇/μ) → {"operator": "<sym>"}
+      - emit "x" → {"operator":"emit","args":["x"]}
+      - otherwise → {"expr": "<line>"}
+    """
+    s = (line or "").strip()
+    if not s:
+        return None
+    # JSON line?
+    try:
+        obj = json.loads(s)
+        if isinstance(obj, dict):
+            return obj
+        if isinstance(obj, str):
+            return {"expr": obj}
+        return {"expr": obj}
+    except Exception:
+        pass
+
+    if s in PHOTON_OPS:
+        return {"operator": s}
+    m = EMIT_RX.match(s)
+    if m:
+        return {"operator": "emit", "args": [m.group(1)]}
+    return {"expr": s}
+
+
+def _build_capsule_from_item(it: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Minimal Photon capsule. Ensures glyph entry is a dict (never a raw string).
+    """
+    glyph = {}
+    if "operator" in it:
+        glyph["operator"] = it["operator"]
+        if "args" in it:
+            glyph["args"] = it["args"]
+        if "meta" in it:
+            glyph["meta"] = it["meta"]
+    elif "expr" in it:
+        # non-operator line: keep as expr; runtime may skip
+        glyph["expr"] = it["expr"]
+    else:
+        # unknown shape → wrap
+        glyph["expr"] = it
+
+    return {
+        "name": "bridge_inline",
+        "glyphs": [glyph],
+    }
 
 
 # ────────────────────────────────────────────────────────────────
@@ -63,109 +121,83 @@ class _SymaticOperatorProxy:
 
 class PhotonSymaticsBridge:
     """
-    Routes glyph-plane operations to Photon runtime, and everything else to Symatics.
-    Produces UI-friendly traces for the PhotonLens overlay.
+    Routes photonic ops to Photon runtime; other ops to Symatics.
+    Produces UI-friendly traces (color, op, result).
     """
 
     def __init__(self):
         self.photon_runtime = PhotonAlgebraRuntime()
+        self.sym_proxy = _SymaticOperatorProxy(OPS)
 
-    # ---------- Domain routing ----------
-    def resolve_operator(self, op_symbol: str):
-        if op_symbol in OP_SYMBOL_TO_NAME:
-            return self.photon_runtime  # photonic
-        return _SymaticOperatorProxy(OPS)  # symatic fallback
+    def resolve_operator_domain(self, op_symbol: str) -> str:
+        return "photon" if op_symbol in PHOTON_OPS else "symatic"
 
-    # ---------- Parsing raw glyph lines ----------
-    def parse_raw_photon_line(self, src: str) -> Dict[str, Any]:
+    async def execute_raw(self, source_text: str) -> Dict[str, Any]:
         """
-        Accepts a single glyph line like: '💡 = 🌊 ⊕ 🌀'
-        Returns a small descriptor for trace (no Photon runtime schema here).
+        Accepts JSONL or free text. Coerces each line to an item dict,
+        then executes per domain. Non-operator expr lines are skipped.
         """
-        src = (src or "").strip()
-        if not src:
-            return {"type": "empty", "line": src}
+        lines = (source_text or "").splitlines()
+        items: List[Dict[str, Any]] = []
+        for ln in lines:
+            obj = _coerce_line_to_item(ln)
+            if obj is not None:
+                items.append(obj)
 
-        left, right = None, src
-        if "=" in src:
-            left, right = [s.strip() for s in src.split("=", 1)]
-
-        # find first supported operator
-        op_symbol = next((s for s in OP_SYMBOL_TO_NAME.keys() if s in right), None)
-
-        if op_symbol:
-            parts = [p.strip() for p in re.split(rf"\s*{re.escape(op_symbol)}\s*", right) if p.strip()]
-            return {
-                "type": "operation",
-                "assign": left,
-                "op_symbol": op_symbol,
-                "op_name": OP_SYMBOL_TO_NAME[op_symbol],
-                "args": parts,
-                "raw": src,
-            }
-
-        return {"type": "literal", "assign": left, "value": right, "raw": src}
-
-    # ---------- Build a valid Photon capsule ----------
-    def _build_capsule_from_line(self, line: str) -> Dict[str, Any]:
-        """
-        Photon runtime expects a capsule schema. Keep it minimal & valid.
-        """
-        return {
-            "name": "bridge_inline",
-            "glyphs": [line],   # hand the exact glyph line to the runtime
-            # add more fields if your runtime supports them (metadata, seed, etc.)
-        }
-
-    # ---------- Public: execute a multi-line glyph block ----------
-    async def execute_raw(self, source: str) -> Dict[str, Any]:
-        """
-        Execute raw glyph-plane Photon code through the bridge pipeline.
-
-        - Parses each non-empty line
-        - For lines containing supported ops (⊕, ↔, ⟲, ∇, μ), builds a valid capsule
-          and calls PhotonAlgebraRuntime.execute(capsule)
-        - Returns a visualization-friendly trace with op + color fields
-        """
-        lines = [l.strip() for l in (source or "").splitlines() if l.strip()]
         results: List[Dict[str, Any]] = []
+        for it in items:
+            # For the response, keep the original item visible as JSON (matches your previous output)
+            shown_input = json.dumps(it, ensure_ascii=False)
 
-        for line in lines:
-            desc = self.parse_raw_photon_line(line)
-
-            if desc.get("type") != "operation":
-                # Non-operational lines are skipped (could be assignments with no op)
+            op = it.get("operator")
+            if not op:
+                # Pure expr → no operator to handle
                 results.append({
-                    "input": line,
+                    "input": it.get("expr") if "expr" in it else shown_input,
                     "status": "skipped",
                     "note": "no supported operator found",
                 })
                 continue
 
-            op_symbol = desc["op_symbol"]
-            color = op_color(op_symbol)
-            target = self.resolve_operator(op_symbol)
-
-            try:
-                # ✅ Build a Photon capsule the runtime accepts
-                capsule = self._build_capsule_from_line(line)
-                # Execute in photonic domain
-                exec_result = await target.execute(capsule)
-
-                results.append({
-                    "input": line,
-                    "op": op_symbol,
-                    "color": color,
-                    "status": "ok",
-                    "result": exec_result,
-                })
-            except Exception as e:
-                results.append({
-                    "input": line,
-                    "op": op_symbol,
-                    "color": "#DC2626",
-                    "status": "error",
-                    "error": str(e),
-                })
+            # Dispatch by domain
+            domain = self.resolve_operator_domain(op)
+            if domain == "photon":
+                try:
+                    cap = _build_capsule_from_item(it)   # glyph is a dict
+                    exec_result = await self.photon_runtime.execute(cap)
+                    results.append({
+                        "input": shown_input,
+                        "op": op,
+                        "color": op_color(op),
+                        "status": "ok",
+                        "result": exec_result,
+                    })
+                except Exception as e:
+                    results.append({
+                        "input": shown_input,
+                        "op": op,
+                        "color": "#DC2626",
+                        "status": "error",
+                        "error": str(e),
+                    })
+            else:
+                # Symatic fallback (e.g., "emit") – try to run, otherwise mark skipped
+                try:
+                    args = it.get("args", []) or []
+                    self.sym_proxy.apply(op, *args)
+                    results.append({
+                        "input": shown_input,
+                        "op": op,
+                        "color": op_color(op),
+                        "status": "ok",
+                    })
+                except Exception as e:
+                    results.append({
+                        "input": shown_input,
+                        "op": op,
+                        "color": "#64748B",
+                        "status": "skipped",
+                        "note": f"symatic op not handled: {e}",
+                    })
 
         return {"ok": True, "count": len(results), "results": results}

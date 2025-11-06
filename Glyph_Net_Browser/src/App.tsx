@@ -7,8 +7,10 @@ import KGDock from "./components/KGDock";
 import ContainerView from "./components/ContainerView";
 import { parseAddress } from "./lib/nav/parse";
 import { routeNav } from "./lib/nav/router";
+import WaveOutbox from "./components/WaveOutbox";
 
 type Mode = "wormhole" | "http";
+type NavArg = string | { mode: Mode; address: string };
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,17 +19,34 @@ export default function App() {
     useState<"home" | "inbox" | "outbox" | "kg" | "settings">("home");
   const [wavesCount, setWavesCount] = useState(1);
 
-  // Title updates on hash changes
+  // ✅ SSR-safe topic from hash (?topic=...)
+  const topicFromHash = (() => {
+    if (typeof window === "undefined" || typeof window.location === "undefined") return "";
+    const h = window.location.hash || "";
+    if (!h.startsWith("#/inbox")) return "";
+    const u = new URL(h.replace("#", "http://x"));
+    return u.searchParams.get("topic") || "";
+  })();
+
+  // Title + active tab from hash
   useEffect(() => {
     const onHash = () => {
-      const h = location.hash;
-      if (h.startsWith("#/wormhole/")) {
+      const h = window.location.hash || "";
+      if (h.startsWith("#/inbox")) {
+        setActive("inbox");
+        document.title = `Inbox — Glyph Net`;
+      } else if (h.startsWith("#/outbox")) {
+        setActive("outbox");
+        document.title = `Outbox — Glyph Net`;
+      } else if (h.startsWith("#/wormhole/")) {
         document.title = `🌀 ${decodeURIComponent(h.split("/").pop() || "")} — Glyph Net`;
       } else if (h.startsWith("#/dimension/")) {
         document.title = `Dimension — Glyph Net`;
       } else if (h.startsWith("#/container/")) {
         const name = decodeURIComponent(h.split("/").pop() || "");
         document.title = `${name} — Container • Glyph Net`;
+      } else {
+        document.title = `Glyph Net`;
       }
     };
     window.addEventListener("hashchange", onHash);
@@ -35,27 +54,34 @@ export default function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  // ✅ Listen for wormhole resolution events from router.ts
+  // Bubble from WaveInbox to increment waves badge
+  useEffect(() => {
+    const onWave = () => setWavesCount((n) => n + 1);
+    window.addEventListener("glyphnet:wave", onWave as EventListener);
+    return () => window.removeEventListener("glyphnet:wave", onWave as EventListener);
+  }, []);
+
+  // Wormhole resolution logging
   useEffect(() => {
     const onResolved = (e: Event) => {
       const rec = (e as CustomEvent).detail;
-      console.log("🔗 Wormhole resolved:", rec); // rec.address, rec.to, rec.container, rec.meta
-      // TODO: set state / open ContainerView / connect WS
-      // Example: window.location.hash = `#/container/${encodeURIComponent(rec.to)}`;
+      console.log("🔗 Wormhole resolved:", rec);
     };
     const onError = (e: Event) => {
       const { name, error } = (e as CustomEvent).detail;
       console.warn("⚠️ Wormhole resolve failed:", name, error);
     };
-    window.addEventListener("wormhole:resolved", onResolved as any);
-    window.addEventListener("wormhole:resolve_error", onError as any);
+    window.addEventListener("wormhole:resolved", onResolved as EventListener);
+    window.addEventListener("wormhole:resolve_error", onError as EventListener);
     return () => {
-      window.removeEventListener("wormhole:resolved", onResolved as any);
-      window.removeEventListener("wormhole:resolve_error", onError as any);
+      window.removeEventListener("wormhole:resolved", onResolved as EventListener);
+      window.removeEventListener("wormhole:resolve_error", onError as EventListener);
     };
   }, []);
 
-  const handleNavigate = ({ address }: { mode: Mode; address: string }) => {
+  // ✅ Accept both a string or an object from TopBar
+  const handleNavigate = (arg: NavArg) => {
+    const address = typeof arg === "string" ? arg : arg.address;
     routeNav(parseAddress(address));
   };
 
@@ -84,8 +110,7 @@ export default function App() {
           <>
             <h1>Glyph Net</h1>
             <p>
-              Send your first wave{" "}
-              <code>www.tessaris.tp</code>.
+              Send your first wave <code>www.tessaris.tp</code>.
             </p>
           </>
         )}
@@ -101,17 +126,14 @@ export default function App() {
         >
           <div style={{ minWidth: 0 }}>
             {active === "inbox" ? (
-              <WaveInbox />
+              <WaveInbox defaultTopic={topicFromHash || "ucs://local/ucs_hub"} />
             ) : active === "kg" ? (
               <KGDock />
             ) : active === "outbox" ? (
-              <div>
-                <h3 style={{ margin: "10px 0" }}>Wave Outbox</h3>
-                <p>No pending sends.</p>
-              </div>
+              <WaveOutbox />
             ) : active === "settings" ? (
               <p>Settings (stub)</p>
-            ) : location.hash.startsWith("#/container/") ? (
+            ) : window.location.hash.startsWith("#/container/") ? (
               <ContainerView />
             ) : (
               <div
@@ -128,6 +150,8 @@ export default function App() {
             )}
           </div>
 
+          {/* NOTE: This shows KGDock always on the right. If you don't want two KGDocks
+              when active === "kg", wrap this with `active !== "kg" && <KGDock />`. */}
           <div>
             <KGDock />
           </div>
