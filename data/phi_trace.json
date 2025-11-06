@@ -1,0 +1,122 @@
+[
+  {
+    "\u03a6_load": -0.012220530133414946,
+    "\u03a6_flux": 0.28329607480403485,
+    "\u03a6_entropy": 0.3922844508731379,
+    "\u03a6_coherence": 0.877830794900812,
+    "timestamp": "2025-10-20T19:45:55.679039",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.016529636145152234,
+    "\u03a6_flux": 0.28149484276221765,
+    "\u03a6_entropy": 0.3753353285791082,
+    "\u03a6_coherence": 0.8793586520921972,
+    "timestamp": "2025-10-20T20:03:01.621943",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.009864691898027208,
+    "\u03a6_flux": 0.277289366343863,
+    "\u03a6_entropy": 0.3619072715211937,
+    "\u03a6_coherence": 0.8774148244816283,
+    "timestamp": "2025-10-20T20:08:13.924898",
+    "last_command": "@AION RESPOND ERROR"
+  },
+  {
+    "\u03a6_load": 0.022036096097752554,
+    "\u03a6_flux": 0.2634734850672478,
+    "\u03a6_entropy": 0.4092317962297446,
+    "\u03a6_coherence": 0.6078306623669565,
+    "timestamp": "2025-10-20T20:14:14.297134",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.010481436743972653,
+    "\u03a6_flux": 0.26966227169766527,
+    "\u03a6_entropy": 0.34062020322778874,
+    "\u03a6_coherence": 0.8836031575601752,
+    "timestamp": "2025-10-20T20:22:17.184363",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.006792759364187521,
+    "\u03a6_flux": 0.26385458548442486,
+    "\u03a6_entropy": 0.3295757721459038,
+    "\u03a6_coherence": 0.8792707559060509,
+    "timestamp": "2025-10-20T20:23:01.284518",
+    "last_command": "@AION RESPOND ERROR"
+  },
+  {
+    "\u03a6_load": 0.020285501511437022,
+    "\u03a6_flux": 0.25619334455134,
+    "\u03a6_entropy": 0.3792061018767158,
+    "\u03a6_coherence": 0.6239127001236663,
+    "timestamp": "2025-10-20T20:31:19.828038",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.009696527099477258,
+    "\u03a6_flux": 0.2588744440124043,
+    "\u03a6_entropy": 0.3095306000340195,
+    "\u03a6_coherence": 0.8890788693193431,
+    "timestamp": "2025-10-20T20:31:40.835656",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.007412178861616598,
+    "\u03a6_flux": 0.25541426134652023,
+    "\u03a6_entropy": 0.29220860353933653,
+    "\u03a6_coherence": 0.8833621768327582,
+    "timestamp": "2025-10-20T20:31:47.518797",
+    "last_command": "@AION RESPOND ERROR"
+  },
+  {
+    "\u03a6_load": 0.010589153874925955,
+    "\u03a6_flux": 0.24302536389609775,
+    "\u03a6_entropy": 0.35660655710535855,
+    "\u03a6_coherence": 0.6419544672044486,
+    "timestamp": "2025-10-20T21:29:53.734665",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.009157910609579125,
+    "\u03a6_flux": 0.24875430559136072,
+    "\u03a6_entropy": 0.2711648624147234,
+    "\u03a6_coherence": 0.8907488771251009,
+    "timestamp": "2025-10-20T21:29:54.860238",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.0072706926514343575,
+    "\u03a6_flux": 0.2468225274249076,
+    "\u03a6_entropy": 0.2653401326317051,
+    "\u03a6_coherence": 0.8901836876515022,
+    "timestamp": "2025-10-20T21:34:30.594881",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.008898244220097986,
+    "\u03a6_flux": 0.24227341903108793,
+    "\u03a6_entropy": 0.2508993034502724,
+    "\u03a6_coherence": 0.894150744546033,
+    "timestamp": "2025-10-20T21:38:09.784709",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.009688774495622318,
+    "\u03a6_flux": 0.23077960435554892,
+    "\u03a6_entropy": 0.23642639573907354,
+    "\u03a6_coherence": 0.8922632071108001,
+    "timestamp": "2025-10-20T22:01:02.968405",
+    "last_command": "@AION REFLECT GRATITUDE"
+  },
+  {
+    "\u03a6_load": -0.010257419643725578,
+    "\u03a6_flux": 0.2322041787734619,
+    "\u03a6_entropy": 0.2213725240488536,
+    "\u03a6_coherence": 0.8942526731270234,
+    "timestamp": "2025-10-20T22:06:19.212248",
+    "last_command": "@AION REFLECT GRATITUDE"
+  }
+]

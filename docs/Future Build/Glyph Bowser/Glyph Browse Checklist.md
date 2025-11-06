@@ -1,52 +1,52 @@
-mindmap
-  root((GlyphNet Build Checklist))
-    P4 • WA/WN + Voice & Radio
-      [x] WA/WN Addressing (logical IDs)
-        [x] WA/WN identities (ucs://…; realm wave.tp)
-        [x] Address Book + deep-link invites (#/inbox?topic=…)
-        [ ] PSTN mapping (later via SIP/Telnyx/Twilio)
-        [ ] Name service rules (display name ↔ WA/WN)
-      [ ] PTT / Walkie-Talkie over GlyphNet (quick win)
-        [ ] UI: Hold-to-Talk button (Outbox + Inbox)
-        [ ] Mic capture → Opus (MediaRecorder now; WASM Opus optional)
-        [ ] Capsule schema: voice_frame { codec, seq, ts, channel, data_b64 }
-        [ ] Playback: jitter buffer + audio-autoplay toggle
-        [ ] Floor control: entanglement_lock "voice/<channel>" (+ busy overlay)
-        [ ] (Optional) E2EE: X25519 DH → AES-GCM (rolling nonce via seq)
-        [ ] Metrics: chunk loss %, e2e latency
-      [ ] Voice Notes (async voice messages)
-        [ ] Record .ogg/.m4a → voice_note capsule (upload/attach)
-        [ ] Inbox playback UI + seek
-        [ ] (Optional) Transcription → text capsule
-      [ ] Full Calls (WebRTC media; GlyphNet signaling)
-        [ ] Signaling capsules: voice_offer / voice_answer / ice
-        [ ] Media: SRTP w/ AEC/AGC, jitter buffer
-        [ ] NAT: STUN list + TURN fallback
-        [ ] Call UI: ring / accept / decline / mute / hold
-        [ ] (Optional) E2EE via Insertable Streams; keys via GlyphNet
-      [ ] Radio / Mesh Transport (dual-band)
-        [ ] band_profile.yml (region, bands, power/duty)
-        [ ] TransportSelector: prefer local RF → fallback IP automatically
-        [ ] Local Radio Node (Android/iOS/desktop @ 127.0.0.1:8787)
-          [ ] Endpoints: /health, /api/glyphnet/tx, /ws/glyphnet
-          [ ] Token handoff; store-carry-forward
-        [ ] Desktop LAN P2P: WebRTC datachannel mode (#/p2p route)
-        [ ] Accessory radio (WebSerial/WebUSB ESP32/LoRa/2.4GHz)
-          [ ] Frame: { topic, seq, ts, codec?, bytes } (+ region guardrails)
-      [ ] Telemetry & Receipts
-        [ ] Delivery acks for media chunks
-        [ ] Talk-time / occupancy (lock analytics)
-        [ ] Dropout/error logs surfaced in UI
-      [ ] Performance Targets (guardrails)
-        [ ] PTT e2e: 250–400 ms (200 ms chunks baseline)
-        [ ] Low-latency path: 20 ms Opus frames (<250 ms target)
-        [ ] Max capsule size + send rate limits per band_profile
-      Notes (do not lose)
-        [x] WA/WN are logical addresses; **not** tied to a radio frequency
-        [x] Transport is pluggable: IP today; RF when adapter present
-        [x] PTT = half-duplex with entanglement_lock floor control
-        [x] WebRTC calls = full-duplex, low-latency; GlyphNet only for signaling
-        [x] LoRa/Sub-GHz ok for text/alerts, **not** live voice (bandwidth)
+root((GlyphNet Build Checklist))
+  P4 • WA/WN + Voice & Radio
+    [x] WA/WN Addressing (logical IDs)
+      [x] WA/WN identities (ucs://…; realm wave.tp)
+      [x] Address Book + deep-link invites (#/inbox?topic=…)
+      [ ] PSTN mapping (later via SIP/Telnyx/Twilio)
+      [ ] Name service rules (display name ↔ WA/WN)
+    [ ] PTT / Walkie-Talkie over GlyphNet (quick win)
+      [ ] UI: Hold-to-Talk button (Outbox + Inbox)
+      [ ] Mic capture → Opus (MediaRecorder now; WASM Opus optional)
+      [x] Capsule schema: voice_frame { codec, seq, ts, channel, data_b64 }  # Completed this task.
+      [ ] Playback: jitter buffer + audio-autoplay toggle
+      [x] Floor control: entanglement_lock "voice/<channel>" (+ busy overlay)  # Completed this task.
+      [ ] (Optional) E2EE: X25519 DH → AES-GCM (rolling nonce via seq)
+      [ ] Metrics: chunk loss %, e2e latency
+    [ ] Voice Notes (async voice messages)
+      [ ] Record .ogg/.m4a → voice_note capsule (upload/attach)
+      [ ] Inbox playback UI + seek
+      [ ] (Optional) Transcription → text capsule
+    [ ] Full Calls (WebRTC media; GlyphNet signaling)
+      [ ] Signaling capsules: voice_offer / voice_answer / ice
+      [ ] Media: SRTP w/ AEC/AGC, jitter buffer
+      [ ] NAT: STUN list + TURN fallback
+      [ ] Call UI: ring / accept / decline / mute / hold
+      [ ] (Optional) E2EE via Insertable Streams; keys via GlyphNet
+    [ ] Radio / Mesh Transport (dual-band)
+      [ ] band_profile.yml (region, bands, power/duty)
+      [ ] TransportSelector: prefer local RF → fallback IP automatically
+      [ ] Local Radio Node (Android/iOS/desktop @ 127.0.0.1:8787)
+        [ ] Endpoints: /health, /api/glyphnet/tx, /ws/glyphnet
+        [ ] Token handoff; store-carry-forward
+      [ ] Desktop LAN P2P: WebRTC datachannel mode (#/p2p route)
+      [ ] Accessory radio (WebSerial/WebUSB ESP32/LoRa/2.4GHz)
+        [ ] Frame: { topic, seq, ts, codec?, bytes } (+ region guardrails)
+    [ ] Telemetry & Receipts
+      [ ] Delivery acks for media chunks
+      [ ] Talk-time / occupancy (lock analytics)
+      [ ] Dropout/error logs surfaced in UI
+    [ ] Performance Targets (guardrails)
+      [ ] PTT e2e: 250–400 ms (200 ms chunks baseline)
+      [ ] Low-latency path: 20 ms Opus frames (<250 ms target)
+      [ ] Max capsule size + send rate limits per band_profile
+    Notes (do not lose)
+      [x] WA/WN are logical addresses; **not** tied to a radio frequency
+      [x] Transport is pluggable: IP today; RF when adapter present
+      [x] PTT = half-duplex with entanglement_lock floor control
+      [x] WebRTC calls = full-duplex, low-latency; GlyphNet only for signaling
+      [x] LoRa/Sub-GHz ok for text/alerts, **not** live voice (bandwidth)
+
 
 mindmap
   root((GlyphNet Build Checklist))
@@ -105,7 +105,7 @@ mindmap
         [x] Wave Inbox: WS subscribe (ucs://… topics)
         [x] Address Book: recent topics + Copy Invite
         [x] Outbox → POST /api/glyphnet/tx
-        [ ] Actions: Reverse (/api/photon/translate_reverse) & Execute
+        [x] Actions: Reverse (/api/photon/translate_reverse) & Execute
       [ ] B06 Dual-Band TransportSelector
         [ ] GlyphNet mesh if available
         [ ] fallback HTTPS/WS
@@ -132,7 +132,7 @@ mindmap
         [x] WS fallback fanout when bus has 0 subs
         [x] CORS allowlist (localhost + Codespaces)
         [x] Browser compose UI → POST /api/glyphnet/tx
-        [ ] Topic ACLs (per-recipient permissions)
+        [x] Topic ACLs (per-recipient permissions) — env-driven prefix rules via config_acl.py
         [ ] Delivery acks/receipts
       D02 GIP (Glyph Internet Protocol)
         [x] frames/ops + REST (/api/gip/send, /api/gip/send/{id})

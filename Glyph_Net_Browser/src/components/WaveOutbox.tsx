@@ -1,4 +1,3 @@
-// src/components/WaveOutbox.tsx
 import { useMemo, useRef, useState } from "react";
 import { getRecent, rememberTopic } from "@/lib/addressBook";
 
@@ -54,6 +53,9 @@ export default function WaveOutbox() {
   const seqRef = useRef<number>(0);
   const channelRef = useRef<string>("");
 
+  // 🔁 NEW: per-frame ACKS from /api/glyphnet/tx
+  const [acks, setAcks] = useState<{ seq: number; status: string; reason?: string }[]>([]);
+
   const recent = getRecent(8);
   const apiBase = useMemo(() => resolveApiBase(), []);
 
@@ -67,7 +69,12 @@ export default function WaveOutbox() {
     try {
       const r = await fetch(`${apiBase}/api/glyphnet/tx`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          // optional dev headers; backend also accepts body.token
+          "X-Agent-Token": "dev-token",
+          "X-Agent-Id": "browser-outbox",
+        },
         body: JSON.stringify({
           recipient: to,
           capsule: { glyphs: [msg], glyph_stream: [msg] }, // keep both for compatibility
@@ -93,7 +100,7 @@ export default function WaveOutbox() {
       setBusy(false);
     }
   }
-
+  
   // --- PTT (Push-To-Talk) ---
   async function ensureMic() {
     if (streamRef.current) return;
@@ -154,12 +161,25 @@ export default function WaveOutbox() {
           },
           meta: { trace_id: "ptt-frame" },
         };
-        // fire-and-forget; errors are non-fatal per-frame
+
+        // 🔄 send each frame; collect ACKs (status/optional reason)
         fetch(`${apiBase}/api/glyphnet/tx`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-Agent-Id": "browser-outbox",
+            "X-Agent-Token": "dev-token",
+          },
           body: JSON.stringify(payload),
-        }).catch(() => {});
+        })
+          .then(async (r) => {
+            const j = await r.json().catch(() => ({}));
+            const status = j?.status || (r.ok ? "ok" : "err");
+            setAcks((prev) =>
+              [{ seq: payload.capsule.voice_frame.seq, status, reason: j?.reason }, ...prev].slice(0, 200)
+            );
+          })
+          .catch(() => {});
       } catch {}
     };
 
@@ -286,6 +306,39 @@ export default function WaveOutbox() {
         )}
       </div>
 
+      {/* 🔁 NEW: per-frame ACK table */}
+      {acks.length > 0 && (
+        <div
+          style={{
+            marginTop: 8,
+            maxHeight: 160,
+            overflow: "auto",
+            background: "#fff",
+            border: "1px solid #e5e7eb",
+            borderRadius: 6,
+          }}
+        >
+          <table style={{ width: "100%", fontSize: 12 }}>
+            <thead>
+              <tr>
+                <th align="left">seq</th>
+                <th align="left">status</th>
+                <th align="left">note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {acks.map((a) => (
+                <tr key={a.seq}>
+                  <td>{a.seq}</td>
+                  <td>{a.status}</td>
+                  <td>{a.reason || ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {result && (
         <pre
           style={{
@@ -302,3 +355,4 @@ export default function WaveOutbox() {
     </div>
   );
 }
+

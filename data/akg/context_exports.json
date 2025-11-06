@@ -1,0 +1,67 @@
+[
+  {
+    "timestamp": 1761302612.7197287,
+    "topics": [],
+    "dominant_topic": null,
+    "tone": "neutral",
+    "energy": 0.5,
+    "confidence": 0.0,
+    "recent_messages": [],
+    "session_id": 489250,
+    "resonance_score": 0.35,
+    "coherence_index": 0.0
+  },
+  {
+    "timestamp": 1761302677.9540339,
+    "topics": [],
+    "dominant_topic": null,
+    "tone": "neutral",
+    "energy": 0.5,
+    "confidence": 0.0,
+    "recent_messages": [],
+    "session_id": 489250,
+    "resonance_score": 0.35,
+    "coherence_index": 0.0
+  },
+  {
+    "timestamp": 1761302805.1908977,
+    "topics": [],
+    "dominant_topic": null,
+    "tone": "neutral",
+    "energy": 0.5,
+    "confidence": 0.0,
+    "recent_messages": [],
+    "session_id": 489250,
+    "resonance_score": 0.35,
+    "coherence_index": 0.0,
+    "target": "unknown",
+    "source": "ContextAKGBridge"
+  },
+  {
+    "timestamp": 1761302861.4258728,
+    "topics": [],
+    "dominant_topic": null,
+    "tone": "neutral",
+    "energy": 0.5,
+    "confidence": 0.0,
+    "recent_messages": [],
+    "session_id": 489250,
+    "resonance_score": 0.35,
+    "coherence_index": 0.0,
+    "type": "unlabeled",
+    "target": "unknown",
+    "source": "ContextAKGBridge"
+  },
+  {
+    "timestamp": 1761302935.5299253,
+    "topics": [],
+    "dominant_topic": null,
+    "tone": "neutral",
+    "energy": 0.5,
+    "confidence": 0.0,
+    "recent_messages": [],
+    "session_id": 489250,
+    "resonance_score": 0.35,
+    "coherence_index": 0.0
+  }
+]

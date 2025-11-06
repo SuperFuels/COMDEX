@@ -1,0 +1,88 @@
+{
+  "timestamp": "2025-10-21T14:00:57.726090",
+  "nodes": [
+    {
+      "id": "curiosity",
+      "weight": 1
+    },
+    {
+      "id": "coherence",
+      "weight": 43
+    },
+    {
+      "id": "movement",
+      "weight": 1
+    },
+    {
+      "id": "entropy",
+      "weight": 42
+    },
+    {
+      "id": "stability",
+      "weight": 1
+    },
+    {
+      "id": "symbol",
+      "weight": 1
+    },
+    {
+      "id": "resonance",
+      "weight": 1
+    },
+    {
+      "id": "pattern",
+      "weight": 1
+    },
+    {
+      "id": "flux",
+      "weight": 41
+    }
+  ],
+  "edges": [
+    {
+      "source": "curiosity",
+      "target": "coherence",
+      "weight": 1
+    },
+    {
+      "source": "curiosity",
+      "target": "movement",
+      "weight": 1
+    },
+    {
+      "source": "coherence",
+      "target": "movement",
+      "weight": 1
+    },
+    {
+      "source": "coherence",
+      "target": "pattern",
+      "weight": 1
+    },
+    {
+      "source": "coherence",
+      "target": "entropy",
+      "weight": 41
+    },
+    {
+      "source": "coherence",
+      "target": "flux",
+      "weight": 41
+    },
+    {
+      "source": "entropy",
+      "target": "stability",
+      "weight": 1
+    },
+    {
+      "source": "entropy",
+      "target": "flux",
+      "weight": 41
+    },
+    {
+      "source": "symbol",
+      "target": "resonance",
+      "weight": 1
+    }
+  ]
+}

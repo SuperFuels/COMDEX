@@ -1,0 +1,13 @@
+{
+  "timestamp": 1761255471.8204005,
+  "goals": [
+    {
+      "id": "goal:auto_goal_low_self_accuracy",
+      "intent": "auto_goal_low_self_accuracy",
+      "priority": 0.0,
+      "satisfaction": 0.032999999999999995,
+      "origin": "IntrospectiveGoalBridge",
+      "timestamp": 1761255345.1885743
+    }
+  ]
+}

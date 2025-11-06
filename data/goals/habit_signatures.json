@@ -1,0 +1,28 @@
+[
+  {
+    "timestamp": 1761305957.3627453,
+    "tone": "reflective",
+    "confidence": 0.8,
+    "energy": 0.5,
+    "bias_depth": 1.1,
+    "bias_exploration": 0.9,
+    "learning_rate": 0.12,
+    "persistence": 0.85,
+    "goal_focus": 0.78,
+    "weight": 1.2,
+    "last_seen": 1761305957.363324
+  },
+  {
+    "timestamp": 1761308553.4917703,
+    "tone": "neutral",
+    "confidence": 0.0,
+    "energy": 0.0,
+    "bias_depth": 1.0,
+    "bias_exploration": 1.0,
+    "learning_rate": 0.1,
+    "persistence": 0.0,
+    "goal_focus": 0.5,
+    "weight": 1.83,
+    "last_seen": 1761309289.7388098
+  }
+]

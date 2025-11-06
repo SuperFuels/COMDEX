@@ -1,24 +1,49 @@
+# pyproject.toml — consolidated
+
 [build-system]
 requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "symatics"
-version = "0.1.0"
-description = "Symatics: Post-numeric algebra over wave/glyph primitives."
-authors = [{name="Your Team", email="team@example.com"}]
+name = "tessaris-backend"
+version = "0.2.0"
+description = "Tessaris / Symatics / PhotonLang runtime and tooling."
 readme = "README.md"
-license = {text = "Apache-2.0"}
+license = { text = "Apache-2.0" }
 requires-python = ">=3.10"
+authors = [{ name = "Tessaris Engineering", email = "team@example.com" }]
 dependencies = []
+
+# Console scripts wired to your existing CLI entry points
+[project.scripts]
+photonlang     = "backend.modules.photonlang.cli:main"
+photon-compress= "backend.modules.photonlang.cli:main_compress"
+photon-expand  = "backend.modules.photonlang.cli:main_expand"
+photon-run     = "backend.modules.photonlang.cli:main_run"
+
+# Optional: editable dev extras (install with: pip install -e .[dev])
+[project.optional-dependencies]
+dev = [
+  "pytest>=7",
+  "mypy>=1.7",
+  "ruff>=0.6",
+  "types-requests",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+# Find and package the whole backend tree
+[tool.setuptools.packages.find]
+include = ["backend", "backend.*"]
+
+# -------------------------------
+# Test & lint config
+# -------------------------------
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 addopts = "-q"
-
-# -------------------------------
-# E6 – CI polish
-# -------------------------------
 
 [tool.mypy]
 python_version = "3.12"
@@ -34,31 +59,11 @@ ignore_missing_imports = true
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-fix = true
+
+[tool.ruff.lint]
 select = ["E", "F", "I"]  # Errors, pyflakes, import order
-ignore = ["E501"]         # Ignore long line warning (optional)
+ignore = ["E501"]         # Optional: ignore long lines
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-sort-within-sections = true
-
-[project.scripts]
-photonlang = "backend.modules.photonlang.cli:main"
-photon-compress = "backend.modules.photonlang.cli:main_compress"
-photon-expand = "backend.modules.photonlang.cli:main_expand"
-photon-run = "backend.modules.photonlang.cli:main_run"
-
-[build-system]
-requires = ["setuptools>=64"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "photonlang"
-version = "0.1.0"
-description = "Photonlang wrapper that re-exports Tessaris importer and can auto-install the Photon finder."
-requires-python = ">=3.9"
-license = { text = "Apache-2.0" }
-authors = [{ name = "Tessaris" }]
-
-[tool.setuptools]
-packages = ["photonlang"]

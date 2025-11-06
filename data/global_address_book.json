@@ -1,0 +1,264 @@
+{
+  "default": {
+    "id": "default",
+    "name": "DK-default",
+    "geometry": "Dimension Kernel",
+    "type": "dimension_kernel",
+    "meta": {
+      "address": "ucs://local/default#dimension"
+    }
+  },
+  "tesseract_hq": {
+    "id": "tesseract_hq",
+    "name": "DK-tesseract_hq",
+    "geometry": "Dimension Kernel",
+    "type": "dimension_kernel",
+    "meta": {
+      "address": "ucs://local/tesseract_hq#dimension"
+    }
+  },
+  "engine-A": {
+    "id": "engine-A",
+    "name": "SEC-engine-A",
+    "geometry": "Symbolic Expansion Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/engine-A#container"
+    }
+  },
+  "HOB-engine-A": {
+    "id": "HOB-engine-A",
+    "name": "HOB-engine-A",
+    "geometry": "Hoberman Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/HOB-engine-A#container"
+    }
+  },
+  "chamber-0": {
+    "id": "chamber-0",
+    "name": "SEC-chamber-0",
+    "geometry": "Symbolic Expansion Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/chamber-0#container"
+    }
+  },
+  "HOB-chamber-0": {
+    "id": "HOB-chamber-0",
+    "name": "HOB-chamber-0",
+    "geometry": "Hoberman Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/HOB-chamber-0#container"
+    }
+  },
+  "chamber-1": {
+    "id": "chamber-1",
+    "name": "SEC-chamber-1",
+    "geometry": "Symbolic Expansion Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/chamber-1#container"
+    }
+  },
+  "HOB-chamber-1": {
+    "id": "HOB-chamber-1",
+    "name": "HOB-chamber-1",
+    "geometry": "Hoberman Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/HOB-chamber-1#container"
+    }
+  },
+  "chamber-2": {
+    "id": "chamber-2",
+    "name": "SEC-chamber-2",
+    "geometry": "Symbolic Expansion Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/chamber-2#container"
+    }
+  },
+  "HOB-chamber-2": {
+    "id": "HOB-chamber-2",
+    "name": "HOB-chamber-2",
+    "geometry": "Hoberman Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/HOB-chamber-2#container"
+    }
+  },
+  "chamber-3": {
+    "id": "chamber-3",
+    "name": "SEC-chamber-3",
+    "geometry": "Symbolic Expansion Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/chamber-3#container"
+    }
+  },
+  "HOB-chamber-3": {
+    "id": "HOB-chamber-3",
+    "name": "HOB-chamber-3",
+    "geometry": "Hoberman Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/HOB-chamber-3#container"
+    }
+  },
+  "SEC-chamber-0": {
+    "id": "SEC-chamber-0",
+    "name": "SEC-chamber-0",
+    "geometry": "Symbolic Expansion Sphere",
+    "type": "SEC",
+    "meta": {
+      "address": "ucs://local/SEC-chamber-0#container"
+    }
+  },
+  "SEC-chamber-1": {
+    "id": "SEC-chamber-1",
+    "name": "SEC-chamber-1",
+    "geometry": "Symbolic Expansion Sphere",
+    "type": "SEC",
+    "meta": {
+      "address": "ucs://local/SEC-chamber-1#container"
+    }
+  },
+  "SEC-chamber-2": {
+    "id": "SEC-chamber-2",
+    "name": "SEC-chamber-2",
+    "geometry": "Symbolic Expansion Sphere",
+    "type": "SEC",
+    "meta": {
+      "address": "ucs://local/SEC-chamber-2#container"
+    }
+  },
+  "SEC-chamber-3": {
+    "id": "SEC-chamber-3",
+    "name": "SEC-chamber-3",
+    "geometry": "Symbolic Expansion Sphere",
+    "type": "SEC",
+    "meta": {
+      "address": "ucs://local/SEC-chamber-3#container"
+    }
+  },
+  "ElectronShell Test Atom": {
+    "id": "ElectronShell Test Atom",
+    "name": "ElectronShell Test Atom",
+    "geometry": "tesseract",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/ElectronShell Test Atom#container"
+    }
+  },
+  "Container-atom_electrons_test": {
+    "id": "Container-atom_electrons_test",
+    "name": "Container-atom_electrons_test",
+    "geometry": "tesseract",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/Container-atom_electrons_test#container"
+    }
+  },
+  "5b548bd2-d226-4351-a42f-38b3844b6574": {
+    "id": "5b548bd2-d226-4351-a42f-38b3844b6574",
+    "name": "EXO-5b548bd2-d226-4351-a42f-38b3844b6574",
+    "geometry": "Black Hole Compression Core",
+    "type": "exotic_container",
+    "meta": {
+      "address": "ucs://local/5b548bd2-d226-4351-a42f-38b3844b6574#container"
+    }
+  },
+  "light": {
+    "id": "light",
+    "name": "Light",
+    "geometry": "Unknown",
+    "type": "knowledge_atom",
+    "meta": {
+      "address": "ucs://local/light#atom"
+    }
+  },
+  "photon": {
+    "id": "photon",
+    "name": "Photon",
+    "geometry": "Unknown",
+    "type": "knowledge_atom",
+    "meta": {
+      "address": "ucs://local/photon#atom"
+    }
+  },
+  "wave": {
+    "id": "wave",
+    "name": "Wave",
+    "geometry": "Unknown",
+    "type": "knowledge_atom",
+    "meta": {
+      "address": "ucs://local/wave#atom"
+    }
+  },
+  "HOB-hoberman_knowledge_sphere": {
+    "id": "HOB-hoberman_knowledge_sphere",
+    "name": "HOB-hoberman_knowledge_sphere",
+    "geometry": "Hoberman Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/HOB-hoberman_knowledge_sphere#container"
+    }
+  },
+  "hoberman_knowledge_sphere": {
+    "id": "hoberman_knowledge_sphere",
+    "name": "HOB-hoberman_knowledge_sphere",
+    "geometry": "Hoberman Sphere",
+    "type": "container",
+    "meta": {
+      "address": "ucs://local/hoberman_knowledge_sphere#container",
+      "kind": "hoberman"
+    }
+  },
+  "resonance": {
+    "id": "resonance",
+    "name": "resonance",
+    "geometry": "Unknown",
+    "type": "lexical_atom",
+    "meta": {
+      "address": "ucs://local/resonance#atom"
+    }
+  },
+  "entangle": {
+    "id": "entangle",
+    "name": "entangle",
+    "geometry": "Unknown",
+    "type": "lexical_atom",
+    "meta": {
+      "address": "ucs://local/entangle#atom"
+    }
+  },
+  "collapse": {
+    "id": "collapse",
+    "name": "collapse",
+    "geometry": "Unknown",
+    "type": "lexical_atom",
+    "meta": {
+      "address": "ucs://local/collapse#atom"
+    }
+  },
+  "superposition": {
+    "id": "superposition",
+    "name": "superposition",
+    "geometry": "Unknown",
+    "type": "lexical_atom",
+    "meta": {
+      "address": "ucs://local/superposition#atom"
+    }
+  },
+  "entanglement": {
+    "id": "entanglement",
+    "name": "entanglement",
+    "geometry": "Unknown",
+    "type": "lexical_atom",
+    "meta": {
+      "address": "ucs://local/entanglement#atom"
+    }
+  }
+}

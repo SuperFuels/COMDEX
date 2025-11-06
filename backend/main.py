@@ -111,22 +111,34 @@ async def custom_redoc():
     return get_redoc_html(openapi_url="/openapi.json", title=f"{app.title} ReDoc")
 
 # ── CORS
+from starlette.middleware.cors import CORSMiddleware  # ensure imported
+
 if ENV != "production":
+    # Local dev + Codespaces + your Vercel app
     allow_origins = [
         "http://localhost:5173",
+        "http://127.0.0.1:5173",
         "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "https://comdex-fawn.vercel.app",
     ]
+    # Allow any Codespace subdomain (e.g., https://*.app.github.dev)
+    # and Vercel previews if you need them.
+    allow_origin_regex = r"^https://.*\.app\.github\.dev$|^https://.*\.vercel\.app$"
 else:
     raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
-    allow_origins = [o.strip() for o in raw.split(",") if o.strip()]
-    if not allow_origins:
-        raise RuntimeError("CORS_ALLOWED_ORIGINS must be set in production.")
+    allow_origins = [o.strip() for o in raw.split(",") if o.strip()]  # e.g. "https://myapp.com,https://app.example.com"
+    allow_origin_regex = os.getenv("CORS_ALLOWED_ORIGIN_REGEX") or None
+    if not allow_origins and not allow_origin_regex:
+        raise RuntimeError(
+            "Set CORS_ALLOWED_ORIGINS and/or CORS_ALLOWED_ORIGIN_REGEX in production."
+        )
 
-logger.info(f"✅ CORS allowed_origins = {allow_origins}")
+logger.info(f"✅ CORS allow_origins={allow_origins} allow_origin_regex={allow_origin_regex}")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
+    allow_origin_regex=allow_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -379,6 +391,7 @@ from backend.api.aion import time_api
 from backend.routers.gip_api import router as gip_api_router
 from backend.api.photon_api import router as photon_api_router          
 from backend.api.photon_reverse import router as photon_reverse_router
+from backend.modules.glyphnet.glyphnet_router import router as glyphnet_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -591,6 +604,7 @@ app.include_router(time_api.router, prefix="/api/aion", tags=["AION Time"])
 app.include_router(gip_api_router)
 app.include_router(photon_api_router)
 app.include_router(photon_reverse_router)
+app.include_router(glyphnet_router)
 seed_builtin_patterns()
 install_deprecation_hook()
 

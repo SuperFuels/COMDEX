@@ -1,0 +1,50 @@
+{
+  "timestamp": 1761325592.9562335,
+  "tensor_field": {
+    "resonance": {
+      "\u03a6": 1.0,
+      "\u03c8": 1.0,
+      "\u03b7": 1.0,
+      "\u039b": 1.0,
+      "q_val": 0.912444,
+      "phase": 0.785
+    },
+    "entangle": {
+      "\u03a6": 1.0,
+      "\u03c8": 1.0,
+      "\u03b7": 1.0,
+      "\u039b": 1.0,
+      "q_val": 0.912444,
+      "phase": 0.785
+    },
+    "collapse": {
+      "\u03a6": 1.0,
+      "\u03c8": 1.0,
+      "\u03b7": 1.0,
+      "\u039b": 1.0,
+      "q_val": 0.912444,
+      "phase": 0.785
+    },
+    "superposition": {
+      "\u03a6": 1.0,
+      "\u03c8": 1.0,
+      "\u03b7": 1.0,
+      "\u039b": 1.0,
+      "q_val": 0.912444,
+      "phase": 0.785
+    },
+    "entanglement": {
+      "\u03a6": 1.0,
+      "\u03c8": 1.0,
+      "\u03b7": 1.0,
+      "\u039b": 1.0,
+      "q_val": 0.912444,
+      "phase": 0.785
+    }
+  },
+  "meta": {
+    "schema": "LangFieldResonance.v1",
+    "desc": "Unified \u03a6\u2013\u03c8\u2013\u03b7\u2013\u039b QTensor field",
+    "ready_for_QLang": true
+  }
+}

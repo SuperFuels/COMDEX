@@ -1,0 +1,8 @@
+[
+  {
+    "timestamp": 1761645535.0058866,
+    "input": "data/tmp/test_scroll.rna",
+    "output": "data/tmp/ribosome_output.prot",
+    "photon_trace": "data/tmp/ribosome_photon_trace.photo"
+  }
+]

@@ -1,4 +1,3 @@
-// src/components/WaveInbox.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getRecent } from "@/lib/addressBook";
 
@@ -73,7 +72,6 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
       const t = sp.get("topic");
       if (t) setTopic(t);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultTopic]);
 
   useEffect(() => {
@@ -115,10 +113,6 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
     ws.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data);
-
-        // Ignore keepalives/status
-        if (msg?.type === "status") return;
-
         const env = msg?.envelope ?? msg?.env;
         if (!env) return;
 
@@ -134,26 +128,25 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
           to: env.recipient || env.topic || topic,
         };
 
-        // Voice frame?
+        // Voice frame handling
         const vf = cap.voice_frame;
         if (vf?.data_b64) {
           const bytes = b64ToBytes(vf.data_b64);
           const blob = new Blob([bytes], { type: vf.mime || "audio/webm" });
           enqueueVoice(vf.channel, blob);
-          setItems((prev) =>
-            [
-              {
-                ...baseNext,
-                voice: {
-                  channel: vf.channel,
-                  seq: vf.seq ?? 0,
-                  mime: vf.mime || "audio/webm",
-                  size: blob.size,
-                },
+
+          setItems((prev) => [
+            {
+              ...baseNext,
+              voice: {
+                channel: vf.channel,
+                seq: vf.seq ?? 0,
+                mime: vf.mime || "audio/webm",
+                size: blob.size,
               },
-              ...prev,
-            ].slice(0, 200) // bound growth for voice frames too
-          );
+            },
+            ...prev,
+          ].slice(0, 200)); // bound growth for voice frames too
         } else {
           // Textual capsule
           setItems((prev) => [baseNext, ...prev].slice(0, 200));
