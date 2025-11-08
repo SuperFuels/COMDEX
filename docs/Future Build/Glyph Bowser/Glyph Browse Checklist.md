@@ -1,52 +1,63 @@
 root((GlyphNet Build Checklist))
+
   P4 • WA/WN + Voice & Radio
     [x] WA/WN Addressing (logical IDs)
       [x] WA/WN identities (ucs://…; realm wave.tp)
-      [x] Address Book + deep-link invites (#/inbox?topic=…)
-      [ ] PSTN mapping (later via SIP/Telnyx/Twilio)
+      [x] Address Book + deep-link invites (#/chat?topic=…&kg=…)
+      [x] Recents per-graph (keyed by kg+topic); invite copies kg
+      [ ] PSTN mapping (SIP/Telnyx/Twilio)
       [ ] Name service rules (display name ↔ WA/WN)
-    [ ] PTT / Walkie-Talkie over GlyphNet (quick win)
-      [ ] UI: Hold-to-Talk button (Outbox + Inbox)
-      [ ] Mic capture → Opus (MediaRecorder now; WASM Opus optional)
-      [x] Capsule schema: voice_frame { codec, seq, ts, channel, data_b64 }  # Completed this task.
-      [ ] Playback: jitter buffer + audio-autoplay toggle
-      [x] Floor control: entanglement_lock "voice/<channel>" (+ busy overlay)  # Completed this task.
-      [ ] (Optional) E2EE: X25519 DH → AES-GCM (rolling nonce via seq)
-      [ ] Metrics: chunk loss %, e2e latency
-    [ ] Voice Notes (async voice messages)
-      [ ] Record .ogg/.m4a → voice_note capsule (upload/attach)
-      [ ] Inbox playback UI + seek
-      [ ] (Optional) Transcription → text capsule
-    [ ] Full Calls (WebRTC media; GlyphNet signaling)
-      [ ] Signaling capsules: voice_offer / voice_answer / ice
-      [ ] Media: SRTP w/ AEC/AGC, jitter buffer
-      [ ] NAT: STUN list + TURN fallback
-      [ ] Call UI: ring / accept / decline / mute / hold
-      [ ] (Optional) E2EE via Insertable Streams; keys via GlyphNet
-    [ ] Radio / Mesh Transport (dual-band)
-      [ ] band_profile.yml (region, bands, power/duty)
-      [ ] TransportSelector: prefer local RF → fallback IP automatically
-      [ ] Local Radio Node (Android/iOS/desktop @ 127.0.0.1:8787)
-        [ ] Endpoints: /health, /api/glyphnet/tx, /ws/glyphnet
-        [ ] Token handoff; store-carry-forward
-      [ ] Desktop LAN P2P: WebRTC datachannel mode (#/p2p route)
-      [ ] Accessory radio (WebSerial/WebUSB ESP32/LoRa/2.4GHz)
-        [ ] Frame: { topic, seq, ts, codec?, bytes } (+ region guardrails)
-    [ ] Telemetry & Receipts
-      [ ] Delivery acks for media chunks
-      [ ] Talk-time / occupancy (lock analytics)
-      [ ] Dropout/error logs surfaced in UI
-    [ ] Performance Targets (guardrails)
-      [ ] PTT e2e: 250–400 ms (200 ms chunks baseline)
-      [ ] Low-latency path: 20 ms Opus frames (<250 ms target)
-      [ ] Max capsule size + send rate limits per band_profile
-    Notes (do not lose)
-      [x] WA/WN are logical addresses; **not** tied to a radio frequency
-      [x] Transport is pluggable: IP today; RF when adapter present
-      [x] PTT = half-duplex with entanglement_lock floor control
-      [x] WebRTC calls = full-duplex, low-latency; GlyphNet only for signaling
-      [x] LoRa/Sub-GHz ok for text/alerts, **not** live voice (bandwidth)
+      [ ] Recents de-duplication by canonical WA (one row per kg:topic)
 
+[x] PTT / Walkie-Talkie over GlyphNet
+  [x] UI: press-and-hold mic in Chat composer (icons only)
+  [x] Mic capture → Opus via MediaRecorder (webm/ogg)
+  [x] Capsule schema: voice_frame { channel, seq, ts, mime, data_b64 }
+  [x] Playback: enable-audio toggle + volume slider + <audio controls>
+  [x] Input level meter; mic picker & device refresh
+  [x] Persist recents on send (rememberTopic(topic, label, graph))
+  [x] Floor control: entanglement_lock “voice/<channel>”
+  [ ] (Optional) E2EE: X25519 DH → AES-GCM (rolling nonce via seq)
+  [ ] Metrics: chunk loss %, e2e latency
+
+[ ] Voice Notes (async voice messages)
+  [ ] Record .ogg/.m4a → voice_note capsule (upload/attach)
+  [x] Playback UI with seek inside chat bubbles
+  [ ] (Optional) Transcription → text capsule
+
+[ ] Full Calls (WebRTC media; GlyphNet signaling)
+  [ ] Signaling capsules: voice_offer / voice_answer / ice
+  [ ] Media: SRTP w/ AEC/AGC, jitter buffer
+  [ ] NAT: STUN list + TURN fallback
+  [ ] Call UI: ring / accept / decline / mute / hold
+  [ ] (Optional) E2EE via Insertable Streams; keys via GlyphNet
+
+[ ] Radio / Mesh Transport (dual-band)
+  [ ] band_profile.yml (region, bands, power/duty)
+  [ ] TransportSelector: prefer local RF → fallback IP
+  [ ] Local Radio Node (127.0.0.1:8787)
+    [ ] Endpoints: /health, /api/glyphnet/tx, /ws/glyphnet
+    [ ] Token handoff; store-carry-forward
+  [ ] Desktop LAN P2P (WebRTC DataChannel; #/p2p route)
+  [ ] Accessory radio (WebSerial/WebUSB ESP32/LoRa/2.4GHz)
+    [ ] Frame: { topic, seq, ts, codec?, bytes } (+ region guardrails)
+
+[ ] Telemetry & Receipts
+  [x] Delivery acks for media chunks (present in Outbox; wire into Chat later)
+  [ ] Talk-time / occupancy (lock analytics)
+  [ ] Dropout/error logs surfaced in UI
+
+[ ] Performance Targets (guardrails)
+  [ ] PTT e2e: 250–400 ms (200 ms chunks baseline)
+  [ ] Low-latency path: 20 ms Opus frames (<250 ms target)
+  [ ] Max capsule size + send rate limits per band_profile
+
+Infra / Networking (supporting work)
+  [x] FastAPI CORS for Codespaces/Vercel + regex allow; ALLOW_ALL_CORS override
+  [x] Vite proxy for /api and /ws in dev
+  [x] WebSocket paths verified; Codespace port made public (fixed “offline”)
+  [x] Per-graph topic keying for thread store & history fetch
+  [x] Settings gear: consolidate audio enable/volume/mic into dropdown (UI polish)
 
 mindmap
   root((GlyphNet Build Checklist))

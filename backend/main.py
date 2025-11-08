@@ -111,38 +111,55 @@ async def custom_redoc():
     return get_redoc_html(openapi_url="/openapi.json", title=f"{app.title} ReDoc")
 
 # ── CORS
-from starlette.middleware.cors import CORSMiddleware  # ensure imported
+from fastapi.responses import Response
 
-if ENV != "production":
-    # Local dev + Codespaces + your Vercel app
+def _truthy(name: str, default=False) -> bool:
+    v = os.getenv(name)
+    if v is None:
+        return default
+    return v.lower() in {"1", "true", "yes", "on"}
+
+ENV = (os.getenv("ENV") or "development").lower()
+ALLOW_ALL = _truthy("ALLOW_ALL_CORS", False)
+
+if ALLOW_ALL:
+    # Debug: open to any origin; cannot use credentials with "*"/fully-open regex.
+    allow_origins = []
+    allow_origin_regex = r"^https?://.*$"
+    allow_credentials = False
+else:
+    # Allow common local dev hosts
     allow_origins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        # include https variants just in case a proxy terminates TLS locally
+        "https://localhost:5173",
+        "https://127.0.0.1:5173",
         "https://comdex-fawn.vercel.app",
     ]
-    # Allow any Codespace subdomain (e.g., https://*.app.github.dev)
-    # and Vercel previews if you need them.
-    allow_origin_regex = r"^https://.*\.app\.github\.dev$|^https://.*\.vercel\.app$"
-else:
-    raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
-    allow_origins = [o.strip() for o in raw.split(",") if o.strip()]  # e.g. "https://myapp.com,https://app.example.com"
-    allow_origin_regex = os.getenv("CORS_ALLOWED_ORIGIN_REGEX") or None
-    if not allow_origins and not allow_origin_regex:
-        raise RuntimeError(
-            "Set CORS_ALLOWED_ORIGINS and/or CORS_ALLOWED_ORIGIN_REGEX in production."
-        )
+    # Codespaces (e.g. https://<id>-5173.app.github.dev) and Vercel previews
+    allow_origin_regex = r"^https://[-a-z0-9]+-(5173|8080)\.app\.github\.dev$|^https://.*\.vercel\.app$"
+    allow_credentials = True
 
-logger.info(f"✅ CORS allow_origins={allow_origins} allow_origin_regex={allow_origin_regex}")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allow_origins,
+    allow_origins=allow_origins,          # may be empty when using regex
     allow_origin_regex=allow_origin_regex,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_credentials=allow_credentials,  # must be False if ALLOW_ALL is used
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["*"],                  # covers X-Agent-Id, X-Agent-Token, Content-Type…
+    expose_headers=["*"],
+    max_age=86400,
 )
+
+# Optional: explicit preflight for /api/glyphnet/tx (router is prefixed with /api/glyphnet)
+from backend.modules.glyphnet.glyphnet_router import router as glyphnet_router
+@glyphnet_router.options("/tx")
+def _tx_preflight():
+    return Response(status_code=204)
+
 
 # ── Unified startup event
 @app.on_event("startup")
@@ -393,6 +410,9 @@ from backend.api.photon_api import router as photon_api_router
 from backend.api.photon_reverse import router as photon_reverse_router
 from backend.modules.glyphnet.glyphnet_router import router as glyphnet_router
 
+# Floor control (PTT) lock manager
+from backend.modules.glyphnet.lock_manager import LOCKS
+
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
 from backend.api.workspace import workspace_router          # workspace API (mounted elsewhere in your file)    # noqa: F401
@@ -605,6 +625,35 @@ app.include_router(gip_api_router)
 app.include_router(photon_api_router)
 app.include_router(photon_reverse_router)
 app.include_router(glyphnet_router)
+
+# --- Floor-control lock sweeper (PTT) ---
+# (Make sure you also have at the top of the file:)
+# from backend.modules.glyphnet.lock_manager import LOCKS
+@app.on_event("startup")
+async def start_lock_sweeper():
+    async def sweeper():
+        import asyncio, time
+        while True:
+            freed = LOCKS.sweep()
+            # Announce freed resources so UIs drop the "busy" badge
+            for res, owner in freed:
+                try:
+                    # res looks like "voice:<topic>"
+                    if res.startswith("voice:"):
+                        topic = res.split("voice:", 1)[1]
+                        LOCKS._emit(topic, {
+                            "type": "entanglement_lock",
+                            "resource": res,
+                            "state": "free",
+                            "owner": owner,
+                            "ts": int(time.time() * 1000),
+                        })
+                except Exception:
+                    # never let the sweeper die on a bad emit
+                    pass
+            await asyncio.sleep(1.0)
+    asyncio.create_task(sweeper())
+
 seed_builtin_patterns()
 install_deprecation_hook()
 

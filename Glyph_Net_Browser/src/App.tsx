@@ -8,60 +8,102 @@ import ContainerView from "./components/ContainerView";
 import { parseAddress } from "./lib/nav/parse";
 import { routeNav } from "./lib/nav/router";
 import WaveOutbox from "./components/WaveOutbox";
+import ChatThread from "./routes/ChatThread";
 
 type Mode = "wormhole" | "http";
 type NavArg = string | { mode: Mode; address: string };
 
+// include "chat" in the app’s local view state
+type ActiveTab = "home" | "inbox" | "outbox" | "kg" | "settings" | "chat";
+
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showWaves, setShowWaves] = useState(false);
-  const [active, setActive] =
-    useState<"home" | "inbox" | "outbox" | "kg" | "settings">("home");
+  const [active, setActive] = useState<ActiveTab>("home");
   const [wavesCount, setWavesCount] = useState(1);
 
-  // ✅ SSR-safe topic from hash (?topic=...)
-  const topicFromHash = (() => {
-    if (typeof window === "undefined" || typeof window.location === "undefined") return "";
-    const h = window.location.hash || "";
-    if (!h.startsWith("#/inbox")) return "";
-    const u = new URL(h.replace("#", "http://x"));
-    return u.searchParams.get("topic") || "";
-  })();
+  // hash-derived props we pass down
+  const [inboxTopicFromHash, setInboxTopicFromHash] = useState<string>("");
+  const [chatTopicFromHash, setChatTopicFromHash] = useState<string>("");
+  const [chatKGFromHash, setChatKGFromHash] = useState<"personal" | "work" | undefined>(undefined);
 
-  // Title + active tab from hash
+  // helpers to read hash params
+  const readTopicFromHash = (h: string): string => {
+    try {
+      const u = new URL(h.replace("#", "http://x"));
+      return u.searchParams.get("topic") || "";
+    } catch {
+      return "";
+    }
+  };
+  const readKGFromHash = (h: string): "personal" | "work" => {
+    try {
+      const u = new URL(h.replace("#", "http://x"));
+      const kg = (u.searchParams.get("kg") || "personal").toLowerCase();
+      return kg === "work" ? "work" : "personal";
+    } catch {
+      return "personal";
+    }
+  };
+
+  // react to hash changes (and set page title)
   useEffect(() => {
     const onHash = () => {
       const h = window.location.hash || "";
+
+      if (h.startsWith("#/chat")) {
+        setActive("chat");
+        setChatTopicFromHash(readTopicFromHash(h));
+        setChatKGFromHash(readKGFromHash(h));
+        document.title = `Chat — Glyph Net`;
+        return;
+      }
+
       if (h.startsWith("#/inbox")) {
         setActive("inbox");
+        setInboxTopicFromHash(readTopicFromHash(h));
         document.title = `Inbox — Glyph Net`;
-      } else if (h.startsWith("#/outbox")) {
+        return;
+      }
+
+      if (h.startsWith("#/outbox")) {
         setActive("outbox");
         document.title = `Outbox — Glyph Net`;
-      } else if (h.startsWith("#/wormhole/")) {
+        return;
+      }
+
+      if (h.startsWith("#/wormhole/")) {
         document.title = `🌀 ${decodeURIComponent(h.split("/").pop() || "")} — Glyph Net`;
-      } else if (h.startsWith("#/dimension/")) {
+        return;
+      }
+
+      if (h.startsWith("#/dimension/")) {
         document.title = `Dimension — Glyph Net`;
-      } else if (h.startsWith("#/container/")) {
+        return;
+      }
+
+      if (h.startsWith("#/container/")) {
         const name = decodeURIComponent(h.split("/").pop() || "");
         document.title = `${name} — Container • Glyph Net`;
-      } else {
-        document.title = `Glyph Net`;
+        return;
       }
+
+      document.title = `Glyph Net`;
     };
+
     window.addEventListener("hashchange", onHash);
     onHash(); // initial
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  // Bubble from WaveInbox to increment waves badge
+  // waves counter badge
   useEffect(() => {
     const onWave = () => setWavesCount((n) => n + 1);
     window.addEventListener("glyphnet:wave", onWave as EventListener);
     return () => window.removeEventListener("glyphnet:wave", onWave as EventListener);
   }, []);
 
-  // Wormhole resolution logging
+  // Wormhole resolution logging (unchanged)
   useEffect(() => {
     const onResolved = (e: Event) => {
       const rec = (e as CustomEvent).detail;
@@ -79,11 +121,16 @@ export default function App() {
     };
   }, []);
 
-  // ✅ Accept both a string or an object from TopBar
+  // Accept both a string or an object from TopBar
   const handleNavigate = (arg: NavArg) => {
     const address = typeof arg === "string" ? arg : arg.address;
     routeNav(parseAddress(address));
   };
+
+  // Sidebar still only knows about: "home" | "inbox" | "outbox" | "kg" | "settings".
+  // Map "chat" -> "inbox" for highlighting.
+  const sidebarActive: "home" | "inbox" | "outbox" | "kg" | "settings" =
+    active === "chat" ? "inbox" : (active as any);
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
@@ -99,12 +146,12 @@ export default function App() {
       {/* overlay sidebar — completely hidden when closed */}
       <Sidebar
         open={sidebarOpen}
-        active={active}
-        onSelect={(id) => setActive(id)}
+        active={sidebarActive}
+        onSelect={(id) => setActive((id as unknown) as Exclude<ActiveTab, "chat">)}
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* main content always full width */}
+      {/* main content */}
       <main style={{ flex: 1, padding: 16, background: "#f8fafc", overflow: "auto" }}>
         {active === "home" && (
           <>
@@ -115,47 +162,37 @@ export default function App() {
           </>
         )}
 
-        {/* center content + KG side dock */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 320px",
-            gap: 12,
-            marginTop: 12,
-          }}
-        >
-          <div style={{ minWidth: 0 }}>
-            {active === "inbox" ? (
-              <WaveInbox defaultTopic={topicFromHash || "ucs://local/ucs_hub"} />
-            ) : active === "kg" ? (
-              <KGDock />
-            ) : active === "outbox" ? (
-              <WaveOutbox />
-            ) : active === "settings" ? (
-              <p>Settings (stub)</p>
-            ) : window.location.hash.startsWith("#/container/") ? (
-              <ContainerView />
-            ) : (
-              <div
-                style={{
-                  padding: 12,
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 8,
-                  background: "#fff",
-                }}
-              >
-                <strong>AION:</strong> ready (UI stub). This pane becomes the agent
-                console / GlyphGrid.
-              </div>
-            )}
+        {/* Views */}
+        {active === "chat" ? (
+          // New consolidated chat experience renders its own left Recents rail + right Chat pane
+          <div style={{ height: "calc(100vh - 96px)" /* approx topbar+padding */ }}>
+            <ChatThread
+              defaultTopic={chatTopicFromHash || "ucs://local/ucs_hub"}
+              defaultGraph={chatKGFromHash}
+            />
           </div>
-
-          {/* NOTE: This shows KGDock always on the right. If you don't want two KGDocks
-              when active === "kg", wrap this with `active !== "kg" && <KGDock />`. */}
-          <div>
-            <KGDock />
+        ) : active === "inbox" ? (
+          <WaveInbox defaultTopic={inboxTopicFromHash || "ucs://local/ucs_hub"} />
+        ) : active === "kg" ? (
+          <KGDock />
+        ) : active === "outbox" ? (
+          <WaveOutbox />
+        ) : active === "settings" ? (
+          <p>Settings (stub)</p>
+        ) : window.location.hash.startsWith("#/container/") ? (
+          <ContainerView />
+        ) : (
+          <div
+            style={{
+              padding: 12,
+              border: "1px solid #e5e7eb",
+              borderRadius: 8,
+              background: "#fff",
+            }}
+          >
+            <strong>AION:</strong> ready (UI stub). This pane becomes the agent console / GlyphGrid.
           </div>
-        </div>
+        )}
       </main>
 
       {/* Waves slide-over */}

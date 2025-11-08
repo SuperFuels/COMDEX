@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import useGlyphnet from "@/hooks/useGlyphnet";
+import { VoiceJitterBuffer } from "@/lib/audio/jitter";
 import { getRecent } from "@/lib/addressBook";
 
 type InboxItem = {
@@ -7,62 +9,42 @@ type InboxItem = {
   glyphs: string[];
   stream: string[];
   to: string;
-  voice?: { channel: string; seq: number; mime: string; size: number };
+  voice?: { channel: string; seq: number; mime: string; size: number; data_b64?: string };
 };
 
-// SSR-safe location access
+type JitterEntry = { buf: VoiceJitterBuffer };
+
+type VoiceChunk = { seq: number; mime: string; bytes: Uint8Array };
+type VoiceTrack = { channel: string; mime: string; chunks: VoiceChunk[]; updated: number };
+
+const MAX_ITEMS = 200;
+const STORAGE_PREFIX = "gnet:inbox:";
+
+// SSR-safe location (for invite URL + hash deep-link)
 function getLoc() {
   if (typeof window === "undefined") {
-    return { host: "", hostname: "", protocol: "http:", origin: "" } as Location;
+    return { host: "", hostname: "", protocol: "http:", origin: "", hash: "" } as unknown as Location;
   }
   return window.location;
 }
 
-// Resolve a correct WS URL for Codespaces/local/other hosts
-function resolveWsURL(pathAndQuery: string) {
-  const { host, hostname, protocol } = getLoc();
-
-  if (!host) return pathAndQuery; // SSR safeguard
-
-  // Codespaces: use the 8080 sibling app with WSS
-  if (host.endsWith(".app.github.dev")) {
-    return `wss://${host.replace("-5173", "-8080")}${pathAndQuery}`;
-  }
-
-  // Any Vite dev host on port 5173
-  if (host.endsWith(":5173")) {
-    const scheme = protocol === "https:" ? "wss" : "ws";
-    return `${scheme}://${hostname}:8080${pathAndQuery}`;
-  }
-
-  // Default: same host, protocol-matching WS scheme
-  const scheme = protocol === "https:" ? "wss" : "ws";
-  return `${scheme}://${host}${pathAndQuery}`;
-}
-
-// base64 -> Uint8Array
-function b64ToBytes(b64: string) {
+// Base64 (including URL-safe) → bytes with padding fix
+function b64ToBytesSafe(b64: string): Uint8Array {
+  if (!b64) return new Uint8Array(0);
+  b64 = b64.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = b64.length % 4;
+  if (pad) b64 += "===".slice(pad);
   const bin = atob(b64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return bytes;
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
-
-type VoiceQueue = { audio: HTMLAudioElement; q: Blob[]; playing: boolean };
 
 export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
   const loc = getLoc();
+
+  // topic state + deep-link hydration
   const [topic, setTopic] = useState(defaultTopic || "ucs://local/ucs_hub");
-  const [wsUp, setWsUp] = useState(false);
-  const [items, setItems] = useState<InboxItem[]>([]);
-  const [audioEnabled, setAudioEnabled] = useState(false);
-
-  const socketRef = useRef<WebSocket | null>(null);
-  const voiceMap = useRef<Map<string, VoiceQueue>>(new Map());
-
-  const recent = getRecent(8);
-
-  // Optional: hydrate from #/inbox?topic=... deep link
   useEffect(() => {
     if (defaultTopic) return;
     const hash = loc.hash || "";
@@ -73,154 +55,255 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
       if (t) setTopic(t);
     }
   }, [defaultTopic]);
-
   useEffect(() => {
     if (defaultTopic) setTopic(defaultTopic);
   }, [defaultTopic]);
 
-  // 🔗 Copy Invite deep-link (#/inbox?topic=...)
+  // Wire up to GlyphNet
+  const { connected, messages } = useGlyphnet(topic);
+
+  // Items feed (+ restore from storage on topic change)
+  const [items, setItems] = useState<InboxItem[]>([]);
+  const storageKey = useMemo(() => `${STORAGE_PREFIX}${topic}`, [topic]);
+
+  // Audio controls
+  const [audioEnabled, setAudioEnabled] = useState(false);
+  const [volume, setVolume] = useState(0.9);
+
+  // Per-channel jitter buffers + dedupe + manual tracks
+  const buffersRef = useRef<Map<string, JitterEntry>>(new Map());
+  const seenRef = useRef<Set<string>>(new Set());
+  const tracksRef = useRef<Map<string, VoiceTrack>>(new Map());
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Recent topics
+  const recent = useMemo(() => getRecent(8), []);
+
+  // Invite link
   const copyInvite = async () => {
     const url = `${loc.origin}/#/inbox?topic=${encodeURIComponent(topic)}`;
     try {
       await navigator.clipboard.writeText(url);
       alert("Invite link copied:\n" + url);
     } catch {
-      // Fallback if clipboard blocked
       // eslint-disable-next-line no-alert
       prompt("Copy this link:", url);
     }
   };
 
-  // Build WS URL once per topic change
-  const wsURL = useMemo(() => {
-    const q = new URLSearchParams({
-      token: "dev-token",
-      topic, // server accepts raw ucs://… directly
-    }).toString();
-    return resolveWsURL(`/ws/glyphnet?${q}`);
-  }, [topic]);
-
+  // Restore cache on topic change
   useEffect(() => {
-    if (!topic) return;
-
-    const ws = new WebSocket(wsURL);
-    socketRef.current = ws;
-
-    ws.onopen = () => setWsUp(true);
-    ws.onclose = () => setWsUp(false);
-    ws.onerror = () => setWsUp(false);
-
-    ws.onmessage = (e) => {
-      try {
-        const msg = JSON.parse(e.data);
-        const env = msg?.envelope ?? msg?.env;
-        if (!env) return;
-
-        const cap = env.capsule ?? {};
-        const toStrArray = (x: any) => (Array.isArray(x) ? x.map(String) : []);
-
-        const baseNext: InboxItem = {
-          id: env.id,
-          ts: env.ts ?? Date.now(),
-          glyphs: toStrArray(cap.glyphs),
-          stream: toStrArray(cap.glyph_stream),
-          // prefer server-reported recipient/topic if present
-          to: env.recipient || env.topic || topic,
-        };
-
-        // Voice frame handling
-        const vf = cap.voice_frame;
-        if (vf?.data_b64) {
-          const bytes = b64ToBytes(vf.data_b64);
-          const blob = new Blob([bytes], { type: vf.mime || "audio/webm" });
-          enqueueVoice(vf.channel, blob);
-
-          setItems((prev) => [
-            {
-              ...baseNext,
-              voice: {
-                channel: vf.channel,
-                seq: vf.seq ?? 0,
-                mime: vf.mime || "audio/webm",
-                size: blob.size,
-              },
-            },
-            ...prev,
-          ].slice(0, 200)); // bound growth for voice frames too
-        } else {
-          // Textual capsule
-          setItems((prev) => [baseNext, ...prev].slice(0, 200));
+    try {
+      const raw = sessionStorage.getItem(storageKey);
+      if (raw) {
+        const cached: InboxItem[] = JSON.parse(raw);
+        setItems(cached);
+        // hydrate dedupe
+        seenRef.current.clear();
+        for (const it of cached) {
+          if (it.id) seenRef.current.add(it.id);
+          if (it.voice) seenRef.current.add(`${it.voice.channel}:${it.voice.seq}`);
         }
+      } else {
+        setItems([]);
+        seenRef.current.clear();
+      }
+    } catch {
+      setItems([]);
+      seenRef.current.clear();
+    }
+    // reset buffers/tracks when switching topics
+    buffersRef.current.clear();
+    tracksRef.current.clear();
+  }, [storageKey]);
 
-        // Broadcast a lightweight event
+  // Feed transformer: WS messages → items[] + jitter playback + track assembly
+  useEffect(() => {
+    if (!messages.length) return;
+
+    const nextItems: InboxItem[] = [];
+
+    for (const m of messages) {
+      // accept both shapes: { type, envelope } and { envelope } or { id, capsule, ... }
+      const env: any = (m as any)?.envelope ?? m;
+      if (!env) continue;
+
+      const cap = env.capsule ?? {};
+      const vf = cap.voice_frame as
+        | { channel: string; seq: number; ts?: number; mime?: string; data_b64?: string }
+        | undefined;
+
+      // de-dupe
+      const key = env?.id || (vf ? `${vf.channel}:${vf.seq}` : "");
+      if (key && seenRef.current.has(key)) continue;
+      if (key) seenRef.current.add(key);
+
+      // build base row
+      const toStrArray = (x: any) => (Array.isArray(x) ? x.map(String) : []);
+      const baseItem: InboxItem = {
+        id: env.id,
+        ts: env.ts ?? Date.now(),
+        glyphs: toStrArray(cap.glyphs),
+        stream: toStrArray(cap.glyph_stream),
+        to: env.recipient || env.topic || topic,
+      };
+
+      if (vf?.data_b64) {
+        const bytes = b64ToBytesSafe(vf.data_b64);
+        const mime = vf.mime || "audio/webm;codecs=opus";
+
+        nextItems.push({
+          ...baseItem,
+          voice: { channel: vf.channel, seq: vf.seq ?? 0, mime, size: bytes.length, data_b64: vf.data_b64 },
+        });
+
+        // Assemble manual track per channel for Play/Download
+        let track = tracksRef.current.get(vf.channel);
+        if (!track) {
+          track = { channel: vf.channel, mime, chunks: [], updated: Date.now() };
+          tracksRef.current.set(vf.channel, track);
+        }
+        track.mime = mime; // last wins
+        track.chunks.push({ seq: vf.seq ?? 0, mime, bytes });
+        // keep ordered (guard out-of-order delivery)
+        track.chunks.sort((a, b) => a.seq - b.seq);
+        track.updated = Date.now();
+
+        // Optional streaming path (jitter buffer)
+        if (audioEnabled) {
+          let entry = buffersRef.current.get(vf.channel);
+          if (!entry) {
+            entry = { buf: new VoiceJitterBuffer() };
+            buffersRef.current.set(vf.channel, entry);
+          }
+          try {
+            entry.buf.setVolume?.(volume);
+            entry.buf.push(vf.seq, mime, vf.data_b64); // sequence-aware push
+          } catch {
+            // swallow transient decode errors
+          }
+        }
+      } else {
+        // textual capsule (avoid spamming empty rows)
+        if ((baseItem.glyphs && baseItem.glyphs.length) || (baseItem.stream && baseItem.stream.length)) {
+          nextItems.push(baseItem);
+        }
+      }
+
+      // lightweight badge/event
+      if (baseItem.id) {
         window.dispatchEvent(
           new CustomEvent("glyphnet:wave", {
-            detail: { topic: baseNext.to, id: baseNext.id },
+            detail: { topic: baseItem.to, id: baseItem.id },
           })
         );
-      } catch (err) {
-        console.warn("WaveInbox parse error:", err);
       }
-    };
-
-    return () => {
-      try {
-        ws.close();
-      } catch {}
-    };
-  }, [wsURL, topic]);
-
-  function ensureQueue(chan: string): VoiceQueue {
-    let vq = voiceMap.current.get(chan);
-    if (!vq) {
-      const audio = new Audio();
-      audio.preload = "auto";
-      vq = { audio, q: [], playing: false };
-      voiceMap.current.set(chan, vq);
     }
-    return vq;
+
+    if (nextItems.length) {
+      setItems((prev) => {
+        const merged = [...nextItems, ...prev].slice(0, MAX_ITEMS);
+        try {
+          sessionStorage.setItem(storageKey, JSON.stringify(merged));
+        } catch {}
+        return merged;
+      });
+    }
+  }, [messages, audioEnabled, volume, topic, storageKey]);
+
+  // Nudge buffers when audio enabled / volume changes
+  useEffect(() => {
+    if (!audioEnabled) return;
+    for (const [, entry] of buffersRef.current) {
+      entry.buf.setVolume?.(volume);
+    }
+  }, [audioEnabled, volume]);
+
+  function toArrayBuffer(view: Uint8Array): ArrayBuffer {
+    const { buffer, byteOffset, byteLength } = view;
+
+    if (buffer instanceof ArrayBuffer) {
+      return buffer.slice(byteOffset, byteOffset + byteLength);
+    }
+    // SharedArrayBuffer path: copy into a fresh ArrayBuffer
+    const out = new ArrayBuffer(byteLength);
+    new Uint8Array(out).set(new Uint8Array(buffer as SharedArrayBuffer, byteOffset, byteLength));
+    return out;
   }
 
-  function playNext(chan: string) {
-    const vq = voiceMap.current.get(chan);
-    if (!vq || vq.playing) return;
-    const next = vq.q.shift();
-    if (!next) return;
+  function buildBlob(track: VoiceTrack): Blob | null {
+    if (!track.chunks.length) return null;
+    const useful = track.chunks.filter(c => c.bytes && c.bytes.length > 200);
+    const chosen = useful.length ? useful : track.chunks;
+    const total = chosen.reduce((n, c) => n + c.bytes.length, 0);
+    if (total < 200) return null;
 
-    vq.playing = true;
-    const url = URL.createObjectURL(next);
-    vq.audio.src = url;
+    const parts: BlobPart[] = chosen.map(c => toArrayBuffer(c.bytes));
+    return new Blob(parts, { type: track.mime || "audio/webm;codecs=opus" });
+  }
 
-    // Autoplay can be blocked until user toggles audio on
-    if (!audioEnabled) {
-      vq.playing = false;
-      URL.revokeObjectURL(url);
+  // Play a channel (assembled)
+  async function playChannel(channel: string) {
+    const track = tracksRef.current.get(channel);
+    if (!track) return;
+    const blob = buildBlob(track);
+    if (!blob) {
+      alert("Nothing playable yet for this channel (only header-sized chunks). Try recording longer or releasing-to-send.");
+      return;
+    }
+    // Can the browser play this MIME?
+    const mime = track.mime || "audio/webm;codecs=opus";
+    const test = document.createElement("audio");
+    const support = test.canPlayType(mime);
+    if (!support) {
+      alert(`Failed to play audio. Unsupported format: ${mime}`);
       return;
     }
 
-    vq.audio.onended = () => {
-      URL.revokeObjectURL(url);
-      vq.playing = false;
-      setTimeout(() => playNext(chan), 10);
-    };
-    vq.audio.onerror = () => {
-      URL.revokeObjectURL(url);
-      vq.playing = false;
-      setTimeout(() => playNext(chan), 10);
-    };
-    vq.audio
-      .play()
-      .catch(() => {
-        vq.playing = false;
-        URL.revokeObjectURL(url);
-      });
+    const url = URL.createObjectURL(blob);
+    if (!audioRef.current) audioRef.current = new Audio();
+    const el = audioRef.current;
+    el.volume = Math.max(0, Math.min(1, volume));
+    el.src = url;
+    try {
+      await el.play();
+    } catch (err) {
+      console.error(err);
+      alert(`Audio play failed: ${String((err as any)?.message || err)}`);
+    } finally {
+      // clean up after it ends
+      el.onended = () => URL.revokeObjectURL(url);
+    }
   }
 
-  function enqueueVoice(chan: string, blob: Blob) {
-    const vq = ensureQueue(chan);
-    vq.q.push(blob);
-    if (!vq.playing) playNext(chan);
+  // Download a channel (assembled)
+  function downloadChannel(channel: string) {
+    const track = tracksRef.current.get(channel);
+    if (!track) return;
+    const blob = buildBlob(track);
+    if (!blob) {
+      alert("No audio to download yet for this channel.");
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const ext = (track.mime || "").includes("ogg") ? "ogg" : "webm";
+    a.href = url;
+    a.download = `voice_${channel.replace(/[:/#]/g, "_")}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 0);
   }
+
+  // Render recent voice channels (most recent first)
+  const voiceRows = useMemo(() => {
+    const arr = Array.from(tracksRef.current.values());
+    arr.sort((a, b) => b.updated - a.updated);
+    return arr.slice(0, 16);
+  }, [items.length]); // re-evaluate as feed grows
 
   return (
     <div>
@@ -230,10 +313,10 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
           style={{
             fontSize: 12,
             marginLeft: 6,
-            color: wsUp ? "#16a34a" : "#b91c1c",
+            color: connected ? "#16a34a" : "#b91c1c",
           }}
         >
-          ws: {wsUp ? "● connected" : "● disconnected"}
+          ws: {connected ? "● connected" : "● disconnected"}
         </span>
         <button
           onClick={copyInvite}
@@ -259,6 +342,17 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
           />
           Enable audio
         </label>
+        <span style={{ marginLeft: 10, fontSize: 12, color: "#475569" }}>vol</span>
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={volume}
+          onChange={(e) => setVolume(parseFloat(e.target.value))}
+          style={{ verticalAlign: "middle" }}
+          aria-label="Volume"
+        />
       </h3>
 
       <input
@@ -268,12 +362,12 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
         placeholder="ucs://realm/container"
       />
 
-      {recent.length > 0 && (
+      {getRecent(8).length > 0 && (
         <div style={{ marginBottom: 8, fontSize: 12, color: "#475569" }}>
           Recent:{" "}
-          {recent.map((a) => (
+          {getRecent(8).map((a) => (
             <button
-              key={a.topic}
+              key={`recent:${a.topic}`}
               onClick={() => setTopic(a.topic)}
               style={{
                 marginRight: 6,
@@ -290,9 +384,7 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
         </div>
       )}
 
-      <div style={{ fontSize: 12, marginBottom: 6, color: "#475569" }}>
-        Topic: {topic}
-      </div>
+      <div style={{ fontSize: 12, marginBottom: 6, color: "#475569" }}>Topic: {topic}</div>
 
       <pre
         style={{
@@ -321,6 +413,66 @@ export default function WaveInbox({ defaultTopic }: { defaultTopic?: string }) {
               .join("\n\n")
           : "Waiting for waves on " + topic + "…"}
       </pre>
+
+      {/* Voice channels (assembled) */}
+      {voiceRows.length > 0 && (
+        <div
+          style={{
+            marginTop: 8,
+            padding: 8,
+            border: "1px solid #e5e7eb",
+            borderRadius: 6,
+            background: "#fff",
+          }}
+        >
+          {voiceRows.map((tr) => {
+            const usefulCount = tr.chunks.filter(c => c.bytes.length > 200).length;
+            const totalBytes = tr.chunks.reduce((n, c) => n + c.bytes.length, 0);
+            return (
+              <div key={tr.channel} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <code style={{ flex: 1 }}>
+                  {tr.channel} • {usefulCount || tr.chunks.length} {usefulCount ? "chunks" : "chunks (mostly headers)"} • {tr.mime} • size: {totalBytes}
+                </code>
+                <button onClick={() => playChannel(tr.channel)} style={{ padding: "2px 8px", border: "1px solid #e5e7eb", borderRadius: 6 }}>
+                  ▶ Play
+                </button>
+                <button onClick={() => downloadChannel(tr.channel)} style={{ padding: "2px 8px", border: "1px solid #e5e7eb", borderRadius: 6 }}>
+                  ⬇ Download
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Debug live voice feed */}
+      <div
+        style={{
+          marginTop: 8,
+          padding: 8,
+          border: "1px solid #e5e7eb",
+          borderRadius: 6,
+          background: "#fff",
+          maxHeight: 220,
+          overflow: "auto",
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+          fontSize: 12,
+        }}
+      >
+        {messages
+          .map((m) => (m as any)?.envelope ?? m)
+          .filter((env) => env?.capsule?.voice_frame)
+          .slice(0, 60)
+          .map((env: any) => {
+            const vf = env.capsule.voice_frame;
+            const k = env.id || `${vf.channel}:${vf.seq}`;
+            return (
+              <div key={`vf:${k}`} style={{ padding: "2px 0" }}>
+                <code>voice</code> • <strong>{vf.channel}</strong> • seq {vf.seq} • {vf.mime}
+              </div>
+            );
+          })}
+      </div>
     </div>
   );
 }

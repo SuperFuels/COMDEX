@@ -19,7 +19,7 @@ Handles real-time streaming of glyph activity, entanglement, SoulLaw verdicts, a
 ✅ Live Permission Diff + Identity Color Sync (NEW)
 """
 from __future__ import annotations
-
+import os
 import time
 import asyncio
 import json
@@ -46,9 +46,6 @@ logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
     from backend.modules.symbolic_engine.math_logic_kernel import LogicGlyph
 
-# Connected clients
-active_connections: List[WebSocket] = []
-
 # Broadcast queue (typed)
 event_queue: asyncio.Queue[Dict[str, Any]] = asyncio.Queue()
 
@@ -58,58 +55,118 @@ router = APIRouter()
 # Ensure we only boot the broadcaster once
 _loop_started = False
 
-connected = set()  # Set[WebSocket]
+# Connected clients + (optional) topic subscription
+active_connections: List[WebSocket] = []
+
+# Optional per-socket topic subscriptions (None = receive all)
+subscriptions: Dict[WebSocket, Optional[str]] = {}
+
+def _dev_token_allows(token: Optional[str]) -> bool:
+    return (
+        os.getenv("GLYPHNET_ALLOW_DEV_TOKEN", "0").lower() in {"1","true","yes","on"}
+        and token in {"dev-token", "local-dev"}
+    )
+
+def _norm_topic(s: Optional[str]) -> str:
+    if not s:
+        return ""
+    return s.replace("gnet:", "")
+
 
 async def fanout_bus_envelope(topic: str, envelope: dict) -> int:
-    dead = []
-    payload = {"topic": topic, "envelope": envelope}
-    for ws in list(connected):
+    """
+    Deliver an envelope to all sockets subscribed to `topic`.
+    Falls back to broadcast when a socket has no subscription (wildcard).
+    """
+    delivered = 0
+    dead: List[WebSocket] = []
+    norm_t = _norm_topic(topic)
+
+    payload = {
+        "type": "glyphnet_capsule",
+        "topic": topic,
+        "envelope": envelope,
+    }
+
+    for ws, sub in list(subscriptions.items()):
         try:
+            if sub and _norm_topic(sub) != norm_t:
+                continue
             await ws.send_json(payload)
+            delivered += 1
         except Exception:
             dead.append(ws)
+
     for ws in dead:
-        connected.discard(ws)
-    return len(connected) - len(dead)
-    
+        try:
+            subscriptions.pop(ws, None)
+            if ws in active_connections:
+                active_connections.remove(ws)
+        except Exception:
+            pass
+    return delivered
+
+# -- Topic-scoped JSON broadcast (sync wrapper used by REST handlers) --
+def broadcast_json(topic: str, payload: dict) -> int:
+    """
+    Schedule a JSON payload to all sockets subscribed to `topic`.
+    Returns number of sockets targeted. Non-blocking (schedules tasks).
+    """
+    delivered = 0
+    norm_t = _norm_topic(topic)
+    dead: List[WebSocket] = []
+
+    for ws, sub in list(subscriptions.items()):
+        try:
+            if sub and _norm_topic(sub) != norm_t:
+                continue
+            # schedule send non-blocking
+            asyncio.create_task(ws.send_json(payload))
+            delivered += 1
+        except Exception:
+            dead.append(ws)
+
+    for ws in dead:
+        try:
+            subscriptions.pop(ws, None)
+            if ws in active_connections:
+                active_connections.remove(ws)
+        except Exception:
+            pass
+    return delivered
+
 @router.websocket("/ws/glyphnet")
 async def glyphnet_websocket_endpoint(websocket: WebSocket):
     """
     Public WS endpoint:
-      - validates identity token before accepting
-      - ensures the broadcast loop is running
-      - receives JSON messages and pipes them to handle_glyphnet_event
-      - cleans up on disconnect
+      - validates identity token
+      - records optional topic subscription (?topic=ucs://...)
+      - runs the background broadcaster once
     """
     global _loop_started
 
-    await websocket.accept()
-
-    # 🔐 Token validation
+    # 🔐 Validate BEFORE accepting
     try:
         token = websocket.query_params.get("token")
-        if not token or not validate_agent_token(token):
-            await websocket.send_json({
-                "type": "error",
-                "message": "Unauthorized WebSocket connection"
-            })
-            await websocket.close()
+        if not (_dev_token_allows(token) or (token and validate_agent_token(token))):
+            # policy violation; do not accept
+            await websocket.close(code=1008)
             logger.warning(f"[GlyphNetWS] ❌ Unauthorized connection attempt: {websocket.client}")
             return
     except Exception as e:
         logger.error(f"[GlyphNetWS] Token validation error: {e}")
-        await websocket.close()
+        await websocket.close(code=1011)
         return
 
-    # ✅ Authorized client
+    # ✅ Authorized — accept and register
+    await websocket.accept()
     active_connections.append(websocket)
+    subscriptions[websocket] = websocket.query_params.get("topic")
 
-    # Start background broadcast loop once
     if not _loop_started:
         start_glyphnet_ws_loop()
         _loop_started = True
 
-    # Optional hello
     try:
         await websocket.send_json({"type": "status", "message": "🛰️ Connected to GlyphNet WebSocket"})
     except Exception:
@@ -120,29 +177,28 @@ async def glyphnet_websocket_endpoint(websocket: WebSocket):
             msg = await websocket.receive_json()
             await handle_glyphnet_event(websocket, msg)
     except WebSocketDisconnect:
-        # normal close
         pass
     except Exception as e:
         logger.warning(f"[GlyphNetWS] receive loop error: {e}")
     finally:
-        disconnect(websocket)
-
-
-# ✅ Connection Handling
-async def connect(websocket: WebSocket):
-    await websocket.accept()
-    active_connections.append(websocket)
-    await websocket.send_json({
-        "type": "status",
-        "message": "🛰️ Connected to GlyphNet WebSocket"
-    })
-    logger.info(f"WebSocket connected: {websocket.client}")
+        # clean disconnect
+        try:
+            active_connections.remove(websocket)
+        except Exception:
+            pass
+        subscriptions.pop(websocket, None)
+        logger.info(f"[GlyphNetWS] WebSocket disconnected: {websocket.client}")
 
 
 def disconnect(websocket: WebSocket):
-    if websocket in active_connections:
-        active_connections.remove(websocket)
-        logger.info(f"WebSocket disconnected: {websocket.client}")
+    # keep a single source of truth for removal
+    try:
+        if websocket in active_connections:
+            active_connections.remove(websocket)
+    except Exception:
+        pass
+    subscriptions.pop(websocket, None)
+    logger.info(f"[GlyphNetWS] WebSocket disconnected: {websocket.client}")
 
 
 def emit_websocket_event(event_type: str, data: dict):
@@ -203,12 +259,15 @@ except Exception:
         # no-op
         return
 
+
 # Bridge the throttler (which expects a sender) to our enqueue-based API.
 def _throttle_sender(event: dict):
     asyncio.create_task(broadcast_event(event))
 
+
 # Register our sender with the throttle module (once, at import time)
 throttle_install(_throttle_sender)
+
 
 # Public throttled alias for high-volume callers
 def broadcast_event_throttled(event: Dict[str, Any]) -> None:
@@ -228,29 +287,31 @@ async def handle_agent_identity_register(websocket: WebSocket, msg: Dict[str, An
     name = msg.get("name")
     public_key = msg.get("public_key")
     if not name or not public_key:
-        await websocket.send_json({"type": "error", "message": "Missing name or public_key"})
+        await websocket.send_json(
+            {"type": "error", "message": "Missing name or public_key"}
+        )
         return
 
-    agent_id = agent_identity_registry.register_agent(name=name, public_key=public_key)
+    agent_id = agent_identity_registry.register_agent(
+        name=name, public_key=public_key
+    )
     agent_data = agent_identity_registry.get_agent(agent_id)
 
     # Confirm registration to requester
-    await websocket.send_json({
-        "type": "agent_registered",
-        "agent": agent_data,
-        "agent_id": agent_id
-    })
+    await websocket.send_json(
+        {"type": "agent_registered", "agent": agent_data, "agent_id": agent_id}
+    )
 
     # Broadcast agent presence to all
-    broadcast_event_throttled({
-        "type": "agent_joined",
-        "agent": agent_data,
-        "tags": ["🌐", "🤝"]
-    })
+    broadcast_event_throttled(
+        {"type": "agent_joined", "agent": agent_data, "tags": ["🌐", "🤝"]}
+    )
 
 
 # ✅ Permission Update Broadcast (🔑)
-async def broadcast_permission_update(agent_id: str, glyph_id: Optional[str] = None, permission: Optional[str] = None):
+async def broadcast_permission_update(
+    agent_id: str, glyph_id: Optional[str] = None, permission: Optional[str] = None
+):
     """Push permission updates to GHXVisualizer."""
     agent_state = agent_identity_registry.get_agent(agent_id)
     payload = {
@@ -258,16 +319,20 @@ async def broadcast_permission_update(agent_id: str, glyph_id: Optional[str] = N
         "agent_id": agent_id,
         "permissions": agent_state.get("permissions", []),
         "color": agent_state.get("color"),
-        "tags": ["🔑", "🛰️"]
+        "tags": ["🔑", "🛰️"],
     }
     if glyph_id and permission:
         payload.update({"glyph_id": glyph_id, "permission": permission})
     broadcast_event_throttled(payload)
-    logger.info(f"[GlyphNetWS] Broadcasted glyph_permission_update for {agent_id} (glyph={glyph_id or 'all'})")
+    logger.info(
+        f"[GlyphNetWS] Broadcasted glyph_permission_update for {agent_id} (glyph={glyph_id or 'all'})"
+    )
 
 
 # ✅ Glyph Packet Log Broadcast
-async def broadcast_glyph_log(node: str, glyph: str, status: str = "ok", message: Optional[str] = None):
+async def broadcast_glyph_log(
+    node: str, glyph: str, status: str = "ok", message: Optional[str] = None
+):
     """
     Push a glyph log entry to all connected WebSocket clients.
     Compatible with GlyphNetDebugger frontend.
@@ -295,15 +360,15 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
         try:
             x, y, z = map(int, coords.split(","))
         except Exception:
-            await websocket.send_json({"type": "error", "message": "Bad coord format, expected 'x,y,z'"})
+            await websocket.send_json(
+                {"type": "error", "message": "Bad coord format, expected 'x,y,z'"}
+            )
             return
         container_id = msg.get("payload", {}).get("container", "default")
         # FIX: use STATE (imported) instead of undefined state_manager
         executor = GlyphExecutor(STATE)
         await executor.trigger_glyph_remotely(
-            container_id=container_id,
-            x=x, y=y, z=z,
-            source="ws_trigger"
+            container_id=container_id, x=x, y=y, z=z, source="ws_trigger"
         )
         await broadcast_glyph_log(
             node="GlyphNetWS",
@@ -319,14 +384,16 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
         predictions = await composer.compose_forward_forks(
             current_glyph=payload.get("glyph"),
             goal=payload.get("goal"),
-            emotion=payload.get("emotion")
+            emotion=payload.get("emotion"),
         )
-        await websocket.send_json({
-            "type": "predictive_forks_response",
-            "status": "ok",
-            "count": len(predictions),
-            "predictions": predictions
-        })
+        await websocket.send_json(
+            {
+                "type": "predictive_forks_response",
+                "status": "ok",
+                "count": len(predictions),
+                "predictions": predictions,
+            }
+        )
 
     # 🌀 Electron-triggered teleport to container
     elif event_type == "teleport_to_container":
@@ -334,30 +401,26 @@ async def handle_glyphnet_event(websocket: WebSocket, msg: Dict[str, Any]):
         source_cid = msg.get("source_cid")  # optional
 
         if not target_cid:
-            await websocket.send_json({"type": "error", "message": "Missing target container ID"})
+            await websocket.send_json(
+                {"type": "error", "message": "Missing target container ID"}
+            )
             return
 
         # Register portal and teleport packet
-        portal_id = PORTALS.register_portal(source=source_cid or "unknown", target=target_cid)
+        portal_id = PORTALS.register_portal(
+            source=source_cid or "unknown", target=target_cid
+        )
         packet = create_teleport_packet(
             portal_id=portal_id,
             container_id=source_cid or "unknown",
-            payload={
-                "teleport_reason": "electron_click",
-                "timestamp": time.time(),
-                "trigger": "GHX"
-            }
+            payload={"teleport_reason": "electron_click", "timestamp": time.time(), "trigger": "GHX"},
         )
 
         success = PORTALS.teleport(packet)
 
-        await websocket.send_json({
-            "type": "teleport_result",
-            "portal_id": portal_id,
-            "target": target_cid,
-            "success": success
-        })
-
+        await websocket.send_json(
+            {"type": "teleport_result", "portal_id": portal_id, "target": target_cid, "success": success}
+        )
     # 🌐 Agent Identity Registration (A8a)
     elif event_type == "agent_identity_register":
         await handle_agent_identity_register(websocket, msg)

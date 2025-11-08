@@ -1,6 +1,14 @@
 {
   "id": "ucs_hub",
   "type": "container",
-  "glyphs": [],
-  "meta": {}
+  "glyphs": [
+    {
+      "id": "g-1762445325850",
+      "symbol": "⊕",
+      "text": "hi"
+    }
+  ],
+  "meta": {
+    "last_updated": "2025-11-06T16:08:45.899385+00:00"
+  }
 }

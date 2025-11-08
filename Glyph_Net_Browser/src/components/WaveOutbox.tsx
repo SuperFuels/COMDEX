@@ -1,11 +1,11 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getRecent, rememberTopic } from "@/lib/addressBook";
 
 // Resolve API base for Codespaces, local dev, or custom host
 function resolveApiBase(): string {
   const host = location.host;
   const isCodespaces = host.endsWith(".app.github.dev");
-
+  
   // Codespaces: Vite on -5173, backend on -8080 (HTTPS)
   if (isCodespaces) return `https://${host.replace("-5173", "-8080")}`;
 
@@ -45,6 +45,10 @@ export default function WaveOutbox() {
   const [result, setResult] = useState<any>(null);
   const [busy, setBusy] = useState(false);
 
+  // Mic devices + selection (persisted)
+  const [mics, setMics] = useState<MediaDeviceInfo[]>([]);
+  const [selectedMicId, setSelectedMicId] = useState<string>(() => localStorage.getItem("gnet:micDeviceId") || "");
+
   // PTT state
   const [micReady, setMicReady] = useState(false);
   const [pttDown, setPttDown] = useState(false);
@@ -52,8 +56,16 @@ export default function WaveOutbox() {
   const streamRef = useRef<MediaStream | null>(null);
   const seqRef = useRef<number>(0);
   const channelRef = useRef<string>("");
+  const chunksRef = useRef<Blob[]>([]); // (unused for full-note flow; safe to keep)
+  const micLevelRef = useRef(0);
+  const [micLevel, setMicLevel] = useState(0);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const meterRAF = useRef<number | undefined>();
 
-  // 🔁 NEW: per-frame ACKS from /api/glyphnet/tx
+  // also track down state in a ref for handler lifetimes
+  const pttDownRef = useRef(false);
+
+  // per-frame ACKS from /api/glyphnet/tx
   const [acks, setAcks] = useState<{ seq: number; status: string; reason?: string }[]>([]);
 
   const recent = getRecent(8);
@@ -71,7 +83,6 @@ export default function WaveOutbox() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // optional dev headers; backend also accepts body.token
           "X-Agent-Token": "dev-token",
           "X-Agent-Id": "browser-outbox",
         },
@@ -90,7 +101,6 @@ export default function WaveOutbox() {
         if (json?.status === "ok") {
           rememberTopic(to, label || undefined);
           setText("");
-          // Open the thread
           location.hash = `#/inbox?topic=${encodeURIComponent(to)}`;
         }
       }
@@ -100,105 +110,231 @@ export default function WaveOutbox() {
       setBusy(false);
     }
   }
-  
-  // --- PTT (Push-To-Talk) ---
-  async function ensureMic() {
-    if (streamRef.current) return;
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-      },
-    });
-    streamRef.current = stream;
-    setMicReady(true);
+
+  // MIME selection for Opus
+  function pickMime(): string {
+    const candidates = [
+      "audio/webm;codecs=opus",
+      "audio/ogg;codecs=opus",
+      "audio/webm",
+    ];
+    for (const m of candidates) {
+      if ((window as any).MediaRecorder?.isTypeSupported?.(m)) return m;
+    }
+    return "audio/webm";
   }
 
-  function pickMime(): string {
-    const candid = [
-      "audio/webm;codecs=opus",
-      "audio/webm",
-      "audio/ogg;codecs=opus",
-      "audio/ogg",
-    ];
-    for (const c of candid) {
-      if (MediaRecorder.isTypeSupported(c)) return c;
+  // Mic helper for PTT (honors selected deviceId)
+  async function ensureMicPTT(): Promise<{ stream: MediaStream; mime: string }> {
+    if (streamRef.current && streamRef.current.active) {
+      return { stream: streamRef.current, mime: pickMime() };
     }
-    return ""; // let browser pick
+
+    const audio: MediaTrackConstraints = {
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true,
+    };
+    if (selectedMicId) audio.deviceId = { exact: selectedMicId };
+
+    // Prompt for permission with the chosen (or default) device
+    const stream = await navigator.mediaDevices.getUserMedia({ audio });
+    streamRef.current = stream;
+    setMicReady(true);
+
+    // Start the live meter & refresh device labels (labels require permission)
+    startMeter(stream);
+    refreshMics();
+
+    return { stream, mime: pickMime() };
+  }
+
+  // Device list management
+  async function refreshMics() {
+    try {
+      const list = await navigator.mediaDevices.enumerateDevices();
+      const onlyMics = list.filter((d) => d.kind === "audioinput");
+      setMics(onlyMics);
+
+      // If a stored device no longer exists, clear it
+      if (selectedMicId && !onlyMics.some((d) => d.deviceId === selectedMicId)) {
+        setSelectedMicId("");
+        localStorage.removeItem("gnet:micDeviceId");
+      }
+    } catch {
+      // ignore
+    }
+  }
+  useEffect(() => {
+    refreshMics();
+    const onChange = () => refreshMics();
+    navigator.mediaDevices?.addEventListener?.("devicechange", onChange);
+    return () => navigator.mediaDevices?.removeEventListener?.("devicechange", onChange);
+  }, []);
+
+  function handleSelectMic(id: string) {
+    setSelectedMicId(id);
+    if (id) localStorage.setItem("gnet:micDeviceId", id);
+    else localStorage.removeItem("gnet:micDeviceId");
+
+    // If a stream is already open, close it so next press uses the new device
+    try { streamRef.current?.getTracks().forEach((t) => t.stop()); } catch {}
+    streamRef.current = null;
   }
 
   async function startPTT() {
+    if (pttDownRef.current) return;
+    pttDownRef.current = true;
+
+    let stream: MediaStream, mime: string;
     try {
-      await ensureMic();
-    } catch (e) {
+      ({ stream, mime } = await ensureMicPTT());
+      // Safety: if ensureMicPTT returned an existing stream and meter isn't running, kick it.
+      if (!audioCtxRef.current) startMeter(stream);
+    } catch {
       alert("Microphone permission is required for PTT.");
+      pttDownRef.current = false;
       return;
     }
 
-    // New logical channel per hold; receiver stitches via (channel, seq)
-    channelRef.current = `voice:${to}#${Date.now().toString(36)}`;
-    seqRef.current = 0;
+    // fresh logical channel per press (kept)
+    channelRef.current = `voice:${to}#${Math.random().toString(36).slice(2, 10)}`;
 
-    const mime = pickMime();
-    const mr = new MediaRecorder(streamRef.current!, mime ? { mimeType: mime } : undefined);
+    const rec = new MediaRecorder(stream, { mimeType: mime });
+    mrRef.current = rec;
 
-    mr.ondataavailable = async (ev) => {
-      if (!ev.data || ev.data.size === 0) return;
+    // collect ALL chunks, including the final 'flush' chunk fired after stop()
+    const chunks: Blob[] = [];
+    rec.ondataavailable = (ev: BlobEvent) => {
+      if (ev.data && ev.data.size) chunks.push(ev.data);
+    };
+
+    rec.onstop = async () => {
       try {
-        const buf = await ev.data.arrayBuffer();
-        const b64 = abToB64(buf);
-        const payload = {
-          recipient: to,
-          capsule: {
-            voice_frame: {
-              channel: channelRef.current,
-              seq: seqRef.current++,
-              ts: Date.now(),
-              mime: mr.mimeType || mime || "audio/webm",
-              data_b64: b64,
-            },
-          },
-          meta: { trace_id: "ptt-frame" },
+        if (!chunks.length) return;
+
+        // assemble the full recording
+        const full = new Blob(chunks, { type: mime });
+        const ab = await full.arrayBuffer();
+
+        // base64 encode
+        let bin = "";
+        const bytes = new Uint8Array(ab);
+        const CH = 0x8000;
+        for (let i = 0; i < bytes.length; i += CH) {
+          bin += String.fromCharCode(...bytes.subarray(i, i + CH));
+        }
+        const b64 = btoa(bin);
+
+        const vf = {
+          channel: channelRef.current!, // stitched by (channel, seq)
+          seq: 0,                       // single payload per press
+          ts: Date.now(),
+          mime,
+          data_b64: b64,
         };
 
-        // 🔄 send each frame; collect ACKs (status/optional reason)
-        fetch(`${apiBase}/api/glyphnet/tx`, {
+        // send once
+        const r = await fetch(`${apiBase}/api/glyphnet/tx`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-Agent-Id": "browser-outbox",
             "X-Agent-Token": "dev-token",
           },
-          body: JSON.stringify(payload),
-        })
-          .then(async (r) => {
-            const j = await r.json().catch(() => ({}));
-            const status = j?.status || (r.ok ? "ok" : "err");
-            setAcks((prev) =>
-              [{ seq: payload.capsule.voice_frame.seq, status, reason: j?.reason }, ...prev].slice(0, 200)
-            );
-          })
-          .catch(() => {});
-      } catch {}
+          body: JSON.stringify({
+            recipient: to,
+            capsule: { voice_frame: vf },
+            meta: { trace_id: "ptt-full" },
+          }),
+        });
+
+        const j = await r.json().catch(() => ({}));
+        const status = j?.status || (r.ok ? "ok" : "err");
+        setAcks((prev) => [{ seq: 0, status, reason: j?.reason }, ...prev].slice(0, 200));
+      } finally {
+        // cleanup for next press
+        mrRef.current = null;
+        pttDownRef.current = false;
+        setPttDown(false);
+        // (UI cleanup, meter stop, etc. handled in the second half)
+      }
     };
 
-    mr.start(250); // ~200–300ms frames
-    mrRef.current = mr;
+    // IMPORTANT: no timeslice — let the browser write one good file
+    rec.start();
     setPttDown(true);
   }
 
-  function stopPTT() {
-    const mr = mrRef.current;
-    if (mr && mr.state !== "inactive") {
-      mr.stop();
-    }
-    mrRef.current = null;
-    setPttDown(false);
-    // keep microphone stream alive for snappier next press (stop if you prefer)
-    // streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null;
+  // ---- Meter helpers (used by ensureMicPTT / cleanup in second half) ----
+  function stopMeter() {
+    if (meterRAF.current !== undefined) cancelAnimationFrame(meterRAF.current);
+    meterRAF.current = undefined;
+    try { audioCtxRef.current?.close(); } catch {}
+    audioCtxRef.current = null;
   }
 
+  function startMeter(stream: MediaStream) {
+    stopMeter();
+    const Ctor: any = (window as any).AudioContext || (window as any).webkitAudioContext;
+    const ctx = new Ctor();
+    audioCtxRef.current = ctx;
+    const src = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    src.connect(analyser);
+
+    const data = new Uint8Array(analyser.fftSize);
+    const tick = () => {
+      analyser.getByteTimeDomainData(data);
+      // RMS of centered waveform
+      let sum = 0;
+      for (let i = 0; i < data.length; i++) {
+        const v = (data[i] - 128) / 128;
+        sum += v * v;
+      }
+      const rms = Math.sqrt(sum / data.length); // ~0..1
+      micLevelRef.current = rms;
+      setMicLevel(rms);
+      meterRAF.current = requestAnimationFrame(tick);
+    };
+    tick();
+  }
+  // (UI + cleanup continues in the second half…)
+
+  function stopPTT() {
+    // do NOT gate the final data with pttDownRef here — onstop will send
+    try { mrRef.current?.stop(); } catch {}
+    // pttDownRef/current flags are cleared in onstop (first half)
+  }
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      try { mrRef.current?.stop(); } catch {}
+      mrRef.current = null;
+
+      // stop the live input meter first (closes AudioContext)
+      try { stopMeter(); } catch {}
+
+      // then stop the mic tracks
+      try { streamRef.current?.getTracks().forEach((t) => t.stop()); } catch {}
+      streamRef.current = null;
+
+      pttDownRef.current = false;
+    };
+  }, []);
+
+  const prepareMic = async () => {
+    try {
+      // ensureMicPTT already starts the input meter
+      await ensureMicPTT();
+    } catch {
+      alert("Microphone permission is required for PTT.");
+    }
+  };
+
+  // JSX to render
   return (
     <div>
       <h3 style={{ margin: "10px 0" }}>Wave Outbox</h3>
@@ -213,7 +349,7 @@ export default function WaveOutbox() {
       />
       <datalist id="gnet-topics">
         {recent.map((a) => (
-          <option key={a.topic} value={a.topic}>
+          <option key={`${a.topic}::${a.label || ""}`} value={a.topic}>
             {a.label || a.topic}
           </option>
         ))}
@@ -232,7 +368,7 @@ export default function WaveOutbox() {
           Recent:{" "}
           {recent.map((a) => (
             <button
-              key={a.topic}
+              key={`chip:${a.topic}`}
               onClick={() => setTo(a.topic)}
               style={{
                 marginRight: 6,
@@ -240,6 +376,7 @@ export default function WaveOutbox() {
                 borderRadius: 12,
                 padding: "2px 8px",
                 background: "#fff",
+                cursor: "pointer",
               }}
               title={`used ${a.uses}×`}
             >
@@ -261,7 +398,77 @@ export default function WaveOutbox() {
         }}
       />
 
-      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8 }}>
+      {/* Mic device picker + controls */}
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          alignItems: "center",
+          marginTop: 8,
+          flexWrap: "wrap",
+        }}
+      >
+        {/* Mic picker */}
+        <label style={{ fontSize: 12, color: "#334155" }}>
+          Mic:&nbsp;
+          <select
+            value={selectedMicId}
+            onChange={(e) => handleSelectMic(e.target.value)}
+            style={{
+              fontSize: 12,
+              padding: "4px 6px",
+              border: "1px solid #e5e7eb",
+              borderRadius: 6,
+              background: "#fff",
+              minWidth: 220,
+            }}
+            title={
+              mics.length
+                ? "Choose your microphone device"
+                : "Grant microphone permission to see device names"
+            }
+          >
+            <option value="">System default</option>
+            {mics.map((d, i) => (
+              <option key={d.deviceId || `mic-${i}`} value={d.deviceId}>
+                {d.label || `Microphone ${i + 1}`}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          onClick={refreshMics}
+          style={{
+            fontSize: 12,
+            border: "1px solid #e5e7eb",
+            borderRadius: 6,
+            padding: "4px 8px",
+            background: "#fff",
+            cursor: "pointer",
+          }}
+          title="Refresh device list"
+        >
+          ↻ Refresh
+        </button>
+
+        {/* (Optional) hint when names are blank */}
+        {!micReady && mics.length > 0 && !mics.some(m => m.label) && (
+          <span style={{ fontSize: 12, color: "#6b7280" }}>
+            Device names hidden — click “Enable mic” to grant permission.
+          </span>
+        )}
+      </div>
+
+      {/* Action row: send + PTT + meter + enable mic */}
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          alignItems: "center",
+          marginTop: 8,
+          flexWrap: "wrap",
+        }}
+      >
         <button
           onClick={send}
           disabled={busy}
@@ -277,28 +484,63 @@ export default function WaveOutbox() {
           {busy ? "Sending…" : "Send Wave"}
         </button>
 
-        {/* Hold-to-talk */}
+        {/* Hold-to-talk (pointer events cover mouse + touch) */}
         <button
-          onMouseDown={startPTT}
-          onMouseUp={stopPTT}
-          onMouseLeave={() => pttDown && stopPTT()}
-          onTouchStart={startPTT}
-          onTouchEnd={stopPTT}
+          onPointerDown={startPTT}
+          onPointerUp={stopPTT}
+          onPointerCancel={stopPTT}
+          onPointerLeave={stopPTT}
           style={{
             padding: "8px 12px",
             borderRadius: 999,
             border: "1px solid #e5e7eb",
             background: pttDown ? "#fee2e2" : "#fff",
             fontSize: 13,
+            cursor: "pointer",
           }}
           title={micReady ? "Hold to talk" : "Hold to talk (will ask for mic)"}
+          aria-pressed={pttDown}
         >
-          {pttDown ? "● Talking…" : "🎙 Hold to talk"}
+          {pttDown ? "🔴 Talking…" : "🎙 Hold to talk"}
         </button>
+
+        {/* Mic input level meter */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div
+            title="Input level"
+            style={{
+              width: 100,
+              height: 6,
+              background: "#e5e7eb",
+              borderRadius: 4,
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: `${Math.min(100, Math.round(micLevel * 200))}%`,
+                height: "100%",
+                background: "#22c55e",
+                transition: "width 60ms linear",
+              }}
+            />
+          </div>
+          {micReady && micLevel < 0.02 && (
+            <span style={{ fontSize: 12, color: "#b45309" }}>no input?</span>
+          )}
+        </div>
+
         {!micReady && (
           <button
-            onClick={ensureMic}
-            style={{ fontSize: 12, border: "1px dashed #94a3b8", borderRadius: 6, padding: "4px 8px", background: "#fff" }}
+            onClick={prepareMic}
+            style={{
+              fontSize: 12,
+              border: "1px dashed #94a3b8",
+              borderRadius: 6,
+              padding: "4px 8px",
+              background: "#fff",
+              cursor: "pointer",
+            }}
             title="Prepare microphone access (optional)"
           >
             Enable mic
@@ -306,7 +548,7 @@ export default function WaveOutbox() {
         )}
       </div>
 
-      {/* 🔁 NEW: per-frame ACK table */}
+      {/* 🔁 Per-frame ACK table */}
       {acks.length > 0 && (
         <div
           style={{
@@ -328,7 +570,7 @@ export default function WaveOutbox() {
             </thead>
             <tbody>
               {acks.map((a) => (
-                <tr key={a.seq}>
+                <tr key={`ack:${a.seq}`}>
                   <td>{a.seq}</td>
                   <td>{a.status}</td>
                   <td>{a.reason || ""}</td>
@@ -355,4 +597,3 @@ export default function WaveOutbox() {
     </div>
   );
 }
-

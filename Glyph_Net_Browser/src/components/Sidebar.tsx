@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 type Props = {
   open: boolean;
-  active: "home" | "inbox" | "outbox" | "kg" | "settings";
+  active: "home" | "chat" | "inbox" | "outbox" | "kg" | "settings";
   onSelect: (id: Props["active"]) => void;
   onClose: () => void;
 };
@@ -30,6 +30,7 @@ export default function Sidebar({ open, active, onSelect, onClose }: Props) {
         onClose();
       }}
       aria-label={label}
+      aria-current={active === id ? "page" : undefined}
       title={label}
       style={{
         width: 48,
@@ -84,6 +85,7 @@ export default function Sidebar({ open, active, onSelect, onClose }: Props) {
         }}
       >
         <Item id="home" label="Home" emoji="🏠" />
+        <Item id="chat" label="Chat" emoji="💬" />
         <Item id="inbox" label="Wave Inbox" emoji="📥" />
         <Item id="outbox" label="Wave Outbox" emoji="📤" />
         <Item id="kg" label="Knowledge Graph" emoji="🧠" />
