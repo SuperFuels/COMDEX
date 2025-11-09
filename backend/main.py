@@ -55,6 +55,14 @@ time.sleep(3)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("comdex")
 
+from fastapi import APIRouter, Request
+# ... your other imports ...
+from backend.modules.glyphnet.dedup import (
+    canon_id_for_capsule,
+    already_seen,
+    mark_seen,
+)
+
 # ── Log DB URL
 from backend.config import SQLALCHEMY_DATABASE_URL
 logger.info(f"🔍 SQLALCHEMY_DATABASE_URL = {SQLALCHEMY_DATABASE_URL}")
@@ -409,6 +417,9 @@ from backend.routers.gip_api import router as gip_api_router
 from backend.api.photon_api import router as photon_api_router          
 from backend.api.photon_reverse import router as photon_reverse_router
 from backend.modules.glyphnet.glyphnet_router import router as glyphnet_router
+from backend.api.media_api import router as media_router
+from backend.routes.name_service import name_router
+from backend.api import rtc_api
 
 # Floor control (PTT) lock manager
 from backend.modules.glyphnet.lock_manager import LOCKS
@@ -625,6 +636,9 @@ app.include_router(gip_api_router)
 app.include_router(photon_api_router)
 app.include_router(photon_reverse_router)
 app.include_router(glyphnet_router)
+app.include_router(media_router)
+app.include_router(name_router)
+app.include_router(rtc_api.router)
 
 # --- Floor-control lock sweeper (PTT) ---
 # (Make sure you also have at the top of the file:)

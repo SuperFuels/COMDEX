@@ -27,6 +27,57 @@ from backend.modules.glyphnet.glyphwave_simulator import get_simulation_log
 from backend.modules.photon.validation import validate_photon_capsule
 from backend.modules.glyphnet.bus import glyph_bus, topic_for_recipient, envelope_capsule
 
+# ── add with the other imports
+import json, hashlib, threading
+
+# ──────────────────────────────────────────────────────────────
+# Canonical id + lightweight de-dup cache (TTL)
+# ──────────────────────────────────────────────────────────────
+_SEEN_IDS: Dict[str, float] = {}
+_SEEN_LOCK = threading.Lock()
+_SEEN_TTL_SEC = 60.0  # keep last minute of ids
+
+def _seen_prune(now: float | None = None) -> None:
+    now = now or time.time()
+    dead = [k for k, exp in _SEEN_IDS.items() if exp <= now]
+    for k in dead:
+        _SEEN_IDS.pop(k, None)
+
+def canon_id_for_capsule(topic: str, capsule: Dict[str, Any]) -> str:
+    """
+    Produce a stable id for a capsule on a topic.
+    For voice_frame we avoid hashing the entire base64 by using a short fingerprint.
+    """
+    c = dict(capsule)  # shallow copy
+    try:
+        if "voice_frame" in c:
+            vf = dict(c["voice_frame"])
+            b64 = vf.get("data_b64") or vf.get("bytes_b64") or vf.get("b64") or ""
+            vf["b64_len"]  = len(b64)
+            vf["b64_head"] = b64[:12]
+            vf["b64_tail"] = b64[-12:]
+            vf.pop("data_b64", None)
+            vf.pop("bytes_b64", None)
+            vf.pop("b64", None)
+            c["voice_frame"] = vf
+    except Exception:
+        pass
+
+    payload = json.dumps({"t": topic, "c": c}, sort_keys=True, separators=(",", ":"))
+    return "msg_" + hashlib.sha1(payload.encode("utf-8")).hexdigest()
+
+def already_seen(msg_id: str) -> bool:
+    now = time.time()
+    with _SEEN_LOCK:
+        _seen_prune(now)
+        exp = _SEEN_IDS.get(msg_id)
+        return bool(exp and exp > now)
+
+def mark_seen(msg_id: str, ttl: float = _SEEN_TTL_SEC) -> None:
+    with _SEEN_LOCK:
+        _SEEN_IDS[msg_id] = time.time() + ttl
+
+
 # Tokens / ACL
 from backend.modules.glyphnet.agent_identity_registry import validate_agent_token
 try:
@@ -197,6 +248,16 @@ def push_glyphnet_packet(
 # ──────────────────────────────────────────────────────────────────────────────
 @router.post("/tx")
 async def glyphnet_tx(payload: Dict[str, Any], request: Request):
+    """
+    GlyphNet TX:
+      • Auth + ACL
+      • entanglement_lock passthrough (no de-dup here; LOCKS handles state)
+      • voice_frame/text capsules:
+          - compute canonical msg_id
+          - drop duplicates within TTL
+          - publish envelope WITH `id`
+          - return ACK { msg_id, duplicate, delivered }
+    """
     # --- Auth gate (dev-token allowed if env toggled) ---
     token = _extract_token(request, payload)
     if not (_dev_token_allows(token) or (token and validate_agent_token(token))):
@@ -221,12 +282,13 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
     agent_id = _agent_id(request)
     graph    = (meta.get("graph") or "personal").lower()
 
-    # ========== 1) entanglement_lock (PTT floor control) ==========
+    # ============================================================
+    # 1) entanglement_lock (PTT floor control)
+    # ============================================================
     lock = (capsule or {}).get("entanglement_lock")
     if lock is not None:
         op       = (lock.get("op") or "acquire").lower()
-        # IMPORTANT: default to ucs:// recipient (not gnet: topic)
-        resource = lock.get("resource") or f"voice:{recipient}"
+        resource = lock.get("resource") or f"voice:{recipient}"  # default to ucs:// recipient
         owner    = (lock.get("owner") or agent_id)
         ttl_ms   = int(lock.get("ttl_ms") or 3500)
 
@@ -242,7 +304,6 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
                 "granted": granted,
                 "until": None,
             }
-            # Best-effort broadcast even in dev-stub
             try:
                 from backend.routes.ws.glyphnet_ws import broadcast_event_throttled as broadcast_json  # type: ignore
                 broadcast_json({**lock_event, "topic": topic})
@@ -254,7 +315,6 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
         try:
             ev = LOCKS.apply(topic=topic, op=op, resource=resource, owner=owner, ttl_ms=ttl_ms)  # type: ignore[attr-defined]
         except Exception as e:
-            # Surface deny as OK so the UI can react (avoid CORS/red-herring errors)
             lock_event = {
                 "type": "entanglement_lock",
                 "resource": resource,
@@ -270,7 +330,6 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
                 pass
             return {"status": "ok", "lock": lock_event}
 
-        # Normalize + ensure explicit grant/deny
         state   = ev.get("state") or ("held" if ev.get("until") else "free")
         granted = ev.get("granted")
         if granted is None and op == "acquire":
@@ -285,14 +344,12 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
             "granted": bool(granted),
         }
 
-        # Broadcast BEFORE returning so other tabs sync immediately
         try:
             from backend.routes.ws.glyphnet_ws import broadcast_event_throttled as broadcast_json  # type: ignore
             broadcast_json({**lock_event, "topic": topic})
         except Exception:
             pass
 
-        # Optional: append to thread log (never break response)
         try:
             log_thread_event(topic, {
                 "type": "lock",
@@ -307,7 +364,9 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
 
         return {"status": "ok", "lock": lock_event}
 
-    # ========== 2) voice_frame ==========
+    # ============================================================
+    # 2) voice_frame
+    # ============================================================
     if "voice_frame" in capsule:
         try:
             vf = VoiceFrame(**capsule["voice_frame"])
@@ -319,11 +378,27 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
         if busy_reason:
             return {"status": "busy", "reason": busy_reason, "channel": vf.channel, "seq": vf.seq}
 
+        # Canonical ID + de-dup
+        vf_caps = {"voice_frame": vf.dict()}
+        msg_id  = canon_id_for_capsule(topic, vf_caps)
+        if already_seen(msg_id):
+            return {
+                "status": "ok",
+                "kind": "voice_frame",
+                "delivered": 0,
+                "duplicate": True,
+                "channel": vf.channel,
+                "seq": vf.seq,
+                "topic": topic,
+                "msg_id": msg_id,
+            }
+        mark_seen(msg_id)
+
         env = {
-            "id": f"vf-{int(time.time()*1000)}-{vf.seq}",
+            "id": msg_id,                           # ← IMPORTANT: stable id
             "type": "glyphnet_voice_frame",
             "recipient": recipient,
-            "capsule": {"voice_frame": vf.dict()},
+            "capsule": vf_caps,
             "meta": meta,
             "sender": agent_id,
             "ts": int(time.time() * 1000),
@@ -363,14 +438,71 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
             "status": "ok",
             "kind": "voice_frame",
             "delivered": int(delivered or 0),
+            "duplicate": False,
             "channel": vf.channel,
             "seq": vf.seq,
             "lock_until": until,
             "topic": topic,
-            "msg_id": env.get("id"),
+            "msg_id": msg_id,
         }
 
-    # ========== 3) text capsules ==========
+    if "voice_note" in capsule:
+        vn = capsule["voice_note"] or {}
+        # expect: { ts, mime, data_b64 }
+        try:
+            ts = int(vn.get("ts") or time.time() * 1000)
+            mime = str(vn.get("mime") or "audio/webm")
+            data_b64 = str(vn.get("data_b64") or vn.get("bytes_b64") or vn.get("b64") or "")
+            if not data_b64:
+                raise ValueError("missing data_b64")
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"invalid voice_note: {e}")
+
+        vn_caps = {"voice_note": {"ts": ts, "mime": mime, "data_b64": data_b64}}
+        msg_id  = canon_id_for_capsule(topic, vn_caps)
+        if already_seen(msg_id):
+            return {"status":"ok","kind":"voice_note","delivered":0,"duplicate":True,"topic":topic,"msg_id":msg_id}
+        mark_seen(msg_id)
+
+        env = {
+            "id": msg_id,
+            "type": "glyphnet_voice_note",
+            "recipient": recipient,
+            "capsule": vn_caps,
+            "meta": meta,
+            "sender": agent_id,
+            "ts": ts,
+        }
+
+        try:
+            delivered = await glyph_bus.publish(topic, env)
+        except Exception as e:
+            logger.error(f"[GlyphNetTX] bus.publish (voice_note) error: {e}")
+            delivered = 0
+        if not delivered:
+            try:
+                delivered = await fanout_bus_envelope(topic, env)
+            except Exception:
+                pass
+
+        try:
+            log_thread_event(topic, {
+                "graph": graph,
+                "type": "voice",
+                "ts": time.time(),
+                "from": agent_id,
+                "to": recipient,
+                "payload": {"mime": mime, "bytes_b64": data_b64[:24] + "..."},
+            }, direction="out", user_id=agent_id)
+        except Exception:
+            pass
+
+        return {"status":"ok","kind":"voice_note","delivered":int(delivered or 0),"duplicate":False,"topic":topic,"msg_id":msg_id}
+    
+
+    # ============================================================
+    # 3) text capsules (glyphs / glyph_stream)
+    # ============================================================
     if not (capsule.get("glyphs") or capsule.get("glyph_stream")):
         raise HTTPException(status_code=400, detail="capsule must contain glyphs/glyph_stream or voice_frame")
 
@@ -379,7 +511,24 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid photon capsule: {e}")
 
+    # Canonical ID + de-dup
+    msg_id = canon_id_for_capsule(topic, capsule)
+    if already_seen(msg_id):
+        return {
+            "status": "ok",
+            "kind": "capsule",
+            "delivered": 0,
+            "duplicate": True,
+            "topic": topic,
+            "msg_id": msg_id,
+        }
+    mark_seen(msg_id)
+
+    # Build envelope (ensure our canonical id is present)
     env = envelope_capsule(recipient, capsule, meta)
+    env["id"] = msg_id                     # ← force canonical id
+    env.setdefault("type", "glyphnet_capsule")
+    env.setdefault("ts", int(time.time() * 1000))
 
     try:
         delivered = await glyph_bus.publish(topic, env)
@@ -408,7 +557,14 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
     except Exception:
         pass
 
-    return {"status": "ok", "kind": "capsule", "delivered": int(delivered or 0), "topic": topic, "msg_id": env.get("id")}
+    return {
+        "status": "ok",
+        "kind": "capsule",
+        "delivered": int(delivered or 0),
+        "duplicate": False,
+        "topic": topic,
+        "msg_id": msg_id,
+    }
     
 # ──────────────────────────────────────────────────────────────────────────────
 # Thread fetch (KG-backed)

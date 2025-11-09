@@ -1,63 +1,140 @@
-root((GlyphNet Build Checklist))
+root((GlyphNet Build Checklist)) — updated
 
-  P4 • WA/WN + Voice & Radio
-    [x] WA/WN Addressing (logical IDs)
-      [x] WA/WN identities (ucs://…; realm wave.tp)
-      [x] Address Book + deep-link invites (#/chat?topic=…&kg=…)
-      [x] Recents per-graph (keyed by kg+topic); invite copies kg
-      [ ] PSTN mapping (SIP/Telnyx/Twilio)
-      [ ] Name service rules (display name ↔ WA/WN)
-      [ ] Recents de-duplication by canonical WA (one row per kg:topic)
+P4 • WA/WN + Voice & Radio
+[x] WA/WN Addressing (logical IDs)
+[x] WA/WN identities (ucs://…; realm wave.tp)
+[x] Address Book + deep-link invites (#/chat?topic=…&kg=…)
+[x] Recents per-graph (keyed by kg+topic); invite copies kg
+[ ] PSTN mapping (SIP/Telnyx/Twilio)
+[ ] Name service rules (display name ↔ WA/WN)
+[x] Recents de-duplication by canonical WA (one row per kg:topic)
 
-[x] PTT / Walkie-Talkie over GlyphNet
-  [x] UI: press-and-hold mic in Chat composer (icons only)
-  [x] Mic capture → Opus via MediaRecorder (webm/ogg)
-  [x] Capsule schema: voice_frame { channel, seq, ts, mime, data_b64 }
-  [x] Playback: enable-audio toggle + volume slider + <audio controls>
-  [x] Input level meter; mic picker & device refresh
-  [x] Persist recents on send (rememberTopic(topic, label, graph))
-  [x] Floor control: entanglement_lock “voice/<channel>”
-  [ ] (Optional) E2EE: X25519 DH → AES-GCM (rolling nonce via seq)
-  [ ] Metrics: chunk loss %, e2e latency
+PTT / Walkie-Talkie over GlyphNet
+[x] UI: press-and-hold mic in Chat composer (icons only)
+[x] Mic capture → Opus via MediaRecorder (webm/ogg)
+[x] Capsule schema: voice_frame { channel, seq, ts, mime, data_b64 }
+[x] Playback: enable-audio toggle + volume slider + 
+[x] Input level meter; mic picker & device refresh
+[x] Persist recents on send (rememberTopic(topic, label, graph))
+[x] Floor control: entanglement_lock “voice/”
+[x] Echo de-dup + optimistic→server replacement (preserve from)
+[ ] (Optional) E2EE: X25519 DH → AES-GCM (rolling nonce via seq)
 
-[ ] Voice Notes (async voice messages)
-  [ ] Record .ogg/.m4a → voice_note capsule (upload/attach)
-  [x] Playback UI with seek inside chat bubbles
-  [ ] (Optional) Transcription → text capsule
+Metrics
+[x] RTT echo (meta.t0) & client RTT capture
+[x] Chunk loss counters (recv/lost) tracked per topic/channel
+[x] Show chunk loss % in UI/footer (lost / (lost + recv))
 
-[ ] Full Calls (WebRTC media; GlyphNet signaling)
-  [ ] Signaling capsules: voice_offer / voice_answer / ice
-  [ ] Media: SRTP w/ AEC/AGC, jitter buffer
-  [ ] NAT: STUN list + TURN fallback
-  [ ] Call UI: ring / accept / decline / mute / hold
-  [ ] (Optional) E2EE via Insertable Streams; keys via GlyphNet
+Voice Notes (async voice messages)
+[x] Backend /tx: voice_note branch (canonical msg_id, publish, thread log)
+[x] Record/attach → voice_note capsule (.ogg/.m4a/.webm etc.)
+[x] File picker accepts: .webm, .ogg, .mp3, .m4a, .wav, .aac, .flac
+[x] Playback UI with seek inside chat bubbles
+[x] (Optional) Transcription → text capsule
+  • [x] Client: “Transcribe on attach” toggle + post glyphs after transcript (with engine + transcript_of meta)
+  • [x] Backend: POST /api/media/transcribe → { text } (stub-friendly; faster-whisper/whisper if available)
 
-[ ] Radio / Mesh Transport (dual-band)
-  [ ] band_profile.yml (region, bands, power/duty)
-  [ ] TransportSelector: prefer local RF → fallback IP
-  [ ] Local Radio Node (127.0.0.1:8787)
-    [ ] Endpoints: /health, /api/glyphnet/tx, /ws/glyphnet
-    [ ] Token handoff; store-carry-forward
-  [ ] Desktop LAN P2P (WebRTC DataChannel; #/p2p route)
-  [ ] Accessory radio (WebSerial/WebUSB ESP32/LoRa/2.4GHz)
-    [ ] Frame: { topic, seq, ts, codec?, bytes } (+ region guardrails)
+Full Calls (WebRTC media; GlyphNet signaling)
+[ ] Signaling capsules: voice_offer / voice_answer / ice
+• [x] RX intercept in WS merge (offer/answer/ice) + call state refs (callIdRef, pcRef, callState)
+• [x] TX: sendOffer / sendAnswer / sendIce over /api/glyphnet/tx
+• [x] RTCPeerConnection factory (makePeer) + SDP plumbing (onLocalDescription/ICE hooks)
+[ ] Media: SRTP w/ AEC/AGC, jitter buffer
+• [x] SRTP (implicit via WebRTC)
+• [x] Capture constraints: AEC/AGC/NS enabled for mic
+• [ ] Custom jitter buffer (not needed yet; consider for PTT low-latency)
+[ ] NAT: STUN list + TURN fallback
+• [x] STUN list (DEFAULT_ICE)
+• [x] TURN fallback + config UI (IceSettings + /api/rtc/ice load + local override)
+[ ] Call UI: ring / accept / decline / mute / hold
+• [x] Ring/Accept/Decline/Hang up strips
+• [x] Mute (toggle track.enabled)
+• [x] Hold/Resume (RTCRtpSender.replaceTrack(null|track))
+[ ] (Optional) E2EE via Insertable Streams; keys via GlyphNet
 
-[ ] Telemetry & Receipts
-  [x] Delivery acks for media chunks (present in Outbox; wire into Chat later)
-  [ ] Talk-time / occupancy (lock analytics)
-  [ ] Dropout/error logs surfaced in UI
+Modes & Policy (IP ↔ RF)
+[ ] Transport mode switch (Dual / Radio-only / IP-only)
+• [ ] Settings toggle + persisted policy (localStorage: gnet:transportMode)
+• [ ] Status pill: {dual, radio-only, ip-only} + health of :8787
+• [ ] Router: honor policy in all fetch/WS calls (force RF when radio-only)
 
-[ ] Performance Targets (guardrails)
-  [ ] PTT e2e: 250–400 ms (200 ms chunks baseline)
-  [ ] Low-latency path: 20 ms Opus frames (<250 ms target)
-  [ ] Max capsule size + send rate limits per band_profile
+Radio / Mesh Transport (dual-band)
+Phase 1 — MVP fallback (keeps working if internet dies)
+[ ] Local Radio Node (127.0.0.1:8787)
+• [ ] Endpoints: /health, /api/glyphnet/tx, /ws/glyphnet (shapes match backend)
+• [ ] In-mem outbox queue + retry; store-carry-forward when RF link is down
+• [ ] Frame bridge: IP capsule ↔ RF frame
+[ ] TransportSelector: prefer local RF → fallback IP
+• [ ] Frontend health probe (:8787/health, 2–5s backoff) + sticky choice
+• [ ] HTTP/WS multiplexer: when RF healthy (or radio-only) → :8787; else → cloud
+• [ ] Telemetry counters for RF/IP sends + failures in footer
+[ ] Frame schema & guardrails
+• [ ] Frame: { topic, seq, ts, codec?, bytes } (binary payload)
+• [ ] Guardrails from band_profile (MTU, send-rate)
+[ ] band_profile.yml (region, bands, power/duty)
+• [ ] Profiles: NA-915, EU-868, ISM-2.4 (MTU, rate, duty-cycle)
+• [ ] Enforce max capsule size + pacing in Local Radio Node
+
+Phase 2 — Real RF path
+[ ] Accessory radio bridge
+• [ ] WebSerial/WebUSB (ESP32/LoRa/2.4GHz) to Local Radio Node
+• [ ] Link/PHY driver abstraction (pluggable modules)
+• [ ] Token handoff to radio bridge; signed headers
+[ ] Store-carry-forward
+• [ ] Disk spool on Radio Node; expiry + dedupe by (topic, seq)
+• [ ] Opportunistic relay when peers appear
+[ ] Discovery (basic)
+• [ ] Beacon frame on RF; neighbor table in Local Radio Node
+
+Phase 3 — Nice-to-have
+[ ] Desktop LAN P2P (WebRTC DataChannel; #/p2p route) as offline hop
+[ ] Multi-hop mesh policy (region guardrails + TTL)
+[ ] Radio diagnostics panel (RSSI/SNR, queue depth, duty-cycle)
+
+Security / E2EE (Radio path)
+[ ] Session keys: X25519 DH → AES-GCM (nonce = seq)
+[ ] Key derivation per-topic; rotate by interval/frames
+[ ] Optional: key exchange via GlyphNet (when IP available), else pre-shared
+
+Developer UX & Tests
+[ ] “Radio healthy” toast + reconnection logic
+[ ] RF/IP path injectors in DevTools (force paths)
+[ ] Offline kill-switch test plan (unplug WAN; verify chat/PTT over RF)
+
+Documentation
+[ ] README: run Local Radio Node + cables (WebUSB/Serial)
+[ ] band_profile authoring guide + compliance notes
+
+Telemetry & Receipts
+[x] Delivery acks for media chunks (present in Outbox; wire into Chat later)
+[x] Basic talk-time counters (sessions, talkMs, grants/denies)
+[x] Per-topic PTT session panel (last 10) + totals (persisted)
+[ ] Dropout/error logs surfaced in UI
+
+Performance Targets (guardrails)
+[ ] PTT e2e: 250–400 ms (200 ms chunks baseline)
+[ ] Low-latency path: 20 ms Opus frames (<250 ms target)
+[ ] Max capsule size + send rate limits per band_profile
 
 Infra / Networking (supporting work)
-  [x] FastAPI CORS for Codespaces/Vercel + regex allow; ALLOW_ALL_CORS override
-  [x] Vite proxy for /api and /ws in dev
-  [x] WebSocket paths verified; Codespace port made public (fixed “offline”)
-  [x] Per-graph topic keying for thread store & history fetch
-  [x] Settings gear: consolidate audio enable/volume/mic into dropdown (UI polish)
+[x] FastAPI CORS for Codespaces/Vercel + regex allow; ALLOW_ALL_CORS override
+[x] Vite proxy for /api and /ws in dev
+[x] WebSocket paths verified; Codespace port made public (fixed “offline”)
+[x] Per-graph topic keying for thread store & history fetch
+[x] Settings gear: consolidate audio enable/volume/mic into dropdown (UI polish)
+
+Telemetry & Receipts
+	•	⬜ Outbox queue + retry for failed /api/glyphnet/tx posts, with a “pending” indicator on bubbles.
+	•	⬜ Footer metrics surfacing: show RTT avg/last and send failures/retries in the tiny status line.
+
+Voice Notes (UX)
+	•	⬜ Unified attach flow (📎 and 🎵 share the same picker/validator).
+	•	⬜ Drag-and-drop onto the composer for audio files.
+	•	⬜ Size guard (e.g., 12–16 MB) with a friendly error.
+
+Reliability
+	•	⬜ Cross-tab self-echo guard (extra hash/seen-id so the same message from another tab can’t double-render).
+
 
 mindmap
   root((GlyphNet Build Checklist))
@@ -165,7 +242,73 @@ mindmap
       D07 Transport Negotiation
         [ ] Mesh ↔ IP bridging, NAT traversal, CAS verification
 
-
+MESSAGING BY  GLYPHS
+mindmap
+  root((Glyph-Only Messaging<br/>(Encode-at-Send, Decode-at-View)))
+    Glyph Registry & Codec
+      "[ ] Define registry format (/registry/glyphs.jsonl): {word, glyph, pos?, freq?, v}"
+      "[ ] Implement codec lib: encodeGlyphs(text) → glyphTokens[]; decodeGlyphs(tokens) → text"
+      "[ ] OOV strategy: char-level tokens + fallback dictionary updates"
+      "[ ] Versioning: meta.glyphs_v added to every capsule"
+      "[ ] Perf: cache hot tokens; measure encode/decode throughput"
+    Wire Format & API
+      "[ ] Enforce capsule.glyphs: string[] (no plaintext on wire)"
+      "[ ] Backcompat: accept legacy text on RX → encode immediately → drop text"
+      "[ ] Update de-dup signature to token-based"
+      "[ ] txt|<tokens joined with '|'>|<floor(ts/5000)>"
+      "[ ] Add registry version echo in server responses (drift detection)"
+    Storage & Persistence
+      "[ ] Local thread store writes glyph tokens only (strip text when persisting)"
+      "[ ] Server thread log stores tokens + glyphs_v"
+      "[ ] Index/search: transient decode index in memory when needed"
+      "[ ] No-plaintext-at-rest flag ON (gnet:noPlainAtRest=1)"
+    UI / UX
+      "[ ] Composer accepts text; on Send → encode → POST glyphs"
+      "[ ] Render path: decode tokens → display text"
+      "[ ] Recent messages decode window (last N or T minutes)"
+      "[ ] Settings toggle: Store plaintext locally (off by default)"
+      "[ ] Footer badge shows glyphs_v + codec status (green/amber/red)"
+    Transcription & Attachments
+      "[ ] Transcribe → encode transcript to tokens before sending"
+      "[ ] Voice-note captions optional: store tokens, render via decode"
+    Security / E2EE (QKD-Ready)
+      "[ ] Default: X25519 (or PQC: Kyber) KEM → AES-GCM/ChaCha20 per topic"
+      "[ ] Key rotation policy (interval/msgs); nonce = seq"
+      "[ ] Metadata: meta.enc_v, meta.key_epoch"
+      "[ ] QKD interface (future): getQKDKey(topic); fallback to KEM"
+      "[ ] At-rest: encrypted spool on Radio Node; no key material on disk"
+      "[ ] Redaction: never log plaintext or decoded text"
+    Metrics & Telemetry
+      "[ ] Measure packet size savings (plaintext vs glyphs)"
+      "[ ] Encode/decode latency histogram"
+      "[ ] Drift alerts when glyphs_v mismatches client registry"
+      "[ ] Counters: % OOV, avg tokens/msg, compression ratio"
+    Migration
+      "[ ] One-shot: convert legacy plaintext logs → glyph tokens (+ glyphs_v)"
+      "[ ] Dual-read window: accept old msgs, encode on ingest, mark migrated"
+      "[ ] Data retention: purge plaintext backups after verification"
+    Tests
+      "[ ] Unit: codec (round-trip, OOV, punctuation, RTL/CJK)"
+      "[ ] Property: decode(encode(x)) == x for corpora"
+      "[ ] Integration: enforce token-only on wire"
+      "[ ] Security: no plaintext in storage/console/network captures"
+      "[ ] Perf: ≥ 50k tokens/s on target devices"
+    Documentation
+      "[ ] README: glyph-only pipeline, flags, versioning"
+      "[ ] Registry authoring guide; update & signing"
+      "[ ] Security notes: E2EE, rotation, QKD hook, threat model"
+    Feature Flags & Rollout
+      "[ ] FF_GLYPH_ONLY_TX (gate transmit)"
+      "[ ] FF_NO_PLAINTEXT_AT_REST (gate storage)"
+      "[ ] FF_PQC_DEFAULT (use Kyber by default)"
+      "[ ] Gradual rollout plan + kill switch"
+      "[ ] Telemetry dashboard for adoption & savings"
+    Acceptance Criteria
+      "[ ] No plaintext on wire or at rest by default"
+      "[ ] UI renders identically via on-the-fly decode"
+      "[ ] Size/latency targets met; OOV < 2% on sample corpus"
+      "[ ] Keys rotate per policy; decrypt/verify across rotations"
+      "[ ] Backcompat migration without user-visible regressions"
 ***************************GLYPHNET BROWSER CHECKLIST******************************************
 
 graph TD
