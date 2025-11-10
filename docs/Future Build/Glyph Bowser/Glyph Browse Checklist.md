@@ -5,15 +5,17 @@ P4 • WA/WN + Voice & Radio
 [x] WA/WN identities (ucs://…; realm wave.tp)
 [x] Address Book + deep-link invites (#/chat?topic=…&kg=…)
 [x] Recents per-graph (keyed by kg+topic); invite copies kg
-[ ] PSTN mapping (SIP/Telnyx/Twilio)
-[ ] Name service rules (display name ↔ WA/WN)
+[ ] PSTN mapping (SIP/Telnyx/Twilio) — design + stubs pending
+[x] Name service rules (display name ↔ WA/WN)
+ • [x] Alias table + strict canonicalization (strip punctuation, casefold, collapse spaces)
+ • [x] Persist best-known label per WA (address book de-dupe)
 [x] Recents de-duplication by canonical WA (one row per kg:topic)
 
 PTT / Walkie-Talkie over GlyphNet
 [x] UI: press-and-hold mic in Chat composer (icons only)
 [x] Mic capture → Opus via MediaRecorder (webm/ogg)
 [x] Capsule schema: voice_frame { channel, seq, ts, mime, data_b64 }
-[x] Playback: enable-audio toggle + volume slider + 
+[x] Playback: enable-audio toggle + volume slider
 [x] Input level meter; mic picker & device refresh
 [x] Persist recents on send (rememberTopic(topic, label, graph))
 [x] Floor control: entanglement_lock “voice/”
@@ -31,49 +33,73 @@ Voice Notes (async voice messages)
 [x] File picker accepts: .webm, .ogg, .mp3, .m4a, .wav, .aac, .flac
 [x] Playback UI with seek inside chat bubbles
 [x] (Optional) Transcription → text capsule
-  • [x] Client: “Transcribe on attach” toggle + post glyphs after transcript (with engine + transcript_of meta)
-  • [x] Backend: POST /api/media/transcribe → { text } (stub-friendly; faster-whisper/whisper if available)
+ • [x] Client: “Transcribe on attach” toggle + post glyphs after transcript (with engine + transcript_of meta)
+ • [x] Backend: POST /api/media/transcribe → { text } (stub-friendly; faster-whisper/whisper if available)
 
 Full Calls (WebRTC media; GlyphNet signaling)
-[ ] Signaling capsules: voice_offer / voice_answer / ice
+[x] Signaling capsules: voice_offer / voice_answer / ice
 • [x] RX intercept in WS merge (offer/answer/ice) + call state refs (callIdRef, pcRef, callState)
 • [x] TX: sendOffer / sendAnswer / sendIce over /api/glyphnet/tx
 • [x] RTCPeerConnection factory (makePeer) + SDP plumbing (onLocalDescription/ICE hooks)
+• [x] Fallback packed signaling (~SIG- base64url) with packSig/unpackSig and render-suppression
+• [x] Extra capsules: voice_cancel / voice_reject / voice_end + full handlers
+• [x] Busy-offer protection (reject competing call_ids; ignore self-offers)
+• [x] ICE send path centralized (only via onLocalIce); UI shows last cand type
+
 [ ] Media: SRTP w/ AEC/AGC, jitter buffer
 • [x] SRTP (implicit via WebRTC)
 • [x] Capture constraints: AEC/AGC/NS enabled for mic
 • [ ] Custom jitter buffer (not needed yet; consider for PTT low-latency)
-[ ] NAT: STUN list + TURN fallback
+
+[x] NAT: STUN list + TURN fallback
 • [x] STUN list (DEFAULT_ICE)
 • [x] TURN fallback + config UI (IceSettings + /api/rtc/ice load + local override)
-[ ] Call UI: ring / accept / decline / mute / hold
+
+[x] Call UI: ring / accept / decline / mute / hold
 • [x] Ring/Accept/Decline/Hang up strips
 • [x] Mute (toggle track.enabled)
 • [x] Hold/Resume (RTCRtpSender.replaceTrack(null|track))
+• [x] Accept bug fix + state guards (pendingOfferRef)
+• [x] Call timer + local/remote “📞 Call ended” summary bubble
+• [x] Ring tone play/pause tied to state
+• [x] Hangup sends voice_end; decline sends voice_reject; cancel handled
+• [x] Outbound cancel button + voice_cancel (UI + handler)
+
 [ ] (Optional) E2EE via Insertable Streams; keys via GlyphNet
 
-Modes & Policy (IP ↔ RF)
-[ ] Transport mode switch (Dual / Radio-only / IP-only)
-• [ ] Settings toggle + persisted policy (localStorage: gnet:transportMode)
-• [ ] Status pill: {dual, radio-only, ip-only} + health of :8787
-• [ ] Router: honor policy in all fetch/WS calls (force RF when radio-only)
+P4 • Modes & Policy (IP ↔ RF)
+[x] Transport mode switch (Auto / Radio-only / IP-only)
+• [x] Settings toggle + persisted policy (localStorage: gnet:transportMode)
+• [x] Status pill: {auto, radio-only, ip-only} + health of :8787 (onRadioHealth)
+• [x] Router: honor policy in all fetch/WS calls (HTTP via transportBase; WS via glyphnetWsUrl)
 
 Radio / Mesh Transport (dual-band)
 Phase 1 — MVP fallback (keeps working if internet dies)
-[ ] Local Radio Node (127.0.0.1:8787)
-• [ ] Endpoints: /health, /api/glyphnet/tx, /ws/glyphnet (shapes match backend)
-• [ ] In-mem outbox queue + retry; store-carry-forward when RF link is down
+[x] Local Radio Node (127.0.0.1:8787)
+• [x] Endpoints: /health, /api/glyphnet/tx, /ws/glyphnet (echo + forward)
+• [x] In-mem outbox queue + retry (store-carry-forward stub)
 • [ ] Frame bridge: IP capsule ↔ RF frame
-[ ] TransportSelector: prefer local RF → fallback IP
-• [ ] Frontend health probe (:8787/health, 2–5s backoff) + sticky choice
-• [ ] HTTP/WS multiplexer: when RF healthy (or radio-only) → :8787; else → cloud
-• [ ] Telemetry counters for RF/IP sends + failures in footer
+
+[] TransportSelector: prefer local RF → fallback IP
+• [x] Frontend health probe (:8787/health, 2–5s backoff) + sticky choice (onRadioHealth)
+• [x] HTTP multiplexer: cloud vs radio-node via transportBase (wired in ChatThread)
+• [x] WS multiplexer: route WS to radio-node when healthy (useGlyphnet → glyphnetWsUrl)
+• [x] Telemetry counters for RF/IP sends + failures in footer (Telemetry wired via postTx; UI footer shows rf_ok/rf_err/ip_ok/ip_err)
+• [x] Route all sends through postTx (sendSignal, onPickVoiceFile, transcribeOnAttach swapped)
+
 [ ] Frame schema & guardrails
 • [ ] Frame: { topic, seq, ts, codec?, bytes } (binary payload)
 • [ ] Guardrails from band_profile (MTU, send-rate)
+
 [ ] band_profile.yml (region, bands, power/duty)
 • [ ] Profiles: NA-915, EU-868, ISM-2.4 (MTU, rate, duty-cycle)
 • [ ] Enforce max capsule size + pacing in Local Radio Node
+
+Polish
+[x] Call history rollup: aggregate “📞 Call ended …” into daily sections
+
+Legend:
+[x] done [~] partially done / wired on one path [ ] todo
 
 Phase 2 — Real RF path
 [ ] Accessory radio bridge
@@ -135,6 +161,283 @@ Voice Notes (UX)
 Reliability
 	•	⬜ Cross-tab self-echo guard (extra hash/seen-id so the same message from another tab can’t double-render).
 
+
+Conversation Persistence & History (Thread Storage + Pagination)
+
+[ ] Persistent thread storage per kg:topic
+• [ ] Backend: /api/glyphnet/thread supports cursor pagination (limit, before, after)
+• [ ] Index by {kg, topic, ts, id}; return next_cursor/prev_cursor
+• [ ] Store inbound/outbound uniformly (voice_note, voice_frame, text, signaling filtered)
+
+[ ] Client caching (survives navigation/reload)
+• [ ] Migrate sessionStorage → IndexedDB (gnet_threads) with per-thread LRU window
+• [ ] Keep N newest messages in memory; hydrate older via “Load older”
+• [ ] De-dupe by id and by content signature (existing logic reused)
+
+[ ] UI/UX
+• [ ] Infinite-scroll “Load older” on scroll-top + spinner + sticky day dividers
+• [ ] “Jump to latest” button when user is scrolled up
+• [ ] Empty-state + skeletons; show approximate count if known
+
+[ ] Sync & retention
+• [ ] Soft cap per thread (e.g., 20k items) with rolling compaction in IndexedDB
+• [ ] Background prefetch next page when user pauses scrolling
+• [ ] Export thread to JSON (.gnetthread)
+
+Acceptance
+• Switch away from a thread returns later with history intact.
+• Scrolling up reliably loads older pages; no dupes; memory stays bounded.
+
+⸻
+
+Wormhole Mail (Email-style Composer & Delivery)
+
+[ ] Schema & capsules
+• [ ] mail_send capsule: { to[], cc[], bcc[], subject, text, html?, attachments[], signature? }
+• [ ] mail_delivery/mail_status events: queued/sent/delivered/failed + provider ids
+• [ ] Map kevin@wave.tp to WA/WN via name service (kg-aware)
+
+[ ] Backend
+• [ ] POST /api/mail/send → returns { message_id }
+• [ ] Attachment upload: POST /api/mail/upload → { file_id, mime, size, sha256 }
+• [ ] Store mail in thread log + a Mailbox collection (Inbox/Sent/Drafts)
+• [ ] Provider adapter (stub first): local echo → later SMTP/SendGrid/Twilio Email
+• [ ] Signature templates per graph; DKIM/SPF later if bridging to real email
+
+[ ] Client
+• [ ] “Chat ↔ Mail” tab toggle in composer
+• [ ] Fields: To, Cc, Bcc, Subject, Attach, Signature picker, Rich-text (basic)
+• [ ] Draft autosave; send as mail_send + thread summary bubble
+• [ ] Render inbound mail bubbles (subject header + attachments preview)
+
+[ ] Security & rate limits
+• [ ] Size caps per message/attachment; total send rate per user
+• [ ] Blocklist/allowlist; HTML sanitization for inbound html
+
+Acceptance
+• Can compose & send a mail-style message to a WA, see it log in thread + Sent.
+• Inbound mail events render with subject/attachments.
+
+⸻
+
+“KG Drive” — Document Vault per Graph (Dropbox-like)
+
+[ ] Storage & metadata
+• [ ] Buckets per graph: kg=personal|work
+• [ ] File table: { file_id, name, mime, size, sha256, versions[], created_by, updated_at, acl }
+• [ ] Versioning (append-only); server-side SHA-256 verification
+
+[ ] API
+• [ ] POST /api/files/upload (resumable or simple first)
+• [ ] GET /api/files/list?kg&path&cursor&limit
+• [ ] GET /api/files/download?file_id (signed URL if external store)
+• [ ] POST /api/files/move|rename|delete
+• [ ] Share link: POST /api/files/share → returns share token (kg-scoped ACL)
+
+[ ] UI
+• [ ] “Drive” panel per graph: folders, sort, search, previews (audio/image/text/pdf)
+• [ ] Quick-save from chat attachment → choose graph/folder
+• [ ] File details (versions, who shared, where used)
+
+[ ] Integrations
+• [ ] Link into thread as attachment cards
+• [ ] Drag-drop upload from thread composer
+
+Acceptance
+• Can upload, list, download, version, and share a file in personal/work graphs; clickable cards appear in chat.
+
+⸻
+*******************************Photon Secure Glyph Document*************************************************
+Photon Secure Glyph Document (.pgdoc) — Encrypted, Share-by-Registry
+
+[ ] File format & crypto
+• [ ] New container .pgdoc (zip or CBOR bundle):
+manifest.json (title, authors, created_ts, algs, chunk map)
+payload.bin (glyph stream or photon source)
+sig.bin (author signature)
+• [ ] Crypto: X25519 key exchange → AES-GCM content-key; per-chunk nonce
+• [ ] Document Key Registry: map { doc_id → [allowed_public_keys] } with audit log
+
+[ ] APIs
+• [ ] POST /api/pgdoc/create (returns doc_id, share link)
+• [ ] POST /api/pgdoc/grant|revoke (add/remove public keys)
+• [ ] GET /api/pgdoc/open?doc_id (server streams encrypted; client decrypts)
+• [ ] Optional: server-side re-wrap key for new recipients without re-encrypting payload
+
+[ ] Photon editor integration
+• [ ] Export to .pgdoc (compile photon → glyphs → encrypt)
+• [ ] Open .pgdoc if user has key; error toast if not in registry
+• [ ] “Lock” toggle (read-only mode akin to PDF)
+• [ ] Watermarking & signature verification UI
+
+[ ] UX & failure modes
+• [ ] Clear errors for “no access”, “key mismatch”, “tampered”
+• [ ] Offline open if key+blob cached locally
+
+• [ ] sign the document like docusign
+• [ ] make payment to a document / contract
+• [ ] Docusign features
+• [ ] document edits track changes (legal type docs)
+
+Acceptance
+• Create a .pgdoc, grant another user, they can open; revocation blocks further opens; signatures verify.
+
+*******************************Photon Secure Glyph Document*************************************************
+*******************************Q QUANTUM KEY DISTRIBUTION*************************************************
+flowchart TD
+    %% QKD Integration – Build Tasks & Key Notes
+    %% Status tags: [ ] todo · [~] in-progress · [x] done
+
+    A0([QKD Integration – Overview\nGoal: App-layer encryption of GlyphNet payloads + WebRTC IS\nKeys sourced from local QKD agent; server sees ciphertext only])
+
+    subgraph S1[Core Plumbing]
+      A1[[ [ ] QKD Agent Contract ]]
+      note right of A1
+        Define browser-facing lease API:
+        lease({localWA, remoteWA, kg, purpose, bytes}) -> {kid, key, ttl_ms}
+        Transport: localhost IPC/HTTP via radio-node proxy.
+        No plaintext keys persisted; in-memory only.
+      end
+
+      A2[[ [ ] Browser Shim: qkd.ts ]]
+      note right of A2
+        Thin client that calls the agent, caches leases per
+        (purpose|kg|local|remote), exposes qkdLease().
+        Replace dev stub when you provide real QKD files.
+      end
+
+      A3[[ [ ] Crypto Wrapper: crypto_qkd.ts ]]
+      note right of A3
+        AES-GCM w/ per-message IV, HKDF on QKD blocks for subkeys.
+        Helpers: qkdEncrypt()/qkdDecrypt() + ivFromSeq(kid, seq).
+      end
+
+      A1 --> A2 --> A3
+    end
+
+    subgraph S2[Payload Encryption (GlyphNet)]
+      B1[[ [ ] Text: encrypt glyphs ]]
+      note right of B1
+        sendText(): UTF-8 -> qkdEncrypt(purpose:"glyph", seq++)
+        Replace capsule.glyphs with glyphs_enc_b64 + enc {scheme,kid,seq,iv_b64,aad:"glyph"}.
+      end
+
+      B2[[ [ ] Voice Note: encrypt data_b64 ]]
+      note right of B2
+        sendVoiceNoteFile(): base64 bytes -> qkdEncrypt("voice_note", seq++)
+        Use field data_enc_b64 (or reuse data_b64) + enc {..., aad:"voice_note"}.
+      end
+
+      B3[[ [ ] PTT Frames: encrypt data_b64 ]]
+      note right of B3
+        sendVoiceFrame(): per-channel seq -> qkdEncrypt("voice_frame", seq++)
+        Add enc {..., aad:"voice_frame"}. Keep existing channel/seq for loss calc.
+      end
+
+      B1 --> B2 --> B3
+    end
+
+    subgraph S3[Receive Path]
+      C1[[ [ ] WS Merge: decrypt if enc present ]]
+      note right of C1
+        In normalize/merge: detect capsule.enc, choose purpose by payload type,
+        call qkdDecrypt(). On failure, show "Locked/Decrypt failed" chip (no crash).
+      end
+
+      C2[[ [ ] Back-compat ]]
+      note right of C2
+        If no enc field → treat as plaintext (dev/interop).
+        Prefer enc when both present.
+      end
+
+      C1 --> C2
+    end
+
+    subgraph S4[WebRTC (Insertable Streams)]
+      D1[[ [ ] Feature Flag: qkdE2EE ]]
+      D2[[ [ ] Sender Transform ]]
+      D3[[ [ ] Receiver Transform ]]
+      note right of D2
+        Attach transforms to audio sender; frame counter as seq.
+        Derive subkey for purpose:"call".
+      end
+      note right of D3
+        Mirror decrypt on receiver; handle re-key events gracefully.
+      end
+      D1 --> D2 --> D3
+    end
+
+    subgraph S5[Key Policy & Rotation]
+      E1[[ [ ] Rekey triggers ]]
+      note right of E1
+        Rotate on: time (e.g., 10 min) OR N messages/frames OR reconnect.
+        Update kid; bump lease; notify peer via control glyph (optional).
+      end
+      E2[[ [ ] Nonce/Seq rules ]]
+      note right of E2
+        Per-purpose monotonic seq; include in AAD.
+        IV 12B; ensure uniqueness per kid.
+      end
+      E3[[ [ ] Storage & Scrub ]]
+      note right of E3
+        No key material in logs, storage, or thread cache.
+        Zeroize temp buffers when feasible.
+      end
+      E1 --> E2 --> E3
+    end
+
+    subgraph S6[Fallback & UX]
+      F1[[ [ ] Policy when QKD unavailable ]]
+      note right of F1
+        Modes: {deny send | classical E2EE fallback | warn & allow}.
+        Default: warn & allow during dev; configurable per KG.
+      end
+      F2[[ [ ] Error surfacing ]]
+      note right of F2
+        Display small lock+warning chip on failed decrypt;
+        keep raw event hidden to avoid leaking plaintext.
+      end
+      F1 --> F2
+    end
+
+    subgraph S7[Telemetry, Tests, Compliance]
+      G1[[ [ ] Counters ]]
+      note right of G1
+        __tele: enc_ok/enc_err/dec_ok/dec_err, kid_rotations, qkd_lease_fail.
+      end
+      G2[[ [ ] Test Matrix ]]
+      note right of G2
+        Plain ↔ Enc interop, rekey mid-stream, replay window,
+        wrong-kid rejection, packet loss + PTT seq gaps.
+      end
+      G3[[ [ ] Threat notes ]]
+      note right of G3
+        Confidentiality from QKD keys; integrity via GCM tag;
+        metadata (topic, kg, timing) still observable.
+      end
+      G1 --> G2 --> G3
+    end
+
+    %% Dependencies
+    A3 --> B1
+    A3 --> B2
+    A3 --> B3
+    B1 --> C1
+    B2 --> C1
+    B3 --> C1
+    A2 --> D1
+    A3 --> D2
+    A3 --> D3
+
+    Quick implementer notes (for future you)
+	•	Drop points (no UI change):
+	•	sendText, sendVoiceNoteFile, sendVoiceFrame: call qkdEncrypt(...) and swap fields as shown.
+	•	WS merge (useGlyphnet/ChatThread normalize): decrypt when capsule.enc exists.
+	•	WebRTC: gate with featureFlags.qkdE2EE.
+	•	Agent handoff: When you send me the QKD files, we’ll replace the stub in qkd.ts with the real agent binding and keep the rest of the surfaces unchanged.
+
+
+*******************************Q QUANTUM KEY DISTRIBUTION*************************************************
 
 mindmap
   root((GlyphNet Build Checklist))

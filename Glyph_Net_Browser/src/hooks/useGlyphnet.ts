@@ -1,5 +1,7 @@
 // frontend/src/hooks/useGlyphnet.ts
 import { useEffect, useMemo, useRef, useState } from "react";
+import { resolveApiBase } from "@/utils/base";
+import { glyphnetWsUrl } from "@/utils/transport";   // policy-aware WS URL
 
 export type GraphKey = "personal" | "work";
 
@@ -19,31 +21,6 @@ export interface GlyphnetEvent {
   [k: string]: any;
 }
 
-/**
- * Build the correct WS/WSS URL for GlyphNet in Codespaces, local dev, or same-origin.
- */
-function glyphnetWsURL(topic: string, graph?: GraphKey, token?: string) {
-  const host = location.host;
-  const encTopic = encodeURIComponent(topic);
-  const kgParam = graph ? `&kg=${encodeURIComponent(graph)}` : "";
-  const t = (token ?? localStorage.getItem("gnet:token") ?? "dev-token").trim();
-
-  const scheme = location.protocol === "https:" ? "wss" : "ws";
-
-  // Codespaces: page https://<id>-5173.app.github.dev → backend https://<id>-8080.app.github.dev
-  if (host.endsWith(".app.github.dev")) {
-    return `wss://${host.replace("-5173", "-8080")}/ws/glyphnet?token=${t}&topic=${encTopic}${kgParam}`;
-  }
-
-  // Local dev: Vite on 5173, backend on 8080
-  if (host.endsWith(":5173")) {
-    return `${scheme}://${host.replace(":5173", ":8080")}/ws/glyphnet?token=${t}&topic=${encTopic}${kgParam}`;
-  }
-
-  // Same-origin
-  return `${scheme}://${host}/ws/glyphnet?token=${t}&topic=${encTopic}${kgParam}`;
-}
-
 /** Jittered backoff step */
 function stepBackoffMs(current: number) {
   const base = Math.min(Math.floor(current * 1.8), 15_000); // cap at 15s
@@ -52,7 +29,13 @@ function stepBackoffMs(current: number) {
 }
 
 export default function useGlyphnet(topic: string, graph?: GraphKey) {
-  const urlBuilder = useMemo(() => (t: string, g?: GraphKey) => glyphnetWsURL(t, g), []);
+  // Resolve once, then derive WS URLs via transport policy
+  const ipBase = useMemo(() => resolveApiBase(), []);
+  const wsUrlFor = useMemo(
+    () => (t: string, g?: GraphKey) =>
+      glyphnetWsUrl(ipBase, t, (g || "personal").toLowerCase()),
+    [ipBase]
+  );
 
   const wsRef = useRef<WebSocket | null>(null);
   const timerRef = useRef<number | null>(null);
@@ -74,12 +57,11 @@ export default function useGlyphnet(topic: string, graph?: GraphKey) {
       setReconnecting(false);
       setReconnectIn(null);
 
-      const wsUrl = urlBuilder(topic, graph);
+      const wsUrl = wsUrlFor(topic, graph);  // ⬅️ policy-aware WS URL
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        // connected
         setConnected(true);
         setError(null);
         // reset backoff after any successful connect
@@ -218,7 +200,7 @@ export default function useGlyphnet(topic: string, graph?: GraphKey) {
       setReconnecting(false);
       setReconnectIn(null);
     };
-  }, [topic, graph, urlBuilder]);
+  }, [topic, graph, wsUrlFor]);
 
   return { connected, messages, error, reconnecting, reconnectIn };
 }

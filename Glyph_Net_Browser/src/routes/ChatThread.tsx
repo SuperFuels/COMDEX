@@ -1,15 +1,31 @@
 // src/routes/ChatThread.tsx (FIRST HALF — UPDATED)
 import useGlyphnet from "@/hooks/useGlyphnet";
-import { getRecent, rememberTopic, resolveHumanAddress, getContacts } from "@/lib/addressBook";
+import { getRecent, rememberTopic, rememberLabel, resolveHumanAddress, getContacts } from "@/lib/addressBook";
 import type { RecentItem } from "@/lib/addressBook";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { canonKG, resolveLabelToWA } from '../utils/nameService';
-import type { GraphKey } from '../utils/nameService';
+import { canonKG, resolveLabelToWA } from "../utils/nameService";
+import type { GraphKey } from "../utils/nameService";
 import { makePeer, DEFAULT_ICE } from "../utils/webrtc";
-import type { SignalCapsule, VoiceOffer, VoiceAnswer, IceCapsule } from "@/utils/callTypes";
-
-  // ICE servers state (inside component)
-const [iceServers, setIceServers] = useState<RTCIceServer[]>(DEFAULT_ICE);
+import { Telemetry } from "@/utils/telemetry";
+import { resolveApiBase } from "@/utils/base";
+import type {
+  SignalCapsule,
+  VoiceOffer,
+  VoiceAnswer,
+  IceCapsule as VoiceIce, // optional alias if you used VoiceIce name
+  VoiceCancel,
+  VoiceReject,
+  VoiceEnd,
+  VoiceCaps,
+} from "@/utils/callTypes";
+import {
+  postTx,
+  transportBase,
+  onRadioHealth,
+  getTransportMode,   // NEW name (was getMode)
+  setTransportMode,   // NEW name (was setMode)
+} from "@/utils/transport";
+import type { TransportMode } from "@/utils/transport";
 
 const CLIENT_ID = (() => {
   const k = "gnet:clientId";
@@ -20,147 +36,68 @@ const CLIENT_ID = (() => {
   }
   return v;
 })();
+const ipBase = useMemo(() => resolveApiBase(), []);   // ← canonical cloud/base URL
 
 function hash8(s: string) {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
   return (h >>> 0).toString(36);
 }
-type IceCfg = RTCIceServer[];
 
-function saveIceServers(next: IceCfg) {
-  setIceServers(next);
-  try { localStorage.setItem("gnet:iceServers", JSON.stringify(next)); } catch {}
+// ──────────────────────────────────────────────────────────────
+// Packed-signaling helpers (glyph smuggle): "~SIG-" + base64url(JSON)
+// Exposed in window as __packSig / __unpackSig for quick console tests
+// ──────────────────────────────────────────────────────────────
+
+export const SIG_TAG = "~SIG-";
+
+// Base64url-pack JSON so transports don't mangle '+' '/' '='
+export function packSig(obj: object): string {
+  const b64url = btoa(JSON.stringify(obj))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  return SIG_TAG + b64url;
 }
 
-// Quick helper to append a TURN server
-function addTurnServer(uri: string, username?: string, credential?: string) {
-  const next = iceServers.slice();
-  next.push({ urls: [uri], username, credential });
-  saveIceServers(next);
-}
+// Accept packed signaling in any string that contains "~SIG-"
+export function unpackSig(glyph: string): Partial<VoiceCaps> | null {
+  if (typeof glyph !== "string") return null;
+  const pos = glyph.indexOf(SIG_TAG);
+  if (pos === -1) return null;
 
-function IceSettings() {
-  const [open, setOpen] = useState(false);
-  const [uri, setUri] = useState("");
-  const [username, setUsername] = useState("");
-  const [credential, setCredential] = useState("");
+  // payload after "~SIG-" (strip non-b64url)
+  let url = glyph.slice(pos + SIG_TAG.length).trim().replace(/[^A-Za-z0-9\-_]/g, "");
+  // base64url -> base64
+  let b64 = url.replace(/-/g, "+").replace(/_/g, "/");
+  while (b64.length % 4) b64 += "=";
 
-  function addTurnLocal() {
-    if (!uri.trim() || !username.trim() || !credential.trim()) return;
-    const next = [...iceServers, {
-      urls: [uri.trim()],
-      username: username.trim(),
-      credential: credential.trim(),
-    }];
-    setIceServers(next);
-    try { localStorage.setItem("gnet:iceServers", JSON.stringify(next)); } catch {}
-    setUri(""); setUsername(""); setCredential("");
+  try {
+    const obj = JSON.parse(atob(b64)) as any;
+    if (
+      obj &&
+      (obj.voice_offer ||
+       obj.voice_answer ||
+       obj.ice ||
+       obj.voice_cancel ||
+       obj.voice_reject ||
+       obj.voice_end)
+    ) {
+      return obj as Partial<VoiceCaps>;
+    }
+  } catch {
+    /* swallow; caller treats as non-signaling text */
   }
-
-  function clearLocalOverride() {
-    setIceServers(DEFAULT_ICE);
-    try { localStorage.removeItem("gnet:iceServers"); } catch {}
-  }
-
-  return (
-    <div style={{ marginLeft: 8, display: "inline-flex", alignItems: "center", position: "relative" }}>
-      <button
-        onClick={() => setOpen(v => !v)}
-        title="Call settings (ICE)"
-        style={{ fontSize: 12, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb" }}
-      >
-        ⚙️ Call Settings
-      </button>
-
-      {open && (
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            top: "calc(100% + 6px)",
-            padding: 10,
-            width: 300,
-            background: "#fff",
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
-            zIndex: 20,
-          }}
-        >
-          <div style={{ fontSize: 12, marginBottom: 6, fontWeight: 600 }}>ICE servers in use</div>
-          <ul style={{ margin: 0, padding: 0, listStyle: "none", maxHeight: 140, overflow: "auto" }}>
-            {iceServers.map((s, i) => (
-              <li key={i} style={{ fontSize: 12, padding: "2px 0" }}>
-                {Array.isArray(s.urls) ? s.urls.join(", ") : s.urls}
-                {s.username ? ` — ${s.username}` : ""}
-              </li>
-            ))}
-          </ul>
-
-          <div style={{ marginTop: 8, fontSize: 12, opacity: 0.7 }}>
-            (If backend provides TURN via /api/rtc/ice, it will auto-apply.)
-          </div>
-
-          <hr style={{ margin: "8px 0", borderColor: "#eee" }} />
-
-          <div style={{ display: "grid", gap: 6 }}>
-            <input
-              placeholder="turns:host:5349?transport=tcp"
-              value={uri}
-              onChange={(e) => setUri(e.target.value)}
-              style={{ fontSize: 12, padding: 6, border: "1px solid #e5e7eb", borderRadius: 6 }}
-            />
-            <input
-              placeholder="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              style={{ fontSize: 12, padding: 6, border: "1px solid #e5e7eb", borderRadius: 6 }}
-            />
-            <input
-              placeholder="credential (password/secret)"
-              value={credential}
-              onChange={(e) => setCredential(e.target.value)}
-              style={{ fontSize: 12, padding: 6, border: "1px solid #e5e7eb", borderRadius: 6 }}
-            />
-            <div style={{ display: "flex", gap: 6 }}>
-              <button
-                onClick={addTurnLocal}
-                style={{ fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid #e5e7eb" }}
-              >
-                + Add TURN (local override)
-              </button>
-              <button
-                onClick={clearLocalOverride}
-                style={{ fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid #e5e7eb" }}
-              >
-                Reset to defaults
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return null;
 }
+
+// handy in DevTools
+;(window as any).__packSig = packSig;
+;(window as any).__unpackSig = unpackSig;
 
 // ──────────────────────────────────────────────────────────────
 // Utils
 // ──────────────────────────────────────────────────────────────
-function resolveApiBase(): string {
-  const host = location.host;
-  const isCodespaces = host.endsWith(".app.github.dev");
-  if (isCodespaces) return `https://${host.replace("-5173", "-8080")}`;
-  if (host === "localhost:5173" || host === "127.0.0.1:5173") return "http://localhost:8080";
-  const envHost = (import.meta as any)?.env?.VITE_API_HOST as string | undefined;
-  if (envHost) {
-    const scheme = location.protocol === "https:" ? "https" : "http";
-    return `${scheme}://${envHost}`;
-  }
-  const m = host.match(/^(.*):5173$/);
-  if (m) return `${location.protocol}//${m[1]}:8080`;
-  return `${location.protocol}//${host}`;
-}
 
 function abToB64(buf: ArrayBuffer) {
   let bin = "";
@@ -200,6 +137,7 @@ type NormalizedMsg =
   | { id: string; ts: number; kind: "voice"; from?: string; to?: string; mime: string; data_b64: string; durMs?: number };
 
 // Normalize an incoming event from the WS hook into our UI shape.
+// Normalize an incoming event (works with raw + WS "glyphnet_capsule" wrapper)
 // Normalize an incoming event (works with raw + WS "glyphnet_capsule" wrapper)
 function normalizeIncoming(ev: any): NormalizedMsg | undefined {
   // support both raw envelopes and WS wrapper: { type:"glyphnet_capsule", envelope:{...} }
@@ -265,10 +203,31 @@ function normalizeIncoming(ev: any): NormalizedMsg | undefined {
   const glyphs = Array.isArray(cap?.glyphs) ? cap.glyphs : undefined;
   const glyphStream = Array.isArray(cap?.glyph_stream) ? cap.glyph_stream : undefined;
 
+  // If any glyph is a packed signaling blob, drop the whole event (do not render)
+  const possibleSig =
+    (glyphs && glyphs.find((g: any) => typeof g === "string" && g.indexOf(SIG_TAG) !== -1)) ??
+    (glyphStream && glyphStream.find((g: any) => typeof g === "string" && g.indexOf(SIG_TAG) !== -1));
+
+  if (possibleSig) {
+    const maybe = unpackSig(possibleSig);
+    if (maybe && (maybe.voice_offer || maybe.voice_answer || maybe.ice || maybe.voice_cancel || maybe.voice_reject || maybe.voice_end)) {
+      return undefined; // swallow packed signaling glyphs
+    }
+  }
+
   const txt =
     (glyphs ? glyphs.join("") : undefined) ??
+    (glyphStream ? glyphStream.join("") : undefined) ??
     (typeof ev?.text === "string" ? ev.text : undefined) ??
-    (glyphStream ? glyphStream.join("") : undefined);
+    (typeof envelope?.text === "string" ? envelope.text : undefined);
+
+  // Also guard if the joined text itself is a packed signaling blob
+  if (typeof txt === "string" && txt.indexOf(SIG_TAG) !== -1) {
+    const maybe = unpackSig(txt);
+    if (maybe && (maybe.voice_offer || maybe.voice_answer || maybe.ice || maybe.voice_cancel || maybe.voice_reject || maybe.voice_end)) {
+      return undefined;
+    }
+  }
 
   if (typeof txt === "string" && txt.length) {
     const id = evId ? `txt:${evId}` : `txt:${ts}:${hash8(txt)}`;
@@ -286,6 +245,17 @@ export default function ChatThread({
   defaultTopic?: string;
   defaultGraph?: GraphKey;
 }) {
+
+  // ICE servers state (inside component)
+  const [iceServers, setIceServers] = useState<RTCIceServer[]>(() => {
+    try {
+      const raw = localStorage.getItem("gnet:iceServers");
+      const parsed = raw ? (JSON.parse(raw) as RTCIceServer[]) : null;
+      return Array.isArray(parsed) && parsed.length ? parsed : DEFAULT_ICE;
+    } catch {
+      return DEFAULT_ICE;
+    }
+  });
   // Per-tab agent id (used in lock ownership + sent as X-Agent-Id on /tx)
   const AGENT_ID = useMemo(() => {
     let id = sessionStorage.getItem("gnet:agentId");
@@ -295,8 +265,6 @@ export default function ChatThread({
     }
     return id;
   }, []);
-
-  const base = useMemo(() => resolveApiBase(), []);
 
   // Topic: prefer #/chat?topic=, else prop, else local default
   const [topic, setTopic] = useState<string>(() => {
@@ -314,6 +282,32 @@ export default function ChatThread({
     const kg = (sp.get("kg") || defaultGraph || "personal").toLowerCase() as GraphKey;
     return kg === "work" ? "work" : "personal";
   });
+
+// ── Telemetry (RF/IP send success/error counters) ─────────────
+  const [tele, setTele] = useState(Telemetry.snap());
+  useEffect(() => {
+    const id = window.setInterval(() => setTele(Telemetry.snap()), 1500);
+    return () => clearInterval(id);
+  }, []);  
+
+  const resetTelemetry = React.useCallback(() => {
+    try { Telemetry.reset(); } catch {}
+    setTele(Telemetry.snap()); // refresh UI immediately
+  }, []);
+
+  // Radio-node health → drives base selection
+  const [radioOk, setRadioOk] = React.useState(false);
+  const [lastHealthAt, setLastHealthAt] = React.useState<number>(Date.now());
+  React.useEffect(() => onRadioHealth(ok => {
+    setRadioOk(ok);
+    setLastHealthAt(Date.now());
+  }), []);
+
+  // IP base picked once; transportBase auto-switches using radioOk
+  const base = React.useMemo(
+    () => transportBase(resolveApiBase()),
+    [radioOk]
+  );
 
   // ✅ Now call the hook (AFTER topic & graph exist)
   const { connected, messages, reconnecting } = useGlyphnet(topic, graph);
@@ -356,6 +350,27 @@ export default function ChatThread({
     })();
     return () => { cancel = true; };
   }, [base]);
+
+  const offerTimeoutRef = useRef<number | null>(null);
+
+  // WebRTC: call state + refs (canonical)
+  type CallState = "idle" | "ringing" | "offering" | "connecting" | "connected" | "ended";
+  const [callState, setCallState] = React.useState<CallState>("idle");
+
+  useEffect(() => {
+    if (callState === "offering" || callState === "connecting") {
+      // auto-cancel after 30s if not answered
+      offerTimeoutRef.current = window.setTimeout(() => {
+        cancelOutbound();
+      }, 30_000);
+    }
+    return () => {
+      if (offerTimeoutRef.current != null) {
+        clearTimeout(offerTimeoutRef.current);
+        offerTimeoutRef.current = null;
+      }
+    };
+  }, [callState]);
 
   // ─── Floor control (walkie-talkie) state ─────────────────────
   const lockResourceRef = useRef<string | null>(null);
@@ -453,24 +468,47 @@ export default function ChatThread({
   }
   useEffect(() => () => stopLevelLoop(), []);
 
+  const recent = useMemo(() => getRecent(8), []);
+
+  // audio prefs
+  const [audioVol, setAudioVol] = useState(0.9);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  useEffect(() => {
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.muted = !audioEnabled;
+      try { remoteAudioRef.current.volume = audioVol; } catch {}
+    }
+  }, [audioEnabled, audioVol]);
+
+  useEffect(() => {
+    return () => {
+      try { pcRef.current?.getSenders().forEach(s => s.track?.stop()); } catch {}
+      try { pcRef.current?.close(); } catch {}
+      pcRef.current = null;
+      callIdRef.current = null;
+    };
+  }, []);
+  // --- WebRTC signaling scaffolding ---
+
   // Signaling capsule shapes
   type VoiceOffer  = { voice_offer:  { sdp: string; call_id: string } };
   type VoiceAnswer = { voice_answer: { sdp: string; call_id: string } };
   type VoiceIce    = { ice: { candidate: RTCIceCandidateInit; call_id: string } };
 
-  const recent = useMemo(() => getRecent(8), []);
+  // NEW
+  type VoiceCancel = { voice_cancel: { call_id: string } };  // caller cancels before answer
+  type VoiceReject = { voice_reject: { call_id: string } };  // callee declines
+  type VoiceEnd    = { voice_end:    { call_id: string } };  // either side ends after connect
 
-  // audio prefs
-  const [audioEnabled, setAudioEnabled] = useState(true);
-  const [audioVol, setAudioVol] = useState(0.9);
-
-    // --- WebRTC signaling scaffolding ---
   type VoiceCaps = {
-    voice_offer?: { sdp: string; call_id: string };
+    voice_offer?:  { sdp: string; call_id: string };
     voice_answer?: { sdp: string; call_id: string };
-    ice?: { candidate: RTCIceCandidateInit; call_id: string };
+    ice?:          { candidate: RTCIceCandidateInit; call_id: string };
+    voice_cancel?: { call_id: string };
+    voice_reject?: { call_id: string };
+    voice_end?:    { call_id: string };
   };
-  
+
   const pendingOfferRef = React.useRef<VoiceCaps['voice_offer'] | null>(null);
 
   const lossRef = useRef<{ recv: number; lost: number; lastSeq: Map<string, number> }>({
@@ -478,10 +516,6 @@ export default function ChatThread({
     lost: 0,
     lastSeq: new Map(),
   });
-
-  // WebRTC: call state + refs (canonical)
-  type CallState = "idle" | "ringing" | "offering" | "connecting" | "connected" | "ended";
-  const [callState, setCallState] = React.useState<CallState>("idle");
 
   const pcRef = React.useRef<RTCPeerConnection | null>(null);
   const callIdRef = React.useRef<string | null>(null);
@@ -498,6 +532,50 @@ export default function ChatThread({
   // mic picker …
   const [mics, setMics] = useState<MediaDeviceInfo[]>([]);
   const [selectedMicId, setSelectedMicId] = useState<string>(() => localStorage.getItem("gnet:micDeviceId") || "");
+
+  const ringAudio = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    if (!ringAudio.current) {
+      ringAudio.current = new Audio("/ring.mp3"); // put a small asset in /public
+      ringAudio.current.loop = true;
+    }
+    if (callState === "ringing") { ringAudio.current?.play().catch(() => {}); }
+    else { try { ringAudio.current?.pause(); ringAudio.current!.currentTime = 0; } catch {} }
+  }, [callState]);
+
+  const micDisabled = (!!floorBusyBy && !floorOwned) || callState !== "idle";
+
+  // Call duration timer
+  const [callSecs, setCallSecs] = useState(0);
+  const callTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (callState === "connected") {
+      callStartedAtRef.current = Date.now();  // ⬅️ start-of-call timestamp
+      setCallSecs(0);
+      callTimerRef.current = window.setInterval(() => setCallSecs((s) => s + 1), 1000);
+    } else if (callTimerRef.current != null) {
+      clearInterval(callTimerRef.current);
+      callTimerRef.current = null;
+    }
+    return () => {
+      if (callTimerRef.current != null) clearInterval(callTimerRef.current);
+    };
+  }, [callState]);
+
+  const [lastCandType, setLastCandType] = useState<string>("");
+  useEffect(() => {
+    const pc = pcRef.current;
+    if (!pc) return;
+    pc.onicecandidate = (e) => {
+      if (e.candidate) {
+        const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
+        if (t) setLastCandType(t); // "host" | "srflx" | "relay"
+        if (callIdRef.current) sendIce(e.candidate.toJSON(), callIdRef.current).catch(() => {});
+      }
+    };
+  }, [pcRef.current]);
+  
 
   async function refreshMics() {
     try {
@@ -638,39 +716,163 @@ export default function ChatThread({
 
         // ── WebRTC signaling intercept (do not render into thread)
         {
-          const cap =
-            ((ev as any)?.envelope?.capsule ??
-            (ev as any)?.capsule ??
-            {}) as any;
+          // Support both raw + WS wrapper; keep it loose to avoid TS narrowing noise
+          const rawCap = (
+            ((ev as any)?.envelope?.capsule) ??
+            ((ev as any)?.capsule) ??
+            {}
+          ) as any;
 
-          if (cap.voice_offer || cap.voice_answer || cap.ice) {
-            const myCall = callIdRef.current;
-            const traceId =
-              (ev as any)?.envelope?.meta?.trace_id ??
-              (ev as any)?.meta?.trace_id;
+          let cap: any = rawCap;
 
-            if (cap.voice_offer) {
-              // Ignore our own offer echoes
-              if (traceId !== AGENT_ID) {
-                setCallState("ringing");
-                // store latest offer so Accept can consume it
-                pendingOfferRef.current = cap.voice_offer as { sdp: string; call_id: string };
-              }
-            } else if (cap.voice_answer && myCall && pcRef.current) {
-              if ((cap.voice_answer as any).call_id === myCall) {
-                pcRef.current
-                  .setRemoteDescription(JSON.parse((cap.voice_answer as any).sdp))
-                  .catch(() => {});
-                setCallState("connected");
-              }
-            } else if (cap.ice && myCall && pcRef.current) {
-              if ((cap.ice as any).call_id === myCall) {
-                pcRef.current
-                  .addIceCandidate((cap.ice as any).candidate)
-                  .catch(() => {});
+          // If native signaling keys aren’t present, try to unpack from glyphs/glyph_stream or plain text
+          if (
+            !cap.voice_offer &&
+            !cap.voice_answer &&
+            !cap.ice &&
+            !cap.voice_cancel &&
+            !cap.voice_reject &&
+            !cap.voice_end
+          ) {
+            const gs: string[] | undefined =
+              (Array.isArray(rawCap.glyphs) ? rawCap.glyphs : undefined) ??
+              (Array.isArray(rawCap.glyph_stream) ? rawCap.glyph_stream : undefined) ??
+              (Array.isArray((ev as any)?.glyphs) ? (ev as any).glyphs : undefined) ??
+              (Array.isArray((ev as any)?.glyph_stream) ? (ev as any).glyph_stream : undefined) ??
+              (Array.isArray((ev as any)?.envelope?.capsule?.glyphs) ? (ev as any).envelope.capsule.glyphs : undefined) ??
+              (Array.isArray((ev as any)?.envelope?.capsule?.glyph_stream) ? (ev as any).envelope.capsule.glyph_stream : undefined);
+
+            if (gs && gs.length) {
+              for (const g of gs) {
+                const maybe = unpackSig(g);
+                if (maybe && (maybe.voice_offer || maybe.voice_answer || maybe.ice || maybe.voice_cancel || maybe.voice_reject || maybe.voice_end)) {
+                  cap = maybe;
+                  break;
+                }
               }
             }
-            continue; // skip thread rendering for signaling frames
+
+            // NEW: also check plain text fields that may carry packed signaling
+            if (!cap.voice_offer && !cap.voice_answer && !cap.ice && !cap.voice_cancel && !cap.voice_reject && !cap.voice_end) {
+              const txts = [
+                (ev as any)?.text,
+                (ev as any)?.envelope?.text,
+                typeof rawCap?.text === "string" ? rawCap.text : undefined,
+              ];
+              for (const t of txts) {
+                if (typeof t === "string" && t.indexOf(SIG_TAG) !== -1) {
+                  const maybe = unpackSig(t);
+                  if (maybe && (maybe.voice_offer || maybe.voice_answer || maybe.ice || maybe.voice_cancel || maybe.voice_reject || maybe.voice_end)) {
+                    cap = maybe;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+
+          if (cap.voice_offer || cap.voice_answer || cap.ice || cap.voice_cancel || cap.voice_reject || cap.voice_end) {
+            const myCall = callIdRef.current;
+
+            // Be lenient about sender id location
+            const traceId =
+              (ev as any)?.envelope?.meta?.trace_id ??
+              (ev as any)?.meta?.trace_id ??
+              (ev as any)?.envelope?.meta?.agent_id ??
+              (ev as any)?.meta?.agent_id ??
+              (ev as any)?.envelope?.meta?.sender ??
+              (ev as any)?.meta?.sender ??
+              (ev as any)?.from ??
+              null;
+
+            console.debug("[SIG]", {
+              capType:
+                cap.voice_offer ? "offer" :
+                cap.voice_answer ? "answer" :
+                cap.ice ? "ice" :
+                cap.voice_cancel ? "cancel" :
+                cap.voice_reject ? "reject" : "end",
+              from: traceId,
+              self: AGENT_ID,
+              callState,
+            });
+
+            // OFFER — ring only if truly idle; reject competing call_ids while busy
+            const offer = cap.voice_offer as { sdp: string; call_id: string } | undefined;
+            if (offer) {
+              const fromSelf  = !!traceId && traceId === AGENT_ID;
+              const currentId = callIdRef.current || pendingOfferRef.current?.call_id || null;
+              const haveActive = !!currentId;
+
+              if (!fromSelf && callState === "idle" && !haveActive) {
+                setCallState("ringing");
+                pendingOfferRef.current = offer;
+              } else if (currentId && offer.call_id !== currentId) {
+                txSig({ voice_reject: { call_id: offer.call_id } } as VoiceReject).catch(() => {});
+              }
+              continue; // don’t render
+            }
+
+            // ANSWER
+            const answer = cap.voice_answer as { sdp: string; call_id: string } | undefined;
+            if (answer && myCall && pcRef.current) {
+              if (answer.call_id === myCall) {
+                pcRef.current.setRemoteDescription(JSON.parse(answer.sdp)).catch(() => {});
+                setCallState("connected");
+              }
+              continue;
+            }
+
+            // ICE
+            const ice = cap.ice as { candidate: RTCIceCandidateInit; call_id: string } | undefined;
+            if (ice && myCall && pcRef.current) {
+              if (ice.call_id === myCall) {
+                pcRef.current.addIceCandidate(ice.candidate).catch(() => {});
+              }
+              continue;
+            }
+
+            // CANCEL (caller stopped before answer)
+            const cancel = cap.voice_cancel as { call_id: string } | undefined;
+            if (cancel) {
+              if (pendingOfferRef.current?.call_id === cancel.call_id) {
+                pendingOfferRef.current = null;
+                setCallState("idle");
+                try { ringAudio.current?.pause(); ringAudio.current!.currentTime = 0; } catch {}
+              }
+              continue;
+            }
+
+            // REJECT (callee declined)
+            const reject = cap.voice_reject as { call_id: string } | undefined;
+            if (reject) {
+              if (myCall === reject.call_id && (callState === "offering" || callState === "connecting" || callState === "ringing")) {
+                try { pcRef.current?.close(); } catch {}
+                pcRef.current = null;
+                callIdRef.current = null;
+                origTrackRef.current = null;
+                setMuted(false);
+                setOnHold(false);
+                setCallState("ended");
+              }
+              continue;
+            }
+
+            // END (either side hung up after connect)
+            const end = (cap as any).voice_end as { call_id: string } | undefined;
+            if (end) {
+              if (myCall === end.call_id && (callState === "connected" || callState === "connecting")) {
+                logCallSummary("remote");    // ⬅️ add the receiver bubble
+                try { pcRef.current?.close(); } catch {}
+                pcRef.current = null;
+                callIdRef.current = null;
+                origTrackRef.current = null;
+                setMuted(false);
+                setOnHold(false);
+                setCallState("ended");
+              }
+              continue; // don't render signaling frames
+            }
           }
         }
 
@@ -765,10 +967,13 @@ export default function ChatThread({
   // Composer + PTT state …
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
-  const iceServers = DEFAULT_ICE;
   const mrRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+
+  const callStartedAtRef = useRef<number | null>(null);
+  const callSecsRef = useRef(0);
+  useEffect(() => { callSecsRef.current = callSecs; }, [callSecs]);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const meterRAF = useRef<number | null>(null);
@@ -846,9 +1051,6 @@ export default function ChatThread({
     lossRef.current = { recv: 0, lost: 0, lastSeq: new Map() };
   }, [topic, graph]);
 
-
-
-  // ──────────────────────────────────────────────────────────────
   // Send text (adds graph in meta) + optimistic bubble + sent-cache
   async function sendText() {
     const msg = text.trim();
@@ -857,7 +1059,13 @@ export default function ChatThread({
     setBusy(true);
 
     const tempId = `local:${Date.now()}:${Math.random().toString(36).slice(2, 6)}`;
-    const optim: NormalizedMsg = { id: tempId, ts: Date.now(), kind: "text", text: msg, from: AGENT_ID };
+    const optim: NormalizedMsg = {
+      id: tempId,
+      ts: Date.now(),
+      kind: "text",
+      text: msg,
+      from: AGENT_ID,
+    };
 
     setThread((prev) => {
       const next = [...prev, optim];
@@ -866,22 +1074,16 @@ export default function ChatThread({
     });
 
     try {
-      const res = await fetch(`${base}/api/glyphnet/tx`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Agent-Token": "dev-token",
-          "X-Agent-Id": AGENT_ID,
-        },
-        body: JSON.stringify({
-          recipient: topic,
-          capsule: { glyphs: [msg] },
-          meta: { trace_id: AGENT_ID, graph, t0: Date.now() }, // ← added here
-        }),
+      const res = await postTx(ipBase, {
+        recipient: topic,
+        graph,
+        capsule: { glyphs: [msg] },
+        meta: { trace_id: AGENT_ID, graph, t0: Date.now() },
       });
 
       let payload: any = null;
       try { payload = await res.json(); } catch {}
+
       if (payload?.msg_id) rememberSent(payload.msg_id);
 
       rememberTopic(topic, addrInput || topic, graph);
@@ -919,7 +1121,12 @@ export default function ChatThread({
       // optimistic bubble (re-uses voice echo replacement via mime+fpB64)
       const localId = `local-voice:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
       const optimistic: NormalizedMsg = {
-        id: localId, kind: "voice", ts: Date.now(), from: AGENT_ID, mime, data_b64,
+        id: localId,
+        kind: "voice",
+        ts: Date.now(),
+        from: AGENT_ID,
+        mime,
+        data_b64,
       };
       setThread((t) => {
         const next = [...t, optimistic];
@@ -927,51 +1134,62 @@ export default function ChatThread({
         return next;
       });
 
-      // POST voice_note capsule
-      const r = await fetch(`${base}/api/glyphnet/tx`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Agent-Token": "dev-token",
-          "X-Agent-Id": AGENT_ID,
-        },
-        body: JSON.stringify({
+      const headers = {
+        "Content-Type": "application/json",
+        "X-Agent-Token": "dev-token",
+        "X-Agent-Id": AGENT_ID,
+      };
+
+      // POST voice_note capsule (policy-aware: cloud vs radio-node)
+      const r = await postTx(
+        base,
+        {
           recipient: topic,
           graph,
           capsule: { voice_note: { ts: Date.now(), mime, data_b64 } },
           meta: { trace_id: AGENT_ID, graph, t0: Date.now() },
-        }),
-      });
+        },
+        headers
+      );
 
       const j = await r.json().catch(() => ({} as any));
       if (j?.msg_id) rememberSent(j.msg_id);
+
+      // transcription toggle state (if you removed it by accident, add it back)
+      const [transcribeOnAttach, setTranscribeOnAttach] = useState<boolean>(() => {
+        try { return localStorage.getItem("gnet:transcribeOnAttach") === "1"; } catch { return false; }
+      });
+
+      // you already have this elsewhere:
+      const [transcribing, setTranscribing] = useState(false);
 
       // ⬇️ Optional transcription → send glyphs:[text]
       if (transcribeOnAttach) {
         setTranscribing(true);
         const t = await transcribeAudio(mime, data_b64); // expects { text, engine }
         setTranscribing(false);
+
         if (t?.text) {
-          await fetch(`${base}/api/glyphnet/tx`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Agent-Token": "dev-token",
-              "X-Agent-Id": AGENT_ID,
-            },
-            body: JSON.stringify({
-              recipient: topic,
-              graph,
-              capsule: { glyphs: [t.text] },
-              meta: {
-                trace_id: AGENT_ID,
+          try {
+            await postTx(
+              base,
+              {
+                recipient: topic,
                 graph,
-                t0: Date.now(),
-                transcript_of: j?.msg_id || null,
-                engine: t.engine || undefined,
+                capsule: { glyphs: [t.text] },
+                meta: {
+                  trace_id: AGENT_ID,
+                  graph,
+                  t0: Date.now(),
+                  transcript_of: j?.msg_id || null,
+                  engine: t.engine || undefined,
+                },
               },
-            }),
-          }).catch(() => {});
+              headers
+            );
+          } catch {
+            // swallow; UI already has the voice bubble
+          }
         }
       }
 
@@ -982,22 +1200,25 @@ export default function ChatThread({
     }
   }
 
-  // ——— Signaling: POST a signaling capsule over the existing /tx path ———
+  // ——— Signaling: POST a signaling capsule; also smuggle as glyph for transports that drop unknown capsules ———
   async function txSig(capsule: object) {
-    await fetch(`${base}/api/glyphnet/tx`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Agent-Token": "dev-token",
-        "X-Agent-Id": AGENT_ID,
-      },
-      body: JSON.stringify({
-        recipient: topic,
-        graph,
-        capsule,
-        meta: { trace_id: AGENT_ID, graph, t0: Date.now() },
-      }),
-    }).catch(() => {});
+    const common = {
+      recipient: topic,
+      graph,
+      meta: { trace_id: AGENT_ID, graph, t0: Date.now() },
+    };
+    const headers = {
+      "Content-Type": "application/json",
+      "X-Agent-Token": "dev-token",
+      "X-Agent-Id": AGENT_ID,
+    };
+
+    // Primary: native capsule (policy-aware: radio/IP)
+    postTx(ipBase, { ...common, capsule }, headers).catch(() => {});
+
+    // Fallback: packed signaling inside glyphs (also policy-aware)
+    const packed = packSig(capsule);
+    postTx(ipBase, { ...common, capsule: { glyphs: [packed] } }, headers).catch(() => {});
   }
 
   async function sendOffer(sdp: string, callId: string) {
@@ -1008,6 +1229,17 @@ export default function ChatThread({
   }
   async function sendIce(candidate: RTCIceCandidateInit, callId: string) {
     return txSig({ ice: { candidate, call_id: callId } } satisfies VoiceIce);
+  }
+
+  // --- extra call-signal senders ---
+  async function sendCancel(callId: string) {
+    return txSig({ voice_cancel: { call_id: callId } } as VoiceCancel);
+  }
+  async function sendReject(callId: string) {
+    return txSig({ voice_reject: { call_id: callId } } as VoiceReject);
+  }
+  async function sendEnd(callId: string) {
+    return txSig({ voice_end: { call_id: callId } } as VoiceEnd);
   }
 
   function rememberLocalMicTrack(stream: MediaStream) {
@@ -1061,13 +1293,21 @@ export default function ChatThread({
       "caller",
       {
         onLocalDescription: (sdp) => sendOffer(JSON.stringify(sdp), callId),
-        onLocalIce: (cand) => sendIce(cand, callId),
+        onLocalIce: (cand) => sendIce(cand, callId), // ← this is the ONLY place we send ICE
         onRemoteTrack: (ms) => {
           if (remoteAudioRef.current) remoteAudioRef.current.srcObject = ms;
         },
       },
       { iceServers }
     );
+
+    // Just record the last candidate type for UI; do NOT send ICE here (avoid duplicate sends)
+    pc.onicecandidate = (e) => {
+      if (e.candidate) {
+        const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
+        if (t) setLastCandType(t); // "host" | "srflx" | "relay"
+      }
+    };
 
     pc.onconnectionstatechange = () => {
       const s = pc.connectionState;
@@ -1077,7 +1317,7 @@ export default function ChatThread({
 
     // attach local mic tracks
     stream.getTracks().forEach((t) => pc.addTrack(t, stream));
-    rememberLocalMicTrack(stream);   // ⬅️ capture original mic track for mute/hold
+    rememberLocalMicTrack(stream); // capture original mic track for mute/hold
     pcRef.current = pc;
 
     // create + send SDP offer via helper
@@ -1086,7 +1326,7 @@ export default function ChatThread({
 
   // ——— Inbound: accept a ringing call ———
   async function acceptCall() {
-    const offer = (window as any).__pendingOffer as { sdp: string; call_id: string } | undefined;
+    const offer = pendingOfferRef.current as { sdp: string; call_id: string } | null;
     if (!offer) return;
 
     callIdRef.current = offer.call_id;
@@ -1098,13 +1338,21 @@ export default function ChatThread({
       "callee",
       {
         onLocalDescription: (sdp) => sendAnswer(JSON.stringify(sdp), offer.call_id),
-        onLocalIce: (cand) => sendIce(cand, offer.call_id),
+        onLocalIce: (cand) => sendIce(cand, offer.call_id), // ← only here for ICE sending
         onRemoteTrack: (ms) => {
           if (remoteAudioRef.current) remoteAudioRef.current.srcObject = ms;
         },
       },
       { iceServers }
     );
+
+    // Only update UI candidate type; do NOT send ICE here
+    pc.onicecandidate = (e) => {
+      if (e.candidate) {
+        const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
+        if (t) setLastCandType(t);
+      }
+    };
 
     pc.onconnectionstatechange = () => {
       const s = pc.connectionState;
@@ -1114,7 +1362,7 @@ export default function ChatThread({
 
     // attach local mic tracks
     stream.getTracks().forEach((t) => pc.addTrack(t, stream));
-    rememberLocalMicTrack(stream);   // ⬅️ capture original mic track for mute/hold
+    rememberLocalMicTrack(stream); // capture original mic track for mute/hold
     pcRef.current = pc;
 
     // apply remote offer, create + send answer
@@ -1122,22 +1370,66 @@ export default function ChatThread({
     await (pc as any)._emitLocalDescription("answer");
 
     // clear pending offer
-    (window as any).__pendingOffer = null;
+    pendingOfferRef.current = null;
   }
 
-  // ——— Decline / Hangup ———
+  // ——— Decline (callee says "no") ———
   function declineCall() {
-    (window as any).__pendingOffer = null;
+    const pending = pendingOfferRef.current as { sdp: string; call_id: string } | null;
+    if (pending?.call_id) {
+      sendReject(pending.call_id).catch(() => {});
+    }
+    pendingOfferRef.current = null;
     setCallState("idle");
+    try { ringAudio.current?.pause(); ringAudio.current!.currentTime = 0; } catch {}
+  }
+
+  function fmtDur(secs: number) {
+    return secs >= 60 ? `${Math.floor(secs / 60)}m ${secs % 60}s` : `${secs}s`;
+  }
+
+  // Single, final version — paste in place
+  function logCallSummary(source: "local" | "remote") {
+    const endedAt = Date.now();
+    const secs = Math.max(0, callSecsRef.current | 0);
+    const when = new Date(endedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const msg = `📞 Call ended • ${secs ? formatDur(secs) : "—"} • ${when}`;
+
+    const id = `call:${callIdRef.current || "n/a"}:${endedAt}`;
+    const bubble: NormalizedMsg = {
+      id,
+      ts: endedAt,
+      kind: "text",
+      text: msg,
+      ...(source === "local" ? { from: AGENT_ID } : {}),
+    };
+
+    setThread((prev) => {
+      const next = [...prev, bubble];
+      try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+      return next;
+    });
   }
 
   function hangupCall() {
+    const cid = callIdRef.current;
+    if (cid) {
+      if (callState === "offering" || callState === "connecting") {
+        // cancel before remote answer
+        sendCancel(cid).catch(() => {});
+      } else if (callState === "connected") {
+        // normal end after connect
+        sendEnd(cid).catch(() => {});
+      }
+    }
+
+    logCallSummary("local");
+
     try { pcRef.current?.getSenders().forEach((s) => s.track?.stop()); } catch {}
     try { pcRef.current?.close(); } catch {}
     pcRef.current = null;
     callIdRef.current = null;
 
-    // ⬇️ reset mute/hold + original track
     origTrackRef.current = null;
     setMuted(false);
     setOnHold(false);
@@ -1145,6 +1437,39 @@ export default function ChatThread({
     setCallState("ended");
   }
   
+  function cancelOutbound() {
+    const cid = callIdRef.current;
+
+    // Tell the peer we’re aborting before connect
+    if (cid) { sendCancel(cid).catch(() => {}); }
+
+    // Clean up local peer/mic
+    try { pcRef.current?.getSenders().forEach(s => s.track?.stop()); } catch {}
+    try { pcRef.current?.close(); } catch {}
+    pcRef.current = null;
+    callIdRef.current = null;
+
+    // reset mute/hold + original track
+    origTrackRef.current = null;
+    setMuted(false);
+    setOnHold(false);
+
+    // stop any ringing just in case
+    try { ringAudio.current?.pause(); ringAudio.current!.currentTime = 0; } catch {}
+
+    // end state (you can choose "idle" if you prefer)
+    setCallState("ended");
+
+    // optional: local summary bubble
+    logCallSummary("local");
+  }
+
+  function formatDur(sec: number) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m ? `${m}m ${s}s` : `${s}s`;
+  }
+
   // ──────────────────────────────────────────────────────────────
   // Mic / PTT helpers
   const [transcribing, setTranscribing] = React.useState(false);
@@ -1237,20 +1562,20 @@ export default function ChatThread({
   }
 
   async function sendSignal(capsule: SignalCapsule) {
-    await fetch(`${base}/api/glyphnet/tx`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Agent-Token": "dev-token",
-        "X-Agent-Id": AGENT_ID,
-      },
-      body: JSON.stringify({
+    await postTx(
+      ipBase,
+      {
         recipient: topic,
         graph,
         capsule,
         meta: { trace_id: AGENT_ID, graph, t0: Date.now() },
-      }),
-    });
+      },
+      {
+        "Content-Type": "application/json",
+        "X-Agent-Token": "dev-token",
+        "X-Agent-Id": AGENT_ID,
+      }
+    );
   }
 
   const [micReady, setMicReady] = useState(false);
@@ -1335,19 +1660,24 @@ export default function ChatThread({
     ttl_ms = 3500
   ) {
     const owner = AGENT_ID;
-    await fetch(`${base}/api/glyphnet/tx`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Agent-Token": "dev-token",
-        "X-Agent-Id": owner,
-      },
-      body: JSON.stringify({
-        recipient: topic,
-        capsule: { entanglement_lock: { op, resource, owner, ttl_ms, ts: Date.now() } },
-        meta: { trace_id: owner, graph, t0: Date.now() }, // ← added t0
-      }),
-    });
+    try {
+      await postTx(
+        ipBase, // choose RF/IP automatically
+        {
+          recipient: topic,
+          graph,
+          capsule: { entanglement_lock: { op, resource, owner, ttl_ms, ts: Date.now() } },
+          meta: { trace_id: owner, graph, t0: Date.now() },
+        },
+        {
+          "Content-Type": "application/json",
+          "X-Agent-Token": "dev-token",
+          "X-Agent-Id": owner,
+        }
+      );
+    } catch (e) {
+      console.warn("[sendLock] post failed", e);
+    }
   }
 
   function waitForLock(resource: string, timeoutMs = 1200): Promise<"granted" | "denied" | "timeout"> {
@@ -1477,6 +1807,7 @@ export default function ChatThread({
     }
   }
 
+  // ───────────────── stopPTT (fixed braces) ─────────────────
   async function stopPTT() {
     if (!pttDownRef.current) return;
     pttDownRef.current = false;
@@ -1534,26 +1865,24 @@ export default function ChatThread({
           },
         };
 
-        // Optimistic local bubble + POST /tx
         await sendVoiceFrame(vfCapsule);
       }
     } catch (e) {
-      console.warn("send voice note failed:", e);
+      console.warn("[stopPTT] failed to build/send voice note", e);
+    } finally {
+      // release lock + cleanup keepalive every time
+      if (keepaliveRef.current != null) {
+        clearInterval(keepaliveRef.current);
+        keepaliveRef.current = null;
+      }
+      const r0 = lockResourceRef.current;
+      lockResourceRef.current = null;
+      if (r0) sendLock("release", r0).catch(() => {});
+      setFloorOwned(false);
     }
+  } // ← closes stopPTT()
 
-    // Release the floor
-    if (keepaliveRef.current != null) {
-      clearInterval(keepaliveRef.current);
-      keepaliveRef.current = null;
-    }
-    const res = lockResourceRef.current;
-    lockResourceRef.current = null;
-    if (res) {
-      try { await sendLock("release", res); } catch {}
-    }
-    setFloorOwned(false);
-  }
-
+  // ───────────────── sendVoiceFrame (now OUTSIDE stopPTT) ─────────────────
   async function sendVoiceFrame(vfCapsule: any) {
     const localId = `local-voice:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
     const optimistic: NormalizedMsg = {
@@ -1572,21 +1901,20 @@ export default function ChatThread({
     });
 
     try {
-      const r = await fetch(`${base}/api/glyphnet/tx`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Agent-Token": "dev-token",
-          "X-Agent-Id": AGENT_ID,
-        },
-        body: JSON.stringify({
+      const r = await postTx(
+        ipBase,
+        {
           recipient: topic,
           graph,
           capsule: vfCapsule,
-          meta: { trace_id: AGENT_ID, graph, t0: Date.now() }, // ← added t0 here
-        }),
-      });
-
+          meta: { trace_id: AGENT_ID, graph, t0: Date.now() },
+        },
+        {
+          "Content-Type": "application/json",
+          "X-Agent-Token": "dev-token",
+          "X-Agent-Id": AGENT_ID,
+        }
+      );
       const j = await r.json().catch(() => ({} as any));
       if (j?.msg_id) rememberSent(j.msg_id);
     } catch (e) {
@@ -1633,20 +1961,20 @@ export default function ChatThread({
 
     // send as voice_note capsule (with t0 for RTT)
     try {
-      const r = await fetch(`${base}/api/glyphnet/tx`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Agent-Token": "dev-token",
-          "X-Agent-Id": AGENT_ID,
-        },
-        body: JSON.stringify({
+      const r = await postTx(
+        ipBase,
+        {
           recipient: topic,
           graph,
           capsule: { voice_note: { ts: Date.now(), mime, data_b64: b64 } },
           meta: { trace_id: AGENT_ID, graph, t0: Date.now() },
-        }),
-      });
+        },
+        {
+          "Content-Type": "application/json",
+          "X-Agent-Token": "dev-token",
+          "X-Agent-Id": AGENT_ID,
+        }
+      );
 
       const j = await r.json().catch(() => ({} as any));
       if (j?.msg_id) rememberSent(j.msg_id);
@@ -1657,14 +1985,9 @@ export default function ChatThread({
         const t = await transcribeAudio(mime, b64); // expects { text, engine }
         setTranscribing(false);
         if (t?.text) {
-          await fetch(`${base}/api/glyphnet/tx`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Agent-Token": "dev-token",
-              "X-Agent-Id": AGENT_ID,
-            },
-            body: JSON.stringify({
+          await postTx(
+            ipBase,
+            {
               recipient: topic,
               graph,
               capsule: { glyphs: [t.text] },
@@ -1675,8 +1998,13 @@ export default function ChatThread({
                 transcript_of: j?.msg_id || null,
                 engine: t.engine || undefined,
               },
-            }),
-          }).catch(() => {});
+            },
+            {
+              "Content-Type": "application/json",
+              "X-Agent-Token": "dev-token",
+              "X-Agent-Id": AGENT_ID,
+            }
+          ).catch(() => {});
         }
       }
 
@@ -1695,6 +2023,125 @@ export default function ChatThread({
     return (a + b) || a || "👤";
   }
 
+  // ── Call history rollup helpers ──────────────────────────────────────────────
+  function isCallSummaryMsg(m: NormalizedMsg): boolean {
+    return (
+      m?.kind === "text" &&
+      typeof (m as any).text === "string" &&
+      (m as any).text.startsWith("📞 Call ended")
+    );
+  }
+
+  // Parse "📞 Call ended • 2m 5s • 09:41" or "📞 Call ended • 15s • 09:41" or "• — •"
+  function parseCallSecsFromText(txt: string): number {
+    const m = /Call ended\s*•\s*([^•]+)\s*•/i.exec(txt);
+    if (!m) return 0;
+    const dur = m[1].trim();
+    if (dur === "—") return 0;
+    let secs = 0;
+    const mm = /(\d+)\s*m/.exec(dur);
+    const ss = /(\d+)\s*s/.exec(dur);
+    if (mm) secs += parseInt(mm[1], 10) * 60;
+    if (ss) secs += parseInt(ss[1], 10);
+    return secs;
+  }
+
+  function dayKey(ts: number): string {
+    const d = new Date(ts);
+    const y = d.getFullYear();
+    const m = `${d.getMonth() + 1}`.padStart(2, "0");
+    const da = `${d.getDate()}`.padStart(2, "0");
+    return `${y}-${m}-${da}`;
+  }
+
+  function dayLabel(ts: number): string {
+    const d = new Date(ts);
+    const today = new Date();
+    const yday = new Date();
+    yday.setDate(today.getDate() - 1);
+
+    const same = (a: Date, b: Date) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+
+    if (same(d, today)) return "Today";
+    if (same(d, yday)) return "Yesterday";
+    return d.toLocaleDateString([], { month: "short", day: "numeric", year: d.getFullYear() !== today.getFullYear() ? "numeric" : undefined });
+  }
+
+  // Build a render list that replaces individual call-ended bubbles with a daily rollup line
+  type CallRollupItem = {
+    __type: "call-rollup";
+    id: string;
+    ts: number;
+    label: string;
+    count: number;
+    totalSecs: number;
+    day: string;
+  };
+
+  const renderList = useMemo<(NormalizedMsg | CallRollupItem)[]>(() => {
+    if (!thread.length) return [];
+
+    // Group by day; gather calls and non-call messages per day (preserving order for non-calls)
+    const byDayCalls = new Map<string, { ts0: number; count: number; total: number }>();
+    const byDayNonCalls = new Map<string, NormalizedMsg[]>();
+
+    for (const m of thread) {
+      const dk = dayKey(m.ts || Date.now());
+      if (isCallSummaryMsg(m)) {
+        const secs = parseCallSecsFromText((m as any).text || "");
+        const g = byDayCalls.get(dk) || { ts0: m.ts, count: 0, total: 0 };
+        g.ts0 = Math.min(g.ts0, m.ts);
+        g.count += 1;
+        g.total += secs;
+        byDayCalls.set(dk, g);
+      } else {
+        const arr = byDayNonCalls.get(dk) || [];
+        arr.push(m);
+        byDayNonCalls.set(dk, arr);
+      }
+    }
+
+    // Determine chronological day order based on earliest ts per day (from either calls or non-calls)
+    const allDays = new Set<string>([...byDayCalls.keys(), ...byDayNonCalls.keys()]);
+    const dayOrder = [...allDays].sort((a, b) => {
+      const aTs = Math.min(
+        byDayCalls.get(a)?.ts0 ?? Number.MAX_SAFE_INTEGER,
+        byDayNonCalls.get(a)?.[0]?.ts ?? Number.MAX_SAFE_INTEGER
+      );
+      const bTs = Math.min(
+        byDayCalls.get(b)?.ts0 ?? Number.MAX_SAFE_INTEGER,
+        byDayNonCalls.get(b)?.[0]?.ts ?? Number.MAX_SAFE_INTEGER
+      );
+      return aTs - bTs;
+    });
+
+    const out: (NormalizedMsg | CallRollupItem)[] = [];
+    for (const dk of dayOrder) {
+      const cg = byDayCalls.get(dk);
+      if (cg && cg.count > 0) {
+        const lbl = `${dayLabel(cg.ts0)} • 📞 ${cg.count} call${cg.count === 1 ? "" : "s"} • ${formatDur(cg.total)}`;
+        out.push({
+          __type: "call-rollup",
+          id: `call-rollup:${dk}:${cg.ts0}`,
+          ts: cg.ts0,
+          label: lbl,
+          count: cg.count,
+          totalSecs: cg.total,
+          day: dk,
+        });
+      }
+      const non = byDayNonCalls.get(dk);
+      if (non && non.length) out.push(...non);
+    }
+
+    // Keep global chronological ordering (rollups use earliest ts of their day)
+    out.sort((a, b) => (a as any).ts - (b as any).ts);
+    return out;
+  }, [thread]);
+
   // Contacts + Recents for the left rail
   const contacts = useMemo(() => getContacts(), []);
   const recents = useMemo(() => {
@@ -1711,34 +2158,22 @@ export default function ChatThread({
 
   // keep a local edit buffer for the topic input (already syncs from topic)
   async function applyTopicChange(next: string) {
-    const raw = (next || '').trim();
-    if (!raw) return;
+    const kgIn = canonKG(graph);
+    const { wa, label, kg } = resolveLabelToWA(base, kgIn, next);
 
-    const kgOut = (raw.includes('@') ? raw.split('@').pop()! : graph) as string;
-    const kgCanon: GraphKey = canonKG(kgOut);
-
-    const { wa, label } = await resolveLabelToWA(base, kgCanon, raw);
-
-    setGraph(kgCanon);           // no cast needed now
+    setGraph(kg);
     setTopic(wa);
-    setAddrInput(`${label}@${kgCanon}`);
+    setAddrInput(`${label}@${kg}`);
 
-    try {
-      const sp = new URLSearchParams();
-      sp.set('topic', wa);
-      sp.set('kg', kgCanon);
-      location.hash = '#/chat?' + sp.toString();
-    } catch {}
-
-    try {
-      rememberTopic(wa, label || raw, kgCanon); // no cast needed
-    } catch {}
+    // persist in address book to reduce duplicates
+    rememberLabel(kg, wa, label);
+    rememberTopic(wa, label, kg);
   }
 
   const [showSettings, setShowSettings] = useState(false);
 
-  // …after toggleHold / hangupCall, before `return (`
-  function IceSettings() {
+  // ───────────────── ICE/TURN quick settings popover ─────────────────
+  const IceSettings: React.FC = () => {
     const [open, setOpen] = useState(false);
     const [uri, setUri] = useState("");
     const [username, setUsername] = useState("");
@@ -1748,7 +2183,7 @@ export default function ChatThread({
       if (!uri.trim() || !username.trim() || !credential.trim()) return;
       const next = [
         ...iceServers,
-        { urls: [uri.trim()], username: username.trim(), credential: credential.trim() },
+        { urls: uri.trim(), username: username.trim(), credential: credential.trim() },
       ];
       setIceServers(next);
       try { localStorage.setItem("gnet:iceServers", JSON.stringify(next)); } catch {}
@@ -1839,10 +2274,54 @@ export default function ChatThread({
         )}
       </div>
     );
-  }
+  };
 
-  // ---- Mic button computed props (keeps JSX simple) ----
-  const micDisabled = !!floorBusyBy && !floorOwned;
+  // ───────────────── TransportSettings (complete) ─────────────────
+  const TransportSettings: React.FC = () => {
+    const [mode, setModeState] = useState<TransportMode>(getTransportMode());
+    const [radioOk, setRadioOk] = useState(false);
+    const [lastHealthAt, setLastHealthAt] = useState<number>(Date.now());
+
+    // poll radio-node /health and update UI
+    useEffect(() => onRadioHealth(ok => {
+      setRadioOk(ok);
+      setLastHealthAt(Date.now());
+    }), []);
+
+    const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const next = e.target.value as TransportMode;
+      setTransportMode(next);   // persist
+      setModeState(next);       // reflect in UI immediately
+    };
+
+    return (
+      <div style={{ marginLeft: 8, display: "inline-flex", alignItems: "center", gap: 6 }}>
+        <select
+          value={mode}
+          onChange={onChange}
+          title="Transport policy"
+          style={{ fontSize: 12, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb" }}
+        >
+          <option value="auto">Auto</option>
+          <option value="radio-only">Radio only</option>
+          <option value="ip-only">IP only</option>
+        </select>
+
+        <span
+          style={{ fontSize: 12, opacity: 0.75 }}
+          title={`last health check: ${new Date(lastHealthAt).toLocaleTimeString()}`}
+        >
+          {mode === "ip-only"
+            ? "☁️ IP-only"
+            : mode === "radio-only"
+              ? "📡 Radio-only"
+              : (radioOk ? "📡 Radio (healthy)" : "☁️ IP (fallback)")}
+        </span>
+      </div>
+    );
+  };
+
+  // ---- Mic button computed props (keeps JSX simple) ---
 
   const micTitle = micDisabled
     ? `Channel busy (${floorBusyBy})`
@@ -2031,25 +2510,39 @@ export default function ChatThread({
             </div>
           )}
 
+          {/* Call strip */}
           {(callState === "connected" || callState === "connecting" || callState === "offering") && (
             <div style={{ marginLeft: 8, display: "inline-flex", gap: 6 }}>
               <span style={{ fontSize: 12 }}>
                 {callState === "connected" ? "🔊 In call" : callState === "offering" ? "…calling" : "…connecting"}
               </span>
+
               <button onClick={toggleMute} style={{ fontSize: 12, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb" }}>
                 {muted ? "Unmute" : "Mute"}
               </button>
+
               <button onClick={toggleHold} style={{ fontSize: 12, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb" }}>
                 {onHold ? "Resume" : "Hold"}
               </button>
-              <button onClick={hangupCall} style={{ fontSize: 12, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb" }}>
-                Hang up
-              </button>
+
+              {callState === "connected" ? (
+                <button onClick={hangupCall} style={{ fontSize: 12, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb" }}>
+                  Hang up
+                </button>
+              ) : (
+                <button onClick={cancelOutbound} style={{ fontSize: 12, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb" }}
+                  title="Cancel outgoing call">
+                  Cancel
+                </button>
+              )}
             </div>
           )}
 
           {/* ICE settings button */}
           <IceSettings />
+
+          {/* Transport policy (Auto / Radio-only / IP-only) */}
+          <TransportSettings />
 
           {/* Floor status (keep it once, inside header) */}
           {!!floorBusyBy && !floorOwned && (
@@ -2191,11 +2684,36 @@ export default function ChatThread({
             borderRadius: 8,
           }}
         >
-          {thread.map((m) => {
+          {renderList.map((item: any) => {
+            // Rollup row
+            if (item?.__type === "call-rollup") {
+              return (
+                <div
+                  key={item.id}
+                  style={{
+                    alignSelf: "center",
+                    background: "#f1f5f9",
+                    border: "1px dashed #e5e7eb",
+                    borderRadius: 999,
+                    padding: "4px 10px",
+                    fontSize: 12,
+                    color: "#475569",
+                  }}
+                  title={`${item.count} call${item.count === 1 ? "" : "s"} • total ${formatDur(item.totalSecs)}`}
+                >
+                  {item.label}
+                </div>
+              );
+            }
+
+            // Normal message bubble
+            const m = item as NormalizedMsg;
+            const idStr = String(m?.id ?? "");
             const mine =
-              (m as any).from === AGENT_ID ||
-              (!("from" in (m as any)) && (m.id.startsWith("local:") || m.id.startsWith("local-voice:")));
-            const base = {
+              (m as any)?.from === AGENT_ID ||
+              (!("from" in (m as any)) && (idStr.startsWith("local:") || idStr.startsWith("local-voice:")));
+
+            const base: React.CSSProperties = {
               alignSelf: mine ? "flex-end" : "flex-start",
               background: mine ? "#dbeafe" : "#fff",
               border: "1px solid #e5e7eb",
@@ -2203,11 +2721,12 @@ export default function ChatThread({
               padding: "8px 10px",
               maxWidth: "80%",
               boxShadow: "0 1px 1px rgba(0,0,0,0.04)",
-            } as const;
+            };
+
             return (
-              <div key={m.id} style={base}>
+              <div key={idStr} style={base}>
                 {m.kind === "text" ? (
-                  <div style={{ whiteSpace: "pre-wrap" }}>{(m as any).text}</div>
+                  <div style={{ whiteSpace: "pre-wrap" }}>{(m as any).text || ""}</div>
                 ) : (
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <audio
@@ -2220,11 +2739,16 @@ export default function ChatThread({
                       }}
                       style={{ width: 240 }}
                     />
-                    <span style={{ fontSize: 12, color: "#64748b" }}>{(m as any).mime?.replace?.("audio/", "") || "audio"}</span>
+                    <span style={{ fontSize: 12, color: "#64748b" }}>
+                      {(String((m as any).mime || "").replace("audio/", "")) || "audio"}
+                    </span>
                   </div>
                 )}
                 <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4 }}>
-                  {new Date(m.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  {new Date(Number((m as any).ts || Date.now())).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
               </div>
             );
@@ -2427,26 +2951,31 @@ export default function ChatThread({
           </div>
         </div>
 
+        {/* ── compact metrics line ───────────────────────────────────────── */}
         <div style={{ marginTop: 6, alignSelf: "flex-end", fontSize: 11, color: "#94a3b8" }}>
           {(() => {
             const s = metricsRef.current;
-            const recv = lossRef.current.recv || 0;
-            const lost = lossRef.current.lost || 0;
+            const recv = lossRef.current?.recv ?? 0;
+            const lost = lossRef.current?.lost ?? 0;
             const total = recv + lost;
             const lossPct = total ? Math.round((lost / total) * 100) : 0;
-            const rtt = lastRttRef.current || 0;
-            return `${s.sessions} PTT • talk ${Math.round(s.talkMs/1000)}s • last lock ${s.lastAcquireMs}ms • loss ${lossPct}% (${lost}/${total}) • rtt ${rtt}ms`;
+            const rtt = lastRttRef.current ?? 0;
+            return `${s.sessions} PTT • talk ${Math.round(s.talkMs / 1000)}s • last lock ${s.lastAcquireMs}ms • loss ${lossPct}% (${lost}/${total}) • rtt ${rtt}ms`;
           })()}
         </div>
 
-        {/* ── PTT summary panel (last 10) ───────────────────────────── */}
+        {/* ── PTT summary panel (last 10) ──────────────────────────────── */}
         {(() => {
           const log = loadPttLog(graph, topic);
-          if (!log?.length) return null;
+          if (!log || log.length === 0) return null;
 
           const totalTalkMs = log.reduce((acc, s) => acc + (s.dur || 0), 0);
-          const acqVals = log.map(s => s.acquireMs).filter((v): v is number => typeof v === "number");
-          const avgAcquire = acqVals.length ? Math.round(acqVals.reduce((a, b) => a + b, 0) / acqVals.length) : 0;
+          const acqVals = log
+            .map(s => s.acquireMs)
+            .filter((v): v is number => typeof v === "number");
+          const avgAcquire = acqVals.length
+            ? Math.round(acqVals.reduce((a, b) => a + b, 0) / acqVals.length)
+            : 0;
           const grants = log.filter(s => s.granted).length;
           const denies = log.length - grants;
 
@@ -2467,22 +2996,81 @@ export default function ChatThread({
               </div>
 
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 6 }}>
-                <span>Total talk: <strong>{Math.round(totalTalkMs / 1000)}s</strong></span>
-                <span>Avg acquire: <strong>{avgAcquire}ms</strong></span>
-                <span>Grants/Denies: <strong>{grants}</strong>/<strong>{denies}</strong></span>
+                <span>
+                  Total talk: <strong>{Math.round(totalTalkMs / 1000)}s</strong>
+                </span>
+                <span>
+                  Avg acquire: <strong>{avgAcquire}ms</strong>
+                </span>
+                <span>
+                  Grants/Denies: <strong>{grants}</strong>/<strong>{denies}</strong>
+                </span>
               </div>
 
-              <div style={{ maxHeight: 140, overflow: "auto", borderTop: "1px dashed #e5e7eb", paddingTop: 6 }}>
-                {log.slice().reverse().map((s, i) => (
-                  <div key={s.at + ":" + i} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 8, alignItems: "baseline", padding: "2px 0" }}>
-                    <div style={{ color: "#64748b" }}>
-                      {new Date(s.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+              <div
+                style={{
+                  maxHeight: 140,
+                  overflow: "auto",
+                  borderTop: "1px dashed #e5e7eb",
+                  paddingTop: 6,
+                }}
+              >
+                {log
+                  .slice()
+                  .reverse()
+                  .map((s, i) => (
+                    <div
+                      key={`${s.at}:${i}`}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr auto auto auto",
+                        gap: 8,
+                        alignItems: "baseline",
+                        padding: "2px 0",
+                      }}
+                    >
+                      <div style={{ color: "#64748b" }}>
+                        {new Date(s.at).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })}
+                      </div>
+                      <div title="duration">⏱ {Math.round((s.dur || 0) / 1000)}s</div>
+                      <div title="time to grant">
+                        {typeof s.acquireMs === "number" ? `⚡ ${s.acquireMs}ms` : "⚡ —"}
+                      </div>
+                      <div title="granted?">{s.granted ? "✅ granted" : "❌ denied"}</div>
                     </div>
-                    <div title="duration">⏱ {Math.round((s.dur || 0) / 1000)}s</div>
-                    <div title="time to grant">{typeof s.acquireMs === "number" ? `⚡ ${s.acquireMs}ms` : "⚡ —"}</div>
-                    <div title="granted?">{s.granted ? "✅ granted" : "❌ denied"}</div>
-                  </div>
-                ))}
+                  ))}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: 12,
+                  alignItems: "center",
+                  padding: "6px 8px",
+                  opacity: 0.85,
+                }}
+              >
+                {/* existing bits like RTT / loss / ICE type */}
+                <span style={{ fontSize: 12 }}>RTT: {lastRttRef.current ?? 0} ms</span>
+                <span style={{ fontSize: 12 }}>
+                  Loss: {(() => {
+                    const recv2 = lossRef.current?.recv ?? 0;
+                    const lost2 = lossRef.current?.lost ?? 0;
+                    const tot2 = recv2 + lost2;
+                    return tot2 ? Math.round((lost2 / tot2) * 100) : 0;
+                  })()}
+                  %
+                </span>
+                <span style={{ fontSize: 12 }}>ICE: {lastCandType || "—"}</span>
+
+                {/* telemetry (rf/ip ok/err) */}
+                <span style={{ fontSize: 12, opacity: 0.6, marginLeft: 8 }}>
+                  RF ok/err: {tele.rf_ok}/{tele.rf_err} · IP ok/err: {tele.ip_ok}/{tele.ip_err}
+                </span>
               </div>
             </div>
           );
@@ -2490,4 +3078,4 @@ export default function ChatThread({
       </div>
     </div>  
   );
-};
+}

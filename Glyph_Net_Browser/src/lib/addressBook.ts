@@ -1,15 +1,16 @@
 // src/lib/addressBook.ts
 
-export type GraphKey = "personal" | "work";
+import type { GraphKey } from "@/utils/nameService";
+import { saveBestLabel, getLabelForWA } from "@/utils/nameService";
 
 /* ──────────────────────────────
    Recents (v2) — per-graph entries
    ────────────────────────────── */
 export type RecentItem = {
-  topic: string;
-  label?: string;
-  graph: GraphKey;
-  ts: number;
+  topic: string;         // WA (ucs://…)
+  label?: string;        // best-known display label at time of remember
+  graph: GraphKey;       // "personal" | "work"
+  ts: number;            // last-used timestamp (ms)
 };
 
 const RECENTS_V2_KEY = "gnet:recents:v2";   // map<string, RecentItem>
@@ -81,6 +82,7 @@ function saveRecentsMap(map: Record<string, RecentItem>) {
    Public API
    ────────────────────────────── */
 
+/** Remember this WA in recents and update alias store/contact book. */
 export function rememberTopic(topic: string, label: string | undefined, graph: GraphKey) {
   const t = (topic || "").trim();
   if (!t) return;
@@ -96,7 +98,12 @@ export function rememberTopic(topic: string, label: string | undefined, graph: G
   for (const it of entries) next[`${it.graph}:${it.topic}`] = it;
   saveRecentsMap(next);
 
-  // Learn contact mapping if it looks like a human label
+  // WA alias memory (best-known label) to reduce duplicates
+  if (label && !label.startsWith("ucs://")) {
+    rememberLabel(graph, t, label);
+  }
+
+  // Also keep the simple contacts mapping for quick lookup
   if (label && !label.startsWith("ucs://")) {
     upsertContact(label, graph, t);
   }
@@ -114,6 +121,7 @@ function saveBook(db: Record<string, Contact>) {
   saveJSON(BOOK_KEY, db);
 }
 
+/** Upsert a simple label→WA mapping in the address book (legacy helper). */
 export function upsertContact(label: string, graph: GraphKey, topic: string) {
   const key = (label || "").trim().toLowerCase();
   if (!key) return;
@@ -133,9 +141,9 @@ export function getContacts(): Contact[] {
 }
 
 /**
- * Resolve a human address like "kevin" or "kevin@work" to a concrete topic.
+ * Resolve a human address like "kevin" or "kevin@work" to a concrete topic (WA).
  * Falls back to the input if it already looks like a ucs:// topic or
- * there’s no contact match.
+ * there’s no contact match. (Kept for backward compat with older call sites.)
  */
 export function resolveHumanAddress(
   input: string,
@@ -160,4 +168,18 @@ export function resolveHumanAddress(
 
   // Fallback: treat the input as a topic if it’s not a known label
   return { topic: v, graph };
+}
+
+/* ──────────────────────────────
+   Alias helpers (integrate with nameService)
+   ────────────────────────────── */
+
+/** Persist best-known label for WA to reduce duplicates across recents. */
+export function rememberLabel(kg: GraphKey, wa: string, label: string) {
+  try { saveBestLabel(kg, wa, label); } catch {}
+}
+
+/** Retrieve a friendly label for a WA (falls back to prettified WA). */
+export function labelForWA(kg: GraphKey, wa: string): string {
+  try { return getLabelForWA(kg, wa); } catch { return wa; }
 }

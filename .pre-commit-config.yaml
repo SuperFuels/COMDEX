@@ -5,8 +5,28 @@ repos:
       - id: check-ascii-punct
         name: Check ASCII punctuation in Python
         language: system
-        entry: bash -c 'PYTHONPATH="${PYTHONPATH}:." python tools/check_ascii_tokens.py'
-        types_or: [python]   # run on .py files
-        pass_filenames: false
-        # If you want auto-fix behavior (only if your script supports it):
+        # Pass only the staged file list to the checker
+        entry: bash -c 'PYTHONPATH="${PYTHONPATH}:." python tools/check_ascii_tokens.py "$@"'
+        types_or: [python]
+        pass_filenames: true
+        stages: [commit]
+        # Only consider Python files in your source/tooling dirs
+        files: >
+          (?x)^(
+            src/.*\.py|
+            tools/.*\.py|
+            scripts/.*\.py
+          )$
+        # Never run when changes are only in vendored/outputs/etc.
+        exclude: >
+          (?x)^(
+            google-cloud-sdk/|
+            .*?/third_party/|
+            node_modules/|
+            dist/|
+            build/|
+            \.venv/|
+            venv/
+          )
+        # If your script supports auto-fix, uncomment:
         # args: [--write]
