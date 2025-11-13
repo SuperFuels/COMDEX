@@ -8,6 +8,9 @@ import type { GraphKey } from "../utils/nameService";
 import { makePeer, DEFAULT_ICE } from "../utils/webrtc";
 import { Telemetry } from "@/utils/telemetry";
 import { resolveApiBase } from "@/utils/base";
+import { importAesKey, attachSenderE2EE, attachReceiverE2EE } from "@/utils/webrtc_e2ee";
+import { useRadioHealth } from "@/hooks/useRadioHealth"; // or relative path if you inlined it
+import TransportPicker from "@/components/TransportPicker";
 import type {
   SignalCapsule,
   VoiceOffer,
@@ -27,6 +30,8 @@ import {
 } from "@/utils/transport";
 import type { TransportMode } from "@/utils/transport";
 
+const IP_BASE_DEFAULT = resolveApiBase();
+
 const CLIENT_ID = (() => {
   const k = "gnet:clientId";
   let v = sessionStorage.getItem(k);
@@ -36,7 +41,6 @@ const CLIENT_ID = (() => {
   }
   return v;
 })();
-const ipBase = useMemo(() => resolveApiBase(), []);   // ← canonical cloud/base URL
 
 function hash8(s: string) {
   let h = 0;
@@ -304,10 +308,11 @@ export default function ChatThread({
   }), []);
 
   // IP base picked once; transportBase auto-switches using radioOk
-  const base = React.useMemo(
-    () => transportBase(resolveApiBase()),
-    [radioOk]
-  );
+  // Policy-aware base (auto chooses radio-node vs cloud)
+  const base = React.useMemo(() => transportBase(IP_BASE_DEFAULT), [radioOk]);
+
+  // Pure cloud base (only use if you must force cloud)
+  const ipBase = IP_BASE_DEFAULT;
 
   // ✅ Now call the hook (AFTER topic & graph exist)
   const { connected, messages, reconnecting } = useGlyphnet(topic, graph);
@@ -1074,7 +1079,7 @@ export default function ChatThread({
     });
 
     try {
-      const res = await postTx(ipBase, {
+      const res = await postTx(base, {
         recipient: topic,
         graph,
         capsule: { glyphs: [msg] },
@@ -1214,11 +1219,11 @@ export default function ChatThread({
     };
 
     // Primary: native capsule (policy-aware: radio/IP)
-    postTx(ipBase, { ...common, capsule }, headers).catch(() => {});
+    postTx(base, { ...common, capsule }, headers).catch(() => {});
 
     // Fallback: packed signaling inside glyphs (also policy-aware)
     const packed = packSig(capsule);
-    postTx(ipBase, { ...common, capsule: { glyphs: [packed] } }, headers).catch(() => {});
+    postTx(base, { ...common, capsule: { glyphs: [packed] } }, headers).catch(() => {});
   }
 
   async function sendOffer(sdp: string, callId: string) {
@@ -1469,6 +1474,13 @@ export default function ChatThread({
     const s = sec % 60;
     return m ? `${m}m ${s}s` : `${s}s`;
   }
+  
+  const radioHealth = useRadioHealth(4000); // polls /health every 4s
+  const rf = radioHealth; // whatever you named the /health state
+  const rfPill =
+    rf && rf.profile && rf.active
+      ? `${rf.profile} • ${rf.active.MTU}B @${rf.active.RATE_HZ}Hz • Q:${rf.rfQueue ?? 0}`
+      : "—";
 
   // ──────────────────────────────────────────────────────────────
   // Mic / PTT helpers
@@ -1561,9 +1573,10 @@ export default function ChatThread({
     return "audio/webm";
   }
 
+  // policy-aware (Auto / Radio-only / IP-only)
   async function sendSignal(capsule: SignalCapsule) {
     await postTx(
-      ipBase,
+      base, // ← use the transport-aware base
       {
         recipient: topic,
         graph,
@@ -1652,8 +1665,8 @@ export default function ChatThread({
     return url;
   }
 
-  // ──────────────────────────────────────────────────────────────
-  // Floor control (lock ops) + waiter
+    // ──────────────────────────────────────────────────────────────
+  // Floor control (lock ops) + waiter — policy-aware (Auto / Radio-only / IP-only)
   async function sendLock(
     op: "acquire" | "refresh" | "release",
     resource: string,
@@ -1662,7 +1675,7 @@ export default function ChatThread({
     const owner = AGENT_ID;
     try {
       await postTx(
-        ipBase, // choose RF/IP automatically
+        base, // ← use the transport-aware base instead of ipBase
         {
           recipient: topic,
           graph,
@@ -1883,6 +1896,7 @@ export default function ChatThread({
   } // ← closes stopPTT()
 
   // ───────────────── sendVoiceFrame (now OUTSIDE stopPTT) ─────────────────
+  // Send a single voice_frame (policy-aware: Auto / Radio-only / IP-only)
   async function sendVoiceFrame(vfCapsule: any) {
     const localId = `local-voice:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
     const optimistic: NormalizedMsg = {
@@ -1901,8 +1915,8 @@ export default function ChatThread({
     });
 
     try {
-      const r = await postTx(
-        ipBase,
+      const res = await postTx(
+        base, // ← transport-aware base (was ipBase)
         {
           recipient: topic,
           graph,
@@ -1915,15 +1929,26 @@ export default function ChatThread({
           "X-Agent-Id": AGENT_ID,
         }
       );
-      const j = await r.json().catch(() => ({} as any));
+
+      // Optional: surface RF ingress guardrail errors from radio-node
+      if (res.status === 413) {
+        const j = await res.json().catch(() => ({} as any));
+        console.warn("[sendVoiceFrame] payload too large for RF profile", j);
+        // You can swap this for a toast in your UI:
+        alert(
+          j?.error === "too large"
+            ? `Voice clip too large for RF path (${j.size} > ${j.max} bytes). Try a shorter clip or switch to IP-only.`
+            : "Voice clip rejected: too large for current profile."
+        );
+        return;
+      }
+
+      const j = await res.json().catch(() => ({} as any));
       if (j?.msg_id) rememberSent(j.msg_id);
     } catch (e) {
       console.warn("[sendVoiceFrame] network/error", e);
     }
-  } // ← end sendVoiceFrame
-
-  // ——— Voice Note (file attach) ———
-  const attachInputRef = useRef<HTMLInputElement | null>(null);
+  }// ← end sendVoiceFrame
 
   const [transcribeOnAttach, setTranscribeOnAttach] = useState<boolean>(() => {
     try { return localStorage.getItem("gnet:transcribeOnAttach") === "1"; } catch { return false; }
@@ -1933,17 +1958,19 @@ export default function ChatThread({
     attachInputRef.current?.click();
   }
 
+  // Voice note picker → send as voice_note (policy-aware: Auto / Radio-only / IP-only)
+  const attachInputRef = useRef<HTMLInputElement | null>(null);
+
   async function onPickVoiceFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
-    // allow re-pick of same file next time
-    e.target.value = "";
+    e.target.value = ""; // allow re-pick of same file
     if (!f) return;
 
-    const mime = f.type || mimeFromName(f.name); // fallback by extension
+    const mime = f.type || mimeFromName(f.name); // helper already in this component
     const ab = await f.arrayBuffer();
     const b64 = abToB64(ab);
 
-    // optimistic bubble (re-uses same local-voice pattern as PTT)
+    // optimistic bubble
     const localId = `local-voice:${Date.now()}:${Math.random().toString(36).slice(2, 6)}`;
     const optimistic: NormalizedMsg = {
       id: localId,
@@ -1959,10 +1986,9 @@ export default function ChatThread({
       return next;
     });
 
-    // send as voice_note capsule (with t0 for RTT)
     try {
-      const r = await postTx(
-        ipBase,
+      const res = await postTx(
+        base, // transport-aware base (Auto / Radio-only / IP-only)
         {
           recipient: topic,
           graph,
@@ -1976,17 +2002,26 @@ export default function ChatThread({
         }
       );
 
-      const j = await r.json().catch(() => ({} as any));
+      if (res.status === 413) {
+        const j = await res.json().catch(() => ({} as any));
+        alert(
+          j?.error === "too large"
+            ? `Voice note too large for RF path (${j.size} > ${j.max} bytes). Try a shorter clip or switch to IP-only.`
+            : "Voice note rejected: too large for current RF profile."
+        );
+        return;
+      }
+
+      const j = await res.json().catch(() => ({} as any));
       if (j?.msg_id) rememberSent(j.msg_id);
 
-      // ⬇️ Optional transcription → send as text capsule
       if (transcribeOnAttach) {
         setTranscribing(true);
-        const t = await transcribeAudio(mime, b64); // expects { text, engine }
+        const t = await transcribeAudio(mime, b64);
         setTranscribing(false);
         if (t?.text) {
           await postTx(
-            ipBase,
+            base,
             {
               recipient: topic,
               graph,
@@ -2008,7 +2043,6 @@ export default function ChatThread({
         }
       }
 
-      // persist recents
       rememberTopic(topic, addrInput || topic, graph);
     } catch (err) {
       console.warn("[voice_note] send failed", err);
@@ -2268,6 +2302,15 @@ export default function ChatThread({
                 >
                   Reset to defaults
                 </button>
+                <button onClick={copyInvite}>Copy Invite</button>
+                <button onClick={clearThreadCache}>Reset</button>
+                <button
+                  onClick={resetTelemetry}
+                  style={{ fontSize: 12, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb" }}
+                  title="Reset RF/IP send counters"
+                >
+                  Reset Telemetry
+                </button>
               </div>
             </div>
           </div>
@@ -2277,36 +2320,33 @@ export default function ChatThread({
   };
 
   // ───────────────── TransportSettings (complete) ─────────────────
+  // ───────────────── TransportSettings (complete) ─────────────────
   const TransportSettings: React.FC = () => {
-    const [mode, setModeState] = useState<TransportMode>(getTransportMode());
+    const [mode, setMode] = useState<TransportMode>(getTransportMode());
     const [radioOk, setRadioOk] = useState(false);
     const [lastHealthAt, setLastHealthAt] = useState<number>(Date.now());
 
-    // poll radio-node /health and update UI
-    useEffect(() => onRadioHealth(ok => {
-      setRadioOk(ok);
-      setLastHealthAt(Date.now());
-    }), []);
+    // Poll radio-node /health and update UI
+    useEffect(() => {
+      return onRadioHealth(ok => {
+        setRadioOk(ok);
+        setLastHealthAt(Date.now());
+      });
+    }, []);
 
-    const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const next = e.target.value as TransportMode;
-      setTransportMode(next);   // persist
-      setModeState(next);       // reflect in UI immediately
-    };
+    // Keep the label in sync when some other part of the app changes the mode
+    useEffect(() => {
+      const onExt = (e: any) => setMode(e.detail as TransportMode);
+      window.addEventListener("gnet:transport-mode", onExt);
+      return () => window.removeEventListener("gnet:transport-mode", onExt);
+    }, []);
 
     return (
       <div style={{ marginLeft: 8, display: "inline-flex", alignItems: "center", gap: 6 }}>
-        <select
-          value={mode}
-          onChange={onChange}
-          title="Transport policy"
-          style={{ fontSize: 12, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb" }}
-        >
-          <option value="auto">Auto</option>
-          <option value="radio-only">Radio only</option>
-          <option value="ip-only">IP only</option>
-        </select>
+        {/* mode selector (replaces the old <select>) */}
+        <TransportPicker />
 
+        {/* status label (unchanged) */}
         <span
           style={{ fontSize: 12, opacity: 0.75 }}
           title={`last health check: ${new Date(lastHealthAt).toLocaleTimeString()}`}
@@ -3066,11 +3106,19 @@ export default function ChatThread({
                   %
                 </span>
                 <span style={{ fontSize: 12 }}>ICE: {lastCandType || "—"}</span>
-
                 {/* telemetry (rf/ip ok/err) */}
                 <span style={{ fontSize: 12, opacity: 0.6, marginLeft: 8 }}>
                   RF ok/err: {tele.rf_ok}/{tele.rf_err} · IP ok/err: {tele.ip_ok}/{tele.ip_err}
+                  {" "}
+                  {rfPill}
                 </span>
+                <button
+                  onClick={resetTelemetry}
+                  style={{ fontSize: 11, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb", background: "#fff" }}
+                  title="Zero RF/IP counters"
+                >
+                  ↺ counters
+                </button>
               </div>
             </div>
           );
@@ -3078,4 +3126,4 @@ export default function ChatThread({
       </div>
     </div>  
   );
-}
+};

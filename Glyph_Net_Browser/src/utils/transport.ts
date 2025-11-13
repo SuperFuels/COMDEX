@@ -1,78 +1,94 @@
 // src/utils/transport.ts
-import { Telemetry } from "./telemetry"; // ← named import (matches your file)
+import { Telemetry } from "./telemetry";
 
 export type TransportMode = "auto" | "radio-only" | "ip-only";
 
 const MODE_KEY = "gnet:transportMode";
-let lastRadioOk = false;
+let lastRadioHealthy = false;
 
-/** Persisted transport policy */
+/** Persisted transport policy (falls back to VITE_TRANSPORT_MODE, then "auto"). */
 export function getTransportMode(): TransportMode {
-  const v = (localStorage.getItem(MODE_KEY) || "auto").toLowerCase();
-  return v === "radio-only" || v === "ip-only" ? v : "auto";
+  try {
+    const v = (localStorage.getItem(MODE_KEY) as TransportMode | null) || null;
+    if (v === "radio-only" || v === "ip-only" || v === "auto") return v;
+  } catch {}
+  const def = (import.meta as any)?.env?.VITE_TRANSPORT_MODE as
+    | TransportMode
+    | undefined;
+  return def === "radio-only" || def === "ip-only" ? def : "auto";
 }
+
 export function setTransportMode(m: TransportMode) {
   try { localStorage.setItem(MODE_KEY, m); } catch {}
 }
 
-/** http(s)://… for the local radio-node */
-export function radioBase(): string {
-  const { host, protocol } = window.location;
-  if (host.endsWith(".app.github.dev")) return `https://${host.replace("-5173", "-8787")}`;
-  if (/:(5173)$/.test(host)) return `${protocol.replace("https", "http")}//${host.replace(":5173", ":8787")}`;
-  return `${protocol}//${host.replace(/:\d+$/, ":8787")}`;
-}
-
-/** Poll radio-node /health and push results into a setter (already wired in ChatThread). */
+/** Probe radio-node health via Vite proxy and update `lastRadioHealthy`. */
 export function onRadioHealth(set: (ok: boolean) => void, everyMs = 4000): () => void {
   let stop = false;
+
   async function check() {
     try {
-      const r = await fetch(`${radioBase()}/health`, { cache: "no-store" });
-      lastRadioOk = r.ok;
-      if (!stop) set(lastRadioOk);
+      const r = await fetch(`/radio/health`, { cache: "no-store" });
+      lastRadioHealthy = r.ok;
+      if (!stop) set(r.ok);
     } catch {
-      lastRadioOk = false;
+      lastRadioHealthy = false;
       if (!stop) set(false);
     }
   }
+
   check();
   const id = window.setInterval(check, everyMs);
   return () => { stop = true; clearInterval(id); };
 }
 
-/** Pick the HTTP base according to mode + last radio health. */
-export function transportBase(ipBase: string): string {
+/**
+ * IMPORTANT: return a *relative* base so Vite proxies can route:
+ * - "/radio" → radio-node (local)
+ * - ""       → backend/cloud (default)
+ *
+ * `ipBase` is kept for call-site compatibility but ignored for routing.
+ */
+export function transportBase(_ipBase: string): string {
   const mode = getTransportMode();
-  if (mode === "ip-only")    return ipBase;
-  if (mode === "radio-only") return radioBase();
-  return lastRadioOk ? radioBase() : ipBase;
+  if (mode === "radio-only") return "/radio";
+  if (mode === "ip-only") return "";
+  return lastRadioHealthy ? "/radio" : "";
 }
 
-/** Build a WS URL (wss://…/ws/glyphnet) that follows the same policy. */
-export function wsBaseFor(ipBase: string): string {
-  const http = transportBase(ipBase);               // http(s)://…
-  return http.replace(/^http(s?):\/\//, (_, s) => `ws${s || ""}://`);
+/** Build a WS URL relative to current origin, honoring the selected base. */
+export function buildWsUrl(base: string, path: string, qs?: string): string {
+  const proto = location.protocol === "https:" ? "wss:" : "ws:";
+  const q = qs ? (qs.startsWith("?") ? qs : `?${qs}`) : "";
+  return `${proto}//${location.host}${base}${path}${q}`;
 }
 
-/** Convenience: WS URL for GlyphNet (topic, kg, token). */
+/** Convenience: WS URL for GlyphNet. */
 export function glyphnetWsUrl(ipBase: string, topic: string, kg: string, token = "dev-token"): string {
-  const wsBase = wsBaseFor(ipBase);
-  const q = new URLSearchParams({ topic, kg, token }).toString();
-  return `${wsBase}/ws/glyphnet?${q}`;
+  const base = transportBase(ipBase);
+  const qs = new URLSearchParams({ topic, kg, token }).toString();
+  return buildWsUrl(base, "/ws/glyphnet", qs);
 }
 
-/** POST /tx with policy + telemetry bumps */
+/**
+ * Backward-compat helper: produce a WS base (wss://host[/radio]) for custom callers.
+ * Prefer using `buildWsUrl` directly.
+ */
+export function wsBaseFor(ipBase: string): string {
+  const base = transportBase(ipBase);
+  const proto = location.protocol === "https:" ? "wss:" : "ws:";
+  return `${proto}//${location.host}${base}`;
+}
+
+/** POST /api/glyphnet/tx with policy + telemetry bumps. */
 export async function postTx(
-  ipBase: string,                          // pass the cloud base; policy applied here
+  ipBase: string,                          // unused for routing now; kept for call sites
   payload: any,
   headers: Record<string, string> = {}
 ): Promise<Response> {
-  const base = transportBase(ipBase);      // apply Auto / RF-only / IP-only policy
+  const base = transportBase(ipBase);      // "" (backend) or "/radio" (radio-node)
   const url = `${base}/api/glyphnet/tx`;
-
-  // crude but effective: :8787 = local radio node
-  const transport: "rf" | "ip" = url.includes(":8787") ? "rf" : "ip";
+  const transport: "rf" | "ip" = base === "/radio" ? "rf" : "ip";
 
   try {
     const res = await fetch(url, {
@@ -81,13 +97,20 @@ export async function postTx(
       body: JSON.stringify(payload),
     });
 
-    // bump ok/err counters
     Telemetry.inc(transport === "rf" ? "rf_ok" : "ip_ok");
     if (!res.ok) Telemetry.inc(transport === "rf" ? "rf_err" : "ip_err");
-
     return res;
   } catch (e) {
     Telemetry.inc(transport === "rf" ? "rf_err" : "ip_err");
     throw e;
   }
+}
+
+/* Optional legacy helpers kept for completeness (no longer used directly). */
+
+/** Old-style absolute radio base; retained for any external callers. */
+export function radioBase(): string {
+  // With the proxy approach, callers should use transportBase("") which returns "/radio".
+  // Keep this for compatibility with any code that still expects a string base.
+  return "/radio";
 }

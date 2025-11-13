@@ -1,7 +1,12 @@
 // frontend/src/hooks/useGlyphnet.ts
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { resolveApiBase } from "@/utils/base";
-import { glyphnetWsUrl } from "@/utils/transport";   // policy-aware WS URL
+import {
+  transportBase,
+  buildWsUrl,
+  onRadioHealth,
+  getTransportMode,
+} from "@/utils/transport";
 
 export type GraphKey = "personal" | "work";
 
@@ -28,18 +33,13 @@ function stepBackoffMs(current: number) {
   return base - jitter + Math.floor(Math.random() * (2 * jitter + 1));
 }
 
-export default function useGlyphnet(topic: string, graph?: GraphKey) {
-  // Resolve once, then derive WS URLs via transport policy
-  const ipBase = useMemo(() => resolveApiBase(), []);
-  const wsUrlFor = useMemo(
-    () => (t: string, g?: GraphKey) =>
-      glyphnetWsUrl(ipBase, t, (g || "personal").toLowerCase()),
-    [ipBase]
-  );
-
+export default function useGlyphnet(topic: string, graph: GraphKey = "personal") {
   const wsRef = useRef<WebSocket | null>(null);
   const timerRef = useRef<number | null>(null);
   const backoffRef = useRef(800); // start ~0.8s
+  const baseRef = useRef<string>(""); // "", "/radio"
+  const rafFlushRef = useRef<number | null>(null);
+  const msgBufRef = useRef<GlyphnetEvent[]>([]);
 
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState<GlyphnetEvent[]>([]);
@@ -47,24 +47,81 @@ export default function useGlyphnet(topic: string, graph?: GraphKey) {
   const [reconnecting, setReconnecting] = useState(false);
   const [reconnectIn, setReconnectIn] = useState<number | null>(null);
 
+  // NEW: track mode changes announced by setTransportMode (same-tab reliable)
+  const [modeKey, setModeKey] = useState<string>(getTransportMode());
+  useEffect(() => {
+    const onMode = (e: any) => setModeKey(String(e.detail || getTransportMode()));
+    window.addEventListener("gnet:transport-mode", onMode);
+    return () => window.removeEventListener("gnet:transport-mode", onMode);
+  }, []);
+
+  // Small buffer → rAF flush to avoid state storms when history arrives quickly
+  function enqueue(ev: GlyphnetEvent) {
+    msgBufRef.current.push(ev);
+    if (rafFlushRef.current != null) return;
+    rafFlushRef.current = requestAnimationFrame(() => {
+      const chunk = msgBufRef.current;
+      msgBufRef.current = [];
+      rafFlushRef.current = null;
+      if (chunk.length) setMessages((prev) => [...chunk, ...prev].slice(0, 500));
+    });
+  }
+
+  // compute a fresh base and tell if it changed
+  function computeBase(): { base: string; changed: boolean } {
+    const next = transportBase(resolveApiBase()); // "" or "/radio"
+    const changed = next !== baseRef.current;
+    baseRef.current = next;
+    return { base: next, changed };
+  }
+
+  // Force-reopen WS if the transport base flips (radio health / mode change)
+  function forceReopen() {
+    try {
+      wsRef.current?.close();
+    } catch {}
+    // onclose handler will schedule the reconnect using the latest baseRef
+  }
+
   useEffect(() => {
     if (!topic) return;
 
-    let dead = false; // guards cleanup vs. onclose
+    let dead = false;
+
+    // Track radio health → if base flips in auto mode, force a reopen
+    const stopHealth = onRadioHealth(() => {
+      if (dead) return;
+      const { changed } = computeBase();
+      if (changed) forceReopen();
+    });
+
+    // React to cross-tab localStorage changes of the mode
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "gnet:transportMode") {
+        const { changed } = computeBase();
+        if (changed) forceReopen();
+      }
+    };
+    window.addEventListener("storage", onStorage);
+
+    // Always compute initial base before opening
+    computeBase();
 
     const open = () => {
-      // reset UI flags on (re)open attempt
       setReconnecting(false);
       setReconnectIn(null);
 
-      const wsUrl = wsUrlFor(topic, graph);  // ⬅️ policy-aware WS URL
+      const kg = (graph || "personal").toLowerCase();
+      const token = (import.meta as any)?.env?.VITE_DEV_WS_TOKEN || "dev-token";
+      const qs = new URLSearchParams({ topic, kg, token }).toString();
+      const wsUrl = buildWsUrl(baseRef.current, "/ws/glyphnet", qs);
+
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
         setConnected(true);
         setError(null);
-        // reset backoff after any successful connect
         backoffRef.current = 800;
       };
 
@@ -80,7 +137,7 @@ export default function useGlyphnet(topic: string, graph?: GraphKey) {
             raw?.envelope?.graph;
           if (graph && evGraph && evGraph !== graph) return;
 
-          // ── Normalize shape (matches your ChatThread expectations) ─────────
+          // Normalize
           const env = raw?.envelope ?? null;
 
           let baseType: string | undefined =
@@ -93,7 +150,7 @@ export default function useGlyphnet(topic: string, graph?: GraphKey) {
               ? "glyphnet_capsule"
               : undefined);
 
-          // Detect lock frames in multiple shapes
+          // Detect lock frames
           const isLock =
             baseType === "entanglement_lock" ||
             raw?.type === "entanglement_lock" ||
@@ -133,7 +190,6 @@ export default function useGlyphnet(topic: string, graph?: GraphKey) {
             const capsule = raw?.capsule ?? env?.capsule ?? undefined;
             const meta = raw?.meta ?? env?.meta ?? undefined;
 
-            // Ensure type tracks voice frames explicitly when present
             let t = baseType || "glyphnet_capsule";
             if (capsule?.voice_frame && t !== "glyphnet_voice_frame") {
               t = "glyphnet_voice_frame";
@@ -142,16 +198,14 @@ export default function useGlyphnet(topic: string, graph?: GraphKey) {
             ev = { ...raw, type: t, capsule, meta };
           }
 
-          // newest-first; ChatThread re-sorts and dedupes anyway
-          setMessages((prev) => [ev, ...prev].slice(0, 500));
+          enqueue(ev);
         } catch {
           // ignore non-JSON payloads
         }
       };
 
-      ws.onerror = (e) => {
-        // surface a simple string error; let onclose handle reconnect
-        setError(String((e as any)?.message || "ws error"));
+      ws.onerror = () => {
+        setError("ws error");
         try {
           ws.close();
         } catch {}
@@ -161,14 +215,16 @@ export default function useGlyphnet(topic: string, graph?: GraphKey) {
         setConnected(false);
         if (dead) return;
 
-        // enter reconnecting phase
+        // Recompute base before scheduling (health/mode may have flipped)
+        computeBase();
+
         setReconnecting(true);
 
         const delay = stepBackoffMs(backoffRef.current);
         backoffRef.current = delay;
         setReconnectIn(delay);
 
-        // Optional: small countdown for the UI using rAF
+        // Optional countdown for UI
         const start = Date.now();
         const tick = () => {
           if (dead) return;
@@ -178,7 +234,6 @@ export default function useGlyphnet(topic: string, graph?: GraphKey) {
         };
         requestAnimationFrame(tick);
 
-        // schedule reconnect
         timerRef.current = window.setTimeout(() => {
           if (!dead) open();
         }, delay);
@@ -193,14 +248,26 @@ export default function useGlyphnet(topic: string, graph?: GraphKey) {
         wsRef.current?.close();
       } catch {}
       wsRef.current = null;
+
       if (timerRef.current != null) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
+
+      if (rafFlushRef.current != null) {
+        cancelAnimationFrame(rafFlushRef.current);
+        rafFlushRef.current = null;
+      }
+      msgBufRef.current = [];
+
+      window.removeEventListener("storage", onStorage);
+      stopHealth();
+
       setReconnecting(false);
       setReconnectIn(null);
     };
-  }, [topic, graph, wsUrlFor]);
+    // Re-run when topic, graph, **or modeKey** changes
+  }, [topic, graph, modeKey]);
 
   return { connected, messages, error, reconnecting, reconnectIn };
 }

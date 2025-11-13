@@ -300,6 +300,7 @@ async def startup_event():
     except Exception as e:
         logger.warning(f"⚠️ Failed to start AION Dual Heartbeat: {e}")
 
+
 # ── Routers
 from backend.routes.auth import router as auth_router
 from backend.routes.products           import router as products_router
@@ -420,8 +421,8 @@ from backend.modules.glyphnet.glyphnet_router import router as glyphnet_router
 from backend.api.media_api import router as media_router
 from backend.routes.name_service import name_router
 from backend.api import rtc_api
-from routes.voice_flask import bp as voice_bp
-from routes.voice import router as voice_router
+from backend.routes.voice import router as voice_router
+from backend.routes.voice import register_events as register_voice_events
 
 # Floor control (PTT) lock manager
 from backend.modules.glyphnet.lock_manager import LOCKS
@@ -641,9 +642,8 @@ app.include_router(glyphnet_router)
 app.include_router(media_router)
 app.include_router(name_router)
 app.include_router(rtc_api.router)
-app.register_blueprint(voice_bp, url_prefix="/api/voice")
 app.include_router(voice_router, prefix="/api/voice")
-
+register_voice_events(app)
 
 # --- Floor-control lock sweeper (PTT) ---
 # (Make sure you also have at the top of the file:)

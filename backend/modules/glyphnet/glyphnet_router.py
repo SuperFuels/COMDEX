@@ -8,8 +8,11 @@ from typing import Optional, Dict, Any
 
 from fastapi import APIRouter, Query, HTTPException, Request
 from pydantic import BaseModel
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
+MAX_GLYPHS   = int(os.getenv("MAX_GLYPHS", "65536"))
+MAX_TEXT_LEN = int(os.getenv("MAX_TEXT_LEN", "200000"))
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Optional WS fanout (fallback to no-op if WS layer not present)
@@ -266,6 +269,31 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
     recipient = payload.get("recipient") or payload.get("topic")
     capsule   = payload.get("capsule") or {}
     meta: Dict[str, Any] = payload.get("meta") or {}
+
+        # --- Basic size guards for text/glyph capsules ---
+    cap = capsule if isinstance(capsule, dict) else {}
+
+    # too many tokens in one shot
+    if isinstance(cap.get("glyphs"), list) and len(cap["glyphs"]) > MAX_GLYPHS:
+        return JSONResponse(
+            {"ok": False, "error": "too many glyphs", "max": MAX_GLYPHS},
+            status_code=413
+        )
+
+    # (optional) guard streamed chunks count too
+    if isinstance(cap.get("glyph_stream"), list) and len(cap["glyph_stream"]) > MAX_GLYPHS:
+        return JSONResponse(
+            {"ok": False, "error": "glyph_stream too large", "max": MAX_GLYPHS},
+            status_code=413
+        )
+
+    # legacy plaintext text guard (if still accepted anywhere)
+    txt = cap.get("text")
+    if isinstance(txt, str) and len(txt) > MAX_TEXT_LEN:
+        return JSONResponse(
+            {"ok": False, "error": "text too large", "max": MAX_TEXT_LEN},
+            status_code=413
+        )
 
     if not isinstance(recipient, str) or not recipient:
         raise HTTPException(status_code=400, detail="recipient must be a non-empty string")

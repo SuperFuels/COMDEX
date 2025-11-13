@@ -5,7 +5,12 @@ P4 • WA/WN + Voice & Radio
 [x] WA/WN identities (ucs://…; realm wave.tp)
 [x] Address Book + deep-link invites (#/chat?topic=…&kg=…)
 [x] Recents per-graph (keyed by kg+topic); invite copies kg
-[ ] PSTN mapping (SIP/Telnyx/Twilio) — design + stubs pending
+[x] PSTN mapping (Twilio) — inbound/status webhooks wired
+    • [x] FastAPI router (/api/voice/inbound, /api/voice/status)
+    • [x] HMAC signature verify + DEV_ALLOW_UNVERIFIED toggle
+    • [x] Map E.164 → WA; post ring/status to /api/glyphnet/tx
+    • [~] Number→graph routing (prefix map/env toggles)
+    • [ ] Telnyx adapter + <Dial><Client> bridge to WebRTC
 [x] Name service rules (display name ↔ WA/WN)
  • [x] Alias table + strict canonicalization (strip punctuation, casefold, collapse spaces)
  • [x] Persist best-known label per WA (address book de-dupe)
@@ -46,16 +51,14 @@ Full Calls (WebRTC media; GlyphNet signaling)
 • [x] Busy-offer protection (reject competing call_ids; ignore self-offers)
 • [x] ICE send path centralized (only via onLocalIce); UI shows last cand type
 
-[ ] Media: SRTP w/ AEC/AGC, jitter buffer
+	•	Media: SRTP w/ AEC/AGC, jitter buffer
 • [x] SRTP (implicit via WebRTC)
 • [x] Capture constraints: AEC/AGC/NS enabled for mic
 • [ ] Custom jitter buffer (not needed yet; consider for PTT low-latency)
-
-[x] NAT: STUN list + TURN fallback
+	•	NAT: STUN list + TURN fallback
 • [x] STUN list (DEFAULT_ICE)
 • [x] TURN fallback + config UI (IceSettings + /api/rtc/ice load + local override)
-
-[x] Call UI: ring / accept / decline / mute / hold
+	•	Call UI: ring / accept / decline / mute / hold
 • [x] Ring/Accept/Decline/Hang up strips
 • [x] Mute (toggle track.enabled)
 • [x] Hold/Resume (RTCRtpSender.replaceTrack(null|track))
@@ -64,36 +67,32 @@ Full Calls (WebRTC media; GlyphNet signaling)
 • [x] Ring tone play/pause tied to state
 • [x] Hangup sends voice_end; decline sends voice_reject; cancel handled
 • [x] Outbound cancel button + voice_cancel (UI + handler)
-
-[ ] (Optional) E2EE via Insertable Streams; keys via GlyphNet
-
-P4 • Modes & Policy (IP ↔ RF)
-[x] Transport mode switch (Auto / Radio-only / IP-only)
+	•	(Optional) E2EE via Insertable Streams; keys via GlyphNet
+	•	P4 • Modes & Policy (IP ↔ RF)
+• [x] Transport mode switch (Auto / Radio-only / IP-only)
 • [x] Settings toggle + persisted policy (localStorage: gnet:transportMode)
 • [x] Status pill: {auto, radio-only, ip-only} + health of :8787 (onRadioHealth)
 • [x] Router: honor policy in all fetch/WS calls (HTTP via transportBase; WS via glyphnetWsUrl)
-
-Radio / Mesh Transport (dual-band)
+	•	Radio / Mesh Transport (dual-band)
 Phase 1 — MVP fallback (keeps working if internet dies)
-[x] Local Radio Node (127.0.0.1:8787)
+• [x] Local Radio Node (127.0.0.1:8787)
 • [x] Endpoints: /health, /api/glyphnet/tx, /ws/glyphnet (echo + forward)
 • [x] In-mem outbox queue + retry (store-carry-forward stub)
-• [ ] Frame bridge: IP capsule ↔ RF frame
-
-[] TransportSelector: prefer local RF → fallback IP
+• [x] Frame bridge: IP capsule ↔ RF frame (HTTP + WS → enqueueRF/encodeFrame)
+	•	[ ] TransportSelector: prefer local RF → fallback IP (auto choose)
 • [x] Frontend health probe (:8787/health, 2–5s backoff) + sticky choice (onRadioHealth)
 • [x] HTTP multiplexer: cloud vs radio-node via transportBase (wired in ChatThread)
 • [x] WS multiplexer: route WS to radio-node when healthy (useGlyphnet → glyphnetWsUrl)
-• [x] Telemetry counters for RF/IP sends + failures in footer (Telemetry wired via postTx; UI footer shows rf_ok/rf_err/ip_ok/ip_err)
+• [x] Telemetry counters for RF/IP sends + failures in footer (postTx wired; footer shows rf_ok/rf_err/ip_ok/ip_err)
 • [x] Route all sends through postTx (sendSignal, onPickVoiceFile, transcribeOnAttach swapped)
-
-[ ] Frame schema & guardrails
-• [ ] Frame: { topic, seq, ts, codec?, bytes } (binary payload)
-• [ ] Guardrails from band_profile (MTU, send-rate)
-
-[ ] band_profile.yml (region, bands, power/duty)
-• [ ] Profiles: NA-915, EU-868, ISM-2.4 (MTU, rate, duty-cycle)
-• [ ] Enforce max capsule size + pacing in Local Radio Node
+	•	Frame schema & guardrails
+• [x] Frame: { topic, seq, ts, codec?, bytes } (binary payload) + encoder (encodeFrame, nextSeq)
+• [x] Guardrails from band_profile (MTU, send-rate) — paced queue (RATE_HZ) + MTU-aware fragmentation
+• [x] Enforce max capsule size in Local Radio Node (MAX_RF_INGRESS_BYTES)
+• [x] Backend ingress guardrails (glyph count / plaintext size) in glyphnet_router
+• Polish
+• [x] Call history rollup: aggregate “📞 Call ended …” into daily sections
+• [x] RF profile pill in UI (profile • MTU @ RATE_HZ • Q) via /health polling
 
 Polish
 [x] Call history rollup: aggregate “📞 Call ended …” into daily sections
@@ -102,52 +101,70 @@ Legend:
 [x] done [~] partially done / wired on one path [ ] todo
 
 Phase 2 — Real RF path
-[ ] Accessory radio bridge
-• [ ] WebSerial/WebUSB (ESP32/LoRa/2.4GHz) to Local Radio Node
-• [ ] Link/PHY driver abstraction (pluggable modules)
-• [ ] Token handoff to radio bridge; signed headers
-[ ] Store-carry-forward
-• [ ] Disk spool on Radio Node; expiry + dedupe by (topic, seq)
-• [ ] Opportunistic relay when peers appear
+
+[x] Accessory radio bridge
+ • Path-bound WS /ws/rflink with token auth (query + Bearer header)
+ • Single-active-bridge policy (new connects refused with 1013 busy)
+ • RF pacing + fragmentation (MTU-aware, RATE_HZ tick; rfQueue → rfOutbox → bridge)
+ • Bridge hello handshake ({"type":"hello","mtu","rate_hz"})
+ • Keepalive pings on bridge (reduces 1006 idle closes)
+ • RX fanout → (rf) capsule broadcast on /ws/glyphnet rooms
+ • [ ] WebSerial/WebUSB (ESP32/LoRa/2.4 GHz) adapter to Local Radio Node
+ • [ ] Link/PHY driver abstraction (pluggable modules)
+ • [~] Token handoff hardening (Bearer support live; signed headers/rotation pending)
+
+[~] Store-carry-forward
+ • [x] Disk spool on Radio Node: RN queue persistence + TTL/caps + reload
+ • [x] RX “seen” markers persisted; (topic,seq) de-dupe enforced on RX (when seq provided)
+ • [ ] Opportunistic relay when peers appear
+
 [ ] Discovery (basic)
-• [ ] Beacon frame on RF; neighbor table in Local Radio Node
+ • [ ] Beacon frame on RF; neighbor table in Local Radio Node
 
 Phase 3 — Nice-to-have
+
 [ ] Desktop LAN P2P (WebRTC DataChannel; #/p2p route) as offline hop
 [ ] Multi-hop mesh policy (region guardrails + TTL)
 [ ] Radio diagnostics panel (RSSI/SNR, queue depth, duty-cycle)
 
 Security / E2EE (Radio path)
+
 [ ] Session keys: X25519 DH → AES-GCM (nonce = seq)
 [ ] Key derivation per-topic; rotate by interval/frames
 [ ] Optional: key exchange via GlyphNet (when IP available), else pre-shared
 
 Developer UX & Tests
-[ ] “Radio healthy” toast + reconnection logic
+
+[~] “Radio healthy” toast + reconnection logic (WS “reconnecting…” toast + health pill present; dedicated “radio healthy” toast not yet)
 [ ] RF/IP path injectors in DevTools (force paths)
 [ ] Offline kill-switch test plan (unplug WAN; verify chat/PTT over RF)
 
 Documentation
+
 [ ] README: run Local Radio Node + cables (WebUSB/Serial)
 [ ] band_profile authoring guide + compliance notes
 
 Telemetry & Receipts
+
 [x] Delivery acks for media chunks (present in Outbox; wire into Chat later)
 [x] Basic talk-time counters (sessions, talkMs, grants/denies)
 [x] Per-topic PTT session panel (last 10) + totals (persisted)
 [ ] Dropout/error logs surfaced in UI
 
 Performance Targets (guardrails)
+
 [ ] PTT e2e: 250–400 ms (200 ms chunks baseline)
 [ ] Low-latency path: 20 ms Opus frames (<250 ms target)
-[ ] Max capsule size + send rate limits per band_profile
+[x] Max capsule size + send rate limits per band_profile (pacing + MAX_RF_INGRESS_BYTES checks live)
 
 Infra / Networking (supporting work)
+
 [x] FastAPI CORS for Codespaces/Vercel + regex allow; ALLOW_ALL_CORS override
 [x] Vite proxy for /api and /ws in dev
 [x] WebSocket paths verified; Codespace port made public (fixed “offline”)
 [x] Per-graph topic keying for thread store & history fetch
 [x] Settings gear: consolidate audio enable/volume/mic into dropdown (UI polish)
+[x] Single upgrade router for all WS paths (/ws/glyphnet, /ws/rflink, /ws/ghx)
 
 Telemetry & Receipts
 	•	⬜ Outbox queue + retry for failed /api/glyphnet/tx posts, with a “pending” indicator on bubbles.
@@ -161,6 +178,229 @@ Voice Notes (UX)
 Reliability
 	•	⬜ Cross-tab self-echo guard (extra hash/seen-id so the same message from another tab can’t double-render).
 
+
+***********************KNOWLEDGE GRAPH & BROSWER INTEGRATION***************************************************
+P5 • Knowledge Graph (Personal/Work) — Browser Integration
+
+K0 • Scope & Partitioning
+	•	Per-user, per-graph partitioning: two logical stores kg=personal and kg=work (hard boundary; no cross-leaks).
+	•	Entity namespace policy: every node/edge keys include {kg, ownerWA} for multi-device merge without collisions.
+	•	Container topology: one KG Container per graph (dc_kg_personal, dc_kg_work) + optional satellite atoms for high-volume streams (Visits, Voice, Files).
+
+K1 • Data Model (v1 schema)
+	•	Core entities
+	•	Agent(id, label, device?)
+	•	Topic(wa, realm, label)  // WA/WN thread target
+	•	Thread(id, kg, topic)    // synthetic, 1:1 with (kg, topic)
+	•	Message(id, ts, kind=text|voice|mail|signal, size?, mime?, transcript_of?)
+	•	Attachment(id, file_id, mime, size, sha256)
+	•	Call(id, ts_start, ts_end?, state, ice_type?)
+	•	PTTSession(id, ts, dur_ms, acquire_ms?, granted)
+	•	FloorLock(id, ts, result, acquire_ms)
+	•	Visit(id, ts, uri, host, title?, referrer?, duration_s?)  // wormhole history
+	•	Cookie(id, ts, key, value_hash, scope, expires?, policy)   // “habits” ledger, privacy-safe
+	•	File(id, name, mime, size, sha256, versions[], location)
+	•	ContainerRef(id, container_id, kind=atom|dc, path?)        // binds runtime to KG
+	•	Edges (typed)
+	•	SENT_BY(Message→Agent), ON_TOPIC(Message→Topic), IN_THREAD(Message→Thread)
+	•	HAS_ATTACHMENT(Message→Attachment→File)
+	•	PART_OF(Call→Thread), HELD_BY(FloorLock→Agent)
+	•	OBSERVED_FOR(Cookie→Agent|Thread), VISITED_BY(Visit→Agent)
+	•	ABOUT(ContainerRef→Thread|Topic)
+	•	Indices
+	•	{kg, thread_id, ts}, {kg, topic.wa}, {kg, file.sha256}, {kg, host}, {kg, cookie.key}
+
+K2 • Storage Engines & APIs
+	•	Backend KG writer façade (wraps your knowledge_graph_writer.py):
+	•	POST /api/kg/events  → append-only batch ingest
+	•	GET  /api/kg/query   → graph slice (filters: kg, thread, entity, time window)
+	•	POST /api/kg/upsert-entity (optional) → idempotent identity updates
+	•	Pluggable backends
+	•	Default: SQLite/duckdb + property graph tables (portable)
+	•	Adapter: Neo4j / Memgraph (opt-in)
+	•	Local cache: IndexedDB mirror per graph for offline reads
+
+K3 • Browser Emitters (zero-UI-change drop points)
+	•	ChatThread.tsx
+	•	After sendText() success → event:{type:"message", kind:"text", thread, ts, size, enc?}
+	•	After sendVoiceNoteFile() → event:{type:"message", kind:"voice", mime, size}
+	•	sendVoiceFrame() (PTT) → event:{type:"ptt_frame"} batched → PTTSession on release
+	•	Floor locks: on grant/deny → event:{type:"floor_lock", acquire_ms, granted}
+	•	Calls: state transitions (offer|answer|connect|end|reject|cancel) → event:{type:"call", state}
+	•	Transcription path: when transcript posted → event:{type:"message", kind:"text", transcript_of}
+	•	WormholeBar / Router
+	•	On navigation resolve → event:{type:"visit", uri, host, title}
+	•	On dwell/close → update duration_s
+	•	KG Drive hooks (re-use your Drive plan)
+	•	On file upload/download/share → event:{type:"file", action, file_id, sha256, size}
+	•	Cookies/Habits Ledger (privacy-safe)
+	•	Record keys + hashed values with scope & expiry; never store raw secrets.
+	•	Toggle in Settings: “Allow AI memory of habits (per graph)”.
+
+K4 • Container Runtime ↔ KG Bridge
+	•	GlyphRuntime events → KG (glyph_execution, glyph_replay, container_collapsed, SoulLaw):
+	•	Map to ContainerRef, Message(kind="runtime_log"), SoulLawEvent (if you keep it), edges to threads/agents when relevant.
+	•	Entanglement: when fork_entangled_path creates a container, emit edge: ABOUT(ContainerRef→Thread) for the originating thread.
+
+K5 • Query, Search & Summarization
+	•	Thread hydration: Chat fetches via /api/glyphnet/thread AND augments from KG for:
+	•	attachments list, call summaries, PTT rollups (no extra round-trips later).
+	•	Cross-thread search: /api/kg/query?q=...&kg=... full-text over Message/Visit/File.name.
+	•	AION memory reads: GET /api/kg/view/memory?kg=personal&scope=habits|topics|people (pre-joined aggregates).
+
+K6 • Privacy, Retention, Governance
+	•	Per-graph retention policies (defaults):
+	•	Messages: 18 months; Voice frames: 90 days; Cookies/Habits: per-item expiry; Visits: 12 months.
+	•	Redaction & “Forget”
+	•	POST /api/kg/forget (entity set or time window); tombstone edges; cascade to local IndexedDB.
+	•	Consent surfaces
+	•	Settings toggles per graph: Store visits, Store habits, Store transcripts, Encrypt at rest only.
+	•	Audit trail
+	•	Append-only Mutation Ledger (hash-chained) for KG writes (no payload; just envelope metadata).
+
+K7 • Sync & Offline
+	•	IndexedDB mirror per graph: gnet_kg_{kg}
+	•	Write-through on event POST; read-through for KGDock, Inbox summaries.
+	•	Compaction window + LRU pages per thread.
+	•	Reconciliation
+	•	Cursor-based GET /api/kg/query?after=; idempotent re-apply by event_id.
+
+K8 • UI Surfaces
+	•	KG Dock v2
+	•	Tabs: Timeline, Graph, Files, Visits, Habits
+	•	Thread context pill (topic, kg); filters & time range
+	•	Graph view
+	•	Mini D3 canvas: Topic ↔ Messages ↔ Attachments ↔ Calls; hover to reveal props.
+	•	Privacy banner (per graph): show active policies + “Pause memory” quick toggle.
+	•	Visit history panel with host aggregates; “Clear last hour/day” actions.
+
+K9 • Security & Crypto
+	•	At-rest encryption of KG rows (server) with per-user keys (works with your Vault model).
+	•	No plaintext for sensitive Cookie values; store salted hashes + entropy budget.
+	•	QKD hooks: allow enc={kid, iv} metadata on KG events when encrypting payloads (aligns with your QKD plan).
+
+K10 • Telemetry & Tests
+	•	Counters: kg_ev_ok/err, kg_cache_hits, kg_sync_conflicts, kg_forget_ops, privacy_paused_min.
+	•	Tests:
+	•	Event idempotency & merge
+	•	Partition isolation (personal vs work)
+	•	Offline/online flaps
+	•	Forget/redaction correctness
+	•	AION query correctness (aggregates)
+
+K11 • Migration & Acceptance
+	•	One-shot migrate existing thread/session caches → KG (messages, voice notes, call summaries).
+	•	Backfill visits from current hash router history (if stored).
+	•	Acceptance
+	•	Switching between Personal/Work shows different KG surfaces immediately.
+	•	New chats/voice/calls/visits appear in KG Dock within 1s.
+	•	Clearing “habits” or “last day of visits” reflects in UI and AION memory.
+	•	Export of a thread includes message + file graph slice.
+
+⸻
+
+Minimal glue (so it’s easy to implement)
+
+Backend (FastAPI/Flask-ish)
+
+POST /api/kg/events
+# body: { kg:"personal|work", owner:"ucs://…", events:[{type, ts, thread_id, payload…}] }
+# 200 → { ok:true, applied:N, last_event_id }
+GET  /api/kg/query?kg=personal&thread_id=…&after=…&limit=…
+# 200 → { nodes:[…], edges:[…], next_cursor }
+
+Frontend emit helper
+Add emitKg(kg, events[]) and call it in:
+	•	sendText, sendVoiceNoteFile, sendVoiceFrame (on release), floor-lock grant/deny, call state transitions, transcript sent, file uploaded, wormhole visited.
+
+IndexedDB keys
+	•	DB: gnet_kg_{kg}
+	•	Stores: events (by event_id), nodes, edges, views:{thread_id -> summary}
+
+⸻
+
+What this unlocks for you (short version)
+	•	Clean separation Personal vs Work memory (and easy future “Family”, “Org”, etc.).
+	•	AION can read structured memory (habits, visits, files, contacts) with explicit consent.
+	•	Browser acts like WhatsApp/Email plus “Drive” and “History”, all in one KG—searchable and summarizable.
+	•	Container Runtime events become first-class knowledge (entanglement and ethics logs are no longer siloed).
+
+If you want, I can draft the small emitKg(...) utility and the event payload shapes for the exact React functions you’ve already got (sendText, sendVoiceFrame, etc.) so you can paste them straight in.
+
+
+-----
+What to do now (no UI yet)
+	1.	Device/local identity
+	•	Generate an Ed25519/X25519 keypair on first run.
+	•	Derive:
+	•	AGENT_ID = sha256(pubkey)[:16] (replace the hardcoded one)
+	•	WA = ucs://self/<pubkey-fp> (or wave.tp/<fp>) for display/routing.
+	•	Persist private key in:
+	•	Tauri: OS keychain; Web-only: IndexedDB (encrypted) + backup export.
+	2.	Use identity everywhere
+	•	Headers: keep X-Agent-Token: dev-token for dev, but add X-Agent-Id: <AGENT_ID> (you already do) and optionally a request signature header of the body (HMAC w/ device key or Ed25519) for future-proofing.
+	•	KG events: include { owner: WA, kg: personal|work }.
+	•	Floor locks / call state: use owner = AGENT_ID (you already do—just source it from the identity module).
+	3.	Partition data by owner + graph
+	•	DB/IndexedDB keys: prefix with {owner, kg}.
+	•	Thread store, files, visits, “habits” all use that prefix.
+	4.	Add a tiny Settings → Identity panel
+	•	Show Your address (WA), copy buttons, and Export/Import Identity (JSON/QR).
+	•	That’s enough to move data across devices until account auth lands.
+
+Minimal TS util (drop-in)
+
+// src/utils/identity.ts
+import { subtle } from "./crypto"; // or window.crypto.subtle
+
+const KEY_DB = "gnet:identity:v1";
+
+export type AgentIdentity = {
+  agentId: string;        // short fingerprint
+  wa: string;             // ucs://self/<fp>
+  pubkey_b64: string;
+  privkey_b64?: string;   // keep outside localStorage if Tauri keychain is used
+};
+
+export async function getIdentity(): Promise<AgentIdentity> {
+  const cached = localStorage.getItem(KEY_DB);
+  if (cached) return JSON.parse(cached);
+
+  const kp = await window.crypto.subtle.generateKey(
+    { name: "Ed25519", namedCurve: "Ed25519" } as any, true, ["sign", "verify"]
+  );
+  const pub = new Uint8Array(await subtle.exportKey("raw", kp.publicKey));
+  const priv = new Uint8Array(await subtle.exportKey("pkcs8", kp.privateKey));
+
+  const fpBuf = await subtle.digest("SHA-256", pub);
+  const fp = Array.from(new Uint8Array(fpBuf)).slice(0, 16)
+                   .map(b => b.toString(16).padStart(2, "0")).join("");
+  const wa = `ucs://self/${fp}`;
+
+  const id: AgentIdentity = {
+    agentId: fp,
+    wa,
+    pubkey_b64: btoa(String.fromCharCode(...pub)),
+    privkey_b64: btoa(String.fromCharCode(...priv)), // move to keychain in Tauri
+  };
+  localStorage.setItem(KEY_DB, JSON.stringify(id));
+  return id;
+}
+
+Then wire it:
+	•	ChatThread: replace the current AGENT_ID source with const { agentId } = await getIdentity().
+	•	Headers: keep X-Agent-Id: agentId.
+	•	KG emit: include { owner: wa } on all events.
+
+Later, when you add login
+	•	Add /api/auth/exchange that verifies a device-proof (Ed25519 sig of a server nonce) and returns a session token; map ownerWA → account.
+	•	Keep all KG keys the same (owner + kg). Multi-device just means multiple devices prove the same owner and share/sync.
+	•	Optional: “Link device” by scanning a QR containing the owner’s public key + a one-time server nonce.
+
+TL;DR
+
+
+***********************KNOWLEDGE GRAPH & BROSWER INTEGRATION***************************************************
 
 Conversation Persistence & History (Thread Storage + Pagination)
 

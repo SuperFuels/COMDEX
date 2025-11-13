@@ -1,0 +1,83 @@
+<!-- radio-serial-bridge.html -->
+<!doctype html>
+<html>
+  <meta charset="utf-8" />
+  <title>Radio Serial ↔ RF Link WS Bridge</title>
+  <body>
+    <button id="connect">Connect Serial → WS</button>
+    <pre id="log" style="white-space:pre-wrap"></pre>
+    <script>
+      const log = (m) => (document.getElementById('log').textContent += m + "\n");
+
+      async function main() {
+        // 1) Pick a serial port
+        const port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 115200 });
+        log("Serial: opened @115200");
+
+        const wsUrl = (location.protocol === "https:" ? "wss" : "ws") +
+          "://" + location.host + "/ws/rflink";
+        // Prefer Bearer header when possible; query token also works.
+        // Since browsers can't set custom headers in WebSocket constructor,
+        // we’ll use query token here.
+        const token = "dev-bridge";
+        const ws = new WebSocket(`${wsUrl}?token=${encodeURIComponent(token)}`);
+
+        ws.onopen = () => log("WS: connected " + ws.url);
+        ws.onmessage = async (e) => {
+          // Expect bridge → {"type":"tx","bytes_b64":"..."}
+          try {
+            const msg = JSON.parse(e.data);
+            if (msg?.type === "tx" && msg?.bytes_b64) {
+              const bytes = Uint8Array.from(atob(msg.bytes_b64), c => c.charCodeAt(0));
+              const writer = port.writable.getWriter();
+              await writer.write(bytes);
+              writer.releaseLock();
+              log(`Serial: wrote ${bytes.length} bytes from WS tx`);
+            }
+          } catch {}
+        };
+        ws.onclose = () => log("WS: closed");
+        ws.onerror = (e) => log("WS: error " + e.message);
+
+        // 2) Serial → WS (read lines; each line must be a JSON object)
+        const decoder = new TextDecoderStream();
+        const readable = port.readable.pipeThrough(decoder);
+        const reader = readable.getReader();
+        let buf = "";
+        log("Bridge ready: send NDJSON lines from device");
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buf += value;
+          let idx;
+          while ((idx = buf.indexOf("\n")) >= 0) {
+            const line = buf.slice(0, idx).trim();
+            buf = buf.slice(idx + 1);
+            if (!line) continue;
+            try {
+              const obj = JSON.parse(line);
+              if (obj && obj.type === "rx" && obj.topic && obj.bytes_b64) {
+                ws.readyState === WebSocket.OPEN && ws.send(JSON.stringify(obj));
+                log(`WS: forwarded RX (topic=${obj.topic}, len=${obj.bytes_b64.length})`);
+              } else {
+                log("Ignored line (not rx JSON): " + line);
+              }
+            } catch {
+              log("Bad JSON line: " + line);
+            }
+          }
+        }
+      }
+
+      document.getElementById('connect').onclick = () => {
+        if (!("serial" in navigator)) {
+          alert("WebSerial not supported in this browser.");
+          return;
+        }
+        main().catch(e => log("ERR: " + e.message));
+      };
+    </script>
+  </body>
+</html>
