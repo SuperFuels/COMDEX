@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Browser phase 9"
+git commit -m "Browser phase 10"
 git push origin main
 
 

@@ -1,5 +1,6 @@
 // src/components/TopBar.tsx
 import WormholeBar from "./WormholeBar";
+import React from "react";
 
 type Props = {
   onNavigate: (t: { mode: "wormhole" | "http"; address: string }) => void;
@@ -11,6 +12,10 @@ type Props = {
 };
 
 export default function TopBar(p: Props) {
+  const gotoBridge = () => {
+    window.location.hash = "#/bridge";
+  };
+
   return (
     <header
       style={{
@@ -52,9 +57,18 @@ export default function TopBar(p: Props) {
         <WormholeBar onNavigate={p.onNavigate} />
       </div>
 
+      {/* quick nav to RF Bridge */}
+      <button style={pill} onClick={gotoBridge} title="Open RF Bridge panel">
+        📡 Bridge
+      </button>
+
       {/* right actions */}
-      <button style={pill} onClick={p.onAskAion}>🫖 Ask AION</button>
-      <button style={pill} onClick={p.onConnectWallet}>🔑 Connect</button>
+      <button style={pill} onClick={p.onAskAion}>
+        🫖 Ask AION
+      </button>
+      <button style={pill} onClick={p.onConnectWallet}>
+        🔑 Connect
+      </button>
       <button style={pill} onClick={p.onToggleWaves}>
         🌊 Waves {p.wavesCount ? `(${p.wavesCount})` : ""}
       </button>
@@ -68,6 +82,7 @@ const navBtn: React.CSSProperties = {
   borderRadius: 8,
   border: "1px solid #e5e7eb",
   background: "#fff",
+  cursor: "pointer",
 };
 
 const pill: React.CSSProperties = {
@@ -75,4 +90,5 @@ const pill: React.CSSProperties = {
   padding: "6px 10px",
   border: "1px solid #e5e7eb",
   background: "#fff",
+  cursor: "pointer",
 };

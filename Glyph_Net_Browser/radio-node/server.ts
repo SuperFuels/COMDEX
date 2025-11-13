@@ -7,6 +7,7 @@ import { Buffer } from "buffer";
 import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
+import crypto from "crypto";
 
 dotenv.config({ path: path.join(process.cwd(), ".env.local") });
 dotenv.config(); // fallback to .env if present
@@ -19,7 +20,87 @@ try { YAML = require("yaml"); } catch { /* optional */ }
 // Base64 → bytes
 const b64ToU8 = (b64: string) => new Uint8Array(Buffer.from(b64, "base64"));
 
+// String <-> bytes helpers
+const u8ToStr = (u8: Uint8Array) => new TextDecoder().decode(u8);
+const strToU8 = (s: string) => new TextEncoder().encode(s);
+
+// Unique node id (used by discovery beacons)
+const NODE_ID = process.env.NODE_ID || `rn-${Math.random().toString(36).slice(2, 8)}`;
+
+// ── Discovery (neighbors)
+type Neighbor = {
+  id: string;
+  seenAt: number;
+  profile: string;
+  rate_hz: number;
+  mtu: number;
+  addr?: string;
+  ua?: string;
+};
+
+const NEIGHBOR_TTL_MS = Number(process.env.NEIGHBOR_TTL_MS ?? 60_000);
+const neighbors = new Map<string, Neighbor>();
+
+function upsertNeighbor(n: Neighbor) {
+  const prev = neighbors.get(n.id) || {};
+  neighbors.set(n.id, { ...prev, ...n, seenAt: now() });
+}
+
+function currentNeighbors(): Neighbor[] {
+  const out: Neighbor[] = [];
+  const t = now();
+  for (const [, n] of neighbors) {
+    if (t - n.seenAt <= NEIGHBOR_TTL_MS) out.push(n);
+    else neighbors.delete(n.id);
+  }
+  out.sort((a, b) => b.seenAt - a.seenAt);
+  return out;
+}
+
 const BRIDGE_TOKEN = process.env.RADIO_BRIDGE_TOKEN || "dev-bridge";
+
+// Optional rolling token for rotation
+const BRIDGE_TOKEN_NEXT = process.env.RADIO_BRIDGE_TOKEN_NEXT || "";
+
+// Constant-time string compare
+function safeEq(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let r = 0;
+  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return r === 0;
+}
+
+/** Validate X-Bridge-Sig: "v1,<tsMs>,<hmacHex>" where hmac = HMAC_SHA256(token, `ws-bridge|${tsMs}`) */
+function validBridgeSig(sig: string, token: string): boolean {
+  try {
+    const [v, tsStr, mac] = String(sig).split(",");
+    if (v !== "v1") return false;
+    const ts = Number(tsStr);
+    if (!Number.isFinite(ts)) return false;
+    // 2-minute tolerance window
+    if (Math.abs(Date.now() - ts) > 2 * 60_000) return false;
+    const h = crypto.createHmac("sha256", token);
+    h.update(`ws-bridge|${ts}`);
+    const want = h.digest("hex");
+    return safeEq(want, mac);
+  } catch {
+    return false;
+  }
+}
+
+function tokenMatchesAny(tok: string) {
+  return !!tok && (tok === BRIDGE_TOKEN || (BRIDGE_TOKEN_NEXT && tok === BRIDGE_TOKEN_NEXT));
+}
+
+function tokenOkWithOptionalSig(tok: string, sig?: string) {
+  if (!tok) return false;
+  // No signature → allow plain token (dev-friendly)
+  if (!sig) return tokenMatchesAny(tok);
+  // Signature present → must verify against the specific token used
+  if (tok === BRIDGE_TOKEN && validBridgeSig(sig, BRIDGE_TOKEN)) return true;
+  if (BRIDGE_TOKEN_NEXT && tok === BRIDGE_TOKEN_NEXT && validBridgeSig(sig, BRIDGE_TOKEN_NEXT)) return true;
+  return false;
+}
 
 // ───────────────────────────────────────────────────────────────
 // Spool configuration (two independent spools)
@@ -46,10 +127,12 @@ const CLOUD_BASE = (process.env.CLOUD_BASE || "").replace(/\/+$/, "");
 const FORWARD_TO_CLOUD = !!CLOUD_BASE;
 
 function requireBridgeToken(req: Request, res: Response, next: NextFunction) {
-  if (!BRIDGE_TOKEN) return res.status(501).json({ ok: false, error: "bridge token not configured" });
-  const h = req.header("x-bridge-token") || req.header("authorization") || "";
-  const token = h.startsWith("Bearer ") ? h.slice(7) : h;
-  if (token !== BRIDGE_TOKEN) return res.status(401).json({ ok: false, error: "unauthorized" });
+  const raw = req.header("x-bridge-token") || req.header("authorization") || "";
+  const tok = raw.startsWith("Bearer ") ? raw.slice(7) : raw;
+  const sig = req.header("x-bridge-sig") || ""; // optional
+  if (!tokenOkWithOptionalSig(tok, sig)) {
+    return res.status(401).json({ ok: false, error: "unauthorized" });
+  }
   next();
 }
 
@@ -298,32 +381,194 @@ function headerOverheadBytes(topic: string, codec?: string): number {
 function maxPayloadBytes(topic: string, codec?: string): number {
   return Math.max(0, ACTIVE.MTU - headerOverheadBytes(topic, codec));
 }
-
 // ───────────────────────────────────────────────────────────────
 // RF pacing queue (enforce RATE_HZ)
 const rfOutbox: Uint8Array[] = [];
 const rfQueue:  Uint8Array[] = [];
 let rfTicker: ReturnType<typeof setInterval> | null = null;
 
-function startRFPacer() {
-  if (rfTicker) { clearInterval(rfTicker); rfTicker = null; }
-  const hz = Math.max(1, Math.floor(ACTIVE.RATE_HZ || 10));
-  const intervalMs = Math.max(1, Math.round(1000 / hz));
-  rfTicker = setInterval(() => {
-    const frame = rfQueue.shift();
-    if (frame) {
-      // TODO: write to radio transport (UART/SPI/etc.)
-      rfOutbox.push(frame);
-    }
-  }, intervalMs);
+// ───────────────────────────────────────────────────────────────
+// Link/PHY transport registry (pluggable drivers)
+
+type LinkDriver = {
+  id: string;
+  kind: "ws-bridge" | "serial" | "ble" | "mock";
+  /** Send one RF frame already base64-encoded. Return true if accepted. */
+  sendB64: (b64: string) => boolean;
+  isUp: () => boolean;
+  stats?: () => Record<string, any>;
+};
+
+const drivers: LinkDriver[] = [];
+
+function registerDriver(d: LinkDriver) {
+  drivers.push(d);
 }
 
-// ✅ call it once after ACTIVE is set up (not inside a handler)
-startRFPacer();
+function listDrivers() {
+  return drivers.map(d => ({
+    id: d.id,
+    kind: d.kind,
+    up: d.isUp(),
+    ...(d.stats?.() || {}),
+  }));
+}
+
+// ───────────────────────────────────────────────────────────────
+// Dev RF mock (software link) — delay/jitter/loss + optional loopback
+
+type MockCfg = {
+  enabled: boolean;
+  loopback: boolean;
+  delay_ms: number;
+  jitter_ms: number;
+  loss_pct: number;        // 0..100
+};
+
+const mockCfg: MockCfg = {
+  enabled: false,
+  loopback: false,
+  delay_ms: 0,
+  jitter_ms: 0,
+  loss_pct: 0,
+};
+
+// Decode RF frame that was produced by encodeFrame()
+function decodeFrame(u8: Uint8Array): {
+  ver: number; seq: number; ts: number; codec: string; topic: string; payload: Uint8Array;
+} | null {
+  try {
+    const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+    let o = 0;
+    const ver = dv.getUint8(o); o += 1;
+    const seq = dv.getUint32(o, false); o += 4;
+    const hi  = dv.getUint32(o, false); o += 4;
+    const lo  = dv.getUint32(o, false); o += 4;
+    const ts  = (hi * 2 ** 32) + lo;
+
+    const codecLen = dv.getUint8(o); o += 1;
+    const codec = new TextDecoder().decode(u8.subarray(o, o + codecLen)); o += codecLen;
+
+    const topicLen = dv.getUint8(o); o += 1;
+    const topic = new TextDecoder().decode(u8.subarray(o, o + topicLen)); o += topicLen;
+
+    const payload = u8.subarray(o);
+    return { ver, seq, ts, codec, topic, payload };
+  } catch {
+    return null;
+  }
+}
+
+/** Reusable inbound RF processor (used by WS bridge, mock driver, and dev injector). */
+function processInboundRF(topic: string, bytes: Uint8Array, seq?: number, ua?: string) {
+  // De-dupe if a seq is supplied
+  if (typeof seq === "number") {
+    const key = `${topic}#${seq}`;
+    if (seen.has(key)) return;
+    rememberRX(topic, seq);
+  }
+
+  // Discovery beacons: update neighbor table; do not fanout as messages
+  if (topic === "control:beacon") {
+    try {
+      const j = JSON.parse(u8ToStr(bytes));
+      if (j?.id) {
+        upsertNeighbor({
+          id: String(j.id),
+          profile: String(j.profile || PROFILE_NAME),
+          rate_hz: Number(j.rate_hz || ACTIVE.RATE_HZ),
+          mtu: Number(j.mtu || ACTIVE.MTU),
+          ua,
+          seenAt: now(),
+        });
+      }
+    } catch {}
+    return;
+  }
+
+  // Normal RF → local WS fanout as a synthetic capsule
+  const keyTopic = topic; // "graph:recipient"
+  const envelope = {
+    capsule: { glyphs: ["(rf)"], rf_bytes_len: bytes.length },
+    meta: { graph: keyTopic.split(":")[0] || "personal" },
+    ts: now(),
+    id: msgId(),
+  };
+  broadcast(keyTopic, { type: "glyphnet_capsule", envelope });
+}
+
+let mockDriverRegistered = false;
+function ensureMockDriverRegistered() {
+  if (mockDriverRegistered) return;
+
+  registerDriver({
+    id: "mock-1",
+    kind: "mock",
+    // Claim frames only when enabled; optionally loop them back after delay/jitter/loss.
+    sendB64: (b64: string) => {
+      if (!mockCfg.enabled) return false;
+
+      // Simulate loss
+      if (mockCfg.loss_pct > 0 && Math.random() * 100 < mockCfg.loss_pct) {
+        return true; // claimed (dropped)
+      }
+
+      // Optional loopback back into inbound path
+      if (mockCfg.loopback) {
+        const buf = Buffer.from(b64, "base64");
+        const dec = decodeFrame(new Uint8Array(buf));
+        if (dec) {
+          // delay + jitter
+          const base = Math.max(0, mockCfg.delay_ms|0);
+          const jit  = Math.max(0, mockCfg.jitter_ms|0);
+          const delta = base + (jit ? Math.floor((Math.random() * 2 - 1) * jit) : 0);
+
+          setTimeout(() => {
+            try {
+              processInboundRF(dec.topic, dec.payload, dec.seq, "mock-loopback");
+            } catch {}
+          }, Math.max(0, delta));
+        }
+      }
+
+      return true; // accepted by mock link
+    },
+    isUp: () => mockCfg.enabled,
+    stats: () => ({ mock: { ...mockCfg } }),
+  });
+
+  mockDriverRegistered = true;
+}
+ensureMockDriverRegistered();
+
+/** Drain rfOutbox via any up drivers; stop if none can accept. */
+function drainOutboxViaDrivers() {
+  if (!drivers.length) return;
+  while (rfOutbox.length) {
+    const frame = rfOutbox.shift()!;
+    const b64 = Buffer.from(frame).toString("base64");
+    let delivered = false;
+    for (const d of drivers) {
+      try { delivered = d.sendB64(b64) || delivered; } catch {}
+    }
+    if (!delivered) {
+      // No driver accepted; put back and try later
+      rfOutbox.unshift(frame);
+      break;
+    }
+  }
+}
+
+function kickRFStep() {
+  const frame = rfQueue.shift();
+  if (frame) rfOutbox.push(frame);
+  pushRFOutboxToBridge();
+}
 
 // Enqueue with fragmentation to fit MTU (topic=graph:recipient)
 function enqueueRF(rfTopic: string, payload: Uint8Array, codec?: string) {
-  if (!payload?.length) return;
+  if (!payload || payload.length === 0) return;
+
   const maxPayload = maxPayloadBytes(rfTopic, codec);
   if (maxPayload <= 0) {
     console.warn(`[rf] MTU too small for ${rfTopic} (MTU=${ACTIVE.MTU}) — dropping`);
@@ -335,13 +580,34 @@ function enqueueRF(rfTopic: string, payload: Uint8Array, codec?: string) {
     const frame = encodeFrame({
       topic: rfTopic,
       seq: nextSeq(rfTopic),
-      ts: Date.now(),
+      ts: now(),
       codec,
       bytes: slice,
     });
     rfQueue.push(frame);
   }
+
+  // Ensure at least one immediate step so dev traffic shows up even if the interval didn't start
+  try { kickRFStep(); } catch { /* fallback if helper not present */ try { pushRFOutboxToBridge(); } catch {} }
 }
+
+// ── Discovery beacons: advertise presence over RF
+const BEACON_INTERVAL_MS = Number(process.env.BEACON_INTERVAL_MS ?? 10_000);
+setInterval(() => {
+  // keep payload tiny (fits in single frame for NA-915)
+  const payload = {
+    id: NODE_ID,
+    profile: PROFILE_NAME,
+    rate_hz: ACTIVE.RATE_HZ,
+    mtu: ACTIVE.MTU,
+    ts: now(),
+  };
+  try {
+    const bytes = strToU8(JSON.stringify(payload));
+    // dedicated control topic; tagged codec (optional)
+    enqueueRF("control:beacon", bytes, "beacon/json");
+  } catch {}
+}, BEACON_INTERVAL_MS);
 
 // ───────────────────────────────────────────────────────────────
 // WS room registry
@@ -358,6 +624,7 @@ function broadcast(key: string, obj: any) {
   const data = JSON.stringify(obj);
   for (const ws of set) if (ws.readyState === WebSocket.OPEN) { try { ws.send(data); } catch {} }
 }
+
 // ───────────────────────────────────────────────────────────────
 // Cloud forward queue (store-carry-forward)
 
@@ -395,12 +662,44 @@ setInterval(async () => {
 // HTTP server
 const app = express();
 
+/** DEBUG: confirm this file is the one running */
+console.log("[radio-node] registering /bridge/transports route");
+
+// Optional: simple status endpoint for transports (force strict JSON)
+app.get("/bridge/transports", (_req, res) => {
+  try {
+    const body = {
+      ok: true,
+      drivers: listDrivers(),        // [{ id, kind, up, ...stats }]
+      rfOutbox: rfOutbox.length,     // queued frames waiting for a link
+    };
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(JSON.stringify(body));
+  } catch (e: any) {
+    res
+      .status(500)
+      .json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+app.get("/__routes", (_req, res) => {
+  const stack = (app as any)._router?.stack || [];
+  const routes = stack
+    .filter((l: any) => l.route && l.route.path)
+    .map((l: any) => ({
+      method: Object.keys(l.route.methods || {})[0]?.toUpperCase() || "GET",
+      path: l.route.path,
+    }));
+  res.json({ ok: true, routes });
+});
+
 /* CORS (must be before routes & JSON parser) */
 const corsMw = cors({
   origin: true, // reflect the request Origin
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "X-Agent-Token", "X-Agent-Id", "X-Bridge-Token"],
+  // ⬇ add Authorization so browser can send Bearer headers when needed
+  allowedHeaders: ["Content-Type", "Authorization", "X-Agent-Token", "X-Agent-Id", "X-Bridge-Token"],
 });
 app.use(corsMw);
 app.options("*", corsMw);
@@ -417,6 +716,42 @@ app.use((_: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// ───────────────────────────────────────────────────────────────
+// Dev endpoints (all under /dev/rf/mock)
+app.get("/dev/rf/mock/status", (_req, res) => {
+  res.json({ ok: true, enabled: mockCfg.enabled, config: mockCfg, drivers: listDrivers(), rfOutbox: rfOutbox.length });
+});
+
+app.post("/dev/rf/mock/enable", (req, res) => {
+  mockCfg.enabled = true;
+  if (typeof req.body?.loopback === "boolean") mockCfg.loopback = !!req.body.loopback;
+  if (Number.isFinite(req.body?.delay_ms))   mockCfg.delay_ms  = Math.max(0, Number(req.body.delay_ms));
+  if (Number.isFinite(req.body?.jitter_ms))  mockCfg.jitter_ms = Math.max(0, Number(req.body.jitter_ms));
+  if (Number.isFinite(req.body?.loss_pct))   mockCfg.loss_pct  = Math.min(100, Math.max(0, Number(req.body.loss_pct)));
+  res.json({ ok: true, config: mockCfg });
+});
+
+app.post("/dev/rf/mock/disable", (_req, res) => {
+  mockCfg.enabled = false;
+  res.json({ ok: true, config: mockCfg });
+});
+
+/** Inject a synthetic inbound RF frame (pretend we received it over the air). */
+app.post("/dev/rf/mock/rx", (req, res) => {
+  const topic = String(req.body?.topic || "").trim();   // "graph:recipient" or "control:beacon"
+  const b64   = String(req.body?.data_b64 || req.body?.bytes_b64 || req.body?.b64 || "");
+  const seq   = Number.isFinite(req.body?.seq) ? Number(req.body.seq) : undefined;
+  if (!topic || !b64) return res.status(400).json({ ok: false, error: "missing topic or data_b64" });
+
+  let bytes: Uint8Array;
+  try { bytes = new Uint8Array(Buffer.from(b64, "base64")); } catch {
+    return res.status(400).json({ ok: false, error: "invalid base64" });
+  }
+
+  processInboundRF(topic, bytes, seq, "dev-injector");
+  res.json({ ok: true, len: bytes.length });
+});
+
 app.get("/", (_req, res) => {
   res.type("text").send("radio-node up • try /health or WebSocket at /ws/glyphnet");
 });
@@ -428,12 +763,18 @@ app.get("/health", (_req, res) => {
     queue: queue.length,
     rfQueue: rfQueue.length,
     rfOutbox: rfOutbox.length,
+    neighbors: currentNeighbors().length,
     ts: now(),
     profile: PROFILE_NAME,
     active: ACTIVE,
     profiles: Object.keys(PROFILES),
     maxRfIngressBytes: MAX_RF_INGRESS_BYTES,
+    nodeId: NODE_ID,
   });
+});
+
+app.get("/discovery/neighbors", (_req, res) => {
+  res.json({ ok: true, ttl_ms: NEIGHBOR_TTL_MS, neighbors: currentNeighbors() });
 });
 
 // --- GHX container info (local stub) -----------------------------
@@ -463,7 +804,7 @@ app.post("/api/glyphnet/tx", async (req: Request, res: Response) => {
   const id = msgId();
   const envelope = {
     capsule: body.capsule || {},
-    meta: { ...(body.meta || {}), graph: kg },
+    meta: { ...(body.meta || {}), graph: kg, recipient },
     ts: now(),
     id,
   };
@@ -551,15 +892,108 @@ app.post("/bridge/tx", requireBridgeToken, (req: Request, res: Response) => {
 });
 
 // ───────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────
+// QKD endpoints — proxy to real agent if QKD_AGENT is set; else dev shim
+
+const QKD_AGENT = (process.env.QKD_AGENT || "").replace(/\/+$/, "");
+const QKD_AGENT_TIMEOUT_MS = Number(process.env.QKD_AGENT_TIMEOUT_MS || 2500);
+
+if (QKD_AGENT) {
+  console.log(`[radio-node] QKD proxy enabled → ${QKD_AGENT}`);
+
+  // Pass-through to the external agent (keeps /qkd/* prefix)
+  app.get("/qkd/health", async (_req, res) => {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), QKD_AGENT_TIMEOUT_MS);
+      const r = await fetch(`${QKD_AGENT}/qkd/health`, { signal: ctrl.signal } as any);
+      clearTimeout(timer);
+
+      const text = await r.text();
+      res
+        .status(r.status)
+        .type(r.headers.get("content-type") || "application/json")
+        .send(text);
+    } catch (e: any) {
+      res.status(502).json({ ok: false, error: String(e?.message || e) });
+    }
+  });
+
+  app.post("/qkd/lease", async (req, res) => {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), QKD_AGENT_TIMEOUT_MS);
+      const r = await fetch(`${QKD_AGENT}/qkd/lease`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(req.body || {}),
+        signal: ctrl.signal as any,
+      } as any);
+      clearTimeout(timer);
+
+      const text = await r.text();
+      res
+        .status(r.status)
+        .type(r.headers.get("content-type") || "application/json")
+        .send(text);
+    } catch (e: any) {
+      res.status(502).json({ ok: false, error: String(e?.message || e) });
+    }
+  });
+} else {
+  // --- Dev QKD shim (no external service needed) ----------------
+  console.log("[radio-node] QKD dev shim enabled");
+
+  const DEV_QKD_TTL_MS = Number(process.env.DEV_QKD_TTL_MS ?? 10 * 60 * 1000);
+  const DEV_QKD_SECRET = process.env.DEV_QKD_SECRET || "dev-qkd-secret-not-for-prod";
+
+  app.get("/qkd/health", (_req, res) => {
+    res.json({ ok: true, mode: "dev", ttl_ms: DEV_QKD_TTL_MS });
+  });
+
+  app.post("/qkd/lease", (req, res) => {
+    const r = req.body || {};
+    const localWA  = String(r.localWA  || "");
+    const remoteWA = String(r.remoteWA || "");
+    const kg       = String(r.kg       || "personal");
+    const purpose  = String(r.aad ?? r.purpose ?? "glyph"); // accept either 'aad' or 'purpose'
+
+    if (!localWA || !remoteWA) {
+      return res.status(400).json({ ok: false, error: "localWA and remoteWA required" });
+    }
+
+    const kid = `dev-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    const salt_b64 = Buffer.from(crypto.randomBytes(16)).toString("base64");
+
+    // Collapse-hash analogue (DEV): deterministic from inputs + secret + kid
+    const h = crypto.createHash("sha256");
+    h.update(`${localWA}|${remoteWA}|${kg}|${purpose}|${kid}|${DEV_QKD_SECRET}`);
+    const collapse_hash = h.digest("hex");
+
+    // Match the client's expected shape: { ok, lease: {...} }
+    res.json({
+      ok: true,
+      lease: {
+        kid,
+        collapse_hash,                 // client PBKDF2s this (with salt_b64) → AES-GCM key
+        salt_b64,
+        ttl_ms: DEV_QKD_TTL_MS,
+        fingerprint: `${kg}:${purpose}`,
+      },
+    });
+  });
+}
+
+// ───────────────────────────────────────────────────────────────
 // HTTP server + explicit WS upgrade mux
 const server = http.createServer(app);
 
-(server as any).requestTimeout = 0;     // no request timeout for upgrades
-(server as any).headersTimeout = 0;     // don't kill slow handshakes
-(server as any).keepAliveTimeout = 0;   // keep-alive off for upgraded sockets
+(server as any).requestTimeout   = 0;  // no request timeout for upgrades
+(server as any).headersTimeout   = 0;  // don't kill slow handshakes
+(server as any).keepAliveTimeout = 0;  // keep-alive off for upgraded sockets
 
 // --- GlyphNet WS (noServer; upgrade-routed) ---------------------
-const wssGlyph = new WebSocketServer({ noServer: true });
+const wssGlyph = new WebSocketServer({ noServer: true, perMessageDeflate: false });
 
 wssGlyph.on("connection", (ws: WebSocket, req: IncomingMessage) => {
   try {
@@ -619,8 +1053,9 @@ wssGlyph.on("connection", (ws: WebSocket, req: IncomingMessage) => {
   }
 });
 
+
+
 // --- RF Link Bridge WS (noServer; upgrade-routed) ----------------
-// --- RF Link Bridge WS (path-bound) --------------------------------
 const wssRF = new WebSocketServer({ noServer: true, perMessageDeflate: false });
 let activeBridge: WebSocket | null = null;
 
@@ -628,123 +1063,110 @@ function authTokenFromWS(req: IncomingMessage): string {
   const h = String(req.headers["authorization"] || "");
   const bearer = h.startsWith("Bearer ") ? h.slice(7) : "";
   if (bearer) return bearer;
+
+  const xbt = String((req.headers["x-bridge-token"] || "").toString());
+  if (xbt) return xbt;
+
   try {
-    const url = new URL(req.url || "", "http://localhost");
+    const url = new URL(req.url || "", URL_BASE);
     return url.searchParams.get("token") || "";
   } catch { return ""; }
 }
 
+function sigFromWS(req: IncomingMessage): string {
+  const h = String(req.headers["x-bridge-sig"] || "");
+  if (h) return h;
+  try {
+    const url = new URL(req.url || "", URL_BASE);
+    return url.searchParams.get("sig") || "";
+  } catch { return ""; }
+}
+
+// Register the WS bridge as a LinkDriver (one-time)
+let wsBridgeDriverRegistered = false;
+function ensureWSBridgeDriverRegistered() {
+  if (wsBridgeDriverRegistered) return;
+  registerDriver({
+    id: "ws-bridge-1",
+    kind: "ws-bridge",
+    sendB64: (b64: string) => {
+      if (!activeBridge || activeBridge.readyState !== WebSocket.OPEN) return false;
+      try { activeBridge.send(JSON.stringify({ type: "tx", bytes_b64: b64 })); return true; }
+      catch { return false; }
+    },
+    isUp: () => !!activeBridge && activeBridge.readyState === WebSocket.OPEN,
+    stats: () => ({ rfOutbox: rfOutbox.length }),
+  });
+  wsBridgeDriverRegistered = true;
+}
+
 wssRF.on("connection", (ws, req) => {
   const token = authTokenFromWS(req);
+  const sig = sigFromWS(req); // new: optional signed auth
   const ua = String(req.headers["user-agent"] || "unknown-UA");
 
-  if (token !== BRIDGE_TOKEN) {
-    console.log("[rf-link] unauthorized connect from UA:", ua);
+  if (!tokenOkWithOptionalSig(token, sig)) {
     try { ws.close(1008, "unauthorized"); } catch {}
     return;
   }
 
-  // If a bridge is already up, refuse the newcomer (don't kill the current one)
+  // Single-active-bridge policy
   if (activeBridge && activeBridge.readyState === WebSocket.OPEN) {
-    const ua = String(req.headers["user-agent"] || "unknown-UA");
-    console.log("[rf-link] new connection refused (busy). UA:", ua);
     try { ws.close(1013, "busy"); } catch {}
     return;
   }
 
   activeBridge = ws;
-  console.log("[rf-link] bridge connected. UA:", ua);
+  ensureWSBridgeDriverRegistered();
+
   try { ws.send(JSON.stringify({ type: "hello", mtu: ACTIVE.MTU, rate_hz: ACTIVE.RATE_HZ })); } catch {}
 
-  // Drain queued frames
+  // Drain any queued frames immediately
   pushRFOutboxToBridge();
 
-  // Optional keepalive
- // No keepalive for now (wscat can be finicky behind some proxies).
-// Add deep socket visibility instead.
-  const sock = (ws as any)._socket;
-  if (sock) {
-    sock.on("end",   () => console.log("[rf-link] tcp end"));
-    sock.on("close", () => console.log("[rf-link] tcp close (underlying)"));
-    sock.on("error", (e: any) => console.log("[rf-link] tcp error:", e?.message || e));
-    sock.on("timeout", () => console.log("[rf-link] tcp timeout"));
-  }
+  // keepalive
+  const ka = setInterval(() => { try { ws.ping(); } catch {} }, 20_000);
 
-  ws.on("message", (data) => {
+  ws.on("message", (data: Buffer) => {
     let msg: any;
     try { msg = JSON.parse(String(data)); } catch { return; }
 
+    // Inbound RF from the bridge
     if (msg?.type === "rx" && typeof msg.topic === "string" && typeof msg.bytes_b64 === "string") {
-      // optional de-dupe if you provide seq from device
-      if (typeof msg.seq === "number") {
-        const key = `${msg.topic}#${msg.seq}`;
-        if (seen.has(key)) return;
-        rememberRX(msg.topic, msg.seq);
-      }
       let bytes: Uint8Array;
       try { bytes = b64ToU8(msg.bytes_b64); } catch { return; }
-      const keyTopic = msg.topic; // "graph:recipient"
-      const envelope = {
-        capsule: { glyphs: ["(rf)"], rf_bytes_len: bytes.length },
-        meta: { graph: keyTopic.split(":")[0] || "personal" },
-        ts: now(),
-        id: msgId(),
-      };
-      broadcast(keyTopic, { type: "glyphnet_capsule", envelope });
+      processInboundRF(
+        msg.topic,
+        bytes,
+        typeof msg.seq === "number" ? msg.seq : undefined,
+        ua
+      );
       return;
     }
 
+    // Bridge ping → pong
     if (msg?.type === "ping") {
       try { ws.send(JSON.stringify({ type: "pong", ts: now() })); } catch {}
     }
   });
 
-  ws.on("close", (code, reason) => {
-    if (activeBridge === ws) activeBridge = null;
-    console.log("[rf-link] bridge disconnected", code, String(reason || ""));
-  });
-
-  ws.on("error", (err) => {
-    if (activeBridge === ws) activeBridge = null;
-    console.warn("[rf-link] bridge error:", err?.message || err);
-  });
+  ws.on("close", () => { clearInterval(ka); if (activeBridge === ws) activeBridge = null; });
+  ws.on("error", () => { clearInterval(ka); if (activeBridge === ws) activeBridge = null; });
 });
 
-// Helper to push outbox frames to the bridge (unchanged)
+// Helper to push outbox frames to the bridge
 function pushRFOutboxToBridge() {
-  if (!activeBridge || activeBridge.readyState !== WebSocket.OPEN) return;
-  while (rfOutbox.length) {
-    const frame = rfOutbox.shift()!;
-    try {
-      activeBridge.send(JSON.stringify({ type: "tx", bytes_b64: Buffer.from(frame).toString("base64") }));
-    } catch {
-      rfOutbox.unshift(frame);
-      break;
-    }
-  }
-}
-
-// Replace the old RF ticker with one that also nudges the bridge
-const _oldTicker = rfTicker;
-if (_oldTicker) clearInterval(_oldTicker);
-{
-  const hz = Math.max(1, Math.floor(ACTIVE.RATE_HZ || 10));
-  const intervalMs = Math.max(1, Math.round(1000 / hz));
-  rfTicker = setInterval(() => {
-    const frame = rfQueue.shift();
-    if (frame) rfOutbox.push(frame);
-    pushRFOutboxToBridge();
-  }, intervalMs);
+  // Now uses the pluggable driver registry (WS bridge is one driver)
+  drainOutboxViaDrivers();
 }
 
 // --- GHX WS (noServer; upgrade-routed) --------------------------
-const wssGHX = new WebSocketServer({ noServer: true });
+const wssGHX = new WebSocketServer({ noServer: true, perMessageDeflate: false });
 
 wssGHX.on("connection", (ws: WebSocket, req: IncomingMessage) => {
   const url = new URL(req.url || "", URL_BASE);
   const container = url.searchParams.get("id") || "unknown";
 
-  // simple heartbeat so UI shows connected
   const timer = setInterval(() => {
     try { ws.send(JSON.stringify({ type: "ghx/heartbeat", at: Date.now(), container })); } catch {}
   }, 15000);
@@ -766,6 +1188,10 @@ server.on("upgrade", (req, socket, head) => {
     if (pathname === "/ws/ghx")      return upgradeTo(wssGHX,   req, socket, head);
   } catch {}
   socket.destroy();
+});
+
+server.on("clientError", (_err, socket) => {
+  try { socket.end("HTTP/1.1 400 Bad Request\r\n\r\n"); } catch {}
 });
 
 server.listen(PORT, () => {

@@ -103,23 +103,30 @@ Legend:
 Phase 2 — Real RF path
 
 [x] Accessory radio bridge
- • Path-bound WS /ws/rflink with token auth (query + Bearer header)
- • Single-active-bridge policy (new connects refused with 1013 busy)
- • RF pacing + fragmentation (MTU-aware, RATE_HZ tick; rfQueue → rfOutbox → bridge)
- • Bridge hello handshake ({"type":"hello","mtu","rate_hz"})
+ • Path-bound WS /ws/rflink with token auth (query + Bearer header + X-Bridge-Token)
+ • Single-active-bridge policy (upgrade-mux build: refuse with 1013 “busy”; path-bound build: supersede old with 1000 — enforced)
+ • RF pacing + fragmentation (MTU-aware, RATE_HZ tick; rfQueue → rfOutbox → bridge, tick nudges bridge)
+ • Immediate enqueue kick (kickRFStep) so frames ship without waiting for first tick
+ • Bridge hello handshake ({“type”:“hello”,”mtu”,”rate_hz”})
  • Keepalive pings on bridge (reduces 1006 idle closes)
  • RX fanout → (rf) capsule broadcast on /ws/glyphnet rooms
- • [ ] WebSerial/WebUSB (ESP32/LoRa/2.4 GHz) adapter to Local Radio Node
- • [ ] Link/PHY driver abstraction (pluggable modules)
- • [~] Token handoff hardening (Bearer support live; signed headers/rotation pending)
+ • [~] WebSerial/WebUSB (ESP32/LoRa/2.4 GHz) adapter to Local Radio Node — UI BridgePanel added (ASCII B64: line mode); hardware driver hookup/testing pending
+ • [x] Link/PHY driver abstraction (pluggable modules) — registry + ws-bridge driver; drains via drainOutboxViaDrivers(); /bridge/transports status endpoint
+ • [] Token handoff hardening (Bearer + X-Bridge-Token live; signed headers/rotation pending)
+ • [x] Band profile guardrails (ACTIVE {MTU,RATE_HZ}; MAX_RF_INGRESS_BYTES enforced; /health reports profile/active)
+ • [x] Bridge control endpoints: /bridge/health & /bridge/tx (tokened), MTU/rate mirrored, size guardrails
+ • [x] WS upgrade mux routes: /ws/glyphnet, /ws/rflink, /ws/ghx (+ GHX heartbeat; container info stub)
 
 [~] Store-carry-forward
  • [x] Disk spool on Radio Node: RN queue persistence + TTL/caps + reload
  • [x] RX “seen” markers persisted; (topic,seq) de-dupe enforced on RX (when seq provided)
  • [ ] Opportunistic relay when peers appear
 
-[ ] Discovery (basic)
- • [ ] Beacon frame on RF; neighbor table in Local Radio Node
+[x] Discovery (basic)
+ • Beacon frame on RF (control:beacon JSON; MTU-fit, periodic)
+ • Neighbor table with TTL + /discovery/neighbors endpoint (captures id/profile/rate/mtu/UA; TTL pruning)
+
+⸻
 
 Phase 3 — Nice-to-have
 
@@ -127,29 +134,49 @@ Phase 3 — Nice-to-have
 [ ] Multi-hop mesh policy (region guardrails + TTL)
 [ ] Radio diagnostics panel (RSSI/SNR, queue depth, duty-cycle)
 
+⸻
+
 Security / E2EE (Radio path)
 
 [ ] Session keys: X25519 DH → AES-GCM (nonce = seq)
 [ ] Key derivation per-topic; rotate by interval/frames
 [ ] Optional: key exchange via GlyphNet (when IP available), else pre-shared
 
+Security / E2EE (App path — QKD)
+
+[x] Dev QKD shim on radio-node (/qkd/lease, /qkd/health)
+[x] Vite proxy for /radio/qkd + /radio/* to :8787 (WSS/HTTP)
+[x] Frontend getLease via gateway (/radio/qkd/lease) — qkd_cache.ts updated
+[x] Fetch path encryption (POST /api/glyphnet/tx) + RX decrypt in WS merge (glyphs/voice)
+[x] Sender identity hint on TX (meta.localWA) and recipient echo (meta.recipient)
+[x] Lease fetch + AES-GCM/PBKDF2 utils in lib/qkd.ts
+[x] Proxy to real QKD agent (QKD_AGENT env; proxy routes live — go-live is operational swap)
+
+⸻
+
 Developer UX & Tests
 
-[~] “Radio healthy” toast + reconnection logic (WS “reconnecting…” toast + health pill present; dedicated “radio healthy” toast not yet)
-[ ] RF/IP path injectors in DevTools (force paths)
+[] “Radio healthy” toast + reconnection logic (WS “reconnecting…” + health pill present; dedicated “radio healthy” toast not yet)
+[] RF/IP path injectors in DevTools (server injectors live: /dev/rf/mock/rx; UI hooks pending)
 [ ] Offline kill-switch test plan (unplug WAN; verify chat/PTT over RF)
+
+⸻
 
 Documentation
 
 [ ] README: run Local Radio Node + cables (WebUSB/Serial)
 [ ] band_profile authoring guide + compliance notes
 
+⸻
+
 Telemetry & Receipts
 
-[x] Delivery acks for media chunks (present in Outbox; wire into Chat later)
+[x] Delivery acks for media chunks (present in Outbox; server acks include msg_id/delivered)
 [x] Basic talk-time counters (sessions, talkMs, grants/denies)
 [x] Per-topic PTT session panel (last 10) + totals (persisted)
 [ ] Dropout/error logs surfaced in UI
+
+⸻
 
 Performance Targets (guardrails)
 
@@ -157,7 +184,6 @@ Performance Targets (guardrails)
 [ ] Low-latency path: 20 ms Opus frames (<250 ms target)
 [x] Max capsule size + send rate limits per band_profile (pacing + MAX_RF_INGRESS_BYTES checks live)
 
-Infra / Networking (supporting work)
 
 [x] FastAPI CORS for Codespaces/Vercel + regex allow; ALLOW_ALL_CORS override
 [x] Vite proxy for /api and /ws in dev

@@ -47,10 +47,6 @@ def _seen_prune(now: float | None = None) -> None:
         _SEEN_IDS.pop(k, None)
 
 def canon_id_for_capsule(topic: str, capsule: Dict[str, Any]) -> str:
-    """
-    Produce a stable id for a capsule on a topic.
-    For voice_frame we avoid hashing the entire base64 by using a short fingerprint.
-    """
     c = dict(capsule)  # shallow copy
     try:
         if "voice_frame" in c:
@@ -59,10 +55,14 @@ def canon_id_for_capsule(topic: str, capsule: Dict[str, Any]) -> str:
             vf["b64_len"]  = len(b64)
             vf["b64_head"] = b64[:12]
             vf["b64_tail"] = b64[-12:]
-            vf.pop("data_b64", None)
-            vf.pop("bytes_b64", None)
-            vf.pop("b64", None)
+            vf.pop("data_b64", None); vf.pop("bytes_b64", None); vf.pop("b64", None)
             c["voice_frame"] = vf
+
+        # NEW: handle encrypted text capsules
+        if "glyphs_enc_b64" in c:
+            s = c.get("glyphs_enc_b64") or ""
+            c["glyphs_enc_fp"] = {"len": len(s), "head": s[:12], "tail": s[-12:]}
+            c.pop("glyphs_enc_b64", None)
     except Exception:
         pass
 
@@ -531,8 +531,19 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
     # ============================================================
     # 3) text capsules (glyphs / glyph_stream)
     # ============================================================
-    if not (capsule.get("glyphs") or capsule.get("glyph_stream")):
-        raise HTTPException(status_code=400, detail="capsule must contain glyphs/glyph_stream or voice_frame")
+    is_enc_text = isinstance(capsule.get("enc"), dict) and bool(capsule.get("glyphs_enc_b64"))
+    if not (capsule.get("glyphs") or capsule.get("glyph_stream") or is_enc_text):
+        raise HTTPException(
+            status_code=400,
+            detail="capsule must contain glyphs/glyph_stream or encrypted glyphs_enc_b64 (or be a voice_* capsule)"
+        )
+
+    # Only run photon validation for plaintext; encrypted payload skips it by design
+    if not is_enc_text:
+        try:
+            validate_photon_capsule(capsule)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid photon capsule: {e}")
 
     try:
         validate_photon_capsule(capsule)
@@ -571,9 +582,14 @@ async def glyphnet_tx(payload: Dict[str, Any], request: Request):
             logger.warning(f"[GlyphNetTX] WS fallback (text) failed: {e}")
 
     try:
-        glyphs = capsule.get("glyphs") or []
-        stream = capsule.get("glyph_stream") or []
-        text_val = glyphs[0] if (isinstance(glyphs, list) and glyphs) else (stream[0] if (isinstance(stream, list) and stream) else None)
+        if is_enc_text:
+            text_val = "(encrypted)"
+        else:
+            glyphs = capsule.get("glyphs") or []
+            stream = capsule.get("glyph_stream") or []
+            text_val = glyphs[0] if (isinstance(glyphs, list) and glyphs) else (
+                stream[0] if (isinstance(stream, list) and stream) else None
+            )
         log_thread_event(topic, {
             "graph": graph,
             "type": "text",

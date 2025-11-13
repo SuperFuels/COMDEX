@@ -9,12 +9,13 @@ import { parseAddress } from "./lib/nav/parse";
 import { routeNav } from "./lib/nav/router";
 import WaveOutbox from "./components/WaveOutbox";
 import ChatThread from "./routes/ChatThread";
+import BridgePanel from "./routes/BridgePanel";
 
 type Mode = "wormhole" | "http";
 type NavArg = string | { mode: Mode; address: string };
 
-// include "chat" in the app’s local view state
-type ActiveTab = "home" | "inbox" | "outbox" | "kg" | "settings" | "chat";
+// include "chat" and "bridge" in the app’s local view state
+type ActiveTab = "home" | "inbox" | "outbox" | "kg" | "settings" | "chat" | "bridge";
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -50,6 +51,12 @@ export default function App() {
   useEffect(() => {
     const onHash = () => {
       const h = window.location.hash || "";
+
+      if (h.startsWith("#/bridge")) {
+        setActive("bridge");
+        document.title = `RF Bridge — Glyph Net`;
+        return;
+      }
 
       if (h.startsWith("#/chat")) {
         setActive("chat");
@@ -128,9 +135,9 @@ export default function App() {
   };
 
   // Sidebar still only knows about: "home" | "inbox" | "outbox" | "kg" | "settings".
-  // Map "chat" -> "inbox" for highlighting.
+  // Map "chat" -> "inbox" and "bridge" -> "settings" for highlighting.
   const sidebarActive: "home" | "inbox" | "outbox" | "kg" | "settings" =
-    active === "chat" ? "inbox" : (active as any);
+    active === "chat" ? "inbox" : active === "bridge" ? "settings" : (active as any);
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
@@ -147,7 +154,7 @@ export default function App() {
       <Sidebar
         open={sidebarOpen}
         active={sidebarActive}
-        onSelect={(id) => setActive((id as unknown) as Exclude<ActiveTab, "chat">)}
+        onSelect={(id) => setActive((id as unknown) as Exclude<ActiveTab, "chat" | "bridge">)}
         onClose={() => setSidebarOpen(false)}
       />
 
@@ -170,6 +177,10 @@ export default function App() {
               defaultTopic={chatTopicFromHash || "ucs://local/ucs_hub"}
               defaultGraph={chatKGFromHash}
             />
+          </div>
+        ) : active === "bridge" ? (
+          <div style={{ height: "calc(100vh - 96px)" }}>
+            <BridgePanel />
           </div>
         ) : active === "inbox" ? (
           <WaveInbox defaultTopic={inboxTopicFromHash || "ucs://local/ucs_hub"} />

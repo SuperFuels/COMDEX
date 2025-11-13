@@ -8,6 +8,10 @@ import {
   getTransportMode,
 } from "@/utils/transport";
 
+// ⬇️ QKD decrypt + lease cache
+import { qkdDecrypt } from "../lib/qkd";
+import { getLease } from "../lib/qkd_cache";
+
 export type GraphKey = "personal" | "work";
 
 export interface GlyphnetEvent {
@@ -32,6 +36,47 @@ function stepBackoffMs(current: number) {
   const jitter = Math.floor(base * 0.2); // ±20%
   return base - jitter + Math.floor(Math.random() * (2 * jitter + 1));
 }
+
+/* ── helpers for decrypt path ────────────────────────────────── */
+function u8ToB64(u8: Uint8Array) {
+  let s = "";
+  for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]);
+  return btoa(s);
+}
+
+async function decryptIfNeeded(
+  capsule: any,
+  kg: string,
+  localWA: string,
+  remoteWA: string
+) {
+  // Back-compat: plaintext capsules
+  if (!capsule?.enc) return capsule;
+
+  // Choose AAD/purpose based on which field carries ciphertext
+  let aad: "glyph" | "voice_note" | "voice_frame" = "glyph";
+  if (capsule.voice_frame?.data_b64) aad = "voice_frame";
+  else if (capsule.voice_note?.data_b64) aad = "voice_note";
+  else if (capsule.glyphs_enc_b64) aad = "glyph";
+
+  const { lease } = await getLease(aad, kg, localWA, remoteWA);
+
+  if (aad === "glyph" && capsule.glyphs_enc_b64) {
+    const pt = await qkdDecrypt(lease, capsule.enc, capsule.glyphs_enc_b64, "glyph");
+    const text = new TextDecoder().decode(pt);
+    try { capsule.glyphs = JSON.parse(text); } catch { capsule.glyphs = [text]; }
+    delete capsule.glyphs_enc_b64;
+  } else if (aad === "voice_note" && capsule.voice_note?.data_b64) {
+    const pt = await qkdDecrypt(lease, capsule.enc, capsule.voice_note.data_b64, "voice_note");
+    capsule.voice_note.data_b64 = u8ToB64(pt); // restore plaintext audio
+  } else if (aad === "voice_frame" && capsule.voice_frame?.data_b64) {
+    const pt = await qkdDecrypt(lease, capsule.enc, capsule.voice_frame.data_b64, "voice_frame");
+    capsule.voice_frame.data_b64 = u8ToB64(pt);
+  }
+
+  return capsule;
+}
+/* ───────────────────────────────────────────────────────────── */
 
 export default function useGlyphnet(topic: string, graph: GraphKey = "personal") {
   const wsRef = useRef<WebSocket | null>(null);
@@ -125,7 +170,7 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
         backoffRef.current = 800;
       };
 
-      ws.onmessage = (e) => {
+      ws.onmessage = async (e) => {
         try {
           const raw: any = JSON.parse(e.data);
 
@@ -187,8 +232,33 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
                   : undefined,
             };
           } else {
-            const capsule = raw?.capsule ?? env?.capsule ?? undefined;
-            const meta = raw?.meta ?? env?.meta ?? undefined;
+            // Build an envelope shape we can work with whether server sent flat or nested
+            const envelope = env
+              ? { capsule: env.capsule, meta: env.meta }
+              : { capsule: raw?.capsule, meta: raw?.meta };
+
+            // ── QKD decrypt using message metadata identities ──
+            try {
+              const kgForMsg = envelope?.meta?.graph || "personal";
+              const localWA = "ucs://local/self"; // this device (replace if you track identity)
+              const remoteWA =
+                envelope?.meta?.localWA      // preferred if sender added it
+                ?? envelope?.meta?.sender    // backend may include sender
+                ?? envelope?.meta?.recipient // fallback
+                ?? "ucs://unknown";
+
+              envelope.capsule = await decryptIfNeeded(
+                envelope.capsule,
+                kgForMsg,
+                localWA,
+                remoteWA
+              );
+            } catch {
+              // non-fatal if decrypt fails — leave ciphertext as-is
+            }
+
+            const capsule = envelope.capsule;
+            const meta = envelope.meta;
 
             let t = baseType || "glyphnet_capsule";
             if (capsule?.voice_frame && t !== "glyphnet_voice_frame") {
