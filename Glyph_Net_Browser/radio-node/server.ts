@@ -57,51 +57,191 @@ function currentNeighbors(): Neighbor[] {
   return out;
 }
 
-const BRIDGE_TOKEN = process.env.RADIO_BRIDGE_TOKEN || "dev-bridge";
-
 // Optional rolling token for rotation
+const BRIDGE_TOKEN = process.env.RADIO_BRIDGE_TOKEN || "dev-bridge";
 const BRIDGE_TOKEN_NEXT = process.env.RADIO_BRIDGE_TOKEN_NEXT || "";
 
-// Constant-time string compare
-function safeEq(a: string, b: string) {
-  if (a.length !== b.length) return false;
-  let r = 0;
-  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return r === 0;
+// Toggle: require signed auth (token + X-Bridge-Sig) on HTTP endpoints
+const REQUIRE_BRIDGE_SIG =
+  String(process.env.REQUIRE_BRIDGE_SIG || "").toLowerCase() === "true";
+
+// --- Serial Link (optional) -------------------------------------
+// ---- Serial Link (optional, with auto-reconnect) ---------------
+const RF_SERIAL_DEV  = process.env.RF_SERIAL_DEV || "";
+const RF_SERIAL_BAUD = Number(process.env.RF_SERIAL_BAUD || 115200);
+
+let serialDriverRegistered = false;
+
+type SerialState = {
+  port: any | null;
+  rl: any | null;
+  up: boolean;
+  reconnectTimer: NodeJS.Timeout | null;
+};
+const serialState: SerialState = { port: null, rl: null, up: false, reconnectTimer: null };
+
+function onSerialLine(line: string) {
+  const s = (line || "").trim();
+  if (!s) return;
+
+  let topic = "personal:ucs://local/ucs_hub";
+  let b64 = s;
+
+  if (s.startsWith("{")) {
+    try {
+      const j = JSON.parse(s);
+      if (typeof j.topic === "string")      topic = j.topic;
+      if (typeof j.bytes_b64 === "string")  b64   = j.bytes_b64;
+      else if (typeof j.data_b64 === "string") b64 = j.data_b64;
+    } catch { /* fall back to plain b64 */ }
+  }
+
+  if (!b64) return;
+  try {
+    const bytes = b64ToU8(b64);
+    processInboundRF(topic, bytes, undefined, `serial:${RF_SERIAL_DEV}`);
+  } catch (e) {
+    console.warn("[rf][serial] bad inbound line:", (e as any)?.message || e);
+  }
+}
+
+function connectSerial(delayMs = 0) {
+  if (!RF_SERIAL_DEV) return;
+  if (serialState.reconnectTimer) {
+    clearTimeout(serialState.reconnectTimer);
+    serialState.reconnectTimer = null;
+  }
+
+  const attempt = async () => {
+    try {
+      const { SerialPort } = await import("serialport");
+      const port = new SerialPort({ path: RF_SERIAL_DEV, baudRate: RF_SERIAL_BAUD });
+      serialState.port = port;
+
+      const { createInterface } = await import("readline");
+      const rl = createInterface({ input: port });
+      serialState.rl = rl;
+
+      rl.on("line", onSerialLine);
+
+      port.on("open", () => {
+        serialState.up = true;
+        console.log(`[rf][serial] up @ ${RF_SERIAL_DEV} ${RF_SERIAL_BAUD}bps`);
+        try { drainOutboxViaDrivers(); } catch {}
+      });
+
+      const scheduleReconnect = (why: string, backoff = 1000) => {
+        if (serialState.rl) {
+          try { serialState.rl.removeAllListeners(); serialState.rl.close?.(); } catch {}
+          serialState.rl = null;
+        }
+        if (serialState.port) {
+          try { serialState.port.removeAllListeners(); serialState.port.close?.(); } catch {}
+          serialState.port = null;
+        }
+        serialState.up = false;
+        const nextDelay = Math.min(backoff * 2, 15000);
+        console.warn(`[rf][serial] ${why}; retrying in ${nextDelay}ms`);
+        serialState.reconnectTimer = setTimeout(() => connectSerial(nextDelay), nextDelay);
+      };
+
+      port.on("error", (err: any) => scheduleReconnect(`error: ${err?.message || err}`));
+      port.on("close", () => scheduleReconnect("closed"));
+    } catch (err: any) {
+      const msg = err?.message || String(err);
+      console.warn(`[rf][serial] init failed: ${msg}; retrying in ${delayMs || 2000}ms`);
+      const nextDelay = Math.min(delayMs ? delayMs * 2 : 2000, 15000);
+      serialState.reconnectTimer = setTimeout(() => connectSerial(nextDelay), nextDelay);
+    }
+  };
+
+  attempt();
+}
+
+function ensureSerialDriverRegistered() {
+  if (serialDriverRegistered || !RF_SERIAL_DEV) return;
+
+  registerDriver({
+    id: `serial:${RF_SERIAL_DEV.replace(/[^\w.-]/g, "_")}`,
+    kind: "serial",
+    sendB64: (b64: string) => {
+      const p = serialState.port;
+      if (!p || !serialState.up) return false;
+      try { p.write(b64 + "\n"); return true; } catch { return false; }
+    },
+    isUp: () => serialState.up,
+    stats: () => ({ rfOutbox: rfOutbox.length }),
+  });
+
+  serialDriverRegistered = true;
+  connectSerial(); // try now; will auto-retry if socat/USB isn’t up yet
 }
 
 /** Validate X-Bridge-Sig: "v1,<tsMs>,<hmacHex>" where hmac = HMAC_SHA256(token, `ws-bridge|${tsMs}`) */
 function validBridgeSig(sig: string, token: string): boolean {
   try {
-    const [v, tsStr, mac] = String(sig).split(",");
+    const [v, tsStr, macHex] = String(sig).split(",");
     if (v !== "v1") return false;
     const ts = Number(tsStr);
     if (!Number.isFinite(ts)) return false;
-    // 2-minute tolerance window
-    if (Math.abs(Date.now() - ts) > 2 * 60_000) return false;
-    const h = crypto.createHmac("sha256", token);
-    h.update(`ws-bridge|${ts}`);
-    const want = h.digest("hex");
-    return safeEq(want, mac);
+    if (Math.abs(Date.now() - ts) > BRIDGE_SIG_TOLERANCE_MS) return false; // uses your existing TOLERANCE var
+
+    const want = crypto.createHmac("sha256", token).update(`ws-bridge|${ts}`).digest("hex");
+    return secureEq(want, macHex);
   } catch {
     return false;
   }
 }
 
 function tokenMatchesAny(tok: string) {
-  return !!tok && (tok === BRIDGE_TOKEN || (BRIDGE_TOKEN_NEXT && tok === BRIDGE_TOKEN_NEXT));
+  return !!tok && (secureEq(tok, BRIDGE_TOKEN) || (!!BRIDGE_TOKEN_NEXT && secureEq(tok, BRIDGE_TOKEN_NEXT)));
 }
 
-function tokenOkWithOptionalSig(tok: string, sig?: string) {
+/** Validate token; if a signature is present it MUST verify against that specific token.
+ *  If no signature is provided, allow plain token (dev/back-compat).
+ *  Strict/lenient behavior is enforced by requireBridgeAuth via REQUIRE_BRIDGE_SIG.
+ */
+function tokenOkWithOptionalSig(tok?: string, sig?: string): boolean {
   if (!tok) return false;
-  // No signature → allow plain token (dev-friendly)
-  if (!sig) return tokenMatchesAny(tok);
-  // Signature present → must verify against the specific token used
-  if (tok === BRIDGE_TOKEN && validBridgeSig(sig, BRIDGE_TOKEN)) return true;
-  if (BRIDGE_TOKEN_NEXT && tok === BRIDGE_TOKEN_NEXT && validBridgeSig(sig, BRIDGE_TOKEN_NEXT)) return true;
-  return false;
+
+  if (sig) {
+    return (secureEq(tok, BRIDGE_TOKEN) && validBridgeSig(sig, BRIDGE_TOKEN)) ||
+           (!!BRIDGE_TOKEN_NEXT && secureEq(tok, BRIDGE_TOKEN_NEXT) && validBridgeSig(sig, BRIDGE_TOKEN_NEXT));
+  }
+
+  // No signature → plain token ok
+  return tokenMatchesAny(tok);
 }
 
+// Pull token/signature from HTTP headers
+function tokenFromReq(req: Request): string {
+  const auth = String(req.header("authorization") || "");
+  const bearer = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  const xbt = String(req.header("x-bridge-token") || "");
+  return bearer || xbt;
+}
+function sigFromReq(req: Request): string {
+  return String(req.header("x-bridge-sig") || "");
+}
+
+// Constant-time compare helpers
+function secureEq(a: string, b: string): boolean {
+  const A = Buffer.from(a, "utf8");
+  const B = Buffer.from(b, "utf8");
+  if (A.length !== B.length) return false;
+  try { return crypto.timingSafeEqual(A, B); } catch { return false; }
+}
+function secureEqHex(aHex: string, bHex: string): boolean {
+  try {
+    const A = Buffer.from(aHex, "hex");
+    const B = Buffer.from(bHex, "hex");
+    if (A.length !== B.length) return false;
+    return crypto.timingSafeEqual(A, B);
+  } catch { return false; }
+}
+
+const BRIDGE_SIG_TOLERANCE_MS =
+  Number(process.env.RADIO_BRIDGE_SIG_TOLERANCE_MS ?? 2 * 60_000);
 // ───────────────────────────────────────────────────────────────
 // Spool configuration (two independent spools)
 
@@ -126,13 +266,30 @@ const PORT = Number(process.env.PORT || 8787);
 const CLOUD_BASE = (process.env.CLOUD_BASE || "").replace(/\/+$/, "");
 const FORWARD_TO_CLOUD = !!CLOUD_BASE;
 
-function requireBridgeToken(req: Request, res: Response, next: NextFunction) {
-  const raw = req.header("x-bridge-token") || req.header("authorization") || "";
-  const tok = raw.startsWith("Bearer ") ? raw.slice(7) : raw;
-  const sig = req.header("x-bridge-sig") || ""; // optional
-  if (!tokenOkWithOptionalSig(tok, sig)) {
-    return res.status(401).json({ ok: false, error: "unauthorized" });
+function requireBridgeAuth(req: Request, res: Response, next: NextFunction) {
+  if (!BRIDGE_TOKEN && !BRIDGE_TOKEN_NEXT) {
+    return res.status(501).json({ ok: false, error: "bridge token not configured" });
   }
+
+  const tok = tokenFromReq(req);
+  const sig = sigFromReq(req);
+
+  if (REQUIRE_BRIDGE_SIG) {
+    // Strict: must present valid token AND valid signature
+    if (!sig || !tokenOkWithOptionalSig(tok, sig)) {
+      return res.status(401).json({ ok: false, error: "unauthorized", need: "token+sig" });
+    }
+  } else {
+    // Dev-friendly: accept either plain token or signed token
+    if (sig) {
+      if (!tokenOkWithOptionalSig(tok, sig)) {
+        return res.status(401).json({ ok: false, error: "unauthorized" });
+      }
+    } else if (!tokenMatchesAny(tok)) {
+      return res.status(401).json({ ok: false, error: "unauthorized" });
+    }
+  }
+
   next();
 }
 
@@ -540,6 +697,7 @@ function ensureMockDriverRegistered() {
   mockDriverRegistered = true;
 }
 ensureMockDriverRegistered();
+ensureSerialDriverRegistered();
 
 /** Drain rfOutbox via any up drivers; stop if none can accept. */
 function drainOutboxViaDrivers() {
@@ -694,12 +852,19 @@ app.get("/__routes", (_req, res) => {
 });
 
 /* CORS (must be before routes & JSON parser) */
+// replace your existing corsMw with this
 const corsMw = cors({
-  origin: true, // reflect the request Origin
+  origin: true,
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  // ⬇ add Authorization so browser can send Bearer headers when needed
-  allowedHeaders: ["Content-Type", "Authorization", "X-Agent-Token", "X-Agent-Id", "X-Bridge-Token"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Agent-Token",
+    "X-Agent-Id",
+    "X-Bridge-Token",
+    "X-Bridge-Sig",      // ⬅ add this
+  ],
 });
 app.use(corsMw);
 app.options("*", corsMw);
@@ -862,7 +1027,8 @@ app.get("/bridge/health", (_req: Request, res: Response) => {
 });
 
 // TX (token required)
-app.post("/bridge/tx", requireBridgeToken, (req: Request, res: Response) => {
+// TX (token required)
+app.post("/bridge/tx", requireBridgeAuth, (req: Request, res: Response) => {
   const topic = String(req.body?.topic || "").trim();
   const kg    = String(req.body?.graph || "personal").toLowerCase();
   const codec = req.body?.codec ? String(req.body.codec) : undefined;
@@ -992,6 +1158,9 @@ const server = http.createServer(app);
 (server as any).headersTimeout   = 0;  // don't kill slow handshakes
 (server as any).keepAliveTimeout = 0;  // keep-alive off for upgraded sockets
 
+setTimeout(() => { try { ensureSerialDriverRegistered(); } catch (e) { console.warn("[rf][serial] init err:", (e as any)?.message || e); } }, 0);
+setInterval(() => { try { ensureSerialDriverRegistered(); } catch {} }, 10_000);
+
 // --- GlyphNet WS (noServer; upgrade-routed) ---------------------
 const wssGlyph = new WebSocketServer({ noServer: true, perMessageDeflate: false });
 
@@ -1001,12 +1170,15 @@ wssGlyph.on("connection", (ws: WebSocket, req: IncomingMessage) => {
     const topic = url.searchParams.get("topic") || "";
     const kg = (url.searchParams.get("kg") || "personal").toLowerCase();
     const key = topicKey(topic, kg);
+
+    // Join room (even if topic is empty; client may only listen first)
     joinRoom(key, ws);
 
-    // keep-alive
-    const ping = setInterval(() => {
-      try { (ws as any).isAlive = true; ws.ping(); } catch {}
-    }, 15000);
+    // Say hello to the client so it can verify it joined the right room
+    try { ws.send(JSON.stringify({ type: "glyphnet/hello", topic, kg, at: now() })); } catch {}
+
+    // Keep-alive (ping/pong)
+    const ping = setInterval(() => { try { (ws as any).isAlive = true; ws.ping(); } catch {} }, 15000);
     ws.on("pong", () => { (ws as any).isAlive = true; });
 
     ws.on("message", (data: Buffer) => {
@@ -1015,15 +1187,15 @@ wssGlyph.on("connection", (ws: WebSocket, req: IncomingMessage) => {
 
       const envelope = {
         capsule: payload?.capsule ?? payload ?? { glyphs: ["(echo)"] },
-        meta: payload?.meta ?? { graph: kg },
+        meta: { ...(payload?.meta || {}), graph: kg, recipient: topic || undefined },
         ts: now(),
         id: msgId(),
       };
 
-      // 1) local WS fanout
+      // 1) Local WS fanout to everyone subscribed to this topic
       broadcast(key, { type: "glyphnet_capsule", envelope });
 
-      // 2) RF bridge for WS-origin voice payloads — size-guarded
+      // 2) Optional RF bridge for WS-origin voice payloads — size-guarded
       const cap = envelope.capsule || {};
       const sendTooLarge = (kind: "voice_frame" | "voice_note", size: number) => {
         try {
@@ -1046,13 +1218,13 @@ wssGlyph.on("connection", (ws: WebSocket, req: IncomingMessage) => {
       }
     });
 
-    ws.on("close", () => { clearInterval(ping); leaveAll(ws); });
-    ws.on("error", () => { clearInterval(ping); leaveAll(ws); });
+    const cleanup = () => { clearInterval(ping); leaveAll(ws); };
+    ws.on("close", cleanup);
+    ws.on("error", cleanup);
   } catch {
     try { ws.close(); } catch {}
   }
 });
-
 
 
 // --- RF Link Bridge WS (noServer; upgrade-routed) ----------------
@@ -1061,54 +1233,63 @@ let activeBridge: WebSocket | null = null;
 
 function authTokenFromWS(req: IncomingMessage): string {
   const h = String(req.headers["authorization"] || "");
-  const bearer = h.startsWith("Bearer ") ? h.slice(7) : "";
-  if (bearer) return bearer;
-
-  const xbt = String((req.headers["x-bridge-token"] || "").toString());
+  if (h.startsWith("Bearer ")) return h.slice(7);
+  const xbt = String(req.headers["x-bridge-token"] || "");
   if (xbt) return xbt;
-
   try {
     const url = new URL(req.url || "", URL_BASE);
     return url.searchParams.get("token") || "";
   } catch { return ""; }
 }
-
 function sigFromWS(req: IncomingMessage): string {
-  const h = String(req.headers["x-bridge-sig"] || "");
-  if (h) return h;
+  const xsig = String(req.headers["x-bridge-sig"] || "");
+  if (xsig) return xsig;
   try {
     const url = new URL(req.url || "", URL_BASE);
     return url.searchParams.get("sig") || "";
   } catch { return ""; }
 }
 
-// Register the WS bridge as a LinkDriver (one-time)
+// --- WS bridge driver registration (one-time) -------------------
 let wsBridgeDriverRegistered = false;
+
 function ensureWSBridgeDriverRegistered() {
   if (wsBridgeDriverRegistered) return;
+
   registerDriver({
     id: "ws-bridge-1",
     kind: "ws-bridge",
     sendB64: (b64: string) => {
       if (!activeBridge || activeBridge.readyState !== WebSocket.OPEN) return false;
-      try { activeBridge.send(JSON.stringify({ type: "tx", bytes_b64: b64 })); return true; }
-      catch { return false; }
+      try {
+        activeBridge.send(JSON.stringify({ type: "tx", bytes_b64: b64 }));
+        return true;
+      } catch {
+        return false;
+      }
     },
     isUp: () => !!activeBridge && activeBridge.readyState === WebSocket.OPEN,
     stats: () => ({ rfOutbox: rfOutbox.length }),
   });
+
   wsBridgeDriverRegistered = true;
 }
 
 wssRF.on("connection", (ws, req) => {
   const token = authTokenFromWS(req);
-  const sig = sigFromWS(req); // new: optional signed auth
+  const sig = sigFromWS(req);
   const ua = String(req.headers["user-agent"] || "unknown-UA");
 
-  if (!tokenOkWithOptionalSig(token, sig)) {
+  const shortTok = token ? token.slice(0, 3) + "…" : "(none)";
+  const sigPresent = !!sig;
+  const ok = tokenOkWithOptionalSig(token, sig);
+
+  if (!ok) {
+    console.warn(`[rflink] auth fail token=${shortTok} sig=${sigPresent ? "yes" : "no"}`);
     try { ws.close(1008, "unauthorized"); } catch {}
     return;
   }
+  console.log(`[rflink] auth ok token=${shortTok} sig=${sigPresent ? "yes" : "no"}`);
 
   // Single-active-bridge policy
   if (activeBridge && activeBridge.readyState === WebSocket.OPEN) {
@@ -1118,33 +1299,25 @@ wssRF.on("connection", (ws, req) => {
 
   activeBridge = ws;
   ensureWSBridgeDriverRegistered();
+  ensureSerialDriverRegistered(); 
+  drainOutboxViaDrivers?.();
 
   try { ws.send(JSON.stringify({ type: "hello", mtu: ACTIVE.MTU, rate_hz: ACTIVE.RATE_HZ })); } catch {}
 
-  // Drain any queued frames immediately
   pushRFOutboxToBridge();
 
-  // keepalive
   const ka = setInterval(() => { try { ws.ping(); } catch {} }, 20_000);
 
   ws.on("message", (data: Buffer) => {
     let msg: any;
     try { msg = JSON.parse(String(data)); } catch { return; }
 
-    // Inbound RF from the bridge
     if (msg?.type === "rx" && typeof msg.topic === "string" && typeof msg.bytes_b64 === "string") {
       let bytes: Uint8Array;
       try { bytes = b64ToU8(msg.bytes_b64); } catch { return; }
-      processInboundRF(
-        msg.topic,
-        bytes,
-        typeof msg.seq === "number" ? msg.seq : undefined,
-        ua
-      );
+      processInboundRF(msg.topic, bytes, typeof msg.seq === "number" ? msg.seq : undefined, ua);
       return;
     }
-
-    // Bridge ping → pong
     if (msg?.type === "ping") {
       try { ws.send(JSON.stringify({ type: "pong", ts: now() })); } catch {}
     }
@@ -1154,25 +1327,60 @@ wssRF.on("connection", (ws, req) => {
   ws.on("error", () => { clearInterval(ka); if (activeBridge === ws) activeBridge = null; });
 });
 
-// Helper to push outbox frames to the bridge
+// Helper to push outbox frames to the bridge (via drivers)
 function pushRFOutboxToBridge() {
-  // Now uses the pluggable driver registry (WS bridge is one driver)
   drainOutboxViaDrivers();
 }
+
 
 // --- GHX WS (noServer; upgrade-routed) --------------------------
 const wssGHX = new WebSocketServer({ noServer: true, perMessageDeflate: false });
 
 wssGHX.on("connection", (ws: WebSocket, req: IncomingMessage) => {
   const url = new URL(req.url || "", URL_BASE);
-  const container = url.searchParams.get("id") || "unknown";
+  const id = url.searchParams.get("id") || "unknown";
+  const kg = (url.searchParams.get("kg") || "personal").toLowerCase();
 
-  const timer = setInterval(() => {
-    try { ws.send(JSON.stringify({ type: "ghx/heartbeat", at: Date.now(), container })); } catch {}
+  // Map container → GlyphNet topic & room key
+  const topic = `ucs://local/${id}`;
+  const key = topicKey(topic, kg);
+
+  // Join the GlyphNet room so GHX receives capsules for this container
+  joinRoom(key, ws);
+
+  // Hello
+  try { ws.send(JSON.stringify({ type: "ghx/hello", id, topic, kg, at: now() })); } catch {}
+
+  // Keep-alive (ping/pong) + heartbeat
+  const ping = setInterval(() => { try { (ws as any).isAlive = true; ws.ping(); } catch {} }, 15000);
+  ws.on("pong", () => { (ws as any).isAlive = true; });
+
+  const hb = setInterval(() => {
+    try { ws.send(JSON.stringify({ type: "ghx/heartbeat", at: now(), id, topic })); } catch {}
   }, 15000);
 
-  ws.on("close", () => clearInterval(timer));
-  ws.on("error", () => clearInterval(timer));
+  // Allow GHX to publish into its GlyphNet room
+  ws.on("message", (data: Buffer) => {
+    let msg: any;
+    try { msg = JSON.parse(String(data)); } catch { return; }
+
+    if (msg?.capsule || msg?.glyphs) {
+      const envelope = {
+        capsule: msg?.capsule ?? { glyphs: Array.isArray(msg.glyphs) ? msg.glyphs : [String(msg.glyphs || "")] },
+        meta: { ...(msg?.meta || {}), graph: kg, recipient: topic },
+        ts: now(),
+        id: msgId(),
+      };
+      broadcast(key, { type: "glyphnet_capsule", envelope });
+      return;
+    }
+
+    // (Optional) handle other ghx/* messages later
+  });
+
+  const cleanup = () => { clearInterval(ping); clearInterval(hb); leaveAll(ws); };
+  ws.on("close", cleanup);
+  ws.on("error", cleanup);
 });
 
 // --- Single upgrade router for all WS paths ---------------------

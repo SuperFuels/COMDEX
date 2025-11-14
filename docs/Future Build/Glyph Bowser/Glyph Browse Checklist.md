@@ -110,9 +110,9 @@ Phase 2 — Real RF path
  • Bridge hello handshake ({“type”:“hello”,”mtu”,”rate_hz”})
  • Keepalive pings on bridge (reduces 1006 idle closes)
  • RX fanout → (rf) capsule broadcast on /ws/glyphnet rooms
- • [~] WebSerial/WebUSB (ESP32/LoRa/2.4 GHz) adapter to Local Radio Node — UI BridgePanel added (ASCII B64: line mode); hardware driver hookup/testing pending
- • [x] Link/PHY driver abstraction (pluggable modules) — registry + ws-bridge driver; drains via drainOutboxViaDrivers(); /bridge/transports status endpoint
- • [] Token handoff hardening (Bearer + X-Bridge-Token live; signed headers/rotation pending)
+ • [x] Serial line Link/PHY driver (TTY): ASCII Base64 line mode + JSON line {topic,bytes_b64}; env RF_SERIAL_DEV/BAUD; drains outbox on open; listed in /bridge/transports as kind:"serial"
+ • [x] Link/PHY driver abstraction (pluggable modules) — registry + ws-bridge + serial + mock; drains via drainOutboxViaDrivers(); /bridge/transports status endpoint
+ • [x] Token handoff hardening — supports dev plain token OR signed auth; X-Bridge-Sig (v1,<ts>,HMAC_SHA256), clock-skew tolerance, RADIO_BRIDGE_TOKEN_NEXT rotation; REQUIRE_BRIDGE_SIG env to enforce; works for WS (/ws/rflink) & REST (/bridge/tx); CORS allows X-Bridge-Sig
  • [x] Band profile guardrails (ACTIVE {MTU,RATE_HZ}; MAX_RF_INGRESS_BYTES enforced; /health reports profile/active)
  • [x] Bridge control endpoints: /bridge/health & /bridge/tx (tokened), MTU/rate mirrored, size guardrails
  • [x] WS upgrade mux routes: /ws/glyphnet, /ws/rflink, /ws/ghx (+ GHX heartbeat; container info stub)
@@ -156,8 +156,8 @@ Security / E2EE (App path — QKD)
 
 Developer UX & Tests
 
-[] “Radio healthy” toast + reconnection logic (WS “reconnecting…” + health pill present; dedicated “radio healthy” toast not yet)
-[] RF/IP path injectors in DevTools (server injectors live: /dev/rf/mock/rx; UI hooks pending)
+[~] “Radio healthy” toast + reconnection logic (WS “reconnecting…” + health pill present; dedicated “radio healthy” toast not yet)
+[~] RF/IP path injectors in DevTools — server endpoints live: /dev/rf/mock/status|enable|disable|rx (UI hooks pending)
 [ ] Offline kill-switch test plan (unplug WAN; verify chat/PTT over RF)
 
 ⸻
