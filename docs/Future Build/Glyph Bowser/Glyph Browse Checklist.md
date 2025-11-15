@@ -120,11 +120,14 @@ Phase 2 — Real RF path
 [~] Store-carry-forward
  • [x] Disk spool on Radio Node: RN queue persistence + TTL/caps + reload
  • [x] RX “seen” markers persisted; (topic,seq) de-dupe enforced on RX (when seq provided)
- • [ ] Opportunistic relay when peers appear
+ • [x] Opportunistic relay when peers appear
+  – Auto-disable mock on real link up (serial/ws-bridge)
+  – Nudge outbox on neighbor beacon to drain immediately
 
 [x] Discovery (basic)
  • Beacon frame on RF (control:beacon JSON; MTU-fit, periodic)
  • Neighbor table with TTL + /discovery/neighbors endpoint (captures id/profile/rate/mtu/UA; TTL pruning)
+ • [x] UA tagging verified (e.g., “mock-loopback”) visible in /discovery/neighbors
 
 ⸻
 
@@ -156,8 +159,11 @@ Security / E2EE (App path — QKD)
 
 Developer UX & Tests
 
-[~] “Radio healthy” toast + reconnection logic (WS “reconnecting…” + health pill present; dedicated “radio healthy” toast not yet)
-[~] RF/IP path injectors in DevTools — server endpoints live: /dev/rf/mock/status|enable|disable|rx (UI hooks pending)
+[] “Radio healthy” toast + reconnection logic (WS “reconnecting…” + health pill present; dedicated “radio healthy” toast not yet)
+[] RF/IP path injectors in DevTools — server endpoints live: /dev/rf/mock/status|enable|disable|rx (UI hooks pending)
+[x] Mock RF loopback validated end-to-end: /dev/rf/mock/enable (loopback:true) + /bridge/tx ⇒ (rf) capsule on /ws/glyphnet
+[x] Serial PTY loopback harness validated (socat /tmp/ttyV0↔/tmp/ttyV1); line-mode accepts Base64 or {topic,bytes_b64}; auto-reconnect/backoff in driver
+[x] /bridge/transports driver health verified (mock/serial/ws-bridge up flags and rfOutbox counters)
 [ ] Offline kill-switch test plan (unplug WAN; verify chat/PTT over RF)
 
 ⸻
@@ -206,122 +212,137 @@ Reliability
 
 
 ***********************KNOWLEDGE GRAPH & BROSWER INTEGRATION***************************************************
-P5 • Knowledge Graph (Personal/Work) — Browser Integration
+A — Knowledge Graph & Browser Integration
+•	A1 {x} Per-user, per-graph partitioning (kg=personal|work) hard boundary
+•	A2 {x} Per-thread storageKey gnet:thread:{kg}:{topic}
+•	A3 { } Entity namespace policy {kg, ownerWA} on all nodes/edges (note: enforced in ledger writes; KG node/edge retrofit pending)
+•	A4 { } Container topology: dc_kg_personal, dc_kg_work, dc_commons_shared (shared chat/mail)
+•	A5 { } Satellite atoms plan (Visits, Voice, Files) for high-volume streams
+•	A6 { } Data model: Agent
+•	A7 { } Data model: Topic (wa, realm, label)
+•	A8 { } Data model: Thread (id, kg, topic)
+•	A9 {x} Data model: Message (text|voice|mail|signal, size/mime/transcript_of)
+•	A10 { } Data model: Attachment (file_id, mime, size, sha256)
+•	A11 { } Data model: Call (ts_start, ts_end, state, ice_type)
+•	A12 {x} Data model: PTTSession (ts, dur_ms, acquire_ms, granted)
+•	A13 {x} Data model: FloorLock (result, acquire_ms)
+•	A14 { } Data model: Visit (uri, host, title, referrer, duration_s)
+•	A15 { } Data model: Cookie (key, value_hash, scope, expires, policy)
+•	A16 { } Data model: File (name, mime, size, sha256, versions, location)
+•	A17 { } Data model: ContainerRef (container_id, kind, path)
+•	A18 { } Edge: SENT_BY(Message→Agent)
+•	A19 { } Edge: ON_TOPIC(Message→Topic)
+•	A20 { } Edge: IN_THREAD(Message→Thread)
+•	A21 { } Edge: HAS_ATTACHMENT(Message→Attachment→File)
+•	A22 { } Edge: PART_OF(Call→Thread)
+•	A23 { } Edge: HELD_BY(FloorLock→Agent)
+•	A24 { } Edge: VISITED_BY(Visit→Agent)
+•	A25 { } Edge: OBSERVED_FOR(Cookie→Agent|Thread)
+•	A26 { } Edge: ABOUT(ContainerRef→Thread|Topic)
+ • A27 {x} Indices: {kg, thread_id, ts}
+ • A28 {x} Indices: {kg, topic.wa}
+ • A29 {x} Indices: {kg, file.sha256}
+•	A30 { } Indices: {kg, host}
+•	A31 { } Indices: {kg, cookie.key}
+•	A32 {x} API: POST /api/kg/events (append-only batch ingest)
+•	A33 {x} API: GET /api/kg/query (graph slice by kg/thread/entity/time)
+•	A34 { } API: POST /api/kg/upsert-entity (idempotent identities, optional)
+•	A35 {x} Storage: SQLite/DuckDB property-graph tables
+•	A36 { } Storage adapter: Neo4j/Memgraph (opt-in)
+•	A37 { } Local IndexedDB mirror per graph (offline reads)
+•	A38 {x} Browser emitters: hook points identified in ChatThread
+•	A39 {x} Emitter: after sendText() → message(text) event
+•	A40 {x} Emitter: after sendVoiceNoteFile() → message(voice) event
+•	A41 {x} Emitter: PTT frames batched → PTTSession on release
+•	A42 {x} Emitter: Floor locks (grant/deny) → floor_lock event
+•	A43 { } Emitter: Call state (offer/answer/connect/end/reject/cancel) → call event
+•	A44 { } Emitter: Transcript posted → message(text, transcript_of)
+•	A45 { } Router: on navigation resolve → visit event
+•	A46 { } Router: on dwell/close → visit.duration update
+•	A47 { } Drive hooks: file upload/download/share → file events
+•	A48 { } Cookies/Habits ledger (hashed values, scope/expiry)
+•	A49 { } Settings toggle: “Allow AI memory of habits (per graph)”
+•	A50 {x} Runtime↔KG: map GlyphRuntime events (execution/replay/collapsed/SoulLaw) — now journaled to ledger via /api/kg/events
+•	A51 { } Runtime↔KG: emit ABOUT(ContainerRef→Thread) on entangled forks (note: partial via cr_entangled_fork; ABOUT edge pending)
+•	A52 { } Query: hydrate thread view from KG (attachments, call summaries, PTT rollups)
+•	A53 { } Search: cross-thread q= over Message/Visit/File.name
+•	A54 { } AION memory views: /api/kg/view/memory?kg=…&scope=habits|topics|people
+•	A55 { } Privacy: per-graph retention defaults (Msg 18m, Voice 90d, Visits 12m, Habits by expiry)
+•	A56 { } Privacy: POST /api/kg/forget (entity/time), tombstones, cascade to IndexedDB
+•	A57 { } Privacy: per-graph toggles (Store visits/habits/transcripts, encrypt-at-rest)
+•	A58 { } Audit: mutation ledger (hash-chained envelopes)
+•	A59 { } Sync: IndexedDB mirror gnet_kg_{kg} write-through on event POST
+•	A60 { } Sync: cursor reconciliation GET /api/kg/query?after=… idempotent apply
+•	A61 { } UI: KG Dock v2 tabs (Timeline/Graph/Files/Visits/Habits)
+•	A62 { } UI: Thread context pill + filters + time range
+•	A63 { } UI: Mini D3 graph (Topic↔Messages↔Attachments↔Calls)
+•	A64 { } UI: Privacy banner + “Pause memory” toggle
+•	A65 { } UI: Visit history with host aggregates + “Clear last hour/day”
+•	A66 { } Security: at-rest encryption for KG rows (per-user keys)
+•	A67 { } Security: hashed cookie values (no plaintext; entropy budget)
+•	A68 { } Security: QKD hooks enc={kid,iv} metadata on events
+•	A69 {x} Telemetry present for RF/IP/PTT (app-level)
+•	A70 { } Telemetry: KG counters (ev_ok/err, cache_hits, sync_conflicts, forget_ops, privacy_paused_min)
+•	A71 { } Tests: idempotency & merge
+•	A72 { } Tests: partition isolation (personal vs work)
+•	A73 { } Tests: offline/online flaps
+•	A74 { } Tests: forget/redaction correctness
+•	A75 { } Tests: AION aggregate correctness
+•	A76 { } Migration: session thread/voice/call summaries → KG
+•	A77 { } Migration: backfill visits from router history
+•	A78 { } Acceptance: graph switch reflects different KG immediately
+•	A79 { } Acceptance: new chats/voice/calls/visits appear in KG Dock ≤1s
+•	A80 { } Acceptance: clearing habits/last-day visits reflects in UI & memory
+•	A81 { } Acceptance: thread export includes message+file graph slice
+•	A82 {x} KG writer → namespace-aware ledger journaling (kg/owner_wa/thread_id/topic_wa; idempotent ids)
+•	A83 {x} Cursor scheme “ts:id” implemented server-side in /api/kg/query
+•	A84 {x} Thread id scheme: thread_id = “kg:{kg}:{topic_wa}” (derived in KG writer)
+•	A85 {x} MicrogridIndex tap: deterministic glyph registration for HUD overlays
+•	A86 {x} QWave beams export embedded into KG packs (collect/export during export_pack)
 
-K0 • Scope & Partitioning
-	•	Per-user, per-graph partitioning: two logical stores kg=personal and kg=work (hard boundary; no cross-leaks).
-	•	Entity namespace policy: every node/edge keys include {kg, ownerWA} for multi-device merge without collisions.
-	•	Container topology: one KG Container per graph (dc_kg_personal, dc_kg_work) + optional satellite atoms for high-volume streams (Visits, Voice, Files).
+B — Conversation Persistence & History
+•	B1 {x} /api/glyphnet/thread basic fetch with limit
+•	B2 { } Cursor pagination (limit, before/after) + next/prev cursors
+•	B3 {x} Uniform event shapes (text/voice; signaling filtered) + de-dupe
+•	B4 { } Client cache: IndexedDB gnet_threads per graph
+•	B5 { } LRU in-memory window; hydrate older on demand
+•	B6 { } Infinite scroll + “Load older” + sticky day dividers + spinner
+•	B7 { } “Jump to latest” button
+•	B8 { } Soft caps per thread + compaction in IndexedDB
+•	B9 { } Background prefetch next page on idle
+•	B10 { } Export thread to .gnetthread
+•	B11 { } Acceptance: history intact on return; up-scroll loads older w/o dupes; bounded memory
 
-K1 • Data Model (v1 schema)
-	•	Core entities
-	•	Agent(id, label, device?)
-	•	Topic(wa, realm, label)  // WA/WN thread target
-	•	Thread(id, kg, topic)    // synthetic, 1:1 with (kg, topic)
-	•	Message(id, ts, kind=text|voice|mail|signal, size?, mime?, transcript_of?)
-	•	Attachment(id, file_id, mime, size, sha256)
-	•	Call(id, ts_start, ts_end?, state, ice_type?)
-	•	PTTSession(id, ts, dur_ms, acquire_ms?, granted)
-	•	FloorLock(id, ts, result, acquire_ms)
-	•	Visit(id, ts, uri, host, title?, referrer?, duration_s?)  // wormhole history
-	•	Cookie(id, ts, key, value_hash, scope, expires?, policy)   // “habits” ledger, privacy-safe
-	•	File(id, name, mime, size, sha256, versions[], location)
-	•	ContainerRef(id, container_id, kind=atom|dc, path?)        // binds runtime to KG
-	•	Edges (typed)
-	•	SENT_BY(Message→Agent), ON_TOPIC(Message→Topic), IN_THREAD(Message→Thread)
-	•	HAS_ATTACHMENT(Message→Attachment→File)
-	•	PART_OF(Call→Thread), HELD_BY(FloorLock→Agent)
-	•	OBSERVED_FOR(Cookie→Agent|Thread), VISITED_BY(Visit→Agent)
-	•	ABOUT(ContainerRef→Thread|Topic)
-	•	Indices
-	•	{kg, thread_id, ts}, {kg, topic.wa}, {kg, file.sha256}, {kg, host}, {kg, cookie.key}
+C — Wormhole Mail (Email-style)
+•	C1 { } Capsule: mail_send (to/cc/bcc/subject/text/html/attachments/signature)
+•	C2 { } Events: mail_delivery / mail_status (queued/sent/delivered/failed + provider ids)
+•	C3 { } Name-service mapping user@wave.tp → WA/WN (kg-aware)
+•	C4 { } API: POST /api/mail/send → {message_id}
+•	C5 { } API: POST /api/mail/upload → {file_id, mime, size, sha256}
+•	C6 { } Mailbox storage (Inbox/Sent/Drafts) + log to thread
+•	C7 { } Provider adapter: local echo → later SMTP/SendGrid/Twilio Email
+•	C8 { } Signature templates per graph; DKIM/SPF later if bridging
+•	C9 { } Client: composer tab (Chat↔Mail)
+•	C10 { } Client: fields (To/Cc/Bcc/Subject/Attach/Signature/RTE)
+•	C11 { } Client: draft autosave; send as mail_send + thread summary bubble
+•	C12 { } Client: render inbound mail bubbles (subject header + attachment previews)
+•	C13 { } Security: size caps, rate limits, allow/block lists, HTML sanitization
+•	C14 { } Acceptance: send to WA, see in thread + Sent; inbound mail renders
 
-K2 • Storage Engines & APIs
-	•	Backend KG writer façade (wraps your knowledge_graph_writer.py):
-	•	POST /api/kg/events  → append-only batch ingest
-	•	GET  /api/kg/query   → graph slice (filters: kg, thread, entity, time window)
-	•	POST /api/kg/upsert-entity (optional) → idempotent identity updates
-	•	Pluggable backends
-	•	Default: SQLite/duckdb + property graph tables (portable)
-	•	Adapter: Neo4j / Memgraph (opt-in)
-	•	Local cache: IndexedDB mirror per graph for offline reads
-
-K3 • Browser Emitters (zero-UI-change drop points)
-	•	ChatThread.tsx
-	•	After sendText() success → event:{type:"message", kind:"text", thread, ts, size, enc?}
-	•	After sendVoiceNoteFile() → event:{type:"message", kind:"voice", mime, size}
-	•	sendVoiceFrame() (PTT) → event:{type:"ptt_frame"} batched → PTTSession on release
-	•	Floor locks: on grant/deny → event:{type:"floor_lock", acquire_ms, granted}
-	•	Calls: state transitions (offer|answer|connect|end|reject|cancel) → event:{type:"call", state}
-	•	Transcription path: when transcript posted → event:{type:"message", kind:"text", transcript_of}
-	•	WormholeBar / Router
-	•	On navigation resolve → event:{type:"visit", uri, host, title}
-	•	On dwell/close → update duration_s
-	•	KG Drive hooks (re-use your Drive plan)
-	•	On file upload/download/share → event:{type:"file", action, file_id, sha256, size}
-	•	Cookies/Habits Ledger (privacy-safe)
-	•	Record keys + hashed values with scope & expiry; never store raw secrets.
-	•	Toggle in Settings: “Allow AI memory of habits (per graph)”.
-
-K4 • Container Runtime ↔ KG Bridge
-	•	GlyphRuntime events → KG (glyph_execution, glyph_replay, container_collapsed, SoulLaw):
-	•	Map to ContainerRef, Message(kind="runtime_log"), SoulLawEvent (if you keep it), edges to threads/agents when relevant.
-	•	Entanglement: when fork_entangled_path creates a container, emit edge: ABOUT(ContainerRef→Thread) for the originating thread.
-
-K5 • Query, Search & Summarization
-	•	Thread hydration: Chat fetches via /api/glyphnet/thread AND augments from KG for:
-	•	attachments list, call summaries, PTT rollups (no extra round-trips later).
-	•	Cross-thread search: /api/kg/query?q=...&kg=... full-text over Message/Visit/File.name.
-	•	AION memory reads: GET /api/kg/view/memory?kg=personal&scope=habits|topics|people (pre-joined aggregates).
-
-K6 • Privacy, Retention, Governance
-	•	Per-graph retention policies (defaults):
-	•	Messages: 18 months; Voice frames: 90 days; Cookies/Habits: per-item expiry; Visits: 12 months.
-	•	Redaction & “Forget”
-	•	POST /api/kg/forget (entity set or time window); tombstone edges; cascade to local IndexedDB.
-	•	Consent surfaces
-	•	Settings toggles per graph: Store visits, Store habits, Store transcripts, Encrypt at rest only.
-	•	Audit trail
-	•	Append-only Mutation Ledger (hash-chained) for KG writes (no payload; just envelope metadata).
-
-K7 • Sync & Offline
-	•	IndexedDB mirror per graph: gnet_kg_{kg}
-	•	Write-through on event POST; read-through for KGDock, Inbox summaries.
-	•	Compaction window + LRU pages per thread.
-	•	Reconciliation
-	•	Cursor-based GET /api/kg/query?after=; idempotent re-apply by event_id.
-
-K8 • UI Surfaces
-	•	KG Dock v2
-	•	Tabs: Timeline, Graph, Files, Visits, Habits
-	•	Thread context pill (topic, kg); filters & time range
-	•	Graph view
-	•	Mini D3 canvas: Topic ↔ Messages ↔ Attachments ↔ Calls; hover to reveal props.
-	•	Privacy banner (per graph): show active policies + “Pause memory” quick toggle.
-	•	Visit history panel with host aggregates; “Clear last hour/day” actions.
-
-K9 • Security & Crypto
-	•	At-rest encryption of KG rows (server) with per-user keys (works with your Vault model).
-	•	No plaintext for sensitive Cookie values; store salted hashes + entropy budget.
-	•	QKD hooks: allow enc={kid, iv} metadata on KG events when encrypting payloads (aligns with your QKD plan).
-
-K10 • Telemetry & Tests
-	•	Counters: kg_ev_ok/err, kg_cache_hits, kg_sync_conflicts, kg_forget_ops, privacy_paused_min.
-	•	Tests:
-	•	Event idempotency & merge
-	•	Partition isolation (personal vs work)
-	•	Offline/online flaps
-	•	Forget/redaction correctness
-	•	AION query correctness (aggregates)
-
-K11 • Migration & Acceptance
-	•	One-shot migrate existing thread/session caches → KG (messages, voice notes, call summaries).
-	•	Backfill visits from current hash router history (if stored).
-	•	Acceptance
-	•	Switching between Personal/Work shows different KG surfaces immediately.
-	•	New chats/voice/calls/visits appear in KG Dock within 1s.
-	•	Clearing “habits” or “last day of visits” reflects in UI and AION memory.
-	•	Export of a thread includes message + file graph slice.
+D — “KG Drive” (per graph)
+•	D1 { } File table (file_id, name, mime, size, sha256, versions, created_by, updated_at, acl)
+•	D2 { } Versioning (append-only) + server SHA-256 verify
+•	D3 { } API: POST /api/files/upload
+•	D4 { } API: GET /api/files/list?kg&path&cursor&limit
+•	D5 { } API: GET /api/files/download?file_id (signed URL if needed)
+•	D6 { } API: POST /api/files/move|rename|delete
+•	D7 { } API: POST /api/files/share (kg-scoped token/ACL)
+•	D8 { } UI: Drive panel per graph (folders/sort/search/previews)
+•	D9 { } UI: quick-save chat attachment → choose graph/folder
+•	D10 { } UI: file details (versions, shared-with, where-used)
+•	D11 { } Integrations: link files into thread as attachment cards
+•	D12 { } Integrations: drag-drop upload from composer
+•	D13 { } Acceptance: upload/list/download/version/share; cards clickable in chat
 
 ⸻
 
@@ -426,92 +447,6 @@ Later, when you add login
 TL;DR
 
 
-***********************KNOWLEDGE GRAPH & BROSWER INTEGRATION***************************************************
-
-Conversation Persistence & History (Thread Storage + Pagination)
-
-[ ] Persistent thread storage per kg:topic
-• [ ] Backend: /api/glyphnet/thread supports cursor pagination (limit, before, after)
-• [ ] Index by {kg, topic, ts, id}; return next_cursor/prev_cursor
-• [ ] Store inbound/outbound uniformly (voice_note, voice_frame, text, signaling filtered)
-
-[ ] Client caching (survives navigation/reload)
-• [ ] Migrate sessionStorage → IndexedDB (gnet_threads) with per-thread LRU window
-• [ ] Keep N newest messages in memory; hydrate older via “Load older”
-• [ ] De-dupe by id and by content signature (existing logic reused)
-
-[ ] UI/UX
-• [ ] Infinite-scroll “Load older” on scroll-top + spinner + sticky day dividers
-• [ ] “Jump to latest” button when user is scrolled up
-• [ ] Empty-state + skeletons; show approximate count if known
-
-[ ] Sync & retention
-• [ ] Soft cap per thread (e.g., 20k items) with rolling compaction in IndexedDB
-• [ ] Background prefetch next page when user pauses scrolling
-• [ ] Export thread to JSON (.gnetthread)
-
-Acceptance
-• Switch away from a thread returns later with history intact.
-• Scrolling up reliably loads older pages; no dupes; memory stays bounded.
-
-⸻
-
-Wormhole Mail (Email-style Composer & Delivery)
-
-[ ] Schema & capsules
-• [ ] mail_send capsule: { to[], cc[], bcc[], subject, text, html?, attachments[], signature? }
-• [ ] mail_delivery/mail_status events: queued/sent/delivered/failed + provider ids
-• [ ] Map kevin@wave.tp to WA/WN via name service (kg-aware)
-
-[ ] Backend
-• [ ] POST /api/mail/send → returns { message_id }
-• [ ] Attachment upload: POST /api/mail/upload → { file_id, mime, size, sha256 }
-• [ ] Store mail in thread log + a Mailbox collection (Inbox/Sent/Drafts)
-• [ ] Provider adapter (stub first): local echo → later SMTP/SendGrid/Twilio Email
-• [ ] Signature templates per graph; DKIM/SPF later if bridging to real email
-
-[ ] Client
-• [ ] “Chat ↔ Mail” tab toggle in composer
-• [ ] Fields: To, Cc, Bcc, Subject, Attach, Signature picker, Rich-text (basic)
-• [ ] Draft autosave; send as mail_send + thread summary bubble
-• [ ] Render inbound mail bubbles (subject header + attachments preview)
-
-[ ] Security & rate limits
-• [ ] Size caps per message/attachment; total send rate per user
-• [ ] Blocklist/allowlist; HTML sanitization for inbound html
-
-Acceptance
-• Can compose & send a mail-style message to a WA, see it log in thread + Sent.
-• Inbound mail events render with subject/attachments.
-
-⸻
-
-“KG Drive” — Document Vault per Graph (Dropbox-like)
-
-[ ] Storage & metadata
-• [ ] Buckets per graph: kg=personal|work
-• [ ] File table: { file_id, name, mime, size, sha256, versions[], created_by, updated_at, acl }
-• [ ] Versioning (append-only); server-side SHA-256 verification
-
-[ ] API
-• [ ] POST /api/files/upload (resumable or simple first)
-• [ ] GET /api/files/list?kg&path&cursor&limit
-• [ ] GET /api/files/download?file_id (signed URL if external store)
-• [ ] POST /api/files/move|rename|delete
-• [ ] Share link: POST /api/files/share → returns share token (kg-scoped ACL)
-
-[ ] UI
-• [ ] “Drive” panel per graph: folders, sort, search, previews (audio/image/text/pdf)
-• [ ] Quick-save from chat attachment → choose graph/folder
-• [ ] File details (versions, who shared, where used)
-
-[ ] Integrations
-• [ ] Link into thread as attachment cards
-• [ ] Drag-drop upload from thread composer
-
-Acceptance
-• Can upload, list, download, version, and share a file in personal/work graphs; clickable cards appear in chat.
-
 ⸻
 *******************************Photon Secure Glyph Document*************************************************
 Photon Secure Glyph Document (.pgdoc) — Encrypted, Share-by-Registry
@@ -536,6 +471,10 @@ sig.bin (author signature)
 • [ ] “Lock” toggle (read-only mode akin to PDF)
 • [ ] Watermarking & signature verification UI
 
+• [ ] make the documetn executable (wallet transactions)
+• [ ] make invoices & send quotes (executable)
+• [ ] standard format templates (new quote - executable - escrow - encrypted - trackable comments like legal docs)
+
 [ ] UX & failure modes
 • [ ] Clear errors for “no access”, “key mismatch”, “tampered”
 • [ ] Offline open if key+blob cached locally
@@ -550,139 +489,47 @@ Acceptance
 
 *******************************Photon Secure Glyph Document*************************************************
 *******************************Q QUANTUM KEY DISTRIBUTION*************************************************
-flowchart TD
-    %% QKD Integration – Build Tasks & Key Notes
-    %% Status tags: [ ] todo · [~] in-progress · [x] done
+QKD Integration — Build Tasks & Key Notes
 
-    A0([QKD Integration – Overview\nGoal: App-layer encryption of GlyphNet payloads + WebRTC IS\nKeys sourced from local QKD agent; server sees ciphertext only])
+[x] Core Plumbing
+ • [x] QKD agent contract (dev) — /qkd/lease + /qkd/health via radio-node proxy. Dev shim returns { kid, collapse_hash, salt_b64, ttl_ms } (client derives AES-GCM key via PBKDF2); real agent can swap in without app changes.
+ • [x] Browser shim (lib/qkd.ts + qkd_cache.ts) — caches leases per {purpose|kg|local|remote}; exposes getLease/qkdLease.
+ • [x] Crypto wrapper — AES-GCM helpers + PBKDF2/HKDF utilities used by protectCapsule().
 
-    subgraph S1[Core Plumbing]
-      A1[[ [ ] QKD Agent Contract ]]
-      note right of A1
-        Define browser-facing lease API:
-        lease({localWA, remoteWA, kg, purpose, bytes}) -> {kid, key, ttl_ms}
-        Transport: localhost IPC/HTTP via radio-node proxy.
-        No plaintext keys persisted; in-memory only.
-      end
+[x] Payload Encryption (GlyphNet)
+ • [x] Text glyphs: wrapped by fetch interceptor (protectCapsule) → ciphertext capsule.
+ • [x] Voice note (voice_note.data_b64): encrypted on TX, decrypted on RX.
+ • [~] PTT frames (voice_frame.data_b64): path wired; verify per-channel seq/AAD + end-to-end decrypt in live PTT flow.
 
-      A2[[ [ ] Browser Shim: qkd.ts ]]
-      note right of A2
-        Thin client that calls the agent, caches leases per
-        (purpose|kg|local|remote), exposes qkdLease().
-        Replace dev stub when you provide real QKD files.
-      end
+[x] Receive Path
+ • [x] WS merge: if capsule.enc present → decrypt; else treat as plaintext.
+ • [x] Back-compat preference: prefer enc when both enc/plain exist; no-crash on failure.
 
-      A3[[ [ ] Crypto Wrapper: crypto_qkd.ts ]]
-      note right of A3
-        AES-GCM w/ per-message IV, HKDF on QKD blocks for subkeys.
-        Helpers: qkdEncrypt()/qkdDecrypt() + ivFromSeq(kid, seq).
-      end
+[ ] WebRTC (Insertable Streams)
+ • [ ] Feature flag (qkdE2EE) for WebRTC media (HTTP path flag exists; extend to RTC).
+ • [ ] Sender transform: encrypt audio frames with per-call purpose "call" and monotonic seq.
+ • [ ] Receiver transform: decrypt; handle re-key seamlessly.
 
-      A1 --> A2 --> A3
-    end
+[ ] Key Policy & Rotation
+ • [ ] Rekey triggers: time (e.g., 10 min) or N frames or reconnect; bump kid + renew lease; optional control glyph notice.
+ • [ ] Nonce/seq rules: 12-byte IV; per-purpose monotonic seq included in AAD; uniqueness per kid.
+ • [ ] Storage & scrub: never persist keys; zeroize temps; redact logs.
 
-    subgraph S2[Payload Encryption (GlyphNet)]
-      B1[[ [ ] Text: encrypt glyphs ]]
-      note right of B1
-        sendText(): UTF-8 -> qkdEncrypt(purpose:"glyph", seq++)
-        Replace capsule.glyphs with glyphs_enc_b64 + enc {scheme,kid,seq,iv_b64,aad:"glyph"}.
-      end
+[ ] Fallback & UX
+ • [ ] Policy when QKD unavailable: {deny | classical E2EE fallback | warn & allow} (dev default can be “warn & allow”).
+ • [ ] Error surfacing: lock/warning chip on decrypt failure; keep ciphertext hidden.
 
-      B2[[ [ ] Voice Note: encrypt data_b64 ]]
-      note right of B2
-        sendVoiceNoteFile(): base64 bytes -> qkdEncrypt("voice_note", seq++)
-        Use field data_enc_b64 (or reuse data_b64) + enc {..., aad:"voice_note"}.
-      end
+[ ] Telemetry, Tests, Compliance
+ • [ ] Counters: enc_ok/enc_err/dec_ok/dec_err, kid_rotations, qkd_lease_fail.
+ • [ ] Test matrix: plain↔enc interop, mid-stream rekey, replay window, wrong-kid reject, PTT loss/seq gaps.
+ • [ ] Threat notes: confidentiality via QKD-derived keys; integrity via GCM; metadata (topic/kg/timing) remains observable.
 
-      B3[[ [ ] PTT Frames: encrypt data_b64 ]]
-      note right of B3
-        sendVoiceFrame(): per-channel seq -> qkdEncrypt("voice_frame", seq++)
-        Add enc {..., aad:"voice_frame"}. Keep existing channel/seq for loss calc.
-      end
-
-      B1 --> B2 --> B3
-    end
-
-    subgraph S3[Receive Path]
-      C1[[ [ ] WS Merge: decrypt if enc present ]]
-      note right of C1
-        In normalize/merge: detect capsule.enc, choose purpose by payload type,
-        call qkdDecrypt(). On failure, show "Locked/Decrypt failed" chip (no crash).
-      end
-
-      C2[[ [ ] Back-compat ]]
-      note right of C2
-        If no enc field → treat as plaintext (dev/interop).
-        Prefer enc when both present.
-      end
-
-      C1 --> C2
-    end
-
-    subgraph S4[WebRTC (Insertable Streams)]
-      D1[[ [ ] Feature Flag: qkdE2EE ]]
-      D2[[ [ ] Sender Transform ]]
-      D3[[ [ ] Receiver Transform ]]
-      note right of D2
-        Attach transforms to audio sender; frame counter as seq.
-        Derive subkey for purpose:"call".
-      end
-      note right of D3
-        Mirror decrypt on receiver; handle re-key events gracefully.
-      end
-      D1 --> D2 --> D3
-    end
-
-    subgraph S5[Key Policy & Rotation]
-      E1[[ [ ] Rekey triggers ]]
-      note right of E1
-        Rotate on: time (e.g., 10 min) OR N messages/frames OR reconnect.
-        Update kid; bump lease; notify peer via control glyph (optional).
-      end
-      E2[[ [ ] Nonce/Seq rules ]]
-      note right of E2
-        Per-purpose monotonic seq; include in AAD.
-        IV 12B; ensure uniqueness per kid.
-      end
-      E3[[ [ ] Storage & Scrub ]]
-      note right of E3
-        No key material in logs, storage, or thread cache.
-        Zeroize temp buffers when feasible.
-      end
-      E1 --> E2 --> E3
-    end
-
-    subgraph S6[Fallback & UX]
-      F1[[ [ ] Policy when QKD unavailable ]]
-      note right of F1
-        Modes: {deny send | classical E2EE fallback | warn & allow}.
-        Default: warn & allow during dev; configurable per KG.
-      end
-      F2[[ [ ] Error surfacing ]]
-      note right of F2
-        Display small lock+warning chip on failed decrypt;
-        keep raw event hidden to avoid leaking plaintext.
-      end
-      F1 --> F2
-    end
-
-    subgraph S7[Telemetry, Tests, Compliance]
-      G1[[ [ ] Counters ]]
-      note right of G1
-        __tele: enc_ok/enc_err/dec_ok/dec_err, kid_rotations, qkd_lease_fail.
-      end
-      G2[[ [ ] Test Matrix ]]
-      note right of G2
-        Plain ↔ Enc interop, rekey mid-stream, replay window,
-        wrong-kid rejection, packet loss + PTT seq gaps.
-      end
-      G3[[ [ ] Threat notes ]]
-      note right of G3
-        Confidentiality from QKD keys; integrity via GCM tag;
-        metadata (topic, kg, timing) still observable.
-      end
-      G1 --> G2 --> G3
-    end
+Quick go-live notes (QKD-specific)
+	•	Production agent: set QKD_AGENT in radio-node; keep /radio/qkd/* proxying.
+	•	App flag: VITE_QKD_E2EE=1 enables the fetch-path encryption shim (already wired).
+	•	RF mock vs hardware: disable mock loopback before field tests to avoid duplicates:
+curl -sS -X POST http://127.0.0.1:8787/dev/rf/mock/disable -H 'Content-Type: application/json'.
+	•	Size guardrails: large media still must respect MAX_RF_INGRESS_BYTES; encryption adds small overhead—stay below cap.
 
     %% Dependencies
     A3 --> B1

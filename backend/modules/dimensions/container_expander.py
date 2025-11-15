@@ -34,9 +34,17 @@ from backend.modules.dimensions.universal_container_system.ucs_runtime import uc
 from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
 # REMOVED: conflicting import from backend.modules.dimensions.ucs.ucs_entanglement
 from backend.modules.glyphvault.soul_law_validator import SoulLawValidator
-from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer  # ✅ canonical
 from backend.modules.dna_chain.container_index_writer import add_to_index
 from backend.modules.websocket_manager import broadcast_event as broadcast_glyph_event
+
+# --- NEW: Microgrid (best-effort global) ------------------------------------
+try:
+    from backend.modules.glyphos.microgrid_index import MicrogridIndex
+    MICROGRID = getattr(MicrogridIndex, "_GLOBAL", None) or MicrogridIndex()
+    MicrogridIndex._GLOBAL = MICROGRID
+except Exception:  # pragma: no cover
+    MICROGRID = None
 
 # --- NEW: seed helpers (non-breaking) ----------------------------------------
 import json
@@ -62,8 +70,6 @@ def _load_seed(container_id: str) -> dict | None:
     """Best-effort JSON loader for a seed .dc file."""
     spath = _get_seed_path(container_id)
     if not spath:
-        # optional trace to help debug missing seeds
-        # print(f"[seed:{container_id}] no seed file at {_SEED_FILES.get(container_id)}")
         return None
     try:
         with open(spath, "r", encoding="utf-8") as f:
@@ -154,7 +160,6 @@ def _snapshot_with_aliases(container: dict) -> dict:
       3) Add physics alias *nodes* (N_force, N_energy, N_maxwell, N_qft) so tests can see them in `nodes`.
       4) Add alias *links* the test expects (e.g., N_force -> N_energy [work-energy]).
     Does NOT mutate the live kernel/container.
-    "snapshot-only augmentation for physics_core to satisfy alias expectations in tests; does not mutate live kernel"
     """
     snap = dict(container)
     snap.setdefault("glyph_categories", [])
@@ -252,6 +257,7 @@ def _snapshot_with_aliases(container: dict) -> dict:
             }]
 
     return snap
+
 # ============================================================================
 class ContainerExpander:
     def __init__(self, container_id):
@@ -259,7 +265,14 @@ class ContainerExpander:
         self.container_id = container_id
         self.geometry_loader = UCSGeometryLoader()
         self.ucs = ucs_runtime
-        self.kg_writer = kg_writer
+        self.kg_writer = None  # set below
+
+        # ✅ Initialize KG writer singleton safely
+        try:
+            self.kg_writer = get_kg_writer()
+        except Exception as e:
+            print(f"⚠️ get_kg_writer() unavailable: {e}")
+            self.kg_writer = None
 
         # ✅ Get or init container state from UCS
         container = self._get_container()
@@ -274,8 +287,7 @@ class ContainerExpander:
         except Exception as e:
             print(f"⚠️ Seed merge skipped: {e}")
 
-        # ✅ Address Book: ensure container has an address (idempotent)
-                # ✅ Address Book: ensure container has an address (idempotent)
+        # ✅ Address Book + Wormhole: ensure id/address registration (idempotent)
         cid = (
             container.get("id")
             or container.get("container_id")
@@ -294,24 +306,6 @@ class ContainerExpander:
             print(f"⚠️ AddressBook register failed for {cid}: {e}")
 
         # ✅ Save to UCS
-        # ✅ Address Book: register (idempotent)
-        cid = (
-            container.get("id")
-            or container.get("container_id")
-            or self.container_id
-        )
-        container.setdefault("id", cid)
-        container.setdefault("name", container.get("name") or cid)
-        try:
-            address_book.register_container(container)
-            try:
-                from backend.modules.dna_chain.container_linker import link_wormhole
-                link_wormhole(cid, "ucs_hub")  # or your actual wormhole hub/root
-            except Exception as e:
-                print(f"⚠️ Wormhole link failed during seed for {cid}: {e}")
-        except Exception as e:
-            print(f"⚠️ AddressBook register failed during seed for {cid}: {e}")
-
         self.ucs.save_container(self.container_id, container)
 
     # --- helpers so we're compatible with different DimensionKernel versions ---
@@ -394,14 +388,13 @@ class ContainerExpander:
 
         # 🧠 Knowledge Graph indexing (links geometry to KG for GHX/Entanglement views)
         try:
-            from backend.modules.glyphvault.kg_writer_singleton import get_kg_writer
-            get_kg_writer().index_geometry(
-                container_id=self.container_id,
-                name=container_name,
-                symbol=container_symbol,
-                geometry=geometry
-            )
-            
+            if self.kg_writer and hasattr(self.kg_writer, "index_geometry"):
+                self.kg_writer.index_geometry(
+                    container_id=self.container_id,
+                    name=container_name,
+                    symbol=container_symbol,
+                    geometry=geometry
+                )
         except Exception as e:  # non-fatal
             print(f"[WARN] KG index failed for container {self.container_id}: {e}")
 
@@ -422,7 +415,6 @@ class ContainerExpander:
 
         # ✅ Save updated container state in UCS
         self.ucs.save_container(self.container_id, container)
-        # after: self.ucs.save_container(self.container_id, container)
         try:
             from backend.modules.dna_chain.container_linker import link_wormhole
             link_wormhole(self.container_id, "ucs_hub")
@@ -432,8 +424,8 @@ class ContainerExpander:
         # ✅ Load domain pack into KG (physics_core -> KG nodes/edges)
         if self.container_id == "physics_core":
             try:
-                from backend.modules.knowledge_graph.kg_writer_singleton import kg_writer
-                kg_writer.load_domain_pack("physics_core", container)
+                if self.kg_writer and hasattr(self.kg_writer, "load_domain_pack"):
+                    self.kg_writer.load_domain_pack("physics_core", container)
             except Exception as e:
                 print(f"⚠️ KG domain load skipped: {e}")
 
@@ -469,7 +461,6 @@ class ContainerExpander:
         except Exception as e:
             print(f"⚠️ Wormhole link failed for {self.container_id}: {e}")
 
-
         # ✅ GHX Visualization Sync
         try:
             self.ucs.visualizer.highlight(self.container_id)
@@ -492,6 +483,19 @@ class ContainerExpander:
             "layers": layers,
             "timestamp": time.time()
         })
+
+        # 🧠 KG signal (optional)
+        try:
+            if self.kg_writer and hasattr(self.kg_writer, "inject_glyph"):
+                self.kg_writer.inject_glyph(
+                    content={"event": "container_growth", "direction": direction, "layers": layers},
+                    glyph_type="container_growth",
+                    metadata={"container_id": self.container_id},
+                    tags=["expander","growth"],
+                    agent_id="container_expander",
+                )
+        except Exception:
+            pass
 
         return result
 
@@ -523,9 +527,8 @@ class ContainerExpander:
                     f"❌ SoulLaw denied glyph injection: {glyph} (verdict: {verdict})"
                 )
 
-        # ✅ Inject glyph
+        # ✅ Inject glyph into runtime
         self.kernel.add_glyph(x, y, z, t, glyph)
-
         container = self._get_container()
 
         # ✅ Knowledge Graph & Index Sync
@@ -534,10 +537,39 @@ class ContainerExpander:
             "type": "glyph",
             "content": glyph,
             "timestamp": time.time(),
-            "metadata": {"tags": ["glyph_injection"], "coord": f"{x},{y},{z}"}
+            "metadata": {"tags": ["glyph_injection"], "coord": f"{x},{y},{z},{t}"},
         }
-        add_to_index("glyph_index", entry)
-        self.kg_writer.write_glyph_entry(entry)
+        try:
+            add_to_index("glyph_index", entry)
+        except Exception:
+            pass
+
+        # Prefer the unified glyph API if present, else fallback to legacy writer
+        try:
+            if self.kg_writer and hasattr(self.kg_writer, "inject_glyph"):
+                self.kg_writer.inject_glyph(
+                    content={"glyph": glyph, "pos": {"x": x, "y": y, "z": z, "t": t}},
+                    glyph_type="glyph",
+                    metadata={"coord": f"{x},{y},{z},{t}", "container_id": self.container_id},
+                    tags=["glyph_injection","expander"],
+                    agent_id="container_expander",
+                )
+            elif self.kg_writer and hasattr(self.kg_writer, "write_glyph_entry"):
+                self.kg_writer.write_glyph_entry(entry)
+        except Exception as e:
+            print(f"⚠️ KG writer skipped: {e}")
+
+        # ✅ Microgrid HUD tap (best-effort; coordinates mod 16)
+        if MICROGRID:
+            try:
+                MICROGRID.register_glyph(
+                    x % 16, y % 16, z % 16,
+                    glyph=str(glyph),
+                    layer=int(t) if t is not None else None,
+                    metadata={"type": "glyph", "tags": ["expander","inject"], "energy": 1.0},
+                )
+            except Exception:
+                pass
 
         # ✅ UCS Save & GHX Sync
         self.ucs.save_container(self.container_id, container)

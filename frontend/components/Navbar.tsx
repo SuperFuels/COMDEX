@@ -3,7 +3,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'   // ⬅️ added usePathname
 import { useEffect, useState, useRef, useCallback } from 'react'
 import api from '@/lib/api'
 import { UserRole } from '@/hooks/useAuthRedirect'
@@ -13,6 +13,7 @@ import { DarkModeToggle } from './DarkModeToggle'
 
 export default function Navbar() {
   const router = useRouter()
+  const pathname = usePathname() || '/'
   const [account, setAccount] = useState<string | null>(null)
   const [role, setRole] = useState<UserRole | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -92,6 +93,8 @@ export default function Navbar() {
   const [amountIn, setAmountIn] = useState('')
   const [amountOut, setAmountOut] = useState('')
 
+  const isMultiverse = pathname.startsWith('/aion/multiverse')
+
   return (
     <>
       <Sidebar
@@ -170,9 +173,32 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right: dark toggle + wallet */}
+          {/* Right: dark toggle + view toggle + wallet */}
           <div className="flex items-center gap-3">
             <DarkModeToggle />
+
+            {/* 🔀 Page | Multiverse toggle */}
+            <div className="inline-flex border border-border rounded-full overflow-hidden">
+              <button
+                onClick={() => router.push('/')}
+                className={`px-3 py-1 text-sm ${
+                  !isMultiverse ? 'bg-white' : 'bg-transparent'
+                } hover:bg-gray-50`}
+                title="Page"
+              >
+                Page
+              </button>
+              <button
+                onClick={() => router.push('/aion/multiverse')}
+                className={`px-3 py-1 text-sm ${
+                  isMultiverse ? 'bg-gray-100' : 'bg-transparent'
+                } hover:bg-gray-200`}
+                title="Multiverse"
+              >
+                Multiverse
+              </button>
+            </div>
+
             {!account ? (
               <button
                 onClick={handleConnect}

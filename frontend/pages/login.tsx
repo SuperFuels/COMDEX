@@ -26,8 +26,37 @@ export default function LoginPage() {
         { headers: { 'Content-Type': 'application/json' } }
       )
 
+      // Store API token for the website
       localStorage.setItem('token', data.token)
       api.defaults.headers.common.Authorization = `Bearer ${data.token}`
+
+      // ───────────────────────────────────────────────────────────
+      // NEW: sync identity with local browser runtime (radio-node)
+      try {
+        // Prefer backend-provided identifiers if available
+        const slug = (data.slug || email.split('@')[0])
+          .toLowerCase()
+          .replace(/[^a-z0-9._-]/g, '-')
+        const wa = data.wa || `${slug}@wave.tp`
+
+        // Handy for the SPA/UI as well
+        localStorage.setItem('gnet:user_slug', slug)
+        localStorage.setItem('gnet:wa', wa)
+
+        // (Optional) If you implement a signed ticket endpoint on the backend:
+        // const { data: t } = await api.post('/auth/session-ticket', { wa, slug }) // -> { ticket: "v1,<ts>,<hmac>" }
+        // const ticket = t?.ticket;
+
+        // Best-effort notify the locally running radio-node (non-blocking)
+        fetch('http://127.0.0.1:8787/api/session/attach', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ wa, slug, token: data.token /*, ticket*/ }),
+        }).catch(() => {})
+      } catch {
+        // ignore local runtime errors; website login proceeds
+      }
+      // ───────────────────────────────────────────────────────────
 
       // Redirect based on role
       if (data.role === 'admin') {

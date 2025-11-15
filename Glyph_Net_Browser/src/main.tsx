@@ -1,7 +1,10 @@
 // src/main.tsx
+import "@/lib/radioPatch";   // ← MUST be first: rewrites ws/http calls to VITE_RADIO_BASE
+
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import DevRFPanel from "./dev/DevRFPanel";
 
 // Optional Safari AudioContext shim
 if (
@@ -43,7 +46,6 @@ if (E2EE) {
         const capsule = body?.capsule ?? {};
         const meta = body?.meta ?? {};
 
-        // Encrypt via QKD
         const { capsule: protectedCapsule } = await protectCapsule({
           capsule,
           localWA: meta?.localWA || "ucs://local/self",
@@ -51,7 +53,6 @@ if (E2EE) {
           kg: graph,
         });
 
-        // REPLACE the body rebuild with this so meta carries localWA + recipient
         const localWA = meta?.localWA || "ucs://local/self";
         const nextMeta = { ...meta, qkd_required: true, localWA, recipient };
 
@@ -69,7 +70,13 @@ if (E2EE) {
   };
 }
 
-// Mount app
+// Mount app (hard gate on #/dev/rf to avoid router races)
 const el = document.getElementById("root");
 if (!el) throw new Error("Root element #root not found");
-createRoot(el).render(<App />);
+
+const hash = typeof window !== "undefined" ? window.location.hash : "";
+const wantDevRF = /^#\/dev\/rf(\?|$)/.test(hash);
+
+createRoot(el).render(
+  <React.StrictMode>{wantDevRF ? <DevRFPanel /> : <App />}</React.StrictMode>
+);

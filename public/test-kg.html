@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8" />
+<button id="send">Emit “hello” to KG</button>
+<script src="/js/kg_emit.js"></script>
+<script>
+  const kg = "personal";
+  const ownerWa = "kevin@wave.tp";
+  const topicWa = "ucs://local/ucs_hub";
+  document.getElementById("send").onclick = () =>
+    KGEmit.emitTextToKG({ apiBase: "", kg, ownerWa, topicWa, text: "hello from test-kg" });
+</script>

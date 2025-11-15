@@ -26,6 +26,7 @@ from backend.modules.qfield.qfc_ws_broadcast import send_qfc_payload
 from backend.modules.qfield.qfc_utils import build_qfc_view
 from backend.modules.glyphwave.qwave.beam_controller import BeamController
 
+ENCRYPTION_KEY = b'\x00' * 32  # Placeholder key
 
 try:
     # ✅ Lazy import to avoid circular dependency
@@ -38,7 +39,43 @@ try:
 except ImportError:
     summarize_glyphs = None
 
-ENCRYPTION_KEY = b'\x00' * 32  # Placeholder key
+# --- KG + Microgrid taps (best-effort, no hard deps) -------------------------
+try:
+    # primary writer
+    from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer as _KG_WRITER
+except Exception:
+    _KG_WRITER = None
+
+try:
+    # fallback singleton
+    from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer as _GET_KG_WRITER
+except Exception:
+    _GET_KG_WRITER = None
+
+try:
+    # HUD microgrid
+    from backend.modules.glyphos.microgrid_index import MicrogridIndex as _MicrogridIndex
+    MICROGRID = getattr(_MicrogridIndex, "_GLOBAL", None) or _MicrogridIndex()
+    _MicrogridIndex._GLOBAL = MICROGRID
+except Exception:
+    MICROGRID = None
+
+# ✅ KG writer + Microgrid singleton (best-effort, no hard deps)
+try:
+    from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer  # preferred
+except Exception:  # pragma: no cover
+    try:
+        from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer
+        kg_writer = get_kg_writer()
+    except Exception:
+        kg_writer = None
+
+try:
+    from backend.modules.glyphos.microgrid_index import MicrogridIndex
+    _CR_MICROGRID = getattr(MicrogridIndex, "_GLOBAL", None) or MicrogridIndex()
+    MicrogridIndex._GLOBAL = _CR_MICROGRID
+except Exception:  # pragma: no cover
+    _CR_MICROGRID = None
 
 def container_id_to_path(container_id: str) -> str:
         """
@@ -92,9 +129,78 @@ class ContainerRuntime:
             "test_mode": False
         }
 
+    # ─────────────────────────────────────────────────────────
+    # Telemetry taps used by run_tick() and collapse exporter
+    # ─────────────────────────────────────────────────────────
+    def _resolve_kg_writer(self):
+        """Return a writer instance or None (best-effort)."""
+        if _KG_WRITER:
+            return _KG_WRITER
+        if _GET_KG_WRITER:
+            try:
+                return _GET_KG_WRITER()
+            except Exception:
+                return None
+        return None
+
+    def _kg_emit(self, glyph_type: str, content: dict, tags=None):
+        """Write a small KG event if a writer is available."""
+        writer = self._resolve_kg_writer()
+        if not writer:
+            return
+        try:
+            meta = {"container_id": content.get("container_id")}
+            # Fallback to current container id if not provided
+            if not meta["container_id"]:
+                try:
+                    cur = self.state_manager.get_current_container() or {}
+                    meta["container_id"] = cur.get("id")
+                except Exception:
+                    pass
+
+            if hasattr(writer, "inject_glyph"):
+                writer.inject_glyph(
+                    content=content,
+                    glyph_type=glyph_type,
+                    metadata=meta,
+                    tags=tags or ["cr"],
+                    agent_id="container_runtime",
+                )
+            elif hasattr(writer, "write_glyph_event"):
+                # optional alt API in some branches
+                writer.write_glyph_event(
+                    glyph_type, content, meta, tags or ["cr"], agent_id="container_runtime"
+                )
+        except Exception:
+            # never break runtime on telemetry
+            pass
+
+    def _mg_register(self, x: int, y: int, z: int, glyph: str, meta=None, t: int = None):
+        """Register a HUD blip in the Microgrid (no-op if unavailable)."""
+        if not MICROGRID:
+            return
+        try:
+            MICROGRID.register_glyph(
+                x % 16, y % 16, z % 16,
+                glyph=str(glyph),
+                layer=int(t) if t is not None else None,
+                metadata={
+                    "type": (meta or {}).get("type", "cr"),
+                    "tags": (meta or {}).get("tags", ["cr"]),
+                    "energy": (meta or {}).get("energy", 1.0),
+                },
+            )
+        except Exception:
+            pass
+
     def set_active_container(self, container_id: str):
         self.active_container_id = container_id
-        self._soullaw_checked_containers.discard(container_id)  # or self._soullaw_checked_containers.clear() for per-session
+        self._soullaw_checked_containers.discard(container_id)
+        # 🧭 tap
+        try:
+            self._kg_emit("cr_active_set", {"container_id": container_id}, tags=["cr","active"])
+        except Exception:
+            pass  # or self._soullaw_checked_containers.clear() for per-session
 
     def start_beam_loop(self, config: Optional[dict] = None):
         config = config or {}
@@ -175,12 +281,22 @@ class ContainerRuntime:
             self.running = True
             threading.Thread(target=self.run_loop, daemon=True).start()
             print("▶️ Container Runtime started.")
+            # 🧭 tap
+            try:
+                self._kg_emit("cr_start", {"container_id": getattr(self, "active_container_id", None)}, tags=["cr","lifecycle"])
+            except Exception:
+                pass
             if enable_beam:
                 self.start_beam_loop()
 
     def stop(self):
         self.running = False
         print("⏹️ Container Runtime stopped.")
+        # 🧭 tap
+        try:
+            self._kg_emit("cr_stop", {"container_id": getattr(self, "active_container_id", None)}, tags=["cr","lifecycle"])
+        except Exception:
+            pass
 
     from backend.modules.consciousness.prediction_engine import run_prediction_on_container
 
@@ -307,14 +423,23 @@ class ContainerRuntime:
         try:
             # Drop from state manager memory
             self.state_manager.all_containers.pop(container_id, None)
+
             # Remove from UCS (this also attempts to unregister from the global registry, per your UCSRuntime.remove_container)
             try:
                 self.ucs.remove_container(container_id)
             except Exception as e:
                 print(f"⚠️ UCS remove_container failed for {container_id}: {e}")
+
             # Forget local "registered once" marker to allow re-add later if needed
             self._registered_once.discard(container_id)
+
             print(f"🧹 Unloaded container: {container_id}")
+            # 🧭 tap
+            try:
+                self._kg_emit("cr_unload", {"container_id": container_id}, tags=["cr","lifecycle"])
+            except Exception:
+                pass
+
             return True
         except Exception as e:
             print(f"❌ unload_container error for {container_id}: {e}")
@@ -362,6 +487,37 @@ class ContainerRuntime:
                     if "↔" in glyph_str:
                         self.fork_entangled_path(container, coord_str, glyph_str)
                         print(f"🔀 Entangled fork triggered at {coord_str}")
+                        # 🧭 tap: fork
+                        try:
+                            self._kg_emit(
+                                "cr_entangled_fork",
+                                {
+                                    "container_id": container.get("id"),
+                                    "coord": coord_str,
+                                    "glyph": glyph_str,
+                                    "tick": self.tick_counter,
+                                },
+                                tags=["cr","entangle"],
+                            )
+                            self._mg_register(x, y, z, glyph="↔", meta={"type": "entangle", "tags": ["cr", "entangle"]})
+                        except Exception:
+                            pass
+
+                    # 🧭 tap: execution begin
+                    try:
+                        self._kg_emit(
+                            "cr_glyph_execute",
+                            {
+                                "container_id": container.get("id"),
+                                "coord": coord_str,
+                                "glyph": glyph_str,
+                                "tick": self.tick_counter,
+                            },
+                            tags=["cr","exec"],
+                        )
+                        self._mg_register(x, y, z, glyph=glyph_str, meta={"type": "exec", "tags": ["cr", "glyph"]})
+                    except Exception:
+                        pass
 
                     # ⧖ SoulLaw collapse glyph
                     if "⧖" in glyph_str:
@@ -378,6 +534,22 @@ class ContainerRuntime:
                             "tick": self.tick_counter,
                             "timestamp": time.time()
                         })
+
+                        # 🧭 tap: soullaw verdict
+                        try:
+                            self._kg_emit(
+                                "cr_soullaw_verdict",
+                                {
+                                    "container_id": container.get("id"),
+                                    "coord": coord_str,
+                                    "glyph": glyph_str,
+                                    "verdict": verdict,
+                                    "tick": self.tick_counter,
+                                },
+                                tags=["cr","soullaw"],
+                            )
+                        except Exception:
+                            pass
 
                         self.websocket.broadcast({
                             "type": "soul_law_event",
@@ -425,6 +597,15 @@ class ContainerRuntime:
             try:
                 self.ucs.visualizer.highlight(container["id"])
                 print(f"🎨 UCS Visualization: Highlighted {container['id']} in GHX.")
+                # 🧭 tap
+                try:
+                    self._kg_emit(
+                        "cr_highlight",
+                        {"container_id": container.get("id"), "tick": self.tick_counter},
+                        tags=["cr","viz"],
+                    )
+                except Exception:
+                    pass
             except Exception as e:
                 print(f"⚠️ UCS visualization sync failed: {e}")
 
@@ -445,6 +626,17 @@ class ContainerRuntime:
         if self.ucs_features.get("time_dilation"):
             factor = self.ucs_features.get("time_dilation_factor", 1.0)
             time.sleep(self.tick_interval * (1 / factor))
+
+        # 🧭 tap: heartbeat (every 10 ticks)
+        try:
+            if self.tick_counter % 10 == 0:
+                self._kg_emit(
+                    "cr_tick",
+                    {"container_id": container.get("id"), "tick": self.tick_counter},
+                    tags=["cr","tick"],
+                )
+        except Exception:
+            pass
 
         return tick_log
 
@@ -642,6 +834,69 @@ class ContainerRuntime:
             except Exception as e2:
                 print(f"❌ Failed to save container via fallback: {e2}")
 
+        # 🧭 tap (summary)
+        try:
+            self._kg_emit(
+                "cr_collapse_export",
+                {
+                    "container_id": container.get("id"),
+                    "has_encrypted_blob": bool(container.get("encrypted_glyph_data")),
+                    "has_beams": bool(container.get("qwave_beams")),
+                    "has_collapse_meta": bool(container.get("collapse_metadata")),
+                },
+                tags=["cr", "collapse"],
+            )
+        except Exception:
+            pass
+    # ─────────────────────────────────────────────
+    # Internal taps: KG emit + Microgrid register
+    # ─────────────────────────────────────────────
+    def _kg_emit(self, glyph_type: str, content: dict, *, tags: list[str] | None = None):
+        """Best-effort journaling to KG; never breaks runtime."""
+        if not kg_writer:
+            return
+        try:
+            if hasattr(kg_writer, "inject_glyph"):
+                kg_writer.inject_glyph(
+                    content=content,
+                    glyph_type=glyph_type,
+                    metadata={"container_id": content.get("container_id") or self.state_manager.get_current_container().get("id")},
+                    tags=tags or ["cr"],
+                    agent_id="container_runtime",
+                )
+            elif hasattr(kg_writer, "write_glyph_entry"):
+                import time, uuid
+                entry = {
+                    "id": f"cr_{uuid.uuid4().hex}",
+                    "type": glyph_type,
+                    "content": content,
+                    "timestamp": time.time(),
+                    "metadata": {"container_id": content.get("container_id"), "tags": tags or ["cr"]},
+                    "tags": tags or ["cr"],
+                    "agent_id": "container_runtime",
+                }
+                kg_writer.write_glyph_entry(entry)
+        except Exception:
+            pass  # never block runtime
+
+    def _mg_register(self, x: int, y: int, z: int, *, glyph: str, meta: dict | None = None):
+        """HUD blip via global MicrogridIndex (16×16×16 window)."""
+        if not _CR_MICROGRID:
+            return
+        try:
+            _CR_MICROGRID.register_glyph(
+                x % 16, y % 16, z % 16,
+                glyph=str(glyph),
+                layer=None,  # ContainerRuntime coords are 3D
+                metadata={
+                    "type": (meta or {}).get("type", "cr"),
+                    "tags": (meta or {}).get("tags", []),
+                    "container": getattr(self, "active_container_id", None),
+                },
+            )
+        except Exception:
+            pass
+
     def fork_entangled_path(self, container: Dict[str, Any], coord: str, glyph: str):
         original_name = container.get("id", "default")
         entangled_id = f"{original_name}_entangled"
@@ -723,6 +978,21 @@ class ContainerRuntime:
             # ✅ Sync to UCS runtime (register updated container state)
             self.ucs.save_container(target_container["id"], target_container)
             print(f"🛰️ GlyphPush replay loaded and UCS-synced for container: {target_container.get('id')}")
+            # 🧭 tap
+            try:
+                self._kg_emit(
+                    "cr_teleport_load",
+                    {
+                        "container_id": target_container.get("id"),
+                        "portal_id": packet.portal_id,
+                        "source": packet.source,
+                        "snapshot_id": getattr(packet, "snapshot_id", None),
+                        "timestamp": packet.timestamp,
+                    },
+                    tags=["cr","teleport"],
+                )
+            except Exception:
+                pass
 
         except Exception as e:
             print(f"❌ Failed to load GlyphPush packet: {e}")

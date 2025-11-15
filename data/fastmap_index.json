@@ -1,0 +1,41 @@
+{
+  "entries": {
+    "cross_links": {
+      "topic_vector": [],
+      "active_links": [],
+      "collapsed_state": "expanded",
+      "last_update": "2025-11-15T20:17:02.894563",
+      "state_flags": [],
+      "keywords": [],
+      "ancestry": [],
+      "ghx_hint": "\u21af Symbolic Container Overview",
+      "layout_type": "grid",
+      "hover_summary": "Container: cross_links"
+    },
+    "ucs_hub": {
+      "topic_vector": [],
+      "active_links": [],
+      "collapsed_state": "expanded",
+      "last_update": "2025-11-15T20:17:02.893497",
+      "state_flags": [],
+      "keywords": [],
+      "ancestry": [],
+      "ghx_hint": "\u21af Symbolic Container Overview",
+      "layout_type": "grid",
+      "hover_summary": "Container: ucs_hub"
+    },
+    "tesseract_hq": {
+      "topic_vector": [],
+      "active_links": [],
+      "collapsed_state": "expanded",
+      "last_update": "2025-11-15T20:17:02.894148",
+      "state_flags": [],
+      "keywords": [],
+      "ancestry": [],
+      "ghx_hint": "\u21af Symbolic Container Overview",
+      "layout_type": "grid",
+      "hover_summary": "Container: tesseract_hq"
+    }
+  },
+  "inverse_index": {}
+}

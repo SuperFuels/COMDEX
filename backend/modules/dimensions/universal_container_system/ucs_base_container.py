@@ -64,7 +64,7 @@ class UCSBaseContainer:
         self.name = name
         self.geometry = geometry
         self.runtime = runtime
-        self.container_type = container_type  # ✅ Add this line
+        self.container_type = container_type
 
         self.features = {**UCSBaseContainer.global_features, **(features or {})}
 
@@ -72,6 +72,7 @@ class UCSBaseContainer:
         self.micro_grid = MicroGrid() if self.features.get("micro_grid", True) else None
         self.glyph_storage = []  # Glyph storage abstraction (default: Cube)
         self.state = "idle"
+        self.metadata: Dict[str, Any] = {}  
 
         # ✅ Ensure time dilation & gravity are always initialized
         self.time_dilation = 1.0 if self.features.get("time_dilation", True) else None
@@ -119,6 +120,24 @@ class UCSBaseContainer:
             raise RuntimeError(f"❌ Micro-grid not initialized in {self.name}")
         self.micro_grid.place(glyph, x, y, z)
         print(f"📦 Glyph placed at ({x},{y},{z}) in {self.name}")
+
+        # --- Optional: Microgrid HUD registration (best-effort; no impact on core flow)
+        try:
+            from backend.modules.glyphos.microgrid_index import MicrogridIndex
+            MG = getattr(MicrogridIndex, "_GLOBAL", None) or MicrogridIndex()
+            MicrogridIndex._GLOBAL = MG
+            MG.register_glyph(
+                int(x) % 16, int(y) % 16, int(z) % 16,
+                glyph=str(glyph),
+                metadata={
+                    "type": "glyph",
+                    "container": getattr(self, "id", None) or self.name,
+                    "tags": ["ucs_base", "place_glyph"],
+                    "energy": 1.0,
+                },
+            )
+        except Exception:
+            pass
 
     # ---------------------------------------------------------
     # ⏳ Time Dilation

@@ -122,7 +122,9 @@ class SymbolicExpansionContainer(UCSBaseContainer):
             "micro_grid": self.micro_grid.serialize() if self.micro_grid else None,
         }
 
-        # ✅ Inject GHX + Hoberman overlay metadata (K9a upgrade)
+        # ✅ Ensure metadata exists, then inject GHX + Hoberman overlay metadata (K9a)
+        if not hasattr(self, "metadata") or not isinstance(self, dict) and not isinstance(getattr(self, "metadata", None), dict):
+            self.metadata = {}
         self.metadata["hoberman_state"] = {
             "state": "expanded",
             "pulse_level": self.calculate_pulse_level()

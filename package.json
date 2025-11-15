@@ -5,13 +5,16 @@
   "scripts": {
     "build": "cd frontend && next build",
     "start": "cd frontend && next start -p 3000",
-    "dev": "concurrently \"cd frontend && next dev\" \"npm run collab\"",
+    "dev": "concurrently \"cd frontend && next dev\" \"npm run collab\" \"npm run kg\"",
     "collab": "ts-node --transpile-only -P tsconfig.collab.json server/collab-server.ts",
     "lint": "cd frontend && next lint",
-    "preview": "npm run build && npm run start"
+    "preview": "npm run build && npm run start",
+    "kg": "ts-node --transpile-only -P server/tsconfig.json server/kg.ts",
+    "dev:server": "ts-node -P server/tsconfig.json server/kg.ts",
+    "build:server": "tsc -p server/tsconfig.json",
+    "start:server": "node server/dist/kg.js"
   },
   "dependencies": {
-    "3d-force-graph": "^1.73.0",
     "@heroicons/react": "^2.2.0",
     "@monaco-editor/react": "^4.7.0",
     "@radix-ui/react-scroll-area": "^1.2.10",
@@ -22,9 +25,12 @@
     "@react-three/fiber": "8.15.16",
     "@tailwindcss/forms": "^0.5.10",
     "@typescript-eslint/visitor-keys": "8.34.0",
+    "3d-force-graph": "^1.73.0",
     "axios": "^1.13.1",
+    "better-sqlite3": "^12.4.1",
     "concurrently": "^8.2.2",
     "dotenv": "^17.2.0",
+    "express": "^5.1.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.0",
     "jspdf": "^3.0.3",
@@ -40,6 +46,7 @@
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "react-pdf": "^10.1.0",
+    "react-router-dom": "^6.30.2",
     "react-select": "^5.10.2",
     "react-split": "^2.0.14",
     "recharts": "^3.2.1",
@@ -51,16 +58,20 @@
     "yjs": "^13.6.27"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/express": "^5.0.5",
+    "@types/node": "^24.10.1",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/three": "^0.181.0",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18.18"
   }
 }
-

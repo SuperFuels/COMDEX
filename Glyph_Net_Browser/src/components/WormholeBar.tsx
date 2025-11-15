@@ -1,150 +1,140 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
+import { classifyAddress } from "@/lib/nav/parse";
 
 type Mode = "wormhole" | "http";
+type NavArg = string | { mode: Mode; address: string };
 
-export default function WormholeBar(props: {
-  onNavigate: (t: { mode: Mode; address: string }) => void;
-}) {
+export default function WormholeBar({ onNavigate }: { onNavigate: (arg: NavArg) => void }) {
   const [mode, setMode] = useState<Mode>("wormhole");
-  const [value, setValue] = useState("");
+  const ref = useRef<HTMLInputElement>(null);
 
   const placeholder = useMemo(
-    () =>
-      mode === "wormhole"
-        ? "nike  •  partner.home  •  kevin.tp"
-        : "www.wikipedia.org",
+    () => (mode === "wormhole" ? "nike • partner.home • kevin.tp" : "www.wikipedia.org"),
     [mode]
   );
 
-  function normalizeWormhole(input: string): string {
-    let v = input.trim();
-    v = v.replace(/^🌀/u, "");         // strip emoji if pasted
-    if (!/\.tp$/i.test(v)) v = `${v}.tp`; // ensure .tp
-    return `🌀${v}`;                   // canonical display
-  }
-
-  function toContainerId(input: string): string {
-    // produce bare id used by #/container/<id>
-    let v = input.trim();
-    v = v.replace(/^🌀/u, "");
-    v = v.replace(/\.tp$/i, "");
-    return v;
-  }
-
-  function normalizeHttp(input: string): string {
-    const v = input.trim();
+  const ensureHttp = (v: string) => {
     if (/^https?:\/\//i.test(v)) return v;
     if (v.startsWith("www.")) return `https://${v}`;
-    if (v.includes(".")) return `https://${v}`;
-    return `https://www.google.com/search?q=${encodeURIComponent(v)}`;
-  }
+    return `https://${v}`;
+  };
 
-  function inferModeFromValue(v: string): Mode {
-    const s = v.trim();
-    if (/^https?:\/\//i.test(s) || s.startsWith("www.") || s.includes("."))
-      return "http";
-    return "wormhole";
-  }
+  const normWormhole = (v: string) => {
+    let name = v.trim().replace(/^♾️/u, "").toLowerCase();
+    if (!/\.tp$/i.test(name)) name = `${name}.tp`;
+    return name;
+  };
 
-  function go() {
-    if (!value.trim()) return;
+  const go = () => {
+    const raw = (ref.current?.value || "").trim();
+    if (!raw) return;
 
-    if (mode === "wormhole") {
-      const addr = normalizeWormhole(value);   // 🌀name.tp
-      const cid = toContainerId(addr);         // name
-
-      // keep original callback contract
-      props.onNavigate({ mode, address: addr });
-
-      // 🔗 drive the SPA directly
-      window.location.hash = `#/container/${encodeURIComponent(cid)}`;
-
-      // 📣 notify any listeners that rely on the event
-      const reply = { to: cid, name: `${cid}.tp` };
-      window.dispatchEvent(
-        new CustomEvent("wormhole:resolved", { detail: reply })
-      );
-    } else {
-      const url = normalizeHttp(value);
-      props.onNavigate({ mode, address: url });
-      // You can also navigate immediately if desired:
-      // window.location.href = url;
+    // First: always allow direct container ids / aliases regardless of toggle
+    const guess = classifyAddress(raw);
+    if (guess.kind === "container") {
+      window.location.hash = `#/container/${encodeURIComponent(guess.target)}`;
+      return;
     }
-  }
+
+    // Respect the explicit mode for http vs wormhole
+    if (mode === "http") {
+      onNavigate({ mode: "http", address: ensureHttp(raw) });
+      return;
+    }
+
+    // Wormhole mode
+    onNavigate({ mode: "wormhole", address: normWormhole(raw) });
+  };
+
+  // QoL auto-switch:
+  // - http(s)://… or www.… → http mode
+  // - plain domain like example.com (but not *.tp) → http mode
+  const handleChange = (v: string) => {
+    const s = v.trim();
+    if (/^https?:\/\//i.test(s) || s.startsWith("www.")) {
+      if (mode !== "http") setMode("http");
+      return;
+    }
+    if (/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(s) && !/\.tp$/i.test(s)) {
+      if (mode !== "http") setMode("http");
+      return;
+    }
+  };
 
   return (
     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-      {/* Mode toggle pill */}
+      {/* Mode toggle: ♾️ Multiverse | 🌐 Web */}
       <div
         role="group"
-        aria-label="Transport mode"
+        aria-label="Address mode"
         style={{
           display: "inline-flex",
-          border: "1px solid #cbd5e1",
+          border: "1px solid #e5e7eb",
           borderRadius: 999,
           overflow: "hidden",
+          background: "#fff",
         }}
       >
         <button
           onClick={() => setMode("wormhole")}
-          title="Wormhole (🌀)"
+          title="Multiverse (wormhole)"
           style={{
+            minWidth: 38,
             padding: "6px 10px",
             border: "none",
             cursor: "pointer",
             background: mode === "wormhole" ? "#111827" : "transparent",
             color: mode === "wormhole" ? "#fff" : "#111827",
+            fontWeight: 600,
           }}
         >
-          🌀
+          ♾️
         </button>
         <button
           onClick={() => setMode("http")}
-          title="Legacy Web (www)"
+          title="Web (www)"
           style={{
+            minWidth: 38,
             padding: "6px 10px",
             border: "none",
             cursor: "pointer",
             background: mode === "http" ? "#111827" : "transparent",
             color: mode === "http" ? "#fff" : "#111827",
+            fontWeight: 600,
           }}
         >
-          www
+          🌐
         </button>
       </div>
 
+      {/* Address input */}
       <input
-        value={value}
-        onChange={(e) => {
-          const v = e.target.value;
-          setValue(v);
-          // QoL: auto-switch to http if user types http/www
-          const inferred = inferModeFromValue(v);
-          if (inferred !== mode && (v.startsWith("http") || v.startsWith("www."))) {
-            setMode(inferred);
-          }
-        }}
+        ref={ref}
         placeholder={placeholder}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") go();
-        }}
+        onChange={(e) => handleChange(e.target.value)}
+        onKeyDown={(e) => (e.key === "Enter" ? go() : undefined)}
+        spellCheck={false}
         style={{
           flex: 1,
+          minWidth: 0,
           padding: "8px 12px",
           borderRadius: 8,
           border: "1px solid #cbd5e1",
           outline: "none",
+          background: "#fff",
         }}
       />
+
       <button
         onClick={go}
         style={{
           padding: "8px 14px",
           borderRadius: 8,
-          background: "#111827",
+          background: "#0f172a",
           color: "#fff",
           border: "none",
           cursor: "pointer",
+          fontWeight: 600,
         }}
       >
         Go

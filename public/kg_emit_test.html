@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>KG Emit Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 32px auto; }
+    fieldset { border: 1px solid #ddd; padding: 12px; margin: 0 0 16px; }
+    label { display: block; font-size: 12px; color: #555; margin: 8px 0 4px; }
+    input, textarea, select, button { width: 100%; padding: 8px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .muted { color: #777; font-size: 12px; }
+    .ok { color: #106a10; }
+    .err { color: #9b1c1c; }
+    .log { background: #fafafa; border: 1px solid #eee; padding: 8px; min-height: 48px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+  <script src="/js/kg_emit.js"></script>
+</head>
+<body>
+  <h1>KG Emit Test</h1>
+  <p class="muted">
+    This page emits <b>message(text)</b> and <b>visit(page/dwell)</b> events to <code>/api/kg/events</code>.
+    Keep this open for dwell tracking; closing the tab sends the final dwell update.
+  </p>
+
+  <form id="cfg">
+    <fieldset>
+      <legend>Context</legend>
+      <div class="row">
+        <div>
+          <label>Graph (kg)</label>
+          <select id="kg">
+            <option value="personal" selected>personal</option>
+            <option value="work">work</option>
+          </select>
+        </div>
+        <div>
+          <label>Owner WA</label>
+          <input id="ownerWa" value="kevin@wave.tp" />
+        </div>
+      </div>
+      <label>Topic WA (thread)</label>
+      <input id="topicWa" value="ucs://local/ucs_hub" />
+    </fieldset>
+  </form>
+
+  <form id="sendTextForm">
+    <fieldset>
+      <legend>A39: Send Text → message(text)</legend>
+      <label>Text</label>
+      <textarea id="text" rows="3" placeholder="Type something and hit Send…">hello from the browser</textarea>
+      <button id="sendBtn" type="submit">Send to KG</button>
+      <div id="sendResult" class="log"></div>
+    </fieldset>
+  </form>
+
+  <fieldset>
+    <legend>A45/A46: Router Visit (resolve + dwell)</legend>
+    <p class="muted">
+      A page-visit (<code>visit/page</code>) is emitted on load and on URL changes; a dwell update
+      (<code>visit/dwell</code>) is emitted on tab hide/unload. You don’t need to click anything here.
+    </p>
+    <div id="visitLog" class="log"></div>
+  </fieldset>
+
+  <script>
+    (function () {
+      const apiBase = ""; // same-origin backend
+      const kgEl = document.getElementById("kg");
+      const ownerEl = document.getElementById("ownerWa");
+      const topicEl = document.getElementById("topicWa");
+
+      // Initialize visit hooks (A45/A46)
+      const visitUI = document.getElementById("visitLog");
+      const { onResolve, onDwell } = KGEmit.initVisitEmitters({
+        apiBase,
+        kg: kgEl.value,
+        ownerWa: ownerEl.value,
+        topicWa: topicEl.value,
+        getUri: () => location.href,
+        getTitle: () => document.title
+      });
+      visitUI.textContent = "visit/page emitted on load; dwell will emit on hide/unload.";
+
+      // Allow changing context live
+      function rebindVisitHooks() {
+        // There isn't an unbind, so just emit a fresh resolve with the new context
+        KGEmit.postKgEvents(apiBase, kgEl.value, ownerEl.value, [{
+          type: "visit",
+          kind: "page",
+          ts: Date.now(),
+          thread_id: KGEmit.makeThreadId(kgEl.value, topicEl.value),
+          topic_wa: topicEl.value,
+          payload: { uri: location.href, title: document.title, host: location.host }
+        }]).catch(()=>{});
+      }
+      kgEl.addEventListener("change", rebindVisitHooks);
+      ownerEl.addEventListener("change", rebindVisitHooks);
+      topicEl.addEventListener("change", rebindVisitHooks);
+
+      // A39: sendText() emitter
+      const form = document.getElementById("sendTextForm");
+      const out = document.getElementById("sendResult");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const kg = kgEl.value.trim();
+        const ownerWa = ownerEl.value.trim();
+        const topicWa = topicEl.value.trim();
+        const text = document.getElementById("text").value;
+
+        out.textContent = "Sending…";
+        try {
+          const resp = await KGEmit.emitTextToKG({ apiBase, kg, ownerWa, topicWa, text });
+          out.innerHTML = `<span class="ok">OK</span> ${JSON.stringify(resp)}`;
+        } catch (err) {
+          out.innerHTML = `<span class="err">ERR</span> ${String(err)}`;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

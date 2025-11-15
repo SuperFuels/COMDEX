@@ -8,6 +8,7 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import crypto from "crypto";
+import { fileURLToPath } from "url";
 
 dotenv.config({ path: path.join(process.cwd(), ".env.local") });
 dotenv.config(); // fallback to .env if present
@@ -19,6 +20,9 @@ try { YAML = require("yaml"); } catch { /* optional */ }
 // ───────────────────────────────────────────────────────────────
 // Base64 → bytes
 const b64ToU8 = (b64: string) => new Uint8Array(Buffer.from(b64, "base64"));
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
 
 // String <-> bytes helpers
 const u8ToStr = (u8: Uint8Array) => new TextDecoder().decode(u8);
@@ -70,6 +74,7 @@ const REQUIRE_BRIDGE_SIG =
 const RF_SERIAL_DEV  = process.env.RF_SERIAL_DEV || "";
 const RF_SERIAL_BAUD = Number(process.env.RF_SERIAL_BAUD || 115200);
 
+// --- Serial Link (optional) -------------------------------------
 let serialDriverRegistered = false;
 
 type SerialState = {
@@ -78,7 +83,11 @@ type SerialState = {
   up: boolean;
   reconnectTimer: NodeJS.Timeout | null;
 };
+
 const serialState: SerialState = { port: null, rl: null, up: false, reconnectTimer: null };
+
+// Stable driver id (sanitize path so it’s safe to print)
+const serialDriverId = `serial:${RF_SERIAL_DEV.replace(/[^\w.-]/g, "_")}`;
 
 function onSerialLine(line: string) {
   const s = (line || "").trim();
@@ -90,10 +99,12 @@ function onSerialLine(line: string) {
   if (s.startsWith("{")) {
     try {
       const j = JSON.parse(s);
-      if (typeof j.topic === "string")      topic = j.topic;
-      if (typeof j.bytes_b64 === "string")  b64   = j.bytes_b64;
+      if (typeof j.topic === "string") topic = j.topic;
+      if (typeof j.bytes_b64 === "string") b64 = j.bytes_b64;
       else if (typeof j.data_b64 === "string") b64 = j.data_b64;
-    } catch { /* fall back to plain b64 */ }
+    } catch {
+      // fall back to plain Base64
+    }
   }
 
   if (!b64) return;
@@ -105,76 +116,121 @@ function onSerialLine(line: string) {
   }
 }
 
-function connectSerial(delayMs = 0) {
+async function tryOpenSerial(): Promise<void> {
   if (!RF_SERIAL_DEV) return;
+
+  // If the device path doesn't exist yet, trigger backoff instead of crashing
+  if (!fs.existsSync(RF_SERIAL_DEV)) {
+    throw new Error(`${RF_SERIAL_DEV} not present`);
+  }
+
+  // ESM-safe lazy imports
+  const spMod: any = await import("serialport");
+  const rlMod: any = await import("node:readline");
+
+  const SerialPort =
+    spMod?.SerialPort ??
+    spMod?.default?.SerialPort ??
+    spMod?.default;
+
+  if (!SerialPort) {
+    throw new Error('"serialport" module did not expose SerialPort');
+  }
+
+  const port = new SerialPort({
+    path: RF_SERIAL_DEV,
+    baudRate: RF_SERIAL_BAUD,
+    autoOpen: false, // attach listeners before opening
+  });
+
+  serialState.port = port;
+
+  const scheduleReconnect = (why: string, backoff = 1000) => {
+    if (serialState.reconnectTimer) {
+      clearTimeout(serialState.reconnectTimer);
+      serialState.reconnectTimer = null;
+    }
+    try { serialState.rl?.removeAllListeners?.(); serialState.rl?.close?.(); } catch {}
+    try { port.removeAllListeners?.(); port.close?.(); } catch {}
+    serialState.rl = null;
+    serialState.port = null;
+    serialState.up = false;
+
+    const next = Math.min(backoff * 2, 15_000);
+    console.warn(`[rf][serial] ${why}; retrying in ${next}ms`);
+    serialState.reconnectTimer = setTimeout(() => connectSerial(next), next);
+  };
+
+  port.on("open", () => {
+    serialState.up = true;
+    console.log(`[rf][serial] up @ ${RF_SERIAL_DEV} ${RF_SERIAL_BAUD}bps`);
+
+    // Opportunistic: if a real link is up, stop using the mock driver
+    if (AUTO_DISABLE_MOCK_ON_REAL_LINK && mockCfg.enabled) {
+      mockCfg.enabled = false;
+      console.log("[rf][mock] disabled (real serial link is up)");
+    }
+
+    try { drainOutboxViaDrivers(); } catch {}
+
+    // Create line reader only once the port is open
+    const rl = rlMod.createInterface({ input: port as any });
+    serialState.rl = rl;
+    rl.on("line", onSerialLine);
+  });
+
+  port.on("error", (err: any) => scheduleReconnect(`error: ${err?.message || err}`));
+  port.on("close", () => scheduleReconnect("closed"));
+
+  port.open((err?: any) => {
+    if (err) scheduleReconnect(`open failed: ${err?.message || err}`);
+  });
+}
+
+function connectSerial(initialDelay = 0) {
+  if (!RF_SERIAL_DEV) return;
+
   if (serialState.reconnectTimer) {
     clearTimeout(serialState.reconnectTimer);
     serialState.reconnectTimer = null;
   }
 
-  const attempt = async () => {
+  const attempt = async (delay: number) => {
     try {
-      const { SerialPort } = await import("serialport");
-      const port = new SerialPort({ path: RF_SERIAL_DEV, baudRate: RF_SERIAL_BAUD });
-      serialState.port = port;
-
-      const { createInterface } = await import("readline");
-      const rl = createInterface({ input: port });
-      serialState.rl = rl;
-
-      rl.on("line", onSerialLine);
-
-      port.on("open", () => {
-        serialState.up = true;
-        console.log(`[rf][serial] up @ ${RF_SERIAL_DEV} ${RF_SERIAL_BAUD}bps`);
-        try { drainOutboxViaDrivers(); } catch {}
-      });
-
-      const scheduleReconnect = (why: string, backoff = 1000) => {
-        if (serialState.rl) {
-          try { serialState.rl.removeAllListeners(); serialState.rl.close?.(); } catch {}
-          serialState.rl = null;
-        }
-        if (serialState.port) {
-          try { serialState.port.removeAllListeners(); serialState.port.close?.(); } catch {}
-          serialState.port = null;
-        }
-        serialState.up = false;
-        const nextDelay = Math.min(backoff * 2, 15000);
-        console.warn(`[rf][serial] ${why}; retrying in ${nextDelay}ms`);
-        serialState.reconnectTimer = setTimeout(() => connectSerial(nextDelay), nextDelay);
-      };
-
-      port.on("error", (err: any) => scheduleReconnect(`error: ${err?.message || err}`));
-      port.on("close", () => scheduleReconnect("closed"));
+      await tryOpenSerial();
     } catch (err: any) {
       const msg = err?.message || String(err);
-      console.warn(`[rf][serial] init failed: ${msg}; retrying in ${delayMs || 2000}ms`);
-      const nextDelay = Math.min(delayMs ? delayMs * 2 : 2000, 15000);
-      serialState.reconnectTimer = setTimeout(() => connectSerial(nextDelay), nextDelay);
+      const next = Math.min(delay ? delay * 2 : 2000, 15_000);
+      console.warn(`[rf][serial] init failed: ${msg}; retrying in ${next}ms`);
+      serialState.reconnectTimer = setTimeout(() => attempt(next), next);
     }
   };
 
-  attempt();
+  if (initialDelay > 0) {
+    serialState.reconnectTimer = setTimeout(() => attempt(initialDelay), initialDelay);
+  } else {
+    attempt(0);
+  }
 }
 
 function ensureSerialDriverRegistered() {
   if (serialDriverRegistered || !RF_SERIAL_DEV) return;
 
+  // Register driver once; connection state is managed by connectSerial()
   registerDriver({
-    id: `serial:${RF_SERIAL_DEV.replace(/[^\w.-]/g, "_")}`,
+    id: serialDriverId,
     kind: "serial",
     sendB64: (b64: string) => {
-      const p = serialState.port;
+      const p: any = serialState.port;
       if (!p || !serialState.up) return false;
       try { p.write(b64 + "\n"); return true; } catch { return false; }
     },
-    isUp: () => serialState.up,
+    isUp: () => !!serialState.up,
     stats: () => ({ rfOutbox: rfOutbox.length }),
   });
 
   serialDriverRegistered = true;
-  connectSerial(); // try now; will auto-retry if socat/USB isn’t up yet
+  connectSerial(0);
 }
 
 /** Validate X-Bridge-Sig: "v1,<tsMs>,<hmacHex>" where hmac = HMAC_SHA256(token, `ws-bridge|${tsMs}`) */
@@ -240,6 +296,20 @@ function secureEqHex(aHex: string, bHex: string): boolean {
   } catch { return false; }
 }
 
+// --- Session ticket HMAC (optional, dev works without) ----------------
+function verifySessionTicket(wa: string, slug: string, ticket: string): boolean {
+  try {
+    const secret = process.env.SESSION_HMAC_SECRET || "";
+    if (!secret) return true; // dev mode: accept without ticket
+    const [v, tsStr, macHex] = String(ticket || "").split(",");
+    if (v !== "v1") return false;
+    const ts = Number(tsStr);
+    if (!Number.isFinite(ts) || Math.abs(Date.now() - ts) > 5 * 60_000) return false; // 5 min
+    const want = crypto.createHmac("sha256", secret).update(`${ts}|${wa}|${slug}`).digest("hex");
+    return secureEq(want, macHex);
+  } catch { return false; }
+}
+
 const BRIDGE_SIG_TOLERANCE_MS =
   Number(process.env.RADIO_BRIDGE_SIG_TOLERANCE_MS ?? 2 * 60_000);
 // ───────────────────────────────────────────────────────────────
@@ -256,10 +326,97 @@ const RN_QUEUE_MAX_ITEMS = Number(process.env.RN_QUEUE_MAX_ITEMS ?? 2000);
 const RN_QUEUE_MAX_BYTES = Number(process.env.RN_QUEUE_MAX_BYTES ?? 100 * 1024 * 1024); // 100 MB
 const RN_QUEUE_TTL_MS    = Number(process.env.RN_QUEUE_TTL_MS ?? 7 * 24 * 3600 * 1000); // 7 days
 
+// Auto-disable mock when a real link (serial/ws-bridge) comes up
+const AUTO_DISABLE_MOCK_ON_REAL_LINK =
+  String(process.env.AUTO_DISABLE_MOCK_ON_REAL_LINK ?? "1") === "1";
+
 function ensureDir(p: string) { try { fs.mkdirSync(p, { recursive: true }); } catch {} }
 ensureDir(RF_SPOOL_DIR);
 ensureDir(RN_SPOOL_DIR);
 
+// ── Containers bootstrap (paths + helpers + static mapping)
+// Files will be created under: radio-node/public/containers/<user>/...
+const CONTAINERS_ROOT = path.join(process.cwd(), "public", "containers");
+ensureDir(CONTAINERS_ROOT);
+
+function writeJson(filePath: string, obj: any) {
+  fs.writeFileSync(filePath, JSON.stringify(obj, null, 2) + "\n", "utf8");
+}
+
+function slugFromWa(wa: string): string {
+  const name = String(wa).split("@")[0] || wa;
+  return name.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
+}
+
+function homeTemplate(wa: string, user: string) {
+  return {
+    id: `${user}__home`,
+    type: "container",
+    meta: { title: `${user} — HQ`, ownerWA: wa, graph: "personal" },
+    glyphs: [],
+    dimensions: []
+  };
+}
+
+function kgTemplate(wa: string, user: string, graph: "personal" | "work") {
+  return {
+    id: `${user}__kg_${graph}`,
+    type: "container",
+    meta: { title: `KG • ${user} (${graph})`, ownerWA: wa, graph, kind: "kg" },
+    glyphs: [],
+    dimensions: []
+  };
+}
+
+// --- Containers: static + ID→file mapping (ORDER MATTERS) -----
+export function registerContainerStaticRoutes(app: express.Express) {
+  const root = CONTAINERS_ROOT;
+
+  // 1) ID → file mapping FIRST
+  app.get(
+    ["/containers/:id.json", "/containers/:id/manifest.json"],
+    (req: Request, res: Response) => {
+      const id = String(req.params.id || "");
+      const tries: string[] = [];
+
+      // direct file: /containers/<id>.json
+      tries.push(path.join(root, `${id}.json`));
+
+      // split form "<user>__home|kg_personal|kg_work"
+      if (id.includes("__")) {
+        const [user, rest] = id.split("__");
+        const fname =
+          rest === "home"        ? "home.json" :
+          rest === "kg_personal" ? "kg_personal.json" :
+          rest === "kg_work"     ? "kg_work.json" : "";
+
+        if (fname) tries.push(path.join(root, user, fname));
+      }
+
+      for (const p of tries) {
+        if (fs.existsSync(p)) {
+          res.setHeader("Content-Type", "application/json; charset=utf-8");
+          return res.send(fs.readFileSync(p, "utf8"));
+        }
+      }
+      return res.status(404).json({ ok: false, error: "container manifest not found", id, tried: tries });
+    }
+  );
+
+  // 2) Raw static AFTER (so folder paths like /containers/kevin/home.json work)
+  app.use(
+    "/containers",
+    express.static(root, {
+      index: false,
+      fallthrough: true,
+      setHeaders: (res, servedPath) => {
+        if (String(servedPath).endsWith(".json")) {
+          res.setHeader("Content-Type", "application/json; charset=utf-8");
+        }
+      },
+    })
+  );
+}
 // ───────────────────────────────────────────────────────────────
 // Config
 const PORT = Number(process.env.PORT || 8787);
@@ -306,9 +463,11 @@ const seen = new Map<string, number>(); // key: `${topic}#${seq}` => ts
 function rxKey(topic: string, seq: number) { return `${topic}#${seq}`; }
 
 function rememberRX(topic: string, seq: number) {
+  // ⛔ do not persist control:* (e.g., control:beacon) — avoids file explosion
+  if (String(topic).startsWith("control:")) return;
+
   const key = rxKey(topic, seq);
   seen.set(key, Date.now());
-  // write a tiny marker file so we reload on boot
   try {
     fs.writeFileSync(
       path.join(RF_RX_DIR, `${encodeURIComponent(key)}.json`),
@@ -460,8 +619,8 @@ const DEFAULT_PROFILES: Record<string, BandProfile> = {
   "ISM-2.4":{ MTU: 200, RATE_HZ: 20 },
 };
 
-const PROFILE_FILE = process.env.BAND_PROFILE_FILE
-  || path.join(__dirname, "band_profile.yml");
+const PROFILE_FILE =
+  process.env.BAND_PROFILE_FILE || path.join(__dirname, "band_profile.yml");
 
 function loadProfiles(): Record<string, BandProfile> {
   try {
@@ -618,14 +777,14 @@ function decodeFrame(u8: Uint8Array): {
 
 /** Reusable inbound RF processor (used by WS bridge, mock driver, and dev injector). */
 function processInboundRF(topic: string, bytes: Uint8Array, seq?: number, ua?: string) {
-  // De-dupe if a seq is supplied
-  if (typeof seq === "number") {
+  // De-dupe if a seq is supplied (but skip control:* from persistence)
+  if (typeof seq === "number" && !String(topic).startsWith("control:")) {
     const key = `${topic}#${seq}`;
     if (seen.has(key)) return;
     rememberRX(topic, seq);
   }
 
-  // Discovery beacons: update neighbor table; do not fanout as messages
+  // Discovery beacons: ...
   if (topic === "control:beacon") {
     try {
       const j = JSON.parse(u8ToStr(bytes));
@@ -819,7 +978,7 @@ setInterval(async () => {
 // ───────────────────────────────────────────────────────────────
 // HTTP server
 const app = express();
-
+registerContainerStaticRoutes(app);
 /** DEBUG: confirm this file is the one running */
 console.log("[radio-node] registering /bridge/transports route");
 
@@ -942,9 +1101,8 @@ app.get("/discovery/neighbors", (_req, res) => {
   res.json({ ok: true, ttl_ms: NEIGHBOR_TTL_MS, neighbors: currentNeighbors() });
 });
 
-// --- GHX container info (local stub) -----------------------------
-// supports both /api/container/:id and /api/containers/:id
-app.get(["/api/container/:id", "/api/containers/:id"], (req, res) => {
+// supports /api/aion/container/:id too (UI calls this)
+app.get(["/api/aion/container/:id", "/api/container/:id", "/api/containers/:id"], (req, res) => {
   const id = String(req.params.id || "").trim();
   if (!id) return res.status(400).json({ ok: false, error: "missing id" });
 
@@ -955,7 +1113,7 @@ app.get(["/api/container/:id", "/api/containers/:id"], (req, res) => {
     createdAt: Date.now(),
     topic: `ucs://local/${id}`,
     graph: "personal",
-    ws: `/ws/ghx?id=${encodeURIComponent(id)}`, // what the page will try to open
+    ws: `/ws/ghx?id=${encodeURIComponent(id)}`, // what the page will open
   });
 });
 
@@ -1150,6 +1308,143 @@ if (QKD_AGENT) {
   });
 }
 
+// Availability check: ?wa=kevin@wave.tp
+app.get("/api/name/check", (req, res) => {
+  const wa = String(req.query.wa || "").trim();
+  if (!wa || !wa.includes("@")) return res.status(400).json({ ok: false, error: "invalid wa" });
+  const user = slugFromWa(wa);
+  const exists = fs.existsSync(path.join(CONTAINERS_ROOT, user));
+  res.json({ ok: true, wa, user, available: !exists });
+});
+
+// Bootstrap per-user container files
+// body: { wa: "kevin@wave.tp" } (optional { user: "kevin", allowReinit: true })
+app.post("/api/containers/bootstrap", (req, res) => {
+  const wa = String(req.body?.wa || "").trim();
+  let user = String(req.body?.user || "").trim();
+  if (!wa || !wa.includes("@")) return res.status(400).json({ ok: false, error: "invalid wa" });
+  if (!user) user = slugFromWa(wa);
+  user = slugFromWa(user);
+
+  const userDir = path.join(CONTAINERS_ROOT, user);
+  const already = fs.existsSync(userDir);
+  if (already && !req.body?.allowReinit) {
+    return res.status(409).json({ ok: false, error: "user already exists", user, dir: `/containers/${user}/` });
+  }
+
+  ensureDir(userDir);
+  ensureDir(path.join(userDir, "shared"));
+
+  const homePath = path.join(userDir, "home.json");
+  const perPath  = path.join(userDir, "kg_personal.json");
+  const workPath = path.join(userDir, "kg_work.json");
+  const indexPath = path.join(userDir, "index.json");
+
+  writeJson(homePath, homeTemplate(wa, user));
+  writeJson(perPath,  kgTemplate(wa, user, "personal"));
+  writeJson(workPath, kgTemplate(wa, user, "work"));
+  writeJson(indexPath, {
+    user, wa,
+    home: `${user}__home`,
+    personal: `${user}__kg_personal`,
+    work: `${user}__kg_work`,
+    shared: []
+  });
+
+  res.json({
+    ok: true, user, wa,
+    containers: {
+      home: `${user}__home`,
+      personal: `${user}__kg_personal`,
+      work: `${user}__kg_work`,
+    },
+    staticPaths: {
+      home:  `/containers/${user}/home.json`,
+      personal: `/containers/${user}/kg_personal.json`,
+      work: `/containers/${user}/kg_work.json`,
+      index: `/containers/${user}/index.json`,
+    },
+    openHashes: [
+      `#/container/${user}__home`,
+      `#/container/${user}__kg_personal`,
+      `#/container/${user}__kg_work`,
+    ],
+  });
+});
+
+// --- Local session for the browser (in-memory) -----------------------
+type Session = { wa: string; slug: string; ts: number; token?: string | null };
+let currentSession: Session | null = null;
+
+app.get("/api/session/me", (_req, res) => {
+  res.json({ ok: true, session: currentSession });
+});
+
+app.post("/api/session/clear", (_req, res) => {
+  currentSession = null;
+  res.json({ ok: true });
+});
+
+/** Attach a website login to the local browser runtime.
+ *  body: { wa, slug, token?, ticket? }
+ *  - If SESSION_HMAC_SECRET is set, a ticket "v1,<tsMs>,<hmac>" is required and verified.
+ *  - Always ensures /public/containers/<slug>/* exist (home, personal, work, index).
+ */
+app.post("/api/session/attach", (req, res) => {
+  const wa   = String(req.body?.wa || "").trim();        // e.g. "kevin@wave.tp"
+  const slug = String(req.body?.slug || "").trim();      // e.g. "kevin"
+  const token  = (req.body?.token ?? null) as string | null;
+  const ticket = String(req.body?.ticket || "");
+
+  if (!wa || !wa.includes("@") || !slug) {
+    return res.status(400).json({ ok: false, error: "invalid wa/slug" });
+  }
+  if (!verifySessionTicket(wa, slug, ticket)) {
+    return res.status(401).json({ ok: false, error: "bad ticket" });
+  }
+
+  currentSession = { wa, slug, token, ts: Date.now() };
+
+  // Ensure manifests exist
+  const dir       = path.join(CONTAINERS_ROOT, slug);
+  const homePath  = path.join(dir, "home.json");
+  const perPath   = path.join(dir, "kg_personal.json");
+  const workPath  = path.join(dir, "kg_work.json");
+  const indexPath = path.join(dir, "index.json");
+
+  ensureDir(dir);
+  ensureDir(path.join(dir, "shared"));
+
+  if (!fs.existsSync(homePath)) writeJson(homePath, homeTemplate(wa, slug));
+  if (!fs.existsSync(perPath))  writeJson(perPath,  kgTemplate(wa, slug, "personal"));
+  if (!fs.existsSync(workPath)) writeJson(workPath, kgTemplate(wa, slug, "work"));
+  if (!fs.existsSync(indexPath)) {
+    writeJson(indexPath, {
+      user: slug, wa,
+      home:     `${slug}__home`,
+      personal: `${slug}__kg_personal`,
+      work:     `${slug}__kg_work`,
+      shared: [],
+    });
+  }
+
+  return res.json({
+    ok: true,
+    session: currentSession,
+    containers: {
+      home:     `${slug}__home`,
+      personal: `${slug}__kg_personal`,
+      work:     `${slug}__kg_work`,
+    },
+    staticPaths: {
+      home:  `/containers/${slug}/home.json`,
+      personal: `/containers/${slug}/kg_personal.json`,
+      work: `/containers/${slug}/kg_work.json`,
+      index:`/containers/${slug}/index.json`,
+    },
+  });
+});
+
 // ───────────────────────────────────────────────────────────────
 // HTTP server + explicit WS upgrade mux
 const server = http.createServer(app);
@@ -1297,9 +1592,14 @@ wssRF.on("connection", (ws, req) => {
     return;
   }
 
+  // Single-active-bridge policy handled above...
   activeBridge = ws;
   ensureWSBridgeDriverRegistered();
-  ensureSerialDriverRegistered(); 
+  ensureSerialDriverRegistered();
+  if (AUTO_DISABLE_MOCK_ON_REAL_LINK && mockCfg.enabled) {
+    mockCfg.enabled = false;
+    console.log("[rf][mock] disabled (ws-bridge is up)");
+  }
   drainOutboxViaDrivers?.();
 
   try { ws.send(JSON.stringify({ type: "hello", mtu: ACTIVE.MTU, rate_hz: ACTIVE.RATE_HZ })); } catch {}
@@ -1310,17 +1610,44 @@ wssRF.on("connection", (ws, req) => {
 
   ws.on("message", (data: Buffer) => {
     let msg: any;
-    try { msg = JSON.parse(String(data)); } catch { return; }
-
-    if (msg?.type === "rx" && typeof msg.topic === "string" && typeof msg.bytes_b64 === "string") {
-      let bytes: Uint8Array;
-      try { bytes = b64ToU8(msg.bytes_b64); } catch { return; }
-      processInboundRF(msg.topic, bytes, typeof msg.seq === "number" ? msg.seq : undefined, ua);
+    try { msg = JSON.parse(String(data)); } catch {
+      // Opportunistic drain: a peer is around → try shipping any pending frames
+      try { pushRFOutboxToBridge(); } catch {}
       return;
     }
+
+    if (
+      msg?.type === "rx" &&
+      typeof msg.topic === "string" &&
+      typeof msg.bytes_b64 === "string"
+    ) {
+      let bytes: Uint8Array;
+      try { bytes = b64ToU8(msg.bytes_b64); } catch {
+        // Opportunistic drain even if decode fails
+        try { pushRFOutboxToBridge(); } catch {}
+        return;
+      }
+      processInboundRF(
+        msg.topic,
+        bytes,
+        typeof msg.seq === "number" ? msg.seq : undefined,
+        ua
+      );
+
+      // Opportunistic drain after processing inbound RF
+      try { pushRFOutboxToBridge(); } catch {}
+      return;
+    }
+
     if (msg?.type === "ping") {
       try { ws.send(JSON.stringify({ type: "pong", ts: now() })); } catch {}
+      // Opportunistic drain on ping, too
+      try { pushRFOutboxToBridge(); } catch {}
+      return;
     }
+
+    // Any other message: still opportunistically drain
+    try { pushRFOutboxToBridge(); } catch {}
   });
 
   ws.on("close", () => { clearInterval(ka); if (activeBridge === ws) activeBridge = null; });

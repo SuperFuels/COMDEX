@@ -150,7 +150,7 @@ computing meaning through light.  Once bridged, data never returns to binary sub
 it lives, evolves, and computes as coherent photonic intelligence.
 
 ──────────────────────────────────────────────────────────────────────────────
-Tessaris Research Group — CodexCore Initiative
+Tessaris Ai Limited
 October 2025
 ──────────────────────────────────────────────────────────────────────────────
 % =====================================================================

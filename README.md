@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Browser phase 11"
+git commit -m "browsaer knowledge graph v1"
 git push origin main
 
 

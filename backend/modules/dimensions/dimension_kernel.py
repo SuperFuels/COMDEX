@@ -3,9 +3,9 @@ Dimension Kernel: 4D Runtime Control System
 Powers runtime logic, space expansion, cube interaction, dynamic glyph routing, and symbolic-quantum execution.
 """
 
-import random
 import uuid
 import logging
+import time
 
 from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
 from backend.modules.teleport.teleport_packet import TeleportPacket
@@ -18,6 +18,19 @@ try:
 except Exception:  # pragma: no cover
     def connect_container_to_hub(*_a, **_k):
         pass
+
+# ✅ KG writer + Microgrid singleton (best-effort)
+try:
+    from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
+except Exception:  # pragma: no cover
+    kg_writer = None
+
+try:
+    from backend.modules.glyphos.microgrid_index import MicrogridIndex
+    MICROGRID = getattr(MicrogridIndex, "_GLOBAL", None) or MicrogridIndex()
+    MicrogridIndex._GLOBAL = MICROGRID
+except Exception:  # pragma: no cover
+    MICROGRID = None
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +48,7 @@ class DimensionKernel:
         else:
             self.quantum_core = None
 
-        # ✅ NEW: Register this kernel as a container-like node in the HQ graph (idempotent)
+        # ✅ Register kernel as a container-like node in the HQ graph (idempotent)
         try:
             doc = {
                 "id": self.container_id,
@@ -47,6 +60,64 @@ class DimensionKernel:
             connect_container_to_hub(doc)  # safe no-op if helper is stubbed
         except Exception as e:
             logger.debug(f"[DimensionKernel] connect_container_to_hub skipped: {e}")
+
+    # ─────────────────────────────────────────────
+    # Internal taps: KG emit + Microgrid register
+    # ─────────────────────────────────────────────
+    def _kg_emit(self, glyph_type, content, *, tags=None):
+        """
+        Best-effort KG journaling for DK events. This feeds:
+        - glyph_grid (live KG),
+        - SQLite ledger via kg_writer._write_to_container(),
+        - Microgrid HUD (because _write_to_container has the tap).
+        """
+        if not kg_writer:
+            return
+        try:
+            # prefer an explicit API if present
+            if hasattr(kg_writer, "inject_glyph"):
+                kg_writer.inject_glyph(
+                    content=content,
+                    glyph_type=glyph_type,
+                    metadata={"container_id": self.container_id},
+                    tags=tags or ["dk"],
+                    agent_id="dimension_kernel",
+                )
+            elif hasattr(kg_writer, "write_glyph_entry"):
+                entry = {
+                    "id": f"dk_{uuid.uuid4().hex}",
+                    "type": glyph_type,
+                    "content": content,
+                    "timestamp": time.time(),
+                    "metadata": {"container_id": self.container_id, "tags": tags or ["dk"]},
+                    "tags": tags or ["dk"],
+                    "agent_id": "dimension_kernel",
+                }
+                kg_writer.write_glyph_entry(entry)
+        except Exception:
+            # never break runtime on telemetry
+            pass
+
+    def _mg_register(self, x, y, z, t, glyph, meta=None):
+        """Register a visual blip for HUDs (small 16×16×16 window by modulo)."""
+        if not MICROGRID:
+            return
+        try:
+            MICROGRID.register_glyph(
+                x % 16, y % 16, z % 16,
+                glyph=str(glyph),
+                layer=int(t) if t is not None else None,
+                metadata={
+                    "type": (meta or {}).get("type", "dk"),
+                    "tags": (meta or {}).get("tags", []),
+                    "energy": (meta or {}).get("energy", 1.0),
+                    "container": self.container_id,
+                },
+            )
+        except Exception:
+            pass
+
+    # ─────────────────────────────────────────────
 
     def register_cube(self, x, y, z, t=0, metadata=None):
         key = (x, y, z, t)
@@ -62,6 +133,17 @@ class DimensionKernel:
             qbit = self.quantum_core.generate_qbit(glyph, coord=f"{x},{y},{z},{t}")
             self.cubes[key]["metadata"]["qbit"] = qbit
 
+        # 🧭 taps
+        try:
+            self._kg_emit(
+                "dk_register_cube",
+                {"event": "register_cube", "pos": {"x": x, "y": y, "z": z, "t": t}},
+                tags=["dk", "cube"],
+            )
+            self._mg_register(x, y, z, t, glyph=f"cube@{x},{y},{z},{t}", meta={"type": "cube", "tags": ["dk", "cube"]})
+        except Exception:
+            pass
+
     def mark_avatar_location(self, avatar_id, position):
         self.avatar_positions[avatar_id] = dict(position)
         key = (position["x"], position["y"], position["z"], position["t"])
@@ -74,6 +156,17 @@ class DimensionKernel:
         if key not in self.cubes:
             self.register_cube(x, y, z, t)
         self.cubes[key]["glyphs"].append(glyph)
+
+        # 🧭 taps
+        try:
+            self._kg_emit(
+                "dk_place_glyph",
+                {"event": "place_glyph", "pos": {"x": x, "y": y, "z": z, "t": t}, "glyph": glyph},
+                tags=["dk", "glyph"],
+            )
+            self._mg_register(x, y, z, t, glyph=str(glyph), meta={"type": "glyph", "tags": ["dk", "glyph"]})
+        except Exception:
+            pass
 
     def get_glyph_at(self, x, y, z, t):
         key = (x, y, z, t)
@@ -95,6 +188,18 @@ class DimensionKernel:
         if key not in self.cubes:
             self.register_cube(x, y, z, t)
         self.cubes[key]["metadata"]["event"] = event
+
+        # 🧭 taps
+        try:
+            self._kg_emit(
+                "dk_event",
+                {"event": event, "pos": {"x": x, "y": y, "z": z, "t": t}},
+                tags=["dk", "event"],
+            )
+            self._mg_register(x, y, z, t, glyph=f"evt:{event}", meta={"type": "event", "tags": ["dk", "event"]})
+        except Exception:
+            pass
+
         return f"⚡ Event '{event}' stored."
 
     def scan_area(self, x, y, z, t, radius=1):
@@ -138,6 +243,17 @@ class DimensionKernel:
                             "action": "teleport_dispatch",
                             "portal_id": portal_id
                         })
+                        # 🧭 taps
+                        try:
+                            x, y, z, t = key
+                            self._kg_emit(
+                                "dk_teleport_dispatch",
+                                {"event": "teleport_dispatch", "portal_id": portal_id, "pos": {"x": x, "y": y, "z": z, "t": t}},
+                                tags=["dk", "teleport"],
+                            )
+                            self._mg_register(x, y, z, t, glyph=f"tp:{portal_id}", meta={"type": "teleport", "tags": ["dk", "teleport"]})
+                        except Exception:
+                            pass
 
                 elif "->" in glyph:
                     parts = glyph.split("->")
@@ -150,6 +266,16 @@ class DimensionKernel:
                                 "trigger": trigger,
                                 "action": action
                             })
+                            # 🧭 taps
+                            try:
+                                x, y, z, t = key
+                                self._kg_emit(
+                                    "dk_action_trigger",
+                                    {"event": "action_trigger", "trigger": trigger, "action": action, "pos": {"x": x, "y": y, "z": z, "t": t}},
+                                    tags=["dk", "rule"],
+                                )
+                            except Exception:
+                                pass
         return actions_triggered
 
     def collapse_all_qbits(self):
@@ -166,6 +292,17 @@ class DimensionKernel:
                     "location": key,
                     "collapsed_to": collapsed["collapsed"]
                 })
+                # 🧭 taps
+                try:
+                    x, y, z, t = key
+                    self._kg_emit(
+                        "dk_qbit_collapse",
+                        {"event": "qbit_collapse", "pos": {"x": x, "y": y, "z": z, "t": t}, "to": collapsed["collapsed"]},
+                        tags=["dk", "qbit"],
+                    )
+                    self._mg_register(x, y, z, t, glyph=f"⧖:{collapsed['collapsed']}", meta={"type": "qbit", "tags": ["dk", "qbit", "collapse"]})
+                except Exception:
+                    pass
         return results
 
     def get_active_region(self):
@@ -178,11 +315,20 @@ class DimensionKernel:
         if self.physics == "symbolic-quantum":
             self.collapse_all_qbits()
 
-        return {
+        snapshot = {
             "tick": self.runtime_ticks,
             "active_cubes": len(self.get_active_region()),
             "glyph_actions": glyph_actions
         }
+
+        # 🧭 taps (every 10 ticks to keep noise down)
+        try:
+            if self.runtime_ticks % 10 == 0:
+                self._kg_emit("dk_tick", {"event": "tick", "snapshot": snapshot}, tags=["dk", "tick"])
+        except Exception:
+            pass
+
+        return snapshot
 
     def expand(self, axis="z", amount=1):
         for key in list(self.cubes.keys()):
@@ -196,6 +342,13 @@ class DimensionKernel:
                     self.register_cube(x, y + i, z, t)
                 elif axis == "t":
                     self.register_cube(x, y, z, t + i)
+
+        # 🧭 taps
+        try:
+            self._kg_emit("dk_expand", {"event": "expand", "axis": axis, "amount": amount}, tags=["dk", "expand"])
+        except Exception:
+            pass
+
         return f"Expanded {axis} by {amount} units."
 
     def dump_snapshot(self):

@@ -23,6 +23,8 @@ import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple, List
 from collections import defaultdict
+import logging
+logger = logging.getLogger(__name__)
 
 try:
     # preferred path resolver
@@ -102,6 +104,15 @@ def _safe_emit(coro_or_none):
     except Exception:
         # Don't let telemetry break core writes
         pass
+
+import hashlib  # add if not already imported
+
+def _h16(s: str) -> int:
+    """
+    Deterministic 0..15 bucket using BLAKE2b(16-bit).
+    Stable across processes (unlike Python's built-in hash).
+    """
+    return int(hashlib.blake2b(s.encode("utf-8"), digest_size=2).hexdigest(), 16) % 16
 
 # ──────────────────────────────
 # CRDT & Entanglement Lock Registry
@@ -333,8 +344,8 @@ class KnowledgeGraphWriter:
         Return the bound container if set, otherwise fall back to UCS active container.
         """
         if self._container is None:
-            from backend.modules.dimensions.universal_container_system import ucs_runtime
-            self._container = ucs_runtime.get_active_container()
+                from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
+                self._container = ucs_runtime.get_active_container()
         return self._container
         
     def validate_knowledge_graph(self) -> Dict[str, Any]:
@@ -366,8 +377,9 @@ class KnowledgeGraphWriter:
         """
         # HOV1: bake hover/collapse GHX flags into the container meta
         container = bake_hologram_meta(dict(container or {}))
+
         # --- K9b: Hover Geometry Metadata + Entanglement Links ---
-        metadata = container.get("metadata", {})
+        metadata = container.get("metadata", {}) or {}
 
         # Hover summary and GHX hint (used in HUD overlays)
         metadata.setdefault("hover_summary", f"Container: {container.get('id', 'unknown')}")
@@ -387,15 +399,18 @@ class KnowledgeGraphWriter:
 
         # Save metadata back into container
         container["metadata"] = metadata
+
+        # ✅ Use the top-level sqi_fastmap import if available; no re-imports
         try:
-            from backend.modules.knowledge_graph.registry.sqi_fastmap_index import sqi_fastmap
-            sqi_fastmap.add_or_update_entry(
-                container_id=container["id"],
-                topic_vector=metadata.get("topics", []),
-                metadata=metadata
-            )
+            if 'sqi_fastmap' in globals() and hasattr(sqi_fastmap, "add_or_update_entry"):
+                sqi_fastmap.add_or_update_entry(
+                    container_id=container.get("id"),
+                    topic_vector=metadata.get("topics", []),
+                    metadata=metadata,
+                )
         except Exception as e:
             print(f"⚠️ Failed to update SQI FastMap for {container.get('id')}: {e}")
+
         # HOV2/HOV3: build a KG node payload with GHX viz flags and lazy expansion
         return make_kg_payload(
             {
@@ -462,23 +477,31 @@ class KnowledgeGraphWriter:
         so it can be reloaded without recomputing. Also appends UCS/SQI containers
         as collapsed KG nodes with HOV1-HOV3 flags baked.
 
-        This version is aware of inject_node()'s 'kg_node' insertion shape so
-        it will always export the latest injected KG nodes without recomputation.
+        This merged version ALSO injects QWave beams into the container prior to export
+        (preserving the behavior from the simpler export_pack variant).
         """
-        # --- Defensive copy and HOV1-HOV3 injection for the primary container ---
-        container = bake_hologram_meta(dict(container or {}))  # HOV1 flags
 
-        # --- K9b: Hover Geometry Metadata + Entanglement Links ---
+        # --- 0) Inject QWave beams prior to building the pack (from the simple version) ---
+        try:
+            container_id = container.get("id")
+            if container_id:
+                # uses top-level imports if you already have them; otherwise import here:
+                # from backend.modules.glyphwave.qwave.qwave_writer import collect_qwave_beams, export_qwave_beams
+                beams = collect_qwave_beams(container_id)
+                export_qwave_beams(container, beams, context={"frame": "mutated"})
+                print(f"📡 Injected {len(beams)} QWave beams into container during KG export.")
+        except Exception as e:
+            print(f"⚠️ Failed to inject QWave beams in KG export: {e}")
+
+        # --- 1) Defensive copy + bake HOV flags (HOV1) ---
+        container = bake_hologram_meta(dict(container or {}))
+
+        # --- 2) K9b: Hover Geometry Metadata + Entanglement Links ---
         metadata = container.get("metadata", {})
-
-        # Hover summary and GHX hint (used in HUD overlays)
         metadata.setdefault("hover_summary", f"Container: {container.get('id', 'unknown')}")
         metadata.setdefault("ghx_hint", "↯ Symbolic Container Overview")
-
-        # Geometry layout type: used in GHX/Atom/Hoberman visuals
         metadata.setdefault("layout_type", container.get("geometry_type", "grid"))
 
-        # Entangled links (↔ overlay anchors)
         if "entangled_links" not in metadata:
             linked = []
             for glyph in container.get("glyphs", []):
@@ -487,23 +510,21 @@ class KnowledgeGraphWriter:
                     linked.extend(entangled if isinstance(entangled, list) else [entangled])
             metadata["entangled_links"] = sorted(set(linked))
 
-        # --- K9a: GHX/Hoberman Overlay Fields ---
+        # --- 3) K9a: GHX/Hoberman overlay fields ---
         metadata.setdefault("ghx_mode", "hologram")
         metadata.setdefault("overlay_layers", [])
 
-        # If container has atoms or orbitals, set layout_type and overlays
-        if "atom" in container.get("id", "").lower():
+        cid_lower = (container.get("id") or "").lower()
+        if "atom" in cid_lower:
             metadata["layout_type"] = "atom"
             metadata["ghx_mode"] = "shell"
             metadata["overlay_layers"].append("electron_rings")
-
-        # Hoberman-specific override
-        elif any("hoberman" in tag.lower() for tag in container.get("tags", [])):
+        elif any(isinstance(t, str) and "hoberman" in t.lower() for t in container.get("tags", [])):
             metadata["layout_type"] = "hoberman"
             metadata["ghx_mode"] = "expanding_sphere"
             metadata["overlay_layers"].append("symbolic_expansion")
 
-        # Add linkPreview from glyphs (electrons or entangled anchors)
+        # Link previews from glyphs (if present)
         link_previews = []
         for g in container.get("glyphs", []):
             preview_id = g.get("linkContainerId")
@@ -512,16 +533,12 @@ class KnowledgeGraphWriter:
         if link_previews:
             metadata["linkPreview"] = sorted(link_previews)
 
-        # Save metadata back into container
         container["metadata"] = metadata
 
-        # --- Build collapsed KG node for main container ---
-        kg_node = self.build_node_from_container_for_kg(       # HOV2/HOV3
-            container,
-            expand=False                                        # collapsed by default
-        )
+        # --- 4) Build collapsed KG node for the main container (HOV2/HOV3) ---
+        kg_node = self.build_node_from_container_for_kg(container, expand=False)
 
-        # --- Extract KG nodes/edges from glyph_grid ---
+        # --- 5) Extract nodes/edges from glyph_grid ---
         cg = container.get("glyph_grid", [])
         nodes = []
         edges = []
@@ -547,7 +564,7 @@ class KnowledgeGraphWriter:
             "links": edges,
         }
 
-        # --- Merge our primary container KG node (dedupe by id) ---
+        # --- 6) Merge main container node (dedupe by id) ---
         existing_nodes = pack.get("nodes", [])
         idset = {n.get("id") for n in existing_nodes if isinstance(n, dict)}
         if kg_node.get("id") in idset:
@@ -556,23 +573,26 @@ class KnowledgeGraphWriter:
         existing_nodes.insert(0, {"type": "kg_node", **kg_node})
         idset.add(kg_node.get("id"))
 
-        # --- Collect UCS containers as extra KG nodes (collapsed/lazy by default) ---
+        # --- 7) Collect UCS containers as extra KG nodes (collapsed/lazy by default) ---
         try:
-            from backend.modules.dimensions.universal_container_system import ucs_runtime
+            from backend.modules.dimensions.universal_container_system.ucs_runtime import ucs_runtime
             ucs_ids = []
-            if hasattr(ucs_runtime, "list_containers"):
-                ucs_ids = ucs_runtime.list_containers()
-            elif hasattr(ucs_runtime, "registry"):
-                ucs_ids = list(getattr(ucs_runtime, "registry", {}).keys())
+            try:
+                if hasattr(ucs_runtime, "list_containers"):
+                    ucs_ids = ucs_runtime.list_containers()
+                elif hasattr(ucs_runtime, "registry"):
+                    ucs_ids = list(getattr(ucs_runtime, "registry", {}).keys())
+                elif hasattr(ucs_runtime, "containers"):
+                    ucs_ids = list(getattr(ucs_runtime, "containers", {}).keys())
+            except Exception:
+                ucs_ids = []
 
-            for cid in ucs_ids or []:
+            for ucid in ucs_ids or []:
                 try:
                     if hasattr(ucs_runtime, "get_container"):
-                        uc = ucs_runtime.get_container(cid)
-                    elif hasattr(ucs_runtime, "index"):
-                        uc = ucs_runtime.index.get(cid)
-                    elif hasattr(ucs_runtime, "registry"):
-                        uc = ucs_runtime.registry.get(cid)
+                        uc = ucs_runtime.get_container(ucid)
+                    elif hasattr(ucs_runtime, "containers"):
+                        uc = ucs_runtime.containers.get(ucid)
                     else:
                         uc = None
                     if not uc:
@@ -586,56 +606,59 @@ class KnowledgeGraphWriter:
                         existing_nodes.append({"type": "kg_node", **node})
                         idset.add(nid)
                 except Exception as e:
-                    print(f"⚠️ Skipped UCS container '{cid}': {e}")
+                    print(f"⚠️ Skipped UCS container '{ucid}': {e}")
         except Exception as e:
             print(f"⚠️ UCS runtime not available for KG export: {e}")
 
-        # --- Collect SQI registry containers as extra KG nodes (collapsed) ---
+        # --- 8) Collect SQI registry containers as extra KG nodes (collapsed) ---
         try:
-            from backend.modules.sqi.sqi_container_registry import _registry_register
-            for cid, entry in (sqi_registry.index or {}).items():
+            from backend.modules.sqi.sqi_container_registry import SQIContainerRegistry
+            _sqi_registry = SQIContainerRegistry()
+            for rcid, entry in (_sqi_registry.index or {}).items():
                 try:
-                    node = make_kg_payload({"id": cid, "meta": entry.get("meta", {})}, expand=False)
+                    node = make_kg_payload({"id": rcid, "meta": entry.get("meta", {})}, expand=False)
                     nid = node.get("id")
                     if nid and nid not in idset:
                         existing_nodes.append({"type": "kg_node", **node})
                         idset.add(nid)
                 except Exception as e:
-                    print(f"⚠️ Skipped SQI registry entry '{cid}': {e}")
+                    print(f"⚠️ Skipped SQI registry entry '{rcid}': {e}")
         except Exception:
             pass  # Fine if registry is not available
 
         # Final assignment
         pack["nodes"] = existing_nodes
 
-        # --- Inject QWave beam data if available ---
-        if "qwave" in container:
+        # --- 9) Copy QWave summary into pack if present on the container ---
+        if isinstance(container.get("qwave"), dict):
             qwave = container["qwave"]
-            if isinstance(qwave, dict):
-                beams = qwave.get("beams")
-                mod = qwave.get("modulation_strategy")
-                mv_frame = qwave.get("multiverse_frame")
-                if beams:
-                    pack["qwave"] = {
-                        "beams": beams,
-                        "modulation_strategy": mod,
-                        "multiverse_frame": mv_frame
-                    }
+            beams = qwave.get("beams")
+            mod = qwave.get("modulation_strategy")
+            mv_frame = qwave.get("multiverse_frame")
+            if beams:
+                pack["qwave"] = {
+                    "beams": beams,
+                    "modulation_strategy": mod,
+                    "multiverse_frame": mv_frame,
+                }
 
-        # --- Write pack to disk ---
+        # --- 10) Write pack to disk ---
         out_path = Path(out_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(out_path, "w") as f:
+        with open(out_path, "w", encoding="utf-8") as f:
             json.dump(pack, f, indent=2)
 
         print(f"💾 KG export saved to {out_path}")
+
+        # Optional WS notify (use lazy helper + _safe_emit defined above)
         if ENABLE_WS_BROADCAST:
-            _safe_emit(broadcast_event({
+            _safe_emit(lazy_broadcast_event({
                 "type": "kg_update",
-                "domain": "physics_core",
+                "domain": container.get("domain") or "physics_core",
                 "file": str(out_path),
-                "status": "saved"
+                "status": "saved",
             }))
+
         return str(out_path)
 
     def inject_prediction_trace(container: dict, prediction_result: dict, *, origin: str = "prediction") -> None:
@@ -892,6 +915,22 @@ class KnowledgeGraphWriter:
             if trace: entry["trace_ref"] = trace
             if anchor: entry["anchor"] = anchor
 
+            # Auto: if this glyph declares entanglement with other containers,
+            # write entanglement edges (best-effort; never block)
+            try:
+                ent_ids = (entry.get("metadata") or {}).get("entangled_ids") or []
+                if ent_ids:
+                    this_cid = (entry.get("metadata") or {}).get("container_id") \
+                               or (self.container.get("id") if self.container else None)
+                    if this_cid:
+                        for other in ent_ids:
+                            try:
+                                self.write_entanglement_entry(this_cid, other)
+                            except Exception:
+                                pass
+            except Exception:
+                pass
+
             self._write_to_container(entry)
             add_to_index("knowledge_index.glyph", entry)
 
@@ -1061,7 +1100,8 @@ class KnowledgeGraphWriter:
                                  plugin=plugin, region=region, coordinates=coords)
 
     # ── KG node/edge helpers ──
-    def add_node(self, node_id: str, label: str, meta: Optional[Dict[str, Any]] = None):
+    # was: def add_node(self, node_id: str, label: str, meta: Optional[Dict[str, Any]] = None):
+    def add_node_glyph(self, node_id: str, label: str, meta: Optional[Dict[str, Any]] = None):
         return self.inject_glyph(
             content=f"KGNode:{node_id} label={label}",
             glyph_type="kg_node",
@@ -1091,24 +1131,74 @@ class KnowledgeGraphWriter:
             plugin="KG"
         )
 
+        # --- ABOUT edge: ContainerRef → Thread/Topic -----------------------------
+    def add_about_edge(
+        self,
+        container_id: str | None = None,
+        *,
+        thread_id: str | None = None,
+        topic_wa: str | None = None,
+    ):
+        """
+        Emit ABOUT(ContainerRef→Thread|Topic) as a kg_edge.
+        - If thread_id is not provided, derive from {kg, topic_wa} using the same
+          scheme as ledger journaling: "kg:{kg}:{topic_wa}".
+        - topic_wa falls back to container.meta.topic or "ucs://local/ucs_hub".
+        """
+        meta = (self.container or {}).get("meta", {}) or {}
+        kg = (meta.get("graph") or "personal").lower()
+        if kg not in ("personal", "work"):
+            kg = "personal"
+
+        topic_wa = (topic_wa or meta.get("topic") or "ucs://local/ucs_hub").strip()
+        thread_id = thread_id or f"kg:{kg}:{topic_wa}"
+        src = container_id or (self.container.get("id") if self.container else None)
+        if not src:
+            raise RuntimeError("add_about_edge: missing container_id and no bound container")
+
+        # Record as a KG edge with relation 'about'
+        # Keep both thread_id + topic_wa in metadata for easier client hydration
+        return self.inject_glyph(
+            content=f"KGEdge:{src}->{thread_id} rel=about",
+            glyph_type="kg_edge",
+            metadata={
+                "from": src,
+                "to": thread_id,
+                "relation": "about",
+                "topic_wa": topic_wa,
+            },
+            plugin="KG"
+        )
+
+    # --- Entangled fork convenience -----------------------------------------
+    def on_entangled_fork(
+        self,
+        parent_container_id: str,
+        fork_container_id: str,
+        *,
+        topic_wa: str | None = None,
+    ):
+        """
+        Called by fork/clone codepaths when a container splits (entangled branch).
+        - Writes an 'entanglement' edge between parent ↔ fork
+        - Adds ABOUT edge for the new fork to its thread
+        """
+        try:
+            self.write_entanglement_entry(parent_container_id, fork_container_id)
+        except Exception as e:
+            print(f"[KGWriter] ⚠️ entanglement entry failed: {e}")
+
+        try:
+            self.add_about_edge(fork_container_id, topic_wa=topic_wa)
+        except Exception as e:
+            print(f"[KGWriter] ⚠️ ABOUT edge failed: {e}")
+
     def add_edge(self, src: str, dst: str, relation: str):
         self.write_link_entry(src, dst, relation)
         return self.inject_glyph(
             content=f"KGEdge:{src}->{dst} rel={relation}",
             glyph_type="kg_edge",
             metadata={"from": src, "to": dst, "relation": relation},
-            plugin="KG"
-        )
-
-    def add_source(self, node_id: str, source: dict):
-        """
-        Attach or update source metadata for a given KG node by emitting a kg_source glyph.
-        source = {"tier": "primary|secondary|tertiary", "ref": "doi/url", "notes": "..."}
-        """
-        return self.inject_glyph(
-            content=f"KGSource:{node_id}",
-            glyph_type="kg_source",
-            metadata={"node_id": node_id, **(source or {})},
             plugin="KG"
         )
 
@@ -1160,44 +1250,6 @@ class KnowledgeGraphWriter:
             print(f"⚠️ KG auto-export failed for {container_id}: {e}")
 
         return True  
-
-    def export_pack(self, container: dict, out_path: str):
-        # ⬇️ Inject QWave Beams into glyph_grid
-        try:
-            container_id = container.get("id")
-            if container_id:
-                from backend.modules.glyphwave.qwave.qwave_writer import collect_qwave_beams, export_qwave_beams
-                beams = collect_qwave_beams(container_id)
-                export_qwave_beams(container, beams, context={"frame": "mutated"})
-                print(f"📡 Injected {len(beams)} QWave beams into container during KG export.")
-        except Exception as e:
-            print(f"⚠️ Failed to inject QWave beams in KGWriter: {e}")
-
-        # Continue with glyph grid export
-        nodes = [g for g in container.get("glyph_grid", []) if g.get("type") == "kg_node"]
-        edges = [g for g in container.get("glyph_grid", []) if g.get("type") == "kg_edge"]
-
-        pack = {
-            "id": container.get("id"),
-            "name": container.get("name"),
-            "symbol": container.get("symbol", "❔"),
-            "glyph_categories": container.get("glyph_categories", []),
-            "nodes": [n["metadata"] | {"type": "kg_node"} for n in nodes if "metadata" in n],
-            "links": [
-                {
-                    "src": e["metadata"]["from"],
-                    "dst": e["metadata"]["to"],
-                    "relation": e["metadata"]["relation"]
-                }
-                for e in edges if "metadata" in e
-            ],
-        }
-
-        import json, os
-        os.makedirs(os.path.dirname(out_path), exist_ok=True)
-        with open(out_path, "w") as f:
-            json.dump(pack, f, indent=2)
-        return out_path
 
     # ── New: Proof/Drift/Harmonics helpers (Stage C/D integration) ──
     def write_proof_state(self,
@@ -1310,11 +1362,88 @@ class KnowledgeGraphWriter:
         if content.startswith("Harmonics:"): tags.append("harmonics")
         return tags
 
+    from backend.modules.knowledge_graph.ledger_adapter import log_events, make_event
+
     def _write_to_container(self, entry: Dict[str, Any]):
+        # Ensure container structures exist
         if "glyph_grid" not in self.container:
             self.container["glyph_grid"] = []
         self.container["glyph_grid"].append(entry)
-        self.container["last_updated"] = datetime.datetime.utcnow().isoformat()
+
+        import datetime as _dt  # local to keep this paste self-contained
+        self.container["last_updated"] = _dt.datetime.utcnow().isoformat()
+
+        # --- Namespace-aware journal to ledger (best-effort; never break live KG)
+        try:
+            import time as _time
+
+            meta = self.container.get("meta") or {}
+
+            kg = (meta.get("graph") or "personal").lower()
+            if kg not in ("personal", "work"):
+                kg = "personal"
+
+            owner = (meta.get("ownerWA") or "").strip() or "unknown@wave.tp"
+            topic_wa = (meta.get("topic") or "").strip() or "ucs://local/ucs_hub"
+            thread_id = f"kg:{kg}:{topic_wa}"
+
+            # map glyph -> event “type/kind”
+            gtype   = entry.get("type") or "glyph"
+            content = entry.get("content")
+            kind    = content.get("type") if isinstance(content, dict) else None
+
+            ev = make_event(
+                type="message" if gtype in ("message", "self_reflection", "predictive", "glyph") else gtype,
+                kind=kind or gtype,                 # keep signal about sub-type
+                thread_id=thread_id,
+                topic_wa=topic_wa,
+                payload={
+                    "glyph_id": entry.get("id"),
+                    "glyph_type": gtype,
+                    "content": content,
+                    "metadata": entry.get("metadata"),
+                    "tags": entry.get("tags"),
+                    "agent_id": entry.get("agent_id"),
+                    "version_vector": entry.get("version_vector"),
+                },
+                ts_ms=int(entry.get("timestamp") or _time.time() * 1000),
+                id=entry.get("id"),                 # idempotency: reuse glyph id
+            )
+            log_events(kg=kg, owner=owner, events=[ev])
+        except Exception:
+            # Never let ledger errors break KG writes
+            pass
+
+        # --- Microgrid tap (HUD registration; best-effort, deterministic coords)
+        try:
+            from backend.modules.glyphos.microgrid_index import MicrogridIndex
+            import hashlib as _hashlib
+
+            # Simple singleton per process
+            MICROGRID = getattr(MicrogridIndex, "_GLOBAL", None) or MicrogridIndex()
+            MicrogridIndex._GLOBAL = MICROGRID
+
+            # Deterministic small-grid coords (0..15) using stable hash (BLAKE2b 16-bit)
+            def _h16(s: str) -> int:
+                return int(_hashlib.blake2b((s or "").encode("utf-8"), digest_size=2).hexdigest(), 16) % 16
+
+            cx = _h16(str(entry.get("id", "")))
+            cy = _h16(str(entry.get("type", "")))
+            cz = 0  # single layer for now
+
+            MICROGRID.register_glyph(
+                cx, cy, cz,
+                glyph=str(entry.get("id", "")),
+                metadata={
+                    "type": entry.get("type"),
+                    "tags": entry.get("tags", []) or [],
+                    "energy": 1.0,
+                    "timestamp": entry.get("timestamp"),
+                }
+            )
+        except Exception:
+            # HUD plumbing must never impact core writes
+            pass
 
     # ── Optional: Simple query helpers for dashboards ──
     def list_by_tag(self, tag: str) -> List[Dict[str, Any]]:
@@ -1453,9 +1582,10 @@ def write_glyph_entry(
 
     # ✅ Broadcast anchor update if present
     if anchor:
-        create_task(lazy_broadcast_anchor_update(glyph, anchor))
+        _safe_emit(lazy_broadcast_anchor_update(glyph, anchor))
 
     return entry  # <-- Ensure function return stays intact
+
 def get_glyph_trace_for_container(container_id: str) -> list:
     """
     Retrieve the symbolic glyph trace from a container by its ID.
@@ -1524,28 +1654,61 @@ def write_glyph_event(
 
 # === [A2a] Export QWave Beams for Container ===
 
-def export_qwave_beams(container: dict, beams: list, context: dict = None):
-    """
-    Injects QWave beams into the container under the symbolic export section.
-    """
-    if "symbolic" not in container:
-        container["symbolic"] = {}
+# --- QWave compatibility (place near top imports) ---
+try:
+    # Canonical beam APIs live here
+    from backend.modules.glyphwave.qwave.qwave_writer import (
+        collect_qwave_beams as _qwave_collect_impl,
+        export_qwave_beams as _qwave_export_impl,
+    )
+except Exception:
+    _qwave_collect_impl = None
+    _qwave_export_impl = None
 
-    container["symbolic"]["qwave_beams"] = []
+def export_qwave_beams(container: dict, beams: list, context: dict | None = None):
+    """
+    Public/back-compat entrypoint. If canonical exporter exists, forward to it.
+    Otherwise, write a legacy-compatible structure for both new and old readers.
+    """
+    if _qwave_export_impl is not None:
+        return _qwave_export_impl(container, beams, context=context)
 
-    for beam in beams:
-        container["symbolic"]["qwave_beams"].append({
-            "beam_id": beam.get("id"),
-            "source_id": beam.get("source"),
-            "target_id": beam.get("target"),
-            "carrier_type": beam.get("carrier_type"),
-            "modulation_strategy": beam.get("modulation_strategy"),
-            "coherence": beam.get("coherence"),
-            "entangled_path": beam.get("entangled_path"),
-            "mutation_trace": beam.get("mutation_trace"),
-            "collapse_state": context.get("frame") if context else None
+    # --- Legacy fallback (write BOTH shapes) ---
+    # Normalize input beams (accept either 'modulation' or 'modulation_strategy')
+    normalized = []
+    for b in beams or []:
+        normalized.append({
+            "beam_id": b.get("id"),
+            "source_id": b.get("source"),
+            "target_id": b.get("target"),
+            "carrier_type": b.get("carrier_type", "SIMULATED"),
+            "modulation_strategy": b.get("modulation") or b.get("modulation_strategy") or "SimPhase",
+            "coherence": b.get("coherence", 1.0),
+            "entangled_path": b.get("entangled_path", []),
+            "mutation_trace": b.get("mutation_trace", []),
+            "collapse_state": b.get("collapse_state", (context or {}).get("frame", "original")),
+            "metadata": b.get("metadata", {}),
         })
 
+    # Newer readers (flat):
+    container["qwave_beams"] = list(normalized)
+    if context:
+        container["multiverse_frame"] = context.get("frame", "original")
+
+    # Older readers (nested under 'symbolic'):
+    container.setdefault("symbolic", {})
+    container["symbolic"]["qwave_beams"] = list(normalized)
+
+# ...later inside KnowledgeGraphWriter.export_pack(...)
+try:
+    container_id = container.get("id")
+    if container_id and _qwave_collect_impl:
+        beams = _qwave_collect_impl(container_id)
+        export_qwave_beams(container, beams, context={"frame": "mutated"})
+        print(f"📡 Injected {len(beams)} QWave beams into container during KG export.")
+except Exception as e:
+    print(f"⚠️ Failed to inject QWave beams in KGWriter: {e}")
+    
 # ──────────────────────────────
 # Harmonized Atom Commit Adapter
 # ──────────────────────────────

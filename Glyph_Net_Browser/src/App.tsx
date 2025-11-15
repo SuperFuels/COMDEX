@@ -1,21 +1,22 @@
-// /src/App.tsx
-import { useEffect, useState } from "react";
-import TopBar from "./components/TopBar";
+// src/App.tsx
+import { useEffect, useRef, useState } from "react";
+import TopBar, { RadioStatus } from "./components/TopBar";
 import Sidebar from "./components/Sidebar";
 import WaveInbox from "./components/WaveInbox";
 import KGDock from "./components/KGDock";
 import ContainerView from "./components/ContainerView";
-import { parseAddress } from "./lib/nav/parse";
-import { routeNav } from "./lib/nav/router";
 import WaveOutbox from "./components/WaveOutbox";
 import ChatThread from "./routes/ChatThread";
 import BridgePanel from "./routes/BridgePanel";
+import { parseAddress } from "./lib/nav/parse";
+import { routeNav } from "./lib/nav/router";
+import { useRadioHealth } from "./hooks/useRadioHealth";
 
 type Mode = "wormhole" | "http";
 type NavArg = string | { mode: Mode; address: string };
-
-// include "chat" and "bridge" in the app’s local view state
 type ActiveTab = "home" | "inbox" | "outbox" | "kg" | "settings" | "chat" | "bridge";
+
+type Session = { slug: string; wa: string } | null;
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,23 +24,87 @@ export default function App() {
   const [active, setActive] = useState<ActiveTab>("home");
   const [wavesCount, setWavesCount] = useState(1);
 
-  // hash-derived props we pass down
   const [inboxTopicFromHash, setInboxTopicFromHash] = useState<string>("");
   const [chatTopicFromHash, setChatTopicFromHash] = useState<string>("");
   const [chatKGFromHash, setChatKGFromHash] = useState<"personal" | "work" | undefined>(undefined);
 
+  // --- session (inline, no extra hook) ---
+  const [session, setSession] = useState<Session>(null);
+  const [sessionLoading, setSessionLoading] = useState<boolean>(true);
+
+  const refreshSession = () => {
+    setSessionLoading(true);
+    fetch("/api/session/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        const s: Session = j?.session ? { slug: j.session.slug, wa: j.session.wa } : null;
+        setSession(s);
+        setSessionLoading(false);
+      })
+      .catch(() => {
+        setSession(null);
+        setSessionLoading(false);
+      });
+  };
+
+  const logout = () => {
+    fetch("/api/session/clear", { method: "POST" }).catch(() => {});
+    localStorage.removeItem("gnet:user_slug");
+    localStorage.removeItem("gnet:wa");
+    setSession(null);
+    if (location.hash.startsWith("#/container/")) {
+      location.hash = "#/";
+    }
+  };
+
+  useEffect(() => {
+    refreshSession();
+  }, []);
+
+  // Keep localStorage in sync + optionally auto-open home once
+  useEffect(() => {
+    if (session?.slug) {
+      localStorage.setItem("gnet:user_slug", session.slug);
+      localStorage.setItem("gnet:wa", session.wa);
+      if (!location.hash || location.hash === "#/" || location.hash === "#") {
+        window.location.hash = `#/container/${session.slug}__home`;
+      }
+    } else {
+      localStorage.removeItem("gnet:user_slug");
+      localStorage.removeItem("gnet:wa");
+    }
+  }, [session]);
+
+  // --- radio health ---
+  const [radioStatus, setRadioStatus] = useState<RadioStatus>("unknown");
+  const [healthyAt, setHealthyAt] = useState<number>(0);
+  const healthRef = useRef<ReturnType<typeof useRadioHealth> | null>(null);
+
+  useEffect(() => {
+    const h = useRadioHealth({ onRecovered: () => setHealthyAt(Date.now()) });
+    healthRef.current = h;
+    setRadioStatus(h.status);
+    const unsub = h.subscribe(setRadioStatus);
+    return () => {
+      unsub();
+      h.dispose();
+    };
+  }, []);
+
+  const showToast = healthyAt > 0 && Date.now() - healthyAt < 4000;
+
   // helpers to read hash params
-  const readTopicFromHash = (h: string): string => {
+  const readTopicFromHash = (hash: string): string => {
     try {
-      const u = new URL(h.replace("#", "http://x"));
+      const u = new URL(hash.replace("#", "http://x"));
       return u.searchParams.get("topic") || "";
     } catch {
       return "";
     }
   };
-  const readKGFromHash = (h: string): "personal" | "work" => {
+  const readKGFromHash = (hash: string): "personal" | "work" => {
     try {
-      const u = new URL(h.replace("#", "http://x"));
+      const u = new URL(hash.replace("#", "http://x"));
       const kg = (u.searchParams.get("kg") || "personal").toLowerCase();
       return kg === "work" ? "work" : "personal";
     } catch {
@@ -85,12 +150,14 @@ export default function App() {
       }
 
       if (h.startsWith("#/dimension/")) {
+        setActive("settings"); // legacy bucket
         document.title = `Dimension — Glyph Net`;
         return;
       }
 
       if (h.startsWith("#/container/")) {
         const name = decodeURIComponent(h.split("/").pop() || "");
+        setActive("home");
         document.title = `${name} — Container • Glyph Net`;
         return;
       }
@@ -110,32 +177,13 @@ export default function App() {
     return () => window.removeEventListener("glyphnet:wave", onWave as EventListener);
   }, []);
 
-  // Wormhole resolution logging (unchanged)
-  useEffect(() => {
-    const onResolved = (e: Event) => {
-      const rec = (e as CustomEvent).detail;
-      console.log("🔗 Wormhole resolved:", rec);
-    };
-    const onError = (e: Event) => {
-      const { name, error } = (e as CustomEvent).detail;
-      console.warn("⚠️ Wormhole resolve failed:", name, error);
-    };
-    window.addEventListener("wormhole:resolved", onResolved as EventListener);
-    window.addEventListener("wormhole:resolve_error", onError as EventListener);
-    return () => {
-      window.removeEventListener("wormhole:resolved", onResolved as EventListener);
-      window.removeEventListener("wormhole:resolve_error", onError as EventListener);
-    };
-  }, []);
-
   // Accept both a string or an object from TopBar
   const handleNavigate = (arg: NavArg) => {
     const address = typeof arg === "string" ? arg : arg.address;
     routeNav(parseAddress(address));
   };
 
-  // Sidebar still only knows about: "home" | "inbox" | "outbox" | "kg" | "settings".
-  // Map "chat" -> "inbox" and "bridge" -> "settings" for highlighting.
+  // Sidebar only knows: "home" | "inbox" | "outbox" | "kg" | "settings".
   const sidebarActive: "home" | "inbox" | "outbox" | "kg" | "settings" =
     active === "chat" ? "inbox" : active === "bridge" ? "settings" : (active as any);
 
@@ -145,12 +193,13 @@ export default function App() {
         onNavigate={handleNavigate}
         onOpenSidebar={() => setSidebarOpen(true)}
         onAskAion={() => alert("AION panel will open here.")}
-        onConnectWallet={() => alert("Wallet connect flow goes here.")}
         onToggleWaves={() => setShowWaves((v) => !v)}
         wavesCount={wavesCount}
+        radioStatus={radioStatus}
+        session={session}
+        onLogout={logout}
       />
 
-      {/* overlay sidebar — completely hidden when closed */}
       <Sidebar
         open={sidebarOpen}
         active={sidebarActive}
@@ -158,7 +207,6 @@ export default function App() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* main content */}
       <main style={{ flex: 1, padding: 16, background: "#f8fafc", overflow: "auto" }}>
         {active === "home" && (
           <>
@@ -169,14 +217,9 @@ export default function App() {
           </>
         )}
 
-        {/* Views */}
         {active === "chat" ? (
-          // New consolidated chat experience renders its own left Recents rail + right Chat pane
-          <div style={{ height: "calc(100vh - 96px)" /* approx topbar+padding */ }}>
-            <ChatThread
-              defaultTopic={chatTopicFromHash || "ucs://local/ucs_hub"}
-              defaultGraph={chatKGFromHash}
-            />
+          <div style={{ height: "calc(100vh - 96px)" }}>
+            <ChatThread defaultTopic={chatTopicFromHash || "ucs://local/ucs_hub"} defaultGraph={chatKGFromHash} />
           </div>
         ) : active === "bridge" ? (
           <div style={{ height: "calc(100vh - 96px)" }}>
@@ -206,7 +249,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Waves slide-over */}
       {showWaves && (
         <div
           style={{
@@ -224,6 +266,27 @@ export default function App() {
           }}
         >
           <WaveInbox />
+        </div>
+      )}
+
+      {showToast && (
+        <div
+          style={{
+            position: "fixed",
+            left: "50%",
+            transform: "translateX(-50%)",
+            bottom: 24,
+            padding: "10px 14px",
+            borderRadius: 10,
+            background: "#e6f7ed",
+            color: "#065f46",
+            fontWeight: 700,
+            border: "1px solid #a7f3d0",
+            boxShadow: "0 10px 30px rgba(0,0,0,.12)",
+            zIndex: 60,
+          }}
+        >
+          ✅ Radio healthy
         </div>
       )}
     </div>

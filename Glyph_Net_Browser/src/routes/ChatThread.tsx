@@ -1,21 +1,24 @@
-// src/routes/ChatThread.tsx (FIRST HALF — UPDATED)
+// src/routes/ChatThread.tsx — TOP SECTION (drop-in replacement)
+
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import useGlyphnet from "@/hooks/useGlyphnet";
 import { getRecent, rememberTopic, rememberLabel, resolveHumanAddress, getContacts } from "@/lib/addressBook";
 import type { RecentItem } from "@/lib/addressBook";
-import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { canonKG, resolveLabelToWA } from "../utils/nameService";
 import type { GraphKey } from "../utils/nameService";
 import { makePeer, DEFAULT_ICE } from "../utils/webrtc";
 import { Telemetry } from "@/utils/telemetry";
 import { resolveApiBase } from "@/utils/base";
 import { importAesKey, attachSenderE2EE, attachReceiverE2EE } from "@/utils/webrtc_e2ee";
-import { useRadioHealth } from "@/hooks/useRadioHealth"; // or relative path if you inlined it
 import TransportPicker from "@/components/TransportPicker";
+import { KG_API_BASE } from "@/utils/kgApiBase";
+import { emitTextToKG, emitVoiceToKG, emitPttSession, emitFloorLock } from "@/lib/kg_emit";
+
 import type {
   SignalCapsule,
   VoiceOffer,
   VoiceAnswer,
-  IceCapsule as VoiceIce, // optional alias if you used VoiceIce name
+  IceCapsule as VoiceIce,
   VoiceCancel,
   VoiceReject,
   VoiceEnd,
@@ -25,12 +28,24 @@ import {
   postTx,
   transportBase,
   onRadioHealth,
-  getTransportMode,   // NEW name (was getMode)
-  setTransportMode,   // NEW name (was setMode)
+  getTransportMode,
+  setTransportMode,
 } from "@/utils/transport";
 import type { TransportMode } from "@/utils/transport";
 
+
+// Derive the current owner WA dynamically
+function getOwnerWa(): string {
+  try {
+    const u = (window as any).__currentUser;  // if your auth boot sets this
+    if (u?.wa) return u.wa;
+  } catch {}
+  const fromLS = localStorage.getItem("gnet:ownerWa");
+  return fromLS || "dev@local"; // temporary dev default
+}
+
 const IP_BASE_DEFAULT = resolveApiBase();
+const OWNER_WA = localStorage.getItem("gnet:ownerWa") || "dev@local";
 
 const CLIENT_ID = (() => {
   const k = "gnet:clientId";
@@ -103,12 +118,13 @@ export function unpackSig(glyph: string): Partial<VoiceCaps> | null {
 // Utils
 // ──────────────────────────────────────────────────────────────
 
+// Base64 helper (used for voice notes)
 function abToB64(buf: ArrayBuffer) {
   let bin = "";
   const bytes = new Uint8Array(buf);
-  const CH = 0x8000;
-  for (let i = 0; i < bytes.length; i += CH) {
-    bin += String.fromCharCode(...bytes.subarray(i, i + CH));
+  const CHUNK = 0x8000;
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    bin += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
   }
   return btoa(bin);
 }
@@ -287,6 +303,14 @@ export default function ChatThread({
     return kg === "work" ? "work" : "personal";
   });
 
+  // Temporary seeded contacts (replace with real data later)
+  const contacts = [
+    { name: "Dave Ross",   wa: "ucs://wave.tp/dave@personal",  kg: "personal", initials: "DR" },
+    { name: "Alice Nguyen", wa: "ucs://wave.tp/alice@work",     kg: "work",     initials: "AN" },
+    { name: "Nia Patel",    wa: "ucs://wave.tp/nia@personal",    kg: "personal", initials: "NP" },
+  ];
+  const isActive = (wa: string) => (topic || "").toLowerCase() === wa.toLowerCase();
+
 // ── Telemetry (RF/IP send success/error counters) ─────────────
   const [tele, setTele] = useState(Telemetry.snap());
   useEffect(() => {
@@ -300,12 +324,15 @@ export default function ChatThread({
   }, []);
 
   // Radio-node health → drives base selection
-  const [radioOk, setRadioOk] = React.useState(false);
-  const [lastHealthAt, setLastHealthAt] = React.useState<number>(Date.now());
-  React.useEffect(() => onRadioHealth(ok => {
-    setRadioOk(ok);
-    setLastHealthAt(Date.now());
-  }), []);
+  const [radioOk, setRadioOk] = useState(false);
+  const [lastHealthAt, setLastHealthAt] = useState<number>(Date.now());
+
+  useEffect(() => {
+    return onRadioHealth(ok => {
+      setRadioOk(ok);
+      setLastHealthAt(Date.now());
+    });
+  }, []);
 
   // IP base picked once; transportBase auto-switches using radioOk
   // Policy-aware base (auto chooses radio-node vs cloud)
@@ -1079,6 +1106,18 @@ export default function ChatThread({
     });
 
     try {
+      // KG journal (Codespaces/localhost aware)
+      emitTextToKG({
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: OWNER_WA,
+        topicWa: topic,
+        text: msg,
+        ts: Date.now(),
+        agentId: AGENT_ID,
+      }).catch(() => {});
+
+      // 🔸 Your normal message send (transport-aware)
       const res = await postTx(base, {
         recipient: topic,
         graph,
@@ -1474,13 +1513,6 @@ export default function ChatThread({
     const s = sec % 60;
     return m ? `${m}m ${s}s` : `${s}s`;
   }
-  
-  const radioHealth = useRadioHealth(4000); // polls /health every 4s
-  const rf = radioHealth; // whatever you named the /health state
-  const rfPill =
-    rf && rf.profile && rf.active
-      ? `${rf.profile} • ${rf.active.MTU}B @${rf.active.RATE_HZ}Hz • Q:${rf.rfQueue ?? 0}`
-      : "—";
 
   // ──────────────────────────────────────────────────────────────
   // Mic / PTT helpers
@@ -1741,6 +1773,11 @@ export default function ChatThread({
     seqRef.current = 0;
   }, [topic, AGENT_ID]);
 
+  // ───────────────── startPTT (with KG floor_lock emits) ─────────────────
+  // Requires:
+  // import { emitTextToKG, emitVoiceToKG, emitPttSession, emitFloorLock } from "@/lib/kg_emit";
+  // import { KG_API_BASE } from "@/utils/kgApiBase";
+
   async function startPTT() {
     if (pttDownRef.current) return;
     pttDownRef.current = true;
@@ -1766,15 +1803,58 @@ export default function ChatThread({
       pttDownRef.current = false;
       setPttDown(false);
       lockResourceRef.current = null;
+
+      // journal denied attempt (0ms talk)
+      emitPttSession({
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: OWNER_WA,
+        topicWa: topic,
+        talkMs: 0,
+        grants: metricsRef.current.grants,
+        denies: metricsRef.current.denies,
+        lastAcquireMs: metricsRef.current.lastAcquireMs,
+        ts: Date.now(),
+        agentId: AGENT_ID,
+      }).catch(() => {});
+
+      // floor_lock (denied)
+      emitFloorLock({
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: OWNER_WA,
+        topicWa: topic,
+        state: "denied",
+        acquire_ms: 0,
+        granted: false,
+        ts: Date.now(),
+        agentId: AGENT_ID,
+      }).catch(() => {});
+
+      // reset attempt marker
+      metricsRef.current.lastStart = 0;
       return;
-    } else {
-      // ── metrics: granted + time-to-grant
-      metricsRef.current.grants++;
-      const t = Date.now() - metricsRef.current.lastStart;
-      metricsRef.current.lastAcquireMs = t;
-      lastAcquireMsRef.current = t;
-      lastGrantedRef.current = true;
     }
+
+    // ── metrics: granted + time-to-grant
+    metricsRef.current.grants++;
+    const t = Date.now() - metricsRef.current.lastStart;
+    metricsRef.current.lastAcquireMs = t;
+    lastAcquireMsRef.current = t;
+    lastGrantedRef.current = true;
+
+    // journal floor_lock(held)
+    emitFloorLock({
+      apiBase: KG_API_BASE,
+      kg: graph,
+      ownerWa: OWNER_WA,
+      topicWa: topic,
+      state: "held",
+      acquire_ms: t,
+      granted: true,
+      ts: Date.now(),
+      agentId: AGENT_ID,
+    }).catch(() => {});
 
     setAwaitingLock(false);
     setFloorOwned(true);
@@ -1803,6 +1883,34 @@ export default function ChatThread({
       const r0 = lockResourceRef.current; lockResourceRef.current = null;
       if (r0) sendLock("release", r0).catch(() => {});
       setFloorOwned(false);
+
+      // journal a zero-length (granted-but-no-talk) session + floor_lock(free)
+      emitPttSession({
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: OWNER_WA,
+        topicWa: topic,
+        talkMs: 0,
+        grants: metricsRef.current.grants,
+        denies: metricsRef.current.denies,
+        lastAcquireMs: metricsRef.current.lastAcquireMs,
+        ts: Date.now(),
+        agentId: AGENT_ID,
+      }).catch(() => {});
+
+      emitFloorLock({
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: OWNER_WA,
+        topicWa: topic,
+        state: "free",
+        acquire_ms: lastAcquireMsRef.current || metricsRef.current.lastAcquireMs || 0,
+        granted: true,
+        ts: Date.now(),
+        agentId: AGENT_ID,
+      }).catch(() => {});
+
+      metricsRef.current.lastStart = 0;
       return;
     }
 
@@ -1820,29 +1928,44 @@ export default function ChatThread({
     }
   }
 
-  // ───────────────── stopPTT (fixed braces) ─────────────────
+  // ───────────────── stopPTT ─────────────────
   async function stopPTT() {
     if (!pttDownRef.current) return;
     pttDownRef.current = false;
     setPttDown(false);
 
     // ── metrics: accumulate talk time + session count + persist per-topic
+    let lastDur = 0;
     if (metricsRef.current.lastStart) {
       const startAt = metricsRef.current.lastStart;
-      const dur = Date.now() - startAt;
+      lastDur = Date.now() - startAt;
       metricsRef.current.sessions++;
-      metricsRef.current.talkMs += dur;
+      metricsRef.current.talkMs += lastDur;
       metricsRef.current.lastStart = 0;
 
       // persist per-topic entry (last 10)
       const log = loadPttLog(graph, topic);
       log.push({
         at: startAt,
-        dur,
+        dur: lastDur,
         acquireMs: lastAcquireMsRef.current || undefined,
         granted: !!lastGrantedRef.current,
       });
       savePttLog(graph, topic, log);
+
+      // journal this PTT session
+      emitPttSession({
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: OWNER_WA,
+        topicWa: topic,
+        talkMs: lastDur, // duration of this session
+        grants: metricsRef.current.grants,
+        denies: metricsRef.current.denies,
+        lastAcquireMs: metricsRef.current.lastAcquireMs,
+        ts: Date.now(),
+        agentId: AGENT_ID,
+      }).catch(() => {});
     }
 
     stopMeter(); // stop the visual meter immediately
@@ -1868,6 +1991,19 @@ export default function ChatThread({
         const arr = await blob.arrayBuffer();
         const data_b64 = abToB64(arr);
 
+        // non-blocking KG journal of the voice clip
+        emitVoiceToKG({
+          apiBase: KG_API_BASE,
+          kg: graph,
+          ownerWa: OWNER_WA,
+          topicWa: topic,
+          mime,
+          data_b64,
+          durMs: lastDur || undefined,
+          ts: Date.now(),
+          agentId: AGENT_ID,
+        }).catch(() => {});
+
         const vfCapsule = {
           voice_frame: {
             channel: pttChannelRef.current,
@@ -1892,9 +2028,21 @@ export default function ChatThread({
       lockResourceRef.current = null;
       if (r0) sendLock("release", r0).catch(() => {});
       setFloorOwned(false);
-    }
-  } // ← closes stopPTT()
 
+      // 🔹 Journal that the floor is now free
+      emitFloorLock({
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: OWNER_WA,
+        topicWa: topic,
+        state: "free",
+        acquire_ms: lastAcquireMsRef.current || metricsRef.current.lastAcquireMs || 0,
+        granted: true,
+        ts: Date.now(),
+        agentId: AGENT_ID,
+      }).catch(() => {});
+    }
+  }
   // ───────────────── sendVoiceFrame (now OUTSIDE stopPTT) ─────────────────
   // Send a single voice_frame (policy-aware: Auto / Radio-only / IP-only)
   async function sendVoiceFrame(vfCapsule: any) {
@@ -1969,6 +2117,19 @@ export default function ChatThread({
     const mime = f.type || mimeFromName(f.name); // helper already in this component
     const ab = await f.arrayBuffer();
     const b64 = abToB64(ab);
+
+    // 🔹 Journal the voice note to the KG (non-blocking)
+    emitVoiceToKG({
+      apiBase: "",          // keep "" if your dev server proxies /api → backend
+      kg: graph,            // "personal" | "work"
+      ownerWa: OWNER_WA,
+      topicWa: topic,       // e.g. "ucs://local/ucs_hub"
+      mime,
+      data_b64: b64,
+      durMs: undefined,     // set if you track duration
+      ts: Date.now(),
+      agentId: AGENT_ID,    // optional, helpful for attribution
+    }).catch(() => {});
 
     // optimistic bubble
     const localId = `local-voice:${Date.now()}:${Math.random().toString(36).slice(2, 6)}`;
@@ -2177,7 +2338,7 @@ export default function ChatThread({
   }, [thread]);
 
   // Contacts + Recents for the left rail
-  const contacts = useMemo(() => getContacts(), []);
+//const contacts = useMemo(() => getContacts(), []);
   const recents = useMemo(() => {
     const seen = new Set<string>();
     const out: RecentItem[] = [];
@@ -2319,22 +2480,14 @@ export default function ChatThread({
     );
   };
 
-  // ───────────────── TransportSettings (complete) ─────────────────
-  // ───────────────── TransportSettings (complete) ─────────────────
-  const TransportSettings: React.FC = () => {
+
+
+  // simple pill text used elsewhere
+  const rfPill = radioOk ? "📡 Radio healthy" : "☁️ IP fallback";
+  const TransportSettings: React.FC<{ radioOk: boolean; lastHealthAt: number }> = ({ radioOk, lastHealthAt }) => {
     const [mode, setMode] = useState<TransportMode>(getTransportMode());
-    const [radioOk, setRadioOk] = useState(false);
-    const [lastHealthAt, setLastHealthAt] = useState<number>(Date.now());
 
-    // Poll radio-node /health and update UI
-    useEffect(() => {
-      return onRadioHealth(ok => {
-        setRadioOk(ok);
-        setLastHealthAt(Date.now());
-      });
-    }, []);
-
-    // Keep the label in sync when some other part of the app changes the mode
+    // keep only this listener to reflect external mode changes
     useEffect(() => {
       const onExt = (e: any) => setMode(e.detail as TransportMode);
       window.addEventListener("gnet:transport-mode", onExt);
@@ -2343,10 +2496,7 @@ export default function ChatThread({
 
     return (
       <div style={{ marginLeft: 8, display: "inline-flex", alignItems: "center", gap: 6 }}>
-        {/* mode selector (replaces the old <select>) */}
         <TransportPicker />
-
-        {/* status label (unchanged) */}
         <span
           style={{ fontSize: 12, opacity: 0.75 }}
           title={`last health check: ${new Date(lastHealthAt).toLocaleTimeString()}`}
@@ -2396,6 +2546,8 @@ export default function ChatThread({
           flexDirection: "column",
           gap: 10,
           minHeight: 0,
+          minWidth: 0,
+          overflow: "hidden",
         }}
       >
         {/* Graph toggle */}
@@ -2424,72 +2576,174 @@ export default function ChatThread({
           ))}
         </div>
 
-        {/* Address bar that accepts "kevin@work" */}
-        <input
-          aria-label="Address or topic"
-          value={addrInput}
-          onChange={(e) => setAddrInput(e.target.value)}
-          onBlur={() => applyTopicChange(addrInput)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") applyTopicChange(addrInput);
-          }}
-          placeholder="kevin@work  •  ucs://realm/contact_or_hub"
-          style={{
-            width: "100%",
-            padding: "6px 8px",
-            borderRadius: 8,
-            border: "1px solid #e5e7eb",
-            background: "#f8fafc",
-            fontSize: 13,
-          }}
-        />
-
-        {/* Inbox / Recent chats */}
-        <div style={{ fontWeight: 600, fontSize: 13, color: "#334155" }}>Recent</div>
-        <div style={{ overflow: "auto", display: "flex", flexDirection: "column", gap: 6 }}>
-          {recents.map((r) => (
-            <button
-              key={`${r.topic}|${r.graph}`}
-              onClick={() => applyTopicChange(r.label ? `${r.label}@${r.graph}` : r.topic)}
+        {/* Address bar that accepts "kevin@work" or a full ucs:// URL */}
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <div style={{ position: "relative", flex: 1 }}>
+            <input
+              aria-label="Address or topic"
+              value={addrInput}
+              onChange={(e) => setAddrInput(e.target.value)}
+              onBlur={() => addrInput.trim() && applyTopicChange(addrInput.trim())}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const v = addrInput.trim();
+                  if (v) applyTopicChange(v);
+                }
+              }}
+              placeholder="dave@personal  •  ucs://wave.tp/dave"
+              list="addr-suggestions"
               style={{
-                display: "grid",
-                gridTemplateColumns: "28px 1fr",
-                gap: 8,
-                alignItems: "center",
-                padding: "6px 8px",
+                width: "100%",
+                padding: "8px 34px 8px 10px",   // room for the clear (×) button
                 borderRadius: 8,
                 border: "1px solid #e5e7eb",
-                background: topic === r.topic ? "#eff6ff" : "#fff",
+                background: "#f8fafc",
+                fontSize: 13,
+              }}
+            />
+
+            {/* Clear (×) */}
+            {addrInput ? (
+              <button
+                type="button"
+                onClick={() => setAddrInput("")}
+                title="Clear"
+                aria-label="Clear"
+                style={{
+                  position: "absolute",
+                  right: 6,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: 22,
+                  height: 22,
+                  borderRadius: 6,
+                  border: "1px solid #e5e7eb",
+                  background: "#fff",
+                  fontSize: 12,
+                  lineHeight: "20px",
+                  cursor: "pointer",
+                }}
+              >
+                ×
+              </button>
+            ) : null}
+          </div>
+
+          {/* Go */}
+          <button
+            type="button"
+            onClick={() => addrInput.trim() && applyTopicChange(addrInput.trim())}
+            style={{
+              padding: "8px 10px",
+              borderRadius: 8,
+              border: "1px solid #e5e7eb",
+              background: "#ffffff",
+              fontSize: 13,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+            title="Open conversation"
+          >
+            Go
+          </button>
+
+          {/* Type-ahead suggestions */}
+          <datalist id="addr-suggestions">
+            {contacts?.map((c) => (
+              <option key={`c:${c.wa}`} value={`${c.name}@${c.kg}`}>
+                {c.wa}
+              </option>
+            ))}
+            {recents?.map((r) => {
+              const label = r.label || r.topic;
+              return (
+                <option key={`r:${r.topic}|${r.graph}`} value={`${label}@${r.graph}`}>
+                  {r.topic}
+                </option>
+              );
+            })}
+          </datalist>
+        </div>
+
+        {/* Contacts */}
+        <div style={{ fontWeight: 700, fontSize: 13, color: "#334155" }}>Contacts</div>
+
+        {/* (optional) small search field just to neaten the rail */}
+        <div style={{ padding: "6px 0 8px" }}>
+          <input
+            placeholder="Search contacts…"
+            spellCheck={false}
+            style={{
+              width: "100%",
+              maxWidth: "100%",
+              boxSizing: "border-box",
+              padding: "8px 10px",
+              borderRadius: 10,
+              border: "1px solid #e5e7eb",
+              outline: "none",
+            }}
+          />
+        </div>
+
+        <div style={{ overflow: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
+          {contacts.map((c) => (
+            <button
+              key={c.wa}
+              onClick={() => applyTopicChange(c.wa)} // open the DM/shared-container with this contact
+              title={c.wa}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "280px minmax(0, 1fr)",
+                gap: 10,
+                alignItems: "center",
+                padding: "10px 12px",
+                borderRadius: 12,
+                border: "1px solid #e5e7eb",
+                background: isActive(c.wa) ? "#f1f5f9" : "#fff",
                 cursor: "pointer",
                 textAlign: "left",
               }}
-              title={r.topic}
             >
+              {/* avatar */}
               <div
+                aria-hidden
                 style={{
-                  width: 28,
-                  height: 28,
+                  width: 36,
+                  height: 36,
                   borderRadius: "50%",
                   border: "1px solid #e5e7eb",
                   display: "grid",
                   placeItems: "center",
                   fontSize: 12,
-                  background: "#fafafa",
+                  fontWeight: 800,
+                  background: "#f8fafc",
+                  color: "#111827",
                 }}
               >
-                {initials(r.label || r.topic.replace(/^ucs:\/\//, ""))}
+                {c.initials || initials(c.name)}
               </div>
-              <div style={{ overflow: "hidden" }}>
-                <div style={{ fontSize: 13, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
-                  {r.label || r.topic}
+
+              {/* name + tag */}
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    whiteSpace: "nowrap",
+                    textOverflow: "ellipsis",
+                    overflow: "hidden",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "#111827",
+                  }}
+                >
+                  {c.name}
                 </div>
-                <div style={{ fontSize: 11, color: "#94a3b8" }}>{r.graph}</div>
+                <div style={{ fontSize: 11, color: "#94a3b8" }}>{String(c.kg).toLowerCase()}</div>
               </div>
             </button>
           ))}
         </div>
-      </aside>
-
+      </aside>   
       {/* Right: Chat pane */}
       <div style={{ display: "flex", flexDirection: "column", height: "100%", minWidth: 0 }}>
 
@@ -2582,7 +2836,7 @@ export default function ChatThread({
           <IceSettings />
 
           {/* Transport policy (Auto / Radio-only / IP-only) */}
-          <TransportSettings />
+          <TransportSettings radioOk={radioOk} lastHealthAt={lastHealthAt} />
 
           {/* Floor status (keep it once, inside header) */}
           {!!floorBusyBy && !floorOwned && (

@@ -11,12 +11,14 @@ Handles:
 """
 
 from __future__ import annotations
-
 import os
 import json
 import inspect
 from typing import Dict, Any, List, Optional
 from json import JSONDecodeError
+import logging, time
+logger = logging.getLogger("UCSRuntime")
+
 
 # Core subsystems
 from backend.modules.dimensions.universal_container_system.ucs_utils import normalize_container_dict
@@ -504,6 +506,15 @@ class UCSRuntime:
                 pass
             except Exception:
                 pass
+        
+        try:
+            self._kg_emit(
+                "ucs_load_container",
+                {"id": cid, "atom_count": len(obj.get("atom_ids", []))},
+                tags=["ucs","load"],
+            )
+        except Exception:
+            pass
 
         # 9) Make this the active container for convenience
         self.active_container_name = cid
@@ -638,6 +649,13 @@ class UCSRuntime:
         if explain:
             result["rationale"] = self._build_route_rationale(goal, atom_ids)
 
+        try:
+            # keep noise down: only emit when explain=True
+            if explain:
+                self._kg_emit("ucs_route_plan", {"goal": goal, "atoms": atom_ids}, tags=["ucs","route"])
+        except Exception:
+            pass
+
         return result
 
     def _build_route_rationale(self, goal: Dict[str, Any], atom_ids: List[str]) -> List[Dict[str, Any]]:
@@ -763,6 +781,11 @@ class UCSRuntime:
         except Exception:
             pass
 
+        try:
+            self._kg_emit("ucs_save_container", {"id": name}, tags=["ucs","save"])
+        except Exception:
+            pass
+
         return self.containers[name]
 
     def remove_container(self, container_id: str) -> Dict[str, Any]:
@@ -857,6 +880,16 @@ class UCSRuntime:
         try:
             if getattr(self, "visualizer", None):
                 self.visualizer.log_event(container_id, "container_removed")
+        except Exception:
+            pass
+
+        try:
+            self._kg_emit(
+                "ucs_remove_container",
+                {"id": container_id, "removed_atoms": len(removed_atom_ids), "removed_addresses": removed_addresses},
+                tags=["ucs","remove"],
+            )
+            self._mg_register("del", meta={"type":"ucs","tags":["ucs","remove"]})
         except Exception:
             pass
 
@@ -973,6 +1006,12 @@ class UCSRuntime:
                 self._ghx_register_once(cid, cname)
         except Exception as e:
             print(f"[⚠️ register_container] GHX visualizer register failed for '{container_name}': {e}")
+
+        try:
+            self._kg_emit("ucs_register_container", {"id": container_name}, tags=["ucs","register"])
+            self._mg_register("reg", meta={"type":"ucs","tags":["ucs","register"]})
+        except Exception:
+            pass
 
         print(f"[✅ UCSRuntime] Registered container: {container_name}")
         return merged
@@ -1109,6 +1148,10 @@ class UCSRuntime:
 
         # 🎨 GHX Visualization highlight
         self.visualizer.highlight(name)
+        try:
+            self._kg_emit("ucs_highlight", {"id": name}, tags=["ucs","viz"])
+        except Exception:
+            pass
         self.active_container_name = name  # <-- mark active on highlight
 
     def run_all(self):
@@ -1152,6 +1195,10 @@ class UCSRuntime:
 # ---------------------------------------------------------
 # ✅ Singleton Initialization + Safe Legacy Aliases
 # ---------------------------------------------------------
+
+def broadcast(tag: str, payload: dict):
+    """Module-level shim: always uses the UCS singleton."""
+    return get_ucs_runtime().broadcast(tag, payload)
 
 _ucs_singleton: Optional[UCSRuntime] = None
 
@@ -1198,6 +1245,7 @@ __all__ = [
     "UCSRuntime",
     "ucs_runtime",
     "get_ucs_runtime",
+    "broadcast",                     
     "load_dc_container",
     "load_container_from_path",
     "load_container",
@@ -1205,4 +1253,3 @@ __all__ = [
     "collapse_container",
     "embed_glyph_block_into_container",
 ]
-UCSRuntime.broadcast = UCSRuntime().broadcast

@@ -1,0 +1,17 @@
+{
+  "id": "shared__acme_hq",
+  "type": "container",
+  "meta": {
+    "title": "Acme HQ",
+    "graph": "shared",
+    "ownerOrg": "acme",
+    "acl": {
+      "roles": {
+        "Kevin@wave.tp": "member"
+      },
+      "default": "read"
+    }
+  },
+  "glyphs": [],
+  "dimensions": []
+}

@@ -1,10 +1,10 @@
-// /src/lib/nav/router.ts
+// src/lib/nav/router.ts
 import type { Target } from "./parse";
-import { resolveWormhole } from "../api/wormholes"; // resolves 🌀<name>.tp -> container record
+import { resolveWormhole } from "../api/wormholes"; // keeps async resolution
 
 // Open external http in system browser when running under Tauri
 async function openExternal(url: string) {
-  // @ts-ignore - runtime check for Tauri
+  // @ts-ignore – runtime check for Tauri
   if (typeof window !== "undefined" && (window as any).__TAURI__) {
     const { open } = await import("@tauri-apps/api/shell");
     return open(url);
@@ -21,17 +21,15 @@ export function routeNav(t: Target) {
     }
 
     case "wormhole": {
-      // Show the wormhole name immediately in the UI
+      // 1) Show the wormhole name immediately
       const hash = `#/wormhole/${encodeURIComponent(t.name)}`;
       if (window.location.hash !== hash) window.location.hash = hash;
       document.title = `🌀 ${t.name} — Glyph Net`;
 
-      // Resolve to a concrete container in the background
+      // 2) Resolve → flip to concrete container (best-effort)
       (async () => {
         try {
           const rec = await resolveWormhole(t.name);
-
-          // Flip to the resolved container route so ContainerView mounts
           const id =
             rec.to ||
             rec.from ||
@@ -39,7 +37,6 @@ export function routeNav(t: Target) {
           const next = `#/container/${encodeURIComponent(id)}`;
           if (window.location.hash !== next) window.location.hash = next;
 
-          // Notify any listeners (ContainerView, etc.)
           window.dispatchEvent(new CustomEvent("wormhole:resolved", { detail: rec }));
         } catch (err) {
           window.dispatchEvent(
@@ -56,6 +53,15 @@ export function routeNav(t: Target) {
       const hash = `#/dimension/${encodeURIComponent(t.path)}`;
       if (window.location.hash !== hash) window.location.hash = hash;
       document.title = `dimension://${t.path} — Glyph Net`;
+      return;
+    }
+
+    case "container": {                               // ⬅️ NEW
+      const hash = `#/container/${encodeURIComponent(t.id)}`;
+      if (window.location.hash !== hash) window.location.hash = hash;
+      document.title = `${t.id} — Container • Glyph Net`;
+      // Optional: notify listeners
+      window.dispatchEvent(new CustomEvent("container:navigate", { detail: { id: t.id } }));
       return;
     }
   }

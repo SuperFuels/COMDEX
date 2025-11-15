@@ -10,69 +10,42 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
-  // Primary backend (your app server / API)
-  const backendHttp = env.VITE_BACKEND_URL || env.VITE_API_BASE || "http://localhost:8080";
-  const backendWs   = backendHttp.replace(/^http(s?):/, (_m, s) => (s ? "wss:" : "ws:"));
+  // radio-node (existing)
+  const radioHttp = env.VITE_BACKEND_URL || "http://127.0.0.1:8787";
+  const radioWs   = radioHttp.replace(/^http/i, "ws");
 
-  // Local radio-node (GlyphNet + QKD shim)
-  const radioNode = env.VITE_RADIO_NODE_URL || "http://localhost:8787";
+  // KG backend (new) – your Node/Express on port 3000
+  const kgHttp = env.VITE_KG_URL || "http://localhost:3000";
+
+  // IMPORTANT: put "/api/kg" BEFORE the generic "/api"
+  const proxy: Record<string, any> = {
+    // ── Knowledge Graph endpoints → :3000
+    "/api/kg": { target: kgHttp, changeOrigin: true },
+
+    // ── Everything else under /api → radio node
+    "/api":        { target: radioHttp, changeOrigin: true },
+
+    // existing proxies
+    "/ws":         { target: radioWs,   ws: true, changeOrigin: true },
+    "/bridge":     { target: radioHttp, changeOrigin: true },
+    "/containers": { target: radioHttp, changeOrigin: true },
+    "/health":     { target: radioHttp, changeOrigin: true },
+
+    "^/radio/qkd": {
+      target: radioHttp, changeOrigin: true,
+      rewrite: (p: string) => p.replace(/^\/radio\/qkd/, "/qkd"),
+    },
+    "^/radio": {
+      target: radioHttp, changeOrigin: true, ws: true,
+      rewrite: (p: string) => p.replace(/^\/radio/, ""),
+    },
+    "^/qkd": { target: radioHttp, changeOrigin: true },
+  };
 
   return {
     plugins: [react()],
     resolve: { alias: { "@": path.resolve(__dirname, "src") } },
-    server: {
-      host: true,
-      port: 5173,
-      strictPort: true,
-      cors: true,
-      proxy: {
-        // ── QKD shim (DEV) → radio-node
-        // /qkd/health and /qkd/lease are served by radio-node
-        "^/qkd": {
-          target: radioNode,
-          changeOrigin: true,
-          // no rewrite needed; keep /qkd/*
-        },
-
-        // ── Radio-node (local GlyphNet)
-        // Specific rules FIRST so they don't get eaten by the catch-all.
-
-        // dev server proxy
-        "^/radio/qkd": {
-          target: radioNode,
-          changeOrigin: true,
-          rewrite: p => p.replace(/^\/radio\/qkd/, "/qkd"),
-        },
-        "^/radio/health": {
-          target: radioNode,
-          changeOrigin: true,
-          rewrite: _ => "/health",
-        },
-
-        // Put the specific bridge rule BEFORE the catch-all /radio rule.
-        "^/radio/bridge": {
-          target: radioNode,
-          changeOrigin: true,
-          rewrite: p => p.replace(/^\/radio\/bridge/, "/bridge"),
-        },
-
-        // Catch-all: keeps /api and /ws intact by stripping only the /radio prefix
-        "^/radio": {
-          target: radioNode,
-          changeOrigin: true,
-          ws: true,
-          rewrite: p => p.replace(/^\/radio/, ""),
-        },
-
-        // ── GHX (landing page) → your backend
-        "^/api/(container|containers)/.*": { target: backendHttp, changeOrigin: true },
-        "^/ws/ghx": { target: backendWs, ws: true, changeOrigin: true },
-
-        // ── Everything else → backend
-        "/api": { target: backendHttp, changeOrigin: true, ws: true },
-        "^/ws":  { target: backendWs,   ws: true, changeOrigin: true },
-      },
-    },
+    server: { host: true, port: 5173, strictPort: true, cors: true, proxy },
     preview: { host: "0.0.0.0", port: 5173 },
     build: { outDir: "dist" },
   };

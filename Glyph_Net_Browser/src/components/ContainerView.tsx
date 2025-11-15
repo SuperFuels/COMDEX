@@ -16,6 +16,64 @@ type TimeStatus = {
   decay_enabled?: boolean;
 };
 
+function staticPathsFor(id: string): string[] {
+  const paths = [
+    `/containers/${encodeURIComponent(id)}.json`,
+    `/containers/${encodeURIComponent(id)}/manifest.json`,
+  ];
+  if (id.includes("__")) {
+    const [user, name] = id.split("__", 2);
+    const u = encodeURIComponent(user);
+    const n = encodeURIComponent(name);
+    paths.push(
+      `/containers/${u}/${n}.json`,
+      `/containers/${u}/${n}/manifest.json`
+    );
+  }
+  // NEW: shared containers live under /containers/shared/
+  paths.push(
+    `/containers/shared/${encodeURIComponent(id)}.json`,
+    `/containers/shared/${encodeURIComponent(id)}/manifest.json`
+  );
+  return paths;
+}
+
+// ---------- helpers: robust JSON fetch + URL candidates ----------
+async function fetchJSONStrict(url: string, signal?: AbortSignal) {
+  const r = await fetch(url, { cache: "no-store", signal });
+  if (!r.ok) {
+    const txt = await r.text().catch(() => "");
+    throw new Error(`HTTP ${r.status} at ${url}; body: ${txt.slice(0, 120)}`);
+  }
+  const ct = (r.headers.get("content-type") || "").toLowerCase();
+  // Be strict about JSON; many dev servers will return index.html here
+  const body = await r.text();
+  if (!ct.includes("application/json")) {
+    const head = body.slice(0, 120).trim();
+    if (head.startsWith("<!doctype") || head.startsWith("<html")) {
+      throw new Error(`Expected JSON from ${url} but received HTML (likely your SPA index.html). Put a manifest at /containers/<id>.json or fix the proxy route.`);
+    }
+    // try JSON anyway if content-type is missing but looks like JSON
+    try { return JSON.parse(body); } catch {
+      throw new Error(`Non-JSON response from ${url}: ${head}`);
+    }
+  }
+  try { return JSON.parse(body); } catch (e: any) {
+    throw new Error(`Invalid JSON from ${url}: ${e?.message || e}`);
+  }
+}
+
+function candidateContainerUrls(id: string) {
+  const base = (import.meta.env.BASE_URL || "/").replace(/\/+$/, "/");
+  return [
+    // API (backend) first, if present
+    `/api/aion/container/${encodeURIComponent(id)}`,
+    // Static fallbacks (put files under public/containers/)
+    `${base}containers/${encodeURIComponent(id)}.json`,
+    `${base}containers/${encodeURIComponent(id)}/manifest.json`,
+  ];
+}
+
 export default function ContainerView() {
   const [res, setRes] = useState<ResolveReply | null>(null);
   const [timeStatus, setTimeStatus] = useState<Partial<TimeStatus> | null>(null);
@@ -51,12 +109,12 @@ export default function ContainerView() {
 
   // GHX socket path
   const wsPath = useMemo(
-    () => (containerId ? `/ws/ghx/${encodeURIComponent(containerId)}` : ""),
+    () => (containerId ? `/ws/ghx?id=${encodeURIComponent(containerId)}` : ""),
     [containerId]
   );
   const { connected, lastJsonMessage } = useWebSocket(wsPath);
 
-  // Normalize GHX message shape helpers
+  // Normalize GHX message helpers
   const msgFor = (m: any) => (m && typeof m === "object" ? m : null);
   const msgType = (m: any) => m?.type ?? m?.event ?? m?.kind;
 
@@ -77,7 +135,7 @@ export default function ContainerView() {
     }
   }, [lastJsonMessage, containerId]);
 
-  // Fetch the .dc when we know the id
+  // Fetch the container (robust: try multiple URLs, detect HTML)
   const [dc, setDc] = useState<DcContainer | null>(null);
   const [dcErr, setDcErr] = useState<string | null>(null);
   const [dcLoading, setDcLoading] = useState(false);
@@ -93,14 +151,24 @@ export default function ContainerView() {
     setDcLoading(true);
     setDcErr(null);
 
-    fetch(`/api/aion/container/${encodeURIComponent(id)}`, { signal: ac.signal })
-      .then(async (r) => {
-        if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-        return r.json();
-      })
-      .then((json) => setDc(json as DcContainer))
+    (async () => {
+      let lastErr: any;
+      for (const url of candidateContainerUrls(id)) {
+        try {
+          const json = await fetchJSONStrict(url, ac.signal);
+          setDc(json as DcContainer);
+          setDcErr(null);
+          return;
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      throw lastErr || new Error(`No manifest found for ${id}`);
+    })()
       .catch((e) => {
-        if (e.name !== "AbortError") setDcErr(String(e));
+        if (ac.signal.aborted) return;
+        setDc(null);
+        setDcErr(String(e?.message || e));
       })
       .finally(() => {
         if (!ac.signal.aborted) setDcLoading(false);
@@ -270,7 +338,13 @@ export default function ContainerView() {
 
         {dcErr && (
           <div style={{ padding: 12, border: "1px solid #fecaca", borderRadius: 8, background: "#fff0f0", color: "#991b1b" }}>
-            Container not found or error: {dcErr}
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>Container not found or error</div>
+            <div style={{ whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: 12 }}>{dcErr}</div>
+            <div style={{ marginTop: 8, fontSize: 12, color: "#334155" }}>
+              Tip: if you’re developing without a backend route, add a static manifest at
+              <code> public/containers/{containerId}.json</code> or
+              <code> public/containers/{containerId}/manifest.json</code>.
+            </div>
           </div>
         )}
 
