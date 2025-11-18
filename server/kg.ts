@@ -46,16 +46,14 @@ db.exec(schemaSql); // creates tables/indexes if missing
 const app = express();
 app.use(express.json({ limit: "5mb" }));
 
+// ────────────────────────────────────────────────────────────
+// Helpers
+// ────────────────────────────────────────────────────────────
+
 function newId(): string {
   return crypto.randomBytes(12).toString("hex");
 }
-function isKG(x: unknown): x is KG {
-  return x === "personal" || x === "work";
-}
 
-// ────────────────────────────────────────────────────────────
-// Namespace helpers (hard graph boundary + stable thread_id)
-// ────────────────────────────────────────────────────────────
 const KG_VALUES = new Set<KG>(["personal", "work"]);
 
 function normalizeKg(x: unknown): KG {
@@ -88,25 +86,13 @@ function ensureNamespaceOnEvent(base: {
   return { kg, owner_wa, topic_wa, thread_id };
 }
 
-// -------------------------
-// POST /api/kg/events
-// -------------------------
-app.post("/api/kg/events", (req: Request, res: Response) => {
-  const { kg, owner, events } = (req.body || {}) as {
-    kg?: KG;
-    owner?: string;
-    events?: KGEventInsert[];
-  };
+// Shared INSERT statement
+const insertStmt = db.prepare(`
+  INSERT INTO kg_events (id,kg,owner_wa,thread_id,topic_wa,type,kind,ts,size,sha256,payload)
+  VALUES (@id,@kg,@owner_wa,@thread_id,@topic_wa,@type,@kind,@ts,@size,@sha256,@payload)
+`);
 
-  if (!isKG(kg) || !owner || !Array.isArray(events) || events.length === 0) {
-    return res.status(400).json({ ok: false, error: "bad_request" });
-  }
-
-  const stmt = db.prepare(`
-    INSERT INTO kg_events (id,kg,owner_wa,thread_id,topic_wa,type,kind,ts,size,sha256,payload)
-    VALUES (@id,@kg,@owner_wa,@thread_id,@topic_wa,@type,@kind,@ts,@size,@sha256,@payload)
-  `);
-
+function applyEvents(kg: KG, owner: string, events: KGEventInsert[]) {
   const tx = db.transaction((rows: KGEventInsert[]) => {
     for (const e of rows) {
       const ns = ensureNamespaceOnEvent({
@@ -129,32 +115,54 @@ app.post("/api/kg/events", (req: Request, res: Response) => {
         sha256: e.sha256 ?? null,
         payload: JSON.stringify(e.payload ?? {}),
       };
-      stmt.run(row);
+
+      insertStmt.run(row);
     }
   });
 
+  tx(events);
+
+  const last = events.length ? events[events.length - 1] : null;
+  return {
+    applied: events.length,
+    last_event_id: last && last.id ? last.id : null,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// POST /api/kg/events
+// ────────────────────────────────────────────────────────────
+
+app.post("/api/kg/events", (req: Request, res: Response) => {
+  const body = (req.body || {}) as {
+    kg?: KG;
+    owner?: string;
+    events?: KGEventInsert[];
+  };
+
+  const kg = normalizeKg(body.kg);
+  const owner = String(body.owner || "").trim();
+  const events = Array.isArray(body.events) ? body.events : [];
+
+  if (!owner || events.length === 0) {
+    return res.status(400).json({ ok: false, error: "bad_request" });
+  }
+
   try {
-    tx(events);
-    const lastEvent = events.length ? events[events.length - 1] : null; // ← no .at()
-    return res.json({
-      ok: true,
-      applied: events.length,
-      last_event_id: lastEvent && lastEvent.id ? lastEvent.id : null,
-    });
+    const result = applyEvents(kg, owner, events);
+    return res.json({ ok: true, ...result });
   } catch (err) {
     console.error("[kg/events] fail", err);
     return res.status(500).json({ ok: false, error: "db_error" });
   }
 });
 
-// -------------------------
+// ────────────────────────────────────────────────────────────
 // GET /api/kg/query
-// -------------------------
-app.get("/api/kg/query", (req: Request, res: Response) => {
-  const kgQ = String(req.query.kg || "");
-  if (!isKG(kgQ)) return res.status(400).json({ ok: false, error: "bad_kg" });
-  const kg = normalizeKg(kgQ);
+// ────────────────────────────────────────────────────────────
 
+app.get("/api/kg/query", (req: Request, res: Response) => {
+  const kg = normalizeKg(req.query.kg);
   const thread_idQ = req.query.thread_id ? String(req.query.thread_id) : null;
   const topic_waQ  = req.query.topic_wa  ? String(req.query.topic_wa)  : null;
   const after      = req.query.after     ? String(req.query.after)     : null; // cursor "ts:id"
@@ -201,12 +209,47 @@ app.get("/api/kg/query", (req: Request, res: Response) => {
   try {
     const rows = db.prepare(sql).all(params) as KGEventRow[];
     const items = rows.map((r) => ({ ...r, payload: JSON.parse(r.payload) }));
-    const lastItem = items.length ? items[items.length - 1] : undefined; // ← no .at()
+    const lastItem = items.length ? items[items.length - 1] : undefined;
     const next_cursor = lastItem ? `${lastItem.ts}:${lastItem.id}` : null;
     res.json({ ok: true, items, next_cursor });
   } catch (err) {
     console.error("[kg/query] fail", err);
     res.status(500).json({ ok: false, error: "db_error" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────
+// GET /api/kg/thread  (new helper for ChatThread.tsx)
+// ────────────────────────────────────────────────────────────
+//
+// Example: /api/kg/thread?kg=personal&topic=ucs://local/ucs_hub&owner=kevin@wave.tp
+//
+app.get("/api/kg/thread", (req: Request, res: Response) => {
+  try {
+    const kg = normalizeKg(req.query.kg);
+    const topic_wa =
+      String(req.query.topic || req.query.topic_wa || "ucs://local/ucs_hub").trim();
+    const owner_wa = String(req.query.owner || req.query.owner_wa || "").trim();
+    const thread_id = computeThreadId(kg, topic_wa || undefined);
+
+    const thread = {
+      kg,
+      owner_wa,
+      topic_wa,
+      topic: topic_wa,
+      thread_id,
+      threadId: thread_id,
+    };
+
+    return res.json({
+      ok: true,
+      thread,
+      // also spread for callers that don't expect nesting
+      ...thread,
+    });
+  } catch (err) {
+    console.error("[kg/thread] fail", err);
+    return res.status(500).json({ ok: false, error: "server_error" });
   }
 });
 

@@ -174,7 +174,7 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
         try {
           const raw: any = JSON.parse(e.data);
 
-          // If events carry a graph tag, drop mismatches
+          // Graph guard (keep this)
           const evGraph =
             raw?.meta?.graph ??
             raw?.graph ??
@@ -182,9 +182,27 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
             raw?.envelope?.graph;
           if (graph && evGraph && evGraph !== graph) return;
 
-          // Normalize
           const env = raw?.envelope ?? null;
 
+          // Uniform envelope for downstream code
+          const envelope = env
+            ? { capsule: env.capsule, meta: env.meta, id: env.id, ts: env.ts }
+            : { capsule: raw?.capsule, meta: raw?.meta, id: raw?.id, ts: raw?.ts };
+
+          const cap0 = envelope.capsule || {};
+
+          // 🔹 FAST-PATH: forward chat_message immediately so bubbles appear live
+          if (cap0?.chat_message && typeof cap0.chat_message.text === "string") {
+            enqueue({
+              type: "glyphnet_capsule",
+              capsule: envelope.capsule,
+              meta: envelope.meta,
+              envelope, // extra field is fine; ChatThread already looks for it
+            } as GlyphnetEvent);
+            return;
+          }
+
+          // ——— original logic for other frames ———
           let baseType: string | undefined =
             raw?.type ||
             raw?.event ||
@@ -195,7 +213,7 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
               ? "glyphnet_capsule"
               : undefined);
 
-          // Detect lock frames
+          // Locks
           const isLock =
             baseType === "entanglement_lock" ||
             raw?.type === "entanglement_lock" ||
@@ -233,32 +251,32 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
             };
           } else {
             // Build an envelope shape we can work with whether server sent flat or nested
-            const envelope = env
+            const envelope2 = env
               ? { capsule: env.capsule, meta: env.meta }
               : { capsule: raw?.capsule, meta: raw?.meta };
 
-            // ── QKD decrypt using message metadata identities ──
+            // Optional QKD decrypt
             try {
-              const kgForMsg = envelope?.meta?.graph || "personal";
-              const localWA = "ucs://local/self"; // this device (replace if you track identity)
+              const kgForMsg = envelope2?.meta?.graph || "personal";
+              const localWA = "ucs://local/self";
               const remoteWA =
-                envelope?.meta?.localWA      // preferred if sender added it
-                ?? envelope?.meta?.sender    // backend may include sender
-                ?? envelope?.meta?.recipient // fallback
-                ?? "ucs://unknown";
+                envelope2?.meta?.localWA ??
+                envelope2?.meta?.sender ??
+                envelope2?.meta?.recipient ??
+                "ucs://unknown";
 
-              envelope.capsule = await decryptIfNeeded(
-                envelope.capsule,
+              envelope2.capsule = await decryptIfNeeded(
+                envelope2.capsule,
                 kgForMsg,
                 localWA,
                 remoteWA
               );
             } catch {
-              // non-fatal if decrypt fails — leave ciphertext as-is
+              // leave ciphertext as-is if decrypt fails
             }
 
-            const capsule = envelope.capsule;
-            const meta = envelope.meta;
+            const capsule = envelope2.capsule;
+            const meta = envelope2.meta;
 
             let t = baseType || "glyphnet_capsule";
             if (capsule?.voice_frame && t !== "glyphnet_voice_frame") {
@@ -270,7 +288,7 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
 
           enqueue(ev);
         } catch {
-          // ignore non-JSON payloads
+          // ignore non-JSON frames
         }
       };
 

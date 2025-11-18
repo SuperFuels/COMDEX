@@ -11,6 +11,8 @@ import BridgePanel from "./routes/BridgePanel";
 import { parseAddress } from "./lib/nav/parse";
 import { routeNav } from "./lib/nav/router";
 import { useRadioHealth } from "./hooks/useRadioHealth";
+import { KG_API_BASE } from "./utils/kgApiBase";
+import { OWNER_WA } from "./lib/constants";
 
 type Mode = "wormhole" | "http";
 type NavArg = string | { mode: Mode; address: string };
@@ -66,12 +68,15 @@ export default function App() {
     if (session?.slug) {
       localStorage.setItem("gnet:user_slug", session.slug);
       localStorage.setItem("gnet:wa", session.wa);
+      localStorage.setItem("gnet:ownerWa", session.wa); // ← NEW: canonical owner
+
       if (!location.hash || location.hash === "#/" || location.hash === "#") {
         window.location.hash = `#/container/${session.slug}__home`;
       }
     } else {
       localStorage.removeItem("gnet:user_slug");
       localStorage.removeItem("gnet:wa");
+      localStorage.removeItem("gnet:ownerWa"); // ← NEW: clear on logout
     }
   }, [session]);
 
@@ -176,6 +181,45 @@ export default function App() {
     window.addEventListener("glyphnet:wave", onWave as EventListener);
     return () => window.removeEventListener("glyphnet:wave", onWave as EventListener);
   }, []);
+
+  // KG visit/dwell journaling via UMD (/public/js/kg_emit.js)
+  useEffect(() => {
+    const ownerWa =
+      session?.wa ||
+      localStorage.getItem("gnet:ownerWa") ||
+      OWNER_WA;
+
+    const kgEmit = (window as any).KGEmit;
+    if (!kgEmit || typeof kgEmit.initVisitEmitters !== "function") {
+      // UMD not loaded yet or no initVisitEmitters; nothing to do
+      return;
+    }
+
+    const stop = kgEmit.initVisitEmitters({
+      apiBase: KG_API_BASE,
+      ownerWa,
+      getGraph: () => {
+        try {
+          return readKGFromHash(window.location.hash || "#/"); // "personal" | "work"
+        } catch {
+          return "personal";
+        }
+      },
+      getTopic: () => {
+        try {
+          return readTopicFromHash(window.location.hash || "#/") || "ucs://local/ucs_hub";
+        } catch {
+          return "";
+        }
+      },
+      getPath: () => window.location.hash || "#/",
+    });
+
+    // allow UMD helper to clean up listeners/timers
+    return () => {
+      if (typeof stop === "function") stop();
+    };
+  }, [session?.wa]);
 
   // Accept both a string or an object from TopBar
   const handleNavigate = (arg: NavArg) => {

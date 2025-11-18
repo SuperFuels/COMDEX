@@ -2,6 +2,10 @@
   "name": "comdex",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=20 <21"
+  },
   "scripts": {
     "build": "cd frontend && next build",
     "start": "cd frontend && next start -p 3000",
@@ -12,7 +16,8 @@
     "kg": "ts-node --transpile-only -P server/tsconfig.json server/kg.ts",
     "dev:server": "ts-node -P server/tsconfig.json server/kg.ts",
     "build:server": "tsc -p server/tsconfig.json",
-    "start:server": "node server/dist/kg.js"
+    "start:server": "node server/dist/kg.js",
+    "postinstall": "pnpm rebuild better-sqlite3 esbuild || true"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -71,7 +76,7 @@
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },
-  "engines": {
-    "node": ">=18.18"
+  "pnpm": {
+    "onlyBuiltDependencies": ["better-sqlite3", "esbuild"]
   }
 }
