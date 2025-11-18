@@ -459,6 +459,12 @@ export default function ChatThread({
   const processedCapsRef = useRef<Set<string>>(new Set());
   
   // TEMP: direct WS subscriber for immediate fanout (ephemeral id so echo collapses it)
+  // Keep a per-session de-dupe set for WS-delivered message IDs
+  const seenRxIdsRef = useRef<Set<string>>(new Set());
+
+  // ──────────────────────────────────────────────────────────────
+    // TEMP: direct WS subscriber (chat + voice_note + signaling with de-dupe)
+  // ──────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!topicWa) return;
 
@@ -468,101 +474,184 @@ export default function ChatThread({
 
     const ws = new WebSocket(wsUrl);
 
+    const norm = (s?: string) =>
+      String(s || "").toLowerCase().replace(/^ucs:\/\//, "").replace(/\/+$/, "");
+
+    const matchesTopic = (rec?: string) => {
+      if (!rec) return true;
+      const a = norm(rec), b = norm(topicWa);
+      return a === b || a.endsWith("/" + b) || b.endsWith("/" + a);
+    };
+
     const onMessage = (e: MessageEvent) => {
-      let frame: any = e.data;
-      try { frame = JSON.parse(frame); } catch {}
+      let frame: any;
+      try { frame = JSON.parse(e.data as any); } catch { return; }
+      if (!frame) return;
 
-      const env: any = frame?.envelope ?? frame ?? {};
-      const cap: any = env?.capsule ?? frame?.capsule ?? {};
+      const env: any  = frame?.envelope ?? frame ?? {};
+      const cap: any  = env?.capsule   ?? frame?.capsule ?? {};
+      const meta: any = env?.meta      ?? frame?.meta    ?? {};
+      const msgId: string | undefined = env?.msg_id || env?.id || frame?.msg_id;
 
-      // Fanout chat → ephemeral local:* id
-      const cm = cap?.chat_message ?? env?.capsule?.chat_message ?? frame?.chat_message;
-      if (cm && typeof cm.text === "string" && cm.text.trim()) {
-        const at = Math.round(Number(cm.at ?? Date.now()));
-        const text = cm.text.trim();
-        const salt = (window as any)?.hash8 ? (window as any).hash8(text) : Math.random().toString(36).slice(2, 6);
-        const localId = `local:fanout:${at}:${salt}`;
+      const sender = meta?.trace_id || env?.from || frame?.from || "";
 
-        setThread(prev => {
-          // if we already have a canonical near this time/text, skip
-          const hasCanonical = prev.some(m =>
-            m?.kind === "text" &&
-            !String(m.id).startsWith("local:") &&
-            (m as any).text === text &&
-            Math.abs((m.ts || 0) - at) <= 10000
-          );
-          if (hasCanonical) return prev;
+      // ───────── SIGNALING over WS (offer/answer/ice/cancel/reject/end) ─────────
+      {
+        let sig: any = null;
 
-          // avoid duplicate ephemerals
-          const hasEphemeral = prev.some(m =>
-            m?.kind === "text" &&
-            String(m.id).startsWith("local:") &&
-            (m as any).text === text &&
-            Math.abs((m.ts || 0) - at) <= 2000
-          );
-          if (hasEphemeral) return prev;
+        // native caps?
+        if (
+          cap?.voice_offer || cap?.voice_answer || cap?.ice ||
+          cap?.voice_cancel || cap?.voice_reject || cap?.voice_end
+        ) {
+          sig = cap;
+        } else {
+          // packed in glyph string?
+          const gs: string[] | undefined =
+            (Array.isArray(cap?.glyphs) ? cap.glyphs : undefined) ??
+            (Array.isArray(cap?.glyph_stream) ? cap.glyph_stream : undefined);
+          if (gs) {
+            for (const g of gs) {
+              const m = typeof unpackSig === "function" ? unpackSig(g) : null;
+              if (
+                m && (m.voice_offer || m.voice_answer || m.ice ||
+                      m.voice_cancel || m.voice_reject || m.voice_end)
+              ) { sig = m; break; }
+            }
+          }
+        }
 
-          const next = [...prev, { id: localId, ts: at, kind: "text", from: cm.from, text } as NormalizedMsg]
-            .sort((a, b) => (a.ts || 0) - (b.ts || 0));
+        if (sig) {
+          // ignore self-echo
+          if (String(sender) === String(AGENT_ID)) return;
+
+          // topic / kg filter
+          const rec = env?.recipient || env?.to || meta?.topicWa || "";
+          if (!matchesTopic(rec)) return;
+          const gRx = env?.graph || meta?.graph;
+          if (gRx && gRx !== graph) return;
+
+          // de-dupe
+          const key = typeof sigKey === "function" ? sigKey(sig) : JSON.stringify(sig).slice(0, 512);
+          if (sigSeenInRef.current.has(key)) return;
+          sigSeenInRef.current.add(key);
+
+          handleInboundSig(sig, meta);
+          return; // handled
+        }
+      }
+
+      // ───────── VOICE NOTE (live fanout) ─────────
+      if (cap?.voice_note) {
+        const v = cap.voice_note;
+        const rec = env?.recipient || env?.to || meta?.topicWa || "";
+        if (!matchesTopic(rec)) return;
+        const gRx = env?.graph || meta?.graph;
+        if (gRx && gRx !== graph) return;
+
+        // ignore 100% identical payloads
+        const sig = `vf|${String(v.mime || "")}|${String(v.data_b64 || "").slice(0, 16)}|${Math.floor((Number(v.ts) || 0) / 3000)}`;
+        if (seenSigRef.current.has(sig)) return;
+        seenSigRef.current.add(sig);
+        if (msgId) seenRef.current.add(msgId);
+
+        setThread((prev) => {
+          const id = msgId || `rx-voice:${v.ts || Date.now()}:${Math.random().toString(36).slice(2, 6)}`;
+          if (prev.some((m) => m.id === id)) return prev;
+          const next = [...prev,
+            { id, kind: "voice", ts: Number(v.ts) || Date.now(),
+              from: sender || "remote", mime: String(v.mime || "audio/webm"),
+              data_b64: String(v.data_b64 || "") } as NormalizedMsg
+          ].sort((a, b) => (a.ts || 0) - (b.ts || 0));
           try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
-          // do NOT add to seenSigRef — let the persisted echo replace it
           return next;
         });
         return;
       }
 
-      // Non-chat frames (e.g., glyph echo / voice) → normal path
+      // ───────────── CHAT fanout (ephemeral for OTHER tabs only) ─────────────
+      const cm = cap?.chat_message ?? env?.capsule?.chat_message ?? frame?.chat_message;
+      if (cm && typeof cm.text === "string" && cm.text.trim()) {
+        const at   = Math.round(Number(cm.at ?? Date.now()));
+        const text = cm.text.trim();
+
+        // 👇 NEW: ignore our own fanout (sender already shows optimistic bubble)
+        const from   = cm.from ?? meta?.trace_id ?? env?.from ?? "";
+        const rxConn = meta?.conn_id ?? env?.meta?.conn_id ?? null; // requires withConnMeta on send
+        const isSelf = String(from) === String(AGENT_ID) || (!!WS_ID && rxConn === WS_ID);
+        if (isSelf) return;
+
+        // If canonical exists already, skip
+        const hasCanonical = thread.some(m =>
+          m?.kind === "text" &&
+          !String(m.id).startsWith("local:") &&
+          (m as any).text === text &&
+          Math.abs((m.ts || 0) - at) <= 15000
+        );
+        if (hasCanonical) return;
+
+        // Avoid duplicate ephemerals using a coarse signature
+        const sig = `txt|${text}|${Math.floor(at / 5000)}`;
+        const priorLocalId = ephTextMapRef.current.get(sig);
+        if (priorLocalId && thread.some(m => m.id === priorLocalId)) return;
+
+        const localId = `local:fanout:${at}:${Math.random().toString(36).slice(2, 6)}`;
+        ephTextMapRef.current.set(sig, localId);
+
+        setThread(prev => {
+          const next = [
+            ...prev,
+            { id: localId, ts: at, kind: "text", from: cm.from, text } as NormalizedMsg,
+          ].sort((a, b) => (a.ts || 0) - (b.ts || 0));
+          try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+          return next;
+        });
+        return;
+      }
+
+      // ───────── Persisted/canonical path (leave your existing normalizeIncoming flow) ─────────
       const nm = normalizeIncoming(frame);
       if (!nm) return;
 
-      const sigKey =
+      const sigKey2 =
         nm.kind === "text"
           ? `txt|${(nm as any).text}|${Math.floor((nm.ts || 0) / 3000)}`
-          : `vf|${(nm as any).mime}|${fpB64((nm as any).data_b64)}|${Math.floor((nm.ts || 0) / 3000)}`;
+          : `vf|${(nm as any).mime}|${(nm as any).data_b64?.slice?.(0, 16)}|${Math.floor((nm.ts || 0) / 3000)}`;
 
-      setThread(prev => {
-        let next = [...prev];
-
-        // if this is the canonical echo for an earlier ephemeral, upgrade it
-        if (nm.kind === "text") {
-          const i = next.findIndex(m =>
-            m?.kind === "text" &&
-            String(m.id).startsWith("local:") &&
-            (m as any).text === (nm as any).text &&
-            Math.abs((m.ts || 0) - (nm.ts || 0)) <= 10000
-          );
-          if (i !== -1) {
-            next[i] = nm;
-            const dupIdx = next.findIndex((m, idx) => idx !== i && m.id === nm.id);
-            if (dupIdx !== -1) next.splice(dupIdx, 1);
-            next.sort((a, b) => (a.ts || 0) - (b.ts || 0));
-            try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
-            seenRef.current.add(nm.id);
-            seenSigRef.current.add(sigKey);
-            return next;
-          }
-        }
-
-        if (next.some(p => p.id === nm.id)) return prev;
-        if (seenSigRef.current.has(sigKey)) return prev;
-
-        next = [...next, nm].sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      setThread((prev) => {
+        if (prev.some((p) => p.id === nm.id)) return prev;
+        if (seenSigRef.current.has(sigKey2)) return prev;
+        const next = [...prev, nm].sort((a, b) => (a.ts || 0) - (b.ts || 0));
         try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
         seenRef.current.add(nm.id);
-        seenSigRef.current.add(sigKey);
+        seenSigRef.current.add(sigKey2);
         return next;
       });
     };
 
     ws.addEventListener("message", onMessage);
-    ws.addEventListener("error", () => {});
-    ws.addEventListener("close", () => {});
+    ws.addEventListener("error", (e) => console.log("[WS] error", e));
+    ws.addEventListener("open", () => console.log("[WS] open", wsUrl));
     return () => { try { ws.removeEventListener("message", onMessage); ws.close(); } catch {} };
-  }, [topicWa, graph, storageKey]);
+  }, [topicWa, graph, storageKey, thread.length]);
+  // ───────────────────────────────────────────────────────────────────────────────
 
   // Address input mirrors topic and stays in sync
   const [addrInput, setAddrInput] = useState<string>(topic || "");
   useEffect(() => setAddrInput(topic || ""), [topic]);
+
+  const [floorOwned, setFloorOwned] = useState(false);
+  // Safety net: if the tab loses focus or becomes hidden, make sure we stop
+  useEffect(() => {
+    const onBlur = () => { if (pttDownRef.current || floorOwned) stopPTT(); };
+    const onVis = () => { if (document.hidden && (pttDownRef.current || floorOwned)) stopPTT(); };
+    window.addEventListener("blur", onBlur);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      window.removeEventListener("blur", onBlur);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [floorOwned]); // stopPTT is a function declaration, safe to reference
 
   // If a defaultTopic prop comes later, only adopt it if we currently have none
   useEffect(() => {
@@ -603,6 +692,77 @@ export default function ChatThread({
 
   const offerTimeoutRef = useRef<number | null>(null);
 
+  // PTT pointer management
+  const micRef = useRef<HTMLButtonElement | null>(null);
+  const activePointerIdRef = useRef<number | null>(null);
+
+  const handlePointerDownPTT = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (micDisabled) return;
+    e.preventDefault();
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+    activePointerIdRef.current = e.pointerId;
+    startPTT(); // sets pttDownRef.current = true internally
+  };
+
+  const handlePointerUpPTT = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (activePointerIdRef.current !== null && e.pointerId === activePointerIdRef.current) {
+      e.preventDefault();
+      activePointerIdRef.current = null;
+      stopPTT();
+    }
+  };
+
+  const handlePointerCancelPTT = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (activePointerIdRef.current !== null && e.pointerId === activePointerIdRef.current) {
+      activePointerIdRef.current = null;
+      stopPTT();
+    }
+  };
+
+  const handleKeyDownPTT = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.code === "Space" && !micDisabled && !pttDownRef.current) {
+      e.preventDefault();
+      startPTT();
+    }
+  };
+
+  const handleKeyUpPTT = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.code === "Space") {
+      e.preventDefault();
+      stopPTT();
+    }
+  };
+
+  // ── signaling de-dupe / state guards
+  // --- Call signaling de-dupe / queue state ---
+  const appliedOffersRef  = useRef<Set<string>>(new Set());
+  const appliedAnswersRef = useRef<Set<string>>(new Set());
+  const addedIceRef       = useRef<Set<string>>(new Set()); // key `${callId}|${cand}`
+
+  const pendingAnswerRef  = useRef<Map<string, RTCSessionDescriptionInit>>(new Map());
+  const pendingIceRef     = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
+
+  // Flush any queued ICE after remote desc is set
+  async function flushPendingIce(callId: string, pc: RTCPeerConnection) {
+    const list = pendingIceRef.current.get(callId);
+    if (!list || !list.length) return;
+    pendingIceRef.current.delete(callId);
+    for (const c of list) {
+      const key = `${callId}|${c.candidate}`;
+      if (addedIceRef.current.has(key)) continue;
+      try { await pc.addIceCandidate(c); addedIceRef.current.add(key); }
+      catch (e) { console.warn("[RTC] flush addIce failed", e); }
+    }
+  }
+
+  function cleanupCallSets() {
+    appliedOffersRef.current.clear();
+    appliedAnswersRef.current.clear();
+    addedIceRef.current.clear();
+    pendingAnswerRef.current.clear();
+    pendingIceRef.current.clear();
+  }
+
   // WebRTC: call state + refs (canonical)
   type CallState = "idle" | "ringing" | "offering" | "connecting" | "connected" | "ended";
   const [callState, setCallState] = useState<CallState>("idle");
@@ -631,7 +791,7 @@ export default function ChatThread({
   const pttDownRef = useRef(false);
   useEffect(() => { pttDownRef.current = pttDown; }, [pttDown]);
 
-  const [floorOwned, setFloorOwned] = useState(false);
+
   const [floorBusyBy, setFloorBusyBy] = useState<string | null>(null);
   const lastGrantedRef = useRef<boolean>(false);
   const lastAcquireMsRef = useRef<number>(0);
@@ -752,6 +912,8 @@ export default function ChatThread({
 
   // --- WebRTC refs (types imported at top; do NOT redeclare) ---
   const pendingOfferRef = useRef<VoiceOffer["voice_offer"] | null>(null);
+  const ephTextMapRef = useRef<Map<string, string>>(new Map());
+  const sigSeenInRef = useRef<Set<string>>(new Set());
 
   const lossRef = useRef<{ recv: number; lost: number; lastSeq: Map<string, number> }>({
     recv: 0,
@@ -1069,7 +1231,7 @@ useEffect(() => {
               if (
                 m &&
                 (m.voice_offer || m.voice_answer || m.ice ||
-                 m.voice_cancel || m.voice_reject || m.voice_end)
+                m.voice_cancel || m.voice_reject || m.voice_end)
               ) { sig = m; break; }
             }
           }
@@ -1079,8 +1241,8 @@ useEffect(() => {
           sig?.voice_offer || sig?.voice_answer || sig?.ice ||
           sig?.voice_cancel || sig?.voice_reject || sig?.voice_end
         ) {
-          // … existing signaling handling lives elsewhere …
-          continue; // do not render signaling
+          handleSig(sig);           // ← actually process signaling
+          continue;                 // do not render signaling
         }
       }
 
@@ -1206,6 +1368,9 @@ const [busy, setBusy] = useState(false);
 const mrRef = useRef<MediaRecorder | null>(null);
 const chunksRef = useRef<BlobPart[]>([]);
 const streamRef = useRef<MediaStream | null>(null);
+
+// Call UI state
+const [incoming, setIncoming] = useState<boolean>(false);
 
 // If you don't have a UI toggle yet, keep transcription off by default.
 // (Prevents ReferenceErrors when sending voice notes.)
@@ -1536,6 +1701,42 @@ async function sendVoiceNoteFile(f: File) {
   };
 
   // ───────────── txSig helpers (keep near txSig) ─────────────
+  // ───────────────── RTC debug helpers ─────────────────
+  function wireRtcDebug(pc: RTCPeerConnection, label = "pc") {
+    if (!(window as any).RTC_DEBUG) return;
+    const lg = (...a: any[]) => console.log(`[RTC:${label}]`, ...a);
+
+    pc.addEventListener("icegatheringstatechange", () => lg("icegathering:", pc.iceGatheringState));
+    pc.addEventListener("iceconnectionstatechange", () => lg("iceconnection:", pc.iceConnectionState));
+    pc.addEventListener("connectionstatechange", () => lg("connection:", pc.connectionState));
+    pc.addEventListener("signalingstatechange", () => lg("signaling:", pc.signalingState));
+    pc.addEventListener("negotiationneeded", () => lg("negotiationneeded"));
+    pc.addEventListener("track", (ev) => {
+      const t = ev.track; lg("track:", t.kind, t.id, "enabled:", t.enabled, "muted:", t.muted);
+    });
+
+    // quick stats sampler (call stopStats() to stop)
+    let statsTimer: any = null;
+    (pc as any).__startStats = (interval = 1500) => {
+      if (statsTimer) return;
+      statsTimer = setInterval(async () => {
+        try {
+          const rpt = await pc.getStats();
+          let inbound: any, outbound: any, rtt: any;
+          rpt.forEach((s: any) => {
+            if (s.type === "remote-inbound-rtp" && s.kind === "audio") rtt = s.roundTripTime;
+            if (s.type === "inbound-rtp" && s.kind === "audio") inbound = s;
+            if (s.type === "outbound-rtp" && s.kind === "audio") outbound = s;
+          });
+          lg("stats:",
+            { inBytes: inbound?.bytesReceived, outBytes: outbound?.bytesSent, rtt: rtt }
+          );
+        } catch {}
+      }, interval);
+    };
+    (pc as any).__stopStats = () => { if (statsTimer) clearInterval(statsTimer); statsTimer = null; };
+  }
+
   const SIG_DEDUPE_MS = 800; // ignore identical capsule within this window
   const _sentSigCache = new Map<string, number>();
 
@@ -1602,6 +1803,49 @@ async function sendVoiceNoteFile(f: File) {
     }
   }
 
+  function handleInboundSig(sig: any, meta: any = {}) {
+    // OFFER → ring + stash pending offer
+    if (sig.voice_offer) {
+      const { sdp, call_id } = sig.voice_offer;
+      pendingOfferRef.current = { sdp, call_id };
+      setCallState((s) => (s === "idle" ? "ringing" : s));
+      try { const el = ringAudio.current; el?.play?.().catch(() => {}); } catch {}
+      return;
+    }
+
+    // ANSWER → caller applies remote SDP
+    if (sig.voice_answer) {
+      const pc = pcRef.current;
+      if (!pc) return;
+      const desc = typeof sig.voice_answer.sdp === "string"
+        ? JSON.parse(sig.voice_answer.sdp)
+        : sig.voice_answer.sdp;
+      pc.setRemoteDescription(desc).catch((e) =>
+        console.warn("[RTC] setRemoteDescription(answer) failed", e)
+      );
+      return;
+    }
+
+    // ICE → add candidate
+    if (sig.ice && sig.ice.candidate) {
+      const pc = pcRef.current;
+      if (!pc) return;
+      const cand = sig.ice.candidate;
+      try { pc.addIceCandidate(cand); } catch (e) { console.warn("[RTC] addIceCandidate failed", e); }
+      const t = /candidate:.* typ (\w+)/.exec(cand?.candidate || "")?.[1] || "";
+      if (t) setLastCandType(t);
+      return;
+    }
+
+    // CANCEL / REJECT / END → stop ringing / tear down
+    if (sig.voice_cancel || sig.voice_reject || sig.voice_end) {
+      try { const el = ringAudio.current; if (el) { el.pause(); try { el.currentTime = 0; } catch {} } } catch {}
+      try { pcRef.current?.close?.(); } catch {}
+      setCallState("ended");
+      return;
+    }
+  }
+
   // ——— Call functions ———
   async function sendOffer(sdp: string, callId: string) {
     try {
@@ -1662,32 +1906,161 @@ async function sendVoiceNoteFile(f: File) {
     return txSig({ voice_end: { call_id: callId } } as VoiceEnd);
   }
 
+  // ───────────────── startCall — with RTC debug wiring ─────────────────
+
+  // Helper: prefer OPUS and disable DTX on the sender (safe if unsupported)
+  async function configureAudioSender(pc: RTCPeerConnection) {
+    try {
+      const tx = pc.getTransceivers?.().find(tr => tr.sender?.track?.kind === "audio");
+      const caps = RTCRtpReceiver.getCapabilities?.("audio");
+      if (tx?.setCodecPreferences && caps?.codecs?.length) {
+        const opus = caps.codecs.filter(c => /opus/i.test(c.mimeType));
+        const rest = caps.codecs.filter(c => !/opus/i.test(c.mimeType));
+        tx.setCodecPreferences([...opus, ...rest]);
+      }
+
+      const snd = pc.getSenders?.().find(s => s.track?.kind === "audio");
+      if (snd?.getParameters) {
+        const p = snd.getParameters();
+        p.encodings = p.encodings || [{}];
+        (p.encodings[0] as any).dtx = false; // keep frames flowing while speaking
+        await snd.setParameters(p).catch(() => {});
+      }
+    } catch {}
+  }
+
+  async function handleSig(sig: any) {
+    const pc = pcRef.current;
+
+    // -------- OFFER (callee path) --------
+    if (sig?.voice_offer) {
+      const { sdp, call_id } = sig.voice_offer;
+      if (appliedOffersRef.current.has(call_id)) return;
+
+      // queue it for UI "Accept"
+      pendingOfferRef.current = { sdp, call_id };
+      try { ringAudio.current?.play?.().catch(()=>{}); } catch {}
+      setCallState(s => (s === "idle" ? "ringing" : s));
+      return;
+    }
+
+    // -------- ANSWER (caller path) --------
+    if (sig?.voice_answer) {
+      const callId = sig.voice_answer.call_id || callIdRef.current || "";
+      if (!callId) return;
+      if (appliedAnswersRef.current.has(callId)) return;
+
+      const desc = typeof sig.voice_answer.sdp === "string"
+        ? JSON.parse(sig.voice_answer.sdp)
+        : sig.voice_answer.sdp;
+
+      if (!pc) {
+        // caller not ready yet; queue
+        pendingAnswerRef.current.set(callId, desc);
+        return;
+      }
+
+      if (pc.signalingState === "have-local-offer") {
+        try {
+          await pc.setRemoteDescription(desc);
+          appliedAnswersRef.current.add(callId);
+          await flushPendingIce(callId, pc);
+        } catch (e) {
+          console.warn("[RTC] setRemoteDescription(answer) failed", e);
+        }
+      } else {
+        // not ready; queue to apply once we do have-local-offer
+        pendingAnswerRef.current.set(callId, desc);
+        console.warn("[RTC] queued answer (state=", pc.signalingState, ")");
+      }
+      return;
+    }
+
+    // -------- ICE (both paths) --------
+    if (sig?.ice?.candidate) {
+      const callId = sig.ice.call_id || callIdRef.current || "";
+      const cand: RTCIceCandidateInit = sig.ice.candidate;
+      const key = `${callId}|${cand.candidate}`;
+      if (addedIceRef.current.has(key)) return;
+
+      if (pc && pc.remoteDescription) {
+        try { await pc.addIceCandidate(cand); addedIceRef.current.add(key); }
+        catch (e) { console.warn("[RTC] addIceCandidate failed", e); }
+      } else {
+        const arr = pendingIceRef.current.get(callId) || [];
+        arr.push(cand);
+        pendingIceRef.current.set(callId, arr);
+      }
+      return;
+    }
+
+    // -------- CANCEL / REJECT / END --------
+    if (sig?.voice_cancel || sig?.voice_reject || sig?.voice_end) {
+      try { ringAudio.current?.pause?.(); } catch {}
+      try { pcRef.current?.close?.(); } catch {}
+      pcRef.current = null;
+      setCallState("ended");
+      cleanupCallSets();
+      return;
+    }
+  }
+
   async function startCall() {
     if (callState !== "idle") return;
 
-    const callId =
-      crypto?.randomUUID?.() || `call-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    // clean slate for this call
+    cleanupCallSets();
+
+    const callId = crypto?.randomUUID?.() || `call-${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
     callIdRef.current = callId;
     setCallState("offering");
 
-    const { stream } = await ensureMicPTT();
+    const { stream } = await ensureMicPTT({ force: false });
 
     const pc = await makePeer(
       "caller",
       {
         onLocalDescription: (sdp) => sendOffer(JSON.stringify(sdp), callId),
-        onLocalIce: (cand) => sendIce(cand, callId), // only place we send ICE for caller
+        onLocalIce: (cand) => sendIce(cand, callId),
         onRemoteTrack: (ms) => {
-          if (remoteAudioRef.current) remoteAudioRef.current.srcObject = ms;
+          const el = remoteAudioRef.current;
+          if (!el) return;
+          try {
+            el.srcObject = ms;
+            el.autoplay = true;
+            el.muted = false;
+            el.volume = 1;
+            el.play?.().catch(()=>{});
+          } catch {}
         },
       },
       { iceServers }
     );
 
+    wireRtcDebug(pc, "caller");
+    (window as any).__pc = pc;
+
     pc.onicecandidate = (e) => {
-      if (e.candidate) {
-        const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
-        if (t) setLastCandType(t);
+      if (!e.candidate) return;
+      const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
+      if (t) setLastCandType(t);
+    };
+    pc.onicecandidateerror = (e: any) => console.warn("[RTC:caller] icecandidateerror", e?.errorCode, e?.errorText || e);
+
+    pc.onsignalingstatechange = async () => {
+      // If an answer arrived early, apply it once we have-local-offer
+      if (pc.signalingState === "have-local-offer") {
+        const queued = pendingAnswerRef.current.get(callId);
+        if (queued && !appliedAnswersRef.current.has(callId)) {
+          try {
+            await pc.setRemoteDescription(queued);
+            appliedAnswersRef.current.add(callId);
+            pendingAnswerRef.current.delete(callId);
+            await flushPendingIce(callId, pc);
+          } catch (e) {
+            console.warn("[RTC] apply queued answer failed", e);
+          }
+        }
       }
     };
 
@@ -1700,7 +2073,7 @@ async function sendVoiceNoteFile(f: File) {
             apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
             call_id: callIdRef.current, kind: "connected",
             ice_type: lastCandType || undefined, secs: 0, ts: Date.now(), agentId: AGENT_ID,
-          }).catch(() => {});
+          }).catch(()=>{});
         }
       }
       if (s === "failed" || s === "closed" || s === "disconnected") {
@@ -1708,12 +2081,20 @@ async function sendVoiceNoteFile(f: File) {
       }
     };
 
-    // attach local mic tracks
-    stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+    // ensure local track is hot
+    const a = stream.getAudioTracks?.()[0];
+    if (a) {
+      a.enabled = true;
+      try {
+        await a.applyConstraints({ echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } as any);
+      } catch {}
+    }
+
+    try { stream.getTracks().forEach(t => pc.addTrack(t, stream)); } catch {}
     rememberLocalMicTrack(stream);
+    await configureAudioSender(pc).catch(()=>{});
     pcRef.current = pc;
 
-    // emit SDP offer via helper
     try {
       await (pc as any)._emitLocalDescription("offer");
     } catch (e) {
@@ -1726,29 +2107,44 @@ async function sendVoiceNoteFile(f: File) {
     const offer = pendingOfferRef.current as { sdp: string; call_id: string } | null;
     if (!offer) return;
 
+    // clean slate for this call
+    cleanupCallSets();
+    appliedOffersRef.current.add(offer.call_id);
+
     callIdRef.current = offer.call_id;
     setCallState("connecting");
 
-    const { stream } = await ensureMicPTT();
+    const { stream } = await ensureMicPTT({ force: false });
 
     const pc = await makePeer(
       "callee",
       {
         onLocalDescription: (sdp) => sendAnswer(JSON.stringify(sdp), offer.call_id),
-        onLocalIce: (cand) => sendIce(cand, offer.call_id), // only here for callee ICE
+        onLocalIce: (cand)     => sendIce(cand, offer.call_id),
         onRemoteTrack: (ms) => {
-          if (remoteAudioRef.current) remoteAudioRef.current.srcObject = ms;
+          const el = remoteAudioRef.current;
+          if (!el) return;
+          try {
+            el.srcObject = ms;
+            el.autoplay  = true;
+            el.muted     = false;
+            el.volume    = 1;
+            el.play?.().catch(()=>{});
+          } catch {}
         },
       },
       { iceServers }
     );
 
+    wireRtcDebug(pc, "callee");
+    (window as any).__pc = pc;
+
     pc.onicecandidate = (e) => {
-      if (e.candidate) {
-        const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
-        if (t) setLastCandType(t);
-      }
+      if (!e.candidate) return;
+      const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
+      if (t) setLastCandType(t);
     };
+    pc.onicecandidateerror = (e: any) => console.warn("[RTC:callee] icecandidateerror", e?.errorCode, e?.errorText || e);
 
     pc.onconnectionstatechange = () => {
       const s = pc.connectionState;
@@ -1759,7 +2155,7 @@ async function sendVoiceNoteFile(f: File) {
             apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
             call_id: callIdRef.current, kind: "connected",
             ice_type: lastCandType || undefined, secs: 0, ts: Date.now(), agentId: AGENT_ID,
-          }).catch(() => {});
+          }).catch(()=>{});
         }
       }
       if (s === "failed" || s === "closed" || s === "disconnected") {
@@ -1767,33 +2163,49 @@ async function sendVoiceNoteFile(f: File) {
       }
     };
 
-    // attach local mic tracks
-    stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+    // hot local track
+    const a = stream.getAudioTracks?.()[0];
+    if (a) {
+      a.enabled = true;
+      try {
+        await a.applyConstraints({ echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } as any);
+      } catch {}
+    }
+
+    try { stream.getTracks().forEach(t => pc.addTrack(t, stream)); } catch {}
     rememberLocalMicTrack(stream);
+    await configureAudioSender(pc).catch(()=>{});
     pcRef.current = pc;
 
-    // apply remote offer, then emit our answer
     try {
       const desc = typeof offer.sdp === "string" ? JSON.parse(offer.sdp) : offer.sdp;
       await pc.setRemoteDescription(desc);
       await (pc as any)._emitLocalDescription("answer");
+      // remote desc is set → any queued ICE from caller can be added now
+      await flushPendingIce(offer.call_id, pc);
     } catch (e) {
       console.error("Failed to accept call:", e);
       setCallState("ended");
       return;
     }
 
-    // stop ringing and clear pending offer
+    // stop ringing + clear
     try {
       const el = ringAudio.current;
-      if (el) {
-        el.pause();
-        try { el.currentTime = 0; } catch {}
-      }
+      if (el) { el.pause(); try { el.currentTime = 0; } catch {} }
     } catch {}
     pendingOfferRef.current = null;
   }
 
+  async function endCall() {
+    const id = callIdRef.current;
+    try { pcRef.current?.getSenders?.().forEach(s => s.track?.stop?.()); } catch {}
+    try { pcRef.current?.close?.(); } catch {}
+    pcRef.current = null;
+    try { if (id) await sendEnd(id); } catch {}
+    setCallState("ended");
+    cleanupCallSets();
+  }
   // —— Additional Functions: rememberLocalMicTrack, declineCall, toggleMute, toggleHold ———
 
   function rememberLocalMicTrack(stream: MediaStream) {
@@ -2126,16 +2538,6 @@ async function sendVoiceNoteFile(f: File) {
     }
   }
 
-  // Select mime type for PTT
-  function pickMime(): string {
-    const candidates = ["audio/webm;codecs=opus", "audio/ogg;codecs=opus", "audio/webm"];
-    for (const m of candidates) {
-      if ((window as any).MediaRecorder?.isTypeSupported?.(m)) return m;
-    }
-    console.warn("[pickMime] No supported mime type found.");
-    return "audio/webm";
-  }
-
   // ─── Generic signal send (glyphs/text etc) ───
   async function sendSignal(capsule: SignalCapsule) {
     const headers = withConnHeaders({
@@ -2155,37 +2557,96 @@ async function sendVoiceNoteFile(f: File) {
     );
   }
 
-  // Ensure microphone is ready for PTT
+  // ───────────────── Mic setup for PTT ─────────────────
   const [micReady, setMicReady] = useState(false);
-  async function ensureMicPTT(): Promise<{ stream: MediaStream; mime: string }> {
-    if (streamRef.current && streamRef.current.active) {
+
+  // Prefer WebM/Opus when supported; fall back to MP4/AAC on Safari/iOS.
+  const MIME_PREFS = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/mp4;codecs=mp4a.40.2",
+  ];
+
+  function pickMime(): string {
+    const ok = (m: string) =>
+      typeof MediaRecorder !== "undefined" &&
+      typeof MediaRecorder.isTypeSupported === "function" &&
+      MediaRecorder.isTypeSupported(m);
+    for (const m of MIME_PREFS) if (ok(m)) return m;
+    return "audio/webm";
+  }
+
+  /**
+   * Ensure a hot microphone stream for PTT/calls.
+   * Reuses the current stream when possible; pass {force:true} to recreate.
+   */
+  async function ensureMicPTT(
+    opts: { force?: boolean } = {}
+  ): Promise<{ stream: MediaStream; mime: string }> {
+    // Reuse existing, keep track enabled
+    if (streamRef.current && streamRef.current.active && !opts.force) {
+      const t = streamRef.current.getAudioTracks?.()[0];
+      if (t) t.enabled = true; // 🔊 ensure hot mic
+      setMicReady(true);
       return { stream: streamRef.current, mime: pickMime() };
     }
-    const audio: MediaTrackConstraints = {
-      echoCancellation: true,
-      noiseSuppression: true,
-      autoGainControl: true,
-    };
-    if (selectedMicId) audio.deviceId = { exact: selectedMicId };
 
-    const stream = await navigator.mediaDevices.getUserMedia({ audio });
+    // Build constraints (respect selectedMicId if present)
+    const constraints: MediaStreamConstraints = {
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        channelCount: 1,
+        ...(selectedMicId ? { deviceId: { exact: selectedMicId } } : {}),
+      } as MediaTrackConstraints,
+      video: false,
+    };
+
+    // Acquire a fresh stream
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    const t = stream.getAudioTracks?.()[0];
+
+    if (t) {
+      // Keep it live + apply helpful processing; ignore failures silently
+      t.enabled = true; // 🔊
+      t.applyConstraints?.({
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        channelCount: 1,
+      } as MediaTrackConstraints).catch(() => {});
+    }
+
     streamRef.current = stream;
     setMicReady(true);
-    // after permission is granted device labels become available
-    try { await navigator.mediaDevices.enumerateDevices(); refreshMics(); } catch {}
-    return { stream, mime: pickMime() };
+
+    // After permission, device labels are available — refresh device list if you have the helper
+    try {
+      await navigator.mediaDevices.enumerateDevices();
+      // @ts-ignore optional helper provided elsewhere
+      refreshMics?.();
+    } catch {}
+
+    // Choose a working recorder mime for this UA
+    const mime = pickMime();
+    return { stream, mime };
   }
 
   function stopMeter() {
     if (meterRAF.current != null) cancelAnimationFrame(meterRAF.current);
     meterRAF.current = null;
-    try { audioCtxRef.current?.close(); } catch (e) { console.error("AudioContext close failed:", e); }
+    try {
+      audioCtxRef.current?.close();
+    } catch (e) {
+      console.error("AudioContext close failed:", e);
+    }
     audioCtxRef.current = null;
     setMicLevel(0);
   }
 
   function startMeter(stream: MediaStream) {
-    stopMeter();  // stop previous meter before starting a new one
+    stopMeter(); // stop previous meter before starting a new one
     const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
     const ctx: AudioContext = new Ctx();
     audioCtxRef.current = ctx;
@@ -2206,6 +2667,7 @@ async function sendVoiceNoteFile(f: File) {
       setMicLevel(Math.sqrt(sum / data.length));
       meterRAF.current = requestAnimationFrame(tick);
     };
+
     // Safari can start suspended; try to resume once
     ctx.resume?.().catch(() => {});
     meterRAF.current = requestAnimationFrame(tick);
@@ -2305,7 +2767,6 @@ async function sendVoiceNoteFile(f: File) {
   // ──────────────────────────────────────────────────────────────
   // PTT: press/hold to record; on release send single voice note blob
   const [awaitingLock, setAwaitingLock] = useState(false);
-  // ^ kept here as reference; real state is defined earlier in Part 1
 
   const pttChannelRef = useRef<string>("");
   const seqRef = useRef<number>(0);
@@ -2315,7 +2776,7 @@ async function sendVoiceNoteFile(f: File) {
     seqRef.current = 0;
   }, [topicWa, AGENT_ID]);
 
-  // ───────────────── startPTT (with KG floor_lock emits) ─────────────────
+  // ───────────────── startPTT (timeslice + requestData pulses) ─────────────────
   async function startPTT() {
     if (pttDownRef.current) return;
 
@@ -2326,16 +2787,96 @@ async function sendVoiceNoteFile(f: File) {
     // ── metrics: mark attempt start
     metricsRef.current.lastStart = Date.now();
 
-    // Acquire the floor (canonical topic)
     const resource = `voice:${topicWa}`;
     lockResourceRef.current = resource;
-    await sendLock("acquire", resource, 3500);
-    const res = await waitForLock(resource, 1500);
 
-    if (res !== "granted") {
-      // ── metrics: denied
+    // begin recording immediately so we don't lose audio while waiting on lock
+    let stream: MediaStream | null = null;
+    let mime: string = "audio/webm";
+    chunksRef.current = [];
+
+    try {
+      const mic = await ensureMicPTT(); // { stream, mime }
+      stream = mic.stream;
+      mime   = mic.mime;
+      try { startMeter(stream); } catch {}
+    } catch {
+      alert("Microphone permission is required for PTT.");
+      pttDownRef.current = false;
+      setPttDown(false);
+      setAwaitingLock(false);
+      metricsRef.current.lastStart = 0;
+      return;
+    }
+
+    // ───────────────── MediaRecorder: start WITH timeslice + pulses ─────────────────
+    try {
+      let rec: MediaRecorder;
+      try {
+        rec = new MediaRecorder(stream!, { mimeType: mime || pickMime() });
+      } catch {
+        rec = new MediaRecorder(stream!); // fallback if UA rejects options
+      }
+      mrRef.current = rec;
+
+      rec.onstart = () => console.log("[startPTT] recorder start", rec.mimeType);
+      rec.onerror = (ev) => console.warn("[startPTT] recorder error", (ev as any)?.error || ev);
+      rec.ondataavailable = (ev: BlobEvent) => {
+        const ok = !!(ev?.data && ev.data.size > 0);
+        if (ok) chunksRef.current.push(ev.data);
+        console.log("[startPTT] dataavailable", ev?.data?.type, ev?.data?.size, ok ? "" : "— dropped");
+      };
+
+      // ✅ Timeslice makes Safari/iPhone actually flush audio
+      rec.start(250);
+
+      // Extra coax pulses (Safari sometimes ignores timeslice)
+      const pulse = () => { try { rec.requestData(); } catch {} };
+      const pulseId = window.setInterval(pulse, 500);
+      rec.addEventListener("stop", () => { try { clearInterval(pulseId); } catch {} }, { once: true });
+      (rec as any).__poke = pulse;
+    } catch (e) {
+      console.warn("[startPTT] MediaRecorder start failed:", e);
+      pttDownRef.current = false;
+      setPttDown(false);
+      setAwaitingLock(false);
+      return;
+    }
+
+    // try to acquire the floor in parallel
+    let lockOutcome: "granted" | "denied" | "timeout" = "timeout";
+    try { await sendLock("acquire", resource, 3500); } catch {}
+    try { lockOutcome = await waitForLock(resource, 1500); } catch {}
+
+    if (lockOutcome === "granted") {
+      metricsRef.current.grants++;
+      const tGrant = Date.now() - (metricsRef.current.lastStart || Date.now());
+      metricsRef.current.lastAcquireMs = tGrant;
+      lastAcquireMsRef.current = tGrant;
+      lastGrantedRef.current = true;
+
+      emitFloorLock({
+        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
+        state: "held", acquire_ms: tGrant, granted: true, ts: Date.now(), agentId: AGENT_ID,
+      }).catch(() => {});
+
+      setAwaitingLock(false);
+      setFloorOwned(true);
+      setFloorBusyBy(null);
+
+      keepaliveRef.current = window.setInterval(() => {
+        if (lockResourceRef.current) sendLock("refresh", lockResourceRef.current, 3500).catch(() => {});
+      }, 2000);
+
+    } else if (lockOutcome === "denied") {
+      console.warn("[startPTT] lock denied — cancel PTT");
       metricsRef.current.denies++;
       lastGrantedRef.current = false;
+
+      try { mrRef.current?.requestData?.(); } catch {}
+      try { mrRef.current?.stop?.(); } catch {}
+      mrRef.current = null;
+      chunksRef.current = [];
 
       setAwaitingLock(false);
       setFloorOwned(false);
@@ -2343,542 +2884,458 @@ async function sendVoiceNoteFile(f: File) {
       setPttDown(false);
       lockResourceRef.current = null;
 
-      // journal denied attempt (0ms talk)
       emitPttSession({
         apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
         talkMs: 0, grants: metricsRef.current.grants, denies: metricsRef.current.denies,
         lastAcquireMs: metricsRef.current.lastAcquireMs, ts: Date.now(), agentId: AGENT_ID,
       }).catch(() => {});
-
-      // floor_lock (denied)
       emitFloorLock({
         apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
         state: "denied", acquire_ms: 0, granted: false, ts: Date.now(), agentId: AGENT_ID,
       }).catch(() => {});
-
-      metricsRef.current.lastStart = 0;
+      stopMeter();
       return;
+
+    } else {
+      // Timeout: proceed in soft-lock so dev flow keeps working
+      console.warn("[startPTT] lock timeout — proceeding (soft-lock)");
+      setAwaitingLock(false);
+      setFloorOwned(true);
+      lastGrantedRef.current = true;
+
+      keepaliveRef.current = window.setInterval(() => {
+        if (lockResourceRef.current) sendLock("refresh", lockResourceRef.current, 3500).catch(() => {});
+      }, 2000);
     }
 
-    // ── metrics: granted + time-to-grant
-    metricsRef.current.grants++;
-    const t = Date.now() - metricsRef.current.lastStart;
-    metricsRef.current.lastAcquireMs = t;
-    lastAcquireMsRef.current = t;
-    lastGrantedRef.current = true;
+    // stop gracefully if input track ends mid-PTT
+    const t = stream!.getAudioTracks?.()[0];
+    if (t) t.onended = () => { console.warn("[startPTT] input track ended"); try { stopPTT(); } catch {} };
+  }
+  // ───────────────── stopPTT ─────────────────
+  async function stopPTT() {
+    console.log("[stopPTT] Stopping PTT...");
 
-    // journal floor_lock(held)
-    emitFloorLock({
-      apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-      state: "held", acquire_ms: t, granted: true, ts: Date.now(), agentId: AGENT_ID,
-    }).catch(() => {});
+    // Don't bail early — still release lock / flush recorder if a stray pointerup fires.
+    const wasDown =
+      pttDownRef.current || pttDown || floorOwned ||
+      !!(mrRef.current && mrRef.current.state !== "inactive");
 
-    setAwaitingLock(false);
-    setFloorOwned(true);
-    setFloorBusyBy(null);
+    // mark up-front to suppress duplicate stop storms
+    pttDownRef.current = false;
+    setPttDown(false);
 
-    // Keep the lock alive while held
-    keepaliveRef.current = window.setInterval(() => {
-      if (lockResourceRef.current) {
-        sendLock("refresh", lockResourceRef.current, 3500).catch(() => {});
-      }
-    }, 2000);
+    // ── metrics: accumulate talk time + session count + persist per-topic
+    let lastDur = 0;
+    if (metricsRef.current.lastStart) {
+      const startAt = metricsRef.current.lastStart;
+      lastDur = Date.now() - startAt;
+      metricsRef.current.sessions++;
+      metricsRef.current.talkMs += lastDur;
+      metricsRef.current.lastStart = 0;
+      console.log(
+        `[stopPTT] Talk time accumulated: ${lastDur}ms. Total talk time: ${metricsRef.current.talkMs}ms.`
+      );
 
-    // Start mic
-    let stream: MediaStream, mime: string;
-    try {
-      ({ stream, mime } = await ensureMicPTT());
-      startMeter(stream); // Meter ONLY during PTT
-    } catch {
-      alert("Microphone permission is required for PTT.");
-      pttDownRef.current = false;
-      setPttDown(false);
-      if (keepaliveRef.current != null) { clearInterval(keepaliveRef.current); keepaliveRef.current = null; }
-      const r0 = lockResourceRef.current; lockResourceRef.current = null;
-      if (r0) sendLock("release", r0).catch(() => {});
-      setFloorOwned(false);
+      // Persist per-topic entry (last 10)
+      const log = loadPttLog(graph, topicWa);
+      log.push({
+        at: startAt,
+        dur: lastDur,
+        acquireMs: lastAcquireMsRef.current || undefined,
+        granted: !!lastGrantedRef.current,
+      });
+      savePttLog(graph, topicWa, log);
+      console.log("[stopPTT] Updated PTT log.");
 
-      // journal zero-length session + floor_lock(free)
+      // Journal this PTT session (fire-and-forget)
       emitPttSession({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        talkMs: 0, grants: metricsRef.current.grants, denies: metricsRef.current.denies,
-        lastAcquireMs: metricsRef.current.lastAcquireMs, ts: Date.now(), agentId: AGENT_ID,
-      }).catch(() => {});
-      emitFloorLock({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        state: "free", acquire_ms: lastAcquireMsRef.current || metricsRef.current.lastAcquireMs || 0,
-        granted: true, ts: Date.now(), agentId: AGENT_ID,
-      }).catch(() => {});
-      metricsRef.current.lastStart = 0;
-      return;
-    }
-
-    // Start MediaRecorder and buffer chunks; we will send ONE voice note on release
-    chunksRef.current = [];
-    try {
-      // Use the mime we negotiated in ensureMicPTT(), but fall back if the browser rejects it
-      const desiredMime = mime; // from ensureMicPTT()
-      let rec: MediaRecorder;
-      try {
-        rec = new MediaRecorder(stream, { mimeType: desiredMime });
-      } catch {
-        rec = new MediaRecorder(stream);
-      }
-      mrRef.current = rec;
-
-      rec.ondataavailable = (ev) => {
-        if (ev.data && ev.data.size > 0) chunksRef.current.push(ev.data);
-      };
-
-      // Collect small chunks for responsive stop; we’ll stitch at stopPTT
-      rec.start(200);
-    } catch (e) {
-      console.warn("[startPTT] MediaRecorder start failed:", e);
-    }
-    }
-
-    // ───────────────── stopPTT ─────────────────
-    async function stopPTT() {
-      console.log("[stopPTT] Stopping PTT...");
-
-      if (!pttDownRef.current) {
-        console.log("[stopPTT] PTT is not currently down.");
-        return;
-      }
-
-      pttDownRef.current = false;
-      setPttDown(false);
-
-      // ── metrics: accumulate talk time + session count + persist per-topic
-      let lastDur = 0;
-      if (metricsRef.current.lastStart) {
-        const startAt = metricsRef.current.lastStart;
-        lastDur = Date.now() - startAt;
-        metricsRef.current.sessions++;
-        metricsRef.current.talkMs += lastDur;
-        metricsRef.current.lastStart = 0;
-        console.log(`[stopPTT] Talk time accumulated: ${lastDur}ms. Total talk time: ${metricsRef.current.talkMs}ms.`);
-
-        // Persist per-topic entry (last 10)
-        const log = loadPttLog(graph, topicWa);
-        log.push({
-          at: startAt,
-          dur: lastDur,
-          acquireMs: lastAcquireMsRef.current || undefined,
-          granted: !!lastGrantedRef.current,
-        });
-        savePttLog(graph, topicWa, log);
-        console.log("[stopPTT] Updated PTT log.");
-
-        // Journal this PTT session
-        emitPttSession({
-          apiBase: KG_API_BASE,
-          kg: graph,
-          ownerWa: OWNER_WA,
-          topicWa: topicWa,
-          talkMs: lastDur,
-          grants: metricsRef.current.grants,
-          denies: metricsRef.current.denies,
-          lastAcquireMs: metricsRef.current.lastAcquireMs,
-          ts: Date.now(),
-          agentId: AGENT_ID,
-        }).catch((err) => {
-          console.error("[stopPTT] Error emitting PTT session:", err);
-        });
-      }
-
-      stopMeter(); // stop the visual meter immediately
-      console.log("[stopPTT] Visual meter stopped.");
-
-      // Stop recorder and build a single blob
-      const rec = mrRef.current;
-      if (rec && rec.state !== "inactive") {
-        const done = new Promise<void>((resolve) => {
-          rec.onstop = () => resolve();
-        });
-        try {
-          rec.stop();
-          console.log("[stopPTT] Recorder stopped.");
-        } catch (e) {
-          console.error("[stopPTT] Error stopping recorder:", e);
-        }
-        await done;
-      }
-      mrRef.current = null;
-
-      // Combine chunks into one voice note and send
-      try {
-        if (chunksRef.current.length) {
-          const chosenMime = pickMime();
-          const blob = new Blob(chunksRef.current, { type: chosenMime });
-          chunksRef.current = [];
-          console.log("[stopPTT] Combined voice chunks into blob.");
-
-          const arr = await blob.arrayBuffer();
-          const data_b64 = abToB64(arr);
-
-          // Non-blocking KG journal of the voice clip
-          emitVoiceToKG({
-            apiBase: KG_API_BASE,
-            kg: graph,
-            ownerWa: OWNER_WA,
-            topicWa: topicWa,
-            mime: chosenMime,
-            data_b64,
-            durMs: lastDur || undefined,
-            ts: Date.now(),
-            agentId: AGENT_ID,
-          }).catch((err) => {
-            console.error("[stopPTT] Error emitting voice to KG:", err);
-          });
-
-          console.log("[stopPTT] Voice clip journaled to KG.");
-
-          const vfCapsule = {
-            voice_frame: {
-              channel: pttChannelRef.current,
-              seq: (seqRef.current++) | 0, // single note; seq still useful
-              ts: Date.now(),
-              mime: chosenMime,
-              data_b64,
-            },
-          };
-
-          await sendVoiceFrame(vfCapsule);
-          console.log("[stopPTT] Voice frame sent.");
-        }
-      } catch (e) {
-        console.warn("[stopPTT] failed to build/send voice note", e);
-      } finally {
-        // Release lock + cleanup keepalive every time
-        if (keepaliveRef.current != null) {
-          clearInterval(keepaliveRef.current);
-          keepaliveRef.current = null;
-          console.log("[stopPTT] Keepalive interval cleared.");
-        }
-        const r0 = lockResourceRef.current;
-        lockResourceRef.current = null;
-        if (r0) {
-          sendLock("release", r0).catch((err) => {
-            console.error("[stopPTT] Error releasing lock:", err);
-          });
-          console.log("[stopPTT] Lock released.");
-        }
-        setFloorOwned(false);
-
-        // 🔹 Journal that the floor is now free
-        emitFloorLock({
-          apiBase: KG_API_BASE,
-          kg: graph,
-          ownerWa: OWNER_WA,
-          topicWa: topicWa,
-          state: "free",
-          acquire_ms: lastAcquireMsRef.current || metricsRef.current.lastAcquireMs || 0,
-          granted: true,
-          ts: Date.now(),
-          agentId: AGENT_ID,
-        }).catch((err) => {
-          console.error("[stopPTT] Error emitting floor free:", err);
-        });
-        console.log("[stopPTT] Floor state updated to free.");
-      }
-    }
-
-    // ───────────────── sendVoiceFrame (now OUTSIDE stopPTT) ─────────────────
-    async function sendVoiceFrame(vfCapsule: any) {
-      const vf = vfCapsule?.voice_frame || {};
-      const b64 = vf.data_b64 || "";
-      const mimeType = vf.mime || "audio/webm";
-      const channel = vf.channel;
-      const seq = vf.seq;
-
-      if (!b64) {
-        console.warn("[sendVoiceFrame] no data_b64 in capsule");
-        return;
-      }
-
-      // Rough base64 → bytes estimate
-      const approxBytes =
-        Math.max(0, Math.floor(b64.length * 0.75) - (b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0));
-
-      console.log("[sendVoiceFrame] prepare →", {
-        channel,
-        seq,
-        mimeType,
-        approxBytes,
-        wsId: typeof WS_ID !== "undefined" ? WS_ID : "(n/a)",
-      });
-
-      const localId = `local-voice:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
-      const optimistic: NormalizedMsg = {
-        id: localId,
-        kind: "voice",
-        ts: Date.now(),
-        from: AGENT_ID,
-        mime: mimeType,
-        data_b64: b64,
-      };
-
-      setThread((t) => {
-        const next = [...t, optimistic];
-        try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
-        return next;
-      });
-
-      // Build headers/meta with per-tab conn id (helpers were added earlier)
-      const headers = typeof withConnHeaders === "function"
-        ? withConnHeaders({
-            "Content-Type": "application/json",
-            "X-Agent-Token": "dev-token",
-            "X-Agent-Id": AGENT_ID,
-          })
-        : {
-            "Content-Type": "application/json",
-            "X-Agent-Token": "dev-token",
-            "X-Agent-Id": AGENT_ID,
-          };
-
-      const meta = typeof withConnMeta === "function"
-        ? withConnMeta({ trace_id: AGENT_ID, graph, t0: Date.now() })
-        : { trace_id: AGENT_ID, graph, t0: Date.now() };
-
-      try {
-        const body = {
-          recipient: topicWa, // canonical recipient
-          graph,
-          capsule: vfCapsule,
-          meta,
-        };
-
-        console.log("[sendVoiceFrame] POST →", { url: base, channel, seq, size: approxBytes });
-
-        const res = await postTx(base, body, headers);
-
-        // RF profile guardrail
-        if (res.status === 413) {
-          const j = await res.json().catch(() => ({} as any));
-          console.warn("[sendVoiceFrame] 413 payload too large", j);
-          alert(
-            j?.error === "too large"
-              ? `Voice clip too large for RF path (${j.size} > ${j.max} bytes). Try a shorter clip or switch to IP-only.`
-              : "Voice clip rejected: too large for current profile."
-          );
-          return;
-        }
-
-        if (!res.ok) {
-          const txt = await res.text().catch(() => "");
-          console.warn("[sendVoiceFrame] HTTP error", res.status, txt);
-          return;
-        }
-
-        const j = await res.json().catch(() => ({} as any));
-        if (j?.msg_id) {
-          rememberSent(j.msg_id);
-
-          // Swap optimistic id with server id so acks correlate
-          setThread((prev) =>
-            prev.map((m) => (m.id === localId ? { ...m, id: j.msg_id } : m))
-          );
-
-          console.log("[sendVoiceFrame] delivered ✓", {
-            msg_id: j.msg_id,
-            channel,
-            seq,
-            wsId: typeof WS_ID !== "undefined" ? WS_ID : "(n/a)",
-          });
-        } else {
-          console.log("[sendVoiceFrame] OK but no msg_id in response", j);
-        }
-      } catch (e) {
-        console.warn("[sendVoiceFrame] network/error", e);
-      }
-    } // ← end sendVoiceFrame
-
-    // Transcription toggle — single source of truth (persists in localStorage)
-    const [transcribeOnAttach, setTranscribeOnAttach] = useState<boolean>(() => {
-      try {
-        return localStorage.getItem("gnet:transcribeOnAttach") === "1";
-      } catch {
-        return false;
-      }
-    });
-    useEffect(() => {
-      try { localStorage.setItem("gnet:transcribeOnAttach", transcribeOnAttach ? "1" : "0"); } catch {}
-    }, [transcribeOnAttach]);
-
-    function attachVoiceFile() {
-      attachInputRef.current?.click();
-    }
-
-    // Voice note picker → send as voice_note (policy-aware: Auto / Radio-only / IP-only)
-    const attachInputRef = useRef<HTMLInputElement | null>(null);
-
-    // ───────────────── onPickVoiceFile — with logging + per-tab conn id ─────────────────
-    async function onPickVoiceFile(e: React.ChangeEvent<HTMLInputElement>) {
-      const f = e.target.files?.[0];
-      e.target.value = ""; // allow re-pick of same file
-      if (!f) return;
-
-      const name = f.name;
-      const mimeType = f.type || mimeFromName(name);
-      const size = f.size ?? 0;
-
-      console.log("[attachVoice] picked file →", { name, mimeType, size });
-
-      // Read & encode
-      let b64 = "";
-      try {
-        const ab = await f.arrayBuffer();
-        b64 = abToB64(ab);
-      } catch (err) {
-        console.warn("[attachVoice] failed to read file", err);
-        return;
-      }
-
-      // Rough base64 → bytes estimate (sanity vs f.size)
-      const approxBytes =
-        Math.max(0, Math.floor(b64.length * 0.75) - (b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0));
-      console.log("[attachVoice] sizes →", { fileBytes: size, approxBytesFromB64: approxBytes });
-
-      // 🔹 Journal the voice note to the KG (non-blocking)
-      emitVoiceToKG({
         apiBase: KG_API_BASE,
         kg: graph,
         ownerWa: OWNER_WA,
-        topicWa: topicWa,
-        mime: mimeType,
-        data_b64: b64,
-        durMs: undefined, // or real duration if known
+        topicWa,
+        talkMs: lastDur,
+        grants: metricsRef.current.grants,
+        denies: metricsRef.current.denies,
+        lastAcquireMs: metricsRef.current.lastAcquireMs,
         ts: Date.now(),
         agentId: AGENT_ID,
       }).catch(() => {});
+    }
 
-      // Optimistic bubble
-      const localId = `local-voice:${Date.now()}:${Math.random().toString(36).slice(2, 6)}`;
-      const optimistic: NormalizedMsg = {
-        id: localId,
-        ts: Date.now(),
-        kind: "voice",
-        from: AGENT_ID,
-        mime: mimeType,
-        data_b64: b64,
-      };
-      setThread((prev) => {
-        const next = [...prev, optimistic];
-        try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
-        return next;
-      });
+    stopMeter(); // stop the visual meter immediately
+    console.log("[stopPTT] Visual meter stopped.");
 
-      // Build headers/meta with conn_id if helpers exist
-      const headers = typeof withConnHeaders === "function"
-        ? withConnHeaders({
-            "Content-Type": "application/json",
-            "X-Agent-Token": "dev-token",
-            "X-Agent-Id": AGENT_ID,
-          })
-        : {
-            "Content-Type": "application/json",
-            "X-Agent-Token": "dev-token",
-            "X-Agent-Id": AGENT_ID,
+    // Stop recorder and collect final chunk
+    const rec = mrRef.current; // keep reference (mrRef may be nulled later)
+    try {
+      if (rec && rec.state !== "inactive") {
+        // Nudge a final chunk (Safari/WebKit often needs this)
+        try { (rec as any).__poke?.(); } catch {}
+        try { typeof rec.requestData === "function" && rec.requestData(); } catch {}
+
+        // Wait for 'stop' and drain trailing dataavailable events
+        const onStopped = new Promise<void>((resolve) =>
+          rec.addEventListener("stop", () => resolve(), { once: true })
+        );
+
+        const drainData = new Promise<void>((resolve) => {
+          // Resolve shortly after the last dataavailable; allows multiple small packets
+          let drainTimer: number | undefined;
+          const handler = (e: BlobEvent) => {
+            if (e?.data && e.data.size > 0) chunksRef.current.push(e.data);
+            if (drainTimer) clearTimeout(drainTimer);
+            drainTimer = window.setTimeout(() => {
+              rec.removeEventListener("dataavailable", handler as any);
+              resolve();
+            }, 50);
           };
+          rec.addEventListener("dataavailable", handler as any);
+        });
 
-      const meta = typeof withConnMeta === "function"
-        ? withConnMeta({ trace_id: AGENT_ID, graph, t0: Date.now() })
-        : { trace_id: AGENT_ID, graph, t0: Date.now() };
+        try { rec.stop(); } catch (e) { console.error("[stopPTT] Error stopping recorder:", e); }
 
-      try {
-        const body = {
-          recipient: topicWa, // canonical
-          graph,
-          capsule: { voice_note: { ts: Date.now(), mime: mimeType, data_b64: b64 } },
-          meta,
+        await Promise.allSettled([onStopped, drainData]);
+
+        // If still no chunks, give UA one last tick and poke
+        if (!chunksRef.current.length) {
+          await new Promise((r) => setTimeout(r, 80));
+          try { (rec as any).__poke?.(); } catch {}
+        }
+      }
+    } catch (e) {
+      console.warn("[stopPTT] recorder stop error", e);
+    } finally {
+      // ensure we clear ref now that we've tried to drain
+      mrRef.current = null;
+    }
+
+    // Combine chunks into one voice note and send (persisted voice_note → shows up on other window)
+    try {
+      if (chunksRef.current.length) {
+        // Prefer the first chunk's type; fall back to recorder mime (if any) then pickMime()
+        const firstType = (chunksRef.current[0] as any)?.type || (rec?.mimeType || "");
+        const blob = new Blob(chunksRef.current, { type: firstType || pickMime() });
+        chunksRef.current = [];
+
+        const chosenMime = blob.type || firstType || pickMime();
+        console.log("[stopPTT] Combined voice chunks into blob.", { chosenMime, bytes: blob.size });
+
+        const arr = await blob.arrayBuffer();
+        const data_b64 = abToB64(arr);
+
+        // Non-blocking KG journal
+        emitVoiceToKG({
+          apiBase: KG_API_BASE,
+          kg: graph,
+          ownerWa: OWNER_WA,
+          topicWa,
+          mime: chosenMime,
+          data_b64,
+          durMs: lastDur || undefined,
+          ts: Date.now(),
+          agentId: AGENT_ID,
+        }).catch(() => {});
+
+        await sendVoiceNoteCapsule(chosenMime, data_b64);
+        console.log("[stopPTT] voice_note sent.");
+      } else if (wasDown) {
+        console.log("[stopPTT] No chunks recorded — skipping send.");
+      }
+    } catch (e) {
+      console.warn("[stopPTT] failed to build/send voice note", e);
+    } finally {
+      // Release lock + cleanup keepalive every time
+      if (keepaliveRef.current != null) {
+        clearInterval(keepaliveRef.current);
+        keepaliveRef.current = null;
+        console.log("[stopPTT] Keepalive interval cleared.");
+      }
+      const r0 = lockResourceRef.current;
+      lockResourceRef.current = null;
+      if (r0) {
+        sendLock("release", r0).catch(() => {});
+        console.log("[stopPTT] Lock released.");
+      }
+      setFloorOwned(false);
+
+      // Journal that the floor is now free
+      emitFloorLock({
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: OWNER_WA,
+        topicWa,
+        state: "free",
+        acquire_ms: lastAcquireMsRef.current || metricsRef.current.lastAcquireMs || 0,
+        granted: true,
+        ts: Date.now(),
+        agentId: AGENT_ID,
+      }).catch(() => {});
+      console.log("[stopPTT] Floor state updated to free.");
+    }
+  }
+
+  // ───────────────── sendVoiceNoteCapsule (persisted; replaces frame send) ─────────────────
+  async function sendVoiceNoteCapsule(mimeType: string, b64: string) {
+    if (!b64) {
+      console.warn("[sendVoiceNoteCapsule] empty data_b64");
+      return;
+    }
+
+    // Optimistic bubble so the sender sees it immediately
+    const localId = `local-voice:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
+    const optimistic: NormalizedMsg = {
+      id: localId,
+      kind: "voice",
+      ts: Date.now(),
+      from: AGENT_ID,
+      mime: mimeType,
+      data_b64: b64,
+    };
+
+    setThread((t) => {
+      const next = [...t, optimistic];
+      try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+      return next;
+    });
+
+    const headers = withConnHeaders({
+      "Content-Type": "application/json",
+      "X-Agent-Token": "dev-token",
+      "X-Agent-Id": AGENT_ID,
+    });
+    const meta = withConnMeta({ trace_id: AGENT_ID, graph, t0: Date.now() });
+
+    try {
+      const body = {
+        recipient: topicWa, // canonical recipient
+        graph,
+        capsule: { voice_note: { ts: Date.now(), mime: mimeType, data_b64: b64 } },
+        meta,
+      };
+
+      console.log("[sendVoiceNoteCapsule] POST → /api/glyphnet/tx", { mimeType });
+      const res = await postTx(base, body, headers);
+
+      // RF profile guardrail
+      if (res.status === 413) {
+        const j = await res.json().catch(() => ({} as any));
+        console.warn("[sendVoiceNoteCapsule] 413 payload too large", j);
+        alert(
+          j?.error === "too large"
+            ? `Voice clip too large for RF path (${j.size} > ${j.max} bytes). Try a shorter clip or switch to IP-only.`
+            : "Voice clip rejected: too large for current profile."
+        );
+        return;
+      }
+
+      const ct = res.headers.get("content-type") || "";
+      const payload = ct.includes("application/json")
+        ? await res.json().catch(() => ({} as any))
+        : await res.text();
+
+      if (!res.ok) {
+        console.warn("[sendVoiceNoteCapsule] HTTP", res.status, payload);
+        return;
+      }
+
+      const msgId = (payload as any)?.msg_id;
+      if (msgId) {
+        rememberSent(msgId);
+        // Swap optimistic id with server id so downstream acks correlate
+        setThread((prev) => prev.map((m) => (m.id === localId ? { ...m, id: msgId } : m)));
+        console.log("[sendVoiceNoteCapsule] delivered ✓", { msg_id: msgId });
+      } else {
+        console.log("[sendVoiceNoteCapsule] OK (no msg_id)", payload);
+      }
+    } catch (e) {
+      console.warn("[sendVoiceNoteCapsule] network/error", e);
+    }
+  }
+  // Transcription toggle — single source of truth (persists in localStorage)
+  // ⚠️ Move this ABOVE its first usage if referenced earlier in the component.
+  const [transcribeOnAttach, setTranscribeOnAttach] = useState<boolean>(() => {
+    try { return localStorage.getItem("gnet:transcribeOnAttach") === "1"; }
+    catch { return false; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem("gnet:transcribeOnAttach", transcribeOnAttach ? "1" : "0"); } catch {}
+  }, [transcribeOnAttach]);
+
+  function attachVoiceFile() {
+    attachInputRef.current?.click();
+  }
+
+  // Voice note picker → send as voice_note (policy-aware: Auto / Radio-only / IP-only)
+  const attachInputRef = useRef<HTMLInputElement | null>(null);
+
+  // ───────────────── onPickVoiceFile — with logging + per-tab conn id ─────────────────
+  async function onPickVoiceFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    // allow re-pick of same file
+    e.target.value = "";
+    if (!f) return;
+
+    const name = f.name;
+    const mimeType = f.type || mimeFromName(name);
+    const size = f.size ?? 0;
+
+    console.log("[attachVoice] picked file →", { name, mimeType, size });
+
+    // Read & encode
+    let b64 = "";
+    try {
+      const ab = await f.arrayBuffer();
+      b64 = abToB64(ab);
+    } catch (err) {
+      console.warn("[attachVoice] failed to read file", err);
+      return;
+    }
+
+    // Rough base64 → bytes estimate (sanity vs f.size)
+    const approxBytes =
+      Math.max(0, Math.floor(b64.length * 0.75) - (b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0));
+    console.log("[attachVoice] sizes →", { fileBytes: size, approxBytesFromB64: approxBytes });
+
+    // 🔹 Journal the voice note to the KG (non-blocking)
+    emitVoiceToKG({
+      apiBase: KG_API_BASE,
+      kg: graph,
+      ownerWa: OWNER_WA,
+      topicWa,
+      mime: mimeType,
+      data_b64: b64,
+      durMs: undefined, // supply if you have real duration
+      ts: Date.now(),
+      agentId: AGENT_ID,
+    }).catch(() => {});
+
+    // Optimistic bubble so sender sees it instantly
+    const localId = `local-voice:${Date.now()}:${Math.random().toString(36).slice(2, 6)}`;
+    const optimistic: NormalizedMsg = {
+      id: localId,
+      ts: Date.now(),
+      kind: "voice",
+      from: AGENT_ID,
+      mime: mimeType,
+      data_b64: b64,
+    };
+    setThread((prev) => {
+      const next = [...prev, optimistic];
+      try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+      return next;
+    });
+
+    // Build headers/meta with per-tab conn id (safe fallbacks)
+    const headers = typeof withConnHeaders === "function"
+      ? withConnHeaders({
+          "Content-Type": "application/json",
+          "X-Agent-Token": "dev-token",
+          "X-Agent-Id": AGENT_ID,
+        })
+      : {
+          "Content-Type": "application/json",
+          "X-Agent-Token": "dev-token",
+          "X-Agent-Id": AGENT_ID,
         };
 
-        console.log("[attachVoice] POST →", { url: base, mimeType, approxBytes });
+    const meta = typeof withConnMeta === "function"
+      ? withConnMeta({ trace_id: AGENT_ID, graph, t0: Date.now() })
+      : { trace_id: AGENT_ID, graph, t0: Date.now() };
 
-        const res = await postTx(base, body, headers);
+    try {
+      const body = {
+        recipient: topicWa, // canonical
+        graph,
+        capsule: { voice_note: { ts: Date.now(), mime: mimeType, data_b64: b64 } },
+        meta,
+      };
 
-        if (res.status === 413) {
-          const j = await res.json().catch(() => ({} as any));
-          console.warn("[attachVoice] 413 too large", j);
-          alert(
-            j?.error === "too large"
-              ? `Voice note too large for RF path (${j.size} > ${j.max} bytes). Try a shorter clip or switch to IP-only.`
-              : "Voice note rejected: too large for current RF profile."
-          );
-          return;
-        }
+      console.log("[attachVoice] POST → /api/glyphnet/tx", { mimeType, approxBytes });
 
-        if (!res.ok) {
-          const txt = await res.text().catch(() => "");
-          console.warn("[attachVoice] HTTP error", res.status, txt);
-          return;
-        }
+      const res = await postTx(base, body, headers);
 
+      if (res.status === 413) {
         const j = await res.json().catch(() => ({} as any));
-        if (j?.msg_id) {
-          rememberSent(j.msg_id);
-          // Swap optimistic id for server id so downstream acks correlate
-          setThread((prev) => prev.map((m) => (m.id === localId ? { ...m, id: j.msg_id } : m)));
-          console.log("[attachVoice] delivered ✓", { msg_id: j.msg_id, bytes: approxBytes });
-        } else {
-          console.log("[attachVoice] OK (no msg_id)", j);
-        }
-
-        // ⬇️ Optional transcription → send glyphs:[text] and journal to KG
-        if (transcribeOnAttach) {
-          setTranscribing(true);
-          const t = await transcribeAudio(mimeType, b64);
-          setTranscribing(false);
-          if (t?.text) {
-            const txMeta = typeof withConnMeta === "function"
-              ? withConnMeta({
-                  trace_id: AGENT_ID,
-                  graph,
-                  t0: Date.now(),
-                  transcript_of: j?.msg_id || null,
-                  engine: t.engine || undefined,
-                })
-              : {
-                  trace_id: AGENT_ID,
-                  graph,
-                  t0: Date.now(),
-                  transcript_of: j?.msg_id || null,
-                  engine: t.engine || undefined,
-                };
-
-            await postTx(
-              base,
-              {
-                recipient: topicWa, // canonical
-                graph,
-                capsule: { glyphs: [t.text] },
-                meta: txMeta,
-              },
-              headers
-            ).catch(() => {});
-
-            // 🧾 Journal transcript into KG
-            emitTranscriptPosted({
-              apiBase: KG_API_BASE,
-              kg: graph,
-              ownerWa: OWNER_WA,
-              topicWa: topicWa,
-              text: t.text,
-              transcript_of: j?.msg_id || null,
-              engine: t.engine,
-              ts: Date.now(),
-              agentId: AGENT_ID,
-            }).catch(() => {});
-          }
-        }
-
-        rememberTopic(topicWa || topic, addrInput || topicWa || topic, graph);
-      } catch (err) {
-        console.warn("[attachVoice] send failed", err);
+        console.warn("[attachVoice] 413 too large", j);
+        alert(
+          j?.error === "too large"
+            ? `Voice note too large for RF path (${j.size} > ${j.max} bytes). Try a shorter clip or switch to IP-only.`
+            : "Voice note rejected: too large for current RF profile."
+        );
+        return;
       }
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        console.warn("[attachVoice] HTTP error", res.status, txt);
+        return;
+      }
+
+      const j = await res.json().catch(() => ({} as any));
+      if (j?.msg_id) {
+        rememberSent(j.msg_id);
+        // Swap optimistic id for server id so downstream acks correlate
+        setThread((prev) => prev.map((m) => (m.id === localId ? { ...m, id: j.msg_id } : m)));
+        console.log("[attachVoice] delivered ✓", { msg_id: j.msg_id, bytes: approxBytes });
+      } else {
+        console.log("[attachVoice] OK (no msg_id)", j);
+      }
+
+      // ⬇️ Optional transcription → send glyphs:[text] and journal to KG
+      if (transcribeOnAttach) {
+        setTranscribing(true);
+        const t = await transcribeAudio(mimeType, b64);
+        setTranscribing(false);
+
+        if (t?.text) {
+          const txMeta = typeof withConnMeta === "function"
+            ? withConnMeta({
+                trace_id: AGENT_ID,
+                graph,
+                t0: Date.now(),
+                transcript_of: j?.msg_id || null,
+                engine: t.engine || undefined,
+              })
+            : {
+                trace_id: AGENT_ID,
+                graph,
+                t0: Date.now(),
+                transcript_of: j?.msg_id || null,
+                engine: t.engine || undefined,
+              };
+
+          await postTx(
+            base,
+            {
+              recipient: topicWa, // canonical
+              graph,
+              capsule: { glyphs: [t.text] },
+              meta: txMeta,
+            },
+            headers
+          ).catch(() => {});
+
+          // 🧾 Journal transcript into KG
+          emitTranscriptPosted({
+            apiBase: KG_API_BASE,
+            kg: graph,
+            ownerWa: OWNER_WA,
+            topicWa,
+            text: t.text,
+            transcript_of: j?.msg_id || null,
+            engine: t.engine,
+            ts: Date.now(),
+            agentId: AGENT_ID,
+          }).catch(() => {});
+        }
+      }
+
+      rememberTopic(topicWa || topic, addrInput || topicWa || topic, graph);
+    } catch (err) {
+      console.warn("[attachVoice] send failed", err);
     }
+  }
 
   // Small helper to render an initial/avatar for recents
   function initials(s: string) {
@@ -3013,7 +3470,6 @@ async function sendVoiceNoteFile(f: File) {
   }, [thread]);
 
   // Contacts + Recents for the left rail
-  //const contacts = useMemo(() => getContacts(), []);
   const recents = useMemo(() => {
     const seen = new Set<string>();
     const out: RecentItem[] = [];
@@ -3157,6 +3613,15 @@ async function sendVoiceNoteFile(f: File) {
 
   // simple pill text used elsewhere
   const rfPill = radioOk ? "📡 Radio healthy" : "☁️ IP fallback";
+
+  // place once near other refs:
+  ;(window as any).gnetDebug = () => ({
+    pttDownRef: pttDownRef.current,
+    mrState: mrRef.current?.state,
+    mrType: mrRef.current?.mimeType,
+    chunks: chunksRef.current?.length,
+    lastStart: metricsRef.current?.lastStart,
+  });
 
   const TransportSettings: React.FC<{ radioOk: boolean; lastHealthAt: number }> = ({
     radioOk,
@@ -3535,6 +4000,26 @@ return (
           {/* Transport policy (Auto / Radio-only / IP-only) */}
           <TransportSettings radioOk={radioOk} lastHealthAt={lastHealthAt} />
 
+          {/* Always-visible hang-up while not idle (both caller & callee) */}
+          {callState !== "idle" && (
+            <button
+              onClick={endCall}            // or hangupCall if that's what you named it
+              title="Hang up"
+              style={{
+                marginLeft: 8,
+                padding: "6px 10px",
+                borderRadius: 999,
+                border: "1px solid #ef4444",
+                background: "#ef4444",
+                color: "#fff",
+                cursor: "pointer",
+                fontSize: 12,
+              }}
+            >
+              📞 End
+            </button>
+          )}
+
           {/* Floor status (keep it once, inside header) */}
           {!!floorBusyBy && !floorOwned && (
             <div
@@ -3867,16 +4352,30 @@ return (
               🎵
             </button>
             {/* 📞 call (start outbound) */}
-            <button
-              onClick={startCall}
-              title="Start call"
-              style={{
-                width: 36, height: 36, borderRadius: 999,
-                border: "1px solid #e5e7eb", background: "#fff", cursor: "pointer",
-              }}
-            >
-              📞
-            </button>
+            {callState === "idle" ? (
+              <button
+                onClick={startCall}
+                title="Start call"
+                style={{
+                  width: 36, height: 36, borderRadius: 999,
+                  border: "1px solid #e5e7eb", background: "#fff", cursor: "pointer",
+                }}
+              >
+                📞
+              </button>
+            ) : (
+              <button
+                onClick={endCall}    // or hangupCall
+                title="Hang up"
+                style={{
+                  width: 36, height: 36, borderRadius: 999,
+                  border: "1px solid #ef4444", background: "#ef4444",
+                  color: "#fff", cursor: "pointer",
+                }}
+              >
+                📴
+              </button>
+            )}
             {/* 📎 audio attach (separate ref) */}
             <button
               onClick={attachVoiceFile}
@@ -3902,11 +4401,13 @@ return (
 
             {/* 🎙 PTT */}
             <button
+              ref={micRef}
               disabled={micDisabled}
-              onPointerDown={startPTT}
-              onPointerUp={stopPTT}
-              onPointerCancel={stopPTT}
-              onPointerLeave={stopPTT}
+              onPointerDown={handlePointerDownPTT}
+              onPointerUp={handlePointerUpPTT}
+              onPointerCancel={handlePointerCancelPTT}
+              onKeyDown={handleKeyDownPTT}
+              onKeyUp={handleKeyUpPTT}
               title={micTitle}
               aria-pressed={pttDown || floorOwned}
               style={{
@@ -3918,6 +4419,8 @@ return (
                 boxShadow: micShadow,
                 transition: "box-shadow 120ms ease, background 120ms ease",
                 cursor: micCursor,
+                touchAction: "none",    // important for mobile pointer capture
+                userSelect: "none",
               }}
             >
               {awaitingLock ? "⏳" : "🎙"}
