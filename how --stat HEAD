@@ -1,0 +1,37 @@
+[33mcommit abdbf3a1f4b78b08a39afdefc45bf6490e4768f0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: SuperFuels <kevin@super-fuels.com>
+Date:   Tue Nov 18 10:47:52 2025 +0000
+
+    browsaer knowledge graph v2
+
+D	Glyph_Net_Browser/radio-node/.rf_spool/rx/control%3Abeacon%23232.json
+D	Glyph_Net_Browser/radio-node/.rf_spool/rx/personal%3Atesseract_hq%231.json
+D	Glyph_Net_Browser/radio-node/.rf_spool/rx/personal%3Atesseract_hq%232.json
+D	Glyph_Net_Browser/radio-node/.rf_spool/rx/personal%3Aucs%3A%2F%2Flocal%2Fucs_hub%231.json
+D	Glyph_Net_Browser/radio-node/.rf_spool/rx/personal%3Aucs%3A%2F%2Flocal%2Fucs_hub%232.json
+D	Glyph_Net_Browser/radio-node/.rf_spool/rx/personal%3Aucs%3A%2F%2Flocal%2Fucs_hub%233.json
+D	Glyph_Net_Browser/radio-node/.rf_spool/rx/personal%3Aucs%3A%2F%2Flocal%2Fucs_hub%234.json
+D	Glyph_Net_Browser/radio-node/.rf_spool/rx/personal%3Aucs%3A%2F%2Flocal%2Fucs_hub%235.json
+D	Glyph_Net_Browser/radio-node/.rf_spool/rx/personal%3Aucs%3A%2F%2Flocal%2Fucs_hub%236.json
+M	Glyph_Net_Browser/src/App.tsx
+M	Glyph_Net_Browser/src/hooks/useGlyphnet.ts
+M	Glyph_Net_Browser/src/hooks/useWebSocket.ts
+M	Glyph_Net_Browser/src/lib/constants.ts
+M	Glyph_Net_Browser/src/lib/kg_emit.ts
+M	Glyph_Net_Browser/src/routes/ChatThread.tsx
+M	Glyph_Net_Browser/src/utils/kgApiBase.ts
+A	Glyph_Net_Browser/src/utils/sigpack.ts
+M	Glyph_Net_Browser/vite.config.ts
+M	README.md
+M	backend/modules/dna_chain/dna_switch_index.json
+M	backend/modules/hexcore/embeddings_global.json
+M	backend/modules/hexcore/memhashes_global.json
+M	backend/modules/hexcore/memory_global.json
+M	backend/modules/knowledge_graph/knowledge_index_runtime.glyph
+M	backend/state/resonance_state.json
+M	data/fastmap_index.json
+M	data/memory/resonant_memory_cache.corrupt
+M	package.json
+M	pnpm-lock.yaml
+A	pnpm-workspace.yaml
+M	server/kg.ts

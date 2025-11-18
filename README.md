@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "browsaer knowledge graph v2"
+git commit -m "browsaer knowledge graph v3 working messages"
 git push origin main
 
 

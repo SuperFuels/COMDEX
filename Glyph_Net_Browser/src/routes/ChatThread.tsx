@@ -66,6 +66,7 @@ function getOwnerWa(): string {
 const IP_BASE_DEFAULT = resolveApiBase();
 const OWNER_WA = getOwnerWa();
 
+
 const CLIENT_ID = (() => {
   const k = "gnet:clientId";
   let v = sessionStorage.getItem(k);
@@ -162,7 +163,7 @@ function normalizeIncoming(ev: any): NormalizedMsg | null {
   // Prefer an outer "envelope" if present, then the capsule, then the raw evt
   const envelope: any = evt?.envelope ?? evt ?? {};
   const cap: any = evt?.capsule ?? envelope?.capsule ?? evt ?? {};
-
+  
   // Timestamp / ids
   const ts = Math.round(
     Number(
@@ -455,43 +456,108 @@ export default function ChatThread({
   const [thread, setThread] = useState<NormalizedMsg[]>([]);
   const seenRef = useRef<Set<string>>(new Set());
   const seenSigRef = useRef<Set<string>>(new Set());
+  const processedCapsRef = useRef<Set<string>>(new Set());
   
-  // TEMP: direct WS subscriber so fanout frames show immediately even if the hook drops them.
-  // Safe with your merge because you de-dupe by id + signature.
+  // TEMP: direct WS subscriber for immediate fanout (ephemeral id so echo collapses it)
   useEffect(() => {
     if (!topicWa) return;
 
-    // Build the WS url (matches what your console showed: token=dev-token)
     const wsUrl =
       `${location.origin.replace(/^http/, "ws")}` +
       `/ws/glyphnet?topic=${encodeURIComponent(topicWa)}&kg=${graph}&token=dev-token`;
 
     const ws = new WebSocket(wsUrl);
 
-    ws.addEventListener("message", (e) => {
+    const onMessage = (e: MessageEvent) => {
       let frame: any = e.data;
       try { frame = JSON.parse(frame); } catch {}
 
-      // Normalize to your UI model (handles {type:"glyphnet_capsule", envelope})
+      const env: any = frame?.envelope ?? frame ?? {};
+      const cap: any = env?.capsule ?? frame?.capsule ?? {};
+
+      // Fanout chat → ephemeral local:* id
+      const cm = cap?.chat_message ?? env?.capsule?.chat_message ?? frame?.chat_message;
+      if (cm && typeof cm.text === "string" && cm.text.trim()) {
+        const at = Math.round(Number(cm.at ?? Date.now()));
+        const text = cm.text.trim();
+        const salt = (window as any)?.hash8 ? (window as any).hash8(text) : Math.random().toString(36).slice(2, 6);
+        const localId = `local:fanout:${at}:${salt}`;
+
+        setThread(prev => {
+          // if we already have a canonical near this time/text, skip
+          const hasCanonical = prev.some(m =>
+            m?.kind === "text" &&
+            !String(m.id).startsWith("local:") &&
+            (m as any).text === text &&
+            Math.abs((m.ts || 0) - at) <= 10000
+          );
+          if (hasCanonical) return prev;
+
+          // avoid duplicate ephemerals
+          const hasEphemeral = prev.some(m =>
+            m?.kind === "text" &&
+            String(m.id).startsWith("local:") &&
+            (m as any).text === text &&
+            Math.abs((m.ts || 0) - at) <= 2000
+          );
+          if (hasEphemeral) return prev;
+
+          const next = [...prev, { id: localId, ts: at, kind: "text", from: cm.from, text } as NormalizedMsg]
+            .sort((a, b) => (a.ts || 0) - (b.ts || 0));
+          try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+          // do NOT add to seenSigRef — let the persisted echo replace it
+          return next;
+        });
+        return;
+      }
+
+      // Non-chat frames (e.g., glyph echo / voice) → normal path
       const nm = normalizeIncoming(frame);
       if (!nm) return;
 
-      // Append with the same persistence semantics you use elsewhere
-      setThread((prev) => {
-        // id-level de-dupe
-        if (prev.some(p => p.id === nm.id)) return prev;
+      const sigKey =
+        nm.kind === "text"
+          ? `txt|${(nm as any).text}|${Math.floor((nm.ts || 0) / 3000)}`
+          : `vf|${(nm as any).mime}|${fpB64((nm as any).data_b64)}|${Math.floor((nm.ts || 0) / 3000)}`;
 
-        const next = [...prev, nm].sort((a,b) => a.ts - b.ts);
+      setThread(prev => {
+        let next = [...prev];
 
+        // if this is the canonical echo for an earlier ephemeral, upgrade it
+        if (nm.kind === "text") {
+          const i = next.findIndex(m =>
+            m?.kind === "text" &&
+            String(m.id).startsWith("local:") &&
+            (m as any).text === (nm as any).text &&
+            Math.abs((m.ts || 0) - (nm.ts || 0)) <= 10000
+          );
+          if (i !== -1) {
+            next[i] = nm;
+            const dupIdx = next.findIndex((m, idx) => idx !== i && m.id === nm.id);
+            if (dupIdx !== -1) next.splice(dupIdx, 1);
+            next.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+            try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+            seenRef.current.add(nm.id);
+            seenSigRef.current.add(sigKey);
+            return next;
+          }
+        }
+
+        if (next.some(p => p.id === nm.id)) return prev;
+        if (seenSigRef.current.has(sigKey)) return prev;
+
+        next = [...next, nm].sort((a, b) => (a.ts || 0) - (b.ts || 0));
         try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+        seenRef.current.add(nm.id);
+        seenSigRef.current.add(sigKey);
         return next;
       });
-    });
+    };
 
-    ws.addEventListener("error", () => {/* optional log */});
-    ws.addEventListener("close",  () => {/* optional log */});
-
-    return () => { try { ws.close(); } catch {} };
+    ws.addEventListener("message", onMessage);
+    ws.addEventListener("error", () => {});
+    ws.addEventListener("close", () => {});
+    return () => { try { ws.removeEventListener("message", onMessage); ws.close(); } catch {} };
   }, [topicWa, graph, storageKey]);
 
   // Address input mirrors topic and stays in sync
@@ -899,36 +965,56 @@ useEffect(() => {
 
   const batchSeen = new Set<string>();
 
-  setThread(prev => {
+  setThread((prev) => {
     let next = uniqById(prev as any[]);
     let changed = next.length !== (prev as any[]).length;
 
     for (const evRaw of messages as any[]) {
-      const ev:  any = evRaw;
+      const ev: any  = evRaw ?? {};
       const env: any = ev?.envelope ?? ev ?? {};
       const cap: any = env?.capsule  ?? ev?.capsule ?? {};
 
-      // topic guard
+      // 0) Drop frames we've already consumed by envelope/msg id (cross-batch)
+      const frameId: string | null =
+        ev?.id ?? ev?.msg_id ?? env?.id ?? env?.msg_id ?? cap?.id ?? null;
+      if (frameId) {
+        try {
+          if (processedCapsRef.current.has(frameId)) continue;
+          processedCapsRef.current.add(frameId);
+        } catch {
+          /* if ref not present, skip this guard */
+        }
+      }
+
+      // 1) Topic guard (accept if absent; otherwise must match our canonical topic)
       try {
         const eventTopic =
-          env?.topic ?? env?.recipient ?? cap?.resourceTopic ??
-          env?.meta?.topic ?? env?.meta?.to ?? env?.meta?.recipient;
+          env?.topic ??
+          env?.recipient ??
+          cap?.resourceTopic ??
+          env?.meta?.topic ??
+          env?.meta?.to ??
+          env?.meta?.recipient;
+
         if (
           eventTopic &&
           String(eventTopic).toLowerCase() !== (topicWa || "").toLowerCase()
-        ) continue;
+        ) {
+          continue;
+        }
       } catch {}
 
-      // ignore WS fanout (we'll collapse with persisted echo)
-      if (cap?.chat_message) continue;
+      // 2) Ignore WS fanout chat frames; rely on persisted glyph echo
+      const cm = cap?.chat_message ?? env?.capsule?.chat_message;
+      if (cm && typeof cm?.text === "string") continue;
 
-      // batch de-dupe key
+      // 3) Batch de-dupe to avoid double-processing identical shapes in one tick
       {
         const eid =
           env?.id ?? env?.msg_id ?? ev?.id ?? ev?.msg_id ??
           `${env?.ts ?? ""}|${env?.meta?.trace_id ?? ""}|${
-            (cap?.glyphs && cap.glyphs.join("")) ||
-            (cap?.glyph_stream && cap.glyph_stream.join("")) ||
+            (Array.isArray(cap?.glyphs) && cap.glyphs.join("")) ||
+            (Array.isArray(cap?.glyph_stream) && cap.glyph_stream.join("")) ||
             cap?.voice_note?.ts ||
             cap?.voice_frame?.seq ||
             ""
@@ -938,7 +1024,7 @@ useEffect(() => {
         if (k) batchSeen.add(k);
       }
 
-      // RTT + PTT accounting (unchanged)
+      // 4) RTT + PTT accounting (unchanged)
       if (typeof env?.meta?.t0 === "number") {
         lastRttRef.current = Date.now() - Number(env.meta.t0);
       }
@@ -949,17 +1035,25 @@ useEffect(() => {
           const prevSeq = lossRef.current.lastSeq.get(key);
           if (typeof prevSeq === "number") {
             if (vf.seq > prevSeq + 1) lossRef.current.lost += (vf.seq - prevSeq - 1);
-            if (vf.seq > prevSeq) { lossRef.current.recv += 1; lossRef.current.lastSeq.set(key, vf.seq); }
-          } else { lossRef.current.lastSeq.set(key, vf.seq); lossRef.current.recv += 1; }
+            if (vf.seq > prevSeq) {
+              lossRef.current.recv += 1;
+              lossRef.current.lastSeq.set(key, vf.seq);
+            }
+          } else {
+            lossRef.current.lastSeq.set(key, vf.seq);
+            lossRef.current.recv += 1;
+          }
         }
       }
 
-      // intercept signalling (unchanged behavior)
+      // 5) Intercept signaling (never render)
       {
         let sig: any = cap;
+
         const hasNative =
           !!sig?.voice_offer || !!sig?.voice_answer || !!sig?.ice ||
           !!sig?.voice_cancel || !!sig?.voice_reject || !!sig?.voice_end;
+
         if (!hasNative) {
           const gs: string[] | undefined =
             (Array.isArray(cap?.glyphs) ? cap.glyphs : undefined) ??
@@ -968,49 +1062,63 @@ useEffect(() => {
             (Array.isArray(ev?.glyph_stream) ? ev.glyph_stream : undefined) ??
             (Array.isArray(env?.capsule?.glyphs) ? env.capsule.glyphs : undefined) ??
             (Array.isArray(env?.capsule?.glyph_stream) ? env.capsule.glyph_stream : undefined);
+
           if (gs && gs.length) {
-            for (const g of gs) { const m = unpackSig(g); if (m && (m.voice_offer||m.voice_answer||m.ice||m.voice_cancel||m.voice_reject||m.voice_end)) { sig = m; break; } }
+            for (const g of gs) {
+              const m = unpackSig(g);
+              if (
+                m &&
+                (m.voice_offer || m.voice_answer || m.ice ||
+                 m.voice_cancel || m.voice_reject || m.voice_end)
+              ) { sig = m; break; }
+            }
           }
         }
-        if (sig?.voice_offer || sig?.voice_answer || sig?.ice || sig?.voice_cancel || sig?.voice_reject || sig?.voice_end) {
-          // … your existing signalling handling …
-          continue; // never render signalling
+
+        if (
+          sig?.voice_offer || sig?.voice_answer || sig?.ice ||
+          sig?.voice_cancel || sig?.voice_reject || sig?.voice_end
+        ) {
+          // … existing signaling handling lives elsewhere …
+          continue; // do not render signaling
         }
       }
 
-      // content normalize
+      // 6) Normalize content we actually render
       const nm = normalizeIncoming(ev);
       if (!nm) continue;
 
-      // strong id de-dupe
-      const idIdx = next.findIndex((m:any) => m.id === nm.id);
-      if (idIdx !== -1) {
-        if ((nm.ts ?? 0) >= (next[idIdx].ts ?? 0)) next[idIdx] = nm;
-        changed = true;
-        continue;
-      }
+      // 7) Collapse optimistic by meta.local_id first (authoritative)
+      //    This MUST happen before any id/signature de-dupe so the optimistic bubble
+      //    is reliably replaced by the server echo even if another path already inserted it.
+      {
+        const localId: string | undefined =
+          env?.meta?.local_id ?? ev?.meta?.local_id ?? cap?.local_id ?? undefined;
 
-      // soft signature de-dupe
-      const sigKey =
-        nm.kind === "text"
-          ? `txt|${(nm as any).text}|${Math.round((nm.ts || 0) / 5000)}`
-          : `vf|${(nm as any).mime}|${fpB64((nm as any).data_b64)}|${Math.round((nm.ts || 0) / 5000)}`;
-      if (seenSigRef.current.has(sigKey)) { seenRef.current.add(nm.id); continue; }
+        if (localId && nm.kind === "text") {
+          const i = next.findIndex((m: any) => String(m.id) === String(localId));
+          if (i !== -1) {
+            const canonicalId = frameId ? `txt:${frameId}` : nm.id;
+            next[i] = {
+              ...nm,
+              id: canonicalId,
+              from: (next[i] as any).from || (nm as any).from || AGENT_ID,
+            };
 
-      // —— collapse optimistic by local_id first (authoritative) ——
-      const localId = env?.meta?.local_id ?? ev?.meta?.local_id ?? cap?.local_id;
-      if (localId && nm.kind === "text") {
-        const i = next.findIndex((m:any) => String(m.id) === String(localId));
-        if (i !== -1) {
-          next[i] = { ...nm, from: (next[i] as any).from || (nm as any).from || AGENT_ID };
-          seenRef.current.add(nm.id);
-          seenSigRef.current.add(sigKey);
-          changed = true;
-          continue;
+            // If a separate entry with the same canonical id already exists (e.g. from a temp WS insert),
+            // drop it now to avoid a visible double.
+            const dupIdx = next.findIndex((m: any, idx: number) => idx !== i && m.id === canonicalId);
+            if (dupIdx !== -1) next.splice(dupIdx, 1);
+
+            seenRef.current.add(canonicalId);
+            changed = true;
+            // we intentionally DO NOT add sigKey yet (we haven't computed it); uniqById will protect us later.
+            continue;
+          }
         }
       }
 
-      // fallback collapse by text/time proximity (10s)
+      // 8) Fallback collapse by text/time proximity (10s window) for optimistic local:* ids
       if (nm.kind === "text") {
         let i = -1;
         for (let k = next.length - 1; k >= 0; k--) {
@@ -1021,45 +1129,75 @@ useEffect(() => {
           if (sameText || nearTime) { i = k; break; }
         }
         if (i !== -1) {
-          next[i] = { ...nm, from: (next[i] as any).from || (nm as any).from || AGENT_ID };
-          seenRef.current.add(nm.id);
-          seenSigRef.current.add(sigKey);
+          const canonicalId = frameId ? `txt:${frameId}` : nm.id;
+          next[i] = { ...nm, id: canonicalId, from: (next[i] as any).from || (nm as any).from || AGENT_ID };
+
+          // Remove any other duplicate with the same canonical id
+          const dupIdx = next.findIndex((m: any, idx: number) => idx !== i && m.id === canonicalId);
+          if (dupIdx !== -1) next.splice(dupIdx, 1);
+
+          seenRef.current.add(canonicalId);
           changed = true;
           continue;
         }
       }
 
-      // optimistic voice replace
+      // 9) Server echo of a voice note → replace optimistic local-voice
       if (nm.kind === "voice") {
         const kNow = `${(nm as any).mime}|${fpB64((nm as any).data_b64)}`;
-        const i = next.findIndex((m:any) =>
-          m.kind === "voice" &&
-          String(m.id).startsWith("local-voice:") &&
-          `${(m as any).mime}|${fpB64((m as any).data_b64)}` === kNow
+        const i = next.findIndex(
+          (m: any) =>
+            m.kind === "voice" &&
+            String(m.id).startsWith("local-voice:") &&
+            `${(m as any).mime}|${fpB64((m as any).data_b64)}` === kNow
         );
         if (i !== -1) {
           next[i] = { ...nm, from: (next[i] as any).from || (nm as any).from };
           seenRef.current.add(nm.id);
-          seenSigRef.current.add(sigKey);
           changed = true;
           continue;
         }
       }
 
-      // brand new
+      // 10) Strong id de-dupe (replace if newer ts)
+      //     (Placed AFTER collapses so it doesn't short-circuit them.)
+      {
+        const idx = next.findIndex((m: any) => m.id === nm.id);
+        if (idx !== -1) {
+          if ((nm.ts ?? 0) >= (next[idx].ts ?? 0)) next[idx] = nm;
+          changed = true;
+          continue;
+        }
+      }
+
+      // 11) Soft signature de-dupe (guards slight id/ts differences)
+      const sigKey =
+        nm.kind === "text"
+          ? `txt|${(nm as any).text}|${Math.floor((nm.ts || 0) / 3000)}`
+          : `vf|${(nm as any).mime}|${fpB64((nm as any).data_b64)}|${Math.floor((nm.ts || 0) / 3000)}`;
+      if (seenSigRef.current.has(sigKey)) { 
+        seenRef.current.add(nm.id); 
+        continue; 
+      }
+
+      // 12) Brand-new message
       next.push(nm);
-      seenRef.current.add(nm.id);
+
+      // mark ids we might see under alternate forms
+      const idGuess = nm.id || (frameId ? `txt:${frameId}` : "");
+      if (idGuess) seenRef.current.add(idGuess);
+      if (frameId) seenRef.current.add(`txt:${frameId}`);
       seenSigRef.current.add(sigKey);
       changed = true;
-    }
+    } // ← END for (const evRaw of messages)
 
     if (!changed) return prev;
 
-    next = uniqById(next).sort((a:any, b:any) => a.ts - b.ts);
+    next = uniqById(next).sort((a: any, b: any) => (a.ts || 0) - (b.ts || 0));
     try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
     return next as any;
-  });
-}, [messages, storageKey, topicWa, graph, AGENT_ID, callState, lastCandType]);
+  }); // ← END setThread
+}, [messages, storageKey, topicWa, graph, AGENT_ID, callState, lastCandType]); // ← END useEffect
 
 // ──────────────────────────────────────────────────────────────
 // Composer + PTT state …
@@ -1204,14 +1342,15 @@ async function sendText() {
     // 2) 🔇 WS fanout is DISABLED to avoid duplicate inserts in UIs.
     //    If you ever want instant WS fanout again, flip FANOUT to true,
     //    and ensure your merge effect skips cap.chat_message frames.
-    const FANOUT = false;
-    if (FANOUT) {
+    // 2) WS fanout so peers see it immediately (persisted echo will collapse it)
+    const FANOUT = true;
+    try {
       await postTx(
         base,
         { recipient: topicWa, graph, capsule: { chat_message: { text: msg, from: AGENT_ID, at: now } }, meta },
         headers
-      ).catch(() => {});
-    }
+      );
+    } catch {}
 
     // 3) Authoritative persistent path — send glyphs (server persists, echoes with msg_id)
     const res = await postTx(
@@ -3079,24 +3218,24 @@ async function sendVoiceNoteFile(f: File) {
 
   const micCursor = micDisabled ? "not-allowed" : "pointer";
 
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", height: "100%", gap: 12 }}>
-      {/* Left rail: Recents / Contacts and graph toggle */}
-      <aside
-        data-contacts-count={String(contacts.length)}
-        style={{
-          border: "1px solid #e5e7eb",
-          background: "#0fff",
-          borderRadius: 8,
-          padding: 10,
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-          minHeight: 0,
-          minWidth: 0,
-          overflow: "hidden",
-        }}
-      >
+return (
+  <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", height: "100%", gap: 12 }}>
+    {/* Left rail: Recents / Contacts and graph toggle */}
+    <aside
+      data-contacts-count={String(contacts.length)}
+      style={{
+        border: "1px solid #e5e7eb",
+        background: "#fff",        // was "#0fff" (cyan). Use "#f8fafc" to match <main> if preferred.
+        borderRadius: 8,
+        padding: 10,
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        minHeight: 0,
+        minWidth: 0,
+        overflow: "hidden",
+      }}
+    >
         {/* Graph toggle */}
         <div
           style={{
