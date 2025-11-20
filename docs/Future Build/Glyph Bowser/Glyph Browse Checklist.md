@@ -213,92 +213,92 @@ Reliability
 
 ***********************KNOWLEDGE GRAPH & BROSWER INTEGRATION***************************************************
 A — Knowledge Graph & Browser Integration
-•	A1 {x} Per-user, per-graph partitioning (kg=personal|work) hard boundary
-•	A2 {x} Per-thread storageKey gnet:thread:{kg}:{topic}
-•	A3 { } Entity namespace policy {kg, ownerWA} on all nodes/edges (note: enforced in ledger writes; KG node/edge retrofit pending)
-•	A4 { } Container topology: dc_kg_personal, dc_kg_work, dc_commons_shared (shared chat/mail)
-•	A5 { } Satellite atoms plan (Visits, Voice, Files) for high-volume streams
-•	A6 { } Data model: Agent
-•	A7 { } Data model: Topic (wa, realm, label)
-•	A8 { } Data model: Thread (id, kg, topic)
-•	A9 {x} Data model: Message (text|voice|mail|signal, size/mime/transcript_of)
-•	A10 { } Data model: Attachment (file_id, mime, size, sha256)
-•	A11 { } Data model: Call (ts_start, ts_end, state, ice_type)
-•	A12 {x} Data model: PTTSession (ts, dur_ms, acquire_ms, granted)
-•	A13 {x} Data model: FloorLock (result, acquire_ms)
-•	A14 { } Data model: Visit (uri, host, title, referrer, duration_s)
-•	A15 { } Data model: Cookie (key, value_hash, scope, expires, policy)
-•	A16 { } Data model: File (name, mime, size, sha256, versions, location)
-•	A17 { } Data model: ContainerRef (container_id, kind, path)
-•	A18 { } Edge: SENT_BY(Message→Agent)
-•	A19 { } Edge: ON_TOPIC(Message→Topic)
-•	A20 { } Edge: IN_THREAD(Message→Thread)
-•	A21 { } Edge: HAS_ATTACHMENT(Message→Attachment→File)
-•	A22 { } Edge: PART_OF(Call→Thread)
-•	A23 { } Edge: HELD_BY(FloorLock→Agent)
-•	A24 { } Edge: VISITED_BY(Visit→Agent)
-•	A25 { } Edge: OBSERVED_FOR(Cookie→Agent|Thread)
-•	A26 { } Edge: ABOUT(ContainerRef→Thread|Topic)
+• A1 {x} Per-user, per-graph partitioning (kg=personal|work) hard boundary
+• A2 {x} Per-thread storageKey gnet:thread:{kg}:{topic}
+• A3 { } Entity namespace policy {kg, ownerWA} on all nodes/edges (note: enforced in ledger writes; KG node/edge retrofit pending)
+• A4 { } Container topology: dc_kg_personal, dc_kg_work, dc_commons_shared (shared chat/mail)
+• A5 { } Satellite atoms plan (Visits, Voice, Files) for high-volume streams
+• A6 { } Data model: Agent
+• A7 { } Data model: Topic (wa, realm, label)
+• A8 { } Data model: Thread (id, kg, topic)
+• A9 {x} Data model: Message (text|voice|mail|signal, size/mime/transcript_of)
+• A11 {x} Data model: Call (ts_start, ts_end, state, ice_type)  ← represented via call events (offer/answer/connected/end/etc.); start/end derived from transitions
+• A10 { } Data model: Attachment (file_id, mime, size, sha256)
+• A12 {x} Data model: PTTSession (ts, dur_ms, acquire_ms, granted)
+• A13 {x} Data model: FloorLock (result, acquire_ms)
+• A14 { } Data model: Visit (uri, host, title, referrer, duration_s)
+• A15 { } Data model: Cookie (key, value_hash, scope, expires, policy)
+• A16 { } Data model: File (name, mime, size, sha256, versions, location)
+• A17 { } Data model: ContainerRef (container_id, kind, path)
+• A18 { } Edge: SENT_BY(Message→Agent)
+• A19 { } Edge: ON_TOPIC(Message→Topic)
+• A20 { } Edge: IN_THREAD(Message→Thread)
+• A21 { } Edge: HAS_ATTACHMENT(Message→Attachment→File)
+• A22 { } Edge: PART_OF(Call→Thread)
+• A23 { } Edge: HELD_BY(FloorLock→Agent)
+• A24 { } Edge: VISITED_BY(Visit→Agent)
+• A25 { } Edge: OBSERVED_FOR(Cookie→Agent|Thread)
+• A26 { } Edge: ABOUT(ContainerRef→Thread|Topic)
  • A27 {x} Indices: {kg, thread_id, ts}
  • A28 {x} Indices: {kg, topic.wa}
  • A29 {x} Indices: {kg, file.sha256}
-•	A30 { } Indices: {kg, host}
-•	A31 { } Indices: {kg, cookie.key}
-•	A32 {x} API: POST /api/kg/events (append-only batch ingest)
-•	A33 {x} API: GET /api/kg/query (graph slice by kg/thread/entity/time)
-•	A34 { } API: POST /api/kg/upsert-entity (idempotent identities, optional)
-•	A35 {x} Storage: SQLite/DuckDB property-graph tables
-•	A36 { } Storage adapter: Neo4j/Memgraph (opt-in)
-•	A37 { } Local IndexedDB mirror per graph (offline reads)
-•	A38 {x} Browser emitters: hook points identified in ChatThread
-•	A39 {x} Emitter: after sendText() → message(text) event
-•	A40 {x} Emitter: after sendVoiceNoteFile() → message(voice) event
-•	A41 {x} Emitter: PTT frames batched → PTTSession on release
-•	A42 {x} Emitter: Floor locks (grant/deny) → floor_lock event
-•	A43 { } Emitter: Call state (offer/answer/connect/end/reject/cancel) → call event
-•	A44 { } Emitter: Transcript posted → message(text, transcript_of)
-•	A45 { } Router: on navigation resolve → visit event
-•	A46 { } Router: on dwell/close → visit.duration update
-•	A47 { } Drive hooks: file upload/download/share → file events
-•	A48 { } Cookies/Habits ledger (hashed values, scope/expiry)
-•	A49 { } Settings toggle: “Allow AI memory of habits (per graph)”
-•	A50 {x} Runtime↔KG: map GlyphRuntime events (execution/replay/collapsed/SoulLaw) — now journaled to ledger via /api/kg/events
-•	A51 { } Runtime↔KG: emit ABOUT(ContainerRef→Thread) on entangled forks (note: partial via cr_entangled_fork; ABOUT edge pending)
-•	A52 { } Query: hydrate thread view from KG (attachments, call summaries, PTT rollups)
-•	A53 { } Search: cross-thread q= over Message/Visit/File.name
-•	A54 { } AION memory views: /api/kg/view/memory?kg=…&scope=habits|topics|people
-•	A55 { } Privacy: per-graph retention defaults (Msg 18m, Voice 90d, Visits 12m, Habits by expiry)
-•	A56 { } Privacy: POST /api/kg/forget (entity/time), tombstones, cascade to IndexedDB
-•	A57 { } Privacy: per-graph toggles (Store visits/habits/transcripts, encrypt-at-rest)
-•	A58 { } Audit: mutation ledger (hash-chained envelopes)
-•	A59 { } Sync: IndexedDB mirror gnet_kg_{kg} write-through on event POST
-•	A60 { } Sync: cursor reconciliation GET /api/kg/query?after=… idempotent apply
-•	A61 { } UI: KG Dock v2 tabs (Timeline/Graph/Files/Visits/Habits)
-•	A62 { } UI: Thread context pill + filters + time range
-•	A63 { } UI: Mini D3 graph (Topic↔Messages↔Attachments↔Calls)
-•	A64 { } UI: Privacy banner + “Pause memory” toggle
-•	A65 { } UI: Visit history with host aggregates + “Clear last hour/day”
-•	A66 { } Security: at-rest encryption for KG rows (per-user keys)
-•	A67 { } Security: hashed cookie values (no plaintext; entropy budget)
-•	A68 { } Security: QKD hooks enc={kid,iv} metadata on events
-•	A69 {x} Telemetry present for RF/IP/PTT (app-level)
-•	A70 { } Telemetry: KG counters (ev_ok/err, cache_hits, sync_conflicts, forget_ops, privacy_paused_min)
-•	A71 { } Tests: idempotency & merge
-•	A72 { } Tests: partition isolation (personal vs work)
-•	A73 { } Tests: offline/online flaps
-•	A74 { } Tests: forget/redaction correctness
-•	A75 { } Tests: AION aggregate correctness
-•	A76 { } Migration: session thread/voice/call summaries → KG
-•	A77 { } Migration: backfill visits from router history
-•	A78 { } Acceptance: graph switch reflects different KG immediately
-•	A79 { } Acceptance: new chats/voice/calls/visits appear in KG Dock ≤1s
-•	A80 { } Acceptance: clearing habits/last-day visits reflects in UI & memory
-•	A81 { } Acceptance: thread export includes message+file graph slice
-•	A82 {x} KG writer → namespace-aware ledger journaling (kg/owner_wa/thread_id/topic_wa; idempotent ids)
-•	A83 {x} Cursor scheme “ts:id” implemented server-side in /api/kg/query
-•	A84 {x} Thread id scheme: thread_id = “kg:{kg}:{topic_wa}” (derived in KG writer)
-•	A85 {x} MicrogridIndex tap: deterministic glyph registration for HUD overlays
-•	A86 {x} QWave beams export embedded into KG packs (collect/export during export_pack)
+• A30 { } Indices: {kg, host}
+• A31 { } Indices: {kg, cookie.key}
+• A32 {x} API: POST /api/kg/events (append-only batch ingest)
+• A33 {x} API: GET /api/kg/query (graph slice by kg/thread/entity/time)
+• A34 { } API: POST /api/kg/upsert-entity (idempotent identities, optional)
+• A35 {x} Storage: SQLite/DuckDB property-graph tables
+• A36 { } Storage adapter: Neo4j/Memgraph (opt-in)
+• A37 { } Local IndexedDB mirror per graph (offline reads)
+• A38 {x} Browser emitters: hook points identified in ChatThread
+• A39 {x} Emitter: after sendText() → message(text) event
+• A40 {x} Emitter: after sendVoiceNoteFile() → message(voice) event
+• A41 {x} Emitter: PTT frames batched → PTTSession on release
+• A42 {x} Emitter: Floor locks (grant/deny) → floor_lock event
+• A43 {x} Emitter: Call state (offer/answer/connect/end/reject/cancel) → call event
+• A44 { } Emitter: Transcript posted → message(text, transcript_of)
+• A45 {x} Router: on navigation resolve → visit event
+• A46 {x} Router: on dwell/close → visit.duration update
+• A47 { } Drive hooks: file upload/download/share → file events
+• A48 { } Cookies/Habits ledger (hashed values, scope/expiry)
+• A49 { } Settings toggle: “Allow AI memory of habits (per graph)”
+• A50 {x} Runtime↔KG: map GlyphRuntime events — journaled via /api/kg/events
+• A51 { } Runtime↔KG: emit ABOUT(ContainerRef→Thread) on entangled forks
+• A52 { } Query: hydrate thread view from KG (attachments, call summaries, PTT rollups)
+• A53 { } Search: cross-thread q= over Message/Visit/File.name
+• A54 { } AION memory views: /api/kg/view/memory?kg=…&scope=habits|topics|people
+• A55 { } Privacy: per-graph retention defaults
+• A56 { } Privacy: POST /api/kg/forget …
+• A57 { } Privacy: per-graph toggles
+• A58 { } Audit: mutation ledger (hash-chained envelopes)
+• A59 { } Sync: IndexedDB mirror write-through
+• A60 { } Sync: cursor reconciliation idempotent apply
+• A61 { } UI: KG Dock v2 tabs
+• A62 { } UI: Thread context pill + filters
+• A63 { } UI: Mini D3 graph
+• A64 { } UI: Privacy banner + pause
+• A65 { } UI: Visit history + clear
+• A66 { } Security: at-rest encryption
+• A67 { } Security: hashed cookie values
+• A68 { } Security: QKD hooks enc= metadata
+• A69 {x} Telemetry present for RF/IP/PTT (app-level)
+• A70 { } Telemetry: KG counters
+• A71 { } Tests: idempotency & merge
+• A72 { } Tests: partition isolation
+• A73 { } Tests: offline/online flaps
+• A74 { } Tests: forget/redaction correctness
+• A75 { } Tests: AION aggregate correctness
+• A76 { } Migration: session → KG
+• A77 { } Migration: backfill visits
+• A78 { } Acceptance: graph switch reflects different KG immediately
+• A79 { } Acceptance: new chats/voice/calls/visits appear in KG Dock ≤1s
+• A80 { } Acceptance: clearing habits/last-day visits reflects in UI & memory
+• A81 { } Acceptance: thread export includes message+file graph slice
+• A82 {x} KG writer → namespace-aware ledger journaling
+• A83 {x} Cursor scheme “ts:id” in /api/kg/query
+• A84 {x} Thread id scheme: thread_id = “kg:{kg}:{topic_wa}”
+• A85 {x} MicrogridIndex tap
+• A86 {x} QWave beams export
 
 B — Conversation Persistence & History
 •	B1 {x} /api/glyphnet/thread basic fetch with limit

@@ -68,7 +68,7 @@ export default function App() {
     if (session?.slug) {
       localStorage.setItem("gnet:user_slug", session.slug);
       localStorage.setItem("gnet:wa", session.wa);
-      localStorage.setItem("gnet:ownerWa", session.wa); // ← NEW: canonical owner
+      localStorage.setItem("gnet:ownerWa", session.wa); // canonical owner
 
       if (!location.hash || location.hash === "#/" || location.hash === "#") {
         window.location.hash = `#/container/${session.slug}__home`;
@@ -76,7 +76,7 @@ export default function App() {
     } else {
       localStorage.removeItem("gnet:user_slug");
       localStorage.removeItem("gnet:wa");
-      localStorage.removeItem("gnet:ownerWa"); // ← NEW: clear on logout
+      localStorage.removeItem("gnet:ownerWa");
     }
   }, [session]);
 
@@ -190,35 +190,34 @@ export default function App() {
       OWNER_WA;
 
     const kgEmit = (window as any).KGEmit;
-    if (!kgEmit || typeof kgEmit.initVisitEmitters !== "function") {
-      // UMD not loaded yet or no initVisitEmitters; nothing to do
-      return;
-    }
+    if (!kgEmit || typeof kgEmit.initVisitEmitters !== "function") return;
+
+    const readGraph = () => {
+      try { return readKGFromHash(window.location.hash || "#/"); }
+      catch { return "personal" as const; }
+    };
+    const readTopic = () => {
+      try { return readTopicFromHash(window.location.hash || "#/") || "ucs://local/ucs_hub"; }
+      catch { return "ucs://local/ucs_hub"; }
+    };
 
     const stop = kgEmit.initVisitEmitters({
       apiBase: KG_API_BASE,
       ownerWa,
-      getGraph: () => {
-        try {
-          return readKGFromHash(window.location.hash || "#/"); // "personal" | "work"
-        } catch {
-          return "personal";
-        }
-      },
-      getTopic: () => {
-        try {
-          return readTopicFromHash(window.location.hash || "#/") || "ucs://local/ucs_hub";
-        } catch {
-          return "";
-        }
-      },
+
+      // legacy snapshot (for older servers)
+      kg: readGraph(),
+      topicWa: readTopic(),
+      getUri: () => window.location.href,
+      getTitle: () => document.title,
+
+      // live readers
+      getGraph: readGraph,
+      getTopic: readTopic,
       getPath: () => window.location.hash || "#/",
     });
 
-    // allow UMD helper to clean up listeners/timers
-    return () => {
-      if (typeof stop === "function") stop();
-    };
+    return () => { if (typeof stop === "function") stop(); };
   }, [session?.wa]);
 
   // Accept both a string or an object from TopBar

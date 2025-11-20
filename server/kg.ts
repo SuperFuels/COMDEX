@@ -86,6 +86,23 @@ function ensureNamespaceOnEvent(base: {
   return { kg, owner_wa, topic_wa, thread_id };
 }
 
+function normalizeVisitEvent(it: KGEventInsert): KGEventInsert {
+  if (!it || it.type !== "visit") return it;
+  const p: any = (it as any).payload || {};
+  if (!p.host) {
+    try {
+      const href = p.href || p.uri || "";
+      const u = href && /^https?:/i.test(href)
+        ? new URL(href)
+        : new URL(href || "/", "https://x.invalid");
+      p.host = u.host || "";
+    } catch {
+      p.host = "";
+    }
+  }
+  return { ...it, payload: p };
+}
+
 // Shared INSERT statement
 const insertStmt = db.prepare(`
   INSERT INTO kg_events (id,kg,owner_wa,thread_id,topic_wa,type,kind,ts,size,sha256,payload)
@@ -143,13 +160,14 @@ app.post("/api/kg/events", (req: Request, res: Response) => {
   const kg = normalizeKg(body.kg);
   const owner = String(body.owner || "").trim();
   const events = Array.isArray(body.events) ? body.events : [];
+  const normalized = events.map(e => e?.type === "visit" ? normalizeVisitEvent(e) : e);
 
-  if (!owner || events.length === 0) {
+  if (!owner || normalized.length === 0) {
     return res.status(400).json({ ok: false, error: "bad_request" });
   }
 
   try {
-    const result = applyEvents(kg, owner, events);
+    const result = applyEvents(kg, owner, normalized);
     return res.json({ ok: true, ...result });
   } catch (err) {
     console.error("[kg/events] fail", err);

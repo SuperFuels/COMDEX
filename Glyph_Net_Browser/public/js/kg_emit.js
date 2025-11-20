@@ -39,6 +39,7 @@
     const base = apiBase || "";
     return base.endsWith("/") ? `${base.slice(0, -1)}${path}` : `${base}${path}`;
   }
+  function nowId(prefix) { return `${prefix}${Date.now()}`; }
 
   // ───────── transport (auto-discover path + shape) ─────────
   async function postDiscovered(apiBase, kg, ownerWa, topicWa, items, opts = {}) {
@@ -63,11 +64,10 @@
       if (opts.agentId) headers["X-Agent-Id"] = String(opts.agentId);
       if (opts.agentToken) headers["X-Agent-Token"] = String(opts.agentToken);
 
-      // Build both bodies; send the one for this shape.
       const body_items = {
         kg: normalizeKg(kg),
         ownerWa,
-        owner_wa: ownerWa,         // include both casings for compatibility
+        owner_wa: ownerWa,
         topicWa,
         topic_wa: topicWa,
         items,
@@ -77,9 +77,8 @@
       const body_events = {
         kg: normalizeKg(kg),
         owner: ownerWa,
-        events: items,             // same objects array
+        events: items,
       };
-
       const body = shape === "events" ? body_events : body_items;
 
       const res = await fetch(url, {
@@ -89,7 +88,6 @@
         keepalive: true,
       });
 
-      // 2xx = success
       if (res.ok) {
         if (path !== cachedPath || shape !== cachedShape) {
           try { localStorage.setItem(KEY_PATH, path); } catch {}
@@ -98,13 +96,10 @@
         return res.json().catch(() => ({}));
       }
 
-      // 404 → wrong path; try next
       if (res.status === 404) throw Object.assign(new Error("404"), { retryNext: true });
 
-      // Some servers return 400/415 for wrong shape → try alternate shape on same path once
       if (res.status === 400 || res.status === 415 || res.status === 422) {
         if (shape === "events") {
-          // try 'items' on same path
           const alt = await fetch(url, {
             method: "POST",
             headers,
@@ -131,7 +126,6 @@
         }
       }
 
-      // Other codes: bubble up
       const text = await res.text().catch(() => "");
       const err = new Error(`${res.status}: ${text || res.statusText}`);
       err.status = res.status;
@@ -140,12 +134,10 @@
 
     let lastErr;
     for (const c of CANDIDATES) {
-      try {
-        return await tryOnce(c);
-      } catch (e) {
+      try { return await tryOnce(c); }
+      catch (e) {
         lastErr = e;
         if (!e || !e.retryNext) {
-          // not a “try next” case → if it was a cached combo, clear it and continue
           if (c.path === cachedPath && c.shape === cachedShape) {
             try { localStorage.removeItem(KEY_PATH); } catch {}
             try { localStorage.removeItem(KEY_SHAPE); } catch {}
@@ -340,11 +332,136 @@
     return postDiscovered(apiBase, kg, ownerWa, topicWa, [item], { agentId, agentToken });
   }
 
+  // ---- Visits/Dwell emitter ----------------------------------------------------
+  function initVisitEmitters(opts = {}) {
+    const {
+      apiBase = "",
+      ownerWa,
+      // legacy names (optional)
+      kg,
+      topicWa,
+      getUri,
+      getTitle,
+      // new live readers (preferred)
+      getGraph,
+      getTopic,
+      getPath,
+      debug = false,
+      agentId,
+      agentToken,
+    } = opts;
+
+    const g = () => (typeof getGraph === "function" ? getGraph() : normalizeKg(kg));
+    const t = () => {
+      const v = typeof getTopic === "function" ? getTopic() : (topicWa || "ucs://local/ucs_hub");
+      return (v || "ucs://local/ucs_hub").trim();
+    };
+    const pathNow  = () =>
+      (typeof getPath === "function"
+        ? getPath()
+        : (typeof location !== "undefined" ? (location.hash || location.pathname || "/") : "/"));
+    const uriNow   = () =>
+      (typeof getUri === "function"
+        ? getUri()
+        : (typeof location !== "undefined" ? location.href : "about:blank"));
+    const titleNow = () =>
+      (typeof getTitle === "function"
+        ? getTitle()
+        : (typeof document !== "undefined" ? document.title : ""));
+
+    let startedAt = 0;
+    let lastPath = "";
+    let visitId = null;
+
+    const log = (...a) => { if (debug || (typeof window !== "undefined" && window.KG_DEBUG)) console.log("[KG visits]", ...a); };
+
+    const emitPage = async () => {
+      const ts = Date.now();
+      const host = (typeof location !== "undefined" ? location.host : "");
+      const referrer = (typeof document !== "undefined" ? document.referrer || "" : "");
+      const item = {
+        id: `local:visit:${ts}:${Math.random().toString(36).slice(2,7)}`,
+        type: "visit",
+        kind: "page",
+        ts,
+        thread_id: makeThreadId(g(), t()),
+        topic_wa: t(),
+        payload: {
+          uri: pathNow(),
+          title: titleNow(),
+          href: uriNow(),
+          host,
+          referrer,
+        },
+      };
+      startedAt = ts;
+      lastPath = item.payload.uri;
+      visitId = item.id;
+      log("page", item.payload);
+      try {
+        await postDiscovered(apiBase, g(), ownerWa, t(), [item], { agentId, agentToken });
+      } catch (e) {
+        log("post page failed:", e);
+      }
+    };
+
+    const emitDwell = async () => {
+      if (!startedAt || !visitId) return;
+      const ts = Date.now();
+      const durS = Math.max(0, Math.round((ts - startedAt) / 1000));
+      const item = {
+        id: `${visitId}:dwell`,
+        type: "visit",
+        kind: "dwell",
+        ts,
+        thread_id: makeThreadId(g(), t()),
+        topic_wa: t(),
+        payload: { uri: lastPath, duration_s: durS, origin_id: visitId },
+      };
+      log("dwell", item.payload);
+      startedAt = 0;
+      visitId = null;
+      try {
+        await postDiscovered(apiBase, g(), ownerWa, t(), [item], { agentId, agentToken });
+      } catch (e) {
+        log("post dwell failed:", e);
+      }
+    };
+
+    // listeners
+    const onHash = () => { emitDwell(); emitPage(); };
+    const onHide = () => { emitDwell(); };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("hashchange", onHash);
+      window.addEventListener("visibilitychange", () => { if (document.hidden) onHide(); });
+      window.addEventListener("pagehide", onHide);
+      window.addEventListener("beforeunload", onHide);
+    }
+
+    // initial pageview
+    emitPage();
+
+    // return stop() to detach listeners
+    return function stop() {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("hashchange", onHash);
+        window.removeEventListener("visibilitychange", onHide);
+        window.removeEventListener("pagehide", onHide);
+        window.removeEventListener("beforeunload", onHide);
+      }
+      emitDwell();
+    };
+  }
+
   return {
-    // utils
-    normalizeKg, makeThreadId, sigText, sigVoice,
-    // emitters
-    emitTextToKG, emitTranscriptPosted, emitVoiceToKG,
-    emitPttSession, emitFloorLock, emitCallState, emitFileEvent,
-  };
+  // utils
+  normalizeKg, makeThreadId, sigText, sigVoice,
+  // emitters
+  emitTextToKG, emitTranscriptPosted, emitVoiceToKG,
+  emitPttSession, emitFloorLock, emitCallState, emitFileEvent,
+  // NEW
+  initVisitEmitters,
+};
+
 });

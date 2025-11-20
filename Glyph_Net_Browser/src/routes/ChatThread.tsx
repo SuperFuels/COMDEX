@@ -138,6 +138,64 @@ function hashStr(s: string) {
   return h.toString(36);
 }
 
+// --- DEV ONLY: wire up logs + expose window.peek/window.__pc ---
+function wireRtcDebug(
+  pc: RTCPeerConnection,
+  role: "caller" | "callee",
+  callId?: string
+) {
+  // prevent double-wiring the same PC
+  if ((pc as any).__gnetWired) return pc;
+  (pc as any).__gnetWired = true;
+
+  const tag = `[RTC:${role}]`;
+  const log = (m: string, ...a: any[]) => console.log(tag, m, ...a);
+
+  const expose = () => {
+    (window as any).__pc = pc;
+    if (callId) (window as any).__callId = callId;
+    (window as any).__role = role;
+    (window as any).peek = () => ({
+      callId: (window as any).__callId ?? null,
+      role: (window as any).__role ?? null,
+      signaling: pc.signalingState,
+      ice: pc.iceConnectionState,
+      conn: pc.connectionState,
+      local: pc.localDescription?.type,
+      remote: pc.remoteDescription?.type,
+      cand: (window as any).__candType ?? null,
+      senders: pc.getSenders().map(s => s.track?.kind).filter(Boolean),
+      receivers: pc.getReceivers().map(r => r.track?.kind).filter(Boolean),
+    });
+  };
+
+  // initial exposure
+  expose();
+
+  pc.addEventListener("negotiationneeded", () => log("negotiationneeded"));
+  pc.addEventListener("signalingstatechange", () => { expose(); log(`signaling: ${pc.signalingState}`); });
+  pc.addEventListener("icegatheringstatechange", () => log(`icegathering: ${pc.iceGatheringState}`));
+  pc.addEventListener("iceconnectionstatechange", () => log(`iceconnection: ${pc.iceConnectionState}`));
+  pc.addEventListener("connectionstatechange", () => log(`connection: ${pc.connectionState}`));
+
+  pc.addEventListener("track", (ev: RTCTrackEvent) => {
+    const t = ev.track;
+    log(`track: ${t?.kind} ${t?.id} enabled:${t?.enabled} muted:${(t as any)?.muted ?? false}`);
+  });
+
+  pc.addEventListener("icecandidate", (ev) => {
+    const cand = ev.candidate?.candidate || "";
+    const typ = / typ (\w+)/.exec(cand)?.[1];
+    if (typ) (window as any).__candType = typ;
+    log(`icecandidate: ${typ || "none"}`);
+  });
+
+  (pc as any).onicecandidateerror = (e: any) =>
+    log("icecandidateerror", e?.errorCode, e?.errorText || e);
+
+  return pc;
+}
+
 // Robust, cheap fingerprint for base64 payloads
 function fpB64(b64: string) {
   const s = b64 || "";
@@ -733,34 +791,59 @@ export default function ChatThread({
     }
   };
 
-  // ── signaling de-dupe / state guards
-  // --- Call signaling de-dupe / queue state ---
+  // —— signaling de-dupe + tiny queues ——
   const appliedOffersRef  = useRef<Set<string>>(new Set());
   const appliedAnswersRef = useRef<Set<string>>(new Set());
-  const addedIceRef       = useRef<Set<string>>(new Set()); // key `${callId}|${cand}`
+  const addedIceRef       = useRef<Set<string>>(new Set()); // key `${callId}|${candidate}`
 
+  // queues keyed by call_id
+  const queuedIceRef      = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
   const pendingAnswerRef  = useRef<Map<string, RTCSessionDescriptionInit>>(new Map());
-  const pendingIceRef     = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
 
-  // Flush any queued ICE after remote desc is set
-  async function flushPendingIce(callId: string, pc: RTCPeerConnection) {
-    const list = pendingIceRef.current.get(callId);
-    if (!list || !list.length) return;
-    pendingIceRef.current.delete(callId);
-    for (const c of list) {
-      const key = `${callId}|${c.candidate}`;
-      if (addedIceRef.current.has(key)) continue;
-      try { await pc.addIceCandidate(c); addedIceRef.current.add(key); }
-      catch (e) { console.warn("[RTC] flush addIce failed", e); }
+  // add (or queue) ICE until remoteDescription exists
+  function maybeAddIce(pc: RTCPeerConnection, cand: RTCIceCandidateInit, callId: string) {
+    const key = `${callId}|${cand.candidate}`;
+    if (addedIceRef.current.has(key)) return;
+
+    if (!pc.remoteDescription) {
+      const list = queuedIceRef.current.get(callId) || [];
+      list.push(cand);
+      queuedIceRef.current.set(callId, list);
+      return;
     }
+
+    pc.addIceCandidate(cand).catch((e) => console.warn("[RTC] addIceCandidate", e));
+    addedIceRef.current.add(key);
   }
 
+  // flush queued ICE once remoteDescription is set
+  function flushQueuedIce(pc: RTCPeerConnection, callId: string) {
+    const list = queuedIceRef.current.get(callId);
+    if (!list?.length) return;
+
+    for (const c of list) {
+      const key = `${callId}|${c.candidate}`;
+      if (!addedIceRef.current.has(key)) {
+        pc.addIceCandidate(c).catch((e) => console.warn("[RTC] addIceCandidate/flush", e));
+        addedIceRef.current.add(key);
+      }
+    }
+    queuedIceRef.current.delete(callId);
+  }
+
+  function takeQueuedAnswer(callId: string): RTCSessionDescriptionInit | undefined {
+    const d = pendingAnswerRef.current.get(callId);
+    if (d) pendingAnswerRef.current.delete(callId);
+    return d;
+  }
+
+  // one-shot cleanup between calls
   function cleanupCallSets() {
     appliedOffersRef.current.clear();
     appliedAnswersRef.current.clear();
     addedIceRef.current.clear();
+    queuedIceRef.current.clear();
     pendingAnswerRef.current.clear();
-    pendingIceRef.current.clear();
   }
 
   // WebRTC: call state + refs (canonical)
@@ -964,12 +1047,19 @@ export default function ChatThread({
     }
   }, [callState]);
 
-  const micDisabled = (!!floorBusyBy && !floorOwned) || callState !== "idle";
+  const inCall =
+  callState === "offering" || callState === "connecting" || callState === "connected";
+
+  const micDisabled = (!!floorBusyBy && !floorOwned) || inCall;
 
   // Call duration timer
   const [callSecs, setCallSecs] = useState(0);
   const callTimerRef = useRef<number | null>(null);
   const callStartedAtRef = useRef<number | null>(null);
+
+  function callSecsNow(): number {
+    return callStartedAtRef.current ? Math.max(0, Math.round((Date.now() - callStartedAtRef.current) / 1000)) : 0;
+  }
   const callSecsRef = useRef(0);
 
   useEffect(() => {
@@ -1003,12 +1093,11 @@ export default function ChatThread({
     const pc = pcRef.current;
     if (!pc) return;
     pc.onicecandidate = (e) => {
-      if (e.candidate) {
-        const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
-        if (t) setLastCandType(t); // "host" | "srflx" | "relay"
-        if (callIdRef.current) {
-          try { sendIce(e.candidate.toJSON(), callIdRef.current).catch(() => {}); } catch {}
-        }
+      if (!e.candidate) return;
+      const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
+      if (t) setLastCandType(t);
+      if (callIdRef.current) {
+        try { sendIce(e.candidate.toJSON(), callIdRef.current).catch(() => {}); } catch {}
       }
     };
   }, [callState]);
@@ -1737,6 +1826,24 @@ async function sendVoiceNoteFile(f: File) {
     (pc as any).__stopStats = () => { if (statsTimer) clearInterval(statsTimer); statsTimer = null; };
   }
 
+  function exposePeerDebug(pc: RTCPeerConnection | null, role: "caller" | "callee") {
+    (window as any).__pc = pc || null;
+    (window as any).__role = role;
+    (window as any).__callId = callIdRef.current || null;
+    (window as any).peek = () => {
+      const p = pcRef.current;
+      return p ? {
+        callId: callIdRef.current,
+        role,
+        signaling: p.signalingState,
+        ice: p.iceConnectionState,
+        conn: p.connectionState,
+        local: p.localDescription?.type,
+        remote: p.remoteDescription?.type,
+      } : null;
+    };
+  }
+
   const SIG_DEDUPE_MS = 800; // ignore identical capsule within this window
   const _sentSigCache = new Map<string, number>();
 
@@ -1803,47 +1910,14 @@ async function sendVoiceNoteFile(f: File) {
     }
   }
 
-  function handleInboundSig(sig: any, meta: any = {}) {
-    // OFFER → ring + stash pending offer
-    if (sig.voice_offer) {
-      const { sdp, call_id } = sig.voice_offer;
-      pendingOfferRef.current = { sdp, call_id };
-      setCallState((s) => (s === "idle" ? "ringing" : s));
-      try { const el = ringAudio.current; el?.play?.().catch(() => {}); } catch {}
-      return;
-    }
+  // helper (place once near your other refs/helpers)
+  const queueAnswer = (callId: string, desc: RTCSessionDescriptionInit) => {
+    pendingAnswerRef.current.set(callId, desc);
+  };
 
-    // ANSWER → caller applies remote SDP
-    if (sig.voice_answer) {
-      const pc = pcRef.current;
-      if (!pc) return;
-      const desc = typeof sig.voice_answer.sdp === "string"
-        ? JSON.parse(sig.voice_answer.sdp)
-        : sig.voice_answer.sdp;
-      pc.setRemoteDescription(desc).catch((e) =>
-        console.warn("[RTC] setRemoteDescription(answer) failed", e)
-      );
-      return;
-    }
-
-    // ICE → add candidate
-    if (sig.ice && sig.ice.candidate) {
-      const pc = pcRef.current;
-      if (!pc) return;
-      const cand = sig.ice.candidate;
-      try { pc.addIceCandidate(cand); } catch (e) { console.warn("[RTC] addIceCandidate failed", e); }
-      const t = /candidate:.* typ (\w+)/.exec(cand?.candidate || "")?.[1] || "";
-      if (t) setLastCandType(t);
-      return;
-    }
-
-    // CANCEL / REJECT / END → stop ringing / tear down
-    if (sig.voice_cancel || sig.voice_reject || sig.voice_end) {
-      try { const el = ringAudio.current; if (el) { el.pause(); try { el.currentTime = 0; } catch {} } } catch {}
-      try { pcRef.current?.close?.(); } catch {}
-      setCallState("ended");
-      return;
-    }
+  // Legacy wrapper — route everything to the single signaling handler to avoid races.
+  async function handleInboundSig(sig: any, _meta: any = {}) {
+    return handleSig(sig); // all OFFER/ANSWER/ICE/CANCEL handled inside handleSig
   }
 
   // ——— Call functions ———
@@ -1944,34 +2018,40 @@ async function sendVoiceNoteFile(f: File) {
       return;
     }
 
-    // -------- ANSWER (caller path) --------
+    // -------- ANSWER (caller only) --------
     if (sig?.voice_answer) {
-      const callId = sig.voice_answer.call_id || callIdRef.current || "";
-      if (!callId) return;
-      if (appliedAnswersRef.current.has(callId)) return;
+      const incomingId = sig.voice_answer.call_id || "";
+      const currentId  = callIdRef.current || "";
+      const pc         = pcRef.current;
 
-      const desc = typeof sig.voice_answer.sdp === "string"
-        ? JSON.parse(sig.voice_answer.sdp)
-        : sig.voice_answer.sdp;
+      // Always parse once
+      const desc: RTCSessionDescriptionInit =
+        typeof sig.voice_answer.sdp === "string"
+          ? JSON.parse(sig.voice_answer.sdp)
+          : sig.voice_answer.sdp;
 
-      if (!pc) {
-        // caller not ready yet; queue
-        pendingAnswerRef.current.set(callId, desc);
-        return;
-      }
+      // Debug breadcrumb (safe to keep)
+      console.debug("[ANSWER] recv", {
+        incomingId,
+        currentId,
+        callState,
+        pcState: pc?.signalingState,
+        applied: appliedAnswersRef.current.has(incomingId),
+      });
 
-      if (pc.signalingState === "have-local-offer") {
-        try {
-          await pc.setRemoteDescription(desc);
-          appliedAnswersRef.current.add(callId);
-          await flushPendingIce(callId, pc);
-        } catch (e) {
-          console.warn("[RTC] setRemoteDescription(answer) failed", e);
-        }
-      } else {
-        // not ready; queue to apply once we do have-local-offer
-        pendingAnswerRef.current.set(callId, desc);
-        console.warn("[RTC] queued answer (state=", pc.signalingState, ")");
+      // Hard guards — ignore strays/late echoes
+      if (!pc)                           return;                     // no peer
+      if (!incomingId || incomingId !== currentId) return;           // not our call
+      if (appliedAnswersRef.current.has(incomingId)) return;         // already applied
+      if (callState !== "offering")          return;                 // caller only
+      if (pc.signalingState !== "have-local-offer") return;          // only valid window
+
+      try {
+        await pc.setRemoteDescription(desc);
+        appliedAnswersRef.current.add(incomingId);
+        flushQueuedIce(pc, incomingId);                               // no await
+      } catch (e) {
+        console.warn("[RTC] setRemoteDescription(answer) failed", e);
       }
       return;
     }
@@ -1987,20 +2067,46 @@ async function sendVoiceNoteFile(f: File) {
         try { await pc.addIceCandidate(cand); addedIceRef.current.add(key); }
         catch (e) { console.warn("[RTC] addIceCandidate failed", e); }
       } else {
-        const arr = pendingIceRef.current.get(callId) || [];
+        const arr = queuedIceRef.current.get(callId) || [];
         arr.push(cand);
-        pendingIceRef.current.set(callId, arr);
+        queuedIceRef.current.set(callId, arr);
       }
       return;
     }
 
     // -------- CANCEL / REJECT / END --------
-    if (sig?.voice_cancel || sig?.voice_reject || sig?.voice_end) {
-      try { ringAudio.current?.pause?.(); } catch {}
-      try { pcRef.current?.close?.(); } catch {}
-      pcRef.current = null;
-      setCallState("ended");
-      cleanupCallSets();
+    if (sig.voice_cancel || sig.voice_reject || sig.voice_end) {
+      // derive call id + kind
+      const cid =
+        sig.voice_cancel?.call_id ||
+        sig.voice_reject?.call_id ||
+        sig.voice_end?.call_id ||
+        callIdRef.current ||
+        pendingOfferRef.current?.call_id ||
+        (window as any).__callId ||
+        "n/a";
+
+      const kind: "cancel" | "reject" | "end" =
+        sig.voice_cancel ? "cancel" : (sig.voice_reject ? "reject" : "end");
+
+      // duration (fallback if callSecsNow() isn't defined)
+      const secsNow =
+        typeof (callSecsNow as any) === "function"
+          ? (callSecsNow as any)()
+          : (callStartedAtRef?.current
+              ? Math.max(0, Math.round((Date.now() - callStartedAtRef.current) / 1000))
+              : 0);
+
+      // journal to KG
+      try {
+        emitCallState({
+          apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
+          call_id: cid, kind, secs: secsNow, ts: Date.now(), agentId: AGENT_ID,
+        }).catch(() => {});
+      } catch {}
+
+      // return UI to idle (your reset handles timers/pc/refs)
+      resetCallLocalState("idle");
       return;
     }
   }
@@ -2011,9 +2117,22 @@ async function sendVoiceNoteFile(f: File) {
     // clean slate for this call
     cleanupCallSets();
 
-    const callId = crypto?.randomUUID?.() || `call-${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
+    const callId =
+      crypto?.randomUUID?.() || `call-${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
     callIdRef.current = callId;
     setCallState("offering");
+
+    // KG: record outbound offer
+    emitCallState({
+      apiBase: KG_API_BASE,
+      kg: graph,
+      ownerWa: OWNER_WA,
+      topicWa,
+      call_id: callId,                 // use the local var; equals callIdRef.current
+      kind: "offer",
+      ts: Date.now(),
+      agentId: AGENT_ID,
+    }).catch(() => {});
 
     const { stream } = await ensureMicPTT({ force: false });
 
@@ -2030,21 +2149,18 @@ async function sendVoiceNoteFile(f: File) {
             el.autoplay = true;
             el.muted = false;
             el.volume = 1;
-            el.play?.().catch(()=>{});
+            el.play?.().catch(() => {});
           } catch {}
         },
       },
       { iceServers }
     );
 
+    // 🔎 debug taps (caller)
     wireRtcDebug(pc, "caller");
-    (window as any).__pc = pc;
+    exposePeerDebug(pc, "caller");   // if you kept this helper
+    (window as any).__callId = callId;
 
-    pc.onicecandidate = (e) => {
-      if (!e.candidate) return;
-      const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
-      if (t) setLastCandType(t);
-    };
     pc.onicecandidateerror = (e: any) => console.warn("[RTC:caller] icecandidateerror", e?.errorCode, e?.errorText || e);
 
     pc.onsignalingstatechange = async () => {
@@ -2056,7 +2172,9 @@ async function sendVoiceNoteFile(f: File) {
             await pc.setRemoteDescription(queued);
             appliedAnswersRef.current.add(callId);
             pendingAnswerRef.current.delete(callId);
-            await flushPendingIce(callId, pc);
+
+            // remote desc is set → flush any queued ICE from caller
+            flushQueuedIce(pc, callId);
           } catch (e) {
             console.warn("[RTC] apply queued answer failed", e);
           }
@@ -2066,18 +2184,39 @@ async function sendVoiceNoteFile(f: File) {
 
     pc.onconnectionstatechange = () => {
       const s = pc.connectionState;
+
       if (s === "connected") {
         setCallState("connected");
+        // mark start time for duration calc
+        if (callStartedAtRef?.current == null) {
+          callStartedAtRef.current = Date.now();
+        }
         if (callIdRef.current) {
           emitCallState({
             apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-            call_id: callIdRef.current, kind: "connected",
+            call_id: callIdRef.current!, kind: "connected",
             ice_type: lastCandType || undefined, secs: 0, ts: Date.now(), agentId: AGENT_ID,
-          }).catch(()=>{});
+          }).catch(() => {});
         }
+        return;
       }
+
       if (s === "failed" || s === "closed" || s === "disconnected") {
+        // compute duration if we have a start time
+        const started = callStartedAtRef?.current || null;
+        const secs =
+          started ? Math.max(0, Math.round((Date.now() - started) / 1000)) : 0;
+
+        if (callIdRef.current) {
+          emitCallState({
+            apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
+            call_id: callIdRef.current!, kind: "end",
+            ice_type: lastCandType || undefined, secs, ts: Date.now(), agentId: AGENT_ID,
+          }).catch(() => {});
+        }
+
         setCallState("ended");
+        return;
       }
     };
 
@@ -2120,30 +2259,27 @@ async function sendVoiceNoteFile(f: File) {
       "callee",
       {
         onLocalDescription: (sdp) => sendAnswer(JSON.stringify(sdp), offer.call_id),
-        onLocalIce: (cand)     => sendIce(cand, offer.call_id),
+        onLocalIce: (cand) => sendIce(cand, offer.call_id),
         onRemoteTrack: (ms) => {
           const el = remoteAudioRef.current;
           if (!el) return;
           try {
             el.srcObject = ms;
-            el.autoplay  = true;
-            el.muted     = false;
-            el.volume    = 1;
-            el.play?.().catch(()=>{});
+            el.autoplay = true;
+            el.muted = false;
+            el.volume = 1;
+            el.play?.().catch(() => {});
           } catch {}
         },
       },
       { iceServers }
     );
 
+    // 🔎 debug taps (callee)
     wireRtcDebug(pc, "callee");
-    (window as any).__pc = pc;
+    exposePeerDebug(pc, "callee");
+    (window as any).__callId = offer.call_id;
 
-    pc.onicecandidate = (e) => {
-      if (!e.candidate) return;
-      const t = /candidate:.* typ (\w+)/.exec(e.candidate.candidate)?.[1] || "";
-      if (t) setLastCandType(t);
-    };
     pc.onicecandidateerror = (e: any) => console.warn("[RTC:callee] icecandidateerror", e?.errorCode, e?.errorText || e);
 
     pc.onconnectionstatechange = () => {
@@ -2178,11 +2314,29 @@ async function sendVoiceNoteFile(f: File) {
     pcRef.current = pc;
 
     try {
-      const desc = typeof offer.sdp === "string" ? JSON.parse(offer.sdp) : offer.sdp;
+      const desc =
+        typeof offer.sdp === "string" ? JSON.parse(offer.sdp) : offer.sdp;
+
       await pc.setRemoteDescription(desc);
+      appliedOffersRef.current.add(offer.call_id);
+
+      // create + send the local ANSWER via makePeer's onLocalDescription
       await (pc as any)._emitLocalDescription("answer");
-      // remote desc is set → any queued ICE from caller can be added now
-      await flushPendingIce(offer.call_id, pc);
+
+      // KG: record that we answered
+      emitCallState({
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: OWNER_WA,
+        topicWa,
+        call_id: callIdRef.current!,
+        kind: "answer",
+        ts: Date.now(),
+        agentId: AGENT_ID,
+      }).catch(() => {});
+
+      // remote desc is set → flush any queued ICE from caller
+      flushQueuedIce(pc, offer.call_id);
     } catch (e) {
       console.error("Failed to accept call:", e);
       setCallState("ended");
@@ -2197,14 +2351,32 @@ async function sendVoiceNoteFile(f: File) {
     pendingOfferRef.current = null;
   }
 
+  // End the call (local end signal + full teardown)
   async function endCall() {
     const id = callIdRef.current;
+
+    // Stop media & close PC first
     try { pcRef.current?.getSenders?.().forEach(s => s.track?.stop?.()); } catch {}
     try { pcRef.current?.close?.(); } catch {}
+
+    // ⬇️ teardown snapshot (before nulling refs)
+    try { (window as any).__lastPeer = (window as any).peek?.(); } catch {}
+    (window as any).__pc = null;
+    (window as any).__callId = null;
+
+    // Clear refs
     pcRef.current = null;
+    callIdRef.current = null;
+
+    // Signal end to peer (ok after closing local PC)
     try { if (id) await sendEnd(id); } catch {}
-    setCallState("ended");
-    cleanupCallSets();
+
+    // Optional: summary + cleanup
+    try { logCallSummary?.("local"); } catch {}
+    try { cleanupCallSets?.(); } catch {}
+
+    // Return UI to ready state (phone icon)
+    try { resetCallLocalState?.("idle"); } catch { setCallState("idle"); }
   }
   // —— Additional Functions: rememberLocalMicTrack, declineCall, toggleMute, toggleHold ———
 
@@ -2346,19 +2518,70 @@ async function sendVoiceNoteFile(f: File) {
     });
   }
 
+  function resetCallLocalState(next: CallState = "idle") {
+    // stop call timer
+    try { if (callTimerRef.current != null) { clearInterval(callTimerRef.current); callTimerRef.current = null; } } catch {}
+
+    // stop tracks + close pc
+    try { pcRef.current?.getSenders?.().forEach(s => s.track?.stop?.()); } catch {}
+    try { pcRef.current?.close?.(); } catch {}
+    pcRef.current = null;
+
+    // clear call ids
+    callIdRef.current = null;
+
+    // stop any ringing
+    try { const el = ringAudio.current; if (el) { el.pause(); try { el.currentTime = 0; } catch {} } } catch {}
+
+    // clear remote audio sink
+    try { if (remoteAudioRef.current) (remoteAudioRef.current as any).srcObject = null; } catch {}
+
+    // reset flags
+    origTrackRef.current = null;
+    setMuted(false);
+    setOnHold(false);
+    setCallSecs(0);
+    try { setLastCandType(""); } catch {}
+
+    // wipe per-call de-dupe/queues
+    cleanupCallSets(); // you already have this
+
+    // final UI state
+    setCallState(next);
+  }
+
   // Hang up the call
   function hangupCall() {
-    const cid = callIdRef.current;
+    const cid = callIdRef.current || (window as any).__callId || null;
+    const endKind =
+      (callState === "offering" || callState === "connecting") ? "cancel" : "end";
+
     if (cid) {
       console.log("[hangupCall]", cid);
       if (callState === "offering" || callState === "connecting") {
         // cancel before remote answer
-        sendCancel(cid).catch((err) => console.error("[hangupCall] cancel failed:", err));
+        sendCancel(cid).catch(err => console.error("[hangupCall] cancel failed:", err));
       } else if (callState === "connected") {
         // normal end after connect
-        sendEnd(cid).catch((err) => console.error("[hangupCall] end failed:", err));
+        sendEnd(cid).catch(err => console.error("[hangupCall] end failed:", err));
       }
     }
+
+    // --- emit call state to KG (end/cancel) ---
+    try {
+      const secsNow =
+        typeof (callSecsNow as any) === "function"
+          ? (callSecsNow as any)()
+          : (callStartedAtRef?.current
+              ? Math.max(0, Math.round((Date.now() - callStartedAtRef.current) / 1000))
+              : 0);
+
+      emitCallState({
+        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
+        call_id: cid || "n/a", kind: endKind,
+        secs: secsNow, ts: Date.now(), agentId: AGENT_ID,
+      }).catch(() => {});
+    } catch {}
 
     // stop call timer if any
     try {
@@ -2368,37 +2591,65 @@ async function sendVoiceNoteFile(f: File) {
       }
     } catch {}
 
+    // stop any ringing just in case
+    try {
+      const el = ringAudio.current;
+      if (el) { el.pause(); try { el.currentTime = 0; } catch {} }
+    } catch {}
+
+    // local summary bubble
     logCallSummary("local");
 
-    try { pcRef.current?.getSenders().forEach((s) => s.track?.stop()); } catch (err) {
-      console.error("[hangupCall] stop senders failed:", err);
-    }
-    try { pcRef.current?.close(); } catch (err) {
-      console.error("[hangupCall] pc close failed:", err);
-    }
+    // --- teardown PC BEFORE nulling refs ---
+    try { pcRef.current?.getSenders().forEach(s => s.track?.stop()); } catch {}
+    try { pcRef.current?.close?.(); } catch {}
+
+    // snapshot last peer (optional debug)
+    try { (window as any).__lastPeer = (window as any).peek?.(); } catch {}
+    (window as any).__pc = null;
+    (window as any).__callId = null;
+
+    // clear refs
     pcRef.current = null;
     callIdRef.current = null;
 
-    // stop any ringing just in case
-    try {
-      const el = ringAudio.current; if (el) { el.pause(); try { el.currentTime = 0; } catch {} }
-    } catch {}
-
+    // reset local mic/hold state
     origTrackRef.current = null;
     setMuted(false);
     setOnHold(false);
 
-    setCallState("ended");
+    // optional: clear any signaling queues
+    try { cleanupCallSets?.(); } catch {}
+
+    // back to idle so UI returns to phone icon
+    resetCallLocalState("idle");
   }
+
 
   // Cancel the outbound call
   function cancelOutbound() {
-    const cid = callIdRef.current;
+    const cid = callIdRef.current || (window as any).__callId || null;
 
     if (cid) {
       console.log("[cancelOutbound] Cancelling outbound", cid);
-      sendCancel(cid).catch((err) => console.error("[cancelOutbound] cancel failed:", err));
+      sendCancel(cid).catch(err => console.error("[cancelOutbound] cancel failed:", err));
     }
+
+    // --- emit call state to KG (always "cancel" here) ---
+    try {
+      const secsNow =
+        typeof (callSecsNow as any) === "function"
+          ? (callSecsNow as any)()
+          : (callStartedAtRef?.current
+              ? Math.max(0, Math.round((Date.now() - callStartedAtRef.current) / 1000))
+              : 0);
+
+      emitCallState({
+        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
+        call_id: cid || "n/a", kind: "cancel",
+        secs: secsNow, ts: Date.now(), agentId: AGENT_ID,
+      }).catch(() => {});
+    } catch {}
 
     // stop call timer if any
     try {
@@ -2408,33 +2659,38 @@ async function sendVoiceNoteFile(f: File) {
       }
     } catch {}
 
-    // Clean up local peer/mic
-    try { pcRef.current?.getSenders().forEach((s) => s.track?.stop()); } catch (err) {
-      console.error("[cancelOutbound] stop senders failed:", err);
-    }
-    try { pcRef.current?.close(); } catch (err) {
-      console.error("[cancelOutbound] pc close failed:", err);
-    }
+    // stop any ringing just in case
+    try {
+      const el = ringAudio.current;
+      if (el) { el.pause(); try { el.currentTime = 0; } catch {} }
+    } catch {}
+
+    // local summary bubble
+    logCallSummary("local");
+
+    // --- teardown PC BEFORE nulling refs ---
+    try { pcRef.current?.getSenders().forEach(s => s.track?.stop()); } catch {}
+    try { pcRef.current?.close?.(); } catch {}
+
+    // snapshot last peer (optional debug)
+    try { (window as any).__lastPeer = (window as any).peek?.(); } catch {}
+    (window as any).__pc = null;
+    (window as any).__callId = null;
+
+    // clear refs
     pcRef.current = null;
     callIdRef.current = null;
 
-    // reset mute/hold + original track
+    // reset local mic/hold state
     origTrackRef.current = null;
     setMuted(false);
     setOnHold(false);
 
-    // stop any ringing just in case
-    try {
-      const el = ringAudio.current; if (el) { el.pause(); try { el.currentTime = 0; } catch {} }
-    } catch (err) {
-      console.error("[cancelOutbound] ring stop failed:", err);
-    }
+    // optional: clear any signaling queues
+    try { cleanupCallSets?.(); } catch {}
 
-    // end state (you can choose "idle" if you prefer)
-    setCallState("ended");
-
-    // optional: local summary bubble
-    logCallSummary("local");
+    // return to idle (not "ended") so user can place another call
+    resetCallLocalState("idle");
   }
 
   // Format duration for PTT / rollups (silent)

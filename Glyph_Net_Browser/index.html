@@ -4,11 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Glyph_Net_Browser</title>
-    <!-- Loads /public/js/kg_emit.js so window.KGEmit is available -->
-    <script src="/js/kg_emit.js"></script>
+
+    <!-- Optional: enable debug logs for kg_emit -->
+    <script>
+      window.KG_DEBUG = false;
+    </script>
+
+    <!-- Load /public/js/kg_emit.js so window.KGEmit is available before the app mounts -->
+    <script src="/js/kg_emit.js" defer></script>
   </head>
   <body>
+    <noscript>You need JavaScript enabled to run Glyph Net.</noscript>
     <div id="root"></div>
+
+    <!-- Vite entry (modules are deferred by default) -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

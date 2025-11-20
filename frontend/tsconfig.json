@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "jsx": "preserve",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "ESNext",
     "moduleResolution": "node",
     "strict": true,
@@ -15,21 +11,11 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@/components/*": [
-        "./components/*"
-      ],
-      "@/pages/*": [
-        "./pages/*"
-      ],
-      "@/hooks/*": [
-        "./hooks/*"
-      ],
-      "@/lib/*": [
-        "./lib/*"
-      ]
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/pages/*": ["./pages/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/lib/*": ["./lib/*"]
     },
     "target": "ES2017",
     "allowJs": true,
@@ -39,9 +25,12 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "components/AION/ContainerMap2D.tsx", "../Glyph_Net_Browser/src/components/AION/ContainerMap3D.tsxsrc/components/maps/map-2d.tscomponents/AION/map-2d.tsxd.tscomponents/AION/map-3d.tsx
-  "exclude": [
-    "node_modules"
-  ]
+    "**/*.tsx",
+    "components/AION/ContainerMap2D.tsx",
+    "../Glyph_Net_Browser/src/components/AION/ContainerMap3D.tsx",
+    "src/components/maps/map-2d.ts",
+    "components/AION/map-2d.tsx",
+    "components/AION/map-3d.tsx"
+  ],
+  "exclude": ["node_modules"]
 }

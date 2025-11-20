@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "browsaer knowledge graph v4"
+git commit -m "PTT, Calls & message compelete"
 git push origin main
 
 
