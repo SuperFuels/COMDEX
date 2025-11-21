@@ -20,6 +20,7 @@ import { resolveApiBase } from "@/utils/base";
 import { importAesKey, attachSenderE2EE, attachReceiverE2EE } from "@/utils/webrtc_e2ee";
 import TransportPicker from "@/components/TransportPicker";
 import { KG_API_BASE } from "@/utils/kgApiBase";
+import VisitHistoryPanel from "@/components/VisitHistoryPanel";
 // ⚠️ If WS_ID is unused in this file, remove the next line to avoid noUnusedLocals errors.
 
 import {
@@ -403,6 +404,11 @@ export default function ChatThread({
     }
   });
 
+  const [showText, setShowText] = useState(true);
+  const [showVoice, setShowVoice] = useState(true);
+  const [showCall, setShowCall] = useState(true);
+  const [showSystem, setShowSystem] = useState(true);
+
   // Per-tab agent id (used in lock ownership + X-Agent-Id)
   const AGENT_ID = useMemo(() => {
     let id = sessionStorage.getItem("gnet:agentId");
@@ -435,6 +441,8 @@ export default function ChatThread({
     const sp = new URLSearchParams(qs);
     return sp.get("topic") || defaultTopic || "ucs://local/ucs_hub";
   });
+
+  const [showVisits, setShowVisits] = useState(false);
 
   // Canonicalize topic to a stable WA (same string in every tab)
   const topicWa = useMemo(() => {
@@ -1730,44 +1738,43 @@ async function sendVoiceNoteFile(f: File) {
 
     // ⬇️ Optional transcription → send glyphs:[text] and journal to KG
     if (transcribeOnAttach) {
-      setTranscribing(true);
-      const t = await transcribeAudio(mime, data_b64); // expects { text, engine }
-      setTranscribing(false);
+      try {
+        setTranscribing(true);
+        // IMPORTANT: in this function the variables are `mime` and `data_b64`
+        const t = await transcribeAudio(mime, data_b64); // expects { text, engine }
+        setTranscribing(false);
 
-      if (t?.text) {
-        try {
+        if (t?.text) {
+          const txMeta = withConnMeta({
+            trace_id: AGENT_ID,
+            graph,
+            t0: Date.now(),
+            transcript_of: j?.msg_id || null,
+            engine: t.engine || undefined,
+          });
+
+          // send the text bubble into the thread
           await postTx(
             base,
-            {
-              recipient: topicWa,
-              graph,
-              capsule: { glyphs: [t.text] },
-              meta: withConnMeta({
-                trace_id: AGENT_ID,
-                graph,
-                t0: Date.now(),
-                transcript_of: j?.msg_id || null,
-                engine: t.engine || undefined,
-              }),
-            },
+            { recipient: topicWa, graph, capsule: { glyphs: [t.text] }, meta: txMeta },
             headers
-          );
+          ).catch(() => {});
 
-          // Journal transcript itself into KG (fire-and-forget)
+          // journal transcript to the KG
           emitTranscriptPosted({
             apiBase: KG_API_BASE,
             kg: graph,
             ownerWa: OWNER_WA,
-            topicWa: topicWa,
+            topicWa,
             text: t.text,
             transcript_of: j?.msg_id || null,
             engine: t.engine,
             ts: Date.now(),
             agentId: AGENT_ID,
           }).catch(() => {});
-        } catch {
-          // swallow; UI already has the voice bubble
         }
+      } catch {
+        setTranscribing(false);
       }
     }
 
@@ -3508,7 +3515,6 @@ async function sendVoiceNoteFile(f: File) {
       };
 
       console.log("[attachVoice] POST → /api/glyphnet/tx", { mimeType, approxBytes });
-
       const res = await postTx(base, body, headers);
 
       if (res.status === 413) {
@@ -3541,7 +3547,7 @@ async function sendVoiceNoteFile(f: File) {
       // ⬇️ Optional transcription → send glyphs:[text] and journal to KG
       if (transcribeOnAttach) {
         setTranscribing(true);
-        const t = await transcribeAudio(mimeType, b64);
+        const t = await transcribeAudio(mimeType, b64); // expects { text, engine }
         setTranscribing(false);
 
         if (t?.text) {
@@ -3561,14 +3567,10 @@ async function sendVoiceNoteFile(f: File) {
                 engine: t.engine || undefined,
               };
 
+          // send the transcript as a text bubble
           await postTx(
             base,
-            {
-              recipient: topicWa, // canonical
-              graph,
-              capsule: { glyphs: [t.text] },
-              meta: txMeta,
-            },
+            { recipient: topicWa, graph, capsule: { glyphs: [t.text] }, meta: txMeta },
             headers
           ).catch(() => {});
 
@@ -3753,6 +3755,26 @@ async function sendVoiceNoteFile(f: File) {
   }
 
   const [showSettings, setShowSettings] = useState(false);
+
+  // --- Allow AI memory of habits (per graph) ---
+  const [allowHabits, setAllowHabits] = useState<boolean>(() => {
+    try { return localStorage.getItem(`gnet:allowHabits:${graph}`) === "1"; }
+    catch { return false; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem(`gnet:allowHabits:${graph}`, allowHabits ? "1" : "0"); } catch {}
+  }, [graph, allowHabits]);
+
+  const habitsAllowed = () => allowHabits === true;
+
+  function shouldShow(item: any) {
+    if (item?.__type === "call-rollup") return showCall; // rollup row
+    const k = (item?.kind || "").toLowerCase();
+    if (k === "text")  return showText;
+    if (k === "voice") return showVoice;
+    if (k === "call")  return showCall;   // if you ever render call items directly
+    return showSystem;                    // everything else = system/other
+  }
 
   // ───────────────── ICE/TURN quick settings popover ─────────────────
   const IceSettings: React.FC = () => {
@@ -4255,7 +4277,24 @@ return (
 
           {/* Transport policy (Auto / Radio-only / IP-only) */}
           <TransportSettings radioOk={radioOk} lastHealthAt={lastHealthAt} />
-
+          {/* Thread context pill + filters */}
+          <div style={{ marginLeft: 8, display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <span
+              style={{
+                fontSize: 12, padding: "2px 8px", border: "1px solid #e5e7eb",
+                borderRadius: 999, background: "#fff"
+              }}
+              title={`${topicWa} @ ${graph}`}
+            >
+              {topicWa} @ {graph}
+            </span>
+            <div style={{ display: "inline-flex", gap: 6, fontSize: 12 }}>
+              <label><input type="checkbox" checked={showText} onChange={e=>setShowText(e.target.checked)} /> text</label>
+              <label><input type="checkbox" checked={showVoice} onChange={e=>setShowVoice(e.target.checked)} /> voice</label>
+              <label><input type="checkbox" checked={showCall} onChange={e=>setShowCall(e.target.checked)} /> calls</label>
+              <label><input type="checkbox" checked={showSystem} onChange={e=>setShowSystem(e.target.checked)} /> system</label>
+            </div>
+          </div>
           {/* Always-visible hang-up while not idle (both caller & callee) */}
           {callState !== "idle" && (
             <button
@@ -4355,6 +4394,16 @@ return (
                   Transcribe on attach (send text)
                 </label>
 
+                {/* Allow habits toggle */}
+                <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, marginTop: 8 }}>
+                  <input
+                    type="checkbox"
+                    checked={allowHabits}
+                    onChange={(e) => setAllowHabits(e.target.checked)}
+                  />
+                  Allow AI memory of habits (per graph)
+                </label>
+
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8 }}>
                   <span style={{ fontSize: 12, color: "#475569" }}>Mic</span>
                   <select
@@ -4395,6 +4444,16 @@ return (
                     🎙️ Test Transcribe (2s)
                   </button>
                 </div>
+                    <hr style={{ margin: "10px 0", borderColor: "#eee" }} />
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    onClick={() => setShowVisits(true)}
+                    style={{ fontSize: 12, padding: "6px 8px", borderRadius: 6, border: "1px solid #e5e7eb", background: "#fff", cursor: "pointer" }}
+                    title="View visit history for this thread"
+                  >
+                    🗂 View Visit History
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -4416,7 +4475,7 @@ return (
             borderRadius: 8,
           }}
         >
-          {renderList.map((item: any) => {
+          {renderList.filter(shouldShow).map((item: any) => {
             // Rollup row
             if (item?.__type === "call-rollup") {
               return (
@@ -4440,6 +4499,11 @@ return (
 
             // Normal message bubble
             const m = item as NormalizedMsg;
+            // filter
+            if (m.kind === "text" && !showText) return null;
+            if (m.kind === "voice" && !showVoice) return null;
+            if (isCallSummaryMsg(m as any) && !showCall) return null;
+            if ((m as any)?.kind === "system" && !showSystem) return null;
             const idStr = String(m?.id ?? "");
             const mine =
               (m as any)?.from === AGENT_ID ||
@@ -4833,6 +4897,62 @@ return (
             </div>
           );
         })()}
+        {/* ───── Visit History modal ───── */}
+        {showVisits && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setShowVisits(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.35)",
+              display: "grid",
+              placeItems: "center",
+              zIndex: 1000,
+              padding: 12,
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "min(920px, 96vw)",
+                maxHeight: "86vh",
+                overflow: "auto",
+                background: "#fff",
+                border: "1px solid #e5e7eb",
+                borderRadius: 12,
+                boxShadow: "0 20px 50px rgba(0,0,0,.25)",
+                padding: 12,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <strong style={{ fontSize: 14 }}>Visit History</strong>
+                <span style={{ fontSize: 12, color: "#64748b" }}>
+                  {addrInput || topicWa}
+                </span>
+                <button
+                  onClick={() => setShowVisits(false)}
+                  style={{
+                    marginLeft: "auto",
+                    fontSize: 12,
+                    padding: "4px 8px",
+                    borderRadius: 6,
+                    border: "1px solid #e5e7eb",
+                    background: "#fff",
+                    cursor: "pointer",
+                  }}
+                  aria-label="Close"
+                  title="Close"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <VisitHistoryPanel kg={graph as "personal" | "work"} topicWa={topicWa} />
+            </div>
+          </div>
+        )}
       </div>
     </div>  
   );

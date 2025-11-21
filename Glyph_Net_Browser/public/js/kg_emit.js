@@ -371,6 +371,7 @@
 
     let startedAt = 0;
     let lastPath = "";
+    let lastHref = "";
     let visitId = null;
 
     const log = (...a) => { if (debug || (typeof window !== "undefined" && window.KG_DEBUG)) console.log("[KG visits]", ...a); };
@@ -396,6 +397,7 @@
       };
       startedAt = ts;
       lastPath = item.payload.uri;
+      lastHref = item.payload.href;
       visitId = item.id;
       log("page", item.payload);
       try {
@@ -409,6 +411,7 @@
       if (!startedAt || !visitId) return;
       const ts = Date.now();
       const durS = Math.max(0, Math.round((ts - startedAt) / 1000));
+
       const item = {
         id: `${visitId}:dwell`,
         type: "visit",
@@ -416,11 +419,21 @@
         ts,
         thread_id: makeThreadId(g(), t()),
         topic_wa: t(),
-        payload: { uri: lastPath, duration_s: durS, origin_id: visitId },
+        payload: {
+          uri: lastPath,
+          // ensure we send a full URL so server can derive host
+          href: lastHref || (typeof location !== "undefined" ? location.href : ""),
+          // include title for completeness (optional but nice)
+          title: titleNow(),
+          duration_s: durS,
+          origin_id: visitId,
+        },
       };
+
       log("dwell", item.payload);
       startedAt = 0;
       visitId = null;
+
       try {
         await postDiscovered(apiBase, g(), ownerWa, t(), [item], { agentId, agentToken });
       } catch (e) {

@@ -1,20 +1,28 @@
-// frontend/components/ReplayControls.tsx
 import { applyReplay } from "@/lib/api";
-import { useHUDPulse } from "@/hooks/useHUDPulse";
+import { useHUDPulse as useHUDPulseRaw } from "@/hooks/useHUDPulse";
 
 interface ReplayControlsProps {
-  frames: any[];  // For now — later we make a ReplayFrame type
+  frames: any[];
 }
 
 export function ReplayControls({ frames }: ReplayControlsProps) {
-  const pulse = useHUDPulse("restore");
+  // Normalize the hook result into a callable `pulse`
+  const hud: any = useHUDPulseRaw("restore");
+  const pulse: () => void =
+    typeof hud === "function"
+      ? hud
+      : typeof hud?.pulse === "function"
+      ? hud.pulse
+      : (Array.isArray(hud) && typeof hud[0] === "function"
+          ? hud[0]
+          : () => {}); // no-op fallback
 
   return (
     <button
       className="btn-primary"
       onClick={async () => {
         await applyReplay(frames);
-        pulse(); // ✅ success HUD pulse
+        pulse(); // ✅ always callable
       }}
     >
       Apply Replay

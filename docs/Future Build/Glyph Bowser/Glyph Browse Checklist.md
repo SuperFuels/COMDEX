@@ -226,7 +226,7 @@ A — Knowledge Graph & Browser Integration
 • A10 { } Data model: Attachment (file_id, mime, size, sha256)
 • A12 {x} Data model: PTTSession (ts, dur_ms, acquire_ms, granted)
 • A13 {x} Data model: FloorLock (result, acquire_ms)
-• A14 { } Data model: Visit (uri, host, title, referrer, duration_s)
+• A14 {x} Data model: Visit (uri, host, title, referrer, duration_s)
 • A15 { } Data model: Cookie (key, value_hash, scope, expires, policy)
 • A16 { } Data model: File (name, mime, size, sha256, versions, location)
 • A17 { } Data model: ContainerRef (container_id, kind, path)
@@ -242,8 +242,8 @@ A — Knowledge Graph & Browser Integration
  • A27 {x} Indices: {kg, thread_id, ts}
  • A28 {x} Indices: {kg, topic.wa}
  • A29 {x} Indices: {kg, file.sha256}
-• A30 { } Indices: {kg, host}
-• A31 { } Indices: {kg, cookie.key}
+• A30 {x} Indices: {kg, host}
+• A31 {x} Indices: {kg, cookie.key}
 • A32 {x} API: POST /api/kg/events (append-only batch ingest)
 • A33 {x} API: GET /api/kg/query (graph slice by kg/thread/entity/time)
 • A34 { } API: POST /api/kg/upsert-entity (idempotent identities, optional)
@@ -256,28 +256,28 @@ A — Knowledge Graph & Browser Integration
 • A41 {x} Emitter: PTT frames batched → PTTSession on release
 • A42 {x} Emitter: Floor locks (grant/deny) → floor_lock event
 • A43 {x} Emitter: Call state (offer/answer/connect/end/reject/cancel) → call event
-• A44 { } Emitter: Transcript posted → message(text, transcript_of)
+• A44 {x} Emitter: Transcript posted → message(text, transcript_of)
 • A45 {x} Router: on navigation resolve → visit event
 • A46 {x} Router: on dwell/close → visit.duration update
 • A47 { } Drive hooks: file upload/download/share → file events
 • A48 { } Cookies/Habits ledger (hashed values, scope/expiry)
-• A49 { } Settings toggle: “Allow AI memory of habits (per graph)”
+• A49 {x} Settings toggle: “Allow AI memory of habits (per graph)”
 • A50 {x} Runtime↔KG: map GlyphRuntime events — journaled via /api/kg/events
 • A51 { } Runtime↔KG: emit ABOUT(ContainerRef→Thread) on entangled forks
-• A52 { } Query: hydrate thread view from KG (attachments, call summaries, PTT rollups)
+• A52 {x} Query: hydrate thread view from KG (attachments, call summaries, PTT rollups)
 • A53 { } Search: cross-thread q= over Message/Visit/File.name
 • A54 { } AION memory views: /api/kg/view/memory?kg=…&scope=habits|topics|people
 • A55 { } Privacy: per-graph retention defaults
-• A56 { } Privacy: POST /api/kg/forget …
+• A56 {x} Privacy: POST /api/kg/forget …
 • A57 { } Privacy: per-graph toggles
 • A58 { } Audit: mutation ledger (hash-chained envelopes)
 • A59 { } Sync: IndexedDB mirror write-through
 • A60 { } Sync: cursor reconciliation idempotent apply
 • A61 { } UI: KG Dock v2 tabs
-• A62 { } UI: Thread context pill + filters
+• A62 {x} UI: Thread context pill + filters
 • A63 { } UI: Mini D3 graph
 • A64 { } UI: Privacy banner + pause
-• A65 { } UI: Visit history + clear
+• A65 {x} UI: Visit history + clear
 • A66 { } Security: at-rest encryption
 • A67 { } Security: hashed cookie values
 • A68 { } Security: QKD hooks enc= metadata
