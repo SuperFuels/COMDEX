@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "AI HAndover V1 Chat Thread"
+git commit -m "knowledge graph updates"
 git push origin main
 
 

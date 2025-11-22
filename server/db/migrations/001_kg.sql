@@ -54,3 +54,28 @@ CREATE INDEX IF NOT EXISTS idx_visit_host_uri_ts
     id
   )
   WHERE type='visit';
+
+-- ────────────────────────────────────────────────────────────
+-- Topics (A7): WA + optional WN per graph
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS kg_topic (
+  kg            TEXT NOT NULL,               -- 'personal' | 'work'
+  topic_wa      TEXT NOT NULL,               -- canonical WA (e.g. 'ucs://wave.tp/dave@personal')
+  topic_wn      TEXT,                        -- Wave Number (phone-style id), optional
+  topic_id      TEXT NOT NULL,               -- 'topic:' || lower(topic_wa)
+  label         TEXT,                        -- human label: 'Dave Ross', 'UCS Hub'
+  realm         TEXT,                        -- 'personal' | 'work' | future 'org:...' etc.
+  created_ts    INTEGER NOT NULL,            -- when KG first saw this topic
+  updated_ts    INTEGER NOT NULL,            -- last update to label/realm
+
+  PRIMARY KEY (kg, topic_id)
+);
+
+-- Unique per WA within a graph
+CREATE UNIQUE INDEX IF NOT EXISTS idx_topic_kg_wa
+  ON kg_topic(kg, topic_wa);
+
+-- Unique per WN within a graph (when present)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_topic_kg_wn
+  ON kg_topic(kg, topic_wn)
+  WHERE topic_wn IS NOT NULL;

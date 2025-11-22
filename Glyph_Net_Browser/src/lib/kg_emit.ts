@@ -97,8 +97,83 @@ export async function emitTranscriptPosted(opts: TranscriptPostedOpts) {
   }
 }
 
-export function emitVoiceToKG(args: any) {
-  return getAPI().emitVoiceToKG(args);
+export async function emitVoiceToKG(args: {
+  apiBase?: string;                 // optional; will fall back to window.KG_API_BASE
+  kg: "personal" | "work";
+  ownerWa: string;
+  topicWa: string;
+  mime: string;
+  data_b64: string;
+  durMs?: number;
+  ts: number;
+  agentId: string;
+  name?: string;
+  size?: number;
+}) {
+  const api = maybeGetAPI();
+
+  // If the UMD helper exists, let it handle things (it will still receive name/size in args)
+  if (api?.emitVoiceToKG) {
+    return api.emitVoiceToKG(args);
+  }
+
+  // Fallback: send directly to /api/kg/events
+  const apiBase =
+    args.apiBase ??
+    (typeof window !== "undefined" ? (window as any).KG_API_BASE : "") ??
+    "";
+
+  const {
+    kg,
+    ownerWa,
+    topicWa,
+    mime,
+    data_b64,
+    durMs,
+    ts,
+    agentId,
+    name,
+    size,
+  } = args;
+
+  const body = {
+    kg,
+    owner: ownerWa,
+    events: [
+      {
+        type: "message",
+        kind: "voice",
+        topic_wa: topicWa,
+        ts,
+        size: size ?? undefined,
+        payload: {
+          mime,
+          data_b64,
+          durMs,
+          name,
+          size,
+          agentId,
+        },
+      },
+    ],
+  };
+
+  const res = await fetch(`${apiBase}/api/kg/events`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const msg = await res.text().catch(() => "");
+    throw new Error(`emitVoiceToKG failed: HTTP ${res.status} ${msg}`);
+  }
+
+  try {
+    return await res.json();
+  } catch {
+    return {};
+  }
 }
 
 export function emitPttSession(args: any) {

@@ -21,6 +21,8 @@ import { importAesKey, attachSenderE2EE, attachReceiverE2EE } from "@/utils/webr
 import TransportPicker from "@/components/TransportPicker";
 import { KG_API_BASE } from "@/utils/kgApiBase";
 import VisitHistoryPanel from "@/components/VisitHistoryPanel";
+import { getIdentity, type AgentIdentity } from "@/utils/identity";
+import KGSearchPanel from "@/components/KGSearchPanel";
 // ⚠️ If WS_ID is unused in this file, remove the next line to avoid noUnusedLocals errors.
 
 import {
@@ -140,6 +142,7 @@ function hashStr(s: string) {
 }
 
 // --- DEV ONLY: wire up logs + expose window.peek/window.__pc ---
+// --- DEV ONLY: wire up logs + expose window.peek/window.__pc ---
 function wireRtcDebug(
   pc: RTCPeerConnection,
   role: "caller" | "callee",
@@ -149,8 +152,16 @@ function wireRtcDebug(
   if ((pc as any).__gnetWired) return pc;
   (pc as any).__gnetWired = true;
 
+  // if RTC_DEBUG is explicitly set to false, suppress console noise,
+  // but still wire peek/stats helpers
+  const rtcDebugFlag = (window as any).RTC_DEBUG;
+  const loggingEnabled = rtcDebugFlag === undefined ? true : !!rtcDebugFlag;
+
   const tag = `[RTC:${role}]`;
-  const log = (m: string, ...a: any[]) => console.log(tag, m, ...a);
+  const log = (...a: any[]) => {
+    if (!loggingEnabled) return;
+    console.log(tag, ...a);
+  };
 
   const expose = () => {
     (window as any).__pc = pc;
@@ -165,34 +176,88 @@ function wireRtcDebug(
       local: pc.localDescription?.type,
       remote: pc.remoteDescription?.type,
       cand: (window as any).__candType ?? null,
-      senders: pc.getSenders().map(s => s.track?.kind).filter(Boolean),
-      receivers: pc.getReceivers().map(r => r.track?.kind).filter(Boolean),
+      senders: pc
+        .getSenders()
+        .map((s) => s.track?.kind)
+        .filter(Boolean),
+      receivers: pc
+        .getReceivers()
+        .map((r) => r.track?.kind)
+        .filter(Boolean),
     });
   };
 
   // initial exposure
   expose();
 
+  // Core state-change logging
   pc.addEventListener("negotiationneeded", () => log("negotiationneeded"));
-  pc.addEventListener("signalingstatechange", () => { expose(); log(`signaling: ${pc.signalingState}`); });
-  pc.addEventListener("icegatheringstatechange", () => log(`icegathering: ${pc.iceGatheringState}`));
-  pc.addEventListener("iceconnectionstatechange", () => log(`iceconnection: ${pc.iceConnectionState}`));
-  pc.addEventListener("connectionstatechange", () => log(`connection: ${pc.connectionState}`));
+  pc.addEventListener("signalingstatechange", () => {
+    expose();
+    log("signaling:", pc.signalingState);
+  });
+  pc.addEventListener("icegatheringstatechange", () =>
+    log("icegathering:", pc.iceGatheringState)
+  );
+  pc.addEventListener("iceconnectionstatechange", () =>
+    log("iceconnection:", pc.iceConnectionState)
+  );
+  pc.addEventListener("connectionstatechange", () =>
+    log("connection:", pc.connectionState)
+  );
 
   pc.addEventListener("track", (ev: RTCTrackEvent) => {
     const t = ev.track;
-    log(`track: ${t?.kind} ${t?.id} enabled:${t?.enabled} muted:${(t as any)?.muted ?? false}`);
+    log(
+      "track:",
+      t?.kind,
+      t?.id,
+      "enabled:",
+      t?.enabled,
+      "muted:",
+      (t as any)?.muted ?? false
+    );
   });
 
   pc.addEventListener("icecandidate", (ev) => {
     const cand = ev.candidate?.candidate || "";
     const typ = / typ (\w+)/.exec(cand)?.[1];
     if (typ) (window as any).__candType = typ;
-    log(`icecandidate: ${typ || "none"}`);
+    log("icecandidate:", typ || "none");
   });
 
   (pc as any).onicecandidateerror = (e: any) =>
     log("icecandidateerror", e?.errorCode, e?.errorText || e);
+
+  // quick stats sampler (call pc.__startStats() in dev tools to start)
+  let statsTimer: any = null;
+  (pc as any).__startStats = (interval = 1500) => {
+    if (statsTimer) return;
+    statsTimer = setInterval(async () => {
+      try {
+        const rpt = await pc.getStats();
+        let inbound: any, outbound: any, rtt: any;
+        rpt.forEach((s: any) => {
+          if (s.type === "remote-inbound-rtp" && s.kind === "audio")
+            rtt = s.roundTripTime;
+          if (s.type === "inbound-rtp" && s.kind === "audio") inbound = s;
+          if (s.type === "outbound-rtp" && s.kind === "audio") outbound = s;
+        });
+        log("stats:", {
+          inBytes: inbound?.bytesReceived,
+          outBytes: outbound?.bytesSent,
+          rtt,
+        });
+      } catch {
+        // ignore stats errors in dev
+      }
+    }, interval);
+  };
+
+  (pc as any).__stopStats = () => {
+    if (statsTimer) clearInterval(statsTimer);
+    statsTimer = null;
+  };
 
   return pc;
 }
@@ -207,8 +272,26 @@ function fpB64(b64: string) {
 }
 
 type NormalizedMsg =
-  | { id: string; ts: number; kind: "text";  from?: string; to?: string; text: string }
-  | { id: string; ts: number; kind: "voice"; from?: string; to?: string; mime: string; data_b64: string; durMs?: number };
+  | {
+      id: string;
+      ts: number;
+      kind: "text";
+      from?: string;
+      to?: string;
+      text: string;
+    }
+  | {
+      id: string;
+      ts: number;
+      kind: "voice";
+      from?: string;
+      to?: string;
+      mime: string;
+      data_b64: string;
+      durMs?: number;
+      name?: string;
+      size?: number;
+    };
 
 // ──────────────────────────────────────────────────────────────
 // Normalize an incoming event (raw OR WS { type:'glyphnet_capsule', envelope })
@@ -305,13 +388,29 @@ function normalizeIncoming(ev: any): NormalizedMsg | null {
   }
 
   // ── Voice note (file-attach path)
+  // ── Voice note (file-attach path)
   {
-    const vn = cap?.voice_note ?? envelope?.capsule?.voice_note ?? ev?.voice_note;
+    const vn =
+      cap?.voice_note ??
+      envelope?.capsule?.voice_note ??
+      ev?.voice_note;
+
     if (vn && (vn.data_b64 || vn.bytes_b64 || vn.b64)) {
       const idBase = evId || `${vn.ts ?? ts}:${vn.mime ?? "audio/webm"}`;
       const id = `vn:${idBase}`;
       const mime = vn.mime || vn.codec || "audio/webm";
       const data_b64 = vn.data_b64 || vn.bytes_b64 || vn.b64 || "";
+
+      const name: string | undefined =
+        typeof vn.name === "string" && vn.name.trim()
+          ? vn.name
+          : undefined;
+
+      const size: number | undefined =
+        typeof vn.size === "number"
+          ? vn.size
+          : undefined;
+
       return {
         id,
         ts: vn.ts ? Math.round(vn.ts) : ts,
@@ -320,7 +419,9 @@ function normalizeIncoming(ev: any): NormalizedMsg | null {
         to,
         mime,
         data_b64,
-      };
+        ...(name ? { name } : {}),
+        ...(size !== undefined ? { size } : {}),
+      } as NormalizedMsg;
     }
   }
 
@@ -418,6 +519,31 @@ export default function ChatThread({
     }
     return id;
   }, []);
+
+  const [identity, setIdentity] = useState<AgentIdentity | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getIdentity()
+      .then((id) => {
+        if (!cancelled) setIdentity(id);
+      })
+      .catch((err) => {
+        console.warn("[identity] failed to init", err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // 👇 RIGHT HERE: derive fallback + active IDs
+  const FALLBACK_AGENT_ID = AGENT_ID;   // old per-tab id
+  const FALLBACK_OWNER_WA = OWNER_WA;   // from getOwnerWa()
+
+  const ACTIVE_AGENT_ID = identity?.agentId || FALLBACK_AGENT_ID;
+  const ACTIVE_OWNER_WA = identity?.wa || FALLBACK_OWNER_WA;
 
   // Dev-only: tolerate builds without the old WS_ID export.
   // This is ONLY for logging and has no effect on routing/locks.
@@ -616,20 +742,36 @@ export default function ChatThread({
         if (gRx && gRx !== graph) return;
 
         // ignore 100% identical payloads
-        const sig = `vf|${String(v.mime || "")}|${String(v.data_b64 || "").slice(0, 16)}|${Math.floor((Number(v.ts) || 0) / 3000)}`;
+        const sig = `vf|${String(v.mime || "")}|${String(v.data_b64 || v.bytes_b64 || v.b64 || "").slice(0, 16)}|${Math.floor((Number(v.ts) || 0) / 3000)}`;
         if (seenSigRef.current.has(sig)) return;
         seenSigRef.current.add(sig);
         if (msgId) seenRef.current.add(msgId);
 
         setThread((prev) => {
-          const id = msgId || `rx-voice:${v.ts || Date.now()}:${Math.random().toString(36).slice(2, 6)}`;
+          const id =
+            msgId ||
+            `rx-voice:${v.ts || Date.now()}:${Math.random().toString(36).slice(2, 6)}`;
           if (prev.some((m) => m.id === id)) return prev;
-          const next = [...prev,
-            { id, kind: "voice", ts: Number(v.ts) || Date.now(),
-              from: sender || "remote", mime: String(v.mime || "audio/webm"),
-              data_b64: String(v.data_b64 || "") } as NormalizedMsg
+
+          const next = [
+            ...prev,
+            {
+              id,
+              kind: "voice",
+              ts: Number(v.ts) || Date.now(),
+              from: sender || "remote",
+              mime: String(v.mime || "audio/webm"),
+              data_b64: String(v.data_b64 || v.bytes_b64 || v.b64 || ""),
+              ...(typeof v.name === "string" && v.name.trim()
+                ? { name: v.name }
+                : {}),
+              ...(typeof v.size === "number" ? { size: v.size } : {}),
+            } as NormalizedMsg,
           ].sort((a, b) => (a.ts || 0) - (b.ts || 0));
-          try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+
+          try {
+            sessionStorage.setItem(storageKey, JSON.stringify(next));
+          } catch {}
           return next;
         });
         return;
@@ -1594,11 +1736,11 @@ async function sendText() {
     emitTextToKG({
       apiBase: KG_API_BASE,
       kg: graph,
-      ownerWa: OWNER_WA,
+      ownerWa: ACTIVE_OWNER_WA,    // <- identity.wa or fallback OWNER_WA
       topicWa: topicWa,
       text: msg,
       ts: now,
-      agentId: AGENT_ID,
+      agentId: ACTIVE_AGENT_ID,    // <- identity.agentId or fallback AGENT_ID
     }).catch(() => {});
 
     // 2) 🔇 WS fanout is DISABLED to avoid duplicate inserts in UIs.
@@ -1665,13 +1807,13 @@ async function sendVoiceNoteFile(f: File) {
     emitVoiceToKG({
       apiBase: KG_API_BASE,
       kg: graph,
-      ownerWa: OWNER_WA,
-      topicWa: topicWa,
+      ownerWa: ACTIVE_OWNER_WA,   // <- from identity.ts (wa) or fallback
+      topicWa,                    // topicWa: topicWa is redundant, shorthand is fine
       mime,
       data_b64,
       durMs: undefined,
       ts: Date.now(),
-      agentId: AGENT_ID,
+      agentId: ACTIVE_AGENT_ID,   // <- from identity.agentId or fallback
     }).catch(() => {});
 
     // Optimistic bubble (server echo will replace via msg_id)
@@ -1764,13 +1906,13 @@ async function sendVoiceNoteFile(f: File) {
           emitTranscriptPosted({
             apiBase: KG_API_BASE,
             kg: graph,
-            ownerWa: OWNER_WA,
+            ownerWa: ACTIVE_OWNER_WA,          // ✅ identity-based owner
             topicWa,
             text: t.text,
             transcript_of: j?.msg_id || null,
             engine: t.engine,
             ts: Date.now(),
-            agentId: AGENT_ID,
+            agentId: ACTIVE_AGENT_ID,          // ✅ identity-based agent
           }).catch(() => {});
         }
       } catch {
@@ -1798,40 +1940,7 @@ async function sendVoiceNoteFile(f: File) {
 
   // ───────────── txSig helpers (keep near txSig) ─────────────
   // ───────────────── RTC debug helpers ─────────────────
-  function wireRtcDebug(pc: RTCPeerConnection, label = "pc") {
-    if (!(window as any).RTC_DEBUG) return;
-    const lg = (...a: any[]) => console.log(`[RTC:${label}]`, ...a);
 
-    pc.addEventListener("icegatheringstatechange", () => lg("icegathering:", pc.iceGatheringState));
-    pc.addEventListener("iceconnectionstatechange", () => lg("iceconnection:", pc.iceConnectionState));
-    pc.addEventListener("connectionstatechange", () => lg("connection:", pc.connectionState));
-    pc.addEventListener("signalingstatechange", () => lg("signaling:", pc.signalingState));
-    pc.addEventListener("negotiationneeded", () => lg("negotiationneeded"));
-    pc.addEventListener("track", (ev) => {
-      const t = ev.track; lg("track:", t.kind, t.id, "enabled:", t.enabled, "muted:", t.muted);
-    });
-
-    // quick stats sampler (call stopStats() to stop)
-    let statsTimer: any = null;
-    (pc as any).__startStats = (interval = 1500) => {
-      if (statsTimer) return;
-      statsTimer = setInterval(async () => {
-        try {
-          const rpt = await pc.getStats();
-          let inbound: any, outbound: any, rtt: any;
-          rpt.forEach((s: any) => {
-            if (s.type === "remote-inbound-rtp" && s.kind === "audio") rtt = s.roundTripTime;
-            if (s.type === "inbound-rtp" && s.kind === "audio") inbound = s;
-            if (s.type === "outbound-rtp" && s.kind === "audio") outbound = s;
-          });
-          lg("stats:",
-            { inBytes: inbound?.bytesReceived, outBytes: outbound?.bytesSent, rtt: rtt }
-          );
-        } catch {}
-      }, interval);
-    };
-    (pc as any).__stopStats = () => { if (statsTimer) clearInterval(statsTimer); statsTimer = null; };
-  }
 
   function exposePeerDebug(pc: RTCPeerConnection | null, role: "caller" | "callee") {
     (window as any).__pc = pc || null;
@@ -1931,9 +2040,16 @@ async function sendVoiceNoteFile(f: File) {
   async function sendOffer(sdp: string, callId: string) {
     try {
       emitCallState({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        call_id: callId, kind: "offer", ice_type: undefined, secs: 0,
-        ts: Date.now(), agentId: AGENT_ID,
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: ACTIVE_OWNER_WA,      // ✅ identity WA
+        topicWa,
+        call_id: callId,
+        kind: "offer",
+        ice_type: undefined,
+        secs: 0,
+        ts: Date.now(),
+        agentId: ACTIVE_AGENT_ID,      // ✅ identity agentId
       }).catch(() => {});
     } catch {}
     return txSig({ voice_offer: { sdp, call_id: callId } } satisfies VoiceOffer);
@@ -1942,9 +2058,16 @@ async function sendVoiceNoteFile(f: File) {
   async function sendAnswer(sdp: string, callId: string) {
     try {
       emitCallState({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        call_id: callId, kind: "answer", ice_type: undefined, secs: 0,
-        ts: Date.now(), agentId: AGENT_ID,
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: ACTIVE_OWNER_WA,      // ✅
+        topicWa,
+        call_id: callId,
+        kind: "answer",
+        ice_type: undefined,
+        secs: 0,
+        ts: Date.now(),
+        agentId: ACTIVE_AGENT_ID,      // ✅
       }).catch(() => {});
     } catch {}
     return txSig({ voice_answer: { sdp, call_id: callId } } satisfies VoiceAnswer);
@@ -1957,9 +2080,16 @@ async function sendVoiceNoteFile(f: File) {
   async function sendCancel(callId: string) {
     try {
       emitCallState({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        call_id: callId, kind: "cancel", ice_type: undefined, secs: 0,
-        ts: Date.now(), agentId: AGENT_ID,
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: ACTIVE_OWNER_WA,     // ✅ use identity WA
+        topicWa,
+        call_id: callId,
+        kind: "cancel",
+        ice_type: undefined,
+        secs: 0,
+        ts: Date.now(),
+        agentId: ACTIVE_AGENT_ID,     // ✅ use identity agentId
       }).catch(() => {});
     } catch {}
     return txSig({ voice_cancel: { call_id: callId } } as VoiceCancel);
@@ -1968,9 +2098,16 @@ async function sendVoiceNoteFile(f: File) {
   async function sendReject(callId: string) {
     try {
       emitCallState({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        call_id: callId, kind: "reject", ice_type: undefined, secs: 0,
-        ts: Date.now(), agentId: AGENT_ID,
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: ACTIVE_OWNER_WA,     // ✅
+        topicWa,
+        call_id: callId,
+        kind: "reject",
+        ice_type: undefined,
+        secs: 0,
+        ts: Date.now(),
+        agentId: ACTIVE_AGENT_ID,     // ✅
       }).catch(() => {});
     } catch {}
     return txSig({ voice_reject: { call_id: callId } } as VoiceReject);
@@ -1979,9 +2116,16 @@ async function sendVoiceNoteFile(f: File) {
   async function sendEnd(callId: string) {
     try {
       emitCallState({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        call_id: callId, kind: "end", ice_type: lastCandType || undefined,
-        secs: callSecsRef.current || 0, ts: Date.now(), agentId: AGENT_ID,
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: ACTIVE_OWNER_WA,     // ✅
+        topicWa,
+        call_id: callId,
+        kind: "end",
+        ice_type: lastCandType || undefined,
+        secs: callSecsRef.current || 0,
+        ts: Date.now(),
+        agentId: ACTIVE_AGENT_ID,     // ✅
       }).catch(() => {});
     } catch {}
     return txSig({ voice_end: { call_id: callId } } as VoiceEnd);
@@ -2104,11 +2248,18 @@ async function sendVoiceNoteFile(f: File) {
               ? Math.max(0, Math.round((Date.now() - callStartedAtRef.current) / 1000))
               : 0);
 
-      // journal to KG
+      // journal to KG (use live identity)
       try {
         emitCallState({
-          apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-          call_id: cid, kind, secs: secsNow, ts: Date.now(), agentId: AGENT_ID,
+          apiBase: KG_API_BASE,
+          kg: graph,
+          ownerWa: ACTIVE_OWNER_WA,   // ✅ identity.wa
+          topicWa,
+          call_id: cid,
+          kind,
+          secs: secsNow,
+          ts: Date.now(),
+          agentId: ACTIVE_AGENT_ID,   // ✅ identity.agentId
         }).catch(() => {});
       } catch {}
 
@@ -2129,16 +2280,16 @@ async function sendVoiceNoteFile(f: File) {
     callIdRef.current = callId;
     setCallState("offering");
 
-    // KG: record outbound offer
+    // KG: record outbound offer (use live identity)
     emitCallState({
       apiBase: KG_API_BASE,
       kg: graph,
-      ownerWa: OWNER_WA,
+      ownerWa: ACTIVE_OWNER_WA,        // ✅ identity.wa
       topicWa,
       call_id: callId,                 // use the local var; equals callIdRef.current
       kind: "offer",
       ts: Date.now(),
-      agentId: AGENT_ID,
+      agentId: ACTIVE_AGENT_ID,        // ✅ identity.agentId
     }).catch(() => {});
 
     const { stream } = await ensureMicPTT({ force: false });
@@ -2200,9 +2351,16 @@ async function sendVoiceNoteFile(f: File) {
         }
         if (callIdRef.current) {
           emitCallState({
-            apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-            call_id: callIdRef.current!, kind: "connected",
-            ice_type: lastCandType || undefined, secs: 0, ts: Date.now(), agentId: AGENT_ID,
+            apiBase: KG_API_BASE,
+            kg: graph,
+            ownerWa: ACTIVE_OWNER_WA,                // ✅ identity.wa
+            topicWa,
+            call_id: callIdRef.current!,
+            kind: "connected",
+            ice_type: lastCandType || undefined,
+            secs: 0,
+            ts: Date.now(),
+            agentId: ACTIVE_AGENT_ID,                // ✅ identity.agentId
           }).catch(() => {});
         }
         return;
@@ -2216,9 +2374,16 @@ async function sendVoiceNoteFile(f: File) {
 
         if (callIdRef.current) {
           emitCallState({
-            apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-            call_id: callIdRef.current!, kind: "end",
-            ice_type: lastCandType || undefined, secs, ts: Date.now(), agentId: AGENT_ID,
+            apiBase: KG_API_BASE,
+            kg: graph,
+            ownerWa: ACTIVE_OWNER_WA,                 // ✅ identity.wa
+            topicWa,
+            call_id: callIdRef.current!,
+            kind: "end",
+            ice_type: lastCandType || undefined,
+            secs,
+            ts: Date.now(),
+            agentId: ACTIVE_AGENT_ID,                 // ✅ identity.agentId
           }).catch(() => {});
         }
 
@@ -2295,10 +2460,17 @@ async function sendVoiceNoteFile(f: File) {
         setCallState("connected");
         if (callIdRef.current) {
           emitCallState({
-            apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-            call_id: callIdRef.current, kind: "connected",
-            ice_type: lastCandType || undefined, secs: 0, ts: Date.now(), agentId: AGENT_ID,
-          }).catch(()=>{});
+            apiBase: KG_API_BASE,
+            kg: graph,
+            ownerWa: ACTIVE_OWNER_WA,                // ✅ use live identity WA
+            topicWa,
+            call_id: callIdRef.current,
+            kind: "connected",
+            ice_type: lastCandType || undefined,
+            secs: 0,
+            ts: Date.now(),
+            agentId: ACTIVE_AGENT_ID,                // ✅ use live identity agentId
+          }).catch(() => {});
         }
       }
       if (s === "failed" || s === "closed" || s === "disconnected") {
@@ -2334,12 +2506,12 @@ async function sendVoiceNoteFile(f: File) {
       emitCallState({
         apiBase: KG_API_BASE,
         kg: graph,
-        ownerWa: OWNER_WA,
+        ownerWa: ACTIVE_OWNER_WA,          // ✅ identity WA
         topicWa,
         call_id: callIdRef.current!,
         kind: "answer",
         ts: Date.now(),
-        agentId: AGENT_ID,
+        agentId: ACTIVE_AGENT_ID,          // ✅ identity agentId
       }).catch(() => {});
 
       // remote desc is set → flush any queued ICE from caller
@@ -2584,9 +2756,15 @@ async function sendVoiceNoteFile(f: File) {
               : 0);
 
       emitCallState({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        call_id: cid || "n/a", kind: endKind,
-        secs: secsNow, ts: Date.now(), agentId: AGENT_ID,
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: ACTIVE_OWNER_WA,          // ✅ identity-based owner
+        topicWa,
+        call_id: cid || "n/a",
+        kind: endKind,
+        secs: secsNow,
+        ts: Date.now(),
+        agentId: ACTIVE_AGENT_ID,          // ✅ identity-based agentId
       }).catch(() => {});
     } catch {}
 
@@ -2652,9 +2830,15 @@ async function sendVoiceNoteFile(f: File) {
               : 0);
 
       emitCallState({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        call_id: cid || "n/a", kind: "cancel",
-        secs: secsNow, ts: Date.now(), agentId: AGENT_ID,
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: ACTIVE_OWNER_WA,      // ✅ identity-based owner
+        topicWa,
+        call_id: cid || "n/a",
+        kind: "cancel",
+        secs: secsNow,
+        ts: Date.now(),
+        agentId: ACTIVE_AGENT_ID,      // ✅ identity-based agent
       }).catch(() => {});
     } catch {}
 
@@ -3119,8 +3303,15 @@ async function sendVoiceNoteFile(f: File) {
       lastGrantedRef.current = true;
 
       emitFloorLock({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        state: "held", acquire_ms: tGrant, granted: true, ts: Date.now(), agentId: AGENT_ID,
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: ACTIVE_OWNER_WA,   // ✅ identity WA (fallbacks if not ready)
+        topicWa,
+        state: "held",
+        acquire_ms: tGrant,
+        granted: true,
+        ts: Date.now(),
+        agentId: ACTIVE_AGENT_ID,   // ✅ identity agentId (fallbacks if not ready)
       }).catch(() => {});
 
       setAwaitingLock(false);
@@ -3128,7 +3319,9 @@ async function sendVoiceNoteFile(f: File) {
       setFloorBusyBy(null);
 
       keepaliveRef.current = window.setInterval(() => {
-        if (lockResourceRef.current) sendLock("refresh", lockResourceRef.current, 3500).catch(() => {});
+        if (lockResourceRef.current) {
+          sendLock("refresh", lockResourceRef.current, 3500).catch(() => {});
+        }
       }, 2000);
 
     } else if (lockOutcome === "denied") {
@@ -3148,14 +3341,30 @@ async function sendVoiceNoteFile(f: File) {
       lockResourceRef.current = null;
 
       emitPttSession({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        talkMs: 0, grants: metricsRef.current.grants, denies: metricsRef.current.denies,
-        lastAcquireMs: metricsRef.current.lastAcquireMs, ts: Date.now(), agentId: AGENT_ID,
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: ACTIVE_OWNER_WA,                 // ✅ use active WA
+        topicWa,
+        talkMs: 0,
+        grants: metricsRef.current.grants,
+        denies: metricsRef.current.denies,
+        lastAcquireMs: metricsRef.current.lastAcquireMs,
+        ts: Date.now(),
+        agentId: ACTIVE_AGENT_ID,                 // ✅ use active agentId
       }).catch(() => {});
+
       emitFloorLock({
-        apiBase: KG_API_BASE, kg: graph, ownerWa: OWNER_WA, topicWa,
-        state: "denied", acquire_ms: 0, granted: false, ts: Date.now(), agentId: AGENT_ID,
+        apiBase: KG_API_BASE,
+        kg: graph,
+        ownerWa: ACTIVE_OWNER_WA,                 // ✅ use active WA
+        topicWa,
+        state: "denied",
+        acquire_ms: 0,
+        granted: false,
+        ts: Date.now(),
+        agentId: ACTIVE_AGENT_ID,                 // ✅ use active agentId
       }).catch(() => {});
+
       stopMeter();
       return;
 
@@ -3215,14 +3424,14 @@ async function sendVoiceNoteFile(f: File) {
       emitPttSession({
         apiBase: KG_API_BASE,
         kg: graph,
-        ownerWa: OWNER_WA,
+        ownerWa: ACTIVE_OWNER_WA,                 // ← device WA or fallback
         topicWa,
         talkMs: lastDur,
         grants: metricsRef.current.grants,
         denies: metricsRef.current.denies,
         lastAcquireMs: metricsRef.current.lastAcquireMs,
         ts: Date.now(),
-        agentId: AGENT_ID,
+        agentId: ACTIVE_AGENT_ID,                 // ← device agentId or fallback
       }).catch(() => {});
     }
 
@@ -3291,13 +3500,13 @@ async function sendVoiceNoteFile(f: File) {
         emitVoiceToKG({
           apiBase: KG_API_BASE,
           kg: graph,
-          ownerWa: OWNER_WA,
-          topicWa,
+          ownerWa: ACTIVE_OWNER_WA,        // ← identity.wa or fallback OWNER_WA
+          topicWa,                         // shorthand is fine
           mime: chosenMime,
           data_b64,
           durMs: lastDur || undefined,
           ts: Date.now(),
-          agentId: AGENT_ID,
+          agentId: ACTIVE_AGENT_ID,        // ← identity.agentId or fallback AGENT_ID
         }).catch(() => {});
 
         await sendVoiceNoteCapsule(chosenMime, data_b64);
@@ -3326,15 +3535,16 @@ async function sendVoiceNoteFile(f: File) {
       emitFloorLock({
         apiBase: KG_API_BASE,
         kg: graph,
-        ownerWa: OWNER_WA,
+        ownerWa: ACTIVE_OWNER_WA,  // ✅ device WA (identity) not fallback
         topicWa,
         state: "free",
         acquire_ms: lastAcquireMsRef.current || metricsRef.current.lastAcquireMs || 0,
         granted: true,
         ts: Date.now(),
-        agentId: AGENT_ID,
+        agentId: ACTIVE_AGENT_ID,  // ✅ device agentId (identity) not legacy
       }).catch(() => {});
       console.log("[stopPTT] Floor state updated to free.");
+
     }
   }
 
@@ -3443,7 +3653,7 @@ async function sendVoiceNoteFile(f: File) {
     const mimeType = f.type || mimeFromName(name);
     const size = f.size ?? 0;
 
-    console.log("[attachVoice] picked file →", { name, mimeType, size });
+    console.log("[attachFile] picked file →", { name, mimeType, size });
 
     // Read & encode
     let b64 = "";
@@ -3451,30 +3661,41 @@ async function sendVoiceNoteFile(f: File) {
       const ab = await f.arrayBuffer();
       b64 = abToB64(ab);
     } catch (err) {
-      console.warn("[attachVoice] failed to read file", err);
+      console.warn("[attachFile] failed to read file", err);
       return;
     }
 
     // Rough base64 → bytes estimate (sanity vs f.size)
     const approxBytes =
-      Math.max(0, Math.floor(b64.length * 0.75) - (b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0));
-    console.log("[attachVoice] sizes →", { fileBytes: size, approxBytesFromB64: approxBytes });
+      Math.max(
+        0,
+        Math.floor(b64.length * 0.75) -
+          (b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0)
+      );
+    console.log("[attachFile] sizes →", {
+      fileBytes: size,
+      approxBytesFromB64: approxBytes,
+    });
 
-    // 🔹 Journal the voice note to the KG (non-blocking)
+    // 🔹 Journal the voice/file note to the KG (non-blocking)
     emitVoiceToKG({
       apiBase: KG_API_BASE,
       kg: graph,
-      ownerWa: OWNER_WA,
+      ownerWa: ACTIVE_OWNER_WA, // <- identity.wa or fallback OWNER_WA
       topicWa,
       mime: mimeType,
       data_b64: b64,
-      durMs: undefined, // supply if you have real duration
+      durMs: undefined, // fill with real duration if/when you have it
       ts: Date.now(),
-      agentId: AGENT_ID,
+      agentId: ACTIVE_AGENT_ID, // <- identity.agentId or fallback AGENT_ID
+      name,
+      size,
     }).catch(() => {});
 
     // Optimistic bubble so sender sees it instantly
-    const localId = `local-voice:${Date.now()}:${Math.random().toString(36).slice(2, 6)}`;
+    const localId = `local-voice:${Date.now()}:${Math.random()
+      .toString(36)
+      .slice(2, 6)}`;
     const optimistic: NormalizedMsg = {
       id: localId,
       ts: Date.now(),
@@ -3482,55 +3703,73 @@ async function sendVoiceNoteFile(f: File) {
       from: AGENT_ID,
       mime: mimeType,
       data_b64: b64,
-    };
+      name,
+      size,
+    } as any;
+
     setThread((prev) => {
       const next = [...prev, optimistic];
-      try { sessionStorage.setItem(storageKey, JSON.stringify(next)); } catch {}
+      try {
+        sessionStorage.setItem(storageKey, JSON.stringify(next));
+      } catch {}
       return next;
     });
 
     // Build headers/meta with per-tab conn id (safe fallbacks)
-    const headers = typeof withConnHeaders === "function"
-      ? withConnHeaders({
-          "Content-Type": "application/json",
-          "X-Agent-Token": "dev-token",
-          "X-Agent-Id": AGENT_ID,
-        })
-      : {
-          "Content-Type": "application/json",
-          "X-Agent-Token": "dev-token",
-          "X-Agent-Id": AGENT_ID,
-        };
+    const headers =
+      typeof withConnHeaders === "function"
+        ? withConnHeaders({
+            "Content-Type": "application/json",
+            "X-Agent-Token": "dev-token",
+            "X-Agent-Id": AGENT_ID,
+          })
+        : {
+            "Content-Type": "application/json",
+            "X-Agent-Token": "dev-token",
+            "X-Agent-Id": AGENT_ID,
+          };
 
-    const meta = typeof withConnMeta === "function"
-      ? withConnMeta({ trace_id: AGENT_ID, graph, t0: Date.now() })
-      : { trace_id: AGENT_ID, graph, t0: Date.now() };
+    const meta =
+      typeof withConnMeta === "function"
+        ? withConnMeta({ trace_id: AGENT_ID, graph, t0: Date.now() })
+        : { trace_id: AGENT_ID, graph, t0: Date.now() };
 
     try {
       const body = {
         recipient: topicWa, // canonical
         graph,
-        capsule: { voice_note: { ts: Date.now(), mime: mimeType, data_b64: b64 } },
+        capsule: {
+          voice_note: {
+            ts: Date.now(),
+            mime: mimeType,
+            data_b64: b64,
+            name,
+            size,
+          },
+        },
         meta,
       };
 
-      console.log("[attachVoice] POST → /api/glyphnet/tx", { mimeType, approxBytes });
+      console.log("[attachFile] POST → /api/glyphnet/tx", {
+        mimeType,
+        approxBytes,
+      });
       const res = await postTx(base, body, headers);
 
       if (res.status === 413) {
         const j = await res.json().catch(() => ({} as any));
-        console.warn("[attachVoice] 413 too large", j);
+        console.warn("[attachFile] 413 too large", j);
         alert(
           j?.error === "too large"
-            ? `Voice note too large for RF path (${j.size} > ${j.max} bytes). Try a shorter clip or switch to IP-only.`
-            : "Voice note rejected: too large for current RF profile."
+            ? `Attachment too large for RF path (${j.size} > ${j.max} bytes). Try a smaller file or switch to IP-only.`
+            : "Attachment rejected: too large for current RF profile."
         );
         return;
       }
 
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
-        console.warn("[attachVoice] HTTP error", res.status, txt);
+        console.warn("[attachFile] HTTP error", res.status, txt);
         return;
       }
 
@@ -3538,10 +3777,15 @@ async function sendVoiceNoteFile(f: File) {
       if (j?.msg_id) {
         rememberSent(j.msg_id);
         // Swap optimistic id for server id so downstream acks correlate
-        setThread((prev) => prev.map((m) => (m.id === localId ? { ...m, id: j.msg_id } : m)));
-        console.log("[attachVoice] delivered ✓", { msg_id: j.msg_id, bytes: approxBytes });
+        setThread((prev) =>
+          prev.map((m) => (m.id === localId ? { ...m, id: j.msg_id } : m))
+        );
+        console.log("[attachFile] delivered ✓", {
+          msg_id: j.msg_id,
+          bytes: approxBytes,
+        });
       } else {
-        console.log("[attachVoice] OK (no msg_id)", j);
+        console.log("[attachFile] OK (no msg_id)", j);
       }
 
       // ⬇️ Optional transcription → send glyphs:[text] and journal to KG
@@ -3551,21 +3795,22 @@ async function sendVoiceNoteFile(f: File) {
         setTranscribing(false);
 
         if (t?.text) {
-          const txMeta = typeof withConnMeta === "function"
-            ? withConnMeta({
-                trace_id: AGENT_ID,
-                graph,
-                t0: Date.now(),
-                transcript_of: j?.msg_id || null,
-                engine: t.engine || undefined,
-              })
-            : {
-                trace_id: AGENT_ID,
-                graph,
-                t0: Date.now(),
-                transcript_of: j?.msg_id || null,
-                engine: t.engine || undefined,
-              };
+          const txMeta =
+            typeof withConnMeta === "function"
+              ? withConnMeta({
+                  trace_id: AGENT_ID,
+                  graph,
+                  t0: Date.now(),
+                  transcript_of: j?.msg_id || null,
+                  engine: t.engine || undefined,
+                })
+              : {
+                  trace_id: AGENT_ID,
+                  graph,
+                  t0: Date.now(),
+                  transcript_of: j?.msg_id || null,
+                  engine: t.engine || undefined,
+                };
 
           // send the transcript as a text bubble
           await postTx(
@@ -3578,23 +3823,22 @@ async function sendVoiceNoteFile(f: File) {
           emitTranscriptPosted({
             apiBase: KG_API_BASE,
             kg: graph,
-            ownerWa: OWNER_WA,
+            ownerWa: ACTIVE_OWNER_WA, // ✅ identity-based owner
             topicWa,
             text: t.text,
             transcript_of: j?.msg_id || null,
             engine: t.engine,
             ts: Date.now(),
-            agentId: AGENT_ID,
+            agentId: ACTIVE_AGENT_ID, // ✅ identity-based agent
           }).catch(() => {});
         }
       }
 
       rememberTopic(topicWa || topic, addrInput || topicWa || topic, graph);
     } catch (err) {
-      console.warn("[attachVoice] send failed", err);
+      console.warn("[attachFile] send failed", err);
     }
   }
-
   // Small helper to render an initial/avatar for recents
   function initials(s: string) {
     const parts = s.trim().split(/\s+/);
@@ -4504,10 +4748,12 @@ return (
             if (m.kind === "voice" && !showVoice) return null;
             if (isCallSummaryMsg(m as any) && !showCall) return null;
             if ((m as any)?.kind === "system" && !showSystem) return null;
+
             const idStr = String(m?.id ?? "");
             const mine =
               (m as any)?.from === AGENT_ID ||
-              (!("from" in (m as any)) && (idStr.startsWith("local:") || idStr.startsWith("local-voice:")));
+              (!("from" in (m as any)) &&
+                (idStr.startsWith("local:") || idStr.startsWith("local-voice:")));
 
             const base: React.CSSProperties = {
               alignSelf: mine ? "flex-end" : "flex-start",
@@ -4525,21 +4771,79 @@ return (
                   <div style={{ whiteSpace: "pre-wrap" }}>{(m as any).text || ""}</div>
                 ) : (
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <audio
-                      src={playUrlForVoice(m as any)}
-                      controls
-                      preload="metadata"
-                      muted={!audioEnabled}
-                      onPlay={(e) => {
-                        try { e.currentTarget.volume = audioVol; } catch {}
-                      }}
-                      style={{ width: 240 }}
-                    />
-                    <span style={{ fontSize: 12, color: "#64748b" }}>
-                      {(String((m as any).mime || "").replace("audio/", "")) || "audio"}
-                    </span>
+                    {(() => {
+                      const mime = (m as any).mime || "";
+                      const url = playUrlForVoice(m as any);
+
+                      const isAudio = mime.startsWith("audio/");
+                      const isImage = mime.startsWith("image/");
+
+                      // Friendly name if we have one
+                      const name =
+                        (m as any).name ||
+                        (mime && mime.includes("/")
+                          ? mime.split("/")[1]
+                          : "file");
+
+                      if (isAudio) {
+                        // 🎙 real voice note
+                        return (
+                          <>
+                            <audio
+                              src={url}
+                              controls
+                              preload="metadata"
+                              muted={!audioEnabled}
+                              onPlay={(e) => {
+                                try {
+                                  e.currentTarget.volume = audioVol;
+                                } catch {}
+                              }}
+                              style={{ width: 240 }}
+                            />
+                            <span style={{ fontSize: 12, color: "#64748b" }}>
+                              {String(mime.replace("audio/", "")) || "audio"}
+                            </span>
+                          </>
+                        );
+                      }
+
+                      if (isImage) {
+                        // 🖼 image attachment
+                        return (
+                          <img
+                            src={url}
+                            alt={name}
+                            style={{
+                              maxWidth: 240,
+                              maxHeight: 240,
+                              borderRadius: 12,
+                              display: "block",
+                            }}
+                          />
+                        );
+                      }
+
+                      // 📄 generic file (pdf, doc, etc.)
+                      return (
+                        <a
+                          href={url}
+                          download={name}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                            fontSize: 13,
+                            textDecoration: "none",
+                          }}
+                        >
+                          📎 {name} ({mime || "file"})
+                        </a>
+                      );
+                    })()}
                   </div>
                 )}
+
                 <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4 }}>
                   {new Date(Number((m as any).ts || Date.now())).toLocaleTimeString([], {
                     hour: "2-digit",
@@ -4696,10 +5000,10 @@ return (
                 📴
               </button>
             )}
-            {/* 📎 audio attach (separate ref) */}
+            {/* 📎 file / audio attach (separate ref) */}
             <button
               onClick={attachVoiceFile}
-              title="Attach audio file"
+              title="Attach file"
               style={{
                 width: 36,
                 height: 36,
@@ -4714,7 +5018,8 @@ return (
             <input
               ref={attachInputRef}
               type="file"
-              accept="audio/*,.webm,.ogg,.mp3,.m4a,.wav,.aac,.flac"
+              // allow audio, images, and PDFs (you can add more mime types later)
+              accept="audio/*,image/*,application/pdf"
               onChange={onPickVoiceFile}
               style={{ display: "none" }}
             />
@@ -4780,17 +5085,18 @@ return (
 
         {/* ── PTT summary panel (last 10) ──────────────────────────────── */}
         {(() => {
-          const log = loadPttLog(graph, topic);
+          // NOTE: log is keyed by (graph, topicWa) in stopPTT → use topicWa here too
+          const log = loadPttLog(graph, topicWa);
           if (!log || log.length === 0) return null;
 
           const totalTalkMs = log.reduce((acc, s) => acc + (s.dur || 0), 0);
           const acqVals = log
-            .map(s => s.acquireMs)
+            .map((s) => s.acquireMs)
             .filter((v): v is number => typeof v === "number");
           const avgAcquire = acqVals.length
             ? Math.round(acqVals.reduce((a, b) => a + b, 0) / acqVals.length)
             : 0;
-          const grants = log.filter(s => s.granted).length;
+          const grants = log.filter((s) => s.granted).length;
           const denies = log.length - grants;
 
           return (
@@ -4868,7 +5174,6 @@ return (
                   opacity: 0.85,
                 }}
               >
-                {/* existing bits like RTT / loss / ICE type */}
                 <span style={{ fontSize: 12 }}>RTT: {lastRttRef.current ?? 0} ms</span>
                 <span style={{ fontSize: 12 }}>
                   Loss: {(() => {
@@ -4880,15 +5185,18 @@ return (
                   %
                 </span>
                 <span style={{ fontSize: 12 }}>ICE: {lastCandType || "—"}</span>
-                {/* telemetry (rf/ip ok/err) */}
                 <span style={{ fontSize: 12, opacity: 0.6, marginLeft: 8 }}>
-                  RF ok/err: {tele.rf_ok}/{tele.rf_err} · IP ok/err: {tele.ip_ok}/{tele.ip_err}
-                  {" "}
-                  {rfPill}
+                  RF ok/err: {tele.rf_ok}/{tele.rf_err} · IP ok/err: {tele.ip_ok}/{tele.ip_err} {rfPill}
                 </span>
                 <button
                   onClick={resetTelemetry}
-                  style={{ fontSize: 11, padding: "2px 6px", borderRadius: 6, border: "1px solid #e5e7eb", background: "#fff" }}
+                  style={{
+                    fontSize: 11,
+                    padding: "2px 6px",
+                    borderRadius: 6,
+                    border: "1px solid #e5e7eb",
+                    background: "#fff",
+                  }}
                   title="Zero RF/IP counters"
                 >
                   ↺ counters
@@ -4897,6 +5205,10 @@ return (
             </div>
           );
         })()}
+        {/* 👉 Always-visible KG search panel for this graph/topic */}
+        <div style={{ marginTop: 12 }}>
+          <KGSearchPanel kg={graph} topicWa={topicWa} />
+        </div>
         {/* ───── Visit History modal ───── */}
         {showVisits && (
           <div

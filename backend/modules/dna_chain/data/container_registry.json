@@ -286,5 +286,12 @@
       "domain": "photon_runtime",
       "address": "ucs://local/photon_runtime#container"
     }
+  },
+  "demo_entangle": {
+    "address": "ucs://local/demo_entangle#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/demo_entangle#container"
+    }
   }
 }

@@ -898,13 +898,28 @@ class ContainerRuntime:
             pass
 
     def fork_entangled_path(self, container: Dict[str, Any], coord: str, glyph: str):
+        """
+        Create an entangled fork of the current container:
+
+        - New container id: "<original_id>_entangled"
+        - Copies cubes + basic metadata
+        - Registers in StateManager (loaded_containers if present)
+        - Registers in UCS (entangle_containers + geometry)
+        - (Optionally) emits KG entanglement + ABOUT edges if kg_writer is available
+        """
         original_name = container.get("id", "default")
         entangled_id = f"{original_name}_entangled"
 
-        if entangled_id in self.state_manager.all_containers:
+        # Prefer a registry dict if StateManager exposes one
+        registry = getattr(self.state_manager, "all_containers", None)
+        if registry is None:
+            registry = getattr(self.state_manager, "loaded_containers", None)
+
+        if registry is not None and entangled_id in registry:
             print(f"↔ Entangled container {entangled_id} already exists.")
             return
 
+        # Build the forked container
         forked_container = {
             **container,
             "id": entangled_id,
@@ -914,35 +929,67 @@ class ContainerRuntime:
             "glyph": glyph,
             "cubes": container.get("cubes", {}).copy(),
             "metadata": {
+                **(container.get("metadata") or {}),
                 "entangled_from": original_name,
                 "trigger_glyph": glyph,
-                "fork_time": time.time()
-            }
+                "fork_time": time.time(),
+            },
         }
 
-        self.state_manager.all_containers[entangled_id] = forked_container
+        # Register in StateManager registry if available
+        if registry is not None:
+            registry[entangled_id] = forked_container
+
+        # Let StateManager know explicitly if it has a helper
+        try:
+            if hasattr(self.state_manager, "register_container"):
+                self.state_manager.register_container(entangled_id, forked_container)
+        except Exception:
+            pass
+
         print(f"🌌 Forked entangled container: {entangled_id}")
+
+        # 🔗 KG entanglement + ABOUT edge (best-effort)
+        try:
+            from backend.modules.knowledge_graph.knowledge_graph_writer import kg_writer
+        except Exception:
+            kg_writer = None
+
+        if kg_writer is not None:
+            try:
+                kg_writer.on_entangled_fork(parent_container_id=original_name,
+                                            fork_container_id=entangled_id)
+            except Exception as e:
+                print(f"[KGWriter] ⚠️ on_entangled_fork failed: {e}")
 
         # ✅ Register entanglement in UCS
         try:
-            from backend.modules.dimensions.universal_container_system.ucs_entanglement import entangle_containers
+            from backend.modules.dimensions.universal_container_system.ucs_entanglement import (
+                entangle_containers,
+            )
             entangle_containers(original_name, entangled_id)
             print(f"↔ UCS entanglement registered: {original_name} ↔ {entangled_id}")
         except ImportError:
             print("⚠️ UCS entanglement module not found. Skipping UCS registration.")
+        except Exception as e:
+            print(f"⚠️ UCS entanglement registration failed: {e}")
 
         # ✅ Auto-register geometry in UCS (GHX sync)
         try:
-            from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import UCSGeometryLoader
+            from backend.modules.dimensions.universal_container_system.ucs_geometry_loader import (
+                UCSGeometryLoader,
+            )
             geometry_loader = UCSGeometryLoader()
             geometry_loader.register_geometry(
                 forked_container.get("name", entangled_id),
                 forked_container.get("symbol", "❔"),
-                forked_container.get("geometry", "entangled")
+                forked_container.get("geometry", "entangled"),
             )
             print(f"🎨 UCS geometry synced for entangled container: {entangled_id}")
         except ImportError:
             print("⚠️ UCS geometry loader not found. Skipping auto-geometry sync.")
+        except Exception as e:
+            print(f"⚠️ UCS geometry registration failed: {e}")
 
     def apply_decay(self, cubes: Dict[str, Any]):
         pass

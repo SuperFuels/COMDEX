@@ -1008,9 +1008,13 @@ class KnowledgeGraphWriter:
 
     def write_entanglement_entry(self, container_a: str, container_b: str):
         """
-        Adds an entanglement edge to the KG.
+        Adds an entanglement edge to the KG *and* journals it
+        into the ledger so /api/kg/events → applyEvents can
+        materialize a kg_edge row with kind='ENTANGLEMENT'.
         """
         print(f"🧠 KG: Entangled {container_a} ↔ {container_b}")
+
+        # Index-friendly record for SQI / search
         entangle_entry = {
             "id": generate_uuid(),
             "type": "entanglement",
@@ -1018,10 +1022,26 @@ class KnowledgeGraphWriter:
             "to": container_b,
             "timestamp": get_current_timestamp(),
             "tags": ["entangled", "↔"],
-            # NEW:
             "content": f"{container_a} <-> {container_b}",
         }
         add_to_index("knowledge_index.entanglements", entangle_entry)
+
+        # 🔁 ALSO: journal as a glyph so it becomes a KG event
+        try:
+            self.inject_glyph(
+                content=entangle_entry["content"],
+                glyph_type="entanglement",
+                metadata={
+                    "from": container_a,
+                    "to": container_b,
+                    "container_a": container_a,
+                    "container_b": container_b,
+                },
+                tags=["entangled", "↔"],
+                plugin="KG",
+            )
+        except Exception as e:
+            print(f"[KGWriter] ⚠️ entanglement glyph journaling failed: {e}")
 
     def inject_logic_trace_data(trace: dict, logic_prediction: dict, rewrite_suggestion: dict = None):
         """
@@ -1182,14 +1202,39 @@ class KnowledgeGraphWriter:
         Called by fork/clone codepaths when a container splits (entangled branch).
         - Writes an 'entanglement' edge between parent ↔ fork
         - Adds ABOUT edge for the new fork to its thread
+
+        If topic_wa is not provided, we try to infer it from the bound container's
+        meta (meta.topic / meta.topic_wa), and fall back to the local UCS hub.
         """
+        # 🧭 Resolve a sensible topic_wa if the caller didn't pass one
+        resolved_topic = topic_wa
+        try:
+            if not resolved_topic:
+                meta = None
+                if getattr(self, "container", None) and isinstance(self.container, dict):
+                    meta = self.container.get("meta") or self.container.get("metadata") or {}
+                if isinstance(meta, dict):
+                    resolved_topic = (
+                        meta.get("topic")
+                        or meta.get("topic_wa")
+                        or "ucs://local/ucs_hub"
+                    )
+                else:
+                    resolved_topic = "ucs://local/ucs_hub"
+            if resolved_topic:
+                resolved_topic = resolved_topic.strip()
+        except Exception:
+            resolved_topic = topic_wa or "ucs://local/ucs_hub"
+
+        # 🔗 Entanglement edge: parent ↔ fork
         try:
             self.write_entanglement_entry(parent_container_id, fork_container_id)
         except Exception as e:
             print(f"[KGWriter] ⚠️ entanglement entry failed: {e}")
 
+        # 🧵 ABOUT edge: forked container → thread/topic
         try:
-            self.add_about_edge(fork_container_id, topic_wa=topic_wa)
+            self.add_about_edge(fork_container_id, topic_wa=resolved_topic)
         except Exception as e:
             print(f"[KGWriter] ⚠️ ABOUT edge failed: {e}")
 

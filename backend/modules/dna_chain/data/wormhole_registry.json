@@ -229,5 +229,12 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "demo_entangle->ucs_hub": {
+    "from": "demo_entangle",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }
