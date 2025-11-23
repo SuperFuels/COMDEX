@@ -6,12 +6,12 @@
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/router"; // pages/ router is correct here
 
-import { getPanel, listPanels } from '@/lib/sci/panel_registry';
-import '@/lib/sci/register_atomsheet';
-import '@/lib/sci/register_sqs';
-import '@/lib/sci/register_goals';
-import '@/lib/sci/register_memory';
-import '@/lib/sci/register_editor';
+import { getPanel, listPanels } from "@/lib/sci/panel_registry";
+import "@/lib/sci/register_atomsheet";
+import "@/lib/sci/register_sqs";
+import "@/lib/sci/register_goals";
+import "@/lib/sci/register_memory";
+import "@/lib/sci/register_editor";
 
 import type { PanelTypeId as PanelType } from "@/lib/sci/panel_registry";
 
@@ -22,18 +22,24 @@ type Tab = {
   props: Record<string, any>;
 };
 
+type SciPanelHostProps = {
+  wsUrl?: string;
+  /** Optional shared container id from IDE (QFC + panels) */
+  containerId?: string;
+  initialTabs?: Tab[];
+};
+
 function shortId() {
   return Math.random().toString(36).slice(2, 8);
 }
 
-function mkContainerId(type: PanelType, sid?: string) {
-  return `sci:${type}:${sid || shortId()}`;
+function mkContainerId(scope: PanelType): string {
+  const t = new Date().toISOString().replace(/[-:.TZ]/g, "");
+  const rand = Math.floor(Math.random() * 1000);
+  return `sci:${scope}:${t}_${rand}`;
 }
 
-export default function SciPanelHost(props: {
-  wsUrl?: string;
-  initialTabs?: Tab[];
-}) {
+export default function SciPanelHost(props: SciPanelHostProps) {
   const router = useRouter();
 
   const [tabs, setTabs] = useState<Tab[]>(props.initialTabs || []);
@@ -67,18 +73,34 @@ export default function SciPanelHost(props: {
     [tabs, activeId]
   );
 
-  function openTab(type: PanelType, title?: string, extra?: Record<string, any>) {
+  function openTab(
+    type: PanelType,
+    title?: string,
+    extra?: Record<string, any>
+  ) {
     const pr = getPanel(type);
     if (!pr) return;
     const tabId = shortId();
+
+    const fromExtra =
+      typeof extra?.containerId === "string" && extra.containerId.trim().length
+        ? extra.containerId.trim()
+        : undefined;
+
+    const containerId =
+      (fromExtra as string | undefined) ??
+      props.containerId ??
+      mkContainerId(type);
+
     const propsForPanel = {
       ...(pr.makeDefaultProps?.() || {}),
       ...extra,
       wsUrl: props.wsUrl,
       authToken: process.env.NEXT_PUBLIC_AUTH_TOKEN,
-      containerId: mkContainerId(type),
+      containerId,
       __tabId: tabId,
     };
+
     const tab: Tab = { tabId, type, title: title || pr.title, props: propsForPanel };
     setTabs((t) => [...t, tab]);
     setActiveId(tabId);
@@ -104,13 +126,24 @@ export default function SciPanelHost(props: {
     const pr = getPanel(panel);
     if (!pr) return;
 
-    const file = (q.file as string) || "backend/data/sheets/example_sheet.atom";
-    const containerId = (q.containerId as string) || mkContainerId(panel);
+    const file =
+      (q.file as string) || "backend/data/sheets/example_sheet.atom";
+
+    const fromQuery =
+      typeof q.containerId === "string" && q.containerId.trim().length
+        ? q.containerId.trim()
+        : undefined;
+
+    const containerId =
+      (fromQuery as string | undefined) ??
+      props.containerId ??
+      mkContainerId(panel);
+
     const title = (q.title as string) || pr.title;
 
     openTab(panel, title, { file, containerId });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.query, tabs.length]);
+  }, [router.query, tabs.length, props.containerId]);
 
   const PanelComponent =
     (active && getPanel(active.type)?.component) ||
@@ -208,7 +241,9 @@ export default function SciPanelHost(props: {
         {active ? (
           <PanelComponent {...active.props} />
         ) : (
-          <div className="p-6 text-sm text-zinc-500">Open a panel to start.</div>
+          <div className="p-6 text-sm text-zinc-500">
+            Open a panel to start.
+          </div>
         )}
       </div>
     </div>
