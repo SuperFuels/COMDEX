@@ -10,6 +10,7 @@ import QuantumFieldCanvasLoader from "../../components/Hologram/QuantumFieldCanv
 import SciPanelHost from "../../pages/sci/SciPanelHost";
 
 // QFC focus context provider (required for useQFCFocus)
+// This should re-export from your canonical hook: '@/hooks/useQFCFocus'
 import { QFCFocusProvider } from "../../components/QuantumField/qfc_focus_context";
 
 export default function IDE() {
@@ -17,18 +18,18 @@ export default function IDE() {
   const [containerId] = useState<string>("default");
 
   return (
-    <div className="flex h-screen w-screen bg-black text-white">
-      {/* Left: Quantum Field Canvas, wrapped in QFCFocusProvider */}
-      <div className="flex-1 border-r border-zinc-800">
-        <QFCFocusProvider>
+    <QFCFocusProvider>
+      <div className="flex h-screen w-screen bg-black text-white">
+        {/* Left: Quantum Field Canvas */}
+        <div className="flex-1 border-r border-zinc-800">
           <QuantumFieldCanvasLoader containerId={containerId} />
-        </QFCFocusProvider>
-      </div>
+        </div>
 
-      {/* Right: SCI Panels (Editor / Atomsheet / Memory / SQS) */}
-      <div className="w-[420px] max-w-[480px] flex flex-col bg-zinc-950">
-        <SciPanelHost containerId={containerId} />
+        {/* Right: SCI Panels (Editor / Atomsheet / Memory / SQS) */}
+        <div className="w-[420px] max-w-[480px] flex flex-col bg-zinc-950">
+          <SciPanelHost containerId={containerId} />
+        </div>
       </div>
-    </div>
+    </QFCFocusProvider>
   );
 }

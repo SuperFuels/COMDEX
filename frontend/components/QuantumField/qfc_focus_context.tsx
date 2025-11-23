@@ -1,23 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+// frontend/components/QuantumField/qfc_focus_context.tsx
+'use client';
 
-type FocusContextType = {
-  focusPoint?: [number, number, number];
-  setFocusPoint: (point?: [number, number, number]) => void;
-};
-
-const QFCFocusContext = createContext<FocusContextType>({
-  focusPoint: undefined,
-  setFocusPoint: () => {},
-});
-
-export const QFCFocusProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [focusPoint, setFocusPoint] = useState<[number, number, number]>();
-
-  return (
-    <QFCFocusContext.Provider value={{ focusPoint, setFocusPoint }}>
-      {children}
-    </QFCFocusContext.Provider>
-  );
-};
-
-export const useQFCFocus = () => useContext(QFCFocusContext);
+// Just re-export the canonical hook + provider so everyone uses the SAME context.
+export { QFCFocusProvider, useQFCFocus } from '@/hooks/useQFCFocus';
