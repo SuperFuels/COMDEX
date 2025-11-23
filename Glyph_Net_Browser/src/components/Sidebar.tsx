@@ -2,7 +2,14 @@ import { useEffect } from "react";
 
 type Props = {
   open: boolean;
-  active: "home" | "chat" | "inbox" | "outbox" | "kg" | "settings";
+  active:
+    | "home"
+    | "chat"
+    | "inbox"
+    | "outbox"
+    | "kg"
+    | "devtools"
+    | "settings";
   onSelect: (id: Props["active"]) => void;
   onClose: () => void;
 };
@@ -89,6 +96,7 @@ export default function Sidebar({ open, active, onSelect, onClose }: Props) {
         <Item id="inbox" label="Wave Inbox" emoji="📥" />
         <Item id="outbox" label="Wave Outbox" emoji="📤" />
         <Item id="kg" label="Knowledge Graph" emoji="🧠" />
+        <Item id="devtools" label="Dev Tools" emoji="🛠️" />
         <Item id="settings" label="Settings" emoji="⚙️" />
       </aside>
     </>

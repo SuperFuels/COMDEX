@@ -6,6 +6,8 @@ import type { DcContainer } from "@/lib/types/dc";
 import DimensionRenderer from "@/components/DimensionRenderer";
 import PromptBar from "@/components/PromptBar";
 import TimeControls from "@/components/TimeControls";
+import { fetchEntanglements, type EntanglementView } from "@/lib/kg";
+import KGDock from "@/components/KGDock"; 
 
 type TimeStatus = {
   tick?: number;
@@ -72,6 +74,71 @@ function candidateContainerUrls(id: string) {
     `${base}containers/${encodeURIComponent(id)}.json`,
     `${base}containers/${encodeURIComponent(id)}/manifest.json`,
   ];
+}
+
+type EntanglementPillProps = {
+  kg: "personal" | "work";
+  containerId: string;
+};
+
+function EntanglementPill(props: {
+  kg: "personal" | "work";
+  containerId: string;
+}) {
+  const { kg, containerId } = props;
+  const [data, setData] = useState<EntanglementView | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetchEntanglements(kg, containerId);
+        if (!cancelled) {
+          setData(res);
+          setError(null);
+        }
+      } catch (e: any) {
+        if (!cancelled) {
+          setData(null);
+          setError(e?.message || "error");
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [kg, containerId]);
+
+  if (error || !data || !data.ok) return null;
+  if (!data.entangled_with || data.entangled_with.length === 0) return null;
+
+  const label =
+    data.entangled_with.length === 1
+      ? data.entangled_with[0]
+      : `${data.entangled_with[0]} +${data.entangled_with.length - 1}`;
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        padding: "2px 8px",
+        borderRadius: 999,
+        fontSize: 11,
+        border: "1px solid rgba(148,163,184,0.6)",
+        background: "rgba(15,23,42,0.04)",
+        whiteSpace: "nowrap",
+      }}
+      title={data.entangled_with.join(", ")}
+    >
+      <span style={{ fontSize: 13 }}>↔</span>
+      <span>Entangled with&nbsp;{label}</span>
+    </span>
+  );
 }
 
 export default function ContainerView() {
@@ -141,10 +208,18 @@ export default function ContainerView() {
   const [dcLoading, setDcLoading] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
-  useEffect(() => () => abortRef.current?.abort(), []);
+
+  // Abort any in-flight container fetch on unmount
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const loadDc = useCallback((id: string) => {
+    // cancel previous fetch if any
     abortRef.current?.abort();
+
     const ac = new AbortController();
     abortRef.current = ac;
 
@@ -171,10 +246,20 @@ export default function ContainerView() {
         setDcErr(String(e?.message || e));
       })
       .finally(() => {
-        if (!ac.signal.aborted) setDcLoading(false);
+        if (!ac.signal.aborted) {
+          setDcLoading(false);
+        }
       });
   }, []);
 
+  // Derive graph + title from the container meta
+  const kg: "personal" | "work" =
+    (dc?.meta as any)?.graph === "work" ? "work" : "personal";
+
+  const containerTitle =
+    (dc?.meta as any)?.title || containerId || "(unnamed container)";
+
+  // Fetch container whenever containerId changes
   useEffect(() => {
     if (!containerId) return;
     loadDc(containerId);
@@ -184,6 +269,7 @@ export default function ContainerView() {
   useEffect(() => {
     const msg = msgFor(lastJsonMessage);
     if (!msg || msg.container_id !== containerId) return;
+
     if (msgType(msg) === "ghx_projection") {
       setDc((prev) =>
         prev
@@ -280,10 +366,47 @@ export default function ContainerView() {
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
       {/* Left: container render */}
       <div>
-        <div style={{ marginBottom: 8, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+        <div
+          style={{
+            marginBottom: 8,
+            color: "#0f172a",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
           <span style={{ fontWeight: 700 }}>{containerId}</span>
-          <span style={{ marginLeft: 8, fontSize: 12, color: "#475569" }}>
-            WS: {connected ? "🟢 connected" : "🔴 disconnected"}
+
+          <span
+            style={{
+              marginLeft: 8,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "2px 8px",
+              borderRadius: 999,
+              fontSize: 11,
+              border: connected
+                ? "1px solid rgba(34,197,94,0.5)"    // light green border
+                : "1px solid rgba(248,113,113,0.5)", // light red border
+              background: connected
+                ? "rgba(22,163,74,0.06)"
+                : "rgba(220,38,38,0.06)",
+              color: connected ? "#047857" : "#b91c1c",
+            }}
+          >
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "999px",
+                background: connected ? "#22c55e" : "#f97373",
+                boxShadow: connected
+                  ? "0 0 4px rgba(34,197,94,0.7)"
+                  : "none",
+              }}
+            />
+            <span>{connected ? "Live" : "Offline"}</span>
           </span>
         </div>
 
@@ -322,7 +445,10 @@ export default function ContainerView() {
 
         {/* Prompt input */}
         <div style={{ marginBottom: 8 }}>
-          <PromptBar containerId={containerId} onAfterAction={() => loadDc(containerId)} />
+          <PromptBar
+            containerId={containerId}
+            onAfterAction={() => loadDc(containerId)}
+          />
         </div>
 
         {/* Time controls */}
@@ -331,24 +457,60 @@ export default function ContainerView() {
         </div>
 
         {dcLoading && (
-          <div style={{ padding: 12, border: "1px solid #e5e7eb", borderRadius: 8, background: "#fff" }}>
+          <div
+            style={{
+              padding: 12,
+              border: "1px solid #e5e7eb",
+              borderRadius: 8,
+              background: "#fff",
+            }}
+          >
             Loading container…
           </div>
         )}
 
         {dcErr && (
-          <div style={{ padding: 12, border: "1px solid #fecaca", borderRadius: 8, background: "#fff0f0", color: "#991b1b" }}>
-            <div style={{ fontWeight: 700, marginBottom: 4 }}>Container not found or error</div>
-            <div style={{ whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: 12 }}>{dcErr}</div>
-            <div style={{ marginTop: 8, fontSize: 12, color: "#334155" }}>
-              Tip: if you’re developing without a backend route, add a static manifest at
+          <div
+            style={{
+              padding: 12,
+              border: "1px solid #fecaca",
+              borderRadius: 8,
+              background: "#fff0f0",
+              color: "#991b1b",
+            }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>
+              Container not found or error
+            </div>
+            <div
+              style={{
+                whiteSpace: "pre-wrap",
+                fontFamily: "monospace",
+                fontSize: 12,
+              }}
+            >
+              {dcErr}
+            </div>
+            <div
+              style={{ marginTop: 8, fontSize: 12, color: "#334155" }}
+            >
+              Tip: if you’re developing without a backend route, add a static
+              manifest at
               <code> public/containers/{containerId}.json</code> or
               <code> public/containers/{containerId}/manifest.json</code>.
             </div>
           </div>
         )}
 
+        {/* Main container render */}
         {dc && <DimensionRenderer dc={dc} />}
+
+        /* KG Dock: only show on our three KG topology containers */
+        {dc && (
+          <div style={{ marginTop: 12 }}>
+            <KGDock kg={kg} containerId={containerId} />
+          </div>
+        )}
 
         {res?.container?.meta && (
           <pre
@@ -360,14 +522,21 @@ export default function ContainerView() {
               overflow: "auto",
             }}
           >
-{JSON.stringify(res.container.meta, null, 2)}
+            {JSON.stringify(res.container.meta, null, 2)}
           </pre>
         )}
       </div>
 
       {/* Right: GHX event feed */}
       <div>
-        <div style={{ padding: 12, border: "1px solid #e5e7eb", borderRadius: 8, background: "#fff" }}>
+        <div
+          style={{
+            padding: 12,
+            border: "1px solid #e5e7eb",
+            borderRadius: 8,
+            background: "#fff",
+          }}
+        >
           <strong>GHX feed</strong>
           {lastJsonMessage ? (
             <pre
@@ -380,10 +549,16 @@ export default function ContainerView() {
                 overflow: "auto",
               }}
             >
-{JSON.stringify(lastJsonMessage, null, 2)}
+              {JSON.stringify(lastJsonMessage, null, 2)}
             </pre>
           ) : (
-            <div style={{ marginTop: 8, fontSize: 12, color: "#64748b" }}>
+            <div
+              style={{
+                marginTop: 8,
+                fontSize: 12,
+                color: "#64748b",
+              }}
+            >
               Waiting for events…
             </div>
           )}

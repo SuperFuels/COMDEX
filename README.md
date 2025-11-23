@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "knowledge graph updates"
+git commit -m "DEvTOOLS UPDATE"
 git push origin main
 
 

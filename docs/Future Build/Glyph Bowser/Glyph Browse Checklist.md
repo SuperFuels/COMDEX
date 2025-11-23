@@ -266,15 +266,33 @@ flowchart TD
     WN5 --> WN8
   end
 
+  C — Wormhole Mail (Email-style)
+•	C1 { } Capsule: mail_send (to/cc/bcc/subject/text/html/attachments/signature)
+•	C2 { } Events: mail_delivery / mail_status (queued/sent/delivered/failed + provider ids)
+•	C3 { } Name-service mapping user@wave.tp → WA/WN (kg-aware)
+•	C4 { } API: POST /api/mail/send → {message_id}
+•	C5 { } API: POST /api/mail/upload → {file_id, mime, size, sha256}
+•	C6 { } Mailbox storage (Inbox/Sent/Drafts) + log to thread
+•	C7 { } Provider adapter: local echo → later SMTP/SendGrid/Twilio Email
+•	C8 { } Signature templates per graph; DKIM/SPF later if bridging
+•	C9 { } Client: composer tab (Chat↔Mail)
+•	C10 { } Client: fields (To/Cc/Bcc/Subject/Attach/Signature/RTE)
+•	C11 { } Client: draft autosave; send as mail_send + thread summary bubble
+•	C12 { } Client: render inbound mail bubbles (subject header + attachment previews)
+•	C13 { } Security: size caps, rate limits, allow/block lists, HTML sanitization
+•	C14 { } Acceptance: send to WA, see in thread + Sent; inbound mail renders
+
+
+
 ***********************WAVE NUMBERS DIAL PAD******************************************************************
 
 ***********************KNOWLEDGE GRAPH & BROSWER INTEGRATION***************************************************
 A — Knowledge Graph & Browser Integration
 • A1  {x} Per-user, per-graph partitioning (kg=personal|work) hard boundary
 • A2  {x} Per-thread storageKey gnet:thread:{kg}:{topic}
-• A3  { } Entity namespace policy {kg, ownerWA} on all nodes/edges
+• A3  {x} Entity namespace policy {kg, ownerWA} on all nodes/edges
          (note: enforced in ledger writes; KG node/edge retrofit pending)
-• A4  { } Container topology: dc_kg_personal, dc_kg_work, dc_commons_shared (shared chat/mail)
+• A4  {x} Container topology: dc_kg_personal, dc_kg_work, dc_commons_shared (shared chat/mail)
 • A5  { } Satellite atoms plan (Visits, Voice, Files) for high-volume streams
 
 • A6  {x} Data model: Agent
@@ -339,12 +357,12 @@ A — Knowledge Graph & Browser Integration
 • A56 {x} Privacy: POST /api/kg/forget …
 • A57 {x} Privacy: per-graph toggles
 
-• A58 { } Audit: mutation ledger (hash-chained envelopes)
+• A58 {x} Audit: mutation ledger (hash-chained envelopes)
 
 • A59 { } Sync: IndexedDB mirror write-through
 • A60 { } Sync: cursor reconciliation idempotent apply
 
-• A61 { } UI: KG Dock v2 tabs
+• A61 {x} UI: KG Dock v2 tabs
 • A62 {x} UI: Thread context pill + filters
 • A63 { } UI: Mini D3 graph
 • A64 { } UI: Privacy banner + pause
@@ -355,7 +373,7 @@ A — Knowledge Graph & Browser Integration
 • A68 { } Security: QKD hooks enc= metadata
 
 • A69 {x} Telemetry present for RF/IP/PTT (app-level)
-• A70 { } Telemetry: KG counters
+• A70 {x} Telemetry: KG counters
 
 • A71 { } Tests: idempotency & merge
 • A72 { } Tests: partition isolation
@@ -377,6 +395,10 @@ A — Knowledge Graph & Browser Integration
 • A85 {x} MicrogridIndex tap
 • A86 {x} QWave beams export
 
+• A87 {x} API: GET /api/kg/view/entanglement?kg=…&container_id=…
+• A88 {x} AION memory view: /api/kg/view/memory?scope=entanglements&container_id=…
+• A89 {x} UI: Entanglement pill/overlay in GHX for entangled containers
+
 B — Conversation Persistence & History
 •	B1 {x} /api/glyphnet/thread basic fetch with limit
 •	B2 { } Cursor pagination (limit, before/after) + next/prev cursors
@@ -389,22 +411,6 @@ B — Conversation Persistence & History
 •	B9 { } Background prefetch next page on idle
 •	B10 { } Export thread to .gnetthread
 •	B11 { } Acceptance: history intact on return; up-scroll loads older w/o dupes; bounded memory
-
-C — Wormhole Mail (Email-style)
-•	C1 { } Capsule: mail_send (to/cc/bcc/subject/text/html/attachments/signature)
-•	C2 { } Events: mail_delivery / mail_status (queued/sent/delivered/failed + provider ids)
-•	C3 { } Name-service mapping user@wave.tp → WA/WN (kg-aware)
-•	C4 { } API: POST /api/mail/send → {message_id}
-•	C5 { } API: POST /api/mail/upload → {file_id, mime, size, sha256}
-•	C6 { } Mailbox storage (Inbox/Sent/Drafts) + log to thread
-•	C7 { } Provider adapter: local echo → later SMTP/SendGrid/Twilio Email
-•	C8 { } Signature templates per graph; DKIM/SPF later if bridging
-•	C9 { } Client: composer tab (Chat↔Mail)
-•	C10 { } Client: fields (To/Cc/Bcc/Subject/Attach/Signature/RTE)
-•	C11 { } Client: draft autosave; send as mail_send + thread summary bubble
-•	C12 { } Client: render inbound mail bubbles (subject header + attachment previews)
-•	C13 { } Security: size caps, rate limits, allow/block lists, HTML sanitization
-•	C14 { } Acceptance: send to WA, see in thread + Sent; inbound mail renders
 
 D — “KG Drive” (per graph)
 •	D1 { } File table (file_id, name, mime, size, sha256, versions, created_by, updated_at, acl)
@@ -420,6 +426,8 @@ D — “KG Drive” (per graph)
 •	D11 { } Integrations: link files into thread as attachment cards
 •	D12 { } Integrations: drag-drop upload from composer
 •	D13 { } Acceptance: upload/list/download/version/share; cards clickable in chat
+
+
 
 ⸻
 

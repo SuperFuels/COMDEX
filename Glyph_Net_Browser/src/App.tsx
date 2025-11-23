@@ -13,10 +13,19 @@ import { routeNav } from "./lib/nav/router";
 import { useRadioHealth } from "./hooks/useRadioHealth";
 import { KG_API_BASE } from "./utils/kgApiBase";
 import { OWNER_WA } from "./lib/constants";
+import DevTools from "./routes/DevTools";
 
 type Mode = "wormhole" | "http";
 type NavArg = string | { mode: Mode; address: string };
-type ActiveTab = "home" | "inbox" | "outbox" | "kg" | "settings" | "chat" | "bridge";
+type ActiveTab =
+  | "home"
+  | "inbox"
+  | "outbox"
+  | "kg"
+  | "settings"
+  | "chat"
+  | "bridge"
+  | "devtools";
 
 type Session = { slug: string; wa: string } | null;
 
@@ -127,6 +136,12 @@ export default function App() {
         document.title = `RF Bridge — Glyph Net`;
         return;
       }
+      
+      if (h.startsWith("#/devtools")) {
+        setActive("devtools");
+        document.title = `Dev Tools — Glyph Net`;
+        return;
+      }
 
       if (h.startsWith("#/chat")) {
         setActive("chat");
@@ -226,9 +241,19 @@ export default function App() {
     routeNav(parseAddress(address));
   };
 
-  // Sidebar only knows: "home" | "inbox" | "outbox" | "kg" | "settings".
-  const sidebarActive: "home" | "inbox" | "outbox" | "kg" | "settings" =
-    active === "chat" ? "inbox" : active === "bridge" ? "settings" : (active as any);
+  // Sidebar only knows: "home" | "inbox" | "outbox" | "kg" | "settings" | "devtools".
+  const sidebarActive:
+    | "home"
+    | "inbox"
+    | "outbox"
+    | "kg"
+    | "settings"
+    | "devtools" =
+    active === "chat"
+      ? "inbox"
+      : active === "bridge"
+      ? "settings"
+      : (active as any);
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
@@ -262,7 +287,10 @@ export default function App() {
 
         {active === "chat" ? (
           <div style={{ height: "calc(100vh - 96px)" }}>
-            <ChatThread defaultTopic={chatTopicFromHash || "ucs://local/ucs_hub"} defaultGraph={chatKGFromHash} />
+            <ChatThread
+              defaultTopic={chatTopicFromHash || "ucs://local/ucs_hub"}
+              defaultGraph={chatKGFromHash}
+            />
           </div>
         ) : active === "bridge" ? (
           <div style={{ height: "calc(100vh - 96px)" }}>
@@ -276,6 +304,8 @@ export default function App() {
           <WaveOutbox />
         ) : active === "settings" ? (
           <p>Settings (stub)</p>
+        ) : active === "devtools" ? (
+          <DevTools />
         ) : window.location.hash.startsWith("#/container/") ? (
           <ContainerView />
         ) : (

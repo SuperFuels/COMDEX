@@ -7,6 +7,29 @@ import path from "path";
 
 type KG = "personal" | "work";
 
+// ───────────────── Namespace helper (A3) ─────────────────
+// NOTE: ledger rows already carry {kg, owner_wa}. This helper is
+// for building namespaced ids when we later want per-owner node/edge ids.
+
+type Namespace = {
+  kg: KG;
+  owner_wa: string; // WA of the owner, same as kg_events.owner_wa
+};
+
+/**
+ * Build a namespaced id that is guaranteed unique within {kg, owner_wa}.
+ * Example local ids:
+ *   "topic:glyphnet"
+ *   "thread:ucs://local/dc_kg_personal"
+ *   "agent:+441234567890"
+ *
+ * nsKey({kg: "personal", owner_wa: "kevin.tp"}, "topic:glyphnet")
+ *   → "personal:kevin.tp:topic:glyphnet"
+ */
+function nsKey(ns: Namespace, localId: string): string {
+  return `${ns.kg}:${ns.owner_wa}:${localId}`;
+}
+
 type KGEventInsert = {
   id?: string;
   thread_id?: string | null;
@@ -158,8 +181,10 @@ function applyRetentionIfDue(kg: KG) {
 // DB boot + migrations (run ALL *.sql in numeric order)
 // ────────────────────────────────────────────────────────────
 const ROOT = process.env.PROJECT_ROOT || process.cwd();
-const DB_PATH  = process.env.KG_DB_PATH  || path.join(ROOT, "server/data/kg.db");
-const MIGR_DIR = process.env.KG_MIGR_DIR || path.join(ROOT, "server/db/migrations");
+const DB_PATH =
+  process.env.KG_DB_PATH || path.join(ROOT, "server/data/kg.db");
+const MIGR_DIR =
+  process.env.KG_MIGR_DIR || path.join(ROOT, "server/db/migrations");
 
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 const db = new Database(DB_PATH);
@@ -167,7 +192,7 @@ const db = new Database(DB_PATH);
 fs.mkdirSync(MIGR_DIR, { recursive: true });
 const migrFiles = fs
   .readdirSync(MIGR_DIR)
-  .filter(f => f.endsWith(".sql"))
+  .filter((f) => f.endsWith(".sql"))
   .sort(); // 001_, 002_, …
 
 for (const f of migrFiles) {
@@ -175,13 +200,147 @@ for (const f of migrFiles) {
   db.exec(sql);
 }
 
+// --- Ledger (A58) --------------------------------------------------------
+
+// In-memory view of the latest ledger head per KG
+type LedgerHead = {
+  seq: number;
+  ts: number;
+  op_kind: string;
+  op_desc: string;
+  prev_hash: string | null;
+  hash: string;
+};
+
+const LEDGER_HEADS: Record<KG, LedgerHead | null> = {
+  personal: null,
+  work: null,
+};
+
+let stmtInsertLedger: any | null = null;
+
+/**
+ * Append an audit entry to kg_ledger.
+ * Best-effort: on failure we log and return null, never throw.
+ */
+function appendLedgerEntry(
+  kg: KG,
+  op_kind: string,
+  op_desc: string,
+  payload: unknown
+): LedgerHead | null {
+  try {
+    const now = Date.now();
+    const prev = LEDGER_HEADS[kg] || null;
+
+    const seq = prev ? prev.seq + 1 : 1;
+    const prev_hash = prev ? prev.hash : null;
+
+    const payloadStr =
+      payload !== undefined && payload !== null
+        ? JSON.stringify(payload)
+        : null;
+
+    const h = crypto.createHash("sha256");
+    h.update(String(kg));
+    h.update(":");
+    h.update(String(seq));
+    h.update(":");
+    h.update(String(now));
+    h.update(":");
+    h.update(op_kind);
+    h.update(":");
+    h.update(op_desc);
+    h.update(":");
+    h.update(prev_hash ?? "");
+    h.update(":");
+    h.update(payloadStr ?? "");
+    const hash = h.digest("hex");
+
+    if (!stmtInsertLedger) {
+      stmtInsertLedger = db.prepare(`
+        INSERT INTO kg_ledger (
+          kg, seq, ts, op_kind, op_desc, prev_hash, hash, payload
+        ) VALUES (
+          @kg, @seq, @ts, @op_kind, @op_desc, @prev_hash, @hash, @payload
+        )
+      `);
+    }
+
+    stmtInsertLedger.run({
+      kg,
+      seq,
+      ts: now,
+      op_kind,
+      op_desc,
+      prev_hash,
+      hash,
+      payload: payloadStr,
+    });
+
+    const head: LedgerHead = {
+      seq,
+      ts: now,
+      op_kind,
+      op_desc,
+      prev_hash,
+      hash,
+    };
+
+    LEDGER_HEADS[kg] = head;
+    return head;
+  } catch (e) {
+    console.warn("[kg] appendLedgerEntry failed", e);
+    return null;
+  }
+}
+
+// Initialize in-memory ledger heads from kg_ledger table (if table exists)
+try {
+  const rows = db
+    .prepare(
+      `
+      SELECT kg, seq, ts, op_kind, op_desc, prev_hash, hash
+        FROM kg_ledger
+       WHERE kg IN ('personal','work')
+       ORDER BY kg, seq DESC
+    `
+    )
+    .all() as {
+      kg: KG;
+      seq: number;
+      ts: number;
+      op_kind: string;
+      op_desc: string;
+      prev_hash: string | null;
+      hash: string;
+    }[];
+
+  for (const r of rows) {
+    const cur = LEDGER_HEADS[r.kg];
+    if (!cur || r.seq > cur.seq) {
+      LEDGER_HEADS[r.kg] = {
+        seq: r.seq,
+        ts: r.ts,
+        op_kind: r.op_kind,
+        op_desc: r.op_desc,
+        prev_hash: r.prev_hash,
+        hash: r.hash,
+      };
+    }
+  }
+} catch (e) {
+  console.warn("[kg] could not initialize ledger heads", e);
+}
+
 const app = express();
 app.use(express.json({ limit: "5mb" }));
 app.get("/api/_health/kg", (_req, res) => {
   function flatten(appOrRouter: any, base = "", out: string[] = []) {
-    const stack = appOrRouter && appOrRouter._router
-      ? appOrRouter._router.stack
-      : appOrRouter?.stack || [];
+    const stack =
+      appOrRouter && appOrRouter._router
+        ? appOrRouter._router.stack
+        : appOrRouter?.stack || [];
 
     for (const layer of stack || []) {
       if (layer.route) {
@@ -190,11 +349,15 @@ app.get("/api/_health/kg", (_req, res) => {
           out.push(`${m.toUpperCase()} ${path}`);
         }
       } else if (layer.name === "router" && layer.handle) {
-        const prefix = base + (layer.regexp?.fast_slash ? "" : (layer.path || layer.regexp?.source || ""));
-        flatten(layer.handle, base, out);       // most Express versions
-        flatten(layer.handle, prefix, out);     // fallback for some builds
+        const prefix =
+          base +
+          (layer.regexp?.fast_slash
+            ? ""
+            : layer.path || layer.regexp?.source || "");
+        flatten(layer.handle, base, out);
+        flatten(layer.handle, prefix, out);
       } else if (layer.handle?._router) {
-        flatten(layer.handle, base, out);       // nested express() apps
+        flatten(layer.handle, base, out);
       }
     }
     return out;
@@ -206,19 +369,25 @@ app.get("/api/_health/kg", (_req, res) => {
 
 // ───────── Retention sweeper (runs on boot + every 6h) ─────────
 const HOUR_MS = 60 * 60 * 1000;
-const DAY_MS  = 24 * HOUR_MS;
+const DAY_MS = 24 * HOUR_MS;
 
 // Defaults per plan: 30d visits in personal; 90d in work (tweak via env)
-const RETAIN_VISITS_PERSONAL_DAYS = Number(process.env.KG_RETAIN_VISITS_PERSONAL_DAYS ?? 30);
-const RETAIN_VISITS_WORK_DAYS     = Number(process.env.KG_RETAIN_VISITS_WORK_DAYS ?? 90);
-const SWEEP_EVERY_MS              = Number(process.env.KG_SWEEP_EVERY_MS ?? 6 * HOUR_MS);
+const RETAIN_VISITS_PERSONAL_DAYS = Number(
+  process.env.KG_RETAIN_VISITS_PERSONAL_DAYS ?? 30
+);
+const RETAIN_VISITS_WORK_DAYS = Number(
+  process.env.KG_RETAIN_VISITS_WORK_DAYS ?? 90
+);
+const SWEEP_EVERY_MS = Number(
+  process.env.KG_SWEEP_EVERY_MS ?? 6 * HOUR_MS
+);
 
 // Retention sweep driven by kg_retention rules
 function runRetentionSweep() {
   try {
-    const rules = db.prepare(
-      "SELECT kg, type, kind, days FROM kg_retention"
-    ).all();
+    const rules = db
+      .prepare("SELECT kg, type, kind, days FROM kg_retention")
+      .all();
 
     if (!Array.isArray(rules) || rules.length === 0) {
       if (process.env.NODE_ENV !== "test") {
@@ -227,13 +396,12 @@ function runRetentionSweep() {
       return;
     }
 
-    // NOTE: if rule.kind is NULL, we don't filter on kind at all (apply to all kinds)
     const del = db.prepare(`
       DELETE FROM kg_events
        WHERE kg = @kg
          AND type = @type
          AND ts < @cutoff
-         AND ( @kind IS NULL OR IFNULL(kind, '') = IFNULL(@kind, '') )
+         AND (@kind IS NULL OR IFNULL(kind, '') = IFNULL(@kind, ''))
     `);
 
     const now = Date.now();
@@ -253,10 +421,14 @@ function runRetentionSweep() {
       return total;
     })(rules);
 
-    try { db.exec("PRAGMA optimize"); } catch {}
+    try {
+      db.exec("PRAGMA optimize");
+    } catch {}
 
     if (process.env.NODE_ENV !== "test") {
-      console.log(`[kg] retention sweep: rules=${rules.length}, deleted=${deleted}`);
+      console.log(
+        `[kg] retention sweep: rules=${rules.length}, deleted=${deleted}`
+      );
     }
   } catch (e) {
     console.warn("[kg] retention sweep error", e);
@@ -272,15 +444,40 @@ const t = setInterval(runRetentionSweep, SIX_HOURS);
 // Ensure we don't register multiple timers in dev/hot-reload
 const SWEEPER_KEY = "__kg_retention_sweeper__";
 if (!(globalThis as any)[SWEEPER_KEY]) {
-  (globalThis as any)[SWEEPER_KEY] = setInterval(runRetentionSweep, SWEEP_EVERY_MS);
-  // Run once on boot:
+  (globalThis as any)[SWEEPER_KEY] = setInterval(
+    runRetentionSweep,
+    SWEEP_EVERY_MS
+  );
   runRetentionSweep();
 }
 
 // ────────────────────────────────────────────────────────────
 // Helpers
 // ────────────────────────────────────────────────────────────
+// e.g. frontend/src/api/kg.ts
 
+export type EntanglementView = {
+  ok: boolean;
+  kg: "personal" | "work";
+  container_id: string;
+  entangled_with: string[];
+  edges: { from: string; to: string; ts: number }[];
+};
+
+export async function fetchEntanglements(
+  kg: "personal" | "work",
+  containerId: string
+): Promise<EntanglementView | null> {
+  const params = new URLSearchParams({
+    kg,
+    scope: "entanglements",
+    container_id: containerId,
+  });
+
+  const res = await fetch(`/api/kg/view/memory?${params.toString()}`);
+  if (!res.ok) return null;
+  return (await res.json()) as EntanglementView;
+}
 // ───────────────── Topic upsert helper (A7) ─────────────────
 
 // Cache prepared statement
@@ -352,6 +549,7 @@ function ensureTopicRow(
     now,
   });
 }
+
 
 // ───────────────── Thread upsert helper (A8) ─────────────────
 function insertHeldByEdge(kg: KG, e: KGEventInsert, ns: {
@@ -629,6 +827,18 @@ function insertEdge(params: {
   });
 }
 
+// Returns all outgoing entanglement edges from a given container_ref
+const selectEntanglementsByContainer = db.prepare(`
+  SELECT DISTINCT
+    dst_id AS entangled_with,
+    created_ts
+  FROM kg_edge
+  WHERE kg = ?
+    AND kind = 'ENTANGLEMENT'
+    AND src_type = 'container_ref'
+    AND src_id = ?
+  ORDER BY created_ts DESC, entangled_with
+`);
 
 // ────────────────────────────────────────────────────────────
 // Helpers for A21: HAS_ATTACHMENT(Message→Attachment→File)
@@ -1421,6 +1631,9 @@ function applyEvents(kg: KG, owner: string, events: KGEventInsert[]) {
         const b = meta.to   || meta.container_b || null;
 
         if (a && b) {
+          const created_ts = row.ts;
+
+          // A → B
           insertEdge({
             kg: ns.kg,
             kind: "ENTANGLEMENT",
@@ -1428,8 +1641,21 @@ function applyEvents(kg: KG, owner: string, events: KGEventInsert[]) {
             src_id: a,
             dst_type: "container_ref",
             dst_id: b,
-            created_ts: row.ts,
+            created_ts,
           });
+
+          // B → A (symmetric entanglement)
+          if (a !== b) {
+            insertEdge({
+              kg: ns.kg,
+              kind: "ENTANGLEMENT",
+              src_type: "container_ref",
+              src_id: b,
+              dst_type: "container_ref",
+              dst_id: a,
+              created_ts,
+            });
+          }
         }
       }
     }
@@ -1445,7 +1671,6 @@ function applyEvents(kg: KG, owner: string, events: KGEventInsert[]) {
     last_event_id: lastId,
   };
 }
-
 // ────────────────────────────────────────────────────────────
 // GET /api/kg/search
 // Cross-thread search over Message(text), Visit(uri/title/host), File.name
@@ -1779,6 +2004,52 @@ app.get("/api/kg/view/memory", (req: Request, res: Response) => {
       return res.json(out);
     }
 
+        // ── entanglements: which containers this one is entangled with ─────────
+    if (
+      scope === "entanglement" ||
+      scope === "entanglements" ||
+      scope === "containers"
+    ) {
+      const containerId = String(
+        req.query.container_id || req.query.container || ""
+      ).trim();
+
+      if (!containerId) {
+        return res
+          .status(400)
+          .json({ ok: false, error: "missing_container_id" });
+      }
+
+      const rows = db
+        .prepare<
+          { kg: string; container_id: string },
+          { entangled_with: string; created_ts: number }
+        >(
+          `
+          SELECT DISTINCT
+            dst_id AS entangled_with,
+            created_ts
+          FROM kg_edge
+          WHERE kg = @kg
+            AND kind = 'ENTANGLEMENT'
+            AND src_type = 'container_ref'
+            AND src_id = @container_id
+          ORDER BY created_ts DESC, entangled_with
+        `
+        )
+        .all({ kg, container_id: containerId });
+
+      out.container_id = containerId;
+      out.entangled_with = rows.map((r) => r.entangled_with);
+      out.edges = rows.map((r) => ({
+        from: containerId,
+        to: r.entangled_with,
+        ts: r.created_ts,
+      }));
+
+      return res.json(out);
+    }
+
     // Unknown scope → 400
     return res.status(400).json({ ok: false, error: "invalid_scope", scope });
   } catch (e: any) {
@@ -1811,6 +2082,15 @@ app.post("/api/kg/events", (req: Request, res: Response) => {
 
   try {
     const result = applyEvents(kg, owner, normalized);
+
+    // A58: audit this batch into the mutation ledger (best-effort)
+    appendLedgerEntry(kg, "events_batch", "/api/kg/events", {
+      owner,
+      count: result.applied,
+      last_event_id: result.last_event_id,
+      // You can add a coarse summary if you want (e.g. types histogram)
+    });
+
     return res.json({ ok: true, ...result });
   } catch (err) {
     console.error("[kg/events] fail", err);
@@ -2004,30 +2284,173 @@ app.get("/api/kg/view/visits", (req: Request, res: Response) => {
 // --- Forget API (A56) ----------------------------------------------------
 app.post("/api/kg/forget", (req: Request, res: Response) => {
   try {
-    const { kg, scope="visits", host, topic_wa, from_ms, to_ms } = req.body || {};
+    const { kg, scope = "visits", host, topic_wa, from_ms, to_ms } = req.body || {};
     const KG = String(kg || "personal").toLowerCase();
-    if (KG !== "personal" && KG !== "work") return res.status(400).json({ ok:false, error:"bad_kg" });
+    if (KG !== "personal" && KG !== "work") {
+      return res.status(400).json({ ok: false, error: "bad_kg" });
+    }
 
     const WHERE: string[] = ["kg = @kg"];
     const params: any = { kg: KG };
 
     if (scope === "visits") WHERE.push("type = 'visit'");
-    if (host)      { WHERE.push("json_extract(payload,'$.host') = @host"); params.host = String(host); }
-    if (topic_wa)  { WHERE.push("topic_wa = @topic_wa"); params.topic_wa = String(topic_wa); }
-    if (Number.isFinite(from_ms)) { WHERE.push("ts >= @from_ms"); params.from_ms = Math.max(0, parseInt(String(from_ms), 10)); }
-    if (Number.isFinite(to_ms))   { WHERE.push("ts < @to_ms");   params.to_ms   = Math.max(0, parseInt(String(to_ms), 10)); }
+    if (host) {
+      WHERE.push("json_extract(payload,'$.host') = @host");
+      params.host = String(host);
+    }
+    if (topic_wa) {
+      WHERE.push("topic_wa = @topic_wa");
+      params.topic_wa = String(topic_wa);
+    }
+    if (Number.isFinite(from_ms)) {
+      WHERE.push("ts >= @from_ms");
+      params.from_ms = Math.max(0, parseInt(String(from_ms), 10));
+    }
+    if (Number.isFinite(to_ms)) {
+      WHERE.push("ts < @to_ms");
+      params.to_ms = Math.max(0, parseInt(String(to_ms), 10));
+    }
 
-    if (WHERE.length === 1) return res.status(400).json({ ok:false, error:"too_broad" });
+    if (WHERE.length === 1) {
+      return res.status(400).json({ ok: false, error: "too_broad" });
+    }
 
     const sql = `DELETE FROM kg_events WHERE ${WHERE.join(" AND ")}`;
     const info = db.prepare(sql).run(params);
-    return res.json({ ok:true, deleted: info.changes });
-  } catch (e:any) {
+
+    // A58: audit forget
+    appendLedgerEntry(KG as KG, "forget", "/api/kg/forget", {
+      scope,
+      host: host ?? null,
+      topic_wa: topic_wa ?? null,
+      from_ms: from_ms ?? null,
+      to_ms: to_ms ?? null,
+      deleted: info.changes,
+    });
+
+    return res.json({ ok: true, deleted: info.changes });
+  } catch (e: any) {
     console.error("[/kg/forget] error", e);
-    return res.status(500).json({ ok:false, error:"db_error" });
+    return res.status(500).json({ ok: false, error: "db_error" });
   }
 });
 
+app.get("/api/kg/view/entanglement", (req: Request, res: Response) => {
+  const kg = normalizeKg(req.query.kg);
+  const containerId =
+    (req.query.container_id as string) ||
+    (req.query.cid as string) ||
+    "";
+
+  if (!containerId) {
+    return res.status(400).json({ ok: false, error: "missing_container_id" });
+  }
+
+  try {
+    const rows = selectEntanglementsByContainer.all(kg, containerId);
+
+    return res.json({
+      ok: true,
+      kg,
+      container_id: containerId,
+      entangled_with: rows.map((r: any) => r.entangled_with),
+      edges: rows.map((r: any) => ({
+        from: containerId,
+        to: r.entangled_with,
+        ts: r.created_ts,
+      })),
+    });
+  } catch (err) {
+    console.error("[KG] entanglement view error:", err);
+    return res.status(500).json({ ok: false, error: "db_error" });
+  }
+});
+// --- KG stats (A70) ------------------------------------------------------
+// GET /api/kg/stats?kg=personal|work
+// Simple telemetry: counts of events, edges, files, attachments, container refs.
+app.get("/api/kg/stats", (req: Request, res: Response) => {
+  try {
+    const kg = normalizeKg(req.query.kg);
+    const params = { kg };
+
+    // Total events in this KG
+    const rowTotal = db.prepare(
+      `SELECT COUNT(*) AS n
+         FROM kg_events
+        WHERE kg = @kg`
+    ).get(params) as { n: number };
+
+    // Events by type (message, visit, call, ptt_session, floor_lock, entanglement, ...)
+    const rowsByType = db.prepare(
+      `SELECT type, COUNT(*) AS n
+         FROM kg_events
+        WHERE kg = @kg
+        GROUP BY type
+        ORDER BY n DESC`
+    ).all(params) as { type: string; n: number }[];
+
+    // Edges by kind (SENT_BY, ABOUT, ENTANGLEMENT, ...)
+    const rowsEdgesByKind = db.prepare(
+      `SELECT kind, COUNT(*) AS n
+         FROM kg_edge
+        WHERE kg = @kg
+        GROUP BY kind
+        ORDER BY n DESC`
+    ).all(params) as { kind: string | null; n: number }[];
+
+    // Files, attachments, container refs, visits
+    const rowFiles = db.prepare(
+      `SELECT COUNT(*) AS n
+         FROM kg_file
+        WHERE kg = @kg`
+    ).get(params) as { n: number };
+
+    const rowAttachments = db.prepare(
+      `SELECT COUNT(*) AS n
+         FROM kg_attachment
+        WHERE kg = @kg`
+    ).get(params) as { n: number };
+
+    const rowContainerRefs = db.prepare(
+      `SELECT COUNT(*) AS n
+         FROM kg_container_ref
+        WHERE kg = @kg`
+    ).get(params) as { n: number };
+
+    const rowVisits = db.prepare(
+      `SELECT COUNT(*) AS n
+         FROM kg_events
+        WHERE kg = @kg
+          AND type = 'visit'`
+    ).get(params) as { n: number };
+
+    const events_by_type: Record<string, number> = {};
+    for (const r of rowsByType) {
+      events_by_type[r.type] = r.n;
+    }
+
+    const edges_by_kind: Record<string, number> = {};
+    for (const r of rowsEdgesByKind) {
+      const k = r.kind || "(null)";
+      edges_by_kind[k] = r.n;
+    }
+
+    return res.json({
+      ok: true,
+      kg,
+      events_total: rowTotal?.n ?? 0,
+      events_by_type,
+      edges_by_kind,
+      files_total: rowFiles?.n ?? 0,
+      attachments_total: rowAttachments?.n ?? 0,
+      container_refs_total: rowContainerRefs?.n ?? 0,
+      visits_total: rowVisits?.n ?? 0,
+    });
+  } catch (e) {
+    console.error("[/api/kg/stats] error", e);
+    return res.status(500).json({ ok: false, error: "db_error" });
+  }
+});
 // ────────────────────────────────────────────────────────────
 /** GET /api/kg/query
  *  Query by kg + optional thread_id/topic_wa, with cursor `after=ts:id`.
@@ -2171,6 +2594,15 @@ app.post("/api/kg/upsert-entity", (req: Request, res: Response) => {
          WHERE kg = @kg AND topic_id = @topic_id
       `).get({ kg, topic_id }) as any;
 
+      // A58: audit topic upsert
+      appendLedgerEntry(kg, "upsert_entity", "/api/kg/upsert-entity:topic", {
+        topic_wa,
+        topic_wn,
+        topic_id,
+        label,
+        realm,
+      });
+
       return res.json({ ok: true, entity: "topic", topic: row });
     }
 
@@ -2228,6 +2660,13 @@ app.post("/api/kg/upsert-entity", (req: Request, res: Response) => {
          WHERE kg = @kg AND thread_id = @thread_id
       `).get({ kg, thread_id }) as any;
 
+      // A58: audit thread upsert
+      appendLedgerEntry(kg, "upsert_entity", "/api/kg/upsert-entity:thread", {
+        thread_id,
+        topic_wa,
+        topic_wn,
+      });
+
       return res.json({ ok: true, entity: "thread", thread: row });
     }
 
@@ -2237,7 +2676,121 @@ app.post("/api/kg/upsert-entity", (req: Request, res: Response) => {
     return res.status(500).json({ ok: false, error: "server_error" });
   }
 });
+// --- KG mutation ledger head (debug / inspection) -----------------------
+// --- KG ledger head (A58) -----------------------------------------------
+// GET /api/kg/ledger/head?kg=personal|work
+app.get("/api/kg/ledger/head", (req: Request, res: Response) => {
+  try {
+    const kg = normalizeKg(req.query.kg);
 
+    const row = db
+      .prepare(
+        `
+        SELECT seq, ts, op_kind, op_desc, prev_hash, hash
+          FROM kg_ledger
+         WHERE kg = @kg
+         ORDER BY seq DESC
+         LIMIT 1
+      `
+      )
+      .get({ kg }) as
+      | {
+          seq: number;
+          ts: number;
+          op_kind: string;
+          op_desc: string;
+          prev_hash: string | null;
+          hash: string;
+        }
+      | undefined;
+
+    return res.json({
+      ok: true,
+      kg,
+      head: row
+        ? {
+            seq: row.seq,
+            ts: row.ts,
+            op_kind: row.op_kind,
+            op_desc: row.op_desc,
+            prev_hash: row.prev_hash,
+            hash: row.hash,
+          }
+        : null,
+    });
+  } catch (e) {
+    console.error("[/api/kg/ledger/head] error", e);
+    return res.status(500).json({ ok: false, error: "db_error" });
+  }
+});
+
+// --- KG ledger entries (A58 debugging / inspection) ----------------------
+// --- Ledger entries listing (A58) ----------------------------------------
+// GET /api/kg/ledger/entries?kg=personal&limit=10[&before_seq=123]
+app.get("/api/kg/ledger/entries", (req: Request, res: Response) => {
+  try {
+    const kg = normalizeKg(req.query.kg);
+    const limit = Math.max(
+      1,
+      Math.min(100, parseInt(String(req.query.limit || "50"), 10) || 50)
+    );
+
+    // Optional cursor: "before_seq" (older than this sequence number)
+    const beforeSeqRaw = req.query.before_seq ?? req.query.before ?? null;
+    const beforeSeq = beforeSeqRaw != null ? Number(beforeSeqRaw) : NaN;
+
+    const params: any = { kg, limit };
+    const where: string[] = ["kg = @kg"];
+
+    if (Number.isFinite(beforeSeq)) {
+      where.push("seq < @before_seq");
+      params.before_seq = beforeSeq;
+    }
+
+    const sql = `
+      SELECT
+        kg,
+        seq,
+        ts,
+        op_kind,
+        op_desc,
+        prev_hash,
+        hash,
+        payload
+      FROM kg_ledger
+      WHERE ${where.join(" AND ")}
+      ORDER BY seq DESC
+      LIMIT @limit
+    `;
+
+    const rows = db.prepare(sql).all(params) as {
+      kg: string;
+      seq: number;
+      ts: number;
+      op_kind: string;
+      op_desc: string;
+      prev_hash: string | null;
+      hash: string;
+      payload: string | null;
+    }[];
+
+    const items = rows.map((r) => ({
+      kg: r.kg,
+      seq: r.seq,
+      ts: r.ts,
+      op_kind: r.op_kind,
+      op_desc: r.op_desc,
+      prev_hash: r.prev_hash,
+      hash: r.hash,
+      payload: r.payload ? JSON.parse(r.payload) : null,
+    }));
+
+    return res.json({ ok: true, kg, items });
+  } catch (e) {
+    console.error("[/api/kg/ledger/entries] error", e);
+    return res.status(500).json({ ok: false, error: "db_error" });
+  }
+});
 // ────────────────────────────────────────────────────────────
 // GET /api/kg/thread  (helper for ChatThread.tsx)
 // Example: /api/kg/thread?kg=personal&topic=ucs://local/ucs_hub&owner=kevin@wave.tp
