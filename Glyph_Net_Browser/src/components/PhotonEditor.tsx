@@ -1,52 +1,13 @@
 // Glyph_Net_Browser/src/components/PhotonEditor.tsx
-
 import { useState } from "react";
 
 type PhotonEditorProps = {
   docId?: string;
 };
 
-/**
- * Figure out where the SCI / Photon API lives.
- *
- * Priority:
- *  1. VITE_PHOTON_API_BASE env var
- *  2. GitHub Codespaces dev: 5173 → 3001
- *  3. Generic localhost:3001
- */
-function detectApiBase(): string {
-  const envBase = (import.meta as any).env?.VITE_PHOTON_API_BASE as
-    | string
-    | undefined;
-
-  if (envBase && envBase.trim()) {
-    return envBase.replace(/\/$/, "");
-  }
-
-  if (typeof window !== "undefined") {
-    const origin = window.location.origin;
-
-    // Codespaces: browser on -5173 → SCI Next app on -3001
-    if (origin.includes("-5173.app.github.dev")) {
-      return origin.replace("-5173.app.github.dev", "-3001.app.github.dev");
-    }
-
-    // Generic local Vite: :5173 → :3001
-    if (origin.includes(":5173")) {
-      return origin.replace(":5173", ":3001");
-    }
-  }
-
-  // Fallback: local SCI dev
-  return "http://localhost:3001";
-}
-
-const API_BASE = detectApiBase();
-
-/** Helper: POST JSON to the Photon API */
+// Helper: POST JSON to the Photon API (relative to browser origin)
 async function postJson(path: string, body: any) {
-  const url = `${API_BASE}${path}`;
-  const res = await fetch(url, {
+  const res = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -55,9 +16,7 @@ async function postJson(path: string, body: any) {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `HTTP ${res.status} ${res.statusText}${
-        text ? ` — ${text.slice(0, 200)}` : ""
-      }`,
+      `HTTP ${res.status} — ${text || res.statusText}`
     );
   }
 
@@ -65,74 +24,59 @@ async function postJson(path: string, body: any) {
 }
 
 export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) {
-  const [name, setName] = useState(docId);
   const [content, setContent] = useState("");
+  const [currentName, setCurrentName] = useState(docId);
   const [translated, setTranslated] = useState("");
-  const [status, setStatus] = useState<string>(
-    'Idle — type some Photon source and hit "Translate".',
+  const [status, setStatus] = useState(
+    'Idle — type some Photon source and hit "Translate".'
   );
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
 
   const charCount = content.length;
 
-  // ----------------- actions -----------------
-
   async function handleTranslate() {
-    if (!content.trim()) {
-      setTranslated("");
-      setStatus("Nothing to translate (input is empty).");
-      setError(null);
-      return;
-    }
-
     setStatus("Translating…");
     setError(null);
 
     try {
-      // Match the SCI translator panel: /api/photon/translate_block
       const data = await postJson("/api/photon/translate_block", {
         source: content,
       });
-
-      const glyphs = data.translated || data.output || "";
-      setTranslated(glyphs);
-      setStatus("Translated OK.");
+      setTranslated(data.translated || "");
+      setStatus("Translated.");
     } catch (err: any) {
       console.error("Translate error:", err);
       setStatus("Translate error.");
-      setError(`Translate error: ${err?.message || String(err)}`);
+      setError(err?.message || String(err));
     }
   }
 
   async function handleRun() {
     if (!translated.trim()) {
-      setStatus("Nothing to run — translate first.");
+      setStatus("Idle.");
       setError("No translated glyph code — run Translate first.");
       return;
     }
 
+    setRunning(true);
     setStatus("Running…");
     setError(null);
-    setRunning(true);
 
     try {
       const data = await postJson("/api/photon/execute_raw", {
         source: translated,
       });
-
-      setStatus(`Executed ${data.count ?? "?"} line(s).`);
-      // If you want, you can stash data.results in state later.
+      setStatus(`Ran ${data.count ?? "?"} line(s).`);
+      // Optional: stash data.results somewhere if you want to show it.
     } catch (err: any) {
       console.error("Run error:", err);
       setStatus("Run error.");
-      setError(`Run error: ${err?.message || String(err)}`);
+      setError(err?.message || String(err));
     } finally {
       setRunning(false);
     }
   }
-
-  // ----------------- UI -----------------
 
   return (
     <div
@@ -143,7 +87,7 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
         height: "100%",
       }}
     >
-      {/* Name + length + API base */}
+      {/* Name + length row */}
       <div
         style={{
           display: "flex",
@@ -153,8 +97,8 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
         }}
       >
         <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={currentName}
+          onChange={(e) => setCurrentName(e.target.value)}
           placeholder="Scratchpad name"
           style={{
             padding: "4px 8px",
@@ -164,10 +108,8 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
             minWidth: 160,
           }}
         />
-        <span style={{ color: "#6b7280" }}>Length: {charCount} characters</span>
-
-        <span style={{ marginLeft: "auto", fontSize: 11, color: "#6b7280" }}>
-          API base: <code>{API_BASE}</code>
+        <span style={{ color: "#6b7280" }}>
+          Length: {charCount} characters
         </span>
       </div>
 
@@ -215,17 +157,17 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
               resize: "none",
               outline: "none",
               fontFamily:
-                "JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                "JetBrains Mono, ui-monospace, SFMono-Regular, monospace",
               fontSize: 13,
               lineHeight: 1.5,
-              background: "#f9fafb",
+              background: "transparent",
               color: "#111827",
             }}
             placeholder="Write Photon source or text to translate…"
           />
         </div>
 
-        {/* Right: translated glyphs */}
+        {/* Right: translated glyphs + buttons */}
         <div
           style={{
             display: "flex",
@@ -287,8 +229,7 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
           <textarea
             readOnly
             value={
-              translated ||
-              'Run "Translate" to see glyph output.'
+              translated || 'Run "Translate" to see glyph output.'
             }
             style={{
               flex: 1,
@@ -297,17 +238,17 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
               resize: "none",
               outline: "none",
               fontFamily:
-                "JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                "JetBrains Mono, ui-monospace, SFMono-Regular, monospace",
               fontSize: 13,
               lineHeight: 1.5,
-              background: "#f9fafb",
+              background: "transparent",
               color: translated ? "#111827" : "#9ca3af",
             }}
           />
         </div>
       </div>
 
-      {/* Status / error line */}
+      {/* Status line */}
       <div
         style={{
           fontSize: 11,
@@ -315,11 +256,11 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
           borderRadius: 8,
           border: error ? "1px solid #fecaca" : "1px solid #e5e7eb",
           background: error ? "#fef2f2" : "#f9fafb",
-          color: error ? "#b91c1c" : "#374151",
+          color: error ? "#b91c1c" : "#4b5563",
           whiteSpace: "pre-wrap",
         }}
       >
-        {error ?? status}
+        {error ? `❌ ${error}` : status}
       </div>
     </div>
   );

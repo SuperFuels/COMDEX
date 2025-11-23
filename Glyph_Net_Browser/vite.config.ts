@@ -12,19 +12,26 @@ export default defineConfig(({ mode }) => {
 
   // radio-node (Express)
   const radioHttp = env.VITE_BACKEND_URL || "http://127.0.0.1:8787";
-  const radioWs   = radioHttp.replace(/^http/i, "ws");
+  const radioWs = radioHttp.replace(/^http/i, "ws");
 
-  // FastAPI (GlyphNet read endpoints)
+  // FastAPI (GlyphNet read + Photon endpoints)
   const fastApiHttp = env.VITE_FASTAPI_URL || "http://localhost:8080";
   // We are NOT using FastAPI WS from the browser for now.
 
   // Node KG
   const kgHttp = env.VITE_KG_URL || "http://localhost:3000";
 
+  // 🔌 SCI Photon IDE (Next.js app)
+  const sciHttp = env.VITE_SCI_URL || "http://127.0.0.1:3001";
+
   // Specific routes BEFORE generic ones
   const proxy: Record<string, any> = {
     // ── Knowledge Graph (KG) → Node KG (:3000)
     "/api/kg": { target: kgHttp, changeOrigin: true },
+
+    // ── PhotonLang API → FastAPI backend (:8080 by default)
+    // e.g. /api/photon/translate_block → http://localhost:8080/api/photon/translate_block
+    "/api/photon": { target: fastApiHttp, changeOrigin: true },
 
     // ── GlyphNet read endpoints → FastAPI (:8080)
     "/api/glyphnet/thread":      { target: fastApiHttp, changeOrigin: true },
@@ -38,6 +45,15 @@ export default defineConfig(({ mode }) => {
 
     // ✅ Dev RF mock tools (now hit radio-node)
     "/dev": { target: radioHttp, changeOrigin: true },
+
+    // 🔁 SCI dev proxy → Next.js SCI app (:3001)
+    // e.g. /sci/api/... → http://127.0.0.1:3001/api/...
+    "/sci": {
+      target: sciHttp,
+      changeOrigin: true,
+      secure: false,
+      rewrite: (p: string) => p.replace(/^\/sci/, ""),
+    },
 
     // ── Everything else under /api → radio-node (keeps /api/glyphnet/tx on radio)
     "/api": { target: radioHttp, changeOrigin: true },

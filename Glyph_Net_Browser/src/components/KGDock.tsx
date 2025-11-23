@@ -18,9 +18,15 @@ function inferKgFromContainer(containerId: string): KgId {
 
 type TabId = "stats" | "entanglements" | "forget";
 
-export default function KGDock() {
-  const containerId = getContainerIdFromLocation();
-  const kg: KgId = inferKgFromContainer(containerId);
+type KGDockProps = {
+  kg?: KgId;
+  containerId?: string;
+};
+
+export default function KGDock(props: KGDockProps) {
+  // Prefer explicit props from ContainerView, fallback to URL inference
+  const containerId = props.containerId || getContainerIdFromLocation();
+  const kg: KgId = props.kg || inferKgFromContainer(containerId);
 
   const [tab, setTab] = useState<TabId>("stats");
   const [stats, setStats] = useState<KgStats | null>(null);
