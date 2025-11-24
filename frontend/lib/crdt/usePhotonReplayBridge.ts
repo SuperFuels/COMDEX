@@ -5,6 +5,7 @@ import { usePhotonCRDT } from "./usePhotonCRDT"
 
 // HUD pulse for remote replay events
 function pulse() {
+  if (typeof window === "undefined") return
   window.dispatchEvent(new CustomEvent("photon-replay-pulse"))
 }
 
@@ -32,12 +33,41 @@ export function usePhotonReplayBridge(docId = "default") {
 
   //
   // ✅ 2) LISTEN for remote replay events → HUD pulse
+  //     (HTTPS-safe: ws → wss when needed)
   //
   useEffect(() => {
-    const ws = new WebSocket(`ws://${window.location.host}/ws/replay`)
+    if (typeof window === "undefined") return
 
-    ws.onmessage = () => pulse()
+    const scheme = window.location.protocol === "https:" ? "wss" : "ws"
+    const url = `${scheme}://${window.location.host}/ws/replay`
 
-    return () => ws.close()
+    let ws: WebSocket | null = null
+
+    try {
+      ws = new WebSocket(url)
+    } catch (err) {
+      console.warn("PhotonReplayBridge: failed to construct WebSocket", err)
+      return
+    }
+
+    ws.onmessage = () => {
+      try {
+        pulse()
+      } catch (err) {
+        console.warn("PhotonReplayBridge: pulse handler failed", err)
+      }
+    }
+
+    ws.onerror = (err) => {
+      console.warn("PhotonReplayBridge: WebSocket error", err)
+    }
+
+    return () => {
+      try {
+        ws?.close()
+      } catch {
+        /* no-op */
+      }
+    }
   }, [])
 }
