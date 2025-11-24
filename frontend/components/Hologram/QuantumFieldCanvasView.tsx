@@ -1,5 +1,5 @@
 // File: frontend/components/Hologram/QuantumFieldCanvasView.tsx
-'use client';
+"use client";
 
 import * as React from "react";
 import * as THREE from "three";
@@ -278,9 +278,9 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
         )}
       </div>
 
-      {/* Replay banner */}
+      {/* Replay banner – center top */}
       {p.isReplaying && p.replayFrames[p.playbackIndex] && (
-        <div className="absolute top-4 right-4 text-xs bg-black/70 text-white p-2 rounded z-50">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 text-xs bg-black/70 text-white p-2 rounded z-50">
           ⏪ Replaying Frame #{p.playbackIndex}
         </div>
       )}
@@ -288,9 +288,9 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
       {/* Basic plugin HUD */}
       <PluginHUD />
 
-      {/* Collapse stats export */}
+      {/* Collapse stats export – bottom-left over canvas */}
       <div
-        className="absolute top-4 right-4 text-xs text-white bg-black/70 rounded-md p-2 z-50 space-y-2"
+        className="absolute bottom-4 left-4 text-xs text-white bg-black/70 rounded-md p-2 z-50 space-y-2"
         role="region"
         aria-label="collapse-export"
       >
