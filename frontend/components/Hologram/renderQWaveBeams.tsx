@@ -1,15 +1,25 @@
+// frontend/components/Hologram/renderQWaveBeams.tsx
 import * as React from "react";
 import { QWaveBeam } from "@/components/QuantumField/beam_renderer";
 import BeamLogicOverlay from "@/components/QuantumField/BeamLogicOverlay";
 
 type Params = {
-  beamData: any[] | null;
+  beamData: any[] | null | undefined;
   setSelectedBeam: React.Dispatch<React.SetStateAction<any | null>>;
 };
 
 export default function renderQWaveBeams({ beamData, setSelectedBeam }: Params) {
-  return (beamData || [])
-    .filter((beam) => beam?.source && beam?.target)
+  // ✅ Always normalize to an array so `.filter` is safe
+  const safeBeams: any[] = Array.isArray(beamData) ? beamData : [];
+
+  // Optional: debug unexpected shapes
+  if (beamData && !Array.isArray(beamData)) {
+    // This will show up in your browser console and help debug upstream
+    console.warn("renderQWaveBeams: expected array for beamData, got:", beamData);
+  }
+
+  return safeBeams
+    .filter((beam) => beam && beam.source && beam.target)
     .map((b: any) => {
       const {
         source,

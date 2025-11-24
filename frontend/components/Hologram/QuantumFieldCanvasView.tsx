@@ -15,7 +15,6 @@ import PluginHUD from "../../plugins/PluginHUD";
 type FiberInit = { camera: THREE.Camera };
 
 type ViewProps = {
-  // props passed from parent
   qwaveBeams: React.ReactNode;
 
   isReplaying: boolean;
@@ -24,7 +23,6 @@ type ViewProps = {
   setIsReplaying: React.Dispatch<React.SetStateAction<boolean>>;
   setPlaybackIndex: React.Dispatch<React.SetStateAction<number>>;
 
-  // Trails (optional)
   collapseTrails?: { id?: string; path: [number, number, number][]; color?: string }[];
   breakthroughTrails?: { points: [number, number, number][]; type?: string }[];
   deadendTrails?: { points: [number, number, number][]; type?: string }[];
@@ -42,7 +40,7 @@ type ViewProps = {
   observerPosition: [number, number, number];
   observerDirection: [number, number, number];
 
-  beamData: any[] | null;
+  beamData: any[] | null | undefined;
   setSelectedBeam: React.Dispatch<React.SetStateAction<any | null>>;
 
   mergedNodes: any[];
@@ -52,28 +50,24 @@ type ViewProps = {
 
   showPredictedLayer: boolean;
   predictedMode: boolean;
-  predictedOverlay: boolean; // currently unused (overlays disabled)
+  predictedOverlay: boolean;
   splitScreen: boolean;
 
   handleOrbitChange: () => void;
 
-  // HUD toggles
   onTogglePredictedLayer: () => void;
   onToggleSplitScreen: () => void;
   onTogglePredictedMode: () => void;
   onTogglePredictedOverlay: () => void;
 
-  // panel bits
   tickFilter?: number;
   showCollapsed: boolean;
   others: any;
 
-  // live scene (from parent main file handoff)
   beams?: any[];
   liveNodes?: any[];
   liveLinks?: any[];
 
-  // optional overlay data (if parent provides it)
   predictedOverlayData?: { nodes: any[]; links: any[] } | null;
 };
 
@@ -81,7 +75,16 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
   // ---- TS prop-shim: relax prop checking for link line ----
   const LinkLineAny = LinkLine as unknown as React.FC<any>;
 
-  // ───────── helpers (keep INSIDE component so `p` is in scope) ─────────
+  // ✅ normalize beamData so we never call .map on a non-array
+  const safeBeamData: any[] = React.useMemo(() => {
+    if (p.beamData && !Array.isArray(p.beamData)) {
+      console.warn("QuantumFieldCanvasView: beamData is not an array", p.beamData);
+      return [];
+    }
+    return (p.beamData ?? []) as any[];
+  }, [p.beamData]);
+
+  // ───────── helpers ─────────
   function makeRenderReplayFrame(nodes: any[], onTeleport?: (id: string) => void) {
     const find = (id: string) => nodes.find((n: any) => String(n.id) === String(id));
     return (frame: any) => (
@@ -138,7 +141,7 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
       {p.qwaveBeams}
 
       {/* clickable beamData beams */}
-      {(p.beamData ?? []).map((beam: any, idx: number) => (
+      {safeBeamData.map((beam: any, idx: number) => (
         <group key={`bd-${idx}`} onClick={() => p.setSelectedBeam(beam)}>
           <QWaveBeam {...(beam as any)} />
         </group>
@@ -163,7 +166,6 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
       {/* nodes + simple per-node overlays */}
       {(p.mergedNodes ?? []).map((node: any) => (
         <React.Fragment key={String(node.id)}>
-          {/* dream ring */}
           {(node.source === "dream" || node.isDream) && (
             <mesh position={node.position}>
               <ringGeometry args={[0.6, 0.75, 32]} />
@@ -173,7 +175,6 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
 
           <Node node={node} onTeleport={p.onTeleport} />
 
-          {/* lock icon */}
           {node.locked && (
             <Html position={[node.position[0], node.position[1] + 1.5, node.position[2]]}>
               <div className="text-2xl text-red-500 font-bold drop-shadow">🔒</div>
@@ -252,7 +253,6 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
                 enableRotate
                 target={new THREE.Vector3(...p.observerPosition)}
               />
-              {/* For now we don't render predicted layer geometry here; that will be Milestone 3 */}
               <SceneCore />
             </Canvas>
           </div>
@@ -285,10 +285,10 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
         </div>
       )}
 
-      {/* Basic plugin HUD (pure DOM, safe) */}
+      {/* Basic plugin HUD */}
       <PluginHUD />
 
-      {/* Collapse stats export (pure DOM, safe) */}
+      {/* Collapse stats export */}
       <div
         className="absolute top-4 right-4 text-xs text-white bg-black/70 rounded-md p-2 z-50 space-y-2"
         role="region"
@@ -321,7 +321,9 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
                 goalMatchScore: n?.goalMatchScore,
                 rewriteSuccessProb: n?.rewriteSuccessProb,
               }));
-            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+              type: "application/json",
+            });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
