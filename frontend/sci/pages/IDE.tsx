@@ -4,6 +4,8 @@ import React, { useMemo, useState } from "react";
 import SciSqsPanel from "@/pages/sci/sci_sqs_panel";
 import { QuantumFieldCanvasLoader } from "@/components/Hologram/QuantumFieldCanvasLoader";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
 /**
  * Main tools available in the SCI IDE
  */
@@ -13,6 +15,13 @@ type ToolId = "editor" | "atomsheet" | "qfc";
  * Which view is shown in the main editor region
  */
 type ViewMode = "code" | "glyph";
+
+type CompressionStats = {
+  glyphCount: number;
+  charsBefore: number;
+  charsAfter: number;
+  compressionRatio: number; // 0..1 (backend field)
+};
 
 export default function IDE() {
   const [activeTool, setActiveTool] = useState<ToolId>("editor");
@@ -24,51 +33,93 @@ export default function IDE() {
   const [viewMode, setViewMode] = useState<ViewMode>("code");
   const [splitView, setSplitView] = useState(false);
 
-  // simple local buffers used for Code ⇄ Glyph demo + compression calc
+  // editor buffers
   const [codeBuffer, setCodeBuffer] = useState<string>(
     "Photon CRDT editor — synced across Codex workspace\n\n" +
-      "// Paste any block of code here to see glyph compression estimates."
+      "// Paste any block of code here and press “Code → Glyph” to see glyph translation + compression stats."
   );
   const [glyphBuffer, setGlyphBuffer] = useState<string>("");
 
-  // very simple “compression” calc just to visualise impact
-  const compression = useMemo(() => {
-    const codeChars = codeBuffer.length;
-    const glyphChars = glyphBuffer.length;
+  // compression from backend
+  const [compressionStats, setCompressionStats] = useState<CompressionStats | null>(
+    null
+  );
 
-    if (!codeChars || !glyphChars) {
-      return {
-        codeChars,
-        glyphChars,
-        percentReduction: 0,
-      };
+  // frontend-only fallback, in case backend doesn't respond (kept but low priority)
+  const fallbackCompression = useMemo(() => {
+    if (!glyphBuffer || !codeBuffer) {
+      return null;
     }
-    const ratio = 1 - glyphChars / codeChars;
+    const charsBefore = codeBuffer.length;
+    const charsAfter = glyphBuffer.length;
+    if (!charsBefore) return null;
+    const ratio = 1 - charsAfter / charsBefore;
     return {
-      codeChars,
-      glyphChars,
-      percentReduction: Math.max(0, Math.round(ratio * 100)),
+      glyphCount: glyphBuffer.length,
+      charsBefore,
+      charsAfter,
+      compressionRatio: Math.max(0, ratio),
     };
   }, [codeBuffer, glyphBuffer]);
 
-  // naive toy encoder/decoder just to show the UX
-  const handleCodeToGlyph = () => {
-    if (!codeBuffer.trim()) return;
-    // toy compression: ~ 1 glyph per 40 characters
-    const approxGlyphs = Math.max(1, Math.round(codeBuffer.length / 40));
-    setGlyphBuffer("⬢".repeat(approxGlyphs));
-    setViewMode("glyph");
+  // ───────────────── Code → Glyph using backend /api/photon/translate ─────────────────
+  const handleCodeToGlyph = async () => {
+    const text = codeBuffer;
+    if (!text.trim()) return;
+    if (!API_BASE) {
+      console.warn("NEXT_PUBLIC_API_URL not set; cannot call /photon/translate");
+      // still switch tab so user “sees” something
+      setGlyphBuffer(text);
+      setViewMode("glyph");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/photon/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        console.error("Photon translate failed:", res.status, errText);
+        // degrade gracefully: copy code into glyph pane
+        setGlyphBuffer(text);
+        setViewMode("glyph");
+        setCompressionStats(null);
+        return;
+      }
+
+      const data = await res.json();
+      // expected: translated, glyph_count, chars_before, chars_after, compression_ratio
+      setGlyphBuffer(data.translated ?? "");
+      setViewMode("glyph");
+      setCompressionStats({
+        glyphCount: Number(data.glyph_count ?? 0),
+        charsBefore: Number(data.chars_before ?? text.length),
+        charsAfter: Number(data.chars_after ?? String(data.translated ?? "").length),
+        compressionRatio: Number(data.compression_ratio ?? 0),
+      });
+    } catch (err) {
+      console.error("Photon translate error:", err);
+      setGlyphBuffer(text);
+      setViewMode("glyph");
+      setCompressionStats(null);
+    }
   };
 
+  // ───────────────── Glyph → Code (for now just swap back) ─────────────────
   const handleGlyphToCode = () => {
-    if (!glyphBuffer.trim()) return;
-    const decoded =
-      `// pseudo-decoded from ${glyphBuffer.length} glyphs\n` + glyphBuffer;
-    setCodeBuffer(decoded);
+    // Proper reverse will later call /api/photon/translate_reverse;
+    // for now, just flip the view back to code.
     setViewMode("code");
   };
 
   const sidebarWidthClass = sidebarCollapsed ? "w-14" : "w-64";
+
+  // pick which compression block to display (backend first, then fallback)
+  const compressionToShow = compressionStats ?? fallbackCompression;
 
   return (
     <div className="flex h-[calc(100vh-80px)] bg-slate-950 text-slate-100">
@@ -181,13 +232,20 @@ export default function IDE() {
                 Glyph → Code
               </button>
 
-              {/* Compression indicator */}
+              {/* Compression indicator (backend first, fallback second) */}
               <div className="ml-3 text-[11px] text-slate-300 font-mono">
-                {compression.codeChars > 0 && compression.glyphChars > 0 ? (
+                {compressionToShow ? (
                   <>
-                    {compression.codeChars} chars → {compression.glyphChars} glyphs ·{" "}
+                    {compressionToShow.charsBefore} chars →{" "}
+                    {compressionToShow.charsAfter}{" "}
+                    {compressionStats ? "glyph-chars" : "chars"} ·{" "}
+                    {compressionStats && (
+                      <>
+                        {compressionStats.glyphCount} glyph units ·{" "}
+                      </>
+                    )}
                     <span className="text-emerald-400">
-                      {compression.percentReduction}% reduction
+                      {(compressionToShow.compressionRatio * 100).toFixed(1)}% reduction
                     </span>
                   </>
                 ) : (
@@ -228,9 +286,7 @@ export default function IDE() {
 
         {/* ───────────────────────── Bottom status strip ───────────────────────── */}
         <footer className="h-16 border-t border-slate-800 bg-slate-950/95 flex items-center justify-between px-4 text-xs text-slate-300">
-          <div>
-            Φ coherence monitor (placeholder) · ready
-          </div>
+          <div>Φ coherence monitor (placeholder) · ready</div>
           <div className="text-slate-500">
             SCI IDE · local workspace · offline-capable UX target
           </div>

@@ -14,12 +14,17 @@ Provides endpoints for:
 
 import json, re
 from typing import Dict, Any, List, Optional
+
 OP_TOKENS = {"⊕", "↔", "⟲", "∇", "μ", "π", "⇒"}
+
 from fastapi import APIRouter, HTTPException, Request, UploadFile, File
 from pydantic import BaseModel
 
 # ✅ Core imports
-from backend.modules.photonlang.photon_translator import PhotonTranslator
+from backend.modules.photonlang.photon_translator import (
+    PhotonTranslator,
+    translate_photon_line,   # <-- added helper import
+)
 from backend.modules.photon.validation import validate_photon_capsule
 
 try:
@@ -119,27 +124,38 @@ def _capsule_to_jsonl_for_bridge(cap: Dict[str, Any]) -> str:
     return "\n".join(out)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Request Models
+# Request / Response Models
 # ─────────────────────────────────────────────────────────────────────────────
 
 class TranslateLineRequest(BaseModel):
-    line: str
+  line: str
 
 class CompileFileRequest(BaseModel):
-    path: str
+  path: str
 
 class ReverseRequest(BaseModel):
-    glyphs: Optional[List[Any]] = None
-    glyph_stream: Optional[List[Any]] = None
-    capsule: Optional[Dict[str, Any]] = None
-    meta: Optional[Dict[str, Any]] = None
+  glyphs: Optional[List[Any]] = None
+  glyph_stream: Optional[List[Any]] = None
+  capsule: Optional[Dict[str, Any]] = None
+  meta: Optional[Dict[str, Any]] = None
 
 class ReverseResponse(BaseModel):
-    status: str = "ok"
-    photon: str
-    count: int
-    name: Optional[str] = None
-    engine: Optional[str] = None
+  status: str = "ok"
+  photon: str
+  count: int
+  name: Optional[str] = None
+  engine: Optional[str] = None
+
+# 🔹 NEW: full-block translate + compression stats
+class TranslateTextRequest(BaseModel):
+  text: str
+
+class TranslateTextResponse(BaseModel):
+  translated: str
+  glyph_count: int
+  chars_before: int
+  chars_after: int
+  compression_ratio: float
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Endpoints
@@ -175,6 +191,38 @@ async def translate_block(request: Request):
             translated_lines.append(f"# ⚠️ Error: {e}")
 
     return {"translated": "\n".join(translated_lines)}
+
+# 🔹 NEW: main IDE endpoint used for Code → Glyph + compression display
+@router.post("/translate", response_model=TranslateTextResponse)
+async def translate_text(req: TranslateTextRequest):
+    """
+    Translate an arbitrary text block into Photon/glyph form and
+    return basic compression stats for the IDE HUD.
+    """
+    text = req.text or ""
+    lines = text.splitlines()
+
+    translated_lines: List[str] = []
+    for line in lines:
+        translated_lines.append(translate_photon_line(line))
+
+    translated = "\n".join(translated_lines)
+
+    # naive glyph "size" – refine later with token maps if you want
+    glyph_count = sum(len(l) for l in translated_lines)
+    chars_before = len(text)
+    chars_after = len(translated)
+    compression_ratio = (
+        1.0 - (chars_after / chars_before) if chars_before > 0 else 0.0
+    )
+
+    return TranslateTextResponse(
+        translated=translated,
+        glyph_count=glyph_count,
+        chars_before=chars_before,
+        chars_after=chars_after,
+        compression_ratio=compression_ratio,
+    )
 
 print("🛰️ [Photon API] Router active -> /api/photon/execute_raw")
 
