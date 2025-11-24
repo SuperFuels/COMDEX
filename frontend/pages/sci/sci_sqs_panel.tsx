@@ -198,7 +198,7 @@ export default function SciSqsPanel(props: {
     );
     for (const c of cells) {
       const [x, y, z, t] = c.position || [0, 0, 0, 0];
-      if (G?.[t]?.[z]?.[y]) G[t][z][y][x] = c;
+      G[t][z][y][x] = c;
     }
     return G;
   }, [cells, dims]);

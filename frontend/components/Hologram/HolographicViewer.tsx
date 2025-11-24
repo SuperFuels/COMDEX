@@ -179,6 +179,22 @@ export default function HolographicViewer({ containerId }: { containerId: string
   const coreProjection = useCodexCoreProjection(containerId);
   const combinedProjection = showCodexCore ? coreProjection : projection;
 
+  // ✅ Safely coerce light_field into an array for HUD / slider
+  const lightField: GlyphPoint[] = Array.isArray(
+    (combinedProjection as any)?.light_field
+  )
+    ? ((combinedProjection as any).light_field as GlyphPoint[])
+    : [];
+
+  // ✅ Normalized projection object for GHXReplaySlider
+  const ghxProjection: GHXProjection | null = combinedProjection
+    ? {
+        projection_id: (combinedProjection as any).projection_id,
+        rendered_at: (combinedProjection as any).rendered_at,
+        light_field: lightField,
+      }
+    : null;
+
   useEffect(() => {
     preloadVoices();
   }, []);
@@ -456,17 +472,17 @@ export default function HolographicViewer({ containerId }: { containerId: string
     <HologramHUD
       projectionId={combinedProjection?.projection_id}
       renderedAt={combinedProjection?.rendered_at}
-      totalGlyphs={combinedProjection?.light_field?.length ?? 0}
+      totalGlyphs={lightField.length}
       triggeredGlyphs={
-        (combinedProjection?.light_field ?? []).filter(
-          (g: GlyphPoint) => g.trigger_state !== "idle"
-        ).length
+        lightField.filter((g: GlyphPoint) => g.trigger_state !== "idle").length
       }
       onReplayToggle={(v) => setReplayMode(v)}
       onTraceOverlayToggle={(v) => setShowTrace(v)}
       onExport={handleExport}
-      onLayoutToggle={() => setLayoutMode((m) => (m === "symbolic" ? "raw" : "symbolic"))}
-      renderedGlyphs={combinedProjection?.light_field ?? []}
+      onLayoutToggle={() =>
+        setLayoutMode((m) => (m === "symbolic" ? "raw" : "symbolic"))
+      }
+      renderedGlyphs={lightField}
       setCurrentGlyph={setFocusedGlyph}
       currentCaption={currentCaption}
     />
@@ -518,22 +534,22 @@ export default function HolographicViewer({ containerId }: { containerId: string
       </div>
     )}
 
-  {/* Caption bubble */}
-  {currentCaption && (
-    <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
-      {currentCaption}
-    </div>
-  )}
+    {/* Caption bubble */}
+    {currentCaption && (
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
+        {currentCaption}
+      </div>
+    )}
 
-  {/* Replay slider: cast to satisfy its stricter prop type */}
-  <GHXReplaySlider
-    projection={(combinedProjection as unknown as GHXProjection) ?? null}
-    onFrameSelect={handleFrameSelect}
-    onPlayToggle={(v) => setReplayMode(v)}
-  />
+    {/* Replay slider */}
+    <GHXReplaySlider
+      projection={ghxProjection}
+      onFrameSelect={handleFrameSelect}
+      onPlayToggle={(v) => setReplayMode(v)}
+    />
 
-  <SoulLawHUD />
-</div>
+    <SoulLawHUD />
+  </div>
 );
 }
 /* ------------------------------------------------------------------ */
