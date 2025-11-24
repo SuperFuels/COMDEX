@@ -1,30 +1,16 @@
 // File: frontend/components/Hologram/QuantumFieldCanvasView.tsx
+'use client';
+
 import * as React from "react";
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
-import { QWaveBeam, BeamProps } from "@/components/QuantumField/beam_renderer";
-import PredictedLayerRenderer from "@/components/QuantumField/PredictedLayerRenderer";
-import PluginHUD from "../../plugins/PluginHUD";
-import EmotionOverlay from "@/components/QuantumField/EmotionOverlay";
-import ScrollReplayOverlay from "@/components/QuantumField/ScrollReplayOverlay";
-import StrategyOverlay from "@/components/QuantumField/StrategyOverlay";
-import ObserverViewport from "@/components/QuantumField/ObserverViewport";
-import MemoryScroller from "@/components/QuantumField/MemoryScroller";
-import ClusterZoomRenderer from "@/components/QuantumField/cluster_zoom_renderer";
-import HoverMutationTrace from "@/components/QuantumField/HoverMutationTrace";
-import MultiNodeCollapseTrail from "@/components/QuantumField/MultiNodeCollapseTrail";
-import BreakthroughDeadendTrail from "@/components/QuantumField/BreakthroughDeadendTrail";
-import HolographicCausalityTrails from "@/components/QuantumField/Replay/holographic_causality_trails";
-import BeamLogicOverlay from "@/components/QuantumField/BeamLogicOverlay";
-import { QWavePreviewPanel } from "@/components/QuantumField/QWavePreviewPanel";
-import EntropyNode from "@/components/QuantumField/styling/EntropyNode";
-import HoverAgentLogicView from "@/components/QuantumField/Memory/hover_agent_logic_view";
-import { MeshEmotionPulse, HtmlEmotionPulse } from "@/components/QuantumField/EmotionPulseOverlay";
-import renderQWaveBeams from "./renderQWaveBeams";
+
+import { QWaveBeam } from "@/components/QuantumField/beam_renderer";
 import { Node } from "@/components/QuantumField/Node";
 import { LinkLine } from "@/components/QuantumField/LinkLine";
 import { ReplayBranchSelector } from "@/components/QuantumField/ReplayBranchSelector";
+import PluginHUD from "../../plugins/PluginHUD";
 
 type FiberInit = { camera: THREE.Camera };
 
@@ -66,7 +52,7 @@ type ViewProps = {
 
   showPredictedLayer: boolean;
   predictedMode: boolean;
-  predictedOverlay: boolean; // boolean toggle (overlay content passed in parent if any)
+  predictedOverlay: boolean; // currently unused (overlays disabled)
   splitScreen: boolean;
 
   handleOrbitChange: () => void;
@@ -92,20 +78,8 @@ type ViewProps = {
 };
 
 const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
-  // ---- TS prop-shim: relax prop checking for downstream UI components ----
-  const LinkLineAny                   = LinkLine as unknown as React.FC<any>;
-  const PredictedLayerRendererAny     = PredictedLayerRenderer as unknown as React.FC<any>;
-  const ClusterZoomRendererAny        = ClusterZoomRenderer as unknown as React.FC<any>;
-  const ScrollReplayOverlayAny        = ScrollReplayOverlay as unknown as React.FC<any>;
-  const StrategyOverlayAny            = StrategyOverlay as unknown as React.FC<any>;
-  const ObserverViewportAny           = ObserverViewport as unknown as React.FC<any>;
-  const MemoryScrollerAny             = MemoryScroller as unknown as React.FC<any>;
-  const HoverMutationTraceAny         = HoverMutationTrace as unknown as React.FC<any>;
-  const MultiNodeCollapseTrailAny     = MultiNodeCollapseTrail as unknown as React.FC<any>;
-  const BreakthroughDeadendTrailAny   = BreakthroughDeadendTrail as unknown as React.FC<any>;
-  const HolographicCausalityTrailsAny = HolographicCausalityTrails as unknown as React.FC<any>;
-  const BeamLogicOverlayAny           = BeamLogicOverlay as unknown as React.FC<any>;
-  const QWavePreviewPanelAny          = QWavePreviewPanel as unknown as React.FC<any>;
+  // ---- TS prop-shim: relax prop checking for link line ----
+  const LinkLineAny = LinkLine as unknown as React.FC<any>;
 
   // ───────── helpers (keep INSIDE component so `p` is in scope) ─────────
   function makeRenderReplayFrame(nodes: any[], onTeleport?: (id: string) => void) {
@@ -170,7 +144,7 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
         </group>
       ))}
 
-      {/* links (use relaxed alias) */}
+      {/* links */}
       {(p.mergedLinks ?? []).map((link: any, i: number) => {
         const s = getNodeById((link as any).source);
         const t = getNodeById((link as any).target);
@@ -186,9 +160,10 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
         );
       })}
 
-      {/* nodes + per-node overlays */}
+      {/* nodes + simple per-node overlays */}
       {(p.mergedNodes ?? []).map((node: any) => (
         <React.Fragment key={String(node.id)}>
+          {/* dream ring */}
           {(node.source === "dream" || node.isDream) && (
             <mesh position={node.position}>
               <ringGeometry args={[0.6, 0.75, 32]} />
@@ -198,62 +173,12 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
 
           <Node node={node} onTeleport={p.onTeleport} />
 
-          {/* emotion pulses */}
-          {node.emotion && (
-            <>
-              <MeshEmotionPulse node={node as any} />
-              <HtmlEmotionPulse node={node as any} />
-            </>
-          )}
-
           {/* lock icon */}
           {node.locked && (
             <Html position={[node.position[0], node.position[1] + 1.5, node.position[2]]}>
               <div className="text-2xl text-red-500 font-bold drop-shadow">🔒</div>
             </Html>
           )}
-
-          {/* entropy overlay */}
-          {typeof node.entropy === "number" && (
-            <EntropyNode position={node.position} entropy={node.entropy} nodeId={node.id} />
-          )}
-
-          {/* memory summary hover */}
-          {node.memoryTrace && (
-            <HoverAgentLogicView
-              {...({
-                position: [node.position[0], node.position[1] + 1.2, node.position[2]],
-                logicSummary: node.memoryTrace.summary,
-                containerId: node.memoryTrace.containerId,
-              } as any)}
-            />
-          )}
-
-          {/* spawn action */}
-          <Html position={[node.position[0] + 0.8, node.position[1] + 1.2, node.position[2]]}>
-            <button
-              className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded shadow"
-              onClick={async () => {
-                try {
-                  const res = await fetch("/api/spawn_container_from_node", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ nodeId: node.id }),
-                  });
-                  const data = await res.json();
-                  if (data.success && data.newContainerId) {
-                    alert(`✅ Container spawned: ${data.newContainerId}`);
-                  } else {
-                    alert("⚠️ Failed to spawn container.");
-                  }
-                } catch (err) {
-                  alert("🚨 Spawn failed: " + err);
-                }
-              }}
-            >
-              ➕ Spawn
-            </button>
-          </Html>
         </React.Fragment>
       ))}
 
@@ -263,7 +188,7 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
         : null}
     </>
   );
-  
+
   return (
     <>
       {/* HUD Controls */}
@@ -327,7 +252,7 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
                 enableRotate
                 target={new THREE.Vector3(...p.observerPosition)}
               />
-              {p.showPredictedLayer && <PredictedLayerRendererAny nodes={[]} links={[]} />}
+              {/* For now we don't render predicted layer geometry here; that will be Milestone 3 */}
               <SceneCore />
             </Canvas>
           </div>
@@ -348,7 +273,6 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
               enableRotate
               target={new THREE.Vector3(...p.observerPosition)}
             />
-            {p.showPredictedLayer && <PredictedLayerRendererAny nodes={[]} links={[]} visible />}
             <SceneCore />
           </Canvas>
         )}
@@ -361,76 +285,10 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
         </div>
       )}
 
-      {/* Overlays & HUD (DOM layers) */}
+      {/* Basic plugin HUD (pure DOM, safe) */}
       <PluginHUD />
 
-      {/* Predicted overlay draw-over (if parent gave data) */}
-      {p.predictedOverlay && p.predictedOverlayData && (
-        <PredictedLayerRendererAny
-          nodes={(p.predictedOverlayData.nodes || []) as any}
-          links={(p.predictedOverlayData.links || []) as any}
-          fadedRealMode={p.predictedMode as any}
-          visible
-        />
-      )}
-
-      {/* Zoom, trails, strategy, viewport, scroller */}
-      <ClusterZoomRendererAny
-        nodes={p.mergedNodes as any}
-        links={p.mergedLinks as any}
-        radius={2.5}
-        onZoomed={(ids: string[]) => console.log("🔍 Zoomed cluster:", ids)}
-      />
-
-      <ScrollReplayOverlayAny
-        isReplaying={p.isReplaying}
-        frames={p.replayFrames}
-        playbackIndex={p.playbackIndex}
-        onPlay={() => p.setIsReplaying(true)}
-        onPause={() => p.setIsReplaying(false)}
-        onSeek={p.setPlaybackIndex}
-        visible={p.isReplaying}
-      />
-
-      <StrategyOverlayAny
-        branches={p.availableBranches}
-        selected={p.selectedBranch}
-        onSelect={p.setSelectedBranch}
-        onRetry={p.onRetryFromBranch}
-        visible
-      />
-
-      <ObserverViewportAny
-        position={p.observerPosition}
-        direction={p.observerDirection}
-        enabled
-      />
-
-      <MemoryScrollerAny
-        frames={p.replayFrames}
-        onJump={p.setPlaybackIndex}
-        active={p.isReplaying}
-      />
-
-      <HoverMutationTraceAny beam={undefined as any} />
-      <MultiNodeCollapseTrailAny segments={p.collapseTrails as any} visible />
-      <BreakthroughDeadendTrailAny segments={p.deadendTrails as any} visible />
-      <HolographicCausalityTrailsAny
-        segments={[...(p.collapseTrails as any[]), ...(p.breakthroughTrails as any[])]}
-        trails={p.collapseTrails as any}
-      />
-
-      <BeamLogicOverlayAny beam={undefined as any} />
-
-      {/* QWave preview panel */}
-      <div className="absolute right-2 top-2 max-w-sm">
-        <QWavePreviewPanelAny
-          beams={(p.beams || []) as any}
-          onSelect={p.setSelectedBeam as any}
-          selectedBeamId={undefined as any}
-          beamMetadata={undefined as any}
-        />
-      </div>
+      {/* Collapse stats export (pure DOM, safe) */}
       <div
         className="absolute top-4 right-4 text-xs text-white bg-black/70 rounded-md p-2 z-50 space-y-2"
         role="region"
@@ -475,12 +333,8 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
           ⬇️ Export Collapse Timeline
         </button>
       </div>
-
-      {/* Presence (render your PresenceLayer here if you want cursors) */}
-      {/* <PresenceLayer others={p.others} /> */}
     </>
   );
 };
 
 export default QuantumFieldCanvasView;
-
