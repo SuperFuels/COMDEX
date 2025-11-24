@@ -3,12 +3,15 @@
 import { useState, useEffect } from "react";
 import { playGlyphNarration } from "@/components/ui/hologram_audio";
 import GHXTimeline from "@/components/Hologram/GHXTimeline";
-import { useCanvasRecorder } from "@/hooks/useCanvasRecorder"; // Fixed import
-import { useCollapseMetrics } from "@/hooks/useCollapseMetrics"; // Fixed import
+import { useCanvasRecorder } from "@/hooks/useCanvasRecorder";
+import { useCollapseMetrics } from "@/hooks/useCollapseMetrics";
 import CollapseGraph from "@/components/Hologram/CollapseGraph";
-// import DecoherenceGraph from "@/components/Hologram/DecoherenceGraph"; // Commented out due to missing file
+// import DecoherenceGraph from "@/components/Hologram/DecoherenceGraph";
 import { WaveScopePanel } from "@/components/WaveScope/WaveScopePanel";
-import { MODULATION_METADATA, ModulationStrategy } from "@/lib/glyphwave/modulationMetadata";
+import {
+  MODULATION_METADATA,
+  ModulationStrategy,
+} from "@/lib/glyphwave/modulationMetadata";
 import useCollapseTrace from "@/hooks/useCollapseTrace";
 
 type HUDProps = {
@@ -29,6 +32,7 @@ type HUDProps = {
     timestamp: string;
   };
 };
+
 const CollapseGraphAny = CollapseGraph as unknown as React.FC<any>;
 
 export default function HologramHUD({
@@ -50,21 +54,65 @@ export default function HologramHUD({
   const [replayProgress, setReplayProgress] = useState(0);
   const [showWaveScope, setShowWaveScope] = useState(false);
   const [showCollapsed, setShowCollapsed] = useState(true);
+
+  // --- collapse trace data (normalize everything to arrays/objects) ---
   const { data, loading } = useCollapseTrace(showCollapsed);
+  const safeTicks: number[] = Array.isArray(data?.ticks) ? data!.ticks : [];
+  const safeGrouped: Record<string | number, any[]> =
+    data && data.grouped_beams && typeof data.grouped_beams === "object"
+      ? (data.grouped_beams as Record<string | number, any[]>)
+      : {};
+
   const [tickIndex, setTickIndex] = useState(0);
-  const ticks = data?.ticks || [];
-  const grouped = data?.grouped_beams || {};
-  const currentTick = ticks[tickIndex] ?? 0;
-  const currentBeams = grouped[currentTick] || [];
-  const liveTick = ticks[tickIndex] ?? null;
+  const clampedTickIndex =
+    safeTicks.length === 0
+      ? 0
+      : Math.min(Math.max(tickIndex, 0), safeTicks.length - 1);
 
+  const currentTick = safeTicks[clampedTickIndex] ?? 0;
+  const rawCurrentBeams = safeGrouped[currentTick] as any;
+  const currentBeams: any[] = Array.isArray(rawCurrentBeams)
+    ? rawCurrentBeams
+    : [];
+  const liveTick = safeTicks[clampedTickIndex] ?? null;
 
-  const {
-    collapseHistory,
-    decoherenceHistory,
-    latestCollapse: collapseRate,
-    latestDecoherence: decoherenceRate,
-  } = useCollapseMetrics() || { collapseHistory: [], decoherenceHistory: [], latestCollapse: null, latestDecoherence: null }; // Default to nullish values if hook fails
+  // --- collapse metrics (normalize) ---
+  const collapseMetrics =
+    useCollapseMetrics() || ({
+      collapseHistory: [],
+      decoherenceHistory: [],
+      latestCollapse: null,
+      latestDecoherence: null,
+    } as any);
+
+  const collapseHistory: any[] = Array.isArray(
+    collapseMetrics.collapseHistory
+  )
+    ? collapseMetrics.collapseHistory
+    : [];
+  const decoherenceHistory: number[] = Array.isArray(
+    collapseMetrics.decoherenceHistory
+  )
+    ? collapseMetrics.decoherenceHistory
+    : [];
+  const collapseRate: number | null =
+    typeof collapseMetrics.latestCollapse === "number"
+      ? collapseMetrics.latestCollapse
+      : null;
+  const decoherenceRate: number | null =
+    typeof collapseMetrics.latestDecoherence === "number"
+      ? collapseMetrics.latestDecoherence
+      : null;
+
+  // --- recorder (safe no-ops if hook fails) ---
+  const recorder =
+    useCanvasRecorder() || ({
+      isRecording: false,
+      startRecording: () => {},
+      stopRecording: () => {},
+      downloadRecording: () => {},
+      downloadUrl: null,
+    } as any);
 
   const {
     isRecording,
@@ -72,20 +120,28 @@ export default function HologramHUD({
     stopRecording,
     downloadRecording,
     downloadUrl,
-  } = useCanvasRecorder() || { isRecording: false, startRecording: () => {}, stopRecording: () => {}, downloadRecording: () => {}, downloadUrl: null }; // Default to safe values
+  } = recorder;
 
-  // 🧠 Get latest glyph + modulation strategy
-  const latestGlyph = renderedGlyphs?.[renderedGlyphs.length - 1];
-  const modulationStrategy = latestGlyph?.modulation_strategy as ModulationStrategy | undefined;
-  const modulationMeta = modulationStrategy ? MODULATION_METADATA[modulationStrategy] : null;
+  // --- rendered glyphs normalization ---
+  const safeRenderedGlyphs: any[] = Array.isArray(renderedGlyphs)
+    ? renderedGlyphs
+    : [];
+
+  // 🧠 latest glyph + modulation strategy
+  const latestGlyph = safeRenderedGlyphs[safeRenderedGlyphs.length - 1];
+  const modulationStrategy = latestGlyph
+    ?.modulation_strategy as ModulationStrategy | undefined;
+  const modulationMeta = modulationStrategy
+    ? MODULATION_METADATA[modulationStrategy]
+    : null;
 
   // 🔁 HUD toggle effects
   useEffect(() => {
-    if (onReplayToggle) onReplayToggle(replayMode);
+    onReplayToggle?.(replayMode);
   }, [replayMode, onReplayToggle]);
 
   useEffect(() => {
-    if (onTraceOverlayToggle) onTraceOverlayToggle(traceOverlay);
+    onTraceOverlayToggle?.(traceOverlay);
   }, [traceOverlay, onTraceOverlayToggle]);
 
   // 🔊 Initial narration
@@ -104,7 +160,7 @@ export default function HologramHUD({
     }
   }
 
-  // 🔏 Signature badge logic
+  // 🔏 Signature badge
   let signatureBadge: JSX.Element | null = null;
   if (signature?.sig && signature?.signed_by) {
     signatureBadge = (
@@ -115,50 +171,27 @@ export default function HologramHUD({
   } else if (signature && !signature?.sig) {
     signatureBadge = (
       <span className="ml-2 px-2 py-1 text-xs rounded-xl bg-red-700 text-white">
-      🚫 Invalid Signature
-    </span>
+        🚫 Invalid Signature
+      </span>
     );
   } else {
     signatureBadge = (
       <span className="ml-2 px-2 py-1 text-xs rounded-xl bg-yellow-500 text-black">
-      ❌ Unsigned
-    </span>
+        ❌ Unsigned
+      </span>
     );
   }
 
-  // 📊 Symbolic Collapse + Decoherence Metrics
-  const metricsDisplay = (
-    <div className="mt-2 px-3 py-1 bg-black bg-opacity-30 rounded-xl text-white text-xs flex items-center space-x-4">
-      <span>
-        🧠 Collapse/sec: {collapseRate !== null ? collapseRate.toFixed(2) : "–"}
-      </span>
-      <span>
-        🧠 Decoherence: {decoherenceRate !== null ? decoherenceRate.toFixed(4) : "–"} {decoherenceTrend}
-      </span>
-    </div>
-  );
-
-  // 🧬 Top-right modulation strategy badge (overlay)
-  {modulationMeta && (
-    <div className="absolute top-2 right-2 bg-gray-900/80 px-3 py-1 rounded-md shadow-md border border-purple-700 text-sm flex items-center gap-2 z-50">
-      <span className="text-lg">{modulationMeta.icon}</span> {/* Changed from emoji to icon */}
-      <div className="text-white">
-        <div className="font-semibold">{modulationMeta.description}</div> {/* Changed from label to description */}
-        <div className="text-xs text-gray-300">{modulationMeta.description}</div>
-      </div>
-    </div>
-  )}
-
   return (
     <div className="absolute top-4 right-4 bg-black/60 text-white p-4 rounded-xl shadow-xl w-80 z-50 backdrop-blur-md">
-      {/* 🔖 HUD Header + Signature */}
+      {/* Header + signature */}
       <div className="flex items-center mb-2">
         <h2 className="text-lg font-bold">🧠 Hologram HUD</h2>
         {signatureBadge}
       </div>
 
       <div className="text-sm space-y-1">
-        {/* 📛 Projection Metadata */}
+        {/* Metadata */}
         <div>
           <span className="text-gray-300">Projection ID:</span>
           <div className="break-all">{projectionId || "—"}</div>
@@ -173,7 +206,7 @@ export default function HologramHUD({
           </div>
         )}
 
-        {/* 🎯 Glyph Trigger Count */}
+        {/* Glyph counts */}
         <div>
           <span className="text-gray-300">Glyphs Triggered:</span>{" "}
           <span className="text-green-400 font-bold">{triggeredGlyphs}</span>
@@ -181,7 +214,7 @@ export default function HologramHUD({
           <span>{totalGlyphs}</span>
         </div>
 
-        {/* 🧩 Modulation Strategy Info */}
+        {/* Modulation strategy */}
         {modulationStrategy && modulationMeta && (
           <div className="mt-2 p-2 rounded bg-gray-800/50 border border-cyan-500 text-xs text-white">
             <div className="flex items-center justify-between">
@@ -193,19 +226,21 @@ export default function HologramHUD({
               </span>
             </div>
             <div className="text-xs text-gray-300 mt-1">
-              Security: {modulationMeta.security_score} • Penalty: {modulationMeta.coherence_penalty}
+              Security: {modulationMeta.security_score} • Penalty:{" "}
+              {modulationMeta.coherence_penalty}
             </div>
           </div>
         )}
 
-        {/* 📜 Current Caption */}
+        {/* Caption */}
         {currentCaption && (
           <div className="mt-2 p-2 bg-purple-800/50 rounded text-xs italic border border-purple-400/30">
-            <span className="text-purple-300">📜 Caption:</span> {currentCaption}
+            <span className="text-purple-300">📜 Caption:</span>{" "}
+            {currentCaption}
           </div>
         )}
 
-        {/* 📉 Collapse + Decoherence Live Metrics */}
+        {/* Collapse + decoherence metrics */}
         {collapseRate !== null && decoherenceRate !== null && (
           <>
             <div className="mt-2 p-2 bg-black/30 rounded text-xs border border-blue-400/30 space-y-1">
@@ -223,7 +258,6 @@ export default function HologramHUD({
               </div>
             </div>
 
-            {/* 📊 Collapse & Decoherence HUD Summary */}
             <div className="text-xs text-green-300 font-mono mt-2 border border-green-700 rounded p-2 bg-black/50">
               <div className="flex justify-between">
                 <div>
@@ -236,13 +270,13 @@ export default function HologramHUD({
               </div>
             </div>
 
-            {/* 📈 Graphs */}
+            {/* Graphs */}
             <div className="mt-2 space-y-2">
-              <CollapseGraphAny data={collapseHistory} /> {/* Type assertion added */}
-              {/* <DecoherenceGraph data={decoherenceHistory} /> Commented out due to missing module */}
+              <CollapseGraphAny data={collapseHistory} />
+              {/* <DecoherenceGraph data={decoherenceHistory} /> */}
             </div>
 
-            {/* 🔘 WaveScope Toggle */}
+            {/* WaveScope toggle */}
             <div className="mt-2 flex justify-center">
               <button
                 onClick={() => setShowWaveScope(!showWaveScope)}
@@ -252,7 +286,6 @@ export default function HologramHUD({
               </button>
             </div>
 
-            {/* 🌊 WaveScope Panel */}
             {showWaveScope && projectionId && (
               <div className="mt-4">
                 <WaveScopePanel containerId={projectionId} />
@@ -261,7 +294,7 @@ export default function HologramHUD({
           </>
         )}
 
-        {/* 🔁 Replay & Collapse Trace Toggles */}
+        {/* Replay / trace toggles */}
         <div className="flex justify-between items-center pt-2 border-t border-white/20 mt-2">
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -281,7 +314,7 @@ export default function HologramHUD({
           </label>
         </div>
 
-        {/* ⏩ Replay Position Slider */}
+        {/* Replay slider */}
         {replayMode && (
           <div className="pt-2">
             <label className="text-xs text-gray-300">Replay Position</label>
@@ -296,7 +329,7 @@ export default function HologramHUD({
           </div>
         )}
 
-        {/* 📀 Export + 🌌 Layout Controls */}
+        {/* Export + layout */}
         <div className="flex justify-between items-center mt-3">
           <button
             onClick={onExport}
@@ -311,15 +344,15 @@ export default function HologramHUD({
             🌌 Toggle Layout
           </button>
         </div>
-        <div className="mt-4">
 
-          {/* 🎥 Recording Controls */}
-          <div className="flex justify-between items-center mt-3">
+        {/* Recording controls */}
+        <div className="mt-3">
+          <div className="flex justify-between items-center">
             <button
               onClick={() =>
                 isRecording
                   ? stopRecording()
-                  : startRecording(document.querySelector("canvas")!)
+                  : startRecording(document.querySelector("canvas") as HTMLCanvasElement)
               }
               className={`px-3 py-1 text-xs rounded shadow ${
                 isRecording
@@ -331,7 +364,7 @@ export default function HologramHUD({
             </button>
             {downloadUrl && (
               <button
-                onClick={() => downloadRecording()}   // ← wrap it
+                onClick={() => downloadRecording()}
                 className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 rounded shadow"
               >
                 💾 Save Video
@@ -339,37 +372,44 @@ export default function HologramHUD({
             )}
           </div>
 
-          {/* ⏮️ Tick Navigation Controls */}
-          {ticks.length > 0 && (
+          {/* Tick navigation */}
+          {safeTicks.length > 0 && (
             <div className="flex items-center space-x-3 mt-2 text-xs text-white">
               <button
                 className="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded"
-                onClick={() => setTickIndex((prev) => Math.max(prev - 1, 0))}
-                disabled={tickIndex === 0}
+                onClick={() =>
+                  setTickIndex((prev) => Math.max(prev - 1, 0))
+                }
+                disabled={clampedTickIndex === 0}
               >
                 ⏮ Prev
               </button>
               <span className="px-2">
-                Tick {tickIndex + 1} / {ticks.length} (#{currentTick})
+                Tick {clampedTickIndex + 1} / {safeTicks.length} (#{currentTick})
               </span>
               <button
                 className="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded"
-                onClick={() => setTickIndex((prev) => Math.min(prev + 1, ticks.length - 1))}
-                disabled={tickIndex >= ticks.length - 1}
+                onClick={() =>
+                  setTickIndex((prev) =>
+                    Math.min(prev + 1, safeTicks.length - 1)
+                  )
+                }
+                disabled={clampedTickIndex >= safeTicks.length - 1}
               >
                 Next ⏭
               </button>
             </div>
           )}
 
-          {/* 🔦 Current Beams at Tick */}
+          {/* Beams at tick */}
           {currentBeams.length > 0 ? (
             <div className="mt-2 text-xs text-yellow-300 max-h-32 overflow-y-auto">
               <strong>Beams at Tick #{currentTick}:</strong>
               <ul className="list-disc pl-4">
-                {currentBeams.map((beam) => (
+                {currentBeams.map((beam: any) => (
                   <li key={beam.glyph_id || beam.symbol}>
-                    {beam.symbol} ({(beam.glyph_id || "").slice(0, 6)}) — {beam.collapse_state}
+                    {beam.symbol} ({(beam.glyph_id || "").slice(0, 6)}) —{" "}
+                    {beam.collapse_state}
                   </li>
                 ))}
               </ul>
@@ -380,22 +420,24 @@ export default function HologramHUD({
             </div>
           )}
 
-          {/* ⏳ GHX Timeline Replay */}
+          {/* GHX Timeline */}
           <div className="pt-3">
             {replayMode ? (
               <GHXTimeline
-                glyphs={data?.all_beams || []}
+                glyphs={
+                  Array.isArray(data?.all_beams) ? data!.all_beams : []
+                }
                 showCollapsed={showCollapsed}
                 onToggleCollapse={setShowCollapsed}
                 onSelectGlyph={(glyph) => {
-                  if (setCurrentGlyph) setCurrentGlyph(glyph); // Check if setCurrentGlyph exists
+                  setCurrentGlyph?.(glyph);
                 }}
               />
             ) : (
-              renderedGlyphs.length > 0 &&
+              safeRenderedGlyphs.length > 0 &&
               setCurrentGlyph && (
                 <GHXTimeline
-                  glyphs={renderedGlyphs}
+                  glyphs={safeRenderedGlyphs}
                   onSelectGlyph={setCurrentGlyph}
                 />
               )
