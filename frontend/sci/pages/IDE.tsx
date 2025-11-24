@@ -4,24 +4,10 @@ import React, { useMemo, useState } from "react";
 import SciSqsPanel from "@/pages/sci/sci_sqs_panel";
 import { QuantumFieldCanvasLoader } from "@/components/Hologram/QuantumFieldCanvasLoader";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""; // e.g. https://comdex-api.../api
 
-/**
- * Main tools available in the SCI IDE
- */
 type ToolId = "editor" | "atomsheet" | "qfc";
-
-/**
- * Which view is shown in the main editor region
- */
 type ViewMode = "code" | "glyph";
-
-type CompressionStats = {
-  glyphCount: number;
-  charsBefore: number;
-  charsAfter: number;
-  compressionRatio: number; // 0..1 (backend field)
-};
 
 export default function IDE() {
   const [activeTool, setActiveTool] = useState<ToolId>("editor");
@@ -33,44 +19,52 @@ export default function IDE() {
   const [viewMode, setViewMode] = useState<ViewMode>("code");
   const [splitView, setSplitView] = useState(false);
 
-  // editor buffers
+  // text buffers
   const [codeBuffer, setCodeBuffer] = useState<string>(
-    "Photon CRDT editor — synced across Codex workspace\n\n" +
-      "// Paste any block of code here and press “Code → Glyph” to see glyph translation + compression stats."
+    [
+      "# Photon test script for SCI IDE",
+      "# Expect: container_id, wave, resonance, memory -> glyphs",
+      "",
+      "container_id = 'sci_ide_demo'",
+      "wave = quantum_wave(source=container_id)",
+      "resonance = tune_resonance(wave, target='AionCore')",
+      "memory = write_memory(container_id, payload=resonance)",
+      "",
+      "print('Photon pipeline complete:', container_id, resonance, memory)",
+    ].join("\n")
   );
   const [glyphBuffer, setGlyphBuffer] = useState<string>("");
 
-  // compression from backend
-  const [compressionStats, setCompressionStats] = useState<CompressionStats | null>(
-    null
-  );
+  const [compressionInfo, setCompressionInfo] = useState<{
+    charsBefore: number;
+    charsAfter: number;
+    compressionRatio: number;
+  } | null>(null);
 
-  // frontend-only fallback, in case backend doesn't respond (kept but low priority)
-  const fallbackCompression = useMemo(() => {
-    if (!glyphBuffer || !codeBuffer) {
-      return null;
-    }
-    const charsBefore = codeBuffer.length;
-    const charsAfter = glyphBuffer.length;
-    if (!charsBefore) return null;
-    const ratio = 1 - charsAfter / charsBefore;
-    return {
-      glyphCount: glyphBuffer.length,
-      charsBefore,
-      charsAfter,
-      compressionRatio: Math.max(0, ratio),
-    };
-  }, [codeBuffer, glyphBuffer]);
+  const sidebarWidthClass = sidebarCollapsed ? "w-14" : "w-64";
 
-  // ───────────────── Code → Glyph using backend /api/photon/translate ─────────────────
-  const handleCodeToGlyph = async () => {
-    const text = codeBuffer;
-    if (!text.trim()) return;
+  // ───────────────── Code → Glyph (real API) ─────────────────
+  async function handleCodeToGlyph() {
+    if (!codeBuffer.trim()) return;
+
+    // If API base isn’t configured, fall back to dummy compression
     if (!API_BASE) {
-      console.warn("NEXT_PUBLIC_API_URL not set; cannot call /photon/translate");
-      // still switch tab so user “sees” something
-      setGlyphBuffer(text);
+      const approxGlyphs = Math.max(1, Math.round(codeBuffer.length / 40));
+      const dummy = "⬢".repeat(approxGlyphs);
+
+      setGlyphBuffer(dummy);
       setViewMode("glyph");
+      setCompressionInfo({
+        charsBefore: codeBuffer.length,
+        charsAfter: dummy.length,
+        compressionRatio:
+          codeBuffer.length > 0
+            ? 1 - dummy.length / codeBuffer.length
+            : 0,
+      });
+      console.warn(
+        "[SCI IDE] NEXT_PUBLIC_API_URL is not set; using local dummy glyph converter."
+      );
       return;
     }
 
@@ -78,52 +72,45 @@ export default function IDE() {
       const res = await fetch(`${API_BASE}/photon/translate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text: codeBuffer }),
       });
 
       if (!res.ok) {
-        const errText = await res.text().catch(() => "");
-        console.error("Photon translate failed:", res.status, errText);
-        // degrade gracefully: copy code into glyph pane
-        setGlyphBuffer(text);
-        setViewMode("glyph");
-        setCompressionStats(null);
+        console.error("Code → Glyph translate failed:", await res.text());
         return;
       }
 
       const data = await res.json();
-      // expected: translated, glyph_count, chars_before, chars_after, compression_ratio
-      setGlyphBuffer(data.translated ?? "");
+      const translated: string = data.translated ?? "";
+      const charsBefore: number = data.chars_before ?? codeBuffer.length;
+      const charsAfter: number = data.chars_after ?? translated.length;
+      const compressionRatio: number =
+        data.compression_ratio ??
+        (charsBefore > 0 ? 1 - charsAfter / charsBefore : 0);
+
+      setGlyphBuffer(translated);
       setViewMode("glyph");
-      setCompressionStats({
-        glyphCount: Number(data.glyph_count ?? 0),
-        charsBefore: Number(data.chars_before ?? text.length),
-        charsAfter: Number(data.chars_after ?? String(data.translated ?? "").length),
-        compressionRatio: Number(data.compression_ratio ?? 0),
-      });
+      setCompressionInfo({ charsBefore, charsAfter, compressionRatio });
     } catch (err) {
-      console.error("Photon translate error:", err);
-      setGlyphBuffer(text);
-      setViewMode("glyph");
-      setCompressionStats(null);
+      console.error("Code → Glyph error:", err);
     }
-  };
+  }
 
-  // ───────────────── Glyph → Code (for now just swap back) ─────────────────
-  const handleGlyphToCode = () => {
-    // Proper reverse will later call /api/photon/translate_reverse;
-    // for now, just flip the view back to code.
+  // ───────────────── Glyph → Code (for now: just switch back) ─────────────────
+  // Later we can wire this to /api/photon/translate_reverse with proper glyph stream.
+  function handleGlyphToCode() {
     setViewMode("code");
-  };
+  }
 
-  const sidebarWidthClass = sidebarCollapsed ? "w-14" : "w-64";
-
-  // pick which compression block to display (backend first, then fallback)
-  const compressionToShow = compressionStats ?? fallbackCompression;
+  const compressionLabel = useMemo(() => {
+    if (!compressionInfo) return "Paste code and run Code → Glyph to see reduction";
+    const pct = (compressionInfo.compressionRatio * 100).toFixed(1);
+    return `${compressionInfo.charsBefore} chars → ${compressionInfo.charsAfter} chars • ${pct}% reduction`;
+  }, [compressionInfo]);
 
   return (
-    <div className="flex h-[calc(100vh-80px)] bg-slate-950 text-slate-100">
-      {/* ───────────────────────── Sidebar ───────────────────────── */}
+    <div className="flex h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] bg-slate-950 text-slate-100">
+      {/* ───────────────── Sidebar ───────────────── */}
       <aside
         className={`${sidebarWidthClass} border-r border-slate-800 flex flex-col bg-slate-950/95`}
       >
@@ -170,9 +157,9 @@ export default function IDE() {
         </nav>
       </aside>
 
-      {/* ───────────────────────── Main Column ───────────────────────── */}
+      {/* ───────────────── Main Column ───────────────── */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top “tab” bar + controls */}
+        {/* Top bar */}
         <header className="flex items-center justify-between px-4 py-2 border-b border-slate-800 bg-slate-950/90">
           <div className="flex items-center gap-2 text-sm">
             <span className="font-semibold text-slate-100">
@@ -185,7 +172,6 @@ export default function IDE() {
             <span className="text-xs text-slate-500">/ Codex workspace</span>
           </div>
 
-          {/* Code ⇄ Glyph controls */}
           {activeTool === "editor" && (
             <div className="flex items-center gap-2 text-xs">
               <button
@@ -232,31 +218,14 @@ export default function IDE() {
                 Glyph → Code
               </button>
 
-              {/* Compression indicator (backend first, fallback second) */}
               <div className="ml-3 text-[11px] text-slate-300 font-mono">
-                {compressionToShow ? (
-                  <>
-                    {compressionToShow.charsBefore} chars →{" "}
-                    {compressionToShow.charsAfter}{" "}
-                    {compressionStats ? "glyph-chars" : "chars"} ·{" "}
-                    {compressionStats && (
-                      <>
-                        {compressionStats.glyphCount} glyph units ·{" "}
-                      </>
-                    )}
-                    <span className="text-emerald-400">
-                      {(compressionToShow.compressionRatio * 100).toFixed(1)}% reduction
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-slate-500">Paste code to see compression</span>
-                )}
+                {compressionLabel}
               </div>
             </div>
           )}
         </header>
 
-        {/* ───────────────────────── Main content ───────────────────────── */}
+        {/* Main content */}
         <div className="flex-1 flex overflow-hidden">
           {activeTool === "editor" && (
             <EditorPane
@@ -277,15 +246,13 @@ export default function IDE() {
 
           {activeTool === "qfc" && (
             <div className="flex-1 bg-black">
-              {/* For now we bind QFC to a default container; this can be wired to the
-                  currently open AtomSheet or .ptn doc later. */}
               <QuantumFieldCanvasLoader containerId="default.dc.json" />
             </div>
           )}
         </div>
 
-        {/* ───────────────────────── Bottom status strip ───────────────────────── */}
-        <footer className="h-16 border-t border-slate-800 bg-slate-950/95 flex items-center justify-between px-4 text-xs text-slate-300">
+        {/* Bottom status bar */}
+        <footer className="h-10 md:h-12 border-t border-slate-800 bg-slate-950/95 flex items-center justify-between px-4 text-xs text-slate-300">
           <div>Φ coherence monitor (placeholder) · ready</div>
           <div className="text-slate-500">
             SCI IDE · local workspace · offline-capable UX target
@@ -296,7 +263,7 @@ export default function IDE() {
   );
 }
 
-/* ───────────────────────── Editor Pane ───────────────────────── */
+/* ───────────────── Editor Pane ───────────────── */
 
 type EditorPaneProps = {
   viewMode: ViewMode;
@@ -330,7 +297,6 @@ function EditorPane({
             label="Glyph view"
             value={glyphBuffer}
             onChange={setGlyphBuffer}
-            readOnly={false /* allow manual tweaking for now */}
           />
         </div>
       </div>
@@ -354,33 +320,33 @@ type EditorTextareaProps = {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  readOnly?: boolean;
 };
 
-function EditorTextarea({ label, value, onChange, readOnly }: EditorTextareaProps) {
+function EditorTextarea({ label, value, onChange }: EditorTextareaProps) {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-[70vh]">
       <div className="px-3 py-1 text-[11px] text-slate-400 border-b border-slate-800">
         {label}
       </div>
       <textarea
         className="flex-1 w-full bg-slate-950 text-slate-100 text-sm font-mono px-3 py-2 outline-none resize-none"
         value={value}
-        readOnly={readOnly}
         onChange={(e) => onChange(e.target.value)}
         spellCheck={false}
       />
-      <button
-        type="button"
-        className="px-3 py-2 text-xs bg-purple-600 hover:bg-purple-500 text-white font-medium text-center"
-      >
-        + Save to Atom Vault
-      </button>
+      <div className="border-t border-slate-800">
+        <button
+          type="button"
+          className="mt-1 mb-1 ml-3 px-3 py-1 text-xs bg-purple-600 hover:bg-purple-500 text-white font-medium rounded"
+        >
+          + Save to Atom Vault
+        </button>
+      </div>
     </div>
   );
 }
 
-/* ───────────────────────── Sidebar button ───────────────────────── */
+/* ───────────────── Sidebar button ───────────────── */
 
 type ToolButtonProps = {
   icon: string;
