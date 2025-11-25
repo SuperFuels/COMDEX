@@ -8,27 +8,37 @@ module.exports = {
     "./styles/**/*.{css,js,ts,jsx,tsx,mdx}",
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
     "./hooks/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/**/*.{js,ts,jsx,tsx,mdx}", // fine even if src/ is empty
+    "./src/**/*.{js,ts,jsx,tsx,mdx}", // keep only if exists
   ],
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        // global type: Canva Sans
+        sans: ['"Canva Sans"', "system-ui", "sans-serif"],
       },
       colors: {
-        // shadcn-style tokens
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-
+        // === your direct palette ===
         text: {
-          DEFAULT: "#1F2937",
-          light: "#374151",
-          muted: "#6B7280",
+          DEFAULT: "#4a4a4a", // light-mode “ink”
         },
 
+        // background is driven by CSS var so dark mode works:
+        // :root { --background: ... } / .dark { --background: ... }
         background: "hsl(var(--background))",
+
+        // simple button tokens you can use explicitly if you want
+        button: {
+          dark: "#4a4a4a",
+          light: "#a1a1a1",
+        },
+
+        // === shadcn-style tokens mapped to CSS vars ===
+        primary: {
+          // keep this neutral + simple for now; used by bg-primary, text-primary, etc.
+          DEFAULT: "#4a4a4a",
+          foreground: "#ffffff",
+        },
+
         foreground: "hsl(var(--foreground))",
 
         card: {
@@ -72,17 +82,12 @@ module.exports = {
           4: "hsl(var(--chart-4))",
           5: "hsl(var(--chart-5))",
         },
-
-        // 🔁 LEGACY TOKENS SO OLD CLASSES STILL WORK
-        "bg-page": "var(--bg-page)",
-        "bg-header": "var(--bg-header)",
-        "text-primary": "var(--text-primary)",
-        "text-secondary": "var(--text-secondary)",
-        "border-light": "var(--border-light)",
       },
+
       boxShadow: {
         dropdown: "0 4px 6px rgba(0,0,0,0.1)",
       },
+
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -90,21 +95,17 @@ module.exports = {
       },
     },
   },
+
   safelist: [
-    // keep tokens Tailwind might otherwise purge
     "border-border",
     "bg-background",
     "text-foreground",
     "bg-primary",
     "text-primary",
-    "bg-bg-page",
-    "bg-bg-header",
-    "text-text-primary",
-    "text-text-secondary",
   ],
+
   plugins: [
     require("@tailwindcss/forms"),
-    require("@tailwindcss/typography"),
-    require("tailwindcss-animate"),
+    // tailwindcss-animate removed to fix build error
   ],
 };

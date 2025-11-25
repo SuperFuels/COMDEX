@@ -3,7 +3,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter, usePathname } from 'next/navigation'   // ⬅️ added usePathname
+import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import api from '@/lib/api'
 import { UserRole } from '@/hooks/useAuthRedirect'
@@ -114,18 +114,28 @@ export default function Navbar() {
         <Image src="/G.svg" alt="Menu" width={24} height={24} />
       </button>
 
-      <header className="sticky top-0 z-40 border-b border-border bg-background">
+      <header className="sticky top-0 z-40 border-b border-border bg-background text-text">
         <div className="flex h-16 items-center justify-between gap-4 px-4">
-          {/* Logo */}
+          {/* Logo (light + dark) */}
           <div className="ml-12 flex items-center">
             <Link href="/" className="logo-link flex items-center">
+              {/* light-mode logo */}
               <Image
-                src="/Stickeyai.svg"
-                alt="Stickey.ai"
+                src="/tessaris_light_logo.png"
+                alt="Tessaris"
                 width={128}
                 height={40}
                 priority
-                className="border-none"
+                className="block dark:hidden border-none"
+              />
+              {/* dark-mode logo */}
+              <Image
+                src="/tessaris_dark_logo.png"
+                alt="Tessaris"
+                width={128}
+                height={40}
+                priority
+                className="hidden dark:block border-none"
               />
             </Link>
           </div>
@@ -139,34 +149,34 @@ export default function Navbar() {
                 value={amountIn}
                 onChange={e => setAmountIn(e.target.value)}
                 placeholder="0"
-                className="w-24 sm:w-28 rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
+                className="w-24 sm:w-28 rounded-lg border border-border bg-background px-2 py-1 text-sm text-text focus:outline-none focus:ring-2 focus:ring-ring/30"
               />
               <button
                 type="button"
-                className="flex items-center rounded-lg border border-border bg-background px-2 py-1 text-sm hover:bg-muted/50"
+                className="flex items-center rounded-lg border border-border bg-background px-2 py-1 text-sm hover:bg-button-light/50 dark:hover:bg-button-dark/50"
               >
                 <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
                 <span className="ml-1">USDT</span>
               </button>
-              <span className="select-none text-lg text-muted-foreground">→</span>
+              <span className="select-none text-lg text-text/70">→</span>
               <input
                 type="number"
                 inputMode="decimal"
                 value={amountOut}
                 onChange={e => setAmountOut(e.target.value)}
                 placeholder="0"
-                className="w-24 sm:w-28 rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
+                className="w-24 sm:w-28 rounded-lg border border-border bg-background px-2 py-1 text-sm text-text focus:outline-none focus:ring-2 focus:ring-ring/30"
               />
               <button
                 type="button"
-                className="flex items-center rounded-lg border border-border bg-background px-2 py-1 text-sm hover:bg-muted/50"
+                className="flex items-center rounded-lg border border-border bg-background px-2 py-1 text-sm hover:bg-button-light/50 dark:hover:bg-button-dark/50"
               >
                 <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
                 <span className="ml-1">$GLU</span>
               </button>
               <button
                 onClick={() => router.push('/swap')}
-                className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-foreground hover:bg-muted/50"
+                className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
               >
                 Swap
               </button>
@@ -177,22 +187,22 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <DarkModeToggle />
 
-            {/* 🔀 Page | Multiverse toggle */}
-            <div className="inline-flex border border-border rounded-full overflow-hidden">
+            {/* Page | Multiverse toggle */}
+            <div className="inline-flex overflow-hidden rounded-full border border-border bg-background/80">
               <button
                 onClick={() => router.push('/')}
                 className={`px-3 py-1 text-sm ${
-                  !isMultiverse ? 'bg-white' : 'bg-transparent'
-                } hover:bg-gray-50`}
+                  !isMultiverse ? 'bg-button-light/60 dark:bg-button-dark/70 text-text' : 'text-text/80'
+                } hover:bg-button-light/70 dark:hover:bg-button-dark/80`}
                 title="Page"
               >
                 Page
               </button>
               <button
                 onClick={() => router.push('/aion/multiverse')}
-                className={`px-3 py-1 text-sm ${
-                  isMultiverse ? 'bg-gray-100' : 'bg-transparent'
-                } hover:bg-gray-200`}
+                className={`px-3 py-1 text-sm border-l border-border ${
+                  isMultiverse ? 'bg-button-light/60 dark:bg-button-dark/70 text-text' : 'text-text/80'
+                } hover:bg-button-light/70 dark:hover:bg-button-dark/80`}
                 title="Multiverse"
               >
                 Multiverse
@@ -202,7 +212,7 @@ export default function Navbar() {
             {!account ? (
               <button
                 onClick={handleConnect}
-                className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-foreground hover:bg-muted/50"
+                className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
               >
                 Connect Wallet
               </button>
@@ -210,7 +220,7 @@ export default function Navbar() {
               <div ref={wrapperRef} className="relative">
                 <button
                   onClick={() => setDropdownOpen(o => !o)}
-                  className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-foreground hover:bg-muted/50"
+                  className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
                 >
                   {shortAddr}
                 </button>
@@ -218,7 +228,7 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-40 rounded-lg border border-border bg-background shadow-lg">
                     <button
                       onClick={handleDisconnect}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-muted/50"
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-button-light/50 dark:hover:bg-button-dark/60"
                     >
                       Logout
                     </button>

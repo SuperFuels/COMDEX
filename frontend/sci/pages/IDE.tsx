@@ -6,6 +6,7 @@ import { QuantumFieldCanvasLoader } from "@/components/Hologram/QuantumFieldCanv
 import SciFileCabinet, { SciFolder } from "@/components/sci/SciFileCabinet";
 type ToolId = "editor" | "atomsheet" | "qfc";
 type ViewMode = "code" | "glyph";
+import Image from "next/image";
 
 type CompressionInfo = {
   charsBefore: number;
@@ -167,21 +168,28 @@ export default function IDE() {
   const sidebarWidthClass = sidebarCollapsed ? "w-14" : "w-64";
 
   return (
-    <div className="flex h-[calc(100vh-56px)] bg-slate-950 text-slate-100">
+    <div className="flex h-[calc(100vh-56px)] bg-background text-foreground">
       {/* ───────────── Sidebar ───────────── */}
       <aside
-        className={`${sidebarWidthClass} border-r border-slate-800 flex flex-col bg-slate-950/95`}
+        className={`${sidebarWidthClass} flex flex-col border-r border-border bg-background`}
       >
-        <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800">
-          {!sidebarCollapsed && (
-            <span className="text-xs font-semibold tracking-wide text-slate-300">
-              SCI IDE
-            </span>
-          )}
+        <div className="flex items-center justify-between border-b border-border px-3 py-2">
+          <div className="flex items-center gap-2">
+            {!sidebarCollapsed && (
+              <Image
+                src="/photon_logo.png"      // file in frontend/public/photon_logo.png
+                alt="Photon IDE"
+                width={120}
+                height={28}
+                priority
+              />
+            )}
+          </div>
+
           <button
             type="button"
             onClick={() => setSidebarCollapsed((v) => !v)}
-            className="text-xs text-slate-400 hover:text-slate-100"
+            className="text-xs text-foreground/60 hover:text-foreground"
             title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {sidebarCollapsed ? "»" : "«"}

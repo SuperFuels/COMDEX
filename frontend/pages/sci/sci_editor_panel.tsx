@@ -1,4 +1,3 @@
-// frontend/pages/sci/sci_editor_panel.tsx
 import React, { useState } from "react";
 import SciBottomDock from "@/components/sci/SciBottomDock";
 import SciFileCabinet, { SciFolder } from "@/components/sci/SciFileCabinet";
@@ -85,7 +84,7 @@ export default function SciEditorPanel() {
     if (fileId === activeFileId) setActiveFileName(name);
   };
 
-  // ── existing photon ↔ glyph state ─────────────────────────────────
+  // ── photon ↔ glyph state ─────────────────────────────────
   const [viewMode, setViewMode] = useState<"code" | "glyph" | "split">("code");
   const [codeText, setCodeText] = useState(SAMPLE_PHOTON);
   const [glyphText, setGlyphText] = useState("");
@@ -162,18 +161,18 @@ export default function SciEditorPanel() {
   const renderCodePane = () => (
     <div className="flex h-full flex-col">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs uppercase tracking-wide text-slate-400">
+        <span className="text-xs uppercase tracking-wide text-muted-foreground">
           Code (.ptn)
         </span>
         <button
-          className="mt-1 rounded border border-pink-400 bg-pink-500/10 px-3 py-1 text-[11px] font-medium text-pink-100 hover:bg-pink-500/20"
+          className="mt-1 rounded border border-border bg-muted px-3 py-1 text-[11px] font-medium text-foreground hover:bg-muted/70"
           type="button"
         >
           + Save to Atom Vault
         </button>
       </div>
       <textarea
-        className="flex-1 min-h-[60vh] resize-none rounded-md border border-slate-700 bg-slate-950/80 p-3 font-mono text-[13px] text-slate-100 leading-relaxed shadow-inner outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/40"
+        className="flex-1 min-h-[60vh] resize-none rounded-md border border-border bg-muted p-3 font-mono text-[13px] text-foreground leading-relaxed shadow-inner outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/40 dark:bg-slate-950 dark:text-slate-100"
         value={codeText}
         onChange={(e) => setCodeText(e.target.value)}
         spellCheck={false}
@@ -184,18 +183,18 @@ export default function SciEditorPanel() {
   const renderGlyphPane = () => (
     <div className="flex h-full flex-col">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs uppercase tracking-wide text-slate-400">
+        <span className="text-xs uppercase tracking-wide text-muted-foreground">
           Glyph view
         </span>
         <button
-          className="mt-1 rounded border border-pink-400 bg-pink-500/10 px-3 py-1 text-[11px] font-medium text-pink-100 hover:bg-pink-500/20"
+          className="mt-1 rounded border border-border bg-muted px-3 py-1 text-[11px] font-medium text-foreground hover:bg-muted/70"
           type="button"
         >
           + Save to Atom Vault
         </button>
       </div>
       <textarea
-        className="flex-1 min-h-[60vh] resize-none rounded-md border border-slate-700 bg-slate-950/80 p-3 font-mono text-[13px] text-emerald-200 leading-relaxed shadow-inner outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/40"
+        className="flex-1 min-h-[60vh] resize-none rounded-md border border-border bg-muted p-3 font-mono text-[13px] text-emerald-700 leading-relaxed shadow-inner outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/40 dark:bg-slate-950 dark:text-emerald-200"
         value={glyphText}
         onChange={(e) => setGlyphText(e.target.value)}
         spellCheck={false}
@@ -204,50 +203,51 @@ export default function SciEditorPanel() {
   );
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-slate-950 text-slate-50">
+    <div className="relative flex min-h-screen flex-col bg-background text-foreground">
       {/* Main IDE content */}
       <div className="flex flex-1 flex-col">
         {/* Top bar */}
-        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
+        <div className="flex items-center justify-between border-b border-border bg-background/95 px-4 py-2">
           <div>
             <div className="flex items-center gap-2">
               <input
-                className="rounded border border-transparent bg-transparent px-1 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-600 focus:border-sky-500 focus:outline-none"
+                className="rounded border border-transparent bg-transparent px-1 py-0.5 text-sm font-medium text-foreground hover:border-border focus:border-ring focus:outline-none"
                 value={activeFileName}
                 onChange={(e) =>
                   handleRenameFile(activeFileId, e.target.value)
                 }
               />
-              <span className="text-xs uppercase tracking-wide text-slate-500">
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
                 / Codex workspace
               </span>
             </div>
-            <div className="text-xs text-slate-400">
+            <div className="text-xs text-muted-foreground">
               Photon ↔ Glyph translator · offline-capable UX target
             </div>
           </div>
 
           <div className="flex items-center gap-2 text-xs">
-            <span className="rounded-full border border-slate-700 px-2 py-1 text-[11px] text-slate-300">
+            {/* coherence pill */}
+            <span className="rounded-full border border-border bg-muted/60 px-2 py-1 text-[11px] text-foreground/80">
               Φ coherence monitor ·{" "}
-              <span className="text-emerald-400">ready</span>
+              <span className="font-medium text-emerald-600">ready</span>
             </span>
-            <span className="rounded-full border border-amber-500/60 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-300">
+            <span className="rounded-full border border-amber-500/60 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-700">
               Disconnected
             </span>
           </div>
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center gap-2 border-b border-slate-800 px-4 py-2 text-xs">
-          <div className="inline-flex overflow-hidden rounded-lg border border-slate-700 bg-slate-900/60">
+        <div className="flex items-center gap-2 border-b border-border bg-background px-4 py-2 text-xs">
+          <div className="inline-flex overflow-hidden rounded-lg border border-border bg-muted/60">
             <button
               type="button"
               onClick={() => setViewMode("code")}
               className={`px-3 py-1.5 ${
                 viewMode === "code"
-                  ? "bg-sky-500 text-slate-900"
-                  : "text-slate-300 hover:bg-slate-800"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground/80 hover:bg-muted"
               }`}
             >
               Code
@@ -255,10 +255,10 @@ export default function SciEditorPanel() {
             <button
               type="button"
               onClick={() => setViewMode("glyph")}
-              className={`border-l border-slate-700 px-3 py-1.5 ${
+              className={`border-l border-border px-3 py-1.5 ${
                 viewMode === "glyph"
-                  ? "bg-sky-500 text-slate-900"
-                  : "text-slate-300 hover:bg-slate-800"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground/80 hover:bg-muted"
               }`}
             >
               Glyph
@@ -266,22 +266,22 @@ export default function SciEditorPanel() {
             <button
               type="button"
               onClick={() => setViewMode("split")}
-              className={`border-l border-slate-700 px-3 py-1.5 ${
+              className={`border-l border-border px-3 py-1.5 ${
                 viewMode === "split"
-                  ? "bg-sky-500 text-slate-900"
-                  : "text-slate-300 hover:bg-slate-800"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground/80 hover:bg-muted"
               }`}
             >
               Split View
             </button>
           </div>
 
-          <div className="ml-3 inline-flex overflow-hidden rounded-lg border border-slate-700 bg-slate-900/60">
+          <div className="ml-3 inline-flex overflow-hidden rounded-lg border border-border bg-muted/60">
             <button
               type="button"
               onClick={handleCodeToGlyph}
               disabled={isBusy}
-              className="px-3 py-1.5 text-[11px] text-sky-300 hover:bg-slate-800 disabled:opacity-50"
+              className="px-3 py-1.5 text-[11px] text-sky-700 hover:bg-muted disabled:opacity-50"
             >
               Code → Glyph
             </button>
@@ -289,20 +289,41 @@ export default function SciEditorPanel() {
               type="button"
               onClick={handleGlyphToCode}
               disabled={isBusy}
-              className="border-l border-slate-700 px-3 py-1.5 text-[11px] text-emerald-300 hover:bg-slate-800 disabled:opacity-50"
+              className="border-l border-border px-3 py-1.5 text-[11px] text-emerald-700 hover:bg-muted disabled:opacity-50"
             >
               Glyph → Code
             </button>
           </div>
 
-          <div className="ml-auto text-[11px] text-slate-500">
+          <div className="ml-auto text-[11px] text-muted-foreground">
             Paste code and run Code → Glyph to see reduction
           </div>
         </div>
 
-        {/* Main area: file cabinet + editors */}
+        {/* Main area: sidebar + file cabinet + editors */}
         <div className="px-4 py-3">
           <div className="flex h-[calc(100vh-170px)] gap-4 overflow-hidden">
+            {/* Sidebar buttons (4 icons, uniform size) */}
+            <div className="flex w-10 shrink-0 flex-col items-center gap-2 border-r border-border pr-3">
+              {[
+                { label: "Files", glyph: "📁" },
+                { label: "Coherence", glyph: "ϕ" },
+                { label: "Runtime", glyph: "🧠" },
+                { label: "Settings", glyph: "⚙️" },
+              ].map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-muted text-xs hover:bg-muted/70"
+                  title={item.label}
+                >
+                  <span className="text-[15px] leading-none">
+                    {item.glyph}
+                  </span>
+                </button>
+              ))}
+            </div>
+
             {/* File cabinet */}
             <div className="w-64 shrink-0">
               <SciFileCabinet
@@ -342,7 +363,7 @@ export default function SciEditorPanel() {
           </div>
 
           {/* Status line */}
-          <div className="mt-2 text-[11px] text-slate-400">
+          <div className="mt-2 text-[11px] text-muted-foreground">
             {isBusy ? "Working…" : status ?? "Idle."}
           </div>
         </div>

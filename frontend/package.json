@@ -22,6 +22,7 @@
     "@react-three/drei": "9.56.3",
     "@react-three/fiber": "8.13.6",
     "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "@web3-react/core": "^8.2.3",
     "@web3-react/injected-connector": "^6.0.7",
     "axios": "^1.10.0",
@@ -63,7 +64,6 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@metamask/providers": "^22.1.0",
-    "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/postcss": "^4.1.17",
     "@types/axios": "^0.14.4",
     "@types/file-saver": "^2.0.7",

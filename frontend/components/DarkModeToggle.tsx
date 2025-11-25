@@ -6,14 +6,15 @@ import { Moon, Sun } from 'lucide-react';
 export function DarkModeToggle() {
   const [dark, setDark] = useState(false);
 
-  // initialize from localStorage / system
+  // initialize from localStorage / system preference
   useEffect(() => {
     const root = document.documentElement;
     const saved = localStorage.getItem('theme');
-    const prefers = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-    const enable = saved ? saved === 'dark' : prefers;
-    root.classList.toggle('dark', enable);
-    setDark(enable);
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+
+    const enableDark = saved ? saved === 'dark' : prefersDark;
+    root.classList.toggle('dark', enableDark);
+    setDark(enableDark);
   }, []);
 
   function toggle() {
@@ -27,12 +28,11 @@ export function DarkModeToggle() {
   return (
     <button
       onClick={toggle}
-      className="inline-flex items-center gap-2 px-3 py-1 border rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
-      aria-label="Toggle theme"
-      title="Toggle dark mode"
+      aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background/90 text-text shadow-sm transition hover:bg-button-light/60 dark:hover:bg-button-dark/70"
     >
       {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-      <span className="hidden sm:inline">{dark ? 'Light' : 'Dark'}</span>
     </button>
   );
 }

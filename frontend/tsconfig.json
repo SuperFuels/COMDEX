@@ -3,7 +3,7 @@
     "jsx": "preserve",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -17,10 +17,11 @@
       "@/hooks/*": ["./hooks/*"],
       "@/lib/*": ["./lib/*"]
     },
-    "target": "ES2017",
+    "target": "ESNext",
     "allowJs": true,
     "incremental": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "types": ["node"]
   },
   "include": [
     "next-env.d.ts",
