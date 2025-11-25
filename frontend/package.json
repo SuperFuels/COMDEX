@@ -64,6 +64,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@metamask/providers": "^22.1.0",
     "@tailwindcss/typography": "^0.5.16",
+    "@tailwindcss/postcss": "^4.1.17",
     "@types/axios": "^0.14.4",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^20.17.57",
