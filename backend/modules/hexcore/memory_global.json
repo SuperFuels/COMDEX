@@ -9274,5 +9274,341 @@
       "entropy": 0.059024305644380555
     },
     "timestamp": "2025-11-23T22:45:24.621758"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=-0.0005, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:25:42.148108+00:00",
+      "resonance_delta": -0.0005173874302056892,
+      "entropy": 9.536743164062497e-09
+    },
+    "timestamp": "2025-11-25T20:25:42.200616"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0074, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:25:42.801733+00:00",
+      "resonance_delta": 0.007425430160445613,
+      "entropy": 1.9073486328124987e-08
+    },
+    "timestamp": "2025-11-25T20:25:42.860087"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=-0.0161, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:25:43.118190+00:00",
+      "resonance_delta": -0.01605480012827289,
+      "entropy": 9.536743164062497e-09
+    },
+    "timestamp": "2025-11-25T20:25:43.167001"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0065, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:25:43.728753+00:00",
+      "resonance_delta": 0.00646523323964912,
+      "entropy": 9.536743164062497e-09
+    },
+    "timestamp": "2025-11-25T20:25:43.785258"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0112, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:34:23.208158+00:00",
+      "resonance_delta": 0.011217015269731087,
+      "entropy": 1.4305114746093745e-08
+    },
+    "timestamp": "2025-11-25T20:34:23.267557"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0166, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:34:23.818710+00:00",
+      "resonance_delta": 0.0165753772830045,
+      "entropy": 9.536743164062497e-09
+    },
+    "timestamp": "2025-11-25T20:34:23.858109"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=-0.0026, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:34:24.112054+00:00",
+      "resonance_delta": -0.0026048090411092653,
+      "entropy": 4.76837158203125e-09
+    },
+    "timestamp": "2025-11-25T20:34:24.155510"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0066, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:34:24.742402+00:00",
+      "resonance_delta": 0.006559034881146379,
+      "entropy": 4.76837158203125e-09
+    },
+    "timestamp": "2025-11-25T20:34:24.791797"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0188, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:36:05.972077+00:00",
+      "resonance_delta": 0.018796813154651,
+      "entropy": 1.4305114746093745e-08
+    },
+    "timestamp": "2025-11-25T20:36:06.036887"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0000, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:36:06.637587+00:00",
+      "resonance_delta": 3.218562630468408e-05,
+      "entropy": 1.4305114746093745e-08
+    },
+    "timestamp": "2025-11-25T20:36:06.690949"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=-0.0071, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:36:06.926223+00:00",
+      "resonance_delta": -0.007085350207026103,
+      "entropy": 9.536743164062497e-09
+    },
+    "timestamp": "2025-11-25T20:36:06.980967"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0038, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:36:07.566125+00:00",
+      "resonance_delta": 0.003784131595138173,
+      "entropy": 9.536743164062497e-09
+    },
+    "timestamp": "2025-11-25T20:36:07.689012"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0173, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:37.405400+00:00",
+      "resonance_delta": 0.017271720900371424,
+      "entropy": 9.536743164062497e-09
+    },
+    "timestamp": "2025-11-25T20:39:37.461248"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=-0.0086, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:37.996689+00:00",
+      "resonance_delta": -0.008624489853656594,
+      "entropy": 1.9073486328124987e-08
+    },
+    "timestamp": "2025-11-25T20:39:38.045597"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=-0.0014, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:38.282022+00:00",
+      "resonance_delta": -0.0013719154130795417,
+      "entropy": 9.536743164062497e-09
+    },
+    "timestamp": "2025-11-25T20:39:38.327998"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=-0.0055, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:38.908699+00:00",
+      "resonance_delta": -0.0055125516035165216,
+      "entropy": 9.536743164062497e-09
+    },
+    "timestamp": "2025-11-25T20:39:38.952605"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=-0.0058, entropy=0.1002)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:42.515751+00:00",
+      "resonance_delta": -0.005835549809336801,
+      "entropy": 0.10024137786085097
+    },
+    "timestamp": "2025-11-25T20:39:42.535779"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0269, entropy=0.0997)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:43.079227+00:00",
+      "resonance_delta": 0.026941603830840547,
+      "entropy": 0.09971728241233783
+    },
+    "timestamp": "2025-11-25T20:39:43.141757"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=-0.0027, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:43.303191+00:00",
+      "resonance_delta": -0.002717277693972954,
+      "entropy": 9.536743164062497e-09
+    },
+    "timestamp": "2025-11-25T20:39:43.661326"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0309, entropy=0.1045)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:43.619760+00:00",
+      "resonance_delta": 0.03091130547109175,
+      "entropy": 0.10451586700449428
+    },
+    "timestamp": "2025-11-25T20:39:43.717690"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=-0.0055, entropy=0.1000)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:44.007780+00:00",
+      "resonance_delta": -0.005502879889993446,
+      "entropy": 0.10002881385368988
+    },
+    "timestamp": "2025-11-25T20:39:44.048849"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0016, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:45.922740+00:00",
+      "resonance_delta": 0.0016018883729902137,
+      "entropy": 4.76837158203125e-09
+    },
+    "timestamp": "2025-11-25T20:39:45.961349"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0092, entropy=0.0000)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:46.921382+00:00",
+      "resonance_delta": 0.009172005526974059,
+      "entropy": 4.76837158203125e-09
+    },
+    "timestamp": "2025-11-25T20:39:46.963404"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0255, entropy=0.1880)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:47.564801+00:00",
+      "resonance_delta": 0.025512836457700572,
+      "entropy": 0.18800596150122742
+    },
+    "timestamp": "2025-11-25T20:39:47.635805"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0181, entropy=0.1884)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:48.182067+00:00",
+      "resonance_delta": 0.018073996659380254,
+      "entropy": 0.18841084842911024
+    },
+    "timestamp": "2025-11-25T20:39:48.350742"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0362, entropy=0.1930)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:48.763372+00:00",
+      "resonance_delta": 0.036162426978504386,
+      "entropy": 0.1929798954416182
+    },
+    "timestamp": "2025-11-25T20:39:49.331646"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0208, entropy=0.1058)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:48.709009+00:00",
+      "resonance_delta": 0.02078594094250647,
+      "entropy": 0.10579118056223626
+    },
+    "timestamp": "2025-11-25T20:39:49.342626"
+  },
+  {
+    "label": "tessaris_resonance_update",
+    "role": "tessaris",
+    "type": "heartbeat_sync",
+    "content": "Updated reasoning weights (\u0394=0.0101, entropy=0.1909)",
+    "data": {
+      "timestamp": "2025-11-25T20:39:49.256936+00:00",
+      "resonance_delta": 0.010054470264881684,
+      "entropy": 0.19093391565879111
+    },
+    "timestamp": "2025-11-25T20:39:49.371152"
   }
 ]

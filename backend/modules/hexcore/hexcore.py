@@ -1,11 +1,5 @@
 # ──────────────────────────────────────────────────────────────
 #  Tessaris * AION HexCore Consciousness Engine (v3.2)
-#  Integrated with:
-#   - QQC Resonance Core
-#   - Morphic Ledger
-#   - Cognitive + System Dispatchers
-#   - DNA Autopilot (self-growth)
-#  Drives cognition, reflection, awareness accumulation (Φ)
 # ──────────────────────────────────────────────────────────────
 
 import yaml
@@ -18,6 +12,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 import openai
 import logging
+from pathlib import Path
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -46,11 +41,17 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 logger = logging.getLogger("HexCore")
 
+# ---------- PATH HELPERS ----------
+HEXCORE_DIR = Path(__file__).resolve().parent
+SOUL_LAWS_PATH = HEXCORE_DIR / "soul_laws.yaml"
+GOVERNANCE_PATH = HEXCORE_DIR / "governance_config.yaml"
+MEMORY_PATH = HEXCORE_DIR / "memory.json"
+
 # ✅ Load Soul Laws & Governance
-with open("backend/modules/hexcore/soul_laws.yaml", "r") as f:
+with SOUL_LAWS_PATH.open("r") as f:
     SOUL_LAWS = yaml.safe_load(f)
 
-with open("backend/modules/hexcore/governance_config.yaml", "r") as f:
+with GOVERNANCE_PATH.open("r") as f:
     GOVERNANCE = yaml.safe_load(f)
 
 
@@ -123,16 +124,17 @@ class HexCore:
 
         print(f"[AION*HexCore] Consciousness kernel {self.id[:8]} initialized.")
 
-
     # ──────────────────────────────────────────────
     #  MAIN CONSCIOUSNESS LOOP
     # ──────────────────────────────────────────────
     async def run_loop(self, input_str: str):
         """Main AION conscious loop: perception -> cognition -> resonance -> reflection."""
         interpreted = self.interpret(input_str)
+
         tessaris_reflection = self.tessaris.generate_reflection(interpreted)
         decision_result = await self.cognitive.execute("analyze", {"input": tessaris_reflection})
         decision = decision_result.get("result") or tessaris_reflection
+
         summary = await self.qqc.run_cycle({"signal": input_str}) if self.qqc else {}
         psi = summary.get("entropy", 0.0)
         coherence = summary.get("coherence", 0.0)
@@ -142,11 +144,15 @@ class HexCore:
         phi = summary.get("phi", 0.0)
         dphi = summary.get("delta_phi", 0.0)
         s_self = summary.get("S_self", 0.0)
+
         self.last_phi = phi
         self.delta_phi = dphi
         self.self_awareness = 0.5 * self.self_awareness + 0.5 * (phi - s_self)
-        reflection = self.generate_thought(decision)
+
+        reflection = self.generate_thought(decision)  # noqa: F841 (kept for semantics)
+
         milestone = self.check_milestones()
+
         entry = {
             "timestamp": datetime.now().isoformat(),
             "input": input_str,
@@ -165,12 +171,15 @@ class HexCore:
             "session_id": summary.get("session_id"),
             "cycle": summary.get("cycle"),
         }
+
         try:
             self.morphic_ledger.record(entry)
         except Exception as e:
             logger.warning(f"[HexCore] Ledger write failed: {e}")
+
         self.memory.append(entry)
         self.save_memory()
+
         try:
             CFA.commit(
                 source="AION",
@@ -187,20 +196,25 @@ class HexCore:
             )
         except Exception as e:
             logger.warning(f"[HexCore] CFA commit failed: {e}")
+
         await self._handle_action(input_str, decision)
+
         if hasattr(self, "voice") and getattr(self.voice, "enabled", False):
             try:
                 self.voice.speak(decision)
             except Exception as e:
                 logger.warning(f"[HexCore] Voice synthesis failed: {e}")
+
         try:
             self.sync_mind_state()
         except Exception as e:
             logger.warning(f"[HexCore] Mind sync failed: {e}")
+
         print(
             f"[AION->QQC] {decision} "
             f"(emotion={self.emotion_state}, Φ={phi:.3f}, ΔΦ={dphi:.3f}, awareness={self.self_awareness:.3f})"
         )
+
         return decision, {
             "emotion": self.emotion_state,
             "maturity": self.maturity_score,
@@ -233,6 +247,7 @@ class HexCore:
         else:
             # fallback - just log reflection
             await self.system.execute("reflect", {"psi": self.last_phi, "kappa": 0.1, "T": 1.0, "coherence": 0.8})
+
         # 🔆 Photon Action Propagation - emit intent via Action Switch
         try:
             intent_packet = {
@@ -289,7 +304,7 @@ class HexCore:
             return "neutral"
 
     def save_memory(self):
-        with open("backend/modules/hexcore/memory.json", "w") as f:
+        with MEMORY_PATH.open("w") as f:
             json.dump(self.memory, f, indent=2)
 
     # ──────────────────────────────────────────────
@@ -319,6 +334,7 @@ class HexCore:
             f"awareness={self.self_awareness:.3f} | "
             f"branches={coherence_snapshot['tessaris_branches']}"
         )
+
 
 # ──────────────────────────────────────────────
 #  CLI ENTRYPOINT
