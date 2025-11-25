@@ -3,6 +3,6 @@
   "builds": [
     { "src": "package.json", "use": "@vercel/next" }
   ],
-  "installCommand": "pnpm install",
-  "buildCommand": "pnpm run build"
+  "installCommand": "NPM_CONFIG_IGNORE_SCRIPTS=true npm install",
+  "buildCommand": "npm run build"
 }
