@@ -75,11 +75,9 @@ module.exports = {
           5: "hsl(var(--chart-5))",
         },
       },
-
       boxShadow: {
         dropdown: "0 4px 6px rgba(0,0,0,0.1)",
       },
-
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -87,7 +85,6 @@ module.exports = {
       },
     },
   },
-
   safelist: [
     "border-border",
     "bg-background",
@@ -95,7 +92,6 @@ module.exports = {
     "bg-primary",
     "text-primary",
   ],
-
   plugins: [
     require("@tailwindcss/forms"),
     require("@tailwindcss/typography"),

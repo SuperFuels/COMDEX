@@ -60,6 +60,7 @@ weasyprint==65.1
 webencodings==0.5.1
 yarl==1.20.0
 zopfli==0.2.3.post1
+matplotlib>=3.8.0
 
 # Ethereum / SIWE dependencies
 eth-account>=0.13.1,<0.14

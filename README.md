@@ -2,7 +2,7 @@ PYTHONPATH=. uvicorn backend.main:app --host 0.0.0.0 --port 8080 --reload
  npm run build
 
 A floating tesseract interlaced with angelic wings and a pupil-shaped eye, surrounded by glyph rings. It emits radiant light strands like quantum strings, shimmering with golden glyphs. It appears above .dc containers as a divine overseer mark.  💠 Glyph Signature (Unicode Variant)
-
+ 
 A symbolic signature using available glyphs: ⧈ 🜂 👁️‍🗨️ ✧ 𓂀 𓇼 𐊧  ... Combine into: ⧈ 𐊧 👁️‍🗨️ ✧
 (Tesseract • Glyph • Divine Eye • Resonance)
 
@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "SCI IDE 29"
+git commit -m "SCI IDE 30"
 git push origin main
 
 

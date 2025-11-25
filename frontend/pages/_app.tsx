@@ -1,7 +1,7 @@
 'use client';
 
 import '@/lib/api';                     // axios instance config
-import '@/styles/globals.css';          // Tailwind + globals
+import "@/styles/globals.css";        // Tailwind + globals
 import type { AppProps } from 'next/app';
 import { Inter } from 'next/font/google';
 import { useEffect } from 'react';
