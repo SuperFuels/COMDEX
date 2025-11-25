@@ -8,7 +8,7 @@ module.exports = {
     "./styles/**/*.{css,js,ts,jsx,tsx,mdx}",
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
     "./hooks/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/**/*.{js,ts,jsx,tsx,mdx}", // keep only if exists
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -16,7 +16,6 @@ module.exports = {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
-        // ✅ used by `bg-primary`, `text-primary-foreground`, etc.
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -89,7 +88,6 @@ module.exports = {
     },
   },
 
-  // keep these so Next/Tailwind don’t purge the base tokens
   safelist: [
     "border-border",
     "bg-background",
