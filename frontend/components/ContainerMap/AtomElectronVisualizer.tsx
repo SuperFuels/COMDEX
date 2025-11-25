@@ -92,7 +92,7 @@ function Electron({
   data,
   radius,
   speed,
-  isBest
+  isBest,
 }: {
   index: number;
   total: number;
@@ -101,21 +101,31 @@ function Electron({
   speed: number;
   isBest: boolean;
 }) {
-  const ref = useRef<THREE.Mesh>(null);
-  const overlayRef = useRef<THREE.Mesh>(null);
+  // loosen refs to `any` to dodge @types/three mismatch
+  const ref = useRef<any>(null);
+  const overlayRef = useRef<any>(null);
+  const ringRef = useRef<any>(null);
   const angleRef = useRef(Math.random() * Math.PI * 2);
   const [hovered, setHovered] = useState(false);
 
   useFrame(() => {
     angleRef.current += speed;
-    const x = Math.cos(angleRef.current + (index * 2 * Math.PI) / total) * radius;
-    const y = Math.sin(angleRef.current + (index * 2 * Math.PI) / total) * radius;
-    ref.current?.position.set(x, y, 0);
+    const a = angleRef.current + (index * 2 * Math.PI) / total;
+    const x = Math.cos(a) * radius;
+    const y = Math.sin(a) * radius;
+
+    if (ref.current) {
+      ref.current.position.set(x, y, 0);
+    }
 
     if (overlayRef.current) {
       const s = 1 + 0.2 * Math.sin(Date.now() * 0.003);
       overlayRef.current.scale.set(s, s, s);
       overlayRef.current.position.set(x, y, 0);
+    }
+
+    if (ringRef.current) {
+      ringRef.current.position.set(x, y, 0);
     }
   });
 
@@ -124,12 +134,13 @@ function Electron({
     data.glyphs[0]
   );
   const isGHX =
-    topGlyph?.value.includes('GHX') ||
-    topGlyph?.value.includes('⧖') ||
-    topGlyph?.value.includes('⚛');
+    topGlyph?.value.includes("GHX") ||
+    topGlyph?.value.includes("⧖") ||
+    topGlyph?.value.includes("⚛");
 
   const confidence = topGlyph?.confidence ?? 0;
-  const color = confidence > 0.7 ? '#00ffcc' : confidence > 0.5 ? '#ffff66' : '#ff6666';
+  const color =
+    confidence > 0.7 ? "#00ffcc" : confidence > 0.5 ? "#ffff66" : "#ff6666";
 
   const handleClick = async () => {
     const target = data.meta.linkContainerId;
@@ -139,8 +150,6 @@ function Electron({
       const res = await fetch(`/api/teleport/${target}`);
       const json = await res.json();
       console.log("🛰️ Teleport result:", json);
-
-      // Optional: redirect to new container or refresh HUD
       window.location.href = `/containers/${target}`;
     } catch (err) {
       console.error("⚠️ Teleport failed:", err);
@@ -163,8 +172,10 @@ function Electron({
               <div className="font-bold">{data.meta.label}</div>
               {data.glyphs.map((g, i) => (
                 <div key={i}>
-                  {g.value}{' '}
-                  <span className="text-green-300">({(g.confidence * 100).toFixed(1)}%)</span>
+                  {g.value}{" "}
+                  <span className="text-green-300">
+                    ({(g.confidence * 100).toFixed(1)}%)
+                  </span>
                 </div>
               ))}
               <div className="text-purple-400 mt-1">Click → teleport</div>
@@ -174,7 +185,7 @@ function Electron({
       </mesh>
 
       {isBest && (
-        <mesh position={ref.current?.position}>
+        <mesh ref={ringRef}>
           <ringGeometry args={[1.1, 1.4, 32]} />
           <meshBasicMaterial color="gold" side={THREE.DoubleSide} />
         </mesh>

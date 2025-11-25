@@ -23,7 +23,8 @@ export default function HobermanSphere({
   runtimeTick = 0,
   soulLocked = false,
 }: HobermanSphereProps) {
-  const groupRef = useRef<THREE.Group>(null);
+  // loosen ref type to avoid @types/three mismatch
+  const groupRef = useRef<any>(null);
   const [tickState, setTickState] = useState(runtimeTick);
 
   const targetScale =
@@ -38,7 +39,7 @@ export default function HobermanSphere({
 
   useFrame(() => {
     if (groupRef.current && active) {
-      groupRef.current.rotation.y += 0.01;
+      (groupRef.current as THREE.Group).rotation.y += 0.01;
     }
   });
 
@@ -46,7 +47,7 @@ export default function HobermanSphere({
     if (runtimeTick !== tickState) {
       setTickState(runtimeTick);
     }
-  }, [runtimeTick]);
+  }, [runtimeTick, tickState]);
 
   const glowColor =
     glyph === "↔"

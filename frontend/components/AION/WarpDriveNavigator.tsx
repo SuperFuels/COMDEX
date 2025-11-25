@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Html } from '@react-three/drei';
-import { useThree, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
+import { useEffect, useRef, useState } from "react";
+import { Html } from "@react-three/drei";
+import { useThree, useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 
 interface Zone {
   id: string;
   name: string;
   position: [number, number, number];
-  layer: 'inner' | 'outer' | 'deep';
+  layer: "inner" | "outer" | "deep";
 }
 
 interface WarpDriveNavigatorProps {
@@ -17,9 +17,12 @@ interface WarpDriveNavigatorProps {
   onWarpComplete?: (zoneId: string) => void;
 }
 
-export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveNavigatorProps) {
+export default function WarpDriveNavigator({
+  zones,
+  onWarpComplete,
+}: WarpDriveNavigatorProps) {
   const { camera } = useThree();
-  const [zone, setZone] = useState<string>(zones[0]?.id || '');
+  const [zone, setZone] = useState<string>(zones[0]?.id || "");
   const [isWarping, setIsWarping] = useState(false);
   const [warpProgress, setWarpProgress] = useState(0);
   const [warpTrail, setWarpTrail] = useState<[number, number, number][]>([]);
@@ -32,13 +35,13 @@ export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveN
   // 1–4 hotkeys to warp
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (['1', '2', '3', '4'].includes(e.key)) {
+      if (["1", "2", "3", "4"].includes(e.key)) {
         const idx = parseInt(e.key) - 1;
         if (zones[idx]) initiateWarp(zones[idx].id);
       }
     };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
   }, [zones]);
 
   const initiateWarp = (newZoneId: string) => {
@@ -85,7 +88,14 @@ export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveN
       {/* 🚀 Warp Trail (native three.js line segments) */}
       {warpTrail.slice(0, -1).map((p, idx) => {
         const next = warpTrail[idx + 1];
-        const positions = new Float32Array([p[0], p[1], p[2], next[0], next[1], next[2]]);
+        const positions = new Float32Array([
+          p[0],
+          p[1],
+          p[2],
+          next[0],
+          next[1],
+          next[2],
+        ]);
         return (
           <line key={idx}>
             <bufferGeometry>
@@ -120,7 +130,9 @@ export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveN
       {isWarping && (
         <Html fullscreen>
           <div className="flex flex-col items-center justify-center w-full h-full bg-black/90 text-white z-50">
-            <div className="text-3xl animate-pulse mb-4">🚀 Warp Drive Engaged: {zone}</div>
+            <div className="text-3xl animate-pulse mb-4">
+              🚀 Warp Drive Engaged: {zone}
+            </div>
             <div className="w-2/3 bg-gray-800 h-4 rounded-full overflow-hidden">
               <div
                 className="bg-blue-500 h-full transition-all duration-100"
@@ -135,14 +147,19 @@ export default function WarpDriveNavigator({ zones, onWarpComplete }: WarpDriveN
 }
 
 /* 🌠 Warp Arc (Curved Flight Path) */
-function WarpArc({ start, end }: { start: [number, number, number]; end: [number, number, number] }) {
+function WarpArc({
+  start,
+  end,
+}: {
+  start: [number, number, number];
+  end: [number, number, number];
+}) {
   const mid: [number, number, number] = [
     (start[0] + end[0]) / 2,
     (start[1] + end[1]) / 2 + 8,
     (start[2] + end[2]) / 2,
   ];
 
-  // Build a small polyline through start → mid → end
   const points = [
     new THREE.Vector3(...start),
     new THREE.Vector3(...mid),
@@ -175,14 +192,19 @@ function ZoneBeacon({
   onClick: () => void;
   scannerSweep: number;
 }) {
-  const ref = useRef<THREE.Mesh>(null);
+  // 🧨 kill three’s generic typing – use any + cast in JSX
+  const ref = useRef<any>(null);
+
   useFrame(({ clock }) => {
-    if (ref.current) ref.current.scale.setScalar(1 + 0.15 * Math.sin(clock.elapsedTime * 2));
+    if (ref.current) {
+      const s = 1 + 0.15 * Math.sin(clock.elapsedTime * 2);
+      ref.current.scale.setScalar(s);
+    }
   });
 
   return (
     <group position={zone.position} onClick={onClick}>
-      <mesh ref={ref}>
+      <mesh ref={ref as any}>
         <sphereGeometry args={[0.8, 32, 32]} />
         <meshStandardMaterial
           color="#00f0ff"
@@ -209,7 +231,7 @@ function ZoneBeacon({
         <div className="text-center text-white text-sm bg-black/50 px-2 py-1 rounded cursor-pointer">
           🚀 {zone.name}
         </div>
-      </Html>
+      </Html> 
     </group>
   );
 }

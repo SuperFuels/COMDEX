@@ -16,10 +16,14 @@ interface OctahedronRendererProps {
   };
 }
 
-const OctahedronRenderer: React.FC<OctahedronRendererProps> = ({ position, container }) => {
-  const coreRef = useRef<THREE.Mesh>(null);
-  const edgesRef = useRef<THREE.LineSegments>(null);
-  const glyphOrbitRef = useRef<THREE.Group>(null);
+const OctahedronRenderer: React.FC<OctahedronRendererProps> = ({
+  position,
+  container,
+}) => {
+  // loosen refs to avoid @types/three mismatch issues
+  const coreRef = useRef<any>(null);
+  const edgesRef = useRef<any>(null);
+  const glyphOrbitRef = useRef<any>(null);
 
   /** 🔶 Setup glowing octahedron edges */
   useEffect(() => {
@@ -27,8 +31,10 @@ const OctahedronRenderer: React.FC<OctahedronRendererProps> = ({ position, conta
 
     const geo = new THREE.EdgesGeometry(new THREE.OctahedronGeometry(1, 0));
     const mat = new THREE.LineBasicMaterial({ color: "#00eaff", linewidth: 2 });
-    edgesRef.current.geometry = geo;
-    edgesRef.current.material = mat;
+
+    const line = edgesRef.current as THREE.LineSegments;
+    line.geometry = geo;
+    line.material = mat;
   }, []);
 
   /** 🔮 Glyph Orbits (floating holograms) */
@@ -58,8 +64,8 @@ const OctahedronRenderer: React.FC<OctahedronRendererProps> = ({ position, conta
     if (coreRef.current) {
       coreRef.current.rotation.x += 0.005;
       coreRef.current.rotation.y += 0.006;
-      (coreRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
-        1 + Math.sin(t * 4) * 0.4;
+      const mat = coreRef.current.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = 1 + Math.sin(t * 4) * 0.4;
     }
 
     if (edgesRef.current) {
@@ -68,10 +74,16 @@ const OctahedronRenderer: React.FC<OctahedronRendererProps> = ({ position, conta
     }
 
     if (glyphOrbitRef.current) {
-      glyphOrbitRef.current.children.forEach((glyph, i) => {
-        const angle = t * 0.8 + i * (Math.PI / 3);
-        glyph.position.set(Math.cos(angle) * 2, Math.sin(angle * 1.2) * 1, Math.sin(angle) * 2);
-        (glyph as THREE.Sprite).material.opacity = 0.5 + Math.sin(t * 2 + i) * 0.3;
+      glyphOrbitRef.current.children.forEach((glyph: any, i: number) => {
+        const angle = t * 0.8 + (i * Math.PI) / 3;
+        glyph.position.set(
+          Math.cos(angle) * 2,
+          Math.sin(angle * 1.2) * 1,
+          Math.sin(angle) * 2
+        );
+        if (glyph.material instanceof THREE.SpriteMaterial) {
+          glyph.material.opacity = 0.5 + Math.sin(t * 2 + i) * 0.3;
+        }
       });
     }
   });
@@ -100,7 +112,14 @@ const OctahedronRenderer: React.FC<OctahedronRendererProps> = ({ position, conta
 
       {/* 🏷 Label */}
       <Html distanceFactor={12}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#00eaff", textShadow: "0 0 10px #00ffff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#00eaff",
+            textShadow: "0 0 10px #00ffff",
+          }}
+        >
           🔶 {container.name}
         </div>
       </Html>

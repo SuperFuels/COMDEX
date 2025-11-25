@@ -22,6 +22,31 @@ from backend.modules.atomsheets.atomsheet_engine import (
 from backend.modules.patterns.pattern_trace_engine import record_trace
 from backend.modules.utils.time_utils import now_utc_ms
 
+
+# -----------------------
+# Path resolver for .atom / .sqs.json
+# -----------------------
+def resolve_atom_path(src: str) -> Path:
+    """
+    Normalise an atomsheet path:
+      - if it has no extension, assume `.atom`
+      - accept both .atom and legacy .sqs.json
+      - leave absolute / nested paths alone
+    """
+    p = Path(src)
+
+    # If no extension at all, default to .atom
+    if p.suffix == "":
+        p = p.with_suffix(".atom")
+
+    # Allow both .atom and .sqs.json
+    if p.suffix not in {".atom", ".json"}:
+        # last-resort: force .atom
+        p = p.with_suffix(".atom")
+
+    return p
+
+
 # -----------------------
 # Optional WS broadcast; safe no-op if unavailable
 # -----------------------
@@ -135,11 +160,12 @@ async def get_atomsheet(
     """Load an AtomSheet and return its JSON (cells included)."""
     _validate_token(credentials)
 
-    if not os.path.exists(file):
-        raise HTTPException(status_code=404, detail=f"File not found: {file}")
+    p = resolve_atom_path(file)
+    if not p.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {p}")
 
     try:
-        sheet = load_atom(file)
+        sheet = load_atom(str(p))
         return {
             "id": sheet.id,
             "title": sheet.title,
@@ -164,7 +190,12 @@ async def execute_atomsheet(
         raise HTTPException(status_code=400, detail="Provide 'file' or 'sheet'")
 
     try:
-        sheet = load_atom(req.file) if req.file else load_atom(req.sheet)  # type: ignore
+        sheet = (
+            load_atom(str(resolve_atom_path(req.file)))  # normalize + load from disk
+            if req.file
+            else load_atom(req.sheet)                    # type: ignore[arg-type]
+        )
+
         ctx = dict((req.options or ExecuteOptions()).model_dump())
         if req.container_id:
             ctx["container_id"] = req.container_id
@@ -213,11 +244,12 @@ async def export_atomsheet(
     """Load then export to a `.dc.json`-style snapshot (in-memory)."""
     _validate_token(credentials)
 
-    if not os.path.exists(file):
-        raise HTTPException(status_code=404, detail=f"File not found: {file}")
+    p = resolve_atom_path(file)
+    if not p.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {p}")
 
     try:
-        sheet = load_atom(file)
+        sheet = load_atom(str(p))
         return engine_to_dc_json(sheet)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Export failed: {e}") from e
@@ -232,7 +264,22 @@ async def upsert_cell(
     _validate_token(credentials)
 
     try:
-        sheet = load_atom(req.file)
+        from backend.modules.atomsheets.models import AtomSheet, GlyphCell  # safe local import
+
+        p = resolve_atom_path(req.file)
+
+        # If file exists, load it; else create a fresh empty sheet
+        if p.exists():
+            sheet = load_atom(str(p))
+        else:
+            sheet = AtomSheet(
+                id=p.stem,
+                title=p.stem.replace("_", " "),
+                dims=[1, 1, 1, 1],
+                meta={},
+                cells={},
+            )
+
         cid = req.id or f"c_{len(sheet.cells)}_{int(time.time() * 1000)}"
 
         if cid in sheet.cells:
@@ -248,7 +295,6 @@ async def upsert_cell(
                     except Exception:
                         pass
         else:
-            from backend.modules.atomsheets.models import GlyphCell  # safe local import
             c = GlyphCell(
                 id=cid,
                 logic=req.logic,
@@ -262,10 +308,18 @@ async def upsert_cell(
                     pass
             sheet.cells[cid] = c
 
-        p = Path(req.file)
-        if not p.suffix:  # allow bare name -> .atom
-            p = p.with_suffix(".atom")
+        # Recompute dims from all positions so the 4D grid has space
+        max_x = max_y = max_z = max_t = 0
+        for cc in sheet.cells.values():
+            x, y, z, t = (cc.position or [0, 0, 0, 0])
+            max_x = max(max_x, x + 1)
+            max_y = max(max_y, y + 1)
+            max_z = max(max_z, z + 1)
+            max_t = max(max_t, t + 1)
+        sheet.dims = [max_x or 1, max_y or 1, max_z or 1, max_t or 1]
 
+        # Persist to disk as .atom JSON
+        p.parent.mkdir(parents=True, exist_ok=True)
         data = {
             "id": sheet.id,
             "title": sheet.title,
@@ -282,8 +336,6 @@ async def upsert_cell(
                 for cc in sheet.cells.values()
             ],
         }
-
-        p.parent.mkdir(parents=True, exist_ok=True)
         with open(p, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
@@ -16,7 +18,8 @@ export default function MemoryHaloRing({
   rotationSpeed = 0.002,
   avatarRef,
 }: MemoryHaloProps) {
-  const ringRef = useRef<THREE.Group>(null);
+  // 👇 loosen type to dodge @types/three vs three mismatch
+  const ringRef = useRef<any>(null);
   const [positions, setPositions] = useState<THREE.Vector3[]>([]);
   const pulseRef = useRef<number>(0);
 
@@ -41,7 +44,12 @@ export default function MemoryHaloRing({
   });
 
   return (
-    <group ref={ringRef}>
+    <group
+      // 👇 use callback ref instead of passing RefObject directly
+      ref={(el: any) => {
+        ringRef.current = el;
+      }}
+    >
       {glyphs.map((g, i) => {
         const pos = positions[i] || new THREE.Vector3();
         const intensity = Math.min(Math.max(g.weight ?? 0.5, 0.2), 1.2); // Clamp 0.2–1.2
@@ -49,7 +57,7 @@ export default function MemoryHaloRing({
         const opacity = 0.7 + 0.3 * Math.sin(pulseRef.current + i);
 
         return (
-          <Html key={i} position={pos} center distanceFactor={16}>
+          <Html key={i} position={[pos.x, pos.y, pos.z]} center distanceFactor={16}>
             <div
               style={{
                 color,

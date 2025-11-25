@@ -16,17 +16,22 @@ interface TetrahedronRendererProps {
   };
 }
 
-const TetrahedronRenderer: React.FC<TetrahedronRendererProps> = ({ position, container }) => {
-  const tetraRef = useRef<THREE.Mesh>(null);
-  const edgesRef = useRef<THREE.LineSegments>(null);
-  const coreRef = useRef<THREE.Mesh>(null);
-  const glyphOrbitRef = useRef<THREE.Group>(null);
-  const auraRef = useRef<THREE.Mesh>(null);
+const TetrahedronRenderer: React.FC<TetrahedronRendererProps> = ({
+  position,
+  container,
+}) => {
+  // loosen all refs to avoid @types/three version conflicts
+  const tetraRef = useRef<any>(null);
+  const edgesRef = useRef<any>(null);
+  const coreRef = useRef<any>(null);
+  const glyphOrbitRef = useRef<any>(null);
+  const auraRef = useRef<any>(null);
 
   /** 🔮 Glyph Orbit Projectors */
   useEffect(() => {
     if (!glyphOrbitRef.current) return;
-    glyphOrbitRef.current.clear();
+    const group = glyphOrbitRef.current as THREE.Group;
+    group.clear();
 
     const glyphTexture = createGlyphTexture(container.glyph || "🔺");
     const glyphMaterial = new THREE.SpriteMaterial({
@@ -39,39 +44,70 @@ const TetrahedronRenderer: React.FC<TetrahedronRendererProps> = ({ position, con
     for (let i = 0; i < 4; i++) {
       const sprite = new THREE.Sprite(glyphMaterial.clone());
       sprite.scale.set(0.5, 0.5, 0.5);
-      glyphOrbitRef.current.add(sprite);
+      group.add(sprite);
     }
   }, [container.glyph]);
+
+  /** ✨ Glowing Edges geometry/material setup */
+  useEffect(() => {
+    if (!edgesRef.current) return;
+    const lines = edgesRef.current as THREE.LineSegments;
+
+    const geo = new THREE.EdgesGeometry(new THREE.TetrahedronGeometry(2.5));
+    const mat = new THREE.LineBasicMaterial({
+      color: "#ff33aa",
+      linewidth: 2,
+      transparent: true,
+      opacity: 0.8,
+    });
+
+    lines.geometry = geo;
+    lines.material = mat;
+
+    return () => {
+      geo.dispose();
+      mat.dispose();
+    };
+  }, []);
 
   /** 🎛 Animations */
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
 
     if (tetraRef.current) {
-      tetraRef.current.rotation.y = t * 0.6;
-      tetraRef.current.rotation.x = Math.sin(t * 0.3) * 0.2;
+      const mesh = tetraRef.current as THREE.Mesh;
+      mesh.rotation.y = t * 0.6;
+      mesh.rotation.x = Math.sin(t * 0.3) * 0.2;
     }
 
     if (edgesRef.current) {
-      (edgesRef.current.material as THREE.LineBasicMaterial).opacity =
-        0.6 + Math.sin(t * 2) * 0.3;
+      const lines = edgesRef.current as THREE.LineSegments;
+      const mat = lines.material as THREE.LineBasicMaterial;
+      mat.opacity = 0.6 + Math.sin(t * 2) * 0.3;
     }
 
     if (coreRef.current) {
-      coreRef.current.scale.setScalar(0.8 + Math.sin(t * 3) * 0.2);
-      (coreRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
-        1.5 + Math.sin(t * 4) * 0.8;
+      const mesh = coreRef.current as THREE.Mesh;
+      mesh.scale.setScalar(0.8 + Math.sin(t * 3) * 0.2);
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = 1.5 + Math.sin(t * 4) * 0.8;
     }
 
     if (glyphOrbitRef.current) {
-      glyphOrbitRef.current.children.forEach((glyph, i) => {
-        const angle = t * 0.8 + i * (Math.PI / 2);
-        glyph.position.set(Math.cos(angle) * 2.5, Math.sin(angle) * 2, Math.sin(angle) * 2.5);
+      const group = glyphOrbitRef.current as THREE.Group;
+      group.children.forEach((glyph: any, i: number) => {
+        const angle = t * 0.8 + (i * Math.PI) / 2;
+        glyph.position.set(
+          Math.cos(angle) * 2.5,
+          Math.sin(angle) * 2,
+          Math.sin(angle) * 2.5
+        );
       });
     }
 
     if (auraRef.current) {
-      auraRef.current.scale.setScalar(1.3 + Math.sin(t * 1.5) * 0.1);
+      const mesh = auraRef.current as THREE.Mesh;
+      mesh.scale.setScalar(1.3 + Math.sin(t * 1.5) * 0.1);
     }
   });
 
@@ -92,10 +128,7 @@ const TetrahedronRenderer: React.FC<TetrahedronRendererProps> = ({ position, con
       </mesh>
 
       {/* ✨ Glowing Edges */}
-      <lineSegments ref={edgesRef}>
-        <edgesGeometry args={[new THREE.TetrahedronGeometry(2.5)]} />
-        <lineBasicMaterial color="#ff33aa" linewidth={2} transparent opacity={0.8} />
-      </lineSegments>
+      <lineSegments ref={edgesRef} />
 
       {/* 🌟 Energy Core */}
       <mesh ref={coreRef}>
@@ -127,7 +160,14 @@ const TetrahedronRenderer: React.FC<TetrahedronRendererProps> = ({ position, con
 
       {/* 🏷 Label */}
       <Html distanceFactor={12}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#ff33cc", textShadow: "0 0 12px #ff33cc" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#ff33cc",
+            textShadow: "0 0 12px #ff33cc",
+          }}
+        >
           🔺 {container.name}
         </div>
       </Html>

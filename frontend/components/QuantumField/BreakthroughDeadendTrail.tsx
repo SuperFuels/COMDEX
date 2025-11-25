@@ -36,32 +36,35 @@ function Polyline({
   opacity?: number;
   lineWidth?: number;
 }) {
-  const geomRef = useRef<THREE.BufferGeometry>(null);
-  const lineRef = useRef<THREE.Line | null>(null);
+  // loosen refs to 'any' and use callback refs
+  const geomRef = useRef<any>(null);
+  const lineRef = useRef<any>(null);
 
   const positions = useMemo(() => new Float32Array(points.flat()), [points]);
 
   useEffect(() => {
-    const geom = geomRef.current;
+    const geom: THREE.BufferGeometry | null = geomRef.current;
     if (!geom) return;
 
     geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geom.computeBoundingSphere?.();
 
-    // For dashed lines, distances must be computed *after* positions change
     if (dashed && lineRef.current?.computeLineDistances) {
-      lineRef.current.computeLineDistances();
+      (lineRef.current as THREE.Line).computeLineDistances();
     }
   }, [positions, dashed]);
 
   return (
     <line
-      // Use a callback ref to avoid TS inferring the SVG <line> ref type
-      ref={(obj) => {
-        lineRef.current = (obj as unknown as THREE.Line) || null;
+      ref={(obj: any) => {
+        lineRef.current = obj || null;
       }}
     >
-      <bufferGeometry ref={geomRef} />
+      <bufferGeometry
+        ref={(node: any) => {
+          geomRef.current = node;
+        }}
+      />
       {dashed ? (
         <lineDashedMaterial
           color={color}

@@ -17,11 +17,11 @@ interface VortexRendererProps {
 }
 
 const VortexRenderer: React.FC<VortexRendererProps> = ({ position, container }) => {
-  const funnelRef = useRef<THREE.Mesh>(null);
-  // NOTE: use `null!` so the ref is a MutableRefObject and `.current` is writable
-  const swirlParticlesRef = useRef<THREE.Points>(null!);
-  const glyphOrbitRef = useRef<THREE.Group>(null);
-  const distortionRef = useRef<THREE.Mesh>(null);
+  // loosen refs to avoid @types/three generic mismatch
+  const funnelRef = useRef<any>(null);
+  const swirlParticlesRef = useRef<any>(null);
+  const glyphOrbitRef = useRef<any>(null);
+  const distortionRef = useRef<any>(null);
 
   /** 🌌 Swirl Particles Setup */
   useEffect(() => {
@@ -50,7 +50,6 @@ const VortexRenderer: React.FC<VortexRendererProps> = ({ position, container }) 
 
     swirlParticlesRef.current = new THREE.Points(geo, mat);
 
-    // cleanup GPU resources if this ever re-runs/unmounts
     return () => {
       geo.dispose();
       mat.dispose();
@@ -60,7 +59,8 @@ const VortexRenderer: React.FC<VortexRendererProps> = ({ position, container }) 
   /** 🔮 Glyph Orbit Projectors */
   useEffect(() => {
     if (!glyphOrbitRef.current) return;
-    glyphOrbitRef.current.clear();
+    const group = glyphOrbitRef.current as THREE.Group;
+    group.clear();
 
     const glyphTexture = createGlyphTexture(container.glyph || "🌀");
     const glyphMaterial = new THREE.SpriteMaterial({
@@ -73,7 +73,7 @@ const VortexRenderer: React.FC<VortexRendererProps> = ({ position, container }) 
     for (let i = 0; i < 5; i++) {
       const sprite = new THREE.Sprite(glyphMaterial.clone());
       sprite.scale.set(0.5, 0.5, 0.5);
-      glyphOrbitRef.current.add(sprite);
+      group.add(sprite);
     }
   }, [container.glyph]);
 
@@ -82,27 +82,36 @@ const VortexRenderer: React.FC<VortexRendererProps> = ({ position, container }) 
     const t = clock.elapsedTime;
 
     if (funnelRef.current) {
-      funnelRef.current.rotation.y += 0.02;
-      (funnelRef.current.material as THREE.MeshStandardMaterial).opacity =
-        0.3 + Math.sin(t * 3) * 0.1;
+      const mesh = funnelRef.current as THREE.Mesh;
+      mesh.rotation.y += 0.02;
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.opacity = 0.3 + Math.sin(t * 3) * 0.1;
     }
 
     if (swirlParticlesRef.current) {
-      swirlParticlesRef.current.rotation.y -= 0.01;
+      const pts = swirlParticlesRef.current as THREE.Points;
+      pts.rotation.y -= 0.01;
     }
 
     if (distortionRef.current) {
-      distortionRef.current.scale.setScalar(1 + 0.15 * Math.sin(t * 2));
-      (distortionRef.current.material as THREE.MeshStandardMaterial).opacity =
-        0.2 + Math.sin(t * 2.5) * 0.1;
+      const mesh = distortionRef.current as THREE.Mesh;
+      mesh.scale.setScalar(1 + 0.15 * Math.sin(t * 2));
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.opacity = 0.2 + Math.sin(t * 2.5) * 0.1;
     }
 
     if (glyphOrbitRef.current) {
-      const len = glyphOrbitRef.current.children.length || 1;
-      glyphOrbitRef.current.children.forEach((glyph, i) => {
-        const angle = t * 0.6 + i * (Math.PI / 2);
-        glyph.position.set(Math.cos(angle) * 3, Math.sin(angle) * 1.5, Math.sin(angle) * 3);
-        (glyph as THREE.Sprite).material.opacity = 0.6 + Math.sin(t * 3 + i) * 0.3;
+      const group = glyphOrbitRef.current as THREE.Group;
+      const len = group.children.length || 1;
+      group.children.forEach((glyph, i) => {
+        const angle = t * 0.6 + (i * Math.PI) / 2;
+        glyph.position.set(
+          Math.cos(angle) * 3,
+          Math.sin(angle) * 1.5,
+          Math.sin(angle) * 3
+        );
+        const mat = (glyph as THREE.Sprite).material as THREE.SpriteMaterial;
+        mat.opacity = 0.6 + Math.sin(t * 3 + i) * 0.3;
       });
     }
   });

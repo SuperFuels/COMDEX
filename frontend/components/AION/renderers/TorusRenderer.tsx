@@ -17,10 +17,11 @@ interface TorusRendererProps {
 }
 
 const TorusRenderer: React.FC<TorusRendererProps> = ({ position, container }) => {
-  const torusRef = useRef<THREE.Mesh>(null);
-  const plasmaRef = useRef<THREE.Mesh>(null);
-  const glyphOrbitRef = useRef<THREE.Group>(null);
-  const exhaustJetsRef = useRef<THREE.Group>(null);
+  // loosen refs to avoid @types/three incompatibilities
+  const torusRef = useRef<any>(null);
+  const plasmaRef = useRef<any>(null);
+  const glyphOrbitRef = useRef<any>(null);
+  const exhaustJetsRef = useRef<any>(null);
 
   /** 🔮 Glyph Orbit Projectors */
   useEffect(() => {
@@ -59,7 +60,11 @@ const TorusRenderer: React.FC<TorusRendererProps> = ({ position, container }) =>
         })
       );
       jet.rotation.x = Math.PI;
-      jet.position.set(Math.cos((i * Math.PI) / 2) * 2.5, 0, Math.sin((i * Math.PI) / 2) * 2.5);
+      jet.position.set(
+        Math.cos((i * Math.PI) / 2) * 2.5,
+        0,
+        Math.sin((i * Math.PI) / 2) * 2.5
+      );
       exhaustJetsRef.current.add(jet);
     }
   }, []);
@@ -69,26 +74,35 @@ const TorusRenderer: React.FC<TorusRendererProps> = ({ position, container }) =>
     const t = clock.elapsedTime;
 
     if (torusRef.current) {
-      torusRef.current.rotation.x = t * 0.6;
-      torusRef.current.rotation.y = t * 0.4;
+      const mesh = torusRef.current as THREE.Mesh;
+      mesh.rotation.x = t * 0.6;
+      mesh.rotation.y = t * 0.4;
     }
 
     if (plasmaRef.current) {
-      plasmaRef.current.rotation.z = -t * 0.8;
-      (plasmaRef.current.material as THREE.MeshStandardMaterial).opacity =
-        0.3 + Math.sin(t * 4) * 0.1;
+      const mesh = plasmaRef.current as THREE.Mesh;
+      mesh.rotation.z = -t * 0.8;
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.opacity = 0.3 + Math.sin(t * 4) * 0.1;
     }
 
     if (glyphOrbitRef.current) {
-      glyphOrbitRef.current.children.forEach((glyph, i) => {
-        const angle = t * 0.7 + i * (Math.PI / 3);
-        glyph.position.set(Math.cos(angle) * 3, Math.sin(angle) * 1.5, Math.sin(angle) * 3);
-        (glyph as THREE.Sprite).material.opacity = 0.6 + Math.sin(t * 3 + i) * 0.3;
+      const group = glyphOrbitRef.current as THREE.Group;
+      group.children.forEach((glyph: any, i: number) => {
+        const angle = t * 0.7 + (i * Math.PI) / 3;
+        glyph.position.set(
+          Math.cos(angle) * 3,
+          Math.sin(angle) * 1.5,
+          Math.sin(angle) * 3
+        );
+        const mat = (glyph as THREE.Sprite).material as THREE.SpriteMaterial;
+        mat.opacity = 0.6 + Math.sin(t * 3 + i) * 0.3;
       });
     }
 
     if (exhaustJetsRef.current) {
-      exhaustJetsRef.current.children.forEach((jet, i) => {
+      const group = exhaustJetsRef.current as THREE.Group;
+      group.children.forEach((jet: any, i: number) => {
         jet.scale.y = 1 + 0.3 * Math.sin(t * 5 + i);
       });
     }
@@ -128,7 +142,14 @@ const TorusRenderer: React.FC<TorusRendererProps> = ({ position, container }) =>
 
       {/* 🏷 Label */}
       <Html distanceFactor={12}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#00ffff", textShadow: "0 0 12px #00f0ff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#00ffff",
+            textShadow: "0 0 12px #00f0ff",
+          }}
+        >
           ⭕ {container.name}
         </div>
       </Html>

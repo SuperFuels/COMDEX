@@ -16,39 +16,65 @@ interface DNASpiralRendererProps {
   };
 }
 
-const DNASpiralRenderer: React.FC<DNASpiralRendererProps> = ({ position, container }) => {
-  const helixRef = useRef<THREE.Group>(null);
-  const fieldRef = useRef<THREE.Mesh>(null);
-  const glyphGroupRef = useRef<THREE.Group>(null);
+const DNASpiralRenderer: React.FC<DNASpiralRendererProps> = ({
+  position,
+  container,
+}) => {
+  // use any-typed refs to avoid @types/three vs three mismatch
+  const helixRef = useRef<any>(null);
+  const fieldRef = useRef<any>(null);
+  const glyphGroupRef = useRef<any>(null);
 
   /** 🧬 Generate helix base pairs dynamically */
   useEffect(() => {
     if (!helixRef.current) return;
     helixRef.current.clear();
+
     const segments = 20;
     const radius = 0.6;
     const height = 4;
 
     const colors = ["#00f0ff", "#ff00ff", "#00ff88", "#ffaa00"];
+
     for (let i = 0; i < segments; i++) {
       const angle = (i / segments) * Math.PI * 10;
       const y = (i / segments - 0.5) * height;
 
       const left = new THREE.Mesh(
         new THREE.SphereGeometry(0.12, 16, 16),
-        new THREE.MeshStandardMaterial({ color: colors[i % colors.length], emissive: colors[i % colors.length], emissiveIntensity: 2 })
+        new THREE.MeshStandardMaterial({
+          color: colors[i % colors.length],
+          emissive: colors[i % colors.length],
+          emissiveIntensity: 2,
+        })
       );
-      left.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+      left.position.set(
+        Math.cos(angle) * radius,
+        y,
+        Math.sin(angle) * radius
+      );
 
       const right = new THREE.Mesh(
         new THREE.SphereGeometry(0.12, 16, 16),
-        new THREE.MeshStandardMaterial({ color: colors[(i + 1) % colors.length], emissive: colors[(i + 1) % colors.length], emissiveIntensity: 2 })
+        new THREE.MeshStandardMaterial({
+          color: colors[(i + 1) % colors.length],
+          emissive: colors[(i + 1) % colors.length],
+          emissiveIntensity: 2,
+        })
       );
-      right.position.set(-Math.cos(angle) * radius, y, -Math.sin(angle) * radius);
+      right.position.set(
+        -Math.cos(angle) * radius,
+        y,
+        -Math.sin(angle) * radius
+      );
 
       const bond = new THREE.Mesh(
         new THREE.CylinderGeometry(0.025, 0.025, radius * 2, 8),
-        new THREE.MeshStandardMaterial({ color: "#ffffff", emissive: "#ffffff", emissiveIntensity: 1.2 })
+        new THREE.MeshStandardMaterial({
+          color: "#ffffff",
+          emissive: "#ffffff",
+          emissiveIntensity: 1.2,
+        })
       );
       bond.position.set(0, y, 0);
       bond.rotation.z = Math.PI / 2;
@@ -61,6 +87,7 @@ const DNASpiralRenderer: React.FC<DNASpiralRendererProps> = ({ position, contain
   useEffect(() => {
     if (!glyphGroupRef.current) return;
     glyphGroupRef.current.clear();
+
     const glyphMaterial = new THREE.SpriteMaterial({
       map: createGlyphTexture(container.glyph || "🧬"),
       transparent: true,
@@ -79,11 +106,19 @@ const DNASpiralRenderer: React.FC<DNASpiralRendererProps> = ({ position, contain
   /** 🎥 Animations */
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
-    if (helixRef.current) helixRef.current.rotation.y = t * 0.5;
-    if (fieldRef.current) fieldRef.current.rotation.y = -t * 0.2;
+
+    if (helixRef.current) {
+      helixRef.current.rotation.y = t * 0.5;
+    }
+
+    if (fieldRef.current) {
+      fieldRef.current.rotation.y = -t * 0.2;
+    }
+
     if (glyphGroupRef.current) {
-      glyphGroupRef.current.children.forEach((child, i) => {
-        const angle = t * 0.8 + i * (Math.PI / 4);
+      const children = glyphGroupRef.current.children;
+      children.forEach((child: any, i: number) => {
+        const angle = t * 0.8 + (i * Math.PI) / 4;
         child.position.x = Math.cos(angle) * 2;
         child.position.z = Math.sin(angle) * 2;
       });
@@ -98,7 +133,13 @@ const DNASpiralRenderer: React.FC<DNASpiralRendererProps> = ({ position, contain
       {/* 🌌 Energy Field */}
       <mesh ref={fieldRef}>
         <torusGeometry args={[2.2, 0.05, 16, 64]} />
-        <meshStandardMaterial color="#00ffff" emissive="#00ffff" emissiveIntensity={0.8} transparent opacity={0.5} />
+        <meshStandardMaterial
+          color="#00ffff"
+          emissive="#00ffff"
+          emissiveIntensity={0.8}
+          transparent
+          opacity={0.5}
+        />
       </mesh>
 
       {/* 🔮 Orbiting glyph holograms */}
@@ -106,7 +147,14 @@ const DNASpiralRenderer: React.FC<DNASpiralRendererProps> = ({ position, contain
 
       {/* 📛 Label */}
       <Html distanceFactor={12}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#00f0ff", textShadow: "0 0 8px #00f0ff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#00f0ff",
+            textShadow: "0 0 8px #00f0ff",
+          }}
+        >
           🧬 {container.name}
         </div>
       </Html>

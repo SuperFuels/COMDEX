@@ -3,70 +3,128 @@
 import React, { useMemo, useState } from "react";
 import SciSqsPanel from "@/pages/sci/sci_sqs_panel";
 import { QuantumFieldCanvasLoader } from "@/components/Hologram/QuantumFieldCanvasLoader";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""; // e.g. https://comdex-api.../api
-
+import SciFileCabinet, { SciFolder } from "@/components/sci/SciFileCabinet";
 type ToolId = "editor" | "atomsheet" | "qfc";
 type ViewMode = "code" | "glyph";
 
+type CompressionInfo = {
+  charsBefore: number;
+  charsAfter: number;
+  compressionRatio: number;
+};
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
 export default function IDE() {
   const [activeTool, setActiveTool] = useState<ToolId>("editor");
-
-  // sidebar collapse
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isCabinetOpen, setIsCabinetOpen] = useState(true);
 
-  // editor layout
+  const onSelectEditor = () => {
+    setActiveTool("editor");
+    setIsCabinetOpen(true); // 🔓 open the file cabinet whenever Text Editor is selected
+  };
+
   const [viewMode, setViewMode] = useState<ViewMode>("code");
   const [splitView, setSplitView] = useState(false);
 
-  // text buffers
   const [codeBuffer, setCodeBuffer] = useState<string>(
     [
       "# Photon test script for SCI IDE",
       "# Expect: container_id, wave, resonance, memory -> glyphs",
-      "",
-      "container_id = 'sci_ide_demo'",
-      "wave = quantum_wave(source=container_id)",
-      "resonance = tune_resonance(wave, target='AionCore')",
-      "memory = write_memory(container_id, payload=resonance)",
-      "",
-      "print('Photon pipeline complete:', container_id, resonance, memory)",
+      "container_id = 'demo_container'",
+      "wave = quantum.wave('alpha')",
+      "resonance = entangle(container_id, wave)",
+      "memory = store(resonance, mode='long_term')",
     ].join("\n")
   );
   const [glyphBuffer, setGlyphBuffer] = useState<string>("");
 
-  const [compressionInfo, setCompressionInfo] = useState<{
-    charsBefore: number;
-    charsAfter: number;
-    compressionRatio: number;
-  } | null>(null);
+  const [compression, setCompression] = useState<CompressionInfo | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translateError, setTranslateError] = useState<string | null>(null);
 
-  const sidebarWidthClass = sidebarCollapsed ? "w-14" : "w-64";
+  // Fallback visual compression if backend didn't respond with numbers
+  const fallbackCompression = useMemo(() => {
+    const codeChars = codeBuffer.length;
+    const glyphChars = glyphBuffer.length;
+    if (!codeChars || !glyphChars) return null;
 
-  // ───────────────── Code → Glyph (real API) ─────────────────
-  async function handleCodeToGlyph() {
+    const ratio = 1 - glyphChars / codeChars;
+    return {
+      charsBefore: codeChars,
+      charsAfter: glyphChars,
+      compressionRatio: Math.max(0, ratio),
+    };
+  }, [codeBuffer, glyphBuffer]);
+
+  const effectiveCompression = compression ?? fallbackCompression;
+
+  // ───────── SCI file system state ─────────
+  const [folders, setFolders] = useState<SciFolder[]>([
+    {
+      id: "default",
+      name: "Codex workspace",
+      files: [{ id: "file-1", name: "Untitled.ptn" }],
+    },
+  ]);
+
+  const [activeFileId, setActiveFileId] = useState<string>("file-1");
+  const [activeFileName, setActiveFileName] = useState<string>("Untitled.ptn");
+
+  const handleCreateFolder = () => {
+    const id = `folder-${Date.now()}`;
+    setFolders((prev) => [
+      ...prev,
+      { id, name: "New container", files: [] },
+    ]);
+  };
+
+  const handleCreateFile = (folderId: string) => {
+    const fileId = `file-${Date.now()}`;
+    setFolders((prev) =>
+      prev.map((f) =>
+        f.id === folderId
+          ? {
+              ...f,
+              files: [...f.files, { id: fileId, name: "Untitled.ptn" }],
+            }
+          : f,
+      ),
+    );
+    setActiveFileId(fileId);
+    setActiveFileName("Untitled.ptn");
+  };
+
+  const handleSelectFile = (fileId: string) => {
+    setActiveFileId(fileId);
+    const found = folders.flatMap((f) => f.files).find((f) => f.id === fileId);
+    if (found) setActiveFileName(found.name);
+  };
+
+  const handleRenameFile = (fileId: string, name: string) => {
+    setFolders((prev) =>
+      prev.map((folder) => ({
+        ...folder,
+        files: folder.files.map((file) =>
+          file.id === fileId ? { ...file, name } : file,
+        ),
+      })),
+    );
+    if (fileId === activeFileId) setActiveFileName(name);
+  };
+
+  // ───────────────── Code → Glyph (backend call) ─────────────────
+  const handleCodeToGlyph = async () => {
     if (!codeBuffer.trim()) return;
-
-    // If API base isn’t configured, fall back to dummy compression
     if (!API_BASE) {
-      const approxGlyphs = Math.max(1, Math.round(codeBuffer.length / 40));
-      const dummy = "⬢".repeat(approxGlyphs);
-
-      setGlyphBuffer(dummy);
-      setViewMode("glyph");
-      setCompressionInfo({
-        charsBefore: codeBuffer.length,
-        charsAfter: dummy.length,
-        compressionRatio:
-          codeBuffer.length > 0
-            ? 1 - dummy.length / codeBuffer.length
-            : 0,
-      });
-      console.warn(
-        "[SCI IDE] NEXT_PUBLIC_API_URL is not set; using local dummy glyph converter."
-      );
+      console.warn("NEXT_PUBLIC_API_URL is not set");
+      setTranslateError("API base URL missing (NEXT_PUBLIC_API_URL).");
       return;
     }
+
+    setIsTranslating(true);
+    setTranslateError(null);
 
     try {
       const res = await fetch(`${API_BASE}/photon/translate`, {
@@ -76,41 +134,41 @@ export default function IDE() {
       });
 
       if (!res.ok) {
-        console.error("Code → Glyph translate failed:", await res.text());
+        const msg = await res.text();
+        console.error("translate failed", res.status, msg);
+        setTranslateError(`HTTP ${res.status}: ${msg.slice(0, 160)}`);
         return;
       }
 
       const data = await res.json();
-      const translated: string = data.translated ?? "";
-      const charsBefore: number = data.chars_before ?? codeBuffer.length;
-      const charsAfter: number = data.chars_after ?? translated.length;
-      const compressionRatio: number =
-        data.compression_ratio ??
-        (charsBefore > 0 ? 1 - charsAfter / charsBefore : 0);
 
+      const translated: string = data.translated ?? "";
       setGlyphBuffer(translated);
       setViewMode("glyph");
-      setCompressionInfo({ charsBefore, charsAfter, compressionRatio });
-    } catch (err) {
-      console.error("Code → Glyph error:", err);
+
+      setCompression({
+        charsBefore: data.chars_before ?? codeBuffer.length,
+        charsAfter: data.chars_after ?? translated.length,
+        compressionRatio: data.compression_ratio ?? 0,
+      });
+    } catch (err: any) {
+      console.error("convert error", err);
+      setTranslateError(String(err?.message ?? err));
+    } finally {
+      setIsTranslating(false);
     }
-  }
+  };
 
-  // ───────────────── Glyph → Code (for now: just switch back) ─────────────────
-  // Later we can wire this to /api/photon/translate_reverse with proper glyph stream.
-  function handleGlyphToCode() {
+  // For now Glyph → Code just flips you back; full reverse endpoint can come later
+  const handleGlyphToCode = () => {
     setViewMode("code");
-  }
+  };
 
-  const compressionLabel = useMemo(() => {
-    if (!compressionInfo) return "Paste code and run Code → Glyph to see reduction";
-    const pct = (compressionInfo.compressionRatio * 100).toFixed(1);
-    return `${compressionInfo.charsBefore} chars → ${compressionInfo.charsAfter} chars • ${pct}% reduction`;
-  }, [compressionInfo]);
+  const sidebarWidthClass = sidebarCollapsed ? "w-14" : "w-64";
 
   return (
-    <div className="flex h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] bg-slate-950 text-slate-100">
-      {/* ───────────────── Sidebar ───────────────── */}
+    <div className="flex h-[calc(100vh-56px)] bg-slate-950 text-slate-100">
+      {/* ───────────── Sidebar ───────────── */}
       <aside
         className={`${sidebarWidthClass} border-r border-slate-800 flex flex-col bg-slate-950/95`}
       >
@@ -136,9 +194,8 @@ export default function IDE() {
             label="Text Editor (.ptn)"
             active={activeTool === "editor"}
             collapsed={sidebarCollapsed}
-            onClick={() => setActiveTool("editor")}
+            onClick={onSelectEditor}
           />
-
           <ToolButton
             icon="🧮"
             label="AtomSheet (4D grid)"
@@ -146,7 +203,6 @@ export default function IDE() {
             collapsed={sidebarCollapsed}
             onClick={() => setActiveTool("atomsheet")}
           />
-
           <ToolButton
             icon="🕸"
             label="Quantum Field Canvas"
@@ -157,21 +213,25 @@ export default function IDE() {
         </nav>
       </aside>
 
-      {/* ───────────────── Main Column ───────────────── */}
+      {/* ───────────── Main Column ───────────── */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
         <header className="flex items-center justify-between px-4 py-2 border-b border-slate-800 bg-slate-950/90">
+          {/* left side: file name + workspace */}
           <div className="flex items-center gap-2 text-sm">
-            <span className="font-semibold text-slate-100">
-              {activeTool === "editor"
-                ? "Untitled.ptn"
-                : activeTool === "atomsheet"
-                ? "AtomSheet Viewer"
-                : "Quantum Field Canvas"}
-            </span>
+            <input
+              className="bg-transparent text-sm font-medium outline-none ring-0 border-none px-1 rounded hover:bg-muted/60"
+              value={activeFileName}
+              onChange={(e) => setActiveFileName(e.target.value)}
+              onBlur={(e) =>
+                handleRenameFile(
+                  activeFileId,
+                  e.target.value.trim() || "Untitled.ptn",
+                )
+              }
+            />
             <span className="text-xs text-slate-500">/ Codex workspace</span>
           </div>
-
           {activeTool === "editor" && (
             <div className="flex items-center gap-2 text-xs">
               <button
@@ -206,26 +266,46 @@ export default function IDE() {
               <button
                 type="button"
                 onClick={handleCodeToGlyph}
-                className="px-2 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white"
+                disabled={isTranslating}
+                className="px-3 py-1 rounded bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900 text-white"
               >
-                Code → Glyph
+                {isTranslating ? "Converting…" : "Code → Glyph"}
               </button>
               <button
                 type="button"
                 onClick={handleGlyphToCode}
-                className="px-2 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white"
+                className="px-3 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white"
               >
                 Glyph → Code
               </button>
 
               <div className="ml-3 text-[11px] text-slate-300 font-mono">
-                {compressionLabel}
+                {effectiveCompression ? (
+                  <>
+                    {effectiveCompression.charsBefore} chars →{" "}
+                    {effectiveCompression.charsAfter} glyph-chars ·{" "}
+                    <span className="text-emerald-400">
+                      {(effectiveCompression.compressionRatio * 100).toFixed(1)}% reduction
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-slate-500">
+                    Paste code and run Code → Glyph to see reduction
+                  </span>
+                )}
               </div>
             </div>
           )}
         </header>
 
-        {/* Main content */}
+        {/* Error banner (if any) */}
+        {translateError && activeTool === "editor" && (
+          <div className="px-4 py-2 text-xs bg-red-900/60 text-red-100 border-b border-red-700">
+            Glyph translation error: {translateError}
+          </div>
+        )}
+
+        {/* ───────────── Main content ───────────── */}
         <div className="flex-1 flex overflow-hidden">
           {activeTool === "editor" && (
             <EditorPane
@@ -251,8 +331,8 @@ export default function IDE() {
           )}
         </div>
 
-        {/* Bottom status bar */}
-        <footer className="h-10 md:h-12 border-t border-slate-800 bg-slate-950/95 flex items-center justify-between px-4 text-xs text-slate-300">
+        {/* Bottom status */}
+        <footer className="h-10 border-t border-slate-800 bg-slate-950/95 flex items-center justify-between px-4 text-xs text-slate-300">
           <div>Φ coherence monitor (placeholder) · ready</div>
           <div className="text-slate-500">
             SCI IDE · local workspace · offline-capable UX target
@@ -263,7 +343,7 @@ export default function IDE() {
   );
 }
 
-/* ───────────────── Editor Pane ───────────────── */
+/* ───────────── Editor panes ───────────── */
 
 type EditorPaneProps = {
   viewMode: ViewMode;
@@ -284,7 +364,7 @@ function EditorPane({
 }: EditorPaneProps) {
   if (splitView) {
     return (
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-[70vh] overflow-hidden">
         <div className="flex-1 border-r border-slate-800">
           <EditorTextarea
             label="Code (.ptn)"
@@ -306,7 +386,7 @@ function EditorPane({
   const showCode = viewMode === "code";
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 min-h-[70vh]">
       <EditorTextarea
         label={showCode ? "Code (.ptn)" : "Glyph view"}
         value={showCode ? codeBuffer : glyphBuffer}
@@ -324,29 +404,27 @@ type EditorTextareaProps = {
 
 function EditorTextarea({ label, value, onChange }: EditorTextareaProps) {
   return (
-    <div className="flex flex-col h-full min-h-[70vh]">
+    <div className="flex flex-col h-full min-h-[60vh]">
       <div className="px-3 py-1 text-[11px] text-slate-400 border-b border-slate-800">
         {label}
       </div>
       <textarea
-        className="flex-1 w-full bg-slate-950 text-slate-100 text-sm font-mono px-3 py-2 outline-none resize-none"
+        className="flex-1 min-h-[50vh] w-full bg-slate-950 text-slate-100 text-sm font-mono px-3 py-2 outline-none resize-none"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         spellCheck={false}
       />
-      <div className="border-t border-slate-800">
-        <button
-          type="button"
-          className="mt-1 mb-1 ml-3 px-3 py-1 text-xs bg-purple-600 hover:bg-purple-500 text-white font-medium rounded"
-        >
-          + Save to Atom Vault
-        </button>
-      </div>
+      <button
+        type="button"
+        className="px-3 py-1 text-[11px] bg-purple-600 hover:bg-purple-500 text-white text-center"
+      >
+        + Save to Atom Vault
+      </button>
     </div>
   );
 }
 
-/* ───────────────── Sidebar button ───────────────── */
+/* ───────────── Sidebar button ───────────── */
 
 type ToolButtonProps = {
   icon: string;

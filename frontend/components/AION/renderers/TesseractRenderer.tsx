@@ -16,17 +16,22 @@ interface TesseractRendererProps {
   };
 }
 
-const TesseractRenderer: React.FC<TesseractRendererProps> = ({ position, container }) => {
-  const outerCubeRef = useRef<THREE.Mesh>(null);
-  const innerCubeRef = useRef<THREE.Mesh>(null);
-  const edgesRef = useRef<THREE.LineSegments>(null);
-  const glyphOrbitRef = useRef<THREE.Group>(null);
-  const distortionFieldRef = useRef<THREE.Mesh>(null);
+const TesseractRenderer: React.FC<TesseractRendererProps> = ({
+  position,
+  container,
+}) => {
+  // loosen ref types to avoid @types/three version conflicts
+  const outerCubeRef = useRef<any>(null);
+  const innerCubeRef = useRef<any>(null);
+  const edgesRef = useRef<any>(null);
+  const glyphOrbitRef = useRef<any>(null);
+  const distortionFieldRef = useRef<any>(null);
 
   /** 🔮 Glyph Orbit Projectors */
   useEffect(() => {
     if (!glyphOrbitRef.current) return;
-    glyphOrbitRef.current.clear();
+    const group = glyphOrbitRef.current as THREE.Group;
+    group.clear();
 
     const glyphTexture = createGlyphTexture(container.glyph || "⧈");
     const glyphMaterial = new THREE.SpriteMaterial({
@@ -39,39 +44,70 @@ const TesseractRenderer: React.FC<TesseractRendererProps> = ({ position, contain
     for (let i = 0; i < 8; i++) {
       const sprite = new THREE.Sprite(glyphMaterial.clone());
       sprite.scale.set(0.5, 0.5, 0.5);
-      glyphOrbitRef.current.add(sprite);
+      group.add(sprite);
     }
   }, [container.glyph]);
+
+  /** ✨ Edge Lines geometry/material setup */
+  useEffect(() => {
+    if (!edgesRef.current) return;
+    const lines = edgesRef.current as THREE.LineSegments;
+
+    const geo = new THREE.EdgesGeometry(new THREE.BoxGeometry(3.5, 3.5, 3.5));
+    const mat = new THREE.LineBasicMaterial({
+      color: "#00ffff",
+      linewidth: 2,
+    });
+
+    lines.geometry = geo;
+    lines.material = mat;
+
+    return () => {
+      geo.dispose();
+      mat.dispose();
+    };
+  }, []);
 
   /** 🎛 Animate cubes and glyphs */
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
 
     if (outerCubeRef.current) {
-      outerCubeRef.current.rotation.x = Math.sin(t * 0.6) * 0.5;
-      outerCubeRef.current.rotation.y = Math.cos(t * 0.8) * 0.5;
+      const mesh = outerCubeRef.current as THREE.Mesh;
+      mesh.rotation.x = Math.sin(t * 0.6) * 0.5;
+      mesh.rotation.y = Math.cos(t * 0.8) * 0.5;
     }
 
     if (innerCubeRef.current) {
-      innerCubeRef.current.rotation.x = Math.cos(t * 0.7) * 1.2;
-      innerCubeRef.current.rotation.y = Math.sin(t * 0.9) * 1.2;
+      const mesh = innerCubeRef.current as THREE.Mesh;
+      mesh.rotation.x = Math.cos(t * 0.7) * 1.2;
+      mesh.rotation.y = Math.sin(t * 0.9) * 1.2;
     }
 
     if (edgesRef.current) {
-      edgesRef.current.rotation.y += 0.003;
+      const lines = edgesRef.current as THREE.LineSegments;
+      lines.rotation.y += 0.003;
     }
 
     if (distortionFieldRef.current) {
-      distortionFieldRef.current.scale.setScalar(1 + 0.15 * Math.sin(t * 2));
-      (distortionFieldRef.current.material as THREE.MeshStandardMaterial).opacity =
-        0.25 + 0.1 * Math.sin(t * 2.5);
+      const mesh = distortionFieldRef.current as THREE.Mesh;
+      mesh.scale.setScalar(1 + 0.15 * Math.sin(t * 2));
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.opacity = 0.25 + 0.1 * Math.sin(t * 2.5);
     }
 
     if (glyphOrbitRef.current) {
-      glyphOrbitRef.current.children.forEach((glyph, i) => {
-        const angle = t * 0.6 + i * (Math.PI / 4);
-        glyph.position.set(Math.cos(angle) * 2.5, Math.sin(angle * 1.4) * 1.5, Math.sin(angle) * 2.5);
-        (glyph as THREE.Sprite).material.opacity = 0.5 + Math.sin(t * 3 + i) * 0.4;
+      const group = glyphOrbitRef.current as THREE.Group;
+      group.children.forEach((glyph: any, i: number) => {
+        const angle = t * 0.6 + (i * Math.PI) / 4;
+        glyph.position.set(
+          Math.cos(angle) * 2.5,
+          Math.sin(angle * 1.4) * 1.5,
+          Math.sin(angle) * 2.5
+        );
+        if (glyph.material instanceof THREE.SpriteMaterial) {
+          glyph.material.opacity = 0.5 + Math.sin(t * 3 + i) * 0.4;
+        }
       });
     }
   });
@@ -107,10 +143,7 @@ const TesseractRenderer: React.FC<TesseractRendererProps> = ({ position, contain
       </mesh>
 
       {/* ✨ Edge Lines */}
-      <lineSegments ref={edgesRef}>
-        <edgesGeometry args={[new THREE.BoxGeometry(3.5, 3.5, 3.5)]} />
-        <lineBasicMaterial color="#00ffff" linewidth={2} />
-      </lineSegments>
+      <lineSegments ref={edgesRef} />
 
       {/* 🌌 Distortion Field */}
       <mesh ref={distortionFieldRef}>
@@ -130,7 +163,14 @@ const TesseractRenderer: React.FC<TesseractRendererProps> = ({ position, contain
 
       {/* 🏷 Label */}
       <Html distanceFactor={12}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#00ffff", textShadow: "0 0 12px #00f0ff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#00ffff",
+            textShadow: "0 0 12px #00f0ff",
+          }}
+        >
           ⧈ {container.name}
         </div>
       </Html>

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
@@ -16,13 +18,14 @@ export default function DreamPulseSpiral({
   spiralHeight = 4.0,
   pulseSpeed = 1.0,
 }: DreamPulseSpiralProps) {
-  const spiralGroup = useRef<THREE.Group | null>(null);
-  const pulseRef = useRef<number>(0);
+  // loosen ref type to dodge @types/three mismatch
+  const spiralGroup = useRef<any>(null);
+  const pulseRef = useRef(0);
 
   useFrame((_, delta) => {
     pulseRef.current += delta * pulseSpeed;
     if (spiralGroup.current) {
-      spiralGroup.current.rotation.y += 0.002;
+      (spiralGroup.current as THREE.Group).rotation.y += 0.002;
     }
   });
 
@@ -30,7 +33,7 @@ export default function DreamPulseSpiral({
   const stepHeight = spiralHeight / Math.max(glyphs.length, 1);
 
   return (
-    <group ref={spiralGroup}>
+    <group ref={spiralGroup as any}>
       {glyphs.map((glyph, i) => {
         const angle = i * stepAngle;
         const height = i * stepHeight;

@@ -16,12 +16,16 @@ interface DodecahedronRendererProps {
   };
 }
 
-const DodecahedronRenderer: React.FC<DodecahedronRendererProps> = ({ position, container }) => {
-  const dodeRef = useRef<THREE.Mesh>(null);
-  const edgesRef = useRef<THREE.LineSegments>(null);
-  const latticeRef = useRef<THREE.Group>(null);
-  const glyphOrbitRef = useRef<THREE.Group>(null);
-  const glowRef = useRef<THREE.Mesh>(null);
+const DodecahedronRenderer: React.FC<DodecahedronRendererProps> = ({
+  position,
+  container,
+}) => {
+  // Loosen all refs to avoid @types/three vs three version mismatch
+  const dodeRef = useRef<any>(null);
+  const edgesRef = useRef<any>(null);
+  const latticeRef = useRef<any>(null);
+  const glyphOrbitRef = useRef<any>(null);
+  const glowRef = useRef<any>(null);
 
   /** 🔮 Glyph Orbit Projectors */
   useEffect(() => {
@@ -57,7 +61,10 @@ const DodecahedronRenderer: React.FC<DodecahedronRendererProps> = ({ position, c
     });
 
     for (let i = 0; i < 8; i++) {
-      const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), latticeMat);
+      const sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(0.3, 16, 16),
+        latticeMat
+      );
       sphere.position.set(
         (Math.random() - 0.5) * 3,
         (Math.random() - 0.5) * 3,
@@ -77,8 +84,8 @@ const DodecahedronRenderer: React.FC<DodecahedronRendererProps> = ({ position, c
     }
 
     if (edgesRef.current) {
-      (edgesRef.current.material as THREE.LineBasicMaterial).opacity =
-        0.6 + Math.sin(t * 2) * 0.3;
+      const mat = edgesRef.current.material as THREE.LineBasicMaterial;
+      mat.opacity = 0.6 + Math.sin(t * 2) * 0.3;
     }
 
     if (latticeRef.current) {
@@ -86,9 +93,13 @@ const DodecahedronRenderer: React.FC<DodecahedronRendererProps> = ({ position, c
     }
 
     if (glyphOrbitRef.current) {
-      glyphOrbitRef.current.children.forEach((glyph, i) => {
+      glyphOrbitRef.current.children.forEach((glyph: any, i: number) => {
         const angle = t * 0.6 + i * ((2 * Math.PI) / 6);
-        glyph.position.set(Math.cos(angle) * 3, Math.sin(angle * 1.5), Math.sin(angle) * 3);
+        glyph.position.set(
+          Math.cos(angle) * 3,
+          Math.sin(angle * 1.5),
+          Math.sin(angle) * 3
+        );
       });
     }
 
@@ -115,8 +126,16 @@ const DodecahedronRenderer: React.FC<DodecahedronRendererProps> = ({ position, c
 
       {/* ✨ Glowing Edges */}
       <lineSegments ref={edgesRef}>
-        <edgesGeometry args={[new THREE.DodecahedronGeometry(2.5)]} />
-        <lineBasicMaterial color="#33ffff" linewidth={2} transparent opacity={0.8} />
+        {/* cast to any so TS stops complaining about geometry type */}
+        <edgesGeometry
+          args={[new (THREE as any).DodecahedronGeometry(2.5) as any]}
+        />
+        <lineBasicMaterial
+          color="#33ffff"
+          linewidth={2}
+          transparent
+          opacity={0.8}
+        />
       </lineSegments>
 
       {/* 🔷 Internal Energy Lattice */}
@@ -140,7 +159,14 @@ const DodecahedronRenderer: React.FC<DodecahedronRendererProps> = ({ position, c
 
       {/* 🏷 Label */}
       <Html distanceFactor={12}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#33ffff", textShadow: "0 0 12px #33ffff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#33ffff",
+            textShadow: "0 0 12px #33ffff",
+          }}
+        >
           ⬟ {container.name}
         </div>
       </Html>

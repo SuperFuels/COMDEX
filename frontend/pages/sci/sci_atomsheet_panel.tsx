@@ -37,6 +37,15 @@ interface GlyphCell {
 }
 
 /* ────────────────────────────────────────────────────────────────────────── */
+/* Props                                                                     */
+/* ────────────────────────────────────────────────────────────────────────── */
+export type SciAtomSheetProps = {
+  wsUrl?: string;
+  containerId?: string;
+  defaultFile?: string;
+};
+
+/* ────────────────────────────────────────────────────────────────────────── */
 /* Config & Dev Fallback                                                     */
 /* ────────────────────────────────────────────────────────────────────────── */
 const DEV_MODE = process.env.NODE_ENV !== "production";
@@ -128,22 +137,17 @@ function debounce<T extends (...args: any[]) => void>(fn: T, wait: number) {
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Component                                                                 */
 /* ────────────────────────────────────────────────────────────────────────── */
-type SciAtomSheetProps = {
-  wsUrl?: string;
-  containerId?: string;
-  defaultFile?: string;
-};
 
-export default function SCIAtomSheetPanel({
+const SCIAtomSheetPanel: React.FC<SciAtomSheetProps> = ({
   wsUrl,
   containerId: providedContainerId,
   defaultFile,
-}: SciAtomSheetProps) {
+}) => {
   const router = useRouter();
 
   // One source of truth for which .atom file is open
   const [sheetFile, setSheetFile] = React.useState<string>(
-    defaultFile || "backend/data/sheets/example_sheet.atom"
+    defaultFile || "data/sheets/example_sheet.atom"
   );
 
   // UI state
@@ -172,6 +176,31 @@ export default function SCIAtomSheetPanel({
       setSheetFile(normalizeAtomPath(qp));
     }
   }, [router.query.file, normalizeAtomPath]);
+
+  /* ── LightCone QFC fetcher (used by HUD) ──────────────────────────────── */
+  const fetchLightConeQFC = React.useCallback(
+    async (entryId: string, direction: "forward" | "reverse") => {
+      try {
+        const url =
+          `${BASE_API_URL}/lightcone` +
+          `?file=${encodeURIComponent(sheetFile)}` +
+          `&entry_id=${encodeURIComponent(entryId)}` +
+          `&direction=${encodeURIComponent(direction)}` +
+          `&container_id=${encodeURIComponent(containerId || "")}`;
+
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
+        });
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        const data = await res.json();
+        return data.trace || [];
+      } catch (err) {
+        console.error(`❌ Failed to fetch LightCone QFC nodes for ${entryId}:`, err);
+        return [];
+      }
+    },
+    [containerId, sheetFile]
+  );
 
   /* ── Fetch AtomSheet (exec for E7 → fallback to GET → dev) ───────────── */
   const fetchSheet = React.useCallback(async () => {
@@ -293,7 +322,7 @@ export default function SCIAtomSheetPanel({
         setLightconeTrace([]);
       }
     },
-    [containerId, sheetFile, traceMode]
+    [containerId, sheetFile, traceMode, fetchLightConeQFC]
   );
 
   // Debounced variant for hover-follow
@@ -318,70 +347,7 @@ export default function SCIAtomSheetPanel({
     if (!pinTrace) setLightconeTrace([]);
   }, [pinTrace]);
 
-  // Optional live updates (Phase 9/10 streams) — safe no-op if wsUrl is not set
-  React.useEffect(() => {
-    if (typeof window === "undefined") return; // SSR guard
-    if (!wsUrl || !containerId) return;
-
-    const url =
-      `${wsUrl}${wsUrl.includes("?") ? "&" : "?"}` +
-      `container_id=${encodeURIComponent(containerId)}`;
-
-    let ws: WebSocket | null = null;
-
-    try {
-      ws = new WebSocket(url);
-      ws.onmessage = (ev) => {
-        try {
-          const msg = JSON.parse(ev.data);
-          // examples broadcast by backend:
-          // - qpu_beam_timeline
-          // - qpu_phase9_dreams
-          // - qpu_phase10_vectorized
-          // - qpu_sheet_metrics
-          if (msg?.type === "qpu_beam_timeline" && Array.isArray(msg.timeline)) {
-            setLightconeTrace(msg.timeline);
-          }
-        } catch {
-          /* ignore parse errors */
-        }
-      };
-      ws.onerror = () => { /* noop */ };
-    } catch {
-      // ignore WS construction errors; panel still works via REST
-    }
-
-    return () => {
-      try { ws?.close(); } catch { /* noop */ }
-    };
-  }, [wsUrl, containerId]);
-
-  // Fetch LightCone QFC / HUD projection helper
-  const fetchLightConeQFC = React.useCallback(
-    async (entryId: string, direction: "forward" | "reverse") => {
-      try {
-        const url =
-          `${BASE_API_URL}/lightcone` +
-          `?file=${encodeURIComponent(sheetFile)}` +
-          `&entry_id=${encodeURIComponent(entryId)}` +
-          `&direction=${encodeURIComponent(direction)}` +
-          `&container_id=${encodeURIComponent(containerId || "")}`;
-
-        const res = await fetch(url, {
-          headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
-        });
-        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-        const data = await res.json();
-        return data.trace || [];
-      } catch (err) {
-        console.error(`❌ Failed to fetch LightCone QFC nodes for ${entryId}:`, err);
-        return [];
-      }
-    },
-    [containerId, sheetFile]
-  );
-
-  // (Optional) separate helper if you need it elsewhere
+  // Optional entangled QFC helper (if needed elsewhere)
   const fetchEntangledQFC = React.useCallback(
     async (cellId: string) => {
       try {
@@ -401,363 +367,475 @@ export default function SCIAtomSheetPanel({
     },
     [containerId]
   );
-{/* ── Panel Header / Controls ───────────────────────────────────────── */}
-<div className="flex items-center gap-2 mb-2 border-b border-neutral-800 pb-2">
-  {/* left: context info (optional) */}
-  <div className="text-xs text-zinc-400">
-    container: <span className="text-zinc-200">{containerId || "—"}</span>
-  </div>
 
-  {/* right: actions */}
-  <div className="ml-auto flex items-center gap-2">
-    <button
-      className="px-2 py-1 text-xs rounded border border-zinc-700 hover:bg-white/10"
-      onClick={() => setPinTrace(v => !v)}
-    >
-      {pinTrace ? "📌 Unpin Trace" : "📌 Pin Trace"}
-    </button>
-    <button
-      className="px-2 py-1 text-xs rounded border border-zinc-700 hover:bg-white/10"
-      onClick={() => setFollowSelection(v => !v)}
-    >
-      {followSelection ? "🧲 Stop Follow" : "🧲 Follow Hover"}
-    </button>
-  </div>
-</div>
-{/* ─────────────────────────────────────────────────────────────────── */}
-// ──────────────────────────────
-// Build 4D grid from loaded cells
-// ──────────────────────────────
+  // Optional live updates (Phase 9/10 streams) — safe no-op if wsUrl is not set
+  React.useEffect(() => {
+    if (typeof window === "undefined") return; // SSR guard
+    if (!wsUrl || !containerId) return;
 
-// Index cells by x:y:z:t for O(1) lookup while rendering
-const cellIndex = React.useMemo(() => {
-  const m = new Map<string, GlyphCell>();
-  for (const c of cells) {
-    const [x = 0, y = 0, z = 0, t = 0] = (c.position || []) as number[];
-    m.set(`${x}:${y}:${z}:${t}`, c);
-  }
-  return m;
-}, [cells]);
+    const url =
+      `${wsUrl}${wsUrl.includes("?") ? "&" : "?"}` +
+      `container_id=${encodeURIComponent(containerId)}`;
 
-// Determine extents (exclusive upper-bounds)
-const dims = React.useMemo(() => {
-  let maxX = 0, maxY = 0, maxZ = 0, maxT = 0;
-  for (const c of cells) {
-    const [x = 0, y = 0, z = 0, t = 0] = (c.position || []) as number[];
-    if (x + 1 > maxX) maxX = x + 1;
-    if (y + 1 > maxY) maxY = y + 1;
-    if (z + 1 > maxZ) maxZ = z + 1;
-    if (t + 1 > maxT) maxT = t + 1;
-  }
-  // sensible minimums
-  return {
-    X: Math.max(1, maxX),
-    Y: Math.max(1, maxY),
-    Z: Math.max(1, maxZ),
-    T: Math.max(1, maxT),
-  };
-}, [cells]);
+    let ws: WebSocket | null = null;
 
-// Helper to render one slot at (x,y,z,t)
-const renderSlot = (x: number, y: number, z: number, t: number) => {
-  const cell = cellIndex.get(`${x}:${y}:${z}:${t}`);
-
-  return (
-    <div
-      key={`slot-${t}-${z}-${y}-${x}`}
-      className={[
-        "relative rounded border",
-        cell ? "border-zinc-700 bg-neutral-900" : "border-dashed border-zinc-800 bg-neutral-950/60",
-        "min-h-[96px] p-2",
-      ].join(" ")}
-
-      // DnD: allow drop into empty slots to create a cell
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={async (e) => {
-        e.preventDefault();
-        if (cell) return; // only create into empty slots
+    try {
+      ws = new WebSocket(url);
+      ws.onmessage = (ev) => {
         try {
-          const raw = e.dataTransfer.getData("application/x-sci-graph");
-          if (!raw) return;
-          const payload = JSON.parse(raw); // { logic, emotion?, meta? }
-          const position = [x, y, z, t];
-
-          const res = await fetch(`${BASE_API_URL}/atomsheet/upsert`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${AUTH_TOKEN}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              file: sheetFile,
-              logic: payload.logic,
-              position,
-              emotion: payload.emotion || "neutral",
-              meta: payload.meta || {},
-            }),
-          });
-
-          if (res.ok) {
-            await fetchSheet(); // refresh grid
-          } else {
-            console.warn("DnD upsert HTTP error:", res.status, res.statusText);
+          const msg = JSON.parse(ev.data);
+          if (msg?.type === "qpu_beam_timeline" && Array.isArray(msg.timeline)) {
+            setLightconeTrace(msg.timeline);
           }
-        } catch (err) {
-          console.warn("DnD upsert failed:", err);
+        } catch {
+          /* ignore parse errors */
         }
-      }}
+      };
+      ws.onerror = () => { /* noop */ };
+    } catch {
+      // ignore WS construction errors; panel still works via REST
+    }
 
-      // LiveHUD: follow hover (debounced) and clear on leave when not pinned
-      onMouseEnter={() => {
-        if (!cell?.id) return;
-        setHoveredCell(cell);
-        setSelectedCellId(cell.id);
-        if (followSelection && !pinTrace) debouncedUpdateLiveHUD(cell.id);
-      }}
-      onMouseLeave={() => {
-        setHoveredCell(null);
-        handleCellMouseLeave();
-      }}
+    return () => {
+      try {
+        ws?.close();
+      } catch {
+        /* noop */
+      }
+    };
+  }, [wsUrl, containerId]);
 
-      // Click → immediate trace + pin
-      onClick={() => {
-        if (!cell?.id) return;
-        setSelectedCellId(cell.id);
-        updateLiveHUD(cell.id);  // non-debounced
-        setPinTrace(true);
-      }}
+  /* ── 4D grid indexing / dims ──────────────────────────────────────────── */
 
-      // existing drag start for copying cells out
-      draggable={!!cell}
-      onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
-        if (cell) e.dataTransfer.setData("cell", JSON.stringify(cell));
-      }}
-    >
-      <CardContent className="w-full h-full">
-        {cell ? (
-          <div className="relative flex flex-col justify-between h-full text-xs">
-            {/* top: logic / codexlang */}
-            <div className="font-mono text-sm break-words pr-12">
-              {rawMode ? cell.logic : cell.codexlang_render}
-              {(cell as any)?.codex_error && <ErrorPill msg={(cell as any).codex_error} />}
-            </div>
+  const cellIndex = React.useMemo(() => {
+    const m = new Map<string, GlyphCell>();
+    for (const c of cells) {
+      const [x = 0, y = 0, z = 0, t = 0] = (c.position || []) as number[];
+      m.set(`${x}:${y}:${z}:${t}`, c);
+    }
+    return m;
+  }, [cells]);
 
-            {/* bottom: SQI + E7 + prediction + scrolls/memory */}
-            <div className="flex items-center justify-between text-[10px] pt-1">
-              <div className="flex items-center gap-2">
-                <EmotionSQIPanel emotion={cell.emotion} sqi={cell.sqi_score} />
+  const dims = React.useMemo(() => {
+    let maxX = 0, maxY = 0, maxZ = 0, maxT = 0;
+    for (const c of cells) {
+      const [x = 0, y = 0, z = 0, t = 0] = (c.position || []) as number[];
+      if (x + 1 > maxX) maxX = x + 1;
+      if (y + 1 > maxY) maxY = y + 1;
+      if (z + 1 > maxZ) maxZ = z + 1;
+      if (t + 1 > maxT) maxT = t + 1;
+    }
+    return {
+      X: Math.max(1, maxX),
+      Y: Math.max(1, maxY),
+      Z: Math.max(1, maxZ),
+      T: Math.max(1, maxT),
+    };
+  }, [cells]);
 
-                {/* E7 badges */}
-                <div className="flex items-center gap-1">
-                  <span
-                    className="px-1 py-[1px] rounded text-[10px] border"
-                    title={`Harmony: ${typeof cell.harmony === "number" ? cell.harmony.toFixed(2) : "—"}`}
-                    style={
-                      typeof cell.harmony === "number"
-                        ? { borderColor: `hsl(${Math.round(120 * cell.harmony)} 70% 50%)`, color: `hsl(${Math.round(120 * cell.harmony)} 70% 55%)` }
-                        : {}
-                    }
-                  >
-                    H:{typeof cell.harmony === "number" ? cell.harmony.toFixed(2) : "—"}
-                  </span>
-                  <span
-                    className="px-1 py-[1px] rounded text-[10px] border"
-                    title={`Novelty: ${typeof cell.novelty === "number" ? cell.novelty.toFixed(2) : "—"}`}
-                    style={
-                      typeof cell.novelty === "number"
-                        ? { borderColor: `hsl(${Math.round(120 * cell.novelty)} 70% 50%)`, color: `hsl(${Math.round(120 * cell.novelty)} 70% 55%)` }
-                        : {}
-                    }
-                  >
-                    N:{typeof cell.novelty === "number" ? cell.novelty.toFixed(2) : "—"}
-                  </span>
-                  <span
-                    className="px-1 py-[1px] rounded text-[10px] border"
-                    title={`Entropy: ${typeof cell.entropy === "number" ? cell.entropy.toFixed(2) : "—"}`}
-                    style={
-                      typeof cell.entropy === "number"
-                        ? { borderColor: `hsl(${Math.round(120 * cell.entropy)} 70% 50%)`, color: `hsl(${Math.round(120 * cell.entropy)} 70% 55%)` }
-                        : {}
-                    }
-                  >
-                    E:{typeof cell.entropy === "number" ? cell.entropy.toFixed(2) : "—"}
-                  </span>
-                </div>
+  /* ── Helper to render one slot at (x,y,z,t) ───────────────────────────── */
 
-                {/* 📜 Scrolls/Memory popover */}
-                {(
-                  ((cell as any)?.scrolls && (Array.isArray((cell as any).scrolls) ? (cell as any).scrolls.length > 0 : true)) ||
-                  ((cell as any)?.memory && (Array.isArray((cell as any).memory) ? (cell as any).memory.length > 0 : true))
-                ) && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        className="px-1 py-[1px] text-[10px] rounded border border-zinc-700 text-zinc-300 hover:bg-white/10"
-                        title="View Scrolls & Memory"
-                      >
-                        📜
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-sm text-left">
-                      <div className="text-xs space-y-1">
-                        {(cell as any)?.scrolls && (
-                          <div>
-                            <div className="font-semibold text-zinc-300 mb-1">Scrolls</div>
-                            {Array.isArray((cell as any).scrolls) ? (
-                              <ul className="list-disc pl-4">
-                                {(cell as any).scrolls.map((s: any, i: number) => (
-                                  <li key={i} className="text-zinc-200 break-words">{String(s)}</li>
-                                ))}
-                              </ul>
-                            ) : (
-                              <div className="text-zinc-200 break-words">{String((cell as any).scrolls)}</div>
-                            )}
-                          </div>
-                        )}
-                        {(cell as any)?.memory && (
-                          <div className="pt-1">
-                            <div className="font-semibold text-zinc-300 mb-1">Memory</div>
-                            {Array.isArray((cell as any).memory) ? (
-                              <ul className="list-disc pl-4">
-                                {(cell as any).memory.map((m: any, i: number) => (
-                                  <li key={i} className="text-zinc-200 break-words">{String(m)}</li>
-                                ))}
-                              </ul>
-                            ) : (
-                              <div className="text-zinc-200 break-words">{String((cell as any).memory)}</div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
+  const renderSlot = (x: number, y: number, z: number, t: number) => {
+    const cell = cellIndex.get(`${x}:${y}:${z}:${t}`);
+
+    return (
+      <div
+        key={`slot-${t}-${z}-${y}-${x}`}
+        className={[
+          "relative rounded border",
+          cell
+            ? "border-zinc-700 bg-neutral-900"
+            : "border-dashed border-zinc-800 bg-neutral-950/60",
+          "min-h-[96px] p-2",
+        ].join(" ")}
+        // DnD: allow drop into empty slots to create a cell
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={async (e) => {
+          e.preventDefault();
+          if (cell) return; // only create into empty slots
+          try {
+            const raw = e.dataTransfer.getData("application/x-sci-graph");
+            if (!raw) return;
+            const payload = JSON.parse(raw); // { logic, emotion?, meta? }
+            const position = [x, y, z, t];
+
+            const res = await fetch(`${BASE_API_URL}/atomsheet/upsert`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${AUTH_TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                file: sheetFile,
+                logic: payload.logic,
+                position,
+                emotion: payload.emotion || "neutral",
+                meta: payload.meta || {},
+              }),
+            });
+
+            if (res.ok) {
+              await fetchSheet(); // refresh grid
+            } else {
+              console.warn("DnD upsert HTTP error:", res.status, res.statusText);
+            }
+          } catch (err) {
+            console.warn("DnD upsert failed:", err);
+          }
+        }}
+        // LiveHUD: follow hover (debounced) and clear on leave when not pinned
+        onMouseEnter={() => {
+          if (!cell?.id) return;
+          setHoveredCell(cell);
+          setSelectedCellId(cell.id);
+          if (followSelection && !pinTrace) debouncedUpdateLiveHUD(cell.id);
+        }}
+        onMouseLeave={() => {
+          setHoveredCell(null);
+          handleCellMouseLeave();
+        }}
+        // Click:
+        //  - if there is a cell: select + trace + pin
+        //  - if empty: prompt and create a new GlyphCell via /atomsheet/upsert
+        onClick={async () => {
+          if (cell?.id) {
+            setSelectedCellId(cell.id);
+            await updateLiveHUD(cell.id);
+            setPinTrace(true);
+            return;
+          }
+
+          const logic = window.prompt("New cell logic:", "");
+          if (!logic) return;
+
+          try {
+            const position = [x, y, z, t];
+            const res = await fetch(`${BASE_API_URL}/atomsheet/upsert`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${AUTH_TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                file: sheetFile,
+                logic,
+                position,
+                emotion: "neutral",
+                meta: {},
+              }),
+            });
+
+            if (!res.ok) {
+              console.warn("Upsert error:", res.status, res.statusText);
+              return;
+            }
+
+            await fetchSheet();
+          } catch (err) {
+            console.error("Upsert failed:", err);
+          }
+        }}
+        // existing drag start for copying cells out
+        draggable={!!cell}
+        onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
+          if (cell) e.dataTransfer.setData("cell", JSON.stringify(cell));
+        }}
+      >
+        <CardContent className="w-full h-full">
+          {cell ? (
+            <div className="relative flex flex-col justify-between h-full text-xs">
+              {/* top: logic / codexlang */}
+              <div className="font-mono text-sm break-words pr-12">
+                {rawMode ? cell.logic : cell.codexlang_render}
+                {(cell as any)?.codex_error && (
+                  <ErrorPill msg={(cell as any).codex_error} />
                 )}
               </div>
 
-              {/* right side: prediction (if any) */}
-              {cell.prediction && (
-                <span className="text-yellow-300 whitespace-nowrap">🔮 {cell.prediction}</span>
-              )}
-            </div>
+              {/* bottom: SQI + E7 + prediction + scrolls/memory */}
+              <div className="flex items-center justify-between text-[10px] pt-1">
+                <div className="flex items-center gap-2">
+                  <EmotionSQIPanel emotion={cell.emotion} sqi={cell.sqi_score} />
 
-            {/* nested-expansion quick action (A5) */}
-            {(cell as any)?.meta?.nested?.type === "ref" &&
-              (cell as any)?.meta?.nested?.path && (
-                <button
-                  className="absolute top-1 right-1 text-[10px] px-1 py-[2px] rounded border border-zinc-700 text-zinc-300 hover:bg-white/10"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const childPath = (cell as any).meta.nested.path as string;
-                    router.push(`/sci/sci_atomsheet_panel?file=${encodeURIComponent(childPath)}`);
+                  {/* E7 badges */}
+                  <div className="flex items-center gap-1">
+                    <span
+                      className="px-1 py-[1px] rounded text-[10px] border"
+                      title={`Harmony: ${
+                        typeof cell.harmony === "number"
+                          ? cell.harmony.toFixed(2)
+                          : "—"
+                      }`}
+                      style={
+                        typeof cell.harmony === "number"
+                          ? {
+                              borderColor: `hsl(${Math.round(
+                                120 * cell.harmony
+                              )} 70% 50%)`,
+                              color: `hsl(${Math.round(
+                                120 * cell.harmony
+                              )} 70% 55%)`,
+                            }
+                          : {}
+                      }
+                    >
+                      H:
+                      {typeof cell.harmony === "number"
+                        ? cell.harmony.toFixed(2)
+                        : "—"}
+                    </span>
+                    <span
+                      className="px-1 py-[1px] rounded text-[10px] border"
+                      title={`Novelty: ${
+                        typeof cell.novelty === "number"
+                          ? cell.novelty.toFixed(2)
+                          : "—"
+                      }`}
+                      style={
+                        typeof cell.novelty === "number"
+                          ? {
+                              borderColor: `hsl(${Math.round(
+                                120 * cell.novelty
+                              )} 70% 50%)`,
+                              color: `hsl(${Math.round(
+                                120 * cell.novelty
+                              )} 70% 55%)`,
+                            }
+                          : {}
+                      }
+                    >
+                      N:
+                      {typeof cell.novelty === "number"
+                        ? cell.novelty.toFixed(2)
+                        : "—"}
+                    </span>
+                    <span
+                      className="px-1 py-[1px] rounded text-[10px] border"
+                      title={`Entropy: ${
+                        typeof cell.entropy === "number"
+                          ? cell.entropy.toFixed(2)
+                          : "—"
+                      }`}
+                      style={
+                        typeof cell.entropy === "number"
+                          ? {
+                              borderColor: `hsl(${Math.round(
+                                120 * cell.entropy
+                              )} 70% 50%)`,
+                              color: `hsl(${Math.round(
+                                120 * cell.entropy
+                              )} 70% 55%)`,
+                            }
+                          : {}
+                      }
+                    >
+                      E:
+                      {typeof cell.entropy === "number"
+                        ? cell.entropy.toFixed(2)
+                        : "—"}
+                    </span>
+                  </div>
+
+                  {/* 📜 Scrolls/Memory popover */}
+                  {(((cell as any)?.scrolls &&
+                    (Array.isArray((cell as any).scrolls)
+                      ? (cell as any).scrolls.length > 0
+                      : true)) ||
+                    ((cell as any)?.memory &&
+                      (Array.isArray((cell as any).memory)
+                        ? (cell as any).memory.length > 0
+                        : true))) && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          className="px-1 py-[1px] text-[10px] rounded border border-zinc-700 text-zinc-300 hover:bg-white/10"
+                          title="View Scrolls & Memory"
+                        >
+                          📜
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm text-left">
+                        <div className="text-xs space-y-1">
+                          {(cell as any)?.scrolls && (
+                            <div>
+                              <div className="font-semibold text-zinc-300 mb-1">
+                                Scrolls
+                              </div>
+                              {Array.isArray((cell as any).scrolls) ? (
+                                <ul className="list-disc pl-4">
+                                  {(cell as any).scrolls.map(
+                                    (s: any, i: number) => (
+                                      <li
+                                        key={i}
+                                        className="text-zinc-200 break-words"
+                                      >
+                                        {String(s)}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              ) : (
+                                <div className="text-zinc-200 break-words">
+                                  {String((cell as any).scrolls)}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {(cell as any)?.memory && (
+                            <div className="pt-1">
+                              <div className="font-semibold text-zinc-300 mb-1">
+                                Memory
+                              </div>
+                              {Array.isArray((cell as any).memory) ? (
+                                <ul className="list-disc pl-4">
+                                  {(cell as any).memory.map(
+                                    (m: any, i: number) => (
+                                      <li
+                                        key={i}
+                                        className="text-zinc-200 break-words"
+                                      >
+                                        {String(m)}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              ) : (
+                                <div className="text-zinc-200 break-words">
+                                  {String((cell as any).memory)}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+
+                {/* right side: prediction (if any) */}
+                {cell.prediction && (
+                  <span className="text-yellow-300 whitespace-nowrap">
+                    🔮 {cell.prediction}
+                  </span>
+                )}
+              </div>
+
+              {/* nested-expansion quick action (A5) */}
+              {(cell as any)?.meta?.nested?.type === "ref" &&
+                (cell as any)?.meta?.nested?.path && (
+                  <button
+                    className="absolute top-1 right-1 text-[10px] px-1 py-[2px] rounded border border-zinc-700 text-zinc-300 hover:bg
+-white/10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const childPath = (cell as any).meta.nested.path as string;
+                      router.push(
+                        `/sci/sci_atomsheet_panel?file=${encodeURIComponent(
+                          childPath
+                        )}`
+                      );
+                    }}
+                    title="Expand nested AtomSheet"
+                    aria-label="Expand nested AtomSheet"
+                  >
+                    ↘ expand
+                  </button>
+                )}
+            </div>
+          ) : (
+            <div className="h-full w-full flex items-center justify-center text-[10px] text-zinc-500">
+              Drop from SCI Graph…
+            </div>
+          )}
+        </CardContent>
+      </div>
+    );
+  };
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* Render                                                                   */
+  /* ──────────────────────────────────────────────────────────────────────── */
+
+  return (
+    <div className="p-6 relative">
+      {/* ───────────── HEADER ───────────── */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">🧠 AtomSheet Viewer (.atom)</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={fetchSheet}
+            className="px-3 py-1 rounded border border-zinc-700 hover:bg-white/10 text-sm"
+          >
+            🔁 Reload
+          </button>
+          <button
+            onClick={() => setRawMode((v) => !v)}
+            className="px-3 py-1 rounded border border-zinc-700 hover:bg-white/10 text-sm"
+          >
+            {rawMode ? "🔣 Show CodexLang" : "🧬 Show Raw"}
+          </button>
+          <button
+            onClick={() =>
+              setTraceMode((p) => (p === "forward" ? "reverse" : "forward"))
+            }
+            className="px-3 py-1 rounded border border-zinc-700 hover:bg-white/10 text-sm"
+          >
+            🌌 {traceMode === "forward" ? "→ Forward" : "← Reverse"}
+          </button>
+        </div>
+      </div>
+
+      {/* ───────────── LIGHTCONE TRACE ───────────── */}
+      {lightconeTrace.length > 0 && (
+        <div className="mb-4">
+          <h4 className="text-md font-semibold">🌌 LightCone Trace</h4>
+          <SheetTraceViewer trace={lightconeTrace} />
+        </div>
+      )}
+
+      {/* ───────────── LIVE QPU/CPU PANEL ───────────── */}
+      <div className="mb-4">
+        <h4 className="text-md font-semibold">⚛️ Live CPU / QPU Metrics</h4>
+        <LiveQpuCpuPanel containerId={containerId} />
+      </div>
+
+      {/* ───────────── GRID (dims + renderSlot) ───────────── */}
+      {Array.from({ length: dims.T }).map((_, t) => (
+        <div key={`time-${t}`} className="mb-6">
+          <h3 className="text-lg font-semibold">Time Layer {t}</h3>
+
+          {Array.from({ length: dims.Z }).map((__, z) => (
+            <div key={`z-${z}`} className="mb-3">
+              <h4 className="text-sm font-medium text-zinc-300 mb-1">
+                Z Level {z}
+              </h4>
+
+              {Array.from({ length: dims.Y }).map((___, y) => (
+                <div
+                  key={`row-${t}-${z}-${y}`}
+                  className="grid gap-2"
+                  style={{
+                    gridTemplateColumns: `repeat(${dims.X}, minmax(100px, 1fr))`,
                   }}
-                  title="Expand nested AtomSheet"
-                  aria-label="Expand nested AtomSheet"
                 >
-                  ↘ expand
-                </button>
-              )}
-          </div>
-        ) : (
-          <div className="h-full w-full flex items-center justify-center text-[10px] text-zinc-500">
-            Drop from SCI Graph…
-          </div>
-        )}
-      </CardContent>
+                  {Array.from({ length: dims.X }).map((____, x) =>
+                    renderSlot(x, y, z, t)
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ))}
+
+      {/* ───────────── HOVER PANEL ───────────── */}
+      {hoveredCell && (
+        <div className="absolute top-0 right-0 p-4 z-50">
+          <CellOverlayPanel {...({ cell: hoveredCell } as any)} />
+        </div>
+      )}
     </div>
   );
 };
 
-// Render T → Z → Y rows; each row has X slots
-{Array.from({ length: dims.T }).map((_, t) => (
-  <div key={`t-layer-${t}`} className="mb-6">
-    <div className="text-xs text-zinc-400 mb-2">t = {t}</div>
-    {Array.from({ length: dims.Z }).map((__, z) => (
-      <div key={`t-${t}-z-${z}`} className="mb-4">
-        <div className="text-[10px] text-zinc-500 mb-1">z = {z}</div>
-        {Array.from({ length: dims.Y }).map((___, y) => (
-          <div key={`t-${t}-z-${z}-y-${y}`} className="grid gap-2" style={{ gridTemplateColumns: `repeat(${dims.X}, minmax(0, 1fr))` }}>
-            {Array.from({ length: dims.X }).map((____, x) => renderSlot(x, y, z, t))}
-          </div>
-        ))}
-      </div>
-    ))}
-  </div>
-))}
-
-// ──────────────────────────────
-// (Render section begins below)
-// ──────────────────────────────
-return (
-  <div className="p-6 relative">
-    {/* ───────────── HEADER ───────────── */}
-    <div className="flex justify-between items-center mb-4">
-      <h2 className="text-2xl font-bold">🧠 AtomSheet Viewer (.atom)</h2>
-      <div className="flex gap-2">
-        <button
-          onClick={fetchSheet}
-          className="px-3 py-1 rounded border border-zinc-700 hover:bg-white/10 text-sm"
-        >
-          🔁 Reload
-        </button>
-        <button
-          onClick={() => setRawMode((v) => !v)}
-          className="px-3 py-1 rounded border border-zinc-700 hover:bg-white/10 text-sm"
-        >
-          {rawMode ? "🔣 Show CodexLang" : "🧬 Show Raw"}
-        </button>
-        <button
-          onClick={() => setTraceMode((p) => (p === "forward" ? "reverse" : "forward"))}
-          className="px-3 py-1 rounded border border-zinc-700 hover:bg-white/10 text-sm"
-        >
-          🌌 {traceMode === "forward" ? "→ Forward" : "← Reverse"}
-        </button>
-      </div>
-    </div>
-
-    {/* ───────────── LIGHTCONE TRACE ───────────── */}
-    {lightconeTrace.length > 0 && (
-      <div className="mb-4">
-        <h4 className="text-md font-semibold">🌌 LightCone Trace</h4>
-        <SheetTraceViewer trace={lightconeTrace} />
-      </div>
-    )}
-
-    {/* ───────────── LIVE QPU/CPU PANEL ───────────── */}
-    <div className="mb-4">
-      <h4 className="text-md font-semibold">⚛️ Live CPU / QPU Metrics</h4>
-      <LiveQpuCpuPanel containerId={containerId} />
-    </div>
-
-    {/* ───────────── GRID (dims + renderSlot) ───────────── */}
-    {Array.from({ length: dims.T }).map((_, t) => (
-      <div key={`time-${t}`} className="mb-6">
-        <h3 className="text-lg font-semibold">Time Layer {t}</h3>
-
-        {Array.from({ length: dims.Z }).map((__, z) => (
-          <div key={`z-${z}`} className="mb-3">
-            <h4 className="text-sm font-medium text-zinc-300 mb-1">Z Level {z}</h4>
-
-            {Array.from({ length: dims.Y }).map((___, y) => (
-              <div
-                key={`row-${t}-${z}-${y}`}
-                className="grid gap-2"
-                style={{ gridTemplateColumns: `repeat(${dims.X}, minmax(100px, 1fr))` }}
-              >
-                {Array.from({ length: dims.X }).map((____, x) => renderSlot(x, y, z, t))}
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    ))}
-
-{/* ───────────── HOVER PANEL ───────────── */}
-{hoveredCell && (
-  <div className="absolute top-0 right-0 p-4 z-50">
-    {/* cast to any to satisfy unknown prop type of CellOverlayPanel */}
-    <CellOverlayPanel {...({ cell: hoveredCell } as any)} />
-  </div>
-)}
-</div>
-);
-}
+export default SCIAtomSheetPanel;

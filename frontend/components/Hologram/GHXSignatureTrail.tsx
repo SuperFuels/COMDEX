@@ -1,9 +1,11 @@
 // File: GHXSignatureTrail.tsx
 
-import React, { useRef, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
-import { Html } from '@react-three/drei';
+"use client";
+
+import React, { useRef, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import { Html } from "@react-three/drei";
 
 interface TrailOverlayMetadata {
   label: string;
@@ -32,10 +34,14 @@ export default function GHXSignatureTrail({
   speed?: number;
   overlayMetadata?: TrailOverlayMetadata[];
 }) {
-  const trailRef = useRef<any>();
+  const trailRef = useRef<any>(null);
 
   const hue = soulHashToHue(identity);
-  const baseColor = useMemo(() => new THREE.Color(`hsl(${hue}, 80%, 60%)`), [hue]);
+  // use plain CSS color string instead of THREE.Color to dodge type mismatch
+  const baseColor = useMemo(
+    () => `hsl(${hue}, 80%, 60%)`,
+    [hue]
+  );
 
   // Compute glow from overlay intensity (fallback to 1.0)
   const emissiveIntensity = useMemo(() => {
@@ -48,8 +54,8 @@ export default function GHXSignatureTrail({
       const t = clock.getElapsedTime();
       const x = radius * Math.cos(t * speed);
       const z = radius * Math.sin(t * speed);
-      trailRef.current.position.set(x, 0, z);
-      trailRef.current.rotation.y = t * speed;
+      (trailRef.current as THREE.Mesh).position.set(x, 0, z);
+      (trailRef.current as THREE.Mesh).rotation.y = t * speed;
     }
   });
 
@@ -62,13 +68,15 @@ export default function GHXSignatureTrail({
         emissiveIntensity={emissiveIntensity}
       />
       <Html center>
-        <div style={{
-          color: baseColor.getStyle(),
-          fontSize: "0.9em",
-          fontWeight: "bold",
-          opacity: 0.9,
-          textShadow: "0 0 4px rgba(255,255,255,0.5)",
-        }}>
+        <div
+          style={{
+            color: baseColor,
+            fontSize: "0.9em",
+            fontWeight: "bold",
+            opacity: 0.9,
+            textShadow: "0 0 4px rgba(255,255,255,0.5)",
+          }}
+        >
           🧬
         </div>
       </Html>

@@ -21,7 +21,8 @@ export default function LayeredContainerSphere({
   radius = 1.0,
   rotationSpeed = 0.002,
 }: Props) {
-  const groupRef = useRef<THREE.Group>(null);
+  // loosen ref type to avoid @types/three version mismatch
+  const groupRef = useRef<any>(null);
   const timeRef = useRef(0);
 
   const layerColors = ["#ffffff", "#7cf7ff", "#b181ff"];
@@ -37,11 +38,13 @@ export default function LayeredContainerSphere({
 
   useFrame((_, delta) => {
     timeRef.current += delta;
-    if (groupRef.current) groupRef.current.rotation.y += rotationSpeed;
+    if (groupRef.current) {
+      (groupRef.current as THREE.Group).rotation.y += rotationSpeed;
+    }
   });
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef as any}>
       {[0, 1, 2].map((layer) => {
         const glyphsInLayer = grouped[layer];
         const angleStep = (2 * Math.PI) / Math.max(glyphsInLayer.length, 1);
@@ -49,7 +52,8 @@ export default function LayeredContainerSphere({
 
         return glyphsInLayer.map((glyph, i) => {
           const angle = i * angleStep;
-          const pulse = 0.5 + 0.5 * Math.sin(timeRef.current * (1 + layer * 0.3) + i);
+          const pulse =
+            0.5 + 0.5 * Math.sin(timeRef.current * (1 + layer * 0.3) + i);
           const x = Math.cos(angle) * offset;
           const y = 0.15 * layer * Math.sin(angle * 2);
           const z = Math.sin(angle) * offset;
@@ -59,7 +63,11 @@ export default function LayeredContainerSphere({
             <mesh key={`${layer}-${i}-${glyph.symbol}`} position={[x, y, z]}>
               {/* little glowing node */}
               <sphereGeometry args={[0.06 + 0.02 * pulse, 12, 12]} />
-              <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} />
+              <meshStandardMaterial
+                color={color}
+                emissive={color}
+                emissiveIntensity={0.8}
+              />
               {/* crisp label via Html (avoids drei <Text/> typings) */}
               <Html distanceFactor={12}>
                 <div

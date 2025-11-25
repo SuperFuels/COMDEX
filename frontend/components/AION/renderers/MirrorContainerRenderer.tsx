@@ -16,10 +16,14 @@ interface MirrorContainerRendererProps {
   };
 }
 
-const MirrorContainerRenderer: React.FC<MirrorContainerRendererProps> = ({ position, container }) => {
-  const coreRef = useRef<THREE.Mesh>(null);
-  const panelsRef = useRef<THREE.Group>(null);
-  const glyphEchoRef = useRef<THREE.Group>(null);
+const MirrorContainerRenderer: React.FC<MirrorContainerRendererProps> = ({
+  position,
+  container,
+}) => {
+  // loosen refs to avoid @types/three mismatch hell
+  const coreRef = useRef<any>(null);
+  const panelsRef = useRef<any>(null);
+  const glyphEchoRef = useRef<any>(null);
 
   /** 🪞 Generate reflective panels */
   useEffect(() => {
@@ -35,7 +39,7 @@ const MirrorContainerRenderer: React.FC<MirrorContainerRendererProps> = ({ posit
       side: THREE.DoubleSide,
     });
 
-    const angles = [
+    const angles: [number, number, number][] = [
       [0, 0, 0],
       [Math.PI / 2, 0, 0],
       [-Math.PI / 2, 0, 0],
@@ -44,7 +48,7 @@ const MirrorContainerRenderer: React.FC<MirrorContainerRendererProps> = ({ posit
       [Math.PI, 0, 0],
     ];
 
-    angles.forEach((rot, idx) => {
+    angles.forEach((rot) => {
       const panel = new THREE.Mesh(panelGeom, mirrorMaterial.clone());
       panel.rotation.set(rot[0], rot[1], rot[2]);
       panel.position.set(
@@ -52,7 +56,7 @@ const MirrorContainerRenderer: React.FC<MirrorContainerRendererProps> = ({ posit
         Math.sin(rot[0]) * 2,
         Math.cos(rot[1]) * 2
       );
-      panelsRef.current!.add(panel);
+      panelsRef.current.add(panel);
     });
   }, []);
 
@@ -81,8 +85,8 @@ const MirrorContainerRenderer: React.FC<MirrorContainerRendererProps> = ({ posit
     const t = clock.elapsedTime;
 
     if (coreRef.current) {
-      (coreRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
-        0.8 + Math.sin(t * 4) * 0.4;
+      const mat = coreRef.current.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = 0.8 + Math.sin(t * 4) * 0.4;
     }
 
     if (panelsRef.current) {
@@ -91,10 +95,16 @@ const MirrorContainerRenderer: React.FC<MirrorContainerRendererProps> = ({ posit
     }
 
     if (glyphEchoRef.current) {
-      glyphEchoRef.current.children.forEach((glyph, i) => {
-        const angle = (t * 0.6) + (i * Math.PI / 3);
-        glyph.position.set(Math.cos(angle) * 2.5, Math.sin(angle * 1.5) * 1, Math.sin(angle) * 2.5);
-        (glyph as THREE.Sprite).material.opacity = 0.4 + Math.sin(t * 2 + i) * 0.3;
+      glyphEchoRef.current.children.forEach((glyph: any, i: number) => {
+        const angle = t * 0.6 + (i * Math.PI) / 3;
+        glyph.position.set(
+          Math.cos(angle) * 2.5,
+          Math.sin(angle * 1.5) * 1,
+          Math.sin(angle) * 2.5
+        );
+        if (glyph.material instanceof THREE.SpriteMaterial) {
+          glyph.material.opacity = 0.4 + Math.sin(t * 2 + i) * 0.3;
+        }
       });
     }
   });
@@ -123,7 +133,14 @@ const MirrorContainerRenderer: React.FC<MirrorContainerRendererProps> = ({ posit
 
       {/* 🏷 Label */}
       <Html distanceFactor={12}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#66ccff", textShadow: "0 0 8px #66ccff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#66ccff",
+            textShadow: "0 0 8px #66ccff",
+          }}
+        >
           🪞 {container.name}
         </div>
       </Html>

@@ -163,27 +163,28 @@ const ElectronShells: React.FC<{
   shells: ElectronShell[];
   onTeleport?: (containerId: string) => void;
 }> = ({ center, shells, onTeleport }) => {
-  const groupsRef = useRef<THREE.Group[]>([]);
-
-  // ✅ ref callback must return void (not the assigned value)
-  const setGroupRef = React.useCallback(
-    (index: number) => (el: THREE.Group | null): void => {
-      if (el) groupsRef.current[index] = el;
-    },
-    []
-  );
+  // loosen type to avoid @types/three vs three mismatch
+  const groupsRef = useRef<any[]>([]);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     groupsRef.current.forEach((g, i) => {
-      if (g) g.rotation.y = t * (shells[i]?.speed ?? 0);
+      if (g) {
+        (g as THREE.Group).rotation.y = t * (shells[i]?.speed ?? 0);
+      }
     });
   });
 
   return (
     <>
-      {shells.map((sh, si) => (
-        <group key={`shell-${si}`} ref={setGroupRef(si)} position={center}>
+        {shells.map((sh, si) => (
+          <group
+            key={`shell-${si}`}
+            ref={(el: any) => {
+              if (el) groupsRef.current[si] = el;
+            }}
+            position={center}
+          >
           {/* Orbit ring */}
           <mesh rotation={[Math.PI / 2, 0, 0]}>
             <torusGeometry args={[sh.radius, 0.01, 8, 64]} />
@@ -235,21 +236,43 @@ const ElectronShells: React.FC<{
 
 // ---------- QEntropy spiral ----------
 const QEntropySpiral: React.FC = () => {
-  const ref = useRef<THREE.Mesh>(null!);
+  // loosen ref type to avoid three/@types mismatch
+  const ref = useRef<any>(null);
+
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     const angle = t * 1.5;
     const radius = 1.5 + 0.2 * Math.sin(t * 2);
-    ref.current.position.set(radius * Math.cos(angle), 0.5 * Math.sin(angle * 2), radius * Math.sin(angle));
-    ref.current.rotation.y = angle;
-    ref.current.scale.setScalar(1 + 0.2 * Math.sin(t * 4));
+
+    if (ref.current) {
+      ref.current.position.set(
+        radius * Math.cos(angle),
+        0.5 * Math.sin(angle * 2),
+        radius * Math.sin(angle)
+      );
+      ref.current.rotation.y = angle;
+      ref.current.scale.setScalar(1 + 0.2 * Math.sin(t * 4));
+    }
   });
+
   return (
-    <mesh ref={ref}>
+    <mesh ref={ref as any}>
       <torusGeometry args={[0.25, 0.1, 16, 100]} />
-      <meshStandardMaterial color="#88ccff" emissive="#2299ff" emissiveIntensity={1.2} />
+      <meshStandardMaterial
+        color="#88ccff"
+        emissive="#2299ff"
+        emissiveIntensity={1.2}
+      />
       <Html center>
-        <div style={{ color: "#88ccff", fontSize: "1.1em", textShadow: "0 0 6px #2299ff" }}>🌀</div>
+        <div
+          style={{
+            color: "#88ccff",
+            fontSize: "1.1em",
+            textShadow: "0 0 6px #2299ff",
+          }}
+        >
+          🌀
+        </div>
       </Html>
     </mesh>
   );
@@ -314,7 +337,8 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
   collapseTime,
   phase,
 }) => {
-  const meshRef = useRef<THREE.Mesh>(null!);
+  // loosen ref type to dodge three/@types mismatch
+  const meshRef = useRef<any>(null);
   const [hovered, setHovered] = useState(false);
   const [hoverCid, setHoverCid] = useState<string | null>(null);
   const [hoverMeta, setHoverMeta] = useState<any>(null);
@@ -322,17 +346,22 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
   const isMutation = glyph === "⬁";
 
   useFrame(({ clock }) => {
-    const m = meshRef.current as any;
+    const m = meshRef.current;
     if (!m) return;
+
     const t = clock.getElapsedTime();
-    if (isMutation) {
+
+    if (isMutation && m.material) {
       const pulse = 1 + 0.3 * Math.sin(t * 4);
       m.material.emissiveIntensity = pulse;
       m.scale.set(pulse, pulse, pulse);
     }
+
     if (predictive) {
       m.position.y += Math.sin(t * 2) * 0.002;
-      m.material.opacity = 0.4 + 0.2 * Math.sin(t * 1.5);
+      if (m.material) {
+        m.material.opacity = 0.4 + 0.2 * Math.sin(t * 1.5);
+      }
     }
   });
 
@@ -343,12 +372,13 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
 
   const signatureStatus = hoverMeta?.signature_block?.verified;
   const signatureBadge = signatureStatus === true ? "✅" : signatureStatus === false ? "❌" : "⧖";
-  const signatureColor = signatureStatus === true ? "#00ff88" : signatureStatus === false ? "#ff3366" : "#cccccc";
+  const signatureColor =
+    signatureStatus === true ? "#00ff88" : signatureStatus === false ? "#ff3366" : "#cccccc";
 
   return (
     <group>
       <mesh
-        ref={meshRef}
+        ref={meshRef as any}
         position={position}
         onClick={permission !== "read-only" ? onClick : undefined}
         onPointerOver={async (e) => {
@@ -381,7 +411,14 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
         {/* 🔒 Lock */}
         {locked && (
           <Html center>
-            <div style={{ fontSize: "1.5em", color: "#ff3333", textShadow: "0 0 8px #ff0000", marginTop: "-20px" }}>
+            <div
+              style={{
+                fontSize: "1.5em",
+                color: "#ff3333",
+                textShadow: "0 0 8px #ff0000",
+                marginTop: "-20px",
+              }}
+            >
               🔒
             </div>
           </Html>
@@ -422,7 +459,8 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
             }}
           >
             <div style={{ fontWeight: 700, marginBottom: 6 }}>
-              {hoverMeta.container_id ?? hoverCid} — GHX (collapsed: {String(hoverMeta.collapsed ?? false)})
+              {hoverMeta.container_id ?? hoverCid} — GHX (collapsed:{" "}
+              {String(hoverMeta.collapsed ?? false)})
             </div>
             <code style={{ display: "block", maxHeight: 180, overflow: "auto" }}>
               {JSON.stringify(hoverMeta, null, 2)}
@@ -494,7 +532,12 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
                 attach="attributes-position"
                 count={2}
                 array={
-                  new Float32Array([...position, position[0], position[1] - 1.5, position[2]])
+                  new Float32Array([
+                    ...position,
+                    position[0],
+                    position[1] - 1.5,
+                    position[2],
+                  ])
                 }
                 itemSize={3}
               />
@@ -508,7 +551,12 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
       {phase && (
         <mesh position={position}>
           <ringGeometry args={[0.5, 0.7, 32]} />
-          <meshBasicMaterial transparent opacity={0.3} color={getPhaseColor(phase)} side={2} />
+          <meshBasicMaterial
+            transparent
+            opacity={0.3}
+            color={getPhaseColor(phase)}
+            side={2}
+          />
         </mesh>
       )}
 
@@ -516,7 +564,11 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
       {collapsed && collapseTime && (
         <mesh position={position}>
           <sphereGeometry args={[0.55, 32, 32]} />
-          <meshBasicMaterial color={getCollapseHeatColor(collapseTime)} transparent opacity={0.25} />
+          <meshBasicMaterial
+            color={getCollapseHeatColor(collapseTime)}
+            transparent
+            opacity={0.25}
+          />
         </mesh>
       )}
     </group>

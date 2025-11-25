@@ -1,8 +1,11 @@
-import React, { useMemo } from "react";
-import { Canvas } from "@react-three/fiber";
+"use client";
+
+import React from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
+import * as THREE from "three"; // ok to keep, only used inside, not in props
+
+type Vec3 = [number, number, number];
 
 interface GlyphNode {
   id: string;
@@ -17,9 +20,9 @@ interface RecursiveLogicFieldProps {
 }
 
 function GlyphSphere({ node }: { node: GlyphNode }) {
-  const meshRef = React.useRef<THREE.Mesh>(null);
+  // loosen type to dodge @types/three mismatch
+  const meshRef = React.useRef<any>(null);
 
-  // Pulse animation
   useFrame(({ clock }) => {
     if (meshRef.current) {
       const scale = 1 + 0.1 * Math.sin(clock.getElapsedTime() * 2);
@@ -30,14 +33,27 @@ function GlyphSphere({ node }: { node: GlyphNode }) {
   const color = node.color || `hsl(${node.depth * 50}, 100%, 70%)`;
 
   return (
-    <mesh ref={meshRef} position={[0, 0, 0]}>
+    <mesh
+      ref={(n: any) => {
+        meshRef.current = n;
+      }}
+      position={[0, 0, 0]}
+    >
       <sphereGeometry args={[0.4, 32, 32]} />
       <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.4} />
     </mesh>
   );
 }
 
-function RecursiveBranch({ node, origin = new THREE.Vector3(0, 0, 0), level = 0 }: { node: GlyphNode; origin?: THREE.Vector3; level?: number }) {
+function RecursiveBranch({
+  node,
+  origin = [0, 0, 0],
+  level = 0,
+}: {
+  node: GlyphNode;
+  origin?: Vec3;
+  level?: number;
+}) {
   const radius = 3 + level * 2;
   const angleStep = (Math.PI * 2) / (node.children?.length || 1);
 
@@ -46,10 +62,10 @@ function RecursiveBranch({ node, origin = new THREE.Vector3(0, 0, 0), level = 0 
       <GlyphSphere node={node} />
       {node.children?.map((child, i) => {
         const angle = i * angleStep;
-        const x = origin.x + radius * Math.cos(angle);
-        const y = origin.y + radius * Math.sin(angle);
-        const z = origin.z - level * 2;
-        const childPos = new THREE.Vector3(x, y, z);
+        const x = origin[0] + radius * Math.cos(angle);
+        const y = origin[1] + radius * Math.sin(angle);
+        const z = origin[2] - level * 2;
+        const childPos: Vec3 = [x, y, z];
 
         return (
           <group position={childPos} key={child.id}>
@@ -57,7 +73,10 @@ function RecursiveBranch({ node, origin = new THREE.Vector3(0, 0, 0), level = 0 
               <bufferGeometry>
                 <bufferAttribute
                   attach="attributes-position"
-                  array={new Float32Array([0, 0, 0, ...origin.toArray()])}
+                  array={new Float32Array([
+                    0, 0, 0,
+                    origin[0], origin[1], origin[2],
+                  ])}
                   count={2}
                   itemSize={3}
                 />

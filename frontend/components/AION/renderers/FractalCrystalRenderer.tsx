@@ -16,18 +16,27 @@ interface FractalCrystalRendererProps {
   };
 }
 
-const FractalCrystalRenderer: React.FC<FractalCrystalRendererProps> = ({ position, container }) => {
-  const outerRef = useRef<THREE.Mesh>(null);
-  const innerRef = useRef<THREE.Mesh>(null);
-  const shardsRef = useRef<THREE.Group>(null);
-  const glyphGroupRef = useRef<THREE.Group>(null);
+const FractalCrystalRenderer: React.FC<FractalCrystalRendererProps> = ({
+  position,
+  container,
+}) => {
+  // 🔧 Loosen refs to `any` to dodge three/@types/three generics mismatch
+  const outerRef = useRef<any>(null);
+  const innerRef = useRef<any>(null);
+  const shardsRef = useRef<any>(null);
+  const glyphGroupRef = useRef<any>(null);
 
   /** 🎨 Glyph holograms orbiting the crystal */
   useEffect(() => {
     if (!glyphGroupRef.current) return;
     glyphGroupRef.current.clear();
+
     const glyphTexture = createGlyphTexture(container.glyph || "✧");
-    const glyphMaterial = new THREE.SpriteMaterial({ map: glyphTexture, transparent: true, opacity: 0.85 });
+    const glyphMaterial = new THREE.SpriteMaterial({
+      map: glyphTexture,
+      transparent: true,
+      opacity: 0.85,
+    });
 
     for (let i = 0; i < 8; i++) {
       const sprite = new THREE.Sprite(glyphMaterial.clone());
@@ -52,10 +61,21 @@ const FractalCrystalRenderer: React.FC<FractalCrystalRendererProps> = ({ positio
     });
 
     for (let i = 0; i < 12; i++) {
-      const shard = new THREE.Mesh(new THREE.TetrahedronGeometry(0.5), shardMaterial.clone());
+      const shard = new THREE.Mesh(
+        new THREE.TetrahedronGeometry(0.5),
+        shardMaterial.clone()
+      );
       const angle = (i / 12) * Math.PI * 2;
-      shard.position.set(Math.cos(angle) * 2, Math.sin(i * 0.5) * 1.5, Math.sin(angle) * 2);
-      shard.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+      shard.position.set(
+        Math.cos(angle) * 2,
+        Math.sin(i * 0.5) * 1.5,
+        Math.sin(angle) * 2
+      );
+      shard.rotation.set(
+        Math.random() * Math.PI,
+        Math.random() * Math.PI,
+        Math.random() * Math.PI
+      );
       shardsRef.current.add(shard);
     }
   }, []);
@@ -66,22 +86,29 @@ const FractalCrystalRenderer: React.FC<FractalCrystalRendererProps> = ({ positio
 
     if (outerRef.current) {
       outerRef.current.rotation.y += 0.003;
-      (outerRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
-        1.5 + Math.sin(t * 3) * 0.8;
+      const mat = outerRef.current.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = 1.5 + Math.sin(t * 3) * 0.8;
     }
+
     if (innerRef.current) {
       innerRef.current.rotation.x -= 0.004;
       innerRef.current.scale.setScalar(1 + Math.sin(t * 2.5) * 0.2);
     }
+
     if (shardsRef.current) {
-      shardsRef.current.children.forEach((shard, i) => {
+      shardsRef.current.children.forEach((shard: any, i: number) => {
         shard.rotation.y += 0.01 * ((i % 2) ? 1 : -1);
       });
     }
+
     if (glyphGroupRef.current) {
-      glyphGroupRef.current.children.forEach((glyph, i) => {
+      glyphGroupRef.current.children.forEach((glyph: any, i: number) => {
         const angle = t * 0.7 + i * (Math.PI / 4);
-        glyph.position.set(Math.cos(angle) * 3, Math.sin(t * 0.4 + i) * 2, Math.sin(angle) * 3);
+        glyph.position.set(
+          Math.cos(angle) * 3,
+          Math.sin(t * 0.4 + i) * 2,
+          Math.sin(angle) * 3
+        );
       });
     }
   });
@@ -122,7 +149,14 @@ const FractalCrystalRenderer: React.FC<FractalCrystalRendererProps> = ({ positio
 
       {/* 🏷 Label */}
       <Html distanceFactor={14}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#00f8ff", textShadow: "0 0 10px #00f8ff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#00f8ff",
+            textShadow: "0 0 10px #00f8ff",
+          }}
+        >
           ✧ {container.name}
         </div>
       </Html>

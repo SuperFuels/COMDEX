@@ -9,7 +9,7 @@ import type { GlyphNode as BaseGlyphNode } from "@/types/qfc";
  * this component tolerant to different payload shapes.
  */
 type ViewGlyphNode = BaseGlyphNode & {
-  id: string; // most QFC nodes carry an id
+  id: string;
   position: [number, number, number] | THREE.Vector3;
   containerId?: string;
   source?: string;         // e.g. "dream"
@@ -30,7 +30,8 @@ export const Node: React.FC<NodeProps> = ({
   predictedMode = false,
   highlight = false,
 }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+  // loosen the type; we’ll wire it in via a callback ref
+  const meshRef = useRef<THREE.Mesh | null>(null);
   const [hovered, setHovered] = useState(false);
 
   const handleClick = () => {
@@ -75,7 +76,10 @@ export const Node: React.FC<NodeProps> = ({
   return (
     <>
       <mesh
-        ref={meshRef}
+        // callback ref avoids the @types/three vs three Mesh type mismatch
+        ref={(el: any) => {
+          meshRef.current = el as THREE.Mesh | null;
+        }}
         position={position}
         onClick={handleClick}
         onPointerOver={() => setHovered(true)}

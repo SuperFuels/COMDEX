@@ -1,17 +1,18 @@
 // =====================================================
 //  SCI AtomSheet Panel Registration
 // =====================================================
-import { registerPanel } from "./panel_registry";
-import SCIAtomSheetPanel from "@/pages/sci/sci_atomsheet_panel";
 
-registerPanel({
+import SCIAtomSheetPanel, {
+  SciAtomSheetProps,
+} from "@/pages/sci/sci_atomsheet_panel";
+
+export const ATOMSHEET_TOOL = {
   id: "atomsheet",
   title: "AtomSheet",
   component: SCIAtomSheetPanel,
-  makeDefaultProps: () => ({
+  makeDefaultProps: (): SciAtomSheetProps => ({
     wsUrl: process.env.NEXT_PUBLIC_QFC_WS || "ws://localhost:8080/ws/qfc",
     containerId: "sci:atomsheet:init",
     defaultFile: "backend/data/sheets/example_sheet.atom",
-    authToken: process.env.NEXT_PUBLIC_AUTH_TOKEN || "",
   }),
-});
+};

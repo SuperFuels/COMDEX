@@ -16,11 +16,15 @@ interface IcosahedronRendererProps {
   };
 }
 
-const IcosahedronRenderer: React.FC<IcosahedronRendererProps> = ({ position, container }) => {
-  const shellRef = useRef<THREE.Mesh>(null);
-  const coreRef = useRef<THREE.Mesh>(null);
-  const latticeRef = useRef<THREE.Group>(null);
-  const glyphHaloRef = useRef<THREE.Group>(null);
+const IcosahedronRenderer: React.FC<IcosahedronRendererProps> = ({
+  position,
+  container,
+}) => {
+  // loosen all refs to any to avoid @types/three mismatch hell
+  const shellRef = useRef<any>(null);
+  const coreRef = useRef<any>(null);
+  const latticeRef = useRef<any>(null);
+  const glyphHaloRef = useRef<any>(null);
 
   /** 🔮 Glyph halo generator */
   useEffect(() => {
@@ -28,7 +32,11 @@ const IcosahedronRenderer: React.FC<IcosahedronRendererProps> = ({ position, con
     glyphHaloRef.current.clear();
 
     const glyphTexture = createGlyphTexture(container.glyph || "⬡");
-    const glyphMaterial = new THREE.SpriteMaterial({ map: glyphTexture, transparent: true, opacity: 0.85 });
+    const glyphMaterial = new THREE.SpriteMaterial({
+      map: glyphTexture,
+      transparent: true,
+      opacity: 0.85,
+    });
 
     const haloCount = 12;
     for (let i = 0; i < haloCount; i++) {
@@ -43,7 +51,11 @@ const IcosahedronRenderer: React.FC<IcosahedronRendererProps> = ({ position, con
     if (!latticeRef.current) return;
     latticeRef.current.clear();
 
-    const lineMaterial = new THREE.LineBasicMaterial({ color: "#00ffff", transparent: true, opacity: 0.5 });
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: "#00ffff",
+      transparent: true,
+      opacity: 0.5,
+    });
     const geometry = new THREE.IcosahedronGeometry(2, 1);
     const edges = new THREE.EdgesGeometry(geometry);
     const line = new THREE.LineSegments(edges, lineMaterial);
@@ -56,8 +68,8 @@ const IcosahedronRenderer: React.FC<IcosahedronRendererProps> = ({ position, con
 
     if (shellRef.current) {
       shellRef.current.rotation.y += 0.002;
-      (shellRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
-        1 + Math.sin(t * 2) * 0.8;
+      const mat = shellRef.current.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = 1 + Math.sin(t * 2) * 0.8;
     }
 
     if (coreRef.current) {
@@ -67,9 +79,15 @@ const IcosahedronRenderer: React.FC<IcosahedronRendererProps> = ({ position, con
     }
 
     if (glyphHaloRef.current) {
-      glyphHaloRef.current.children.forEach((glyph, i) => {
-        const angle = t * 0.5 + (i * Math.PI * 2) / glyphHaloRef.current!.children.length;
-        glyph.position.set(Math.cos(angle) * 3.2, Math.sin(angle * 1.2) * 1.5, Math.sin(angle) * 3.2);
+      glyphHaloRef.current.children.forEach((glyph: any, i: number) => {
+        const angle =
+          t * 0.5 +
+          (i * Math.PI * 2) / Math.max(glyphHaloRef.current!.children.length, 1);
+        glyph.position.set(
+          Math.cos(angle) * 3.2,
+          Math.sin(angle * 1.2) * 1.5,
+          Math.sin(angle) * 3.2
+        );
       });
     }
   });
@@ -110,7 +128,14 @@ const IcosahedronRenderer: React.FC<IcosahedronRendererProps> = ({ position, con
 
       {/* 🏷 Label */}
       <Html distanceFactor={14}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#00f8ff", textShadow: "0 0 10px #00f8ff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#00f8ff",
+            textShadow: "0 0 10px #00f8ff",
+          }}
+        >
           ⬡ {container.name}
         </div>
       </Html>

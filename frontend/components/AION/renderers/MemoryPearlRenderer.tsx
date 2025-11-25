@@ -20,9 +20,10 @@ const MemoryPearlRenderer: React.FC<MemoryPearlRendererProps> = ({
   position,
   container,
 }) => {
-  const pearlRef = useRef<THREE.Mesh>(null);
-  const rippleGroupRef = useRef<THREE.Group>(null);
-  const glyphRingRef = useRef<THREE.Group>(null);
+  // loosen refs to any to avoid @types/three mismatch
+  const pearlRef = useRef<any>(null);
+  const rippleGroupRef = useRef<any>(null);
+  const glyphRingRef = useRef<any>(null);
 
   /** 🔮 Glyph Rings (Orbiting Holograms) */
   useEffect(() => {
@@ -77,11 +78,9 @@ const MemoryPearlRenderer: React.FC<MemoryPearlRendererProps> = ({
 
     // Ripple ring growth + fade
     if (rippleGroupRef.current) {
-      rippleGroupRef.current.children.forEach((obj, i) => {
-        // scale exists on Object3D
+      rippleGroupRef.current.children.forEach((obj: any, i: number) => {
         obj.scale.setScalar(1 + ((t + i) % 2) * 0.5);
 
-        // material only on Mesh → narrow first
         if (
           obj instanceof THREE.Mesh &&
           obj.material instanceof THREE.MeshBasicMaterial
@@ -94,7 +93,7 @@ const MemoryPearlRenderer: React.FC<MemoryPearlRendererProps> = ({
     // Glyph sprites orbit
     if (glyphRingRef.current) {
       const total = glyphRingRef.current.children.length || 1;
-      glyphRingRef.current.children.forEach((child, i) => {
+      glyphRingRef.current.children.forEach((child: any, i: number) => {
         const angle = t * 0.5 + (i * Math.PI * 2) / total;
         child.position.set(
           Math.cos(angle) * 2.5,

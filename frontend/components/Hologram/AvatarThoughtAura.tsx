@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useRef, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";  
+import * as THREE from "three";
 import { MeshDistortMaterial, Html } from "@react-three/drei";
 import { animated, useSpring } from "@react-spring/three";
 
@@ -30,7 +32,9 @@ export default function ExpansionCore({
   containerId,
   glyphOverlay = [],
 }: SymbolicExpansionSphereProps) {
-  const meshRef = useRef<THREE.Mesh>(null);
+  // loosen ref type to dodge @types/three mismatch
+  const meshRef = useRef<any>(null);
+
   const logicDepth = expandedLogic?.logic_tree?.depth ?? 1;
   const [clicked, setClicked] = useState(false);
 
@@ -48,7 +52,9 @@ export default function ExpansionCore({
   });
 
   useFrame(() => {
-    if (meshRef.current) meshRef.current.rotation.y += 0.003;
+    if (meshRef.current) {
+      (meshRef.current as THREE.Mesh).rotation.y += 0.003;
+    }
   });
 
   const emissive = isEntangled ? "#b377f1" : isInMemory ? "#00ffaa" : "#00ccff";
@@ -56,8 +62,8 @@ export default function ExpansionCore({
   return (
     <group>
       <animated.mesh
-        ref={meshRef}
-        scale={scale.to((s: number) => [s, s, s])}
+        ref={meshRef as any}
+        scale={scale.to((s: number) => [s, s, s]) as any}
         onClick={() => setClicked(true)}
       >
         <sphereGeometry args={[1, 64, 64]} />
@@ -81,7 +87,7 @@ export default function ExpansionCore({
         </mesh>
       )}
 
-      {/* Glyph overlay labels (use Html to avoid Text typings friction) */}
+      {/* Glyph overlay labels */}
       {glyphOverlay.map((glyph, i) => {
         const x = Math.cos(i) * 1.2;
         const y = Math.sin(i) * 1.2;
@@ -104,7 +110,13 @@ export default function ExpansionCore({
 
       {/* Container label */}
       <Html center position={[0, -1.5, 0]}>
-        <div style={{ fontSize: "0.85rem", color: "#ccc", fontFamily: "monospace" }}>
+        <div
+          style={{
+            fontSize: "0.85rem",
+            color: "#ccc",
+            fontFamily: "monospace",
+          }}
+        >
           {containerId}
         </div>
       </Html>

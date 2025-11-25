@@ -16,18 +16,23 @@ interface QuantumOrdRendererProps {
   };
 }
 
-const QuantumOrdRenderer: React.FC<QuantumOrdRendererProps> = ({ position, container }) => {
-  const coreRef = useRef<THREE.Mesh>(null);
-  const latticeRef = useRef<THREE.Points>(null);
-  const glyphOrbitRef = useRef<THREE.Group>(null);
-  const pulseFieldRef = useRef<THREE.Mesh>(null);
+const QuantumOrdRenderer: React.FC<QuantumOrdRendererProps> = ({
+  position,
+  container,
+}) => {
+  // 🔧 loosen ref typing to dodge @types/three version mismatches
+  const coreRef = useRef<any>(null);
+  const latticeRef = useRef<any>(null);
+  const glyphOrbitRef = useRef<any>(null);
+  const pulseFieldRef = useRef<any>(null);
 
   /** 🌌 Quantum Lattice (Point Cloud) */
   useEffect(() => {
     if (!latticeRef.current) return;
 
     const geometry = new THREE.BufferGeometry();
-    const points = [];
+    const points: number[] = [];
+
     for (let i = 0; i < 500; i++) {
       const r = 1.8;
       const theta = Math.random() * Math.PI * 2;
@@ -37,7 +42,11 @@ const QuantumOrdRenderer: React.FC<QuantumOrdRendererProps> = ({ position, conta
       const z = r * Math.cos(phi);
       points.push(x, y, z);
     }
-    geometry.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
+
+    geometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(points, 3)
+    );
 
     const material = new THREE.PointsMaterial({
       color: "#ff00ff",
@@ -46,8 +55,9 @@ const QuantumOrdRenderer: React.FC<QuantumOrdRendererProps> = ({ position, conta
       opacity: 0.8,
     });
 
-    latticeRef.current.geometry = geometry;
-    latticeRef.current.material = material;
+    const pointsObj = latticeRef.current as THREE.Points;
+    pointsObj.geometry = geometry;
+    pointsObj.material = material;
   }, []);
 
   /** 🔮 Glyph Orbit Projectors */
@@ -75,25 +85,35 @@ const QuantumOrdRenderer: React.FC<QuantumOrdRendererProps> = ({ position, conta
     const t = clock.elapsedTime;
 
     if (coreRef.current) {
-      coreRef.current.rotation.y += 0.01;
-      (coreRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity =
-        1.2 + Math.sin(t * 3) * 0.5;
+      const mesh = coreRef.current as THREE.Mesh;
+      mesh.rotation.y += 0.01;
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = 1.2 + Math.sin(t * 3) * 0.5;
     }
 
     if (latticeRef.current) {
-      latticeRef.current.rotation.y -= 0.002;
+      (latticeRef.current as THREE.Points).rotation.y -= 0.002;
     }
 
     if (pulseFieldRef.current) {
-      pulseFieldRef.current.scale.setScalar(1 + 0.2 * Math.sin(t * 2));
-      (pulseFieldRef.current.material as THREE.MeshStandardMaterial).opacity = 0.25 + 0.15 * Math.sin(t * 2);
+      const mesh = pulseFieldRef.current as THREE.Mesh;
+      mesh.scale.setScalar(1 + 0.2 * Math.sin(t * 2));
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.opacity = 0.25 + 0.15 * Math.sin(t * 2);
     }
 
     if (glyphOrbitRef.current) {
-      glyphOrbitRef.current.children.forEach((glyph, i) => {
-        const angle = t * 0.8 + i * (Math.PI / 3);
-        glyph.position.set(Math.cos(angle) * 2.5, Math.sin(angle * 1.2) * 1.2, Math.sin(angle) * 2.5);
-        (glyph as THREE.Sprite).material.opacity = 0.5 + Math.sin(t * 2 + i) * 0.4;
+      const group = glyphOrbitRef.current as THREE.Group;
+      group.children.forEach((glyph: any, i: number) => {
+        const angle = t * 0.8 + (i * Math.PI) / 3;
+        glyph.position.set(
+          Math.cos(angle) * 2.5,
+          Math.sin(angle * 1.2) * 1.2,
+          Math.sin(angle) * 2.5
+        );
+        if (glyph.material instanceof THREE.SpriteMaterial) {
+          glyph.material.opacity = 0.5 + Math.sin(t * 2 + i) * 0.4;
+        }
       });
     }
   });
@@ -135,7 +155,14 @@ const QuantumOrdRenderer: React.FC<QuantumOrdRendererProps> = ({ position, conta
 
       {/* 🏷 Label */}
       <Html distanceFactor={12}>
-        <div style={{ textAlign: "center", fontSize: "0.8rem", color: "#ff00ff", textShadow: "0 0 10px #ff00ff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.8rem",
+            color: "#ff00ff",
+            textShadow: "0 0 10px #ff00ff",
+          }}
+        >
           ⚛ {container.name}
         </div>
       </Html>

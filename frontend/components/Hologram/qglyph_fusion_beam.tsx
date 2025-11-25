@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -39,8 +41,9 @@ export const QGlyphFusionBeam: React.FC<BeamProps> = ({
   showLabel = true,
   onClick,
 }) => {
-  const beamRef = useRef<THREE.Mesh>(null!);
-  const materialRef = useRef<THREE.MeshBasicMaterial>(null!);
+  // loosen refs to avoid @types/three vs three mismatch
+  const beamRef = useRef<any>(null);
+  const materialRef = useRef<any>(null);
 
   const color = useMemo(
     () => computeGradientColor(entropy, cost, logicType),
@@ -60,13 +63,18 @@ export const QGlyphFusionBeam: React.FC<BeamProps> = ({
     };
   }, [source, target]);
 
-  // ✅ useSpring tuple form: [springValues, api]
+  const mid = useMemo(
+    () => source.clone().add(target).multiplyScalar(0.5),
+    [source, target]
+  );
+  const midArray: [number, number, number] = [mid.x, mid.y, mid.z];
+
+  // spring for beam scale
   const [spring, api] = useSpring(() => ({
     scale: [1, 1, 1] as [number, number, number],
     config: { duration: 800 },
   }));
 
-  // Drive the pulsing animation with the api to avoid tuple typing errors
   useEffect(() => {
     api.stop();
     if (pulseSpeed > 0) {
@@ -88,18 +96,23 @@ export const QGlyphFusionBeam: React.FC<BeamProps> = ({
 
   useFrame(() => {
     if (materialRef.current) {
-      materialRef.current.color.set(color);
-      materialRef.current.opacity = 0.5 + 0.4 * Math.sin(Date.now() * 0.005 * Math.max(0.01, pulseSpeed));
+      const mat = materialRef.current as THREE.MeshBasicMaterial;
+      mat.color.set(color);
+      mat.opacity =
+        0.5 + 0.4 * Math.sin(Date.now() * 0.005 * Math.max(0.01, pulseSpeed));
     }
   });
 
   return (
     <>
       <animated.mesh
-        ref={beamRef}
-        position={source.clone().add(target).multiplyScalar(0.5)}
+        ref={(node: any) => {
+          beamRef.current = node;
+        }}
+        position={midArray}
         rotation={direction.rotation}
-        scale={spring.scale}
+        // cast to any to satisfy r3f + spring typing differences
+        scale={spring.scale as any}
         onClick={onClick}
       >
         <cylinderGeometry args={[0.03, 0.03, direction.length, 8]} />
@@ -113,7 +126,7 @@ export const QGlyphFusionBeam: React.FC<BeamProps> = ({
       </animated.mesh>
 
       {showLabel && (
-        <Html position={source.clone().add(target).multiplyScalar(0.5)} center distanceFactor={10}>
+        <Html position={midArray} center distanceFactor={10}>
           <div
             style={{
               background: "rgba(0,0,0,0.6)",

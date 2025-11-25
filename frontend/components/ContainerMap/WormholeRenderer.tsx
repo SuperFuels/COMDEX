@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useMemo } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
@@ -26,17 +28,18 @@ export default function WormholeRenderer({
   pulse = false,
   pulseFlow = false,
 }: WormholeRendererProps) {
-  const lineRef = useRef<THREE.Line | null>(null);
-  const textRef = useRef<THREE.Mesh | null>(null);
+  const lineRef = useRef<any>(null);
+  const textRef = useRef<any>(null);
 
   const points = useMemo(
     () => [new THREE.Vector3(...from), new THREE.Vector3(...to)],
     [from, to]
   );
 
-  const geometry = useMemo(() => {
-    return new THREE.BufferGeometry().setFromPoints(points);
-  }, [points]);
+  const geometry = useMemo(
+    () => new THREE.BufferGeometry().setFromPoints(points),
+    [points]
+  );
 
   const material = useMemo(() => {
     const mat = new THREE.LineBasicMaterial({
@@ -63,10 +66,11 @@ export default function WormholeRenderer({
   }, [glyph, font]);
 
   useFrame(({ clock }) => {
-    if (pulse && lineRef.current?.material instanceof THREE.Material) {
+    if (pulse && lineRef.current && lineRef.current.material) {
+      const mat = lineRef.current.material as THREE.Material;
       const intensity = 0.5 + 0.5 * Math.sin(clock.elapsedTime * 4);
-      lineRef.current.material.opacity = intensity;
-      lineRef.current.material.needsUpdate = true;
+      mat.opacity = intensity;
+      mat.needsUpdate = true;
     }
   });
 
@@ -74,15 +78,20 @@ export default function WormholeRenderer({
     () => new THREE.Vector3().addVectors(points[0], points[1]).multiplyScalar(0.5),
     [points]
   );
+  const midArray = useMemo(
+    () => mid.toArray() as [number, number, number],
+    [mid]
+  );
 
   return (
     <>
-      {/* the line */}
+      {/* line */}
       <primitive object={new THREE.Line(geometry, material)} ref={lineRef as any} />
 
-      {/* optional floating glyph at midpoint */}
+      {/* glyph at midpoint */}
       {glyph && textGeometry && (
-        <mesh ref={textRef} position={mid} geometry={textGeometry}>
+        <mesh ref={textRef as any} position={midArray}>
+          <primitive object={textGeometry as any} attach="geometry" />
           <meshStandardMaterial
             color={color}
             emissive={color}

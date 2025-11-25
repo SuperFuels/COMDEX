@@ -25,18 +25,21 @@ export const ElectronSphere: React.FC<ElectronProps> = ({
   defaultColor = "#ffffff",
   onClick,
 }) => {
-  const ref = useRef<THREE.Mesh>(null);
+  // loosen type + use callback ref to dodge three/@types mismatch
+  const ref = useRef<any>(null);
   const [hovered, setHovered] = useState(false);
 
   useFrame(() => {
     if (ref.current) {
-      ref.current.rotation.y += 0.01;
+      (ref.current as THREE.Mesh).rotation.y += 0.01;
     }
   });
 
   return (
     <mesh
-      ref={ref}
+      ref={(node: any) => {
+        ref.current = node;
+      }}
       position={position}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
@@ -64,12 +67,12 @@ export const ElectronPredictionTest: React.FC = () => {
     {
       id: "e1",
       position: [2, 0, 0],
-      predictedGlyph: "⊕"
+      predictedGlyph: "⊕",
     },
     {
       id: "e2",
       position: [-2, 0, 0],
-      predictedGlyph: "⧖"
+      predictedGlyph: "⧖",
     },
   ];
 

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { MeshDistortMaterial, Html } from "@react-three/drei";
@@ -27,10 +29,13 @@ export default function ExpansionCore({
   containerId,
   glyphOverlay = [],
 }: SymbolicExpansionSphereProps) {
-  const meshRef = useRef<THREE.Mesh>(null);
+  // loosen ref type to avoid @types/three mismatch
+  const meshRef = useRef<any>(null);
+
   const logicDepth = expandedLogic?.logic_tree?.depth ?? 1;
   const [clicked, setClicked] = useState(false);
   const Distort = MeshDistortMaterial as unknown as React.ComponentType<any>;
+
   const baseScale = useMemo(() => {
     if (isCollapsed) return 0.5;
     if (mode === "pulse") return Math.sin(runtimeTick * 0.1) * 0.1 + 1;
@@ -44,8 +49,15 @@ export default function ExpansionCore({
     onRest: () => setClicked(false),
   });
 
+  // cast the interpolated scale so TS stops complaining
+  const animatedScale = scale.to((s: number) => [s, s, s]) as unknown as
+    | [number, number, number]
+    | THREE.Vector3;
+
   useFrame(() => {
-    if (meshRef.current) meshRef.current.rotation.y += 0.003;
+    if (meshRef.current) {
+      (meshRef.current as THREE.Mesh).rotation.y += 0.003;
+    }
   });
 
   const emissive = isEntangled ? "#b377f1" : isInMemory ? "#00ffaa" : "#00ccff";
@@ -53,8 +65,8 @@ export default function ExpansionCore({
   return (
     <group>
       <animated.mesh
-        ref={meshRef}
-        scale={scale.to((s: number) => [s, s, s])}
+        ref={meshRef as any}
+        scale={animatedScale}
         onClick={() => setClicked(true)}
       >
         <sphereGeometry args={[1, 64, 64]} />
@@ -70,7 +82,7 @@ export default function ExpansionCore({
         />
       </animated.mesh>
 
-      {/* Memory halo ring (use raw geometry to avoid drei Ring typing issues) */}
+      {/* Memory halo ring */}
       {isInMemory && (
         <mesh>
           <ringGeometry args={[1.1, 1.25, 64]} />
@@ -78,7 +90,7 @@ export default function ExpansionCore({
         </mesh>
       )}
 
-      {/* Glyph overlay labels (avoid drei <Text/> typings by using Html) */}
+      {/* Glyph overlay labels */}
       {glyphOverlay.map((glyph, i) => {
         const x = Math.cos(i) * 1.2;
         const y = Math.sin(i) * 1.2;
@@ -101,8 +113,13 @@ export default function ExpansionCore({
 
       {/* Container label */}
       <Html center position={[0, -1.5, 0]}>
-        <div style={{ fontSize: "0.85rem", color: "#ccc", fontFamily:
-        "monospace" }}>
+        <div
+          style={{
+            fontSize: "0.85rem",
+            color: "#ccc",
+            fontFamily: "monospace",
+          }}
+        >
           {containerId}
         </div>
       </Html>

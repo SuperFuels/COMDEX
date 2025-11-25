@@ -21,7 +21,8 @@ export default function GlyphSprite({
   float = true,
   color = "#ffffff",
 }: GlyphSpriteProps) {
-  const groupRef = useRef<THREE.Group | null>(null);
+  // 👇 loosen type so it doesn't conflict with the other three typings
+  const groupRef = useRef<any>(null);
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -44,7 +45,6 @@ export default function GlyphSprite({
         <div
           style={{
             color,
-            // roughly map your 'scale' to CSS px size; tweak as desired
             fontSize: `${Math.max(10, Math.round(scale * 48))}px`,
             fontWeight: 700,
             textShadow: "0 0 6px rgba(0,0,0,0.6)",

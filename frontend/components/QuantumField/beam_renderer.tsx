@@ -1,11 +1,13 @@
-import * as THREE from "three";
+"use client";
+
 import React, { useRef, useMemo } from "react";
+import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 
 export interface BeamProps {
   source: [number, number, number];
   target: [number, number, number];
-  path?: [number, number, number][]; // ✅ Added
+  path?: [number, number, number][]; // optional explicit path
   prediction?: boolean;
   collapseState?: "collapsed" | "predicted" | "contradicted";
   sqiScore?: number;
@@ -27,19 +29,19 @@ export const QWaveBeam: React.FC<BeamProps> = ({
   memory = false,
   logic = false,
 }) => {
-  const materialRef = useRef<THREE.MeshStandardMaterial>(null);
-  const beamRef = useRef<THREE.Mesh>(null);
-  const pulse = useRef(0);
+  // loosen refs to avoid @types/three vs three mismatch
+  const materialRef = useRef<any>(null);
+  const beamRef = useRef<any>(null);
+  const pulseRef = useRef(0);
 
   if (!show) return null;
 
-  // 🎯 Compute points
+  // 🎯 compute points along the beam
   const points = useMemo(() => {
     if (path && path.length >= 2) {
       return path.map((p) => new THREE.Vector3(...p));
     }
 
-    // default to quadratic curve
     const curve = new THREE.QuadraticBezierCurve3(
       new THREE.Vector3(...source),
       new THREE.Vector3(
@@ -52,15 +54,18 @@ export const QWaveBeam: React.FC<BeamProps> = ({
     return curve.getPoints(32);
   }, [path, source, target]);
 
-  const geometry = useMemo(() => {
-    return new THREE.TubeGeometry(
-      new THREE.CatmullRomCurve3(points),
-      32,
-      emotion ? 0.12 : memory ? 0.04 : logic ? 0.07 : 0.06,
-      8,
-      false
-    );
-  }, [points, emotion, memory, logic]);
+  // 🔺 tube geometry for the beam – cast to any so R3F is happy
+  const geometry = useMemo(
+    () =>
+      (new THREE.TubeGeometry(
+        new THREE.CatmullRomCurve3(points),
+        32,
+        emotion ? 0.12 : memory ? 0.04 : logic ? 0.07 : 0.06,
+        8,
+        false
+      ) as any),
+    [points, emotion, memory, logic]
+  );
 
   const getBeamColor = () => {
     if (emotion) return "#FCA5A5";
@@ -73,8 +78,9 @@ export const QWaveBeam: React.FC<BeamProps> = ({
   };
 
   useFrame(() => {
-    pulse.current += 0.02;
-    const oscillation = 0.5 + 0.5 * Math.sin(pulse.current);
+    pulseRef.current += 0.02;
+    const oscillation = 0.5 + 0.5 * Math.sin(pulseRef.current);
+
     if (materialRef.current) {
       materialRef.current.emissiveIntensity = 0.6 + oscillation * sqiScore * 2;
       materialRef.current.opacity = 0.7 + 0.3 * oscillation;
@@ -82,7 +88,7 @@ export const QWaveBeam: React.FC<BeamProps> = ({
   });
 
   return (
-    <mesh geometry={geometry} ref={beamRef}>
+    <mesh ref={beamRef} geometry={geometry as any}>
       <meshStandardMaterial
         ref={materialRef}
         color={getBeamColor()}
@@ -94,3 +100,5 @@ export const QWaveBeam: React.FC<BeamProps> = ({
     </mesh>
   );
 };
+
+export default QWaveBeam;

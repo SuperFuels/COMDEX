@@ -149,7 +149,9 @@ export default function ContainerMap3D({
 
     const scaleFactor = useMemo(() => {
       const base = symbolicScale ? 1 + (container.logic_depth || 0) / 10 : 1;
-      const tickPulse = container.runtime_tick ? Math.sin(container.runtime_tick / 4) * 0.1 : 0;
+      const tickPulse = container.runtime_tick
+        ? Math.sin(container.runtime_tick / 4) * 0.1
+        : 0;
       return base + tickPulse;
     }, [container.logic_depth, container.runtime_tick, symbolicScale]);
 
@@ -191,8 +193,14 @@ export default function ContainerMap3D({
         </mesh>
 
         <lineSegments>
-          <edgesGeometry args={[new THREE.BoxGeometry(1, 1, 1)]} />
-          <lineBasicMaterial color={shouldGlow ? "#aa00ff" : color} linewidth={2} />
+          {/* Work around three/@types-three version mismatch */}
+          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+          {/* @ts-ignore */}
+          <edgesGeometry args={[new (THREE as any).BoxGeometry(1, 1, 1)]} />
+          <lineBasicMaterial
+            color={shouldGlow ? "#aa00ff" : color}
+            linewidth={2}
+          />
         </lineSegments>
 
         {shouldTrail && (
@@ -225,24 +233,35 @@ export default function ContainerMap3D({
             <div style={{ opacity: 0.6 }}>
               {container.in_memory ? "🧠 In-Memory" : "💾 Loaded"}
             </div>
-            {container.glyph && <div style={{ fontSize: "1.2rem" }}>{container.glyph}</div>}
+            {container.glyph && (
+              <div style={{ fontSize: "1.2rem" }}>{container.glyph}</div>
+            )}
             {symbolicScale && (
               <div style={{ fontSize: "0.6rem", opacity: 0.7 }}>
-                Logic: {container.logic_depth || 0}, Tick: {container.runtime_tick || 0}, Mem:{" "}
+                Logic: {container.logic_depth || 0}, Tick:{" "}
+                {container.runtime_tick || 0}, Mem:{" "}
                 {container.memory_count || 0}
               </div>
             )}
           </div>
         </Html>
 
-        {container.glyph && <GlyphSprite position={position} glyph={container.glyph} />}
+        {container.glyph && (
+          <GlyphSprite position={position} glyph={container.glyph} />
+        )}
       </group>
     );
   }
 
   function ProtonFieldParticles({ zone }: { zone: string | null }) {
-    const group = useRef<THREE.Group>(null);
-    const [fields, setFields] = useState<{ gravity: number; magnetism: number; wave_frequency: number }>({
+    // NOTE: use `any` here to avoid three/@types-three type mismatches
+    const group = useRef<any>(null);
+
+    const [fields, setFields] = useState<{
+      gravity: number;
+      magnetism: number;
+      wave_frequency: number;
+    }>({
       gravity: 0,
       magnetism: 0,
       wave_frequency: 0,
@@ -270,25 +289,46 @@ export default function ContainerMap3D({
 
     useEffect(() => {
       const interval = setInterval(() => {
-        axios.get("/api/aion/engine/qwave/fields").then((res) => {
-          setFields(res.data.fields || { gravity: 0, magnetism: 0, wave_frequency: 0 });
-        }).catch(() => {});
+        axios
+          .get("/api/aion/engine/qwave/fields")
+          .then((res) => {
+            setFields(
+              res.data.fields || {
+                gravity: 0,
+                magnetism: 0,
+                wave_frequency: 0,
+              }
+            );
+          })
+          .catch(() => {});
       }, 1000);
       return () => clearInterval(interval);
     }, []);
 
     useFrame(({ clock }) => {
       particles.forEach((p) => {
-        const gravityForce = p.pos.clone().normalize().multiplyScalar(-fields.gravity * 0.002);
-        const magnetismForce = new THREE.Vector3(-p.pos.z, 0, p.pos.x).normalize().multiplyScalar(fields.magnetism * 0.002);
-        const waveForce = Math.sin(clock.elapsedTime * fields.wave_frequency) * 0.002;
+        const gravityForce = p.pos
+          .clone()
+          .normalize()
+          .multiplyScalar(-fields.gravity * 0.002);
+        const magnetismForce = new THREE.Vector3(
+          -p.pos.z,
+          0,
+          p.pos.x
+        )
+          .normalize()
+          .multiplyScalar(fields.magnetism * 0.002);
+        const waveForce =
+          Math.sin(clock.elapsedTime * fields.wave_frequency) * 0.002;
 
         p.vel.add(gravityForce).add(magnetismForce);
         p.pos.add(p.vel.multiplyScalar(0.98));
         p.pos.y += waveForce;
       });
 
-      if (group.current) group.current.rotation.y += 0.0005;
+      if (group.current) {
+        group.current.rotation.y += 0.0005;
+      }
     });
 
     return (

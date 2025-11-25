@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Float, Html } from "@react-three/drei";
@@ -23,20 +25,22 @@ const OrbitingGlyph: React.FC<{
   total: number;
   radius: number;
 }> = ({ glyph, index, total, radius }) => {
-  const ref = useRef<THREE.Group>(null!);
+  // loosen ref type to dodge @types/three mismatch
+  const ref = useRef<any>(null);
   const angleOffset = (index / Math.max(1, total)) * Math.PI * 2;
 
   useFrame(({ clock }) => {
+    if (!ref.current) return;
     const t = clock.getElapsedTime();
     const angle = angleOffset + t * 0.3;
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
-    ref.current.position.set(x, 1.5, z);
-    ref.current.rotation.y = -angle;
+    (ref.current as THREE.Group).position.set(x, 1.5, z);
+    (ref.current as THREE.Group).rotation.y = -angle;
   });
 
   return (
-    <group ref={ref}>
+    <group ref={ref as any}>
       <Float speed={glyph.pulse ? 2 : 0} floatIntensity={glyph.pulse ? 1.5 : 0.2}>
         <Html center distanceFactor={14}>
           <div

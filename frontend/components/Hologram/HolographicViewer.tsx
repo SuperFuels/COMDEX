@@ -64,21 +64,24 @@ function LayeredContainerSphere({
   radius?: number;
   rotationSpeed?: number;
 }) {
-  const groupRef = useRef<THREE.Group>(null);
+  // loosen type to dodge three/@types-three mismatch
+  const groupRef = useRef<any>(null);
 
   // lightweight manual RAF so we don't pull in useFrame here
   useEffect(() => {
     let raf = 0;
     const tick = () => {
       raf = requestAnimationFrame(tick);
-      if (groupRef.current) groupRef.current.rotation.y += rotationSpeed;
+      if (groupRef.current) {
+        groupRef.current.rotation.y += rotationSpeed;
+      }
     };
     tick();
     return () => cancelAnimationFrame(raf);
   }, [rotationSpeed]);
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef as any}>
       {glyphs.map((g, i) => {
         const layer = Math.max(0, g.layer ?? 0);
         const r = radius + layer * 0.35;
@@ -91,7 +94,11 @@ function LayeredContainerSphere({
         return (
           <mesh key={`layer-glyph-${i}`} position={pos}>
             <sphereGeometry args={[0.06, 12, 12]} />
-            <meshStandardMaterial color="#00ffff" emissive="#00ffff" emissiveIntensity={0.8} />
+            <meshStandardMaterial
+              color="#00ffff"
+              emissive="#00ffff"
+              emissiveIntensity={0.8}
+            />
             <Html distanceFactor={12}>
               <div className="text-xs text-cyan-300">{g.symbol}</div>
             </Html>
@@ -570,73 +577,74 @@ type GHXProjection = {
   light_field: GlyphPoint[];
 };
 
-const AnimatedGlyphNode = forwardRef<THREE.Mesh, AnimatedGlyphNodeProps>(
-  (props, fwdRef) => {
-    const { glyph, layoutMode, onClick, onHover } = props;
-    const meshRef = useRef<THREE.Mesh | null>(null);
-    const { camera } = useThree();
-    const baseColor = getSymbolColor(glyph.symbol);
-    const frequency = getPulseFrequency(glyph.symbol);
-    const mutated = isMutatedGlyph(glyph.symbol);
+const AnimatedGlyphNode = forwardRef<any, AnimatedGlyphNodeProps>((props, fwdRef) => {
+  const { glyph, layoutMode, onClick, onHover } = props;
+  const meshRef = useRef<any>(null);
+  const { camera } = useThree();
+  const baseColor = getSymbolColor(glyph.symbol);
+  const frequency = getPulseFrequency(glyph.symbol);
+  const mutated = isMutatedGlyph(glyph.symbol);
 
-    const getLayoutPosition = (): [number, number, number] => {
-      if (layoutMode === "symbolic") {
-        return [glyph.position.x, glyph.position.y, glyph.position.z];
-      }
-      // simple deterministic scatter for "raw"
-      const base = glyph.symbol.codePointAt(0) ?? 0;
-      return [
-        (base % 10) * 4 - 20,
-        (Math.floor(base / 10) % 10) * 3 - 10,
-        (Math.floor(base / 100) % 10) * 3 - 5,
-      ];
-    };
+  const getLayoutPosition = (): [number, number, number] => {
+    if (layoutMode === "symbolic") {
+      return [glyph.position.x, glyph.position.y, glyph.position.z];
+    }
+    // simple deterministic scatter for "raw"
+    const base = glyph.symbol.codePointAt(0) ?? 0;
+    return [
+      (base % 10) * 4 - 20,
+      (Math.floor(base / 10) % 10) * 3 - 10,
+      (Math.floor(base / 100) % 10) * 3 - 5,
+    ];
+  };
 
-    // bridge local ref -> forwarded ref
-    const assignRef = (node: THREE.Mesh | null) => {
-      meshRef.current = node;
-      if (typeof fwdRef === "function") fwdRef(node);
-      else if (fwdRef) (fwdRef as React.MutableRefObject<THREE.Mesh | null>).current = node;
-    };
+  // bridge local ref -> forwarded ref, all as `any` to dodge @types/three mismatch
+  const assignRef = (node: any) => {
+    meshRef.current = node;
+    if (typeof fwdRef === "function") {
+      fwdRef(node);
+    } else if (fwdRef && typeof fwdRef === "object") {
+      (fwdRef as React.MutableRefObject<any>).current = node;
+    }
+  };
 
-    useFrame(({ clock }) => {
-      if (!meshRef.current) return;
-      const pulse = 0.5 + 0.5 * Math.sin(clock.elapsedTime * frequency);
-      const dirToGlyph = new THREE.Vector3()
-        .subVectors(meshRef.current.position, camera.position)
-        .normalize();
-      const gazeBoost = dirToGlyph.dot(camera.getWorldDirection(new THREE.Vector3()));
-      const focusFactor = Math.max(0, gazeBoost);
+  useFrame(({ clock }) => {
+    if (!meshRef.current) return;
+    const pulse = 0.5 + 0.5 * Math.sin(clock.elapsedTime * frequency);
 
-      const mat = meshRef.current.material as THREE.MeshStandardMaterial;
-      const intensity = glyph.light_intensity * (1 + pulse + 0.8 * focusFactor);
-      mat.emissiveIntensity = mutated ? intensity * 2.2 : intensity;
-    });
+    const dirToGlyph = new THREE.Vector3()
+      .subVectors(meshRef.current.position, camera.position)
+      .normalize();
+    const gazeBoost = dirToGlyph.dot(camera.getWorldDirection(new THREE.Vector3()));
+    const focusFactor = Math.max(0, gazeBoost);
 
-    return (
-      <mesh
-        position={getLayoutPosition()}
-        ref={assignRef}
-        onClick={() => onClick(glyph.glyph_id, glyph.symbol)}
-        onPointerOver={() => onHover?.()}
-      >
-        <sphereGeometry args={[0.7, 32, 32]} />
-        <meshStandardMaterial
-          color={mutated ? "#ff4444" : baseColor}
-          emissive={mutated ? "#ff4444" : baseColor}
-          emissiveIntensity={glyph.light_intensity}
-        />
-        <Html distanceFactor={8}>
-          <div className="text-xs text-white bg-black/50 px-1 py-0.5 rounded">
-            {glyph.symbol}
-          </div>
-        </Html>
-      </mesh>
-    );
-  }
-);
+    const mat = meshRef.current.material as any;
+    const intensity = glyph.light_intensity * (1 + pulse + 0.8 * focusFactor);
+    mat.emissiveIntensity = mutated ? intensity * 2.2 : intensity;
+  });
+
+  return (
+    <mesh
+      position={getLayoutPosition()}
+      ref={assignRef as any}
+      onClick={() => onClick(glyph.glyph_id, glyph.symbol)}
+      onPointerOver={() => onHover?.()}
+    >
+      <sphereGeometry args={[0.7, 32, 32]} />
+      <meshStandardMaterial
+        color={mutated ? "#ff4444" : baseColor}
+        emissive={mutated ? "#ff4444" : baseColor}
+        emissiveIntensity={glyph.light_intensity}
+      />
+      <Html distanceFactor={8}>
+        <div className="text-xs text-white bg-black/50 px-1 py-0.5 rounded">
+          {glyph.symbol}
+        </div>
+      </Html>
+    </mesh>
+  );
+});
 AnimatedGlyphNode.displayName = "AnimatedGlyphNode";
-
 /* ------------------------------------------------------------------ */
 /* helpers                                                             */
 /* ------------------------------------------------------------------ */

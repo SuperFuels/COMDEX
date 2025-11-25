@@ -14,8 +14,13 @@ interface AtomContainerProps {
   container?: ContainerInfoLite;
 }
 
-const AtomContainer: React.FC<AtomContainerProps> = ({ position, atom, container }) => {
-  const groupRef = useRef<THREE.Group>(null);
+const AtomContainer: React.FC<AtomContainerProps> = ({
+  position,
+  atom,
+  container,
+}) => {
+  // loosen ref to avoid @types/three version conflicts
+  const groupRef = useRef<any>(null);
 
   // Pull fields from the atom model
   const { viz = {}, id, containerId } = atom;
@@ -29,7 +34,8 @@ const AtomContainer: React.FC<AtomContainerProps> = ({ position, atom, container
   } = viz;
 
   /** ===== Scale Animation (Hoberman-style expansion) ===== **/
-  const targetScale = soulLocked || logicDepth === 0 ? 0.001 : 0.4 + logicDepth * 0.12;
+  const targetScale =
+    soulLocked || logicDepth === 0 ? 0.001 : 0.4 + logicDepth * 0.12;
 
   const { scale } = useSpring({
     scale: targetScale,
@@ -51,9 +57,11 @@ const AtomContainer: React.FC<AtomContainerProps> = ({ position, atom, container
 
   /** ===== Spin animation ===== **/
   useFrame(() => {
-    if (!groupRef.current) return;
-    if (active) groupRef.current.rotation.y += 0.01;
-    if (runtimeTick % 2 === 1) groupRef.current.rotation.x += 0.002;
+    const group = groupRef.current as THREE.Group | null;
+    if (!group) return;
+
+    if (active) group.rotation.y += 0.01;
+    if (runtimeTick % 2 === 1) group.rotation.x += 0.002;
   });
 
   return (

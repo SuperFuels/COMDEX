@@ -1,7 +1,9 @@
 // File: frontend/components/AION/WormholeRenderer.tsx
+"use client";
+
 import React, { useRef } from "react";
-import { Vector3, Quaternion } from "three";
 import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 import { Line2 } from "three/examples/jsm/lines/Line2";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
@@ -35,17 +37,23 @@ export default function WormholeRenderer({
   const coneRef = useRef<any>(null);
   const particleRef = useRef<any>(null);
 
-  const start = new Vector3(...from);
-  const end = new Vector3(...to);
-  const direction = new Vector3().subVectors(end, start);
-  const mid = new Vector3().addVectors(start, end).multiplyScalar(0.5);
+  const start = new THREE.Vector3(...from);
+  const end = new THREE.Vector3(...to);
+  const direction = new THREE.Vector3().subVectors(end, start);
+  const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
   const length = direction.length();
 
-  const up = new Vector3(0, 1, 0);
-  const quaternion = new Quaternion().setFromUnitVectors(
+  // Precompute simple tuple positions / rotations so we don't pass Vector3/Quaternion to JSX
+  const midPos: [number, number, number] = [mid.x, mid.y, mid.z];
+  const endPos: [number, number, number] = [end.x, end.y, end.z];
+
+  const up = new THREE.Vector3(0, 1, 0);
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(
     up,
     direction.clone().normalize()
   );
+  const euler = new THREE.Euler().setFromQuaternion(quaternion);
+  const rotationArray: [number, number, number] = [euler.x, euler.y, euler.z];
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
@@ -62,7 +70,7 @@ export default function WormholeRenderer({
 
     if (pulseFlow && particleRef.current) {
       const progress = (t * 0.5) % 1;
-      const pos = new Vector3().lerpVectors(start, end, progress);
+      const pos = new THREE.Vector3().lerpVectors(start, end, progress);
       particleRef.current.position.set(pos.x, pos.y, pos.z);
     }
   });
@@ -83,17 +91,24 @@ export default function WormholeRenderer({
         opacity: 0.6,
       });
 
+      const line = new Line2(geometry, material);
+      line.computeLineDistances();
+
       return (
         <primitive
-          object={new Line2(geometry, material)}
-          position={[0, 0, 0]}
-          quaternion={quaternion}
+          object={line}
+          position={midPos as any}
+          rotation={rotationArray as any}
         />
       );
     }
 
     return (
-      <mesh position={mid} quaternion={quaternion} ref={cylinderRef}>
+      <mesh
+        position={midPos}
+        rotation={rotationArray}
+        ref={cylinderRef}
+      >
         <cylinderGeometry args={[thickness, thickness, length, 16]} />
         {mode === "glow" ? (
           <primitive object={createGlowMaterial(color)} attach="material" />
@@ -128,7 +143,11 @@ export default function WormholeRenderer({
 
       {/* Optional arrowhead */}
       {arrow && (
-        <mesh position={end} quaternion={quaternion} ref={coneRef}>
+        <mesh
+          position={endPos}
+          rotation={rotationArray}
+          ref={coneRef}
+        >
           <coneGeometry args={[thickness * 2, thickness * 4, 8]} />
           <meshStandardMaterial
             color={color}
@@ -139,7 +158,12 @@ export default function WormholeRenderer({
       )}
 
       {/* Optional floating glyph */}
-      {glyph && <GlyphSprite position={mid.toArray()} glyph={glyph} />}
+      {glyph && (
+        <GlyphSprite
+          position={midPos}
+          glyph={glyph}
+        />
+      )}
     </>
   );
 }

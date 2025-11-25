@@ -400,8 +400,7 @@ from backend.api.api_sci_commit import router as sci_commit_router
 from backend.api import api_sci_commit_atom
 from backend.api import api_sci_commit_atom as sci_commit_atom
 from backend.api.sci_export_lean_atoms import router as sci_export_lean_atoms_router
-from backend.api.api_sci_sync_proof_links import router as sci_sync_router
-from backend.api import photon_api
+from backend.api.api_sci_sync_proof_links import router as sci_sync_router  
 from backend.api import photon_reverse_router
 from backend.api.trace import router as trace_router
 from backend.routes.atom_save import router as atom_save_router
@@ -415,7 +414,7 @@ from backend.api import ghx
 from backend.api.aion import prompt_api
 from backend.api.aion import time_api
 from backend.routers.gip_api import router as gip_api_router
-from backend.api.photon_api import router as photon_api_router          
+from backend.api.photon_api import router as photon_api_router
 from backend.api.photon_reverse import router as photon_reverse_router
 from backend.modules.glyphnet.glyphnet_router import router as glyphnet_router
 from backend.api.media_api import router as media_router
@@ -423,6 +422,7 @@ from backend.routes.name_service import name_router
 from backend.api import rtc_api
 from backend.routes.voice import router as voice_router
 from backend.routes.voice import register_events as register_voice_events
+
 
 # Floor control (PTT) lock manager
 from backend.modules.glyphnet.lock_manager import LOCKS
@@ -621,7 +621,6 @@ app.include_router(api_sci_commit_atom.router)
 app.include_router(sci_commit_atom.router)
 app.include_router(sci_export_lean_atoms_router)
 app.include_router(sci_sync_router)
-app.include_router(photon_api.router)
 app.include_router(photon_reverse_router)
 app.include_router(trace_router)
 app.include_router(atom_save_router)
@@ -643,6 +642,7 @@ app.include_router(media_router)
 app.include_router(name_router)
 app.include_router(rtc_api.router)
 app.include_router(voice_router, prefix="/api/voice")
+app.include_router(photon_api_router)
 register_voice_events(app)
 
 # --- Floor-control lock sweeper (PTT) ---

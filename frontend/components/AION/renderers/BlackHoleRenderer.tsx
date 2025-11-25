@@ -16,15 +16,20 @@ interface BlackHoleRendererProps {
   };
 }
 
-const BlackHoleRenderer: React.FC<BlackHoleRendererProps> = ({ position, container }) => {
-  const coreRef = useRef<THREE.Mesh>(null);
-  const diskRef = useRef<THREE.Mesh>(null);
-  const debrisGroupRef = useRef<THREE.Group>(null);
+const BlackHoleRenderer: React.FC<BlackHoleRendererProps> = ({
+  position,
+  container,
+}) => {
+  // use any-typed refs to avoid three/@types-three mismatch
+  const coreRef = useRef<any>(null);
+  const diskRef = useRef<any>(null);
+  const debrisGroupRef = useRef<any>(null);
 
   // Create debris glyphs swirling around
   useEffect(() => {
     if (!debrisGroupRef.current) return;
     debrisGroupRef.current.clear();
+
     const glyphCount = 12;
     const glyphMaterial = new THREE.SpriteMaterial({
       map: createGlyphTexture(container.glyph || "↯"),
@@ -33,6 +38,7 @@ const BlackHoleRenderer: React.FC<BlackHoleRendererProps> = ({ position, contain
       depthWrite: false,
       depthTest: true,
     });
+
     for (let i = 0; i < glyphCount; i++) {
       const sprite = new THREE.Sprite(glyphMaterial.clone());
       const radius = 3 + Math.random() * 2;
@@ -58,11 +64,17 @@ const BlackHoleRenderer: React.FC<BlackHoleRendererProps> = ({ position, contain
 
     // Orbiting glyph debris
     if (debrisGroupRef.current) {
-      debrisGroupRef.current.children.forEach((child, i) => {
-        const angle = t * 0.5 + i * (Math.PI * 2) / debrisGroupRef.current!.children.length;
+      const children = debrisGroupRef.current.children;
+      children.forEach((child: any, i: number) => {
+        const angle = t * 0.5 + (i * Math.PI * 2) / children.length;
         const radius = 3.5 + Math.sin(t + i) * 0.5;
-        child.position.set(Math.cos(angle) * radius, Math.sin(t * 2 + i) * 0.2, Math.sin(angle) * radius);
-        (child as THREE.Sprite).material.opacity = 0.7 + 0.3 * Math.sin(t * 2 + i);
+        child.position.set(
+          Math.cos(angle) * radius,
+          Math.sin(t * 2 + i) * 0.2,
+          Math.sin(angle) * radius
+        );
+        (child as THREE.Sprite).material.opacity =
+          0.7 + 0.3 * Math.sin(t * 2 + i);
       });
     }
   });

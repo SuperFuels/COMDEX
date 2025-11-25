@@ -46,21 +46,23 @@ type ElectronShellsProps = {
 };
 
 export const ElectronShells: React.FC<ElectronShellsProps> = ({ center, shells, onTeleport }) => {
-  const groupRef = useRef<THREE.Group | null>(null);
+  // loosen ref type to dodge @types/three mismatch
+  const groupRef = useRef<any>(null);
 
   // 🌀 Continuous orbital rotation
   useFrame(() => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += 0.0025;
+      const g = groupRef.current as THREE.Group;
+      g.rotation.y += 0.0025;
     }
   });
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef as any}>
       {shells.map((shell, shellIdx) =>
         shell.electrons.map((electron, i) => {
           const angle = (i / shell.electrons.length) * Math.PI * 2;
-          const offsetY = Math.sin(angle + shellIdx) * 0.2; // 3D offset
+          const offsetY = Math.sin(angle + shellIdx) * 0.2;
           const x = center[0] + shell.radius * Math.cos(angle);
           const y = center[1] + offsetY;
           const z = center[2] + shell.radius * Math.sin(angle);
@@ -70,10 +72,9 @@ export const ElectronShells: React.FC<ElectronShellsProps> = ({ center, shells, 
 
           return (
             <group key={`electron-${shellIdx}-${i}`} position={[x, y, z]}>
-              {/* Use core three.js mesh instead of drei <Sphere> to avoid typings issues */}
               <mesh
                 onClick={() => {
-                  if (cid) onTeleport?.(cid); // ensure void return
+                  if (cid) onTeleport?.(cid);
                 }}
               >
                 <sphereGeometry args={[0.08, 16, 16]} />
@@ -85,7 +86,6 @@ export const ElectronShells: React.FC<ElectronShellsProps> = ({ center, shells, 
                 />
               </mesh>
 
-              {/* Tooltip with label */}
               <Html center distanceFactor={6}>
                 <div
                   style={{
