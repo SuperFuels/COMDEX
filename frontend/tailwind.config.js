@@ -8,7 +8,7 @@ module.exports = {
     "./styles/**/*.{css,js,ts,jsx,tsx,mdx}",
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
     "./hooks/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}", // fine even if src/ is empty
   ],
   theme: {
     extend: {
@@ -16,11 +16,11 @@ module.exports = {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
+        // shadcn-style tokens
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
-        primaryHover: "#357ABD",
 
         text: {
           DEFAULT: "#1F2937",
@@ -29,8 +29,6 @@ module.exports = {
         },
 
         background: "hsl(var(--background))",
-        "border-light": "#E5E7EB",
-
         foreground: "hsl(var(--foreground))",
 
         card: {
@@ -74,6 +72,13 @@ module.exports = {
           4: "hsl(var(--chart-4))",
           5: "hsl(var(--chart-5))",
         },
+
+        // 🔁 LEGACY TOKENS SO OLD CLASSES STILL WORK
+        "bg-page": "var(--bg-page)",
+        "bg-header": "var(--bg-header)",
+        "text-primary": "var(--text-primary)",
+        "text-secondary": "var(--text-secondary)",
+        "border-light": "var(--border-light)",
       },
       boxShadow: {
         dropdown: "0 4px 6px rgba(0,0,0,0.1)",
@@ -86,11 +91,16 @@ module.exports = {
     },
   },
   safelist: [
+    // keep tokens Tailwind might otherwise purge
     "border-border",
     "bg-background",
     "text-foreground",
     "bg-primary",
     "text-primary",
+    "bg-bg-page",
+    "bg-bg-header",
+    "text-text-primary",
+    "text-text-secondary",
   ],
   plugins: [
     require("@tailwindcss/forms"),
