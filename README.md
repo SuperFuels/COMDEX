@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "SCI IDE 33"
+git commit -m "SCI IDE 34"
 git push origin main
 
 

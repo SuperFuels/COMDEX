@@ -27,11 +27,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "components/AION/ContainerMap2D.tsx",
-    "../Glyph_Net_Browser/src/components/AION/ContainerMap3D.tsx",
-    "src/components/maps/map-2d.ts",
-    "components/AION/map-2d.tsx",
-    "components/AION/map-3d.tsx"
+    "types/**/*.d.ts"
   ],
   "exclude": ["node_modules"]
 }
