@@ -111,7 +111,8 @@ export default function Navbar() {
         className="fixed top-4 left-4 z-50 rounded-lg border border-border bg-background px-2 py-2"
         aria-label="Open menu"
       >
-        <Image src="/G.svg" alt="Menu" width={24} height={24} />
+        {/* 30% larger menu logo */}
+        <Image src="/G.svg" alt="Menu" width={32} height={32} />
       </button>
 
       <header className="sticky top-0 z-40 border-b border-border bg-background text-text">
@@ -119,21 +120,21 @@ export default function Navbar() {
           {/* Logo (light + dark) */}
           <div className="ml-12 flex items-center">
             <Link href="/" className="logo-link flex items-center">
-              {/* light-mode logo */}
+              {/* light-mode logo – ~30% bigger */}
               <Image
-                src="/tessaris_light_logo.png"
+                src="/tessaris_light_logo.svg"
                 alt="Tessaris"
-                width={128}
-                height={40}
+                width={166}
+                height={52}
                 priority
                 className="block dark:hidden border-none"
               />
-              {/* dark-mode logo */}
+              {/* dark-mode logo – ~30% bigger */}
               <Image
-                src="/tessaris_dark_logo.png"
+                src="/tessaris_dark_logo.svg"
                 alt="Tessaris"
-                width={128}
-                height={40}
+                width={166}
+                height={52}
                 priority
                 className="hidden dark:block border-none"
               />

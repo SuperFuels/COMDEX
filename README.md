@@ -31,10 +31,10 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "SCI IDE 35"
+git commit -m "IDE V1"
 git push origin main
 
-
+Dollar in glyph : symbol: ✲✬☀Ptn
 gcloud builds submit --config cloudbuild.yaml .
 
 # 1. Double-check you’re on main

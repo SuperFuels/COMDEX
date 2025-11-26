@@ -177,7 +177,7 @@ export default function IDE() {
           <div className="flex items-center gap-2">
             {!sidebarCollapsed && (
               <Image
-                src="/photon_logo.png"      // file in frontend/public/photon_logo.png
+                src="/photon_logo.svg"      // file in frontend/public/photon_logo.svg
                 alt="Photon IDE"
                 width={120}
                 height={28}

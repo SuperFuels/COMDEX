@@ -16,7 +16,7 @@
 
 /* 3) CSS VARIABLES (light & dark – HEX palette mapped to HSL where needed) */
 :root {
-  /* legacy vars still used in some components */
+  /* legacy vars still used in some components (LIGHT MODE) */
   --bg-page:         #ffffff;
   --bg-header:       #ffffff;
   --text-primary:    #4a4a4a; /* light ink */
@@ -39,7 +39,7 @@
   --muted: 0 0% 96%;          /* soft grey background */
   --muted-foreground: 0 0% 45%;
 
-  --border: 0 0% 85%;
+  --border: 0 0% 29%;         /* #4a4a4a borders in light mode */
   --input: 0 0% 85%;
   --ring: 0 0% 29%;
 
@@ -62,37 +62,37 @@
 }
 
 .dark {
-  /* legacy vars */
-  --bg-page:         #a1a1a1; /* dark-mode background */
-  --bg-header:       #a1a1a1;
+  /* legacy vars (DARK MODE) */
+  --bg-page:         #4a4a4a; /* dark-mode background */
+  --bg-header:       #4a4a4a; /* navbar matches page */
   --text-primary:    #ebebeb; /* dark-mode text */
   --text-secondary:  #f5f5f5;
-  --border-light:    #c4c4c4;
+  --border-light:    #ffffff; /* containers / cards get white border */
   --scrollbar-thumb: #ebebeb;
   --primary:         #ebebeb;
   --primary-hover:   #ffffff;
 
   /* token vars in HSL */
-  --background: 0 0% 63%;    /* #a1a1a1 */
+  --background: 0 0% 29%;    /* #4a4a4a */
   --foreground: 0 0% 92%;    /* #ebebeb */
 
-  --card: 0 0% 63%;
+  --card: 0 0% 29%;
   --card-foreground: 0 0% 92%;
 
-  --popover: 0 0% 63%;
+  --popover: 0 0% 29%;
   --popover-foreground: 0 0% 92%;
 
-  --muted: 0 0% 55%;
+  --muted: 0 0% 35%;
   --muted-foreground: 0 0% 92%;
 
-  --border: 0 0% 50%;
-  --input: 0 0% 50%;
-  --ring: 0 0% 92%;
+  --border: 0 0% 100%;       /* all Tailwind border-border => white in dark mode */
+  --input: 0 0% 100%;
+  --ring: 0 0% 100%;
 
-  --secondary: 0 0% 55%;
+  --secondary: 0 0% 35%;
   --secondary-foreground: 0 0% 92%;
 
-  --accent: 0 0% 55%;
+  --accent: 0 0% 35%;
   --accent-foreground: 0 0% 92%;
 
   --destructive: 0 62% 40%;
@@ -125,6 +125,8 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   line-height: 1.6;
+  overflow: hidden;
+  height: 100vh;
 }
 
 /* 5) Scrollbars */
@@ -177,6 +179,14 @@ button:hover,
 .btn:hover,
 a:hover {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode: force white borders + light text for buttons/links */
+.dark button,
+.dark .btn,
+.dark a {
+  border-color: #ffffff;
+  color: #ebebeb;
 }
 
 /* Tailwind-style “filled” button but in raw CSS */
@@ -248,12 +258,6 @@ a.logo-link {
   width: 4px;
   background-color: var(--border-light);
   cursor: col-resize;
-}
-
-/* Fix edge case where page scrolls */
-body {
-  overflow: hidden;
-  height: 100vh;
 }
 
 /* Footer anchor (fixed terminal) */
