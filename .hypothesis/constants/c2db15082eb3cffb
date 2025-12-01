@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/models/shipment.py
-# hypothesis_version: 6.139.2
-
-['CASCADE', 'Deal', 'Product', 'SET NULL', 'deals.id', 'extend_existing', 'pending', 'products.id', 'shipments']

@@ -21,13 +21,19 @@
     "allowJs": true,
     "incremental": true,
     "isolatedModules": true,
-    "types": ["node"]
+    "types": ["node", "next", "next/types/global"]
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "types/**/*.d.ts"
+    "types/**/*.d.ts",
+
+    "components/AION/ContainerMap2D.tsx",
+    "../Glyph_Net_Browser/src/components/AION/ContainerMap3D.tsx",
+    "src/components/maps/map-2d.ts",
+    "components/AION/map-2d.tsx",
+    "components/AION/map-3d.tsx"
   ],
   "exclude": ["node_modules"]
 }

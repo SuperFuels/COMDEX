@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/websocket_manager.py
-# hypothesis_version: 6.139.2
-
-['LogicGlyph', 'WebSocketManager', 'broadcast_event', 'container', 'glyph', 'manager', 'meta', 'origin', 'send_ws_message', 'symbol', 'symbolic_glyph', 'target', 'to_dict', 'type', 'websocket_manager']

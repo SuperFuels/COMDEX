@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/teleport/teleport_packet.py
-# hypothesis_version: 6.139.2
-
-['TeleportPacket', 'container_id', 'destination', 'edge', 'emitted_by', 'event', 'from', 'glyph', 'glyph_push', 'meta', 'mode', 'origin', 'packet_id', 'payload', 'phase_info', 'portal_id', 'replay', 'replay_trace', 'seed', 'source', 'teleport_packet', 'timestamp', 'timestamp_seed', 'to', 'trace', 'trigger', 'warp_context']

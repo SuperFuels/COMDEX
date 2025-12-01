@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphvault/vault_audit.py
-# hypothesis_version: 6.139.2
-
-[100, 1000, 'ACCESS_DENIED', 'DELETE', 'RESTORE', 'SAVE', 'access_denied', 'container_id', 'event_type', 'extra', 'timestamp', 'total_deletes', 'total_restores', 'total_saves', 'unknown', 'user_id']

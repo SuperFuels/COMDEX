@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/rewrite_rules.py
-# hypothesis_version: 6.139.2
-
-['args', 'logic:false', 'logic:¬', 'logic:∧', 'logic:∨', 'logic:⊕', 'op']

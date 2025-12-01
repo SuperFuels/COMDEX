@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/ops/execute_d_dt.py
-# hypothesis_version: 6.139.2
-
-['d_dt', 'expr', 'op', 't']

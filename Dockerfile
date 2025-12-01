@@ -1,16 +1,16 @@
-# Dockerfile – build frontend + run backend on Cloud Run
+# Dockerfile – build frontend, run backend
 
 FROM python:3.11-slim
 
 # --- Environment Configuration ---
 ENV PYTHONUNBUFFERED=1 \
     PORT=8080 \
-    PYTHONPATH=/srv
+    PYTHONPATH=/srv/backend
 
-# --- Base working directory (matches repo root layout) ---
+# --- Set Working Directory to /srv ---
 WORKDIR /srv
 
-# --- System dependencies ---
+# --- Install System Dependencies ---
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         git build-essential libffi-dev libpq-dev libjpeg-dev \
@@ -19,52 +19,54 @@ RUN apt-get update && \
         nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 
-# --- Python deps ---
+# --- Install Python Dependencies ---
 COPY backend/requirements.txt ./requirements.txt
 
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir jsonschema sentence-transformers
 
-# --- Preload SentenceTransformer model ---
+# ✅ Preload SentenceTransformer model into /srv/backend/models
 RUN mkdir -p /srv/backend/models && \
-    python - <<'EOF'
+    python - << 'EOF'
 from sentence_transformers import SentenceTransformer
-import os
-model_path = "/srv/backend/models/all-MiniLM-L6-v2"
-if not os.path.exists(model_path):
-    os.makedirs(model_path, exist_ok=True)
-    print("Downloading all-MiniLM-L6-v2 model ...")
+import pathlib
+
+model_path = pathlib.Path("/srv/backend/models/all-MiniLM-L6-v2")
+if not model_path.exists():
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    print("📥 Downloading all-MiniLM-L6-v2 model ...")
     model = SentenceTransformer("all-MiniLM-L6-v2")
-    model.save(model_path)
-    print(f"Model saved to {model_path}")
+    model.save(str(model_path))
+    print("✅ Model saved to", model_path)
 else:
-    print(f"Model already present at {model_path}")
+    print("✅ Model already present at", model_path)
 EOF
 
-# --- Backend code ---
+# --- Copy Backend Codebase ---
 COPY backend/ backend/
 
-# --- Static / uploads ---
+# --- Ensure Static and Upload Folders Exist ---
 RUN mkdir -p /srv/backend/static /srv/uploaded_images
 
-# --- Frontend build ---
+# --- Build Frontend ---
 WORKDIR /srv/frontend
 COPY frontend/ ./
 
 RUN npm install && npm run build
 
-# --- Copy Next.js build into backend static ---
+# --- Copy Next.js Build Output into Backend Static ---
 WORKDIR /srv
+
 RUN cp -r frontend/.next backend/static/.next && \
     cp -r frontend/public backend/static/public && \
     cp frontend/package.json backend/static/
 
-# --- Expose app port for Cloud Run ---
+# --- Expose App Port ---
 EXPOSE 8080
 
-# --- Runtime working dir: repo root (/srv), like local ---
-WORKDIR /srv
+# --- Switch to backend as runtime root ---
+WORKDIR /srv/backend
 
-# --- Start FastAPI app (same as local: backend.main:app) ---
-CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# --- Launch App ---
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]

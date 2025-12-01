@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dimensions/containers/hoberman_container.py
-# hypothesis_version: 6.139.2
-
-[b'0', 1.0, 'Hoberman Sphere', 'SOUL_LAW_MODE', 'address', 'blocked', 'container', 'container_id', 'expanded', 'expanded_logic', 'full', 'geometry', 'hoberman', 'id', 'inflation_hash', 'kind', 'level', 'meta', 'micro_grid', 'name', 'original', 'reason', 'seed_glyphs', 'soul_lock', 'test', 'time_dilation', 'type']

@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/sqi/sqi_tessaris_bridge.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.5, 1.0, 1.5, 'TessarisEngine', 'address', 'atom', 'atom_id', 'atom_index', 'atoms', 'caps', 'compose_path', 'container', 'container_id', 'error', 'get_container', 'goal', 'goal_id', 'id', 'kg_links', 'meta', 'missing', 'mode', 'nodes', 'ok', 'original', 'plan', 'produced', 'produces', 'qglyphs', 'ref', 'resolve_atom', 'sequential', 'status', 'steps', 'tags']

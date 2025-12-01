@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/codex_emulator.py
-# hypothesis_version: 6.139.2
-
-['default_trigger', 'emulator', 'glyph', 'instructions', 'meta', 'op', 'source', 'target', 'trigger', 'value']

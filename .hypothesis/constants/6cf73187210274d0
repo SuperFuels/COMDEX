@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dimensions/containers/symbolic_expansion_container.py
-# hypothesis_version: 6.139.2
-
-[-0.5, 0.0, 0.2, 0.42, 1.0, 'SEC', 'SOUL_LAW_MODE', 'Unknown', 'address', 'anchor_points', 'caps', 'compress', 'compressed', 'container', 'container_id', 'encrypted', 'engine', 'entropy', 'entropy_gradient', 'expanded', 'expanded_logic', 'expansion', 'expansion_hash', 'full', 'geometry', 'ghx_overlay', 'glyph_count', 'hash', 'highlight_symbols', 'hoberman_state', 'id', 'inflate', 'level', 'logic_tree', 'meta', 'micro_grid', 'name', 'pulse_level', 'seed', 'state', 'status', 'symbolic', 'symbolic-map', 'tags', 'test', 'time_dilation', 'type', 'ucs_hub', 'unlocked', '↔', '⧖']

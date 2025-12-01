@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dimensions/dimension_kernel.py
-# hypothesis_version: 6.139.2
-
-['*', '::', 'Dimension Kernel', 'DimensionKernel', 'action', 'action:', 'active', 'active_cubes', 'address', 'avatar_here', 'collapsed', 'collapsed_to', 'container_id', 'default', 'dimension_kernel', 'event', 'geometry', 'glyph_actions', 'glyph_count', 'glyphs', 'id', 'if_', 'initiated_by', 'location', 'meta', 'metadata', 'name', 'ping', 'portal_id', 'position', 'qbit', 'runtime_tick', 'source_cube', 'state', 'symbolic-quantum', 't', 'teleport_dispatch', 'tick', 'total_cubes', 'trigger', 'type', 'x', 'y', 'z', '→', '∿', '⌘TELEPORT', '⚠️ No cube to clear.', '✅ Glyph placed.', '🧼 Glyphs cleared.']

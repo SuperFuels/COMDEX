@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/validation/symbolic_container_validator.py
-# hypothesis_version: 6.139.2
-
-['codex_lang', 'glyphs', 'operands', 'operator', 'symbolic_ast', 'type']

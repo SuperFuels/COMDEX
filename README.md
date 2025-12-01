@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "IDE V1"
+git commit -m "Holograms V1"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

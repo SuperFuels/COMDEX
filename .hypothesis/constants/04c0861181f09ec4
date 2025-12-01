@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphvault/container_vault_manager.py
-# hypothesis_version: 6.139.2
-
-['VaultManager', 'container_id', 'context', 'coord', 'data/containers', 'decrypt', 'denied', 'encrypt', 'error', 'exception', 'glyph', 'glyph_count', 'glyph_id', 'glyph_validation', 'id', 'r', 'rule', 'soullaw', 'soullaw_violation', 'tags', 'type', 'utf-8', 'vault', 'vault_encrypt', 'vault_error', 'vault_event', 'vault_violation']

@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/dna_mutation_tracker.py
-# hypothesis_version: 6.139.2
-
-['SPE recombination', 'beam_recombine', 'container_id', 'dna_mutation', 'metadata', 'mutated', 'mutation', 'mutation_id', 'original', 'timestamp']

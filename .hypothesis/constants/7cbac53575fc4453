@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphos/glyph_instruction_set.py
-# hypothesis_version: 6.139.2
-
-[':', '?', 'Loops over a symbol', 'No Action', 'combine', 'compress', 'condition', 'content', 'context', 'delay', 'equivalence', 'glyph_action', 'glyph_trigger', 'kwargs', 'label', 'loop', 'milestone', 'multiply', 'mutate', 'mutation', 'ok', 'self_mutation', 'target', 'teleport', 'trigger', 'type', 'union', '→', '↔', '∇', '∪', '⊕', '⊗', '✦', '⟲', '⤾', '⧖']

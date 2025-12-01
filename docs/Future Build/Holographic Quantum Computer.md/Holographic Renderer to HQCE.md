@@ -1,3 +1,79 @@
+flowchart TD
+  classDef phase fill:#e5e7eb,stroke:#9ca3af,color:#111827,font-weight:bold,font-size:12px
+  classDef todo fill:#f9fafb,stroke:#d1d5db,color:#111827,font-size:11px
+  classDef done fill:#dcfce7,stroke:#16a34a,color:#14532d,font-size:11px
+
+  P0["🌌 AST → Glyphs → GHX → Holograms — Build Checklist"]:::phase
+
+  %% PHASE 1 — AST PIPELINE
+  subgraph P1[Phase 1 — AST Capture & APIs]
+    direction TB
+    T1["[x] Frontend: PhotonEditor 'View as AST' (python/photon/codex/nl)"]:::done
+    T2["[x] Backend AST API router (/api/ast, /api/ast/visualize)"]:::done
+    T3["[x] AST → Glyphs bridge (encode_codex_ast_to_glyphs)"]:::done
+    T4["[x] AST → Mermaid adapter (_codex_ast_to_mermaid)"]:::done
+    T5["[x] DevTools AST Inspector (AST JSON + glyphs + mermaid)"]:::done
+  end
+
+  %% PHASE 2 — AST → GHX / HOLOGRAM BRIDGE
+  subgraph P2[Phase 2 — AST → GHX → Hologram Path]
+    direction TB
+    H1["[x] AST hologram API (/api/ast/hologram → GHX nodes/edges)"]:::done
+    H2["[ ] GHX field compilation (ghx_field_compiler → ψ–κ–T tensor)"]:::todo
+    H3["[ ] Hologram engine integration (hologram_engine + renderer)"]:::todo
+    H4["[x] DevTools GHX bridge (WS /ws/ghx + window 'devtools.ghx')"]:::done
+    H5["[x] 3D QField Dev Canvas (floor grid + OrbitControls)"]:::done
+    H6["[x] 3D hologram card (standing frame + etched node fan)"]:::done
+    H7["[x] AST ψκT stub metrics (field_tensor + psi_kappa_tau_signature in GHX metadata)"]:::done
+    H8["[x] Camera focus mode (snap card to center ↔ world view toggle)"]:::done
+    H9["[x] On-card AST HUD (lang, node count, ψκT summary overlay)"]:::done
+  end
+
+  %% PHASE 3 — QWAVE / REPLAY / HUD
+  subgraph P3[Phase 3 — QWave Beams, Replay & HUD]
+    direction TB
+    Q1["[ ] GHXVisualizerField overlay polish (badges, replay, QKD)"]:::todo
+    Q2["[ ] CodexHUD controls (replay/QKD/lock + SQI drift mini-graph)"]:::todo
+    Q3["[ ] Scroll injection (.ghx / .scroll.json → QFC animation)"]:::todo
+    Q4["[ ] emit_qwave_beam() refactor (all beam types + metadata)"]:::todo
+    Q5["[ ] WebSocket event binding (ghx_replay_start, qfc_update, etc.)"]:::todo
+    Q6["[ ] Replay mutation retry API (/api/mutate_from_branch)"]:::todo
+  end
+
+  %% PHASE 4 — HQCE / HST / SLE COUPLING
+  subgraph P4[Phase 4 — HQCE Field & Hologram Coupling]
+    direction TB
+    F1["[ ] HQCE ψ–κ–T integration for AST GHX packets"]:::todo
+    F2["[ ] HST / SLE bridge check (inject AST field_tensors)"]:::todo
+    F3["[ ] Morphic ledger hooks (ast_hologram_state entries)"]:::todo
+    F4["[ ] Telemetry + HQCE dashboard (origin='ast' views)"]:::todo
+  end
+
+  %% PHASE 5 — TESTS & SAFETY NETS
+  subgraph P5[Phase 5 — Tests & Validation]
+    direction TB
+    S1["[ ] Unit: python/photon/codex/nl → AST → glyphs (stable ids)"]:::todo
+    S2["[ ] Unit: CodexAST → mermaid → ast_viz"]:::todo
+    S3["[x] Integration: DevTools AST inspector happy-path + errors"]:::done
+    S4["[x] Integration: AST hologram → 3D field (card + nodes + JSON inspector)"]:::done
+    S5["[ ] Integration: QWave replay for AST beams"]:::todo
+    S6["[ ] Telemetry & ledger export of AST hologram sessions"]:::todo
+  end
+
+  %% PHASE 6 — NEXT-GEN PROGRAM HOLOGRAMS
+  subgraph P6[Phase 6 — Multi-file Holograms & .holo Workspaces]
+    direction TB
+    N1["[ ] Workspace analyzer (multi-file → project CodexAST)"]:::todo
+    N2["[ ] .holo / GHX file spec (per-file + project graphs)"]:::todo
+    N3["[ ] QFC workspace view (Code / AST / Hologram modes)"]:::todo
+    N4["[ ] Execution beams overlay (runtime hot-paths on graph)"]:::todo
+    N5["[ ] Hologram-as-IR for agents (graph-level refactors)"]:::todo
+    N6["[ ] Long-term: holographic execution over graphs"]:::todo
+  end
+
+  P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6
+
+
 some tasks were completed in teh SLE build task as were required ;;
 
 🧠 Summary of P5 Achievements

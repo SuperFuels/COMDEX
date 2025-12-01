@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/photon_algebra/core.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.2, 0.5, 0.8, 1.0, 'Boolean(a):', 'Collapsed:', 'EMPTY', 'Entangled:', 'Expr:', 'PhotonState', 'Projection(a):', 'SQIMap', '__main__', 'a', 'b', 'c', 'cancel', 'collapse', 'entangle', 'fuse', 'identity', 'negate', 'op', 'project', 'rewrite', 'score', 'state', 'states', 'superpose', 'to_boolean', '¬', '↔', '∅', '∇', '⊕', '⊖', '⊗', '★']

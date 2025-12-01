@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/knowledge_graph/indexes/introspection_index.py
-# hypothesis_version: 6.139.2
-
-['active_container', 'blindspot_trigger', 'confidence', 'container_id', 'cost_estimate', 'current_container', 'description', 'fork_id', 'glyph', 'glyph_trace', 'goal', 'hash', 'id', 'indexes', 'introspection', 'introspection_index', 'last_index_update', 'outcome', 'persona', 'prediction', 'prediction_meta', 'source', 'tags', 'timestamp', 'type', 'utf-8']

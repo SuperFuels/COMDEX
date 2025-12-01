@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/engine.py
-# hypothesis_version: 6.139.2
-
-[0.0, 1.0, ' ( ', ' ) ', '(', '(μ (⊕ 1.0 2.0))', ')', '.', 'Context', 'FAIL', 'H', 'PASS', 'SymNode', 'Unexpected EOF', '__main__', 'debug', 'literal', 'passed', 'validate_runtime']

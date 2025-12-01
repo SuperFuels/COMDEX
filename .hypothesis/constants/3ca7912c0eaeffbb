@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/lean/lean_proofverifier.py
-# hypothesis_version: 6.139.2
-
-['--save', 'No lean_path found', '__main__', 'containerId', 'detail', 'electrons', 'error', 'glyph_grid', 'glyphs', 'id', 'lean', 'leanPath', 'lean_path', 'logic_verification', 'metadata', 'missing', 'ok', 'reason', 'status', 'unknown', 'validation', 'w', '✅ Proof verified', '✅ VALID', '❌ INVALID']

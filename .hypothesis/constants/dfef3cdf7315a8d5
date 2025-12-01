@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/symbolic_engine/math_logic_kernel.py
-# hypothesis_version: 6.139.2
-
-['   codexlang:', '   lean_expr:', '   parsed:', 'assumptions', 'ast', 'body', 'codexlang', 'combined', 'container', 'container_id', 'equivalent', 'error', 'expr1', 'expr2', 'expression', 'glyphs', 'implication', 'input', 'label', 'logic', 'logic_raw', 'name', 'parsed', 'qglyph', 'simplified', 'sources', 'status', 'symbol', 'symbolicProof', 'type', '⊥', '✅ Axiom Stored', '✅ Equivalent', '✅ No Contradiction', '✅ Proven', '❌ Error', '❌ Failed', '❌ Not Equivalent', '❌ Unproven', '⟦axiom⟧', '⟦contradiction⟧', '⟦fact⟧', '⟦theorem⟧']

@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/photon_algebra/rewriter.py
-# hypothesis_version: 6.139.2
-
-['?', 'a', 'b', 'c', 'key_cache', 'memo', 'op', 'state', 'states', '¬', '↔', '∅', '⊕', '⊖', '⊗', '★']

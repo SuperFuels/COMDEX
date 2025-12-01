@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/operators/__init__.py
-# hypothesis_version: 6.139.2
-
-[0.0, 1.0, 'Context', 'H', 'OPS', 'Operator', 'amplitude', 'apply_operator', 'ctx', 'entangle_op', 'expr', 'frequency', 'measure_op', 'measured', 'op', 'superpose_op', 'superposed', 'synthetic', '¬', 'μ', 'π', '↔', '↯', '≡', '⊕', '⊖', '⊗', '⋈', '⟲']

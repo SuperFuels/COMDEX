@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dna_chain/mutation_checker.py
-# hypothesis_version: 6.139.2
-
-['DNA', 'container', 'coord', 'dna_mutation', 'entropy_delta', 'from', 'id', 'label', 'law_id', 'medium', 'mutation', 'severity', 'source', 'title', 'to', 'trigger', 'triggers', 'violations']

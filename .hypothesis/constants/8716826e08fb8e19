@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/knowledge_graph/indexes/trace_index.py
-# hypothesis_version: 6.139.2
-
-[',', ':', 'avg_cost', 'bias', 'by_op', 'container_id', 'cost', 'entropy', 'fork_id', 'glyph', 'op', 'replay_id', 'source', 'tick', 'timestamp', 'total_events', 'trace', 'trace_id']

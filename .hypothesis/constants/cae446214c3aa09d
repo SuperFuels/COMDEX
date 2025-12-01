@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/core/meta_axioms_v02.py
-# hypothesis_version: 6.139.2
-
-['C1', 'Cognition', 'Coherent Information', 'Computation', 'E = ħ dφ/dt', 'E1', 'Energy', 'Entangled Causality', 'G1', 'G2', 'Geometry', 'I ∝ |⟨ψ|ψ⟩|²', 'I1', 'Information', 'L1', 'L2', 'Logic', 'Phase Space Primacy', 'Resonant Inertia', 'X1', 'domain', 'expression', 'halt ⇔ ∮ Δφ = 2πₛ n', 'id', 'statement', 'symbolic', 'title', 'validated_by', 'Ψ ↔ μ(⟲Ψ)', '∮ Δφ = 2πₛ n']

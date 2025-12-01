@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/symbolic_engine/symbolic_utils.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.5, ' & ', ' and ', ' not ', ' or ', ' | ', ' ~ ', '&', '(.*?)<<>>(.*)', '<<', '<<>>', '==', '>>', '?', 'Equivalent(\\1, \\2)', 'GlyphEvent', 'Unknown', '__dict__', 'confidence', 'container', 'container_id', 'entropy', 'glyph_id', 'id', 'operator', 'unknown', '|', '~', '¬', '→', '↔', '⇒', '⇔', '∧', '∨']

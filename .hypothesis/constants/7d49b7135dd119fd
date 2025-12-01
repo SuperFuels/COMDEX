@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/canonical_ops.py
-# hypothesis_version: 6.139.2
-
-['H', 'Hadamard gate', 'Logical AND', 'Logical OR', 'Logical XOR', 'Logical implication', 'Logical negation', 'Quantum bra state', 'Quantum ket state', 'Quantum operator Â', '[', ']', 'cancel', 'control:⟲', 'control:⧖', 'damping', 'description', 'logic:¬', 'logic:→', 'logic:↔', 'logic:∧', 'logic:∨', 'logic:⊕', 'logic:⊗', 'math:∇', 'photon:≈', 'photon:⊙', 'physics:⊗', 'quantum:A', 'quantum:H', 'quantum:bra', 'quantum:ket', 'quantum:↔', 'quantum:⊕', 'resonance', 'symatics:cancel', 'symatics:damping', 'symatics:resonance', 'symatics:⊗', 'symbols', '~', '¬', 'Â', 'ψ⟩', '→', '↔', '∇', '∧', '∨', '≈', '⊕', '⊕_q', '⊗', '⊗_p', '⊗_s', '⊙', '⟨ψ|', '⟲', '⧖']

@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphos/glyph_watcher.py
-# hypothesis_version: 6.139.2
-
-[1.0, ',', 'added', 'bytecode_deferred', 'bytecode_exec', 'change', 'container_id', 'content', 'cubes', 'cycle_id', 'data', 'from', 'glyph', 'glyph_scan', 'id', 'location', 'microgrid', 'modified', 'mutation_detected', 'position', 'removed', 'role', 'status', 'system', 'timestamp', 'to', 'type', '⎇:', '⧉:']

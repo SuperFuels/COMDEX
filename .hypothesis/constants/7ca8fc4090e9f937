@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/logger.py
-# hypothesis_version: 6.139.2
-
-[2000, '%Y%m%d_%H%M%S', 'avg_density', 'data/qwave_logs', 'drift', 'fields', 'particle_count', 'pulse', 'resonance', 'tick', 'utf-8', 'w', 'wt']

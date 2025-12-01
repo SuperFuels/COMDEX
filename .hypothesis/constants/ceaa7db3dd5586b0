@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphwave/scheduler.py
-# hypothesis_version: 6.139.2
-
-[-0.0005, 0.0, 0.0005, 0.002, 0.05, 5.0, 'drift', 'envelope', 'jitter', 'last_lock_error', 'pll_lock', 'pll_offset', 'qos_preempt', 'scheduled', 'scheduled_at', 'slot', 'slot_ms']

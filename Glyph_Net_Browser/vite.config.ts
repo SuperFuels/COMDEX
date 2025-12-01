@@ -14,9 +14,8 @@ export default defineConfig(({ mode }) => {
   const radioHttp = env.VITE_BACKEND_URL || "http://127.0.0.1:8787";
   const radioWs = radioHttp.replace(/^http/i, "ws");
 
-  // FastAPI (GlyphNet read + Photon endpoints)
+  // FastAPI (GlyphNet read + Photon / AST endpoints)
   const fastApiHttp = env.VITE_FASTAPI_URL || "http://localhost:8080";
-  // We are NOT using FastAPI WS from the browser for now.
 
   // Node KG
   const kgHttp = env.VITE_KG_URL || "http://localhost:3000";
@@ -24,14 +23,17 @@ export default defineConfig(({ mode }) => {
   // 🔌 SCI Photon IDE (Next.js app)
   const sciHttp = env.VITE_SCI_URL || "http://127.0.0.1:3001";
 
-  // Specific routes BEFORE generic ones
   const proxy: Record<string, any> = {
     // ── Knowledge Graph (KG) → Node KG (:3000)
     "/api/kg": { target: kgHttp, changeOrigin: true },
 
     // ── PhotonLang API → FastAPI backend (:8080 by default)
-    // e.g. /api/photon/translate_block → http://localhost:8080/api/photon/translate_block
     "/api/photon": { target: fastApiHttp, changeOrigin: true },
+
+    // 🔭 AST / AST Hologram APIs → FastAPI (:8080)
+    // (FastAPI mounted with prefix="/api" in main.py)
+    "/api/ast/hologram": { target: fastApiHttp, changeOrigin: true },
+    "/api/ast":          { target: fastApiHttp, changeOrigin: true },
 
     // ── GlyphNet read endpoints → FastAPI (:8080)
     "/api/glyphnet/thread":      { target: fastApiHttp, changeOrigin: true },
@@ -40,14 +42,16 @@ export default defineConfig(({ mode }) => {
     "/api/glyphnet/simulations": { target: fastApiHttp, changeOrigin: true },
     "/api/glyphnet/ws-test":     { target: fastApiHttp, changeOrigin: true },
 
-    // ── WS for GlyphNet fanout → radio-node (so RF mock + bridge show up)
+    // ── WS for GlyphNet fanout / GHX → radio-node
     "/ws/glyphnet": { target: radioWs, ws: true, changeOrigin: true },
+    "/ws/rflink":   { target: radioWs, ws: true, changeOrigin: true },
+    "/ws/ghx":      { target: radioWs, ws: true, changeOrigin: true },
+    "/ws":          { target: radioWs, ws: true, changeOrigin: true },
 
-    // ✅ Dev RF mock tools (now hit radio-node)
-    "/dev": { target: radioHttp, changeOrigin: true },
+    // ✅ Dev RF mock tools (leave /dev/rf to frontend)
+    "^/dev(?!/rf)": { target: radioHttp, changeOrigin: true },
 
     // 🔁 SCI dev proxy → Next.js SCI app (:3001)
-    // e.g. /sci/api/... → http://127.0.0.1:3001/api/...
     "/sci": {
       target: sciHttp,
       changeOrigin: true,
@@ -56,12 +60,10 @@ export default defineConfig(({ mode }) => {
     },
 
     // ── Everything else under /api → radio-node (keeps /api/glyphnet/tx on radio)
+    // (more specific /api/* routes above take precedence)
     "/api": { target: radioHttp, changeOrigin: true },
 
-    // radio-node extras (keep AFTER /ws/glyphnet so it doesn't catch it)
-    "/ws/rflink":  { target: radioWs, ws: true, changeOrigin: true },
-    "/ws/ghx":     { target: radioWs, ws: true, changeOrigin: true },
-    "/ws":         { target: radioWs, ws: true, changeOrigin: true },
+    // radio-node extras
     "/bridge":     { target: radioHttp, changeOrigin: true },
     "/containers": { target: radioHttp, changeOrigin: true },
     "/health":     { target: radioHttp, changeOrigin: true },

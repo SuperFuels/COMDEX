@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["node"], // removed "vite/client" to stop the error
+    "types": ["vite/client", "node"],
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "Bundler",

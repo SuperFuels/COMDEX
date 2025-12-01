@@ -1,14 +1,47 @@
 // Glyph_Net_Browser/src/routes/DevTools.tsx
 // Dev Tools dashboard inside the Glyph Net browser.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PhotonEditor from "../components/PhotonEditor";
 import LedgerInspector from "../components/LedgerInspector";
+import PhotonGuide from "../components/PhotonGuide";
+import DevPitch from "../components/DevPitch";
 
-type ToolId = "editor" | "ledger";
+// 2D canvas (still useful as fallback / inspector)
+import DevFieldCanvas from "../components/DevFieldCanvas";
+
+// 3D hologram scene wrapper (Canvas + OrbitControls)
+import DevFieldHologram3DContainer from "../components/DevFieldHologram3DContainer";
+
+type ToolId = "editor" | "ledger" | "guide" | "pitch" | "field";
 
 export default function DevTools() {
   const [activeTool, setActiveTool] = useState<ToolId>("editor");
+
+  // 👂 listen for global tab-switch events (from PhotonEditor, etc.)
+  useEffect(() => {
+    function handleSwitch(ev: Event) {
+      const detail = (ev as CustomEvent).detail || {};
+
+      // Preferred: detail.tool is one of our ToolId values
+      let target: ToolId | undefined = detail.tool;
+
+      // Fallback mapping if something sends { tab: "field-lab" } etc.
+      if (!target && detail.tab) {
+        if (detail.tab === "field-lab") target = "field";
+        if (detail.tab === "editor") target = "editor";
+        if (detail.tab === "ledger") target = "ledger";
+        if (detail.tab === "language") target = "guide";
+        if (detail.tab === "pitch") target = "pitch";
+      }
+
+      if (target) setActiveTool(target);
+    }
+
+    window.addEventListener("devtools.switch_tab", handleSwitch as any);
+    return () =>
+      window.removeEventListener("devtools.switch_tab", handleSwitch as any);
+  }, []);
 
   return (
     <div
@@ -31,8 +64,6 @@ export default function DevTools() {
           }}
         >
           Experimental dev dashboard wired directly into the Glyph Net browser.
-          Select a tool below. The Photon text editor is a local scratchpad; the
-          Ledger Inspector walks the KG ledger over the HTTP API.
         </p>
       </header>
 
@@ -61,6 +92,27 @@ export default function DevTools() {
           activeTool={activeTool}
           onSelect={setActiveTool}
         />
+        <ToolButton
+          id="guide"
+          label="Language Guide"
+          description=".ptn / .phn / .photon overview"
+          activeTool={activeTool}
+          onSelect={setActiveTool}
+        />
+        <ToolButton
+          id="pitch"
+          label="Why compress?"
+          description="Developer pitch for glyph code/logs"
+          activeTool={activeTool}
+          onSelect={setActiveTool}
+        />
+        <ToolButton
+          id="field"
+          label="Field Lab"
+          description="Live GHX / QField canvas (dev)"
+          activeTool={activeTool}
+          onSelect={setActiveTool}
+        />
       </div>
 
       {/* Active tool card */}
@@ -69,16 +121,23 @@ export default function DevTools() {
           flex: 1,
           borderRadius: 12,
           border: "1px solid #e5e7eb",
-          // OLD: background: "#020617",
-          background: "#f9fafb",        // 👈 light background
+          background: "#f9fafb",
           padding: 16,
           overflow: "auto",
         }}
       >
         {activeTool === "editor" ? (
           <PhotonEditor docId="devtools" />
-        ) : (
+        ) : activeTool === "ledger" ? (
           <LedgerInspector />
+        ) : activeTool === "guide" ? (
+          <PhotonGuide />
+        ) : activeTool === "pitch" ? (
+          <DevPitch />
+        ) : (
+          // Swap this line if you want 2D vs 3D:
+          // <DevFieldCanvas />
+          <DevFieldHologram3DContainer />
         )}
       </section>
     </div>
@@ -114,7 +173,7 @@ function ToolButton({
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
-        minWidth: 140,
+        minWidth: 160,
         background: active ? "#0f172a" : "transparent",
         color: active ? "#e5e7eb" : "#111827",
         boxShadow: active ? "0 0 0 1px #0ea5e9 inset" : "none",

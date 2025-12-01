@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/prediction/predictive_glyph_composer.py
-# hypothesis_version: 6.139.2
-
-[0.05, 0.5, 'PredictionEngine', 'agent_id', 'container_id', 'coord', 'emotion', 'entry', 'fork', 'forks', 'from', 'goal', 'hash', 'id', 'local', 'meta', 'plugin', 'prediction_engine', 'predictive', 'predictive_fork', 'predictive_forks', 'predicts', 'relates_to', 'relation', 'score', 'tags', 'timestamp', 'to', 'type', 'utf-8']

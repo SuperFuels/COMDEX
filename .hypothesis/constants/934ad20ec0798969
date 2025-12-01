@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/photon_algebra/photon_parse.py
-# hypothesis_version: 6.139.2
-
-['(', ')', 'Input string:', 'Normalized:', 'Parsed AST:', 'Pretty again:', '__main__', 'op', 'state', 'states', '¬', '↔', '∅', '≈', '⊂', '⊕', '⊖', '⊗', '⊤', '⊥', '★']

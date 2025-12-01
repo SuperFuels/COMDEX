@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dimensions/container_helpers.py
-# hypothesis_version: 6.139.2
-
-['MULTIVERSE_HQ_ID', 'Tesseract', 'geometry', 'hub', 'id', 'kind', 'meta', 'name', 'role', 'tesseract', 'tesseract_hub']

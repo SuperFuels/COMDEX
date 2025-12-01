@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/models/product.py
-# hypothesis_version: 6.139.2
-
-[0.0, 'CASCADE', 'Deal', 'Shipment', 'User', 'all, delete-orphan', 'extend_existing', 'product', 'products', 'products_owned', 'users.id']

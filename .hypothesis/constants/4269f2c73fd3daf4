@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/metric_utils.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.8, 1.2, 1.5, 'depth', 'entropy', 'ops']

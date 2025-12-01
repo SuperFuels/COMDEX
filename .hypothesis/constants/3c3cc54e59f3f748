@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/consciousness/logic_prediction_utils.py
-# hypothesis_version: 6.139.2
-
-[0.95, 'and', 'args', 'call', 'expression', 'iff', 'implies', 'left', 'name', 'not', 'or', 'reason', 'right', 'score', 'symbol', 'type', 'value', 'variable']

@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/virtual/instruction_parser.py
-# hypothesis_version: 6.139.2
-
-['(', ')', 'A ⊕ B → C', 'X ↔ Y', '__main__', 'args', 'children', 'domain', 'lit', 'op', 'program', 'unknown', 'value', '→', '↔', '⊕', '⚛ → ✦ ⟲ 🧠', '⟲', '⟲((A ⊕ B) → C)', '⟲(A ⊕ B)', '⧖']

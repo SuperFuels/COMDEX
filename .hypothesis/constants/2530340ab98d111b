@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/operators/collapse.py
-# hypothesis_version: 6.139.2
-
-[1.0, 'bias', 'collapse_op', 'collapsed', 'measured', 'superposed']

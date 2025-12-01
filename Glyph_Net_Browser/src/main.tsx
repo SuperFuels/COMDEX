@@ -3,8 +3,8 @@ import "@/lib/radioPatch";   // ← MUST be first: rewrites ws/http calls to VIT
 
 import React from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App";
-import DevRFPanel from "./dev/DevRFPanel";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes";
 
 // Optional Safari AudioContext shim
 if (
@@ -70,13 +70,14 @@ if (E2EE) {
   };
 }
 
-// Mount app (hard gate on #/dev/rf to avoid router races)
+// Mount app with real routes ("/" and "/dev/rf")
 const el = document.getElementById("root");
 if (!el) throw new Error("Root element #root not found");
 
-const hash = typeof window !== "undefined" ? window.location.hash : "";
-const wantDevRF = /^#\/dev\/rf(\?|$)/.test(hash);
-
 createRoot(el).render(
-  <React.StrictMode>{wantDevRF ? <DevRFPanel /> : <App />}</React.StrictMode>
+  <React.StrictMode>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  </React.StrictMode>
 );

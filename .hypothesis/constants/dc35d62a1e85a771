@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dna_chain/crispr_ai.py
-# hypothesis_version: 6.139.2
-
-[0.3, 0.5, 0.85, 1.0, 'approved', 'confidence', 'def ', 'diff', 'file', 'impact_score', 'mutated.py', 'new_code', 'original.py', 'os.remove', 'proposal_id', 'r', 'reason', 'replaced_code', 'safety_score', 'tests_passed', 'timestamp', 'tokens_used', 'utf-8']

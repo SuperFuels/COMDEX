@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/symbolic_spreadsheet/models/glyph_cell.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.05, 0.1, 0.2, 0.3, 0.5, 1.0, 'GlyphCell', 'emotion', 'errors', 'id', 'if', 'inspired', 'linked_cells', 'logic', 'mutation_parent_id', 'mutation_score', 'mutation_timestamp', 'mutation_type', 'name', 'nested_logic', 'neutral', 'position', 'prediction', 'prediction_forks', 'result', 'sqi_score', 'symbol', 'text', 'trace', 'type', 'valid', 'validated', 'wave_beams']

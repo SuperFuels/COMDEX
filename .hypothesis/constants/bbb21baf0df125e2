@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/codexlang_types.py
-# hypothesis_version: 6.139.2
-
-['CodexAST', 'children', 'metadata', 'type', 'value']

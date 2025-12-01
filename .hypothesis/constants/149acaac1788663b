@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/photon_algebra/io_json.py
-# hypothesis_version: 6.139.2
-
-['\nDecoded:', '\nEncoded JSON:\n', '\nRoundtrip OK:', ',', ':', 'Original:', '__main__']

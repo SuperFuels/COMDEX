@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/virtual/codex_virtual_cpu.py
-# hypothesis_version: 6.139.2
-
-[0.0, -128, 127, 256, 'FP4', 'FP8', 'INT8', 'STACK', '__main__', 'cell_id', 'container_id', 'cpu_cell_update', 'exec_time', 'execution_time', 'last_result', 'mutation_count', 'ops_executed', 'register_reads', 'register_writes', 'sqi', 'sqi_score', 'sqi_shift', 'stack_max_depth', 'token_metrics', 'total', 'type', '⚛ → ✦ ⟲ 🧠', '💡 CodexLang Output:', '📊 CPU Metrics:', '📦 Registers:']

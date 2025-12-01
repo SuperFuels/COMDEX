@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/instability_check_module.py
-# hypothesis_version: 6.139.2
-
-[0.1, 0.65, 0.95, '_inject_harmonics', 'gravity', 'magnetism', 'resonance_filtered', 'sqi_enabled', 'vx', 'vy', 'vz']

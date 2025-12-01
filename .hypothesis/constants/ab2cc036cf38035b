@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/avatar/avatar_core.py
-# hypothesis_version: 6.139.2
-
-[1.0, 'AION', 'action:focus', 'action:move', 'container', 'container_id', 'default', 'delta', 'emotion', 'focus', 'glyph_focus', 'id', 'idle', 'inventory', 'last_reaction', 'last_tick', 'mind', 'mode', 'move', 'position', 'react', 'set_mode', 'spawn', 'state', 't', 'tick', 'tick_rate', 'x', 'y', 'z', '→', '⏳ Idle tick.', '⚠️ Avatar not active']

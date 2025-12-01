@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/virtual/instruction_executor.py
-# hypothesis_version: 6.139.2
-
-[-1.0, 0.0, 1.0, 7.5, -127, 127, '?', 'args', 'children', 'error', 'execution_time', 'fp4', 'fp8', 'int8', 'kwargs', 'max_node_depth', 'mutation_count', 'op', 'ops_executed', 'precision', 'result', 'status']

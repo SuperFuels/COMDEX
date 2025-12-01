@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/consciousness/context_engine.py
-# hypothesis_version: 6.139.2
-
-['datetime', 'default', 'environment', 'event', 'last_event', 'location', 'timestamp', 'unknown']

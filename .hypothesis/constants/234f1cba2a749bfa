@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/collision_resolver.py
-# hypothesis_version: 6.139.2
-
-['../../../..', ':', 'ALIASES', 'COLLISIONS', 'PRIORITY_ORDER', 'config', 'control', 'logic', 'logic:↔', 'logic:⊕', 'logic:⊗', 'math', 'math:∇', 'photon', 'photon:≈', 'physics', 'physics:⊗', 'quantum', 'quantum:↔', 'quantum:⊕', 'r', 'resolver_config.yaml', 'symatics', 'symatics:⊗', 'utf-8', '~', '↔', '∇', '≈', '⊕', '⊕_q', '⊗', '⊗_p', '⊗_s']

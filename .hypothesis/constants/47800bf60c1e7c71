@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/skills/boot_selector.py
-# hypothesis_version: 6.139.2
-
-['\\b\\w{4,}\\b', 'about', 'could', 'from', 'in_progress', 'queued', 'status', 'tags', 'that', 'their', 'there', 'this', 'triggered_by_goal', 'where', 'which', 'while', 'with', 'would']

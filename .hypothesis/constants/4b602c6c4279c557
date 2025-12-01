@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/knowledge_graph/glyph_formatter.py
-# hypothesis_version: 6.139.2
-
-[0.2, 0.72, 1.0, '#', '#%02x%02x%02x', '#10B981', '#2563EB', '#9CA3AF', '#DC2626', '#FFD700', '0,0,0', '3,2,1', 'Black Hole 🪐', 'DNA Spiral 🧬', 'GHX Payload:', 'Mirror Container 🪞', 'Quantum Orb ⚛️', 'Tesseract 🧮', 'Tetrahedron 🔻', 'Vortex 🌪️', '__main__', 'color', 'confidence', 'container_id', 'coord', 'curiosity', 'demo_container', 'emotion', 'entangled', 'entangled_with', 'fear', 'focus', 'geometry', 'glyph', 'id', 'joy', 'neutral', 'pulse', 'seed_123', 'timestamp', 'unknown', 'utf-8', 'visual', '↔', '↔(🧬)', '∅', '⚛', '🌪', '🧬', '🪐', '🪞']

@@ -37,7 +37,9 @@ export default function App() {
 
   const [inboxTopicFromHash, setInboxTopicFromHash] = useState<string>("");
   const [chatTopicFromHash, setChatTopicFromHash] = useState<string>("");
-  const [chatKGFromHash, setChatKGFromHash] = useState<"personal" | "work" | undefined>(undefined);
+  const [chatKGFromHash, setChatKGFromHash] = useState<"personal" | "work" | undefined>(
+    undefined
+  );
 
   // --- session (inline, no extra hook) ---
   const [session, setSession] = useState<Session>(null);
@@ -136,7 +138,7 @@ export default function App() {
         document.title = `RF Bridge — Glyph Net`;
         return;
       }
-      
+
       if (h.startsWith("#/devtools")) {
         setActive("devtools");
         document.title = `Dev Tools — Glyph Net`;
@@ -199,21 +201,24 @@ export default function App() {
 
   // KG visit/dwell journaling via UMD (/public/js/kg_emit.js)
   useEffect(() => {
-    const ownerWa =
-      session?.wa ||
-      localStorage.getItem("gnet:ownerWa") ||
-      OWNER_WA;
+    const ownerWa = session?.wa || localStorage.getItem("gnet:ownerWa") || OWNER_WA;
 
     const kgEmit = (window as any).KGEmit;
     if (!kgEmit || typeof kgEmit.initVisitEmitters !== "function") return;
 
     const readGraph = () => {
-      try { return readKGFromHash(window.location.hash || "#/"); }
-      catch { return "personal" as const; }
+      try {
+        return readKGFromHash(window.location.hash || "#/");
+      } catch {
+        return "personal" as const;
+      }
     };
     const readTopic = () => {
-      try { return readTopicFromHash(window.location.hash || "#/") || "ucs://local/ucs_hub"; }
-      catch { return "ucs://local/ucs_hub"; }
+      try {
+        return readTopicFromHash(window.location.hash || "#/") || "ucs://local/ucs_hub";
+      } catch {
+        return "ucs://local/ucs_hub";
+      }
     };
 
     const stop = kgEmit.initVisitEmitters({
@@ -232,7 +237,9 @@ export default function App() {
       getPath: () => window.location.hash || "#/",
     });
 
-    return () => { if (typeof stop === "function") stop(); };
+    return () => {
+      if (typeof stop === "function") stop();
+    };
   }, [session?.wa]);
 
   // Accept both a string or an object from TopBar
@@ -242,13 +249,7 @@ export default function App() {
   };
 
   // Sidebar only knows: "home" | "inbox" | "outbox" | "kg" | "settings" | "devtools".
-  const sidebarActive:
-    | "home"
-    | "inbox"
-    | "outbox"
-    | "kg"
-    | "settings"
-    | "devtools" =
+  const sidebarActive: "home" | "inbox" | "outbox" | "kg" | "settings" | "devtools" =
     active === "chat"
       ? "inbox"
       : active === "bridge"
@@ -271,7 +272,9 @@ export default function App() {
       <Sidebar
         open={sidebarOpen}
         active={sidebarActive}
-        onSelect={(id) => setActive((id as unknown) as Exclude<ActiveTab, "chat" | "bridge">)}
+        onSelect={(id) =>
+          setActive((id as unknown) as Exclude<ActiveTab, "chat" | "bridge">)
+        }
         onClose={() => setSidebarOpen(false)}
       />
 
@@ -317,7 +320,8 @@ export default function App() {
               background: "#fff",
             }}
           >
-            <strong>AION:</strong> ready (UI stub). This pane becomes the agent console / GlyphGrid.
+            <strong>AION:</strong> ready (UI stub). This pane becomes the agent console /
+            GlyphGrid.
           </div>
         )}
       </main>

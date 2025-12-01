@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/warp_checks.py
-# hypothesis_version: 6.139.2
-
-[0.05, 0.5, 0.6, 500, 'data/qwave_logs', 'drift', 'harmonic_coherence', 'impact_speed', 'pi_val', 'sqi_stable', 'threshold', 'timestamp']

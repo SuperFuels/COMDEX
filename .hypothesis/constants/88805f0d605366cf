@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/core/validators/pi_s_closure.py
-# hypothesis_version: 6.139.2
-
-[1e-06, 'deviation', 'n', 'passed', 'phase', 'total_phase']

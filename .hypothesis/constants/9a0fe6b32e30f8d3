@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/tools/photon_pp.py
-# hypothesis_version: 6.139.2
-
-[' ↔ ', ' ⊕ ', ' ⊖ ', ' ⊗ ', '(', ')', ', ', 'op', 'state', 'states', '¬', '↔', '∅', '⊕', '⊖', '⊗', '★']

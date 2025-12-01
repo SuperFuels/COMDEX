@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/symbolic/symbolic_inference_engine.py
-# hypothesis_version: 6.139.2
-
-[0.95, 'False', 'confidence', 'container_id', 'contradiction', 'contradictions', 'coord', 'glyph', 'id', 'implies', 'leanProof', 'leanProofError', 'lean_verified', 'ok', 'rewriteSuggestions', 'rewrites', 'score', 'sqiScore', 'status', 'trace', 'traceMetadata', 'unknown', '¬', '→', '→ ⊥', '⊥']

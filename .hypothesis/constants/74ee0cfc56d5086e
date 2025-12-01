@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/knowledge_graph/glyph_feedback_tracer.py
-# hypothesis_version: 6.139.2
-
-['ancestry', 'cause', 'comment', 'confidence_drop', 'default-feedback', 'failure_gradient', 'gradient_zone', 'mirror_failure', 'path', 'reinforcement', 'status', 'success_gradient', 'target', 'type']

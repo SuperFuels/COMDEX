@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dimensions/time_controller.py
-# hypothesis_version: 6.139.2
-
-[3.0, 'cubes', 'decay_enabled', 'glyph', 'loop_enabled', 'loop_range', 'tick']

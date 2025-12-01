@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphwave/wavescope.py
-# hypothesis_version: 6.139.2
-
-[0.0, 1e-09, 1.0, 5.0, 30.0, 100, 'avg_snr', 'beam_event', 'beams_per_sec', 'coherence', 'drop_rate', 'dropped', 'event', 'meta', 'noise', 'signal', 'snr', 'timestamp']

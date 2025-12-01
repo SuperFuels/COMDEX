@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/photon_algebra/rewriter.py
-# hypothesis_version: 6.139.2
-
-[100000, 200000, '=', '?', 'Cache stats:', 'DEBUG_FLAT_STATES:', 'Diagnostics:', 'Input expression:', 'Normalized result:', '__main__', 'a', 'absorptions', 'after', 'atom', 'b', 'before', 'c', 'distributions', 'hits', 'idempotence', 'key_cache', 'list', 'memo', 'misses', 'op', 'op0', 'op1', 'opN', 'rewrites', 'rule', 'state', 'states', 'var', '¬', '↔', '∅', '≈', '⊂', '⊕', '⊖', '⊗', '⊤', '⊥', '★']

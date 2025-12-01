@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/codexcore_virtual/cpu_executor.py
-# hypothesis_version: 6.139.2
-
-['ADD R3, R1, R2', 'HALT', 'MOV R1, 10', 'MOV R2, 20', 'PRINT R3', 'STORE R3, 100', '__main__', 'args', 'error', 'ok', 'operation', 'registry_execute', '🛑 End of Program']

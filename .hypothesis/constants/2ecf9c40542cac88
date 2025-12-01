@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/operators/resonance.py
-# hypothesis_version: 6.139.2
-
-[1e-06, 0.9, 1.25, 2.0, 'Context', 'df', 'resonant', '⟲']

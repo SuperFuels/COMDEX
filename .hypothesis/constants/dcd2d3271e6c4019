@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/codex_websocket_interface.py
-# hypothesis_version: 6.139.2
-
-['action', 'codex', 'codex_ws_execution', 'context', 'cost', 'delay', 'detail', 'energy', 'error', 'ethics_risk', 'event', 'glyph', 'glyph_execution', 'label', 'metadata', 'ok', 'opportunity_loss', 'origin', 'payload', 'photon', 'result', 'scroll', 'source', 'status', 'timestamp', 'trace', 'trigger_glyph', 'type', 'unknown', 'websocket_glyph']

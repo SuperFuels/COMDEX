@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/knowledge_graph/kg_writer_singleton.py
-# hypothesis_version: 6.139.2
-
-['KnowledgeGraphWriter', 'crdt_registry', 'get_crdt_registry', 'get_kg_writer', 'write_glyph_event']

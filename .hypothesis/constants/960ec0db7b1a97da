@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/symbolic/hst/hst_injection_utils.py
-# hypothesis_version: 6.139.2
-
-['0:0', 'container_id', 'container_path', 'coord', 'hst', 'hst_injector', 'label', 'none', 'root_label', 'source', 'symbol_count', 'symbolicTree', 'unknown']

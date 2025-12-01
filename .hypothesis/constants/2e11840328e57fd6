@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphwave/qkd/qkd_policy_enforcer.py
-# hypothesis_version: 6.139.2
-
-['payload', 'qkd_policy', 'qkd_policy_violation', 'reason', 'recipient_id', 'require_qkd', 'sender_id', 'status', 'type', 'verified', 'wave_id']

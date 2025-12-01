@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_control_panel/modules/sqi_reasoning_module.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.5, 0.8, 0.9, 0.97, 0.98, 0.99, 0.995, 0.999, 1.0, 1.003, 1.02, 1.2, 250.0, '95%', 'N/A', 'avg_exhaust', 'beam_id', 'collapse', 'container_id', 'distance', 'drift', 'drift_trend', 'drift_weight', 'engine', 'exhaust', 'fields', 'glyph', 'goal', 'gravity', 'innovation_score', 'label', 'logged_at', 'magnetism', 'match_score', 'metadata', 'metric', 'op', 'origin', 'resonance', 'semantic_distance', 'semantic_score', 'source_node', 'sqi_metric', 'stage', 'symbolnet', 'timestamp', 'trace_id', 'trend', 'type', 'unknown', 'value', 'wave_frequency', 'Σ', '—', '↑', '→', '↓']

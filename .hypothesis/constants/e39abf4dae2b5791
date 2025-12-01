@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/skills/goal_engine.py
-# hypothesis_version: 6.139.2
-
-[200, 'AwarenessEngine', 'AwarenessTrigger', 'GoalEngine', '__main__', 'awareness', 'awareness_event', 'awareness_goal', 'awareness_type', 'completed', 'completed_at', 'confidence', 'context', 'created_at', 'cycle_event', 'dependencies', 'description', 'dream_id', 'event', 'glyph', 'glyph_trigger', 'goal', 'goal_from_awareness', 'goal_name', 'goal_skill_log.json', 'goals', 'goals.json', 'learned_skill', 'message', 'milestone', 'name', 'new_milestone', 'origin', 'origin_glyph', 'origin_strategy_id', 'priority', 'progress', 'r', 'reward', 'source', 'strategy_id', 'success', 'system', 'tags', 'task', 'text', 'timestamp', 'type', 'w', '⮁', '🎯', '🎯 Active Goals:', '🧠']

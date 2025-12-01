@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/photon_algebra/simplify_sympy.py
-# hypothesis_version: 6.139.2
-
-[200, '  Original:', '  Simplified:', '  SymPy difference:', 'auto', 'dnf']

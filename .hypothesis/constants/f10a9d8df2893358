@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/knowledge_graph/entanglement_fusion.py
-# hypothesis_version: 6.139.2
-
-[0.0, 'agent_id', 'agent_join', 'agent_leave', 'agents', 'confidence', 'confidence_delta', 'consensus', 'consensus_resolution', 'entangled_from', 'entangled_nodes', 'entangled_sync', 'entropy', 'event', 'final_confidence', 'from_agent', 'fusion', 'fusion_consensus', 'fusion_event', 'fusion_violation', 'glyph_id', 'gradient', 'gradient_sync', 'id', 'neutral', 'roles', 'source_agent', 'type', 'violations', 'weight', 'ws', '↔', '⚖️']
