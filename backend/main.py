@@ -423,6 +423,7 @@ from backend.api import rtc_api
 from backend.routes.voice import router as voice_router
 from backend.routes.voice import register_events as register_voice_events
 from backend.api import ast_api, ast_hologram_api
+from backend.modules.holo.holo_routes import router as holo_router
 
 # Floor control (PTT) lock manager
 from backend.modules.glyphnet.lock_manager import LOCKS
@@ -644,6 +645,7 @@ app.include_router(voice_router, prefix="/api/voice")
 app.include_router(photon_api_router)
 app.include_router(ast_api.router, prefix="/api")
 app.include_router(ast_hologram_api.router, prefix="/api")
+app.include_router(holo_router, prefix="/api", tags=["holo"])
 register_voice_events(app)
 
 # --- Floor-control lock sweeper (PTT) ---

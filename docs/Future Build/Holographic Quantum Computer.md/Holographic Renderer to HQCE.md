@@ -73,7 +73,488 @@ flowchart TD
 
   P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6
 
+  ******************************NEXT LEVEL HOLOGRAMS****************************************************************************************
 
+  flowchart TD
+  classDef phase fill:#e5e7eb,stroke:#9ca3af,color:#111827,font-weight:bold,font-size:12px
+  classDef todo fill:#f9fafb,stroke:#d1d5db,color:#111827,font-size:11px
+  classDef done fill:#dcfce7,stroke:#16a34a,color:#14532d,font-size:11px
+
+  P0["🌌 .holo IR + QFC Container — Master Checklist\n• Backend now wired to: QQC, SLE, QWave, UCS, KG, Vault\n• Frontend: DevTools QFC canvas + hologram frames"]:::phase
+
+  %% CORE: .holo + QFC container
+  subgraph C1[Core — .holo IR & QFC Container]
+    direction TB
+    C1A["[x] QFC DevTools 3D field + AST hologram card (baseline visuals)"]:::done
+    C1B["[x] Define .holo IR schema\n• ghx: {nodes,edges} ← KG export_pack\n• ψκT: field_tensor + coherence/drift (QQC/SLE metrics)\n• views: {code,kg,qfc,summary}\n• metadata: {origin,version,tags,ledger_ref}"]:::todo
+    C1C["[ ] HologramContainer spec (KG-facing)\n• container_id (UCS/KG id)\n• field layout + micro-grid tiling\n• per-frame .holo slots bound to qwave beams"]:::todo
+    C1D["[ ] <HologramContainerView>\n• wraps DevTools QFC field\n• accepts (container_id, holo_id)\n• pulls KG pack + QWave beams"]:::todo
+    C1E["[x] Loader/saver bridge\n.holo ⇄ {GHX pack + ψκT + beams + metadata}\n• backend: KnowledgeGraphWriter.export_pack + qwave_export\n• stored as holo://container/<name>.holo.json"]:::todo
+    C1F["[ ] .holo registry/index in KG\n• index: knowledge_index.holo\n• links: holo:// URIs on KG nodes/containers"]:::todo
+  end
+
+  %% 1) Aion memory field / workspace
+  subgraph U1["Use Case 1 — Aion Memory Field / Workspace"]
+    direction TB
+    U1A["[ ] AionMemoryContainer type\n• lives as UCS/KG container\n• mounts QFC tile + micro-grid + trace\n• uses ContainerRuntime + Vault"]:::todo
+    U1B["[ ] Memory API\n• Aion.read_holo(container_id)\n• Aion.write_holo(container_id, holo)\n• Aion.rewrite_holo(..., patch)\n• impl via kg_writer.inject_glyph + add_to_index"]:::todo
+    U1C["[ ] Search/index over Aion holos\n• use sqi_fastmap + reasoning_index\n• query: tags, patterns, time (ticks)\n('find my last refactor loop')"]:::todo
+    U1D["[ ] DevTools panel\n• 'Show Aion memory field for container X'\n• binds to <HologramContainerView> + index query"]:::todo
+  end
+
+  %% 2) Compressed storage (crystals)
+  subgraph U2["Use Case 2 — Compressed Crystal Storage"]
+    direction TB
+    U2A["[ ] Motif extractor\n• inputs: glyph_trace, CodexMetrics, pattern_engine\n• motifs = workflows / habits"]:::todo
+    U2B["[ ] Crystal builder\n• motifs → 'habit crystals' as .holo\n• one hologram per stable pattern\n• store via export_pack + crystal:// URIs"]:::todo
+    U2C["[ ] Crystal storage layout\n• crystal://user/... /team/...\n• backed by KG + Vault"]:::todo
+    U2D["[ ] QFC visual: crystals\n• render as dense/glowing nodes\n• show pattern_strength, SQI, usage"]:::todo
+  end
+
+  %% 3) .holo as primary IR
+  subgraph U3["Use Case 3 — .holo as Primary IR"]
+    direction TB
+    U3A["[ ] Round-trip adapters\ncode ⇄ .holo ⇄ beams ⇄ HST\n• code/AST → HST → KG pack → .holo\n• .holo → qwave_beams → QQC/SLE run\n• HST injection utils + qwave_writer"]:::todo
+    U3B["[ ] 'Export as .holo' buttons\n• from AST view, KG node, container view\n• calls backend holo_export(container_id, view_ctx)"]:::todo
+    U3C["[ ] 'Rehydrate from .holo'\n• .holo → code, prompts, KG node, QFC layout\n• uses HST + KGWriter + qfc_utils"]:::todo
+  end
+
+  %% 4) Executable programs
+  subgraph U4["Use Case 4 — Executable Hologram Programs"]
+    direction TB
+    U4A["[ ] Execution contract\nrun_holo(holo_id, input_ctx)\n→ {output, updated_holo, metrics}\n• wraps QQC central kernel + BeamRuntime"]:::todo
+    U4B["[ ] Pipe .holo into SLE/HQCE/QQC\n• holo → WaveCapsule/beam → BeamRuntime\n• use beam_controller + qqc_kernel_v2"]:::todo
+    U4C["[ ] QFC 'Run .holo' control\n• play/pause per frame\n• highlight active beams + ψκT drift\n• show coherence/time from beam_runtime"]:::todo
+    U4D["[ ] Persist execution result\n• updated ψκT + GHX → same .holo or\n• versioned holo://.../v2\n• write via KGWriter + Vault"]:::todo
+  end
+
+  %% 5) Ledger / blockchain style
+  subgraph U5["Use Case 5 — Ledger / Blockchain Transactions"]
+    direction TB
+    U5A["[ ] HologramTransaction schema\n• pre_holo_id, post_holo_id\n• beams, ψκT, SQI, signatures\n• links to KG ledger events"]:::todo
+    U5B["[ ] Signing + verification\n• leverage SoulLaw + Vault keys\n• verify_holo_transition()"]:::todo
+    U5C["[ ] Ledger writer\n• append to kg_events via make_event/log_events\n• type='hologram_state_transition'"]:::todo
+    U5D["[ ] QFC ledger overlay\n• show hops between hologram states\n• click to replay via ContainerRuntime"]:::todo
+  end
+
+  %% 6) Pattern analysis / recognition
+  subgraph U6["Use Case 6 — Pattern Analysis & Recognition"]
+    direction TB
+    U6A["[ ] Pattern engine on .holo\n• reuse SymbolicPatternEngine + KGWriter.inject_pattern\n• scan beams, ψκT, graph motifs"]:::todo
+    U6B["[ ] Pattern index\n• pattern_id → list of holo_ids\n• index: knowledge_index.patterns"]:::todo
+    U6C["[ ] QFC pattern overlays\n• color beams/frames by pattern\n• hover = show description + SQI"]:::todo
+    U6D["[ ] Aion API\n• 'show me holograms with pattern P'\n• runs index query + opens DevTools view"]:::todo
+  end
+
+  %% 7) Library-in-one-hologram memory
+  subgraph U7["Use Case 7 — Library-in-One-Hologram"]
+    direction TB
+    U7A["[ ] Packing algorithm\n• corpus/codebase → multi-layer .holo\n• angular/segment addressing encoded in metadata"]:::todo
+    U7B["[ ] Addressing API\n(holo_id, angle/segment) → sub-view\n• resolves to file/chapter/module\n• backend: KG + HST subtrees"]:::todo
+    U7C["[ ] QFC 'sweep/scrub' UI\n• angle slider/knob = move through corpus\n• animates which segments are lit"]:::todo
+  end
+
+  %% 8) Timefold / snapshots
+  subgraph U8["Use Case 8 — Timefold Snapshots"]
+    direction TB
+    U8A["[x] Time-stamped .holo snapshots\n• state_at_tick → holo://.../t=1234\n• uses ContainerRuntime + Vault snapshots"]:::todo
+    U8B["[ ] Timefold navigator\n• QFC timeline slider\n• swaps active .holo set per tick range"]:::todo
+    U8C["[ ] Diff engine\n• compare two .holo:\nψκT deltas, beams, KG nodes/edges\n• present as structured change map"]:::todo
+  end
+
+  %% 9) Multi-view lens
+  subgraph U9["Use Case 9 — Multi-View Lens"]
+    direction TB
+    U9A["[ ] View adapters inside .holo\n• code_view, kg_view, qfc_view, summary_view\n• each has stable view_id in metadata"]:::todo
+    U9B["[ ] DevTools 'Lens switcher'\n• toggle code/KG/QFC/summary for same holo\n• keeps camera + selection stable"]:::todo
+  end
+
+  %% 10) Safe sandbox for agents
+  subgraph U10["Use Case 10 — Safe Sandbox (.holo-first)"]
+    direction TB
+    U10A["[ ] SandboxHologramContainer\n• not linked to live code/KG by default\n• SoulLaw validated via ContainerRuntime + dc_handler"]:::todo
+    U10B["[ ] Aion sandbox API\nrun_in_holo_sandbox(holo_id, patch)\n• executes via QQC/SLE but writes only to sandbox"]:::todo
+    U10C["[ ] Promotion flow\n• if SQI/coherence ok → commit patch\n• uses commit_atom_to_graph + container_index_writer"]:::todo
+  end
+
+  %% 11) Collaboration capsules
+  subgraph U11["Use Case 11 — Collaboration Capsules"]
+    direction TB
+    U11A["[ ] Shared .holo workspace format\n• authors, cursors, comments\n• ψκT history + glyph_trace refs"]:::todo
+    U11B["[ ] Real-time QFC multi-cursor\n• uses WS: glyphnet_ws + websocket_manager\n• humans + agents editing same hologram"]:::todo
+    U11C["[ ] Change-log & replay\n• who changed what, at which tick\n• replay via glyph_trace + Timefold UI"]:::todo
+  end
+
+  %% flow / priority
+  P0 --> C1 --> U1 --> U2 --> U3 --> U4 --> U5 --> U6 --> U7 --> U8 --> U9 --> U10 --> U11
+
+  ******************************NEXT LEVEL HOLOGRAMS*************************************************************************************
+
+Actual plan & how this now fits the architecture
+
+Very compressed version, given everything wired up:
+	1.	.holo IR = “snapshot of a container’s field”
+	•	Backed by: KnowledgeGraphWriter.export_pack(...) + QWave beams + QQC/SLE metrics.
+	•	A .holo is basically:
+	•	Graph: nodes/links (from glyph_grid → KG pack).
+	•	Field state: QWave beams + QQC/SLE coherence / drift / ψκT from the QQC stack and beam runtime.
+	•	Views: references to code, KG, QFC layout, summaries.
+	•	Metadata: SoulLaw, ledger events, entanglement links, time/tick.
+	2.	HologramContainerView = bridge between DevTools and runtime
+	•	Frontend: a React component that:
+	•	Takes (container_id, holo_id) and paints the QFC field with hologram frames.
+	•	Talks to a backend endpoint that:
+	•	Loads container from UCS/Vault (ContainerRuntime + dc_handler + ucs_runtime).
+	•	Calls KnowledgeGraphWriter.export_pack + QWave beam collector and QQC metrics.
+	•	Returns a .holo JSON the UI can render.
+	3.	Execution path (run_holo)
+	•	.holo → QWave beams/WaveCapsules → BeamRuntime.execute_capsule(...) → QQC central kernel.
+	•	This is where SLE, coherence metrics, and QQC commit/repair managers plug in.
+	•	Resulting metrics (coherence, drift, verdicts, SoulLaw, SQI) are written back as:
+	•	KG glyphs (kg_writer.inject_glyph),
+	•	index entries (add_to_index),
+	•	and an updated .holo snapshot (new ψκT, maybe altered graph).
+	4.	Containers, KG, and Vault alignment
+	•	Containers: live in UCS + Vault + .dc.json files; ContainerRuntime handles decryption, HST injection, QFC broadcast, and entanglement forks.
+	•	KG: KnowledgeGraphWriter + container_index_writer treat each container as a symbolic graph; KG export packs are exactly what .holo wants for ghx.
+	•	Vault/Snapshots: provide timefold and safe persistence; vault_bridge + snapshot IDs + teleport packets give you time-indexed .holo states.
+	5.	Use cases build on the same primitives
+	•	Aion memory field, crystals, sandbox, and collab all share:
+	•	the .holo format,
+	•	KG indices (knowledge_index.*),
+	•	QWave / QQC metrics as the “physics” of the field,
+	•	and QFC as the default visual lens.
+	6.	Execution order / what to actually implement next
+
+Very roughly:
+	1.	Core IR + view (C1)
+	•	Lock .holo JSON schema.
+	•	Implement backend loader/saver and <HologramContainerView> to render it in DevTools.
+	2.	Workspace & sandbox (U1 + U10)
+	•	AionMemoryContainer + SandboxHologramContainer types pointing at the same .holo machinery.
+	•	Basic Aion APIs for read/write/execute in sandbox.
+	3.	Executable programs + round-trip (U3 + U4)
+	•	Wire run_holo → QQC/SLE + BeamRuntime (virtual path only first).
+	•	Add “export as .holo / rehydrate” hooks from existing DevTools panels.
+	4.	Snapshots, patterns, ledger (U5–U8)
+	•	Once basic loop is stable, add:
+	•	timefold snapshots (Vault + holo://…/t=N),
+	•	pattern index on .holo,
+	•	hologram ledger entries in KG.
+	5.	Lens + collab (U9–U11)
+	•	Lens switcher on the same .holo.
+	•	Multi-cursor + replay using the existing WebSocket + glyph_trace plumbing.
+
+__________________________________________________________________________________
+
+3. Where each part comes from (existing code)
+
+Very short mapping to your modules:
+
+Identity / origin / version
+	•	holo_id
+	•	Construct from container_id, tick and revision, e.g.
+f"holo:container/{cid}/t={tick}/v{revision}".
+	•	container_id
+	•	From container["id"] (UCS/ContainerRuntime / dc_handler).
+	•	origin
+	•	created_at: get_current_timestamp() / _utc_now_iso().
+	•	created_by: "aion" or "user" depending who triggered export.
+	•	container_snapshot_id: from vault_bridge.get_container_snapshot_id or teleport packets when applicable.
+	•	version
+	•	Start all zeros + revision=1.
+	•	Increment revision on each new .holo export for same (container_id, tick).
+
+ghx graph
+	•	Use KnowledgeGraphWriter.export_pack(container, out_path):
+	•	pack["nodes"] → ghx.nodes (wrap each as { id, label, type, tags, meta }).
+	•	pack["links"] → ghx.edges.
+	•	Layout hints:
+	•	From container meta: metadata.layout_type, metadata.ghx_mode, metadata.overlay_layers that you already set in export_pack.
+	•	Entanglement:
+	•	metadata.entangled_links from build_node_from_container_for_kg / export_pack.
+
+field = ψκT + metrics
+	•	psi_kappa_T:
+	•	For now: keep as a generic blob storing QQC/SLE field info:
+	•	e.g. waveform_summary, invariants or harmonics from QQC kernel or SLE.
+	•	metrics:
+	•	coherence, drift:
+	•	From coherence metrics / QQC / BeamRuntime.execute_capsule result.
+(You already set coherence and collapse_time_ms there.)
+	•	entropy, logic_score, sqi:
+	•	From logic prediction + Codex metrics (e.g. inject_logic_trace_data, CodexMetrics, etc.).
+	•	tick:
+	•	ContainerRuntime.tick_counter at the time of capture.
+	•	qqc_state:
+	•	From qqc_central_kernel & qqc_kernel_v2 runtime state:
+	•	kernel version, mode, last event id, etc.
+	•	sle_state:
+	•	From SLE runtime (BeamRuntime, symatics_dispatcher etc.) if you keep any state.
+
+beams
+	•	From QWave integration:
+	•	collect_qwave_beams(container_id) and export_qwave_beams(container, beams, context)
+(you already call this inside export_pack / KG writer).
+	•	Use exactly the normalized shape used in export_qwave_beams fallback.
+
+views
+	•	code_view:
+	•	DevTools side: current open file(s), AST selection node id.
+	•	kg_view:
+	•	Focus node plus any filters/queries user had active.
+	•	qfc_view:
+	•	Camera position, highlighted nodes/beams and active overlays from the QFC React component state.
+	•	summary_view:
+	•	Natural language from Aion (could be a glyph in KG too).
+
+indexing
+	•	tags:
+	•	Derived from:
+	•	container tags,
+	•	auto tags from glyph content (_derive_auto_tags),
+	•	manual labels (e.g. “pre-refactor”).
+	•	patterns:
+	•	From SymbolicPatternEngine / KnowledgeGraphWriter.inject_pattern.
+	•	topic_vector:
+	•	From sqi_fastmap.add_or_update_entry / stored vector.
+
+timefold
+	•	tick: ContainerRuntime.tick_counter.
+	•	snapshot_ref: vault snapshot id if exported via _post_collapse_side_effects / SCI serializer / Vault.
+	•	previous_tick / next_tick:
+	•	Optional helper if you store adjacent holo ids in KG or index.
+
+ledger / security
+	•	ledger.tx_id + event_ids:
+	•	When you call make_event + log_events in _write_to_container, also log a hologram_state_transition event referencing holo_id.
+	•	security.soullaw_status:
+	•	From SoulLaw checks you already perform in ContainerRuntime.run_tick and dc_handler.enforce_soul_law_on_container.
+	•	signatures:
+	•	From Vault if/when you sign .holo payloads.
+
+sandbox / collaboration
+	•	sandbox.is_sandbox:
+	•	True for SandboxHologramContainer type (use-case 10).
+	•	collaboration:
+	•	From WS / glyphnet_ws events:
+	•	multi-cursor positions,
+	•	comments stored as glyphs or separate kg_events.
+
+⸻
+
+4. Lifecycle: how .holo moves through the system
+
+Short, but explicit.
+
+4.1 Create / export
+	1.	Trigger: DevTools (“Export as .holo” button) or a backend event (Timefold snapshot).
+	2.	Load container:
+	•	via ContainerRuntime.get_decrypted_current_container() or ucs_runtime.get_container(container_id).
+	3.	Build base pack:
+	•	call kg_writer.export_pack(container, out_path):
+	•	yields kg_pack with nodes/links + QWave beams injected.
+	4.	Collect QQC/SLE metrics:
+	•	from QQC kernel + BeamRuntime (or last run).
+	5.	Assemble HoloIR:
+	•	using schema above, referencing:
+	•	kg_pack.nodes, kg_pack.links,
+	•	container["qwave_beams"] or symbolic["qwave_beams"],
+	•	metrics from QQC/SLE,
+	•	DevTools view state.
+	6.	Persist:
+	•	Save as JSON somewhere like:
+	•	.../containers/holo_exports/<container_id>/<holo_id>.holo.json
+	•	Index via KG:
+	•	add_to_index("knowledge_index.holo", {... minimal entry with holo_id, container_id, tags, tick, path }).
+
+4.2 Load into DevTools (QFC field canvas)
+	1.	DevTools calls GET /api/holo/:holo_id.
+	2.	Backend:
+	•	load .holo JSON,
+	•	sanity-check SoulLaw (optional),
+	•	return as HoloIR.
+	3.	<HologramContainerView>:
+	•	paints GHX nodes/edges into the QFC 3D canvas,
+	•	lights beams from beams[],
+	•	uses views.qfc_view camera/selection as initial state.
+
+4.3 Execute .holo (“Run .holo”)
+
+Contract:
+
+run_holo(holo_id: str, input_ctx: dict) -> dict:
+    """
+    1. Load HoloIR
+    2. Build WaveCapsules / QWave beams
+    3. Execute via BeamRuntime + QQC kernel
+    4. Collect updated field metrics + beams
+    5. Write back new HoloIR (v+1) and ledger/indices
+    """
+  
+  Flow (high-level):
+	1.	Load .holo → get beams, field.psi_kappa_T, container_id.
+	2.	For each executable beam / capsule:
+	•	Construct WaveCapsule (from wave_capsule.py) with state/metadata.
+	•	Pipe through:
+	•	BeamRuntime.execute_capsule(capsule, mode=...),
+	•	QQC kernel (central_kernel / kernel_v2).
+	3.	Aggregate results:
+	•	new coherence/drift/entropy/sqi, collapse times, etc.
+	4.	Construct updated HoloIR:
+	•	bump version.revision,
+	•	update field.metrics, field.psi_kappa_T, possibly beams.
+	5.	Persist:
+	•	save as new .holo (or overwrite, depending on policy),
+	•	write a hologram_state_transition event to KG ledger,
+	•	index in knowledge_index.holo.
+
+4.4 Timefold / replay
+	•	Timefold snapshots:
+	•	When ContainerRuntime.collapse_container or _post_collapse_side_effects run,
+	•	optional hook: “emit .holo snapshot for tick N + collapse metadata”.
+	•	Replay:
+	•	DevTools picks a .holo by tick from the index,
+	•	loads and sets QFC state accordingly,
+	•	optionally triggers ContainerRuntime.run_replay(...) with glyph trace aligned to that .holo.
+
+⸻
+
+This gives us:
+	•	A fixed JSON schema (HoloIR) both ends can codegen types from.
+	•	Clear mapping to: KnowledgeGraphWriter, container_index_writer, QWave / QQC / SLE, ContainerRuntime, Vault.
+	•	A run_holo contract that naturally streams through BeamRuntime + QQC and writes back to KG + ledger.
+
+If you want, next I can sketch the actual Python dataclass / Pydantic model for HoloIR + a stub holo_service.py with:
+	•	export_holo(container_id, view_ctx),
+	•	load_holo(holo_id),
+	•	run_holo(holo_id, input_ctx).
+
+
+  __________________________________-
+
+
+  {
+  "holo_id": "holo:container/dc_aion_core/t=120/v1",
+  "container_id": "dc_aion_core",
+  "name": "Aion Core Loop — pre-refactor",
+  "symbol": "◆",
+  "kind": "memory",
+  "origin": {
+    "created_at": "2025-12-02T12:34:56.789Z",
+    "created_by": "aion",
+    "reason": "export_from_devtools",
+    "source_view": "qfc",
+    "container_snapshot_id": "snap-7f3e..."
+  },
+  "version": { "major": 0, "minor": 1, "patch": 0, "revision": 1 },
+  "ghx": {
+    "nodes": [
+      { "id": "node:main_loop", "label": "Main Loop", "type": "function", "tags": ["core"] },
+      { "id": "node:qqc_bridge", "label": "QQC Bridge", "type": "module", "tags": ["qqc"] }
+    ],
+    "edges": [
+      { "src": "node:main_loop", "dst": "node:qqc_bridge", "relation": "uses" }
+    ],
+    "layout": "grid",
+    "ghx_mode": "hologram",
+    "overlay_layers": [],
+    "entangled_links": ["dc_aion_core_entangled"]
+  },
+  "field": {
+    "psi_kappa_T": {
+      "frame": "original",
+      "state_vector": { "mode": "analysis" }
+    },
+    "metrics": {
+      "coherence": 0.93,
+      "drift": 0.07,
+      "entropy": 0.21,
+      "sqi": 0.88,
+      "tick": 120
+    },
+    "qqc_state": {
+      "kernel_version": "2.0.0",
+      "mode": "idle",
+      "status": "idle"
+    }
+  },
+  "beams": [
+    {
+      "beam_id": "beam-1",
+      "source_id": "node:main_loop",
+      "target_id": "node:qqc_bridge",
+      "carrier_type": "SIMULATED",
+      "modulation_strategy": "SimPhase",
+      "coherence": 0.95,
+      "entangled_path": ["dc_aion_core", "dc_aion_core_entangled"],
+      "collapse_state": "original"
+    }
+  ],
+  "multiverse_frame": "original",
+  "views": {
+    "code_view": {
+      "files": ["backend/modules/runtime/container_runtime.py"],
+      "entry_file": "backend/modules/runtime/container_runtime.py",
+      "selection": "run_tick"
+    },
+    "kg_view": { "focus_node_id": "node:main_loop" },
+    "qfc_view": {
+      "camera": {
+        "position": [0, 3, 6],
+        "target": [0, 0, 0],
+        "zoom": 1.0
+      },
+      "highlighted_nodes": ["node:main_loop"],
+      "highlighted_beams": ["beam-1"]
+    },
+    "summary_view": {
+      "title": "Core loop before QQC refactor",
+      "text": "Snapshot of main loop + QQC bridge before refactor.",
+      "tags": ["pre-refactor", "qqc"]
+    }
+  },
+  "indexing": {
+    "tags": ["aion", "memory", "qqc", "pre-refactor"],
+    "patterns": [],
+    "topic_vector": [0.1, 0.04, -0.2]
+  },
+  "timefold": {
+    "tick": 120,
+    "t_label": "before_refactor",
+    "snapshot_ref": "snap-7f3e...",
+    "previous_tick": 100,
+    "next_tick": null
+  },
+  "ledger": {
+    "tx_id": "tx-holo-abc123",
+    "thread_id": "kg:personal:ucs://local/ucs_hub",
+    "topic_wa": "ucs://local/ucs_hub",
+    "event_ids": ["evt-1", "evt-2"]
+  },
+  "security": {
+    "soullaw_status": "allowed",
+    "signatures": [
+      {
+        "signer": "vault://user/aion",
+        "algorithm": "ed25519",
+        "signature": "deadbeef..."
+      }
+    ]
+  },
+  "sandbox": { "is_sandbox": false },
+  "collaboration": { "shared": false },
+  "references": {
+    "container_kg_export": "backend/modules/dimensions/containers/kg_exports/dc_aion_core.kg.json",
+    "container_dc_path": "backend/modules/dimensions/containers/dc_aion_core.dc.json"
+  }
+}
+
+
+
+
+
+*******************************HOLOGRAM PLAN **********************************************************************************************
 some tasks were completed in teh SLE build task as were required ;;
 
 🧠 Summary of P5 Achievements

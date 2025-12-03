@@ -236,5 +236,19 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "dc_holo_test->ucs_hub": {
+    "from": "dc_holo_test",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "dc_aion_core->ucs_hub": {
+    "from": "dc_aion_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }

@@ -1,0 +1,13 @@
+{
+  "id": "dc_aion_core",
+  "name": "Holo Test Container",
+  "symbol": "◆",
+  "geometry": "sphere",
+  "cubes": {},
+  "metadata": {
+    "layout_type": "grid",
+    "ghx_mode": "hologram",
+    "overlay_layers": [],
+    "entangled_links": []
+  }
+}

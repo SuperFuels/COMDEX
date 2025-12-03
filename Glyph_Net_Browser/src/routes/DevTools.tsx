@@ -13,10 +13,59 @@ import DevFieldCanvas from "../components/DevFieldCanvas";
 // 3D hologram scene wrapper (Canvas + OrbitControls)
 import DevFieldHologram3DContainer from "../components/DevFieldHologram3DContainer";
 
+// Hologram IR + API
+import type { HoloIR } from "../lib/types/holo";
+import { fetchLatestHoloForContainer } from "../lib/api/holo";
+
 type ToolId = "editor" | "ledger" | "guide" | "pitch" | "field";
 
 export default function DevTools() {
   const [activeTool, setActiveTool] = useState<ToolId>("editor");
+
+  // 🔭 Holo snapshot state (for QFC / Hologram field)
+  const [activeContainerId, setActiveContainerId] = useState<string | null>(
+    null,
+  );
+  const [holo, setHolo] = useState<HoloIR | null>(null);
+  const [loadingHolo, setLoadingHolo] = useState(false);
+
+  // 👁️‍🗨️ Derive active container id from URL query (?container=dc_xxx)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const cid = params.get("container") || params.get("containerId");
+      if (cid) setActiveContainerId(cid);
+    } catch {
+      // non-browser env / SSR safe no-op
+    }
+  }, []);
+
+  // 🌌 Fetch latest .holo snapshot when container changes
+  useEffect(() => {
+    if (!activeContainerId) {
+      setHolo(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingHolo(true);
+
+    fetchLatestHoloForContainer(activeContainerId)
+      .then((h) => {
+        if (!cancelled) setHolo(h);
+      })
+      .catch((err) => {
+        console.warn("[DevTools] Failed to load holo snapshot", err);
+        if (!cancelled) setHolo(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingHolo(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeContainerId]);
 
   // 👂 listen for global tab-switch events (from PhotonEditor, etc.)
   useEffect(() => {
@@ -64,6 +113,22 @@ export default function DevTools() {
           }}
         >
           Experimental dev dashboard wired directly into the Glyph Net browser.
+        </p>
+
+        {/* Small holo status line */}
+        <p
+          style={{
+            margin: "4px 0 0 0",
+            fontSize: 11,
+            color: "#9ca3af",
+          }}
+        >
+          Holo snapshot:{" "}
+          {loadingHolo
+            ? "loading…"
+            : holo
+            ? holo.holo_id
+            : "none (pass ?container=dc_xxx in URL)"}
         </p>
       </header>
 
@@ -137,6 +202,7 @@ export default function DevTools() {
         ) : (
           // Swap this line if you want 2D vs 3D:
           // <DevFieldCanvas />
+          // TODO: next step – plumb `holo` into this component once its props accept it.
           <DevFieldHologram3DContainer />
         )}
       </section>

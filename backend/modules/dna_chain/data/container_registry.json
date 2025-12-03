@@ -293,5 +293,19 @@
     "meta": {
       "address": "ucs://local/demo_entangle#container"
     }
+  },
+  "dc_holo_test": {
+    "address": "ucs://local/dc_holo_test#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/dc_holo_test#container"
+    }
+  },
+  "dc_aion_core": {
+    "address": "ucs://local/dc_aion_core#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/dc_aion_core#container"
+    }
   }
 }

@@ -691,6 +691,7 @@ class ContainerRuntime:
         - SoulLaw metadata injection
         - Encrypt + save glyph data
         - Inject QWave beams
+        - Export .holo snapshot (HoloIR) for DevTools/QFC
         - SCI serializer export to ./saved_sessions/session_*.dc.json
         - Final persistence (Vault -> StateManager fallback)
         All steps are best-effort with clear logs.
@@ -797,6 +798,23 @@ class ContainerRuntime:
                 print("i️ get_beams_for_container not available; skipping beam injection.")
         except Exception as e:
             print(f"⚠️ Failed to inject QWave beams: {e}")
+
+        # 🌌 .holo snapshot export (HoloIR for DevTools/QFC)
+        try:
+            from backend.modules.holo.holo_service import export_holo_from_container
+
+            view_ctx = {
+                "tick": getattr(self, "tick_counter", 0),
+                "reason": "timefold_snapshot",
+                "source_view": "qfc",
+                "frame": "mutated",
+            }
+            # revision can be bumped by caller / upstream if needed
+            holo = export_holo_from_container(container, view_ctx, revision=1)
+            container["last_holo_id"] = holo.holo_id
+            print("🌌 Holo snapshot (HoloIR) exported from collapsed container.")
+        except Exception as e:
+            print(f"⚠️ Holo snapshot export failed: {e}")
 
         # 📦 SCI Serializer Export
         try:
