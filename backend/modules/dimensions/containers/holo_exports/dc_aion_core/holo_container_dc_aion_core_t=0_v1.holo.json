@@ -5,9 +5,9 @@
   "symbol": "\u25c6",
   "kind": "memory",
   "origin": {
-    "created_at": "2025-12-03T09:47:37.114229+00:00",
+    "created_at": "2025-12-04T09:11:21.005150+00:00",
     "created_by": "aion",
-    "reason": "curl_test",
+    "reason": "devtools_manual_export",
     "source_view": "qfc"
   },
   "version": {
@@ -41,7 +41,7 @@
               "nodes": 0
             }
           },
-          "last_hov_embed": "2025-12-03T09:47:36.991183"
+          "last_hov_embed": "2025-12-04T09:11:20.912112"
         },
         "viz": {
           "ghx_hover": true,
@@ -81,7 +81,7 @@
               "nodes": 0
             }
           },
-          "last_hov_embed": "2025-12-03T09:47:37.006648"
+          "last_hov_embed": "2025-12-04T09:11:20.924224"
         },
         "viz": {
           "ghx_hover": true,
@@ -115,7 +115,7 @@
               "nodes": 0
             }
           },
-          "last_hov_embed": "2025-12-03T09:47:37.020083"
+          "last_hov_embed": "2025-12-04T09:11:20.935721"
         },
         "viz": {
           "ghx_hover": true,
@@ -149,7 +149,7 @@
               "nodes": 0
             }
           },
-          "last_hov_embed": "2025-12-03T09:47:37.047156"
+          "last_hov_embed": "2025-12-04T09:11:20.938699"
         },
         "viz": {
           "ghx_hover": true,
@@ -184,41 +184,7 @@
               "nodes": 0
             }
           },
-          "last_hov_embed": "2025-12-03T09:47:37.051154"
-        },
-        "viz": {
-          "ghx_hover": true,
-          "ghx_collapsed": true
-        },
-        "expansion": {
-          "includes": [],
-          "counts": {}
-        }
-      },
-      {
-        "type": "kg_node",
-        "id": "dc_holo_test",
-        "kind": "container",
-        "meta": {
-          "address": "ucs://local/dc_holo_test#container",
-          "ghx": {
-            "hover": true,
-            "collapsed": true,
-            "density": "auto",
-            "version": "1.0"
-          },
-          "hov": {
-            "lazy_ready": true
-          },
-          "time_dilation": {
-            "mode": "normal",
-            "snapshot_rate": 1.0,
-            "reason": {
-              "glyphs": 0,
-              "nodes": 0
-            }
-          },
-          "last_hov_embed": "2025-12-03T09:47:37.069130"
+          "last_hov_embed": "2025-12-04T09:11:20.944578"
         },
         "viz": {
           "ghx_hover": true,

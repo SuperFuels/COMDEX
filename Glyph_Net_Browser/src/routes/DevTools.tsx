@@ -6,41 +6,57 @@ import PhotonEditor from "../components/PhotonEditor";
 import LedgerInspector from "../components/LedgerInspector";
 import PhotonGuide from "../components/PhotonGuide";
 import DevPitch from "../components/DevPitch";
-
-// 2D canvas (still useful as fallback / inspector)
-import DevFieldCanvas from "../components/DevFieldCanvas";
+import AionMemoryFieldPanel from "../components/AionMemoryFieldPanel";
 
 // 3D hologram scene wrapper (Canvas + OrbitControls)
-import DevFieldHologram3DContainer from "../components/DevFieldHologram3DContainer";
+// import DevFieldHologram3DContainer from "../components/DevFieldHologram3DContainer";
+// 3D hologram scene wrapper (Canvas + OrbitControls)
+import HologramContainerView from "../components/HologramContainerView";
 
 // Hologram IR + API
 import type { HoloIR } from "../lib/types/holo";
-import { fetchLatestHoloForContainer } from "../lib/api/holo";
+import {
+  exportHoloForContainer,
+  fetchLatestHoloForContainer,
+  listHolosForContainer,
+  fetchHoloAtTick,
+} from "../lib/api/holo";
+import type { HoloIndexEntry } from "../lib/api/holo";
 
-type ToolId = "editor" | "ledger" | "guide" | "pitch" | "field";
+type ToolId = "editor" | "ledger" | "guide" | "pitch" | "field" | "aion";
 
 export default function DevTools() {
   const [activeTool, setActiveTool] = useState<ToolId>("editor");
 
-  // 🔭 Holo snapshot state (for QFC / Hologram field)
+  // 🔭 Holo / container state
   const [activeContainerId, setActiveContainerId] = useState<string | null>(
     null,
   );
   const [holo, setHolo] = useState<HoloIR | null>(null);
-  const [loadingHolo, setLoadingHolo] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  // 📚 Holo index (history)
+  const [holoIndex, setHoloIndex] = useState<HoloIndexEntry[] | null>(null);
+  const [loadingIndex, setLoadingIndex] = useState(false);
 
   // 👁️‍🗨️ Derive active container id from URL query (?container=dc_xxx)
+  // Fallback for now is dc_aion_core (matches existing .dc.json + exports)
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
-      const cid = params.get("container") || params.get("containerId");
-      if (cid) setActiveContainerId(cid);
+      const cid =
+        params.get("container") ||
+        params.get("containerId") ||
+        "dc_aion_core";
+      setActiveContainerId(cid);
     } catch {
       // non-browser env / SSR safe no-op
+      setActiveContainerId("dc_aion_core");
     }
   }, []);
 
-  // 🌌 Fetch latest .holo snapshot when container changes
+  // 🔁 On container change, try to load the latest .holo snapshot (if any)
   useEffect(() => {
     if (!activeContainerId) {
       setHolo(null);
@@ -48,18 +64,40 @@ export default function DevTools() {
     }
 
     let cancelled = false;
-    setLoadingHolo(true);
 
     fetchLatestHoloForContainer(activeContainerId)
       .then((h) => {
         if (!cancelled) setHolo(h);
       })
-      .catch((err) => {
-        console.warn("[DevTools] Failed to load holo snapshot", err);
+      .catch(() => {
+        // no holo yet (404) is fine – just clear state
         if (!cancelled) setHolo(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeContainerId]);
+
+  // 📚 Load holo index whenever container changes
+  useEffect(() => {
+    if (!activeContainerId) {
+      setHoloIndex(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingIndex(true);
+
+    listHolosForContainer(activeContainerId)
+      .then((entries) => {
+        if (!cancelled) setHoloIndex(entries);
+      })
+      .catch(() => {
+        if (!cancelled) setHoloIndex(null);
       })
       .finally(() => {
-        if (!cancelled) setLoadingHolo(false);
+        if (!cancelled) setLoadingIndex(false);
       });
 
     return () => {
@@ -82,6 +120,7 @@ export default function DevTools() {
         if (detail.tab === "ledger") target = "ledger";
         if (detail.tab === "language") target = "guide";
         if (detail.tab === "pitch") target = "pitch";
+        if (detail.tab === "aion") target = "aion";
       }
 
       if (target) setActiveTool(target);
@@ -92,6 +131,83 @@ export default function DevTools() {
       window.removeEventListener("devtools.switch_tab", handleSwitch as any);
   }, []);
 
+  async function handleExportHolo() {
+    if (!activeContainerId) return;
+    setExporting(true);
+    setExportError(null);
+
+    // 🔢 Figure out next revision number for this container
+    const revisions =
+      (holoIndex ?? [])
+        .map((e) => e.revision ?? 0)
+        .filter((n) => Number.isFinite(n)) as number[];
+
+    const nextRevision =
+      (revisions.length ? Math.max(...revisions) : 0) + 1;
+
+    try {
+      const snapshot = await exportHoloForContainer(
+        activeContainerId,
+        {
+          tick: 0, // manual DevTools snapshots all at tick 0 for now
+          reason: "devtools_manual_export",
+          source_view: "qfc",
+          frame: "mutated",
+        },
+        nextRevision, // 👈 key change: pass revision
+      );
+
+      setHolo(snapshot);
+      console.info(
+        "[DevTools] Holo exported:",
+        snapshot.holo_id,
+        "rev=",
+        nextRevision,
+      );
+
+      // Refresh index after export so history shows new snapshot
+      try {
+        const entries = await listHolosForContainer(activeContainerId);
+        setHoloIndex(entries);
+      } catch {
+        // non-fatal
+      }
+    } catch (err: any) {
+      console.error("[DevTools] Holo export failed:", err);
+      setExportError(err?.message ?? "Holo export failed");
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleLoadHoloAt(entry: HoloIndexEntry) {
+    if (!activeContainerId) return;
+    if (entry.tick == null || entry.revision == null) return;
+
+    setExportError(null);
+    try {
+      const h = await fetchHoloAtTick(
+        activeContainerId,
+        entry.tick,
+        entry.revision,
+      );
+      if (h) {
+        setHolo(h);
+        console.info(
+          "[DevTools] Loaded holo snapshot:",
+          h.holo_id,
+          "tick=",
+          entry.tick,
+          "rev=",
+          entry.revision,
+        );
+      }
+    } catch (err: any) {
+      console.error("[DevTools] Failed to load holo at tick:", err);
+      setExportError(err?.message ?? "Failed to load holo snapshot");
+    }
+  }
+
   return (
     <div
       style={{
@@ -101,83 +217,141 @@ export default function DevTools() {
         gap: 16,
       }}
     >
-      {/* Header */}
-      <header>
-        <h1 style={{ marginBottom: 4 }}>Dev Tools</h1>
-        <p
-          style={{
-            margin: 0,
-            fontSize: 13,
-            color: "#6b7280",
-            maxWidth: 720,
-          }}
-        >
-          Experimental dev dashboard wired directly into the Glyph Net browser.
-        </p>
-
-        {/* Small holo status line */}
-        <p
-          style={{
-            margin: "4px 0 0 0",
-            fontSize: 11,
-            color: "#9ca3af",
-          }}
-        >
-          Holo snapshot:{" "}
-          {loadingHolo
-            ? "loading…"
-            : holo
-            ? holo.holo_id
-            : "none (pass ?container=dc_xxx in URL)"}
-        </p>
-      </header>
-
-      {/* Tool switcher */}
-      <div
+      {/* Header – compact */}
+      <header
         style={{
-          display: "inline-flex",
-          borderRadius: 999,
-          border: "1px solid #e5e7eb",
-          background: "#f9fafb",
-          padding: 4,
-          gap: 4,
+          marginBottom: 4,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
         }}
       >
-        <ToolButton
-          id="editor"
-          label="Text Editor"
-          description="Photon scratchpad (CRDT-backed)"
-          activeTool={activeTool}
-          onSelect={setActiveTool}
-        />
-        <ToolButton
-          id="ledger"
-          label="Ledger Inspector"
-          description="View KG ledger entries (personal)"
-          activeTool={activeTool}
-          onSelect={setActiveTool}
-        />
-        <ToolButton
-          id="guide"
-          label="Language Guide"
-          description=".ptn / .phn / .photon overview"
-          activeTool={activeTool}
-          onSelect={setActiveTool}
-        />
-        <ToolButton
-          id="pitch"
-          label="Why compress?"
-          description="Developer pitch for glyph code/logs"
-          activeTool={activeTool}
-          onSelect={setActiveTool}
-        />
-        <ToolButton
-          id="field"
-          label="Field Lab"
-          description="Live GHX / QField canvas (dev)"
-          activeTool={activeTool}
-          onSelect={setActiveTool}
-        />
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: "#111827",
+          }}
+        >
+          Dev Tools
+        </div>
+
+        {activeTool === "field" && (
+          <div
+            style={{
+              fontSize: 11,
+              color: "#9ca3af",
+            }}
+          >
+            {activeContainerId && (
+              <>
+                container: <code>{activeContainerId}</code>
+                {" · "}
+              </>
+            )}
+            holo:{" "}
+            {holo ? (
+              <code>{holo.holo_id}</code>
+            ) : (
+              <span style={{ opacity: 0.7 }}>none</span>
+            )}
+          </div>
+        )}
+      </header>
+
+      {/* Tool switcher + (optional) field status */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+        }}
+      >
+        <div
+          style={{
+            display: "inline-flex",
+            flexWrap: "wrap",
+            borderRadius: 999,
+            border: "1px solid #e5e7eb",
+            background: "#f9fafb",
+            padding: 2,
+            gap: 2,
+          }}
+        >
+          <ToolButton
+            id="editor"
+            label="Text Editor"
+            description="Photon scratchpad"
+            activeTool={activeTool}
+            onSelect={setActiveTool}
+          />
+          <ToolButton
+            id="ledger"
+            label="Ledger"
+            description="KG ledger entries"
+            activeTool={activeTool}
+            onSelect={setActiveTool}
+          />
+          <ToolButton
+            id="guide"
+            label="Language"
+            description=".ptn / .phn / .photon"
+            activeTool={activeTool}
+            onSelect={setActiveTool}
+          />
+          <ToolButton
+            id="pitch"
+            label="Why compress?"
+            description="Dev pitch"
+            activeTool={activeTool}
+            onSelect={setActiveTool}
+          />
+          <ToolButton
+            id="field"
+            label="Field Lab"
+            description="GHX / QField canvas"
+            activeTool={activeTool}
+            onSelect={setActiveTool}
+          />
+          <ToolButton
+            id="aion"
+            label="AION Memory"
+            description="Internal holo seeds"
+            activeTool={activeTool}
+            onSelect={setActiveTool}
+          />
+        </div>
+
+        {activeTool === "field" && (
+          <div
+            style={{
+              fontSize: 11,
+              color: "#6b7280",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {activeContainerId && (
+              <>
+                <span>
+                  container: <code>{activeContainerId}</code>
+                </span>
+                <span>·</span>
+              </>
+            )}
+            <span>
+              holo:{" "}
+              {holo ? (
+                <code>{holo.holo_id}</code>
+              ) : (
+                <span style={{ opacity: 0.7 }}>none</span>
+              )}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Active tool card */}
@@ -187,8 +361,11 @@ export default function DevTools() {
           borderRadius: 12,
           border: "1px solid #e5e7eb",
           background: "#f9fafb",
-          padding: 16,
+          padding: 12,
           overflow: "auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
         }}
       >
         {activeTool === "editor" ? (
@@ -199,11 +376,16 @@ export default function DevTools() {
           <PhotonGuide />
         ) : activeTool === "pitch" ? (
           <DevPitch />
+        ) : activeTool === "aion" ? (
+          <AionMemoryFieldPanel />
         ) : (
-          // Swap this line if you want 2D vs 3D:
-          // <DevFieldCanvas />
-          // TODO: next step – plumb `holo` into this component once its props accept it.
-          <DevFieldHologram3DContainer />
+          // Field Lab: generic HologramContainerView
+          <div style={{ flex: 1, minHeight: 320 }}>
+            <HologramContainerView
+              containerId={activeContainerId ?? "dc_aion_core"}
+              title="Hologram Container"
+            />
+          </div>
         )}
       </section>
     </div>
@@ -232,14 +414,14 @@ function ToolButton({
       onClick={() => onSelect(id)}
       style={{
         border: "none",
-        padding: "6px 12px",
+        padding: "4px 10px", // smaller
         borderRadius: 999,
         cursor: "pointer",
-        fontSize: 12,
+        fontSize: 11, // smaller
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
-        minWidth: 160,
+        minWidth: 120, // less wide
         background: active ? "#0f172a" : "transparent",
         color: active ? "#e5e7eb" : "#111827",
         boxShadow: active ? "0 0 0 1px #0ea5e9 inset" : "none",
@@ -248,7 +430,7 @@ function ToolButton({
       <span style={{ fontWeight: 600 }}>{label}</span>
       <span
         style={{
-          fontSize: 11,
+          fontSize: 10,
           opacity: 0.8,
         }}
       >

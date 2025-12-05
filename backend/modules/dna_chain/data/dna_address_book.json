@@ -211,5 +211,21 @@
   "start.py": {
     "name": "start.py",
     "path": "/workspaces/COMDEX/backend/start.py"
+  },
+  "holo_aion_routes.py": {
+    "name": "holo_aion_routes.py",
+    "path": "/workspaces/COMDEX/backend/routes/holo_aion_routes.py"
+  },
+  "aion_memory_container.py": {
+    "name": "aion_memory_container.py",
+    "path": "/workspaces/COMDEX/backend/modules/holo/aion_memory_container.py"
+  },
+  "aion_memory_holo_api.py": {
+    "name": "aion_memory_holo_api.py",
+    "path": "/workspaces/COMDEX/backend/modules/aion_cognition/aion_memory_holo_api.py"
+  },
+  "holo_index_routes.py": {
+    "name": "holo_index_routes.py",
+    "path": "/workspaces/COMDEX/backend/routes/holo_index_routes.py"
   }
 }

@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Line as DreiLine } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -40,7 +40,6 @@ function containerSlot(id: string): { gx: number; gz: number } {
   return { gx, gz };
 }
 
-/** pull ψ–κ–T-ish signature + some normalised scalars out of metadata */
 /** pull ψ–κ–T-ish signature + some normalised scalars out of metadata */
 function getPsiSignature(packet: GhxPacket | null) {
   const meta = ((packet && packet.metadata) || {}) as any;
@@ -98,29 +97,6 @@ function HoloFloor() {
       position={[0, 0, 0]}
     />
   );
-}
-
-/** Simple camera rig that glides between world + focus positions */
-function CameraRig({ focusMode }: { focusMode: 'world' | 'focus' }) {
-  const { camera } = useThree();
-
-  useFrame(() => {
-    const targetPos =
-      focusMode === 'focus'
-        ? new THREE.Vector3(0, 4, 10) // closer in
-        : new THREE.Vector3(0, 8, 18); // default orbit distance
-
-    camera.position.lerp(targetPos, 0.05);
-
-    const lookAtTarget =
-      focusMode === 'focus'
-        ? new THREE.Vector3(0, 3, 0)
-        : new THREE.Vector3(0, 0, 0);
-
-    camera.lookAt(lookAtTarget);
-  });
-
-  return null;
 }
 
 /** single standing hologram frame + etched nodes for one packet */
@@ -303,13 +279,10 @@ export function DevFieldHologram3DScene({
 
         <HoloFloor />
 
-        {/* Smooth camera glide between world + focus modes */}
-        <CameraRig focusMode={focusMode} />
-
         {packet && (
           <HologramCard
             packet={packet}
-            focusMode={focusMode}
+            focusMode={focusMode ?? 'world'}
             onToggleFocus={onToggleFocus}
           />
         )}

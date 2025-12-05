@@ -171,7 +171,8 @@ export interface HoloIR {
       sqi_score?: number;
       kind?: string; // "loop", "refactor", "error_cluster", ...
     }>;
-    topic_vector?: number[]; // from sqi_fastmap
+    // backend can return null here
+    topic_vector?: number[] | null; // from sqi_fastmap
   };
 
   // ── Timefold / snapshots ────────────────────────────
@@ -229,12 +230,29 @@ export interface HoloIR {
 
   // ── Raw refs (no big blobs) ─────────────────────────
   references?: {
-    container_kg_export?: string; // path to *.kg.json if saved
-    container_dc_path?: string; // underlying .dc.json path
+    container_kg_export?: string | null; // path to *.kg.json if saved
+    container_dc_path?: string | null;   // underlying .dc.json path
     qqc_run_id?: string;
     sle_run_id?: string;
   };
 
   // Room for extensions
   extra?: Record<string, any>;
+}
+
+// --- View context used when exporting .holo -------------------------------
+
+export interface HoloExportViewCtx {
+  tick?: number;
+  reason?: string;              // "devtools_manual_export", "timefold_snapshot", ...
+  source_view?: HoloSourceView; // "qfc", "code", ...
+  frame?: string;               // "original", "mutated", "replay"
+
+  // Optional lenses/metrics you want to bake into the holo:
+  views?: HoloIR["views"];
+  metrics?: Partial<HoloIR["field"]["metrics"]>;
+  tags?: string[];
+
+  // allow arbitrary extras without breaking typing
+  [key: string]: unknown;
 }

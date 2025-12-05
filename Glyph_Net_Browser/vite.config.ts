@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
   const radioHttp = env.VITE_BACKEND_URL || "http://127.0.0.1:8787";
   const radioWs = radioHttp.replace(/^http/i, "ws");
 
-  // FastAPI (GlyphNet read + Photon / AST endpoints)
+  // FastAPI (GlyphNet read + Photon / AST / Holo endpoints)
   const fastApiHttp = env.VITE_FASTAPI_URL || "http://localhost:8080";
 
   // Node KG
@@ -41,6 +41,10 @@ export default defineConfig(({ mode }) => {
     "/api/glyphnet/logs":        { target: fastApiHttp, changeOrigin: true },
     "/api/glyphnet/simulations": { target: fastApiHttp, changeOrigin: true },
     "/api/glyphnet/ws-test":     { target: fastApiHttp, changeOrigin: true },
+
+    // ✅ Holo / AION memory APIs → FastAPI (:8080)
+    // e.g. /api/holo/aion/seeds/combined, /api/holo/aion/snapshot
+    "/api/holo": { target: fastApiHttp, changeOrigin: true },
 
     // ── WS for GlyphNet fanout / GHX → radio-node
     "/ws/glyphnet": { target: radioWs, ws: true, changeOrigin: true },

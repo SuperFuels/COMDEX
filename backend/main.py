@@ -424,6 +424,8 @@ from backend.routes.voice import router as voice_router
 from backend.routes.voice import register_events as register_voice_events
 from backend.api import ast_api, ast_hologram_api
 from backend.modules.holo.holo_routes import router as holo_router
+from backend.routes.holo_aion_routes import router as holo_aion_router
+from backend.routes.holo_index_routes import router as holo_index_router
 
 # Floor control (PTT) lock manager
 from backend.modules.glyphnet.lock_manager import LOCKS
@@ -645,7 +647,15 @@ app.include_router(voice_router, prefix="/api/voice")
 app.include_router(photon_api_router)
 app.include_router(ast_api.router, prefix="/api")
 app.include_router(ast_hologram_api.router, prefix="/api")
+# Generic Holo API – expose as /api/holo/*
 app.include_router(holo_router, prefix="/api", tags=["holo"])
+
+# Holo index – expose as /api/holo/index/*
+app.include_router(holo_index_router)
+
+# AION Memory / Holo seeds API – expose as /api/holo/aion/*
+app.include_router(holo_aion_router)
+
 register_voice_events(app)
 
 # --- Floor-control lock sweeper (PTT) ---

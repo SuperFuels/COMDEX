@@ -27,7 +27,7 @@
             "nodes": 0
           }
         },
-        "last_hov_embed": "2025-12-03T09:47:36.991183"
+        "last_hov_embed": "2025-12-05T19:48:00.480685"
       },
       "viz": {
         "ghx_hover": true,
@@ -67,7 +67,7 @@
             "nodes": 0
           }
         },
-        "last_hov_embed": "2025-12-03T09:47:37.006648"
+        "last_hov_embed": "2025-12-05T19:48:00.493977"
       },
       "viz": {
         "ghx_hover": true,
@@ -101,7 +101,7 @@
             "nodes": 0
           }
         },
-        "last_hov_embed": "2025-12-03T09:47:37.020083"
+        "last_hov_embed": "2025-12-05T19:48:00.502704"
       },
       "viz": {
         "ghx_hover": true,
@@ -135,7 +135,7 @@
             "nodes": 0
           }
         },
-        "last_hov_embed": "2025-12-03T09:47:37.047156"
+        "last_hov_embed": "2025-12-05T19:48:00.524606"
       },
       "viz": {
         "ghx_hover": true,
@@ -170,41 +170,7 @@
             "nodes": 0
           }
         },
-        "last_hov_embed": "2025-12-03T09:47:37.051154"
-      },
-      "viz": {
-        "ghx_hover": true,
-        "ghx_collapsed": true
-      },
-      "expansion": {
-        "includes": [],
-        "counts": {}
-      }
-    },
-    {
-      "type": "kg_node",
-      "id": "dc_holo_test",
-      "kind": "container",
-      "meta": {
-        "address": "ucs://local/dc_holo_test#container",
-        "ghx": {
-          "hover": true,
-          "collapsed": true,
-          "density": "auto",
-          "version": "1.0"
-        },
-        "hov": {
-          "lazy_ready": true
-        },
-        "time_dilation": {
-          "mode": "normal",
-          "snapshot_rate": 1.0,
-          "reason": {
-            "glyphs": 0,
-            "nodes": 0
-          }
-        },
-        "last_hov_embed": "2025-12-03T09:47:37.069130"
+        "last_hov_embed": "2025-12-05T19:48:00.539559"
       },
       "viz": {
         "ghx_hover": true,

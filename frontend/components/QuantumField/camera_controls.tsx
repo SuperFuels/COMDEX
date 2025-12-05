@@ -1,29 +1,19 @@
-// File: frontend/components/QuantumField/camera_controls.tsx
+// frontend/components/QuantumField/camera_controls.tsx
 
 import { useThree, useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
 
 /**
- * 🎥 CameraControls provides rotation, zoom, gaze tracking, and observer anchoring for the QFC.
+ * 🎥 CameraControls – plain OrbitControls, no auto-rotate / auto-recenter.
  */
 export const CameraControls = () => {
   const { camera, gl } = useThree();
-  const observerRef = useRef<THREE.Object3D>(new THREE.Object3D());
+  const controlsRef = useRef<any>(null);
 
-  // ⏱ Animate rotation or zoom if needed
-  useFrame(() => {
-    // Example: Slowly orbit around Z axis
-    observerRef.current.rotation.y += 0.001;
-    camera.lookAt(observerRef.current.position);
-  });
-
-  // 🧲 Attach orbit controls manually if needed
   useEffect(() => {
-    const controls = new (require("three/examples/jsm/controls/OrbitControls").OrbitControls)(
-      camera,
-      gl.domElement
-    );
+    const { OrbitControls } = require("three/examples/jsm/controls/OrbitControls");
+
+    const controls = new OrbitControls(camera, gl.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.1;
     controls.rotateSpeed = 0.3;
@@ -31,11 +21,23 @@ export const CameraControls = () => {
     controls.panSpeed = 0.4;
     controls.maxDistance = 100;
     controls.minDistance = 1;
-    controls.target.set(0, 0, 0);
+    controls.target.set(0, 0, 0); // only set once
     controls.update();
 
-    return () => controls.dispose();
+    controlsRef.current = controls;
+
+    return () => {
+      controls.dispose();
+      controlsRef.current = null;
+    };
   }, [camera, gl]);
 
-  return <primitive object={observerRef.current} />;
+  // Just let OrbitControls handle damping; no custom orbit / lookAt
+  useFrame(() => {
+    if (controlsRef.current) {
+      controlsRef.current.update();
+    }
+  });
+
+  return null;
 };

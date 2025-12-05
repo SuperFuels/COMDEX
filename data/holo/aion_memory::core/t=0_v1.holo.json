@@ -1,0 +1,1915 @@
+{
+  "holo_id": "holo:aion_memory::t=0/v=1",
+  "container_id": "aion_memory::core",
+  "tick": 0,
+  "revision": 1,
+  "created_at": "2025-12-05T22:15:47.163824+00:00",
+  "ghx_mode": "snapshot",
+  "ghx": {
+    "ghx_version": "1.0",
+    "origin": "aion_memory_holo_packer",
+    "container_id": "aion_memory::core",
+    "nodes": [
+      {
+        "id": "aion-core",
+        "data": {
+          "label": "AION Core",
+          "symbol": "A",
+          "type": "core"
+        }
+      },
+      {
+        "id": "res:ablative",
+        "data": {
+          "label": "ablative",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:ablative",
+            "keyword:ablative case"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.735669+00:00",
+          "metrics": {
+            "SQI": 0.54,
+            "rho": 0.87,
+            "I_bar": 0.24,
+            "E": 0.68542
+          }
+        }
+      },
+      {
+        "id": "res:ablation",
+        "data": {
+          "label": "ablation",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:extirpation",
+            "keyword:ablation",
+            "keyword:excision",
+            "keyword:cutting out"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.722310+00:00",
+          "metrics": {
+            "SQI": 0.58,
+            "rho": 0.89,
+            "I_bar": 0.59,
+            "E": 0.71847
+          }
+        }
+      },
+      {
+        "id": "res:ablactation",
+        "data": {
+          "label": "ablactation",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:ablactation"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.711078+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.25,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:abjurer",
+        "data": {
+          "label": "abjurer",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:abjurer"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.695983+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.97,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:abjure",
+        "data": {
+          "label": "abjure",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:abjure",
+            "keyword:forswear",
+            "keyword:recant",
+            "keyword:retract"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.684065+00:00",
+          "metrics": {
+            "SQI": 0.6,
+            "rho": 0.9,
+            "I_bar": 0.46,
+            "E": 0.73485
+          }
+        }
+      },
+      {
+        "id": "res:abjectly",
+        "data": {
+          "label": "abjectly",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:resignedly",
+            "keyword:abjectly"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.672068+00:00",
+          "metrics": {
+            "SQI": 0.54,
+            "rho": 0.87,
+            "I_bar": 0.47,
+            "E": 0.68542
+          }
+        }
+      },
+      {
+        "id": "res:abject",
+        "data": {
+          "label": "abject",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:unhopeful",
+            "keyword:abject"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.658205+00:00",
+          "metrics": {
+            "SQI": 0.54,
+            "rho": 0.87,
+            "I_bar": 0.08,
+            "E": 0.68542
+          }
+        }
+      },
+      {
+        "id": "res:abiogenist",
+        "data": {
+          "label": "abiogenist",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:abiogenist"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.646648+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.83,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:abiogenetic",
+        "data": {
+          "label": "abiogenetic",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:abiogenetic"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.634899+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.77,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:abiogenesis",
+        "data": {
+          "label": "abiogenesis",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:spontaneous generation",
+            "keyword:autogeny",
+            "keyword:autogenesis",
+            "keyword:abiogenesis"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.623249+00:00",
+          "metrics": {
+            "SQI": 0.58,
+            "rho": 0.89,
+            "I_bar": 0.39,
+            "E": 0.71847
+          }
+        }
+      },
+      {
+        "id": "res:ability",
+        "data": {
+          "label": "ability",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:inability",
+            "keyword:power",
+            "keyword:ability"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.611473+00:00",
+          "metrics": {
+            "SQI": 0.56,
+            "rho": 0.88,
+            "I_bar": 0.38,
+            "E": 0.702
+          }
+        }
+      },
+      {
+        "id": "res:Abies",
+        "data": {
+          "label": "Abies",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:Abies",
+            "keyword:genus Abies"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.597582+00:00",
+          "metrics": {
+            "SQI": 0.54,
+            "rho": 0.87,
+            "I_bar": 0.33,
+            "E": 0.68542
+          }
+        }
+      },
+      {
+        "id": "res:Abidjan",
+        "data": {
+          "label": "Abidjan",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:Abidjan"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.584914+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.37,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:abiding",
+        "data": {
+          "label": "abiding",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:abiding",
+            "keyword:enduring",
+            "keyword:imperishable"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.570193+00:00",
+          "metrics": {
+            "SQI": 0.56,
+            "rho": 0.88,
+            "I_bar": 0.92,
+            "E": 0.702
+          }
+        }
+      },
+      {
+        "id": "res:abidance",
+        "data": {
+          "label": "abidance",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:abidance"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.557909+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.98,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:abhorrer",
+        "data": {
+          "label": "abhorrer",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:abhorrer"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.546602+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.68,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:abhorrent",
+        "data": {
+          "label": "abhorrent",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:detestable",
+            "keyword:abhorrent",
+            "keyword:obscene",
+            "keyword:repulsive"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.532326+00:00",
+          "metrics": {
+            "SQI": 0.6,
+            "rho": 0.9,
+            "I_bar": 0.87,
+            "E": 0.73485
+          }
+        }
+      },
+      {
+        "id": "res:abhorrence",
+        "data": {
+          "label": "abhorrence",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:loathing",
+            "keyword:abomination",
+            "keyword:execration",
+            "keyword:abhorrence"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.519287+00:00",
+          "metrics": {
+            "SQI": 0.62,
+            "rho": 0.91,
+            "I_bar": 0.51,
+            "E": 0.75113
+          }
+        }
+      },
+      {
+        "id": "res:abhor",
+        "data": {
+          "label": "abhor",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:loathe",
+            "keyword:execrate",
+            "keyword:abominate",
+            "keyword:abhor"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.507684+00:00",
+          "metrics": {
+            "SQI": 0.58,
+            "rho": 0.89,
+            "I_bar": 0.55,
+            "E": 0.71847
+          }
+        }
+      },
+      {
+        "id": "res:abeyant",
+        "data": {
+          "label": "abeyant",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:dormant",
+            "keyword:abeyant"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.495084+00:00",
+          "metrics": {
+            "SQI": 0.54,
+            "rho": 0.87,
+            "I_bar": 0.38,
+            "E": 0.68542
+          }
+        }
+      },
+      {
+        "id": "res:abeyance",
+        "data": {
+          "label": "abeyance",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:suspension",
+            "keyword:abeyance"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.481578+00:00",
+          "metrics": {
+            "SQI": 0.54,
+            "rho": 0.87,
+            "I_bar": 0.72,
+            "E": 0.68542
+          }
+        }
+      },
+      {
+        "id": "res:abettor",
+        "data": {
+          "label": "abettor",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:abettor",
+            "keyword:abetter"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.470141+00:00",
+          "metrics": {
+            "SQI": 0.54,
+            "rho": 0.87,
+            "I_bar": 0.84,
+            "E": 0.68542
+          }
+        }
+      },
+      {
+        "id": "res:abetment",
+        "data": {
+          "label": "abetment",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:instigation",
+            "keyword:abettal",
+            "keyword:abetment"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.458862+00:00",
+          "metrics": {
+            "SQI": 0.56,
+            "rho": 0.88,
+            "I_bar": 0.14,
+            "E": 0.702
+          }
+        }
+      },
+      {
+        "id": "res:abet",
+        "data": {
+          "label": "abet",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:abet"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.448139+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.92,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:aberration",
+        "data": {
+          "label": "aberration",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:aberration"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.435826+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.43,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:aberrate",
+        "data": {
+          "label": "aberrate",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:aberrate"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.420338+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.58,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:aberrant",
+        "data": {
+          "label": "aberrant",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:aberrant",
+            "keyword:deviate",
+            "keyword:deviant"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.407358+00:00",
+          "metrics": {
+            "SQI": 0.56,
+            "rho": 0.88,
+            "I_bar": 0.96,
+            "E": 0.702
+          }
+        }
+      },
+      {
+        "id": "res:aberrance",
+        "data": {
+          "label": "aberrance",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:aberrance",
+            "keyword:aberrancy",
+            "keyword:aberration",
+            "keyword:deviance"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.392945+00:00",
+          "metrics": {
+            "SQI": 0.58,
+            "rho": 0.89,
+            "I_bar": 0.16,
+            "E": 0.71847
+          }
+        }
+      },
+      {
+        "id": "res:Aberdonian",
+        "data": {
+          "label": "Aberdonian",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:Aberdonian"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.381593+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.09,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "res:abelmosk",
+        "data": {
+          "label": "abelmosk",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:musk mallow",
+            "keyword:Abelmoschus moschatus",
+            "keyword:abelmosk",
+            "keyword:Hibiscus moschatus"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.369621+00:00",
+          "metrics": {
+            "SQI": 0.58,
+            "rho": 0.89,
+            "I_bar": 0.83,
+            "E": 0.71847
+          }
+        }
+      },
+      {
+        "id": "res:Abelmoschus",
+        "data": {
+          "label": "Abelmoschus",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:genus Abelmoschus",
+            "keyword:Abelmoschus"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.357165+00:00",
+          "metrics": {
+            "SQI": 0.54,
+            "rho": 0.87,
+            "I_bar": 0.94,
+            "E": 0.68542
+          }
+        }
+      },
+      {
+        "id": "res:abed",
+        "data": {
+          "label": "abed",
+          "symbol": "\u25cf",
+          "type": "memory",
+          "tags": [
+            "resonance",
+            "keyword:abed"
+          ],
+          "source": "ResonanceState",
+          "created_at": "2025-10-26T17:28:49.341734+00:00",
+          "metrics": {
+            "SQI": 0.52,
+            "rho": 0.86,
+            "I_bar": 0.92,
+            "E": 0.66873
+          }
+        }
+      },
+      {
+        "id": "rulebook:devtools-basics",
+        "data": {
+          "label": "DevTools AION Memory Basics",
+          "symbol": "\u25c6",
+          "type": "rulebook",
+          "tags": [
+            "rulebook",
+            "devtools"
+          ],
+          "rulebook_id": "devtools.aion.memory.basics",
+          "created_at": "2025-12-05T22:15:47.163261+00:00",
+          "updated_at": "2025-12-05T22:15:47.163261+00:00",
+          "usage_count": 1,
+          "metrics": {
+            "\u03a6_coherence": 0.9,
+            "\u03a6_entropy": 0.3,
+            "SQI": 0.82
+          },
+          "domains": [
+            "devtools",
+            "memory",
+            "visualisation"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "aion-core::res:ablative",
+        "source": "aion-core",
+        "target": "res:ablative",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:ablation",
+        "source": "aion-core",
+        "target": "res:ablation",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:ablactation",
+        "source": "aion-core",
+        "target": "res:ablactation",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abjurer",
+        "source": "aion-core",
+        "target": "res:abjurer",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abjure",
+        "source": "aion-core",
+        "target": "res:abjure",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abjectly",
+        "source": "aion-core",
+        "target": "res:abjectly",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abject",
+        "source": "aion-core",
+        "target": "res:abject",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abiogenist",
+        "source": "aion-core",
+        "target": "res:abiogenist",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abiogenetic",
+        "source": "aion-core",
+        "target": "res:abiogenetic",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abiogenesis",
+        "source": "aion-core",
+        "target": "res:abiogenesis",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:ability",
+        "source": "aion-core",
+        "target": "res:ability",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:Abies",
+        "source": "aion-core",
+        "target": "res:Abies",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:Abidjan",
+        "source": "aion-core",
+        "target": "res:Abidjan",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abiding",
+        "source": "aion-core",
+        "target": "res:abiding",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abidance",
+        "source": "aion-core",
+        "target": "res:abidance",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abhorrer",
+        "source": "aion-core",
+        "target": "res:abhorrer",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abhorrent",
+        "source": "aion-core",
+        "target": "res:abhorrent",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abhorrence",
+        "source": "aion-core",
+        "target": "res:abhorrence",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abhor",
+        "source": "aion-core",
+        "target": "res:abhor",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abeyant",
+        "source": "aion-core",
+        "target": "res:abeyant",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abeyance",
+        "source": "aion-core",
+        "target": "res:abeyance",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abettor",
+        "source": "aion-core",
+        "target": "res:abettor",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abetment",
+        "source": "aion-core",
+        "target": "res:abetment",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abet",
+        "source": "aion-core",
+        "target": "res:abet",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:aberration",
+        "source": "aion-core",
+        "target": "res:aberration",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:aberrate",
+        "source": "aion-core",
+        "target": "res:aberrate",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:aberrant",
+        "source": "aion-core",
+        "target": "res:aberrant",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:aberrance",
+        "source": "aion-core",
+        "target": "res:aberrance",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:Aberdonian",
+        "source": "aion-core",
+        "target": "res:Aberdonian",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abelmosk",
+        "source": "aion-core",
+        "target": "res:abelmosk",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:Abelmoschus",
+        "source": "aion-core",
+        "target": "res:Abelmoschus",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::res:abed",
+        "source": "aion-core",
+        "target": "res:abed",
+        "kind": "memory"
+      },
+      {
+        "id": "aion-core::rule::rulebook:devtools-basics",
+        "source": "aion-core",
+        "target": "rulebook:devtools-basics",
+        "kind": "rulebook"
+      }
+    ],
+    "metadata": {
+      "memory_seed_count": 32,
+      "rulebook_seed_count": 1
+    }
+  },
+  "psi_kappa_tau_signature": {
+    "psi": 1.0,
+    "kappa": 0.0,
+    "tau": 0.0,
+    "energy": 1.0,
+    "entropy": 1.0,
+    "rank": 1
+  },
+  "metadata": {
+    "kind": "aion_memory_snapshot",
+    "container": {
+      "container_id": "aion_memory::core",
+      "title": "AION Memory Field",
+      "description": "Live constellation of AION's recent personal memories and active rulebooks, packed into a single hologram.",
+      "memory_seeds": [
+        {
+          "seed_id": "res:ablative",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "ablative",
+          "created_at": "2025-10-26T17:28:49.735669+00:00",
+          "tags": [
+            "resonance",
+            "keyword:ablative",
+            "keyword:ablative case"
+          ],
+          "payload": {
+            "label": "ablative",
+            "timestamp": "2025-10-26T17:28:49.735669+00:00",
+            "content": "ablative, ablative case",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.54,
+              "rho": 0.87,
+              "I_bar": 0.24,
+              "E": 0.68542
+            },
+            "keywords": [
+              "ablative",
+              "ablative case"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:ablation",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "ablation",
+          "created_at": "2025-10-26T17:28:49.722310+00:00",
+          "tags": [
+            "resonance",
+            "keyword:extirpation",
+            "keyword:ablation",
+            "keyword:excision",
+            "keyword:cutting out"
+          ],
+          "payload": {
+            "label": "ablation",
+            "timestamp": "2025-10-26T17:28:49.722310+00:00",
+            "content": "extirpation, ablation, excision, cutting out",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.58,
+              "rho": 0.89,
+              "I_bar": 0.59,
+              "E": 0.71847
+            },
+            "keywords": [
+              "extirpation",
+              "ablation",
+              "excision",
+              "cutting out"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:ablactation",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "ablactation",
+          "created_at": "2025-10-26T17:28:49.711078+00:00",
+          "tags": [
+            "resonance",
+            "keyword:ablactation"
+          ],
+          "payload": {
+            "label": "ablactation",
+            "timestamp": "2025-10-26T17:28:49.711078+00:00",
+            "content": "ablactation",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.25,
+              "E": 0.66873
+            },
+            "keywords": [
+              "ablactation"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abjurer",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abjurer",
+          "created_at": "2025-10-26T17:28:49.695983+00:00",
+          "tags": [
+            "resonance",
+            "keyword:abjurer"
+          ],
+          "payload": {
+            "label": "abjurer",
+            "timestamp": "2025-10-26T17:28:49.695983+00:00",
+            "content": "abjurer",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.97,
+              "E": 0.66873
+            },
+            "keywords": [
+              "abjurer"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abjure",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abjure",
+          "created_at": "2025-10-26T17:28:49.684065+00:00",
+          "tags": [
+            "resonance",
+            "keyword:abjure",
+            "keyword:forswear",
+            "keyword:recant",
+            "keyword:retract"
+          ],
+          "payload": {
+            "label": "abjure",
+            "timestamp": "2025-10-26T17:28:49.684065+00:00",
+            "content": "abjure, forswear, recant, retract, resile",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.6,
+              "rho": 0.9,
+              "I_bar": 0.46,
+              "E": 0.73485
+            },
+            "keywords": [
+              "abjure",
+              "forswear",
+              "recant",
+              "retract",
+              "resile"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abjectly",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abjectly",
+          "created_at": "2025-10-26T17:28:49.672068+00:00",
+          "tags": [
+            "resonance",
+            "keyword:resignedly",
+            "keyword:abjectly"
+          ],
+          "payload": {
+            "label": "abjectly",
+            "timestamp": "2025-10-26T17:28:49.672068+00:00",
+            "content": "resignedly, abjectly",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.54,
+              "rho": 0.87,
+              "I_bar": 0.47,
+              "E": 0.68542
+            },
+            "keywords": [
+              "resignedly",
+              "abjectly"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abject",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abject",
+          "created_at": "2025-10-26T17:28:49.658205+00:00",
+          "tags": [
+            "resonance",
+            "keyword:unhopeful",
+            "keyword:abject"
+          ],
+          "payload": {
+            "label": "abject",
+            "timestamp": "2025-10-26T17:28:49.658205+00:00",
+            "content": "unhopeful, abject",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.54,
+              "rho": 0.87,
+              "I_bar": 0.08,
+              "E": 0.68542
+            },
+            "keywords": [
+              "unhopeful",
+              "abject"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abiogenist",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abiogenist",
+          "created_at": "2025-10-26T17:28:49.646648+00:00",
+          "tags": [
+            "resonance",
+            "keyword:abiogenist"
+          ],
+          "payload": {
+            "label": "abiogenist",
+            "timestamp": "2025-10-26T17:28:49.646648+00:00",
+            "content": "abiogenist",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.83,
+              "E": 0.66873
+            },
+            "keywords": [
+              "abiogenist"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abiogenetic",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abiogenetic",
+          "created_at": "2025-10-26T17:28:49.634899+00:00",
+          "tags": [
+            "resonance",
+            "keyword:abiogenetic"
+          ],
+          "payload": {
+            "label": "abiogenetic",
+            "timestamp": "2025-10-26T17:28:49.634899+00:00",
+            "content": "abiogenetic",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.77,
+              "E": 0.66873
+            },
+            "keywords": [
+              "abiogenetic"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abiogenesis",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abiogenesis",
+          "created_at": "2025-10-26T17:28:49.623249+00:00",
+          "tags": [
+            "resonance",
+            "keyword:spontaneous generation",
+            "keyword:autogeny",
+            "keyword:autogenesis",
+            "keyword:abiogenesis"
+          ],
+          "payload": {
+            "label": "abiogenesis",
+            "timestamp": "2025-10-26T17:28:49.623249+00:00",
+            "content": "spontaneous generation, autogeny, autogenesis, abiogenesis",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.58,
+              "rho": 0.89,
+              "I_bar": 0.39,
+              "E": 0.71847
+            },
+            "keywords": [
+              "spontaneous generation",
+              "autogeny",
+              "autogenesis",
+              "abiogenesis"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:ability",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "ability",
+          "created_at": "2025-10-26T17:28:49.611473+00:00",
+          "tags": [
+            "resonance",
+            "keyword:inability",
+            "keyword:power",
+            "keyword:ability"
+          ],
+          "payload": {
+            "label": "ability",
+            "timestamp": "2025-10-26T17:28:49.611473+00:00",
+            "content": "inability, power, ability",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.56,
+              "rho": 0.88,
+              "I_bar": 0.38,
+              "E": 0.702
+            },
+            "keywords": [
+              "inability",
+              "power",
+              "ability"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:Abies",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "Abies",
+          "created_at": "2025-10-26T17:28:49.597582+00:00",
+          "tags": [
+            "resonance",
+            "keyword:Abies",
+            "keyword:genus Abies"
+          ],
+          "payload": {
+            "label": "Abies",
+            "timestamp": "2025-10-26T17:28:49.597582+00:00",
+            "content": "Abies, genus Abies",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.54,
+              "rho": 0.87,
+              "I_bar": 0.33,
+              "E": 0.68542
+            },
+            "keywords": [
+              "Abies",
+              "genus Abies"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:Abidjan",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "Abidjan",
+          "created_at": "2025-10-26T17:28:49.584914+00:00",
+          "tags": [
+            "resonance",
+            "keyword:Abidjan"
+          ],
+          "payload": {
+            "label": "Abidjan",
+            "timestamp": "2025-10-26T17:28:49.584914+00:00",
+            "content": "Abidjan",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.37,
+              "E": 0.66873
+            },
+            "keywords": [
+              "Abidjan"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abiding",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abiding",
+          "created_at": "2025-10-26T17:28:49.570193+00:00",
+          "tags": [
+            "resonance",
+            "keyword:abiding",
+            "keyword:enduring",
+            "keyword:imperishable"
+          ],
+          "payload": {
+            "label": "abiding",
+            "timestamp": "2025-10-26T17:28:49.570193+00:00",
+            "content": "abiding, enduring, imperishable",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.56,
+              "rho": 0.88,
+              "I_bar": 0.92,
+              "E": 0.702
+            },
+            "keywords": [
+              "abiding",
+              "enduring",
+              "imperishable"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abidance",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abidance",
+          "created_at": "2025-10-26T17:28:49.557909+00:00",
+          "tags": [
+            "resonance",
+            "keyword:abidance"
+          ],
+          "payload": {
+            "label": "abidance",
+            "timestamp": "2025-10-26T17:28:49.557909+00:00",
+            "content": "abidance",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.98,
+              "E": 0.66873
+            },
+            "keywords": [
+              "abidance"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abhorrer",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abhorrer",
+          "created_at": "2025-10-26T17:28:49.546602+00:00",
+          "tags": [
+            "resonance",
+            "keyword:abhorrer"
+          ],
+          "payload": {
+            "label": "abhorrer",
+            "timestamp": "2025-10-26T17:28:49.546602+00:00",
+            "content": "abhorrer",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.68,
+              "E": 0.66873
+            },
+            "keywords": [
+              "abhorrer"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abhorrent",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abhorrent",
+          "created_at": "2025-10-26T17:28:49.532326+00:00",
+          "tags": [
+            "resonance",
+            "keyword:detestable",
+            "keyword:abhorrent",
+            "keyword:obscene",
+            "keyword:repulsive"
+          ],
+          "payload": {
+            "label": "abhorrent",
+            "timestamp": "2025-10-26T17:28:49.532326+00:00",
+            "content": "detestable, abhorrent, obscene, repulsive, repugnant",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.6,
+              "rho": 0.9,
+              "I_bar": 0.87,
+              "E": 0.73485
+            },
+            "keywords": [
+              "detestable",
+              "abhorrent",
+              "obscene",
+              "repulsive",
+              "repugnant"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abhorrence",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abhorrence",
+          "created_at": "2025-10-26T17:28:49.519287+00:00",
+          "tags": [
+            "resonance",
+            "keyword:loathing",
+            "keyword:abomination",
+            "keyword:execration",
+            "keyword:abhorrence"
+          ],
+          "payload": {
+            "label": "abhorrence",
+            "timestamp": "2025-10-26T17:28:49.519287+00:00",
+            "content": "loathing, abomination, execration, abhorrence, odium, detestation",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.62,
+              "rho": 0.91,
+              "I_bar": 0.51,
+              "E": 0.75113
+            },
+            "keywords": [
+              "loathing",
+              "abomination",
+              "execration",
+              "abhorrence",
+              "odium",
+              "detestation"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abhor",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abhor",
+          "created_at": "2025-10-26T17:28:49.507684+00:00",
+          "tags": [
+            "resonance",
+            "keyword:loathe",
+            "keyword:execrate",
+            "keyword:abominate",
+            "keyword:abhor"
+          ],
+          "payload": {
+            "label": "abhor",
+            "timestamp": "2025-10-26T17:28:49.507684+00:00",
+            "content": "loathe, execrate, abominate, abhor",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.58,
+              "rho": 0.89,
+              "I_bar": 0.55,
+              "E": 0.71847
+            },
+            "keywords": [
+              "loathe",
+              "execrate",
+              "abominate",
+              "abhor"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abeyant",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abeyant",
+          "created_at": "2025-10-26T17:28:49.495084+00:00",
+          "tags": [
+            "resonance",
+            "keyword:dormant",
+            "keyword:abeyant"
+          ],
+          "payload": {
+            "label": "abeyant",
+            "timestamp": "2025-10-26T17:28:49.495084+00:00",
+            "content": "dormant, abeyant",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.54,
+              "rho": 0.87,
+              "I_bar": 0.38,
+              "E": 0.68542
+            },
+            "keywords": [
+              "dormant",
+              "abeyant"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abeyance",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abeyance",
+          "created_at": "2025-10-26T17:28:49.481578+00:00",
+          "tags": [
+            "resonance",
+            "keyword:suspension",
+            "keyword:abeyance"
+          ],
+          "payload": {
+            "label": "abeyance",
+            "timestamp": "2025-10-26T17:28:49.481578+00:00",
+            "content": "suspension, abeyance",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.54,
+              "rho": 0.87,
+              "I_bar": 0.72,
+              "E": 0.68542
+            },
+            "keywords": [
+              "suspension",
+              "abeyance"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abettor",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abettor",
+          "created_at": "2025-10-26T17:28:49.470141+00:00",
+          "tags": [
+            "resonance",
+            "keyword:abettor",
+            "keyword:abetter"
+          ],
+          "payload": {
+            "label": "abettor",
+            "timestamp": "2025-10-26T17:28:49.470141+00:00",
+            "content": "abettor, abetter",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.54,
+              "rho": 0.87,
+              "I_bar": 0.84,
+              "E": 0.68542
+            },
+            "keywords": [
+              "abettor",
+              "abetter"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abetment",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abetment",
+          "created_at": "2025-10-26T17:28:49.458862+00:00",
+          "tags": [
+            "resonance",
+            "keyword:instigation",
+            "keyword:abettal",
+            "keyword:abetment"
+          ],
+          "payload": {
+            "label": "abetment",
+            "timestamp": "2025-10-26T17:28:49.458862+00:00",
+            "content": "instigation, abettal, abetment",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.56,
+              "rho": 0.88,
+              "I_bar": 0.14,
+              "E": 0.702
+            },
+            "keywords": [
+              "instigation",
+              "abettal",
+              "abetment"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abet",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abet",
+          "created_at": "2025-10-26T17:28:49.448139+00:00",
+          "tags": [
+            "resonance",
+            "keyword:abet"
+          ],
+          "payload": {
+            "label": "abet",
+            "timestamp": "2025-10-26T17:28:49.448139+00:00",
+            "content": "abet",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.92,
+              "E": 0.66873
+            },
+            "keywords": [
+              "abet"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:aberration",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "aberration",
+          "created_at": "2025-10-26T17:28:49.435826+00:00",
+          "tags": [
+            "resonance",
+            "keyword:aberration"
+          ],
+          "payload": {
+            "label": "aberration",
+            "timestamp": "2025-10-26T17:28:49.435826+00:00",
+            "content": "aberration",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.43,
+              "E": 0.66873
+            },
+            "keywords": [
+              "aberration"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:aberrate",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "aberrate",
+          "created_at": "2025-10-26T17:28:49.420338+00:00",
+          "tags": [
+            "resonance",
+            "keyword:aberrate"
+          ],
+          "payload": {
+            "label": "aberrate",
+            "timestamp": "2025-10-26T17:28:49.420338+00:00",
+            "content": "aberrate",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.58,
+              "E": 0.66873
+            },
+            "keywords": [
+              "aberrate"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:aberrant",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "aberrant",
+          "created_at": "2025-10-26T17:28:49.407358+00:00",
+          "tags": [
+            "resonance",
+            "keyword:aberrant",
+            "keyword:deviate",
+            "keyword:deviant"
+          ],
+          "payload": {
+            "label": "aberrant",
+            "timestamp": "2025-10-26T17:28:49.407358+00:00",
+            "content": "aberrant, deviate, deviant",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.56,
+              "rho": 0.88,
+              "I_bar": 0.96,
+              "E": 0.702
+            },
+            "keywords": [
+              "aberrant",
+              "deviate",
+              "deviant"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:aberrance",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "aberrance",
+          "created_at": "2025-10-26T17:28:49.392945+00:00",
+          "tags": [
+            "resonance",
+            "keyword:aberrance",
+            "keyword:aberrancy",
+            "keyword:aberration",
+            "keyword:deviance"
+          ],
+          "payload": {
+            "label": "aberrance",
+            "timestamp": "2025-10-26T17:28:49.392945+00:00",
+            "content": "aberrance, aberrancy, aberration, deviance",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.58,
+              "rho": 0.89,
+              "I_bar": 0.16,
+              "E": 0.71847
+            },
+            "keywords": [
+              "aberrance",
+              "aberrancy",
+              "aberration",
+              "deviance"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:Aberdonian",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "Aberdonian",
+          "created_at": "2025-10-26T17:28:49.381593+00:00",
+          "tags": [
+            "resonance",
+            "keyword:Aberdonian"
+          ],
+          "payload": {
+            "label": "Aberdonian",
+            "timestamp": "2025-10-26T17:28:49.381593+00:00",
+            "content": "Aberdonian",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.09,
+              "E": 0.66873
+            },
+            "keywords": [
+              "Aberdonian"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abelmosk",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abelmosk",
+          "created_at": "2025-10-26T17:28:49.369621+00:00",
+          "tags": [
+            "resonance",
+            "keyword:musk mallow",
+            "keyword:Abelmoschus moschatus",
+            "keyword:abelmosk",
+            "keyword:Hibiscus moschatus"
+          ],
+          "payload": {
+            "label": "abelmosk",
+            "timestamp": "2025-10-26T17:28:49.369621+00:00",
+            "content": "musk mallow, Abelmoschus moschatus, abelmosk, Hibiscus moschatus",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.58,
+              "rho": 0.89,
+              "I_bar": 0.83,
+              "E": 0.71847
+            },
+            "keywords": [
+              "musk mallow",
+              "Abelmoschus moschatus",
+              "abelmosk",
+              "Hibiscus moschatus"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:Abelmoschus",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "Abelmoschus",
+          "created_at": "2025-10-26T17:28:49.357165+00:00",
+          "tags": [
+            "resonance",
+            "keyword:genus Abelmoschus",
+            "keyword:Abelmoschus"
+          ],
+          "payload": {
+            "label": "Abelmoschus",
+            "timestamp": "2025-10-26T17:28:49.357165+00:00",
+            "content": "genus Abelmoschus, Abelmoschus",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.54,
+              "rho": 0.87,
+              "I_bar": 0.94,
+              "E": 0.68542
+            },
+            "keywords": [
+              "genus Abelmoschus",
+              "Abelmoschus"
+            ]
+          }
+        },
+        {
+          "seed_id": "res:abed",
+          "container_id": "aion_memory::core",
+          "kind": "memory",
+          "label": "abed",
+          "created_at": "2025-10-26T17:28:49.341734+00:00",
+          "tags": [
+            "resonance",
+            "keyword:abed"
+          ],
+          "payload": {
+            "label": "abed",
+            "timestamp": "2025-10-26T17:28:49.341734+00:00",
+            "content": "abed",
+            "source": "ResonanceState",
+            "metrics": {
+              "SQI": 0.52,
+              "rho": 0.86,
+              "I_bar": 0.92,
+              "E": 0.66873
+            },
+            "keywords": [
+              "abed"
+            ]
+          }
+        }
+      ],
+      "rulebook_seeds": [
+        {
+          "seed_id": "rulebook:devtools-basics",
+          "container_id": "aion_memory::core",
+          "rulebook_id": "devtools.aion.memory.basics",
+          "created_at": "2025-12-05T22:15:47.163261+00:00",
+          "updated_at": "2025-12-05T22:15:47.163261+00:00",
+          "usage_count": 1,
+          "tags": [
+            "rulebook",
+            "devtools"
+          ],
+          "payload": {
+            "name": "DevTools AION Memory Basics",
+            "description": "Internal rules for how AION snapshots and visualises its memory field in DevTools.",
+            "domains": [
+              "devtools",
+              "memory",
+              "visualisation"
+            ],
+            "metrics": {
+              "\u03a6_coherence": 0.9,
+              "\u03a6_entropy": 0.3,
+              "SQI": 0.82
+            }
+          }
+        }
+      ],
+      "layout": {
+        "kind": "aion_memory_constellation",
+        "version": 1,
+        "slots": {
+          "memory": {
+            "max_cards": 64,
+            "placement": "inner_ring",
+            "priority": "recent_milestones_first"
+          },
+          "rulebooks": {
+            "max_cards": 16,
+            "placement": "outer_ring",
+            "priority": "usage_count_desc"
+          }
+        },
+        "labels": {
+          "memory": "AION recent memories",
+          "rulebooks": "Active rulebooks"
+        }
+      }
+    }
+  }
+}

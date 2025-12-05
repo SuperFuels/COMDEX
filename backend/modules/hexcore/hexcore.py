@@ -35,6 +35,9 @@ from backend.modules.llm.classifier import LLMClassifier
 from backend.modules.cognitive_fabric.cognitive_fabric_adapter import CFA
 from backend.modules.hexcore.hexcore_action_switch import HexCoreActionSwitch
 
+# ✅ Memory bridge (unified memory → KG → glyphs/holo seeds)
+from backend.modules.hexcore.memory_core import MemoryCore
+
 # ✅ Environment / Config
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -122,6 +125,9 @@ class HexCore:
         if is_self_growth_enabled(self.id):
             asyncio.create_task(monitor_self_growth(self))
 
+        # 🧠 Unified memory bridge (feeds MemoryEngine + KG + holo seeds)
+        self.memory_core = MemoryCore()
+
         print(f"[AION*HexCore] Consciousness kernel {self.id[:8]} initialized.")
 
     # ──────────────────────────────────────────────
@@ -179,6 +185,15 @@ class HexCore:
 
         self.memory.append(entry)
         self.save_memory()
+
+        # 🔗 Bridge HexCore → MemoryCore (→ MemoryEngine / KG / holo seeds)
+        try:
+            self.memory_core.store(
+                "conscious_cycle",
+                json.dumps(entry, ensure_ascii=False)
+            )
+        except Exception as e:
+            logger.warning(f"[HexCore] MemoryCore store failed: {e}")
 
         try:
             CFA.commit(

@@ -75,31 +75,36 @@ flowchart TD
 
   ******************************NEXT LEVEL HOLOGRAMS****************************************************************************************
 
-  flowchart TD
+flowchart TD
   classDef phase fill:#e5e7eb,stroke:#9ca3af,color:#111827,font-weight:bold,font-size:12px
   classDef todo fill:#f9fafb,stroke:#d1d5db,color:#111827,font-size:11px
   classDef done fill:#dcfce7,stroke:#16a34a,color:#14532d,font-size:11px
 
-  P0["🌌 .holo IR + QFC Container — Master Checklist\n• Backend now wired to: QQC, SLE, QWave, UCS, KG, Vault\n• Frontend: DevTools QFC canvas + hologram frames"]:::phase
+  P0["🌌 .holo IR + QFC Container — Master Checklist\n• Backend: /api/holo/export + HoloIR → .holo.json + KG index hook\n• Frontend: DevTools Field Lab export + Holo snapshot → 3D GHX frame"]:::phase
 
   %% CORE: .holo + QFC container
   subgraph C1[Core — .holo IR & QFC Container]
     direction TB
-    C1A["[x] QFC DevTools 3D field + AST hologram card (baseline visuals)"]:::done
-    C1B["[x] Define .holo IR schema\n• ghx: {nodes,edges} ← KG export_pack\n• ψκT: field_tensor + coherence/drift (QQC/SLE metrics)\n• views: {code,kg,qfc,summary}\n• metadata: {origin,version,tags,ledger_ref}"]:::todo
-    C1C["[ ] HologramContainer spec (KG-facing)\n• container_id (UCS/KG id)\n• field layout + micro-grid tiling\n• per-frame .holo slots bound to qwave beams"]:::todo
-    C1D["[ ] <HologramContainerView>\n• wraps DevTools QFC field\n• accepts (container_id, holo_id)\n• pulls KG pack + QWave beams"]:::todo
-    C1E["[x] Loader/saver bridge\n.holo ⇄ {GHX pack + ψκT + beams + metadata}\n• backend: KnowledgeGraphWriter.export_pack + qwave_export\n• stored as holo://container/<name>.holo.json"]:::todo
-    C1F["[ ] .holo registry/index in KG\n• index: knowledge_index.holo\n• links: holo:// URIs on KG nodes/containers"]:::todo
+    C1A["[x] QFC DevTools 3D field + AST/holo cards\n• /ws/ghx live GHX stream\n• HoloIR snapshots mapped → GhxPacket + rendered in 3D"]:::done
+
+    C1B["[x] Define .holo IR schema (backend + TS)\n• ghx: {nodes,edges,layout,ghx_mode,overlay_layers,entangled_links}\n• ψκT: frame + state_vector + coherence/drift/tick metrics\n• views: {code_view,kg_view,qfc_view,summary_view}\n• metadata: {origin,version,indexing,timefold,ledger,security}"]:::done
+
+    C1C["[x] HologramContainer spec (KG-facing)\n• container_id (UCS/KG id)\n• field layout + micro-grid tiling\n• per-frame .holo slots bound to qwave beams"]:::done
+
+    C1D["[x] <HologramContainerView>\n• wraps QFC field components\n• accepts (container_id, holo_id)\n• pulls KG pack + QWave beams + HoloIR views"]:::done
+
+    C1E["[x] Loader/saver bridge\n.holo ⇄ {GHX pack + ψκT + beams + metadata}\n• backend: export_holo_from_container(container, view_ctx)\n• POST /api/holo/export/{container_id}?revision=1\n• saves to HOLO_ROOT/<cid>/...t=<tick>_v<rev>.holo.json\n• GET /api/holo/container/{cid}/latest → load_latest_holo_for_container\n• DevTools Field Lab auto-loads latest Holo on container change"]:::done
+
+    C1F["[x] .holo registry/index in KG\n• write: add_to_index('knowledge_index.holo', {...}) (already called in exporter)\n• read/query helpers for QFC + Aion (list/search by container_id, tags, tick)\n• expose simple /api/holo/index[...] routes"]:::todo
   end
 
   %% 1) Aion memory field / workspace
   subgraph U1["Use Case 1 — Aion Memory Field / Workspace"]
     direction TB
-    U1A["[ ] AionMemoryContainer type\n• lives as UCS/KG container\n• mounts QFC tile + micro-grid + trace\n• uses ContainerRuntime + Vault"]:::todo
-    U1B["[ ] Memory API\n• Aion.read_holo(container_id)\n• Aion.write_holo(container_id, holo)\n• Aion.rewrite_holo(..., patch)\n• impl via kg_writer.inject_glyph + add_to_index"]:::todo
+    U1A["[x] AionMemoryContainer type\n• lives as UCS/KG container\n• mounts QFC tile + micro-grid + trace\n• uses ContainerRuntime + Vault"]:::todo
+    U1B["[x] Memory API\n• Aion.read_holo(container_id)\n• Aion.write_holo(container_id, holo)\n• Aion.rewrite_holo(..., patch)\n• impl via kg_writer.inject_glyph + add_to_index"]:::todo
     U1C["[ ] Search/index over Aion holos\n• use sqi_fastmap + reasoning_index\n• query: tags, patterns, time (ticks)\n('find my last refactor loop')"]:::todo
-    U1D["[ ] DevTools panel\n• 'Show Aion memory field for container X'\n• binds to <HologramContainerView> + index query"]:::todo
+    U1D["[x] DevTools panel\n• 'Show Aion memory field for container X'\n• binds to <HologramContainerView> + index query"]:::done
   end
 
   %% 2) Compressed storage (crystals)
@@ -115,7 +120,9 @@ flowchart TD
   subgraph U3["Use Case 3 — .holo as Primary IR"]
     direction TB
     U3A["[ ] Round-trip adapters\ncode ⇄ .holo ⇄ beams ⇄ HST\n• code/AST → HST → KG pack → .holo\n• .holo → qwave_beams → QQC/SLE run\n• HST injection utils + qwave_writer"]:::todo
-    U3B["[ ] 'Export as .holo' buttons\n• from AST view, KG node, container view\n• calls backend holo_export(container_id, view_ctx)"]:::todo
+
+    U3B["[x] 'Export as .holo' buttons\n• DevTools Field Lab: 'Export .holo snapshot'\n• calls POST /api/holo/export/{container_id}?revision=1\n• view_ctx: tick, frame, source_view, metrics, tags"]:::done
+
     U3C["[ ] 'Rehydrate from .holo'\n• .holo → code, prompts, KG node, QFC layout\n• uses HST + KGWriter + qfc_utils"]:::todo
   end
 
@@ -157,7 +164,7 @@ flowchart TD
   %% 8) Timefold / snapshots
   subgraph U8["Use Case 8 — Timefold Snapshots"]
     direction TB
-    U8A["[x] Time-stamped .holo snapshots\n• state_at_tick → holo://.../t=1234\n• uses ContainerRuntime + Vault snapshots"]:::todo
+    U8A["[x] Time-stamped .holo snapshots\n• holo_id = holo:container/<cid>/t=<tick>/v<rev>\n• origin.created_at (UTC) + timefold.tick in HoloIR\n• stored under HOLO_ROOT/<cid>/...t=<tick>_v<rev>.holo.json\n• DevTools 'Export .holo snapshot' uses view_ctx.tick + frame"]:::done
     U8B["[ ] Timefold navigator\n• QFC timeline slider\n• swaps active .holo set per tick range"]:::todo
     U8C["[ ] Diff engine\n• compare two .holo:\nψκT deltas, beams, KG nodes/edges\n• present as structured change map"]:::todo
   end
@@ -187,7 +194,6 @@ flowchart TD
 
   %% flow / priority
   P0 --> C1 --> U1 --> U2 --> U3 --> U4 --> U5 --> U6 --> U7 --> U8 --> U9 --> U10 --> U11
-
   ******************************NEXT LEVEL HOLOGRAMS*************************************************************************************
 
 Actual plan & how this now fits the architecture
