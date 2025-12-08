@@ -1,4 +1,4 @@
-// src/lib/api/holo.ts
+// Glyph_Net_Browser/src/lib/api/holo.ts
 import type { HoloIR, HoloSourceView } from "../types/holo";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8080";
@@ -6,9 +6,9 @@ const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8080";
 // What DevTools/QFC sends when you press "Export as .holo"
 export interface HoloExportViewCtx {
   tick?: number;
-  reason?: string;              // "devtools_manual_export", "timefold_snapshot", ...
+  reason?: string; // "devtools_manual_export", "timefold_snapshot", ...
   source_view?: HoloSourceView; // "qfc", "code", ...
-  frame?: string;               // "original", "mutated", "replay"
+  frame?: string; // "original", "mutated", "replay"
 
   // Optional lenses/metrics you want to bake into the holo:
   views?: HoloIR["views"];
@@ -19,13 +19,22 @@ export interface HoloExportViewCtx {
   [key: string]: unknown;
 }
 
+/**
+ * Logical index entry (from holo_index.json).
+ * Used both by container-specific history and global /api/holo/index.
+ */
 export interface HoloIndexEntry {
   container_id: string;
   holo_id: string;
-  revision: number;
-  tick: number;
-  created_at: string;
-  tags: string[];
+  revision?: number;
+  tick?: number;
+  created_at?: string;
+  tags?: string[];
+
+  // Optional extras present on some index routes:
+  path?: string;
+  memory_seed_count?: number;
+  rulebook_seed_count?: number;
 }
 
 // Full file-based index entry (from /container/{container_id}/index)
@@ -63,7 +72,31 @@ export async function exportHoloForContainer(
     throw new Error(`Holo export failed (${res.status})`);
   }
 
-  return (await res.json()) as HoloIR;
+  const json = (await res.json()) as any;
+  // backend may return { holo: {...} } or the holo directly
+  return (json.holo ?? json) as HoloIR;
+}
+
+/**
+ * Import a Holo snapshot (e.g. from motif_compile_api)
+ * into the backend's .holo store.
+ *
+ * POST /api/holo/import
+ */
+export async function importHoloSnapshot(holo: HoloIR): Promise<HoloIR> {
+  const res = await fetch(`${API_BASE}/api/holo/import`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ holo }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(text || `Holo import failed (HTTP ${res.status})`);
+  }
+
+  const json = (await res.json()) as any;
+  return (json.holo ?? json) as HoloIR;
 }
 
 /**
@@ -82,30 +115,33 @@ export async function fetchLatestHoloForContainer(
     return null;
   }
 
-  return (await res.json()) as HoloIR;
+  const json = (await res.json()) as any;
+  return (json.holo ?? json) as HoloIR;
 }
 
 /**
- * List holo snapshot history for a container (lightweight logical index).
- * GET /api/holo/container/{container_id}/history
+ * List holo snapshot history for a container using the global index.
+ * GET /api/holo/index?container_id=...
  *
  * Backed by holo_index.json in the backend.
  */
 export async function listHolosForContainer(
   containerId: string,
 ): Promise<HoloIndexEntry[]> {
-  const res = await fetch(
-    `${API_BASE}/api/holo/container/${encodeURIComponent(
-      containerId,
-    )}/history`,
-  );
+  const url = `${API_BASE}/api/holo/index?container_id=${encodeURIComponent(
+    containerId,
+  )}`;
+
+  const res = await fetch(url);
 
   if (!res.ok) {
     console.warn("[HoloAPI] Failed to fetch holo history:", res.status);
     return [];
   }
 
-  return (await res.json()) as HoloIndexEntry[];
+  const json = (await res.json()) as any;
+  const items = (json.items ?? json ?? []) as HoloIndexEntry[];
+  return items;
 }
 
 /**
@@ -133,8 +169,9 @@ export async function listHoloFileIndexForContainer(
 
 /**
  * Fetch a specific holo snapshot by (tick, revision).
- * (Requires matching backend route:
- *  GET /api/holo/container/{container_id}/at?tick=...&revision=...)
+ *
+ * Backend route (current):
+ *   GET /api/holo/container/{container_id}/at?tick=...&revision=...
  */
 export async function fetchHoloAtTick(
   containerId: string,
@@ -161,7 +198,8 @@ export async function fetchHoloAtTick(
     return null;
   }
 
-  return (await res.json()) as HoloIR;
+  const json = (await res.json()) as any;
+  return (json.holo ?? json) as HoloIR;
 }
 
 /**
@@ -188,4 +226,41 @@ export async function searchHoloIndex(params: {
   }
 
   return (await res.json()) as HoloIndexEntry[];
+}
+
+/**
+ * Execute a Holo snapshot via /api/holo/run.
+ * U4: .holo + input_ctx → { output, updated_holo, metrics }
+ */
+export interface HoloRunResult {
+  holo_id?: string;
+  container_id?: string;
+  mode?: string;
+  status: string;
+  output?: unknown;
+  updated_holo?: HoloIR | null;
+  metrics?: Record<string, unknown>;
+}
+
+export async function runHoloSnapshot(params: {
+  holo: HoloIR;
+  inputCtx?: Record<string, unknown>;
+  mode?: string;
+}): Promise<HoloRunResult> {
+  const res = await fetch(`${API_BASE}/api/holo/run`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      holo: params.holo,
+      input_ctx: params.inputCtx ?? {},
+      mode: params.mode ?? "qqc",
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(text || `Holo run failed (HTTP ${res.status})`);
+  }
+
+  return (await res.json()) as HoloRunResult;
 }

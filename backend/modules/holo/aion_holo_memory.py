@@ -293,7 +293,7 @@ def get_rulebook_holo_seeds() -> List[AionRulebookSeed]:
 
 # --- Combined view -----------------------------------------------------------
 
-def get_combined_holo_seeds(limit_memory: int = 32) -> Dict[str, List[Dict[str, Any]]]:
+def get_combined_holo_seeds(limit_memory: int = 64) -> Dict[str, List[Dict[str, Any]]]:
     """
     Convenience helper used by /api/holo/aion/seeds/combined.
     """

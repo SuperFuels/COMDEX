@@ -1,4 +1,6 @@
 # backend/modules/holo/holo_service.py
+from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Dict, Any, Optional, List
@@ -8,7 +10,6 @@ import glob
 import os
 
 from backend.modules.holo.holo_ir import HoloIR
-
 # Optional deps – we’ll fail soft if they’re missing / limited
 try:
     from backend.modules.knowledge_graph.knowledge_graph_writer import (
@@ -218,7 +219,61 @@ def search_holo_index(
 # -------------------------------------------------------------------
 # Export: container → HoloIR + .holo file (+ index updates)
 # -------------------------------------------------------------------
+def _persist_holo(holo: HoloIR) -> HoloIR:
+    """
+    Common persistence helper: write .holo JSON and return the object.
+    """
+    cid = holo.container_id or "unknown"
+    out_dir = HOLO_ROOT / cid
+    out_dir.mkdir(parents=True, exist_ok=True)
 
+    safe_id = holo.holo_id.replace(":", "_").replace("/", "_")
+    out_path = out_dir / f"{safe_id}.holo.json"
+
+    with out_path.open("w", encoding="utf-8") as f:
+        json.dump(holo.__dict__, f, indent=2)
+
+    return holo
+
+
+def save_holo_from_dict(payload: Dict[str, Any]) -> HoloIR:
+    """
+    Build a HoloIR from a minimal dict (e.g. motif compiler output)
+    and persist it as a .holo snapshot.
+
+    Required keys: holo_id, container_id, ghx.
+    Everything else is optional and defaulted.
+    """
+    if "holo_id" not in payload or "container_id" not in payload:
+        raise ValueError("holo_id and container_id are required")
+
+    ghx = payload.get("ghx") or {}
+    metadata = payload.get("metadata") or ghx.get("metadata") or {}
+
+    holo = HoloIR(
+        holo_id=payload["holo_id"],
+        container_id=payload["container_id"],
+        name=payload.get("name"),
+        symbol=payload.get("symbol"),
+        kind=payload.get("kind") or "crystal_motif",
+        origin=payload.get("origin") or {"source": "motif_compile"},
+        version=payload.get("version") or {"schema": "1.0"},
+        ghx=ghx,
+        field=payload.get("field") or {},
+        beams=payload.get("beams") or [],
+        multiverse_frame=payload.get("multiverse_frame"),
+        views=payload.get("views") or {},
+        indexing=payload.get("indexing") or {},
+        timefold=payload.get("timefold") or {},
+        ledger=payload.get("ledger") or {},
+        security=payload.get("security") or {},
+        sandbox=payload.get("sandbox") or {},
+        collaboration=payload.get("collaboration") or {},
+        references=payload.get("references") or {},
+        extra=payload.get("extra") or {"motif_metadata": metadata},
+    )
+
+    return _persist_holo(holo)
 
 def export_holo_from_container(
     container: Dict[str, Any],
@@ -503,3 +558,102 @@ def load_holo_for_container_at(
             f"[HOLO] load_holo_for_container_at failed for {container_id} t={tick} v={revision}: {e}"
         )
         return None
+
+def export_holo_from_kg_pack(
+    *,
+    container_id: str,
+    kg_pack: Dict[str, Any],
+    view_ctx: Dict[str, Any],
+    revision: int = 1,
+) -> HoloIR:
+    """
+    Variant of export_holo_from_container which takes a KG pack directly.
+    Used by the HST pipeline (code → HST → KG pack → .holo).
+    """
+    tick = int(view_ctx.get("tick", 0))
+    holo_id = f"holo:container/{container_id}/t={tick}/v{revision}"
+
+    nodes = kg_pack.get("nodes", [])
+    links = kg_pack.get("links", [])
+
+    metrics = view_ctx.get("metrics") or {
+        "coherence": 1.0,
+        "drift": 0.0,
+        "tick": tick,
+    }
+
+    holo = HoloIR(
+        holo_id=holo_id,
+        container_id=container_id,
+        name=kg_pack.get("meta", {}).get("name"),
+        symbol=kg_pack.get("meta", {}).get("symbol"),
+        kind=view_ctx.get("kind", "memory"),
+        origin={
+            "source": "hst_from_code",
+            "language": kg_pack.get("meta", {}).get("language"),
+        },
+        version={
+            "schema": 1,
+            "revision": revision,
+        },
+        ghx={
+            "nodes": nodes,
+            "edges": links,
+            "layout": kg_pack.get("meta", {}).get("layout"),
+            "ghx_mode": "hologram",
+            "entangled_links": kg_pack.get("meta", {}).get("entangled_links", []),
+        },
+        field={
+            "psi_kappa_T": {
+                "frame": view_ctx.get("frame", "original"),
+                "state_vector": view_ctx.get("psi_state") or {},
+            },
+            "metrics": metrics,
+        },
+        beams=[],
+        multiverse_frame=view_ctx.get("frame", "original"),
+        views=view_ctx.get("views", {}),
+        indexing={
+            "tags": view_ctx.get("tags", []),
+        },
+        timefold={
+            "tick": tick,
+            "t_label": view_ctx.get("t_label"),
+        },
+        references={
+            "container_id": container_id,
+        },
+    )
+
+    # persist .holo JSON
+    out_dir = HOLO_ROOT / container_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    out_path = out_dir / f"{holo_id.replace(':', '_').replace('/', '_')}.holo.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(holo.__dict__, f, indent=2)
+
+    return holo
+
+
+def save_holo_from_dict(holo_dict: Dict[str, Any]) -> HoloIR:
+    """
+    Used by /api/holo/import and motif pipeline.
+    Normalises an incoming dict into HoloIR, assigns defaults, persists it.
+    """
+    holo_id = holo_dict.get("holo_id")
+    container_id = holo_dict.get("container_id")
+
+    if not holo_id or not container_id:
+        raise ValueError("holo_id and container_id are required to import a HoloIR")
+
+    holo = HoloIR(**holo_dict)
+
+    out_dir = HOLO_ROOT / container_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    out_path = out_dir / f"{holo_id.replace(':', '_').replace('/', '_')}.holo.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(holo.__dict__, f, indent=2)
+
+    return holo

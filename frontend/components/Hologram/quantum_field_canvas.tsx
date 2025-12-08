@@ -22,6 +22,13 @@ import { useNormalizedQfcGraph } from "./useNormalizedQfcGraph";
 import renderQWaveBeams from "./renderQWaveBeams";
 import { QuantumFieldCanvasLoader } from "./QuantumFieldCanvasLoader";
 
+// NEW
+import type { HoloIR } from "../../../Glyph_Net_Browser/src/lib/types/holo";
+import {
+  runHoloSnapshot,
+  type HoloRunResult,
+} from "../../../Glyph_Net_Browser/src/lib/api/holo";
+
 // 🔧 shape / feature imports
 import EntropyNode from "@/components/QuantumField/styling/EntropyNode";
 import { HighlightedOperator } from "@/components/QuantumField/highlighted_symbolic_operators";
@@ -103,6 +110,9 @@ interface QuantumFieldCanvasProps {
     nodes: ExtendedGlyphNode[];
     links: Link[];
   };
+
+  // NEW: active hologram bound to this QFC view (optional)
+  holo?: HoloIR | null;
 }
 
 // ------------------ Main Component ------------------
@@ -120,6 +130,10 @@ export default function QuantumFieldCanvas(props: QuantumFieldCanvasProps) {
     nodes: [],
     links: [],
   });
+
+  // NEW: holo run state
+  const [isRunningHolo, setIsRunningHolo] = useState(false);
+  const [lastRunResult, setLastRunResult] = useState<HoloRunResult | null>(null);
 
   // Camera & controls
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -365,6 +379,46 @@ export default function QuantumFieldCanvas(props: QuantumFieldCanvasProps) {
     }
   };
 
+  // 🔁 Run current .holo through backend execution pipeline
+  const handleRunHolo = useCallback(async () => {
+    if (!props.holo) {
+      console.warn("[QFC] No active Holo bound to QuantumFieldCanvas; skipping run.");
+      return;
+    }
+
+    setIsRunningHolo(true);
+    try {
+      const result = await runHoloSnapshot({
+        holo: props.holo,
+        inputCtx: {
+          source: "qfc_ui",
+          container_id: props.containerId ?? "ucs_hub",
+        },
+        mode: "qqc",
+      });
+
+      setLastRunResult(result || null);
+
+      // TODO: when backend returns updated_holo / beams / frames,
+      // you can project them into QFC state here.
+      // if (result.updated_holo) { ... }
+      // if (Array.isArray(result.metrics?.frames)) { ... }
+    } catch (err: any) {
+      console.error("[QFC] Run .holo failed:", err);
+      setLastRunResult({
+        status: "error",
+        mode: "qqc",
+        holo_id: props.holo?.holo_id,
+        container_id: props.holo?.container_id,
+        output: null,
+        updated_holo: null,
+        metrics: { error: err?.message ?? String(err) },
+      });
+    } finally {
+      setIsRunningHolo(false);
+    }
+  }, [props.holo, props.containerId]);
+
   // Window shims for glyphwave / qfc_update events
   useEffect(() => {
     const onForkBeam = (e: any) => {
@@ -454,6 +508,11 @@ export default function QuantumFieldCanvas(props: QuantumFieldCanvasProps) {
       showCollapsed={showCollapsed}
       others={others}
       onDroppedScroll={handleDroppedScroll}
+      // NEW: holo-run wiring
+      canRunHolo={!!props.holo}
+      isRunningHolo={isRunningHolo}
+      onRunHolo={handleRunHolo}
+      lastRunStatus={lastRunResult?.status}
     />
   );
 }

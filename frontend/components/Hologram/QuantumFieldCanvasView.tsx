@@ -69,6 +69,12 @@ type ViewProps = {
   liveLinks?: any[];
 
   predictedOverlayData?: { nodes: any[]; links: any[] } | null;
+
+  // NEW: holo-run wiring
+  canRunHolo?: boolean;
+  isRunningHolo?: boolean;
+  onRunHolo?: () => void;
+  lastRunStatus?: string;
 };
 
 const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
@@ -218,6 +224,27 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
         >
           🌐 {p.predictedOverlay ? "Hide Overlay" : "Show Overlay"}
         </button>
+
+        {/* NEW: Run .holo control */}
+        {p.onRunHolo && (
+          <button
+            className="text-xs px-3 py-1 h-8 bg-emerald-700 hover:bg-emerald-600 rounded text-white disabled:opacity-50 disabled:cursor-default"
+            onClick={p.onRunHolo}
+            disabled={!p.canRunHolo || p.isRunningHolo}
+          >
+            {p.isRunningHolo
+              ? "⏳ Running .holo…"
+              : p.canRunHolo
+              ? "▶ Run .holo"
+              : "No .holo bound"}
+          </button>
+        )}
+
+        {p.lastRunStatus && (
+          <div className="text-[10px] text-slate-200 opacity-80">
+            Last run: <strong>{p.lastRunStatus}</strong>
+          </div>
+        )}
       </div>
 
       {/* Branch selector */}

@@ -1,7 +1,11 @@
 // Glyph_Net_Browser/src/components/PhotonEditor.tsx
 // Photon ↔ Glyph editor for the Glyph Net browser Dev Tools.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { compileMotifStub } from "../lib/api/motif";
+import type { GhxPacket } from "./DevFieldHologram3D";
+import { importHoloSnapshot } from "../lib/api/holo";
+import type { HoloIR } from "../lib/types/holo";
 
 type PhotonEditorProps = {
   docId?: string;
@@ -24,13 +28,9 @@ type ReverseResponse = {
   engine?: string;
 };
 
-// ---- AST + hologram types ----
-type AstResult = {
-  ast: any;
-  kind: "python" | "photon" | "codex" | "nl";
-  glyphs?: any[];
-  mermaid?: string;
-  ghx?: {
+type MotifCompileResponse = {
+  kind: string; // "photon_motif"
+  ghx: {
     ghx_version: string;
     origin: string;
     container_id: string;
@@ -38,6 +38,31 @@ type AstResult = {
     edges: any[];
     metadata: Record<string, any>;
   };
+  holo?: {
+    holo_id: string;
+    container_id: string;
+    tick: number;
+    revision: number;
+    ghx: any;
+    metadata: Record<string, any>;
+  } | null;
+};
+
+// Simple detector: is this the motif stub language?
+function looksLikeMotifStub(source: string): boolean {
+  if (!source) return false;
+  if (/#\s*holo:holo:crystal::user:devtools:motif=/.test(source)) return true;
+  if (/\bmotif\s+"[^"]+"\s*\{/.test(source)) return true;
+  return false;
+}
+
+// ---- AST + hologram types ----
+type AstResult = {
+  ast: any;
+  kind: "python" | "photon" | "codex" | "nl";
+  glyphs?: any[];
+  mermaid?: string;
+  ghx?: GhxPacket;
 };
 
 // Same sample block as SCI editor
@@ -90,6 +115,43 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
   const [astError, setAstError] = useState<string | null>(null);
 
   const charCount = content.length;
+
+  // ⬇️ React to “Send to Text Editor” and also hydrate from any buffered stub
+  useEffect(() => {
+    function applyStub(detail: any) {
+      if (!detail) return;
+      if (detail.docId && detail.docId !== docId) return;
+
+      if (typeof detail.source === "string") {
+        setContent(detail.source);
+      }
+      if (typeof detail.name === "string") {
+        setCurrentName(detail.name);
+      }
+    }
+
+    // 1) On mount, see if something left a stub for us
+    if (typeof window !== "undefined") {
+      const pending = (window as any).__DEVTOOLS_LAST_PHOTON_STUB;
+      if (pending) {
+        applyStub(pending);
+        delete (window as any).__DEVTOOLS_LAST_PHOTON_STUB;
+      }
+    }
+
+    // 2) Listen for live events while we're mounted
+    function handlePhotonOpen(ev: Event) {
+      const detail = (ev as CustomEvent).detail || {};
+      applyStub(detail);
+    }
+
+    window.addEventListener("devtools.photon_open", handlePhotonOpen as any);
+    return () =>
+      window.removeEventListener(
+        "devtools.photon_open",
+        handlePhotonOpen as any,
+      );
+  }, [docId]);
 
   // ---------------- AST: View structure ----------------
   async function handleViewAst() {
@@ -174,6 +236,97 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
       setAstResult(null);
     } finally {
       setLoadingAst(false);
+    }
+  }
+
+  // ---------------- Motif stub tools ----------------
+  async function handleMotifToHologram() {
+    if (!content.trim()) {
+      setAstError("No motif stub to compile.");
+      return;
+    }
+
+    setLoadingAst(true);
+    setAstError(null);
+
+    try {
+      const resp = await compileMotifStub(content, { holo: false });
+
+      // Broadcast GHX to Field Lab
+      if (typeof window !== "undefined") {
+        (window as any).__DEVTOOLS_LAST_GHX = resp.ghx;
+        window.dispatchEvent(
+          new CustomEvent("devtools.ghx", {
+            detail: {
+              source: "motif-compiler",
+              language: "photon_motif",
+              ghx: resp.ghx,
+            },
+          }),
+        );
+        window.dispatchEvent(
+          new CustomEvent("devtools.switch_tab", {
+            detail: { tool: "field" },
+          }),
+        );
+      }
+
+      setAstResult({
+        ast: { motif: resp.ghx.metadata?.motif ?? null },
+        kind: "photon",
+        glyphs: [],
+        mermaid: undefined,
+        ghx: resp.ghx,
+      });
+    } catch (e: any) {
+      setAstError(e.message || String(e));
+      setAstResult(null);
+    } finally {
+      setLoadingAst(false);
+    }
+  }
+
+  async function handleMotifToHolo() {
+    if (!content.trim()) return;
+    setIsBusy(true);
+    setError(null);
+    setStatus("Compiling motif stub to .holo…");
+
+    try {
+      const resp = await compileMotifStub(content, { holo: true });
+
+      if (!resp.holo) {
+        throw new Error("Motif compiler did not return a .holo payload");
+      }
+
+      // 1) Persist the new holo snapshot as a crystal
+      const saved: HoloIR = await importHoloSnapshot(resp.holo);
+
+      // 2) Optionally broadcast that a new holo exists
+      if (typeof window !== "undefined") {
+        (window as any).__DEVTOOLS_LAST_HOLO = saved;
+
+        window.dispatchEvent(
+          new CustomEvent("devtools.holo_saved", {
+            detail: { holo: saved },
+          }),
+        );
+
+        // Optional: jump user to Crystals tab to show the new entry
+        window.dispatchEvent(
+          new CustomEvent("devtools.switch_tab", {
+            detail: { tool: "crystals" },
+          }),
+        );
+      }
+
+      setStatus(`Saved motif as .holo: ${saved.holo_id}`);
+    } catch (err: any) {
+      console.error("Motif → .holo failed:", err);
+      setError(err?.message ?? "Motif → .holo failed");
+      setStatus("Motif → .holo failed");
+    } finally {
+      setIsBusy(false);
     }
   }
 
@@ -536,6 +689,57 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
               </div>
             </div>
 
+            {/* Motif-specific tools (only show when the buffer looks like a motif stub) */}
+            {looksLikeMotifStub(content) && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginBottom: 4,
+                  fontSize: 11,
+                }}
+              >
+                <span style={{ color: "#6b7280", marginRight: 4 }}>Motif tools:</span>
+
+                <button
+                  type="button"
+                  onClick={handleMotifToHologram}
+                  disabled={isBusy || !content.trim()}
+                  style={{
+                    fontSize: 11,
+                    padding: "3px 10px",
+                    borderRadius: 999,
+                    border: "1px solid #0ea5e9",
+                    background: "#e0f2fe",
+                    color: "#0f172a",
+                    cursor: isBusy ? "default" : "pointer",
+                    opacity: isBusy ? 0.7 : 1,
+                  }}
+                >
+                  Motif → Hologram
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleMotifToHolo}
+                  disabled={isBusy || !content.trim()}
+                  style={{
+                    fontSize: 11,
+                    padding: "3px 10px",
+                    borderRadius: 999,
+                    border: "1px solid #22c55e",
+                    background: "#dcfce7",
+                    color: "#14532d",
+                    cursor: isBusy ? "default" : "pointer",
+                    opacity: isBusy ? 0.7 : 1,
+                  }}
+                >
+                  Motif → .holo
+                </button>
+              </div>
+            )}
+
             {astError && (
               <div
                 style={{
@@ -644,21 +848,5 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
           </div>
         </div>
       </div>
-
-      {/* Status line (for Code↔Glyph path) */}
-      <div
-        style={{
-          fontSize: 11,
-          padding: "6px 8px",
-          borderRadius: 8,
-          border: error ? "1px solid #fecaca" : "1px solid #e5e7eb",
-          background: error ? "#fef2f2" : "#f9fafb",
-          color: error ? "#b91c1c" : "#4b5563",
-          whiteSpace: "pre-wrap",
-        }}
-      >
-        {error ? `❌ ${error}` : status}
-      </div>
     </div>
-  );
-}
+  )};

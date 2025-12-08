@@ -426,6 +426,8 @@ from backend.api import ast_api, ast_hologram_api
 from backend.modules.holo.holo_routes import router as holo_router
 from backend.routes.holo_aion_routes import router as holo_aion_router
 from backend.routes.holo_index_routes import router as holo_index_router
+from backend.routes.crystal_routes import router as crystal_router
+from backend.api.motif_compile_api import router as motif_compile_router
 
 # Floor control (PTT) lock manager
 from backend.modules.glyphnet.lock_manager import LOCKS
@@ -649,6 +651,8 @@ app.include_router(ast_api.router, prefix="/api")
 app.include_router(ast_hologram_api.router, prefix="/api")
 # Generic Holo API – expose as /api/holo/*
 app.include_router(holo_router, prefix="/api", tags=["holo"])
+app.include_router(crystal_router)
+app.include_router(motif_compile_router, prefix="/api")
 
 # Holo index – expose as /api/holo/index/*
 app.include_router(holo_index_router)

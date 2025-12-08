@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { DevFieldHologram3DScene } from "./DevFieldHologram3D";
+import { AionHoloIndexPanel } from "./AionHoloIndexPanel";
 
 type GhxNode = { id: string; data: any };
 type GhxEdge = { id: string; source: string; target: string; kind?: string };
@@ -81,9 +82,15 @@ export default function AionMemoryPanel() {
   const [loadingHolo, setLoadingHolo] = useState(false);
   const [holoError, setHoloError] = useState<string | null>(null);
 
+  // which holo is “active” in the right-hand index
+  const [activeHoloId, setActiveHoloId] = useState<string | null>(null);
+
   const [filterQuery, setFilterQuery] = useState("");
 
-  // Fetch seeds
+  // ──────────────────────────────────────────────
+  //  Fetch seeds
+  // ──────────────────────────────────────────────
+
   useEffect(() => {
     let cancelled = false;
     setLoadingSeeds(true);
@@ -117,40 +124,62 @@ export default function AionMemoryPanel() {
     };
   }, []);
 
-  // Fetch live hologram snapshot
-  useEffect(() => {
-    let cancelled = false;
+  // ──────────────────────────────────────────────
+  //  Fetch live hologram snapshot (initial + refresh)
+  // ──────────────────────────────────────────────
+
+  async function fetchLiveSnapshot() {
     setLoadingHolo(true);
     setHoloError(null);
 
-    (async () => {
-      try {
-        const holoResp = await fetch(
-          "/api/holo/aion/snapshot?limit_memory=64",
-        );
-        if (!holoResp.ok) {
-          throw new Error(`HTTP ${holoResp.status}`);
-        }
-        const json = await holoResp.json();
-        const holo = json.holo as AionHoloSnapshot; // { ok: true, holo: {...} }
-        if (!cancelled) {
-          setHolo(holo);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setHoloError(String(err));
-        }
-      } finally {
-        if (!cancelled) {
-          setLoadingHolo(false);
-        }
+    try {
+      const holoResp = await fetch(
+        "/api/holo/aion/snapshot?limit_memory=64",
+      );
+      if (!holoResp.ok) {
+        throw new Error(`HTTP ${holoResp.status}`);
       }
-    })();
+      const json = await holoResp.json();
+      const next = json.holo as AionHoloSnapshot;
+      setHolo(next);
+      setActiveHoloId(next.holo_id ?? null);
+    } catch (err: any) {
+      setHoloError(String(err));
+    } finally {
+      setLoadingHolo(false);
+    }
+  }
 
-    return () => {
-      cancelled = true;
-    };
+  // initial load
+  useEffect(() => {
+    fetchLiveSnapshot();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // load a specific snapshot by id (from right-hand index)
+  async function handleSelectSnapshot(holoId: string | null) {
+    if (!holoId) return;
+
+    setLoadingHolo(true);
+    setHoloError(null);
+
+    try {
+      const res = await fetch(
+        `/api/holo/aion/snapshot/by-id?holo_id=${encodeURIComponent(holoId)}`,
+      );
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const json = await res.json();
+      const next = json.holo as AionHoloSnapshot;
+      setHolo(next);
+      setActiveHoloId(next.holo_id ?? holoId);
+    } catch (err: any) {
+      setHoloError(String(err));
+    } finally {
+      setLoadingHolo(false);
+    }
+  }
 
   // ──────────────────────────────────────────────
   //  Search / filter helper
@@ -166,37 +195,26 @@ export default function AionMemoryPanel() {
     const parts: string[] = [];
 
     // label
-    // both memory + rulebook seeds have a .label field
-    // (rulebooks: label is usually the rulebook name)
     parts.push((seed as any).label || "");
 
     // tags
-    if (Array.isArray(seed.tags)) {
-      parts.push(seed.tags.join(" "));
+    if (Array.isArray((seed as any).tags)) {
+      parts.push((seed as any).tags.join(" "));
     }
 
     const payload: any = (seed as any).payload ?? {};
 
-    // prefer structured content if present
-    if (typeof payload.label === "string") {
-      parts.push(payload.label);
-    }
-    if (typeof payload.content === "string") {
-      parts.push(payload.content);
-    }
+    if (typeof payload.label === "string") parts.push(payload.label);
+    if (typeof payload.content === "string") parts.push(payload.content);
 
-    // keywords (resonance memories)
     if (Array.isArray(payload.keywords)) {
       parts.push(payload.keywords.join(" "));
     }
 
-    // metrics – allow searching by metric name or value
     const metrics: SeedMetrics = payload.metrics ?? {};
     for (const [k, v] of Object.entries(metrics)) {
       parts.push(k);
-      if (typeof v === "number") {
-        parts.push(String(v));
-      }
+      if (typeof v === "number") parts.push(String(v));
     }
 
     const haystack = parts.join(" ").toLowerCase();
@@ -210,6 +228,11 @@ export default function AionMemoryPanel() {
   const filteredRulebooks = rulebooks.filter((s) =>
     matchesSearch(s, filterQuery),
   );
+
+  const tickLabel =
+    holo && typeof holo.tick === "number" ? holo.tick : undefined;
+  const revLabel =
+    holo && typeof holo.revision === "number" ? holo.revision : undefined;
 
   return (
     <div
@@ -240,15 +263,50 @@ export default function AionMemoryPanel() {
             color: "#e5e7eb",
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "baseline",
+            alignItems: "center",
           }}
         >
           <span style={{ fontWeight: 600 }}>AION Memory Constellation</span>
-          {holo && (
-            <span style={{ opacity: 0.7 }}>
-              <code style={{ fontSize: 10 }}>{holo.holo_id}</code>
-            </span>
-          )}
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            {holo && (
+              <span style={{ opacity: 0.8, display: "flex", gap: 6 }}>
+                <code style={{ fontSize: 10 }}>{holo.holo_id}</code>
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: "#9ca3af",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  t={tickLabel ?? "?"} · v={revLabel ?? "?"}
+                </span>
+              </span>
+            )}
+
+            <button
+              type="button"
+              onClick={() => fetchLiveSnapshot()}
+              disabled={loadingHolo}
+              style={{
+                padding: "3px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                background: loadingHolo ? "#111827" : "#020617",
+                color: "#e5e7eb",
+                cursor: loadingHolo ? "default" : "pointer",
+                fontSize: 10,
+              }}
+            >
+              {loadingHolo ? "Refreshing…" : "Refresh"}
+            </button>
+          </div>
         </div>
 
         <div style={{ flex: 1, minHeight: 260 }}>
@@ -294,7 +352,7 @@ export default function AionMemoryPanel() {
         </div>
       </div>
 
-      {/* Right: seed inspector */}
+      {/* Right: seed inspector + holo index */}
       <div
         style={{
           width: 360,
@@ -664,6 +722,13 @@ export default function AionMemoryPanel() {
             )}
           </div>
         )}
+
+        <div style={{ marginTop: 8 }}>
+          <AionHoloIndexPanel
+            activeHoloId={activeHoloId}
+            onSelectSnapshot={(id) => handleSelectSnapshot(id)}
+          />
+        </div>
       </div>
     </div>
   );

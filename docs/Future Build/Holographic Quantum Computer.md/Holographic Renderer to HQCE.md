@@ -103,17 +103,17 @@ flowchart TD
     direction TB
     U1A["[x] AionMemoryContainer type\n• lives as UCS/KG container\n• mounts QFC tile + micro-grid + trace\n• uses ContainerRuntime + Vault"]:::todo
     U1B["[x] Memory API\n• Aion.read_holo(container_id)\n• Aion.write_holo(container_id, holo)\n• Aion.rewrite_holo(..., patch)\n• impl via kg_writer.inject_glyph + add_to_index"]:::todo
-    U1C["[ ] Search/index over Aion holos\n• use sqi_fastmap + reasoning_index\n• query: tags, patterns, time (ticks)\n('find my last refactor loop')"]:::todo
+    U1C["[x] Search/index over Aion holos\n• use sqi_fastmap + reasoning_index\n• query: tags, patterns, time (ticks)\n('find my last refactor loop')"]:::todo
     U1D["[x] DevTools panel\n• 'Show Aion memory field for container X'\n• binds to <HologramContainerView> + index query"]:::done
   end
 
   %% 2) Compressed storage (crystals)
   subgraph U2["Use Case 2 — Compressed Crystal Storage"]
     direction TB
-    U2A["[ ] Motif extractor\n• inputs: glyph_trace, CodexMetrics, pattern_engine\n• motifs = workflows / habits"]:::todo
-    U2B["[ ] Crystal builder\n• motifs → 'habit crystals' as .holo\n• one hologram per stable pattern\n• store via export_pack + crystal:// URIs"]:::todo
-    U2C["[ ] Crystal storage layout\n• crystal://user/... /team/...\n• backed by KG + Vault"]:::todo
-    U2D["[ ] QFC visual: crystals\n• render as dense/glowing nodes\n• show pattern_strength, SQI, usage"]:::todo
+    U2A["[x] Motif extractor\n• inputs: glyph_trace, CodexMetrics, pattern_engine\n• motifs = workflows / habits"]:::todo
+    U2B["[x] Crystal builder\n• motifs → 'habit crystals' as .holo\n• one hologram per stable pattern\n• store via export_pack + crystal:// URIs"]:::todo
+    U2C["[x] Crystal storage layout\n• crystal://user/... /team/...\n• backed by KG + Vault"]:::todo
+    U2D["[x] QFC visual: crystals\n• render as dense/glowing nodes\n• show pattern_strength, SQI, usage"]:::todo
   end
 
   %% 3) .holo as primary IR
@@ -123,7 +123,7 @@ flowchart TD
 
     U3B["[x] 'Export as .holo' buttons\n• DevTools Field Lab: 'Export .holo snapshot'\n• calls POST /api/holo/export/{container_id}?revision=1\n• view_ctx: tick, frame, source_view, metrics, tags"]:::done
 
-    U3C["[ ] 'Rehydrate from .holo'\n• .holo → code, prompts, KG node, QFC layout\n• uses HST + KGWriter + qfc_utils"]:::todo
+    U3C["[x] 'Rehydrate from .holo'\n• .holo → code, prompts, KG node, QFC layout\n• uses HST + KGWriter + qfc_utils"]:::todo
   end
 
   %% 4) Executable programs

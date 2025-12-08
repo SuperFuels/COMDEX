@@ -1,32 +1,43 @@
 // Glyph_Net_Browser/src/components/DevFieldHologram3D.tsx
-'use client';
+"use client";
 
-import React, { useMemo } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Line as DreiLine } from '@react-three/drei';
-import * as THREE from 'three';
+import React, { useMemo } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Line as DreiLine } from "@react-three/drei";
+import * as THREE from "three";
 
 // Drei's <Line> types are noisy in this setup, so wrap as any
 const Line = (props: any) => <DreiLine {...props} />;
 
 type GhxNode = { id: string; data: any };
-type GhxEdge = { id: string; source: string; target: string; kind?: string };
+type GhxEdge = {
+  id: string;
+  source?: string;
+  target?: string;
+  src?: string;
+  dst?: string;
+  kind?: string;
+};
 
 export type GhxPacket = {
   ghx_version: string;
   origin: string;
   container_id: string;
-  nodes: GhxNode[];
-  edges: GhxEdge[];
+  nodes: any[];
+  edges: any[];
   metadata?: Record<string, any>;
 };
+
+export type HologramMode = "field" | "crystal";
 
 export interface DevFieldHologram3DProps {
   packet: GhxPacket | null;
   /** 'world' = card pinned to its grid tile, 'focus' = card pulled to centre */
-  focusMode?: 'world' | 'focus';
+  focusMode?: "world" | "focus";
   /** Optional callback when the card is clicked */
   onToggleFocus?: () => void;
+  /** Visual style / layout for the nodes */
+  mode?: HologramMode;
 }
 
 /** simple deterministic hash → grid cell for container_id */
@@ -46,15 +57,14 @@ function getPsiSignature(packet: GhxPacket | null) {
   const sig = meta.psi_kappa_tau_signature || {};
   const nodeCount = meta.node_count ?? (packet?.nodes?.length ?? 0);
 
-  const psi = typeof sig.psi === 'number' ? sig.psi : 0;
-  const kappa = typeof sig.kappa === 'number' ? sig.kappa : 0;
-  const tau = typeof sig.tau === 'number' ? sig.tau : 0;
+  const psi = typeof sig.psi === "number" ? sig.psi : 0;
+  const kappa = typeof sig.kappa === "number" ? sig.kappa : 0;
+  const tau = typeof sig.tau === "number" ? sig.tau : 0;
 
-  const rank = typeof sig.rank === 'number' ? sig.rank : 1;
+  const rank = typeof sig.rank === "number" ? sig.rank : 1;
 
-  // avoid mixing ?? and || — do it explicitly
   let energy: number;
-  if (typeof sig.energy === 'number') {
+  if (typeof sig.energy === "number") {
     energy = sig.energy;
   } else {
     const sum = psi + kappa + tau;
@@ -62,14 +72,11 @@ function getPsiSignature(packet: GhxPacket | null) {
   }
 
   const entropy =
-    typeof sig.entropy === 'number'
-      ? sig.entropy
-      : Math.log2(nodeCount + 1);
+    typeof sig.entropy === "number" ? sig.entropy : Math.log2(nodeCount + 1);
 
-  // Normalised-ish scalars we can feed into sizes / glow
-  const complexity = Math.min(1, nodeCount / 64); // 0..1
-  const energyNorm = Math.min(1, energy / 100.0); // 0..1
-  const entropyNorm = Math.min(1, entropy / 8.0); // 0..1
+  const complexity = Math.min(1, nodeCount / 64);
+  const energyNorm = Math.min(1, energy / 100.0);
+  const entropyNorm = Math.min(1, entropy / 8.0);
 
   return {
     rank,
@@ -91,8 +98,8 @@ function HoloFloor() {
       args={[
         gridSize,
         divisions,
-        new THREE.Color('#1e293b'), // axis-ish
-        new THREE.Color('#1d4ed8'), // brighter blue grid lines
+        new THREE.Color("#1e293b"),
+        new THREE.Color("#1d4ed8"),
       ]}
       position={[0, 0, 0]}
     />
@@ -104,38 +111,56 @@ function HologramCard({
   packet,
   focusMode,
   onToggleFocus,
+  mode = "field",
 }: {
   packet: GhxPacket;
-  focusMode: 'world' | 'focus';
+  focusMode: "world" | "focus";
   onToggleFocus?: () => void;
+  mode?: HologramMode;
 }) {
   const nodes = packet.nodes ?? [];
   const edges = packet.edges ?? [];
 
-  const { gx, gz } = containerSlot(packet.container_id || 'default');
+  const { gx, gz } = containerSlot(packet.container_id || "default");
   const tileSpacing = 10;
 
   const psi = getPsiSignature(packet);
-  const baseRadius = 1.4 + psi.complexity * 0.8; // bigger program → wider fan
-  const nodeScale = 0.1 + psi.energyNorm * 0.1; // 0.10–0.20
-  const cardGlow = 0.12 + psi.entropyNorm * 0.18; // 0.12–0.30 opacity
+  const baseRadius = 1.4 + psi.complexity * 0.8;
+  const nodeScale = 0.1 + psi.energyNorm * 0.1;
+  const cardGlow = 0.12 + psi.entropyNorm * 0.18;
 
-  // world vs focus position
   const worldPos = new THREE.Vector3(gx * tileSpacing, 2.8, gz * tileSpacing);
   const focusPos = new THREE.Vector3(0, 3, 0);
-  const pos = focusMode === 'focus' ? focusPos : worldPos;
+  const pos = focusMode === "focus" ? focusPos : worldPos;
 
-  // take a subset so giant ASTs don't just become noise
   const layoutNodes = useMemo(() => nodes.slice(0, 64), [nodes]);
 
-  // layout nodes in a fan / arc
   const nodePositions = useMemo(() => {
     const map = new Map<string, THREE.Vector3>();
     const n = layoutNodes.length;
     if (!n) return map;
 
+    if (mode === "crystal") {
+      // simple crystal-ish lattice: nodes in a 3x3x? grid slab
+      const cols = 3;
+      const rows = Math.ceil(n / cols);
+      const spacingX = 0.9;
+      const spacingY = 0.7;
+
+      layoutNodes.forEach((node, i) => {
+        const cx = i % cols;
+        const cy = Math.floor(i / cols);
+        const x = (cx - (cols - 1) / 2) * spacingX * 2.0;
+        const y = (cy - (rows - 1) / 2) * spacingY * 2.0;
+        map.set(node.id, new THREE.Vector3(x, y, 0.04));
+      });
+
+      return map;
+    }
+
+    // default "field" mode – fan / arc
     const radius = baseRadius;
-    const arc = Math.PI * 1.0; // 180°
+    const arc = Math.PI * 1.0;
     const start = -arc / 2;
 
     layoutNodes.forEach((node, i) => {
@@ -143,22 +168,21 @@ function HologramCard({
       const angle = start + arc * t;
       const x = Math.cos(angle) * radius;
       const y = Math.sin(angle) * radius * 0.7;
-      map.set(node.id, new THREE.Vector3(x, y, 0.04)); // float slightly in front of the glass
+      map.set(node.id, new THREE.Vector3(x, y, 0.04));
     });
 
     return map;
-  }, [layoutNodes, baseRadius]);
+  }, [layoutNodes, baseRadius, mode]);
 
   return (
     <group
       position={pos.toArray()}
-      // clicking the card toggles world/focus mode
       onClick={(e) => {
         e.stopPropagation();
         onToggleFocus && onToggleFocus();
       }}
     >
-      {/* frame plane, standing up on Z axis */}
+      {/* frame plane */}
       <mesh position={[0, 0, 0]}>
         <planeGeometry args={[7, 3.6]} />
         <meshBasicMaterial color="#0ea5e9" transparent opacity={cardGlow} />
@@ -177,7 +201,6 @@ function HologramCard({
 
       {/* subtle inner etched grid */}
       <group position={[0, 0, 0.02]}>
-        {/* verticals */}
         {[...Array(5)].map((_, i) => {
           const x = -3.5 + (7 / 6) * (i + 1);
           const p1 = new THREE.Vector3(x, -1.8, 0);
@@ -193,7 +216,6 @@ function HologramCard({
             />
           );
         })}
-        {/* horizontals */}
         {[...Array(3)].map((_, i) => {
           const y = -1.8 + (3.6 / 4) * (i + 1);
           const p1 = new THREE.Vector3(-3.5, y, 0);
@@ -212,14 +234,35 @@ function HologramCard({
       </group>
 
       {/* edges as faint cyan lines */}
-      {edges.map((e) => {
-        const a = nodePositions.get(e.source);
-        const b = nodePositions.get(e.target);
+      {edges.map((edge, idx) => {
+        const e = edge as any;
+
+        // Tolerate all known GHX edge endpoint shapes:
+        // - source/target      (DevTools packets)
+        // - src/dst            (.holo → GHX builder)
+        // - from/to, src_id/dst_id (radio / container beams)
+        const srcId =
+          e.source ??
+          e.src ??
+          e.from ??
+          e.src_id ??
+          null;
+        const dstId =
+          e.target ??
+          e.dst ??
+          e.to ??
+          e.dst_id ??
+          null;
+
+        if (!srcId || !dstId) return null;
+
+        const a = nodePositions.get(srcId);
+        const b = nodePositions.get(dstId);
         if (!a || !b) return null;
 
         return (
           <Line
-            key={e.id}
+            key={e.id ?? `edge-${idx}`}
             points={[a, b]}
             color="#38bdf8"
             transparent
@@ -229,7 +272,7 @@ function HologramCard({
         );
       })}
 
-      {/* nodes: glowing orbs scaled by energy */}
+      {/* nodes */}
       {layoutNodes.map((node, idx) => {
         const p = nodePositions.get(node.id);
         if (!p) return null;
@@ -241,8 +284,8 @@ function HologramCard({
             <mesh>
               <sphereGeometry args={[r, 18, 18]} />
               <meshStandardMaterial
-                color={isRoot ? '#fefce8' : '#e0f2fe'}
-                emissive={isRoot ? '#facc15' : '#38bdf8'}
+                color={isRoot ? "#fefce8" : "#e0f2fe"}
+                emissive={isRoot ? "#facc15" : "#38bdf8"}
                 emissiveIntensity={isRoot ? 3 : 2}
                 transparent
                 opacity={isRoot ? 1 : 0.95}
@@ -252,7 +295,7 @@ function HologramCard({
         );
       })}
 
-      {/* container "anchor" on floor below card */}
+      {/* container anchor */}
       <mesh position={[0, -2.2, 0]}>
         <cylinderGeometry args={[0.16, 0.16, 0.24, 24]} />
         <meshStandardMaterial
@@ -267,13 +310,14 @@ function HologramCard({
 
 export function DevFieldHologram3DScene({
   packet,
-  focusMode = 'world',
+  focusMode = "world",
   onToggleFocus,
+  mode = "field",
 }: DevFieldHologram3DProps) {
   return (
-    <div style={{ width: '100%', height: '100%', background: '#020617' }}>
+    <div style={{ width: "100%", height: "100%", background: "#020617" }}>
       <Canvas camera={{ position: [0, 8, 18], fov: 55 }}>
-        <color attach="background" args={['#020617']} />
+        <color attach="background" args={["#020617"]} />
         <ambientLight intensity={0.55} />
         <directionalLight position={[12, 12, 6]} intensity={1.3} />
 
@@ -282,8 +326,9 @@ export function DevFieldHologram3DScene({
         {packet && (
           <HologramCard
             packet={packet}
-            focusMode={focusMode ?? 'world'}
+            focusMode={focusMode ?? "world"}
             onToggleFocus={onToggleFocus}
+            mode={mode}
           />
         )}
 

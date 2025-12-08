@@ -22,6 +22,12 @@ from backend.modules.holo.aion_holo_memory import (
     get_rulebook_holo_seeds,
     get_combined_holo_seeds,
 )
+from backend.modules.aion_cognition.aion_memory_holo_api import (
+    read_holo,
+    write_holo,
+    rewrite_holo,
+    read_holo_by_id,   # ← we’ll use this below
+)
 from backend.modules.holo.aion_holo_packer import pack_aion_memory_holo
 
 DNA_SWITCH.register(__file__)
@@ -32,7 +38,6 @@ DNA_SWITCH.register(__file__)
 
 AION_CONTAINER_ID = "aion_memory::core"
 HOLO_ROOT = Path("data/holo")
-
 
 router = APIRouter(
     prefix="/api/holo/aion",
@@ -117,7 +122,7 @@ def read_rulebook_holo_seeds(
 
 
 # ──────────────────────────────────────────────
-#  Live hologram snapshot
+#  Live hologram snapshot (fresh pack)
 # ──────────────────────────────────────────────
 
 
@@ -141,6 +146,40 @@ def read_aion_memory_snapshot(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to build AION memory snapshot: {e}",
         )
+
+
+# ──────────────────────────────────────────────
+#  Load snapshot by holo_id (from disk/index)
+# ──────────────────────────────────────────────
+
+
+@router.get(
+    "/snapshot/by-id",
+    summary="Load AION memory hologram by holo_id",
+    description=(
+        "Load a specific AION memory .holo snapshot by its holo_id, e.g. "
+        "`holo:aion_memory::t=4/v=1`."
+    ),
+)
+def get_aion_snapshot_by_id(
+    holo_id: str = Query(
+        ...,
+        description="The holo_id of the snapshot to load, e.g. holo:aion_memory::t=4/v=1",
+    ),
+    admin_ok: bool = Depends(ensure_admin),
+):
+    try:
+        holo = read_holo_by_id(holo_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    if holo is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Hologram not found for holo_id={holo_id}",
+        )
+
+    return {"holo": holo}
 
 
 # ──────────────────────────────────────────────

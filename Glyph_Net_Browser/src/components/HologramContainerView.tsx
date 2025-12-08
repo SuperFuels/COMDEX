@@ -1,5 +1,7 @@
+// Glyph_Net_Browser/src/components/HologramContainerView.tsx
 import { useEffect, useState } from "react";
 import DevFieldHologram3DContainer from "./DevFieldHologram3DContainer";
+import { PhotonStubPanel } from "./PhotonStubPanel";
 
 import type { HoloIR } from "../lib/types/holo";
 import type { HoloIndexEntry } from "../lib/api/holo";
@@ -9,6 +11,7 @@ import {
   fetchHoloAtTick,
   exportHoloForContainer,
 } from "../lib/api/holo";
+import { buildPhotonStubFromHolo, buildGhxFromHolo } from "../lib/rehydrate";
 
 export interface HologramContainerViewProps {
   containerId: string;
@@ -27,6 +30,7 @@ export interface HologramContainerViewProps {
  *  - Load history (C1F index)
  *  - Allow selecting a specific snapshot
  *  - Render via DevFieldHologram3DContainer
+ *  - Rehydrate .holo back into the live Field Lab
  */
 export default function HologramContainerView({
   containerId,
@@ -56,6 +60,29 @@ export default function HologramContainerView({
     return () => {
       cancelled = true;
     };
+  }, [containerId, initialHoloId]);
+
+  // Load index (history) for this container
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingIndex(true);
+    setError(null);
+
+    listHolosForContainer(containerId)
+      .then((entries) => {
+        if (!cancelled) setHoloIndex(entries);
+      })
+      .catch((err: any) => {
+        console.warn("[HologramContainerView] Failed to load holo index:", err);
+        if (!cancelled) setHoloIndex(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingIndex(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [containerId]);
 
   // Load index (history) for this container
@@ -78,6 +105,30 @@ export default function HologramContainerView({
 
     return () => {
       cancelled = true;
+    };
+  }, [containerId]);
+
+  // 🔁 react to devtools.holo_saved (e.g. motif → .holo import)
+  useEffect(() => {
+    function handleSaved(ev: Event) {
+      const detail = (ev as CustomEvent).detail as { holo?: HoloIR } | undefined;
+      if (!detail?.holo) return;
+
+      // Only refresh if it's for this container
+      if (detail.holo.container_id === containerId) {
+        listHolosForContainer(containerId)
+          .then(setHoloIndex)
+          .catch(() => {
+            /* non-fatal */
+          });
+      }
+    }
+
+    if (typeof window === "undefined") return;
+
+    window.addEventListener("devtools.holo_saved", handleSaved as any);
+    return () => {
+      window.removeEventListener("devtools.holo_saved", handleSaved as any);
     };
   }, [containerId]);
 
@@ -137,7 +188,35 @@ export default function HologramContainerView({
     }
   }
 
+  // 🔁 Rehydrate this container's .holo back into the live Field Lab
+  function handleRehydrateToField() {
+    if (!holo) return;
+    if (typeof window === "undefined") return;
+
+    const packet = buildGhxFromHolo(holo);
+
+    // 1) seed global GHX for DevFieldCanvas / other listeners
+    (window as any).__DEVTOOLS_LAST_GHX = packet;
+
+    // 2) broadcast GHX event
+    window.dispatchEvent(
+      new CustomEvent("devtools.ghx", {
+        detail: { ghx: packet },
+      }),
+    );
+
+    // 3) switch DevTools to the Field Lab tab
+    window.dispatchEvent(
+      new CustomEvent("devtools.switch_tab", {
+        detail: { tool: "field" },
+      }),
+    );
+  }
+
   const snapshotCount = holoIndex?.length ?? 0;
+
+  // Photon stub snippet derived from current holo (if any)
+  const photonStub = holo ? buildPhotonStubFromHolo(holo) : null;
 
   return (
     <div
@@ -232,26 +311,55 @@ export default function HologramContainerView({
           )}
         </div>
 
-        {allowExport && (
+        <div
+          style={{
+            display: "flex",
+            gap: 6,
+            alignItems: "center",
+            flexShrink: 0,
+          }}
+        >
+          {/* Rehydrate button always shown; disabled if no holo */}
           <button
             type="button"
-            onClick={handleExport}
-            disabled={exporting}
+            onClick={handleRehydrateToField}
+            disabled={!holo}
             style={{
-              padding: "4px 10px",
+              padding: "3px 8px",
               borderRadius: 999,
-              border: "1px solid #0f172a",
-              background: exporting ? "#e5e7eb" : "#0f172a",
-              color: exporting ? "#6b7280" : "#e5e7eb",
-              cursor: exporting ? "default" : "pointer",
-              fontSize: 11,
+              border: "1px solid #22c55e",
+              background: holo ? "#16a34a" : "#e5e7eb",
+              color: holo ? "#ecfdf5" : "#6b7280",
+              cursor: holo ? "pointer" : "default",
+              fontSize: 10,
               fontWeight: 500,
               whiteSpace: "nowrap",
             }}
           >
-            {exporting ? "Exporting…" : "Export .holo"}
+            ↻ Rehydrate to Field
           </button>
-        )}
+
+          {allowExport && (
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exporting}
+              style={{
+                padding: "4px 10px",
+                borderRadius: 999,
+                border: "1px solid #0f172a",
+                background: exporting ? "#e5e7eb" : "#0f172a",
+                color: exporting ? "#6b7280" : "#e5e7eb",
+                cursor: exporting ? "default" : "pointer",
+                fontSize: 11,
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {exporting ? "Exporting…" : "Export .holo"}
+            </button>
+          )}
+        </div>
       </div>
 
       {error && (
@@ -260,8 +368,72 @@ export default function HologramContainerView({
 
       {/* 3D field */}
       <div style={{ flex: 1, minHeight: 320 }}>
-        <DevFieldHologram3DContainer holo={holo} />
+        <DevFieldHologram3DContainer
+          holo={holo}
+          mode="field"
+          allowExternalGhx
+        />
       </div>
+
+      {/* Photon motif stub row: left = stub, right = spacer to match inspector */}
+      {photonStub && (
+        <div
+          style={{
+            marginTop: 8,
+            display: "flex",
+            gap: 12,
+            alignItems: "flex-start",
+          }}
+        >
+          {/* left column: stub card, same width as the 3D canvas */}
+          <div
+            style={{
+              flex: 1,
+              borderRadius: 12,
+              border: "1px solid #020617",
+              background: "#020617",
+              padding: 8,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: "#e5e7eb",
+                marginBottom: 4,
+              }}
+            >
+              Photon motif stub
+            </div>
+
+            <div
+              style={{
+                fontSize: 10,
+                color: "#9ca3af",
+                marginBottom: 6,
+                maxWidth: 720,
+              }}
+            >
+              Generated from the current <code>.holo</code> snapshot. Use{" "}
+              <b>“Send to Text Editor”</b> to edit this motif in Photon, then
+              run your normal <b>Photon → Hologram</b> flow to regenerate a new
+              hologram / <code>.holo</code>.
+            </div>
+
+            <div
+              style={{
+                maxHeight: 260,
+                overflow: "auto",
+              }}
+            >
+              <PhotonStubPanel code={photonStub} />
+            </div>
+          </div>
+
+          {/* right spacer: keeps layout aligned with the 320px inspector */}
+          <div style={{ width: 320 }} />
+        </div>
+      )}
     </div>
   );
 }

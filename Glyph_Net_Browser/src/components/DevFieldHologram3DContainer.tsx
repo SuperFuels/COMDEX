@@ -2,18 +2,26 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { DevFieldHologram3DScene, GhxPacket } from "./DevFieldHologram3D";
+import {
+  DevFieldHologram3DScene,
+  GhxPacket,
+  HologramMode,
+} from "./DevFieldHologram3D";
 import { GHXVisualizerField } from "./GHXVisualizerField";
 import type { HoloIR } from "../lib/types/holo";
+import { buildGhxFromHolo } from "../lib/rehydrate";
 
 export interface DevFieldHologram3DContainerProps {
-  // Optional .holo snapshot from DevTools
-  holo?: HoloIR | null;
+  holo?: HoloIR | null;          // optional .holo snapshot (Field Lab / Crystals)
+  mode?: HologramMode;           // "field" (default) or "crystal"
+  allowExternalGhx?: boolean;    // allow external devtools.ghx events
 }
 
-export default function DevFieldHologram3DContainer(
-  { holo }: DevFieldHologram3DContainerProps,
-) {
+export default function DevFieldHologram3DContainer({
+  holo,
+  mode = "field",
+  allowExternalGhx = false,
+}: DevFieldHologram3DContainerProps) {
   const [status, setStatus] = useState<string>("Disconnected");
   const [lastPacket, setLastPacket] = useState<GhxPacket | null>(null);
   const [focusMode, setFocusMode] = useState<"world" | "focus">("world");
@@ -22,7 +30,7 @@ export default function DevFieldHologram3DContainer(
   const toggleFocus = () =>
     setFocusMode((m) => (m === "world" ? "focus" : "world"));
 
-  // --- WebSocket cleanup on unmount ----------------------------------------
+  // --- WS cleanup on unmount ------------------------------------------------
   useEffect(() => {
     return () => {
       if (socketRef.current) {
@@ -32,8 +40,7 @@ export default function DevFieldHologram3DContainer(
   }, []);
 
   function connectWs() {
-    // If we already have a Holo snapshot, we don't need live GHX
-    if (holo) return;
+    if (holo) return;                       // no live GHX needed for snapshot
     if (typeof window === "undefined") return;
 
     if (
@@ -78,13 +85,11 @@ export default function DevFieldHologram3DContainer(
     };
   }
 
-  // --- auto-connect, seed from last GHX, listen to devtools events ----------
+  // --- auto-connect / rehydrate / listen for devtools.ghx -------------------
   useEffect(() => {
-    // only auto-connect WS if we *don't* already have a holo snapshot
     if (!holo) {
       connectWs();
     } else {
-      // if we switch to a holo snapshot, close any old socket
       if (socketRef.current) {
         socketRef.current.close();
         socketRef.current = null;
@@ -92,7 +97,7 @@ export default function DevFieldHologram3DContainer(
       setStatus("Holo snapshot loaded");
     }
 
-    if (typeof window !== "undefined" && !holo) {
+    if (typeof window !== "undefined") {
       const g = (window as any).__DEVTOOLS_LAST_GHX;
       if (g && Array.isArray(g.nodes) && Array.isArray(g.edges)) {
         const seeded: GhxPacket = {
@@ -108,8 +113,6 @@ export default function DevFieldHologram3DContainer(
     }
 
     function handleDevGhx(ev: Event) {
-      if (holo) return; // if we’re viewing a holo snapshot, ignore live GHX events
-
       const detail = (ev as CustomEvent).detail;
       if (!detail) return;
 
@@ -129,69 +132,26 @@ export default function DevFieldHologram3DContainer(
       setLastPacket(packet);
     }
 
-    window.addEventListener("devtools.ghx", handleDevGhx as any);
-    return () =>
-      window.removeEventListener("devtools.ghx", handleDevGhx as any);
-  }, [holo]);
+    if (allowExternalGhx && typeof window !== "undefined") {
+      window.addEventListener("devtools.ghx", handleDevGhx as any);
+      return () =>
+        window.removeEventListener("devtools.ghx", handleDevGhx as any);
+    }
+
+    return;
+  }, [holo, allowExternalGhx]);
 
   // --- Build a GhxPacket from the Holo snapshot (if present) ---------------
-  const holoPacket: GhxPacket | null = holo
-    ? ({
-        ghx_version: "1.0",
-        origin: `holo:${holo.holo_id}`,
-        container_id: holo.container_id,
+  const holoPacket: GhxPacket | null = holo ? buildGhxFromHolo(holo) : null;
 
-        // Map Holo nodes → GhxNode (add required `data`)
-        nodes: (holo.ghx?.nodes ?? []).map((n) => ({
-          id: n.id,
-          label: n.label,
-          type: n.type ?? "holo_node",
-          tags: n.tags ?? [],
-          pos: n.pos,
-          icon: n.icon,
-          meta: n.meta ?? {},
-          data: {
-            ...(n.meta ?? {}),
-            from: "holo",
-          },
-        })),
-
-        // Map Holo edges → GhxEdge (add required `data`, source/target)
-        edges: (holo.ghx?.edges ?? []).map((e, idx) => ({
-          id: e.id ?? `holo-edge-${idx}`,
-          src: e.src,
-          dst: e.dst,
-          source: e.src,
-          target: e.dst,
-          relation: e.relation,
-          weight: e.weight,
-          tags: e.tags ?? [],
-          meta: e.meta ?? {},
-          data: {
-            relation: e.relation,
-            ...(e.meta ?? {}),
-            from: "holo",
-          },
-        })),
-
-        metadata: {
-          holo_id: holo.holo_id,
-          kind: holo.kind,
-          timefold: holo.timefold,
-          indexing: holo.indexing,
-        },
-      } as GhxPacket)
-    : null;
-
-  const packetForScene: GhxPacket | null = holoPacket ?? lastPacket;
+  // Prefer live / rehydrated GHX if we have one.
+  const packetForScene: GhxPacket | null = lastPacket ?? holoPacket;
 
   const nodeCount = packetForScene?.nodes?.length ?? 0;
   const edgeCount = packetForScene?.edges?.length ?? 0;
   const origin = packetForScene?.origin ?? (holo ? "holo_export" : "—");
 
-  const statusText = holo
-    ? `Holo snapshot: ${holo.holo_id}`
-    : status;
+  const statusText = holo ? `Holo snapshot: ${holo.holo_id}` : status;
 
   return (
     <div
@@ -245,7 +205,7 @@ export default function DevFieldHologram3DContainer(
               color: "#e5e7eb",
               cursor: "pointer",
             }}
-            disabled={!!holo} // when viewing a holo snapshot, WS connect is not needed
+            disabled={!!holo}
           >
             Connect / Reconnect
           </button>
@@ -259,6 +219,7 @@ export default function DevFieldHologram3DContainer(
           display: "flex",
           gap: 12,
           minHeight: 0,
+          alignItems: "stretch",      // ⬅ ensure both columns are same height
         }}
       >
         {/* 3D field card */}
@@ -276,6 +237,7 @@ export default function DevFieldHologram3DContainer(
             packet={packetForScene}
             focusMode={focusMode}
             onToggleFocus={toggleFocus}
+            mode={mode}
           />
         </div>
 
@@ -290,7 +252,11 @@ export default function DevFieldHologram3DContainer(
             display: "flex",
             flexDirection: "column",
             fontSize: 12,
-            minHeight: 0,
+            minHeight: 220,
+            flexShrink: 0,
+            boxSizing: "border-box",
+            maxHeight: "100%",        // ⬅ match main row height
+            overflow: "hidden",       // ⬅ keep children inside the card
           }}
         >
           <div style={{ marginBottom: 8 }}>
@@ -314,17 +280,19 @@ export default function DevFieldHologram3DContainer(
 
           {/* tiny 2D GHX sketch */}
           <div style={{ marginBottom: 8 }}>
-            <GHXVisualizerField packet={packetForScene} />
+            <GHXVisualizerField packet={packetForScene} layout={mode} />
           </div>
 
+          {/* raw GHX JSON */}
           <div
             style={{
               flex: 1,
+              minHeight: 0,           // ⬅ allows flex child to shrink
               borderRadius: 8,
               background: "#ffffff",
               border: "1px solid #e5e7eb",
               padding: 8,
-              overflow: "auto",
+              overflow: "auto",       // ⬅ scroll inside, not outside card
               fontFamily:
                 'SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
               fontSize: 11,

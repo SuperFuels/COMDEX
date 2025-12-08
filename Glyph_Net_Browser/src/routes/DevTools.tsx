@@ -7,9 +7,8 @@ import LedgerInspector from "../components/LedgerInspector";
 import PhotonGuide from "../components/PhotonGuide";
 import DevPitch from "../components/DevPitch";
 import AionMemoryFieldPanel from "../components/AionMemoryFieldPanel";
+import CrystalPanel from "../components/CrystalPanel";
 
-// 3D hologram scene wrapper (Canvas + OrbitControls)
-// import DevFieldHologram3DContainer from "../components/DevFieldHologram3DContainer";
 // 3D hologram scene wrapper (Canvas + OrbitControls)
 import HologramContainerView from "../components/HologramContainerView";
 
@@ -23,7 +22,14 @@ import {
 } from "../lib/api/holo";
 import type { HoloIndexEntry } from "../lib/api/holo";
 
-type ToolId = "editor" | "ledger" | "guide" | "pitch" | "field" | "aion";
+type ToolId =
+  | "editor"
+  | "ledger"
+  | "guide"
+  | "pitch"
+  | "field"
+  | "aion"
+  | "crystal";
 
 export default function DevTools() {
   const [activeTool, setActiveTool] = useState<ToolId>("editor");
@@ -121,6 +127,7 @@ export default function DevTools() {
         if (detail.tab === "language") target = "guide";
         if (detail.tab === "pitch") target = "pitch";
         if (detail.tab === "aion") target = "aion";
+        if (detail.tab === "crystal") target = "crystal";
       }
 
       if (target) setActiveTool(target);
@@ -321,6 +328,13 @@ export default function DevTools() {
             activeTool={activeTool}
             onSelect={setActiveTool}
           />
+          <ToolButton
+            id="crystal"
+            label="Crystals"
+            description="Compressed motifs"
+            activeTool={activeTool}
+            onSelect={setActiveTool}
+          />
         </div>
 
         {activeTool === "field" && (
@@ -378,6 +392,8 @@ export default function DevTools() {
           <DevPitch />
         ) : activeTool === "aion" ? (
           <AionMemoryFieldPanel />
+        ) : activeTool === "crystal" ? (
+          <CrystalPanel />
         ) : (
           // Field Lab: generic HologramContainerView
           <div style={{ flex: 1, minHeight: 320 }}>
@@ -385,6 +401,39 @@ export default function DevTools() {
               containerId={activeContainerId ?? "dc_aion_core"}
               title="Hologram Container"
             />
+          </div>
+        )}
+
+        {exportError && activeTool === "field" && (
+          <div style={{ fontSize: 11, color: "#b91c1c" }}>{exportError}</div>
+        )}
+
+        {activeTool === "field" && (
+          <div
+            style={{
+              marginTop: 8,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <button
+              type="button"
+              onClick={handleExportHolo}
+              disabled={exporting || !activeContainerId}
+              style={{
+                padding: "4px 10px",
+                borderRadius: 999,
+                border: "1px solid #0f172a",
+                background: exporting ? "#e5e7eb" : "#0f172a",
+                color: exporting ? "#6b7280" : "#e5e7eb",
+                cursor: exporting ? "default" : "pointer",
+                fontSize: 11,
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {exporting ? "Exporting…" : "Export .holo"}
+            </button>
           </div>
         )}
       </section>

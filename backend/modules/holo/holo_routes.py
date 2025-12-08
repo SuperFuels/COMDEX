@@ -2,6 +2,7 @@
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Body, HTTPException, Query
+from pydantic import BaseModel
 
 from backend.modules.holo.holo_service import (
     export_holo_from_container,
@@ -10,6 +11,12 @@ from backend.modules.holo.holo_service import (
     load_holo_index_for_container,
     load_holo_for_container_at,
     search_holo_index,
+    save_holo_from_dict,
+)
+from backend.modules.holo.holo_execution_service import run_holo_snapshot
+from backend.modules.holo.hst_service import (
+    build_hst_from_source,
+    build_holo_from_hst,
 )
 from backend.modules.runtime.container_runtime import get_container_runtime
 
@@ -38,6 +45,28 @@ def export_holo(
     container = cr.load_and_activate_container(container_id)
 
     holo = export_holo_from_container(container, view_ctx, revision=revision)
+    return getattr(holo, "__dict__", holo)
+
+
+class HoloImportPayload(BaseModel):
+    holo: Dict[str, Any]
+
+
+@router.post("/import")
+def import_holo(payload: HoloImportPayload) -> Dict[str, Any]:
+    """
+    Accept a minimal HoloIR-like object (e.g. from motif_compile_api)
+    and persist it as a .holo snapshot under HOLO_ROOT.
+
+    Returns the canonical HoloIR dict that was saved.
+    """
+    try:
+        holo = save_holo_from_dict(payload.holo)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=f"Holo import failed: {e}")
+
     return getattr(holo, "__dict__", holo)
 
 
@@ -120,3 +149,71 @@ def search_holo_index_route(
     Returns newest → oldest.
     """
     return search_holo_index(container_id=container_id, tag=tag)
+
+
+class HoloFromCodePayload(BaseModel):
+    source: str
+    language: str
+    container_id: Optional[str] = None
+    tick: int = 0
+    revision: int = 1
+
+
+@router.post("/from_code")
+def build_holo_from_code(payload: HoloFromCodePayload) -> Dict[str, Any]:
+    """
+    Minimal generic path for U3A:
+
+      code/AST → HST → KG pack → .holo
+
+    Right now we use a very simple HST (single 'program' node).
+    Later you can swap in a real CodexAST → HST implementation.
+    """
+    container_id = payload.container_id or "devtools:code"
+
+    try:
+        hst = build_hst_from_source(
+            source=payload.source,
+            language=payload.language,
+            container_id=container_id,
+            tick=payload.tick,
+            revision=payload.revision,
+        )
+        holo = build_holo_from_hst(
+            hst,
+            tick=payload.tick,
+            frame="original",
+            revision=payload.revision,
+        )
+    except Exception as e:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=f"holo_from_code_failed: {e}")
+
+    return getattr(holo, "__dict__", holo)
+
+
+class HoloRunPayload(BaseModel):
+    # For now we require the Holo blob inline; you can extend this later to
+    # accept holo_id + lookups via the index.
+    holo: Dict[str, Any]
+    mode: Optional[str] = "qqc"  # "qqc" | "sle" | "dry_run" | ...
+    input_ctx: Optional[Dict[str, Any]] = None
+
+
+@router.post("/run")
+def run_holo_route(payload: HoloRunPayload) -> Dict[str, Any]:
+    """
+    Executable hologram entry point (U4):
+
+      .holo + input_ctx → BeamRuntime/QQC → { output, updated_holo, metrics }
+
+    This wraps backend.modules.holo.holo_execution_service.run_holo_snapshot.
+    """
+    if not payload.holo:
+        raise HTTPException(status_code=400, detail="missing_holo")
+
+    result = run_holo_snapshot(
+        payload.holo,
+        input_ctx=payload.input_ctx or {},
+        mode=payload.mode or "qqc",
+    )
+    return result

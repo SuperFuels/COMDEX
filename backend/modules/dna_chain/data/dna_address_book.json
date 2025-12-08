@@ -227,5 +227,13 @@
   "holo_index_routes.py": {
     "name": "holo_index_routes.py",
     "path": "/workspaces/COMDEX/backend/routes/holo_index_routes.py"
+  },
+  "crystal_container.py": {
+    "name": "crystal_container.py",
+    "path": "/workspaces/COMDEX/backend/modules/holo/crystal_container.py"
+  },
+  "crystal_routes.py": {
+    "name": "crystal_routes.py",
+    "path": "/workspaces/COMDEX/backend/routes/crystal_routes.py"
   }
 }

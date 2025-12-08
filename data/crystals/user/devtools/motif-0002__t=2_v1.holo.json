@@ -1,0 +1,112 @@
+{
+  "holo_id": "holo:crystal::user:devtools:motif=motif:0002/t=2/v=1",
+  "container_id": "crystal::user:devtools",
+  "tick": 2,
+  "revision": 1,
+  "created_at": "2025-12-06T15:06:36.505176+00:00",
+  "ghx_mode": "snapshot",
+  "ghx": {
+    "ghx_version": "1.0",
+    "origin": "crystal_holo_packer",
+    "container_id": "crystal::user:devtools",
+    "nodes": [
+      {
+        "id": "crystal:motif:0002",
+        "data": {
+          "label": "edit_file \u2192 run_tests",
+          "symbol": "\u2726",
+          "type": "crystal",
+          "kind": "habit_crystal",
+          "pattern_strength": 1.0,
+          "support": 4,
+          "sqi": 0.5,
+          "tags": [
+            "crystal-motif"
+          ],
+          "created_at": "2025-12-06T15:06:36.505158+00:00"
+        }
+      },
+      {
+        "id": "crystal:motif:0002::step:0",
+        "data": {
+          "label": "edit_file",
+          "symbol": "\u25cf",
+          "type": "crystal_step",
+          "step_index": 0,
+          "parent_crystal": "crystal:motif:0002",
+          "tags": [
+            "crystal-step"
+          ]
+        }
+      },
+      {
+        "id": "crystal:motif:0002::step:1",
+        "data": {
+          "label": "run_tests",
+          "symbol": "\u25cf",
+          "type": "crystal_step",
+          "step_index": 1,
+          "parent_crystal": "crystal:motif:0002",
+          "tags": [
+            "crystal-step"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "crystal:motif:0002::crystal:motif:0002::step:0",
+        "source": "crystal:motif:0002",
+        "target": "crystal:motif:0002::step:0",
+        "kind": "crystal_step"
+      },
+      {
+        "id": "crystal:motif:0002::crystal:motif:0002::step:1",
+        "source": "crystal:motif:0002",
+        "target": "crystal:motif:0002::step:1",
+        "kind": "crystal_step"
+      },
+      {
+        "id": "crystal:motif:0002::step:0::crystal:motif:0002::step:1",
+        "source": "crystal:motif:0002::step:0",
+        "target": "crystal:motif:0002::step:1",
+        "kind": "crystal_flow"
+      }
+    ],
+    "metadata": {
+      "pattern_strength": 1.0,
+      "support": 4,
+      "sqi": 0.5
+    }
+  },
+  "psi_kappa_tau_signature": {
+    "psi": 1.0,
+    "kappa": 0.0,
+    "tau": 0.0,
+    "energy": 4,
+    "entropy": 1.0,
+    "rank": 1
+  },
+  "metadata": {
+    "kind": "habit_crystal",
+    "crystal": {
+      "uri": "crystal://user/devtools/motif:0002/t=2/v=1",
+      "motif_id": "motif:0002",
+      "label": "edit_file \u2192 run_tests",
+      "owner_kind": "user",
+      "owner_id": "devtools",
+      "pattern_strength": 1.0,
+      "support": 4,
+      "sqi": 0.5,
+      "metrics": {
+        "support": 4,
+        "strength": 1.0,
+        "step_count": 2,
+        "avg_sqi": 0.5
+      },
+      "tags": [
+        "crystal-motif"
+      ]
+    }
+  }
+}

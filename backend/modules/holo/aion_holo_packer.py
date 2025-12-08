@@ -9,10 +9,15 @@ from backend.modules.holo.aion_holo_memory import get_combined_holo_seeds
 
 
 def _iso_now() -> str:
-  return datetime.now(tz=timezone.utc).isoformat()
+    return datetime.now(tz=timezone.utc).isoformat()
 
 
-def pack_aion_memory_holo(limit_memory: int = 32) -> Dict[str, Any]:
+def pack_aion_memory_holo(
+    limit_memory: int = 64,
+    *,
+    tick: int = 0,
+    revision: int = 1,
+) -> Dict[str, Any]:
     """
     Build a HoloIR-style snapshot for the AION memory field.
 
@@ -26,8 +31,6 @@ def pack_aion_memory_holo(limit_memory: int = 32) -> Dict[str, Any]:
     rulebooks = combined.get("rulebooks", []) or []
 
     container_id = "aion_memory::core"
-    tick = 0
-    revision = 1
 
     nodes: List[Dict[str, Any]] = []
     edges: List[Dict[str, Any]] = []

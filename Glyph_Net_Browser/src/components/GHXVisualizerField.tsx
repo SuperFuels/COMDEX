@@ -1,35 +1,40 @@
+// Glyph_Net_Browser/src/components/GHXVisualizerField.tsx
 'use client';
 
-import React, { useMemo } from 'react';
-import type { GhxPacket } from './DevFieldHologram3D';
+import React, { useMemo } from "react";
+import type { GhxPacket } from "./DevFieldHologram3D";
 
 interface GHXVisualizerFieldProps {
   packet: GhxPacket | null;
   height?: number;
+  // match DevFieldHologram3DScene: "field" | "crystal"
+  layout?: "field" | "crystal";
 }
 
 /**
  * Very small 2D sketch of the GHX graph:
- * - nodes laid out on a circle
+ * - "field"   → fan/arc layout (matches 3D field card)
+ * - "crystal" → lattice-style layout (matches 3D crystal card)
  * - edges as faint lines
- * - sized to live inside the right-hand inspector
  */
 export function GHXVisualizerField({
   packet,
   height = 140,
+  layout = "field",
 }: GHXVisualizerFieldProps) {
   if (!packet || !packet.nodes || packet.nodes.length === 0) {
     return (
       <div
         style={{
           borderRadius: 8,
-          border: '1px dashed #e5e7eb',
+          border: "1px dashed #e5e7eb",
           padding: 8,
           fontSize: 11,
-          color: '#9ca3af',
-          textAlign: 'center',
+          color: "#9ca3af",
+          textAlign: "center",
         }}
       >
+        {/* no GHX graph yet… */}
         // no GHX graph yet…
       </div>
     );
@@ -48,25 +53,51 @@ export function GHXVisualizerField({
 
     const cx = width / 2;
     const cy = h / 2;
-    const radius = Math.min(width, h) * 0.35 + Math.min(40, n * 2);
+
+    if (layout === "crystal") {
+      // lattice-ish layout (3×N grid) to echo the 3D crystal slab
+      const cols = 3;
+      const rows = Math.ceil(n / cols);
+
+      const spanX = width * 0.55;
+      const spanY = h * 0.45;
+
+      const cellX = cols > 1 ? spanX / (cols - 1) : 0;
+      const cellY = rows > 1 ? spanY / (rows - 1) : 0;
+
+      nodes.forEach((node, i) => {
+        const c = i % cols;
+        const r = Math.floor(i / cols);
+        const x = cx - spanX / 2 + c * cellX;
+        const y = cy - spanY / 2 + r * cellY;
+        map.set(node.id, { x, y });
+      });
+
+      return map;
+    }
+
+    // "field" layout – fan / arc
+    const radius = Math.min(width, h) * 0.32;
+    const arc = Math.PI * 1.0; // 180°
+    const start = -arc / 2;
 
     nodes.forEach((node, i) => {
-      const t = n === 1 ? 0 : i / n;
-      const angle = t * Math.PI * 2 - Math.PI / 2; // start at top
+      const t = n === 1 ? 0 : i / (n - 1);
+      const angle = start + arc * t;
       const x = cx + Math.cos(angle) * radius;
-      const y = cy + Math.sin(angle) * radius;
+      const y = cy + Math.sin(angle) * radius * 0.7;
       map.set(node.id, { x, y });
     });
 
     return map;
-  }, [nodes, h]);
+  }, [nodes, h, layout]);
 
   return (
     <div
       style={{
         borderRadius: 8,
-        border: '1px solid #e5e7eb',
-        background: '#0b1120',
+        border: "1px solid #e5e7eb",
+        background: "#0b1120",
         padding: 6,
       }}
     >
@@ -74,7 +105,7 @@ export function GHXVisualizerField({
         width="100%"
         height={h}
         viewBox={`0 0 ${width} ${h}`}
-        style={{ display: 'block' }}
+        style={{ display: "block" }}
       >
         {/* subtle background */}
         <defs>
@@ -86,10 +117,15 @@ export function GHXVisualizerField({
         <rect x={0} y={0} width={width} height={h} fill="url(#ghx-bg)" />
 
         {/* edges */}
-        {edges.map((e) => {
-          const a = positions.get(e.source);
-          const b = positions.get(e.target);
+        {edges.map((e: any) => {
+          const srcId = e.source ?? e.src;
+          const dstId = e.target ?? e.dst;
+          if (!srcId || !dstId) return null;
+
+          const a = positions.get(srcId);
+          const b = positions.get(dstId);
           if (!a || !b) return null;
+
           return (
             <line
               key={e.id}
@@ -115,7 +151,7 @@ export function GHXVisualizerField({
               cx={p.x}
               cy={p.y}
               r={isRoot ? 5 : 3.2}
-              fill={isRoot ? '#facc15' : '#e0f2fe'}
+              fill={isRoot ? "#facc15" : "#e0f2fe"}
               stroke="#0f172a"
               strokeWidth={0.6}
             />
