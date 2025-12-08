@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Crystals V1"
+git commit -m "Crystals V2"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

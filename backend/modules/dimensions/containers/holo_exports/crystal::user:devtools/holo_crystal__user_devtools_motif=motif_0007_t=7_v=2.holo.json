@@ -1,0 +1,120 @@
+{
+  "container_id": "crystal::user:devtools",
+  "extra": {
+    "last_run_at": "2025-12-08T22:14:50.301058+00:00",
+    "last_run_metrics": {
+      "mode": "qqc",
+      "num_beams": 7,
+      "tick": null
+    },
+    "last_run_mode": "qqc",
+    "run_count": 5
+  },
+  "ghx": {
+    "container_id": "crystal::user:devtools",
+    "edges": [
+      {
+        "dst": "crystal:motif:0007::step:0",
+        "id": "e0",
+        "kind": "motif_edge",
+        "src": "crystal:motif:0007"
+      },
+      {
+        "dst": "crystal:motif:0007::step:1",
+        "id": "e1",
+        "kind": "motif_edge",
+        "src": "crystal:motif:0007"
+      },
+      {
+        "dst": "crystal:motif:0007::step:2",
+        "id": "e2",
+        "kind": "motif_edge",
+        "src": "crystal:motif:0007"
+      },
+      {
+        "dst": "crystal:motif:0007::step:3",
+        "id": "e3",
+        "kind": "motif_edge",
+        "src": "crystal:motif:0007"
+      },
+      {
+        "dst": "crystal:motif:0007::step:1",
+        "id": "e4",
+        "kind": "motif_edge",
+        "src": "crystal:motif:0007::step:0"
+      },
+      {
+        "dst": "crystal:motif:0007::step:2",
+        "id": "e5",
+        "kind": "motif_edge",
+        "src": "crystal:motif:0007::step:1"
+      },
+      {
+        "dst": "crystal:motif:0007::step:3",
+        "id": "e6",
+        "kind": "motif_edge",
+        "src": "crystal:motif:0007::step:2"
+      }
+    ],
+    "ghx_version": "1.0",
+    "metadata": {
+      "motif": {
+        "edge_count": 7,
+        "id": "motif:0007",
+        "node_count": 5,
+        "revision": 1,
+        "tick": 7
+      }
+    },
+    "nodes": [
+      {
+        "data": {
+          "kind": "motif_node",
+          "label": "crystal:motif:0007"
+        },
+        "id": "crystal:motif:0007"
+      },
+      {
+        "data": {
+          "kind": "motif_node",
+          "label": "crystal:motif:0007::step:0"
+        },
+        "id": "crystal:motif:0007::step:0"
+      },
+      {
+        "data": {
+          "kind": "motif_node",
+          "label": "crystal:motif:0007::step:1"
+        },
+        "id": "crystal:motif:0007::step:1"
+      },
+      {
+        "data": {
+          "kind": "motif_node",
+          "label": "crystal:motif:0007::step:2"
+        },
+        "id": "crystal:motif:0007::step:2"
+      },
+      {
+        "data": {
+          "kind": "motif_node",
+          "label": "crystal:motif:0007::step:3"
+        },
+        "id": "crystal:motif:0007::step:3"
+      }
+    ],
+    "origin": "motif:photon"
+  },
+  "holo_id": "holo:crystal::user:devtools:motif=motif:0007/t=7/v=2",
+  "metadata": {
+    "motif": {
+      "edge_count": 7,
+      "id": "motif:0007",
+      "node_count": 5,
+      "revision": 1,
+      "tick": 7
+    }
+  },
+  "revision": 2,
+  "tick": 7
+}

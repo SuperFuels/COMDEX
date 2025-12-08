@@ -9,6 +9,8 @@
 // a framed hologram container, pinned to a logical grid row.
 
 import { useEffect, useRef, useState } from "react";
+import { runHoloSnapshot } from "../lib/api/holo";
+import type { HoloIR } from "../lib/types/holo";
 
 type GhxNode = { id: string; data: any };
 type GhxEdge = { id: string; source: string; target: string; kind?: string };
@@ -27,6 +29,11 @@ export default function DevFieldCanvas() {
   const [lastPacket, setLastPacket] = useState<GhxPacket | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // NEW: .holo run state
+  const [lastHolo, setLastHolo] = useState<HoloIR | null>(null);
+  const [isRunningHolo, setIsRunningHolo] = useState(false);
+  const [lastRunStatus, setLastRunStatus] = useState<string | null>(null);
 
   // cleanup on unmount
   useEffect(() => {
@@ -314,13 +321,37 @@ export default function DevFieldCanvas() {
     });
   }
 
+  // NEW: run .holo handler
+  async function handleRunHolo() {
+    if (!lastHolo) return;
+    try {
+      setIsRunningHolo(true);
+      setLastRunStatus(null);
+      const result = await runHoloSnapshot({ holo: lastHolo });
+      setLastRunStatus(result.status ?? "ok");
+
+      // if backend returns updated_holo, keep it + cache globally
+      if (result.updated_holo) {
+        setLastHolo(result.updated_holo as HoloIR);
+        if (typeof window !== "undefined") {
+          (window as any).__DEVTOOLS_LAST_HOLO = result.updated_holo;
+        }
+      }
+    } catch (err: any) {
+      console.error("DevFieldCanvas: run .holo failed", err);
+      setLastRunStatus("error");
+    } finally {
+      setIsRunningHolo(false);
+    }
+  }
+
   // 🎧 Auto-connect + seed from last hologram + listen for devtools events
   useEffect(() => {
     // 1) auto-connect WS when Field tab mounts
     connectWs();
 
-    // 2) seed from last hologram if PhotonEditor already built one
     if (typeof window !== "undefined") {
+      // 2a) seed from last hologram if PhotonEditor already built one
       const g = (window as any).__DEVTOOLS_LAST_GHX;
       if (g && Array.isArray(g.nodes) && Array.isArray(g.edges)) {
         const seeded: GhxPacket = {
@@ -333,6 +364,12 @@ export default function DevFieldCanvas() {
         };
         setLastPacket(seeded);
         drawPacket(seeded);
+      }
+
+      // 2b) seed from last holo if one exists
+      const h = (window as any).__DEVTOOLS_LAST_HOLO;
+      if (h) {
+        setLastHolo(h as HoloIR);
       }
     }
 
@@ -354,8 +391,23 @@ export default function DevFieldCanvas() {
       drawPacket(packet);
     }
 
+    // NEW: listen for holo_saved so we know which .holo to run
+    function handleDevHolo(ev: Event) {
+      const detail = (ev as CustomEvent).detail;
+      if (!detail?.holo) return;
+      setLastHolo(detail.holo as HoloIR);
+      if (typeof window !== "undefined") {
+        (window as any).__DEVTOOLS_LAST_HOLO = detail.holo;
+      }
+    }
+
     window.addEventListener("devtools.ghx", handleDevGhx as any);
-    return () => window.removeEventListener("devtools.ghx", handleDevGhx as any);
+    window.addEventListener("devtools.holo_saved", handleDevHolo as any);
+
+    return () => {
+      window.removeEventListener("devtools.ghx", handleDevGhx as any);
+      window.removeEventListener("devtools.holo_saved", handleDevHolo as any);
+    };
   }, []);
 
   // redraw if lastPacket changes
@@ -387,7 +439,15 @@ export default function DevFieldCanvas() {
         >
           <div>
             <div style={{ fontWeight: 600 }}>Dev Field Canvas</div>
-            <div style={{ color: "#6b7280" }}>{status}</div>
+            <div style={{ color: "#6b7280" }}>
+              {status}
+              {lastRunStatus && (
+                <>
+                  {" · "}
+                  <span>Last .holo run: {lastRunStatus}</span>
+                </>
+              )}
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>
@@ -405,6 +465,29 @@ export default function DevFieldCanvas() {
               }}
             >
               Connect / Reconnect
+            </button>
+
+            {/* NEW: Run .holo control */}
+            <button
+              type="button"
+              onClick={handleRunHolo}
+              disabled={!lastHolo || isRunningHolo}
+              style={{
+                fontSize: 12,
+                padding: "4px 10px",
+                borderRadius: 999,
+                border: "1px solid #bbf7d0",
+                background: lastHolo ? "#16a34a" : "#e5e7eb",
+                color: lastHolo ? "#ecfdf5" : "#6b7280",
+                cursor: !lastHolo || isRunningHolo ? "default" : "pointer",
+                opacity: isRunningHolo ? 0.7 : 1,
+              }}
+            >
+              {isRunningHolo
+                ? "⏳ Running .holo…"
+                : lastHolo
+                ? "▶ Run .holo"
+                : "No .holo"}
             </button>
           </div>
         </div>

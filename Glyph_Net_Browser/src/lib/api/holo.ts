@@ -232,12 +232,29 @@ export async function searchHoloIndex(params: {
  * Execute a Holo snapshot via /api/holo/run.
  * U4: .holo + input_ctx → { output, updated_holo, metrics }
  */
+
+export interface HoloBeam {
+  id?: string;
+  source?: string;
+  target?: string;
+  carrier_type?: string;
+  modulation?: string;
+  coherence?: number;
+  entangled_path?: string[];
+  mutation_trace?: unknown[];
+  metadata?: Record<string, unknown>;
+}
+
 export interface HoloRunResult {
   holo_id?: string;
   container_id?: string;
+  tick?: number;
   mode?: string;
   status: string;
+  message?: string;
   output?: unknown;
+  beams?: HoloBeam[];
+  emitted_beams?: HoloBeam[];
   updated_holo?: HoloIR | null;
   metrics?: Record<string, unknown>;
 }

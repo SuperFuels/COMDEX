@@ -116,24 +116,27 @@ flowchart TD
     U2D["[x] QFC visual: crystals\n• render as dense/glowing nodes\n• show pattern_strength, SQI, usage"]:::todo
   end
 
-  %% 3) .holo as primary IR
-  subgraph U3["Use Case 3 — .holo as Primary IR"]
-    direction TB
-    U3A["[ ] Round-trip adapters\ncode ⇄ .holo ⇄ beams ⇄ HST\n• code/AST → HST → KG pack → .holo\n• .holo → qwave_beams → QQC/SLE run\n• HST injection utils + qwave_writer"]:::todo
+%% 3) .holo as primary IR
+subgraph U3["Use Case 3 — .holo as Primary IR"]
+  direction TB
+  U3A["[x] Round-trip adapters\ncode ⇄ .holo ⇄ beams ⇄ HST\n• code/AST → HST → KG pack → .holo\n• .holo → qwave_beams → QQC/SLE run\n• HST injection utils + qwave_writer"]:::done
 
-    U3B["[x] 'Export as .holo' buttons\n• DevTools Field Lab: 'Export .holo snapshot'\n• calls POST /api/holo/export/{container_id}?revision=1\n• view_ctx: tick, frame, source_view, metrics, tags"]:::done
+  U3B["[x] 'Export as .holo' buttons\n• DevTools Field Lab: 'Export .holo snapshot'\n• calls POST /api/holo/export/{container_id}?revision=1\n• view_ctx: tick, frame, source_view, metrics, tags"]:::done
 
-    U3C["[x] 'Rehydrate from .holo'\n• .holo → code, prompts, KG node, QFC layout\n• uses HST + KGWriter + qfc_utils"]:::todo
-  end
+  U3C["[ ] 'Rehydrate from .holo'\n• .holo → code, prompts, KG node, QFC layout\n• uses HST + KGWriter + qfc_utils"]:::todo
+end
 
-  %% 4) Executable programs
-  subgraph U4["Use Case 4 — Executable Hologram Programs"]
-    direction TB
-    U4A["[ ] Execution contract\nrun_holo(holo_id, input_ctx)\n→ {output, updated_holo, metrics}\n• wraps QQC central kernel + BeamRuntime"]:::todo
-    U4B["[ ] Pipe .holo into SLE/HQCE/QQC\n• holo → WaveCapsule/beam → BeamRuntime\n• use beam_controller + qqc_kernel_v2"]:::todo
-    U4C["[ ] QFC 'Run .holo' control\n• play/pause per frame\n• highlight active beams + ψκT drift\n• show coherence/time from beam_runtime"]:::todo
-    U4D["[ ] Persist execution result\n• updated ψκT + GHX → same .holo or\n• versioned holo://.../v2\n• write via KGWriter + Vault"]:::todo
-  end
+%% 4) Executable programs
+subgraph U4["Use Case 4 — Executable Hologram Programs"]
+  direction TB
+  U4A["[x] Execution contract\nrun_holo(holo_id, input_ctx)\n→ {output, updated_holo, metrics}\n• stub in run_holo_snapshot for DevTools\n• TODO: wire to QQC kernel + BeamRuntime"]:::done
+
+  U4B["[ ] Pipe .holo into SLE/HQCE/QQC\n• holo → WaveCapsule/beam → BeamRuntime\n• use beam_controller + qqc_kernel_v2"]:::todo
+
+  U4C["[x] QFC 'Run .holo' control\n• Dev Field Canvas mini-program: 4 frames\n• Beams connecting frames on run\n• Run counter + last-run timestamp\n• Terminal-style run output\n• ψκT overlays + per-frame stats"]:::done
+
+  U4D["[x] Persist execution result\n• if updated_holo, save as new revision (v2, v3, …)\n• update holo_index + surface version in UI\n• later: push metrics via KGWriter + Vault"]:::done
+end
 
   %% 5) Ledger / blockchain style
   subgraph U5["Use Case 5 — Ledger / Blockchain Transactions"]

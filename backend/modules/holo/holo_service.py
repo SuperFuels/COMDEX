@@ -10,6 +10,7 @@ import glob
 import os
 
 from backend.modules.holo.holo_ir import HoloIR
+
 # Optional deps – we’ll fail soft if they’re missing / limited
 try:
     from backend.modules.knowledge_graph.knowledge_graph_writer import (
@@ -34,6 +35,7 @@ except Exception:
 
 # Where .holo JSONs are written
 HOLO_ROOT = Path("backend/modules/dimensions/containers/holo_exports")
+HOLO_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Simple on-disk index for all holos (global, across containers)
 HOLO_INDEX_PATH = HOLO_ROOT / "holo_index.json"
@@ -89,7 +91,6 @@ def _load_beams(container_id: str, pack: Dict[str, Any]):
     Prefer beams already embedded in the KG pack; otherwise,
     try QWave writer; otherwise, return [].
     """
-    # from pack
     beams = (
         pack.get("qwave", {}).get("beams")
         or pack.get("beams")
@@ -168,23 +169,6 @@ def load_holo_history_for_container(container_id: str) -> List[Dict[str, Any]]:
     )
     return entries
 
-def load_holo_history_for_container(container_id: str) -> List[Dict[str, Any]]:
-    """
-    Return all index entries for a container, newest first.
-    """
-    entries = _load_holo_index()
-    entries = [e for e in entries if e.get("container_id") == container_id]
-
-    entries.sort(
-        key=lambda e: (
-            e.get("tick", 0),
-            e.get("revision", 0),
-            e.get("created_at", ""),
-        ),
-        reverse=True,
-    )
-    return entries
-
 
 def search_holo_index(
     container_id: Optional[str] = None,
@@ -216,6 +200,7 @@ def search_holo_index(
     )
     return entries
 
+
 # -------------------------------------------------------------------
 # Export: container → HoloIR + .holo file (+ index updates)
 # -------------------------------------------------------------------
@@ -235,45 +220,6 @@ def _persist_holo(holo: HoloIR) -> HoloIR:
 
     return holo
 
-
-def save_holo_from_dict(payload: Dict[str, Any]) -> HoloIR:
-    """
-    Build a HoloIR from a minimal dict (e.g. motif compiler output)
-    and persist it as a .holo snapshot.
-
-    Required keys: holo_id, container_id, ghx.
-    Everything else is optional and defaulted.
-    """
-    if "holo_id" not in payload or "container_id" not in payload:
-        raise ValueError("holo_id and container_id are required")
-
-    ghx = payload.get("ghx") or {}
-    metadata = payload.get("metadata") or ghx.get("metadata") or {}
-
-    holo = HoloIR(
-        holo_id=payload["holo_id"],
-        container_id=payload["container_id"],
-        name=payload.get("name"),
-        symbol=payload.get("symbol"),
-        kind=payload.get("kind") or "crystal_motif",
-        origin=payload.get("origin") or {"source": "motif_compile"},
-        version=payload.get("version") or {"schema": "1.0"},
-        ghx=ghx,
-        field=payload.get("field") or {},
-        beams=payload.get("beams") or [],
-        multiverse_frame=payload.get("multiverse_frame"),
-        views=payload.get("views") or {},
-        indexing=payload.get("indexing") or {},
-        timefold=payload.get("timefold") or {},
-        ledger=payload.get("ledger") or {},
-        security=payload.get("security") or {},
-        sandbox=payload.get("sandbox") or {},
-        collaboration=payload.get("collaboration") or {},
-        references=payload.get("references") or {},
-        extra=payload.get("extra") or {"motif_metadata": metadata},
-    )
-
-    return _persist_holo(holo)
 
 def export_holo_from_container(
     container: Dict[str, Any],
@@ -392,7 +338,7 @@ def export_holo_from_container(
     else:
         print("[HOLO] add_to_index not available; skipping holo index.")
 
-    # 7) Update holo_index.json (C1F) – best-effort
+    # 7) Update holo_index.json – best-effort
     try:
         version = getattr(holo, "version", None) or {}
         timefold = getattr(holo, "timefold", None) or {}
@@ -420,11 +366,151 @@ def export_holo_from_container(
     return holo
 
 
+def export_holo_from_kg_pack(
+    *,
+    container_id: str,
+    kg_pack: Dict[str, Any],
+    view_ctx: Dict[str, Any],
+    revision: int = 1,
+) -> HoloIR:
+    """
+    Variant of export_holo_from_container which takes a KG pack directly.
+    Used by the HST pipeline (code → HST → KG pack → .holo).
+    """
+    tick = int(view_ctx.get("tick", 0))
+    holo_id = f"holo:container/{container_id}/t={tick}/v{revision}"
+
+    nodes = kg_pack.get("nodes", [])
+    links = kg_pack.get("links", [])
+
+    metrics = view_ctx.get("metrics") or {
+        "coherence": 1.0,
+        "drift": 0.0,
+        "tick": tick,
+    }
+
+    holo = HoloIR(
+        holo_id=holo_id,
+        container_id=container_id,
+        name=kg_pack.get("meta", {}).get("name"),
+        symbol=kg_pack.get("meta", {}).get("symbol"),
+        kind=view_ctx.get("kind", "memory"),
+        origin={
+            "source": "hst_from_code",
+            "language": kg_pack.get("meta", {}).get("language"),
+        },
+        version={
+            "schema": 1,
+            "revision": revision,
+        },
+        ghx={
+            "nodes": nodes,
+            "edges": links,
+            "layout": kg_pack.get("meta", {}).get("layout"),
+            "ghx_mode": "hologram",
+            "entangled_links": kg_pack.get("meta", {}).get("entangled_links", []),
+        },
+        field={
+            "psi_kappa_T": {
+                "frame": view_ctx.get("frame", "original"),
+                "state_vector": view_ctx.get("psi_state") or {},
+            },
+            "metrics": metrics,
+        },
+        beams=[],
+        multiverse_frame=view_ctx.get("frame", "original"),
+        views=view_ctx.get("views", {}),
+        indexing={
+            "tags": view_ctx.get("tags", []),
+        },
+        timefold={
+            "tick": tick,
+            "t_label": view_ctx.get("t_label"),
+        },
+        references={
+            "container_id": container_id,
+        },
+    )
+
+    # persist .holo JSON
+    out_dir = HOLO_ROOT / container_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    out_path = out_dir / f"{holo_id.replace(':', '_').replace('/', '_')}.holo.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(holo.__dict__, f, indent=2)
+
+    return holo
+
+
+# -------------------------------------------------------------------
+# Import helper: dict → .holo file (no HoloIR construction)
+# -------------------------------------------------------------------
+def save_holo_from_dict(holo_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Used by /api/holo/import and motif pipeline.
+
+    Accepts a Holo-like dict (may include extra keys like 'tick', 'revision',
+    etc.), persists it as JSON under HOLO_ROOT, and returns the dict.
+
+    This deliberately does NOT construct a HoloIR instance so we don't
+    care about unknown fields.
+    """
+    if "container_id" not in holo_dict:
+        raise ValueError("container_id is required to import a .holo snapshot")
+
+    # work on a shallow copy so we don't mutate the caller's dict
+    holo: Dict[str, Any] = dict(holo_dict)
+
+    cid = str(holo["container_id"])
+
+    # Ensure holo_id exists; if not, synthesise one from tick/revision
+    holo_id = holo.get("holo_id")
+    if not holo_id:
+        tick = int(holo.get("tick", 0))
+        revision = int(holo.get("revision", 1))
+        holo_id = _make_holo_id(cid, tick, revision)
+        holo["holo_id"] = holo_id
+    else:
+        holo_id = str(holo_id)
+
+    out_dir = HOLO_ROOT / cid
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    safe_id = holo_id.replace(":", "_").replace("/", "_")
+    out_path = out_dir / f"{safe_id}.holo.json"
+
+    def _json_default(obj):
+        # Handle common non-JSON types gracefully
+        try:
+            import numpy as np  # type: ignore
+        except Exception:
+            np = None
+
+        if np is not None:
+            if isinstance(obj, np.integer):  # type: ignore[attr-defined]
+                return int(obj)
+            if isinstance(obj, np.floating):  # type: ignore[attr-defined]
+                return float(obj)
+            if isinstance(obj, np.ndarray):  # type: ignore[attr-defined]
+                return obj.tolist()
+
+        if isinstance(obj, Path):
+            return str(obj)
+        if isinstance(obj, set):
+            return list(obj)
+
+        raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
+    with out_path.open("w", encoding="utf-8") as f:
+        json.dump(holo, f, indent=2, sort_keys=True, default=_json_default)
+
+    return holo
+
+
 # -------------------------------------------------------------------
 # Load helpers (latest / specific / index)
 # -------------------------------------------------------------------
-
-
 def load_holo(holo_path: str) -> HoloIR:
     with open(holo_path, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -441,9 +527,9 @@ def _find_holo_paths_for_container(container_id: str) -> List[Path]:
     """
     root: Path = HOLO_ROOT
 
-    # 1) nested dir exports: backend/modules/dimensions/containers/holo_exports/<cid>/*.holo.json
+    # 1) nested dir exports
     pattern1 = root / container_id / "*.holo.json"
-    # 2) legacy / flat exports in holo_exports root: *<cid>*.holo.json
+    # 2) legacy / flat exports in holo_exports root
     pattern2 = root / f"*{container_id}*.holo.json"
 
     candidates: List[Path] = [
@@ -558,102 +644,3 @@ def load_holo_for_container_at(
             f"[HOLO] load_holo_for_container_at failed for {container_id} t={tick} v={revision}: {e}"
         )
         return None
-
-def export_holo_from_kg_pack(
-    *,
-    container_id: str,
-    kg_pack: Dict[str, Any],
-    view_ctx: Dict[str, Any],
-    revision: int = 1,
-) -> HoloIR:
-    """
-    Variant of export_holo_from_container which takes a KG pack directly.
-    Used by the HST pipeline (code → HST → KG pack → .holo).
-    """
-    tick = int(view_ctx.get("tick", 0))
-    holo_id = f"holo:container/{container_id}/t={tick}/v{revision}"
-
-    nodes = kg_pack.get("nodes", [])
-    links = kg_pack.get("links", [])
-
-    metrics = view_ctx.get("metrics") or {
-        "coherence": 1.0,
-        "drift": 0.0,
-        "tick": tick,
-    }
-
-    holo = HoloIR(
-        holo_id=holo_id,
-        container_id=container_id,
-        name=kg_pack.get("meta", {}).get("name"),
-        symbol=kg_pack.get("meta", {}).get("symbol"),
-        kind=view_ctx.get("kind", "memory"),
-        origin={
-            "source": "hst_from_code",
-            "language": kg_pack.get("meta", {}).get("language"),
-        },
-        version={
-            "schema": 1,
-            "revision": revision,
-        },
-        ghx={
-            "nodes": nodes,
-            "edges": links,
-            "layout": kg_pack.get("meta", {}).get("layout"),
-            "ghx_mode": "hologram",
-            "entangled_links": kg_pack.get("meta", {}).get("entangled_links", []),
-        },
-        field={
-            "psi_kappa_T": {
-                "frame": view_ctx.get("frame", "original"),
-                "state_vector": view_ctx.get("psi_state") or {},
-            },
-            "metrics": metrics,
-        },
-        beams=[],
-        multiverse_frame=view_ctx.get("frame", "original"),
-        views=view_ctx.get("views", {}),
-        indexing={
-            "tags": view_ctx.get("tags", []),
-        },
-        timefold={
-            "tick": tick,
-            "t_label": view_ctx.get("t_label"),
-        },
-        references={
-            "container_id": container_id,
-        },
-    )
-
-    # persist .holo JSON
-    out_dir = HOLO_ROOT / container_id
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    out_path = out_dir / f"{holo_id.replace(':', '_').replace('/', '_')}.holo.json"
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(holo.__dict__, f, indent=2)
-
-    return holo
-
-
-def save_holo_from_dict(holo_dict: Dict[str, Any]) -> HoloIR:
-    """
-    Used by /api/holo/import and motif pipeline.
-    Normalises an incoming dict into HoloIR, assigns defaults, persists it.
-    """
-    holo_id = holo_dict.get("holo_id")
-    container_id = holo_dict.get("container_id")
-
-    if not holo_id or not container_id:
-        raise ValueError("holo_id and container_id are required to import a HoloIR")
-
-    holo = HoloIR(**holo_dict)
-
-    out_dir = HOLO_ROOT / container_id
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    out_path = out_dir / f"{holo_id.replace(':', '_').replace('/', '_')}.holo.json"
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(holo.__dict__, f, indent=2)
-
-    return holo

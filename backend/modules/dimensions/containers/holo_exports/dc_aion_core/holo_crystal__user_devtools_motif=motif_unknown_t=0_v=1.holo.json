@@ -1,0 +1,102 @@
+{
+  "container_id": "dc_aion_core",
+  "extra": {
+    "last_run_at": "2025-12-08T21:54:32.191052+00:00",
+    "last_run_metrics": {
+      "mode": "qqc",
+      "num_beams": 4,
+      "tick": null
+    },
+    "last_run_mode": "qqc",
+    "run_count": 2
+  },
+  "ghx": {
+    "container_id": "dc_aion_core",
+    "edges": [
+      {
+        "dst": "dc_aion_core",
+        "id": "e0",
+        "kind": "motif_edge",
+        "src": "dc_aion_core"
+      },
+      {
+        "dst": "dc_aion_core",
+        "id": "e1",
+        "kind": "motif_edge",
+        "src": "dc_aion_core"
+      },
+      {
+        "dst": "dc_aion_core",
+        "id": "e2",
+        "kind": "motif_edge",
+        "src": "dc_aion_core"
+      },
+      {
+        "dst": "dc_aion_core",
+        "id": "e3",
+        "kind": "motif_edge",
+        "src": "dc_aion_core"
+      }
+    ],
+    "ghx_version": "1.0",
+    "metadata": {
+      "motif": {
+        "edge_count": 4,
+        "id": "motif:unknown",
+        "node_count": 5,
+        "revision": null,
+        "tick": null
+      }
+    },
+    "nodes": [
+      {
+        "data": {
+          "kind": "motif_node",
+          "label": "cross_links"
+        },
+        "id": "cross_links"
+      },
+      {
+        "data": {
+          "kind": "motif_node",
+          "label": "dc_aion_core"
+        },
+        "id": "dc_aion_core"
+      },
+      {
+        "data": {
+          "kind": "motif_node",
+          "label": "symatics_morphic_field"
+        },
+        "id": "symatics_morphic_field"
+      },
+      {
+        "data": {
+          "kind": "motif_node",
+          "label": "tesseract_hq"
+        },
+        "id": "tesseract_hq"
+      },
+      {
+        "data": {
+          "kind": "motif_node",
+          "label": "ucs_hub"
+        },
+        "id": "ucs_hub"
+      }
+    ],
+    "origin": "motif:photon"
+  },
+  "holo_id": "holo:crystal::user:devtools:motif=motif:unknown/t=0/v=1",
+  "metadata": {
+    "motif": {
+      "edge_count": 4,
+      "id": "motif:unknown",
+      "node_count": 5,
+      "revision": null,
+      "tick": null
+    }
+  },
+  "revision": 1,
+  "tick": 0
+}

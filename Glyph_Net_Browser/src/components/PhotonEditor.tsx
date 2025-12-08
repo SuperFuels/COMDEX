@@ -1,7 +1,7 @@
 // Glyph_Net_Browser/src/components/PhotonEditor.tsx
 // Photon ↔ Glyph editor for the Glyph Net browser Dev Tools.
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { compileMotifStub } from "../lib/api/motif";
 import type { GhxPacket } from "./DevFieldHologram3D";
 import { importHoloSnapshot } from "../lib/api/holo";
@@ -10,6 +10,7 @@ import type { HoloIR } from "../lib/types/holo";
 type PhotonEditorProps = {
   docId?: string;
 };
+
 
 // ---- Types from SCI editor ----
 type TranslateResponse = {
@@ -65,6 +66,13 @@ type AstResult = {
   ghx?: GhxPacket;
 };
 
+// Simple in-memory tab/doc model
+type OpenDoc = {
+  id: string;
+  label: string;
+};
+
+// Stub “file cabinet” list that we’ll render in the sidebar
 // Same sample block as SCI editor
 const SAMPLE_PHOTON = `# Photon test script for SCI IDE
 # Expect: container_id, wave, resonance, memory -> glyphs
@@ -74,6 +82,15 @@ const SAMPLE_PHOTON = `# Photon test script for SCI IDE
   memory "sticky-notes";
 }
 `;
+
+// Stub “file cabinet” list that we’ll render in the sidebar
+const HOLO_FILE_LIST = [
+  "main.holo",
+  "loop.holo",
+  "exec.holo",
+  "output.holo",
+];
+
 
 // Helper: POST JSON via the /api/photon proxy (Vite dev + packaged)
 async function postJson<T = any>(path: string, body: any): Promise<T> {
@@ -92,8 +109,20 @@ async function postJson<T = any>(path: string, body: any): Promise<T> {
 }
 
 export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) {
-  const [content, setContent] = useState<string>(SAMPLE_PHOTON);
-  const [currentName, setCurrentName] = useState(docId);
+  const initialId = docId;
+
+  // --- multi-doc / tab state ---
+  const [openDocs, setOpenDocs] = useState<OpenDoc[]>([
+    { id: initialId, label: initialId },
+  ]);
+  const [activeDocId, setActiveDocId] = useState<string>(initialId);
+  const [docText, setDocText] = useState<Record<string, string>>({
+    [initialId]: SAMPLE_PHOTON,
+  });
+
+  // name shown in the little input above the editor (kept from original)
+  const [currentName, setCurrentName] = useState(initialId);
+
   const [translated, setTranslated] = useState<string>("");
   const [status, setStatus] = useState<string>(
     'Idle — type some Photon source and hit "Code → Glyph".',
@@ -106,6 +135,9 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
     "photon",
   );
 
+  const [cursorLine, setCursorLine] = useState(1);
+  const [cursorCol, setCursorCol] = useState(1);
+
   // AST-related state (can be broader: photon/python/codex/nl)
   const [astLanguage, setAstLanguage] = useState<
     "python" | "photon" | "codex" | "nl"
@@ -113,8 +145,69 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
   const [astResult, setAstResult] = useState<AstResult | null>(null);
   const [loadingAst, setLoadingAst] = useState(false);
   const [astError, setAstError] = useState<string | null>(null);
+  const [compressionStats, setCompressionStats] = useState<{
+    before: number;
+    after: number;
+    pct: number;
+  } | null>(null);
 
+  // active buffer
+  const content = docText[activeDocId] ?? "";
   const charCount = content.length;
+
+  function updateCursorPositionFromTextarea(el: HTMLTextAreaElement | null) {
+    if (!el) return;
+    const value = el.value ?? "";
+    const pos = el.selectionStart ?? 0;
+
+    const before = value.slice(0, pos);
+    const segments = before.split(/\r?\n/);
+    const line = segments.length;
+    const col = segments[segments.length - 1].length + 1;
+
+    setCursorLine(line);
+    setCursorCol(col);
+  }
+
+  function handleSourceChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const next = e.target.value;
+    setActiveContent(next);
+    updateCursorPositionFromTextarea(e.target);
+  }
+
+  function handleSourceCursorMove(
+    e: React.SyntheticEvent<HTMLTextAreaElement>,
+  ) {
+    updateCursorPositionFromTextarea(
+      e.currentTarget as HTMLTextAreaElement,
+    );
+  }
+
+  // helper to open/switch docs (used later by tab UI + photon_open events)
+  function openDoc(id: string, label?: string, initialSource?: string) {
+    setOpenDocs((prev) => {
+      if (prev.some((d) => d.id === id)) return prev;
+      return [...prev, { id, label: label || id }];
+    });
+
+    setDocText((prev) => {
+      if (prev[id] != null && initialSource == null) return prev;
+      return {
+        ...prev,
+        [id]: initialSource ?? prev[id] ?? "",
+      };
+    });
+
+    setActiveDocId(id);
+    setCurrentName(label || id);
+  }
+
+  function setActiveContent(next: string) {
+    setDocText((prev) => ({
+      ...prev,
+      [activeDocId]: next,
+    }));
+  }
 
   // ⬇️ React to “Send to Text Editor” and also hydrate from any buffered stub
   useEffect(() => {
@@ -122,11 +215,20 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
       if (!detail) return;
       if (detail.docId && detail.docId !== docId) return;
 
-      if (typeof detail.source === "string") {
-        setContent(detail.source);
-      }
-      if (typeof detail.name === "string") {
-        setCurrentName(detail.name);
+      const stubName: string | undefined =
+        typeof detail.name === "string" ? detail.name : undefined;
+      const stubSource: string | undefined =
+        typeof detail.source === "string" ? detail.source : undefined;
+
+      if (stubName) {
+        // open/activate a named doc
+        openDoc(stubName, stubName, stubSource);
+      } else if (stubSource != null) {
+        // apply into current active doc
+        setDocText((prev) => ({
+          ...prev,
+          [activeDocId]: stubSource,
+        }));
       }
     }
 
@@ -151,7 +253,7 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
         "devtools.photon_open",
         handlePhotonOpen as any,
       );
-  }, [docId]);
+  }, [docId, activeDocId]);
 
   // ---------------- AST: View structure ----------------
   async function handleViewAst() {
@@ -354,6 +456,12 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
       const after = data.chars_after ?? (data.translated?.length ?? 0);
       const reduction = before > 0 ? (1 - after / before) * 100 : 0;
 
+      setCompressionStats({
+        before,
+        after,
+        pct: reduction,
+      });
+
       setStatus(
         `Compression: ${before} → ${after} chars (−${reduction.toFixed(1)}%)`,
       );
@@ -361,6 +469,7 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
       console.error("Code → Glyph error:", e);
       setError(e?.message || String(e));
       setStatus("Code → Glyph failed.");
+      setCompressionStats(null);
     } finally {
       setIsBusy(false);
     }
@@ -387,7 +496,10 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
         { glyph_stream },
       );
 
-      setContent(data.photon ?? "");
+      setDocText((prev) => ({
+        ...prev,
+        [activeDocId]: data.photon ?? "",
+      }));
       setStatus(`Glyph → Code: recovered ${data.count} lines.`);
     } catch (e: any) {
       console.error("Glyph → Code error:", e);
@@ -396,6 +508,102 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
     } finally {
       setIsBusy(false);
     }
+  }
+
+  // ---- local editor-with-gutter (line numbers) ----
+  type EditorWithGutterProps = {
+    value: string;
+    onChange?: (next: string) => void;
+    readOnly?: boolean;
+    placeholder?: string;
+  };
+
+  function EditorWithGutter({
+    value,
+    onChange,
+    readOnly,
+    placeholder,
+  }: EditorWithGutterProps) {
+    const gutterRef = useRef<HTMLDivElement | null>(null);
+    const lines = Math.max(1, value.split(/\r?\n/).length);
+
+    const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
+      if (gutterRef.current) {
+        gutterRef.current.scrollTop = e.currentTarget.scrollTop;
+      }
+    };
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          flex: 1,
+          minHeight: 0,
+          fontFamily:
+            "JetBrains Mono, ui-monospace, SFMono-Regular, monospace",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        {/* line numbers */}
+        <div
+          ref={gutterRef}
+          style={{
+            width: 42,
+            padding: "8px 4px",
+            borderRight: "1px solid #e5e7eb",
+            background: "#f9fafb",
+            color: "#9ca3af",
+            fontSize: 11,
+            textAlign: "right",
+            overflow: "hidden",
+          }}
+        >
+          {Array.from({ length: lines }).map((_, i) => (
+            <div key={i + 1} style={{ padding: "0 2px" }}>
+              {i + 1}
+            </div>
+          ))}
+        </div>
+
+        {/* actual text area */}
+        <textarea
+          value={value}
+          readOnly={readOnly}
+          onChange={(e) => onChange && onChange(e.target.value)}
+          onScroll={handleScroll}
+          placeholder={placeholder}
+          style={{
+            flex: 1,
+            padding: 10,
+            border: "none",
+            resize: "none",
+            outline: "none",
+            background: "transparent",
+            color: "#111827",
+            whiteSpace: "pre",
+          }}
+        />
+      </div>
+    );
+  }
+
+  // ---- translated glyph helpers ----
+  async function handleCopyTranslated() {
+    if (!translated) return;
+    try {
+      await (navigator as any)?.clipboard?.writeText(translated);
+      setStatus("Copied glyphs to clipboard.");
+    } catch {
+      setStatus("Copy failed — clipboard not available.");
+    }
+  }
+
+  function handleSaveGlyphsAsTab() {
+    if (!translated.trim()) return;
+    const id = `${currentName || activeDocId}.glyph`;
+    openDoc(id, id, translated);
+    setStatus(`Saved glyph buffer as ${id}`);
   }
 
   return (
@@ -407,6 +615,39 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
         height: "100%",
       }}
     >
+      {/* tab strip */}
+      <div
+        style={{
+          display: "flex",
+          gap: 4,
+          fontSize: 11,
+          marginBottom: 2,
+          overflowX: "auto",
+        }}
+      >
+        {openDocs.map((doc) => {
+          const active = doc.id === activeDocId;
+          return (
+            <button
+              key={doc.id}
+              type="button"
+              onClick={() => setActiveDocId(doc.id)}
+              style={{
+                padding: "3px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                background: active ? "#0f172a" : "#ffffff",
+                color: active ? "#e5e7eb" : "#111827",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {doc.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Name + length row */}
       <div
         style={{
@@ -428,20 +669,106 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
             minWidth: 160,
           }}
         />
-        <span style={{ color: "#6b7280" }}>Length: {charCount} characters</span>
+        <span style={{ color: "#6b7280" }}>
+          Length: {charCount} characters
+        </span>
+        <span style={{ color: "#6b7280" }}>
+          Ln {cursorLine}, Col {cursorCol}
+        </span>
+        {status && (
+          <span style={{ color: "#9ca3af", marginLeft: "auto" }}>
+            {status}
+          </span>
+        )}
       </div>
 
-      {/* Editor + glyph pane + AST inspector */}
+      {/* File cabinet + editor + glyph pane + AST inspector */}
       <div
         style={{
           flex: 1,
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "210px 1fr 1fr",
           gap: 12,
           alignItems: "stretch",
+          minHeight: 0,
         }}
       >
-        {/* Left: source */}
+        {/* Left: holo file cabinet (stub KG view) */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            borderRadius: 12,
+            border: "1px solid #e5e7eb",
+            background: "#ffffff",
+            padding: 8,
+            fontSize: 11,
+          }}
+        >
+          <div
+            style={{
+              fontWeight: 600,
+              color: "#6b7280",
+              textTransform: "uppercase",
+              letterSpacing: 0.03,
+              marginBottom: 4,
+            }}
+          >
+            Holo files
+          </div>
+          <div
+            style={{
+              fontFamily:
+                "JetBrains Mono, ui-monospace, SFMono-Regular, monospace",
+              color: "#111827",
+              fontSize: 11,
+              flex: 1,
+              borderRadius: 8,
+              background: "#020617",
+              padding: 8,
+              colorScheme: "dark",
+            }}
+          >
+            {HOLO_FILE_LIST.map((name) => (
+              <div key={name} style={{ marginBottom: 2 }}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    openDoc(
+                      name,
+                      name,
+                      docText[name] ?? `# ${name}\n# holo program stub\n`
+                    )
+                  }
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    padding: 0,
+                    margin: 0,
+                    cursor: "pointer",
+                    color: "#e5e7eb",
+                    fontSize: 11,
+                    textAlign: "left",
+                  }}
+                >
+                  {name}
+                  <span style={{ color: "#64748b" }}>  (t=12 / v=1)</span>
+                </button>
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              marginTop: 6,
+              fontSize: 10,
+              color: "#6b7280",
+            }}
+          >
+            Click a file to open it as a tab in the editor.
+          </div>
+        </div>
+
+        {/* Middle: source editor */}
         <div
           style={{
             display: "flex",
@@ -450,6 +777,7 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
             border: "1px solid #e5e7eb",
             background: "#ffffff",
             overflow: "hidden",
+            minHeight: 0,
           }}
         >
           {/* Header row: title + language + buttons */}
@@ -487,34 +815,105 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
               </select>
 
               {/* Actions */}
-              <button onClick={handleCodeToGlyph} disabled={isBusy}>
+              <button
+                onClick={handleCodeToGlyph}
+                disabled={isBusy}
+                style={{
+                  fontSize: 11,
+                  padding: "4px 10px",
+                  borderRadius: 999,
+                  border: "1px solid #0ea5e9",
+                  background: "#e0f2fe",
+                  cursor: isBusy ? "default" : "pointer",
+                  opacity: isBusy ? 0.7 : 1,
+                }}
+              >
                 Code → Glyph
               </button>
-              <button onClick={handleGlyphToCode} disabled={isBusy}>
+              <button
+                onClick={handleGlyphToCode}
+                disabled={isBusy}
+                style={{
+                  fontSize: 11,
+                  padding: "4px 10px",
+                  borderRadius: 999,
+                  border: "1px solid #bbf7d0",
+                  background: "#dcfce7",
+                  cursor: isBusy ? "default" : "pointer",
+                  opacity: isBusy ? 0.7 : 1,
+                }}
+              >
                 Glyph → Code
               </button>
             </div>
           </div>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+
+          {/* Body: gutter with line numbers + editable textarea */}
+          <div
             style={{
+              display: "flex",
               flex: 1,
-              padding: 10,
-              border: "none",
-              resize: "none",
-              outline: "none",
+              minHeight: 0,
               fontFamily:
                 "JetBrains Mono, ui-monospace, SFMono-Regular, monospace",
               fontSize: 13,
               lineHeight: 1.5,
-              background: "transparent",
-              color: "#111827",
             }}
-            placeholder="Write Photon, Python, CodexLang, or NL to translate / inspect…"
-          />
-        </div>
+          >
+            {/* line-number gutter */}
+            <div
+              style={{
+                width: 42,
+                padding: "8px 4px",
+                borderRight: "1px solid #e5e7eb",
+                background: "#f9fafb",
+                color: "#9ca3af",
+                fontSize: 11,
+                textAlign: "right",
+                overflow: "hidden",
+              }}
+            >
+              {Array.from(
+                {
+                  length: Math.max(
+                    1,
+                    (content ?? "").split(/\r?\n/).length,
+                  ),
+                },
+                (_, i) => (
+                  <div key={i + 1} style={{ padding: "0 2px" }}>
+                    {i + 1}
+                  </div>
+                ),
+              )}
+            </div>
 
+            {/* actual editable textarea */}
+            <textarea
+              value={content}
+              onChange={handleSourceChange}
+              onClick={handleSourceCursorMove}
+              onKeyUp={handleSourceCursorMove}
+              onSelect={handleSourceCursorMove}
+              placeholder="Write Photon, Python, CodexLang, or NL to translate / inspect…"
+              spellCheck={false}
+              style={{
+                flex: 1,
+                padding: 10,
+                border: "none",
+                resize: "none",
+                outline: "none",
+                background: "transparent",
+                color: "#111827",
+                whiteSpace: "pre",
+                fontFamily:
+                  "JetBrains Mono, ui-monospace, SFMono-Regular, monospace",
+                fontSize: 13,
+                lineHeight: 1.5,
+              }}
+            />
+          </div>
+        </div>
         {/* Right: translated glyphs + AST inspector */}
         <div
           style={{
@@ -522,6 +921,7 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
             flexDirection: "column",
             gap: 8,
             height: "100%",
+            minHeight: 0,
           }}
         >
           {/* Translated glyphs card */}
@@ -557,60 +957,76 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
                 style={{
                   marginLeft: "auto",
                   display: "inline-flex",
-                  gap: 8,
+                  gap: 6,
                 }}
               >
                 <button
                   type="button"
-                  onClick={handleCodeToGlyph}
-                  disabled={isBusy}
+                  onClick={handleCopyTranslated}
+                  disabled={!translated}
                   style={{
-                    fontSize: 12,
-                    padding: "4px 10px",
+                    fontSize: 11,
+                    padding: "3px 8px",
                     borderRadius: 999,
                     border: "1px solid #d1d5db",
-                    background: "#eff6ff",
-                    cursor: isBusy ? "default" : "pointer",
-                    opacity: isBusy ? 0.7 : 1,
+                    background: "#f3f4f6",
+                    cursor: translated ? "pointer" : "default",
+                    opacity: translated ? 1 : 0.6,
                   }}
                 >
-                  Code → Glyph
+                  Copy
                 </button>
                 <button
                   type="button"
-                  onClick={handleGlyphToCode}
-                  disabled={isBusy}
+                  onClick={handleSaveGlyphsAsTab}
+                  disabled={!translated}
                   style={{
-                    fontSize: 12,
-                    padding: "4px 10px",
+                    fontSize: 11,
+                    padding: "3px 8px",
                     borderRadius: 999,
                     border: "1px solid #bbf7d0",
                     background: "#dcfce7",
-                    cursor: isBusy ? "default" : "pointer",
-                    opacity: isBusy ? 0.7 : 1,
+                    cursor: translated ? "pointer" : "default",
+                    opacity: translated ? 1 : 0.6,
                   }}
                 >
-                  Glyph → Code
+                  Save as tab
                 </button>
               </div>
             </div>
 
-            <textarea
+            {compressionStats && (
+              <div
+                style={{
+                  padding: "4px 10px",
+                  fontSize: 11,
+                  color: "#6b7280",
+                  display: "flex",
+                  gap: 8,
+                }}
+              >
+                <span>
+                  📦 Compression:{" "}
+                  <span
+                    style={{
+                      fontFamily:
+                        "JetBrains Mono, ui-monospace, SFMono-Regular, monospace",
+                    }}
+                  >
+                    {compressionStats.pct.toFixed(1)}% shorter
+                  </span>
+                </span>
+                <span style={{ opacity: 0.8 }}>
+                  ({compressionStats.before} → {compressionStats.after} chars)
+                </span>
+              </div>
+            )}
+
+            <EditorWithGutter
+              value={
+                translated || 'Run "Code → Glyph" to see glyph output.'
+              }
               readOnly
-              value={translated || 'Run "Code → Glyph" to see glyph output.'}
-              style={{
-                flex: 1,
-                padding: 10,
-                border: "none",
-                resize: "none",
-                outline: "none",
-                fontFamily:
-                  "JetBrains Mono, ui-monospace, SFMono-Regular, monospace",
-                fontSize: 13,
-                lineHeight: 1.5,
-                background: "transparent",
-                color: translated ? "#111827" : "#9ca3af",
-              }}
             />
           </div>
 
@@ -700,7 +1116,9 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
                   fontSize: 11,
                 }}
               >
-                <span style={{ color: "#6b7280", marginRight: 4 }}>Motif tools:</span>
+                <span style={{ color: "#6b7280", marginRight: 4 }}>
+                  Motif tools:
+                </span>
 
                 <button
                   type="button"
@@ -849,4 +1267,5 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
         </div>
       </div>
     </div>
-  )};
+  );
+}

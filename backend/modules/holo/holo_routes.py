@@ -1,7 +1,7 @@
 # backend/modules/holo/holo_routes.py
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
-from fastapi import APIRouter, Body, HTTPException, Query
+from fastapi import APIRouter, Body, HTTPException, Query, status
 from pydantic import BaseModel
 
 from backend.modules.holo.holo_service import (
@@ -17,13 +17,18 @@ from backend.modules.holo.holo_execution_service import run_holo_snapshot
 from backend.modules.holo.hst_service import (
     build_hst_from_source,
     build_holo_from_hst,
+    rehydrate_hst_from_holo,
 )
 from backend.modules.runtime.container_runtime import get_container_runtime
 
 router = APIRouter(
-    prefix="/holo",
+    prefix="/holo",  # app will usually mount this under /api → /api/holo/...
     tags=["holo"],
 )
+
+# -------------------------------------------------------------------
+# Export: container → .holo
+# -------------------------------------------------------------------
 
 
 @router.post("/export/{container_id}")
@@ -48,26 +53,54 @@ def export_holo(
     return getattr(holo, "__dict__", holo)
 
 
-class HoloImportPayload(BaseModel):
-    holo: Dict[str, Any]
+# -------------------------------------------------------------------
+# Import: motif / external → .holo store
+# -------------------------------------------------------------------
 
 
 @router.post("/import")
-def import_holo(payload: HoloImportPayload) -> Dict[str, Any]:
+def import_holo(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
     """
-    Accept a minimal HoloIR-like object (e.g. from motif_compile_api)
-    and persist it as a .holo snapshot under HOLO_ROOT.
+    Accept either { "holo": {...} } or a bare HoloIR-like dict
+    and persist it to the .holo store.
 
-    Returns the canonical HoloIR dict that was saved.
+    Frontend (Glyph_Net_Browser) sends:
+      POST /api/holo/import
+      { "holo": { ... } }
     """
     try:
-        holo = save_holo_from_dict(payload.holo)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:  # pragma: no cover
-        raise HTTPException(status_code=500, detail=f"Holo import failed: {e}")
+        holo_dict = body.get("holo") or body
+        if not isinstance(holo_dict, dict):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Request body must include a 'holo' object or be a holo dict.",
+            )
 
-    return getattr(holo, "__dict__", holo)
+        saved = save_holo_from_dict(holo_dict)
+
+        # save_holo_from_dict might return a dict or a HoloIR; normalise
+        if hasattr(saved, "__dict__"):
+            saved = getattr(saved, "__dict__")
+
+        return {"status": "ok", "holo": saved}
+
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except Exception as e:  # pragma: no cover
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Holo import failed: {e}",
+        )
+
+
+# -------------------------------------------------------------------
+# Container-scoped holo history / index
+# -------------------------------------------------------------------
 
 
 @router.get("/container/{container_id}/latest")
@@ -134,6 +167,11 @@ def get_holo_at(container_id: str, tick: int, revision: int = 1):
     return getattr(holo, "__dict__", holo)
 
 
+# -------------------------------------------------------------------
+# Global holo_index search
+# -------------------------------------------------------------------
+
+
 @router.get("/index/search")
 def search_holo_index_route(
     container_id: Optional[str] = Query(default=None),
@@ -150,6 +188,30 @@ def search_holo_index_route(
     """
     return search_holo_index(container_id=container_id, tag=tag)
 
+
+# -------------------------------------------------------------------
+# Holo from code (HST path)
+# -------------------------------------------------------------------
+class RehydratePayload(BaseModel):
+    holo: Dict[str, Any]
+
+
+@router.post("/rehydrate")
+def rehydrate_holo(payload: RehydratePayload) -> Dict[str, Any]:
+    """
+    U3C skeleton: .holo → HST (rehydrated view).
+
+    For now we just return the HST dict; later you can call kg_writer here
+    to rebuild KG nodes/edges + prompts.
+    """
+    try:
+        hst = rehydrate_hst_from_holo(payload.holo)
+        return {"status": "ok", "hst": hst}
+    except Exception as e:  # pragma: no cover
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"rehydrate_from_holo_failed: {e}",
+        )
 
 class HoloFromCodePayload(BaseModel):
     source: str
@@ -190,30 +252,90 @@ def build_holo_from_code(payload: HoloFromCodePayload) -> Dict[str, Any]:
 
     return getattr(holo, "__dict__", holo)
 
+# -------------------------------------------------------------------
+# U3C — Rehydrate HST from .holo
+# -------------------------------------------------------------------
 
-class HoloRunPayload(BaseModel):
-    # For now we require the Holo blob inline; you can extend this later to
-    # accept holo_id + lookups via the index.
+
+class HoloRehydratePayload(BaseModel):
     holo: Dict[str, Any]
-    mode: Optional[str] = "qqc"  # "qqc" | "sle" | "dry_run" | ...
-    input_ctx: Optional[Dict[str, Any]] = None
 
 
-@router.post("/run")
-def run_holo_route(payload: HoloRunPayload) -> Dict[str, Any]:
+@router.post("/rehydrate")
+def rehydrate_hst_route(payload: HoloRehydratePayload) -> Dict[str, Any]:
     """
-    Executable hologram entry point (U4):
+    Minimal U3C entrypoint:
 
-      .holo + input_ctx → BeamRuntime/QQC → { output, updated_holo, metrics }
+      .holo → HST-like dict
 
-    This wraps backend.modules.holo.holo_execution_service.run_holo_snapshot.
+    Frontend: POST /api/holo/rehydrate { "holo": { ... } }
     """
-    if not payload.holo:
-        raise HTTPException(status_code=400, detail="missing_holo")
+    try:
+        hst = rehydrate_hst_from_holo(payload.holo)
+        return {
+            "status": "ok",
+            "hst": hst,
+        }
+    except Exception as e:  # pragma: no cover
+        raise HTTPException(
+            status_code=500,
+            detail=f"rehydrate_hst_failed: {e}",
+        )
 
-    result = run_holo_snapshot(
-        payload.holo,
-        input_ctx=payload.input_ctx or {},
-        mode=payload.mode or "qqc",
-    )
-    return result
+# -------------------------------------------------------------------
+# Run .holo (U4: execution entrypoint)
+# -------------------------------------------------------------------
+
+
+class RunHoloRequest(BaseModel):
+    holo: Dict[str, Any]
+    input_ctx: Dict[str, Any] = {}
+    mode: str = "qqc"
+
+
+class RunHoloResponse(BaseModel):
+    status: str
+    message: Optional[str] = None
+    container_id: str
+    holo_id: Optional[str] = None
+    tick: Optional[int] = None
+    beams: List[Dict[str, Any]]
+    metrics: Dict[str, Any]
+    output: Dict[str, Any]
+    updated_holo: Optional[Dict[str, Any]] = None
+
+
+@router.post("/run", response_model=RunHoloResponse)
+async def run_holo_route(req: RunHoloRequest) -> RunHoloResponse:
+    """
+    Execute a Holo snapshot.
+
+    Expected body:
+      { "holo": {...}, "input_ctx": {...}, "mode": "qqc" }
+
+    This is mounted under /api, so the full path is:
+      POST /api/holo/run
+    """
+    try:
+        result = await run_holo_snapshot(req.holo, req.input_ctx, req.mode)
+
+        if isinstance(result, Dict) and "status" not in result:
+            result["status"] = "ok"
+
+        return RunHoloResponse(**result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Holo run failed: {e}",
+        )
+
+
+# Optional alias so frontend can hit /api/holo/run_snapshot too
+@router.post("/run_snapshot", response_model=RunHoloResponse)
+async def run_snapshot_route(req: RunHoloRequest) -> RunHoloResponse:
+    """
+    Alias for /holo/run – same contract, different path.
+    """
+    return await run_holo_route(req)
