@@ -14,15 +14,14 @@ from backend.modules.glyphnet.glyphwave_simulator import (
 from backend.modules.glyphnet.broadcast_utils import broadcast_ws_event  # ✅ WebSocket broadcast
 from backend.modules.glyphnet.glyphnet_transceiver import transmit_gwave_packet  # ✅ GWave integration
 from backend.modules.glyphnet.qkd_policy import enforce_qkd_policy, QKDPolicyError  # ✅ QKD policy
-from backend.modules.qkd.qkey_model import GKey  # shared QKD session key model
 
 logger = logging.getLogger(__name__)
 
 # Supported transport types
-TRANSPORT_CHANNELS = {"tcp", "beacon", "radio", "light", "local", "gwave"}
+TRANSPORT_CHANNELS = {"tcp", "beacon", "radio", "light", "local", "gwave", "ble"}  # 👈 add "ble"
 
 # Preferred order for auto-selection
-FALLBACK_ORDER = ["gwave", "tcp", "beacon", "radio", "light", "local"]
+FALLBACK_ORDER = ["gwave", "ble", "tcp", "beacon", "radio", "light", "local"]  # 👈 BLE high priority
 
 
 # ───────────────────────────────────────────────
@@ -95,7 +94,7 @@ def _dispatch_packet(
     """
     try:
         # ── QKD Gate ──
-        gkey: Optional[GKey] = (options or {}).get("gkey")
+        gkey = (options or {}).get("gkey")  # was Optional[GKey]
         try:
             enforce_qkd_policy(packet, gkey)
         except QKDPolicyError as qkd_err:
@@ -133,7 +132,9 @@ def _dispatch_packet(
 
         elif transport == "local":
             try:
-                result = simulate_waveform_transmission(glyphs, sender=packet.get("sender", "local"))
+                result = simulate_waveform_transmission(
+                    glyphs, sender=packet.get("sender", "local")
+                )
                 logger.info(
                     f"[Transport] Routed via Local Simulator (file={result['trace']['file']})"
                 )
@@ -141,6 +142,11 @@ def _dispatch_packet(
                 logger.warning(f"[Transport] Local simulator failed, falling back: {sim_err}")
                 simulate_waveform_loopback(glyphs)
             logger.info("[Transport] Routed via Local Loopback")
+
+        elif transport == "ble":
+            # For now this is just a stub path. Real BLE send lives in gip_adapter_ble.
+            logger.info("[Transport] Routed via BLE (stub channel)")
+            return True
 
         else:
             logger.warning(f"[Transport] Unsupported channel: {transport}")

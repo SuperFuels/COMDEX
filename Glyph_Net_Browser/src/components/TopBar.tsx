@@ -17,12 +17,37 @@ type Props = {
   onLogout?: () => void;
 };
 
+type WalletSummary = {
+  pho: string;
+  offlineLimit?: string;
+};
+
 function HealthPill({ status = "unknown" as RadioStatus }) {
   const map = {
-    up:           { dot: "#16a34a", text: "Radio: healthy",       bg: "#e6f7ed", fg: "#065f46" },
-    reconnecting: { dot: "#f59e0b", text: "Radio: reconnecting…", bg: "#fff7ed", fg: "#92400e" },
-    down:         { dot: "#ef4444", text: "Radio: down",          bg: "#fee2e2", fg: "#991b1b" },
-    unknown:      { dot: "#9ca3af", text: "Radio: unknown",       bg: "#f3f4f6", fg: "#374151" },
+    up: {
+      dot: "#16a34a",
+      text: "Radio: healthy",
+      bg: "#e6f7ed",
+      fg: "#065f46",
+    },
+    reconnecting: {
+      dot: "#f59e0b",
+      text: "Radio: reconnecting…",
+      bg: "#fff7ed",
+      fg: "#92400e",
+    },
+    down: {
+      dot: "#ef4444",
+      text: "Radio: down",
+      bg: "#fee2e2",
+      fg: "#991b1b",
+    },
+    unknown: {
+      dot: "#9ca3af",
+      text: "Radio: unknown",
+      bg: "#f3f4f6",
+      fg: "#374151",
+    },
   } as const;
   const s = map[status];
   return (
@@ -59,28 +84,63 @@ function HealthPill({ status = "unknown" as RadioStatus }) {
 export default function TopBar(p: Props) {
   // Base URLs (optional)
   const websiteBase = (import.meta as any)?.env?.VITE_WEBSITE_BASE || "";
-  const websiteApi  = (import.meta as any)?.env?.VITE_WEBSITE_API  || websiteBase;
-  const radioBase   = (import.meta as any)?.env?.VITE_RADIO_BASE   || "http://127.0.0.1:8787";
+  const websiteApi = (import.meta as any)?.env?.VITE_WEBSITE_API || websiteBase;
+  const radioBase =
+    (import.meta as any)?.env?.VITE_RADIO_BASE || "http://127.0.0.1:8787";
 
   // Login dropdown state
   const [loginOpen, setLoginOpen] = useState(false);
-  const [email, setEmail]         = useState("");
-  const [password, setPassword]   = useState("");
-  const [busy, setBusy]           = useState(false);
-  const [err, setErr]             = useState<string | null>(null);
-  const loginWrapRef              = useRef<HTMLDivElement>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const loginWrapRef = useRef<HTMLDivElement>(null);
 
-  // close login dropdown on outside click
+  // Wallet mini-pill state
+  const [walletSummary, setWalletSummary] = useState<WalletSummary | null>(null);
+
   useEffect(() => {
-    function onDoc(e: MouseEvent) {
-      if (!loginOpen) return;
-      if (loginWrapRef.current && !loginWrapRef.current.contains(e.target as Node)) {
-        setLoginOpen(false);
+    if (typeof window === "undefined") return;
+
+    const ownerWa =
+      p.session?.wa ||
+      localStorage.getItem("gnet:ownerWa") ||
+      localStorage.getItem("gnet:wa");
+
+    let cancelled = false;
+
+    const refresh = async () => {
+      try {
+        const resp = await fetch("/api/wallet/balances", {
+          headers: ownerWa ? { "X-Owner-WA": ownerWa } : {},
+        });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const b = data.balances || {};
+        if (!cancelled && b.pho != null) {
+          setWalletSummary({ pho: String(b.pho) });
+        }
+      } catch (e) {
+        if (!cancelled) {
+          console.warn("[TopBar] wallet summary failed:", e);
+        }
       }
-    }
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, [loginOpen]);
+    };
+
+    // initial load
+    refresh();
+
+    // listen for wallet updates from WalletPanel
+    const onUpdated = () => {
+      refresh();
+    };
+    window.addEventListener("glyphnet:wallet:updated", onUpdated);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("glyphnet:wallet:updated", onUpdated);
+    };
+  }, [p.session?.wa]);
 
   const profileLabel = useMemo(() => {
     if (!p.session) return "";
@@ -89,7 +149,9 @@ export default function TopBar(p: Props) {
     return p.session.wa || "You";
   }, [p.session]);
 
-  const gotoBridge = () => { window.location.hash = "#/bridge"; };
+  const gotoBridge = () => {
+    window.location.hash = "#/bridge";
+  };
   const goHome = () => {
     const slug = p.session?.slug || localStorage.getItem("gnet:user_slug");
     if (slug) window.location.hash = `#/container/${slug}__home`;
@@ -97,10 +159,15 @@ export default function TopBar(p: Props) {
 
   async function doLogin(e?: React.FormEvent) {
     e?.preventDefault();
-    setBusy(true); setErr(null);
+    setBusy(true);
+    setErr(null);
     try {
       if (!websiteApi) {
-        window.open(`${websiteBase || ""}/login`, "_blank", "noopener,noreferrer");
+        window.open(
+          `${websiteBase || ""}/login`,
+          "_blank",
+          "noopener,noreferrer",
+        );
         setBusy(false);
         return;
       }
@@ -115,8 +182,10 @@ export default function TopBar(p: Props) {
       const data = await res.json(); // { token, role, slug?, wa? }
 
       // 2) Attach to local radio runtime
-      const slug = (data.slug || email.split("@")[0]).toLowerCase().replace(/[^a-z0-9._-]/g, "-");
-      const wa   = data.wa || `${slug}@wave.tp`;
+      const slug = (data.slug || email.split("@")[0])
+        .toLowerCase()
+        .replace(/[^a-z0-9._-]/g, "-");
+      const wa = data.wa || `${slug}@wave.tp`;
 
       await fetch(`${radioBase}/api/session/attach`, {
         method: "POST",
@@ -129,7 +198,8 @@ export default function TopBar(p: Props) {
       localStorage.setItem("gnet:wa", wa);
 
       setLoginOpen(false);
-      setEmail(""); setPassword("");
+      setEmail("");
+      setPassword("");
       window.dispatchEvent(new CustomEvent("gnet:session:changed"));
     } catch (e: any) {
       setErr(e?.message || "Login failed");
@@ -154,19 +224,42 @@ export default function TopBar(p: Props) {
       }}
     >
       {/* hamburger */}
-      <button onClick={p.onOpenSidebar} aria-label="Open sidebar" title="Open sidebar" style={navBtn}>☰</button>
+      <button
+        onClick={p.onOpenSidebar}
+        aria-label="Open sidebar"
+        title="Open sidebar"
+        style={navBtn}
+      >
+        ☰
+      </button>
 
       {/* back / fwd / reload */}
-      <button title="Back" style={navBtn} onClick={() => history.back()}>◀</button>
-      <button title="Forward" style={navBtn} onClick={() => history.forward()}>▶</button>
-      <button title="Reload" style={navBtn} onClick={() => location.reload()}>⟳</button>
+      <button title="Back" style={navBtn} onClick={() => history.back()}>
+        ◀
+      </button>
+      <button
+        title="Forward"
+        style={navBtn}
+        onClick={() => history.forward()}
+      >
+        ▶
+      </button>
+      <button
+        title="Reload"
+        style={navBtn}
+        onClick={() => location.reload()}
+      >
+        ⟳
+      </button>
 
       {/* View toggle: 🌐 Web | 🌌 Multiverse */}
       <div role="group" aria-label="View mode" style={pillGroup}>
         <button
           title="Web"
           style={{ ...pillBtn, background: "#111827", color: "#fff" }}
-          onClick={() => { /* SPA stays; address bar navigates */ }}
+          onClick={() => {
+            // SPA stays; address bar navigates (no-op for now)
+          }}
         >
           🌐
         </button>
@@ -174,7 +267,9 @@ export default function TopBar(p: Props) {
           title="Multiverse"
           style={pillBtn}
           onClick={() => {
-            const url = websiteBase ? `${websiteBase}/aion/multiverse` : "/aion/multiverse";
+            const url = websiteBase
+              ? `${websiteBase}/aion/multiverse`
+              : "/aion/multiverse";
             window.open(url, "_blank", "noopener,noreferrer");
           }}
         >
@@ -190,8 +285,53 @@ export default function TopBar(p: Props) {
       {/* Right controls */}
       <div style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
         <HealthPill status={p.radioStatus ?? "unknown"} />
-        <button style={pill} onClick={gotoBridge} title="Open RF Bridge panel">📡 Bridge</button>
-        <button style={pill} onClick={p.onAskAion}>🫖 Ask AION</button>
+
+        {/* 💰 mini PHO pill */}
+        {walletSummary && (
+          <div
+            style={{
+              padding: "3px 10px",
+              borderRadius: 999,
+              border: "1px solid #e5e7eb",
+              background: "#ffffff",
+              fontSize: 11,
+              fontWeight: 500,
+              color: "#0f172a",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              whiteSpace: "nowrap",
+            }}
+            title={
+              walletSummary.offlineLimit
+                ? `${walletSummary.pho} PHO (offline credit ${walletSummary.offlineLimit} PHO)`
+                : `${walletSummary.pho} PHO`
+            }
+          >
+            <span style={{ fontSize: 12 }}>💰</span>
+            <span>{walletSummary.pho}</span>
+            <span
+              style={{
+                fontSize: 10,
+                textTransform: "uppercase",
+                color: "#6b7280",
+              }}
+            >
+              PHO
+            </span>
+          </div>
+        )}
+
+        <button
+          style={pill}
+          onClick={gotoBridge}
+          title="Open RF Bridge panel"
+        >
+          📡 Bridge
+        </button>
+        <button style={pill} onClick={p.onAskAion}>
+          🫖 Ask AION
+        </button>
         <button style={pill} onClick={p.onToggleWaves}>
           🌊 Waves {p.wavesCount ? `(${p.wavesCount})` : ""}
         </button>
@@ -199,7 +339,11 @@ export default function TopBar(p: Props) {
         {/* Auth area */}
         {p.session ? (
           <>
-            <button style={pill} onClick={goHome} title="Go to your Home container">
+            <button
+              style={pill}
+              onClick={goHome}
+              title="Go to your Home container"
+            >
               <span
                 style={{
                   display: "inline-block",
@@ -213,11 +357,19 @@ export default function TopBar(p: Props) {
               />
               {profileLabel}
             </button>
-            <button style={pill} onClick={p.onLogout}>🚪 Logout</button>
+            <button style={pill} onClick={p.onLogout}>
+              🚪 Logout
+            </button>
           </>
         ) : (
           <div ref={loginWrapRef} style={{ position: "relative" }}>
-            <button style={pill} onClick={() => setLoginOpen(v => !v)} title="Sign in">🔐 Log in</button>
+            <button
+              style={pill}
+              onClick={() => setLoginOpen((v) => !v)}
+              title="Sign in"
+            >
+              🔐 Log in
+            </button>
             <a
               style={pill}
               href={websiteBase ? `${websiteBase}/register` : "#"}
@@ -249,7 +401,7 @@ export default function TopBar(p: Props) {
                 <input
                   type="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder="Email"
                   style={input}
@@ -257,7 +409,7 @@ export default function TopBar(p: Props) {
                 <input
                   type="password"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="Password"
                   style={{ ...input, marginTop: 8 }}
@@ -266,18 +418,40 @@ export default function TopBar(p: Props) {
                 {/* Forgot password link */}
                 <div style={{ marginTop: 6, textAlign: "right" }}>
                   <a
-                    href={websiteBase ? `${websiteBase}/forgot-password` : "#"}
+                    href={
+                      websiteBase
+                        ? `${websiteBase}/forgot-password`
+                        : "#"
+                    }
                     target="_blank"
                     rel="noreferrer"
-                    style={{ fontSize: 12, color: "#2563eb", textDecoration: "underline" }}
+                    style={{
+                      fontSize: 12,
+                      color: "#2563eb",
+                      textDecoration: "underline",
+                    }}
                     title="Reset your password"
                   >
                     Forgot password?
                   </a>
                 </div>
 
-                {err && <div style={{ color: "#b91c1c", fontSize: 12, marginTop: 6 }}>{err}</div>}
-                <button type="submit" disabled={busy} style={{ ...btnPrimary, marginTop: 10 }}>
+                {err && (
+                  <div
+                    style={{
+                      color: "#b91c1c",
+                      fontSize: 12,
+                      marginTop: 6,
+                    }}
+                  >
+                    {err}
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  disabled={busy}
+                  style={{ ...btnPrimary, marginTop: 10 }}
+                >
                   {busy ? "Signing in…" : "Sign in"}
                 </button>
               </form>

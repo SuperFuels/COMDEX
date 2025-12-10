@@ -428,6 +428,8 @@ from backend.routes.holo_aion_routes import router as holo_aion_router
 from backend.routes.holo_index_routes import router as holo_index_router
 from backend.routes.crystal_routes import router as crystal_router
 from backend.api.motif_compile_api import router as motif_compile_router
+from backend.modules.mesh.mesh_reconcile_routes import router as mesh_router
+from backend.modules.wallet.wallet_routes import router as wallet_router
 
 # Floor control (PTT) lock manager
 from backend.modules.glyphnet.lock_manager import LOCKS
@@ -653,7 +655,8 @@ app.include_router(ast_hologram_api.router, prefix="/api")
 app.include_router(holo_router, prefix="/api", tags=["holo"])
 app.include_router(crystal_router)
 app.include_router(motif_compile_router, prefix="/api")
-
+app.include_router(mesh_router, prefix="/api", tags=["mesh"])
+app.include_router(wallet_router, prefix="/api", tags=["wallet"])
 # Holo index – expose as /api/holo/index/*
 app.include_router(holo_index_router)
 

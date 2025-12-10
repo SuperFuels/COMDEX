@@ -5,14 +5,13 @@ graph TD
   subgraph P0[Phase 0 – Repo, Architecture & Foundations]
     direction TB
 
-    P0_1[Project Bootstrapping\n• Monorepo layout (chain, GMA, wallet, holo-bridge)\n• Language/runtime choice (Rust/Go for node, Solidity/Move/WASM for contracts)\n• Coding standards, linting, CI skeleton\n• Env config & secrets strategy]    
+    P0_1[☐ Project Bootstrapping\n• Monorepo: chain, GMA, wallet, holo-bridge, mesh\n• Languages: Rust/Go node, WASM/EVM contracts\n• Coding standards, CI, env + secrets]
 
-    P0_2[Core Specs & Interfaces\n• Finalize ChainState, Account, BlockHeader, Tx types\n• Confirm Photon/Tesseract token specs\n• Confirm GMA types (reserves, bonds, facilities)\n• Confirm Holo/QWave bridge interfaces\n• Decide consensus engine (Tendermint/CometBFT/custom BFT)]
+    P0_2[☐ Core Specs & Interfaces\n• ChainState, Account, BlockHeader, Tx\n• PHO/TESS token specs\n• GMA types (reserves, bonds, facilities)\n• MeshReconcile types (LocalBalance, MeshTx, ClusterBlock)\n• Holo/QWave/Photon bridge interfaces]
 
-    P0_3[Node Framework Selection\n• Choose base (Cosmos-SDK/Substrate/custom)\n• Decide execution layer (EVM-compatible vs WASM)\n• Identify where GMA lives (module vs contracts)\n• Identify extension points for Holo/QQC]
+    P0_3[☐ Node Framework Selection\n• Choose base (Cosmos-SDK/Substrate/custom)\n• Execution (WASM or EVM)\n• GMA & Bonds: modules vs contracts\n• MeshReconcile as chain module\n• Extension points for Holo/QQC/Photon]
 
-    P0_4[Security & Crypto Baseline\n• Choose signature schemes (ed25519/secp256k1/BLS)\n• Hashing & commitment scheme (Merkle, KZG later)\n• Key derivation & wallet seed format\n• Threat model for chain & GMA]
-
+    P0_4[☐ Security & Crypto Baseline\n• Sig schemes (ed25519/secp256k1/BLS)\n• Hash/commitments (Merkle / later KZG)\n• Key derivation, wallet seeds, device binding\n• Threat model (online chain + offline mesh)]
   end
 
   %% ============================================
@@ -21,18 +20,17 @@ graph TD
   subgraph P1[Phase 1 – Core Chain (Ledger, Consensus, Bank)]
     direction TB
 
-    P1_1[Consensus & Networking\n• Implement/plug BFT PoS engine\n• Validator set mgmt, epochs, staking hooks\n• Gossip protocol for blocks & txs\n• Peer discovery, anti-DoS basics]
+    P1_1[☐ Consensus & Networking\n• BFT PoS engine\n• Validator sets, epochs, staking hooks\n• Gossip: blocks & txs\n• Peer discovery, anti-DoS]
 
-    P1_2[State & Storage\n• Implement ChainState structure\n• Accounts trie (balances, nonces)\n• StateRoot computation\n• Persistence, snapshots, pruning strategy]
+    P1_2[☐ State & Storage\n• ChainState structure\n• Account trie (balances, nonces)\n• StateRoot computation\n• Persistence, snapshots, pruning]
 
-    P1_3[Block & Tx Format\n• BlockHeader (state_root, tx_root, holo_state_root, beam_state_root)\n• Tx envelope (from, nonce, gas, type, payload)\n• Sign/verify pipeline\n• Mempool implementation & ordering]
+    P1_3[☐ Block & Tx Format\n• BlockHeader: state_root, tx_root,\n  holo_state_root, beam_state_root\n• Tx envelope (from, nonce, gas, type, payload)\n• Sign/verify pipeline\n• Mempool & ordering]
 
-    P1_4[Bank Module\n• Ledger for PHO, TESS and future denoms\n• getBalance, getSupply, send, mint, burn (internal)\n• Fee charging & fee routing plumbing\n• Invariant checks (no negative balances, conserved supply)]
+    P1_4[☐ Bank Module\n• Ledger for PHO, TESS, future denoms\n• getBalance/getSupply/send/mint/burn\n• Fee charging & routing\n• Invariants: no negatives, supply conserved]
 
-    P1_5[Staking Module (Skeleton)\n• TESS staking / delegation structs\n• delegate(), undelegate(), rewards bookkeeping\n• Validator power from TESS stake\n• Hooks into consensus engine]
+    P1_5[☐ Staking Module (Skeleton)\n• TESS staking/delegation structs\n• delegate/undelegate/rewards\n• Validator power from TESS stake\n• Hooks into consensus]
 
-    P1_6[Genesis & Config\n• Genesis file schema (allocs, validators, params)\n• ChainID & network IDs\n• Default gas schedule & limits\n• Basic upgrade mechanism placeholder]
-
+    P1_6[☐ Genesis & Config\n• Genesis schema (allocs, validators, params)\n• ChainID & network IDs\n• Default gas schedule & limits\n• Upgrade mechanism placeholder]
   end
 
   %% ============================================
@@ -41,16 +39,15 @@ graph TD
   subgraph P2[Phase 2 – Photon, Tesseract, wGLYPH, AMM]
     direction TB
 
-    P2_1[Photon Token (PHO)\n• Implement native asset or ERC20-like module\n• Mint/burn restricted to GMA\n• Transfer, approve, allowance if ERC20 style\n• Gas token integration (fees in PHO)]
+    P2_1[☐ Photon Token (PHO)\n• Native / ERC20-style module\n• Mint/burn restricted to GMA\n• Transfer/approve/allowance (if ERC20)\n• Gas token integration]
 
-    P2_2[Tesseract Token (TESS)\n• Implement as native or ERC20-like\n• Genesis mint & vesting\n• Hooks for staking/governance\n• Optional fee discount logic]
+    P2_2[☐ Tesseract Token (TESS)\n• Native/ERC20-style\n• Genesis mint & vesting\n• Hooks for staking/governance\n• Optional fee discounts]
 
-    P2_3[Wrapped Glyph (wGLYPH)\n• Fungible token module for bridged GLYPH\n• Mint/burn restricted to BridgeModule\n• Tracking supply & events]
+    P2_3[☐ Wrapped Glyph (wGLYPH)\n• Fungible wrapper for bridged GLYPH\n• Mint/burn by BridgeModule\n• Supply tracking + events]
 
-    P2_4[AMM Pools\n• Generic constant-product pool contract\n• Pools: wGLYPH/PHO, wGLYPH/TESS, PHO/TESS\n• addLiquidity/removeLiquidity\n• swapExactIn, getReserves\n• Fee mechanism (cut for GMA & LPs)]
+    P2_4[☐ AMM Pools\n• Constant-product pools\n• wGLYPH/PHO, wGLYPH/TESS, PHO/TESS\n• add/removeLiquidity\n• swapExactIn, getReserves\n• Fees (LPs + GMA cut)]
 
-    P2_5[Fee Routing\n• Route tx fees (PHO) to:\n  – validators\n  – GMA revenue bucket\n• Parameterized splits\n• Accounting entries for GMA seigniorage bucket]
-
+    P2_5[☐ Fee Routing\n• Route PHO fees to:\n  – validators\n  – GMA revenue bucket\n• Config splits\n• GMA seigniorage hooks]
   end
 
   %% ============================================
@@ -59,22 +56,23 @@ graph TD
   subgraph P3[Phase 3 – GMA Core (Photon/Tesseract, Balance Sheet)]
     direction TB
 
-    P3_1[GMA State & Structs\n• Implement GMAState\n  – photonSupply, tesseractSupply\n  – reserves[], risk limits\n  – bondSeries[], facilities\n  – governanceParams, council\n• Invariant checker (Assets - Liabilities = Equity)]
+    P3_1[☐ GMA State & Structs\n• GMAState:\n  – photonSupply, tesseractSupply\n  – reserves[], risk limits\n  – bondSeries[], facilities\n  – governanceParams, council\n• Invariant: Assets - Liabilities = Equity]
 
-    P3_2[Mint/Burn Guard Rails\n• Only GMA can call PHO.mint/burn\n• Internal functions:\n  – gmaMintPhoton(reason)\n  – gmaBurnPhoton(reason)\n• Logging & invariants on every change]
+    P3_2[☐ Mint/Burn Guard Rails\n• GMA-only PHO.mint/burn\n• gmaMintPhoton/gmaBurnPhoton(reason)\n• Logging & invariants per change]
 
-    P3_3[Reserve Positions\n• addReservePosition(assetClass, currency, qty, custodianRef)\n• updateReserveValuation(reserveId, newValuePHO) from oracle\n• Compute aggregate exposures & check risk limits\n• Helper views for dashboard]
+    P3_3[☐ Reserve Positions\n• addReservePosition\n• updateReserveValuation via oracle\n• Aggregate exposures & risk checks\n• Dashboard views]
 
-    P3_4[Reserve Deposit/Redemption\n• recordReserveDeposit(depositor, reserveId, valuePHO)\n  – update reserves\n  – mint PHO to depositor (minus fees)\n• recordReserveRedemption(redeemer, reserveId, valuePHO)\n  – burn PHO\n  – adjust reserves\n• Events for each operation]
+    P3_4[☐ Reserve Deposit/Redemption\n• recordReserveDeposit\n  – update reserves\n  – mint PHO (minus fees)\n• recordReserveRedemption\n  – burn PHO\n  – adjust reserves\n• Events]
 
-    P3_5[Open Market Operations (OMO)\n• omoBuyPhoton(amountPHO, maxSlippage)\n  – buy PHO using reserve assets via AMM\n  – burn PHO or hold in GMA account\n• omoSellPhoton(amountPHO, minSlippage)\n  – mint PHO\n  – sell for reserve assets\n• Enforce governance limits (maxOMOAmountPHO)]
+    P3_5[☐ Open Market Operations (OMO)\n• omoBuyPhoton / omoSellPhoton\n• Use AMM + reserves\n• Governance caps per period\n• PnL tracking]
 
-    P3_6[Facilities: Deposit & Lending\n• Deposit facility:\n  – openDepositFacility(amountPHO)\n  – accrue interest at depositRateBps\n  – closeDepositFacility() → principal+interest\n• Lending facility:\n  – openLendingFacility(collateral, borrowPHO)\n  – lock collateral (TESS/BONDS/other)\n  – accrue interest at lendingRateBps\n  – closeLendingFacility() & unlock collateral\n• Liquidation hooks (if needed)]
+    P3_6[☐ Facilities: Deposit & Lending\n• DepositFacility + LendingFacility params\n• open/close deposit positions\n• open/repay/close lending positions\n• Collateral factors, thresholds, liquidation\n• Facility spread P&L fields]
 
-    P3_7[Revenue & Seigniorage\n• ComputeCurrentProfit() from:\n  – OMO PnL\n  – Facility spreads\n  – Fee share from P2_5\n• distributeRevenues():\n  – % to TESS buybacks & burns\n  – % to grow reserves\n  – % to ops budget treasury\n• Events for profit distribution]
+    P3_7[☐ Revenue & Seigniorage\n• Profit from:\n  – OMO PnL\n  – Facility spreads\n  – Fee share\n• distributeRevenues:\n  – TESS buyback/burn\n  – grow reserves\n  – ops treasury\n• Events]
 
-    P3_8[Risk Limits & Basket\n• ReserveRiskLimits structure & enforcement\n• targetBasketId & targetInflationBps storage\n• Hooks to oracle basket index\n• Sanity checks: no limit breaches on updates]
+    P3_8[☐ Risk Limits & Basket\n• ReserveRiskLimits enforcement\n• targetBasketId, targetInflationBps\n• Basket oracle hooks\n• No limit-breach on update]
 
+    P3_9[✅ Offline Credit Policy (Mesh)\n• OfflineCreditPolicy helper module\n• default_limit_pho + per-account overrides\n• get_offline_limit_pho + get_policy_snapshot\n• Used by mesh_wallet_state + reconcile]
   end
 
   %% ============================================
@@ -83,30 +81,28 @@ graph TD
   subgraph P4[Phase 4 – GlyphBond Module]
     direction TB
 
-    P4_1[Bond Series Management\n• BondSeries struct (id, name, coupon, frequency, dates)\n• createBondSeries() restricted to council/governance\n• Query APIs for wallet & dashboard]
+    P4_1[☐ Bond Series Management\n• BondSeries struct\n• createBondSeries (governance-only)\n• Wallet/dashboard queries]
 
-    P4_2[Issuance\n• issueBonds(seriesId, buyer, principalPHO)\n  – transfer PHO from buyer to GMA\n  – create BondPosition\n  – update totalIssued, totalOutstanding\n• Secondary trading support later (optional)]
+    P4_2[☐ Issuance\n• issueBonds(seriesId, buyer, principalPHO)\n  – transfer PHO → GMA\n  – create BondPosition\n  – update issued/outstanding\n• Optional secondary market]
 
-    P4_3[Coupon Engine\n• Schedule coupon dates per series\n• claimCoupon(seriesId) for holder\n  – compute due coupons\n  – pay PHO from GMA\n  – avoid double-claim via checkpoints\n• Aggregate coupon cost into P&L]
+    P4_3[☐ Coupon Engine\n• Coupon schedule per series\n• claimCoupon(seriesId)\n  – compute due coupons\n  – pay PHO from GMA\n  – checkpointing\n• Feed coupon cost into P&L]
 
-    P4_4[Redemption\n• redeemAtMaturity(seriesId)\n  – check maturity\n  – pay principal in PHO\n  – reduce totalOutstanding\n• Edge cases: early redemption rules (if any)]
-
+    P4_4[☐ Redemption\n• redeemAtMaturity(seriesId)\n  – maturity checks\n  – pay principal in PHO\n  – reduce outstanding\n• Early redemption rules (optional)]
   end
 
   %% ============================================
-  %% P5 – ORACLES & RESERVES INTEGRATION
+  %% P5 – ORACLES & RESERVES
   %% ============================================
-  subgraph P5[Phase 5 – Oracles & Off-chain Reserve Feeds]
+  subgraph P5[Phase 5 – Oracles & Off-chain Reserves]
     direction TB
 
-    P5_1[Oracle Framework\n• PriceOracle interface (asset → PHO price)\n• Basket index feed (basketId → value)\n• Governance for whitelisting oracles\n• Staleness & sanity checks]
+    P5_1[☐ Oracle Framework\n• PriceOracle iface (asset → PHO)\n• Basket index feed\n• Oracle whitelisting\n• Staleness & sanity checks]
 
-    P5_2[Reserve Attestations\n• Flow from custodian → chain:\n  – periodic proof of holdings (off-chain docs)\n  – attestation tx to update ReservePosition\n• Standard format for custodianRef & audit trail]
+    P5_2[☐ Reserve Attestations\n• Custodian → chain flow\n• Attestation tx with holdings\n• Standardized custodianRef + audit trail]
 
-    P5_3[FX & Valuation\n• Convert FIAT/asset valuations → PHO via oracles\n• Aggregate exposures by currency & assetClass\n• Trigger alerts/events on big moves]
+    P5_3[☐ FX & Valuation\n• Map FIAT/assets → PHO via oracles\n• Aggregate by currency / asset class\n• Alerts on big moves]
 
-    P5_4[Risk Monitoring\n• Continuous checks: maxCryptoPctBps, etc.\n• Emit events when close to limits\n• Optional automatic halts on new risk-increasing ops]
-
+    P5_4[☐ Risk Monitoring\n• Limit checks (maxCryptoPct, etc.)\n• Warning events\n• Optional automatic halts]
   end
 
   %% ============================================
@@ -115,50 +111,67 @@ graph TD
   subgraph P6[Phase 6 – Hologram & QWave/QQC Integration]
     direction TB
 
-    P6_1[Tx Types for Holo & Beams\n• TxHoloCommit(container_id, holo_id, tick, revision, hash)\n• TxBeamMetric(container_id, tick, num_beams, sqi_score)\n• Wire into state (holo_state_root, beam_state_root)\n• Minimal storage trees per module]
+    P6_1[☐ Tx Types for Holo & Beams\n• TxHoloCommit(container_id, holo_id, rev, hash)\n• TxBeamMetric(container_id, tick, num_beams, sqi)\n• Store holo_state_root, beam_state_root\n• Minimal trees per module]
 
-    P6_2[HoloLedger Module\n• Store (holo_id, container_id, revision, hash)\n• Index by container and block\n• Query API: holo history, last revision\n• Events for devtools]
+    P6_2[☐ HoloLedger Module\n• (holo_id, container_id, rev, hash)\n• Index by container + block\n• Query holo history/latest]
 
-    P6_3[BeamMetrics Module\n• Store beam metrics per container/tick\n• Simple aggregations for SQI/coherence\n• Hooks for future pricing/QoS]
+    P6_3[☐ BeamMetrics Module\n• Beam metrics per container/tick\n• Aggregates (SQI/coherence)\n• Pricing/QoS hooks]
 
-    P6_4[Chain ↔ Holo Runtime Adapter\n• glyph_chain_bridge\n  – subscribe to chain events\n  – mirror refs into Holo cabinet\n• holo_chain_committer\n  – from devtools/QQC: commit new holo revisions to chain\n• Ensure idempotency & replay safety]
+    P6_4[☐ Chain ↔ Holo Runtime Adapter\n• glyph_chain_bridge (subscribe events)\n• holo_chain_committer (commit revisions)\n• Idempotent & replay-safe]
 
-    P6_5[Compute Billing Plumbing\n• Define ComputeMeter contract interface\n  – registerContainer(price_per_unit)\n  – openSession(user, container_id)\n  – consume(units) from QQC runtime\n  – closeSession() settle PHO\n• Connect with PHO payments & GMA fee splits]
-
+    P6_5[☐ Compute Billing Plumbing\n• ComputeMeter iface\n  – registerContainer(price/unit)\n  – openSession/consume/closeSession\n• Settle PHO sessions\n• Fee splits to GMA]
   end
 
   %% ============================================
-  %% P7 – WALLETS, UX, OFFLINE/RADIO
+  %% P7 – WALLETS, UX, OFFLINE/RADIO/BLE
   %% ============================================
-  subgraph P7[Phase 7 – Wallets, Mobile UX & Radio Mesh Mode]
+  subgraph P7[Phase 7 – Wallets, Mobile UX & Mesh Modes]
     direction TB
 
-    P7_1[Wallet Core\n• Seed/keys (BIP32-style) + device binding\n• Accounts for PHO/TESS/Bonds\n• GMA integration (view deposits, loans, bonds)\n• Basic staking UI for TESS]
+    P7_1[☐ Wallet Core\n• Seed/keys (BIP32-style) + device_id\n• Accounts for PHO/TESS/Bonds\n• GMA views (deposits, loans, bonds)\n• Basic TESS staking UX]
 
-    P7_2[Account Abstraction & Session Keys\n• Smart wallets for:\n  – spending limits\n  – social recovery\n• Session keys for chat micro-payments\n• Pre-approved templates (e.g. small PHO sends)]
+    P7_1A[✅ Browser Wallet Panel + API Stub\n• /api/wallet/balances backend route\n• WalletPanel wired to API\n• MeshPending + offlineLimit from GMA policy stub\n• Mini PHO balance pill in TopBar\n• Wallet icon/tab in SidebarRail]
 
-    P7_3[Transactable Document UX\n• Author doc in Glyph browser\n• Compile to doc_hash + on-chain contract\n• Show status: Draft → Active → Executed\n• Integrate PHO payments & signatures]
+    P7_2[☐ Account Abstraction & Session Keys\n• Smart wallets: limits, social recovery\n• Session keys for chat/micropayments\n• Pre-approved PHO send templates]
 
-    P7_4[Radio / Mesh Payment Mode\n• Local ledger on device for PHO balances\n• Device-to-device signed IOUs / transfers\n• Cluster-level consensus (gossip + local finality)\n• Reconciliation protocol when internet returns:\n  – send local tx log to global chain\n  – detect conflicts & apply policy\n• UX: clearly label “local-only” vs “globally-final” PHO]
+    P7_3[☐ Transactable Document UX\n• Author DC container in Glyph browser\n• Compile to doc_hash + on-chain\n• Status: Draft → Active → Executed\n• PHO payments + signatures]
 
-    P7_5[Mobile Light Client\n• Header sync only + proofs for tx & state\n• Efficient PHO/TESS/Bond balance queries\n• Caching + bandwidth limits\n• Fallback to radio mode when offline]
+    %% --- Mesh / Radio / BLE payments ---
+    P7_4[☐ Radio / Mesh / BLE Payment Mode\n• LocalBalance + LocalTxLog structs\n• MeshTx + ClusterBlock types\n• Local mesh ledger on device\n• MeshReconcile service (ReconcileRequest/Result)\n• Uses offline_credit_limit_pho from GMA\n• Wallet UI: global vs local balances,\n  accepted vs disputed mesh tx]
 
+    P7_4A[✅ Mesh Core Modules (Backend)\n• mesh_types.py (ids, LocalBalance)\n• mesh_tx.py (MeshTx + helpers)\n• mesh_log.py (LocalTxLog)\n• mesh_cluster_block.py (ClusterBlock)\n• mesh_reconcile_service.py\n• mesh_reconcile_routes.py (REST dev stub)\n• dev_mesh_reconcile_smoketest passing]
+
+    P7_4B[✅ GMA Mesh Policy Hook\n• gma_mesh_policy.py (get/set limits)\n• get_offline_limit_pho + get_policy_snapshot\n• MeshReconcile + mesh_wallet_state query this]
+
+    P7_4C[✅ Wallet Mesh State (Backend core)\n• mesh_wallet_state.py helpers\n• effective_spendable_local(), record_local_send\n• dev_mesh_reconcile_smoketest\n• (TODO) Front-end mesh UI wiring]
+
+    P7_4_V1[☐ PHO Mesh Payment over BLE (Vertical Slice)\n• Sender wallet builds MeshTx\n• Sign + update LocalTxLog\n• Send via GIPBluetoothAdapter\n• Receiver validates + applies MeshTx\n• Both update LocalBalance\n• Log to GlyphNetDebugger]
+
+    P7_5[☐ Mobile Light Client\n• Header-only sync + proofs\n• Efficient PHO/TESS/Bond queries\n• Caching + bandwidth constraints\n• Auto-switch online ↔ mesh mode]
+
+    P7_6[☐ GlyphNet Viral Bootstrap\n• Minimal “GlyphCore Skeleton” bundle:\n  – core transports (radio/BLE/Wi-Fi Direct)\n  – minimal wallet + mesh ledger\n  – basic photon/glyph codecs\n• D2D sharing via BLE/radio payloads\n• Install/upgrade flow w/o internet\n• Signature check on bundle]
+
+    %% --- Transports + Identity + PTT ---
+    P7_7[✅ BLE / Wi-Fi Direct Transport Adapters\n• gip_adapter_ble.py (GIPBluetoothAdapter stub)\n• glyph_transport_switch: 'ble' channel + auto fallback\n• dev_ble_smoketest.py passing]
+
+    P7_8[☐ Wave Addresses & Wave Numbers\n• Extend identity_registry:\n  – WaveAddress (alice@waves.glyph)\n  – WaveNumber (+wave-44-1234-5678)\n• register/lookup by wave_addr & wave_number\n• Messenger uses these to resolve account/device\n  and choose NET/RADIO/BLE]
+
+    P7_9[☐ PTT (Push-to-Talk) over Radio/BLE\n• ptt_session_manager.py (start/end sessions)\n• ptt_packet_codec.py (PTTPacket, audio frames)\n• Extend gip_packet_schema with type 'ptt'\n• Route PTT via glyphnet_router using\n  wave/radio/BLE carriers\n• PTT UI in GlyphNet messenger\n  (press-to-hold, send audio frames)]
   end
 
   %% ============================================
-  %% P8 – OBSERVABILITY, GOVERNANCE & TESTNETS
+  %% P8 – OBSERVABILITY, GOVERNANCE, TESTNETS
   %% ============================================
   subgraph P8[Phase 8 – Observability, Governance, Testnets]
     direction TB
 
-    P8_1[Explorers & Dashboards\n• Block/tx explorer (basic)\n• GMA dashboard:\n  – PHO supply, TESS supply\n  – reserves composition\n  – bonds outstanding\n  – rates, OMOs, profit distribution\n• Holo/Beam explorer for devs]
+    P8_1[☐ Explorers & Dashboards\n• Block/tx explorer\n• GMA dashboard: PHO/TESS, reserves,\n  bonds, rates, OMOs, revenues\n• Holo/Beam explorer\n• MeshReconcile/cluster stats]
 
-    P8_2[Governance Wiring\n• TESS staking → voting power\n• Proposal types:\n  – change rates\n  – change risk limits\n  – change council\n  – recapitalize via TESS\n• Timelocks & emergency powers]
+    P8_2[☐ Governance Wiring\n• TESS staking → voting power\n• Proposal types:\n  – rates, risk limits\n  – council, recap rules\n  – offline_credit_limit policies\n• Timelocks & emergency powers]
 
-    P8_3[Testnets\n• Local devnet (single-node + mocks)\n• Internal testnet with fake reserves/oracles\n• Public testnet (faucet, explorers)\n• Upgrades & migration rehearsal]
+    P8_3[☐ Testnets\n• Local devnet with mocks\n• Internal testnet (fake reserves/oracles)\n• Public testnet (faucet, explorers)\n• Upgrade/migration rehearsals]
 
-    P8_4[Security & Audits\n• Internal review of GMA invariants\n• External audits for:\n  – core chain modules\n  – PHO/TESS/bonds\n  – GMA & bridge\n• Bug bounty program]
-
+    P8_4[☐ Security & Audits\n• Internal invariant review (GMA + mesh)\n• External audits:\n  – core chain modules\n  – PHO/TESS/bonds\n  – GMA, MeshReconcile, bridges\n• Bug bounty program]
   end
 
   %% Dependencies
@@ -170,7 +183,7 @@ graph TD
   P2_3 --> P2_4
   P2_4 --> P3_5
   P1_4 --> P3_1
-  P3_1 --> P3_3 --> P3_4 --> P3_5 --> P3_6 --> P3_7
+  P3_1 --> P3_3 --> P3_4 --> P3_5 --> P3_6 --> P3_7 --> P3_8 --> P3_9
   P3_1 --> P4_1
   P4_1 --> P4_2 --> P4_3 --> P4_4
   P3_3 --> P5_2
@@ -182,24 +195,400 @@ graph TD
   P1_5 --> P8_2
   P2_1 --> P7_1
   P3_6 --> P7_1
+  P3_9 --> P7_4
   P1_3 --> P7_5
   P7_5 --> P7_4
+  P7_4 --> P7_6
   P1_2 --> P8_1
   P1_2 --> P8_3 --> P8_4
+
+If you want it tracked, we can add something like:
+	•	P7_4_V1 – PHO mesh payment over BLE (end-to-end slice)
+	•	Sender wallet → MeshTx construction
+	•	BLE GIP adapter send/recv
+	•	Local ledger update on both devices
+	•	Logging + debug view in GlyphNetDebugger
+
+Say the word and I’ll write that slice out in full (packet shapes + function calls) next
+
+  Key bits that changed vs your original:
+  • New GMA hook: P3_9 Offline Credit Policy ties the grown-up monetary side to the mesh mode (limits, risk, governance).
+  • P7_4 expanded to explicitly cover Radio + BLE + Wi-Fi Direct, using the MeshTx / LocalBalance / ClusterBlock / ReconcileRequest/Result types you pasted.
+  • P7_6 added for viral GlyphNet bootstrap: minimal skeleton bundle shared D2D when the internet is dead.
+  • Everything is wired so that:
+  • Online = normal PHO on-chain.
+  • Offline = PHO_local claims with bounded risk + later reconciliation.
+  • Transports are adapters under GlyphNet (radio/BLE/Wi-Fi Direct), not separate chains.
+
+
+
+Below is a code-level build checklist just for:
+  • P7_4 Mesh payments + MeshReconcile, and
+  • BLE / Wi-Fi Direct transport, including:
+  • GlyphNet messenger (browser + backend),
+  • wave addresses (email-style IDs),
+  • wave numbers (phone-style IDs),
+  • PTT (push-to-talk) over radio/BLE.
+
+⸻
+
+1) Mesh Payments & Reconciliation Layer (backend)
+
+1.1 New mesh core types
+
+New dir: backend/modules/mesh/
+
+Files:
+  1.  backend/modules/mesh/mesh_types.py
+  • Implement the types you already specced:
+
+
+
+# identifiers
+DeviceId = str
+AccountId = str
+ClusterId = str
+
+class LocalIdentity(TypedDict):
+    device_id: DeviceId
+    primary_account: AccountId
+
+class LocalBalance(TypedDict):
+    account: AccountId
+    global_confirmed_pho: str
+    local_net_delta_pho: str
+    offline_credit_limit_pho: str
+    safety_buffer_pho: str
+
+
+  2.  backend/modules/mesh/mesh_tx.py
+
+
+class MeshTx(TypedDict):
+    mesh_tx_id: str
+    cluster_id: ClusterId
+    from_account: AccountId
+    to_account: AccountId
+    amount_pho: str
+    created_at_ms: int
+    prev_local_seq: int
+    sender_device_id: DeviceId
+    sender_signature: str
+
+
+  3.  backend/modules/mesh/mesh_log.py
+
+  class LocalTxLog(TypedDict):
+    account: AccountId
+    entries: list[MeshTx]
+    last_seq: int
+
+
+  4.  backend/modules/mesh/cluster_block.py
+class ClusterBlock(TypedDict):
+    cluster_id: ClusterId
+    height: int
+    prev_block_hash: str
+    txs: list[MeshTx]
+    hash: str
+    notary_device_id: DeviceId
+    notary_signature: str
+
+
+
+1.2 MeshReconcile service
+  5.  backend/modules/mesh/mesh_reconcile_service.py
+  • Implement:  
+
+
+class ReconcileRequest(TypedDict):
+    account: AccountId
+    device_id: DeviceId
+    last_global_block_height: int
+    local_mesh_blocks: list[ClusterBlock]  # or compressed form
+
+class ReconcileResult(TypedDict):
+    account: AccountId
+    accepted_local_delta_pho: str
+    disputed_mesh_tx_ids: list[str]
+    settlement_tx_hash: str | None
+
+
+
+  • Functions:
+  • compute_local_delta(req) -> Decimal
+  • detect_conflicts(req, chain_state, offline_limit) -> list[MeshTx]
+  • apply_policy(...) -> ReconcileResult (respect per-account offline_credit_limit_pho from GMA).
+
+  6.  backend/modules/mesh/mesh_reconcile_routes.py
+  • REST / gRPC entrypoints used by wallet / browser:
+  • POST /mesh/reconcile → ReconcileResult
+  • GET /mesh/limits/{account} → returns offline limits from GMA.
+
+1.3 GMA → Mesh policy hook
+  7.  Modify backend/modules/gma/gma_state.py (or wherever GMA structs live):
+  • Add per-account limits:  
+
+
+
+class OfflineCreditPolicy(TypedDict):
+    default_limit_pho: str
+    per_account_overrides: dict[AccountId, str] 
+
+
+  • Add to main GMAState:
+
+offline_credit_policy: OfflineCreditPolicy
+
+
+
+
+  8.  New module: backend/modules/gma/gma_mesh_policy.py
+  • get_offline_limit(account) -> Decimal
+  • set_offline_limit(account, new_limit) -> None (governance-gated)
+  • Used by mesh_reconcile_service and wallet APIs.
+
+⸻
+
+2) BLE / Wi-Fi Direct Transports for GlyphNet
+
+You already have:
+  • gip_adapter_wave.py
+  • gip_adapter_net.py
+  • gip_adapter_http.py
+  • glyph_transport_config.py
+  • glyph_transport_switch.py
+  • glyphnet_transport.py
+  • glyph_transmitter.py
+  • glyph_receiver.py
+
+We’ll mirror those for BLE / Wi-Fi Direct.
+
+2.1 GIP BLE adapter (backend)
+  9.  New file: backend/modules/glyphnet/gip_adapter_ble.py
+  • Interface-compatible with gip_adapter_wave.py:
+
+
+class GIPBluetoothAdapter:
+    def __init__(self, device_id: str | None = None):
+        ...
+
+    async def send_packet(self, packet: GIPPacket) -> None:
+        """Serialize and send over BLE link to nearby peers."""
+
+    async def receive_loop(self, on_packet: Callable[[GIPPacket], Awaitable[None]]) -> None:
+        """Listen for BLE frames, decode to GIPPacket, callback."""
+
+    async def scan_peers(self) -> list[DeviceId]:
+        ...
+
+    async def close(self) -> None:
+        ...
+
+
+
+• Stub out actual OS BLE integration behind a small native shim so we can mock in dev.
+
+  10. Optional: backend/modules/glyphnet/gip_adapter_wifi_direct.py
+  • Same interface; transport using Wi-Fi Direct (or local TCP hotspot).
+
+2.2 Transport config & switch
+  11. Modify backend/modules/glyphnet/glyph_transport_config.py
+
+  • Extend carrier types:
+
+
+CARRIER_BLE = "BLE"
+CARRIER_WIFI_DIRECT = "WIFI_DIRECT"
+
+
+  • Add defaults:
+
+
+DEFAULT_CARRIERS = ["RADIO", "BLE", "NET"]
+
+
+  12. Modify backend/modules/glyphnet/glyph_transport_switch.py
+
+  • Map new carriers:
+
+
+from backend.modules.glyphnet.gip_adapter_ble import GIPBluetoothAdapter
+from backend.modules.glyphnet.gip_adapter_wifi_direct import GIPWiFiDirectAdapter
+
+def get_adapter(carrier: str):
+    if carrier == "BLE":
+        return GIPBluetoothAdapter()
+    if carrier == "WIFI_DIRECT":
+        return GIPWiFiDirectAdapter()
+    ...
+
+
+
+  13. Modify backend/modules/glyphnet/glyphnet_transport.py
+
+  • Update routing so any GlyphNetPacket can be sent via RADIO | BLE | WIFI_DIRECT depending on:
+  • user preference,
+  • availability (online/offline),
+  • message type (payments / chat / PTT).
 
 
 
 ⸻
 
-Quick execution notes
+3) Wallet & Messenger Integration (browser / webapp)
 
-Recommended build order:
-	1.	P0 → P1: pick framework, define types, get a bare chain running with PHO/TESS & Bank/Stake.
-	2.	P2: wire tokens, AMM, fee routing.
-	3.	P3: implement GMA skeleton (mint/burn guard, reserves, facilities) with mocked oracles.
-	4.	P4–P5: bonds + real oracle integration + reserve feeds.
-	5.	P6: glue chain ↔ Holo/QQC (minimal commit + metrics).
-	6.	P7: wallet + mobile + radio-mode plumbing.
-	7.	P8: dashboards, testnets, hardening, audits.
+3.1 Wallet: local mesh state
+  14. New backend module: backend/modules/wallet/mesh_wallet_state.py
 
+  • Mirror LocalBalance, LocalTxLog, plus helper functions:
+
+
+  def apply_mesh_tx(balance: LocalBalance, tx: MeshTx) -> LocalBalance: ...
+def effective_spendable_local(balance: LocalBalance) -> Decimal: ...
+
+
+
+
+  15. Front-end (Next.js / browser): add a Mesh wallet store (e.g. Zustand or Redux):
+
+  • globalConfirmedPho
+  • localNetDeltaPho
+  • offlineLimitPho
+  • meshTxLog[]
+  • clusterBlocks[]
+  • Methods:
+  • enterMeshMode()
+  • recordLocalSend()
+  • recordLocalReceive()
+  • syncAndReconcile() (call backend /mesh/reconcile).
+
+3.2 Wave addresses + wave numbers
+  16. Backend type registry: backend/modules/glyphnet/identity_registry.py (you already have something similar) → extend:
+
+
+
+class WaveAddress(TypedDict):
+    wave_addr: str  # e.g. "alice@waves.glyph"
+    account: AccountId
+    device_id: DeviceId
+    created_at: float
+
+
+class WaveNumber(TypedDict):
+    wave_number: str  # e.g. "+wave-44-1234-5678"
+    account: AccountId
+    region: str
+    device_id: DeviceId
+
+
+
+
+  • Add:
+  • register_wave_address(account, preferred_handle)
+  • lookup_by_wave_addr(wave_addr)
+  • lookup_by_wave_number(wave_number)
+
+  17. Front-end:
+
+  • Modify GlyphNet messenger contact list to show:
+  • WaveAddress (email-like) as primary handle.
+  • WaveNumber as “call/voice/PTT” handle.
+  • When composing:
+  • If user types a wave address → resolve to account + device → choose best transport (NET / RADIO / BLE).
+  • If they tap a wave number → open PTT session (below).
+
+⸻
+
+4) PTT (Push-to-Talk) over Radio & BLE
+
+4.1 Backend: PTT session manager
+  18. New module: backend/modules/ptt/ptt_session_manager.py   
+
+
+
+class PTTSession(TypedDict):
+    session_id: str
+    caller: AccountId
+    callee: AccountId
+    started_at: float
+    transport: str  # "RADIO" | "BLE"
+    codec: str      # e.g. "opus-low"  
+
+
+  • Methods:
+  • start_session(caller, callee, transport) -> PTTSession
+  • end_session(session_id)
+  • handle_audio_chunk(session_id, chunk_bytes)
+
+  19. New module: backend/modules/ptt/ptt_packet_codec.py
+
+  • Define PTTPacket (wrapped into GlyphNet / GIP):
+
+
+ class PTTPacket(TypedDict):
+    session_id: str
+    seq: int
+    codec: str
+    payload: bytes  # compressed audio chunk
+    ts: int     
+
+
+
+  • Functions:
+  • encode_audio_frame(raw_pcm) -> PTTPacket
+  • decode_audio_frame(packet) -> raw_pcm
+
+  20. Wire into GlyphNet:
+
+  • Extend gip_packet_schema.py to add a type: "ptt" variant.
+  • Modify glyphnet_router.py to route PTTPacket via:
+  • gip_adapter_wave (radio),
+  • gip_adapter_ble (BLE).
+
+4.2 Front-end: PTT UI + audio
+  21. Browser / desktop GlyphNet UI:
+
+  • Add a PTT button to chat/messenger:
+  • On press:
+  • open mic,
+  • encode into small audio frames,
+  • wrap as PTTPacket → send via active transport (priority: BLE > RADIO > NET).
+  • On release:
+  • close session or mark as pause.
+
+  22. Mobile (when you get native wrapper):
+
+  • Equivalent PTT UI, but audio pipeline uses OS audio APIs.
+  • Transport chosen by availability:
+  • online → normal WebSocket/NET,
+  • offline → RADIO / BLE.
+
+⸻
+
+5) “Update current stack to use BLE” – concrete tasks
+
+Here’s a compact task list just for BLE + mesh + PTT updates to existing code:
+  1.  Transport adapters
+  • Add gip_adapter_ble.py (GIPBluetoothAdapter).
+  • (Optional) Add gip_adapter_wifi_direct.py.
+  • Extend glyph_transport_config.py with BLE, WIFI_DIRECT.
+  • Extend glyph_transport_switch.py to return BLE/Wi-Fi adapters.
+  • Update glyphnet_transport.py to allow multiple active carriers.
+  2.  Mesh payments
+  • Add mesh_types.py, mesh_tx.py, mesh_log.py, cluster_block.py.
+  • Add mesh_reconcile_service.py + mesh_reconcile_routes.py.
+  • Add gma_mesh_policy.py, extend GMA state with offline credit policy.
+  • Add wallet mesh store (front-end) + backend mesh_wallet_state.py.
+  3.  Messenger & identity
+  • Extend identity_registry.py with WaveAddress + WaveNumber.
+  • Update GlyphNet messenger UI to use wave addresses & wave numbers.
+  • Teach messenger to pick carrier: NET vs RADIO vs BLE depending on online status & user choice.
+  4.  PTT
+  • Add ptt_session_manager.py & ptt_packet_codec.py.
+  • Extend gip_packet_schema.py for type: "ptt".
+  • Route PTT packets through glyphnet_router.py via radio/BLE.
+  • Implement PTT UI (press-to-hold) in browser/app using existing GlyphNet messenger panel.
+
+If you like, next step I can pick one vertical slice (e.g. “PHO mesh payment over BLE between two nearby phones”) and write it as a full end-to-end flow: exact packet shapes, which functions fire in which module, and what you’d log where.
 

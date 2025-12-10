@@ -118,3 +118,34 @@ def get_simulation_log(
         logs = [l for l in logs if l.get("status") == status]
 
     return logs[-n:]
+
+
+def simulate_waveform_transmission(
+    glyphs: List[Any],
+    sender: str = "local",
+) -> Dict[str, Any]:
+    """
+    Dev / test helper used by glyph_transport_switch for 'local' transport.
+    Returns a simple trace structure; no real I/O.
+    """
+    trace = {
+        "sender": sender,
+        "glyph_count": len(glyphs),
+        "file": "simulated_local_waveform.wav",  # keep shape that caller expects
+    }
+    logger.info(
+        "[GlyphWaveSim] simulate_waveform_transmission: sender=%s glyphs=%d",
+        sender,
+        len(glyphs),
+    )
+    return {"trace": trace}
+
+
+def simulate_waveform_loopback(glyphs: List[Any]) -> None:
+    """
+    Fallback no-op loopback used when simulate_waveform_transmission fails.
+    """
+    logger.info(
+        "[GlyphWaveSim] simulate_waveform_loopback: glyphs=%d (no-op)",
+        len(glyphs),
+    )

@@ -1,7 +1,6 @@
 // src/App.tsx
 import { useEffect, useRef, useState } from "react";
 import TopBar, { RadioStatus } from "./components/TopBar";
-// OLD: import Sidebar from "./components/Sidebar";
 import { SidebarRail } from "./components/SidebarRail";
 import WaveInbox from "./components/WaveInbox";
 import KGDock from "./components/KGDock";
@@ -15,6 +14,7 @@ import { useRadioHealth } from "./hooks/useRadioHealth";
 import { KG_API_BASE } from "./utils/kgApiBase";
 import { OWNER_WA } from "./lib/constants";
 import DevTools from "./routes/DevTools";
+import WalletPanel from "./components/WalletPanel"; // 👈 NEW
 
 type Mode = "wormhole" | "http";
 type NavArg = string | { mode: Mode; address: string };
@@ -26,12 +26,12 @@ type ActiveTab =
   | "settings"
   | "chat"
   | "bridge"
-  | "devtools";
+  | "devtools"
+  | "wallet"; // 👈 NEW
 
 type Session = { slug: string; wa: string } | null;
 
 export default function App() {
-  // const [sidebarOpen, setSidebarOpen] = useState(false); // replaced by SidebarRail
   const [showWaves, setShowWaves] = useState(false);
   const [active, setActive] = useState<ActiveTab>("home");
   const [wavesCount, setWavesCount] = useState(1);
@@ -147,6 +147,12 @@ export default function App() {
         return;
       }
 
+      if (h.startsWith("#/wallet")) {
+        setActive("wallet");
+        document.title = `Wallet — Glyph Net`;
+        return;
+      }
+
       if (h.startsWith("#/chat")) {
         setActive("chat");
         setChatTopicFromHash(readTopicFromHash(h));
@@ -258,7 +264,8 @@ export default function App() {
     | "kg"
     | "settings"
     | "devtools"
-    | "chat" = active === "bridge" ? "settings" : (active as any);
+    | "chat"
+    | "wallet" = active === "bridge" ? "settings" : (active as any);
 
   // SidebarRail click handlers – keep existing routes/hash patterns
   const navHome = () => {
@@ -285,6 +292,10 @@ export default function App() {
     window.location.hash = "#/devtools";
     setActive("devtools");
   };
+  const navWallet = () => {
+    window.location.hash = "#/wallet";
+    setActive("wallet");
+  };
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
@@ -310,6 +321,12 @@ export default function App() {
             { id: "chat", icon: "💬", label: "Chat", onClick: navChat },
             { id: "inbox", icon: "📥", label: "Inbox", onClick: navInbox },
             { id: "outbox", icon: "📤", label: "Outbox", onClick: navOutbox },
+            {
+              id: "wallet", // 👈 NEW
+              icon: "🏦",
+              label: "Wallet",
+              onClick: navWallet,
+            },
             {
               id: "kg",
               icon: "🧠",
@@ -360,6 +377,8 @@ export default function App() {
             <KGDock />
           ) : active === "outbox" ? (
             <WaveOutbox />
+          ) : active === "wallet" ? ( // 👈 NEW
+            <WalletPanel />
           ) : active === "settings" ? (
             <p>Settings (stub)</p>
           ) : active === "devtools" ? (

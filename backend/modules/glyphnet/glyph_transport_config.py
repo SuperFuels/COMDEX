@@ -6,6 +6,7 @@ import logging
 from backend.modules.glyphnet.glyph_beacon import emit_symbolic_beacon
 from backend.modules.glyphnet.glyphwave_encoder import glyphs_to_waveform, save_wavefile
 from backend.modules.glyphnet.glyphnet_packet import create_gip_packet
+from backend.modules.glyphnet.gip_adapter_ble import GIPBluetoothAdapter  # 👈 NEW
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ def radio_transport(packet: Dict[str, Any], options: Dict[str, Any]) -> bool:
         if options.get("save_path"):
             save_wavefile(waveform, options["save_path"])
         return True
-    except Exception as e:
+    except Exception:
         logger.exception("[Radio] Failed to send via radio")
         return False
 
@@ -49,7 +50,7 @@ def beacon_transport(packet: Dict[str, Any], options: Dict[str, Any]) -> bool:
         sender = packet.get("payload", {}).get("sender", "system")
         emit_symbolic_beacon(glyphs, sender=sender)
         return True
-    except Exception as e:
+    except Exception:
         logger.exception("[Beacon] Failed to emit")
         return False
 
@@ -59,7 +60,31 @@ def local_transport(packet: Dict[str, Any], options: Dict[str, Any]) -> bool:
     return True
 
 
+# 👇 NEW: BLE transport stub (sync wrapper calling async stub later)
+def ble_transport(packet: Dict[str, Any], options: Dict[str, Any]) -> bool:
+    """
+    BLE transport bridge.
+
+    For now this is a stub that just logs.
+    Later we can:
+      - stash to a queue,
+      - or spin an asyncio task to call GIPBluetoothAdapter.send_packet().
+    """
+    logger.info("[Transport] (stub) Sending packet via BLE")
+    try:
+        # We don't actually fire BLE yet – this just acts as a marker.
+        # Real integration will live in a dedicated async loop.
+        adapter = GIPBluetoothAdapter(device_id=options.get("device_id"))
+        # Intentionally not awaiting here (no loop in this sync fn).
+        logger.debug("[BLE] (stub) adapter=%s packet_type=%s", adapter.device_id, packet.get("type"))
+        return True
+    except Exception:
+        logger.exception("[BLE] Failed to send via BLE stub")
+        return False
+
+
 # Pre-register common transports
 register_transport("radio", radio_transport)
 register_transport("beacon", beacon_transport)
 register_transport("local", local_transport)
+register_transport("ble", ble_transport)  # 👈 NEW
