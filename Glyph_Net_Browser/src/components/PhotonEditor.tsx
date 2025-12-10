@@ -6,11 +6,25 @@ import { compileMotifStub } from "../lib/api/motif";
 import type { GhxPacket } from "./DevFieldHologram3D";
 import { importHoloSnapshot } from "../lib/api/holo";
 import type { HoloIR } from "../lib/types/holo";
+import type { HoloIndexItem } from "../lib/api/holo";
 
 type PhotonEditorProps = {
   docId?: string;
+  // shared “Holo Files” cabinet passed from DevTools
+  holoFiles?: HoloIndexItem[];
 };
 
+// ---- Types from SCI editor ----
+
+// Same sample block as SCI editor
+const SAMPLE_PHOTON = `# Photon test script for SCI IDE
+# Expect: container_id, wave, resonance, memory -> glyphs
+⊕ container main {
+  wave "hello";
+  resonance 0.42;
+  memory "sticky-notes";
+}
+`;
 
 // ---- Types from SCI editor ----
 type TranslateResponse = {
@@ -73,17 +87,6 @@ type OpenDoc = {
 };
 
 // Stub “file cabinet” list that we’ll render in the sidebar
-// Same sample block as SCI editor
-const SAMPLE_PHOTON = `# Photon test script for SCI IDE
-# Expect: container_id, wave, resonance, memory -> glyphs
-⊕ container main {
-  wave "hello";
-  resonance 0.42;
-  memory "sticky-notes";
-}
-`;
-
-// Stub “file cabinet” list that we’ll render in the sidebar
 const HOLO_FILE_LIST = [
   "main.holo",
   "loop.holo",
@@ -108,7 +111,10 @@ async function postJson<T = any>(path: string, body: any): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) {
+export default function PhotonEditor({
+  docId = "devtools",
+  holoFiles = [],
+}: PhotonEditorProps) {
   const initialId = docId;
 
   // --- multi-doc / tab state ---
@@ -682,91 +688,152 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
         )}
       </div>
 
-      {/* File cabinet + editor + glyph pane + AST inspector */}
-      <div
-        style={{
-          flex: 1,
-          display: "grid",
-          gridTemplateColumns: "210px 1fr 1fr",
-          gap: 12,
-          alignItems: "stretch",
-          minHeight: 0,
-        }}
-      >
-        {/* Left: holo file cabinet (stub KG view) */}
+        {/* File cabinet + editor + glyph pane + AST inspector */}
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            borderRadius: 12,
-            border: "1px solid #e5e7eb",
-            background: "#ffffff",
-            padding: 8,
-            fontSize: 11,
+            flex: 1,
+            display: "grid",
+            gridTemplateColumns: "220px 1fr 1fr",
+            gap: 12,
+            alignItems: "stretch",
+            minHeight: 0,
           }}
         >
+          {/* Left: Holo file cabinet */}
           <div
             style={{
-              fontWeight: 600,
-              color: "#6b7280",
-              textTransform: "uppercase",
-              letterSpacing: 0.03,
-              marginBottom: 4,
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: 12,
+              border: "1px solid #e5e7eb",
+              background: "#ffffff",
+              padding: 12,
+              fontSize: 12,
             }}
           >
-            Holo files
-          </div>
-          <div
-            style={{
-              fontFamily:
-                "JetBrains Mono, ui-monospace, SFMono-Regular, monospace",
-              color: "#111827",
-              fontSize: 11,
-              flex: 1,
-              borderRadius: 8,
-              background: "#020617",
-              padding: 8,
-              colorScheme: "dark",
-            }}
-          >
-            {HOLO_FILE_LIST.map((name) => (
-              <div key={name} style={{ marginBottom: 2 }}>
-                <button
-                  type="button"
-                  onClick={() =>
-                    openDoc(
-                      name,
-                      name,
-                      docText[name] ?? `# ${name}\n# holo program stub\n`
-                    )
-                  }
-                  style={{
-                    border: "none",
-                    background: "transparent",
-                    padding: 0,
-                    margin: 0,
-                    cursor: "pointer",
-                    color: "#e5e7eb",
-                    fontSize: 11,
-                    textAlign: "left",
-                  }}
-                >
-                  {name}
-                  <span style={{ color: "#64748b" }}>  (t=12 / v=1)</span>
-                </button>
+            <div style={{ fontWeight: 600, marginBottom: 6 }}>Holo Files</div>
+
+            {/* Program files (primary rows) */}
+            <ul
+              style={{
+                listStyle: "none",
+                margin: 0,
+                padding: 0,
+                marginBottom: 8,
+                paddingBottom: 6,
+                borderBottom: "1px solid #e5e7eb",
+                fontSize: 11,
+                color: "#111827",
+              }}
+            >
+              {["main.holo", "loop.holo", "exec.holo", "output.holo"].map(
+                (name, idx) => {
+                  const rowBg =
+                    idx % 2 === 0 ? "transparent" : "rgba(15,23,42,0.02)";
+                  return (
+                    <li key={name}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openDoc(
+                            name,
+                            name,
+                            docText[name] ??
+                              `# ${name}\n# holo program frame\n`,
+                          )
+                        }
+                        style={{
+                          width: "100%",
+                          border: "none",
+                          background: rowBg,
+                          padding: "4px 6px",
+                          textAlign: "left",
+                          borderRadius: 6,
+                          cursor: "pointer",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span>{name}</span>
+                        <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                          file
+                        </span>
+                      </button>
+                    </li>
+                  );
+                },
+              )}
+            </ul>
+
+            {/* Snapshots (shared holoFiles cabinet) */}
+            <div
+              style={{
+                fontSize: 10,
+                textTransform: "uppercase",
+                letterSpacing: 0.04,
+                color: "#9ca3af",
+                marginBottom: 4,
+              }}
+            >
+              Snapshots
+            </div>
+
+            {!holoFiles || holoFiles.length === 0 ? (
+              <div style={{ fontSize: 11, color: "#9ca3af" }}>
+                no snapshots yet
               </div>
-            ))}
+            ) : (
+              <ul
+                style={{
+                  listStyle: "none",
+                  margin: 0,
+                  padding: 0,
+                  flex: 1,
+                  overflowY: "auto",
+                }}
+              >
+                {holoFiles.map((hf, idx) => {
+                  const label = `t=${hf.tick ?? 0} · v${hf.revision ?? 1}`;
+                  const rowBg =
+                    idx % 2 === 0 ? "transparent" : "rgba(15,23,42,0.02)";
+                  return (
+                    <li key={`${hf.tick}-${hf.revision}`}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openDoc(
+                            label,
+                            label,
+                            docText[label] ??
+                              `# ${label}\n# holo snapshot stub\n`,
+                          )
+                        }
+                        style={{
+                          width: "100%",
+                          border: "none",
+                          background: rowBg,
+                          padding: "4px 6px",
+                          textAlign: "left",
+                          borderRadius: 6,
+                          cursor: "pointer",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontSize: 11,
+                        }}
+                      >
+                        <span>{label}</span>
+                        <span style={{ fontSize: 10, color: "#6b7280" }}>
+                          v{hf.revision ?? "?"}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
-          <div
-            style={{
-              marginTop: 6,
-              fontSize: 10,
-              color: "#6b7280",
-            }}
-          >
-            Click a file to open it as a tab in the editor.
-          </div>
-        </div>
 
         {/* Middle: source editor */}
         <div
@@ -914,6 +981,7 @@ export default function PhotonEditor({ docId = "devtools" }: PhotonEditorProps) 
             />
           </div>
         </div>
+
         {/* Right: translated glyphs + AST inspector */}
         <div
           style={{

@@ -443,69 +443,84 @@ def export_holo_from_kg_pack(
     return holo
 
 
+def list_holos_for_container(container_id: str) -> list[Dict[str, Any]]:
+    """
+    Very small index reader: list all .holo.json files for a container.
+    """
+    root = HOLO_ROOT / container_id
+    if not root.exists():
+        return []
+    items: list[Dict[str, Any]] = []
+    for p in sorted(root.glob("*.holo.json")):
+        try:
+            with open(p, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            continue
+        items.append(
+            {
+                "holo_id": data.get("holo_id"),
+                "container_id": data.get("container_id"),
+                "tick": (data.get("timefold") or {}).get("tick", 0),
+                "revision": (data.get("version") or {}).get("revision", 1),
+                "path": str(p),
+            }
+        )
+    return items
+
 # -------------------------------------------------------------------
 # Import helper: dict → .holo file (no HoloIR construction)
 # -------------------------------------------------------------------
-def save_holo_from_dict(holo_dict: Dict[str, Any]) -> Dict[str, Any]:
+
+def save_holo_from_dict(obj: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Used by /api/holo/import and motif pipeline.
-
-    Accepts a Holo-like dict (may include extra keys like 'tick', 'revision',
-    etc.), persists it as JSON under HOLO_ROOT, and returns the dict.
-
-    This deliberately does NOT construct a HoloIR instance so we don't
-    care about unknown fields.
+    Accept a HoloIR-like dict, normalise holo_id / revision,
+    write a .holo.json file and update knowledge_index.holo.
     """
-    if "container_id" not in holo_dict:
-        raise ValueError("container_id is required to import a .holo snapshot")
+    cid = str(obj.get("container_id") or "unknown")
+    timefold = obj.get("timefold") or {}
+    tick = int(timefold.get("tick", 0))
 
-    # work on a shallow copy so we don't mutate the caller's dict
-    holo: Dict[str, Any] = dict(holo_dict)
+    version = obj.get("version") or {}
+    rev = int(version.get("revision") or 1)
+    version["revision"] = rev
+    obj["version"] = version
 
-    cid = str(holo["container_id"])
-
-    # Ensure holo_id exists; if not, synthesise one from tick/revision
-    holo_id = holo.get("holo_id")
-    if not holo_id:
-        tick = int(holo.get("tick", 0))
-        revision = int(holo.get("revision", 1))
-        holo_id = _make_holo_id(cid, tick, revision)
-        holo["holo_id"] = holo_id
-    else:
-        holo_id = str(holo_id)
+    holo_id = obj.get("holo_id") or f"holo:container/{cid}/t={tick}/v{rev}"
+    obj["holo_id"] = holo_id
 
     out_dir = HOLO_ROOT / cid
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    safe_id = holo_id.replace(":", "_").replace("/", "_")
-    out_path = out_dir / f"{safe_id}.holo.json"
+    file_name = holo_id.replace(":", "_").replace("/", "_") + ".holo.json"
+    out_path = out_dir / file_name
 
-    def _json_default(obj):
-        # Handle common non-JSON types gracefully
-        try:
-            import numpy as np  # type: ignore
-        except Exception:
-            np = None
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(obj, f, indent=2)
 
-        if np is not None:
-            if isinstance(obj, np.integer):  # type: ignore[attr-defined]
-                return int(obj)
-            if isinstance(obj, np.floating):  # type: ignore[attr-defined]
-                return float(obj)
-            if isinstance(obj, np.ndarray):  # type: ignore[attr-defined]
-                return obj.tolist()
+    # optional index entry
+    try:
+        add_to_index(
+            "knowledge_index.holo",
+            {
+                "id": holo_id,
+                "type": "holo",
+                "timestamp": _utc_now_iso(),
+                "content": {
+                    "container_id": cid,
+                    "tick": tick,
+                    "revision": rev,
+                    "path": str(out_path),
+                },
+                "metadata": {
+                    "tags": obj.get("indexing", {}).get("tags", []),
+                },
+            },
+        )
+    except Exception as e:
+        print(f"[HOLO-IMPORT] add_to_index failed: {e}")
 
-        if isinstance(obj, Path):
-            return str(obj)
-        if isinstance(obj, set):
-            return list(obj)
-
-        raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
-
-    with out_path.open("w", encoding="utf-8") as f:
-        json.dump(holo, f, indent=2, sort_keys=True, default=_json_default)
-
-    return holo
+    return obj
 
 
 # -------------------------------------------------------------------

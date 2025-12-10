@@ -10,18 +10,21 @@ import {
 import { GHXVisualizerField } from "./GHXVisualizerField";
 import type { HoloIR } from "../lib/types/holo";
 import { buildGhxFromHolo } from "../lib/rehydrate";
+import type { HoloIndexItem } from "../lib/api/holo";
 
-export interface DevFieldHologram3DContainerProps {
-  holo?: HoloIR | null;          // optional .holo snapshot (Field Lab / Crystals)
-  mode?: HologramMode;           // "field" (default) or "crystal"
-  allowExternalGhx?: boolean;    // allow external devtools.ghx events
-}
+type Props = {
+  holo?: HoloIR | null;        // optional .holo snapshot (Field Lab / Crystals)
+  mode?: HologramMode;         // "field" (default) or "crystal"
+  allowExternalGhx?: boolean;  // allow external devtools.ghx events
+  holoFiles?: HoloIndexItem[]; // shared Holo Files cabinet (from DevTools)
+};
 
 export default function DevFieldHologram3DContainer({
   holo,
   mode = "field",
   allowExternalGhx = false,
-}: DevFieldHologram3DContainerProps) {
+  holoFiles,
+}: Props) {
   const [status, setStatus] = useState<string>("Disconnected");
   const [lastPacket, setLastPacket] = useState<GhxPacket | null>(null);
   const [focusMode, setFocusMode] = useState<"world" | "focus">("world");
@@ -40,7 +43,8 @@ export default function DevFieldHologram3DContainer({
   }, []);
 
   function connectWs() {
-    if (holo) return;                       // no live GHX needed for snapshot
+    // if we're viewing a static holo snapshot, no live GHX needed
+    if (holo) return;
     if (typeof window === "undefined") return;
 
     if (
@@ -85,7 +89,7 @@ export default function DevFieldHologram3DContainer({
     };
   }
 
-  // --- auto-connect / rehydrate / listen for devtools.ghx -------------------
+  // --- auto-connect / holo → GHX / devtools.ghx listener --------------------
   useEffect(() => {
     if (!holo) {
       connectWs();
@@ -97,6 +101,7 @@ export default function DevFieldHologram3DContainer({
       setStatus("Holo snapshot loaded");
     }
 
+    // seed from any prior global GHX packet
     if (typeof window !== "undefined") {
       const g = (window as any).__DEVTOOLS_LAST_GHX;
       if (g && Array.isArray(g.nodes) && Array.isArray(g.edges)) {
@@ -219,7 +224,7 @@ export default function DevFieldHologram3DContainer({
           display: "flex",
           gap: 12,
           minHeight: 0,
-          alignItems: "stretch",      // ⬅ ensure both columns are same height
+          alignItems: "stretch",
         }}
       >
         {/* 3D field card */}
@@ -255,8 +260,8 @@ export default function DevFieldHologram3DContainer({
             minHeight: 220,
             flexShrink: 0,
             boxSizing: "border-box",
-            maxHeight: "100%",        // ⬅ match main row height
-            overflow: "hidden",       // ⬅ keep children inside the card
+            maxHeight: "100%",
+            overflow: "hidden",
           }}
         >
           <div style={{ marginBottom: 8 }}>
@@ -272,8 +277,8 @@ export default function DevFieldHologram3DContainer({
               </div>
             ) : (
               <div style={{ color: "#6b7280" }}>
-                No GHX packets yet. Trigger <b>AST → Hologram</b>, export a
-                <b> .holo</b>, or send GHX via <code>/ws/ghx</code>.
+                No GHX packets yet. Trigger <b>AST → Hologram</b>, export a{" "}
+                <b>.holo</b>, or send GHX via <code>/ws/ghx</code>.
               </div>
             )}
           </div>
@@ -283,16 +288,59 @@ export default function DevFieldHologram3DContainer({
             <GHXVisualizerField packet={packetForScene} layout={mode} />
           </div>
 
+          {/* Shared Holo Files cabinet (read-only) */}
+          {holoFiles && (
+            <div
+              style={{
+                marginBottom: 8,
+                padding: 6,
+                borderRadius: 8,
+                background: "#e5e7eb",
+                fontSize: 11,
+              }}
+            >
+              <div style={{ fontWeight: 600, marginBottom: 2 }}>
+                Holo Files
+              </div>
+              {holoFiles.length === 0 ? (
+                <div style={{ color: "#6b7280" }}>no snapshots yet</div>
+              ) : (
+                <ul
+                  style={{
+                    listStyle: "none",
+                    padding: 0,
+                    margin: 0,
+                    maxHeight: 80,
+                    overflowY: "auto",
+                  }}
+                >
+                  {holoFiles.map((hf) => (
+                    <li key={hf.holo_id} style={{ padding: "1px 0" }}>
+                      <span style={{ fontFamily: "monospace" }}>
+                        {hf.holo_id.split("/").slice(-1)[0]}{" "}
+                        <span style={{ opacity: 0.7 }}>
+                          (t={hf.tick ?? "?"} / v={hf.revision ?? "?"})
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           {/* raw GHX JSON */}
           <div
             style={{
               flex: 1,
-              minHeight: 0,           // ⬅ allows flex child to shrink
+              minHeight: 0,
+              maxHeight: 260, // clamp height of the JSON panel
               borderRadius: 8,
               background: "#ffffff",
               border: "1px solid #e5e7eb",
               padding: 8,
-              overflow: "auto",       // ⬅ scroll inside, not outside card
+              overflowY: "auto",
+              overflowX: "hidden",
               fontFamily:
                 'SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
               fontSize: 11,

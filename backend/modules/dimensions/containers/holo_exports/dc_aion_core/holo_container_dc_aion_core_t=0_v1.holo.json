@@ -5,223 +5,128 @@
   "symbol": "\u25c6",
   "kind": "memory",
   "origin": {
-    "created_at": "2025-12-08T21:09:27.982390+00:00",
+    "created_at": "2025-12-09T15:41:38.679013+00:00",
     "created_by": "aion",
-    "reason": "devtools_manual_export",
+    "reason": "hologram_container_view_export",
     "source_view": "qfc"
   },
   "version": {
     "major": 0,
     "minor": 1,
     "patch": 0,
-    "revision": 1
+    "revision": 3
   },
   "ghx": {
+    "ghx_version": "1.0",
+    "origin": "holo:container/dc_aion_core/t=0/v1",
+    "container_id": "dc_aion_core",
     "nodes": [
       {
-        "type": "kg_node",
-        "id": "dc_aion_core",
-        "kind": "container",
-        "meta": {
-          "address": "ucs://local/dc_aion_core#container",
-          "ghx": {
-            "hover": true,
-            "collapsed": true,
-            "density": "auto",
-            "version": "1.0"
-          },
-          "hov": {
-            "lazy_ready": true
-          },
-          "time_dilation": {
-            "mode": "normal",
-            "snapshot_rate": 1.0,
-            "reason": {
-              "glyphs": 0,
-              "nodes": 0
-            }
-          },
-          "last_hov_embed": "2025-12-08T21:09:27.839692"
-        },
-        "viz": {
-          "ghx_hover": true,
-          "ghx_collapsed": true
-        },
-        "expansion": {
-          "includes": [],
-          "counts": {}
+        "id": "f1",
+        "label": "Load x",
+        "type": "holo_node",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo",
+          "role": "input",
+          "config": {
+            "from": "x"
+          }
         }
       },
       {
-        "type": "kg_node",
-        "id": "ucs_hub",
-        "kind": "container",
-        "meta": {
-          "address": "ucs://root/hub#container",
-          "tags": [
-            "hub"
-          ],
-          "nodes": [
-            "root"
-          ],
-          "ghx": {
-            "hover": true,
-            "collapsed": true,
-            "density": "auto",
-            "version": "1.0"
-          },
-          "hov": {
-            "lazy_ready": true
-          },
-          "time_dilation": {
-            "mode": "normal",
-            "snapshot_rate": 1.0,
-            "reason": {
-              "glyphs": 0,
-              "nodes": 0
-            }
-          },
-          "last_hov_embed": "2025-12-08T21:09:27.874344"
-        },
-        "viz": {
-          "ghx_hover": true,
-          "ghx_collapsed": true
-        },
-        "expansion": {
-          "includes": [],
-          "counts": {}
+        "id": "f2",
+        "label": "Multiply by 2",
+        "type": "holo_node",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo",
+          "role": "mul",
+          "config": {
+            "factor": 2
+          }
         }
       },
       {
-        "type": "kg_node",
-        "id": "tesseract_hq",
-        "kind": "container",
-        "meta": {
-          "address": "ucs://local/tesseract_hq#container",
-          "ghx": {
-            "hover": true,
-            "collapsed": true,
-            "density": "auto",
-            "version": "1.0"
-          },
-          "hov": {
-            "lazy_ready": true
-          },
-          "time_dilation": {
-            "mode": "normal",
-            "snapshot_rate": 1.0,
-            "reason": {
-              "glyphs": 0,
-              "nodes": 0
-            }
-          },
-          "last_hov_embed": "2025-12-08T21:09:27.885850"
-        },
-        "viz": {
-          "ghx_hover": true,
-          "ghx_collapsed": true
-        },
-        "expansion": {
-          "includes": [],
-          "counts": {}
+        "id": "f3",
+        "label": "Add 3",
+        "type": "holo_node",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo",
+          "role": "add",
+          "config": {
+            "value": 3
+          }
         }
       },
       {
-        "type": "kg_node",
-        "id": "cross_links",
-        "kind": "container",
-        "meta": {
-          "address": "ucs://local/cross_links#dc",
-          "ghx": {
-            "hover": true,
-            "collapsed": true,
-            "density": "auto",
-            "version": "1.0"
-          },
-          "hov": {
-            "lazy_ready": true
-          },
-          "time_dilation": {
-            "mode": "normal",
-            "snapshot_rate": 1.0,
-            "reason": {
-              "glyphs": 0,
-              "nodes": 0
-            }
-          },
-          "last_hov_embed": "2025-12-08T21:09:27.893379"
-        },
-        "viz": {
-          "ghx_hover": true,
-          "ghx_collapsed": true
-        },
-        "expansion": {
-          "includes": [],
-          "counts": {}
-        }
-      },
-      {
-        "type": "kg_node",
-        "id": "symatics_morphic_field",
-        "kind": "container",
-        "meta": {
-          "domain": "symatics/morphic_field",
-          "address": "ucs://local/symatics_morphic_field#container",
-          "ghx": {
-            "hover": true,
-            "collapsed": true,
-            "density": "auto",
-            "version": "1.0"
-          },
-          "hov": {
-            "lazy_ready": true
-          },
-          "time_dilation": {
-            "mode": "normal",
-            "snapshot_rate": 1.0,
-            "reason": {
-              "glyphs": 0,
-              "nodes": 0
-            }
-          },
-          "last_hov_embed": "2025-12-08T21:09:27.921066"
-        },
-        "viz": {
-          "ghx_hover": true,
-          "ghx_collapsed": true
-        },
-        "expansion": {
-          "includes": [],
-          "counts": {}
+        "id": "f4",
+        "label": "Write to y",
+        "type": "holo_node",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo",
+          "role": "output",
+          "config": {
+            "to": "y"
+          }
         }
       }
     ],
     "edges": [
       {
-        "src": "dc_aion_core",
-        "dst": "dc_aion_core",
-        "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
+        "id": "e1",
+        "src": "f1",
+        "dst": "f2",
+        "source": "f1",
+        "target": "f2",
+        "kind": "flow",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo"
+        }
       },
       {
-        "src": "dc_aion_core",
-        "dst": "dc_aion_core",
-        "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
+        "id": "e2",
+        "src": "f2",
+        "dst": "f3",
+        "source": "f2",
+        "target": "f3",
+        "kind": "flow",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo"
+        }
       },
       {
-        "src": "dc_aion_core",
-        "dst": "dc_aion_core",
-        "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
-      },
-      {
-        "src": "dc_aion_core",
-        "dst": "dc_aion_core",
-        "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
+        "id": "e3",
+        "src": "f3",
+        "dst": "f4",
+        "source": "f3",
+        "target": "f4",
+        "kind": "flow",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo"
+        }
       }
     ],
-    "layout": "grid",
-    "ghx_mode": "hologram",
-    "overlay_layers": [],
-    "entangled_links": []
+    "metadata": {
+      "holo_id": "holo:container/dc_aion_core/t=0/v1",
+      "kind": "program_hologram",
+      "timefold": {
+        "t_label": null,
+        "tick": 0
+      }
+    }
   },
   "field": {
     "psi_kappa_T": {
@@ -229,8 +134,8 @@
       "state_vector": {}
     },
     "metrics": {
-      "coherence": 1.0,
-      "drift": 0.0,
+      "coherence": 1,
+      "drift": 0,
       "tick": 0
     }
   },
@@ -254,5 +159,88 @@
     "container_kg_export": "/workspaces/COMDEX/backend/modules/dimensions/containers/kg_exports/Holo Test Container.kg.json",
     "container_dc_path": null
   },
-  "extra": {}
+  "extra": {
+    "program_frames": [
+      {
+        "id": "f1",
+        "role": "input",
+        "label": "Load x",
+        "order": 0,
+        "config": {
+          "from": "x"
+        }
+      },
+      {
+        "id": "f2",
+        "role": "mul",
+        "label": "Multiply by 2",
+        "order": 1,
+        "config": {
+          "factor": 2
+        }
+      },
+      {
+        "id": "f3",
+        "role": "add",
+        "label": "Add 3",
+        "order": 2,
+        "config": {
+          "value": 3
+        }
+      },
+      {
+        "id": "f4",
+        "role": "output",
+        "label": "Write to y",
+        "order": 3,
+        "config": {
+          "to": "y"
+        }
+      }
+    ],
+    "program_edges": [
+      {
+        "id": "e1",
+        "src": "f1",
+        "dst": "f2",
+        "source": "f1",
+        "target": "f2",
+        "kind": "flow",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo"
+        }
+      },
+      {
+        "id": "e2",
+        "src": "f2",
+        "dst": "f3",
+        "source": "f2",
+        "target": "f3",
+        "kind": "flow",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo"
+        }
+      },
+      {
+        "id": "e3",
+        "src": "f3",
+        "dst": "f4",
+        "source": "f3",
+        "target": "f4",
+        "kind": "flow",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo"
+        }
+      }
+    ],
+    "run_count": 2,
+    "last_run_at": "2025-12-09T16:55:30.024547+00:00",
+    "last_run_mode": "qqc"
+  }
 }

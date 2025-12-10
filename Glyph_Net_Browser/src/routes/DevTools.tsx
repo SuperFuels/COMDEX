@@ -8,7 +8,8 @@ import PhotonGuide from "../components/PhotonGuide";
 import DevPitch from "../components/DevPitch";
 import AionMemoryFieldPanel from "../components/AionMemoryFieldPanel";
 import CrystalPanel from "../components/CrystalPanel";
-
+import { HoloProgramEditor } from "../components/HoloProgramEditor";
+import { HoloIndexItem } from "../lib/api/holo";
 // 3D hologram scene wrapper (Canvas + OrbitControls)
 import HologramContainerView from "../components/HologramContainerView";
 
@@ -44,9 +45,12 @@ export default function DevTools() {
   const [running, setRunning] = useState(false);
   const [lastRunRevision, setLastRunRevision] = useState<number | null>(null);
 
-  // 📚 Holo index (history)
+  // 📚 Holo index (history) – legacy shape used by existing UI
   const [holoIndex, setHoloIndex] = useState<HoloIndexEntry[] | null>(null);
   const [loadingIndex, setLoadingIndex] = useState(false);
+
+  // 📁 Shared “Holo Files” cabinet (used by Text Editor + Field Lab)
+  const [holoFiles, setHoloFiles] = useState<HoloIndexItem[]>([]);
 
   type FrameMetric = {
     psi: number;
@@ -106,10 +110,11 @@ export default function DevTools() {
     };
   }, [activeContainerId]);
 
-  // 📚 Load holo index whenever container changes
+  // 📚 Load holo index + holo files whenever container changes
   useEffect(() => {
     if (!activeContainerId) {
       setHoloIndex(null);
+      setHoloFiles([]);
       return;
     }
 
@@ -117,11 +122,17 @@ export default function DevTools() {
     setLoadingIndex(true);
 
     listHolosForContainer(activeContainerId)
-      .then((entries) => {
-        if (!cancelled) setHoloIndex(entries);
+      .then((items) => {
+        if (cancelled) return;
+        // Shared cabinet data
+        setHoloFiles(items);
+        // Legacy index consumers still work (shape is compatible enough)
+        setHoloIndex(items as any);
       })
       .catch(() => {
-        if (!cancelled) setHoloIndex(null);
+        if (cancelled) return;
+        setHoloFiles([]);
+        setHoloIndex(null);
       })
       .finally(() => {
         if (!cancelled) setLoadingIndex(false);
@@ -130,6 +141,32 @@ export default function DevTools() {
     return () => {
       cancelled = true;
     };
+  }, [activeContainerId]);
+
+  // 🔄 Refresh Holo Files / index whenever a .holo is saved
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handler = (ev: Event) => {
+      const detail = (ev as CustomEvent).detail;
+      const saved = detail?.holo;
+      if (!saved?.container_id) return;
+      if (!activeContainerId || saved.container_id !== activeContainerId)
+        return;
+
+      listHolosForContainer(activeContainerId)
+        .then((items) => {
+          setHoloFiles(items);
+          setHoloIndex(items as any);
+        })
+        .catch(() => {
+          /* ignore */
+        });
+    };
+
+    window.addEventListener("devtools.holo_saved", handler as any);
+    return () =>
+      window.removeEventListener("devtools.holo_saved", handler as any);
   }, [activeContainerId]);
 
   // 👂 listen for global tab-switch events (from PhotonEditor, etc.)
@@ -158,6 +195,7 @@ export default function DevTools() {
     return () =>
       window.removeEventListener("devtools.switch_tab", handleSwitch as any);
   }, []);
+
 
   function deriveFrameMetricsFromResult(result: any): Record<string, FrameMetric> {
     const updatedHolo = result?.updated_holo || {};
@@ -416,447 +454,300 @@ export default function DevTools() {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        gap: 16,
       }}
     >
-      {/* Header – compact */}
-      <header
-        style={{
-          marginBottom: 4,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "baseline",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: "#111827",
-          }}
-        >
-          Dev Tools
-        </div>
-
-        {activeTool === "field" && (
-          <div
-            style={{
-              fontSize: 11,
-              color: "#9ca3af",
-            }}
-          >
-            {activeContainerId && (
-              <>
-                container: <code>{activeContainerId}</code>
-                {" · "}
-              </>
-            )}
-            holo:{" "}
-            {holo ? (
-              <code>{holo.holo_id}</code>
-            ) : (
-              <span style={{ opacity: 0.7 }}>none</span>
-            )}
-          </div>
-        )}
-      </header>
-
-      {/* Tool switcher + (optional) field status */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 8,
-        }}
-      >
-        <div
-          style={{
-            display: "inline-flex",
-            flexWrap: "wrap",
-            borderRadius: 999,
-            border: "1px solid #e5e7eb",
-            background: "#f9fafb",
-            padding: 2,
-            gap: 2,
-          }}
-        >
-          <ToolButton
-            id="editor"
-            label="Text Editor"
-            description="Photon scratchpad"
-            activeTool={activeTool}
-            onSelect={setActiveTool}
-          />
-          <ToolButton
-            id="ledger"
-            label="Ledger"
-            description="KG ledger entries"
-            activeTool={activeTool}
-            onSelect={setActiveTool}
-          />
-          <ToolButton
-            id="guide"
-            label="Language"
-            description=".ptn / .phn / .photon"
-            activeTool={activeTool}
-            onSelect={setActiveTool}
-          />
-          <ToolButton
-            id="pitch"
-            label="Why compress?"
-            description="Dev pitch"
-            activeTool={activeTool}
-            onSelect={setActiveTool}
-          />
-          <ToolButton
-            id="field"
-            label="Field Lab"
-            description="GHX / QField canvas"
-            activeTool={activeTool}
-            onSelect={setActiveTool}
-          />
-          <ToolButton
-            id="aion"
-            label="AION Memory"
-            description="Internal holo seeds"
-            activeTool={activeTool}
-            onSelect={setActiveTool}
-          />
-          <ToolButton
-            id="crystal"
-            label="Crystals"
-            description="Compressed motifs"
-            activeTool={activeTool}
-            onSelect={setActiveTool}
-          />
-        </div>
-
-        {activeTool === "field" && (
-          <div
-            style={{
-              fontSize: 11,
-              color: "#6b7280",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {activeContainerId && (
-              <>
-                <span>
-                  container: <code>{activeContainerId}</code>
-                </span>
-                <span>·</span>
-              </>
-            )}
-            <span>
-              holo:{" "}
-              {holo ? (
-                <code>{holo.holo_id}</code>
-              ) : (
-                <span style={{ opacity: 0.7 }}>none</span>
-              )}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Active tool card */}
       <section
         style={{
           flex: 1,
-          borderRadius: 12,
+          borderRadius: 16,
           border: "1px solid #e5e7eb",
           background: "#f9fafb",
           padding: 12,
-          overflow: "auto",
           display: "flex",
           flexDirection: "column",
           gap: 8,
         }}
       >
-        {activeTool === "editor" ? (
-          <PhotonEditor docId="devtools" />
-        ) : activeTool === "ledger" ? (
-          <LedgerInspector />
-        ) : activeTool === "guide" ? (
-          <PhotonGuide />
-        ) : activeTool === "pitch" ? (
-          <DevPitch />
-        ) : activeTool === "aion" ? (
-          <AionMemoryFieldPanel />
-        ) : activeTool === "crystal" ? (
-          <CrystalPanel />
-        ) : (
-          // Field Lab: HologramContainerView + Holo file "cabinet"
+        {/* Header + tab row – all inside the card now */}
+        <header
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
           <div
             style={{
-              flex: 1,
-              minHeight: 320,
-              display: "flex",
-              gap: 12,
-            }}
-          >
-            {/* Left: Holo “file cabinet” */}
-            <div
-              style={{
-                width: 240,
-                borderRadius: 10,
-                border: "1px solid #e5e7eb",
-                background: "#ffffff",
-                padding: 8,
-                display: "flex",
-                flexDirection: "column",
-                gap: 6,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: "#111827",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <span>Holo Files</span>
-                {loadingIndex && (
-                  <span style={{ fontSize: 10, color: "#9ca3af" }}>
-                    loading…
-                  </span>
-                )}
-              </div>
-
-              {/* simple pseudo tree listing */}
-              <div
-                style={{
-                  fontSize: 11,
-                  color: "#374151",
-                  maxHeight: 260,
-                  overflow: "auto",
-                }}
-              >
-                {holoIndex && holoIndex.length > 0 ? (
-                  holoIndex
-                    .slice()
-                    .sort(
-                      (a, b) =>
-                        (b.tick ?? 0) - (a.tick ?? 0) ||
-                        (b.revision ?? 0) - (a.revision ?? 0),
-                    )
-                    .map((entry) => {
-                      const isActive =
-                        holo &&
-                        entry.holo_id === (holo as any).holo_id &&
-                        entry.revision === (holo as any).revision;
-                      const label =
-                        entry.tags?.includes("frame_main") ||
-                        entry.tags?.includes("main")
-                          ? "main.holo"
-                          : entry.tags?.includes("loop")
-                          ? "loop.holo"
-                          : entry.tags?.includes("exec")
-                          ? "exec.holo"
-                          : entry.tags?.includes("output")
-                          ? "output.holo"
-                          : `t=${entry.tick ?? 0} · v${entry.revision ?? 1}`;
-
-                      return (
-                        <button
-                          key={entry.holo_id + ":" + (entry.revision ?? 1)}
-                          type="button"
-                          onClick={() => handleLoadHoloAt(entry)}
-                          style={{
-                            width: "100%",
-                            textAlign: "left",
-                            border: "none",
-                            background: isActive
-                              ? "rgba(15,23,42,0.9)"
-                              : "transparent",
-                            color: isActive ? "#e5e7eb" : "#111827",
-                            borderRadius: 6,
-                            padding: "4px 6px",
-                            marginBottom: 2,
-                            cursor: "pointer",
-                            fontSize: 11,
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <span>{label}</span>
-                            <span
-                              style={{
-                                fontSize: 10,
-                                color: isActive ? "#9ca3af" : "#6b7280",
-                              }}
-                            >
-                              t={entry.tick ?? 0} · v{entry.revision ?? 1}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })
-                ) : (
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "#9ca3af",
-                      padding: "4px 2px",
-                    }}
-                  >
-                    no snapshots yet
-                  </div>
-                )}
-              </div>
-
-              {/* Mini hint about frames */}
-              <div
-                style={{
-                  marginTop: "auto",
-                  paddingTop: 6,
-                  borderTop: "1px solid #e5e7eb",
-                  fontSize: 10,
-                  color: "#6b7280",
-                }}
-              >
-                Program frames:
-                <ul
-                  style={{
-                    listStyle: "none",
-                    paddingLeft: 0,
-                    margin: 0,
-                    marginTop: 2,
-                  }}
-                >
-                  {programFrames.map((f: any) => {
-                    const fm = lastRunInfo.frameMetrics[f.id];
-                    return (
-                      <li key={f.id} style={{ marginBottom: 2 }}>
-                        • {f.label || f.id}
-                        {fm && (
-                          <span
-                            style={{
-                              marginLeft: 4,
-                              fontSize: 10,
-                              color: "#4b5563",
-                            }}
-                          >
-                            — ψ {fm.psi.toFixed(2)} · κ {fm.kappa.toFixed(2)} · τ{" "}
-                            {fm.tau.toFixed(2)}
-                          </span>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </div>
-
-            {/* Right: 3D canvas container */}
-            <div style={{ flex: 1 }}>
-              <HologramContainerView
-                containerId={activeContainerId ?? "dc_aion_core"}
-                title="Hologram Container"
-              />
-            </div>
-          </div>
-        )}
-
-        {exportError && activeTool === "field" && (
-          <div style={{ fontSize: 11, color: "#b91c1c" }}>{exportError}</div>
-        )}
-
-        {activeTool === "field" && (
-          <div
-            style={{
-              marginTop: 8,
               display: "flex",
               flexDirection: "column",
-              gap: 4,
+              gap: 2,
             }}
           >
-            {/* Runs summary */}
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                fontSize: 11,
-                color: "#6b7280",
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#111827",
               }}
             >
-              <span>
-                Runs:{" "}
-                {lastRunInfo.revision != null ? (
-                  <code>v{lastRunInfo.revision}</code>
-                ) : (
-                  <span style={{ opacity: 0.7 }}>—</span>
+              Dev Tools
+            </div>
+            {activeTool === "field" && (
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "#6b7280",
+                  display: "flex",
+                  gap: 6,
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
+                {activeContainerId && (
+                  <>
+                    <span>
+                      container: <code>{activeContainerId}</code>
+                    </span>
+                    <span>·</span>
+                  </>
                 )}
-              </span>
-
-              {lastRunInfo.lastRunAt && (
                 <span>
-                  last: <code>{lastRunInfo.lastRunAt}</code>
+                  holo:{" "}
+                  {holo ? (
+                    <code>{holo.holo_id}</code>
+                  ) : (
+                    <span style={{ opacity: 0.7 }}>none</span>
+                  )}
                 </span>
-              )}
-            </div>
-
-            {/* Buttons row: Rehydrate + Export */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 8,
-              }}
-            >
-              <button
-                type="button"
-                onClick={handleRehydrateFromHolo}
-                disabled={rehydrating || !holo}
-                style={{
-                  padding: "4px 10px",
-                  borderRadius: 999,
-                  border: "1px solid #0ea5e9",
-                  background: rehydrating ? "#e5e7eb" : "#e0f2fe",
-                  color: rehydrating ? "#6b7280" : "#0f172a",
-                  cursor: rehydrating ? "default" : "pointer",
-                  fontSize: 11,
-                  fontWeight: 500,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {rehydrating ? "Rehydrating…" : "Rehydrate to Field"}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleExportHolo}
-                disabled={exporting || !activeContainerId}
-                style={{
-                  padding: "4px 10px",
-                  borderRadius: 999,
-                  border: "1px solid #0f172a",
-                  background: exporting ? "#e5e7eb" : "#0f172a",
-                  color: exporting ? "#6b7280" : "#e5e7eb",
-                  cursor: exporting ? "default" : "pointer",
-                  fontSize: 11,
-                  fontWeight: 500,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {exporting ? "Exporting…" : "Export .holo"}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Tool switcher pill row */}
+          <div
+            style={{
+              display: "inline-flex",
+              flexWrap: "wrap",
+              borderRadius: 999,
+              border: "1px solid #e5e7eb",
+              background: "#ffffff",
+              padding: 2,
+              gap: 2,
+            }}
+          >
+            <ToolButton
+              id="editor"
+              label="Text Editor"
+              description="Photon scratchpad"
+              activeTool={activeTool}
+              onSelect={setActiveTool}
+            />
+            <ToolButton
+              id="ledger"
+              label="Ledger"
+              description="KG ledger entries"
+              activeTool={activeTool}
+              onSelect={setActiveTool}
+            />
+            <ToolButton
+              id="guide"
+              label="Language"
+              description=".ptn / .phn / .photon"
+              activeTool={activeTool}
+              onSelect={setActiveTool}
+            />
+            <ToolButton
+              id="pitch"
+              label="Why compress?"
+              description="Dev pitch"
+              activeTool={activeTool}
+              onSelect={setActiveTool}
+            />
+            <ToolButton
+              id="field"
+              label="Field Lab"
+              description="GHX / QField canvas"
+              activeTool={activeTool}
+              onSelect={setActiveTool}
+            />
+            <ToolButton
+              id="aion"
+              label="AION Memory"
+              description="Internal holo seeds"
+              activeTool={activeTool}
+              onSelect={setActiveTool}
+            />
+            <ToolButton
+              id="crystal"
+              label="Crystals"
+              description="Compressed motifs"
+              activeTool={activeTool}
+              onSelect={setActiveTool}
+            />
+          </div>
+        </header>
+
+        {/* Main tool body */}
+        <div
+          style={{
+            flex: 1,
+            borderRadius: 12,
+            border: "1px solid #e5e7eb",
+            background: "#f3f4f6",
+            padding: 10,
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {activeTool === "editor" ? (
+            <PhotonEditor docId="devtools" />
+          ) : activeTool === "ledger" ? (
+            <LedgerInspector />
+          ) : activeTool === "guide" ? (
+            <PhotonGuide />
+          ) : activeTool === "pitch" ? (
+            <DevPitch />
+          ) : activeTool === "aion" ? (
+            <AionMemoryFieldPanel />
+          ) : activeTool === "crystal" ? (
+            <CrystalPanel />
+          ) : (
+            <>
+              {/* Field Lab: Hologram container fills full width (owns its own Holo Files cabinet) */}
+              <div
+                style={{
+                  flex: 1,
+                  minHeight: 320,
+                  overflow: "hidden",
+                }}
+              >
+                <HologramContainerView
+                  containerId={activeContainerId ?? "dc_aion_core"}
+                  title="Hologram Container"
+                  holo={holo}
+                  holoFiles={holoFiles}
+                  onSelectHolo={async (item) => {
+                    if (!activeContainerId) return;
+                    const snap = await fetchHoloAtTick(
+                      activeContainerId,
+                      item.tick,
+                      item.revision,
+                    );
+                    if (snap) setHolo(snap);
+                  }}
+                />
+              </div>
+
+              {/* Hologram CPU program editor + Run panel */}
+              <div style={{ marginTop: 12 }}>
+                <HoloProgramEditor
+                  value={holo as any}
+                  onChange={setHolo as any}
+                  apiBase="/api"
+                />
+              </div>
+            </>
+          )}
+
+          {/* Field-only footer: errors + run/export controls */}
+          {activeTool === "field" && (
+            <>
+              {exportError && (
+                <div
+                  style={{
+                    marginTop: 8,
+                    fontSize: 11,
+                    color: "#b91c1c",
+                  }}
+                >
+                  {exportError}
+                </div>
+              )}
+
+              <div
+                style={{
+                  marginTop: 8,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 4,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    fontSize: 11,
+                    color: "#6b7280",
+                  }}
+                >
+                  <span>
+                    Runs:{" "}
+                    {lastRunInfo.revision != null ? (
+                      <code>v{lastRunInfo.revision}</code>
+                    ) : (
+                      <span style={{ opacity: 0.7 }}>—</span>
+                    )}
+                  </span>
+
+                  {lastRunInfo.lastRunAt && (
+                    <span>
+                      last: <code>{lastRunInfo.lastRunAt}</code>
+                    </span>
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: 8,
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={handleRehydrateFromHolo}
+                    disabled={rehydrating || !holo}
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: 999,
+                      border: "1px solid #0ea5e9",
+                      background: rehydrating ? "#e5e7eb" : "#e0f2fe",
+                      color: rehydrating ? "#6b7280" : "#0f172a",
+                      cursor: rehydrating ? "default" : "pointer",
+                      fontSize: 11,
+                      fontWeight: 500,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {rehydrating ? "Rehydrating…" : "Rehydrate to Field"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleExportHolo}
+                    disabled={exporting || !activeContainerId}
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: 999,
+                      border: "1px solid #0f172a",
+                      background: exporting ? "#e5e7eb" : "#0f172a",
+                      color: exporting ? "#6b7280" : "#e5e7eb",
+                      cursor: exporting ? "default" : "pointer",
+                      fontSize: 11,
+                      fontWeight: 500,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {exporting ? "Exporting…" : "Export .holo"}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </section>
     </div>
   );

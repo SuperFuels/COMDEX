@@ -1,7 +1,8 @@
 // src/App.tsx
 import { useEffect, useRef, useState } from "react";
 import TopBar, { RadioStatus } from "./components/TopBar";
-import Sidebar from "./components/Sidebar";
+// OLD: import Sidebar from "./components/Sidebar";
+import { SidebarRail } from "./components/SidebarRail";
 import WaveInbox from "./components/WaveInbox";
 import KGDock from "./components/KGDock";
 import ContainerView from "./components/ContainerView";
@@ -30,7 +31,7 @@ type ActiveTab =
 type Session = { slug: string; wa: string } | null;
 
 export default function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // const [sidebarOpen, setSidebarOpen] = useState(false); // replaced by SidebarRail
   const [showWaves, setShowWaves] = useState(false);
   const [active, setActive] = useState<ActiveTab>("home");
   const [wavesCount, setWavesCount] = useState(1);
@@ -38,7 +39,7 @@ export default function App() {
   const [inboxTopicFromHash, setInboxTopicFromHash] = useState<string>("");
   const [chatTopicFromHash, setChatTopicFromHash] = useState<string>("");
   const [chatKGFromHash, setChatKGFromHash] = useState<"personal" | "work" | undefined>(
-    undefined
+    undefined,
   );
 
   // --- session (inline, no extra hook) ---
@@ -64,6 +65,7 @@ export default function App() {
     fetch("/api/session/clear", { method: "POST" }).catch(() => {});
     localStorage.removeItem("gnet:user_slug");
     localStorage.removeItem("gnet:wa");
+    localStorage.removeItem("gnet:ownerWa");
     setSession(null);
     if (location.hash.startsWith("#/container/")) {
       location.hash = "#/";
@@ -248,19 +250,49 @@ export default function App() {
     routeNav(parseAddress(address));
   };
 
-  // Sidebar only knows: "home" | "inbox" | "outbox" | "kg" | "settings" | "devtools".
-  const sidebarActive: "home" | "inbox" | "outbox" | "kg" | "settings" | "devtools" =
-    active === "chat"
-      ? "inbox"
-      : active === "bridge"
-      ? "settings"
-      : (active as any);
+  // SidebarRail highlights based on current active tab
+  const sidebarActive:
+    | "home"
+    | "inbox"
+    | "outbox"
+    | "kg"
+    | "settings"
+    | "devtools"
+    | "chat" = active === "bridge" ? "settings" : (active as any);
+
+  // SidebarRail click handlers – keep existing routes/hash patterns
+  const navHome = () => {
+    if (session?.slug) {
+      window.location.hash = `#/container/${session.slug}__home`;
+    } else {
+      window.location.hash = "#/";
+    }
+    setActive("home");
+  };
+  const navChat = () => {
+    window.location.hash = "#/chat";
+    setActive("chat");
+  };
+  const navInbox = () => {
+    window.location.hash = "#/inbox";
+    setActive("inbox");
+  };
+  const navOutbox = () => {
+    window.location.hash = "#/outbox";
+    setActive("outbox");
+  };
+  const navDevTools = () => {
+    window.location.hash = "#/devtools";
+    setActive("devtools");
+  };
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       <TopBar
         onNavigate={handleNavigate}
-        onOpenSidebar={() => setSidebarOpen(true)}
+        onOpenSidebar={() => {
+          /* sidebar rail is always visible now */
+        }}
         onAskAion={() => alert("AION panel will open here.")}
         onToggleWaves={() => setShowWaves((v) => !v)}
         wavesCount={wavesCount}
@@ -269,62 +301,86 @@ export default function App() {
         onLogout={logout}
       />
 
-      <Sidebar
-        open={sidebarOpen}
-        active={sidebarActive}
-        onSelect={(id) =>
-          setActive((id as unknown) as Exclude<ActiveTab, "chat" | "bridge">)
-        }
-        onClose={() => setSidebarOpen(false)}
-      />
+      {/* main layout: slim sidebar rail + content */}
+      <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
+        <SidebarRail
+          activeId={sidebarActive}
+          items={[
+            { id: "home", icon: "🏠", label: "Home", onClick: navHome },
+            { id: "chat", icon: "💬", label: "Chat", onClick: navChat },
+            { id: "inbox", icon: "📥", label: "Inbox", onClick: navInbox },
+            { id: "outbox", icon: "📤", label: "Outbox", onClick: navOutbox },
+            {
+              id: "kg",
+              icon: "🧠",
+              label: "KG Dock",
+              onClick: () => setActive("kg"),
+            },
+            {
+              id: "settings",
+              icon: "⚙️",
+              label: "Settings",
+              onClick: () => setActive("settings"),
+            },
+            { id: "devtools", icon: "🛠️", label: "Dev Tools", onClick: navDevTools },
+          ]}
+        />
 
-      <main style={{ flex: 1, padding: 16, background: "#f8fafc", overflow: "auto" }}>
-        {active === "home" && (
-          <>
-            <h1>Glyph Net</h1>
-            <p>
-              Send your first wave <code>www.tessaris.tp</code>.
-            </p>
-          </>
-        )}
+        <main
+          style={{
+            flex: 1,
+            padding: 16,
+            background: "#f8fafc",
+            overflow: "auto",
+          }}
+        >
+          {active === "home" && (
+            <>
+              <h1>Glyph Net</h1>
+              <p>
+                Send your first wave <code>www.tessaris.tp</code>.
+              </p>
+            </>
+          )}
 
-        {active === "chat" ? (
-          <div style={{ height: "calc(100vh - 96px)" }}>
-            <ChatThread
-              defaultTopic={chatTopicFromHash || "ucs://local/ucs_hub"}
-              defaultGraph={chatKGFromHash}
-            />
-          </div>
-        ) : active === "bridge" ? (
-          <div style={{ height: "calc(100vh - 96px)" }}>
-            <BridgePanel />
-          </div>
-        ) : active === "inbox" ? (
-          <WaveInbox defaultTopic={inboxTopicFromHash || "ucs://local/ucs_hub"} />
-        ) : active === "kg" ? (
-          <KGDock />
-        ) : active === "outbox" ? (
-          <WaveOutbox />
-        ) : active === "settings" ? (
-          <p>Settings (stub)</p>
-        ) : active === "devtools" ? (
-          <DevTools />
-        ) : window.location.hash.startsWith("#/container/") ? (
-          <ContainerView />
-        ) : (
-          <div
-            style={{
-              padding: 12,
-              border: "1px solid #e5e7eb",
-              borderRadius: 8,
-              background: "#fff",
-            }}
-          >
-            <strong>AION:</strong> ready (UI stub). This pane becomes the agent console /
-            GlyphGrid.
-          </div>
-        )}
-      </main>
+          {active === "chat" ? (
+            <div style={{ height: "calc(100vh - 96px)" }}>
+              <ChatThread
+                defaultTopic={chatTopicFromHash || "ucs://local/ucs_hub"}
+                defaultGraph={chatKGFromHash}
+              />
+            </div>
+          ) : active === "bridge" ? (
+            <div style={{ height: "calc(100vh - 96px)" }}>
+              <BridgePanel />
+            </div>
+          ) : active === "inbox" ? (
+            <WaveInbox defaultTopic={inboxTopicFromHash || "ucs://local/ucs_hub"} />
+          ) : active === "kg" ? (
+            <KGDock />
+          ) : active === "outbox" ? (
+            <WaveOutbox />
+          ) : active === "settings" ? (
+            <p>Settings (stub)</p>
+          ) : active === "devtools" ? (
+            <DevTools />
+          ) : window.location.hash.startsWith("#/container/") ? (
+            <ContainerView />
+          ) : (
+            <div
+              style={{
+                padding: 12,
+                border: "1px solid #e5e7eb",
+                borderRadius: 8,
+                background: "#fff",
+              }}
+            >
+              <strong>AION:</strong> ready (UI stub). This pane becomes the agent console /
+              GlyphGrid.
+            </div>
+          )}
+        </main>
+      </div>
 
       {showWaves && (
         <div

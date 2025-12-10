@@ -119,23 +119,23 @@ flowchart TD
 %% 3) .holo as primary IR
 subgraph U3["Use Case 3 — .holo as Primary IR"]
   direction TB
-  U3A["[x] Round-trip adapters\ncode ⇄ .holo ⇄ beams ⇄ HST\n• code/AST → HST → KG pack → .holo\n• .holo → qwave_beams → QQC/SLE run\n• HST injection utils + qwave_writer"]:::done
+  U3A["[x] Round-trip adapters\ncode ⇄ .holo ⇄ beams ⇄ HST\n• code/AST → HST → KG pack → .holo\n• HST → QWave-style beams (hst_to_qwave_beams)\n• .holo export via export_holo_from_kg_pack"]:::done
 
   U3B["[x] 'Export as .holo' buttons\n• DevTools Field Lab: 'Export .holo snapshot'\n• calls POST /api/holo/export/{container_id}?revision=1\n• view_ctx: tick, frame, source_view, metrics, tags"]:::done
 
-  U3C["[ ] 'Rehydrate from .holo'\n• .holo → code, prompts, KG node, QFC layout\n• uses HST + KGWriter + qfc_utils"]:::todo
+  U3C["[x] 'Rehydrate from .holo'\n• .holo → HST (program_frames + GHX edges)\n• HST → KG domain pack via KnowledgeGraphWriter\n• QFC can reuse KG + beams for layout\n• (code/prompt regen deferred)"]:::done
 end
 
 %% 4) Executable programs
 subgraph U4["Use Case 4 — Executable Hologram Programs"]
   direction TB
-  U4A["[x] Execution contract\nrun_holo(holo_id, input_ctx)\n→ {output, updated_holo, metrics}\n• stub in run_holo_snapshot for DevTools\n• TODO: wire to QQC kernel + BeamRuntime"]:::done
+  U4A["[x] Execution contract\nrun_holo(holo_id, input_ctx)\n→ {output, updated_holo, metrics}\n• run_holo_snapshot used by DevTools\n• calls execute_holo_program(...) under the hood"]:::done
 
-  U4B["[ ] Pipe .holo into SLE/HQCE/QQC\n• holo → WaveCapsule/beam → BeamRuntime\n• use beam_controller + qqc_kernel_v2"]:::todo
+  U4B["[x] Pipe .holo into SLE/BeamRuntime\n• holo → Symatics spec → WaveCapsule → BeamRuntime\n• execute_holo_program(...) → run_symatics_wavecapsule\n• SLE/Beam metrics returned to DevTools"]:::done
 
   U4C["[x] QFC 'Run .holo' control\n• Dev Field Canvas mini-program: 4 frames\n• Beams connecting frames on run\n• Run counter + last-run timestamp\n• Terminal-style run output\n• ψκT overlays + per-frame stats"]:::done
 
-  U4D["[x] Persist execution result\n• if updated_holo, save as new revision (v2, v3, …)\n• update holo_index + surface version in UI\n• later: push metrics via KGWriter + Vault"]:::done
+  U4D["[x] Persist execution result\n• every run bumps revision + saves new .holo\n• KG holo_run glyph + knowledge_index.holo entry\n• ready for later Vault/metrics dashboards"]:::done
 end
 
   %% 5) Ledger / blockchain style

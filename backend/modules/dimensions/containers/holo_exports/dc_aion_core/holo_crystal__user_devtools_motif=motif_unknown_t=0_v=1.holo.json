@@ -1,102 +1,100 @@
 {
+  "holo_id": "holo:crystal::user:devtools:motif=motif:unknown/t=0/v=1",
   "container_id": "dc_aion_core",
-  "extra": {
-    "last_run_at": "2025-12-08T21:54:32.191052+00:00",
-    "last_run_metrics": {
-      "mode": "qqc",
-      "num_beams": 4,
-      "tick": null
-    },
-    "last_run_mode": "qqc",
-    "run_count": 2
-  },
+  "tick": 0,
+  "revision": 1,
   "ghx": {
-    "container_id": "dc_aion_core",
-    "edges": [
-      {
-        "dst": "dc_aion_core",
-        "id": "e0",
-        "kind": "motif_edge",
-        "src": "dc_aion_core"
-      },
-      {
-        "dst": "dc_aion_core",
-        "id": "e1",
-        "kind": "motif_edge",
-        "src": "dc_aion_core"
-      },
-      {
-        "dst": "dc_aion_core",
-        "id": "e2",
-        "kind": "motif_edge",
-        "src": "dc_aion_core"
-      },
-      {
-        "dst": "dc_aion_core",
-        "id": "e3",
-        "kind": "motif_edge",
-        "src": "dc_aion_core"
-      }
-    ],
     "ghx_version": "1.0",
-    "metadata": {
-      "motif": {
-        "edge_count": 4,
-        "id": "motif:unknown",
-        "node_count": 5,
-        "revision": null,
-        "tick": null
-      }
-    },
+    "origin": "motif:photon",
+    "container_id": "dc_aion_core",
     "nodes": [
       {
+        "id": "cross_links",
         "data": {
-          "kind": "motif_node",
-          "label": "cross_links"
-        },
-        "id": "cross_links"
+          "label": "cross_links",
+          "kind": "motif_node"
+        }
       },
       {
+        "id": "dc_aion_core",
         "data": {
-          "kind": "motif_node",
-          "label": "dc_aion_core"
-        },
-        "id": "dc_aion_core"
+          "label": "dc_aion_core",
+          "kind": "motif_node"
+        }
       },
       {
+        "id": "symatics_morphic_field",
         "data": {
-          "kind": "motif_node",
-          "label": "symatics_morphic_field"
-        },
-        "id": "symatics_morphic_field"
+          "label": "symatics_morphic_field",
+          "kind": "motif_node"
+        }
       },
       {
+        "id": "tesseract_hq",
         "data": {
-          "kind": "motif_node",
-          "label": "tesseract_hq"
-        },
-        "id": "tesseract_hq"
+          "label": "tesseract_hq",
+          "kind": "motif_node"
+        }
       },
       {
+        "id": "ucs_hub",
         "data": {
-          "kind": "motif_node",
-          "label": "ucs_hub"
-        },
-        "id": "ucs_hub"
+          "label": "ucs_hub",
+          "kind": "motif_node"
+        }
       }
     ],
-    "origin": "motif:photon"
-  },
-  "holo_id": "holo:crystal::user:devtools:motif=motif:unknown/t=0/v=1",
-  "metadata": {
-    "motif": {
-      "edge_count": 4,
-      "id": "motif:unknown",
-      "node_count": 5,
-      "revision": null,
-      "tick": null
+    "edges": [
+      {
+        "id": "e0",
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "kind": "motif_edge"
+      },
+      {
+        "id": "e1",
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "kind": "motif_edge"
+      },
+      {
+        "id": "e2",
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "kind": "motif_edge"
+      },
+      {
+        "id": "e3",
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "kind": "motif_edge"
+      }
+    ],
+    "metadata": {
+      "motif": {
+        "id": "motif:unknown",
+        "tick": null,
+        "revision": null,
+        "node_count": 5,
+        "edge_count": 4
+      }
     }
   },
-  "revision": 1,
-  "tick": 0
+  "metadata": {
+    "motif": {
+      "id": "motif:unknown",
+      "tick": null,
+      "revision": null,
+      "node_count": 5,
+      "edge_count": 4
+    }
+  },
+  "version": {
+    "revision": 2
+  },
+  "extra": {
+    "run_count": 1,
+    "last_run_at": "2025-12-09T17:45:54.263355+00:00",
+    "last_run_mode": "qqc"
+  }
 }

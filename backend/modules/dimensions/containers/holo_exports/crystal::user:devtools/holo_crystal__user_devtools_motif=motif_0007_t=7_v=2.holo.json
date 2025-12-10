@@ -1,15 +1,5 @@
 {
   "container_id": "crystal::user:devtools",
-  "extra": {
-    "last_run_at": "2025-12-08T22:14:50.301058+00:00",
-    "last_run_metrics": {
-      "mode": "qqc",
-      "num_beams": 7,
-      "tick": null
-    },
-    "last_run_mode": "qqc",
-    "run_count": 5
-  },
   "ghx": {
     "container_id": "crystal::user:devtools",
     "edges": [

@@ -4,6 +4,8 @@ from typing import Any, Dict, Optional, List
 from fastapi import APIRouter, Body, HTTPException, Query, status
 from pydantic import BaseModel
 
+from backend.modules.holo.holo_service import save_holo_from_dict, list_holos_for_container
+
 from backend.modules.holo.holo_service import (
     export_holo_from_container,
     load_latest_holo_for_container,
@@ -192,26 +194,7 @@ def search_holo_index_route(
 # -------------------------------------------------------------------
 # Holo from code (HST path)
 # -------------------------------------------------------------------
-class RehydratePayload(BaseModel):
-    holo: Dict[str, Any]
 
-
-@router.post("/rehydrate")
-def rehydrate_holo(payload: RehydratePayload) -> Dict[str, Any]:
-    """
-    U3C skeleton: .holo → HST (rehydrated view).
-
-    For now we just return the HST dict; later you can call kg_writer here
-    to rebuild KG nodes/edges + prompts.
-    """
-    try:
-        hst = rehydrate_hst_from_holo(payload.holo)
-        return {"status": "ok", "hst": hst}
-    except Exception as e:  # pragma: no cover
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"rehydrate_from_holo_failed: {e}",
-        )
 
 class HoloFromCodePayload(BaseModel):
     source: str
@@ -252,35 +235,62 @@ def build_holo_from_code(payload: HoloFromCodePayload) -> Dict[str, Any]:
 
     return getattr(holo, "__dict__", holo)
 
-# -------------------------------------------------------------------
-# U3C — Rehydrate HST from .holo
-# -------------------------------------------------------------------
 
-
-class HoloRehydratePayload(BaseModel):
-    holo: Dict[str, Any]
+# -------------------------------------------------------------------
+# U3C — Rehydrate HST from .holo (+ KG)
+# -------------------------------------------------------------------
 
 
 @router.post("/rehydrate")
-def rehydrate_hst_route(payload: HoloRehydratePayload) -> Dict[str, Any]:
+def rehydrate_from_holo(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
     """
-    Minimal U3C entrypoint:
+    Body: { "holo": { ...HoloIR-like dict... } }
 
-      .holo → HST-like dict
-
-    Frontend: POST /api/holo/rehydrate { "holo": { ... } }
+    Uses rehydrate_hst_from_holo(...) which returns:
+      { "hst": {...}, "kg": {...} }
     """
     try:
-        hst = rehydrate_hst_from_holo(payload.holo)
-        return {
-            "status": "ok",
-            "hst": hst,
-        }
+        holo = body.get("holo") or {}
+        if not isinstance(holo, dict):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Body must contain a 'holo' object.",
+            )
+
+        result = rehydrate_hst_from_holo(holo)
+
+        # Ensure a status field for frontend convenience
+        if isinstance(result, dict) and "status" not in result:
+            result = {"status": "ok", **result}
+
+        return result
+    except HTTPException:
+        raise
     except Exception as e:  # pragma: no cover
         raise HTTPException(
-            status_code=500,
-            detail=f"rehydrate_hst_failed: {e}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"rehydrate_from_holo_failed: {e}",
         )
+
+
+class HoloImportPayload(BaseModel):
+    holo: Dict[str, Any]
+
+@router.post("/import")
+def import_holo(payload: HoloImportPayload) -> Dict[str, Any]:
+    """
+    Accept a minimal HoloIR-like dict and persist it as a .holo snapshot.
+    """
+    saved = save_holo_from_dict(payload.holo)
+    return saved
+
+@router.get("/index/{container_id}")
+def holo_index(container_id: str) -> Dict[str, Any]:
+    """
+    List all .holo snapshots for a container.
+    """
+    items = list_holos_for_container(container_id)
+    return {"container_id": container_id, "items": items}
 
 # -------------------------------------------------------------------
 # Run .holo (U4: execution entrypoint)
@@ -303,6 +313,8 @@ class RunHoloResponse(BaseModel):
     metrics: Dict[str, Any]
     output: Dict[str, Any]
     updated_holo: Optional[Dict[str, Any]] = None
+    # NEW: tiny GHX packet (frames → nodes, edges)
+    ghx: Optional[Dict[str, Any]] = None
 
 
 @router.post("/run", response_model=RunHoloResponse)

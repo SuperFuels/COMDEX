@@ -1,7 +1,8 @@
 // Glyph_Net_Browser/src/lib/api/holo.ts
 import type { HoloIR, HoloSourceView } from "../types/holo";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8080";
+const API_BASE =
+  import.meta.env.VITE_API_BASE ?? "http://localhost:8080";
 
 // What DevTools/QFC sends when you press "Export as .holo"
 export interface HoloExportViewCtx {
@@ -44,6 +45,18 @@ export interface HoloFileIndexEntry extends HoloIndexEntry {
 }
 
 /**
+ * Lightweight index item used by DevTools.
+ * Backed by /api/holo/index/{container_id}.
+ */
+export interface HoloIndexItem {
+  holo_id: string;
+  container_id: string;
+  tick: number;
+  revision: number;
+  path?: string;
+}
+
+/**
  * Export a fresh Holo snapshot for a container.
  * Mirrors backend: POST /api/holo/export/{container_id}
  */
@@ -78,7 +91,7 @@ export async function exportHoloForContainer(
 }
 
 /**
- * Import a Holo snapshot (e.g. from motif_compile_api)
+ * Import a Holo snapshot (e.g. from motif_compile_api or DevTools)
  * into the backend's .holo store.
  *
  * POST /api/holo/import
@@ -120,28 +133,26 @@ export async function fetchLatestHoloForContainer(
 }
 
 /**
- * List holo snapshot history for a container using the global index.
- * GET /api/holo/index?container_id=...
+ * List holo snapshot history for a container.
+ * NEW backend route:
+ *   GET /api/holo/index/{container_id}
  *
- * Backed by holo_index.json in the backend.
+ * Backed by per-container .holo exports on disk.
  */
 export async function listHolosForContainer(
   containerId: string,
-): Promise<HoloIndexEntry[]> {
-  const url = `${API_BASE}/api/holo/index?container_id=${encodeURIComponent(
-    containerId,
-  )}`;
-
-  const res = await fetch(url);
+): Promise<HoloIndexItem[]> {
+  const res = await fetch(
+    `${API_BASE}/api/holo/index/${encodeURIComponent(containerId)}`,
+  );
 
   if (!res.ok) {
-    console.warn("[HoloAPI] Failed to fetch holo history:", res.status);
-    return [];
+    const text = await res.text().catch(() => "");
+    throw new Error(`Holo index failed (${res.status}): ${text}`);
   }
 
-  const json = (await res.json()) as any;
-  const items = (json.items ?? json ?? []) as HoloIndexEntry[];
-  return items;
+  const data = (await res.json()) as any;
+  return (data.items ?? []) as HoloIndexItem[];
 }
 
 /**

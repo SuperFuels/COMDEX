@@ -10,7 +10,9 @@ from typing import Any, Dict
 
 from backend.modules.symatics_lightwave.wave_capsule import WaveCapsule
 from backend.modules.symatics_lightwave.beam_runtime import BeamRuntime
-from backend.modules.holo.holo_execution_service import run_holo_snapshot
+# TODO: old holo debug path used run_holo_snapshot; the new flow
+# is one-way (holo → Symatics), so this is intentionally disabled.
+# run_holo_snapshot(...)
 
 
 class SymaticsDispatcher:

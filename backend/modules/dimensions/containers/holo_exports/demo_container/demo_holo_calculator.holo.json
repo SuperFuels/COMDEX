@@ -1,0 +1,98 @@
+{
+  "container_id": "demo_container",
+  "extra": {
+    "last_run_at": "2025-12-09T15:01:01.688365+00:00",
+    "last_run_mode": "qqc",
+    "program_frames": [
+      {
+        "config": {
+          "from": "x"
+        },
+        "id": "f1",
+        "label": "Load x",
+        "order": 0,
+        "role": "input"
+      },
+      {
+        "config": {
+          "factor": 2
+        },
+        "id": "f2",
+        "label": "Multiply by 2",
+        "order": 1,
+        "role": "mul"
+      },
+      {
+        "config": {
+          "value": 3
+        },
+        "id": "f3",
+        "label": "Add 3",
+        "order": 2,
+        "role": "add"
+      },
+      {
+        "config": {
+          "to": "y"
+        },
+        "id": "f4",
+        "label": "Write to y",
+        "order": 3,
+        "role": "output"
+      }
+    ],
+    "run_count": 1
+  },
+  "ghx": {
+    "edges": [
+      {
+        "id": "e1",
+        "kind": "flow",
+        "source": "f1",
+        "target": "f2"
+      },
+      {
+        "id": "e2",
+        "kind": "flow",
+        "source": "f2",
+        "target": "f3"
+      },
+      {
+        "id": "e3",
+        "kind": "flow",
+        "source": "f3",
+        "target": "f4"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "f1",
+        "kind": "frame",
+        "label": "Load x"
+      },
+      {
+        "id": "f2",
+        "kind": "frame",
+        "label": "Multiply by 2"
+      },
+      {
+        "id": "f3",
+        "kind": "frame",
+        "label": "Add 3"
+      },
+      {
+        "id": "f4",
+        "kind": "frame",
+        "label": "Write to y"
+      }
+    ]
+  },
+  "holo_id": "demo:holo_calculator",
+  "name": "Demo Calculator Hologram",
+  "timefold": {
+    "tick": 0
+  },
+  "version": {
+    "revision": 2
+  }
+}

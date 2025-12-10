@@ -4,7 +4,7 @@ import DevFieldHologram3DContainer from "./DevFieldHologram3DContainer";
 import { PhotonStubPanel } from "./PhotonStubPanel";
 
 import type { HoloIR } from "../lib/types/holo";
-import type { HoloIndexEntry } from "../lib/api/holo";
+import type { HoloIndexItem } from "../lib/api/holo";
 import {
   fetchLatestHoloForContainer,
   listHolosForContainer,
@@ -13,21 +13,26 @@ import {
 } from "../lib/api/holo";
 import { buildPhotonStubFromHolo, buildGhxFromHolo } from "../lib/rehydrate";
 
-export interface HologramContainerViewProps {
+type HologramContainerViewProps = {
   containerId: string;
   title?: string;
   /** If you already know which holo to start with */
   initialHoloId?: string;
   /** Show the “Export .holo snapshot” button (default: true) */
   allowExport?: boolean;
-}
+
+  // 🔁 Optional overrides coming from DevTools
+  holo?: HoloIR | null;
+  holoFiles?: HoloIndexItem[];
+  onSelectHolo?: (item: HoloIndexItem) => void;
+};
 
 /**
  * Generic container-level hologram view.
  *
  * Responsibilities:
  *  - Load latest Holo for a container
- *  - Load history (C1F index)
+ *  - Load history (index)
  *  - Allow selecting a specific snapshot
  *  - Render via DevFieldHologram3DContainer
  *  - Rehydrate .holo back into the live Field Lab
@@ -37,14 +42,24 @@ export default function HologramContainerView({
   title = "Hologram Container View",
   initialHoloId,
   allowExport = true,
+  holo: holoProp,
+  holoFiles,
+  onSelectHolo,
 }: HologramContainerViewProps) {
-  const [holo, setHolo] = useState<HoloIR | null>(null);
-  const [holoIndex, setHoloIndex] = useState<HoloIndexEntry[] | null>(null);
+  const [holo, setHolo] = useState<HoloIR | null>(holoProp ?? null);
+  const [holoIndex, setHoloIndex] = useState<HoloIndexItem[] | null>(null);
   const [loadingIndex, setLoadingIndex] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load latest holo (ignore initialHoloId for now)
+  // keep local holo in sync with prop when DevTools passes one in
+  useEffect(() => {
+    if (holoProp !== undefined) {
+      setHolo(holoProp ?? null);
+    }
+  }, [holoProp]);
+
+  // Latest holo for this container (ignores initialHoloId for now)
   useEffect(() => {
     let cancelled = false;
     setError(null);
@@ -62,7 +77,7 @@ export default function HologramContainerView({
     };
   }, [containerId, initialHoloId]);
 
-  // Load index (history) for this container
+  // Index (history) for this container
   useEffect(() => {
     let cancelled = false;
     setLoadingIndex(true);
@@ -85,36 +100,12 @@ export default function HologramContainerView({
     };
   }, [containerId]);
 
-  // Load index (history) for this container
-  useEffect(() => {
-    let cancelled = false;
-    setLoadingIndex(true);
-    setError(null);
-
-    listHolosForContainer(containerId)
-      .then((entries) => {
-        if (!cancelled) setHoloIndex(entries);
-      })
-      .catch((err: any) => {
-        console.warn("[HologramContainerView] Failed to load holo index:", err);
-        if (!cancelled) setHoloIndex(null);
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingIndex(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [containerId]);
-
-  // 🔁 react to devtools.holo_saved (e.g. motif → .holo import)
+  // React to devtools.holo_saved (e.g. program builder → .holo import)
   useEffect(() => {
     function handleSaved(ev: Event) {
       const detail = (ev as CustomEvent).detail as { holo?: HoloIR } | undefined;
       if (!detail?.holo) return;
 
-      // Only refresh if it's for this container
       if (detail.holo.container_id === containerId) {
         listHolosForContainer(containerId)
           .then(setHoloIndex)
@@ -141,8 +132,7 @@ export default function HologramContainerView({
         .map((e) => e.revision ?? 0)
         .filter((n) => Number.isFinite(n)) as number[];
 
-    const nextRevision =
-      (revisions.length ? Math.max(...revisions) : 0) + 1;
+    const nextRevision = (revisions.length ? Math.max(...revisions) : 0) + 1;
 
     try {
       const snapshot = await exportHoloForContainer(
@@ -158,12 +148,11 @@ export default function HologramContainerView({
 
       setHolo(snapshot);
 
-      // refresh index
       try {
         const entries = await listHolosForContainer(containerId);
         setHoloIndex(entries);
       } catch {
-        // non-fatal
+        /* non-fatal */
       }
     } catch (err: any) {
       console.error("[HologramContainerView] export failed:", err);
@@ -173,39 +162,34 @@ export default function HologramContainerView({
     }
   }
 
-  async function handleLoad(entry: HoloIndexEntry) {
+  async function handleLoad(entry: HoloIndexItem) {
     if (entry.tick == null || entry.revision == null) return;
     setError(null);
 
     try {
       const h = await fetchHoloAtTick(containerId, entry.tick, entry.revision);
-      if (h) {
-        setHolo(h);
-      }
+      if (h) setHolo(h);
     } catch (err: any) {
       console.error("[HologramContainerView] load at tick failed:", err);
       setError(err?.message ?? "Failed to load holo snapshot");
     }
   }
 
-  // 🔁 Rehydrate this container's .holo back into the live Field Lab
+  // Rehydrate this container's .holo back into the live Field Lab
   function handleRehydrateToField() {
     if (!holo) return;
     if (typeof window === "undefined") return;
 
     const packet = buildGhxFromHolo(holo);
 
-    // 1) seed global GHX for DevFieldCanvas / other listeners
     (window as any).__DEVTOOLS_LAST_GHX = packet;
 
-    // 2) broadcast GHX event
     window.dispatchEvent(
       new CustomEvent("devtools.ghx", {
         detail: { ghx: packet },
       }),
     );
 
-    // 3) switch DevTools to the Field Lab tab
     window.dispatchEvent(
       new CustomEvent("devtools.switch_tab", {
         detail: { tool: "field" },
@@ -214,9 +198,10 @@ export default function HologramContainerView({
   }
 
   const snapshotCount = holoIndex?.length ?? 0;
-
-  // Photon stub snippet derived from current holo (if any)
   const photonStub = holo ? buildPhotonStubFromHolo(holo) : null;
+
+  // Source for the left “Holo Files” cabinet:
+  const cabinetFiles: HoloIndexItem[] = holoFiles ?? holoIndex ?? [];
 
   return (
     <div
@@ -280,13 +265,11 @@ export default function HologramContainerView({
             <span style={{ opacity: 0.7 }}>no snapshots yet</span>
           ) : (
             holoIndex.map((entry) => {
-              const label = `t=${entry.tick ?? "?"}/v=${
-                entry.revision ?? "?"
-              }`;
+              const label = `t=${entry.tick ?? "?"}/v=${entry.revision ?? "?"}`;
               const active = entry.holo_id === holo?.holo_id;
               return (
                 <button
-                  key={entry.holo_id}
+                  key={`${entry.tick}-${entry.revision}-${entry.holo_id}`}
                   type="button"
                   onClick={() => handleLoad(entry)}
                   style={{
@@ -319,7 +302,6 @@ export default function HologramContainerView({
             flexShrink: 0,
           }}
         >
-          {/* Rehydrate button always shown; disabled if no holo */}
           <button
             type="button"
             onClick={handleRehydrateToField}
@@ -366,16 +348,144 @@ export default function HologramContainerView({
         <div style={{ fontSize: 11, color: "#b91c1c" }}>{error}</div>
       )}
 
-      {/* 3D field */}
-      <div style={{ flex: 1, minHeight: 320 }}>
-        <DevFieldHologram3DContainer
-          holo={holo}
-          mode="field"
-          allowExternalGhx
-        />
+      {/* Main body: left Holo Files cabinet + right 3D field */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          gap: 12,
+          minHeight: 320,
+        }}
+      >
+        {/* Left column: Holo Files cabinet */}
+        <div
+          style={{
+            borderRadius: 12,
+            border: "1px solid #e5e7eb",
+            background: "#ffffff",
+            padding: 12,
+            fontSize: 12,
+            display: "flex",
+            flexDirection: "column",
+            minWidth: 220,
+          }}
+        >
+          <div style={{ fontWeight: 600, marginBottom: 6 }}>Holo Files</div>
+
+          {/* Program files (primary) */}
+          <ul
+            style={{
+              listStyle: "none",
+              margin: 0,
+              padding: 0,
+              marginBottom: 8,
+              paddingBottom: 6,
+              borderBottom: "1px solid #e5e7eb",
+              fontSize: 11,
+              color: "#111827",
+            }}
+          >
+            {["main.holo", "loop.holo", "exec.holo", "output.holo"].map(
+              (name, idx) => {
+                const rowBg =
+                  idx % 2 === 0 ? "transparent" : "rgba(15,23,42,0.02)";
+                return (
+                  <li key={name}>
+                    <div
+                      style={{
+                        width: "100%",
+                        padding: "4px 6px",
+                        borderRadius: 6,
+                        background: rowBg,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span>{name}</span>
+                      <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                        file
+                      </span>
+                    </div>
+                  </li>
+                );
+              },
+            )}
+          </ul>
+
+          {/* Snapshots from backend index (secondary) */}
+          <div
+            style={{
+              fontSize: 10,
+              textTransform: "uppercase",
+              letterSpacing: 0.04,
+              color: "#9ca3af",
+              marginBottom: 4,
+            }}
+          >
+            Snapshots
+          </div>
+
+          {!holoFiles || holoFiles.length === 0 ? (
+            <div style={{ fontSize: 11, color: "#9ca3af" }}>
+              no snapshots yet
+            </div>
+          ) : (
+            <ul
+              style={{
+                listStyle: "none",
+                margin: 0,
+                padding: 0,
+                flex: 1,
+                overflowY: "auto",
+              }}
+            >
+              {holoFiles.map((hf, idx) => {
+                const label = `t=${hf.tick ?? 0} · v${hf.revision ?? 1}`;
+                const rowBg =
+                  idx % 2 === 0 ? "transparent" : "rgba(15,23,42,0.02)";
+                return (
+                  <li key={`${hf.tick}-${hf.revision}`}>
+                    <button
+                      type="button"
+                      onClick={() => onSelectHolo && onSelectHolo(hf)}
+                      style={{
+                        width: "100%",
+                        textAlign: "left",
+                        padding: "4px 6px",
+                        borderRadius: 6,
+                        border: "none",
+                        background: rowBg,
+                        cursor: "pointer",
+                        fontSize: 11,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span>{label}</span>
+                      <span style={{ fontSize: 10, color: "#6b7280" }}>
+                        v{hf.revision ?? "?"}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        {/* Right column: 3D field */}
+        <div style={{ flex: 1, minHeight: 320 }}>
+          <DevFieldHologram3DContainer
+            holo={holo}
+            mode="field"
+            allowExternalGhx
+          />
+        </div>
       </div>
 
-      {/* Photon motif stub row: left = stub, right = spacer to match inspector */}
+      {/* Photon motif stub row */}
       {photonStub && (
         <div
           style={{
@@ -385,7 +495,6 @@ export default function HologramContainerView({
             alignItems: "flex-start",
           }}
         >
-          {/* left column: stub card, same width as the 3D canvas */}
           <div
             style={{
               flex: 1,
@@ -430,7 +539,7 @@ export default function HologramContainerView({
             </div>
           </div>
 
-          {/* right spacer: keeps layout aligned with the 320px inspector */}
+          {/* Spacer to match 3D inspector width */}
           <div style={{ width: 320 }} />
         </div>
       )}

@@ -1,14 +1,15 @@
-# /workspaces/COMDEX/backend/QQC/holo_runtime.py
+# backend/QQC/holo_runtime.py
 from __future__ import annotations
 
-from typing import Any, Dict
-from datetime import datetime, timezone
+from typing import Dict, Any, Optional
 
-from backend.QQC.wave_capsule import run_symatics_wavecapsule
-
-
-def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+try:
+    # Symatics Lightwave WaveCapsule API
+    from backend.modules.symatics_lightwave.wave_capsule import (
+        run_symatics_wavecapsule,
+    )
+except Exception:  # pragma: no cover
+    run_symatics_wavecapsule = None  # type: ignore
 
 
 def _build_capsule_spec_from_holo(
@@ -63,10 +64,85 @@ def _build_capsule_spec_from_holo(
             "mode": mode,
             "ghx_node_count": len(nodes),
             "ghx_edge_count": len(edges),
-            "invoked_at": _utc_now_iso(),
         },
     }
     return spec
+
+
+def _interpret_program_frames(
+    holo: Dict[str, Any],
+    input_ctx: Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Tiny demo interpreter for program_frames.
+
+    Supported roles:
+      • "input":   load a value from input_ctx (config.from, default "x")
+      • "const":   set current value to a constant (config.value)
+      • "mul":     multiply current value by factor (config.factor)
+      • "add":     add a constant (config.value)
+      • "sub":     subtract a constant (config.value)
+      • "div":     divide by a constant (config.value)
+      • "output":  write current value into state[config.to] (default "result")
+
+    Frames are run in ascending order of `order` (or list order if missing).
+    Result is the final state dict (input_ctx + any new vars, e.g. "y").
+    """
+    extra = holo.get("extra") or {}
+    frames = extra.get("program_frames") or []
+    if not isinstance(frames, list) or not frames:
+        return {}
+
+    ordered = sorted(
+        [f for f in frames if isinstance(f, dict)],
+        key=lambda f: f.get("order", 0),
+    )
+
+    state: Dict[str, Any] = dict(input_ctx)
+    val: Any = None
+
+    for f in ordered:
+        role = f.get("role")
+        cfg = f.get("config") or {}
+
+        if role == "input":
+            src_key = cfg.get("from", "x")
+            val = state.get(src_key)
+
+        elif role == "const":
+            val = cfg.get("value")
+
+        elif role == "mul" and val is not None:
+            try:
+                val = val * cfg.get("factor", 1)
+            except Exception:
+                pass
+
+        elif role == "add" and val is not None:
+            try:
+                val = val + cfg.get("value", 0)
+            except Exception:
+                pass
+
+        elif role == "sub" and val is not None:
+            try:
+                val = val - cfg.get("value", 0)
+            except Exception:
+                pass
+
+        elif role == "div" and val is not None:
+            try:
+                denom = cfg.get("value", 1)
+                if denom not in (0, 0.0):
+                    val = val / denom
+            except Exception:
+                pass
+
+        elif role == "output" and val is not None:
+            dst_key = cfg.get("to", "result")
+            state[dst_key] = val
+
+    return state
 
 
 def execute_holo_program(
@@ -75,46 +151,46 @@ def execute_holo_program(
     mode: str = "qqc",
 ) -> Dict[str, Any]:
     """
-    Run a HoloIR object through the Symatics/SLE pipeline.
+    Run a HoloIR object through the Symatics/SLE pipeline AND
+    evaluate a tiny arithmetic 'program' encoded in extra.program_frames.
 
-    Returns a small dict that run_holo_snapshot can merge into its
-    response: { output, metrics, sle_status, sle_spec }.
-
-    Side effects:
-      • Uses run_symatics_wavecapsule(...) which internally:
-        - builds a WaveCapsule,
-        - calls BeamRuntime.execute_capsule(...),
-        - emits BeamEvent objects on beam_event_bus.
-      • QQCQFCAdapter is already subscribed to beam_event_bus, so QFC
-        overlays will see these beams.
+    Returns:
+      {
+        "output": {
+          "sle_status": ...,
+          "echo_input_ctx": {...},
+          "program_output": {...},  # only if program_frames existed
+        },
+        "metrics": {...},
+        "sle_status": "...",
+        "sle_spec": {...},
+      }
     """
+    # Build the WaveCapsule spec from the holo + input ctx
     spec = _build_capsule_spec_from_holo(holo, input_ctx, mode=mode)
 
-    try:
-        # This calls SymaticsDispatcher + BeamRuntime under the hood.
-        sle_result: Dict[str, Any] = run_symatics_wavecapsule(spec) or {}
-    except Exception as e:
-        # Don’t break DevTools if SLE is misconfigured – surface an error
-        # payload but keep the contract.
-        print(f"[HOLO-RUNTIME] run_symatics_wavecapsule failed: {e!r}")
-        return {
-            "output": {
-                "sle_status": "error",
+    # --- Call Symatics/SLE + BeamRuntime (WaveCapsule) ----------------------
+    sle_result: Dict[str, Any] = {}
+    if run_symatics_wavecapsule is not None:
+        try:
+            sle_result = run_symatics_wavecapsule(spec) or {}
+        except Exception as e:
+            # Keep DevTools alive even if SLE is misconfigured.
+            print(f"[HOLO-CPU] run_symatics_wavecapsule failed: {e!r}")
+            sle_result = {
+                "status": "sle_error",
                 "error": str(e),
-                "echo_input_ctx": input_ctx,
-            },
-            "metrics": {
-                "sle_status": "error",
-            },
-            "sle_status": "error",
-            "sle_spec": spec,
+                "mode": mode,
+            }
+    else:
+        sle_result = {
+            "status": "no_wavecapsule",
+            "mode": mode,
         }
 
-    # BeamRuntime.execute_capsule typically returns at least:
-    #   { "opcode", "mode", "coherence", "collapse_time_ms", "status", ... }
     coherence = sle_result.get("coherence")
     collapse_time_ms = sle_result.get("collapse_time_ms")
-    opcode = sle_result.get("opcode")
+    opcode = sle_result.get("opcode") or spec.get("opcode")
     status = sle_result.get("status") or "executed"
 
     metrics: Dict[str, Any] = {
@@ -127,32 +203,76 @@ def execute_holo_program(
     if collapse_time_ms is not None:
         metrics["sle_collapse_time_ms"] = collapse_time_ms
 
-    return {
-        "output": {
-            # For now we don't try to decode a rich payload from SLE;
-            # we just echo the input ctx alongside the SLE status.
-            "sle_status": status,
-            "echo_input_ctx": input_ctx,
-        },
+    # --- Tiny demo interpreter over program_frames -------------------------
+    program_state = _interpret_program_frames(holo, input_ctx)
+
+    output: Dict[str, Any] = {
+        "sle_status": status,
+        "echo_input_ctx": input_ctx,
+    }
+    if program_state:
+        # e.g. { "x": 10, "y": 23 }
+        output["program_output"] = program_state
+
+    # --- Build a tiny GHX graph for the program frames -------------
+    ghx_payload: Optional[Dict[str, Any]] = None
+    try:
+        extra = (holo or {}).get("extra") or {}
+        frames = extra.get("program_frames") or []
+        if frames:
+            nodes = []
+            for idx, f in enumerate(frames):
+                fid = f.get("id") or f"f_{idx}"
+                nodes.append(
+                    {
+                        "id": fid,
+                        "label": f.get("label") or fid,
+                        "kind": f.get("role") or "frame",
+                    }
+                )
+
+            ghx_src = (holo or {}).get("ghx") or {}
+            edges = ghx_src.get("edges") or []
+
+            # Fallback: linear chain if no edges were defined
+            if not edges and len(nodes) > 1:
+                edges = [
+                    {
+                        "id": f"e_{i}",
+                        "source": nodes[i]["id"],
+                        "target": nodes[i + 1]["id"],
+                        "kind": "flow",
+                    }
+                    for i in range(len(nodes) - 1)
+                ]
+
+            ghx_payload = {
+                "ghx_version": "1.0",
+                "origin": "holo_program",
+                "container_id": (
+                    holo.get("container_id")
+                    if isinstance(holo, dict)
+                    else input_ctx.get("container_id", "devtools")
+                ),
+                "nodes": nodes,
+                "edges": edges,
+                "metadata": {
+                    "holo_id": (holo or {}).get("holo_id"),
+                    "tick": (holo or {}).get("timefold", {}).get("tick"),
+                    "program_output": program_state,
+                },
+            }
+    except Exception as e:
+        print(f"[HOLO-CPU] failed to derive GHX from program_frames: {e!r}")
+        ghx_payload = None
+
+    result: Dict[str, Any] = {
+        "output": output,
         "metrics": metrics,
         "sle_status": status,
         "sle_spec": spec,
     }
+    if ghx_payload is not None:
+        result["ghx"] = ghx_payload
 
-
-# --------------------------------------------------------------------
-# Backwards-compatible entrypoint for run_holo_snapshot
-# --------------------------------------------------------------------
-async def run_holo(
-    holo: Dict[str, Any],
-    input_ctx: Dict[str, Any],
-    mode: str = "qqc",
-) -> Dict[str, Any]:
-    """
-    Async wrapper kept for compatibility with existing calls:
-
-        engine_result = await run_holo(holo, input_ctx, mode)
-
-    Internally this just calls execute_holo_program(...).
-    """
-    return execute_holo_program(holo, input_ctx, mode=mode)
+    return result
