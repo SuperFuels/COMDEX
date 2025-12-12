@@ -2,8 +2,9 @@
 // Dev-only admin dashboard:
 //   • GMA reserves + equity snapshot (+ reserve ops)
 //   • Photon Pay recurring mandates list + cancel controls.
+//   • GlyphBonds, Photon Savings, and Escrow (dev slices).
 
-import { useEffect, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 type ReserveRow = {
   asset_id: string;
@@ -44,6 +45,41 @@ type DevMandate = {
   total_runs: number;
   max_runs: number | null;
   active: boolean;
+};
+
+type SavingsProduct = {
+  product_id: string;
+  label: string;
+  rate_apy_bps: number;
+  term_days: number | null;
+};
+
+type SavingsPosition = {
+  position_id: string;
+  account: string;
+  product_id: string;
+  principal_pho: string;
+  rate_apy_bps: number;
+  term_days: number | null;
+  opened_at_ms: number;
+  status: string;
+  closed_at_ms: number | null;
+  accrued_interest_pho?: string;
+  maturity_ms?: number | null;
+};
+
+type EscrowAgreement = {
+  escrow_id: string;
+  from_account: string;
+  to_account: string;
+  amount_pho: string;
+  kind: string; // "SERVICE" | "LIQUIDITY" | etc
+  label: string;
+  created_at_ms: number;
+  unlock_at_ms: number | null;
+  released_at_ms: number | null;
+  refunded_at_ms: number | null;
+  status: "OPEN" | "RELEASED" | "REFUNDED";
 };
 
 type DevReceipt = {
@@ -110,15 +146,58 @@ export default function AdminDashboard() {
   const [bondsErr, setBondsErr] = useState<string | null>(null);
   const [bondsLoading, setBondsLoading] = useState<boolean>(false);
 
-  const [newSeriesLabel, setNewSeriesLabel] = useState<string>("Demo bond series");
-  const [newSeriesCouponBps, setNewSeriesCouponBps] = useState<string>("500"); // 5.00%
-  const [newSeriesTermDays, setNewSeriesTermDays] = useState<string>("365");
+  const [newSeriesLabel, setNewSeriesLabel] =
+    useState<string>("Demo bond series");
+  const [newSeriesCouponBps, setNewSeriesCouponBps] =
+    useState<string>("500"); // 5.00%
+  const [newSeriesTermDays, setNewSeriesTermDays] =
+    useState<string>("365");
 
   const [issueSeriesId, setIssueSeriesId] = useState<string>("");
-  const [issueAmountPho, setIssueAmountPho] = useState<string>("100.0");
+  const [issueAmountPho, setIssueAmountPho] =
+    useState<string>("100.0");
   const [issueBusy, setIssueBusy] = useState<boolean>(false);
 
-  const BOND_DEV_ACCOUNT = "pho1-demo-offline";
+  // ── Dev account constants
+  const DEV_ACCOUNT = "pho1-demo-offline";
+  const DEV_SAVINGS_ACCOUNT = DEV_ACCOUNT;
+  const BOND_DEV_ACCOUNT = DEV_ACCOUNT;
+
+  // ── Photon Savings / Term Deposits (dev)
+  const [savingsProducts, setSavingsProducts] = useState<SavingsProduct[]>([]);
+  const [savingsPositions, setSavingsPositions] =
+    useState<SavingsPosition[]>([]);
+  const [savingsErr, setSavingsErr] = useState<string | null>(null);
+  const [savingsBusy, setSavingsBusy] = useState<boolean>(false);
+  const [savingsMsg, setSavingsMsg] = useState<string | null>(null);
+
+  // Create-product form
+  const [svLabel, setSvLabel] =
+    useState<string>("Demo term deposit");
+  const [svRateBps, setSvRateBps] = useState<string>("500");
+  const [svTermDays, setSvTermDays] = useState<string>("365");
+
+  // Open-position form
+  const [svDepositAmount, setSvDepositAmount] =
+    useState<string>("100");
+  const [svSelectedProductId, setSvSelectedProductId] =
+    useState<string | null>(null);
+
+  // ── Escrow Agreements (dev)
+  const [escrows, setEscrows] = useState<EscrowAgreement[]>([]);
+  const [escrowErr, setEscrowErr] = useState<string | null>(null);
+  const [escrowBusy, setEscrowBusy] = useState<boolean>(false);
+  const [escrowMsg, setEscrowMsg] = useState<string | null>(null);
+
+  // Create-escrow form
+  const [escrowLabel, setEscrowLabel] =
+    useState<string>("Home renovation deposit");
+  const [escrowAmount, setEscrowAmount] = useState<string>("100");
+  const [escrowKind, setEscrowKind] = useState<string>("SERVICE");
+  const [escrowBeneficiary, setEscrowBeneficiary] =
+    useState<string>("pho1-demo-merchant");
+  const [escrowUnlockDays, setEscrowUnlockDays] =
+    useState<string>("0");
 
   async function handleMakePosInvoice() {
     if (!posSeller.trim() || !posAmount.trim()) {
@@ -244,6 +323,251 @@ export default function AdminDashboard() {
     : [];
 
   // ────────────────────────────────────────────
+  // Photon Savings – helpers
+  // ────────────────────────────────────────────
+
+  const refreshSavings = useCallback(async () => {
+    try {
+      setSavingsErr(null);
+
+      const [prodRes, posRes] = await Promise.all([
+        fetch("/api/photon_savings/dev/products"),
+        fetch(
+          `/api/photon_savings/dev/positions?account=${encodeURIComponent(
+            DEV_ACCOUNT,
+          )}`,
+        ),
+      ]);
+
+      if (!prodRes.ok) throw new Error(await prodRes.text());
+      if (!posRes.ok) throw new Error(await posRes.text());
+
+      const prodJson = await prodRes.json();
+      const posJson = await posRes.json();
+
+      const prodList = (prodJson.products || []) as SavingsProduct[];
+      const posList = (posJson.positions || []) as SavingsPosition[];
+
+      // newest first
+      prodList.sort(
+        (a, b) => (b.product_id || "").localeCompare(a.product_id || ""),
+      );
+      posList.sort(
+        (a, b) => (b.opened_at_ms || 0) - (a.opened_at_ms || 0),
+      );
+
+      setSavingsProducts(prodList);
+      setSavingsPositions(posList);
+
+      // if no selection yet, default to first product
+      if (!svSelectedProductId && prodList.length > 0) {
+        setSvSelectedProductId(prodList[0].product_id);
+      }
+    } catch (err: any) {
+      console.error("[AdminDashboard] refreshSavings failed:", err);
+      setSavingsErr(err.message || "Failed to load savings products/positions");
+      setSavingsProducts([]);
+      setSavingsPositions([]);
+    }
+  }, [DEV_ACCOUNT, svSelectedProductId]);
+
+  const handleCreateSavingsProduct = useCallback(async () => {
+    try {
+      setSavingsErr(null);
+      setSavingsMsg(null);
+      setSavingsBusy(true);
+
+      const body = {
+        label: svLabel || "Unnamed product",
+        rate_apy_bps: parseInt(svRateBps || "0", 10),
+        term_days: svTermDays ? parseInt(svTermDays, 10) : null,
+      };
+
+      const res = await fetch("/api/photon_savings/dev/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      const json = await res.json();
+
+      setSavingsMsg(
+        `Created savings product ${
+          json.product?.label || json.label || ""
+        }`,
+      );
+      await refreshSavings();
+    } catch (err: any) {
+      console.error("[AdminDashboard] create savings product failed:", err);
+      setSavingsErr(err.message || "Failed to create savings product");
+    } finally {
+      setSavingsBusy(false);
+    }
+  }, [svLabel, svRateBps, svTermDays, refreshSavings]);
+
+  const handleOpenSavingsPosition = useCallback(async () => {
+    if (!svSelectedProductId) {
+      setSavingsErr("Select a savings product first.");
+      return;
+    }
+
+    try {
+      setSavingsErr(null);
+      setSavingsMsg(null);
+      setSavingsBusy(true);
+
+      const body = {
+        account: DEV_ACCOUNT,
+        product_id: svSelectedProductId,
+        principal_pho: svDepositAmount,
+      };
+
+      const res = await fetch("/api/photon_savings/dev/open_position", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      const json = await res.json();
+
+      setSavingsMsg(
+        `Opened savings position ${
+          json.position?.position_id || ""
+        } for ${svDepositAmount} PHO`,
+      );
+      await refreshSavings();
+    } catch (err: any) {
+      console.error("[AdminDashboard] savings deposit failed:", err);
+      setSavingsErr(err.message || "Failed to open savings position");
+    } finally {
+      setSavingsBusy(false);
+    }
+  }, [DEV_ACCOUNT, svSelectedProductId, svDepositAmount, refreshSavings]);
+
+  // ────────────────────────────────────────────
+  // Escrow – helpers
+  // ────────────────────────────────────────────
+
+  const refreshEscrows = useCallback(async () => {
+    try {
+      setEscrowErr(null);
+      setEscrowBusy(true);
+
+      const res = await fetch(
+        `/api/escrow/dev/list?account=${encodeURIComponent(DEV_ACCOUNT)}`,
+      );
+      if (!res.ok) throw new Error(await res.text());
+      const json = await res.json();
+      setEscrows((json.escrows || []) as EscrowAgreement[]);
+    } catch (err: any) {
+      console.error("[AdminDashboard] refreshEscrows failed:", err);
+      setEscrowErr(err.message || "Failed to load escrows");
+      setEscrows([]);
+    } finally {
+      setEscrowBusy(false);
+    }
+  }, [DEV_ACCOUNT]);
+
+  const handleCreateEscrow = useCallback(async () => {
+    try {
+      setEscrowErr(null);
+      setEscrowMsg(null);
+      setEscrowBusy(true);
+
+      const unlockDays = parseInt(escrowUnlockDays || "0", 10);
+      const unlock_at_ms =
+        unlockDays > 0
+          ? Date.now() + unlockDays * 24 * 60 * 60 * 1000
+          : null;
+
+      const body = {
+        from_account: DEV_ACCOUNT,
+        to_account: escrowBeneficiary,
+        amount_pho: escrowAmount,
+        kind: escrowKind,
+        label: escrowLabel,
+        unlock_at_ms,
+      };
+
+      const res = await fetch("/api/escrow/dev/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const json = await res.json();
+
+      setEscrowMsg(`Created escrow ${json.escrow?.escrow_id || ""}`);
+      await refreshEscrows();
+    } catch (err: any) {
+      console.error("[AdminDashboard] createEscrow failed:", err);
+      setEscrowErr(err.message || "Failed to create escrow");
+    } finally {
+      setEscrowBusy(false);
+    }
+  }, [
+    DEV_ACCOUNT,
+    escrowBeneficiary,
+    escrowAmount,
+    escrowKind,
+    escrowLabel,
+    escrowUnlockDays,
+    refreshEscrows,
+  ]);
+
+  const handleReleaseEscrow = useCallback(
+    async (escrow_id: string) => {
+      try {
+        setEscrowErr(null);
+        setEscrowMsg(null);
+        setEscrowBusy(true);
+
+        const res = await fetch("/api/escrow/dev/release", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ escrow_id }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        await refreshEscrows();
+        setEscrowMsg(`Released escrow ${escrow_id}`);
+      } catch (err: any) {
+        console.error("[AdminDashboard] releaseEscrow failed:", err);
+        setEscrowErr(err.message || "Failed to release escrow");
+      } finally {
+        setEscrowBusy(false);
+      }
+    },
+    [refreshEscrows],
+  );
+
+  const handleRefundEscrow = useCallback(
+    async (escrow_id: string) => {
+      try {
+        setEscrowErr(null);
+        setEscrowMsg(null);
+        setEscrowBusy(true);
+
+        const res = await fetch("/api/escrow/dev/refund", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ escrow_id }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        await refreshEscrows();
+        setEscrowMsg(`Refunded escrow ${escrow_id}`);
+      } catch (err: any) {
+        console.error("[AdminDashboard] refundEscrow failed:", err);
+        setEscrowErr(err.message || "Failed to refund escrow");
+      } finally {
+        setEscrowBusy(false);
+      }
+    },
+    [refreshEscrows],
+  );
+
+  // ────────────────────────────────────────────
   // Recurring mandates
   // ────────────────────────────────────────────
 
@@ -269,7 +593,7 @@ export default function AdminDashboard() {
       .then((j) => {
         const list = (j?.receipts || []) as DevReceipt[];
         list.sort(
-          (a, b) => (b.created_at_ms || 0) - (a.created_at_ms || 0)
+          (a, b) => (b.created_at_ms || 0) - (a.created_at_ms || 0),
         );
         setReceipts(list.slice(0, 20));
         setReceiptsErr(null);
@@ -288,7 +612,11 @@ export default function AdminDashboard() {
 
     Promise.all([
       fetch("/api/glyph_bonds/dev/series"),
-      fetch(`/api/glyph_bonds/dev/positions?account=${encodeURIComponent(BOND_DEV_ACCOUNT)}`),
+      fetch(
+        `/api/glyph_bonds/dev/positions?account=${encodeURIComponent(
+          BOND_DEV_ACCOUNT,
+        )}`,
+      ),
     ])
       .then(async ([seriesResp, posResp]) => {
         if (!seriesResp.ok) {
@@ -303,15 +631,16 @@ export default function AdminDashboard() {
         const seriesList = (seriesJson?.series || []) as BondSeries[];
         const posList = (posJson?.positions || []) as BondPosition[];
 
-        // sort series by created time (newest first)
-        seriesList.sort((a, b) => (b.created_at_ms || 0) - (a.created_at_ms || 0));
-        // sort positions by created time (newest first)
-        posList.sort((a, b) => (b.created_at_ms || 0) - (a.created_at_ms || 0));
+        seriesList.sort(
+          (a, b) => (b.created_at_ms || 0) - (a.created_at_ms || 0),
+        );
+        posList.sort(
+          (a, b) => (b.created_at_ms || 0) - (a.created_at_ms || 0),
+        );
 
         setBondSeries(seriesList);
         setBondPositions(posList);
 
-        // default issueSeriesId to first series if not set
         if (!issueSeriesId && seriesList.length > 0) {
           setIssueSeriesId(seriesList[0].series_id);
         }
@@ -407,7 +736,9 @@ export default function AdminDashboard() {
     refreshMandates();
     refreshReceipts();
     refreshBonds();
-  }, []);
+    refreshSavings();
+    refreshEscrows();
+  }, [refreshSavings, refreshEscrows]);
 
   const handleCancel = async (m: DevMandate) => {
     setBusyCancel(m.instr_id);
@@ -880,6 +1211,709 @@ export default function AdminDashboard() {
             </div>
           )
         )}
+      </section>
+
+      {/* ── Photon Savings / Term Deposits (dev) ─────────── */}
+      <section
+        style={{
+          borderRadius: 16,
+          border: "1px solid #e5e7eb",
+          background: "#ffffff",
+          padding: 14,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: "#0f172a",
+            }}
+          >
+            Photon Savings / Term Deposits (dev)
+          </div>
+          <button
+            type="button"
+            onClick={refreshSavings}
+            style={{
+              padding: "4px 10px",
+              borderRadius: 999,
+              border: "1px solid #e5e7eb",
+              background: "#f9fafb",
+              fontSize: 11,
+              cursor: "pointer",
+            }}
+          >
+            Refresh
+          </button>
+        </div>
+
+        <p
+          style={{
+            margin: 0,
+            fontSize: 11,
+            color: "#6b7280",
+          }}
+        >
+          Dev-only view of Photon Savings products and positions. Uses an
+          in-memory model and a single hard-coded account ({DEV_ACCOUNT}).
+        </p>
+
+        {savingsErr && (
+          <div style={{ fontSize: 11, color: "#b91c1c" }}>{savingsErr}</div>
+        )}
+        {savingsMsg && (
+          <div style={{ fontSize: 11, color: "#047857" }}>{savingsMsg}</div>
+        )}
+
+        {/* Products table */}
+        <div style={{ marginTop: 4 }}>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#111827",
+              marginBottom: 4,
+            }}
+          >
+            Savings products
+          </div>
+          {savingsProducts.length === 0 ? (
+            <div style={{ fontSize: 11, color: "#9ca3af" }}>
+              No savings products yet. Create one below.
+            </div>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: 11,
+                }}
+              >
+                <thead>
+                  <tr style={{ textAlign: "left", color: "#6b7280" }}>
+                    <th style={{ padding: "4px 4px" }}>Label</th>
+                    <th style={{ padding: "4px 4px" }}>APY</th>
+                    <th style={{ padding: "4px 4px" }}>Term</th>
+                    <th style={{ padding: "4px 4px" }}>ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {savingsProducts.map((p) => {
+                    const apyPct = (p.rate_apy_bps || 0) / 100;
+                    return (
+                      <tr key={p.product_id}>
+                        <td style={{ padding: "4px 4px", color: "#111827" }}>
+                          {p.label}
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#4b5563" }}>
+                          {apyPct.toFixed(2)}%
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#4b5563" }}>
+                          {p.term_days ? `${p.term_days} days` : "On-demand"}
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#6b7280" }}>
+                          <code>{p.product_id}</code>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Create product + open position */}
+        <div
+          style={{
+            marginTop: 10,
+            paddingTop: 10,
+            borderTop: "1px dashed #e5e7eb",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#111827",
+            }}
+          >
+            Create savings product (dev)
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
+              alignItems: "center",
+            }}
+          >
+            <input
+              type="text"
+              value={svLabel}
+              onChange={(e) => setSvLabel(e.target.value)}
+              placeholder="Label"
+              style={{
+                flex: 1,
+                minWidth: 140,
+                padding: "4px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                fontSize: 11,
+              }}
+            />
+            <input
+              type="number"
+              inputMode="numeric"
+              value={svRateBps}
+              onChange={(e) => setSvRateBps(e.target.value)}
+              placeholder="APY (bps)"
+              style={{
+                width: 100,
+                padding: "4px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                fontSize: 11,
+                textAlign: "right",
+              }}
+            />
+            <input
+              type="number"
+              inputMode="numeric"
+              value={svTermDays}
+              onChange={(e) => setSvTermDays(e.target.value)}
+              placeholder="Term (days)"
+              style={{
+                width: 110,
+                padding: "4px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                fontSize: 11,
+                textAlign: "right",
+              }}
+            />
+            <button
+              type="button"
+              disabled={savingsBusy}
+              onClick={handleCreateSavingsProduct}
+              style={{
+                padding: "5px 10px",
+                borderRadius: 999,
+                border: "1px solid #0f172a",
+                background: "#0f172a",
+                color: "#f9fafb",
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: savingsBusy ? "default" : "pointer",
+                opacity: savingsBusy ? 0.6 : 1,
+                whiteSpace: "nowrap",
+              }}
+            >
+              Create product
+            </button>
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: 10,
+            paddingTop: 10,
+            borderTop: "1px dashed #e5e7eb",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#111827",
+            }}
+          >
+            Open savings position (dev account)
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
+              alignItems: "center",
+            }}
+          >
+            <select
+              value={svSelectedProductId || ""}
+              onChange={(e) =>
+                setSvSelectedProductId(e.target.value || null)
+              }
+              style={{
+                minWidth: 160,
+                padding: "4px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                fontSize: 11,
+              }}
+            >
+              <option value="">Select product…</option>
+              {savingsProducts.map((p) => (
+                <option key={p.product_id} value={p.product_id}>
+                  {p.label} ({(p.rate_apy_bps / 100).toFixed(2)}% /{" "}
+                  {p.term_days ? `${p.term_days}d` : "On-demand"})
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="number"
+              inputMode="decimal"
+              value={svDepositAmount}
+              onChange={(e) => setSvDepositAmount(e.target.value)}
+              placeholder="Amount PHO"
+              style={{
+                width: 120,
+                padding: "4px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                fontSize: 11,
+                textAlign: "right",
+              }}
+            />
+
+            <button
+              type="button"
+              disabled={savingsBusy}
+              onClick={handleOpenSavingsPosition}
+              style={{
+                padding: "5px 10px",
+                borderRadius: 999,
+                border: "1px solid #047857",
+                background: "#047857",
+                color: "#ecfdf5",
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: savingsBusy ? "default" : "pointer",
+                opacity: savingsBusy ? 0.7 : 1,
+                whiteSpace: "nowrap",
+              }}
+            >
+              Deposit into savings
+            </button>
+          </div>
+        </div>
+
+        {/* Positions table */}
+        <div
+          style={{
+            marginTop: 10,
+            paddingTop: 10,
+            borderTop: "1px dashed #e5e7eb",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#111827",
+              marginBottom: 4,
+            }}
+          >
+            Positions for {DEV_ACCOUNT}
+          </div>
+          {savingsPositions.length === 0 ? (
+            <div style={{ fontSize: 11, color: "#9ca3af" }}>
+              No savings positions yet for {DEV_ACCOUNT}.
+            </div>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: 11,
+                }}
+              >
+                <thead>
+                  <tr style={{ textAlign: "left", color: "#6b7280" }}>
+                    <th style={{ padding: "4px 4px" }}>Product</th>
+                    <th style={{ padding: "4px 4px" }}>Principal</th>
+                    <th style={{ padding: "4px 4px" }}>APY</th>
+                    <th style={{ padding: "4px 4px" }}>Term</th>
+                    <th style={{ padding: "4px 4px" }}>Opened</th>
+                    <th style={{ padding: "4px 4px" }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {savingsPositions.map((pos) => {
+                    const prod = savingsProducts.find(
+                      (p) => p.product_id === pos.product_id,
+                    );
+                    const opened = pos.opened_at_ms
+                      ? new Date(pos.opened_at_ms).toLocaleString()
+                      : "—";
+                    const apyPct = (pos.rate_apy_bps || 0) / 100;
+                    return (
+                      <tr key={pos.position_id}>
+                        <td style={{ padding: "4px 4px", color: "#111827" }}>
+                          {prod?.label || pos.product_id}
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#111827" }}>
+                          {pos.principal_pho} PHO
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#4b5563" }}>
+                          {apyPct.toFixed(2)}%
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#4b5563" }}>
+                          {pos.term_days ? `${pos.term_days} days` : "On-demand"}
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#4b5563" }}>
+                          {opened}
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#6b7280" }}>
+                          {pos.status || "OPEN"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── Escrow Agreements (dev) ─────────── */}
+      <section
+        style={{
+          borderRadius: 16,
+          border: "1px solid #e5e7eb",
+          background: "#ffffff",
+          padding: 14,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: "#0f172a",
+            }}
+          >
+            Escrow Agreements (dev)
+          </div>
+          <button
+            type="button"
+            onClick={refreshEscrows}
+            style={{
+              padding: "4px 10px",
+              borderRadius: 999,
+              border: "1px solid #e5e7eb",
+              background: "#f9fafb",
+              fontSize: 11,
+              cursor: "pointer",
+            }}
+          >
+            Refresh
+          </button>
+        </div>
+
+        <p
+          style={{
+            margin: 0,
+            fontSize: 11,
+            color: "#6b7280",
+          }}
+        >
+          Dev-only escrow slice for service deposits and liquidity locks. Uses
+          in-memory agreements tied to the dev account ({DEV_ACCOUNT}).
+        </p>
+
+        {escrowErr && (
+          <div style={{ fontSize: 11, color: "#b91c1c" }}>{escrowErr}</div>
+        )}
+        {escrowMsg && (
+          <div style={{ fontSize: 11, color: "#047857" }}>{escrowMsg}</div>
+        )}
+
+        {/* Create escrow */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            marginTop: 4,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#111827",
+            }}
+          >
+            New escrow (dev)
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
+              alignItems: "center",
+            }}
+          >
+            <input
+              type="text"
+              value={escrowLabel}
+              onChange={(e) => setEscrowLabel(e.target.value)}
+              placeholder="Label (e.g. Home deposit)"
+              style={{
+                flex: 1,
+                minWidth: 150,
+                padding: "4px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                fontSize: 11,
+              }}
+            />
+            <input
+              type="text"
+              value={escrowBeneficiary}
+              onChange={(e) => setEscrowBeneficiary(e.target.value)}
+              placeholder="Beneficiary PHO account"
+              style={{
+                flex: 1,
+                minWidth: 140,
+                padding: "4px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                fontSize: 11,
+              }}
+            />
+            <input
+              type="number"
+              inputMode="decimal"
+              value={escrowAmount}
+              onChange={(e) => setEscrowAmount(e.target.value)}
+              placeholder="Amount PHO"
+              style={{
+                width: 120,
+                padding: "4px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                fontSize: 11,
+                textAlign: "right",
+              }}
+            />
+            <select
+              value={escrowKind}
+              onChange={(e) => setEscrowKind(e.target.value)}
+              style={{
+                width: 120,
+                padding: "4px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                fontSize: 11,
+              }}
+            >
+              <option value="SERVICE">SERVICE</option>
+              <option value="LIQUIDITY">LIQUIDITY</option>
+            </select>
+            <input
+              type="number"
+              inputMode="numeric"
+              value={escrowUnlockDays}
+              onChange={(e) => setEscrowUnlockDays(e.target.value)}
+              placeholder="Lock (days)"
+              style={{
+                width: 110,
+                padding: "4px 8px",
+                borderRadius: 999,
+                border: "1px solid #e5e7eb",
+                fontSize: 11,
+                textAlign: "right",
+              }}
+            />
+            <button
+              type="button"
+              disabled={escrowBusy}
+              onClick={handleCreateEscrow}
+              style={{
+                padding: "5px 10px",
+                borderRadius: 999,
+                border: "1px solid #0f172a",
+                background: "#0f172a",
+                color: "#f9fafb",
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: escrowBusy ? "default" : "pointer",
+                opacity: escrowBusy ? 0.6 : 1,
+                whiteSpace: "nowrap",
+              }}
+            >
+              Create escrow
+            </button>
+          </div>
+        </div>
+
+        {/* Escrows table */}
+        <div
+          style={{
+            marginTop: 10,
+            paddingTop: 10,
+            borderTop: "1px dashed #e5e7eb",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#111827",
+              marginBottom: 4,
+            }}
+          >
+            Escrows for {DEV_ACCOUNT}
+          </div>
+
+          {escrows.length === 0 ? (
+            <div style={{ fontSize: 11, color: "#9ca3af" }}>
+              No escrows yet for {DEV_ACCOUNT}.
+            </div>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: 11,
+                }}
+              >
+                <thead>
+                  <tr style={{ textAlign: "left", color: "#6b7280" }}>
+                    <th style={{ padding: "4px 4px" }}>Label</th>
+                    <th style={{ padding: "4px 4px" }}>Kind</th>
+                    <th style={{ padding: "4px 4px" }}>From</th>
+                    <th style={{ padding: "4px 4px" }}>To</th>
+                    <th style={{ padding: "4px 4px" }}>Amount</th>
+                    <th style={{ padding: "4px 4px" }}>Status</th>
+                    <th style={{ padding: "4px 4px" }}>Unlock</th>
+                    <th style={{ padding: "4px 4px" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {escrows.map((e) => {
+                    const created = e.created_at_ms
+                      ? new Date(e.created_at_ms).toLocaleString()
+                      : "—";
+                    const unlock = e.unlock_at_ms
+                      ? new Date(e.unlock_at_ms).toLocaleString()
+                      : "—";
+                    const isOpen = e.status === "OPEN";
+                    return (
+                      <tr key={e.escrow_id}>
+                        <td style={{ padding: "4px 4px", color: "#111827" }}>
+                          {e.label}
+                          <div
+                            style={{
+                              fontSize: 10,
+                              color: "#9ca3af",
+                            }}
+                          >
+                            {created}
+                          </div>
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#4b5563" }}>
+                          {e.kind}
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#4b5563" }}>
+                          <code>{e.from_account}</code>
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#4b5563" }}>
+                          <code>{e.to_account}</code>
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#111827" }}>
+                          {e.amount_pho} PHO
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#6b7280" }}>
+                          {e.status}
+                        </td>
+                        <td style={{ padding: "4px 4px", color: "#6b7280" }}>
+                          {unlock}
+                        </td>
+                        <td style={{ padding: "4px 4px" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: 4,
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <button
+                              type="button"
+                              disabled={!isOpen || escrowBusy}
+                              onClick={() => handleReleaseEscrow(e.escrow_id)}
+                              style={{
+                                padding: "2px 8px",
+                                borderRadius: 999,
+                                border: "1px solid #047857",
+                                background: "#ecfdf5",
+                                color: "#047857",
+                                fontSize: 10,
+                                cursor: !isOpen || escrowBusy ? "default" : "pointer",
+                                opacity: !isOpen || escrowBusy ? 0.5 : 1,
+                              }}
+                            >
+                              Release
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={!isOpen || escrowBusy}
+                              onClick={() => handleRefundEscrow(e.escrow_id)}
+                              style={{
+                                padding: "2px 8px",
+                                borderRadius: 999,
+                                border: "1px solid #b91c1c",
+                                background: "#fef2f2",
+                                color: "#b91c1c",
+                                fontSize: 10,
+                                cursor: !isOpen || escrowBusy ? "default" : "pointer",
+                                opacity: !isOpen || escrowBusy ? 0.5 : 1,
+                              }}
+                            >
+                              Refund
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ── Recurring mandates table ──────────── */}

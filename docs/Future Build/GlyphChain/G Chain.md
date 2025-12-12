@@ -74,6 +74,8 @@ graph TD
 
     P3_6[☐ Facilities: Deposit & Lending\n• DepositFacility + LendingFacility params\n• open/close deposit positions\n• open/repay/close lending positions\n• Collateral factors, thresholds, liquidation\n• Facility spread P&L fields]
 
+    P3_6A[✅ Photon Savings / Term Deposits (Dev)\n• SavingsProduct + SavingsPosition (in-memory)\n• /api/photon_savings/dev/products\n• /dev/deposit, /dev/positions, /dev/redeem\n• Simple interest calc for dashboard prototyping]
+
     P3_7[☐ Revenue & Seigniorage\n• Profit from:\n  – OMO PnL\n  – Facility spreads\n  – Fee share\n• distributeRevenues:\n  – TESS buyback/burn\n  – grow reserves\n  – ops treasury\n• Events]
 
     P3_8[☐ Risk Limits & Basket\n• ReserveRiskLimits enforcement\n• targetBasketId, targetInflationBps\n• Basket oracle hooks\n• No limit-breach on update]
@@ -89,11 +91,13 @@ graph TD
 
     P4_1[☐ Bond Series Management\n• BondSeries struct\n• createBondSeries (governance-only)\n• Wallet/dashboard queries]
 
+    P4_1A[✅ GlyphBonds Dev Slice\n• In-memory BondSeries + BondPosition\n• /api/glyph_bonds/dev/series, /dev/issue\n• Admin dashboard “Glyph Bonds (dev)” card]
+
     P4_2[☐ Issuance\n• issueBonds(seriesId, buyer, principalPHO)\n  – transfer PHO → GMA\n  – create BondPosition\n  – update issued/outstanding\n• Optional secondary market]
 
     P4_3[☐ Coupon Engine\n• Coupon schedule per series\n• claimCoupon(seriesId)\n  – compute due coupons\n  – pay PHO from GMA\n  – checkpointing\n• Feed coupon cost into P&L]
 
-    P4_4[☐ Redemption\n• redeemAtMaturity(seriesId)\n  – maturity checks\n  – pay principal in PHO\n  – reduce outstanding\n• Early redemption rules (optional)]
+    P4_4[☐ Redemption\n• redeemAtMaturity(seriesId)\n  – maturity checks\n  – pay principal in PHO\n• Early redemption rules (optional)]
   end
 
   %% ============================================
@@ -140,9 +144,30 @@ graph TD
 
     P7_2[☐ Account Abstraction & Session Keys\n• Smart wallets: limits, social recovery\n• Session keys for chat/micropayments\n• Pre-approved PHO send templates]
 
-    P7_3[☐ Transactable Document UX\n• Author DC container in Glyph browser\n• Compile to doc_hash + on-chain\n• Status: Draft → Active → Executed\n• PHO payments + signatures]
+    P7_3[✅ Transactable Document UX\n• Author DC container in Glyph browser\n• Compile to doc_hash + on-chain\n• Status: Draft → Active → Executed\n• PHO payments + signatures]
+        %% --- P7_3 Transactable Document UX subtasks ---
+        P7_3A[✅Transactable Docs – Glyph / Browser UI\n• GlyphNote-like editor for contracts\n• Show status: Draft → Active → Executed\n• Basic list/detail view of docs]
 
-    P7_10[☐ Photon Pay: P2P, POS & Invoices\n• Virtual PHO card bound to wallet/device\n• WaveAddress + QR/Glyph codes for addresses\n• Merchant POS keypad: amount + memo → invoice glyph\n• Buyer scan → confirm → pay via NET/RADIO/BLE/mesh\n• P2P send via wave address, messenger, or scan-to-pay\n• Store signed invoice/receipt containers for history & tax]
+        P7_3B[☐ Transactable Docs – DC Container + Holo Commit\n• Wrap as dc_transactable_doc_v1 (or GlyphNote doc)\n• Compute + persist doc_hash\n• Commit doc_hash via Holo bridge / chain adapter\n• Query docs by hash / status]
+
+        P7_3C[☐ Transactable Docs – Signatures\n• Signature objects: who/when/what-hash\n• Support multi-party signature policies\n• Enforce: only DRAFT → ACTIVE once signature conditions met\n• Signature audit trail in doc history]
+
+        P7_3D[☐ Transactable Docs – Real PHO Payment Wiring\n• Map PaymentLeg.channel to real engines\n  – Escrow engine (home build, deposits)\n  – Photon Pay (invoices, POS)\n  – Chain transfers / savings / bonds\n• Move PHO instead of ESCROW_DEV-only\n• Emit receipts + link back to doc/payment legs]
+
+    P7_3A[✅ Service Escrow Dev Slice\n• EscrowAgreement in-memory model\n• /api/escrow/dev/create, /dev/list\n• /dev/release + /dev/refund\n• Basis for service + liquidity lockups]
+
+    P7_10[✅ Photon Pay: P2P, POS & Invoices\n• Virtual PHO card bound to wallet/device\n• WaveAddress + QR/Glyph codes for addresses\n• Merchant POS keypad: amount + memo → invoice glyph\n• Buyer scan → confirm → pay via NET/RADIO/BLE/mesh\n• P2P send via wave address, messenger, or scan-to-pay\n• Store signed invoice/receipt containers for history & tax]
+
+    P7_10B[☐ Photon Pay: QR / Glyph Scan\n• Camera capture for QR/glyph\n• Decode → invoice JSON\n• Pipe into buyer pay flow]
+    P7_10C[☐ Photon Pay over NET / BLE\n• Online PHO send over chain (NET)\n• BLE/radio transport adapters\n• Fallback between NET / mesh]
+    P7_10D[☐ Photon Pay: Messenger Integration\n• “Pay from chat” in threads\n• Scan-to-pay inside messenger\n• Inline invoice previews + confirm]
+    P7_10E[☐ Photon Pay: Signed Invoice/Receipt Containers\n• dc_photon_invoice_v1 / _receipt_v1\n• Commit to Holo + on-chain hash\n• Holo browser doc view + wallet links]
+
+    P7_10 --> P7_10A
+    P7_10 --> P7_10B
+    P7_10 --> P7_10C
+    P7_10 --> P7_10D
+    P7_10 --> P7_10E
 
     P7_10A[✅ Photon Pay Dev Slice\n• Dev invoices + receipts model\n• Wallet receipts card + refund flow\n• Admin recurring mandates + dev routes\n• POS keypad → /photon_pay/dev/make_invoice]
 

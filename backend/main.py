@@ -438,6 +438,9 @@ from backend.modules.glyphnet.lock_manager import LOCKS
 from backend.modules.wallet.wallet_receipts_routes import router as wallet_receipts_router
 from backend.modules.bonds import bond_state_routes
 from backend.modules.glyph_bonds.glyph_bond_routes import router as glyph_bonds_router
+from backend.modules.photon_savings.photon_savings_routes import router as photon_savings_router
+from backend.modules.escrow.escrow_routes import router as escrow_router
+from backend.modules.transactable_docs.transactable_doc_routes import router as transactable_docs_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -670,6 +673,9 @@ app.include_router(wave_identity_router, prefix="/api")
 app.include_router(wallet_receipts_router, prefix="/api")
 app.include_router(bond_state_routes.router)
 app.include_router(glyph_bonds_router, prefix="/api")
+app.include_router(photon_savings_router, prefix="/api")
+app.include_router(escrow_router, prefix="/api")
+app.include_router(transactable_docs_router, prefix="/api")
 
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)

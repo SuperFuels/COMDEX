@@ -15,7 +15,8 @@ import { KG_API_BASE } from "./utils/kgApiBase";
 import { OWNER_WA } from "./lib/constants";
 import DevTools from "./routes/DevTools";
 import WalletPanel from "./components/WalletPanel";
-import AdminDashboard from "./routes/AdminDashboard"; 
+import AdminDashboard from "./routes/AdminDashboard";
+import SettingsPanel from "./components/SettingsPanel";
 
 // 🔧 DEV-ONLY PANELS (Photon Pay + Wave send)
 import PhotonPayPosPanel from "./components/PhotonPayPosPanel";
@@ -25,7 +26,6 @@ import WaveSendPanel from "./components/WaveSendPanel";
 type Mode = "wormhole" | "http";
 type NavArg = string | { mode: Mode; address: string };
 
-// 👇 extend ActiveTab to include the three dev views
 type ActiveTab =
   | "home"
   | "inbox"
@@ -54,9 +54,9 @@ export default function App() {
 
   const [inboxTopicFromHash, setInboxTopicFromHash] = useState<string>("");
   const [chatTopicFromHash, setChatTopicFromHash] = useState<string>("");
-  const [chatKGFromHash, setChatKGFromHash] = useState<"personal" | "work" | undefined>(
-    undefined,
-  );
+  const [chatKGFromHash, setChatKGFromHash] = useState<
+    "personal" | "work" | undefined
+  >(undefined);
 
   // --- session (inline, no extra hook) ---
   const [session, setSession] = useState<Session>(null);
@@ -72,7 +72,9 @@ export default function App() {
     fetch("/api/session/me")
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
-        const s: Session = j?.session ? { slug: j.session.slug, wa: j.session.wa } : null;
+        const s: Session = j?.session
+          ? { slug: j.session.slug, wa: j.session.wa }
+          : null;
         setSession(s);
         setSessionLoading(false);
       })
@@ -224,7 +226,9 @@ export default function App() {
       }
 
       if (h.startsWith("#/wormhole/")) {
-        document.title = `🌀 ${decodeURIComponent(h.split("/").pop() || "")} — Glyph Net`;
+        document.title = `🌀 ${
+          decodeURIComponent(h.split("/").pop() || "")
+        } — Glyph Net`;
         return;
       }
 
@@ -259,7 +263,8 @@ export default function App() {
 
   // KG visit/dwell journaling via UMD (/public/js/kg_emit.js)
   useEffect(() => {
-    const ownerWa = session?.wa || localStorage.getItem("gnet:ownerWa") || OWNER_WA;
+    const ownerWa =
+      session?.wa || localStorage.getItem("gnet:ownerWa") || OWNER_WA;
 
     const kgEmit = (window as any).KGEmit;
     if (!kgEmit || typeof kgEmit.initVisitEmitters !== "function") return;
@@ -273,7 +278,10 @@ export default function App() {
     };
     const readTopic = () => {
       try {
-        return readTopicFromHash(window.location.hash || "#/") || "ucs://local/ucs_hub";
+        return (
+          readTopicFromHash(window.location.hash || "#/") ||
+          "ucs://local/ucs_hub"
+        );
       } catch {
         return "ucs://local/ucs_hub";
       }
@@ -470,7 +478,9 @@ export default function App() {
               <BridgePanel />
             </div>
           ) : active === "inbox" ? (
-            <WaveInbox defaultTopic={inboxTopicFromHash || "ucs://local/ucs_hub"} />
+            <WaveInbox
+              defaultTopic={inboxTopicFromHash || "ucs://local/ucs_hub"}
+            />
           ) : active === "kg" ? (
             <KGDock />
           ) : active === "outbox" ? (
@@ -478,9 +488,9 @@ export default function App() {
           ) : active === "wallet" ? (
             <WalletPanel />
           ) : active === "admin" ? (
-            <AdminDashboard />    
+            <AdminDashboard />
           ) : active === "settings" ? (
-            <p>Settings (stub)</p>
+            <SettingsPanel /> 
           ) : active === "devtools" ? (
             <DevTools />
           ) : active === "dev-photon-pos" ? (
@@ -500,8 +510,8 @@ export default function App() {
                 background: "#fff",
               }}
             >
-              <strong>AION:</strong> ready (UI stub). This pane becomes the agent console /
-              GlyphGrid.
+              <strong>AION:</strong> ready (UI stub). This pane becomes the agent
+              console / GlyphGrid.
             </div>
           )}
         </main>

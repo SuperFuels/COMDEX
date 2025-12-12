@@ -2,12 +2,18 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import WormholeBar from "./WormholeBar";
 
+// SVG assets (from src/assets)
+import tessarisLightLogo from "../assets/tessaris_light_logo.svg";
+import tessarisDarkLogo from "../assets/tessaris_dark_logo.svg";
+
 export type RadioStatus = "unknown" | "up" | "reconnecting" | "down";
 
 type Props = {
-  onNavigate: (s: string | { mode: "wormhole" | "http"; address: string }) => void;
+  onNavigate: (
+    s: string | { mode: "wormhole" | "http"; address: string },
+  ) => void;
   onOpenSidebar: () => void;
-  onAskAion: () => void;
+  onAskAion: () => void; // still in props for now (button removed)
   onToggleWaves: () => void;
   wavesCount: number;
   radioStatus?: RadioStatus;
@@ -18,67 +24,73 @@ type Props = {
 };
 
 type WalletSummary = {
-  pho: string;                 // displayed PHO (same as WalletPanel big number)
-  phoGlobal?: string;          // raw on-chain PHO
-  spendableLocal?: string;     // offline spendable now
+  pho: string; // displayed PHO (same as WalletPanel big number)
+  phoGlobal?: string; // raw on-chain PHO
+  spendableLocal?: string; // offline spendable now
 };
 
-function HealthPill({ status = "unknown" as RadioStatus }) {
+// 🔋 Small radio status pill (icon-only)
+function RadioPill({ status = "unknown" as RadioStatus }) {
   const map = {
     up: {
-      dot: "#16a34a",
-      text: "Radio: healthy",
-      bg: "#e6f7ed",
-      fg: "#065f46",
+      icon: "🛜",
+      bg: "#bbf7d0",
+      border: "#22c55e",
+      label: "Radio: healthy",
     },
     reconnecting: {
-      dot: "#f59e0b",
-      text: "Radio: reconnecting…",
-      bg: "#fff7ed",
-      fg: "#92400e",
+      icon: "🛜",
+      bg: "#fef3c7",
+      border: "#f59e0b",
+      label: "Radio: reconnecting…",
     },
     down: {
-      dot: "#ef4444",
-      text: "Radio: down",
+      icon: "🛜",
       bg: "#fee2e2",
-      fg: "#991b1b",
+      border: "#ef4444",
+      label: "Radio: down",
     },
     unknown: {
-      dot: "#9ca3af",
-      text: "Radio: unknown",
-      bg: "#f3f4f6",
-      fg: "#374151",
+      icon: "🛜",
+      bg: "#e5e7eb",
+      border: "#9ca3af",
+      label: "Radio: unknown",
     },
   } as const;
-  const s = map[status];
+
+  const cfg = map[status];
+
   return (
-    <span
+    <button
+      type="button"
+      title={cfg.label}
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "4px 10px",
-        borderRadius: 999,
-        background: s.bg,
-        color: s.fg,
-        fontSize: 12,
-        fontWeight: 600,
-        border: "1px solid rgba(0,0,0,0.06)",
-        whiteSpace: "nowrap",
+        ...pill,
+        padding: "6px 8px",
+        background: cfg.bg,
+        borderColor: cfg.border,
       }}
-      title={s.text}
     >
-      <span
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: 999,
-          background: s.dot,
-          boxShadow: `0 0 0 2px ${s.dot}22`,
-        }}
-      />
-      {s.text}
-    </span>
+      {cfg.icon}
+    </button>
+  );
+}
+
+// 🔵 BLE status pill (static for now)
+function BlePill() {
+  return (
+    <button
+      type="button"
+      title="Bluetooth / mesh link"
+      style={{
+        ...pill,
+        padding: "6px 8px",
+        background: "#dbeafe",
+        borderColor: "#3b82f6",
+      }}
+    >
+      🌀
+    </button>
   );
 }
 
@@ -89,6 +101,10 @@ export default function TopBar(p: Props) {
   const radioBase =
     (import.meta as any)?.env?.VITE_RADIO_BASE || "http://127.0.0.1:8787";
 
+  // 🌙 / ☀️ theme toggle (wiring real theming later)
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const tessLogoSrc = theme === "dark" ? tessarisDarkLogo : tessarisLightLogo;
+
   // Login dropdown state
   const [loginOpen, setLoginOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -97,12 +113,15 @@ export default function TopBar(p: Props) {
   const [err, setErr] = useState<string | null>(null);
   const loginWrapRef = useRef<HTMLDivElement>(null);
 
-  // Wallet mini-pill state
-  const [walletSummary, setWalletSummary] = useState<WalletSummary | null>(null);
+  // Wallet mini-pill state (kept for future use)
+  const [walletSummary, setWalletSummary] = useState<WalletSummary | null>(
+    null,
+  );
 
   // Wallet summary for PHO pill
   const [walletPho, setWalletPho] = useState<string | null>(null);
-  const [walletPhoLoading, setWalletPhoLoading] = useState<boolean>(false);
+  const [walletPhoLoading, setWalletPhoLoading] =
+    useState<boolean>(false);
 
   async function refreshWalletSummary(waOverride?: string | null) {
     if (typeof window === "undefined") return;
@@ -142,7 +161,8 @@ export default function TopBar(p: Props) {
       void refreshWalletSummary();
     };
     window.addEventListener("glyphnet:wallet:updated", handler);
-    return () => window.removeEventListener("glyphnet:wallet:updated", handler);
+    return () =>
+      window.removeEventListener("glyphnet:wallet:updated", handler);
   }, []);
 
   useEffect(() => {
@@ -194,9 +214,6 @@ export default function TopBar(p: Props) {
     return p.session.wa || "You";
   }, [p.session]);
 
-  const gotoBridge = () => {
-    window.location.hash = "#/bridge";
-  };
   const goHome = () => {
     const slug = p.session?.slug || localStorage.getItem("gnet:user_slug");
     if (slug) window.location.hash = `#/container/${slug}__home`;
@@ -278,6 +295,17 @@ export default function TopBar(p: Props) {
         ☰
       </button>
 
+      {/* Tessaris logo */}
+      <img
+        src={tessLogoSrc}
+        alt="Tessaris"
+        style={{
+          height: 28,
+          width: "auto",
+          marginRight: 4,
+        }}
+      />
+
       {/* back / fwd / reload */}
       <button title="Back" style={navBtn} onClick={() => history.back()}>
         ◀
@@ -329,8 +357,38 @@ export default function TopBar(p: Props) {
 
       {/* Right controls */}
       <div style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
-        <HealthPill status={p.radioStatus ?? "unknown"} />
+        {/* Radio + BLE icons */}
+        <RadioPill status={p.radioStatus ?? "unknown"} />
+        <BlePill />
 
+        {/* Theme toggle – wiring real theming later */}
+        <button
+          type="button"
+          onClick={() =>
+            setTheme((t) => (t === "light" ? "dark" : "light"))
+          }
+          title={
+            theme === "light"
+              ? "Switch to dark mode"
+              : "Switch to light mode"
+          }
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: "999px",
+            border: "1px solid #e5e7eb",
+            background: "#fff",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 16,
+          }}
+        >
+          {theme === "light" ? "🌙" : "☀️"}
+        </button>
+
+        {/* PHO mini pill */}
         <div
           style={{
             display: "flex",
@@ -354,18 +412,9 @@ export default function TopBar(p: Props) {
           <span style={{ color: "#9ca3af" }}> PHO</span>
         </div>
 
-        <button
-          style={pill}
-          onClick={gotoBridge}
-          title="Open RF Bridge panel"
-        >
-          📡 Bridge
-        </button>
-        <button style={pill} onClick={p.onAskAion}>
-          🫖 Ask AION
-        </button>
+        {/* Waves (no 'Waves' label, just glyph + count) */}
         <button style={pill} onClick={p.onToggleWaves}>
-          🌊 Waves {p.wavesCount ? `(${p.wavesCount})` : ""}
+          🌊 {p.wavesCount ? `(${p.wavesCount})` : ""}
         </button>
 
         {/* Auth area */}
@@ -402,15 +451,6 @@ export default function TopBar(p: Props) {
             >
               🔐 Log in
             </button>
-            <a
-              style={pill}
-              href={websiteBase ? `${websiteBase}/register` : "#"}
-              target="_blank"
-              rel="noreferrer"
-              title="Open register"
-            >
-              ✨ Sign up
-            </a>
 
             {/* dropdown login */}
             {loginOpen && (
@@ -429,7 +469,9 @@ export default function TopBar(p: Props) {
                   zIndex: 100,
                 }}
               >
-                <div style={{ fontWeight: 700, marginBottom: 8 }}>Sign in</div>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                  Sign in
+                </div>
                 <input
                   type="email"
                   value={email}
@@ -479,6 +521,7 @@ export default function TopBar(p: Props) {
                     {err}
                   </div>
                 )}
+
                 <button
                   type="submit"
                   disabled={busy}
@@ -486,6 +529,31 @@ export default function TopBar(p: Props) {
                 >
                   {busy ? "Signing in…" : "Sign in"}
                 </button>
+
+                {/* Inline sign-up link (moved from top bar) */}
+                <div
+                  style={{
+                    marginTop: 8,
+                    fontSize: 12,
+                    textAlign: "center",
+                    color: "#4b5563",
+                  }}
+                >
+                  New here?{" "}
+                  <a
+                    href={
+                      websiteBase ? `${websiteBase}/register` : "#"
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      color: "#2563eb",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Create an account
+                  </a>
+                </div>
               </form>
             )}
           </div>
@@ -536,7 +604,7 @@ const input: React.CSSProperties = {
   width: "100%",
   padding: "8px 10px",
   borderRadius: 8,
-  border: "1px solid #e5e7eb",
+  border: "1px solid #e5e7eb",  // 👈 was `"1px solid "#e5e7eb"`
   outline: "none",
 };
 

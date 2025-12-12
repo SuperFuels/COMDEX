@@ -50,20 +50,25 @@ export default defineConfig(({ mode }) => {
     // ✅ Crystal motif APIs → FastAPI (:8080)
     "/api/crystals": { target: fastApiHttp, changeOrigin: true },
 
-    // ✅ NEW: wallet + mesh + GMA + photon pay + wave + bonds → FastAPI (:8080)
-    "/api/wallet": { target: fastApiHttp, changeOrigin: true },
-    "/api/mesh": { target: fastApiHttp, changeOrigin: true },
-    "/api/gma": { target: fastApiHttp, changeOrigin: true },
-    "/api/photon_pay": { target: fastApiHttp, changeOrigin: true },
-    "/api/wave": { target: fastApiHttp, changeOrigin: true },
-    "/api/glyph_bonds": { target: fastApiHttp, changeOrigin: true },
-    "/api/bonds": { target: fastApiHttp, changeOrigin: true },
+    // ✅ NEW: wallet + mesh + GMA + photon pay + wave + bonds + savings + escrow → FastAPI (:8080)
+    "/api/wallet":         { target: fastApiHttp, changeOrigin: true },
+    "/api/mesh":           { target: fastApiHttp, changeOrigin: true },
+    "/api/gma":            { target: fastApiHttp, changeOrigin: true },
+    "/api/photon_pay":     { target: fastApiHttp, changeOrigin: true },
+    "/api/wave":           { target: fastApiHttp, changeOrigin: true },
+    "/api/glyph_bonds":    { target: fastApiHttp, changeOrigin: true },
+    "/api/bonds":          { target: fastApiHttp, changeOrigin: true },
+    "/api/photon_savings": { target: fastApiHttp, changeOrigin: true },
+    "/api/escrow":         { target: fastApiHttp, changeOrigin: true },
+
+    // 👇 ADD THIS LINE
+    "/api/transactable_docs": { target: fastApiHttp, changeOrigin: true },
 
     // ── WS for GlyphNet fanout / GHX → radio-node
     "/ws/glyphnet": { target: radioWs, ws: true, changeOrigin: true },
-    "/ws/rflink": { target: radioWs, ws: true, changeOrigin: true },
-    "/ws/ghx": { target: radioWs, ws: true, changeOrigin: true },
-    "/ws": { target: radioWs, ws: true, changeOrigin: true },
+    "/ws/rflink":   { target: radioWs, ws: true, changeOrigin: true },
+    "/ws/ghx":      { target: radioWs, ws: true, changeOrigin: true },
+    "/ws":          { target: radioWs, ws: true, changeOrigin: true },
 
     // ✅ Dev RF mock tools (leave /dev/rf to frontend)
     "^/dev(?!/rf)": { target: radioHttp, changeOrigin: true },
@@ -80,9 +85,9 @@ export default defineConfig(({ mode }) => {
     "/api": { target: radioHttp, changeOrigin: true },
 
     // radio-node extras
-    "/bridge": { target: radioHttp, changeOrigin: true },
+    "/bridge":     { target: radioHttp, changeOrigin: true },
     "/containers": { target: radioHttp, changeOrigin: true },
-    "/health": { target: radioHttp, changeOrigin: true },
+    "/health":     { target: radioHttp, changeOrigin: true },
 
     "^/radio/qkd": {
       target: radioHttp,
