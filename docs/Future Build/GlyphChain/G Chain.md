@@ -58,11 +58,17 @@ graph TD
 
     P3_1[☐ GMA State & Structs\n• GMAState:\n  – photonSupply, tesseractSupply\n  – reserves[], risk limits\n  – bondSeries[], facilities\n  – governanceParams, council\n• Invariant: Assets - Liabilities = Equity]
 
+    P3_1A[✅ GMA Dev Model + Debug API\n• gma_state_model.py (GMAState, ReservePosition)\n• snapshot_dict() invariants in PHO terms\n• dev_gma_state_smoketest.py\n• /api/gma/state/dev_snapshot for admin dashboard]
+
     P3_2[☐ Mint/Burn Guard Rails\n• GMA-only PHO.mint/burn\n• gmaMintPhoton/gmaBurnPhoton(reason)\n• Logging & invariants per change]
+
+    P3_2A[✅ PHO Mint/Burn Dev Guard Rails\n• gma_mint_photon/_burn in GMAState\n• mint_burn_log with created_at_ms\n• /api/gma/state/dev_mint & /dev_burn\n• Admin dashboard mint/burn log table]
 
     P3_3[☐ Reserve Positions\n• addReservePosition\n• updateReserveValuation via oracle\n• Aggregate exposures & risk checks\n• Dashboard views]
 
-    P3_4[☐ Reserve Deposit/Redemption\n• recordReserveDeposit\n  – update reserves\n  – mint PHO (minus fees)\n• recordReserveRedemption\n  – burn PHO\n  – adjust reserves\n• Events]
+    P3_4[☐ Reserve Deposit/Redemption\n• record_reserve_deposit\n  – update reserves\n  – mint PHO (minus fees)\n• record_reserve_redemption\n  – burn PHO\n  – adjust reserves\n• Events]
+
+    P3_4A[✅ GMA Reserve Deposit/Redemption Dev Model\n• GMAState.record_reserve_deposit/_redemption\n• Equity recompute: Assets - Liabilities\n• dev_gma_reserve_smoketest.py\n• /api/gma/state/dev_reserve_deposit/_redemption (dev)]
 
     P3_5[☐ Open Market Operations (OMO)\n• omoBuyPhoton / omoSellPhoton\n• Use AMM + reserves\n• Governance caps per period\n• PnL tracking]
 
@@ -72,7 +78,7 @@ graph TD
 
     P3_8[☐ Risk Limits & Basket\n• ReserveRiskLimits enforcement\n• targetBasketId, targetInflationBps\n• Basket oracle hooks\n• No limit-breach on update]
 
-    P3_9[✅ Offline Credit Policy (Mesh)\n• OfflineCreditPolicy helper module\n• default_limit_pho + per-account overrides\n• get_offline_limit_pho + get_policy_snapshot\n• Used by mesh_wallet_state + reconcile]
+    P3_9[✅ Offline Credit Policy (Mesh)\n• OfflineCreditPolicy helper module\n• offline_credit_limit_pho(A) per account\n• Per-device OfflineCreditShard C_{A,D}\n• Invariants: Σ limit_pho(C_{A,D}) ≤ offline_credit_limit_pho(A)\n• used_pho + spendable_local(A,D) wiring\n• Queried by mesh_wallet_state + reconcile]
   end
 
   %% ============================================
@@ -130,11 +136,15 @@ graph TD
 
     P7_1[☐ Wallet Core\n• Seed/keys (BIP32-style) + device_id\n• Accounts for PHO/TESS/Bonds\n• GMA views (deposits, loans, bonds)\n• Basic TESS staking UX]
 
-    P7_1A[✅ Browser Wallet Panel + API Stub\n• /api/wallet/balances backend route\n• WalletPanel wired to API\n• MeshPending + offlineLimit from GMA policy stub\n• Mini PHO balance pill in TopBar\n• Wallet icon/tab in SidebarRail]
+    P7_1A[✅ Browser Wallet Panel + Mesh Wiring\n• /api/wallet/balances backend route\n• WalletPanel wired to mesh local_state\n• PHO card: display PHO + offline spendable\n• MeshPending + offlineLimit from mesh_wallet_state\n• Mesh dev send box → /api/mesh/local_send\n• Mesh activity log from /api/mesh/local_state\n• Mesh local_state inspector (dev) in WalletPanel\n• Mini PHO balance pill in TopBar]
 
     P7_2[☐ Account Abstraction & Session Keys\n• Smart wallets: limits, social recovery\n• Session keys for chat/micropayments\n• Pre-approved PHO send templates]
 
     P7_3[☐ Transactable Document UX\n• Author DC container in Glyph browser\n• Compile to doc_hash + on-chain\n• Status: Draft → Active → Executed\n• PHO payments + signatures]
+
+    P7_10[☐ Photon Pay: P2P, POS & Invoices\n• Virtual PHO card bound to wallet/device\n• WaveAddress + QR/Glyph codes for addresses\n• Merchant POS keypad: amount + memo → invoice glyph\n• Buyer scan → confirm → pay via NET/RADIO/BLE/mesh\n• P2P send via wave address, messenger, or scan-to-pay\n• Store signed invoice/receipt containers for history & tax]
+
+    P7_10A[✅ Photon Pay Dev Slice\n• Dev invoices + receipts model\n• Wallet receipts card + refund flow\n• Admin recurring mandates + dev routes\n• POS keypad → /photon_pay/dev/make_invoice]
 
     %% --- Mesh / Radio / BLE payments ---
     P7_4[☐ Radio / Mesh / BLE Payment Mode\n• LocalBalance + LocalTxLog structs\n• MeshTx + ClusterBlock types\n• Local mesh ledger on device\n• MeshReconcile service (ReconcileRequest/Result)\n• Uses offline_credit_limit_pho from GMA\n• Wallet UI: global vs local balances,\n  accepted vs disputed mesh tx]
@@ -143,7 +153,7 @@ graph TD
 
     P7_4B[✅ GMA Mesh Policy Hook\n• gma_mesh_policy.py (get/set limits)\n• get_offline_limit_pho + get_policy_snapshot\n• MeshReconcile + mesh_wallet_state query this]
 
-    P7_4C[✅ Wallet Mesh State (Backend core)\n• mesh_wallet_state.py helpers\n• effective_spendable_local(), record_local_send\n• dev_mesh_reconcile_smoketest\n• (TODO) Front-end mesh UI wiring]
+    P7_4C[✅ Wallet Mesh State (Backend core)\n• mesh_wallet_state.py helpers\n• LocalBalance + LocalTxLog per (account, device)\n• OfflineCreditShard C_{A,D} + _effective_spendable()\n• record_local_send_for_api() + credit checks\n• /api/mesh/local_state + /api/mesh/local_send\n• /api/wallet/balances: pho, pho_global, pho_spendable_local]
 
     P7_4_V1[☐ PHO Mesh Payment over BLE (Vertical Slice)\n• Sender wallet builds MeshTx\n• Sign + update LocalTxLog\n• Send via GIPBluetoothAdapter\n• Receiver validates + applies MeshTx\n• Both update LocalBalance\n• Log to GlyphNetDebugger]
 
@@ -154,7 +164,7 @@ graph TD
     %% --- Transports + Identity + PTT ---
     P7_7[✅ BLE / Wi-Fi Direct Transport Adapters\n• gip_adapter_ble.py (GIPBluetoothAdapter stub)\n• glyph_transport_switch: 'ble' channel + auto fallback\n• dev_ble_smoketest.py passing]
 
-    P7_8[☐ Wave Addresses & Wave Numbers\n• Extend identity_registry:\n  – WaveAddress (alice@waves.glyph)\n  – WaveNumber (+wave-44-1234-5678)\n• register/lookup by wave_addr & wave_number\n• Messenger uses these to resolve account/device\n  and choose NET/RADIO/BLE]
+    P7_8[✅ Wave Addresses & Wave Numbers\n• Extend identity_registry:\n  – WaveAddress (alice@waves.glyph)\n  – WaveNumber (+wave-44-1234-5678)\n• register/lookup by wave_addr & wave_number\n• Messenger uses these to resolve account/device\n  and choose NET/RADIO/BLE]
 
     P7_9[☐ PTT (Push-to-Talk) over Radio/BLE\n• ptt_session_manager.py (start/end sessions)\n• ptt_packet_codec.py (PTTPacket, audio frames)\n• Extend gip_packet_schema with type 'ptt'\n• Route PTT via glyphnet_router using\n  wave/radio/BLE carriers\n• PTT UI in GlyphNet messenger\n  (press-to-hold, send audio frames)]
   end
@@ -173,7 +183,7 @@ graph TD
 
     P8_4[☐ Security & Audits\n• Internal invariant review (GMA + mesh)\n• External audits:\n  – core chain modules\n  – PHO/TESS/bonds\n  – GMA, MeshReconcile, bridges\n• Bug bounty program]
   end
-
+  end
   %% Dependencies
   P0_2 --> P1_2
   P1_2 --> P1_3 --> P1_4 --> P1_5

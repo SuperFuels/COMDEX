@@ -430,9 +430,14 @@ from backend.routes.crystal_routes import router as crystal_router
 from backend.api.motif_compile_api import router as motif_compile_router
 from backend.modules.mesh.mesh_reconcile_routes import router as mesh_router
 from backend.modules.wallet.wallet_routes import router as wallet_router
-
+from backend.modules.gma.gma_state_routes import router as gma_state_router
+from backend.modules.photon_pay.photon_pay_routes import router as photon_pay_router
+from backend.modules.identity.wave_identity_routes import router as wave_identity_router
 # Floor control (PTT) lock manager
 from backend.modules.glyphnet.lock_manager import LOCKS
+from backend.modules.wallet.wallet_receipts_routes import router as wallet_receipts_router
+from backend.modules.bonds import bond_state_routes
+from backend.modules.glyph_bonds.glyph_bond_routes import router as glyph_bonds_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -659,6 +664,12 @@ app.include_router(mesh_router, prefix="/api", tags=["mesh"])
 app.include_router(wallet_router, prefix="/api", tags=["wallet"])
 # Holo index – expose as /api/holo/index/*
 app.include_router(holo_index_router)
+app.include_router(gma_state_router, prefix="/api")
+app.include_router(photon_pay_router, prefix="/api")
+app.include_router(wave_identity_router, prefix="/api")
+app.include_router(wallet_receipts_router, prefix="/api")
+app.include_router(bond_state_routes.router)
+app.include_router(glyph_bonds_router, prefix="/api")
 
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)

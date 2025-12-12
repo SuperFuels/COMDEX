@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Dict, Tuple, Any
+from typing import Dict, Tuple
 
 from backend.modules.mesh.mesh_types import (
     LocalBalance,
@@ -12,7 +12,7 @@ from backend.modules.mesh.mesh_types import (
     DeviceId,
 )
 from backend.modules.mesh.mesh_tx import MeshTx, LocalTxLog, new_mesh_tx
-from backend.modules.gma.gma_mesh_policy import get_offline_limit
+from backend.modules.gma.gma_mesh_policy import get_offline_limit_pho
 
 
 # ───────────────────────────────────────────────
@@ -28,7 +28,7 @@ def init_local_balance(
     """
     Initialize a LocalBalance for an account when entering mesh mode.
     """
-    limit = get_offline_limit(account)
+    limit = get_offline_limit_pho(account)
     return LocalBalance(
         account=account,
         global_confirmed_pho=global_confirmed_pho,
@@ -258,26 +258,3 @@ def record_local_send_for_api(
     local_balance["local_net_delta_pho"] = str(delta - amt)
 
     return local_balance, local_log, tx
-
-
-def get_local_wallet_view(account: AccountId) -> Dict[str, Any]:
-    """
-    Convenience helper for APIs that want a single JSON-friendly view:
-      - local_balance
-      - tx_log
-      - mesh_pending_pho = max(0, -local_net_delta_pho)
-    """
-    local_balance, local_log = get_or_init_local_state_for_api(account)
-
-    try:
-        delta = Decimal(local_balance["local_net_delta_pho"])
-        pending = max(Decimal("0"), -delta)
-    except Exception:
-        pending = Decimal("0")
-
-    return {
-        "account": account,
-        "local_balance": local_balance,
-        "tx_log": local_log,
-        "mesh_pending_pho": str(pending),
-    }

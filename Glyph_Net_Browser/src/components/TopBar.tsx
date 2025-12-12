@@ -18,8 +18,9 @@ type Props = {
 };
 
 type WalletSummary = {
-  pho: string;
-  offlineLimit?: string;
+  pho: string;                 // displayed PHO (same as WalletPanel big number)
+  phoGlobal?: string;          // raw on-chain PHO
+  spendableLocal?: string;     // offline spendable now
 };
 
 function HealthPill({ status = "unknown" as RadioStatus }) {
@@ -99,47 +100,91 @@ export default function TopBar(p: Props) {
   // Wallet mini-pill state
   const [walletSummary, setWalletSummary] = useState<WalletSummary | null>(null);
 
+  // Wallet summary for PHO pill
+  const [walletPho, setWalletPho] = useState<string | null>(null);
+  const [walletPhoLoading, setWalletPhoLoading] = useState<boolean>(false);
+
+  async function refreshWalletSummary(waOverride?: string | null) {
+    if (typeof window === "undefined") return;
+
+    const wa =
+      waOverride ??
+      localStorage.getItem("gnet:ownerWa") ??
+      localStorage.getItem("gnet:wa") ??
+      null;
+
+    setWalletPhoLoading(true);
+
+    try {
+      const resp = await fetch("/api/wallet/balances", {
+        headers: wa ? { "X-Owner-WA": wa } : {},
+      });
+      const data = await resp.json();
+      const b = data.balances || {};
+      // Use the same displayed PHO that WalletPanel shows
+      setWalletPho(b.pho ?? null);
+    } catch (e) {
+      console.warn("[TopBar] wallet summary failed:", e);
+      setWalletPho(null);
+    } finally {
+      setWalletPhoLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const ownerWa =
-      p.session?.wa ||
-      localStorage.getItem("gnet:ownerWa") ||
-      localStorage.getItem("gnet:wa");
+    // initial fetch
+    void refreshWalletSummary();
 
-    let cancelled = false;
+    // listen for wallet changes from WalletPanel
+    const handler = () => {
+      void refreshWalletSummary();
+    };
+    window.addEventListener("glyphnet:wallet:updated", handler);
+    return () => window.removeEventListener("glyphnet:wallet:updated", handler);
+  }, []);
 
-    const refresh = async () => {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    async function loadWalletSummary() {
       try {
+        const ownerWa =
+          (p.session as any)?.wa ||
+          localStorage.getItem("gnet:ownerWa") ||
+          localStorage.getItem("gnet:wa") ||
+          null;
+
         const resp = await fetch("/api/wallet/balances", {
           headers: ownerWa ? { "X-Owner-WA": ownerWa } : {},
         });
         if (!resp.ok) return;
+
         const data = await resp.json();
         const b = data.balances || {};
-        if (!cancelled && b.pho != null) {
-          setWalletSummary({ pho: String(b.pho) });
-        }
+
+        setWalletSummary({
+          pho: String(b.pho ?? "0.00"),
+          phoGlobal:
+            b.pho_global != null ? String(b.pho_global) : undefined,
+          spendableLocal:
+            b.pho_spendable_local != null
+              ? String(b.pho_spendable_local)
+              : undefined,
+        });
       } catch (e) {
-        if (!cancelled) {
-          console.warn("[TopBar] wallet summary failed:", e);
-        }
+        console.warn("[TopBar] wallet summary failed:", e);
       }
-    };
+    }
 
     // initial load
-    refresh();
+    void loadWalletSummary();
 
-    // listen for wallet updates from WalletPanel
-    const onUpdated = () => {
-      refresh();
-    };
-    window.addEventListener("glyphnet:wallet:updated", onUpdated);
-
-    return () => {
-      cancelled = true;
-      window.removeEventListener("glyphnet:wallet:updated", onUpdated);
-    };
+    // refresh when wallet panel broadcasts an update
+    const handler = () => void loadWalletSummary();
+    window.addEventListener("glyphnet:wallet:updated", handler);
+    return () => window.removeEventListener("glyphnet:wallet:updated", handler);
   }, [p.session?.wa]);
 
   const profileLabel = useMemo(() => {
@@ -286,41 +331,28 @@ export default function TopBar(p: Props) {
       <div style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
         <HealthPill status={p.radioStatus ?? "unknown"} />
 
-        {/* 💰 mini PHO pill */}
-        {walletSummary && (
-          <div
-            style={{
-              padding: "3px 10px",
-              borderRadius: 999,
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              fontSize: 11,
-              fontWeight: 500,
-              color: "#0f172a",
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              whiteSpace: "nowrap",
-            }}
-            title={
-              walletSummary.offlineLimit
-                ? `${walletSummary.pho} PHO (offline credit ${walletSummary.offlineLimit} PHO)`
-                : `${walletSummary.pho} PHO`
-            }
-          >
-            <span style={{ fontSize: 12 }}>💰</span>
-            <span>{walletSummary.pho}</span>
-            <span
-              style={{
-                fontSize: 10,
-                textTransform: "uppercase",
-                color: "#6b7280",
-              }}
-            >
-              PHO
-            </span>
-          </div>
-        )}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+            padding: "4px 10px",
+            borderRadius: 999,
+            border: "1px solid #e5e7eb",
+            background: "#ffffff",
+            fontSize: 11,
+            color: "#4b5563",
+            cursor: "default",
+            whiteSpace: "nowrap",
+          }}
+          title="Displayed PHO ≈ on-chain PHO − mesh pending − 1 PHO safety buffer."
+        >
+          <span role="img" aria-label="PHO">
+            💰
+          </span>
+          <span>{walletPhoLoading ? "…" : walletPho ?? "—"}</span>
+          <span style={{ color: "#9ca3af" }}> PHO</span>
+        </div>
 
         <button
           style={pill}

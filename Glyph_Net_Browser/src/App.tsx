@@ -14,10 +14,18 @@ import { useRadioHealth } from "./hooks/useRadioHealth";
 import { KG_API_BASE } from "./utils/kgApiBase";
 import { OWNER_WA } from "./lib/constants";
 import DevTools from "./routes/DevTools";
-import WalletPanel from "./components/WalletPanel"; // 👈 NEW
+import WalletPanel from "./components/WalletPanel";
+import AdminDashboard from "./routes/AdminDashboard"; 
+
+// 🔧 DEV-ONLY PANELS (Photon Pay + Wave send)
+import PhotonPayPosPanel from "./components/PhotonPayPosPanel";
+import PhotonPayBuyerPanel from "./components/PhotonPayBuyerPanel";
+import WaveSendPanel from "./components/WaveSendPanel";
 
 type Mode = "wormhole" | "http";
 type NavArg = string | { mode: Mode; address: string };
+
+// 👇 extend ActiveTab to include the three dev views
 type ActiveTab =
   | "home"
   | "inbox"
@@ -27,9 +35,17 @@ type ActiveTab =
   | "chat"
   | "bridge"
   | "devtools"
-  | "wallet"; // 👈 NEW
+  | "wallet"
+  | "admin"
+  | "dev-photon-pos"
+  | "dev-photon-buyer"
+  | "dev-wave-send";
 
 type Session = { slug: string; wa: string } | null;
+
+// ⚠️ DEV-ONLY FLAG (easy to rip out later)
+const DEV_ROUTES_ENABLED =
+  import.meta.env.DEV || import.meta.env.VITE_SHOW_DEV_ROUTES === "1";
 
 export default function App() {
   const [showWaves, setShowWaves] = useState(false);
@@ -45,6 +61,11 @@ export default function App() {
   // --- session (inline, no extra hook) ---
   const [session, setSession] = useState<Session>(null);
   const [sessionLoading, setSessionLoading] = useState<boolean>(true);
+
+  const navAdmin = () => {
+    window.location.hash = "#/admin";
+    setActive("admin");
+  };
 
   const refreshSession = () => {
     setSessionLoading(true);
@@ -135,6 +156,34 @@ export default function App() {
     const onHash = () => {
       const h = window.location.hash || "";
 
+      // 🔧 DEV-ONLY HASH ROUTES
+      if (DEV_ROUTES_ENABLED) {
+        if (h.startsWith("#/dev/photon-pay-pos")) {
+          setActive("dev-photon-pos");
+          document.title = `Photon Pay POS (dev) — Glyph Net`;
+          return;
+        }
+
+        if (h.startsWith("#/dev/photon-pay-buyer")) {
+          setActive("dev-photon-buyer");
+          document.title = `Photon Pay Buyer (dev) — Glyph Net`;
+          return;
+        }
+
+        if (h.startsWith("#/dev/wave-send")) {
+          setActive("dev-wave-send");
+          document.title = `Wave Send (dev) — Glyph Net`;
+          return;
+        }
+      }
+      // 🔧 END DEV-ONLY HASH ROUTES
+
+      if (h.startsWith("#/admin")) {
+        setActive("admin");
+        document.title = `Admin — Glyph Net`;
+        return;
+      }
+
       if (h.startsWith("#/bridge")) {
         setActive("bridge");
         document.title = `RF Bridge — Glyph Net`;
@@ -204,7 +253,8 @@ export default function App() {
   useEffect(() => {
     const onWave = () => setWavesCount((n) => n + 1);
     window.addEventListener("glyphnet:wave", onWave as EventListener);
-    return () => window.removeEventListener("glyphnet:wave", onWave as EventListener);
+    return () =>
+      window.removeEventListener("glyphnet:wave", onWave as EventListener);
   }, []);
 
   // KG visit/dwell journaling via UMD (/public/js/kg_emit.js)
@@ -265,7 +315,11 @@ export default function App() {
     | "settings"
     | "devtools"
     | "chat"
-    | "wallet" = active === "bridge" ? "settings" : (active as any);
+    | "wallet"
+    | "admin"
+    | "dev-photon-pos"
+    | "dev-photon-buyer"
+    | "dev-wave-send" = active as any;
 
   // SidebarRail click handlers – keep existing routes/hash patterns
   const navHome = () => {
@@ -322,10 +376,16 @@ export default function App() {
             { id: "inbox", icon: "📥", label: "Inbox", onClick: navInbox },
             { id: "outbox", icon: "📤", label: "Outbox", onClick: navOutbox },
             {
-              id: "wallet", // 👈 NEW
+              id: "wallet",
               icon: "🏦",
               label: "Wallet",
               onClick: navWallet,
+            },
+            {
+              id: "admin" as const,
+              icon: "🧰",
+              label: "Admin",
+              onClick: navAdmin,
             },
             {
               id: "kg",
@@ -339,7 +399,45 @@ export default function App() {
               label: "Settings",
               onClick: () => setActive("settings"),
             },
-            { id: "devtools", icon: "🛠️", label: "Dev Tools", onClick: navDevTools },
+            {
+              id: "devtools",
+              icon: "🛠️",
+              label: "Dev Tools",
+              onClick: navDevTools,
+            },
+
+            // 🔧 dev-only quick links under Dev Tools
+            ...(DEV_ROUTES_ENABLED
+              ? [
+                  {
+                    id: "dev-photon-pos" as const,
+                    icon: "💳",
+                    label: "Photon Pay POS (dev)",
+                    onClick: () => {
+                      window.location.hash = "#/dev/photon-pay-pos";
+                      setActive("dev-photon-pos");
+                    },
+                  },
+                  {
+                    id: "dev-photon-buyer" as const,
+                    icon: "🙋‍♀️",
+                    label: "Photon Pay Buyer (dev)",
+                    onClick: () => {
+                      window.location.hash = "#/dev/photon-pay-buyer";
+                      setActive("dev-photon-buyer");
+                    },
+                  },
+                  {
+                    id: "dev-wave-send" as const,
+                    icon: "📡",
+                    label: "Wave Send (dev)",
+                    onClick: () => {
+                      window.location.hash = "#/dev/wave-send";
+                      setActive("dev-wave-send");
+                    },
+                  },
+                ]
+              : []),
           ]}
         />
 
@@ -377,12 +475,20 @@ export default function App() {
             <KGDock />
           ) : active === "outbox" ? (
             <WaveOutbox />
-          ) : active === "wallet" ? ( // 👈 NEW
+          ) : active === "wallet" ? (
             <WalletPanel />
+          ) : active === "admin" ? (
+            <AdminDashboard />    
           ) : active === "settings" ? (
             <p>Settings (stub)</p>
           ) : active === "devtools" ? (
             <DevTools />
+          ) : active === "dev-photon-pos" ? (
+            <PhotonPayPosPanel />
+          ) : active === "dev-photon-buyer" ? (
+            <PhotonPayBuyerPanel />
+          ) : active === "dev-wave-send" ? (
+            <WaveSendPanel />
           ) : window.location.hash.startsWith("#/container/") ? (
             <ContainerView />
           ) : (

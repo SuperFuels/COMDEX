@@ -1,3 +1,4 @@
+// Glyph_Net_Browser/src/components/Sidebar.tsx
 import { useEffect } from "react";
 
 type Props = {
@@ -9,10 +10,15 @@ type Props = {
     | "outbox"
     | "kg"
     | "devtools"
-    | "settings";
+    | "settings"
+    | "wallet";
   onSelect: (id: Props["active"]) => void;
   onClose: () => void;
 };
+
+// ⚠️ Dev-only flag, easy to rip out later
+const DEV_ROUTES_ENABLED =
+  import.meta.env.DEV || import.meta.env.VITE_SHOW_DEV_ROUTES === "1";
 
 export default function Sidebar({ open, active, onSelect, onClose }: Props) {
   // close on ESC
@@ -45,6 +51,38 @@ export default function Sidebar({ open, active, onSelect, onClose }: Props) {
         borderRadius: 12,
         border: "1px solid #e5e7eb",
         background: active === id ? "#eef2ff" : "#fff",
+        cursor: "pointer",
+        fontSize: 20,
+      }}
+    >
+      {emoji}
+    </button>
+  );
+
+  // Small helper for dev-only hash-based buttons
+  const DevButton = ({
+    label,
+    emoji,
+    hash,
+  }: {
+    label: string;
+    emoji: string;
+    hash: string;
+  }) => (
+    <button
+      onClick={() => {
+        window.location.hash = hash;
+        onSelect("devtools");
+        onClose();
+      }}
+      aria-label={label}
+      title={label}
+      style={{
+        width: 48,
+        height: 48,
+        borderRadius: 12,
+        border: "1px solid #e5e7eb",
+        background: "#fff",
         cursor: "pointer",
         fontSize: 20,
       }}
@@ -95,9 +133,12 @@ export default function Sidebar({ open, active, onSelect, onClose }: Props) {
         <Item id="chat" label="Chat" emoji="💬" />
         <Item id="inbox" label="Wave Inbox" emoji="📥" />
         <Item id="outbox" label="Wave Outbox" emoji="📤" />
+        <Item id="wallet" label="Wallet" emoji="🏦" />
         <Item id="kg" label="Knowledge Graph" emoji="🧠" />
         <Item id="devtools" label="Dev Tools" emoji="🛠️" />
         <Item id="settings" label="Settings" emoji="⚙️" />
+
+        
       </aside>
     </>
   );

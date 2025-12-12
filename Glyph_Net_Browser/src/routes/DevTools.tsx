@@ -1,6 +1,10 @@
 // Glyph_Net_Browser/src/routes/DevTools.tsx
 // Dev Tools dashboard inside the Glyph Net browser.
 
+// NOTE: Photon Pay & WaveSend dev panels are routed in App.tsx
+// (see DEV_ROUTES_ENABLED and the devtools hash block).
+// This file remains the "normal" Dev Tools dashboard.
+
 import { useState, useEffect } from "react";
 import PhotonEditor from "../components/PhotonEditor";
 import LedgerInspector from "../components/LedgerInspector";

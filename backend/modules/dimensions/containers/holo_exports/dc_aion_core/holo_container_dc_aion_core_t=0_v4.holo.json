@@ -14,7 +14,7 @@
     "major": 0,
     "minor": 1,
     "patch": 0,
-    "revision": 5
+    "revision": 7
   },
   "ghx": {
     "ghx_version": "1.0",
@@ -81,42 +81,21 @@
     "edges": [
       {
         "id": "e1",
-        "src": "f1",
-        "dst": "f2",
         "source": "f1",
         "target": "f2",
-        "kind": "flow",
-        "tags": [],
-        "meta": {},
-        "data": {
-          "from": "holo"
-        }
+        "kind": "flow"
       },
       {
         "id": "e2",
-        "src": "f2",
-        "dst": "f3",
         "source": "f2",
         "target": "f3",
-        "kind": "flow",
-        "tags": [],
-        "meta": {},
-        "data": {
-          "from": "holo"
-        }
+        "kind": "flow"
       },
       {
         "id": "e3",
-        "src": "f3",
-        "dst": "f4",
         "source": "f3",
         "target": "f4",
-        "kind": "flow",
-        "tags": [],
-        "meta": {},
-        "data": {
-          "from": "holo"
-        }
+        "kind": "flow"
       }
     ],
     "metadata": {
@@ -218,8 +197,8 @@
         "kind": "flow"
       }
     ],
-    "run_count": 1,
-    "last_run_at": "2025-12-09T18:35:56.575555+00:00",
+    "run_count": 3,
+    "last_run_at": "2025-12-11T20:41:42.886395+00:00",
     "last_run_mode": "qqc"
   }
 }
