@@ -8,8 +8,15 @@ from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional
 import hashlib
 import json
-from fastapi import APIRouter, HTTPException
+
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
+
+from backend.modules.wallet.wallet_routes import dev_transfer_pho
+from backend.modules.photon_pay.photon_pay_routes import (
+    DevReceiptCreate,
+    photon_pay_dev_log_receipt,
+)
 
 # Re-use dev escrow execution to make docs actually move PHO later
 from backend.modules.escrow.escrow_routes import (
@@ -30,6 +37,7 @@ def _now_ms() -> int:
 # ───────────────────────────────────────────────
 # Dev model
 # ───────────────────────────────────────────────
+
 
 @dataclass
 class DevDocSignature:
@@ -52,7 +60,6 @@ class DevPaymentLeg:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
-
 
 @dataclass
 class DevTransactableDoc:
@@ -80,11 +87,17 @@ class DevTransactableDoc:
 
     payment_legs: List[DevPaymentLeg]
 
+    # 🌌 Holo commit dev stub
+    holo_container_id: Optional[str] = None
+    holo_commit_id: Optional[str] = None
+    holo_committed_at_ms: Optional[int] = None
+
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)
         d["signatures"] = [asdict(s) for s in self.signatures]
         d["payment_legs"] = [pl.to_dict() for pl in self.payment_legs]
         return d
+
 
 _DEV_DOCS: List[DevTransactableDoc] = []
 
@@ -133,7 +146,7 @@ class DevPaymentLegInput(BaseModel):
     from_account: str
     to_account: str
     amount_pho: str
-    channel: str = "ESCROW_DEV"  # for now we support only escrow-backed execution
+    channel: str = "ESCROW_DEV"  # default
 
 
 class DevDocCreate(BaseModel):
@@ -183,8 +196,17 @@ def _find_doc(doc_id: str) -> DevTransactableDoc:
 
 
 @router.get("/dev/list")
-async def transactable_docs_dev_list() -> Dict[str, Any]:
+async def transactable_docs_dev_list(
+    party: Optional[str] = Query(
+        None,
+        description="If set, only docs where party_a or party_b == this PHO account",
+    ),
+) -> Dict[str, Any]:
     docs = sorted(_DEV_DOCS, key=lambda d: d.created_at_ms, reverse=True)
+
+    if party:
+        docs = [d for d in docs if d.party_a == party or d.party_b == party]
+
     return {"docs": [d.to_dict() for d in docs]}
 
 
@@ -355,6 +377,94 @@ async def transactable_docs_dev_sign(body: DevDocSign) -> Dict[str, Any]:
     doc.updated_at_ms = _now_ms()
     return {"ok": True, "doc": doc.to_dict()}
 
+def _commit_doc_to_holo(doc: DevTransactableDoc) -> Dict[str, Any]:
+    """
+    Dev-only stub: pretend to commit this doc's hash into a Holo/DC container.
+
+    Later you can replace this with a real call to a holo_*/bridge module.
+    """
+    # Idempotent – if already committed, just return existing info
+    if doc.holo_commit_id:
+        return {
+            "container_id": doc.holo_container_id,
+            "commit_id": doc.holo_commit_id,
+            "committed_at_ms": doc.holo_committed_at_ms,
+            "doc_id": doc.doc_id,
+            "doc_hash": doc.doc_hash,
+        }
+
+    commit_id = f"HDC_{uuid.uuid4().hex[:10]}"
+    container_id = "dc_transactable_doc_v1"
+    now = _now_ms()
+
+    doc.holo_container_id = container_id
+    doc.holo_commit_id = commit_id
+    doc.holo_committed_at_ms = now
+    doc.updated_at_ms = now
+
+    return {
+        "container_id": container_id,
+        "commit_id": commit_id,
+        "committed_at_ms": now,
+        "doc_id": doc.doc_id,
+        "doc_hash": doc.doc_hash,
+    }
+
+
+@router.post("/dev/commit_holo")
+async def transactable_docs_dev_commit_holo(body: DevDocId) -> Dict[str, Any]:
+    """
+    Dev-only: stub "commit to Holo" for a transactable doc.
+
+    - Attaches holo_container_id, holo_commit_id, holo_committed_at_ms
+      to the in-memory doc model.
+    - Later can be wired to a real Holo bridge / chain adapter.
+    """
+    doc = _find_doc(body.doc_id)
+
+    if doc.status not in ("ACTIVE", "EXECUTED"):
+        raise HTTPException(
+            status_code=400,
+            detail="only ACTIVE or EXECUTED docs can be Holo-committed",
+        )
+
+    holo_commit = _commit_doc_to_holo(doc)
+    return {
+        "ok": True,
+        "doc": doc.to_dict(),
+        "holo_commit": holo_commit,
+    }
+
+
+@router.post("/dev/commit_holo")
+async def transactable_docs_dev_commit_holo(body: DevDocId) -> Dict[str, Any]:
+    """
+    Dev-only: stub "commit to Holo" for a transactable doc.
+
+    - Attaches holo_container_id, holo_commit_id, holo_committed_at_ms
+      to the in-memory doc model.
+    - Later can be wired to a real Holo bridge / chain adapter.
+    """
+    doc = _find_doc(body.doc_id)
+
+    if doc.status not in ("ACTIVE", "EXECUTED"):
+        raise HTTPException(
+            status_code=400,
+            detail="only ACTIVE or EXECUTED docs can be Holo-committed",
+        )
+
+    holo_commit = _commit_doc_to_holo(doc)
+    return {
+        "ok": True,
+        "doc": doc.to_dict(),
+        "holo_commit": holo_commit,
+    }
+
+# ───────────────────────────────────────────────
+# Execution helpers
+# ───────────────────────────────────────────────
+
+
 async def _execute_payment_leg(
     doc: DevTransactableDoc,
     leg: DevPaymentLeg,
@@ -392,9 +502,14 @@ async def _execute_payment_leg(
         }
 
     elif leg.channel == "PHO_TRANSFER":
-        # TODO: call real PHO wallet/ledger engine.
-        # For now, stub a dev receipt.
-        ref_id = f"DEV_PHO_TX_{uuid.uuid4().hex[:8]}"
+        res = await dev_transfer_pho(
+            from_account=leg.from_account,
+            to_account=leg.to_account,
+            amount_pho=leg.amount_pho,
+            memo=f"Transactable doc {doc.doc_id}: {doc.title}",
+        )
+        ref_id = (res or {}).get("tx_id")
+
         leg.status = "EXECUTED"
         leg.executed_at_ms = now_ms
         leg.ref_id = ref_id
@@ -406,8 +521,20 @@ async def _execute_payment_leg(
         }
 
     elif leg.channel == "PHOTON_PAY_INVOICE":
-        # TODO: call photon_pay dev slice.
-        ref_id = f"DEV_PHOTON_INV_{uuid.uuid4().hex[:8]}"
+        # Real dev Photon Pay receipt (no longer just a stub)
+        body = DevReceiptCreate(
+            from_account=leg.from_account,
+            channel="net",  # or "mesh" later
+            invoice=None,
+            to_account=leg.to_account,
+            amount_pho=leg.amount_pho,
+            memo=f"Transactable doc {doc.doc_id}: {doc.title}",
+        )
+
+        res = await photon_pay_dev_log_receipt(body)
+        receipt = (res or {}).get("receipt") or {}
+        ref_id = receipt.get("receipt_id")
+
         leg.status = "EXECUTED"
         leg.executed_at_ms = now_ms
         leg.ref_id = ref_id
@@ -429,8 +556,9 @@ async def _execute_payment_leg(
         "error": "unknown_channel",
     }
 
+
 # ───────────────────────────────────────────────
-# Execution – wire into dev escrow
+# Execution – wire into engines
 # ───────────────────────────────────────────────
 
 
@@ -439,12 +567,11 @@ async def transactable_docs_dev_execute(body: DevDocId) -> Dict[str, Any]:
     """
     Dev-only: execute a transactable document.
 
-    For now:
       • Only ACTIVE docs can be executed.
       • For each PENDING payment leg:
-          – ESCROW_DEV        → dev escrow engine
-          – PHO_TRANSFER      → stub PHO transfer receipt
-          – PHOTON_PAY_INVOICE→ stub photon-pay invoice receipt
+          – ESCROW_DEV         → dev escrow engine
+          – PHO_TRANSFER       → wallet dev_transfer_pho
+          – PHOTON_PAY_INVOICE → photon_pay dev receipts
       • Marks legs as EXECUTED / FAILED and records ref_id.
       • Marks doc as EXECUTED once all legs processed.
     """
@@ -464,8 +591,12 @@ async def transactable_docs_dev_execute(body: DevDocId) -> Dict[str, Any]:
     doc.executed_at_ms = now
     doc.updated_at_ms = now
 
+    # Dev stub: also "commit" this doc to Holo/DC container
+    holo_commit = _commit_doc_to_holo(doc)
+
     return {
         "ok": True,
         "doc": doc.to_dict(),
         "payment_refs": refs,
+        "holo_commit": holo_commit,
     }

@@ -7,6 +7,8 @@ from decimal import Decimal, InvalidOperation
 from typing import Optional, Dict, Any, List
 import time
 import uuid
+import hashlib
+import json
 
 from fastapi import APIRouter, Query, HTTPException
 from pydantic import BaseModel
@@ -22,12 +24,113 @@ router = APIRouter(
 )
 
 # -------------------------------------------------------------------
-# Small time helper (shared by receipts + recurring)
+# Small helpers: time + DC containers
 # -------------------------------------------------------------------
 
 
 def _now_ms() -> int:
     return int(time.time() * 1000)
+
+
+def _container_hash(payload: Dict[str, Any]) -> str:
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()
+
+
+# ───────────────────────────────────────────────
+# Dev models – invoices + receipts
+# ───────────────────────────────────────────────
+
+
+@dataclass
+class DevInvoice:
+    invoice_id: str
+    seller_account: str
+    buyer_account: str
+    amount_pho: str
+    memo: str
+    created_at_ms: int
+    expiry_ms: int
+    # (extend with more fields as needed – fiat, wave_addr, etc.)
+
+    # NEW: DC container + Holo stub
+    dc_container_id: Optional[str] = None
+    dc_commit_id: Optional[str] = None
+    dc_committed_at_ms: Optional[int] = None
+    dc_container_hash: Optional[str] = None
+
+
+@dataclass
+class DevPhotonReceiptRow:
+    receipt_id: str
+    from_account: str
+    to_account: str
+    amount_pho: str
+    memo: Optional[str]
+    channel: str
+    created_at_ms: int
+    invoice_id: Optional[str] = None
+    refund_of: Optional[str] = None  # original receipt_id, if this is a refund
+
+    # NEW: DC container + Holo stub
+    dc_container_id: Optional[str] = None
+    dc_commit_id: Optional[str] = None
+    dc_committed_at_ms: Optional[int] = None
+    dc_container_hash: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+# In-memory dev tables
+_DEV_PHOTON_RECEIPTS: List[DevPhotonReceiptRow] = []
+
+
+def _build_invoice_dc_container(inv: DevInvoice) -> Dict[str, Any]:
+    """
+    Dev-only DC container for Photon invoices.
+    """
+    core = asdict(inv)
+    return {
+        "container_id": "dc_photon_invoice_v1",
+        "version": 1,
+        "kind": "PHOTON_INVOICE",
+        "created_at_ms": _now_ms(),
+        "payload": core,
+    }
+
+
+def _build_receipt_dc_container(rcpt: DevPhotonReceiptRow) -> Dict[str, Any]:
+    """
+    Dev-only DC container for Photon receipts.
+    """
+    core = asdict(rcpt)
+    return {
+        "container_id": "dc_photon_receipt_v1",
+        "version": 1,
+        "kind": "PHOTON_RECEIPT",
+        "created_at_ms": _now_ms(),
+        "payload": core,
+    }
+
+
+def _commit_dc_container_stub(container: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Dev-only stub: pretend to commit a DC container into Holo / chain.
+
+    Later you can route this via a real holo bridge.
+    """
+    cid = container["container_id"]
+    h = _container_hash(container)
+    commit_id = f"{cid}_commit_{h[:8]}"
+    committed_at_ms = _now_ms()
+
+    return {
+        "container_id": cid,
+        "commit_id": commit_id,
+        "committed_at_ms": committed_at_ms,
+        "container_hash": h,
+    }
 
 
 # ───────────────────────────────────────────────
@@ -85,7 +188,8 @@ async def photon_pay_dev_make_invoice(req: DevMakeInvoiceRequest) -> Dict[str, A
     Dev-only: generate a Photon Pay POS invoice.
 
     Returns an INVOICE_POS payload that AdminDashboard renders in the
-    POS keypad card.
+    POS keypad card. Also builds a dc_photon_invoice_v1 container and
+    commits it via the dev Holo/DC stub.
     """
     try:
         amt = Decimal(req.amount_pho)
@@ -98,47 +202,51 @@ async def photon_pay_dev_make_invoice(req: DevMakeInvoiceRequest) -> Dict[str, A
     now_ms = _now_ms()
     invoice_id = f"inv_{uuid.uuid4().hex}"
 
-    invoice = {
-        "invoice_id": invoice_id,
-        "seller_account": req.seller_account,
+    # Dev invoice record (buyer isn't known yet for POS – mark as UNKNOWN)
+    inv = DevInvoice(
+        invoice_id=invoice_id,
+        seller_account=req.seller_account,
+        buyer_account="pho1-unknown-buyer",
+        amount_pho=str(amt),
+        memo=req.memo or "",
+        created_at_ms=now_ms,
+        expiry_ms=now_ms + 15 * 60 * 1000,  # 15 min TTL
+    )
+
+    # DC container + commit (dev stub)
+    dc = _build_invoice_dc_container(inv)
+    commit = _commit_dc_container_stub(dc)
+
+    inv.dc_container_id = commit["container_id"]
+    inv.dc_commit_id = commit["commit_id"]
+    inv.dc_committed_at_ms = commit["committed_at_ms"]
+    inv.dc_container_hash = commit["container_hash"]
+
+    # Payload used by POS / Buyer panel – keep same shape as before
+    invoice_payload = {
+        "invoice_id": inv.invoice_id,
+        "seller_account": inv.seller_account,
         "seller_wave_addr": None,
-        "amount_pho": str(amt),
+        "amount_pho": inv.amount_pho,
         "fiat_symbol": None,
         "fiat_amount": None,
-        "memo": req.memo or "",
-        "created_at_ms": now_ms,
-        # 15-minute expiry in this dev model
-        "expiry_ms": now_ms + 15 * 60 * 1000,
+        "memo": inv.memo,
+        "created_at_ms": inv.created_at_ms,
+        "expiry_ms": inv.expiry_ms,
     }
 
     return {
         "version": 1,
         "kind": "INVOICE_POS",
-        "invoice": invoice,
+        "invoice": invoice_payload,
+        # optional dev metadata if you ever want it in UI:
+        "dc_meta": commit,
     }
 
 
 # ───────────────────────────────────────────────
 # Dev receipts model (in-memory)
 # ───────────────────────────────────────────────
-
-
-@dataclass
-class DevPhotonReceipt:
-    receipt_id: str
-    from_account: str
-    to_account: str
-    amount_pho: str
-    memo: Optional[str]
-    channel: str  # "mesh", "net", etc.
-    invoice_id: Optional[str]
-    created_at_ms: int
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-
-_DEV_PHOTON_RECEIPTS: List[DevPhotonReceipt] = []
 
 
 class DevReceiptCreate(BaseModel):
@@ -164,6 +272,55 @@ def list_dev_receipts_for_account(account: str) -> List[Dict[str, Any]]:
     return out
 
 
+def log_dev_refund_receipt(
+    *,
+    from_account: str,
+    to_account: str,
+    amount_pho: str,
+    memo: Optional[str],
+    channel: str,
+    invoice_id: Optional[str],
+    refund_of: Optional[str],
+) -> Dict[str, Any]:
+    """
+    Internal helper: log a refund as a *negative* PhotonPay receipt.
+    Also wraps it in a dc_photon_receipt_v1 container and commits
+    via the dev DC stub.
+    """
+    try:
+        amt = Decimal(str(amount_pho))
+        if amt <= 0:
+            raise ValueError("amount_pho must be positive for refund helper")
+    except (InvalidOperation, ValueError):
+        raise HTTPException(status_code=400, detail="invalid amount_pho for refund")
+
+    neg_amount = str(-amt)
+
+    rcpt = DevPhotonReceiptRow(
+        receipt_id=f"rcpt_{uuid.uuid4().hex}",
+        from_account=from_account,
+        to_account=to_account,
+        amount_pho=neg_amount,
+        memo=memo,
+        channel=channel,
+        invoice_id=invoice_id,
+        created_at_ms=_now_ms(),
+        refund_of=refund_of,
+    )
+
+    # DC container + commit
+    dc = _build_receipt_dc_container(rcpt)
+    commit = _commit_dc_container_stub(dc)
+
+    rcpt.dc_container_id = commit["container_id"]
+    rcpt.dc_commit_id = commit["commit_id"]
+    rcpt.dc_committed_at_ms = commit["committed_at_ms"]
+    rcpt.dc_container_hash = commit["container_hash"]
+
+    _DEV_PHOTON_RECEIPTS.append(rcpt)
+    return rcpt.to_dict()
+
+
 @router.post("/dev/receipts")
 async def photon_pay_dev_log_receipt(body: DevReceiptCreate) -> Dict[str, Any]:
     """
@@ -176,6 +333,9 @@ async def photon_pay_dev_log_receipt(body: DevReceiptCreate) -> Dict[str, Any]:
         "channel": "mesh",
         "invoice": { ...PhotonInvoice... }
       }
+
+    This route now also creates a dc_photon_receipt_v1 container and
+    commits it via the dev DC stub.
     """
     inv = body.invoice or {}
 
@@ -197,7 +357,7 @@ async def photon_pay_dev_log_receipt(body: DevReceiptCreate) -> Dict[str, Any]:
     except (InvalidOperation, ValueError):
         raise HTTPException(status_code=400, detail="invalid amount_pho")
 
-    receipt = DevPhotonReceipt(
+    rcpt = DevPhotonReceiptRow(
         receipt_id=f"rcpt_{uuid.uuid4().hex}",
         from_account=body.from_account,
         to_account=to_account,
@@ -207,9 +367,23 @@ async def photon_pay_dev_log_receipt(body: DevReceiptCreate) -> Dict[str, Any]:
         invoice_id=inv.get("invoice_id"),
         created_at_ms=_now_ms(),
     )
-    _DEV_PHOTON_RECEIPTS.append(receipt)
 
-    return {"ok": True, "receipt": receipt.to_dict()}
+    # DC container + commit
+    dc = _build_receipt_dc_container(rcpt)
+    commit = _commit_dc_container_stub(dc)
+
+    rcpt.dc_container_id = commit["container_id"]
+    rcpt.dc_commit_id = commit["commit_id"]
+    rcpt.dc_committed_at_ms = commit["committed_at_ms"]
+    rcpt.dc_container_hash = commit["container_hash"]
+
+    _DEV_PHOTON_RECEIPTS.append(rcpt)
+
+    return {
+        "ok": True,
+        "receipt": rcpt.to_dict(),
+        "dc_meta": commit,
+    }
 
 
 @router.get("/dev/receipts")

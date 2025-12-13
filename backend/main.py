@@ -441,6 +441,7 @@ from backend.modules.glyph_bonds.glyph_bond_routes import router as glyph_bonds_
 from backend.modules.photon_savings.photon_savings_routes import router as photon_savings_router
 from backend.modules.escrow.escrow_routes import router as escrow_router
 from backend.modules.transactable_docs.transactable_doc_routes import router as transactable_docs_router
+from backend.modules.chain_sim.chain_sim_routes import router as chain_sim_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -676,6 +677,7 @@ app.include_router(glyph_bonds_router, prefix="/api")
 app.include_router(photon_savings_router, prefix="/api")
 app.include_router(escrow_router, prefix="/api")
 app.include_router(transactable_docs_router, prefix="/api")
+app.include_router(chain_sim_router, prefix="/api")
 
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)

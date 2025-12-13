@@ -9,6 +9,12 @@ from pydantic import BaseModel
 
 from backend.modules.gma import gma_state_model as gma_state_model
 from backend.modules.gma.gma_state_model import GMAState
+from backend.modules.gma.gma_state_dev import (
+    record_mint_burn,
+    record_reserve_move,
+    get_mint_burn_log,
+    get_reserve_moves_log,
+)
 
 # Router lives under /gma/state so final paths are /api/gma/state/...
 router = APIRouter(
@@ -58,6 +64,7 @@ def get_dev_gma_state() -> GMAState:
 # Snapshot
 # ───────────────────────────────────────────────
 
+
 @router.get("/dev_snapshot")
 async def gma_state_dev_snapshot():
     """
@@ -67,12 +74,20 @@ async def gma_state_dev_snapshot():
     Not a stable public API and not the final on-chain representation.
     """
     state = get_dev_gma_state()
-    return state.snapshot_dict()
+    snap = state.snapshot_dict()
+
+    # Attach dev event logs so Admin dashboard / GMADashboardDevPanel
+    # can render a single unified view.
+    snap["mint_burn_log"] = get_mint_burn_log()
+    snap["reserve_moves_log"] = get_reserve_moves_log()
+
+    return snap
 
 
 # ───────────────────────────────────────────────
 # Dev reserve deposit / redemption endpoints
 # ───────────────────────────────────────────────
+
 
 class ReserveOpRequest(BaseModel):
     asset_id: str
@@ -100,6 +115,13 @@ async def gma_state_dev_reserve_deposit(req: ReserveOpRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+    # Log as a reserve move in PHO-equivalent terms
+    record_reserve_move(
+        kind="ADD",
+        amount_pho_eq=str(amt),
+        reason=f"reserve_deposit:{req.asset_id}",
+    )
+
     return state.snapshot_dict()
 
 
@@ -124,12 +146,19 @@ async def gma_state_dev_reserve_redemption(req: ReserveOpRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+    record_reserve_move(
+        kind="REMOVE",
+        amount_pho_eq=str(amt),
+        reason=f"reserve_redemption:{req.asset_id}",
+    )
+
     return state.snapshot_dict()
 
 
 # ───────────────────────────────────────────────
 # Dev mint / burn endpoints (direct)
 # ───────────────────────────────────────────────
+
 
 class DevMintBurnRequest(BaseModel):
     amount_pho: str
@@ -151,10 +180,19 @@ async def dev_gma_mint(req: DevMintBurnRequest):
     if amt <= 0:
         raise HTTPException(status_code=400, detail="amount_pho must be positive")
 
+    reason = req.reason or "dev_mint"
+
     try:
-        state.gma_mint_photon(amt, reason=req.reason or "dev_mint")
+        state.gma_mint_photon(amt, reason=reason)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    # Log mint in dev event store
+    record_mint_burn(
+        kind="MINT",
+        amount_pho=str(amt),
+        reason=reason,
+    )
 
     return {"ok": True, "snapshot": state.snapshot_dict()}
 
@@ -174,9 +212,17 @@ async def dev_gma_burn(req: DevMintBurnRequest):
     if amt <= 0:
         raise HTTPException(status_code=400, detail="amount_pho must be positive")
 
+    reason = req.reason or "dev_burn"
+
     try:
-        state.gma_burn_photon(amt, reason=req.reason or "dev_burn")
+        state.gma_burn_photon(amt, reason=reason)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    record_mint_burn(
+        kind="BURN",
+        amount_pho=str(amt),
+        reason=reason,
+    )
 
     return {"ok": True, "snapshot": state.snapshot_dict()}

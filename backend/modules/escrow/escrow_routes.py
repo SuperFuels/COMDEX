@@ -11,11 +11,12 @@ import uuid
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
+from backend.modules.gma.gma_state_dev import record_reserve_move
+
 router = APIRouter(
     prefix="/escrow",
     tags=["escrow-dev"],
 )
-
 
 # -------------------------------------------------------------------
 # Small time helper
@@ -91,8 +92,9 @@ def _find_escrow(escrow_id: str) -> EscrowAgreement:
 async def create_dev_escrow(body: DevEscrowCreate) -> Dict[str, Any]:
     """
     Dev-only: create an escrow agreement and logically 'lock' PHO.
-    For now this only updates the in-memory model; real PHO transfers
-    will be wired in later via GMA/wallet.
+
+    We also log a GMA reserve ADD event so the GMA dev dashboard can
+    see escrow flows as part of the monetary story.
     """
     try:
         amt = Decimal(body.amount_pho)
@@ -100,6 +102,17 @@ async def create_dev_escrow(body: DevEscrowCreate) -> Dict[str, Any]:
             raise ValueError("amount_pho must be positive")
     except (InvalidOperation, ValueError):
         raise HTTPException(status_code=400, detail="invalid amount_pho")
+
+    # Log reserve ADD – PHO is being parked into escrow
+    try:
+        record_reserve_move(
+            kind="ADD",
+            amount_pho_eq=str(amt),
+            reason=f"escrow_create:{body.kind}",
+        )
+    except Exception as e:
+        # Don’t break the dev route if logging fails.
+        print("[escrow] reserve_move ADD failed:", e)
 
     now = _now_ms()
     escrow = EscrowAgreement(
@@ -153,7 +166,7 @@ async def list_dev_escrows(
 async def release_dev_escrow(body: DevEscrowAction) -> Dict[str, Any]:
     """
     Dev-only: release an escrow to the beneficiary (to_account).
-    This marks the escrow as RELEASED; moving PHO will be hooked up later.
+    Marks the escrow as RELEASED and logs a GMA reserve REMOVE event.
     """
     now = _now_ms()
     escrow = _find_escrow(body.escrow_id)
@@ -163,6 +176,17 @@ async def release_dev_escrow(body: DevEscrowAction) -> Dict[str, Any]:
 
     if escrow.unlock_at_ms is not None and now < escrow.unlock_at_ms:
         raise HTTPException(status_code=400, detail="escrow is still time-locked")
+
+    # Log reserve REMOVE – escrow released to beneficiary
+    try:
+        amt = Decimal(escrow.amount_pho)
+        record_reserve_move(
+            kind="REMOVE",
+            amount_pho_eq=str(amt),
+            reason=f"escrow_release:{escrow.kind}",
+        )
+    except Exception as e:
+        print("[escrow] reserve_move REMOVE(release) failed:", e)
 
     escrow.status = "RELEASED"
     escrow.released_at_ms = now
@@ -176,13 +200,24 @@ async def release_dev_escrow(body: DevEscrowAction) -> Dict[str, Any]:
 async def refund_dev_escrow(body: DevEscrowAction) -> Dict[str, Any]:
     """
     Dev-only: refund an escrow back to the originator (from_account).
-    Marks the escrow as REFUNDED; no real PHO moves yet.
+    Marks the escrow as REFUNDED and logs a GMA reserve REMOVE event.
     """
     now = _now_ms()
     escrow = _find_escrow(body.escrow_id)
 
     if escrow.status != "OPEN":
         raise HTTPException(status_code=400, detail="escrow is not open")
+
+    # Log reserve REMOVE – escrow returned to originator
+    try:
+        amt = Decimal(escrow.amount_pho)
+        record_reserve_move(
+            kind="REMOVE",
+            amount_pho_eq=str(amt),
+            reason=f"escrow_refund:{escrow.kind}",
+        )
+    except Exception as e:
+        print("[escrow] reserve_move REMOVE(refund) failed:", e)
 
     escrow.status = "REFUNDED"
     escrow.refunded_at_ms = now

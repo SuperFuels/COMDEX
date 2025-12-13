@@ -5,19 +5,27 @@
 //   • GlyphBonds, Photon Savings, and Escrow (dev slices).
 
 import React, { useState, useEffect, useCallback } from "react";
-
-type ReserveRow = {
-  asset_id: string;
-  quantity: string;
-  price_pho: string;
-  value_pho: string;
-};
+import GMADashboardDevPanel from "../components/GMADashboardDevPanel";
 
 type MintBurnEvent = {
   kind: "MINT" | "BURN";
   amount_pho: string;
   reason?: string | null;
   created_at_ms: number;
+};
+
+type ReserveMoveEvent = {
+  kind: "ADD" | "REMOVE";
+  amount_pho_eq: string;
+  reason?: string | null;
+  created_at_ms: number;
+};
+
+type ReserveRow = {
+  asset_id: string;
+  quantity: string;
+  price_pho: string;
+  value_pho: string;
 };
 
 type GmaSnapshot = {
@@ -28,8 +36,12 @@ type GmaSnapshot = {
   offline_credit_soft_cap_ratio: string;
   max_offline_credit_soft_cap: string;
   equity_pho: string;
-  reserves: Record<string, ReserveRow>;
+
+  // reserves can be a map or an array, handle both
+  reserves?: Record<string, Omit<ReserveRow, "asset_id">> | ReserveRow[];
+
   mint_burn_log?: MintBurnEvent[];
+  reserve_moves_log?: ReserveMoveEvent[];
 };
 
 type DevMandate = {
@@ -319,7 +331,14 @@ export default function AdminDashboard() {
   }
 
   const reservesArray: ReserveRow[] = snapshot
-    ? Object.values(snapshot.reserves || {})
+    ? Array.isArray(snapshot.reserves)
+      ? snapshot.reserves
+      : Object.entries(snapshot.reserves || {}).map(([asset_id, r]) => ({
+          asset_id,
+          quantity: r.quantity,
+          price_pho: r.price_pho,
+          value_pho: r.value_pho,
+        }))
     : [];
 
   // ────────────────────────────────────────────
@@ -1196,6 +1215,103 @@ export default function AdminDashboard() {
                   </table>
                 )}
               </div>
+
+              {/* Reserve moves log (PHO-equivalent) */}
+              <div
+                style={{
+                  marginTop: 20,
+                  paddingTop: 12,
+                  borderTop: "1px dashed #e5e7eb",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "#111827",
+                    marginBottom: 4,
+                  }}
+                >
+                  Reserve moves (dev)
+                </div>
+
+                {(!snapshot.reserve_moves_log ||
+                  snapshot.reserve_moves_log.length === 0) && (
+                  <div style={{ fontSize: 11, color: "#9ca3af" }}>
+                    No reserve moves logged yet.
+                  </div>
+                )}
+
+                {snapshot.reserve_moves_log &&
+                  snapshot.reserve_moves_log.length > 0 && (
+                    <table
+                      style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                        fontSize: 11,
+                      }}
+                    >
+                      <thead>
+                        <tr style={{ textAlign: "left", color: "#6b7280" }}>
+                          <th style={{ padding: "3px 0" }}>Time</th>
+                          <th style={{ padding: "3px 0" }}>Kind</th>
+                          <th style={{ padding: "3px 0" }}>Amount (PHO eq)</th>
+                          <th style={{ padding: "3px 0" }}>Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[...(snapshot.reserve_moves_log || [])]
+                          .slice(-10)
+                          .reverse()
+                          .map((ev: any) => {
+                            const t = ev.created_at_ms
+                              ? new Date(ev.created_at_ms).toLocaleString()
+                              : "—";
+                            const isAdd = ev.kind === "ADD";
+
+                            return (
+                              <tr
+                                key={`${ev.created_at_ms}-${ev.reason || ""}`}
+                              >
+                                <td
+                                  style={{
+                                    padding: "3px 0",
+                                    color: "#4b5563",
+                                  }}
+                                >
+                                  {t}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "3px 0",
+                                    color: isAdd ? "#16a34a" : "#b91c1c",
+                                  }}
+                                >
+                                  {ev.kind}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "3px 0",
+                                    color: "#111827",
+                                  }}
+                                >
+                                  {ev.amount_pho_eq}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "3px 0",
+                                    color: "#6b7280",
+                                  }}
+                                >
+                                  {ev.reason || "—"}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                  )}
+              </div>
             </div>
           </>
         ) : (
@@ -1212,6 +1328,9 @@ export default function AdminDashboard() {
           )
         )}
       </section>
+
+      {/* GMA dev dashboard */}
+      <GMADashboardDevPanel />
 
       {/* ── Photon Savings / Term Deposits (dev) ─────────── */}
       <section

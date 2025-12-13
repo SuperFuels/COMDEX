@@ -11,6 +11,8 @@ import uuid
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
+from backend.modules.gma.gma_state_dev import record_reserve_move
+
 router = APIRouter(
     prefix="/photon_savings",
     tags=["photon-savings-dev"],
@@ -19,6 +21,7 @@ router = APIRouter(
 # ───────────────────────────────────────────────
 # Helpers
 # ───────────────────────────────────────────────
+
 
 def _now_ms() -> int:
     return int(time.time() * 1000)
@@ -35,6 +38,7 @@ def _days_between(start_ms: int, end_ms: int) -> Decimal:
 # ───────────────────────────────────────────────
 # In-memory dev products + positions
 # ───────────────────────────────────────────────
+
 
 @dataclass
 class DevSavingsProduct:
@@ -157,6 +161,7 @@ def _find_position(position_id: str) -> DevSavingsPosition:
 # Schemas
 # ───────────────────────────────────────────────
 
+
 class DevDepositCreate(BaseModel):
     account: str
     product_id: str
@@ -173,6 +178,7 @@ class DevRedeemResponse(BaseModel):
 # ───────────────────────────────────────────────
 # Routes
 # ───────────────────────────────────────────────
+
 
 @router.get("/dev/products")
 async def list_savings_products() -> Dict[str, Any]:
@@ -206,6 +212,9 @@ async def list_savings_positions(
 async def create_savings_position(body: DevDepositCreate) -> Dict[str, Any]:
     """
     Dev-only: open a new Photon Savings position for an account.
+
+    Also logs a GMA reserve move "ADD" in PHO-equivalent terms so the
+    GMA dev dashboard can see savings flows.
     """
     _ensure_demo_products()
 
@@ -231,6 +240,18 @@ async def create_savings_position(body: DevDepositCreate) -> Dict[str, Any]:
     )
     _DEV_POSITIONS.append(pos)
 
+    # Dev-only: log as a reserve "ADD" (savings deposit increases
+    # PHO-equivalent reserves inside the savings facility).
+    try:
+        record_reserve_move(
+            kind="ADD",
+            amount_pho_eq=str(amt),
+            reason=f"savings_deposit:{product.product_id}",
+        )
+    except Exception as e:
+        # Don’t break dev route if logging fails; just log to stderr.
+        print("[photon_savings] reserve_move ADD failed:", e)
+
     # NOTE: in a real system, this would:
     #   • debit PHO from account
     #   • credit GMA reserves / savings facility
@@ -243,7 +264,11 @@ async def redeem_savings_position(position_id: str) -> DevRedeemResponse:
     Dev-only redeem endpoint:
       • marks position CLOSED
       • computes simple accrued interest
-      • returns hypothetical payout.
+      • returns hypothetical payout
+      • logs a GMA reserve move "REMOVE" for the principal.
+
+    Interest is currently not fed into GMA events; it's just surfaced
+    as a dev UX number.
     """
     pos = _find_position(position_id)
     if pos.status != "OPEN":
@@ -262,6 +287,16 @@ async def redeem_savings_position(position_id: str) -> DevRedeemResponse:
     pos.status = "CLOSED"
     pos.closed_at_ms = now
     pos.interest_paid_pho = str(accrued)
+
+    # Dev-only: log principal redemption as a reserve "REMOVE"
+    try:
+        record_reserve_move(
+            kind="REMOVE",
+            amount_pho_eq=str(principal),
+            reason=f"savings_redeem:{pos.product_id}",
+        )
+    except Exception as e:
+        print("[photon_savings] reserve_move REMOVE failed:", e)
 
     return DevRedeemResponse(
         position=pos.to_dict(now_ms=now),

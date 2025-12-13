@@ -11,6 +11,8 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
+from backend.modules.gma.gma_state_dev import record_reserve_move
+
 router = APIRouter(
     prefix="/glyph_bonds",
     tags=["glyph-bonds-dev"],
@@ -217,6 +219,13 @@ async def glyph_bonds_dev_issue(body: DevIssueRequest) -> Dict[str, Any]:
     series.total_issued_pho = str(issued + principal)
     series.total_outstanding_pho = str(outstanding + principal)
 
+    # 🔵 Log as a reserve ADD in GMA dev event log (PHO-equivalent)
+    record_reserve_move(
+        kind="ADD",
+        amount_pho_eq=str(principal),
+        reason=f"bond_issue:{series.series_id}",
+    )
+
     return {
         "ok": True,
         "series": series.to_dict(),
@@ -339,6 +348,13 @@ async def glyph_bonds_dev_redeem(
     except (AttributeError, InvalidOperation):
         # If something is off, we don't crash the dev route; state can be inspected.
         pass
+
+    # 🔴 Log as a reserve REMOVE in GMA dev event log
+    record_reserve_move(
+        kind="REMOVE",
+        amount_pho_eq=str(principal),
+        reason=f"bond_redeem:{series.series_id}",
+    )
 
     # NOTE: in real system we would:
     #   - move PHO from GMA's bond bucket -> pos.account

@@ -58,17 +58,17 @@ graph TD
 
     P3_1[☐ GMA State & Structs\n• GMAState:\n  – photonSupply, tesseractSupply\n  – reserves[], risk limits\n  – bondSeries[], facilities\n  – governanceParams, council\n• Invariant: Assets - Liabilities = Equity]
 
-    P3_1A[✅ GMA Dev Model + Debug API\n• gma_state_model.py (GMAState, ReservePosition)\n• snapshot_dict() invariants in PHO terms\n• dev_gma_state_smoketest.py\n• /api/gma/state/dev_snapshot for admin dashboard]
+    P3_1A[✅ GMA Dev Model + Debug API\n• gma_state_model.py (GMAState, ReservePosition)\n• snapshot_dict() invariants in PHO terms\n• dev_gma_state_smoketest.py\n• /api/gma/state/dev_snapshot for admin dashboard\n• In-process singleton _DEV_GMA_STATE shared by dev routes + dashboard]
 
     P3_2[☐ Mint/Burn Guard Rails\n• GMA-only PHO.mint/burn\n• gmaMintPhoton/gmaBurnPhoton(reason)\n• Logging & invariants per change]
 
-    P3_2A[✅ PHO Mint/Burn Dev Guard Rails\n• gma_mint_photon/_burn in GMAState\n• mint_burn_log with created_at_ms\n• /api/gma/state/dev_mint & /dev_burn\n• Admin dashboard mint/burn log table]
+    P3_2A[✅ PHO Mint/Burn Dev Guard Rails\n• gma_mint_photon/_burn in GMAState\n• mint_burn_log with created_at_ms\n• /api/gma/state/dev_mint & /dev_burn\n• Admin dashboard mint/burn log table\n• Hooks used by dev tools to keep GMA snapshot in sync]
 
     P3_3[☐ Reserve Positions\n• addReservePosition\n• updateReserveValuation via oracle\n• Aggregate exposures & risk checks\n• Dashboard views]
 
     P3_4[☐ Reserve Deposit/Redemption\n• record_reserve_deposit\n  – update reserves\n  – mint PHO (minus fees)\n• record_reserve_redemption\n  – burn PHO\n  – adjust reserves\n• Events]
 
-    P3_4A[✅ GMA Reserve Deposit/Redemption Dev Model\n• GMAState.record_reserve_deposit/_redemption\n• Equity recompute: Assets - Liabilities\n• dev_gma_reserve_smoketest.py\n• /api/gma/state/dev_reserve_deposit/_redemption (dev)]
+    P3_4A[✅ GMA Reserve Deposit/Redemption Dev Model\n• GMAState.record_reserve_deposit/_redemption\n• Equity recompute: Assets - Liabilities\n• dev_gma_reserve_smoketest.py\n• /api/gma/state/dev_reserve_deposit/_redemption (dev)\n• Admin GMA card surfaces reserve events alongside mint/burn]
 
     P3_5[☐ Open Market Operations (OMO)\n• omoBuyPhoton / omoSellPhoton\n• Use AMM + reserves\n• Governance caps per period\n• PnL tracking]
 
@@ -140,7 +140,7 @@ graph TD
 
     P7_1[☐ Wallet Core\n• Seed/keys (BIP32-style) + device_id\n• Accounts for PHO/TESS/Bonds\n• GMA views (deposits, loans, bonds)\n• Basic TESS staking UX]
 
-    P7_1A[✅ Browser Wallet Panel + Mesh Wiring\n• /api/wallet/balances backend route\n• WalletPanel wired to mesh local_state\n• PHO card: display PHO + offline spendable\n• MeshPending + offlineLimit from mesh_wallet_state\n• Mesh dev send box → /api/mesh/local_send\n• Mesh activity log from /api/mesh/local_state\n• Mesh local_state inspector (dev) in WalletPanel\n• Mini PHO balance pill in TopBar]
+    P7_1A[✅ Browser Wallet Panel + Mesh Wiring\n• /api/wallet/balances backend route\n• WalletPanel wired to mesh local_state\n• PHO card: display PHO + offline spendable\n• MeshPending + offlineLimit from mesh_wallet_state\n• Mesh dev send box → /api/mesh/local_send\n• Mesh activity log from /api/mesh/local_state\n• Mesh local_state inspector (dev) in WalletPanel\n• Mini PHO balance pill in TopBar\n• Recent PhotonPay receipts card + refund backend\n• Recent transactable docs list via /transactable_docs/dev/list?party=…]
 
     P7_2[☐ Account Abstraction & Session Keys\n• Smart wallets: limits, social recovery\n• Session keys for chat/micropayments\n• Pre-approved PHO send templates]
 
@@ -148,20 +148,22 @@ graph TD
         %% --- P7_3 Transactable Document UX subtasks ---
         P7_3A[✅Transactable Docs – Glyph / Browser UI\n• GlyphNote-like editor for contracts\n• Show status: Draft → Active → Executed\n• Basic list/detail view of docs]
 
-        P7_3B[☐ Transactable Docs – DC Container + Holo Commit\n• Wrap as dc_transactable_doc_v1 (or GlyphNote doc)\n• Compute + persist doc_hash\n• Commit doc_hash via Holo bridge / chain adapter\n• Query docs by hash / status]
+        P7_3B[☐ Transactable Docs – DC Container + Holo Commit\n• Dev: doc_hash computed & stored in DevTransactableDoc\n• Dev: /transactable_docs/dev/commit_holo → _commit_doc_to_holo stub (holo_container_id/commit_id)\n• TODO: wrap as dc_transactable_doc_v1 (or GlyphNote doc)\n• TODO: real Holo bridge / chain adapter + query by hash/status]
 
         P7_3C[☐ Transactable Docs – Signatures\n• Signature objects: who/when/what-hash\n• Support multi-party signature policies\n• Enforce: only DRAFT → ACTIVE once signature conditions met\n• Signature audit trail in doc history]
 
-        P7_3D[☐ Transactable Docs – Real PHO Payment Wiring\n• Map PaymentLeg.channel to real engines\n  – Escrow engine (home build, deposits)\n  – Photon Pay (invoices, POS)\n  – Chain transfers / savings / bonds\n• Move PHO instead of ESCROW_DEV-only\n• Emit receipts + link back to doc/payment legs]
+        P7_3D[✅ Transactable Docs – Real PHO Payment Wiring (Dev)\n• PaymentLeg.channel → ESCROW_DEV / PHO_TRANSFER / PHOTON_PAY_INVOICE\n• Escrow legs execute via dev escrow engine\n• Wallet legs hit dev_transfer_pho with balance guard rails\n• Photon Pay legs log real dev receipts\n• Wallet shows recent docs + executed legs per account]
 
-    P7_3A[✅ Service Escrow Dev Slice\n• EscrowAgreement in-memory model\n• /api/escrow/dev/create, /dev/list\n• /dev/release + /dev/refund\n• Basis for service + liquidity lockups]
+    P7_3A2[✅ Service Escrow Dev Slice\n• EscrowAgreement in-memory model\n• /api/escrow/dev/create, /dev/list\n• /dev/release + /dev/refund\n• Basis for service + liquidity lockups]
 
-    P7_10[✅ Photon Pay: P2P, POS & Invoices\n• Virtual PHO card bound to wallet/device\n• WaveAddress + QR/Glyph codes for addresses\n• Merchant POS keypad: amount + memo → invoice glyph\n• Buyer scan → confirm → pay via NET/RADIO/BLE/mesh\n• P2P send via wave address, messenger, or scan-to-pay\n• Store signed invoice/receipt containers for history & tax]
+    P7_10[✅ Photon Pay: P2P, POS & Invoices\n• Virtual PHO card bound to wallet/device\n• WaveAddress + QR/Glyph codes for addresses\n• Merchant POS keypad: amount + memo → invoice glyph\n• Buyer scan/paste → confirm → pay via NET/RADIO/BLE/mesh\n• P2P send via wave address, messenger, or scan-to-pay\n• Store signed invoice/receipt containers for history & tax]
 
-    P7_10B[☐ Photon Pay: QR / Glyph Scan\n• Camera capture for QR/glyph\n• Decode → invoice JSON\n• Pipe into buyer pay flow]
+    P7_10B[✅ Photon Pay: QR / Glyph Scan\n• Dev: POS keypad renders real QR (qrcode.react) for INVOICE_POS payload\n• Dev: buyer panel can paste QR/glyph JSON/base64 and decode into invoice\n• Dev: inline camera “Scan QR” in buyer panel (react-qr-reader/@zxing)\n  → decoded text fed into loadInvoiceFromString(...) + pay flow]
+
     P7_10C[☐ Photon Pay over NET / BLE\n• Online PHO send over chain (NET)\n• BLE/radio transport adapters\n• Fallback between NET / mesh]
     P7_10D[☐ Photon Pay: Messenger Integration\n• “Pay from chat” in threads\n• Scan-to-pay inside messenger\n• Inline invoice previews + confirm]
-    P7_10E[☐ Photon Pay: Signed Invoice/Receipt Containers\n• dc_photon_invoice_v1 / _receipt_v1\n• Commit to Holo + on-chain hash\n• Holo browser doc view + wallet links]
+
+    P7_10E[☐ Photon Pay: Signed Invoice/Receipt Containers\n• dc_photon_invoice_v1 / _receipt_v1 dev containers in photon_pay_routes\n• Dev _commit_dc_container_stub → dc_*_commit_* IDs + container_hash\n• TODO: real Holo bridge + on-chain hash\n• TODO: Holo browser doc view + wallet links]
 
     P7_10 --> P7_10A
     P7_10 --> P7_10B
@@ -169,7 +171,7 @@ graph TD
     P7_10 --> P7_10D
     P7_10 --> P7_10E
 
-    P7_10A[✅ Photon Pay Dev Slice\n• Dev invoices + receipts model\n• Wallet receipts card + refund flow\n• Admin recurring mandates + dev routes\n• POS keypad → /photon_pay/dev/make_invoice]
+    P7_10A[✅ Photon Pay Dev Slice\n• Dev invoices + receipts model\n• Wallet receipts card + refund backend (/wallet/dev/refund)\n• Buyer panel NET/mesh pay paths via wallet + mesh engines\n• Invoice expiry + self-pay guardrails\n• Admin recurring mandates + dev routes\n• POS keypad → /photon_pay/dev/make_invoice\n• POS keypad renders real QR (qrcode.react) for INVOICE_POS payload\n• Buyer panel supports paste-string + camera scan → invoice load]
 
     %% --- Mesh / Radio / BLE payments ---
     P7_4[☐ Radio / Mesh / BLE Payment Mode\n• LocalBalance + LocalTxLog structs\n• MeshTx + ClusterBlock types\n• Local mesh ledger on device\n• MeshReconcile service (ReconcileRequest/Result)\n• Uses offline_credit_limit_pho from GMA\n• Wallet UI: global vs local balances,\n  accepted vs disputed mesh tx]

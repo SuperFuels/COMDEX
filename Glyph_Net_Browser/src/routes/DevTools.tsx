@@ -16,6 +16,7 @@ import { HoloProgramEditor } from "../components/HoloProgramEditor";
 import { HoloIndexItem } from "../lib/api/holo";
 // 3D hologram scene wrapper (Canvas + OrbitControls)
 import HologramContainerView from "../components/HologramContainerView";
+import QRCode from "qrcode.react";
 
 // Hologram IR + API
 import type { HoloIR } from "../lib/types/holo";
@@ -35,7 +36,8 @@ type ToolId =
   | "field"
   | "aion"
   | "crystal"
-  | "docs";
+  | "docs"
+  | "gma";       
 
 type FrameMetric = {
   psi: number;
@@ -596,6 +598,20 @@ export default function DevTools() {
               onSelect={setActiveTool}
             />
             <ToolButton
+              id="gma"
+              label="GMA"
+              description="Monetary state (dev)"
+              activeTool={activeTool}
+              onSelect={setActiveTool}
+            />
+            <ToolButton
+              id="gma"
+              label="GMA"
+              description="Monetary authority"
+              activeTool={activeTool}
+              onSelect={setActiveTool}
+            />
+            <ToolButton
               id="docs"
               label="Docs"
               description="Transactable docs"
@@ -632,6 +648,8 @@ export default function DevTools() {
             <CrystalPanel />
           ) : activeTool === "docs" ? (
             <TransactableDocsDevPanel />
+          ) : activeTool === "gma" ? (
+            <GMADashboardPanel />
           ) : (
             <>
               {/* Field Lab: Hologram container fills full width (owns its own Holo Files cabinet) */}
@@ -872,13 +890,16 @@ type TransactableDoc = {
   created_at_ms: number;
   updated_at_ms: number;
   executed_at_ms: number | null;
-
   doc_hash?: string;
   required_signers?: string[];
   activation_policy?: string;
-
   signatures: DevDocSignature[];
   payment_legs: TransactableDocPaymentLeg[];
+
+  // 🛰️ new holo fields
+  holo_container_id?: string | null;
+  holo_commit_id?: string | null;
+  holo_committed_at_ms?: number | null;
 };
 
 type TranslateResponse = {
@@ -905,6 +926,603 @@ async function translateDocToGlyph(raw: string): Promise<TranslateResponse> {
   }
 
   return (await res.json()) as TranslateResponse;
+}
+
+type GmaSnapshot = any;
+
+function GmaDevPanel() {
+  const [snapshot, setSnapshot] = useState<GmaSnapshot | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function refreshSnapshot() {
+    try {
+      setBusy(true);
+      setErr(null);
+      const res = await fetch("/api/gma/state/dev_snapshot");
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || `HTTP ${res.status}`);
+      }
+      const json = await res.json();
+      setSnapshot(json);
+    } catch (e: any) {
+      console.error("[GMA] dev_snapshot failed:", e);
+      setErr(e?.message || "Failed to load GMA snapshot");
+      setSnapshot(null);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    refreshSnapshot();
+  }, []);
+
+  const state = snapshot?.state || snapshot || {};
+  const reserves: any[] = state.reserves || state.reserve_positions || [];
+  const mintBurnLog: any[] = state.mint_burn_log || [];
+
+  return (
+    <div
+      style={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 600,
+          color: "#111827",
+        }}
+      >
+        GMA – Monetary State (dev)
+      </div>
+
+      <p
+        style={{
+          margin: 0,
+          fontSize: 11,
+          color: "#6b7280",
+        }}
+      >
+        Live view over <code>/api/gma/state/dev_snapshot</code> – PHO/TESS
+        supply, reserves and mint/burn log.
+      </p>
+
+      {err && (
+        <div style={{ fontSize: 11, color: "#b91c1c" }}>{err}</div>
+      )}
+
+      <div
+        style={{
+          borderRadius: 12,
+          border: "1px solid #e5e7eb",
+          background: "#ffffff",
+          padding: 8,
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#111827",
+            }}
+          >
+            Snapshot
+          </div>
+          <button
+            type="button"
+            onClick={refreshSnapshot}
+            style={{
+              padding: "3px 10px",
+              borderRadius: 999,
+              border: "1px solid #e5e7eb",
+              background: "#f9fafb",
+              fontSize: 11,
+              cursor: "pointer",
+            }}
+          >
+            {busy ? "Refreshing…" : "Refresh"}
+          </button>
+        </div>
+
+        {!snapshot ? (
+          <div style={{ fontSize: 11, color: "#9ca3af" }}>
+            {busy ? "Loading snapshot…" : "No snapshot yet."}
+          </div>
+        ) : (
+          <>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 12,
+                fontSize: 11,
+                color: "#4b5563",
+              }}
+            >
+              <div>
+                <div style={{ color: "#6b7280" }}>Photon supply (PHO)</div>
+                <div style={{ fontWeight: 600 }}>
+                  {state.photon_supply_pho ?? state.photonSupply ?? "—"}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: "#6b7280" }}>Tesseract supply (TESS)</div>
+                <div style={{ fontWeight: 600 }}>
+                  {state.tesseract_supply_tess ?? state.tesseractSupply ?? "—"}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: "#6b7280" }}>Equity (PHO terms)</div>
+                <div style={{ fontWeight: 600 }}>
+                  {state.equity_pho ?? "—"}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: "#6b7280" }}>Reserves</div>
+                <div style={{ fontWeight: 600 }}>
+                  {reserves.length} position
+                  {reserves.length === 1 ? "" : "s"}
+                </div>
+              </div>
+            </div>
+
+            {/* Reserves table */}
+            <div
+              style={{
+                marginTop: 8,
+                borderTop: "1px solid #e5e7eb",
+                paddingTop: 6,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: "#111827",
+                  marginBottom: 4,
+                }}
+              >
+                Reserve positions
+              </div>
+              {reserves.length === 0 ? (
+                <div style={{ fontSize: 11, color: "#9ca3af" }}>
+                  No reserves recorded.
+                </div>
+              ) : (
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: 11,
+                  }}
+                >
+                  <thead>
+                    <tr style={{ textAlign: "left", color: "#6b7280" }}>
+                      <th style={{ padding: "3px 4px" }}>Asset</th>
+                      <th style={{ padding: "3px 4px" }}>Amount</th>
+                      <th style={{ padding: "3px 4px" }}>Value (PHO)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reserves.map((r, idx) => (
+                      <tr key={idx}>
+                        <td style={{ padding: "3px 4px" }}>
+                          {r.asset_id || r.asset || "—"}
+                        </td>
+                        <td style={{ padding: "3px 4px" }}>
+                          {r.amount ?? r.quantity ?? "—"}
+                        </td>
+                        <td style={{ padding: "3px 4px" }}>
+                          {r.value_pho ?? r.valuePho ?? "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            {/* Mint / burn log (if present) */}
+            <div
+              style={{
+                marginTop: 8,
+                borderTop: "1px solid #e5e7eb",
+                paddingTop: 6,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: "#111827",
+                  marginBottom: 4,
+                }}
+              >
+                Mint / burn log
+              </div>
+              {mintBurnLog.length === 0 ? (
+                <div style={{ fontSize: 11, color: "#9ca3af" }}>
+                  No mint/burn events yet.
+                </div>
+              ) : (
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: 16,
+                    fontSize: 11,
+                    color: "#4b5563",
+                  }}
+                >
+                  {mintBurnLog
+                    .slice()
+                    .reverse()
+                    .slice(0, 10)
+                    .map((e, idx) => (
+                      <li key={idx}>
+                        <code>{e.kind || e.type || "?"}</code> ·{" "}
+                        {e.amount_pho ?? e.amount ?? "?"} PHO{" "}
+                        {e.reason && (
+                          <span style={{ color: "#6b7280" }}>
+                            {" "}
+                            – {e.reason}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function GMADashboardPanel() {
+  const [snapshot, setSnapshot] = useState<any | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function refresh() {
+    try {
+      setBusy(true);
+      setErr(null);
+      const res = await fetch("/api/gma/state/dev_snapshot");
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || `HTTP ${res.status}`);
+      }
+      const json = await res.json();
+      setSnapshot(json);
+    } catch (e: any) {
+      console.error("[GMA] dev_snapshot failed:", e);
+      setErr(e?.message || "Failed to load GMA snapshot");
+      setSnapshot(null);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  const state = snapshot?.state || snapshot || {};
+  const reserves = state.reserves || state.reserve_positions || [];
+  const mintBurnLog = state.mint_burn_log || [];
+
+  const photonSupply =
+    state.photon_supply ??
+    state.photonSupply ??
+    state.pho_supply ??
+    null;
+  const tesseractSupply =
+    state.tesseract_supply ??
+    state.tesseractSupply ??
+    state.tess_supply ??
+    null;
+  const equityPho =
+    state.equity_pho ??
+    state.equityPho ??
+    null;
+
+  return (
+    <div
+      style={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 600,
+          color: "#111827",
+        }}
+      >
+        GMA Dashboard (dev)
+      </div>
+
+      <p
+        style={{
+          margin: 0,
+          fontSize: 11,
+          color: "#6b7280",
+        }}
+      >
+        Read-only view over <code>/api/gma/state/dev_snapshot</code>. Shows
+        current PHO/TESS supply, equity in PHO terms, reserves, and recent
+        mint/burn log entries.
+      </p>
+
+      {err && (
+        <div style={{ fontSize: 11, color: "#b91c1c" }}>{err}</div>
+      )}
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+        }}
+      >
+        {/* Summary card */}
+        <div
+          style={{
+            flex: 1,
+            minWidth: 220,
+            borderRadius: 12,
+            border: "1px solid #e5e7eb",
+            background: "#ffffff",
+            padding: 8,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#111827",
+              marginBottom: 6,
+            }}
+          >
+            Balance sheet snapshot
+          </div>
+          <dl
+            style={{
+              margin: 0,
+              fontSize: 11,
+              color: "#4b5563",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <dt>Photon supply (PHO)</dt>
+              <dd>
+                <code>{photonSupply ?? "—"}</code>
+              </dd>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: 2,
+              }}
+            >
+              <dt>Tesseract supply (TESS)</dt>
+              <dd>
+                <code>{tesseractSupply ?? "—"}</code>
+              </dd>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: 2,
+              }}
+            >
+              <dt>Equity (PHO terms)</dt>
+              <dd>
+                <code>{equityPho ?? "—"}</code>
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        {/* Reserves card */}
+        <div
+          style={{
+            flex: 1,
+            minWidth: 260,
+            borderRadius: 12,
+            border: "1px solid #e5e7eb",
+            background: "#ffffff",
+            padding: 8,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#111827",
+              marginBottom: 4,
+            }}
+          >
+            Reserves (dev)
+          </div>
+          {(!reserves || reserves.length === 0) ? (
+            <div style={{ fontSize: 11, color: "#9ca3af" }}>
+              No reserve positions in snapshot.
+            </div>
+          ) : (
+            <div
+              style={{
+                maxHeight: 160,
+                overflow: "auto",
+              }}
+            >
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: 10,
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{
+                      textAlign: "left",
+                      color: "#6b7280",
+                    }}
+                  >
+                    <th style={{ padding: "2px 4px" }}>Asset</th>
+                    <th style={{ padding: "2px 4px" }}>Notional</th>
+                    <th style={{ padding: "2px 4px" }}>Value (PHO)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reserves.map((r: any, idx: number) => (
+                    <tr key={idx}>
+                      <td style={{ padding: "2px 4px" }}>
+                        {r.asset_id || r.asset || "?"}
+                      </td>
+                      <td style={{ padding: "2px 4px" }}>
+                        <code>{r.notional ?? r.units ?? "—"}</code>
+                      </td>
+                      <td style={{ padding: "2px 4px" }}>
+                        <code>
+                          {r.valuation_pho ??
+                            r.value_pho ??
+                            r.mark_to_market_pho ??
+                            "—"}
+                        </code>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mint/burn log */}
+      <div
+        style={{
+          borderRadius: 12,
+          border: "1px solid #e5e7eb",
+          background: "#ffffff",
+          padding: 8,
+          marginTop: 4,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 4,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#111827",
+            }}
+          >
+            Mint / burn log (dev)
+          </div>
+          <button
+            type="button"
+            onClick={refresh}
+            style={{
+              padding: "3px 10px",
+              borderRadius: 999,
+              border: "1px solid #e5e7eb",
+              background: "#f9fafb",
+              fontSize: 11,
+              cursor: busy ? "default" : "pointer",
+              opacity: busy ? 0.6 : 1,
+            }}
+          >
+            {busy ? "Refreshing…" : "Refresh"}
+          </button>
+        </div>
+
+        {(!mintBurnLog || mintBurnLog.length === 0) ? (
+          <div style={{ fontSize: 11, color: "#9ca3af" }}>
+            No mint/burn entries found in snapshot.
+          </div>
+        ) : (
+          <div
+            style={{
+              maxHeight: 180,
+              overflow: "auto",
+            }}
+          >
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: 10,
+              }}
+            >
+              <thead>
+                <tr style={{ textAlign: "left", color: "#6b7280" }}>
+                  <th style={{ padding: "2px 4px" }}>When</th>
+                  <th style={{ padding: "2px 4px" }}>Kind</th>
+                  <th style={{ padding: "2px 4px" }}>Amount (PHO)</th>
+                  <th style={{ padding: "2px 4px" }}>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mintBurnLog
+                  .slice()
+                  .reverse()
+                  .slice(0, 20)
+                  .map((row: any, idx: number) => (
+                    <tr key={idx}>
+                      <td style={{ padding: "2px 4px" }}>
+                        {row.created_at_ms
+                          ? new Date(row.created_at_ms).toLocaleString()
+                          : "—"}
+                      </td>
+                      <td style={{ padding: "2px 4px" }}>
+                        {row.kind || row.type || "?"}
+                      </td>
+                      <td style={{ padding: "2px 4px" }}>
+                        <code>{row.amount_pho ?? row.amount ?? "—"}</code>
+                      </td>
+                      <td style={{ padding: "2px 4px" }}>
+                        {row.reason || row.note || "—"}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function TransactableDocsDevPanel() {
@@ -1028,6 +1646,38 @@ function TransactableDocsDevPanel() {
       setDocsErr(e?.message || "Failed to sign doc");
     }
   };
+
+  const [commitBusy, setCommitBusy] = useState<string | null>(null);
+
+  async function handleCommitToHolo(doc_id: string) {
+    try {
+      setCommitBusy(doc_id);
+      setDocsErr(null);
+      setDocsMsg(null);
+
+      const resp = await fetch("/api/transactable_docs/dev/commit_holo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ doc_id }),
+      });
+
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(txt || `HTTP ${resp.status}`);
+      }
+
+      const json = await resp.json();
+      setDocsMsg(
+        `Committed doc ${json.doc?.doc_id || doc_id} to Holo/DC stub`,
+      );
+      await refreshDocs();
+    } catch (e: any) {
+      console.error("[DocsDev] commit_holo failed:", e);
+      setDocsErr(e?.message || "Failed to commit doc to Holo");
+    } finally {
+      setCommitBusy(null);
+    }
+  }
 
   const handleActivate = async (doc_id: string) => {
     try {
@@ -1437,6 +2087,7 @@ function TransactableDocsDevPanel() {
                     <tr key={d.doc_id}>
                       <td style={{ padding: "4px 4px", color: "#111827" }}>
                         <div>{d.title}</div>
+
                         {d.doc_hash && (
                           <div
                             style={{
@@ -1446,6 +2097,22 @@ function TransactableDocsDevPanel() {
                             }}
                           >
                             hash: <code>{d.doc_hash.slice(0, 10)}…</code>
+                          </div>
+                        )}
+
+                        {d.holo_commit_id && (
+                          <div
+                            style={{
+                              fontSize: 10,
+                              color: "#0f766e",
+                              marginTop: 2,
+                            }}
+                          >
+                            holo:{" "}
+                            <code>
+                              {d.holo_container_id || "dc_transactable_doc_v1"} /{" "}
+                              {d.holo_commit_id}
+                            </code>
                           </div>
                         )}
                       </td>
@@ -1469,8 +2136,18 @@ function TransactableDocsDevPanel() {
                           <ul style={{ margin: 0, paddingLeft: 16 }}>
                             {d.payment_legs.map((leg) => (
                               <li key={leg.leg_id}>
-                                <code>{leg.channel}</code> · {leg.amount_pho} PHO →{" "}
-                                {leg.to_account}
+                                <code>{leg.channel}</code>
+                                {leg.channel === "PHO_TRANSFER" && (
+                                  <span style={{ marginLeft: 4 }}>(wallet)</span>
+                                )}
+                                {leg.channel === "ESCROW_DEV" && (
+                                  <span style={{ marginLeft: 4 }}>(escrow)</span>
+                                )}
+                                {leg.channel === "PHOTON_PAY_INVOICE" && (
+                                  <span style={{ marginLeft: 4 }}>(Photon Pay)</span>
+                                )}
+                                {" · "}
+                                {leg.amount_pho} PHO → {leg.to_account}
                                 {leg.ref_id && (
                                   <span
                                     style={{
@@ -1507,9 +2184,7 @@ function TransactableDocsDevPanel() {
                         {/* Quick sign as each party while DRAFT/ACTIVE */}
                         <button
                           type="button"
-                          disabled={
-                            d.status === "EXECUTED" || d.status === "CANCELLED"
-                          }
+                          disabled={d.status === "EXECUTED" || d.status === "CANCELLED"}
                           onClick={() => handleSign(d.doc_id, d.party_a)}
                           style={{
                             padding: "3px 8px",
@@ -1519,19 +2194,17 @@ function TransactableDocsDevPanel() {
                             color: "#374151",
                             fontSize: 10,
                             cursor:
-                              d.status === "EXECUTED" ||
-                              d.status === "CANCELLED"
+                              d.status === "EXECUTED" || d.status === "CANCELLED"
                                 ? "default"
                                 : "pointer",
                           }}
                         >
                           Sign as {d.party_a}
                         </button>
+
                         <button
                           type="button"
-                          disabled={
-                            d.status === "EXECUTED" || d.status === "CANCELLED"
-                          }
+                          disabled={d.status === "EXECUTED" || d.status === "CANCELLED"}
                           onClick={() => handleSign(d.doc_id, d.party_b)}
                           style={{
                             padding: "3px 8px",
@@ -1541,13 +2214,50 @@ function TransactableDocsDevPanel() {
                             color: "#374151",
                             fontSize: 10,
                             cursor:
-                              d.status === "EXECUTED" ||
-                              d.status === "CANCELLED"
+                              d.status === "EXECUTED" || d.status === "CANCELLED"
                                 ? "default"
                                 : "pointer",
                           }}
                         >
                           Sign as {d.party_b}
+                        </button>
+
+                        {/* Commit to Holo (dev stub) */}
+                        <button
+                          type="button"
+                          disabled={
+                            !!d.holo_commit_id ||
+                            !(d.status === "ACTIVE" || d.status === "EXECUTED") ||
+                            commitBusy === d.doc_id
+                          }
+                          onClick={() => handleCommitToHolo(d.doc_id)}
+                          style={{
+                            padding: "3px 8px",
+                            borderRadius: 999,
+                            border: "1px solid #0f766e",
+                            background:
+                              d.holo_commit_id ||
+                              !(d.status === "ACTIVE" || d.status === "EXECUTED")
+                                ? "#e5e7eb"
+                                : "#0f766e",
+                            color:
+                              d.holo_commit_id ||
+                              !(d.status === "ACTIVE" || d.status === "EXECUTED")
+                                ? "#9ca3af"
+                                : "#ecfdf5",
+                            fontSize: 10,
+                            cursor:
+                              d.holo_commit_id ||
+                              !(d.status === "ACTIVE" || d.status === "EXECUTED")
+                                ? "default"
+                                : "pointer",
+                          }}
+                        >
+                          {d.holo_commit_id
+                            ? "Committed"
+                            : commitBusy === d.doc_id
+                            ? "Committing…"
+                            : "Commit to Holo"}
                         </button>
 
                         {/* Existing Activate / Execute buttons */}
@@ -1559,17 +2269,15 @@ function TransactableDocsDevPanel() {
                             padding: "3px 8px",
                             borderRadius: 999,
                             border: "1px solid #0369a1",
-                            background:
-                              d.status === "DRAFT" ? "#0369a1" : "#e5e7eb",
-                            color:
-                              d.status === "DRAFT" ? "#f9fafb" : "#9ca3af",
+                            background: d.status === "DRAFT" ? "#0369a1" : "#e5e7eb",
+                            color: d.status === "DRAFT" ? "#f9fafb" : "#9ca3af",
                             fontSize: 10,
-                            cursor:
-                              d.status === "DRAFT" ? "pointer" : "default",
+                            cursor: d.status === "DRAFT" ? "pointer" : "default",
                           }}
                         >
                           Activate
                         </button>
+
                         <button
                           type="button"
                           disabled={d.status !== "ACTIVE"}
@@ -1578,13 +2286,10 @@ function TransactableDocsDevPanel() {
                             padding: "3px 8px",
                             borderRadius: 999,
                             border: "1px solid #16a34a",
-                            background:
-                              d.status === "ACTIVE" ? "#16a34a" : "#e5e7eb",
-                            color:
-                              d.status === "ACTIVE" ? "#ecfdf5" : "#9ca3af",
+                            background: d.status === "ACTIVE" ? "#16a34a" : "#e5e7eb",
+                            color: d.status === "ACTIVE" ? "#ecfdf5" : "#9ca3af",
                             fontSize: 10,
-                            cursor:
-                              d.status === "ACTIVE" ? "pointer" : "default",
+                            cursor: d.status === "ACTIVE" ? "pointer" : "default",
                           }}
                         >
                           Execute
