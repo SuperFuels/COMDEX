@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import GMADashboardDevPanel from "../components/GMADashboardDevPanel";
+import ChainSimLedgerPanel from "../components/ChainSimLedgerPanel";
 
 type MintBurnEvent = {
   kind: "MINT" | "BURN";
@@ -1331,6 +1332,8 @@ export default function AdminDashboard() {
 
       {/* GMA dev dashboard */}
       <GMADashboardDevPanel />
+
+      <ChainSimLedgerPanel />
 
       {/* ── Photon Savings / Term Deposits (dev) ─────────── */}
       <section

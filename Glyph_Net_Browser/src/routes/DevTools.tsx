@@ -37,7 +37,8 @@ type ToolId =
   | "aion"
   | "crystal"
   | "docs"
-  | "gma";       
+  | "gma"
+  | "gma_auth";      
 
 type FrameMetric = {
   psi: number;
@@ -605,7 +606,7 @@ export default function DevTools() {
               onSelect={setActiveTool}
             />
             <ToolButton
-              id="gma"
+              id="gma_auth"
               label="GMA"
               description="Monetary authority"
               activeTool={activeTool}
@@ -650,6 +651,8 @@ export default function DevTools() {
             <TransactableDocsDevPanel />
           ) : activeTool === "gma" ? (
             <GMADashboardPanel />
+          ) : activeTool === "gma_auth" ? (
+            <GMAMonetaryAuthorityPanel />
           ) : (
             <>
               {/* Field Lab: Hologram container fills full width (owns its own Holo Files cabinet) */}
@@ -1195,6 +1198,172 @@ function GmaDevPanel() {
   );
 }
 
+function GMAMonetaryAuthorityPanel() {
+  const [authority, setAuthority] = useState<any | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function refresh() {
+    try {
+      setBusy(true);
+      setErr(null);
+
+      // Try a dedicated authority endpoint first (if it exists)
+      let res = await fetch("/api/gma/state/dev_authority");
+
+      // Fallback: reuse dev_snapshot and pull any authority-ish fields
+      if (!res.ok) {
+        res = await fetch("/api/gma/state/dev_snapshot");
+      }
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(txt || `HTTP ${res.status}`);
+      }
+
+      const json = await res.json();
+
+      const state = json?.state || json || {};
+      const auth =
+        state?.authority ||
+        state?.monetary_authority ||
+        state?.gma_authority ||
+        json?.authority ||
+        json?.monetary_authority ||
+        json?.gma_authority ||
+        null;
+
+      setAuthority(auth ?? state);
+    } catch (e: any) {
+      console.error("[GMA] authority load failed:", e);
+      setErr(e?.message || "Failed to load monetary authority");
+      setAuthority(null);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  return (
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>
+        GMA – Monetary Authority (dev)
+      </div>
+
+      <p style={{ margin: 0, fontSize: 11, color: "#6b7280" }}>
+        Read-only view of dev authority configuration / controls. Tries{" "}
+        <code>/api/gma/state/dev_authority</code> then falls back to{" "}
+        <code>/api/gma/state/dev_snapshot</code>.
+      </p>
+
+      {err && <div style={{ fontSize: 11, color: "#b91c1c" }}>{err}</div>}
+
+      <div
+        style={{
+          borderRadius: 12,
+          border: "1px solid #e5e7eb",
+          background: "#ffffff",
+          padding: 8,
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          overflow: "auto",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#111827" }}>Authority snapshot</div>
+          <button
+            type="button"
+            onClick={refresh}
+            style={{
+              padding: "3px 10px",
+              borderRadius: 999,
+              border: "1px solid #e5e7eb",
+              background: "#f9fafb",
+              fontSize: 11,
+              cursor: busy ? "default" : "pointer",
+              opacity: busy ? 0.6 : 1,
+            }}
+          >
+            {busy ? "Refreshing…" : "Refresh"}
+          </button>
+        </div>
+
+        {!authority ? (
+          <div style={{ fontSize: 11, color: "#9ca3af" }}>
+            {busy ? "Loading authority…" : "No authority data yet."}
+          </div>
+        ) : (
+          <pre
+            style={{
+              margin: 0,
+              padding: 8,
+              borderRadius: 10,
+              border: "1px dashed #e5e7eb",
+              background: "#f9fafb",
+              fontSize: 10,
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+            }}
+          >
+            {JSON.stringify(authority, null, 2)}
+          </pre>
+        )}
+      </div>
+    </div>
+  );
+}
+
+type ReserveRow = {
+  asset_id: string;
+  quantity: string;
+  price_pho: string;
+  value_pho: string;
+};
+
+function normalizeReserves(
+  reserves:
+    | Record<string, any>
+    | any[]
+    | null
+    | undefined,
+): ReserveRow[] {
+  if (!reserves) return [];
+
+  // Array shape: [{asset_id, quantity/amount, price_pho, value_pho}, ...]
+  if (Array.isArray(reserves)) {
+    return reserves.map((r: any, i: number) => ({
+      asset_id: String(r?.asset_id ?? r?.asset ?? r?.denom ?? `asset_${i}`),
+      quantity: String(r?.quantity ?? r?.amount ?? r?.units ?? r?.notional ?? "0"),
+      price_pho: String(r?.price_pho ?? r?.pricePho ?? r?.mark_price_pho ?? r?.price ?? "0"),
+      value_pho: String(
+        r?.value_pho ?? r?.valuePho ?? r?.valuation_pho ?? r?.mark_to_market_pho ?? "0",
+      ),
+    }));
+  }
+
+  // Object shape: { "BTC": {quantity, price_pho, value_pho}, ... }
+  if (typeof reserves === "object") {
+    return Object.entries(reserves).map(([asset_id, r]) => ({
+      asset_id,
+      quantity: String((r as any)?.quantity ?? (r as any)?.amount ?? (r as any)?.units ?? (r as any)?.notional ?? "0"),
+      price_pho: String((r as any)?.price_pho ?? (r as any)?.pricePho ?? (r as any)?.mark_price_pho ?? (r as any)?.price ?? "0"),
+      value_pho: String(
+        (r as any)?.value_pho ??
+          (r as any)?.valuePho ??
+          (r as any)?.valuation_pho ??
+          (r as any)?.mark_to_market_pho ??
+          "0",
+      ),
+    }));
+  }
+
+  return [];
+}
+
 function GMADashboardPanel() {
   const [snapshot, setSnapshot] = useState<any | null>(null);
   const [busy, setBusy] = useState(false);
@@ -1204,11 +1373,13 @@ function GMADashboardPanel() {
     try {
       setBusy(true);
       setErr(null);
+
       const res = await fetch("/api/gma/state/dev_snapshot");
       if (!res.ok) {
-        const txt = await res.text();
+        const txt = await res.text().catch(() => "");
         throw new Error(txt || `HTTP ${res.status}`);
       }
+
       const json = await res.json();
       setSnapshot(json);
     } catch (e: any) {
@@ -1224,67 +1395,67 @@ function GMADashboardPanel() {
     refresh();
   }, []);
 
+  // ✅ Early return so render never touches undefined snapshot
+  if (!snapshot) {
+    return (
+      <div style={{ fontSize: 12, color: "#9ca3af" }}>
+        {busy ? "Loading…" : "No snapshot yet."}
+        {err ? <div style={{ marginTop: 6, color: "#b91c1c" }}>{err}</div> : null}
+      </div>
+    );
+  }
+
   const state = snapshot?.state || snapshot || {};
-  const reserves = state.reserves || state.reserve_positions || [];
-  const mintBurnLog = state.mint_burn_log || [];
+
+  // ✅ Always normalize reserves into an array
+  const reservesArr = normalizeReserves(
+    state?.reserves ??
+      state?.reserve_positions ??
+      state?.reserves_by_asset ??
+      snapshot?.reserves ??
+      snapshot?.reserve_positions,
+  );
+
+  // ✅ Ensure log is always an array
+  const mintBurnLog: any[] = Array.isArray(state?.mint_burn_log)
+    ? state.mint_burn_log
+    : Array.isArray(snapshot?.mint_burn_log)
+    ? snapshot.mint_burn_log
+    : [];
 
   const photonSupply =
+    state.photon_supply_pho ??
     state.photon_supply ??
     state.photonSupply ??
     state.pho_supply ??
     null;
+
   const tesseractSupply =
+    state.tesseract_supply_tess ??
     state.tesseract_supply ??
     state.tesseractSupply ??
     state.tess_supply ??
     null;
+
   const equityPho =
     state.equity_pho ??
     state.equityPho ??
     null;
 
   return (
-    <div
-      style={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-      }}
-    >
-      <div
-        style={{
-          fontSize: 12,
-          fontWeight: 600,
-          color: "#111827",
-        }}
-      >
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: "#111827" }}>
         GMA Dashboard (dev)
       </div>
 
-      <p
-        style={{
-          margin: 0,
-          fontSize: 11,
-          color: "#6b7280",
-        }}
-      >
-        Read-only view over <code>/api/gma/state/dev_snapshot</code>. Shows
-        current PHO/TESS supply, equity in PHO terms, reserves, and recent
-        mint/burn log entries.
+      <p style={{ margin: 0, fontSize: 11, color: "#6b7280" }}>
+        Read-only view over <code>/api/gma/state/dev_snapshot</code>. Shows current PHO/TESS supply,
+        equity in PHO terms, reserves, and recent mint/burn log entries.
       </p>
 
-      {err && (
-        <div style={{ fontSize: 11, color: "#b91c1c" }}>{err}</div>
-      )}
+      {err && <div style={{ fontSize: 11, color: "#b91c1c" }}>{err}</div>}
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 8,
-        }}
-      >
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {/* Summary card */}
         <div
           style={{
@@ -1296,52 +1467,21 @@ function GMADashboardPanel() {
             padding: 8,
           }}
         >
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              color: "#111827",
-              marginBottom: 6,
-            }}
-          >
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#111827", marginBottom: 6 }}>
             Balance sheet snapshot
           </div>
-          <dl
-            style={{
-              margin: 0,
-              fontSize: 11,
-              color: "#4b5563",
-            }}
-          >
+          <dl style={{ margin: 0, fontSize: 11, color: "#4b5563" }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <dt>Photon supply (PHO)</dt>
-              <dd>
-                <code>{photonSupply ?? "—"}</code>
-              </dd>
+              <dd><code>{photonSupply ?? "—"}</code></dd>
             </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: 2,
-              }}
-            >
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
               <dt>Tesseract supply (TESS)</dt>
-              <dd>
-                <code>{tesseractSupply ?? "—"}</code>
-              </dd>
+              <dd><code>{tesseractSupply ?? "—"}</code></dd>
             </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: 2,
-              }}
-            >
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
               <dt>Equity (PHO terms)</dt>
-              <dd>
-                <code>{equityPho ?? "—"}</code>
-              </dd>
+              <dd><code>{equityPho ?? "—"}</code></dd>
             </div>
           </dl>
         </div>
@@ -1357,63 +1497,32 @@ function GMADashboardPanel() {
             padding: 8,
           }}
         >
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              color: "#111827",
-              marginBottom: 4,
-            }}
-          >
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#111827", marginBottom: 4 }}>
             Reserves (dev)
           </div>
-          {(!reserves || reserves.length === 0) ? (
+
+          {reservesArr.length === 0 ? (
             <div style={{ fontSize: 11, color: "#9ca3af" }}>
               No reserve positions in snapshot.
             </div>
           ) : (
-            <div
-              style={{
-                maxHeight: 160,
-                overflow: "auto",
-              }}
-            >
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  fontSize: 10,
-                }}
-              >
+            <div style={{ maxHeight: 160, overflow: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10 }}>
                 <thead>
-                  <tr
-                    style={{
-                      textAlign: "left",
-                      color: "#6b7280",
-                    }}
-                  >
+                  <tr style={{ textAlign: "left", color: "#6b7280" }}>
                     <th style={{ padding: "2px 4px" }}>Asset</th>
-                    <th style={{ padding: "2px 4px" }}>Notional</th>
+                    <th style={{ padding: "2px 4px" }}>Qty</th>
+                    <th style={{ padding: "2px 4px" }}>Price (PHO)</th>
                     <th style={{ padding: "2px 4px" }}>Value (PHO)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {reserves.map((r: any, idx: number) => (
-                    <tr key={idx}>
-                      <td style={{ padding: "2px 4px" }}>
-                        {r.asset_id || r.asset || "?"}
-                      </td>
-                      <td style={{ padding: "2px 4px" }}>
-                        <code>{r.notional ?? r.units ?? "—"}</code>
-                      </td>
-                      <td style={{ padding: "2px 4px" }}>
-                        <code>
-                          {r.valuation_pho ??
-                            r.value_pho ??
-                            r.mark_to_market_pho ??
-                            "—"}
-                        </code>
-                      </td>
+                  {reservesArr.map((r, idx) => (
+                    <tr key={r.asset_id || idx}>
+                      <td style={{ padding: "2px 4px" }}>{r.asset_id || "?"}</td>
+                      <td style={{ padding: "2px 4px" }}><code>{r.quantity ?? "—"}</code></td>
+                      <td style={{ padding: "2px 4px" }}><code>{r.price_pho ?? "—"}</code></td>
+                      <td style={{ padding: "2px 4px" }}><code>{r.value_pho ?? "—"}</code></td>
                     </tr>
                   ))}
                 </tbody>
@@ -1433,21 +1542,8 @@ function GMADashboardPanel() {
           marginTop: 4,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 4,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              color: "#111827",
-            }}
-          >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#111827" }}>
             Mint / burn log (dev)
           </div>
           <button
@@ -1467,24 +1563,13 @@ function GMADashboardPanel() {
           </button>
         </div>
 
-        {(!mintBurnLog || mintBurnLog.length === 0) ? (
+        {mintBurnLog.length === 0 ? (
           <div style={{ fontSize: 11, color: "#9ca3af" }}>
             No mint/burn entries found in snapshot.
           </div>
         ) : (
-          <div
-            style={{
-              maxHeight: 180,
-              overflow: "auto",
-            }}
-          >
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: 10,
-              }}
-            >
+          <div style={{ maxHeight: 180, overflow: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10 }}>
               <thead>
                 <tr style={{ textAlign: "left", color: "#6b7280" }}>
                   <th style={{ padding: "2px 4px" }}>When</th>
@@ -1501,9 +1586,7 @@ function GMADashboardPanel() {
                   .map((row: any, idx: number) => (
                     <tr key={idx}>
                       <td style={{ padding: "2px 4px" }}>
-                        {row.created_at_ms
-                          ? new Date(row.created_at_ms).toLocaleString()
-                          : "—"}
+                        {row.created_at_ms ? new Date(row.created_at_ms).toLocaleString() : "—"}
                       </td>
                       <td style={{ padding: "2px 4px" }}>
                         {row.kind || row.type || "?"}

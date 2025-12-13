@@ -1,7 +1,10 @@
+# /workspaces/COMDEX/backend/modules/knowledge_graph/kg_writer_singleton.py
 import importlib
 import traceback
 import logging
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Dict
+
+log = logging.getLogger("kg_writer_singleton")
 
 # 🧠 Singleton holder for the KnowledgeGraphWriter instance
 _kg_writer_instance: Optional[Any] = None
@@ -15,7 +18,7 @@ try:
     print("🔗 [kg_writer_singleton] VAULT bound to glyphvault.vault_manager.VAULT")
 except Exception as e:
     VAULT = None
-    logging.warning(f"[kg_writer_singleton] ⚠️ Could not import VAULT from glyphvault.vault_manager: {e}")
+    log.warning("[kg_writer_singleton] ⚠️ Could not import VAULT from glyphvault.vault_manager: %s", e)
 
 # ────────────────────────────────────────────────────────────────
 def get_kg_writer() -> Any:
@@ -30,14 +33,9 @@ def get_kg_writer() -> Any:
 
     try:
         if _KG_WRITER_CLASS is None:
-            # 🔁 Lazy import to avoid circular import loop
             module = importlib.import_module("backend.modules.knowledge_graph.knowledge_graph_writer")
-
             if not hasattr(module, "KnowledgeGraphWriter"):
-                raise ImportError(
-                    "[kg_writer_singleton] ❌ 'KnowledgeGraphWriter' class not found in module."
-                )
-
+                raise ImportError("[kg_writer_singleton] ❌ 'KnowledgeGraphWriter' class not found in module.")
             _KG_WRITER_CLASS = getattr(module, "KnowledgeGraphWriter")
 
         _kg_writer_instance = _KG_WRITER_CLASS()
@@ -50,41 +48,106 @@ def get_kg_writer() -> Any:
             f"[kg_writer_singleton] 📍 Stack Trace:\n{trace}"
         )
 
-
 # ────────────────────────────────────────────────────────────────
 def get_strategy_planner_kg_writer() -> Any:
     """🔁 Alias for get_kg_writer(), used in StrategyPlanner and other contexts."""
     return get_kg_writer()
 
-
 # ────────────────────────────────────────────────────────────────
-def write_glyph_event(event_type: str, event: dict, container_id: Optional[str] = None) -> None:
+def write_glyph_event(*args, **kwargs) -> None:
     """
-    Proxy passthrough to standalone write_glyph_event() in knowledge_graph_writer module.
-    This function ensures VAULT availability and consistent KG writes.
+    Back/forward compatible proxy to knowledge_graph_writer.write_glyph_event.
+
+    Supports BOTH call styles:
+
+    A) Legacy (this module's original):
+        write_glyph_event(event_type: str, event: dict, container_id: Optional[str]=None)
+
+    B) Newer callers (seen in sqi_event_bus.py):
+        write_glyph_event(container_id=..., glyph=..., event_type=..., metadata=...)
+
+    It will adapt to whichever signature the underlying knowledge_graph_writer exposes.
     """
+    # --- normalize inputs from multiple calling conventions -----------------
+    event_type = kwargs.pop("event_type", None)
+    container_id = kwargs.pop("container_id", None)
+
+    event = kwargs.pop("event", None)
+    glyph = kwargs.pop("glyph", None)
+    metadata = kwargs.pop("metadata", None)
+    meta = kwargs.pop("meta", None)
+
+    # positional support:
+    #   (event_type, event, container_id=None)
+    if event_type is None and len(args) >= 1:
+        event_type = args[0]
+    if event is None and len(args) >= 2 and isinstance(args[1], dict):
+        event = args[1]
+    if container_id is None and len(args) >= 3:
+        container_id = args[2]
+
+    # build event from glyph/metadata if needed
+    if event is None and glyph is not None:
+        event = {
+            "glyph": glyph,
+            "metadata": metadata if metadata is not None else (meta if meta is not None else {}),
+        }
+        # pass through any extra fields the caller provided
+        if kwargs:
+            event.update(kwargs)
+        kwargs = {}
+
+    if not isinstance(event_type, str) or not event_type.strip():
+        raise ValueError("[kg_writer_singleton] write_glyph_event: missing/invalid event_type")
+    if event is None or not isinstance(event, dict):
+        raise ValueError("[kg_writer_singleton] write_glyph_event: missing/invalid event payload (dict)")
+
+    # --- dispatch to underlying writer --------------------------------------
     try:
         module = importlib.import_module("backend.modules.knowledge_graph.knowledge_graph_writer")
-
         real_writer = getattr(module, "write_glyph_event", None)
         if real_writer is None:
             raise ImportError("write_glyph_event function not found in knowledge_graph_writer module.")
 
-        # Attach VAULT context if the underlying writer expects it
-        if "vault" in real_writer.__code__.co_varnames:
-            return real_writer(event_type=event_type, event=event, container_id=container_id, vault=VAULT)
+        varnames = getattr(getattr(real_writer, "__code__", None), "co_varnames", ())
 
-        # Otherwise, pass as legacy form
-        return real_writer(event_type=event_type, event=event, container_id=container_id)
+        # Case 1: underlying wants (event_type, event, container_id[, vault])
+        if "event" in varnames and "event_type" in varnames:
+            call = {"event_type": event_type, "event": event, "container_id": container_id}
+            if "vault" in varnames:
+                call["vault"] = VAULT
+            return real_writer(**call)
+
+        # Case 2: underlying wants (container_id, glyph, event_type, metadata[, vault])
+        if "glyph" in varnames and "metadata" in varnames:
+            call = {
+                "container_id": container_id,
+                "glyph": event.get("glyph"),
+                "event_type": event_type,
+                "metadata": event.get("metadata", {}),
+            }
+            if "vault" in varnames:
+                call["vault"] = VAULT
+            return real_writer(**call)
+
+        # Last resort: try old-style call first, then fallback to new-style call
+        try:
+            if "vault" in varnames:
+                return real_writer(event_type=event_type, event=event, container_id=container_id, vault=VAULT)
+            return real_writer(event_type=event_type, event=event, container_id=container_id)
+        except TypeError:
+            if "vault" in varnames:
+                return real_writer(container_id=container_id, glyph=event.get("glyph"), event_type=event_type, metadata=event.get("metadata", {}), vault=VAULT)
+            return real_writer(container_id=container_id, glyph=event.get("glyph"), event_type=event_type, metadata=event.get("metadata", {}))
 
     except Exception as e:
         trace = "".join(traceback.format_stack(limit=10))
-        logging.error(
-            f"[kg_writer_singleton] ❌ Failed to call write_glyph_event: {e}\n"
-            f"[kg_writer_singleton] 📍 Stack Trace:\n{trace}"
+        log.error(
+            "[kg_writer_singleton] ❌ Failed to call write_glyph_event: %s\n[kq_writer_singleton] 📍 Stack Trace:\n%s",
+            e,
+            trace,
         )
         raise
-
 
 # ────────────────────────────────────────────────────────────────
 def get_glyph_trace_for_container(container_id: str) -> dict:
@@ -104,7 +167,6 @@ def get_glyph_trace_for_container(container_id: str) -> dict:
             f"[kg_writer_singleton] ❌ Failed to call get_glyph_trace_for_container: {e}\n"
             f"[kg_writer_singleton] 📍 Stack Trace:\n{trace}"
         )
-
 
 # ────────────────────────────────────────────────────────────────
 def export_symbol_tree_if_enabled(container_id: str) -> None:
@@ -128,8 +190,7 @@ def export_symbol_tree_if_enabled(container_id: str) -> None:
         print(f"[🌳] Symbolic Tree auto-exported for container: {container_id}")
 
     except Exception as e:
-        logging.warning(f"[kg_writer_singleton] ⚠️ Failed to export symbolic tree for {container_id}: {e}")
-
+        log.warning("[kg_writer_singleton] ⚠️ Failed to export symbolic tree for %s: %s", container_id, e)
 
 # ────────────────────────────────────────────────────────────────
 def get_crdt_registry() -> Optional[Any]:
@@ -138,9 +199,8 @@ def get_crdt_registry() -> Optional[Any]:
         writer = get_kg_writer()
         return getattr(writer, "crdt_registry", None)
     except Exception as e:
-        logging.warning(f"[kg_writer_singleton] ⚠️ Could not access crdt_registry: {e}")
+        log.warning("[kg_writer_singleton] ⚠️ Could not access crdt_registry: %s", e)
         return None
-
 
 # ────────────────────────────────────────────────────────────────
 __all__ = [

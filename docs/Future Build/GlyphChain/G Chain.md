@@ -14,24 +14,28 @@ graph TD
     P0_4[☐ Security & Crypto Baseline\n• Sig schemes (ed25519/secp256k1/BLS)\n• Hash/commitments (Merkle / later KZG)\n• Key derivation, wallet seeds, device binding\n• Threat model (online chain + offline mesh)]
   end
 
-  %% ============================================
-  %% P1 – CORE CHAIN
-  %% ============================================
-  subgraph P1[Phase 1 – Core Chain (Ledger, Consensus, Bank)]
-    direction TB
+%% ============================================
+%% P1 – CORE CHAIN
+%% ============================================
+subgraph P1[Phase 1 – Core Chain (Ledger, Consensus, Bank)]
+  direction TB
 
-    P1_1[☐ Consensus & Networking\n• BFT PoS engine\n• Validator sets, epochs, staking hooks\n• Gossip: blocks & txs\n• Peer discovery, anti-DoS]
+  P1_1[☐ Consensus & Networking\n• BFT PoS engine\n• Validator sets, epochs, staking hooks\n• Gossip: blocks & txs\n• Peer discovery, anti-DoS]
 
-    P1_2[☐ State & Storage\n• ChainState structure\n• Account trie (balances, nonces)\n• StateRoot computation\n• Persistence, snapshots, pruning]
+  P1_2[☐ State & Storage\n• ChainState structure\n• Account trie (balances, nonces)\n• StateRoot computation\n• Persistence, snapshots, pruning]
 
-    P1_3[☐ Block & Tx Format\n• BlockHeader: state_root, tx_root,\n  holo_state_root, beam_state_root\n• Tx envelope (from, nonce, gas, type, payload)\n• Sign/verify pipeline\n• Mempool & ordering]
+  %% NOTE: We implemented a DEV explorer/ledger + canonical tx envelope,
+  %% but not the full production block/header/state_root pipeline yet.
+  P1_3[🟨 Block & Tx Format (Dev slice)\n• Canonical dev tx envelope: {from_addr, nonce, tx_type, payload}\n• /api/chain_sim/dev/submit_tx (single entrypoint)\n• Dev tx identity: stable-json + sha256 → tx_hash, tx_id\n• Dev ledger/explorer: /dev/blocks, /dev/block/{height}, /dev/tx/{tx_id}, /dev/txs?address=...\n• NOTE: No gas, signatures, mempool, ordering, or header state_root yet]
 
-    P1_4[☐ Bank Module\n• Ledger for PHO, TESS, future denoms\n• getBalance/getSupply/send/mint/burn\n• Fee charging & routing\n• Invariants: no negatives, supply conserved]
+  P1_4[☐ Bank Module\n• Ledger for PHO, TESS, future denoms\n• getBalance/getSupply/send/mint/burn\n• Fee charging & routing\n• Invariants: no negatives, supply conserved]
 
-    P1_5[☐ Staking Module (Skeleton)\n• TESS staking/delegation structs\n• delegate/undelegate/rewards\n• Validator power from TESS stake\n• Hooks into consensus]
+  P1_4A[✅ ChainSim Dev Bank Slice\n• /api/chain_sim/dev/mint, /dev/transfer, /dev/burn, /dev/account, /dev/supply (localhost:8080)\n• In-memory AccountState + SupplyState model\n• dev_chain_bank_smoketest.py (mint → transfer → burn, supply invariants, end-to-end over HTTP)\n• AdminDashboard: ChainSimLedgerPanel renders blocks/txs via /dev/blocks + /dev/txs]
 
-    P1_6[☐ Genesis & Config\n• Genesis schema (allocs, validators, params)\n• ChainID & network IDs\n• Default gas schedule & limits\n• Upgrade mechanism placeholder]
-  end
+  P1_5[☐ Staking Module (Skeleton)\n• TESS staking/delegation structs\n• delegate/undelegate/rewards\n• Validator power from TESS stake\n• Hooks into consensus]
+
+  P1_6[☐ Genesis & Config\n• Genesis schema (allocs, validators, params)\n• ChainID & network IDs\n• Default gas schedule & limits\n• Upgrade mechanism placeholder]
+end
 
   %% ============================================
   %% P2 – TOKENS & AMM

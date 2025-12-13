@@ -12,7 +12,6 @@ DNA_SWITCH.register(__file__)
 
 # ✅ Import container loader + state
 from backend.modules.dna_chain.dc_handler import (
-    handle_object_interaction,
     load_dimension_by_id,
     load_dimension
 )
@@ -223,3 +222,69 @@ def teleport_to_universal_container_system(container_id: str, target_zone: str =
 
 def list_routes():
     return load_teleport_registry()
+
+
+def handle_object_interaction(
+    source_key: str,
+    object_id: str,
+    reason: str = "object_interaction",
+    requester: str = "AION",
+) -> bool:
+    """
+    Resolve an object_id inside a container into a teleport destination, then call teleport().
+
+    This is intentionally permissive for dev:
+    - checks wormholes[source], cubes[source], microgrid[source] for a destination field.
+    - destination keys supported: to, destination, target, target_container, teleport_to, container_id.
+    """
+    try:
+        container = load_dimension_by_id(source_key)
+    except Exception:
+        return False
+
+    candidates = []
+
+    wormholes = container.get("wormholes", {}) or {}
+    if isinstance(wormholes, dict) and object_id in wormholes:
+        candidates.append(wormholes.get(object_id))
+
+    cubes = container.get("cubes", {}) or {}
+    if isinstance(cubes, dict) and object_id in cubes:
+        candidates.append(cubes.get(object_id))
+
+    microgrid = container.get("microgrid", {}) or {}
+    if isinstance(microgrid, dict) and object_id in microgrid:
+        candidates.append(microgrid.get(object_id))
+
+    def _extract_dest(meta) -> str | None:
+        if not isinstance(meta, dict):
+            return None
+        for k in (
+            "to",
+            "destination",
+            "dest",
+            "target",
+            "target_container",
+            "teleport_to",
+            "container_id",
+        ):
+            v = meta.get(k)
+            if isinstance(v, str) and v.strip():
+                return v.strip()
+
+        # common nested pattern
+        nested = meta.get("teleport") or meta.get("wormhole") or meta.get("link")
+        if isinstance(nested, dict):
+            for k in ("to", "destination", "target", "container_id"):
+                v = nested.get(k)
+                if isinstance(v, str) and v.strip():
+                    return v.strip()
+        return None
+
+    for meta in candidates:
+        dest = _extract_dest(meta)
+        if dest:
+            teleport(source_key, dest, reason=f"{reason}:{object_id}", requester=requester)
+            return True
+
+    return False

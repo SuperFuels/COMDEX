@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 # ✅ Optional hub/link helpers (safe fallbacks)
 try:
@@ -8,32 +8,46 @@ except Exception:  # pragma: no cover
     def connect_container_to_hub(*_a, **_k):  # no-op if helper not present
         pass
 
+logger = logging.getLogger(__name__)
+
 _ucsb_checked = set()
+_ucsb_hub_connected = set()
+
+
 class MicroGrid:
     """3D symbolic micro-grid for container memory and glyph placement."""
 
-    def __init__(self, dimensions=(4, 4, 4)):
-        self.dimensions = dimensions
-        self.grid = [[[None for _ in range(dimensions[2])]
-                      for _ in range(dimensions[1])]
-                      for _ in range(dimensions[0])]
+    def __init__(self, dimensions: Tuple[int, int, int] = (4, 4, 4)):
+        self.dimensions = tuple(int(x) for x in dimensions)
+        X, Y, Z = self.dimensions
+        self.grid = [[[None for _ in range(Z)] for _ in range(Y)] for _ in range(X)]
 
-    def place(self, glyph, x, y, z):
+    def _in_bounds(self, x: int, y: int, z: int) -> bool:
+        X, Y, Z = self.dimensions
+        return 0 <= x < X and 0 <= y < Y and 0 <= z < Z
+
+    def place(self, glyph: Any, x: int, y: int, z: int) -> None:
         """Place glyph in grid cell."""
+        x, y, z = int(x), int(y), int(z)
+        if not self._in_bounds(x, y, z):
+            raise IndexError(f"MicroGrid.place out of bounds: {(x, y, z)} dims={self.dimensions}")
         self.grid[x][y][z] = glyph
 
-    def get(self, x, y, z):
+    def get(self, x: int, y: int, z: int) -> Any:
         """Retrieve glyph from grid cell."""
+        x, y, z = int(x), int(y), int(z)
+        if not self._in_bounds(x, y, z):
+            return None
         return self.grid[x][y][z]
 
-    def serialize(self):
+    def serialize(self) -> dict:
         """Convert grid to serializable form."""
         return {
             "dimensions": self.dimensions,
             "cells": [[[cell for cell in plane] for plane in layer] for layer in self.grid],
         }
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         glyphs = sum(1 for layer in self.grid for plane in layer for cell in plane if cell)
         return f"<MicroGrid dims={self.dimensions} glyphs={glyphs}>"
 
@@ -52,7 +66,6 @@ class UCSBaseContainer:
         * DNA Switch-like feature management (gravity, micro-grid toggling, etc.)
     """
 
-    # 🌐 Global DNA-Switch-Like Features (applies to all containers unless overridden)
     global_features = {
         "micro_grid": True,
         "time_dilation": True,
@@ -70,22 +83,24 @@ class UCSBaseContainer:
 
         # ✅ Initialize core state
         self.micro_grid = MicroGrid() if self.features.get("micro_grid", True) else None
-        self.glyph_storage = []  # Glyph storage abstraction (default: Cube)
+        self.glyph_storage = []
         self.state = "idle"
-        self.metadata: Dict[str, Any] = {}  
+        self.metadata: Dict[str, Any] = {}
 
         # ✅ Ensure time dilation & gravity are always initialized
         self.time_dilation = 1.0 if self.features.get("time_dilation", True) else None
         self.time_factor = self.time_dilation or 1.0
         self.gravity_force = 0
 
-        print(f"🔧 UCSBaseContainer initialized: {self.name} ({self.geometry}) | Time Dilation: {self.time_dilation}, Micro-grid: {bool(self.micro_grid)}")
+        print(
+            f"🔧 UCSBaseContainer initialized: {self.name} ({self.geometry}) | "
+            f"Time Dilation: {self.time_dilation}, Micro-grid: {bool(self.micro_grid)}"
+        )
 
-        # ✅ NEW: idempotently connect every base container to the Tesseract hub directory/graph
+        # ✅ idempotently connect every base container to hub
         try:
             self._connect_to_hub()
         except Exception:
-            # keep silent here; callers can log if desired
             pass
 
     # ---------------------------------------------------------
@@ -109,7 +124,7 @@ class UCSBaseContainer:
     # ---------------------------------------------------------
     def init_micro_grid(self, dimensions=(4, 4, 4)):
         """Initialize symbolic micro-grid (3D memory lattice)."""
-        if not self.features["micro_grid"]:
+        if not self.features.get("micro_grid", True):
             return
         self.micro_grid = MicroGrid(dimensions)
         print(f"🧠 Micro-grid initialized in {self.name}: {dimensions}")
@@ -144,8 +159,8 @@ class UCSBaseContainer:
     # ---------------------------------------------------------
     def apply_time_dilation(self, factor):
         """Adjust per-container tick speed."""
-        if self.features["time_dilation"]:
-            self.time_dilation = max(0.1, factor)
+        if self.features.get("time_dilation", True):
+            self.time_dilation = max(0.1, float(factor))
             self.time_factor = self.time_dilation
             print(f"⏱ Time dilation applied in {self.name}: x{self.time_dilation}")
 
@@ -154,7 +169,7 @@ class UCSBaseContainer:
     # ---------------------------------------------------------
     def apply_gravity(self, force):
         """Enable simulated gravity force in container."""
-        if self.features["gravity"]:
+        if self.features.get("gravity", False):
             self.gravity_force = force
             print(f"🌀 Gravity applied in {self.name}: {force}N symbolic")
 
@@ -163,17 +178,21 @@ class UCSBaseContainer:
     # ---------------------------------------------------------
     def enforce_soullaw(self):
         """Enforce SoulLaw validation before execution (only once per container id/name)."""
-        # Prefer a stable id if present; else fall back to name
         key = getattr(self, "id", None) or self.name
+        if key in _ucsb_checked:
+            return
 
-        # Only validate once per process for this container
-        if key not in _ucsb_checked:
-            self.runtime.soul_law.validate_access({"id": key, "name": self.name, "geometry": self.geometry})
-            _ucsb_checked.add(key)
-            print(f"🔒 SoulLaw validated once for {key}")
-        else:
-            # Keep a breadcrumb so we know why we're not re-validating every time
-            pass
+        # runtime might not have soul_law in tests/CLI
+        try:
+            soul = getattr(self.runtime, "soul_law", None)
+            if soul and hasattr(soul, "validate_access"):
+                soul.validate_access({"id": key, "name": self.name, "geometry": self.geometry})
+        except Exception as e:
+            logger.warning(f"[UCSBaseContainer] SoulLaw validate failed for {key}: {e}")
+            raise
+
+        _ucsb_checked.add(key)
+        print(f"🔒 SoulLaw validated once for {key}")
 
     # ---------------------------------------------------------
     # 🎨 GHX Visualization
@@ -182,7 +201,10 @@ class UCSBaseContainer:
         """Highlight container state in GHXVisualizer."""
         self.state = state
         if hasattr(self.runtime, "visualizer"):
-            self.runtime.visualizer.highlight(self.name)
+            try:
+                self.runtime.visualizer.highlight(self.name)
+            except Exception:
+                pass
         print(f"🎨 GHX Visualizer: {self.name} now {state}")
 
     # ---------------------------------------------------------
@@ -190,8 +212,12 @@ class UCSBaseContainer:
     # ---------------------------------------------------------
     def emit_sqi_event(self, event):
         """Emit SQI runtime event tied to container."""
-        if hasattr(self.runtime, "sqi"):
-            self.runtime.sqi.emit(event, payload={"container": self.name, "state": self.state})
+        try:
+            sqi = getattr(self.runtime, "sqi", None)
+            if sqi and hasattr(sqi, "emit"):
+                sqi.emit(event, payload={"container": self.name, "state": self.state})
+        except Exception:
+            pass
         print(f"⚡ SQI Event Emitted: {event} for {self.name}")
 
     # ---------------------------------------------------------
@@ -204,13 +230,16 @@ class UCSBaseContainer:
         print(f"🚀 Executing {self.name} ({self.geometry})")
 
     # ---------------------------------------------------------
-    # 🧭 NEW: Hub hookup (idempotent)
+    # 🧭 Hub hookup (idempotent)
     # ---------------------------------------------------------
     def _connect_to_hub(self, hub_id: str = "tesseract_hq") -> None:
         """
         Register/connect this container into the HQ graph. Safe to call many times.
         """
-        container_id = getattr(self, "id", None) or self.name  # stable id if present
+        container_id = getattr(self, "id", None) or self.name
+        if container_id in _ucsb_hub_connected:
+            return
+
         doc: Dict[str, Any] = {
             "id": container_id,
             "name": self.name,
@@ -218,19 +247,21 @@ class UCSBaseContainer:
             "type": self.container_type or "container",
             "meta": {"address": f"ucs://local/{container_id}#container"},
         }
-        connect_container_to_hub(doc, hub_id=hub_id)  # no-op if helper stubbed
+        connect_container_to_hub(doc, hub_id=hub_id)
+        _ucsb_hub_connected.add(container_id)
 
     # ---------------------------------------------------------
-    # ✅ NEW: Dict Export for Runtime Injection / Registry
+    # ✅ Dict Export for Runtime Injection / Registry
     # ---------------------------------------------------------
     def to_dict(self) -> dict:
         """Export container to dict for runtime registration."""
+        container_id = getattr(self, "id", None) or self.name
         return {
-            "id": getattr(self, "id", None) or self.name,
+            "id": container_id,
             "name": self.name,
             "type": self.container_type or "container",
             "geometry": self.geometry,
-            "meta": {"address": f"ucs://local/{self.name}#container"},
+            "meta": {"address": f"ucs://local/{container_id}#container"},
             "atoms": getattr(self, "atoms", {}),
             "features": self.features,
             "runtime": {

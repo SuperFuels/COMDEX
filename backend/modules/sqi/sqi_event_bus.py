@@ -514,5 +514,26 @@ def _maybe_link_relations(entry: dict, external_hash: Optional[str]) -> None:
         except Exception:
             pass
 
-from backend.modules.sqi.sqi_event_bus_gw import publish
-sqi_event_bus_gw.init_gw_publish_wrapper(publish)
+# -----------------------------------------------------------------------------
+# Public API: publish(event) compatibility shim
+# -----------------------------------------------------------------------------
+def publish(event: dict) -> None:
+    """
+    Back-compat publish() used by UCSRuntime.broadcast and others.
+    Accepts either:
+      {"type": "...", "payload": {...}, ...}
+    or legacy:
+      {"event_type": "...", ...}
+    """
+    if not isinstance(event, dict):
+        return
+    et = event.get("type") or event.get("event_type") or "unknown"
+    # if caller already wrapped payload, prefer it; else pass whole event
+    payload = event.get("payload") if isinstance(event.get("payload"), dict) else event
+    emit_sqi_event(str(et), payload)
+
+# Optional GW wrapper: give it the stable publish() above
+try:
+    sqi_event_bus_gw.init_gw_publish_wrapper(publish)
+except Exception:
+    pass
