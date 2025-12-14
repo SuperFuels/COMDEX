@@ -8,6 +8,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import GMADashboardDevPanel from "../components/GMADashboardDevPanel";
 import ChainSimLedgerPanel from "../components/ChainSimLedgerPanel";
 
+import { GlyphChainPerfCard } from "@/components/GlyphChainPerfCard";
+
 type MintBurnEvent = {
   kind: "MINT" | "BURN";
   amount_pho: string;
@@ -1334,6 +1336,8 @@ export default function AdminDashboard() {
       <GMADashboardDevPanel />
 
       <ChainSimLedgerPanel />
+
+      <GlyphChainPerfCard />
 
       {/* ── Photon Savings / Term Deposits (dev) ─────────── */}
       <section

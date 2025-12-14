@@ -64,6 +64,23 @@ _KG_BUSY = False
 _EPHEMERAL_CONTAINER = {"id": "kg_cli_ephemeral", "glyph_grid": [], "last_updated": None}
 ENABLE_WS_BROADCAST = os.getenv("AION_ENABLE_WS_BROADCAST", "1") == "1"
 
+import asyncio
+
+def _env_bool(name: str, default: str = "1") -> bool:
+    v = os.getenv(name, default)
+    return str(v).strip().lower() in ("1", "true", "yes", "y", "on")
+
+# Default OFF: avoids broadcast + avoids printing no-loop errors on reload/start
+_KG_QFC_BROADCAST = _env_bool("KG_QFC_BROADCAST", "0")
+
+def _has_running_loop() -> bool:
+    try:
+        asyncio.get_running_loop()
+        return True
+    except RuntimeError:
+        return False
+
+
 def get_active_container():
     """
     Try to fetch the active container from state_manager.
@@ -838,6 +855,23 @@ class KnowledgeGraphWriter:
 
             import inspect, asyncio
 
+            # ──────────────────────────────────────────────────────────────
+            # KG -> QFC broadcast opt-out (default OFF) + loop-safe guard
+            # ──────────────────────────────────────────────────────────────
+            def _env_bool(name: str, default: str = "0") -> bool:
+                v = os.getenv(name, default)
+                return str(v).strip().lower() in ("1", "true", "yes", "y", "on")
+
+            # Default OFF: avoids broadcast + avoids printing no-loop errors on reload/start
+            _KG_QFC_BROADCAST = _env_bool("KG_QFC_BROADCAST", "0")
+
+            def _has_running_loop() -> bool:
+                try:
+                    asyncio.get_running_loop()
+                    return True
+                except RuntimeError:
+                    return False
+
             def _emit(event_dict: dict):
                 try:
                     if _broadcast_sync:
@@ -849,7 +883,8 @@ class KnowledgeGraphWriter:
                                 loop = asyncio.get_running_loop()
                                 loop.create_task(_broadcast_async(event_dict))
                             except RuntimeError:
-                                asyncio.run(_broadcast_async(event_dict))
+                                # No running loop: skip silently (no spam)
+                                return
                         else:
                             _broadcast_async(event_dict)
                     else:
@@ -921,7 +956,7 @@ class KnowledgeGraphWriter:
                 ent_ids = (entry.get("metadata") or {}).get("entangled_ids") or []
                 if ent_ids:
                     this_cid = (entry.get("metadata") or {}).get("container_id") \
-                               or (self.container.get("id") if self.container else None)
+                            or (self.container.get("id") if self.container else None)
                     if this_cid:
                         for other in ent_ids:
                             try:
@@ -934,25 +969,29 @@ class KnowledgeGraphWriter:
             self._write_to_container(entry)
             add_to_index("knowledge_index.glyph", entry)
 
-            # ✅ QFC Broadcast Injection
-            try:
-                from backend.modules.visualization.qfc_payload_utils import to_qfc_payload
-                from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
+            # ✅ KG -> QFC Broadcast Injection (opt-out + loop-safe)
+            if _KG_QFC_BROADCAST and _has_running_loop():
+                try:
+                    from backend.modules.visualization.qfc_payload_utils import to_qfc_payload
+                    from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
 
-                node_payload = {
-                    "glyph": glyph_type,
-                    "op": "inject",
-                    "metadata": metadata or {},
-                }
-                context = {
-                    "container_id": metadata.get("container_id", "unknown") if metadata else "unknown",
-                    "source_node": metadata.get("node_id", "origin") if metadata else "origin"
-                }
+                    node_payload = {
+                        "glyph": glyph_type,
+                        "op": "inject",
+                        "metadata": metadata or {},
+                    }
+                    context = {
+                        "container_id": (metadata.get("container_id") if metadata else None) or "unknown",
+                        "source_node": (metadata.get("node_id") if metadata else None) or "origin",
+                    }
 
-                qfc_payload = to_qfc_payload(node_payload, context)
-                asyncio.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
-            except Exception as qfc_err:
-                print(f"[⚠️ KG->QFC] Failed to broadcast injected glyph: {qfc_err}")
+                    qfc_payload = to_qfc_payload(node_payload, context)
+                    loop = asyncio.get_running_loop()
+                    loop.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
+                except Exception as qfc_err:
+                    # Only complain when broadcast is explicitly enabled
+                    print(f"[⚠️ KG->QFC] Failed to broadcast injected glyph: {qfc_err}")
+            # else: silent skip (prevents "no running event loop" spam)
 
             if anchor:
                 try:
@@ -962,7 +1001,8 @@ class KnowledgeGraphWriter:
                             loop = asyncio.get_running_loop()
                             loop.create_task(broadcast_anchor_update(glyph_id, anchor))
                         except RuntimeError:
-                            asyncio.run(broadcast_anchor_update(glyph_id, anchor))
+                            # No running loop: skip silently
+                            pass
                     else:
                         broadcast_anchor_update(glyph_id, anchor)
                 except Exception:

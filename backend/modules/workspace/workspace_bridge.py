@@ -2,8 +2,23 @@
 from __future__ import annotations
 
 import asyncio
+import os
+import time
 import uuid
 from typing import Any, Dict, List, Optional, Callable, Awaitable
+
+# =========================
+# Runtime flags
+# =========================
+QUIET = os.getenv("AION_QUIET_MODE", "0") == "1"
+
+# Skip WS broadcasts if nobody is listening (default ON)
+SUPPRESS_EMPTY_BROADCAST = os.getenv("AION_SUPPRESS_EMPTY_BROADCAST", "1") == "1"
+
+# If you want *some* visibility when skipping, turn this on.
+DEBUG_EMPTY_BROADCAST = os.getenv("AION_DEBUG_EMPTY_BROADCAST", "0") == "1"
+_EMPTY_BROADCAST_LOG_EVERY_S = float(os.getenv("AION_EMPTY_BROADCAST_LOG_EVERY_S", "30"))
+_last_empty_broadcast_log = 0.0
 
 # --- Safe imports with graceful fallbacks ------------------------------------
 
@@ -21,7 +36,8 @@ except Exception:
         except Exception:
 
             def log_sqi_drift(container_id: str, wave_id: str, glow: float, pulse: float) -> None:  # type: ignore
-                print(f"[SQI] (stub) Drift beam {wave_id} in {container_id} -> glow={glow:.2f}, pulse={pulse:.2f}Hz")
+                if not QUIET:
+                    print(f"[SQI] (stub) Drift beam {wave_id} in {container_id} -> glow={glow:.2f}, pulse={pulse:.2f}Hz")
 
 
 # Collapse/codex metric
@@ -29,7 +45,8 @@ try:
     from backend.modules.codex.codex_metrics import log_collapse_metric  # ✅ canonical
 except Exception:
     def log_collapse_metric(container_id, wave_id, score, state):  # type: ignore
-        print(f"[CodexMetric] Beam {wave_id} in {container_id} -> SQI={score:.3f}, state={state}")
+        if not QUIET:
+            print(f"[CodexMetric] Beam {wave_id} in {container_id} -> SQI={score:.3f}, state={state}")
 
 
 # Carrier type (enum) - optional
@@ -83,16 +100,84 @@ try:
     from backend.modules.glyphwave.qwave.qwave_emitter import emit_qwave_beam  # async
 except Exception:
     async def emit_qwave_beam(*, wave: WaveState, container_id: str, source: str, metadata: Dict[str, Any]):  # type: ignore
-        print(f"[QWaveEmitter] ⚡ Emitting beam from source: {source} -> {getattr(wave, 'wave_id', None)}")
+        if not QUIET:
+            print(f"[QWaveEmitter] ⚡ Emitting beam from source: {source} -> {getattr(wave, 'wave_id', None)}")
         # pretend to do I/O
         await asyncio.sleep(0)
 
+# ---- Guarded WS broadcast wrapper --------------------------------------------
+
+def _ws_client_count(tag: Optional[str] = None) -> Optional[int]:
+    """
+    Best-effort: try to detect connected WS client count from websocket_manager singleton.
+    Returns:
+      - int >= 0 when detected
+      - None when unknown (we won't suppress in that case)
+    """
+    try:
+        from backend.modules.websocket_manager import websocket_manager as WSM  # type: ignore
+    except Exception:
+        return None
+
+    for attr in ("clients", "connections", "active_connections", "_clients", "_connections"):
+        obj = getattr(WSM, attr, None)
+        if obj is None:
+            continue
+
+        if isinstance(obj, dict):
+            if tag is not None:
+                v = obj.get(tag) or obj.get("global")
+                try:
+                    return len(v) if v is not None else 0
+                except Exception:
+                    return 0
+            total = 0
+            for v in obj.values():
+                try:
+                    total += len(v)
+                except Exception:
+                    pass
+            return total
+
+        try:
+            return len(obj)
+        except Exception:
+            pass
+
+    return None
+
+
 try:
-    from backend.modules.websocket_manager import broadcast_event  # async
+    from backend.modules.websocket_manager import broadcast_event as _broadcast_event  # async
 except Exception:
-    async def broadcast_event(tag: str, payload: Dict[str, Any]):  # type: ignore
-        print(f"[📣] Broadcasting to 0 clients on tag: {tag}")
+    _broadcast_event = None  # type: ignore
+
+
+async def broadcast_event(tag: str, payload: Dict[str, Any]):  # type: ignore
+    """
+    Guarded broadcast:
+    - If we can detect 0 WS clients, skip work entirely (default).
+    - Optional debug log is throttled.
+    """
+    global _last_empty_broadcast_log
+
+    if _broadcast_event is None:
+        # Fallback: do nothing (no spam)
         await asyncio.sleep(0)
+        return
+
+    if SUPPRESS_EMPTY_BROADCAST:
+        n = _ws_client_count(tag)
+        if n == 0:
+            if DEBUG_EMPTY_BROADCAST and (not QUIET):
+                now = time.time()
+                if now - _last_empty_broadcast_log >= _EMPTY_BROADCAST_LOG_EVERY_S:
+                    _last_empty_broadcast_log = now
+                    print(f"[📣] (skip) no WS clients for tag={tag}")
+            return
+
+    await _broadcast_event(tag, payload)
+
 
 # These are OPTIONAL helpers; we'll use them if available, but never rely on them.
 try:
@@ -105,7 +190,8 @@ try:
 except Exception:
     def broadcast_qfc_update(container_id: str, payload: Dict[str, Any]):  # type: ignore
         nodes_ct = len((payload or {}).get("nodes", []) or [])
-        print(f"📡 QFC broadcast sent for: {container_id} | Nodes: {nodes_ct}")
+        if not QUIET:
+            print(f"📡 QFC broadcast sent for: {container_id} | Nodes: {nodes_ct}")
 
 # Container index writer (innovation entries)
 from backend.modules.dna_chain.container_index_writer import add_innovation_score_entry
@@ -126,7 +212,8 @@ def _spawn_async(factory: Callable[[], Awaitable[Any]], label: str) -> None:
         loop.create_task(factory())
     except RuntimeError:
         # No running loop (common in pytest/CLI)
-        print(f"⚠️ {label} skipped: no running event loop")
+        if not QUIET:
+            print(f"⚠️ {label} skipped: no running event loop")
 
 
 # --- Small helpers ------------------------------------------------------------
@@ -169,7 +256,8 @@ def _emit_qwave(container_id: str, wave: WaveState, metadata: Dict[str, Any]) ->
             label="QWave emit",
         )
     except Exception as e:
-        print(f"[WorkspaceBridge] ⚠️ QWave emitter failed: {e}")
+        if not QUIET:
+            print(f"[WorkspaceBridge] ⚠️ QWave emitter failed: {e}")
 
 
 def _broadcast_fork(
@@ -194,7 +282,8 @@ def _broadcast_fork(
         }
         _spawn_async(lambda: broadcast_event("glyphwave.fork_beam", payload), label="WS broadcast")
     except Exception as e:
-        print(f"[WorkspaceBridge] ⚠️ WS broadcast failed: {e}")
+        if not QUIET:
+            print(f"[WorkspaceBridge] ⚠️ WS broadcast failed: {e}")
 
 
 def _safe_qfc_payload(
@@ -208,7 +297,6 @@ def _safe_qfc_payload(
     """
     nodes = _symbolic_tree_to_nodes(symbolic_tree)
 
-    # Minimal, self-sufficient payload that broadcast_qfc_update can use.
     beam_dict = {
         "id": getattr(wave, "wave_id", None),
         "glyph_id": getattr(wave, "glyph_id", None),
@@ -231,22 +319,19 @@ def _safe_qfc_payload(
     # Opportunistically enrich via to_qfc_payload if present.
     if callable(to_qfc_payload):
         attempts: List[Callable[[], Any]] = [
-            # common patterns used in other modules (unknown exact sig)
-            lambda: to_qfc_payload(payload),                      # type: ignore
+            lambda: to_qfc_payload(payload),  # type: ignore
             lambda: to_qfc_payload(beam_dict, {"nodes": nodes}),  # type: ignore
             lambda: to_qfc_payload({"nodes": nodes, "beam": beam_dict}),  # type: ignore
-            lambda: to_qfc_payload(wave, {"nodes": nodes}),       # type: ignore
+            lambda: to_qfc_payload(wave, {"nodes": nodes}),  # type: ignore
         ]
         for make in attempts:
             try:
                 enriched = make()
                 if isinstance(enriched, dict):
-                    # Sanity: ensure at least nodes survive; otherwise keep minimal payload.
                     if "nodes" in enriched or "beam" in enriched or "qfc" in enriched:
                         payload = enriched
                         break
             except Exception:
-                # ignore and try next pattern
                 pass
 
     return payload
@@ -260,7 +345,8 @@ def _emit_to_qfc(container_id: str, wave: WaveState, symbolic_tree: Dict[str, An
         payload = _safe_qfc_payload(container_id, wave, symbolic_tree)
         broadcast_qfc_update(container_id, payload)
     except Exception as e:
-        print(f"[WorkspaceBridge] ⚠️ QFC update failed: {e}")
+        if not QUIET:
+            print(f"[WorkspaceBridge] ⚠️ QFC update failed: {e}")
 
 
 # --- Public API ----------------------------------------------------------------
@@ -290,7 +376,8 @@ def submit_workspace_query(
     try:
         mutated_list = mutate_symbolic_logic(tree, max_variants=1)
     except Exception as e:
-        print(f"[WorkspaceBridge] ❌ mutation failed: {e}")
+        if not QUIET:
+            print(f"[WorkspaceBridge] ❌ mutation failed: {e}")
         mutated_list = [tree]
 
     mutated = mutated_list[0] if mutated_list else tree
@@ -298,7 +385,8 @@ def submit_workspace_query(
     try:
         innovation = compute_innovation_score(mutated, mutated=True)
     except Exception as e:
-        print(f"[WorkspaceBridge] ❌ scoring failed: {e}")
+        if not QUIET:
+            print(f"[WorkspaceBridge] ❌ scoring failed: {e}")
         innovation = 0.0
 
     glow = round(innovation * 5, 2)
@@ -318,12 +406,14 @@ def submit_workspace_query(
     try:
         log_collapse_metric(container_id, wave_id, innovation, "entangled")
     except Exception as e:
-        print(f"[WorkspaceBridge] ⚠️ collapse metric failed: {e}")
+        if not QUIET:
+            print(f"[WorkspaceBridge] ⚠️ collapse metric failed: {e}")
 
     try:
         log_sqi_drift(container_id, wave_id, glow, pulse)
     except Exception as e:
-        print(f"[WorkspaceBridge] ⚠️ SQI drift log failed: {e}")
+        if not QUIET:
+            print(f"[WorkspaceBridge] ⚠️ SQI drift log failed: {e}")
 
     try:
         add_innovation_score_entry(
@@ -335,7 +425,8 @@ def submit_workspace_query(
             cause=reason or "workspace_query",
         )
     except Exception as e:
-        print(f"[WorkspaceBridge] ⚠️ innovation index write failed: {e}")
+        if not QUIET:
+            print(f"[WorkspaceBridge] ⚠️ innovation index write failed: {e}")
 
     # --- Step 5: Emit to QWave + WS + QFC ---------------------------------------------
     _emit_qwave(
@@ -344,7 +435,6 @@ def submit_workspace_query(
         metadata={"scores": {"innovation_score": round(innovation, 3)}, "reason": reason or "workspace"},
     )
 
-    # Carrier packet (reserved/optional): keep lightweight for now
     carrier_packet: Optional[Dict[str, Any]] = None
 
     _broadcast_fork(

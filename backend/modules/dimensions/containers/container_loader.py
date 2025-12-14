@@ -21,7 +21,6 @@ from backend.modules.dna_chain.dc_handler import load_dimension
 from backend.modules.consciousness.state_manager import StateManager
 from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime
 
-
 # ✅ Symbolic Container Registration Hook
 from backend.modules.sqi.sqi_container_registry import _registry_register
 
@@ -29,6 +28,85 @@ from backend.modules.sqi.sqi_container_registry import _registry_register
 from backend.modules.dimensions.universal_container_system.ucs_utils import normalize_container_dict
 
 SQI_NS = "ucs://knowledge"
+
+# ───────────────────────────────────────────────
+# Env toggles (stop uvicorn reload spam / slow ingest)
+# Defaults are OPT-OUT (safe): autoload OFF unless explicitly enabled.
+# ───────────────────────────────────────────────
+
+def _env_bool(name: str, default: str = "0") -> bool:
+    v = os.getenv(name, default)
+    return str(v).strip().lower() in ("1", "true", "yes", "y", "on")
+
+_UCS_DEBUG = _env_bool("UCS_DEBUG", "0")
+
+# ✅ OPT-OUT DEFAULT: do NOT autoload templates unless enabled
+_UCS_AUTOLOAD_TEMPLATES = _env_bool("UCS_AUTOLOAD_TEMPLATES", "0")
+
+# ✅ OPT-OUT DEFAULT: do NOT register/ingest into SQI/KG unless enabled
+_UCS_REGISTER_TO_SQI = _env_bool("UCS_REGISTER_TO_SQI", "0")
+
+# Comma-separated exclusions (optional)
+_UCS_AUTOLOAD_EXCLUDE = {
+    s.strip()
+    for s in str(os.getenv("UCS_AUTOLOAD_EXCLUDE", "")).split(",")
+    if s.strip()
+}
+
+# ✅ Comma-separated allowlist: if set, ONLY these files load
+_UCS_AUTOLOAD_ALLOW = {
+    s.strip()
+    for s in str(os.getenv("UCS_AUTOLOAD_ALLOW", "")).split(",")
+    if s.strip()
+}
+
+# prevent repeated autoload when multiple startup hooks fire
+_AUTOLOAD_DONE = False
+_AUTOLOAD_CACHE: Dict[str, Any] = {}
+
+# prevent duplicate registry calls per-process
+_REGISTERED_IDS = set()
+
+def _dprint(*a, **k):
+    if _UCS_DEBUG:
+        print(*a, **k)
+
+def _is_excluded(filename: str, container_id: str = "") -> bool:
+    """
+    Exclusion matches:
+      - exact filename: "engineering_materials.dc.json"
+      - basename id-ish: "engineering_materials"
+      - exact container_id if provided
+    """
+    fn = (filename or "").strip()
+    base = fn.replace(".dc.json", "").strip()
+    cid = (container_id or "").strip()
+
+    if not _UCS_AUTOLOAD_EXCLUDE:
+        return False
+
+    return (
+        fn in _UCS_AUTOLOAD_EXCLUDE
+        or base in _UCS_AUTOLOAD_EXCLUDE
+        or cid in _UCS_AUTOLOAD_EXCLUDE
+    )
+
+def _safe_registry_register(container_id: str, ns: str) -> None:
+    """
+    Idempotent + disable-able registration.
+    This is the path that causes KG/SQI seeding on startup.
+    """
+    if not _UCS_REGISTER_TO_SQI:
+        return
+    if not container_id:
+        return
+    if container_id in _REGISTERED_IDS:
+        return
+    try:
+        _registry_register(container_id, ns)
+        _REGISTERED_IDS.add(container_id)
+    except Exception as e:
+        _dprint(f"⚠️ SQI registry register failed for {container_id}: {e}")
 
 
 def load_container_from_json(container_json: Dict[str, Any]) -> Union[UCSBaseContainer, HobermanContainer, SymbolicExpansionContainer, Dict[str, Any]]:
@@ -38,7 +116,6 @@ def load_container_from_json(container_json: Dict[str, Any]) -> Union[UCSBaseCon
         - Symbolic Expansion (legacy)
         - UCSBaseContainer (new standard)
     """
-    # ✅ Normalize input first (even if passed from elsewhere)
     container_json = normalize_container_dict(container_json)
 
     container_type = container_json.get("container_type", "ucs_base")
@@ -62,7 +139,7 @@ def load_container_from_json(container_json: Dict[str, Any]) -> Union[UCSBaseCon
             container.execute()
 
         if container.id:
-            _registry_register(container.id, SQI_NS)
+            _safe_registry_register(container.id, SQI_NS)
 
         return container
 
@@ -77,7 +154,7 @@ def load_container_from_json(container_json: Dict[str, Any]) -> Union[UCSBaseCon
             hob.inflate()
 
         if hob.id:
-            _registry_register(hob.id, SQI_NS)
+            _safe_registry_register(hob.id, SQI_NS)
 
         return hob
 
@@ -92,29 +169,21 @@ def load_container_from_json(container_json: Dict[str, Any]) -> Union[UCSBaseCon
             sec.expand()
 
         if sec.id:
-            _registry_register(sec.id, SQI_NS)
+            _safe_registry_register(sec.id, SQI_NS)
 
         return sec
 
     # ❌ Fallback (raw JSON) - register if ID exists
     fallback_id = container_json.get("id")
     if fallback_id:
-        _registry_register(fallback_id, SQI_NS)
+        _safe_registry_register(fallback_id, SQI_NS)
 
     return container_json
 
+
 def register_container(container_id: str, container_path: str) -> dict:
     from backend.modules.runtime.container_runtime import ContainerRuntime
-    """
-    Load a .dc.json container and register it into the UCS runtime and KG registry.
 
-    Args:
-        container_id: ID of the container to register
-        container_path: Path to the .dc.json file
-
-    Returns:
-        The loaded container object
-    """
     if not os.path.exists(container_path):
         raise FileNotFoundError(f"Container file not found: {container_path}")
 
@@ -123,23 +192,17 @@ def register_container(container_id: str, container_path: str) -> dict:
 
     container = load_container_from_json(raw_data)
 
-    # Manually set ID if needed
-    if hasattr(container, "id") and not container.id:
+    if hasattr(container, "id") and not getattr(container, "id", None):
         container.id = container_id
 
-    # Register into runtime if applicable
     if isinstance(container, (UCSBaseContainer, HobermanContainer, SymbolicExpansionContainer)):
         ContainerRuntime.register(container)
 
-    # Always register with SQI registry
-    _registry_register(container_id, SQI_NS)
-
+    _safe_registry_register(container_id, SQI_NS)
     return container
 
+
 def load_container_from_file(file_path: str):
-    """
-    Load container definition from a .dc.json file and instantiate.
-    """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Container file not found: {file_path}")
 
@@ -152,66 +215,98 @@ def load_container_from_file(file_path: str):
 def auto_load_all_templates():
     """
     Auto-load and instantiate all containers from the UCS templates directory.
-    Useful for bootstrapping the full container ecosystem (e.g., Tesseract -> Quantum -> Vortex -> Black Hole -> Torus).
+
+    Defaults (OPT-OUT):
+      - UCS_AUTOLOAD_TEMPLATES=0  -> disables entirely (default)
+      - UCS_REGISTER_TO_SQI=0     -> no KG/SQI ingest (default)
+
+    Optional controls:
+      - UCS_AUTOLOAD_ALLOW="core.dc.json,logic_core_atom.dc.json"
+      - UCS_AUTOLOAD_EXCLUDE="engineering_materials.dc.json,physics_core.dc.json"
+      - UCS_DEBUG=1
     """
-    containers = {}
+    global _AUTOLOAD_DONE, _AUTOLOAD_CACHE
+
+    if _AUTOLOAD_DONE:
+        return _AUTOLOAD_CACHE
+
+    containers: Dict[str, Any] = {}
+
+    if not _UCS_AUTOLOAD_TEMPLATES:
+        _AUTOLOAD_DONE = True
+        _AUTOLOAD_CACHE = containers
+        _dprint("⏭️ UCS template autoload disabled (UCS_AUTOLOAD_TEMPLATES=0)")
+        return containers
 
     if not os.path.exists(UCS_TEMPLATE_DIR):
-        print(f"⚠️ UCS templates folder not found: {UCS_TEMPLATE_DIR}")
+        _AUTOLOAD_DONE = True
+        _AUTOLOAD_CACHE = containers
+        _dprint(f"⚠️ UCS templates folder not found: {UCS_TEMPLATE_DIR}")
         return containers
 
     for file in os.listdir(UCS_TEMPLATE_DIR):
-        if file.endswith(".dc.json"):
-            path = os.path.join(UCS_TEMPLATE_DIR, file)
-            try:
-                container = load_container_from_file(path)
-                containers[getattr(container, "name", file)] = container
-            except Exception as e:
-                print(f"❌ Failed to load container '{file}': {e}")
+        if not file.endswith(".dc.json"):
+            continue
 
+        # ✅ allowlist wins (if provided)
+        if _UCS_AUTOLOAD_ALLOW and file not in _UCS_AUTOLOAD_ALLOW:
+            continue
+
+        # filename-based exclusion (secondary)
+        if _is_excluded(file):
+            _dprint(f"⏭️ Skipping excluded template: {file}")
+            continue
+
+        path = os.path.join(UCS_TEMPLATE_DIR, file)
+        try:
+            container = load_container_from_file(path)
+            cid = getattr(container, "id", "") if container is not None else ""
+            if _is_excluded(file, cid):
+                _dprint(f"⏭️ Skipping excluded container after load: {file} (id={cid})")
+                continue
+            containers[getattr(container, "name", file)] = container
+        except Exception as e:
+            _dprint(f"❌ Failed to load container '{file}': {e}")
+
+    _AUTOLOAD_DONE = True
+    _AUTOLOAD_CACHE = containers
     return containers
 
 
 def load_decrypted_container(container_id: str) -> dict:
     from backend.modules.runtime.container_runtime import ContainerRuntime
-    """
-    Securely load a decrypted container using the active runtime instance.
-    """
     state_manager = StateManager()
     runtime = ContainerRuntime(state_manager)
 
     container = load_dimension(container_id)
     state_manager.set_current_container(container)
-
     return runtime.get_decrypted_current_container()
 
 
 def load_container_by_id(container_id: str) -> dict:
-    """
-    Load a UCS container by its ID using the UCS runtime system.
-    Includes debug path inspection and optional fallback.
-    """
     from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime
-    from backend.modules.sqi.sqi_container_registry import _registry_register, SQI_NS
+    from backend.modules.sqi.sqi_container_registry import SQI_NS
 
     ucs = get_ucs_runtime()
 
-    # Debug log: show available container IDs
-    available_ids = list(ucs.container_registry.keys())
-    print(f"[📦] Available containers in UCS: {available_ids}")
+    if _UCS_DEBUG:
+        available_ids = list(ucs.container_registry.keys())
+        print(f"[📦] Available containers in UCS: {available_ids}")
 
     container = ucs.load_container(container_id)
 
     if not container:
+        available_ids = list(ucs.container_registry.keys())
         raise ValueError(
             f"❌ Container '{container_id}' not found in UCS runtime.\n"
             f"Available: {available_ids}"
         )
 
-    if hasattr(container, "id") and container.id:
-        _registry_register(container.id, SQI_NS)
+    if hasattr(container, "id") and getattr(container, "id", None):
+        _safe_registry_register(container.id, SQI_NS)
 
     return container
+
 
 __all__ = [
     "load_container_from_json",

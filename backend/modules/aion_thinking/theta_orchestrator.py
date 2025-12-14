@@ -11,27 +11,36 @@ Planner and Reflection feedback. Back-compat export:
 """
 
 from __future__ import annotations
-import os, logging
-if os.getenv("AION_QUIET_MODE") == "1":
-    logging.basicConfig(level=logging.WARNING)
-import logging, random, time, ast, operator as _op
-from datetime import datetime
+
+import os
+import ast
+import random
+import time
+import logging
+import operator as _op
 from typing import Any, Dict, Optional
 
 from backend.modules.aion_cognition.motivation_layer import MotivationLayer
 from backend.modules.aion_cognition.intent_engine import IntentEngine
 from backend.modules.aion_reasoning.tessaris_reasoner import TessarisReasoner
 from backend.modules.aion_reflection.reflection_engine import ReflectionEngine
-from backend.modules.skills.strategy_planner import StrategyPlanner
 from backend.modules.aion_cognition.action_switch import ActionSwitch
 from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
 from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
-from backend.modules.skills.strategy_planner import ResonantStrategyPlanner
-from backend.modules.aion_motivation.motivation_engine import MotivationEngine
-from backend.modules.aion_reasoning.tessaris_reasoner import TessarisReasoner as ReasonerCore
+from backend.modules.skills.strategy_planner import StrategyPlanner, ResonantStrategyPlanner
 from backend.modules.skills.strategic_simulation_engine import StrategicSimulationEngine
 
+# ─────────────────────────────────────────────
+# Logging / tuning
+# ─────────────────────────────────────────────
+QUIET = os.getenv("AION_QUIET_MODE", "0") == "1"
 log = logging.getLogger(__name__)
+
+# Rate-limit noisy writes + RMC pushes (helps with “startup goes crazy”)
+THETA_RMC_PUSH_MIN_INTERVAL_S = float(os.getenv("AION_THETA_RMC_PUSH_MIN_INTERVAL_S", "5"))
+THETA_DASH_WRITE_MIN_INTERVAL_S = float(os.getenv("AION_THETA_DASH_WRITE_MIN_INTERVAL_S", "10"))
+THETA_MODELOG_MIN_INTERVAL_S = float(os.getenv("AION_THETA_MODELOG_MIN_INTERVAL_S", "10"))
+THETA_STABILIZE_PROB = float(os.getenv("AION_THETA_STABILIZE_PROB", "0.2"))  # default keeps prior behavior
 
 # ─────────────────────────────────────────────
 # Safe arithmetic evaluator for FAST loop
@@ -63,7 +72,8 @@ def _safe_calc(expr: str) -> Optional[float]:
                 val = _eval(n.operand)
                 return +val if isinstance(n.op, ast.UAdd) else -val
             raise ValueError("unsupported")
-        return _eval(node)
+
+        return float(_eval(node))
     except Exception:
         return None
 
@@ -77,19 +87,76 @@ class ThinkingLoop:
     Decides whether to route thought through FAST or SLOW loop.
     """
 
-    def __init__(self, namespace: str = "global_theta", base_interval: float = 1.2, auto_tick: bool = True):
+    def __init__(
+        self,
+        namespace: str = "global_theta",
+        base_interval: float = 1.2,
+        auto_tick: bool = True,
+    ):
         self.Theta = ResonanceHeartbeat(namespace=namespace, base_interval=base_interval, auto_tick=auto_tick)
         self.rmc = ResonantMemoryCache()
+
         self.motivation = MotivationLayer()
         self.intent = IntentEngine()
         self.reasoner = TessarisReasoner()
-        self.strategy = StrategyPlanner()
-        self.sse = StrategicSimulationEngine()
         self.reflection = ReflectionEngine()
         self.action_switch = ActionSwitch()
+
+        # Keep both for safety/back-compat, but use ResonantStrategyPlanner for generate_plan().
+        self.strategy_planner = StrategyPlanner()
         self.strategy = ResonantStrategyPlanner()
 
+        self.sse = StrategicSimulationEngine()
+
+        # throttles (per-instance)
+        self._last_rmc_push: Dict[str, float] = {}
+        self._last_dash_write: Dict[str, float] = {}
+        self._last_mode_log_ts: float = 0.0
+
         log.info(f"🧠 Θ Orchestrator initialized ({namespace}) - auto_tick={auto_tick}")
+
+    # ───────────────────────────────────────────
+    def _throttled_rmc_push(
+        self,
+        *,
+        rho: float,
+        entropy: float,
+        sqi: float,
+        delta: float,
+        source: str,
+        min_interval_s: float = THETA_RMC_PUSH_MIN_INTERVAL_S,
+    ) -> bool:
+        """
+        Prevents hammering RMC (and its downstream save/broadcast behavior) if the
+        loop is running hot. Returns True if a push happened.
+        """
+        now = time.time()
+        last = self._last_rmc_push.get(source, 0.0)
+        if (now - last) < min_interval_s:
+            return False
+        self._last_rmc_push[source] = now
+        self.rmc.push_sample(rho=rho, entropy=entropy, sqi=sqi, delta=delta, source=source)
+        return True
+
+    def _dash_append(self, event_key: str, payload: Dict[str, Any], min_interval_s: float) -> None:
+        """
+        Rate-limited JSONL append to data/analysis/aion_live_dashboard.jsonl
+        """
+        now = time.time()
+        last = self._last_dash_write.get(event_key, 0.0)
+        if (now - last) < min_interval_s:
+            return
+        self._last_dash_write[event_key] = now
+
+        try:
+            from pathlib import Path
+            import json
+
+            Path("data/analysis").mkdir(parents=True, exist_ok=True)
+            with open("data/analysis/aion_live_dashboard.jsonl", "a", encoding="utf-8") as dash:
+                dash.write(json.dumps(payload) + "\n")
+        except Exception as e:
+            log.warning(f"[Θ] Dashboard log write failed: {e}")
 
     # ───────────────────────────────────────────
     def classify_complexity(self, query: Optional[str], entropy: float = None) -> str:
@@ -98,14 +165,14 @@ class ThinkingLoop:
         using live resonance metrics from the RMC if available.
         """
         # Pull real resonance metrics from memory
-        entropy = self.rmc.get_average("entropy") or 0.5
-        sqi = self.rmc.get_average("SQI") or 0.5
+        entropy_live = self.rmc.get_average("entropy") or 0.5
+        sqi_live = self.rmc.get_average("SQI") or 0.5
 
         if not query:
             return "fast"
 
         # Adaptive complexity check based on live coherence
-        if entropy > 0.6 or sqi < 0.45 or len(query.split()) > 8:
+        if entropy_live > 0.6 or sqi_live < 0.45 or len(query.split()) > 8:
             return "slow"
         return "fast"
 
@@ -125,7 +192,6 @@ class ThinkingLoop:
         return result
 
     # ───────────────────────────────────────────
-    # ───────────────────────────────────────────
     # 🌌 Deep Resonance Loop - Strategic Reasoning
     # ───────────────────────────────────────────
     def deep_resonance_loop(self, query: str) -> Dict[str, Any]:
@@ -139,7 +205,6 @@ class ThinkingLoop:
             S5 -> Reflection Feedback
         Each phase emits Θ heartbeat events and RMC resonance samples.
         """
-
         log.info(f"[SLOW_LOOP🌌] Deep Resonance loop initiated for '{query}'")
         start_time = time.time()
 
@@ -185,6 +250,7 @@ class ThinkingLoop:
 
         # 🔁 S5 - Reflection Feedback
         reflection = self._reflection_phase(decision, strategy)
+        self.Theta.event("slow_loop_S5_reflection", reflection=reflection)
 
         # 🔂 Apply Reflection feedback into SSE (R6)
         try:
@@ -193,38 +259,47 @@ class ThinkingLoop:
                 self.sse.apply_reflection(root, reflection)
         except Exception as e:
             log.warning(f"[SLOW_LOOP] SSE reflection integration failed: {e}")
-        self.Theta.event("slow_loop_S5_reflection", reflection=reflection)
 
-        # Consolidate metrics and RMC push
-        rho = decision.get("confidence", 0.6)
-        entropy = decision.get("entropy", 0.5)
-        sqi = decision.get("reflex_sqi", 0.6)
-        delta = decision.get("ΔΦ", 0.05)
-        # Push resonance metrics to cache
-        self.rmc.push_sample(rho=rho, entropy=entropy, sqi=sqi, delta=delta, source="deep_resonance_loop")
+        # Consolidate metrics and (throttled) RMC push
+        rho = float(decision.get("confidence", 0.6))
+        entropy = float(decision.get("entropy", 0.5))
+        sqi = float(decision.get("reflex_sqi", decision.get("SQI", 0.6)) or 0.6)
+        delta = float(decision.get("ΔΦ", 0.05))
 
-        # 🌿 Light semantic drift correction
-        if random.random() < 0.2:
-            self.rmc.stabilize(decay_rate=0.0008)
+        self._throttled_rmc_push(
+            rho=rho,
+            entropy=entropy,
+            sqi=sqi,
+            delta=delta,
+            source="deep_resonance_loop",
+        )
 
-        # 🧭 Dashboard telemetry logging
-        from pathlib import Path
-        import json
-        Path("data/analysis").mkdir(parents=True, exist_ok=True)
-        with open("data/analysis/aion_live_dashboard.jsonl", "a", encoding="utf-8") as dash:
-            dash.write(json.dumps({
+        # 🌿 Light semantic drift correction (kept, but controlled via env probability)
+        try:
+            if THETA_STABILIZE_PROB > 0 and random.random() < THETA_STABILIZE_PROB:
+                self.rmc.stabilize(decay_rate=0.0008)
+        except Exception:
+            pass
+
+        duration = round(time.time() - start_time, 3)
+
+        # 🧭 Dashboard telemetry logging (rate-limited)
+        self._dash_append(
+            "deep_resonance_loop_complete",
+            {
                 "timestamp": time.time(),
                 "event": "deep_resonance_loop_complete",
                 "query": query,
-                "duration": round(time.time() - start_time, 3),
+                "duration": duration,
                 "confidence": rho,
                 "entropy": entropy,
                 "SQI": sqi,
                 "ΔΦ": delta,
-                "strategy": strategy
-            }) + "\n")
+                "strategy": strategy,
+            },
+            min_interval_s=THETA_DASH_WRITE_MIN_INTERVAL_S,
+        )
 
-        duration = round(time.time() - start_time, 3)
         payload = {
             "mode": "slow",
             "query": query,
@@ -240,7 +315,6 @@ class ThinkingLoop:
 
         log.info(f"[SLOW_LOOP🌌] Completed Deep Resonance loop in {duration}s")
         return payload
-
 
     # ───────────────────────────────────────────
     # 🧩 Sub-Phases
@@ -268,36 +342,32 @@ class ThinkingLoop:
 
             # 🧩 Normalize any non-standard or nested structure
             if isinstance(decision, dict):
-                # Unwrap nested layers (e.g. {"decision": {...}})
                 if "decision" in decision and isinstance(decision["decision"], dict):
                     decision = decision["decision"]
 
-                # Ensure all core numeric fields exist and are valid
                 decision = {
                     "confidence": float(decision.get("confidence", 0.5)),
                     "entropy": float(decision.get("entropy", 0.5)),
                     "ΔΦ": float(decision.get("ΔΦ", 0.1)),
                     "goal": decision.get("goal", "undefined"),
+                    # preserve SQI-like signals if present
+                    "reflex_sqi": float(decision.get("reflex_sqi", decision.get("SQI", 0.6)) or 0.6),
                 }
 
             elif isinstance(decision, (int, float)):
-                # Convert simple scalar responses
-                decision = {"confidence": float(decision), "entropy": 0.5, "ΔΦ": 0.1, "goal": "undefined"}
-
+                decision = {"confidence": float(decision), "entropy": 0.5, "ΔΦ": 0.1, "goal": "undefined", "reflex_sqi": 0.6}
             else:
-                # Unexpected type fallback
-                decision = {"confidence": 0.5, "entropy": 0.5, "ΔΦ": 0.1, "goal": "undefined"}
+                decision = {"confidence": 0.5, "entropy": 0.5, "ΔΦ": 0.1, "goal": "undefined", "reflex_sqi": 0.6}
 
         except Exception as e:
             log.warning(f"[SLOW_LOOP] Reasoner error: {e}")
-            decision = {"confidence": 0.5, "entropy": 0.5, "ΔΦ": 0.1, "goal": "undefined"}
+            decision = {"confidence": 0.5, "entropy": 0.5, "ΔΦ": 0.1, "goal": "undefined", "reflex_sqi": 0.6}
 
         return decision
 
     def _strategy_phase(self, decision: Dict[str, Any]) -> Dict[str, Any]:
         """S4 - Strategy Planner: derive multi-step resonant plan from decision output."""
         try:
-            # Extract a safe string goal name from the decision object
             if isinstance(decision, dict):
                 goal_str = decision.get("goal") or f"decision_conf_{decision.get('confidence', 0.5):.2f}"
             else:
@@ -305,7 +375,6 @@ class ThinkingLoop:
 
             strategy = self.strategy.generate_plan(goal_str)
 
-            # Fallback normalization if strategy output isn't a dict
             if not isinstance(strategy, dict):
                 strategy = {
                     "plan": [str(strategy)],
@@ -315,25 +384,25 @@ class ThinkingLoop:
 
         except Exception as e:
             log.warning(f"[SLOW_LOOP] Strategy planner error: {e}")
+            goal_str = "undefined"
             strategy = {
                 "plan": ["reflect", "stabilize", "store"],
                 "resonance_score": 0.5,
                 "predicted_confidence": 0.5,
             }
 
-        # RMC coupling (safe)
+        # RMC coupling (safe) — no extra force writes; RMC.save() is rate-limited now anyway.
         try:
             self.rmc.update_resonance_link(
                 f"strategy_{goal_str}",
                 "plan",
-                strategy.get("resonance_score", 0.5),
+                float(strategy.get("resonance_score", 0.5)),
             )
             self.rmc.save()
         except Exception as e:
             log.warning(f"[RMC] Strategy link error: {e}")
 
         return strategy
-
 
     def _reflection_phase(self, decision: Dict[str, Any], strategy: Dict[str, Any]) -> Dict[str, Any]:
         """S5 - Reflection Feedback: consolidate reasoning and feed back to RMC."""
@@ -348,14 +417,16 @@ class ThinkingLoop:
             log.warning(f"[SLOW_LOOP] Reflection feedback error: {e}")
             reflection = {"insight": "stabilized", "ΔΦ": 0.05}
 
-        # Feed Θ coherence + RMC reinforcement
+        # Feed Θ coherence + (throttled) RMC reinforcement
         try:
             rho = float(decision.get("confidence", 0.6))
-            sqi = float(decision.get("reflex_sqi", 0.6))
+            sqi = float(decision.get("reflex_sqi", decision.get("SQI", 0.6)) or 0.6)
             delta = float(reflection.get("ΔΦ", 0.05))
-            self.rmc.push_sample(
+            entropy = float(decision.get("entropy", 0.5))
+
+            self._throttled_rmc_push(
                 rho=rho,
-                entropy=float(decision.get("entropy", 0.5)),
+                entropy=entropy,
                 sqi=sqi,
                 delta=delta,
                 source="reflection_phase",
@@ -380,23 +451,22 @@ class ThinkingLoop:
         result = self.fast_loop(input_signal) if mode == "fast" else self.slow_loop(input_signal)
         self.Theta.event("thinking_loop_end", mode=mode, result=result)
 
-        # Log mode transition to dashboard feed
-        try:
-            from pathlib import Path
-            import json
-            log_entry = {
-                "timestamp": time.time(),
-                "event": "thinking_mode_switch",
-                "mode": mode,
-                "input": input_signal,
-                "entropy": entropy,
-                "namespace": self.Theta.namespace,
-            }
-            Path("data/analysis").mkdir(parents=True, exist_ok=True)
-            with open("data/analysis/aion_live_dashboard.jsonl", "a") as f:
-                f.write(json.dumps(log_entry) + "\n")
-        except Exception as e:
-            log.warning(f"[Θ] Dashboard log write failed: {e}")
+        # Log mode transition to dashboard feed (rate-limited)
+        now = time.time()
+        if (now - self._last_mode_log_ts) >= THETA_MODELOG_MIN_INTERVAL_S:
+            self._last_mode_log_ts = now
+            self._dash_append(
+                "thinking_mode_switch",
+                {
+                    "timestamp": now,
+                    "event": "thinking_mode_switch",
+                    "mode": mode,
+                    "input": input_signal,
+                    "entropy": entropy,
+                    "namespace": self.Theta.namespace,
+                },
+                min_interval_s=0.0,  # already rate-limited by _last_mode_log_ts
+            )
 
         return result
 
@@ -413,14 +483,11 @@ class ThinkingLoop:
             if mode == "fast":
                 if hasattr(self, "reflex_loop"):
                     return self.reflex_loop(topic=topic)
-                # hard fallback to fast_loop
                 return self.fast_loop(topic)
-            elif mode == "slow":
-                # Always route 'think slow' to Deep Resonance (S1-S5)
+            if mode == "slow":
                 return self.deep_resonance_loop(topic)
-            else:
-                log.warning(f"[Θ] Unknown run_loop mode '{mode}', defaulting to FAST.")
-                return self.fast_loop(topic)
+            log.warning(f"[Θ] Unknown run_loop mode '{mode}', defaulting to FAST.")
+            return self.fast_loop(topic)
         except Exception as e:
             log.warning(f"[Θ] run_loop error ({mode}): {e}")
             return {"mode": mode, "topic": topic, "error": str(e)}
@@ -433,27 +500,26 @@ class ThinkingLoop:
         try:
             log.info(f"[Θ] Reflex loop engaged - topic: {topic}")
             start = time.time()
-            result = self.fast_loop(topic)
-                        # 🧮 Simple reasoning fallback: try to interpret math-like input
-            import re
-            import ast
 
+            # Start with the normal fast loop
+            result = self.fast_loop(topic)
+
+            # Optional math-like interpretation, but SAFE (no eval)
             if isinstance(topic, str):
-                expr = topic.replace("x", "*").replace("X", "*")
-                if re.match(r"^[\d\.\+\-\*/\s\(\)]+$", expr):
-                    try:
-                        value = eval(expr)
-                        print(f"[💡 Reflex Reasoning] {topic} = {value}")
-                        result = {"topic": topic, "result": value, "mode": "fast_math"}
-                    except Exception as e:
-                        print(f"[⚠️ Reflex Math] Failed to evaluate: {e}")
+                expr = topic.replace("x", "*").replace("X", "*").strip()
+                computed = _safe_calc(expr)
+                if computed is not None:
+                    if not QUIET:
+                        print(f"[💡 Reflex Reasoning] {topic} = {computed}")
+                    result = {"topic": topic, "result": computed, "mode": "fast_math"}
+
             duration = round(time.time() - start, 3)
 
-            # keep CLI prints consistent
-            print(f"[Θ] Reflex loop engaged - topic: {topic}")
-            print(f"[Θ] Reflex computation 1/2 - response vector aligned.")
-            print(f"[Θ] Reflex computation 2/2 - response vector aligned.")
-            print(f"[Θ] Reflex reasoning complete -> topic '{topic}' integrated. (duration={duration}s)\n")
+            if not QUIET:
+                print(f"[Θ] Reflex loop engaged - topic: {topic}")
+                print(f"[Θ] Reflex computation 1/2 - response vector aligned.")
+                print(f"[Θ] Reflex computation 2/2 - response vector aligned.")
+                print(f"[Θ] Reflex reasoning complete -> topic '{topic}' integrated. (duration={duration}s)\n")
 
             return result
         except Exception as e:
@@ -477,12 +543,16 @@ class ThinkingLoop:
         log.info(f"[Θ] Reflection cycle started for topic: '{topic}'")
         try:
             result = self.deep_resonance_loop(topic)
-            print(f"[Θ] Reflection cycle complete - topic '{topic}' integrated "
-                f"(duration={round(result.get('duration', 0), 3)}s)\n")
+            if not QUIET:
+                print(
+                    f"[Θ] Reflection cycle complete - topic '{topic}' integrated "
+                    f"(duration={round(result.get('duration', 0), 3)}s)\n"
+                )
             return result
         except Exception as e:
             log.warning(f"[Θ] Reflection cycle failed: {e}")
-            print(f"⚠️ Reflection failed - falling back to reflex loop.")
+            if not QUIET:
+                print("⚠️ Reflection failed - falling back to reflex loop.")
             return self.reflex_loop(topic=topic)
 
     # ─────────────────────────────────────────────
@@ -494,6 +564,7 @@ class ThinkingLoop:
         Maps reflect_loop -> reflex_loop so 'reflect' command still works.
         """
         return self.reflex_loop(topic=topic)
+
 
 # ─────────────────────────────────────────────
 # Backwards-compat export

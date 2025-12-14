@@ -61,37 +61,36 @@ export default function ChainSimLedgerPanel() {
       setSeeding(true);
       setErr(null);
 
-      // short deterministic-ish suffix so repeated clicks create new accounts
-      const tag = Date.now().toString(16).slice(-6);
-      const alice = `pho1-devtools-alice-${tag}`;
-      const bob = `pho1-devtools-bob-${tag}`;
+      const alice = "pho1-alice-demo";
+      const bob = "pho1-bob-demo";
 
-      // 1) mint 1000 PHO to alice (dev mint authority is enforced server-side)
-      await postJson("/api/chain_sim/dev/mint", {
-        denom: "PHO",
-        to: alice,
-        amount: "1000",
+      // Mint → Transfer → Burn (dev wrappers auto-handle nonce)
+      const mintRes = await fetch("/api/chain_sim/dev/mint", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ denom: "PHO", to: alice, amount: "1000" }),
       });
+      if (!mintRes.ok) throw new Error(await mintRes.text());
 
-      // 2) transfer 100 PHO from alice to bob
-      await postJson("/api/chain_sim/dev/transfer", {
-        denom: "PHO",
-        from_addr: alice,
-        to: bob,
-        amount: "100",
+      const sendRes = await fetch("/api/chain_sim/dev/transfer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          denom: "PHO",
+          from_addr: alice,
+          to: bob,
+          amount: "100",
+        }),
       });
+      if (!sendRes.ok) throw new Error(await sendRes.text());
 
-      // 3) burn 50 PHO from alice
-      await postJson("/api/chain_sim/dev/burn", {
-        denom: "PHO",
-        from_addr: alice,
-        amount: "50",
+      const burnRes = await fetch("/api/chain_sim/dev/burn", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ denom: "PHO", from_addr: alice, amount: "50" }),
       });
+      if (!burnRes.ok) throw new Error(await burnRes.text());
 
-      // convenience: auto-filter to alice so you see what just happened
-      setAddress(alice);
-
-      // refresh list views
       await refresh();
     } catch (e: any) {
       setErr(e?.message || "Failed to seed demo txs");
@@ -105,6 +104,8 @@ export default function ChainSimLedgerPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const disabled = busy || seeding;
+
   return (
     <section
       style={{
@@ -117,7 +118,13 @@ export default function ChainSimLedgerPanel() {
         gap: 10,
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+        }}
+      >
         <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>
           Chain Sim Ledger (dev)
         </div>
@@ -126,17 +133,17 @@ export default function ChainSimLedgerPanel() {
           <button
             type="button"
             onClick={seedDemoTxs}
-            disabled={busy || seeding}
             style={{
               padding: "4px 10px",
               borderRadius: 999,
               border: "1px solid #0f172a",
-              background: seeding ? "#e5e7eb" : "#0f172a",
-              color: seeding ? "#6b7280" : "#f9fafb",
+              background: "#0f172a",
+              color: "#f9fafb",
               fontSize: 11,
-              cursor: busy || seeding ? "default" : "pointer",
-              opacity: busy || seeding ? 0.8 : 1,
+              cursor: disabled ? "default" : "pointer",
+              opacity: disabled ? 0.7 : 1,
             }}
+            disabled={disabled}
           >
             {seeding ? "Seeding…" : "Seed demo txs"}
           </button>
@@ -144,16 +151,16 @@ export default function ChainSimLedgerPanel() {
           <button
             type="button"
             onClick={refresh}
-            disabled={busy || seeding}
             style={{
               padding: "4px 10px",
               borderRadius: 999,
               border: "1px solid #e5e7eb",
               background: "#f9fafb",
               fontSize: 11,
-              cursor: busy || seeding ? "default" : "pointer",
-              opacity: busy || seeding ? 0.7 : 1,
+              cursor: disabled ? "default" : "pointer",
+              opacity: disabled ? 0.7 : 1,
             }}
+            disabled={disabled}
           >
             {busy ? "Refreshing…" : "Refresh"}
           </button>
@@ -177,7 +184,7 @@ export default function ChainSimLedgerPanel() {
         <button
           type="button"
           onClick={refresh}
-          disabled={busy || seeding}
+          disabled={disabled}
           style={{
             padding: "6px 12px",
             borderRadius: 999,
@@ -186,9 +193,9 @@ export default function ChainSimLedgerPanel() {
             color: "#f9fafb",
             fontSize: 11,
             fontWeight: 600,
-            cursor: busy || seeding ? "default" : "pointer",
+            cursor: disabled ? "default" : "pointer",
             whiteSpace: "nowrap",
-            opacity: busy || seeding ? 0.7 : 1,
+            opacity: disabled ? 0.7 : 1,
           }}
         >
           Apply
@@ -199,8 +206,18 @@ export default function ChainSimLedgerPanel() {
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         {/* Blocks */}
-        <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, background: "#fff", padding: 8, overflow: "auto" }}>
-          <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 6 }}>Blocks</div>
+        <div
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: 12,
+            background: "#fff",
+            padding: 8,
+            overflow: "auto",
+          }}
+        >
+          <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 6 }}>
+            Blocks
+          </div>
           {blocks.length === 0 ? (
             <div style={{ fontSize: 11, color: "#9ca3af" }}>No blocks yet.</div>
           ) : (
@@ -215,10 +232,16 @@ export default function ChainSimLedgerPanel() {
               <tbody>
                 {blocks.map((b: any, idx: number) => (
                   <tr key={b.height ?? idx}>
-                    <td style={{ padding: "2px 4px" }}><code>{b.height ?? "—"}</code></td>
-                    <td style={{ padding: "2px 4px" }}>{Array.isArray(b.txs) ? b.txs.length : (b.num_txs ?? "—")}</td>
                     <td style={{ padding: "2px 4px" }}>
-                      {b.created_at_ms ? new Date(b.created_at_ms).toLocaleString() : "—"}
+                      <code>{b.height ?? "—"}</code>
+                    </td>
+                    <td style={{ padding: "2px 4px" }}>
+                      {Array.isArray(b.txs) ? b.txs.length : b.num_txs ?? "—"}
+                    </td>
+                    <td style={{ padding: "2px 4px" }}>
+                      {b.created_at_ms
+                        ? new Date(b.created_at_ms).toLocaleString()
+                        : "—"}
                     </td>
                   </tr>
                 ))}
@@ -228,8 +251,18 @@ export default function ChainSimLedgerPanel() {
         </div>
 
         {/* Txs */}
-        <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, background: "#fff", padding: 8, overflow: "auto" }}>
-          <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 6 }}>Txs</div>
+        <div
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: 12,
+            background: "#fff",
+            padding: 8,
+            overflow: "auto",
+          }}
+        >
+          <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 6 }}>
+            Txs
+          </div>
           {txs.length === 0 ? (
             <div style={{ fontSize: 11, color: "#9ca3af" }}>No txs yet.</div>
           ) : (
@@ -240,17 +273,40 @@ export default function ChainSimLedgerPanel() {
                   <th style={{ padding: "2px 4px" }}>Type</th>
                   <th style={{ padding: "2px 4px" }}>From</th>
                   <th style={{ padding: "2px 4px" }}>Nonce</th>
+                  <th style={{ padding: "2px 4px" }}>Fee</th>
                   <th style={{ padding: "2px 4px" }}>Block</th>
                 </tr>
               </thead>
               <tbody>
                 {txs.map((t: any, idx: number) => (
                   <tr key={t.tx_id ?? idx}>
-                    <td style={{ padding: "2px 4px" }}><code>{String(t.tx_id ?? "").slice(0, 8)}…</code></td>
-                    <td style={{ padding: "2px 4px" }}><code>{t.tx_type ?? "—"}</code></td>
-                    <td style={{ padding: "2px 4px" }}><code>{String(t.from_addr ?? "").slice(0, 12)}…</code></td>
-                    <td style={{ padding: "2px 4px" }}><code>{t.nonce ?? "—"}</code></td>
-                    <td style={{ padding: "2px 4px" }}><code>{t.block_height ?? "—"}</code></td>
+                    <td style={{ padding: "2px 4px" }}>
+                      <code>{String(t.tx_id ?? "").slice(0, 8)}…</code>
+                    </td>
+                    <td style={{ padding: "2px 4px" }}>
+                      <code>{t.tx_type ?? "—"}</code>
+                    </td>
+                    <td style={{ padding: "2px 4px" }}>
+                      <code>{String(t.from_addr ?? "").slice(0, 12)}…</code>
+                    </td>
+                    <td style={{ padding: "2px 4px" }}>
+                      <code>{t.nonce ?? "—"}</code>
+                    </td>
+
+                    {/* ✅ Fee column */}
+                    <td style={{ padding: "2px 4px" }}>
+                      {t?.fee?.enabled ? (
+                        <code>
+                          {t.fee.fee_amount ?? "?"} {t.fee.fee_denom ?? ""}
+                        </code>
+                      ) : (
+                        <span style={{ color: "#9ca3af" }}>—</span>
+                      )}
+                    </td>
+
+                    <td style={{ padding: "2px 4px" }}>
+                      <code>{t.block_height ?? "—"}</code>
+                    </td>
                   </tr>
                 ))}
               </tbody>

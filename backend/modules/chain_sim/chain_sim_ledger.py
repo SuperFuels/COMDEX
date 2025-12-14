@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from threading import Lock
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -56,7 +56,12 @@ class DevTxRecord:
     block_height: int
     tx_index: int
 
+    # ✅ new (fee plumbing)
+    fee: Optional[Dict[str, Any]] = None
+    accounts_touched: List[str] = field(default_factory=list)
+
     def to_dict(self) -> Dict[str, Any]:
+        # asdict() already handles default_factory lists correctly
         return asdict(self)
 
 
@@ -67,11 +72,15 @@ class DevBlock:
     txs: List[DevTxRecord]
     txs_root: str
 
+    # ✅ new: header commitments (e.g., state_root)
+    header: Dict[str, Any] = field(default_factory=dict)
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "height": self.height,
             "created_at_ms": self.created_at_ms,
             "txs_root": self.txs_root,
+            "header": dict(self.header or {}),
             "txs": [t.to_dict() for t in self.txs],
         }
 
@@ -130,7 +139,11 @@ def compute_tx_identity(
     return tx_id, h
 
 
-def _append_block_with_single_tx_locked(tx: DevTxRecord) -> DevBlock:
+def _append_block_with_single_tx_locked(
+    tx: DevTxRecord,
+    *,
+    header: Optional[Dict[str, Any]] = None,
+) -> DevBlock:
     """
     Dev rule: 1 applied tx == 1 block.
     Caller must hold _LOCK.
@@ -142,9 +155,11 @@ def _append_block_with_single_tx_locked(tx: DevTxRecord) -> DevBlock:
     txs_root = _sha256_hex(_stable_json([tx.tx_hash]))
     blk = DevBlock(
         height=h,
-        created_at_ms=_now_ms(),
+        # ✅ keep block time aligned with tx time if provided
+        created_at_ms=int(tx.created_at_ms or _now_ms()),
         txs=[tx],
         txs_root=txs_root,
+        header=dict(header or {}),
     )
     _BLOCKS.append(blk)
     return blk
@@ -155,9 +170,14 @@ def record_applied_tx(
     from_addr: str,
     nonce: int,
     tx_type: str,
-    payload: Dict[str, Any],
+    payload: Any,
     applied: bool,
     result: Dict[str, Any],
+    fee: Optional[Dict[str, Any]] = None,
+    accounts_touched: Optional[List[str]] = None,
+    created_at_ms: Optional[int] = None,
+    # ✅ new: block header commitments (e.g., {"state_root": ...})
+    block_header: Optional[Dict[str, Any]] = None,
 ) -> DevTxRecord:
     """
     Idempotent recorder:
@@ -166,6 +186,18 @@ def record_applied_tx(
     """
     norm_payload = _normalize_payload(payload)
     key = (from_addr, int(nonce), tx_type)
+
+    # If caller didn't pass a header explicitly, allow "result.header" to carry it.
+    hdr: Dict[str, Any] = {}
+    if isinstance(block_header, dict):
+        hdr = dict(block_header)
+    else:
+        try:
+            maybe = (result or {}).get("header")  # type: ignore[union-attr]
+            if isinstance(maybe, dict):
+                hdr = dict(maybe)
+        except Exception:
+            hdr = {}
 
     with _LOCK:
         # 1) Strong guard: (signer, nonce, type) should be unique for applied txs
@@ -189,9 +221,11 @@ def record_applied_tx(
             payload=norm_payload,
             applied=bool(applied),
             result=result or {},
-            created_at_ms=_now_ms(),
+            created_at_ms=int(created_at_ms) if created_at_ms is not None else _now_ms(),
             block_height=0,  # filled by block append
             tx_index=0,      # filled by block append
+            fee=fee,
+            accounts_touched=list(accounts_touched or []),
         )
 
         _TXS.append(rec)
@@ -199,7 +233,7 @@ def record_applied_tx(
         _TX_BY_HASH[tx_hash] = rec
         _TX_BY_KEY[key] = rec
 
-        _append_block_with_single_tx_locked(rec)
+        _append_block_with_single_tx_locked(rec, header=hdr)
         return rec
 
 
@@ -243,7 +277,7 @@ def list_txs(
             def _match(r: DevTxRecord) -> bool:
                 if r.from_addr == addr:
                     return True
-                to = r.payload.get("to")
+                to = (r.payload or {}).get("to")
                 return isinstance(to, str) and to == addr
 
             items = [r for r in items if _match(r)]

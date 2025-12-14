@@ -7,35 +7,35 @@ graph TD
 
     P0_1[☐ Project Bootstrapping\n• Monorepo: chain, GMA, wallet, holo-bridge, mesh\n• Languages: Rust/Go node, WASM/EVM contracts\n• Coding standards, CI, env + secrets]
 
-    P0_2[☐ Core Specs & Interfaces\n• ChainState, Account, BlockHeader, Tx\n• PHO/TESS token specs\n• GMA types (reserves, bonds, facilities)\n• MeshReconcile types (LocalBalance, MeshTx, ClusterBlock)\n• Holo/QWave/Photon bridge interfaces]
+    P0_2[☐ Core Specs & Interfaces\n• Canonical encodings: tx/header/state/proofs (“photon algebra”)\n• ChainState, Account, BlockHeader, Tx\n• Proof formats + verification API contracts\n• PHO/TESS token specs\n• GMA types (reserves, bonds, facilities)\n• MeshReconcile types (LocalBalance, MeshTx, ClusterBlock)\n• Transport interfaces: HTTP gossip + optional QWaveBeamTransport\n• Optional artifact interfaces: hologram/replay traces, resonance receipts]
 
-    P0_3[☐ Node Framework Selection\n• Choose base (Cosmos-SDK/Substrate/custom)\n• Execution (WASM or EVM)\n• GMA & Bonds: modules vs contracts\n• MeshReconcile as chain module\n• Extension points for Holo/QQC/Photon]
+    P0_3[☐ Node Framework Selection\n• Choose base (Cosmos-SDK/Substrate/custom)\n• Execution (WASM or EVM)\n• GMA & Bonds: modules vs contracts\n• MeshReconcile as chain module\n• Extension points for Holo/QWave/QKD (transport + attestations, not consensus deps)]
 
-    P0_4[☐ Security & Crypto Baseline\n• Sig schemes (ed25519/secp256k1/BLS)\n• Hash/commitments (Merkle / later KZG)\n• Key derivation, wallet seeds, device binding\n• Threat model (online chain + offline mesh)]
+    P0_4[☐ Security & Crypto Baseline\n• Sig schemes (ed25519/secp256k1/BLS)\n• Hash/commitments (Merkle now / later KZG)\n• Canonical hashing rules (no JSON ambiguity)\n• Key derivation, wallet seeds, device binding\n• Threat model: online chain + offline mesh\n• QKD as optional transport security layer + audit/attestation hooks]
   end
 
-%% ============================================
-%% P1 – CORE CHAIN
-%% ============================================
-subgraph P1[Phase 1 – Core Chain (Ledger, Consensus, Bank)]
-  direction TB
+  %% ============================================
+  %% P1 – CORE CHAIN
+  %% ============================================
+  subgraph P1[Phase 1 – Core Chain (Ledger, Consensus, Bank)]
+    direction TB
 
-  P1_1[☐ Consensus & Networking\n• BFT PoS engine\n• Validator sets, epochs, staking hooks\n• Gossip: blocks & txs\n• Peer discovery, anti-DoS]
+    P1_1[☐ Consensus & Networking\n• BFT PoS engine\n• Validator sets, epochs, staking hooks\n• Block propagation + proposal channels\n• No public mempool: leader inbox / relay model (anti-DoS)\n• Peer discovery, rate limits, spam controls\n• Transport plugin system:\n  – baseline HTTP/WebSocket\n  – optional QWave Beams as accelerator\n• Optional QKD-secured links (transport-only) + link attestation logs]
 
-  P1_2[☐ State & Storage\n• ChainState structure\n• Account trie (balances, nonces)\n• StateRoot computation\n• Persistence, snapshots, pruning]
+    P1_2[🟨 State & Storage (Dev snapshot + root slice)\n• ChainState snapshot: {config, bank, staking}\n• Deterministic state_root = sha256(canonical(state))\n• Canonical encoding spec (photon algebra) used by state_root\n• Dev endpoints: GET/POST /api/chain_sim/dev/state\n• Import resets explorer ledger (blocks/txs start empty)\n• Deterministic replay artifacts (“holograms”): replay trace + trace_root (optional)\n• Mobile-first requirement starts here:\n  – header-first sync primitives\n  – proof-ready commitments\n• NOTE: No trie, persistence, pruning yet]
 
-  %% NOTE: We implemented a DEV explorer/ledger + canonical tx envelope,
-  %% but not the full production block/header/state_root pipeline yet.
-  P1_3[🟨 Block & Tx Format (Dev slice)\n• Canonical dev tx envelope: {from_addr, nonce, tx_type, payload}\n• /api/chain_sim/dev/submit_tx (single entrypoint)\n• Dev tx identity: stable-json + sha256 → tx_hash, tx_id\n• Dev ledger/explorer: /dev/blocks, /dev/block/{height}, /dev/tx/{tx_id}, /dev/txs?address=...\n• NOTE: No gas, signatures, mempool, ordering, or header state_root yet]
+    P1_2A[☐ Proofs & Light Sync (Mobile-first slice)\n• Account/balance proof format (Merkle)\n• Tx inclusion proofs\n• Staking proofs (validator + delegation)\n• Proof endpoints (dev): /proof/account, /proof/tx, /proof/staking\n• Light client sync flow:\n  – download headers\n  – verify state_root\n  – fetch proofs on-demand\n• Target: sub-5MB light client state (headers + minimal caches)]
 
-  P1_4[☐ Bank Module\n• Ledger for PHO, TESS, future denoms\n• getBalance/getSupply/send/mint/burn\n• Fee charging & routing\n• Invariants: no negatives, supply conserved]
+    P1_3[🟨 Block & Tx Format (Dev slice)\n• Canonical dev tx envelope: {from_addr, nonce, tx_type, payload}\n• /api/chain_sim/dev/submit_tx (single entrypoint)\n• Dev tx identity: canonical(tx) + sha256 → tx_hash, tx_id\n• Dev ledger/explorer: /dev/blocks, /dev/block/{height}, /dev/tx/{tx_id}, /dev/txs?address=...\n• Add block header commitments:\n  – state_root (required)\n  – optional trace_root (replay/hologram)\n  – optional transport attestation hash (QKD/QWave receipts)\n• NOTE: No gas, signatures, production ordering rules yet]
 
-  P1_4A[✅ ChainSim Dev Bank Slice\n• /api/chain_sim/dev/mint, /dev/transfer, /dev/burn, /dev/account, /dev/supply (localhost:8080)\n• In-memory AccountState + SupplyState model\n• dev_chain_bank_smoketest.py (mint → transfer → burn, supply invariants, end-to-end over HTTP)\n• AdminDashboard: ChainSimLedgerPanel renders blocks/txs via /dev/blocks + /dev/txs]
+    P1_4[🟨 Bank Module (Dev fee + invariants slice)\n• Dev fee hook: per-tx PHO fee routed to pho1-dev-fee-collector\n• Fee carve-out on BANK_MINT (PHO): (amount-fee) to recipient, fee to collector\n• Central post-tx invariants hook (assert_invariants)\n• NOTE: Still not full production bank module (fees schedule, routing, invariants framework, denoms, etc.)]
 
-  P1_5[☐ Staking Module (Skeleton)\n• TESS staking/delegation structs\n• delegate/undelegate/rewards\n• Validator power from TESS stake\n• Hooks into consensus]
+    P1_4A[✅ ChainSim Dev Bank Slice\n• /api/chain_sim/dev/mint, /dev/transfer, /dev/burn, /dev/account, /dev/supply (localhost:8080)\n• In-memory AccountState + SupplyState model\n• dev_chain_bank_smoketest.py (mint → transfer → burn, supply invariants, end-to-end over HTTP)\n• AdminDashboard: ChainSimLedgerPanel renders blocks/txs via /dev/blocks + /dev/txs (+ Fee column)]
 
-  P1_6[☐ Genesis & Config\n• Genesis schema (allocs, validators, params)\n• ChainID & network IDs\n• Default gas schedule & limits\n• Upgrade mechanism placeholder]
-end
+    P1_5[🟨 Staking Module (Skeleton dev slice)\n• Minimal staking structs: Delegation/Validator/Rewards\n• Dev endpoints: /api/staking/dev/validators, /api/staking/dev/delegations?delegator=...\n• Dev txs: STAKING_DELEGATE / STAKING_UNDELEGATE (no consensus hooks yet)\n• Bonded pool lock model: TESS moved to pho1-dev-staking-bonded\n• Basic invariants (no negative stake, power=sum(delegations))]
+
+    P1_6[🟨 Genesis & Config (dev slice)\n• POST /api/chain_sim/dev/reset clears bank+staking+ledger\n• Minimal schema: chain_id/network_id + allocs + validators\n• Genesis seeds state (no blocks) and validator power reflects self-delegations\n• Testable: /dev/supply == sum(allocs), /staking/dev/validators populated]
+  end
 
   %% ============================================
   %% P2 – TOKENS & AMM
@@ -43,7 +43,7 @@ end
   subgraph P2[Phase 2 – Photon, Tesseract, wGLYPH, AMM]
     direction TB
 
-    P2_1[☐ Photon Token (PHO)\n• Native / ERC20-style module\n• Mint/burn restricted to GMA\n• Transfer/approve/allowance (if ERC20)\n• Gas token integration]
+    P2_1[☐ Photon Token (PHO)\n• Native / ERC20-style module\n• Mint/burn restricted to GMA\n• Transfer/approve/allowance (if ERC20)\n• Fee token integration]
 
     P2_2[☐ Tesseract Token (TESS)\n• Native/ERC20-style\n• Genesis mint & vesting\n• Hooks for staking/governance\n• Optional fee discounts]
 
@@ -125,13 +125,13 @@ end
   subgraph P6[Phase 6 – Hologram & QWave/QQC Integration]
     direction TB
 
-    P6_1[☐ Tx Types for Holo & Beams\n• TxHoloCommit(container_id, holo_id, rev, hash)\n• TxBeamMetric(container_id, tick, num_beams, sqi)\n• Store holo_state_root, beam_state_root\n• Minimal trees per module]
+    P6_1[☐ Tx Types for Holo & Beams\n• TxHoloCommit(container_id, holo_id, rev, hash)\n• TxBeamMetric(container_id, tick, num_beams, sqi)\n• Optional: ResonanceReceipt(commit_id, score, trace_hash)\n• Store holo_state_root, beam_state_root\n• Optional: trace_root for deterministic replay artifacts]
 
     P6_2[☐ HoloLedger Module\n• (holo_id, container_id, rev, hash)\n• Index by container + block\n• Query holo history/latest]
 
     P6_3[☐ BeamMetrics Module\n• Beam metrics per container/tick\n• Aggregates (SQI/coherence)\n• Pricing/QoS hooks]
 
-    P6_4[☐ Chain ↔ Holo Runtime Adapter\n• glyph_chain_bridge (subscribe events)\n• holo_chain_committer (commit revisions)\n• Idempotent & replay-safe]
+    P6_4[☐ Chain ↔ Holo Runtime Adapter\n• glyph_chain_bridge (subscribe events)\n• holo_chain_committer (commit revisions)\n• Idempotent & replay-safe\n• Transport adapters may use QWave beams, but commits remain deterministic]
 
     P6_5[☐ Compute Billing Plumbing\n• ComputeMeter iface\n  – registerContainer(price/unit)\n  – openSession/consume/closeSession\n• Settle PHO sessions\n• Fee splits to GMA]
   end
@@ -149,6 +149,7 @@ end
     P7_2[☐ Account Abstraction & Session Keys\n• Smart wallets: limits, social recovery\n• Session keys for chat/micropayments\n• Pre-approved PHO send templates]
 
     P7_3[✅ Transactable Document UX\n• Author DC container in Glyph browser\n• Compile to doc_hash + on-chain\n• Status: Draft → Active → Executed\n• PHO payments + signatures]
+
         %% --- P7_3 Transactable Document UX subtasks ---
         P7_3A[✅Transactable Docs – Glyph / Browser UI\n• GlyphNote-like editor for contracts\n• Show status: Draft → Active → Executed\n• Basic list/detail view of docs]
 
@@ -188,7 +189,7 @@ end
 
     P7_4_V1[☐ PHO Mesh Payment over BLE (Vertical Slice)\n• Sender wallet builds MeshTx\n• Sign + update LocalTxLog\n• Send via GIPBluetoothAdapter\n• Receiver validates + applies MeshTx\n• Both update LocalBalance\n• Log to GlyphNetDebugger]
 
-    P7_5[☐ Mobile Light Client\n• Header-only sync + proofs\n• Efficient PHO/TESS/Bond queries\n• Caching + bandwidth constraints\n• Auto-switch online ↔ mesh mode]
+    P7_5[☐ Mobile Light Client\n• Header-only sync + proofs\n• Efficient PHO/TESS/Bond queries\n• Caching + bandwidth constraints\n• Auto-switch online ↔ mesh mode\n• Optional transports:\n  – baseline NET\n  – BLE/radio/mesh\n  – optional QWave beams for fast sync]
 
     P7_6[☐ GlyphNet Viral Bootstrap\n• Minimal “GlyphCore Skeleton” bundle:\n  – core transports (radio/BLE/Wi-Fi Direct)\n  – minimal wallet + mesh ledger\n  – basic photon/glyph codecs\n• D2D sharing via BLE/radio payloads\n• Install/upgrade flow w/o internet\n• Signature check on bundle]
 
@@ -206,18 +207,18 @@ end
   subgraph P8[Phase 8 – Observability, Governance, Testnets]
     direction TB
 
-    P8_1[☐ Explorers & Dashboards\n• Block/tx explorer\n• GMA dashboard: PHO/TESS, reserves,\n  bonds, rates, OMOs, revenues\n• Holo/Beam explorer\n• MeshReconcile/cluster stats]
+    P8_1[☐ Explorers & Dashboards\n• Block/tx explorer\n• Proof explorer (verify proofs client-side)\n• Replay/hologram trace viewer (dev)\n• GMA dashboard: PHO/TESS, reserves,\n  bonds, rates, OMOs, revenues\n• Holo/Beam explorer\n• MeshReconcile/cluster stats]
 
     P8_2[☐ Governance Wiring\n• TESS staking → voting power\n• Proposal types:\n  – rates, risk limits\n  – council, recap rules\n  – offline_credit_limit policies\n• Timelocks & emergency powers]
 
-    P8_3[☐ Testnets\n• Local devnet with mocks\n• Internal testnet (fake reserves/oracles)\n• Public testnet (faucet, explorers)\n• Upgrade/migration rehearsals]
+    P8_3[☐ Testnets\n• Local devnet with mocks\n• Internal testnet (fake reserves/oracles)\n• Public testnet (faucet, explorers)\n• Upgrade/migration rehearsals\n• Light-client conformance tests (roots + proofs + replay)]
 
-    P8_4[☐ Security & Audits\n• Internal invariant review (GMA + mesh)\n• External audits:\n  – core chain modules\n  – PHO/TESS/bonds\n  – GMA, MeshReconcile, bridges\n• Bug bounty program]
+    P8_4[☐ Security & Audits\n• Internal invariant review (GMA + mesh)\n• External audits:\n  – core chain modules\n  – proofs/light-client correctness\n  – PHO/TESS/bonds\n  – GMA, MeshReconcile, bridges\n• Bug bounty program]
   end
-  end
+
   %% Dependencies
   P0_2 --> P1_2
-  P1_2 --> P1_3 --> P1_4 --> P1_5
+  P1_2 --> P1_2A --> P1_3 --> P1_4 --> P1_5
   P1_3 --> P2_1
   P2_1 --> P3_2
   P2_2 --> P1_5

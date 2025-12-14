@@ -17,6 +17,7 @@ import { HoloIndexItem } from "../lib/api/holo";
 // 3D hologram scene wrapper (Canvas + OrbitControls)
 import HologramContainerView from "../components/HologramContainerView";
 import QRCode from "qrcode.react";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 // Hologram IR + API
 import type { HoloIR } from "../lib/types/holo";
@@ -635,60 +636,65 @@ export default function DevTools() {
             flexDirection: "column",
           }}
         >
-          {activeTool === "editor" ? (
-            <PhotonEditor docId="devtools" />
-          ) : activeTool === "ledger" ? (
-            <LedgerInspector />
-          ) : activeTool === "guide" ? (
-            <PhotonGuide />
-          ) : activeTool === "pitch" ? (
-            <DevPitch />
-          ) : activeTool === "aion" ? (
-            <AionMemoryFieldPanel />
-          ) : activeTool === "crystal" ? (
-            <CrystalPanel />
-          ) : activeTool === "docs" ? (
-            <TransactableDocsDevPanel />
-          ) : activeTool === "gma" ? (
-            <GMADashboardPanel />
-          ) : activeTool === "gma_auth" ? (
-            <GMAMonetaryAuthorityPanel />
-          ) : (
-            <>
-              {/* Field Lab: Hologram container fills full width (owns its own Holo Files cabinet) */}
-              <div
-                style={{
-                  flex: 1,
-                  minHeight: 320,
-                  overflow: "hidden",
-                }}
-              >
-                <HologramContainerView
-                  containerId={activeContainerId ?? "dc_aion_core"}
-                  title="Hologram Container"
-                  holo={holo}
-                  holoFiles={holoFiles}
-                  onSelectHolo={async (item) => {
-                    if (!activeContainerId) return;
-                    const snap = await fetchHoloAtTick(
-                      activeContainerId,
-                      item.tick,
-                      item.revision,
-                    );
-                    if (snap) setHolo(snap);
+          <ErrorBoundary
+            title="DevTools panel crashed"
+            onReset={() => setActiveTool("editor")}
+          >
+            {activeTool === "editor" ? (
+              <PhotonEditor docId="devtools" />
+            ) : activeTool === "ledger" ? (
+              <LedgerInspector />
+            ) : activeTool === "guide" ? (
+              <PhotonGuide />
+            ) : activeTool === "pitch" ? (
+              <DevPitch />
+            ) : activeTool === "aion" ? (
+              <AionMemoryFieldPanel />
+            ) : activeTool === "crystal" ? (
+              <CrystalPanel />
+            ) : activeTool === "docs" ? (
+              <TransactableDocsDevPanel />
+            ) : activeTool === "gma" ? (
+              <GMADashboardPanel />
+            ) : activeTool === "gma_auth" ? (
+              <GMAMonetaryAuthorityPanel />
+            ) : (
+              <>
+                {/* Field Lab: Hologram container fills full width (owns its own Holo Files cabinet) */}
+                <div
+                  style={{
+                    flex: 1,
+                    minHeight: 320,
+                    overflow: "hidden",
                   }}
-                />
-              </div>
+                >
+                  <HologramContainerView
+                    containerId={activeContainerId ?? "dc_aion_core"}
+                    title="Hologram Container"
+                    holo={holo}
+                    holoFiles={holoFiles}
+                    onSelectHolo={async (item) => {
+                      if (!activeContainerId) return;
+                      const snap = await fetchHoloAtTick(
+                        activeContainerId,
+                        item.tick,
+                        item.revision,
+                      );
+                      if (snap) setHolo(snap);
+                    }}
+                  />
+                </div>
 
-              <div style={{ marginTop: 12 }}>
-                <HoloProgramEditor
-                  value={holo as any}
-                  onChange={setHolo as any}
-                  apiBase="/api"
-                />
-              </div>
-            </>
-          )}
+                <div style={{ marginTop: 12 }}>
+                  <HoloProgramEditor
+                    value={holo as any}
+                    onChange={setHolo as any}
+                    apiBase="/api"
+                  />
+                </div>
+              </>
+            )}
+          </ErrorBoundary>
         </div>
 
         {/* Field-only footer: errors + run/export controls */}

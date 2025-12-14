@@ -26,7 +26,7 @@ from backend.modules.hexcore.boot_loader import load_boot_goals, preload_all_dom
 from fastapi import Query  # add if not present
 from backend.modules.teleport.wormhole_resolver import resolve_wormhole
 # ── UCS template loader + optional Tesseract HQ
-from backend.modules.dimensions.universal_container_system import container_loader
+from backend.modules.dimensions.containers import container_loader as container_loader_mod
 try:
     from backend.modules.dimensions.containers.tesseract_hub import ensure_tesseract_hub
 except Exception:
@@ -48,8 +48,16 @@ if ENV != "production":
     else:
         print("⚠️ Warning: .env.local not found.")
 
-# ── Warm up Cloud SQL socket
-time.sleep(3)
+# ── Warm up Cloud SQL socket (make opt-in in dev; on in prod if you want)
+def _truthy(name: str, default=False) -> bool:
+    v = os.getenv(name)
+    if v is None:
+        return default
+    return v.lower() in {"1", "true", "yes", "on"}
+
+ENABLE_CLOUDSQL_WARMUP = _truthy("AION_ENABLE_CLOUDSQL_WARMUP", ENV == "production")
+if ENABLE_CLOUDSQL_WARMUP:
+    time.sleep(3)
 
 # ── Logging setup
 logging.basicConfig(level=logging.INFO)
@@ -87,6 +95,8 @@ app = FastAPI(
 app.router.redirect_slashes = False
 
 # 🧠 Attach AION Trace Bus subscriber -> Replay Reducer
+_TRACE_SUBSCRIBED = False
+
 def on_trace_event(event: dict):
     """
     Called whenever a cognition event is emitted.
@@ -97,8 +107,14 @@ def on_trace_event(event: dict):
     except Exception as e:
         print(f"[TraceBus] ⚠️ Replay journal failed: {e}")
 
-subscribe(on_trace_event)
-print("✅ AION Trace Bus attached to ReplayReducer")
+# Guard against duplicate subscriptions in reload/worker edge-cases
+if not _TRACE_SUBSCRIBED:
+    subscribe(on_trace_event)
+    _TRACE_SUBSCRIBED = True
+    print("✅ AION Trace Bus attached to ReplayReducer")
+else:
+    print("💤 AION Trace Bus already attached - skipping duplicate subscribe()")
+
 # ── Manually re-enable OpenAPI + ReDoc routes
 from fastapi.openapi.docs import get_redoc_html
 from fastapi.openapi.utils import get_openapi
@@ -121,14 +137,18 @@ async def custom_redoc():
 # ── CORS
 from fastapi.responses import Response
 
-def _truthy(name: str, default=False) -> bool:
-    v = os.getenv(name)
-    if v is None:
-        return default
-    return v.lower() in {"1", "true", "yes", "on"}
-
 ENV = (os.getenv("ENV") or "development").lower()
 ALLOW_ALL = _truthy("ALLOW_ALL_CORS", False)
+
+# Feature flags to prevent “startup storms” in dev while keeping prod fully-on
+ENABLE_SCHEDULER        = _truthy("AION_ENABLE_SCHEDULER", ENV == "production")
+ENABLE_SEED_PATTERNS    = _truthy("AION_SEED_PATTERNS", True)
+ENABLE_DEPRECATION_HOOK = _truthy("AION_ENABLE_DEPRECATION_HOOK", True)
+
+ENABLE_HQCE             = _truthy("AION_ENABLE_HQCE", True)
+ENABLE_GHX_TELEMETRY    = _truthy("AION_ENABLE_GHX_TELEMETRY", True)
+ENABLE_DUAL_HEARTBEAT   = _truthy("AION_ENABLE_DUAL_HEARTBEAT", True)
+ENABLE_BOOT_LOADER      = _truthy("AION_ENABLE_BOOT_LOADER", True)
 
 if ALLOW_ALL:
     # Debug: open to any origin; cannot use credentials with "*"/fully-open regex.
@@ -172,6 +192,12 @@ def _tx_preflight():
 # ── Unified startup event
 @app.on_event("startup")
 async def startup_event():
+    # Idempotency guard: prevents duplicate startup runs if event gets registered twice
+    if getattr(app.state, "_startup_event_ran", False):
+        logger.warning("[startup] startup_event already ran in this process; skipping duplicate call.")
+        return
+    app.state._startup_event_ran = True
+
     # Ensure HQ first so others can wormhole-link to it
     if ensure_tesseract_hub:
         try:
@@ -179,128 +205,142 @@ async def startup_event():
             logger.info("[startup] Tesseract HQ ensured (tesseract_hq).")
         except Exception as e:
             logger.warning(f"[startup] Failed to ensure Tesseract HQ: {e}")
-        # ✅ Seed pattern registry once at startup
-        try:
-            from backend.modules.patterns.seed_patterns import seed_builtin_patterns
-            seed_builtin_patterns()
-            logger.info("✅ Seeded built-in symbolic patterns.")
-        except Exception as e:
-            logger.warning(f"Failed to seed built-in patterns: {e}")
+
+        # ✅ Seed pattern registry once at startup (guarded)
+        if ENABLE_SEED_PATTERNS and not getattr(app.state, "_seeded_patterns", False):
+            try:
+                from backend.modules.patterns.seed_patterns import seed_builtin_patterns
+                seed_builtin_patterns()
+                app.state._seeded_patterns = True
+                logger.info("✅ Seeded built-in symbolic patterns.")
+            except Exception as e:
+                logger.warning(f"Failed to seed built-in patterns: {e}")
 
     # Preload UCS container templates (.dc.json) into runtime
     try:
-        loaded = container_loader.auto_load_all_templates()
+        loaded = container_loader_mod.auto_load_all_templates()
         logger.info(f"[startup] Preloaded {len(loaded)} UCS containers.")
     except Exception as e:
         logger.warning(f"[startup] Failed to auto-load UCS containers: {e}")
 
-    # Existing boot steps
-    try:
-        load_boot_goals()
-    except Exception as e:
-        logger.warning(f"boot: load_boot_goals failed: {e}")
-    try:
-        preload_all_domain_packs()
-    except Exception as e:
-        logger.warning(f"boot: preload_all_domain_packs failed: {e}")
-    try:
-        boot()
-    except Exception as e:
-        logger.warning(f"boot() failed: {e}")
+    # Existing boot steps (guarded so dev can turn it down if needed)
+    if ENABLE_BOOT_LOADER:
+        try:
+            load_boot_goals()
+        except Exception as e:
+            logger.warning(f"boot: load_boot_goals failed: {e}")
+        try:
+            preload_all_domain_packs()
+        except Exception as e:
+            logger.warning(f"boot: preload_all_domain_packs failed: {e}")
+        try:
+            boot()
+        except Exception as e:
+            logger.warning(f"boot() failed: {e}")
+    else:
+        logger.warning("[startup] Boot loader disabled (AION_ENABLE_BOOT_LOADER=0).")
 
     # ── Initialize Tessaris Quantum Quad Core + HQCE
-    try:
-        from backend.QQC.qqc_central_kernel import QuantumQuadCore
-        from backend.modules.holograms.morphic_ledger import morphic_ledger
-        global qqc_kernel
-        qqc_kernel = QuantumQuadCore(container_id="hqce_main_runtime")
-        logger.info("[HQCE] QuantumQuadCore initialized for main runtime.")
-        morphic_ledger.append(
-            {"psi": 0.0, "kappa": 0.0, "T": 0.0, "coherence": 0.0},
-            observer="startup"
-        )
-        logger.info("[HQCE] Morphic Ledger initialized and ready.")
-    except Exception as e:
-        logger.warning(f"[HQCE] Initialization failed: {e}")
-        qqc_kernel = None
+    if ENABLE_HQCE:
+        try:
+            from backend.QQC.qqc_central_kernel import QuantumQuadCore
+            from backend.modules.holograms.morphic_ledger import morphic_ledger
+            global qqc_kernel
+            qqc_kernel = QuantumQuadCore(container_id="hqce_main_runtime")
+            logger.info("[HQCE] QuantumQuadCore initialized for main runtime.")
+            morphic_ledger.append(
+                {"psi": 0.0, "kappa": 0.0, "T": 0.0, "coherence": 0.0},
+                observer="startup"
+            )
+            logger.info("[HQCE] Morphic Ledger initialized and ready.")
+        except Exception as e:
+            logger.warning(f"[HQCE] Initialization failed: {e}")
+            qqc_kernel = None
 
-    # ── Initialize Tessaris runtime
-    try:
-        from backend.modules.tessaris.tessaris_runtime import TessarisRuntime
-        global tessaris_runtime
-        tessaris_runtime = TessarisRuntime()
-        logger.info("[HQCE] TessarisRuntime initialized.")
-    except Exception as e:
-        logger.warning(f"[HQCE] Tessaris runtime failed to initialize: {e}")
-        tessaris_runtime = None
+        # ── Initialize Tessaris runtime
+        try:
+            from backend.modules.tessaris.tessaris_runtime import TessarisRuntime
+            global tessaris_runtime
+            tessaris_runtime = TessarisRuntime()
+            logger.info("[HQCE] TessarisRuntime initialized.")
+        except Exception as e:
+            logger.warning(f"[HQCE] Tessaris runtime failed to initialize: {e}")
+            tessaris_runtime = None
 
-    # ── Start Symbolic-Holographic Convergence Engine (ψ-κ-T Learning Loop)
-    try:
-        from backend.modules.holograms.convergence_engine import ConvergenceEngine
-        if qqc_kernel and tessaris_runtime:
-            convergence_engine = ConvergenceEngine(qqc_kernel, tessaris_runtime)
-            asyncio.create_task(convergence_engine.run())
-            logger.info("[HQCE] ConvergenceEngine started (ψ-κ-T loop).")
-        else:
-            logger.warning("[HQCE] ConvergenceEngine skipped: dependencies missing.")
-    except Exception as e:
-        logger.warning(f"[HQCE] Failed to start ConvergenceEngine: {e}")
+        # ── Start Symbolic-Holographic Convergence Engine (ψ-κ-T Learning Loop)
+        try:
+            from backend.modules.holograms.convergence_engine import ConvergenceEngine
+            if qqc_kernel and tessaris_runtime:
+                convergence_engine = ConvergenceEngine(qqc_kernel, tessaris_runtime)
+                asyncio.create_task(convergence_engine.run())
+                logger.info("[HQCE] ConvergenceEngine started (ψ-κ-T loop).")
+            else:
+                logger.warning("[HQCE] ConvergenceEngine skipped: dependencies missing.")
+        except Exception as e:
+            logger.warning(f"[HQCE] Failed to start ConvergenceEngine: {e}")
 
-    # ── Initialize QuantumMorphicRuntime (ψ-κ-T Field Regulation)
-    try:
-        from backend.modules.holograms.quantum_morphic_runtime import QuantumMorphicRuntime
+        # ── Initialize QuantumMorphicRuntime (ψ-κ-T Field Regulation)
+        try:
+            from backend.modules.holograms.quantum_morphic_runtime import QuantumMorphicRuntime
 
-        # Example GHX packet + avatar placeholder - will be replaced by live feed later
-        ghx_packet = {"container_id": "hqce_main_runtime", "phase": "init"}
-        avatar_state = {"id": "AION_CORE", "state": "boot"}
+            # Example GHX packet + avatar placeholder - will be replaced by live feed later
+            ghx_packet = {"container_id": "hqce_main_runtime", "phase": "init"}
+            avatar_state = {"id": "AION_CORE", "state": "boot"}
 
-        qmr = QuantumMorphicRuntime(ghx_packet, avatar_state)
-        qmr_state = qmr.run()
+            qmr = QuantumMorphicRuntime(ghx_packet, avatar_state)
+            qmr_state = qmr.run()
 
-        logger.info("[HQCE] QuantumMorphicRuntime executed successfully.")
-        logger.debug(f"[HQCE] ψ-κ-T snapshot -> {qmr_state.get('psi_kappa_T')}")
-    except Exception as e:
-        logger.warning(f"[HQCE] QuantumMorphicRuntime failed to initialize: {e}")
+            logger.info("[HQCE] QuantumMorphicRuntime executed successfully.")
+            logger.debug(f"[HQCE] ψ-κ-T snapshot -> {qmr_state.get('psi_kappa_T')}")
+        except Exception as e:
+            logger.warning(f"[HQCE] QuantumMorphicRuntime failed to initialize: {e}")
+    else:
+        logger.warning("[startup] HQCE disabled (AION_ENABLE_HQCE=0).")
 
     # ── Start GHX Telemetry Adapter (CodexMetrics -> MorphicLedger -> GHXVisualizer)
-    try:
-        from backend.modules.cognitive_fabric.ghx_telemetry_adapter import GHX_TELEMETRY
-        GHX_TELEMETRY.start()
-        logger.info("[GHXTelemetry] Adapter started - streaming Φ-ψ-κ-T metrics to GHXVisualizer.")
-    except Exception as e:
-        logger.warning(f"[GHXTelemetry] Adapter not started: {e}")
+    if ENABLE_GHX_TELEMETRY:
+        try:
+            from backend.modules.cognitive_fabric.ghx_telemetry_adapter import GHX_TELEMETRY
+            GHX_TELEMETRY.start()
+            logger.info("[GHXTelemetry] Adapter started - streaming Φ-ψ-κ-T metrics to GHXVisualizer.")
+        except Exception as e:
+            logger.warning(f"[GHXTelemetry] Adapter not started: {e}")
+    else:
+        logger.warning("[startup] GHX Telemetry disabled (AION_ENABLE_GHX_TELEMETRY=0).")
 
     # ── Start AION Dual Heartbeat Supervisor (Primary or Mirror)
-    import psutil
+    if ENABLE_DUAL_HEARTBEAT:
+        import psutil
 
-    def is_heartbeat_running(role="primary"):
-        """Check if a specific AION Dual Heartbeat instance is already active."""
-        for proc in psutil.process_iter(['cmdline']):
-            cmd = proc.info['cmdline']
-            if cmd and f"aion_dual_heartbeat.py" in " ".join(cmd) and f"--role {role}" in " ".join(cmd):
-                return True
-        return False
+        def is_heartbeat_running(role="primary"):
+            """Check if a specific AION Dual Heartbeat instance is already active."""
+            for proc in psutil.process_iter(['cmdline']):
+                cmd = proc.info['cmdline']
+                if cmd and f"aion_dual_heartbeat.py" in " ".join(cmd) and f"--role {role}" in " ".join(cmd):
+                    return True
+            return False
 
-    try:
-        # Detect node role (default: primary)
-        role = os.environ.get("AION_ROLE", "primary").lower()
-        logger.info(f"💠 Detected AION node role: {role.upper()}")
+        try:
+            # Detect node role (default: primary)
+            role = os.environ.get("AION_ROLE", "primary").lower()
+            logger.info(f"💠 Detected AION node role: {role.upper()}")
 
-        # Launch the corresponding heartbeat if not already active
-        if not is_heartbeat_running(role):
-            logger.info(f"💓 Launching AION Dual Heartbeat Supervisor ({role.upper()})...")
-            subprocess.Popen(
-                ["python", "backend/AION/system/aion_dual_heartbeat.py", "--role", role],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            logger.info(f"✅ AION {role.capitalize()} Heartbeat running in background.")
-        else:
-            logger.info(f"💤 AION {role.capitalize()} Heartbeat already running - skipping launch.")
-    except Exception as e:
-        logger.warning(f"⚠️ Failed to start AION Dual Heartbeat: {e}")
-
-
+            # Launch the corresponding heartbeat if not already active
+            if not is_heartbeat_running(role):
+                logger.info(f"💓 Launching AION Dual Heartbeat Supervisor ({role.upper()})...")
+                subprocess.Popen(
+                    ["python", "backend/AION/system/aion_dual_heartbeat.py", "--role", role],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                logger.info(f"✅ AION {role.capitalize()} Heartbeat running in background.")
+            else:
+                logger.info(f"💤 AION {role.capitalize()} Heartbeat already running - skipping launch.")
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to start AION Dual Heartbeat: {e}")
+    else:
+        logger.warning("[startup] Dual Heartbeat disabled (AION_ENABLE_DUAL_HEARTBEAT=0).")
+        
 # ── Routers
 from backend.routes.auth import router as auth_router
 from backend.routes.products           import router as products_router
@@ -442,6 +482,8 @@ from backend.modules.photon_savings.photon_savings_routes import router as photo
 from backend.modules.escrow.escrow_routes import router as escrow_router
 from backend.modules.transactable_docs.transactable_doc_routes import router as transactable_docs_router
 from backend.modules.chain_sim.chain_sim_routes import router as chain_sim_router
+from backend.modules.staking.staking_routes import router as staking_router
+from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -678,6 +720,8 @@ app.include_router(photon_savings_router, prefix="/api")
 app.include_router(escrow_router, prefix="/api")
 app.include_router(transactable_docs_router, prefix="/api")
 app.include_router(chain_sim_router, prefix="/api")
+app.include_router(staking_router, prefix="/api")
+app.include_router(glyphchain_perf_router, prefix="/api")
 
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)
@@ -712,9 +756,38 @@ async def start_lock_sweeper():
             await asyncio.sleep(1.0)
     asyncio.create_task(sweeper())
 
-seed_builtin_patterns()
-install_deprecation_hook()
+# =========================
+# One-time guards (avoid duplicate startup work under reload / multi-import)
+# =========================
+_SEEDED_PATTERNS = False
+_DEPRECATION_HOOK_INSTALLED = False
+_SQI_REHYDRATED = False
+_PHI_BALANCE_STARTED = False
+_COG_THREADS_STARTED = False
+_SCHEDULER_STARTED = False
 
+
+# Seed patterns + deprecation hook (guarded)
+if ENABLE_SEED_PATTERNS:
+    try:
+        if not _SEEDED_PATTERNS:
+            seed_builtin_patterns()
+            _SEEDED_PATTERNS = True
+            logger.info("✅ seed_builtin_patterns() ran once.")
+    except Exception as e:
+        logger.warning(f"Failed to seed_builtin_patterns(): {e}")
+
+if ENABLE_DEPRECATION_HOOK:
+    try:
+        if not _DEPRECATION_HOOK_INSTALLED:
+            install_deprecation_hook()
+            _DEPRECATION_HOOK_INSTALLED = True
+            logger.info("✅ install_deprecation_hook() ran once.")
+    except Exception as e:
+        logger.warning(f"Failed to install_deprecation_hook(): {e}")
+
+
+# Optional routers
 if atomsheets_router:
     app.include_router(atomsheets_router)
 if lightcone_router:
@@ -740,6 +813,10 @@ from backend.modules.sqi.sqi_container_registry import sqi_registry
 
 @app.on_event("startup")
 def _rehydrate_sqi_registry():
+    global _SQI_REHYDRATED
+    if _SQI_REHYDRATED:
+        return
+    _SQI_REHYDRATED = True
     try:
         n = sqi_registry.rehydrate_from_ucs()
         print(f"[SQI] Rehydrated {n} containers from UCS into registry.")
@@ -795,9 +872,20 @@ def list_available_containers():
 import asyncio
 from backend.modules.aion_resonance.phi_learning import auto_balance_loop
 
+# Gate this loop if you want to reduce background churn in dev:
+ENABLE_PHI_BALANCE = _truthy("AION_ENABLE_PHI_BALANCE", ENV == "production")
+
 @app.on_event("startup")
 async def launch_phi_balance():
+    global _PHI_BALANCE_STARTED
+    if not ENABLE_PHI_BALANCE:
+        logger.info("[startup] auto_balance_loop disabled (AION_ENABLE_PHI_BALANCE=0).")
+        return
+    if _PHI_BALANCE_STARTED:
+        return
+    _PHI_BALANCE_STARTED = True
     asyncio.create_task(auto_balance_loop())
+    logger.info("[startup] auto_balance_loop started once.")
 
 # ============================================================
 # 🧠 AION Cognitive & Continuum Background Processes
@@ -806,6 +894,8 @@ from threading import Thread
 import time
 from backend.modules.aion_resonance.cognitive_loop import run_cognitive_cycle
 from backend.modules.aion_resonance.cognitive_continuum import run_continuum_cycle
+
+ENABLE_COG_THREADS = _truthy("AION_ENABLE_COG_THREADS", ENV == "production")
 
 def background_loop():
     """Continuously run AION's internal self-reflection loop."""
@@ -830,6 +920,13 @@ def continuum_thread():
 @app.on_event("startup")
 async def on_startup():
     """Launch all autonomous AION background processes."""
+    global _COG_THREADS_STARTED
+    if not ENABLE_COG_THREADS:
+        print("🧠 Cognitive/Continuum threads disabled (AION_ENABLE_COG_THREADS=0).")
+        return
+    if _COG_THREADS_STARTED:
+        return
+    _COG_THREADS_STARTED = True
     print("🧠 Starting AION Reflection + Continuum threads...")
     Thread(target=background_loop, daemon=True).start()
     Thread(target=continuum_thread, daemon=True).start()
@@ -862,7 +959,6 @@ async def proxy_symatics(ws: WebSocket):
         print(f"❌ Symatics proxy error: {e}")
     finally:
         await ws.close()
-
 
 @app.websocket("/api/ws/analytics")
 async def proxy_analytics(ws: WebSocket):
@@ -913,12 +1009,22 @@ if __name__ == "__main__":
         forwarded_allow_ips="*",
     )
 
-# ── 22) 💤 Start AION scheduler (best effort)
-try:
-    from backend.tasks.scheduler import start_scheduler
-    start_scheduler()
-except Exception as e:
-    logger.warning(f"⚠️ Dream scheduler could not start: {e}")
+# ── 22) 💤 Start AION scheduler (best effort) — move to startup + guard (prevents double-starts)
+@app.on_event("startup")
+def _start_aion_scheduler():
+    global _SCHEDULER_STARTED
+    if not ENABLE_SCHEDULER:
+        logger.info("[startup] Scheduler disabled (AION_ENABLE_SCHEDULER=0).")
+        return
+    if _SCHEDULER_STARTED:
+        return
+    _SCHEDULER_STARTED = True
+    try:
+        from backend.tasks.scheduler import start_scheduler
+        start_scheduler()
+        logger.info("✅ AION scheduler started once.")
+    except Exception as e:
+        logger.warning(f"⚠️ Dream scheduler could not start: {e}")
 
 # ── 23) Cloud Function: Stop Cloud Run if over budget
 def shutdown_service(event, context):

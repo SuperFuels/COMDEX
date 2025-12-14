@@ -1,5 +1,9 @@
 # /workspaces/COMDEX/backend/modules/knowledge_graph/kg_writer_singleton.py
+from __future__ import annotations
+
 import importlib
+import json
+import os
 import traceback
 import logging
 from typing import Any, Callable, Optional, Dict
@@ -15,16 +19,89 @@ _export_tree_to_kg = None  # Lazy-imported KG writer method
 # ✅ Direct reference to the real GlyphVault Manager (not container_runtime)
 try:
     from backend.modules.glyphvault.vault_manager import VAULT
-    print("🔗 [kg_writer_singleton] VAULT bound to glyphvault.vault_manager.VAULT")
+    log.info("🔗 [kg_writer_singleton] VAULT bound to glyphvault.vault_manager.VAULT")
 except Exception as e:
     VAULT = None
     log.warning("[kg_writer_singleton] ⚠️ Could not import VAULT from glyphvault.vault_manager: %s", e)
+
+# --------------------------------------------------------------------
+# Compat wrapper
+# --------------------------------------------------------------------
+_KG_COMPAT_ENABLED = os.getenv("AION_KG_COMPAT", "1") not in {"0", "false", "no", "off"}
+
+
+def _attach_compat(writer: Any) -> Any:
+    """
+    Attach back-compat methods to the KG writer instance so older modules
+    calling `log_event()` / `append_entry()` don't spam prints or break.
+
+    These map to `inject_glyph()` when available.
+    """
+    if not _KG_COMPAT_ENABLED or writer is None:
+        return writer
+
+    def _has(name: str) -> bool:
+        return hasattr(writer, name) and callable(getattr(writer, name))
+
+    # Prefer inject_glyph as the canonical new API
+    has_inject = _has("inject_glyph")
+
+    if not _has("log_event"):
+        def log_event(event_type: str = "event", payload: Optional[Dict[str, Any]] = None, **kwargs) -> bool:
+            if not has_inject:
+                return False
+            try:
+                meta = {"event_type": event_type}
+                if payload and isinstance(payload, dict):
+                    meta.update(payload)
+                meta.update(kwargs)
+
+                writer.inject_glyph(
+                    content=json.dumps(payload or kwargs, default=str),
+                    glyph_type="kg_event",
+                    metadata=meta,
+                    plugin="KGCompat",
+                )
+                return True
+            except Exception as e:
+                log.debug("[KGCompat] log_event failed: %s", e)
+                return False
+
+        writer.log_event = log_event  # type: ignore[attr-defined]
+
+    if not _has("append_entry"):
+        def append_entry(entry: Dict[str, Any], **kwargs) -> bool:
+            if not has_inject:
+                return False
+            if not isinstance(entry, dict):
+                return False
+            try:
+                meta = dict(entry)
+                meta.update(kwargs)
+                writer.inject_glyph(
+                    content=json.dumps(entry, default=str),
+                    glyph_type=str(entry.get("type", "kg_entry")),
+                    metadata=meta,
+                    plugin="KGCompat",
+                )
+                return True
+            except Exception as e:
+                log.debug("[KGCompat] append_entry failed: %s", e)
+                return False
+
+        writer.append_entry = append_entry  # type: ignore[attr-defined]
+
+    return writer
+
 
 # ────────────────────────────────────────────────────────────────
 def get_kg_writer() -> Any:
     """
     Lazily initializes and returns the singleton KnowledgeGraphWriter instance.
     This avoids circular import issues by delaying class resolution until needed.
+
+    Also attaches compat methods (log_event/append_entry) to prevent spam
+    and keep legacy callers working.
     """
     global _kg_writer_instance, _KG_WRITER_CLASS
 
@@ -39,6 +116,7 @@ def get_kg_writer() -> Any:
             _KG_WRITER_CLASS = getattr(module, "KnowledgeGraphWriter")
 
         _kg_writer_instance = _KG_WRITER_CLASS()
+        _kg_writer_instance = _attach_compat(_kg_writer_instance)
         return _kg_writer_instance
 
     except Exception as e:
@@ -48,10 +126,12 @@ def get_kg_writer() -> Any:
             f"[kg_writer_singleton] 📍 Stack Trace:\n{trace}"
         )
 
+
 # ────────────────────────────────────────────────────────────────
 def get_strategy_planner_kg_writer() -> Any:
     """🔁 Alias for get_kg_writer(), used in StrategyPlanner and other contexts."""
     return get_kg_writer()
+
 
 # ────────────────────────────────────────────────────────────────
 def write_glyph_event(*args, **kwargs) -> None:
@@ -60,10 +140,10 @@ def write_glyph_event(*args, **kwargs) -> None:
 
     Supports BOTH call styles:
 
-    A) Legacy (this module's original):
+    A) Legacy:
         write_glyph_event(event_type: str, event: dict, container_id: Optional[str]=None)
 
-    B) Newer callers (seen in sqi_event_bus.py):
+    B) Newer:
         write_glyph_event(container_id=..., glyph=..., event_type=..., metadata=...)
 
     It will adapt to whichever signature the underlying knowledge_graph_writer exposes.
@@ -92,7 +172,6 @@ def write_glyph_event(*args, **kwargs) -> None:
             "glyph": glyph,
             "metadata": metadata if metadata is not None else (meta if meta is not None else {}),
         }
-        # pass through any extra fields the caller provided
         if kwargs:
             event.update(kwargs)
         kwargs = {}
@@ -137,17 +216,29 @@ def write_glyph_event(*args, **kwargs) -> None:
             return real_writer(event_type=event_type, event=event, container_id=container_id)
         except TypeError:
             if "vault" in varnames:
-                return real_writer(container_id=container_id, glyph=event.get("glyph"), event_type=event_type, metadata=event.get("metadata", {}), vault=VAULT)
-            return real_writer(container_id=container_id, glyph=event.get("glyph"), event_type=event_type, metadata=event.get("metadata", {}))
+                return real_writer(
+                    container_id=container_id,
+                    glyph=event.get("glyph"),
+                    event_type=event_type,
+                    metadata=event.get("metadata", {}),
+                    vault=VAULT,
+                )
+            return real_writer(
+                container_id=container_id,
+                glyph=event.get("glyph"),
+                event_type=event_type,
+                metadata=event.get("metadata", {}),
+            )
 
     except Exception as e:
         trace = "".join(traceback.format_stack(limit=10))
         log.error(
-            "[kg_writer_singleton] ❌ Failed to call write_glyph_event: %s\n[kq_writer_singleton] 📍 Stack Trace:\n%s",
+            "[kg_writer_singleton] ❌ Failed to call write_glyph_event: %s\n[kg_writer_singleton] 📍 Stack Trace:\n%s",
             e,
             trace,
         )
         raise
+
 
 # ────────────────────────────────────────────────────────────────
 def get_glyph_trace_for_container(container_id: str) -> dict:
@@ -168,6 +259,7 @@ def get_glyph_trace_for_container(container_id: str) -> dict:
             f"[kg_writer_singleton] 📍 Stack Trace:\n{trace}"
         )
 
+
 # ────────────────────────────────────────────────────────────────
 def export_symbol_tree_if_enabled(container_id: str) -> None:
     """
@@ -187,10 +279,11 @@ def export_symbol_tree_if_enabled(container_id: str) -> None:
         tree = _build_tree_from_container(container_id)
         _export_tree_to_kg(tree)
 
-        print(f"[🌳] Symbolic Tree auto-exported for container: {container_id}")
+        log.info("[🌳] Symbolic Tree auto-exported for container: %s", container_id)
 
     except Exception as e:
         log.warning("[kg_writer_singleton] ⚠️ Failed to export symbolic tree for %s: %s", container_id, e)
+
 
 # ────────────────────────────────────────────────────────────────
 def get_crdt_registry() -> Optional[Any]:
@@ -201,6 +294,7 @@ def get_crdt_registry() -> Optional[Any]:
     except Exception as e:
         log.warning("[kg_writer_singleton] ⚠️ Could not access crdt_registry: %s", e)
         return None
+
 
 # ────────────────────────────────────────────────────────────────
 __all__ = [

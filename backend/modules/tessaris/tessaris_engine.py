@@ -2,6 +2,8 @@ import uuid
 import json
 import requests
 import time
+import logging
+import os
 from typing import Any, Dict, List, Optional
 
 from backend.config import GLYPH_API_BASE_URL
@@ -33,15 +35,84 @@ from backend.modules.codex.codex_mind_model import CodexMindModel
 from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 
-from typing import Dict, Any, Optional
 from backend.modules.skills.goal_engine import GoalEngine
 import builtins
+
+
+# ──────────────────────────────────────────────────────────────
+# Quiet hot-loop loggers (prevents spam + tx slowdown)
+# ──────────────────────────────────────────────────────────────
+logging.getLogger("SQI Event").setLevel(logging.WARNING)
+logging.getLogger("knowledge_index").setLevel(logging.WARNING)
+logging.getLogger("kg_writer_singleton").setLevel(logging.WARNING)
+
 
 # ✅ SCI cognition layer
 try:
     from backend.modules.aion_language.sci_overlay import sci_emit
 except Exception:
-    def sci_emit(*a, **k): pass
+    def sci_emit(*a, **k):  # type: ignore
+        pass
+
+
+# ──────────────────────────────────────────────────────────────
+# Env toggles (opt-out defaults)
+# ──────────────────────────────────────────────────────────────
+def _env_bool(name: str, default: str = "0") -> bool:
+    v = os.getenv(name, default)
+    return str(v).strip().lower() in ("1", "true", "yes", "y", "on")
+
+# Default OFF: prevents the repeating SQI “resonance_heartbeat_sync” spam
+_TESSARIS_SQI_HEARTBEAT = _env_bool("TESSARIS_SQI_HEARTBEAT", "0")
+
+# Default OFF: prevents “✅ Memory stored: tessaris_resonance_update”
+_TESSARIS_STORE_RESONANCE_UPDATE = _env_bool("TESSARIS_STORE_RESONANCE_UPDATE", "0")
+
+# Optional: if you want to stop the heartbeat loop entirely
+_TESSARIS_HEARTBEAT_LOOP = _env_bool("TESSARIS_HEARTBEAT_LOOP", "1")
+
+# Optional debug prints (keeps hot-loop quiet by default)
+_TESSARIS_DEBUG = _env_bool("TESSARIS_DEBUG", "0")
+
+
+def _kg_log_safe(kg_writer: Any, event_type: str, payload: Dict[str, Any]) -> None:
+    """
+    Best-effort KG logging.
+    - Uses log_event(event_type, payload) if available
+    - Else uses append_entry({...}) (dict signature)
+    - Else tries inject_glyph(...) if writer supports it
+    - Else silently no-ops (no prints, no spam)
+    """
+    if not kg_writer:
+        return
+    try:
+        if hasattr(kg_writer, "log_event") and callable(getattr(kg_writer, "log_event")):
+            kg_writer.log_event(event_type, payload)
+            return
+
+        if hasattr(kg_writer, "append_entry") and callable(getattr(kg_writer, "append_entry")):
+            # IMPORTANT: append_entry expects a dict entry (not (type, data))
+            kg_writer.append_entry({
+                "type": event_type,
+                "timestamp": payload.get("timestamp") or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "data": payload,
+                "source": "TessarisEngine",
+            })
+            return
+
+        if hasattr(kg_writer, "inject_glyph") and callable(getattr(kg_writer, "inject_glyph")):
+            kg_writer.inject_glyph(
+                content=json.dumps(payload, default=str),
+                glyph_type=str(event_type),
+                metadata={"source": "TessarisEngine"},
+                plugin="TessarisEngine",
+            )
+            return
+
+    except Exception:
+        # absolutely do not spam stdout from hot loops
+        return
+
 
 def _quiet_print(*args, **kwargs):
     txt = " ".join(map(str, args))
@@ -49,17 +120,21 @@ def _quiet_print(*args, **kwargs):
         return
     builtins._orig_print(*args, **kwargs)
 
+
 if not hasattr(builtins, "_orig_print"):
     builtins._orig_print = builtins.print
     builtins.print = _quiet_print
-    
+
+
 # Register the module to the DNA switch system
 DNA_SWITCH.register(__file__)
+
 
 # ── Goal Trigger ──
 def trigger_from_goal(goal_data):
     engine = GoalEngine()
     return engine.process_goal(goal_data)
+
 
 # ── Utility: Tree Summarizer ──
 def _summarize_tree(tree: Any) -> Dict[str, Any]:
@@ -73,18 +148,22 @@ def _summarize_tree(tree: Any) -> Dict[str, Any]:
         return 1
 
     try:
-        import json
         size = len(json.dumps(tree, ensure_ascii=False))
     except Exception:
         size = len(str(tree))
 
     return {"depth": _depth(tree), "size": size}
 
+
 class TessarisEngine(ResonantReinforcementMixin):
     def __init__(self, container_id: str = "tessaris_engine"):
         self.container_id = container_id
         self.active_branches = []
         self.active_thoughts = {}
+
+        # --- hot-loop throttles (keeps features, stops IO spam) ---
+        self._last_resonance_store_ts = 0.0
+        self._resonance_store_min_interval_s = 2.0  # tune: 1.0–5.0
 
         # 🧩 Core subsystems
         from backend.modules.skills.goal_engine import GoalEngine
@@ -115,12 +194,17 @@ class TessarisEngine(ResonantReinforcementMixin):
         self.optimizer.register("tessaris_reasoner", self)
         self.optimizer.start()
 
-        # 💓 Resonance Heartbeat coupling
-        self.heartbeat = ResonanceHeartbeat(namespace="tessaris")
-        self.heartbeat.register_listener(self._on_heartbeat)
-        self.heartbeat.bind_jsonl("data/aion_field/resonant_heartbeat.jsonl")  # optional external feed
-        self.heartbeat.start()
-        print("💓 TessarisEngine linked to Resonance Heartbeat.")
+        # 💓 Resonance Heartbeat coupling (opt-out)
+        self.heartbeat = None
+        if _TESSARIS_HEARTBEAT_LOOP:
+            self.heartbeat = ResonanceHeartbeat(namespace="tessaris")
+            self.heartbeat.register_listener(self._on_heartbeat)
+            self.heartbeat.bind_jsonl("data/aion_field/resonant_heartbeat.jsonl")  # optional external feed
+            self.heartbeat.start()
+            print("💓 TessarisEngine linked to Resonance Heartbeat.")
+        else:
+            if _TESSARIS_DEBUG:
+                print("💤 Tessaris heartbeat loop disabled (TESSARIS_HEARTBEAT_LOOP=0).")
 
     def _on_heartbeat(self, pulse_data: dict):
         """
@@ -136,35 +220,35 @@ class TessarisEngine(ResonantReinforcementMixin):
             if hasattr(self.codex_mind, "update_resonance"):
                 self.codex_mind.update_resonance(delta)
 
-            # Log to memory
-            MEMORY.store({
-                "label": "tessaris_resonance_update",
-                "role": "tessaris",
-                "type": "heartbeat_sync",
-                "content": f"Updated reasoning weights (Δ={delta:.4f}, entropy={entropy:.4f})",
-                "data": pulse_data,
-            })
+            # Throttled side-effects (memory + KG/SQI) — both opt-out
+            now = time.time()
+            if (now - self._last_resonance_store_ts) >= self._resonance_store_min_interval_s:
 
-            # 🧩 Safe KG logging
-            try:
-                event_data = {
-                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                    "status": "active",
-                    "source": "TessarisEngine"
-                }
+                if _TESSARIS_STORE_RESONANCE_UPDATE:
+                    MEMORY.store({
+                        "label": "tessaris_resonance_update",
+                        "role": "tessaris",
+                        "type": "heartbeat_sync",
+                        "content": f"Updated reasoning weights (Δ={delta:.4f}, entropy={entropy:.4f})",
+                        "data": pulse_data,
+                    })
 
-                if hasattr(self.kg_writer, "log_event"):
-                    self.kg_writer.log_event("resonance_heartbeat_sync", event_data)
-                elif hasattr(self.kg_writer, "append_entry"):
-                    self.kg_writer.append_entry("resonance_heartbeat_sync", event_data)
-                else:
-                    print("[TessarisEngine] i️ KG writer has no log_event or append_entry - skipping KG log.")
-            except Exception as inner_e:
-                print(f"[TessarisEngine] ⚠️ Failed to log resonance heartbeat: {inner_e}")
+                if _TESSARIS_SQI_HEARTBEAT:
+                    event_data = {
+                        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                        "status": "active",
+                        "source": "TessarisEngine",
+                        "resonance_delta": delta,
+                        "entropy": entropy,
+                    }
+                    _kg_log_safe(self.kg_writer, "resonance_heartbeat_sync", event_data)
+
+                self._last_resonance_store_ts = now
 
         except Exception as e:
             sci_emit("tessaris_error", f"{str(e)[:200]}")
-            print(f"[TessarisEngine] ⚠️ Heartbeat processing failed: {e}")
+            if _TESSARIS_DEBUG:
+                print(f"[TessarisEngine] ⚠️ Heartbeat processing failed: {e}")
 
     # ─────────────────────────────────────────────
     # 🧠 Reflection Generator
@@ -223,11 +307,11 @@ class TessarisEngine(ResonantReinforcementMixin):
             })
 
             # 🗂 Auto-log into Knowledge Graph
-            self.kg_writer.log_event("reasoning_generated", {
+            _kg_log_safe(self.kg_writer, "reasoning_generated", {
                 "glyph": glyph,
                 "reasoning": reasoning_text,
                 "context": context or {},
-                "trace_steps": trace or []
+                "trace_steps": trace or [],
             })
 
             # 🧠 Resonant reinforcement based on reflection quality
@@ -245,7 +329,7 @@ class TessarisEngine(ResonantReinforcementMixin):
             sci_emit("tessaris_error", f"{str(e)[:200]}")
             print(f"[⚠️] TessarisEngine.generate_reflection failed: {e}")
             return "Reflection unavailable."
-            
+
     def seed_thought(self, root_symbol: str, source: str = "manual", metadata: dict = {}):
         thought_id = str(uuid.uuid4())
         root = BranchNode(symbol=root_symbol, source=source, metadata=metadata)
@@ -473,7 +557,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                         success = run_self_rewrite(container_path, coord)
                         print("♻️ Fallback symbolic rewrite executed." if success else "⚠️ Fallback rewrite failed.")
 
-                if "⟲" in glyph and "Reflect" in result:
+                if "⟲" in glyph and "Reflect" in str(result):
                     MEMORY.store({
                         "label": "tessaris_reflection",
                         "role": "tessaris",
@@ -493,6 +577,7 @@ class TessarisEngine(ResonantReinforcementMixin):
 
                 coord = branch.position.get("coord")
                 container_path = branch.metadata.get("container_path") if branch.metadata else None
+                result_str = str(locals().get("result", ""))
 
                 if coord and container_path:
                     MEMORY.store({
@@ -507,108 +592,18 @@ class TessarisEngine(ResonantReinforcementMixin):
                         }
                     })
 
-                    self.kg_writer.log_event("self_rewrite_triggered", {
+                    _kg_log_safe(self.kg_writer, "self_rewrite_triggered", {
                         "glyph": glyph,
                         "reason": "error",
                         "cost": cost.total() if 'cost' in locals() else None,
                         "coord": coord,
                     })
 
+                    # 1) Try Lean rewrite suggestions
                     try:
                         replacements = run_lean_self_rewrite(glyph)
                         if replacements:
-                            self.kg_writer.log_event("self_rewrite_result", {
-                                "replacements": replacements,
-                                "coord": coord,
-                            })
-                            self.memory_engine.replace_glyph_at(container_path, coord, replacements[0])
-                            print("⬁ Auto-rewrite from error succeeded via Lean.")
-                        else:
-                            print("⚠️ Lean rewrite returned no replacements.")
-                    except Exception as e:
-                        sci_emit("tessaris_error", f"{str(e)[:200]}")
-                        print(f"⚠️ Lean rewrite failed: {e}")
-
-                    if glyph.strip().startswith("⟦ Mutate"):
-                        try:
-                            tactic_suggestion = suggest_tactics(glyph)
-                            if tactic_suggestion:
-                                print(f"🧠 Suggested tactic: {tactic_suggestion}")
-                                self.kg_writer.log_event("tactic_suggestion", {
-                                    "glyph": glyph,
-                                    "suggestion": tactic_suggestion,
-                                    "coord": coord,
-                                })
-                        except Exception as e:
-                            sci_emit("tessaris_error", f"{str(e)[:200]}")
-                            print(f"⚠️ Tactic suggestion failed: {e}")
-
-                    if "⊥" in str(result):
-                        try:
-                            axiom_mutation = suggest_axiom_mutation(glyph)
-                            if axiom_mutation:
-                                print(f"🧬 Axiom mutation suggestion: {axiom_mutation}")
-                                self.kg_writer.log_event("axiom_mutation_suggestion", {
-                                    "glyph": glyph,
-                                    "suggestion": axiom_mutation,
-                                    "coord": coord,
-                                })
-                        except Exception as e:
-                            sci_emit("tessaris_error", f"{str(e)[:200]}")
-                            print(f"⚠️ Axiom mutation failed: {e}")
-
-                    self.kg_writer.log_event("self_rewrite_triggered", {
-                        "glyph": glyph,
-                        "reason": "error",
-                        "coord": coord,
-                        "cost": cost.total() if 'cost' in locals() else None,
-                    })
-                    success = run_self_rewrite(container_path, coord)
-                    print("⬁ Fallback symbolic rewrite executed." if success else "⚠️ Fallback auto-rewrite failed.")
-
-                if "⟲" in glyph and "Reflect" in result:
-                    MEMORY.store({
-                        "label": "tessaris_reflection",
-                        "role": "tessaris",
-                        "type": "self_reflection",
-                        "content": f"Reflected on glyph {glyph}",
-                        "data": {"glyph": glyph}
-                    })
-                    print(f"🔁 Reflection triggered from ⟲ glyph")
-
-                self._maybe_create_goal(glyph, branch)
-                self._maybe_suggest_boot(glyph, branch)
-
-            except Exception as e:
-                sci_emit("tessaris_error", f"{str(e)[:200]}")
-                print(f"  ⚠️ Error interpreting glyph {glyph}: {e}")
-                self.codex_metrics.record_error()
-
-                coord = branch.position.get("coord")
-                container_path = branch.metadata.get("container_path") if branch.metadata else None
-                if coord and container_path:
-                    MEMORY.store({
-                        "label": "fallback_rewrite_error",
-                        "role": "tessaris",
-                        "type": "self_rewrite",
-                        "content": f"⬁ Rewrite triggered from glyph error: {glyph}",
-                        "data": {
-                            "glyph": glyph,
-                            "exception": str(e),
-                            "coord": coord
-                        }
-                    })
-                    self.kg_writer.log_event("self_rewrite_triggered", {
-                        "glyph": glyph,
-                        "reason": "error",
-                        "cost": cost.total() if 'cost' in locals() else None,
-                        "coord": coord,
-                    })
-
-                    try:
-                        replacements = run_lean_self_rewrite(glyph)
-                        if replacements:
-                            self.kg_writer.log_event("self_rewrite_result", {
+                            _kg_log_safe(self.kg_writer, "self_rewrite_result", {
                                 "replacements": replacements,
                                 "coord": coord,
                             })
@@ -618,50 +613,66 @@ class TessarisEngine(ResonantReinforcementMixin):
                         else:
                             print("⚠️ Lean rewrite returned no replacements.")
                             success = False
-                    except Exception as e:
-                        sci_emit("tessaris_error", f"{str(e)[:200]}")
-                        print(f"⚠️ Lean rewrite failed: {e}")
+                    except Exception as inner:
+                        sci_emit("tessaris_error", f"{str(inner)[:200]}")
+                        print(f"⚠️ Lean rewrite failed: {inner}")
+                        success = False
 
-                        # 🧠 Tactic suggestion for ⟦ Mutate glyphs
-                        if glyph.strip().startswith("⟦ Mutate") and container_path and coord:
-                            try:
-                                tactic_suggestion = suggest_tactics(glyph)
-                                if tactic_suggestion:
-                                    print(f"🧠 Suggested tactic: {tactic_suggestion}")
-                                    self.kg_writer.log_event("tactic_suggestion", {
-                                        "glyph": glyph,
-                                        "suggestion": tactic_suggestion,
-                                        "coord": coord,
-                                    })
-                            except Exception as e:
-                                sci_emit("tessaris_error", f"{str(e)[:200]}")
-                                print(f"⚠️ Tactic suggestion failed: {e}")
+                    # 2) Tactic suggestion for ⟦ Mutate glyphs
+                    if glyph.strip().startswith("⟦ Mutate"):
+                        try:
+                            tactic_suggestion = suggest_tactics(glyph)
+                            if tactic_suggestion:
+                                print(f"🧠 Suggested tactic: {tactic_suggestion}")
+                                _kg_log_safe(self.kg_writer, "tactic_suggestion", {
+                                    "glyph": glyph,
+                                    "suggestion": tactic_suggestion,
+                                    "coord": coord,
+                                })
+                        except Exception as inner:
+                            sci_emit("tessaris_error", f"{str(inner)[:200]}")
+                            print(f"⚠️ Tactic suggestion failed: {inner}")
 
-                        # 🧬 Axiom mutation fallback on contradiction
-                        if "⊥" in str(result) and container_path and coord:
-                            try:
-                                axiom_mutation = suggest_axiom_mutation(glyph)
-                                if axiom_mutation:
-                                    print(f"🧬 Axiom mutation suggestion: {axiom_mutation}")
-                                    self.kg_writer.log_event("axiom_mutation_suggestion", {
-                                        "glyph": glyph,
-                                        "suggestion": axiom_mutation,
-                                        "coord": coord,
-                                    })
-                            except Exception as e:
-                                sci_emit("tessaris_error", f"{str(e)[:200]}")
-                                print(f"⚠️ Axiom mutation failed: {e}")
+                    # 3) Axiom mutation suggestion (only if we have a contradiction signal)
+                    if "⊥" in result_str:
+                        try:
+                            axiom_mutation = suggest_axiom_mutation(glyph)
+                            if axiom_mutation:
+                                print(f"🧬 Axiom mutation suggestion: {axiom_mutation}")
+                                _kg_log_safe(self.kg_writer, "axiom_mutation_suggestion", {
+                                    "glyph": glyph,
+                                    "suggestion": axiom_mutation,
+                                    "coord": coord,
+                                })
+                        except Exception as inner:
+                            sci_emit("tessaris_error", f"{str(inner)[:200]}")
+                            print(f"⚠️ Axiom mutation failed: {inner}")
 
-                        # 🔁 Final fallback: symbolic self-rewrite
-                        if container_path and coord:
-                            self.kg_writer.log_event("self_rewrite_triggered", {
-                                "glyph": glyph,
-                                "reason": "error",
-                                "coord": coord,
-                                "cost": cost.total() if 'cost' in locals() else None,
-                            })
-                            success = run_self_rewrite(container_path, coord)
-                            print("⬁ Fallback symbolic rewrite executed." if success else "⚠️ Fallback auto-rewrite failed.")
+                    # 4) Final fallback: symbolic self-rewrite
+                    _kg_log_safe(self.kg_writer, "self_rewrite_triggered", {
+                        "glyph": glyph,
+                        "reason": "error",
+                        "coord": coord,
+                        "cost": cost.total() if 'cost' in locals() else None,
+                    })
+                    try:
+                        success = run_self_rewrite(container_path, coord)
+                    except Exception:
+                        success = False
+                    print("⬁ Fallback symbolic rewrite executed." if success else "⚠️ Fallback auto-rewrite failed.")
+
+                if "⟲" in glyph and "Reflect" in result_str:
+                    MEMORY.store({
+                        "label": "tessaris_reflection",
+                        "role": "tessaris",
+                        "type": "self_reflection",
+                        "content": f"Reflected on glyph {glyph}",
+                        "data": {"glyph": glyph}
+                    })
+                    print(f"🔁 Reflection triggered from ⟲ glyph")
+
+                self._maybe_create_goal(glyph, branch)
+                self._maybe_suggest_boot(glyph, branch)
 
     def _send_synthesis(self, branch: ThoughtBranch):
         try:
@@ -743,7 +754,7 @@ class TessarisEngine(ResonantReinforcementMixin):
 
     def extract_intents_from_glyphs(self, glyphs, metadata=None):
         """
-        Parse glyphs into actionable intents, generate resonant plans, 
+        Parse glyphs into actionable intents, generate resonant plans,
         and route through the Action Switch for execution.
         """
         for glyph in glyphs:
@@ -783,8 +794,8 @@ class TessarisEngine(ResonantReinforcementMixin):
                     "metadata": metadata or {},
                 }
 
-                # 🧩 Log extracted intent
-                self.kg_writer.log_event("intent_extracted", {
+                # 🧩 Log extracted intent (safe)
+                _kg_log_safe(self.kg_writer, "intent_extracted", {
                     "intent_type": intent_type,
                     "glyph": glyph,
                     "payload": payload
@@ -813,7 +824,7 @@ class TessarisEngine(ResonantReinforcementMixin):
                 queue_tessaris_intent(intent_data)
                 print(f"🧠 Queued Tessaris intent ({intent_type}): {payload}")
 
-        # ---- Compatibility shim: allow executor to call tessaris.interpret(...) ----
+    # ---- Compatibility shim: allow executor to call tessaris.interpret(...) ----
     def interpret(self, instruction_tree, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Execute/interpret a Codex instruction tree.
@@ -862,30 +873,36 @@ class TessarisEngine(ResonantReinforcementMixin):
         self.active_branches = []
         self.active_thoughts = []
 
-    def run_lean_self_rewrite(glyph: Dict[str, Any], *, context: Dict[str, Any] = {}) -> List[Dict[str, Any]]:
-        """
-        Attempt to rewrite the given glyph using Lean tactic suggestion or axiom mutation.
-        Used as fallback on contradiction or entropy spike.
-        """
-        from backend.modules.lean.lean_tactic_suggester import suggest_tactic_patch
-        from backend.modules.lean.auto_mutate_axioms import mutate_axioms_for_glyph
+# keep this callable exactly like your existing uses: run_lean_self_rewrite(glyph)
+def run_lean_self_rewrite(glyph: Any, *, context: Dict[str, Any] = {}) -> List[Dict[str, Any]]:
+    """
+    Attempt to rewrite the given glyph using Lean tactic suggestion or axiom mutation.
+    Used as fallback on contradiction or entropy spike.
+    """
+    from backend.modules.lean.lean_tactic_suggester import suggest_tactic_patch
+    from backend.modules.lean.auto_mutate_axioms import mutate_axioms_for_glyph
 
-        mutated: List[Dict[str, Any]] = []
+    mutated: List[Dict[str, Any]] = []
 
-        if glyph.get("meta", {}).get("leanProof"):
-            try:
-                suggestion = suggest_tactic_patch(glyph)
-                if suggestion:
-                    mutated.append(suggestion)
-            except Exception as e:
-                sci_emit("tessaris_error", f"{str(e)[:200]}")
-                print(f"⚠️ Lean tactic suggestion failed: {e}")
+    # Accept either dict-glyphs or string-glyphs without breaking legacy behavior
+    meta = {}
+    if isinstance(glyph, dict):
+        meta = glyph.get("meta", {}) or {}
 
+    if meta.get("leanProof"):
         try:
-            axiom_mutations = mutate_axioms_for_glyph(glyph)
-            mutated.extend(axiom_mutations)
+            suggestion = suggest_tactic_patch(glyph)
+            if suggestion:
+                mutated.append(suggestion)
         except Exception as e:
             sci_emit("tessaris_error", f"{str(e)[:200]}")
-            print(f"⚠️ Axiom mutation failed: {e}")
+            print(f"⚠️ Lean tactic suggestion failed: {e}")
 
-        return mutated
+    try:
+        axiom_mutations = mutate_axioms_for_glyph(glyph)
+        mutated.extend(axiom_mutations)
+    except Exception as e:
+        sci_emit("tessaris_error", f"{str(e)[:200]}")
+        print(f"⚠️ Axiom mutation failed: {e}")
+
+    return mutated

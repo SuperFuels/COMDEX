@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => {
     // ✅ Crystal motif APIs → FastAPI (:8080)
     "/api/crystals": { target: fastApiHttp, changeOrigin: true },
 
-    // ✅ NEW: wallet + mesh + GMA + photon pay + wave + bonds + savings + escrow → FastAPI (:8080)
+    // ✅ wallet + mesh + GMA + photon pay + wave + bonds + savings + escrow → FastAPI (:8080)
     "/api/wallet": { target: fastApiHttp, changeOrigin: true },
     "/api/mesh": { target: fastApiHttp, changeOrigin: true },
     "/api/gma": { target: fastApiHttp, changeOrigin: true },
@@ -62,8 +62,11 @@ export default defineConfig(({ mode }) => {
     "/api/escrow": { target: fastApiHttp, changeOrigin: true },
     "/api/transactable_docs": { target: fastApiHttp, changeOrigin: true },
 
-    // ✅ ADD: chain sim (dev ledger) → FastAPI (:8080)
+    // ✅ chain-sim/dev ledger endpoints (legacy path) → FastAPI (:8080)
     "/api/chain_sim": { target: fastApiHttp, changeOrigin: true },
+
+    // ✅ GlyphChain dev perf + state endpoints → FastAPI (:8080)
+    "/api/glyphchain": { target: fastApiHttp, changeOrigin: true },
 
     // ── WS for GlyphNet fanout / GHX → radio-node
     "/ws/glyphnet": { target: radioWs, ws: true, changeOrigin: true },

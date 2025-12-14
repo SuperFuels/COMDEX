@@ -1,12 +1,19 @@
 # File: backend/api/aion/bundle_container.py
 
+from __future__ import annotations
+
+import asyncio
+import logging
 from fastapi import APIRouter
+
 from backend.utils.bundle_builder import bundle_universal_container_system  # ✅ Corrected import
 from backend.modules.dimensions.universal_container_system.ucs_runtime import get_ucs_runtime  # ✅ UCS integration
 from backend.modules.knowledge_graph.kg_writer_singleton import get_kg_writer  # ✅ KG logging (updated)
-from backend.routes.ws.glyphnet_ws import broadcast_event  # ✅ GHX/SQI sync
+from backend.routes.ws.glyphnet_ws import broadcast_event  # ✅ GHX/SQI sync (expects 1 arg: event dict)
 
+log = logging.getLogger(__name__)
 router = APIRouter()
+
 
 @router.get("/api/aion/bundle/{container_id}")
 async def bundle(container_id: str):
@@ -15,7 +22,7 @@ async def bundle(container_id: str):
     try:
         # ✅ UCS Runtime: Ensure container is loaded & saved before bundling
         ucs = get_ucs_runtime()
-        container = ucs.load_container(container_id)
+        _container = ucs.load_container(container_id)
 
         # ✅ Bundle container with UCS-aware builder
         result = bundle_universal_container_system(container_id)
@@ -25,33 +32,57 @@ async def bundle(container_id: str):
             content=f"Bundled container {container_id}",
             glyph_type="bundle_event",
             metadata={"container_id": container_id, "tags": ["bundle", "UCS"]},
-            plugin="BundleAPI"
+            plugin="BundleAPI",
         )
 
-        # ✅ GHX/SQI Visualization Event
-        broadcast_event({
+        # ✅ GHX/SQI Visualization Event (IMPORTANT: await the async broadcaster)
+        event = {
             "type": "bundle_complete",
             "container_id": container_id,
-            "tags": ["📦", "GHX"]
-        })
+            "tags": ["📦", "GHX"],
+        }
+
+        # Prefer await (we're already async). If broadcaster errors, don't fail the request.
+        try:
+            await broadcast_event(event)
+        except Exception as ws_err:
+            log.debug(f"[bundle_container] broadcast_event failed (ignored): {ws_err}")
 
         return {
             "status": "success",
             "container_id": container_id,
-            "bundle": result
+            "bundle": result,
         }
 
     except Exception as e:
         # ✅ Error case logging to KG
-        kg_writer.inject_glyph(
-            content=f"Bundle failed for container {container_id}: {e}",
-            glyph_type="error",
-            metadata={"container_id": container_id, "tags": ["bundle", "error"]},
-            plugin="BundleAPI"
-        )
+        try:
+            kg_writer.inject_glyph(
+                content=f"Bundle failed for container {container_id}: {e}",
+                glyph_type="error",
+                metadata={"container_id": container_id, "tags": ["bundle", "error"]},
+                plugin="BundleAPI",
+            )
+        except Exception:
+            pass
+
+        # Optional: emit failure event best-effort (do not block response)
+        try:
+            asyncio.create_task(
+                broadcast_event(
+                    {
+                        "type": "bundle_failed",
+                        "container_id": container_id,
+                        "error": str(e),
+                        "tags": ["📦", "error"],
+                    }
+                )
+            )
+        except Exception:
+            pass
 
         return {
             "status": "error",
             "container_id": container_id,
-            "error": str(e)
+            "error": str(e),
         }

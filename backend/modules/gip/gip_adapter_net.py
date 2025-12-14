@@ -1,11 +1,32 @@
 # File: backend/modules/gip/gip_adapter_net.py
 
+from __future__ import annotations
+
+import asyncio
 import json
-from typing import Dict, Any, Optional
+import logging
+from typing import Any, Dict, Optional
+
 from fastapi import WebSocket
 
 from .gip_packet import create_gip_packet, parse_gip_packet
-from ..websocket_manager import broadcast_event
+from ..websocket_manager import broadcast_event  # async: broadcast_event(tag, payload)
+
+logger = logging.getLogger(__name__)
+
+
+def _fire_and_forget(coro) -> None:
+    """Schedule a coroutine from sync code without blocking the caller."""
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(coro)
+    except RuntimeError:
+        # No running loop in this thread; best-effort run.
+        try:
+            asyncio.run(coro)
+        except Exception:
+            pass
+
 
 class GIPNetworkAdapter:
     def __init__(self, node_id: str):
@@ -21,13 +42,26 @@ class GIPNetworkAdapter:
         except Exception as e:
             return {"error": f"Invalid GIP packet: {str(e)}"}
 
-    async def send_packet(self, websocket: WebSocket, data: Dict[str, Any], destination: str):
+    async def send_packet(self, websocket: WebSocket, data: Dict[str, Any], destination: str) -> None:
         packet = self.encode_packet(data, destination)
         await websocket.send_text(packet)
 
-    async def broadcast_packet(self, data: Dict[str, Any], topic: str = "glyphnet"):
-        packet = self.encode_packet(data, destination="broadcast")
-        await broadcast_event(topic, json.loads(packet))
+    async def broadcast_packet(self, data: Dict[str, Any], topic: str = "glyphnet") -> None:
+        """
+        Broadcast a GIP packet over the shared websocket manager bus.
+
+        NOTE:
+          websocket_manager.broadcast_event(tag, payload) expects:
+            - tag: str
+            - payload: Dict[str, Any]
+        """
+        raw = self.encode_packet(data, destination="broadcast")
+        try:
+            payload = json.loads(raw)
+        except Exception:
+            payload = {"type": "gip_packet", "raw": raw, "sender": self.node_id}
+
+        await broadcast_event(topic, payload)
 
 
 # ══════════════════════════════════════════════════════
@@ -37,17 +71,26 @@ class GIPNetworkAdapter:
 
 def legacy_send_gip_packet(packet: Dict[str, Any]) -> None:
     """
-    Legacy fallback to broadcast GIP packet via classic broadcast path.
-    Used by GlyphWave when disabled.
+    Legacy fallback to broadcast a GIP packet via classic broadcast path.
+    Sync shim: schedules the async broadcast_event() safely.
     """
     try:
-        adapter = GIPNetworkAdapter(node_id=packet.get("sender_id", "unknown"))
-        raw = adapter.encode_packet(packet.get("payload", {}), destination=packet.get("recipient_id", "broadcast"))
-        # Synchronously broadcast using FastAPI bus
-        # You may replace this with your actual legacy emitter if not broadcast_event
-        broadcast_event("glyphnet", json.loads(raw))
+        sender = packet.get("sender_id") or packet.get("sender") or "unknown"
+        recipient = packet.get("recipient_id") or packet.get("recipient") or "broadcast"
+        payload_in = packet.get("payload", {})
+
+        adapter = GIPNetworkAdapter(node_id=str(sender))
+        raw = adapter.encode_packet(payload_in if isinstance(payload_in, dict) else {"payload": payload_in}, destination=str(recipient))
+
+        try:
+            decoded = json.loads(raw)
+        except Exception:
+            decoded = {"type": "gip_packet", "raw": raw, "sender": sender, "recipient": recipient}
+
+        _fire_and_forget(broadcast_event("glyphnet", decoded))
+
     except Exception as e:
-        print(f"[GIP Fallback] Failed to send packet: {e}")
+        logger.warning(f"[GIP Fallback] Failed to send packet: {e}")
 
 
 def legacy_recv_gip_packet() -> Optional[Dict[str, Any]]:
@@ -55,6 +98,4 @@ def legacy_recv_gip_packet() -> Optional[Dict[str, Any]]:
     Placeholder for receiving GIP packets from legacy channels.
     To be polled if GlyphWave is disabled.
     """
-    # NOTE: You must replace this with your actual receive queue/socket
-    # If unavailable, return None to gracefully skip
-    return None  # or: return next_packet_from_queue()
+    return None
