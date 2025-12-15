@@ -7,7 +7,7 @@ from typing import Any, Dict, Tuple, Optional, Callable
 
 from .tx_models import TxEnvelope
 
-# Bank ops live here (mint/transfer/burn + nonce increments)
+# Bank ops live here (mint/transfer/burn + nonce increments + fees)
 from backend.modules.chain_sim import chain_sim_model as bank
 
 # ────────────────────────────────────────────────────────────────
@@ -45,24 +45,38 @@ def _first_callable_from_engine(names: tuple[str, ...]) -> Optional[Callable[...
 
 def _normalize_engine_return(out: Any) -> Tuple[bool, Optional[str], Dict[str, Any]]:
     """
-    Normalize common return shapes:
-      - (ok, err, receipt) OR [ok, err, receipt]
-      - dict receipt
-      - any other -> {"result": out}
+    Normalize common return shapes into:
+      (applied_bool, error_str_or_None, result_payload_dict)
+
+    Supported:
+      - (ok/applied, err, receipt) OR [ok/applied, err, receipt]
+      - {"applied": bool, "error": ..., "result": ...}
+      - {"ok": bool, "error": ..., "receipt"/"result": ...}
+      - dict payload (assume applied=True)
+      - any other -> {"result": out} (assume applied=True)
     """
     if isinstance(out, (tuple, list)) and len(out) == 3 and isinstance(out[0], bool):
-        ok = bool(out[0])
+        applied = bool(out[0])
         err = out[1]
         receipt = out[2]
-        return ok, (str(err) if err else None), (receipt or {}) if isinstance(receipt, dict) else {"receipt": receipt}
+        payload = (receipt or {}) if isinstance(receipt, dict) else {"receipt": receipt}
+        return applied, (str(err) if err else None), payload
 
     if isinstance(out, dict):
-        # Support {"ok":..., "error":..., "receipt"/"result":...}
-        if "ok" in out or "error" in out:
-            ok = bool(out.get("ok", True))
+        if "applied" in out:
+            applied = bool(out.get("applied", False))
             err = out.get("error")
-            receipt = out.get("receipt") or out.get("result") or {}
-            return ok, (str(err) if err else None), receipt if isinstance(receipt, dict) else {"receipt": receipt}
+            res = out.get("result") if "result" in out else (out.get("receipt") or {})
+            payload = res if isinstance(res, dict) else {"receipt": res}
+            return applied, (str(err) if err else None), payload
+
+        if "ok" in out or "error" in out:
+            applied = bool(out.get("ok", True))
+            err = out.get("error")
+            res = out.get("receipt") or out.get("result") or {}
+            payload = res if isinstance(res, dict) else {"receipt": res}
+            return applied, (str(err) if err else None), payload
+
         return True, None, out
 
     return True, None, {"result": out}
@@ -145,7 +159,12 @@ def _apply_bank_inline(envelope: Any) -> Tuple[bool, Optional[str], Dict[str, An
     """
     Inline BANK_* implementation (dev correctness path).
     Uses backend.modules.chain_sim.chain_sim_model.
-    Enforces nonce equality (expected == provided).
+
+    Enforces:
+      - nonce equality (expected == provided)
+      - dev fee rules (PHO fixed fee) applied atomically w/ the op (inside bank.* lock)
+
+    Returns: (applied, error, result_payload)
     """
     t = str(_get_attr(envelope, "tx_type", "") or "")
     if t == "BANK_TRANSFER":
@@ -156,7 +175,7 @@ def _apply_bank_inline(envelope: Any) -> Tuple[bool, Optional[str], Dict[str, An
     nonce = _get_attr(envelope, "nonce", None)
 
     if not from_addr:
-        return False, "from_addr required", {}
+        return False, "from_addr required", {"op": t, "payload": payload}
 
     nerr = _check_nonce(from_addr, nonce)
     if nerr:
@@ -169,27 +188,60 @@ def _apply_bank_inline(envelope: Any) -> Tuple[bool, Optional[str], Dict[str, An
 
     try:
         denom = str((payload or {}).get("denom", "") or "")
-        amount = (payload or {}).get("amount", None)
+        amount_raw = (payload or {}).get("amount", None)
+
+        # Parse once for fee carve-out decisions
+        amt = bank._parse_nonneg_int(amount_raw, field="amount", allow_zero=False)  # type: ignore[attr-defined]
 
         if t == "BANK_MINT":
             to_addr = str((payload or {}).get("to", "") or "")
             if not denom or not to_addr:
                 return False, "payload must include denom and to", {"op": t, "payload": payload}
-            out = bank.mint(denom=denom, signer=from_addr, to_addr=to_addr, amount=amount)
+
+            fee = bank.charge_fee_if_needed(
+                signer=from_addr,
+                op="BANK_MINT",
+                mint_denom=denom,
+                mint_amount=amt,
+            )
+            out = bank.mint(
+                denom=denom,
+                signer=from_addr,
+                to_addr=to_addr,
+                amount=str(amt),
+                fee=fee,
+            )
+            # bank.mint attaches fee when applied
             return True, None, out
 
         if t == "BANK_SEND":
             to_addr = str((payload or {}).get("to", "") or "")
             if not denom or not to_addr:
                 return False, "payload must include denom and to", {"op": t, "payload": payload}
-            out = bank.transfer(denom=denom, signer=from_addr, to_addr=to_addr, amount=amount)
+
+            fee = bank.charge_fee_if_needed(signer=from_addr, op="BANK_SEND")
+            out = bank.transfer(
+                denom=denom,
+                signer=from_addr,
+                to_addr=to_addr,
+                amount=str(amt),
+                fee=fee,
+            )
             return True, None, out
 
         if t == "BANK_BURN":
             burn_from = str((payload or {}).get("from_addr", "") or "") or from_addr
             if not denom:
                 return False, "payload must include denom", {"op": t, "payload": payload}
-            out = bank.burn(denom=denom, signer=from_addr, from_addr=burn_from, amount=amount)
+
+            fee = bank.charge_fee_if_needed(signer=from_addr, op="BANK_BURN")
+            out = bank.burn(
+                denom=denom,
+                signer=from_addr,
+                from_addr=burn_from,
+                amount=str(amt),
+                fee=fee,
+            )
             return True, None, out
 
         return False, f"inline bank handler missing for {t}", {"op": t, "payload": payload}
@@ -200,20 +252,32 @@ def _apply_bank_inline(envelope: Any) -> Tuple[bool, Optional[str], Dict[str, An
 
 def apply_tx(envelope: TxEnvelope) -> Tuple[bool, Optional[str], Dict[str, Any]]:
     """
-    Returns: (ok, error, receipt_payload)
+    Returns: (applied_bool, error, result_payload)
 
     ROUTING + EXECUTION.
     - Prefers engine dispatcher if present.
     - Else routes to engine helper if present.
     - Else executes BANK_* inline (dev correctness path).
+
+    Conventions:
+      - applied_bool=True  => state mutated (block should be recorded)
+      - applied_bool=False => tx rejected / no-op OR internal failure
+      - internal failures MUST set result_payload["internal_error"]=True
     """
     global _ENGINE_APPLY
 
     t = str(_get_attr(envelope, "tx_type", "") or "")
     p = _get_attr(envelope, "payload", None) or {}
 
+    t_eff = "BANK_SEND" if t == "BANK_TRANSFER" else t
+
+    def _ctx(extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        base: Dict[str, Any] = {"op": t_eff, "payload": p}
+        if isinstance(extra, dict):
+            base.update(extra)
+        return base
+
     try:
-        # 1) Prefer a single dispatcher if the engine exposes one
         if _ENGINE_APPLY is None:
             _ENGINE_APPLY = _first_callable_from_engine(
                 (
@@ -232,7 +296,7 @@ def apply_tx(envelope: TxEnvelope) -> Tuple[bool, Optional[str], Dict[str, Any]]
                 _ENGINE_APPLY,
                 envelope=envelope,
                 tx=envelope,
-                tx_type=t,
+                tx_type=t_eff,
                 from_addr=_get_attr(envelope, "from_addr", None),
                 sender=_get_attr(envelope, "from_addr", None),
                 payload=p,
@@ -240,19 +304,15 @@ def apply_tx(envelope: TxEnvelope) -> Tuple[bool, Optional[str], Dict[str, Any]]
                 tx_id=_get_attr(envelope, "tx_id", None),
                 tx_hash=_get_attr(envelope, "tx_hash", None),
             )
-            ok, err, receipt = _normalize_engine_return(out)
-            if isinstance(receipt, dict):
-                receipt.setdefault("op", t)
-                receipt.setdefault("payload", p)
-            return ok, err, receipt
+            applied, err, payload = _normalize_engine_return(out)
+            if isinstance(payload, dict):
+                payload.setdefault("op", t_eff)
+                payload.setdefault("payload", p)
+            else:
+                payload = {"result": payload, **_ctx()}
+            return bool(applied), (str(err) if err else None), payload
 
-        # 2) Otherwise route per-op to an engine helper (cached)
-        # Normalize BANK_TRANSFER -> BANK_SEND
-        t_eff = "BANK_SEND" if t == "BANK_TRANSFER" else t
-
-        # Inline BANK_* if engine helper not present
         if t_eff in ("BANK_MINT", "BANK_SEND", "BANK_BURN"):
-            # If engine has helper, use it; otherwise inline
             fn = _TX_FN_CACHE.get(t_eff)
             if fn is None and t_eff not in _TX_FN_CACHE:
                 fn = _first_callable_from_engine(_TX_CANDIDATES.get(t_eff, ()))
@@ -270,21 +330,24 @@ def apply_tx(envelope: TxEnvelope) -> Tuple[bool, Optional[str], Dict[str, Any]]
                     payload=p,
                     **(p if isinstance(p, dict) else {}),
                 )
-                ok, err, receipt = _normalize_engine_return(out)
-                if isinstance(receipt, dict):
-                    receipt.setdefault("op", t_eff)
-                    receipt.setdefault("payload", p)
-                return ok, err, receipt
+                applied, err, payload = _normalize_engine_return(out)
+                if isinstance(payload, dict):
+                    payload.setdefault("op", t_eff)
+                    payload.setdefault("payload", p)
+                else:
+                    payload = {"result": payload, **_ctx()}
+                return bool(applied), (str(err) if err else None), payload
 
-            ok, err, receipt = _apply_bank_inline(envelope)
-            if isinstance(receipt, dict):
-                receipt.setdefault("op", t_eff)
-                receipt.setdefault("payload", p)
-            return ok, err, receipt
+            applied, err, payload = _apply_bank_inline(envelope)
+            if isinstance(payload, dict):
+                payload.setdefault("op", t_eff)
+                payload.setdefault("payload", p)
+            else:
+                payload = {"result": payload, **_ctx()}
+            return bool(applied), (str(err) if err else None), payload
 
-        # Non-bank ops must be wired in engine
         if t_eff not in _TX_CANDIDATES:
-            return False, f"unknown tx_type: {t_eff}", {}
+            return False, f"unknown tx_type: {t_eff}", _ctx()
 
         fn = _TX_FN_CACHE.get(t_eff)
         if fn is None and t_eff not in _TX_FN_CACHE:
@@ -293,7 +356,7 @@ def apply_tx(envelope: TxEnvelope) -> Tuple[bool, Optional[str], Dict[str, Any]]
 
         fn = _TX_FN_CACHE.get(t_eff)
         if not fn:
-            return False, f"{t_eff} not wired (no helper found in chain_sim_engine)", {}
+            return False, f"{t_eff} not wired (no helper found in chain_sim_engine)", _ctx()
 
         out = _call(
             fn,
@@ -305,28 +368,64 @@ def apply_tx(envelope: TxEnvelope) -> Tuple[bool, Optional[str], Dict[str, Any]]
             payload=p,
             **(p if isinstance(p, dict) else {}),
         )
-        ok, err, receipt = _normalize_engine_return(out)
-        if isinstance(receipt, dict):
-            receipt.setdefault("op", t_eff)
-            receipt.setdefault("payload", p)
-        return ok, err, receipt
+        applied, err, payload = _normalize_engine_return(out)
+        if isinstance(payload, dict):
+            payload.setdefault("op", t_eff)
+            payload.setdefault("payload", p)
+        else:
+            payload = {"result": payload, **_ctx()}
+        return bool(applied), (str(err) if err else None), payload
 
     except Exception as e:
-        return False, str(e), {}
+        return False, str(e), {"internal_error": True, **_ctx()}
 
 
 def apply_tx_receipt(envelope: TxEnvelope) -> Dict[str, Any]:
     """
     Convenience wrapper used by routes:
       returns { ok, applied, error, result }
+
+    Standardized semantics:
+      - ok=True  => request handled (even if tx rejected)
+      - applied=True => state mutated / block should be recorded
+      - ok=False => internal executor failure (bug/exception path), not a user rejection
     """
-    ok, err, payload = apply_tx(envelope)
-    # payload is already a dict receipt payload (bank op dict or engine receipt)
+    applied_flag, err, payload = apply_tx(envelope)
+
+    if isinstance(payload, dict):
+        result: Dict[str, Any] = dict(payload)
+    else:
+        result = {"result": payload}
+
+    try:
+        op = getattr(envelope, "tx_type", None)
+        if op:
+            result.setdefault("op", op)
+    except Exception:
+        pass
+
+    try:
+        p = getattr(envelope, "payload", None) or {}
+        if isinstance(p, dict):
+            result.setdefault("payload", p)
+    except Exception:
+        pass
+
+    internal = bool(result.get("internal_error") is True)
+
+    if internal:
+        return {
+            "ok": False,
+            "applied": False,
+            "error": (str(err) if err else "internal executor error"),
+            "result": result,
+        }
+
     return {
-        "ok": bool(ok),
-        "applied": bool(ok),
-        "error": err,
-        "result": payload if isinstance(payload, dict) else {"result": payload},
+        "ok": True,
+        "applied": bool(applied_flag),
+        "error": (str(err) if err else None),
+        "result": result,
     }
 
 
@@ -357,7 +456,6 @@ def get_chain_state_snapshot() -> Dict[str, Any]:
             if isinstance(out, dict):
                 return out
 
-        # last-resort fallback
         return {"config": {}, "bank": {}, "staking": {}}
 
     except Exception:

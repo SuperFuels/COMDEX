@@ -4,13 +4,21 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from threading import RLock
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 PHO = "PHO"
 TESS = "TESS"
 _DEFAULT_DENOMS = (PHO, TESS)
 
 _LOCK = RLock()
+
+# ───────────────────────────────────────────────
+# Dev fee plumbing (P1_4 slice)
+# ───────────────────────────────────────────────
+
+FEE_DENOM = "PHO"
+FEE_COLLECTOR = "pho1-dev-fee-collector"
+FEE_AMOUNT = 1
 
 
 @dataclass
@@ -42,7 +50,6 @@ def _parse_nonneg_int(x: Any, *, field: str, allow_zero: bool) -> int:
     if x is None:
         raise ValueError(f"{field} is required")
 
-    # Fast path: int
     if isinstance(x, int):
         if x < 0 or (x == 0 and not allow_zero):
             raise ValueError(f"{field} must be {'>= 0' if allow_zero else '> 0'}")
@@ -52,7 +59,6 @@ def _parse_nonneg_int(x: Any, *, field: str, allow_zero: bool) -> int:
     if s == "":
         raise ValueError(f"{field} is required")
 
-    # Decimal path: allow "10", "10.0" (but not "10.5")
     try:
         d = Decimal(s)
     except InvalidOperation:
@@ -72,7 +78,6 @@ def _parse_amount_pos(x: Any) -> int:
 
 
 def _ensure_supply_defaults_locked() -> None:
-    # Canonical empty state: PHO/TESS always present (prevents {} vs {"PHO":"0","TESS":"0"} drift)
     for d in _DEFAULT_DENOMS:
         if d not in _SUPPLY:
             _SUPPLY[d] = "0"
@@ -123,7 +128,6 @@ def _get_balance_int(acc: AccountState, denom: str) -> int:
     except InvalidOperation:
         return 0
     if d != d.to_integral_value():
-        # dev chain treats non-int as 0 for reads, but invariants will catch it
         return 0
     n = int(d)
     return n if n >= 0 else 0
@@ -147,18 +151,119 @@ def _add_supply_int(denom: str, delta: int) -> None:
     _SUPPLY[str(denom)] = str(int(new))
 
 
+def _move_no_nonce(denom: str, from_addr: str, to_addr: str, amt: int) -> None:
+    """
+    Move balance between accounts without touching nonces.
+    Must be called under _LOCK by callers that need atomicity.
+    """
+    if amt <= 0:
+        return
+
+    from_acc = get_or_create_account(from_addr)
+    to_acc = get_or_create_account(to_addr)
+
+    bal = _get_balance_int(from_acc, denom)
+    if amt > bal:
+        raise ValueError(f"insufficient balance for fee: have {bal}, need {amt}")
+
+    _set_balance_int(from_acc, denom, bal - amt)
+    rbal = _get_balance_int(to_acc, denom)
+    _set_balance_int(to_acc, denom, rbal + amt)
+
+
+def charge_fee_if_needed(
+    *,
+    signer: str,
+    op: str,
+    mint_denom: Optional[str] = None,
+    mint_amount: Optional[int] = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Returns a fee dict for receipts/ledger, or None.
+
+    Modes:
+      - mint_carveout: BANK_MINT when minting PHO => carve fee out of minted amount
+      - charge: BANK_SEND / BANK_BURN => transfer fixed PHO fee to collector
+    """
+    fee_amt = int(FEE_AMOUNT)
+    fee_denom = str(FEE_DENOM)
+    collector = str(FEE_COLLECTOR)
+
+    if op == "BANK_MINT" and str(mint_denom or "") == fee_denom:
+        if mint_amount is None or int(mint_amount) < fee_amt:
+            raise ValueError(f"mint amount must be >= fee ({fee_amt} {fee_denom})")
+        return {"denom": fee_denom, "amount": str(fee_amt), "collector": collector, "mode": "mint_carveout"}
+
+    if op in ("BANK_SEND", "BANK_BURN"):
+        return {"denom": fee_denom, "amount": str(fee_amt), "collector": collector, "mode": "charge"}
+
+    return None
+
+
 # ───────────────────────────────────────────────
-# Tx-like operations (dev)
+# Tx-like operations (dev) + fees (atomic)
 # ───────────────────────────────────────────────
 
-def mint(denom: str, signer: str, to_addr: str, amount: Any) -> Dict[str, Any]:
+def mint(
+    denom: str,
+    signer: str,
+    to_addr: str,
+    amount: Any,
+    *,
+    fee: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """
     Dev-only mint. Nonce increments ONLY on signer.
+
+    Fee rule:
+      - If fee.mode == "mint_carveout" (only when denom==PHO), mint (amount-fee) to recipient
+        and mint fee to collector, while incrementing signer nonce exactly once.
     """
     denom = str(denom)
     amt = _parse_amount_pos(amount)
 
     with _LOCK:
+        if isinstance(fee, dict) and fee.get("mode") == "mint_carveout":
+            fee_amt = int(fee.get("amount") or 0)
+            fee_denom = str(fee.get("denom") or FEE_DENOM)
+            collector = str(fee.get("collector") or FEE_COLLECTOR)
+
+            if denom != fee_denom:
+                raise ValueError("mint carve-out fee only valid when minting fee denom")
+            if fee_amt <= 0:
+                raise ValueError("invalid fee amount")
+            if amt < fee_amt:
+                raise ValueError(f"mint amount must be >= fee ({fee_amt} {fee_denom})")
+
+            to_acc = get_or_create_account(to_addr)
+            col_acc = get_or_create_account(collector)
+
+            # mint (amt-fee) to recipient
+            bal = _get_balance_int(to_acc, denom)
+            _set_balance_int(to_acc, denom, bal + (amt - fee_amt))
+
+            # mint fee to collector
+            cbal = _get_balance_int(col_acc, denom)
+            _set_balance_int(col_acc, denom, cbal + fee_amt)
+
+            # total supply increases by full amt
+            _add_supply_int(denom, amt)
+
+            signer_acc = get_or_create_account(signer)
+            signer_acc.nonce = int(signer_acc.nonce or 0) + 1
+
+            return {
+                "ok": True,
+                "op": "MINT",
+                "denom": denom,
+                "amount": str(int(amt)),
+                "signer": signer_acc.to_dict(),
+                "to": to_acc.to_dict(),
+                "supply": get_supply_view(),
+                "fee": dict(fee),
+            }
+
+        # normal mint
         to_acc = get_or_create_account(to_addr)
 
         bal = _get_balance_int(to_acc, denom)
@@ -179,9 +284,20 @@ def mint(denom: str, signer: str, to_addr: str, amount: Any) -> Dict[str, Any]:
         }
 
 
-def burn(denom: str, signer: str, from_addr: str, amount: Any) -> Dict[str, Any]:
+def burn(
+    denom: str,
+    signer: str,
+    from_addr: str,
+    amount: Any,
+    *,
+    fee: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """
     Dev-only burn. Nonce increments ONLY on signer.
+
+    Fee rule:
+      - If fee.mode == "charge": move fixed PHO fee from signer -> collector (no extra nonce)
+      - Must be atomic: burn + fee must both succeed or neither.
     """
     denom = str(denom)
     amt = _parse_amount_pos(amount)
@@ -193,13 +309,30 @@ def burn(denom: str, signer: str, from_addr: str, amount: Any) -> Dict[str, Any]
         if amt > bal:
             raise ValueError(f"insufficient balance: have {bal}, need {amt}")
 
+        fee_used: Optional[Dict[str, Any]] = None
+        if isinstance(fee, dict) and fee.get("mode") == "charge":
+            fee_amt = int(fee.get("amount") or 0)
+            fee_denom = str(fee.get("denom") or FEE_DENOM)
+            collector = str(fee.get("collector") or FEE_COLLECTOR)
+            if fee_amt > 0:
+                signer_acc = get_or_create_account(signer)
+                sfee_bal = _get_balance_int(signer_acc, fee_denom)
+                if fee_amt > sfee_bal:
+                    raise ValueError(f"insufficient balance for fee: have {sfee_bal}, need {fee_amt}")
+                fee_used = {"denom": fee_denom, "amount": str(fee_amt), "collector": collector, "mode": "charge"}
+
+        # apply burn
         _set_balance_int(from_acc, denom, bal - amt)
         _add_supply_int(denom, -amt)
+
+        # apply fee move (no nonce bump)
+        if fee_used:
+            _move_no_nonce(str(fee_used["denom"]), signer, str(fee_used["collector"]), int(fee_used["amount"]))
 
         signer_acc = get_or_create_account(signer)
         signer_acc.nonce = int(signer_acc.nonce or 0) + 1
 
-        return {
+        out = {
             "ok": True,
             "op": "BURN",
             "denom": denom,
@@ -208,11 +341,25 @@ def burn(denom: str, signer: str, from_addr: str, amount: Any) -> Dict[str, Any]
             "from": from_acc.to_dict(),
             "supply": get_supply_view(),
         }
+        if fee_used:
+            out["fee"] = dict(fee_used)
+        return out
 
 
-def transfer(denom: str, signer: str, to_addr: str, amount: Any) -> Dict[str, Any]:
+def transfer(
+    denom: str,
+    signer: str,
+    to_addr: str,
+    amount: Any,
+    *,
+    fee: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """
     Dev-only send. signer == from_addr. Nonce increments ONLY on signer.
+
+    Fee rule:
+      - If fee.mode == "charge": move fixed PHO fee signer -> collector (no extra nonce)
+      - Must be atomic: transfer + fee must both succeed or neither.
     """
     denom = str(denom)
     amt = _parse_amount_pos(amount)
@@ -225,13 +372,29 @@ def transfer(denom: str, signer: str, to_addr: str, amount: Any) -> Dict[str, An
         if amt > sbal:
             raise ValueError(f"insufficient balance: have {sbal}, need {amt}")
 
+        fee_used: Optional[Dict[str, Any]] = None
+        if isinstance(fee, dict) and fee.get("mode") == "charge":
+            fee_amt = int(fee.get("amount") or 0)
+            fee_denom = str(fee.get("denom") or FEE_DENOM)
+            collector = str(fee.get("collector") or FEE_COLLECTOR)
+            if fee_amt > 0:
+                sfee_bal = _get_balance_int(sender, fee_denom)
+                if fee_amt > sfee_bal:
+                    raise ValueError(f"insufficient balance for fee: have {sfee_bal}, need {fee_amt}")
+                fee_used = {"denom": fee_denom, "amount": str(fee_amt), "collector": collector, "mode": "charge"}
+
+        # apply transfer
         _set_balance_int(sender, denom, sbal - amt)
         rbal = _get_balance_int(receiver, denom)
         _set_balance_int(receiver, denom, rbal + amt)
 
+        # apply fee move (no nonce bump)
+        if fee_used:
+            _move_no_nonce(str(fee_used["denom"]), signer, str(fee_used["collector"]), int(fee_used["amount"]))
+
         sender.nonce = int(sender.nonce or 0) + 1
 
-        return {
+        out = {
             "ok": True,
             "op": "TRANSFER",
             "denom": denom,
@@ -240,10 +403,13 @@ def transfer(denom: str, signer: str, to_addr: str, amount: Any) -> Dict[str, An
             "to": receiver.to_dict(),
             "supply": get_supply_view(),
         }
+        if fee_used:
+            out["fee"] = dict(fee_used)
+        return out
 
 
 # ───────────────────────────────────────────────
-# Genesis + supply recompute (fixes /dev/reset hangs)
+# Genesis + supply recompute
 # ───────────────────────────────────────────────
 
 def recompute_supply() -> None:
@@ -267,14 +433,12 @@ def recompute_supply() -> None:
                         n = 0
                     else:
                         if d != d.to_integral_value():
-                            # non-int drift will be caught by invariants
                             n = 0
                         else:
                             n = int(d)
                 totals[ds] = totals.get(ds, 0) + n
 
         _SUPPLY.clear()
-        # keep defaults + any observed denoms
         for denom in sorted(totals.keys()):
             v = totals[denom]
             if v < 0:

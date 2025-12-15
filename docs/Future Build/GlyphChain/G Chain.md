@@ -14,29 +14,28 @@ graph TD
     P0_4[☐ Security & Crypto Baseline\n• Sig schemes (ed25519/secp256k1/BLS)\n• Hash/commitments (Merkle now / later KZG)\n• Canonical hashing rules (no JSON ambiguity)\n• Key derivation, wallet seeds, device binding\n• Threat model: online chain + offline mesh\n• QKD as optional transport security layer + audit/attestation hooks]
   end
 
-  %% ============================================
-  %% P1 – CORE CHAIN
-  %% ============================================
-  subgraph P1[Phase 1 – Core Chain (Ledger, Consensus, Bank)]
-    direction TB
+%% ============================================
+%% P1 – CORE CHAIN
+%% ============================================
+subgraph P1[Phase 1 – Core Chain (Ledger, Consensus, Bank)]
+  direction TB
 
-    P1_1[☐ Consensus & Networking\n• BFT PoS engine\n• Validator sets, epochs, staking hooks\n• Block propagation + proposal channels\n• No public mempool: leader inbox / relay model (anti-DoS)\n• Peer discovery, rate limits, spam controls\n• Transport plugin system:\n  – baseline HTTP/WebSocket\n  – optional QWave Beams as accelerator\n• Optional QKD-secured links (transport-only) + link attestation logs]
+  P1_1[☐ Consensus & Networking\n• BFT PoS engine\n• Validator sets, epochs, staking hooks\n• Block propagation + proposal channels\n• No public mempool: leader inbox / relay model (anti-DoS)\n• Peer discovery, rate limits, spam controls\n• Transport plugin system:\n  – baseline HTTP/WebSocket\n  – optional QWave Beams as accelerator\n• Optional QKD-secured links (transport-only) + link attestation logs]
 
-    P1_2[🟨 State & Storage (Dev snapshot + root slice)\n• ChainState snapshot: {config, bank, staking}\n• Deterministic state_root = sha256(canonical(state))\n• Canonical encoding spec (photon algebra) used by state_root\n• Dev endpoints: GET/POST /api/chain_sim/dev/state\n• Import resets explorer ledger (blocks/txs start empty)\n• Deterministic replay artifacts (“holograms”): replay trace + trace_root (optional)\n• Mobile-first requirement starts here:\n  – header-first sync primitives\n  – proof-ready commitments\n• NOTE: No trie, persistence, pruning yet]
+  P1_2[✅ State & Storage (Dev snapshot + root slice)\n• ChainState snapshot: {config, bank, staking}\n• Deterministic state_root = sha256(canonical(state))\n• Dev endpoints: GET/POST /api/chain_sim/dev/state\n• Import resets explorer ledger (blocks/txs start empty)\n• ✅ bank.accounts sub-root committed under state.bank.root BEFORE hashing state_root\n• NOTE: No trie, persistence, pruning yet]
 
-    P1_2A[☐ Proofs & Light Sync (Mobile-first slice)\n• Account/balance proof format (Merkle)\n• Tx inclusion proofs\n• Staking proofs (validator + delegation)\n• Proof endpoints (dev): /proof/account, /proof/tx, /proof/staking\n• Light client sync flow:\n  – download headers\n  – verify state_root\n  – fetch proofs on-demand\n• Target: sub-5MB light client state (headers + minimal caches)]
+  P1_2A[🟨 Proofs & Light Sync (Mobile-first slice)\n• ✅ Account proof format (Merkle over {address, balances, nonce})\n• ✅ Tx inclusion proofs\n• ✅ Proof endpoints (dev):\n  – GET /api/chain_sim/dev/proof/account\n  – GET /api/chain_sim/dev/proof/tx?tx_id=...\n  – POST /api/chain_sim/dev/proof/verify_account\n  – POST /api/chain_sim/dev/proof/verify_tx\n• ✅ /dev/state commits bank root (state.bank.root) and tests assert it matches proof root\n• Light client sync flow:\n  – download headers\n  – verify state_root\n  – fetch proofs on-demand\n• NOTE: staking proofs pending]
 
-    P1_3[🟨 Block & Tx Format (Dev slice)\n• Canonical dev tx envelope: {from_addr, nonce, tx_type, payload}\n• /api/chain_sim/dev/submit_tx (single entrypoint)\n• Dev tx identity: canonical(tx) + sha256 → tx_hash, tx_id\n• Dev ledger/explorer: /dev/blocks, /dev/block/{height}, /dev/tx/{tx_id}, /dev/txs?address=...\n• Add block header commitments:\n  – state_root (required)\n  – optional trace_root (replay/hologram)\n  – optional transport attestation hash (QKD/QWave receipts)\n• NOTE: No gas, signatures, production ordering rules yet]
+  P1_3[✅ Block & Tx Format (Dev slice)\n• Canonical dev tx envelope: {from_addr, nonce, tx_type, payload}\n• /api/chain_sim/dev/submit_tx is canonical entrypoint (routes via tx_executor.apply_tx)\n• Dev tx identity: canonical(tx) + sha256 → tx_hash, tx_id\n• Dev ledger/explorer:\n  – /api/chain_sim/dev/blocks\n  – /api/chain_sim/dev/block/{height}\n  – /api/chain_sim/dev/tx/{tx_id}\n  – /api/chain_sim/dev/txs?address=...\n• Block header commitments:\n  – state_root (stored at block.header.state_root)\n  – txs_root (computed for block + used for tx proofs)\n• ✅ Hard rule: failed tx must not advance chain (no ledger record, no ids/heights)\n• NOTE: no gas, signatures, production ordering rules yet]
 
-    P1_4[🟨 Bank Module (Dev fee + invariants slice)\n• Dev fee hook: per-tx PHO fee routed to pho1-dev-fee-collector\n• Fee carve-out on BANK_MINT (PHO): (amount-fee) to recipient, fee to collector\n• Central post-tx invariants hook (assert_invariants)\n• NOTE: Still not full production bank module (fees schedule, routing, invariants framework, denoms, etc.)]
+  P1_4[✅ Bank Module (Dev correctness slice)\n• BANK_MINT / BANK_SEND / BANK_BURN wired and mutating state\n• Nonce rules enforced (bad nonce rejected, no mutation, no new block)\n• Supply invariants: mint/burn adjust supply, send preserves supply\n• ✅ Dev fee schedule implemented (PHO fixed fee + carve-out mint)\n• ✅ Fee recorded in receipts + persisted in ledger fee column]
 
-    P1_4A[✅ ChainSim Dev Bank Slice\n• /api/chain_sim/dev/mint, /dev/transfer, /dev/burn, /dev/account, /dev/supply (localhost:8080)\n• In-memory AccountState + SupplyState model\n• dev_chain_bank_smoketest.py (mint → transfer → burn, supply invariants, end-to-end over HTTP)\n• AdminDashboard: ChainSimLedgerPanel renders blocks/txs via /dev/blocks + /dev/txs (+ Fee column)]
+  P1_4A[✅ ChainSim Dev Bank Slice (Implemented)\n• /api/chain_sim/dev/mint, /dev/transfer, /dev/burn, /dev/account, /dev/supply\n• In-memory AccountState + SupplyState model\n• ✅ test_chain_sim_bank_ops.py updated for PHO fee funding\n• ✅ test_chain_sim_fees.py passing\n• ✅ Perf: test_chain_sim_perf.py measures:\n  – /dev/state\n  – /dev/proof/account (+ root match vs state.bank.root)\n  – /dev/proof/tx + /dev/proof/verify_tx\n• AdminDashboard: ChainSimLedgerPanel renders blocks/txs via /dev/blocks + /dev/txs]
 
-    P1_5[🟨 Staking Module (Skeleton dev slice)\n• Minimal staking structs: Delegation/Validator/Rewards\n• Dev endpoints: /api/staking/dev/validators, /api/staking/dev/delegations?delegator=...\n• Dev txs: STAKING_DELEGATE / STAKING_UNDELEGATE (no consensus hooks yet)\n• Bonded pool lock model: TESS moved to pho1-dev-staking-bonded\n• Basic invariants (no negative stake, power=sum(delegations))]
+  P1_5[🟨 Staking Module (Skeleton dev slice)\n• Minimal staking structs: Delegation/Validator/Rewards\n• Dev endpoints: /api/staking/dev/validators, /api/staking/dev/delegations?delegator=...\n• Dev txs: STAKING_DELEGATE / STAKING_UNDELEGATE (no consensus hooks yet)\n• Bonded pool lock model: TESS moved to pho1-dev-staking-bonded\n• Basic invariants (no negative stake, power=sum(delegations))\n• NOTE: staking proofs not yet implemented]
 
-    P1_6[🟨 Genesis & Config (dev slice)\n• POST /api/chain_sim/dev/reset clears bank+staking+ledger\n• Minimal schema: chain_id/network_id + allocs + validators\n• Genesis seeds state (no blocks) and validator power reflects self-delegations\n• Testable: /dev/supply == sum(allocs), /staking/dev/validators populated]
-  end
-
+  P1_6[✅ Genesis & Config (dev slice)\n• POST /api/chain_sim/dev/reset clears bank+staking+ledger\n• Minimal schema: chain_id/network_id + allocs + validators\n• Genesis seeds state (no blocks)\n• Testable: /dev/supply == sum(allocs), /staking/dev/validators populated]
+end
   %% ============================================
   %% P2 – TOKENS & AMM
   %% ============================================

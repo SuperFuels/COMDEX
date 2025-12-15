@@ -182,6 +182,131 @@ def _bank_import(bank_state: Dict[str, Any]) -> None:
     if callable(fn):
         fn()
 
+
+def _compute_staking_delegations_root_from_snapshot(state: Dict[str, Any]) -> str:
+    """
+    Deterministically compute delegations root:
+      - sort by (delegator, validator)
+      - leaf payload: {"delegator","validator","amount_tess"} (stable json)
+    """
+    st_view = (state or {}).get("staking") or {}
+    dels = st_view.get("delegations") or []
+    if not isinstance(dels, list):
+        dels = []
+
+    def _key(d: Any) -> Tuple[str, str]:
+        dd = d or {}
+        return (str(dd.get("delegator") or ""), str(dd.get("validator") or ""))
+
+    leaves: List[bytes] = []
+    for d in sorted(dels, key=_key):
+        if not isinstance(d, dict):
+            continue
+        payload_obj = {
+            "delegator": str(d.get("delegator") or ""),
+            "validator": str(d.get("validator") or ""),
+            "amount_tess": str(d.get("amount_tess") or "0"),
+        }
+        if not payload_obj["delegator"] or not payload_obj["validator"]:
+            continue
+        leaves.append(hash_leaf(_stable_json(payload_obj).encode("utf-8")))
+
+    return merkle_root(leaves).hex()
+
+def _compute_staking_validators_root_from_snapshot(state: Dict[str, Any]) -> str:
+    """
+    Deterministically compute validators root from state["staking"]["validators"].
+    Order: sorted by validator address.
+    Leaf payload: {"address","power","commission"}
+    """
+    st_view = (state or {}).get("staking") or {}
+    vals = st_view.get("validators") or []
+    if not isinstance(vals, list):
+        vals = []
+
+    by_addr: Dict[str, Dict[str, Any]] = {}
+    for v in vals:
+        if not isinstance(v, dict):
+            continue
+        addr = str(v.get("address") or "").strip()
+        if not addr:
+            continue
+        by_addr[addr] = v
+
+    addrs = sorted(by_addr.keys())
+    leaves: List[bytes] = []
+    for a in addrs:
+        v = by_addr[a] or {}
+        payload_obj = {
+            "address": a,
+            "power": str(v.get("power") or "0"),
+            "commission": str(v.get("commission") or "0"),
+        }
+        leaves.append(hash_leaf(_stable_json(payload_obj).encode("utf-8")))
+
+    return merkle_root(leaves).hex()
+
+
+def _compute_staking_delegations_root_from_snapshot(state: Dict[str, Any]) -> str:
+    """
+    Deterministically compute delegations root from state["staking"]["delegations"].
+    Order: sorted by (delegator, validator).
+    Leaf payload: {"delegator","validator","amount_tess"}
+    """
+    st_view = (state or {}).get("staking") or {}
+    dels = st_view.get("delegations") or []
+    if not isinstance(dels, list):
+        dels = []
+
+    items: List[Tuple[str, str, Dict[str, Any]]] = []
+    for d in dels:
+        if not isinstance(d, dict):
+            continue
+        delegator = str(d.get("delegator") or "").strip()
+        validator = str(d.get("validator") or "").strip()
+        if not delegator or not validator:
+            continue
+        items.append((delegator, validator, d))
+
+    items.sort(key=lambda x: (x[0], x[1]))
+
+    leaves: List[bytes] = []
+    for delegator, validator, d in items:
+        payload_obj = {
+            "delegator": delegator,
+            "validator": validator,
+            "amount_tess": str(d.get("amount_tess") or "0"),
+        }
+        leaves.append(hash_leaf(_stable_json(payload_obj).encode("utf-8")))
+
+    return merkle_root(leaves).hex()
+
+def _compute_bank_accounts_root_from_snapshot(state: Dict[str, Any]) -> str:
+    """
+    Deterministically compute the same root as /dev/proof/account:
+      - addresses sorted
+      - leaf payload: {address, balances, nonce}
+      - leaf bytes: hash_leaf(stable_json(payload).utf-8)
+    """
+    bank_view = (state or {}).get("bank") or {}
+    accounts: Dict[str, Any] = bank_view.get("accounts") or {}
+    if not isinstance(accounts, dict):
+        accounts = {}
+
+    addrs = sorted(accounts.keys())
+    leaves: List[bytes] = []
+    for a in addrs:
+        r = accounts.get(a) or {}
+        payload_obj = {
+            "address": a,
+            "balances": (r.get("balances") or {}) if isinstance(r.get("balances") or {}, dict) else {},
+            "nonce": int(r.get("nonce") or 0),
+        }
+        leaves.append(hash_leaf(_stable_json(payload_obj).encode("utf-8")))
+
+    # canonical: empty tree => root of empty list (your merkle_root should define this deterministically)
+    return merkle_root(leaves).hex()
+
 # ───────────────────────────────────────────────
 # Helpers: staking snapshot/import
 # ───────────────────────────────────────────────
@@ -320,18 +445,53 @@ def _get_chain_state_snapshot() -> Dict[str, Any]:
     """
     Prefer engine snapshot helper if present (keeps /dev/state aligned with any other callers).
     Fallback to local export (bank/staking/config) to avoid import cycles/hangs.
+
+    NOTE:
+      - This helper is the single source of truth for committing sub-roots
+        (bank + staking) into the returned snapshot.
+      - Callers should NOT re-call _commit_subroots_into_state unless they
+        intentionally want redundancy (it is idempotent either way).
     """
     fn = getattr(engine, "get_chain_state_snapshot", None)
     if callable(fn):
         out = fn()
         if isinstance(out, dict) and "config" in out and "bank" in out and "staking" in out:
+            _commit_subroots_into_state(out)
             return out
 
-    return {
+    state_obj: Dict[str, Any] = {
         "config": cfg.get_config(),
         "bank": _bank_export(),
         "staking": _staking_export(),
     }
+    _commit_subroots_into_state(state_obj)
+    return state_obj
+
+def _commit_subroots_into_state(state_obj: Dict[str, Any]) -> None:
+    """
+    Mutates state_obj in-place to add committed sub-roots under state_root.
+    Safe to call multiple times.
+    """
+    if not isinstance(state_obj, dict):
+        return
+
+    # bank root
+    try:
+        bank_root = _compute_bank_accounts_root_from_snapshot(state_obj)
+        bank_view = state_obj.get("bank")
+        if isinstance(bank_view, dict):
+            bank_view["root"] = bank_root
+    except Exception:
+        pass
+
+    # staking roots
+    try:
+        st_view = state_obj.get("staking")
+        if isinstance(st_view, dict):
+            st_view["validators_root"] = _compute_staking_validators_root_from_snapshot(state_obj)
+            st_view["delegations_root"] = _compute_staking_delegations_root_from_snapshot(state_obj)
+    except Exception:
+        pass
 
 # ───────────────────────────────────────────────
 # Request models
@@ -498,16 +658,6 @@ async def chain_sim_dev_config() -> Dict[str, Any]:
 # P1_2 dev slice: ChainState snapshot + state_root
 # ───────────────────────────────────────────────
 
-@router.get("/dev/state")
-async def chain_sim_dev_state() -> Dict[str, Any]:
-    """
-    GET /api/chain_sim/dev/state
-      - returns: { ok, state, state_root }
-      - state = { config, bank, staking }
-    """
-    state_obj = _get_chain_state_snapshot()
-    root = _compute_state_root(state_obj)
-    return JSONResponse(content=jsonable_encoder({"ok": True, "state": state_obj, "state_root": root}))
 
 @router.post("/dev/state")
 async def chain_sim_dev_state_apply(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
@@ -516,6 +666,9 @@ async def chain_sim_dev_state_apply(body: Dict[str, Any] = Body(...)) -> Dict[st
       - accepts either {"state": {...}} or direct {...}
       - resets ledger + imports config/bank/staking
       - returns fresh snapshot + recomputed state_root
+
+    NOTE: _get_chain_state_snapshot() already commits bank/staking sub-roots
+    (bank.root, staking.validators_root, staking.delegations_root).
     """
     incoming = body.get("state") if isinstance(body, dict) else None
     if not isinstance(incoming, dict):
@@ -541,9 +694,157 @@ async def chain_sim_dev_state_apply(body: Dict[str, Any] = Body(...)) -> Dict[st
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"state import failed: {e}")
 
+    state_obj = _get_chain_state_snapshot()  # roots already committed here
+    root = _compute_state_root(state_obj)
+    return JSONResponse(content=jsonable_encoder({"ok": True, "state": state_obj, "state_root": root}))
+
+@router.get("/dev/state")
+async def chain_sim_dev_state() -> Dict[str, Any]:
+    """
+    GET /api/chain_sim/dev/state
+      - returns: { ok, state, state_root }
+      - state = { config, bank, staking }
+
+    NOTE: _get_chain_state_snapshot() already commits bank/staking sub-roots.
+    """
     state_obj = _get_chain_state_snapshot()
     root = _compute_state_root(state_obj)
     return JSONResponse(content=jsonable_encoder({"ok": True, "state": state_obj, "state_root": root}))
+
+@router.get("/dev/proof/tx")
+async def chain_sim_dev_proof_tx(tx_id: str = Query(...)) -> Dict[str, Any]:
+    """
+    Merkle proof that tx_hash is included in block.txs_root.
+    Uses the SAME merkle functions as chain_sim_merkle.py.
+    """
+    tx = get_tx(tx_id)
+    if not tx:
+        raise HTTPException(status_code=404, detail="tx not found")
+
+    h = int(tx.get("block_height") or 0)
+    if h <= 0:
+        raise HTTPException(status_code=400, detail="tx has no block_height")
+
+    blk = get_block(h)
+    if not blk:
+        raise HTTPException(status_code=404, detail="block not found")
+
+    txs = blk.get("txs") or []
+    if not isinstance(txs, list) or not txs:
+        raise HTTPException(status_code=400, detail="block has no txs")
+
+    # Build leaves from tx hashes in block order
+    leaves: List[bytes] = []
+    hashes: List[str] = []
+    for t in txs:
+        th = str((t or {}).get("tx_hash") or "")
+        if not th:
+            continue
+        hashes.append(th)
+        try:
+            raw = bytes.fromhex(th)
+        except Exception:
+            raw = th.encode("utf-8")
+        leaves.append(hash_leaf(raw))
+
+    if not hashes:
+        raise HTTPException(status_code=400, detail="block txs missing tx_hash")
+
+    # Find index of this tx hash
+    target_hash = str(tx.get("tx_hash") or "")
+    try:
+        idx = hashes.index(target_hash)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="tx_hash not found in block tx list")
+
+    root_b = merkle_root(leaves)
+    proof = merkle_proof(leaves, idx)
+
+    return {
+        "ok": True,
+        "algo": "sha256-merkle-v1",
+        "block_height": h,
+        "tx_id": tx_id,
+        "tx_hash": target_hash,
+        "leaf_index": idx,
+        "txs_root": root_b.hex(),
+        "proof": proof,
+        "total_leaves": len(leaves),
+    }
+
+@router.post("/dev/proof/verify_tx")
+async def chain_sim_dev_verify_tx_proof(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    """
+    Verifies { tx_hash, txs_root, proof }.
+
+    Body example:
+      {"tx_hash":"<hex>", "txs_root":"<hex>", "proof":[...]}
+    """
+    try:
+        tx_hash = str(body.get("tx_hash") or "").strip()
+        txs_root = str(body.get("txs_root") or "").strip()
+        proof = body.get("proof") or []
+
+        if not tx_hash or not txs_root or not isinstance(proof, list):
+            raise ValueError("invalid body")
+
+        # Match /dev/proof/tx leaf construction: hash_leaf(raw(tx_hash))
+        try:
+            raw = bytes.fromhex(tx_hash)
+        except Exception:
+            raw = tx_hash.encode("utf-8")
+
+        leaf_b = hash_leaf(raw)
+        root_b = bytes.fromhex(txs_root)
+
+        ok = verify_proof(leaf_b, proof, root_b)
+        return {"ok": True, "verified": bool(ok)}
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"verify failed: {e}")
+
+
+@router.post("/dev/proof/verify_account")
+async def chain_sim_dev_verify_account_proof(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
+    """
+    Verifies { bank_accounts_root, proof, leaf_hash } OR { bank_accounts_root, proof, account }.
+
+    Body examples:
+      {"bank_accounts_root":"...", "proof":[...], "leaf_hash":"..."}
+      {"bank_accounts_root":"...", "proof":[...], "account":{"address":"...","balances":{...},"nonce":0}}
+    """
+    try:
+        root_hex = str(body.get("bank_accounts_root") or "")
+        proof = body.get("proof") or []
+        if not root_hex or not isinstance(proof, list):
+            raise ValueError("invalid body")
+
+        leaf_hex = str(body.get("leaf_hash") or "")
+        if leaf_hex:
+            leaf_b = bytes.fromhex(leaf_hex)
+        else:
+            acct = body.get("account") or {}
+            if not isinstance(acct, dict):
+                raise ValueError("invalid account")
+            payload_obj = {
+                "address": str(acct.get("address") or ""),
+                "balances": (acct.get("balances") or {}) if isinstance(acct.get("balances") or {}, dict) else {},
+                "nonce": int(acct.get("nonce") or 0),
+            }
+            if not payload_obj["address"]:
+                raise ValueError("account.address required")
+            leaf_b = hash_leaf(_stable_json(payload_obj).encode("utf-8"))
+
+        root_b = bytes.fromhex(root_hex)
+        ok = verify_proof(leaf_b, proof, root_b)
+        return {"ok": True, "verified": bool(ok)}
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"verify failed: {e}")
 
 @router.get("/dev/proof/account")
 async def chain_sim_dev_proof_account(address: str = Query(...)) -> Dict[str, Any]:
@@ -593,33 +894,6 @@ async def chain_sim_dev_proof_account(address: str = Query(...)) -> Dict[str, An
         "total_leaves": len(leaves),
     }
 
-@router.post("/dev/proof/verify_account")
-async def chain_sim_dev_verify_account_proof(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
-    """
-    Verifies {account, proof, bank_accounts_root}.
-    """
-    try:
-        root_hex = str(body.get("bank_accounts_root") or "")
-        proof = body.get("proof") or []
-        account = body.get("account") or {}
-        if not isinstance(proof, list) or not isinstance(account, dict) or not root_hex:
-            raise ValueError("invalid body")
-
-        leaf_obj = {
-            "address": str(account.get("address") or ""),
-            "balances": account.get("balances") or {},
-            "nonce": int(account.get("nonce") or 0),
-        }
-        leaf_b = hash_leaf(_stable_json(leaf_obj).encode("utf-8"))
-        root_b = bytes.fromhex(root_hex)
-
-        ok = verify_proof(leaf_b, proof, root_b)
-        return {"ok": True, "verified": bool(ok)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"verify failed: {e}")
-
 # ───────────────────────────────────────────────
 # Canonical entrypoint: submit_tx (P1_3)
 # ───────────────────────────────────────────────
@@ -651,8 +925,7 @@ async def chain_sim_submit_tx(body: DevSubmitTx) -> Dict[str, Any]:
 
     result = receipt.get("result") or {}
 
-    # infer "applied" if tx_executor returns legacy tuple/list like:
-    # [ok_bool, message, data]
+    # infer "applied" defensively (but prefer explicit)
     applied = receipt.get("applied", None)
     if applied is None:
         if isinstance(result, (list, tuple)) and len(result) > 0 and isinstance(result[0], bool):
@@ -664,29 +937,44 @@ async def chain_sim_submit_tx(body: DevSubmitTx) -> Dict[str, Any]:
     else:
         applied = bool(applied)
 
-    # 2) After apply, recompute state_root from SAME snapshot as /dev/state
-    if applied:
-        state_obj = _get_chain_state_snapshot()
-        state_root = _compute_state_root(state_obj)
-        receipt["state_root"] = state_root
+    # ✅ Hard rule: failed tx must not advance chain (no ledger record, no ids/heights)
+    if not applied:
+        receipt["applied"] = False
+        for k in ("tx_id", "tx_hash", "block_height", "tx_index", "state_root"):
+            receipt.pop(k, None)
+        return JSONResponse(content=jsonable_encoder(receipt))
 
-        # 3) Record tx + persist header commitments into the block
-        try:
-            rec = record_applied_tx(
-                from_addr=body.from_addr,
-                nonce=body.nonce,
-                tx_type=tx_type,
-                payload=body.payload,
-                applied=True,
-                result=result,
-                block_header={"state_root": state_root},
-            )
-            receipt["tx_id"] = rec.tx_id
-            receipt["tx_hash"] = rec.tx_hash
-            receipt["block_height"] = rec.block_height
-            receipt["tx_index"] = rec.tx_index
-        except Exception as e:
-            receipt["ledger_record_error"] = str(e)
+    # 2) After apply, recompute state_root from SAME snapshot as /dev/state
+    state_obj = _get_chain_state_snapshot()  # roots already committed here
+    state_root = _compute_state_root(state_obj)
+
+    receipt["state_root"] = state_root
+    receipt["applied"] = True
+
+    # pull fee from executor result (if present)
+    fee = None
+    if isinstance(result, dict):
+        maybe_fee = result.get("fee")
+        fee = maybe_fee if isinstance(maybe_fee, dict) else None
+
+    # 3) Record tx + persist header commitments into the block
+    try:
+        rec = record_applied_tx(
+            from_addr=body.from_addr,
+            nonce=body.nonce,
+            tx_type=tx_type,
+            payload=body.payload,
+            applied=True,
+            result=result,
+            fee=fee,  # ✅ ensures ledger columns populate
+            block_header={"state_root": state_root},
+        )
+        receipt["tx_id"] = rec.tx_id
+        receipt["tx_hash"] = rec.tx_hash
+        receipt["block_height"] = rec.block_height
+        receipt["tx_index"] = rec.tx_index
+    except Exception as e:
+        receipt["ledger_record_error"] = str(e)
 
     return JSONResponse(content=jsonable_encoder(receipt))
 # ───────────────────────────────────────────────

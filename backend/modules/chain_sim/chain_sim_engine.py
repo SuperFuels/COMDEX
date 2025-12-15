@@ -17,6 +17,45 @@ from backend.modules.staking import staking_model as staking
 
 DEV_MINT_AUTHORITY = "pho1-dev-gma-authority"
 
+# Bonded pool (dev staking lock address)
+DEV_STAKING_BONDED = "pho1-dev-staking-bonded"
+
+# ───────────────────────────────────────────────
+# Staking helpers (what tx_executor expects to find)
+# ───────────────────────────────────────────────
+
+def staking_delegate(from_addr: str, validator: str, amount_tess: str, **_) -> dict:
+    # 1) lock funds: move TESS into bonded pool address
+    bank.transfer(denom="TESS", signer=from_addr, to_addr=DEV_STAKING_BONDED, amount=str(amount_tess))
+    # 2) write staking state
+    staking.delegate(delegator=from_addr, validator=validator, amount_tess=str(amount_tess))
+    return {
+        "ok": True,
+        "op": "STAKING_DELEGATE",
+        "delegator": from_addr,
+        "validator": validator,
+        "amount_tess": str(amount_tess),
+        "bonded_pool": DEV_STAKING_BONDED,
+    }
+
+
+def staking_undelegate(from_addr: str, validator: str, amount_tess: str, **_) -> dict:
+    staking.undelegate(delegator=from_addr, validator=validator, amount_tess=str(amount_tess))
+    bank.transfer(denom="TESS", signer=DEV_STAKING_BONDED, to_addr=from_addr, amount=str(amount_tess))
+    return {
+        "ok": True,
+        "op": "STAKING_UNDELEGATE",
+        "delegator": from_addr,
+        "validator": validator,
+        "amount_tess": str(amount_tess),
+        "bonded_pool": DEV_STAKING_BONDED,
+    }
+
+
+# ✅ aliases so tx_executor finds the helper names immediately
+apply_staking_delegate = staking_delegate
+apply_staking_undelegate = staking_undelegate
+
 # ───────────────────────────────────────────────
 # Dev fees (P1_4: small but real progress)
 # ───────────────────────────────────────────────
@@ -105,6 +144,97 @@ def list_txs_for_address(address: str, limit: int = 50) -> Dict[str, Any]:
     return {"txs": ledger_list_txs(address=address, limit=limit, offset=0)}
 
 
+# ───────────────────────────────────────────────
+# Staking helpers (what tx_executor expects to find)
+# ───────────────────────────────────────────────
+
+def staking_delegate(from_addr: str, validator: str, amount_tess: str) -> Dict[str, Any]:
+    """
+    Dev staking delegate:
+      1) lock funds: move TESS from delegator -> bonded pool
+      2) write staking state
+    """
+    if not isinstance(from_addr, str) or not from_addr:
+        raise ValueError("from_addr required")
+    if not isinstance(validator, str) or not validator:
+        raise ValueError("validator required")
+    amt_s = str(amount_tess)
+
+    # lock funds (no extra dev fee for staking txs)
+    # Prefer known bank API: transfer(denom, signer, to_addr, amount)
+    bank.transfer(
+        denom="TESS",
+        signer=from_addr,
+        to_addr=DEV_STAKING_BONDED,
+        amount=amt_s,
+    )
+
+    staking.delegate(
+        delegator=from_addr,
+        validator=validator,
+        amount_tess=amt_s,
+    )
+
+    # invariants (if present)
+    fn = getattr(staking, "assert_invariants", None)
+    if callable(fn):
+        fn()
+    _maybe_assert_invariants()
+
+    return {
+        "ok": True,
+        "op": "STAKING_DELEGATE",
+        "delegator": from_addr,
+        "validator": validator,
+        "amount_tess": amt_s,
+        "bonded_pool": DEV_STAKING_BONDED,
+    }
+
+
+def staking_undelegate(from_addr: str, validator: str, amount_tess: str) -> Dict[str, Any]:
+    """
+    Dev staking undelegate:
+      1) write staking state
+      2) unlock funds: move TESS from bonded pool -> delegator
+    """
+    if not isinstance(from_addr, str) or not from_addr:
+        raise ValueError("from_addr required")
+    if not isinstance(validator, str) or not validator:
+        raise ValueError("validator required")
+    amt_s = str(amount_tess)
+
+    staking.undelegate(
+        delegator=from_addr,
+        validator=validator,
+        amount_tess=amt_s,
+    )
+
+    bank.transfer(
+        denom="TESS",
+        signer=DEV_STAKING_BONDED,
+        to_addr=from_addr,
+        amount=amt_s,
+    )
+
+    fn = getattr(staking, "assert_invariants", None)
+    if callable(fn):
+        fn()
+    _maybe_assert_invariants()
+
+    return {
+        "ok": True,
+        "op": "STAKING_UNDELEGATE",
+        "delegator": from_addr,
+        "validator": validator,
+        "amount_tess": amt_s,
+        "bonded_pool": DEV_STAKING_BONDED,
+    }
+
+
+# ───────────────────────────────────────────────
+# Legacy/dev submit_tx (still used by back-compat wrappers)
+# ───────────────────────────────────────────────
+
 def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
     """
     Canonical dev tx executor.
@@ -117,9 +247,10 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
           mint (amount - fee) to recipient, mint fee to fee_collector
         else: no fee (avoid minting PHO out of thin air)
 
-    Staking (dev skeleton):
-      - STAKING_DELEGATE / STAKING_UNDELEGATE (no consensus hooks yet)
-      - fees disabled for staking txs (fee.enabled = false)
+    Staking (dev):
+      - STAKING_DELEGATE / STAKING_UNDELEGATE
+      - lock model: TESS moved to pho1-dev-staking-bonded
+      - fees disabled for staking txs
     """
     client_tx_id = tx.get("tx_id") or _new_client_tx_id()
     from_addr = tx.get("from_addr")
@@ -156,8 +287,12 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
     result: Dict[str, Any] = {}
 
     fee_n = _fee_int()
+    fee_enabled = bool(tx_type and str(tx_type).startswith("BANK_"))
+    if tx_type in ("STAKING_DELEGATE", "STAKING_UNDELEGATE"):
+        fee_enabled = False  # ✅ no dev fee for staking txs
+
     fee_info: Dict[str, Any] = {
-        "enabled": bool(tx_type and str(tx_type).startswith("BANK_")),
+        "enabled": fee_enabled,
         "fee_denom": FEE_DENOM,
         "fee_amount": FEE_PER_TX,
         "applied": False,
@@ -181,7 +316,7 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
 
         accounts_touched.append(to_addr)
 
-        if denom == FEE_DENOM and fee_n > 0:
+        if denom == FEE_DENOM and fee_enabled and fee_n > 0:
             amt = _as_int_amount(amount_raw, "payload.amount")
             if amt < fee_n:
                 raise ValueError(f"mint amount must be >= fee ({fee_n})")
@@ -223,7 +358,7 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
 
         accounts_touched.append(to_addr)
 
-        if fee_n > 0:
+        if fee_enabled and fee_n > 0:
             fee_res = bank.transfer(
                 denom=FEE_DENOM,
                 signer=from_addr,
@@ -254,7 +389,7 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
         denom = payload.get("denom")
         amount = payload.get("amount")
 
-        if fee_n > 0:
+        if fee_enabled and fee_n > 0:
             fee_res = bank.transfer(
                 denom=FEE_DENOM,
                 signer=from_addr,
@@ -282,48 +417,27 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
         applied = True
 
     # ───────────────────────────────────────────────
-    # Staking (dev skeleton) — no fees
+    # Staking (dev) — uses helpers above (so tx_executor + legacy match)
     # ───────────────────────────────────────────────
     elif tx_type == "STAKING_DELEGATE":
         validator = payload.get("validator")
         amount_tess = payload.get("amount_tess")
-
         if not isinstance(validator, str) or not validator:
             raise ValueError("payload.validator required")
-        # amount_tess validated inside staking module
 
-        result = staking.delegate(
-            delegator=from_addr,
-            validator=validator,
-            amount_tess=str(amount_tess),
-        )
+        result = staking_delegate(from_addr=from_addr, validator=validator, amount_tess=str(amount_tess))
+        accounts_touched.append(DEV_STAKING_BONDED)
         applied = True
-
-        # consume exactly one nonce for the tx
-        signer_acc.nonce += 1
-
-        # staking invariants + bank invariants (if present)
-        staking.assert_invariants()
-        _maybe_assert_invariants()
 
     elif tx_type == "STAKING_UNDELEGATE":
         validator = payload.get("validator")
         amount_tess = payload.get("amount_tess")
-
         if not isinstance(validator, str) or not validator:
             raise ValueError("payload.validator required")
 
-        result = staking.undelegate(
-            delegator=from_addr,
-            validator=validator,
-            amount_tess=str(amount_tess),
-        )
+        result = staking_undelegate(from_addr=from_addr, validator=validator, amount_tess=str(amount_tess))
+        accounts_touched.append(DEV_STAKING_BONDED)
         applied = True
-
-        signer_acc.nonce += 1
-
-        staking.assert_invariants()
-        _maybe_assert_invariants()
 
     # One nonce per tx (BANK txs can increment internally; clamp)
     if applied:

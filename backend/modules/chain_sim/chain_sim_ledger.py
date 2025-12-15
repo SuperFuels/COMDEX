@@ -9,6 +9,8 @@ from dataclasses import dataclass, asdict, field
 from threading import Lock
 from typing import Any, Dict, List, Optional, Tuple
 
+from backend.modules.chain_sim.chain_sim_merkle import hash_leaf, merkle_root
+
 
 def _now_ms() -> int:
     return int(time.time() * 1000)
@@ -72,15 +74,19 @@ class DevBlock:
     txs: List[DevTxRecord]
     txs_root: str
 
-    # ✅ new: header commitments (e.g., state_root)
+    # ✅ header commitments (state_root, txs_root, etc.)
     header: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        hdr = dict(self.header or {})
+        # ensure header commitments always include txs_root
+        hdr.setdefault("txs_root", self.txs_root)
+
         return {
             "height": self.height,
             "created_at_ms": self.created_at_ms,
-            "txs_root": self.txs_root,
-            "header": dict(self.header or {}),
+            "txs_root": self.txs_root,  # keep for back-compat
+            "header": hdr,
             "txs": [t.to_dict() for t in self.txs],
         }
 
@@ -139,6 +145,23 @@ def compute_tx_identity(
     return tx_id, h
 
 
+def _compute_txs_root_hex(tx_hashes: List[str]) -> str:
+    """
+    Commitment over tx hashes using chain_sim_merkle:
+      leaf_i = hash_leaf(raw_tx_hash_bytes)
+      root = merkle_root([leaf_i...])
+    tx_hashes are hex strings (sha256 hexdigest).
+    """
+    leaves: List[bytes] = []
+    for h in tx_hashes:
+        try:
+            raw = bytes.fromhex(str(h))
+        except Exception:
+            raw = str(h).encode("utf-8")
+        leaves.append(hash_leaf(raw))
+    return merkle_root(leaves).hex()
+
+
 def _append_block_with_single_tx_locked(
     tx: DevTxRecord,
     *,
@@ -152,14 +175,19 @@ def _append_block_with_single_tx_locked(
     tx.block_height = h
     tx.tx_index = 0
 
-    txs_root = _sha256_hex(_stable_json([tx.tx_hash]))
+    txs_root = _compute_txs_root_hex([tx.tx_hash])
+
+    # Optional cleanup: ensure header contains txs_root too
+    hdr = dict(header or {})
+    hdr.setdefault("txs_root", txs_root)
+
     blk = DevBlock(
         height=h,
         # ✅ keep block time aligned with tx time if provided
         created_at_ms=int(tx.created_at_ms or _now_ms()),
         txs=[tx],
         txs_root=txs_root,
-        header=dict(header or {}),
+        header=hdr,
     )
     _BLOCKS.append(blk)
     return blk
