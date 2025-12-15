@@ -1,17 +1,24 @@
 # backend/modules/chain_sim/chain_sim_routes.py
 from __future__ import annotations
 
+import os
+import threading
 import hashlib
 import json
+import uuid
+import time
 from dataclasses import asdict
 from typing import Any, Dict, Optional, Literal, List, Tuple
 from pathlib import Path
+from collections import Counter, deque
 
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter, HTTPException, Query, Body
 from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
+from backend.modules.chain_sim.chain_sim_ledger import begin_block, commit_block, abort_open_block
 from backend.modules.chain_sim.tx_executor import apply_tx_receipt as apply_tx_executor
+from backend.modules.chain_sim.chain_sim_ledger import patch_block_header  # keep single import
 from backend.modules.chain_sim.chain_sim_merkle import (
     hash_leaf,
     merkle_root,
@@ -34,6 +41,14 @@ from backend.modules.chain_sim.chain_sim_ledger import (
 
 router = APIRouter(prefix="/chain_sim", tags=["chain-sim-dev"])
 
+
+# ───────────────────────────────────────────────
+# Helpers: time
+# ───────────────────────────────────────────────
+def _now_ms() -> float:
+    return time.time() * 1000.0
+
+
 class _AttrDict(dict):
     """dict that also supports attribute access (tx.tx_type)"""
     def __getattr__(self, k):
@@ -45,10 +60,10 @@ class _AttrDict(dict):
     def __setattr__(self, k, v):
         self[k] = v
 
+
 # ───────────────────────────────────────────────
 # Helpers: stable json + hashing
 # ───────────────────────────────────────────────
-
 def _stable_json(obj: Any) -> str:
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
@@ -59,6 +74,462 @@ def _compute_state_root(state_obj: Dict[str, Any]) -> str:
     # Only hash the actual state payload (not "ok"/"state_root" wrapper)
     return _sha256_hex(_stable_json(state_obj))
 
+
+# ───────────────────────────────────────────────
+# State root commit policy (perf knob)
+# ───────────────────────────────────────────────
+_STATE_ROOT_INTERVAL = int(os.getenv("CHAIN_SIM_STATE_ROOT_INTERVAL", "1") or "1")
+
+_STATE_ROOT_LOCK = threading.Lock()
+_STATE_ROOT_LAST: Optional[str] = None
+_STATE_ROOT_APPLIED_COUNT = 0
+
+def _state_root_reset_cache() -> None:
+    global _STATE_ROOT_LAST, _STATE_ROOT_APPLIED_COUNT
+    with _STATE_ROOT_LOCK:
+        _STATE_ROOT_LAST = None
+        _STATE_ROOT_APPLIED_COUNT = 0
+
+
+# ───────────────────────────────────────────────
+# Async ingest queue + worker (world-class step)
+# ───────────────────────────────────────────────
+_CHAIN_SIM_ASYNC_ENABLED = int(os.getenv("CHAIN_SIM_ASYNC_ENABLED", "1") or "1") == 1
+_CHAIN_SIM_QUEUE_MAX = int(os.getenv("CHAIN_SIM_QUEUE_MAX", "20000") or "20000")
+
+# legacy knobs (safe to keep even if you moved to block batching)
+_CHAIN_SIM_WORKER_BATCH = int(os.getenv("CHAIN_SIM_WORKER_BATCH", "50") or "50")
+_CHAIN_SIM_WORKER_FLUSH_MS = int(os.getenv("CHAIN_SIM_WORKER_FLUSH_MS", "5") or "5")
+
+
+# ───────────────────────────────────────────────
+# Block batching knobs + throughput windows
+# ───────────────────────────────────────────────
+_CHAIN_SIM_BLOCK_MAX_TX = int(os.getenv("CHAIN_SIM_BLOCK_MAX_TX", "200") or "200")
+_CHAIN_SIM_BLOCK_MAX_MS = int(os.getenv("CHAIN_SIM_BLOCK_MAX_MS", "25") or "25")
+
+_METRICS_START_MS = _now_ms()
+_ACCEPT_TS_MS = deque(maxlen=200000)    # accepted timestamps (ms)
+_FINALIZE_TS_MS = deque(maxlen=200000)  # applied timestamps (ms)
+
+
+# Shared runtime objects (created on startup)
+_CHAIN_SIM_QUEUE = None  # asyncio.Queue
+_CHAIN_SIM_WORKER_TASK = None  # asyncio.Task
+
+
+# In-memory status + metrics
+_STATUS_LOCK = threading.Lock()
+_TX_STATUS: Dict[str, Dict[str, Any]] = {}
+
+_METRICS_LOCK = threading.Lock()
+_METRICS = {
+    "accepted_total": 0,
+    "applied_total": 0,
+    "rejected_total": 0,
+    "error_total": 0,
+    "processing_now": 0,
+    "last_error": None,
+    "last_state_root": None,
+    "last_committed_at": None,
+}
+
+_FINALITY_MS = deque(maxlen=20000)  # accepted->applied (ms)
+_ERROR_KINDS = Counter()
+
+def _queue_drain_nowait() -> int:
+    """Drain queue fast (best-effort). Returns drained count."""
+    global _CHAIN_SIM_QUEUE
+    q = _CHAIN_SIM_QUEUE
+    if q is None:
+        return 0
+    drained = 0
+    try:
+        while True:
+            q.get_nowait()
+            q.task_done()
+            drained += 1
+    except Exception:
+        pass
+    return drained
+
+
+def _status_clear() -> None:
+    global _METRICS_START_MS
+    with _STATUS_LOCK:
+        _TX_STATUS.clear()
+
+    with _METRICS_LOCK:
+        _METRICS.update(
+            {
+                "accepted_total": 0,
+                "applied_total": 0,
+                "rejected_total": 0,
+                "error_total": 0,
+                "processing_now": 0,
+                "last_error": None,
+                "last_state_root": None,
+                "last_committed_at": None,
+            }
+        )
+
+        _FINALITY_MS.clear()
+        _ERROR_KINDS.clear()
+
+        _METRICS_START_MS = _now_ms()
+        _ACCEPT_TS_MS.clear()
+        _FINALIZE_TS_MS.clear()
+
+
+def _status_set(qid: str, patch: Dict[str, Any]) -> None:
+    with _STATUS_LOCK:
+        cur = _TX_STATUS.get(qid) or {}
+        cur.update(patch)
+        _TX_STATUS[qid] = cur
+
+
+def _status_get(qid: str) -> Dict[str, Any]:
+    with _STATUS_LOCK:
+        return dict(_TX_STATUS.get(qid) or {})
+
+async def chain_sim_async_startup() -> None:
+    """Called from backend/main.py startup."""
+    global _CHAIN_SIM_QUEUE, _CHAIN_SIM_WORKER_TASK
+
+    if not _CHAIN_SIM_ASYNC_ENABLED:
+        return
+
+    import asyncio  # local to avoid import-order weirdness
+
+    if _CHAIN_SIM_QUEUE is None:
+        _CHAIN_SIM_QUEUE = asyncio.Queue(maxsize=max(1, _CHAIN_SIM_QUEUE_MAX))
+
+    if _CHAIN_SIM_WORKER_TASK is None:
+        _CHAIN_SIM_WORKER_TASK = asyncio.create_task(_chain_sim_worker_loop())
+
+
+async def chain_sim_async_shutdown() -> None:
+    """Called from backend/main.py shutdown."""
+    global _CHAIN_SIM_WORKER_TASK
+
+    task = _CHAIN_SIM_WORKER_TASK
+    if task is None:
+        return
+
+    _CHAIN_SIM_WORKER_TASK = None
+    task.cancel()
+    try:
+        await task
+    except Exception:
+        pass
+
+def _submit_tx_core(body: "DevSubmitTx", *, commit_roots: bool = True) -> Dict[str, Any]:
+    """
+    Core finalize logic used by:
+      - sync endpoint /dev/submit_tx  (commit_roots=True)
+      - async worker finalization      (commit_roots can be False; roots committed on flush)
+    Returns a dict receipt (not a Response).
+    """
+    tx_type = body.tx_type
+    if tx_type == "BANK_TRANSFER":
+        tx_type = "BANK_SEND"
+
+    tx = body.model_dump()
+    tx["tx_type"] = tx_type
+    tx_obj = _AttrDict(tx)
+
+    try:
+        receipt = apply_tx_executor(tx_obj)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"apply_tx failed: {e}")
+
+    if not isinstance(receipt, dict):
+        receipt = {"ok": True, "result": receipt}
+
+    result = receipt.get("result") or {}
+
+    applied = receipt.get("applied", None)
+    if applied is None:
+        if isinstance(result, (list, tuple)) and len(result) > 0 and isinstance(result[0], bool):
+            applied = bool(result[0])
+        elif isinstance(result, dict) and "ok" in result:
+            applied = bool(result.get("ok"))
+        else:
+            applied = True
+    else:
+        applied = bool(applied)
+
+    if not applied:
+        receipt["applied"] = False
+        for k in ("tx_id", "tx_hash", "block_height", "tx_index", "state_root", "state_root_committed"):
+            receipt.pop(k, None)
+        return receipt
+
+    fee = None
+    if isinstance(result, dict):
+        maybe_fee = result.get("fee")
+        fee = maybe_fee if isinstance(maybe_fee, dict) else None
+
+    if commit_roots:
+        state_root, committed_now = _state_root_maybe_commit()
+        receipt["state_root"] = state_root
+        receipt["state_root_committed"] = committed_now
+        block_header = ({"state_root": state_root} if committed_now and state_root else {})
+    else:
+        receipt["state_root"] = None
+        receipt["state_root_committed"] = False
+        block_header = {}
+
+    receipt["applied"] = True
+
+    try:
+        rec = record_applied_tx(
+            from_addr=body.from_addr,
+            nonce=body.nonce,
+            tx_type=tx_type,
+            payload=body.payload,
+            applied=True,
+            result=result,
+            fee=fee,
+            block_header=block_header,
+        )
+        receipt["tx_id"] = rec.tx_id
+        receipt["tx_hash"] = rec.tx_hash
+        receipt["block_height"] = rec.block_height
+        receipt["tx_index"] = rec.tx_index
+    except Exception as e:
+        receipt["ledger_record_error"] = str(e)
+
+    return receipt
+
+async def _chain_sim_worker_loop() -> None:
+    """
+    Deterministic worker:
+      - FIFO finalize
+      - builds one "block batch"
+      - ledger batching: begin_block -> record_applied_tx appends -> commit_block
+      - commits state_root + txs_root ONLY once per flush
+    """
+    import asyncio
+
+    while True:
+        q = _CHAIN_SIM_QUEUE
+        if q is None:
+            await asyncio.sleep(0.05)
+            continue
+
+        # ---- build one "block batch" ----
+        block_items: List[Dict[str, Any]] = []
+        block_started_ms = _now_ms()
+
+        first = await q.get()
+        block_items.append(first)
+
+        while len(block_items) < max(1, _CHAIN_SIM_BLOCK_MAX_TX):
+            if (_now_ms() - block_started_ms) >= max(1, _CHAIN_SIM_BLOCK_MAX_MS):
+                break
+            try:
+                block_items.append(q.get_nowait())
+            except Exception:
+                await asyncio.sleep(0)
+                continue
+
+        # ---- begin an OPEN ledger block (if supported) ----
+        batch_height: Optional[int] = None
+        ledger_batching = False
+        commit_block_fn = None
+        abort_open_block_fn = None
+
+        try:
+            from backend.modules.chain_sim.chain_sim_ledger import (
+                begin_block,
+                commit_block,
+                abort_open_block,
+            )  # type: ignore
+
+            if callable(begin_block) and callable(commit_block) and callable(abort_open_block):
+                batch_height = int(begin_block(created_at_ms=int(block_started_ms)))
+                ledger_batching = True
+                commit_block_fn = commit_block
+                abort_open_block_fn = abort_open_block
+        except Exception:
+            ledger_batching = False
+            batch_height = None
+
+        # ---- apply sequentially (deterministic) ----
+        applied_hashes: List[str] = []
+        applied_receipts: List[Dict[str, Any]] = []
+        last_applied_qid: Optional[str] = None
+
+        # fallback (1tx==1block) height tracker
+        committed_height: Optional[int] = batch_height
+
+        for it in block_items:
+            qid = it["qid"]
+            accepted_at_ms = it["accepted_at_ms"]
+            body_dict = it["body"]
+
+            with _METRICS_LOCK:
+                _METRICS["processing_now"] += 1
+            _status_set(qid, {"state": "processing", "processing_at_ms": _now_ms()})
+
+            try:
+                body = DevSubmitTx(**body_dict)
+
+                # DEFER ROOTS: commit_roots=False (roots committed on flush)
+                receipt = _submit_tx_core(body, commit_roots=False)
+
+                if receipt.get("applied") is True:
+                    now_ms = _now_ms()
+                    with _METRICS_LOCK:
+                        _METRICS["applied_total"] += 1
+
+                    _FINALITY_MS.append(now_ms - accepted_at_ms)
+                    _FINALIZE_TS_MS.append(now_ms)
+
+                    _status_set(qid, {"state": "applied", "applied_at_ms": now_ms, "receipt": receipt})
+
+                    th = str(receipt.get("tx_hash") or "")
+                    if th:
+                        applied_hashes.append(th)
+
+                    applied_receipts.append(receipt)
+                    last_applied_qid = qid
+
+                    # If ledger batching is NOT active, keep updating height from receipts
+                    if not ledger_batching:
+                        h = receipt.get("block_height")
+                        committed_height = int(h or 0)
+
+                else:
+                    with _METRICS_LOCK:
+                        _METRICS["rejected_total"] += 1
+                    _status_set(qid, {"state": "rejected", "done_at_ms": _now_ms(), "receipt": receipt})
+
+            except Exception as e:
+                with _METRICS_LOCK:
+                    _METRICS["error_total"] += 1
+                    _METRICS["last_error"] = str(e)
+                _ERROR_KINDS[type(e).__name__] += 1
+                _status_set(qid, {"state": "error", "done_at_ms": _now_ms(), "error": str(e)})
+
+            finally:
+                with _METRICS_LOCK:
+                    _METRICS["processing_now"] = max(0, int(_METRICS["processing_now"]) - 1)
+                try:
+                    q.task_done()
+                except Exception:
+                    pass
+
+        # If no applied txs, abort any open block and continue
+        if not applied_hashes:
+            if ledger_batching and callable(abort_open_block_fn):
+                try:
+                    abort_open_block_fn()
+                except Exception:
+                    pass
+            continue
+
+        # ---- FLUSH: commit roots ONCE ----
+        if committed_height and committed_height > 0:
+            # ALWAYS compute txs_root for the flushed batch (matches /dev/proof/tx leaf hashing)
+            leaves: List[bytes] = []
+            for th in applied_hashes:
+                try:
+                    raw = bytes.fromhex(th)
+                except Exception:
+                    raw = th.encode("utf-8")
+                leaves.append(hash_leaf(raw))
+            txs_root_hex = merkle_root(leaves).hex()
+
+            # state_root ONCE
+            state_obj = _get_chain_state_snapshot()
+            state_root_hex = _compute_state_root(state_obj)
+
+            # keep cache coherent for any sync readers
+            try:
+                global _STATE_ROOT_LAST
+                with _STATE_ROOT_LOCK:
+                    _STATE_ROOT_LAST = state_root_hex
+            except Exception:
+                pass
+
+            now_ms = _now_ms()
+            with _METRICS_LOCK:
+                _METRICS["last_state_root"] = state_root_hex
+                _METRICS["last_committed_at"] = now_ms
+
+            header_patch: Dict[str, Any] = {
+                "state_root": state_root_hex,
+                "txs_root": txs_root_hex,
+            }
+
+            if ledger_batching and callable(commit_block_fn):
+                # commit the open block (and ensure we don't leave it open on failure)
+                blk = None
+                try:
+                    blk = commit_block_fn(header_patch=header_patch)
+                except Exception:
+                    blk = None
+
+                if blk is None:
+                    if callable(abort_open_block_fn):
+                        try:
+                            abort_open_block_fn()
+                        except Exception:
+                            pass
+                else:
+                    # make sure height matches the actual committed block
+                    try:
+                        committed_height = int(getattr(blk, "height", committed_height) or committed_height)
+                    except Exception:
+                        pass
+            else:
+                # fallback path: patch the single block we touched (already-imported patch_block_header)
+                try:
+                    if callable(patch_block_header):
+                        patch_block_header(committed_height, header_patch)
+                except Exception:
+                    pass
+
+            # UX: mark last applied receipt as the commit point
+            try:
+                if last_applied_qid and applied_receipts:
+                    r = dict(applied_receipts[-1])
+                    r["state_root"] = state_root_hex
+                    r["state_root_committed"] = True
+                    r["txs_root"] = txs_root_hex
+                    _status_set(last_applied_qid, {"receipt": r})
+            except Exception:
+                pass
+
+def _state_root_maybe_commit() -> tuple[Optional[str], bool]:
+    """
+    Returns (state_root, committed_now).
+    Commits (recomputes) root only every _STATE_ROOT_INTERVAL applied txs.
+    """
+    global _STATE_ROOT_LAST, _STATE_ROOT_APPLIED_COUNT
+
+    with _STATE_ROOT_LOCK:
+        _STATE_ROOT_APPLIED_COUNT += 1
+        count = _STATE_ROOT_APPLIED_COUNT
+        last = _STATE_ROOT_LAST
+        interval = max(1, int(_STATE_ROOT_INTERVAL or 1))
+
+    must_commit = (last is None) or (count % interval == 0)
+    if not must_commit:
+        return last, False
+
+    # compute outside lock (expensive)
+    state_obj = _get_chain_state_snapshot()  # roots committed inside snapshot helper (Option A)
+    root = _compute_state_root(state_obj)
+
+    with _STATE_ROOT_LOCK:
+        _STATE_ROOT_LAST = root
+
+    return root, True
 # ───────────────────────────────────────────────
 # Helpers: bank snapshot/import (avoid deadlocks)
 # ───────────────────────────────────────────────
@@ -570,7 +1041,9 @@ async def chain_sim_dev_perf_latest() -> Dict[str, Any]:
 
 @router.post("/dev/reset")
 async def chain_sim_dev_reset(body: Optional[DevResetRequest] = None) -> Dict[str, Any]:
-    reset_ledger()
+    _state_root_reset_cache()
+    _queue_drain_nowait()
+    _status_clear()
 
     # 1) reset staking
     try:
@@ -676,7 +1149,9 @@ async def chain_sim_dev_state_apply(body: Dict[str, Any] = Body(...)) -> Dict[st
     if not isinstance(incoming, dict):
         raise HTTPException(status_code=400, detail="body must be an object")
 
-    reset_ledger()
+    _state_root_reset_cache()
+    _queue_drain_nowait()
+    _status_clear()
 
     try:
         # config
@@ -900,83 +1375,102 @@ async def chain_sim_dev_proof_account(address: str = Query(...)) -> Dict[str, An
 
 @router.post("/dev/submit_tx")
 async def chain_sim_submit_tx(body: DevSubmitTx) -> Dict[str, Any]:
-    # normalize aliases
-    tx_type = body.tx_type
-    if tx_type == "BANK_TRANSFER":
-        tx_type = "BANK_SEND"
-
-    tx = body.model_dump()
-    tx["tx_type"] = tx_type
-
-    # IMPORTANT: tx_executor expects attribute-style access (tx.tx_type)
-    tx_obj = _AttrDict(tx)
-
-    # 1) Canonical path: execute via tx_executor
-    try:
-        receipt = apply_tx_executor(tx_obj)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"apply_tx failed: {e}")
-
-    # normalize receipt shape (defensive)
-    if not isinstance(receipt, dict):
-        receipt = {"ok": True, "result": receipt}
-
-    result = receipt.get("result") or {}
-
-    # infer "applied" defensively (but prefer explicit)
-    applied = receipt.get("applied", None)
-    if applied is None:
-        if isinstance(result, (list, tuple)) and len(result) > 0 and isinstance(result[0], bool):
-            applied = bool(result[0])
-        elif isinstance(result, dict) and "ok" in result:
-            applied = bool(result.get("ok"))
-        else:
-            applied = True
-    else:
-        applied = bool(applied)
-
-    # ✅ Hard rule: failed tx must not advance chain (no ledger record, no ids/heights)
-    if not applied:
-        receipt["applied"] = False
-        for k in ("tx_id", "tx_hash", "block_height", "tx_index", "state_root"):
-            receipt.pop(k, None)
-        return JSONResponse(content=jsonable_encoder(receipt))
-
-    # 2) After apply, recompute state_root from SAME snapshot as /dev/state
-    state_obj = _get_chain_state_snapshot()  # roots already committed here
-    state_root = _compute_state_root(state_obj)
-
-    receipt["state_root"] = state_root
-    receipt["applied"] = True
-
-    # pull fee from executor result (if present)
-    fee = None
-    if isinstance(result, dict):
-        maybe_fee = result.get("fee")
-        fee = maybe_fee if isinstance(maybe_fee, dict) else None
-
-    # 3) Record tx + persist header commitments into the block
-    try:
-        rec = record_applied_tx(
-            from_addr=body.from_addr,
-            nonce=body.nonce,
-            tx_type=tx_type,
-            payload=body.payload,
-            applied=True,
-            result=result,
-            fee=fee,  # ✅ ensures ledger columns populate
-            block_header={"state_root": state_root},
-        )
-        receipt["tx_id"] = rec.tx_id
-        receipt["tx_hash"] = rec.tx_hash
-        receipt["block_height"] = rec.block_height
-        receipt["tx_index"] = rec.tx_index
-    except Exception as e:
-        receipt["ledger_record_error"] = str(e)
-
+    receipt = _submit_tx_core(body, commit_roots=True)
     return JSONResponse(content=jsonable_encoder(receipt))
+
+@router.post("/dev/submit_tx_async", status_code=202)
+async def chain_sim_submit_tx_async(body: DevSubmitTx) -> Dict[str, Any]:
+    """
+    Fast ingest:
+      - validates request model
+      - enqueues for deterministic finalize in worker
+      - returns 202 + qid immediately
+    """
+    if not _CHAIN_SIM_ASYNC_ENABLED:
+        raise HTTPException(status_code=400, detail="async ingest disabled")
+
+    q = _CHAIN_SIM_QUEUE
+    if q is None:
+        raise HTTPException(status_code=503, detail="queue not ready")
+
+    if q.full():
+        raise HTTPException(status_code=429, detail="queue full; try again")
+
+    qid = uuid.uuid4().hex
+    accepted_at_ms = _now_ms()
+
+    _status_set(
+        qid,
+        {
+            "qid": qid,
+            "state": "accepted",
+            "accepted_at_ms": accepted_at_ms,
+            "from_addr": body.from_addr,
+            "nonce": body.nonce,
+            "tx_type": body.tx_type,
+        },
+    )
+    with _METRICS_LOCK:
+        _METRICS["accepted_total"] += 1
+        _ACCEPT_TS_MS.append(accepted_at_ms)
+
+    await q.put({"qid": qid, "accepted_at_ms": accepted_at_ms, "body": body.model_dump()})
+
+    return {"ok": True, "accepted": True, "qid": qid}
+
+
+@router.get("/dev/tx_status/{qid}")
+async def chain_sim_tx_status(qid: str) -> Dict[str, Any]:
+    st = _status_get(qid)
+    if not st:
+        raise HTTPException(status_code=404, detail="unknown qid")
+    return {"ok": True, "status": st}
+
+
+@router.get("/dev/queue_metrics")
+async def chain_sim_queue_metrics() -> Dict[str, Any]:
+    q = _CHAIN_SIM_QUEUE
+    qsize = int(q.qsize()) if q is not None else 0
+
+    with _METRICS_LOCK:
+        m = dict(_METRICS)
+        errk = dict(_ERROR_KINDS)
+
+    xs = sorted(_FINALITY_MS)
+
+    def pct(p: float) -> float:
+        if not xs:
+            return 0.0
+        k = int((p / 100.0) * (len(xs) - 1))
+        return float(xs[k])
+
+    now = _now_ms()
+    elapsed_s = max(0.001, (now - _METRICS_START_MS) / 1000.0)
+
+    # 5s window TPS (cheap sliding window)
+    window_ms = 5000.0
+    acc_5s = sum(1 for t in _ACCEPT_TS_MS if (now - t) <= window_ms)
+    fin_5s = sum(1 for t in _FINALIZE_TS_MS if (now - t) <= window_ms)
+
+    ingest_tps = float(m.get("accepted_total", 0)) / elapsed_s
+    finalize_tps = float(m.get("applied_total", 0)) / elapsed_s
+
+    return {
+        "ok": True,
+        "queue_size": qsize,
+        "metrics": m,
+        "tps": {
+            "since_start": {"ingest": ingest_tps, "finalize": finalize_tps},
+            "last_5s": {"ingest": acc_5s / 5.0, "finalize": fin_5s / 5.0},
+        },
+        "finality_ms": {
+            "count": len(xs),
+            "p50": pct(50),
+            "p95": pct(95),
+            "p99": pct(99),
+        },
+        "error_kinds": errk,
+    }
 # ───────────────────────────────────────────────
 # Explorer / ledger endpoints
 # ───────────────────────────────────────────────

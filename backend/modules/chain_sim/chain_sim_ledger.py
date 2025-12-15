@@ -58,12 +58,10 @@ class DevTxRecord:
     block_height: int
     tx_index: int
 
-    # ✅ new (fee plumbing)
     fee: Optional[Dict[str, Any]] = None
     accounts_touched: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
-        # asdict() already handles default_factory lists correctly
         return asdict(self)
 
 
@@ -74,18 +72,16 @@ class DevBlock:
     txs: List[DevTxRecord]
     txs_root: str
 
-    # ✅ header commitments (state_root, txs_root, etc.)
     header: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         hdr = dict(self.header or {})
-        # ensure header commitments always include txs_root
         hdr.setdefault("txs_root", self.txs_root)
 
         return {
             "height": self.height,
             "created_at_ms": self.created_at_ms,
-            "txs_root": self.txs_root,  # keep for back-compat
+            "txs_root": self.txs_root,  # back-compat
             "header": hdr,
             "txs": [t.to_dict() for t in self.txs],
         }
@@ -102,24 +98,325 @@ _TXS: List[DevTxRecord] = []
 
 _TX_BY_ID: Dict[str, DevTxRecord] = {}
 _TX_BY_HASH: Dict[str, DevTxRecord] = {}
-# Strong idempotency key: nonce is unique per signer (for applied txs)
-_TX_BY_KEY: Dict[Tuple[str, int, str], DevTxRecord] = {}
+_TX_BY_KEY: Dict[Tuple[str, int, str], DevTxRecord] = {}  # (from_addr, nonce, tx_type)
+
+
+# ───────────────────────────────────────────────
+# Ledger batching (open block)
+# ───────────────────────────────────────────────
+
+_OPEN_BLOCK: Optional[DevBlock] = None
+
+
+def _merge_header(dst: Dict[str, Any], src: Dict[str, Any]) -> None:
+    if not isinstance(dst, dict) or not isinstance(src, dict):
+        return
+    for k, v in src.items():
+        if v is None:
+            continue
+        dst[str(k)] = v
+
+
+def _next_height_locked() -> int:
+    return len(_BLOCKS) + 1
+
+
+def compute_tx_identity(
+    from_addr: str,
+    nonce: int,
+    tx_type: str,
+    payload: Dict[str, Any],
+) -> Tuple[str, str]:
+    """
+    Returns: (tx_id, tx_hash)
+
+    tx_hash: sha256 over stable envelope JSON
+    tx_id: short human-friendly id derived from tx_hash
+    """
+    norm_payload = _normalize_payload(payload)
+    envelope = {
+        "from_addr": from_addr,
+        "nonce": int(nonce),
+        "tx_type": tx_type,
+        "payload": norm_payload,
+    }
+    h = _sha256_hex(_stable_json(envelope))
+    tx_id = f"tx_{h[:12]}"
+    return tx_id, h
+
+
+def _compute_txs_root_hex(tx_hashes: List[str]) -> str:
+    leaves: List[bytes] = []
+    for h in tx_hashes:
+        try:
+            raw = bytes.fromhex(str(h))
+        except Exception:
+            raw = str(h).encode("utf-8")
+        leaves.append(hash_leaf(raw))
+    return merkle_root(leaves).hex()
+
+
+def abort_open_block() -> None:
+    """
+    Abort the currently open block.
+    If an empty shell block was appended, remove it.
+    """
+    global _OPEN_BLOCK
+    with _LOCK:
+        if _OPEN_BLOCK is not None:
+            if _BLOCKS and _BLOCKS[-1] is _OPEN_BLOCK and not (_OPEN_BLOCK.txs or []):
+                _BLOCKS.pop()
+        _OPEN_BLOCK = None
+
+
+def begin_block(*, created_at_ms: Optional[int] = None) -> int:
+    """
+    Start a batched block. Pre-creates a shell block so height is reserved.
+    record_applied_tx() will append into it.
+    """
+    global _OPEN_BLOCK
+    with _LOCK:
+        if _OPEN_BLOCK is not None:
+            abort_open_block()
+
+        h = _next_height_locked()
+        blk = DevBlock(
+            height=h,
+            created_at_ms=int(created_at_ms) if created_at_ms is not None else _now_ms(),
+            txs=[],
+            txs_root="",
+            header={},
+        )
+        _BLOCKS.append(blk)
+        _OPEN_BLOCK = blk
+        return h
+
+
+def commit_block(*, header_patch: Optional[Dict[str, Any]] = None) -> Optional[DevBlock]:
+    """
+    Finalize the open block:
+      - if no txs were appended -> remove shell block and return None
+      - else compute txs_root and merge header_patch
+    """
+    global _OPEN_BLOCK
+    with _LOCK:
+        blk = _OPEN_BLOCK
+        if blk is None:
+            return None
+
+        if not blk.txs:
+            if _BLOCKS and _BLOCKS[-1] is blk:
+                _BLOCKS.pop()
+            _OPEN_BLOCK = None
+            return None
+
+        txs_root = _compute_txs_root_hex([t.tx_hash for t in blk.txs])
+        blk.txs_root = txs_root
+        if blk.header is None:
+            blk.header = {}
+        blk.header["txs_root"] = txs_root
+
+        if isinstance(header_patch, dict):
+            _merge_header(blk.header, header_patch)
+            # keep struct consistent if caller patched txs_root explicitly
+            if blk.header.get("txs_root"):
+                blk.txs_root = str(blk.header["txs_root"])
+
+        for i, t in enumerate(blk.txs):
+            t.block_height = blk.height
+            t.tx_index = i
+
+        _OPEN_BLOCK = None
+        return blk
 
 
 def reset_ledger() -> None:
-    """Dev/test helper."""
+    global _OPEN_BLOCK
     with _LOCK:
         _BLOCKS.clear()
         _TXS.clear()
         _TX_BY_ID.clear()
         _TX_BY_HASH.clear()
         _TX_BY_KEY.clear()
+        _OPEN_BLOCK = None
 
 
-def _next_height_locked() -> int:
-    # Caller must hold _LOCK.
-    return len(_BLOCKS) + 1
+def _append_block_with_single_tx_locked(
+    tx: DevTxRecord,
+    *,
+    header: Optional[Dict[str, Any]] = None,
+) -> DevBlock:
+    """
+    Legacy rule: 1 applied tx == 1 block (when batching not active).
+    Caller must hold _LOCK.
+    """
+    h = _next_height_locked()
+    tx.block_height = h
+    tx.tx_index = 0
 
+    txs_root = _compute_txs_root_hex([tx.tx_hash])
+
+    hdr = dict(header or {})
+    hdr.setdefault("txs_root", txs_root)
+
+    blk = DevBlock(
+        height=h,
+        created_at_ms=int(tx.created_at_ms or _now_ms()),
+        txs=[tx],
+        txs_root=txs_root,
+        header=hdr,
+    )
+    _BLOCKS.append(blk)
+    return blk
+
+
+def patch_block_header(height: int, header_patch: Dict[str, Any]) -> None:
+    """
+    Update an existing block's header in-place (merge semantics).
+    Safe if called multiple times.
+
+    Rules:
+      - shallow-merge keys into block.header
+      - if "txs_root" is patched, keep DevBlock.txs_root consistent too
+      - ignore None values
+    """
+    if not isinstance(header_patch, dict):
+        raise ValueError("header_patch must be a dict")
+
+    with _LOCK:
+        if height <= 0 or height > len(_BLOCKS):
+            raise ValueError(f"block not found: height={height}")
+
+        blk = _BLOCKS[height - 1]
+        if blk.header is None:
+            blk.header = {}
+
+        for k, v in header_patch.items():
+            if v is None:
+                continue
+            if k == "txs_root":
+                blk.txs_root = str(v)
+                blk.header["txs_root"] = str(v)
+            else:
+                blk.header[str(k)] = v
+
+
+def record_applied_tx(
+    *,
+    from_addr: str,
+    nonce: int,
+    tx_type: str,
+    payload: Any,
+    applied: bool,
+    result: Dict[str, Any],
+    fee: Optional[Dict[str, Any]] = None,
+    accounts_touched: Optional[List[str]] = None,
+    created_at_ms: Optional[int] = None,
+    block_header: Optional[Dict[str, Any]] = None,
+) -> DevTxRecord:
+    norm_payload = _normalize_payload(payload)
+    key = (from_addr, int(nonce), tx_type)
+
+    hdr: Dict[str, Any] = {}
+    if isinstance(block_header, dict):
+        hdr = dict(block_header)
+    else:
+        try:
+            maybe = (result or {}).get("header")  # type: ignore[union-attr]
+            if isinstance(maybe, dict):
+                hdr = dict(maybe)
+        except Exception:
+            hdr = {}
+
+    with _LOCK:
+        existing = _TX_BY_KEY.get(key)
+        if existing:
+            return existing
+
+        tx_id, tx_hash = compute_tx_identity(from_addr, nonce, tx_type, norm_payload)
+        existing = _TX_BY_HASH.get(tx_hash) or _TX_BY_ID.get(tx_id)
+        if existing:
+            _TX_BY_KEY[key] = existing
+            return existing
+
+        rec = DevTxRecord(
+            tx_id=tx_id,
+            tx_hash=tx_hash,
+            from_addr=from_addr,
+            nonce=int(nonce),
+            tx_type=tx_type,
+            payload=norm_payload,
+            applied=bool(applied),
+            result=result or {},
+            created_at_ms=int(created_at_ms) if created_at_ms is not None else _now_ms(),
+            block_height=0,
+            tx_index=0,
+            fee=fee,
+            accounts_touched=list(accounts_touched or []),
+        )
+
+        _TXS.append(rec)
+        _TX_BY_ID[tx_id] = rec
+        _TX_BY_HASH[tx_hash] = rec
+        _TX_BY_KEY[key] = rec
+
+        global _OPEN_BLOCK
+        if _OPEN_BLOCK is not None:
+            if _OPEN_BLOCK.header is None:
+                _OPEN_BLOCK.header = {}
+            _merge_header(_OPEN_BLOCK.header, hdr)
+
+            rec.block_height = _OPEN_BLOCK.height
+            rec.tx_index = len(_OPEN_BLOCK.txs)
+            _OPEN_BLOCK.txs.append(rec)
+            return rec
+
+        _append_block_with_single_tx_locked(rec, header=hdr)
+        return rec
+
+
+def list_blocks(limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
+    with _LOCK:
+        items = _BLOCKS[::-1]
+        slice_ = items[offset : offset + limit]
+        return [b.to_dict() for b in slice_]
+
+
+def get_block(height: int) -> Optional[Dict[str, Any]]:
+    with _LOCK:
+        if height <= 0 or height > len(_BLOCKS):
+            return None
+        return _BLOCKS[height - 1].to_dict()
+
+
+def get_tx(tx_id: str) -> Optional[Dict[str, Any]]:
+    with _LOCK:
+        rec = _TX_BY_ID.get(tx_id)
+        return rec.to_dict() if rec else None
+
+
+def list_txs(
+    *,
+    address: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> List[Dict[str, Any]]:
+    with _LOCK:
+        items = _TXS[::-1]
+
+        if address:
+            addr = address
+
+            def _match(r: DevTxRecord) -> bool:
+                if r.from_addr == addr:
+                    return True
+                to = (r.payload or {}).get("to")
+                return isinstance(to, str) and to == addr
+
+            items = [r for r in items if _match(r)]
+
+        slice_ = items[offset : offset + limit]
+        return [r.to_dict() for r in slice_]
 
 def compute_tx_identity(
     from_addr: str,
@@ -192,6 +489,46 @@ def _append_block_with_single_tx_locked(
     _BLOCKS.append(blk)
     return blk
 
+def patch_block_header(height: int, header_patch: Dict[str, Any]) -> None:
+    """
+    Update a block header in-place (merge semantics).
+    - If the block is currently open, patch the open block.
+    - Otherwise patch a committed block in _BLOCKS.
+    """
+    if not isinstance(header_patch, dict):
+        raise ValueError("header_patch must be a dict")
+
+    with _LOCK:
+        # patch open block if it matches
+        if _OPEN_BLOCK is not None and _OPEN_BLOCK.height == height:
+            if _OPEN_BLOCK.header is None:
+                _OPEN_BLOCK.header = {}
+            for k, v in header_patch.items():
+                if v is None:
+                    continue
+                if k == "txs_root":
+                    _OPEN_BLOCK.txs_root = str(v)
+                    _OPEN_BLOCK.header["txs_root"] = str(v)
+                else:
+                    _OPEN_BLOCK.header[str(k)] = v
+            return
+
+        # otherwise patch committed blocks
+        if height <= 0 or height > len(_BLOCKS):
+            raise ValueError(f"block not found: height={height}")
+
+        blk = _BLOCKS[height - 1]
+        if blk.header is None:
+            blk.header = {}
+
+        for k, v in header_patch.items():
+            if v is None:
+                continue
+            if k == "txs_root":
+                blk.txs_root = str(v)
+                blk.header["txs_root"] = str(v)
+            else:
+                blk.header[str(k)] = v
 
 def record_applied_tx(
     *,
@@ -204,18 +541,11 @@ def record_applied_tx(
     fee: Optional[Dict[str, Any]] = None,
     accounts_touched: Optional[List[str]] = None,
     created_at_ms: Optional[int] = None,
-    # ✅ new: block header commitments (e.g., {"state_root": ...})
     block_header: Optional[Dict[str, Any]] = None,
 ) -> DevTxRecord:
-    """
-    Idempotent recorder:
-      - If the same (from_addr, nonce, tx_type) is recorded twice, return the original record.
-      - Also de-dupes by tx_hash / tx_id.
-    """
     norm_payload = _normalize_payload(payload)
     key = (from_addr, int(nonce), tx_type)
 
-    # If caller didn't pass a header explicitly, allow "result.header" to carry it.
     hdr: Dict[str, Any] = {}
     if isinstance(block_header, dict):
         hdr = dict(block_header)
@@ -228,12 +558,10 @@ def record_applied_tx(
             hdr = {}
 
     with _LOCK:
-        # 1) Strong guard: (signer, nonce, type) should be unique for applied txs
         existing = _TX_BY_KEY.get(key)
         if existing:
             return existing
 
-        # 2) Hash/id guard: covers other duplicate call paths
         tx_id, tx_hash = compute_tx_identity(from_addr, nonce, tx_type, norm_payload)
         existing = _TX_BY_HASH.get(tx_hash) or _TX_BY_ID.get(tx_id)
         if existing:
@@ -250,8 +578,8 @@ def record_applied_tx(
             applied=bool(applied),
             result=result or {},
             created_at_ms=int(created_at_ms) if created_at_ms is not None else _now_ms(),
-            block_height=0,  # filled by block append
-            tx_index=0,      # filled by block append
+            block_height=0,
+            tx_index=0,
             fee=fee,
             accounts_touched=list(accounts_touched or []),
         )
@@ -261,6 +589,19 @@ def record_applied_tx(
         _TX_BY_HASH[tx_hash] = rec
         _TX_BY_KEY[key] = rec
 
+        # If a block is open (worker batching), append into it.
+        global _OPEN_BLOCK
+        if _OPEN_BLOCK is not None:
+            if _OPEN_BLOCK.header is None:
+                _OPEN_BLOCK.header = {}
+            _merge_header(_OPEN_BLOCK.header, hdr)
+
+            rec.block_height = _OPEN_BLOCK.height
+            rec.tx_index = len(_OPEN_BLOCK.txs)
+            _OPEN_BLOCK.txs.append(rec)
+            return rec
+
+        # Otherwise: legacy behavior (1 tx == 1 block)
         _append_block_with_single_tx_locked(rec, header=hdr)
         return rec
 
