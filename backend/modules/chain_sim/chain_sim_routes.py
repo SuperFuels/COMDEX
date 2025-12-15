@@ -18,7 +18,8 @@ from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
 from backend.modules.chain_sim.chain_sim_ledger import begin_block, commit_block, abort_open_block
 from backend.modules.chain_sim.tx_executor import apply_tx_receipt as apply_tx_executor
-from backend.modules.chain_sim.chain_sim_ledger import patch_block_header  # keep single import
+from backend.modules.chain_sim.chain_sim_ledger import patch_block_header 
+from backend.modules.chain_sim.chain_sim_ledger import persist_set_genesis_state
 from backend.modules.chain_sim.chain_sim_merkle import (
     hash_leaf,
     merkle_root,
@@ -220,7 +221,8 @@ async def chain_sim_async_shutdown() -> None:
     task.cancel()
     try:
         await task
-    except Exception:
+    except BaseException:
+        # CancelledError can slip past Exception in some setups; swallow it on shutdown.
         pass
 
 def _submit_tx_core(body: "DevSubmitTx", *, commit_roots: bool = True) -> Dict[str, Any]:
@@ -234,9 +236,15 @@ def _submit_tx_core(body: "DevSubmitTx", *, commit_roots: bool = True) -> Dict[s
     if tx_type == "BANK_TRANSFER":
         tx_type = "BANK_SEND"
 
-    tx = body.model_dump()
-    tx["tx_type"] = tx_type
-    tx_obj = _AttrDict(tx)
+    # IMPORTANT: executor only receives canonical envelope (no sig/auth fields)
+    tx_obj = _AttrDict(
+        {
+            "from_addr": body.from_addr,
+            "nonce": int(body.nonce),
+            "tx_type": tx_type,
+            "payload": body.payload,
+        }
+    )
 
     try:
         receipt = apply_tx_executor(tx_obj)
@@ -261,6 +269,7 @@ def _submit_tx_core(body: "DevSubmitTx", *, commit_roots: bool = True) -> Dict[s
     else:
         applied = bool(applied)
 
+    # HARD RULE: failures never advance chain (no ids/heights/roots)
     if not applied:
         receipt["applied"] = False
         for k in ("tx_id", "tx_hash", "block_height", "tx_index", "state_root", "state_root_committed"):
@@ -533,6 +542,93 @@ def _state_root_maybe_commit() -> tuple[Optional[str], bool]:
 # ───────────────────────────────────────────────
 # Helpers: bank snapshot/import (avoid deadlocks)
 # ───────────────────────────────────────────────
+
+def _sig_mode() -> str:
+    # off | mock | ed25519
+    return (os.getenv("CHAIN_SIM_SIG_MODE", "off") or "off").strip().lower()
+
+def _default_chain_id() -> str:
+    # prefer config if present, otherwise a safe fallback
+    for name in ("CHAIN_ID", "chain_id", "CHAIN_SIM_CHAIN_ID"):
+        v = getattr(cfg, name, None)
+        if isinstance(v, str) and v.strip():
+            return v.strip()
+    return "glyphchain-dev"
+
+def _tx_sign_dict(body: "DevSubmitTx") -> Dict[str, Any]:
+    """
+    Canonical sign-bytes dict. IMPORTANT: exclude pubkey/signature fields.
+    Must match tx identity envelope shape (plus chain_id) and the tx_type alias normalization.
+    """
+    tx_type = body.tx_type
+    if tx_type == "BANK_TRANSFER":
+        tx_type = "BANK_SEND"
+
+    chain_id = (body.chain_id or _default_chain_id()).strip()
+
+    # match ledger identity normalization (inner payload)
+    payload = body.payload
+    if isinstance(payload, dict):
+        maybe_inner = payload.get("payload")
+        if isinstance(maybe_inner, dict) and (
+            "tx_type" in payload or "from_addr" in payload or "nonce" in payload
+        ):
+            payload = maybe_inner
+
+    return {
+        "chain_id": chain_id,
+        "from_addr": body.from_addr,
+        "nonce": int(body.nonce),
+        "tx_type": tx_type,
+        "payload": payload,
+    }
+
+def verify_sig_or_raise(body: "DevSubmitTx") -> None:
+    """
+    Reject-fast signature/auth gate. Called in BOTH sync + async ingest before enqueue/execute.
+    Modes:
+      - off: no checks
+      - mock: signature must equal "mock:" + sha256_hex(stable_json(sign_dict))
+      - ed25519: verify(signature, sign_bytes_json) with pubkey
+    """
+    mode = _sig_mode()
+    if mode in ("", "off", "0", "false", "none"):
+        return
+
+    sign_dict = _tx_sign_dict(body)
+    sign_bytes_json = _stable_json(sign_dict)
+
+    if mode == "mock":
+        expected = "mock:" + _sha256_hex(sign_bytes_json)
+        if (body.signature or "") != expected:
+            raise HTTPException(status_code=400, detail="invalid signature (mock)")
+        return
+
+    if mode == "ed25519":
+        if not body.pubkey or not body.signature:
+            raise HTTPException(status_code=400, detail="missing pubkey/signature")
+
+        try:
+            pub = bytes.fromhex(body.pubkey)
+            sig = bytes.fromhex(body.signature)
+        except Exception:
+            raise HTTPException(status_code=400, detail="pubkey/signature must be hex")
+
+        if len(pub) != 32 or len(sig) != 64:
+            raise HTTPException(status_code=400, detail="invalid pubkey/signature length")
+
+        try:
+            from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"ed25519 not available: {e}")
+
+        try:
+            Ed25519PublicKey.from_public_bytes(pub).verify(sig, sign_bytes_json.encode("utf-8"))
+        except Exception:
+            raise HTTPException(status_code=400, detail="invalid signature (ed25519)")
+        return
+
+    raise HTTPException(status_code=500, detail=f"unknown CHAIN_SIM_SIG_MODE={mode}")
 
 def _get_bank_lock():
     return getattr(bank, "_LOCK", None)
@@ -985,7 +1081,10 @@ class DevBurnRequest(BaseModel):
     amount: str
 
 class DevSubmitTx(BaseModel):
+    # set by server on apply (do NOT require on ingest)
     tx_id: Optional[str] = None
+
+    # --- canonical tx envelope ---
     from_addr: str
     nonce: int
     tx_type: Literal[
@@ -997,6 +1096,16 @@ class DevSubmitTx(BaseModel):
         "STAKING_UNDELEGATE",
     ]
     payload: Dict[str, Any]
+
+    # --- signature/auth (ingest-time validity) ---
+    # chain_id binds signatures to a specific chain (anti-replay across networks)
+    chain_id: Optional[str] = None
+    # hex-encoded Ed25519 pubkey (32 bytes) for ed25519 mode; optional in mock mode
+    pubkey: Optional[str] = None
+    # signature:
+    #  - mock mode: "mock:" + sha256_hex(sign_bytes_json)
+    #  - ed25519 mode: hex signature (64 bytes)
+    signature: Optional[str] = None
 
 class DevGenesisAlloc(BaseModel):
     address: str
@@ -1109,6 +1218,13 @@ async def chain_sim_dev_reset(body: Optional[DevResetRequest] = None) -> Dict[st
         staking.apply_genesis_validators(vdicts)
         applied_validators = len(body.validators)
 
+    # 6) Persist canonical genesis snapshot for deterministic replay
+    try:
+        state_obj = _get_chain_state_snapshot()  # commits sub-roots then returns snapshot
+        persist_set_genesis_state(state_obj)
+    except Exception:
+        pass
+
     return JSONResponse(
         content=jsonable_encoder(
             {
@@ -1122,7 +1238,7 @@ async def chain_sim_dev_reset(body: Optional[DevResetRequest] = None) -> Dict[st
             }
         )
     )
-
+    
 @router.get("/dev/config")
 async def chain_sim_dev_config() -> Dict[str, Any]:
     return {"ok": True, "config": cfg.get_config()}
@@ -1374,20 +1490,25 @@ async def chain_sim_dev_proof_account(address: str = Query(...)) -> Dict[str, An
 # ───────────────────────────────────────────────
 
 @router.post("/dev/submit_tx")
-async def chain_sim_submit_tx(body: DevSubmitTx) -> Dict[str, Any]:
+def chain_sim_submit_tx(body: DevSubmitTx = Body(...)):
+    verify_sig_or_raise(body)  # reject fast
     receipt = _submit_tx_core(body, commit_roots=True)
-    return JSONResponse(content=jsonable_encoder(receipt))
+    return JSONResponse(jsonable_encoder(receipt))
 
 @router.post("/dev/submit_tx_async", status_code=202)
-async def chain_sim_submit_tx_async(body: DevSubmitTx) -> Dict[str, Any]:
+async def chain_sim_submit_tx_async(body: DevSubmitTx = Body(...)) -> Dict[str, Any]:
     """
     Fast ingest:
       - validates request model
+      - verifies signature/auth at ingest (reject fast)
       - enqueues for deterministic finalize in worker
       - returns 202 + qid immediately
     """
     if not _CHAIN_SIM_ASYNC_ENABLED:
         raise HTTPException(status_code=400, detail="async ingest disabled")
+
+    # ✅ reject fast (never enters queue)
+    verify_sig_or_raise(body)
 
     q = _CHAIN_SIM_QUEUE
     if q is None:

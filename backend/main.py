@@ -481,6 +481,7 @@ from backend.modules.glyph_bonds.glyph_bond_routes import router as glyph_bonds_
 from backend.modules.photon_savings.photon_savings_routes import router as photon_savings_router
 from backend.modules.escrow.escrow_routes import router as escrow_router
 from backend.modules.transactable_docs.transactable_doc_routes import router as transactable_docs_router
+from backend.modules.chain_sim.chain_sim_engine import replay_state_from_db
 
 from backend.modules.staking.staking_routes import router as staking_router
 from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
@@ -729,6 +730,19 @@ app.include_router(staking_router, prefix="/api")
 app.include_router(glyphchain_perf_router, prefix="/api")
 app.add_event_handler("startup", chain_sim_async_startup)
 app.add_event_handler("shutdown", chain_sim_async_shutdown)
+@app.on_event("startup")
+def _glyphchain_replay_on_startup():
+    # opt-in / safe default
+    if os.getenv("CHAIN_SIM_PERSIST", "1").strip().lower() in ("0", "false", "off", ""):
+        return
+    if os.getenv("CHAIN_SIM_REPLAY_ON_STARTUP", "0").strip().lower() not in ("1", "true", "yes", "on"):
+        return
+
+    try:
+        ok = replay_state_from_db()
+        logger.info(f"[chain_sim] replay_state_from_db -> {ok}")
+    except Exception as e:
+        logger.warning(f"[chain_sim] replay_state_from_db failed: {e}")
 
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)

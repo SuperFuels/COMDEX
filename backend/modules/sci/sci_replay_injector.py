@@ -64,55 +64,24 @@ class SCIReplayInjector:
 
     def __init__(self, send_fn: Optional[Callable] = None, session: Optional[aiohttp.ClientSession] = None):
         self.send_fn = send_fn
-        self.session = session or aiohttp.ClientSession()
+
+        # ✅ IMPORTANT: do NOT create ClientSession at import-time (pytest has no running loop)
+        self.session: Optional[aiohttp.ClientSession] = session
+        self._owns_session: bool = session is None
+
         self.replay_speed = 1.0
         self.active = False
 
-    # ============================================================
-    # 📜 Scroll-Based Replay (Resonant Memory -> QFC)
-    # ============================================================
-    def replay_scroll(self, label: str, container_id: Optional[str] = None, user_id: Optional[str] = None):
-        """Replay a saved memory scroll from ResonantMemoryCache."""
-        if not RMC:
-            logger.warning("ResonantMemoryCache unavailable.")
-            return {"ok": False, "error": "ResonantMemoryCache missing"}
-
-        scroll = RMC.get_entry_by_label(label)
-        if not scroll:
-            logger.warning(f"[SCIReplayInjector] Scroll not found: {label}")
-            return {"ok": False, "error": f"Scroll '{label}' not found"}
-
-        logger.info(f"[SCIReplayInjector] Replaying scroll '{label}' for container={container_id}")
-        frame_state = scroll.get("state") or scroll
-
-        # Broadcast to QFC
-        asyncio.create_task(self._async_qfc_broadcast(frame_state, container_id, user_id))
-        # Reinjection
-        asyncio.create_task(self._async_workspace_reinject(frame_state, container_id))
-
-        return {"ok": True, "label": label}
-
-    async def _async_qfc_broadcast(self, frame_state: Dict[str, Any], container_id: str, user_id: str):
-        """Emit state to QFC visualization."""
-        payload = {
-            "event": "qfc_scroll_replay",
-            "container_id": container_id,
-            "user_id": user_id,
-            "state": frame_state,
-            "timestamp": time.time(),
-        }
-        await broadcast_qfc_event(payload)
-        await trigger_qfc_render(frame_state, source="replay_scroll")
-        logger.info(f"[SCIReplayInjector] ✅ QFC broadcast complete for {container_id}")
-
-    async def _async_workspace_reinject(self, frame_state: Dict[str, Any], container_id: str):
-        """Refresh active workspace container with replayed state."""
-        try:
-            ws = await load_workspace_container(container_id)
-            ws["reinjected_state"] = frame_state
-            logger.info(f"[SCIReplayInjector] 🔄 Workspace rehydrated for {container_id}")
-        except Exception as e:
-            logger.warning(f"[SCIReplayInjector] Workspace reinjection failed: {e}")
+    async def _get_session(self) -> aiohttp.ClientSession:
+        """
+        Lazily create aiohttp session only when we're inside an async context
+        with a running event loop.
+        """
+        if self.session is not None and not self.session.closed:
+            return self.session
+        self.session = aiohttp.ClientSession()
+        self._owns_session = True
+        return self.session
 
     # ============================================================
     # 🌐 Photon Telemetry Integration
@@ -120,7 +89,8 @@ class SCIReplayInjector:
     async def fetch_snapshots(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Fetch Photon telemetry snapshot metadata."""
         url = f"{PHOTON_API_BASE}/available_snapshots?limit={limit}"
-        async with self.session.get(url) as resp:
+        session = await self._get_session()
+        async with session.get(url) as resp:
             if resp.status != 200:
                 raise RuntimeError(f"Snapshot listing failed: {resp.status}")
             data = await resp.json()
@@ -131,7 +101,8 @@ class SCIReplayInjector:
         Streams Photon resonance frames and reinjects them into SCI/QFC.
         """
         url = f"{PHOTON_API_BASE}/replay_timeline?limit={limit}&broadcast=true&delay={delay}"
-        async with self.session.get(url) as resp:
+        session = await self._get_session()
+        async with session.get(url) as resp:
             if resp.status != 200:
                 raise RuntimeError(f"Replay failed: {resp.status}")
             payload = await resp.json()
@@ -145,6 +116,11 @@ class SCIReplayInjector:
                 await asyncio.sleep(0.2)
 
         return frames
+
+    async def close(self):
+        # only close if we created it
+        if self._owns_session and self.session is not None and not self.session.closed:
+            await self.session.close()
 
     async def _reinjection_broadcast(self, frame: Dict[str, Any], container_id: str):
         """Unified reinjection + visualization pipeline."""

@@ -230,7 +230,105 @@ def staking_undelegate(from_addr: str, validator: str, amount_tess: str) -> Dict
         "bonded_pool": DEV_STAKING_BONDED,
     }
 
+# ───────────────────────────────────────────────
+# Persistence + replay (P1_8)
+# ───────────────────────────────────────────────
 
+def import_chain_state(state_obj: Dict[str, Any]) -> None:
+    """
+    Deterministically import {config, bank, staking} snapshot into in-memory modules.
+    This is used by replay_state_from_db() and can also be used by /dev/state.
+    """
+    from backend.modules.chain_sim import chain_sim_config as cfg
+    from backend.modules.chain_sim import chain_sim_model as bank
+    from backend.modules.staking import staking_model as staking
+
+    cfg.reset_config()
+    staking.reset_state()
+    bank.reset_state()
+
+    cfg_in = (state_obj or {}).get("config") or {}
+    if isinstance(cfg_in, dict):
+        cfg.set_config(chain_id=cfg_in.get("chain_id"), network_id=cfg_in.get("network_id"))
+
+    # --- bank import ---
+    bank_in = (state_obj or {}).get("bank") or {}
+    accounts = (bank_in.get("accounts") or {}) if isinstance(bank_in, dict) else {}
+    if isinstance(accounts, dict):
+        # set balances + nonces
+        for addr, rec in accounts.items():
+            if not isinstance(rec, dict):
+                continue
+            acc = bank.get_or_create_account(str(addr))
+            bals = rec.get("balances") or {}
+            if acc.balances is None:
+                acc.balances = {}
+            acc.balances.clear()
+            if isinstance(bals, dict):
+                for denom, amt in bals.items():
+                    acc.balances[str(denom)] = str(amt)
+            acc.nonce = int(rec.get("nonce") or 0)
+
+        # recompute supply
+        fn = getattr(bank, "recompute_supply", None)
+        if callable(fn):
+            fn()
+
+    # --- staking import (best-effort; adjust if your staking_model has helpers) ---
+    st_in = (state_obj or {}).get("staking") or {}
+    if isinstance(st_in, dict):
+        # if you already have a clean genesis helper, prefer that
+        apply_vals = getattr(staking, "apply_genesis_validators", None)
+        if callable(apply_vals) and isinstance(st_in.get("validators"), list):
+            apply_vals(st_in.get("validators") or [])
+
+        # delegations/rewards: only import if your staking_model exposes containers or setters
+        # (keep this minimal for now; can be expanded once staking persistence is required)
+
+    # invariants (optional)
+    fn = getattr(bank, "assert_invariants", None)
+    if callable(fn):
+        fn()
+    fn = getattr(staking, "assert_invariants", None)
+    if callable(fn):
+        fn()
+
+
+def replay_state_from_db() -> bool:
+    """
+    Rebuild state deterministically:
+      1) load genesis snapshot from meta
+      2) import snapshot
+      3) apply txs in (block_height, tx_index) order via tx_executor
+    """
+    from backend.modules.chain_sim.chain_sim_ledger import load_genesis_state_json, load_all_txs
+    from backend.modules.chain_sim.tx_executor import apply_tx_receipt as apply_tx_executor
+
+    genesis = load_genesis_state_json()
+    if not isinstance(genesis, dict):
+        return False
+
+    import_chain_state(genesis)
+
+    class _AttrDict(dict):
+        def __getattr__(self, k):
+            try:
+                return self[k]
+            except KeyError as e:
+                raise AttributeError(k) from e
+
+    for tx in load_all_txs():
+        tx_obj = _AttrDict(
+            {
+                "from_addr": tx["from_addr"],
+                "nonce": int(tx["nonce"]),
+                "tx_type": tx["tx_type"],
+                "payload": tx["payload"],
+            }
+        )
+        apply_tx_executor(tx_obj)
+
+    return True
 # ───────────────────────────────────────────────
 # Legacy/dev submit_tx (still used by back-compat wrappers)
 # ───────────────────────────────────────────────

@@ -2,15 +2,247 @@
 
 from __future__ import annotations
 
+import os
+import sqlite3
+from pathlib import Path
 import hashlib
 import json
 import time
 from dataclasses import dataclass, asdict, field
+import threading
 from threading import Lock
 from typing import Any, Dict, List, Optional, Tuple
-
 from backend.modules.chain_sim.chain_sim_merkle import hash_leaf, merkle_root
 
+_CHAIN_SIM_DB_PATH = os.getenv("CHAIN_SIM_DB_PATH", "").strip()
+_CHAIN_SIM_PERSIST = (os.getenv("CHAIN_SIM_PERSIST", "1").strip() not in ("0", "false", "off", ""))
+
+_DB_LOCK = threading.Lock()
+_DB_CONN: Optional[sqlite3.Connection] = None
+
+def _db_path() -> Optional[Path]:
+    if not _CHAIN_SIM_PERSIST:
+        return None
+    if _CHAIN_SIM_DB_PATH:
+        return Path(_CHAIN_SIM_DB_PATH)
+    # default: backend/data/chain_sim.sqlite3
+    root = Path(__file__).resolve().parents[3]
+    return root / "data" / "chain_sim.sqlite3"
+
+def _db() -> Optional[sqlite3.Connection]:
+    global _DB_CONN
+    p = _db_path()
+    if p is None:
+        return None
+
+    with _DB_LOCK:
+        if _DB_CONN is not None:
+            return _DB_CONN
+
+        p.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(str(p), check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        _DB_CONN = conn
+        _db_init(conn)
+        return conn
+
+def _db_init(conn: sqlite3.Connection) -> None:
+    cur = conn.cursor()
+    cur.execute("PRAGMA journal_mode=WAL;")
+    cur.execute("PRAGMA synchronous=NORMAL;")
+    cur.execute("PRAGMA foreign_keys=ON;")
+    cur.execute("PRAGMA user_version;")
+    v = int(cur.fetchone()[0] or 0)
+
+    if v < 1:
+        cur.executescript("""
+        CREATE TABLE IF NOT EXISTS meta (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS blocks (
+          height INTEGER PRIMARY KEY,
+          created_at_ms INTEGER NOT NULL,
+          header_json TEXT NOT NULL,
+          state_root TEXT,
+          txs_root TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS txs (
+          tx_id TEXT PRIMARY KEY,
+          tx_hash TEXT NOT NULL,
+          block_height INTEGER NOT NULL,
+          tx_index INTEGER NOT NULL,
+          from_addr TEXT NOT NULL,
+          nonce INTEGER NOT NULL,
+          tx_type TEXT NOT NULL,
+          payload_json TEXT NOT NULL,
+          applied INTEGER NOT NULL,
+          result_json TEXT NOT NULL,
+          fee_json TEXT,
+          FOREIGN KEY(block_height) REFERENCES blocks(height) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_txs_block ON txs(block_height, tx_index);
+        CREATE INDEX IF NOT EXISTS idx_txs_from ON txs(from_addr);
+        CREATE INDEX IF NOT EXISTS idx_txs_hash ON txs(tx_hash);
+
+        PRAGMA user_version=1;
+        """)
+        conn.commit()
+
+def persist_clear_all() -> None:
+    conn = _db()
+    if conn is None:
+        return
+    with _DB_LOCK:
+        cur = conn.cursor()
+        cur.executescript("""
+        DELETE FROM txs;
+        DELETE FROM blocks;
+        DELETE FROM meta;
+        """)
+        conn.commit()
+
+def persist_set_genesis_state(state_obj: Dict[str, Any]) -> None:
+    """
+    Persist genesis snapshot as JSON (config+bank+staking).
+    Replay imports this, then reapplies txs from DB.
+    """
+    conn = _db()
+    if conn is None:
+        return
+    payload = json.dumps(state_obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    with _DB_LOCK:
+        cur = conn.cursor()
+        cur.execute("INSERT OR REPLACE INTO meta(key,value) VALUES(?,?)", ("genesis_state_json", payload))
+        conn.commit()
+
+def persist_begin_block(height: int, created_at_ms: int, header: Dict[str, Any]) -> None:
+    conn = _db()
+    if conn is None:
+        return
+    header_json = json.dumps(header or {}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    with _DB_LOCK:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT OR REPLACE INTO blocks(height, created_at_ms, header_json, state_root, txs_root) VALUES(?,?,?,?,?)",
+            (int(height), int(created_at_ms), header_json, None, None),
+        )
+        conn.commit()
+
+def persist_commit_block(height: int, header_patch: Dict[str, Any]) -> None:
+    """
+    Update block header commitments (state_root/txs_root) and header_json merge is optional.
+    """
+    conn = _db()
+    if conn is None:
+        return
+
+    state_root = (header_patch or {}).get("state_root")
+    txs_root = (header_patch or {}).get("txs_root")
+
+    with _DB_LOCK:
+        cur = conn.cursor()
+
+        # best-effort merge header_json
+        cur.execute("SELECT header_json FROM blocks WHERE height=?", (int(height),))
+        row = cur.fetchone()
+        header = {}
+        if row and row["header_json"]:
+            try:
+                header = json.loads(row["header_json"]) or {}
+            except Exception:
+                header = {}
+        header.update(header_patch or {})
+        header_json = json.dumps(header, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+        cur.execute(
+            "UPDATE blocks SET header_json=?, state_root=?, txs_root=? WHERE height=?",
+            (header_json, state_root, txs_root, int(height)),
+        )
+        conn.commit()
+
+def persist_tx_row(tx: Dict[str, Any]) -> None:
+    conn = _db()
+    if conn is None:
+        return
+
+    fee = tx.get("fee")
+    fee_json = None
+    if isinstance(fee, dict):
+        fee_json = json.dumps(fee, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+    payload_json = json.dumps(tx.get("payload") or {}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    result_json = json.dumps(tx.get("result") or {}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+    with _DB_LOCK:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            INSERT OR REPLACE INTO txs(
+              tx_id, tx_hash, block_height, tx_index,
+              from_addr, nonce, tx_type, payload_json,
+              applied, result_json, fee_json
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                str(tx["tx_id"]),
+                str(tx["tx_hash"]),
+                int(tx["block_height"]),
+                int(tx["tx_index"]),
+                str(tx["from_addr"]),
+                int(tx["nonce"]),
+                str(tx["tx_type"]),
+                payload_json,
+                1 if bool(tx.get("applied")) else 0,
+                result_json,
+                fee_json,
+            ),
+        )
+        conn.commit()
+
+def load_genesis_state_json() -> Optional[Dict[str, Any]]:
+    conn = _db()
+    if conn is None:
+        return None
+    with _DB_LOCK:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key=?", ("genesis_state_json",))
+        row = cur.fetchone()
+    if not row:
+        return None
+    try:
+        return json.loads(row["value"])
+    except Exception:
+        return None
+
+
+def load_all_txs() -> List[Dict[str, Any]]:
+    conn = _db()
+    if conn is None:
+        return []
+    with _DB_LOCK:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM txs ORDER BY block_height ASC, tx_index ASC")
+        rows = cur.fetchall()
+
+    out: List[Dict[str, Any]] = []
+    for r in rows:
+        out.append(
+            {
+                "tx_id": r["tx_id"],
+                "tx_hash": r["tx_hash"],
+                "block_height": int(r["block_height"]),
+                "tx_index": int(r["tx_index"]),
+                "from_addr": r["from_addr"],
+                "nonce": int(r["nonce"]),
+                "tx_type": r["tx_type"],
+                "payload": json.loads(r["payload_json"] or "{}"),
+            }
+        )
+    return out
 
 def _now_ms() -> int:
     return int(time.time() * 1000)
@@ -180,15 +412,24 @@ def begin_block(*, created_at_ms: Optional[int] = None) -> int:
             abort_open_block()
 
         h = _next_height_locked()
+        cam = int(created_at_ms) if created_at_ms is not None else _now_ms()
+
         blk = DevBlock(
             height=h,
-            created_at_ms=int(created_at_ms) if created_at_ms is not None else _now_ms(),
+            created_at_ms=cam,
             txs=[],
             txs_root="",
             header={},
         )
         _BLOCKS.append(blk)
         _OPEN_BLOCK = blk
+
+        # ✅ persist the shell block reservation
+        try:
+            persist_begin_block(h, cam, header={})
+        except Exception:
+            pass
+
         return h
 
 
@@ -197,6 +438,7 @@ def commit_block(*, header_patch: Optional[Dict[str, Any]] = None) -> Optional[D
     Finalize the open block:
       - if no txs were appended -> remove shell block and return None
       - else compute txs_root and merge header_patch
+      - persist header commitments (state_root / txs_root) for replay
     """
     global _OPEN_BLOCK
     with _LOCK:
@@ -208,6 +450,7 @@ def commit_block(*, header_patch: Optional[Dict[str, Any]] = None) -> Optional[D
             if _BLOCKS and _BLOCKS[-1] is blk:
                 _BLOCKS.pop()
             _OPEN_BLOCK = None
+            # (optional) we don't persist empty blocks; DB row is harmless if it exists
             return None
 
         txs_root = _compute_txs_root_hex([t.tx_hash for t in blk.txs])
@@ -226,6 +469,14 @@ def commit_block(*, header_patch: Optional[Dict[str, Any]] = None) -> Optional[D
             t.block_height = blk.height
             t.tx_index = i
 
+        # ✅ persist committed header (include computed txs_root even if caller didn't pass it)
+        try:
+            patch = dict(header_patch or {})
+            patch.setdefault("txs_root", blk.txs_root)
+            persist_commit_block(blk.height, patch)
+        except Exception:
+            pass
+
         _OPEN_BLOCK = None
         return blk
 
@@ -240,6 +491,11 @@ def reset_ledger() -> None:
         _TX_BY_KEY.clear()
         _OPEN_BLOCK = None
 
+    # ✅ best-effort persistence wipe (outside _LOCK to avoid lock-order issues)
+    try:
+        persist_clear_all()
+    except Exception:
+        pass
 
 def _append_block_with_single_tx_locked(
     tx: DevTxRecord,
@@ -369,9 +625,52 @@ def record_applied_tx(
             rec.block_height = _OPEN_BLOCK.height
             rec.tx_index = len(_OPEN_BLOCK.txs)
             _OPEN_BLOCK.txs.append(rec)
+
+            # ✅ persist tx row now that block_height/tx_index are known
+            try:
+                persist_tx_row(
+                    {
+                        "tx_id": rec.tx_id,
+                        "tx_hash": rec.tx_hash,
+                        "block_height": rec.block_height,
+                        "tx_index": rec.tx_index,
+                        "from_addr": from_addr,
+                        "nonce": int(nonce),
+                        "tx_type": tx_type,
+                        "payload": norm_payload,  # normalized
+                        "applied": True,
+                        "result": result or {},
+                        "fee": fee,
+                    }
+                )
+            except Exception:
+                pass
+
             return rec
 
+        # legacy behavior (1 tx == 1 block)
         _append_block_with_single_tx_locked(rec, header=hdr)
+
+        # ✅ persist tx row now that block_height/tx_index are known
+        try:
+            persist_tx_row(
+                {
+                    "tx_id": rec.tx_id,
+                    "tx_hash": rec.tx_hash,
+                    "block_height": rec.block_height,
+                    "tx_index": rec.tx_index,
+                    "from_addr": from_addr,
+                    "nonce": int(nonce),
+                    "tx_type": tx_type,
+                    "payload": norm_payload,  # normalized
+                    "applied": True,
+                    "result": result or {},
+                    "fee": fee,
+                }
+            )
+        except Exception:
+            pass
+
         return rec
 
 
