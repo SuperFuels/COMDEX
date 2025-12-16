@@ -106,3 +106,6 @@ Thumbs.db
 dist/
 build/
 coverage/
+
+# perf harness outputs
+backend/tests/artifacts/*.json

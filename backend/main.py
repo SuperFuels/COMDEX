@@ -481,7 +481,6 @@ from backend.modules.glyph_bonds.glyph_bond_routes import router as glyph_bonds_
 from backend.modules.photon_savings.photon_savings_routes import router as photon_savings_router
 from backend.modules.escrow.escrow_routes import router as escrow_router
 from backend.modules.transactable_docs.transactable_doc_routes import router as transactable_docs_router
-from backend.modules.chain_sim.chain_sim_engine import replay_state_from_db
 
 from backend.modules.staking.staking_routes import router as staking_router
 from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
@@ -739,8 +738,16 @@ def _glyphchain_replay_on_startup():
         return
 
     try:
-        ok = replay_state_from_db()
+        from backend.modules.chain_sim import chain_sim_ledger as l
+
+        # best-effort: only replay if DB has a genesis snapshot
+        if l.load_genesis_state_json() is None:
+            logger.info("[chain_sim] no genesis snapshot; skipping replay")
+            return
+
+        ok = l.replay_state_from_db()
         logger.info(f"[chain_sim] replay_state_from_db -> {ok}")
+
     except Exception as e:
         logger.warning(f"[chain_sim] replay_state_from_db failed: {e}")
 

@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Glyph Chain V9"
+git commit -m "Glyph Chain V10"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

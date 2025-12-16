@@ -7,6 +7,7 @@ import hashlib
 import json
 import uuid
 import time
+import sqlite3
 from dataclasses import asdict
 from typing import Any, Dict, Optional, Literal, List, Tuple
 from pathlib import Path
@@ -41,7 +42,6 @@ from backend.modules.chain_sim.chain_sim_ledger import (
 )
 
 router = APIRouter(prefix="/chain_sim", tags=["chain-sim-dev"])
-
 
 # ───────────────────────────────────────────────
 # Helpers: time
@@ -106,7 +106,7 @@ _CHAIN_SIM_WORKER_FLUSH_MS = int(os.getenv("CHAIN_SIM_WORKER_FLUSH_MS", "5") or 
 # ───────────────────────────────────────────────
 # Block batching knobs + throughput windows
 # ───────────────────────────────────────────────
-_CHAIN_SIM_BLOCK_MAX_TX = int(os.getenv("CHAIN_SIM_BLOCK_MAX_TX", "200") or "200")
+_CHAIN_SIM_BLOCK_MAX_TX = int(os.getenv("CHAIN_SIM_BLOCK_MAX_TX", "100") or "100")
 _CHAIN_SIM_BLOCK_MAX_MS = int(os.getenv("CHAIN_SIM_BLOCK_MAX_MS", "25") or "25")
 
 _METRICS_START_MS = _now_ms()
@@ -1148,6 +1148,8 @@ async def chain_sim_dev_perf_latest() -> Dict[str, Any]:
     data["ok"] = True
     return JSONResponse(content=data)
 
+from backend.modules.chain_sim.chain_sim_ledger import persist_set_genesis_state
+
 @router.post("/dev/reset")
 async def chain_sim_dev_reset(body: Optional[DevResetRequest] = None) -> Dict[str, Any]:
     _state_root_reset_cache()
@@ -1218,9 +1220,10 @@ async def chain_sim_dev_reset(body: Optional[DevResetRequest] = None) -> Dict[st
         staking.apply_genesis_validators(vdicts)
         applied_validators = len(body.validators)
 
-    # 6) Persist canonical genesis snapshot for deterministic replay
+    # after genesis has been applied to in-memory state (config+bank+staking)
+    state_obj = _get_chain_state_snapshot()
+
     try:
-        state_obj = _get_chain_state_snapshot()  # commits sub-roots then returns snapshot
         persist_set_genesis_state(state_obj)
     except Exception:
         pass
@@ -1229,7 +1232,17 @@ async def chain_sim_dev_reset(body: Optional[DevResetRequest] = None) -> Dict[st
         content=jsonable_encoder(
             {
                 "ok": True,
-                "config": cfg.get_config(),
+
+                # keep existing cfg config, but extend with runtime env knobs
+                "config": {
+                    **(cfg.get_config() or {}),
+                    "CHAIN_SIM_ASYNC_ENABLED": _CHAIN_SIM_ASYNC_ENABLED,
+                    "CHAIN_SIM_QUEUE_MAX": _CHAIN_SIM_QUEUE_MAX,
+                    "CHAIN_SIM_BLOCK_MAX_TX": _CHAIN_SIM_BLOCK_MAX_TX,
+                    "CHAIN_SIM_BLOCK_MAX_MS": _CHAIN_SIM_BLOCK_MAX_MS,
+                    "CHAIN_SIM_STATE_ROOT_INTERVAL": _STATE_ROOT_INTERVAL,
+                },
+
                 "applied_allocs": applied_allocs,
                 "applied_validators": applied_validators,
                 "supply": bank.get_supply_view(),
@@ -1238,7 +1251,7 @@ async def chain_sim_dev_reset(body: Optional[DevResetRequest] = None) -> Dict[st
             }
         )
     )
-    
+
 @router.get("/dev/config")
 async def chain_sim_dev_config() -> Dict[str, Any]:
     return {"ok": True, "config": cfg.get_config()}
@@ -1293,75 +1306,28 @@ async def chain_sim_dev_state_apply(body: Dict[str, Any] = Body(...)) -> Dict[st
 async def chain_sim_dev_state() -> Dict[str, Any]:
     """
     GET /api/chain_sim/dev/state
-      - returns: { ok, state, state_root }
-      - state = { config, bank, staking }
-
-    NOTE: _get_chain_state_snapshot() already commits bank/staking sub-roots.
+      - returns: { ok, config, state, state_root }
+      - state = { config, bank, staking } (your snapshot object)
     """
     state_obj = _get_chain_state_snapshot()
     root = _compute_state_root(state_obj)
-    return JSONResponse(content=jsonable_encoder({"ok": True, "state": state_obj, "state_root": root}))
 
-@router.get("/dev/proof/tx")
-async def chain_sim_dev_proof_tx(tx_id: str = Query(...)) -> Dict[str, Any]:
-    """
-    Merkle proof that tx_hash is included in block.txs_root.
-    Uses the SAME merkle functions as chain_sim_merkle.py.
-    """
-    tx = get_tx(tx_id)
-    if not tx:
-        raise HTTPException(status_code=404, detail="tx not found")
-
-    h = int(tx.get("block_height") or 0)
-    if h <= 0:
-        raise HTTPException(status_code=400, detail="tx has no block_height")
-
-    blk = get_block(h)
-    if not blk:
-        raise HTTPException(status_code=404, detail="block not found")
-
-    txs = blk.get("txs") or []
-    if not isinstance(txs, list) or not txs:
-        raise HTTPException(status_code=400, detail="block has no txs")
-
-    # Build leaves from tx hashes in block order
-    leaves: List[bytes] = []
-    hashes: List[str] = []
-    for t in txs:
-        th = str((t or {}).get("tx_hash") or "")
-        if not th:
-            continue
-        hashes.append(th)
-        try:
-            raw = bytes.fromhex(th)
-        except Exception:
-            raw = th.encode("utf-8")
-        leaves.append(hash_leaf(raw))
-
-    if not hashes:
-        raise HTTPException(status_code=400, detail="block txs missing tx_hash")
-
-    # Find index of this tx hash
-    target_hash = str(tx.get("tx_hash") or "")
-    try:
-        idx = hashes.index(target_hash)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="tx_hash not found in block tx list")
-
-    root_b = merkle_root(leaves)
-    proof = merkle_proof(leaves, idx)
-
-    return {
-        "ok": True,
-        "algo": "sha256-merkle-v1",
-        "block_height": h,
-        "tx_id": tx_id,
-        "tx_hash": target_hash,
-        "leaf_index": idx,
-        "txs_root": root_b.hex(),
-        "proof": proof,
-        "total_leaves": len(leaves),
-    }
+    return JSONResponse(
+        content=jsonable_encoder(
+            {
+                "ok": True,
+                "config": {
+                    "CHAIN_SIM_ASYNC_ENABLED": _CHAIN_SIM_ASYNC_ENABLED,
+                    "CHAIN_SIM_QUEUE_MAX": _CHAIN_SIM_QUEUE_MAX,
+                    "CHAIN_SIM_BLOCK_MAX_TX": _CHAIN_SIM_BLOCK_MAX_TX,
+                    "CHAIN_SIM_BLOCK_MAX_MS": _CHAIN_SIM_BLOCK_MAX_MS,
+                    "CHAIN_SIM_STATE_ROOT_INTERVAL": _STATE_ROOT_INTERVAL,
+                },
+                "state": state_obj,
+                "state_root": root,
+            }
+        )
+    )
 
 @router.post("/dev/proof/verify_tx")
 async def chain_sim_dev_verify_tx_proof(body: Dict[str, Any] = Body(...)) -> Dict[str, Any]:
@@ -1492,8 +1458,50 @@ async def chain_sim_dev_proof_account(address: str = Query(...)) -> Dict[str, An
 @router.post("/dev/submit_tx")
 def chain_sim_submit_tx(body: DevSubmitTx = Body(...)):
     verify_sig_or_raise(body)  # reject fast
-    receipt = _submit_tx_core(body, commit_roots=True)
-    return JSONResponse(jsonable_encoder(receipt))
+
+    started = False
+    try:
+        # open a 1-tx block so the DB has a blocks row before tx insert
+        begin_block(created_at_ms=int(_now_ms()))
+        started = True
+
+        # apply WITHOUT committing roots yet (we’ll commit once with the block)
+        receipt = _submit_tx_core(body, commit_roots=False)
+
+        # HARD RULE: rejected tx => no block
+        if receipt.get("applied") is not True:
+            abort_open_block()
+            return JSONResponse(jsonable_encoder(receipt))
+
+        # commit roots once
+        state_obj = _get_chain_state_snapshot()
+        state_root_hex = _compute_state_root(state_obj)
+
+        th = str(receipt.get("tx_hash") or "")
+        raw = bytes.fromhex(th) if th else b""
+        txs_root_hex = merkle_root([hash_leaf(raw)]).hex() if th else merkle_root([]).hex()
+
+        blk = commit_block(header_patch={"state_root": state_root_hex, "txs_root": txs_root_hex})
+
+        receipt["state_root"] = state_root_hex
+        receipt["state_root_committed"] = True
+        receipt["txs_root"] = txs_root_hex
+
+        # keep receipt height aligned (in case ledger overrides)
+        try:
+            receipt["block_height"] = int(getattr(blk, "height", receipt.get("block_height") or 0) or 0)
+        except Exception:
+            pass
+
+        return JSONResponse(jsonable_encoder(receipt))
+
+    except Exception:
+        if started:
+            try:
+                abort_open_block()
+            except Exception:
+                pass
+        raise
 
 @router.post("/dev/submit_tx_async", status_code=202)
 async def chain_sim_submit_tx_async(body: DevSubmitTx = Body(...)) -> Dict[str, Any]:
@@ -1538,7 +1546,6 @@ async def chain_sim_submit_tx_async(body: DevSubmitTx = Body(...)) -> Dict[str, 
     await q.put({"qid": qid, "accepted_at_ms": accepted_at_ms, "body": body.model_dump()})
 
     return {"ok": True, "accepted": True, "qid": qid}
-
 
 @router.get("/dev/tx_status/{qid}")
 async def chain_sim_tx_status(qid: str) -> Dict[str, Any]:

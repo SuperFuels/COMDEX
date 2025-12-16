@@ -144,3 +144,7 @@ data/sources/gcide_full.xml
 data/symatics/symbolic_resonance_stream.glyph
 data/telemetry/meta_resonant_telemetry.jsonl
 backend/data/conceptnet/numberbatch-en-19.08.txt
+
+
+# perf harness outputs
+backend/tests/artifacts/*.json

@@ -1,33 +1,16 @@
 {
-  "ts": "2025-12-15T00:03:17.050968Z",
-  "glyphchain_url": "http://127.0.0.1:8080",
-  "tx_count": 20000,
-  "elapsed_s": 34.800699105000604,
-  "tps": 574.7010983789733,
-  "lat_ms": {
-    "p50": 1.6032929997891188,
-    "p95": 2.2722740013705334,
-    "p99": 2.979715000037686
+  "avg_seconds": {
+    "GET /api/chain_sim/dev/state": 0.0016735017499740934,
+    "GET /api/chain_sim/dev/supply": 0.0014173982501233696
   },
-  "state_ms": 1.6487590000906494,
-  "state_bytes": 931,
-  "acct_proof_ms": 1.5815380011190427,
-  "acct_proof_bytes": 527,
-  "acct_proof_implemented": true,
-  "acct_proof_root_matches_state": true,
-  "tx_proof_ms": 1.8443629996909294,
-  "tx_proof_bytes": 282,
-  "tx_proof_implemented": true,
-  "tx_proof_verified": true,
-  "staking_validator_proof_ms": 1.5509059994656127,
-  "staking_validator_proof_bytes": 397,
-  "staking_validator_proof_implemented": true,
-  "staking_validator_root_matches_state": true,
-  "staking_delegation_proof_ms": 1.5592809995723655,
-  "staking_delegation_proof_bytes": 416,
-  "staking_delegation_proof_implemented": true,
-  "staking_delegation_root_matches_state": true,
-  "last_tx_id": "tx_91fc67a1c138",
-  "last_tx_hash": "91fc67a1c138387465ab75731b5acc48264b9a440b1846c6d91cb858b4133e10",
-  "last_block_height": 20001
+  "env": {
+    "CHAIN_SIM_ASYNC_ENABLED": "1",
+    "CHAIN_SIM_BLOCK_MAX_MS": "25",
+    "CHAIN_SIM_BLOCK_MAX_TX": "200",
+    "CHAIN_SIM_PERSIST": "1"
+  },
+  "mode": "inprocess",
+  "n": 20,
+  "ok": true,
+  "ts_unix": 1765840867.8171766
 }
