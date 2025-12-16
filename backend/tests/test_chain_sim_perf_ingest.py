@@ -176,17 +176,28 @@ def c(tmp_path, monkeypatch):
         use_remote = False
 
     if use_remote:
+        # IMPORTANT:
+        # In remote mode, these env vars do NOT change the running uvicorn config.
+        # So we do NOT monkeypatch CHAIN_SIM_BLOCK_* here (avoids lying artifacts).
         client = httpx.Client(timeout=60.0)
         w = _ClientWrap(remote=client, base=base)
         yield w
         w.close()
         return
 
-    # in-process only: apply defaults/overrides (these should NOT pretend to affect a running uvicorn)
+    # in-process only: apply defaults/overrides (these DO control config)
+    monkeypatch.setenv("CHAIN_SIM_ASYNC_ENABLED", os.getenv("CHAIN_SIM_ASYNC_ENABLED", "1"))
     monkeypatch.setenv("CHAIN_SIM_BLOCK_MAX_TX", os.getenv("CHAIN_SIM_BLOCK_MAX_TX", "100"))
     monkeypatch.setenv("CHAIN_SIM_BLOCK_MAX_MS", os.getenv("CHAIN_SIM_BLOCK_MAX_MS", "25"))
+    monkeypatch.setenv("CHAIN_SIM_SIG_MODE", "off")
 
-    # in-process mode
+    # persistence for in-process only (remote server owns its DB path)
+    persist = _truthy(os.getenv("CHAIN_SIM_PERSIST"), default=False)
+    monkeypatch.setenv("CHAIN_SIM_PERSIST", "1" if persist else "0")
+    if persist:
+        db = tmp_path / "chain_sim_ingest_perf.sqlite3"
+        monkeypatch.setenv("CHAIN_SIM_DB_PATH", str(db))
+
     import backend.main as main
     importlib.reload(main)
     with TestClient(main.app) as tc:
