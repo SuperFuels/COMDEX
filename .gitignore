@@ -180,3 +180,6 @@ dev.db
 backend/modules/knowledge_graph/knowledge_index_runtime.glyph
 backend/modules/knowledge_graph/knowledge_index_runtime.glyph
 backend/modules/knowledge_graph/knowledge_index_runtime.glyph
+
+# perf harness outputs
+backend/tests/artifacts/*.json
