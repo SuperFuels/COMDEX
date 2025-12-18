@@ -20,71 +20,214 @@ graph TD
 subgraph P1[Phase 1 – Core Chain (Ledger, Consensus, Bank)]
 direction TB
 
-P1_1[☐ Consensus & Networking\n• BFT PoS engine\n• Validator sets, epochs, staking hooks\n• Block propagation + proposal channels\n• No public mempool: leader inbox / relay model (anti-DoS)\n• Peer discovery, rate limits, spam controls\n• Transport plugin system:\n  – baseline HTTP/WebSocket\n  – optional QWave Beams as accelerator\n• Optional QKD-secured links (transport-only) + link attestation logs]
+P1_1 Consensus & Networking ☐
+	•	☐ BFT PoS engine
+	•	☐ Validator sets, epochs, staking hooks
+	•	☐ Block propagation + proposal channels
+	•	✅ No public mempool: leader inbox / relay model (anti-DoS)
+	•	✅ Peer discovery, rate limits, spam controls
+	•	◐ Baseline HTTP/WebSocket (HTTP ✅, WebSocket ☐)
+	•	✅ Transport plugin system
+	•	☐ Optional QWave Beams accelerator
+	•	☐ Optional QKD-secured links (transport-only) + link attestation logs
+	•	✅ Integration: P2P block fetch (BLOCK_REQ/BLOCK_ANNOUNCE) test now passing
 
-P1_2[✅ State & Storage (Dev snapshot + root slice)\n• ChainState snapshot: {config, bank, staking}\n• Deterministic state_root = sha256(canonical(state))\n• Dev endpoints: GET/POST /api/chain_sim/dev/state\n• Import resets explorer ledger (blocks/txs start empty)\n• ✅ bank.accounts sub-root committed under state.bank.root BEFORE hashing state_root\n• ✅ staking sub-roots committed BEFORE hashing state_root:\n  – state.staking.validators_root\n  – state.staking.delegations_root\n• Single source of truth: _get_chain_state_snapshot() commits sub-roots\n• NOTE: No trie, persistence, pruning yet]
+P1_2 State & Storage (Dev snapshot + root slice) ✅
+	•	✅ ChainState snapshot: {config, bank, staking}
+	•	✅ Deterministic state_root = sha256(canonical(state))
+	•	✅ Dev endpoints: GET/POST /api/chain_sim/dev/state
+	•	✅ Import resets explorer ledger (blocks/txs start empty)
+	•	✅ bank.accounts sub-root committed under state.bank.root before hashing state_root
+	•	✅ Staking sub-roots committed before hashing state_root
+	•	✅ state.staking.validators_root
+	•	✅ state.staking.delegations_root
+	•	✅ Single source of truth: _get_chain_state_snapshot() commits sub-roots
+	•	☐ NOTE: No trie, persistence, pruning yet
 
-P1_2A[✅ Proofs & Light Sync (Mobile-first slice)\n• ✅ Account proof format (Merkle over {address, balances, nonce})\n• ✅ Tx inclusion proofs\n• ✅ Proof endpoints (dev):\n  – GET /api/chain_sim/dev/proof/account\n  – GET /api/chain_sim/dev/proof/tx?tx_id=…\n  – POST /api/chain_sim/dev/proof/verify_account\n  – POST /api/chain_sim/dev/proof/verify_tx\n• ✅ Roots returned by proofs match roots committed in /dev/state\n  – _root_matches_state=True semantics enforced by tests\n• ✅ Perf test 404 distinction implemented for staking delegation proofs:\n  – 404 {"detail":"delegation not found"} => route exists, no leaf\n  – 404 {"detail":"Not Found"} => route not mounted\n• Light client sync flow:\n  – download headers\n  – verify state_root\n  – fetch proofs on-demand]
+P1_2A Proofs & Light Sync (Mobile-first slice) ✅
+	•	✅ Account proof format (Merkle over {address, balances, nonce})
+	•	✅ Tx inclusion proofs
+	•	✅ Proof endpoints (dev):
+	•	✅ GET /api/chain_sim/dev/proof/account
+	•	✅ GET /api/chain_sim/dev/proof/tx?tx_id=…
+	•	✅ POST /api/chain_sim/dev/proof/verify_account
+	•	✅ POST /api/chain_sim/dev/proof/verify_tx
+	•	✅ Roots returned by proofs match roots committed in /dev/state
+	•	☐ Light client sync flow:
+	•	☐ download headers
+	•	☐ verify state_root
+	•	☐ fetch proofs on-demand
 
-P1_3[✅ Block & Tx Format (Dev slice)\n• Canonical dev tx envelope: {from_addr, nonce, tx_type, payload}\n• /api/chain_sim/dev/submit_tx is canonical sync entrypoint (routes via tx_executor.apply_tx)\n• ✅ Async ingest + deterministic finalize:\n  – POST /api/chain_sim/dev/submit_tx_async (202 Accepted + qid)\n  – GET  /api/chain_sim/dev/tx_status/{qid}\n  – GET  /api/chain_sim/dev/queue_metrics\n• Dev tx identity: canonical(tx) + sha256 → tx_hash, tx_id\n• Dev ledger/explorer:\n  – /api/chain_sim/dev/blocks\n  – /api/chain_sim/dev/block/{height}\n  – /api/chain_sim/dev/tx/{tx_id}\n  – /api/chain_sim/dev/txs?address=…\n• ✅ Ledger batching is ON for async flushes:\n  – worker calls begin_block() once per flush window\n  – record_applied_tx() appends applied txs into the open block\n  – commit_block() finalizes the batched block\n  – abort_open_block() prevents empty shell blocks\n• Block header commitments (always written per flush):\n  – block.header.state_root\n  – block.header.txs_root (used by /dev/proof/tx)\n• ✅ txs_root is computed once per flush and committed with the block header\n• ✅ Hard rule: failed tx must not advance chain\n  – rejected txs: no ledger record, no tx_id/tx_hash/block_height/tx_index\n  – tx_status still reports rejected/error for observability\n• ✅ Signature/auth pipeline (reject fast at ingest)\n  – tx extended: chain_id + pubkey + signature\n  – CHAIN_SIM_SIG_MODE=off|mock|ed25519\n  – verify at ingest; invalid tx never enters queue/worker\n  – ✅ tests: mock + ed25519 (sync apply + async reject-fast)\n• ☐ Wallets: finalize canonical ed25519 sign-bytes spec + wallet-facing docs\n  – (current dev spec: stable_json({chain_id,from_addr,nonce,tx_type,payload}) UTF-8)\n• NOTE: no gas, production ordering rules yet]
+P1_3 Block & Tx Format (Dev slice) ✅
+	•	• Canonical dev tx envelope: {from_addr, nonce, tx_type, payload}
+	•	• /api/chain_sim/dev/submit_tx is canonical sync entrypoint
+	•	✅ Async ingest + deterministic finalize
+	•	✅ POST /api/chain_sim/dev/submit_tx_async (202 + qid)
+	•	✅ GET  /api/chain_sim/dev/tx_status/{qid}
+	•	✅ GET  /api/chain_sim/dev/queue_metrics
+	•	✅ Ledger batching is ON for async flushes
+	•	✅ worker calls begin_block() once per flush window
+	•	✅ record_applied_tx() appends applied txs into the open block
+	•	✅ commit_block() finalizes the batched block
+	•	✅ abort_open_block() prevents empty shell blocks
+	•	• Block header commitments (always written per flush):
+	•	• block.header.state_root
+	•	• block.header.txs_root
+	•	✅ txs_root computed once per flush and committed with the block header
+	•	✅ Hard rule: failures never advance chain
+	•	✅ rejected txs: no ledger record, no tx_id/tx_hash/block_height/tx_index
+	•	✅ tx_status still reports rejected/error for observability
+	•	✅ Signature/auth pipeline (reject fast at ingest)
+	•	✅ tx extended: chain_id + pubkey + signature
+	•	✅ CHAIN_SIM_SIG_MODE=off|mock|ed25519
+	•	✅ verify at ingest; invalid tx never enters queue/worker
+	•	✅ tests: mock + ed25519 (sync apply + async reject-fast)
+	•	✅ Async worker finalization + receipts
+	•	✅ flush: mark ALL applied qids as finalized + set done_at_ms
+	•	✅ flush: patch ALL applied receipts with {state_root, txs_root, state_root_committed=True}
+	•	✅ Async worker picks up env knob changes
+	•	✅ _reload_async_knobs_from_env() at top of each loop
+	•	✅ Persist+replay commitments test tightened
+	•	✅ every finalized async receipt must include committed roots + state_root_committed=True
+	•	✅ /dev/state + /dev/reset expose CHAIN_SIM_SIG_MODE in response config
+	•	✅ Blocks endpoint ergonomics
+	•	✅ /dev/blocks cap raised to 5000
+	•	✅ /dev/blocks supports order=asc|desc (default desc)
+	•	✅ pagination+ordering test added + passing
 
-P1_4[✅ Bank Module (Dev correctness slice)\n• BANK_MINT / BANK_SEND / BANK_BURN wired and mutating state\n• Nonce rules enforced (bad nonce rejected, no mutation, no new ledger record)\n• Supply invariants: mint/burn adjust supply, send preserves supply\n• ✅ Dev fee schedule implemented (PHO fixed fee + carve-out mint)\n• ✅ Fee recorded in receipts + persisted in ledger fee column]
+P1_4 Bank Module (Dev correctness slice) ✅
+	•	✅ BANK_MINT / BANK_SEND / BANK_BURN wired and mutating state
+	•	✅ Nonce semantics unified: expected_nonce == current account nonce
+	•	✅ wrappers must NOT use +1
+	•	✅ engine.submit_tx nonce check fixed to match
+	•	✅ Supply invariants: mint/burn adjust supply, send preserves supply
+	•	✅ Dev fee schedule implemented (PHO fixed fee + carve-out mint)
+	•	✅ Fee recorded in receipts + persisted in ledger fee column
 
-P1_4A[✅ ChainSim Dev Bank Slice (Implemented)\n• /api/chain_sim/dev/mint, /dev/transfer, /dev/burn, /dev/account, /dev/supply\n• In-memory AccountState + SupplyState model\n• ✅ test_chain_sim_bank_ops.py updated for PHO fee funding\n• ✅ test_chain_sim_fees.py passing\n• ✅ Perf: test_chain_sim_perf.py measures:\n  – /dev/state\n  – /dev/proof/account (+ root match vs state.bank.root)\n  – /dev/proof/tx + /dev/proof/verify_tx\n• AdminDashboard: ChainSimLedgerPanel renders blocks/txs via /dev/blocks + /dev/txs]
+P1_4A[✅ ChainSim Dev Bank Slice (Implemented)\n
+• ✅ /api/chain_sim/dev/mint, /dev/transfer, /dev/burn, /dev/account, /dev/supply\n
+• ✅ In-memory AccountState + SupplyState model\n
+• ✅ Wrapper unification DONE:\n
+– ✅ /dev/mint|burn|transfer route through canonical sync block path\n
+(begin_block → _submit_tx_core(commit_roots=False) → commit_block)\n
+– ✅ wrappers no longer call engine.submit_tx (prevents drift)\n
+• ✅ test_chain_sim_bank_ops.py updated for PHO fee funding\n
+• ✅ test_chain_sim_fees.py passing\n
+• ☐ AdminDashboard: ChainSimLedgerPanel renders blocks/txs via /dev/blocks + /dev/txs\n]
 
-P1_5[✅ Staking Module (Dev slice + proofs)\n• Minimal staking structs: Delegation/Validator/Rewards\n• Dev endpoints: /api/staking/dev/validators, /api/staking/dev/delegations?delegator=…\n• Dev txs: STAKING_DELEGATE / STAKING_UNDELEGATE\n• Bonded pool lock model: TESS moved to pho1-dev-staking-bonded\n• Basic invariants (no negative stake, power=sum(delegations))\n• ✅ Staking proofs implemented + passing tests:\n  – validators_root + delegations_root committed in state snapshot\n  – test_staking_proofs.py ✅]
+P1_5[✅ Staking Module (Dev slice + proofs)\n
+• ✅ Minimal staking structs: Delegation/Validator/Rewards\n
+• ✅ Dev txs: STAKING_DELEGATE / STAKING_UNDELEGATE\n
+• ✅ Bonded pool lock model: TESS moved to pho1-dev-staking-bonded\n
+• ✅ Staking proofs implemented + passing tests\n]
 
-P1_6[✅ Genesis & Config (dev slice)\n• POST /api/chain_sim/dev/reset clears bank+staking+ledger\n• ✅ Also resets perf caches:\n  – _state_root_reset_cache()\n  – async queue status/metrics cleared (when async enabled)\n• Minimal schema: chain_id/network_id + allocs + validators\n• Genesis seeds state (no blocks)\n• Testable: /dev/supply == sum(allocs), /staking/dev/validators populated]
+P1_6[✅ Genesis & Config (dev slice)\n
+• ✅ POST /api/chain_sim/dev/reset clears bank+staking+ledger\n
+• ✅ Also resets perf caches + queue/status/metrics\n
+• ✅ Reset reloads async knobs from env (so runtime reflects CHAIN_SIM_BLOCK_* changes)\n
+• ✅ Config defaults hardened to glyphchain-dev/devnet (no comdex-dev drift)\n
+• ✅ GlyphChain hygiene test added (fails if any API returns comdex-dev)\n
+• ✅ Minimal schema: chain_id/network_id + allocs + validators\n
+• ✅ Genesis seeds state (no blocks)\n
+• ✅ Testable: /dev/supply == sum(allocs)\n
 
-P1_7[✅ Performance knobs + findings (dev)\n• ✅ Async batching knobs:\n  – CHAIN_SIM_BLOCK_MAX_TX\n  – CHAIN_SIM_BLOCK_MAX_MS\n  → controls block size / flush window (1 flush ≈ 1 block)\n• ✅ Sync state-root policy knob:\n  – CHAIN_SIM_STATE_ROOT_INTERVAL\n  – 1 = recompute per applied tx (sync path)\n  – N = recompute once per N applied txs (sync path)\n• ✅ Invariants validated by ad-hoc tests:\n  – no empty blocks created (abort_open_block works)\n  – /dev/proof/tx verifies and proof.txs_root == block.header.txs_root\n  – ledger contains only applied tx records (no rejected txs in /dev/txs)\n• ✅ Load-test hygiene: run uvicorn without –reload; raised httpx pool limits/timeouts]
+P1_7[✅ Performance knobs + findings (dev)\n
+• ✅ Async batching knobs:\n
+– CHAIN_SIM_BLOCK_MAX_TX\n
+– CHAIN_SIM_BLOCK_MAX_MS\n
+• ✅ Sync state-root policy knob:\n
+– CHAIN_SIM_STATE_ROOT_INTERVAL\n
+• ✅ Invariants validated:\n
+– no empty blocks created\n
+– /dev/proof/tx verifies and proof.txs_root == block.header.txs_root\n
+– ledger contains only applied tx records\n
+• NOTE: if MAX_TX=100, 7 txs batch into 1 block (expected)\n]
 
-P1_8[☐ Persistence + Replay (SQLite/dev first)\n• Persist blocks + txs + header commitments (state_root, txs_root)\n• On startup: replay from genesis snapshot + tx log to rebuild state deterministically\n• Re-run perf sweeps: ingest TPS vs finality TPS + tail latency]
+P1_8 ✅ Persistence + Replay (SQLite/dev first)
+	•	✅ Persist applied txs + blocks/headers
+	•	✅ Replay-on-startup: CHAIN_SIM_REPLAY_ON_STARTUP=1
+	•	✅ Test coverage: persist+replay commitments pass (after worker finalize+receipt patch)
+	•	✅ Gotchas fixed during bringup:
+	•	✅ async status showed “applied” but not “finalized” → finalized all applied qids on flush
+	•	✅ finalized receipts missing roots → patch ALL applied receipts on flush
+	•	✅ nonce mismatch caused rejections → unified nonce semantics
+	•	✅ pytest env knob drift → worker reloads async knobs each loop
+	•	✅ Startup wiring: replay runs before async ingest, strict mode bubbles errors (your pytest now passes)
 
-“☐ Runtime acceleration: parallel executor + Rust/Go node for hot paths (sig verify, state updates, networking) to reach 10k+ TPS.”
+P1_8A – Checkpoint plumbing (ledger-side)
+	•	✅ chain_sim_ledger.py: module-level constant _CHECKPOINT_KEY = "checkpoint_json"
+	•	✅ chain_sim_ledger.py: persist_set_checkpoint(last_height, last_state_root, last_txs_root) (uses persist_meta_set_json)
+	•	✅ chain_sim_ledger.py: keep only one persist_get_checkpoint() (the persist_meta_get_json version) and delete the duplicate raw-SQL version
+	•	✅ chain_sim_ledger.py: in persist_commit_block(height, header_patch):
+	•	✅ merge header_patch into header_json
+	•	✅ write state_root / txs_root into blocks row columns
+	•	✅ patch tx rows inline (no _DB_LOCK re-entry deadlock)
+	•	✅ con.commit()
+	•	✅ after releasing _DB_LOCK, best-effort persist_set_checkpoint(...)
+
+So P1_8A is DONE once you delete the duplicate persist_get_checkpoint().
+
+P1_8B – Replay strictness enforcement (routes-side)
+	•	✅ chain_sim_routes.py: chain_sim_replay_startup() strict mode:
+	•	✅ load checkpoint before replay
+	•	✅ recompute state_root_now + txs_root_now at checkpoint height
+	•	✅ raise on mismatch / missing checkpoint
+
+P1_8C – Tests (the real “done”)
+	•	✅ backend/tests/test_chain_sim_replay_strict.py:
+	•	✅ run txs to create checkpoint
+	•	✅ tamper checkpoint (or delete it)
+	•	✅ restart with CHAIN_SIM_REPLAY_STRICT=1
+	•	✅ assert startup fails loudly (RuntimeError)
+	•	✅ (confirmed: pytest -q backend/tests/test_chain_sim_replay_strict.py passes: 2 passed)
 
 flowchart TD
-A[Goal: world-class throughput + deterministic correctness] –> B[Keep state machine deterministic]
-B –> C[Interval=1 collapses at 5k accounts ✅]
-C –> D[Make commits block-scoped]
+A[Goal: world-class throughput + deterministic correctness] --> B[Keep state machine deterministic]
+B --> C[Interval=1 collapses at 5k accounts ✅]
+C --> D[Make commits block-scoped ✅]
 
-D –> E[Async worker builds blocks (batched flush)]
-E –> E1[Env knobs: CHAIN_SIM_BLOCK_MAX_TX, CHAIN_SIM_BLOCK_MAX_MS]
-E –> E2[Deterministic ordering: FIFO from ingest queue]
-E –> E3[Ledger batching: begin_block → record_applied_tx appends → commit_block]
-E –> E4[Compute txs_root once per flush]
-E –> E5[Compute state_root once per flush]
-E –> E6[Write block header commitments once per flush\n(header.state_root + header.txs_root)]
+D --> E[Async worker builds blocks (batched flush) ✅]
+E --> E1[Env knobs: CHAIN_SIM_BLOCK_MAX_TX, CHAIN_SIM_BLOCK_MAX_MS ✅]
+E --> E2[Deterministic ordering: FIFO from ingest queue ✅]
+E --> E3[Ledger batching: begin_block → record_applied_tx appends → commit_block ✅]
+E --> E4[Compute txs_root once per flush ✅]
+E --> E5[Compute state_root once per flush ✅]
+E --> E6[Write block header commitments once per flush\n(header.state_root + header.txs_root) ✅]
+E --> E7[Finalize async statuses on flush ✅\n• mark ALL applied qids as finalized\n• set done_at_ms\n• patch ALL applied receipts with roots]
 
-E6 –> F[Update receipts + status]
-F –> F1[/dev/submit_tx_async returns 202+qid ✅]
-F –> F2[/dev/tx_status/{qid} lifecycle ✅]
-F –> F3[/dev/queue_metrics: TPS + latency + depth ✅]
+E7 --> F[Update receipts + status ✅]
+F --> F1[/dev/submit_tx_async returns 202+qid ✅]
+F --> F2[/dev/tx_status/{qid} lifecycle ✅\naccepted → processing → applied/rejected/error → finalized]
+F --> F3[/dev/queue_metrics: TPS + latency + depth ✅]
+F --> F4[Optional async knob hot-reload ✅\n_reload_async_knobs_from_env() each loop]
+F --> F5[/dev/state + /dev/reset show CHAIN_SIM_SIG_MODE ✅]
 
-F3 –> G[✅ Signature/auth pipeline]
-G –> G1[Extend tx model: pubkey + signature + chain_id]
-G –> G2[CHAIN_SIM_SIG_MODE=off|mock|ed25519]
-G –> G3[Verify at ingest; reject fast; never enter worker]
-G –> G4[Covered by tests (mock + reject-fast async)]
+F5 --> G[✅ Signature/auth pipeline]
+G --> G1[Extend tx model: pubkey + signature + chain_id ✅]
+G --> G2[CHAIN_SIM_SIG_MODE=off|mock|ed25519 ✅]
+G --> G3[Verify at ingest; reject fast; never enter worker ✅]
+G --> G4[Covered by tests (mock + reject-fast async) ✅]
 
-G4 –> H[☐ NEXT: Persistence + replay]
-H –> H1[Persist blocks + txs (SQLite/dev first)]
-H –> H2[Replay on startup: rebuild state deterministically]
-H –> H3[Re-run sweeps: 5k×2 @ inflight 20/50/100/200]
-H –> H4[Compare: ingest TPS vs finality TPS, tails, rejection stability]
+G4 --> H[✅ Persistence + replay]
+H --> H1[Persist blocks + txs (SQLite/dev first) ✅]
+H --> H2[Replay on startup: rebuild state deterministically ✅]
+H --> H3[Replay test: commitments + block shapes stable across restart ✅]
+H --> H4[Re-run sweeps: 5k×2 @ inflight 20/50/100/200 ☐]
+H --> H5[Compare: ingest TPS vs finality TPS, tails, rejection stability ☐]
 
-H4 –> I[Next levers]
-I –> I1[Shorten locks: no snapshot/hash inside critical section]
-I –> I2[Persist ledger batches next (already in-memory batched)]
-I –> I3[Incremental Merkle/state commitments (no full snapshot rebuild)]
-I –> I4[Shard/fair scheduling by sender (future parallelism)]
+H5 --> I[Next levers]
+I --> I1[Shorten locks: no snapshot/hash inside critical section ☐]
+I --> I2[Incremental Merkle/state commitments (avoid full snapshot rebuild) ☐]
+I --> I3[Shard/fair scheduling by sender (future parallelism) ☐]
+I --> I4[Productionize lifecycle: lifespan handlers (remove on_event warnings) ☐]
+I --> I5[Async receipts: persist commit roots in tx row + verify against block header ☐]
+I --> I6[Replay strictness: CHAIN_SIM_REPLAY_STRICT=1 + checkpoint verify ☐]
 
-I4 –> J[Release-grade competitiveness checklist]
-J –> J1[Production consensus + cryptography]
-J –> J2[Durable storage + replay determinism]
-J –> J3[Incremental state commitments + pruning]
-J –> J4[Adversarial mempool/DoS design + profiling]
-
-flowchart TB
+I6 --> J[Release-grade competitiveness checklist]
+J --> J1[Production consensus + cryptography ☐]
+J --> J2[Durable storage + replay determinism ✅ (dev)]
+J --> J3[Incremental state commitments + pruning ☐]
+J --> J4[Adversarial mempool/DoS design + profiling ☐]
   %% ============================================
   %% BUILD PLAN – ON-CHAIN ASSETS + APPS
   %% ============================================

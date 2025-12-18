@@ -1,0 +1,23 @@
+{
+  "async": true,
+  "elapsed_s_finalized": 0.3796981349987618,
+  "elapsed_s_submit": 0.33568421300151385,
+  "env": {
+    "CHAIN_SIM_ASYNC_ENABLED": "1",
+    "CHAIN_SIM_BLOCK_MAX_MS": "25",
+    "CHAIN_SIM_BLOCK_MAX_TX": "200",
+    "CHAIN_SIM_PERSIST": "1",
+    "GLYPHCHAIN_BASE_URL": "http://127.0.0.1:8080"
+  },
+  "lat_ms": {
+    "p50": 0.9786170012375806,
+    "p95": 2.01764699886553,
+    "p99": 12.149713998951484
+  },
+  "mode": "remote",
+  "n": 200,
+  "ok": true,
+  "tps_finalized": 526.7342174347319,
+  "tps_ingest": 595.7980514236993,
+  "ts_unix": 1765844079.01068
+}

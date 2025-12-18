@@ -19,6 +19,7 @@ from sqlalchemy.exc import OperationalError
 from backend.AION.trace_bus import trace_emit, subscribe
 from backend.replay.reducer import ReplayReducer
 from sqlalchemy import text
+from contextlib import asynccontextmanager
 import uvicorn
 # ── Boot imports
 from backend.modules.hexcore.boot_loader import load_boot_goals, preload_all_domain_packs, boot
@@ -54,6 +55,38 @@ def _truthy(name: str, default=False) -> bool:
     if v is None:
         return default
     return v.lower() in {"1", "true", "yes", "on"}
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- startup (single place) ---
+    # chain_sim replay first, then async ingest
+    try:
+        await chain_sim_replay_startup()
+    except Exception as e:
+        if (os.getenv("CHAIN_SIM_REPLAY_STRICT", "0") or "").strip().lower() in ("1", "true", "yes", "on"):
+            raise
+        logger.warning("[chain_sim] replay startup failed (continuing): %s", e)
+
+    try:
+        asyncio.create_task(chain_sim_async_startup())
+        await asyncio.sleep(0)
+    except Exception as e:
+        logger.warning("[chain_sim] async startup failed (continuing): %s", e)
+
+    # (OPTIONAL) move your other startup hooks here over time:
+    # - lock sweeper
+    # - SQI registry rehydrate
+    # - phi balance loop
+    # - scheduler
+    # etc.
+
+    yield
+
+    # --- shutdown ---
+    try:
+        await chain_sim_async_shutdown()
+    except Exception:
+        pass
 
 ENABLE_CLOUDSQL_WARMUP = _truthy("AION_ENABLE_CLOUDSQL_WARMUP", ENV == "production")
 if ENABLE_CLOUDSQL_WARMUP:
@@ -91,6 +124,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    lifespan=lifespan,
 )
 app.router.redirect_slashes = False
 
@@ -321,11 +355,9 @@ async def startup_event():
             return False
 
         try:
-            # Detect node role (default: primary)
             role = os.environ.get("AION_ROLE", "primary").lower()
             logger.info(f"💠 Detected AION node role: {role.upper()}")
 
-            # Launch the corresponding heartbeat if not already active
             if not is_heartbeat_running(role):
                 logger.info(f"💓 Launching AION Dual Heartbeat Supervisor ({role.upper()})...")
                 subprocess.Popen(
@@ -481,6 +513,7 @@ from backend.modules.glyph_bonds.glyph_bond_routes import router as glyph_bonds_
 from backend.modules.photon_savings.photon_savings_routes import router as photon_savings_router
 from backend.modules.escrow.escrow_routes import router as escrow_router
 from backend.modules.transactable_docs.transactable_doc_routes import router as transactable_docs_router
+from backend.modules.p2p.router import router as p2p_router
 
 from backend.modules.staking.staking_routes import router as staking_router
 from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
@@ -488,6 +521,7 @@ from backend.modules.chain_sim.chain_sim_routes import (
     router as chain_sim_router,
     chain_sim_async_startup,
     chain_sim_async_shutdown,
+    chain_sim_replay_startup,
 )
 
 # ===== Atomsheet / LightCone / QFC wiring =====
@@ -727,29 +761,7 @@ app.include_router(transactable_docs_router, prefix="/api")
 app.include_router(chain_sim_router, prefix="/api")
 app.include_router(staking_router, prefix="/api")
 app.include_router(glyphchain_perf_router, prefix="/api")
-app.add_event_handler("startup", chain_sim_async_startup)
-app.add_event_handler("shutdown", chain_sim_async_shutdown)
-@app.on_event("startup")
-def _glyphchain_replay_on_startup():
-    # opt-in / safe default
-    if os.getenv("CHAIN_SIM_PERSIST", "1").strip().lower() in ("0", "false", "off", ""):
-        return
-    if os.getenv("CHAIN_SIM_REPLAY_ON_STARTUP", "0").strip().lower() not in ("1", "true", "yes", "on"):
-        return
-
-    try:
-        from backend.modules.chain_sim import chain_sim_ledger as l
-
-        # best-effort: only replay if DB has a genesis snapshot
-        if l.load_genesis_state_json() is None:
-            logger.info("[chain_sim] no genesis snapshot; skipping replay")
-            return
-
-        ok = l.replay_state_from_db()
-        logger.info(f"[chain_sim] replay_state_from_db -> {ok}")
-
-    except Exception as e:
-        logger.warning(f"[chain_sim] replay_state_from_db failed: {e}")
+app.include_router(p2p_router, prefix="/api/p2p", tags=["p2p"])
 
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)

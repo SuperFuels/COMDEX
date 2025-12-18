@@ -10,11 +10,9 @@ import threading
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from threading import Lock
-from typing import Any, Dict, List, Optional, Tuple
-
+from threading import RLock
+from typing import Any, Dict, List, Optional, Tuple, Literal
 from backend.modules.chain_sim.chain_sim_merkle import hash_leaf, merkle_root
-
 
 # ───────────────────────────────────────────────
 # Persistence env (DO NOT freeze at import-time)
@@ -44,7 +42,6 @@ _DB_LOCK = threading.Lock()
 _DB_CONN: Optional[sqlite3.Connection] = None
 _DB_CONN_PATH: Optional[str] = None
 
-
 def _db_path() -> Optional[Path]:
     _refresh_persist_env()
 
@@ -57,6 +54,8 @@ def _db_path() -> Optional[Path]:
     root = Path(__file__).resolve().parents[3]
     return root / "data" / "chain_sim.sqlite3"
 
+def _env_truthy(name: str, default: str = "0") -> bool:
+    return os.getenv(name, default).strip().lower() in ("1", "true", "yes", "on")
 
 def _db() -> Optional[sqlite3.Connection]:
     global _DB_CONN, _DB_CONN_PATH
@@ -84,7 +83,6 @@ def _db() -> Optional[sqlite3.Connection]:
         _DB_CONN_PATH = str(p)
         _db_init(conn)
         return conn
-
 
 def _db_init(conn: sqlite3.Connection) -> None:
     cur = conn.cursor()
@@ -134,6 +132,243 @@ def _db_init(conn: sqlite3.Connection) -> None:
         )
         conn.commit()
 
+# --- meta helpers (key/value table) ---
+
+def persist_meta_set_json(key: str, obj: Any) -> None:
+    con = _db()
+    if con is None:
+        return
+
+    payload = json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+    with _DB_LOCK:
+        cur = con.cursor()
+        # meta exists in _db_init, but keep this harmless guard
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS meta (
+              key TEXT PRIMARY KEY,
+              value TEXT NOT NULL
+            )
+            """
+        )
+        cur.execute(
+            """
+            INSERT INTO meta(key, value) VALUES(?, ?)
+            ON CONFLICT(key) DO UPDATE SET value=excluded.value
+            """,
+            (str(key), payload),
+        )
+        con.commit()
+
+def persist_meta_get_json(key: str) -> Optional[Any]:
+    con = _db()
+    if con is None:
+        return None
+
+    with _DB_LOCK:
+        cur = con.cursor()
+        try:
+            cur.execute("SELECT value FROM meta WHERE key = ?", (str(key),))
+        except Exception:
+            return None
+        row = cur.fetchone()
+
+    if not row:
+        return None
+
+    raw = row["value"] if isinstance(row, sqlite3.Row) else row[0]
+    try:
+        return json.loads(raw) if raw else None
+    except Exception:
+        return None
+
+def persist_list_applied_txs_for_block(height: int) -> List[Dict[str, Any]]:
+    """
+    Returns applied tx hashes for a given block height in deterministic order.
+
+    Ordering is stable:
+      ORDER BY tx_index ASC, tx_id ASC
+
+    Used by REPLAY_STRICT to recompute txs_root.
+    Safe no-op if persistence is disabled.
+    """
+    conn = _db()
+    if conn is None:
+        return []
+
+    with _DB_LOCK:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT tx_hash, tx_index, tx_id
+            FROM txs
+            WHERE block_height = ? AND applied = 1
+            ORDER BY tx_index ASC, tx_id ASC
+            """,
+            (int(height),),
+        )
+        rows = cur.fetchall()
+
+    out: List[Dict[str, Any]] = []
+    for r in rows:
+        # r is sqlite3.Row (row_factory set in _db())
+        tx_hash = r["tx_hash"] if isinstance(r, sqlite3.Row) else r[0]
+        tx_index = r["tx_index"] if isinstance(r, sqlite3.Row) else r[1]
+        out.append({"tx_hash": str(tx_hash), "tx_index": int(tx_index or 0)})
+    return out
+
+
+def persist_patch_block_roots_and_txs(
+    height: int, *, state_root: Optional[str], txs_root: Optional[str]
+) -> None:
+    """
+    Patch txs.result_json for all applied txs in a block with committed roots.
+
+    NOTE: This does NOT write the replay checkpoint.
+    Checkpointing is centralized in persist_commit_block().
+    """
+    con = _db()
+    if con is None:
+        return
+
+    h = int(height)
+    st = str(state_root or "")
+    tr = str(txs_root or "")
+    if not st and not tr:
+        return
+
+    with _DB_LOCK:
+        cur = con.cursor()
+        try:
+            cur.execute(
+                """
+                SELECT tx_id, result_json
+                FROM txs
+                WHERE block_height = ? AND applied = 1
+                ORDER BY tx_index ASC, tx_id ASC
+                """,
+                (h,),
+            )
+            rows = cur.fetchall()
+
+            for row in rows:
+                tx_id = row["tx_id"] if isinstance(row, sqlite3.Row) else row[0]
+                result_json = row["result_json"] if isinstance(row, sqlite3.Row) else row[1]
+
+                try:
+                    rec = json.loads(result_json) if result_json else {}
+                except Exception:
+                    rec = {}
+                if not isinstance(rec, dict):
+                    rec = {}
+
+                if st:
+                    rec["state_root"] = st
+                    rec["state_root_committed"] = True
+                if tr:
+                    rec["txs_root"] = tr
+
+                cur.execute(
+                    "UPDATE txs SET result_json=? WHERE tx_id=?",
+                    (
+                        json.dumps(rec, sort_keys=True, separators=(",", ":"), ensure_ascii=False),
+                        str(tx_id),
+                    ),
+                )
+
+            con.commit()
+        except Exception:
+            try:
+                con.rollback()
+            except Exception:
+                pass
+            raise
+
+# --- checkpoint helpers (meta table) ---
+_CHECKPOINT_KEY = "checkpoint_json"
+
+def persist_set_checkpoint(last_height: int, last_state_root: str, last_txs_root: str) -> None:
+    """
+    Best-effort: store latest committed block checkpoint into meta.
+    Uses the same meta JSON helpers as genesis.
+    """
+    try:
+        ck = {
+            "last_height": int(last_height or 0),
+            "last_state_root": str(last_state_root or ""),
+            "last_txs_root": str(last_txs_root or ""),
+            "updated_at_ms": int(time.time() * 1000),
+        }
+        persist_meta_set_json(_CHECKPOINT_KEY, ck)
+    except Exception:
+        # best-effort by design
+        return
+
+def persist_get_checkpoint() -> Optional[Dict[str, Any]]:
+    try:
+        ck = persist_meta_get_json(_CHECKPOINT_KEY)
+        return ck if isinstance(ck, dict) else None
+    except Exception:
+        return None
+
+def replay_strict_verify_or_raise() -> None:
+    """
+    Loud-mode verification:
+      - checkpoint exists
+      - checkpoint last_height matches a blocks row
+      - checkpoint roots match the persisted block roots
+      - persisted block txs_root matches recomputed txs_root from applied tx hashes
+    """
+    cp = persist_get_checkpoint()
+    if not isinstance(cp, dict):
+        raise RuntimeError("REPLAY_STRICT: missing checkpoint")
+
+    try:
+        h = int(cp.get("last_height") or 0)
+        cp_st = str(cp.get("last_state_root") or "")
+        cp_tr = str(cp.get("last_txs_root") or "")
+    except Exception:
+        raise RuntimeError("REPLAY_STRICT: invalid checkpoint payload")
+
+    if h <= 0:
+        raise RuntimeError(f"REPLAY_STRICT: invalid checkpoint height={h}")
+
+    con = _db()
+    if con is None:
+        raise RuntimeError("REPLAY_STRICT: persistence disabled (no db)")
+
+    # Load block roots for last_height
+    with _DB_LOCK:
+        cur = con.cursor()
+        cur.execute("SELECT state_root, txs_root FROM blocks WHERE height=?", (h,))
+        row = cur.fetchone()
+
+    if not row:
+        raise RuntimeError(f"REPLAY_STRICT: checkpoint height {h} not found in blocks")
+
+    db_st = str((row["state_root"] if isinstance(row, sqlite3.Row) else row[0]) or "")
+    db_tr = str((row["txs_root"] if isinstance(row, sqlite3.Row) else row[1]) or "")
+
+    # Checkpoint must match block row (this catches your tamper test)
+    if cp_st != db_st:
+        raise RuntimeError(
+            f"REPLAY_STRICT: checkpoint state_root mismatch at height {h}"
+        )
+    if cp_tr != db_tr:
+        raise RuntimeError(
+            f"REPLAY_STRICT: checkpoint txs_root mismatch at height {h}"
+        )
+
+    # Recompute txs_root from applied tx hashes and ensure the block row matches too
+    applied = persist_list_applied_txs_for_block(h)
+    recomputed_tr = _compute_txs_root_hex([t["tx_hash"] for t in applied])
+
+    if recomputed_tr != db_tr:
+        raise RuntimeError(
+            f"REPLAY_STRICT: block txs_root mismatch vs recomputed at height {h}"
+        )
+
 def persist_clear_all() -> None:
     conn = _db()
     if conn is None:
@@ -146,6 +381,62 @@ def persist_clear_all() -> None:
         DELETE FROM meta;
         """)
         conn.commit()
+
+def _persist_db_path() -> str:
+    return os.getenv("CHAIN_SIM_DB_PATH", "") or ""
+
+def persist_get_genesis_state() -> Optional[Dict[str, Any]]:
+    """
+    Best-effort loader for whatever table persist_set_genesis_state() writes.
+    Tries a few common table/column names to avoid schema coupling.
+    """
+    db_path = _persist_db_path()
+    if not db_path:
+        return None
+
+    con = sqlite3.connect(db_path)
+    try:
+        cur = con.cursor()
+
+        # Find candidate tables containing 'genesis'
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%genesis%';")
+        tables = [r[0] for r in cur.fetchall() if r and r[0]]
+
+        # Common fallbacks if table name doesn't include genesis
+        tables += ["genesis", "genesis_state", "chain_sim_genesis", "chain_sim_genesis_state"]
+
+        tried = set()
+        for t in tables:
+            if t in tried:
+                continue
+            tried.add(t)
+
+            try:
+                cur.execute(f"PRAGMA table_info({t});")
+                cols = [r[1] for r in cur.fetchall() if r and len(r) > 1]
+            except Exception:
+                continue
+
+            # pick likely json column
+            for col in ("state_json", "genesis_json", "json", "state", "genesis"):
+                if col in cols:
+                    try:
+                        cur.execute(f"SELECT {col} FROM {t} ORDER BY rowid DESC LIMIT 1;")
+                        row = cur.fetchone()
+                        if not row or row[0] is None:
+                            continue
+                        val = row[0]
+                        if isinstance(val, (bytes, bytearray)):
+                            val = val.decode("utf-8")
+                        obj = json.loads(val) if isinstance(val, str) else None
+                        if isinstance(obj, dict):
+                            return obj
+                    except Exception:
+                        continue
+
+        return None
+    finally:
+        con.close()
 
 def persist_set_genesis_state(state_obj: Dict[str, Any]) -> None:
     """
@@ -174,37 +465,126 @@ def persist_begin_block(height: int, created_at_ms: int, header: Dict[str, Any])
         )
         conn.commit()
 
-def persist_commit_block(height: int, header_patch: Dict[str, Any]) -> None:
+def persist_commit_block(height: int, header_patch: Optional[Dict[str, Any]] = None) -> None:
     """
-    Update block header commitments (state_root/txs_root) and header_json merge is optional.
+    Commit an open block:
+      - merge header_patch into header_json
+      - write state_root/txs_root onto blocks row
+      - patch tx rows for this height (INLINE; avoids _DB_LOCK re-entry deadlock)
+      - con.commit()
+      - AFTER releasing _DB_LOCK, best-effort persist_set_checkpoint(...)
     """
-    conn = _db()
-    if conn is None:
+    h = int(height or 0)
+    if h <= 0:
         return
 
-    state_root = (header_patch or {}).get("state_root")
-    txs_root = (header_patch or {}).get("txs_root")
+    con = _db()  # cached global connection
+    if con is None:
+        return
+
+    hp = header_patch or {}
+
+    # capture for checkpoint write AFTER db lock is released
+    ck_height = 0
+    ck_state_root = ""
+    ck_txs_root = ""
 
     with _DB_LOCK:
-        cur = conn.cursor()
+        cur = con.cursor()
+        try:
+            # --- load existing header_json ---
+            cur.execute("SELECT header_json FROM blocks WHERE height=?", (h,))
+            row = cur.fetchone()
 
-        # best-effort merge header_json
-        cur.execute("SELECT header_json FROM blocks WHERE height=?", (int(height),))
-        row = cur.fetchone()
-        header = {}
-        if row and row["header_json"]:
+            prev: Dict[str, Any] = {}
+            if row:
+                raw = row["header_json"] if isinstance(row, sqlite3.Row) else row[0]
+                if raw:
+                    try:
+                        obj = json.loads(raw) if isinstance(raw, str) else (raw or {})
+                        prev = obj if isinstance(obj, dict) else {}
+                    except Exception:
+                        prev = {}
+
+            merged = dict(prev)
+            if isinstance(hp, dict):
+                merged.update(hp)
+
+            # roots (prefer explicit patch keys)
+            state_root = str(merged.get("state_root") or hp.get("state_root") or "")
+            txs_root   = str(merged.get("txs_root")   or hp.get("txs_root")   or "")
+
+            # --- write block header_json ---
+            cur.execute(
+                "UPDATE blocks SET header_json=? WHERE height=?",
+                (json.dumps(merged, sort_keys=True, separators=(",", ":"), ensure_ascii=False), h),
+            )
+
+            # keep dedicated columns in sync (these cols exist per _db_init)
+            cur.execute(
+                "UPDATE blocks SET state_root=?, txs_root=? WHERE height=?",
+                (state_root or None, txs_root or None, h),
+            )
+
+            # --- patch tx rows centrally (INLINE; do NOT call helper that grabs _DB_LOCK again) ---
+            if state_root or txs_root:
+                cur.execute(
+                    """
+                    SELECT tx_id, result_json
+                    FROM txs
+                    WHERE block_height = ? AND applied = 1
+                    ORDER BY tx_index ASC, tx_id ASC
+                    """,
+                    (h,),
+                )
+                rows = cur.fetchall()
+
+                for r in rows:
+                    tx_id = r["tx_id"] if isinstance(r, sqlite3.Row) else r[0]
+                    result_json = r["result_json"] if isinstance(r, sqlite3.Row) else r[1]
+
+                    try:
+                        rec = json.loads(result_json) if result_json else {}
+                    except Exception:
+                        rec = {}
+                    if not isinstance(rec, dict):
+                        rec = {}
+
+                    if state_root:
+                        rec["state_root"] = state_root
+                        rec["state_root_committed"] = True
+                    if txs_root:
+                        rec["txs_root"] = txs_root
+
+                    cur.execute(
+                        "UPDATE txs SET result_json=? WHERE tx_id=?",
+                        (
+                            json.dumps(rec, sort_keys=True, separators=(",", ":"), ensure_ascii=False),
+                            str(tx_id),
+                        ),
+                    )
+
+            con.commit()
+
+            # checkpoint payload to write OUTSIDE lock
+            if state_root and txs_root:
+                ck_height = h
+                ck_state_root = state_root
+                ck_txs_root = txs_root
+
+        except Exception:
             try:
-                header = json.loads(row["header_json"]) or {}
+                con.rollback()
             except Exception:
-                header = {}
-        header.update(header_patch or {})
-        header_json = json.dumps(header, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+                pass
+            raise
 
-        cur.execute(
-            "UPDATE blocks SET header_json=?, state_root=?, txs_root=? WHERE height=?",
-            (header_json, state_root, txs_root, int(height)),
-        )
-        conn.commit()
+    # AFTER releasing _DB_LOCK (best-effort; never break startup on this)
+    if ck_height > 0 and ck_state_root and ck_txs_root:
+        try:
+            persist_set_checkpoint(ck_height, ck_state_root, ck_txs_root)
+        except Exception:
+            pass
 
 def persist_tx_row(tx: Dict[str, Any]) -> None:
     conn = _db()
@@ -514,47 +894,6 @@ def replay_state_from_db() -> bool:
 
     return True
 
-def load_genesis_state_json() -> Optional[Dict[str, Any]]:
-    conn = _db()
-    if conn is None:
-        return None
-    with _DB_LOCK:
-        cur = conn.cursor()
-        cur.execute("SELECT value FROM meta WHERE key=?", ("genesis_state_json",))
-        row = cur.fetchone()
-    if not row:
-        return None
-    try:
-        return json.loads(row["value"])
-    except Exception:
-        return None
-
-
-def load_all_txs() -> List[Dict[str, Any]]:
-    conn = _db()
-    if conn is None:
-        return []
-    with _DB_LOCK:
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM txs ORDER BY block_height ASC, tx_index ASC")
-        rows = cur.fetchall()
-
-    out: List[Dict[str, Any]] = []
-    for r in rows:
-        out.append(
-            {
-                "tx_id": r["tx_id"],
-                "tx_hash": r["tx_hash"],
-                "block_height": int(r["block_height"]),
-                "tx_index": int(r["tx_index"]),
-                "from_addr": r["from_addr"],
-                "nonce": int(r["nonce"]),
-                "tx_type": r["tx_type"],
-                "payload": json.loads(r["payload_json"] or "{}"),
-            }
-        )
-    return out
-
 def _now_ms() -> int:
     return int(time.time() * 1000)
 
@@ -634,7 +973,7 @@ class DevBlock:
 # In-memory ledger
 # ───────────────────────────────────────────────
 
-_LOCK = Lock()
+_LOCK = RLock()
 
 _BLOCKS: List[DevBlock] = []
 _TXS: List[DevTxRecord] = []
@@ -750,6 +1089,9 @@ def commit_block(*, header_patch: Optional[Dict[str, Any]] = None) -> Optional[D
       - if no txs were appended -> remove shell block and return None
       - else compute txs_root and merge header_patch
       - persist header commitments (state_root / txs_root) for replay
+      - patch in-memory tx results so /dev/tx reflects them immediately in the running process
+
+    Note: DB tx-row patching + checkpoint is handled by persist_commit_block().
     """
     global _OPEN_BLOCK
     with _LOCK:
@@ -761,32 +1103,47 @@ def commit_block(*, header_patch: Optional[Dict[str, Any]] = None) -> Optional[D
             if _BLOCKS and _BLOCKS[-1] is blk:
                 _BLOCKS.pop()
             _OPEN_BLOCK = None
-            # (optional) we don't persist empty blocks; DB row is harmless if it exists
             return None
 
+        # compute txs_root from in-block tx ordering
         txs_root = _compute_txs_root_hex([t.tx_hash for t in blk.txs])
         blk.txs_root = txs_root
         if blk.header is None:
             blk.header = {}
         blk.header["txs_root"] = txs_root
 
+        # merge caller patch (state_root, etc.)
         if isinstance(header_patch, dict):
             _merge_header(blk.header, header_patch)
-            # keep struct consistent if caller patched txs_root explicitly
             if blk.header.get("txs_root"):
                 blk.txs_root = str(blk.header["txs_root"])
 
+        # ensure tx indexes are consistent
         for i, t in enumerate(blk.txs):
             t.block_height = blk.height
             t.tx_index = i
 
-        # ✅ persist committed header (include computed txs_root even if caller didn't pass it)
+        # persist committed header (include computed txs_root even if caller didn't pass it)
+        patch = dict(header_patch or {})
+        patch.setdefault("txs_root", blk.txs_root)
+
         try:
-            patch = dict(header_patch or {})
-            patch.setdefault("txs_root", blk.txs_root)
             persist_commit_block(blk.height, patch)
         except Exception:
             pass
+
+        # ✅ patch in-memory tx results so /dev/tx/{tx_id} shows roots immediately
+        sr = patch.get("state_root")
+        tr = patch.get("txs_root")
+        if sr or tr:
+            for t in blk.txs:
+                if not isinstance(t.result, dict) or t.result is None:
+                    t.result = {}
+                if sr:
+                    t.result["state_root"] = str(sr)
+                    t.result["state_root_committed"] = True
+                if tr:
+                    t.result["txs_root"] = str(tr)
 
         _OPEN_BLOCK = None
         return blk
@@ -990,9 +1347,95 @@ def record_applied_tx(
         return rec
 
 
-def list_blocks(limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
+BlockOrder = Literal["asc", "desc"]
+
+def list_headers(limit: int = 20, offset: int = 0, order: BlockOrder = "desc") -> List[Dict[str, Any]]:
+    """
+    Headers-only view (no tx bodies).
+    Backed directly by the blocks table to keep this lightweight.
+    """
+    lim = max(1, int(limit))
+    off = max(0, int(offset))
+    ord_sql = "DESC" if (order or "desc") == "desc" else "ASC"
+
+    with _DB_LOCK:
+        con = _db_connect()
+        try:
+            con.row_factory = sqlite3.Row
+            cur = con.cursor()
+            cur.execute(
+                f"""
+                SELECT height, created_at_ms, header_json, state_root, txs_root
+                FROM blocks
+                ORDER BY height {ord_sql}
+                LIMIT ? OFFSET ?
+                """,
+                (lim, off),
+            )
+            rows = cur.fetchall()
+        finally:
+            try:
+                con.close()
+            except Exception:
+                pass
+
+    out: List[Dict[str, Any]] = []
+    for r in rows:
+        # sqlite3.Row supports dict-style
+        raw_hdr = (r["header_json"] or "{}") if isinstance(r, sqlite3.Row) else (r[2] or "{}")
+        try:
+            hdr = json.loads(raw_hdr) or {}
+        except Exception:
+            hdr = {}
+
+        out.append(
+            {
+                "height": int(r["height"] if isinstance(r, sqlite3.Row) else r[0]),
+                "created_at_ms": int(r["created_at_ms"] if isinstance(r, sqlite3.Row) else r[1]),
+                "header": hdr,
+                "state_root": (r["state_root"] if isinstance(r, sqlite3.Row) else r[3]),
+                "txs_root": (r["txs_root"] if isinstance(r, sqlite3.Row) else r[4]),
+            }
+        )
+    return out
+
+def list_headers(limit: int = 20, offset: int = 0, order: BlockOrder = "desc") -> List[Dict[str, Any]]:
+    """
+    Header-only view, sourced from the in-memory blocks list to stay consistent with list_blocks().
+    """
+    blocks = list_blocks(limit=limit, offset=offset, order=order)
+
+    out: List[Dict[str, Any]] = []
+    for b in blocks:
+        hdr = b.get("header") or {}
+        if not isinstance(hdr, dict):
+            hdr = {}
+
+        out.append(
+            {
+                "height": int(b.get("height") or 0),
+                "created_at_ms": b.get("created_at_ms"),
+                "state_root": b.get("state_root") or hdr.get("state_root"),
+                "txs_root": b.get("txs_root") or hdr.get("txs_root"),
+                "header": hdr,
+            }
+        )
+
+    return out
+
+def list_blocks(limit: int = 20, offset: int = 0, order: BlockOrder = "desc") -> List[Dict[str, Any]]:
+    """
+    Deterministic ordering:
+      - desc (default): newest-first (highest height first)
+      - asc: oldest-first
+    """
     with _LOCK:
-        items = _BLOCKS[::-1]
+        # _BLOCKS is assumed to be append-increasing by height
+        if order == "asc":
+            items = _BLOCKS[:]          # oldest-first
+        else:
+            items = _BLOCKS[::-1]       # newest-first
+
         slice_ = items[offset : offset + limit]
         return [b.to_dict() for b in slice_]
 
@@ -1009,6 +1452,75 @@ def get_tx(tx_id: str) -> Optional[Dict[str, Any]]:
         rec = _TX_BY_ID.get(tx_id)
         return rec.to_dict() if rec else None
 
+def _json_load_if_str(x: Any) -> Any:
+    if isinstance(x, (dict, list)) or x is None:
+        return x
+    if isinstance(x, str):
+        s = x.strip()
+        if not s:
+            return {}
+        try:
+            return json.loads(s)
+        except Exception:
+            return {}
+    return {}
+
+def persist_list_applied_txs_ordered(*, limit: int = 500, offset: int = 0) -> List[Dict[str, Any]]:
+    """
+    Canonical replay order:
+      ORDER BY block_height ASC, tx_index ASC, tx_id ASC
+
+    Returns payload as dict (decoded from payload_json).
+    """
+    conn = _db()
+    if conn is None:
+        return []
+
+    with _DB_LOCK:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT
+              tx_id,
+              from_addr,
+              nonce,
+              tx_type,
+              payload_json,
+              applied,
+              block_height,
+              tx_index
+            FROM txs
+            WHERE applied = 1
+            ORDER BY block_height ASC, tx_index ASC, tx_id ASC
+            LIMIT ? OFFSET ?
+            """,
+            (int(limit), int(offset)),
+        )
+        rows = cur.fetchall()
+
+    out: List[Dict[str, Any]] = []
+    for r in rows:
+        # r is sqlite3.Row (row_factory set in _db())
+        payload = {}
+        try:
+            payload = json.loads(r["payload_json"] or "{}") or {}
+        except Exception:
+            payload = {}
+
+        out.append(
+            {
+                "tx_id": str(r["tx_id"]),
+                "from_addr": str(r["from_addr"] or ""),
+                "nonce": int(r["nonce"] or 0),
+                "tx_type": str(r["tx_type"] or ""),
+                "payload": payload,
+                "applied": bool(int(r["applied"] or 0)),
+                "block_height": int(r["block_height"] or 0),
+                "tx_index": int(r["tx_index"] or 0),
+            }
+        )
+
+    return out
 
 def list_txs(
     *,

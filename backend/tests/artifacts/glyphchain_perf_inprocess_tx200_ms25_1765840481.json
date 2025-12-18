@@ -1,0 +1,16 @@
+{
+  "avg_seconds": {
+    "GET /api/chain_sim/dev/state": 0.0010169441000471124,
+    "GET /api/chain_sim/dev/supply": 0.0009766034499989473
+  },
+  "env": {
+    "CHAIN_SIM_ASYNC_ENABLED": "1",
+    "CHAIN_SIM_BLOCK_MAX_MS": "25",
+    "CHAIN_SIM_BLOCK_MAX_TX": "200",
+    "CHAIN_SIM_PERSIST": "1"
+  },
+  "mode": "inprocess",
+  "n": 20,
+  "ok": true,
+  "ts_unix": 1765840481.9674845
+}

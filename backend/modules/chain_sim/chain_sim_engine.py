@@ -119,14 +119,10 @@ def _maybe_assert_invariants() -> None:
         fn()
 
 
-def _force_signer_nonce_once(from_addr: str, expected_next: int) -> None:
-    """
-    Dev semantics: a tx should consume exactly ONE nonce.
-    If internal ops increment nonce multiple times, clamp to (tx_nonce + 1).
-    """
+def _force_signer_nonce_once(from_addr: str, expected_final: int) -> None:
     try:
         acc = bank.get_or_create_account(from_addr)
-        setattr(acc, "nonce", int(expected_next))
+        setattr(acc, "nonce", int(expected_final))
     except Exception:
         return
 
@@ -142,93 +138,6 @@ def get_tx(tx_id: str) -> Optional[Dict[str, Any]]:
 def list_txs_for_address(address: str, limit: int = 50) -> Dict[str, Any]:
     """Back-compat wrapper (old shape: {'txs': [...]})"""
     return {"txs": ledger_list_txs(address=address, limit=limit, offset=0)}
-
-
-# ───────────────────────────────────────────────
-# Staking helpers (what tx_executor expects to find)
-# ───────────────────────────────────────────────
-
-def staking_delegate(from_addr: str, validator: str, amount_tess: str) -> Dict[str, Any]:
-    """
-    Dev staking delegate:
-      1) lock funds: move TESS from delegator -> bonded pool
-      2) write staking state
-    """
-    if not isinstance(from_addr, str) or not from_addr:
-        raise ValueError("from_addr required")
-    if not isinstance(validator, str) or not validator:
-        raise ValueError("validator required")
-    amt_s = str(amount_tess)
-
-    # lock funds (no extra dev fee for staking txs)
-    # Prefer known bank API: transfer(denom, signer, to_addr, amount)
-    bank.transfer(
-        denom="TESS",
-        signer=from_addr,
-        to_addr=DEV_STAKING_BONDED,
-        amount=amt_s,
-    )
-
-    staking.delegate(
-        delegator=from_addr,
-        validator=validator,
-        amount_tess=amt_s,
-    )
-
-    # invariants (if present)
-    fn = getattr(staking, "assert_invariants", None)
-    if callable(fn):
-        fn()
-    _maybe_assert_invariants()
-
-    return {
-        "ok": True,
-        "op": "STAKING_DELEGATE",
-        "delegator": from_addr,
-        "validator": validator,
-        "amount_tess": amt_s,
-        "bonded_pool": DEV_STAKING_BONDED,
-    }
-
-
-def staking_undelegate(from_addr: str, validator: str, amount_tess: str) -> Dict[str, Any]:
-    """
-    Dev staking undelegate:
-      1) write staking state
-      2) unlock funds: move TESS from bonded pool -> delegator
-    """
-    if not isinstance(from_addr, str) or not from_addr:
-        raise ValueError("from_addr required")
-    if not isinstance(validator, str) or not validator:
-        raise ValueError("validator required")
-    amt_s = str(amount_tess)
-
-    staking.undelegate(
-        delegator=from_addr,
-        validator=validator,
-        amount_tess=amt_s,
-    )
-
-    bank.transfer(
-        denom="TESS",
-        signer=DEV_STAKING_BONDED,
-        to_addr=from_addr,
-        amount=amt_s,
-    )
-
-    fn = getattr(staking, "assert_invariants", None)
-    if callable(fn):
-        fn()
-    _maybe_assert_invariants()
-
-    return {
-        "ok": True,
-        "op": "STAKING_UNDELEGATE",
-        "delegator": from_addr,
-        "validator": validator,
-        "amount_tess": amt_s,
-        "bonded_pool": DEV_STAKING_BONDED,
-    }
 
 # ───────────────────────────────────────────────
 # Persistence + replay (P1_8)
@@ -370,8 +279,9 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError("invalid tx_type")
 
     signer_acc = bank.get_or_create_account(from_addr)
-    if nonce != int(getattr(signer_acc, "nonce", 0)):
-        raise ValueError(f"bad nonce: expected {signer_acc.nonce}, got {nonce}")
+    expected = int(getattr(signer_acc, "nonce", 0) or 0) + 1  # ✅ next-nonce semantics
+    if nonce != expected:
+        raise ValueError(f"bad nonce: expected {expected}, got {nonce}")
 
     signing_obj = {
         "from_addr": from_addr,
@@ -539,7 +449,7 @@ def submit_tx(tx: Dict[str, Any]) -> Dict[str, Any]:
 
     # One nonce per tx (BANK txs can increment internally; clamp)
     if applied:
-        _force_signer_nonce_once(from_addr, nonce + 1)
+        _force_signer_nonce_once(from_addr, nonce)
         _maybe_assert_invariants()
 
     receipt: Dict[str, Any] = {

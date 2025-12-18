@@ -97,13 +97,22 @@ def _current_nonce(addr: str) -> int:
 
 
 def _check_nonce(from_addr: str, nonce: Any) -> Optional[str]:
+    """
+    GlyphChain dev txs use 1-based nonces:
+      - stored account.nonce starts at 0 after reset/genesis
+      - first tx must use nonce=1
+      - after apply, bank ops increment nonce by exactly +1
+    """
     if nonce is None:
         return "nonce is required"
     try:
         got = int(nonce)
     except Exception:
         return "nonce must be an int"
-    exp = _current_nonce(from_addr)
+
+    cur = _current_nonce(from_addr)
+    exp = int(cur) + 1  # ✅ 1-based expected nonce
+
     if got != exp:
         return f"bad nonce: expected {exp}, got {got}"
     return None
@@ -179,10 +188,11 @@ def _apply_bank_inline(envelope: Any) -> Tuple[bool, Optional[str], Dict[str, An
 
     nerr = _check_nonce(from_addr, nonce)
     if nerr:
+        cur = _current_nonce(from_addr)
         return False, nerr, {
             "op": t,
             "payload": payload,
-            "expected_nonce": _current_nonce(from_addr),
+            "expected_nonce": int(cur) + 1,  # ✅ match 1-based rule
             "got_nonce": nonce,
         }
 
