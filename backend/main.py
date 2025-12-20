@@ -50,7 +50,9 @@ if ENV != "production":
         print("⚠️ Warning: .env.local not found.")
 
 # ── Warm up Cloud SQL socket (make opt-in in dev; on in prod if you want)
-def _truthy(name: str, default=False) -> bool:
+from contextlib import asynccontextmanager
+
+def _truthy(name: str, default: bool = False) -> bool:
     v = os.getenv(name)
     if v is None:
         return default
@@ -59,6 +61,7 @@ def _truthy(name: str, default=False) -> bool:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # --- startup (single place) ---
+
     # chain_sim replay first, then async ingest
     try:
         await chain_sim_replay_startup()
@@ -73,16 +76,32 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("[chain_sim] async startup failed (continuing): %s", e)
 
-    # (OPTIONAL) move your other startup hooks here over time:
-    # - lock sweeper
-    # - SQI registry rehydrate
-    # - phi balance loop
-    # - scheduler
-    # etc.
+    # ✅ consensus (PR2): start once, on the running loop
+    if _truthy("GLYPHCHAIN_CONSENSUS_ENABLE", True):
+        try:
+            from backend.modules.consensus.engine import get_engine
+            eng = get_engine()
+            eng.start()  # safe: we're inside an async lifespan with a running loop
+            logger.warning("[consensus] started node_id=%s val_id=%s chain_id=%s base_url=%s",
+               os.getenv("GLYPHCHAIN_NODE_ID"), os.getenv("GLYPHCHAIN_SELF_VAL_ID"),
+               os.getenv("GLYPHCHAIN_CHAIN_ID"), os.getenv("GLYPHCHAIN_BASE_URL"))
+            app.state.consensus_engine = eng
+            logger.info("[consensus] engine started")
+        except Exception as e:
+            logger.warning("[consensus] start failed (continuing): %s", e)
 
     yield
 
     # --- shutdown ---
+    # stop consensus first (so it stops broadcasting while other subsystems unwind)
+    try:
+        eng = getattr(app.state, "consensus_engine", None)
+        if eng is not None:
+            await eng.stop()
+            logger.info("[consensus] engine stopped")
+    except Exception:
+        pass
+
     try:
         await chain_sim_async_shutdown()
     except Exception:
@@ -762,7 +781,6 @@ app.include_router(chain_sim_router, prefix="/api")
 app.include_router(staking_router, prefix="/api")
 app.include_router(glyphchain_perf_router, prefix="/api")
 app.include_router(p2p_router, prefix="/api/p2p", tags=["p2p"])
-
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)
 

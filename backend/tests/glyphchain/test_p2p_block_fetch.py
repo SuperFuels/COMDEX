@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import httpx
 import pytest
+pytestmark = [pytest.mark.integration, pytest.mark.glyphchain]
 
 # --- sanity guard: fail fast if helpers were dropped during edits/pastes ---
 def test__sanity__p2p_block_fetch_helpers_present() -> None:

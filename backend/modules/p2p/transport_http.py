@@ -34,7 +34,10 @@ async def post_json(
 ) -> Dict[str, Any]:
     """
     Small HTTP helper used by p2p/router.py.
-    Returns: {status_code, json, text}
+
+    NOTE: Historically some callers expected "status" while others expected "status_code".
+    We return BOTH to avoid subtle breakage.
+    Returns: {status, status_code, json, text}
     """
     url = (base_url or "").rstrip("/") + path
 
@@ -55,7 +58,9 @@ async def post_json(
             j = r.json()
         except Exception:
             j = None
-        return {"status_code": int(r.status_code), "json": j, "text": r.text}
+
+        code = int(r.status_code)
+        return {"status": code, "status_code": code, "json": j, "text": r.text}
 
 
 async def get_json(
@@ -72,7 +77,10 @@ async def get_json(
 ) -> Dict[str, Any]:
     """
     Small HTTP GET helper.
-    Returns: {status_code, json, text}
+
+    NOTE: Historically some callers expected "status" while others expected "status_code".
+    We return BOTH to avoid subtle breakage.
+    Returns: {status, status_code, json, text}
     """
     url = (base_url or "").rstrip("/") + path
 
@@ -93,7 +101,9 @@ async def get_json(
             j = r.json()
         except Exception:
             j = None
-        return {"status_code": int(r.status_code), "json": j, "text": r.text}
+
+        code = int(r.status_code)
+        return {"status": code, "status_code": code, "json": j, "text": r.text}
 
 
 async def relay_submit_tx_async(

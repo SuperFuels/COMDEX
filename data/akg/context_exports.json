@@ -63,5 +63,41 @@
     "session_id": 489250,
     "resonance_score": 0.35,
     "coherence_index": 0.0
+  },
+  {
+    "timestamp": 1766174869.7706814,
+    "topics": [],
+    "dominant_topic": null,
+    "tone": "neutral",
+    "energy": 0.5,
+    "confidence": 0.0,
+    "recent_messages": [],
+    "session_id": 490604,
+    "resonance_score": 0.35,
+    "coherence_index": 0.0
+  },
+  {
+    "timestamp": 1766174983.6244938,
+    "topics": [],
+    "dominant_topic": null,
+    "tone": "neutral",
+    "energy": 0.5,
+    "confidence": 0.0,
+    "recent_messages": [],
+    "session_id": 490604,
+    "resonance_score": 0.35,
+    "coherence_index": 0.0
+  },
+  {
+    "timestamp": 1766175200.334855,
+    "topics": [],
+    "dominant_topic": null,
+    "tone": "neutral",
+    "energy": 0.5,
+    "confidence": 0.0,
+    "recent_messages": [],
+    "session_id": 490604,
+    "resonance_score": 0.35,
+    "coherence_index": 0.0
   }
 ]

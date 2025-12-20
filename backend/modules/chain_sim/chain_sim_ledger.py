@@ -312,6 +312,131 @@ def persist_get_checkpoint() -> Optional[Dict[str, Any]]:
     except Exception:
         return None
 
+def replay_ledger_only_from_db() -> bool:
+    """
+    Rebuild ONLY the in-memory ledger (_BLOCKS/_TXS) from sqlite.
+    Does NOT apply tx execution / state transitions.
+    Used as a fallback when genesis_state_json is missing.
+    """
+    conn = _db()
+    if conn is None:
+        return False
+
+    # reset in-memory ledger, keep sqlite
+    reset_ledger(clear_persist=False)
+
+    # pull blocks + txs
+    with _DB_LOCK:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM blocks ORDER BY height ASC")
+        block_rows = cur.fetchall()
+
+        cur.execute(
+            """
+            SELECT *
+            FROM txs
+            ORDER BY block_height ASC, tx_index ASC, tx_id ASC
+            """
+        )
+        tx_rows = cur.fetchall()
+
+    # group txs by height
+    txs_by_h: Dict[int, List[sqlite3.Row]] = {}
+    for r in tx_rows:
+        bh = int((r["block_height"] if isinstance(r, sqlite3.Row) else r[2]) or 0)
+        if bh <= 0:
+            continue
+        txs_by_h.setdefault(bh, []).append(r)
+
+    with _LOCK:
+        for br in block_rows:
+            h = int(br["height"] if isinstance(br, sqlite3.Row) else br[0])
+            created_at_ms = int(br["created_at_ms"] if isinstance(br, sqlite3.Row) else br[1])
+            raw_hdr = (br["header_json"] if isinstance(br, sqlite3.Row) else br[2]) or "{}"
+            try:
+                header = json.loads(raw_hdr) if isinstance(raw_hdr, str) else {}
+            except Exception:
+                header = {}
+            if not isinstance(header, dict):
+                header = {}
+
+            state_root = str((br["state_root"] if isinstance(br, sqlite3.Row) else br[3]) or "")
+            txs_root   = str((br["txs_root"]   if isinstance(br, sqlite3.Row) else br[4]) or "")
+
+            tx_recs: List[DevTxRecord] = []
+            for tr in txs_by_h.get(h, []):
+                tx_id = str((tr["tx_id"] if isinstance(tr, sqlite3.Row) else tr[0]) or "")
+                tx_hash = str((tr["tx_hash"] if isinstance(tr, sqlite3.Row) else tr[1]) or "")
+                from_addr = str((tr["from_addr"] if isinstance(tr, sqlite3.Row) else tr[4]) or "")
+                nonce = int((tr["nonce"] if isinstance(tr, sqlite3.Row) else tr[5]) or 0)
+                tx_type = str((tr["tx_type"] if isinstance(tr, sqlite3.Row) else tr[6]) or "")
+                payload_json = (tr["payload_json"] if isinstance(tr, sqlite3.Row) else tr[7]) or "{}"
+                result_json  = (tr["result_json"]  if isinstance(tr, sqlite3.Row) else tr[9]) or "{}"
+                fee_json     = (tr["fee_json"]     if isinstance(tr, sqlite3.Row) else tr[10]) or None
+                applied_i    = int((tr["applied"]  if isinstance(tr, sqlite3.Row) else tr[8]) or 0)
+                tx_index     = int((tr["tx_index"] if isinstance(tr, sqlite3.Row) else tr[3]) or 0)
+
+                try:
+                    payload = json.loads(payload_json) if isinstance(payload_json, str) else {}
+                except Exception:
+                    payload = {}
+                if not isinstance(payload, dict):
+                    payload = {}
+
+                try:
+                    result = json.loads(result_json) if isinstance(result_json, str) else {}
+                except Exception:
+                    result = {}
+                if not isinstance(result, dict):
+                    result = {}
+
+                fee = None
+                if isinstance(fee_json, str) and fee_json:
+                    try:
+                        fee = json.loads(fee_json)
+                    except Exception:
+                        fee = None
+                if not isinstance(fee, dict):
+                    fee = None
+
+                rec = DevTxRecord(
+                    tx_id=tx_id,
+                    tx_hash=tx_hash,
+                    from_addr=from_addr,
+                    nonce=nonce,
+                    tx_type=tx_type,
+                    payload=payload,
+                    applied=bool(applied_i),
+                    result=result,
+                    created_at_ms=created_at_ms,
+                    block_height=h,
+                    tx_index=tx_index,
+                    fee=fee,
+                )
+
+                _TXS.append(rec)
+                _TX_BY_ID[rec.tx_id] = rec
+                if rec.tx_hash:
+                    _TX_BY_HASH[rec.tx_hash] = rec
+                _TX_BY_KEY[(rec.from_addr, int(rec.nonce), rec.tx_type)] = rec
+                tx_recs.append(rec)
+
+            blk = DevBlock(
+                height=h,
+                created_at_ms=created_at_ms,
+                txs=tx_recs,
+                txs_root=txs_root or (header.get("txs_root") or ""),
+                header=header,
+            )
+            if state_root:
+                blk.header.setdefault("state_root", state_root)
+            if blk.txs_root:
+                blk.header.setdefault("txs_root", blk.txs_root)
+
+            _BLOCKS.append(blk)
+
+    return True
+
 def replay_strict_verify_or_raise() -> None:
     """
     Loud-mode verification:
@@ -713,7 +838,8 @@ def replay_state_from_db() -> bool:
     """
     genesis = load_genesis_state_json()
     if not isinstance(genesis, dict):
-        return False
+        # PR4.2: allow “ledger-only” replay so get_block(h) works after import
+        return replay_ledger_only_from_db()
 
     # local imports to avoid import cycles
     from backend.modules.chain_sim import chain_sim_config as cfg
@@ -1441,10 +1567,23 @@ def list_blocks(limit: int = 20, offset: int = 0, order: BlockOrder = "desc") ->
 
 
 def get_block(height: int) -> Optional[Dict[str, Any]]:
+    h = int(height or 0)
+    if h <= 0:
+        return None
+
     with _LOCK:
-        if height <= 0 or height > len(_BLOCKS):
-            return None
-        return _BLOCKS[height - 1].to_dict()
+        # fast path if list happens to be perfectly aligned
+        if h <= len(_BLOCKS):
+            b = _BLOCKS[h - 1]
+            if b and int(getattr(b, "height", 0)) == h:
+                return b.to_dict()
+
+        # fallback: search by actual height
+        for b in reversed(_BLOCKS):
+            if int(getattr(b, "height", 0)) == h:
+                return b.to_dict()
+
+    return None
 
 
 def get_tx(tx_id: str) -> Optional[Dict[str, Any]]:

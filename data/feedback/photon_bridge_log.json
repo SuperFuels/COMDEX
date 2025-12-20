@@ -107,6 +107,60 @@
       },
       "timestamp": 1761302935.5299497,
       "source": "ContextAKGBridge"
+    },
+    {
+      "type": "context_snapshot",
+      "target": "AKG",
+      "payload": {
+        "timestamp": 1766174869.7706814,
+        "topics": [],
+        "dominant_topic": null,
+        "tone": "neutral",
+        "energy": 0.5,
+        "confidence": 0.0,
+        "recent_messages": [],
+        "session_id": 490604,
+        "resonance_score": 0.35,
+        "coherence_index": 0.0
+      },
+      "timestamp": 1766174869.7707105,
+      "source": "ContextAKGBridge"
+    },
+    {
+      "type": "context_snapshot",
+      "target": "AKG",
+      "payload": {
+        "timestamp": 1766174983.6244938,
+        "topics": [],
+        "dominant_topic": null,
+        "tone": "neutral",
+        "energy": 0.5,
+        "confidence": 0.0,
+        "recent_messages": [],
+        "session_id": 490604,
+        "resonance_score": 0.35,
+        "coherence_index": 0.0
+      },
+      "timestamp": 1766174983.6245196,
+      "source": "ContextAKGBridge"
+    },
+    {
+      "type": "context_snapshot",
+      "target": "AKG",
+      "payload": {
+        "timestamp": 1766175200.334855,
+        "topics": [],
+        "dominant_topic": null,
+        "tone": "neutral",
+        "energy": 0.5,
+        "confidence": 0.0,
+        "recent_messages": [],
+        "session_id": 490604,
+        "resonance_score": 0.35,
+        "coherence_index": 0.0
+      },
+      "timestamp": 1766175200.3348958,
+      "source": "ContextAKGBridge"
     }
   ]
 }
