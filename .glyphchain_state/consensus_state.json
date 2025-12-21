@@ -1,10 +1,10 @@
 {
-  "finalized_height": 1041,
+  "finalized_height": 1461,
   "last_qc": {
-    "block_id": "h1041-r0-Pval-2",
-    "height": 1041,
+    "block_id": "h1461-r0-Pval-2",
+    "height": 1461,
     "round": 0,
-    "ts_ms": 1766245664728.4465,
+    "ts_ms": 1766263371655.982,
     "vote_type": "PRECOMMIT",
     "voters": [
       "val-2"

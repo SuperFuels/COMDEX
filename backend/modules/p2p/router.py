@@ -16,9 +16,47 @@ from .rate_limit import allow as rl_allow
 from .transport_http import get_json, post_json
 import asyncio
 import httpx
+from backend.modules.p2p.lane_limiter import LaneLimiter
+
+# PR5: bounded ingress queues / dedup ids (module-scope singleton)
+
+def _stable_json_bytes_for_id(x: Any) -> bytes:
+    return json.dumps(x, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+def _sha_id(x: Any) -> str:
+    return hashlib.sha256(_stable_json_bytes_for_id(x)).hexdigest()
+
+def _proposal_msg_id(payload: Dict[str, Any]) -> str:
+    canon = {
+        "h": int(payload.get("height") or 0),
+        "r": int(payload.get("round") or 0),
+        "p": str(payload.get("proposer") or ""),
+        "bid": str(payload.get("block_id") or ""),
+    }
+    return "P:" + _sha_id(canon)
+
+def _vote_msg_id(payload: Dict[str, Any]) -> str:
+    canon = {
+        "h": int(payload.get("height") or 0),
+        "r": int(payload.get("round") or 0),
+        "t": str(payload.get("vote_type") or ""),
+        "bid": str(payload.get("block_id") or ""),
+        "v": str(payload.get("voter") or ""),
+    }
+    return "V:" + _sha_id(canon)
+
+def _sync_msg_id(env: Dict[str, Any]) -> str:
+    return "S:" + _sha_id({"from": str(env.get("from_node_id") or ""), "ts": int(env.get("ts_ms") or 0)})
+
+def _block_req_msg_id(payload: Dict[str, Any], env: Dict[str, Any]) -> str:
+    return "B:" + _sha_id({
+        "from": str(env.get("from_node_id") or ""),
+        "h": int(payload.get("height") or 0),
+        "want": str(payload.get("want") or "block"),
+    })
 
 router = APIRouter()
-
+_LIM = LaneLimiter.from_env()
 # --- optional consensus wiring (PR1) ---
 _CONSENSUS_OK = False
 _CONSENSUS_ERR: Optional[str] = None
@@ -1192,13 +1230,13 @@ async def p2p_proposal(request: Request, env: P2PEnvelope = Body(...)) -> Dict[s
     if not vset.is_member(peer_val or env.from_val_id or ""):
         raise HTTPException(status_code=403, detail="from_val_id not in ValidatorSet")
 
-    d = _drop_if_dup(peer_key, env)
-    if d is not None:
-        return d
+    payload_in = env.payload or {}
+    if not isinstance(payload_in, dict):
+        raise HTTPException(status_code=400, detail="payload must be object")
 
-    payload = env.payload or {}
+    # ✅ Verify signature against ORIGINAL payload (tests sign without msg_id)
     if _require_signed_consensus():
-        sig_hex = str(payload.get("sig_hex") or "").strip().lower()
+        sig_hex = str(payload_in.get("sig_hex") or "").strip().lower()
         if not sig_hex:
             raise HTTPException(status_code=403, detail="missing proposal sig_hex")
 
@@ -1207,32 +1245,31 @@ async def p2p_proposal(request: Request, env: P2PEnvelope = Body(...)) -> Dict[s
         if not pubkey_hex:
             raise HTTPException(status_code=403, detail="missing peer pubkey (need HELLO)")
 
-        try:
-            msg = canonical_p2p_sign_bytes(msg_type="PROPOSAL", chain_id=_CHAIN_ID, payload=payload)
-            if not verify_ed25519(pubkey_hex, sig_hex, msg):
-                raise HTTPException(status_code=403, detail="proposal signature invalid")
-        except HTTPException:
-            raise
-        except Exception:
-            raise HTTPException(
-                status_code=403,
-                detail="proposal signature invalid (bad sig/pubkey encoding)",
-            )
+        msg = canonical_p2p_sign_bytes(msg_type="PROPOSAL", chain_id=_CHAIN_ID, payload=payload_in)
+        if not verify_ed25519(pubkey_hex, sig_hex, msg):
+            raise HTTPException(status_code=403, detail="proposal signature invalid")
 
-    try:
-        p = Proposal(**payload)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"bad proposal payload: {e}")
+    # ✅ local-only msg_id (do NOT mutate payload_in)
+    msg_id = str(payload_in.get("msg_id") or _proposal_msg_id(payload_in))
 
-    eng = get_engine()
-    try:
-        out = eng.handle_proposal(p)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"proposal handler exception: {type(e).__name__}: {e}")
+    # ✅ Optional envelope-level dedup (must NOT depend on payload.msg_id)
+    d = _drop_if_dup(peer_key, env)
+    if d is not None:
+        return d
 
-    if not out.get("ok"):
-        raise HTTPException(status_code=400, detail=str(out.get("error") or "proposal rejected"))
-    return out
+    # ✅ Build model payload (avoid passing msg_id unless model allows extras)
+    payload_model = dict(payload_in)
+    payload_model.pop("msg_id", None)
+
+    # ✅ Enqueue (MUST await; job MUST be async/awaitable)
+    async def _job(p: Dict[str, Any] = payload_model) -> None:
+        get_engine().handle_proposal(Proposal(**p))
+
+    res = await _LIM.enqueue(lane="proposal", msg_id=msg_id, job=_job)
+    if not bool(res.get("enqueued")):
+        return {"ok": True, "enqueued": False, "dropped": True, "reason": str(res.get("reason") or "queue_full")}
+
+    return {"ok": True, "enqueued": True}
 
 
 @router.post("/vote")
@@ -1256,13 +1293,13 @@ async def p2p_vote(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, 
     if not vset.is_member(peer_val or env.from_val_id or ""):
         raise HTTPException(status_code=403, detail="from_val_id not in ValidatorSet")
 
-    d = _drop_if_dup(peer_key, env)
-    if d is not None:
-        return d
+    payload_in = env.payload or {}
+    if not isinstance(payload_in, dict):
+        raise HTTPException(status_code=400, detail="payload must be object")
 
-    payload = env.payload or {}
+    # ✅ Verify signature against ORIGINAL payload (do NOT inject msg_id first)
     if _require_signed_consensus():
-        sig_hex = str(payload.get("sig_hex") or "").strip().lower()
+        sig_hex = str(payload_in.get("sig_hex") or "").strip().lower()
         if not sig_hex:
             raise HTTPException(status_code=403, detail="missing vote sig_hex")
 
@@ -1271,29 +1308,31 @@ async def p2p_vote(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, 
         if not pubkey_hex:
             raise HTTPException(status_code=403, detail="missing peer pubkey (need HELLO)")
 
-        try:
-            msg = canonical_p2p_sign_bytes(msg_type="VOTE", chain_id=_CHAIN_ID, payload=payload)
-            if not verify_ed25519(pubkey_hex, sig_hex, msg):
-                raise HTTPException(status_code=403, detail="vote signature invalid")
-        except HTTPException:
-            raise
-        except Exception:
-            raise HTTPException(status_code=403, detail="vote signature invalid (bad sig/pubkey encoding)")
+        msg = canonical_p2p_sign_bytes(msg_type="VOTE", chain_id=_CHAIN_ID, payload=payload_in)
+        if not verify_ed25519(pubkey_hex, sig_hex, msg):
+            raise HTTPException(status_code=403, detail="vote signature invalid")
 
-    try:
-        v = Vote(**payload)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"bad vote payload: {e}")
+    # ✅ local-only msg_id (do NOT mutate payload_in)
+    msg_id = str(payload_in.get("msg_id") or _vote_msg_id(payload_in))
 
-    eng = get_engine()
-    try:
-        out = eng.handle_vote(v)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"vote handler exception: {type(e).__name__}: {e}")
+    # ✅ Optional envelope-level dedup (must NOT depend on payload.msg_id)
+    d = _drop_if_dup(peer_key, env)
+    if d is not None:
+        return d
 
-    if not out.get("ok"):
-        raise HTTPException(status_code=400, detail=str(out.get("error") or "vote rejected"))
-    return out
+    # ✅ Build model payload (avoid passing msg_id unless model allows extras)
+    payload_model = dict(payload_in)
+    payload_model.pop("msg_id", None)
+
+    # ✅ Enqueue (MUST await; job MUST be async/awaitable)
+    async def _job(p: Dict[str, Any] = payload_model) -> None:
+        get_engine().handle_vote(Vote(**p))
+
+    res = await _LIM.enqueue(lane="vote", msg_id=msg_id, job=_job)
+    if not bool(res.get("enqueued")):
+        return {"ok": True, "enqueued": False, "dropped": True, "reason": str(res.get("reason") or "queue_full")}
+
+    return {"ok": True, "enqueued": True}
 
 
 # -------------------------
