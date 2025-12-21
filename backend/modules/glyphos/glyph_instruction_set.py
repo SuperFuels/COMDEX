@@ -1,18 +1,72 @@
 # 📁 backend/modules/glyphos/glyph_instruction_set.py
 
-# Symbolic Instruction Definitions for CodexCore
-# Each operator is mapped to a runtime behavior
+from __future__ import annotations
 
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional
+import os
+import asyncio
+import logging
+
+log = logging.getLogger("glyphos.instructions")
 
 # ================================================================
-# 🔄 Auto-load Glyph Registry
+# 🔄 Glyph Registry (OPT-IN, non-blocking, idempotent)
 # ================================================================
-try:
-    from backend.modules.glyphos.glyph_registry_updater import update_glyph_registry
-    update_glyph_registry()
-except Exception as e:
-    print(f"⚠️ [GlyphOS] Glyph registry update skipped: {e}")
+import threading
+from typing import Optional
+
+def _truthy(name: str, default: bool = False) -> bool:
+    v = os.getenv(name)
+    if v is None:
+        return default
+    return v.strip().lower() in {"1", "true", "yes", "on"}
+
+_GLYPHOS_LOCK = threading.Lock()
+_GLYPHOS_STARTED = False
+
+def maybe_update_glyph_registry(*, force: bool = False) -> bool:
+    """
+    Start glyph registry rebuild in the background.
+
+    - Never runs at import time (only when you call it).
+    - Non-blocking (runs in a daemon thread).
+    - Idempotent per-process (won't start twice unless force=True).
+
+    Enable in server:
+      GLYPHOS_REBUILD_ON_STARTUP=1
+
+    Testing defaults:
+      Skips automatically when PYTEST_CURRENT_TEST is set, unless force=True.
+    """
+    global _GLYPHOS_STARTED
+
+    if not force:
+        # Skip during pytest unless explicitly forced
+        if os.getenv("PYTEST_CURRENT_TEST"):
+            return False
+        if not _truthy("GLYPHOS_REBUILD_ON_STARTUP", False):
+            return False
+
+    with _GLYPHOS_LOCK:
+        if _GLYPHOS_STARTED and not force:
+            return False
+        _GLYPHOS_STARTED = True
+
+    def _run() -> None:
+        try:
+            from backend.modules.glyphos.glyph_registry_updater import update_glyph_registry
+        except Exception as e:
+            log.warning("[GlyphOS] glyph_registry_updater import failed (skipping): %s", e)
+            return
+
+        try:
+            update_glyph_registry()
+        except Exception as e:
+            log.warning("[GlyphOS] update_glyph_registry failed: %s", e)
+
+    threading.Thread(target=_run, name="glyphos-registry-rebuild", daemon=True).start()
+    return True
+
 
 class GlyphInstruction:
     def __init__(self, symbol: str, name: str, func: Callable, description: str = ""):
@@ -74,7 +128,6 @@ def op_combine(*args, **kwargs):
 
     elif len(args) == 2:
         first, second = args
-        # If first is not a string -> treat as context
         if not isinstance(first, str) or first == "context":
             return f"[STORE] {second}"
         return f"⊕({first}, {second})"
@@ -139,7 +192,7 @@ INSTRUCTION_SET: Dict[str, GlyphInstruction] = {
 }
 
 
-def get_instruction(symbol: str) -> GlyphInstruction:
+def get_instruction(symbol: str) -> Optional[GlyphInstruction]:
     # Direct match first (raw or canonical)
     if symbol in INSTRUCTION_SET:
         return INSTRUCTION_SET[symbol]
@@ -153,13 +206,13 @@ def get_instruction(symbol: str) -> GlyphInstruction:
     return None
 
 
-def clear_instruction(symbol: str):
+def clear_instruction(symbol: str) -> None:
     """Remove a registered instruction (cleanup)."""
     if symbol in INSTRUCTION_SET:
         del INSTRUCTION_SET[symbol]
 
 
-def register_instruction(symbol: str, instr: GlyphInstruction):
+def register_instruction(symbol: str, instr: GlyphInstruction) -> None:
     """
     Register or override an instruction dynamically.
     Useful for tests or extensions.

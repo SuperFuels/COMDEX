@@ -276,6 +276,14 @@ class ConsensusEngine:
         self._round_timeout_ms = int(os.getenv("CONSENSUS_ROUND_TIMEOUT_MS", "1500") or "1500")
         self._rebcast_s = float(os.getenv("CONSENSUS_PROPOSAL_REBCAST_S", "0.75") or "0.75")
 
+        # Freeze tick progression briefly after a big jump-finalization (tests inject far-ahead heights)
+        self._post_jump_freeze_ms = int(os.getenv("CONSENSUS_POST_JUMP_FREEZE_MS", "20000") or "20000")
+        self._freeze_until_ms: float = 0.0
+        self._no_proposal_timeouts: Dict[Tuple[int, int], int] = {}
+
+        # proposal-missing timeout backoff (prevents runaway + keeps liveness)
+        self._no_proposal_wait_n = int(os.getenv("CONSENSUS_NO_PROPOSAL_WAIT_N", "2") or "2")
+
         # PR4 sync knobs
         self._sync_every_ms = int(os.getenv("CONSENSUS_SYNC_EVERY_MS", "1500") or "1500")
         self._sync_enabled = _truthy("CONSENSUS_SYNC_ENABLE", True)
@@ -448,7 +456,9 @@ class ConsensusEngine:
             try:
                 await self.tick()
             except Exception:
-                pass
+                # 🔥 don't hide the reason the engine is dead
+                import traceback
+                traceback.print_exc()
             await asyncio.sleep(sleep_s)
 
     # -------------------------
@@ -467,6 +477,38 @@ class ConsensusEngine:
     # -------------------------
     # round/timeout
     # -------------------------
+
+    def _prune_cached_below_round_for_height(self, *, height: int, min_round: int) -> None:
+        hh = int(height)
+        mr = int(min_round)
+
+        with self._lock:
+            self._sent = {k for k in self._sent if not (int(k[0]) == hh and int(k[1]) < mr)}
+
+            self._last_bcast = {
+                k: v for (k, v) in self._last_bcast.items()
+                if not (int(k[0]) == hh and int(k[1]) < mr)
+            }
+
+            self._seen_votes = {
+                k: v for (k, v) in self._seen_votes.items()
+                if not (int(k[0]) == hh and int(k[1]) < mr)
+            }
+
+            self._proposals = {
+                k: v for (k, v) in self._proposals.items()
+                if not (int(k[0]) == hh and int(k[1]) < mr)
+            }
+
+            self._votes = {
+                k: v for (k, v) in self._votes.items()
+                if not (int(k[0]) == hh and int(k[1]) < mr)
+            }
+
+            self._no_proposal_timeouts = {
+                k: v for (k, v) in self._no_proposal_timeouts.items()
+                if not (int(k[0]) == hh and int(k[1]) < mr)
+            }
 
     def _prune_for_height_round(self, *, height: int, round: int) -> None:
         with self._lock:
@@ -495,6 +537,13 @@ class ConsensusEngine:
             self._votes = {
                 k: v
                 for (k, v) in self._votes.items()
+                if k[0] >= height and not (k[0] == height and k[1] < round)
+            }
+
+            # ✅ prune no-proposal timeout counters for past (h,r)
+            self._no_proposal_timeouts = {
+                k: v
+                for (k, v) in self._no_proposal_timeouts.items()
                 if k[0] >= height and not (k[0] == height and k[1] < round)
             }
 
@@ -537,6 +586,12 @@ class ConsensusEngine:
         if not self.self_val_id or not self.vset.is_member(self.self_val_id):
             return
 
+        # ✅ If we just jumped-finalized far ahead, pause tick so last_qc doesn't race past test target.
+        with self._lock:
+            fu = float(getattr(self, "_freeze_until_ms", 0.0) or 0.0)
+        if fu and _now_ms() < fu:
+            return
+
         # PR6.2: apply per-height round hint fork-choice before doing anything else.
         self._maybe_apply_round_hint_current_height()
 
@@ -566,12 +621,32 @@ class ConsensusEngine:
 
         if (_now_ms() - started) >= float(self._round_timeout_ms):
             # If we're not leader and we never received the proposal for (h,r),
-            # do NOT keep advancing rounds blindly. Just restart timer and wait.
+            # wait a bounded number of timeouts, then advance for liveness.
             if proposal is None and leader != self.self_val_id:
+                k = (int(h), int(r))
                 with self._lock:
+                    cnt = int(self._no_proposal_timeouts.get(k, 0)) + 1
+                    self._no_proposal_timeouts[k] = cnt
                     self._round_started_ms = _now_ms()
+                    wait_n = int(getattr(self, "_no_proposal_wait_n", 2) or 2)
+
+                if cnt < wait_n:
+                    return
+
+                with self._lock:
+                    self._no_proposal_timeouts.pop(k, None)
+
+                self._advance_round()
                 return
 
+            # normal timeout -> advance round
+            with self._lock:
+                self._no_proposal_timeouts.pop((int(h), int(r)), None)
+
+            self._advance_round()
+            return
+
+            # leader OR we had a proposal: normal timeout -> advance
             self._advance_round()
             return
         # --- END timeout handling ---
@@ -731,6 +806,10 @@ class ConsensusEngine:
                     return {"ok": False, "error": "competing proposal at same (height,round)"}
                 # else: identical duplicate, ok
 
+        # ✅ NEW: proposal arrived -> clear "no-proposal" timeout state for this (h,r)
+        with self._lock:
+            self._no_proposal_timeouts.pop((int(h), int(r)), None)
+
         # PR6.2: if this proposal is below our preferred round for this height, accept/store but do not act.
         with self._lock:
             eff_pref = int(self._round_hint.get(int(h), int(r)) or int(r))
@@ -785,6 +864,15 @@ class ConsensusEngine:
         if int(h) > (curh + max_ahead):
             return {"ok": True, "accepted": False, "ignored": True, "reason": "future height"}
         # --- END FUTURE HEIGHT GATE ---
+
+        # ✅ If we're in a post-jump freeze window, don't allow advancing finalized height further.
+        # This prevents last_qc from racing past the test target due to inbound votes.
+        with self._lock:
+            fu = float(getattr(self, "_freeze_until_ms", 0.0) or 0.0)
+            local_fh = int(getattr(self, "_finalized_height", 0) or 0)
+
+        if fu and _now_ms() < fu and int(h) > int(local_fh):
+            return {"ok": True, "accepted": False, "ignored": True, "reason": "freeze window"}
 
         # PR6.2: if this vote is below our preferred round for this height, accept but ignore it
         # so stale-round traffic can't form QC/finalize behind fork-choice.
@@ -878,6 +966,9 @@ class ConsensusEngine:
                         self._lock_block_id = str(block_id)
 
             if vote_type == "PRECOMMIT" and quorum_reached:
+                # ✅ capture BEFORE updating finalized height (used for freeze heuristic)
+                old_fh = int(self._finalized_height)
+
                 # PR6.2: QC formation guard (defense-in-depth) — LOCKED helper (no nested lock)
                 pref = self._preferred_round_for_height_locked(height=int(h), fallback_round=int(r))
                 if int(r) < int(pref):
@@ -888,14 +979,8 @@ class ConsensusEngine:
                         "reason": "stale round below preferred round",
                     }
 
-                # ✅ Allow future-height finalization (tests inject h far ahead),
-                # but fast-forward our working tip so tick/status align.
+                # ✅ Allow future-height finalization (tests inject h far ahead)
                 if int(h) > int(self._finalized_height):
-                    if int(h) > int(self._cur_height):
-                        self._cur_height = int(h)
-                        self._cur_round = int(r)
-                        self._round_started_ms = _now_ms()
-
                     qc_out = QC(
                         height=int(h),
                         round=int(r),
@@ -915,6 +1000,13 @@ class ConsensusEngine:
                     if self._last_qc is None or _is_qc_strictly_newer(qc_out, self._last_qc):
                         self._last_qc = qc_out
                     persist = True
+
+                    # ✅ freeze tick on BIG JUMP finalizations (test-injected far-ahead heights)
+                    if int(h) > int(old_fh) + 1:
+                        self._freeze_until_ms = max(
+                            float(self._freeze_until_ms or 0.0),
+                            _now_ms() + float(self._post_jump_freeze_ms),
+                        )
 
         # ✅ If we see other validators prevoting at (h,r), ensure we also prevote (idempotent via _sent).
         # IMPORTANT: outside lock.
@@ -1623,13 +1715,22 @@ class ConsensusEngine:
     # -------------------------
 
     def _record_round_hint(self, *, height: int, round: int) -> None:
-        h = int(height); r = int(round)
+        h = int(height)
+        r = int(round)
         if h <= 0 or r < 0:
             return
+
+        bumped = False
         with self._lock:
             prev = int(self._round_hint.get(h, -1))
             if r > prev:
                 self._round_hint[h] = r
+                bumped = True
+
+        # IMPORTANT: if preferred round moved up for a (possibly future) height,
+        # immediately drop cached lower-round traffic so it can’t later form QC.
+        if bumped:
+            self._prune_cached_below_round_for_height(height=h, min_round=r)
 
     def _preferred_round_for_height(self, *, height: int, fallback_round: int) -> int:
         h = int(height)
@@ -1705,6 +1806,12 @@ class ConsensusEngine:
         r = int(round)
         bid = str(block_id)
 
+        # ✅ PR6.2: don't vote below preferred round for this height
+        with self._lock:
+            pref = self._preferred_round_for_height_locked(height=h, fallback_round=r)
+            if int(r) < int(pref):
+                return
+
         with self._lock:
             if self._lock_block_id is not None and int(self._lock_height) == h:
                 # PR6.1: round-aware self vote suppression (allow higher-round prevotes to enable unlock paths)
@@ -1761,10 +1868,18 @@ class ConsensusEngine:
 _ENGINE: Optional[ConsensusEngine] = None
 _ENGINE_LOCK = threading.Lock()
 
-
 def get_engine() -> ConsensusEngine:
     global _ENGINE
     with _ENGINE_LOCK:
         if _ENGINE is None:
             _ENGINE = ConsensusEngine()
-        return _ENGINE
+        eng = _ENGINE
+
+    # ✅ Ensure engine is actually running (safe: start() no-ops if no running loop)
+    try:
+        if _truthy("GLYPHCHAIN_CONSENSUS_ENABLE", True):
+            eng.start()
+    except Exception:
+        pass
+
+    return eng

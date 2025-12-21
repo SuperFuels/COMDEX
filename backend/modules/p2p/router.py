@@ -1234,7 +1234,12 @@ async def p2p_proposal(request: Request, env: P2PEnvelope = Body(...)) -> Dict[s
     if not isinstance(payload_in, dict):
         raise HTTPException(status_code=400, detail="payload must be object")
 
-    # ✅ Verify signature against ORIGINAL payload (tests sign without msg_id)
+    # ✅ Optional envelope-level dedup (must NOT depend on payload.msg_id)
+    d = _drop_if_dup(peer_key, env)
+    if d is not None:
+        return d
+
+    # ✅ Signature verification must use UNSIGNED payload (tests sign without sig_hex/msg_id)
     if _require_signed_consensus():
         sig_hex = str(payload_in.get("sig_hex") or "").strip().lower()
         if not sig_hex:
@@ -1245,31 +1250,53 @@ async def p2p_proposal(request: Request, env: P2PEnvelope = Body(...)) -> Dict[s
         if not pubkey_hex:
             raise HTTPException(status_code=403, detail="missing peer pubkey (need HELLO)")
 
-        msg = canonical_p2p_sign_bytes(msg_type="PROPOSAL", chain_id=_CHAIN_ID, payload=payload_in)
-        if not verify_ed25519(pubkey_hex, sig_hex, msg):
+        unsigned = dict(payload_in)
+        unsigned.pop("sig_hex", None)
+        unsigned.pop("msg_id", None)
+
+        try:
+            msg = canonical_p2p_sign_bytes(msg_type="PROPOSAL", chain_id=_CHAIN_ID, payload=unsigned)
+            ok = verify_ed25519(pubkey_hex, sig_hex, msg)
+        except Exception as e:
+            raise HTTPException(status_code=403, detail=f"proposal signature verify error: {e}")
+
+        if not ok:
             raise HTTPException(status_code=403, detail="proposal signature invalid")
 
     # ✅ local-only msg_id (do NOT mutate payload_in)
     msg_id = str(payload_in.get("msg_id") or _proposal_msg_id(payload_in))
 
-    # ✅ Optional envelope-level dedup (must NOT depend on payload.msg_id)
-    d = _drop_if_dup(peer_key, env)
-    if d is not None:
-        return d
-
     # ✅ Build model payload (avoid passing msg_id unless model allows extras)
     payload_model = dict(payload_in)
     payload_model.pop("msg_id", None)
 
-    # ✅ Enqueue (MUST await; job MUST be async/awaitable)
-    async def _job(p: Dict[str, Any] = payload_model) -> None:
-        get_engine().handle_proposal(Proposal(**p))
+    # ✅ PR6 gate MUST be enforced at HTTP boundary (tests expect 400)
+    try:
+        p = Proposal(**payload_model)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"bad proposal payload: {e}")
 
-    res = await _LIM.enqueue(lane="proposal", msg_id=msg_id, job=_job)
-    if not bool(res.get("enqueued")):
-        return {"ok": True, "enqueued": False, "dropped": True, "reason": str(res.get("reason") or "queue_full")}
+    try:
+        out = get_engine().handle_proposal(p)
+    except Exception as e:
+        # don’t leak a raw 500 without detail during tests
+        raise HTTPException(status_code=500, detail=f"engine.handle_proposal crashed: {e}")
 
-    return {"ok": True, "enqueued": True}
+    if not isinstance(out, dict) or out.get("ok") is not True:
+        raise HTTPException(status_code=400, detail=str((out or {}).get("error") or "proposal rejected"))
+
+    # ✅ Keep queue ONLY for side-effects; never call handle_proposal again.
+    enq = False
+    try:
+        async def _job() -> None:
+            return
+
+        res = await _LIM.enqueue(lane="proposal", msg_id=msg_id, job=_job)
+        enq = bool(res.get("enqueued"))
+    except Exception:
+        enq = False
+
+    return {"ok": True, "enqueued": enq, **out}
 
 
 @router.post("/vote")
@@ -1297,7 +1324,7 @@ async def p2p_vote(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, 
     if not isinstance(payload_in, dict):
         raise HTTPException(status_code=400, detail="payload must be object")
 
-    # ✅ Verify signature against ORIGINAL payload (do NOT inject msg_id first)
+    # ✅ verify signature (sign bytes must exclude sig_hex)
     if _require_signed_consensus():
         sig_hex = str(payload_in.get("sig_hex") or "").strip().lower()
         if not sig_hex:
@@ -1308,31 +1335,35 @@ async def p2p_vote(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, 
         if not pubkey_hex:
             raise HTTPException(status_code=403, detail="missing peer pubkey (need HELLO)")
 
-        msg = canonical_p2p_sign_bytes(msg_type="VOTE", chain_id=_CHAIN_ID, payload=payload_in)
+        unsigned = {k: payload_in[k] for k in payload_in.keys() if k != "sig_hex"}
+        msg = canonical_p2p_sign_bytes(msg_type="VOTE", chain_id=_CHAIN_ID, payload=unsigned)
         if not verify_ed25519(pubkey_hex, sig_hex, msg):
             raise HTTPException(status_code=403, detail="vote signature invalid")
 
-    # ✅ local-only msg_id (do NOT mutate payload_in)
-    msg_id = str(payload_in.get("msg_id") or _vote_msg_id(payload_in))
-
-    # ✅ Optional envelope-level dedup (must NOT depend on payload.msg_id)
+    # optional envelope-level dedup
     d = _drop_if_dup(peer_key, env)
     if d is not None:
         return d
 
-    # ✅ Build model payload (avoid passing msg_id unless model allows extras)
+    # build model payload (don’t pass msg_id)
     payload_model = dict(payload_in)
     payload_model.pop("msg_id", None)
 
-    # ✅ Enqueue (MUST await; job MUST be async/awaitable)
-    async def _job(p: Dict[str, Any] = payload_model) -> None:
-        get_engine().handle_vote(Vote(**p))
+    try:
+        v = Vote(**payload_model)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"bad vote payload: {e}")
 
-    res = await _LIM.enqueue(lane="vote", msg_id=msg_id, job=_job)
-    if not bool(res.get("enqueued")):
-        return {"ok": True, "enqueued": False, "dropped": True, "reason": str(res.get("reason") or "queue_full")}
+    # ✅ PR6 gates must be visible here (tests expect 400)
+    try:
+        out = get_engine().handle_vote(v)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"engine.handle_vote crashed: {e}")
 
-    return {"ok": True, "enqueued": True}
+    if not isinstance(out, dict) or out.get("ok") is not True:
+        raise HTTPException(status_code=400, detail=str((out or {}).get("error") or "vote rejected"))
+
+    return {"ok": True, **out}
 
 
 # -------------------------

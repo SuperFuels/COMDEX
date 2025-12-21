@@ -58,9 +58,21 @@ def _truthy(name: str, default: bool = False) -> bool:
         return default
     return v.lower() in {"1", "true", "yes", "on"}
 
+from contextlib import asynccontextmanager
+import asyncio
+import os
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # --- startup (single place) ---
+
+    # ✅ Start GlyphOS registry rebuild in background (non-blocking, safe for tests)
+    try:
+        if (os.getenv("GLYPHOS_REBUILD_ON_STARTUP", "0") or "").strip().lower() in ("1", "true", "yes", "on"):
+            from backend.modules.glyphos.glyph_instruction_set import maybe_update_glyph_registry
+            maybe_update_glyph_registry()
+    except Exception as e:
+        logger.warning("[GlyphOS] maybe_update_glyph_registry skipped: %s", e)
 
     # chain_sim replay first, then async ingest
     try:
@@ -81,10 +93,14 @@ async def lifespan(app: FastAPI):
         try:
             from backend.modules.consensus.engine import get_engine
             eng = get_engine()
-            eng.start()  # safe: we're inside an async lifespan with a running loop
-            logger.warning("[consensus] started node_id=%s val_id=%s chain_id=%s base_url=%s",
-               os.getenv("GLYPHCHAIN_NODE_ID"), os.getenv("GLYPHCHAIN_SELF_VAL_ID"),
-               os.getenv("GLYPHCHAIN_CHAIN_ID"), os.getenv("GLYPHCHAIN_BASE_URL"))
+            eng.start()
+            logger.warning(
+                "[consensus] started node_id=%s val_id=%s chain_id=%s base_url=%s",
+                os.getenv("GLYPHCHAIN_NODE_ID"),
+                os.getenv("GLYPHCHAIN_SELF_VAL_ID"),
+                os.getenv("GLYPHCHAIN_CHAIN_ID"),
+                os.getenv("GLYPHCHAIN_BASE_URL"),
+            )
             app.state.consensus_engine = eng
             logger.info("[consensus] engine started")
         except Exception as e:
@@ -93,7 +109,6 @@ async def lifespan(app: FastAPI):
     yield
 
     # --- shutdown ---
-    # stop consensus first (so it stops broadcasting while other subsystems unwind)
     try:
         eng = getattr(app.state, "consensus_engine", None)
         if eng is not None:
