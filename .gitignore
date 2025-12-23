@@ -183,3 +183,14 @@ backend/modules/knowledge_graph/knowledge_index_runtime.glyph
 
 # perf harness outputs
 backend/tests/artifacts/*.jsonbackend/tests/artifacts/*.json
+
+# runtime output (never commit)
+data/ledger/*.jsonl
+data/ledger/*.db
+data/photon_sci/*.photon
+data/photon_sci/*.jsonl
+data/logs/**
+exports/**
+
+# optional: if you never want ANY runtime data tracked
+# data/**
