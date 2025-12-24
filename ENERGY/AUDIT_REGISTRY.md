@@ -42,6 +42,7 @@ Data_Path:
   - ENERGY/artifacts/programmable_energy/PE01/3194902/
   - ENERGY/artifacts/programmable_energy/PE01/2959371/
 Run_Hash: f5b939f
+Git_Commit: 62af6f62d81a56418fc8daee2ce539cf02b9c1d5
 Env: Python 3.12.1, pytest 8.4.1, TUPS_V1.2
 Repro_Command: python -m pytest ENERGY/tests/programmable_energy/test_pe01_focus_lock.py -q
 Status: VERIFIED
@@ -50,7 +51,7 @@ Notes:
   - Disturbance model is synthetic; see simulate_pe() in ENERGY/src/programmable_energy/controllers.py and config.json in each artifact folder.
   - This entry is the canonical citation target for downstream docs/papers referencing PE01.
 /EVIDENCE_BLOCK
-
+Git_Commit: 62af6f62d81a56418fc8daee2ce539cf02b9c1d5
 
 PE02 — Split Ratio (PENDING)
 
@@ -101,13 +102,14 @@ Data_Path:
   - ENERGY/artifacts/programmable_energy/PE02/84c8e1f/
   - ENERGY/artifacts/programmable_energy/PE02/5067175/
 Run_Hash: 50c3b5e
+Git_Commit: 62af6f62d81a56418fc8daee2ce539cf02b9c1d5
 Env: Python 3.12.1, pytest 8.4.1, TUPS_V1.2
 Repro_Command: python -m pytest ENERGY/tests/programmable_energy/test_pe02_split_ratio.py -q
 Status: VERIFIED
 Verified_On: 2025-12-24
 Notes: See config.json + plots in artifact folders for target and achieved intensity distributions.
 /EVIDENCE_BLOCK
-
+Git_Commit: 62af6f62d81a56418fc8daee2ce539cf02b9c1d5
 
 ## PE03 — Top-hat Hold (VERIFIED)
 
@@ -143,10 +145,41 @@ Data_Path:
   - ENERGY/artifacts/programmable_energy/PE03/bb608c9/
   - ENERGY/artifacts/programmable_energy/PE03/60fe754/
 Run_Hash: 27e3b26
+Git_Commit: 62af6f62d81a56418fc8daee2ce539cf02b9c1d5
 Env: Python 3.12.1, pytest 8.4.1, TUPS_V1.2
 Repro_Command: python -m pytest ENERGY/tests/programmable_energy/test_pe03_tophat_hold.py -q
 Status: VERIFIED
 Verified_On: 2025-12-24
 Notes: See config.json + plots in artifact folders for target and achieved intensity distributions.
 /EVIDENCE_BLOCK
+Git_Commit: 62af6f62d81a56418fc8daee2ce539cf02b9c1d5
 
+## PE01 — Focus Lock (UPDATED: centroid/tilt servo improvement)
+
+EVIDENCE_BLOCK
+Claim: PE01 Focus Lock — closed-loop phase control maintains ROI energy under disturbance and beats baselines.
+Scope: Programmable Energy / PE01
+Metric(s):
+  - Tessaris beats Open-loop on final eta (see Result)
+  - Tessaris beats SPGD on final eta (see Result)
+Result:
+  - Tessaris eta_final ≈ 0.72050 (run_hash: f5b939f, step=59)
+  - SPGD eta_final ≈ 0.0000850 (run_hash: 2959371, step=59)
+  - Open-loop eta_final ≈ 0.0000850 (run_hash: 3194902, step=59)
+Artifact_ID: PE01_FOCUS_DEC24_2025
+Code_Path: ENERGY/src/programmable_energy/
+Data_Path:
+  - ENERGY/artifacts/programmable_energy/PE01/f5b939f/
+  - ENERGY/artifacts/programmable_energy/PE01/2959371/
+  - ENERGY/artifacts/programmable_energy/PE01/3194902/
+Repro_Command: python -m pytest ENERGY/tests/programmable_energy/test_pe01_focus_lock.py -q
+Env: Python 3.12.1, pytest 8.4.1, TUPS_V1.2
+Status: VERIFIED
+Verified_On: 2025-12-24
+Notes: PE01 controller updated with centroid/tilt servo + ROI-weighted GS; visuals frozen under ENERGY/docs/programmable_energy/figures/PE01_LOCKED/
+/EVIDENCE_BLOCK
+Git_Commit: 62af6f62d81a56418fc8daee2ce539cf02b9c1d5
+
+COMMIT=62af6f62d81a56418fc8daee2ce539cf02b9c1d5
+perl -0777 -i -pe "s/(Run_Hash:\\s*f5b939f\\s*\\n)/\$1Git_Commit: $COMMIT\\n/; s/(Run_Hash:\\s*50c3b5e\\s*\\n)/\$1Git_Commit: $COMMIT\\n/; s/(Run_Hash:\\s*27e3b26\\s*\\n)/\$1Git_Commit: $COMMIT\\n/" /workspaces/COMDEX/ENERGY/AUDIT_REGISTRY.md
+grep -n \"Git_Commit\" /workspaces/COMDEX/ENERGY/AUDIT_REGISTRY.md
