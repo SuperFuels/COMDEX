@@ -42,7 +42,7 @@ Metric(s):
   - Non-collapse: min(eta_last20) >= 0.20 * mean(eta_last20) - 1e-12
 Result:
   - Reference target ROI mass (geometry limit): eta_target ≈ 0.753479
-  - Tessaris (run f5b939f):  eta_final ≈ 0.720499 (step=59)
+  - Tessaris (run f5b939f): eta_final ≈ 0.7204986 (step=59)
   - Open-loop (run 3194902): eta_final ≈ 0.0000850 (step=59)
   - SPGD (run 2959371):      eta_final ≈ 0.0000850 (step=59)
 Artifact_ID: PE01_FOCUS_DEC24_2025
@@ -173,7 +173,7 @@ Notes: See config.json + plots in artifact folders for target and achieved inten
 
 Purpose: confirm PE01 Focus Lock performance is not a lucky seed.
 
-Config: `N=256`, `steps=60`, `drift_sigma=1e-3`, `roi_radius=10`, `target_sigma=6.0`  
+Config: `N=256, steps=60, drift_sigma=1e-3, roi_radius=10, target sigma=6.0`  
 Controller: `TessarisGSController(max_phase_step=0.25)`  
 Reference target ROI mass: `eta_target ≈ 0.753479`
 
@@ -190,3 +190,8 @@ Seed sweep summary (eta_final):
 | 5 | cb00d4f | 0.753878 | 0.752868 | 0.000694 | `ENERGY/artifacts/programmable_energy/PE01_SEEDS/cb00d4f/` |
 
 Interpretation: PE01 Focus Lock is stable and reproducible across multiple seeds; performance approaches the target+ROI geometry limit in this toy model.
+
+
+COMMIT=62af6f62d81a56418fc8daee2ce539cf02b9c1d5
+perl -0777 -i -pe "s/(Run_Hash:\\s*f5b939f\\s*\\n)/\$1Git_Commit: $COMMIT\\n/; s/(Run_Hash:\\s*50c3b5e\\s*\\n)/\$1Git_Commit: $COMMIT\\n/; s/(Run_Hash:\\s*27e3b26\\s*\\n)/\$1Git_Commit: $COMMIT\\n/" /workspaces/COMDEX/ENERGY/AUDIT_REGISTRY.md
+grep -n \"Git_Commit\" /workspaces/COMDEX/ENERGY/AUDIT_REGISTRY.md
