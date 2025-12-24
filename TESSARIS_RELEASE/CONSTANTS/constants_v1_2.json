@@ -1,0 +1,14 @@
+{
+  "artifact_id": "CONST_V12",
+  "version": "1.2",
+  "locked_on_utc": "2025-12-23T02:59Z",
+  "constants": {
+    "hbar": 1e-3,
+    "G": 1e-5,
+    "Lambda": 1e-6,
+    "alpha": 0.5,
+    "beta": 0.2,
+    "UCI_lock": 0.7830
+  },
+  "notes": "Single source of truth for all papers/tests in this release."
+}

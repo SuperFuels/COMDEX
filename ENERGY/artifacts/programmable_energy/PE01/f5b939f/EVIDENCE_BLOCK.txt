@@ -1,0 +1,24 @@
+EVIDENCE_BLOCK
+Claim: PE01 Focus Lock — closed-loop phase control maintains ROI energy under disturbance and beats baselines.
+Scope: Programmable Energy / PE01
+Metric(s):
+  - Final ROI efficiency eta_final >= 10x open_loop_eta_final + 1e-6
+  - Mean eta over last 20 steps >= SPGD mean (last 20) - 1e-12
+  - Non-collapse: min(last20_eta) >= 0.20 * mean(last20_eta) - 1e-12
+Result:
+  - Tessaris eta_final ≈ 0.059603 (run f5b939f)
+  - Open-loop eta_final ≈ 0.0000850 (run 3194902)
+  - SPGD eta_final ≈ 0.0000850 (run 2959371)
+Artifact_ID: PE01_FOCUS_DEC24_2025
+Code_Path: ENERGY/src/programmable_energy/
+Data_Path:
+  - ENERGY/artifacts/programmable_energy/PE01/f5b939f/
+  - ENERGY/artifacts/programmable_energy/PE01/3194902/
+  - ENERGY/artifacts/programmable_energy/PE01/2959371/
+Run_Hash: f5b939f
+Env: Python 3.12.1, pytest 8.4.1, TUPS_V1.2
+Repro_Command: python -m pytest ENERGY/tests/programmable_energy/test_pe01_focus_lock.py -q
+Status: VERIFIED
+Verified_On: 2025-12-24
+Notes: Disturbance model is synthetic; see simulate_pe() in controllers.py and config.json in artifact folder.
+/EVIDENCE_BLOCK

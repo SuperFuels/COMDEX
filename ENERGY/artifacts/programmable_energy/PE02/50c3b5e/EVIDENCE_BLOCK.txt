@@ -1,0 +1,24 @@
+EVIDENCE_BLOCK
+Claim: PE02 Split Ratio — closed-loop phase control achieves a target left/right split ratio under disturbance and beats baselines.
+Scope: Programmable Energy / PE02
+Metric(s):
+  - Split ratio error: err_tess <= 0.5 * err_open + 1e-6
+  - Split ratio error: err_tess <= err_spgd + 1e-6
+  - Absolute accuracy: err_tess <= 0.10
+Result (run hashes):
+  - Tessaris: 50c3b5e
+  - Open-loop: 84c8e1f
+  - SPGD: 5067175
+Artifact_ID: PE02_SPLIT_DEC24_2025
+Code_Path: ENERGY/src/programmable_energy/
+Data_Path:
+  - ENERGY/artifacts/programmable_energy/PE02/50c3b5e/
+  - ENERGY/artifacts/programmable_energy/PE02/84c8e1f/
+  - ENERGY/artifacts/programmable_energy/PE02/5067175/
+Run_Hash: 50c3b5e
+Env: Python 3.12.1, pytest 8.4.1, TUPS_V1.2
+Repro_Command: python -m pytest ENERGY/tests/programmable_energy/test_pe02_split_ratio.py -q
+Status: VERIFIED
+Verified_On: 2025-12-24
+Notes: See config.json + plots in artifact folders for target and achieved intensity distributions.
+/EVIDENCE_BLOCK

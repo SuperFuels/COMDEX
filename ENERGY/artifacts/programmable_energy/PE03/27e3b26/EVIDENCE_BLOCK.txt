@@ -1,0 +1,26 @@
+EVIDENCE_BLOCK
+Claim: PE03 Top-hat Hold — closed-loop phase control approximates a top-hat disk intensity profile under disturbance and beats baselines.
+Scope: Programmable Energy / PE03
+Metric(s):
+  - Shape error: MSE_tess <= MSE_open + 1e-12
+  - Shape error: MSE_tess <= MSE_spgd + 1e-12
+  - Flatness in disk: (std/mean)_tess <= (std/mean)_open + 1e-12
+  - Flatness in disk: (std/mean)_tess <= (std/mean)_spgd + 1e-12
+  - Absolute sanity: MSE_tess <= 5e-5
+Result (run hashes):
+  - Tessaris: 27e3b26
+  - Open-loop: bb608c9
+  - SPGD: 60fe754
+Artifact_ID: PE03_TOPHAT_DEC24_2025
+Code_Path: ENERGY/src/programmable_energy/
+Data_Path:
+  - ENERGY/artifacts/programmable_energy/PE03/27e3b26/
+  - ENERGY/artifacts/programmable_energy/PE03/bb608c9/
+  - ENERGY/artifacts/programmable_energy/PE03/60fe754/
+Run_Hash: 27e3b26
+Env: Python 3.12.1, pytest 8.4.1, TUPS_V1.2
+Repro_Command: python -m pytest ENERGY/tests/programmable_energy/test_pe03_tophat_hold.py -q
+Status: VERIFIED
+Verified_On: 2025-12-24
+Notes: See config.json + plots in artifact folders for target and achieved intensity distributions.
+/EVIDENCE_BLOCK

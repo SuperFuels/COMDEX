@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "AION Verified"
+git commit -m "ENERGY SEAL"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

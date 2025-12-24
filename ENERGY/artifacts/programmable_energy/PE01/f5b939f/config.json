@@ -1,0 +1,16 @@
+{
+  "config": {
+    "N": 256,
+    "alpha": 0.5,
+    "beta": 0.2,
+    "chi": 1.0,
+    "drift_sigma": 0.05,
+    "roi_radius": 10,
+    "seed": 1337,
+    "steps": 60,
+    "tups_version": "TUPS_V1.2"
+  },
+  "controller": "tessaris_gs",
+  "run_hash": "f5b939f",
+  "test_id": "PE01"
+}

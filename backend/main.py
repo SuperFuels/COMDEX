@@ -127,8 +127,24 @@ if ENABLE_CLOUDSQL_WARMUP:
     time.sleep(3)
 
 # ── Logging setup
-logging.basicConfig(level=logging.INFO)
+# ── Logging setup (env-controlled + silence high-frequency loops)
+LOG_LEVEL = (os.getenv("AION_LOG_LEVEL") or "WARNING").upper()
+logging.basicConfig(
+    level=getattr(logging, LOG_LEVEL, logging.WARNING),
+    format="%(levelname)s:%(name)s:%(message)s",
+)
 logger = logging.getLogger("comdex")
+
+# Quiet the known noisy loop loggers (does NOT disable the loops themselves)
+NOISY_LOGGERS = [
+    "backend.modules.skills.strategy_planner",
+    "backend.modules.aion_language.resonant_memory_cache",
+    "SQI Event",
+    "heartbeat",
+    "Θ",
+]
+for _name in NOISY_LOGGERS:
+    logging.getLogger(_name).setLevel(logging.WARNING)
 
 from fastapi import APIRouter, Request
 # ... your other imports ...
