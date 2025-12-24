@@ -1,0 +1,15 @@
+{
+  "config": {
+    "N": 128,
+    "drift_sigma": 0.001,
+    "seed": 1,
+    "steps": 80,
+    "tups_version": "TUPS_V1.2",
+    "well_amp": 10.0,
+    "well_sigma": 10.0
+  },
+  "controller": "open_loop",
+  "git_commit": "aed8f02c3bf318f8f8bceac009ec48d7f7034e44",
+  "run_hash": "f0cd051",
+  "test_id": "G01"
+}
