@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Glyph Chain Test passed3"
+git commit -m "AION Verified"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

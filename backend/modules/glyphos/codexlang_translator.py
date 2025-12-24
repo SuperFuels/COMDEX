@@ -4,17 +4,27 @@ CodexLang Translator
 Translates symbolic glyph strings into structured instruction trees for execution in CodexCore.
 Supports nested parsing, symbolic ops, and runtime dispatch.
 """
-from backend.modules.codex.canonical_ops import CANONICAL_OPS
+
+from __future__ import annotations
+
+from typing import Any, Dict, Optional
+
 from backend.modules.glyphos.glyph_instruction_set import get_instruction
 from backend.modules.symbolic_engine.symbolic_kernels.logic_glyphs import (
-    AndGlyph, OrGlyph, NotGlyph, ImplicationGlyph
+    AndGlyph,
+    OrGlyph,
+    NotGlyph,
+    ImplicationGlyph,
 )
+
+# Canonicalization / collision resolution
+from backend.modules.codex.collision_resolver import resolve_op, ALIASES
+from backend.modules.codex.canonical_ops import CANONICAL_OPS
 
 
 # ────────────────────────────────────────────────
 # CodexLangTranslator class (wrapper)
 # ────────────────────────────────────────────────
-
 class CodexLangTranslator:
     """
     Object-oriented wrapper around CodexLang parsing/translation utilities.
@@ -24,15 +34,15 @@ class CodexLangTranslator:
     def __init__(self, memory=None):
         self.memory = memory
 
-    def parse(self, glyph_string: str):
+    def parse(self, glyph_string: str) -> Dict[str, Any]:
         """Parse CodexLang string into a canonical AST dict."""
         return parse_codexlang_string(glyph_string)
 
-    def to_instruction(self, parsed_glyph: dict):
+    def to_instruction(self, parsed_glyph: Dict[str, Any]):
         """Translate parsed glyph AST into an executable instruction tree."""
         return translate_to_instruction(parsed_glyph, memory=self.memory)
 
-    def run(self, glyph_string: str, context: dict = None, trace: bool = False):
+    def run(self, glyph_string: str, context: Optional[dict] = None, trace: bool = False):
         """
         Full parse -> translate -> execute pipeline.
         If trace=True, returns detailed step log.
@@ -63,6 +73,7 @@ class CodexLangTranslator:
 
         # Stage 5: Execution (through CodexCore)
         from backend.modules.codex.codex_core import CodexCore
+
         codex = CodexCore()
         result = codex.execute(glyph_string, context=context or {})
 
@@ -72,22 +83,11 @@ class CodexLangTranslator:
 
         return result
 
+
 # ────────────────────────────────────────────────
 # Canonicalization
 # ────────────────────────────────────────────────
-from backend.modules.codex.collision_resolver import resolve_op, ALIASES
-from backend.modules.codex.canonical_ops import CANONICAL_OPS
-
-from backend.modules.codex.collision_resolver import resolve_op, ALIASES
-from backend.modules.codex.canonical_ops import CANONICAL_OPS
-
-from backend.modules.codex.collision_resolver import resolve_op, ALIASES
-from backend.modules.codex.canonical_ops import CANONICAL_OPS
-
-from backend.modules.codex.collision_resolver import resolve_op, ALIASES
-from backend.modules.codex.canonical_ops import CANONICAL_OPS
-
-def translate_node(node, context: str = None):
+def translate_node(node: Any, context: str | None = None):
     """
     Walk a parsed node and normalize all ops into canonical domain-tagged keys.
 
@@ -120,7 +120,6 @@ def translate_node(node, context: str = None):
 # ────────────────────────────────────────────────
 # Logic Parsing
 # ────────────────────────────────────────────────
-
 def parse_logic_expression(expr: str):
     """
     Parses logical expressions like:
@@ -132,16 +131,15 @@ def parse_logic_expression(expr: str):
     if "->" in expr:
         left, right = expr.split("->", 1)
         return ImplicationGlyph(parse_logic_expression(left), parse_logic_expression(right))
-    elif "∧" in expr:
+    if "∧" in expr:
         left, right = expr.split("∧", 1)
         return AndGlyph(parse_logic_expression(left), parse_logic_expression(right))
-    elif "∨" in expr:
+    if "∨" in expr:
         left, right = expr.split("∨", 1)
         return OrGlyph(parse_logic_expression(left), parse_logic_expression(right))
-    elif expr.startswith("¬"):
+    if expr.startswith("¬"):
         return NotGlyph(parse_logic_expression(expr[1:].strip()))
-    else:
-        return expr  # Raw variable
+    return expr  # Raw variable
 
 
 def logic_to_tree(expr: str):
@@ -153,25 +151,21 @@ def logic_to_tree(expr: str):
     if "->" in expr:
         left, right = expr.split("->", 1)
         return {"op": "->", "args": [logic_to_tree(left), logic_to_tree(right)]}
-    elif "∧" in expr:
+    if "∧" in expr:
         left, right = expr.split("∧", 1)
         return {"op": "∧", "args": [logic_to_tree(left), logic_to_tree(right)]}
-    elif "∨" in expr:
+    if "∨" in expr:
         left, right = expr.split("∨", 1)
         return {"op": "∨", "args": [logic_to_tree(left), logic_to_tree(right)]}
-    elif expr.startswith("¬"):
+    if expr.startswith("¬"):
         return {"op": "¬", "args": [logic_to_tree(expr[1:].strip())]}
-    else:
-        return expr
+    return expr
 
 
 # ────────────────────────────────────────────────
 # CodexLang Parsing
 # ────────────────────────────────────────────────
-
-from backend.modules.codex.canonical_ops import CANONICAL_OPS
-
-def parse_codexlang_string(code_str):
+def parse_codexlang_string(code_str: Any) -> Dict[str, Any]:
     """
     Converts a symbolic CodexLang string like:
     ⟦ Logic | If: x > 5 -> ⊕(Grow, Reflect) ⟧
@@ -179,26 +173,88 @@ def parse_codexlang_string(code_str):
 
     ✅ SoulLaw-compliant and unpack-safe.
     🧩 Includes debug traces for malformed or atomic expressions.
+
+    Also supports adapter payloads passed as dict-strings (single-quote dicts etc).
     """
     import traceback
 
     try:
-        if not code_str or not isinstance(code_str, str):
-            print("[⚠️ DEBUG] Invalid or empty code_str in parse_codexlang_string")
-            return {"type": "empty", "soul_state": "violated", "message": "Empty or invalid input"}
+        if code_str is None:
+            print("[⚠️ DEBUG] parse_codexlang_string got None")
+            return {
+                "type": "noop",
+                "status": "noop",
+                "glyph": "∅",
+                "reason": "none_input",
+                "action": {},
+                "raw": None,
+                "soul_state": "trusted",
+            }
+
+        # If caller already passed a dict, accept it as a payload wrapper.
+        if isinstance(code_str, dict):
+            action = translate_node(code_str) if "op" in code_str else code_str
+            return {"type": "payload", "tag": "dict", "value": None, "action": action, "soul_state": "trusted"}
+
+        if not isinstance(code_str, str):
+            print(f"[⚠️ DEBUG] Invalid code_str type in parse_codexlang_string: {type(code_str)}")
+            return {
+                "type": "noop",
+                "status": "noop",
+                "glyph": "∅",
+                "reason": "invalid_input_type",
+                "action": {},
+                "raw": repr(code_str),
+                "soul_state": "trusted",
+            }
 
         stripped = code_str.strip()
         print(f"[🧠 DEBUG] parse_codexlang_string CALLED with: {repr(stripped)}")
 
+        # ✅ Empty input -> no-op (prevents downstream validators from treating '' as a glyph)
+        if not stripped or stripped in ("∅", "null", "none"):
+            return {
+                "type": "noop",
+                "status": "noop",
+                "glyph": "∅",
+                "reason": "empty_codexlang_string",
+                "action": {},
+                "raw": stripped,
+                "soul_state": "trusted",
+            }
+
+        # ─────────────────────────────────────────────────────────────
+        # 🧩 Special-case: dict-string payloads (from adapters)
+        #   Example: "{'op': '⊕', 'args': ['A','B']}"
+        # ─────────────────────────────────────────────────────────────
+        if stripped.startswith("{") and stripped.endswith("}"):
+            # Try JSON first (double quotes), then ast.literal_eval (single quotes)
+            obj = None
+            try:
+                import json as _json
+
+                obj = _json.loads(stripped)
+            except Exception:
+                try:
+                    import ast
+
+                    obj = ast.literal_eval(stripped)
+                except Exception:
+                    obj = None
+
+            if isinstance(obj, dict):
+                action = translate_node(obj) if "op" in obj else obj
+                return {"type": "payload", "tag": "dict", "value": None, "action": action, "soul_state": "trusted"}
+
         # 🩹 Atomic single-symbol guard
-        if not any(sym in stripped for sym in ["->", ":", "⊕", "⊗", "↔", "="]):
+        if not any(sym in stripped for sym in ["->", ":", "⊕", "⊗", "↔", "=", "⟦", "⟧"]):
             print(f"[DEBUG] Treating '{stripped}' as atomic Codex term")
             return {"type": "atom", "value": stripped, "ast": None, "soul_state": "trusted"}
 
         # ──────────────────────────────────────────────
         body = stripped.strip("⟦⟧ ").strip()
         if not body:
-            return {"type": "empty", "soul_state": "violated", "message": "Empty glyph string"}
+            return {"type": "noop", "status": "noop", "glyph": "∅", "reason": "empty_body", "action": {}, "soul_state": "trusted"}
 
         # 🧩 Case 1 - shorthand form (no ->)
         if "->" not in body:
@@ -208,7 +264,7 @@ def parse_codexlang_string(code_str):
                     "type": "incomplete",
                     "expr": body,
                     "soul_state": "partial",
-                    "message": "Missing ':' or '|' in shorthand CodexLang"
+                    "message": "Missing ':' or '|' in shorthand CodexLang",
                 }
 
             try:
@@ -220,7 +276,7 @@ def parse_codexlang_string(code_str):
                     "type": "incomplete",
                     "expr": body,
                     "soul_state": "partial",
-                    "message": f"Malformed shorthand split: {ve}"
+                    "message": f"Malformed shorthand split: {ve}",
                 }
 
             parsed_action = parse_action_expr(action.strip())
@@ -230,7 +286,7 @@ def parse_codexlang_string(code_str):
                 "tag": tag.strip(),
                 "value": None,
                 "action": parsed_action,
-                "soul_state": "trusted"
+                "soul_state": "trusted",
             }
 
         # 🧩 Case 2 - full form (->)
@@ -241,7 +297,7 @@ def parse_codexlang_string(code_str):
                 "type": "incomplete",
                 "expr": body,
                 "soul_state": "partial",
-                "message": "Missing right-hand operand after '->'"
+                "message": "Missing right-hand operand after '->'",
             }
 
         left, action = parts
@@ -251,7 +307,7 @@ def parse_codexlang_string(code_str):
                 "type": "incomplete",
                 "expr": left,
                 "soul_state": "partial",
-                "message": "Malformed left-hand side"
+                "message": "Malformed left-hand side",
             }
 
         try:
@@ -263,18 +319,18 @@ def parse_codexlang_string(code_str):
                 "type": "incomplete",
                 "expr": left,
                 "soul_state": "partial",
-                "message": f"Malformed left-hand type/tag/value section: {ve}"
+                "message": f"Malformed left-hand type/tag/value section: {ve}",
             }
 
         parsed_action = parse_action_expr(action.strip())
         parsed_action = translate_node(parsed_action, context=g_type.strip().lower())
 
-        parsed = {
+        parsed: Dict[str, Any] = {
             "type": g_type.strip().lower(),
             "tag": tag.strip(),
             "value": value.strip(),
             "action": parsed_action,
-            "soul_state": "trusted"
+            "soul_state": "trusted",
         }
 
         if parsed["type"] == "logic":
@@ -286,14 +342,10 @@ def parse_codexlang_string(code_str):
     except Exception as e:
         print(f"[❌ DEBUG] Exception in parse_codexlang_string: {e}")
         traceback.print_exc()
-        return {
-            "type": "error",
-            "soul_state": "violated",
-            "expr": code_str,
-            "message": str(e)
-        }
+        return {"type": "error", "soul_state": "violated", "expr": str(code_str), "message": str(e)}
 
-def parse_action_expr(expr):
+
+def parse_action_expr(expr: str):
     """
     Recursively parses nested operator expressions like:
     ⊕(Grow, ↔(Dream, Reflect))
@@ -310,7 +362,7 @@ def parse_action_expr(expr):
         return expr
 
     # Extract operator before the first "("
-    op = expr[:expr.find("(")].strip()
+    op = expr[: expr.find("(")].strip()
     inner = expr[expr.find("(") + 1 : -1]
 
     args = []
@@ -335,72 +387,61 @@ def parse_action_expr(expr):
 # ────────────────────────────────────────────────
 # Translation / Execution
 # ────────────────────────────────────────────────
-
-def translate_to_instruction(parsed_glyph, memory=None, trace_log=None):
+def translate_to_instruction(parsed_glyph: Dict[str, Any], memory=None, trace_log=None):
     def eval_action(action):
         if isinstance(action, str):
             instr = get_instruction(action)
             result = instr.execute() if instr else action
             if trace_log is not None:
-                trace_log.append({
-                    "stage": "execute",
-                    "op": action,
-                    "args": [],
-                    "result": result,
-                })
+                trace_log.append({"stage": "execute", "op": action, "args": [], "result": result})
             return result
 
         elif isinstance(action, dict):
-            op = action.get("op")
-            args = [eval_action(arg) for arg in action.get("args", [])]
-            instr = get_instruction(op)
-            if instr:
-                try:
-                    result = instr.execute(*args, memory=memory)
-                except TypeError:
-                    result = instr.execute(*args)
-            else:
-                result = {"error": f"Unknown operator: {op}", "args": args}
+            # If this is a full instruction node, expect {"op":..., "args":[...]}
+            if "op" in action:
+                op = action.get("op")
+                args = [eval_action(arg) for arg in action.get("args", [])]
+                instr = get_instruction(op)
+                if instr:
+                    try:
+                        result = instr.execute(*args, memory=memory)
+                    except TypeError:
+                        result = instr.execute(*args)
+                else:
+                    result = {"error": f"Unknown operator: {op}", "args": args}
 
+                if trace_log is not None:
+                    trace_log.append({"stage": "execute", "op": op, "args": args, "result": result})
+                return result
+
+            # Otherwise treat as already-materialized payload
             if trace_log is not None:
-                trace_log.append({
-                    "stage": "execute",
-                    "op": op,
-                    "args": args,
-                    "result": result,
-                })
-            return result
+                trace_log.append({"stage": "payload", "op": "dict", "result": action})
+            return action
 
         elif hasattr(action, "evaluate"):
             result = action.evaluate()
             if trace_log is not None:
-                trace_log.append({
-                    "stage": "evaluate",
-                    "op": type(action).__name__,
-                    "result": result,
-                })
+                trace_log.append({"stage": "evaluate", "op": type(action).__name__, "result": result})
             return result
 
         # ⚠️ Always log fallthrough
         if trace_log is not None:
-            trace_log.append({
-                "stage": "fallback",
-                "op": str(action),
-                "result": action,
-            })
+            trace_log.append({"stage": "fallback", "op": str(action), "result": action})
         return action
 
     return eval_action(parsed_glyph.get("action"))
 
 
-def run_codexlang_string(glyph_string: str, context: dict = {}):
+def run_codexlang_string(glyph_string: str, context: Optional[dict] = None):
     """
     Full CodexLang runtime: parse, dispatch, and execute symbolic glyph string.
     Uses CodexCore for actual logic execution.
     """
     from backend.modules.codex.codex_core import CodexCore  # ⬅ Delayed import
+
     codex = CodexCore()
-    return codex.execute(glyph_string, context=context)
+    return codex.execute(glyph_string, context=context or {})
 
 
 # Debug entry point

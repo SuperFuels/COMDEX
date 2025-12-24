@@ -21,6 +21,7 @@
 
     "engine": { "type": "string" },
     "metadata": { "type": "object" },
+    "context": { "type": "object" },
 
     "type": { "type": "string" },
     "timestamp": { "type": "number" },

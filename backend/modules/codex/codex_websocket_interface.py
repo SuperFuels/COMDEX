@@ -2,6 +2,7 @@
 
 import json
 import traceback
+import asyncio
 from fastapi import WebSocket, WebSocketDisconnect
 
 from backend.modules.codex.codex_core import CodexCore
@@ -9,7 +10,9 @@ from backend.modules.codex.codex_metrics import CodexMetrics
 from backend.modules.codex.codex_cost_estimator import CodexCostEstimator
 from backend.modules.codex.codex_emulator import CodexEmulator
 from backend.modules.glyphos.codexlang_translator import run_codexlang_string
-from backend.modules.hexcore.memory_engine import MEMORY
+
+# 🔥 Circular Import Fix: Removed top-level 'MEMORY' import. 
+# It is now imported lazily within the handlers below.
 
 # 🛰️ Lazy import dispatcher to break circular import
 def _get_handle_glyphnet_event():
@@ -67,6 +70,9 @@ async def broadcast_glyph_execution(glyph, result, context):
 
 # ✅ WebSocket Handler
 async def codex_ws_handler(websocket: WebSocket):
+    # Local import to prevent boot-time circularity
+    from backend.modules.hexcore.memory_engine import MEMORY
+    
     await websocket.accept()
     connected_clients.add(websocket)
     print("🌐 Codex WebSocket connected")
@@ -186,8 +192,6 @@ async def send_codex_ws_event(event_type: str, payload: dict):
             connected_clients.discard(client)
 
 
-import asyncio
-
 def send_codex_ws_event_sync(event_type: str, payload: dict):
     """
     Schedule a websocket event send, safe in both async and sync contexts.
@@ -199,16 +203,18 @@ def send_codex_ws_event_sync(event_type: str, payload: dict):
         else:
             loop.run_until_complete(send_codex_ws_event(event_type, payload))
     except Exception as e:
-        print(f"⚠️ WS broadcast skipped: {e}")
+        # Fallback to creating a new loop if one doesn't exist
+        try:
+            asyncio.run(send_codex_ws_event(event_type, payload))
+        except:
+            print(f"⚠️ WS broadcast skipped: {e}")
 
 # ✅ New: safe, non-circular tick broadcaster
 def broadcast_tick(data: dict):
     """
     Lightweight tick broadcaster used by CodexFabric and Scheduler loops.
-    Avoids circular imports by dispatching through send_codex_ws_event_sync lazily.
     """
     try:
-        # direct reference instead of re-importing
         send_codex_ws_event_sync("tick", data)
     except Exception as e:
         print(f"[WS] Tick broadcast failed: {e}")

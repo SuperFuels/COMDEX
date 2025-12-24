@@ -1,142 +1,142 @@
 [
   {
-    "timestamp": 1766174869.8107517,
-    "user_text": "Can you explain the resonance drift?",
-    "system_response": "Analyzing fluctuations.",
-    "emotion_state": "analytical",
-    "semantic_field": "resonance"
+    "timestamp": 1766535794.3418002,
+    "user_text": "zu",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174869.8111255,
-    "user_text": "What happens if we overdrive it?",
-    "system_response": "Curious - running forecast.",
-    "emotion_state": "curious",
-    "semantic_field": "exploration"
+    "timestamp": 1766535796.3046854,
+    "user_text": "zulu",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174869.8115375,
-    "user_text": "I understand your reasoning.",
-    "system_response": "Empathetic confirmation.",
-    "emotion_state": "empathetic",
-    "semantic_field": "reflection"
+    "timestamp": 1766535798.240678,
+    "user_text": "zuni",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174869.8118718,
-    "user_text": "That was accurate.",
-    "system_response": "Confident acknowledgment.",
-    "emotion_state": "confident",
-    "semantic_field": "validation"
+    "timestamp": 1766535800.2005305,
+    "user_text": "zurich",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174983.6231537,
-    "user_text": "System feels balanced.",
-    "system_response": "Affirming equilibrium.",
-    "emotion_state": "calm",
-    "semantic_field": "stability"
+    "timestamp": 1766535802.1153684,
+    "user_text": "zwieback",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174983.623579,
-    "user_text": "Analyze the resonance pattern.",
-    "system_response": "Computing harmonic spectrum.",
-    "emotion_state": "analytical",
-    "semantic_field": "resonance"
+    "timestamp": 1766535804.0780067,
+    "user_text": "zygodactyl",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174983.6239338,
-    "user_text": "Could it self-correct?",
-    "system_response": "Curious - evaluating self-regulation.",
-    "emotion_state": "curious",
-    "semantic_field": "adaptation"
+    "timestamp": 1766535806.035421,
+    "user_text": "zygoma",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174983.6270149,
-    "user_text": "This system feels stable.",
-    "system_response": "Affirming balance.",
-    "emotion_state": "calm",
-    "semantic_field": "stability"
+    "timestamp": 1766535807.9856071,
+    "user_text": "zygomatic",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174983.6273654,
-    "user_text": "Can you explain the resonance drift?",
-    "system_response": "Analyzing fluctuations.",
-    "emotion_state": "analytical",
-    "semantic_field": "resonance"
+    "timestamp": 1766535809.898453,
+    "user_text": "zygomorphic",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174983.6277065,
-    "user_text": "What happens if we overdrive it?",
-    "system_response": "Curious - running forecast.",
-    "emotion_state": "curious",
-    "semantic_field": "exploration"
+    "timestamp": 1766535811.889363,
+    "user_text": "zygophyllaceae",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174983.6280625,
-    "user_text": "I understand your reasoning.",
-    "system_response": "Empathetic confirmation.",
-    "emotion_state": "empathetic",
-    "semantic_field": "reflection"
+    "timestamp": 1766535813.835434,
+    "user_text": "zygophyllum",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766174983.6284409,
-    "user_text": "That was accurate.",
-    "system_response": "Confident acknowledgment.",
-    "emotion_state": "confident",
-    "semantic_field": "validation"
+    "timestamp": 1766535815.7350578,
+    "user_text": "zygoptera",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766175200.3331902,
-    "user_text": "System feels balanced.",
-    "system_response": "Affirming equilibrium.",
-    "emotion_state": "calm",
-    "semantic_field": "stability"
+    "timestamp": 1766535817.7952294,
+    "user_text": "zygospore",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766175200.3336833,
-    "user_text": "Analyze the resonance pattern.",
-    "system_response": "Computing harmonic spectrum.",
-    "emotion_state": "analytical",
-    "semantic_field": "resonance"
+    "timestamp": 1766535819.741061,
+    "user_text": "zygote",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766175200.334166,
-    "user_text": "Could it self-correct?",
-    "system_response": "Curious - evaluating self-regulation.",
-    "emotion_state": "curious",
-    "semantic_field": "adaptation"
+    "timestamp": 1766535821.7486956,
+    "user_text": "zygotene",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766175200.3386915,
-    "user_text": "This system feels stable.",
-    "system_response": "Affirming balance.",
-    "emotion_state": "calm",
-    "semantic_field": "stability"
+    "timestamp": 1766535823.7449017,
+    "user_text": "zygotic",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766175200.3391774,
-    "user_text": "Can you explain the resonance drift?",
-    "system_response": "Analyzing fluctuations.",
-    "emotion_state": "analytical",
-    "semantic_field": "resonance"
+    "timestamp": 1766535825.7077818,
+    "user_text": "zymase",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766175200.3396115,
-    "user_text": "What happens if we overdrive it?",
-    "system_response": "Curious - running forecast.",
-    "emotion_state": "curious",
-    "semantic_field": "exploration"
+    "timestamp": 1766535827.7248633,
+    "user_text": "zymology",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766175200.3402166,
-    "user_text": "I understand your reasoning.",
-    "system_response": "Empathetic confirmation.",
-    "emotion_state": "empathetic",
-    "semantic_field": "reflection"
+    "timestamp": 1766535829.661223,
+    "user_text": "zymosis",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   },
   {
-    "timestamp": 1766175200.3406866,
-    "user_text": "That was accurate.",
-    "system_response": "Confident acknowledgment.",
-    "emotion_state": "confident",
-    "semantic_field": "validation"
+    "timestamp": 1766535831.602696,
+    "user_text": "zymotic",
+    "system_response": "definitions:",
+    "emotion_state": null,
+    "semantic_field": "lexical_training"
   }
 ]

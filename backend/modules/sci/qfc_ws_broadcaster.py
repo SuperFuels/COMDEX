@@ -1,81 +1,133 @@
 # File: backend/modules/sci/qfc_ws_broadcaster.py
+
 import time
-import asyncio
+import logging
 from typing import Dict, Any, Optional
+
 from backend.modules.codex.codex_websocket_interface import send_codex_ws_event
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_QFC_BROADCAST_EVENT = "qfc_field_update"
+
+
+def _safe_list(v: Any) -> list:
+    return v if isinstance(v, list) else []
+
+
+def _safe_dict(v: Any) -> dict:
+    return v if isinstance(v, dict) else {}
+
+
+def _extract_container_id(field_state: Dict[str, Any], metadata: Optional[Dict[str, Any]] = None) -> Optional[str]:
+    """
+    Try multiple common shapes:
+      - metadata.container_id
+      - field_state.container_id
+      - field_state.context.container_id
+      - field_state.metadata.context.container_id
+    """
+    if isinstance(metadata, dict):
+        cid = metadata.get("container_id")
+        if isinstance(cid, str) and cid:
+            return cid
+
+    cid2 = field_state.get("container_id")
+    if isinstance(cid2, str) and cid2:
+        return cid2
+
+    ctx = field_state.get("context")
+    if isinstance(ctx, dict):
+        cid3 = ctx.get("container_id")
+        if isinstance(cid3, str) and cid3:
+            return cid3
+
+    meta = field_state.get("metadata")
+    if isinstance(meta, dict) and isinstance(meta.get("context"), dict):
+        cid4 = meta["context"].get("container_id")
+        if isinstance(cid4, str) and cid4:
+            return cid4
+
+    return None
+
 
 async def broadcast_qfc_state(
     field_state: Dict[str, Any],
     observer_id: Optional[str] = None,
     event_type: Optional[str] = None,
-    metadata: Optional[Dict[str, Any]] = None
-):
+    metadata: Optional[Dict[str, Any]] = None,
+    container_id: Optional[str] = None,
+) -> None:
     """
-    Broadcasts the current Quantum Field Canvas (QFC) state over WebSocket.
-    Triggered by replay ticks, field mutations, plugins, or manual interactions.
+    Broadcast QFC state over Codex websocket.
 
-    Args:
-        field_state: Current state of the QFC field (nodes, links, glyphs, etc.).
-        observer_id: Optional identifier for the observer or HUD.
-        event_type: Optional override for event name (default is "qfc_field_update").
-        metadata: Optional additional metadata to include in the broadcast.
+    IMPORTANT:
+      send_codex_ws_event signature is:
+        send_codex_ws_event(event_type: str, payload: dict)
+      so we must pass TWO args.
     """
-    payload = {
-        "event": event_type or DEFAULT_QFC_BROADCAST_EVENT,
-        "data": {
-            "observer_id": observer_id or "anonymous",
-            "nodes": field_state.get("nodes", []),
-            "links": field_state.get("links", []),
-            "glyphs": field_state.get("glyphs", []),
-            "scrolls": field_state.get("scrolls", []),
-            "qwaveBeams": field_state.get("qwaveBeams", []),
-            "entanglement": field_state.get("entanglement", {}),
-            "sqi_metrics": field_state.get("sqi_metrics", {}),
-            "camera": field_state.get("camera", {}),
-            "tags": field_state.get("reflection_tags", []),
-        }
+    event = event_type or DEFAULT_QFC_BROADCAST_EVENT
+    obs = observer_id or "anonymous"
+    cid = container_id or _extract_container_id(field_state, metadata) or "unknown"
+
+    # Canonical UI payload
+    data: Dict[str, Any] = {
+        "observer_id": obs,
+        "nodes": _safe_list(field_state.get("nodes")),
+        "links": _safe_list(field_state.get("links")),
+        "glyphs": _safe_list(field_state.get("glyphs")),
+        "scrolls": _safe_list(field_state.get("scrolls")),
+        "qwaveBeams": _safe_list(field_state.get("qwaveBeams")),
+        "entanglement": _safe_dict(field_state.get("entanglement")),
+        "sqi_metrics": _safe_dict(field_state.get("sqi_metrics")),
+        "camera": _safe_dict(field_state.get("camera")),
+        "tags": _safe_list(field_state.get("reflection_tags")),
     }
 
-    # Inject metadata if provided
-    if metadata:
-        payload["data"]["metadata"] = metadata
+    if isinstance(metadata, dict) and metadata:
+        data["metadata"] = dict(metadata)
+
+    # Packet wrapper (routing + backwards compatibility)
+    packet: Dict[str, Any] = {
+        "event": event,
+        "container_id": cid,
+        "observer_id": obs,
+        "data": data,
+        "timestamp": time.time(),
+    }
 
     try:
-        await send_codex_ws_event(payload)
-        print(f"📡 Broadcasted QFC field update for observer: {observer_id or 'anonymous'}")
+        await send_codex_ws_event(event, packet)
+        if getattr(logger, "debug", None):
+            logger.debug(f"[QFC] broadcast event={event} observer={obs} container={cid}")
+        else:
+            print(f"📡 Broadcasted QFC '{event}' for observer: {obs} | container: {cid}")
     except Exception as e:
-        print(f"❌ Failed to broadcast QFC field update: {e}")
+        logger.warning(f"[QFC] broadcast failed event={event} container={cid}: {e}")
+
 
 async def broadcast_qfc_tick_update(
     tick_id: int,
     frame_state: Dict[str, Any],
     observer_id: Optional[str] = None,
     total_ticks: Optional[int] = None,
-    source: Optional[str] = None
-):
+    source: Optional[str] = None,
+    container_id: Optional[str] = None,
+) -> None:
     """
-    Broadcasts a single QFC tick/frame update during symbolic replay or Codex execution.
-    Designed for GHX Timeline, QWave replays, collapse tracing, etc.
-
-    Args:
-        tick_id: Current tick/frame number.
-        frame_state: State of the QFC field at this tick (nodes, links, beams, etc.).
-        observer_id: Optional HUD or agent ID viewing the replay.
-        total_ticks: Optional total number of ticks (for HUD progress tracking).
-        source: Optional identifier for what triggered the broadcast (e.g., "GHXReplay", "plugin.sqi").
+    Broadcast a single QFC tick/frame update during replay/execution.
     """
-    metadata = {
+    meta: Dict[str, Any] = {
         "tick": tick_id,
         "total_ticks": total_ticks,
         "source": source or "replay",
-        "timestamp": time.time()
+        "timestamp": time.time(),
     }
 
     await broadcast_qfc_state(
         field_state=frame_state,
         observer_id=observer_id,
         event_type="qfc_sync_tick",
-        metadata=metadata
+        metadata=meta,
+        container_id=container_id,
     )

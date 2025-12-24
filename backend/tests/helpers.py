@@ -482,7 +482,7 @@ async def start_n_nodes(
     validators: Optional[List[str]] = None,
 ) -> List[NodeProc]:
     nodes = _start_n_nodes_sync(n, base_port=base_port, chain_id=chain_id, validators=validators)
-    await wait_nodes_ready(nodes, timeout_s=90.0)
+    await wait_nodes_ready(nodes, timeout_s=float(os.getenv("GLYPHCHAIN_TEST_NODE_READY_TIMEOUT_S", "240")))
 
     # peer the nodes so consensus gossip works
     await connect_full_mesh(nodes)

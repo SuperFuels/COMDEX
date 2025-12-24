@@ -1048,5 +1048,13 @@
       "ablative",
       "ablative case"
     ]
+  },
+  "photon": {
+    "timestamp": 1766533440.9026737,
+    "SQI": 0.5,
+    "\u03c1": 0.85,
+    "\u012a": 0.0,
+    "E": 0.65192,
+    "keywords": []
   }
 }

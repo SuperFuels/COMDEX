@@ -250,5 +250,12 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "symatics_quantum_field->ucs_hub": {
+    "from": "symatics_quantum_field",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }

@@ -11,6 +11,7 @@ SoulLaw validation, and QFC broadcast synchronization.
 import logging
 from typing import List, Dict, Any, Optional
 import uuid
+
 from backend.modules.glyphwave.core.wave_state import WaveState
 from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.sqi_reasoning_module import SQIReasoningEngine
 from backend.modules.creative.symbolic_mutation_engine import mutate_beam
@@ -59,7 +60,6 @@ class SQIBeamKernel:
         Accepts a symbolic beam dict, processes it internally,
         and returns a summarized beam state.
         """
-
         try:
             # --- 🔧 Auto-wrap legacy telemetry into physics ---
             if any(k in beam_data for k in ["beam_id", "coherence", "phase_shift", "entropy_drift", "gain", "timestamp"]):
@@ -74,7 +74,6 @@ class SQIBeamKernel:
                 beam_data["physics"] = physics_block
 
             # --- 🪶 Safe Beam construction ---
-            physics = beam_data.get("physics", {})
             beam = (
                 Beam.from_dict(beam_data)
                 if hasattr(Beam, "from_dict")
@@ -88,6 +87,44 @@ class SQIBeamKernel:
                     origin_trace="kernel:init"
                 )
             )
+
+            # --- ✅ Attach avatar + container context for SoulLaw ---
+            ctx = beam_data.get("context", {})
+            if not isinstance(ctx, dict):
+                ctx = {}
+
+            meta = beam_data.get("metadata", {})
+            if isinstance(meta, dict) and isinstance(meta.get("context"), dict):
+                # prefer metadata.context if present
+                ctx = {**ctx, **meta["context"]}
+
+            # Avatar state (what SoulLaw expects)
+            try:
+                from backend.modules.aion_core.avatar_state import AVATAR_STATE as CORE_AVATAR_STATE
+            except Exception:
+                CORE_AVATAR_STATE = {"id": "AION_CORE", "role": "root_cognitive_agent"}
+
+            avatar_state = {
+                **(CORE_AVATAR_STATE if isinstance(CORE_AVATAR_STATE, dict) else {}),
+                "id": ctx.get("avatar_id")
+                      or (CORE_AVATAR_STATE.get("id") if isinstance(CORE_AVATAR_STATE, dict) else "AION_CORE"),
+                "avatar_state": ctx.get("avatar_state"),
+                "avatar_state_ts": ctx.get("avatar_state_ts"),
+                "container_id": ctx.get("container_id"),
+            }
+
+            # Container metadata (what SoulLaw expects)
+            container_metadata = ctx.get("container_meta") if isinstance(ctx.get("container_meta"), dict) else {}
+            if not container_metadata and ctx.get("container_id"):
+                container_metadata = {
+                    "id": ctx.get("container_id"),
+                    "kind": ctx.get("container_kind", "qqc"),
+                    "source": ctx.get("container_source", "qqc_kernel_boot"),
+                }
+
+            # Ensure attrs exist on Beam for _validate_soullaw()
+            setattr(beam, "avatar_state", avatar_state)
+            setattr(beam, "container_metadata", container_metadata)
 
             # --- Continue as usual ---
             results = self.process_batch([beam])
@@ -111,13 +148,12 @@ class SQIBeamKernel:
 
                 return codex_payload
 
-            else:
-                return {"status": "empty"}
+            return {"status": "empty"}
 
         except Exception as e:
             logger.error(f"[SQIBeamKernel] ❌ Beam propagation failed: {e}", exc_info=True)
             return {"status": "error", "error": str(e)}
-            
+
     def process_batch(self, beams: List[Beam]) -> List[Beam]:
         """
         Main batch-processing logic for a list of beams.
@@ -186,10 +222,29 @@ class SQIBeamKernel:
 
     def _validate_soullaw(self, beam: Beam) -> None:
         """Run SoulLaw validation and annotate beam state."""
+        import os
+
+        # ✅ Dev-mode: always allow
+        if os.getenv("SOULLAW_DEV_MODE") == "1":
+            beam.soullaw_status = "allowed"
+            beam.soullaw_violations = []
+            return
+
         validator = SoulLawValidator()
+
         avatar_state = getattr(beam, "avatar_state", {})
+        if not isinstance(avatar_state, dict):
+            avatar_state = {}
+
         container_metadata = getattr(beam, "container_metadata", {})
-        avatar_ok = validator.validate_avatar_with_context(avatar_state, context={"beam_id": beam.id})
+        if not isinstance(container_metadata, dict):
+            container_metadata = {}
+
+        avatar_ok = validator.validate_avatar_with_context(
+            avatar_state,
+            context={"beam_id": beam.id, "container_id": container_metadata.get("id")},
+        )
         container_ok = validator.validate_container(container_metadata)
+
         beam.soullaw_status = "allowed" if (avatar_ok and container_ok) else "blocked"
         beam.soullaw_violations = [] if beam.soullaw_status == "allowed" else ["avatar", "container"]

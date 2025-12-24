@@ -7,11 +7,10 @@ from typing import List, Dict, Optional, Any, Union
 from difflib import SequenceMatcher
 
 from backend.modules.sqi.sqi_scorer import compute_entropy, compute_symmetry_score
-from backend.modules.visualization.glyph_to_qfc import to_qfc_payload
-from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
 
 # 📦 Path to saved pattern definitions
 PATTERN_DB_PATH = "backend/data/patterns/pattern_registry.json"
+
 
 def stringify_glyph(glyph: Union[str, Dict[str, Any]]) -> str:
     """
@@ -46,6 +45,7 @@ class Pattern:
 
         self.pattern_id = pattern_id or f"pattern-{str(uuid.uuid4())[:8]}"
         self.signature = self._generate_signature()
+
         stringified_glyphs = [stringify_glyph(g) for g in self.glyphs]
         self.entropy = compute_entropy(stringified_glyphs)
         self.symmetry = compute_symmetry_score(stringified_glyphs)
@@ -71,7 +71,7 @@ class Pattern:
         }
 
     @staticmethod
-    def from_dict(data: Dict) -> 'Pattern':
+    def from_dict(data: Dict) -> "Pattern":
         return Pattern(
             name=data["name"],
             pattern_id=data.get("pattern_id"),
@@ -81,7 +81,7 @@ class Pattern:
             prediction=data.get("prediction", []),
             sqi_score=data.get("sqi_score"),
             source_container=data.get("source_container"),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
 
@@ -112,7 +112,11 @@ class PatternRegistry:
         self.save()
 
         # ✅ QFC broadcast after registration
+        # IMPORTANT: defer these imports to avoid circular-import crashes at startup
         try:
+            from backend.modules.visualization.glyph_to_qfc import to_qfc_payload
+            from backend.modules.visualization.broadcast_qfc_update import broadcast_qfc_update
+
             node_payload = {
                 "glyph": "🧩",
                 "op": "pattern_register",
@@ -123,14 +127,22 @@ class PatternRegistry:
                     "sqi_score": pattern.sqi_score,
                     "entropy": pattern.entropy,
                     "symmetry": pattern.symmetry,
-                }
+                },
             }
             context = {
                 "container_id": pattern.source_container or "unknown",
                 "source_node": pattern.pattern_id,
             }
             qfc_payload = to_qfc_payload(node_payload, context)
-            asyncio.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
+
+            # only schedule if there is a running loop
+            try:
+                loop = asyncio.get_running_loop()
+                loop.create_task(broadcast_qfc_update(context["container_id"], qfc_payload))
+            except RuntimeError:
+                # no loop running; skip broadcast rather than crashing import/init
+                pass
+
         except Exception as e:
             print(f"[PatternRegistry->QFC] ⚠️ Failed to broadcast pattern: {e}")
 
@@ -188,24 +200,17 @@ class PatternRegistry:
         self.signature_index.clear()
         self.save()
 
-# ─────────────────────────────────────────────────────────────
-# 🧩 Pattern Drift Detection - used by QQCRepairManager
-# ─────────────────────────────────────────────────────────────
+
 class PatternMatcher:
     @staticmethod
     def detect_drift(prev_entropy: float, new_entropy: float, tolerance: float = 0.15) -> bool:
-        """
-        Detects significant pattern drift by comparing entropy changes.
-        Returns True if drift exceeds the given tolerance.
-        """
         if prev_entropy == 0:
             return False
         delta = abs(new_entropy - prev_entropy) / prev_entropy
         return delta > tolerance
 
-# ✅ Singleton instance export (used by test files and CodexLang)
-registry = PatternRegistry()
 
-# canonical alias for consistency
+# ✅ Singleton instance export
+registry = PatternRegistry()
 pattern_registry = registry
-__all__ = ["pattern_registry", "registry", "Pattern", "PatternRegistry"]
+__all__ = ["pattern_registry", "registry", "Pattern", "PatternRegistry", "PatternMatcher", "stringify_glyph"]

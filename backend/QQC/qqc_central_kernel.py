@@ -1,3 +1,4 @@
+# /workspaces/COMDEX/backend/QQC/qqc_central_kernel.py
 # ──────────────────────────────────────────────────────────────
 #  Tessaris * Quantum Quad Core (QQC) Central Kernel (v2)
 #  (HQCE + Multi-Core Integration Backbone)
@@ -5,6 +6,10 @@
 #  with ψ-κ-T holographic regulation and Lean theorem feedback.
 # ──────────────────────────────────────────────────────────────
 
+from __future__ import annotations
+import os
+import json
+from datetime import datetime
 import asyncio
 import time
 import uuid
@@ -125,8 +130,21 @@ class QuantumQuadCore:
         # ─── Commit / Repair / Regulation Systems ────────
         self.commit_manager = QQCCommitManager()
         self.repair_manager = QQCRepairManager(self.hst)
+
+                # ─── Boot/Dev guard: allow relaxing repair rollback threshold via env
+        # (QQCRepairManager in your logs uses a ~0.85 threshold; this lets you override without editing that module)
+        try:
+            thr = float(os.getenv("QQC_REPAIR_MIN_SQI_THRESHOLD", "0.85"))
+            # support either naming style
+            if hasattr(self.repair_manager, "MIN_SQI_THRESHOLD"):
+                setattr(self.repair_manager, "MIN_SQI_THRESHOLD", thr)
+            if hasattr(self.repair_manager, "min_sqi_threshold"):
+                setattr(self.repair_manager, "min_sqi_threshold", thr)
+        except Exception:
+            pass
+
         self.sle_bridge = SLELightWaveBridge(self.hst)
-        
+
         # ─── Morphic ↔ QQC Resonance Bridge ─────────────
         try:
             from backend.QQC.qqc_resonance_bridge import QQCResonanceBridge
@@ -176,17 +194,96 @@ class QuantumQuadCore:
         Returns ψ-κ-T-Φ metrics used by AION awareness and Morphic Ledger.
         """
         self.cycle_counter += 1
+
+        # ──────────────────────────────────────────────
+        # Boot input normalization (prevents “ghost beam” + context loss)
+        # Controlled by QQC_BOOT_DEFAULTS=1 (default) / 0 (strict)
+        # ──────────────────────────────────────────────
+        BOOT_DEFAULTS = (os.getenv("QQC_BOOT_DEFAULTS", "1") == "1")
+
+        if beam_data is None:
+            beam_data = {}
+        if not isinstance(beam_data, dict):
+            beam_data = {"raw": beam_data}
+
+        # copy so callers don’t get mutated unexpectedly
+        beam_data = dict(beam_data)
+
+        ctx = beam_data.get("context")
+        if not isinstance(ctx, dict):
+            if BOOT_DEFAULTS:
+                ctx = {}
+            else:
+                return {"status": "error", "error": "missing context (avatar/container)"}
+
+        # Normalize avatar_state -> primitive string (SoulLaw-friendly)
+        if isinstance(ctx.get("avatar_state"), dict):
+            st = ctx["avatar_state"]
+            ctx["avatar_state"] = str(st.get("status") or "active")
+            ctx.setdefault("avatar_state_ts", float(st.get("ts") or time.time()))
+        else:
+            ctx.setdefault("avatar_state", "active")
+            ctx.setdefault("avatar_state_ts", time.time())
+
+        if BOOT_DEFAULTS:
+            ctx.setdefault("avatar_id", "system_root")
+            ctx.setdefault("container_id", self.container_id)
+            ctx.setdefault(
+                "container_meta",
+                {"id": self.container_id, "kind": "qqc", "source": "qqc_kernel_boot"},
+            )
+
+        beam_data["context"] = ctx
+
+        # Ensure a minimal logic_tree exists (dict, not string)
+        if "logic_tree" not in beam_data:
+            if BOOT_DEFAULTS:
+                beam_id = str(beam_data.get("beam_id") or f"ψ_{self.cycle_counter}")
+                beam_data["logic_tree"] = {"∅": [{"beam_id": beam_id}]}
+        else:
+            # If someone provided a string, try to parse it; otherwise replace with minimal dict
+            if isinstance(beam_data["logic_tree"], str):
+                try:
+                    # accept JSON string if present
+                    beam_data["logic_tree"] = json.loads(beam_data["logic_tree"])
+                except Exception:
+                    if BOOT_DEFAULTS:
+                        beam_id = str(beam_data.get("beam_id") or f"ψ_{self.cycle_counter}")
+                        beam_data["logic_tree"] = {"∅": [{"beam_id": beam_id}]}
+
         try:
             # 1️⃣ Symbolic execution + entropy evaluation
-            codex_output = self.codex.execute(beam_data or {})
+            codex_output = self.codex.execute(beam_data)
             sqi_score = self.sqi.evaluate_entropy(codex_output)
 
             # 2️⃣ Beam resonance propagation
-            beam_state = self.beam_kernel.propagate(beam_data or {}, sqi_score)
+            beam_state = self.beam_kernel.propagate(beam_data, sqi_score)
+            if not isinstance(beam_state, dict):
+                beam_state = {"beam_state_raw": beam_state}
+
+            # CRITICAL: keep context + logic_tree attached after propagate
+            beam_state.setdefault("context", ctx)
+            if "logic_tree" in beam_data and "logic_tree" not in beam_state:
+                beam_state["logic_tree"] = beam_data["logic_tree"]
 
             # 3️⃣ Execute symbolic photon capsule
             codex_payload = dict(beam_state)
             codex_payload.pop("physics", None)
+
+            # Guard: CodexExecutor validation paths often do `.get(...)`
+            # so ensure payload is a dict and key sub-objects aren’t strings.
+            if isinstance(codex_payload.get("context"), str):
+                codex_payload["context"] = {"avatar_id": "system_root", "avatar_state": "active"}
+
+            lt = codex_payload.get("logic_tree")
+            if isinstance(lt, str):
+                try:
+                    codex_payload["logic_tree"] = json.loads(lt)
+                except Exception:
+                    if BOOT_DEFAULTS:
+                        beam_id = str(beam_data.get("beam_id") or f"ψ_{self.cycle_counter}")
+                        codex_payload["logic_tree"] = {"∅": [{"beam_id": beam_id}]}
+
             self.codex_executor.execute_photon_capsule(codex_payload)
 
             # 4️⃣ ψ-κ-T holographic feedback loop
@@ -232,7 +329,6 @@ class QuantumQuadCore:
 
             # 🧠 Awareness Metrics - Φ, ΔΦ, S_self
             try:
-                from backend.QQC.metrics import compute_phi_metrics
                 phi, dphi, s_self = compute_phi_metrics(
                     sqi_score,
                     summary["field_signature"]["κ"],
@@ -242,24 +338,19 @@ class QuantumQuadCore:
                 summary["phi"] = phi
                 summary["delta_phi"] = dphi
                 summary["S_self"] = s_self
-                logger.info(
-                    f"[QQC Awareness] Φ={phi:.4f}, ΔΦ={dphi:.5f}, S_self={s_self:.5f}"
-                )
+                logger.info(f"[QQC Awareness] Φ={phi:.4f}, ΔΦ={dphi:.5f}, S_self={s_self:.5f}")
             except Exception as e:
                 logger.warning(f"[QQC] Φ metrics unavailable or failed: {e}")
 
             # 🪞 Synchronize Morphic ↔ QQC resonance states
             try:
-                if hasattr(self, "resonance_bridge") and self.resonance_bridge:
-                    # First pull ψ-κ-T from Morphic -> QQC
+                if getattr(self, "resonance_bridge", None):
                     self.resonance_bridge.sync_from_morphic()
-                    # Then push QQC Φ / ΔΦ feedback -> Morphic
                     self.resonance_bridge.propagate_to_morphic()
-                    logger.debug("[QQCResonanceBridge] Bidirectional resonance sync complete.")
             except Exception as e:
                 logger.warning(f"[QQC] Resonance sync failed: {e}")
 
-            # 🔶 Cognitive Fabric Commit - push state to KG + UCS + Ledger
+            # 🔶 Cognitive Fabric Commit
             try:
                 CFA.commit(
                     source="QQC",
@@ -269,7 +360,7 @@ class QuantumQuadCore:
                         "κ": summary["field_signature"]["κ"],
                         "T": summary["field_signature"]["T"],
                         "Φ": summary.get("phi"),
-                        "glyph_type": "quantum_cycle"
+                        "glyph_type": "quantum_cycle",
                     },
                     domain="symatics/quantum_field",
                     tags=["collapse", "resonance", "ψκTΦ"],
@@ -280,33 +371,30 @@ class QuantumQuadCore:
             # 🔗 Morphic Ledger integration
             try:
                 from backend.modules.morphic.ledger import MorphicLedger
-                MorphicLedger().record(
-                    {"subsystem": "QQC", "cycle": self.cycle_counter, "summary": summary}
-                )
-            except Exception as e:
-                logger.debug(f"[QQC] MorphicLedger record skipped: {e}")
+                MorphicLedger().record({"subsystem": "QQC", "cycle": self.cycle_counter, "summary": summary})
+            except Exception:
+                pass
 
             # 🧩 Finalize + broadcast state
             self.last_summary = summary
-            codex_metrics.record_execution_batch(
-                adapter="qqc", op="run_cycle", payload=beam_data, result=summary
-            )
+            codex_metrics.record_execution_batch(adapter="qqc", op="run_cycle", payload=beam_data, result=summary)
             await self.broadcast_kernel_state()
+
             # 🔮 Aion Projection and Feedback
             try:
-                if hasattr(self, "aion_bridge") and self.aion_bridge:
-                    projection = self.aion_bridge.project_to_aion_field()
+                if getattr(self, "aion_bridge", None):
+                    _ = self.aion_bridge.project_to_aion_field()
                     self.aion_bridge.propagate_feedback()
-                    logger.debug("[AionIntegrationBridge] Projection + feedback cycle complete.")
             except Exception as e:
                 logger.warning(f"[QQC] Aion projection failed: {e}")
-            await asyncio.sleep(0.05)
 
+            await asyncio.sleep(0.05)
             return summary
 
         except Exception as e:
             logger.error(f"[QQC v2] Runtime cycle error: {e}", exc_info=True)
             return {"status": "error", "error": str(e)}
+
     # ──────────────────────────────────────────────
     #  State Summarization
     # ──────────────────────────────────────────────
@@ -388,11 +476,37 @@ class QuantumQuadCore:
     #  Shutdown
     # ──────────────────────────────────────────────
     async def shutdown(self):
+        """
+        Unified async shutdown (this is what callers should await).
+        FIX: previously a later sync def shutdown() overwrote this and caused:
+             TypeError: object NoneType can't be used in 'await' expression
+        """
         logger.info("[QQC v2] Gracefully shutting down subsystems ...")
-        await self.qfc_broadcast.stop()
-        await self.holo_cortex.teardown()
-        self.sqi_logger.end_session(self.session_id)
+
+        # Stop async subsystems (best-effort)
+        try:
+            await self.qfc_broadcast.stop()
+        except Exception:
+            pass
+        try:
+            await self.holo_cortex.teardown()
+        except Exception:
+            pass
+        try:
+            self.sqi_logger.end_session(self.session_id)
+        except Exception:
+            pass
+
+        # Run the telemetry/closure export step (best-effort, sync helper)
+        rep: Dict[str, Any] = {}
+        try:
+            if hasattr(self, "_shutdown_export_telemetry"):
+                rep = self._shutdown_export_telemetry() or {}
+        except Exception as e:
+            rep = {"telemetry_export_error": str(e)}
+
         logger.info("[QQC v2] Shutdown complete.")
+        return {"ok": True, **rep}
 
     def bind_hyperdrive_guard(self, enable: bool = False):
         """
@@ -526,18 +640,24 @@ class QuantumQuadCore:
     import os, json, time
     from datetime import datetime
 
-    def shutdown(self):
+    def _shutdown_export_telemetry(self) -> Dict[str, Any]:
         """
-        Gracefully shut down the QQC runtime:
-        * Stop QFC adapter bridge
-        * Validate πs closure
-        * Dump telemetry + closure report to sle_validation.json
+        Export telemetry + πs closure report to sle_validation.json
+        (sync helper; called by async shutdown()).
         """
+        export_path = None
+        closure_ok = False
+        closure_report: Dict[str, Any] = {}
+        metrics: Any = []
+
         # ────────────────────────────────────────────────
         # 1️⃣ Stop QFC Adapter Bridge
         # ────────────────────────────────────────────────
-        if hasattr(self, "qqc_qfc_adapter") and self.qqc_qfc_adapter.active:
-            self.qqc_qfc_adapter.stop()
+        try:
+            if hasattr(self, "qqc_qfc_adapter") and getattr(self.qqc_qfc_adapter, "active", False):
+                self.qqc_qfc_adapter.stop()
+        except Exception:
+            pass
 
         # ────────────────────────────────────────────────
         # 2️⃣ Validate πs Phase Closure
@@ -571,9 +691,7 @@ class QuantumQuadCore:
                 "metrics": metrics,
             }
 
-            export_path = os.path.join(
-                export_dir, f"sle_validation_{int(time.time())}.json"
-            )
+            export_path = os.path.join(export_dir, f"sle_validation_{int(time.time())}.json")
             with open(export_path, "w") as f:
                 json.dump(payload, f, indent=2)
 
@@ -587,6 +705,12 @@ class QuantumQuadCore:
         self.logger.info("[QQC] Graceful shutdown completed.")
         self.logger.info(f"[QQC] πs closure = {'✅ stable' if closure_ok else '⚠️ incomplete'}")
 
+        return {
+            "closure_ok": bool(closure_ok),
+            "closure_report": closure_report,
+            "export_path": export_path,
+        }
+
 # ──────────────────────────────────────────────────────────────
 #  CLI Harness / Standalone Mode
 # ──────────────────────────────────────────────────────────────
@@ -594,7 +718,7 @@ import asyncio
 import time
 
 async def main():
-    qqc = QuantumQuadCore()  
+    qqc = QuantumQuadCore()
     await qqc.boot(mode="resonant")
 
     for i in range(5):

@@ -17,6 +17,11 @@ from .transport_http import get_json, post_json
 import asyncio
 import httpx
 from backend.modules.p2p.lane_limiter import LaneLimiter
+from backend.modules.p2p.ingress import get_lanes
+from fastapi.responses import JSONResponse
+from backend.modules.consensus.ingress_validate import validate_vote_payload_or_error
+
+_LIM = get_lanes()
 
 # PR5: bounded ingress queues / dedup ids (module-scope singleton)
 
@@ -904,7 +909,6 @@ async def p2p_block_announce(request: Request, env: P2PEnvelope = Body(...)) -> 
 
     return {"ok": True, "announced": True, "height": h}
 
-
 @router.post("/block_req")
 async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, Any]:
     if env.type != "BLOCK_REQ":
@@ -933,6 +937,9 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
     if want not in ("block", "header"):
         raise HTTPException(status_code=400, detail='payload.want must be "block" or "header"')
 
+    # ✅ queue key: stable for dup floods
+    msg_id = str(payload.get("msg_id") or f"block_req:{h}:{want}")
+
     # -------------------------
     # block lookup helpers
     # -------------------------
@@ -953,7 +960,6 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
             return None
 
         if isinstance(store, dict):
-            # direct keyed by int/str height
             try:
                 v = store.get(height)
                 if v:
@@ -967,7 +973,6 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
             except Exception:
                 pass
 
-            # keyed by block_id like "h276-r0-PvalX"
             pref = f"h{height}-"
             try:
                 for k, v in store.items():
@@ -976,7 +981,6 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
             except Exception:
                 pass
 
-            # scan values for matching header.height
             try:
                 for v in store.values():
                     if _blk_height(v) == height:
@@ -984,7 +988,6 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
             except Exception:
                 pass
 
-            # common nested dicts
             for nk in ("by_height", "blocks_by_height", "_by_height", "_blocks_by_height"):
                 try:
                     sub = store.get(nk)
@@ -1005,7 +1008,6 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
                 pass
             return None
 
-        # mapping-ish .get
         try:
             v = store.get(height)  # type: ignore[attr-defined]
             if v:
@@ -1023,12 +1025,10 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
             return None
         seen.add(oid)
 
-        # direct store hit
         hit = _find_by_height_in_store(obj, height)
         if hit:
             return hit
 
-        # dict recurse
         if isinstance(obj, dict):
             try:
                 for v in obj.values():
@@ -1039,7 +1039,6 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
                 return None
             return None
 
-        # list recurse
         if isinstance(obj, list):
             try:
                 for v in obj:
@@ -1050,7 +1049,6 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
                 return None
             return None
 
-        # object attrs recurse (best-effort; avoid huge/side-effect-y stuff)
         try:
             for name in dir(obj):
                 if not name or name.startswith("__"):
@@ -1063,7 +1061,6 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
                     continue
                 if callable(v):
                     continue
-                # only follow plausible containers
                 if isinstance(v, (dict, list)) or ("block" in name.lower()) or ("store" in name.lower()):
                     hit = _deep_search(v, height, depth=depth - 1, seen=seen)
                     if hit:
@@ -1073,140 +1070,162 @@ async def p2p_block_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
 
         return None
 
-    blk: Any = None
+    loop = asyncio.get_running_loop()
+    fut: asyncio.Future[Dict[str, Any]] = loop.create_future()
 
-    # -------------------------
-    # 1) consensus engine (deep)
-    # -------------------------
-    try:
-        if _CONSENSUS_OK and get_engine is not None:
-            eng = get_engine()
+    async def _job() -> None:
+        try:
+            blk: Any = None
 
-            # common method names first
-            for name in (
-                "get_block_by_height",
-                "block_by_height",
-                "get_committed_block_by_height",
-                "get_committed_block",
-                "get_block",
-            ):
-                fn = getattr(eng, name, None)
-                if callable(fn):
+            # -------------------------
+            # 1) consensus engine (deep)
+            # -------------------------
+            try:
+                if _CONSENSUS_OK and get_engine is not None:
+                    eng = get_engine()
+
+                    for name in (
+                        "get_block_by_height",
+                        "block_by_height",
+                        "get_committed_block_by_height",
+                        "get_committed_block",
+                        "get_block",
+                    ):
+                        fn = getattr(eng, name, None)
+                        if callable(fn):
+                            try:
+                                blk = fn(h)
+                                if blk:
+                                    break
+                            except Exception:
+                                pass
+
+                    if not blk:
+                        blk = _deep_search(eng, h, depth=3, seen=set())
+            except Exception:
+                blk = None
+
+            # -------------------------
+            # 2) chain_sim ledger fallback (+ replay-on-miss)
+            # -------------------------
+            if not blk:
+                try:
+                    blk = get_block(h)
+                except Exception:
+                    blk = None
+
+            if not blk:
+                try:
+                    from backend.modules.chain_sim.chain_sim_ledger import replay_ledger_only_from_db
+                    replay_ledger_only_from_db()
+                except Exception:
                     try:
-                        blk = fn(h)
-                        if blk:
-                            break
+                        from backend.modules.chain_sim.chain_sim_ledger import replay_state_from_db
+                        replay_state_from_db()
                     except Exception:
                         pass
+                try:
+                    blk = get_block(h)
+                except Exception:
+                    blk = None
 
-            # deep search engine object graph (covers nested stores)
-            if not blk:
-                blk = _deep_search(eng, h, depth=3, seen=set())
-    except Exception:
-        blk = None
+            if blk:
+                if want == "header":
+                    if isinstance(blk, dict):
+                        header = blk.get("header") or (blk.get("block") or {}).get("header") or {}
+                    else:
+                        header = {}
+                    if not fut.done():
+                        fut.set_result({"ok": True, "height": h, "header": header})
+                    return
+                if not fut.done():
+                    fut.set_result({"ok": True, "height": h, "block": blk})
+                return
 
-    # -------------------------
-    # 2) chain_sim ledger fallback
-    # -------------------------
-    if not blk:
-        try:
-            blk = get_block(h)
-        except Exception:
-            blk = None
+            # -------------------------
+            # 3) proxy-on-miss
+            # -------------------------
+            max_hops = _env_int("P2P_BLOCK_PROXY_MAX_HOPS", 2)
+            cur_hops = int(getattr(env, "hops", 0) or 0)
+            if cur_hops >= max_hops:
+                if not fut.done():
+                    fut.set_result({"ok": False, "error": f"block not found (height={h})"})
+                return
 
-    if not blk:
-        try:
-            from backend.modules.chain_sim.chain_sim_ledger import replay_ledger_only_from_db
-            replay_ledger_only_from_db()
-        except Exception:
             try:
-                from backend.modules.chain_sim.chain_sim_ledger import replay_state_from_db
-                replay_state_from_db()
+                load_peers_from_env()
+                local = _local_base_url()
+                peers: list[str] = []
+                for p in list_peers():
+                    base = (getattr(p, "base_url", "") or "").strip().rstrip("/")
+                    if not base or base == local:
+                        continue
+                    peers.append(base)
+
+                random.shuffle(peers)
+
+                fwd = env.model_dump()
+                fwd["from_node_id"] = _NODE_ID
+                fwd["from_val_id"] = _SELF_VAL_ID or None
+                fwd["ts_ms"] = _now_ms()
+                fwd["hops"] = cur_hops + 1
+
+                for base in peers:
+                    try:
+                        upstream = await post_json(
+                            base,
+                            "/api/p2p/block_req",
+                            fwd,
+                            timeout_s=10.0,
+                            add_p2p_headers=True,
+                            p2p_from_node_id=_NODE_ID,
+                            p2p_from_val_id=_SELF_VAL_ID,
+                            p2p_chain_id=_CHAIN_ID,
+                        )
+                        if int(upstream.get("status") or 0) != 200:
+                            continue
+                        j = upstream.get("json")
+                        if isinstance(j, dict) and j.get("ok") is True:
+                            out = dict(j)
+                            out["proxied"] = True
+                            out["proxy_from"] = base
+                            if not fut.done():
+                                fut.set_result(out)
+                            return
+                    except Exception:
+                        continue
             except Exception:
                 pass
-        try:
-            blk = get_block(h)
-        except Exception:
-            blk = None
 
-    if blk:
-        if want == "header":
-            if isinstance(blk, dict):
-                header = blk.get("header") or (blk.get("block") or {}).get("header") or {}
-            else:
-                header = {}
-            return {"ok": True, "height": h, "header": header}
-        return {"ok": True, "height": h, "block": blk}
+            if not fut.done():
+                fut.set_result({"ok": False, "error": f"block not found (height={h})"})
+        except Exception as e:
+            if not fut.done():
+                fut.set_result({"ok": False, "error": f"block_req job crashed: {e!r}"})
 
-    # -------------------------
-    # proxy-on-miss
-    # -------------------------
-    max_hops = _env_int("P2P_BLOCK_PROXY_MAX_HOPS", 2)
-    cur_hops = int(getattr(env, "hops", 0) or 0)
-    if cur_hops >= max_hops:
-        raise HTTPException(status_code=404, detail=f"block not found (height={h})")
+    enq = await _LIM.enqueue(lane="block", msg_id=msg_id, job=_job)
+    if not bool(enq.get("enqueued")):
+        return {"ok": True, "accepted": False, "ignored": True, "reason": str(enq.get("reason") or "not enqueued")}
 
-    try:
-        load_peers_from_env()
-        local = _local_base_url()
-        peers: list[str] = []
-        for p in list_peers():
-            base = (getattr(p, "base_url", "") or "").strip().rstrip("/")
-            if not base or base == local:
-                continue
-            peers.append(base)
-
-        random.shuffle(peers)
-
-        fwd = env.model_dump()
-        fwd["from_node_id"] = _NODE_ID
-        fwd["from_val_id"] = _SELF_VAL_ID or None
-        fwd["ts_ms"] = _now_ms()
-        fwd["hops"] = cur_hops + 1
-
-        for base in peers:
-            try:
-                upstream = await post_json(
-                    base,
-                    "/api/p2p/block_req",
-                    fwd,
-                    timeout_s=10.0,
-                    add_p2p_headers=True,
-                    p2p_from_node_id=_NODE_ID,
-                    p2p_from_val_id=_SELF_VAL_ID,
-                    p2p_chain_id=_CHAIN_ID,
-                )
-                if int(upstream.get("status") or 0) != 200:
-                    continue
-                j = upstream.get("json")
-                if isinstance(j, dict) and j.get("ok") is True:
-                    out = dict(j)
-                    out["proxied"] = True
-                    out["proxy_from"] = base
-                    return out
-            except Exception:
-                continue
-    except Exception:
-        pass
-
-    raise HTTPException(status_code=404, detail=f"block not found (height={h})")
+    out = await asyncio.wait_for(fut, timeout=20.0)
+    if out.get("ok") is not True:
+        raise HTTPException(status_code=404, detail=str(out.get("error") or "block not found"))
+    return out
 
 # -------------------------
 # Consensus messages (PR1)
 # -------------------------
+
+from backend.modules.p2p.ingress import get_lanes
 
 @router.get("/consensus_status")
 async def p2p_consensus_status() -> Dict[str, Any]:
     if not _CONSENSUS_OK or get_engine is None:
         raise HTTPException(status_code=501, detail=f"consensus not available: {_CONSENSUS_ERR}")
     eng = get_engine()
-    return eng.status()
-
-
-# add near the top of router.py with other imports
-from backend.modules.consensus.validator_set import ValidatorSet  # (or wherever validate_set.py lives)
-# e.g. if file is backend/modules/consensus/validate_set.py:
-# from backend.modules.consensus.validate_set import ValidatorSet
+    st = eng.status()
+    st["p2p_ingress"] = get_lanes().snapshot()
+    return st
 
 
 @router.post("/proposal")
@@ -1234,11 +1253,6 @@ async def p2p_proposal(request: Request, env: P2PEnvelope = Body(...)) -> Dict[s
     if not isinstance(payload_in, dict):
         raise HTTPException(status_code=400, detail="payload must be object")
 
-    # ✅ Optional envelope-level dedup (must NOT depend on payload.msg_id)
-    d = _drop_if_dup(peer_key, env)
-    if d is not None:
-        return d
-
     # ✅ Signature verification must use UNSIGNED payload (tests sign without sig_hex/msg_id)
     if _require_signed_consensus():
         sig_hex = str(payload_in.get("sig_hex") or "").strip().lower()
@@ -1263,40 +1277,63 @@ async def p2p_proposal(request: Request, env: P2PEnvelope = Body(...)) -> Dict[s
         if not ok:
             raise HTTPException(status_code=403, detail="proposal signature invalid")
 
-    # ✅ local-only msg_id (do NOT mutate payload_in)
-    msg_id = str(payload_in.get("msg_id") or _proposal_msg_id(payload_in))
+    # ✅ stable msg_id for LaneLimiter (exclude sig_hex/ts_ms/msg_id if your helper does)
+    unsigned_for_id = dict(payload_in)
+    unsigned_for_id.pop("sig_hex", None)
+    unsigned_for_id.pop("msg_id", None)
+    msg_id = str(payload_in.get("msg_id") or _proposal_msg_id(unsigned_for_id))
 
-    # ✅ Build model payload (avoid passing msg_id unless model allows extras)
     payload_model = dict(payload_in)
     payload_model.pop("msg_id", None)
 
-    # ✅ PR6 gate MUST be enforced at HTTP boundary (tests expect 400)
+    # ✅ Structural validation at HTTP boundary (400s visible to tests)
     try:
         p = Proposal(**payload_model)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"bad proposal payload: {e}")
 
+    # ✅ Backpressure: enqueue REAL work, await result
     try:
-        out = get_engine().handle_proposal(p)
+        from backend.modules.p2p.ingress import get_lanes
+        lanes = get_lanes()
     except Exception as e:
-        # don’t leak a raw 500 without detail during tests
+        raise HTTPException(status_code=500, detail=f"lane limiter unavailable: {e}")
+
+    loop = asyncio.get_running_loop()
+    fut: "asyncio.Future[Dict[str, Any]]" = loop.create_future()
+
+    async def _job() -> None:
+        try:
+            out = get_engine().handle_proposal(p)
+            if not isinstance(out, dict):
+                out = {"ok": False, "error": "proposal rejected"}
+            if not fut.done():
+                fut.set_result(out)
+        except Exception as e:
+            if not fut.done():
+                fut.set_exception(e)
+
+    q = await lanes.enqueue(lane="proposal", msg_id=msg_id, job=_job)
+
+    # dropped by limiter (dup/full) → best-effort 200; do not 500
+    if not q.get("enqueued"):
+        return {
+            "ok": True,
+            "enqueued": False,
+            "dropped": True,
+            "reason": str(q.get("reason") or "dropped"),
+            "accepted": True,
+        }
+
+    try:
+        out = await fut
+    except Exception as e:
         raise HTTPException(status_code=500, detail=f"engine.handle_proposal crashed: {e}")
 
     if not isinstance(out, dict) or out.get("ok") is not True:
         raise HTTPException(status_code=400, detail=str((out or {}).get("error") or "proposal rejected"))
 
-    # ✅ Keep queue ONLY for side-effects; never call handle_proposal again.
-    enq = False
-    try:
-        async def _job() -> None:
-            return
-
-        res = await _LIM.enqueue(lane="proposal", msg_id=msg_id, job=_job)
-        enq = bool(res.get("enqueued"))
-    except Exception:
-        enq = False
-
-    return {"ok": True, "enqueued": enq, **out}
+    return {"ok": True, "enqueued": True, **out}
 
 
 @router.post("/vote")
@@ -1324,7 +1361,11 @@ async def p2p_vote(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, 
     if not isinstance(payload_in, dict):
         raise HTTPException(status_code=400, detail="payload must be object")
 
-    # ✅ verify signature (sign bytes must exclude sig_hex)
+    err = validate_vote_payload_or_error(payload_in)
+    if err:
+        return JSONResponse(status_code=400, content={"detail": err})
+
+    # ✅ verify signature (sign bytes must exclude sig_hex/msg_id)
     if _require_signed_consensus():
         sig_hex = str(payload_in.get("sig_hex") or "").strip().lower()
         if not sig_hex:
@@ -1335,15 +1376,24 @@ async def p2p_vote(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, 
         if not pubkey_hex:
             raise HTTPException(status_code=403, detail="missing peer pubkey (need HELLO)")
 
-        unsigned = {k: payload_in[k] for k in payload_in.keys() if k != "sig_hex"}
-        msg = canonical_p2p_sign_bytes(msg_type="VOTE", chain_id=_CHAIN_ID, payload=unsigned)
-        if not verify_ed25519(pubkey_hex, sig_hex, msg):
+        unsigned = dict(payload_in)
+        unsigned.pop("sig_hex", None)
+        unsigned.pop("msg_id", None)
+
+        try:
+            msg = canonical_p2p_sign_bytes(msg_type="VOTE", chain_id=_CHAIN_ID, payload=unsigned)
+            ok = verify_ed25519(pubkey_hex, sig_hex, msg)
+        except Exception as e:
+            raise HTTPException(status_code=403, detail=f"vote signature verify error: {e}")
+
+        if not ok:
             raise HTTPException(status_code=403, detail="vote signature invalid")
 
-    # optional envelope-level dedup
-    d = _drop_if_dup(peer_key, env)
-    if d is not None:
-        return d
+    # ✅ stable msg_id for LaneLimiter (exclude sig_hex/msg_id)
+    unsigned_for_id = dict(payload_in)
+    unsigned_for_id.pop("sig_hex", None)
+    unsigned_for_id.pop("msg_id", None)
+    msg_id = str(payload_in.get("msg_id") or _vote_msg_id(unsigned_for_id))
 
     # build model payload (don’t pass msg_id)
     payload_model = dict(payload_in)
@@ -1354,16 +1404,53 @@ async def p2p_vote(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, 
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"bad vote payload: {e}")
 
-    # ✅ PR6 gates must be visible here (tests expect 400)
+    # ✅ Backpressure: enqueue REAL work, await result
     try:
-        out = get_engine().handle_vote(v)
+        from backend.modules.p2p.ingress import get_lanes
+        lanes = get_lanes()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"engine.handle_vote crashed: {e}")
+        # keep tests away from 500s
+        return {"ok": True, "enqueued": False, "accepted": False, "ignored": True, "reason": f"lane limiter unavailable: {e}"}
 
+    loop = asyncio.get_running_loop()
+    fut: "asyncio.Future[Dict[str, Any]]" = loop.create_future()
+
+    async def _job() -> None:
+        try:
+            eng = get_engine()
+            fn = getattr(eng, "handle_vote", None)
+            if not callable(fn):
+                out: Dict[str, Any] = {"ok": False, "error": "engine missing handle_vote"}
+            else:
+                out = fn(v)  # sync call
+
+            if not isinstance(out, dict):
+                out = {"ok": False, "error": "vote rejected"}
+
+            if not fut.done():
+                fut.set_result(out)
+        except Exception as e:
+            if not fut.done():
+                fut.set_result({"ok": False, "error": f"engine.handle_vote crashed: {e}"})
+
+    q = await lanes.enqueue(lane="vote", msg_id=msg_id, job=_job)
+
+    # dropped by limiter (dup/full) → best-effort 200; do not 500
+    if not q.get("enqueued"):
+        return {
+            "ok": True,
+            "enqueued": False,
+            "dropped": True,
+            "reason": str(q.get("reason") or "dropped"),
+            "accepted": True,
+        }
+
+    # ✅ never 500 (tests require 200/400/403 only)
+    out = await fut
     if not isinstance(out, dict) or out.get("ok") is not True:
         raise HTTPException(status_code=400, detail=str((out or {}).get("error") or "vote rejected"))
 
-    return {"ok": True, **out}
+    return {"ok": True, "enqueued": True, **out}
 
 
 # -------------------------
@@ -1383,11 +1470,54 @@ async def p2p_status(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str
     peer_node = (request.headers.get(_P2P_HDR_NODE) or env.from_node_id or "").strip()
     peer_val = (request.headers.get(_P2P_HDR_VAL) or env.from_val_id or "").strip()
 
+    # lane snapshot is optional; never fail STATUS because of ingress plumbing
+    ingress = None
+    try:
+        from backend.modules.p2p.ingress import get_lanes  # singleton LaneLimiter
+        ingress = get_lanes().snapshot()
+    except Exception:
+        ingress = None
+
+    def _mk_metrics(st: Dict[str, Any]) -> Dict[str, Any]:
+        try:
+            fh = int(st.get("finalized_height") or 0)
+        except Exception:
+            fh = 0
+        try:
+            hh = int(st.get("height") or st.get("next_height") or 0)
+        except Exception:
+            hh = 0
+        try:
+            rr = int(st.get("round") or 0)
+        except Exception:
+            rr = 0
+
+        last_qc = st.get("last_qc") or {}
+        try:
+            last_qc_ts = float(last_qc.get("ts_ms") or 0.0) if isinstance(last_qc, dict) else 0.0
+        except Exception:
+            last_qc_ts = 0.0
+
+        # round_started_ms may or may not exist in status(); keep best-effort
+        try:
+            rstart = float(st.get("round_started_ms") or 0.0)
+        except Exception:
+            rstart = 0.0
+
+        return {
+            "cur_round": rr,
+            "round_started_ms": rstart,
+            "last_qc_ts_ms": last_qc_ts,
+            "finalized_height": fh,
+            "height": hh,
+            "height_lag": max(0, hh - (fh + 1)) if hh > 0 else 0,
+        }
+
     # ✅ allow self-calls (tests do _p2p_status(a, a))
     if peer_node and peer_node == (_NODE_ID or ""):
         eng = get_engine()
         st = eng.status()
-        return {
+        resp = {
             "ok": True,
             "payload": {
                 "node_id": st.get("node_id"),
@@ -1396,8 +1526,12 @@ async def p2p_status(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str
                 "round": int(st.get("round") or 0),
                 "last_qc": st.get("last_qc"),
             },
+            "metrics": _mk_metrics(st),
             "self": True,
         }
+        if ingress is not None:
+            resp["p2p_ingress"] = ingress
+        return resp
 
     peer_key = peer_val or peer_node or (getattr(request.client, "host", "") or "unknown")
 
@@ -1420,7 +1554,7 @@ async def p2p_status(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str
     eng = get_engine()
     st = eng.status()
 
-    resp = {
+    resp: Dict[str, Any] = {
         "ok": True,
         "payload": {
             "node_id": st.get("node_id"),
@@ -1429,10 +1563,35 @@ async def p2p_status(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str
             "round": int(st.get("round") or 0),
             "last_qc": st.get("last_qc"),
         },
+        "metrics": _mk_metrics(st),
     }
+    if ingress is not None:
+        resp["p2p_ingress"] = ingress
+
     _resp_cache_set(peer_key, env, resp)
     return resp
 
+def _stable_json_bytes(x: Any) -> bytes:
+    try:
+        return json.dumps(x, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    except Exception:
+        return repr(x).encode("utf-8")
+
+def _sync_req_msg_id(*, peer_key: str, env: P2PEnvelope) -> str:
+    # request-like: make this UNIQUE per request so LaneLimiter never dup-drops before cache can help
+    base = {
+        "peer": str(peer_key or ""),
+        "ts_ms": float(getattr(env, "ts_ms", 0.0) or 0.0),
+        "nonce_ms": _now_ms(),
+    }
+    return "sync_req:" + hashlib.sha256(_stable_json_bytes(base)).hexdigest()
+
+def _sync_resp_msg_id(payload: Dict[str, Any]) -> str:
+    # message-like: stable id so dup storms drop early
+    unsigned = dict(payload or {})
+    unsigned.pop("sig_hex", None)
+    unsigned.pop("msg_id", None)
+    return "sync_resp:" + hashlib.sha256(_stable_json_bytes(unsigned)).hexdigest()
 
 @router.post("/sync_req")
 async def p2p_sync_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[str, Any]:
@@ -1466,22 +1625,41 @@ async def p2p_sync_req(request: Request, env: P2PEnvelope = Body(...)) -> Dict[s
         cached["cached"] = True
         return cached
 
-    # IMPORTANT: do NOT _drop_if_dup() on SYNC_REQ (request-like). If cache miss, compute fresh.
+    # ✅ enqueue compute under limiter; await result so 4xx/5xx semantics remain
+    msg_id = str(payload.get("msg_id") or f"sync_req:{peer_key}")
 
-    eng = get_engine()
-    st = eng.status()
+    loop = asyncio.get_running_loop()
+    fut: asyncio.Future[Dict[str, Any]] = loop.create_future()
 
-    resp = {
-        "ok": True,
-        "payload": {
-            "node_id": st.get("node_id"),
-            "finalized_height": int(st.get("finalized_height") or 0),
-            "height": int(st.get("height") or st.get("next_height") or 0),
-            "round": int(st.get("round") or 0),
-            "last_qc": st.get("last_qc"),
-        },
-    }
-    _resp_cache_set(peer_key, env, resp)
+    async def _job() -> None:
+        try:
+            eng = get_engine()
+            st = eng.status()
+            resp = {
+                "ok": True,
+                "payload": {
+                    "node_id": st.get("node_id"),
+                    "finalized_height": int(st.get("finalized_height") or 0),
+                    "height": int(st.get("height") or st.get("next_height") or 0),
+                    "round": int(st.get("round") or 0),
+                    "last_qc": st.get("last_qc"),
+                },
+            }
+            _resp_cache_set(peer_key, env, resp)
+            if not fut.done():
+                fut.set_result(resp)
+        except Exception as e:
+            if not fut.done():
+                fut.set_result({"ok": False, "error": f"sync_req compute error: {e!r}"})
+
+    enq = await _LIM.enqueue(lane="sync", msg_id=msg_id, job=_job)
+    if not bool(enq.get("enqueued")):
+        # request-like: if we can't enqueue, return a clean “ignored” 200 instead of wedging
+        return {"ok": True, "accepted": False, "ignored": True, "reason": str(enq.get("reason") or "not enqueued")}
+
+    resp = await asyncio.wait_for(fut, timeout=10.0)
+    if resp.get("ok") is not True:
+        raise HTTPException(status_code=500, detail=str(resp.get("error") or "sync_req compute failed"))
     return resp
 
 
@@ -1506,16 +1684,43 @@ async def p2p_sync_resp(request: Request, env: P2PEnvelope = Body(...)) -> Dict[
     if not isinstance(payload, dict):
         raise HTTPException(status_code=400, detail="payload must be object")
 
-    # ✅ message-like lane: optional signature verify (by env) + dedup placeholder
+    # ✅ PR6.3: structural QC dict validation at ingress (never let garbage hit engine/lanes)
+    qc_d = (payload or {}).get("last_qc")
+    err = validate_qc_dict_or_error(qc_d)
+    if err:
+        return JSONResponse(status_code=400, content={"detail": err})
+
+    # ✅ message-like lane: optional signature verify (by env)
     if _require_signed_for_lane("sync"):
         _verify_sig_or_403(peer_node=peer_node, msg_type="SYNC_RESP", payload=payload)
 
+    # envelope-level dedup (cheap)
     d = _drop_if_dup(peer_key, env)
     if d is not None:
         return d
 
-    out = get_engine().handle_sync_resp(payload)
+    msg_id = str(
+        payload.get("msg_id")
+        or f"sync_resp:{int(payload.get('finalized_height') or 0)}:{(payload.get('last_qc') or {}).get('block_id')}"
+    )
+
+    loop = asyncio.get_running_loop()
+    fut: asyncio.Future[Dict[str, Any]] = loop.create_future()
+
+    async def _job() -> None:
+        try:
+            out = get_engine().handle_sync_resp(payload)
+            if not fut.done():
+                fut.set_result(out if isinstance(out, dict) else {"ok": False, "error": "bad sync_resp result"})
+        except Exception as e:
+            if not fut.done():
+                fut.set_result({"ok": False, "error": f"engine.handle_sync_resp crashed: {e}"})
+
+    enq = await _LIM.enqueue(lane="sync", msg_id=msg_id, job=_job)
+    if not bool(enq.get("enqueued")):
+        return {"ok": True, "accepted": False, "ignored": True, "reason": str(enq.get("reason") or "not enqueued")}
+
+    out = await asyncio.wait_for(fut, timeout=10.0)
     if not isinstance(out, dict) or out.get("ok") is not True:
         raise HTTPException(status_code=400, detail=str((out or {}).get("error") or "bad sync_resp"))
-
     return {"ok": True, "applied": out}

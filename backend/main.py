@@ -269,20 +269,19 @@ async def startup_event():
     # Ensure HQ first so others can wormhole-link to it
     if ensure_tesseract_hub:
         try:
-            ensure_tesseract_hub(hub_id="tesseract_hq", name="Tesseract HQ", size=8)
-            logger.info("[startup] Tesseract HQ ensured (tesseract_hq).")
+            ensure_tesseract_hub(...)
         except Exception as e:
-            logger.warning(f"[startup] Failed to ensure Tesseract HQ: {e}")
+            logger.warning(...)
 
-        # ✅ Seed pattern registry once at startup (guarded)
-        if ENABLE_SEED_PATTERNS and not getattr(app.state, "_seeded_patterns", False):
-            try:
-                from backend.modules.patterns.seed_patterns import seed_builtin_patterns
-                seed_builtin_patterns()
-                app.state._seeded_patterns = True
-                logger.info("✅ Seeded built-in symbolic patterns.")
-            except Exception as e:
-                logger.warning(f"Failed to seed built-in patterns: {e}")
+    # ALWAYS seed patterns if enabled (independent)
+    if ENABLE_SEED_PATTERNS and not getattr(app.state, "_seeded_patterns", False):
+        try:
+            from backend.modules.patterns.seed_patterns import seed_builtin_patterns
+            seed_builtin_patterns()
+            app.state._seeded_patterns = True
+            logger.info("✅ Seeded built-in symbolic patterns.")
+        except Exception as e:
+            logger.warning(f"Failed to seed built-in patterns: {e}")
 
     # Preload UCS container templates (.dc.json) into runtime
     try:

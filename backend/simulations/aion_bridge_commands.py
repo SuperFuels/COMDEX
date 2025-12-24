@@ -81,7 +81,7 @@ def match_word(word: str):
     choices = distractors + [word]
     random.shuffle(choices)
     pretty = "\n".join(f"  {i+1}. {c}" for i, c in enumerate(choices))
-    return f"🧠 Match the definition:\n"{definition}"\nChoices:\n{pretty}\n(answer: {word})"
+    return f'🧠 Match the definition:\n"{definition}"\nChoices:\n{pretty}\n(answer: {word})'
 # ──────────────────────────────────────────────
 # Lexical + Symbolic
 # ──────────────────────────────────────────────

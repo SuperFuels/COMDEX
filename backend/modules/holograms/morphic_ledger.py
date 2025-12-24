@@ -18,6 +18,10 @@ from backend.modules.cognitive_fabric.cognitive_fabric_adapter import CFA
 logger = logging.getLogger(__name__)
 
 
+def _truthy_env(name: str, default: str = "") -> bool:
+    return os.getenv(name, default).strip().lower() in ("1", "true", "yes", "on")
+
+
 class MorphicLedger:
     """
     Append-only ledger for storing HQCE field tensor data.
@@ -28,12 +32,30 @@ class MorphicLedger:
     def __init__(self, base_path: str = "data/ledger", use_sqlite: bool = False):
         self.base_path = base_path
         self.use_sqlite = use_sqlite
-        self.session_id = f"ledger_{uuid.uuid4().hex[:8]}"
+
+        # session id still useful for exports / tracing, but we no longer shard JSONL by default
+        self.session_id = os.getenv("MORPHIC_LEDGER_SESSION_ID") or f"ledger_{uuid.uuid4().hex[:8]}"
         os.makedirs(self.base_path, exist_ok=True)
 
-        # Define the ledger path once
-        self.ledger_path = os.path.join(self.base_path, f"{self.session_id}.jsonl")
+        # ✅ Stop creating thousands of shards:
+        # - default: write to a single stable file (MORPHIC_LEDGER_FILE)
+        # - optional: enable sharding with MORPHIC_LEDGER_SHARD=1
+        shard = _truthy_env("MORPHIC_LEDGER_SHARD", "0")
+        if shard:
+            filename = f"{self.session_id}.jsonl"
+        else:
+            filename = os.getenv("MORPHIC_LEDGER_FILE", "morphic_ledger.jsonl")
+
+        self.ledger_path = os.path.join(self.base_path, filename)
         self.enable_logging = True  # default for debug + test environments
+
+        # Ensure target file exists
+        try:
+            os.makedirs(os.path.dirname(self.ledger_path), exist_ok=True)
+            if not os.path.exists(self.ledger_path):
+                open(self.ledger_path, "a", encoding="utf-8").close()
+        except Exception as e:
+            logger.warning(f"[MorphicLedger] Could not precreate ledger file: {e}")
 
         # ── SQLite mode (optional Stage 9+ integration)
         self._db_conn = None
@@ -537,7 +559,12 @@ class MorphicLedger:
     # ──────────────────────────────────────────────
     #  Stage 12 * QFC Bridge Synchronization Layer
     # ──────────────────────────────────────────────
-    async def broadcast_qfc_update(self, payload: Dict[str, Any]) -> None:
+    async def broadcast_qfc_update(
+        self,
+        payload: Dict[str, Any],
+        observer_id: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         """Asynchronously broadcast Φ-ψ resonance data to Quantum Field Controller."""
         try:
             import asyncio, json
@@ -545,6 +572,7 @@ class MorphicLedger:
             msg = json.dumps({
                 "topic": "qfc://resonance/update",
                 "payload": payload,
+                "observer_id": observer_id or "anonymous",
                 "timestamp": time.time(),
             })
             print(f"[QFC↗] Broadcast resonance packet -> {msg[:100]}...")
@@ -643,6 +671,7 @@ class MorphicLedger:
         except Exception as e:
             logger.error(f"[ΦΨPlot] Failed to generate Φ-ψ plot: {e}")
             return None
+
 
 # ──────────────────────────────────────────────
 #  Singleton instance (used by HQCE runtime)

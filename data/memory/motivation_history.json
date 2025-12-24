@@ -617,5 +617,70 @@
       "goal": 0.365,
       "need": 0.251
     }
+  },
+  {
+    "timestamp": "2025-12-23 23:36:08",
+    "feedback": {
+      "entropy": 0.5,
+      "sqi": 0.879,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.314,
+      "goal": 0.302,
+      "need": 0.384
+    }
+  },
+  {
+    "timestamp": "2025-12-23 23:39:19",
+    "feedback": {
+      "entropy": 0.5,
+      "sqi": 0.909,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.338,
+      "goal": 0.322,
+      "need": 0.34
+    }
+  },
+  {
+    "timestamp": "2025-12-23 23:39:55",
+    "feedback": {
+      "entropy": 0.5,
+      "sqi": 0.937,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.354,
+      "goal": 0.271,
+      "need": 0.375
+    }
+  },
+  {
+    "timestamp": "2025-12-23 23:47:12",
+    "feedback": {
+      "entropy": 0.5,
+      "sqi": 0.966,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.352,
+      "goal": 0.365,
+      "need": 0.284
+    }
+  },
+  {
+    "timestamp": "2025-12-23 23:52:06",
+    "feedback": {
+      "entropy": 0.5,
+      "sqi": 0.989,
+      "\u0394H": 0.0
+    },
+    "drives": {
+      "curiosity": 0.374,
+      "goal": 0.276,
+      "need": 0.35
+    }
   }
 ]

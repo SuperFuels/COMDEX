@@ -10,7 +10,7 @@ import yaml
 
 # Load global configuration & environment
 from backend.config import QQC_CONFIG_PATH, QQC_MODE, QQC_AUTO_START, load_qqc_config
-from backend.QQC.qqc_kernel_v2 import QuantumQuadCore  # make sure your v2 kernel is imported here
+from backend.QQC.qqc_central_kernel import QuantumQuadCore
 
 # Configure logging
 logging.basicConfig(
@@ -23,17 +23,14 @@ logger = logging.getLogger(__name__)
 async def main():
     logger.info("🚀 Initializing Tessaris Quantum Quad Core (QQC) Runtime...")
 
-    # Load the global QQC configuration
     cfg = load_qqc_config()
     if not cfg:
         logger.warning(f"[QQC Boot] ⚠️ Could not load config from {QQC_CONFIG_PATH}, using defaults.")
 
-    # Instantiate the core
     qqc = QuantumQuadCore()
 
-    # Auto-boot if enabled
     if QQC_AUTO_START:
-        boot_mode = QQC_MODE or cfg.get("boot", {}).get("mode", "resonant")
+        boot_mode = QQC_MODE or (cfg.get("boot", {}) or {}).get("mode", "resonant")
         logger.info(f"[QQC Boot] Starting QQC in mode='{boot_mode}'")
         await qqc.boot(mode=boot_mode)
     else:
@@ -48,6 +45,18 @@ async def main():
             "entropy_drift": 0.02 * (i - 2),
             "gain": 1.0 + 0.1 * i,
             "timestamp": time.time(),
+            # ✅ Provide a schema-compatible context:
+            "context": {
+                "avatar_id": "system_root",
+                "avatar_state": "active",          # <-- primitive (string), SoulLaw-friendly
+                "avatar_state_ts": time.time(),    # <-- keep timing separate
+                "container_id": qqc.container_id,
+                "container_meta": {
+                    "id": qqc.container_id,
+                    "kind": "qqc",
+                    "source": "qqc_kernel_boot",
+                },
+            },
         }
         await qqc.run_cycle(beam_data)
 
@@ -56,7 +65,6 @@ async def main():
     print("\n🧭 Final QQC Summary:")
     print(qqc.last_summary)
 
-    # Optional shutdown hook
     await qqc.shutdown()
     logger.info("✅ Quantum Quad Core shutdown complete.")
 

@@ -18,6 +18,7 @@ from typing import Any, Dict, List, Union
 
 from backend.modules.codex.logic_tree import LogicGlyph
 from backend.modules.codex.symbolic_registry import symbolic_registry
+
 # ✅ Canonical validator (kept old schema machinery as fallback, but prefer this)
 from backend.modules.photon.validation import validate_photon_capsule
 
@@ -58,6 +59,7 @@ _DEFAULT_SCHEMA: Dict[str, Any] = {
             },
         },
         "engine": {"type": "string"},
+        "metadata": {"type": "object"},
     },
     "anyOf": [
         {"required": ["glyphs"]},
@@ -96,9 +98,8 @@ def _validate_capsule(data: Dict[str, Any]) -> None:
         validate_photon_capsule(data)
         return
     except Exception as e:
-        # If the canonical path fails because jsonschema is not available, we still try local fallback.
+        # If the canonical path fails and we can't fall back, standardize error.
         if not _HAS_JSONSCHEMA:
-            # Repackage as standardized error
             raise ValueError({
                 "validation_errors": [{"code": "E001", "message": str(e)}],
                 "validation_errors_version": "v1",
@@ -112,14 +113,10 @@ def _validate_capsule(data: Dict[str, Any]) -> None:
     try:
         jsonschema.validate(instance=data, schema=_CAPSULE_SCHEMA)  # type: ignore
     except Exception as e:
-        # Standardized validation error format (v1)
-        errors = [{
-            "code": "E001",  # could later map specific codes
-            "message": str(e)
-        }]
+        errors = [{"code": "E001", "message": str(e)}]
         raise ValueError({
             "validation_errors": errors,
-            "validation_errors_version": "v1"
+            "validation_errors_version": "v1",
         })
 
 
@@ -133,6 +130,7 @@ def load_photon_capsule(path_or_dict: Union[str, Path, Dict[str, Any]]) -> Dict[
       • new 'glyph_stream' → normalized into 'glyphs' (keeps glyph_stream)
       • legacy 'steps' → converted to 'glyphs'
       • legacy 'body'  → converted to 'glyphs'
+      • root 'context' → moved into metadata.context (schema-safe)
     Always validates after migration.
     """
     if isinstance(path_or_dict, (str, Path)):
@@ -143,6 +141,35 @@ def load_photon_capsule(path_or_dict: Union[str, Path, Dict[str, Any]]) -> Dict[
         capsule = path_or_dict.copy()
     else:
         raise TypeError(f"Unsupported capsule input: {type(path_or_dict)}")
+
+    # ──────────────────────────────
+    # ✅ Schema sanitizer: move root-level context -> metadata.context
+    # (schema has additionalProperties=false, and does not allow root "context")
+    # ──────────────────────────────
+    meta = capsule.get("metadata")
+    if not isinstance(meta, dict):
+        meta = {}
+        capsule["metadata"] = meta
+
+    if "context" in capsule:
+        ctx = capsule.pop("context", None)
+
+        if isinstance(ctx, str):
+            # accept shorthand strings (single quotes etc)
+            try:
+                import ast
+                ctx = ast.literal_eval(ctx)
+            except Exception:
+                ctx = {"value": ctx}
+
+        if ctx is not None:
+            if "context" not in meta or not isinstance(meta.get("context"), dict):
+                meta["context"] = {}
+
+            if isinstance(ctx, dict):
+                meta["context"].update(ctx)
+            else:
+                meta["context"]["value"] = str(ctx)
 
     # ──────────────────────────────
     # New canonical stream -> glyphs (but keep glyph_stream for tooling)

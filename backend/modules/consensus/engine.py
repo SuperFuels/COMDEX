@@ -6,13 +6,14 @@ import asyncio
 import os
 import threading
 import time
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Deque
 import random
 from backend.modules.consensus.sync_policy import SyncPolicy
 from backend.modules.p2p.peer_store import load_peers_from_env, list_peers
 from .store import load_state, save_state
 from .types import Proposal, QC, Vote, VoteType
 from .validator_set import ValidatorSet
+from collections import deque
 
 # Optional networking layer (PR2). If missing, engine still runs but won't broadcast.
 _NET_OK = True
@@ -281,6 +282,11 @@ class ConsensusEngine:
         self._freeze_until_ms: float = 0.0
         self._no_proposal_timeouts: Dict[Tuple[int, int], int] = {}
 
+        self._proposal_seen_ms: Dict[tuple[int, int, str], float] = {}
+        self._finality_lat_ms: Deque[float] = deque(
+            maxlen=int(os.getenv("CONSENSUS_FINALITY_LAT_SAMPLES", "64") or 64)
+        )
+
         # proposal-missing timeout backoff (prevents runaway + keeps liveness)
         self._no_proposal_wait_n = int(os.getenv("CONSENSUS_NO_PROPOSAL_WAIT_N", "2") or "2")
 
@@ -344,16 +350,21 @@ class ConsensusEngine:
         self._task: Optional[asyncio.Task[None]] = None
         self._stop_evt: Optional[asyncio.Event] = None
 
-        # PR6.2: per-height round hint (fork-choice starter).
-        # If we observe (h, r>0) traffic early (proposal/vote), remember it so when we later reach height h,
-        # we deterministically start at that higher round instead of round 0.
-        self._round_hint: Dict[int, int] = {}  # height -> max round observed
-
     # -------------------------
     # Introspection
     # -------------------------
-
     def status(self) -> Dict[str, Any]:
+        def _pct(vals: list[float], p: float) -> Optional[float]:
+            if not vals:
+                return None
+            s = sorted(vals)
+            n = len(s)
+            if n == 1:
+                return float(s[0])
+            idx = int(round((p / 100.0) * (n - 1)))
+            idx = max(0, min(n - 1, idx))
+            return float(s[idx])
+
         with self._lock:
             h = int(self._cur_height)
             r = int(self._cur_round)
@@ -367,12 +378,17 @@ class ConsensusEngine:
             }
             evidence_tail = list(self._evidence)[-10:]
 
-            # PR6.1: expose installed proposal identity (for gates / divergence debugging)
             prop = self._proposals.get((h, r))
             prop_fp = _proposal_fingerprint(prop) if prop is not None else None
             prop_bid = getattr(prop, "block_id", None) if prop is not None else None
 
+            lat = list(self._finality_lat_ms)
+            last_qc = (self._last_qc.model_dump() if self._last_qc else None)
+
+        last_lat = float(lat[-1]) if lat else None
+
         leader = self.leader_for(h, r)
+
         return {
             "ok": True,
             "chain_id": self.chain_id,
@@ -390,7 +406,11 @@ class ConsensusEngine:
             "evidence_tail": evidence_tail,
             "net_ok": _NET_OK,
             "net_err": (_NET_ERR if not _NET_OK else None),
-            "last_qc": (self._last_qc.model_dump() if self._last_qc else None),
+            "last_qc": last_qc,
+            "finality_latency_ms_last": last_lat,
+            "finality_latency_ms_p50": _pct(lat, 50.0),
+            "finality_latency_ms_p95": _pct(lat, 95.0),
+            "finality_latency_ms_samples": int(len(lat)),
         }
 
     def leader_for(self, height: int, round: int = 0) -> Optional[str]:
@@ -747,6 +767,25 @@ class ConsensusEngine:
 
         if self._has_quorum(height=h, round=r, vote_type="PREVOTE", block_id=target_block_id):
             await self._maybe_send_vote(height=h, round=r, vote_type="PRECOMMIT", block_id=target_block_id)
+
+    def _qc_monotonicity_error_locked(self, new_qc: "QC") -> Optional[str]:
+        """
+        Enforce: last_qc never regresses; same (h,r) cannot conflict.
+        Caller MUST hold self._lock.
+        """
+        if self._last_qc is None:
+            return None
+
+        # regression?
+        if _is_qc_strictly_newer(self._last_qc, new_qc):
+            return "qc regressed vs last_qc"
+
+        # same (h,r) conflict?
+        if int(new_qc.height) == int(self._last_qc.height) and int(new_qc.round) == int(self._last_qc.round):
+            if str(new_qc.block_id) != str(self._last_qc.block_id) or str(new_qc.vote_type) != str(self._last_qc.vote_type):
+                return "qc conflict at same (height,round)"
+
+        return None
     # -------------------------
     # inbound handlers
     # -------------------------
@@ -772,20 +811,23 @@ class ConsensusEngine:
         if block_id != expected_bid:
             return {"ok": False, "error": f"non-canonical block_id (got={block_id}, want={expected_bid})"}
 
-        # PR6.2: remember we've seen (h,r) so we can start at r when we reach height h.
+        # PR6.2: round-hint memory
         self._record_round_hint(height=int(h), round=int(r))
 
         # --- FUTURE HEIGHT GATE (bounded; allow PR6 delayed-msg locks) ---
         with self._lock:
             curh = int(self._cur_height)
-
         max_ahead = int(os.getenv("CONSENSUS_FUTURE_HEIGHT_WINDOW", "64") or "64")
         if int(h) > (curh + max_ahead):
             return {"ok": True, "accepted": False, "ignored": True, "reason": "future height"}
         # --- END FUTURE HEIGHT GATE ---
 
-        # ✅ PR6.2: if we're locked at this height, reject conflicting proposals at the SAME/OLDER round,
-        # but ALLOW higher-round proposals so unlock/relock + round-hint convergence can happen.
+        # ✅ PR6.3: global monotonic invariant — ignore proposals for already-finalized heights
+        with self._lock:
+            if int(h) <= int(self._finalized_height):
+                return {"ok": True, "accepted": False, "ignored": True, "reason": "past height"}
+
+        # ✅ PR6.2: lock conflict gate (same logic as before)
         with self._lock:
             if (
                 self._lock_block_id is not None
@@ -794,23 +836,32 @@ class ConsensusEngine:
             ):
                 if int(r) <= int(self._lock_round):
                     return {"ok": False, "error": "locked on different block_id"}
-                # else: allow higher-round conflicting proposal to be stored/observed
+                # allow higher-round conflicting proposal to be observed
 
-        # ✅ PR6.1: store proposal deterministically (first-wins); duplicates must match fingerprint
+        # ✅ PR6.3: deterministic fork-choice at same (h,r): smallest proposal_fp wins (lexicographic)
         with self._lock:
             existing = self._proposals.get((int(h), int(r)))
             if existing is None:
                 self._proposals[(int(h), int(r))] = p
             else:
-                if _proposal_fingerprint(existing) != _proposal_fingerprint(p):
-                    return {"ok": False, "error": "competing proposal at same (height,round)"}
-                # else: identical duplicate, ok
+                fp_old = str(_proposal_fingerprint(existing))
+                fp_new = str(_proposal_fingerprint(p))
 
-        # ✅ NEW: proposal arrived -> clear "no-proposal" timeout state for this (h,r)
+                if fp_new == fp_old:
+                    # identical dup
+                    pass
+                elif fp_new < fp_old:
+                    # new winner replaces old loser (order-independent convergence)
+                    self._proposals[(int(h), int(r))] = p
+                else:
+                    # new loser ignored (idempotent ok)
+                    return {"ok": True, "accepted": False, "ignored": True, "reason": "fork_choice_loser"}
+
+        # clear no-proposal timeout marker
         with self._lock:
             self._no_proposal_timeouts.pop((int(h), int(r)), None)
 
-        # PR6.2: if this proposal is below our preferred round for this height, accept/store but do not act.
+        # PR6.2: stale-round suppression (accept/store but do not act)
         with self._lock:
             eff_pref = int(self._round_hint.get(int(h), int(r)) or int(r))
             if int(self._cur_height) == int(h):
@@ -819,12 +870,34 @@ class ConsensusEngine:
         if eff_pref > int(r):
             return {"ok": True, "accepted": False, "ignored": True, "reason": "stale round below preferred round"}
 
-        # ✅ PR6 gate: converge to observed higher round (current-height fast-forward)
+        # PR6.2: converge to observed higher round (current-height fast-forward)
         self._maybe_fast_forward_round(height=int(h), round=int(r))
 
         # schedule our prevote attempt (idempotent via _sent)
-        self._spawn_async(self._maybe_send_vote(height=int(h), round=int(r), vote_type="PREVOTE", block_id=block_id))
-        return {"ok": True, "accepted": True}
+        self._spawn_async(
+            self._maybe_send_vote(height=int(h), round=int(r), vote_type="PREVOTE", block_id=str(block_id))
+        )
+
+        out: Dict[str, Any] = {"ok": True, "accepted": True}
+
+        # ✅ #6.2: record proposal seen timestamp (bounded)
+        if isinstance(out, dict) and out.get("ok") is True and out.get("accepted", True):
+            try:
+                hh = int(getattr(p, "height", 0) or 0)
+                rr = int(getattr(p, "round", 0) or 0)
+                bid = str(getattr(p, "block_id", "") or "")
+                if hh > 0 and bid:
+                    with self._lock:
+                        self._proposal_seen_ms[(hh, rr, bid)] = _now_ms()
+                        if len(self._proposal_seen_ms) > 8192:
+                            try:
+                                self._proposal_seen_ms.pop(next(iter(self._proposal_seen_ms)))
+                            except Exception:
+                                pass
+            except Exception:
+                pass
+
+        return out
 
 
     def handle_vote(self, v: Vote) -> Dict[str, Any]:
@@ -865,8 +938,12 @@ class ConsensusEngine:
             return {"ok": True, "accepted": False, "ignored": True, "reason": "future height"}
         # --- END FUTURE HEIGHT GATE ---
 
+        # ✅ PR6.3: global monotonic invariant — ignore votes for already-finalized heights
+        with self._lock:
+            if int(h) <= int(self._finalized_height):
+                return {"ok": True, "accepted": False, "ignored": True, "reason": "past height"}
+
         # ✅ If we're in a post-jump freeze window, don't allow advancing finalized height further.
-        # This prevents last_qc from racing past the test target due to inbound votes.
         with self._lock:
             fu = float(getattr(self, "_freeze_until_ms", 0.0) or 0.0)
             local_fh = int(getattr(self, "_finalized_height", 0) or 0)
@@ -875,7 +952,6 @@ class ConsensusEngine:
             return {"ok": True, "accepted": False, "ignored": True, "reason": "freeze window"}
 
         # PR6.2: if this vote is below our preferred round for this height, accept but ignore it
-        # so stale-round traffic can't form QC/finalize behind fork-choice.
         with self._lock:
             eff_pref = int(self._round_hint.get(int(h), int(r)) or int(r))
             if int(self._cur_height) == int(h):
@@ -887,8 +963,7 @@ class ConsensusEngine:
         # ✅ PR6 gate: converge to observed higher round
         self._maybe_fast_forward_round(height=int(h), round=int(r))
 
-        # ✅ Under lock: reject votes for a conflicting value if we don't even have a matching
-        # accepted proposal for that (h,r). This matches “delayed/conflicting msgs” gating.
+        # ✅ Under lock: reject votes for a conflicting value if we don't even have a matching proposal
         with self._lock:
             if (
                 self._lock_block_id is not None
@@ -929,7 +1004,6 @@ class ConsensusEngine:
         now_ms = float(getattr(v, "ts_ms", 0.0) or 0.0) or _now_ms()
 
         with self._lock:
-            # PR6.1: round-aware lock enforcement + relock on higher-round prevote quorum
             locked_bid = str(self._lock_block_id) if self._lock_block_id is not None else None
             locked_r = int(self._lock_round)
 
@@ -957,7 +1031,7 @@ class ConsensusEngine:
                 power += self.vset.power_of(vv)
             quorum_reached = power >= self.vset.quorum_power()
 
-            # Unlock/relock trigger: higher-round PREVOTE quorum for a different value -> relock to it
+            # relock on higher-round prevote quorum for different value
             if vote_type == "PREVOTE" and quorum_reached:
                 if locked_bid is not None and int(self._lock_height) == int(h) and str(block_id) != locked_bid:
                     if int(r) > locked_r:
@@ -966,20 +1040,13 @@ class ConsensusEngine:
                         self._lock_block_id = str(block_id)
 
             if vote_type == "PRECOMMIT" and quorum_reached:
-                # ✅ capture BEFORE updating finalized height (used for freeze heuristic)
                 old_fh = int(self._finalized_height)
 
-                # PR6.2: QC formation guard (defense-in-depth) — LOCKED helper (no nested lock)
                 pref = self._preferred_round_for_height_locked(height=int(h), fallback_round=int(r))
                 if int(r) < int(pref):
-                    return {
-                        "ok": True,
-                        "accepted": False,
-                        "ignored": True,
-                        "reason": "stale round below preferred round",
-                    }
+                    return {"ok": True, "accepted": False, "ignored": True, "reason": "stale round below preferred round"}
 
-                # ✅ Allow future-height finalization (tests inject h far ahead)
+                # finalized_height monotonic (only advance)
                 if int(h) > int(self._finalized_height):
                     qc_out = QC(
                         height=int(h),
@@ -994,28 +1061,41 @@ class ConsensusEngine:
                     if err:
                         return {"ok": False, "error": f"qc invalid: {err}"}
 
+                    # ✅ PR6.3: monotonic last_qc invariant (reject regressions/conflicts)
+                    err2 = self._qc_monotonicity_error_locked(qc_out)
+                    if err2:
+                        return {"ok": False, "error": err2}
+
                     self._finalized_height = int(h)
                     finalized = True
 
+                    # ✅ only set last_qc if strictly newer
                     if self._last_qc is None or _is_qc_strictly_newer(qc_out, self._last_qc):
                         self._last_qc = qc_out
                     persist = True
 
-                    # ✅ freeze tick on BIG JUMP finalizations (test-injected far-ahead heights)
+                    # ✅ #6.2: finality latency window (cheap; we are already under self._lock)
+                    try:
+                        k = (int(h), int(r), str(block_id))
+                        now = _now_ms()
+                        seen = float(self._proposal_seen_ms.get(k, now) or now)
+                        self._finality_lat_ms.append(max(0.0, now - seen))
+                        self._proposal_seen_ms.pop(k, None)  # optional cleanup
+                    except Exception:
+                        pass
+
                     if int(h) > int(old_fh) + 1:
                         self._freeze_until_ms = max(
                             float(self._freeze_until_ms or 0.0),
                             _now_ms() + float(self._post_jump_freeze_ms),
                         )
 
-        # ✅ If we see other validators prevoting at (h,r), ensure we also prevote (idempotent via _sent).
-        # IMPORTANT: outside lock.
+        # outside lock: reactive prevote + precommit sends
         if vote_type == "PREVOTE" and voter != self.self_val_id:
             self._spawn_async(
                 self._maybe_send_vote(height=int(h), round=int(r), vote_type="PREVOTE", block_id=str(block_id))
             )
 
-        # if PREVOTE quorum reached, push PRECOMMIT
         if vote_type == "PREVOTE" and quorum_reached:
             self._spawn_async(
                 self._maybe_send_vote(height=int(h), round=int(r), vote_type="PRECOMMIT", block_id=str(block_id))
@@ -1454,6 +1534,7 @@ class ConsensusEngine:
         """
         Apply a peer's reported finalized tip if it has a valid QC and is ahead of us.
         PR6.1: reject QC regressions/conflicts at same finalized height.
+        PR6.3: enforce monotonicity (finalized_height + last_qc) on sync path too.
         """
         try:
             peer_fh = int(payload.get("finalized_height") or 0)
@@ -1472,7 +1553,7 @@ class ConsensusEngine:
         except Exception:
             return {"ok": False, "error": "bad qc"}
 
-        # ✅ PR6.1 linkage: finalized_height must match qc.height (otherwise reject)
+        # ✅ linkage: finalized_height must match qc.height (otherwise reject)
         try:
             qc_h = int(getattr(qc, "height", 0) or 0)
         except Exception:
@@ -1480,35 +1561,44 @@ class ConsensusEngine:
         if qc_h != int(peer_fh):
             return {"ok": False, "error": "sync_resp invalid: finalized_height != last_qc.height"}
 
+        # snapshot local state
         with self._lock:
             local_fh = int(self._finalized_height)
             local_last = self._last_qc
 
-        # If peer is behind us, ignore (do NOT treat as an error).
+        # ✅ If peer is behind us, ignore (do NOT treat as an error).
         if int(peer_fh) < int(local_fh):
             return {"ok": True, "applied": False, "finalized_height": int(local_fh), "old_fh": int(local_fh)}
 
-        # If peer claims SAME finalized height, QC must not regress/conflict.
-        if int(peer_fh) == int(local_fh):
-            err = _validate_qc_structural_or_error(qc, vset=self.vset, last_qc=local_last, expect_height=peer_fh)
-            if err:
-                return {"ok": False, "error": err}
-            return {"ok": True, "applied": False, "finalized_height": int(local_fh), "old_fh": int(local_fh)}
-
-        # Peer is ahead: QC must be structurally valid, and must not conflict with our last_qc ordering.
+        # ✅ structural validation first
         err = _validate_qc_structural_or_error(qc, vset=self.vset, last_qc=local_last, expect_height=peer_fh)
         if err:
             return {"ok": False, "error": err}
 
+        # compute old_fh for return/persist decisions
+        old_fh = int(local_fh)
+
+        # ✅ PR6.3: monotonic invariants under lock
         with self._lock:
-            old_fh = int(self._finalized_height)
+            err2 = self._qc_monotonicity_error_locked(qc)
+            if err2:
+                return {"ok": False, "error": err2}
 
-            self._finalized_height = int(peer_fh)
-            self._last_qc = qc
-            self._cur_height = int(self._finalized_height) + 1
-            self._cur_round = 0
-            self._round_started_ms = _now_ms()
+            # ✅ finalized_height monotonic: only advance forward
+            if int(peer_fh) > int(self._finalized_height):
+                self._finalized_height = int(peer_fh)
 
+            # ✅ last_qc monotonic: only update if strictly newer
+            if self._last_qc is None or _is_qc_strictly_newer(qc, self._last_qc):
+                self._last_qc = qc
+
+            # restart local round state at new tip (only if we actually advanced)
+            if int(self._finalized_height) > int(old_fh):
+                self._cur_height = int(self._finalized_height) + 1
+                self._cur_round = 0
+                self._round_started_ms = _now_ms()
+
+        # persist (best-effort)
         try:
             save_state(
                 int(self._finalized_height),
@@ -1518,18 +1608,25 @@ class ConsensusEngine:
         except Exception:
             pass
 
-        try:
-            self._persist_finalized_shell_range(
-                from_height=int(old_fh) + 1,
-                to_height=int(peer_fh),
-                tip_block_id=str(qc.block_id),
-                tip_qc=qc,
-                tip_created_at_ms=int(qc.ts_ms or _now_ms()),
-            )
-        except Exception:
-            pass
+        # persist shells (only if we advanced)
+        if int(peer_fh) > int(old_fh):
+            try:
+                self._persist_finalized_shell_range(
+                    from_height=int(old_fh) + 1,
+                    to_height=int(peer_fh),
+                    tip_block_id=str(qc.block_id),
+                    tip_qc=qc,
+                    tip_created_at_ms=int(qc.ts_ms or _now_ms()),
+                )
+            except Exception:
+                pass
 
-        return {"ok": True, "applied": True, "finalized_height": int(self._finalized_height), "old_fh": int(old_fh)}
+        return {
+            "ok": True,
+            "applied": (int(peer_fh) > int(old_fh)),
+            "finalized_height": int(self._finalized_height),
+            "old_fh": int(old_fh),
+        }
 
     async def _sync_once(self) -> None:
         """
@@ -1713,6 +1810,27 @@ class ConsensusEngine:
     # -------------------------
     # helpers
     # -------------------------
+
+    def _proposal_wins_over(a: Proposal, b: Proposal) -> bool:
+        # True if a beats b
+        try:
+            return str(_proposal_fingerprint(a)) < str(_proposal_fingerprint(b))
+        except Exception:
+            # safest: never “win” on error
+            return False
+
+    def _pctl(vals: list[float], p: float) -> float:
+        if not vals:
+            return 0.0
+        v = sorted(vals)
+        if p <= 0:
+            return float(v[0])
+        if p >= 100:
+            return float(v[-1])
+        # nearest-rank
+        k = int(round((p / 100.0) * (len(v) - 1)))
+        k = max(0, min(len(v) - 1, k))
+        return float(v[k])
 
     def _record_round_hint(self, *, height: int, round: int) -> None:
         h = int(height)

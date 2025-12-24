@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-12-22T20:34:19.044999+00:00",
+  "depth_steps": 60,
+  "glyph_tree_bytes": 2175,
+  "glyph_tree_gzip_bytes": 379,
+  "baseline_verbose_ast_bytes": 132582,
+  "baseline_verbose_ast_gzip_bytes": 4724,
+  "baseline_expanded_instr_bytes": 35957,
+  "baseline_expanded_instr_gzip_bytes": 2939,
+  "compression_x_vs_verbose_ast": 60.9572,
+  "compression_x_vs_expanded_instr": 16.532,
+  "compression_x_vs_verbose_ast_gzip": 12.4644,
+  "compression_x_vs_expanded_instr_gzip": 7.7546,
+  "tree_token_count_est": 255,
+  "expanded_instruction_count": 255,
+  "structural_score_internal": 24858,
+  "runtime_ms": 6.737
+}

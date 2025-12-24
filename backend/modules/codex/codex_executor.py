@@ -100,6 +100,25 @@ import asyncio
 import logging
 logger = logging.getLogger(__name__)
 
+def _coerce_glyph_obj(glyph: Any) -> Dict[str, Any]:
+    """
+    Coerce legacy/adapter glyph inputs into a dict-like object.
+    - dict -> returned as-is
+    - empty string / None -> {}
+    - non-empty string -> {"program": "...", "raw": "..."}
+    """
+    if glyph is None:
+        return {}
+    if isinstance(glyph, dict):
+        return glyph
+    if isinstance(glyph, str):
+        s = glyph.strip()
+        if not s or s in ("∅", "null", "none"):
+            return {}
+        return {"program": s, "raw": s, "type": "codex_program"}
+    # last resort
+    return {"raw": str(glyph), "type": "unknown"}
+
 def resolve_op(op_symbol: str):
     mapping = {
         "⊕": "superpose",
@@ -172,6 +191,40 @@ except Exception:  # fallback for test/CI
         print(f"[QWaveEmitter] (stub) emit_qwave_beam: {wave} -> {container_id}, src={source}, meta={metadata}")
 
 from backend.modules.glyphwave.core.wave_state import WaveState
+
+def _call_plugin_qfc_broadcast(plugin, field_state: Dict[str, Any], *, container_id: Optional[str] = None):
+    """
+    Call plugin.broadcast_qfc_update safely across signature differences.
+    Only passes kwargs the plugin actually accepts.
+    """
+    import inspect
+    fn = getattr(plugin, "broadcast_qfc_update", None)
+    if not fn:
+        return
+
+    kwargs = {}
+    try:
+        sig = inspect.signature(fn)
+        if "observer_id" in sig.parameters:
+            kwargs["observer_id"] = "codex_executor"
+        if "container_id" in sig.parameters and container_id:
+            kwargs["container_id"] = container_id
+        if "payload" in sig.parameters:
+            kwargs["payload"] = field_state
+        if "field_state" in sig.parameters:
+            kwargs["field_state"] = field_state
+    except Exception:
+        # if signature introspection fails, fall back to simplest call
+        kwargs = {}
+
+    if inspect.iscoroutinefunction(fn):
+        _spawn_async(fn(field_state, **kwargs), "QFC plugin broadcast")
+    else:
+        try:
+            fn(field_state, **kwargs)
+        except TypeError:
+            # last resort: no kwargs
+            fn(field_state)
 
 def validate_stub(symbolic_logic):
     try:
@@ -374,8 +427,65 @@ class CodexExecutor:
         from backend.modules.glyphos.codexlang_translator import run_codexlang_string
         from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
 
+        # ─────────────────────────────────────────────────────────────
+        # 🔧 Capsule Normalizer: keep schema strict, move root context into metadata
+        #   Fixes: E001 "context was unexpected"
+        #   Also ensures SoulLaw sees avatar/container under metadata.context
+        # ─────────────────────────────────────────────────────────────
+        def _normalize_capsule_for_schema(obj: Any, runtime_ctx: Dict[str, Any]) -> Any:
+            if not isinstance(obj, dict):
+                return obj
+
+            # Ensure metadata is a dict
+            meta = obj.get("metadata")
+            if not isinstance(meta, dict):
+                meta = {}
+                obj["metadata"] = meta
+
+            # Move root context → metadata.context
+            root_ctx = obj.pop("context", None)
+            if isinstance(root_ctx, dict):
+                meta_ctx = meta.get("context")
+                if not isinstance(meta_ctx, dict):
+                    meta_ctx = {}
+                    meta["context"] = meta_ctx
+                # root wins over existing meta if both exist
+                meta_ctx.update(root_ctx)
+
+            # Merge runtime context into metadata.context if provided
+            if isinstance(runtime_ctx, dict) and runtime_ctx:
+                meta_ctx = meta.get("context")
+                if not isinstance(meta_ctx, dict):
+                    meta_ctx = {}
+                    meta["context"] = meta_ctx
+                # runtime fills missing keys only (doesn't override capsule-provided)
+                for k, v in runtime_ctx.items():
+                    meta_ctx.setdefault(k, v)
+
+            # Optional: ensure container_meta is present/complete if container_id exists
+            meta_ctx = meta.get("context")
+            if isinstance(meta_ctx, dict):
+                cid = meta_ctx.get("container_id")
+                cmeta = meta_ctx.get("container_meta")
+                if cid and not isinstance(cmeta, dict):
+                    meta_ctx["container_meta"] = {
+                        "id": cid,
+                        "kind": meta_ctx.get("container_kind", "qqc"),
+                        "source": meta_ctx.get("container_source", "qqc_kernel_boot"),
+                    }
+
+                # Optional: if avatar_state accidentally arrives nested or null
+                if "avatar_state" in meta_ctx and meta_ctx["avatar_state"] is None:
+                    meta_ctx["avatar_state"] = "active"
+
+            return obj
+
+        # If caller passed a dict capsule, normalize it *before* schema validation.
+        if isinstance(capsule, dict):
+            capsule = _normalize_capsule_for_schema(capsule, context)
+
         try:
-            # 🔗 Load + normalize capsule
+            # 🔗 Load + normalize capsule (schema validation happens inside)
             capsule_dict = load_photon_capsule(capsule)
             glyphs = photon_capsule_to_glyphs(capsule_dict)
 
@@ -518,7 +628,18 @@ class CodexExecutor:
     ) -> Dict[str, Any]:
         context = context or {}
         start_time = time.perf_counter()
-        glyph = context.get("glyph", "∅")
+
+        # ✅ Coerce glyph to dict so downstream .get(...) is always safe
+        _raw_glyph = context.get("glyph", "∅")
+        glyph_obj = _coerce_glyph_obj(_raw_glyph)
+
+        # If empty/invalid, keep a structured noop glyph (DON'T crash validators)
+        if not glyph_obj:
+            logger.info("[Validation] Empty glyph received -> continuing with noop glyph.")
+            glyph_obj = {"program": "∅", "raw": "∅", "type": "noop"}
+
+        glyph = glyph_obj
+        context["glyph"] = glyph  # keep context consistent
 
         # Ensure 'source' always exists
         source = context.get("source", "codex")
@@ -815,9 +936,11 @@ class CodexExecutor:
             except Exception as plugin_trigger_err:
                 logger.warning(f"[Plugin] trigger hook failed: {plugin_trigger_err}")
 
-            # 📡 Plugin QFC Broadcast Hook
+            # 📡 Plugin QFC Broadcast Hook (signature-safe)
             try:
                 from backend.core.plugins.plugin_manager import get_all_plugins
+                import inspect
+
                 field_state = {
                     "nodes": [],
                     "links": [],
@@ -830,21 +953,41 @@ class CodexExecutor:
                     "reflection_tags": [],
                     "validation_errors": [],
                 }
+
+                def _safe_plugin_broadcast(plugin, field_state: Dict[str, Any], container_id: Optional[str] = None):
+                    fn = getattr(plugin, "broadcast_qfc_update", None)
+                    if not fn:
+                        return
+
+                    # Only pass kwargs the plugin actually accepts
+                    kwargs: Dict[str, Any] = {}
+                    try:
+                        sig = inspect.signature(fn)
+                        if "observer_id" in sig.parameters:
+                            kwargs["observer_id"] = "codex_executor"
+                        if "container_id" in sig.parameters and container_id:
+                            kwargs["container_id"] = container_id
+                        # support alt param names if present
+                        if "payload" in sig.parameters:
+                            kwargs["payload"] = field_state
+                        if "field_state" in sig.parameters:
+                            kwargs["field_state"] = field_state
+                    except Exception:
+                        kwargs = {}
+
+                    if inspect.iscoroutinefunction(fn):
+                        _spawn_async(fn(field_state, **kwargs), "QFC plugin broadcast")
+                    else:
+                        try:
+                            fn(field_state, **kwargs)
+                        except TypeError:
+                            fn(field_state)
+
+                cid = context.get("container_id") if isinstance(context, dict) else None
                 for plugin in get_all_plugins():
                     if hasattr(plugin, "broadcast_qfc_update"):
-                        import inspect, asyncio
-                        if inspect.iscoroutinefunction(plugin.broadcast_qfc_update):
-                            try:
-                                loop = asyncio.get_running_loop()
-                                loop.create_task(
-                                    plugin.broadcast_qfc_update(field_state, observer_id="codex_executor")
-                                )
-                            except RuntimeError:
-                                asyncio.run(
-                                    plugin.broadcast_qfc_update(field_state, observer_id="codex_executor")
-                                )
-                        else:
-                            plugin.broadcast_qfc_update(field_state, observer_id="codex_executor")
+                        _safe_plugin_broadcast(plugin, field_state, container_id=cid)
+
             except Exception as plugin_broadcast_err:
                 logger.warning(f"[Plugin] QFC broadcast hook failed: {plugin_broadcast_err}")
 
@@ -1152,6 +1295,9 @@ class CodexExecutor:
                 from backend.modules.glyphos.codexlang_translator import parse_codexlang_string
                 parsed = parse_codexlang_string(code_or_tree)
                 instruction_tree = parsed.get("action") or parsed
+                # If "action" is still a CodexLang string, compile it to a tree
+                if isinstance(instruction_tree, str):
+                    instruction_tree = run_codexlang_string(instruction_tree)
             except Exception as e:
                 print(f"[CodexExecutor] ⚠️ Failed to parse CodexLang string: {e}")
                 instruction_tree = {"error": str(e), "raw": code_or_tree}
@@ -1515,25 +1661,6 @@ if __name__ == "__main__":
 
     mutated = auto_mutate_container(container, autosave=autosave)
     print(f"✅ Container processed. Autosave={autosave}")
-
-# --------------------------------------------------------------------------------------
-# Free function wrapper for tests
-# --------------------------------------------------------------------------------------
-
-def execute_photon_capsule(
-    capsule: Union[str, Path, Dict[str, Any]],
-    *,
-    context: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
-    """
-    Test-facing wrapper for CodexExecutor.execute_photon_capsule.
-    Ensures integration tests can call this directly without instantiating the executor.
-    """
-    from backend.modules.codex.codex_executor import CodexExecutor
-
-    executor = CodexExecutor()
-    return executor.execute_photon_capsule(capsule, context=context)
-
 
 # ──────────────────────────────
 # Module exports

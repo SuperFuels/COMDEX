@@ -20,6 +20,7 @@ from filelock import FileLock, Timeout  # 🔒 concurrency protection
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+# Standard Aion Memory Paths
 LEX_PATH = Path("data/memory/cee_lex_memory.json")
 CACHE_PATH = Path("data/memory/resonant_memory_cache.json")
 LOCK_PATH = Path(str(CACHE_PATH) + ".lock")
@@ -31,7 +32,7 @@ def atomic_write_json(path: Path, data: dict):
     """Safely write JSON with full validation and atomic replace."""
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Backup if existing
+    # 1. Backup if existing file is present
     if path.exists():
         bak = path.with_suffix(".bak")
         try:
@@ -40,29 +41,33 @@ def atomic_write_json(path: Path, data: dict):
         except Exception as e:
             log.warning(f"[Rebuild] ⚠ Could not backup cache: {e}")
 
-    # Write temp file
+    # 2. Write to a temporary file first
     tmp = tempfile.NamedTemporaryFile("w", delete=False, dir=path.parent, suffix=".tmp")
-    json.dump(data, tmp, indent=2)
-    tmp.flush()
-    os.fsync(tmp.fileno())
-    tmp.close()
-
-    # Verify JSON integrity before replacing
     try:
-        json.loads(Path(tmp.name).read_text(encoding="utf-8"))
+        json.dump(data, tmp, indent=2)
+        tmp.flush()
+        os.fsync(tmp.fileno()) # Ensure data is physically on disk
+        tmp.close()
+
+        # 3. Verify JSON integrity by reading it back
+        with open(tmp.name, 'r', encoding="utf-8") as f:
+            json.loads(f.read())
+            
+        # 4. Atomic Replace (Standard OS level rename)
+        os.replace(tmp.name, path)
+        log.info(f"[Rebuild] ✅ Atomic save verified -> {path}")
+        
     except Exception as e:
         log.error(f"[Rebuild] ❌ Validation failed, aborting write: {e}")
-        os.unlink(tmp.name)
+        if os.path.exists(tmp.name):
+            os.unlink(tmp.name)
         raise
-
-    os.replace(tmp.name, path)
-    log.info(f"[Rebuild] ✅ Atomic save verified -> {path}")
 
 # ============================================================
 # 🧩 Safe Value Conversion
 # ============================================================
 def safe_value(v):
-    """Ensure all exported values are JSON-serializable."""
+    """Ensure all exported values are JSON-serializable to avoid encoding errors."""
     if isinstance(v, (float, int, str, bool)) or v is None:
         return v
     if isinstance(v, (list, tuple)):
@@ -75,9 +80,13 @@ def safe_value(v):
 # 🔁 Rebuild Routine
 # ============================================================
 def rebuild():
-    """Rebuild the Resonant Memory Cache from LexMemory data."""
+    """
+    Main Logic: Rebuilds RMC by mapping the current LexMemory state 
+    to fresh resonance profiles.
+    """
     if not LEX_PATH.exists():
-        raise FileNotFoundError(f"No LexMemory data found at {LEX_PATH}")
+        log.error(f"[Rebuild] Critical: LexMemory missing at {LEX_PATH}")
+        return 0
 
     try:
         lex_data = json.loads(LEX_PATH.read_text(encoding="utf-8"))
@@ -90,7 +99,10 @@ def rebuild():
 
     cache = {}
     now = time.time()
+    
+    # Map raw lexemes to resonance entries
     for k, v in lex_data.items():
+        # Initialize with baseline resonance metrics
         cache[str(k)] = {
             "count": 1,
             "avg_phase": 0.5,
@@ -100,6 +112,7 @@ def rebuild():
             "source": "lexmemory",
         }
 
+    # Wrap in standard RMC schema
     result = {
         "timestamp": now,
         "entries": len(cache),
@@ -110,27 +123,28 @@ def rebuild():
         },
     }
 
-    # 🔒 Acquire file lock before writing
+    # 🔒 Lock acquisition to prevent race conditions with the 
+    # ResonantDriftMonitor or HarmonicStabilizerEngine.
     lock = FileLock(str(LOCK_PATH))
     try:
         with lock.acquire(timeout=30):
             atomic_write_json(CACHE_PATH, safe_value(result))
             log.info(f"[Rebuild] ✅ Wrote {len(cache)} entries under lock.")
+            return len(cache)
     except Timeout:
-        log.warning(f"[Rebuild] ⚠ Another process is writing - rebuild skipped.")
+        log.warning(f"[Rebuild] ⚠ Another process is writing - rebuild timed out.")
         return 0
-
-    return len(cache)
 
 # ============================================================
 # 🧪 CLI Entry
 # ============================================================
 if __name__ == "__main__":
+    print("🧠 Starting Phase 45F.11 Rebuild...")
     try:
         n = rebuild()
         if n > 0:
             print(f"🧩 Rebuild complete: {n} resonance entries written safely.")
         else:
-            print("⚠ Rebuild skipped (cache locked by another process).")
+            print("⚠ Rebuild skipped or no data found.")
     except Exception as e:
-        print(f"❌ Rebuild failed: {e}")
+        print(f"❌ Rebuild failed with exception: {e}")

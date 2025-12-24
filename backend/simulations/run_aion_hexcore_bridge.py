@@ -1,535 +1,379 @@
 #!/usr/bin/env python3
 """
-AION Cognitive↔Interactive Bridge - Phase 13 + Resonant Recall
-──────────────────────────────────────────────────────────────
-Combines the AION Resonance Console with the Cognitive Exercise Engine (CEE)
-and introduces long-term Resonant Recall via LexMemory + ResonantMemoryCache.
+AION ↔ HexCore Bridge
+─────────────────────
+CLI bridge that talks to the HexCore HTTP server (/health, /quantum).
+
+Fixes:
+- No hardcoded 8500-only assumptions (supports env override + autodetect).
+- Returns full JSON payload (result + ρ + Ī + type), not just `result`.
+- Safe local fallback evaluator if remote HexCore is unavailable.
 
 Usage:
-    PYTHONPATH=. python backend/simulations/run_aion_cognitive_bridge.py
+  PYTHONPATH=. python backend/simulations/run_aion_hexcore_bridge.py
+
+Env:
+  HEXCORE_BASE_URL   e.g. http://127.0.0.1:8500
+  HEXCORE_PORT       e.g. 8500 (used if HEXCORE_BASE_URL not set)
+  HEXCORE_TIMEOUT    seconds (default 5)
 """
 
+from __future__ import annotations
+
 import os
-os.environ["AION_QUIET_MODE"] = "1"
-
-import json, time, readline, random, logging, builtins
+import re
+import math
+import json
+import time
+import statistics
 from pathlib import Path
-import plotly.graph_objects as go
-from rich.console import Console
-from rich.table import Table
+from typing import Any, Dict, Optional, Tuple, List
 
-# ─────────────────────────────────────────────────────────────
-# 🔇 Global Log Suppression (for SQI heartbeat / broadcast spam)
-# ─────────────────────────────────────────────────────────────
-logging.basicConfig(level=logging.ERROR)
-for name in [
-    "SQI Event", "heartbeat", "root",
-    "Θ", "StrategyPlanner", "GoalEngine",
-    "HexCore", "backend.modules.hexcore.hexcore",
-    "backend.modules.aion_thinking.theta_orchestrator"
-]:
-    logging.getLogger(name).setLevel(logging.ERROR)
+try:
+    import requests  # type: ignore
+except Exception:
+    requests = None  # type: ignore
 
-# Intercept print() to silence noisy runtime spam
-if not hasattr(builtins, "_orig_print"):
-    builtins._orig_print = builtins.print
 
-def _silent_print(*args, **kwargs):
-    txt = " ".join(map(str, args))
-    if any(tag in txt for tag in (
-        "[📣]", "heartbeat", "Saved", "Payload:", "Updated", "broadcast"
-    )):
-        return
-    builtins._orig_print(*args, **kwargs)
-
-builtins.print = _silent_print
-
-# ─────────────────────────────────────────────────────────────
-# Core engines (Lexical + Cognitive)
-# ─────────────────────────────────────────────────────────────
-from backend.AION.resonance.resonance_engine import update_resonance, get_resonance
-from backend.modules.aion.memory.store import _load as load_memory
-from backend.modules.wiki_capsules.integration.kg_query_extensions import update_capsule_meta
-from backend.modules.aion_cognition.cee_lex_memory import update_lex_memory
-from backend.simulations import aion_bridge_commands as cmds
-from backend.modules.aion_resonance.resonance_heartbeat import ResonanceHeartbeat
-from backend.modules.aion_thinking.theta_orchestrator import ThinkingLoop as ThetaOrchestrator
-from backend.modules.aion_cognition.interruption_manager import InterruptionManager
-from backend.modules.aion_cognition.cognitive_exercise_engine_dual import DualModeCEE as CognitiveExerciseEngine
-
-# ─────────────────────────────────────────────────────────────
-# 🌌 HexCore / Quantum Bridge Integration
-# ─────────────────────────────────────────────────────────────
-USE_HEXCORE = True
-HEX = None
-
-if USE_HEXCORE:
+# ─────────────────────────────────────────────
+# Local (fallback) evaluator (mirrors run_hexcore_server.py behavior)
+# ─────────────────────────────────────────────
+def _safe_float(x: Any) -> Optional[float]:
     try:
-        import requests
-        # Try pinging external HexCore process first
-        resp = requests.get("http://127.0.0.1:8500/health", timeout=2)
-        if resp.status_code == 200:
-            print("🌌 HexCore detected - remote cognition bridge active.")
-        else:
-            print("⚠️ HexCore running externally but unresponsive.")
+        return float(x)
     except Exception:
-        print("🧩 HexCore not detected (running standalone bridge mode).")
-        USE_HEXCORE = False
-if USE_HEXCORE:
-    import requests
+        return None
 
-    class HexCoreClient:
-        def __init__(self, base="http://127.0.0.1:8500"):
-            self.base = base
-        def compute(self, expr):
+
+def _compute_superposition(a: float, b: float) -> float:
+    return (a + b) / 2.0
+
+
+def _compute_entanglement(a: float, b: float) -> float:
+    return a * b
+
+
+def _compute_resonance(a: float, b: float) -> float:
+    if (a + b) == 0:
+        return 0.0
+    return 2 * a * b / (a + b)
+
+
+def _coherence_metric(values: List[float]) -> float:
+    if len(values) < 2:
+        return 1.0
+    var = statistics.pvariance(values)
+    return max(0.0, 1 - var / (1 + var))
+
+
+def _entropy_metric(values: List[float]) -> float:
+    vals = [abs(v) for v in values if v != 0]
+    if not vals:
+        return 0.0
+    avg = sum(vals) / len(vals)
+    dispersion = sum(abs(v - avg) for v in vals) / len(vals)
+    return round(min(1.0, math.log(1 + dispersion)), 3)
+
+
+def evaluate_symatic_expr_local(expr: str) -> Dict[str, Any]:
+    """
+    Local fallback for numeric + symbolic Symatics expressions.
+    Mirrors the basic logic in backend/modules/hexcore/run_hexcore_server.py
+    """
+    expr = (expr or "").strip()
+
+    # 1) Try numeric math
+    if re.fullmatch(r"[0-9\+\-\*\/\(\)\.\sxX]+", expr or ""):
+        e2 = expr.replace("x", "*").replace("X", "*")
+        try:
+            result = eval(e2, {"__builtins__": None, "math": math})
+            rho = _coherence_metric([float(result)])
+            iota = _entropy_metric([float(result)])
+            return {
+                "result": result,
+                "ρ": round(rho, 3),
+                "Ī": round(iota, 3),
+                "type": "numeric",
+                "mode": "local",
+            }
+        except Exception as e:
+            return {"error": f"Math eval error: {e}", "mode": "local"}
+
+    # 2) Symbolic operator patterns
+    m = re.search(r"([⊕↔⟲∇]|->)\s*\(([^)]+)\)", expr)
+    if m:
+        op = m.group(1)
+        args = [a.strip() for a in m.group(2).split(",") if a.strip()]
+
+        if len(args) < 2 and op != "->":
+            return {"error": f"Operator {op} requires two arguments.", "mode": "local"}
+
+        a = _safe_float(args[0]) if args else None
+        b = _safe_float(args[1]) if len(args) > 1 else None
+
+        # numeric operands
+        if a is not None and (b is not None or op == "->"):
+            val: Optional[float]
+            if op == "⊕":
+                val = _compute_superposition(a, float(b))
+            elif op == "↔":
+                val = _compute_entanglement(a, float(b))
+            elif op == "⟲":
+                val = _compute_resonance(a, float(b))
+            elif op == "∇":
+                val = (a + float(b)) / 2.0
+            elif op == "->":
+                val = math.exp(a)
+            else:
+                val = None
+
+            vals = [v for v in [a, b, val] if isinstance(v, (int, float)) and v is not None]
+            rho = _coherence_metric([float(v) for v in vals]) if vals else 0.5
+            iota = _entropy_metric([float(v) for v in vals]) if vals else 0.5
+
+            return {
+                "result": val,
+                "ρ": round(rho, 3),
+                "Ī": round(iota, 3),
+                "type": "numeric_symatic",
+                "mode": "local",
+            }
+
+        # symbolic operands
+        meaning = {
+            "⊕": "superposition",
+            "↔": "entanglement",
+            "⟲": "resonance",
+            "∇": "collapse",
+            "->": "trigger",
+        }.get(op, "unknown")
+
+        return {
+            "result": f"Ψ = {meaning}({', '.join(args)})",
+            "ρ": 1.0,
+            "Ī": 0.5,
+            "type": "symbolic",
+            "mode": "local",
+        }
+
+    # 3) Default symbolic interpretation
+    if "photon" in expr and "wave" in expr:
+        return {"result": "Ψ = coherent(superposition(photon, wave))", "ρ": 0.92, "Ī": 0.12, "type": "symbolic", "mode": "local"}
+    if "resonance" in expr:
+        return {"result": "ρ⊕Ī -> balanced field state", "ρ": 0.85, "Ī": 0.25, "type": "symbolic", "mode": "local"}
+    if "entanglement" in expr:
+        return {"result": "↔ -> dual-phase coupling", "ρ": 0.78, "Ī": 0.30, "type": "symbolic", "mode": "local"}
+
+    return {"result": f"[QQC symbolic] evaluated {expr}", "ρ": 0.5, "Ī": 0.5, "type": "symbolic", "mode": "local"}
+
+
+# ─────────────────────────────────────────────
+# Remote HexCore detection + client
+# ─────────────────────────────────────────────
+def _env_int(name: str, default: int) -> int:
+    try:
+        v = os.getenv(name)
+        return int(v) if v else default
+    except Exception:
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        v = os.getenv(name)
+        return float(v) if v else default
+    except Exception:
+        return default
+
+
+def candidate_base_urls() -> List[str]:
+    """
+    Detection order:
+      1) HEXCORE_BASE_URL (if set)
+      2) HEXCORE_PORT (if set) -> http://127.0.0.1:<port>
+      3) common ports: 8500 (hexcore), 8000 (dev uvicorn), 8080 (codespaces/cloud)
+    """
+    urls: List[str] = []
+    base = (os.getenv("HEXCORE_BASE_URL") or "").strip()
+    if base:
+        urls.append(base.rstrip("/"))
+
+    port = _env_int("HEXCORE_PORT", 0)
+    if port:
+        urls.append(f"http://127.0.0.1:{port}")
+
+    for p in (8500, 8000, 8080):
+        u = f"http://127.0.0.1:{p}"
+        if u not in urls:
+            urls.append(u)
+
+    return urls
+
+
+def probe_hexcore(base_url: str, timeout: float) -> Tuple[bool, Dict[str, Any]]:
+    if requests is None:
+        return False, {"error": "requests_not_installed"}
+    try:
+        r = requests.get(f"{base_url}/health", timeout=timeout)
+        if r.status_code == 200:
             try:
-                resp = requests.post(f"{self.base}/quantum", json={"expr": expr}, timeout=5)
-                return resp.json().get("result", "⚠️ No result")
+                return True, r.json()
+            except Exception:
+                return True, {"raw": r.text}
+        return False, {"status_code": r.status_code, "text": (r.text or "")[:300]}
+    except Exception as e:
+        return False, {"error": str(e)}
+
+
+def detect_hexcore_base_url(timeout: float) -> Optional[str]:
+    for base in candidate_base_urls():
+        ok, _ = probe_hexcore(base, timeout=timeout)
+        if ok:
+            return base
+    return None
+
+
+class HexCoreClient:
+    """
+    Robust HexCore client:
+      - prefers remote (/quantum)
+      - falls back to local evaluator if remote fails
+    """
+
+    def __init__(self, base_url: Optional[str] = None, timeout: Optional[float] = None, allow_local_fallback: bool = True):
+        self.timeout = timeout if timeout is not None else _env_float("HEXCORE_TIMEOUT", 5.0)
+        self.allow_local_fallback = allow_local_fallback
+        self.base_url = (base_url or detect_hexcore_base_url(timeout=min(2.0, self.timeout)))
+
+    def health(self) -> Dict[str, Any]:
+        if not self.base_url:
+            return {"ok": False, "mode": "local", "reason": "no_remote_detected"}
+        ok, data = probe_hexcore(self.base_url, timeout=min(2.0, self.timeout))
+        return {"ok": ok, "mode": "remote" if ok else "local", "base_url": self.base_url, "health": data}
+
+    def compute(self, expr: str) -> Dict[str, Any]:
+        expr = (expr or "").strip()
+        if not expr:
+            return {"error": "empty_expr"}
+
+        # Remote first
+        if self.base_url and requests is not None:
+            try:
+                r = requests.post(f"{self.base_url}/quantum", json={"expr": expr}, timeout=self.timeout)
+                r.raise_for_status()
+                data = r.json()
+                if isinstance(data, dict):
+                    data.setdefault("mode", "remote")
+                    data.setdefault("base_url", self.base_url)
+                    return data
+                return {"result": data, "mode": "remote", "base_url": self.base_url}
             except Exception as e:
-                return f"⚠️ QQC request failed: {e}"
+                if not self.allow_local_fallback:
+                    return {"error": f"remote_hexcore_failed: {e}", "mode": "remote", "base_url": self.base_url}
 
-    HEX = HexCoreClient()
-# ─────────────────────────────────────────────────────────────
-# ⚛ Resonant Recall + Dashboard Integration
-# ─────────────────────────────────────────────────────────────
-from backend.modules.aion_cognition.cee_lex_memory import recall_from_memory
-from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
+        # Local fallback
+        return evaluate_symatic_expr_local(expr)
 
-# ─── Resonant Memory Cache Initialization ───────────────────────
-RMC = ResonantMemoryCache()
-RMC.load()  # ensures persistent memory is available before operations
 
-# ─── Dashboard Sync (aggregated JSON snapshot) ──────────────────
-DASHBOARD_FEED_PATH = Path("data/analysis/aion_bridge_feed.json")
-DASHBOARD_FEED_PATH.parent.mkdir(parents=True, exist_ok=True)
+# ─────────────────────────────────────────────
+# Minimal JSONL event logger (matches the “bridge vibe” of other scripts)
+# ─────────────────────────────────────────────
+DASHBOARD_LOG_PATH = Path("data/analysis/aion_live_dashboard.jsonl")
+DASHBOARD_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-# ─── Simplified CLI Dashboard Writer ────────────────────────────
-def update_bridge_dashboard(snapshot: dict):
-    """Render live AION dashboard (Rich table + JSON snapshot, no HTML)."""
-    console = Console()
 
-    cycle = snapshot.get("cycle", "?")
-    sqi = snapshot.get("avg_SQI", 0.0)
-    stab = snapshot.get("avg_stability", 0.0)
-    decay = snapshot.get("decay_rate", 0.0)
-    mci = snapshot.get("semantic_benchmark", {}).get("avg_MCI", 0.0)
-    drift = snapshot.get("semantic_benchmark", {}).get("avg_drift", 0.0)
-
-    table = Table(title=f"AION Dashboard - Cycle {cycle}")
-    table.add_column("Metric", style="cyan", justify="left")
-    table.add_column("Value", style="magenta", justify="right")
-    table.add_row("Symatic Quality Index (SQI)", f"{sqi:.3f}")
-    table.add_row("Stability", f"{stab:.3f}")
-    table.add_row("Decay Rate", f"{decay:.4f}")
-    table.add_row("Meaning Consistency (MCI)", f"{mci:.3f}")
-    table.add_row("Resonance Drift", f"{drift:.3f}")
-    console.print(table)
-
-    out_json = Path("data/analysis/aion_live_dashboard.json")
-    out_json.write_text(json.dumps(snapshot, indent=2))
-    console.print(f"[green]📈 Dashboard snapshot saved -> {out_json}[/green]")
-
-# ─────────────────────────────────────────────────────────────
-def resonant_recall(prompt: str):
-    """Perform lexical + resonance recall for stored concepts."""
-    lex = recall_from_memory(prompt)
-    res = RMC.recall(prompt)
-    if lex:
-        print(f"🧠 Lexical recall: {lex.get('answer')} (conf={lex.get('confidence')})")
-    if res:
-        print(f"🔮 Resonant tensor recall: stability={res.get('stability', 1.0)}")
-    if not (lex or res):
-        print(f"⚠️ No stored recall for '{prompt}'")
-    return {"lexical": lex, "resonant": res}
-
-# ─────────────────────────────────────────────────────────────
-PROMPT = "Aion🧠> "
-LAST_PULSE = None  # updated whenever we create/tick a heartbeat
-MEM_PATH = Path("data/aion/memory_store.json")
-
-def _load_json(path: Path):
-    if path.exists():
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
-
-def _list_caps(limit=15):
-    mem = _load_json(MEM_PATH)
-    print(f"📚 {len(mem)} capsules in memory.")
-    for i, (lemma, meta) in enumerate(mem.items()):
-        if i >= limit:
-            break
-        e = meta.get("E", 0)
-        print(f"  * {lemma:<20} E={e:.5f}")
-
-def _query_res(term: str):
-    res = get_resonance(term)
-    if not res:
-        print(f"⚠️ No resonance data for '{term}', computing new state...")
-        res = update_resonance(term)
-    print(f"🌀 {term}: SQI={res.get('SQI')} ρ={res.get('ρ')} Ī={res.get('Ī')} E={res.get('E')}")
-    return res
-
-# ─────────────────────────────────────────────────────────────
-def _teach(engine: CognitiveExerciseEngine, term: str, level=1):
-    """Conduct teaching session, reinforce learning, and persist to cache."""
-    print(f"📘 Teaching session: {term} (level {level})")
-
-    lesson = engine.generate_exercise(term, level=level)
-    resonance = {"ρ": 0.8, "I": 0.9, "SQI": 0.85}
-
-    for i, q in enumerate(lesson.get("questions", []), 1):
-        print(f"\nQ{i}. {q['prompt']}")
-        ans = engine.evaluate_answer(q, q.get("answer", ""))
-        time.sleep(0.2)
-        print(f"-> {ans['feedback']}")
-        resonance["SQI"] = ans.get("SQI", 0.85)
-        update_lex_memory(q["prompt"], q["answer"], resonance)
-        RMC.update_from_photons([{"λ": term, "φ": resonance["ρ"], "μ": resonance["SQI"]}])
+def log_bridge_event(command: str, payload: Dict[str, Any]) -> None:
+    """
+    Append command + quick metrics snapshot to the dashboard feed.
+    Keeps the file compatible with your other dashboard tooling.
+    """
+    entry: Dict[str, Any] = {
+        "timestamp": time.time(),
+        "command": command,
+    }
+    if isinstance(payload, dict):
+        # Try multiple known keys, since remote/local payloads vary slightly.
+        entry["ρ"] = payload.get("ρ") or payload.get("Phi_coherence") or payload.get("Φ_coherence")
+        entry["Ī"] = payload.get("Ī") or payload.get("Phi_entropy") or payload.get("Φ_entropy")
+        entry["type"] = payload.get("type")
+        entry["mode"] = payload.get("mode")
+        entry["base_url"] = payload.get("base_url")
 
     try:
-        from backend.modules.aion_cognition.cee_lex_memory import store_concept_definition
-        RMC_persist = ResonantMemoryCache()
-        RMC_persist.load()
-        entry = {
-            "definition": lesson.get("summary", f"Learned concept '{term}'"),
-            "resonance": round(resonance.get("ρ", 0.8), 3),
-            "intensity": round(resonance.get("I", 0.9), 3),
-            "SQI": round(resonance.get("SQI", 0.85), 3),
-            "symbol": f"Q[{term}]",
-            "stability": round(resonance.get("SQI", 0.85), 3),
-        }
-        RMC_persist.cache[term.lower()] = entry
-        RMC_persist.last_update = time.time()
-        RMC_persist.save()
-        print(f"💾 Saved learned concept '{term}' to ResonantMemoryCache.")
-        store_concept_definition(term, entry["definition"], resonance)
-    except Exception as e:
-        print(f"⚠️ Failed to persist learned data for '{term}': {e}")
+        with open(DASHBOARD_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    except Exception:
+        # Never kill the bridge on logging failures.
+        pass
 
-    RMC.save()
-    print("✨ Session complete and reinforced.\n")
 
-def _simulate_wordwall(engine: CognitiveExerciseEngine, level=1):
-    print(f"🎯 Running Wordwall simulation (level {level})")
-    summary = engine.simulate_session(level=level)
-    print(summary)
+def _pretty(x: Any) -> str:
+    try:
+        return json.dumps(x, indent=2, ensure_ascii=False)
+    except Exception:
+        return str(x)
 
-def _ask(engine: CognitiveExerciseEngine, question: str):
-    print(f"💬 {question}")
-    answer = engine.query(question)
-    print(f"🧩 Aion: {answer}")
 
-# ─────────────────────────────────────────────────────────────
-# Bridge Event Logger (for SQI / ΔΦ tracking)
-# ─────────────────────────────────────────────────────────────
-from backend.modules.aion_language.resonant_memory_cache import ResonantMemoryCache
-import json, time
+# ─────────────────────────────────────────────
+# CLI (kept intentionally similar to the original “bridge” pattern)
+# ─────────────────────────────────────────────
+def main() -> None:
+    client = HexCoreClient()
 
-def log_bridge_event(cmd, pulse):
-    """Log each AION bridge action with SQI + resonance metrics."""
-    log_entry = {
-        "timestamp": time.time(),
-        "command": cmd,
-        "Φ_coherence": pulse.get("Φ_coherence"),
-        "Φ_entropy": pulse.get("Φ_entropy"),
-        "SQI": pulse.get("sqi"),
-        "ΔΦ": pulse.get("resonance_delta")
-    }
-    Path("data/analysis").mkdir(parents=True, exist_ok=True)
-    with open("data/analysis/aion_live_dashboard.jsonl", "a", encoding="utf-8") as f:
-        f.write(json.dumps(log_entry) + "\n")
+    h = client.health()
+    if h.get("ok"):
+        print(f"🌌 HexCore detected @ {h.get('base_url')}")
+    else:
+        print("🧩 HexCore not detected (remote). Using local fallback evaluator.")
+        if h.get("reason"):
+            print(f"   reason: {h['reason']}")
 
-# ─────────────────────────────────────────────────────────────
-def main():
-    cee = CognitiveExerciseEngine()
-    # Initialize Θ Orchestrator in passive mode (no auto-tick spam)
-    theta = ThetaOrchestrator(auto_tick=False)
-    interrupt = InterruptionManager()
-    print("🌐 AION Cognitive Bridge - Phase 13 (Resonant Recall Ready)")
-    print("Type 'help' for commands. Ctrl-D or 'exit' to quit.\n")
+    print("Commands: health | url | seturl <http://...> | compute <expr> | quit")
+    prompt = "HexCore🌌> "
 
     while True:
         try:
-            cmd = input(PROMPT).strip()
+            line = input(prompt).strip()
         except (EOFError, KeyboardInterrupt):
-            print("\n👋 Exiting AION Cognitive Shell.")
-            break
+            print("\n👋 Exiting HexCore bridge.")
+            return
 
-        if not cmd:
+        if not line:
             continue
-        if cmd in {"exit", "quit"}:
-            break
+        if line in {"q", "quit", "exit"}:
+            return
 
-        if cmd == "help":
-            print("""
-Commands:
-  list [n]               -> list first n memory capsules
-  res <term>             -> view resonance state
-  recall <term>          -> recall learned concept (Lex + Resonant)
-  teach <term> [level]   -> start guided teaching session
-  wall [level]           -> run Wordwall simulation
-  ask "<question>"       -> ask Aion a cognitive question
-  define <word>          -> retrieve stored lexical definition
-  symbol <word>          -> show symbolic QMath or photon representation
-  unjumble <letters>     -> solve anagram (lexical cognition test)
-  compare <w1> and <w2>  -> measure semantic + resonance similarity (MCI)
-  context <word> in <p>  -> evaluate contextual meaning consistency
-  connect A -> B -> C      -> reinforce associative link chain
-  stats                  -> show live SQI, stability, and MCI
-  top [n]                -> show top-E capsules
-  help / exit
-""")
-        elif cmd.startswith("list"):
-            n = int(cmd.split()[1]) if len(cmd.split()) > 1 else 15
-            _list_caps(n)
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("res "):
-            _query_res(cmd.split(" ", 1)[1])
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("recall "):
-            resonant_recall(cmd.split(" ", 1)[1])
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("teach "):
-            parts = cmd.split()
-            term = parts[1]
-            lvl = int(parts[2]) if len(parts) > 2 else 1
-            _teach(cee, term, lvl)
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("wall"):
-            lvl = int(cmd.split()[1]) if len(cmd.split()) > 1 else 1
-            _simulate_wordwall(cee, lvl)
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("ask "):
-            _ask(cee, cmd.split(" ", 1)[1].strip('"'))
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("define "):
-            print(cmds.define_word(cmd.split(" ", 1)[1]))
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("symbol "):
-            print(cmds.symbol_word(cmd.split(" ", 1)[1]))
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("unjumble "):
-            print(cmds.unjumble_word(cmd.split(" ", 1)[1]))
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("anagram "):
-            word = cmd.split(" ", 1)[1].strip()
-            print(cmds.anagram_word(word))
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("complete "):
-            word = cmd.split(" ", 1)[1].strip()
-            print(cmds.complete_word(word))
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("match "):
-            word = cmd.split(" ", 1)[1].strip()
-            print(cmds.match_word(word))
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("map "):
-            concept = " ".join(args[2:]) if len(args) > 2 else "general"
-            print(commands.map_resonance_field(concept))
-
-        elif cmd.startswith("compare "):
-            parts = cmd.replace("compare", "").strip().split(" and ")
-            if len(parts) == 2:
-                print(cmds.compare_words(parts[0], parts[1]))
-            else:
-                print("⚠️ Usage: compare <word1> and <word2>")
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("context "):
-            if " in " in cmd:
-                word, phrase = cmd.replace("context ", "").split(" in ", 1)
-                print(cmds.context_word(word.strip(), phrase.strip()))
-            else:
-                print("⚠️ Usage: context <word> in <phrase>")
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("connect "):
-            print(cmds.connect_concepts(cmd.replace("connect ", "")))
-            log_bridge_event(cmd, {})
-
-        elif cmd == "stats":
-            print(cmds.stats_summary())
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("top"):
-            mem = _load_json(MEM_PATH)
-            ranked = sorted(((k, v.get("E", 0)) for k, v in mem.items()), key=lambda x: x[1], reverse=True)
-            n = int(cmd.split()[1]) if len(cmd.split()) > 1 else 10
-            for i, (k, e) in enumerate(ranked[:n]):
-                print(f"{i+1:02d}. {k:<20} E={e:.5f}")
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("resonate"):
-            print("🌊 Resonating cognitive field...")
-            hb = ResonanceHeartbeat(namespace="aion_bridge", base_interval=1.5)
-            hb.push_sample(rho=0.82, entropy=0.33, sqi=0.91, delta=0.12)
-            pulse = hb.tick()
-            # keep last pulse for subsequent logs
-            LAST_PULSE = pulse
-            print(f"🩶 Resonance pulse -> Φ_coherence={pulse['Φ_coherence']:.3f}, "
-                f"Φ_entropy={pulse['Φ_entropy']:.3f}, SQI={pulse['sqi']:.3f}")
-            log_bridge_event(cmd, LAST_PULSE)
-
-        elif cmd.startswith("insight"):
-            query = cmd.split(" ", 1)[-1].strip('" ')
-            print(f"🔮 Generating symbolic insight on {query}...")
-            print(f"💡 Insight: '{query}' reveals stable entanglement across lexical and harmonic strata (ΔΦ < 0.04).")
-            log_bridge_event(cmd, {})
-
-        elif cmd.startswith("stabilize memory"):
-            print("🧩 Stabilizing resonant memory field...")
-            hb = ResonanceHeartbeat(namespace="aion_bridge", base_interval=1.5)
-            hb.push_sample(rho=0.90, entropy=0.20, sqi=0.93, delta=0.02)
-            pulse = hb.tick()
-            LAST_PULSE = pulse
-            print(f"✅ Memory coherence stabilized -> SQI={pulse['sqi']:.3f}, ΔΦ={pulse['resonance_delta']:.3f}")
-            log_bridge_event(cmd, LAST_PULSE)
-
-        elif cmd.startswith("think slow"):
-            topic = cmd.replace("think slow", "").strip()
-            print(f"🧘 Engaging Θ Orchestrator (slow loop) -> {topic or 'general reflection'}")
-            theta.run_loop(mode="slow", topic=topic)
-
-        elif cmd.startswith("think fast"):
-            topic = cmd.replace("think fast", "").strip()
-            print(f"⚡ Reflex loop activation -> {topic or 'quick reasoning'}")
-            theta.run_loop(mode="fast", topic=topic)
-
-        elif cmd.startswith("think sse "):
-            topic = cmd.split(" ", 2)[2].strip()
-            intent = {
-                "what": topic or "resonance_analysis",
-                "why": "optimize",
-                "how": "evaluate",
-            }
-            print(f"🧩 Engaging Θ Orchestrator (SSE mode) -> {topic}")
-            try:
-                # run the full deep resonance loop (includes motivation, reasoner, strategy)
-                slow_result = theta.deep_resonance_loop(topic)
-
-                # manually trigger Strategic Simulation Engine on the same intent/context
-                sse_result = theta.sse.simulate(intent=intent, context=slow_result)
-                best_path = " -> ".join(sse_result.get("best_path", []))
-                best_u = sse_result.get("best_utility", 0.0)
-
-                # reflection integration
-                if isinstance(slow_result.get("reflection"), dict):
-                    root = theta.sse._seed_root(intent, slow_result)
-                    theta.sse.apply_reflection(root, slow_result["reflection"])
-
-                print(f"🥇 SSE integrated path: {best_path or '(none)'} | U* = {best_u:.3f}")
-            except Exception as e:
-                print(f"❌ think sse failed: {e}")
-
-        # ─────────────────────────────────────────────
-        # 🧠 Direct HexCore reasoning bridge (new)
-        # ─────────────────────────────────────────────
-        elif cmd.startswith(("think ", "calculate ", "train ")) and HEX:
-            query = cmd.strip()
-            print(f"🌌 Sending to AION HexCore -> {query}")
-            import asyncio
-            try:
-                asyncio.run(HEX.run_loop(query))
-            except RuntimeError:
-                # Handles already-running event loop (Codespaces / VSCode)
-                loop = asyncio.get_event_loop()
-                loop.run_until_complete(HEX.run_loop(query))
+        if line == "health":
+            out = client.health()
+            print(_pretty(out))
+            log_bridge_event("health", out)
             continue
 
-        elif cmd.startswith("reflect"):
-            print("🔁 Initiating reflection cycle...")
-            theta.reflect_cycle()
+        if line == "url":
+            out = {"base_url": client.base_url, "timeout": client.timeout, "allow_local_fallback": client.allow_local_fallback}
+            print(_pretty(out))
+            log_bridge_event("url", out)
+            continue
 
-        elif cmd.startswith("sse "):
-            topic = cmd.split(" ", 1)[1].strip()
-            intent = {
-                "what": topic or "resonance_harmonics",
-                "why": "optimize",
-                "how": "evaluate",
-            }
-            ctx = {"source": "cli"}
-            try:
-                res = theta.sse.simulate(intent=intent, context=ctx)
-                best_path = " -> ".join(res.get("best_path", []))
-                best_u = res.get("best_utility", 0.0)
-                print(f"🥇 SSE best path: {best_path or '(none)'} | U* = {best_u:.3f}")
-            except Exception as e:
-                print(f"❌ SSE simulation failed: {e}")
+        if line.startswith("seturl "):
+            client.base_url = line.split(" ", 1)[1].strip().rstrip("/") or None
+            out = {"base_url": client.base_url}
+            print(_pretty(out))
+            log_bridge_event("seturl", out)
+            continue
 
-        elif cmd.startswith(("override", "interrupt")):
-            reason = cmd.split(" ", 1)[-1] if " " in cmd else "manual"
-            print(f"🛑 Triggering override -> {reason}")
-            interrupt.trigger(reason=reason, source="aion_cli")
+        if line.startswith("compute "):
+            expr = line.split(" ", 1)[1]
+            out = client.compute(expr)
+            print(_pretty(out))
+            log_bridge_event(f"compute {expr}", out)
+            continue
 
-        elif cmd == "status":
-            print("📊 Cognitive System Status:")
-            print(f" - Θ Orchestrator active: {getattr(theta, 'active', True)}")
-            print(f" - Override flag: {getattr(interrupt, 'override_flag', False)}")
+        # convenience: treat anything else as an expr
+        out = client.compute(line)
+        print(_pretty(out))
+        log_bridge_event(line, out)
 
-        elif cmd.startswith(("override", "interrupt")):
-            reason = cmd.split(" ", 1)[-1] if " " in cmd else "manual"
-            print(f"🛑 Triggering override -> {reason}")
-            interrupt.trigger(reason=reason, source="aion_cli")
 
-        elif cmd == "status":
-            print("📊 Cognitive System Status:")
-            print(f" - Θ Orchestrator active: {getattr(theta, 'active', True)}")
-            print(f" - Override flag: {getattr(interrupt, 'override_flag', False)}")
-
-                # ─────────────────────────────────────────────
-        # ⚛ Quantum / QMath computation routing
-        # ─────────────────────────────────────────────
-        elif cmd.startswith("compute") or any(op in cmd for op in ["⊕", "⟲", "↔", "∇", "Ψ"]):
-            expr = cmd.replace("compute", "").strip()
-            print(f"🧮 Quantum expression detected -> {expr}")
-
-            if USE_HEXCORE and HEX:
-                try:
-                    print("[HexCore->QQC] Offloading computation to Quantum Quad Core...")
-
-                    # Preferred unified interface for QQC dispatch
-                    if hasattr(HEX, "dispatch_quantum"):
-                        result = HEX.dispatch_quantum(expr)
-                    elif hasattr(HEX, "run_quantum"):
-                        result = HEX.run_quantum(expr)
-                    elif hasattr(HEX, "compute"):
-                        result = HEX.compute(expr)
-                    else:
-                        # fallback for simple HTTP client version
-                        import requests
-                        resp = requests.post("http://127.0.0.1:8500/quantum", json={"expr": expr}, timeout=5)
-                        if resp.status_code == 200:
-                            data = resp.json()
-                            result = data.get("result", "[QQC] ⚠️ No response data.")
-                        else:
-                            result = f"[QQC] HTTP {resp.status_code}: {resp.text}"
-
-                    print(f"[QQC] Result -> {result}")
-
-                except Exception as e:
-                    print(f"❌ Quantum computation failed: {e}")
-            else:
-                print("⚠️ HexCore inactive - cannot route quantum computation.")
-
-            log_bridge_event(cmd, {})
-            
-        else:
-            print(f"❓ Unknown command: {cmd}")
-            log_bridge_event(cmd, {})
-
-# ─────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     main()
