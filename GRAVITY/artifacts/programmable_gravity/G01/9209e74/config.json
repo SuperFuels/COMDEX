@@ -1,0 +1,14 @@
+{
+  "N": 128,
+  "controller": "open_loop",
+  "created_utc": "2025-12-25T00:20:07+00:00Z",
+  "drift_sigma": 0.001,
+  "git_commit": "f957124e9359981858892acc0572b7f269a03fa8",
+  "run_hash": "9209e74",
+  "seed": 1,
+  "steps": 80,
+  "test_id": "G01",
+  "tups_version": "TUPS_V1.2",
+  "well_amp": 10.0,
+  "well_sigma": 10.0
+}

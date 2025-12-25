@@ -1,0 +1,14 @@
+{
+  "N": 128,
+  "controller": "static_sweep",
+  "created_utc": "2025-12-25T00:20:08+00:00Z",
+  "drift_sigma": 0.0,
+  "git_commit": null,
+  "run_hash": "9c70a08",
+  "seed": 1,
+  "steps": 1,
+  "test_id": "G03",
+  "tups_version": "TUPS_V1.2",
+  "well_amp": 1.0,
+  "well_sigma": 1.4
+}

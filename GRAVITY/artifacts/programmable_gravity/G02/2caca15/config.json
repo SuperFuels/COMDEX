@@ -1,0 +1,15 @@
+{
+  "config": {
+    "N": 128,
+    "drift_sigma": 0.002,
+    "seed": 1,
+    "steps": 90,
+    "tups_version": "TUPS_V1.2",
+    "well_amp": 10.0,
+    "well_sigma": 10.0
+  },
+  "controller": "tessaris_curvature_hold",
+  "git_commit": "f957124e9359981858892acc0572b7f269a03fa8",
+  "run_hash": "2caca15",
+  "test_id": "G02"
+}

@@ -1,0 +1,15 @@
+{
+  "config": {
+    "N": 128,
+    "drift_sigma": 0.0,
+    "seed": 1,
+    "steps": 1,
+    "tups_version": "TUPS_V1.2",
+    "well_amp": 1.0,
+    "well_sigma": 1.4
+  },
+  "controller": "static_sweep",
+  "git_commit": null,
+  "run_hash": "bf3871d",
+  "test_id": "G03"
+}
