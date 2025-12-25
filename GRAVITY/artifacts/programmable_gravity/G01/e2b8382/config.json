@@ -1,0 +1,14 @@
+{
+  "N": 128,
+  "controller": "tessaris_curvature_hold",
+  "created_utc": "2025-12-25T23:33:37Z",
+  "drift_sigma": 0.001,
+  "git_commit": "1da797bed1deadecf73440ffae17dadf115f904f",
+  "run_hash": "e2b8382",
+  "seed": 1,
+  "steps": 80,
+  "test_id": "G01",
+  "tups_version": "TUPS_V1.2",
+  "well_amp": 10.0,
+  "well_sigma": 10.0
+}

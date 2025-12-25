@@ -21,8 +21,8 @@ env PYTHONPATH=$PWD/GRAVITY/src python -m pytest GRAVITY/tests/programmable_grav
 
 **Artifacts:**
 ```
-  - GRAVITY/artifacts/programmable_gravity/G01/2048898/ (tessaris_curvature_hold)
-  - GRAVITY/artifacts/programmable_gravity/G01/e99b5c0/ (tessaris_curvature_hold)
+  - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
+  - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
   - GRAVITY/artifacts/programmable_gravity/G01/9209e74/ (open_loop)
   - GRAVITY/artifacts/programmable_gravity/G01/f0cd051/ (open_loop)
   - GRAVITY/artifacts/programmable_gravity/G01/66d29f3/ (random_jitter)
@@ -34,8 +34,8 @@ EVIDENCE_BLOCK
 Claim: G01 — deterministic audit anchor (information-geometry / effective-curvature proxy).
 Scope: Programmable Gravity / G01
 Result:
-  - tessaris_curvature_hold (2048898): mse_R = 4.55501343997e-05
-  - tessaris_curvature_hold (e99b5c0): mse = 4.55501343997e-05
+  - tessaris_curvature_hold (e2b8382): mse_R = 4.55501343997e-05
+  - tessaris_curvature_hold (e2b8382): mse = 4.55501343997e-05
   - open_loop (9209e74): mse = 0.0020513974111
   - open_loop (f0cd051): mse_R = 0.0020513974111
   - random_jitter (66d29f3): mse = 0.609705297898
@@ -43,8 +43,8 @@ Result:
 Artifact_ID: G01_DEC25_2025
 Code_Path: GRAVITY/src/programmable_gravity/
 Data_Path:
-  - GRAVITY/artifacts/programmable_gravity/G01/2048898/ (tessaris_curvature_hold)
-  - GRAVITY/artifacts/programmable_gravity/G01/e99b5c0/ (tessaris_curvature_hold)
+  - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
+  - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
   - GRAVITY/artifacts/programmable_gravity/G01/9209e74/ (open_loop)
   - GRAVITY/artifacts/programmable_gravity/G01/f0cd051/ (open_loop)
   - GRAVITY/artifacts/programmable_gravity/G01/66d29f3/ (random_jitter)
