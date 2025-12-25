@@ -1,0 +1,15 @@
+{
+  "backfilled": true,
+  "controller": "spgd_baseline",
+  "run_hash": "ea184a8",
+  "seed": 1337,
+  "summary": {
+    "S": 3.2887774475649487,
+    "coherence": 0.022372629070172283,
+    "eta": 0.9801718966396309,
+    "mse": 4.948679211966001e-06,
+    "r_norm": 0.008096378978671213,
+    "step": 59.0
+  },
+  "test_id": "PE01"
+}

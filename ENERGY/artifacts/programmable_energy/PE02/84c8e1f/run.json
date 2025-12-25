@@ -1,0 +1,15 @@
+{
+  "backfilled": true,
+  "controller": "open_loop",
+  "run_hash": "84c8e1f",
+  "seed": 1337,
+  "summary": {
+    "S": 3.2897543639048608,
+    "coherence": 0.021669118442337425,
+    "eta": 8.501928540532549e-05,
+    "mse": 3.830963737387541e-06,
+    "r_norm": 0.007683486834209836,
+    "step": 59.0
+  },
+  "test_id": "PE02"
+}

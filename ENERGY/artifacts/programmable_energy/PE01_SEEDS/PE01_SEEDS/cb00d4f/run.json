@@ -1,0 +1,15 @@
+{
+  "backfilled": true,
+  "controller": "tessaris_gs",
+  "run_hash": "cb00d4f",
+  "seed": 5,
+  "summary": {
+    "S": 3.292695160077886,
+    "coherence": 0.12864519595305896,
+    "eta": 0.46712619059513283,
+    "mse": 9.041735031021322e-09,
+    "r_norm": 0.16334951732851802,
+    "step": 59.0
+  },
+  "test_id": "PE01_SEEDS"
+}

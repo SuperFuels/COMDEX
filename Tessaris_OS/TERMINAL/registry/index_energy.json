@@ -1,0 +1,1165 @@
+{
+  "count": 29,
+  "runs": [
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 2.0,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "open_loop",
+        "run_hash": "2688740",
+        "test_id": "PE01"
+      },
+      "controller": "open_loop",
+      "metrics": {
+        "backfilled": true,
+        "controller": "open_loop",
+        "run_hash": "2688740",
+        "seed": 1337,
+        "summary": {
+          "S": 3.289893086329834,
+          "coherence": 0.021669118442337425,
+          "eta": 9.474311248817039e-08,
+          "mse": 4.317078982623217e-06,
+          "r_norm": 0.0076834853937115845,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/2688740",
+      "run_hash": "2688740",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.05,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "open_loop",
+        "run_hash": "3194902",
+        "test_id": "PE01"
+      },
+      "controller": "open_loop",
+      "metrics": {
+        "backfilled": true,
+        "controller": "open_loop",
+        "run_hash": "3194902",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2897543639048608,
+          "coherence": 0.021669118442337425,
+          "eta": 8.501928540532549e-05,
+          "mse": 3.8450385327665335e-06,
+          "r_norm": 0.007683486834209836,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/3194902",
+      "run_hash": "3194902",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.003,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "open_loop",
+        "run_hash": "7975505",
+        "test_id": "PE01"
+      },
+      "controller": "open_loop",
+      "metrics": {
+        "backfilled": true,
+        "controller": "open_loop",
+        "run_hash": "7975505",
+        "seed": 1337,
+        "summary": {
+          "S": 3.289893150672332,
+          "coherence": 0.021669118442337425,
+          "eta": 0.98017181720759,
+          "mse": 4.948677018302165e-06,
+          "r_norm": 0.007683485393365202,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/7975505",
+      "run_hash": "7975505",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "open_loop",
+        "run_hash": "a274747",
+        "test_id": "PE01"
+      },
+      "controller": "open_loop",
+      "metrics": {
+        "backfilled": true,
+        "controller": "open_loop",
+        "run_hash": "a274747",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2908512678288413,
+          "coherence": 0.12633329507582583,
+          "eta": 0.9999405446778394,
+          "mse": 1.5155786390430606e-05,
+          "r_norm": 0.12298952478071412,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/a274747",
+      "run_hash": "a274747",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "open_loop",
+        "run_hash": "b34fab8",
+        "test_id": "PE01"
+      },
+      "controller": "open_loop",
+      "metrics": {
+        "backfilled": true,
+        "controller": "open_loop",
+        "run_hash": "b34fab8",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2908512678288413,
+          "coherence": 0.12633329507582583,
+          "eta": 0.9999405446778394,
+          "mse": 1.5155786390430606e-05,
+          "r_norm": 0.12298952478071412,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/b34fab8",
+      "run_hash": "b34fab8",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.3,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "open_loop",
+        "run_hash": "fc5bfc6",
+        "test_id": "PE01"
+      },
+      "controller": "open_loop",
+      "metrics": {
+        "backfilled": true,
+        "controller": "open_loop",
+        "run_hash": "fc5bfc6",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2898108382342435,
+          "coherence": 0.021668080208261456,
+          "eta": 4.324850214263324e-08,
+          "mse": 5.8582369306236195e-06,
+          "r_norm": 0.007683358891259642,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/fc5bfc6",
+      "run_hash": "fc5bfc6",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 2.0,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "spgd_baseline",
+        "run_hash": "0db8750",
+        "test_id": "PE01"
+      },
+      "controller": "spgd_baseline",
+      "metrics": {
+        "backfilled": true,
+        "controller": "spgd_baseline",
+        "run_hash": "0db8750",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2899186775559235,
+          "coherence": 0.021671705680871116,
+          "eta": 9.473982714562588e-08,
+          "mse": 4.317078862602308e-06,
+          "r_norm": 0.007683609464185465,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/0db8750",
+      "run_hash": "0db8750",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.05,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "spgd_baseline",
+        "run_hash": "2959371",
+        "test_id": "PE01"
+      },
+      "controller": "spgd_baseline",
+      "metrics": {
+        "backfilled": true,
+        "controller": "spgd_baseline",
+        "run_hash": "2959371",
+        "seed": 1337,
+        "summary": {
+          "S": 3.289919344577487,
+          "coherence": 0.02201158783373671,
+          "eta": 8.502503326675223e-05,
+          "mse": 3.8450553500724474e-06,
+          "r_norm": 0.007816234642996559,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/2959371",
+      "run_hash": "2959371",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "spgd_baseline",
+        "run_hash": "88a463c",
+        "test_id": "PE01"
+      },
+      "controller": "spgd_baseline",
+      "metrics": {
+        "backfilled": true,
+        "controller": "spgd_baseline",
+        "run_hash": "88a463c",
+        "seed": 1337,
+        "summary": {
+          "S": 3.290843973447841,
+          "coherence": 0.12632860402977497,
+          "eta": 0.999940546630914,
+          "mse": 1.5155786448311782e-05,
+          "r_norm": 0.1229854785568855,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/88a463c",
+      "run_hash": "88a463c",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "spgd_baseline",
+        "run_hash": "e3cb229",
+        "test_id": "PE01"
+      },
+      "controller": "spgd_baseline",
+      "metrics": {
+        "backfilled": true,
+        "controller": "spgd_baseline",
+        "run_hash": "e3cb229",
+        "seed": 1337,
+        "summary": {
+          "S": 3.290843973447841,
+          "coherence": 0.12632860402977497,
+          "eta": 0.999940546630914,
+          "mse": 1.5155786448311782e-05,
+          "r_norm": 0.1229854785568855,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/e3cb229",
+      "run_hash": "e3cb229",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.003,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "spgd_baseline",
+        "run_hash": "ea184a8",
+        "test_id": "PE01"
+      },
+      "controller": "spgd_baseline",
+      "metrics": {
+        "backfilled": true,
+        "controller": "spgd_baseline",
+        "run_hash": "ea184a8",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2887774475649487,
+          "coherence": 0.022372629070172283,
+          "eta": 0.9801718966396309,
+          "mse": 4.948679211966001e-06,
+          "r_norm": 0.008096378978671213,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/ea184a8",
+      "run_hash": "ea184a8",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.3,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "spgd_baseline",
+        "run_hash": "eda3caf",
+        "test_id": "PE01"
+      },
+      "controller": "spgd_baseline",
+      "metrics": {
+        "backfilled": true,
+        "controller": "spgd_baseline",
+        "run_hash": "eda3caf",
+        "seed": 1337,
+        "summary": {
+          "S": 3.28964650216129,
+          "coherence": 0.021843485417251104,
+          "eta": 4.3378825244686935e-08,
+          "mse": 5.858249905398457e-06,
+          "r_norm": 0.007736455384223346,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/eda3caf",
+      "run_hash": "eda3caf",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 2.0,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "59a95df",
+        "test_id": "PE01"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "59a95df",
+        "seed": 1337,
+        "summary": {
+          "S": 3.3293169527167437,
+          "coherence": 0.13023060430299427,
+          "eta": 0.00017200103997015175,
+          "mse": 8.762862881429623e-08,
+          "r_norm": 0.17127865637097683,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/59a95df",
+      "run_hash": "59a95df",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.3,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "5ba01ef",
+        "test_id": "PE01"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "5ba01ef",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2831387531254657,
+          "coherence": 0.13324532563997307,
+          "eta": 0.0003350992660106377,
+          "mse": 3.864041854832156e-08,
+          "r_norm": 0.1273022693342588,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/5ba01ef",
+      "run_hash": "5ba01ef",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "92f428a",
+        "test_id": "PE01"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "92f428a",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2921052032287257,
+          "coherence": 0.13045495381394112,
+          "eta": 0.709193250799676,
+          "mse": 1.3348240099982055e-09,
+          "r_norm": 0.12555212062201354,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/92f428a",
+      "run_hash": "92f428a",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "bf50887",
+        "test_id": "PE01"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "bf50887",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2921052032287257,
+          "coherence": 0.13045495381394118,
+          "eta": 0.709193250799676,
+          "mse": 1.3348240099982046e-09,
+          "r_norm": 0.12555212062201362,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/bf50887",
+      "run_hash": "bf50887",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.003,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "cd7c11a",
+        "test_id": "PE01"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "cd7c11a",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2982937108846997,
+          "coherence": 0.12636782980139857,
+          "eta": 0.29788073503273443,
+          "mse": 1.6481020470649682e-08,
+          "r_norm": 0.13600918469252612,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/cd7c11a",
+      "run_hash": "cd7c11a",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.05,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "f5b939f",
+        "test_id": "PE01"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "f5b939f",
+        "seed": 1337,
+        "summary": {
+          "S": 3.292632682016742,
+          "coherence": 0.11764855557910464,
+          "eta": 0.05960300564347576,
+          "mse": 3.283491971781907e-08,
+          "r_norm": 0.12152333976520309,
+          "step": 59.0
+        },
+        "test_id": "PE01"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01/f5b939f",
+      "run_hash": "f5b939f",
+      "seed": 1337,
+      "test_id": "PE01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 2,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "1e88f8f",
+        "test_id": "PE01_SEEDS"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "1e88f8f",
+        "seed": 2,
+        "summary": {
+          "S": 3.2971981565669832,
+          "coherence": 0.11409561670453522,
+          "eta": 0.3235474793918206,
+          "mse": 1.929930449551877e-08,
+          "r_norm": 0.1538202217565362,
+          "step": 59.0
+        },
+        "test_id": "PE01_SEEDS"
+      },
+      "namespace": "PE01_SEEDS",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01_SEEDS/PE01_SEEDS/1e88f8f",
+      "run_hash": "1e88f8f",
+      "seed": 2,
+      "test_id": "PE01_SEEDS",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 4,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "1f13d09",
+        "test_id": "PE01_SEEDS"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "1f13d09",
+        "seed": 4,
+        "summary": {
+          "S": 3.2750582685610903,
+          "coherence": 0.11488906304134913,
+          "eta": 0.3630285027287288,
+          "mse": 1.7625777398989894e-08,
+          "r_norm": 0.16276637077145664,
+          "step": 59.0
+        },
+        "test_id": "PE01_SEEDS"
+      },
+      "namespace": "PE01_SEEDS",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01_SEEDS/PE01_SEEDS/1f13d09",
+      "run_hash": "1f13d09",
+      "seed": 4,
+      "test_id": "PE01_SEEDS",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 3,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "429687e",
+        "test_id": "PE01_SEEDS"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "429687e",
+        "seed": 3,
+        "summary": {
+          "S": 3.2866130362205404,
+          "coherence": 0.14218216712868345,
+          "eta": 0.48237410748007875,
+          "mse": 8.589649319450355e-09,
+          "r_norm": 0.17448298579653929,
+          "step": 59.0
+        },
+        "test_id": "PE01_SEEDS"
+      },
+      "namespace": "PE01_SEEDS",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01_SEEDS/PE01_SEEDS/429687e",
+      "run_hash": "429687e",
+      "seed": 3,
+      "test_id": "PE01_SEEDS",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 1,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "973cc13",
+        "test_id": "PE01_SEEDS"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "973cc13",
+        "seed": 1,
+        "summary": {
+          "S": 3.293497319058093,
+          "coherence": 0.13120272749904544,
+          "eta": 0.31105251442533505,
+          "mse": 1.8765798769147963e-08,
+          "r_norm": 0.16768906023967148,
+          "step": 59.0
+        },
+        "test_id": "PE01_SEEDS"
+      },
+      "namespace": "PE01_SEEDS",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01_SEEDS/PE01_SEEDS/973cc13",
+      "run_hash": "973cc13",
+      "seed": 1,
+      "test_id": "PE01_SEEDS",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.001,
+          "roi_radius": 10,
+          "seed": 5,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "cb00d4f",
+        "test_id": "PE01_SEEDS"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "cb00d4f",
+        "seed": 5,
+        "summary": {
+          "S": 3.292695160077886,
+          "coherence": 0.12864519595305896,
+          "eta": 0.46712619059513283,
+          "mse": 9.041735031021322e-09,
+          "r_norm": 0.16334951732851802,
+          "step": 59.0
+        },
+        "test_id": "PE01_SEEDS"
+      },
+      "namespace": "PE01_SEEDS",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE01_SEEDS/PE01_SEEDS/cb00d4f",
+      "run_hash": "cb00d4f",
+      "seed": 5,
+      "test_id": "PE01_SEEDS",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.05,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "open_loop",
+        "run_hash": "84c8e1f",
+        "test_id": "PE02"
+      },
+      "controller": "open_loop",
+      "metrics": {
+        "backfilled": true,
+        "controller": "open_loop",
+        "run_hash": "84c8e1f",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2897543639048608,
+          "coherence": 0.021669118442337425,
+          "eta": 8.501928540532549e-05,
+          "mse": 3.830963737387541e-06,
+          "r_norm": 0.007683486834209836,
+          "step": 59.0
+        },
+        "test_id": "PE02"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE02/84c8e1f",
+      "run_hash": "84c8e1f",
+      "seed": 1337,
+      "test_id": "PE02",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.05,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "spgd_baseline",
+        "run_hash": "5067175",
+        "test_id": "PE02"
+      },
+      "controller": "spgd_baseline",
+      "metrics": {
+        "backfilled": true,
+        "controller": "spgd_baseline",
+        "run_hash": "5067175",
+        "seed": 1337,
+        "summary": {
+          "S": 3.289919344577487,
+          "coherence": 0.02201158783373671,
+          "eta": 8.502503326675223e-05,
+          "mse": 3.830980554750719e-06,
+          "r_norm": 0.007816234642996559,
+          "step": 59.0
+        },
+        "test_id": "PE02"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE02/5067175",
+      "run_hash": "5067175",
+      "seed": 1337,
+      "test_id": "PE02",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.05,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "50c3b5e",
+        "test_id": "PE02"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "50c3b5e",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2855794593168453,
+          "coherence": 0.1119253194033001,
+          "eta": 0.008020085939715368,
+          "mse": 2.831096345749217e-08,
+          "r_norm": 0.11544510453739978,
+          "step": 59.0
+        },
+        "test_id": "PE02"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE02/50c3b5e",
+      "run_hash": "50c3b5e",
+      "seed": 1337,
+      "test_id": "PE02",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.05,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "open_loop",
+        "run_hash": "bb608c9",
+        "test_id": "PE03"
+      },
+      "controller": "open_loop",
+      "metrics": {
+        "backfilled": true,
+        "controller": "open_loop",
+        "run_hash": "bb608c9",
+        "seed": 1337,
+        "summary": {
+          "S": 3.2897543639048608,
+          "coherence": 0.021669118442337425,
+          "eta": 8.501928540532549e-05,
+          "mse": 3.826340043700579e-06,
+          "r_norm": 0.007683486834209836,
+          "step": 59.0
+        },
+        "test_id": "PE03"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE03/bb608c9",
+      "run_hash": "bb608c9",
+      "seed": 1337,
+      "test_id": "PE03",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.05,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "spgd_baseline",
+        "run_hash": "60fe754",
+        "test_id": "PE03"
+      },
+      "controller": "spgd_baseline",
+      "metrics": {
+        "backfilled": true,
+        "controller": "spgd_baseline",
+        "run_hash": "60fe754",
+        "seed": 1337,
+        "summary": {
+          "S": 3.289919344577487,
+          "coherence": 0.02201158783373671,
+          "eta": 8.502503326675223e-05,
+          "mse": 3.826356863183762e-06,
+          "r_norm": 0.007816234642996559,
+          "step": 59.0
+        },
+        "test_id": "PE03"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE03/60fe754",
+      "run_hash": "60fe754",
+      "seed": 1337,
+      "test_id": "PE03",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "config": {
+          "N": 256,
+          "alpha": 0.5,
+          "beta": 0.2,
+          "chi": 1.0,
+          "drift_sigma": 0.05,
+          "roi_radius": 10,
+          "seed": 1337,
+          "steps": 60,
+          "tups_version": "TUPS_V1.2"
+        },
+        "controller": "tessaris_gs",
+        "run_hash": "27e3b26",
+        "test_id": "PE03"
+      },
+      "controller": "tessaris_gs",
+      "metrics": {
+        "backfilled": true,
+        "controller": "tessaris_gs",
+        "run_hash": "27e3b26",
+        "seed": 1337,
+        "summary": {
+          "S": 3.3170939888487805,
+          "coherence": 0.1269517179473965,
+          "eta": 0.04043918678755854,
+          "mse": 1.6779849543828825e-08,
+          "r_norm": 0.12570139745591302,
+          "step": 59.0
+        },
+        "test_id": "PE03"
+      },
+      "namespace": "programmable_energy",
+      "run_dir": "ENERGY/artifacts/programmable_energy/PE03/27e3b26",
+      "run_hash": "27e3b26",
+      "seed": 1337,
+      "test_id": "PE03",
+      "timestamp": null
+    }
+  ]
+}
