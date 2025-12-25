@@ -1,4 +1,7 @@
 {
+  "controller": "unknown",
   "mse_final": 2.5621950599854184e-05,
+  "run_hash": "e99b5c0",
+  "seed": 1,
   "test_id": "G01"
 }

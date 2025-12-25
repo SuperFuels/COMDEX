@@ -1,6 +1,9 @@
 {
   "alpha_final": 0.5,
+  "controller": "unknown",
   "err_final": 1.0126459987739407,
+  "run_hash": "287c929",
+  "seed": 7,
   "test_id": "I01",
   "v_final": 1.9873540012260593,
   "v_target": 3.0

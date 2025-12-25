@@ -1,0 +1,10 @@
+{
+  "artifact_dir": "GRAVITY/artifacts/programmable_gravity/G01/9209e74",
+  "controller": "unknown",
+  "numpy_version": "2.3.1",
+  "python_version": "3.12.1",
+  "run_hash": "9209e74",
+  "seed": 0,
+  "test_id": "G01",
+  "timestamp_utc": "2025-12-25T22:43:43+00:00"
+}

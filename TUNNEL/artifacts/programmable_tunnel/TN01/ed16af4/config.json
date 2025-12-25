@@ -1,0 +1,20 @@
+{
+  "T_target": 0.4,
+  "absorber_strength": 0.03,
+  "absorber_width_frac": 0.1,
+  "barrier_center": 0.5,
+  "barrier_width_frac": 0.06,
+  "dt": 0.006,
+  "dx": 0.02,
+  "measure_right_of": 0.62,
+  "n": 512,
+  "nu": 0.5,
+  "packet_k0": 7.0,
+  "packet_sigma": 0.35,
+  "packet_x0": 0.2,
+  "seed": 2025,
+  "steps": 1600,
+  "v0": 6.0,
+  "v0_max": 25.0,
+  "v0_min": 0.0
+}

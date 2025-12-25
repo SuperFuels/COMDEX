@@ -1,0 +1,19 @@
+{
+  "alpha": 0.1,
+  "drive0": 0.0,
+  "drive1": 1.0,
+  "dt": 0.01,
+  "dx": 1.0,
+  "dy": 1.0,
+  "kappa0": 0.6,
+  "kappa_max": 3.0,
+  "kappa_min": 0.0,
+  "n": 48,
+  "nu": 0.08,
+  "rho_D0": 0.35,
+  "rho_R": 8.0,
+  "rho_drift0": 0.35,
+  "rho_sigma": 2.0,
+  "seed": 2025,
+  "steps": 1500
+}
