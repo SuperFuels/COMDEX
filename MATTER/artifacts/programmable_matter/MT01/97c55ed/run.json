@@ -1,0 +1,13 @@
+{
+  "controller": "tessaris_soliton_pinner",
+  "max_norm": 95.63346396773292,
+  "peak_final": 5.977123971223114,
+  "peak_initial": 0.998655932946888,
+  "peak_retention": 5.985168438923211,
+  "run_hash": "97c55ed",
+  "seed": 1337,
+  "test_id": "MT01",
+  "width_drift_pct": 1618.303732388879,
+  "width_final": 73.90026452742637,
+  "width_initial": 4.300768434266859
+}

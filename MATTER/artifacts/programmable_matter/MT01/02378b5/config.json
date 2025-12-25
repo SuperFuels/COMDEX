@@ -1,0 +1,15 @@
+{
+  "alpha": 0.06,
+  "amp0": 1.0,
+  "chi_base": 0.008,
+  "clip": 6.0,
+  "dt": 0.02,
+  "lam": 0.002,
+  "n": 256,
+  "noise_std": 0.002,
+  "norm_cap": 80.0,
+  "renorm_each_step": true,
+  "seed": 1337,
+  "sigma0": 6.0,
+  "steps": 5000
+}

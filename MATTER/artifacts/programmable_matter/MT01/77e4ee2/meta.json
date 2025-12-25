@@ -1,0 +1,7 @@
+{
+  "controller": "random_jitter_chi",
+  "namespace": "programmable_matter",
+  "run_hash": "77e4ee2",
+  "seed": 1337,
+  "test_id": "MT01"
+}

@@ -1,0 +1,15 @@
+{
+  "alpha": 0.12,
+  "amp": 1.4,
+  "beta": 0.002,
+  "center": 128,
+  "dt": 0.02,
+  "k0": 0.0,
+  "lam": 0.0005,
+  "n": 256,
+  "norm_cap": 80.0,
+  "renorm_each_step": true,
+  "seed": 1337,
+  "sigma": 9.0,
+  "steps": 2500
+}

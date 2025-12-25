@@ -1,0 +1,13 @@
+{
+  "controller": "random_jitter_chi",
+  "max_norm": 3.2606922417497253,
+  "peak_final": 0.03530582234465902,
+  "peak_initial": 0.998655932946888,
+  "peak_retention": 0.035353339603602346,
+  "run_hash": "77e4ee2",
+  "seed": 1337,
+  "test_id": "MT01",
+  "width_drift_pct": 1705.2727280033698,
+  "width_final": 77.64059963841419,
+  "width_initial": 4.300768434266859
+}

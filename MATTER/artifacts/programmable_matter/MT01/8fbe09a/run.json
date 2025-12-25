@@ -1,0 +1,13 @@
+{
+  "controller": "open_loop",
+  "max_norm": 53.08294277198777,
+  "peak_final": 3.574644992171478,
+  "peak_initial": 1.9854969435087464,
+  "peak_retention": 1.8003779879170239,
+  "run_hash": "8fbe09a",
+  "seed": 1337,
+  "test_id": "MT01",
+  "width_drift_pct": 2147.206750084592,
+  "width_final": 63.74564341140122,
+  "width_initial": 2.8366612644332863
+}

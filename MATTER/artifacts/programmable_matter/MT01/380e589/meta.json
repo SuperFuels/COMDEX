@@ -1,0 +1,7 @@
+{
+  "controller": "open_loop",
+  "namespace": "programmable_matter",
+  "run_hash": "380e589",
+  "seed": 1337,
+  "test_id": "MT01"
+}
