@@ -9,7 +9,7 @@ No physical-world thermodynamics claims.
 - Test: THERMO/tests/programmable_thermo/test_x01_entropic_recycling.py::test_x01_entropic_recycling_beats_baselines
 
 ## Pinned Git Commit
-- GIT_COMMIT: be86248f5
+- GIT_COMMIT: 947c24450
 
 ## Repro Command (Canonical)
     cd /workspaces/COMDEX
