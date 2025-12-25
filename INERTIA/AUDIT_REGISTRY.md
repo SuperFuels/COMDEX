@@ -93,3 +93,5 @@ Verified_On: TBD
 Notes:
   - “Relativistic / cutoff / dispersion” here is a controlled non-linear saturation proxy inside the simulation.
  /EVIDENCE_BLOCK
+
+	•	INERTIA closure commit: 4ef9c8e76 (includes I01 + I02 + artifacts + INERTIA/AUDIT_REGISTRY.md)

@@ -36,3 +36,4 @@ node_modules/@next/swc-darwin-arm64/next-swc.darwin-arm64.node filter=lfs diff=l
 # Photon filters
 *.photon filter=photon
 photon_src/*.py filter=photonlang
+*.csv text eol=lf
