@@ -8,6 +8,9 @@ No physical-world thermodynamics claims.
 ## Pytest Anchor
 - Test: THERMO/tests/programmable_thermo/test_x01_entropic_recycling.py::test_x01_entropic_recycling_beats_baselines
 
+## Pinned Git Commit
+- GIT_COMMIT: be86248f5
+
 ## Repro Command (Canonical)
     cd /workspaces/COMDEX
     env PYTHONPATH=$PWD/THERMO/src python -m pytest \

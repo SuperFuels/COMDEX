@@ -11,7 +11,7 @@ This registry pins deterministic pytest anchors (simulation-only) to reproducibl
 - **open_loop:** `675cb4a`
 - **random_jitter_gain:** `c47422e`
 
-**Git commit (pinned):** `c9bc43d49`
+**Git commit (pinned):** `be86248f5`
 
 **Repro (canonical):**
 ```bash
@@ -37,7 +37,7 @@ This is a deterministic, simulation-only demonstration on a complex lattice mode
 - Verified only via pytest anchor + emitted artifacts.
 
 ## Environment Pin
-- **GIT_COMMIT:** `c9bc43d49`
+- **GIT_COMMIT:** `be86248f5`
 
 ## Repro Command
 ```bash
@@ -118,7 +118,7 @@ This registry pins deterministic pytest anchors (simulation-only) to reproducibl
 - **open_loop:** `675cb4a`
 - **random_jitter_gain:** `c47422e`
 
-**Git commit (pinned):** `c9bc43d49`
+**Git commit (pinned):** `be86248f5`
 
 **Repro (canonical):**
 ```bash
