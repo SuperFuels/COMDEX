@@ -23,10 +23,10 @@ env PYTHONPATH=$PWD/GRAVITY/src python -m pytest GRAVITY/tests/programmable_grav
 ```
   - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
   - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
-  - GRAVITY/artifacts/programmable_gravity/G01/f68243a/ (open_loop)
-  - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
-  - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
-  - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
+  - GRAVITY/artifacts/programmable_gravity/G01/e99b5c0/ (open_loop)
+  - GRAVITY/artifacts/programmable_gravity/G01/e99b5c0/ (random_jitter)
+  - GRAVITY/artifacts/programmable_gravity/G01/e99b5c0/ (random_jitter)
+  - GRAVITY/artifacts/programmable_gravity/G01/e99b5c0/ (random_jitter)
 ```
 
 ```
@@ -44,10 +44,10 @@ Code_Path: GRAVITY/src/programmable_gravity/
 Data_Path:
   - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
   - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
-  - GRAVITY/artifacts/programmable_gravity/G01/f68243a/ (open_loop)
-  - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
-  - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
-  - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
+  - GRAVITY/artifacts/programmable_gravity/G01/e99b5c0/ (open_loop)
+  - GRAVITY/artifacts/programmable_gravity/G01/e99b5c0/ (random_jitter)
+  - GRAVITY/artifacts/programmable_gravity/G01/e99b5c0/ (random_jitter)
+  - GRAVITY/artifacts/programmable_gravity/G01/e99b5c0/ (random_jitter)
 Git_Commit: f957124e9359981858892acc0572b7f269a03fa8
 Env: Python 3.12.x, pytest 8.x, TUPS_V1.2
 Repro_Command: env PYTHONPATH=$PWD/GRAVITY/src python -m pytest GRAVITY/tests/programmable_gravity/test_g01_curvature_from_entropy.py -q
@@ -69,11 +69,11 @@ env PYTHONPATH=$PWD/GRAVITY/src python -m pytest GRAVITY/tests/programmable_grav
 
 **Artifacts:**
 ```
-  - GRAVITY/artifacts/programmable_gravity/G02/a3e37d2/ (tessaris_curvature_hold)
+  - GRAVITY/artifacts/programmable_gravity/G02/a823bd6/ (tessaris_curvature_hold)
   - GRAVITY/artifacts/programmable_gravity/G02/963b289/ (tessaris_curvature_hold)
-  - GRAVITY/artifacts/programmable_gravity/G02/aff203d/ (open_loop)
+  - GRAVITY/artifacts/programmable_gravity/G02/a823bd6/ (open_loop)
   - GRAVITY/artifacts/programmable_gravity/G02/b6475e0/ (open_loop)
-  - GRAVITY/artifacts/programmable_gravity/G02/aff203d/ (random_jitter)
+  - GRAVITY/artifacts/programmable_gravity/G02/a823bd6/ (random_jitter)
   - GRAVITY/artifacts/programmable_gravity/G02/a823bd6/ (random_jitter)
 ```
 
@@ -91,11 +91,11 @@ Result:
 Artifact_ID: G02_DEC25_2025
 Code_Path: GRAVITY/src/programmable_gravity/
 Data_Path:
-  - GRAVITY/artifacts/programmable_gravity/G02/a3e37d2/ (tessaris_curvature_hold)
+  - GRAVITY/artifacts/programmable_gravity/G02/a823bd6/ (tessaris_curvature_hold)
   - GRAVITY/artifacts/programmable_gravity/G02/963b289/ (tessaris_curvature_hold)
-  - GRAVITY/artifacts/programmable_gravity/G02/aff203d/ (open_loop)
+  - GRAVITY/artifacts/programmable_gravity/G02/a823bd6/ (open_loop)
   - GRAVITY/artifacts/programmable_gravity/G02/b6475e0/ (open_loop)
-  - GRAVITY/artifacts/programmable_gravity/G02/aff203d/ (random_jitter)
+  - GRAVITY/artifacts/programmable_gravity/G02/a823bd6/ (random_jitter)
   - GRAVITY/artifacts/programmable_gravity/G02/a823bd6/ (random_jitter)
 Git_Commit: f957124e9359981858892acc0572b7f269a03fa8
 Env: Python 3.12.x, pytest 8.x, TUPS_V1.2

@@ -15,8 +15,8 @@ This registry lists **shipped** BRIDGE anchors and the **pinned** artifact run h
 - **random_jitter_kappa:** `de7f372`
 
 **Pinned artifact paths:**
-- `BRIDGE/artifacts/programmable_bridge/BG01/c6371a3/`
-- `BRIDGE/artifacts/programmable_bridge/BG01/9dc5cd9/`
+- `BRIDGE/artifacts/programmable_bridge/BG01/de7f372/`
+- `BRIDGE/artifacts/programmable_bridge/BG01/de7f372/`
 - `BRIDGE/artifacts/programmable_bridge/BG01/de7f372/`
 
 **Repro command:**
