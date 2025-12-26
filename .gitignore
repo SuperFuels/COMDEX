@@ -195,3 +195,6 @@ exports/**
 # optional: if you never want ANY runtime data tracked
 # data/**# INERTIA artifacts: keep only what is already tracked; ignore future runs
 INERTIA/artifacts/programmable_inertia/**/*
+
+# local artifacts
+**/artifacts/
