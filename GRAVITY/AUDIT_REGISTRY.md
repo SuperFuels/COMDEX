@@ -24,7 +24,7 @@ env PYTHONPATH=$PWD/GRAVITY/src python -m pytest GRAVITY/tests/programmable_grav
   - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
   - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
   - GRAVITY/artifacts/programmable_gravity/G01/f68243a/ (open_loop)
-  - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (open_loop)
+  - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
   - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
   - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
 ```
@@ -46,7 +46,7 @@ Data_Path:
   - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
   - GRAVITY/artifacts/programmable_gravity/G01/e2b8382/ (tessaris_curvature_hold)
   - GRAVITY/artifacts/programmable_gravity/G01/f68243a/ (open_loop)
-  - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (open_loop)
+  - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
   - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
   - GRAVITY/artifacts/programmable_gravity/G01/f2abffe/ (random_jitter)
 Git_Commit: f957124e9359981858892acc0572b7f269a03fa8
