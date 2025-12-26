@@ -2,8 +2,8 @@
 
 **Pillar:** BRIDGE  
 **Anchor:** BG01 — Frame Dragging Analogue (Gemini “Coupling Dual”)  
-**Generated:** `2025-12-25T22:23:28Z`  
-**Pinned commit:** `dde1b3d11 (dirty)`
+**Generated:** `2025-12-25T23:26:11Z`  
+**Pinned commit:** `1da797bed (dirty)`
 
 ## Scope / Guardrails
 

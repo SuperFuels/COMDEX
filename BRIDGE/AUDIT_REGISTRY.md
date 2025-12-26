@@ -26,4 +26,4 @@ env PYTHONPATH=$PWD/BRIDGE/src python -m pytest \
   BRIDGE/tests/test_bg01_frame_dragging_analogue.py -vv
 ```
 
-**Pinned commit:** `dde1b3d11 (dirty)`
+**Pinned commit:** `1da797bed (dirty)`
