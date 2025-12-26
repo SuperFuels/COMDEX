@@ -198,3 +198,6 @@ INERTIA/artifacts/programmable_inertia/**/*
 
 # local artifacts
 **/artifacts/
+
+# Tessaris: local artifacts (generated)
+**/artifacts/**
