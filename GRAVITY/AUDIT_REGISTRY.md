@@ -37,7 +37,6 @@ Result:
   - tessaris_curvature_hold (e2b8382): mse_R = 4.55501343997e-05
   - tessaris_curvature_hold (e2b8382): mse = 4.55501343997e-05
   - open_loop (f68243a): mse = 0.0020513974111
-  - open_loop (f2abffe): mse_R = 0.0020513974111
   - random_jitter (f2abffe): mse = 0.609705297898
   - random_jitter (f2abffe): mse_R = 0.609705297898
 Artifact_ID: G01_DEC25_2025
