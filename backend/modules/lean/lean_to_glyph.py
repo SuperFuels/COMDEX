@@ -54,6 +54,12 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
     """
     Parse a .lean file and convert declarations to CodexLang + glyph trees.
     Returns a dict that downstream can embed into any container.
+
+    Fixes:
+      1) Do NOT flush when encountering '--' comment lines (comments can appear inside proofs/types).
+      2) Track an `in_body` state so we properly split type vs proof after ':='.
+      3) Correctly parse ':=' (inline or later line) and stop shoving proof lines into `typ`.
+      4) Never sys.exit() inside library functions (raise instead). sys.exit only in __main__.
     """
     if not os.path.isfile(path):
         # Try resolving relative to project root silently
@@ -61,8 +67,7 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
         if os.path.isfile(alt_path):
             path = alt_path
         else:
-            print(f"[❌] Lean file not found: {path}")
-            sys.exit(1)
+            raise FileNotFoundError(f"Lean file not found: {path}")
 
     if not path.endswith(".lean"):
         raise ValueError(f"Expected a .lean file, got: {path}")
@@ -81,15 +86,21 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
     typ: str | None = None
     body: str = ""
     glyph_symbol: str = "⟦ Theorem ⟧"
+    in_body: bool = False  # ✅ NEW: track whether we've crossed ':=' into proof
 
     def flush_declaration():
-        nonlocal declarations, current_decl, name, kind, params, typ, body, glyph_symbol
+        nonlocal declarations, current_decl, name, kind, params, typ, body, glyph_symbol, in_body
+
+        # Incomplete decl -> reset safely
         if not name or not typ:
             current_decl = []
             name = None
             kind = None
             typ = None
             body = ""
+            params = ""
+            in_body = False
+            glyph_symbol = "⟦ Theorem ⟧"
             return
 
         typ_clean = " ".join(line.strip() for line in typ.splitlines()).strip()
@@ -142,55 +153,102 @@ def convert_lean_to_codexlang(path: str) -> Dict[str, Any]:
         typ = None
         body = ""
         glyph_symbol = "⟦ Theorem ⟧"
+        params = ""
+        in_body = False
 
-    # Parse line by line
+    # Parse decl header:
+    # theorem foo (x : T) : P := ...
+    decl_re = re.compile(
+        r"^(theorem|lemma|example|def|axiom|constant)\s+([A-Za-z_][\w']*)\s*(\([^)]*\))?\s*:\s*(.*)$"
+    )
+
     for i, line in enumerate(lines):
         stripped = line.strip()
 
-        # --- Flush if we hit a comment line ---
-        if stripped.startswith("--") and name:
-            flush_declaration()
+        # ✅ 1) Do NOT flush on comment lines; comments can appear inside proofs/types.
+        if stripped.startswith("--"):
+            if name:
+                current_decl.append(line)
+                # Only store comment into body if we are in proof body.
+                if in_body:
+                    body += ("\n" if body else "") + line
             continue
 
-        match = re.match(
-            r"^(theorem|lemma|example|def|axiom|constant)\s+([A-Za-z_][\w']*)\s*(\([^)]*\))?\s*:\s*(.*)",
-            stripped,
-        )
+        match = decl_re.match(stripped)
         if match:
-            # ✅ close previous declaration before starting a new one
-            flush_declaration()
+            # Close previous decl if one is open
+            if name:
+                flush_declaration()
 
             kind, nm, params_part, logic_part = match.groups()
             name = nm
-            params = params_part or ""   # <- capture (a b : Nat) or empty if none
-            typ = logic_part.strip()
+            params = params_part or ""
+            typ = (logic_part or "").strip()
             body = ""
             glyph_symbol = KIND_TO_GLYPH.get(kind, "⟦ Theorem ⟧")
             current_decl = [line]
+            in_body = False
+
+            # ✅ 3) If ':=' already appears on the header line, split immediately (except axiom/constant)
+            if kind not in ("axiom", "constant") and typ is not None and ":=" in typ:
+                left, right = typ.split(":=", 1)
+                typ = left.strip()
+                body = right.strip()
+                in_body = True
 
             # 🧩 optional debug
             print(f"[DEBUG] new decl -> kind={kind}, name={name}, params={params}, logic={typ}", file=sys.stderr)
-        elif name:
+            continue
 
-            # Continuation line
+        elif name:
+            # If we see a new declaration start, close the previous one (reprocess this line)
             if re.match(r"^(theorem|lemma|example|def|axiom|constant)\s+", stripped):
                 flush_declaration()
-                # reprocess as new decl
-                match = re.match(r"^(theorem|lemma|example|def|axiom|constant)\s+([A-Za-z_][\w']*)\s*:\s*(.*)", stripped)
-                if match:
-                    kind, nm, logic_part = match.groups()
+                m2 = decl_re.match(stripped)
+                if m2:
+                    kind, nm, params_part, logic_part = m2.groups()
                     name = nm
-                    typ = logic_part
-                    params = ""
+                    params = params_part or ""
+                    typ = (logic_part or "").strip()
                     body = ""
                     glyph_symbol = KIND_TO_GLYPH.get(kind, "⟦ Theorem ⟧")
                     current_decl = [line]
-            else:
-                current_decl.append(line)
-                if typ is not None:
-                    typ += " " + stripped
+                    in_body = False
+
+                    if kind not in ("axiom", "constant") and typ is not None and ":=" in typ:
+                        left, right = typ.split(":=", 1)
+                        typ = left.strip()
+                        body = right.strip()
+                        in_body = True
+                continue
+
+            current_decl.append(line)
+
+            # ✅ 3) Split type/proof on ':=' when it appears later (except axiom/constant)
+            if not in_body and kind not in ("axiom", "constant") and ":=" in stripped:
+                left, right = stripped.split(":=", 1)
+
+                if typ is None:
+                    typ = left.strip()
                 else:
-                    body += "\n" + line
+                    typ = (typ + " " + left.strip()).strip()
+
+                body = (body + ("\n" if body else "") + right).strip()
+                in_body = True
+                continue
+
+            # Accumulate either type (before :=) or proof body (after :=)
+            if in_body:
+                body += ("\n" if body else "") + line
+            else:
+                if typ is None:
+                    typ = stripped
+                else:
+                    typ = (typ + " " + stripped).strip()
+            continue
+
+        # Outside decl: ignore
+        continue
 
     flush_declaration()
 
@@ -344,7 +402,7 @@ def lean_to_dc_container(path: str) -> Dict[str, Any]:
             "name": decl["name"],
             "symbol": gsym,
             "logic": decl["codexlang"]["logic"],
-            "params": decl.get("params", ""), 
+            "params": decl.get("params", ""),
             "codexlang": decl["codexlang"],
             "glyph_tree": decl["glyph_tree"],
             "source": path,

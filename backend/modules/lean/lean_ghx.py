@@ -1,6 +1,9 @@
 # backend/modules/lean/lean_ghx.py
 
-import os, json, hashlib, time
+import os
+import json
+import hashlib
+import time
 from typing import Any, Dict, List, Optional
 
 # Prefer your real encoder if available; fall back to simple bundle
@@ -16,7 +19,14 @@ except Exception:
 
 def _sha(s: str) -> str:
     """Short SHA256 for deterministic IDs."""
-    return hashlib.sha256(s.encode("utf-8")).hexdigest()[:16]
+    return hashlib.sha256((s or "").encode("utf-8")).hexdigest()[:16]
+
+
+def _safe_name(s: str) -> str:
+    s = (s or "").strip() or "theorem"
+    # allow alnum, _, -, .
+    s = "".join(ch if (ch.isalnum() or ch in "._-") else "_" for ch in s)
+    return s[:120]  # keep filenames sane
 
 
 def theorem_to_packet(
@@ -27,10 +37,16 @@ def theorem_to_packet(
     extra_meta: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Convert a Lean theorem entry -> GHX packet."""
-    # Fallback logic ordering
     logic_raw = entry.get("logic_raw") or entry.get("logic") or ""
     codexlang = entry.get("codexlang") or {}
-    logic_norm = codexlang.get("normalized") or entry.get("logic") or logic_raw
+
+    # Prefer the same normalized string you write into containers/ledger
+    logic_norm = (
+        codexlang.get("normalized")
+        or entry.get("codexlang_string")
+        or entry.get("logic")
+        or logic_raw
+    )
 
     base: Dict[str, Any] = {
         "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -38,15 +54,17 @@ def theorem_to_packet(
         "container_id": container_id,
         "source_path": source_path,
         "name": entry.get("name"),
-        "symbol": entry.get("symbol"),
+        # lean_to_glyph emits glyph_symbol ("⟦ Theorem ⟧" / "⟦ Axiom ⟧") not always "symbol"
+        "symbol": entry.get("glyph_symbol") or entry.get("symbol") or "⟦ Theorem ⟧",
         "logic_raw": logic_raw,
         "logic_norm": logic_norm,
         "depends_on": entry.get("depends_on", []),
         "body": entry.get("body", ""),
         "meta": {
-            "leanProof": True,  # 📜 UI badge / symbolic detector flag
+            "leanProof": True,  # UI badge / symbolic detector flag
             "source": "lean_proof_embed",
-            "sha": _sha(logic_raw + (entry.get("body") or "")),
+            # Prefer upstream semantic hash if present, else derive one
+            "sha": entry.get("hash") or _sha(logic_norm + (entry.get("body") or "")),
             "encoded": _HAS_ENCODER,
         },
     }
@@ -73,10 +91,16 @@ def dump_packets(
 
     for e in entries:
         pkt = theorem_to_packet(e, container_id=container_id, source_path=source_path)
-        name = e.get("name") or "theorem"
-        p = os.path.join(out_dir, f"{name}.ghx.json")
+
+        name = _safe_name(e.get("name") or "theorem")
+        suffix = (
+            (e.get("hash") or _sha((e.get("logic_raw") or e.get("logic") or "") + (e.get("body") or "")))
+        )[:8]
+        p = os.path.join(out_dir, f"{name}.{suffix}.ghx.json")
+
         with open(p, "w", encoding="utf-8") as f:
             json.dump(pkt, f, indent=2, ensure_ascii=False)
+
         paths.append(p)
 
     return paths

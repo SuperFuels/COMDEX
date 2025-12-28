@@ -1,5 +1,6 @@
 /-!
-  A tiny mathlib slice for COMDEX → glyph/DC export.
+  A tiny Mathlib slice for **GlyphChain / Tessaris AI** → glyph/DC export.
+
   Covers: `def`, `lemma`, `theorem`, `example` with → and ↔ in types.
 -/
 
@@ -10,15 +11,15 @@ def double (n : Nat) : Nat := n + n
 
 /-- commutativity of addition (Nat) -/
 lemma add_comm_nat (a b : Nat) : a + b = b + a := by
-  simpa [Nat.add_comm]
+  simpa using Nat.add_comm a b
 
 /-- associativity of addition (Nat) -/
 theorem add_assoc_nat (a b c : Nat) : a + b + c = a + (b + c) := by
-  simpa [Nat.add_assoc]
+  simpa using Nat.add_assoc a b c
 
 /-- commutativity of multiplication (Nat) -/
 lemma mul_comm_nat (a b : Nat) : a * b = b * a := by
-  simpa [Nat.mul_comm]
+  simpa using Nat.mul_comm a b
 
 /-- a simple propositional implication transitivity -/
 theorem imp_trans (p q r : Prop) :
@@ -33,7 +34,7 @@ theorem iff_symm' (p q : Prop) :
   exact Iff.symm h
 
 /-- an example using ∧ swapping -/
-example (p q : Prop) :
+example and_swap (p q : Prop) :
     p ∧ q → q ∧ p := by
   intro h
   exact And.intro h.right h.left
@@ -42,10 +43,12 @@ example (p q : Prop) :
 def HeatEqStatement : Prop := True
 
 /-- trivial “proof” of the placeholder statement -/
-theorem heat_eq_linear : HeatEqStatement := trivial
+theorem heat_eq_linear : HeatEqStatement := by
+  trivial
 
 /-- `double` distributes over addition -/
 theorem double_add (x y : Nat) :
     double (x + y) = double x + double y := by
   unfold double
-  simp [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]
+  -- (x + y) + (x + y) = (x + x) + (y + y)
+  simpa using (Nat.add_add_add_comm x y x y)

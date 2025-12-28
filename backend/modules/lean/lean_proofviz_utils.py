@@ -1,4 +1,4 @@
-# backend/modules/lean/lean_proofviz.py
+# backend/modules/lean/lean_proofviz_utils.py
 # ---------------------------------------------------------------------
 # Lean / container proof visualization utilities + back-compat shims.
 # - CLI helpers for ASCII / Mermaid / PNG

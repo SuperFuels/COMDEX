@@ -1,1 +1,16 @@
 /.lake
+
+# runtime / generated
+.runtime/
+**/.runtime/
+
+# deps
+node_modules/
+**/node_modules/
+
+# lean build outputs
+**/.lake/
+
+# (optional) python junk
+**/__pycache__/
+*.pyc

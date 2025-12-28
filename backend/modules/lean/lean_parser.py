@@ -1,4 +1,3 @@
-# File: backend/modules/lean/lean_parser.py
 """
 Lean Parser -> CodexGlyph Translator
 ──────────────────────────────────────────────
@@ -7,39 +6,66 @@ usable by Tessaris and CodexGlyph translators.
 """
 
 import re
-from typing import List, Dict
+from pathlib import Path
+from typing import List, Dict, Any
 
-# === Declaration patterns (multi-line + Unicode-safe) ===
+
+# NOTE:
+# We capture:
+#   - name
+#   - optional params (...)
+#   - type/logic after ':'
+#   - optional proof/body after ':='
+#
+# We then sort all matches by position so results preserve file order.
+
 DECLARATION_PATTERNS = {
+    # theorem/lemma share same shape
     "theorem": re.compile(
-        r"^\s*theorem\s+([^\s:]+)\s*(?:\((.*?)\))?\s*:\s*([\s\S]+?)(?=\n\s*(?:theorem|lemma|def|axiom|constant|example|end)\b|\Z)",
+        r"^\s*theorem\s+([^\s:(]+)\s*(?:\((.*?)\))?\s*:\s*([\s\S]*?)(?:\s*:=\s*([\s\S]*?))?"
+        r"(?=\n\s*(?:theorem|lemma|def|axiom|constant|example|end)\b|\Z)",
         re.MULTILINE,
     ),
     "lemma": re.compile(
-        r"^\s*lemma\s+([^\s:]+)\s*(?:\((.*?)\))?\s*:\s*([\s\S]+?)(?=\n\s*(?:theorem|lemma|def|axiom|constant|example|end)\b|\Z)",
+        r"^\s*lemma\s+([^\s:(]+)\s*(?:\((.*?)\))?\s*:\s*([\s\S]*?)(?:\s*:=\s*([\s\S]*?))?"
+        r"(?=\n\s*(?:theorem|lemma|def|axiom|constant|example|end)\b|\Z)",
         re.MULTILINE,
     ),
+
+    # def can be:
+    #   def foo := ...
+    #   def foo (x) := ...
+    #   def foo (x) : T := ...
     "def": re.compile(
-        r"^\s*def\s+([^\s:]+)\s*(?:\((.*?)\))?\s*:\s*([\s\S]+?)(?=\n\s*(?:theorem|lemma|def|axiom|constant|example|end)\b|\Z)",
+        r"^\s*def\s+([^\s:(]+)\s*(?:\((.*?)\))?\s*(?::\s*([\s\S]*?))?\s*:=\s*([\s\S]*?)"
+        r"(?=\n\s*(?:theorem|lemma|def|axiom|constant|example|end)\b|\Z)",
         re.MULTILINE,
     ),
+
+    # example:
+    #   example : P := by ...
+    #   example (x) : P := ...
     "example": re.compile(
-        r"^\s*example\s*([^\s:]*)\s*:?([\s\S]*?)\s*:=\s*([\s\S]+?)(?=\n\s*(?:theorem|lemma|def|axiom|constant|example|end)\b|\Z)",
+        r"^\s*example\s*(?:\((.*?)\))?\s*:\s*([\s\S]*?)\s*:=\s*([\s\S]*?)"
+        r"(?=\n\s*(?:theorem|lemma|def|axiom|constant|example|end)\b|\Z)",
         re.MULTILINE,
     ),
+
+    # axiom/constant:
     "axiom": re.compile(
-        r"^\s*axiom\s+([^\s:]+)\s*:\s*([\s\S]+?)(?=\n\s*(?:--|axiom|constant|theorem|lemma|def|example|end)\b|\Z)",
+        r"^\s*axiom\s+([^\s:(]+)\s*(?:\((.*?)\))?\s*:\s*([\s\S]*?)"
+        r"(?=\n\s*(?:axiom|constant|theorem|lemma|def|example|end)\b|\Z)",
         re.MULTILINE,
     ),
     "constant": re.compile(
-        r"^\s*constant\s+([^\s:]+)\s*:\s*([\s\S]+?)(?=\n\s*(?:--|axiom|constant|theorem|lemma|def|example|end)\b|\Z)",
+        r"^\s*constant\s+([^\s:(]+)\s*(?:\((.*?)\))?\s*:\s*([\s\S]*?)"
+        r"(?=\n\s*(?:axiom|constant|theorem|lemma|def|example|end)\b|\Z)",
         re.MULTILINE,
     ),
 }
 
 
-# === Helpers ===
-def _clean_logic(text: str) -> str:
+def _clean_logic(text: Any) -> str:
     """Normalize whitespace but preserve explicit newlines."""
     if not isinstance(text, str):
         return ""
@@ -47,122 +73,150 @@ def _clean_logic(text: str) -> str:
     return "\n".join(lines)
 
 
-# === Main Parser ===
 def parse_lean_file(lean_text: str) -> List[Dict[str, str]]:
     """
-    Parses raw Lean source code into a list of symbolic declaration dicts.
+    Parses raw Lean source code into a list of symbolic declaration dicts
+    in source-order.
     """
-    decls: List[Dict[str, str]] = []
+    hits: List[tuple[int, str, re.Match]] = []
 
     for kind, pattern in DECLARATION_PATTERNS.items():
-        for match in pattern.finditer(lean_text):
-            print(f"[DEBUG] matched {kind} {match.group(1).strip()}")
+        for m in pattern.finditer(lean_text):
+            hits.append((m.start(), kind, m))
 
-            if kind in ("axiom", "constant"):
-                name = match.group(1).strip()
-                logic = _clean_logic(match.group(2))
-                body = ""
+    # Preserve file order
+    hits.sort(key=lambda x: x[0])
 
-            elif kind == "example":
-                name = match.group(1).strip() or "example"
-                logic = _clean_logic(match.group(2) or "")
-                body = match.group(3).strip()
+    decls: List[Dict[str, str]] = []
 
-            else:  # theorem / lemma / def
-                name = match.group(1).strip()
-                logic = _clean_logic(match.group(2) or "")
-                body = match.group(3).strip()
+    for _, kind, match in hits:
+        if kind in ("axiom", "constant"):
+            name = match.group(1).strip()
+            params = (match.group(2) or "").strip()
+            logic = _clean_logic(match.group(3))
+            body = ""
 
-            # Debug summary
-            print(f"[DEBUG] {kind} matched -> name={name!r}, logic={logic!r}")
+        elif kind == "example":
+            params = (match.group(1) or "").strip()
+            name = "example"
+            logic = _clean_logic(match.group(2) or "")
+            body = (match.group(3) or "").strip()
 
-            decls.append(
-                {
-                    "symbol": f"⟦ {kind.capitalize()} ⟧",
-                    "name": name,
-                    "logic": logic,
-                    "logic_raw": logic,
-                    "body": body,
-                }
-            )
+        elif kind == "def":
+            name = match.group(1).strip()
+            params = (match.group(2) or "").strip()
+            # type is optional for defs
+            logic = _clean_logic(match.group(3) or "")
+            body = (match.group(4) or "").strip()
 
-    # === Notation extraction ===
-    notation_pattern = re.compile(r'notation\s+([^\n]+)')
+        else:  # theorem / lemma
+            name = match.group(1).strip()
+            params = (match.group(2) or "").strip()
+            logic = _clean_logic(match.group(3) or "")
+            body = (match.group(4) or "").strip()
+
+        decls.append(
+            {
+                "symbol": f"⟦ {kind.capitalize()} ⟧",
+                "name": name,
+                "params": params,
+                "logic": logic,
+                "logic_raw": logic,
+                "body": body,
+            }
+        )
+
+    # Notation extraction (kept)
+    notation_pattern = re.compile(r"^\s*notation\s+([^\n]+)", re.MULTILINE)
     for match in notation_pattern.finditer(lean_text):
         decls.append({
             "symbol": "⟦ Notation ⟧",
             "name": match.group(1).strip(),
+            "params": "",
             "logic": "",
             "logic_raw": "",
-            "body": ""
+            "body": "",
         })
 
     return decls
 
 
-# === Single block parser ===
 def parse_single_declaration(block: str) -> Dict[str, str]:
     """
     Parses a single Lean declaration block into symbolic fields.
     """
     for kind, pattern in DECLARATION_PATTERNS.items():
         match = pattern.search(block)
-        if match:
-            if kind in ("axiom", "constant"):
-                logic = _clean_logic(match.group(2))
-                return {
-                    "symbol": f"⟦ {kind.capitalize()} ⟧",
-                    "name": match.group(1).strip(),
-                    "logic": logic,
-                    "logic_raw": logic,
-                    "body": "",
-                }
-            elif kind == "example":
-                logic = _clean_logic(match.group(2) or "")
-                return {
-                    "symbol": "⟦ Example ⟧",
-                    "name": match.group(1).strip() or "example",
-                    "logic": logic,
-                    "logic_raw": logic,
-                    "body": match.group(3).strip(),
-                }
-            else:  # theorem / lemma / def
-                logic = _clean_logic(match.group(2) or "")
-                return {
-                    "symbol": f"⟦ {kind.capitalize()} ⟧",
-                    "name": match.group(1).strip(),
-                    "logic": logic,
-                    "logic_raw": logic,
-                    "body": match.group(3).strip(),
-                }
+        if not match:
+            continue
+
+        if kind in ("axiom", "constant"):
+            logic = _clean_logic(match.group(3))
+            return {
+                "symbol": f"⟦ {kind.capitalize()} ⟧",
+                "name": match.group(1).strip(),
+                "params": (match.group(2) or "").strip(),
+                "logic": logic,
+                "logic_raw": logic,
+                "body": "",
+            }
+
+        if kind == "example":
+            logic = _clean_logic(match.group(2) or "")
+            return {
+                "symbol": "⟦ Example ⟧",
+                "name": "example",
+                "params": (match.group(1) or "").strip(),
+                "logic": logic,
+                "logic_raw": logic,
+                "body": (match.group(3) or "").strip(),
+            }
+
+        if kind == "def":
+            logic = _clean_logic(match.group(3) or "")
+            return {
+                "symbol": "⟦ Def ⟧",
+                "name": match.group(1).strip(),
+                "params": (match.group(2) or "").strip(),
+                "logic": logic,
+                "logic_raw": logic,
+                "body": (match.group(4) or "").strip(),
+            }
+
+        # theorem/lemma
+        logic = _clean_logic(match.group(3) or "")
+        return {
+            "symbol": f"⟦ {kind.capitalize()} ⟧",
+            "name": match.group(1).strip(),
+            "params": (match.group(2) or "").strip(),
+            "logic": logic,
+            "logic_raw": logic,
+            "body": (match.group(4) or "").strip(),
+        }
+
     return {}
 
-# === Directory-level parser for SRK-8 Proof Kernel ===
-from pathlib import Path
 
 def parse_proof_dir(directory: str) -> List[Dict[str, str]]:
     """
-    Recursively scans a directory for .lean files, parses them with parse_lean_file,
+    Recursively scans a directory for .lean files, parses them,
     and returns a flat list of declaration dicts.
-    Each dict minimally includes: {"name", "symbol", "logic", "body"}.
+    NOTE: Do NOT mark 'proved' here — only Lean verification should do that.
     """
     directory_path = Path(directory)
     if not directory_path.exists():
         print(f"[LeanParser] Directory not found: {directory}")
         return []
 
-    all_declarations = []
+    all_declarations: List[Dict[str, str]] = []
+
     for lean_file in directory_path.rglob("*.lean"):
         try:
             text = lean_file.read_text(encoding="utf-8")
             decls = parse_lean_file(text)
             for d in decls:
                 d["source_file"] = str(lean_file)
-                # Mark all theorems and lemmas as "proved" by default
-                if d["symbol"] in ("⟦ Theorem ⟧", "⟦ Lemma ⟧"):
-                    d["status"] = "proved"
-                else:
-                    d["status"] = "unverified"
+                d["status"] = "unverified"  # ✅ never lie here
             all_declarations.extend(decls)
             print(f"[LeanParser] Parsed {len(decls)} decls from {lean_file}")
         except Exception as e:
@@ -171,9 +225,9 @@ def parse_proof_dir(directory: str) -> List[Dict[str, str]]:
     print(f"[LeanParser] Total parsed declarations: {len(all_declarations)}")
     return all_declarations
 
-# === CLI Entry Point ===
+
 if __name__ == "__main__":
-    import sys, json
+    import sys
 
     if len(sys.argv) < 2:
         print("Usage: python lean_parser.py <path_to_file.lean>")
@@ -192,13 +246,12 @@ if __name__ == "__main__":
     print("\n=== Parsed Declarations ===")
     for d in decls:
         print(f"* {d['symbol']} {d['name']}")
+        if d.get("params"):
+            print(f"  Params: {d['params']}")
         print(f"  Logic: {d['logic']}")
-        if d['body']:
+        if d["body"]:
             print(f"  Body: {d['body'][:60]}{'...' if len(d['body']) > 60 else ''}")
         print()
-
-    # Optional JSON dump
-    # print(json.dumps(decls, indent=2, ensure_ascii=False, sort_keys=True))
 
     try:
         from backend.routes.ws.glyphnet_ws import emit_websocket_event

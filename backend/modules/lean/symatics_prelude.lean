@@ -1,35 +1,30 @@
-/-
-Symatics Prelude (v0.9)
------------------------
-Glyph-based operators for Symatics algebra, aligned with Codex + Python rewriter.
+import Init
 
-Provides:
-  • SProp : carrier type for symatic propositions
-  • Phase : type of phase offsets
-  • ⊥     : bottom / annihilation
-  • ⋈[φ]  : interference operator
-  • ⊕     : constructive interference (phase = 0)
-  • ⊖     : destructive interference (phase = π)
+/-
+Symatics Prelude (v1.0)
+Lean-correct core for Symatics.
 -/
 
-open classical
-universe u
+abbrev SProp := Prop
 
--- Core carriers
-constant Phase : Type           -- abstract type of phase offsets
-constant SProp : Type           -- symatic propositions
-constant sFalse : SProp         -- bottom / annihilation
+-- Phase is abstract, but supports + and - syntax.
+axiom Phase : Type
+axiom phase_add : Phase → Phase → Phase
+axiom phase_neg : Phase → Phase
+
+instance : HAdd Phase Phase Phase := ⟨phase_add⟩
+instance : Neg Phase := ⟨phase_neg⟩
 
 -- Interference connective
-constant sInterf : Phase → SProp → SProp → SProp
+axiom sInterf : Phase → SProp → SProp → SProp
 
 -- Notations
-notation "⊥" => sFalse
+notation "⊥" => False
 notation A " ⋈[" φ "] " B => sInterf φ A B
 
--- Derived notations for common phases
-constant zero_phase : Phase
-constant pi_phase   : Phase
+-- Common phases
+axiom zero_phase : Phase
+axiom pi_phase   : Phase
 
-notation A " ⊕ " B := sInterf zero_phase A B
-notation A " ⊖ " B := sInterf pi_phase A B
+notation A " ⊕ " B => sInterf zero_phase A B
+notation A " ⊖ " B => sInterf pi_phase A B
