@@ -10,12 +10,13 @@ namespace SymTactics
 /-- Log proof events (stub; wire to telemetry later) -/
 def log_event (_tag : String) (_msg : String) : IO Unit := pure ()
 
-/-- Check whether `pat` is a substring of `s` using List Char (total + terminating). -/
+/-- Check whether `pat` is a prefix of `s` using List Char (total + terminating). -/
 def startsWithChars : List Char → List Char → Bool
 | _      , []       => true
 | []     , _ :: _   => false
-| c :: cs, p :: ps  => c = p && startsWithChars cs ps
+| c :: cs, p :: ps  => (c = p) && startsWithChars cs ps
 
+/-- Check whether `pat` occurs in `s` using List Char (total + terminating). -/
 def containsChars : List Char → List Char → Bool
 | s, [] => true
 | [], _ :: _ => false
@@ -23,7 +24,7 @@ def containsChars : List Char → List Char → Bool
   if startsWithChars s pat then true else containsChars cs pat
 
 def containsSubstr (s pat : String) : Bool :=
-  containsChars s.data pat.data
+  containsChars s.toList pat.toList
 
 /-- Simplify λ⊗ψ tensor couplings using internal symbolic rules -/
 def resonant_tac (expr : String) : IO String := do
@@ -62,7 +63,7 @@ def tensor_invariant_zero (expr : String) : IO Bool := do
 def sym_proof_pipeline (theorem_name : String) (expr : String) : IO Bool := do
   log_event "sym_proof_pipeline" s!"Evaluating {theorem_name}"
   let e₁ ← resonant_tac expr
-  let _  ← coherence_guard e₁
+  let _ok ← coherence_guard e₁
   let result ← tensor_invariant_zero e₁
   log_event "sym_proof_pipeline" s!"Result: {result}"
   return result

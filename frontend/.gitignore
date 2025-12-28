@@ -195,3 +195,6 @@ INERTIA/artifacts/
 MAGNETISM/artifacts/
 MATTER/artifacts/
 TUNNEL/artifacts/
+
+**/node_modules
+Glyph_Net_Browser/node_modules
