@@ -8,16 +8,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import type { EntangledNode, EntangledLink } from '@/components/codex/EntanglementGraph';
 
 // Dynamically import the graph so it only runs client-side
-const EntanglementGraph = dynamic(
-  () => import('@/components/codex/EntanglementGraph'),
-  { ssr: false }
-);
+const EntanglementGraph = dynamic(() => import('@/components/codex/EntanglementGraph'), {
+  ssr: false,
+});
 
 interface Glyph {
   id: string;
   glyph: string;
   label?: string;
   entangled?: string[];
+}
+
+function sameOriginWsUrl(path: string) {
+  // Works for local dev, Codespaces, Vercel, etc.
+  const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  return `${proto}://${window.location.host}${path}`;
 }
 
 export default function EntanglementGraphPage() {
@@ -46,29 +51,49 @@ export default function EntanglementGraphPage() {
       .catch(() => {
         // ignore seed failure for now
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Live WebSocket Mode
   useEffect(() => {
     if (!liveMode) {
-      wsRef?.close();
+      try {
+        wsRef?.close();
+      } catch {}
       setWsRef(null);
       return;
     }
 
-    const ws = new WebSocket('ws://localhost:8000/ws/glyphnet');
+    // ✅ Same-origin WS (goes through Vite proxy -> radio-node). No direct :8000.
+    const ws = new WebSocket(sameOriginWsUrl('/ws/glyphnet'));
     setWsRef(ws);
+
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        if (msg.type === 'glyph') {
+        if (msg?.type === 'glyph') {
           injectGlyphs([msg.payload as Glyph], true);
         }
       } catch (err) {
         console.error('Invalid glyph message:', err);
       }
     };
-    return () => ws.close();
+
+    ws.onerror = () => {
+      // Let onclose handle cleanup; keep logs minimal
+    };
+
+    ws.onclose = () => {
+      // If user still in live mode, allow them to toggle off/on to reconnect.
+      // (Optional: add reconnect loop here later if you want.)
+    };
+
+    return () => {
+      try {
+        ws.close();
+      } catch {}
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liveMode]);
 
   // Replay mode autoplay
@@ -80,13 +105,18 @@ export default function EntanglementGraphPage() {
       }
       return;
     }
+
     intervalRef.current = setInterval(() => {
       stepForward();
     }, 1000);
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = null;
     };
-  }, [playing, step]); // step in deps keeps consistent progression
+    // step in deps keeps consistent progression
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playing, step]);
 
   const injectGlyphs = (glyphSlice: Glyph[], live = false) => {
     const nodeMap = new Map(graphData.nodes.map((n) => [n.id, n]));
@@ -97,6 +127,7 @@ export default function EntanglementGraphPage() {
     for (const g of glyphSlice) {
       if (!nodeMap.has(g.id)) {
         newNodes.push({ id: g.id, label: g.label || g.glyph, glyph: g.glyph });
+        nodeMap.set(g.id, { id: g.id, label: g.label || g.glyph, glyph: g.glyph });
       }
       if (Array.isArray(g.entangled)) {
         for (const target of g.entangled) {
@@ -108,6 +139,7 @@ export default function EntanglementGraphPage() {
         }
       }
     }
+
     setGraphData({ nodes: newNodes, links: newLinks });
   };
 
@@ -125,17 +157,16 @@ export default function EntanglementGraphPage() {
     filter.trim().length > 0
       ? {
           nodes: graphData.nodes.filter((n) =>
-            n.glyph.toLowerCase().includes(filter.toLowerCase())
+            (n.glyph || '').toLowerCase().includes(filter.toLowerCase())
           ),
-          links: graphData.links.filter(
-            (l) =>
-              graphData.nodes.find(
-                (n) => n.id === l.source && n.glyph.toLowerCase().includes(filter.toLowerCase())
-              ) ||
-              graphData.nodes.find(
-                (n) => n.id === l.target && n.glyph.toLowerCase().includes(filter.toLowerCase())
-              )
-          ),
+          links: graphData.links.filter((l) => {
+            const src = graphData.nodes.find((n) => n.id === l.source);
+            const dst = graphData.nodes.find((n) => n.id === l.target);
+            return (
+              (src?.glyph || '').toLowerCase().includes(filter.toLowerCase()) ||
+              (dst?.glyph || '').toLowerCase().includes(filter.toLowerCase())
+            );
+          }),
         }
       : graphData;
 
@@ -151,16 +182,10 @@ export default function EntanglementGraphPage() {
               placeholder="Filter glyphs..."
               className="bg-gray-900 border-gray-700 text-white text-sm"
             />
-            <Button
-              onClick={() => setStep(0)}
-              className="text-xs bg-gray-700 hover:bg-gray-600"
-            >
+            <Button onClick={() => setStep(0)} className="text-xs bg-gray-700 hover:bg-gray-600">
               ⏮️ Reset
             </Button>
-            <Button
-              onClick={stepForward}
-              className="text-xs bg-gray-700 hover:bg-gray-600"
-            >
+            <Button onClick={stepForward} className="text-xs bg-gray-700 hover:bg-gray-600">
               ⏭️ Step
             </Button>
             <Button
@@ -172,15 +197,14 @@ export default function EntanglementGraphPage() {
             <Button
               onClick={() => setLiveMode((v) => !v)}
               className={`text-xs ${
-                liveMode
-                  ? 'bg-red-600 hover:bg-red-500'
-                  : 'bg-blue-600 hover:bg-blue-500'
+                liveMode ? 'bg-red-600 hover:bg-red-500' : 'bg-blue-600 hover:bg-blue-500'
               }`}
             >
               {liveMode ? '⛔ Stop Live' : '🛰️ Live'}
             </Button>
           </div>
         </div>
+
         <EntanglementGraph nodes={filtered.nodes} links={filtered.links} />
       </CardContent>
     </Card>

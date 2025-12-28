@@ -5,7 +5,7 @@
 // (see DEV_ROUTES_ENABLED and the devtools hash block).
 // This file remains the "normal" Dev Tools dashboard.
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, type CSSProperties } from "react";
 import PhotonEditor from "../components/PhotonEditor";
 import LedgerInspector from "../components/LedgerInspector";
 import PhotonGuide from "../components/PhotonGuide";
@@ -18,9 +18,11 @@ import { HoloIndexItem } from "../lib/api/holo";
 import HologramContainerView from "../components/HologramContainerView";
 import QRCode from "qrcode.react";
 import ErrorBoundary from "../components/ErrorBoundary";
+import QFCViewport from "../components/QFCViewport";
+import { useTessarisTelemetry, type TessarisTelemetry } from "../hooks/useTessarisTelemetry";
 
 // Hologram IR + API
-import type { HoloIR } from "../lib/types/holo";
+import type { HoloIR } from "../lib/types/holo"; 
 import {
   exportHoloForContainer,
   fetchLatestHoloForContainer,
@@ -36,6 +38,7 @@ type ToolId =
   | "pitch"
   | "field"
   | "aion"
+  | "qfc"  
   | "crystal"
   | "docs"
   | "gma"
@@ -64,6 +67,7 @@ export default function DevTools() {
   // 📚 Holo index (history) – legacy shape used by existing UI
   const [holoIndex, setHoloIndex] = useState<HoloIndexEntry[] | null>(null);
   const [loadingIndex, setLoadingIndex] = useState(false);
+  const telemetry = useTessarisTelemetry();
 
   // 📁 Shared “Holo Files” cabinet (used by Text Editor + Field Lab)
   const [holoFiles, setHoloFiles] = useState<HoloIndexItem[]>([]);
@@ -195,6 +199,7 @@ export default function DevTools() {
         if (detail.tab === "pitch") target = "pitch";
         if (detail.tab === "aion") target = "aion";
         if (detail.tab === "crystal") target = "crystal";
+        if (detail.tab === "qfc") target = "qfc";
       }
 
       if (target) setActiveTool(target);
@@ -586,6 +591,13 @@ export default function DevTools() {
               onSelect={setActiveTool}
             />
             <ToolButton
+              id="qfc"
+              label="QFC HUD"
+              description="Scenario HUD + knobs"
+              activeTool={activeTool}
+              onSelect={setActiveTool}
+            />
+            <ToolButton
               id="aion"
               label="AION Memory"
               description="Internal holo seeds"
@@ -654,10 +666,13 @@ export default function DevTools() {
               <CrystalPanel />
             ) : activeTool === "docs" ? (
               <TransactableDocsDevPanel />
-            ) : activeTool === "gma" ? (
-              <GMADashboardPanel />
             ) : activeTool === "gma_auth" ? (
               <GMAMonetaryAuthorityPanel />
+            ) : activeTool === "qfc" ? (
+              <QFCHudPanel
+                containerId={activeContainerId ?? "dc_aion_core"}
+                telemetry={telemetry}
+              />
             ) : (
               <>
                 {/* Field Lab: Hologram container fills full width (owns its own Holo Files cabinet) */}
@@ -1614,6 +1629,1287 @@ function GMADashboardPanel() {
   );
 }
 
+type ScenarioId = "BG01" | "G01" | "TN01" | "MT01" | "C01";
+
+type ScenarioConfig = {
+  id: ScenarioId;
+  label: string;
+  theme: {
+    gravity: string;
+    matter: string;
+    photon: string;
+    connect: string;
+    danger: string;
+  };
+  defaults: { kappa: number; chi: number; sigma: number; alpha: number };
+  mode: "gravity" | "tunnel" | "matter" | "connect";
+};
+
+const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
+  BG01: {
+    id: "BG01",
+    label: "BG01 Base Grid",
+    theme: {
+      gravity: "rgba(56,189,248,0.65)",
+      matter: "rgba(226,232,240,0.65)",
+      photon: "rgba(251,191,36,0.70)",
+      connect: "rgba(34,211,238,0.70)",
+      danger: "rgba(239,68,68,0.80)",
+    },
+    defaults: { kappa: 0.11, chi: 0.25, sigma: 0.5, alpha: 0.1 },
+    mode: "gravity",
+  },
+  G01: {
+    id: "G01",
+    label: "G01 Gravity Well",
+    theme: {
+      gravity: "rgba(99,102,241,0.70)",
+      matter: "rgba(148,163,184,0.65)",
+      photon: "rgba(251,191,36,0.70)",
+      connect: "rgba(34,211,238,0.70)",
+      danger: "rgba(239,68,68,0.80)",
+    },
+    defaults: { kappa: 0.18, chi: 0.18, sigma: 0.42, alpha: 0.08 },
+    mode: "gravity",
+  },
+  TN01: {
+    id: "TN01",
+    label: "TN01 Light Tunneling",
+    theme: {
+      gravity: "rgba(56,189,248,0.45)",
+      matter: "rgba(148,163,184,0.60)",
+      photon: "rgba(251,191,36,0.85)",
+      connect: "rgba(34,211,238,0.70)",
+      danger: "rgba(239,68,68,0.85)",
+    },
+    defaults: { kappa: 0.06, chi: 0.22, sigma: 0.78, alpha: 0.14 },
+    mode: "tunnel",
+  },
+  MT01: {
+    id: "MT01",
+    label: "MT01 Matter Soliton",
+    theme: {
+      gravity: "rgba(56,189,248,0.40)",
+      matter: "rgba(226,232,240,0.85)",
+      photon: "rgba(251,191,36,0.55)",
+      connect: "rgba(34,211,238,0.70)",
+      danger: "rgba(239,68,68,0.80)",
+    },
+    defaults: { kappa: 0.12, chi: 0.28, sigma: 0.35, alpha: 0.11 },
+    mode: "matter",
+  },
+  C01: {
+    id: "C01",
+    label: "C01 Connectivity Jump",
+    theme: {
+      gravity: "rgba(56,189,248,0.35)",
+      matter: "rgba(148,163,184,0.55)",
+      photon: "rgba(251,191,36,0.55)",
+      connect: "rgba(34,211,238,0.90)",
+      danger: "rgba(239,68,68,0.80)",
+    },
+    defaults: { kappa: 0.09, chi: 0.34, sigma: 0.62, alpha: 0.16 },
+    mode: "connect",
+  },
+};
+
+type QFCFrame = {
+  t: number;
+  kappa?: number;
+  chi?: number;
+  sigma?: number;
+  alpha?: number;
+  curl_rms?: number;
+  curv?: number;
+  coupling_score?: number;
+  max_norm?: number;
+};
+
+function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetry?: TessarisTelemetry }) {
+  // --- scenario selector ---
+  const [scenario, setScenario] = useState<ScenarioId>(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return (p.get("scenario") as ScenarioId) || "BG01";
+    } catch {
+      return "BG01";
+    }
+  });
+
+  const cfg = SCENARIOS[scenario] ?? SCENARIOS.BG01;
+
+  const [controller, setController] = useState("unknown");
+  const [seed, setSeed] = useState<number>(1);
+  const [runHash, setRunHash] = useState<string>("—");
+
+  // --- knobs (top-right MVP) ---
+  const [kappa, setKappa] = useState(() => cfg.defaults.kappa);
+  const [chi, setChi] = useState(() => cfg.defaults.chi);
+  const [sigma, setSigma] = useState(() => cfg.defaults.sigma);
+  const [alpha, setAlpha] = useState(() => cfg.defaults.alpha);
+
+  // --- rolling stream ---
+  const [frames, setFrames] = useState<QFCFrame[]>([]);
+  const [connected, setConnected] = useState(false);
+  const [paused, setPaused] = useState(false);
+
+  const [cursor, setCursor] = useState(0);
+
+  // ✅ put meanTail here (if you haven’t already defined it above)
+  const meanTail = (xs: number[], n = 80) => {
+    const tail = xs.slice(Math.max(0, xs.length - n));
+    if (!tail.length) return 0;
+    return tail.reduce((a, b) => a + b, 0) / tail.length;
+  };
+
+  // ✅ PUT THESE LINES RIGHT HERE (before return)
+  const sigmaMean = meanTail(frames.map((f) => Number(f.sigma ?? 0)), 80);
+  const gammaMean = meanTail(frames.map((f) => Number(f.coupling_score ?? 0)), 80);
+
+  useEffect(() => {
+    setKappa(cfg.defaults.kappa);
+    setChi(cfg.defaults.chi);
+    setSigma(cfg.defaults.sigma);
+    setAlpha(cfg.defaults.alpha);
+
+    setFrames([]);
+    setCursor(0);
+    setRunHash("—");
+
+    // later: ws?.send(JSON.stringify({ type:"scenario", scenario }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenario]);  
+
+  // Connect to a WS stream if present; otherwise simulate.
+  // You can later point this to your real stream endpoint.
+
+  const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+  // ✅ LIVE STREAM: derive frames from rqfs_feedback.state (+ fusion/analytics) via useTessarisTelemetry
+  // helper funcs (put these just above the LIVE STREAM useEffect, inside QFCHudPanel)
+  const pickNum = (...vals: any[]) => {
+    for (const v of vals) {
+      const n = Number(v);
+      if (Number.isFinite(n)) return n;
+    }
+    return 0;
+  };
+
+  // ✅ LIVE STREAM: derive frames from rqfs_feedback.state (+ fusion/analytics) via useTessarisTelemetry
+  useEffect(() => {
+    if (paused) return;
+
+    const t: any = telemetry ?? {};
+
+    // ✅ support both keys (your stream often uses rqfs_feedback.state)
+    const rqfsAny: any = t.rqfs_feedback ?? t.rqfs ?? {};
+    const rqfs: any = rqfsAny?.state ?? rqfsAny ?? {};
+
+    const fusion: any = t.fusion ?? {};
+    const analytics: any = t.analytics ?? {};
+
+    const hasAny =
+      (rqfs && Object.keys(rqfs).length > 0) ||
+      (fusion && Object.keys(fusion).length > 0) ||
+      (analytics && Object.keys(analytics).length > 0);
+
+    if (!hasAny) {
+      setConnected(false);
+      return;
+    }
+    setConnected(true);
+
+    const pickNum = (...vals: any[]) => {
+      for (const v of vals) {
+        const n = Number(v);
+        if (Number.isFinite(n)) return n;
+      }
+      return NaN;
+    };
+
+    const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+
+    // ✅ map exactly like your original working dashboard
+    const kappaLive = clamp01(
+      pickNum(
+        rqfs.nu_bias,
+        rqfs.nu,
+        rqfs.kappa,
+        analytics.mean_nu,
+        analytics.nu_mean,
+        analytics.meanNu,
+        0,
+      ) || 0,
+    );
+
+    const chiLive = clamp01(
+      pickNum(
+        rqfs.amp_bias,
+        rqfs.amp,
+        rqfs.psi,
+        analytics.mean_amp,
+        analytics.amp_mean,
+        analytics.meanAmp,
+        0,
+      ) || 0,
+    );
+
+    const sigmaLive = clamp01(
+      pickNum(
+        fusion.stability,
+        fusion.sigma,
+        analytics.stability,
+        analytics.sigma,
+        0,
+      ) || 0,
+    );
+
+    const alphaLive =
+      pickNum(
+        rqfs.feedback_gain,
+        rqfs.gamma,
+        fusion.fusion_score,
+        fusion.fusion,
+        analytics.feedback_gain,
+        analytics.gamma,
+        1.0,
+      ) || 1.0;
+
+    // ψ̃ from fusion (may be -1..+1). Convert to 0..1 for the chart.
+    const psiRaw =
+      pickNum(
+        fusion["ψ̃"],
+        fusion.psi_tilde,
+        fusion.cognition_signal,
+        fusion.inference_strength,
+        fusion.signal,
+        NaN,
+      );
+
+    const psi01 = Number.isFinite(psiRaw) ? clamp01(0.5 + 0.5 * psiRaw) : 0;
+
+    const f: QFCFrame = {
+      t: Date.now(),
+
+      // κ̃ line in chart uses f.kappa
+      kappa: kappaLive,
+
+      // ψ̃ line in chart uses f.chi
+      chi: psi01,
+
+      // σ line in chart uses f.sigma
+      sigma: sigmaLive,
+
+      // γ̃ line in chart uses f.alpha (keep feedback gain here)
+      alpha: alphaLive,
+
+      // extras (for object data + other panels)
+      curl_rms: pickNum(fusion.curl_rms, fusion.curl, analytics.curl_rms) || 0,
+      curv: pickNum(fusion.curv, fusion.curvature, analytics.curv, analytics.curvature) || 0,
+      coupling_score:
+        pickNum(fusion.coupling_score, fusion.gamma_tilde, fusion["γ̃"], fusion.stability, analytics.stability) || 0,
+      max_norm: pickNum(fusion.max_norm, analytics.max_norm) || 0,
+    };
+
+    setFrames((prev) => {
+      const next = prev.length > 400 ? prev.slice(prev.length - 400) : prev.slice();
+      next.push(f);
+      return next;
+    });
+  }, [telemetry, paused]);
+
+  // keep cursor valid
+  useEffect(() => {
+    setCursor((c) => Math.min(c, Math.max(0, frames.length - 1)));
+  }, [frames.length]);
+
+  const active = frames.length ? frames[cursor] : null;
+
+  const exportSnapshot = () => {
+    const payload = {
+      meta: { scenario, controller, seed, run_hash: runHash, container_id: containerId },
+      knobs: { kappa, chi, sigma, alpha },
+      cursor,
+      frame: active,
+      frames_tail: frames.slice(Math.max(0, frames.length - 200)),
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `qfc_${scenario}_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  // (inside QFCHudPanel)
+  const hudShell: CSSProperties = {
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+  };
+
+  const hudWrap: React.CSSProperties = {
+    borderRadius: 16,
+    border: "1px solid rgba(148,163,184,0.28)",
+    background: "linear-gradient(180deg, rgba(2,6,23,0.82), rgba(15,23,42,0.62))",
+    boxShadow: "0 0 0 1px rgba(56,189,248,0.10) inset, 0 18px 60px rgba(0,0,0,0.35)",
+    color: "#e5e7eb",
+    overflow: "hidden",
+  };
+
+  const hudHeader: React.CSSProperties = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    padding: "10px 12px",
+    borderBottom: "1px solid rgba(148,163,184,0.20)",
+    background: "linear-gradient(90deg, rgba(15,23,42,0.75), rgba(2,6,23,0.25))",
+  };
+
+  const hudTitle: React.CSSProperties = {
+    fontSize: 11,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    color: "rgba(226,232,240,0.85)",
+    fontWeight: 700,
+  };
+
+  const hudSub: React.CSSProperties = {
+    fontSize: 10,
+    color: "rgba(226,232,240,0.65)",
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    display: "flex",
+    gap: 10,
+    flexWrap: "wrap",
+  };
+
+  const grid: React.CSSProperties = {
+    display: "grid",
+    gridTemplateColumns: "1.35fr 1.1fr 1fr",
+    gridTemplateRows: "320px 240px", // was 250px
+    gap: 10,
+    padding: 12,
+  };
+
+  const panelBase: React.CSSProperties = {
+    borderRadius: 14,
+    border: "1px solid rgba(148,163,184,0.22)",
+    background: "linear-gradient(180deg, rgba(2,6,23,0.55), rgba(15,23,42,0.35))",
+    boxShadow: "0 0 0 1px rgba(56,189,248,0.08) inset",
+    padding: 10,
+    position: "relative",
+    overflow: "hidden",
+  };
+
+  const panelLabel: React.CSSProperties = {
+    fontSize: 10,
+    letterSpacing: 0.9,
+    textTransform: "uppercase",
+    color: "rgba(226,232,240,0.72)",
+    marginBottom: 8,
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 10,
+    alignItems: "center",
+  };
+
+  const mono: React.CSSProperties = {
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+  };
+
+  function HudPanel({
+    title,
+    right,
+    style,
+    children,
+  }: {
+    title: string;
+    right?: React.ReactNode;
+    style?: React.CSSProperties;
+    children: React.ReactNode;
+  }) {
+    return (
+      <div style={{ ...panelBase, ...style }}>
+        <div style={panelLabel}>
+          <span>{title}</span>
+          {right ? <span style={{ opacity: 0.9 }}>{right}</span> : null}
+        </div>
+        {children}
+      </div>
+    );
+  }
+
+  function LegendChip({ label, color, active }: { label: string; color: string; active?: boolean }) {
+    return (
+      <span
+        style={{
+          padding: "5px 10px",
+          borderRadius: 999,
+          border: active ? "1px solid rgba(226,232,240,0.45)" : "1px solid rgba(148,163,184,0.22)",
+          background: active ? "rgba(226,232,240,0.08)" : "rgba(2,6,23,0.25)",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          fontSize: 10,
+          ...mono,
+          opacity: active ? 1 : 0.85,
+        }}
+        title={label}
+      >
+        <span
+          style={{
+            width: 10,
+            height: 10,
+            borderRadius: 999,
+            background: color,
+            boxShadow: `0 0 16px ${color}`,
+            opacity: 0.9,
+          }}
+        />
+        {label}
+      </span>
+    );
+  }
+
+  function ResonanceScope({
+    frames,
+    footerLeft,
+    footerRight,
+  }: {
+    frames: QFCFrame[];
+    footerLeft?: React.ReactNode;
+    footerRight?: React.ReactNode;
+  }) {
+    const tail = frames.slice(Math.max(0, frames.length - 180));
+
+    // SVG size
+    const W = 920;
+    const H = 240; // ✅ was 190 (or 170 in the older version)
+
+    // Plot paddings (space for axes)
+    const padL = 46;
+    const padR = 52;
+    const padT = 10;
+    const padB = 26;
+
+    const w = W - padL - padR;
+    const h = H - padT - padB;
+
+    const safeSeries = (ys: number[], fallback: number) => {
+      if (ys.length >= 2) return ys;
+      const v = ys.length === 1 ? ys[0] : fallback;
+      return [v, v];
+    };
+
+    const sigma = safeSeries(tail.map((f) => Number(f.sigma ?? 0)), 0.9);  // σ
+    const gamma = safeSeries(tail.map((f) => Number(f.alpha ?? 1)), 1.0);  // γ̃
+    const psi   = safeSeries(tail.map((f) => Number(f.chi ?? 0)), 0.2);    // ψ̃
+    // κ̃ should be fusion curl_rms (small ~0.02–0.10), so scale to 0..1 for visibility
+    const KAPPA_SCALE = 10; // tweak 8–14 if you want bigger/smaller
+    const kappa = safeSeries(
+      tail.map((f) => clamp(Number(f.curl_rms ?? 0) * KAPPA_SCALE, 0, 1)),
+      0.1,
+    );
+
+    const toPath = (ys: number[], yMin: number, yMax: number) => {
+      const norm = (v: number) => {
+        const t = (v - yMin) / Math.max(1e-9, yMax - yMin);
+        return Math.max(0, Math.min(1, t));
+      };
+
+      return ys
+        .map((v, i) => {
+          const px = padL + (i / Math.max(1, ys.length - 1)) * w;
+          const py = padT + (1 - norm(v)) * h;
+          return `${i === 0 ? "M" : "L"} ${px.toFixed(2)} ${py.toFixed(2)}`;
+        })
+        .join(" ");
+    };
+
+    const pSigma = toPath(sigma, 0, 1);
+    const pPsi   = toPath(psi,   0, 1);
+    const pKappa = toPath(kappa, 0, 1);
+    const pGamma = toPath(gamma, 0.6, 2.0);
+
+    // axis ticks
+    const yTicksLeft = [1, 0.75, 0.5, 0.25, 0];
+    const yTicksRight = [2.0, 1.6, 1.2, 0.8, 0.6];
+
+    const formatTime = (ms: number) => {
+      const d = new Date(ms);
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      const ss = String(d.getSeconds()).padStart(2, "0");
+      return `${hh}:${mm}:${ss}`;
+    };
+
+    // bottom time ticks (up to ~8 labels)
+    const tSeries = tail.map((f) => Number(f.t ?? NaN)).filter((n) => Number.isFinite(n));
+    const xLabelCount = Math.min(8, tail.length);
+    const xLabelEvery = Math.max(1, Math.floor(tail.length / xLabelCount));
+
+    return (
+      <div
+        style={{
+          borderRadius: 12,
+          border: "1px solid rgba(148,163,184,0.18)",
+          overflow: "hidden",
+          position: "relative",
+          height: "100%", // ✅ fill parent (removes bottom gap when parent gives height)
+        }}
+      >
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          preserveAspectRatio="none"
+          style={{
+            width: "100%",
+            height: "100%", // ✅ fill wrapper
+            display: "block", // ✅ removes baseline gap
+          }}
+        >
+          {/* plot bg grid */}
+          {Array.from({ length: 9 }).map((_, i) => {
+            const y = padT + (i / 8) * h;
+            return (
+              <line
+                key={`h-${i}`}
+                x1={padL}
+                y1={y}
+                x2={padL + w}
+                y2={y}
+                stroke="rgba(148,163,184,0.12)"
+                strokeWidth="1"
+              />
+            );
+          })}
+          {Array.from({ length: 13 }).map((_, i) => {
+            const x = padL + (i / 12) * w;
+            return (
+              <line
+                key={`v-${i}`}
+                x1={x}
+                y1={padT}
+                x2={x}
+                y2={padT + h}
+                stroke="rgba(148,163,184,0.10)"
+                strokeWidth="1"
+              />
+            );
+          })}
+
+          {/* left axis labels (0..1) */}
+          {yTicksLeft.map((v) => {
+            const y = padT + (1 - v) * h;
+            return (
+              <g key={`yl-${v}`}>
+                <text
+                  x={padL - 8}
+                  y={y + 3}
+                  textAnchor="end"
+                  fontSize="10"
+                  fill="rgba(226,232,240,0.72)"
+                  fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+                >
+                  {v.toFixed(2)}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* right axis labels (γ̃ 0.6..2.0) */}
+          {yTicksRight.map((v) => {
+            const t = (v - 0.6) / (2.0 - 0.6);
+            const y = padT + (1 - Math.max(0, Math.min(1, t))) * h;
+            return (
+              <g key={`yr-${v}`}>
+                <text
+                  x={padL + w + 8}
+                  y={y + 3}
+                  textAnchor="start"
+                  fontSize="10"
+                  fill="rgba(226,232,240,0.72)"
+                  fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+                >
+                  {v.toFixed(1)}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* bottom time labels */}
+          {tail.map((f, i) => {
+            if (i % xLabelEvery !== 0) return null;
+            const t = Number(f.t ?? NaN);
+            if (!Number.isFinite(t)) return null;
+            const x = padL + (i / Math.max(1, tail.length - 1)) * w;
+            return (
+              <text
+                key={`xt-${i}`}
+                x={x}
+                y={padT + h + 18}
+                textAnchor="end"
+                fontSize="10"
+                fill="rgba(226,232,240,0.65)"
+                fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+                transform={`rotate(-25 ${x} ${padT + h + 18})`}
+              >
+                {formatTime(t)}
+              </text>
+            );
+          })}
+
+          {/* series */}
+          <path d={pSigma} fill="none" stroke="rgba(110,231,183,0.95)" strokeWidth="3" />
+          <path d={pGamma} fill="none" stroke="rgba(125,211,252,0.90)" strokeWidth="2.2" strokeDasharray="4 4" />
+          <path d={pPsi}   fill="none" stroke="rgba(251,191,36,0.85)" strokeWidth="2.2" strokeDasharray="10 7" />
+          <path d={pKappa} fill="none" stroke="rgba(244,114,182,0.85)" strokeWidth="2.2" strokeDasharray="7 7" />
+        </svg>
+
+        {/* existing footer */}
+        {(footerLeft || footerRight) ? (
+          <div
+            style={{
+              position: "absolute",
+              left: 10,
+              right: 10,
+              bottom: 6,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 10,
+              fontSize: 10,
+              color: "rgba(226,232,240,0.78)",
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={{ whiteSpace: "nowrap", opacity: 0.9 }}>{footerLeft}</div>
+            <div style={{ whiteSpace: "nowrap", opacity: 0.9 }}>{footerRight}</div>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  function TensorMetricsLegend() {
+    const row = (label: string, style: React.CSSProperties) => (
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11 }}>
+        <span style={{ width: 34, height: 0, borderTop: "2px solid", ...style }} />
+        <span style={{ opacity: 0.92 }}>{label}</span>
+      </div>
+    );
+
+    return (
+      <div
+        style={{
+          padding: 10,
+          borderRadius: 12,
+          border: "1px solid rgba(148,163,184,0.22)",
+          background: "rgba(2,6,23,0.70)",
+          color: "rgba(226,232,240,0.92)",
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>
+          Tensor Metrics
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {row("σ (Stability Index)", { borderColor: "rgba(110,231,183,0.95)" })}
+          {row("γ̃ (Feedback Gain)", { borderColor: "rgba(125,211,252,0.90)", borderTopStyle: "dotted" as any })}
+          {row("ψ̃ (Cognitive Wave)", { borderColor: "rgba(251,191,36,0.85)", borderTopStyle: "dashed" as any })}
+          {row("κ̃ (Resonance Field)", { borderColor: "rgba(244,114,182,0.85)", borderTopStyle: "dashed" as any })}
+        </div>
+      </div>
+    );
+  }
+
+  function MetricTile({
+    title,
+    value,
+    valueColor,
+  }: {
+    title: string;
+    value: string;
+    valueColor: string;
+  }) {
+    return (
+      <div
+        style={{
+          flex: 1,
+          borderRadius: 10,
+          border: "1px solid rgba(148,163,184,0.22)",
+          background: "rgba(226,232,240,0.75)",
+          padding: 10,
+        }}
+      >
+        <div style={{ fontSize: 12, color: "rgba(2,6,23,0.75)", marginBottom: 6 }}>
+          {title}
+        </div>
+        <div style={{ fontSize: 40, fontWeight: 700, color: valueColor }}>
+          {value}
+        </div>
+      </div>
+    );
+  }
+
+  function Radar({ score }: { score: number }) {
+    const s = Number.isFinite(score) ? score : 0;
+    const r = 62;
+    const cx = 70;
+    const cy = 70;
+    const ang = Math.PI * 2 * (0.15 + s * 0.7);
+    const px = cx + Math.cos(ang) * (r * (0.25 + 0.7 * s));
+    const py = cy + Math.sin(ang) * (r * (0.25 + 0.7 * s));
+
+    return (
+      <svg width="100%" viewBox="0 0 140 140">
+        <circle cx={cx} cy={cy} r={r} fill="rgba(2,6,23,0.35)" stroke="rgba(148,163,184,0.22)" />
+        {[0.25, 0.5, 0.75].map((k) => (
+          <circle key={k} cx={cx} cy={cy} r={r * k} fill="none" stroke="rgba(148,163,184,0.14)" />
+        ))}
+        <line x1={cx - r} y1={cy} x2={cx + r} y2={cy} stroke="rgba(148,163,184,0.14)" />
+        <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} stroke="rgba(148,163,184,0.14)" />
+
+        <path
+          d={`M ${cx} ${cy} L ${cx + r} ${cy} A ${r} ${r} 0 0 1 ${cx + Math.cos(ang) * r} ${cy + Math.sin(ang) * r} Z`}
+          fill="rgba(56,189,248,0.10)"
+        />
+
+        <circle cx={px} cy={py} r="4.2" fill="rgba(34,197,94,0.65)" stroke="rgba(226,232,240,0.9)" />
+        <circle cx={px} cy={py} r="10" fill="none" stroke="rgba(34,197,94,0.25)" />
+      </svg>
+    );
+  }
+  const [demosOpen, setDemosOpen] = useState(false);
+  const neonCard: CSSProperties = {
+    borderRadius: 14,
+    border: "1px solid rgba(148,163,184,0.35)",
+    background:
+      "linear-gradient(180deg, rgba(2,6,23,0.65), rgba(15,23,42,0.55))",
+    boxShadow:
+      "0 0 0 1px rgba(56,189,248,0.15) inset, 0 12px 40px rgba(0,0,0,0.25)",
+    color: "#e5e7eb",
+  };
+
+  const label: CSSProperties = {
+    fontSize: 10,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    color: "rgba(226,232,240,0.75)",
+  };
+
+  const value: CSSProperties = {
+    fontFamily:
+      "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    fontSize: 12,
+    color: "#e5e7eb",
+  };
+
+  return (
+    <div
+      style={{
+        ...hudShell,
+        minHeight: 0, // ✅ allow children to shrink inside flex column
+        overflow: "hidden", // ✅ prevent page scroll; keep layout inside panel
+      }}
+    >
+      {/* ✅ constrain the viewport height so it doesn't eat the whole panel */}
+      <div style={{ flex: "0 0 520px", minHeight: 420, overflow: "hidden" }}>
+        <QFCViewport
+          title="Quantum Field Canvas"
+          subtitle={`scenario=${scenario} · mode=${((active as any)?.mode ?? cfg.mode)} · container=${containerId}`}
+          rightBadge={connected ? "LIVE" : "DISCONNECTED"}
+          theme={((active as any)?.theme as any) ?? cfg.theme}
+          mode={((active as any)?.mode as any) ?? cfg.mode}
+          frame={active}
+          frames={frames}
+        />
+      </div>
+
+      {/* ✅ bottom HUD takes remaining space */}
+      <div
+        style={{
+          ...hudWrap,
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {/* Futuristic VISUAL ANALYSIS HUD (replaces old neonCard panel) */}
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        {/* Demo buttons */}
+        <div style={{ position: "relative" }}>
+          <button
+            type="button"
+            onClick={() => setDemosOpen((v) => !v)}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 999,
+              border: "1px solid rgba(148,163,184,0.30)",
+              background: "rgba(2,6,23,0.35)",
+              color: "#e5e7eb",
+              fontSize: 11,
+              cursor: "pointer",
+              ...mono,
+            }}
+          >
+            Demos ▾
+          </button>
+
+          {demosOpen ? (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 8px)",
+                left: 0,
+                zIndex: 50,
+                minWidth: 220,
+                padding: 8,
+                borderRadius: 14,
+                border: "1px solid rgba(148,163,184,0.22)",
+                background: "rgba(2,6,23,0.88)",
+                boxShadow: "0 18px 60px rgba(0,0,0,0.45)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+              }}
+            >
+              {[
+                { label: "Demo Gravity", id: "G01" as ScenarioId },
+                { label: "Demo Tunnel", id: "TN01" as ScenarioId },
+                { label: "Demo Matter", id: "MT01" as ScenarioId },
+                { label: "Demo Connect", id: "C01" as ScenarioId },
+              ].map((d) => (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={() => {
+                    setScenario(d.id);
+                    setDemosOpen(false);
+                  }}
+                  style={{
+                    textAlign: "left",
+                    padding: "8px 10px",
+                    borderRadius: 12,
+                    border: "1px solid rgba(148,163,184,0.18)",
+                    background: "rgba(148,163,184,0.08)",
+                    color: "#e5e7eb",
+                    fontSize: 11,
+                    cursor: "pointer",
+                    ...mono,
+                  }}
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+        {/* Scenario selector */}
+        <select
+          value={scenario}
+          onChange={(e) => setScenario(e.target.value as ScenarioId)}
+          style={{
+            padding: "6px 10px",
+            borderRadius: 999,
+            border: "1px solid rgba(148,163,184,0.30)",
+            background: "rgba(2,6,23,0.35)",
+            color: "#e5e7eb",
+            fontSize: 11,
+            cursor: "pointer",
+            ...mono,
+          }}
+        >
+          {Object.values(SCENARIOS).map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+
+        {/* Stream badge */}
+        <span
+          style={{
+            padding: "6px 10px",
+            borderRadius: 999,
+            border: "1px solid rgba(148,163,184,0.25)",
+            background: "rgba(2,6,23,0.35)",
+            fontSize: 10,
+            ...mono,
+          }}
+        >
+          {connected ? "WS STREAM" : "SIM STREAM"}
+        </span>
+
+        {/* Pause / Clear */}
+        <button
+          type="button"
+          onClick={() => setPaused((p) => !p)}
+          style={{
+            padding: "6px 10px",
+            borderRadius: 999,
+            border: "1px solid rgba(56,189,248,0.45)",
+            background: paused ? "rgba(148,163,184,0.15)" : "rgba(56,189,248,0.12)",
+            color: "#e5e7eb",
+            fontSize: 11,
+            cursor: "pointer",
+          }}
+        >
+          {paused ? "Resume" : "Pause"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setFrames([]);
+            setCursor(0);
+            setRunHash("—");
+          }}
+          style={{
+            padding: "6px 10px",
+            borderRadius: 999,
+            border: "1px solid rgba(148,163,184,0.35)",
+            background: "rgba(148,163,184,0.10)",
+            color: "#e5e7eb",
+            fontSize: 11,
+            cursor: "pointer",
+          }}
+        >
+          Clear
+        </button>
+
+          {/* Legend */}
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+            <LegendChip label="Gravity" color={cfg.theme.gravity} active={cfg.mode === "gravity"} />
+            <LegendChip label="Tunnel" color={cfg.theme.photon} active={cfg.mode === "tunnel"} />
+            <LegendChip label="Matter" color={cfg.theme.matter} active={cfg.mode === "matter"} />
+            <LegendChip label="Connect" color={cfg.theme.connect} active={cfg.mode === "connect"} />
+          </div>
+        </div>
+
+        {/* ✅ scroll only the middle grid if needed; keep header + footer visible */}
+        <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+          <div style={grid}>
+            {/* Top-left: Resonance scope (spans 2 columns) */}
+            <HudPanel
+              title="Resonance Scope"
+              right={<span style={{ ...mono, fontSize: 10 }}>AI signal</span>}
+              style={{ gridColumn: "1 / span 2" }}
+            >
+              {/* ✅ Chart left + Tensor Metrics legend right (prevents clipping) */}
+              <div style={{ display: "flex", gap: 12, alignItems: "stretch", height: "100%" }}>
+                <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+                  {/* ✅ let the chart grow to fill the panel */}
+                  <div style={{ flex: 1, minHeight: 240 }}>
+                    <ResonanceScope
+                      frames={frames}
+                      footerLeft={<span>σ_mean={sigmaMean.toFixed(3)} · γ̃_mean={gammaMean.toFixed(3)}</span>}
+                      footerRight={
+                        <span>
+                          t={active?.t ?? "—"} · coupling={active?.coupling_score?.toFixed?.(4) ?? "—"}
+                        </span>
+                      }
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 10,
+                      flexWrap: "wrap",
+                      fontSize: 10,
+                      color: "rgba(226,232,240,0.72)",
+                    }}
+                  >
+                    <span style={mono}>container={containerId}</span>
+                  </div>
+                </div>
+
+                <div style={{ width: 220, flex: "0 0 220px", alignSelf: "stretch" }}>
+                  <TensorMetricsLegend />
+                </div>
+              </div>
+            </HudPanel>
+
+            {/* Top-right: Object data */}
+            <HudPanel
+              title="Object Data"
+              right={<span style={{ ...mono, fontSize: 10 }}>QFCFrame</span>}
+            >
+              <pre
+                style={{
+                  margin: 0,
+                  padding: 10,
+                  borderRadius: 12,
+                  border: "1px dashed rgba(148,163,184,0.22)",
+                  background: "rgba(2,6,23,0.28)",
+                  fontSize: 10,
+                  ...mono,
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  maxHeight: 190,
+                  overflow: "auto",
+                }}
+              >
+                {JSON.stringify(active ?? {}, null, 2)}
+              </pre>
+            </HudPanel>
+
+            {/* Bottom-left: Radiation/health */}
+            <HudPanel
+              title="Radiation Level"
+              right={<span style={{ ...mono, fontSize: 10 }}>NORMAL</span>}
+            >
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ fontSize: 10, color: "rgba(226,232,240,0.75)" }}>
+                  Resonance health derived from coupling + curl.
+                </div>
+
+                <div
+                  style={{
+                    borderRadius: 12,
+                    border: "1px solid rgba(148,163,184,0.20)",
+                    background: "rgba(2,6,23,0.30)",
+                    padding: 10,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    <div style={{ fontSize: 10, color: "rgba(226,232,240,0.70)" }}>
+                      coupling_score
+                    </div>
+                    <div style={{ ...mono, fontSize: 13 }}>
+                      {active?.coupling_score?.toFixed?.(4) ?? "—"}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    <div style={{ fontSize: 10, color: "rgba(226,232,240,0.70)" }}>
+                      curl_rms
+                    </div>
+                    <div style={{ ...mono, fontSize: 13 }}>
+                      {active?.curl_rms?.toFixed?.(4) ?? "—"}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    <div style={{ fontSize: 10, color: "rgba(226,232,240,0.70)" }}>
+                      curvature
+                    </div>
+                    <div style={{ ...mono, fontSize: 13 }}>
+                      {active?.curv?.toFixed?.(4) ?? "—"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </HudPanel>
+
+            {/* Bottom-middle: Radar/targeting */}
+            <HudPanel
+              title="Targeting"
+              right={<span style={{ ...mono, fontSize: 10 }}>TRACK</span>}
+            >
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <div style={{ width: 160, height: 160 }}>
+                  <Radar score={Number(active?.coupling_score ?? 0)} />
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
+                    fontSize: 10,
+                    color: "rgba(226,232,240,0.75)",
+                  }}
+                >
+                  <div style={mono}>kappa={kappa.toFixed(3)}</div>
+                  <div style={mono}>chi={chi.toFixed(3)}</div>
+                  <div style={mono}>sigma={sigma.toFixed(3)}</div>
+                  <div style={mono}>alpha={alpha.toFixed(3)}</div>
+
+                  <div style={{ marginTop: 6, opacity: 0.85 }}>
+                    lock quality ≈{" "}
+                    <span style={mono}>
+                      {(Number(active?.coupling_score ?? 0) * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </HudPanel>
+
+            {/* Bottom-right: knobs */}
+            <HudPanel
+              title="Key Knobs"
+              right={<span style={{ ...mono, fontSize: 10 }}>LIVE</span>}
+            >
+              <KnobRow name="kappa" value={kappa} onChange={setKappa} />
+              <KnobRow name="chi" value={chi} onChange={setChi} />
+              <KnobRow name="sigma" value={sigma} onChange={setSigma} />
+              <KnobRow name="alpha" value={alpha} onChange={setAlpha} />
+            </HudPanel>
+          </div>
+        </div>
+
+        {/* Time scrubber + export (footer stays pinned) */}
+        <div
+          style={{
+            padding: "10px 12px 12px",
+            borderTop: "1px solid rgba(148,163,184,0.18)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 10,
+              letterSpacing: 0.9,
+              textTransform: "uppercase",
+              color: "rgba(226,232,240,0.70)",
+            }}
+          >
+            Time
+          </div>
+
+          <input
+            type="range"
+            min={0}
+            max={Math.max(0, frames.length - 1)}
+            value={cursor}
+            onChange={(e) => setCursor(Number(e.target.value))}
+            style={{ flex: 1, minWidth: 240 }}
+          />
+
+          <div
+            style={{
+              ...mono,
+              fontSize: 11,
+              color: "rgba(226,232,240,0.78)",
+            }}
+          >
+            {frames.length ? `idx ${cursor} / ${frames.length - 1}` : "no frames"}
+          </div>
+
+          <button
+            type="button"
+            onClick={exportSnapshot}
+            disabled={!frames.length}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 999,
+              border: "1px solid rgba(34,197,94,0.45)",
+              background: frames.length
+                ? "rgba(34,197,94,0.12)"
+                : "rgba(148,163,184,0.10)",
+              color: frames.length ? "#e5e7eb" : "rgba(226,232,240,0.6)",
+              fontSize: 11,
+              cursor: frames.length ? "pointer" : "default",
+            }}
+          >
+            Snapshot / Export
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KnobRow({
+  name,
+  value,
+  onChange,
+}: {
+  name: string;
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+      <div
+        style={{
+          width: 58,
+          fontSize: 10,
+          textTransform: "uppercase",
+          letterSpacing: 0.8,
+          color: "rgba(226,232,240,0.75)",
+        }}
+      >
+        {name}
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={1}
+        step={0.001}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{ flex: 1 }}
+      />
+      <div
+        style={{
+          width: 58,
+          textAlign: "right",
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+          fontSize: 12,
+          color: "#e5e7eb",
+        }}
+      >
+        {value.toFixed(3)}
+      </div>
+    </div>
+  );
+}
+
+function MetricChip({ label, value }: { label: string; value: any }) {
+  const v =
+    value == null
+      ? "—"
+      : typeof value === "number"
+      ? Number.isFinite(value)
+        ? value.toFixed(4)
+        : "—"
+      : String(value);
+
+  return (
+    <div
+      style={{
+        borderRadius: 999,
+        border: "1px solid rgba(148,163,184,0.25)",
+        background: "rgba(2,6,23,0.45)",
+        padding: "6px 10px",
+        display: "flex",
+        gap: 8,
+        alignItems: "center",
+      }}
+    >
+      <span
+        style={{
+          fontSize: 10,
+          letterSpacing: 0.8,
+          textTransform: "uppercase",
+          color: "rgba(226,232,240,0.70)",
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+          fontSize: 12,
+          color: "#e5e7eb",
+        }}
+      >
+        {v}
+      </span>
+    </div>
+  );
+}
 function TransactableDocsDevPanel() {
   const [docs, setDocs] = useState<TransactableDoc[]>([]);
   const [docsErr, setDocsErr] = useState<string | null>(null);

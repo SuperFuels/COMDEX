@@ -3,10 +3,38 @@
 // =====================================================
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
+// ─────────────────────────────────────────────
+// 🔌 WS URL helpers (same-origin by default; no hardcoded localhost ports)
+// ─────────────────────────────────────────────
+function wsOrigin(): string {
+  if (typeof window === "undefined") return "ws://localhost";
+  return window.location.origin.replace(/^http/i, "ws");
+}
+
+function resolveWsUrl(input?: string): string {
+  // Priority:
+  // 1) explicit prop wsUrl
+  // 2) NEXT_PUBLIC_QFC_WS
+  // 3) same-origin "/ws/qfc"
+  const raw = input || process.env.NEXT_PUBLIC_QFC_WS || `${wsOrigin()}/ws/qfc`;
+
+  if (/^wss?:\/\//i.test(raw)) return raw;
+  if (/^https?:\/\//i.test(raw)) return raw.replace(/^http/i, "ws");
+
+  const base = wsOrigin();
+  const path = raw.startsWith("/") ? raw : `/${raw}`;
+  return `${base}${path}`;
+}
+
+function clamp01(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(1, n));
+}
 
 export default function SQIEnergyMeter({
-  wsUrl = process.env.NEXT_PUBLIC_QFC_WS || "ws://localhost:8003/ws/qfc",
+  wsUrl,
   containerId = "sci:editor:init",
 }: {
   wsUrl?: string;
@@ -16,30 +44,76 @@ export default function SQIEnergyMeter({
   const [energy, setEnergy] = useState<number>(1.0);
   const [status, setStatus] = useState<string>("listening…");
 
+  const wsRef = useRef<WebSocket | null>(null);
+  const retryRef = useRef<number | null>(null);
+
   useEffect(() => {
-    let ws: WebSocket;
-    try {
-      ws = new WebSocket(wsUrl);
+    let alive = true;
+    const url = resolveWsUrl(wsUrl);
+
+    const cleanup = () => {
+      if (retryRef.current) {
+        window.clearTimeout(retryRef.current);
+        retryRef.current = null;
+      }
+      try {
+        wsRef.current?.close();
+      } catch {}
+      wsRef.current = null;
+    };
+
+    const connect = () => {
+      if (!alive) return;
+      cleanup();
+
+      setStatus("🔭 Connecting…");
+      const ws = new WebSocket(url);
+      wsRef.current = ws;
+
       ws.onopen = () => {
+        if (!alive) return;
         setStatus("🟢 Connected");
-        ws.send(JSON.stringify({ type: "subscribe", container_id: containerId }));
+        try {
+          ws.send(JSON.stringify({ type: "subscribe", container_id: containerId }));
+        } catch {}
       };
+
       ws.onmessage = (ev) => {
-        const msg = JSON.parse(ev.data);
-        if (msg.type === "sqi_state") {
-          setSQI(msg.data.sqi_score ?? 0);
-          setEnergy(msg.data.qqc_energy ?? 0);
+        if (!alive) return;
+        try {
+          const msg = JSON.parse(ev.data);
+
+          // Accept either "sqi_state" (your current schema) or any future variant
+          if (msg?.type === "sqi_state" && msg?.data) {
+            setSQI(clamp01(msg.data.sqi_score ?? 0));
+            setEnergy(clamp01(msg.data.qqc_energy ?? 0));
+          }
+        } catch {
+          // ignore bad frames
         }
       };
-      ws.onclose = () => setStatus("🔴 Disconnected");
-    } catch (e) {
-      setStatus("⚠️ Connection error");
-    }
-    return () => ws?.close();
+
+      ws.onclose = () => {
+        if (!alive) return;
+        setStatus("🔴 Disconnected — retrying…");
+        retryRef.current = window.setTimeout(connect, 1200);
+      };
+
+      ws.onerror = () => {
+        // let onclose handle retry
+      };
+    };
+
+    connect();
+
+    return () => {
+      alive = false;
+      cleanup();
+    };
   }, [wsUrl, containerId]);
 
-  const sqiPercent = Math.round(sqi * 100);
-  const energyPercent = Math.round(energy * 100);
+  const sqiPercent = Math.round(clamp01(sqi) * 100);
+  const energyPercent = Math.round(clamp01(energy) * 100);
 
   return (
     <div className="flex flex-col bg-neutral-950 border-t border-neutral-800 text-xs px-3 py-2">
@@ -65,9 +139,7 @@ export default function SQIEnergyMeter({
         />
       </div>
 
-      <div className="mt-2 text-[10px] text-zinc-500 text-right italic">
-        {status}
-      </div>
+      <div className="mt-2 text-[10px] text-zinc-500 text-right italic">{status}</div>
     </div>
   );
 }

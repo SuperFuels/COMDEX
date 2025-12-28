@@ -7,6 +7,7 @@ import { OrbitControls, Line as DreiLine } from "@react-three/drei";
 import * as THREE from "three";
 import type { HoloIR } from "@/lib/types/holo";
 import { runHoloSnapshot } from "@/lib/api/holo";
+import type { TessarisTelemetry } from "../hooks/useTessarisTelemetry";
 
 // Drei's <Line> types are noisy in this setup, so wrap as any
 const Line = (props: any) => <DreiLine {...props} />;
@@ -40,6 +41,9 @@ export interface DevFieldHologram3DProps {
   onToggleFocus?: () => void;
   /** Visual style / layout for the nodes */
   mode?: HologramMode;
+
+  // ✅ NEW: live Tessaris telemetry (analytics/symatics/rqfs/fusion)
+  telemetry?: TessarisTelemetry;
 }
 
 /** simple deterministic hash → grid cell for container_id */
@@ -53,32 +57,65 @@ function containerSlot(id: string): { gx: number; gz: number } {
   return { gx, gz };
 }
 
-/** pull ψ–κ–T-ish signature + some normalised scalars out of metadata */
-function getPsiSignature(packet: GhxPacket | null) {
+/** pull ψ–κ–τ signature from GHX metadata, or derive it from live Tessaris telemetry */
+function getPsiSignature(packet: GhxPacket | null, telemetry?: TessarisTelemetry) {
   const meta = ((packet && packet.metadata) || {}) as any;
-  const sig = meta.psi_kappa_tau_signature || {};
   const nodeCount = meta.node_count ?? (packet?.nodes?.length ?? 0);
 
-  const psi = typeof sig.psi === "number" ? sig.psi : 0;
-  const kappa = typeof sig.kappa === "number" ? sig.kappa : 0;
-  const tau = typeof sig.tau === "number" ? sig.tau : 0;
+  // 1) Prefer GHX-provided signature if present
+  const sig = meta.psi_kappa_tau_signature;
+  if (sig && typeof sig === "object") {
+    const psi = typeof sig.psi === "number" ? sig.psi : 0;
+    const kappa = typeof sig.kappa === "number" ? sig.kappa : 0;
+    const tau = typeof sig.tau === "number" ? sig.tau : 0;
 
-  const rank = typeof sig.rank === "number" ? sig.rank : 1;
+    const rank = typeof sig.rank === "number" ? sig.rank : 1;
 
-  let energy: number;
-  if (typeof sig.energy === "number") {
-    energy = sig.energy;
-  } else {
-    const sum = psi + kappa + tau;
-    energy = sum !== 0 ? sum : nodeCount;
+    const energy =
+      typeof sig.energy === "number"
+        ? sig.energy
+        : (() => {
+            const sum = psi + kappa + tau;
+            return sum !== 0 ? sum : nodeCount;
+          })();
+
+    const entropy =
+      typeof sig.entropy === "number" ? sig.entropy : Math.log2(nodeCount + 1);
+
+    const complexity = Math.min(1, nodeCount / 64);
+    const energyNorm = Math.min(1, energy / 100.0);
+    const entropyNorm = Math.min(1, entropy / 8.0);
+
+    return {
+      rank,
+      energy,
+      entropy,
+      complexity,
+      energyNorm,
+      entropyNorm,
+      nodeCount,
+    };
   }
 
-  const entropy =
-    typeof sig.entropy === "number" ? sig.entropy : Math.log2(nodeCount + 1);
+  // 2) Fallback: derive ψ/κ/τ from live telemetry
+  const t: any = telemetry ?? {};
+  const rqfsState = t?.rqfs?.state ?? t?.rqfs ?? {};
+  const analytics = t?.analytics ?? {};
+  const fusion = t?.fusion ?? {};
+
+  const psi = Number(rqfsState.amp_bias ?? analytics.mean_amp ?? 0);
+  const kappa = Number(rqfsState.nu_bias ?? analytics.mean_nu ?? 0);
+  const tau = Number(rqfsState.phi_bias ?? analytics.mean_phi ?? 0);
+
+  const rank = 1;
+  const energy = Number.isFinite(psi + kappa + tau) ? psi + kappa + tau : nodeCount;
+
+  const entropyRaw = fusion.entropy ?? analytics.drift_entropy ?? Math.log2(nodeCount + 1);
+  const entropy = Number(entropyRaw) || 0;
 
   const complexity = Math.min(1, nodeCount / 64);
-  const energyNorm = Math.min(1, energy / 100.0);
-  const entropyNorm = Math.min(1, entropy / 8.0);
+  const energyNorm = Math.min(1, Math.abs(energy) / 100.0);
+  const entropyNorm = Math.min(1, Math.abs(entropy) / 8.0);
 
   return {
     rank,
@@ -114,11 +151,13 @@ function HologramCard({
   focusMode,
   onToggleFocus,
   mode = "field",
+  telemetry,
 }: {
   packet: GhxPacket;
   focusMode: "world" | "focus";
   onToggleFocus?: () => void;
   mode?: HologramMode;
+  telemetry?: TessarisTelemetry;
 }) {
   const nodes = packet.nodes ?? [];
   const edges = packet.edges ?? [];
@@ -126,7 +165,7 @@ function HologramCard({
   const { gx, gz } = containerSlot(packet.container_id || "default");
   const tileSpacing = 10;
 
-  const psi = getPsiSignature(packet);
+  const psi = getPsiSignature(packet, telemetry);
   const baseRadius = 1.4 + psi.complexity * 0.8;
   const nodeScale = 0.1 + psi.energyNorm * 0.1;
   const cardGlow = 0.12 + psi.entropyNorm * 0.18;
@@ -378,6 +417,7 @@ export function DevFieldHologram3DScene({
   focusMode = "world",
   onToggleFocus,
   mode = "field",
+  telemetry,
 }: DevFieldHologram3DProps) {
   // --- .holo run state -----------------
   const [lastHolo, setLastHolo] = React.useState<HoloIR | null>(null);
@@ -527,6 +567,7 @@ export function DevFieldHologram3DScene({
             focusMode={focusMode ?? "world"}
             onToggleFocus={onToggleFocus}
             mode={mode}
+            telemetry={telemetry}
           />
         )}
 

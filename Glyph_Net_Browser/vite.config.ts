@@ -68,6 +68,13 @@ export default defineConfig(({ mode }) => {
     // ✅ GlyphChain dev perf + state endpoints → FastAPI (:8080)
     "/api/glyphchain": { target: fastApiHttp, changeOrigin: true },
 
+    // ✅ Tessaris telemetry WS proxies → FastAPI (:8080)
+    "/api/ws/symatics": { target: fastApiHttp, ws: true, changeOrigin: true },
+    "/api/ws/analytics": { target: fastApiHttp, ws: true, changeOrigin: true },
+    "/api/ws/fusion": { target: fastApiHttp, ws: true, changeOrigin: true },
+    "/api/ws/rqfs_feedback": { target: fastApiHttp, ws: true, changeOrigin: true },
+    "/api/ws/control": { target: fastApiHttp, ws: true, changeOrigin: true },
+
     // ── WS for GlyphNet fanout / GHX → radio-node
     "/ws/glyphnet": { target: radioWs, ws: true, changeOrigin: true },
     "/ws/rflink": { target: radioWs, ws: true, changeOrigin: true },

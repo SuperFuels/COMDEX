@@ -12,25 +12,41 @@ import { motion } from "framer-motion";
 // ─────────────────────────────────────────────
 type PhotonFrame = { waves?: any[] };
 
-interface GlowPulse {
-  hue: number;
-  intensity: number;
-  radius: number;
-  ts: number;
-  dur: number;
-}
-
 interface BridgeOp {
   op?: string;
   color?: string;
   alpha?: number;
   decay?: boolean;
 }
+
+// ─────────────────────────────────────────────
+// 🔌 WS URL helpers (same-origin by default; no hardcoded localhost ports)
+// ─────────────────────────────────────────────
+function wsOrigin(): string {
+  if (typeof window === "undefined") return "ws://localhost";
+  return window.location.origin.replace(/^http/i, "ws");
+}
+
+function resolveWsUrl(input?: string): string {
+  // Priority:
+  // 1) explicit prop wsUrl
+  // 2) NEXT_PUBLIC_QFC_WS
+  // 3) same-origin "/ws/qfc"
+  const raw = input || process.env.NEXT_PUBLIC_QFC_WS || `${wsOrigin()}/ws/qfc`;
+
+  if (/^wss?:\/\//i.test(raw)) return raw;
+  if (/^https?:\/\//i.test(raw)) return raw.replace(/^http/i, "ws");
+
+  const base = wsOrigin();
+  const path = raw.startsWith("/") ? raw : `/${raw}`;
+  return `${base}${path}`;
+}
+
 // ─────────────────────────────────────────────
 // 🌊 Component
 // ─────────────────────────────────────────────
 export default function PhotonLensOverlay({
-  wsUrl = process.env.NEXT_PUBLIC_QFC_WS || "ws://localhost:8003/ws/qfc",
+  wsUrl,
   containerId = "sci:editor:init",
 }: {
   wsUrl?: string;
@@ -39,17 +55,20 @@ export default function PhotonLensOverlay({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState("🔭 Initializing PhotonLens…");
   const [connected, setConnected] = useState(false);
+
   const [frames, setFrames] = useState<PhotonFrame[]>([]);
   const [bridgeOps, setBridgeOps] = useState<BridgeOp[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
+
   const animationRef = useRef<number>();
   const glowDecay = useRef<number>(0.96);
+
   const audioCtxRef = useRef<AudioContext | null>(null);
-  // 🔥 SQI resonance pulses from cognition core
   const [mutationPulses, setMutationPulses] = useState<any[]>([]);
-  // ─────────────────────────────────────────────
+
+  const reconnectTimer = useRef<number | null>(null);
+
   // 🧠 Audio System Setup (Web Audio API)
-  // ─────────────────────────────────────────────
   useEffect(() => {
     if (!audioCtxRef.current) {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -73,96 +92,124 @@ export default function PhotonLensOverlay({
 
   const playOperatorTone = (op: string) => {
     switch (op) {
-      case "⊕": playTone(432, 0.3, "sine"); break;         // Superposition
-      case "↔": playTone(528, 0.4, "triangle"); break;     // Entanglement
-      case "⟲": playTone(639, 0.5, "sawtooth"); break;     // Resonance
-      case "∇": playTone(396, 0.2, "square"); break;       // Collapse
-      case "μ": playTone(741, 0.35, "sine"); break;        // Measurement
-      default: playTone(220, 0.15, "sine");
+      case "⊕": playTone(432, 0.3, "sine"); break;
+      case "↔": playTone(528, 0.4, "triangle"); break;
+      case "⟲": playTone(639, 0.5, "sawtooth"); break;
+      case "∇": playTone(396, 0.2, "square"); break;
+      case "μ": playTone(741, 0.35, "sine"); break;
+      default:  playTone(220, 0.15, "sine");
     }
   };
 
-  // Helper for safe ctx access
   const getCtx = (): CanvasRenderingContext2D | null => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
     return canvas.getContext("2d");
   };
 
-  // ─────────────────────────────────────────────
-  // 🌐 Connect to QFC WebSocket
-  // ─────────────────────────────────────────────
+  // 🌐 Connect to QFC WebSocket (with retry, no page reload)
   useEffect(() => {
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
+    let alive = true;
+    const url = resolveWsUrl(wsUrl);
 
-    ws.onopen = () => {
-      setConnected(true);
-      setStatus("🟢 Connected to QFC Field Stream");
-      ws.send(JSON.stringify({ type: "subscribe", container_id: containerId }));
-    };
-
-    ws.onmessage = (ev) => {
-      const msg = JSON.parse(ev.data);
-      if (msg.type === "qfc.frame") {
-        setFrames((f) => [...f.slice(-80), msg.frame]);
+    const cleanup = () => {
+      if (reconnectTimer.current) {
+        window.clearTimeout(reconnectTimer.current);
+        reconnectTimer.current = null;
       }
+      try {
+        wsRef.current?.close();
+      } catch {}
+      wsRef.current = null;
     };
 
-    ws.onclose = () => {
-      setConnected(false);
-      setStatus("🔴 Disconnected — retrying…");
-      setTimeout(() => window.location.reload(), 2500);
+    const connect = () => {
+      if (!alive) return;
+      cleanup();
+
+      setStatus(`🔭 Connecting to QFC…`);
+      const ws = new WebSocket(url);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        if (!alive) return;
+        setConnected(true);
+        setStatus("🟢 Connected to QFC Field Stream");
+        try {
+          ws.send(JSON.stringify({ type: "subscribe", container_id: containerId }));
+        } catch {}
+      };
+
+      ws.onmessage = (ev) => {
+        if (!alive) return;
+        try {
+          const msg = JSON.parse(ev.data);
+          if (msg.type === "qfc.frame") {
+            setFrames((f) => [...f.slice(-80), msg.frame]);
+          }
+        } catch {
+          // ignore
+        }
+      };
+
+      ws.onclose = () => {
+        if (!alive) return;
+        setConnected(false);
+        setStatus("🔴 Disconnected — retrying…");
+        reconnectTimer.current = window.setTimeout(connect, 1200);
+      };
+
+      ws.onerror = () => {
+        // onclose handles retry
+      };
     };
 
-    return () => ws.close();
+    connect();
+    return () => {
+      alive = false;
+      cleanup();
+    };
   }, [wsUrl, containerId]);
 
-  // ─────────────────────────────────────────────
   // ⚛ Listen for Photon–Symatics Bridge execution
-  // ─────────────────────────────────────────────
-
   useEffect(() => {
     function handlePhotonRun(ev: CustomEvent) {
       const { results } = (ev.detail || {}) as { results?: BridgeOp[] };
       if (!results?.length) return;
+
       setBridgeOps(results);
       pulseOperators(results);
+
       results.forEach((r: BridgeOp) => {
         if (r.op) playOperatorTone(r.op);
       });
     }
 
     window.addEventListener("photon:run", handlePhotonRun as EventListener);
-    return () => {
-      window.removeEventListener("photon:run", handlePhotonRun as EventListener);
-    };
+    return () => window.removeEventListener("photon:run", handlePhotonRun as EventListener);
   }, []);
 
-    // ─────────────────────────────────────────────
-    // 🖼️ Auto-resize canvas to container
-    // ─────────────────────────────────────────────
-    useEffect(() => {
-      const resizeCanvas = () => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const parent = canvas.parentElement;
-        if (parent) {
-          canvas.width = parent.clientWidth;
-          canvas.height = parent.clientHeight;
-        }
-      };
-      resizeCanvas();
-      window.addEventListener("resize", resizeCanvas);
-      return () => window.removeEventListener("resize", resizeCanvas);
-    }, []);
+  // 🖼️ Auto-resize canvas to container
+  useEffect(() => {
+    const resizeCanvas = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const parent = canvas.parentElement;
+      if (parent) {
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+      }
+    };
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, []);
 
-  // ─────────────────────────────────────────────
   // 🎨 Unified Render Loop
-  // ─────────────────────────────────────────────
   useEffect(() => {
     const ctx = getCtx();
     if (!ctx) return;
+
     const canvas = ctx.canvas;
     let last = performance.now();
 
@@ -173,11 +220,9 @@ export default function PhotonLensOverlay({
       const w = canvas.width;
       const h = canvas.height;
 
-      // Fade previous frame
       ctx.fillStyle = "rgba(0,0,0,0.25)";
       ctx.fillRect(0, 0, w, h);
 
-      // Field waves
       const frame = frames.at(-1);
       if (frame?.waves) {
         frame.waves.forEach((_, i: number) => {
@@ -191,7 +236,6 @@ export default function PhotonLensOverlay({
         });
       }
 
-      // Bridge operator pulses
       bridgeOps.forEach((op, idx) => {
         const { color, decay } = colorMap(op.op || "");
         const x = (w / (bridgeOps.length + 1)) * (idx + 1);
@@ -213,8 +257,7 @@ export default function PhotonLensOverlay({
         if (decay) op.alpha = (op.alpha || 1) * glowDecay.current;
       });
 
-      // 🌌 SQI bloom pulses from cognition core
-      mutationPulses.forEach(p => {
+      mutationPulses.forEach((p) => {
         const t = (performance.now() - p.ts) / p.dur;
         if (t > 1) return;
 
@@ -235,7 +278,6 @@ export default function PhotonLensOverlay({
         ctx.fill();
       });
 
-      // ✅ keep this last
       animationRef.current = requestAnimationFrame(render);
     };
 
@@ -252,13 +294,11 @@ export default function PhotonLensOverlay({
       if (!d?.pattern_id) return;
 
       const delta = Math.abs(d.delta ?? 0);
-      if (delta < 0.005) return; // ignore tiny flickers
+      if (delta < 0.005) return;
 
-      const hue = (
-        d.pattern_id
-          .split("")
-          .reduce((a: number, c: string) => a + c.charCodeAt(0), 0) % 360
-      );
+      const hue =
+        d.pattern_id.split("").reduce((a: number, c: string) => a + c.charCodeAt(0), 0) % 360;
+
       const intensity = Math.min(delta * 4.5, 1.0);
 
       const pulse = {
@@ -267,24 +307,17 @@ export default function PhotonLensOverlay({
         intensity,
         radius: Math.max(0.1, intensity * 120),
         ts: performance.now(),
-        dur: 600
+        dur: 600,
       };
 
-      setMutationPulses(p => [...p, pulse]);
-
-      setTimeout(() =>
-        setMutationPulses(p => p.filter(x => x.id !== pulse.id)),
-        pulse.dur
-      );
+      setMutationPulses((p) => [...p, pulse]);
+      setTimeout(() => setMutationPulses((p) => p.filter((x) => x.id !== pulse.id)), pulse.dur);
     }
 
     window.addEventListener("pattern_mutation", handleMutation);
     return () => window.removeEventListener("pattern_mutation", handleMutation);
   }, []);
 
-  // ─────────────────────────────────────────────
-  // 🌈 Operator pulse animation trigger
-  // ─────────────────────────────────────────────
   function pulseOperators(results: BridgeOp[]): void {
     const ctx = getCtx();
     if (!ctx) return;
@@ -304,9 +337,6 @@ export default function PhotonLensOverlay({
     });
   }
 
-  // ─────────────────────────────────────────────
-  // 🎨 Color map helper
-  // ─────────────────────────────────────────────
   function colorMap(op: string): { color: string; decay: boolean } {
     switch (op) {
       case "⊕": return { color: "#00FFFF", decay: true };
@@ -318,9 +348,6 @@ export default function PhotonLensOverlay({
     }
   }
 
-  // ─────────────────────────────────────────────
-  // 🧠 Commit frame to Knowledge Graph
-  // ─────────────────────────────────────────────
   async function commitFrameToKnowledge(): Promise<void> {
     const frame = frames.at(-1);
     if (!frame) {
@@ -339,12 +366,8 @@ export default function PhotonLensOverlay({
     setStatus("🧠 Frame committed to Knowledge Graph.");
   }
 
-  // ─────────────────────────────────────────────
-  // 🧩 Render Layout
-  // ─────────────────────────────────────────────
   return (
     <div className="flex flex-col bg-neutral-950 border-l border-neutral-800 w-[38%] relative">
-      {/* Status bar */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-800 bg-neutral-900 text-xs">
         <span>{status}</span>
         <button
@@ -356,10 +379,8 @@ export default function PhotonLensOverlay({
         </button>
       </div>
 
-      {/* Canvas Field */}
       <canvas ref={canvasRef} className="flex-1 w-full h-full" />
 
-      {/* Operator Legend Overlay */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

@@ -12,10 +12,13 @@ import type { HoloIR } from "../lib/types/holo";
 import { buildGhxFromHolo } from "../lib/rehydrate";
 import type { HoloIndexItem } from "../lib/api/holo";
 
+// ✅ hook lives with hooks (adjust path if yours differs)
+import { useTessarisTelemetry } from "../hooks/useTessarisTelemetry";
+
 type Props = {
-  holo?: HoloIR | null;        // optional .holo snapshot (Field Lab / Crystals)
-  mode?: HologramMode;         // "field" (default) or "crystal"
-  allowExternalGhx?: boolean;  // allow external devtools.ghx events
+  holo?: HoloIR | null; // optional .holo snapshot (Field Lab / Crystals)
+  mode?: HologramMode; // "field" (default) or "crystal"
+  allowExternalGhx?: boolean; // allow external devtools.ghx events
   holoFiles?: HoloIndexItem[]; // shared Holo Files cabinet (from DevTools)
 };
 
@@ -29,6 +32,9 @@ export default function DevFieldHologram3DContainer({
   const [lastPacket, setLastPacket] = useState<GhxPacket | null>(null);
   const [focusMode, setFocusMode] = useState<"world" | "focus">("world");
   const socketRef = useRef<WebSocket | null>(null);
+
+  // ✅ NEW: live Tessaris telemetry (RQFS feedback / Fusion / etc)
+  const telemetry = useTessarisTelemetry();
 
   const toggleFocus = () =>
     setFocusMode((m) => (m === "world" ? "focus" : "world"));
@@ -47,10 +53,7 @@ export default function DevFieldHologram3DContainer({
     if (holo) return;
     if (typeof window === "undefined") return;
 
-    if (
-      socketRef.current &&
-      socketRef.current.readyState === WebSocket.OPEN
-    ) {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       return;
     }
 
@@ -243,6 +246,7 @@ export default function DevFieldHologram3DContainer({
             focusMode={focusMode}
             onToggleFocus={toggleFocus}
             mode={mode}
+            telemetry={telemetry} // ✅ NEW
           />
         </div>
 
@@ -299,9 +303,7 @@ export default function DevFieldHologram3DContainer({
                 fontSize: 11,
               }}
             >
-              <div style={{ fontWeight: 600, marginBottom: 2 }}>
-                Holo Files
-              </div>
+              <div style={{ fontWeight: 600, marginBottom: 2 }}>Holo Files</div>
               {holoFiles.length === 0 ? (
                 <div style={{ color: "#6b7280" }}>no snapshots yet</div>
               ) : (
@@ -334,7 +336,7 @@ export default function DevFieldHologram3DContainer({
             style={{
               flex: 1,
               minHeight: 0,
-              maxHeight: 260, // clamp height of the JSON panel
+              maxHeight: 260,
               borderRadius: 8,
               background: "#ffffff",
               border: "1px solid #e5e7eb",

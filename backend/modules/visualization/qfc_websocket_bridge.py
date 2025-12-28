@@ -3,10 +3,15 @@
 import asyncio
 import inspect
 from typing import Any, Dict, List, Optional, Union
-
+import time
 from fastapi import WebSocket
 
 from backend.modules.websocket_manager import websocket_manager
+from backend.modules.sim.QFC_Renderer import QFCRenderer
+
+# one renderer per container (keeps smooth transitions + event history)
+_QFC_RENDERERS: Dict[str, QFCRenderer] = {}
+_QFC_LAST_TS: Dict[str, float] = {}
 
 # 🌐 Track container-specific sockets (live sync)
 active_qfc_sockets: Dict[str, WebSocket] = {}
@@ -28,6 +33,74 @@ def coerce_source(value: Any) -> str:
 
 def _safe_dict(v: Any) -> Dict[str, Any]:
     return v if isinstance(v, dict) else {}
+
+
+def _decorate_qfc_payload(container_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Takes whatever you're already sending to the UI and adds:
+      payload["mode"], payload["theme"], payload["flags"]
+    without removing anything.
+    """
+    if not isinstance(payload, dict):
+        return payload
+
+    # scenario id can be in different keys depending on route
+    scenario_id = (
+        payload.get("scenario_id")
+        or payload.get("scenario")
+        or payload.get("scenarioId")
+        or payload.get("scenarioID")
+        or ""
+    )
+
+    # metrics might be top-level or nested
+    metrics = payload.get("metrics")
+    if not isinstance(metrics, dict):
+        metrics = payload
+
+    # if there's no sign of qfc metrics, don't touch it
+    if not any(k in metrics for k in ("kappa", "chi", "sigma", "alpha", "curv", "curl_rms", "coupling_score")):
+        return payload
+
+    r = _QFC_RENDERERS.get(container_id)
+    if r is None:
+        r = QFCRenderer()
+        _QFC_RENDERERS[container_id] = r
+
+    now = time.time()
+    last = _QFC_LAST_TS.get(container_id, now)
+    _QFC_LAST_TS[container_id] = now
+    dt = max(0.0, min(0.25, now - last))  # clamp dt to avoid crazy jumps
+
+    # prefer numeric t if present
+    t_val = payload.get("t")
+    try:
+        t_num = float(t_val)
+    except Exception:
+        t_num = now
+
+    # mode hint if you already send it
+    mode_hint = payload.get("mode")
+
+    out = r.update(
+        t=t_num,
+        scenario_id=str(scenario_id),
+        metrics=metrics,
+        dt=dt,
+        mode_hint=str(mode_hint) if mode_hint else None,
+    )
+
+    # Merge render fields in WITHOUT deleting your existing keys.
+    payload["mode"] = out.get("mode")
+    payload["theme"] = out.get("theme")
+    payload["flags"] = out.get("flags")
+
+    # optional: also ensure these exist at top-level for frontend convenience
+    for k in ("kappa", "chi", "sigma", "alpha", "curv", "curl_rms", "coupling_score", "max_norm", "t"):
+        if k in out and k not in payload:
+            payload[k] = out[k]
+
+    return payload
 
 
 def _extract_container_id(field_state: Dict[str, Any], metadata: Optional[Dict[str, Any]] = None) -> Optional[str]:
@@ -117,6 +190,9 @@ async def _broadcast_container_sync(
         return
 
     try:
+        # ✅ decorate *right before* emit (adds mode/theme/flags)
+        payload = _decorate_qfc_payload(container_id, payload)
+
         await socket.send_json(
             {
                 "type": "qfc_update",
@@ -158,13 +234,23 @@ def broadcast_qfc_beams(container_id: str, payload: Union[Dict[str, Any], List[D
     Broadcast multi-packet QFC visual data (e.g. QWave beams, traces) to the frontend.
     Bypasses container-specific WebSocket and goes to all clients via `send_qfc_update`.
     """
+    # normalize to list
     if not isinstance(payload, list):
         payload = [payload]
+
+    # ✅ decorate each update dict (adds mode/theme/flags) without removing anything
+    decorated_updates: List[Dict[str, Any]] = []
+    for item in payload:
+        if isinstance(item, dict):
+            decorated_updates.append(_decorate_qfc_payload(container_id, item))
+        else:
+            # keep non-dict items untouched
+            decorated_updates.append(item)  # type: ignore
 
     message = {
         "source": f"container::{container_id}",
         "payload": {
-            "updates": payload,
+            "updates": decorated_updates,
             "type": "qfc_stream",
         },
     }
@@ -288,6 +374,9 @@ async def broadcast_qfc_update(*args: Any, **kwargs: Any):
         source = kwargs["source"]
 
     if container_id and isinstance(payload, dict):
+        # ✅ decorate BEFORE sending (adds mode/theme/flags)
+        payload = _decorate_qfc_payload(container_id, payload)
+
         await _broadcast_container_sync(
             container_id,
             payload,

@@ -2,143 +2,197 @@
 """
 Tessaris Phase 26 - Resonant Analytics Layer (RAL)
 
-Computes rolling harmonic averages, drift entropy, and stability metrics
-from consolidated meta-resonant telemetry (MRTC).
+Reads consolidated MRTC JSONL and computes rolling means + drift entropy,
+then broadcasts via WS (websockets v12) on /ws/analytics.
 """
 
-import json, time, math
+import asyncio
+import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 import numpy as np
-import asyncio
 import websockets
-import threading
 
-# Paths
-MRTC_PATH = Path("data/learning/meta_resonant_telemetry.jsonl")
-RAL_LOG = Path("data/learning/ral_metrics.jsonl")
+MRTC_PATH = Path("data/telemetry/meta_resonant_telemetry.jsonl")  # 'data' is your symlink ✅
+RAL_LOG   = Path("data/learning/ral_metrics.jsonl")
 RAL_LOG.parent.mkdir(parents=True, exist_ok=True)
 
-# WebSocket broadcast (optional)
-CLIENTS = set()
+WS_HOST = "0.0.0.0"
+WS_PORT = 8002
+WS_PATH = "/ws/analytics"
 
-# =========================================================
-# ✅ FIX: include 'path' argument in the handler
-# =========================================================
-async def analytics_ws(websocket, path):
-    """WebSocket endpoint for analytics clients (path-aware)."""
-    print(f"📡 Client connected on {path}")
-    CLIENTS.add(websocket)
+CLIENTS: set = set()
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+def _f(x, default: float = 0.0) -> float:
     try:
-        async for _ in websocket:
-            pass  # keep connection alive
-    except websockets.exceptions.ConnectionClosed:
-        print("❌ Client disconnected from RAL stream")
-    finally:
-        CLIENTS.remove(websocket)
+        return float(x)
+    except (TypeError, ValueError):
+        return float(default)
 
-
-def read_recent_entries(n=50):
-    """Read last N entries from MRTC JSONL."""
+def read_recent_entries(n: int = 200) -> list[dict]:
     if not MRTC_PATH.exists():
         return []
-    with open(MRTC_PATH) as f:
-        lines = f.readlines()[-n:]
+    try:
+        with MRTC_PATH.open("r", encoding="utf-8") as f:
+            lines = f.readlines()[-n:]
+    except Exception:
+        return []
     out = []
     for ln in lines:
+        ln = ln.strip()
+        if not ln:
+            continue
         try:
             out.append(json.loads(ln))
         except Exception:
             continue
     return out
 
-
-def compute_metrics(entries):
-    """Compute rolling averages and drift metrics."""
+def compute_metrics(entries: list[dict]) -> dict | None:
     if not entries:
         return None
 
     nus, phis, amps = [], [], []
+    fusion_s, fusion_h, fusion_c = [], [], []
+
     for e in entries:
-        try:
-            rfc = e.get("rfc", {})
-            rqfs = e.get("rqfs", {})
-            nu = (rfc.get("nu_bias", 0.0) + rqfs.get("nu_bias", 0.0)) / 2
-            phi = (rfc.get("phase_offset", 0.0) + rqfs.get("phase_offset", 0.0)) / 2
-            amp = (rfc.get("amp_gain", 0.0) + rqfs.get("amp_gain", 0.0)) / 2
-            nus.append(nu)
-            phis.append(phi)
-            amps.append(amp)
-        except Exception:
+        if not isinstance(e, dict):
             continue
+
+        # ✅ New MRTC schema: rqfs_feedback.state.{nu_bias, phi_bias, amp_bias}
+        rqfs_fb = e.get("rqfs_feedback") if isinstance(e.get("rqfs_feedback"), dict) else {}
+        state   = rqfs_fb.get("state") if isinstance(rqfs_fb.get("state"), dict) else {}
+
+        # Fallback to older schemas if present
+        rfc  = e.get("rfc") if isinstance(e.get("rfc"), dict) else {}
+        rqfs = e.get("rqfs") if isinstance(e.get("rqfs"), dict) else {}
+
+        nu  = _f(state.get("nu_bias", 0.0), 0.0)
+        phi = _f(state.get("phi_bias", 0.0), 0.0)
+        amp = _f(state.get("amp_bias", 0.0), 0.0)
+
+        if nu is None and phi is None and amp is None:
+            # Older schema fallback
+            nu  = (_f(rfc.get("nu_bias", 0.0)) + _f(rqfs.get("nu_bias", 0.0))) / 2.0
+            phi = (_f(rfc.get("phase_offset", 0.0)) + _f(rqfs.get("phase_offset", 0.0))) / 2.0
+            amp = (_f(rfc.get("amp_gain", 0.0)) + _f(rqfs.get("amp_gain", 0.0))) / 2.0
+        else:
+            nu  = _f(state.get("nu_bias", 0.0))
+            phi = _f(state.get("phi_bias", 0.0))
+            amp = _f(state.get("amp_bias", 0.0))
+
+        nus.append(nu); phis.append(phi); amps.append(amp)
+
+        fusion = e.get("fusion") if isinstance(e.get("fusion"), dict) else {}
+        if fusion:
+            fusion_c.append(_f(fusion.get("fusion_coherence", 0.0)))
+            fusion_s.append(_f(fusion.get("stability", 0.0)))
+            fusion_h.append(_f(fusion.get("entropy", 0.0)))
 
     if not nus:
         return None
 
-    mean_nu, mean_phi, mean_amp = np.mean(nus), np.mean(phis), np.mean(amps)
-    drift_entropy = float(np.std([mean_nu, mean_phi, mean_amp]))
-    stability = 1.0 / (1.0 + drift_entropy)
+    mean_nu  = float(np.mean(nus))
+    mean_phi = float(np.mean(phis))
+    mean_amp = float(np.mean(amps))
 
-    return {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+    var_nu  = float(np.var(nus))
+    var_phi = float(np.var(phis))
+    var_amp = float(np.var(amps))
+    drift_entropy = float(np.sqrt((var_nu + var_phi + var_amp) / 3.0))
+    stability = float(1.0 / (1.0 + drift_entropy))
+
+    out = {
+        "type": "ral_metrics",
+        "timestamp": _now(),
         "mean_nu": mean_nu,
         "mean_phi": mean_phi,
         "mean_amp": mean_amp,
         "drift_entropy": drift_entropy,
         "stability": stability,
+        "mrtc_source": str(MRTC_PATH),
     }
 
+    if fusion_c:
+        out["fusion_coherence_mean"] = float(np.mean(fusion_c))
+    if fusion_s:
+        out["fusion_stability_mean"] = float(np.mean(fusion_s))
+    if fusion_h:
+        out["fusion_entropy_mean"] = float(np.mean(fusion_h))
 
-def run_analytics(interval=5.0):
+    return out
+
+# websockets v12 handler (single-arg)
+async def analytics_ws(websocket):
+    path = getattr(websocket, "path", None)
+    if path is None and hasattr(websocket, "request"):
+        path = websocket.request.path
+
+    if path not in (WS_PATH, WS_PATH + "/"):
+        await websocket.close(code=1008, reason="Unknown path")
+        return
+
+    print(f"📡 RAL client connected ({path})")
+    CLIENTS.add(websocket)
+    try:
+        async for _ in websocket:
+            pass
+    except websockets.exceptions.ConnectionClosed:
+        pass
+    finally:
+        CLIENTS.discard(websocket)
+        print("❌ RAL client disconnected")
+
+async def broadcast(payload: dict):
+    if not CLIENTS:
+        return
+    msg = json.dumps(payload)
+    dead = []
+    for ws in list(CLIENTS):
+        try:
+            await ws.send(msg)
+        except Exception:
+            dead.append(ws)
+    for ws in dead:
+        CLIENTS.discard(ws)
+
+async def run_analytics(interval: float = 2.0):
     print("📈 Starting Tessaris Resonant Analytics Layer (RAL)...")
+    print(f"✅ Using MRTC file: {MRTC_PATH}")
 
-    # =========================================================
-    # WebSocket server: run in its own thread with its own event loop
-    # =========================================================
-    def ws_thread():
-        async def start_ws():
-            async with websockets.serve(analytics_ws, "0.0.0.0", 8002):
-                print("🌐 RAL WebSocket running on ws://0.0.0.0:8002/ws/analytics")
-                await asyncio.Future()  # run forever
-
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(start_ws())
-        loop.run_forever()
-
-    threading.Thread(target=ws_thread, daemon=True).start()
-
-    # =========================================================
-    # Analytics computation loop
-    # =========================================================
     while True:
-        entries = read_recent_entries(100)
+        entries = read_recent_entries(n=250)
         metrics = compute_metrics(entries)
+
         if metrics:
-            with open(RAL_LOG, "a") as f:
+            with RAL_LOG.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(metrics) + "\n")
 
             print(
                 f"t={metrics['timestamp']} | ν={metrics['mean_nu']:+.4f} "
                 f"φ={metrics['mean_phi']:+.4f} A={metrics['mean_amp']:+.4f} "
-                f"S={metrics['stability']:.3f} H={metrics['drift_entropy']:.4f}"
+                f"S={metrics['stability']:.3f} H={metrics['drift_entropy']:.6f}"
             )
 
-            # Broadcast to WebSocket clients safely
-            for client in list(CLIENTS):
-                try:
-                    coro = client.send(json.dumps(metrics))
-                    asyncio.run_coroutine_threadsafe(coro, asyncio.get_event_loop())
-                except Exception:
-                    pass
+            await broadcast(metrics)
         else:
-            print("⚠️ Waiting for telemetry data...")
-        time.sleep(interval)
+            if not MRTC_PATH.exists():
+                print("⚠️ Waiting for MRTC file…")
+            else:
+                print("⚠️ Waiting for telemetry data...")
+        await asyncio.sleep(interval)
 
-
-def main():
-    run_analytics()
-
+async def main():
+    async with websockets.serve(
+        analytics_ws, WS_HOST, WS_PORT,
+        ping_interval=20, ping_timeout=20
+    ):
+        print(f"🌐 RAL WebSocket running on ws://{WS_HOST}:{WS_PORT}{WS_PATH}")
+        await run_analytics()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

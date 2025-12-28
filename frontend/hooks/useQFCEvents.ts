@@ -1,15 +1,14 @@
-// src/hooks/useQFCEvents.ts
+// frontend/hooks/useQFCEvents.ts
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type ForkBeamPayload = {
-  type?: string;                 // e.g. "workspace_result_beam"
+  type?: string;
   wave_id?: string;
   parent_wave_id?: string | null;
   carrier_packet?: unknown;
   scores?: Record<string, number>;
   mutation_cause?: string;
   timestamp?: string | number;
-  // allow extra fields
   [k: string]: any;
 };
 
@@ -28,25 +27,49 @@ type QFCUpdatePayload = {
 };
 
 type AnyEvent =
-  | { tag?: string; payload?: any; data?: any; type?: string }   // common server shapes
-  | Record<string, any>;                                         // be permissive
+  | { tag?: string; payload?: any; data?: any; type?: string; topic?: string }
+  | Record<string, any>;
 
 type Options = {
-  /** WS endpoint; pass your own or let it pick from envs */
   url?: string;
-  /** Which topics to react to */
   topics?: Array<"glyphwave.fork_beam" | "index_update" | "qfc_update">;
-  /** Callbacks fired on each topic */
   onForkBeam?: (p: ForkBeamPayload) => void;
   onIndexUpdate?: (p: IndexUpdatePayload) => void;
   onQFCUpdate?: (p: QFCUpdatePayload) => void;
-  /** Optional catch-all */
   onAny?: (topic: string, payload: unknown) => void;
-  /** Reconnect behavior */
   maxRetries?: number;
 };
 
 type Status = "connecting" | "open" | "closed" | "error";
+
+function wsBaseFromWindow(): string {
+  // same-origin default: ws(s)://<host>
+  if (typeof window === "undefined") return "ws://localhost";
+  return window.location.origin.replace(/^http/i, "ws");
+}
+
+function resolveWsEndpoint(url?: string): string {
+  // Priority:
+  // 1) explicit url option
+  // 2) env (vite / next)
+  // 3) same-origin "/ws"
+  const envUrl =
+    (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_WS_URL) ||
+    (typeof process !== "undefined" && (process.env as any).NEXT_PUBLIC_WS_URL);
+
+  const raw = url || envUrl || `${wsBaseFromWindow()}/ws`;
+
+  // If they gave http(s), convert to ws(s)
+  if (/^https?:\/\//i.test(raw)) return raw.replace(/^http/i, "ws");
+
+  // If already ws(s), keep it
+  if (/^wss?:\/\//i.test(raw)) return raw;
+
+  // If relative path like "/ws", join to same-origin ws base
+  const base = wsBaseFromWindow();
+  const path = raw.startsWith("/") ? raw : `/${raw}`;
+  return `${base}${path}`;
+}
 
 export function useQFCEvents({
   url,
@@ -62,33 +85,43 @@ export function useQFCEvents({
   const [status, setStatus] = useState<Status>("connecting");
   const [lastEvent, setLastEvent] = useState<{ topic: string; payload: any } | null>(null);
 
-  const endpoint = useMemo(() => {
-    // Prefer explicit url, then env, then sensible default
-    return (
-      url ||
-      (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_WS_URL) ||
-      (typeof process !== "undefined" && (process.env as any).NEXT_PUBLIC_WS_URL) ||
-      "ws://localhost:8000/ws"
-    );
-  }, [url]);
+  const endpoint = useMemo(() => resolveWsEndpoint(url), [url]);
+
+  // stable key for deps
+  const topicsKey = useMemo(() => topics.slice().sort().join("|"), [topics]);
 
   useEffect(() => {
     let cancelled = false;
-    let reconnectTimer: any;
+    let reconnectTimer: number | null = null;
+
+    const scheduleReconnect = () => {
+      if (cancelled) return;
+      if (retriesRef.current >= maxRetries) return;
+
+      const backoffMs = Math.min(15000, 500 * Math.pow(1.6, retriesRef.current++));
+      reconnectTimer = window.setTimeout(connect, backoffMs);
+    };
 
     const connect = () => {
       if (cancelled) return;
       setStatus("connecting");
 
+      // cleanup any previous socket
       try {
-        wsRef.current = new WebSocket(endpoint);
-      } catch (e) {
+        wsRef.current?.close();
+      } catch {}
+      wsRef.current = null;
+
+      let ws: WebSocket;
+      try {
+        ws = new WebSocket(endpoint);
+      } catch {
         setStatus("error");
         scheduleReconnect();
         return;
       }
 
-      const ws = wsRef.current;
+      wsRef.current = ws;
 
       ws.onopen = () => {
         if (cancelled) return;
@@ -103,39 +136,33 @@ export function useQFCEvents({
         try {
           msg = JSON.parse(evt.data);
         } catch {
-          // Some servers send plain strings; skip if not JSON
-          return;
+          return; // ignore non-JSON frames
         }
 
-        // Normalize: detect topic + payload across common shapes
         const topic =
           (msg as any).tag ||
           (msg as any).topic ||
-          (msg as any).type || // some servers put the channel in "type"
+          (msg as any).type ||
           "";
 
         const payload =
           (msg as any).payload ??
           (msg as any).data ??
-          // Some servers just inline fields; if so, pass the whole object
+          // if it's already a structured envelope but no payload/data, pass empty payload
           (("tag" in (msg as any) || "topic" in (msg as any) || "type" in (msg as any)) ? {} : msg);
 
         if (!topics.includes(topic as any)) return;
 
         setLastEvent({ topic, payload });
 
-        // Dispatch by topic
         try {
-          if (topic === "glyphwave.fork_beam") {
-            onForkBeam?.(payload as ForkBeamPayload);
-          } else if (topic === "index_update") {
-            onIndexUpdate?.(payload as IndexUpdatePayload);
-          } else if (topic === "qfc_update") {
-            onQFCUpdate?.(payload as QFCUpdatePayload);
-          }
+          if (topic === "glyphwave.fork_beam") onForkBeam?.(payload as ForkBeamPayload);
+          else if (topic === "index_update") onIndexUpdate?.(payload as IndexUpdatePayload);
+          else if (topic === "qfc_update") onQFCUpdate?.(payload as QFCUpdatePayload);
+
           onAny?.(topic, payload);
         } catch {
-          /* swallow UI callback errors */
+          // swallow callback errors so WS loop stays alive
         }
       };
 
@@ -151,23 +178,25 @@ export function useQFCEvents({
       };
     };
 
-    const scheduleReconnect = () => {
-      if (retriesRef.current >= maxRetries) return;
-      const backoffMs = Math.min(15000, 500 * Math.pow(1.6, retriesRef.current++));
-      reconnectTimer = setTimeout(connect, backoffMs);
-    };
-
     connect();
 
     return () => {
       cancelled = true;
-      clearTimeout(reconnectTimer);
+      if (reconnectTimer) window.clearTimeout(reconnectTimer);
       try {
         wsRef.current?.close();
       } catch {}
       wsRef.current = null;
     };
-  }, [endpoint, topics.join("|"), onForkBeam, onIndexUpdate, onQFCUpdate, onAny, maxRetries]);
+  }, [
+    endpoint,
+    topicsKey,
+    onForkBeam,
+    onIndexUpdate,
+    onQFCUpdate,
+    onAny,
+    maxRetries,
+  ]);
 
   return { status, lastEvent };
 }

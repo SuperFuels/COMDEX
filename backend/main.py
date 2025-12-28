@@ -11,6 +11,30 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 os.environ["PYTHONPATH"] = ROOT_DIR
 
+# ✅ ADD THIS RIGHT HERE (before any backend imports)
+from pathlib import Path
+
+def _ensure_data_root():
+    root = Path(ROOT_DIR)
+    data = root / "data"
+    target = root / ".runtime" / "COMDEX_MOVE" / "data"
+
+    if data.is_symlink() and not data.exists():
+        target.mkdir(parents=True, exist_ok=True)
+        data.unlink()
+        data.symlink_to(target)
+
+    if not data.exists():
+        data.mkdir(parents=True, exist_ok=True)
+
+    (data / "personality").mkdir(parents=True, exist_ok=True)
+    (data / "memory").mkdir(parents=True, exist_ok=True)
+    (data / "goals").mkdir(parents=True, exist_ok=True)
+    (data / "aion_field").mkdir(parents=True, exist_ok=True)
+    (data / "knowledge").mkdir(parents=True, exist_ok=True)
+
+_ensure_data_root()
+
 from fastapi import FastAPI, APIRouter, Request, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -1024,68 +1048,95 @@ async def on_startup():
 async def root():
     return {"status": "ok", "message": "AION backend running"}
 
-import asyncio
+# --- WS proxy helpers ---
+import json
 import websockets
-from fastapi import WebSocket
+from fastapi import WebSocket, WebSocketDisconnect
+from starlette.websockets import WebSocketState
+
+
+async def _ws_proxy(ws: WebSocket, target_url: str, name: str):
+    await ws.accept()
+    backend = None
+
+    try:
+        backend = await websockets.connect(target_url, ping_interval=None)
+
+        async def client_to_backend():
+            try:
+                async for msg in ws.iter_text():
+                    await backend.send(msg)
+            except WebSocketDisconnect:
+                pass
+            except Exception:
+                pass
+
+        async def backend_to_client():
+            try:
+                async for msg in backend:
+                    if ws.application_state == WebSocketState.CONNECTED:
+                        await ws.send_text(msg)
+                    else:
+                        break
+            except Exception:
+                pass
+
+        t1 = asyncio.create_task(client_to_backend())
+        t2 = asyncio.create_task(backend_to_client())
+
+        done, pending = await asyncio.wait({t1, t2}, return_when=asyncio.FIRST_COMPLETED)
+
+        for t in pending:
+            t.cancel()
+        await asyncio.gather(*pending, return_exceptions=True)
+
+    except Exception as e:
+        if ws.application_state == WebSocketState.CONNECTED:
+            try:
+                await ws.send_text(json.dumps({"type": "proxy_error", "proxy": name, "error": str(e)}))
+            except Exception:
+                pass
+        print(f"❌ {name} proxy error: {e}")
+
+    finally:
+        try:
+            if backend is not None:
+                await backend.close()
+        except Exception:
+            pass
+
+        if ws.application_state == WebSocketState.CONNECTED:
+            try:
+                await ws.close()
+            except Exception:
+                pass
+
+
+# --- WS proxy endpoints (single-port frontends hit these) ---
 
 @app.websocket("/api/ws/symatics")
 async def proxy_symatics(ws: WebSocket):
-    """Proxy frontend -> internal SREL (8001)"""
-    await ws.accept()
-    try:
-        async with websockets.connect("ws://localhost:8001/ws/symatics") as backend:
-            async def frontend_to_backend():
-                async for msg in ws.iter_text():
-                    await backend.send(msg)
+    await _ws_proxy(ws, "ws://127.0.0.1:8001/ws/symatics", "Symatics")
 
-            async def backend_to_frontend():
-                async for msg in backend:
-                    await ws.send_text(msg)
-
-            await asyncio.gather(frontend_to_backend(), backend_to_frontend())
-    except Exception as e:
-        print(f"❌ Symatics proxy error: {e}")
-    finally:
-        await ws.close()
 
 @app.websocket("/api/ws/analytics")
 async def proxy_analytics(ws: WebSocket):
-    """Proxy frontend -> internal RAL (8002)"""
-    await ws.accept()
-    try:
-        async with websockets.connect("ws://localhost:8002/ws/analytics") as backend:
-            async def frontend_to_backend():
-                async for msg in ws.iter_text():
-                    await backend.send(msg)
+    await _ws_proxy(ws, "ws://127.0.0.1:8002/ws/analytics", "Analytics")
 
-            async def backend_to_frontend():
-                async for msg in backend:
-                    await ws.send_text(msg)
-
-            await asyncio.gather(frontend_to_backend(), backend_to_frontend())
-    except Exception as e:
-        print(f"❌ Analytics proxy error: {e}")
-    finally:
-        await ws.close()
 
 @app.websocket("/api/ws/fusion")
 async def proxy_fusion(ws: WebSocket):
-    await ws.accept()
-    try:
-        async with websockets.connect("ws://localhost:8005/ws/fusion") as backend:
-            async def frontend_to_backend():
-                async for msg in ws.iter_text():
-                    await backend.send(msg)
+    await _ws_proxy(ws, "ws://127.0.0.1:8005/ws/fusion", "Fusion")
 
-            async def backend_to_frontend():
-                async for msg in backend:
-                    await ws.send_text(msg)
 
-            await asyncio.gather(frontend_to_backend(), backend_to_frontend())
-    except Exception as e:
-        print(f"❌ Fusion proxy error: {e}")
-    finally:
-        await ws.close()
+@app.websocket("/api/ws/rqfs_feedback")
+async def proxy_rqfs_feedback(ws: WebSocket):
+    await _ws_proxy(ws, "ws://127.0.0.1:8006/ws/rqfs_feedback", "RQFS")
+
+
+@app.websocket("/api/ws/control")
+async def proxy_control(ws: WebSocket):
+    await _ws_proxy(ws, "ws://127.0.0.1:8004/ws/control", "Control")
 
 # ── 21) Run via Uvicorn when executed directly
 if __name__ == "__main__":

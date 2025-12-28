@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import time
 import argparse
 import json
 import os
@@ -11,7 +11,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Optional
-
+from tessarisctl.commands import artifacts_gc
 
 @dataclass(frozen=True)
 class Pillar:
@@ -155,6 +155,28 @@ def _latest_run_dir(p: Pillar, test_id: str) -> Optional[Path]:
     return cands[0]
 
 
+def _latest_n_run_dirs(p: Pillar, test_id: str, n: int) -> list[Path]:
+    root = p.artifacts
+    if not root.exists():
+        return []
+
+    cands: list[Path] = []
+    for rj in root.rglob("run.json"):
+        d = rj.parent
+        if d.parent.name == test_id:
+            cands.append(d)
+
+    if not cands:
+        return []
+
+    def _mtime(d: Path) -> float:
+        meta = d / "meta.json"
+        return meta.stat().st_mtime if meta.exists() else d.stat().st_mtime
+
+    cands.sort(key=_mtime, reverse=True)
+    return cands[: max(0, int(n))]
+
+
 def _snapshot_run_dirs(p: Pillar) -> set[Path]:
     if not p.artifacts.exists():
         return set()
@@ -176,6 +198,19 @@ def _open_path(path: Path) -> None:
         subprocess.run(["xdg-open", s], check=False)
         return
     print(s)
+
+
+# ---------------- git helpers ----------------
+
+def _git(repo: Path, *args: str) -> tuple[int, str]:
+    r = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        check=False,
+    )
+    return int(r.returncode), (r.stdout or "").strip()
 
 
 # ---------------- pytest running ----------------
@@ -361,6 +396,235 @@ def cmd_registry_verify(repo: Path) -> int:
     return 2
 
 
+def cmd_status(repo: Path) -> int:
+    pillars = _pillars(repo)
+    print(f"repo: {repo}")
+    print(f"python: {sys.version.split()[0]}  platform: {platform.platform()}")
+
+    rc, branch = _git(repo, "rev-parse", "--abbrev-ref", "HEAD")
+    if rc == 0 and branch:
+        print(f"git: {branch}")
+    rc, porcelain = _git(repo, "status", "--porcelain")
+    if rc == 0:
+        dirty = 1 if porcelain.strip() else 0
+        changed = len([ln for ln in porcelain.splitlines() if ln.strip()])
+        print(f"working-tree: {'DIRTY' if dirty else 'CLEAN'} ({changed} change(s))")
+
+    print("pillars:")
+    for k, p in sorted(pillars.items(), key=lambda kv: kv[0]):
+        flags = []
+        if p.src.exists():
+            flags.append("src")
+        if p.tests.exists():
+            flags.append("tests")
+        if p.audit_registry.exists():
+            flags.append("audit")
+        if p.artifacts.exists():
+            flags.append("artifacts")
+        print(f"  - {k}:{p.name} [{', '.join(flags) if flags else 'missing'}]")
+
+    return 0
+
+
+def _find_trailing_space_paths(repo: Path) -> list[Path]:
+    out: list[Path] = []
+    for p in repo.rglob("*"):
+        # skip .git contents
+        if ".git" in p.parts:
+            continue
+        if p.name.endswith(" "):
+            out.append(p)
+    return out
+
+
+def cmd_doctor(repo: Path, quick: bool) -> int:
+    bad = 0
+    pillars = _pillars(repo)
+
+    # 1) obvious filesystem hazards
+    trailing = _find_trailing_space_paths(repo)
+    if trailing:
+        bad += 1
+        print("FAIL trailing-space paths detected:")
+        for p in trailing[:200]:
+            print(f"  - {p}")
+        if len(trailing) > 200:
+            print(f"  ... and {len(trailing) - 200} more")
+
+    # 2) basic structure
+    for k, p in pillars.items():
+        if not p.src.exists():
+            bad += 1
+            print(f"FAIL missing src/: {p.name} ({k})")
+        if not p.tests.exists():
+            bad += 1
+            print(f"FAIL missing tests/: {p.name} ({k})")
+
+    # 3) compile tessarisctl entrypoint (fast sanity)
+    entry = repo / "Tessaris_OS" / "TERMINAL" / "src" / "tessarisctl" / "__main__.py"
+    if entry.exists():
+        r = subprocess.run([sys.executable, "-m", "py_compile", str(entry)], check=False)
+        if r.returncode != 0:
+            bad += 1
+            print("FAIL py_compile tessarisctl/__main__.py")
+    else:
+        bad += 1
+        print(f"FAIL missing: {entry}")
+
+    # 4) registry verify (unless quick)
+    if not quick:
+        rc = cmd_registry_verify(repo)
+        if rc != 0:
+            bad += 1
+
+    if bad == 0:
+        print("OK doctor")
+        return 0
+    return 2
+
+
+def _pinned_run_dirs(repo: Path, p: Pillar) -> set[Path]:
+    keep: set[Path] = set()
+    if not p.audit_registry.exists():
+        return keep
+    pins = _extract_pins_from_text(_read_text_safe(p.audit_registry))
+    for test_id, h, path_str in pins:
+        rel = path_str.lstrip("./")
+        d = (repo / rel).resolve()
+        # normalize to run dir (…/<TESTID>/<HASH>)
+        if d.exists():
+            keep.add(d)
+    return keep
+
+
+def cmd_artifacts_gc(
+    repo: Path,
+    pillar: Optional[str],
+    days: int,
+    dry_run: bool,
+    keep_latest: int,
+    keep_pinned: bool,
+) -> int:
+    pillars = _pillars(repo)
+
+    # choose pillars to scan
+    if pillar:
+        key = pillar.strip().lower()
+        if key not in pillars:
+            raise SystemExit(f"unknown pillar: {pillar}")
+        targets: dict[str, Pillar] = {key: pillars[key]}
+    else:
+        targets = pillars
+
+    keep: set[Path] = set()
+
+    # keep pinned
+    if keep_pinned:
+        for _, p in targets.items():
+            keep |= _pinned_run_dirs(repo, p)
+
+    # keep latest N per discovered anchor (per pillar)
+    for pkey, p in targets.items():
+        for _, test_id in [a for a in _discover_anchors(repo) if a[0] == pkey]:
+            for d in _latest_n_run_dirs(p, test_id, keep_latest):
+                keep.add(d.resolve())
+
+    cutoff = (time.time() - (max(0, int(days)) * 86400)) if days is not None else 0.0
+
+    removed = 0
+    scanned = 0
+    would_delete = 0
+
+    for _, p in targets.items():
+        for run_dir in _iter_run_dirs(p.artifacts):
+            scanned += 1
+            rd = run_dir.resolve()
+
+            if rd in keep:
+                continue
+
+            # age filter (only delete things older than N days)
+            try:
+                mtime = rd.stat().st_mtime
+            except FileNotFoundError:
+                continue
+            if cutoff and mtime >= cutoff:
+                continue
+
+            if dry_run:
+                would_delete += 1
+                print(f"DRY-RUN delete: {rd}")
+                continue
+
+            shutil.rmtree(rd, ignore_errors=True)
+            removed += 1
+            print(f"deleted: {rd}")
+
+    if dry_run:
+        print(f"artifacts gc (dry-run): scanned={scanned} would_delete={would_delete} kept={len(keep)}")
+        return 0
+
+    print(f"artifacts gc: scanned={scanned} deleted={removed} kept={len(keep)}")
+    return 0
+
+
+def cmd_report(repo: Path, md: bool, target: str = "") -> int:
+    pillars = _pillars(repo)
+
+    # If target provided, only report that one anchor.
+    if target:
+        if ":" not in target:
+            raise SystemExit("use: report pillar:TESTID (e.g. report gravity:G02)")
+        pkey, test_id = target.split(":", 1)
+        pkey = pkey.strip().lower()
+        test_id = test_id.strip()
+        anchors = [(pkey, test_id)]
+    else:
+        anchors = _discover_anchors(repo)
+
+    if md:
+        title = f"# Tessaris Report: {target}" if target else "# Tessaris Report"
+        print(title)
+        print("")
+
+    for pkey, test_id in anchors:
+        if pkey not in pillars:
+            if md:
+                print(f"- **{pkey}:{test_id}** — _unknown pillar_")
+            else:
+                print(f"{pkey}:{test_id}: unknown pillar")
+            continue
+
+        p = pillars[pkey]
+        latest = _latest_run_dir(p, test_id)
+        if not latest:
+            if md:
+                print(f"- **{pkey}:{test_id}** — _no run found_")
+            else:
+                print(f"{pkey}:{test_id}: no run found")
+            continue
+
+        rj = latest / "run.json"
+        if not rj.exists():
+            if md:
+                print(f"- **{pkey}:{test_id}** — _missing run.json_ ({latest})")
+            else:
+                print(f"{pkey}:{test_id}: missing run.json ({latest})")
+            continue
+
+        run = json.loads(rj.read_text(encoding="utf-8"))
+        run_hash = run.get("run_hash", latest.name)
+        ctrl = run.get("controller", "unknown")
+        seed = run.get("seed", None)
+
+        if md:
+            print(f"- **{pkey}:{test_id}** `{run_hash}` controller=`{ctrl}` seed=`{seed}`")
+        else:
+            print(f"{pkey}:{test_id} {run_hash} controller={ctrl} seed={seed}")
+
+    return 0
+
+
 # ---------------- main ----------------
 
 def main(argv: Optional[list[str]] = None) -> int:
@@ -369,15 +633,33 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(prog="tessarisctl")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
+    # list
     sp = sub.add_parser("list", help="list available anchors (pillar:TESTID)")
     sp.set_defaults(fn=lambda a: cmd_list(repo))
 
+    # status
+    sp = sub.add_parser("status", help="show repo + pillars + basic health")
+    sp.set_defaults(fn=lambda a: cmd_status(repo))
+
+    # doctor
+    sp = sub.add_parser("doctor", help="health checks (registry verify, path hazards, basic compile)")
+    sp.add_argument("--quick", action="store_true", help="skip slower checks (e.g. registry verify)")
+    sp.set_defaults(fn=lambda a: cmd_doctor(repo, a.quick))
+
+    # report
+    sp = sub.add_parser("report", help="summarize latest runs (optionally for one anchor)")
+    sp.add_argument("target", nargs="?", default="", help="optional: e.g. gravity:G02")
+    sp.add_argument("--md", action="store_true", help="emit markdown")
+    sp.set_defaults(fn=lambda a: cmd_report(repo, a.md, a.target))
+
+    # run
     sp = sub.add_parser("run", help="run an anchor via pytest (pillar:TESTID)")
     sp.add_argument("target", help="e.g. bridge:BG01")
     sp.add_argument("--seed", type=int, default=None)
     sp.add_argument("--no-artifacts", action="store_true")
     sp.set_defaults(fn=lambda a: cmd_run(repo, a.target, a.seed, a.no_artifacts))
 
+    # artifacts
     sp = sub.add_parser("artifacts", help="artifacts utilities")
     sub2 = sp.add_subparsers(dest="subcmd", required=True)
 
@@ -385,6 +667,24 @@ def main(argv: Optional[list[str]] = None) -> int:
     sp2.add_argument("target", help="e.g. gravity:G01")
     sp2.set_defaults(fn=lambda a: cmd_artifacts_open(repo, a.target))
 
+    sp2 = sub2.add_parser("gc", help="garbage-collect old artifact runs")
+    sp2.add_argument("--pillar", default=None, help="limit to one pillar (e.g. gravity)")
+    sp2.add_argument("--days", type=int, default=14, help="only delete runs older than N days (default: 14)")
+    sp2.add_argument("--apply", action="store_true", help="actually delete (otherwise dry-run)")
+    sp2.add_argument("--keep-latest", type=int, default=2, help="keep N latest per anchor (default: 2)")
+    sp2.add_argument("--no-keep-pinned", action="store_true", help="do not keep pinned runs from AUDIT_REGISTRY")
+    sp2.set_defaults(
+        fn=lambda a: cmd_artifacts_gc(
+            repo,
+            pillar=a.pillar,
+            days=a.days,
+            dry_run=(not a.apply),
+            keep_latest=a.keep_latest,
+            keep_pinned=(not a.no_keep_pinned),
+        )
+    )
+
+    # registry
     sp = sub.add_parser("registry", help="registry utilities")
     sub3 = sp.add_subparsers(dest="subcmd", required=True)
 

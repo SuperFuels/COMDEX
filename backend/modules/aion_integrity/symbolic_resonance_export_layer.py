@@ -2,109 +2,183 @@
 """
 Tessaris Phase 23 - Symbolic Resonance Export Layer (SREL)
 
-Translates consolidated meta-resonant telemetry into symbolic glyph streams
-for Symatics Algebra integration (⊕, ⟲, ↔, ∇, μ, π).  Each line represents
-a symbolic projection of the underlying resonance field.
-
-Output:
-    data/symatics/symbolic_resonance_stream.glyph
+Consumes:  <DATA_ROOT>/telemetry/meta_resonant_telemetry.jsonl
+Produces:  <DATA_ROOT>/symatics/symbolic_resonance_stream.glyph
+Serves WS: ws://0.0.0.0:8001/ws/symatics   (websockets v12)
 """
 
-import json, math, time
+import asyncio
+import json
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional, Dict, Any, List, Tuple
 
-# ---------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------
-DATA = Path("data")
-META_FILE = DATA / "telemetry" / "meta_resonant_telemetry.jsonl"
-OUT_PATH  = DATA / "symatics"
-OUT_FILE  = OUT_PATH / "symbolic_resonance_stream.glyph"
-OUT_PATH.mkdir(parents=True, exist_ok=True)
+import websockets
 
-# ---------------------------------------------------------------------
-# Symbolic quantization map
-# ---------------------------------------------------------------------
-def glyph_from_params(nu, phi, amp):
-    """Map resonance parameters -> Symatics glyph."""
-    # Frequency drift ν
+ENV_DATA_ROOT = "TESSARIS_DATA_ROOT"
+
+def pick_data_root() -> Path:
+    import os
+    if ENV_DATA_ROOT in os.environ:
+        return Path(os.environ[ENV_DATA_ROOT]).expanduser()
+
+    # prefer runtime-moved data
+    rt = Path(".runtime")
+    if rt.exists():
+        # choose the first runtime data that has telemetry or control dirs
+        for d in rt.glob("*/data"):
+            if (d / "control").exists() or (d / "telemetry").exists():
+                return d
+
+    return Path("data")
+
+DATA_ROOT = pick_data_root()
+
+META_FILE = DATA_ROOT / "telemetry" / "meta_resonant_telemetry.jsonl"
+OUT_DIR   = DATA_ROOT / "symatics"
+OUT_FILE  = OUT_DIR / "symbolic_resonance_stream.glyph"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+CLIENTS: set = set()
+
+WS_HOST = "0.0.0.0"
+WS_PORT = 8001
+WS_PATH = "/ws/symatics"
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+def fget(d: Optional[Dict[str, Any]], k: str, default: float = 0.0) -> float:
+    if not isinstance(d, dict):
+        return float(default)
+    v = d.get(k, default)
+    try:
+        return float(v)
+    except Exception:
+        return float(default)
+
+def glyph_from_params(nu: float, phi: float, amp: float) -> str:
+    # ν bucket
     if abs(nu) < 0.5:
-        base = "⊕"   # harmonic superposition
+        base = "⊕"
     elif abs(nu) < 1.0:
-        base = "⟲"   # resonance
+        base = "⟲"
     else:
-        base = "↔"   # entangled / divergent
+        base = "↔"
 
-    # Phase offset φ
+    # φ bucket
     if phi > 0.2:
-        mod = "μ"    # measurement / positive phase
+        mod = "μ"
     elif phi < -0.2:
-        mod = "∇"    # collapse / negative phase
+        mod = "∇"
     else:
-        mod = "π"    # neutral / projection
+        mod = "π"
 
-    # Amplitude A
+    # amp bucket
     if amp > 6:
         energy = "💡"
     elif amp < 3:
         energy = "🌊"
     else:
-        energy = "*"
+        energy = "•"
 
     return f"{energy}{base}{mod}"
 
-# ---------------------------------------------------------------------
-# Processor
-# ---------------------------------------------------------------------
-def process_latest_entry(line):
-    """Convert one consolidated JSONL line into symbolic form."""
+async def symatics_ws(websocket):
+    path = getattr(websocket, "path", None)
+    if path is None and hasattr(websocket, "request"):
+        path = websocket.request.path
+
+    if path not in (WS_PATH, WS_PATH + "/"):
+        await websocket.close(code=1008, reason="Invalid path")
+        return
+
+    print(f"🪶 SREL client connected ({path})")
+    CLIENTS.add(websocket)
     try:
-        entry = json.loads(line)
-        rfc = entry.get("rfc", {})
-        rqfs = entry.get("rqfs", {})
-        nu  = rqfs.get("nu_bias", rfc.get("nu_bias", 0.0))
-        phi = rqfs.get("phase_offset", rfc.get("phase_offset", 0.0))
-        amp = rqfs.get("amp_gain", rfc.get("amp_gain", 1.0))
-        glyph = glyph_from_params(nu, phi, amp)
+        async for _ in websocket:
+            pass
+    except websockets.exceptions.ConnectionClosed:
+        pass
+    finally:
+        CLIENTS.discard(websocket)
+        print("❌ SREL client disconnected")
 
-        symbol = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "nu": nu,
-            "phi": phi,
-            "amp": amp,
-            "glyph": glyph,
-        }
+async def broadcast(payload: Dict[str, Any]):
+    if not CLIENTS:
+        return
+    msg = json.dumps(payload, ensure_ascii=False)
+    dead = []
+    for ws in list(CLIENTS):
+        try:
+            await ws.send(msg)
+        except Exception:
+            dead.append(ws)
+    for ws in dead:
+        CLIENTS.discard(ws)
 
-        with open(OUT_FILE, "a") as f:
-            f.write(json.dumps(symbol, ensure_ascii=False) + "\n")
+async def exporter_loop(interval: float = 1.0):
+    print("🪶 Starting Tessaris Symbolic Resonance Export Layer (SREL)...")
+    print(f"✅ DATA_ROOT = {DATA_ROOT}")
+    print(f"✅ META_FILE = {META_FILE}")
+    print(f"✅ OUT_FILE  = {OUT_FILE}")
 
-        print(f"🪶  t={symbol['timestamp']} | ν={nu:+.3f} φ={phi:+.3f} A={amp:+.3f} -> glyph={glyph}")
+    last_size = -1
 
-    except Exception as e:
-        print(f"⚠️  Parse error: {e}")
-
-# ---------------------------------------------------------------------
-# Main loop
-# ---------------------------------------------------------------------
-def run_exporter(interval=5.0):
-    print("🪶  Starting Tessaris Symbolic Resonance Export Layer (SREL)...")
-    if not META_FILE.exists():
-        print("⚠️  Waiting for meta_resonant_telemetry.jsonl ...")
-    last_size = 0
     while True:
-        if META_FILE.exists():
-            new_size = META_FILE.stat().st_size
-            if new_size > last_size:
-                with open(META_FILE) as f:
-                    lines = f.readlines()
-                if lines:
-                    process_latest_entry(lines[-1])
-                last_size = new_size
-        time.sleep(interval)
+        if not META_FILE.exists():
+            await asyncio.sleep(interval)
+            continue
 
-def main():
-    run_exporter()
+        try:
+            size = META_FILE.stat().st_size
+        except Exception:
+            await asyncio.sleep(interval)
+            continue
+
+        if size != last_size:
+            last_size = size
+            try:
+                with META_FILE.open("r", encoding="utf-8") as f:
+                    lines = [l.strip() for l in f if l.strip()]
+                if not lines:
+                    await asyncio.sleep(interval)
+                    continue
+                entry = json.loads(lines[-1])
+            except Exception:
+                await asyncio.sleep(interval)
+                continue
+
+            rqfs_fb = entry.get("rqfs_feedback") if isinstance(entry, dict) else {}
+            state   = rqfs_fb.get("state") if isinstance(rqfs_fb, dict) else {}
+
+            nu  = fget(state, "nu_bias", 0.0)
+            phi = fget(state, "phi_bias", 0.0)
+            amp = fget(state, "amp_bias", 0.0)
+
+            glyph = glyph_from_params(nu, phi, amp)
+
+            out = {
+                "type": "symatics",
+                "timestamp": now_iso(),
+                "nu": nu,
+                "phi": phi,
+                "amp": amp,
+                "glyph": glyph,
+            }
+
+            with OUT_FILE.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(out, ensure_ascii=False) + "\n")
+
+            print(f"🪶 t={out['timestamp']} | ν={nu:+.4f} φ={phi:+.4f} A={amp:+.4f} -> {glyph}")
+            await broadcast(out)
+
+        await asyncio.sleep(interval)
+
+async def main():
+    async with websockets.serve(symatics_ws, WS_HOST, WS_PORT, ping_interval=20, ping_timeout=20):
+        print(f"🌐 SREL WebSocket running on ws://{WS_HOST}:{WS_PORT}{WS_PATH}")
+        await exporter_loop()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

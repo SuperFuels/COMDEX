@@ -217,3 +217,24 @@ node_modules/
 # (optional) python junk
 **/__pycache__/
 *.pyc
+
+
+# runtime / caches
+.runtime/
+
+# deps
+node_modules/
+**/node_modules/
+
+# lean workspace build output (keep sources, ignore build dir)
+backend/modules/lean/workspace/.lake/
+backend/modules/lean/workspace/lake-packages/
+
+# generated artifacts (these look like outputs)
+CONNECTIVITY/artifacts/
+ENERGY/artifacts/
+GRAVITY/artifacts/
+INERTIA/artifacts/
+MAGNETISM/artifacts/
+MATTER/artifacts/
+TUNNEL/artifacts/
