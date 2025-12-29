@@ -1,6 +1,3 @@
-cd /workspaces/COMDEX
-
-cat > backend/modules/lean/lean_proofverifier.py <<'EOF'
 # backend/modules/lean/lean_proofverifier.py
 from __future__ import annotations
 
@@ -22,6 +19,17 @@ _THIS_DIR = Path(__file__).resolve().parent
 DEFAULT_WORKSPACE_ROOT = _THIS_DIR / "workspace"
 
 
+def verify_snapshot_params(steps: int, dt_ms: int, spec_version: str = "v1") -> Dict[str, Any]:
+    from backend.modules.lean.snapshot_verify import verify_snapshot  # local import to avoid startup costs
+    return verify_snapshot(steps=steps, dt_ms=dt_ms, spec_version=spec_version)
+
+def _emit_snapshot_ws(cert: Dict[str, Any]) -> None:
+    try:
+        from backend.routes.ws.glyphnet_ws import emit_websocket_event  # type: ignore
+        emit_websocket_event("lean_snapshot_verify_result", cert)
+    except Exception:
+        pass
+        
 # ─────────────────────────────
 #  Lean Invocation (Lake-aware)
 # ─────────────────────────────
@@ -322,4 +330,3 @@ if __name__ == "__main__":
 
     success = validate_lean_container(container, autosave=autosave)
     print("✅ VALID" if success else "❌ INVALID")
-EOF

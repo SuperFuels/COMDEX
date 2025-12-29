@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 
 import { Canvas } from "@react-three/fiber";
@@ -14,10 +14,18 @@ import QFCDemoGravity from "./qfc/demos/QFCDemoGravity";
 import QFCDemoTunnel from "./qfc/demos/QFCDemoTunnel";
 import QFCDemoMatter from "./qfc/demos/QFCDemoMatter";
 import QFCDemoConnect from "./qfc/demos/QFCDemoConnect";
+import QFCDemoWormhole from "./qfc/demos/QFCDemoWormhole";
 
-type QFCMode = "gravity" | "tunnel" | "matter" | "connect" | "antigrav" | "sync";
+export type QFCMode =
+  | "gravity"
+  | "tunnel"
+  | "matter"
+  | "connect"
+  | "wormhole"
+  | "antigrav"
+  | "sync";
 
-type QFCTheme = {
+export type QFCTheme = {
   gravity?: string;
   matter?: string;
   photon?: string;
@@ -27,13 +35,13 @@ type QFCTheme = {
   sync?: string;
 };
 
-type QFCFlags = {
+export type QFCFlags = {
   nec_violation?: boolean;
   nec_strength?: number;
   jump_flash?: number;
 };
 
-type QFCFrame = {
+export type QFCFrame = {
   t: number;
   kappa?: number;
   chi?: number;
@@ -48,14 +56,17 @@ type QFCFrame = {
   flags?: QFCFlags;
 };
 
-type QFCViewportProps = {
+export type QFCViewportProps = {
   title?: string;
   subtitle?: string;
   rightBadge?: string;
 
+  // preferred mode/theme from parent (HUD)
   mode?: QFCMode;
   theme?: QFCTheme;
 
+  // if provided, these override telemetry-derived frames
+  // null is INTENTIONAL (do not fallback to telemetry)
   frame?: QFCFrame | null;
   frames?: QFCFrame[];
 
@@ -65,56 +76,106 @@ type QFCViewportProps = {
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const num = (v: any, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
 
+export const isQfcMode = (m: any): m is QFCMode =>
+  m === "gravity" ||
+  m === "tunnel" ||
+  m === "matter" ||
+  m === "connect" ||
+  m === "wormhole" ||
+  m === "antigrav" ||
+  m === "sync";
+
 function buildQfcFrameFromTelemetry(t: TessarisTelemetry): QFCFrame | null {
   if (!t) return null;
 
-  const analytics: any = t.analytics ?? {};
-  const fusion: any = t.fusion ?? {};
+  const analytics: any = (t as any).analytics ?? {};
+  const fusion: any = (t as any).fusion ?? {};
 
   const rqfsAny: any = (t as any).rqfs ?? {};
   const rqfsState: any = rqfsAny?.state ?? rqfsAny ?? {};
 
   const qfcAny: any = (t as any).qfc ?? fusion?.qfc ?? analytics?.qfc ?? {};
 
-  const flags: QFCFlags = (qfcAny.flags as QFCFlags) ?? (fusion?.flags as QFCFlags) ?? {};
-  const theme: QFCTheme = (qfcAny.theme as QFCTheme) ?? (fusion?.theme as QFCTheme) ?? {};
-  const mode: QFCMode | undefined = (qfcAny.mode as QFCMode) ?? (fusion?.mode as QFCMode) ?? undefined;
+  const flags: QFCFlags =
+    (qfcAny.flags as QFCFlags) ?? (fusion?.flags as QFCFlags) ?? {};
+
+  const theme: QFCTheme =
+    (qfcAny.theme as QFCTheme) ?? (fusion?.theme as QFCTheme) ?? {};
+
+  const rawMode: any = qfcAny.mode ?? fusion?.mode ?? undefined;
+  const mode: QFCMode | undefined = isQfcMode(rawMode) ? rawMode : undefined;
 
   const kappa = num(rqfsState.nu_bias ?? rqfsState.kappa ?? analytics.mean_nu, 0);
   const chi = num(rqfsState.phi_bias ?? rqfsState.chi ?? analytics.mean_phi, 0);
-  const sigma = num(rqfsState.amp_bias ?? rqfsState.sigma ?? analytics.mean_amp, 0);
+  const sigma = num(
+    rqfsState.amp_bias ?? rqfsState.sigma ?? analytics.mean_amp,
+    0,
+  );
 
   const psiRaw = num(
-    fusion["ψ̃"] ?? fusion.psi_tilde ?? fusion.cognition_signal ?? fusion.inference_strength ?? fusion.signal,
+    fusion["ψ̃"] ??
+      fusion.psi_tilde ??
+      fusion.cognition_signal ??
+      fusion.inference_strength ??
+      fusion.signal,
     NaN,
   );
   const psi01 = Number.isFinite(psiRaw) ? clamp01(0.5 + 0.5 * psiRaw) : NaN;
 
   const alpha = num(
-    Number.isFinite(psi01) ? psi01 : (fusion.fusion_score ?? fusion.fusion ?? fusion.alpha ?? analytics.stability),
+    Number.isFinite(psi01)
+      ? psi01
+      : fusion.fusion_score ??
+          fusion.fusion ??
+          fusion.alpha ??
+          analytics.stability,
     0,
   );
 
   const curl_rms = num(
-    fusion["κ̃"] ?? fusion.kappa_tilde ?? fusion.curl_rms ?? fusion.curl ?? analytics.curl_rms,
+    fusion["κ̃"] ??
+      fusion.kappa_tilde ??
+      fusion.curl_rms ??
+      fusion.curl ??
+      analytics.curl_rms,
     0,
   );
 
-  const curv = num(fusion.curv ?? fusion.curvature ?? analytics.curv ?? analytics.curvature, 0);
+  const curv = num(
+    fusion.curv ?? fusion.curvature ?? analytics.curv ?? analytics.curvature,
+    0,
+  );
 
   const coupling_score = num(
-    fusion.coupling_score ?? fusion.coupling ?? analytics.coupling_score ?? analytics.stability,
+    fusion.coupling_score ??
+      fusion.coupling ??
+      analytics.coupling_score ??
+      analytics.stability,
     0,
   );
 
   const max_norm = num(fusion.max_norm ?? analytics.max_norm, 0);
 
   const ts =
-    (typeof analytics.timestamp === "string" && Date.parse(analytics.timestamp)) ||
+    (typeof analytics.timestamp === "string" &&
+      Date.parse(analytics.timestamp)) ||
     (typeof fusion.timestamp === "string" && Date.parse(fusion.timestamp)) ||
     Date.now();
 
-  return { t: ts, kappa, chi, sigma, alpha, curl_rms, curv, coupling_score, max_norm, mode, theme, flags };
+  return {
+    t: ts,
+    kappa,
+    chi,
+    sigma,
+    alpha,
+    curl_rms,
+    curv,
+    coupling_score,
+    max_norm,
+    mode,
+    theme,
+    flags,
+  };
 }
 
 export default function QFCViewport(props: QFCViewportProps) {
@@ -122,7 +183,10 @@ export default function QFCViewport(props: QFCViewportProps) {
     title = "Quantum Field Canvas",
     subtitle,
     rightBadge,
-    mode = "gravity",
+
+    // optional: parent-selected mode
+    mode: modeProp,
+
     theme,
     frame,
     frames,
@@ -134,8 +198,10 @@ export default function QFCViewport(props: QFCViewportProps) {
 
   const [liveFrame, setLiveFrame] = useState<QFCFrame | null>(null);
 
+  // Only derive liveFrame if parent did NOT provide any frame(s).
   useEffect(() => {
-    const hasExternalFrames = frame !== undefined || (Array.isArray(frames) && frames.length > 0);
+    const hasExternalFrames =
+      frame !== undefined || (Array.isArray(frames) && frames.length > 0);
     if (hasExternalFrames) return;
     if (!telemetry) return;
 
@@ -143,8 +209,29 @@ export default function QFCViewport(props: QFCViewportProps) {
     if (fr) setLiveFrame(fr);
   }, [telemetry, frame, frames]);
 
-  const effectiveFrame = frame ?? liveFrame ?? null;
-  const effectiveMode: QFCMode = (effectiveFrame?.mode as QFCMode) ?? mode;
+  // ✅ CRITICAL:
+  // - if parent passed frame (even null), do NOT fall back to telemetry
+  const effectiveFrame: QFCFrame | null =
+    frame === undefined ? liveFrame : frame;
+
+  // ✅ Prefer parent prop mode first, then frame mode (if any), then default
+  const effectiveMode: QFCMode =
+    (isQfcMode(modeProp) ? modeProp : undefined) ??
+    (isQfcMode(effectiveFrame?.mode) ? effectiveFrame!.mode : undefined) ??
+    "gravity";
+
+  // ✅ debug: confirm mode is arriving
+  useEffect(() => {
+    console.log(
+      "[QFCViewport] modeProp:",
+      modeProp,
+      "effectiveMode:",
+      effectiveMode,
+    );
+  }, [modeProp, effectiveMode]);
+
+  // ✅ force full Canvas remount on mode change
+  const canvasKey = useMemo(() => `qfc:${effectiveMode}`, [effectiveMode]);
 
   const shell: CSSProperties = {
     height: "100%",
@@ -174,8 +261,16 @@ export default function QFCViewport(props: QFCViewportProps) {
     pointerEvents: "none",
   };
 
-  const titleStyle: CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing: 0.2 };
-  const subStyle: CSSProperties = { marginTop: 2, fontSize: 10, color: "rgba(226,232,240,0.70)" };
+  const titleStyle: CSSProperties = {
+    fontSize: 12,
+    fontWeight: 700,
+    letterSpacing: 0.2,
+  };
+  const subStyle: CSSProperties = {
+    marginTop: 2,
+    fontSize: 10,
+    color: "rgba(226,232,240,0.70)",
+  };
   const badge: CSSProperties = {
     padding: "4px 10px",
     borderRadius: 999,
@@ -189,6 +284,7 @@ export default function QFCViewport(props: QFCViewportProps) {
   return (
     <div style={shell}>
       <Canvas
+        key={canvasKey}
         style={{ position: "absolute", inset: 0 }}
         camera={{ position: [0, 7, 16], fov: 45, near: 0.1, far: 250 }}
         gl={{ antialias: true, alpha: true }}
@@ -201,7 +297,12 @@ export default function QFCViewport(props: QFCViewportProps) {
         <directionalLight position={[-8, 6, -10]} intensity={0.35} />
 
         <gridHelper
-          args={[90, 90, new THREE.Color("#1d4ed8"), new THREE.Color("#0ea5e9")]}
+          args={[
+            90,
+            90,
+            new THREE.Color("#1d4ed8"),
+            new THREE.Color("#0ea5e9"),
+          ]}
           position={[0, -2.0, 0]}
         />
 
@@ -210,10 +311,24 @@ export default function QFCViewport(props: QFCViewportProps) {
           <meshBasicMaterial color={"#030712"} transparent opacity={0.35} />
         </mesh>
 
-        {effectiveMode === "gravity" ? <QFCDemoGravity frame={effectiveFrame} /> : null}
-        {effectiveMode === "tunnel" ? <QFCDemoTunnel frame={effectiveFrame} /> : null}
-        {effectiveMode === "matter" ? <QFCDemoMatter frame={effectiveFrame} /> : null}
-        {effectiveMode === "connect" ? <QFCDemoConnect frame={effectiveFrame} /> : null}
+        {/* ✅ Demos: group key forces hard remount when mode changes */}
+        <group key={effectiveMode}>
+          {effectiveMode === "gravity" ? (
+            <QFCDemoGravity frame={effectiveFrame} />
+          ) : null}
+          {effectiveMode === "tunnel" ? (
+            <QFCDemoTunnel frame={effectiveFrame} />
+          ) : null}
+          {effectiveMode === "matter" ? (
+            <QFCDemoMatter frame={effectiveFrame} />
+          ) : null}
+          {effectiveMode === "connect" ? (
+            <QFCDemoConnect frame={effectiveFrame} />
+          ) : null}
+          {effectiveMode === "wormhole" ? (
+            <QFCDemoWormhole frame={effectiveFrame} />
+          ) : null}
+        </group>
 
         <OrbitControls
           makeDefault

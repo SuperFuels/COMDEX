@@ -5,7 +5,7 @@
 // (see DEV_ROUTES_ENABLED and the devtools hash block).
 // This file remains the "normal" Dev Tools dashboard.
 
-import { useState, useEffect, useMemo, type CSSProperties } from "react";
+import { useState, useEffect, useMemo, useRef, type CSSProperties } from "react";
 import PhotonEditor from "../components/PhotonEditor";
 import LedgerInspector from "../components/LedgerInspector";
 import PhotonGuide from "../components/PhotonGuide";
@@ -1629,7 +1629,7 @@ function GMADashboardPanel() {
   );
 }
 
-type ScenarioId = "BG01" | "G01" | "TN01" | "MT01" | "C01";
+type ScenarioId = "BG01" | "G01" | "TN01" | "MT01" | "C01" | "WH01";
 
 type ScenarioConfig = {
   id: ScenarioId;
@@ -1642,7 +1642,7 @@ type ScenarioConfig = {
     danger: string;
   };
   defaults: { kappa: number; chi: number; sigma: number; alpha: number };
-  mode: "gravity" | "tunnel" | "matter" | "connect";
+  mode: "gravity" | "tunnel" | "matter" | "connect" | "wormhole";
 };
 
 const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
@@ -1711,6 +1711,19 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     defaults: { kappa: 0.09, chi: 0.34, sigma: 0.62, alpha: 0.16 },
     mode: "connect",
   },
+  WH01: {
+    id: "WH01",
+    label: "WH01 Wormhole Bridge",
+    theme: {
+      gravity: "rgba(56,189,248,0.55)",
+      matter: "rgba(226,232,240,0.70)",
+      photon: "rgba(251,191,36,0.70)",
+      connect: "rgba(34,211,238,0.85)",
+      danger: "rgba(244,114,182,0.85)",
+    },
+    defaults: { kappa: 0.5, chi: 0.25, sigma: 0.5, alpha: 0.5 },
+    mode: "wormhole",
+  },
 };
 
 type QFCFrame = {
@@ -1725,46 +1738,424 @@ type QFCFrame = {
   max_norm?: number;
 };
 
-function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetry?: TessarisTelemetry }) {
-  // --- scenario selector ---
-  const [scenario, setScenario] = useState<ScenarioId>(() => {
+function QFCHudPanel({
+  containerId,
+  telemetry,
+}: {
+  containerId: string;
+  telemetry?: TessarisTelemetry;
+}) {
+  // ─────────────────────────────────────────────────────────────
+  // Scenario (sanitize URL param; BG01 default is fine but we must validate)
+  // ─────────────────────────────────────────────────────────────
+  const parseScenario = (): ScenarioId => {
     try {
       const p = new URLSearchParams(window.location.search);
-      return (p.get("scenario") as ScenarioId) || "BG01";
+      const raw = (p.get("scenario") || "").trim();
+      if (raw && (raw in SCENARIOS)) return raw as ScenarioId;
+    } catch {}
+    return "BG01";
+  };
+
+  const [scenario, setScenario] = useState<ScenarioId>(parseScenario);
+  const cfg = SCENARIOS[scenario] ?? SCENARIOS.BG01;
+
+  // Optional: keep URL in sync (prevents “BG01 snapping back” if you refresh/share links)
+  useEffect(() => {
+    try {
+      const u = new URL(window.location.href);
+      u.searchParams.set("scenario", scenario);
+      window.history.replaceState({}, "", u.toString());
+    } catch {}
+  }, [scenario]);
+
+  // ─────────────────────────────────────────────────────────────
+  // Demo mode selector (for Wormhole and others)
+  // NOTE: QFCViewport already renders demos by `mode`
+  // ─────────────────────────────────────────────────────────────
+  // Make sure your local type includes "wormhole"
+  type QFCMode = "gravity" | "tunnel" | "matter" | "connect" | "wormhole";
+  const [demoMode, setDemoMode] = useState<QFCMode>(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const raw = (p.get("mode") || "").trim();
+      const ok =
+        raw === "gravity" || raw === "tunnel" || raw === "matter" || raw === "connect" || raw === "wormhole";
+      return ok ? (raw as QFCMode) : "gravity";
     } catch {
-      return "BG01";
+      return "gravity";
     }
   });
 
-  const cfg = SCENARIOS[scenario] ?? SCENARIOS.BG01;
+  useEffect(() => {
+    try {
+      const u = new URL(window.location.href);
+      u.searchParams.set("mode", demoMode);
+      window.history.replaceState({}, "", u.toString());
+    } catch {}
+  }, [demoMode]);
 
   const [controller, setController] = useState("unknown");
   const [seed, setSeed] = useState<number>(1);
   const [runHash, setRunHash] = useState<string>("—");
 
-  // --- knobs (top-right MVP) ---
+  // ─────────────────────────────────────────────────────────────
+  // Knobs (these feed snapshot_verify AND visuals)
+  // ─────────────────────────────────────────────────────────────
   const [kappa, setKappa] = useState(() => cfg.defaults.kappa);
   const [chi, setChi] = useState(() => cfg.defaults.chi);
   const [sigma, setSigma] = useState(() => cfg.defaults.sigma);
   const [alpha, setAlpha] = useState(() => cfg.defaults.alpha);
 
-  // --- rolling stream ---
+  // reset knobs when scenario changes (your existing behavior)
+  useEffect(() => {
+    setKappa(cfg.defaults.kappa);
+    setChi(cfg.defaults.chi);
+    setSigma(cfg.defaults.sigma);
+    setAlpha(cfg.defaults.alpha);
+
+    setDemoMode(cfg.mode); // ✅ HERE
+
+    setFrames([]);
+    setCursor(0);
+    setRunHash("—");
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenario]);
+
+  // ─────────────────────────────────────────────────────────────
+  // Rolling stream
+  // ─────────────────────────────────────────────────────────────
   const [frames, setFrames] = useState<QFCFrame[]>([]);
   const [connected, setConnected] = useState(false);
   const [paused, setPaused] = useState(false);
 
+  // ─────────────────────────────────────────────────────────────
+  // Lean snapshot inputs — FIX: "can't type / loses focus"
+  // We keep text buffers + "editing" flags so sync effects don’t overwrite typing.
+  // ─────────────────────────────────────────────────────────────
+  const [leanSteps, setLeanSteps] = useState<number>(64);
+  const [leanDtMs, setLeanDtMs] = useState<number>(16);
+  const [leanSpecVersion, setLeanSpecVersion] = useState<string>("v1");
+
+  const [leanStepsText, setLeanStepsText] = useState<string>(String(leanSteps));
+  const [leanDtMsText, setLeanDtMsText] = useState<string>(String(leanDtMs));
+  const [leanSpecText, setLeanSpecText] = useState<string>(leanSpecVersion);
+
+  const [editingSteps, setEditingSteps] = useState(false);
+  const [editingDt, setEditingDt] = useState(false);
+  const [editingSpec, setEditingSpec] = useState(false);
+
+  // only sync text from numeric state when NOT actively editing
+  useEffect(() => {
+    if (!editingSteps) setLeanStepsText(String(leanSteps));
+  }, [leanSteps, editingSteps]);
+
+  useEffect(() => {
+    if (!editingDt) setLeanDtMsText(String(leanDtMs));
+  }, [leanDtMs, editingDt]);
+
+  useEffect(() => {
+    if (!editingSpec) setLeanSpecText(String(leanSpecVersion));
+  }, [leanSpecVersion, editingSpec]);
+
+  const commitInt = (raw: string, fallback: number, min = 1, max = 1_000_000) => {
+    const n0 = parseInt((raw || "").trim(), 10);
+    const n = Number.isFinite(n0) ? n0 : fallback;
+    return Math.max(min, Math.min(max, n));
+  };
+
+  const commitSteps = () => setLeanSteps(commitInt(leanStepsText, 64, 1, 1_000_000));
+  const commitDtMs  = () => setLeanDtMs(commitInt(leanDtMsText, 16, 1, 60_000));
+  const commitSpec  = () => setLeanSpecVersion((leanSpecText || "v1").trim() || "v1");
+
+  const [leanStatus, setLeanStatus] = useState<"idle" | "checking" | "ok" | "error">("idle");
+  const [leanCert, setLeanCert] = useState<any | null>(null);
+  const [leanErr, setLeanErr] = useState<string | null>(null);
+
+  const leanStatusRef = useRef(leanStatus);
+  useEffect(() => {
+    leanStatusRef.current = leanStatus;
+  }, [leanStatus]);
+
+  // ─────────────────────────────────────────────────────────────
+  // WS: verify channel
+  // ─────────────────────────────────────────────────────────────
+  const qfcWsRef = useRef<WebSocket | null>(null);
+  const pendingLeanReqRef = useRef<{ broadcast: boolean } | null>(null);
+
+  // keep latest params without reconnecting WS
+  const liveParamsRef = useRef({
+    steps: leanSteps,
+    dt_ms: leanDtMs,
+    spec_version: leanSpecVersion,
+    scenario,
+    containerId,
+    kappa,
+    chi,
+    sigma,
+    alpha,
+    // not required by backend, but useful for your own debugging
+    mode: demoMode,
+  });
+
+  useEffect(() => {
+    liveParamsRef.current = {
+      steps: leanSteps,
+      dt_ms: leanDtMs,
+      spec_version: leanSpecVersion,
+      scenario,
+      containerId,
+      kappa,
+      chi,
+      sigma,
+      alpha,
+      mode: demoMode,
+    };
+  }, [leanSteps, leanDtMs, leanSpecVersion, scenario, containerId, kappa, chi, sigma, alpha, demoMode]);
+
+  const [qfcConnected, setQfcConnected] = useState(false);
+  const [qfcLastClose, setQfcLastClose] = useState<string | null>(null);
+  const [qfcNote, setQfcNote] = useState<string | null>(null);
+
+  const [clientVerifyMs, setClientVerifyMs] = useState<number | null>(null);
+
+  const verifyReqRef = useRef<{ id: number; startedAt: number } | null>(null);
+  const verifyTimeoutRef = useRef<number | null>(null);
+
+  const wsUrl = useMemo(() => {
+    if (typeof window === "undefined") return "";
+    const fastApiPublic =
+      (import.meta as any)?.env?.VITE_FASTAPI_PUBLIC_URL as string | undefined;
+    const baseHttp = fastApiPublic || window.location.origin;
+    const baseWs = baseHttp.replace(/^http/i, "ws");
+    return `${baseWs}/api/ws/qfc`;
+  }, []);
+
+  const clearVerifyTimeout = () => {
+    if (verifyTimeoutRef.current != null) {
+      window.clearTimeout(verifyTimeoutRef.current);
+      verifyTimeoutRef.current = null;
+    }
+  };
+
+  const armVerifyTimeout = (reqId: number) => {
+    clearVerifyTimeout();
+    verifyTimeoutRef.current = window.setTimeout(() => {
+      if (verifyReqRef.current?.id !== reqId) return;
+      setLeanStatus("error");
+      setLeanErr("Lean verify timed out (no cert received).");
+      setQfcNote(
+        qfcWsRef.current?.readyState === WebSocket.OPEN ? null : "QFC WS reconnecting…",
+      );
+    }, 30_000);
+  };
+
+  const sendSnapshotVerify = (ws: WebSocket, broadcast: boolean) => {
+    const p = liveParamsRef.current;
+
+    ws.send(
+      JSON.stringify({
+        type: "snapshot_verify",
+
+        // numbers + strings normalized
+        steps: Number(p.steps),
+        dt_ms: Number(p.dt_ms),
+        spec_version: String(p.spec_version),
+
+        // MUST be top-level (backend reads these keys)
+        scenario: String(p.scenario),
+        kappa: Number(p.kappa),
+        chi: Number(p.chi),
+        sigma: Number(p.sigma),
+        alpha: Number(p.alpha),
+
+        broadcast,
+
+        // optional
+        meta: {
+          container_id: p.containerId,
+          mode: p.mode, // harmless; backend can ignore
+        },
+      }),
+    );
+  };
+
+  useEffect(() => {
+    if (!wsUrl) return;
+
+    let stopped = false;
+    let retryTimer: number | null = null;
+    let attempt = 0;
+
+    const scheduleReconnect = () => {
+      if (stopped) return;
+      if (retryTimer != null) window.clearTimeout(retryTimer);
+      const base = Math.min(10_000, 800 * Math.pow(2, attempt));
+      const jitter = Math.floor(Math.random() * 250);
+      retryTimer = window.setTimeout(connect, base + jitter);
+    };
+
+    const connect = () => {
+      if (stopped) return;
+      if (qfcWsRef.current && qfcWsRef.current.readyState === WebSocket.OPEN) return;
+
+      let ws: WebSocket;
+      try {
+        ws = new WebSocket(wsUrl);
+      } catch {
+        attempt = Math.min(attempt + 1, 6);
+        setQfcConnected(false);
+        setQfcNote("QFC WS connecting…");
+        scheduleReconnect();
+        return;
+      }
+
+      qfcWsRef.current = ws;
+
+      ws.onopen = () => {
+        attempt = 0;
+        setQfcConnected(true);
+        setQfcLastClose(null);
+        setQfcNote(null);
+
+        // optional hello (leave as-is)
+        try {
+          ws.send(JSON.stringify({ type: "hello", client: "Glyph_Net_Browser", panel: "QFCHudPanel" }));
+        } catch {}
+
+        const pending = pendingLeanReqRef.current;
+        if (pending) {
+          pendingLeanReqRef.current = null;
+          try {
+            sendSnapshotVerify(ws, pending.broadcast);
+          } catch (e: any) {
+            setLeanStatus("error");
+            setLeanErr(e?.message || "Failed to send snapshot_verify");
+          }
+        }
+      };
+
+      ws.onmessage = (ev) => {
+        let msg: any;
+        try {
+          msg = JSON.parse(ev.data);
+        } catch {
+          return;
+        }
+        if (!msg || typeof msg !== "object") return;
+
+        setQfcNote(null);
+
+        if (msg.type === "ping" || msg.type === "qfc_ws_ready") return;
+
+        if (msg.type === "lean_snapshot_status") {
+          if (msg.status === "checking") setLeanStatus("checking");
+          return;
+        }
+
+        if (msg.type === "lean_snapshot_cert") {
+          clearVerifyTimeout();
+
+          const ok = !!msg.ok;
+          setLeanCert(msg.cert ?? null);
+          setLeanStatus(ok ? "ok" : "error");
+          setLeanErr(ok ? null : msg?.cert?.stderr_tail?.[0] || "Lean verify failed");
+
+          const ph = msg?.cert?.proof_hash_short || msg?.proof_hash_short;
+          if (ph) setRunHash(ph);
+
+          const startedAt = verifyReqRef.current?.startedAt;
+          if (startedAt) setClientVerifyMs(Math.round(performance.now() - startedAt));
+          return;
+        }
+      };
+
+      ws.onerror = () => {
+        try {
+          ws.close();
+        } catch {}
+      };
+
+      ws.onclose = (e) => {
+        setQfcConnected(false);
+        setQfcLastClose(`${e.code}${e.reason ? ` (${e.reason})` : ""}`);
+
+        if (pendingLeanReqRef.current || leanStatusRef.current === "checking") {
+          setQfcNote("QFC WS reconnecting…");
+        }
+
+        if (qfcWsRef.current === ws) qfcWsRef.current = null;
+
+        attempt = Math.min(attempt + 1, 6);
+        scheduleReconnect();
+      };
+    };
+
+    connect();
+
+    return () => {
+      stopped = true;
+      clearVerifyTimeout();
+      if (retryTimer != null) window.clearTimeout(retryTimer);
+      try {
+        qfcWsRef.current?.close();
+      } catch {}
+      qfcWsRef.current = null;
+    };
+  }, [wsUrl]);
+
+  const requestLeanSnapshot = (broadcast = false) => {
+    const ws = qfcWsRef.current;
+
+    // ensure any pending typed values are committed before sending
+    // (so you don’t verify with old numbers)
+    commitSteps();
+    commitDtMs();
+    commitSpec();
+
+    const reqId = (verifyReqRef.current?.id ?? 0) + 1;
+    verifyReqRef.current = { id: reqId, startedAt: performance.now() };
+    setClientVerifyMs(null);
+
+    setLeanStatus("checking");
+    setLeanErr(null);
+
+    armVerifyTimeout(reqId);
+
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      pendingLeanReqRef.current = { broadcast };
+      setQfcNote(ws ? "QFC WS reconnecting…" : "QFC WS connecting…");
+      return;
+    }
+
+    setQfcNote(null);
+    try {
+      sendSnapshotVerify(ws, broadcast);
+    } catch (e: any) {
+      clearVerifyTimeout();
+      setLeanStatus("error");
+      setLeanErr(e?.message || "Failed to send snapshot_verify");
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────
+  // rest of your existing function (unchanged)
+  // ─────────────────────────────────────────────────────────────
+
   const [cursor, setCursor] = useState(0);
 
-  // ✅ put meanTail here (if you haven’t already defined it above)
   const meanTail = (xs: number[], n = 80) => {
     const tail = xs.slice(Math.max(0, xs.length - n));
     if (!tail.length) return 0;
     return tail.reduce((a, b) => a + b, 0) / tail.length;
   };
 
-  // ✅ PUT THESE LINES RIGHT HERE (before return)
   const sigmaMean = meanTail(frames.map((f) => Number(f.sigma ?? 0)), 80);
-  const gammaMean = meanTail(frames.map((f) => Number(f.coupling_score ?? 0)), 80);
+  const gammaMean = meanTail(
+    frames.map((f) => Number(f.coupling_score ?? 0)),
+    80,
+  );
 
   useEffect(() => {
     setKappa(cfg.defaults.kappa);
@@ -1776,16 +2167,12 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
     setCursor(0);
     setRunHash("—");
 
-    // later: ws?.send(JSON.stringify({ type:"scenario", scenario }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenario]);  
+  }, [scenario]);
 
-  // Connect to a WS stream if present; otherwise simulate.
-  // You can later point this to your real stream endpoint.
+  const clamp = (v: number, lo: number, hi: number) =>
+    Math.max(lo, Math.min(hi, v));
 
-  const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-  // ✅ LIVE STREAM: derive frames from rqfs_feedback.state (+ fusion/analytics) via useTessarisTelemetry
-  // helper funcs (put these just above the LIVE STREAM useEffect, inside QFCHudPanel)
   const pickNum = (...vals: any[]) => {
     for (const v of vals) {
       const n = Number(v);
@@ -1794,18 +2181,16 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
     return 0;
   };
 
-  // ✅ LIVE STREAM: derive frames from rqfs_feedback.state (+ fusion/analytics) via useTessarisTelemetry
   useEffect(() => {
     if (paused) return;
 
     const t: any = telemetry ?? {};
 
-    // ✅ support both keys (your stream often uses rqfs_feedback.state)
-    const rqfsAny: any = t.rqfs_feedback ?? t.rqfs ?? {};
+    const rqfsAny: any = (t as any).rqfs_feedback ?? (t as any).rqfs ?? {};
     const rqfs: any = rqfsAny?.state ?? rqfsAny ?? {};
 
-    const fusion: any = t.fusion ?? {};
-    const analytics: any = t.analytics ?? {};
+    const fusion: any = (t as any).fusion ?? {};
+    const analytics: any = (t as any).analytics ?? {};
 
     const hasAny =
       (rqfs && Object.keys(rqfs).length > 0) ||
@@ -1818,7 +2203,7 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
     }
     setConnected(true);
 
-    const pickNum = (...vals: any[]) => {
+    const pickNumLocal = (...vals: any[]) => {
       for (const v of vals) {
         const n = Number(v);
         if (Number.isFinite(n)) return n;
@@ -1828,9 +2213,8 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
 
     const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
-    // ✅ map exactly like your original working dashboard
     const kappaLive = clamp01(
-      pickNum(
+      pickNumLocal(
         rqfs.nu_bias,
         rqfs.nu,
         rqfs.kappa,
@@ -1842,7 +2226,7 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
     );
 
     const chiLive = clamp01(
-      pickNum(
+      pickNumLocal(
         rqfs.amp_bias,
         rqfs.amp,
         rqfs.psi,
@@ -1854,7 +2238,7 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
     );
 
     const sigmaLive = clamp01(
-      pickNum(
+      pickNumLocal(
         fusion.stability,
         fusion.sigma,
         analytics.stability,
@@ -1864,7 +2248,7 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
     );
 
     const alphaLive =
-      pickNum(
+      pickNumLocal(
         rqfs.feedback_gain,
         rqfs.gamma,
         fusion.fusion_score,
@@ -1874,50 +2258,51 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
         1.0,
       ) || 1.0;
 
-    // ψ̃ from fusion (may be -1..+1). Convert to 0..1 for the chart.
-    const psiRaw =
-      pickNum(
-        fusion["ψ̃"],
-        fusion.psi_tilde,
-        fusion.cognition_signal,
-        fusion.inference_strength,
-        fusion.signal,
-        NaN,
-      );
+    const psiRaw = pickNumLocal(
+      fusion["ψ̃"],
+      fusion.psi_tilde,
+      fusion.cognition_signal,
+      fusion.inference_strength,
+      fusion.signal,
+      NaN,
+    );
 
     const psi01 = Number.isFinite(psiRaw) ? clamp01(0.5 + 0.5 * psiRaw) : 0;
 
     const f: QFCFrame = {
       t: Date.now(),
-
-      // κ̃ line in chart uses f.kappa
       kappa: kappaLive,
-
-      // ψ̃ line in chart uses f.chi
       chi: psi01,
-
-      // σ line in chart uses f.sigma
       sigma: sigmaLive,
-
-      // γ̃ line in chart uses f.alpha (keep feedback gain here)
       alpha: alphaLive,
 
-      // extras (for object data + other panels)
       curl_rms: pickNum(fusion.curl_rms, fusion.curl, analytics.curl_rms) || 0,
-      curv: pickNum(fusion.curv, fusion.curvature, analytics.curv, analytics.curvature) || 0,
+      curv:
+        pickNum(
+          fusion.curv,
+          fusion.curvature,
+          analytics.curv,
+          analytics.curvature,
+        ) || 0,
       coupling_score:
-        pickNum(fusion.coupling_score, fusion.gamma_tilde, fusion["γ̃"], fusion.stability, analytics.stability) || 0,
+        pickNumLocal(
+          fusion.coupling_score,
+          fusion.gamma_tilde,
+          fusion["γ̃"],
+          fusion.stability,
+          analytics.stability,
+        ) || 0,
       max_norm: pickNum(fusion.max_norm, analytics.max_norm) || 0,
     };
 
     setFrames((prev) => {
-      const next = prev.length > 400 ? prev.slice(prev.length - 400) : prev.slice();
+      const next =
+        prev.length > 400 ? prev.slice(prev.length - 400) : prev.slice();
       next.push(f);
       return next;
     });
   }, [telemetry, paused]);
 
-  // keep cursor valid
   useEffect(() => {
     setCursor((c) => Math.min(c, Math.max(0, frames.length - 1)));
   }, [frames.length]);
@@ -1926,13 +2311,21 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
 
   const exportSnapshot = () => {
     const payload = {
-      meta: { scenario, controller, seed, run_hash: runHash, container_id: containerId },
+      meta: {
+        scenario,
+        controller,
+        seed,
+        run_hash: runHash,
+        container_id: containerId,
+      },
       knobs: { kappa, chi, sigma, alpha },
       cursor,
       frame: active,
       frames_tail: frames.slice(Math.max(0, frames.length - 200)),
     };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `qfc_${scenario}_${Date.now()}.json`;
@@ -2381,14 +2774,14 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
       </svg>
     );
   }
+
   const [demosOpen, setDemosOpen] = useState(false);
+
   const neonCard: CSSProperties = {
     borderRadius: 14,
     border: "1px solid rgba(148,163,184,0.35)",
-    background:
-      "linear-gradient(180deg, rgba(2,6,23,0.65), rgba(15,23,42,0.55))",
-    boxShadow:
-      "0 0 0 1px rgba(56,189,248,0.15) inset, 0 12px 40px rgba(0,0,0,0.25)",
+    background: "linear-gradient(180deg, rgba(2,6,23,0.65), rgba(15,23,42,0.55))",
+    boxShadow: "0 0 0 1px rgba(56,189,248,0.15) inset, 0 12px 40px rgba(0,0,0,0.25)",
     color: "#e5e7eb",
   };
 
@@ -2400,34 +2793,46 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
   };
 
   const value: CSSProperties = {
-    fontFamily:
-      "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
     fontSize: 12,
     color: "#e5e7eb",
   };
+
+  // ✅ never pass undefined; inject mode/theme into frame so viewport can’t “default gravity”
+  const viewportFrame = useMemo(() => {
+    if (!active) return null;
+    return {
+      ...active,
+      mode: demoMode,
+      theme: cfg.theme,
+    };
+  }, [active, demoMode, cfg.theme]);
+
+  useEffect(() => {
+    console.log("[QFCHudPanel] scenario:", scenario, "demoMode:", demoMode, "active?", !!active);
+  }, [scenario, demoMode, active]);
 
   return (
     <div
       style={{
         ...hudShell,
-        minHeight: 0, // ✅ allow children to shrink inside flex column
-        overflow: "hidden", // ✅ prevent page scroll; keep layout inside panel
+        minHeight: 0,
+        overflow: "hidden",
       }}
     >
-      {/* ✅ constrain the viewport height so it doesn't eat the whole panel */}
       <div style={{ flex: "0 0 520px", minHeight: 420, overflow: "hidden" }}>
         <QFCViewport
+          key={`qfcvp:${scenario}:${demoMode}`} // ✅ hard remount on scenario/mode change
           title="Quantum Field Canvas"
-          subtitle={`scenario=${scenario} · mode=${((active as any)?.mode ?? cfg.mode)} · container=${containerId}`}
-          rightBadge={connected ? "LIVE" : "DISCONNECTED"}
-          theme={((active as any)?.theme as any) ?? cfg.theme}
-          mode={((active as any)?.mode as any) ?? cfg.mode}
-          frame={active}
+          subtitle={`scenario=${scenario} · mode=${demoMode} · container=${containerId}`}
+          rightBadge={leanCert?.proof_hash_short ? `proof:${leanCert.proof_hash_short}` : undefined}
+          theme={cfg.theme}
+          mode={demoMode}
+          frame={viewportFrame}   // ✅ null or object, NEVER undefined
           frames={frames}
         />
       </div>
 
-      {/* ✅ bottom HUD takes remaining space */}
       <div
         style={{
           ...hudWrap,
@@ -2437,13 +2842,93 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
           flexDirection: "column",
         }}
       >
+
         {/* Futuristic VISUAL ANALYSIS HUD (replaces old neonCard panel) */}
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-        {/* Demo buttons */}
-        <div style={{ position: "relative" }}>
-          <button
-            type="button"
-            onClick={() => setDemosOpen((v) => !v)}
+          {/* Demo buttons */}
+          <div style={{ position: "relative" }}>
+            <button
+              type="button"
+              onClick={() => setDemosOpen((v) => !v)}
+              style={{
+                padding: "6px 10px",
+                borderRadius: 999,
+                border: "1px solid rgba(148,163,184,0.30)",
+                background: "rgba(2,6,23,0.35)",
+                color: "#e5e7eb",
+                fontSize: 11,
+                cursor: "pointer",
+                ...mono,
+              }}
+            >
+              Demos ▾
+            </button>
+
+            {demosOpen ? (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 8px)",
+                  left: 0,
+                  zIndex: 50,
+                  minWidth: 220,
+                  padding: 8,
+                  borderRadius: 14,
+                  border: "1px solid rgba(148,163,184,0.22)",
+                  background: "rgba(2,6,23,0.88)",
+                  boxShadow: "0 18px 60px rgba(0,0,0,0.45)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 6,
+                }}
+              >
+                {[
+                  { label: "Demo Gravity", id: "G01" as ScenarioId },
+                  { label: "Demo Tunnel", id: "TN01" as ScenarioId },
+                  { label: "Demo Matter", id: "MT01" as ScenarioId },
+                  { label: "Demo Connect", id: "C01" as ScenarioId },
+                  { label: "Demo Wormhole", id: "WH01" as ScenarioId },
+                ].map((d) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => {
+                      setScenario(d.id);
+
+                      setDemoMode(
+                        d.id === "G01" ? "gravity" :
+                        d.id === "TN01" ? "tunnel" :
+                        d.id === "MT01" ? "matter" :
+                        d.id === "C01" ? "connect" :
+                        d.id === "WH01" ? "wormhole" :
+                        "gravity"
+                      );
+
+                      setDemosOpen(false);
+                    }}
+                    style={{
+                      textAlign: "left",
+                      padding: "8px 10px",
+                      borderRadius: 12,
+                      border: "1px solid rgba(148,163,184,0.18)",
+                      background: "rgba(148,163,184,0.08)",
+                      color: "#e5e7eb",
+                      fontSize: 11,
+                      cursor: "pointer",
+                      ...mono,
+                    }}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          {/* Scenario selector */}
+          <select
+            value={scenario}
+            onChange={(e) => setScenario(e.target.value as ScenarioId)}
             style={{
               padding: "6px 10px",
               borderRadius: 999,
@@ -2455,130 +2940,85 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
               ...mono,
             }}
           >
-            Demos ▾
+            {Object.values(SCENARIOS).map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+
+          {/* Demo mode selector */}
+          <select
+            value={demoMode}
+            onChange={(e) => setDemoMode(e.target.value as QFCMode)}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 999,
+              border: "1px solid rgba(148,163,184,0.30)",
+              background: "rgba(2,6,23,0.35)",
+              color: "#e5e7eb",
+              fontSize: 11,
+              cursor: "pointer",
+              ...mono,
+            }}
+          >
+            <option value="gravity">Gravity</option>
+            <option value="tunnel">Tunnel</option>
+            <option value="matter">Matter</option>
+            <option value="connect">Connect</option>
+            <option value="wormhole">Wormhole</option>
+          </select>
+
+          {/* Stream badge */}
+          <span
+            style={{
+              padding: "6px 10px",
+              borderRadius: 999,
+              border: "1px solid rgba(148,163,184,0.25)",
+              background: "rgba(2,6,23,0.35)",
+              fontSize: 10,
+              ...mono,
+            }}
+          >
+            {connected ? "WS STREAM" : "SIM STREAM"}
+          </span>
+
+          {/* Pause / Clear */}
+          <button
+            type="button"
+            onClick={() => setPaused((p) => !p)}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 999,
+              border: "1px solid rgba(56,189,248,0.45)",
+              background: paused ? "rgba(148,163,184,0.15)" : "rgba(56,189,248,0.12)",
+              color: "#e5e7eb",
+              fontSize: 11,
+              cursor: "pointer",
+            }}
+          >
+            {paused ? "Resume" : "Pause"}
           </button>
 
-          {demosOpen ? (
-            <div
-              style={{
-                position: "absolute",
-                top: "calc(100% + 8px)",
-                left: 0,
-                zIndex: 50,
-                minWidth: 220,
-                padding: 8,
-                borderRadius: 14,
-                border: "1px solid rgba(148,163,184,0.22)",
-                background: "rgba(2,6,23,0.88)",
-                boxShadow: "0 18px 60px rgba(0,0,0,0.45)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 6,
-              }}
-            >
-              {[
-                { label: "Demo Gravity", id: "G01" as ScenarioId },
-                { label: "Demo Tunnel", id: "TN01" as ScenarioId },
-                { label: "Demo Matter", id: "MT01" as ScenarioId },
-                { label: "Demo Connect", id: "C01" as ScenarioId },
-              ].map((d) => (
-                <button
-                  key={d.id}
-                  type="button"
-                  onClick={() => {
-                    setScenario(d.id);
-                    setDemosOpen(false);
-                  }}
-                  style={{
-                    textAlign: "left",
-                    padding: "8px 10px",
-                    borderRadius: 12,
-                    border: "1px solid rgba(148,163,184,0.18)",
-                    background: "rgba(148,163,184,0.08)",
-                    color: "#e5e7eb",
-                    fontSize: 11,
-                    cursor: "pointer",
-                    ...mono,
-                  }}
-                >
-                  {d.label}
-                </button>
-              ))}
-            </div>
-          ) : null}
-        </div>
-        {/* Scenario selector */}
-        <select
-          value={scenario}
-          onChange={(e) => setScenario(e.target.value as ScenarioId)}
-          style={{
-            padding: "6px 10px",
-            borderRadius: 999,
-            border: "1px solid rgba(148,163,184,0.30)",
-            background: "rgba(2,6,23,0.35)",
-            color: "#e5e7eb",
-            fontSize: 11,
-            cursor: "pointer",
-            ...mono,
-          }}
-        >
-          {Object.values(SCENARIOS).map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-
-        {/* Stream badge */}
-        <span
-          style={{
-            padding: "6px 10px",
-            borderRadius: 999,
-            border: "1px solid rgba(148,163,184,0.25)",
-            background: "rgba(2,6,23,0.35)",
-            fontSize: 10,
-            ...mono,
-          }}
-        >
-          {connected ? "WS STREAM" : "SIM STREAM"}
-        </span>
-
-        {/* Pause / Clear */}
-        <button
-          type="button"
-          onClick={() => setPaused((p) => !p)}
-          style={{
-            padding: "6px 10px",
-            borderRadius: 999,
-            border: "1px solid rgba(56,189,248,0.45)",
-            background: paused ? "rgba(148,163,184,0.15)" : "rgba(56,189,248,0.12)",
-            color: "#e5e7eb",
-            fontSize: 11,
-            cursor: "pointer",
-          }}
-        >
-          {paused ? "Resume" : "Pause"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setFrames([]);
-            setCursor(0);
-            setRunHash("—");
-          }}
-          style={{
-            padding: "6px 10px",
-            borderRadius: 999,
-            border: "1px solid rgba(148,163,184,0.35)",
-            background: "rgba(148,163,184,0.10)",
-            color: "#e5e7eb",
-            fontSize: 11,
-            cursor: "pointer",
-          }}
-        >
-          Clear
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              setFrames([]);
+              setCursor(0);
+              setRunHash("—");
+            }}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 999,
+              border: "1px solid rgba(148,163,184,0.35)",
+              background: "rgba(148,163,184,0.10)",
+              color: "#e5e7eb",
+              fontSize: 11,
+              cursor: "pointer",
+            }}
+          >
+            Clear
+          </button>
 
           {/* Legend */}
           <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
@@ -2635,9 +3075,148 @@ function QFCHudPanel({ containerId, telemetry }: { containerId: string; telemetr
 
             {/* Top-right: Object data */}
             <HudPanel
-              title="Object Data"
-              right={<span style={{ ...mono, fontSize: 10 }}>QFCFrame</span>}
+              title="OBJECT DATA"
+              right={
+                <span style={{ ...mono, fontSize: 10 }}>
+                  {leanCert?.proof_hash_short ? `proof:${leanCert.proof_hash_short}` : "QFCFrame"}
+                </span>
+              }
             >
+              {/* --- TOP: Lean snapshot --- */}
+              <div
+                style={{
+                  borderRadius: 12,
+                  border: "1px solid rgba(148,163,184,0.22)",
+                  background: "rgba(2,6,23,0.22)",
+                  padding: 10,
+                  marginBottom: 10,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 10,
+                    marginBottom: 8,
+                  }}
+                >
+                  <div style={{ ...mono, fontSize: 10, opacity: 0.85 }}>
+                    <span style={{ letterSpacing: 0.8, textTransform: "uppercase" }}>Lean</span>
+                    <span style={{ marginLeft: 8, opacity: 0.8 }}>
+                      status:{" "}
+                      <span
+                        style={{
+                          color:
+                            leanStatus === "ok"
+                              ? "rgba(34,197,94,0.95)"
+                              : leanStatus === "error"
+                              ? "rgba(239,68,68,0.95)"
+                              : "rgba(226,232,240,0.85)",
+                        }}
+                      >
+                        {leanStatus}
+                      </span>
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => requestLeanSnapshot(false)}
+                    disabled={leanStatus === "checking"}
+                    style={{
+                      padding: "5px 10px",
+                      borderRadius: 999,
+                      border: "1px solid rgba(148,163,184,0.30)",
+                      background: "rgba(2,6,23,0.35)",
+                      color: "#e5e7eb",
+                      fontSize: 11,
+                      cursor: leanStatus === "checking" ? "default" : "pointer",
+                      ...mono,
+                      opacity: leanStatus === "checking" ? 0.7 : 1,
+                    }}
+                  >
+                    {leanStatus === "checking" ? "Verifying…" : "Verify snapshot"}
+                  </button>
+                </div>
+
+                {/* ✅ notes / errors (SINGLE qfcNote block; no duplicates) */}
+                {qfcNote ? (
+                  <div style={{ marginTop: 6, ...mono, fontSize: 10, color: "rgba(251,146,60,0.95)" }}>
+                    {qfcNote}
+                  </div>
+                ) : null}
+
+                {leanErr ? (
+                  <div style={{ marginTop: 6, ...mono, fontSize: 10, color: "rgba(239,68,68,0.92)" }}>
+                    {leanErr}
+                  </div>
+                ) : null}
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 6,
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    ...mono,
+                    fontSize: 10,
+                    opacity: 0.85,
+                    marginTop: 6,
+                  }}
+                >
+                  <span>steps</span>
+                  <input
+                    value={leanSteps}
+                    onChange={(e) => setLeanSteps(Number(e.target.value) || 0)}
+                    style={{
+                      width: 70,
+                      borderRadius: 8,
+                      border: "1px solid rgba(148,163,184,0.22)",
+                      background: "rgba(2,6,23,0.25)",
+                      color: "#e5e7eb",
+                      padding: "3px 6px",
+                      ...mono,
+                      fontSize: 10,
+                    }}
+                  />
+                  <span>dt_ms</span>
+                  <input
+                    value={leanDtMs}
+                    onChange={(e) => setLeanDtMs(Number(e.target.value) || 0)}
+                    style={{
+                      width: 70,
+                      borderRadius: 8,
+                      border: "1px solid rgba(148,163,184,0.22)",
+                      background: "rgba(2,6,23,0.25)",
+                      color: "#e5e7eb",
+                      padding: "3px 6px",
+                      ...mono,
+                      fontSize: 10,
+                    }}
+                  />
+                  <span>spec</span>
+                  <input
+                    value={leanSpecVersion}
+                    onChange={(e) => setLeanSpecVersion(e.target.value)}
+                    style={{
+                      width: 70,
+                      borderRadius: 8,
+                      border: "1px solid rgba(148,163,184,0.22)",
+                      background: "rgba(2,6,23,0.25)",
+                      color: "#e5e7eb",
+                      padding: "3px 6px",
+                      ...mono,
+                      fontSize: 10,
+                    }}
+                  />
+                  {leanCert?.elapsed_ms != null ? (
+                    <span style={{ marginLeft: 6, opacity: 0.8 }}>· {leanCert.elapsed_ms}ms</span>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* --- BOTTOM: Object data --- */}
               <pre
                 style={{
                   margin: 0,

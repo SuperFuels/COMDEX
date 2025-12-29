@@ -7,84 +7,119 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+type ProxyTarget = {
+  target: string;
+  ws?: boolean;
+  changeOrigin?: boolean;
+  secure?: boolean;
+  timeout?: number;
+  proxyTimeout?: number;
+  rewrite?: (path: string) => string;
+};
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
-  // radio-node (Express)
-  const radioHttp = env.VITE_BACKEND_URL || "http://127.0.0.1:8787";
-  const radioWs = radioHttp.replace(/^http/i, "ws");
-
-  // FastAPI (GlyphNet read + Photon / AST / Holo endpoints)
+  // FastAPI (primary backend)
   const fastApiHttp = env.VITE_FASTAPI_URL || "http://127.0.0.1:8080";
 
-  // Node KG
-  const kgHttp = env.VITE_KG_URL || "http://127.0.0.1:3000";
+  // Aion module endpoints (your launch script ports)
+  const srelHttp = env.VITE_SREL_URL || "http://127.0.0.1:8001"; // serves /ws/symatics
+  const ralHttp  = env.VITE_RAL_URL  || "http://127.0.0.1:8002"; // serves /ws/analytics
+  const aqciHttp = env.VITE_AQCI_URL || "http://127.0.0.1:8004"; // serves /ws/control
+  const tcfkHttp = env.VITE_TCFK_URL || "http://127.0.0.1:8005"; // serves /ws/fusion
+  const rqfsHttp = env.VITE_RQFS_URL || "http://127.0.0.1:8006"; // serves /ws/rqfs_feedback
 
-  // 🔌 SCI Photon IDE (Next.js app)
+  // Optional radio-node (Express)
+  const radioDisabled = env.VITE_DISABLE_RADIO === "1";
+  const radioHttp = env.VITE_BACKEND_URL || "http://127.0.0.1:8787";
+
+  // Node KG + SCI
+  const kgHttp = env.VITE_KG_URL || "http://127.0.0.1:3000";
   const sciHttp = env.VITE_SCI_URL || "http://127.0.0.1:3001";
 
+  const httpProxy = (targetHttp: string): ProxyTarget => ({
+    target: targetHttp,
+    changeOrigin: true,
+    secure: false,
+  });
+
+  const wsProxy = (targetHttp: string, rewrite?: (p: string) => string): ProxyTarget => ({
+    target: targetHttp, // http(s) target; ws:true does Upgrade
+    ws: true,
+    changeOrigin: true,
+    secure: false,
+    timeout: 120000,
+    proxyTimeout: 120000,
+    ...(rewrite ? { rewrite } : {}),
+  });
+
+  // Aion module servers expose /ws/*, not /api/ws/*
+  const dropApiPrefix = (p: string) => p.replace(/^\/api/, "");
+
   const proxy: Record<string, any> = {
-    // ── Knowledge Graph (KG) → Node KG (:3000)
-    "/api/kg": { target: kgHttp, changeOrigin: true },
+    // ── KG
+    "/api/kg": httpProxy(kgHttp),
 
-    // ── PhotonLang API → FastAPI backend (:8080)
-    "/api/photon": { target: fastApiHttp, changeOrigin: true },
+    // ── FastAPI HTTP APIs
+    "/api/photon": httpProxy(fastApiHttp),
+    "/api/ast/hologram": httpProxy(fastApiHttp),
+    "/api/ast": httpProxy(fastApiHttp),
+    "/api/motif": httpProxy(fastApiHttp),
 
-    // 🔭 AST / AST Hologram APIs → FastAPI (:8080)
-    "/api/ast/hologram": { target: fastApiHttp, changeOrigin: true },
-    "/api/ast": { target: fastApiHttp, changeOrigin: true },
+    "/api/glyphnet/thread": httpProxy(fastApiHttp),
+    "/api/glyphnet/health": httpProxy(fastApiHttp),
+    "/api/glyphnet/logs": httpProxy(fastApiHttp),
+    "/api/glyphnet/simulations": httpProxy(fastApiHttp),
+    "/api/glyphnet/ws-test": httpProxy(fastApiHttp),
 
-    // ✅ Motif compiler API → FastAPI (:8080)
-    "/api/motif": { target: fastApiHttp, changeOrigin: true },
+    "/api/holo": httpProxy(fastApiHttp),
+    "/api/crystals": httpProxy(fastApiHttp),
 
-    // ── GlyphNet read endpoints → FastAPI (:8080)
-    "/api/glyphnet/thread": { target: fastApiHttp, changeOrigin: true },
-    "/api/glyphnet/health": { target: fastApiHttp, changeOrigin: true },
-    "/api/glyphnet/logs": { target: fastApiHttp, changeOrigin: true },
-    "/api/glyphnet/simulations": { target: fastApiHttp, changeOrigin: true },
-    "/api/glyphnet/ws-test": { target: fastApiHttp, changeOrigin: true },
+    "/api/wallet": httpProxy(fastApiHttp),
+    "/api/mesh": httpProxy(fastApiHttp),
+    "/api/gma": httpProxy(fastApiHttp),
+    "/api/photon_pay": httpProxy(fastApiHttp),
+    "/api/wave": httpProxy(fastApiHttp),
+    "/api/glyph_bonds": httpProxy(fastApiHttp),
+    "/api/bonds": httpProxy(fastApiHttp),
+    "/api/photon_savings": httpProxy(fastApiHttp),
+    "/api/escrow": httpProxy(fastApiHttp),
+    "/api/transactable_docs": httpProxy(fastApiHttp),
 
-    // ✅ Holo / AION memory APIs → FastAPI (:8080)
-    "/api/holo": { target: fastApiHttp, changeOrigin: true },
+    "/api/chain_sim": httpProxy(fastApiHttp),
+    "/api/glyphchain": httpProxy(fastApiHttp),
+    "/api/lean": httpProxy(fastApiHttp),
 
-    // ✅ Crystal motif APIs → FastAPI (:8080)
-    "/api/crystals": { target: fastApiHttp, changeOrigin: true },
+    // ─────────────────────────────────────────────────────────────
+    // WebSockets
+    // ─────────────────────────────────────────────────────────────
 
-    // ✅ wallet + mesh + GMA + photon pay + wave + bonds + savings + escrow → FastAPI (:8080)
-    "/api/wallet": { target: fastApiHttp, changeOrigin: true },
-    "/api/mesh": { target: fastApiHttp, changeOrigin: true },
-    "/api/gma": { target: fastApiHttp, changeOrigin: true },
-    "/api/photon_pay": { target: fastApiHttp, changeOrigin: true },
-    "/api/wave": { target: fastApiHttp, changeOrigin: true },
-    "/api/glyph_bonds": { target: fastApiHttp, changeOrigin: true },
-    "/api/bonds": { target: fastApiHttp, changeOrigin: true },
-    "/api/photon_savings": { target: fastApiHttp, changeOrigin: true },
-    "/api/escrow": { target: fastApiHttp, changeOrigin: true },
-    "/api/transactable_docs": { target: fastApiHttp, changeOrigin: true },
+    // QFC + containers live on FastAPI as /api/ws/*
+    "/api/ws/qfc": wsProxy(fastApiHttp),
+    "/api/ws/containers": wsProxy(fastApiHttp),
 
-    // ✅ chain-sim/dev ledger endpoints (legacy path) → FastAPI (:8080)
-    "/api/chain_sim": { target: fastApiHttp, changeOrigin: true },
+    // Aion modules live on their own ports as /ws/*
+    "/api/ws/symatics": wsProxy(srelHttp, dropApiPrefix),
+    "/api/ws/analytics": wsProxy(ralHttp, dropApiPrefix),
+    "/api/ws/control": wsProxy(aqciHttp, dropApiPrefix),
+    "/api/ws/fusion": wsProxy(tcfkHttp, dropApiPrefix),
+    "/api/ws/rqfs_feedback": wsProxy(rqfsHttp, dropApiPrefix),
 
-    // ✅ GlyphChain dev perf + state endpoints → FastAPI (:8080)
-    "/api/glyphchain": { target: fastApiHttp, changeOrigin: true },
-
-    // ✅ Tessaris telemetry WS proxies → FastAPI (:8080)
-    "/api/ws/symatics": { target: fastApiHttp, ws: true, changeOrigin: true },
-    "/api/ws/analytics": { target: fastApiHttp, ws: true, changeOrigin: true },
-    "/api/ws/fusion": { target: fastApiHttp, ws: true, changeOrigin: true },
-    "/api/ws/rqfs_feedback": { target: fastApiHttp, ws: true, changeOrigin: true },
-    "/api/ws/control": { target: fastApiHttp, ws: true, changeOrigin: true },
-
-    // ── WS for GlyphNet fanout / GHX → radio-node
-    "/ws/glyphnet": { target: radioWs, ws: true, changeOrigin: true },
-    "/ws/rflink": { target: radioWs, ws: true, changeOrigin: true },
-    "/ws/ghx": { target: radioWs, ws: true, changeOrigin: true },
-    "/ws": { target: radioWs, ws: true, changeOrigin: true },
+    // Optional radio-node WS fanout
+    ...(radioDisabled
+      ? {}
+      : {
+          "/ws/glyphnet": wsProxy(radioHttp),
+          "/ws/rflink": wsProxy(radioHttp),
+          "/ws/ghx": wsProxy(radioHttp),
+          "/ws": wsProxy(radioHttp),
+        }),
 
     // ✅ Dev RF mock tools (leave /dev/rf to frontend)
-    "^/dev(?!/rf)": { target: radioHttp, changeOrigin: true },
+    ...(radioDisabled ? {} : { "^/dev(?!/rf)": { target: radioHttp, changeOrigin: true } }),
 
-    // 🔁 SCI dev proxy → Next.js SCI app (:3001)
+    // SCI proxy
     "/sci": {
       target: sciHttp,
       changeOrigin: true,
@@ -92,26 +127,31 @@ export default defineConfig(({ mode }) => {
       rewrite: (p: string) => p.replace(/^\/sci/, ""),
     },
 
-    // ── Everything else under /api → radio-node
-    "/api": { target: radioHttp, changeOrigin: true },
+    // Catch-all /api:
+    // If radio is disabled, DO NOT point /api at 8787.
+    "/api": { target: radioDisabled ? fastApiHttp : radioHttp, changeOrigin: true, secure: false },
 
-    // radio-node extras
-    "/bridge": { target: radioHttp, changeOrigin: true },
-    "/containers": { target: radioHttp, changeOrigin: true },
-    "/health": { target: radioHttp, changeOrigin: true },
+    // radio-node extras (only if enabled)
+    ...(radioDisabled
+      ? {}
+      : {
+          "/bridge": httpProxy(radioHttp),
+          "/containers": httpProxy(radioHttp),
+          "/health": httpProxy(radioHttp),
 
-    "^/radio/qkd": {
-      target: radioHttp,
-      changeOrigin: true,
-      rewrite: (p: string) => p.replace(/^\/radio\/qkd/, "/qkd"),
-    },
-    "^/radio": {
-      target: radioHttp,
-      changeOrigin: true,
-      ws: true,
-      rewrite: (p: string) => p.replace(/^\/radio/, ""),
-    },
-    "^/qkd": { target: radioHttp, changeOrigin: true },
+          "^/radio/qkd": {
+            target: radioHttp,
+            changeOrigin: true,
+            rewrite: (p: string) => p.replace(/^\/radio\/qkd/, "/qkd"),
+          },
+          "^/radio": {
+            target: radioHttp,
+            changeOrigin: true,
+            ws: true,
+            rewrite: (p: string) => p.replace(/^\/radio/, ""),
+          },
+          "^/qkd": httpProxy(radioHttp),
+        }),
   };
 
   return {

@@ -4,12 +4,14 @@ import os
 from pydantic import BaseModel, Field
 from typing import Literal, Optional, Dict, Any, List
 from fastapi.responses import JSONResponse
+from fastapi import Body
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Query
 from backend.modules.lean.lean_injector import load_container, save_container, inject_theorems_into_container
 from backend.modules.lean.lean_utils import validate_logic_trees, normalize_validation_errors
 from backend.modules.lean.lean_audit import audit_event, build_inject_event, build_export_event, get_last_audit_events
 from backend.modules.lean.lean_exporter import build_container_from_lean, CONTAINER_MAP
 from backend.modules.lean.lean_inject_utils import guess_spec, auto_clean, dedupe_by_name, rebuild_previews, normalize_logic_entry
+from backend.modules.lean.snapshot_verify import verify_snapshot
 
 # Optional: WebSocket event emitter (safe no-op if missing)
 try:
@@ -20,6 +22,15 @@ except Exception:
 
 router = APIRouter(prefix="/lean", tags=["lean"])
 
+class VerifySnapshotRequest(BaseModel):
+    steps: int = 1024
+    dt_ms: int = 16
+    spec_version: str = "v1"
+
+@router.post("/verify_snapshot")
+async def verify_snapshot_api(req: VerifySnapshotRequest = Body(...)):
+    # returns the cert dict from verify_snapshot
+    return verify_snapshot(req.steps, req.dt_ms, req.spec_version)
 # ----------------------
 # Helpers
 # ----------------------
@@ -281,6 +292,92 @@ async def inject(
         raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+# ─────────────────────────────────────────────────────────────
+# Snapshot Verify API (Generated snapshot_<hash>.lean + lake env lean)
+# ─────────────────────────────────────────────────────────────
+
+class SnapshotVerifyRequest(BaseModel):
+    steps: int = Field(default=1024, ge=1)
+    dt_ms: int = Field(default=16, ge=1)
+    spec_version: str = Field(default="v1", min_length=1)
+
+
+def _tail_jsonl(path: str, n: int = 25) -> List[Dict[str, Any]]:
+    """
+    Read last N jsonl rows (best-effort) without loading whole file.
+    """
+    p = Path(path)
+    if not p.exists():
+        return []
+
+    # small files: just read all
+    try:
+        if p.stat().st_size < 512 * 1024:
+            lines = p.read_text(encoding="utf-8", errors="ignore").splitlines()[-n:]
+        else:
+            # seek from end
+            with p.open("rb") as f:
+                f.seek(0, os.SEEK_END)
+                end = f.tell()
+                chunk = 64 * 1024
+                data = b""
+                pos = end
+                while pos > 0 and data.count(b"\n") <= n + 2:
+                    pos = max(0, pos - chunk)
+                    f.seek(pos)
+                    data = f.read(end - pos) + data
+                lines = data.decode("utf-8", errors="ignore").splitlines()[-n:]
+    except Exception:
+        return []
+
+    out: List[Dict[str, Any]] = []
+    for ln in lines:
+        ln = (ln or "").strip()
+        if not ln:
+            continue
+        try:
+            out.append(json.loads(ln))
+        except Exception:
+            continue
+    return out
+
+
+@router.post("/snapshot/verify")
+async def snapshot_verify(req: SnapshotVerifyRequest):
+    """
+    POST /api/lean/snapshot/verify
+    Generates a snapshot_<hash>.lean in workspace/Generated, runs `lake env lean`,
+    appends a cert line to data/ledger/lean_snapshots.jsonl, returns the cert JSON.
+    """
+    try:
+        cert = verify_snapshot(req.steps, req.dt_ms, req.spec_version)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"snapshot_verify failed: {e}")
+
+    # Optional WS broadcast for HUDs
+    try:
+        emit_websocket_event("lean_snapshot_verify_result", {
+            "ok": bool(cert.get("ok")),
+            "proof_hash": cert.get("proof_hash_short"),
+            "elapsed_ms": cert.get("elapsed_ms"),
+            "lean_file": cert.get("lean_file"),
+            "spec_version": cert.get("spec_version"),
+        })
+    except Exception:
+        pass
+
+    return cert
+
+
+@router.get("/snapshot/ledger_tail")
+async def snapshot_ledger_tail(n: int = Query(25, ge=1, le=200)):
+    """
+    GET /api/lean/snapshot/ledger_tail?n=25
+    Returns the last N entries from data/ledger/lean_snapshots.jsonl
+    """
+    entries = _tail_jsonl(str(LED), n=n)
+    return {"ok": True, "path": str(LED), "entries": entries}
 
 
 @router.post("/export")

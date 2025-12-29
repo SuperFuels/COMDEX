@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "LATEX 1"
+git commit -m "PRE COLLAPSE"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

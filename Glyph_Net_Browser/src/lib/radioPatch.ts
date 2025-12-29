@@ -1,132 +1,86 @@
-// Centralized radio base + safe URL patchers for Codespaces / local / prod.
-// Import this once at app bootstrap (see main.tsx).
+// radioPatch.ts (FINAL: safe; no global WebSocket monkeypatch)
+// Import once at app bootstrap (main.tsx)
 
 const V = (import.meta as any)?.env ?? {};
 const RAW_BASE = String(V.VITE_RADIO_BASE || "").trim();
-const GLYPH_TOKEN: string = String(V.VITE_GLYPHNET_TOKEN || "dev-bridge");
+const DISABLE_PATCH = String(V.VITE_DISABLE_RADIO_PATCH || "").trim() === "1";
 
-// "proxy" means: let Vite dev proxy handle /api/* (original behavior).
-// Empty RAW_BASE now means "auto-detect radio base" instead of proxy.
-const USING_PROXY = RAW_BASE.toLowerCase() === "proxy";
+// Radio token is still useful, but apply it at the callsite for glyphnet WS.
+// (Do NOT global-monkeypatch WebSocket; it breaks debugging + can cause side-effects.)
+export const GLYPH_TOKEN: string = String(V.VITE_GLYPHNET_TOKEN || "dev-bridge");
 
-/**
- * Auto-detect radio base when VITE_RADIO_BASE is not set.
- * - Codespaces: swap 5173 -> 8080 on same host
- * - Local:      swap :5173 -> :8080
- * - Fallback:   http://localhost:8080
- */
-function autoRadioBase(): string {
+function autoRadioBase8787(): string {
   try {
     const origin = window.location.origin;
-    if (origin.includes("-5173.")) {
-      return origin.replace("-5173.", "-8080.");
-    }
-    if (origin.endsWith(":5173")) {
-      return origin.replace(":5173", ":8080");
-    }
+
+    // Codespaces: https://<name>-5173.app.github.dev -> https://<name>-8787.app.github.dev
+    if (origin.includes("-5173.")) return origin.replace("-5173.", "-8787.");
+
+    // Local: http://localhost:5173 -> http://localhost:8787
+    if (origin.endsWith(":5173")) return origin.replace(":5173", ":8787");
+
     return origin;
   } catch {
-    return "http://localhost:8080";
+    return "http://localhost:8787";
   }
 }
 
-// Decide final RADIO_BASE:
-//   - RAW_BASE = "proxy" → proxy mode, RADIO_BASE = ""
-//   - RAW_BASE non-empty → use it
-//   - RAW_BASE empty     → auto-detect
-const RADIO_BASE = USING_PROXY
-  ? ""
-  : (RAW_BASE || autoRadioBase()).replace(/\/+$/, "");
+const USING_PROXY = RAW_BASE.toLowerCase() === "proxy";
+const RADIO_BASE = USING_PROXY ? "" : (RAW_BASE || autoRadioBase8787()).replace(/\/+$/, "");
 
 function httpAbs(path: string) {
   const p = path.startsWith("/") ? path : "/" + path;
-  if (USING_PROXY && !RADIO_BASE) return p; // explicit proxy mode: leave as-is
+  if (USING_PROXY || !RADIO_BASE) return p; // relative; Vite proxy handles it
   return `${RADIO_BASE}${p}`;
 }
 
-function wsAbs(path: string) {
-  const p = path.startsWith("/") ? path : "/" + path;
-
-  if (USING_PROXY && !RADIO_BASE) {
-    const origin = window.location.origin.replace(/^http/i, "ws");
-    return `${origin}${p}`;
-  }
-
-  const wsBase = RADIO_BASE.startsWith("https")
-    ? RADIO_BASE.replace(/^https/i, "wss")
-    : RADIO_BASE.replace(/^http/i, "ws");
-  return `${wsBase}${p}`;
+if (!DISABLE_PATCH) {
+  console.info(USING_PROXY ? "[radioPatch] mode=proxy" : `[radioPatch] base=${RADIO_BASE || "(relative)"}`);
+} else {
+  console.info("[radioPatch] DISABLED via VITE_DISABLE_RADIO_PATCH=1");
 }
 
-// Log mode so we can verify quickly in the console.
-console.info(
-  USING_PROXY && !RADIO_BASE
-    ? "[radioPatch] mode = proxy"
-    : `[radioPatch] base = ${RADIO_BASE}`
-);
+// Helper you can use anywhere you create glyphnet WS yourself:
+export function glyphnetWsUrl(path = "/ws/glyphnet", token = GLYPH_TOKEN) {
+  const p = path.startsWith("/") ? path : "/" + path;
 
-// --- Patch WebSocket: only touch /ws/glyphnet, add token if missing ----------
-(() => {
-  const OrigWS = window.WebSocket;
-  function targetsGlyph(url: string) {
-    try {
-      const u = new URL(url, window.location.origin);
-      return /^\/ws\/glyphnet/i.test(u.pathname);
-    } catch {
-      return false;
-    }
+  // If using proxy, WS should be same-origin (5173) so Vite proxies it
+  if (USING_PROXY || !RADIO_BASE) {
+    const baseWs = window.location.origin.replace(/^http/i, "ws");
+    const u = new URL(p, baseWs);
+    if (!u.searchParams.get("token")) u.searchParams.set("token", token);
+    return u.toString();
   }
 
-  (window as any).WebSocket = function PatchedWS(
-    url: string,
-    protocols?: string | string[]
-  ) {
-    if (!targetsGlyph(url)) {
-      return new OrigWS(url, protocols as any);
-    }
+  // Direct to radio-node host
+  const baseWs = RADIO_BASE.startsWith("https")
+    ? RADIO_BASE.replace(/^https/i, "wss")
+    : RADIO_BASE.replace(/^http/i, "ws");
 
-    // Build URL on the correct host, then ensure token param exists
-    const u = new URL(
-      url,
-      USING_PROXY && !RADIO_BASE ? window.location.origin : RADIO_BASE || window.location.origin
-    );
-    if (!u.searchParams.get("token")) u.searchParams.set("token", GLYPH_TOKEN);
+  const u = new URL(p, baseWs);
+  if (!u.searchParams.get("token")) u.searchParams.set("token", token);
+  return u.toString();
+}
 
-    const finalUrl = wsAbs(u.pathname + (u.search || ""));
-
-    return new OrigWS(finalUrl, protocols as any);
-  } as any;
-
-  (window as any).WebSocket.prototype = OrigWS.prototype;
-})();
-
-// --- Patch fetch: rewrite our radio/backend endpoints ------------------------
+// fetch rewrite ONLY for radio-node owned paths (DO NOT touch /api/wallet, /api/lean, etc.)
 (() => {
-  // In strict "proxy" mode, leave fetch alone; Vite proxy handles everything.
-  if (USING_PROXY && !RADIO_BASE) {
-    console.info("[radioPatch] fetch: proxy mode (no rewrites)");
-    return;
-  }
+  if (DISABLE_PATCH) return;
+  if (USING_PROXY) return; // let Vite proxy handle it
 
   const origFetch = window.fetch.bind(window);
 
-  const RADIO_PATHS = [
-    // existing
-    /^\/api\/health\b/i,
-    /^\/api\/session\/(me|attach|clear)\b/i,
-    /^\/api\/glyphnet\/tx\b/i,
-    /^\/bridge\//i,
+  const RADIO_HTTP_PATHS = [
+    /^\/bridge\b/i,
     /^\/containers\b/i,
     /^\/health\b/i,
 
-    // NEW: wallet + mesh APIs
-    /^\/api\/wallet\/balances\b/i,
-    /^\/api\/mesh\/local_state\b/i,
-    /^\/api\/mesh\/local_send\b/i,
-    /^\/api\/mesh\//i,
+    // if radio-node serves these:
+    /^\/api\/health\b/i,
+    /^\/api\/session\/(me|attach|clear)\b/i,
+    /^\/api\/glyphnet\/tx\b/i,
   ];
 
-  function toPath(input: RequestInfo | URL): string | null {
+  function toRadioPath(input: RequestInfo | URL): string | null {
     const url =
       typeof input === "string"
         ? input
@@ -137,20 +91,15 @@ console.info(
     try {
       const u = new URL(url, window.location.origin);
       const path = u.pathname + (u.search || "");
-      return RADIO_PATHS.some((rx) => rx.test(u.pathname)) ? path : null;
+      return RADIO_HTTP_PATHS.some((rx) => rx.test(u.pathname)) ? path : null;
     } catch {
       return null;
     }
   }
 
   window.fetch = async (input: any, init?: RequestInit) => {
-    const path = toPath(input);
-    if (path) {
-      const target = httpAbs(path);
-      // Uncomment for debugging:
-      // console.debug("[radioPatch] fetch →", target);
-      return origFetch(target, init);
-    }
+    const p = toRadioPath(input);
+    if (p) return origFetch(httpAbs(p), init);
     return origFetch(input, init);
   };
 })();

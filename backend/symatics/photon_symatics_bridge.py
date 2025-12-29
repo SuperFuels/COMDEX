@@ -5,7 +5,11 @@
 ⚛ Photon-Symatics Bridge - SRK-15
 Accepts JSONL (one JSON object per line) or free text lines.
 Each item is coerced into a dict like {"operator": "⊕", "args":[...]} or {"expr":"..."}.
-Photonic ops (⊕, ↔, ⟲, ∇, μ) are executed in Photon runtime; others route to Symatics.
+
+Routing policy (LOCKED):
+- Photon runtime handles: ⊕, ↔, ⟲, μ
+- ∇ is RESERVED for math:∇ (gradient) and is NEVER treated as collapse here.
+- All other operators route to Symatics (best-effort).
 """
 
 from __future__ import annotations
@@ -24,23 +28,28 @@ OP_SYMBOL_TO_NAME = {
     "⊕": "superpose",
     "↔": "entangle",
     "⟲": "resonate",
-    "∇": "collapse",
     "μ": "measure",
 }
+
 PHOTON_OPS = set(OP_SYMBOL_TO_NAME.keys())
+
+# If someone still types ∇, we treat it as a reserved math symbol (gradient),
+# not a runtime-collapse operator in this bridge.
+RESERVED_MATH_OPS = {"∇"}
+
 
 def op_color(op_symbol: str) -> str:
     return {
         "⊕": "#06B6D4",  # cyan
         "↔": "#D946EF",  # fuchsia
         "⟲": "#EAB308",  # yellow
-        "∇": "#EF4444",  # red
         "μ": "#FFFFFF",  # white
     }.get(op_symbol, "#8B5CF6")  # indigo fallback
 
 
 class _SymaticOperatorProxy:
     """Adapter exposing Symatics OPS via .apply()."""
+
     def __init__(self, ops_dict: Dict[str, Any]):
         self.ops = ops_dict
 
@@ -61,17 +70,22 @@ class _SymaticOperatorProxy:
 
 EMIT_RX = re.compile(r'^emit\s+["\'](.+?)["\']\s*$')
 
+
 def _coerce_line_to_item(line: str) -> Optional[Dict[str, Any]]:
     """
     Best-effort coercion:
       - JSON → dict or {"expr": ...}
-      - bare op token (⊕/↔/⟲/∇/μ) → {"operator": "<sym>"}
+      - bare op token (⊕/↔/⟲/μ/∇) → {"operator": "<sym>"}
       - emit "x" → {"operator":"emit","args":["x"]}
       - otherwise → {"expr": "<line>"}
+
+    NOTE: Even though ∇ may be coerced, it is hard-blocked at execution time
+          as RESERVED for math:∇ (gradient).
     """
     s = (line or "").strip()
     if not s:
         return None
+
     # JSON line?
     try:
         obj = json.loads(s)
@@ -83,11 +97,13 @@ def _coerce_line_to_item(line: str) -> Optional[Dict[str, Any]]:
     except Exception:
         pass
 
-    if s in PHOTON_OPS:
+    if s in (PHOTON_OPS | RESERVED_MATH_OPS):
         return {"operator": s}
+
     m = EMIT_RX.match(s)
     if m:
         return {"operator": "emit", "args": [m.group(1)]}
+
     return {"expr": s}
 
 
@@ -95,7 +111,7 @@ def _build_capsule_from_item(it: Dict[str, Any]) -> Dict[str, Any]:
     """
     Minimal Photon capsule. Ensures glyph entry is a dict (never a raw string).
     """
-    glyph = {}
+    glyph: Dict[str, Any] = {}
     if "operator" in it:
         glyph["operator"] = it["operator"]
         if "args" in it:
@@ -118,6 +134,7 @@ def _build_capsule_from_item(it: Dict[str, Any]) -> Dict[str, Any]:
 # ────────────────────────────────────────────────────────────────
 # Bridge
 # ────────────────────────────────────────────────────────────────
+
 
 class PhotonSymaticsBridge:
     """
@@ -152,52 +169,75 @@ class PhotonSymaticsBridge:
             op = it.get("operator")
             if not op:
                 # Pure expr → no operator to handle
-                results.append({
-                    "input": it.get("expr") if "expr" in it else shown_input,
-                    "status": "skipped",
-                    "note": "no supported operator found",
-                })
+                results.append(
+                    {
+                        "input": it.get("expr") if "expr" in it else shown_input,
+                        "status": "skipped",
+                        "note": "no supported operator found",
+                    }
+                )
+                continue
+
+            # HARD BLOCK: ∇ is math gradient, never collapse/measurement in this bridge.
+            if op in RESERVED_MATH_OPS:
+                results.append(
+                    {
+                        "input": shown_input,
+                        "op": op,
+                        "color": "#64748B",
+                        "status": "skipped",
+                        "note": "∇ is reserved for math:∇ (gradient). Use μ for measurement/collapse.",
+                    }
+                )
                 continue
 
             # Dispatch by domain
             domain = self.resolve_operator_domain(op)
             if domain == "photon":
                 try:
-                    cap = _build_capsule_from_item(it)   # glyph is a dict
+                    cap = _build_capsule_from_item(it)  # glyph is a dict
                     exec_result = await self.photon_runtime.execute(cap)
-                    results.append({
-                        "input": shown_input,
-                        "op": op,
-                        "color": op_color(op),
-                        "status": "ok",
-                        "result": exec_result,
-                    })
+                    results.append(
+                        {
+                            "input": shown_input,
+                            "op": op,
+                            "color": op_color(op),
+                            "status": "ok",
+                            "result": exec_result,
+                        }
+                    )
                 except Exception as e:
-                    results.append({
-                        "input": shown_input,
-                        "op": op,
-                        "color": "#DC2626",
-                        "status": "error",
-                        "error": str(e),
-                    })
+                    results.append(
+                        {
+                            "input": shown_input,
+                            "op": op,
+                            "color": "#DC2626",
+                            "status": "error",
+                            "error": str(e),
+                        }
+                    )
             else:
                 # Symatic fallback (e.g., "emit") – try to run, otherwise mark skipped
                 try:
                     args = it.get("args", []) or []
                     self.sym_proxy.apply(op, *args)
-                    results.append({
-                        "input": shown_input,
-                        "op": op,
-                        "color": op_color(op),
-                        "status": "ok",
-                    })
+                    results.append(
+                        {
+                            "input": shown_input,
+                            "op": op,
+                            "color": op_color(op),
+                            "status": "ok",
+                        }
+                    )
                 except Exception as e:
-                    results.append({
-                        "input": shown_input,
-                        "op": op,
-                        "color": "#64748B",
-                        "status": "skipped",
-                        "note": f"symatic op not handled: {e}",
-                    })
+                    results.append(
+                        {
+                            "input": shown_input,
+                            "op": op,
+                            "color": "#64748B",
+                            "status": "skipped",
+                            "note": f"symatic op not handled: {e}",
+                        }
+                    )
 
         return {"ok": True, "count": len(results), "results": results}

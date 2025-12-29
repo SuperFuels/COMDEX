@@ -587,6 +587,7 @@ from backend.modules.photon_savings.photon_savings_routes import router as photo
 from backend.modules.escrow.escrow_routes import router as escrow_router
 from backend.modules.transactable_docs.transactable_doc_routes import router as transactable_docs_router
 from backend.modules.p2p.router import router as p2p_router
+from backend.routes.lean_snapshot_api import router as lean_snapshot_router
 
 from backend.modules.staking.staking_routes import router as staking_router
 from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
@@ -834,6 +835,7 @@ app.include_router(transactable_docs_router, prefix="/api")
 app.include_router(chain_sim_router, prefix="/api")
 app.include_router(staking_router, prefix="/api")
 app.include_router(glyphchain_perf_router, prefix="/api")
+app.include_router(lean_snapshot_router)
 app.include_router(p2p_router, prefix="/api/p2p", tags=["p2p"])
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)
@@ -1189,3 +1191,36 @@ def shutdown_service(event, context):
 
     for route in app.routes:
         print(f"[📡 ROUTE] {route.path} ({route.name})")
+
+def verify_snapshot(steps: int = 1024, dt_ms: int = 16, spec_version: str = "v1") -> dict:
+    snap = {"steps": int(steps), "dt_ms": int(dt_ms)}
+    git_rev = get_git_rev()
+    versions = get_tool_versions()
+
+    proof_hash_hex = compute_proof_hash(snap, spec_version, git_rev)
+    lf = write_snapshot_lean(snap, spec_version, proof_hash_hex)
+
+    ok, out, err, rc, elapsed_ms = run_lean(lf)
+
+    cert = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "kind": "lean_snapshot_verify",
+        "ok": ok,
+        "returncode": rc,
+        "elapsed_ms": elapsed_ms,
+        "spec_version": spec_version,
+        "git_rev": git_rev,
+        "proof_hash": proof_hash_hex,
+        "proof_hash_short": short_hash_hex(proof_hash_hex, 16),
+        "lean_file": str(lf),
+        "imports": IMPORTS,
+        "params": snap,
+        "versions": versions,
+        "stdout_tail": tail_lines(out, 40),
+        "stderr_tail": tail_lines(err, 40),
+        "axioms_used": ["Tessaris.Symatics.Axioms"],
+        "deps": {"workspace": str(WS)},
+    }
+
+    append_ledger(cert)
+    return cert
