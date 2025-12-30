@@ -1,0 +1,16 @@
+{
+  "scene_id": "VOL5_DELTA_TELEMETRY",
+  "lock_id": "VOLV-DELTA-TELEMETRY-v0.3",
+  "version": "v0.3",
+  "seed": 20251230,
+  "steps": 40,
+  "dt": 0.05,
+  "eta": 0.02,
+  "gamma": 0.01,
+  "kappa": 0.02,
+  "law_ids": [
+    "law_weight_update/collapse_energy_equivalence",
+    "law_weight_update/coherence_stability_gate",
+    "law_weight_update/telemetry_budget_gate"
+  ]
+}

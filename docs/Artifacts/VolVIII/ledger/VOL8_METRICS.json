@@ -1,0 +1,15 @@
+{
+  "closure_error_final": 0.0,
+  "coherence_final": 0.999936,
+  "dt": 0.05,
+  "events": 192,
+  "lock_id": "VOLVIII-CURVATURE-MEANING-v0.1",
+  "pi_s_final": 3.141592653589793,
+  "scene_id": "VOL8_CURVATURE_MEANING",
+  "seed": 20251230,
+  "status": "PASS",
+  "steps": 64,
+  "timestamp": "2025-12-30T00:00:00Z",
+  "trace_sha256": "7cb70b43235da418a4308b1636cfc350c98ddbd21dc5a49727edecb3e51a1c74",
+  "version": "v0.1"
+}

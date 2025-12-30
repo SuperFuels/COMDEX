@@ -1,0 +1,17 @@
+# Volume V determinism + completeness gates
+required_event_types:
+  - law_weight_update
+  - wave_step
+  - energy_metric
+  - feedback_apply
+
+min_steps: 10
+max_steps: 1000000
+
+# determinism gate: runner must self-check two runs match byte-stable trace sha256
+require_determinism: true
+
+# basic numeric sanity (non-physics, just guardrails)
+coherence_range: [0.0, 1.0]
+lambda_abs_max: 1000000.0
+energy_nonnegative: true

@@ -1,0 +1,148 @@
+% Tessaris Symatics — Volume VIII (Curvature and Consciousness) v0.1
+\documentclass[11pt,a4paper]{article}
+
+% --- Tessaris house style (Truth Chain / reviewer-proof) ---
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\usepackage[a4paper,margin=1in]{geometry}
+
+% --- Math / layout ---
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+
+% --- overflow control (long paths / hashes / tt text) ---
+\setlength{\emergencystretch}{2em}
+\sloppy
+\Urlmuskip=0mu plus 1mu\relax
+\urlstyle{tt}
+\newcommand{\codepath}[1]{\begingroup\ttfamily\small\path{#1}\endgroup}
+\newcommand{\cmd}[1]{\begingroup\ttfamily\small\path{#1}\endgroup}
+
+% --- Canonical glyph macros (Truth Chain-wide) ---
+\newcommand{\superpose}{\oplus}
+\newcommand{\entangle}{\leftrightarrow}
+\newcommand{\recurse}{\circlearrowleft}
+\newcommand{\measure}{\mu}     % measurement / collapse / selection
+\newcommand{\project}{\pi}
+\newcommand{\bornw}{\Delta}    % Born weight / intensity (NOT collapse)
+\newcommand{\grad}{\nabla}     % RESERVED: geometric gradient/divergence only
+
+\newcommand{\volver}{0.1}
+
+\title{\textbf{Tessaris Symatics — Volume VIII: Curvature and Consciousness}\\[2pt]
+\large Geometry of Meaning via Self-Resonant Phase Closure (v\volver)}
+\author{Kevin Robinson \;\;|\;\; Tessaris AI}
+\date{December 30, 2025}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Document ID:} VOLVIII-CURVATURE-MEANING-v\volver\\
+\textbf{Status:} \textbf{DRAFT (pre-lock)}\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson\\
+
+\begin{abstract}
+This volume extends Volume~VII's phase-closure invariant into a minimal, verification-first model of
+\emph{semantic curvature}: a derived quantity measuring how symbolic phase structure bends back upon itself under
+a deterministic self-referential loop. We model ``self-observation'' as a closed coupling between persistence
+(\(\recurse\)) and governed measurement/selection (\(\measure\)) acting on a symbolic wave state \(\Psi\):
+\[
+\Psi \;\entangle\; \measure(\recurse\,\Psi).
+\]
+The document is \emph{normative at the audit layer}: it binds the prose claims to an executable scene that emits a byte-stable trace
+compatible with the Δ-telemetry contract (Volume~V), without asserting sentience, emotion, or agency.
+\end{abstract}
+
+\section{Truth Chain Reservations (Normative)}
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Measurement / collapse / selection MUST use \(\measure\).}
+  \item \textbf{\(\grad\) is RESERVED for geometric gradient/divergence only.}
+  \item \textbf{\(\bornw\) denotes intensity/weight (NOT collapse).}
+\end{itemize}
+
+\section{Scope}
+This volume is a \textbf{first-tier emergence} bridge:
+\[
+\text{phase closure (Vol~VII)} \;\Longrightarrow\; \text{derived curvature functional} \;\Longrightarrow\; \text{deterministic replay surface}.
+\]
+It does \textbf{not} claim that the presented quantities exhaust physical consciousness.
+The only hard requirement of this volume is that the defined loop produces deterministic, replayable telemetry
+and stable derived metrics under fixed seed/steps.
+
+\section{Core Construct: Self-Resonant Perception Loop}
+Let \(\Psi\) denote a symbolic wave state (e.g., a phase field on a discrete manifold).
+We define a minimal self-referential loop:
+\begin{equation}
+\Psi_{t+\Delta t} \;=\; \mathcal{U}_{\recurse}\!\left(\Psi_t\right)
+\;\entangle\;
+\mathcal{S}_{\measure}\!\left(\Psi_t\right),
+\label{eq:self_loop}
+\end{equation}
+where \(\mathcal{U}_{\recurse}\) is persistence and \(\mathcal{S}_{\measure}\) is governed selection.
+
+\section{Semantic Curvature as a Derived Functional}
+We define a \emph{semantic metric proxy} from phase relations:
+\begin{equation}
+g_{\mathrm{sem}}(i,j) \;=\; \left\langle \cos\!\big(\phi_i-\phi_j\big)\right\rangle,
+\label{eq:g_sem}
+\end{equation}
+
+\subsection{Curvature-of-meaning proxy}
+Define a curvature proxy as a gradient-energy of coherence density:
+\begin{equation}
+\mathcal{K}_{\mathrm{sem}} \;=\; \sum_{i} \left\|\grad \, \rho_{\mathrm{coh}}(i)\right\|^2,
+\qquad
+\rho_{\mathrm{coh}}(i) \;=\; \left|\left\langle e^{\,i\phi_i}\right\rangle\right|.
+\label{eq:k_sem}
+\end{equation}
+
+\subsection{Information identity (Vol~IV linkage)}
+Using the locked Vol~IV identity (coherence-as-information), define:
+\begin{equation}
+\mathcal{I}_{\mathrm{sem}} \;\equiv\; C_\phi \;\in\; [0,1].
+\end{equation}
+
+\section{Closure Condition (Vol~VII linkage)}
+The loop is \emph{closed} when:
+\begin{equation}
+\oint \grad_{\Psi}\phi \, d\Psi \;=\; 2\pi_s n,
+\qquad n\in\mathbb{Z}.
+\end{equation}
+
+\section{Δ-Telemetry Contract Mapping (Vol~V)}
+Volume~VIII scenes MUST emit a Vol~V-compatible event stream.
+
+\section{Verification Artifacts (Canonical Surface)}
+This paper is lockable only if these artifacts exist:
+\begin{itemize}[leftmargin=1.5em]
+  \item Scene spec: \codepath{docs/Artifacts/VolVIII/qfc/VOL8_CURVATURE_MEANING.scene.json}
+  \item Build manifest: \codepath{docs/Artifacts/VolVIII/build/VOLVIII_PIPELINE_MANIFEST.yaml}
+  \item Acceptance thresholds: \codepath{docs/Artifacts/VolVIII/build/VOLVIII_ACCEPTANCE_THRESHOLDS.yaml}
+  \item Evidence log: \codepath{docs/Artifacts/VolVIII/ledger/VOL8_LINT_PROOF.log}
+  \item Metrics snapshot: \codepath{docs/Artifacts/VolVIII/ledger/VOL8_METRICS.json}
+  \item Replay trace (JSONL): \codepath{docs/Artifacts/VolVIII/ledger/VOL8_TRACE.jsonl}
+\end{itemize}
+
+\subsection{Deterministic runner (required)}
+\[
+\cmd{python /workspaces/COMDEX/backend/tests/run\_vol8\_curvature\_meaning\_lint.py}
+\]
+
+\vfill
+\noindent\rule{\linewidth}{0.4pt}
+
+\noindent
+Lock ID: VOLVIII-CURVATURE-MEANING-v0.\volver\\
+Status: DRAFT (pre-lock)\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+\end{document}

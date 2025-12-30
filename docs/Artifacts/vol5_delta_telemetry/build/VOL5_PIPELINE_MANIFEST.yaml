@@ -1,0 +1,14 @@
+lock_id: VOLV-DELTA-TELEMETRY-v0.3
+status: PRE-LOCK
+maintainer: Tessaris AI
+author: Kevin Robinson
+date: 2025-12-30
+artifact_root: docs/Artifacts/vol5_delta_telemetry
+scene_spec: docs/Artifacts/vol5_delta_telemetry/qfc/VOL5_DELTA_TELEMETRY.scene.json
+acceptance_thresholds: docs/Artifacts/vol5_delta_telemetry/build/VOL5_ACCEPTANCE_THRESHOLDS.yaml
+outputs:
+  trace_jsonl: docs/Artifacts/vol5_delta_telemetry/V5_TRACE.jsonl
+  metrics_json: docs/Artifacts/vol5_delta_telemetry/V5_METRICS.json
+  evidence_log: docs/Artifacts/vol5_delta_telemetry/V5_LINT_PROOF.log
+runner:
+  cmd: python /workspaces/COMDEX/backend/tests/run_vol5_delta_telemetry_lint.py

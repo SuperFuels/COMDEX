@@ -1,0 +1,9 @@
+# Reference-scene acceptance thresholds for VOL7_PHASE_CLOSURE_PI
+# NOTE: These are tight because the runner is fully deterministic.
+pi_err_max: 1.0e-12
+closure_error_max: 1.0e-12
+coherence_min: 0.99
+required_event_types:
+  - phase_step
+  - closure_metric
+  - pi_estimate

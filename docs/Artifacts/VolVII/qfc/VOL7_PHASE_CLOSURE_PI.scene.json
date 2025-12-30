@@ -1,0 +1,21 @@
+{
+  "lock_id": "VOLVII-GEOMETRY-PI-v0.1",
+  "scene_id": "VOL7_PHASE_CLOSURE_PI",
+  "version": "v0.1",
+  "timestamp": "2025-12-30T00:00:00Z",
+  "params": {
+    "steps": 64,
+    "dt": 0.05,
+    "seed": 20251230,
+    "ring_N": 256
+  },
+  "telemetry_schema": {
+    "required_top_level_keys": ["event_type", "ts", "payload", "context"],
+    "event_type_enum": ["phase_step", "closure_metric", "pi_estimate"],
+    "required_fields_by_type": {
+      "phase_step": ["step_idx", "dt", "phi_summary", "coherence"],
+      "closure_metric": ["step_idx", "integral", "winding_n", "closure_error"],
+      "pi_estimate": ["step_idx", "pi_s", "pi_err", "pi_target"]
+    }
+  }
+}

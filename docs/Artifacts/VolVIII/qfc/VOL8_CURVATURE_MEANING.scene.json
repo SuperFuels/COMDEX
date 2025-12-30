@@ -1,0 +1,26 @@
+{
+  "scene_id": "VOL8_CURVATURE_MEANING",
+  "lock_id": "VOLVIII-CURVATURE-MEANING-v0.1",
+  "version": "v0.1",
+  "timestamp_utc": "2025-12-30T00:00:00Z",
+  "seed": 20251230,
+  "dt": 0.05,
+  "steps": 64,
+
+  "model": {
+    "manifold": "ring",
+    "N": 128,
+    "update": "self_resonant_measurement_loop",
+    "notes": "Vol VIII: semantic curvature proxy + self-loop telemetry (Vol V contract)."
+  },
+
+  "telemetry_contract": {
+    "required_top_level_keys": ["event_type", "ts", "payload", "context"],
+    "event_type_enum": ["wave_step", "energy_metric", "feedback_apply"],
+    "required_fields_by_type": {
+      "wave_step": ["step_idx", "dt", "psi_summary", "coherence", "lambda_summary"],
+      "energy_metric": ["E", "dE"],
+      "feedback_apply": ["source", "target", "delta_rule", "delta_value"]
+    }
+  }
+}

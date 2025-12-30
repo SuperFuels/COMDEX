@@ -1,0 +1,177 @@
+% Volume VII — Geometry and π: Phase Closure as the Origin of Form (v0.1)
+\documentclass[11pt,a4paper]{article}
+
+% --- Tessaris house style (Truth Chain compatible) ---
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\usepackage[a4paper,margin=1in]{geometry}
+
+% --- layout ---
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+\usepackage{booktabs}
+
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+
+% --- overflow control (long paths / hashes / tt text) ---
+\sloppy
+\setlength{\emergencystretch}{2em}
+\Urlmuskip=0mu plus 1mu\relax
+\urlstyle{tt}
+\newcommand{\codepath}[1]{\begingroup\ttfamily\small\path{#1}\endgroup}
+\newcommand{\cmd}[1]{\begingroup\ttfamily\small\path{#1}\endgroup}
+
+% --- Canonical glyph macros (chain-wide) ---
+\newcommand{\superpose}{\oplus}
+\newcommand{\entangle}{\leftrightarrow}
+\newcommand{\recurse}{\circlearrowleft}
+\newcommand{\measure}{\mu}     % measurement / collapse / selection
+\newcommand{\project}{\pi}
+\newcommand{\bornw}{\Delta}    % Born weight / intensity (NOT collapse)
+\newcommand{\grad}{\nabla}     % RESERVED: geometric gradient/divergence only
+
+\title{\textbf{Volume VII — Geometry and $\pi$: Phase Closure as the Origin of Form}\\
+\large Deterministic Phase-Closure Evidence Surface (v0.1)}
+\author{Kevin Robinson \\ \textit{Tessaris AI}}
+\date{December 30, 2025}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Document ID:} VOLVII-GEOMETRY-PI-v0.1\\
+\textbf{Status:} \textbf{DRAFT (pre-lock)}\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson\\
+
+\begin{abstract}
+This volume formalizes \emph{phase closure} as the minimal mechanism by which stable geometric form emerges in Symatics.
+The central invariant is the closure condition on a loop: $\oint d\phi = 2\pi_s n$.
+A deterministic audit surface is specified: a byte-stable telemetry trace that (i) computes winding number, (ii) computes $\pi_s$, and (iii) demonstrates that the observed closure invariant matches Euclidean $\pi$ in the baseline reference scene.
+This document is a verification contract and evidence spine for \emph{phase closure}, not a claim of new empirical physics.
+\end{abstract}
+
+\section{Definitions in Force (Truth Chain)}
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{Measurement / collapse / selection MUST use $\measure$.}
+\item \textbf{$\bornw$ denotes intensity/weight (NOT collapse).}
+\item \textbf{$\grad$ is RESERVED for geometric gradient/divergence only.}
+\end{itemize}
+
+\section{Phase Closure Invariant}
+Let $\phi$ be a phase field on a closed loop $\ell$.
+Phase closure is defined by:
+\[
+\oint_{\ell} d\phi = 2\pi_s n,\qquad n\in\mathbb{Z},
+\]
+where:
+\begin{itemize}[leftmargin=1.5em]
+\item $n$ is the winding number,
+\item $\pi_s$ is the \emph{closure invariant} (baseline: $\pi_s=\pi$),
+\item the \emph{closure error} is $\varepsilon_{\mathrm{cl}}=\left|\oint d\phi - 2\pi_s n\right|$.
+\end{itemize}
+In the reference scene, $\pi_s$ is computed as:
+\[
+\pi_s \;\triangleq\; \frac{1}{2n}\oint_{\ell} d\phi\quad (n\neq 0).
+\]
+
+\section{Discrete Ring Closure (Deterministic Reference Scene)}
+The canonical reference scene instantiates a ring of $N$ unit complex phase carriers:
+\[
+z_k = e^{i\phi_k},\quad k\in\{0,\dots,N-1\},
+\]
+evolves deterministically by a local smoothing operator with renormalization back to unit magnitude, and emits an audit trace.
+The closure integral is computed by unwrapped phase differences:
+\[
+\oint d\phi \;\approx\; \sum_{k=0}^{N-1}\mathrm{unwrap}(\phi_{k+1}-\phi_k),
+\]
+with $\phi_N \equiv \phi_0$ and $\mathrm{unwrap}(\cdot)$ mapping differences into $(-\pi,\pi]$.
+
+\section{Telemetry Contract (Normative)}
+All participants MUST emit:
+\[
+\texttt{record\_event}(event\_type,\; payload,\; context)
+\]
+with a JSON-serializable \texttt{payload} and \texttt{context}, and with top-level keys:
+\[
+\{\texttt{event\_type},\ \texttt{ts},\ \texttt{payload},\ \texttt{context}\}.
+\]
+
+\subsection{Required event types}
+\begin{tabularx}{\linewidth}{@{}l Y Y@{}}
+\toprule
+\textbf{Event} & \textbf{Required fields} & \textbf{Purpose} \\
+\midrule
+\texttt{phase\_step} &
+\texttt{step\_idx}, \texttt{dt}, \texttt{phi\_summary}, \texttt{coherence} &
+Records per-step phase evolution summary. \\
+\texttt{closure\_metric} &
+\texttt{step\_idx}, \texttt{integral}, \texttt{winding\_n}, \texttt{closure\_error} &
+Records loop integral + winding + closure error. \\
+\texttt{pi\_estimate} &
+\texttt{step\_idx}, \texttt{pi\_s}, \texttt{pi\_err}, \texttt{pi\_target} &
+Records $\pi_s$ and deviation from $\pi$. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Determinism requirement}
+Given identical initial conditions, parameters, seed, and code version, the emitted JSONL trace MUST be byte-stable after canonical JSON normalization (sorted keys, stable separators).
+
+\section{Verification Artifacts (Canonical Surface)}
+This volume becomes lockable once the deterministic runner produces stable artifacts at:
+\begin{itemize}[leftmargin=1.5em]
+\item Scene spec: \codepath{docs/Artifacts/VolVII/qfc/VOL7_PHASE_CLOSURE_PI.scene.json}
+\item Build manifest: \codepath{docs/Artifacts/VolVII/build/VOLVII_PIPELINE_MANIFEST.yaml}
+\item Acceptance thresholds: \codepath{docs/Artifacts/VolVII/build/VOLVII_ACCEPTANCE_THRESHOLDS.yaml}
+\item Evidence log: \codepath{docs/Artifacts/VolVII/ledger/VOL7_LINT_PROOF.log}
+\item Metrics snapshot: \codepath{docs/Artifacts/VolVII/ledger/VOL7_METRICS.json}
+\item Replay trace (JSONL): \codepath{docs/Artifacts/VolVII/ledger/VOL7_TRACE.jsonl}
+\end{itemize}
+
+\section{Executable Verification Evidence (Deterministic Runner)}
+Runner:
+\[
+\cmd{python /workspaces/COMDEX/backend/tests/run\_vol7\_phase\_closure\_pi\_lint.py}
+\]
+It MUST:
+\begin{itemize}[leftmargin=1.5em]
+\item run the scene deterministically,
+\item emit LOG/JSON/JSONL artifacts in Section 6,
+\item enforce schema + required event types,
+\item enforce byte-stable replay by running the scene twice and comparing trace digests.
+\end{itemize}
+
+\section{Recorded Passing Snapshot (Reference Scene)}
+\noindent\textbf{Recorded passing snapshot (most recent run):}
+\[
+\texttt{steps=64}\quad
+\texttt{dt=0.05}\quad
+\texttt{seed=20251230}\quad
+\texttt{events=192}
+\]
+\[
+\texttt{winding\_n\_final=1}\quad
+\texttt{closure\_error\_final=1.7763568394002505e{-15}}
+\]
+\[
+\texttt{pi\_s\_final=3.1415926535897922}\quad
+\texttt{pi\_err\_final=8.881784197001252e{-16}}\quad
+\texttt{coherence\_final=0.9999667388144104}
+\]
+\[
+\texttt{trace\_sha256=f7a5418c7200f0e7f1c41f58c3fb01d2ef7c60415cf36b47c48bcf36052e0b90}.
+\]
+
+\section{Lock Footer}
+\noindent\rule{\linewidth}{0.4pt}
+
+\noindent
+Lock ID: VOLVII-GEOMETRY-PI-v0.1\\
+Status: DRAFT (pre-lock)\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

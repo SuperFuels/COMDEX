@@ -1,0 +1,13 @@
+version: v0.1
+lock_id: VOLVIII-CURVATURE-MEANING-v0.1
+scene_id: VOL8_CURVATURE_MEANING
+
+artifacts:
+  scene_spec: docs/Artifacts/VolVIII/qfc/VOL8_CURVATURE_MEANING.scene.json
+  proof_tex:  docs/Artifacts/VolVIII/proofs/VolVIII_Curvature_and_Consciousness_Geometry_of_Meaning_v0_1.tex
+  lint_log:   docs/Artifacts/VolVIII/ledger/VOL8_LINT_PROOF.log
+  metrics:    docs/Artifacts/VolVIII/ledger/VOL8_METRICS.json
+  trace:      docs/Artifacts/VolVIII/ledger/VOL8_TRACE.jsonl
+
+runner:
+  cmd: python /workspaces/COMDEX/backend/tests/run_vol8_curvature_meaning_lint.py

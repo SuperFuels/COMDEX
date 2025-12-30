@@ -1,0 +1,12 @@
+lock_id: VOLVII-GEOMETRY-PI-v0.1
+scene_id: VOL7_PHASE_CLOSURE_PI
+version: v0.1
+bundle_root: docs/Artifacts/VolVII
+artifacts:
+  scene_spec: docs/Artifacts/VolVII/qfc/VOL7_PHASE_CLOSURE_PI.scene.json
+  acceptance_thresholds: docs/Artifacts/VolVII/build/VOLVII_ACCEPTANCE_THRESHOLDS.yaml
+  evidence_log: docs/Artifacts/VolVII/ledger/VOL7_LINT_PROOF.log
+  metrics_snapshot: docs/Artifacts/VolVII/ledger/VOL7_METRICS.json
+  replay_trace: docs/Artifacts/VolVII/ledger/VOL7_TRACE.jsonl
+runner:
+  cmd: python /workspaces/COMDEX/backend/tests/run_vol7_phase_closure_pi_lint.py
