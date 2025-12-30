@@ -1,0 +1,13 @@
+{
+  "version": "v0.3",
+  "lock_id": "SRK-V0.3-SYMATICS-AXIOMS",
+  "axioms": [
+    {"id": "S0", "pattern": "a ⊕ b", "rewrite": "b ⊕ a"},
+    {"id": "S1", "pattern": "(a ⊕ b) ⊕ c", "rewrite": "a ⊕ (b ⊕ c)"},
+    {"id": "E0", "pattern": "a ↔ b", "rewrite": "b ↔ a"},
+    {"id": "M0", "pattern": "μ(a)", "rewrite": "a_collapsed"},
+    {"id": "M1", "pattern": "μ(a ⊕ b)", "rewrite": "μ(a) OR μ(b)"},
+    {"id": "P0", "pattern": "π(a,0)", "rewrite": "a_0"},
+    {"id": "P1", "pattern": "π(a,i)", "rewrite": "a_i"}
+  ]
+}

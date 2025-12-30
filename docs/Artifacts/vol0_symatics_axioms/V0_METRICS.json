@@ -1,0 +1,42 @@
+{
+  "canonical_copies_written": {
+    "AXIOM_REWRITE_REGISTRY.json": false,
+    "OPERATOR_RESERVATION_POLICY.yaml": false
+  },
+  "command": "/home/codespace/.python/current/bin/python /workspaces/COMDEX/backend/tests/run_vol0_axioms_lint.py",
+  "env": {
+    "platform": "Linux-6.8.0-1030-azure-x86_64-with-glibc2.39",
+    "python": "3.12.1"
+  },
+  "inputs": {
+    "policy": {
+      "path": "/workspaces/COMDEX/docs/Artifacts/vol0_symatics_axioms/artifacts/OPERATOR_RESERVATION_POLICY.yaml",
+      "sha256": "19edab1c1c09b05513a7d5101637bb5a1f877369ba60ca3ed161952293bf420b"
+    },
+    "registry": {
+      "path": "/workspaces/COMDEX/docs/Artifacts/vol0_symatics_axioms/artifacts/AXIOM_REWRITE_REGISTRY.json",
+      "sha256": "b31a38466f982c0a2e760019c3ed766a52833b948e61c2453369c31eb80062cd"
+    },
+    "scene": {
+      "path": "/workspaces/COMDEX/docs/Artifacts/vol0_symatics_axioms/qfc/AXIOM_STABILITY_V0_v0_3.scene.json",
+      "sha256": "22d95cc1cb2108165f6999d3789d962a5efc952b829c16827aa543333f05a093"
+    }
+  },
+  "lock_id": "SRK-V0.3-SYMATICS-AXIOMS",
+  "results": {
+    "failures": 0,
+    "rewrite_invariance_err": 0.0,
+    "trials": 200
+  },
+  "scene": {
+    "metric_name": "REWRITE_INVARIANCE_ERR",
+    "name": "AXIOM_STABILITY_V0",
+    "tolerance": 1e-06
+  },
+  "status": "PASS",
+  "timestamp_utc": "2025-12-30T11:16:01+00:00",
+  "truth_chain_notes": [
+    "No Born/intensity mention (optional for Vol0)."
+  ],
+  "truth_chain_policy_ok": true
+}

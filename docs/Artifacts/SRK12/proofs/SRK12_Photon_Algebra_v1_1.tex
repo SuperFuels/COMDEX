@@ -1,0 +1,132 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- Tessaris house style ---
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{newtxtext,newtxmath}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+
+% --- Math / layout ---
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+
+% --- Vol0/SRK-8 normalized operator macros ---
+\newcommand{\superpose}{\oplus}          % superposition
+\newcommand{\entangle}{\leftrightarrow} % entanglement
+\newcommand{\recurse}{\circlearrowleft} % resonance
+\newcommand{\bornw}{\Delta}             % Born weight / intensity functional (NOT collapse)
+\newcommand{\measure}{\mu}              % measurement / collapse / selection (Truth Chain)
+\newcommand{\project}{\pi}              % projection
+\newcommand{\evolve}{\Rightarrow}       % trigger / evolution
+\newcommand{\grad}{\nabla}              % RESERVED: geometric gradient/divergence only
+
+% --- Photon Algebra extras ---
+\newcommand{\Sig}{\Sigma}
+\newcommand{\Eval}{\mathrm{Eval}}
+\newcommand{\fuse}[1]{\mathbin{\bowtie\!\left[#1\right]}}
+\newcommand{\botexpr}{\bot}
+
+\title{\textbf{Technical Specification: Photon Algebra (SRK-12)}\\[4pt]
+\large Phase-Native Fusion, Governed Selection, and Runtime Binding (v1.1)}
+\author{Kevin Robinson \;\;|\;\; Tessaris AI}
+\date{December 22, 2025}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Photon Algebra (SRK-12) defines the phase-native operational layer that binds SRK-8 operator semantics to an executable photon runtime.
+It introduces the phase-parameterized fusion operator $\fuse{\phi}$ for constructive/destructive interference and specifies governed selection:
+Born-rule weighting modulated by policy (coherence) gates, with deterministic replay as a safety and audit requirement.
+\end{abstract}
+
+\section{Definitions in Force (Truth Chain)}
+\begin{itemize}[noitemsep]
+\item \textbf{Collapse/selection:} MUST use $\measure$.
+\item \textbf{Gradient:} $\grad$ is RESERVED and MUST NOT be used for collapse.
+\item \textbf{Born weight:} MUST use $\bornw$ as intensity/selection weight; it is not collapse.
+\end{itemize}
+
+\section{Physicality Mapping}
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}l Y Y@{}}
+\toprule
+\textbf{Operator} & \textbf{Physical realization} & \textbf{Logical effect} \\
+\midrule
+$\superpose$ & coherent wave addition & maintains multi-branch candidates \\
+$\fuse{\phi}$ & phase-shift interference & destructive interference yields $\botexpr$ \\
+$\entangle$ & linkage / constraint coupling & propagates constraints across branches \\
+$\measure$ & governed measurement/selection & resolves ambiguity via policy-modulated weights \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Photonic State Representation}
+A symbolic state is represented in a WaveCapsule envelope over symbols $\sigma\in\Sig$:
+\begin{itemize}[noitemsep]
+\item amplitude $\alpha(\sigma)$ (branch strength),
+\item phase $\phi(\sigma)$ (interference potential),
+\item coherence $\gamma(\sigma)$ (stability / ledger-derived score).
+\end{itemize}
+
+\section{Core Operators}
+\subsection{Superposition}
+\[
+\Eval(X \superpose Y) = \Eval(X) + \Eval(Y).
+\]
+
+\subsection{Phase-Parameterized Fusion $\fuse{\phi}$}
+\[
+\Eval(X \fuse{\phi} Y) = \Eval(X) + e^{i\phi}\Eval(Y).
+\]
+A phase shift $\phi=\pi$ yields destructive cancellation (modeled as $\botexpr$ for forbidden outcomes).
+
+\section{Born-Rule Bridge and Governed Selection}
+\subsection{Born probability}
+Given expression $E$ over $\Sig$, the base probability is
+\[
+P(\sigma) = \frac{|\Eval(E)(\sigma)|^2}{\sum_{\tau\in\Sig} |\Eval(E)(\tau)|^2}.
+\]
+
+\subsection{Policy modulation}
+A policy score $S_{\mathrm{SQI}}(\sigma)\in[0,1]$ modulates selection weights.
+Implementations MUST record the applied \texttt{status\_bonus} and policy tags for deterministic replay.
+
+\section{Observability and Audit}
+SRK-12 MUST emit a replayable trace for every governed selection, sufficient to reconstruct:
+\begin{itemize}[noitemsep]
+\item pre-modulation Born weights,
+\item policy modulation inputs,
+\item renormalization output,
+\item chosen branch and determinism ratio.
+\end{itemize}
+
+\section{Reproducibility Hooks (Canonical Paths)}
+\begin{itemize}[noitemsep]
+\item SRK-8 repaired ledger dependency:
+\texttt{docs/Artifacts/SRK8/ledger/theorem\_ledger\_repaired.jsonl}
+\item Runtime anchor:
+\texttt{backend/modules/photon/photon\_algebra\_runtime.py}
+\item Validation anchor:
+\texttt{docs/rfc/Photon Algebra Experimental Validation/Photon Algebra Experimental Validation Suite (PAEV-10)/Born rule/}
+\item Optional scene:
+\texttt{docs/Artifacts/SRK12/qfc/SRK12\_GOVERNED\_SELECTION.scene.json}
+\end{itemize}
+
+\vfill
+\noindent\rule{\linewidth}{0.4pt}
+
+\noindent
+Lock ID: SRK-12-PHOTON-ALGEBRA-v1.1\\
+Status: LOCKED \& VERIFIED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

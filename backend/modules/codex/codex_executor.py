@@ -124,10 +124,10 @@ def resolve_op(op_symbol: str):
         "⊕": "superpose",
         "↔": "entangle",
         "⟲": "resonate",
-        "∇": "collapse",
         "⧖": "delay",
         "->": "trigger",
     }
+    # ∇ is RESERVED for math gradient; leave as-is.
     return mapping.get(op_symbol, op_symbol)
 
 def _get_tessaris():

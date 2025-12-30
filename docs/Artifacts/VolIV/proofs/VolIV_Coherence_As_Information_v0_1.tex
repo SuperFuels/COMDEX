@@ -1,0 +1,123 @@
+% Volume IV — Information Theory: Coherence as Information (v0.1)
+\documentclass[11pt,a4paper]{article}
+
+% --- Tessaris house style ---
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+
+% --- Truth Chain macros (normative) ---
+\newcommand{\superpose}{\oplus}
+\newcommand{\entangle}{\leftrightarrow}
+\newcommand{\recurse}{\circlearrowleft}
+\newcommand{\measure}{\mu}     % measurement / collapse / selection
+\newcommand{\project}{\pi}
+\newcommand{\bornw}{\Delta}    % Born weight / intensity (NOT collapse)
+\newcommand{\grad}{\nabla}     % RESERVED: geometric gradient/divergence only
+
+\title{\textbf{Volume IV — Information Theory: Coherence as Information}\\[2pt]
+\large Codex / Symatics Algebra Series (v0.1)}
+\author{Kevin Robinson \;\;|\;\; Tessaris AI}
+\date{October 11, 2025}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Classical information theory defines information as reduction of uncertainty over discrete symbols.
+In Symatics, symbols are continuously coupled through superposition ($\superpose$) and entanglement ($\entangle$).
+This paper defines information as \emph{phase coherence} and entropy as \emph{phase decoherence} (loss of resonance),
+providing the metric bridge required for governed selection and later energetic unification.
+\end{abstract}
+
+\section{Definitions in Force (Truth Chain)}
+\begin{itemize}[noitemsep]
+\item \textbf{Collapse/selection:} MUST use $\measure$ (not $\grad$).
+\item \textbf{Gradient:} $\grad$ is RESERVED for geometry/physics only.
+\item \textbf{Born weight:} MUST use $\bornw$ for intensity/selection weight; it is not collapse.
+\end{itemize}
+
+\section{Core discovery}
+\begin{itemize}[noitemsep]
+\item \textbf{Information} is \textit{coherence}: phase-aligned symbolic waves remain structurally intact.
+\item \textbf{Entropy} is \textit{loss of resonance}: phase dispersion increases and coherence decays.
+\item \textbf{Communication} is \textit{resonance maintenance}: alignment across entangled channels.
+\end{itemize}
+
+\[
+\boxed{\text{Information = Coherence \quad Entropy = Phase Dispersion}}
+\]
+
+\section{From bits to wave-ensembles}
+Shannon assumes independent symbols and uncertainty.
+Symatics replaces independence with coupled wave ensembles:
+\[
+S_i = \superpose_j \psi_j(x,t),
+\]
+with cross-channel constraints propagated by $\entangle$.
+A message is a resonance ensemble, not isolated bits.
+
+\section{Coherence metric and information identity}
+Let $\Delta\phi$ be the phase difference between components in an ensemble (or between two coupled systems).
+Define phase coherence
+\[
+C_\phi := \left|\left\langle e^{i\Delta\phi}\right\rangle\right|\in[0,1],
+\qquad
+D_\phi := 1 - C_\phi.
+\]
+\textbf{Information is coherence}:
+\[
+\mathcal{I} := 1 - D_\phi = C_\phi.
+\]
+Define symbolic entropy relative to a baseline coherence $C_{\phi,0}>0$:
+\[
+\mathcal{S}_{\mathrm{sym}} := -\ln\!\left(\frac{C_\phi}{C_{\phi,0}}\right).
+\]
+Thus $\Delta\phi\to 0 \Rightarrow C_\phi\to 1$ and $\mathcal{S}_{\mathrm{sym}}\to 0$.
+
+\section{Resonant information flow}
+For systems $A$ and $B$,
+\[
+\mathcal{I}_{A\entangle B} := \left|\left\langle e^{i(\phi_A-\phi_B)}\right\rangle\right|.
+\]
+$\mathcal{I}_{A\entangle B}=1$ corresponds to perfect phase alignment (maximal mutual coherence).
+
+\section{Thermodynamic analogy}
+For isolated ensembles, phase dispersion is non-decreasing (decoherence):
+\[
+\frac{d\mathcal{S}_{\mathrm{sym}}}{dt}\ge 0.
+\]
+With feedback coupling (entanglement channels) the system can locally restore coherence; operationally this is the metric basis for pruning high-dispersion branches prior to governed selection.
+
+\section{Implications for cognition and communication}
+Learning strengthens coherence; forgetting is decoherence.
+Information processing is coherence management: maintaining high $\mathcal{I}$ across interacting $\superpose$-states and entangled constraints.
+
+\section{Repro hooks}
+This document is verified by a QFC scene that demonstrates phase locking and reports acceptance metrics:
+\begin{itemize}[noitemsep]
+\item Scene: \texttt{docs/Artifacts/VolIV/qfc/VOL4\_COHERENCE\_PHASE\_LOCK.scene.json}
+\item Thresholds: \texttt{docs/Artifacts/VolIV/build/VOLIV\_ACCEPTANCE\_THRESHOLDS.yaml}
+\end{itemize}
+
+\vfill
+\noindent\rule{\linewidth}{0.4pt}
+
+\noindent
+Lock ID: VolIV-INFO-COHERENCE-v0.1\\
+Status: PENDING (until artifacts + thresholds are satisfied)\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

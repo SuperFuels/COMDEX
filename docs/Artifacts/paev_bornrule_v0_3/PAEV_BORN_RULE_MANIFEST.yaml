@@ -1,0 +1,19 @@
+# Tessaris / Truth Chain — PAEV Born Rule bundle (v0.3)
+lock_id: PAEV-BORN-RULE-v0.3
+status: DRAFT
+maintainer: Tessaris AI
+author: Kevin Robinson
+inputs_source_of_record:
+  - docs/Artifacts/paev_bornrule_v0_3/artifacts/PAEV_TestA3_BornRule_analytic.txt
+figures_optional:
+  - docs/Artifacts/paev_bornrule_v0_3/figures/PAEV_TestA_BornRule.png
+  - docs/Artifacts/paev_bornrule_v0_3/figures/PAEV_TestA2_BornRule_Qutrit.png
+  - docs/Artifacts/paev_bornrule_v0_3/figures/PAEV_TestA4_BornRule_Stability.png
+  - docs/Artifacts/paev_bornrule_v0_3/figures/PAEV_TestA5_Measurement_Contextual.png
+  - docs/Artifacts/paev_bornrule_v0_3/figures/PAEV_TestA6_ContinuousMeasurement.gif
+  - docs/Artifacts/paev_bornrule_v0_3/figures/PAEV_TestB1B2_WeakMeas_Convergence.png
+evidence_outputs:
+  - docs/Artifacts/paev_bornrule_v0_3/PAEV_BORN_LINT_PROOF.log
+  - docs/Artifacts/paev_bornrule_v0_3/PAEV_BORN_METRICS.json
+runner:
+  - python /workspaces/COMDEX/backend/tests/run_paev_bornrule_lint.py

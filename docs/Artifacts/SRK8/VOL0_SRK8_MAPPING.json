@@ -1,0 +1,13 @@
+{
+  "version": "0.3",
+  "vol0_reserved": {
+    "superposition": { "symbol": "⊕", "macro": "\\superpose", "srk8_op": "interf:⊕" },
+    "entanglement":  { "symbol": "↔", "macro": "\\entangle",  "srk8_op": "ent:↔" },
+    "resonance":     { "symbol": "⟲", "macro": "\\recurse",   "srk8_op": "res:⟲" },
+    "born_weight":   { "symbol": "Δ", "macro": "\\bornw",     "srk8_op": "born:Δ" },
+    "measurement":   { "symbol": "μ", "macro": "\\measure",   "srk8_op": "meas:μ" },
+    "projection":    { "symbol": "π", "macro": "\\project",   "srk8_op": "proj:π" },
+    "evolution":     { "symbol": "⇒", "macro": "\\evolve",    "srk8_op": "evo:⇒" },
+    "gradient":      { "symbol": "∇", "macro": "\\nabla",     "note": "reserved for geometry; not a collapse symbol" }
+  }
+}

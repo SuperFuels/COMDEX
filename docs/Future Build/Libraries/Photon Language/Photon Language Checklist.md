@@ -512,7 +512,8 @@ And because Photon is wave-native, those predictions can directly trigger QWave 
 	•	Execution Glyphs
 	•	⊕ = compose / combine
 	•	↔ = entangle / link
-	•	∇ = collapse / reduce
+	•	μ = collapse / measure
+	•	∇ = gradient / flow
 	•	⟲ = replay / rewind
 	•	% = Knowledge Graph
 	•	> = QWave beam execution

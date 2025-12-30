@@ -1,0 +1,15 @@
+version: v0.3
+lock_id: SRK-V0.3-SYMATICS-AXIOMS
+
+reservation:
+  mu:
+    role: measurement
+    rule: "MUST be used for collapse/measurement"
+  nabla:
+    role: gradient
+    rule: "MUST NOT be used for collapse; RESERVED for math/physics"
+
+enforcement:
+  on_legacy_nabla_collapse:
+    action: reject   # reject | redirect | warn
+    code: DIMENSIONAL_VIOLATION

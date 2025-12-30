@@ -1,0 +1,31 @@
+# VOLIV_PIPELINE_MANIFEST.yaml
+# Volume IV (Information Theory: Coherence as Information) lock surface.
+vol: VolIV
+title: "Information Theory: Coherence as Information"
+version: v0.1
+lock_id: VolIV-INFO-COHERENCE-v0.1
+status: PENDING
+date: 2025-10-11
+
+depends_on:
+  truth_chain:
+    definitions:
+      collapse_selection: "\\mu"
+      grad_reserved: "\\nabla"
+      born_weight: "\\Delta"
+
+artifacts:
+  proofs:
+    tex: docs/Artifacts/VolIV/proofs/VolIV_Coherence_As_Information_v0_1.tex
+  qfc:
+    scene: docs/Artifacts/VolIV/qfc/VOL4_COHERENCE_PHASE_LOCK.scene.json
+  acceptance:
+    thresholds: docs/Artifacts/VolIV/build/VOLIV_ACCEPTANCE_THRESHOLDS.yaml
+  evidence:
+    lint_proof_log: docs/Artifacts/VolIV/ledger/VOLIV_LINT_PROOF.log
+  notes:
+    audit_notes: docs/Artifacts/VolIV/notes/VOLIV_AUDIT_NOTES.md
+
+repro:
+  deterministic: true
+  metric_source: qfc_scene

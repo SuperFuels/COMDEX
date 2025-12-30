@@ -1,0 +1,15 @@
+{
+  "srk8_version": "0.3",
+  "timestamp_utc": "2025-12-30T00:23:05.984325Z",
+  "ledger_path": "docs/Artifacts/SRK8/theorem_ledger.jsonl",
+  "proved_count": 3,
+  "proved_symbols": [
+    "theorem_tensor_coherence",
+    "theorem_tensor_balance",
+    "theorem_energy_coherence"
+  ],
+  "rejected_symbols": [
+    "bad_phase_symmetry"
+  ],
+  "note": "Bundle-level diagnostics snapshot for paper appendix references."
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "SRK12_GOVERNED_SELECTION_TRACE",
+  "version": "1.0",
+  "fields": {
+    "timestamp": "string (UTC ISO8601)",
+    "wavecapsule_id": "string",
+    "branches": [
+      {
+        "name": "string",
+        "symbol": "string",
+        "amp": "number",
+        "phase": "number",
+        "born_weight": "number",
+        "status_bonus": "number",
+        "policy_tags": ["string"],
+        "prob_before": "number",
+        "prob_after": "number"
+      }
+    ],
+    "normalization": {
+      "sum_prob_after": "number",
+      "renormalized": "boolean"
+    },
+    "decision": {
+      "selected_branch": "string",
+      "selection_determinism_ratio": "number"
+    }
+  }
+}

@@ -14,6 +14,11 @@ Includes:
     * Random state initializers for quantum sheets
 
 All components are lightweight and dependency-safe.
+
+LOCKED SEMANTICS:
+- ∇ is RESERVED for math/physics gradient (math:∇ / physics:∇) and MUST NOT be
+  treated as collapse in QTools mappings.
+- Use μ (measure) for measurement/collapse semantics in the Q-Series symbolic layer.
 """
 
 from __future__ import annotations
@@ -23,7 +28,6 @@ import cmath
 import numpy as np
 from typing import Any, Dict, List, Tuple, Union
 
-
 # ----------------------------------------------------------------------
 # Glyph ↔ Operator Mappings
 # ----------------------------------------------------------------------
@@ -31,7 +35,7 @@ GLYPH_TO_OP = {
     "⊕": "superpose",
     "↔": "entangle",
     "⟲": "resonate",
-    "∇": "collapse",
+    # ∇ is reserved for gradient in math/physics; do not map to collapse here.
     "μ": "measure",
     "π": "project",
 }
@@ -63,7 +67,9 @@ def compute_resonance(a: np.ndarray, b: np.ndarray) -> Dict[str, float]:
         }
     """
     a_flat, b_flat = a.flatten(), b.flatten()
-    correlation = float(np.vdot(a_flat, b_flat).real / (np.linalg.norm(a_flat) * np.linalg.norm(b_flat) + 1e-9))
+    correlation = float(
+        np.vdot(a_flat, b_flat).real / (np.linalg.norm(a_flat) * np.linalg.norm(b_flat) + 1e-9)
+    )
     phase_shift = float(np.angle(np.vdot(a_flat, b_flat)))
     coherence = float(abs(correlation) * (1 - abs(phase_shift) / math.pi))
     return {

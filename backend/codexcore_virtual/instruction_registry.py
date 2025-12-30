@@ -41,6 +41,17 @@ class InstructionRegistry:
     def list_instructions(self) -> Dict[str, str]:
         return {key: func.__name__ for key, func in self.registry.items()}
 
+    def get_opcode(self, symbol: str) -> str:
+        """
+        Resolve a raw glyph or canonical domain-tagged key into a canonical key.
+        This makes SymbolicOpCode normalization real (previously it always fell back).
+        """
+        if symbol in self.registry:
+            return symbol
+        if symbol in self.aliases:
+            return self.aliases[symbol]
+        return symbol
+
     # --- Execution APIs ---
 
     def execute(self, key: str, operand: Any = None) -> Any:
@@ -177,11 +188,13 @@ def _h_grad(ctx, field=None, coords=None, context=None, **kw):      # ∇
     _need_pk("∇")
     return _to_python(PK.grad(field, coords))
 
+# Keep legacy ∇* behavior stable: ∇* -> divergence (default)
 def _h_div(ctx, vec=None, coords=None, context=None, **kw):        # ∇*
     _need_pk("∇*")
     return _to_python(PK.div(vec, coords))
 
-def _h_curl(ctx, vec=None, coords=None, context=None, **kw):       # ∇*
+# Add distinct canonical curl (does not change legacy ∇* routing)
+def _h_curl(ctx, vec=None, coords=None, context=None, **kw):       # ∇×
     _need_pk("∇*")
     return _to_python(PK.curl(vec, coords))
 
@@ -194,11 +207,13 @@ def _h_d_dt(ctx, expr=None, t: Optional[str] = None, context=None, **kw):  # d/d
     return _to_python(PK.d_dt(expr, t or "t"))
 
 # Linear algebra / tensor ops
+# Keep legacy "*" stable: "*" -> dot (default)
 def _h_dot(ctx, A=None, B=None, context=None, **kw):               # *
     _need_pk("*")
     return _to_python(PK.dot(A, B))
 
-def _h_cross(ctx, A=None, B=None, context=None, **kw):             # *
+# Add distinct canonical cross "×" (does not change legacy "*" routing)
+def _h_cross(ctx, A=None, B=None, context=None, **kw):             # ×
     _need_pk("*")
     return _to_python(PK.cross(A, B))
 
@@ -288,13 +303,22 @@ _safe_register("π", _h_project, "symatics")
 # --------------------------
 
 _safe_register("∇", _h_grad, "physics")
+
+# Keep legacy ∇* stable: point it at divergence
 _safe_register("∇*", _h_div, "physics")
-_safe_register("∇*", _h_curl, "physics")
+
+# Add distinct canonical curl symbol without breaking legacy
+_safe_register("∇×", _h_curl, "physics")
+
 _safe_register("Δ", _h_laplacian, "physics")
 _safe_register("d/dt", _h_d_dt, "physics")
 
+# Keep legacy "*" stable: point it at dot
 _safe_register("*", _h_dot, "physics")
-_safe_register("*", _h_cross, "physics")
+
+# Add distinct canonical cross symbol without breaking legacy
+_safe_register("×", _h_cross, "physics")
+
 _safe_register("⊗", _h_tensor, "physics")
 
 _safe_register("ħ", _h_hbar, "physics")
@@ -312,7 +336,6 @@ _safe_register("DDT", _h_d_dt, "physics")
 _safe_register("DOT", _h_dot, "physics")
 _safe_register("CROSS", _h_cross, "physics")
 _safe_register("TENSOR", _h_tensor, "physics")
-_safe_register("*", _h_dot, "physics")
 _safe_register("∂t", _h_d_dt, "physics")
 
 
@@ -402,12 +425,12 @@ INSTRUCTION_METADATA: Dict[str, Dict[str, str]] = {
     # Physics Operators
     # --------------------------
     "physics:∇":    {"type": "physics_op", "impl": "gradient_operator"},
-    "physics:∇*":   {"type": "physics_op", "impl": "divergence_operator"},
-    "physics:∇*":   {"type": "physics_op", "impl": "curl_operator"},
+    "physics:∇*":   {"type": "physics_op", "impl": "divergence_operator"},  # legacy
+    "physics:∇×":   {"type": "physics_op", "impl": "curl_operator"},
     "physics:Δ":    {"type": "physics_op", "impl": "laplacian_operator"},
     "physics:⊗":    {"type": "physics_op", "impl": "tensor_product"},
-    "physics:*":    {"type": "physics_op", "impl": "cross_product"},
-    "physics:*":    {"type": "physics_op", "impl": "dot_product"},
+    "physics:*":    {"type": "physics_op", "impl": "dot_product"},          # legacy
+    "physics:×":    {"type": "physics_op", "impl": "cross_product"},
     "physics:□":    {"type": "physics_op", "impl": "dalembertian_operator"},
     "physics:d/dt": {"type": "physics_op", "impl": "time_derivative"},
     "physics:∂_μ":  {"type": "physics_op", "impl": "partial_derivative"},
@@ -424,7 +447,6 @@ INSTRUCTION_METADATA: Dict[str, Dict[str, str]] = {
     "physics:DOT":    {"type": "physics_op", "impl": "dot_product"},
     "physics:CROSS":  {"type": "physics_op", "impl": "cross_product"},
     "physics:TENSOR": {"type": "physics_op", "impl": "tensor_product"},
-    "physics:*":      {"type": "physics_op", "impl": "dot_product"},
     "physics:∂t":     {"type": "physics_op", "impl": "time_derivative"},
 
     # --------------------------
@@ -484,10 +506,7 @@ class SymbolicOpCode(str):
     Normalizes glyphs using the registry or alias shim.
     """
     def __new__(cls, symbol: str):
-        try:
-            canonical = registry.get_opcode(symbol)
-        except Exception:
-            canonical = symbol
+        canonical = registry.get_opcode(symbol)
         return str.__new__(cls, canonical)
 
 

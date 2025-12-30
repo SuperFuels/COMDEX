@@ -1,0 +1,15 @@
+# VOLIV_ACCEPTANCE_THRESHOLDS.yaml
+# Acceptance thresholds for locking Volume IV.
+
+scene: VOL4_COHERENCE_PHASE_LOCK
+
+metrics:
+  I_final_min: 0.95          # requires coherence C_phi >= 0.95 at end of run
+  Dphi_final_max: 0.05       # since D_phi = 1 - C_phi
+  lock_window_steps_max: 1000
+
+notes:
+  - "C_phi := |E[e^{i Δφ}]| ∈ [0,1]"
+  - "D_phi := 1 - C_phi"
+  - "Information identity: I := 1 - D_phi = C_phi"
+  - "Implementations SHOULD clamp C_phi to >= 1e-12 when computing log entropy."

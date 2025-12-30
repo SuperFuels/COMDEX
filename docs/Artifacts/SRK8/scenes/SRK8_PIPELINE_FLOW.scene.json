@@ -1,0 +1,68 @@
+{
+  "scene": "SRK8_PIPELINE_FLOW",
+  "version": "v0.1",
+  "goal": "Visualize translation + normalization from a non-canonical operator expression to its canonical form before ledger hashing.",
+  "inputs": {
+    "expression_text": "(B ⊕ A) ⊕ C",
+    "operator_aliases": {
+      "superpose": "⊕",
+      "entangle": "↔",
+      "resonate": "⟲",
+      "bornw": "Δ",
+      "measure": "μ",
+      "project": "π",
+      "evolve": "⇒"
+    },
+    "normalization_rules": [
+      "commutativity(⊕)",
+      "associativity(⊕)"
+    ]
+  },
+  "outputs": {
+    "canonical_text": "A ⊕ (B ⊕ C)",
+    "canonicalization_guarantee": "Normalization yields a stable canonical form used for hashing and equivalence checking."
+  },
+  "pipeline_stages": [
+    {
+      "id": "parse_lean",
+      "label": "Parse Lean-like Source",
+      "description": "Extract operator expression and typing context from proof source."
+    },
+    {
+      "id": "translate_codexlang_ast",
+      "label": "Translate to CodexLang AST",
+      "description": "Convert expression into a structured AST with explicit operator nodes."
+    },
+    {
+      "id": "normalize_comm_assoc",
+      "label": "Normalize (Comm/Assoc)",
+      "description": "Rewrite into canonical ordering and parenthesization under ⊕ commutativity/associativity."
+    },
+    {
+      "id": "hash_canonical_ast",
+      "label": "Hash Canonical AST",
+      "description": "Compute semantic hash of canonical AST as ledger identity."
+    },
+    {
+      "id": "emit_ledger_jsonl",
+      "label": "Emit Theorem Ledger Entry",
+      "description": "Write JSONL record containing symbol, hash, source, timestamp, and canonical form."
+    }
+  ],
+  "metric": {
+    "name": "AST_DEPTH_REDUCTION",
+    "definition": "depth(before) - depth(after)",
+    "expected_sign": ">= 0",
+    "notes": "Canonicalization may reduce depth for left-nested forms by right-association."
+  },
+  "proof_obligation": {
+    "lean_lemma": "splus_comm",
+    "meaning": "Commutativity lemma used (directly or indirectly) by the normalizer to justify reordering."
+  },
+  "artifacts": {
+    "ledger_target": "docs/Artifacts/SRK8/theorem_ledger.jsonl",
+    "source_lean_example": "docs/Artifacts/SRK8/proofs/symatics_tensor.lean",
+    "repo_source_of_record_ledger": "docs/rfc/theorem_ledger_repaired.jsonl",
+    "repo_source_of_record_lean": "backend/symatics/proofs/symatics_tensor.lean"
+  }
+}

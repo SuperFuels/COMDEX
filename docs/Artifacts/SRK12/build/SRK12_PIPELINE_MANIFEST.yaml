@@ -1,0 +1,31 @@
+# SRK12_PIPELINE_MANIFEST.yaml
+# SRK-12 (Photon Algebra) build surface: dependencies + runtime anchors + scene hooks.
+srk: SRK-12
+lock_id: SRK-12-PHOTON-ALGEBRA-v1.1
+status: LOCKED_AND_VERIFIED
+date: 2025-12-22
+
+depends_on:
+  srk8:
+    ledger_repaired: docs/Artifacts/SRK8/ledger/theorem_ledger_repaired.jsonl
+    mapping: docs/Artifacts/SRK8/build/VOL0_SRK8_MAPPING.json
+
+runtime:
+  anchor: backend/modules/photon/photon_algebra_runtime.py
+
+validation:
+  paeV10_born_rule_track:
+    path: "docs/rfc/Photon Algebra Experimental Validation/Photon Algebra Experimental Validation Suite (PAEV-10)/Born rule/"
+    note: "Canonical evidence track for governed probability resolution."
+
+artifacts:
+  scene:
+    governed_selection: docs/Artifacts/SRK12/qfc/SRK12_GOVERNED_SELECTION.scene.json
+
+symbols_in_force:
+  collapse_selection: "\\mu"
+  grad_reserved: "\\nabla"
+  born_weight: "\\Delta"
+
+repro:
+  deterministic_replay_required: true

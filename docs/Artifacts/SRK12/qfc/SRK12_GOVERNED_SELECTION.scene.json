@@ -1,0 +1,40 @@
+{
+  "scene": "SRK12_GOVERNED_SELECTION",
+  "goal": "Demonstrate policy-modulated Born selection and deterministic replay requirements.",
+  "inputs": {
+    "branches": [
+      { "name": "BranchA", "label": "Valid", "amplitude": 1.0, "phase": 0.0, "status_bonus": 0.2 },
+      { "name": "BranchB", "label": "Contradictory", "amplitude": 1.0, "phase": 0.0, "status_bonus": -0.2 }
+    ],
+    "policy_gate": "status_bonus",
+    "selection_rule": "BornRule * f(S_SQI)"
+  },
+  "stages": [
+    "render_initial_probabilities",
+    "apply_policy_bonus",
+    "renormalize_probabilities",
+    "sample_or_force_selection",
+    "emit_audit_trace"
+  ],
+  "metrics": [
+    {
+      "name": "SELECTION_DETERMINISM_RATIO",
+      "definition": "max(P_after) / sum(P_after)"
+    },
+    {
+      "name": "RENORMALIZATION_DELTA_L1",
+      "definition": "||P_after - P_before||_1"
+    }
+  ],
+  "audit_requirements": [
+    "WaveCapsule snapshot before/after fusion and policy",
+    "Policy gate trace including rule IDs and status_bonus",
+    "Probability vector before/after renormalization",
+    "Deterministic replay seed (if sampling is stochastic)"
+  ],
+  "truth_chain": {
+    "collapse_symbol": "mu",
+    "gradient_reserved": "nabla",
+    "born_weight_symbol": "Delta"
+  }
+}

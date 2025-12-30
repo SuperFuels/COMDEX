@@ -1,0 +1,15 @@
+{
+  "scene": "SRK8_PIPELINE_FLOW",
+  "goal": "Visualize translation + normalization from messy expression to canonical form before ledger hashing.",
+  "input_expression": "(B ⊕ A) ⊕ C",
+  "canonical_output": "A ⊕ (B ⊕ C)",
+  "stages": [
+    "parse_lean",
+    "translate_codexlang_ast",
+    "normalize_comm_assoc",
+    "hash_canonical_ast",
+    "emit_ledger_jsonl"
+  ],
+  "metric": { "name": "AST_DEPTH_REDUCTION", "definition": "depth(before)-depth(after)" },
+  "lean_obligation": "lemma splus_comm"
+}

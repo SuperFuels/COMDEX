@@ -22,20 +22,36 @@ GLYPHS = {
 }
 
 # --- Glyph -> Sympy translation rules ---
+# backend/photon/axioms.py
+
+import re  # <-- add this
+
 def _glyph_to_sympy(expr: str) -> str:
     """
     Convert a glyph expression into a Sympy-safe string.
     Handles special cases (↔, !=, ∇) -> Eq/Ne/Grad().
     """
+    expr = (expr or "").strip()
+
+    # basic glyph algebra -> sympy operators
+    expr = expr.replace("⊕", "+")
+    expr = expr.replace("⊗", "*")
+    expr = expr.replace("⊖", "-")
+
+    # ✅ convert ALL gradient forms, not just leading one
+    # ∇(x) -> Grad(x)
+    expr = re.sub(r"∇\s*\(", "Grad(", expr)
+
+    # (optional) bare ∇x -> Grad(x) for simple identifiers
+    expr = re.sub(r"\b∇\s*([A-Za-z_]\w*)\b", r"Grad(\1)", expr)
+
     if "↔" in expr:
-        lhs, rhs = expr.split("↔")
+        lhs, rhs = expr.split("↔", 1)
         return f"Eq({lhs.strip()}, {rhs.strip()})"
     if "!=" in expr:
-        lhs, rhs = expr.split("!=")
+        lhs, rhs = expr.split("!=", 1)
         return f"Ne({lhs.strip()}, {rhs.strip()})"
-    if expr.startswith("∇"):
-        inner = expr[1:].strip("() ")
-        return f"Grad({inner})"
+
     return expr
 
 
@@ -54,13 +70,13 @@ AXIOMS: Dict[str, Tuple[str, str, str]] = {
 
     # Equivalence & Entanglement
     "sym_eq": ("a ↔ b", "b ↔ a", "Symmetry of entanglement ↔"),
-    "ref_eq": ("a ↔ a", "✦", "Reflexivity of entanglement (collapse milestone)"),
+    "ref_eq": ("a ↔ a", "✦", "Reflexivity of entanglement (milestone)"),
 
     # Gradient / Entropy Rules (use Grad() structurally)
-    "grad_zero": ("Grad(0)", "0", "Gradient of zero is zero"),
-    "grad_const": ("Grad(c)", "0", "Gradient of constant is zero"),
-    "grad_add": ("Grad(a + b)", "Grad(a) + Grad(b)", "Gradient distributes over ⊕"),
-    "grad_mul": ("Grad(a * b)", "(Grad(a) * b) + (a * Grad(b))", "Product rule for ∇"),
+    "grad_zero": ("∇(0)", "0", "Gradient of zero is zero"),
+    "grad_const": ("∇(c)", "0", "Gradient of constant is zero"),
+    "grad_add": ("∇(a ⊕ b)", "∇(a) ⊕ ∇(b)", "Gradient distributes over ⊕"),
+    "grad_mul": ("∇(a ⊗ b)", "(∇(a) ⊗ b) ⊕ (a ⊗ ∇(b))", "Product rule for ∇"),
 
     # Collapse / Mutation
     "collapse_id": ("⟲a", "a", "Mutation collapse identity"),

@@ -1,0 +1,19 @@
+# SRK8_PIPELINE_MANIFEST.yaml
+# Parser settings + CodexLang AST target versions (SRK-8)
+srk: SRK-8
+lock_id: SRK-8-PAPER-v0.3
+inputs:
+  lean_sources_root: backend/symatics/proofs
+  include:
+    - symatics_tensor.lean
+codexlang:
+  ast_version: 0.1
+  normalize:
+    - commutativity: superpose
+    - associativity: superpose
+ledger:
+  format: jsonl
+  output: docs/Artifacts/SRK8/ledger/theorem_ledger.jsonl
+hash:
+  algorithm: sha256
+  canonicalization: codexlang_normal_form

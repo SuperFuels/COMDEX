@@ -1,0 +1,34 @@
+{
+  "scene": "VOLIV_INFORMATION_METRIC",
+  "goal": "Visualize conversion of high-entropy phase noise into phase-locked coherence and verify I = 1 - D_phi.",
+  "setup": {
+    "n_oscillators": 256,
+    "initial_state": "WHITE_NOISE",
+    "target_state": "PHASE_LOCKED",
+    "phase_distribution": "wrapped_normal",
+    "seed": 42
+  },
+  "definitions": {
+    "D_phi": "normalized phase dispersion in [0,1] computed from circular variance",
+    "I": "information-as-coherence, defined as I = 1 - D_phi",
+    "C_plus": "coherence functional used as downstream weighting; must be monotone in I"
+  },
+  "stages": [
+    "initialize_white_noise",
+    "apply_phase_lock_controller",
+    "measure_D_phi",
+    "compute_I",
+    "compute_C_plus",
+    "emit_metrics"
+  ],
+  "metrics": [
+    { "name": "COHERENCE_GAIN", "definition": "I_final - I_initial" },
+    { "name": "ENTROPY_TO_INFO_SLOPE", "definition": "-DeltaS / DeltaI (operational audit metric)" }
+  ],
+  "acceptance": {
+    "I_bounds": [0, 1],
+    "D_phi_bounds": [0, 1],
+    "identity_abs_tol": 1e-12
+  },
+  "tsx_hint": "QFCInformationMetric.tsx"
+}

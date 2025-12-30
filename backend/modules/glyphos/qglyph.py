@@ -5,9 +5,15 @@ QGlyph Core Utilities
 Provides fundamental symbolic-quantum glyph operations:
   * resolve_qglyph_superposition - collapse superposed glyphs (↔)
   * normalize_glyph - optional utility to clean or canonicalize glyphs
+
+NOTE (LOCKED):
+- ∇ is RESERVED for math:∇ (gradient) and MUST NOT be treated as collapse here.
+- Use μ (measure) for measurement/collapse semantics in the QGlyph operator table.
 """
 
 import random
+from typing import Dict, Any
+
 
 def resolve_qglyph_superposition(left: str, right: str, bias: float = 0.5) -> str:
     """
@@ -45,11 +51,12 @@ def normalize_glyph(glyph: str) -> str:
         glyph = glyph + "]"
     return glyph
 
+
 # ────────────────────────────────────────────────────────────────
 # 🧩 QGlyph Logic Preloader
 # ────────────────────────────────────────────────────────────────
 
-def preload_qglyph_logic(verbose: bool = True) -> dict:
+def preload_qglyph_logic(verbose: bool = True) -> Dict[str, Any]:
     """
     Preloads QGlyph resonance tables, normalization rules, and quantum operator stubs
     used by Codex and QQC runtime.
@@ -60,15 +67,14 @@ def preload_qglyph_logic(verbose: bool = True) -> dict:
     Returns:
         A dictionary of registered symbolic/quantum operators for reference.
     """
-
-    qglyph_registry = {
+    qglyph_registry: Dict[str, Any] = {
         "superposition_resolver": resolve_qglyph_superposition,
         "normalize": normalize_glyph,
         "operators": {
             "⊕": "superpose",
             "↔": "entangle",
             "⟲": "resonate",
-            "∇": "collapse",
+            # ∇ is reserved for gradient in math/physics; do not map to collapse.
             "μ": "measure",
         },
         "initialized": True,

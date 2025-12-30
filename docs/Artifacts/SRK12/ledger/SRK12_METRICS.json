@@ -1,0 +1,28 @@
+{
+  "RENORMALIZATION_DELTA_L1": 1.0,
+  "SELECTION_DETERMINISM_RATIO": 1.0,
+  "fail_reasons": [],
+  "lock_id": "SRK-12-PHOTON-ALGEBRA-v1.1",
+  "pass": true,
+  "prob_after": [
+    1.0,
+    0.0
+  ],
+  "prob_before": [
+    0.5,
+    0.5
+  ],
+  "scene": "SRK12_GOVERNED_SELECTION",
+  "selected_branch": "BranchA",
+  "sum_after": 1.2,
+  "sum_before": 2.0,
+  "timestamp": "2025-12-30T10:37:14+00:00",
+  "weights_after": [
+    1.2,
+    0.0
+  ],
+  "weights_before": [
+    1.0,
+    1.0
+  ]
+}

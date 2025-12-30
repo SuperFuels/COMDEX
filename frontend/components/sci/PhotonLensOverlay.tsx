@@ -95,7 +95,7 @@ export default function PhotonLensOverlay({
       case "⊕": playTone(432, 0.3, "sine"); break;
       case "↔": playTone(528, 0.4, "triangle"); break;
       case "⟲": playTone(639, 0.5, "sawtooth"); break;
-      case "∇": playTone(396, 0.2, "square"); break;
+      case "∇": playTone(396, 0.2, "square"); break; // ∇ = gradient (reserved), not collapse
       case "μ": playTone(741, 0.35, "sine"); break;
       default:  playTone(220, 0.15, "sine");
     }
@@ -390,8 +390,8 @@ export default function PhotonLensOverlay({
         <span className="mr-3 text-cyan-400">⊕ Superposition</span>
         <span className="mr-3 text-pink-400">↔ Entanglement</span>
         <span className="mr-3 text-yellow-400">⟲ Resonance</span>
-        <span className="mr-3 text-red-400">∇ Collapse</span>
-        <span className="text-white">μ Measurement</span>
+        <span className="mr-3 text-red-400">∇ Gradient</span>
+        <span className="text-white">μ Collapse / Measurement</span>
       </motion.div>
     </div>
   );

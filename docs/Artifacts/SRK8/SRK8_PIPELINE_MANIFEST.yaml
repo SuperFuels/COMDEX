@@ -1,0 +1,26 @@
+srk8:
+  version: "0.3"
+  inputs:
+    lean_sources_glob:
+      - "backend/symatics/proofs/**/*.lean"
+  parser:
+    dialect: "lean4"
+    fail_fast: true
+  translator:
+    target: "codexlang"
+    ast_version: "1.0"
+    normalization:
+      commutativity: ["interf:⊕"]
+      associativity: ["interf:⊕"]
+      alpha_rename: true
+      sort_args: true
+  verifier:
+    mode: "internal-consistency"
+    reject_on:
+      - "untyped_operator"
+      - "non_canonical_form"
+      - "depends_on_rejected"
+  outputs:
+    ledger_jsonl: "docs/Artifacts/SRK8/theorem_ledger.jsonl"
+    diagnostics_json: "docs/Artifacts/SRK8/SRK8_DIAGNOSTICS_REPORT.json"
+    lint_log: "docs/Artifacts/SRK8/SRK8_LINT_PROOF.log"

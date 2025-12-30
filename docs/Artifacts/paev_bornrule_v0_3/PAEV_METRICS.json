@@ -1,0 +1,33 @@
+{
+  "inputs": {
+    "A3_analytic_report": "/workspaces/COMDEX/docs/Artifacts/paev_bornrule_v0_3/artifacts/PAEV_TestA3_BornRule_analytic.txt",
+    "A3_analytic_report_sha256": "68f6d06ad040cb4a1e40653ac3b1115d6b41349c09f63137061289a003a6e3bb"
+  },
+  "lock_id": "PAEV-BORN-RULE-v0.3",
+  "params": {
+    "K": 100000,
+    "N": 5,
+    "threshold_L1": 1e-05,
+    "threshold_Linf": 5e-06
+  },
+  "results": {
+    "L1_error": 8.26119187e-06,
+    "Linf_error": 4.05391726e-06,
+    "f_pa": {
+      "0": 0.03375,
+      "1": 0.26264,
+      "2": 0.18163,
+      "3": 0.09888,
+      "4": 0.4231
+    },
+    "p_qm": {
+      "0": 0.03375047,
+      "1": 0.26264178,
+      "2": 0.18162992,
+      "3": 0.09887595,
+      "4": 0.42310188
+    }
+  },
+  "status": "PASS",
+  "timestamp_utc": "2025-12-30T12:10:21.029305Z"
+}

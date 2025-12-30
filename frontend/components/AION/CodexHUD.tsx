@@ -119,7 +119,8 @@ const OPERATOR_LABELS: Record<string, string> = {
   '↔': 'EQUIVALENCE',
   '→': 'TRIGGER',
   '⟲': 'MUTATE',
-  '∇': 'COMPRESS',
+  // ∇ is RESERVED for math:∇ (gradient). Use μ for measurement/collapse.
+  'μ': 'MEASURE',
   '⧖': 'DELAY',
   '✦': 'MILESTONE',
   '⟦ Theorem ⟧': 'LEAN THEOREM',
@@ -136,7 +137,8 @@ const OPERATOR_COLORS: Record<string, string> = {
   '↔': 'text-purple-300',
   '→': 'text-green-400',
   '⟲': 'text-orange-300',
-  '∇': 'text-blue-300',
+  // ∇ is RESERVED for math:∇ (gradient). Use μ for measurement/collapse.
+  'μ': 'text-white',
   '⧖': 'text-yellow-500',
   '✦': 'text-cyan-300',
   '⟦ Theorem ⟧': 'text-sky-400',

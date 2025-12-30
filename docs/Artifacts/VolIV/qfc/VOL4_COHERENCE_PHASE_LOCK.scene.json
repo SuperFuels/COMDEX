@@ -1,0 +1,34 @@
+{
+  "scene": "VOL4_COHERENCE_PHASE_LOCK",
+  "goal": "Demonstrate coherence-to-information conversion by phase locking: I = 1 - D_phi = C_phi.",
+  "setup": {
+    "oscillators": 100,
+    "initialization": "random_phases_uniform_0_2pi",
+    "timebase": { "steps": 1000, "dt": 1.0 },
+    "noise": { "enabled": true, "model": "phase_diffusion", "sigma": 0.15 }
+  },
+  "dynamics": {
+    "controller": "resonance_trigger",
+    "operator": "\\\\recurse",
+    "coupling": { "k": 0.25, "mode": "mean_field_phase_lock" },
+    "damping": { "gamma": 0.05 }
+  },
+  "definitions": {
+    "C_phi": "abs(mean(exp(i * delta_phi)))",
+    "D_phi": "1 - C_phi",
+    "I": "1 - D_phi"
+  },
+  "metrics": [
+    { "name": "C_phi", "target": ">= 0.95", "compute": "per_step" },
+    { "name": "D_phi", "target": "<= 0.05", "compute": "per_step" },
+    { "name": "I", "target": ">= 0.95", "compute": "per_step" }
+  ],
+  "pass_condition": {
+    "within_steps": 1000,
+    "requires": [ "C_phi>=0.95", "D_phi<=0.05", "I>=0.95" ]
+  },
+  "outputs": {
+    "trace_schema_hint": "timestamp, C_phi, D_phi, I, phases[] (optional)",
+    "log_path_suggestion": "docs/Artifacts/VolIV/ledger/VOLIV_LINT_PROOF.log"
+  }
+}

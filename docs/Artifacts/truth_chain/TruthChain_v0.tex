@@ -1,0 +1,133 @@
+% Tessaris Symatics — Volume 0 (v0.3)
+\documentclass[11pt,a4paper]{article}
+
+% --- Tessaris House Style ---
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=cyan]{hyperref}
+\usepackage{geometry}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+
+\geometry{margin=1in}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+
+% --- Custom Notation Macros (single source of truth for glyph names) ---
+\newcommand{\superpose}{\oplus}
+\newcommand{\entangle}{\leftrightarrow}
+\newcommand{\recurse}{\circlearrowleft}
+\newcommand{\measure}{\mu}
+\newcommand{\project}{\pi}
+
+\title{\textbf{Tessaris Symatics — Volume 0}\\\large Symatics Axioms (v0.3)}
+\author{Kevin Robinson \\ \textit{Tessaris AI}}
+\date{December 30, 2025}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document is the normative anchor for the Symatics layer in the Tessaris stack. It defines (i) a strict glyph reservation policy and (ii) the minimal rewrite axioms required for stable parsing, rewriting, and runtime dispatch. In particular, it separates causal measurement (\measure) from geometric change (\nabla), preventing symbolic drift across the codebase.
+\end{abstract}
+
+\section{Scope}
+This volume defines the \emph{minimum axioms} and operator semantics for Symatics. It is the stable reference for:
+(i) symbolic rewriting,
+(ii) runtime operator dispatch,
+and (iii) paper-series consistency.
+
+\section{What Changed}
+In classical computer science, symbols are arbitrary strings. In standard physics implementations, ``measurement'' is frequently conflated with gradient-like operators or generic reducers. Tessaris treats the glyph as a contract: \measure is reserved for measurement/collapse, while \nabla is reserved for geometric gradients. This clean separation makes causal collapse auditable and prevents dimensional ambiguity. Any attempt to use \nabla as a collapse operator is a \emph{dimensional violation} and MUST be rejected or redirected.
+
+\section{Operator Reservation Policy}
+The system uses glyph operators. Domains MAY tag operators as \texttt{domain:symbol}. The reservation policy is normative.
+
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{Causal Collapse / Measurement (\measure):} MUST be used for any state reduction, measurement, or collapse semantics.
+\item \textbf{Geometric Gradient (\nabla):} is RESERVED for math/physics gradient. It MUST NOT be treated as collapse.
+\item \textbf{Photon Runtime Set:} \(\superpose,\ \entangle,\ \recurse,\ \measure\) SHOULD be handled natively by the Photon runtime; other operators MAY route to Symatics.
+\end{itemize}
+
+\section{Core Glyph Set}
+\begin{tabularx}{\linewidth}{l l Y}
+\textbf{Glyph} & \textbf{Name} & \textbf{Operational Semantics} \\
+\hline
+$\superpose$ & superpose & Combine states into a superposed composite. \\
+$\entangle$ & entangle & Bind two states into a coupled/linked pair. \\
+$\recurse$ & resonate/recurse & Iterate or recursively apply a transformation. \\
+$\measure$ & measure & Measurement / collapse operator (causal reduction). \\
+$\project$ & project & Select a component or indexed projection from a composite. \\
+$\nabla$ & gradient (reserved) & Vector calculus operator (math/physics domain). \\
+\end{tabularx}
+
+\section{Axiomatic Rewrite Rules}
+Axioms are written in glyph form. Implementations MAY compile to internal forms, but matching MUST remain glyph-consistent.
+
+\subsection{Symmetry and Stability}
+\begin{tabularx}{\linewidth}{l Y Y}
+\textbf{ID} & \textbf{Pattern} & \textbf{Rewrite Objective} \\
+\hline
+S0 & $a \superpose b$ & $b \superpose a$ (commutativity) \\
+S1 & $(a \superpose b) \superpose c$ & $a \superpose (b \superpose c)$ (associativity) \\
+E0 & $a \entangle b$ & $b \entangle a$ (correlation symmetry) \\
+\end{tabularx}
+
+\subsection{Collapse Dynamics}
+\begin{tabularx}{\linewidth}{l Y Y}
+\textbf{ID} & \textbf{Pattern} & \textbf{Rewrite} \\
+\hline
+M0 & $\measure(a)$ & $a_{\mathrm{collapsed}}$ \\
+M1 & $\measure(a \superpose b)$ & $\measure(a)$ \emph{or} $\measure(b)$ (observer-dependent selection) \\
+\end{tabularx}
+
+\noindent
+\textbf{Normative Note:} \measure is the only collapse operator. Any legacy mapping \(\nabla \mapsto \text{collapse}\) MUST be treated as deprecated input and SHOULD be rejected or redirected with a warning.
+
+\subsection{Projection}
+\begin{tabularx}{\linewidth}{l Y Y}
+\textbf{ID} & \textbf{Pattern} & \textbf{Rewrite} \\
+\hline
+P0 & $\project(a, 0)$ & $a_0$ \\
+P1 & $\project(a, i)$ & $a_i$ \\
+\end{tabularx}
+
+\section{Interoperability Rules}
+\begin{itemize}[leftmargin=1.5em]
+\item Parsers SHOULD preserve glyph operators in the AST (do not prematurely convert to ASCII).
+\item Bridges MUST treat $\nabla$ as math/physics gradient; collapse MUST be $\measure$.
+\item Subsystems that accept free-text MAY coerce raw glyph tokens into \{\texttt{operator}, \texttt{args}\} capsules, but MUST enforce this reservation policy.
+\item Tooling SHOULD support ``measurement leakage'' audits by tracking $\measure$ frequency in AST/operator traces.
+\end{itemize}
+
+\section{Verification Artifacts}
+To mark this volume as \textbf{LOCKED \& VERIFIED}, the following artifacts MUST exist (stored in-repo or generated in CI):
+
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{\texttt{AXIOM\_REWRITE\_REGISTRY.json}}: JSON export of rules \{S0, S1, E0, M0, M1, P0, P1\}.
+\item \textbf{\texttt{OPERATOR\_RESERVATION\_POLICY.yaml}}: config enforcing $\measure$ vs $\nabla$ policy in parsers/bridges.
+\item \textbf{\texttt{V0\_LINT\_PROOF.log}}: proof log of a rejected or redirected legacy ``$\nabla$-collapse'' attempt (dimensional violation).
+\end{itemize}
+
+\section{Scene Spec: AXIOM\_STABILITY\_V0}
+Goal: visualize composition symmetry (S0, E0). Input: a stream of random $a \superpose b$ and $a \entangle b$ states. Visual: a lattice where nodes swap positions $(a,b)$ while a coherence proxy $C$ remains invariant. Metric: \texttt{REWRITE\_INVARIANCE\_ERR}. If $E$ spikes during a swap, the axiom is violated.
+
+\section{Lean Obligations (Optional)}
+If represented in Lean, the following obligations SHOULD be provided:
+\begin{itemize}[leftmargin=1.5em]
+\item \texttt{sym\_superpose}: $a \superpose b = b \superpose a$
+\item \texttt{sym\_entangle}: $a \entangle b = b \entangle a$
+\end{itemize}
+
+\section{Lock Footer}
+\noindent\rule{\linewidth}{0.4pt}
+
+\noindent
+Lock ID: SRK-V0.3-SYMATICS-AXIOMS\\
+Status: LOCKED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

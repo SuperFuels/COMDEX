@@ -1,0 +1,30 @@
+# SRK12_ACCEPTANCE_THRESHOLDS.yaml
+# Default acceptance thresholds for SRK-12 governed selection validation.
+
+symbols:
+  must_use_mu_for_selection: true
+  must_reserve_nabla_for_gradient: true
+  must_use_delta_for_born_weight: true
+
+deterministic_replay:
+  prob_abs_tol: 1.0e-12
+  prob_rel_tol: 1.0e-10
+  require_same_selected_branch: true
+  determinism_ratio_min: 0.999999999999  # 1 - 1e-12
+
+born_rule_agreement:
+  # Compare predicted distribution vs observed empirical frequencies.
+  trials_min: 10000
+  total_variation_max: 0.02
+  kl_divergence_max: 0.01
+
+policy_modulation:
+  # If a branch is tagged Contradiction and receives negative status_bonus,
+  # it MUST be suppressed before final selection.
+  contradiction_prob_after_max: 1.0e-9
+  must_renormalize_after_modulation: true
+
+ledger_dependency:
+  # SRK-12 MUST bind to SRK-8 repaired ledger for consumed semantics.
+  require_srk8_repaired_ledger_present: true
+  require_nonempty_hashes: true

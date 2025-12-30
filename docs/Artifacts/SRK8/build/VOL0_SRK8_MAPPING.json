@@ -1,0 +1,21 @@
+{
+  "vol0_reserved": {
+    "grad": "\\nabla",
+    "collapse_selection": "\\mu",
+    "born_weight": "\\Delta"
+  },
+  "srk8_symbols": {
+    "superpose": "\\oplus",
+    "entangle": "\\leftrightarrow",
+    "resonate": "\\circlearrowleft",
+    "evolve": "\\Rightarrow",
+    "measure": "\\mu",
+    "project": "\\pi",
+    "bornw": "\\Delta",
+    "grad": "\\nabla"
+  },
+  "notes": [
+    "MUST: use \\mu for measurement/collapse/selection.",
+    "MUST: reserve \\nabla for geometric gradient/divergence only."
+  ]
+}

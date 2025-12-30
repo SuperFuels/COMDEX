@@ -1,0 +1,43 @@
+{
+  "ledger": {
+    "entries": 59,
+    "exists": true,
+    "file_sha256": "47c8028a724af7cfddf0e860e284c9e15fe414fe9c17e76815b4813ed64197c9",
+    "first_error": null,
+    "hash_fields_empty": 0,
+    "hash_fields_nonempty": 3,
+    "parse_errors": 0,
+    "path": "/workspaces/COMDEX/docs/Artifacts/SRK8/ledger/theorem_ledger.jsonl"
+  },
+  "ledger_repaired": {
+    "entries": 3,
+    "exists": true,
+    "file_sha256": "512f22f47f8338d2a15c8fad922932b5108a7a3c493097827160c6dc290983ac",
+    "first_error": null,
+    "hash_fields_empty": 0,
+    "hash_fields_nonempty": 3,
+    "parse_errors": 0,
+    "path": "/workspaces/COMDEX/docs/Artifacts/SRK8/ledger/theorem_ledger_repaired.jsonl"
+  },
+  "lock_id": "SRK-8-v0.3",
+  "reasons": [],
+  "required_paths": {
+    "ledger": "/workspaces/COMDEX/docs/Artifacts/SRK8/ledger/theorem_ledger.jsonl",
+    "ledger_dir": "/workspaces/COMDEX/docs/Artifacts/SRK8/ledger",
+    "ledger_repaired": "/workspaces/COMDEX/docs/Artifacts/SRK8/ledger/theorem_ledger_repaired.jsonl",
+    "scene_alt": "/workspaces/COMDEX/docs/Artifacts/SRK8/scenes/SRK8_PIPELINE_FLOW.scene.json",
+    "scene_qfc": "/workspaces/COMDEX/docs/Artifacts/SRK8/qfc/SRK8_PIPELINE_FLOW.scene.json",
+    "srk8_dir": "/workspaces/COMDEX/docs/Artifacts/SRK8"
+  },
+  "scene_metric": {
+    "ast_depth_reduction": 0,
+    "canonical_output": "A \u2295 (B \u2295 C)",
+    "depth_after": 3,
+    "depth_before": 3,
+    "input_expression": "(B \u2295 A) \u2295 C",
+    "metric_name": "AST_DEPTH_REDUCTION",
+    "scene": "SRK8_PIPELINE_FLOW"
+  },
+  "status": "PASS",
+  "timestamp_utc": "2025-12-30T10:57:24+00:00"
+}

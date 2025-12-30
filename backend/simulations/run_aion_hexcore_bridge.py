@@ -8,6 +8,8 @@ Fixes:
 - No hardcoded 8500-only assumptions (supports env override + autodetect).
 - Returns full JSON payload (result + ρ + Ī + type), not just `result`.
 - Safe local fallback evaluator if remote HexCore is unavailable.
+- ✅ LOCKED: ∇ is RESERVED for math:∇ (gradient) and MUST NOT be treated as collapse.
+- ✅ LOCKED: μ is the measurement/collapse operator.
 
 Usage:
   PYTHONPATH=. python backend/simulations/run_aion_hexcore_bridge.py
@@ -59,6 +61,17 @@ def _compute_resonance(a: float, b: float) -> float:
     return 2 * a * b / (a + b)
 
 
+def _compute_measurement(a: float, b: float) -> float:
+    """
+    Local approximation of measurement/collapse for numeric operands.
+
+    NOTE:
+    This is a fallback heuristic only (kept intentionally simple and stable).
+    Remote HexCore is the source of truth when available.
+    """
+    return (a + b) / 2.0
+
+
 def _coherence_metric(values: List[float]) -> float:
     if len(values) < 2:
         return 1.0
@@ -79,6 +92,10 @@ def evaluate_symatic_expr_local(expr: str) -> Dict[str, Any]:
     """
     Local fallback for numeric + symbolic Symatics expressions.
     Mirrors the basic logic in backend/modules/hexcore/run_hexcore_server.py
+
+    LOCKED SEMANTICS:
+    - μ = measurement/collapse
+    - ∇ is RESERVED for math gradient and is NOT evaluated as collapse here.
     """
     expr = (expr or "").strip()
 
@@ -100,7 +117,8 @@ def evaluate_symatic_expr_local(expr: str) -> Dict[str, Any]:
             return {"error": f"Math eval error: {e}", "mode": "local"}
 
     # 2) Symbolic operator patterns
-    m = re.search(r"([⊕↔⟲∇]|->)\s*\(([^)]+)\)", expr)
+    # ✅ include μ; ❌ keep ∇ reserved (skip/deny)
+    m = re.search(r"([⊕↔⟲μ]|->)\s*\(([^)]+)\)", expr)
     if m:
         op = m.group(1)
         args = [a.strip() for a in m.group(2).split(",") if a.strip()]
@@ -120,8 +138,8 @@ def evaluate_symatic_expr_local(expr: str) -> Dict[str, Any]:
                 val = _compute_entanglement(a, float(b))
             elif op == "⟲":
                 val = _compute_resonance(a, float(b))
-            elif op == "∇":
-                val = (a + float(b)) / 2.0
+            elif op == "μ":
+                val = _compute_measurement(a, float(b))
             elif op == "->":
                 val = math.exp(a)
             else:
@@ -144,7 +162,7 @@ def evaluate_symatic_expr_local(expr: str) -> Dict[str, Any]:
             "⊕": "superposition",
             "↔": "entanglement",
             "⟲": "resonance",
-            "∇": "collapse",
+            "μ": "measure",
             "->": "trigger",
         }.get(op, "unknown")
 
@@ -154,6 +172,18 @@ def evaluate_symatic_expr_local(expr: str) -> Dict[str, Any]:
             "Ī": 0.5,
             "type": "symbolic",
             "mode": "local",
+        }
+
+    # 2b) HARD-BLOCK explicit ∇ usage (reserved)
+    if re.search(r"(∇)\s*\(", expr) or re.fullmatch(r"∇", expr):
+        return {
+            "status": "skipped",
+            "result": None,
+            "ρ": 0.5,
+            "Ī": 0.5,
+            "type": "reserved",
+            "mode": "local",
+            "note": "∇ is reserved for math:∇ (gradient). Use μ for measurement/collapse.",
         }
 
     # 3) Default symbolic interpretation
@@ -329,6 +359,7 @@ def main() -> None:
             print(f"   reason: {h['reason']}")
 
     print("Commands: health | url | seturl <http://...> | compute <expr> | quit")
+    print("LOCKED: ∇ is reserved for math:∇ (gradient). Use μ for measurement/collapse.")
     prompt = "HexCore🌌> "
 
     while True:

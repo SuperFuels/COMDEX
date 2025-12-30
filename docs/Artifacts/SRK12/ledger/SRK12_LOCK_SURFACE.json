@@ -1,0 +1,20 @@
+{
+  "lock_id": "SRK-12-PHOTON-ALGEBRA-v1.1",
+  "status": "LOCKED_AND_VERIFIED",
+  "required_paths": {
+    "srk8_ledger_repaired": "docs/Artifacts/SRK8/ledger/theorem_ledger_repaired.jsonl",
+    "runtime_anchor": "backend/modules/photon/photon_algebra_runtime.py",
+    "paev10_born_rule_track": "docs/rfc/Photon Algebra Experimental Validation/Photon Algebra Experimental Validation Suite (PAEV-10)/Born rule/",
+    "scene_optional": "docs/Artifacts/SRK12/qfc/SRK12_GOVERNED_SELECTION.scene.json"
+  },
+  "checks": [
+    {
+      "name": "symbol_alignment",
+      "rule": "Collapse/selection uses \\mu; \\nabla reserved; Born weight uses \\Delta."
+    },
+    {
+      "name": "deterministic_replay",
+      "rule": "Selection decisions MUST be replayable from WaveCapsule + policy trace."
+    }
+  ]
+}

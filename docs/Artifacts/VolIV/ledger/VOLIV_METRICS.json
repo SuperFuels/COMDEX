@@ -1,0 +1,24 @@
+{
+  "timestamp_utc": "2025-12-30T10:24:58+00:00",
+  "lock_id": "VolIV-INFO-COHERENCE-v0.1",
+  "scene": "VOL4_COHERENCE_PHASE_LOCK",
+  "seed": 0,
+  "params": {
+    "n": 100,
+    "steps_cap": 1000,
+    "dt": 0.05,
+    "k": 2.5
+  },
+  "metrics": {
+    "steps": 40,
+    "C_phi_final": 0.9531956459800226,
+    "D_phi_final": 0.0468043540199774,
+    "I_final": 0.9531956459800226
+  },
+  "thresholds": {
+    "I_final_min": 0.95,
+    "D_phi_final_max": 0.05,
+    "within_steps": 1000
+  },
+  "status": "PASS"
+}

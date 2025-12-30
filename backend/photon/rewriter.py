@@ -11,7 +11,7 @@ from backend.quant.qpy.compat_sympy import qundef
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 import re
-
+from sympy.core.function import AppliedUndef
 # Debug flag
 DEBUG = True
 
@@ -174,16 +174,21 @@ def _expand_gradient(expr, lazy=False, max_terms=3):
 class PhotonRewriter:
     def __init__(self, max_steps=200, max_size=5000, lazy_grad=False):
         self.axioms = AXIOMS
+
         self.local_dict = {
             "Eq": sp.Eq,
             "Ne": sp.Ne,
-            "Grad": Grad,
+            "Grad": Grad,          # defined at module scope: Grad = sp.Function("Grad")
             "GradPower": GradPower,
             "Compose": Compose,
             "And": LogicalAnd,
             "Or": LogicalOr,
             "Not": LogicalNot,
         }
+
+        # extra safety: if Grad ever gets removed/refactored, still present for parse_expr/sympify
+        self.local_dict.setdefault("Grad", sp.Function("Grad"))
+
         self.max_steps = max_steps
         self.max_size = max_size
         self.lazy_grad = lazy_grad
