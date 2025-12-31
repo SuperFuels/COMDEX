@@ -1,0 +1,79 @@
+{
+  "eta": 0.001,
+  "damping": 0.042,
+  "leak": 0.0085,
+  "noise_base": 0.0028,
+  "K_field": 0.08,
+  "epochs": 8,
+  "learning_rate": 0.25,
+  "best_lock_ratio": 0.8791666666666667,
+  "best_params": {
+    "K_meta": 0.55,
+    "servo_i": 0.03,
+    "epoch": 0
+  },
+  "history": [
+    {
+      "epoch": 0,
+      "tail_lock": 0.8791666666666667,
+      "tail_mean": 0.004590639066265261,
+      "K_meta": 0.55,
+      "servo_p": 0.12
+    },
+    {
+      "epoch": 1,
+      "tail_lock": 0.8375,
+      "tail_mean": 0.005274923452803426,
+      "K_meta": 0.55,
+      "servo_p": 0.11479166666666667
+    },
+    {
+      "epoch": 2,
+      "tail_lock": 0.7916666666666666,
+      "tail_mean": 0.005550129245461638,
+      "K_meta": 0.55,
+      "servo_p": 0.10385416666666666
+    },
+    {
+      "epoch": 3,
+      "tail_lock": 0.8458333333333333,
+      "tail_mean": 0.005063296559929745,
+      "K_meta": 0.55,
+      "servo_p": 0.0996875
+    },
+    {
+      "epoch": 4,
+      "tail_lock": 0.7708333333333334,
+      "tail_mean": 0.006048443122720884,
+      "K_meta": 0.55,
+      "servo_p": 0.08614583333333334
+    },
+    {
+      "epoch": 5,
+      "tail_lock": 0.8708333333333333,
+      "tail_mean": 0.004644136462648924,
+      "K_meta": 0.55,
+      "servo_p": 0.08510416666666668
+    },
+    {
+      "epoch": 6,
+      "tail_lock": 0.8125,
+      "tail_mean": 0.0050274155073434116,
+      "K_meta": 0.55,
+      "servo_p": 0.07677083333333334
+    },
+    {
+      "epoch": 7,
+      "tail_lock": 0.8416666666666667,
+      "tail_mean": 0.005426617450897574,
+      "K_meta": 0.55,
+      "servo_p": 0.07208333333333335
+    }
+  ],
+  "classification": "\u2705 Stable meta-field learning convergence",
+  "files": {
+    "lock_plot": "PAEV_P9d_MetaLearning_LockProgress.png",
+    "gain_plot": "PAEV_P9d_MetaLearning_Gains.png"
+  },
+  "timestamp": "2025-12-31T18:35Z"
+}

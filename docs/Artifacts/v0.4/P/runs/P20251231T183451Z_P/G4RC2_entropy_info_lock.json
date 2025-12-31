@@ -1,0 +1,30 @@
+{
+  "dt": 0.002,
+  "T": 6000,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "noise": 0.0002,
+    "\u03b7_G": 0.0004,
+    "\u03b7_T": 0.0003,
+    "\u03b7_\u039b": 0.0005,
+    "\u03b3_sync": 0.002,
+    "E_cap": 80000.0
+  },
+  "metrics": {
+    "energy_min": -80000.0,
+    "energy_max": 80000.0,
+    "energy_stability": -142324.5406340724,
+    "entropy_info_correlation": 0.019275879445156793
+  },
+  "classification": "\u274c Divergent or Weak Coupling",
+  "files": {
+    "energy_plot": "FAEV_G4RC2_EnergyConservation.png",
+    "coupling_plot": "FAEV_G4RC2_EntropyInfoCoupling.png",
+    "phase_plot": "FAEV_G4RC2_PhasePortrait.png"
+  },
+  "timestamp": "2025-10-07T10:33Z"
+}

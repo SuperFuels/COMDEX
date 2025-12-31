@@ -1,0 +1,20 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "learning_rate": 0.05,
+  "feedback_gain": 0.18,
+  "meta_gain": 0.12,
+  "recursive_gain": 0.08,
+  "noise_scale": 0.007,
+  "meta_drift": 0.00019944709035619608,
+  "corr_meta": 0.9946097754009174,
+  "meta_coherence": 0.006329269281144534,
+  "classification": "\u26a0\ufe0f Marginal recursion",
+  "files": {
+    "plot": "PAEV_P2_RecursiveAwareness.png"
+  },
+  "timestamp": "2025-12-31T18:35Z"
+}

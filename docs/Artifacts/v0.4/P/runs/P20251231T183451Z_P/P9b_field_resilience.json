@@ -1,0 +1,28 @@
+{
+  "\u03b7": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.18,
+  "meta_gain": 0.12,
+  "resonance_gain": 0.07,
+  "damping": 0.042,
+  "leak": 0.0085,
+  "noise_scale": 0.0035,
+  "K_field": 0.08,
+  "perturb_time": 600,
+  "perturb_mag": 0.002,
+  "drift_amp": 0.0012,
+  "tau_drift": 1200.0,
+  "tail_mean_field_error": 0.005927057024645157,
+  "tail_lock_ratio": 0.8375,
+  "relock_time": 261,
+  "drift_breakpoint": null,
+  "classification": "\u26a0\ufe0f Partial resilience (marginal stability)",
+  "files": {
+    "phase_plot": "PAEV_P9b_Field_PhaseEvolution.png",
+    "tail_plot": "PAEV_P9b_Field_TailDistribution.png"
+  },
+  "timestamp": "2025-12-31T18:35Z"
+}

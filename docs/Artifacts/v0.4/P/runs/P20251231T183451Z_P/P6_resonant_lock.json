@@ -1,0 +1,20 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.18,
+  "meta_gain": 0.12,
+  "awareness_gain": 0.1,
+  "resonance_gain": 0.11,
+  "noise_scale": 0.006,
+  "mean_phase_diff": 17.92434856344073,
+  "corr_meta_self": 0.9999999999986342,
+  "std_phase": 36.98803541662615,
+  "classification": "\u274c No lock",
+  "files": {
+    "plot": "PAEV_P6_ResonantLock.png"
+  },
+  "timestamp": "2025-12-31T18:35Z"
+}

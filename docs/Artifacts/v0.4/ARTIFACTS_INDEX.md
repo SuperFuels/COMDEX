@@ -57,6 +57,18 @@
   - Index checksums: I/ARTIFACTS_INDEX.sha256
   - Latest run id: I/runs/LATEST_RUN_ID.txt
 
+## P-Series (Global Resonance / Stability Certification) — v0.4
+RUN_ID: P20251231T183451Z_P
+Run folder: docs/Artifacts/v0.4/P/runs/P20251231T183451Z_P/
+Git rev: f021585edfb15db9cf47fe6008e43165f2aa613b
+
+- Evidence:  docs/Artifacts/v0.4/P/docs/P_EVIDENCE_BLOCK.md
+- Audit:     docs/Artifacts/v0.4/P/AUDIT_REGISTRY.md
+- Checksums: docs/Artifacts/v0.4/P/checksums/P20251231T183451Z_P.sha256
+- Index:     docs/Artifacts/v0.4/P/ARTIFACTS_INDEX.md
+- Index chk: docs/Artifacts/v0.4/P/ARTIFACTS_INDEX.sha256
+
+
 Lock ID: V04_ARTIFACTS_INDEX_LOCK
 Status: LOCKED
 Maintainer: Tessaris AI

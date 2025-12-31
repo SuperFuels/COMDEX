@@ -1,0 +1,18 @@
+{
+  "eta": 0.001,
+  "tau_memory": 0.28705346161512424,
+  "f_peak": 0.46875,
+  "Q": 0.75,
+  "omega_gc": 0.01,
+  "omega_pc": 1000.0,
+  "phase_gc": -0.16446906671266184,
+  "mag_pc": 0.00041803805874126513,
+  "gain_margin": 2392.1266953804475,
+  "phase_margin": 179.83553093328734,
+  "classification": "\u2705 Stable",
+  "files": {
+    "bode_plot": "PAEV_P10t_ClosedLoop_Bode.png",
+    "nyquist_plot": "PAEV_P10t_ClosedLoop_Nyquist.png"
+  },
+  "timestamp": "2025-12-31T18:35Z"
+}

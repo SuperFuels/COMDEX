@@ -1,0 +1,20 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.18,
+  "meta_gain": 0.12,
+  "recognition_gain": 0.07,
+  "awareness_gain": 0.1,
+  "noise_scale": 0.007,
+  "recursive_drift": 1.3118948543598268e-05,
+  "meta_feedback_corr": 0.9593807150891736,
+  "self_consistency": 0.005254309314408987,
+  "classification": "\u2705 Stable awareness closure",
+  "files": {
+    "plot": "PAEV_P4_AwarenessFeedback.png"
+  },
+  "timestamp": "2025-12-31T18:35Z"
+}

@@ -1,0 +1,39 @@
+{
+  "dt": 0.002,
+  "T": 6000,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c90": 0.18,
+    "noise": 0.0006,
+    "k_eq": 0.035,
+    "k_sync": 0.05,
+    "k_neg0": 0.02,
+    "k_phase": 0.06,
+    "k_infoR": 0.015,
+    "k_infoM": 0.012,
+    "gamma_d": 0.002,
+    "k\u039b": 0.02,
+    "E_soft": 30000.0,
+    "rho_c": 1.0
+  },
+  "metrics": {
+    "a_min": 0.4575417860109506,
+    "a_max": 1.1119513165886237,
+    "bounce_index": 5284,
+    "cross_correlation_R_R\u03c8": 0.999957453367752,
+    "energy_stability": 0.3383689122251625,
+    "entropy_final": 0.0001490779544114476
+  },
+  "classification": "\u2705 Phase-Locked Bounce (Coherent & Stable)",
+  "files": {
+    "scale_plot": "FAEV_G3RC5_ScaleFactor.png",
+    "curvature_plot": "FAEV_G3RC5_Curvature.png",
+    "energy_plot": "FAEV_G3RC5_Energy.png",
+    "phase_plot": "FAEV_G3RC5_Phase.png"
+  },
+  "timestamp": "2025-10-07T09:56Z"
+}

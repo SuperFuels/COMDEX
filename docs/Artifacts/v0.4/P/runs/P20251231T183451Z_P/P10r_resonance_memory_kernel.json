@@ -1,0 +1,26 @@
+{
+  "eta": 0.001,
+  "noise": 0.0025,
+  "K_field": 0.1,
+  "K_global": 0.12,
+  "alignment": {
+    "kappa_align_base": 0.06,
+    "kappa_boost": 0.18,
+    "curvature_gain": 0.2,
+    "phase_damp": 0.022,
+    "merge_bias_gain": 0.009,
+    "bias_gain": 0.004
+  },
+  "metrics": {
+    "R_mean": 0.9836077911253613,
+    "R_final": 0.9949399257157902,
+    "tau_memory": 0.28705346161512424,
+    "A_fit": 0.1475769232718367,
+    "K_tau_0": 1.0,
+    "K_tau_200": 0.07642916537339316
+  },
+  "files": {
+    "memory_kernel_plot": "PAEV_P10r_ResonanceMemoryKernel.png"
+  },
+  "timestamp": "2025-12-31T18:35Z"
+}

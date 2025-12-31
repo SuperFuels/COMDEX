@@ -1,0 +1,18 @@
+{
+  "eta": 0.001,
+  "dt": 0.001,
+  "N_kernel": 1600,
+  "padding": 4,
+  "f_peak": 0.46875,
+  "bw_3db": 0.625,
+  "Q": 0.75,
+  "metrics": {
+    "PSD_max": 1.0,
+    "half_power_level": 0.5011872336272722
+  },
+  "files": {
+    "spectrum_log": "PAEV_P10s_KernelSpectrum.png",
+    "spectrum_linear": "PAEV_P10s_KernelSpectrum_linear.png"
+  },
+  "timestamp": "2025-12-31T18:35Z"
+}

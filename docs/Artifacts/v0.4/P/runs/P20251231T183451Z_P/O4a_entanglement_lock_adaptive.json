@@ -1,0 +1,20 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "coupling_strength": 0.18,
+  "noise_scale": 0.006,
+  "lock_gain": 0.06,
+  "avg_gain": 0.02,
+  "final_entanglement_fidelity": 0.9221130678646222,
+  "final_mutual_info": 0.9968991874808136,
+  "mean_dSdt_tail": 2.7755575615628915e-18,
+  "classification": "\u26a0\ufe0f Metastable coupling",
+  "files": {
+    "lock_plot": "PAEV_O4a_EntanglementLock.png",
+    "phase_plot": "PAEV_O4a_PhaseError.png"
+  },
+  "timestamp": "2025-12-30T23:24Z"
+}

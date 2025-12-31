@@ -1,0 +1,26 @@
+{
+  "\u03b7": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.18,
+  "meta_gain": 0.12,
+  "resonance_gain": 0.07,
+  "damping": 0.042,
+  "leak": 0.0085,
+  "noise_scale": 0.0035,
+  "K_field": 0.08,
+  "K_meta": 0.035,
+  "perturb_time": 800,
+  "perturb_mag": 0.002,
+  "tail_mean_cross": 0.005857680353949938,
+  "cross_lock_ratio": 0.7866666666666666,
+  "corr_cross": 0.13552895188513978,
+  "classification": "\u26a0\ufe0f Partial meta-field alignment (marginal stability)",
+  "files": {
+    "phase_plot": "PAEV_P9c_MetaField_PhaseEvolution.png",
+    "tail_plot": "PAEV_P9c_MetaField_TailDistribution.png"
+  },
+  "timestamp": "2025-12-31T18:35Z"
+}

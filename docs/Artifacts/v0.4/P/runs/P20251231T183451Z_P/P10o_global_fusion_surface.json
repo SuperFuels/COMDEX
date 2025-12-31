@@ -1,0 +1,24 @@
+{
+  "alignment": {
+    "kappa_align_base": 0.06,
+    "kappa_boost": 0.18,
+    "curvature_gain": 0.2,
+    "phase_damp": 0.022,
+    "merge_bias_gain": 0.009,
+    "bias_gain": 0.004
+  },
+  "parameters": {
+    "K_field": 0.1,
+    "K_global": 0.12
+  },
+  "grid_size": 100,
+  "equilibrium": {
+    "\u0394\u03c61_eq": -0.03173325912716951,
+    "\u0394\u03c62_eq": -0.03173325912716951,
+    "R_eq": 0.9998881142703885
+  },
+  "files": {
+    "surface": "PAEV_P10o_GlobalFusionSurface.png"
+  },
+  "timestamp": "2025-12-31T18:35Z"
+}

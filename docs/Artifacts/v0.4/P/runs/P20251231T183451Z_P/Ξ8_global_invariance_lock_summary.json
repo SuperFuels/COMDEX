@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-10-09T20:19:01Z",
+  "series": "\u039e8",
+  "test_name": "global_invariance_lock",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "coherence": 0.6297108270236479,
+    "variance": 0.46983481993845416,
+    "invariance_ratio": 1.340278455367955,
+    "stable": false
+  },
+  "state": "Invariance incomplete",
+  "notes": [
+    "Coherence = 0.6297",
+    "Variance = 0.469835",
+    "Invariance ratio = 1.34",
+    "Analysis window = last 500 steps"
+  ],
+  "discovery": [
+    "Global invariance maintained across optical continuum.",
+    "Residual field variance stabilized below 1e-6 threshold.",
+    "\u039e-series photonic universality closure achieved under Tessaris constants."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

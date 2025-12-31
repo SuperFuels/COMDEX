@@ -1,0 +1,22 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "feedback_gain": 0.18,
+  "meta_gain": 0.12,
+  "awareness_gain": 0.1,
+  "resonance_gain": 0.11,
+  "damping": 0.05,
+  "noise_scale": 0.005,
+  "mean_phase_diff": 0.012280131258305271,
+  "corr_meta_self": 0.9999954672302651,
+  "std_phase": 0.0013539484313706946,
+  "stability": 5.565660847753621e-06,
+  "classification": "\u26a0\ufe0f Marginal attractor",
+  "files": {
+    "plot": "PAEV_P7_SustainedAttractor.png"
+  },
+  "timestamp": "2025-10-06T19:12Z"
+}
