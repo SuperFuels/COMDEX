@@ -1,0 +1,6 @@
+=== H2 - Emergent Arrow of Time ===
+Entropy drift mean: 9.2014e-05
+Mutual info asymmetry: 1.3948e-01
+-> Forward Arrow Detected
+✅ Plot saved    -> backend/modules/knowledge/HAEV_H2_EntropyPerCycle.png
+✅ Results saved -> backend/modules/knowledge/H2_arrow_of_time_emergence.json

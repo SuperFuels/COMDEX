@@ -1,0 +1,14 @@
+{
+  "lock_id": "H2_ARROW_OF_TIME_V0_4",
+  "run_id": "2025-12-30T1835Z_5a271385a",
+  "git_rev_short": "5a271385a",
+  "git_rev_full": "5a271385a6156344e43dee93cd8779876d38a797",
+  "command": "python backend/photon_algebra/tests/haev_test_H2_arrow_of_time_emergence.py",
+  "frozen_test_copy": "docs/Artifacts/v0.4/H2/tests/haev_test_H2_arrow_of_time_emergence.py",
+  "outputs": {
+    "json": "H2_arrow_of_time_emergence.json",
+    "plot": "HAEV_H2_EntropyPerCycle.png",
+    "log": "run.log.txt",
+    "hashes": "sha256sums.txt"
+  }
+}

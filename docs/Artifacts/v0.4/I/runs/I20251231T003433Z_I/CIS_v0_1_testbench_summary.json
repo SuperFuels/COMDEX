@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-10-09T12:56:50.771350+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "balance_residual": 4.7954537709203886e-05,
+    "R_sync": 1.0,
+    "curvature_mean": 4.7954537709202205e-05,
+    "phase_variance": 3.278275166083748,
+    "flux_recovered": 7.747959117150676e-07,
+    "linked_flux": 0.012295879201498086,
+    "entropy_mean": 0.0039062869103712134,
+    "flux_mean": 0.012295896745110484,
+    "phase_var": 3.278275166083748
+  },
+  "notes": [
+    "CIS operators validated under Tessaris Unified Constants v1.2.",
+    "Residual divergence (\u2207\u00b7J + \u2202S/\u2202t) = 4.795e-05.",
+    "Synchrony coefficient R_sync = 1.0000.",
+    "Curvature feedback mean |R| = 4.795e-05.",
+    "Flux recovery (\u03b3=0.05) restored 7.748e-07.",
+    "Demonstrates field-level causal stabilization and recovery."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

@@ -1,0 +1,28 @@
+{
+  "constants_path": "backend/modules/knowledge/constants_v1.1.json",
+  "cycles": [
+    {
+      "t0": 2.0,
+      "duration": 1.0,
+      "gain_mult": 1.1
+    },
+    {
+      "t0": 5.0,
+      "duration": 1.2,
+      "gain_mult": 1.18
+    },
+    {
+      "t0": 8.2,
+      "duration": 1.0,
+      "gain_mult": 1.12
+    }
+  ],
+  "stability_index": 1.0,
+  "classification": "Stable",
+  "mean_leakage_proxy": 2.2763578135511098e-10,
+  "gains": [
+    0.0,
+    0.0,
+    0.0
+  ]
+}

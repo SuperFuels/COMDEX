@@ -1,0 +1,24 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u03b1": 0.5,
+  "\u039b0": 1e-06,
+  "\u03b3": 0.004,
+  "\u03b6": 1.0,
+  "\u03ba": 0.012,
+  "N": 6,
+  "timing": {
+    "steps": 3000,
+    "dt": 0.006
+  },
+  "metrics": {
+    "\u039b_convergence": 0.9999999740897598,
+    "\u039b_spread": 2.234701881271094e-15
+  },
+  "classification": "\u2705 Meta-equilibrium reached (landscape convergence)",
+  "files": {
+    "landscape_plot": "PAEV_F18_LandscapeConvergence.png",
+    "drift_hist": "PAEV_F18_DriftHistogram.png"
+  },
+  "timestamp": "2025-10-07T19:23Z"
+}

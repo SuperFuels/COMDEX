@@ -1,0 +1,34 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b": 1e-06,
+  "\u03b1": 0.5,
+  "\u03b2": 0.2,
+  "grid": {
+    "N": 192,
+    "L": 6.0,
+    "dx": 0.06282722513089034
+  },
+  "timing": {
+    "steps": 2400,
+    "dt": 0.006
+  },
+  "metrics": {
+    "A_tail_mean": 0.00022790121020417248,
+    "A_tail_abs": 0.00022790121020417248,
+    "phase_tail_mean": 1.4331298341201602,
+    "I_initial": 0.036131297871960996,
+    "I_final": 987.3130864991124,
+    "I_drift": 987.2769552012404,
+    "E1_final": 28220.1523821015,
+    "E2_final": 28207.268900732633
+  },
+  "classification": "\u2705 Phase-dominant CP violation (low-energy asymmetry)",
+  "files": {
+    "asymmetry_plot": "PAEV_F15_Asymmetry.png",
+    "phase_plot": "PAEV_F15_PhaseSkew.png",
+    "mi_plot": "PAEV_F15_MutualInfo.png",
+    "density_maps": "PAEV_F15_DensityMaps.png"
+  },
+  "timestamp": "2025-10-07T15:56Z"
+}

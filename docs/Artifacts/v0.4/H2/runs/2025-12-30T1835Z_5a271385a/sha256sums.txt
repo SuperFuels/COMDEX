@@ -1,0 +1,3 @@
+50d3184ca8963007e0fa93e2a508b730e8405037222d386168e722d8f7d7e2a9  docs/Artifacts/v0.4/H2/runs/2025-12-30T1835Z_5a271385a/H2_arrow_of_time_emergence.json
+53ea5a581cfc83dcb62f20a7bc2881009bdf794947d7b219d676931777acb3fb  docs/Artifacts/v0.4/H2/runs/2025-12-30T1835Z_5a271385a/HAEV_H2_EntropyPerCycle.png
+8af56301087acfb8fec0c366fb9dd9f6f3b761f43440e7f538736a00935ce70f  docs/Artifacts/v0.4/H2/runs/2025-12-30T1835Z_5a271385a/run.log.txt

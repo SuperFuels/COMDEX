@@ -1,0 +1,28 @@
+{
+  "constants": {
+    "alpha": 0.7,
+    "beta": 0.08,
+    "Lambda_base": 0.0035,
+    "kappa": 0.065,
+    "omega0": 0.18,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.0006,
+    "rho_c": 1.0,
+    "g_couple": 0.015,
+    "kp": 0.2,
+    "ki": 0.005,
+    "kd": 0.04
+  },
+  "metrics": {
+    "entropy_cycle_mean": 8.00599489387453,
+    "entropy_drift_mean": 9.201438522528822e-05,
+    "mutual_information_asymmetry": 0.13947774398695087,
+    "arrow_direction": "Forward"
+  },
+  "classification": "\u23f3 Emergent Arrow of Time Detected",
+  "files": {
+    "entropy_plot": "backend/modules/knowledge/HAEV_H2_EntropyPerCycle.png"
+  },
+  "timestamp": "2025-12-30T18:39Z"
+}
