@@ -127,6 +127,17 @@
 - Index:     P8/ARTIFACTS_INDEX.md
 - Index chk: P8/ARTIFACTS_INDEX.sha256
 
+## P8.1 — Mutation Sensitivity (Receiver Chip Corruption) (v0.4)
+
+- RUN_ID: P8_120260101T163753Z_P8_1_MUT
+- Run folder: docs/Artifacts/v0.4/P8_1/runs/P8_120260101T163753Z_P8_1_MUT/
+- Git rev: docs/Artifacts/v0.4/P8_1/runs/P8_120260101T163753Z_P8_1_MUT/GIT_REV.txt
+- Evidence:  docs/Artifacts/v0.4/P8_1/docs/P8_1_EVIDENCE_BLOCK.md
+- Audit:     docs/Artifacts/v0.4/P8_1/AUDIT_REGISTRY.md
+- Checksums: docs/Artifacts/v0.4/P8_1/checksums/P8_120260101T163753Z_P8_1_MUT.sha256
+- Index:     docs/Artifacts/v0.4/P8_1/ARTIFACTS_INDEX.md
+- Index chk: docs/Artifacts/v0.4/P8_1/ARTIFACTS_INDEX.sha256
+
 ---
 
 ## Lock Footer
