@@ -1,0 +1,252 @@
+{
+  "timestamp": "2026-01-01T21:12Z",
+  "run_id": "P9_120260101T211247Z_P9_1_MUTM",
+  "git_rev": "6b4d29fd563bfc84097a56159d06e2da1b28d303",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "fast_mode": true,
+    "jobs": 6,
+    "lattice_size": 4096,
+    "window_len": 512,
+    "dt": 0.01,
+    "steps_total": 16384,
+    "nblocks": 32,
+    "warmup_blocks": 2,
+    "seeds": [
+      42,
+      43
+    ],
+    "separations": [
+      1024
+    ],
+    "code": "ACG",
+    "controller": {
+      "controller_on": true,
+      "linear_controller": true,
+      "k_fb": 2.5,
+      "k_obs": 1.0,
+      "u_max": 0.02
+    },
+    "messages": {
+      "type": "PRN \u00b11 (low-corr search)",
+      "msg1_seed": 1634982638594651190,
+      "msg2_seed_base": 1634982638813857541,
+      "target_abs_corr": 0.05,
+      "max_tries": 256,
+      "msg12_corr_after_warmup": 0.004784688995215265
+    },
+    "chip": {
+      "type": "Walsh/Hadamard (symbol-level)",
+      "chip_spread": 64,
+      "despread_box": 512,
+      "chips_per_block": 8,
+      "walsh_row_1": 1,
+      "walsh_row_2": 2,
+      "orthogonality": {
+        "chip1_vs_chip2_inner_median": 0.0,
+        "chip1_vs_chip2_inner_maxabs": 0.0,
+        "definition": "per-block symbol inner product; Walsh rows are exactly orthogonal in the symbol basis"
+      }
+    },
+    "multiplex": {
+      "channels": 2,
+      "drive": "baseband superposition (symbol-level Walsh)",
+      "drive_amp": 0.01,
+      "alpha": 0.75
+    },
+    "mutation": {
+      "k_flips": [
+        0,
+        4,
+        8
+      ],
+      "mutate": "receiver_key_only",
+      "mutated_channel": 1,
+      "definition": "flip sign of k chip-symbol segments per despread block on receiver chip for channel 1 only"
+    },
+    "repo_weights": {
+      "path": "models/all-MiniLM-L6-v2/model.safetensors",
+      "sha256": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac"
+    }
+  },
+  "by_k": {
+    "0": {
+      "by_sep": {
+        "1024": {
+          "per_seed": {
+            "42": {
+              "rho11": 0.9747387460362956,
+              "rho12": 0.16898110268871036,
+              "rho22": 0.99267717238402,
+              "rho21": 0.07678255293030807,
+              "W_total": 7921359.340548973
+            },
+            "43": {
+              "rho11": 0.9747401538918836,
+              "rho12": 0.1689789832369562,
+              "rho22": 0.9926781842769062,
+              "rho21": 0.07678527839737748,
+              "W_total": 7921359.332515886
+            }
+          },
+          "aggregate": {
+            "rho11_median": 0.9747394499640896,
+            "rho12_median": 0.16898004296283328,
+            "rho22_median": 0.9926776783304632,
+            "rho21_median": 0.07678391566384277
+          }
+        }
+      },
+      "aggregate": {
+        "rho11_median_over_seps": 0.9747394499640896,
+        "rho12_median_over_seps": 0.16898004296283328,
+        "rho22_median_over_seps": 0.9926776783304632,
+        "rho21_median_over_seps": 0.07678391566384277
+      }
+    },
+    "4": {
+      "by_sep": {
+        "1024": {
+          "per_seed": {
+            "42": {
+              "rho11": 0.004627589189774241,
+              "rho12": -0.07075462642317956,
+              "rho22": 0.99267717238402,
+              "rho21": 0.07678255293030807,
+              "W_total": 7921359.340548973
+            },
+            "43": {
+              "rho11": -0.15571877561545247,
+              "rho12": 0.04710882976785014,
+              "rho22": 0.9926781842769062,
+              "rho21": 0.07678527839737748,
+              "W_total": 7921359.332515886
+            }
+          },
+          "aggregate": {
+            "rho11_median": -0.07554559321283912,
+            "rho12_median": -0.01182289832766471,
+            "rho22_median": 0.9926776783304632,
+            "rho21_median": 0.07678391566384277
+          }
+        }
+      },
+      "aggregate": {
+        "rho11_median_over_seps": -0.07554559321283912,
+        "rho12_median_over_seps": -0.01182289832766471,
+        "rho22_median_over_seps": 0.9926776783304632,
+        "rho21_median_over_seps": 0.07678391566384277
+      }
+    },
+    "8": {
+      "by_sep": {
+        "1024": {
+          "per_seed": {
+            "42": {
+              "rho11": -0.9747387460362956,
+              "rho12": -0.16898110268871036,
+              "rho22": 0.99267717238402,
+              "rho21": 0.07678255293030807,
+              "W_total": 7921359.340548973
+            },
+            "43": {
+              "rho11": -0.9747401538918836,
+              "rho12": -0.1689789832369562,
+              "rho22": 0.9926781842769062,
+              "rho21": 0.07678527839737748,
+              "W_total": 7921359.332515886
+            }
+          },
+          "aggregate": {
+            "rho11_median": -0.9747394499640896,
+            "rho12_median": -0.16898004296283328,
+            "rho22_median": 0.9926776783304632,
+            "rho21_median": 0.07678391566384277
+          }
+        }
+      },
+      "aggregate": {
+        "rho11_median_over_seps": -0.9747394499640896,
+        "rho12_median_over_seps": -0.16898004296283328,
+        "rho22_median_over_seps": 0.9926776783304632,
+        "rho21_median_over_seps": 0.07678391566384277
+      }
+    }
+  },
+  "summary": {
+    "msg12_corr_after_warmup": 0.004784688995215265,
+    "k0": {
+      "rho11": 0.9747394499640896,
+      "rho22": 0.9926776783304632,
+      "rho12": 0.16898004296283328,
+      "rho21": 0.07678391566384277
+    },
+    "k_mid": {
+      "k": 4,
+      "rho11": -0.07554559321283912,
+      "rho22": 0.9926776783304632,
+      "rho12": -0.01182289832766471,
+      "rho21": 0.07678391566384277
+    },
+    "k_max": {
+      "k": 8,
+      "rho11": -0.9747394499640896,
+      "rho22": 0.9926776783304632,
+      "rho12": -0.16898004296283328,
+      "rho21": 0.07678391566384277
+    }
+  },
+  "checks": {
+    "overall_pass": true,
+    "orthogonality_ok": true,
+    "inversion_ok": true,
+    "criteria": {
+      "min_abs_main": 0.25,
+      "max_abs_crosstalk": 0.18,
+      "max_abs_msg12_corr": 0.05,
+      "max_abs_rho11_kmid": 0.15,
+      "min_abs_rho22_kmid": 0.8,
+      "inv_tol": 0.2,
+      "chip1_vs_chip2_ortho_warn_thresh": 0.25
+    },
+    "observed": {
+      "msg12_corr_after_warmup": 0.004784688995215265,
+      "k0": {
+        "rho11": 0.9747394499640896,
+        "rho22": 0.9926776783304632,
+        "rho12": 0.16898004296283328,
+        "rho21": 0.07678391566384277
+      },
+      "k_mid": {
+        "k": 4,
+        "rho11": -0.07554559321283912,
+        "rho22": 0.9926776783304632,
+        "rho12": -0.01182289832766471,
+        "rho21": 0.07678391566384277
+      },
+      "k_max": {
+        "k": 8,
+        "rho11": -0.9747394499640896,
+        "rho22": 0.9926776783304632,
+        "rho12": -0.16898004296283328,
+        "rho21": 0.07678391566384277
+      },
+      "chip1_vs_chip2_inner_median": 0.0,
+      "chip1_vs_chip2_inner_maxabs": 0.0
+    }
+  },
+  "definitions": {
+    "goal": "P9.1: corrupt ONE receiver key in the 2-channel multiplexer; only that channel should fail while the other remains high-fidelity; crosstalk stays low.",
+    "non_claims": [
+      "Engineered comms baseline; no biology/physics claims.",
+      "Targets held identical; selectivity is chip/key-based by design."
+    ]
+  }
+}
