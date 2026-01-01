@@ -1,4 +1,4 @@
-# Artifacts Index — v0.4 Trust Chain
+# Artifacts Index — v0.4 Trust Chain (Updated 2026-01-01)
 
 - H2 — Emergent Arrow of Time (HAEV)
   - Registry: H2/AUDIT_REGISTRY.md
@@ -58,18 +58,65 @@
   - Latest run id: I/runs/LATEST_RUN_ID.txt
 
 ## P-Series (Global Resonance / Stability Certification) — v0.4
-RUN_ID: P20251231T183451Z_P
-Run folder: docs/Artifacts/v0.4/P/runs/P20251231T183451Z_P/
-Git rev: f021585edfb15db9cf47fe6008e43165f2aa613b
-
+- RUN_ID: P20251231T183451Z_P
+- Run folder: docs/Artifacts/v0.4/P/runs/P20251231T183451Z_P/
+- Git rev: f021585edfb15db9cf47fe6008e43165f2aa613b
 - Evidence:  docs/Artifacts/v0.4/P/docs/P_EVIDENCE_BLOCK.md
 - Audit:     docs/Artifacts/v0.4/P/AUDIT_REGISTRY.md
 - Checksums: docs/Artifacts/v0.4/P/checksums/P20251231T183451Z_P.sha256
 - Index:     docs/Artifacts/v0.4/P/ARTIFACTS_INDEX.md
 - Index chk: docs/Artifacts/v0.4/P/ARTIFACTS_INDEX.sha256
 
+## P4x — Synthetic Genome Battery (P-Series add-on, v0.4)
+- RUN_ID: P4x20251231T193536Z_P4x
+- Run folder: docs/Artifacts/v0.4/P4x/runs/P4x20251231T193536Z_P4x/
+- Git rev: docs/Artifacts/v0.4/P4x/runs/P4x20251231T193536Z_P4x/GIT_REV.txt
+- Evidence:  docs/Artifacts/v0.4/P4x/docs/P4x_EVIDENCE_BLOCK.md
+- Audit:     docs/Artifacts/v0.4/P4x/AUDIT_REGISTRY.md
+- Checksums: docs/Artifacts/v0.4/P4x/checksums/P4x20251231T193536Z_P4x.sha256
+- Index:     docs/Artifacts/v0.4/P4x/ARTIFACTS_INDEX.md
+- Index chk: docs/Artifacts/v0.4/P4x/ARTIFACTS_INDEX.sha256
 
-Lock ID: V04_ARTIFACTS_INDEX_LOCK
+## PAEV — Engineered Baselines (P5v–P8) — v0.4.1 (2026-01-01)
+
+## P7A — Loom / Broadcast / Modulation (v0.4)
+
+- RUN_ID: (see) docs/Artifacts/v0.4/P7A/runs/LATEST_RUN_ID.txt
+- Run folder: docs/Artifacts/v0.4/P7A/runs/<RUN_ID>/
+- Git rev: docs/Artifacts/v0.4/P7A/runs/<RUN_ID>/GIT_REV.txt
+- Evidence:  docs/Artifacts/v0.4/P7A/docs/P7A_EVIDENCE_BLOCK.md
+- Audit:     docs/Artifacts/v0.4/P7A/AUDIT_REGISTRY.md
+- Checksums: docs/Artifacts/v0.4/P7A/checksums/<RUN_ID>.sha256
+- Index:     docs/Artifacts/v0.4/P7A/ARTIFACTS_INDEX.md
+- Index chk: docs/Artifacts/v0.4/P7A/ARTIFACTS_INDEX.sha256
+
+
+## P7B — Link / Engineered Nonlocal Coupling (v0.4)
+
+- RUN_ID: (see) docs/Artifacts/v0.4/P7B/runs/LATEST_RUN_ID.txt
+- Run folder: docs/Artifacts/v0.4/P7B/runs/<RUN_ID>/
+- Git rev: docs/Artifacts/v0.4/P7B/runs/<RUN_ID>/GIT_REV.txt
+- Evidence:  docs/Artifacts/v0.4/P7B/docs/P7B_EVIDENCE_BLOCK.md
+- Audit:     docs/Artifacts/v0.4/P7B/AUDIT_REGISTRY.md
+- Checksums: docs/Artifacts/v0.4/P7B/checksums/<RUN_ID>.sha256
+- Index:     docs/Artifacts/v0.4/P7B/ARTIFACTS_INDEX.md
+- Index chk: docs/Artifacts/v0.4/P7B/ARTIFACTS_INDEX.sha256
+
+
+## P8 — Syntax Multiplexer (Baseband DSSS) (v0.4)
+
+- RUN_ID: (see) docs/Artifacts/v0.4/P8/runs/LATEST_RUN_ID.txt
+- Run folder: docs/Artifacts/v0.4/P8/runs/<RUN_ID>/
+- Git rev: docs/Artifacts/v0.4/P8/runs/<RUN_ID>/GIT_REV.txt
+- Evidence:  docs/Artifacts/v0.4/P8/docs/P8_EVIDENCE_BLOCK.md
+- Audit:     docs/Artifacts/v0.4/P8/AUDIT_REGISTRY.md
+- Checksums: docs/Artifacts/v0.4/P8/checksums/<RUN_ID>.sha256
+- Index:     docs/Artifacts/v0.4/P8/ARTIFACTS_INDEX.md
+- Index chk: docs/Artifacts/v0.4/P8/ARTIFACTS_INDEX.sha256
+
+Lock Footer:
+Lock ID: V041_ARTIFACTS_INDEX_LOCK
 Status: LOCKED
 Maintainer: Tessaris AI
-Author: Kevin Robinson
+Author: Kevin Robinson.
+
