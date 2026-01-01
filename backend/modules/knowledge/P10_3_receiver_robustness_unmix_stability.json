@@ -1,0 +1,541 @@
+{
+  "timestamp": "2026-01-01T23:12Z",
+  "run_id": "P10_320260101T231209Z_P10_3_RX_ROBUST",
+  "git_rev": "c9eb00d84009315bf8fef197406ec09c038f7939",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "fast_mode": true,
+    "jobs": 1,
+    "lattice_size": 4096,
+    "window_len": 512,
+    "dt": 0.01,
+    "steps_total": 16384,
+    "nblocks": 32,
+    "warmup_blocks": 2,
+    "seeds": [
+      42
+    ],
+    "separations": [
+      1024
+    ],
+    "code": "ACG",
+    "controller": {
+      "controller_on": true,
+      "k_fb_base": 2.5,
+      "k_obs_base": 1.0,
+      "k_diff_base": 2.0,
+      "chi_boost": 0.15,
+      "note": "Linear controller only (no clipping); robustness is tested by sweeping gains/diffusion/noise, not changing receiver."
+    },
+    "messages": {
+      "type": "PRN \u00b11 (low-corr search)",
+      "msg1_seed": 1634982638594651190,
+      "msg2_seed_base": 1634982638813857541,
+      "msg2_seed_chosen": 14706167171985257274,
+      "target_abs_corr": 0.05,
+      "max_tries": 256,
+      "msg12_corr_after_warmup": 0.004784688995215265
+    },
+    "chip": {
+      "type": "Walsh/Hadamard",
+      "chip_spread": 64,
+      "despread_box": 512,
+      "chips_per_block": 8,
+      "walsh_row_1": 1,
+      "walsh_row_2": 2,
+      "orthogonality": {
+        "chip1_vs_chip2_inner_median": 0.0,
+        "chip1_vs_chip2_inner_maxabs": 0.0,
+        "definition": "per-block mean-symbol inner product; should be ~0 for orthogonal Walsh rows"
+      }
+    },
+    "multiplex": {
+      "channels": 2,
+      "drive_amp": 0.01,
+      "alpha": 0.75
+    },
+    "receiver": {
+      "definition": "Fixed unmixing matrix A_calib is learned ONCE from clean regime and reused across all regimes. No retuning.",
+      "A_calib_T": [
+        [
+          0.07272505475797925,
+          0.010304508277272495
+        ],
+        [
+          0.01196767635569558,
+          0.13737829026938977
+        ]
+      ],
+      "condA_calib": 1.964974607569727
+    },
+    "regimes": [
+      {
+        "name": "clean",
+        "meas_noise": 0.0002,
+        "medium_noise": 0.0,
+        "burst_amp": 0.0,
+        "burst_w": 256,
+        "burst_p": 512,
+        "k_diff": 1.0,
+        "k_fb": 1.0,
+        "k_obs": 1.0
+      },
+      {
+        "name": "bursts",
+        "meas_noise": 0.0002,
+        "medium_noise": 0.0,
+        "burst_amp": 0.02,
+        "burst_w": 256,
+        "burst_p": 512,
+        "k_diff": 1.0,
+        "k_fb": 1.0,
+        "k_obs": 1.0
+      },
+      {
+        "name": "meas_hi",
+        "meas_noise": 0.001,
+        "medium_noise": 0.0,
+        "burst_amp": 0.02,
+        "burst_w": 256,
+        "burst_p": 512,
+        "k_diff": 1.0,
+        "k_fb": 1.0,
+        "k_obs": 1.0
+      },
+      {
+        "name": "medium_hi",
+        "meas_noise": 0.0002,
+        "medium_noise": 5e-05,
+        "burst_amp": 0.02,
+        "burst_w": 256,
+        "burst_p": 512,
+        "k_diff": 1.0,
+        "k_fb": 1.0,
+        "k_obs": 1.0
+      },
+      {
+        "name": "diff_low",
+        "meas_noise": 0.0002,
+        "medium_noise": 0.0,
+        "burst_amp": 0.02,
+        "burst_w": 256,
+        "burst_p": 512,
+        "k_diff": 0.75,
+        "k_fb": 1.0,
+        "k_obs": 1.0
+      },
+      {
+        "name": "ctrl_hi",
+        "meas_noise": 0.0002,
+        "medium_noise": 0.0,
+        "burst_amp": 0.02,
+        "burst_w": 256,
+        "burst_p": 512,
+        "k_diff": 1.0,
+        "k_fb": 1.2,
+        "k_obs": 1.2
+      }
+    ],
+    "repo_weights": {
+      "path": "models/all-MiniLM-L6-v2/model.safetensors",
+      "sha256": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac"
+    }
+  },
+  "by_regime": {
+    "clean": {
+      "per_sep": {
+        "1024": {
+          "per_seed": {
+            "42": {
+              "rho11": 0.990226683049135,
+              "rho22": 0.9962140685750145,
+              "rho12": 0.007929852253401115,
+              "rho21": 0.0027768801707844255,
+              "rho11_raw": 0.9747449574567368,
+              "rho12_raw": 0.16896764190717906,
+              "rho21_raw": 0.07679439099658461,
+              "rho22_raw": 0.9926758523551439,
+              "A_hat_T": [
+                [
+                  0.07272505475797925,
+                  0.010304508277272495
+                ],
+                [
+                  0.01196767635569558,
+                  0.13737829026938977
+                ]
+              ],
+              "condA_hat": 1.964974607569727,
+              "A_drift_rel": 0.0,
+              "condA_used": 1.964974607569727,
+              "W_total": 7921359.334363397,
+              "W_burst": 0.0,
+              "W_medium": 0.0,
+              "burst_phase": 42
+            }
+          },
+          "aggregate": {
+            "rho11_median": 0.990226683049135,
+            "rho22_median": 0.9962140685750145,
+            "rho12_median": 0.007929852253401115,
+            "rho21_median": 0.0027768801707844255,
+            "rho11_raw_median": 0.9747449574567368,
+            "rho12_raw_median": 0.16896764190717906,
+            "rho21_raw_median": 0.07679439099658461,
+            "rho22_raw_median": 0.9926758523551439,
+            "condA_hat_median": 1.964974607569727,
+            "A_drift_rel_median": 0.0
+          }
+        }
+      },
+      "aggregate": {
+        "rho11_median_over_seps": 0.990226683049135,
+        "rho22_median_over_seps": 0.9962140685750145,
+        "rho12_median_over_seps": 0.007929852253401115,
+        "rho21_median_over_seps": 0.0027768801707844255,
+        "rho11_raw_median_over_seps": 0.9747449574567368,
+        "rho12_raw_median_over_seps": 0.16896764190717906,
+        "rho21_raw_median_over_seps": 0.07679439099658461,
+        "rho22_raw_median_over_seps": 0.9926758523551439,
+        "condA_hat_median_over_seps": 1.964974607569727,
+        "A_drift_rel_median_over_seps": 0.0
+      },
+      "pass": true
+    },
+    "bursts": {
+      "per_sep": {
+        "1024": {
+          "per_seed": {
+            "42": {
+              "rho11": 0.9902266830491351,
+              "rho22": 0.9962140685750145,
+              "rho12": 0.007929852253401155,
+              "rho21": 0.002776880170784309,
+              "rho11_raw": 0.9747449574567366,
+              "rho12_raw": 0.1689676419071791,
+              "rho21_raw": 0.07679439099658449,
+              "rho22_raw": 0.9926758523551437,
+              "A_hat_T": [
+                [
+                  0.07272505475797927,
+                  0.010304508277272468
+                ],
+                [
+                  0.011967676355695605,
+                  0.13737829026938989
+                ]
+              ],
+              "condA_hat": 1.964974607569727,
+              "A_drift_rel": 7.695516196038989e-16,
+              "condA_used": 1.964974607569727,
+              "W_total": 631662486.2992514,
+              "W_burst": 13421.77279999879,
+              "W_medium": 0.0,
+              "burst_phase": 42
+            }
+          },
+          "aggregate": {
+            "rho11_median": 0.9902266830491351,
+            "rho22_median": 0.9962140685750145,
+            "rho12_median": 0.007929852253401155,
+            "rho21_median": 0.002776880170784309,
+            "rho11_raw_median": 0.9747449574567366,
+            "rho12_raw_median": 0.1689676419071791,
+            "rho21_raw_median": 0.07679439099658449,
+            "rho22_raw_median": 0.9926758523551437,
+            "condA_hat_median": 1.964974607569727,
+            "A_drift_rel_median": 7.695516196038989e-16
+          }
+        }
+      },
+      "aggregate": {
+        "rho11_median_over_seps": 0.9902266830491351,
+        "rho22_median_over_seps": 0.9962140685750145,
+        "rho12_median_over_seps": 0.007929852253401155,
+        "rho21_median_over_seps": 0.002776880170784309,
+        "rho11_raw_median_over_seps": 0.9747449574567366,
+        "rho12_raw_median_over_seps": 0.1689676419071791,
+        "rho21_raw_median_over_seps": 0.07679439099658449,
+        "rho22_raw_median_over_seps": 0.9926758523551437,
+        "condA_hat_median_over_seps": 1.964974607569727,
+        "A_drift_rel_median_over_seps": 7.695516196038989e-16
+      },
+      "pass": true
+    },
+    "meas_hi": {
+      "per_sep": {
+        "1024": {
+          "per_seed": {
+            "42": {
+              "rho11": 0.9902266830491351,
+              "rho22": 0.9962140685750145,
+              "rho12": 0.007929852253401183,
+              "rho21": 0.0027768801707842854,
+              "rho11_raw": 0.9747449574567368,
+              "rho12_raw": 0.1689676419071791,
+              "rho21_raw": 0.07679439099658449,
+              "rho22_raw": 0.9926758523551439,
+              "A_hat_T": [
+                [
+                  0.07272505475797926,
+                  0.010304508277272457
+                ],
+                [
+                  0.011967676355695601,
+                  0.13737829026938986
+                ]
+              ],
+              "condA_hat": 1.964974607569727,
+              "A_drift_rel": 6.077250830997888e-16,
+              "condA_used": 1.964974607569727,
+              "W_total": 631662486.2992514,
+              "W_burst": 13421.77279999879,
+              "W_medium": 0.0,
+              "burst_phase": 42
+            }
+          },
+          "aggregate": {
+            "rho11_median": 0.9902266830491351,
+            "rho22_median": 0.9962140685750145,
+            "rho12_median": 0.007929852253401183,
+            "rho21_median": 0.0027768801707842854,
+            "rho11_raw_median": 0.9747449574567368,
+            "rho12_raw_median": 0.1689676419071791,
+            "rho21_raw_median": 0.07679439099658449,
+            "rho22_raw_median": 0.9926758523551439,
+            "condA_hat_median": 1.964974607569727,
+            "A_drift_rel_median": 6.077250830997888e-16
+          }
+        }
+      },
+      "aggregate": {
+        "rho11_median_over_seps": 0.9902266830491351,
+        "rho22_median_over_seps": 0.9962140685750145,
+        "rho12_median_over_seps": 0.007929852253401183,
+        "rho21_median_over_seps": 0.0027768801707842854,
+        "rho11_raw_median_over_seps": 0.9747449574567368,
+        "rho12_raw_median_over_seps": 0.1689676419071791,
+        "rho21_raw_median_over_seps": 0.07679439099658449,
+        "rho22_raw_median_over_seps": 0.9926758523551439,
+        "condA_hat_median_over_seps": 1.964974607569727,
+        "A_drift_rel_median_over_seps": 6.077250830997888e-16
+      },
+      "pass": true
+    },
+    "medium_hi": {
+      "per_sep": {
+        "1024": {
+          "per_seed": {
+            "42": {
+              "rho11": 0.9902266830491349,
+              "rho22": 0.9962140685750144,
+              "rho12": 0.007929852253401216,
+              "rho21": 0.002776880170784345,
+              "rho11_raw": 0.9747449574567366,
+              "rho12_raw": 0.16896764190717914,
+              "rho21_raw": 0.07679439099658449,
+              "rho22_raw": 0.9926758523551439,
+              "A_hat_T": [
+                [
+                  0.07272505475797927,
+                  0.010304508277272454
+                ],
+                [
+                  0.011967676355695605,
+                  0.1373782902693899
+                ]
+              ],
+              "condA_hat": 1.9649746075697274,
+              "A_drift_rel": 9.56912449241418e-16,
+              "condA_used": 1.964974607569727,
+              "W_total": 631725585.4691556,
+              "W_burst": 13421.77279999879,
+              "W_medium": 0.16579301294102966,
+              "burst_phase": 42
+            }
+          },
+          "aggregate": {
+            "rho11_median": 0.9902266830491349,
+            "rho22_median": 0.9962140685750144,
+            "rho12_median": 0.007929852253401216,
+            "rho21_median": 0.002776880170784345,
+            "rho11_raw_median": 0.9747449574567366,
+            "rho12_raw_median": 0.16896764190717914,
+            "rho21_raw_median": 0.07679439099658449,
+            "rho22_raw_median": 0.9926758523551439,
+            "condA_hat_median": 1.9649746075697274,
+            "A_drift_rel_median": 9.56912449241418e-16
+          }
+        }
+      },
+      "aggregate": {
+        "rho11_median_over_seps": 0.9902266830491349,
+        "rho22_median_over_seps": 0.9962140685750144,
+        "rho12_median_over_seps": 0.007929852253401216,
+        "rho21_median_over_seps": 0.002776880170784345,
+        "rho11_raw_median_over_seps": 0.9747449574567366,
+        "rho12_raw_median_over_seps": 0.16896764190717914,
+        "rho21_raw_median_over_seps": 0.07679439099658449,
+        "rho22_raw_median_over_seps": 0.9926758523551439,
+        "condA_hat_median_over_seps": 1.9649746075697274,
+        "A_drift_rel_median_over_seps": 9.56912449241418e-16
+      },
+      "pass": true
+    },
+    "diff_low": {
+      "per_sep": {
+        "1024": {
+          "per_seed": {
+            "42": {
+              "rho11": 0.9902196578281492,
+              "rho22": 0.9962118935322005,
+              "rho12": 0.007966575243966411,
+              "rho21": 0.00280489021919887,
+              "rho11_raw": 0.9747271271446463,
+              "rho12_raw": 0.16902533480749682,
+              "rho21_raw": 0.07681012884749758,
+              "rho22_raw": 0.9926720594952213,
+              "A_hat_T": [
+                [
+                  0.07274626222955131,
+                  0.010311460394789598
+                ],
+                [
+                  0.011975537851662232,
+                  0.13743936576755644
+                ]
+              ],
+              "condA_hat": 1.9653037528393698,
+              "A_drift_rel": 0.0004192182043624899,
+              "condA_used": 1.964974607569727,
+              "W_total": 452778761.3600546,
+              "W_burst": 13421.77279999879,
+              "W_medium": 0.0,
+              "burst_phase": 42
+            }
+          },
+          "aggregate": {
+            "rho11_median": 0.9902196578281492,
+            "rho22_median": 0.9962118935322005,
+            "rho12_median": 0.007966575243966411,
+            "rho21_median": 0.00280489021919887,
+            "rho11_raw_median": 0.9747271271446463,
+            "rho12_raw_median": 0.16902533480749682,
+            "rho21_raw_median": 0.07681012884749758,
+            "rho22_raw_median": 0.9926720594952213,
+            "condA_hat_median": 1.9653037528393698,
+            "A_drift_rel_median": 0.0004192182043624899
+          }
+        }
+      },
+      "aggregate": {
+        "rho11_median_over_seps": 0.9902196578281492,
+        "rho22_median_over_seps": 0.9962118935322005,
+        "rho12_median_over_seps": 0.007966575243966411,
+        "rho21_median_over_seps": 0.00280489021919887,
+        "rho11_raw_median_over_seps": 0.9747271271446463,
+        "rho12_raw_median_over_seps": 0.16902533480749682,
+        "rho21_raw_median_over_seps": 0.07681012884749758,
+        "rho22_raw_median_over_seps": 0.9926720594952213,
+        "condA_hat_median_over_seps": 1.9653037528393698,
+        "A_drift_rel_median_over_seps": 0.0004192182043624899
+      },
+      "pass": true
+    },
+    "ctrl_hi": {
+      "per_sep": {
+        "1024": {
+          "per_seed": {
+            "42": {
+              "rho11": 0.9940300806996238,
+              "rho22": 0.9973812727726921,
+              "rho12": -0.015959648064295836,
+              "rho21": -0.017666748195608553,
+              "rho11_raw": 0.9851834831243044,
+              "rho12_raw": 0.13053781588717872,
+              "rho21_raw": 0.0653394975708609,
+              "rho22_raw": 0.9951397357113748,
+              "A_hat_T": [
+                [
+                  0.07361949449456918,
+                  0.007816020910945166
+                ],
+                [
+                  0.009212698301297444,
+                  0.1249604295994519
+                ]
+              ],
+              "condA_hat": 1.7487020339856618,
+              "A_drift_rel": 0.08315223033779973,
+              "condA_used": 1.964974607569727,
+              "W_total": 723040448.3744612,
+              "W_burst": 13421.77279999879,
+              "W_medium": 0.0,
+              "burst_phase": 42
+            }
+          },
+          "aggregate": {
+            "rho11_median": 0.9940300806996238,
+            "rho22_median": 0.9973812727726921,
+            "rho12_median": -0.015959648064295836,
+            "rho21_median": -0.017666748195608553,
+            "rho11_raw_median": 0.9851834831243044,
+            "rho12_raw_median": 0.13053781588717872,
+            "rho21_raw_median": 0.0653394975708609,
+            "rho22_raw_median": 0.9951397357113748,
+            "condA_hat_median": 1.7487020339856618,
+            "A_drift_rel_median": 0.08315223033779973
+          }
+        }
+      },
+      "aggregate": {
+        "rho11_median_over_seps": 0.9940300806996238,
+        "rho22_median_over_seps": 0.9973812727726921,
+        "rho12_median_over_seps": -0.015959648064295836,
+        "rho21_median_over_seps": -0.017666748195608553,
+        "rho11_raw_median_over_seps": 0.9851834831243044,
+        "rho12_raw_median_over_seps": 0.13053781588717872,
+        "rho21_raw_median_over_seps": 0.0653394975708609,
+        "rho22_raw_median_over_seps": 0.9951397357113748,
+        "condA_hat_median_over_seps": 1.7487020339856618,
+        "A_drift_rel_median_over_seps": 0.08315223033779973
+      },
+      "pass": true
+    }
+  },
+  "summary": {
+    "msg12_corr_after_warmup": 0.004784688995215265,
+    "regimes_total": 6,
+    "regimes_passed": 6,
+    "condA_calib": 1.964974607569727
+  },
+  "checks": {
+    "overall_pass": true,
+    "orthogonality_ok": true,
+    "criteria": {
+      "min_abs_main_post_demix_fixed_receiver": 0.25,
+      "max_abs_xtalk_post_demix_fixed_receiver": 0.18,
+      "max_abs_msg12_corr": 0.05,
+      "chip1_vs_chip2_ortho_warn_thresh": 0.25,
+      "require_all_regimes_pass": true
+    },
+    "observed": {
+      "msg12_corr_after_warmup": 0.004784688995215265,
+      "regimes_passed": 6,
+      "regimes_total": 6,
+      "condA_calib": 1.964974607569727,
+      "chip1_vs_chip2_inner_maxabs": 0.0
+    }
+  },
+  "definitions": {
+    "goal": "P10.3 receiver robustness: demonstrate one fixed receiver/unmix rule remains valid across noise/controller/diffusion regimes (no retuning).",
+    "raw_mixing_diagnostics": "Always record RAW correlation matrix between despread r1/r2 and messages (rho11_raw,rho12_raw,rho21_raw,rho22_raw) plus per-regime A_hat drift and cond(A_hat)."
+  }
+}
