@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/lean/lean_parser.py
+# hypothesis_version: 6.139.2
+
+['*.lean', '__main__', 'axiom', 'body', 'constant', 'count', 'def', 'example', 'items', 'lean_parser_result', 'lemma', 'logic', 'logic_raw', 'name', 'params', 'path', 'r', 'source_file', 'status', 'symbol', 'theorem', 'unverified', 'utf-8', '⟦ Def ⟧', '⟦ Example ⟧', '⟦ Notation ⟧']

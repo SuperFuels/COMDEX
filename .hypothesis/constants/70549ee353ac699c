@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/core/calc_ops.py
+# hypothesis_version: 6.139.2
+
+['continuity_eq', 'curl', 'curl_psi', 'div', 'div_lambda', 'grad', 'grad_lambda']

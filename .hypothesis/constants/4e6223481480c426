@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/qkd/gkey_encryptor.py
+# hypothesis_version: 6.139.2
+
+[b'gwave-static-salt', 150000, 'AES-GCM', 'collapse_hash', 'encryption_scheme', 'nonce', 'payload', 'qkd_encrypted', 'salt', 'tag', 'utf-8']

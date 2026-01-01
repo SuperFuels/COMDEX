@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/context.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1e-12, 1e-06, 'Context', 'H', 'LHC', 'RHC', 'V', '[CTX]', 'cnf']

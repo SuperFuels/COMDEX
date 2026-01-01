@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/gwip_codec.py
+# hypothesis_version: 6.139.2
+
+[',', ':', 'coherence', 'collapse_hash', 'default-gwave-key', 'digest', 'envelope', 'freq', 'gwip', 'hash', 'payload', 'phase', 'qkd_encrypted', 'qkd_failed', 'qkd_verified', 'schema', 'signature', 'status', 'tags', 'tamper_flag', 'timestamp', 'type', 'utf-8', 'verified_at']

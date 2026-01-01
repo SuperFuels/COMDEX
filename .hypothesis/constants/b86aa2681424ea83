@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/aion_resonance/resonant_heartbeat_monitor.py
+# hypothesis_version: 6.139.2
+
+[-0.02, 0.0, 0.02, 0.05, 0.15, 0.3, 0.85, 1.0, 5.0, 60.0, '0', '1', 'AION_SILENT_MODE', '__main__', 'a', 'default', 'delta_phi', 'entropy', 'mean_coherence_delta', 'mean_stability', 'r', 'resonance_delta', 'stability', 'timestamp', 'utf-8', 'variance', 'Φ_coherence']

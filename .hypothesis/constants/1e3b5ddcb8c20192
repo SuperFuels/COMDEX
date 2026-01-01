@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/lean/lean_to_glyph.py
+# hypothesis_version: 6.139.2
+
+[',', '--', '->', '.lean', '/-.*?-/', ':=', '???', 'Assume', 'CodexLang', 'Define', 'Definition', 'LogicGlyph', 'Proof', 'Prove', 'True', '^[ \\t]*--.*?$', '__main__', 'args', 'axiom', 'body', 'codexlang', 'constant', 'dc_container', 'def', 'dependencies', 'depends_on', 'example', 'from_codexlang', 'glyph', 'glyph_symbol', 'glyph_tree', 'glyphs', 'id', 'kind', 'lean_import', 'lean_math', 'lemma', 'logic', 'logic_type', 'metadata', 'name', 'node', 'normalized', 'operator', 'origin', 'params', 'parsed_declarations', 'parsed_params', 'preview', 'previews', 'r', 'soft', 'source', 'source_path', 'symbol', 'symbolic_logic', 'theorem', 'thought_tree', 'type', 'unknown', 'utf-8', 'value', '¬', '↔', '∀', '∃', '∧', '∨', '⊕', '⊤', '⊥', '⟦ Axiom ⟧', '⟦ Constant ⟧', '⟦ Definition ⟧', '⟦ Example ⟧', '⟦ Lemma ⟧', '⟦ Theorem ⟧']

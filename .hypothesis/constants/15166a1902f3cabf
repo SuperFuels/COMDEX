@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/aion_resonance/reinforcement_mixin.py
+# hypothesis_version: 6.139.2
+
+[0.0, 0.05, 0.15, 0.5, 0.6, 0.8, 0.85, 1.0, 2.0, -500, 'branch_temp', 'coherence', 'entropy', 'exploration', 'extras', 'last_sqi', 'learning_rate', 'note', 'optimizer_extras', 'outcome', 'r', 'risk_bias', 'search_temp', 'sqi', 'timestamp', 'utf-8', 'w']

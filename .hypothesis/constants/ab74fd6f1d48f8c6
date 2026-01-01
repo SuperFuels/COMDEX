@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/gkey_model.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1.0, 'GKey', 'Z', 'coherence_level', 'collapse_hash', 'collapse_token', 'compromise_reason', 'compromised', 'created_at', 'entropy', 'entropy_seed', 'expires_at', 'issued_at', 'key_id', 'origin_trace', 'private_part', 'public_part', 'rekeyed_from', 'renegotiated_from', 'verified', 'wave_id']

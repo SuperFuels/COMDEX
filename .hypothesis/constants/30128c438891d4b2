@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/core/wave_diff_engine.py
+# hypothesis_version: 6.139.2
+
+[0.0, 0.01, 0.1, 0.5, 1.0, 'CodexTrace', 'None', 'SymaticsChannel', '__main__', 'coherence_index', 'd_dt', 'evolve_wavefield', 'integrate_wave', 'laplacian', 'wave_energy', 'wave_step', 'λ', 'ψ']

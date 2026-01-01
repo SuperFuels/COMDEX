@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/encryption/glyph_vault.py
+# hypothesis_version: 6.139.2
+
+[0.01, '_last_saved_bundle', 'bundle_id', 'checksum', 'context', 'data', 'ghx_id', 'rb', 'saved', 'size', 'status', 'timestamp', 'vault/data', 'wb']

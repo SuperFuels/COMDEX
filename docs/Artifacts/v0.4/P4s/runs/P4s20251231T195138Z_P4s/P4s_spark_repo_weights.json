@@ -1,0 +1,398 @@
+{
+  "timestamp": "2025-12-31T19:51Z",
+  "run_id": "P4s20251231T195138Z_P4s",
+  "git_rev": "611ba364ca9fd51b9111263576ecbec37243c286",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "lattice_size": 1024,
+    "dt": 0.01,
+    "steps_total": 4000,
+    "genome_len": 1024,
+    "seed_list": [
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "pulse": {
+      "enabled": true,
+      "start_step": 1000,
+      "duration_steps": 50,
+      "eta_pulse": 0.5,
+      "target": "genome_window",
+      "profile": "gaussian_noise"
+    },
+    "fidelity": {
+      "metric": "cosine_similarity",
+      "threshold": 0.9,
+      "hold_window_steps": 50
+    },
+    "auc": {
+      "definition": "mean_fidelity_over_steps",
+      "window": {
+        "start_step": 0,
+        "end_step": 4000
+      }
+    },
+    "repo_weights": {
+      "path": "models/all-MiniLM-L6-v2/model.safetensors",
+      "sha256": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac"
+    },
+    "dynamics": {
+      "k_diff": 2.0,
+      "k_fb": 2.5,
+      "k_obs": 1.0,
+      "u_max": 0.015
+    }
+  },
+  "definitions": {
+    "tau_recovery": "first step after pulse_end where fidelity >= threshold for hold_window_steps consecutively",
+    "W_p": {
+      "meaning": "model-scoped work proxy for maintaining pattern under noise",
+      "components": {
+        "W_env_pulse": "sum over pulse window of ||noise||^2 within genome window",
+        "W_feedback": "sum over all steps of ||feedback_update||^2 within genome window",
+        "W_observer": "sum over all steps of ||observer_update||^2 within genome window",
+        "W_total": "W_env_pulse + W_feedback + W_observer"
+      }
+    }
+  },
+  "conditions": {
+    "Repo_Obs_ON": {
+      "aggregate": {
+        "auc_median": 0.21395054069728706,
+        "auc_iqr": [
+          0.21098496807695066,
+          0.22584852184078535
+        ],
+        "tau_median_steps": null,
+        "tau_iqr_steps": [
+          null,
+          null
+        ],
+        "W_total_median": 14374.470021512134,
+        "W_total_iqr": [
+          14277.100950680848,
+          14385.82681615976
+        ]
+      },
+      "per_seed": {
+        "42": {
+          "sequence_type": "repo",
+          "sequence_hash": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac",
+          "summary": {
+            "auc": 0.21395054069728706,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12854.929179131792,
+            "W_feedback": 822.6115416454796,
+            "W_observer": 736.187778060318,
+            "W_total": 14413.728498837589
+          }
+        },
+        "43": {
+          "sequence_type": "repo",
+          "sequence_hash": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac",
+          "summary": {
+            "auc": 0.22584852184078535,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12754.650680431838,
+            "W_feedback": 809.6084543161551,
+            "W_observer": 712.841815932854,
+            "W_total": 14277.100950680848
+          }
+        },
+        "44": {
+          "sequence_type": "repo",
+          "sequence_hash": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac",
+          "summary": {
+            "auc": 0.2077560980221445,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12891.013214526303,
+            "W_feedback": 800.0525666752334,
+            "W_observer": 694.7610349582247,
+            "W_total": 14385.82681615976
+          }
+        },
+        "45": {
+          "sequence_type": "repo",
+          "sequence_hash": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac",
+          "summary": {
+            "auc": 0.21098496807695066,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12840.213740832729,
+            "W_feedback": 813.3995872064312,
+            "W_observer": 720.8566934729736,
+            "W_total": 14374.470021512134
+          }
+        },
+        "46": {
+          "sequence_type": "repo",
+          "sequence_hash": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac",
+          "summary": {
+            "auc": 0.23135489658647737,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12725.994750783146,
+            "W_feedback": 800.6216247021467,
+            "W_observer": 700.0313647158372,
+            "W_total": 14226.64774020113
+          }
+        }
+      }
+    },
+    "Repo_Obs_OFF": {
+      "aggregate": {
+        "auc_median": 0.11547256377417509,
+        "auc_iqr": [
+          0.09777564011711702,
+          0.1162250096988287
+        ],
+        "tau_median_steps": null,
+        "tau_iqr_steps": [
+          null,
+          null
+        ],
+        "W_total_median": 12840.213740832729,
+        "W_total_iqr": [
+          12754.650680431838,
+          12854.929179131792
+        ]
+      },
+      "per_seed": {
+        "42": {
+          "sequence_type": "repo",
+          "sequence_hash": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac",
+          "summary": {
+            "auc": 0.11547256377417509,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12854.929179131792,
+            "W_feedback": 0.0,
+            "W_observer": 0.0,
+            "W_total": 12854.929179131792
+          }
+        },
+        "43": {
+          "sequence_type": "repo",
+          "sequence_hash": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac",
+          "summary": {
+            "auc": 0.1228094541759148,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12754.650680431838,
+            "W_feedback": 0.0,
+            "W_observer": 0.0,
+            "W_total": 12754.650680431838
+          }
+        },
+        "44": {
+          "sequence_type": "repo",
+          "sequence_hash": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac",
+          "summary": {
+            "auc": 0.09777564011711702,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12891.013214526303,
+            "W_feedback": 0.0,
+            "W_observer": 0.0,
+            "W_total": 12891.013214526303
+          }
+        },
+        "45": {
+          "sequence_type": "repo",
+          "sequence_hash": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac",
+          "summary": {
+            "auc": 0.0969412337468971,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12840.213740832729,
+            "W_feedback": 0.0,
+            "W_observer": 0.0,
+            "W_total": 12840.213740832729
+          }
+        },
+        "46": {
+          "sequence_type": "repo",
+          "sequence_hash": "sha256:1377e9af0ca0b016a9f2aa584d6fc71ab3ea6804fae21ef9fb1416e2944057ac",
+          "summary": {
+            "auc": 0.1162250096988287,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12725.994750783146,
+            "W_feedback": 0.0,
+            "W_observer": 0.0,
+            "W_total": 12725.994750783146
+          }
+        }
+      }
+    },
+    "Ghost_Obs_ON": {
+      "aggregate": {
+        "auc_median": 0.20133435770269076,
+        "auc_iqr": [
+          0.19469827268406087,
+          0.21421022093877704
+        ],
+        "tau_median_steps": null,
+        "tau_iqr_steps": [
+          null,
+          null
+        ],
+        "W_total_median": 14400.530654080234,
+        "W_total_iqr": [
+          14299.613490953532,
+          14411.148269526007
+        ]
+      },
+      "per_seed": {
+        "42": {
+          "sequence_type": "ghost",
+          "sequence_hash": null,
+          "summary": {
+            "auc": 0.15346891638924162,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12854.929179131792,
+            "W_feedback": 826.9714730529937,
+            "W_observer": 742.66221861095,
+            "W_total": 14424.562870795737
+          }
+        },
+        "43": {
+          "sequence_type": "ghost",
+          "sequence_hash": null,
+          "summary": {
+            "auc": 0.19469827268406087,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12754.650680431838,
+            "W_feedback": 823.4552579818335,
+            "W_observer": 721.5075525398615,
+            "W_total": 14299.613490953532
+          }
+        },
+        "44": {
+          "sequence_type": "ghost",
+          "sequence_hash": null,
+          "summary": {
+            "auc": 0.20133435770269076,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12891.013214526303,
+            "W_feedback": 813.0363480556341,
+            "W_observer": 707.0987069440704,
+            "W_total": 14411.148269526007
+          }
+        },
+        "45": {
+          "sequence_type": "ghost",
+          "sequence_hash": null,
+          "summary": {
+            "auc": 0.23958990944574401,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12840.213740832729,
+            "W_feedback": 829.9589015297007,
+            "W_observer": 730.3580117178036,
+            "W_total": 14400.530654080234
+          }
+        },
+        "46": {
+          "sequence_type": "ghost",
+          "sequence_hash": null,
+          "summary": {
+            "auc": 0.21421022093877704,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12725.994750783146,
+            "W_feedback": 829.5942553150785,
+            "W_observer": 731.1980487250011,
+            "W_total": 14286.787054823224
+          }
+        }
+      }
+    },
+    "Ghost_Obs_OFF": {
+      "aggregate": {
+        "auc_median": 0.11659011362669076,
+        "auc_iqr": [
+          0.09723107804704208,
+          0.12105910426809745
+        ],
+        "tau_median_steps": null,
+        "tau_iqr_steps": [
+          null,
+          null
+        ],
+        "W_total_median": 12840.213740832729,
+        "W_total_iqr": [
+          12754.650680431838,
+          12854.929179131792
+        ]
+      },
+      "per_seed": {
+        "42": {
+          "sequence_type": "ghost",
+          "sequence_hash": null,
+          "summary": {
+            "auc": 0.06422150973997251,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12854.929179131792,
+            "W_feedback": 0.0,
+            "W_observer": 0.0,
+            "W_total": 12854.929179131792
+          }
+        },
+        "43": {
+          "sequence_type": "ghost",
+          "sequence_hash": null,
+          "summary": {
+            "auc": 0.12105910426809745,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12754.650680431838,
+            "W_feedback": 0.0,
+            "W_observer": 0.0,
+            "W_total": 12754.650680431838
+          }
+        },
+        "44": {
+          "sequence_type": "ghost",
+          "sequence_hash": null,
+          "summary": {
+            "auc": 0.09723107804704208,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12891.013214526303,
+            "W_feedback": 0.0,
+            "W_observer": 0.0,
+            "W_total": 12891.013214526303
+          }
+        },
+        "45": {
+          "sequence_type": "ghost",
+          "sequence_hash": null,
+          "summary": {
+            "auc": 0.14532084090780464,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12840.213740832729,
+            "W_feedback": 0.0,
+            "W_observer": 0.0,
+            "W_total": 12840.213740832729
+          }
+        },
+        "46": {
+          "sequence_type": "ghost",
+          "sequence_hash": null,
+          "summary": {
+            "auc": 0.11659011362669076,
+            "tau_recovery_steps": null,
+            "W_env_pulse": 12725.994750783146,
+            "W_feedback": 0.0,
+            "W_observer": 0.0,
+            "W_total": 12725.994750783146
+          }
+        }
+      }
+    }
+  },
+  "files": {
+    "fidelity_plot": "PAEV_P4s_FidelityMatrix.png",
+    "work_plot": "PAEV_P4s_WorkProxy.png"
+  }
+}

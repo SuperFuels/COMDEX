@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/soul/soul_laws.py
+# hypothesis_version: 6.139.2
+
+['No file deletion', 'approve', 'block', 'consent_granted', 'def ', 'eval(', 'exec(', 'forced_override', 'id', 'import ', 'law_id', 'malicious_fusion', 'open(__file__)', 'os.remove', 'requires_consent', 'return ', 'rm -rf', 'severity', 'shutil.rmtree', 'socket.', 'subprocess.Popen(', 'title', 'triggers', 'warn']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/photonlang/__init__.py
+# hypothesis_version: 6.139.2
+
+['0', '0.1.0+local', 'PHOTON_AUTO_INSTALL', '__version__', 'compress_text_py', 'contains_code_glyphs', 'expand_text_py', 'false', 'install', 'is_installed', 'no', 'normalize_roundtrip', 'uninstall']

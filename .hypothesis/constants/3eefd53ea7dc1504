@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/lean_bridge.py
+# hypothesis_version: 6.139.2
+
+['%Y%m%dT%H%M%S', '.lean', '__main__', 'backend/symatics', 'count', 'error', 'exported_axioms.lean', 'failed', 'lean4-stub-hash:', 'lean_hash', 'lean_projects/', 'ledger_path', 'name', 'ok', 'source_dir', 'unknown', 'verified']

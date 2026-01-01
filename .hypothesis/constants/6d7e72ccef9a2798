@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/codexlang_translator.py
+# hypothesis_version: 6.139.2
+
+['\n[🔍] Parsing:', '(', ')', ',', '->', ':', '=', 'CodexCore Output:', 'Parsed AST:', '__main__', 'action', 'args', 'ast', 'atom', 'canonicalized', 'data', 'dict', 'empty_body', 'error', 'evaluate', 'execute', 'executed', 'expr', 'fallback', 'glyph', 'incomplete', 'input', 'instruction', 'invalid_input_type', 'logic', 'message', 'none', 'none_input', 'noop', 'null', 'ok', 'op', 'parsed', 'partial', 'payload', 'raw', 'reason', 'result', 'soul_state', 'source', 'stage', 'status', 'tag', 'test', 'trace', 'tree', 'trusted', 'type', 'value', 'violated', '{', '|', '}', '¬', '↔', '∅', '∧', '∨', '⊕', '⊗', '⟦', '⟦⟧ ', '⟧']

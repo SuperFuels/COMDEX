@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/models/__init__.py
+# hypothesis_version: 6.139.2
+
+['Contract', 'Deal', 'Product', 'User']

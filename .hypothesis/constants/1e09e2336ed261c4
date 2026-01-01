@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/cognitive_fabric/metrics_bridge.py
+# hypothesis_version: 6.139.2
+
+[1000, 'CODEX_METRICS', 'a', 'codex_metrics.jsonl', 'coherence_energy', 'correlation', 'data/metrics', 'domain', 'event', 'imag', 'metrics', 'payload', 'phase_diff', 'phi_mean', 'photon_runtime', 'psi_mean', 'r', 'real', 'resonance_index', 'symatics/telemetry', 'tags', 'telemetry', 'timestamp', 'utf-8', 'Φ_mean', 'ψ_mean']

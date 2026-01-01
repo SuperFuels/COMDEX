@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/codex/collapse_trace_exporter.py
+# hypothesis_version: 6.139.2
+
+[0.35, 'WaveState', 'a', 'active_tags', 'adapter', 'approval', 'beam_id', 'beam_prediction', 'carrier_type', 'coherence', 'collapse', 'collapse_state', 'collapse_trace', 'container_id', 'delay_ms', 'dream_pack', 'entropy_state', 'event', 'expression', 'ghx_data', 'ghx_projection_id', 'glyph', 'glyph_data', 'hologram', 'identity', 'lock_hash', 'log_beam_prediction', 'log_soullaw_event', 'memory_tags', 'metadata', 'modulation_strategy', 'origin', 'origin_trace', 'output', 'phase_scheduler', 'prediction', 'qglyph_id', 'r', 'raw_codexlang', 'scroll_tree', 'signature_block', 'soul_law_validator', 'soullaw_event', 'sqi_prediction', 'sqi_score', 'sqi_soullaw_bridge', 'timestamp', 'trigger_metadata', 'triggered_by', 'type', 'utf-8', 'vault_snapshot_id', 'violation', 'wave_id']

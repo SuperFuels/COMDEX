@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/sqi/sqi_resonance_bridge.py
+# hypothesis_version: 6.139.2
+
+[0.0, 0.05, 1.0, 100, 1000, 'SQIResonanceBridge', 'WaveScope stopped.', 'gpio', 'payload', 'phase_diff', 'resonance_index', 'sqi.resonance_update', 'timestamp', 'type', 'visualizer']

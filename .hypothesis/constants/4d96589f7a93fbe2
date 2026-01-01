@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/photon/rewriter.py
+# hypothesis_version: 6.139.2
+
+[200, 5000, '!=', ')', '*', '+', '-', '->', '/', '<=', '=>', '>=', 'And', 'Compare:', 'Compose', 'Eq', 'Final normalized:', 'Grad', 'Grad(\\1)', 'GradPower', 'Gradient expanded ->', 'Initial parse:', 'Ne', 'Not', 'Or', 'VS', '[PhotonRewriter]', 'equals', 'expr:', 'is_constant', '¬', '↔', '∇(', '∇\\s*([A-Za-z_]\\w*)', '∧', '∨', '⊕', '⊖', '⊗']

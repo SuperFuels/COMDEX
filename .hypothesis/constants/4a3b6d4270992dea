@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/operators/collapse_wave.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1.0, 'bad_state', 'coherence', 'confidence', 'empty', 'entropy', 'error', 'freq', 'op', 'pulse_ok', 'seq', 'state', '∇']

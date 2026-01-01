@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/glyph_quantum_core.py
+# hypothesis_version: 6.139.2
+
+[0.3, 0.7, '0', '1', '[qglyph]', 'collapse', 'collapsed', 'compressed_length', 'container', 'coord', 'coords', 'decision', 'entangled', 'entropy', 'from_state', 'generated', 'ghx_projection_id', 'glyph', 'id', 'left', 'length', 'observer_bias', 'origin', 'pair_id', 'parsed_tree', 'path', 'qbit_collapse', 'qbit_entangle', 'qbit_generate', 'qbit_id', 'qglyph_generate', 'qglyph_id', 'ranked', 'right', 'selected', 'source', 'state', 'superposed', 'type', 'vault_snapshot_id', '↔']

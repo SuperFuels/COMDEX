@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/photon/photon_capsule_validator.py
+# hypothesis_version: 6.139.2
+
+['CAPSULE_SCHEMA', 'assert_valid_capsule']

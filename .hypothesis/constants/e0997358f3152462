@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/patterns/pattern_trace_engine.py
+# hypothesis_version: 6.139.2
+
+[-0.05, 'Z', 'activation', 'collapse', 'data/traces', 'delta', 'emotion', 'emotion_tag', 'event_id', 'event_type', 'evolution', 'glyph_ids', 'intensity', 'message', 'metadata', 'mutation', 'mutation_type', 'pattern', 'r', 'sqi_after', 'sqi_before', 'timestamp', 'trigger', 'w']

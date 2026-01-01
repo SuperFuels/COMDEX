@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/aion_resonance/resonance_heartbeat.py
+# hypothesis_version: 6.139.2
+
+[0.0, 0.05, 0.1, 0.2, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 5.0, '*heartbeat_live.json', '0', '1', 'AION_SILENT_MODE', '__main__', 'a', 'core', 'corrected_to', 'data/aion_field', 'demo', 'drift_corrected', 'event', 'feedback', 'namespace', 'resonance_delta', 'sqi', 'sync_all', 'timestamp', 'unknown', 'utf-8', 'ΔΦ', 'Θ_frequency', 'Φ_coherence', 'Φ_entropy', 'Φ_flux']

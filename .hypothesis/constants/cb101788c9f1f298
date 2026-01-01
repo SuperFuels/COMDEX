@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/core/fusion_ops.py
+# hypothesis_version: 6.139.2
+
+[-0.05, 0.0, 1e-08, 0.15, 0.9, 1.0, 1.1, 'Fusion Result:', '__main__', 'coherence', 'enable_trace', 'energy', 'fused_energy', 'fused_phase', 'fusion_event', 'law_weights', 'op', 'passed', 'phase', 'resonance_continuity', 'weights', 'μ', '↔', '⟲']

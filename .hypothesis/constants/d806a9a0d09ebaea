@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/sqi/sqi_container_registry.py
+# hypothesis_version: 6.139.2
+
+[-0.5, 0.0, 0.05, 0.1, 0.25, 0.35, 0.6, 1.0, 1.5, 2.0, 72.0, 1000.0, 3600.0, 1000000000.0, 3600, '.', 'SQI', 'SQIContainerRegistry', 'Z', '_entries', '_index', '_registry', 'address', 'age_hours', 'collapsed', 'collapsible', 'container', 'containerId', 'container_id', 'containers', 'created_by', 'default_state', 'domain', 'domain_match', 'empty', 'entries', 'fact', 'facts', 'freshness', 'get_container', 'ghx', 'ghx_hover', 'glyph_count', 'glyphs', 'hot', 'hot_flag', 'hover', 'hover_preview', 'hypotheses', 'hypothesis', 'id', 'index', 'kind', 'kind_match', 'last_updated', 'list_containers', 'meta', 'note', 'notes', 'priority', 'priority_hint', 'project', 'projects', 'reason', 'registry', 'root', 'simulation', 'simulations', 'size', 'size_bias', 'size_penalty', 'sqi_score', 'state_flags', 'stats', 'topics', 'type', 'ucs://knowledge']

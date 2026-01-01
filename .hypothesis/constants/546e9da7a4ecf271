@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/lean/lean_watch.py
+# hypothesis_version: 6.139.2
+
+[-1.0, 0.6, '\n- change detected -', '--container', '--inject-args', '--lean', '--mode', '--no-initial', '--normalize', '--poll-sec', '--pythonpath', '.', 'PYTHONPATH', '__main__', 'change', 'container', 'detail', 'error', 'event', 'initial', 'inject', 'integrated', 'lean', 'missing', 'mtime', 'python', 'standalone', 'start', 'store_true', '▶️ Initial run...']

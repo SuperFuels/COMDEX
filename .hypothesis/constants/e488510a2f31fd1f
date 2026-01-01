@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/sqi/sqi_metadata_embedder.py
+# hypothesis_version: 6.139.2
+
+[0.0, 0.1, 1.0, 1000, 5000, '1.0', 'auto', 'collapsed', 'compressed', 'compressed_rate', 'container', 'counts', 'density', 'expansion', 'frozen', 'ghx', 'ghx_collapsed', 'ghx_hover', 'glyphs', 'glyphs_compress_at', 'glyphs_freeze_at', 'glyphs_stub', 'hov', 'hover', 'id', 'includes', 'kind', 'last_hov_embed', 'lazy_ready', 'meta', 'mode', 'nodes', 'nodes_compress_at', 'nodes_freeze_at', 'nodes_stub', 'normal', 'reason', 'snapshot_rate', 'stats', 'time_dilation', 'version', 'viz']

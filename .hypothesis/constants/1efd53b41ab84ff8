@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/core/adaptive_laws.py
+# hypothesis_version: 6.139.2
+
+[-0.1, 0.0, 0.05, 0.2, 1.0, 2.0, 'CodexTrace', 'None', 'SymaticsChannel', '__main__', 'law_weight_update']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/lean/lean_inject_utils.py
+# hypothesis_version: 6.139.2
+
+['???', 'Define', 'Definition', 'Prove', 'True', 'atom', 'atom_container', 'atoms', 'axioms', 'axioms_used', 'body', 'codexlang', 'codexlang_string', 'dc', 'dc_container', 'dependencies', 'depends_on', 'exotic', 'exotic_container', 'exotic_glyphs', 'exotic_logic', 'exotic_tree', 'expanded_glyphs', 'expanded_logic', 'expanded_tree', 'explanation', 'glyph_field', 'glyph_symbol', 'glyph_tree', 'glyphs', 'hash', 'hoberman', 'hoberman_container', 'hoberman_glyphs', 'hoberman_logic', 'hoberman_tree', 'legacy', 'line', 'logic', 'logic_field', 'logic_map', 'logic_raw', 'name', 'normalized', 'previews', 'raw', 'sec', 'soft', 'source', 'source_file', 'symbol', 'symbolic_logic', 'symmetric_glyphs', 'symmetric_logic', 'symmetric_tree', 'symmetry', 'symmetry_container', 'thought_tree', 'tree_field', 'type', 'unknown', 'unnamed', '⟦ Theorem ⟧', '⟦?⟧']

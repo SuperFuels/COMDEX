@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/protocol/gwip_schema.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1.0, 'envelope', 'r']

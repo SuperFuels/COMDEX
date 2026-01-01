@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/dna_chain/proposal_manager.py
+# hypothesis_version: 6.139.2
+
+['approved', 'diff', 'dna_proposals.json', 'file', 'new_code', 'proposal_id', 'r', 'reason', 'replaced_code', 'timestamp', 'w']

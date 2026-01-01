@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/core/flow_operators.py
+# hypothesis_version: 6.139.2
+
+[0.0, '__main__', 'coherence_flux', 'curl', 'div:', 'divergence', 'flux:', 'lap:', 'laplacian']

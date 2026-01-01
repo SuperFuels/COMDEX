@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/core/telemetry_channel.py
+# hypothesis_version: 6.139.2
+
+[0.0, 2048, 'ctx', 'metrics', 'source', 'tags', 'timestamp', 'utf-8', 'w']

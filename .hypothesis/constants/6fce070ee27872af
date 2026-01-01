@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/sym_io_photonics.py
+# hypothesis_version: 6.139.2
+
+[0.05, '.csv', '.json', 'E_meas', 'mu', 'phi_dot', 'w']

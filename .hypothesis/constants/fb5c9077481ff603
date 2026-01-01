@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/core/lambda_field.py
+# hypothesis_version: 6.139.2
+
+[-1.0, 0.0, 0.02, 1.0, 2.0, 'lambda_field_update', 'mean', 'std']

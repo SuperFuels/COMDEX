@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/photon/photon_codex_adapter.py
+# hypothesis_version: 6.139.2
+
+['Photon AST:', 'Roundtrip Codex AST:', '__main__', 'args', 'ast_type', 'codex', 'glyphs', 'greater_than', 'intents', 'metadata', 'nodes', 'op', 'origin', 'photon', 'photon_ast', 'root', 'source', 'x', 'y']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/photonlang/importer.py
+# hypothesis_version: 6.139.2
+
+[173, 183, 247, 8192, 8193, 8208, 8209, 8232, 8233, 8260, 8722, 8725, 8727, 8901, '!=', '"', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '...', '.photon', '.pthon', '.sha256', '/', '0', '1', ':', ';', '<', '<=', '=', '>', '>=', 'NFKC', 'PHOTON_HOST_ALLOW', 'PHOTON_HOST_DENY', 'PHOTON_IMPORT_BYPASS', 'PHOTON_IMPORT_STRICT', 'PHOTON_SIG_SHA256', 'PhotonSourceLoader', '[', '[×∗·]', '[÷∕]', '[≤≦]', '[≥≧]', '\\1.\\2', ']', '__OPS__', '__init__', '__photonmap__', '_photonmap', 'exec', 'identity-lines', 'install', 'level', 'line_offset', 'mapping', 'refresh_importers', 'replace', 'source', 'uninstall', 'utf-8', 'version', '{', '|', '}', '«', '»', '\u200b', '\u200c', '\u200d', '‒', '–', '—', '‘', '’', '‚', '‛', '“', '”', '„', '‟', '…', '\u2060', '−', '≠', '、', '。', '\ufeff', '％', '＆', '（', '）', '＊', '＋', '，', '／', '：', '；', '＜', '＝', '＞', '［', '］', '｛', '｜', '｝']

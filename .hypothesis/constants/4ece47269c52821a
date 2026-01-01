@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/lean/lean_proofverifier.py
+# hypothesis_version: 6.139.2
+
+['%Y-%m-%dT%H:%M:%SZ', '--save', '/tmp', '/tmp/.cache', '/tmp/.elan', '/tmp/.lake', 'ELAN_HOME', 'LAKE_HOME', 'No lean_path found', 'TMPDIR', 'XDG_CACHE_HOME', '__main__', 'containerId', 'container_id', 'detail', 'electrons', 'env', 'error', 'glyph_grid', 'glyphs', 'id', 'lake', 'lakefile.lean', 'lakefile.toml', 'lean', 'lean-toolchain', 'leanCwd', 'leanPath', 'lean_cwd', 'lean_path', 'lean_project_root', 'lean_verification', 'logic_verification', 'metadata', 'missing', 'ok', 'r', 'reason', 'record_event', 'status', 'success', 'ts', 'unknown', 'utf-8', 'v1', 'validation', 'w', 'workspace', '✅ Proof verified', '✅ VALID', '❌ INVALID', '❌ Proof failed']

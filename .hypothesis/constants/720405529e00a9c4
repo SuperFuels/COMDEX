@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphvault/key_manager.py
+# hypothesis_version: 6.139.2
+
+[b'0123456789abcdef0123456789abcdef', 'GLYPHVAULT_KEY_FILE', 'GLYPHVAULT_PUBLIC_ID', 'VAULT://unknown', 'rb']

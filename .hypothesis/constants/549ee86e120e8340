@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphos/glyph_storage.py
+# hypothesis_version: 6.139.2
+
+['*.glyph', '.', '.lock', '0', '1', 'AION_LITE', 'GLYPHOS_NO_MEMORY', 'GLYPHOS_QUIET', '_', 'by_lemma', 'bytecode', 'checksum', 'coords', 'created', 'dc_containers', 'glyph', 'glyph_registry', 'invalid_args', 'lemma', 'loaded', 'metadata', 'not_found', 'path', 'reason', 'saved', 'status', 'updated', 'utf-8', 'w', 'μ', 'π', '↔', '∇', '⊕', '⟲']

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/symatics/signature.py
+# hypothesis_version: 6.139.2
+
+[1e-06, 0.001, 2.0, 3.141592653589793]

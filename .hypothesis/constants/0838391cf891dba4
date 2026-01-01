@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/patterns/pattern_registry.py
+# hypothesis_version: 6.139.2
+
+[0.15, 0.65, '-', 'Pattern', 'PatternMatcher', 'PatternRegistry', 'container_id', 'entropy', 'glyph', 'glyphs', 'metadata', 'name', 'op', 'pattern_id', 'pattern_register', 'pattern_registry', 'prediction', 'r', 'registry', 'signature', 'source_container', 'source_node', 'sqi_score', 'stringify_glyph', 'symmetry', 'trigger_logic', 'type', 'unknown', 'utf-8', 'value', 'w', '↻', '⊕', '⚛', '⧖', '⬁', '🧩', '🧬']

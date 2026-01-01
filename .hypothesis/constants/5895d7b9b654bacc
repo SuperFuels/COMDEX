@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/quant/qpy/qequation.py
+# hypothesis_version: 6.139.2
+
+[0.0, 1.0, 'I', 'expr', 'timestamp', 'ρ', 'φ']

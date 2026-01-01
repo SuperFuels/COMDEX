@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/glyphwave/qwave/qwave_writer.py
+# hypothesis_version: 6.139.2
+
+[1.0, 'SIMULATED', 'SimPhase', 'beam_id', 'carrier_type', 'coherence', 'coherence_score', 'collapse_state', 'collect_qwave_beams', 'entangled_beams', 'entangled_path', 'export_qwave_beams', 'frame', 'generate_qwave_id', 'id', 'metadata', 'modulation', 'modulation_strategy', 'multiverse_frame', 'mutation_trace', 'original', 'qwave_beams', 'source', 'source_id', 'target', 'target_id']

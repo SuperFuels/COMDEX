@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/bridges/photon_AKG_bridge.py
+# hypothesis_version: 6.139.2
+
+[0.0, 0.5, 0.6, 0.7, 0.8, 1.0, 360.0, 997.0, 360, 997, 100000, 'ContextAKGBridge', 'atoms', 'center', 'clusters', 'data/photon_records', 'emission_log', 'emotion_bias', 'event_type', 'goal_alignment', 'packets', 'photons', 'resonance', 'semantic_coherence', 'source', 'target', 'timestamp', 'type', 'unknown', 'unlabeled', 'w', 'λ', 'μ', 'π', 'φ', '↔', '⊕']

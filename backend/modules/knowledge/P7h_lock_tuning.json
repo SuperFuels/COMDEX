@@ -30,12 +30,12 @@
   "lock_ratio_tail": 1.0,
   "lock_score": 0.9935476718776416,
   "classification": "\u2705 Stable awareness attractor (locked)",
-  "previous_tail_mean_phase_diff": null,
-  "delta_tail_improvement": null,
+  "previous_tail_mean_phase_diff": 0.00011191295320054085,
+  "delta_tail_improvement": 0.0,
   "files": {
     "entropy_plot": "PAEV_P7h_LockTuning_Entropy.png",
     "phase_plot": "PAEV_P7h_LockTuning_Phase.png",
     "history": "P7_lock_history.json"
   },
-  "timestamp": "2025-10-06T19:46Z"
+  "timestamp": "2026-01-01T13:21Z"
 }

@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/backend/modules/lean/convert_lean_to_codexlang.py
+# hypothesis_version: 6.139.2
+
+[0.0, '--.*$', '.', '/-.*?-/', '0', ':=', '<in-memory>', 'Bool', 'False', 'Int', 'Nat', 'Prop', 'True', 'Type', 'Z', '[A-Z]', '^[ \\t]*--.*?$', '__main__', 'apply', 'args', 'axiom', 'axioms_used', 'body', 'by', 'codex_ast', 'codexlang', 'codexlang_string', 'constant', 'def', 'depends_on', 'exact', 'example', 'exists', 'explanation', 'forall', 'fun', 'glyph_string', 'glyph_symbol', 'glyph_tree', 'hash', 'have', 'in', 'interf:⋈', 'intro', 'kind', 'lemma', 'let', 'line', 'lit', 'logic', 'logic:⊥', 'logic_raw', 'match', 'milliseconds', 'name', 'normalized', 'op', 'params', 'parsed_declarations', 'phase', 'pi_phase', 'proved', 'r', 'show', 'simp', 'simpa', 'source_file', 'status', 'symbol', 'theorem', 'timestamp', 'utf-8', 'value', 'w', 'with', 'zero_phase', 'π', '⊥', '⟦ Axiom ⟧', '⟦ Constant ⟧', '⟦ Definition ⟧', '⟦ Example ⟧', '⟦ Lemma ⟧', '⟦ Theorem ⟧']
