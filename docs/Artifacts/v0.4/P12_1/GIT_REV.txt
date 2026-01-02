@@ -1,0 +1,35 @@
+580e7ad065082398a49a10173af4302973edeb2d
+STATUS:  M Glyph_Net_Browser/src/components/QFCViewport.tsx
+STATUS:  M Glyph_Net_Browser/src/components/qfc/demos/QFCDemoConnect.tsx
+STATUS:  M Glyph_Net_Browser/src/components/qfc/demos/QFCDemoGravity.tsx
+STATUS:  M Glyph_Net_Browser/src/components/qfc/demos/QFCDemoMatter.tsx
+STATUS:  M Glyph_Net_Browser/src/components/qfc/demos/QFCDemoTunnel.tsx
+STATUS:  M Glyph_Net_Browser/src/components/qfc/demos/QFCDemoWormhole.tsx
+STATUS:  M Glyph_Net_Browser/src/routes/DevTools.tsx
+STATUS:  M backend/modules/aion_cognition/tessaris_cognitive_fusion_kernel.py
+STATUS:  M backend/modules/dna_chain/data/dna_address_book.json
+STATUS:  M backend/modules/dna_chain/dna_switch_index.json
+STATUS:  M backend/modules/visualization/qfc_websocket_bridge.py
+STATUS:  M launch_tessaris_stack.sh
+STATUS:  M package.json
+STATUS:  M pnpm-lock.yaml
+STATUS: ?? Glyph_Net_Browser/src/components/qfc/demos/QFCDemoGenome.tsx
+STATUS: ?? Glyph_Net_Browser/src/components/qfc/demos/QFCDemoTopology.tsx
+STATUS: ?? Glyph_Net_Browser/src/components/qfc/topology/
+STATUS: ?? Glyph_Net_Browser/src/sim/
+STATUS: ?? backend/modules/knowledge/P8_1_mutation_sensitivity.json
+STATUS: ?? backend/modules/knowledge/P9_1_mutation_in_multi.json
+STATUS: ?? backend/modules/knowledge/P9_true_multiplexing.json
+STATUS: ?? backend/modules/knowledge/PAEV_P8_1_MutationCurve_AbsRhoB.png
+STATUS: ?? backend/modules/knowledge/PAEV_P8_1_MutationCurve_RhoB.png
+STATUS: ?? backend/modules/knowledge/PAEV_P9_1_MutationInMulti_CrosstalkAbsRho_vs_k.png
+STATUS: ?? backend/modules/knowledge/PAEV_P9_1_MutationInMulti_MainRho_vs_k.png
+STATUS: ?? backend/modules/knowledge/PAEV_P9_Multiplex_CrosstalkAbsRho_vs_Distance.png
+STATUS: ?? backend/modules/knowledge/PAEV_P9_Multiplex_MainRho_vs_Distance.png
+STATUS: ?? backend/modules/sim/qfc_engine.py
+STATUS: ?? backend/modules/visualization/stream_qfc_from_fusion.py
+STATUS: ?? backend/photon_algebra/tests/paev_test_P8_1_mutation_sensitivity.py
+STATUS: ?? backend/photon_algebra/tests/paev_test_P9_true_multiplexing.py
+STATUS: ?? docs/Artifacts/v0.4/P12_1/
+BRANCH: main
+UTC: Fri Jan  2 19:32:30 UTC 2026

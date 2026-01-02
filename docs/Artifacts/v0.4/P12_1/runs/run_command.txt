@@ -1,0 +1,1 @@
+pnpm exec vitest run Glyph_Net_Browser/src/sim/tests
