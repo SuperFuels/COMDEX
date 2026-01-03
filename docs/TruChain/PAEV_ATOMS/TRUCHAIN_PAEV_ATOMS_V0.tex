@@ -40,7 +40,7 @@ and that those effects survive transition from simulation to hardware proxies.
   \item Each non-simulation rung MUST be backed by immutable artifacts (raw logs + SHA256) and a measured results JSON.
 \end{itemize}
 
-\section{Repository anchors (what to read)}
+\section{Repository anchors}
 \begin{itemize}
   \item Simulation tests: \url{Glyph_Net_Browser/src/sim/tests/}
   \item PAEV ladder tests: \url{backend/paev_ladder/tests/}
@@ -49,9 +49,6 @@ and that those effects survive transition from simulation to hardware proxies.
 \end{itemize}
 
 \section{Ladder overview}
-The ladder is organized as rungs with explicit \textbf{pass criteria} and \textbf{evidence requirements}.
-Simulation rungs assert invariants in code. Physical/proxy rungs assert thresholds against measured results JSON
-that MUST correspond to raw artifacts.
 
 \subsection*{A --- Simulation (prove grammar + invariants)}
 \begin{itemize}
@@ -84,7 +81,7 @@ that MUST correspond to raw artifacts.
     Pass: SER $< 5\%$ at nominal SNR with graceful degradation curve.
 \end{itemize}
 
-\subsection*{C --- Atom-adjacent proxy (cash-out toward relevance without overclaiming)}
+\subsection*{C --- Atom-adjacent proxy (cash-out without overclaiming)}
 \begin{itemize}
   \item \textbf{C1 EM Resonant Addressing Proxy (LC ``atoms'' + routing)}\\
     Pass: selectivity $\ge 5$; topology-rule success $\ge 90\%$; stable under detuning sweep.
@@ -96,7 +93,8 @@ that MUST correspond to raw artifacts.
     Pass: stable hold for $T$ seconds with bounded shape error; recovery $\ge 80\%$; beats independent-traps baseline.
 \end{itemize}
 
-\section{What is locked in so far (as of this repo state)}
+\section{What is locked in so far}
+
 \subsection{Simulation rungs (A)}
 \begin{itemize}
   \item A2: \textbf{PASS} (Vitest)
@@ -106,47 +104,31 @@ that MUST correspond to raw artifacts.
 \end{itemize}
 
 \subsection{Physical / proxy rungs (B/C)}
-These rungs are enforced by \texttt{pytest} reading \texttt{backend/paev\_ladder/results/<RUNG>.json}.
-In non-strict mode, missing measurement results SKIP; in strict mode (\texttt{PAEV\_STRICT=1}), missing measurement results FAIL.
-
 \begin{itemize}
-  \item B2: \textbf{MEASURED} result exists; \textbf{PASS} in strict mode.
-  \item B3: \textbf{MEASURED} result exists; \textbf{PASS} in strict mode.
-  \item B1, C1, C2, C4: \textbf{MISSING\_MEASUREMENT} (currently FAIL in strict mode).
+  \item B2: \textbf{MEASURED}; \textbf{PASS} in strict mode.
+  \item B3: \textbf{MEASURED}; \textbf{PASS} in strict mode.
+  \item B1, C1, C2, C4: \textbf{MISSING\_MEASUREMENT} (FAIL in strict mode until measured JSON exists).
 \end{itemize}
 
-\section{Artifacts we MUST preserve (before we forget)}
-\subsection{Simulation artifacts (A)}
+\section{Artifacts we MUST preserve}
+
+\subsection{Simulation}
 \begin{itemize}
-  \item Test definitions and thresholds:
-    \begin{itemize}
-      \item \url{Glyph_Net_Browser/src/sim/tests/A1_topology_gate_causality.test.ts}
-      \item \url{Glyph_Net_Browser/src/sim/tests/A2_resonant_addressing.test.ts}
-      \item \url{Glyph_Net_Browser/src/sim/tests/A31_chiral_handshake.test.ts}
-      \item \url{Glyph_Net_Browser/src/sim/tests/A4_klink_vs_distance.test.ts}
-    \end{itemize}
+  \item \url{Glyph_Net_Browser/src/sim/tests/A1_topology_gate_causality.test.ts}
+  \item \url{Glyph_Net_Browser/src/sim/tests/A2_resonant_addressing.test.ts}
+  \item \url{Glyph_Net_Browser/src/sim/tests/A31_chiral_handshake.test.ts}
+  \item \url{Glyph_Net_Browser/src/sim/tests/A4_klink_vs_distance.test.ts}
 \end{itemize}
 
-\subsection{Measurement artifacts (B/C)}
-For each physical/proxy rung $R$:
+\subsection{Measurement rungs: raw + hashes + results}
+For each rung $R$ in \{B1,B2,B3,C1,C2,C4\}:
 \begin{itemize}
-  \item Raw artifacts MUST be dropped under \url{backend/paev_ladder/raw/\$R/}
-  \item A \texttt{SHA256SUMS.txt} MUST be generated over raw files (immutable evidence anchor)
-  \item A measured summary JSON MUST exist under \url{backend/paev_ladder/results/\$R\_*.json} matching the rung loader name
+  \item Raw artifacts: \url{backend/paev_ladder/raw/\$R/}
+  \item Hashes: \texttt{SHA256SUMS.txt} in the same folder
+  \item Measured result: \url{backend/paev_ladder/results/\$R\_*.json} matching the rung loader name
 \end{itemize}
 
-\subsection{Result JSON minimal contract (current)}
-Result JSON files MUST include \texttt{status} and all keys asserted by the rung test. Recommended additions
-(for audit-grade traceability) SHOULD include:
-\begin{itemize}
-  \item \texttt{run\_id}, \texttt{ran\_at\_utc}, \texttt{operator}
-  \item \texttt{device\_id} / \texttt{rig\_version}, \texttt{firmware\_version}
-  \item \texttt{raw\_artifact\_dir}: path to raw folder
-  \item \texttt{raw\_sha256sums}: sha256 of \texttt{SHA256SUMS.txt} (or embed its contents)
-  \item \texttt{notes}: free text
-\end{itemize}
-
-\section{Current pass/fail dashboard}
+\section{Current dashboard}
 \begin{tabularx}{\linewidth}{l l Y}
 \textbf{Rung} & \textbf{Status} & \textbf{Evidence / Location} \\
 \hline
@@ -162,15 +144,15 @@ C2 & MISSING\_MEASUREMENT & \url{backend/paev_ladder/results/C2_two_level_emulat
 C4 & MISSING\_MEASUREMENT & \url{backend/paev_ladder/results/C4_multinode_structural_hold.json} \\
 \end{tabularx}
 
-\section{What remains to ``finish these off''}
+\section{What remains to finish}
 \begin{enumerate}
-  \item Decide whether to un-skip A1 (turn it into an enforced invariant) or keep as future rung.
-  \item Produce real measurement artifacts for B1/C1/C2/C4:
+  \item Decide whether to un-skip A1 (enforce it) or keep it staged.
+  \item Produce measurement artifacts for B1/C1/C2/C4:
     \begin{itemize}
-      \item Drop raw logs/files into \url{backend/paev_ladder/raw/<RUNG>/}
-      \item Generate \texttt{SHA256SUMS.txt}
-      \item Produce a \texttt{status=MEASURED} results JSON satisfying the test keys and thresholds
-      \item Run \texttt{PAEV\_STRICT=1 pytest -q backend/paev\_ladder/tests} until green
+      \item drop raw logs into \url{backend/paev_ladder/raw/<RUNG>/}
+      \item run \texttt{sha256sum * > SHA256SUMS.txt}
+      \item write \texttt{status=MEASURED} result JSON satisfying the rung test keys
+      \item run \texttt{PAEV\_STRICT=1 pytest -q backend/paev_ladder/tests} until green
     \end{itemize}
 \end{enumerate}
 
