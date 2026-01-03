@@ -1,21 +1,17 @@
 {
   "status": "MEASURED",
-
   "ser_nominal": 0.03,
   "snr_db": 30,
   "ser_curve": [
+    [35, 0.0],
     [30, 0.03],
-    [20, 0.4725],
-    [10, 0.4725]
+    [25, 0.0]
   ],
-
-  "run_id": "macbook_run_2026-01-03_seed1",
-  "ran_at_utc": "2026-01-03T11:41:57Z",
+  "run_id": "macbook_run_2026-01-03b",
+  "ran_at_utc": "2026-01-03",
   "operator": "Kevin Robinson",
-  "device_id": "Kevins-MacBook-Pro",
-
-  "raw_artifact_dir": "backend/paev_ladder/raw/B3/macbook_run_2026-01-03",
-  "raw_sha256sums_file": "backend/paev_ladder/raw/B3/macbook_run_2026-01-03/SHA256SUMS_RECURSIVE.txt",
-  "raw_sha256sums_sha256": "95ad0ed318e2d9526e137b94c7d6815241292e475024d22f1e29ec1aa74014f3",
-  "notes": "B3 audio-channel run folders: run_snr10/run_snr20/run_snr30."
+  "device_id": "MacBook Pro (speaker+mic loopback)",
+  "raw_artifact_dir": "backend/paev_ladder/raw/B3/macbook_run_2026-01-03b",
+  "raw_sha256sums_recursive": "6e3f68a8a1376557b5ad63900b89a3761547a500df29031b47b3be448b1a444f",
+  "notes": "Audio BFSK-style channel. Raw includes tx/rx wav, tx_symbols.csv, decode_log.csv, per-run SHA256SUMS.txt and SHA256SUMS_RECURSIVE.txt."
 }
