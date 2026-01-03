@@ -1,1 +1,1 @@
-{ "status":"MISSING_MEASUREMENT", "rung":"C4_multinode_structural_hold", "note":"see backend/paev_ladder/raw/C4/" }
+{ "status": "MISSING_MEASUREMENT", "hold_seconds": 0, "shape_error_bound": false, "recovery_rate": 0.0, "beats_independent_traps": false }

@@ -1,1 +1,1 @@
-{ "status":"MISSING_MEASUREMENT", "rung":"B1_chladni_pattern_compiler", "note":"see backend/paev_ladder/raw/B1/" }
+{ "status": "MISSING_MEASUREMENT", "similarities": [], "robustness_drop": 1.0 }
