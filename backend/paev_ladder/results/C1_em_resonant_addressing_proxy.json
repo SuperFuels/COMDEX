@@ -1,1 +1,14 @@
-{ "status":"MISSING_MEASUREMENT", "rung":"C1_em_resonant_addressing_proxy", "note":"see backend/paev_ladder/raw/C1/" }
+{
+  "status": "MISSING_MEASUREMENT",
+  "selectivity": 0.0,
+  "topology_rule_success": 0.0,
+  "stable_under_detuning": false,
+  "run_id": "",
+  "ran_at_utc": "",
+  "operator": "",
+  "device_id": "",
+  "rig_version": "",
+  "raw_artifact_dir": "backend/paev_ladder/raw/C1",
+  "raw_sha256sums_sha256": "",
+  "notes": "Fill from real bench run; set status=MEASURED when artifacts+metrics are real."
+}
