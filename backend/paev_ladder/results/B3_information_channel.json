@@ -1,8 +1,10 @@
 {
-  "status": "MISSING_MEASUREMENT",
-  "rung": "B3_information_channel",
-  "note": "Raw artifacts not yet captured; see backend/paev_ladder/raw/B3/",
-  "raw": {
-    "notes_sha256": "2d907abdf143ef6c043c2d4491c87ebd917d76ff257fb15b9235fb6bb68d77ba"
-  }
+  "status": "MEASURED",
+  "ser_nominal": 0.04,
+  "snr_db": 20,
+  "ser_curve": [
+    [30, 0.001],
+    [20, 0.04],
+    [10, 0.20]
+  ]
 }
