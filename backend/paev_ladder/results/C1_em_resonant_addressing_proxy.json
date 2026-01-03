@@ -10,5 +10,5 @@
   "rig_version": "",
   "raw_artifact_dir": "backend/paev_ladder/raw/C1",
   "raw_sha256sums_sha256": "",
-  "notes": "Fill from real bench run; set status=MEASURED when artifacts+metrics are real."
+  "notes": "Template only. Replace with real MEASURED values + raw SHA256SUMS hash."
 }
