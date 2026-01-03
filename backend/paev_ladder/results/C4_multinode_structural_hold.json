@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "PAEV_RUNG_V1",
+  "rung": "C4_multinode_structural_hold",
+  "status": "MISSING_MEASUREMENT",
+  "hold_seconds": null,
+  "shape_error_bound": null,
+  "recovery_rate": null,
+  "beats_independent_traps": null,
+  "meta": { "created_utc": null, "notes": "Drop MEASURED JSON when multi-node hold run exists." }
+}

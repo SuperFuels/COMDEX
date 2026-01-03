@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "PAEV_RUNG_V1",
+  "rung": "B3_information_channel",
+  "status": "MISSING_MEASUREMENT",
+  "ser_nominal": null,
+  "snr_db": null,
+  "ser_curve": [],
+  "meta": { "created_utc": null, "notes": "Drop MEASURED JSON when comms run exists." }
+}

@@ -1,0 +1,5 @@
+{
+  "status": "MEASURED",
+  "rmse_frac": 0.04,
+  "dropout_frac": 0.08
+}

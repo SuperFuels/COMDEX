@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "PAEV_RUNG_V1",
+  "rung": "C2_two_level_emulator",
+  "status": "MISSING_MEASUREMENT",
+  "fidelity": null,
+  "baseline_fidelity": null,
+  "meta": { "created_utc": null, "notes": "Drop MEASURED JSON when emulator run exists." }
+}
