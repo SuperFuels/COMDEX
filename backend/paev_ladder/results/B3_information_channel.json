@@ -1,9 +1,8 @@
 {
-  "schemaVersion": "PAEV_RUNG_V1",
-  "rung": "B3_information_channel",
   "status": "MISSING_MEASUREMENT",
-  "ser_nominal": null,
-  "snr_db": null,
-  "ser_curve": [],
-  "meta": { "created_utc": null, "notes": "Drop MEASURED JSON when comms run exists." }
+  "rung": "B3_information_channel",
+  "note": "Raw artifacts not yet captured; see backend/paev_ladder/raw/B3/",
+  "raw": {
+    "notes_sha256": "2d907abdf143ef6c043c2d4491c87ebd917d76ff257fb15b9235fb6bb68d77ba"
+  }
 }

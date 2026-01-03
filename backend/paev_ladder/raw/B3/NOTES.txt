@@ -1,0 +1,2 @@
+B3 Information Channel — raw artifacts not yet captured.
+Expected artifacts: tx/rx symbol logs + SER vs SNR sweep.

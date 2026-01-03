@@ -1,0 +1,2 @@
+C1 — raw artifacts not yet captured.
+Drop raw logs/files here, then run sha256sum > SHA256SUMS.txt

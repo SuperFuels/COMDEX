@@ -1,8 +1,1 @@
-{
-  "schemaVersion": "PAEV_RUNG_V1",
-  "rung": "B1_chladni_pattern_compiler",
-  "status": "MISSING_MEASUREMENT",
-  "similarities": [],
-  "robustness_drop": null,
-  "meta": { "created_utc": null, "notes": "Drop MEASURED JSON when real images/analysis exist." }
-}
+{ "status":"MISSING_MEASUREMENT", "rung":"B1_chladni_pattern_compiler", "note":"see backend/paev_ladder/raw/B1/" }
