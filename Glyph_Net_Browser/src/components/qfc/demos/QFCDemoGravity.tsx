@@ -1,70 +1,110 @@
+"use client";
+
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+
+const n = (v: any, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
+const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
 export default function QFCDemoGravity({ frame }: { frame: any }) {
   const meshRef = useRef<THREE.Points>(null);
   const coreRef = useRef<THREE.Mesh>(null);
 
+  // ✅ smooth gate so epoch updates don’t look “steppy”
+  const gateSm = useRef(1.0);
+
+  // ✅ stable time accumulator (FPS-drop stable)
+  const tRef = useRef(0);
+
   // High-density lattice for metric distortion
-  const { points, originalY } = useMemo(() => {
+  const { points, count } = useMemo(() => {
     const size = 20;
     const res = 80;
     const p = new Float32Array(res * res * 3);
-    const yOrig = new Float32Array(res * res);
+
     for (let i = 0; i < res; i++) {
       for (let j = 0; j < res; j++) {
         const x = (i / res - 0.5) * size;
         const z = (j / res - 0.5) * size;
-        p[(i * res + j) * 3 + 0] = x;
-        p[(i * res + j) * 3 + 1] = 0; // Start flat
-        p[(i * res + j) * 3 + 2] = z;
-        yOrig[i * res + j] = 0;
+        const k = (i * res + j) * 3;
+        p[k + 0] = x;
+        p[k + 1] = 0;
+        p[k + 2] = z;
       }
     }
-    return { points: p, originalY: yOrig };
+
+    return { points: p, count: res * res };
   }, []);
 
-  useFrame(({ clock }) => {
+  useFrame((_state, dtRaw) => {
     if (!meshRef.current || !coreRef.current) return;
-    const t = clock.getElapsedTime();
-    
-    // Telemetry Mapping
-    const kappa = frame?.kappa ?? 0.25;
-    const curv = frame?.curv ?? 0.18;
-    const alpha = frame?.alpha ?? 0.12;
 
-    const posAttr = meshRef.current.geometry.attributes.position.array as Float32Array;
-    
-    // Core dynamics: "The Pulsing Singularity"
-    const pulse = 1.0 + 0.15 * Math.sin(t * (1.5 + alpha * 2.0));
-    coreRef.current.scale.setScalar(pulse * (0.8 + curv * 1.5));
-    coreRef.current.rotation.y = t * 0.5;
+    // ✅ dt clamp pattern (use in every useFrame)
+    const dtc = Math.min(dtRaw, 1 / 30);
 
-    // Metric Displacement Logic (Lorentzian Warp)
-    for (let i = 0; i < originalY.length; i++) {
-      const px = posAttr[i * 3 + 0];
-      const pz = posAttr[i * 3 + 2];
+    // ✅ stable time accumulator
+    tRef.current += dtc;
+    const t = tRef.current;
+
+    // Telemetry Mapping (clamped)
+    const kappa = clamp01(n(frame?.kappa, 0.25));
+    const curv = n(frame?.curv, 0.18);
+    const alpha = clamp01(n(frame?.alpha, 0.12));
+
+    // ✅ Topology gate plumbing (prefers injected topo_gate01, then topology.gate, then sigma)
+    const targetGate = clamp01(n(frame?.topo_gate01, n(frame?.topology?.gate, n(frame?.sigma, 1))));
+
+    // ✅ smooth gate (use dtc)
+    const gateLerp = 1 - Math.exp(-dtc * 10.0);
+    gateSm.current = gateSm.current + (targetGate - gateSm.current) * gateLerp;
+    const topoGate01 = gateSm.current;
+
+    const geom = meshRef.current.geometry;
+    const attr = geom.attributes.position;
+    if (!attr) return;
+
+    const posAttr = attr.array as Float32Array;
+
+    // Gate-driven behavior
+    const depthGain = 0.75 + 0.85 * topoGate01; // 0.75..1.60
+    const tightGain = 0.8 + 0.7 * topoGate01; // 0.80..1.50
+    const waveGain = 0.6 + 0.55 * (1 - topoGate01); // more waves when gate low
+
+    // Core dynamics: “Pulsing Singularity”
+    const pulseRate = 1.4 + alpha * 2.2;
+    const pulseAmp = 0.12 * (0.65 + 0.35 * (1 - topoGate01));
+    const pulse = 1.0 + pulseAmp * Math.sin(t * pulseRate);
+
+    coreRef.current.scale.setScalar(
+      pulse * (0.75 + Math.max(0, curv) * 1.6) * (0.85 + 0.25 * topoGate01),
+    );
+    coreRef.current.rotation.y = t * (0.45 + 0.25 * topoGate01);
+
+    // Metric Displacement (Lorentzian-ish well)
+    const depthBase = (Math.max(0, curv) * 6.0 + kappa * 2.0) * depthGain;
+    const tightBase = (1.0 + kappa * 4.0) * tightGain;
+
+    for (let i = 0; i < count; i++) {
+      const k = i * 3;
+      const px = posAttr[k + 0];
+      const pz = posAttr[k + 2];
       const dist = Math.sqrt(px * px + pz * pz);
 
-      // G-Series Metric: y = - (Depth / (1 + Dist^2))
-      // Curv deepens the well; Kappa tightens the radius
-      const depth = (curv * 6.0) + (kappa * 2.0);
-      const tightness = 1.0 + (kappa * 4.0);
-      const displacement = - (depth / (1.0 + Math.pow(dist / tightness, 2.0)));
-      
-      // Subtle background "Gravitational Waves"
-      const waves = Math.sin(dist * 1.2 - t * 2.5) * 0.08 * alpha;
-      
-      posAttr[i * 3 + 1] = displacement + waves;
+      const displacement = -(depthBase / (1.0 + Math.pow(dist / tightBase, 2.0)));
+
+      // Background waves: stronger when gate is low
+      const waves = Math.sin(dist * 1.2 - t * 2.5) * 0.08 * alpha * waveGain;
+
+      posAttr[k + 1] = displacement + waves;
     }
-    
-    meshRef.current.geometry.attributes.position.needsUpdate = true;
+
+    attr.needsUpdate = true;
   });
 
   return (
     <group position={[0, 1.5, 0]}>
-      {/* The Central Mass (Causal Core) */}
+      {/* Central Mass (Causal Core) */}
       <mesh ref={coreRef}>
         <sphereGeometry args={[1, 64, 64]} />
         <meshStandardMaterial
@@ -77,22 +117,18 @@ export default function QFCDemoGravity({ frame }: { frame: any }) {
         <pointLight intensity={2.5} distance={15} color="#38bdf8" />
       </mesh>
 
-      {/* The Warped Spacetime Lattice */}
+      {/* Warped Spacetime Lattice */}
       <points ref={meshRef}>
         <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            count={points.length / 3}
-            array={points}
-            itemSize={3}
-          />
+          <bufferAttribute attach="attributes-position" count={points.length / 3} array={points} itemSize={3} />
         </bufferGeometry>
-        <pointsMaterial 
-          size={0.06} 
-          color="#94a3b8" 
-          transparent 
-          opacity={0.4} 
+        <pointsMaterial
+          size={0.06}
+          color="#94a3b8"
+          transparent
+          opacity={0.4}
           blending={THREE.AdditiveBlending}
+          depthWrite={false}
         />
       </points>
 

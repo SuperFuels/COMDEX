@@ -1,0 +1,26 @@
+export function mean(xs: number[]) {
+  if (!xs.length) return 0;
+  return xs.reduce((a, b) => a + b, 0) / xs.length;
+}
+
+export function stdev(xs: number[]) {
+  if (xs.length < 2) return 0;
+  const m = mean(xs);
+  const v = mean(xs.map((x) => (x - m) ** 2));
+  return Math.sqrt(v);
+}
+
+export function clamp01(v: number) {
+  return Math.max(0, Math.min(1, v));
+}
+
+// A2 metrics
+export function selectivity(target: number, others: number[]) {
+  const off = mean(others);
+  return off <= 1e-12 ? Infinity : target / off;
+}
+
+export function crosstalk(target: number, others: number[]) {
+  const mx = others.length ? Math.max(...others) : 0;
+  return target <= 1e-12 ? Infinity : mx / target;
+}

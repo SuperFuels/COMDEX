@@ -1629,7 +1629,7 @@ function GMADashboardPanel() {
   );
 }
 
-type ScenarioId = "BG01" | "G01" | "TN01" | "MT01" | "C01" | "WH01";
+type ScenarioId = "BG01" | "G01" | "TN01" | "MT01" | "C01" | "WH01" | "GN01";
 
 type ScenarioConfig = {
   id: ScenarioId;
@@ -1642,7 +1642,7 @@ type ScenarioConfig = {
     danger: string;
   };
   defaults: { kappa: number; chi: number; sigma: number; alpha: number };
-  mode: "gravity" | "tunnel" | "matter" | "connect" | "wormhole";
+  mode: "gravity" | "tunnel" | "matter" | "connect" | "wormhole" | "genome";
 };
 
 const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
@@ -1671,6 +1671,19 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     },
     defaults: { kappa: 0.18, chi: 0.18, sigma: 0.42, alpha: 0.08 },
     mode: "gravity",
+  },
+  GN01: {
+    id: "GN01",
+    label: "GN01 Genome Lattice",
+    theme: {
+      gravity: "rgba(56,189,248,0.45)",
+      matter: "rgba(167,139,250,0.65)", // a bit “genetic / helix” vibe
+      photon: "rgba(251,191,36,0.65)",
+      connect: "rgba(34,211,238,0.75)",
+      danger: "rgba(239,68,68,0.80)",
+    },
+    defaults: { kappa: 0.14, chi: 0.22, sigma: 0.70, alpha: 0.12 },
+    mode: "genome",
   },
   TN01: {
     id: "TN01",
@@ -1725,7 +1738,12 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     mode: "wormhole",
   },
 };
-
+type QFCTopology = {
+  epoch: number;
+  nodes: Array<{ id: string; w?: number }>;
+  edges: Array<{ a: string; b: string; w?: number }>;
+  gate?: number;
+};
 type QFCFrame = {
   t: number;
   kappa?: number;
@@ -1736,7 +1754,69 @@ type QFCFrame = {
   curv?: number;
   coupling_score?: number;
   max_norm?: number;
+  flags?: { chirality?: 1 | -1 };
+  topology?: QFCTopology;
 };
+// near other type defs (file-scope, above components)
+type TopoSrc = "stream" | "bootstrap" | "frozen";
+
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0;
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function ensureTopologyLocal(frame: any, seed: number) {
+  const t = Number(frame?.t ?? Date.now());
+  const epoch = Math.floor(t / 2000); // changes every 2s
+
+  // keep existing if already correct epoch
+  if (frame?.topology && Number(frame.topology.epoch) === epoch) return frame;
+
+  const rng = mulberry32(((seed ?? 1) * 2654435761) ^ epoch);
+
+  const N = 10; // nodes
+  const nodes = Array.from({ length: N }).map((_, i) => ({
+    id: `n${i}`,
+    w: 0.6 + 0.4 * rng(),
+  }));
+
+  // edges change each epoch (dedup)
+  const edges: Array<{ a: string; b: string; w?: number }> = [];
+  const seen = new Set<string>();
+  const E = 14;
+
+  let guard = 0;
+  while (edges.length < E && guard++ < E * 20) {
+    let ai = Math.floor(rng() * N);
+    let bi = Math.floor(rng() * N);
+    if (bi === ai) bi = (bi + 1) % N;
+
+    const a = nodes[ai].id;
+    const b = nodes[bi].id;
+
+    // undirected dedup key (avoid a-b and b-a duplicates)
+    const key = a < b ? `${a}|${b}` : `${b}|${a}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    const w = 0.2 + 0.8 * rng();
+    edges.push({ a, b, w });
+  }
+
+  // optional gate from live sigma (fallback 1)
+  const gate = Math.max(0, Math.min(1, Number(frame?.sigma ?? 1)));
+
+  return {
+    ...frame,
+    topology: { epoch, nodes, edges, gate }, // ✅ debug only
+  };
+}
 
 function QFCHudPanel({
   containerId,
@@ -1774,13 +1854,20 @@ function QFCHudPanel({
   // NOTE: QFCViewport already renders demos by `mode`
   // ─────────────────────────────────────────────────────────────
   // Make sure your local type includes "wormhole"
-  type QFCMode = "gravity" | "tunnel" | "matter" | "connect" | "wormhole";
+  type QFCMode = "gravity" | "tunnel" | "matter" | "connect" | "wormhole" | "genome" | "topology";
+
   const [demoMode, setDemoMode] = useState<QFCMode>(() => {
     try {
       const p = new URLSearchParams(window.location.search);
       const raw = (p.get("mode") || "").trim();
       const ok =
-        raw === "gravity" || raw === "tunnel" || raw === "matter" || raw === "connect" || raw === "wormhole";
+        raw === "gravity" ||
+        raw === "tunnel" ||
+        raw === "matter" ||
+        raw === "connect" ||
+        raw === "wormhole" ||
+        raw === "genome" ||
+        raw === "topology";
       return ok ? (raw as QFCMode) : "gravity";
     } catch {
       return "gravity";
@@ -1807,6 +1894,17 @@ function QFCHudPanel({
   const [sigma, setSigma] = useState(() => cfg.defaults.sigma);
   const [alpha, setAlpha] = useState(() => cfg.defaults.alpha);
 
+  // ─────────────────────────────────────────────────────────────
+  // Telemetry-derived HUD signals (read-only; do NOT affect snapshot_verify knobs)
+  // ─────────────────────────────────────────────────────────────
+  const fusion = telemetry?.fusion as any;
+
+  const sigmaHud =
+    fusion?.sigma_gate ??
+    fusion?.stability ??
+    fusion?.sigma ??
+    sigma; // last-resort fallback to the knob
+
   // reset knobs when scenario changes (your existing behavior)
   useEffect(() => {
     setKappa(cfg.defaults.kappa);
@@ -1820,9 +1918,31 @@ function QFCHudPanel({
     setCursor(0);
     setRunHash("—");
 
+    // also reset freeze state (recommended; avoids cross-scenario pin)
+    setTopoFrozen(false);
+    frozenTopoRef.current = null;
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenario]);
 
+    // ─────────────────────────────────────────────────────────────
+    // Stage C — Topology inspector + Freeze
+    // ─────────────────────────────────────────────────────────────
+    const [topoFrozen, setTopoFrozen] = useState(false);
+    const frozenTopoRef = useRef<any | null>(null);
+
+    // Freeze toggle: ALWAYS (re)capture on ON, always clear on OFF
+    const toggleTopoFreeze = () => {
+      const latestTopo =
+        (active as any)?.topology ??
+        (frames.length ? (frames[frames.length - 1] as any)?.topology : null);
+
+      setTopoFrozen((prev) => {
+        const next = !prev;
+        frozenTopoRef.current = next ? (latestTopo ?? null) : null;
+        return next;
+      });
+    };
   // ─────────────────────────────────────────────────────────────
   // Rolling stream
   // ─────────────────────────────────────────────────────────────
@@ -1869,7 +1989,8 @@ function QFCHudPanel({
   const commitDtMs  = () => setLeanDtMs(commitInt(leanDtMsText, 16, 1, 60_000));
   const commitSpec  = () => setLeanSpecVersion((leanSpecText || "v1").trim() || "v1");
 
-  const [leanStatus, setLeanStatus] = useState<"idle" | "checking" | "ok" | "error">("idle");
+  const [leanStatus, setLeanStatus] =
+    useState<"idle" | "checking" | "ok" | "error">("idle");
   const [leanCert, setLeanCert] = useState<any | null>(null);
   const [leanErr, setLeanErr] = useState<string | null>(null);
 
@@ -1877,7 +1998,6 @@ function QFCHudPanel({
   useEffect(() => {
     leanStatusRef.current = leanStatus;
   }, [leanStatus]);
-
   // ─────────────────────────────────────────────────────────────
   // WS: verify channel
   // ─────────────────────────────────────────────────────────────
@@ -2152,26 +2272,9 @@ function QFCHudPanel({
   };
 
   const sigmaMean = meanTail(frames.map((f) => Number(f.sigma ?? 0)), 80);
-  const gammaMean = meanTail(
-    frames.map((f) => Number(f.coupling_score ?? 0)),
-    80,
-  );
+  const gammaMean = meanTail(frames.map((f) => Number(f.coupling_score ?? 0)), 80);
 
-  useEffect(() => {
-    setKappa(cfg.defaults.kappa);
-    setChi(cfg.defaults.chi);
-    setSigma(cfg.defaults.sigma);
-    setAlpha(cfg.defaults.alpha);
-
-    setFrames([]);
-    setCursor(0);
-    setRunHash("—");
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenario]);
-
-  const clamp = (v: number, lo: number, hi: number) =>
-    Math.max(lo, Math.min(hi, v));
+  const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
   const pickNum = (...vals: any[]) => {
     for (const v of vals) {
@@ -2191,6 +2294,29 @@ function QFCHudPanel({
 
     const fusion: any = (t as any).fusion ?? {};
     const analytics: any = (t as any).analytics ?? {};
+
+    // ✅ Stage C (contract): prefer topology from telemetry stream when present
+    const topoStream: any =
+      (t as any)?.qfc?.topology ??
+      (fusion as any)?.qfc?.topology ??
+      (analytics as any)?.qfc?.topology ??
+      undefined;
+
+    // ✅ normalize to stable contract shape (NO _src inside topology)
+    const topoFromStream: QFCTopology | undefined =
+      topoStream &&
+      Array.isArray(topoStream.nodes) &&
+      Array.isArray(topoStream.edges)
+        ? {
+            epoch: Number(topoStream.epoch ?? Math.floor(Date.now() / 2000)),
+            nodes: topoStream.nodes,
+            edges: topoStream.edges,
+            gate:
+              topoStream.gate == null
+                ? undefined
+                : Math.max(0, Math.min(1, Number(topoStream.gate))),
+          }
+        : undefined;
 
     const hasAny =
       (rqfs && Object.keys(rqfs).length > 0) ||
@@ -2239,7 +2365,9 @@ function QFCHudPanel({
 
     const sigmaLive = clamp01(
       pickNumLocal(
-        fusion.stability,
+        fusion.sigma_gate, // 👈 controller-derived sigma
+        rqfs.sigma_gate,   // 👈 optional (if you also publish from RQFS later)
+        fusion.stability,  // fallback
         fusion.sigma,
         analytics.stability,
         analytics.sigma,
@@ -2269,6 +2397,18 @@ function QFCHudPanel({
 
     const psi01 = Number.isFinite(psiRaw) ? clamp01(0.5 + 0.5 * psiRaw) : 0;
 
+    // ─────────────────────────────────────────────────────────────
+    // P13 — Chiral Parity Gate (minimal carry-through)
+    // ─────────────────────────────────────────────────────────────
+
+    const rawCh: any =
+      (t as any)?.qfc?.flags?.chirality ??
+      (fusion as any)?.flags?.chirality ??
+      (analytics as any)?.chirality ??
+      (rqfs as any)?.chirality;
+
+    const chirality: 1 | -1 = rawCh === -1 || rawCh === "-1" ? -1 : 1;
+
     const f: QFCFrame = {
       t: Date.now(),
       kappa: kappaLive,
@@ -2293,21 +2433,78 @@ function QFCHudPanel({
           analytics.stability,
         ) || 0,
       max_norm: pickNum(fusion.max_norm, analytics.max_norm) || 0,
+
+      // ✅ ensure flags exists and carry chirality
+      flags: { chirality },
+
+      // ✅ prefer stream topology when present
+      topology: topoFromStream,
     };
 
     setFrames((prev) => {
-      const next =
-        prev.length > 400 ? prev.slice(prev.length - 400) : prev.slice();
-      next.push(f);
+      const next = prev.length > 400 ? prev.slice(prev.length - 400) : prev.slice();
+
+      const hadStreamTopo = !!(f as any)?.topology; // topoFromStream was assigned to f.topology
+      let f2: any = f;
+
+      if (topoFrozen && frozenTopoRef.current) {
+        f2 = { ...f, topology: frozenTopoRef.current, topology_src: "frozen" as TopoSrc };
+      } else {
+        const usedBootstrap = !hadStreamTopo;
+
+        f2 = hadStreamTopo ? f : ensureTopologyLocal(f as any, seed);
+
+        const src: TopoSrc = usedBootstrap ? "bootstrap" : "stream";
+        f2 = { ...f2, topology_src: src };
+
+        if (topoFrozen && !frozenTopoRef.current && f2?.topology) {
+          frozenTopoRef.current = f2.topology;
+        }
+      }
+
+      next.push(f2);
       return next;
     });
-  }, [telemetry, paused]);
+    }, [telemetry, paused, seed, topoFrozen]); // ✅ add seed
 
   useEffect(() => {
     setCursor((c) => Math.min(c, Math.max(0, frames.length - 1)));
   }, [frames.length]);
 
   const active = frames.length ? frames[cursor] : null;
+
+  // ✅ activeForUI: freeze affects EVERYTHING that reads topology
+  const liveTopo = (active as any)?.topology ?? null;
+  const topo = topoFrozen && frozenTopoRef.current ? frozenTopoRef.current : liveTopo;
+
+  const activeForUI = useMemo(() => {
+    if (!active) return null;
+    return { ...active, topology: topo };
+  }, [active, topo]);
+
+  const topoForUI = (activeForUI as any)?.topology ?? null;
+
+  const topoSrc =
+    topoFrozen && frozenTopoRef.current
+      ? "frozen"
+      : ((active as any)?.topology_src ?? "—");
+
+  const topoGate01 = Math.max(
+    0,
+    Math.min(1, Number((topoForUI as any)?.gate ?? 1)),
+  );
+
+  // if you want sigma based on telemetry-derived HUD value:
+  const sigma01 = Math.max(0, Math.min(1, Number(sigmaHud ?? 0)));
+  const sigmaPct = Math.round(sigma01 * 100);
+
+  // ─────────────────────────────────────────────────────────────
+  // P13 — display helpers for HUD (badge text / status line)
+  // Put these near where you already compute `active`
+  // ─────────────────────────────────────────────────────────────
+  const ch: 1 | -1 = (active?.flags?.chirality ?? 1) === -1 ? -1 : 1;
+  const chLabel = `CH:${ch > 0 ? "+1" : "-1"}`;
+  const statusText = connected ? "WS STREAM" : "SIM STREAM";
 
   const exportSnapshot = () => {
     const payload = {
@@ -2317,15 +2514,20 @@ function QFCHudPanel({
         seed,
         run_hash: runHash,
         container_id: containerId,
+
+        // ✅ optional: make chirality visible even if you don’t inspect frame.flags
+        chirality: ch,
       },
       knobs: { kappa, chi, sigma, alpha },
       cursor,
       frame: active,
       frames_tail: frames.slice(Math.max(0, frames.length - 200)),
     };
+
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: "application/json",
     });
+
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `qfc_${scenario}_${Date.now()}.json`;
@@ -2496,7 +2698,7 @@ function QFCHudPanel({
     };
 
     const sigma = safeSeries(tail.map((f) => Number(f.sigma ?? 0)), 0.9);  // σ
-    const gamma = safeSeries(tail.map((f) => Number(f.alpha ?? 1)), 1.0);  // γ̃
+    const gamma = safeSeries(tail.map((f) => Number(f.coupling_score ?? 0)), 0.7); // γ̃
     const psi   = safeSeries(tail.map((f) => Number(f.chi ?? 0)), 0.2);    // ψ̃
     // κ̃ should be fusion curl_rms (small ~0.02–0.10), so scale to 0..1 for visibility
     const KAPPA_SCALE = 10; // tweak 8–14 if you want bigger/smaller
@@ -2777,6 +2979,7 @@ function QFCHudPanel({
 
   const [demosOpen, setDemosOpen] = useState(false);
 
+
   const neonCard: CSSProperties = {
     borderRadius: 14,
     border: "1px solid rgba(148,163,184,0.35)",
@@ -2800,13 +3003,14 @@ function QFCHudPanel({
 
   // ✅ never pass undefined; inject mode/theme into frame so viewport can’t “default gravity”
   const viewportFrame = useMemo(() => {
-    if (!active) return null;
+    if (!activeForUI) return null;
     return {
-      ...active,
+      ...activeForUI,
       mode: demoMode,
       theme: cfg.theme,
+      topo_gate01: topoGate01,
     };
-  }, [active, demoMode, cfg.theme]);
+  }, [activeForUI, demoMode, cfg.theme, topoGate01]);
 
   useEffect(() => {
     console.log("[QFCHudPanel] scenario:", scenario, "demoMode:", demoMode, "active?", !!active);
@@ -2888,6 +3092,7 @@ function QFCHudPanel({
                   { label: "Demo Matter", id: "MT01" as ScenarioId },
                   { label: "Demo Connect", id: "C01" as ScenarioId },
                   { label: "Demo Wormhole", id: "WH01" as ScenarioId },
+                  { label: "Demo Genome", id: "GN01" as ScenarioId },
                 ].map((d) => (
                   <button
                     key={d.id}
@@ -2900,6 +3105,7 @@ function QFCHudPanel({
                         d.id === "TN01" ? "tunnel" :
                         d.id === "MT01" ? "matter" :
                         d.id === "C01" ? "connect" :
+                        d.id === "GN01" ? "matter" :
                         d.id === "WH01" ? "wormhole" :
                         "gravity"
                       );
@@ -2967,6 +3173,8 @@ function QFCHudPanel({
             <option value="matter">Matter</option>
             <option value="connect">Connect</option>
             <option value="wormhole">Wormhole</option>
+            <option value="genome">Genome</option>
+            <option value="topology">Topology</option>
           </select>
 
           {/* Stream badge */}
@@ -2978,10 +3186,22 @@ function QFCHudPanel({
               background: "rgba(2,6,23,0.35)",
               fontSize: 10,
               ...mono,
+              display: "inline-flex", // ✅ helps because you’re nesting a div
+              alignItems: "center",
             }}
           >
-            {connected ? "WS STREAM" : "SIM STREAM"}
+            <span>
+              {connected ? "WS STREAM" : "SIM STREAM"}
+              <span style={{ marginLeft: 8, opacity: 0.8, ...mono }}>{chLabel}</span>
+            </span>
           </span>
+
+          {/* --- Topology Inspector (Stage C) --- */}
+          <label style={{ display: "inline-flex", gap: 8, alignItems: "center", ...mono, fontSize: 11 }}>
+            <span style={{ fontWeight: 700 }}>Topology</span>
+            <input type="checkbox" checked={topoFrozen} onChange={toggleTopoFreeze} />
+            <span>Freeze</span>
+          </label>
 
           {/* Pause / Clear */}
           <button
@@ -3140,6 +3360,84 @@ function QFCHudPanel({
                   </button>
                 </div>
 
+                {/* ─────────────────────────────────────────────────────────────
+                    Stage C — Topology inspector
+                  ───────────────────────────────────────────────────────────── */}
+                <div
+                  style={{
+                    borderRadius: 12,
+                    border: "1px solid rgba(148,163,184,0.22)",
+                    background: "rgba(2,6,23,0.22)",
+                    padding: 10,
+                    marginBottom: 10,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: 10,
+                      marginBottom: 8,
+                      ...mono,
+                      fontSize: 10,
+                      opacity: 0.9,
+                    }}
+                  >
+                    <span style={{ letterSpacing: 0.8, textTransform: "uppercase" }}>
+                      Topology
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={toggleTopoFreeze}
+                      style={{
+                        padding: "4px 10px",
+                        borderRadius: 999,
+                        border: "1px solid rgba(148,163,184,0.30)",
+                        background: topoFrozen ? "rgba(239,68,68,0.14)" : "rgba(2,6,23,0.35)",
+                        color: "#e5e7eb",
+                        fontSize: 11,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {topoFrozen ? "Unfreeze" : "Freeze"}
+                    </button>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 10,
+                      alignItems: "center",
+                      ...mono,
+                      fontSize: 10,
+                      opacity: 0.85,
+                    }}
+                  >
+                    <span>
+                      epoch <code>{(topoForUI as any)?.epoch ?? "—"}</code>
+                    </span>
+                    <span>
+                      nodes <code>{(topoForUI as any)?.nodes?.length ?? 0}</code>
+                    </span>
+                    <span>
+                      edges <code>{(topoForUI as any)?.edges?.length ?? 0}</code>
+                    </span>
+                    <span>
+                      gate{" "}
+                      <code>{Number((topoForUI as any)?.gate ?? 1).toFixed(2)}</code>
+                    </span>
+                    <span>
+                      seed <code>{seed}</code>
+                    </span>
+                    <span>
+                      src <code>{topoSrc}</code>
+                    </span>
+                  </div>
+                </div>
+
                 {/* ✅ notes / errors (SINGLE qfcNote block; no duplicates) */}
                 {qfcNote ? (
                   <div style={{ marginTop: 6, ...mono, fontSize: 10, color: "rgba(251,146,60,0.95)" }}>
@@ -3167,8 +3465,16 @@ function QFCHudPanel({
                 >
                   <span>steps</span>
                   <input
-                    value={leanSteps}
-                    onChange={(e) => setLeanSteps(Number(e.target.value) || 0)}
+                    value={leanStepsText}
+                    onFocus={() => setEditingSteps(true)}
+                    onChange={(e) => setLeanStepsText(e.target.value)}
+                    onBlur={() => {
+                      setEditingSteps(false);
+                      commitSteps();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
+                    }}
                     style={{
                       width: 70,
                       borderRadius: 8,
@@ -3180,10 +3486,19 @@ function QFCHudPanel({
                       fontSize: 10,
                     }}
                   />
+
                   <span>dt_ms</span>
                   <input
-                    value={leanDtMs}
-                    onChange={(e) => setLeanDtMs(Number(e.target.value) || 0)}
+                    value={leanDtMsText}
+                    onFocus={() => setEditingDt(true)}
+                    onChange={(e) => setLeanDtMsText(e.target.value)}
+                    onBlur={() => {
+                      setEditingDt(false);
+                      commitDtMs();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
+                    }}
                     style={{
                       width: 70,
                       borderRadius: 8,
@@ -3195,10 +3510,19 @@ function QFCHudPanel({
                       fontSize: 10,
                     }}
                   />
+
                   <span>spec</span>
                   <input
-                    value={leanSpecVersion}
-                    onChange={(e) => setLeanSpecVersion(e.target.value)}
+                    value={leanSpecText}
+                    onFocus={() => setEditingSpec(true)}
+                    onChange={(e) => setLeanSpecText(e.target.value)}
+                    onBlur={() => {
+                      setEditingSpec(false);
+                      commitSpec();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
+                    }}
                     style={{
                       width: 70,
                       borderRadius: 8,
@@ -3210,11 +3534,14 @@ function QFCHudPanel({
                       fontSize: 10,
                     }}
                   />
+
                   {leanCert?.elapsed_ms != null ? (
-                    <span style={{ marginLeft: 6, opacity: 0.8 }}>· {leanCert.elapsed_ms}ms</span>
+                    <span style={{ marginLeft: 6, opacity: 0.8 }}>
+                      · {leanCert.elapsed_ms}ms
+                    </span>
                   ) : null}
-                </div>
-              </div>
+                </div>  {/* closes the steps/dt/spec row */}
+              </div>    {/* ✅ ADD THIS — closes the outer Lean snapshot wrapper */}
 
               {/* --- BOTTOM: Object data --- */}
               <pre
@@ -3232,7 +3559,7 @@ function QFCHudPanel({
                   overflow: "auto",
                 }}
               >
-                {JSON.stringify(active ?? {}, null, 2)}
+                {JSON.stringify(activeForUI ?? {}, null, 2)}
               </pre>
             </HudPanel>
 
@@ -3308,18 +3635,45 @@ function QFCHudPanel({
                 >
                   <div style={mono}>kappa={kappa.toFixed(3)}</div>
                   <div style={mono}>chi={chi.toFixed(3)}</div>
-                  <div style={mono}>sigma={sigma.toFixed(3)}</div>
+                  <div style={mono}>sigma={(active?.sigma ?? 0).toFixed(3)}</div>
                   <div style={mono}>alpha={alpha.toFixed(3)}</div>
 
                   <div style={{ marginTop: 6, opacity: 0.85 }}>
                     lock quality ≈{" "}
                     <span style={mono}>
-                      {(Number(active?.coupling_score ?? 0) * 100).toFixed(1)}%
+                      {(Number(active?.coupling_score ?? 0) * topoGate01 * 100).toFixed(1)}%
                     </span>
                   </div>
                 </div>
               </div>
             </HudPanel>
+            {/* Sigma meter */}
+            <div style={{ marginTop: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, opacity: 0.85 }}>
+                <span style={mono}>sigma</span>
+                <span style={mono}>{sigmaPct}%</span>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 6,
+                  height: 8,
+                  borderRadius: 999,
+                  border: "1px solid rgba(148,163,184,0.22)",
+                  background: "rgba(2,6,23,0.35)",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${sigmaPct}%`,
+                    height: "100%",
+                    background: "rgba(34,197,94,0.70)",
+                    boxShadow: "0 0 16px rgba(34,197,94,0.35)",
+                  }}
+                />
+              </div>
+            </div>
 
             {/* Bottom-right: knobs */}
             <HudPanel

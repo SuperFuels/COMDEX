@@ -1,3 +1,4 @@
+// Glyph_Net_Browser/src/components/QFCViewport.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -15,6 +16,8 @@ import QFCDemoTunnel from "./qfc/demos/QFCDemoTunnel";
 import QFCDemoMatter from "./qfc/demos/QFCDemoMatter";
 import QFCDemoConnect from "./qfc/demos/QFCDemoConnect";
 import QFCDemoWormhole from "./qfc/demos/QFCDemoWormhole";
+import QFCDemoGenome from "./qfc/demos/QFCDemoGenome";
+import QFCDemoTopology from "./qfc/demos/QFCDemoTopology";
 
 export type QFCMode =
   | "gravity"
@@ -22,8 +25,21 @@ export type QFCMode =
   | "matter"
   | "connect"
   | "wormhole"
+  | "genome"
   | "antigrav"
-  | "sync";
+  | "sync"
+  | "topology";
+
+export const isQfcMode = (m: any): m is QFCMode =>
+  m === "gravity" ||
+  m === "tunnel" ||
+  m === "matter" ||
+  m === "connect" ||
+  m === "wormhole" ||
+  m === "genome" ||
+  m === "antigrav" ||
+  m === "sync" ||
+  m === "topology";
 
 export type QFCTheme = {
   gravity?: string;
@@ -31,14 +47,26 @@ export type QFCTheme = {
   photon?: string;
   connect?: string;
   danger?: string;
+  genome?: string;
   antigrav?: string;
   sync?: string;
+  topology?: string; // optional (only if you want a dedicated tint)
 };
 
 export type QFCFlags = {
   nec_violation?: boolean;
   nec_strength?: number;
   jump_flash?: number;
+
+  // P13: Chiral Parity Gate (domain tag)
+  chirality?: 1 | -1; // +1 = default domain, -1 = mirror domain
+};
+
+export type QFCTopology = {
+  epoch: number;
+  nodes: Array<{ id: string; w?: number }>;
+  edges: Array<{ a: string; b: string; w?: number }>;
+  gate?: number;
 };
 
 export type QFCFrame = {
@@ -54,6 +82,10 @@ export type QFCFrame = {
   mode?: QFCMode;
   theme?: QFCTheme;
   flags?: QFCFlags;
+  topology?: QFCTopology;
+
+  // ✅ Task 2: topology drives behavior (0..1 convenience)
+  topo_gate01?: number;
 };
 
 export type QFCViewportProps = {
@@ -76,15 +108,6 @@ export type QFCViewportProps = {
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const num = (v: any, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
 
-export const isQfcMode = (m: any): m is QFCMode =>
-  m === "gravity" ||
-  m === "tunnel" ||
-  m === "matter" ||
-  m === "connect" ||
-  m === "wormhole" ||
-  m === "antigrav" ||
-  m === "sync";
-
 function buildQfcFrameFromTelemetry(t: TessarisTelemetry): QFCFrame | null {
   if (!t) return null;
 
@@ -98,6 +121,17 @@ function buildQfcFrameFromTelemetry(t: TessarisTelemetry): QFCFrame | null {
 
   const flags: QFCFlags =
     (qfcAny.flags as QFCFlags) ?? (fusion?.flags as QFCFlags) ?? {};
+
+  // P13: normalize chirality (canonical tag)
+  const rawCh: any =
+    qfcAny?.flags?.chirality ??
+    fusion?.flags?.chirality ??
+    analytics?.chirality;
+
+  const chirality: 1 | -1 = rawCh === -1 || rawCh === "-1" ? -1 : 1;
+
+  // ensure flags exists and carry chirality
+  const flags2: QFCFlags = { ...(flags ?? {}), chirality };
 
   const theme: QFCTheme =
     (qfcAny.theme as QFCTheme) ?? (fusion?.theme as QFCTheme) ?? {};
@@ -162,6 +196,32 @@ function buildQfcFrameFromTelemetry(t: TessarisTelemetry): QFCFrame | null {
     (typeof fusion.timestamp === "string" && Date.parse(fusion.timestamp)) ||
     Date.now();
 
+  // ✅ prefer stable contract topology from telemetry (no _src inside it)
+  const topoStream: any =
+    qfcAny?.topology ??
+    fusion?.qfc?.topology ??
+    analytics?.qfc?.topology ??
+    undefined;
+
+  const topology: QFCTopology | undefined =
+    topoStream &&
+    Array.isArray(topoStream.nodes) &&
+    Array.isArray(topoStream.edges)
+      ? {
+          epoch: Number(topoStream.epoch ?? Math.floor(Date.now() / 2000)),
+          nodes: topoStream.nodes,
+          edges: topoStream.edges,
+          gate:
+            topoStream.gate == null
+              ? undefined
+              : clamp01(Number(topoStream.gate)),
+        }
+      : undefined;
+
+  // ✅ Telemetry builder has NO access to effectiveFrame.
+  // It derives topo_gate01 from telemetry topology only (or 1).
+  const topo_gate01 = clamp01(Number(topology?.gate ?? 1));
+
   return {
     t: ts,
     kappa,
@@ -174,7 +234,9 @@ function buildQfcFrameFromTelemetry(t: TessarisTelemetry): QFCFrame | null {
     max_norm,
     mode,
     theme,
-    flags,
+    flags: flags2, // ✅ P13 carried forward
+    topology, // ✅ contract topology if present
+    topo_gate01, // ✅ derived convenience field (telemetry-only)
   };
 }
 
@@ -184,10 +246,9 @@ export default function QFCViewport(props: QFCViewportProps) {
     subtitle,
     rightBadge,
 
-    // optional: parent-selected mode
     mode: modeProp,
+    theme: themeProp,
 
-    theme,
     frame,
     frames,
     telemetry: telemetryProp,
@@ -209,30 +270,61 @@ export default function QFCViewport(props: QFCViewportProps) {
     if (fr) setLiveFrame(fr);
   }, [telemetry, frame, frames]);
 
-  // ✅ CRITICAL:
-  // - if parent passed frame (even null), do NOT fall back to telemetry
-  const effectiveFrame: QFCFrame | null =
-    frame === undefined ? liveFrame : frame;
+  // ✅ if parent passed frame (even null), do NOT fall back to telemetry
+  const effectiveFrame: QFCFrame | null = frame === undefined ? liveFrame : frame;
 
   // ✅ Prefer parent prop mode first, then frame mode (if any), then default
   const effectiveMode: QFCMode =
     (isQfcMode(modeProp) ? modeProp : undefined) ??
-    (isQfcMode(effectiveFrame?.mode) ? effectiveFrame!.mode : undefined) ??
+    (isQfcMode(effectiveFrame?.mode) ? (effectiveFrame!.mode as QFCMode) : undefined) ??
     "gravity";
 
-  // ✅ debug: confirm mode is arriving
+  // ✅ Prefer parent theme first, then frame theme (if any)
+  const effectiveTheme: QFCTheme | undefined = themeProp ?? effectiveFrame?.theme;
+
+  // ✅ Task 2: derive topoGate01 from whatever frame we’re actually rendering
+  // Prefer already-plumbed topo_gate01 on the effectiveFrame (Freeze/DevTools),
+  // then fallback to topology.gate, then 1.
+  const topoGate01 = useMemo(() => {
+    const g =
+      (effectiveFrame as any)?.topo_gate01 ??
+      (effectiveFrame as any)?.topology?.gate ??
+      1;
+    return clamp01(Number(g));
+  }, [effectiveFrame]);
+
+  // ✅ feed demos a frame that always contains the chosen mode/theme AND topo_gate01
+  const demoFrame: QFCFrame | null = useMemo(() => {
+    if (!effectiveFrame) return null;
+    return {
+      ...effectiveFrame,
+      mode: effectiveMode,
+      theme: effectiveTheme ?? effectiveFrame.theme,
+      topo_gate01: topoGate01,
+    };
+  }, [effectiveFrame, effectiveMode, effectiveTheme, topoGate01]);
+
+  // P13 label (always canonical)
+  const ch: 1 | -1 = (demoFrame?.flags?.chirality ?? 1) === -1 ? -1 : 1;
+  const chLabel = `CH:${ch > 0 ? "+1" : "-1"}`;
+
   useEffect(() => {
     console.log(
       "[QFCViewport] modeProp:",
       modeProp,
       "effectiveMode:",
       effectiveMode,
+      "chirality:",
+      demoFrame?.flags?.chirality,
+      "topoGate01:",
+      topoGate01,
     );
-  }, [modeProp, effectiveMode]);
+  }, [modeProp, effectiveMode, demoFrame?.flags?.chirality, topoGate01]);
 
   // ✅ force full Canvas remount on mode change
   const canvasKey = useMemo(() => `qfc:${effectiveMode}`, [effectiveMode]);
 
+  // Slightly darker purple + green accents (subtle)
   const shell: CSSProperties = {
     height: "100%",
     width: "100%",
@@ -241,8 +333,8 @@ export default function QFCViewport(props: QFCViewportProps) {
     overflow: "hidden",
     border: "1px solid rgba(148,163,184,0.35)",
     background:
-      "radial-gradient(1200px 600px at 20% 10%, rgba(56,189,248,0.18), transparent 55%)," +
-      "radial-gradient(1000px 500px at 80% 20%, rgba(34,197,94,0.10), transparent 55%)," +
+      "radial-gradient(1200px 600px at 20% 10%, rgba(99,102,241,0.14), transparent 55%)," +
+      "radial-gradient(1000px 500px at 80% 20%, rgba(34,197,94,0.07), transparent 55%)," +
       "linear-gradient(180deg, rgba(2,6,23,0.92), rgba(15,23,42,0.85))",
     position: "relative",
   };
@@ -261,16 +353,8 @@ export default function QFCViewport(props: QFCViewportProps) {
     pointerEvents: "none",
   };
 
-  const titleStyle: CSSProperties = {
-    fontSize: 12,
-    fontWeight: 700,
-    letterSpacing: 0.2,
-  };
-  const subStyle: CSSProperties = {
-    marginTop: 2,
-    fontSize: 10,
-    color: "rgba(226,232,240,0.70)",
-  };
+  const titleStyle: CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing: 0.2 };
+  const subStyle: CSSProperties = { marginTop: 2, fontSize: 10, color: "rgba(226,232,240,0.70)" };
   const badge: CSSProperties = {
     padding: "4px 10px",
     borderRadius: 999,
@@ -280,6 +364,13 @@ export default function QFCViewport(props: QFCViewportProps) {
     color: "rgba(226,232,240,0.90)",
     whiteSpace: "nowrap",
   };
+
+  const badgeText =
+    rightBadge && rightBadge.trim().length
+      ? `${rightBadge} · ${chLabel} · gate:${topoGate01.toFixed(2)}`
+      : `${chLabel} · gate:${topoGate01.toFixed(2)}`;
+
+  const showBadge = true;
 
   return (
     <div style={shell}>
@@ -311,23 +402,14 @@ export default function QFCViewport(props: QFCViewportProps) {
           <meshBasicMaterial color={"#030712"} transparent opacity={0.35} />
         </mesh>
 
-        {/* ✅ Demos: group key forces hard remount when mode changes */}
         <group key={effectiveMode}>
-          {effectiveMode === "gravity" ? (
-            <QFCDemoGravity frame={effectiveFrame} />
-          ) : null}
-          {effectiveMode === "tunnel" ? (
-            <QFCDemoTunnel frame={effectiveFrame} />
-          ) : null}
-          {effectiveMode === "matter" ? (
-            <QFCDemoMatter frame={effectiveFrame} />
-          ) : null}
-          {effectiveMode === "connect" ? (
-            <QFCDemoConnect frame={effectiveFrame} />
-          ) : null}
-          {effectiveMode === "wormhole" ? (
-            <QFCDemoWormhole frame={effectiveFrame} />
-          ) : null}
+          {effectiveMode === "gravity" ? <QFCDemoGravity frame={demoFrame} /> : null}
+          {effectiveMode === "tunnel" ? <QFCDemoTunnel frame={demoFrame} /> : null}
+          {effectiveMode === "matter" ? <QFCDemoMatter frame={demoFrame} /> : null}
+          {effectiveMode === "connect" ? <QFCDemoConnect frame={demoFrame} /> : null}
+          {effectiveMode === "wormhole" ? <QFCDemoWormhole frame={demoFrame} /> : null}
+          {effectiveMode === "genome" ? <QFCDemoGenome frame={demoFrame} /> : null}
+          {effectiveMode === "topology" ? <QFCDemoTopology frame={demoFrame} /> : null}
         </group>
 
         <OrbitControls
@@ -348,7 +430,8 @@ export default function QFCViewport(props: QFCViewportProps) {
           <div style={titleStyle}>{title}</div>
           {subtitle ? <div style={subStyle}>{subtitle}</div> : null}
         </div>
-        {rightBadge ? <div style={badge}>{rightBadge}</div> : null}
+
+        {showBadge ? <div style={badge}>{badgeText}</div> : null}
       </div>
     </div>
   );

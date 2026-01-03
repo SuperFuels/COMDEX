@@ -82,6 +82,9 @@ fusion_state = {
     "max_norm": 0.0,
     "fusion_score": 1.0,
 
+    # ✅ NEW: "meaningful gate" for demos / key-lock UI
+    "sigma_gate": 1.0,
+
     # raw inputs (do NOT render directly; listeners write here)
     "_ral_curl_rms": None,         # raw curl from RAL
     "_sin_cognition_signal": None, # raw psi from SIN
@@ -157,13 +160,14 @@ def compute_fusion_coherence(stability: float, entropy: float, cognition_signal:
     except Exception:
         return 0.0
 
-def hud_aliases(*, stability: float, coupling_score: float, cognition_signal: float, curl_rms: float) -> dict:
+def hud_aliases(*, stability: float, coupling_score: float, cognition_signal: float, curl_rms: float, sigma_gate: float) -> dict:
     return {
         # ASCII aliases
         "sigma": stability,
         "gamma_tilde": coupling_score,
         "psi_tilde": cognition_signal,
         "kappa_tilde": curl_rms,
+        "sigma_gate": sigma_gate,
 
         # Unicode aliases
         "σ": stability,
@@ -251,6 +255,7 @@ async def fusion_ws_handler(websocket):
         cognition_signal = float(fusion_state.get("cognition_signal", 0.0))  # ψ̃
         curl_rms = float(fusion_state.get("curl_rms", 0.0))                  # κ̃
         coupling_score = float(fusion_state.get("coupling_score", 1.0))      # γ̃
+        sigma_gate = float(fusion_state.get("sigma_gate", 1.0))
 
         hello = {
             "type": "hello",
@@ -264,6 +269,7 @@ async def fusion_ws_handler(websocket):
             "cognition_signal": cognition_signal,
             "curl_rms": curl_rms,
             "coupling_score": coupling_score,
+            "sigma_gate": sigma_gate,
 
             "fusion_coherence": fusion_state.get("fusion_coherence", 1.0),
             "coherence": fusion_state.get("coherence", fusion_state.get("fusion_coherence", 1.0)),
@@ -281,6 +287,7 @@ async def fusion_ws_handler(websocket):
                 coupling_score=coupling_score,
                 cognition_signal=cognition_signal,
                 curl_rms=curl_rms,
+                sigma_gate=sigma_gate,
             ),
         }
 
@@ -436,6 +443,8 @@ async def fusion_loop():
             curv = float(fusion_state.get("curv", 0.0))
             max_norm = float(fusion_state.get("max_norm", 0.0))
 
+            prev_gate = float(fusion_state.get("sigma_gate", 1.0))
+
         # decide ψ̃ (prefer SIN only if its RAW is actively changing)
         if psi_raw is not None and not is_stale("psi", PSI_STALE_MS):
             cognition_signal = float(psi_raw)
@@ -459,6 +468,11 @@ async def fusion_loop():
         coupling_score = clamp(0.55 * coherence + 0.45 * stability, 0.0, 1.0)
         fusion_score = coherence
 
+        # ✅ NEW: sigma_gate (meaningful gate / key)
+        # higher when coherent + coupled, lower when curl rises
+        target_gate = clamp(0.65 * coherence + 0.35 * coupling_score - 0.90 * curl_rms, 0.0, 1.0)
+        sigma_gate = clamp(0.85 * prev_gate + 0.15 * target_gate, 0.0, 1.0)
+
         stamp = utc_iso()
         ms = now_ms()
 
@@ -466,6 +480,9 @@ async def fusion_loop():
             # ✅ publish HUD-facing ψ̃/κ̃ (movement happens here)
             fusion_state["cognition_signal"] = float(cognition_signal)
             fusion_state["curl_rms"] = float(curl_rms)
+
+            # ✅ publish sigma_gate
+            fusion_state["sigma_gate"] = float(sigma_gate)
 
             # ✅ (requested) track published change
             mark_change("psi", fusion_state["cognition_signal"], EPS_PSI)
@@ -489,6 +506,7 @@ async def fusion_loop():
                     coupling_score=coupling_score,
                     cognition_signal=fusion_state["cognition_signal"],
                     curl_rms=fusion_state["curl_rms"],
+                    sigma_gate=fusion_state["sigma_gate"],
                 ),
             })
             snap = dict(fusion_state)
@@ -497,7 +515,7 @@ async def fusion_loop():
             sci_emit(
                 "fusion_update",
                 f"Φ={coherence:.3f} Δ={delta:+.4f} S={stability:.3f} H={entropy:.3f} "
-                f"ψ={cognition_signal:.3f} κ={curl_rms:.4f}"
+                f"ψ={cognition_signal:.3f} κ={curl_rms:.4f} gate={sigma_gate:.3f}"
             )
         except Exception:
             pass
@@ -538,6 +556,7 @@ async def heartbeat_broadcast():
             coupling_score = float(fusion_state.get("coupling_score", 1.0))
             cognition_signal = float(fusion_state.get("cognition_signal", 0.0))
             curl_rms = float(fusion_state.get("curl_rms", 0.0))
+            sigma_gate = float(fusion_state.get("sigma_gate", 1.0))
 
             hb = {
                 "type": "heartbeat",
@@ -550,6 +569,7 @@ async def heartbeat_broadcast():
                 "cognition_signal": cognition_signal,
                 "coupling_score": coupling_score,
                 "curl_rms": curl_rms,
+                "sigma_gate": sigma_gate,
 
                 "curv": fusion_state.get("curv", 0.0),
                 "max_norm": fusion_state.get("max_norm", 0.0),
@@ -560,6 +580,7 @@ async def heartbeat_broadcast():
                     coupling_score=coupling_score,
                     cognition_signal=cognition_signal,
                     curl_rms=curl_rms,
+                    sigma_gate=sigma_gate,
                 ),
             }
 
@@ -597,11 +618,13 @@ async def main():
         coupling_score = float(fusion_state.get("coupling_score", 1.0))
         cognition_signal = float(fusion_state.get("cognition_signal", 0.0))
         curl_rms = float(fusion_state.get("curl_rms", 0.0))
+        sigma_gate = float(fusion_state.get("sigma_gate", 1.0))
         fusion_state.update(hud_aliases(
             stability=stability,
             coupling_score=coupling_score,
             cognition_signal=cognition_signal,
             curl_rms=curl_rms,
+            sigma_gate=sigma_gate,
         ))
 
     await asyncio.gather(

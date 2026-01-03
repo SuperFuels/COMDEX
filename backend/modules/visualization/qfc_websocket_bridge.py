@@ -9,9 +9,20 @@ from fastapi import WebSocket
 from backend.modules.websocket_manager import websocket_manager
 from backend.modules.sim.QFC_Renderer import QFCRenderer
 
+# Optional: real dynamics engine that produces the HUD metrics QFCRenderer expects.
+# If the engine module isn't present yet, we gracefully degrade to "renderer-only".
+try:
+    from backend.modules.sim.qfc_engine import QFCEngine  # type: ignore
+except Exception:
+    QFCEngine = None  # type: ignore
+
+
 # one renderer per container (keeps smooth transitions + event history)
 _QFC_RENDERERS: Dict[str, QFCRenderer] = {}
 _QFC_LAST_TS: Dict[str, float] = {}
+
+# one engine per container (keeps real sim state)
+_QFC_ENGINES: Dict[str, Any] = {}
 
 # 🌐 Track container-specific sockets (live sync)
 active_qfc_sockets: Dict[str, WebSocket] = {}
@@ -35,11 +46,23 @@ def _safe_dict(v: Any) -> Dict[str, Any]:
     return v if isinstance(v, dict) else {}
 
 
+def _safe_float(v: Any, default: float = 0.0) -> float:
+    try:
+        return float(v)
+    except Exception:
+        return float(default)
+
+
 def _decorate_qfc_payload(container_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Takes whatever you're already sending to the UI and adds:
       payload["mode"], payload["theme"], payload["flags"]
     without removing anything.
+
+    IMPORTANT:
+    - If a real QFC engine is available, we synthesize/complete the metric keys that QFCRenderer expects:
+        kappa, chi, sigma, alpha, curv, curl_rms, coupling_score, max_norm
+      so the renderer is never "dead" due to missing metrics.
     """
     if not isinstance(payload, dict):
         return payload
@@ -55,18 +78,13 @@ def _decorate_qfc_payload(container_id: str, payload: Dict[str, Any]) -> Dict[st
 
     # metrics might be top-level or nested
     metrics = payload.get("metrics")
-    if not isinstance(metrics, dict):
-        metrics = payload
+    if isinstance(metrics, dict):
+        metrics_dict = metrics
+    else:
+        # preserve legacy behavior: treat top-level payload as metrics dict
+        metrics_dict = payload
 
-    # if there's no sign of qfc metrics, don't touch it
-    if not any(k in metrics for k in ("kappa", "chi", "sigma", "alpha", "curv", "curl_rms", "coupling_score")):
-        return payload
-
-    r = _QFC_RENDERERS.get(container_id)
-    if r is None:
-        r = QFCRenderer()
-        _QFC_RENDERERS[container_id] = r
-
+    # dt for smoothing + engine step
     now = time.time()
     last = _QFC_LAST_TS.get(container_id, now)
     _QFC_LAST_TS[container_id] = now
@@ -79,13 +97,60 @@ def _decorate_qfc_payload(container_id: str, payload: Dict[str, Any]) -> Dict[st
     except Exception:
         t_num = now
 
+    # ------------------------------------------------------------------
+    # REAL SIM METRICS (if engine exists): synthesize/complete HUD keys
+    # ------------------------------------------------------------------
+    if QFCEngine is not None:
+        eng = _QFC_ENGINES.get(container_id)
+        if eng is None:
+            try:
+                eng = QFCEngine()
+            except Exception:
+                eng = None
+            if eng is not None:
+                _QFC_ENGINES[container_id] = eng
+
+        if eng is not None:
+            # If caller already provides sigma (or nested metrics.sigma), let it drive the gate.
+            sigma_in = None
+            if "sigma" in metrics_dict:
+                sigma_in = metrics_dict.get("sigma")
+            elif isinstance(payload.get("sigma"), (int, float, str)):
+                sigma_in = payload.get("sigma")
+
+            if sigma_in is not None:
+                try:
+                    eng.set_sigma(_safe_float(sigma_in, 0.0))
+                except Exception:
+                    pass
+
+            # Step engine and fill any missing metric keys.
+            try:
+                sim_metrics = eng.step(dt)
+                if isinstance(sim_metrics, dict):
+                    for k, v in sim_metrics.items():
+                        # Do NOT overwrite explicit caller values; only fill gaps.
+                        if k not in metrics_dict:
+                            metrics_dict[k] = v
+            except Exception:
+                # engine errors must never break the websocket path
+                pass
+
+    # ------------------------------------------------------------------
+    # RENDERER (palette/flags): always runs once metrics exist (or defaults)
+    # ------------------------------------------------------------------
+    r = _QFC_RENDERERS.get(container_id)
+    if r is None:
+        r = QFCRenderer()
+        _QFC_RENDERERS[container_id] = r
+
     # mode hint if you already send it
     mode_hint = payload.get("mode")
 
     out = r.update(
         t=t_num,
         scenario_id=str(scenario_id),
-        metrics=metrics,
+        metrics=metrics_dict,
         dt=dt,
         mode_hint=str(mode_hint) if mode_hint else None,
     )
@@ -99,6 +164,12 @@ def _decorate_qfc_payload(container_id: str, payload: Dict[str, Any]) -> Dict[st
     for k in ("kappa", "chi", "sigma", "alpha", "curv", "curl_rms", "coupling_score", "max_norm", "t"):
         if k in out and k not in payload:
             payload[k] = out[k]
+
+    # If metrics were nested, keep them updated for downstream consumers.
+    if isinstance(payload.get("metrics"), dict):
+        payload["metrics"].update({k: payload[k] for k in ("kappa", "chi", "sigma", "alpha", "curv",
+                                                          "curl_rms", "coupling_score", "max_norm")
+                                   if k in payload})
 
     return payload
 
@@ -150,7 +221,6 @@ async def send_qfc_update(render_packet: Dict[str, Any]) -> None:
 
         # ✅ Correct argument order: message first, then tag via keyword
         await websocket_manager.broadcast(payload, tag="qfc_update")
-        # keep print for existing dev logs
         print("🚀 QFC WebSocket update broadcasted.")
     except Exception as e:
         print(f"❌ Failed to broadcast QFC update: {e}")
@@ -190,13 +260,12 @@ async def _broadcast_container_sync(
         return
 
     try:
-        # ✅ decorate *right before* emit (adds mode/theme/flags)
+        # ✅ decorate *right before* emit (adds mode/theme/flags + ensures metrics if engine exists)
         payload = _decorate_qfc_payload(container_id, payload)
 
         await socket.send_json(
             {
                 "type": "qfc_update",
-                # preserve old default ("container_sync"), but allow caller override
                 "source": source or (observer_id or "container_sync"),
                 "payload": _safe_dict(payload),
             }
@@ -234,17 +303,14 @@ def broadcast_qfc_beams(container_id: str, payload: Union[Dict[str, Any], List[D
     Broadcast multi-packet QFC visual data (e.g. QWave beams, traces) to the frontend.
     Bypasses container-specific WebSocket and goes to all clients via `send_qfc_update`.
     """
-    # normalize to list
     if not isinstance(payload, list):
         payload = [payload]
 
-    # ✅ decorate each update dict (adds mode/theme/flags) without removing anything
     decorated_updates: List[Dict[str, Any]] = []
     for item in payload:
         if isinstance(item, dict):
             decorated_updates.append(_decorate_qfc_payload(container_id, item))
         else:
-            # keep non-dict items untouched
             decorated_updates.append(item)  # type: ignore
 
     message = {
@@ -301,7 +367,6 @@ async def broadcast_qfc_update(*args: Any, **kwargs: Any):
     # -----------------------------
     field_state = kwargs.get("field_state")
     if field_state is None and len(args) >= 1 and isinstance(args[0], dict):
-        # allow: broadcast_qfc_update(field_state_dict, observer_id="x", ...)
         field_state = args[0]
 
     if isinstance(field_state, dict):
@@ -331,7 +396,7 @@ async def broadcast_qfc_update(*args: Any, **kwargs: Any):
             )
             return
         except Exception as e:
-            # Fallback: still get *something* to the UI if sci module isn't available
+            # Fallback: still get *something* to the UI
             try:
                 cid = container_id or "unknown"
                 broadcast_qfc_beams(
@@ -359,7 +424,6 @@ async def broadcast_qfc_update(*args: Any, **kwargs: Any):
 
     if len(args) >= 2 and isinstance(args[0], str) and isinstance(args[1], dict):
         container_id, payload = args[0], args[1]
-        # tolerate legacy callers passing (container_id, payload, observer_id=?)
         if len(args) >= 3 and isinstance(args[2], str):
             observer_id = args[2]
     else:
@@ -374,7 +438,6 @@ async def broadcast_qfc_update(*args: Any, **kwargs: Any):
         source = kwargs["source"]
 
     if container_id and isinstance(payload, dict):
-        # ✅ decorate BEFORE sending (adds mode/theme/flags)
         payload = _decorate_qfc_payload(container_id, payload)
 
         await _broadcast_container_sync(
@@ -386,5 +449,4 @@ async def broadcast_qfc_update(*args: Any, **kwargs: Any):
         )
         return
 
-    # If we got called with something weird, just no-op (this should never crash callers).
     return

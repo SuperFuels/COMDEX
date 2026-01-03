@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "P18_EVAL_REPORT_V02",
+  "datasetId": "P16_PILOT_SYNTH_TATA_V1",
+  "preprocessPipelineId": "P16_PREPROCESS_PILOT_TSV_V1",
+  "preprocessOutSha256": "fd6ee387c918a90c4358f46736b77f9c47a42694617a6e569d4a16e40bb7cbb7",
+  "metrics": [
+    {
+      "metricId": "P16_MOTIF_LOG2_ODDS_TATA",
+      "datasetId": "P16_PILOT_SYNTH_TATA_V1",
+      "value": 1,
+      "ci95": {
+        "lo": 0.95,
+        "hi": 1
+      },
+      "nullPValue": 0.01,
+      "pass": true
+    }
+  ],
+  "meta": {
+    "created_utc": "2026-01-03T01:04:53.545Z",
+    "deterministic": true
+  }
+}

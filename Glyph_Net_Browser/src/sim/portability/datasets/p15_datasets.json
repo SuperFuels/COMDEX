@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "P15_DATASETS_V0",
+  "status": "ROADMAP_UNTIL_FROZEN",
+  "datasets": [
+    {
+      "id": "ENCODE_TF_CHIPSEQ_CANDIDATE",
+      "name": "ENCODE (candidate) — TF ChIP-seq + matched controls",
+      "version": "TBD_ACCESSION_SET_AND_FREEZE",
+      "license": "TBD",
+      "source": {
+        "kind": "TBD",
+        "accession": "TBD",
+        "url": "TBD"
+      },
+      "files": [],
+      "preprocessing": {
+        "pipelineVersion": "P15_PREPROCESS_V0_TBD",
+        "pipelineHash": "TBD_PIPELINE_HASH",
+        "determinism": [
+          "seed_pinned",
+          "stable_sorting",
+          "stable_serialization"
+        ]
+      },
+      "notes": [
+        "ROADMAP placeholder only; not asserted or used for scoring yet."
+      ]
+    }
+  ]
+}
