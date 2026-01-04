@@ -1,6 +1,8 @@
 """
-GX1 Genomics Benchmark (deterministic SIM core).
+GX1 Genome Resonance Engine - integration helpers (SLE adapter path).
 
-CLI:
-  python -m backend.genome_engine.run_genomics_benchmark --config <path>
+This package is intentionally small:
+- determinism primitives (tick clock + seeded RNG)
+- normalized trace event envelope
+- SLE/Beam adapter that emits GX1-shaped trace records
 """

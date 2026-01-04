@@ -1,7 +1,13 @@
-from typing import Dict, Optional, List, Any
+# backend/modules/glyphwave/core/wave_state_store.py
+from __future__ import annotations
+
+from typing import Dict, Optional, List, Any, TYPE_CHECKING
 import time
-from backend.modules.glyphwave.core.wave_state import WaveState
+
 from backend.modules.holograms.ghx_replay_broadcast import emit_gwave_replay
+
+if TYPE_CHECKING:
+    from backend.modules.glyphwave.core.wave_state import WaveState
 
 
 class WaveStateStore:
@@ -12,29 +18,30 @@ class WaveStateStore:
     """
 
     def __init__(self):
-        self._store: Dict[str, WaveState] = {}
+        self._store: Dict[str, "WaveState"] = {}
         self._carrier_info: Dict[str, Dict[str, Any]] = {}
-        self._cached_scores: Dict[str, Dict[str, Any]] = {}  # ✅ wave_id -> {sqi_score, prediction, collapse_state}
+        self._cached_scores: Dict[str, Dict[str, Any]] = {}
 
-    def add_wave(self, wave: WaveState, carrier_type: Optional[str] = None, modulation: Optional[str] = None) -> None:
+    def add_wave(self, wave: "WaveState", carrier_type: Optional[str] = None, modulation: Optional[str] = None) -> None:
         """
         Adds or updates a wave by its origin ID, along with optional carrier metadata.
         Emits GHX replay for visual sync.
         """
-        if not wave.id:
+        wave_id = getattr(wave, "id", None)
+        if not wave_id:
             raise ValueError("WaveState must have a unique `id` to be stored.")
 
-        self._store[wave.id] = wave
+        self._store[wave_id] = wave
 
         if carrier_type or modulation:
-            self._carrier_info[wave.id] = {
+            self._carrier_info[wave_id] = {
                 "carrier_type": carrier_type,
                 "modulation": modulation,
             }
 
-        emit_gwave_replay(wave)  # 🧠 Emits live trace to GHX visual system
+        emit_gwave_replay(wave)
 
-    def get_wave(self, wave_id: str) -> Optional[WaveState]:
+    def get_wave(self, wave_id: str) -> Optional["WaveState"]:
         return self._store.get(wave_id)
 
     def get_carrier_info(self, wave_id: str) -> Optional[Dict[str, Any]]:
@@ -43,46 +50,37 @@ class WaveStateStore:
     def remove_wave(self, wave_id: str) -> None:
         self._store.pop(wave_id, None)
         self._carrier_info.pop(wave_id, None)
-        self._cached_scores.pop(wave_id, None)  # ✅ Ensure cached results are removed too
+        self._cached_scores.pop(wave_id, None)
 
-    def all_waves(self) -> List[WaveState]:
+    def all_waves(self) -> List["WaveState"]:
         return list(self._store.values())
 
     def clear(self) -> None:
         self._store.clear()
         self._carrier_info.clear()
-        self._cached_scores.clear()  # ✅ Clear cache on reset
+        self._cached_scores.clear()
 
     def snapshot(self) -> Dict[str, dict]:
-        """
-        Export all wave states as dicts, including carrier info if present.
-        """
         return {
             wid: {
-                "wave": wave.to_dict(),
+                "wave": wave.to_dict() if hasattr(wave, "to_dict") else {},
                 "carrier": self._carrier_info.get(wid, {}),
-                "cached": self._cached_scores.get(wid, {})  # ✅ Include cached scores in snapshot
+                "cached": self._cached_scores.get(wid, {}),
             }
             for wid, wave in self._store.items()
         }
 
-    # ✅ New: Caching logic for SQI results
     def cache_prediction(self, wave_id: str, sqi_score: float, collapse_state: str, prediction: Any) -> None:
         self._cached_scores[wave_id] = {
             "sqi_score": sqi_score,
             "collapse_state": collapse_state,
-            "prediction": prediction
+            "prediction": prediction,
         }
 
     def get_cached_prediction(self, wave_id: str) -> Optional[Dict[str, Any]]:
         return self._cached_scores.get(wave_id)
-    
-        # ───────────────────────────────────────────────
+
     def save_entanglement(self, wave_a: dict, wave_b: dict, entanglement_id: str):
-        """
-        Persist a minimal entanglement record between two wave states.
-        Future SRK-14 version will sync this into the PhotonMemoryGrid ledger.
-        """
         record = {
             "entanglement_id": entanglement_id,
             "wave_a_id": wave_a.get("id"),
@@ -95,24 +93,15 @@ class WaveStateStore:
                 (wave_a.get("coherence", 1.0) + wave_b.get("coherence", 1.0)) / 2, 6
             ),
         }
-        # Store internally for now (in-memory simulation)
         if not hasattr(self, "_entanglements"):
             self._entanglements = {}
         self._entanglements[entanglement_id] = record
         return record
 
-# ────────────────────────────────────────────────────────────────
-# ✅ Compatibility wrapper for QKD handshake imports
-# Allows: from backend.modules.glyphwave.core.wave_state_store import store_wave_state
 
 _wave_state_store = WaveStateStore()
 
 def store_wave_state(wave):
-    """
-    Compatibility wrapper for backward modules (like qkd_crypto_handshake)
-    that call store_wave_state(wave).
-    Delegates to the singleton WaveStateStore instance.
-    """
     try:
         _wave_state_store.add_wave(wave)
         return True
