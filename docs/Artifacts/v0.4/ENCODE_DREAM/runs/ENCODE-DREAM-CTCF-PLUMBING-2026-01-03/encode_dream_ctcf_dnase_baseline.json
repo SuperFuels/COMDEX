@@ -1,0 +1,20 @@
+{
+  "dataset": "ENCODE-DREAM TF binding (within-cell-type)",
+  "tf": "CTCF",
+  "cell": "PC-3",
+  "features": "DNase narrowPeak signal (max overlap, else 0)",
+  "labels": "B=1, U=0; A dropped",
+  "labels_file": "/workspaces/COMDEX/tmp/encode_dream/labels/CTCF.train.labels.tsv",
+  "peaks_file": "/workspaces/COMDEX/tmp/encode_dream/dnase/DNASE.PC-3.conservative.narrowPeak",
+  "n_windows": 174920,
+  "positives": 1283,
+  "negatives": 173637,
+  "metric": {
+    "AUROC": 0.7005148699162849,
+    "AUPRC": 0.10581452558789903
+  },
+  "tmp_artifacts": {
+    "y_bin": "/workspaces/COMDEX/tmp/encode_dream/_tmp_metrics/y.uint8.bin",
+    "scores_bin": "/workspaces/COMDEX/tmp/encode_dream/_tmp_metrics/scores.float32.bin"
+  }
+}

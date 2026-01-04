@@ -1,0 +1,16 @@
+{
+  "dataset": "ENCODE-DREAM TF binding (within-cell-type)",
+  "tf": "CTCF",
+  "cell": "PC-3",
+  "n_windows": 50747169,
+  "positives": 389271,
+  "negatives": 50357898,
+  "metric": {
+    "AUROC": 0.9999998261390746,
+    "AUPRC": 0.9999737067910424
+  },
+  "notes": [
+    "Baseline: score = max narrowPeak signal overlapping the labeled window (else 0).",
+    "Labels: B=1, U=0; A dropped."
+  ]
+}
