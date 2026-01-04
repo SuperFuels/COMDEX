@@ -1,11 +1,31 @@
 import time
+import os
 import datetime
 import math
 import random
+import hashlib
 from typing import List, Dict, Tuple, Optional, Any
 from backend.modules.codex.collapse_trace_exporter import log_beam_prediction
 from backend.modules.codex.codex_metrics import log_collapse_metric
 from backend.modules.collapse.collapse_trace_exporter import log_beam_collapse
+
+_DETERMINISTIC_TIME = os.getenv("TESSARIS_DETERMINISTIC_TIME", "") == "1"
+
+
+def _stable_u64(*parts: Any) -> int:
+    blob = "|".join("" if p is None else str(p) for p in parts).encode("utf-8")
+    h = hashlib.sha256(blob).digest()
+    return int.from_bytes(h[:8], "big", signed=False)
+
+
+def _deterministic_iso_utc() -> str:
+    return "0000-00-00T00:00:00Z"
+
+
+def _utc_iso_now() -> str:
+    # keep legacy format used in this file
+    return datetime.datetime.utcnow().isoformat() + "Z"
+
 
 # 🧠 Runtime wave store: container_id -> EntangledWave
 ENTANGLED_WAVE_STORE: Dict[str, "EntangledWave"] = {}
@@ -18,10 +38,11 @@ except ImportError:
     from backend.modules.glyphwave.kernels.interference_kernel_core import join_waves_batch
     GPU_ENABLED = False
 
+
 class EntangledWave:
     def __init__(self, mode: str = "bidirectional"):
         self.mode = mode
-        self.timestamp = time.time()
+        self.timestamp = 0.0 if _DETERMINISTIC_TIME else time.time()
         self.waves: List["WaveState"] = []  # Forward-declared for type safety
         self.entanglement_links: List[Tuple[int, int]] = []
         self.metadata: Dict = {}
@@ -114,6 +135,7 @@ class EntangledWave:
             "links": links,
         }
 
+
 class WaveState:
     def __init__(
         self,
@@ -153,21 +175,49 @@ class WaveState:
         self.container_id = container_id
         self.source = source or self.glyph_data.get("source", "unknown")
         self.target = target or self.glyph_data.get("target", "unknown")
-        self.timestamp = timestamp or datetime.datetime.utcnow().isoformat() + "Z"
+
+        # deterministic per-wave RNG (prevents any accidental global random bleed)
+        if _DETERMINISTIC_TIME:
+            self._rng = random.Random(
+                _stable_u64(self.wave_id, self.glyph_id, self.container_id, self.source, self.target)
+            )
+        else:
+            self._rng = random  # type: ignore[assignment]
+
+        if timestamp is not None:
+            self.timestamp = timestamp
+        else:
+            if _DETERMINISTIC_TIME:
+                self.timestamp = _deterministic_iso_utc()
+            else:
+                self.timestamp = _utc_iso_now()
 
         # --- Physical parameters ---
         self.carrier_type = carrier_type
         self.modulation_strategy = modulation_strategy
         self.delay_ms = delay_ms
-        self.phase = self.glyph_data.get("phase", random.uniform(0, 2 * math.pi))
+        self.phase = self.glyph_data.get("phase", self._rng.uniform(0, 2 * math.pi))
         self.amplitude = self.glyph_data.get("amplitude", 1.0)
         self.coherence = coherence or self.glyph_data.get("coherence", 1.0)
+        self.entropy = self.glyph_data.get("entropy", 0.0)
         self.entropy = self.glyph_data.get("entropy", 0.0)
 
         # --- Symbolic & entanglement state ---
         self.origin_trace = origin_trace or []
         self.entangled_wave = entangled_wave
-        self.entanglement_id = entanglement_id or f"ent_{wave_id or random.randint(1000,9999)}"
+
+        if entanglement_id is not None:
+            self.entanglement_id = entanglement_id
+        else:
+            if wave_id:
+                self.entanglement_id = f"ent_{wave_id}"
+            else:
+                if _DETERMINISTIC_TIME:
+                    n = 1000 + (_stable_u64("ent", self.glyph_id, self.container_id, self.source, self.target) % 9000)
+                else:
+                    n = random.randint(1000, 9999)
+                self.entanglement_id = f"ent_{n}"
+
         self.state = state or "active"
         self.tick = tick or 0
         self.collapse_state = collapse_state
@@ -217,20 +267,23 @@ class WaveState:
         """
         try:
             # Time-based phase oscillation
-            self.phase = (self.phase + random.uniform(0.01, 0.1)) % (2 * math.pi)
+            self.phase = (self.phase + self._rng.uniform(0.01, 0.1)) % (2 * math.pi)
 
             # Simulate coherence/entropy drift
-            self.coherence = max(0.0, min(1.0, self.coherence + random.uniform(-0.02, 0.02)))
-            self.entropy = max(0.0, min(1.0, self.entropy + random.uniform(-0.01, 0.01)))
+            self.coherence = max(0.0, min(1.0, self.coherence + self._rng.uniform(-0.02, 0.02)))
+            self.entropy = max(0.0, min(1.0, self.entropy + self._rng.uniform(-0.01, 0.01)))
 
             # Simulate SQI score (wave stability index)
             self.last_sqi_score = round(self.coherence * (1.0 - self.entropy), 3)
 
             # Update internal timestamp
-            self.timestamp = time.time()
+            if _DETERMINISTIC_TIME:
+                self.timestamp = _deterministic_iso_utc()
+            else:
+                self.timestamp = time.time()
 
         except Exception as e:
-            print(f"[WaveState:evolve] evolution failed: {e}")    
+            print(f"[WaveState:evolve] evolution failed: {e}")
 
     @classmethod
     def from_container_id(cls, container_id: str) -> "WaveState":
@@ -292,6 +345,7 @@ class WaveState:
             collapse_state="entangled"
         )
 
+
 def compute_sqi_score(w1: WaveState, w2: WaveState) -> float:
     """
     Placeholder logic for SQI score.
@@ -300,6 +354,7 @@ def compute_sqi_score(w1: WaveState, w2: WaveState) -> float:
     if w1.carrier_type == w2.carrier_type:
         return 0.95
     return 0.75
+
 
 def determine_collapse_state(w1: WaveState, w2: WaveState) -> str:
     """
@@ -313,11 +368,13 @@ def determine_collapse_state(w1: WaveState, w2: WaveState) -> str:
         return "predicted"
     return "entangled"
 
+
 def register_entangled_wave(container_id: str, entangled_wave: EntangledWave):
     """
     Register or update the entangled wave state for a specific container.
     """
     ENTANGLED_WAVE_STORE[container_id] = entangled_wave
+
 
 def codex_predict_symbol(symbol: str) -> str:
     # Placeholder: use real prediction engine or symbolic logic
@@ -327,11 +384,13 @@ def codex_predict_symbol(symbol: str) -> str:
         return "cognitive-insight"
     return "default"
 
+
 def compute_sqi_score(wave) -> float:
     base_score = 0.5
     if hasattr(wave, "entangled") and isinstance(wave.entangled, list):
         base_score += 0.1 * len(wave.entangled)
     return min(base_score, 1.0)
+
 
 def determine_collapse_state(wave) -> str:
     if getattr(wave, "collapsed", False):
@@ -339,6 +398,7 @@ def determine_collapse_state(wave) -> str:
     if hasattr(wave, "entangled") and wave.entangled:
         return "entangled"
     return "superposed"
+
 
 def finalize_collapse(self) -> Dict:
     """
@@ -380,6 +440,7 @@ def finalize_collapse(self) -> Dict:
         "collapse_state": "entangled",
         "sqi_scores": [w.sqi_score for w in self.waves],
     }
+
 
 def get_active_wave_state_by_container_id(container_id: str) -> Optional[Dict]:
     """
