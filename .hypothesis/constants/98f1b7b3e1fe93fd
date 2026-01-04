@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/tessaris/tessaris_store.py
-# hypothesis_version: 6.139.2
-
-['%Y%m%d-%H%M%S', '__main__', 'branch', 'glyphs', 'hash', 'id', 'origin_id', 'r', 'tessaris_snapshot', 'timestamp', 'w']

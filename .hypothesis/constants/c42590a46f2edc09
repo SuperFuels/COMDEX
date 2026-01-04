@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/RQC/src/photon_runtime/glyph_math/__init__.py
-# hypothesis_version: 6.139.2
-
-['add', 'collapse', 'encode_record', 'encode_time', 'multiply', 'photon_decode', 'photon_encode', 'quantize']

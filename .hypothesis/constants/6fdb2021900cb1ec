@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/photon/resonance/resonance_ledger.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.002, 0.015, 0.05, 0.1, 1.0, '_ledger_state', 'coherence', 'decayed_links', 'edge', 'edges', 'entries', 'entry_count', 'linked', 'meta', 'phi_delta', 'propagated', 'remaining_edges', 'simulated', 'status', 'time', 'timestamp', 'timestep', 'warning']

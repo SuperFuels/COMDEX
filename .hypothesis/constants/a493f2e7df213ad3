@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/api/photon_api.py
-# hypothesis_version: 6.139.2
-
-[0.0, 1.0, 400, 404, 500, ', ', '/api/photon', '/compile_file', '/execute_raw', '/translate', '/translate_block', '/translate_line', '/translate_reverse', 'PhotonLang', 'args', 'compiled', 'count', 'emit', 'engine', 'expr', 'glyph_stream', 'glyphs', 'input', 'name', 'ok', 'operator', 'photon', 'python', 'source', 'status', 'symbol', 'translated', 'utf-8', 'μ', 'π', '↔', '⇒', '∇', '⊕', '⟲']

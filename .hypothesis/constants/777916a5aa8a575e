@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/compression/symbolic_compressor.py
-# hypothesis_version: 6.139.2
-
-[1.0, 'compressed', 'compression', 'core_glyphs', 'cubes', 'expansion', 'glyph', 'hash', 'method', 'note', 'original', 'ratio', 'size', 'status', 'timestamp', 'utf-8']

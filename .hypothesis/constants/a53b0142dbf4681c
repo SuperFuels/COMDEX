@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/photon/axioms.py
-# hypothesis_version: 6.139.2
-
-['!=', '(a ⊕ b) ⊕ c', '(a ⊗ b) ⊗ c', '*', '+', '-', '->', '/', '0', '1', 'ADD', 'Associativity of ⊕', 'Associativity of ⊗', 'Commutativity of ⊕', 'Commutativity of ⊗', 'DIV', 'EQ', 'GRAD', 'Grad(', 'Grad(\\1)', 'Inverse under ⊕', 'Inverse under ⊗', 'MILESTONE', 'MUL', 'MUTATE', 'NEQ', 'Product rule for ∇', 'SUB', 'TRIGGER', '__main__', 'a', 'a ↔ a', 'a ↔ b', 'a ⊕ (b ⊕ c)', 'a ⊕ (⊖a)', 'a ⊕ 0', 'a ⊕ b', 'a ⊗ (/a)', 'a ⊗ (b ⊗ c)', 'a ⊗ 1', 'a ⊗ b', 'assoc_add', 'assoc_mul', 'b ↔ a', 'b ⊕ a', 'b ⊗ a', 'collapse_id', 'comm_add', 'comm_mul', 'grad_add', 'grad_const', 'grad_mul', 'grad_zero', 'id_add', 'id_mul', 'inv_add', 'inv_mul', 'ref_eq', 'sym_eq', '↔', '∇', '∇(0)', '∇(a ⊕ b)', '∇(a ⊗ b)', '∇(a) ⊕ ∇(b)', '∇(c)', '∇\\s*\\(', '⊕', '⊖', '⊗', '✦', '⟲', '⟲a']

@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphwave/core/entangled_wave.py
-# hypothesis_version: 6.139.2
-
-[1000, 'CPU', 'DEVICE_TYPE', 'EntangledWave', 'Unavailable', 'Unknown', 'WaveState', 'amplitude', 'bidirectional', 'coherence', 'collapse_metrics', 'collapse_time_ms', 'collapsed_waves', 'container_id', 'device', 'entangled_id', 'forward_links', 'fused', 'id', 'label', 'links', 'metadata', 'mode', 'nodes', 'num_waves', 'phase', 'reverse_links', 'source', 'target', 'timestamp', 'total_waves', 'type', 'wave_id']

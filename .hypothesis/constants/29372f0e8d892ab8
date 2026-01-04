@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphos/glyph_grammar_inferencer.py
-# hypothesis_version: 6.139.2
-
-['(->|⊕|↔|⟲|⧖|⬁|🧬|🜁)', '->', '-> ', ':', 'action', 'actions', 'operator', 'tag', 'type', 'value', '|', '↔', '⊕', '⟦⟧', '⟲', '⧖', '⬁', '🜁', '🧬']

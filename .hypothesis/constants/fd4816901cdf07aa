@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/entropy_field.py
-# hypothesis_version: 6.139.2
-
-[-0.1, 0.0, 1e-12, 1e-06, 0.05, 0.2, 0.5, 0.8, 1.0, 'S', 'entropy_S', 'entropy_bootstrap', 'entropy_error', 'entropy_feedback', 'entropy_law_check', 'entropy_update', 'gamma_S', 'gradS', 'lambda_prev', 'lambda_t', 'op', 'passed', 'psi_values']

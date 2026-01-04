@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/codex_render.py
-# hypothesis_version: 6.139.2
-
-[-0.01, 0.0, 0.005, 0.01, 0.02, 0.3, 0.4, 0.5, 1.0, 1.2, 100, 200, 1000, 5000, 'C(t)', 'E(t)', 'Time (s)', '__main__', 'coherence', 'coherence_index', 'energy', 'event_type', 'fig', 'lambda', 'law_weight_update', 'new_weight', 't', 'tab:blue', 'tab:green', 'tab:orange', 'timestamp', 'v', 'value', 'wave_energy', 'λ(t)']

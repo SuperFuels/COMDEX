@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/symbolic_engine/symbolic_kernels/logic_glyphs.py
-# hypothesis_version: 6.139.2
-
-[' -> ', '->', 'AndGlyph', 'EntailmentGlyph', 'FalseGlyph', 'ImplicationGlyph', 'LogicGlyph', 'NotGlyph', 'OrGlyph', 'ProofStepGlyph', 'ProvableGlyph', 'SequentGlyph', 'SymbolGlyph', 'TrueGlyph', 'classical', 'conclusion', 'deduction', 'metadata', 'notes', 'operands', 'premises', 'proof', 'rule', 'semantic_context', 'sequent', 'symbol', 'type', '¬', '∅', '∧', '∨', '⊢', '⊤', '⊥', '⊨']

@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/core/tensor_ops.py
-# hypothesis_version: 6.139.2
-
-['coherence_flux', 'tensor_contract', 'tensor_coupling', 'tensor_divergence', 'tensor_grad', 'tensor_measure', 'tensor_outer']

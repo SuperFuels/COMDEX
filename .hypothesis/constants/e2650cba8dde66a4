@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/dna_chain/glyph_trigger_logger.py
-# hypothesis_version: 6.139.2
-
-['%Y-%m-%dT%H-%M-%SZ', './logs/trigger_logs', 'default', 'w']

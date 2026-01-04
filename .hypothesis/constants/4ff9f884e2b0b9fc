@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/photon/memory/photon_memory_grid.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.25, 1.0, '_entanglement_ledger', 'active', 'capsule_id', 'checksum', 'coherence', 'coherence_loss', 'collapsed', 'count', 'entanglement_id', 'entropy_shift', 'event', 'field_potential', 'link', 'link_count', 'link_entanglement', 'linked', 'links', 'phi_delta', 'reason', 'restored', 'snapshot_saved', 'snapshot_skipped', 'sqi_drift', 'state', 'state_count', 'states', 'status', 'store_capsule_state', 'stored', 'time', 'timestamp', 'wave_a_id', 'wave_b_id']

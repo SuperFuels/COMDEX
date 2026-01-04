@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphwave/carrier/carrier_types.py
-# hypothesis_version: 6.139.2
-
-['hybrid', 'optical', 'quantum', 'radio', 'simulated']

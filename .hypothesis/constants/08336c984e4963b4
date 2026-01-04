@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/symbolic/symbolic_broadcast.py
-# hypothesis_version: 6.139.2
-
-['container_id', 'coord', 'data', 'event_type', 'extra', 'glyph', 'logic_alert', 'type']

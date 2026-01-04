@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/photonlang/photon_translator.py
-# hypothesis_version: 6.139.2
-
-['#', '\'"', '*.enriched.phn', '50000', ':', 'Lexicon_enriched', 'Original:\n', 'Translated:\n', '__main__', 'body', 'container_id', 'data', 'domains', 'exists?', 'field', 'glyph', 'glyph_count', 'glyphs', 'ignore', 'keywords', 'knowledge', 'lemma:', 'memory', 'nav', 'operators', 'ops', 'photon', 'prefix', 'punct', 'python', 'quantum', 'quote', 'resonance', 'source', 'symbol:', 'translated', 'utf-8', 'wave', '⚛', '✦', '🌀', '🌊', '💡', '🜁', '🧠', '🧭']

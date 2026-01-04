@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/core/grad_operators.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.1, 0.3, 1.0, 1.05, 1.1, 2.0, 2.2, 3.0, 'Updated λ-field:', '__main__', 'amplitude', 'energy', 'frequency', 'grad_coherence', 'grad_energy', 'grad_wave', 'law_weights', 'phase', 'resonance_continuity']

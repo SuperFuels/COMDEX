@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphvault/vault_manager.py
-# hypothesis_version: 6.139.2
-
-['%Y%m%dT%H%M%SZ', '.vault.json', 'DELETE', 'RESTORE', 'SAVE', 'collapse', 'collapse_trace', 'compressed', 'container_id', 'container_type', 'cubes', 'encrypted_glyph_data', 'entropy_signature', 'filename', 'ghx_id', 'ghx_metadata', 'hoberman', 'id', 'integrity_hash', 'memory_snapshot', 'path', 'qglyph_id', 'r', 'runtime_mode', 'saved_on', 'standard', 'symbolic_expansion', 'unknown', 'utf-8', 'vault/data', 'w']

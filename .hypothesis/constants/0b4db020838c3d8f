@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/knowledge_graph/ledger_adapter.py
-# hypothesis_version: 6.139.2
-
-[1000, '1', 'Content-Type', 'KG_LEDGER_ENABLED', 'KG_LEDGER_URL', 'POST', 'application/json', 'events', 'id', 'kg', 'kind', 'owner', 'payload', 'sha256', 'size', 'thread_id', 'topic_wa', 'ts', 'type', 'utf-8']

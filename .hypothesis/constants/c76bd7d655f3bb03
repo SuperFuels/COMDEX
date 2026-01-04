@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/knowledge_graph/kg_writer_singleton.py
-# hypothesis_version: 6.139.2
-
-['0', '1', 'AION_KG_COMPAT', 'KGCompat', 'KnowledgeGraphWriter', '__code__', 'append_entry', 'co_varnames', 'container_id', 'crdt_registry', 'event', 'event_type', 'false', 'get_crdt_registry', 'get_kg_writer', 'glyph', 'inject_glyph', 'kg_entry', 'kg_event', 'kg_writer_singleton', 'log_event', 'meta', 'metadata', 'no', 'off', 'type', 'vault', 'write_glyph_event']

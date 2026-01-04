@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphvault/container_vault_integration.py
-# hypothesis_version: 6.139.2
-
-['GHX', 'SQI', 'activations', 'container_id', 'cubes', 'energy', 'glyph', 'glyph_count', 'glyph_vault', 'id', 'metadata', 'name', 'source', 'tags', 'timestamp', 'type', 'vault_decrypt', 'vault_encrypt', '🔒', '🔓']

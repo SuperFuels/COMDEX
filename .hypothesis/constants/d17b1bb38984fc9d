@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/axioms.py
-# hypothesis_version: 6.139.2
-
-['0', 'CORE', 'META', 'Operator', 'add', 'axiom_id', 'deviation', 'domain', 'entangle_op', 'guard', 'id', 'ignore', 'lhs', 'measure_op', 'n', 'neg', 'note', 'passed', 'rhs', 'superpose_op', 'v02', 'validated_by', 'x', 'y', 'z', 'μ', 'μ-idem', 'π', 'φ', 'ψ', '↔', '↔-dist-⊕', '⊕', '⊕-assoc', '⊕-comm', '⊥', '⋈', '⋈-assoc_phase', '⋈-comm_phi', '⋈-inv_phase', '⋈-neutral_phi', '⋈-self_pi', '⋈-self_zero']

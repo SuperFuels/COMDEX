@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/api/photon_reverse.py
-# hypothesis_version: 6.139.2
-
-[400, ',', '/api/photon', '/translate_reverse', 'PhotonLang', 'ReverseRequest', 'after', 'args', 'auto', 'engine', 'expr', 'filename', 'glyph', 'glyph_stream', 'glyphs', 'ignore', 'items', 'joined_text', 'name', 'ok', 'operator', 'registry', 'source_file', 'status', 'symbol', 'text', 'utf-8']

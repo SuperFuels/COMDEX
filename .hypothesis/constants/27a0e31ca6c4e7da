@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphwave/emitters/wave_injector.py
-# hypothesis_version: 6.139.2
-
-[0.99, 1.0, 'WaveState', 'amplitude', 'coherence', 'emitted_by', 'event', 'name', 'phase_seed', 'type', 'unknown', 'warp_edge', 'warp_edge_teleport']

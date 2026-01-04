@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/unified_symbolic_runtime.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.6, 1.0, 'USR-core', 'active_ops', 'avg_coherence', 'coherence', 'domain', 'duration', 'final_wave', 'glyphs', 'mode', 'mode_ratio', 'operator_count', 'photon', 'photonic', 'recent', 'result', 'runtime_age', 'runtime_id', 'sequence_results', 'start', 'stats', 'symbolic', 'telemetry', 'telemetry_count', 'timestamp', 'trace']

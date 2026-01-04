@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/aion_language/resonant_memory_cache.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.001, 0.2, 0.5, 1.0, -200, 200, '%Y-%m-%d %H:%M:%S', '.bak', '.corrupt', '.lock', '.tmp', '0', '1', '15', '5', '60', '::', 'AION_QUIET_MODE', 'I', 'SQI', 'SQI_avg', '__main__', 'avg', 'avg_SQI', 'avg_entropy', 'avg_goal', 'avg_phase', 'avg_sqi', 'avg_stability', 'avg_ΔΦ', 'cache', 'coherence', 'count', 'desc', 'entries', 'entropy', 'glyph', 'harmonics::', 'intensity', 'last_seen', 'last_sqi', 'last_update', 'last_updated', 'lemma', 'links', 'meta', 'on', 'overall_SQI', 'overall_ΔΦ', 'phase', 'profiles', 'q_val', 'r', 'resonance_weight', 'rho', 'samples', 'schema', 'semantics', 'sqi', 'stability', 'tensor_field', 'timestamp', 'true', 'unknown', 'utf-8', 'w', 'yes', 'Ī', 'ΔΦ', 'Λ', 'Φ', 'η', 'λ', 'μ', 'ρ', 'φ', 'ψ', '↔']

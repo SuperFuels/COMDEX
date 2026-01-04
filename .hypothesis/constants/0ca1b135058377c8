@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/lean/sym_tactics.py
-# hypothesis_version: 6.139.2
-
-[0.0, 1e-24, 0.001, 0.1, 0.2, 0.4, 0.98, 1e+18, 'C', 'E', 'div(μ)', 'λ⊗ψ', 'μ', '∇⊗', '∇⊗μ']

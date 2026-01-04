@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/quant/qpy/compat_sympy.py
-# hypothesis_version: 6.139.2
-
-['And', 'Derivative', 'Eq', 'Integral', 'Matrix', 'Or', 'S', 'Symbol', 'cos', 'diff', 'expand', 'integrate', 'latex', 'limit', 'nsimplify', 'pretty', 'qcos', 'qdiff', 'qsimplify', 'qsin', 'qundef', 'series', 'simplify', 'sin', 'solve', 'solveset', 'symbols', 'sympify']

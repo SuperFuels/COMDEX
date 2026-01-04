@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/codex/canonical_ops.py
-# hypothesis_version: 6.139.2
-
-['->', '->_c', 'H', 'Logical implication', '[', ']', 'cancel', 'control:->', 'control:⟲', 'control:⧖', 'damping', 'description', 'logic:->', 'logic:¬', 'logic:↔', 'logic:∧', 'logic:∨', 'logic:⊕', 'logic:⊗', 'math:∇', 'photon', 'photon:primitive', 'photon:wave', 'photon:≈', 'photon:⊙', 'physics:≈', 'physics:⊗', 'quantum:A', 'quantum:H', 'quantum:bra', 'quantum:ket', 'quantum:μ', 'quantum:π', 'quantum:↔', 'quantum:⊕', 'quantum:⊗', 'quantum:⧜', 'quantum:⧝', 'quantum:⧠', 'resonance', 'symatics:cancel', 'symatics:damping', 'symatics:resonance', 'symatics:↺', 'symatics:⊕', 'symatics:⊖', 'symatics:⊗', 'symatics:⋈', 'symatics:⌬', 'symatics:⟁', 'symatics:⟲', 'symbols', 'wave', '~', '¬', 'Â', 'μ', 'π', 'ψ⟩', '↔', '↺', '∇', '∧', '∨', '≈', '≈_p', '⊕', '⊕_q', '⊕_s', '⊖', '⊗', '⊗_p', '⊗_q', '⊗_s', '⊙', '⋈', '⌬', '⟁', '⟨ψ|', '⟲', '⟲_c', '⧖', '⧜', '⧝', '⧠']

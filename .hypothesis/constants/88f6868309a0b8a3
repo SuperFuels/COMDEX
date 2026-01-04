@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/tessaris/thought_branch.py
-# hypothesis_version: 6.139.2
-
-['(no tree)', '*', ', ', 'BranchNode', 'THINK', 'ThoughtBranch', '[', ']', 'branch', 'children', 'content', 'context', 'coord', 'glyph', 'glyph_logic.THINK', 'glyph_tree', 'glyphs', 'id', 'index', 'label', 'logic', 'metadata', 'ok', 'origin_id', 'position', 'root', 'source', 'status', 'symbol', 'symbol_key', 'unknown', 'value', 'Δ', 'Σ', 'λ', 'ψ', '↔', '⇌', '⊕', '☼', '⧖', '🎯', '🪄']

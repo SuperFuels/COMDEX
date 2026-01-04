@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphwave/runtime.py
-# hypothesis_version: 6.139.2
-
-[0.0001, 1.0, 100, 'adaptive_parameters', 'carrier', 'container_id', 'emitted', 'envelope', 'freq', 'gwip', 'received', 'rule_weights', 'scheduler', 'tags', 'throughput', 'weights']

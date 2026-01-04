@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/glyphwave/core/carrier_memory.py
-# hypothesis_version: 6.139.2
-
-['WaveState', 'amplitude', 'carrier', 'coherence', 'entangled_count', 'entangled_id', 'glyphwave', 'latest_wave', 'origin_trace', 'phase', 'timestamp', 'wave_count', 'wave_id']

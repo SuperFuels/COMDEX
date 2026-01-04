@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/core/field_coupling_engine.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.01, 0.02, 0.05, 0.1, 128, 'Summary:', '__main__', 'field_coupling_step', 'mean_lambda', 'mean_psi', 'λ', 'ψ']

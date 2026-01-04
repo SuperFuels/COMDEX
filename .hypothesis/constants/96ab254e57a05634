@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/photonic_field.py
-# hypothesis_version: 6.139.2
-
-[0.0, 0.001, 0.02, 1.0, 'Sν', 'amplitude', 'feedback_coeff', 'phase', 'spectral_gradient', '|A|', 'ν', 'σ', 'τ', 'φ', 'ψ2']

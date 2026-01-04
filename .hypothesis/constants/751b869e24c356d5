@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/modules/websocket_manager.py
-# hypothesis_version: 6.139.2
-
-[0.0, '0', '1', '10', 'AION_WS_LOG_NOCLIENT', 'AION_WS_QUIET', 'LogicGlyph', 'WebSocketManager', 'broadcast_event', 'container', 'glyph', 'manager', 'meta', 'on', 'origin', 'send_ws_message', 'symbol', 'symbolic_glyph', 'target', 'to_dict', 'true', 'type', 'websocket_manager', 'yes']

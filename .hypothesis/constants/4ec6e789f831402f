@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/symatics/sym_io_qubit.py
-# hypothesis_version: 6.139.2
-
-[0.05, 'E_meas', 'mu', 'phi_dot']

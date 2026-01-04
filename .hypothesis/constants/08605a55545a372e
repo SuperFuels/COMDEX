@@ -1,4 +1,0 @@
-# file: /workspaces/COMDEX/backend/photon/compressor.py
-# hypothesis_version: 6.139.2
-
-['Eq', 'Grad', 'Ne', 'advanced', 'args', 'basic']
