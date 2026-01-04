@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GX1 TRACE.jsonl event",
+  "description": "Schema for a single JSONL line in TRACE.jsonl. Keep permissive but stable.",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": ["scenario_id", "tick"],
+      "properties": {
+        "scenario_id": { "type": "string", "minLength": 1 },
+        "tick": { "type": "integer", "minimum": 0 },
+        "t": { "type": ["number", "integer"] },
+        "rho": { "type": "number" }
+      },
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "required": ["scenario_id", "trace_kind"],
+      "properties": {
+        "scenario_id": { "type": "string", "minLength": 1 },
+        "trace_kind": { "const": "scenario_summary" },
+        "mode": { "type": "string" },
+        "k": { "type": "integer", "minimum": 1 },
+        "rho_primary": { "type": "number" },
+        "coherence_mean": { "type": "number" },
+        "drift_mean": { "type": "number" },
+        "crosstalk_max": { "type": "number" }
+      },
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "required": ["event_type"],
+      "properties": {
+        "event_type": { "const": "trace_meta" },
+        "mode": { "type": "string" },
+        "stride": { "type": "integer", "minimum": 1 },
+        "max_events": { "type": "integer", "minimum": 0 },
+        "events_in": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    }
+  ]
+}

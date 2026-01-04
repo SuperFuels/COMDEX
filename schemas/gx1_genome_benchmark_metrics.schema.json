@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "checks": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "margin": {
+            "type": "number"
+          },
+          "pass": {
+            "type": "boolean"
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "pass",
+          "value",
+          "threshold"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "objective_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "scenario_summaries": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "properties": {
+          "coherence_mean": {
+            "type": "number"
+          },
+          "crosstalk_max": {
+            "type": "number"
+          },
+          "drift_mean": {
+            "type": "number"
+          },
+          "k": {
+            "type": "integer"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "rho_primary": {
+            "type": "number"
+          },
+          "rho_trace": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "scenario_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "scenario_id",
+          "mode",
+          "k",
+          "rho_primary",
+          "coherence_mean",
+          "drift_mean",
+          "crosstalk_max",
+          "rho_trace"
+        ],
+        "type": "object"
+      },
+      "type": "object"
+    },
+    "schemaVersion": {
+      "const": "GX1_METRICS_V0"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "status": {
+      "enum": [
+        "OK",
+        "FAIL"
+      ]
+    },
+    "summary": {
+      "additionalProperties": true,
+      "properties": {
+        "checks_failed": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "checks_pass": {
+          "type": "boolean"
+        },
+        "coherence_mean": {
+          "type": "number"
+        },
+        "crosstalk_max": {
+          "type": "number"
+        },
+        "drift_mean": {
+          "type": "number"
+        },
+        "rho_matched": {
+          "type": "number"
+        },
+        "rho_mismatch": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "rho_matched",
+        "rho_mismatch",
+        "crosstalk_max",
+        "coherence_mean",
+        "drift_mean",
+        "checks_pass",
+        "checks_failed"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "objective_id",
+    "run_id",
+    "seed",
+    "status",
+    "summary",
+    "checks",
+    "scenario_summaries"
+  ],
+  "title": "GX1 Genome Benchmark Metrics",
+  "type": "object"
+}

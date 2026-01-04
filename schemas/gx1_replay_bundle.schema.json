@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GX1 Replay Bundle",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "run_id",
+    "git_rev",
+    "created_utc",
+    "dataset_id",
+    "dataset_sha256",
+    "config",
+    "metrics",
+    "trace_digest"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "GX1_REPLAY_BUNDLE_V0" },
+    "run_id": { "type": "string" },
+    "git_rev": { "type": "string" },
+    "created_utc": { "type": "string" },
+
+    "dataset_id": { "type": "string", "minLength": 1 },
+    "dataset_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "preprocess_sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+
+    "config": { "type": "object" },
+    "metrics": { "type": "object" },
+
+    "trace_digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "additionalProperties": true
+}

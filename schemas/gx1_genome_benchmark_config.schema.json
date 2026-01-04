@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "chip_mode": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "created_utc": {
+      "type": "string"
+    },
+    "dataset_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "dataset_path": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "dataset_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "dt": {
+      "type": "number"
+    },
+    "mapping_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "objective_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "output_root": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "preprocess_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "run_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "scenarios": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "k": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "mode": {
+            "enum": [
+              "matched",
+              "mismatch",
+              "multiplex",
+              "mutation"
+            ],
+            "type": "string"
+          },
+          "mutation": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "scenario_id": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "scenario_id",
+          "mode",
+          "k"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "GX1_CONFIG_V0"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "steps": {
+      "type": "integer"
+    },
+    "thresholds": {
+      "additionalProperties": true,
+      "properties": {
+        "coherence_mean_min": {
+          "type": "number"
+        },
+        "crosstalk_max": {
+          "type": "number"
+        },
+        "drift_mean_max": {
+          "type": "number"
+        },
+        "eval_ticks": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rho_matched_min": {
+          "type": "number"
+        },
+        "rho_mismatch_abs_max": {
+          "type": "number"
+        },
+        "warmup_ticks": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "warmup_ticks",
+        "eval_ticks"
+      ],
+      "type": "object"
+    },
+    "trace_max_events": {
+      "description": "Hard cap on number of trace events kept. 0 means no cap.",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "trace_mode": {
+      "description": "full = keep all trace events; sampled = downsample/cap deterministically",
+      "enum": [
+        "full",
+        "sampled"
+      ],
+      "type": "string"
+    },
+    "trace_stride": {
+      "description": "Keep every Nth trace event (sampled mode).",
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "dataset_path",
+    "objective_id",
+    "output_root",
+    "run_id",
+    "schemaVersion",
+    "seed",
+    "dataset_id",
+    "dataset_sha256"
+  ],
+  "title": "GX1 Genome Benchmark Config",
+  "type": "object"
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "GX1_CONFIG_V0",
+  "objective_id": "P21_GX1_GENOMICS_BENCH_V0",
+  "seed": 1337,
+  "created_utc": "0000-00-00T00:00:00Z",
+  "dataset_path": "/workspaces/COMDEX/docs/Artifacts/v0.4/P16/docs/P16_PILOT_PREPROCESS_OUT_SNAPSHOT.jsonl",
+  "output_root": "/workspaces/COMDEX/docs/Artifacts/v0.4/P21_GX1",
+  "mapping_id": "GX1_MAP_V1",
+  "chip_mode": "ONEHOT4"
+}

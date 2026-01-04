@@ -244,3 +244,14 @@ Glyph_Net_Browser/node_modules
 /Glyph_Net_Browser/node_modules
 /node_modules
 **/node_modules
+
+
+
+# --- GX1 generated artifacts (do not commit) ---
+docs/Artifacts/v0.4/P21_GX1/
+
+# --- Generated knowledge outputs (do not commit) ---
+backend/modules/knowledge/*.json
+
+# --- Local tools / scratch ---
+backend/paev_ladder/tools/
