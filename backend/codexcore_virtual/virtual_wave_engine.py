@@ -4,10 +4,14 @@ VirtualWaveEngine - unified symbolic/photonic execution core
 with Symatics amplitude/phase/frequency modulation hooks.
 """
 
+from __future__ import annotations
+
+import os
 import time
 import math
 import random
 import logging
+
 from backend.codexcore_virtual.virtual_cpu_beam_core import VirtualCPUBeamCore
 from backend.modules.codex.beam_event_bus import beam_event_bus, BeamEvent
 from backend.modules.glyphwave.core.wave_state import WaveState
@@ -20,15 +24,15 @@ logger = logging.getLogger(__name__)
 # ──────────────────────────────────────────────
 OPCODE_PHOTONICS = {
     "⊕": {"phase_shift": 0.25 * math.pi, "amp_mod": 1.0, "freq_mul": 1.0},   # superposition
-    "↔": {"phase_shift": 0.5 * math.pi,  "amp_mod": 0.95, "freq_mul": 0.9},   # entanglement
-    "μ": {"phase_shift": 0.0,            "amp_mod": 0.85, "freq_mul": 0.7},   # measurement
-    "⟲": {"phase_shift": 1.0 * math.pi,  "amp_mod": 1.1,  "freq_mul": 1.2},   # resonance
-    "π": {"phase_shift": 0.75 * math.pi, "amp_mod": 0.9,  "freq_mul": 1.0},   # projection
+    "↔": {"phase_shift": 0.5 * math.pi,  "amp_mod": 0.95, "freq_mul": 0.9},  # entanglement
+    "μ": {"phase_shift": 0.0,            "amp_mod": 0.85, "freq_mul": 0.7},  # measurement
+    "⟲": {"phase_shift": 1.0 * math.pi,  "amp_mod": 1.1,  "freq_mul": 1.2},  # resonance
+    "π": {"phase_shift": 0.75 * math.pi, "amp_mod": 0.9,  "freq_mul": 1.0},  # projection
 }
 
 
 class VirtualWaveEngine:
-    def __init__(self, container_id="default.qqc"):
+    def __init__(self, container_id: str = "default.qqc"):
         self.container_id = container_id
         self.cpu = VirtualCPUBeamCore()
         self.entangled_wave = EntangledWave()
@@ -36,12 +40,22 @@ class VirtualWaveEngine:
         self.running = False
         self.tick_counter = 0
 
+        # Prevent duplicate attaches (stops "[VirtualWaveEngine] Attached WaveState ..." spam)
+        self._attached_wave_ids: set[str] = set()
+
+        # Gate prints for tests/benchmarks
+        self._quiet = (
+            os.getenv("TESSARIS_TEST_QUIET", "") == "1"
+            or os.getenv("GLYPHOS_QUIET", "0") == "1"
+        )
+
     # ──────────────────────────────────────────────
     # Load symbolic program
     # ──────────────────────────────────────────────
     def load_wave_program(self, instructions):
         self.cpu.load_program(instructions)
-        print(f"[VirtualWaveEngine] Loaded symbolic program with {len(instructions)} ops.")
+        if not self._quiet:
+            print(f"[VirtualWaveEngine] Loaded symbolic program with {len(instructions)} ops.")
 
     # ──────────────────────────────────────────────
     # Symatics modulation - adjust amp/phase/freq
@@ -63,13 +77,15 @@ class VirtualWaveEngine:
         wave.coherence = max(0.7, min(1.0, wave.coherence - random.uniform(0.0, 0.02)))
 
         # Metadata update
-        wave.metadata.update({
-            "last_opcode": opcode,
-            "phase_shift": round(mod["phase_shift"], 3),
-            "amp_mod": mod["amp_mod"],
-            "freq_mul": mod["freq_mul"],
-            "tick": self.tick_counter
-        })
+        wave.metadata.update(
+            {
+                "last_opcode": opcode,
+                "phase_shift": round(mod["phase_shift"], 3),
+                "amp_mod": mod["amp_mod"],
+                "freq_mul": mod["freq_mul"],
+                "tick": self.tick_counter,
+            }
+        )
 
         logger.info(
             f"[SymaticsHook] {opcode} modulated -> "
@@ -84,7 +100,8 @@ class VirtualWaveEngine:
     def run(self):
         """Main execution loop for symbolic-photonic integration."""
         self.running = True
-        print(f"[QQC] Starting Symatics Lightwave Engine for {self.container_id}")
+        if not self._quiet:
+            print(f"[QQC] Starting Symatics Lightwave Engine for {self.container_id}")
 
         while self.running and getattr(self.cpu, "running", True):
             tick_start = time.time()
@@ -107,14 +124,15 @@ class VirtualWaveEngine:
                 drift=sum(getattr(w, "drift", 0.0) for w in self.entangled_wave.waves),
                 qscore=sum(getattr(w, "coherence", 1.0) for w in self.entangled_wave.waves)
                 / max(len(self.entangled_wave.waves), 1),
-                metadata={"tick": self.tick_counter, "opcode": opcode}
+                metadata={"tick": self.tick_counter, "opcode": opcode},
             )
             beam_event_bus.publish(evt)
 
             # Collapse event (SQI gating)
             if self.tick_counter % 5 == 0 and self.entangled_wave.waves:
                 result = self.entangled_wave.collapse_all()
-                print(f"[QQC] Collapse metrics -> {result.get('collapse_metrics', {})}")
+                if not self._quiet:
+                    print(f"[QQC] Collapse metrics -> {result.get('collapse_metrics', {})}")
 
             # Tick timing
             self.last_tick_time = time.time() - tick_start
@@ -124,9 +142,22 @@ class VirtualWaveEngine:
     # Wave management
     # ──────────────────────────────────────────────
     def attach_wave(self, wave: WaveState):
+        """
+        Idempotent attach:
+        - If the same wave id is attached repeatedly (common when id='anon'),
+        ignore subsequent attaches to prevent log spam and accidental wave duplication.
+        """
+        wid = str(getattr(wave, "id", "anon"))
+        if wid in self._attached_wave_ids:
+            return
+
+        self._attached_wave_ids.add(wid)
         self.entangled_wave.add_wave(wave)
-        print(f"[VirtualWaveEngine] Attached WaveState {wave.id} to engine.")
+
+        if not self._quiet:
+            print(f"[VirtualWaveEngine] Attached WaveState {wid} to engine.")
 
     def stop(self):
         self.running = False
-        print("[QQC] Stopped VirtualWaveEngine.")
+        if not self._quiet:
+            print("[QQC] Stopped VirtualWaveEngine.")

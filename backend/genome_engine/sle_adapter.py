@@ -7,12 +7,11 @@ from typing import Any, Dict, List
 from .determinism import TickClock, SeededRNG
 from .event_envelope import beam_event_envelope
 
-# Real SLE dispatcher (your existing runtime plumbing)
 from backend.modules.symatics_lightwave.symatics_dispatcher import SymaticsDispatcher
+from backend.modules.symatics_lightwave.wave_capsule import WaveCapsule
+from backend.modules.codex.beam_event_bus import beam_event_bus, BeamEvent
 
 
-# Deterministic operator plan (scenario -> opcode sequence)
-# This is the stable "benchmark plan" for SLE mode.
 OPCODE_PLAN: Dict[str, List[str]] = {
     "matched": ["⊕", "⟲", "π"],
     "mismatch": ["μ", "μ", "π"],
@@ -24,10 +23,6 @@ _DETERMINISTIC_TRACE = os.getenv("TESSARIS_DETERMINISTIC_TIME", "") == "1"
 
 
 def _stable_unit_float(*parts: Any) -> float:
-    """
-    Deterministic float in [0, 1) from a stable hash of the provided parts.
-    Does NOT depend on ambient RNG state.
-    """
     blob = "|".join(str(p) for p in parts).encode("utf-8")
     digest = hashlib.sha256(blob).digest()
     n = int.from_bytes(digest[:8], "big", signed=False)
@@ -38,9 +33,11 @@ class SLEAdapter:
     """
     Deterministic SLE/Beam execution adapter for GX1.
 
-    Produces:
-      - normalized TRACE events (beam_event envelope)
-      - per-scenario series suitable for SQI/metrics on top
+    B03 path (explicit):
+      SLEAdapter plan → WaveCapsule.from_symbolic_instruction →
+      SymaticsDispatcher.dispatch_capsule → BeamRuntime → BeamEventBus
+
+    TRACE remains normalized through beam_event_envelope (contract surface).
     """
 
     def __init__(self, *, seed: int, dt: float = 1 / 30):
@@ -60,10 +57,6 @@ class SLEAdapter:
         warmup_ticks: int,
         eval_ticks: int,
     ) -> Dict[str, Any]:
-        """
-        Deterministic tick loop.
-        We do NOT rely on wall-clock or ambient randomness for artifact behavior.
-        """
         total_ticks = max(warmup_ticks + eval_ticks, warmup_ticks)
 
         trace: List[Dict[str, Any]] = []
@@ -72,51 +65,129 @@ class SLEAdapter:
         ops = self._scenario_ops(mode)
         k = max(1, int(k))
 
-        for tick in range(int(total_ticks)):
-            t = self.clock.t(tick)
+        # B03c: capture BeamEventBus stream during this scenario only
+        def _beam_to_gx1_envelope(ev: BeamEvent) -> Dict[str, Any] | None:
+            md = getattr(ev, "metadata", None) or {}
 
-            for ch in range(k):
-                # Deterministic opcode selection (no wall clock, no ambient random)
-                opcode = ops[(tick + ch) % len(ops)]
+            # Filter strictly to this scenario to avoid global noise
+            if str(md.get("scenario_id", "")) != str(scenario_id):
+                return None
 
-                # Drive the real dispatcher. Keep args deterministic.
-                # NOTE: args are included only for deterministic metadata; do not put time/random in them.
-                result = self.dispatcher.dispatch({"opcode": opcode, "args": [scenario_id, ch, tick]})
+            # Require tick to anchor determinism + GX1 envelope
+            if "tick" not in md:
+                return None
+            try:
+                tick_i = int(md["tick"])
+            except Exception:
+                return None
 
-                # Normalize output
-                if _DETERMINISTIC_TRACE:
-                    # Force qscore/drift determinism even if the dispatcher is nondeterministic internally.
-                    qscore = 0.5 + 0.5 * _stable_unit_float(self.rng.seed, scenario_id, mode, opcode, ch, tick, "q")
-                    drift = (_stable_unit_float(self.rng.seed, scenario_id, mode, opcode, ch, tick, "d") - 0.5) * 2.0
-                    status = "ok"
-                else:
-                    qscore = float(result.get("coherence", 1.0))
-                    drift = float(result.get("drift", 0.0))
-                    status = result.get("status", "ok")
+            # Channel is optional; default 0
+            try:
+                ch_i = int(md.get("channel", md.get("ch", 0)))
+            except Exception:
+                ch_i = 0
 
-                trace.append(
-                    beam_event_envelope(
-                        tick=tick,
-                        t=t,
-                        event_type=f"{opcode}_tick",
-                        source="SymaticsDispatcher",
-                        target="BeamRuntime",
-                        qscore=float(qscore),
-                        drift=float(drift),
-                        scenario_id=scenario_id,
-                        channel=ch,
-                        meta={
-                            "opcode": opcode,
-                            "status": status,
-                        },
-                    )
-                )
+            # Prefer explicit 't', else derive from tick*dt (fall back to clock.dt)
+            if "t" in md:
+                try:
+                    t_f = float(md["t"])
+                except Exception:
+                    t_f = float(tick_i) * float(md.get("dt", self.clock.dt))
+            else:
+                try:
+                    t_f = float(tick_i) * float(md.get("dt", self.clock.dt))
+                except Exception:
+                    t_f = float(tick_i)
 
-                if ch == 0:
-                    q_series_ch0.append(float(qscore))
+            meta_out = dict(md)
+            meta_out.setdefault("beam_event_id", getattr(ev, "id", None))
+            meta_out.setdefault("beam_timestamp", getattr(ev, "timestamp", None))
+            meta_out.setdefault("mode", mode)
+
+            return beam_event_envelope(
+                tick=tick_i,
+                t=t_f,
+                event_type=str(getattr(ev, "event_type", "")),
+                source=str(getattr(ev, "source", "")),
+                target=str(getattr(ev, "target", "")),
+                qscore=float(getattr(ev, "qscore", 1.0)),
+                drift=float(getattr(ev, "drift", 0.0)),
+                scenario_id=str(scenario_id),
+                channel=ch_i,
+                meta=meta_out,
+            )
+
+        def _collector(ev: BeamEvent) -> None:
+            env = _beam_to_gx1_envelope(ev)
+            if env is not None:
+                trace.append(env)
+
+        beam_event_bus.subscribe("*", _collector)
+        try:
+            for tick in range(int(total_ticks)):
+                t = self.clock.t(tick)
+
+                for ch in range(k):
+                    opcode = ops[(tick + ch) % len(ops)]
+
+                    instr = {
+                        "opcode": opcode,
+                        "args": [scenario_id, ch, tick],
+                        # determinism context (propagates into capsule metadata + BeamRuntime)
+                        "seed": self.rng.seed,
+                        "tick": tick,
+                        "t": t,
+                        "dt": self.clock.dt,
+                        "scenario_id": scenario_id,
+                        "channel": ch,
+                        "mode": mode,
+                    }
+
+                    # B03: build capsule explicitly, then dispatch it
+                    capsule = WaveCapsule.from_symbolic_instruction(instr)
+                    result = self.dispatcher.dispatch_capsule(capsule)
+
+                    # Keep deterministic qscore series for metrics window (independent of bus capture)
+                    if _DETERMINISTIC_TRACE:
+                        qscore = 0.5 + 0.5 * _stable_unit_float(
+                            self.rng.seed, scenario_id, mode, opcode, ch, tick, "q"
+                        )
+                    else:
+                        qscore = float(result.get("coherence", 1.0)) if isinstance(result, dict) else 1.0
+
+                    if ch == 0:
+                        q_series_ch0.append(float(qscore))
+        finally:
+            beam_event_bus.unsubscribe("*", _collector)
 
         eval_window = q_series_ch0[-eval_ticks:] if int(eval_ticks) > 0 else list(q_series_ch0)
         coherence_mean = float(sum(eval_window) / max(1, len(eval_window)))
+
+        # --- GX1 legacy contract pair (keep Mode B compatible with SIM trace expectations)
+        # Append at end so consumers can find summaries even if TRACE is mostly beam_event lines.
+        trace.append(
+            {
+                "trace_kind": "scenario_summary",
+                "scenario_id": str(scenario_id),
+                "mode": str(mode),
+                "k": int(k),
+                # Benchmark proxy: we treat coherence_mean as rho_primary for Mode B
+                "rho_primary": float(coherence_mean),
+                "coherence_mean": float(coherence_mean),
+                "drift_mean": 0.0,
+                "crosstalk_max": 0.0,
+            }
+        )
+        trace.append(
+            {
+                "trace_kind": "rho_trace_eval_window",
+                "scenario_id": str(scenario_id),
+                "warmup_ticks": int(warmup_ticks),
+                "eval_ticks": int(eval_ticks),
+                # Mode B: qscore series is the eval window proxy
+                "rho_trace": [float(x) for x in eval_window],
+            }
+        )
 
         return {
             "scenario_id": scenario_id,

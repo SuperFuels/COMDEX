@@ -1,7 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import hashlib
 import random
+
+from .stable_json import stable_stringify
+
+
+def stable_hash(obj) -> str:
+    """
+    Deterministic SHA-256 over canonical JSON for any JSON-ish object.
+    Uses stable_stringify() (sorted keys, stable separators).
+    """
+    blob = stable_stringify(obj).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()
 
 
 @dataclass(frozen=True)

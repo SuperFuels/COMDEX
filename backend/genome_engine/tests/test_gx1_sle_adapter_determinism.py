@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-import hashlib
-import json
+import os
+
+# MUST be set before importing anything that reads env at import time.
+os.environ["TESSARIS_DETERMINISTIC_TIME"] = "1"
+os.environ["TESSARIS_TEST_QUIET"] = "1"
 
 from backend.genome_engine.sle_adapter import SLEAdapter
+from backend.genome_engine.stable_json import stable_hash
 
 
-def _stable_hash(obj) -> str:
-    blob = json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
-
-
-def test_sle_adapter_deterministic_trace():
+def test_sle_adapter_deterministic_trace() -> None:
     thresholds = {"warmup_ticks": 16, "eval_ticks": 32}
     scenarios = [
         {"scenario_id": "matched_key", "mode": "matched", "k": 1},
@@ -24,7 +23,7 @@ def test_sle_adapter_deterministic_trace():
     a2 = SLEAdapter(seed=7, dt=1 / 30)
     r2 = a2.run(scenarios=scenarios, thresholds=thresholds)
 
-    assert _stable_hash(r1["trace"]) == _stable_hash(r2["trace"])
+    assert stable_hash(r1["trace"]) == stable_hash(r2["trace"])
 
     ev0 = r1["trace"][0]
     for k in (

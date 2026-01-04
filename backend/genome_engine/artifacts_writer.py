@@ -1,10 +1,12 @@
 from __future__ import annotations
-from typing import Any, Dict, List
+
+from typing import Any, Dict
 import os
 import hashlib
 from pathlib import Path
 
 from .stable_json import stable_stringify
+
 
 def _sha256_file(path: Path) -> str:
     h = hashlib.sha256()
@@ -13,9 +15,11 @@ def _sha256_file(path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+
 def _write_text(path: Path, s: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(s, encoding="utf-8")
+
 
 def _git_rev(repo_root: Path) -> str:
     git_dir = repo_root / ".git"
@@ -29,7 +33,17 @@ def _git_rev(repo_root: Path) -> str:
             return ref_path.read_text(encoding="utf-8").strip()
     return ref[:64] if ref else "UNKNOWN"
 
-def write_artifacts(*, repo_root: str, phase_root: str, run_id: str, config: Dict[str, Any], metrics: Dict[str, Any], trace: Any, replay_bundle: Dict[str, Any]) -> Dict[str, str]:
+
+def write_artifacts(
+    *,
+    repo_root: str,
+    phase_root: str,
+    run_id: str,
+    config: Dict[str, Any],
+    metrics: Dict[str, Any],
+    trace: Any,
+    replay_bundle: Dict[str, Any],
+) -> Dict[str, str]:
     repo = Path(repo_root)
     root = Path(phase_root)
     run_dir = root / "runs" / run_id
@@ -54,8 +68,6 @@ RUN_ID="$(cat "$ROOT/runs/LATEST_RUN_ID.txt")"
 ```
 """
     _write_text(root / "AUDIT_REGISTRY.md", audit)
-
-
 
     # Evidence block (phase-level)
     (root / "docs").mkdir(parents=True, exist_ok=True)
@@ -85,7 +97,8 @@ RUN_ID="$(cat "$ROOT/runs/LATEST_RUN_ID.txt")"
 - Computational benchmark harness with engineered baselines.
 - No wetlab / biological efficacy claim is made by this phase.
 """
-    _write_text(root / "docs" / "P21_GX1_EVIDENCE_BLOCK.md", evidence)
+    evidence_path = root / "docs" / "P21_GX1_EVIDENCE_BLOCK.md"
+    _write_text(evidence_path, evidence)
 
     _write_text(run_dir / "GIT_REV.txt", git_rev + "\n")
     _write_text(run_dir / "CONFIG.json", stable_stringify(config) + "\n")
@@ -132,11 +145,15 @@ python -m backend.genome_engine.run_genomics_benchmark --config "{(run_dir / "CO
 
     idx_sum = _sha256_file(root / "ARTIFACTS_INDEX.md")
     ptr_sum = _sha256_file(root / "runs" / "LATEST_RUN_ID.txt")
-    _write_text(root / "ARTIFACTS_INDEX.sha256", f"{idx_sum}  ARTIFACTS_INDEX.md\n{ptr_sum}  runs/LATEST_RUN_ID.txt\n")
+    _write_text(
+        root / "ARTIFACTS_INDEX.sha256",
+        f"{idx_sum}  ARTIFACTS_INDEX.md\n{ptr_sum}  runs/LATEST_RUN_ID.txt\n",
+    )
 
     files = [
         root / "GIT_REV.txt",
         root / "AUDIT_REGISTRY.md",
+        evidence_path,
         root / "runs" / "LATEST_RUN_ID.txt",
         run_dir / "GIT_REV.txt",
         run_dir / "cmd" / "repro.sh",
@@ -147,6 +164,9 @@ python -m backend.genome_engine.run_genomics_benchmark --config "{(run_dir / "CO
         root / "ARTIFACTS_INDEX.md",
         root / "ARTIFACTS_INDEX.sha256",
     ]
+    # Keep manifest stable if duplicates ever creep in.
+    files = list(dict.fromkeys(files))
+
     (root / "checksums").mkdir(parents=True, exist_ok=True)
     lines = []
     for p in files:
@@ -156,7 +176,7 @@ python -m backend.genome_engine.run_genomics_benchmark --config "{(run_dir / "CO
 
     return {"git_rev": git_rev, "phase_root": str(root), "run_dir": str(run_dir)}
 
+
 def get_git_rev(repo_root: str) -> str:
     """Public helper for consistent git_rev provenance."""
-    from pathlib import Path
     return _git_rev(Path(repo_root))
