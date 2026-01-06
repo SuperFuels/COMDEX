@@ -17,11 +17,37 @@ Author: Tessaris Research Group
 Date: Phases 36A-40C (October 2025)
 """
 
-import json, time, logging
+from __future__ import annotations
+
+import json
+import logging
+import os
+import time
+import hashlib
 from pathlib import Path
 from dataclasses import dataclass, asdict
+from typing import Optional
 
 logger = logging.getLogger(__name__)
+
+# ─────────────────────────────────────────────
+# Determinism / quiet gates
+# ─────────────────────────────────────────────
+def _deterministic_time_enabled() -> bool:
+    return os.getenv("TESSARIS_DETERMINISTIC_TIME") == "1"
+
+def _quiet_enabled() -> bool:
+    return os.getenv("TESSARIS_TEST_QUIET") == "1"
+
+def _now() -> float:
+    # Deterministic mode: no wall clock.
+    return 0.0 if _deterministic_time_enabled() else time.time()
+
+def _stable_int_from_text(text: str) -> int:
+    # Avoid Python's hash() (salted / process-dependent).
+    h = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    return int(h[:16], 16)  # stable 64-bit-ish slice
+
 
 # ─────────────────────────────────────────────
 # Data Model
@@ -36,7 +62,8 @@ class PhotonRecord:
     projection: float
     superposition: float
     entanglement: float
-    timestamp: float = time.time()
+    # Never evaluate time.time() at import time; set at creation time via _now().
+    timestamp: float = 0.0
 
 
 # ─────────────────────────────────────────────
@@ -59,7 +86,7 @@ class PhotonAKGBridge:
     # ─────────────────────────────────────────
     def encode_concept(self, concept_name: str) -> PhotonRecord:
         """Generate deterministic pseudo-photonic parameters from a concept name."""
-        h = abs(hash(concept_name)) % 100000
+        h = _stable_int_from_text(concept_name) % 100000
         return PhotonRecord(
             concept_id=concept_name,
             wavelength=(h % 997) / 997.0,
@@ -68,6 +95,7 @@ class PhotonAKGBridge:
             projection=0.5,
             superposition=0.7,
             entanglement=0.6,
+            timestamp=_now(),
         )
 
     # ─────────────────────────────────────────
@@ -84,7 +112,8 @@ class PhotonAKGBridge:
         """Public API - encodes and serializes a concept's photon record."""
         rec = self.encode_concept(concept_name)
         fpath = self.serialize(rec)
-        print(f"✨ Photon record exported -> {fpath}")
+        if not _quiet_enabled():
+            print(f"✨ Photon record exported -> {fpath}")
         return rec
 
     # ─────────────────────────────────────────
@@ -94,7 +123,17 @@ class PhotonAKGBridge:
         """Export semantic resonance field into Photon Language form (.qphoto)."""
         base_dir = self.output_dir
         base_dir.mkdir(parents=True, exist_ok=True)
-        fname = filename or f"resonance_field_{int(time.time())}.qphoto"
+
+        if filename:
+            fname = filename
+        else:
+            if _deterministic_time_enabled():
+                # Deterministic filename (digest of stable-ish JSON)
+                blob = json.dumps(field, sort_keys=True, separators=(",", ":"))
+                fname = f"resonance_field_{hashlib.sha256(blob.encode('utf-8')).hexdigest()[:16]}.qphoto"
+            else:
+                fname = f"resonance_field_{int(time.time())}.qphoto"
+
         fpath = base_dir / fname
 
         # Support both clusters or atoms as source
@@ -111,9 +150,9 @@ class PhotonAKGBridge:
             })
 
         photon_field = {
-            "timestamp": field.get("timestamp", time.time()),
+            "timestamp": field.get("timestamp", _now()),
             "semantic_coherence": field.get("semantic_coherence", 1.0),
-            "photons": photons
+            "photons": photons,
         }
 
         with open(fpath, "w") as f:
@@ -132,9 +171,6 @@ class PhotonAKGBridge:
         * emit(packet_dict)
         * emit("context_snapshot", payload_dict)
         """
-        import time, json
-        from pathlib import Path
-
         # Normalize and guarantee 'type' exists
         if payload is None and isinstance(event_type, dict):
             packet = event_type
@@ -143,13 +179,14 @@ class PhotonAKGBridge:
             packet = payload or {}
             packet["type"] = event_type or packet.get("type", "unlabeled")
 
-        # Safe defaults
-        packet["timestamp"] = packet.get("timestamp", time.time())
+        # Safe defaults (deterministic time when enabled)
+        packet["timestamp"] = packet.get("timestamp", _now())
         packet.setdefault("target", "unknown")
         packet.setdefault("source", "ContextAKGBridge")
 
         msg = f"[PAB] Emitting {packet.get('type', 'unlabeled')} -> {packet.get('target', 'unknown')}"
-        print(msg)
+        if not _quiet_enabled():
+            print(msg)
         try:
             logger.info(msg)
         except Exception:
@@ -167,13 +204,24 @@ class PhotonAKGBridge:
             json.dump(existing, f, indent=2)
 
         return True
+
+
 # ─────────────────────────────────────────────
-try:
-    PAB
-except NameError:
-    try:
-        PAB = PhotonAKGBridge()
-        print("🔗 PhotonAKGBridge global instance initialized as PAB")
-    except Exception as e:
-        print(f"⚠️ Could not initialize PAB: {e}")
-        PAB = None
+# Lazy singleton (NO import-time runtime bring-up)
+# ─────────────────────────────────────────────
+_PAB: Optional[PhotonAKGBridge] = None
+
+def get_PAB() -> PhotonAKGBridge:
+    global _PAB
+    if _PAB is None:
+        _PAB = PhotonAKGBridge()
+        if not _quiet_enabled():
+            print("🔗 PhotonAKGBridge global instance initialized as PAB (lazy)")
+    return _PAB
+
+# Back-compat: allow `from ... import PAB` without triggering init.
+class _PABProxy:
+    def __getattr__(self, name):
+        return getattr(get_PAB(), name)
+
+PAB = _PABProxy()

@@ -1,29 +1,48 @@
 # /workspaces/COMDEX/backend/modules/sqi/sqi_container_registry.py
 # Minimal, UCS-friendly registry for SQI + priority scoring (CR8)
+#
+# pytest / determinism goals:
+# - NO import-time runtime bring-up / KG writes
+# - NO wall-clock dependence when TESSARIS_DETERMINISTIC_TIME=1
+# - NO noisy prints when TESSARIS_TEST_QUIET=1
 
 from __future__ import annotations
 
+import logging
+import os
 from datetime import datetime
 from math import exp
 from typing import Any, Dict, List, Optional, Set, Union
 
-from backend.modules.codex.codex_trace import CodexTrace  # kept (may be used by downstream imports)
+logger = logging.getLogger(__name__)
 
-from backend.modules.validation.symbolic_container_validator import validate_symbolic_fields
-from backend.modules.symbolic.symbol_tree_generator import (
-    build_tree_from_container,
-    export_tree_to_kg,
-)
+# kept (may be used by downstream imports) but never required here
+try:
+    from backend.modules.codex.codex_trace import CodexTrace  # noqa: F401
+except Exception:
+    CodexTrace = None  # type: ignore
 
 # --- Optional UCS address registry hook ------------------------------------
 try:
-    # Reuse your UCS address registry if present
     from backend.modules.dimensions.universal_container_system.address_registry import (
         register_container_address as _registry_register,
     )
 except Exception:
-    def _registry_register(*args, **kwargs):  # no-op fallback
+    def _registry_register(*args, **kwargs):  # type: ignore
         return {}
+
+
+def _deterministic_time_enabled() -> bool:
+    return os.getenv("TESSARIS_DETERMINISTIC_TIME") == "1"
+
+
+def _quiet_enabled() -> bool:
+    return os.getenv("TESSARIS_TEST_QUIET") == "1"
+
+
+def _utcnow() -> datetime:
+    # Deterministic mode: no wall clock.
+    return datetime(1970, 1, 1) if _deterministic_time_enabled() else datetime.utcnow()
 
 
 SQI_NS = "ucs://knowledge"
@@ -37,7 +56,13 @@ _DEFAULT_WEIGHTS = {
 }
 
 
-def _safe_registry_register(container_id: str, address: str, *, meta: Optional[Dict[str, Any]] = None, kind: str = "container") -> None:
+def _safe_registry_register(
+    container_id: str,
+    address: str,
+    *,
+    meta: Optional[Dict[str, Any]] = None,
+    kind: str = "container",
+) -> None:
     """
     Best-effort adapter for different register_container_address signatures.
     Supports either:
@@ -63,41 +88,59 @@ def _safe_registry_register(container_id: str, address: str, *, meta: Optional[D
 
 
 def register_container(container: Union[Dict[str, Any], Any]) -> None:
-    print("[🔁] Live register_container() called")
+    """
+    Best-effort container registration + optional symbolic tree export.
 
+    IMPORTANT:
+    - No KG export / heavy imports unless explicitly enabled.
+    - All side effects gated so tests stay clean.
+    """
     # --- Step 1: Extract container ID safely ---
     if isinstance(container, dict):
-        # 🧪 Validate raw JSON structure
-        if not validate_symbolic_fields(container):
+        # validate_symbolic_fields can be heavy; import only when needed
+        try:
+            from backend.modules.validation.symbolic_container_validator import validate_symbolic_fields
+        except Exception:
+            validate_symbolic_fields = None  # type: ignore
+
+        if callable(validate_symbolic_fields) and not validate_symbolic_fields(container):
             raise ValueError(
-                "❌ Symbolic container fields are out of sync (missing 'id', 'glyphs', or symbolic header)"
+                "Symbolic container fields are out of sync (missing 'id', 'glyphs', or symbolic header)"
             )
         container_id = container.get("id") or container.get("containerId")
     else:
-        # ✅ UCSBaseContainer or compatible runtime object
         container_id = getattr(container, "id", None)
         if not container_id and hasattr(container, "container_id"):
             container_id = getattr(container, "container_id")
 
     if not container_id:
-        raise ValueError("❌ Container is missing a valid 'id' or 'container_id'")
+        raise ValueError("Container is missing a valid 'id' or 'container_id'")
 
     # --- Step 2: Register with SQI symbolic container namespace (best-effort) ---
-    # Use a concrete address (not just the namespace root)
     addr = f"{SQI_NS}/containers/{container_id}"
     _safe_registry_register(container_id, addr, meta={"created_by": "SQI"}, kind="container")
-    print(f"[🧠] Registered symbolic container: {container_id} @ {addr}")
 
-    # --- Step 3: Build and export Symbolic Meaning Tree ---
+    if not _quiet_enabled():
+        logger.info(f"[SQIRegistry] registered container: {container_id} @ {addr}")
+
+    # --- Step 3: Optional Symbolic Meaning Tree export (OFF by default) ---
+    # Enable explicitly in runtime: SQI_AUTO_EXPORT_TREE=1
+    if os.getenv("SQI_AUTO_EXPORT_TREE") != "1":
+        return
+    if _quiet_enabled() or _deterministic_time_enabled():
+        # Never export during tests / deterministic runs.
+        return
+
     try:
+        from backend.modules.symbolic.symbol_tree_generator import build_tree_from_container, export_tree_to_kg
         tree = build_tree_from_container(container_id)
         if tree and getattr(tree, "root", None):
             export_tree_to_kg(tree)
-            print(f"[🌳] Symbolic Tree auto-exported to KG for container: {container_id}")
+            logger.info(f"[SQIRegistry] exported symbolic tree -> KG for: {container_id}")
         else:
-            print(f"[⚠️] Empty symbolic tree generated for: {container_id}")
+            logger.warning(f"[SQIRegistry] empty symbolic tree for: {container_id}")
     except Exception as e:
-        print(f"[!!️] Symbolic Tree export failed for {container_id}: {e}")
+        logger.warning(f"[SQIRegistry] tree export failed for {container_id}: {e}")
 
 
 def _age_hours(iso: Optional[str]) -> float:
@@ -106,7 +149,7 @@ def _age_hours(iso: Optional[str]) -> float:
         return 1e9
     try:
         dt = datetime.fromisoformat(iso.replace("Z", ""))
-        delta = datetime.utcnow() - dt
+        delta = _utcnow() - dt
         return max(0.0, delta.total_seconds() / 3600.0)
     except Exception:
         return 1e9
@@ -120,37 +163,19 @@ class SQIContainerRegistry:
 
     # --- CR8 route weights (hot-tunable at runtime) -------------------------
     _route_weights = {
-        "domain_match": 0.6,    # exact or prefix domain match
-        "kind_match":   0.25,   # type/kind alignment
-        "freshness":    0.10,   # newer last_updated preferred
-        "priority_hint": 0.05,  # optional meta.priority boost
-        "size_penalty": 0.00,   # optional negative weight (larger = worse)
+        "domain_match": 0.6,     # exact or prefix domain match
+        "kind_match":   0.25,    # type/kind alignment
+        "freshness":    0.10,    # newer last_updated preferred
+        "priority_hint": 0.05,   # optional meta.priority boost
+        "size_penalty": 0.00,    # optional negative weight (larger = worse)
     }
-
-    # --- global access / safe singleton ------------------------------------
-    _global_instance: Optional["SQIContainerRegistry"] = None
 
     def __init__(self):
         self.index: Dict[str, Dict[str, Any]] = {}  # cid -> entry
         self.by_domain: Dict[str, Set[str]] = {}    # "math.calculus" -> {cid,...}
 
-    @classmethod
-    def get_instance(cls) -> "SQIContainerRegistry":
-        if cls._global_instance is None:
-            cls._global_instance = cls()
-        return cls._global_instance
-
-    @classmethod
-    def keys(cls) -> List[str]:
-        return list(cls.get_instance().index.keys())
-
-    @classmethod
-    def get_all_container_ids(cls) -> List[str]:
-        return list(cls.get_instance().index.keys())
-
     # --- addressing ---------------------------------------------------------
     def _addr(self, kind: str, domain: str, name: str) -> str:
-        # ucs://knowledge/{facts|projects|notes|...}/{domain}/{name}
         kind_map = {
             "fact": "facts",
             "project": "projects",
@@ -165,7 +190,6 @@ class SQIContainerRegistry:
     def rehydrate_from_ucs(self) -> int:
         """
         Rebuild the in-memory registry from UCS runtime if available.
-        Useful after process restarts.
         """
         try:
             from backend.modules.dimensions.universal_container_system import ucs_runtime
@@ -201,13 +225,12 @@ class SQIContainerRegistry:
         """
         Create or update a minimal registry entry for a container; idempotent.
         """
-        cid = name  # keep cid human; UCS can also stamp address elsewhere
+        cid = name
         address = self._addr(kind, domain, name)
-        now = datetime.utcnow().isoformat()
+        now = _utcnow().isoformat() + ("Z" if not _deterministic_time_enabled() else "")
 
-        # Start with GHX defaults, allowing overrides via meta
         ghx_meta = {"hover": True, "collapsed": True}
-        if meta and "ghx" in meta and isinstance(meta["ghx"], dict):
+        if meta and isinstance(meta.get("ghx"), dict):
             ghx_meta.update(meta["ghx"])
 
         entry = {
@@ -227,7 +250,6 @@ class SQIContainerRegistry:
         self.index[cid] = entry
         self.by_domain.setdefault(domain, set()).add(cid)
 
-        # publish to global address registry (best-effort)
         try:
             _safe_registry_register(cid, address, meta=entry["meta"], kind="container")
         except Exception:
@@ -243,20 +265,17 @@ class SQIContainerRegistry:
         current_meta = entry.get("meta", {}) or {}
         updated_meta = {**current_meta, **(patch or {})}
 
-        # Update timestamp
-        updated_meta["last_updated"] = datetime.utcnow().isoformat()
+        updated_meta["last_updated"] = _utcnow().isoformat() + ("Z" if not _deterministic_time_enabled() else "")
 
-        # --- M1a: Collapsibility State Injection ---
+        # Collapsibility state injection
         updated_meta.setdefault("collapsible", True)
         updated_meta.setdefault("default_state", "collapsed")
 
-        # Inject state flags for GHX and HUD logic
         updated_meta["state_flags"] = {
             "collapsed": updated_meta["default_state"] == "collapsed",
             "hover_preview": bool(updated_meta.get("hover_preview", False)),
         }
 
-        # Ensure GHX hover + collapse preview is set
         ghx_meta = updated_meta.get("ghx", {}) or {}
         ghx_meta.setdefault("hover", True)
         ghx_meta.setdefault("collapsed", updated_meta["default_state"] == "collapsed")
@@ -277,16 +296,11 @@ class SQIContainerRegistry:
         container: Union[Dict[str, Any], Any],
         goal: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """
-        Public evaluation hook for external systems (Codex, CLI, GHX, etc.)
-        Returns a score dict with debugging fields.
-        """
         if not container:
             return {"sqi_score": 0.0, "reason": "empty"}
 
         goal = goal or {}
 
-        # Handle meta field safely (works for dict or object)
         if isinstance(container, dict):
             domain = container.get("domain")
             kind = container.get("kind")
@@ -296,11 +310,7 @@ class SQIContainerRegistry:
             kind = getattr(container, "kind", None)
             meta = getattr(container, "meta", None) or {}
 
-        entry = {
-            "domain": domain,
-            "kind": kind,
-            "meta": meta,
-        }
+        entry = {"domain": domain, "kind": kind, "meta": meta}
 
         score = self._score(entry, goal)
         hover = bool((entry["meta"].get("ghx", {}) or {}).get("hover", False))
@@ -322,28 +332,19 @@ class SQIContainerRegistry:
         goal: Dict[str, Any],
         w: Optional[Dict[str, float]] = None,
     ) -> float:
-        """
-        Score a candidate container against a goal.
-
-        goal example:
-          {"domain": "physics.em", "kind": "fact", "caps": ["lean.replay"], "tags": ["maxwell"]}
-        Uses only cheap, local meta; safe default weights.
-        """
         w = {**_DEFAULT_WEIGHTS, **(w or {})}
         meta = (entry.get("meta") or {})
         domain = entry.get("domain")
         last_updated = meta.get("last_updated")
         hot = bool(meta.get("hot"))
-        size = int((meta.get("stats") or {}).get("glyphs", 0))  # optional
+        size = int((meta.get("stats") or {}).get("glyphs", 0))
 
-        # terms
         domain_match = 1.0 if domain and goal.get("domain") == domain else 0.0
 
-        # freshness: convert age to [0..1] via soft-decay; ~3-day half-life
         age_h = _age_hours(last_updated)
         freshness = exp(-age_h / 72.0)
 
-        size_term = size / 1000.0  # normalize; 1000 glyphs == 1.0
+        size_term = size / 1000.0
         hot_term = 1.0 if hot else 0.0
 
         return (
@@ -355,13 +356,12 @@ class SQIContainerRegistry:
 
     # --- CR8: tunable weights API -------------------------------------------
     def set_route_weights(self, **weights):
-        """Hot-tune scoring weights (used by /sqi/route/weights)."""
         for k, v in weights.items():
             if k in self._route_weights and isinstance(v, (int, float)):
                 self._route_weights[k] = float(v)
         return dict(self._route_weights)
 
-    # ---- selection API (new) -----------------------------------------------
+    # ---- selection API ------------------------------------------------------
     def choose_for(
         self,
         *,
@@ -371,10 +371,6 @@ class SQIContainerRegistry:
         meta: Optional[Dict[str, Any]] = None,
         **kwargs,
     ):
-        """
-        Pick the best materialized container for {domain, kind[, topic]}.
-        Returns an entry dict {'id','domain','kind','meta':{...}}.
-        """
         want_domain = (domain or topic or "") or ""
         cands = self._collect_candidates()
         if not cands:
@@ -395,30 +391,18 @@ class SQIContainerRegistry:
 
         return scored[0][1]
 
-    # Back-compat for older internal callers that used _choose_for_topic()
     def _choose_for_topic(self, topic: str, kind: str = "fact", meta: Optional[Dict[str, Any]] = None, **kwargs):
         return self.choose_for(domain=topic, kind=kind, meta=meta, **kwargs)
 
     # ---- helpers ------------------------------------------------------------
     def _collect_candidates(self) -> List[Dict[str, Any]]:
-        """
-        Gather entries from our registry and (optionally) UCS runtime.
-        Normalizes each to: {'id','domain','kind','meta':{...}}
-        """
         out: List[Dict[str, Any]] = []
 
-        # 1) SQI registry's own entries (support several internal names)
-        entry_maps = []
-        for attr in ("entries", "_entries", "registry", "_registry", "index", "_index"):
-            m = getattr(self, attr, None)
-            if isinstance(m, dict):
-                entry_maps.append(m)
-
-        for m in entry_maps:
-            for _, v in m.items():
-                e = self._normalize_entry(v)
-                if e:
-                    out.append(e)
+        # 1) entries we already hold
+        for _, v in (self.index or {}).items():
+            e = self._normalize_entry(v)
+            if e:
+                out.append(e)
 
         # 2) UCS runtime (if available)
         try:
@@ -445,7 +429,7 @@ class SQIContainerRegistry:
                         uc = getattr(ucs_runtime, "containers", {}).get(cid)
                     if not uc:
                         continue
-                    norm = self._normalize_entry(uc)
+                    norm = self._normalize_entry(uc if isinstance(uc, dict) else {"id": cid, "meta": {}})
                     if norm:
                         out.append(norm)
                 except Exception:
@@ -453,21 +437,14 @@ class SQIContainerRegistry:
         except Exception:
             pass
 
-        # Deduplicate by id (prefer the first seen)
         uniq: Dict[str, Dict[str, Any]] = {}
         for e in out:
-            if not e:
-                continue
             eid = e.get("id")
             if eid and eid not in uniq:
                 uniq[eid] = e
         return list(uniq.values())
 
     def _normalize_entry(self, raw: Dict[str, Any] | None) -> Optional[Dict[str, Any]]:
-        """
-        Accepts either a registry entry or a UCS container dict and
-        returns {'id','domain','kind','meta':{...}} or None.
-        """
         if not isinstance(raw, dict):
             return None
 
@@ -480,13 +457,11 @@ class SQIContainerRegistry:
 
         meta = dict(raw.get("meta", {}) or {})
 
-        # Provide minimal ghx defaults if absent
         ghx = meta.get("ghx") or {}
         ghx.setdefault("hover", True)
         ghx.setdefault("collapsed", True)
         meta["ghx"] = ghx
 
-        # Ensure an address (best-effort)
         if "address" not in meta:
             if domain and kind:
                 meta["address"] = f"ucs://knowledge/{kind}s/{domain}/{eid}"
@@ -496,13 +471,9 @@ class SQIContainerRegistry:
         return {"id": eid, "domain": domain, "kind": kind, "meta": meta}
 
     def _score_entry(self, e: Dict[str, Any], *, want_domain: str, want_kind: str, topic: str | None) -> float:
-        """
-        Compute a weighted score for a candidate entry.
-        """
         w = self._route_weights
         s = 0.0
 
-        # Domain match: exact = 1.0, prefix = 0.6, otherwise small if same top-level
         ed = (e.get("domain") or "") or ""
         if ed == want_domain:
             s += w["domain_match"] * 1.0
@@ -511,39 +482,53 @@ class SQIContainerRegistry:
         elif ed.split(".")[0:1] == want_domain.split(".")[0:1] and ed and want_domain:
             s += w["domain_match"] * 0.35
 
-        # Kind match
         if (e.get("kind") or "") == (want_kind or ""):
             s += w["kind_match"] * 1.0
 
-        # Freshness (ISO timestamp in meta.last_updated)
         fresh = 0.0
         try:
-            import datetime as _dt
             ts = (e.get("meta", {}) or {}).get("last_updated")
             if ts:
-                dt = _dt.datetime.fromisoformat(ts.replace("Z", ""))
-                age = (_dt.datetime.utcnow() - dt).total_seconds()
+                dt = datetime.fromisoformat(ts.replace("Z", ""))
+                age = (_utcnow() - dt).total_seconds()
                 fresh = max(0.0, min(1.0, 1.0 - (age / (30 * 24 * 3600))))
         except Exception:
             pass
         s += w["freshness"] * fresh
 
-        # Priority hint
         pri = float((e.get("meta", {}) or {}).get("priority", 0.0) or 0.0)
         s += w["priority_hint"] * max(0.0, min(1.0, pri))
 
-        # Size penalty (optional; negative weight)
         size = float((e.get("meta", {}) or {}).get("size", 0.0) or 0.0)
         s -= w["size_penalty"] * max(0.0, size)
 
-        # Topic hint (if provided and entry advertises topics list in meta)
         if topic:
             topics = (e.get("meta", {}) or {}).get("topics", [])
             if isinstance(topics, list) and topic in topics:
-                s += 0.05  # tiny bonus
+                s += 0.05
 
         return s
 
 
-# Singleton
-sqi_registry = SQIContainerRegistry()
+# ─────────────────────────────────────────────
+# Lazy singleton (NO import-time bring-up)
+# ─────────────────────────────────────────────
+_REGISTRY: Optional[SQIContainerRegistry] = None
+
+
+def get_sqi_registry() -> SQIContainerRegistry:
+    global _REGISTRY
+    if _REGISTRY is None:
+        _REGISTRY = SQIContainerRegistry()
+        if not _quiet_enabled():
+            logger.info("[SQIRegistry] initialized (lazy)")
+    return _REGISTRY
+
+
+# Back-compat: allow `from ... import sqi_registry` without triggering init.
+class _RegistryProxy:
+    def __getattr__(self, name: str):
+        return getattr(get_sqi_registry(), name)
+
+
+sqi_registry = _RegistryProxy()

@@ -26,7 +26,25 @@
     "config": { "type": "object" },
     "metrics": { "type": "object" },
 
-    "trace_digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    "trace_digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+
+    "exports": {
+      "type": "object",
+      "properties": {
+        "ledger": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "ledger_path": { "type": "string" },
+            "ledger_count": { "type": "integer", "minimum": 0 },
+            "ledger_digest": { "type": "string" }
+          },
+          "required": ["enabled", "ledger_path", "ledger_count", "ledger_digest"]
+        }
+      },
+      "additionalProperties": true
+    }
   },
   "additionalProperties": true
 }

@@ -8,8 +8,8 @@ python -m backend.genome_engine.run_genomics_benchmark --config <CONFIG.json>
 ```
 
 ## Latest run
-RUN_ID: P21_GX1_f9fba438_S1337
-GIT_REV: 87975b9e13a52f8f64ba3fae37391916bdf8225a
+RUN_ID: P21_GX1_77481708_S1337
+GIT_REV: 6141b8f41cf41982de4228e109389311ed1ce318
 
 ## Verify
 ```bash

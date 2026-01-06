@@ -31,6 +31,112 @@
     },
     {
       "type": "object",
+      "required": ["scenario_id", "trace_kind", "rho_trace"],
+      "properties": {
+        "scenario_id": { "type": "string", "minLength": 1 },
+        "trace_kind": { "const": "rho_trace_eval_window" },
+        "warmup_ticks": { "type": "integer", "minimum": 0 },
+        "eval_ticks": { "type": "integer", "minimum": 0 },
+        "rho_trace": {
+          "type": "array",
+          "items": { "type": "number" }
+        }
+      },
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "required": [
+        "trace_kind",
+        "tick",
+        "t",
+        "event_type",
+        "source",
+        "target",
+        "qscore",
+        "drift",
+        "scenario_id",
+        "channel",
+        "meta"
+      ],
+      "properties": {
+        "trace_kind": { "const": "beam_event" },
+        "tick": { "type": "integer", "minimum": 0 },
+        "t": { "type": ["number", "integer"] },
+        "event_type": { "type": "string", "minLength": 1 },
+        "source": { "type": "string" },
+        "target": { "type": "string" },
+        "qscore": { "type": "number" },
+        "drift": { "type": "number" },
+        "scenario_id": { "type": "string", "minLength": 1 },
+        "channel": { "type": "integer", "minimum": 0 },
+        "meta": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+
+    {
+      "type": "object",
+      "required": ["trace_kind", "scenario_id", "mode", "channel", "sqi"],
+      "properties": {
+        "trace_kind": { "const": "sqi_bundle" },
+        "scenario_id": { "type": "string", "minLength": 1 },
+        "mode": { "type": "string", "minLength": 1 },
+        "channel": { "type": "integer", "minimum": 0 },
+        "sqi": {
+          "type": "object",
+          "required": ["schemaVersion", "status", "qscore", "drift", "gate01", "reasons", "thresholds"],
+          "properties": {
+            "schemaVersion": { "const": "GX1_SQI_BUNDLE_V0" },
+            "scenario_id": { "type": "string", "minLength": 1 },
+            "mode": { "type": "string" },
+            "channel": { "type": "integer", "minimum": 0 },
+            "status": { "type": "string", "enum": ["OK", "FAIL"] },
+
+            "qscore": {
+              "type": "object",
+              "required": ["mean", "min", "max", "std", "n"],
+              "properties": {
+                "mean": { "type": "number" },
+                "min": { "type": "number" },
+                "max": { "type": "number" },
+                "std": { "type": "number" },
+                "n": { "type": "integer", "minimum": 0 }
+              },
+              "additionalProperties": true
+            },
+
+            "drift": {
+              "type": "object",
+              "required": ["mean", "n"],
+              "properties": {
+                "mean": { "type": "number" },
+                "n": { "type": "integer", "minimum": 0 }
+              },
+              "additionalProperties": true
+            },
+
+            "gate01": { "type": "number" },
+            "reasons": { "type": "array", "items": { "type": "string" } },
+
+            "thresholds": {
+              "type": "object",
+              "properties": {
+                "sqi_mean_min": { "type": "number" },
+                "sqi_min_min": { "type": "number" },
+                "drift_mean_max": { "type": "number" }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+
+    {
+      "type": "object",
       "required": ["event_type"],
       "properties": {
         "event_type": { "const": "trace_meta" },

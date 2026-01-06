@@ -14,6 +14,8 @@ import { useRadioHealth } from "./hooks/useRadioHealth";
 import { KG_API_BASE } from "./utils/kgApiBase";
 import { OWNER_WA } from "./lib/constants";
 import DevTools from "./routes/DevTools";
+import QfcHudPage from "./components/QfcHudPage";
+import QfcBioPage from "./components/QfcBioPage";
 import WalletPanel from "./components/WalletPanel";
 import AdminDashboard from "./routes/AdminDashboard";
 import SettingsPanel from "./components/SettingsPanel";
@@ -35,6 +37,8 @@ type ActiveTab =
   | "chat"
   | "bridge"
   | "devtools"
+  | "qfc-hud"
+  | "qfc-bio"
   | "wallet"
   | "admin"
   | "dev-photon-pos"
@@ -198,6 +202,19 @@ export default function App() {
         return;
       }
 
+      // ✅ QFC PAGES (from DevTools tabs)
+      if (h.startsWith("#/qfc-hud")) {
+        setActive("qfc-hud");
+        document.title = `QFC HUD — Glyph Net`;
+        return;
+      }
+
+      if (h.startsWith("#/qfc-bio")) {
+        setActive("qfc-bio");
+        document.title = `QFC Bio — Glyph Net`;
+        return;
+      }
+
       if (h.startsWith("#/wallet")) {
         setActive("wallet");
         document.title = `Wallet — Glyph Net`;
@@ -226,9 +243,7 @@ export default function App() {
       }
 
       if (h.startsWith("#/wormhole/")) {
-        document.title = `🌀 ${
-          decodeURIComponent(h.split("/").pop() || "")
-        } — Glyph Net`;
+        document.title = `🌀 ${decodeURIComponent(h.split("/").pop() || "")} — Glyph Net`;
         return;
       }
 
@@ -322,6 +337,8 @@ export default function App() {
     | "kg"
     | "settings"
     | "devtools"
+  | "qfc-hud"
+  | "qfc-bio"
     | "chat"
     | "wallet"
     | "admin"
@@ -493,6 +510,10 @@ export default function App() {
             <SettingsPanel /> 
           ) : active === "devtools" ? (
             <DevTools />
+          ) : active === "qfc-hud" ? (
+            <QfcHudPage />
+          ) : active === "qfc-bio" ? (
+            <QfcBioPage />
           ) : active === "dev-photon-pos" ? (
             <PhotonPayPosPanel />
           ) : active === "dev-photon-buyer" ? (

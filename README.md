@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "AUDIT LOCKED 3"
+git commit -m "genome complete"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

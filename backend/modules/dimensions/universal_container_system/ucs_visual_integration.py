@@ -9,10 +9,35 @@ Handles:
     * Backend-safe: stores sync state for frontend GHXVisualizer (React)
 """
 
+from __future__ import annotations
+
+import os
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from backend.modules.dimensions.universal_container_system.ucs_runtime import UCSRuntime
+
+
+# ────────────────────────────────────────────────
+# Quiet gate (tests/imports)
+# ────────────────────────────────────────────────
+_QUIET = os.getenv("TESSARIS_TEST_QUIET", "") == "1"
+
+try:
+    # Prefer shared helper if present (optional).
+    from backend.utils.quiet import qprint as _qprint  # type: ignore
+except Exception:  # pragma: no cover
+    _qprint = None  # type: ignore
+
+
+def _emit(msg: str) -> None:
+    if _QUIET:
+        return
+    if _qprint is not None:
+        _qprint(msg)
+    else:
+        print(msg)
+
 
 class UCSVisualIntegration:
     def __init__(self, runtime: "UCSRuntime"):
@@ -25,11 +50,11 @@ class UCSVisualIntegration:
     # ---------------------------------------------------------
     def inject_into_visualizer(self, visualizer=None):
         """
-        Instead of directly calling frontend GHXVisualizer, 
+        Instead of directly calling frontend GHXVisualizer,
         we log and store geometry metadata for WebSocket or API sync.
         """
         self.synced_geometries = self.runtime.geometry_loader.geometries.copy()
-        print(f"✅ GHX: {len(self.synced_geometries)} geometries stored for frontend GHXVisualizer.")
+        _emit(f"✅ GHX: {len(self.synced_geometries)} geometries stored for frontend GHXVisualizer.")
 
     # ---------------------------------------------------------
     # 🌟 Highlight Containers (Backend Event Log)
@@ -38,7 +63,7 @@ class UCSVisualIntegration:
         """
         Logs highlight events for GHXVisualizer frontend to pick up.
         """
-        print(f"🎨 GHX: Highlight event triggered for container '{container_name}'.")
+        _emit(f"🎨 GHX: Highlight event triggered for container '{container_name}'.")
         # Store last highlight event for frontend pull/WebSocket
         self.runtime.last_highlighted_container = container_name
 
@@ -50,4 +75,4 @@ class UCSVisualIntegration:
         Mirror loaded UCS containers for GHXVisualizer (React frontend).
         """
         self.synced_containers = self.runtime.containers.copy()
-        print(f"🔄 GHX: Synced {len(self.synced_containers)} UCS containers for GHXVisualizer.")
+        _emit(f"🔄 GHX: Synced {len(self.synced_containers)} UCS containers for GHXVisualizer.")

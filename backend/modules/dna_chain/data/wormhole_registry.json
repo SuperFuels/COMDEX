@@ -257,5 +257,33 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "gx1:sqi:99daa98e8cfc:matched_key:job0->ucs_hub": {
+    "from": "gx1:sqi:99daa98e8cfc:matched_key:job0",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "gx1:sqi:99daa98e8cfc:mismatched_key:job0->ucs_hub": {
+    "from": "gx1:sqi:99daa98e8cfc:mismatched_key:job0",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "gx1:sqi:99daa98e8cfc:multiplex_k2:job0->ucs_hub": {
+    "from": "gx1:sqi:99daa98e8cfc:multiplex_k2:job0",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "gx1:sqi:99daa98e8cfc:mutation_ch0_sev512:job0->ucs_hub": {
+    "from": "gx1:sqi:99daa98e8cfc:mutation_ch0_sev512:job0",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }

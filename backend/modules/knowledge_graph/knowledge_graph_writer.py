@@ -42,7 +42,7 @@ from backend.modules.dimensions.universal_container_system.ucs_runtime import uc
 from backend.modules.knowledge_graph.indexes.trace_index import inject_trace_event
 from backend.modules.codex.codex_metrics import CodexMetrics
 codex_metrics = CodexMetrics()  # instantiate singleton instance
-from backend.modules.glyphwave.qwave.qwave_writer import collect_qwave_beams, export_qwave_beams
+from backend.modules.glyphwave.qwave.qwave_writer import collect_qwave_beams
 
 # ✅ Knowledge graph and indexing
 from backend.modules.dna_chain.container_index_writer import add_to_index
@@ -1980,15 +1980,6 @@ def export_qwave_beams(container: dict, beams: list, context: dict | None = None
     container.setdefault("symbolic", {})
     container["symbolic"]["qwave_beams"] = list(normalized)
 
-# ...later inside KnowledgeGraphWriter.export_pack(...)
-try:
-    container_id = container.get("id")
-    if container_id and _qwave_collect_impl:
-        beams = _qwave_collect_impl(container_id)
-        export_qwave_beams(container, beams, context={"frame": "mutated"})
-        print(f"📡 Injected {len(beams)} QWave beams into container during KG export.")
-except Exception as e:
-    print(f"⚠️ Failed to inject QWave beams in KGWriter: {e}")
     
 # ──────────────────────────────
 # Harmonized Atom Commit Adapter

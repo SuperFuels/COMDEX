@@ -1,6 +1,4 @@
-# ============================================================
-# 📁 backend/modules/sqi/entangler_engine.py
-# ============================================================
+from __future__ import annotations
 
 """
 EntanglerEngine
@@ -11,7 +9,13 @@ Manages non-local relationships between Q-Glyphs and provides
 fast lookup utilities for collapse propagation and observer logic.
 """
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
+import os
+
+
+def _quiet_enabled() -> bool:
+    return os.getenv("TESSARIS_TEST_QUIET") == "1" or os.getenv("TESSARIS_DETERMINISTIC_TIME") == "1"
+
 
 class EntanglerEngine:
     """
@@ -23,10 +27,7 @@ class EntanglerEngine:
         self.entangled_pairs: List[Tuple[str, str]] = []
         self.entanglement_map: Dict[str, List[str]] = {}
 
-    # ──────────────────────────────────────────────
-    #  Core Entanglement Operations
-    # ──────────────────────────────────────────────
-    def entangle(self, glyph_a: str, glyph_b: str):
+    def entangle(self, glyph_a: str, glyph_b: str) -> None:
         """Entangle two glyph IDs bidirectionally."""
         self.entangled_pairs.append((glyph_a, glyph_b))
         self.entanglement_map.setdefault(glyph_a, []).append(glyph_b)
@@ -40,25 +41,21 @@ class EntanglerEngine:
         """Check whether two glyphs are entangled."""
         return glyph_b in self.entanglement_map.get(glyph_a, [])
 
-    def break_entanglement(self, glyph_id: str):
+    def break_entanglement(self, glyph_id: str) -> None:
         """Remove all entanglements for a given glyph."""
         linked = self.entanglement_map.pop(glyph_id, [])
         for other in linked:
             if other in self.entanglement_map:
-                self.entanglement_map[other] = [
-                    g for g in self.entanglement_map[other] if g != glyph_id
-                ]
-        self.entangled_pairs = [
-            pair for pair in self.entangled_pairs if glyph_id not in pair
-        ]
+                self.entanglement_map[other] = [g for g in self.entanglement_map[other] if g != glyph_id]
+        self.entangled_pairs = [pair for pair in self.entangled_pairs if glyph_id not in pair]
 
     def resolve_entanglement(self, glyph_id: str) -> List[str]:
         """
         Recursively resolve all glyphs entangled with the given one.
         Returns a flattened list (including the original glyph_id).
         """
-        visited = set()
-        queue = [glyph_id]
+        visited: set[str] = set()
+        queue: List[str] = [glyph_id]
 
         while queue:
             current = queue.pop(0)
@@ -71,16 +68,32 @@ class EntanglerEngine:
 
 
 # ──────────────────────────────────────────────
-#  Singleton instance + Functional Wrappers
+# Lazy singleton (no import-time runtime bring-up)
 # ──────────────────────────────────────────────
-entangler_engine = EntanglerEngine()
+_ENTANGLER: Optional[EntanglerEngine] = None
+
+
+def get_entangler_engine() -> EntanglerEngine:
+    global _ENTANGLER
+    if _ENTANGLER is None:
+        _ENTANGLER = EntanglerEngine()
+        if not _quiet_enabled():
+            print("[SQI] EntanglerEngine initialized (lazy)")
+    return _ENTANGLER
+
+
+class _EntanglerProxy:
+    def __getattr__(self, name: str):
+        return getattr(get_entangler_engine(), name)
+
+
+# Back-compat: allow `from ... import entangler_engine`
+entangler_engine = _EntanglerProxy()
 
 
 def is_entangled(glyph_a: str, glyph_b: str) -> bool:
-    """Functional shortcut to check entanglement between two glyphs."""
-    return entangler_engine.is_entangled(glyph_a, glyph_b)
+    return get_entangler_engine().is_entangled(glyph_a, glyph_b)
 
 
 def resolve_entanglement(glyph_id: str) -> List[str]:
-    """Functional shortcut to resolve all entangled glyphs for a given ID."""
-    return entangler_engine.resolve_entanglement(glyph_id)
+    return get_entangler_engine().resolve_entanglement(glyph_id)

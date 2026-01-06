@@ -18,9 +18,8 @@ import { HoloIndexItem } from "../lib/api/holo";
 import HologramContainerView from "../components/HologramContainerView";
 import QRCode from "qrcode.react";
 import ErrorBoundary from "../components/ErrorBoundary";
-import QFCViewport from "../components/QFCViewport";
 import { useTessarisTelemetry, type TessarisTelemetry } from "../hooks/useTessarisTelemetry";
-
+import QFCViewport, { type QFCMode } from "../components/QFCViewport";
 // Hologram IR + API
 import type { HoloIR } from "../lib/types/holo"; 
 import {
@@ -42,6 +41,7 @@ type ToolId =
   | "crystal"
   | "docs"
   | "gma"
+  | "qfc_bio"
   | "gma_auth";      
 
 type FrameMetric = {
@@ -53,6 +53,14 @@ type FrameMetric = {
 
 export default function DevTools() {
   const [activeTool, setActiveTool] = useState<ToolId>("editor");
+
+  const navHash = (path: string) => {
+  try {
+    window.location.hash = path.startsWith("#") ? path : "#" + path;
+  } catch {
+    // no-op
+  }
+};
 
   // 🔭 Holo / container state
   const [activeContainerId, setActiveContainerId] = useState<string | null>(
@@ -595,7 +603,14 @@ export default function DevTools() {
               label="QFC HUD"
               description="Scenario HUD + knobs"
               activeTool={activeTool}
-              onSelect={setActiveTool}
+              onSelect={() => navHash("/qfc-hud")}
+            />
+            <ToolButton
+              id="qfc_bio"
+              label="QFC Bio"
+              description="Biology-focused HUD"
+              activeTool={activeTool}
+              onSelect={() => navHash("/qfc-bio")}
             />
             <ToolButton
               id="aion"
@@ -668,11 +683,14 @@ export default function DevTools() {
               <TransactableDocsDevPanel />
             ) : activeTool === "gma_auth" ? (
               <GMAMonetaryAuthorityPanel />
+            ) : activeTool === "qfc_bio" ? (
+              <div style={{ padding: 12, fontSize: 12, color: "#111827" }}>
+  QFC Bio moved to <code>#/qfc-bio</code>.
+</div>
             ) : activeTool === "qfc" ? (
-              <QFCHudPanel
-                containerId={activeContainerId ?? "dc_aion_core"}
-                telemetry={telemetry}
-              />
+              <div style={{ padding: 12, fontSize: 12, color: "#111827" }}>
+  QFC HUD moved to <code>#/qfc-hud</code>.
+</div>
             ) : (
               <>
                 {/* Field Lab: Hologram container fills full width (owns its own Holo Files cabinet) */}
@@ -1629,7 +1647,15 @@ function GMADashboardPanel() {
   );
 }
 
-type ScenarioId = "BG01" | "G01" | "TN01" | "MT01" | "C01" | "WH01" | "GN01";
+export type ScenarioId =
+  | "BG01"
+  | "G01"
+  | "TN01"
+  | "MT01"
+  | "C01"
+  | "WH01"
+  | "GN01"
+  | "GO01";
 
 type ScenarioConfig = {
   id: ScenarioId;
@@ -1642,7 +1668,7 @@ type ScenarioConfig = {
     danger: string;
   };
   defaults: { kappa: number; chi: number; sigma: number; alpha: number };
-  mode: "gravity" | "tunnel" | "matter" | "connect" | "wormhole" | "genome";
+  mode: "gravity" | "tunnel" | "matter" | "connect" | "wormhole" | "genome" | "glyphos"; // ✅ NEW
 };
 
 const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
@@ -1659,6 +1685,7 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     defaults: { kappa: 0.11, chi: 0.25, sigma: 0.5, alpha: 0.1 },
     mode: "gravity",
   },
+
   G01: {
     id: "G01",
     label: "G01 Gravity Well",
@@ -1672,6 +1699,7 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     defaults: { kappa: 0.18, chi: 0.18, sigma: 0.42, alpha: 0.08 },
     mode: "gravity",
   },
+
   GN01: {
     id: "GN01",
     label: "GN01 Genome Lattice",
@@ -1682,9 +1710,10 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
       connect: "rgba(34,211,238,0.75)",
       danger: "rgba(239,68,68,0.80)",
     },
-    defaults: { kappa: 0.14, chi: 0.22, sigma: 0.70, alpha: 0.12 },
+    defaults: { kappa: 0.14, chi: 0.22, sigma: 0.7, alpha: 0.12 },
     mode: "genome",
   },
+
   TN01: {
     id: "TN01",
     label: "TN01 Light Tunneling",
@@ -1698,6 +1727,7 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     defaults: { kappa: 0.06, chi: 0.22, sigma: 0.78, alpha: 0.14 },
     mode: "tunnel",
   },
+
   MT01: {
     id: "MT01",
     label: "MT01 Matter Soliton",
@@ -1711,6 +1741,7 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     defaults: { kappa: 0.12, chi: 0.28, sigma: 0.35, alpha: 0.11 },
     mode: "matter",
   },
+
   C01: {
     id: "C01",
     label: "C01 Connectivity Jump",
@@ -1724,6 +1755,7 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     defaults: { kappa: 0.09, chi: 0.34, sigma: 0.62, alpha: 0.16 },
     mode: "connect",
   },
+
   WH01: {
     id: "WH01",
     label: "WH01 Wormhole Bridge",
@@ -1736,6 +1768,21 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     },
     defaults: { kappa: 0.5, chi: 0.25, sigma: 0.5, alpha: 0.5 },
     mode: "wormhole",
+  },
+
+  // ✅ NEW: GlyphOS demo scenario
+  GO01: {
+    id: "GO01",
+    label: "GO01 GlyphOS Multiverse",
+    theme: {
+      gravity: "rgba(59,130,246,0.60)", // light blue base
+      matter: "rgba(250,204,21,0.70)", // glyph gold
+      photon: "rgba(34,211,238,0.75)", // photon cyan
+      connect: "rgba(167,139,250,0.70)", // multiverse violet
+      danger: "rgba(239,68,68,0.80)",
+    },
+    defaults: { kappa: 0.08, chi: 0.31, sigma: 0.62, alpha: 0.14 },
+    mode: "glyphos",
   },
 };
 type QFCTopology = {
@@ -1817,24 +1864,189 @@ function ensureTopologyLocal(frame: any, seed: number) {
     topology: { epoch, nodes, edges, gate }, // ✅ debug only
   };
 }
+type DataMode = "A" | "B" | "C";
 
-function QFCHudPanel({
+const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+const num = (v: any, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+
+function DataModeBar({
+  mode,
+  frame,
+  dataMode,
+  setDataMode,
+  domainLabel = "PHYS",
+  connected = false,
+}: {
+  mode: string;
+  frame: any | null;
+  dataMode: DataMode;
+  setDataMode: (m: DataMode) => void;
+  domainLabel?: string;
+  connected?: boolean;
+}) {
+
+  const statusText = `${domainLabel} · ${connected ? "WS STREAM" : "SIM STREAM"}`;
+  const kappa = clamp01(num(frame?.kappa, num(frame?.r_tail_mean, 0)));
+  const alpha = clamp01(num(frame?.alpha, 0.5));
+  const sigma = clamp01(num(frame?.sigma, 0));
+  const gamma = num(frame?.coupling_score, 0);
+  const curl = num(frame?.curl_rms, 0);
+
+  const topo = frame?.topology ?? null;
+  const topoGate01 = clamp01(num(frame?.topo_gate01, num(topo?.gate, 1)));
+  const epoch = topo?.epoch ?? null;
+  const nodes = Array.isArray(topo?.nodes) ? topo.nodes.length : 0;
+  const edges = Array.isArray(topo?.edges) ? topo.edges.length : 0;
+
+  // Genome-ish signal derivation (matches your QFCDemoGenome mapping)
+  const sourceHz = (() => {
+    const fp = num(frame?.f_peak, NaN);
+    if (Number.isFinite(fp) && fp > 0) return clamp(fp, 0.05, 1.2);
+    return 0.2 + alpha * 0.5;
+  })();
+  const breathHz = clamp(sourceHz * 0.22, 0.03, 0.25);
+
+  const chip = (k: string, v: string) => (
+    <span
+      style={{
+        padding: "4px 8px",
+        borderRadius: 999,
+        border: "1px solid rgba(148,163,184,0.22)",
+        background: "rgba(2,6,23,0.35)",
+        fontSize: 10,
+        color: "rgba(226,232,240,0.85)",
+        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+        whiteSpace: "nowrap",
+      }}
+    >
+      <span style={{ opacity: 0.7 }}>{k}</span>{" "}
+      <span style={{ opacity: 0.95 }}>{v}</span>
+    </span>
+  );
+
+  const tab = (id: DataMode, label: string) => {
+    const active = dataMode === id;
+    return (
+      <button
+        type="button"
+        onClick={() => setDataMode(id)}
+        style={{
+          padding: "6px 10px",
+          borderRadius: 999,
+          border: "1px solid rgba(148,163,184,0.22)",
+          background: active ? "rgba(56,189,248,0.18)" : "rgba(2,6,23,0.30)",
+          color: "rgba(226,232,240,0.92)",
+          fontSize: 10,
+          cursor: "pointer",
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+        }}
+      >
+        {label}
+      </button>
+    );
+  };
+
+  const modeLabel =
+    dataMode === "A" ? "A — Domain Signals" :
+    dataMode === "B" ? "B — Resonance / Stability" :
+    "C — Topology / Graph";
+
+  return (
+    <div
+      style={{
+        borderRadius: 14,
+        border: "1px solid rgba(148,163,184,0.22)",
+        background: "linear-gradient(180deg, rgba(2,6,23,0.78), rgba(15,23,42,0.62))",
+        padding: 10,
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        {tab("A", "Mode A")}
+        {tab("B", "Mode B")}
+        {tab("C", "Mode C")}
+
+        <span
+          style={{
+            marginLeft: 6,
+            fontSize: 10,
+            color: "rgba(226,232,240,0.70)",
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+          }}
+        >
+          {domainLabel} · {mode} · {modeLabel}
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {dataMode === "A" ? (
+          <>
+            {chip("compute", mode === "genome" ? "genome_lattice / active_locus" : "field_dynamics")}
+            {chip("κ", kappa.toFixed(4))}
+            {chip("α", alpha.toFixed(3))}
+            {mode === "genome" ? chip("src_hz", sourceHz.toFixed(3)) : null}
+            {mode === "genome" ? chip("breath_hz", breathHz.toFixed(3)) : null}
+            {chip("gate", topoGate01.toFixed(3))}
+          </>
+        ) : dataMode === "B" ? (
+          <>
+            {chip("σ", sigma.toFixed(4))}
+            {chip("γ̃", Number.isFinite(gamma) ? gamma.toFixed(4) : "—")}
+            {chip("curl_rms", Number.isFinite(curl) ? curl.toFixed(4) : "—")}
+            {chip("lock%", (gamma * topoGate01 * 100).toFixed(1) + "%")}
+          </>
+        ) : (
+          <>
+            {chip("epoch", epoch != null ? String(epoch) : "—")}
+            {chip("nodes", String(nodes))}
+            {chip("edges", String(edges))}
+            {chip("gate", topoGate01.toFixed(3))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function QFCHudPanel({
   containerId,
   telemetry,
+  urlPrefix = "",
+  defaultScenario = "BG01",
+  scenarioAllowList,
+  domainLabel = "PHYS",
+  variant = "full",
 }: {
   containerId: string;
   telemetry?: TessarisTelemetry;
+  urlPrefix?: string;
+  defaultScenario?: ScenarioId;
+  scenarioAllowList?: ScenarioId[];
+  domainLabel?: string;
+  variant?: "full" | "canvasOnly";
 }) {
+  const showPhysicsDashboard = variant !== "canvasOnly";
   // ─────────────────────────────────────────────────────────────
   // Scenario (sanitize URL param; BG01 default is fine but we must validate)
   // ─────────────────────────────────────────────────────────────
+  const isAllowed = (id: ScenarioId) =>
+    !scenarioAllowList || scenarioAllowList.includes(id);
+
   const parseScenario = (): ScenarioId => {
     try {
       const p = new URLSearchParams(window.location.search);
-      const raw = (p.get("scenario") || "").trim();
-      if (raw && (raw in SCENARIOS)) return raw as ScenarioId;
+      const raw = (p.get(`${urlPrefix}scenario`) || "").trim();
+      if (raw && (raw in SCENARIOS) && isAllowed(raw as ScenarioId)) {
+        return raw as ScenarioId;
+      }
     } catch {}
-    return "BG01";
+
+    // fallback must also respect allowlist
+    if (isAllowed(defaultScenario)) return defaultScenario;
+    return (scenarioAllowList?.[0] ?? "BG01") as ScenarioId;
   };
 
   const [scenario, setScenario] = useState<ScenarioId>(parseScenario);
@@ -1844,31 +2056,36 @@ function QFCHudPanel({
   useEffect(() => {
     try {
       const u = new URL(window.location.href);
-      u.searchParams.set("scenario", scenario);
+      u.searchParams.set(`${urlPrefix}scenario`, scenario);
       window.history.replaceState({}, "", u.toString());
     } catch {}
-  }, [scenario]);
+  }, [scenario, urlPrefix]);
 
   // ─────────────────────────────────────────────────────────────
   // Demo mode selector (for Wormhole and others)
   // NOTE: QFCViewport already renders demos by `mode`
   // ─────────────────────────────────────────────────────────────
-  // Make sure your local type includes "wormhole"
-  type QFCMode = "gravity" | "tunnel" | "matter" | "connect" | "wormhole" | "genome" | "topology";
+
+  // ✅ DO NOT `export` inside a component. Use the imported QFCMode.
+  const isQfcMode = (x: any): x is QFCMode =>
+    x === "gravity" ||
+    x === "tunnel" ||
+    x === "matter" ||
+    x === "connect" ||
+    x === "wormhole" ||
+    x === "genome" ||
+    x === "topology" ||
+    x === "glyphos";
 
   const [demoMode, setDemoMode] = useState<QFCMode>(() => {
     try {
       const p = new URLSearchParams(window.location.search);
-      const raw = (p.get("mode") || "").trim();
-      const ok =
-        raw === "gravity" ||
-        raw === "tunnel" ||
-        raw === "matter" ||
-        raw === "connect" ||
-        raw === "wormhole" ||
-        raw === "genome" ||
-        raw === "topology";
-      return ok ? (raw as QFCMode) : "gravity";
+      const raw = (p.get(`${urlPrefix}mode`) || "").trim();
+
+      if (isQfcMode(raw)) return raw;
+
+      const fallback = SCENARIOS[parseScenario()]?.mode ?? "gravity";
+      return isQfcMode(fallback) ? fallback : "gravity";
     } catch {
       return "gravity";
     }
@@ -1877,10 +2094,10 @@ function QFCHudPanel({
   useEffect(() => {
     try {
       const u = new URL(window.location.href);
-      u.searchParams.set("mode", demoMode);
+      u.searchParams.set(`${urlPrefix}mode`, demoMode);
       window.history.replaceState({}, "", u.toString());
     } catch {}
-  }, [demoMode]);
+  }, [demoMode, urlPrefix]);
 
   const [controller, setController] = useState("unknown");
   const [seed, setSeed] = useState<number>(1);
@@ -1912,7 +2129,8 @@ function QFCHudPanel({
     setSigma(cfg.defaults.sigma);
     setAlpha(cfg.defaults.alpha);
 
-    setDemoMode(cfg.mode); // ✅ HERE
+    // ✅ ensure scenario's mode maps into our union
+    setDemoMode(isQfcMode(String(cfg.mode)) ? (cfg.mode as QFCMode) : "gravity");
 
     setFrames([]);
     setCursor(0);
@@ -2513,6 +2731,7 @@ function QFCHudPanel({
         controller,
         seed,
         run_hash: runHash,
+        domain: domainLabel,
         container_id: containerId,
 
         // ✅ optional: make chirality visible even if you don’t inspect frame.flags
@@ -2530,7 +2749,7 @@ function QFCHudPanel({
 
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `qfc_${scenario}_${Date.now()}.json`;
+    a.download = `qfc_${domainLabel.toLowerCase()}_${scenario}_${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -3016,44 +3235,161 @@ function QFCHudPanel({
     console.log("[QFCHudPanel] scenario:", scenario, "demoMode:", demoMode, "active?", !!active);
   }, [scenario, demoMode, active]);
 
+  // keep this near the other useState hooks in QFCHudPanel
+  const [dataMode, setDataMode] = useState<DataMode>("A");
+
   return (
     <div
       style={{
         ...hudShell,
         minHeight: 0,
-        overflow: "hidden",
+        overflow: "visible", // ✅ allow the page to scroll (don’t trap content below)
       }}
     >
-      <div style={{ flex: "0 0 520px", minHeight: 420, overflow: "hidden" }}>
-        <QFCViewport
-          key={`qfcvp:${scenario}:${demoMode}`} // ✅ hard remount on scenario/mode change
-          title="Quantum Field Canvas"
-          subtitle={`scenario=${scenario} · mode=${demoMode} · container=${containerId}`}
-          rightBadge={leanCert?.proof_hash_short ? `proof:${leanCert.proof_hash_short}` : undefined}
-          theme={cfg.theme}
-          mode={demoMode}
-          frame={viewportFrame}   // ✅ null or object, NEVER undefined
-          frames={frames}
-        />
+      {/* ─────────────────────────────────────────────────────────────
+          1) CANVAS (always visible, fixed-ish height so it doesn’t eat the whole page)
+        ───────────────────────────────────────────────────────────── */}
+      <div style={{ width: "100%", minWidth: 520 }}>
+        <div
+          style={{
+            height: "min(70vh, 560px)", // ✅ canvas height cap
+            minHeight: 420,
+            overflow: "hidden",
+            borderRadius: 16,
+          }}
+        >
+          <QFCViewport
+            key={`qfcvp:${domainLabel}:${scenario}:${demoMode}`} // ✅ hard remount on scenario/mode change
+            title="Quantum Field Canvas"
+            subtitle={`${domainLabel} · scenario=${scenario} · mode=${demoMode} · container=${containerId}`}
+            rightBadge={
+              leanCert?.proof_hash_short
+                ? `proof:${leanCert.proof_hash_short}`
+                : undefined
+            }
+            theme={cfg.theme}
+            mode={demoMode}
+            frame={viewportFrame} // ✅ null or object, NEVER undefined
+            frames={frames}
+            telemetry={telemetry}
+          />
+        </div>
+
+        <div style={{ marginTop: 10 }}>
+          <DataModeBar
+            mode={String(demoMode ?? "—")}
+            frame={viewportFrame}
+            dataMode={dataMode}
+            setDataMode={setDataMode}
+            domainLabel={domainLabel}
+            connected={!!telemetry?.updatedAt}
+          />
+        </div>
       </div>
 
-      <div
-        style={{
-          ...hudWrap,
-          flex: 1,
-          minHeight: 0,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
+      {/* ─────────────────────────────────────────────────────────────
+          2) PHYSICS HUD/DASHBOARD (optional; also no longer “pins” the page)
+        ───────────────────────────────────────────────────────────── */}
+      {showPhysicsDashboard ? (
+        <div
+          style={{
+            ...hudWrap,
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            marginTop: 12,
+            flex: "unset", // ✅ don’t force full-height flex behavior
+            minHeight: "unset",
+          }}
+        >
+          {/* Futuristic VISUAL ANALYSIS HUD (replaces old neonCard panel) */}
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              flexWrap: "wrap",
+              padding: "10px 12px",
+            }}
+          >
+            {/* Demo buttons */}
+            <div style={{ position: "relative" }}>
+              <button
+                type="button"
+                onClick={() => setDemosOpen((v) => !v)}
+                style={{
+                  padding: "6px 10px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(148,163,184,0.30)",
+                  background: "rgba(2,6,23,0.35)",
+                  color: "#e5e7eb",
+                  fontSize: 11,
+                  cursor: "pointer",
+                  ...mono,
+                }}
+              >
+                Demos ▾
+              </button>
 
-        {/* Futuristic VISUAL ANALYSIS HUD (replaces old neonCard panel) */}
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          {/* Demo buttons */}
-          <div style={{ position: "relative" }}>
-            <button
-              type="button"
-              onClick={() => setDemosOpen((v) => !v)}
+              {demosOpen ? (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    left: 0,
+                    zIndex: 50,
+                    minWidth: 220,
+                    padding: 8,
+                    borderRadius: 14,
+                    border: "1px solid rgba(148,163,184,0.22)",
+                    background: "rgba(2,6,23,0.88)",
+                    boxShadow: "0 18px 60px rgba(0,0,0,0.45)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
+                  }}
+                >
+                  {[
+                    { label: "Demo Gravity", id: "G01" as ScenarioId },
+                    { label: "Demo Tunnel", id: "TN01" as ScenarioId },
+                    { label: "Demo Matter", id: "MT01" as ScenarioId },
+                    { label: "Demo Connect", id: "C01" as ScenarioId },
+                    { label: "Demo Wormhole", id: "WH01" as ScenarioId },
+                    { label: "Demo Genome", id: "GN01" as ScenarioId },
+                    { label: "Demo GlyphOS", id: "GO01" as ScenarioId },
+                  ].map((d) => (
+                    <button
+                      key={d.id}
+                      type="button"
+                      onClick={() => {
+                        setScenario(d.id);
+                        setDemoMode(SCENARIOS[d.id].mode as QFCMode);
+                        setDemosOpen(false);
+                      }}
+                      style={{
+                        textAlign: "left",
+                        padding: "8px 10px",
+                        borderRadius: 12,
+                        border: "1px solid rgba(148,163,184,0.18)",
+                        background: "rgba(148,163,184,0.08)",
+                        color: "#e5e7eb",
+                        fontSize: 11,
+                        cursor: "pointer",
+                        ...mono,
+                      }}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            {/* Scenario selector */}
+            <select
+              value={scenario}
+              onChange={(e) => setScenario(e.target.value as ScenarioId)}
               style={{
                 padding: "6px 10px",
                 borderRadius: 999,
@@ -3065,304 +3401,234 @@ function QFCHudPanel({
                 ...mono,
               }}
             >
-              Demos ▾
+              {Object.values(SCENARIOS)
+                .filter((s) => !scenarioAllowList || scenarioAllowList.includes(s.id))
+                .map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.label}
+                  </option>
+                ))}
+            </select>
+
+            {/* Demo mode selector */}
+            <select
+              value={demoMode}
+              onChange={(e) => setDemoMode(e.target.value as QFCMode)}
+              style={{
+                padding: "6px 10px",
+                borderRadius: 999,
+                border: "1px solid rgba(148,163,184,0.30)",
+                background: "rgba(2,6,23,0.35)",
+                color: "#e5e7eb",
+                fontSize: 11,
+                cursor: "pointer",
+                ...mono,
+              }}
+            >
+              <option value="gravity">Gravity</option>
+              <option value="tunnel">Tunnel</option>
+              <option value="matter">Matter</option>
+              <option value="connect">Connect</option>
+              <option value="wormhole">Wormhole</option>
+              <option value="genome">Genome</option>
+              <option value="topology">Topology</option>
+              <option value="glyphos">GlyphOS</option>
+            </select>
+
+            {/* Stream badge */}
+            <span
+              style={{
+                padding: "6px 10px",
+                borderRadius: 999,
+                border: "1px solid rgba(148,163,184,0.25)",
+                background: "rgba(2,6,23,0.35)",
+                fontSize: 10,
+                ...mono,
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              <span>
+                {connected ? "WS STREAM" : "SIM STREAM"}
+                <span style={{ marginLeft: 8, opacity: 0.8, ...mono }}>
+                  {chLabel}
+                </span>
+              </span>
+            </span>
+
+            {/* --- Topology Inspector (Stage C) --- */}
+            <label
+              style={{
+                display: "inline-flex",
+                gap: 8,
+                alignItems: "center",
+                ...mono,
+                fontSize: 11,
+              }}
+            >
+              <span style={{ fontWeight: 700 }}>Topology</span>
+              <input
+                type="checkbox"
+                checked={topoFrozen}
+                onChange={toggleTopoFreeze}
+              />
+              <span>Freeze</span>
+            </label>
+
+            {/* Pause / Clear */}
+            <button
+              type="button"
+              onClick={() => setPaused((p) => !p)}
+              style={{
+                padding: "6px 10px",
+                borderRadius: 999,
+                border: "1px solid rgba(56,189,248,0.45)",
+                background: paused
+                  ? "rgba(148,163,184,0.15)"
+                  : "rgba(56,189,248,0.12)",
+                color: "#e5e7eb",
+                fontSize: 11,
+                cursor: "pointer",
+              }}
+            >
+              {paused ? "Resume" : "Pause"}
             </button>
 
-            {demosOpen ? (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "calc(100% + 8px)",
-                  left: 0,
-                  zIndex: 50,
-                  minWidth: 220,
-                  padding: 8,
-                  borderRadius: 14,
-                  border: "1px solid rgba(148,163,184,0.22)",
-                  background: "rgba(2,6,23,0.88)",
-                  boxShadow: "0 18px 60px rgba(0,0,0,0.45)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 6,
-                }}
-              >
-                {[
-                  { label: "Demo Gravity", id: "G01" as ScenarioId },
-                  { label: "Demo Tunnel", id: "TN01" as ScenarioId },
-                  { label: "Demo Matter", id: "MT01" as ScenarioId },
-                  { label: "Demo Connect", id: "C01" as ScenarioId },
-                  { label: "Demo Wormhole", id: "WH01" as ScenarioId },
-                  { label: "Demo Genome", id: "GN01" as ScenarioId },
-                ].map((d) => (
-                  <button
-                    key={d.id}
-                    type="button"
-                    onClick={() => {
-                      setScenario(d.id);
+            <button
+              type="button"
+              onClick={() => {
+                setFrames([]);
+                setCursor(0);
+                setRunHash("—");
+              }}
+              style={{
+                padding: "6px 10px",
+                borderRadius: 999,
+                border: "1px solid rgba(148,163,184,0.35)",
+                background: "rgba(148,163,184,0.10)",
+                color: "#e5e7eb",
+                fontSize: 11,
+                cursor: "pointer",
+              }}
+            >
+              Clear
+            </button>
 
-                      setDemoMode(
-                        d.id === "G01" ? "gravity" :
-                        d.id === "TN01" ? "tunnel" :
-                        d.id === "MT01" ? "matter" :
-                        d.id === "C01" ? "connect" :
-                        d.id === "GN01" ? "matter" :
-                        d.id === "WH01" ? "wormhole" :
-                        "gravity"
-                      );
-
-                      setDemosOpen(false);
-                    }}
-                    style={{
-                      textAlign: "left",
-                      padding: "8px 10px",
-                      borderRadius: 12,
-                      border: "1px solid rgba(148,163,184,0.18)",
-                      background: "rgba(148,163,184,0.08)",
-                      color: "#e5e7eb",
-                      fontSize: 11,
-                      cursor: "pointer",
-                      ...mono,
-                    }}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
-            ) : null}
+            {/* Legend */}
+            <div
+              style={{
+                display: "flex",
+                gap: 6,
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <LegendChip
+                label="Gravity"
+                color={cfg.theme.gravity}
+                active={cfg.mode === "gravity"}
+              />
+              <LegendChip
+                label="Tunnel"
+                color={cfg.theme.photon}
+                active={cfg.mode === "tunnel"}
+              />
+              <LegendChip
+                label="Matter"
+                color={cfg.theme.matter}
+                active={cfg.mode === "matter"}
+              />
+              <LegendChip
+                label="Connect"
+                color={cfg.theme.connect}
+                active={cfg.mode === "connect"}
+              />
+            </div>
           </div>
 
-          {/* Scenario selector */}
-          <select
-            value={scenario}
-            onChange={(e) => setScenario(e.target.value as ScenarioId)}
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: "1px solid rgba(148,163,184,0.30)",
-              background: "rgba(2,6,23,0.35)",
-              color: "#e5e7eb",
-              fontSize: 11,
-              cursor: "pointer",
-              ...mono,
-            }}
-          >
-            {Object.values(SCENARIOS).map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-
-          {/* Demo mode selector */}
-          <select
-            value={demoMode}
-            onChange={(e) => setDemoMode(e.target.value as QFCMode)}
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: "1px solid rgba(148,163,184,0.30)",
-              background: "rgba(2,6,23,0.35)",
-              color: "#e5e7eb",
-              fontSize: 11,
-              cursor: "pointer",
-              ...mono,
-            }}
-          >
-            <option value="gravity">Gravity</option>
-            <option value="tunnel">Tunnel</option>
-            <option value="matter">Matter</option>
-            <option value="connect">Connect</option>
-            <option value="wormhole">Wormhole</option>
-            <option value="genome">Genome</option>
-            <option value="topology">Topology</option>
-          </select>
-
-          {/* Stream badge */}
-          <span
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: "1px solid rgba(148,163,184,0.25)",
-              background: "rgba(2,6,23,0.35)",
-              fontSize: 10,
-              ...mono,
-              display: "inline-flex", // ✅ helps because you’re nesting a div
-              alignItems: "center",
-            }}
-          >
-            <span>
-              {connected ? "WS STREAM" : "SIM STREAM"}
-              <span style={{ marginLeft: 8, opacity: 0.8, ...mono }}>{chLabel}</span>
-            </span>
-          </span>
-
-          {/* --- Topology Inspector (Stage C) --- */}
-          <label style={{ display: "inline-flex", gap: 8, alignItems: "center", ...mono, fontSize: 11 }}>
-            <span style={{ fontWeight: 700 }}>Topology</span>
-            <input type="checkbox" checked={topoFrozen} onChange={toggleTopoFreeze} />
-            <span>Freeze</span>
-          </label>
-
-          {/* Pause / Clear */}
-          <button
-            type="button"
-            onClick={() => setPaused((p) => !p)}
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: "1px solid rgba(56,189,248,0.45)",
-              background: paused ? "rgba(148,163,184,0.15)" : "rgba(56,189,248,0.12)",
-              color: "#e5e7eb",
-              fontSize: 11,
-              cursor: "pointer",
-            }}
-          >
-            {paused ? "Resume" : "Pause"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setFrames([]);
-              setCursor(0);
-              setRunHash("—");
-            }}
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: "1px solid rgba(148,163,184,0.35)",
-              background: "rgba(148,163,184,0.10)",
-              color: "#e5e7eb",
-              fontSize: 11,
-              cursor: "pointer",
-            }}
-          >
-            Clear
-          </button>
-
-          {/* Legend */}
-          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-            <LegendChip label="Gravity" color={cfg.theme.gravity} active={cfg.mode === "gravity"} />
-            <LegendChip label="Tunnel" color={cfg.theme.photon} active={cfg.mode === "tunnel"} />
-            <LegendChip label="Matter" color={cfg.theme.matter} active={cfg.mode === "matter"} />
-            <LegendChip label="Connect" color={cfg.theme.connect} active={cfg.mode === "connect"} />
-          </div>
-        </div>
-
-        {/* ✅ scroll only the middle grid if needed; keep header + footer visible */}
-        <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
-          <div style={grid}>
-            {/* Top-left: Resonance scope (spans 2 columns) */}
-            <HudPanel
-              title="Resonance Scope"
-              right={<span style={{ ...mono, fontSize: 10 }}>AI signal</span>}
-              style={{ gridColumn: "1 / span 2" }}
-            >
-              {/* ✅ Chart left + Tensor Metrics legend right (prevents clipping) */}
-              <div style={{ display: "flex", gap: 12, alignItems: "stretch", height: "100%" }}>
-                <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 8 }}>
-                  {/* ✅ let the chart grow to fill the panel */}
-                  <div style={{ flex: 1, minHeight: 240 }}>
-                    <ResonanceScope
-                      frames={frames}
-                      footerLeft={<span>σ_mean={sigmaMean.toFixed(3)} · γ̃_mean={gammaMean.toFixed(3)}</span>}
-                      footerRight={
-                        <span>
-                          t={active?.t ?? "—"} · coupling={active?.coupling_score?.toFixed?.(4) ?? "—"}
-                        </span>
-                      }
-                    />
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 10,
-                      flexWrap: "wrap",
-                      fontSize: 10,
-                      color: "rgba(226,232,240,0.72)",
-                    }}
-                  >
-                    <span style={mono}>container={containerId}</span>
-                  </div>
-                </div>
-
-                <div style={{ width: 220, flex: "0 0 220px", alignSelf: "stretch" }}>
-                  <TensorMetricsLegend />
-                </div>
-              </div>
-            </HudPanel>
-
-            {/* Top-right: Object data */}
-            <HudPanel
-              title="OBJECT DATA"
-              right={
-                <span style={{ ...mono, fontSize: 10 }}>
-                  {leanCert?.proof_hash_short ? `proof:${leanCert.proof_hash_short}` : "QFCFrame"}
-                </span>
-              }
-            >
-              {/* --- TOP: Lean snapshot --- */}
-              <div
-                style={{
-                  borderRadius: 12,
-                  border: "1px solid rgba(148,163,184,0.22)",
-                  background: "rgba(2,6,23,0.22)",
-                  padding: 10,
-                  marginBottom: 10,
-                }}
+          {/* ✅ IMPORTANT CHANGE:
+              No nested “flex:1 + overflow:auto” trap.
+              Let the PAGE scroll naturally so your other grey containers show below. */}
+          <div style={{ padding: 12 }}>
+            <div style={grid}>
+              {/* Top-left: Resonance scope (spans 2 columns) */}
+              <HudPanel
+                title="Resonance Scope"
+                right={<span style={{ ...mono, fontSize: 10 }}>AI signal</span>}
+                style={{ gridColumn: "1 / span 2" }}
               >
                 <div
                   style={{
                     display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: 10,
-                    marginBottom: 8,
+                    gap: 12,
+                    alignItems: "stretch",
+                    height: "100%",
                   }}
                 >
-                  <div style={{ ...mono, fontSize: 10, opacity: 0.85 }}>
-                    <span style={{ letterSpacing: 0.8, textTransform: "uppercase" }}>Lean</span>
-                    <span style={{ marginLeft: 8, opacity: 0.8 }}>
-                      status:{" "}
-                      <span
-                        style={{
-                          color:
-                            leanStatus === "ok"
-                              ? "rgba(34,197,94,0.95)"
-                              : leanStatus === "error"
-                              ? "rgba(239,68,68,0.95)"
-                              : "rgba(226,232,240,0.85)",
-                        }}
-                      >
-                        {leanStatus}
-                      </span>
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => requestLeanSnapshot(false)}
-                    disabled={leanStatus === "checking"}
+                  <div
                     style={{
-                      padding: "5px 10px",
-                      borderRadius: 999,
-                      border: "1px solid rgba(148,163,184,0.30)",
-                      background: "rgba(2,6,23,0.35)",
-                      color: "#e5e7eb",
-                      fontSize: 11,
-                      cursor: leanStatus === "checking" ? "default" : "pointer",
-                      ...mono,
-                      opacity: leanStatus === "checking" ? 0.7 : 1,
+                      flex: 1,
+                      minWidth: 0,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
                     }}
                   >
-                    {leanStatus === "checking" ? "Verifying…" : "Verify snapshot"}
-                  </button>
-                </div>
+                    <div style={{ flex: 1, minHeight: 240 }}>
+                      <ResonanceScope
+                        frames={frames}
+                        footerLeft={
+                          <span>
+                            σ_mean={sigmaMean.toFixed(3)} · γ̃_mean=
+                            {gammaMean.toFixed(3)}
+                          </span>
+                        }
+                        footerRight={
+                          <span>
+                            t={active?.t ?? "—"} · coupling=
+                            {active?.coupling_score?.toFixed?.(4) ?? "—"}
+                          </span>
+                        }
+                      />
+                    </div>
 
-                {/* ─────────────────────────────────────────────────────────────
-                    Stage C — Topology inspector
-                  ───────────────────────────────────────────────────────────── */}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 10,
+                        flexWrap: "wrap",
+                        fontSize: 10,
+                        color: "rgba(226,232,240,0.72)",
+                      }}
+                    >
+                      <span style={mono}>container={containerId}</span>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      width: 220,
+                      flex: "0 0 220px",
+                      alignSelf: "stretch",
+                    }}
+                  >
+                    <TensorMetricsLegend />
+                  </div>
+                </div>
+              </HudPanel>
+
+              {/* Top-right: Object data */}
+              <HudPanel
+                title="OBJECT DATA"
+                right={
+                  <span style={{ ...mono, fontSize: 10 }}>
+                    {leanCert?.proof_hash_short
+                      ? `proof:${leanCert.proof_hash_short}`
+                      : "QFCFrame"}
+                  </span>
+                }
+              >
+                {/* --- TOP: Lean snapshot --- */}
                 <div
                   style={{
                     borderRadius: 12,
@@ -3379,376 +3645,442 @@ function QFCHudPanel({
                       alignItems: "center",
                       gap: 10,
                       marginBottom: 8,
-                      ...mono,
-                      fontSize: 10,
-                      opacity: 0.9,
                     }}
                   >
-                    <span style={{ letterSpacing: 0.8, textTransform: "uppercase" }}>
-                      Topology
-                    </span>
+                    <div style={{ ...mono, fontSize: 10, opacity: 0.85 }}>
+                      <span style={{ letterSpacing: 0.8, textTransform: "uppercase" }}>
+                        Lean
+                      </span>
+                      <span style={{ marginLeft: 8, opacity: 0.8 }}>
+                        status:{" "}
+                        <span
+                          style={{
+                            color:
+                              leanStatus === "ok"
+                                ? "rgba(34,197,94,0.95)"
+                                : leanStatus === "error"
+                                ? "rgba(239,68,68,0.95)"
+                                : "rgba(226,232,240,0.85)",
+                          }}
+                        >
+                          {leanStatus}
+                        </span>
+                      </span>
+                    </div>
 
                     <button
                       type="button"
-                      onClick={toggleTopoFreeze}
+                      onClick={() => requestLeanSnapshot(false)}
+                      disabled={leanStatus === "checking"}
                       style={{
-                        padding: "4px 10px",
+                        padding: "5px 10px",
                         borderRadius: 999,
                         border: "1px solid rgba(148,163,184,0.30)",
-                        background: topoFrozen ? "rgba(239,68,68,0.14)" : "rgba(2,6,23,0.35)",
+                        background: "rgba(2,6,23,0.35)",
                         color: "#e5e7eb",
                         fontSize: 11,
-                        cursor: "pointer",
+                        cursor: leanStatus === "checking" ? "default" : "pointer",
+                        ...mono,
+                        opacity: leanStatus === "checking" ? 0.7 : 1,
                       }}
                     >
-                      {topoFrozen ? "Unfreeze" : "Freeze"}
+                      {leanStatus === "checking" ? "Verifying…" : "Verify snapshot"}
                     </button>
+                  </div>
+
+                  {/* Stage C — Topology inspector */}
+                  <div
+                    style={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(148,163,184,0.22)",
+                      background: "rgba(2,6,23,0.22)",
+                      padding: 10,
+                      marginBottom: 10,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 10,
+                        marginBottom: 8,
+                        ...mono,
+                        fontSize: 10,
+                        opacity: 0.9,
+                      }}
+                    >
+                      <span style={{ letterSpacing: 0.8, textTransform: "uppercase" }}>
+                        Topology
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={toggleTopoFreeze}
+                        style={{
+                          padding: "4px 10px",
+                          borderRadius: 999,
+                          border: "1px solid rgba(148,163,184,0.30)",
+                          background: topoFrozen
+                            ? "rgba(239,68,68,0.14)"
+                            : "rgba(2,6,23,0.35)",
+                          color: "#e5e7eb",
+                          fontSize: 11,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {topoFrozen ? "Unfreeze" : "Freeze"}
+                      </button>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 10,
+                        alignItems: "center",
+                        ...mono,
+                        fontSize: 10,
+                        opacity: 0.85,
+                      }}
+                    >
+                      <span>
+                        epoch <code>{(topoForUI as any)?.epoch ?? "—"}</code>
+                      </span>
+                      <span>
+                        nodes <code>{(topoForUI as any)?.nodes?.length ?? 0}</code>
+                      </span>
+                      <span>
+                        edges <code>{(topoForUI as any)?.edges?.length ?? 0}</code>
+                      </span>
+                      <span>
+                        gate{" "}
+                        <code>{Number((topoForUI as any)?.gate ?? 1).toFixed(2)}</code>
+                      </span>
+                      <span>
+                        seed <code>{seed}</code>
+                      </span>
+                      <span>
+                        src <code>{topoSrc}</code>
+                      </span>
+                    </div>
+                  </div>
+
+                  {qfcNote ? (
+                    <div
+                      style={{
+                        marginTop: 6,
+                        ...mono,
+                        fontSize: 10,
+                        color: "rgba(251,146,60,0.95)",
+                      }}
+                    >
+                      {qfcNote}
+                    </div>
+                  ) : null}
+
+                  {leanErr ? (
+                    <div
+                      style={{
+                        marginTop: 6,
+                        ...mono,
+                        fontSize: 10,
+                        color: "rgba(239,68,68,0.92)",
+                      }}
+                    >
+                      {leanErr}
+                    </div>
+                  ) : null}
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 6,
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      ...mono,
+                      fontSize: 10,
+                      opacity: 0.85,
+                      marginTop: 6,
+                    }}
+                  >
+                    <span>steps</span>
+                    <input
+                      value={leanStepsText}
+                      onFocus={() => setEditingSteps(true)}
+                      onChange={(e) => setLeanStepsText(e.target.value)}
+                      onBlur={() => {
+                        setEditingSteps(false);
+                        commitSteps();
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter")
+                          (e.currentTarget as HTMLInputElement).blur();
+                      }}
+                      style={{
+                        width: 70,
+                        borderRadius: 8,
+                        border: "1px solid rgba(148,163,184,0.22)",
+                        background: "rgba(2,6,23,0.25)",
+                        color: "#e5e7eb",
+                        padding: "3px 6px",
+                        ...mono,
+                        fontSize: 10,
+                      }}
+                    />
+
+                    <span>dt_ms</span>
+                    <input
+                      value={leanDtMsText}
+                      onFocus={() => setEditingDt(true)}
+                      onChange={(e) => setLeanDtMsText(e.target.value)}
+                      onBlur={() => {
+                        setEditingDt(false);
+                        commitDtMs();
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter")
+                          (e.currentTarget as HTMLInputElement).blur();
+                      }}
+                      style={{
+                        width: 70,
+                        borderRadius: 8,
+                        border: "1px solid rgba(148,163,184,0.22)",
+                        background: "rgba(2,6,23,0.25)",
+                        color: "#e5e7eb",
+                        padding: "3px 6px",
+                        ...mono,
+                        fontSize: 10,
+                      }}
+                    />
+
+                    <span>spec</span>
+                    <input
+                      value={leanSpecText}
+                      onFocus={() => setEditingSpec(true)}
+                      onChange={(e) => setLeanSpecText(e.target.value)}
+                      onBlur={() => {
+                        setEditingSpec(false);
+                        commitSpec();
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter")
+                          (e.currentTarget as HTMLInputElement).blur();
+                      }}
+                      style={{
+                        width: 70,
+                        borderRadius: 8,
+                        border: "1px solid rgba(148,163,184,0.22)",
+                        background: "rgba(2,6,23,0.25)",
+                        color: "#e5e7eb",
+                        padding: "3px 6px",
+                        ...mono,
+                        fontSize: 10,
+                      }}
+                    />
+
+                    {leanCert?.elapsed_ms != null ? (
+                      <span style={{ marginLeft: 6, opacity: 0.8 }}>
+                        · {leanCert.elapsed_ms}ms
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+
+                {/* --- BOTTOM: Object data --- */}
+                <pre
+                  style={{
+                    margin: 0,
+                    padding: 10,
+                    borderRadius: 12,
+                    border: "1px dashed rgba(148,163,184,0.22)",
+                    background: "rgba(2,6,23,0.28)",
+                    fontSize: 10,
+                    ...mono,
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    maxHeight: 190,
+                    overflow: "auto",
+                  }}
+                >
+                  {JSON.stringify(activeForUI ?? {}, null, 2)}
+                </pre>
+              </HudPanel>
+
+              {/* Bottom-left: Radiation/health */}
+              <HudPanel
+                title="Radiation Level"
+                right={<span style={{ ...mono, fontSize: 10 }}>NORMAL</span>}
+              >
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ fontSize: 10, color: "rgba(226,232,240,0.75)" }}>
+                    Resonance health derived from coupling + curl.
+                  </div>
+
+                  <div
+                    style={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(148,163,184,0.20)",
+                      background: "rgba(2,6,23,0.30)",
+                      padding: 10,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 10,
+                    }}
+                  >
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <div style={{ fontSize: 10, color: "rgba(226,232,240,0.70)" }}>
+                        coupling_score
+                      </div>
+                      <div style={{ ...mono, fontSize: 13 }}>
+                        {active?.coupling_score?.toFixed?.(4) ?? "—"}
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <div style={{ fontSize: 10, color: "rgba(226,232,240,0.70)" }}>
+                        curl_rms
+                      </div>
+                      <div style={{ ...mono, fontSize: 13 }}>
+                        {active?.curl_rms?.toFixed?.(4) ?? "—"}
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      <div style={{ fontSize: 10, color: "rgba(226,232,240,0.70)" }}>
+                        curvature
+                      </div>
+                      <div style={{ ...mono, fontSize: 13 }}>
+                        {active?.curv?.toFixed?.(4) ?? "—"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </HudPanel>
+
+              {/* Bottom-middle: Radar/targeting */}
+              <HudPanel title="Targeting" right={<span style={{ ...mono, fontSize: 10 }}>TRACK</span>}>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <div style={{ width: 160, height: 160 }}>
+                    <Radar score={Number(active?.coupling_score ?? 0)} />
                   </div>
 
                   <div
                     style={{
                       display: "flex",
-                      flexWrap: "wrap",
-                      gap: 10,
-                      alignItems: "center",
-                      ...mono,
+                      flexDirection: "column",
+                      gap: 6,
                       fontSize: 10,
-                      opacity: 0.85,
+                      color: "rgba(226,232,240,0.75)",
                     }}
                   >
-                    <span>
-                      epoch <code>{(topoForUI as any)?.epoch ?? "—"}</code>
-                    </span>
-                    <span>
-                      nodes <code>{(topoForUI as any)?.nodes?.length ?? 0}</code>
-                    </span>
-                    <span>
-                      edges <code>{(topoForUI as any)?.edges?.length ?? 0}</code>
-                    </span>
-                    <span>
-                      gate{" "}
-                      <code>{Number((topoForUI as any)?.gate ?? 1).toFixed(2)}</code>
-                    </span>
-                    <span>
-                      seed <code>{seed}</code>
-                    </span>
-                    <span>
-                      src <code>{topoSrc}</code>
-                    </span>
+                    <div style={mono}>kappa={kappa.toFixed(3)}</div>
+                    <div style={mono}>chi={chi.toFixed(3)}</div>
+                    <div style={mono}>sigma={(active?.sigma ?? 0).toFixed(3)}</div>
+                    <div style={mono}>alpha={alpha.toFixed(3)}</div>
+
+                    <div style={{ marginTop: 6, opacity: 0.85 }}>
+                      lock quality ≈{" "}
+                      <span style={mono}>
+                        {(Number(active?.coupling_score ?? 0) * topoGate01 * 100).toFixed(1)}%
+                      </span>
+                    </div>
                   </div>
                 </div>
+              </HudPanel>
 
-                {/* ✅ notes / errors (SINGLE qfcNote block; no duplicates) */}
-                {qfcNote ? (
-                  <div style={{ marginTop: 6, ...mono, fontSize: 10, color: "rgba(251,146,60,0.95)" }}>
-                    {qfcNote}
-                  </div>
-                ) : null}
-
-                {leanErr ? (
-                  <div style={{ marginTop: 6, ...mono, fontSize: 10, color: "rgba(239,68,68,0.92)" }}>
-                    {leanErr}
-                  </div>
-                ) : null}
+              {/* Sigma meter */}
+              <div style={{ marginTop: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, opacity: 0.85 }}>
+                  <span style={mono}>sigma</span>
+                  <span style={mono}>{sigmaPct}%</span>
+                </div>
 
                 <div
                   style={{
-                    display: "flex",
-                    gap: 6,
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    ...mono,
-                    fontSize: 10,
-                    opacity: 0.85,
                     marginTop: 6,
+                    height: 8,
+                    borderRadius: 999,
+                    border: "1px solid rgba(148,163,184,0.22)",
+                    background: "rgba(2,6,23,0.35)",
+                    overflow: "hidden",
                   }}
                 >
-                  <span>steps</span>
-                  <input
-                    value={leanStepsText}
-                    onFocus={() => setEditingSteps(true)}
-                    onChange={(e) => setLeanStepsText(e.target.value)}
-                    onBlur={() => {
-                      setEditingSteps(false);
-                      commitSteps();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
-                    }}
+                  <div
                     style={{
-                      width: 70,
-                      borderRadius: 8,
-                      border: "1px solid rgba(148,163,184,0.22)",
-                      background: "rgba(2,6,23,0.25)",
-                      color: "#e5e7eb",
-                      padding: "3px 6px",
-                      ...mono,
-                      fontSize: 10,
+                      width: `${sigmaPct}%`,
+                      height: "100%",
+                      background: "rgba(34,197,94,0.70)",
+                      boxShadow: "0 0 16px rgba(34,197,94,0.35)",
                     }}
                   />
+                </div>
+              </div>
 
-                  <span>dt_ms</span>
-                  <input
-                    value={leanDtMsText}
-                    onFocus={() => setEditingDt(true)}
-                    onChange={(e) => setLeanDtMsText(e.target.value)}
-                    onBlur={() => {
-                      setEditingDt(false);
-                      commitDtMs();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
-                    }}
-                    style={{
-                      width: 70,
-                      borderRadius: 8,
-                      border: "1px solid rgba(148,163,184,0.22)",
-                      background: "rgba(2,6,23,0.25)",
-                      color: "#e5e7eb",
-                      padding: "3px 6px",
-                      ...mono,
-                      fontSize: 10,
-                    }}
-                  />
+              {/* Bottom-right: knobs */}
+              <HudPanel title="Key Knobs" right={<span style={{ ...mono, fontSize: 10 }}>LIVE</span>}>
+                <KnobRow name="kappa" value={kappa} onChange={setKappa} />
+                <KnobRow name="chi" value={chi} onChange={setChi} />
+                <KnobRow name="sigma" value={sigma} onChange={setSigma} />
+                <KnobRow name="alpha" value={alpha} onChange={setAlpha} />
+              </HudPanel>
+            </div>
+          </div>
 
-                  <span>spec</span>
-                  <input
-                    value={leanSpecText}
-                    onFocus={() => setEditingSpec(true)}
-                    onChange={(e) => setLeanSpecText(e.target.value)}
-                    onBlur={() => {
-                      setEditingSpec(false);
-                      commitSpec();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
-                    }}
-                    style={{
-                      width: 70,
-                      borderRadius: 8,
-                      border: "1px solid rgba(148,163,184,0.22)",
-                      background: "rgba(2,6,23,0.25)",
-                      color: "#e5e7eb",
-                      padding: "3px 6px",
-                      ...mono,
-                      fontSize: 10,
-                    }}
-                  />
-
-                  {leanCert?.elapsed_ms != null ? (
-                    <span style={{ marginLeft: 6, opacity: 0.8 }}>
-                      · {leanCert.elapsed_ms}ms
-                    </span>
-                  ) : null}
-                </div>  {/* closes the steps/dt/spec row */}
-              </div>    {/* ✅ ADD THIS — closes the outer Lean snapshot wrapper */}
-
-              {/* --- BOTTOM: Object data --- */}
-              <pre
-                style={{
-                  margin: 0,
-                  padding: 10,
-                  borderRadius: 12,
-                  border: "1px dashed rgba(148,163,184,0.22)",
-                  background: "rgba(2,6,23,0.28)",
-                  fontSize: 10,
-                  ...mono,
-                  whiteSpace: "pre-wrap",
-                  wordBreak: "break-word",
-                  maxHeight: 190,
-                  overflow: "auto",
-                }}
-              >
-                {JSON.stringify(activeForUI ?? {}, null, 2)}
-              </pre>
-            </HudPanel>
-
-            {/* Bottom-left: Radiation/health */}
-            <HudPanel
-              title="Radiation Level"
-              right={<span style={{ ...mono, fontSize: 10 }}>NORMAL</span>}
+          {/* Time scrubber + export (now just normal flow; not “pinned”) */}
+          <div
+            style={{
+              padding: "10px 12px 12px",
+              borderTop: "1px solid rgba(148,163,184,0.18)",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              flexWrap: "wrap",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                letterSpacing: 0.9,
+                textTransform: "uppercase",
+                color: "rgba(226,232,240,0.70)",
+              }}
             >
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <div style={{ fontSize: 10, color: "rgba(226,232,240,0.75)" }}>
-                  Resonance health derived from coupling + curl.
-                </div>
-
-                <div
-                  style={{
-                    borderRadius: 12,
-                    border: "1px solid rgba(148,163,184,0.20)",
-                    background: "rgba(2,6,23,0.30)",
-                    padding: 10,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 10,
-                  }}
-                >
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <div style={{ fontSize: 10, color: "rgba(226,232,240,0.70)" }}>
-                      coupling_score
-                    </div>
-                    <div style={{ ...mono, fontSize: 13 }}>
-                      {active?.coupling_score?.toFixed?.(4) ?? "—"}
-                    </div>
-                  </div>
-
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <div style={{ fontSize: 10, color: "rgba(226,232,240,0.70)" }}>
-                      curl_rms
-                    </div>
-                    <div style={{ ...mono, fontSize: 13 }}>
-                      {active?.curl_rms?.toFixed?.(4) ?? "—"}
-                    </div>
-                  </div>
-
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <div style={{ fontSize: 10, color: "rgba(226,232,240,0.70)" }}>
-                      curvature
-                    </div>
-                    <div style={{ ...mono, fontSize: 13 }}>
-                      {active?.curv?.toFixed?.(4) ?? "—"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </HudPanel>
-
-            {/* Bottom-middle: Radar/targeting */}
-            <HudPanel
-              title="Targeting"
-              right={<span style={{ ...mono, fontSize: 10 }}>TRACK</span>}
-            >
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <div style={{ width: 160, height: 160 }}>
-                  <Radar score={Number(active?.coupling_score ?? 0)} />
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 6,
-                    fontSize: 10,
-                    color: "rgba(226,232,240,0.75)",
-                  }}
-                >
-                  <div style={mono}>kappa={kappa.toFixed(3)}</div>
-                  <div style={mono}>chi={chi.toFixed(3)}</div>
-                  <div style={mono}>sigma={(active?.sigma ?? 0).toFixed(3)}</div>
-                  <div style={mono}>alpha={alpha.toFixed(3)}</div>
-
-                  <div style={{ marginTop: 6, opacity: 0.85 }}>
-                    lock quality ≈{" "}
-                    <span style={mono}>
-                      {(Number(active?.coupling_score ?? 0) * topoGate01 * 100).toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </HudPanel>
-            {/* Sigma meter */}
-            <div style={{ marginTop: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, opacity: 0.85 }}>
-                <span style={mono}>sigma</span>
-                <span style={mono}>{sigmaPct}%</span>
-              </div>
-
-              <div
-                style={{
-                  marginTop: 6,
-                  height: 8,
-                  borderRadius: 999,
-                  border: "1px solid rgba(148,163,184,0.22)",
-                  background: "rgba(2,6,23,0.35)",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    width: `${sigmaPct}%`,
-                    height: "100%",
-                    background: "rgba(34,197,94,0.70)",
-                    boxShadow: "0 0 16px rgba(34,197,94,0.35)",
-                  }}
-                />
-              </div>
+              Time
             </div>
 
-            {/* Bottom-right: knobs */}
-            <HudPanel
-              title="Key Knobs"
-              right={<span style={{ ...mono, fontSize: 10 }}>LIVE</span>}
+            <input
+              type="range"
+              min={0}
+              max={Math.max(0, frames.length - 1)}
+              value={cursor}
+              onChange={(e) => setCursor(Number(e.target.value))}
+              style={{ flex: 1, minWidth: 240 }}
+            />
+
+            <div style={{ ...mono, fontSize: 11, color: "rgba(226,232,240,0.78)" }}>
+              {frames.length ? `idx ${cursor} / ${frames.length - 1}` : "no frames"}
+            </div>
+
+            <button
+              type="button"
+              onClick={exportSnapshot}
+              disabled={!frames.length}
+              style={{
+                padding: "6px 10px",
+                borderRadius: 999,
+                border: "1px solid rgba(34,197,94,0.45)",
+                background: frames.length ? "rgba(34,197,94,0.12)" : "rgba(148,163,184,0.10)",
+                color: frames.length ? "#e5e7eb" : "rgba(226,232,240,0.6)",
+                fontSize: 11,
+                cursor: frames.length ? "pointer" : "default",
+              }}
             >
-              <KnobRow name="kappa" value={kappa} onChange={setKappa} />
-              <KnobRow name="chi" value={chi} onChange={setChi} />
-              <KnobRow name="sigma" value={sigma} onChange={setSigma} />
-              <KnobRow name="alpha" value={alpha} onChange={setAlpha} />
-            </HudPanel>
+              Snapshot / Export
+            </button>
           </div>
         </div>
-
-        {/* Time scrubber + export (footer stays pinned) */}
-        <div
-          style={{
-            padding: "10px 12px 12px",
-            borderTop: "1px solid rgba(148,163,184,0.18)",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            flexWrap: "wrap",
-          }}
-        >
-          <div
-            style={{
-              fontSize: 10,
-              letterSpacing: 0.9,
-              textTransform: "uppercase",
-              color: "rgba(226,232,240,0.70)",
-            }}
-          >
-            Time
-          </div>
-
-          <input
-            type="range"
-            min={0}
-            max={Math.max(0, frames.length - 1)}
-            value={cursor}
-            onChange={(e) => setCursor(Number(e.target.value))}
-            style={{ flex: 1, minWidth: 240 }}
-          />
-
-          <div
-            style={{
-              ...mono,
-              fontSize: 11,
-              color: "rgba(226,232,240,0.78)",
-            }}
-          >
-            {frames.length ? `idx ${cursor} / ${frames.length - 1}` : "no frames"}
-          </div>
-
-          <button
-            type="button"
-            onClick={exportSnapshot}
-            disabled={!frames.length}
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: "1px solid rgba(34,197,94,0.45)",
-              background: frames.length
-                ? "rgba(34,197,94,0.12)"
-                : "rgba(148,163,184,0.10)",
-              color: frames.length ? "#e5e7eb" : "rgba(226,232,240,0.6)",
-              fontSize: 11,
-              cursor: frames.length ? "pointer" : "default",
-            }}
-          >
-            Snapshot / Export
-          </button>
-        </div>
-      </div>
+      ) : null}
     </div>
   );
 }

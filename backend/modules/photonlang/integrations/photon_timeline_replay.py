@@ -1,55 +1,98 @@
 # ============================================================
-# 🌌 Photon Timeline Replay Layer
+# 🌌 Photon Timeline Replay Layer (lazy imports + deterministic/quiet aware)
 # ============================================================
 # Enables reloading .ptn telemetry snapshots and replaying them into
 # QuantumFieldCanvas (QFC), SQI, and QQC systems for symbolic timelines.
-# Now includes optional Workspace Reinjection for SCI IDE + Container sync.
+# Includes optional Workspace Reinjection for SCI IDE + Container sync.
+#
+# IMPORTANT:
+# - No heavy runtime imports at module import-time (pytest/CI safe)
+# - Deterministic time when TESSARIS_DETERMINISTIC_TIME=1
+# ============================================================
 
 from __future__ import annotations
+
+import asyncio
 import json
 import os
-import asyncio
 from datetime import datetime
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, List, Optional
 
-from backend.modules.visualization.quantum_field_canvas_api import trigger_qfc_render
 
-# Optional integrations -------------------------------------------------------
-try:
-    from backend.modules.photonlang.interpreter import QuantumFieldCanvas
-except Exception:
-    class QuantumFieldCanvas:
-        def __init__(self, *_, **__): self.state = {}
-        def resonate(self, seq, intensity=1.0, container_id=None):
-            self.state["resonance"] = {"seq": seq, "intensity": intensity}
-            return self.state["resonance"]
+# -----------------------------------------------------------------------------
+# Env gates
+# -----------------------------------------------------------------------------
+def _deterministic_time_enabled() -> bool:
+    return os.getenv("TESSARIS_DETERMINISTIC_TIME") == "1"
 
-try:
-    from backend.modules.sqi.sqi import SQI
-except Exception:
-    class SQI:
-        @staticmethod
-        def optimize():
-            return {"sqi_score": 1.0, "entropy": 0.0, "coherence": 1.0}
 
-try:
-    from backend.modules.qqc.qqc_resonance_bridge import QQCResonanceBridge
-except Exception:
-    class QQCResonanceBridge:
-        @staticmethod
-        def emit(intensity: float):
+def _quiet_enabled() -> bool:
+    return os.getenv("TESSARIS_TEST_QUIET") == "1"
+
+
+def _now_iso() -> str:
+    if _deterministic_time_enabled():
+        return "0000-00-00T00:00:00.000Z"
+    return datetime.utcnow().isoformat(timespec="milliseconds") + "Z"
+
+
+# -----------------------------------------------------------------------------
+# Optional hook: QFC render (keep import-time light)
+# -----------------------------------------------------------------------------
+async def _trigger_qfc_render(payload: Dict[str, Any], source: str = "timeline_replay") -> None:
+    try:
+        from backend.modules.visualization.quantum_field_canvas_api import trigger_qfc_render  # heavy-ish
+        await trigger_qfc_render(payload, source=source)
+    except Exception:
+        if not _quiet_enabled():
+            print(f"[StubQFC] Would trigger QFC render from [{source}] -> keys={list(payload.keys())}")
+
+
+# -----------------------------------------------------------------------------
+# Lazy optional integrations (no import-time bring-up)
+# -----------------------------------------------------------------------------
+def _get_quantum_field_canvas_cls():
+    try:
+        from backend.modules.photonlang.interpreter import QuantumFieldCanvas
+        return QuantumFieldCanvas
+    except Exception:
+        class QuantumFieldCanvas:  # type: ignore
+            def __init__(self, *_, **__):
+                self.state: Dict[str, Any] = {}
+
+            def resonate(self, seq: str, intensity: float = 1.0, container_id: Optional[str] = None):
+                self.state["resonance"] = {"seq": seq, "intensity": intensity, "container_id": container_id}
+                return self.state["resonance"]
+        return QuantumFieldCanvas
+
+
+def _compute_sqi_optimize() -> Dict[str, Any]:
+    try:
+        from backend.modules.sqi.sqi import SQI
+        return SQI.optimize()
+    except Exception:
+        return {"sqi_score": 1.0, "entropy": 0.0, "coherence": 1.0}
+
+
+def _emit_qqc(intensity: float) -> Dict[str, Any]:
+    try:
+        from backend.modules.qqc.qqc_resonance_bridge import QQCResonanceBridge
+        return QQCResonanceBridge.emit(float(intensity))
+    except Exception:
+        if not _quiet_enabled():
             print(f"[Stub QQC] Replayed intensity {intensity}")
-            return {"qqc_energy": intensity}
+        return {"qqc_energy": float(intensity)}
 
-# Optional SCI / Container Workspace Integrations ----------------------------
-try:
+
+def _reinjection_modules():
+    """
+    Import SCI/container reinjection only when reinject=True.
+    Keeps pytest/CI import-time clean.
+    """
     from backend.modules.sci.sci_core import SCIWorkspace
     from backend.modules.container.container_workspace_loader import load_container_workspace
-except Exception:
-    class SCIWorkspace:
-        def __init__(self, container_id="default"): self.container_id = container_id
-        def inject_state(self, state): print(f"[Stub SCIWorkspace] Injected state -> {self.container_id}")
-    def load_container_workspace(container_id, state): print(f"[StubContainer] Loaded {container_id}")
+    return SCIWorkspace, load_container_workspace
+
 
 # -----------------------------------------------------------------------------
 TELEMETRY_DIR = "artifacts/telemetry"
@@ -63,19 +106,22 @@ def load_from_ptn(path: str) -> Dict[str, Any]:
     if not os.path.exists(path):
         raise FileNotFoundError(f"Telemetry file not found: {path}")
     with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data
+        return json.load(f)
 
 
 def list_available_snapshots(limit: int = 10) -> List[str]:
     """Return the most recent saved telemetry .ptn files."""
     if not os.path.exists(TELEMETRY_DIR):
         return []
-    files = sorted(
-        [os.path.join(TELEMETRY_DIR, f) for f in os.listdir(TELEMETRY_DIR) if f.endswith(".ptn")],
-        key=os.path.getmtime,
-        reverse=True,
-    )
+
+    files = [os.path.join(TELEMETRY_DIR, f) for f in os.listdir(TELEMETRY_DIR) if f.endswith(".ptn")]
+
+    # Deterministic mode: avoid filesystem mtime ordering (unstable across runs)
+    if _deterministic_time_enabled():
+        files = sorted(files, reverse=True)  # assumes filenames contain timestamps (common)
+        return files[:limit]
+
+    files = sorted(files, key=os.path.getmtime, reverse=True)
     return files[:limit]
 
 
@@ -97,48 +143,60 @@ async def replay_snapshot(
     - Optionally reinjects the state into SCI/Container
     """
     data = load_from_ptn(path)
-    state = data.get("state", {}).get("resonance", {})
-    seq = state.get("seq", "")
-    intensity = state.get("intensity", 1.0)
-    container_id = data.get("container_id", container_id)
 
+    # Recorder shape: data["state"] may contain nested "resonance"
+    resonance = (data.get("state", {}) or {}).get("resonance", {}) or {}
+    seq = str(resonance.get("seq", ""))
+    intensity = float(resonance.get("intensity", 1.0) or 1.0)
+
+    # Support both "container" and "container_id" keys (older/newer writers)
+    container_id = str(data.get("container") or data.get("container_id") or container_id)
+
+    QuantumFieldCanvas = _get_quantum_field_canvas_cls()
     qfc = QuantumFieldCanvas()
-    replay_state = qfc.resonate(seq, intensity=intensity)
+    replay_state = qfc.resonate(seq, intensity=float(intensity), container_id=container_id)
 
-    sqi = SQI.optimize()
-    qqc = QQCResonanceBridge.emit(intensity)
+    sqi = _compute_sqi_optimize()
+    qqc = _emit_qqc(float(intensity))
 
-    # Reinjection layer - rehydrate SCI and container state
+    # Reinjection layer - rehydrate SCI and container state (optional)
     if reinject:
         try:
+            SCIWorkspace, load_container_workspace = _reinjection_modules()
             load_container_workspace(container_id, state=data.get("state", {}))
             sci_ws = SCIWorkspace(container_id)
             sci_ws.inject_state(data.get("state", {}))
-            print(f"♻️ Reinjected workspace for [{container_id}] from {os.path.basename(path)}")
+            if not _quiet_enabled():
+                print(f"♻️ Reinjected workspace for [{container_id}] from {os.path.basename(path)}")
         except Exception as e:
-            print(f"⚠️ Reinjection failed for {path}: {e}")
+            if not _quiet_enabled():
+                print(f"⚠️ Reinjection failed for {path}: {e}")
 
     frame = {
-        "timestamp": datetime.utcnow().isoformat(timespec="milliseconds") + "Z",
+        "timestamp": _now_iso(),
         "seq": seq,
-        "intensity": intensity,
+        "intensity": float(intensity),
         "sqi_feedback": sqi,
         "qqc_feedback": qqc,
+        "replayed_state": replay_state,
         "replayed_from": os.path.basename(path),
+        "container_id": container_id,
     }
 
     if broadcast:
         try:
-            await trigger_qfc_render(
+            await _trigger_qfc_render(
                 {"type": "timeline_frame", "frame": frame, "label": "photon_replay"},
-                source="timeline_replay"
+                source="timeline_replay",
             )
-            print(f"🌀 QFC frame broadcasted: {path}")
+            if not _quiet_enabled():
+                print(f"🌀 QFC frame broadcasted: {path}")
         except Exception as e:
-            print(f"⚠️ Failed to broadcast replay frame: {e}")
+            if not _quiet_enabled():
+                print(f"⚠️ Failed to broadcast replay frame: {e}")
 
     if delay > 0:
-        await asyncio.sleep(delay)
+        await asyncio.sleep(float(delay))
 
     return frame
 
@@ -160,22 +218,26 @@ async def replay_timeline(
     """
     snapshots = list_available_snapshots(limit)
     if not snapshots:
-        print("⚠️ No saved resonance telemetry snapshots found.")
+        if not _quiet_enabled():
+            print("⚠️ No saved resonance telemetry snapshots found.")
         return []
 
-    snapshots.reverse()  # old -> new
+    snapshots.reverse()  # old -> new (given list_available_snapshots returns newest-first)
     frames: List[Dict[str, Any]] = []
-    print(f"🎞️ Replaying {len(snapshots)} frames (reinjection={'on' if reinject else 'off'})...")
+    if not _quiet_enabled():
+        print(f"🎞️ Replaying {len(snapshots)} frames (reinjection={'on' if reinject else 'off'})...")
 
-    for path in snapshots:
-        frame = await replay_snapshot(
-            path,
-            broadcast=broadcast,
-            delay=delay,
-            reinject=reinject,
-            container_id=container_id,
+    for p in snapshots:
+        frames.append(
+            await replay_snapshot(
+                p,
+                broadcast=broadcast,
+                delay=delay,
+                reinject=reinject,
+                container_id=container_id,
+            )
         )
-        frames.append(frame)
 
-    print("✅ Timeline replay complete.")
+    if not _quiet_enabled():
+        print("✅ Timeline replay complete.")
     return frames

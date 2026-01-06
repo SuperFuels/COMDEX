@@ -307,5 +307,117 @@
     "meta": {
       "address": "ucs://local/dc_aion_core#container"
     }
+  },
+  "gx1:sqi:99daa98e8cfc:matched_key:job0": {
+    "address": "ucs://knowledge/facts/unknown/gx1:sqi:99daa98e8cfc:matched_key:job0",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://knowledge/facts/unknown/gx1:sqi:99daa98e8cfc:matched_key:job0",
+      "created_by": "SQI",
+      "last_updated": "1970-01-01T00:00:00",
+      "ghx": {
+        "hover": true,
+        "collapsed": true,
+        "density": "auto",
+        "version": "1.0"
+      },
+      "source": "sqi_executor_ucs",
+      "hov": {
+        "lazy_ready": true
+      },
+      "time_dilation": {
+        "mode": "normal",
+        "snapshot_rate": 1.0,
+        "reason": {
+          "glyphs": 0,
+          "nodes": 0
+        }
+      },
+      "last_hov_embed": "2026-01-04T23:21:04.544995"
+    }
+  },
+  "gx1:sqi:99daa98e8cfc:mismatched_key:job0": {
+    "address": "ucs://knowledge/facts/unknown/gx1:sqi:99daa98e8cfc:mismatched_key:job0",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://knowledge/facts/unknown/gx1:sqi:99daa98e8cfc:mismatched_key:job0",
+      "created_by": "SQI",
+      "last_updated": "1970-01-01T00:00:00",
+      "ghx": {
+        "hover": true,
+        "collapsed": true,
+        "density": "auto",
+        "version": "1.0"
+      },
+      "source": "sqi_executor_ucs",
+      "hov": {
+        "lazy_ready": true
+      },
+      "time_dilation": {
+        "mode": "normal",
+        "snapshot_rate": 1.0,
+        "reason": {
+          "glyphs": 0,
+          "nodes": 0
+        }
+      },
+      "last_hov_embed": "2026-01-04T23:21:05.557942"
+    }
+  },
+  "gx1:sqi:99daa98e8cfc:multiplex_k2:job0": {
+    "address": "ucs://knowledge/facts/unknown/gx1:sqi:99daa98e8cfc:multiplex_k2:job0",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://knowledge/facts/unknown/gx1:sqi:99daa98e8cfc:multiplex_k2:job0",
+      "created_by": "SQI",
+      "last_updated": "1970-01-01T00:00:00",
+      "ghx": {
+        "hover": true,
+        "collapsed": true,
+        "density": "auto",
+        "version": "1.0"
+      },
+      "source": "sqi_executor_ucs",
+      "hov": {
+        "lazy_ready": true
+      },
+      "time_dilation": {
+        "mode": "normal",
+        "snapshot_rate": 1.0,
+        "reason": {
+          "glyphs": 0,
+          "nodes": 0
+        }
+      },
+      "last_hov_embed": "2026-01-04T23:21:05.571814"
+    }
+  },
+  "gx1:sqi:99daa98e8cfc:mutation_ch0_sev512:job0": {
+    "address": "ucs://knowledge/facts/unknown/gx1:sqi:99daa98e8cfc:mutation_ch0_sev512:job0",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://knowledge/facts/unknown/gx1:sqi:99daa98e8cfc:mutation_ch0_sev512:job0",
+      "created_by": "SQI",
+      "last_updated": "1970-01-01T00:00:00",
+      "ghx": {
+        "hover": true,
+        "collapsed": true,
+        "density": "auto",
+        "version": "1.0"
+      },
+      "source": "sqi_executor_ucs",
+      "hov": {
+        "lazy_ready": true
+      },
+      "time_dilation": {
+        "mode": "normal",
+        "snapshot_rate": 1.0,
+        "reason": {
+          "glyphs": 0,
+          "nodes": 0
+        }
+      },
+      "last_hov_embed": "2026-01-04T23:21:05.579284"
+    }
   }
 }

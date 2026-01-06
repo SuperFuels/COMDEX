@@ -26,9 +26,16 @@ def test_trace_contract_small_and_kinds(tmp_path: Path) -> None:
     run_dir = Path(r["run_dir"])
 
     lines = (run_dir / "TRACE.jsonl").read_text(encoding="utf-8").splitlines()
-    assert 1 <= len(lines) <= 32  # 2 events x 4 scenarios = 8 lines expected
+    # TRACE is intentionally small in this test fixture.
+    # Current contract: per scenario we emit:
+    #   - scenario_summary
+    #   - rho_trace_eval_window
+    # Plus optional integration lines:
+    #   - beam_event (SLE mode)
+    #   - sqi_bundle (when SQI export is enabled)
+    assert 1 <= len(lines) <= 64
 
-    allowed = {"scenario_summary", "rho_trace_eval_window"}
+    allowed = {"beam_event", "scenario_summary", "rho_trace_eval_window", "sqi_bundle"}
     for ln in lines:
         ev = json.loads(ln)
-        assert ev.get("trace_kind") in allowed
+        assert ev.get("trace_kind") in allowed, ev

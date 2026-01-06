@@ -12,6 +12,9 @@ type PhotonEditorProps = {
   docId?: string;
   // shared “Holo Files” cabinet passed from DevTools
   holoFiles?: HoloIndexItem[];
+
+  // NEW: lets a parent read whatever is currently in the active buffer
+  onSourceChange?: (source: string) => void;
 };
 
 // ---- Types from SCI editor ----
@@ -114,6 +117,7 @@ async function postJson<T = any>(path: string, body: any): Promise<T> {
 export default function PhotonEditor({
   docId = "devtools",
   holoFiles = [],
+  onSourceChange,
 }: PhotonEditorProps) {
   const initialId = docId;
 
@@ -213,7 +217,13 @@ export default function PhotonEditor({
       ...prev,
       [activeDocId]: next,
     }));
+    onSourceChange?.(next);
   }
+
+  useEffect(() => {
+    onSourceChange?.(docText[activeDocId] ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDocId]);
 
   // ⬇️ React to “Send to Text Editor” and also hydrate from any buffered stub
   useEffect(() => {

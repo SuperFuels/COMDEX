@@ -588,6 +588,7 @@ from backend.modules.escrow.escrow_routes import router as escrow_router
 from backend.modules.transactable_docs.transactable_doc_routes import router as transactable_docs_router
 from backend.modules.p2p.router import router as p2p_router
 from backend.routes.lean_snapshot_api import router as lean_snapshot_router
+from backend.genome_engine.web_gx1_upload import build_fastapi_router
 
 from backend.modules.staking.staking_routes import router as staking_router
 from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
@@ -837,6 +838,7 @@ app.include_router(staking_router, prefix="/api")
 app.include_router(glyphchain_perf_router, prefix="/api")
 app.include_router(lean_snapshot_router)
 app.include_router(p2p_router, prefix="/api/p2p", tags=["p2p"])
+app.include_router(build_fastapi_router(), prefix="/api")
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)
 

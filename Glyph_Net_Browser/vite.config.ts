@@ -21,22 +21,26 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   // FastAPI (primary backend)
-  const fastApiHttp = env.VITE_FASTAPI_URL || "http://127.0.0.1:8080";
+  const fastApiHttp = (env.VITE_FASTAPI_URL || "http://127.0.0.1:8080").replace(/\/+$/, "");
+
+  // ✅ GX1 (separate service) — default to the port you start it on:
+  //   PORT=8091 python -m backend.gx1_api_min
+  const gx1Http = (env.VITE_GX1_URL || "http://127.0.0.1:8091").replace(/\/+$/, "");
 
   // Aion module endpoints (your launch script ports)
-  const srelHttp = env.VITE_SREL_URL || "http://127.0.0.1:8001"; // serves /ws/symatics
-  const ralHttp  = env.VITE_RAL_URL  || "http://127.0.0.1:8002"; // serves /ws/analytics
-  const aqciHttp = env.VITE_AQCI_URL || "http://127.0.0.1:8004"; // serves /ws/control
-  const tcfkHttp = env.VITE_TCFK_URL || "http://127.0.0.1:8005"; // serves /ws/fusion
-  const rqfsHttp = env.VITE_RQFS_URL || "http://127.0.0.1:8006"; // serves /ws/rqfs_feedback
+  const srelHttp = (env.VITE_SREL_URL || "http://127.0.0.1:8001").replace(/\/+$/, ""); // /ws/symatics
+  const ralHttp  = (env.VITE_RAL_URL  || "http://127.0.0.1:8002").replace(/\/+$/, ""); // /ws/analytics
+  const aqciHttp = (env.VITE_AQCI_URL || "http://127.0.0.1:8004").replace(/\/+$/, ""); // /ws/control
+  const tcfkHttp = (env.VITE_TCFK_URL || "http://127.0.0.1:8005").replace(/\/+$/, ""); // /ws/fusion
+  const rqfsHttp = (env.VITE_RQFS_URL || "http://127.0.0.1:8006").replace(/\/+$/, ""); // /ws/rqfs_feedback
 
   // Optional radio-node (Express)
   const radioDisabled = env.VITE_DISABLE_RADIO === "1";
-  const radioHttp = env.VITE_BACKEND_URL || "http://127.0.0.1:8787";
+  const radioHttp = (env.VITE_BACKEND_URL || "http://127.0.0.1:8787").replace(/\/+$/, "");
 
   // Node KG + SCI
-  const kgHttp = env.VITE_KG_URL || "http://127.0.0.1:3000";
-  const sciHttp = env.VITE_SCI_URL || "http://127.0.0.1:3001";
+  const kgHttp = (env.VITE_KG_URL || "http://127.0.0.1:3000").replace(/\/+$/, "");
+  const sciHttp = (env.VITE_SCI_URL || "http://127.0.0.1:3001").replace(/\/+$/, "");
 
   const httpProxy = (targetHttp: string): ProxyTarget => ({
     target: targetHttp,
@@ -57,7 +61,7 @@ export default defineConfig(({ mode }) => {
   // Aion module servers expose /ws/*, not /api/ws/*
   const dropApiPrefix = (p: string) => p.replace(/^\/api/, "");
 
-  const proxy: Record<string, any> = {
+  const proxy: Record<string, ProxyTarget | any> = {
     // ── KG
     "/api/kg": httpProxy(kgHttp),
 
@@ -90,6 +94,10 @@ export default defineConfig(({ mode }) => {
     "/api/chain_sim": httpProxy(fastApiHttp),
     "/api/glyphchain": httpProxy(fastApiHttp),
     "/api/lean": httpProxy(fastApiHttp),
+
+    // ✅ GX1 HTTP APIs (MUST be above the catch-all "/api")
+    // Frontend calls: 5173/api/gx1/... -> Vite forwards to gx1Http/api/gx1/...
+    "/api/gx1": httpProxy(gx1Http),
 
     // ─────────────────────────────────────────────────────────────
     // WebSockets
@@ -129,7 +137,11 @@ export default defineConfig(({ mode }) => {
 
     // Catch-all /api:
     // If radio is disabled, DO NOT point /api at 8787.
-    "/api": { target: radioDisabled ? fastApiHttp : radioHttp, changeOrigin: true, secure: false },
+    "/api": {
+      target: radioDisabled ? fastApiHttp : radioHttp,
+      changeOrigin: true,
+      secure: false,
+    },
 
     // radio-node extras (only if enabled)
     ...(radioDisabled

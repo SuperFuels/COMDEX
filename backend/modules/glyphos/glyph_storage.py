@@ -24,7 +24,8 @@ Compatibility:
 import json, os, tempfile
 from pathlib import Path
 from typing import Dict, Any, Optional
-
+import logging
+logger = logging.getLogger("glyphos.storage")
 # Optional memory sink
 try:
     from backend.modules.hexcore.memory_engine import store_memory_entry as _store_mem
@@ -129,6 +130,7 @@ REGISTRY_FILE = Path("data/system/glyph_registry.json")
 
 # Environment toggles
 QUIET = os.getenv("GLYPHOS_QUIET", "0") == "1"
+QUIET = QUIET or (os.getenv("TESSARIS_TEST_QUIET", "") == "1")
 NO_MEMORY = os.getenv("GLYPHOS_NO_MEMORY", "0") == "1" or os.getenv("AION_LITE", "0") == "1"
 
 # In-memory state (lazy-loaded)
@@ -199,7 +201,7 @@ def _ensure_loaded() -> None:
             raw = {}
     _GLYPH_REG = _normalize_loaded(raw)
     if not QUIET:
-        print(f"[GlyphOS] Loaded {len(_GLYPH_REG)} entries (normalized)")
+        logger.info("[GlyphOS] Loaded %d entries (normalized)", len(_GLYPH_REG))
 
 
 def get_glyph_registry() -> Dict[str, Dict[str, Any]]:
@@ -255,7 +257,7 @@ def store_glyph_entry(
 
     if not QUIET:
         action = "updated" if prev else "created"
-        print(f"[GlyphOS] Registered glyph: {lemma} -> {glyph} ({action})")
+        logger.info("[GlyphOS] Registered glyph: %s -> %s (%s)", lemma, glyph, action)
 
     return {"glyph": glyph, "reason": ("updated" if prev else "created")}
 
@@ -267,7 +269,7 @@ def export_registry(path: str = "glyph_registry_export.json") -> None:
     _ensure_loaded()
     Path(path).write_text(json.dumps(_GLYPH_REG, indent=2), encoding="utf-8")
     if not QUIET:
-        print(f"[GlyphOS] Exported registry to {path}")
+        logger.info("[GlyphOS] Exported registry to %s", path)
 
 
 # ================================================================
@@ -288,7 +290,8 @@ def scan_container_for_glyphs(container_id: str) -> list[dict]:
                 {"coords": coords, "glyph": decompile_glyph(bytecode), "bytecode": bytecode}
             )
         except Exception as e:
-            print(f"[⚠️] Failed to read glyph from {file}: {e}")
+            if not QUIET:
+                logger.warning("[GlyphOS] Failed to read glyph from %s: %s", file, e)
     return glyphs
 
 

@@ -20,7 +20,29 @@ Usage:
     )
 """
 
+from __future__ import annotations
+
+import os
 import logging
+
+# --------------------------------------------------
+# Quiet gate (tests/imports)
+# --------------------------------------------------
+_QUIET = os.getenv("TESSARIS_TEST_QUIET", "") == "1"
+
+
+def _log_info(msg: str) -> None:
+    if _QUIET:
+        return
+    logging.info(msg)
+
+
+def _log_warning(msg: str) -> None:
+    # Warnings are still suppressed under quiet to avoid import spam in tests.
+    if _QUIET:
+        return
+    logging.warning(msg)
+
 
 # --------------------------------------------------
 # Core runtime (singleton) + orchestration
@@ -52,19 +74,20 @@ visual_integration = UCSVisualIntegration(runtime=ucs_runtime)
 # Auto-register geometries at import (Tesseract + Exotic Containers)
 # --------------------------------------------------
 try:
+    # NOTE: UCSGeometryLoader.__init__ already registers defaults; keep call for legacy safety.
     geometry_loader.register_default_geometries()
-    logging.info("✅ UCS Geometry Loader initialized with default geometries.")
+    _log_info("✅ UCS Geometry Loader initialized with default geometries.")
 except Exception as e:
-    logging.warning(f"UCS Geometry Loader init failed: {e!r}")
+    _log_warning(f"UCS Geometry Loader init failed: {e!r}")
 
 # --------------------------------------------------
 # Bind GHX + KnowledgeGraph visualization hooks
 # --------------------------------------------------
 try:
     visual_integration.inject_into_visualizer(ucs_runtime.visualizer)
-    logging.info("🌌 GHXVisualizer integration bound to UCS runtime.")
+    _log_info("🌌 GHXVisualizer integration bound to UCS runtime.")
 except Exception as e:
-    logging.warning(f"GHXVisualizer integration failed: {e!r}")
+    _log_warning(f"GHXVisualizer integration failed: {e!r}")
 
 # --------------------------------------------------
 # Legacy / convenience loaders
@@ -80,6 +103,7 @@ def load_dc_container(path: str, register_as_atom: bool = False):
     if hasattr(rt, "load_container_from_path"):
         return rt.load_container_from_path(path, register_as_atom=register_as_atom)
     raise AttributeError("UCSRuntime has no container load method")
+
 
 # Some older code expects a callable named `container_loader`.
 # Keep it as a thin shim to our module-level load_dc_container above.
@@ -97,7 +121,7 @@ except Exception:
 # Debug logging toggle
 # --------------------------------------------------
 DEBUG_MODE = False
-if DEBUG_MODE:
+if DEBUG_MODE and not _QUIET:
     logging.basicConfig(level=logging.DEBUG)
     logging.debug("🛠 UCS Debug Mode Enabled: Verbose container orchestration logs active.")
 

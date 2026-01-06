@@ -6,6 +6,7 @@ from typing import Any, Dict, List
 
 from .determinism import TickClock, SeededRNG
 from .event_envelope import beam_event_envelope
+from .sqi_bundle import build_sqi_bundle
 
 from backend.modules.symatics_lightwave.symatics_dispatcher import SymaticsDispatcher
 from backend.modules.symatics_lightwave.wave_capsule import WaveCapsule
@@ -162,6 +163,56 @@ class SLEAdapter:
 
         eval_window = q_series_ch0[-eval_ticks:] if int(eval_ticks) > 0 else list(q_series_ch0)
         coherence_mean = float(sum(eval_window) / max(1, len(eval_window)))
+
+                # --- Derive drift eval window from captured Beam envelopes (best-effort, deterministic)
+        # Use channel 0 and ticks in the eval tail.
+        drift_window: List[float] = []
+        try:
+            start_tick = int(total_ticks) - int(eval_ticks)
+            if start_tick < 0:
+                start_tick = 0
+            for rec in trace:
+                if not isinstance(rec, dict):
+                    continue
+                if rec.get("trace_kind") != "beam_event":
+                    continue
+                if int(rec.get("channel", 0)) != 0:
+                    continue
+                tick_v = rec.get("tick")
+                if tick_v is None:
+                    continue
+                try:
+                    tick_i = int(tick_v)
+                except Exception:
+                    continue
+                if tick_i < start_tick:
+                    continue
+                try:
+                    drift_window.append(float(rec.get("drift", 0.0)))
+                except Exception:
+                    drift_window.append(0.0)
+        except Exception:
+            drift_window = []
+
+        # --- GX1 SQI bundle (GX1-local, no QQC/SQI module coupling)
+        sqi_bundle = build_sqi_bundle(
+            scenario_id=str(scenario_id),
+            mode=str(mode),
+            channel=0,
+            qscore_eval_window=[float(x) for x in eval_window],
+            drift_eval_window=[float(x) for x in drift_window],
+            thresholds={"warmup_ticks": int(warmup_ticks), "eval_ticks": int(eval_ticks)},
+        )
+
+        trace.append(
+            {
+                "trace_kind": "sqi_bundle",
+                "scenario_id": str(scenario_id),
+                "mode": str(mode),
+                "channel": 0,
+                "sqi": sqi_bundle,
+            }
+        )
 
         # --- GX1 legacy contract pair (keep Mode B compatible with SIM trace expectations)
         # Append at end so consumers can find summaries even if TRACE is mostly beam_event lines.

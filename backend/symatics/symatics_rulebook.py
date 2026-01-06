@@ -23,11 +23,14 @@ from backend.symatics.rewrite_rules import (
 # ──────────────────────────────
 # Logger setup (for internal law diagnostics)
 # ──────────────────────────────
+import os
 import logging
 
+_QUIET = os.getenv("TESSARIS_TEST_QUIET", "") == "1"
+
 logger = logging.getLogger("symatics.rulebook")
-if not logger.handlers:
-    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
+# Do NOT call logging.basicConfig() in a library module (import side-effect).
+# Test runner / app entrypoints should configure logging.
 
 # Types
 SymExpr = Union[str, Dict[str, Any], List[Any]]
@@ -1039,15 +1042,17 @@ def law_damping_linearity(a: Any, b: Any, gamma: float) -> bool:
         right_norm = _canonical(right)
 
         if left_norm != right_norm:
-            print("\n[DEBUG law_damping_linearity mismatch]")
-            print("  left raw:", left)
-            print("  right raw:", right)
-            print("  left norm:", left_norm)
-            print("  right norm:", right_norm)
+            if os.getenv("TESSARIS_TEST_QUIET", "") != "1":
+                print("\n[DEBUG law_damping_linearity mismatch]")
+                print("  left raw:", left)
+                print("  right raw:", right)
+                print("  left norm:", left_norm)
+                print("  right norm:", right_norm)
 
         return law_eq(left, right)
     except Exception as e:
-        print("[DEBUG law_damping_linearity error]", e)
+        if os.getenv("TESSARIS_TEST_QUIET", "") != "1":
+            print("[DEBUG law_damping_linearity error]", e)
         return False
 
 def law_resonance_damping_consistency(expr: Any, q: float, gamma: float) -> bool:
@@ -1406,12 +1411,15 @@ LAW_REGISTRY = {
 # ──────────────────────────────
 try:
     from backend.symatics.quantum_ops import inject_into_law_registry
-    if inject_into_law_registry():
-        print("[SymaticsRulebook] ✅ QuantumOps successfully injected into LAW_REGISTRY['quantum']")
-    else:
-        print("[SymaticsRulebook] ⚠️ QuantumOps injection skipped or failed silently")
+    ok = inject_into_law_registry()
+    if os.getenv("TESSARIS_TEST_QUIET", "") != "1":
+        if ok:
+            print("[SymaticsRulebook] ✅ QuantumOps successfully injected into LAW_REGISTRY['quantum']")
+        else:
+            print("[SymaticsRulebook] ⚠️ QuantumOps injection skipped or failed silently")
 except Exception as e:
-    print(f"[SymaticsRulebook] ⚠️ QuantumOps injection deferred: {e}")
+    if os.getenv("TESSARIS_TEST_QUIET", "") != "1":
+        print(f"[SymaticsRulebook] ⚠️ QuantumOps injection deferred: {e}")
 
 # =====================================================
 # 🔗 Manual Integration - Symatics Meta-Axioms (v2.0+)
@@ -1427,11 +1435,15 @@ if "META_AXIOMS_COMBINED" not in globals():
             LAW_REGISTRY.setdefault(domain, [])
             LAW_REGISTRY[domain].append(ax)
 
-        print(f"[SymaticsRulebook v0.3] ✅ Integrated {len(META_AXIOMS_COMBINED)} axioms "
-              f"(symbolic + meta, v02) into LAW_REGISTRY")
+        if os.getenv("TESSARIS_TEST_QUIET", "") != "1":
+            print(
+                f"[SymaticsRulebook v0.3] ✅ Integrated {len(META_AXIOMS_COMBINED)} axioms "
+                f"(symbolic + meta, v02) into LAW_REGISTRY"
+            )
 
     except Exception as e:
-        print(f"[SymaticsRulebook v0.3] ⚠️ Meta-axiom integration failed: {e}")
+        if os.getenv("TESSARIS_TEST_QUIET", "") != "1":
+            print(f"[SymaticsRulebook v0.3] ⚠️ Meta-axiom integration failed: {e}")
 
 def _law_name(func) -> str:
     """

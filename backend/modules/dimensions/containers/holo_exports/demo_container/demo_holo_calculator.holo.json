@@ -1,98 +1,98 @@
 {
-  "container_id": "demo_container",
-  "extra": {
-    "last_run_at": "2025-12-09T15:01:01.688365+00:00",
-    "last_run_mode": "qqc",
-    "program_frames": [
-      {
-        "config": {
-          "from": "x"
-        },
-        "id": "f1",
-        "label": "Load x",
-        "order": 0,
-        "role": "input"
-      },
-      {
-        "config": {
-          "factor": 2
-        },
-        "id": "f2",
-        "label": "Multiply by 2",
-        "order": 1,
-        "role": "mul"
-      },
-      {
-        "config": {
-          "value": 3
-        },
-        "id": "f3",
-        "label": "Add 3",
-        "order": 2,
-        "role": "add"
-      },
-      {
-        "config": {
-          "to": "y"
-        },
-        "id": "f4",
-        "label": "Write to y",
-        "order": 3,
-        "role": "output"
-      }
-    ],
-    "run_count": 1
-  },
-  "ghx": {
-    "edges": [
-      {
-        "id": "e1",
-        "kind": "flow",
-        "source": "f1",
-        "target": "f2"
-      },
-      {
-        "id": "e2",
-        "kind": "flow",
-        "source": "f2",
-        "target": "f3"
-      },
-      {
-        "id": "e3",
-        "kind": "flow",
-        "source": "f3",
-        "target": "f4"
-      }
-    ],
-    "nodes": [
-      {
-        "id": "f1",
-        "kind": "frame",
-        "label": "Load x"
-      },
-      {
-        "id": "f2",
-        "kind": "frame",
-        "label": "Multiply by 2"
-      },
-      {
-        "id": "f3",
-        "kind": "frame",
-        "label": "Add 3"
-      },
-      {
-        "id": "f4",
-        "kind": "frame",
-        "label": "Write to y"
-      }
-    ]
-  },
   "holo_id": "demo:holo_calculator",
+  "container_id": "demo_container",
   "name": "Demo Calculator Hologram",
   "timefold": {
     "tick": 0
   },
   "version": {
     "revision": 2
+  },
+  "extra": {
+    "program_frames": [
+      {
+        "id": "f1",
+        "role": "input",
+        "label": "Load x",
+        "order": 0,
+        "config": {
+          "from": "x"
+        }
+      },
+      {
+        "id": "f2",
+        "role": "mul",
+        "label": "Multiply by 2",
+        "order": 1,
+        "config": {
+          "factor": 2
+        }
+      },
+      {
+        "id": "f3",
+        "role": "add",
+        "label": "Add 3",
+        "order": 2,
+        "config": {
+          "value": 3
+        }
+      },
+      {
+        "id": "f4",
+        "role": "output",
+        "label": "Write to y",
+        "order": 3,
+        "config": {
+          "to": "y"
+        }
+      }
+    ],
+    "run_count": 1,
+    "last_run_at": "2026-01-05T16:23:36.688847+00:00",
+    "last_run_mode": "qqc"
+  },
+  "ghx": {
+    "nodes": [
+      {
+        "id": "f1",
+        "label": "Load x",
+        "kind": "frame"
+      },
+      {
+        "id": "f2",
+        "label": "Multiply by 2",
+        "kind": "frame"
+      },
+      {
+        "id": "f3",
+        "label": "Add 3",
+        "kind": "frame"
+      },
+      {
+        "id": "f4",
+        "label": "Write to y",
+        "kind": "frame"
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "source": "f1",
+        "target": "f2",
+        "kind": "flow"
+      },
+      {
+        "id": "e2",
+        "source": "f2",
+        "target": "f3",
+        "kind": "flow"
+      },
+      {
+        "id": "e3",
+        "source": "f3",
+        "target": "f4",
+        "kind": "flow"
+      }
+    ]
   }
 }

@@ -16,6 +16,28 @@ from typing import Dict, Any
 
 UCS_TEMPLATE_DIR = "backend/modules/dimensions/universal_container_system/templates/"
 
+
+# ────────────────────────────────────────────────
+# Quiet gate (tests/imports)
+# ────────────────────────────────────────────────
+_QUIET = os.getenv("TESSARIS_TEST_QUIET", "") == "1"
+
+try:
+    # Prefer shared helper if present (optional).
+    from backend.utils.quiet import qprint as _qprint  # type: ignore
+except Exception:  # pragma: no cover
+    _qprint = None  # type: ignore
+
+
+def _emit(msg: str) -> None:
+    if _QUIET:
+        return
+    if _qprint is not None:
+        _qprint(msg)
+    else:
+        print(msg)
+
+
 class UCSGeometryLoader:
     def __init__(self):
         # Stores registered geometries by name
@@ -41,7 +63,7 @@ class UCSGeometryLoader:
             "capital": capital
         }
         flag = " (CAPITAL)" if capital else ""
-        print(f"🔗 Registered geometry: {name} {symbol}{flag} - {description}")
+        _emit(f"🔗 Registered geometry: {name} {symbol}{flag} - {description}")
 
     def register_default_geometries(self):
         """
@@ -92,7 +114,7 @@ class UCSGeometryLoader:
         Supports both generic and capital containers (e.g., Tesseract Central Command).
         """
         if not os.path.exists(UCS_TEMPLATE_DIR):
-            print(f"⚠️ No UCS templates directory found at {UCS_TEMPLATE_DIR}")
+            _emit(f"⚠️ No UCS templates directory found at {UCS_TEMPLATE_DIR}")
             return
 
         for file in os.listdir(UCS_TEMPLATE_DIR):
@@ -107,7 +129,7 @@ class UCSGeometryLoader:
                     capital = data.get("capital", False)
                     self.register_geometry(name, symbol, desc, capital=capital)
                 except Exception as e:
-                    print(f"⚠️ Failed to load template {file}: {e}")
+                    _emit(f"⚠️ Failed to load template {file}: {e}")
 
     # ---------------------------------------------------------
     # 🔍 Geometry Lookup

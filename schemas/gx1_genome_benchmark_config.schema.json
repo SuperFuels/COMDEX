@@ -24,6 +24,21 @@
     "dt": {
       "type": "number"
     },
+
+    "ledger": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" }
+      },
+      "required": ["enabled"],
+      "type": "object"
+    },
+
+    "export_sqi_bundle": {
+      "default": false,
+      "description": "Back-compat: when true, emit GX1-local sqi_bundle records into TRACE for audit/replay.",
+      "type": "boolean"
+    },
     "mapping_id": {
       "minLength": 1,
       "type": "string"
@@ -92,6 +107,54 @@
     },
     "seed": {
       "type": "integer"
+    },
+    "sqi": {
+      "additionalProperties": false,
+      "description": "SQI pipeline controls (preferred over export_sqi_bundle).",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "type": "boolean"
+        },
+        "executor": {
+          "default": "local",
+          "description": "SQI fabric executor selection. Default 'local' for determinism/CI; 'ucs' enables UCS dispatch path.",
+          "enum": [
+            "local",
+            "ucs"
+          ],
+          "type": "string"
+        },
+        "kg_write": {
+          "default": false,
+          "description": "If true, SQI fabric stage may write results back into the knowledge graph (should be disabled in deterministic CI unless sandboxed).",
+          "type": "boolean"
+        },
+        "level": {
+          "default": "bundle",
+          "enum": [
+            "bundle",
+            "fabric"
+          ],
+          "type": "string"
+        },
+        "max_jobs": {
+          "default": 0,
+          "description": "Hard cap on number of SQI fabric jobs. 0 means no cap.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "plan_scope": {
+          "default": "run",
+          "description": "Whether SQI fabric plans/results are emitted once per run or per scenario.",
+          "enum": [
+            "run",
+            "scenario"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
     },
     "steps": {
       "type": "integer"

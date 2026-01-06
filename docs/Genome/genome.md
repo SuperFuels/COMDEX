@@ -3,7 +3,7 @@ flowchart TD
   %% Legend:
   %% ✅ = done, ⏳ = next, ⬜ = pending
   %% MUST = benchmark-grade SIM path (canonical)
-  %% SHOULD = integration path (SLE/QQC/SQI/QFC/UI/ledger)
+  %% SHOULD = integration path (SLE/SQI/QFC/UI/ledger)
   %% MAY = optional polish / plotting / perf
 
   A0([GX1: One callable engine, two modes]) --> A1
@@ -13,13 +13,16 @@ flowchart TD
   %% ─────────────────────────────────────────────
   subgraph H0[0) Hygiene + Guardrails]
     direction TB
-    H01[[MUST ⬜ Define env toggles + invariants]]
-    H01a[⬜ TESSARIS_DETERMINISTIC_TIME semantics documented]
-    H01b[⬜ TESSARIS_TEST_QUIET semantics documented]
+    H01[[MUST ✅ Define env toggles + invariants]]
+    H01a[✅ TESSARIS_DETERMINISTIC_TIME semantics documented]
+    H01b[✅ TESSARIS_TEST_QUIET semantics documented]
     H02[[MUST ✅ GX1-focused test suite runner]]
     H03[[MUST ✅ Import-cycle guard for wave_state]]
     H04[[MUST ✅ EntangledWave registry extracted (wave_store.py)]]
     H05[[MUST ✅ Add minimal log gate helper + adopt in noisy GX1 path]]
+    H06[[MUST ✅ SymaticsRulebook quiet-gated prints + fixed try/except blocks]]
+    H07[[MUST ✅ VirtualWaveEngine idempotent attach + quiet-gated prints]]
+    H07a[✅ prevents duplicate attaches (stops "Attached WaveState anon..." spam)]
   end
 
   A1 --> H0
@@ -38,16 +41,21 @@ flowchart TD
     C01d[✅ runs/<run_id>/TRACE.jsonl]
     C01e[✅ runs/<run_id>/REPLAY_BUNDLE.json]
     C01f[✅ ARTIFACTS_INDEX.md + ARTIFACTS_INDEX.sha256]
-    C02[[MUST ⬜ Stable JSON discipline]]
-    C02a[⬜ stable key order + canonical floats (policy)]
-    C02b[⬜ stable hashing helper used by tests]
+    C02[[MUST ✅ Stable JSON discipline]]
+    C02a[✅ stable key order + canonical floats (policy)]
+    C02b[✅ stable hashing helper used by tests]
     C03[[MUST ✅ JSON Schemas for CONFIG/METRICS/REPLAY]]
-    C03a[✅ schema: gx1_genome_benchmark_config.schema.json]
+    C03a[✅ schema: gx1_genome_benchmark_config.schema.json (updated for export_sqi_bundle)]
     C03b[✅ schema: gx1_genome_benchmark_metrics.schema.json]
     C03c[✅ schema: gx1_genome_benchmark_replay_bundle.schema.json]
     C04[[MUST ✅ Contract tests (existence + schema-valid)]]
     C05[[MUST ✅ Metrics schema-compat hotfix recorded]]
     C05a[✅ metrics root strips builder-internal keys (mode/stride/max_events)]
+    C06[[MUST ✅ TRACE contract surface frozen]]
+    C06a[✅ beam_event envelope lines (trace_kind="beam_event")]
+    C06b[✅ legacy scenario_summary lines (trace_kind="scenario_summary")]
+    C06c[✅ legacy rho_trace_eval_window lines (trace_kind="rho_trace_eval_window")]
+    C06d[✅ SQI bundle trace kind allowed (trace_kind="sqi_bundle")]
   end
 
   A2([Mode A: SIM = benchmark core]) --> C0
@@ -141,99 +149,123 @@ flowchart TD
   A6 --> M0
   M0 --> A7
 
-  %% ─────────────────────────────────────────────
-  %% 6) Mode B Engine (Integration target)
-  %% ─────────────────────────────────────────────
-  subgraph B0[6) Mode B: SLE/QQC/SQI/QFC/UI/Ledger Integration]
-    direction TB
+%% ─────────────────────────────────────────────
+%% 6) Mode B Engine (Integration target)
+%% ─────────────────────────────────────────────
+subgraph B0[6) Mode B: SLE/SQI/QFC/UI/Ledger Integration]
+  direction TB
 
-    B01[[SHOULD ⬜ Shared plan adapter]]
-    B01a[⬜ reuse SAME codec + scenarios from Mode A]
-    B01b[⬜ plan -> WaveCapsule payload]
+  B01[[SHOULD ✅ Shared plan adapter]]
+  B01a[✅ reuse SAME codec + scenarios from Mode A]
+  B01b[✅ plan -> WaveCapsule payload]
 
-    B02[[SHOULD ✅ SLE adapter determinism]]
-    B02a[✅ SLEAdapter tick-driven, seeded]
-    B02b[✅ stable trace events]
+  B02[[SHOULD ✅ SLE adapter determinism]]
+  B02a[✅ SLEAdapter tick-driven, seeded]
+  B02b[✅ stable trace events]
 
-    B03[[SHOULD ⬜ Dispatch path]]
-    B03a[⬜ WaveCapsule -> SymaticsDispatcher]
-    B03b[⬜ Dispatcher -> beam_tick_loop/beam_runtime/beam_scheduler]
-    B03c[⬜ event envelope normalization consistent with TRACE contract]
+  B03[[SHOULD ✅ Dispatch path]]
+  B03a[✅ WaveCapsule -> SymaticsDispatcher]
+  B03b[✅ Dispatcher -> beam_tick_loop/beam_runtime/beam_scheduler]
+  B03c[✅ BeamEventBus capture + GX1 envelope normalization]
+  B03d[✅ TRACE includes legacy summaries (scenario_summary + rho_trace_eval_window)]
+  B03e[✅ Determinism: identical TRACE/METRICS/REPLAY_BUNDLE hashes across runs]
+  B03f[✅ Tests: gx1_sle_trace_smoke + contract + schema/size]
 
-    B04[[SHOULD ⬜ SQI hookup]]
-    B04a[⬜ feed SQI engine with event stream]
-    B04b[⬜ SQI score bundle returned + recorded]
-    B04c[⬜ determinism: seeded RNG + no wall clock]
+  %% --- SQI (GX1-local) tasks: COMPLETE ---
+  B04[[SHOULD ✅ SQI bundle hookup (GX1-local, zero-coupling)]]
+  B04a[✅ build_sqi_bundle deterministic (no wall clock / no RNG)]
+  B04b[✅ gx1_builder appends sqi_bundle in Mode B when export_sqi_bundle=true]
+  B04c[✅ filter_trace preserves sqi_bundle as contract-critical]
+  B04d[✅ schemas + allowlists accept sqi_bundle]
+  B04e[✅ SLE trace smoke asserts sqi_bundle when enabled]
+  B04f[✅ replay_bundle exports.sqi anchors (enabled/level/sqi_digest)]
 
-    B05[[SHOULD ⬜ QQC/Resonance Computer hookup]]
-    B05a[⬜ bridge to QQC kernel (photon/resonance bridge)]
-    B05b[⬜ resonance feedback influences drift/coherence in a controlled way]
-    B05c[⬜ deterministic replay seeds captured]
+  %% --- SQI Fabric pipeline: COMPLETE incl UCS executor + artifact ladder ---
+  B09[[SHOULD ✅ SQI Fabric pipeline (GX1-local V0, deterministic)]]
+  B09a[✅ SqiPlan + SqiResult contract (GX1-local JSON surfaces)]
+  B09b[✅ sqi_fabric_runner: build plan + executor dispatch (local + ucs)]
+  B09c[✅ deterministic gather + stable sort + trace emission]
+  B09d[✅ KG write intent ledger (digest-only; actual KG write deferred)]
+  B09e[✅ TRACE kinds: sqi_fabric_plan + sqi_fabric_result]
+  B09f[✅ Replay anchors: enabled/level/plan_id/sqi_digest/kg_writes_count/kg_writes_path]
+  B09g[✅ Artifacts ladder: SQI_KG_WRITES.jsonl indexed + checksummed + sha256sum clean]
+  B09h[✅ Tests: fabric smoke + fabric determinism + UCS executor test]
 
-    B06[[SHOULD ⬜ Telemetry + Ledger outputs]]
-    B06a[⬜ ledger_feed writes data/ledger/...jsonl tagged with scenario_id]
-    B06b[⬜ REPLAY_BUNDLE includes ledger hashes]
-    B06c[⬜ optional websocket hooks gated/disabled in tests]
+  %% --- Still pending (next integration surfaces) ---
+  B05[[SHOULD ⬜ Telemetry + Ledger outputs]]
+  B05a[⬜ ledger_feed writes data/ledger/...jsonl tagged with scenario_id]
+  B05b[⬜ REPLAY_BUNDLE includes ledger hashes]
+  B05c[⬜ optional websocket hooks gated/disabled in tests]
 
-    B07[[SHOULD ⬜ QFC frames for UI]]
-    B07a[⬜ qqc_qfc_adapter emits QFC frames]
-    B07b[⬜ UI consumes frames without needing non-deterministic timing]
+  B06[[SHOULD ⬜ QFC frames for UI]]
+  B06a[⬜ qfc adapter emits QFC frames]
+  B06b[⬜ UI consumes frames without needing non-deterministic timing]
 
-    B08[[SHOULD ⬜ Integration tests]]
-    B08a[⬜ smoke: Mode B run produces artifacts + ledger]
-    B08b[⬜ determinism: same seed => identical trace hashes]
+  B07[[SHOULD ⬜ Integration tests (expanded)]]
+  B07a[✅ smoke: Mode B run produces artifacts + legacy trace lines]
+  B07b[✅ determinism: same seed => identical artifact hashes]
+  B07c[✅ SQI bundle smoke (when enabled)]
+  B07d[✅ SQI fabric smoke (GX1-local V0 + UCS executor)]
+  B07e[⬜ ledger + QFC smoke (once implemented)]
+end
+
+%% ─────────────────────────────────────────────
+%% 9) Done Criteria
+%% ─────────────────────────────────────────────
+subgraph Z0[9) Definition of Done]
+  direction TB
+  Z01[[MUST ✅ Mode A passes: deterministic, schema-valid, artifact-complete]]
+  Z02[[SHOULD ⏳ Mode B pipeline: SLE + SQI-fabric + ledger + QFC hooks (determinism-capable)]]
+  Z02a[✅ SLE integration + trace normalization + legacy records]
+  Z02b[✅ SQI bundle (GX1-local hook) present when enabled]
+  Z02c[✅ SQI fabric stage via UCS executor + KG write artifact on ladder]
+  Z02d[⬜ ledger outputs (hashes captured in replay bundle)]
+  Z02e[⬜ QFC frames export (UI replay surface)]
+  Z03[[MUST ✅ Docs: how to run + how to replay + lock procedure]]
+end
   end
+flowchart TD
+  A[GX1: SQI Fabric Pipeline (Mode C as pipeline stage)] --> B{Mode interface}
+  B -->|Preferred| B1["Keep cfg.mode as execution source:\n- mode: 'sim' | 'sle'\n- sqi: { enabled: true, level: 'bundle'|'fabric', ... }"]
+  B -->|Alt| B2["Alias 'mode: sqi'\n- means: run 'sle' first\n- then run SQI-fabric stage"]
 
-  A7([Mode B: Integration target]) --> B0
-  B0 --> A8
+  %% --- Contract surfaces ---
+  B1 --> C["(1) Define SQI Fabric contract surfaces (GX1-local, deterministic)\nAdd SqiPlan + SqiResult specs"]
+  B2 --> C
 
-  %% ─────────────────────────────────────────────
-  %% 7) Replay + Repro (both modes)
-  %% ─────────────────────────────────────────────
-  subgraph R0[7) Replay + Reproducibility]
-    direction TB
-    R01[[MUST ✅ Replay bundle completeness]]
-    R01a[✅ mapping_version + seeds + rng_algo]
-    R01b[✅ scenario pack + thresholds snapshot]
-    R01c[✅ trace hash + metrics hash]
-    R02[[SHOULD ✅ Replay runner]]
-    R02a[✅ re-run from REPLAY_BUNDLE -> same metrics/trace]
-    R03[[MAY ⬜ Golden fixtures]]
-    R03a[⬜ store small golden run bundle for CI]
-  end
+  C --> C1["SqiPlan fields:\n- plan_id\n- seed\n- scenario_id (optional)\n- inputs_digest\n- jobs[]: {container_id, op, inputs_ref, ast_ref?, lean_ref?}"]
+  C --> C2["SqiResult fields:\n- results[] (stable-sorted): {container_id, op, outputs, metrics}\n- kg_writes[]: {id, type, payload_digest}"]
 
-  A8 --> R0
-  R0 --> A9
+  C --> C3["TRACE additions:\n- trace_kind='sqi_bundle' (already)\n- trace_kind='sqi_fabric_plan'\n- trace_kind='sqi_fabric_result'"]
 
-  %% ─────────────────────────────────────────────
-  %% 8) CLI + UX (developer workflow)
-  %% ─────────────────────────────────────────────
-  subgraph X0[8) CLI + Dev Workflow]
-    direction TB
-    X01[[MUST ✅ Single entrypoint]]
-    X01a[✅ python -m backend.genome_engine.run_genomics_benchmark ... (SIM)]
-    X01b[✅ python -m backend.genome_engine.run_genomics_benchmark ... (SLE)]
-    X02[[MUST ✅ Quiet mode by default in tests]]
-    X02a[✅ TESSARIS_TEST_QUIET gates print/log spam]
-    X03[[MAY ⬜ Optional plots exporter]]
-    X03a[⬜ drift curves / separation curves saved under runs/<run_id>/plots]
-  end
+  %% --- Fabric runner ---
+  C3 --> D["(2) Implement GX1-local fabric runner (thin adapter)\nCreate: backend/genome_engine/sqi_fabric_runner.py"]
+  D --> D1["Convert GX1 inputs (scenarios + trace slices) -> Atom Containers"]
+  D --> D2["Use UCS/container runtime:\nmaterialize -> expand -> dispatch"]
+  D --> D3["Deterministic collection:\n- gather async results\n- sort by (scenario_id, container_id, op, stable_key)\n- emit stable outputs"]
+  D --> D4["Optional KG writes via a tiny interface wrapping knowledge_graph_writer\n(test-safe + deterministic)"]
 
-  A9 --> X0
-  X0 --> Z0
+  %% --- Wire into builder ---
+  D --> E["(3) Wire into gx1_builder.py"]
+  E --> E1["After trace_raw exists:\n- append sqi_bundle per scenario (already started)\n- if sqi.level == 'fabric': run fabric runner"]
+  E --> E2["Append to trace_raw:\n- sqi_fabric_plan\n- sqi_fabric_result"]
+  E --> E3["Add metrics.summary.sqi_* fields (counts/digests only)"]
+  E --> E4["Update filter_trace() CRITICAL_KINDS:\n{'scenario_summary','rho_trace_eval_window','sqi_bundle','sqi_fabric_plan','sqi_fabric_result'}"]
 
-  %% ─────────────────────────────────────────────
-  %% 9) Done Criteria
-  %% ─────────────────────────────────────────────
-  subgraph Z0[9) Definition of Done]
-    direction TB
-    Z01[[MUST ✅ Mode A passes: deterministic, schema-valid, artifact-complete]]
-    Z02[[SHOULD ⬜ Mode B runs end-to-end with SQI+ledger+QFC hooks (determinism-capable)]]
-    Z03[[MUST ✅ Docs: how to run + how to replay + lock procedure]]
-  end
+  %% --- Replay bundle ---
+  E --> F["(4) Update replay_bundle_writer.py for auditability"]
+  F --> F1["Add SQI replay header anchors:\n- sqi_export: 'off'|'bundle'|'fabric'\n- sqi_plan_id\n- sqi_digest (sha256 of stable JSON of all sqi_* trace records)\n- sqi_kg_write_count"]
 
+  %% --- Schema + tests ---
+  F --> G["(5) Schema + tests"]
+  G --> G1["Schema:\n- Update schemas/gx1_trace_event.schema.json\n  to allow new trace_kind values"]
+  G --> G2["Contract tests:\n- Update allowlist to include\n  'sqi_fabric_plan' + 'sqi_fabric_result' (if added)"]
+  G --> G3["Add tests:\n- Mode C determinism: 2 runs -> same trace_digest + same sqi_digest\n- Mode C smoke: trace contains sqi_bundle + sqi_fabric_result\n- KG write sandbox: tmp/in-memory KG writer for deterministic tests"]
 
-
+  %% --- AST + Lean references ---
+  G --> H["AST + Lean integration (references only, no payload explosions)"]
+  H --> H1["Carry refs in jobs/results:\n- ast_ref, lean_ref\n- ast_digest, lean_digest"]
+  H --> H2["Keep hologram out of GX1 mode logic\nLater stage:\n- export_holo: true\n- derive AST/crystal frames from SQI result ledger"]
 ⸻
 You’re right to stop me. The actual product here is not “SIM-only baseline + optional hooks.” The thing we’re building is an end-to-end Genome Resonance Computer that:
     •   takes genomic inputs
@@ -572,3 +604,109 @@ If you want, I can now produce the full mermaid checklist where:
 so it matches how you’re actually running the sprint.
 
 
+
+
+
+
+
+
+
+
+
+
+
+You’re right — the real SQI superpower in the new stack is graph-wide parallel computation over containerized knowledge, not “a nicer qscore summary.”
+
+What SQI is doing now (in this stack)
+
+SQI is the compute fabric that can:
+	•	Treat the Knowledge Graph as the index (what to compute over, and where results live).
+	•	Treat Atom Containers as the unit of data + execution boundary (what you run computations on).
+	•	Use the container runtime / UCS runtime to materialize, expand, and dispatch computations across many containers (scale-out / parallel).
+	•	Write results back into the KG (new nodes/edges + metadata), so subsequent jobs can chain.
+
+Concretely, from the files you dropped:
+	•	atom_container.py defines the atom container abstraction (small, portable payload + metadata, deterministic-friendly shape).
+	•	container_expander.py is the “expand this container into runnable/derived containers” surface (fan-out).
+	•	container_runtime.py is the “run work against containers” orchestration layer (execution boundary).
+	•	ucs_runtime.py / ucs_base_container.py are the runtime plumbing for container lifecycle + interoperability.
+	•	knowledge_graph_writer.py is the “commit results to the KG” writer (the persistence/output side).
+	•	dimension_kernel.py is the kernel-ish execution surface tying containerized work into the larger system.
+	•	sqi_runtime_master.dc.json is basically the “runtime master manifest” that names the SQI runtime modules and wiring.
+
+So: SQI = distributed graph compute over atom containers, with the KG as both address space and result ledger.
+
+⸻
+
+What SLE is doing now
+
+SLE is not the compute fabric — it’s the runtime event/simulation engine:
+	•	It produces the Beam event stream (tick-driven, deterministic clock when forced).
+	•	It’s the thing GX1 “Mode B” uses to prove the integration path: scenario plan → SLE/Beam → captured events → normalized TRACE.
+
+So:
+	•	SLE = eventful execution / telemetry source
+	•	SQI = graph-parallel computation / batch fabric
+
+⸻
+
+GX1 Mode A vs Mode B (why Mode B is special)
+
+Mode A (SIM-core)
+	•	Pure GX1 deterministic engine.
+	•	Metrics + TRACE come from GX1 directly.
+	•	It’s the “gold baseline contract.”
+
+Mode B (SLE/Beam integration)
+	•	Runs the same scenario plan through SLE/Beam.
+	•	Captures Beam events and normalizes them into GX1’s TRACE envelope.
+	•	Still produces the same artifact ladder (CONFIG/METRICS/TRACE/REPLAY) without loosening determinism.
+
+Why Mode B matters: it’s the bridge that proves:
+	1.	the runtime plumbing (Beam bus, capture windows, normalization) is real, and
+	2.	you can now attach higher-order compute (SQI) to those runtime products without coupling GX1 to the heavy SQI stack.
+
+That’s exactly what trace_kind="sqi_bundle" is for: it’s a contract-safe hook to carry SQI-derived results into TRACE/replay while staying deterministic.
+
+⸻
+
+What SQI is doing inside GX1 right now
+
+Right now the GX1 “SQI bundle” you added is intentionally GX1-local + zero-coupling:
+	•	It takes deterministic inputs (qscore series / trace slice)
+	•	Emits a stable summary object (trace_kind: "sqi_bundle")
+	•	No wall clock, no RNG, no QQC imports
+
+It’s not “SQI the fabric” — it’s the trace-level attachment point where full SQI (graph-wide container compute) can later write its outputs back into the run bundle deterministically.
+
+⸻
+
+What’s next (tasks before more tests)
+
+You already have tests passing after fixing the adapter call sites, so next is finishing the contract wiring (so Mode B produces SQI bundle deterministically and it’s replay-auditable).
+
+1) gx1_builder: actually emit sqi_bundle in Mode B + keep it during sampling
+
+In gx1_builder.py:
+	•	After out = adapter.run(...), for each scenario you already compute eval_window.
+	•	Build + append:
+	•	build_sqi_bundle(scenario_id=sid, mode=mode, seed=cfg["seed"], qscore_series=eval_window, trace_events=...)
+	•	Update filter_trace() critical kinds to include "sqi_bundle" so sampled traces don’t drop it.
+
+2) replay_bundle_writer: record SQI export presence + digest
+
+Update make_replay_bundle() to include minimal replay-critical flags like:
+	•	sqi_export_enabled: bool
+	•	sqi_bundle_digest: sha256 (over stable JSON of only sqi_bundle records) or sqi_bundle_count
+
+This gives you replay/audit proofs that SQI attachment was present and stable.
+
+3) test: assert sqi_bundle exists in Mode B trace smoke
+
+Update test_gx1_sle_trace_smoke.py to include:
+	•	assert any(e.get("trace_kind") == "sqi_bundle" for e in trace)
+
+4) then run tests
+
+TESSARIS_TEST_QUIET=1 TESSARIS_DETERMINISTIC_TIME=1 \
+pytest -q backend/genome_engine/tests
