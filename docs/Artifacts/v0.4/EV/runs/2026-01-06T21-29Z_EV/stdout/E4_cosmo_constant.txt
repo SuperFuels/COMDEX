@@ -1,0 +1,10 @@
+✅ Saved animation to: PAEV_TestE4_CosmoConstant.gif
+✅ Saved curvature statistics plot: PAEV_TestE4_CosmoConstant_CurvatureStats.png
+✅ Saved Λ_eff evolution plot: PAEV_TestE4_CosmoConstant_LambdaEff.png
+
+=== Test E4 - Emergent Cosmological Constant Complete ===
+⟨κ⟩ final = 2.8213e-05
+⟨κ2⟩ final = 6.3365e-05
+⟨Λ_eff⟩ final = 3.4549e-05
+All output files saved in working directory.
+----------------------------------------------------------

@@ -1,0 +1,10 @@
+✅ Saved animation to: PAEV_TestE2_EntropicGravity.gif
+✅ Saved energy-entropy evolution plot.
+✅ Saved curvature-entropy correlation plot.
+
+=== Test E2 - Entropic Gravity Simulation Complete ===
+⟨κ2⟩ final = 2.5774e-04
+⟨S⟩ final = 5.1081e-02
+⟨κ*S⟩ correlation = -4.4996e-05
+All output files saved in working directory.
+----------------------------------------------------------

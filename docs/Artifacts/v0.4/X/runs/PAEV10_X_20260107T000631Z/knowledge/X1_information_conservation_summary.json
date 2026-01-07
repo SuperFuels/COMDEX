@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-01-07T00:57Z",
+  "series": "X1",
+  "experiment": "Information Flux Conservation",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "dt_base": 0.001,
+    "stride": 1,
+    "dt_eff": 0.001,
+    "dx": 1.0,
+    "frames": 256,
+    "N": 512,
+    "diffusion_strength": 0.0,
+    "velocity_mode": "M6_velocity_stack.npy",
+    "entropy": {
+      "type": "local_window_shannon",
+      "smooth_sigma": 4.0,
+      "time_smooth_sigma": 0.0
+    }
+  },
+  "fit": {
+    "X0_est": -0.12385034855600068,
+    "mean_abs_residual_raw_X0_1": 0.004030728013946071,
+    "mean_abs_residual_fit": 0.0006808880154158852,
+    "drift_mean_abs_fit": 5.4665063158333184e-05,
+    "corr_res_u": -0.01541553684364981,
+    "corr_res_v": -0.2428295672812048,
+    "tolerance_drift": 0.001,
+    "within_tolerance": true
+  },
+  "notes": [
+    "Uses time-stacked M6_field_stack.npy / M6_velocity_stack.npy when available.",
+    "Entropy is local-window normalized to avoid global normalization artifacts.",
+    "Continuity tested (1D periodic): \u2202t S + \u2202x(\u03c1_E v - X0 \u2202x S) \u2248 0.",
+    "If diffusion_strength>0, uses v_eff=\u2202t u (smoothed) for transport consistency under noisy u updates.",
+    "X0 is fit by least squares against \u2202xx S."
+  ],
+  "files": {
+    "plot": "PAEV_X1_information_flux.png",
+    "summary": "backend/modules/knowledge/X1_information_conservation_summary.json"
+  },
+  "protocol": "Tessaris Unified Constants & Verification Protocol (TUCVP) v1.2"
+}

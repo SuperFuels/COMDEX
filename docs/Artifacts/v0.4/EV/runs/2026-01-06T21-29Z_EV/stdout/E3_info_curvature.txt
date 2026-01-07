@@ -1,0 +1,10 @@
+✅ Saved animation to: PAEV_TestE3_InfoCurvature.gif
+✅ Saved correlation plot: PAEV_TestE3_InfoCurvature_Correlation.png
+✅ Saved entropy-information plot: PAEV_TestE3_InfoCurvature_EntropyInfo.png
+✅ Saved information field spectrum: PAEV_TestE3_InfoCurvature_Spectrum.png
+
+=== Test E3 - Information Density Mapping Complete ===
+⟨κ*I⟩ final = 6.5269e-08
+⟨Entropy⟩ final = 1.0737e-03
+All output files saved in working directory.
+----------------------------------------------------------

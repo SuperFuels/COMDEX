@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-01-06T23:03Z",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 64,
+    "steps": 700,
+    "dt": 0.01
+  },
+  "results": {
+    "E_drift": 2.2026349208649487e-05,
+    "S_drift": 9.506376235791925e-06,
+    "H_drift": 1.3421417987274891e-06,
+    "mean_E": 0.04229211754372105,
+    "mean_S": 0.04227559356758346,
+    "mean_H": -4.895499505612345e-06
+  },
+  "verdict": {
+    "coherence_stable": true,
+    "requires_refinement": false
+  },
+  "files": {
+    "figure": "PAEV_J2_toe_synchronization.png"
+  },
+  "notes": [
+    "Verifies unification across \u03c8, \u03ba, and T domains.",
+    "All quantities are algebraic diagnostics within Tessaris TOE formalism.",
+    "No physical or spacetime-level interpretation implied."
+  ]
+}

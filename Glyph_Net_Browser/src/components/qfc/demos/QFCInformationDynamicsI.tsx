@@ -1,90 +1,179 @@
 "use client";
-import React, { useRef, useState, useMemo } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+
+import React, { useMemo, useRef, useState } from "react";
+import { useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
-/** * PINNED ARTIFACTS: RUN_ID I20251231T003433Z_I
- * Source: docs/Artifacts/v0.4/I/runs/I20251231T003433Z_I/
+/**
+ * VOL-I: INFORMATION DYNAMICS / SIGNAL PROPAGATION
+ * Logic: Causal vs Entropic Velocity (vS/vC ratio)
+ * Soul: Light-Cone Propagation / Information Diffusion
  */
+
 const PINNED_I_METRICS = {
-  vs_vc_ratio: 18.02,     // I3 Boost Invariance
-  rho_burst: -0.013,      // I5c Inconclusive Correlation
-  p_val: 0.248,           // I5c Significance
-  best_lag: 0.10,         // I5c Best Lag (seconds)
-  alpha_transport: 0.39,  // I1 Mean Exponent
+  vs_vc_ratio: 18.02,
+  rho_burst: -0.013,
+  p_val: 0.248,
+  best_lag: 0.10,
+  alpha_transport: 0.39,
 };
 
-const InformationFront = () => {
-  const meshRef = useRef<THREE.Group>(null!);
-  
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    // V_c expansion (Causal)
-    const r_c = (t % 5) * 2; 
-    // V_s expansion (Entropic Proxy - 18x faster/ahead)
-    const r_s = r_c * 1.5; // Scaled for viewport visibility
+const SignalShader = {
+  uniforms: {
+    uTime: { value: 0 },
+    uAlpha: { value: 0.39 },
+    uRatio: { value: 1.55 },
+    uColor: { value: new THREE.Color("#00d2ff") },
+  },
+  vertexShader: `
+    varying float vIntensity;
+    varying float vDistance;
+    uniform float uTime;
+    uniform float uAlpha;
+
+    void main() {
+      vec3 pos = position;
+      float d = length(pos.xy);
+      
+      // Signal Propagation Logic: Expansion + Alpha Diffusion
+      // r(t) = t^alpha
+      float cycle = mod(uTime * 0.8, 5.0);
+      float front = pow(cycle, 1.0 + uAlpha * 0.5);
+      
+      // Wave pulse height
+      float wave = exp(-pow(d - front, 2.0) / (0.1 + uAlpha));
+      pos.z += wave * 1.5;
+
+      vIntensity = wave;
+      vDistance = d;
+
+      vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+      gl_Position = projectionMatrix * mvPosition;
+      gl_PointSize = 2.0 * (1.0 + wave * 2.0);
+    }
+  `,
+  fragmentShader: `
+    varying float vIntensity;
+    varying float vDistance;
+    uniform vec3 uColor;
+
+    void main() {
+      float r = distance(gl_PointCoord, vec2(0.5));
+      if (r > 0.5) discard;
+
+      // Causal Front (White) vs Entropic Echo (Cyan/Violet)
+      vec3 frontColor = vec3(1.0, 1.0, 1.0);
+      vec3 echoColor = uColor;
+
+      vec3 finalColor = mix(echoColor, frontColor, pow(vIntensity, 2.0));
+      
+      // Fade out based on distance from the origin
+      float edgeFade = 1.0 - smoothstep(4.0, 6.0, vDistance);
+      
+      gl_FragColor = vec4(finalColor * (0.5 + vIntensity), vIntensity * edgeFade);
+    }
+  `,
+};
+
+export default function QFCInformationDynamicsI({ frame }: { frame?: any }) {
+  const pointsRef = useRef<THREE.Points>(null!);
+  const tRef = useRef(0);
+  const [hudTick, setHudTick] = useState(0);
+
+  // Pull metrics or defaults
+  const alpha = frame?.i_alpha_transport ?? PINNED_I_METRICS.alpha_transport;
+  const vsVc = frame?.i_vs_vc_ratio ?? PINNED_I_METRICS.vs_vc_ratio;
+
+  // Geometry: A high-density radial grid
+  const geometry = useMemo(() => {
+    const pts = [];
+    const count = 120;
+    for (let i = 0; i < count; i++) {
+      for (let j = 0; j < count; j++) {
+        const angle = (i / count) * Math.PI * 2;
+        const radius = (j / count) * 6;
+        pts.push(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
+      }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+    return geo;
+  }, []);
+
+  useFrame((_state, dtRaw) => {
+    const dtc = Math.min(dtRaw, 1 / 30);
+    tRef.current += dtc;
     
-    meshRef.current.children[0].scale.setScalar(r_c); // Causal Ring
-    meshRef.current.children[1].scale.setScalar(r_s); // Entropic Halo
-    meshRef.current.children[1].opacity = 0.2 + Math.sin(t * 10) * 0.1;
+    if (pointsRef.current) {
+      const mat = pointsRef.current.material as THREE.ShaderMaterial;
+      mat.uniforms.uTime.value = tRef.current;
+      mat.uniforms.uAlpha.value = alpha;
+    }
+
+    if (tRef.current % 0.2 < 0.02) setHudTick(tRef.current);
   });
 
   return (
-    <group ref={meshRef}>
-      {/* Causal Bound */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.98, 1, 64]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.8} />
-      </mesh>
-      {/* Entropic Leak (vS proxy) */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.1, 1.3, 64]} />
-        <meshBasicMaterial color="#00f2ff" transparent opacity={0.3} />
-      </mesh>
-    </group>
-  );
-};
+    <group position={[0, -0.5, 0]}>
+      <Html fullscreen transform={false}>
+        <div className="pointer-events-none w-full h-full font-mono text-white p-10">
+          {/* Diagnostic Sidebar */}
+          <div className="absolute top-10 left-10 w-80 p-6 bg-black/60 backdrop-blur-xl border border-white/5 rounded-sm">
+            <h2 className="text-[10px] tracking-[0.4em] text-cyan-400 font-bold mb-6 border-b border-white/10 pb-2">
+              SIGNAL_PROPAGATION_I
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-500 uppercase">Transport Exponent (α)</span>
+                  <span className="text-white">{alpha.toFixed(3)}</span>
+                </div>
+                <div className="h-0.5 w-full bg-white/5">
+                  <div className="h-full bg-cyan-500 shadow-[0_0_8px_cyan]" style={{ width: `${alpha * 100}%` }} />
+                </div>
+              </div>
 
-export default function QFCInformationDynamicsI() {
-  const [burstActive, setBurstActive] = useState(false);
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-white/5 p-3">
+                  <span className="block text-[8px] text-slate-500 uppercase">Ratio vS/vC</span>
+                  <span className="text-sm text-white font-light">{vsVc.toFixed(2)}</span>
+                </div>
+                <div className="bg-white/5 p-3">
+                  <span className="block text-[8px] text-slate-500 uppercase">Lag Index</span>
+                  <span className="text-sm text-white font-light">{PINNED_I_METRICS.best_lag}s</span>
+                </div>
+              </div>
 
-  return (
-    <div className="w-full h-screen bg-black text-cyan-400 font-mono flex">
-      <div className="w-3/4 relative border-r border-slate-800">
-        <Canvas camera={{ position: [0, 10, 0], fov: 50 }}>
-          <gridHelper args={[20, 40, 0x112233, 0x050505]} />
-          <InformationFront />
-        </Canvas>
-
-        {/* HUD OVERLAY */}
-        <div className="absolute top-10 left-10 space-y-4 bg-black/60 p-6 border border-cyan-900/50 backdrop-blur-sm">
-          <h1 className="text-xl font-bold tracking-tighter">I-SERIES: SIGNAL_PROPAGATION</h1>
-          <div className="text-[10px] space-y-1">
-            <p>RUN_ID: <span className="text-white">I20251231T003433Z_I</span></p>
-            <p>TRANSPORT: <span className="text-white">DIFFUSIVE-DOMINANT (α ≈ {PINNED_I_METRICS.alpha_transport})</span></p>
-            <p>RATIO (vS/vc): <span className="text-white">{PINNED_I_METRICS.vs_vc_ratio} (Boost Invariant)</span></p>
-          </div>
-        </div>
-      </div>
-
-      <div className="w-1/4 p-8 flex flex-col justify-between bg-[#05050a]">
-        <div className="space-y-8">
-          <section>
-            <h3 className="text-xs uppercase text-slate-500 mb-2">Burst Analysis (I5c)</h3>
-            <div className={`p-4 border ${burstActive ? 'border-yellow-500 bg-yellow-500/10' : 'border-slate-800'}`}>
-              <p className="text-[10px]">CORRELATION (ρ): {PINNED_I_METRICS.rho_burst.toFixed(3)}</p>
-              <p className="text-[10px] text-red-500">SIGNIFICANCE (p): {PINNED_I_METRICS.p_val.toFixed(3)}</p>
-              <div className="mt-4 text-xs font-bold text-center">
-                {PINNED_I_METRICS.p_val > 0.05 ? "INCONCLUSIVE COUPLING" : "COUPLING DETECTED"}
+              <div className="pt-4 border-t border-white/5">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                  <span className="text-[9px] text-slate-400 tracking-widest uppercase italic">
+                    {alpha > 0.5 ? "Ballistic Propagation" : "Diffusive Dominated"}
+                  </span>
+                </div>
               </div>
             </div>
-          </section>
+          </div>
         </div>
-        
-        <div className="text-[9px] text-slate-600 leading-tight">
-          Disclaimer: Visualizations are model-scoped algebraic proxies. No physical superluminal signalling is claimed.
-        </div>
-      </div>
-    </div>
+      </Html>
+
+      {/* Ground Reference Grid */}
+      <gridHelper args={[20, 40, 0x112233, 0x05060a]} rotation={[Math.PI / 2, 0, 0]} />
+
+      {/* Information Propagation Points */}
+      <points ref={pointsRef} rotation={[-Math.PI / 2, 0, 0]} geometry={geometry}>
+        <shaderMaterial
+          {...SignalShader}
+          transparent
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </points>
+
+      {/* Ambient Source Glow */}
+      <pointLight position={[0, 1, 0]} intensity={1.5} color="#00f2ff" distance={10} />
+    </group>
   );
 }

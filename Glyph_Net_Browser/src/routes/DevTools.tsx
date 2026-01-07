@@ -51,6 +51,42 @@ type FrameMetric = {
   coherence: number;
 };
 
+// Runtime guard for URL param parsing (kept local; QFCMode is a type-only union).
+const QFC_MODE_SET: Record<string, true> = {
+  gravity: true,
+  tunnel: true,
+  matter: true,
+  connect: true,
+  wormhole: true,
+  genome: true,
+  topology: true,
+  glyphos: true,
+
+  // new demos (snake_case; matches your ScenarioConfig.mode union)
+  axiom_stability: true,
+  born: true,
+  causal_spacetime_k: true,
+  p_series: true,
+  emergent_geometry_m: true,
+  emergent_time_h2: true,
+  feedback_controller_n: true,
+  geometry_emergence: true,
+  governed_selection: true,
+  information_coherence: true,
+  information_dynamics_i: true,
+  observer_dashboard_o: true,
+  pipeline_verification: true,
+  semantic_curvature: true,
+  telemetry_audit_v3: true,
+  vacuum_landscape_f: true,
+
+  // optional legacy
+  antigrav: true,
+  sync: true,
+};
+
+const isQfcMode = (x: any): x is QFCMode => !!QFC_MODE_SET[String(x)];
+
 export default function DevTools() {
   const [activeTool, setActiveTool] = useState<ToolId>("editor");
 
@@ -681,16 +717,18 @@ export default function DevTools() {
               <CrystalPanel />
             ) : activeTool === "docs" ? (
               <TransactableDocsDevPanel />
+            ) : activeTool === "gma" ? (
+              <GmaDevPanel />
             ) : activeTool === "gma_auth" ? (
               <GMAMonetaryAuthorityPanel />
             ) : activeTool === "qfc_bio" ? (
               <div style={{ padding: 12, fontSize: 12, color: "#111827" }}>
-  QFC Bio moved to <code>#/qfc-bio</code>.
-</div>
+                QFC Bio moved to <code>#/qfc-bio</code>.
+              </div>
             ) : activeTool === "qfc" ? (
               <div style={{ padding: 12, fontSize: 12, color: "#111827" }}>
-  QFC HUD moved to <code>#/qfc-hud</code>.
-</div>
+                QFC HUD moved to <code>#/qfc-hud</code>.
+              </div>
             ) : (
               <>
                 {/* Field Lab: Hologram container fills full width (owns its own Holo Files cabinet) */}
@@ -719,11 +757,7 @@ export default function DevTools() {
                 </div>
 
                 <div style={{ marginTop: 12 }}>
-                  <HoloProgramEditor
-                    value={holo as any}
-                    onChange={setHolo as any}
-                    apiBase="/api"
-                  />
+                  <HoloProgramEditor value={holo as any} onChange={setHolo as any} apiBase="/api" />
                 </div>
               </>
             )}
@@ -1655,7 +1689,25 @@ export type ScenarioId =
   | "C01"
   | "WH01"
   | "GN01"
-  | "GO01";
+  | "GO01"
+  // NEW (matches the new QFCViewport registry)
+  | "AX01"
+  | "BR01"
+  | "CSK01"
+  | "PS01"
+  | "TOP01"
+  | "EGM01"
+  | "ETH201"
+  | "FBN01"
+  | "GE01"
+  | "GS01"
+  | "IC01"
+  | "ID01"
+  | "OD01"
+  | "PV01"
+  | "SC01"
+  | "TA301"
+  | "VL01";
 
 type ScenarioConfig = {
   id: ScenarioId;
@@ -1668,7 +1720,35 @@ type ScenarioConfig = {
     danger: string;
   };
   defaults: { kappa: number; chi: number; sigma: number; alpha: number };
-  mode: "gravity" | "tunnel" | "matter" | "connect" | "wormhole" | "genome" | "glyphos"; // ✅ NEW
+
+  // UPDATED: include ALL new modes
+  mode:
+    | "gravity"
+    | "tunnel"
+    | "matter"
+    | "connect"
+    | "wormhole"
+    | "genome"
+    | "topology"
+    | "glyphos"
+    | "axiom_stability"
+    | "born"
+    | "causal_spacetime_k"
+    | "p_series"
+    | "emergent_geometry_m"
+    | "emergent_time_h2"
+    | "feedback_controller_n"
+    | "geometry_emergence"
+    | "governed_selection"
+    | "information_coherence"
+    | "information_dynamics_i"
+    | "observer_dashboard_o"
+    | "pipeline_verification"
+    | "semantic_curvature"
+    | "telemetry_audit_v3"
+    | "vacuum_landscape_f"
+    | "antigrav"
+    | "sync";
 };
 
 const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
@@ -1705,7 +1785,7 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     label: "GN01 Genome Lattice",
     theme: {
       gravity: "rgba(56,189,248,0.45)",
-      matter: "rgba(167,139,250,0.65)", // a bit “genetic / helix” vibe
+      matter: "rgba(167,139,250,0.65)",
       photon: "rgba(251,191,36,0.65)",
       connect: "rgba(34,211,238,0.75)",
       danger: "rgba(239,68,68,0.80)",
@@ -1770,19 +1850,260 @@ const SCENARIOS: Record<ScenarioId, ScenarioConfig> = {
     mode: "wormhole",
   },
 
-  // ✅ NEW: GlyphOS demo scenario
   GO01: {
     id: "GO01",
     label: "GO01 GlyphOS Multiverse",
     theme: {
-      gravity: "rgba(59,130,246,0.60)", // light blue base
-      matter: "rgba(250,204,21,0.70)", // glyph gold
-      photon: "rgba(34,211,238,0.75)", // photon cyan
-      connect: "rgba(167,139,250,0.70)", // multiverse violet
+      gravity: "rgba(59,130,246,0.60)",
+      matter: "rgba(250,204,21,0.70)",
+      photon: "rgba(34,211,238,0.75)",
+      connect: "rgba(167,139,250,0.70)",
       danger: "rgba(239,68,68,0.80)",
     },
     defaults: { kappa: 0.08, chi: 0.31, sigma: 0.62, alpha: 0.14 },
     mode: "glyphos",
+  },
+
+  // -----------------------------
+  // NEW SCENARIOS (one per new demo)
+  // -----------------------------
+
+  AX01: {
+    id: "AX01",
+    label: "AX01 Axiom Stability",
+    theme: {
+      gravity: "rgba(99,102,241,0.55)",
+      matter: "rgba(226,232,240,0.55)",
+      photon: "rgba(251,191,36,0.55)",
+      connect: "rgba(34,211,238,0.55)",
+      danger: "rgba(239,68,68,0.70)",
+    },
+    defaults: { kappa: 0.16, chi: 0.20, sigma: 0.52, alpha: 0.12 },
+    mode: "axiom_stability",
+  },
+
+  BR01: {
+    id: "BR01",
+    label: "BR01 Born Rule Convergence",
+    theme: {
+      gravity: "rgba(56,189,248,0.50)",
+      matter: "rgba(226,232,240,0.70)",
+      photon: "rgba(250,204,21,0.80)",
+      connect: "rgba(34,211,238,0.70)",
+      danger: "rgba(239,68,68,0.70)",
+    },
+    defaults: { kappa: 0.10, chi: 0.26, sigma: 0.66, alpha: 0.16 },
+    mode: "born",
+  },
+
+  CSK01: {
+    id: "CSK01",
+    label: "CSK01 Causal Spacetime K",
+    theme: {
+      gravity: "rgba(59,130,246,0.55)",
+      matter: "rgba(148,163,184,0.60)",
+      photon: "rgba(251,191,36,0.55)",
+      connect: "rgba(167,139,250,0.70)",
+      danger: "rgba(239,68,68,0.75)",
+    },
+    defaults: { kappa: 0.22, chi: 0.14, sigma: 0.46, alpha: 0.10 },
+    mode: "causal_spacetime_k",
+  },
+
+  PS01: {
+    id: "PS01",
+    label: "PS01 P-Series",
+    theme: {
+      gravity: "rgba(56,189,248,0.45)",
+      matter: "rgba(226,232,240,0.75)",
+      photon: "rgba(250,204,21,0.55)",
+      connect: "rgba(34,211,238,0.65)",
+      danger: "rgba(239,68,68,0.70)",
+    },
+    defaults: { kappa: 0.12, chi: 0.24, sigma: 0.58, alpha: 0.13 },
+    mode: "p_series",
+  },
+
+  TOP01: {
+    id: "TOP01",
+    label: "TOP01 Topology",
+    theme: {
+      gravity: "rgba(56,189,248,0.45)",
+      matter: "rgba(148,163,184,0.60)",
+      photon: "rgba(251,191,36,0.60)",
+      connect: "rgba(34,211,238,0.80)",
+      danger: "rgba(239,68,68,0.70)",
+    },
+    defaults: { kappa: 0.09, chi: 0.30, sigma: 0.62, alpha: 0.15 },
+    mode: "topology",
+  },
+
+  EGM01: {
+    id: "EGM01",
+    label: "EGM01 Emergent Geometry M",
+    theme: {
+      gravity: "rgba(167,139,250,0.55)",
+      matter: "rgba(226,232,240,0.60)",
+      photon: "rgba(251,191,36,0.55)",
+      connect: "rgba(34,211,238,0.65)",
+      danger: "rgba(239,68,68,0.70)",
+    },
+    defaults: { kappa: 0.15, chi: 0.21, sigma: 0.54, alpha: 0.12 },
+    mode: "emergent_geometry_m",
+  },
+
+  ETH201: {
+    id: "ETH201",
+    label: "ETH201 Emergent Time H2",
+    theme: {
+      gravity: "rgba(34,211,238,0.55)",
+      matter: "rgba(148,163,184,0.60)",
+      photon: "rgba(250,204,21,0.65)",
+      connect: "rgba(99,102,241,0.65)",
+      danger: "rgba(239,68,68,0.70)",
+    },
+    defaults: { kappa: 0.11, chi: 0.27, sigma: 0.60, alpha: 0.14 },
+    mode: "emergent_time_h2",
+  },
+
+  FBN01: {
+    id: "FBN01",
+    label: "FBN01 Feedback Controller N",
+    theme: {
+      gravity: "rgba(56,189,248,0.45)",
+      matter: "rgba(226,232,240,0.55)",
+      photon: "rgba(251,191,36,0.55)",
+      connect: "rgba(34,211,238,0.90)",
+      danger: "rgba(239,68,68,0.75)",
+    },
+    defaults: { kappa: 0.13, chi: 0.33, sigma: 0.50, alpha: 0.16 },
+    mode: "feedback_controller_n",
+  },
+
+  GE01: {
+    id: "GE01",
+    label: "GE01 Geometry Emergence",
+    theme: {
+      gravity: "rgba(99,102,241,0.55)",
+      matter: "rgba(226,232,240,0.60)",
+      photon: "rgba(251,191,36,0.55)",
+      connect: "rgba(34,211,238,0.70)",
+      danger: "rgba(239,68,68,0.70)",
+    },
+    defaults: { kappa: 0.14, chi: 0.22, sigma: 0.56, alpha: 0.12 },
+    mode: "geometry_emergence",
+  },
+
+  GS01: {
+    id: "GS01",
+    label: "GS01 Governed Selection",
+    theme: {
+      gravity: "rgba(34,211,238,0.55)",
+      matter: "rgba(148,163,184,0.60)",
+      photon: "rgba(250,204,21,0.60)",
+      connect: "rgba(167,139,250,0.70)",
+      danger: "rgba(239,68,68,0.75)",
+    },
+    defaults: { kappa: 0.09, chi: 0.36, sigma: 0.58, alpha: 0.18 },
+    mode: "governed_selection",
+  },
+
+  IC01: {
+    id: "IC01",
+    label: "IC01 Information Coherence",
+    theme: {
+      gravity: "rgba(56,189,248,0.50)",
+      matter: "rgba(226,232,240,0.65)",
+      photon: "rgba(251,191,36,0.55)",
+      connect: "rgba(34,211,238,0.80)",
+      danger: "rgba(239,68,68,0.70)",
+    },
+    defaults: { kappa: 0.08, chi: 0.28, sigma: 0.64, alpha: 0.17 },
+    mode: "information_coherence",
+  },
+
+  ID01: {
+    id: "ID01",
+    label: "ID01 Information Dynamics I",
+    theme: {
+      gravity: "rgba(99,102,241,0.55)",
+      matter: "rgba(148,163,184,0.60)",
+      photon: "rgba(250,204,21,0.60)",
+      connect: "rgba(34,211,238,0.70)",
+      danger: "rgba(239,68,68,0.70)",
+    },
+    defaults: { kappa: 0.12, chi: 0.24, sigma: 0.62, alpha: 0.14 },
+    mode: "information_dynamics_i",
+  },
+
+  OD01: {
+    id: "OD01",
+    label: "OD01 Observer Dashboard O",
+    theme: {
+      gravity: "rgba(34,211,238,0.55)",
+      matter: "rgba(226,232,240,0.55)",
+      photon: "rgba(250,204,21,0.70)",
+      connect: "rgba(167,139,250,0.70)",
+      danger: "rgba(239,68,68,0.70)",
+    },
+    defaults: { kappa: 0.07, chi: 0.40, sigma: 0.58, alpha: 0.20 },
+    mode: "observer_dashboard_o",
+  },
+
+  PV01: {
+    id: "PV01",
+    label: "PV01 Pipeline Verification",
+    theme: {
+      gravity: "rgba(56,189,248,0.45)",
+      matter: "rgba(148,163,184,0.60)",
+      photon: "rgba(251,191,36,0.55)",
+      connect: "rgba(34,211,238,0.90)",
+      danger: "rgba(239,68,68,0.75)",
+    },
+    defaults: { kappa: 0.10, chi: 0.32, sigma: 0.52, alpha: 0.16 },
+    mode: "pipeline_verification",
+  },
+
+  SC01: {
+    id: "SC01",
+    label: "SC01 Semantic Curvature",
+    theme: {
+      gravity: "rgba(167,139,250,0.55)",
+      matter: "rgba(226,232,240,0.60)",
+      photon: "rgba(251,191,36,0.55)",
+      connect: "rgba(34,211,238,0.65)",
+      danger: "rgba(239,68,68,0.75)",
+    },
+    defaults: { kappa: 0.19, chi: 0.16, sigma: 0.48, alpha: 0.11 },
+    mode: "semantic_curvature",
+  },
+
+  TA301: {
+    id: "TA301",
+    label: "TA301 Telemetry Audit v3",
+    theme: {
+      gravity: "rgba(56,189,248,0.40)",
+      matter: "rgba(148,163,184,0.55)",
+      photon: "rgba(250,204,21,0.60)",
+      connect: "rgba(34,211,238,0.90)",
+      danger: "rgba(239,68,68,0.80)",
+    },
+    defaults: { kappa: 0.06, chi: 0.38, sigma: 0.66, alpha: 0.22 },
+    mode: "telemetry_audit_v3",
+  },
+
+  VL01: {
+    id: "VL01",
+    label: "VL01 Vacuum Landscape F",
+    theme: {
+      gravity: "rgba(99,102,241,0.55)",
+      matter: "rgba(226,232,240,0.55)",
+      photon: "rgba(251,191,36,0.60)",
+      connect: "rgba(167,139,250,0.70)",
+      danger: "rgba(239,68,68,0.75)",
+    },
+    defaults: { kappa: 0.21, chi: 0.12, sigma: 0.44, alpha: 0.10 },
+    mode: "vacuum_landscape_f",
   },
 };
 type QFCTopology = {
@@ -2075,7 +2396,27 @@ export function QFCHudPanel({
     x === "wormhole" ||
     x === "genome" ||
     x === "topology" ||
-    x === "glyphos";
+    x === "glyphos" ||
+    // --- new demos ---
+    x === "axiom_stability" ||
+    x === "born_rule_convergence" ||
+    x === "causal_spacetime_k" ||
+    x === "p_series" ||
+    x === "emergent_geometry_m" ||
+    x === "emergent_time_h2" ||
+    x === "feedback_controller_n" ||
+    x === "geometry_emergence" ||
+    x === "governed_selection" ||
+    x === "information_coherence" ||
+    x === "information_dynamics" ||
+    x === "observer_dashboard" ||
+    x === "pipeline_verification" ||
+    x === "semantic_curvature" ||
+    x === "telemetry_audit_v3" ||
+    x === "vacuum_landscape" ||
+    // optional legacy
+    x === "antigrav" ||
+    x === "sync";
 
   const [demoMode, setDemoMode] = useState<QFCMode>(() => {
     try {
@@ -3357,6 +3698,25 @@ export function QFCHudPanel({
                     { label: "Demo Connect", id: "C01" as ScenarioId },
                     { label: "Demo Wormhole", id: "WH01" as ScenarioId },
                     { label: "Demo Genome", id: "GN01" as ScenarioId },
+                    { label: "Demo Topology", id: "TP01" as ScenarioId },
+
+                    { label: "Demo Born Rule", id: "BR01" as ScenarioId },
+                    { label: "Demo Axiom Stability", id: "AS01" as ScenarioId },
+                    { label: "Demo Causal Spacetime", id: "CS01" as ScenarioId },
+                    { label: "Demo P-Series", id: "PS01" as ScenarioId },
+                    { label: "Demo Emergent Geometry", id: "EG01" as ScenarioId },
+                    { label: "Demo Emergent Time", id: "ET01" as ScenarioId },
+                    { label: "Demo Feedback Controller", id: "FC01" as ScenarioId },
+                    { label: "Demo Geometry Emergence", id: "GE01" as ScenarioId },
+                    { label: "Demo Governed Selection", id: "GS01" as ScenarioId },
+                    { label: "Demo Info Coherence", id: "IC01" as ScenarioId },
+                    { label: "Demo Info Dynamics", id: "ID01" as ScenarioId },
+                    { label: "Demo Observer Dashboard", id: "OD01" as ScenarioId },
+                    { label: "Demo Pipeline Verification", id: "PV01" as ScenarioId },
+                    { label: "Demo Semantic Curvature", id: "SC01" as ScenarioId },
+                    { label: "Demo Telemetry Audit v3", id: "TA01" as ScenarioId },
+                    { label: "Demo Vacuum Landscape", id: "VL01" as ScenarioId },
+
                     { label: "Demo GlyphOS", id: "GO01" as ScenarioId },
                   ].map((d) => (
                     <button
@@ -3433,6 +3793,22 @@ export function QFCHudPanel({
               <option value="genome">Genome</option>
               <option value="topology">Topology</option>
               <option value="glyphos">GlyphOS</option>
+              <option value="axiom_stability">Axiom Stability</option>
+              <option value="born">Born Rule</option>
+              <option value="causal_spacetime_k">Causal Spacetime K</option>
+              <option value="p_series">P-Series</option>
+              <option value="emergent_geometry_m">Emergent Geometry M</option>
+              <option value="emergent_time_h2">Emergent Time H2</option>
+              <option value="feedback_controller_n">Feedback Controller N</option>
+              <option value="geometry_emergence">Geometry Emergence</option>
+              <option value="governed_selection">Governed Selection</option>
+              <option value="information_coherence">Information Coherence</option>
+              <option value="information_dynamics_i">Information Dynamics I</option>
+              <option value="observer_dashboard_o">Observer Dashboard O</option>
+              <option value="pipeline_verification">Pipeline Verification</option>
+              <option value="semantic_curvature">Semantic Curvature</option>
+              <option value="telemetry_audit_v3">Telemetry Audit v3</option>
+              <option value="vacuum_landscape_f">Vacuum Landscape F</option>
             </select>
 
             {/* Stream badge */}

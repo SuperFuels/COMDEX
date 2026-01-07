@@ -6,7 +6,7 @@
   "block": 64,
   "theta": 1.05,
   "noise_amp": 0.015,
-  "seed": 1759930045,
+  "seed": 1767730333,
   "constants": {
     "\u0127": 0.001,
     "G": 1e-05,
@@ -15,17 +15,17 @@
     "\u03b2": 0.2
   },
   "metrics": {
-    "entropy_monotonicity": 0.8355968548963545,
+    "entropy_monotonicity": 0.8341672623302359,
     "recovery_steps": 0,
     "recovery_time": 0.0,
-    "spec_lock_tail": 0.22922247156001638,
-    "E_drift_rel": 1.4733815759977744,
-    "S_pre_mean": 6.432819997123927
+    "spec_lock_tail": 0.4297142365274497,
+    "E_drift_rel": 0.6004596595310421,
+    "S_pre_mean": 6.435534470300955
   },
   "classification": "\u274c Unstable propagation",
   "files": {
     "entropy_plot": "PAEV_E5_EntropyPropagation.png",
     "spectral_plot": "PAEV_E5_SpectralLock.png"
   },
-  "timestamp": "2025-10-08T13:27Z"
+  "timestamp": "2026-01-06T20:12Z"
 }

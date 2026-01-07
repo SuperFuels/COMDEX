@@ -1,99 +1,179 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
+
+/**
+ * PAEV-A3: BORN RULE CONVERGENCE
+ * Logic: L1 Error minimization (Sampling vs. Theoretical)
+ * Soul: Phase transition from Jittered Error to Deterministic Probability
+ */
 
 const bornRuleShader = {
   uniforms: {
     uTime: { value: 0 },
-    uConvergence: { value: 0 }, // Progress toward exact Born heights
+    uConvergence: { value: 0 }, // Progress toward exact Born heights [0..1]
+    uBucketIndex: { value: 0 },
   },
   vertexShader: `
     varying float vCoherence;
+    varying float vHeightFactor;
+    varying vec2 vUv;
+    
     uniform float uTime;
     uniform float uConvergence;
+    uniform float uBucketIndex;
 
     void main() {
+      vUv = uv;
       vec3 pos = position;
-      
-      // Buckets 0-4
-      float bucket = floor(pos.x / 2.0) + 2.0;
-      
-      // Exact P_QM values from PAEV-A3 result
+
+      // Deterministic Born Probability Heights (P_PA)
       float targets[5];
-      targets[0] = 0.033; targets[1] = 0.262; targets[2] = 0.181; 
+      targets[0] = 0.033; targets[1] = 0.262; targets[2] = 0.181;
       targets[3] = 0.098; targets[4] = 0.423;
+
+      int bi = int(clamp(uBucketIndex, 0.0, 4.0));
+      float targetHeight = targets[bi] * 18.0;
+
+      // Sampling Noise: Oscillatory jitter that dampens as convergence hits 1.0
+      float samplingNoise = sin(uTime * 15.0 + uBucketIndex) * 0.4 * (1.0 - uConvergence);
       
-      float targetHeight = targets[int(bucket)] * 15.0;
-      
-      // Jitter (representing sampling noise) that decays as uConvergence -> 1.0
-      float noise = sin(uTime * 10.0 + pos.y) * 0.5 * (1.0 - uConvergence);
-      
-      // Raise bars toward targets
+      // Scale from the bottom (base is at y=0 due to mesh translation in JSX)
       if (pos.y > 0.0) {
-        pos.y = mix(0.1, targetHeight + noise, uConvergence);
+        pos.y = mix(0.1, targetHeight + samplingNoise, uConvergence);
       }
 
+      vHeightFactor = pos.y / 18.0;
       vCoherence = uConvergence;
+      
       vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
       gl_Position = projectionMatrix * mvPosition;
     }
   `,
   fragmentShader: `
     varying float vCoherence;
+    varying float vHeightFactor;
+    varying vec2 vUv;
 
     void main() {
-      // Color shifts from Red (High Error) to Cyan (Born Consistent)
-      vec3 errorColor = vec3(0.8, 0.2, 0.2);
-      vec3 bornColor = vec3(0.0, 1.0, 0.8);
+      // Color shift: Unstable Error (Red/Orange) -> Born Stability (Cyan/White)
+      vec3 errorColor = vec3(0.9, 0.3, 0.2);
+      vec3 bornColor  = vec3(0.0, 0.9, 0.8);
+      vec3 stableWhite = vec3(1.0, 1.0, 1.0);
+
+      vec3 base = mix(errorColor, bornColor, vCoherence);
       
-      vec3 finalColor = mix(errorColor, bornColor, vCoherence);
-      gl_FragColor = vec4(finalColor, 0.9);
+      // Vertical gradient for "Density" feel
+      vec3 finalColor = mix(base, stableWhite, vHeightFactor * vCoherence);
+
+      // Subtle scanline effect
+      float scanline = sin(vUv.y * 50.0 - vCoherence * 10.0) * 0.1;
+      
+      gl_FragColor = vec4(finalColor + scanline, 0.85);
     }
-  `
+  `,
 };
 
-export default function QFCBornRuleConvergence() {
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
-  
+export default function QFCBornRuleConvergence({ frame }: { frame?: any }) {
+  const matsRef = useRef<THREE.ShaderMaterial[]>([]);
+  const [convergenceHUD, setConvergenceHUD] = useState(0);
+
+  // Geometry: Shifted so 0,0,0 is at the bottom face for easy scaling
   const geometry = useMemo(() => {
-    // Create 5 vertical bars using boxes
-    return new THREE.BoxGeometry(1.5, 1, 0.5, 10, 10, 1);
+    const geo = new THREE.BoxGeometry(1.5, 1, 0.5, 1, 20, 1);
+    geo.translate(0, 0.5, 0); // Translate so bottom is at Y=0
+    return geo;
   }, []);
 
   useFrame(({ clock }) => {
-    if (!materialRef.current) return;
     const t = clock.getElapsedTime();
-    materialRef.current.uniforms.uTime.value = t;
-    
-    // Convergence simulation: oscillates 0 -> 1 over 10 seconds
-    const progress = (Math.sin(t * 0.3) + 1.0) / 2.0;
-    materialRef.current.uniforms.uConvergence.value = progress;
+    // Force a stable 0->1 cycle or follow external frame data
+    const progress = frame?.convergence ?? (Math.sin(t * 0.4) * 0.5 + 0.5);
+
+    matsRef.current.forEach((m, i) => {
+      if (m) {
+        m.uniforms.uTime.value = t;
+        m.uniforms.uConvergence.value = progress;
+        m.uniforms.uBucketIndex.value = i;
+      }
+    });
+
+    if (Math.floor(t * 10) % 2 === 0) setConvergenceHUD(progress);
   });
 
   return (
-    <div className="w-full h-full bg-[#050505] relative flex items-center justify-center">
-      <div className="absolute top-10 left-10 font-mono text-[10px] text-emerald-400 z-10 p-4 border border-emerald-900/30 bg-black/80">
-        <p className="font-bold border-b border-emerald-800 pb-1 mb-2">PAEV-A3: BORN_CONSISTENCY</p>
-        <p>IDENTITY: P_PA ≡ ||Π_i ψ||² / ||ψ||²</p>
-        <div className="mt-4 space-y-1">
-          <p>L1_ERROR: {(8.26e-6).toExponential(3)}</p>
-          <p>L_INF_ERROR: {(4.05e-6).toExponential(3)}</p>
-          <p className="text-white pt-2">STATUS: PASS [K=100,000]</p>
-        </div>
-      </div>
+    <group position={[0, -4, 0]}>
+      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+        <div className="pointer-events-none w-full h-full font-mono text-white">
+          {/* Header Panel */}
+          <div className="absolute top-10 left-10 p-5 bg-black/60 border border-emerald-500/20 backdrop-blur-md w-80">
+            <div className="text-emerald-400 font-bold text-[10px] tracking-widest border-b border-emerald-500/20 pb-2 mb-4">
+              PAEV-A3 // BORN_CONSISTENCY
+            </div>
+            <div className="space-y-3 text-[10px]">
+              <div className="flex justify-between text-slate-400">
+                <span>IDENTITY:</span>
+                <span className="text-white">P_PA ≡ ||Π_i ψ||² / ||ψ||²</span>
+              </div>
+              <div className="flex justify-between text-slate-400">
+                <span>CONVERGENCE:</span>
+                <span className="text-emerald-400 font-bold">{(convergenceHUD * 100).toFixed(1)}%</span>
+              </div>
+              <div className="h-1 w-full bg-emerald-900/40 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-emerald-400 shadow-[0_0_10px_#4ade80]" 
+                  style={{ width: `${convergenceHUD * 100}%` }} 
+                />
+              </div>
+            </div>
+          </div>
 
-      {/* Instanced Bars */}
-      {[...Array(5)].map((_, i) => (
-        <mesh key={i} geometry={geometry} position={[(i - 2) * 2.2, -3, 0]}>
-          <shaderMaterial ref={i === 0 ? materialRef : null} {...bornRuleShader} transparent />
-        </mesh>
+          {/* Bottom Error Logs */}
+          <div className="absolute top-10 right-10 text-right p-5 bg-black/60 border border-emerald-500/20 backdrop-blur-md">
+            <div className="text-[9px] text-slate-500 uppercase tracking-tighter mb-2">Sampling Audit (L-Norms)</div>
+            <div className="space-y-1 text-[10px]">
+              <p className="text-slate-400">L1_ERROR: <span className="text-white">{(8.26e-6 * (1 - convergenceHUD + 0.01)).toExponential(2)}</span></p>
+              <p className="text-slate-400">L_INF: <span className="text-white">{(4.05e-6 * (1 - convergenceHUD + 0.01)).toExponential(2)}</span></p>
+            </div>
+          </div>
+
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-[9px] text-slate-600 tracking-[0.4em] uppercase">
+            Projector Validation • N=5 • K=100k
+          </div>
+        </div>
+      </Html>
+
+      {/* Probability Bars */}
+      {Array.from({ length: 5 }).map((_, i) => (
+        <group key={i} position={[(i - 2) * 2.5, 0, 0]}>
+          {/* Main Solid Bar */}
+          <mesh geometry={geometry}>
+            <shaderMaterial
+              ref={(m) => (matsRef.current[i] = m as THREE.ShaderMaterial)}
+              {...bornRuleShader}
+              transparent
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+          
+          {/* Ghost Ideal (Wireframe showing the target height) */}
+          <mesh geometry={geometry} scale={[1.05, 1, 1.05]}>
+            <meshBasicMaterial 
+              color="#00ffcc" 
+              wireframe 
+              transparent 
+              opacity={0.05 + (convergenceHUD * 0.1)} 
+            />
+          </mesh>
+        </group>
       ))}
 
-      <div className="absolute bottom-10 text-[9px] text-gray-600 font-mono tracking-tighter">
-        PROJECTOR_VALIDATION: N=5 | AUDIT_HASH: 68f6d06ad...3bb
-      </div>
-    </div>
+      <ambientLight intensity={0.2} />
+      <pointLight position={[0, 10, 5]} intensity={1} color="#4ade80" />
+    </group>
   );
 }

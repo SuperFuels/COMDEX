@@ -1,95 +1,191 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
+
+/**
+ * K-SERIES: CAUSAL SPACETIME MESH
+ * Logic: K3b Gaussian Soliton + K1 Causal Cone Constraint
+ * Soul: Volumetric Wire-Point Cloud (Violet -> Cyan -> White)
+ */
 
 const kSeriesShader = {
   uniforms: {
     uTime: { value: 0 },
-    uCeff: { value: 0.7071 },
-    uSync: { value: 0.9999 },
+    uCeff: { value: 0.7071 }, // C_phi speed of light/information
+    uBrightness: { value: 1.0 },
   },
   vertexShader: `
     varying float vIntensity;
+    varying float vConeAlpha;
     varying vec2 vUv;
+
     uniform float uTime;
     uniform float uCeff;
 
     void main() {
       vUv = uv;
-      float x = position.x;
-      float t_coord = position.y; // Using Y as the Time axis for the Spacetime Map
-      
-      // K3b: Gaussian Soliton Profile: u = exp(-0.02 * x^2)
-      // Drifting with v = -0.0028
-      float drift = -0.0028 * uTime * 20.0;
+      vec3 pos = position;
+
+      // Spacetime Coordinates: X is space, Y is time-axis
+      float x = pos.x;
+      float t_axis = pos.y + 5.0; // Offset to start cone at bottom
+
+      // K3b: Gaussian Soliton Drifting (-0.0028 velocity) (scaled for viz)
+      float drift = -0.056 * uTime; // visual scale; preserves directionality
       float sol_x = x - drift;
-      float u = exp(-0.02 * pow(sol_x, 2.0));
-      
-      // K1: Causal Mesh Constraint
-      // Check if current X is within the Causal Cone of the origin
-      float cone = uCeff * t_coord;
-      bool inCone = abs(x) <= cone;
-      
-      vIntensity = u * (inCone ? 1.0 : 0.3);
-      
-      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+      float soliton = exp(-0.1 * pow(sol_x, 2.0));
+
+      // K1: Causal Cone Constraint
+      float coneWidth = uCeff * t_axis;
+      // inCone ~ 1 when |x| <= coneWidth, smooth boundary
+      float inCone = smoothstep(coneWidth + 0.5, coneWidth - 0.5, abs(x));
+
+      // Displace Z based on soliton intensity inside the cone
+      pos.z += soliton * inCone * 2.5;
+
+      vIntensity = soliton;
+      vConeAlpha = inCone;
+
+      vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
       gl_Position = projectionMatrix * mvPosition;
+
+      // Point size pulses with soliton drift — clamp for GPU stability
+      float ps = (1.2 + (soliton * 2.5)) * (0.8 + 0.2 * inCone);
+      gl_PointSize = clamp(ps, 0.5, 6.0);
     }
   `,
   fragmentShader: `
     varying float vIntensity;
+    varying float vConeAlpha;
     varying vec2 vUv;
+
+    uniform float uBrightness;
+
     void main() {
-      // Background "Mesh" lines
-      float mesh = step(0.95, fract(vUv.x * 20.0)) + step(0.95, fract(vUv.y * 20.0));
-      
-      vec3 baseColor = vec3(0.05, 0.1, 0.2); // Deep Space
-      vec3 solColor = vec3(0.0, 1.0, 0.8);  // Soliton Cyan
-      
-      vec3 finalColor = mix(baseColor, solColor, vIntensity);
-      finalColor += mesh * 0.1; // Add the causal mesh grid
-      
-      gl_FragColor = vec4(finalColor, 1.0);
+      // Round points
+      float r = distance(gl_PointCoord, vec2(0.5));
+      if (r > 0.5) discard;
+
+      // Vol-VII Palette (kept)
+      vec3 bgViolet = vec3(0.3, 0.1, 0.8);   // Entropy/Vacuum
+      vec3 solCyan  = vec3(0.0, 0.9, 1.0);   // Soliton/Information
+      vec3 bridge   = vec3(0.9, 0.9, 1.0);   // Causal Core
+
+      // Base color depends on intensity; outside cone stays darker
+      vec3 color = mix(bgViolet * 0.2, solCyan, vIntensity);
+
+      // Inside the cone, push toward bridge white
+      vec3 finalColor = mix(color, bridge, vIntensity * vConeAlpha * 0.6);
+
+      // Mesh/grid overlay (kept)
+      float grid =
+        step(0.98, fract(vUv.x * 20.0)) +
+        step(0.98, fract(vUv.y * 20.0));
+
+      float alpha = clamp(0.15 + (vIntensity * 0.8) + (vConeAlpha * 0.2), 0.0, 0.9);
+
+      vec3 outCol = finalColor * (0.8 + (grid * 0.4)) * uBrightness;
+
+      gl_FragColor = vec4(outCol, alpha);
     }
-  `
+  `,
 };
 
-export default function QFCCausalSpacetimeK() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const planeGeo = useMemo(() => new THREE.PlaneGeometry(10, 10, 100, 100), []);
+const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+const num = (v: any, d: number) => (Number.isFinite(Number(v)) ? Number(v) : d);
 
-  useFrame(({ clock }) => {
-    if (meshRef.current) {
-      const material = meshRef.current.material as THREE.ShaderMaterial;
-      material.uniforms.uTime.value = clock.getElapsedTime() % 10;
-    }
+export default function QFCCausalSpacetimeK({ frame }: { frame?: any }) {
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
+
+  // ✅ dt clamp + stable time accumulator
+  const tRef = useRef(0);
+
+  // High resolution point grid
+  const geometry = useMemo(() => new THREE.PlaneGeometry(10, 10, 128, 128), []);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  useFrame((_state, dtRaw) => {
+    const mat = materialRef.current;
+    if (!mat) return;
+
+    const dtc = Math.min(dtRaw, 1 / 30);
+    tRef.current += dtc;
+
+    // stable time, keep your mod 10 loop
+    const t = tRef.current % 10;
+    mat.uniforms.uTime.value = t;
+
+    // Signal plumbing (safe)
+    const ceffRaw = num(frame?.c_eff ?? frame?.ceff, 0.7071);
+    // keep ceff within sensible range so coneWidth doesn't go negative/huge
+    const ceff = Math.max(0.05, Math.min(1.25, ceffRaw));
+
+    // smooth to avoid stepping
+    const lerp = 1 - Math.exp(-dtc * 10.0);
+    mat.uniforms.uCeff.value = mat.uniforms.uCeff.value + (ceff - mat.uniforms.uCeff.value) * lerp;
+
+    // subtle brightness breathing (kept)
+    mat.uniforms.uBrightness.value = 1.0 + Math.sin(tRef.current * 0.5) * 0.05;
   });
 
   return (
-    <div className="w-full h-full bg-[#020204] relative flex items-center justify-center font-mono">
-      {/* K-Series Telemetry Panel */}
-      <div className="absolute top-8 left-8 z-10 p-4 border border-cyan-900/40 bg-black/90 text-[10px] backdrop-blur-md">
-        <p className="text-cyan-400 font-bold border-b border-cyan-900/50 pb-1 mb-2">K_LOCK_v0.4_20251230T191749Z_K</p>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-gray-400">
-          <p>R_CAUSAL:</p><p className="text-white">1.0000</p>
-          <p>R_SYNC:</p><p className="text-white">0.9999</p>
-          <p>C_EFF:</p><p className="text-white">0.7071</p>
-          <p>GAUSSIAN_SIGMA:</p><p className="text-white">0.02</p>
-        </div>
-      </div>
+    <group rotation={[-Math.PI / 3, 0, 0]} position={[0, -1, 0]}>
+      {/* HUD Architecture (DOM is ONLY inside Html) */}
+      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+        <div className="pointer-events-none w-full h-full font-mono text-white">
+          <div className="absolute top-10 left-10 p-5 border border-cyan-500/20 bg-black/60 backdrop-blur-md rounded w-72 pointer-events-auto">
+            <div className="border-b border-cyan-800/40 pb-2 mb-4">
+              <span className="text-cyan-400 font-bold text-[10px] tracking-widest uppercase">
+                K-SERIES // SPACETIME
+              </span>
+            </div>
 
-      <mesh ref={meshRef} geometry={planeGeo}>
-        <shaderMaterial {...kSeriesShader} />
-      </mesh>
+            <div className="space-y-2 text-[9px] text-slate-400">
+              <div className="flex justify-between">
+                <span>CAUSAL_EFF (C_eff):</span>
+                <span className="text-cyan-300">
+                  {Number.isFinite(Number(frame?.c_eff ?? frame?.ceff))
+                    ? Number(frame?.c_eff ?? frame?.ceff).toFixed(4)
+                    : "0.7071"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>SOLITON_DRIFT (v):</span>
+                <span className="text-white">-0.0028</span>
+              </div>
+              <div className="flex justify-between border-t border-white/5 pt-2 mt-2">
+                <span className="text-slate-500">CONSTRAINT:</span>
+                <span className="text-violet-400">|x| ≤ C_eff · t</span>
+              </div>
+            </div>
+          </div>
 
-      {/* Synchrony Matrix (Overlay) */}
-      <div className="absolute bottom-8 right-8 w-32 h-32 border border-cyan-500/30 bg-cyan-500/10 flex items-center justify-center">
-        <div className="text-[8px] text-cyan-400 text-center uppercase tracking-tighter">
-          K4_SYNC_MATRIX<br/>[VERIFIED]
+          <div className="absolute bottom-10 right-10 text-[8px] text-slate-500/50 text-right uppercase tracking-tighter">
+            Volumetric Mesh: 128x128 Nodes
+            <br />
+            Phase: Locked & Deterministic
+          </div>
         </div>
-      </div>
-    </div>
+      </Html>
+
+      <points geometry={geometry}>
+        <shaderMaterial
+          ref={materialRef}
+          uniforms={kSeriesShader.uniforms}
+          vertexShader={kSeriesShader.vertexShader}
+          fragmentShader={kSeriesShader.fragmentShader}
+          transparent
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </points>
+
+      {/* Subtle fill light to define the soliton peak */}
+      <pointLight position={[0, 0, 2]} intensity={0.4} color="#00ffff" />
+    </group>
   );
 }

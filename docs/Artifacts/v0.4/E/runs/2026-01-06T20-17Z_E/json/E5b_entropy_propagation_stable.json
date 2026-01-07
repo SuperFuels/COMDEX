@@ -1,0 +1,30 @@
+{
+  "N": 2048,
+  "T": 3200,
+  "dt": 0.0025,
+  "t_pert": 1200,
+  "block": 128,
+  "theta": 1.0,
+  "noise_amp": 0.006,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2
+  },
+  "metrics": {
+    "entropy_monotonicity": 1.0,
+    "recovery_steps": 0,
+    "recovery_time": 0.0,
+    "spec_lock_tail": 0.9828794607340244,
+    "E_drift_rel": 1.5425756996148388e-16,
+    "S_pre_mean": 3.8299904500242983
+  },
+  "classification": "\u2705 Reversible propagation",
+  "files": {
+    "entropy_plot": "PAEV_E5b_EntropyPropagation.png",
+    "spectral_plot": "PAEV_E5b_SpectralLock.png"
+  },
+  "timestamp": "2026-01-06T20:30Z"
+}

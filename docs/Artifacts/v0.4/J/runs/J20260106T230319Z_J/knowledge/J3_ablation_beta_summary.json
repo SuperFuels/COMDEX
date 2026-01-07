@@ -1,0 +1,64 @@
+{
+  "timestamp": "2026-01-06T23:03Z",
+  "seed": 3033,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 256,
+    "T": 8000,
+    "dt": 0.01,
+    "base_noise": 0.018,
+    "ema_alpha": 0.3,
+    "burst_th": 1.15,
+    "burst_min": 5,
+    "controller": {
+      "theta": 1.2,
+      "eta_up": 0.2,
+      "eta_dn": 0.06
+    }
+  },
+  "results": {
+    "baseline": {
+      "label": "baseline_\u03b2=0.2",
+      "beta": 0.2,
+      "p": -1.492442981539959e-06,
+      "nu": -0.6531089161623377,
+      "bursts": [],
+      "stats": {
+        "S_mean": 0.07299859433930461,
+        "S_std": 0.33318994534456015,
+        "vsr_max": 0.03948878353250109,
+        "bursts_count": 0,
+        "bursts_steps": 0
+      }
+    },
+    "beta_zero": {
+      "label": "\u03b2=0 (no damping)",
+      "beta": 0.0,
+      "p": 1.8371681093878523e-07,
+      "nu": NaN,
+      "bursts": [],
+      "stats": {
+        "S_mean": 0.038722714695088326,
+        "S_std": 0.3479746652598926,
+        "vsr_max": 0.2323765507821308,
+        "bursts_count": 0,
+        "bursts_steps": 0
+      }
+    },
+    "comparison": {
+      "\u0394p": 1.6761597924787443e-06,
+      "\u0394nu": NaN,
+      "\u0394bursts": 0
+    }
+  },
+  "files": {
+    "figure": "PAEV_J3_ablation_beta.png"
+  }
+}

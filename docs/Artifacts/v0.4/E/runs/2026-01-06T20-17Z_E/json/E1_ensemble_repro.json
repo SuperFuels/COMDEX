@@ -1,0 +1,18 @@
+{
+  "N_ensemble": 64,
+  "noise_amp": 0.05,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2
+  },
+  "CVs": {
+    "Phi_mean": 1.1112398330055964,
+    "TH": 3.9487456986481915,
+    "tP": 0.0
+  },
+  "classification": "\u26a0\ufe0f Marginal reproducibility",
+  "timestamp": "2026-01-06T20:30Z"
+}

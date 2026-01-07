@@ -1,25 +1,8 @@
 {
-  "timestamp": "2025-12-31T00:35Z",
-  "constants": {
-    "\u0127": 0.001,
-    "G": 1e-05,
-    "\u039b": 1e-06,
-    "\u03b1": 0.5,
-    "\u03b2": 0.2,
-    "\u03c7": 1.0
-  },
+  "timestamp": "2026-01-06T20:12Z",
   "source_trace": "backend/modules/knowledge/E6Omega_vS_trace_v5c.json",
   "run_type": "v5c",
   "params": {
-    "controller": {
-      "theta": 1.2,
-      "eta_up": 0.22,
-      "eta_dn": 0.04,
-      "kappa_var_max": 0.22,
-      "kappa_var_init": 0.03
-    },
-    "base_noise": 0.018,
-    "seed": null,
     "window_steps": {
       "pre": 50,
       "post": 100
@@ -36,21 +19,18 @@
     "kendall_p": 0.2554802770070259,
     "delta_S_mean": -0.03799999999999989,
     "permutation_p": 0.7266666666666667,
-    "lag_best_steps": 10,
-    "lag_best_seconds": 0.1,
-    "lag_best_rho": -0.02128429057027733,
-    "bootstrap_CI_95": [
+    "best_lag": 10,
+    "correlation_best_lag": -0.02128429057027733,
+    "bootstrap_ci": [
       -0.23772458333333327,
       0.17691624999999994
     ]
   },
   "files": {
-    "figure": "PAEV_I5c_v5c_analysis_003512.png"
+    "figure": "PAEV_I5c_v5c_analysis_201221.png"
   },
   "discovery_notes": [
-    "Global correlation: \u03c1=-0.013 (p=0.248)",
-    "\u0394S_mean=-0.038 \u00b1 0.255",
-    "Lag peak at 0.10s (\u03c1=-0.021)",
-    "All correlations remain within Tessaris algebraic model; not empirical."
+    "Global \u03c1=-0.013 (p=0.248), \u0394S=-0.038, lag=0.10s",
+    "All effects remain within Tessaris algebraic domain; not physically demonstrated."
   ]
 }

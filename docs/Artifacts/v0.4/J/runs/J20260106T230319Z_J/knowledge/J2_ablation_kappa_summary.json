@@ -1,0 +1,66 @@
+{
+  "timestamp": "2026-01-06T23:03Z",
+  "seed": 2024,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "params": {
+    "N": 256,
+    "T": 8000,
+    "dt": 0.01,
+    "base_noise": 0.018,
+    "kappa_var_start": 0.02,
+    "kappa_var_max": 0.3,
+    "ema_alpha": 0.3,
+    "burst_th": 1.15,
+    "burst_min": 5,
+    "controller": {
+      "theta": 1.2,
+      "eta_up": 0.2,
+      "eta_dn": 0.06
+    }
+  },
+  "results": {
+    "baseline_adaptive": {
+      "label": "baseline_adaptive",
+      "kappa_mode": "adaptive",
+      "p": 1.4080689574401404e-06,
+      "nu": -0.7784360576149365,
+      "bursts": [],
+      "stats": {
+        "S_mean": 0.043092195391116486,
+        "S_std": 0.3485006328208552,
+        "vsr_max": 0.005218695885128998,
+        "bursts_count": 0,
+        "bursts_steps": 0
+      }
+    },
+    "kappa_frozen": {
+      "label": "kappa_frozen",
+      "kappa_mode": "frozen",
+      "p": -2.5672621092632737e-07,
+      "nu": -0.5345108852821017,
+      "bursts": [],
+      "stats": {
+        "S_mean": 0.10320887789508498,
+        "S_std": 0.3279097296662725,
+        "vsr_max": 0.6638862717071788,
+        "bursts_count": 0,
+        "bursts_steps": 0
+      }
+    },
+    "comparison": {
+      "\u0394p": -1.6647951683664677e-06,
+      "\u0394nu": 0.24392517233283484,
+      "\u0394bursts": 0
+    }
+  },
+  "files": {
+    "figure": "PAEV_J2_ablation_kappa.png"
+  }
+}

@@ -1,0 +1,87 @@
+ M Glyph_Net_Browser/src/components/QFCViewport.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCAxiomStability.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCBornRuleConvergence.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCCausalSpacetimeK.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCDemoP-Series.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCDemoTopology.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCEmergentGeometryM.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCEmergentTimeH2.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCFeedbackControllerN.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCGeometryEmergence.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCGovernedSelection.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCInformationCoherence.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCInformationDynamicsI.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCObserverDashboardO.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCPipelineVerification.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCSemanticCurvature.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCTelemetryAuditv3.tsx
+ M Glyph_Net_Browser/src/components/qfc/demos/QFCVacuumLandscapeF.tsx
+ M Glyph_Net_Browser/src/routes/DevTools.tsx
+ M PAEV_E6_boosted_CHSH.png
+ M backend/modules/dna_chain/dna_switch_index.json
+ M backend/modules/knowledge/E1_ensemble_repro.json
+ M backend/modules/knowledge/E2_cv_entanglement.json
+ M backend/modules/knowledge/E2_discretization.json
+ M backend/modules/knowledge/E3_epr_steering.json
+ M backend/modules/knowledge/E3b_boundary_geometry_refined.json
+ M backend/modules/knowledge/E3c_boundary_geometry_universal.json
+ M backend/modules/knowledge/E3d_boundary_geometry_final.json
+ M backend/modules/knowledge/E4_chsh_surrogate.json
+ M backend/modules/knowledge/E4_noise_greybody.json
+ M backend/modules/knowledge/E5_entropy_propagation.json
+ M backend/modules/knowledge/E5_information_shuffle_entanglement.json
+ M backend/modules/knowledge/E5b_entropy_propagation_stable.json
+ M backend/modules/knowledge/E6Omega_v5_summary.json
+ M backend/modules/knowledge/E6Omega_vS_trace.json
+ M backend/modules/knowledge/E6_boosted_CHSH_summary.json
+ M backend/modules/knowledge/E6_initial_condition_sweep.json
+ M backend/modules/knowledge/E6b_initial_condition_universal.json
+ M backend/modules/knowledge/E6c_entropy_locked_universality.json
+ M backend/modules/knowledge/E6d_curvature_adaptive_universality.json
+ M backend/modules/knowledge/E6e_curvature_regularized_universality.json
+ M backend/modules/knowledge/E6g_log_adaptive_universality.json
+ M backend/modules/knowledge/E6h_zero_mean_universality.json
+ M backend/modules/knowledge/I5c_burst_corr.json
+?? PAEV_E1_EnsemblePhiHist.png
+?? PAEV_E2_Discretization.png
+?? PAEV_E2_DuanSimon_Timeseries.png
+?? PAEV_E2_FieldMaps.png
+?? PAEV_E3_Conditional_Variances.png
+?? PAEV_E3_Reid_Product.png
+?? PAEV_E3b_BoundaryGeometry.png
+?? PAEV_E3c_BoundaryGeometry.png
+?? PAEV_E3d_BoundaryGeometry.png
+?? PAEV_E4_CHSH.png
+?? PAEV_E4_NoiseGreybody.png
+?? PAEV_E5_EntropyPropagation.png
+?? PAEV_E5_InformationShuffle.png
+?? PAEV_E5_SpectralLock.png
+?? PAEV_E5b_EntropyPropagation.png
+?? PAEV_E5b_SpectralLock.png
+?? PAEV_E6Omega_vS_vs_CHSH.png
+?? PAEV_E6_ICUniversality.png
+?? PAEV_E6b_ICUniversality.png
+?? PAEV_E6c_EntropyLockedUniversality.png
+?? PAEV_E6d_CurvatureAdaptiveUniversality.png
+?? PAEV_E6e_CurvatureRegularizedUniversality.png
+?? PAEV_E6g_GammaTrace.png
+?? PAEV_E6g_LogAdaptive.png
+?? PAEV_E6h_GammaTrace.png
+?? PAEV_E6h_ZeroMeanUniversality.png
+?? PAEV_I5c_v5c_analysis_201221.png
+?? PAEV_TestE1_VacuumFluctuations.gif
+?? PAEV_TestE1_VacuumFluctuations_Correlation.png
+?? PAEV_TestE1_VacuumFluctuations_Energy.png
+?? PAEV_TestE1_VacuumFluctuations_Spectrum.png
+?? PAEV_TestE2_EntropicGravity.gif
+?? PAEV_TestE2_EntropicGravity_Correlation.png
+?? PAEV_TestE2_EntropicGravity_EnergyEntropy.png
+?? PAEV_TestE3_InfoCurvature.gif
+?? PAEV_TestE3_InfoCurvature_Correlation.png
+?? PAEV_TestE3_InfoCurvature_EntropyInfo.png
+?? PAEV_TestE3_InfoCurvature_Spectrum.png
+?? PAEV_TestE4_CosmoConstant.gif
+?? PAEV_TestE4_CosmoConstant_CurvatureStats.png
+?? PAEV_TestE4_CosmoConstant_LambdaEff.png
+?? create_E_series_artifacts_skeleton.sh
+?? docs/Artifacts/v0.4/E/

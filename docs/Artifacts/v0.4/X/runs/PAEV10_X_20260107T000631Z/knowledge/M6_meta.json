@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-01-07T00:57Z",
+  "dt_base": 0.001,
+  "dx": 1.0,
+  "stride": 1,
+  "frames": 256,
+  "N": 512,
+  "damping": 0.035,
+  "clip_value": 6.0,
+  "diffusion_strength": 0.0,
+  "seed": 1337,
+  "c_eff": 0.7071064276334221,
+  "constants_version": "v1.2"
+}

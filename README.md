@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "genome complete"
+git commit -m "TOE 1"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

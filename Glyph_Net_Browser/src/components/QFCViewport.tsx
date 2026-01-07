@@ -1,7 +1,7 @@
 // Glyph_Net_Browser/src/components/QFCViewport.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 
 import { Canvas } from "@react-three/fiber";
@@ -11,6 +11,7 @@ import * as THREE from "three";
 import { useTessarisTelemetry } from "@/hooks/useTessarisTelemetry";
 import type { TessarisTelemetry } from "@/hooks/useTessarisTelemetry";
 
+// Core demos
 import QFCDemoGravity from "./qfc/demos/QFCDemoGravity";
 import QFCDemoTunnel from "./qfc/demos/QFCDemoTunnel";
 import QFCDemoMatter from "./qfc/demos/QFCDemoMatter";
@@ -19,37 +20,71 @@ import QFCDemoWormhole from "./qfc/demos/QFCDemoWormhole";
 import QFCDemoGenome from "./qfc/demos/QFCDemoGenome";
 import QFCDemoTopology from "./qfc/demos/QFCDemoTopology";
 
-// ✅ FIX: import GlyphOS demo from the same folder style as others
-// (your old path "../components/qfc/..." is usually wrong from src/components)
+// Extra demos (your list)
+import QFCAxiomStability from "./qfc/demos/QFCAxiomStability";
+import QFCBornRuleConvergence from "./qfc/demos/QFCBornRuleConvergence";
+import QFCCausalSpacetimeK from "./qfc/demos/QFCCausalSpacetimeK";
+import QFCDemoPSeries from "./qfc/demos/QFCDemoP-Series";
+import QFCEmergentGeometryM from "./qfc/demos/QFCEmergentGeometryM";
+import QFCEmergentTimeH2 from "./qfc/demos/QFCEmergentTimeH2";
+import QFCFeedbackControllerN from "./qfc/demos/QFCFeedbackControllerN";
+import QFCGeometryEmergence from "./qfc/demos/QFCGeometryEmergence";
+import QFCGovernedSelection from "./qfc/demos/QFCGovernedSelection";
+import QFCInformationCoherence from "./qfc/demos/QFCInformationCoherence";
+import QFCInformationDynamicsI from "./qfc/demos/QFCInformationDynamicsI";
+import QFCObserverDashboardO from "./qfc/demos/QFCObserverDashboardO";
+import QFCPipelineVerification from "./qfc/demos/QFCPipelineVerification";
+import QFCSemanticCurvature from "./qfc/demos/QFCSemanticCurvature";
+import QFCTelemetryAuditv3 from "./qfc/demos/QFCTelemetryAuditv3";
+import QFCVacuumLandscapeF from "./qfc/demos/QFCVacuumLandscapeF";
+
+// GlyphOS demo
 import QFCMultiverseActionDemo from "./qfc/demos/QFC_Demo_GlyphOS";
 
 export type QFCDomain = "phys" | "bio";
 export const isQfcDomain = (d: any): d is QFCDomain => d === "phys" || d === "bio";
 
-// ✅ FIX: include glyphos here (and keep any legacy modes if you still want them)
-export type QFCMode =
-  | "gravity"
-  | "tunnel"
-  | "matter"
-  | "connect"
-  | "wormhole"
-  | "genome"
-  | "topology"
-  | "glyphos"
-  | "antigrav"
-  | "sync";
+/**
+ * Modes are now authoritative and extensible.
+ * Keep these strings stable because URLs + HUDs use them.
+ */
+export const QFC_MODES = [
+  // core
+  "gravity",
+  "tunnel",
+  "matter",
+  "connect",
+  "wormhole",
+  "genome",
+  "topology",
+  "glyphos",
 
+  // extra demos
+  "axiom_stability",
+  "born",
+  "causal_spacetime_k",
+  "p_series",
+  "emergent_geometry_m",
+  "emergent_time_h2",
+  "feedback_controller_n",
+  "geometry_emergence",
+  "governed_selection",
+  "information_coherence",
+  "information_dynamics_i",
+  "observer_dashboard_o",
+  "pipeline_verification",
+  "semantic_curvature",
+  "telemetry_audit_v3",
+  "vacuum_landscape_f",
+
+  // optional legacy aliases
+  "antigrav",
+  "sync",
+] as const;
+
+export type QFCMode = (typeof QFC_MODES)[number];
 export const isQfcMode = (m: any): m is QFCMode =>
-  m === "gravity" ||
-  m === "tunnel" ||
-  m === "matter" ||
-  m === "connect" ||
-  m === "wormhole" ||
-  m === "genome" ||
-  m === "topology" ||
-  m === "glyphos" ||
-  m === "antigrav" ||
-  m === "sync";
+  typeof m === "string" && (QFC_MODES as readonly string[]).includes(m);
 
 export type QFCTheme = {
   gravity?: string;
@@ -68,7 +103,6 @@ export type QFCFlags = {
   nec_violation?: boolean;
   nec_strength?: number;
   jump_flash?: number;
-
   chirality?: 1 | -1;
 };
 
@@ -160,6 +194,7 @@ function buildQfcFrameFromTelemetry(t: TessarisTelemetry): QFCFrame | null {
   const rawMode: any = qfcAny.mode ?? fusion?.mode ?? undefined;
   const mode: QFCMode | undefined = isQfcMode(rawMode) ? rawMode : undefined;
 
+  // NOTE: keep these telemetry mappings as-is; HUD overrides can pass frame/mode props.
   const kappa = num(rqfsState.nu_bias ?? rqfsState.kappa ?? analytics.mean_nu, 0);
   const chi = num(rqfsState.phi_bias ?? rqfsState.chi ?? analytics.mean_phi, 0);
   const sigma = num(
@@ -264,6 +299,44 @@ function fmt(v: any, digits = 4) {
   return x.toFixed(digits);
 }
 
+/**
+ * Central registry: mode -> renderer
+ * This avoids a giant if/else chain and makes adding scenes trivial.
+ */
+const DEMO_REGISTRY: Record<QFCMode, React.ComponentType<{ frame: QFCFrame | null }>> = {
+  // core
+  gravity: QFCDemoGravity,
+  tunnel: QFCDemoTunnel,
+  matter: QFCDemoMatter,
+  connect: QFCDemoConnect,
+  wormhole: QFCDemoWormhole,
+  genome: QFCDemoGenome,
+  topology: QFCDemoTopology,
+  glyphos: QFCMultiverseActionDemo,
+
+  // extra demos
+  axiom_stability: QFCAxiomStability,
+  born: QFCBornRuleConvergence,
+  causal_spacetime_k: QFCCausalSpacetimeK,
+  p_series: QFCDemoPSeries,
+  emergent_geometry_m: QFCEmergentGeometryM,
+  emergent_time_h2: QFCEmergentTimeH2,
+  feedback_controller_n: QFCFeedbackControllerN,
+  geometry_emergence: QFCGeometryEmergence,
+  governed_selection: QFCGovernedSelection,
+  information_coherence: QFCInformationCoherence,
+  information_dynamics_i: QFCInformationDynamicsI,
+  observer_dashboard_o: QFCObserverDashboardO,
+  pipeline_verification: QFCPipelineVerification,
+  semantic_curvature: QFCSemanticCurvature,
+  telemetry_audit_v3: QFCTelemetryAuditv3,
+  vacuum_landscape_f: QFCVacuumLandscapeF,
+
+  // legacy aliases (map to a sane default)
+  antigrav: QFCDemoGravity,
+  sync: QFCDemoConnect,
+};
+
 export default function QFCViewport(props: QFCViewportProps) {
   const {
     title = "Quantum Field Canvas",
@@ -307,8 +380,7 @@ export default function QFCViewport(props: QFCViewportProps) {
 
   const effectiveFrame: QFCFrame | null = frame === undefined ? liveFrame : frame;
 
-  // ✅ THIS is what makes dropdown switching actually drive the renderer:
-  // parent mode prop wins, then frame.mode, then default
+  // Parent mode prop wins, then frame.mode, else default
   const effectiveMode: QFCMode =
     (isQfcMode(modeProp) ? modeProp : undefined) ??
     (isQfcMode(effectiveFrame?.mode) ? (effectiveFrame!.mode as QFCMode) : undefined) ??
@@ -337,7 +409,7 @@ export default function QFCViewport(props: QFCViewportProps) {
   const ch: 1 | -1 = (demoFrame?.flags?.chirality ?? 1) === -1 ? -1 : 1;
   const chLabel = `CH:${ch > 0 ? "+1" : "-1"}`;
 
-  // ✅ Hard remount on mode change so the scene definitely swaps
+  // Hard remount on mode change so the scene swaps cleanly
   const canvasKey = useMemo(() => `qfc:${domain}:${effectiveMode}`, [domain, effectiveMode]);
 
   const shell: CSSProperties = {
@@ -447,6 +519,9 @@ export default function QFCViewport(props: QFCViewportProps) {
   const staleLabel =
     staleMs == null ? "telemetry:—" : staleMs < 1500 ? "telemetry:live" : `telemetry:${Math.round(staleMs)}ms`;
 
+  // Pick scene component from registry (always defined)
+  const Scene = DEMO_REGISTRY[effectiveMode] ?? QFCDemoGravity;
+
   return (
     <div style={shell}>
       <div style={canvasWrap}>
@@ -478,22 +553,9 @@ export default function QFCViewport(props: QFCViewportProps) {
             <meshBasicMaterial color={"#030712"} transparent opacity={0.35} />
           </mesh>
 
-          {/* ✅ Scene switch (NOW INCLUDES GLYPHOS) */}
+          {/* ✅ Scene switch (registry-driven) */}
           <group key={`${domain}:${effectiveMode}`}>
-            {effectiveMode === "gravity" ? <QFCDemoGravity frame={demoFrame} /> : null}
-            {effectiveMode === "tunnel" ? <QFCDemoTunnel frame={demoFrame} /> : null}
-            {effectiveMode === "matter" ? <QFCDemoMatter frame={demoFrame} /> : null}
-            {effectiveMode === "connect" ? <QFCDemoConnect frame={demoFrame} /> : null}
-            {effectiveMode === "wormhole" ? <QFCDemoWormhole frame={demoFrame} /> : null}
-            {effectiveMode === "genome" ? <QFCDemoGenome frame={demoFrame} /> : null}
-            {effectiveMode === "topology" ? <QFCDemoTopology frame={demoFrame} /> : null}
-
-            {/* ✅ NEW: GlyphOS */}
-            {effectiveMode === "glyphos" ? <QFCMultiverseActionDemo frame={demoFrame} /> : null}
-
-            {/* (optional legacy stubs) */}
-            {effectiveMode === "antigrav" ? <QFCDemoGravity frame={demoFrame} /> : null}
-            {effectiveMode === "sync" ? <QFCDemoConnect frame={demoFrame} /> : null}
+            <Scene frame={demoFrame} />
           </group>
 
           <OrbitControls

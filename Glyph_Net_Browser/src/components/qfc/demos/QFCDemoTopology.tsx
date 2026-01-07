@@ -1,11 +1,15 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Line } from "@react-three/drei";
+import { Line, Sphere, Float } from "@react-three/drei";
 import * as THREE from "three";
 
-import type { QFCFrame } from "../../QFCViewport";
+/**
+ * VOL-TOP: TOPOLOGICAL ENTANGLEMENT GRAPH
+ * Logic: Node-Edge Adjacency + Chiral Inversion
+ * Soul: Flux-linked tensors with smoothed gate transitions
+ */
 
 type TopoNode = { id: string; w?: number };
 type TopoEdge = { a: string; b: string; w?: number };
@@ -14,11 +18,8 @@ type QFCTopology = {
   epoch: number;
   nodes: TopoNode[];
   edges: TopoEdge[];
-  gate?: number; // 0..1
+  gate?: number; 
 };
-
-const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
-const n = (v: any, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
 
 function hash01(s: string) {
   let h = 2166136261;
@@ -29,119 +30,126 @@ function hash01(s: string) {
   return ((h >>> 0) % 10000) / 10000;
 }
 
-export default function QFCDemoTopology({ frame }: { frame: QFCFrame | null }) {
-  // Stage C: read topology from frame (not inferred)
-  const topo = (frame?.topology as unknown as QFCTopology | undefined) ?? undefined;
+export default function QFCTopologyGraph({ frame }: { frame: any | null }) {
+  const topo = (frame?.topology as QFCTopology | undefined);
+  if (!topo || !topo.nodes?.length) return null;
 
-  const chirality: 1 | -1 = (frame?.flags?.chirality ?? 1) === -1 ? -1 : 1;
-  const theme: any = frame?.theme ?? {};
-
-  const nodeColor = new THREE.Color(theme.connect ?? "#22d3ee");
-  const edgeColor = new THREE.Color(theme.matter ?? "#94a3b8");
-  const mirrorTint = new THREE.Color(theme.danger ?? "#ef4444");
-
-  // ✅ dt clamp + stable time + gate smoothing (standard)
+  const chirality = (frame?.flags?.chirality ?? 1) === -1 ? -1 : 1;
+  const theme = frame?.theme ?? {};
+  
   const tRef = useRef(0);
   const gateSm = useRef(1.0);
+  const [pulse, setPulse] = useState(0);
 
-  // ✅ prefer plumbed gate if present
-  const gateTarget = clamp01(Number((frame as any)?.topo_gate01 ?? topo?.gate ?? 1));
+  // Materials & Colors
+  const nodeColor = chirality === -1 ? theme.danger ?? "#ef4444" : theme.connect ?? "#22d3ee";
+  const edgeColor = chirality === -1 ? "#ff1a1a" : theme.matter ?? "#94a3b8";
+
+  // Gate Smoothing Logic
+  const gateTarget = THREE.MathUtils.clamp(frame?.topo_gate01 ?? topo?.gate ?? 1, 0, 1);
 
   useFrame((_state, dtRaw) => {
     const dtc = Math.min(dtRaw, 1 / 30);
     tRef.current += dtc;
-
-    const lerpK = 1 - Math.exp(-dtc * 10.0);
-    gateSm.current = gateSm.current + (gateTarget - gateSm.current) * lerpK;
+    
+    // Smooth gate transition (Metric closure)
+    gateSm.current = THREE.MathUtils.lerp(gateSm.current, gateTarget, 0.1);
+    
+    if (tRef.current % 0.5 < 0.02) setPulse(tRef.current);
   });
 
-  const gate = gateSm.current;
-
-  // If no topology, render nothing (true Stage C)
-  if (!topo || !topo.nodes?.length) return null;
-
-  const edgeOpacity = 0.15 + 0.65 * gate;
-
+  // Spatial Layout Calculation
   const { nodes, edges, posById } = useMemo(() => {
-    const nodes = topo?.nodes ?? [];
-    const edges = topo?.edges ?? [];
-
-    // ring layout, stable by id/order
-    const N = Math.max(1, nodes.length);
-    const radiusBase = 6.5;
-    const radius = radiusBase + gateTarget * 0.6; // base radius uses target gate (stable)
-
+    const nodes = topo.nodes;
+    const N = nodes.length;
+    const radius = 6.5 + gateTarget * 1.5;
     const posById: Record<string, THREE.Vector3> = {};
 
     nodes.forEach((node, i) => {
-      const t = (i / N) * Math.PI * 2;
-      const wobble = (hash01(node.id) - 0.5) * 1.2;
-      const y = (hash01(node.id + ":y") - 0.5) * 1.4;
+      const angle = (i / N) * Math.PI * 2;
+      const h1 = hash01(node.id);
+      const h2 = hash01(node.id + "alt");
+      
+      // Ring layout with hash-based variance
+      const x = Math.cos(angle) * (radius + (h1 - 0.5) * 2);
+      const y = (h2 - 0.5) * 3 * gateTarget;
+      const z = Math.sin(angle) * (radius + (h1 - 0.5) * 2);
 
-      const x = Math.cos(t) * (radius + wobble);
-      const z = Math.sin(t) * (radius + wobble);
-
-      // chirality mirror: flip X
       posById[node.id] = new THREE.Vector3(chirality * x, y, z);
     });
 
-    return { nodes, edges, posById };
-  }, [
-    topo?.epoch,
-    chirality,
-    gateTarget,
-    topo?.nodes?.length,
-    topo?.edges?.length,
-  ]);
-
-  const edgeStyle = (chirality === -1 ? mirrorTint : edgeColor).getStyle();
-  const nodeStyle = (chirality === -1 ? mirrorTint : nodeColor).getStyle();
+    return { nodes, edges: topo.edges, posById };
+  }, [topo.epoch, chirality, gateTarget, topo.nodes.length]);
 
   return (
     <group>
-      {/* edges */}
-      {edges.map((e, i) => {
-        const a = posById[e.a];
-        const b = posById[e.b];
-        if (!a || !b) return null;
+      {/* Flux Edges */}
+      {edges.map((edge, i) => {
+        const start = posById[edge.a];
+        const end = posById[edge.b];
+        if (!start || !end) return null;
 
-        const w = Math.max(0.5, Math.min(2.5, n(e.w, 1)));
+        const weight = edge.w ?? 1;
+        const opacity = (0.1 + 0.5 * gateSm.current) * (0.8 + 0.2 * Math.sin(tRef.current * 2 + i));
 
         return (
           <Line
-            key={`e:${e.a}:${e.b}:${i}`}
-            points={[a, b]}
-            color={edgeStyle}
-            lineWidth={1 + 0.8 * w}
+            key={`e-${i}-${topo.epoch}`}
+            points={[start, end]}
+            color={edgeColor}
+            lineWidth={1.5 * weight * gateSm.current}
             transparent
-            opacity={edgeOpacity}
+            opacity={opacity}
+            blending={THREE.AdditiveBlending}
           />
         );
       })}
 
-      {/* nodes */}
-      {nodes.map((node) => {
-        const p = posById[node.id];
-        if (!p) return null;
-
-        const w = Math.max(0.6, Math.min(2.0, n(node.w, 1)));
-        const r = 0.18 + 0.12 * w + 0.08 * gate;
+      {/* Tensor Nodes */}
+      {nodes.map((node, i) => {
+        const pos = posById[node.id];
+        const weight = node.w ?? 1;
+        const radius = (0.2 + 0.15 * weight) * (0.9 + 0.1 * Math.sin(tRef.current * 3 + i));
 
         return (
-          <mesh key={`n:${node.id}`} position={p}>
-            <sphereGeometry args={[r, 24, 18]} />
-            <meshStandardMaterial
-              color={nodeStyle}
-              emissive={nodeStyle}
-              emissiveIntensity={0.35 + 0.55 * gate}
-              roughness={0.25}
-              metalness={0.15}
-              transparent
-              opacity={0.95}
-            />
-          </mesh>
+          <Float 
+            key={`n-${node.id}`} 
+            position={pos.toArray()} 
+            speed={2} 
+            rotationIntensity={0.5} 
+            floatIntensity={0.5}
+          >
+            <mesh>
+              <sphereGeometry args={[radius, 32, 32]} />
+              <meshStandardMaterial
+                color={nodeColor}
+                emissive={nodeColor}
+                emissiveIntensity={chirality === -1 ? 2.5 : 0.8 * gateSm.current}
+                metalness={0.8}
+                roughness={0.2}
+              />
+              
+              {/* Internal Halo for nodes */}
+              <Sphere args={[radius * 1.4, 16, 16]}>
+                <meshBasicMaterial 
+                  color={nodeColor} 
+                  transparent 
+                  opacity={0.1 * gateSm.current} 
+                  wireframe 
+                />
+              </Sphere>
+            </mesh>
+          </Float>
         );
       })}
+
+      {/* Central Singularity Light */}
+      <pointLight 
+        intensity={2 * gateSm.current} 
+        color={nodeColor} 
+        distance={20} 
+        decay={2}
+      />
     </group>
   );
 }

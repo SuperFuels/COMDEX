@@ -1,0 +1,57 @@
+{
+  "IC_types": [
+    "hot_shell",
+    "cold_spike",
+    "multi_blob"
+  ],
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2
+  },
+  "params": {
+    "N": 512,
+    "T": 3000,
+    "dt": 0.01,
+    "base_noise": 0.008,
+    "gamma_S": 2.5,
+    "gamma_kappa0": 1.0,
+    "beta_adapt": 3.0
+  },
+  "metrics": {
+    "Phi_mean": [
+      1.0842021724855044e-17,
+      -1.3010426069826053e-17,
+      -2.2985086056692694e-17
+    ],
+    "curv_exp": [
+      0.36575729736323476,
+      0.370900609632509,
+      0.36933996308895384
+    ],
+    "entropy_rate": [
+      6.836493839101859e-05,
+      7.876502333994412e-05,
+      -6.039425618152855e-05
+    ],
+    "mean_curv": [
+      0.36575729736323476,
+      0.370900609632509,
+      0.36933996308895384
+    ]
+  },
+  "collapse_dev": {
+    "Phi_mean": 1.419196301712907e-17,
+    "curv_exp": 0.002153157176370953,
+    "entropy_rate": 6.329156256814023e-05,
+    "mean_curv": 0.002153157176370953
+  },
+  "classification": "\u2705 Geometry invariant universality",
+  "timestamp": "2026-01-06T20:30Z",
+  "files": {
+    "universality_plot": "PAEV_E6h_ZeroMeanUniversality.png",
+    "gamma_trace_plot": "PAEV_E6h_GammaTrace.png"
+  }
+}

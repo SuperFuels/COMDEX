@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-09T13:15:50.571773+00:00",
+  "timestamp": "2026-01-07T00:06:54.727140+00:00",
   "constants": {
     "\u0127": 0.001,
     "G": 1e-05,
@@ -19,9 +19,9 @@
   },
   "notes": [
     "Mean |E| = 1.893e-01, |S| = 5.473e-03.",
-    "Energy\u2013entropy ratio = 34.581.",
-    "Exchange mean |\u03b1\u00b7dS/dt + \u03b2\u00b7\u2207\u00b7J| = 1.147e-04.",
-    "Thermal\u2013causal balance within tolerance < 1e\u22123 indicates unified quantum\u2013thermal law.",
+    "Energy-entropy ratio = 34.581.",
+    "Exchange mean |\u03b1*dS/dt + \u03b2*\u2207*J| = 1.147e-04.",
+    "Thermal-causal balance within tolerance < 1e-3 indicates unified quantum-thermal law.",
     "Represents cross-domain conservation of information and energy.",
     "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
   ],

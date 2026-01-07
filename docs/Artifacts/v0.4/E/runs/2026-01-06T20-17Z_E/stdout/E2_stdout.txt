@@ -1,0 +1,52 @@
+/workspaces/COMDEX/backend/photon_algebra/tests/paev_test_E2_discretization.py:44: RuntimeWarning: invalid value encountered in scalar divide
+  return np.nanstd(arr) / np.nanmean(np.abs(arr))
+=== E2 - Discretization Universality ===
+{
+  "grid_scales": [
+    {
+      "N": 256,
+      "dt": 0.01
+    },
+    {
+      "N": 512,
+      "dt": 0.005
+    },
+    {
+      "N": 1024,
+      "dt": 0.0025
+    }
+  ],
+  "noise_amp": 0.03,
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2
+  },
+  "metrics": {
+    "E_mean": [
+      0.0002649352673352802,
+      0.0002645451878886159,
+      0.00026668539251964196
+    ],
+    "Phi_std": [
+      0.7277793267446125,
+      0.7267629419471142,
+      0.7294221365319971
+    ],
+    "TH": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "CVs": {
+    "E_mean": 0.00350687721782767,
+    "Phi_std": 0.001504978195999931,
+    "TH": NaN
+  },
+  "classification": "\u26a0\ufe0f Marginal universality",
+  "timestamp": "2026-01-06T20:49Z"
+}
+✅ Results saved -> backend/modules/knowledge/E2_discretization.json

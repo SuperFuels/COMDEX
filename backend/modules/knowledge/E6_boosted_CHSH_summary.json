@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-08T23:49Z",
+  "timestamp": "2026-01-06T20:15Z",
   "constants": {
     "\u0127": 0.001,
     "G": 1e-05,
@@ -33,7 +33,7 @@
   },
   "notes": [
     "CHSH measured via synthetic correlation estimator across boosted frames.",
-    "Lorentz-like transform: x' = \u03b3(x - vt), t' = \u03b3(t - v\u00b7x/c_eff\u00b2).",
+    "Lorentz-like transform: x' = \u03b3(x - vt), t' = \u03b3(t - v*x/c_eff2).",
     "Target: invariance of S_CHSH within \u00b10.05 tolerance (frame independence)."
   ]
 }

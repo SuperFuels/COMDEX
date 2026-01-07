@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-09T13:23:28.439466+00:00",
+  "timestamp": "2026-01-07T00:06:56.678061+00:00",
   "constants": {
     "\u0127": 0.001,
     "G": 1e-05,
@@ -19,7 +19,7 @@
     "stable": false
   },
   "notes": [
-    "Applied CIS operators BALANCE\u2192SYNCH\u2192CURV\u2192EXECUTE\u2192RECOVER\u2192LINK.",
+    "Applied CIS operators BALANCE->SYNCH->CURV->EXECUTE->RECOVER->LINK.",
     "Residual ratio = 6.701e+01, mean phase difference = 1.763e+00.",
     "Stable regime indicates coupling between computation and field behavior.",
     "Represents real-time unification of CIS logic with photonic dynamics.",

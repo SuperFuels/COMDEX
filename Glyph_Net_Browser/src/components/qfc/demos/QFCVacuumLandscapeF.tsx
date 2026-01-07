@@ -1,205 +1,201 @@
 "use client";
 
 import React, { useMemo, useRef, useState, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Text, Sphere, Line } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { Html, Sphere, Points } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
- * SOURCE-OF-TRUTH: RUN_ID F20251231T000030Z_F
- * PINNED ARTIFACTS: 
- * - F13G9_singularity_resolution.json (a_min ≈ 0.8847)
- * - F18_landscape_equilibrium.json (Spread ≈ 2.23e-15)
- * - F7bR_entropy_flux.json (Anti-Corr ≈ 0.947)
+ * VOL-F: VACUUM LANDSCAPE / SCALE FACTOR RESONANCE
+ * Logic: Scale Factor a(t) oscillation + Curvature peaking
+ * Soul: Fresnel Shell + Volumetric Point Lattice
  */
 
 const PINNED_METRICS = {
-  a_min: 0.88466, // F13/G9 Bridge Floor
-  lambda_eq: 0.99999997, // F18 Convergence
-  lambda_spread: 2.23e-15, // F18 Synchronization
-  entropy_flux: 0.000238, // F7bR Baseline
-  anti_corr: 0.947, // I/F Feedback proxy
-  damping_zeta: 1.0, // F18 Controller
+  a_min: 0.88466,
+  lambda_eq: 0.99999997,
+  lambda_spread: 2.23e-15,
+  anti_corr: 0.947,
 };
 
-// --- Cosmological Shader: Scale Factor & Curvature Density ---
 const VacuumShader = {
   uniforms: {
     uTime: { value: 0 },
     uScaleFactor: { value: 1.0 },
     uCurvatureIntensity: { value: 0.0 },
-    uSyncLevel: { value: 0.0 },
+    uBrightness: { value: 1.0 },
   },
   vertexShader: `
-    varying vec3 vPosition;
-    varying float vDist;
+    varying float vIntensity;
+    varying vec3 vNormal;
+    varying vec3 vViewPosition;
+
     uniform float uScaleFactor;
+    uniform float uCurvatureIntensity;
     uniform float uTime;
 
     void main() {
-      vPosition = position;
-      // Apply scale factor a(t) to the geometry
-      vec3 scaledPos = position * uScaleFactor;
+      // Scale position based on a(t)
+      vec3 pos = position * uScaleFactor;
+
+      // Spacetime warping: Curvature "pinches" the vertices inward
+      float pinch = uCurvatureIntensity * exp(-length(pos) * 0.5);
+      pos *= (1.0 - pinch * 0.15);
+
+      // Micro-fluctuations (Vacuum noise)
+      pos += sin(pos * 6.0 + uTime * 2.0) * 0.008;
+
+      vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+      vViewPosition = -mvPosition.xyz;
+      vNormal = normalize(normalMatrix * normal);
       
-      // Add micro-fluctuations (Vacuum noise)
-      scaledPos += sin(scaledPos * 5.0 + uTime) * 0.02;
-      
-      vDist = length(position);
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(scaledPos, 1.0);
+      // Pass intensity for fragment logic
+      vIntensity = uCurvatureIntensity;
+
+      gl_Position = projectionMatrix * mvPosition;
+      gl_PointSize = 2.0 + (uCurvatureIntensity * 3.0);
     }
   `,
   fragmentShader: `
-    varying vec3 vPosition;
-    varying float vDist;
-    uniform float uCurvatureIntensity;
-    uniform float uSyncLevel;
+    varying float vIntensity;
+    varying vec3 vNormal;
+    varying vec3 vViewPosition;
+    uniform float uBrightness;
 
     void main() {
-      // Color shifts from deep void (blue) to high-density bridge (orange/white)
-      vec3 voidColor = vec3(0.05, 0.1, 0.3);
-      vec3 bridgeColor = vec3(1.0, 0.6, 0.2);
+      // Fresnel effect for the "Bridge" boundary
+      vec3 normal = normalize(vNormal);
+      vec3 viewDir = normalize(vViewPosition);
+      float fresnel = pow(1.0 - dot(normal, viewDir), 3.0);
+
+      // Palette: Deep Violet -> Electric Cyan -> Singularity White
+      vec3 violet = vec3(0.3, 0.1, 0.8);
+      vec3 cyan   = vec3(0.0, 0.9, 1.0);
+      vec3 white  = vec3(0.95, 0.95, 1.0);
+
+      // Color shifts based on current Curvature (a_min proximity)
+      vec3 base = mix(violet * 0.5, cyan, vIntensity);
+      vec3 finalColor = mix(base, white, pow(vIntensity, 3.0) + fresnel * 0.5);
+
+      float alpha = clamp(0.2 + (vIntensity * 0.6) + (fresnel * 0.2), 0.0, 0.9);
       
-      // Sync visual: domains become uniform as uSyncLevel -> 1.0
-      vec3 domainSync = mix(vec3(0.5), vec3(1.0), uSyncLevel);
-      
-      vec3 finalColor = mix(voidColor, bridgeColor, uCurvatureIntensity * (1.0 - vDist * 0.5));
-      gl_FragColor = vec4(finalColor * domainSync, 0.8);
+      gl_FragColor = vec4(finalColor * uBrightness, alpha);
     }
-  `
+  `,
 };
 
-const QuantumBridge = ({ scale }: { scale: number }) => {
-  const meshRef = useRef<THREE.Mesh>(null!);
-  const uniforms = useMemo(() => THREE.UniformsUtils.clone(VacuumShader.uniforms), []);
+export default function QFCVacuumLandscapeF({ frame }: { frame?: any }) {
+  const matRef = useRef<THREE.ShaderMaterial>(null);
+  const tRef = useRef(0);
+  const [hud, setHud] = useState({ e: 0, s: 0, a: PINNED_METRICS.a_min, sync: 0 });
 
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    // Simulate cyclic scale factor a(t) around the neck
-    // Maps to FAEV_F13G9_ScaleFactor.png profile
-    const a_t = PINNED_METRICS.a_min + (1.0 - PINNED_METRICS.a_min) * (0.5 + 0.5 * Math.cos(t * 0.8));
+  // Generate a high-density point cloud shell
+  const geometry = useMemo(() => new THREE.IcosahedronGeometry(5, 6), []);
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  useFrame((_state, dtRaw) => {
+    const dtc = Math.min(dtRaw, 1 / 30);
+    tRef.current += dtc;
+    const t = tRef.current;
+
+    // Scale Factor a(t) oscillation around a_min
+    const a_min = PINNED_METRICS.a_min;
+    const a_t = a_min + (1.0 - a_min) * (0.5 + 0.5 * Math.cos(t * 0.8));
     
-    // Curvature intensity peaks at a_min (The Bridge)
-    const curvature = Math.pow(1.0 - (a_t - PINNED_METRICS.a_min) / (1.0 - PINNED_METRICS.a_min), 4.0);
-    
-    uniforms.uTime.value = t;
-    uniforms.uScaleFactor.value = a_t;
-    uniforms.uCurvatureIntensity.value = curvature * 0.8;
-    // F18 Convergence progress
-    uniforms.uSyncLevel.value = Math.min(t / 20.0, 1.0);
+    // Curvature logic: Intensity peaks when a(t) is at its floor
+    const curvature = Math.pow(1.0 - (a_t - a_min) / (1.0 - a_min), 3.0);
+
+    const mat = matRef.current;
+    if (mat) {
+      mat.uniforms.uTime.value = t;
+      mat.uniforms.uScaleFactor.value = a_t;
+      mat.uniforms.uCurvatureIntensity.value = curvature;
+      mat.uniforms.uBrightness.value = 1.0 + 0.05 * Math.sin(t * 0.6);
+    }
+
+    // HUD Update (Throttle)
+    if (t % 0.15 < 0.02) {
+      setHud({
+        e: 0.5 + 0.5 * Math.sin(t * 0.8),
+        s: (0.5 - 0.5 * Math.sin(t * 0.8)) * PINNED_METRICS.anti_corr,
+        a: a_t,
+        sync: Math.min(1, t / 20)
+      });
+    }
   });
 
   return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[5, 64, 64]} />
-      <shaderMaterial {...VacuumShader} uniforms={uniforms} transparent wireframe />
-    </mesh>
-  );
-};
-
-export default function QFCVacuumLandscapeF() {
-  const [telemetry, setTelemetry] = useState({ eFlux: 0, sFlux: 0 });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const t = Date.now() / 1000;
-      // Model I/F Anti-correlation: E(t) rising as S(t) falls
-      const e = 0.5 + 0.5 * Math.sin(t * 0.8);
-      const s = (1.0 - e) * PINNED_METRICS.anti_corr;
-      setTelemetry({ eFlux: e, sFlux: s });
-    }, 50);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="w-full h-screen bg-[#020205] text-[#a0c0ff] font-mono overflow-hidden flex">
-      {/* LEFT: COSMOLOGICAL VIEWPORT */}
-      <div className="w-3/4 h-full relative">
-        <Canvas camera={{ position: [12, 8, 12], fov: 45 }}>
-          <OrbitControls />
-          <ambientLight intensity={0.2} />
-          <pointLight position={[10, 10, 10]} intensity={1.5} color="#ffaa44" />
-          
-          <QuantumBridge scale={1.0} />
-          
-          {/* F18 Multi-Domain Landscape (Sub-attractors) */}
-          {[...Array(6)].map((_, i) => (
-            <group key={i} rotation={[0, (i * Math.PI) / 3, 0]}>
-              <Sphere args={[0.2, 16, 16]} position={[8, Math.sin(i), 0]}>
-                <meshStandardMaterial color="#44aaff" emissive="#002244" />
-              </Sphere>
-            </group>
-          ))}
-        </Canvas>
-
-        <div className="absolute top-6 left-6 p-4 border border-[#1e293b] bg-black/80 backdrop-blur-md">
-          <h2 className="text-sm font-bold tracking-widest text-[#60a5fa]">F-SERIES: COSMIC_BOUNCE</h2>
-          <p className="text-[10px] text-slate-500">RUN_ID: F20251231T000030Z_F</p>
-          <div className="mt-4 space-y-1 text-[11px]">
-            <div className="flex justify-between gap-8">
-              <span>NECK_FLOOR (a_min):</span>
-              <span className="text-white">{PINNED_METRICS.a_min.toFixed(5)}</span>
+    <group>
+      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+        <div className="pointer-events-none w-full h-full font-mono text-white">
+          {/* Top Left: Deterministic Metrics */}
+          <div className="absolute top-10 left-10 p-5 bg-black/60 backdrop-blur-xl border border-white/10 rounded w-80">
+            <div className="text-cyan-400 text-[10px] tracking-[0.3em] font-bold border-b border-white/10 pb-2 mb-4">
+              VACUUM_LANDSCAPE_F
             </div>
-            <div className="flex justify-between">
-              <span>CONVERGENCE (Λ_eq):</span>
-              <span className="text-emerald-400">{PINNED_METRICS.lambda_eq.toFixed(3)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>LQC_STATUS:</span>
-              <span className="text-blue-400">RESOLVED</span>
+            <div className="space-y-3 text-[10px]">
+              <div className="flex justify-between text-slate-400">
+                <span>SCALE_FACTOR a(t):</span>
+                <span className="text-white">{hud.a.toFixed(5)}</span>
+              </div>
+              <div className="flex justify-between text-slate-400">
+                <span>NECK_FLOOR (a_min):</span>
+                <span className="text-cyan-400">{PINNED_METRICS.a_min}</span>
+              </div>
+              <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-cyan-400" 
+                  style={{ width: `${((1 - (hud.a - 0.88466) / (1 - 0.88466))) * 100}%` }} 
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* RIGHT: HUD (I/F FEEDBACK GAUGES) */}
-      <div className="w-1/4 h-full border-l border-[#1e293b] p-8 flex flex-col gap-10 bg-[#05050a]">
-        <header>
-          <p className="text-[10px] uppercase tracking-widest text-slate-500">I/F Feedback Note</p>
-          <h1 className="text-lg font-bold text-white">Vacuum Dynamics</h1>
-        </header>
-
-        {/* ENERGY FLUX (E) */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-[10px]">
-            <span>ENERGY_FLUX (E)</span>
-            <span>{telemetry.eFlux.toFixed(4)}</span>
-          </div>
-          <div className="h-2 bg-slate-900 overflow-hidden border border-slate-800">
-            <div 
-              className="h-full bg-orange-500 transition-all duration-75" 
-              style={{ width: `${telemetry.eFlux * 100}%` }}
-            />
+          {/* Bottom Right: Anti-Correlation Gages */}
+          <div className="absolute bottom-10 right-10 p-5 bg-black/60 backdrop-blur-xl border border-white/10 rounded w-72">
+             <div className="text-[9px] text-slate-500 mb-4 tracking-widest uppercase italic">Entropy/Energy Feedback</div>
+             <div className="space-y-4">
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[9px]"><span>ENERGY_FLUX (E)</span><span>{hud.e.toFixed(3)}</span></div>
+                  <div className="h-0.5 w-full bg-white/10"><div className="h-full bg-orange-400" style={{ width: `${hud.e * 100}%` }} /></div>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[9px]"><span>ENTROPY_FLUX (S)</span><span>{hud.s.toFixed(3)}</span></div>
+                  <div className="h-0.5 w-full bg-white/10"><div className="h-full bg-cyan-400" style={{ width: `${hud.s * 100}%` }} /></div>
+                </div>
+             </div>
           </div>
         </div>
+      </Html>
 
-        {/* ENTROPY FLUX (S) - ANTI-CORRELATED */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-[10px]">
-            <span>ENTROPY_FLUX (S)</span>
-            <span>{telemetry.sFlux.toFixed(4)}</span>
-          </div>
-          <div className="h-2 bg-slate-900 overflow-hidden border border-slate-800">
-            <div 
-              className="h-full bg-cyan-500 transition-all duration-75" 
-              style={{ width: `${telemetry.sFlux * 100}%` }}
-            />
-          </div>
-          <p className="text-[9px] text-slate-600 italic">Anti-Correlation ρ ≈ -0.95</p>
-        </div>
+      {/* Main Spacetime Lattice (Points) */}
+      <points geometry={geometry}>
+        <shaderMaterial
+          ref={matRef}
+          {...VacuumShader}
+          transparent
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </points>
 
-        <div className="mt-auto space-y-4 border-t border-slate-800 pt-6">
-          <div className="p-3 bg-slate-900/50 border border-slate-800">
-            <p className="text-[9px] text-slate-400 leading-relaxed">
-              F18 LANDSCAPE_CONVERGENCE:<br/>
-              Residual Spread: {PINNED_METRICS.lambda_spread.toExponential(2)}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            <span className="text-[10px] text-emerald-500 uppercase">System Coherent</span>
-          </div>
-        </div>
-      </div>
-    </div>
+      {/* Secondary Internal Mesh (Wireframe for structure) */}
+      <mesh geometry={geometry}>
+        <shaderMaterial
+          {...VacuumShader}
+          uniforms={matRef.current?.uniforms || VacuumShader.uniforms}
+          wireframe
+          transparent
+          opacity={0.15}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* Singularity Pulse Light */}
+      <pointLight position={[0, 0, 0]} intensity={1.5} color="#00f2ff" distance={15} />
+      <ambientLight intensity={0.2} />
+    </group>
   );
 }
