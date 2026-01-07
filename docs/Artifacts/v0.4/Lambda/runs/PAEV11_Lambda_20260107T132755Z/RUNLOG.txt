@@ -1,0 +1,42 @@
+RUN_ID=PAEV11_Lambda_20260107T132755Z
+SERIES=Lambda (Λ)
+UTC=2026-01-07T13:28:18Z
+GIT_REV=d744381612e8ea24695f00b28fb528dc75cd1743
+
+
+=== Λ1 - Vacuum Stability (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+⟨|∇*J|⟩ = 1.018e-03, energy drift = 1.816e-11
+✅  Neutral vacuum stable.
+✅ Summary saved -> backend/modules/knowledge/Λ1_vacuum_stability_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Λ1_vacuum_stability.png
+------------------------------------------------------------
+
+=== Λ2 - Zero-Point Persistence (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+Q_Λ (post/drive energy) = 0.000 -> Non-persistent
+✅ Summary saved -> backend/modules/knowledge/Λ2_zero_point_persistence_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Λ2_zero_point_persistence.png
+------------------------------------------------------------
+
+=== Λ3 - Dissipationless Transport (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+Attenuation = 1.000e-12 -> Dissipationless transport
+✅ Summary saved -> backend/modules/knowledge/Λ3_dissipationless_transport_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Λ3_dissipationless_transport.png
+------------------------------------------------------------
+
+=== Λ4 - Causal Buffer Bridge (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+Recovery ratio (Λ-buffer) = 1.414 | Ω3 ref = 747.364
+⚠️  No improvement vs Ω3 baseline.
+✅ Summary saved -> backend/modules/knowledge/Λ4_causal_buffer_bridge_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Λ4_causal_buffer_bridge.png
+------------------------------------------------------------
+
+=== Λ5 - Noise Immunity (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+Balance residual = 5.324e-02 -> Sensitive
+✅ Summary saved -> backend/modules/knowledge/Λ5_noise_immunity_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Λ5_noise_immunity.png
+------------------------------------------------------------

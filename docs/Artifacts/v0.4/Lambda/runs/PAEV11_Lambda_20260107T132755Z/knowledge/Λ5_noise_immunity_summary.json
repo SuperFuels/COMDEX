@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-01-07T13:28:31.353643+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "balance_residual": 0.05323840584325348,
+    "immune": false,
+    "threshold": 0.001
+  },
+  "notes": [
+    "Residual \u2225\u2207*J + \u2202S/\u2202x\u2225 = 5.324e-02.",
+    "\u039b neutral medium suppresses noise-driven causal imbalance."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}
