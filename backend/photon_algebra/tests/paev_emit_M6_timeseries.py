@@ -20,18 +20,24 @@ def main():
     ap.add_argument("--seed", type=int, default=1337)
     ap.add_argument("--out_dir", type=str, default="backend/modules/knowledge")
     ap.add_argument("--diffusion", type=float, default=None,
-                    help="override diffusion strength; otherwise uses env PAEV_DIFFUSION_STRENGTH or default 0.005")
+                    help="override diffusion strength; otherwise uses env PAEV_DIFFUSION_STRENGTH or default 0.0 (X1-safe)")
     args = ap.parse_args()
 
     const = load_constants(version="v1.2")
     Λ = float(const["Λ"]); α = float(const["α"]); β = float(const["β"]); χ = float(const.get("χ", 1.0))
     c_eff = math.sqrt(α / (1.0 + Λ))
 
-    diffusion_strength = (
-        float(args.diffusion)
-        if args.diffusion is not None
-        else float(os.getenv("PAEV_DIFFUSION_STRENGTH", "0.005"))
-    )
+    # diffusion: arg > env > default (default is strict X1-safe)
+    diff_env_raw = os.getenv("PAEV_DIFFUSION_STRENGTH", None)
+    if args.diffusion is not None:
+        diffusion_strength = float(args.diffusion)
+        diffusion_source = "arg"
+    elif diff_env_raw is not None:
+        diffusion_strength = float(diff_env_raw)
+        diffusion_source = "env"
+    else:
+        diffusion_strength = 0.0
+        diffusion_source = "default"
 
     np.random.seed(args.seed)
 
@@ -87,6 +93,8 @@ def main():
         "damping": float(args.damping),
         "clip_value": clipv,
         "diffusion_strength": float(diffusion_strength),
+        "diffusion_source": diffusion_source,
+        "diffusion_env_raw": diff_env_raw,
         "seed": int(args.seed),
         "c_eff": float(c_eff),
         "constants_version": "v1.2",

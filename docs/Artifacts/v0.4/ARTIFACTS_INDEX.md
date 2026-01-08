@@ -145,3 +145,8 @@ Lock ID: V04_ARTIFACTS_INDEX_LOCK_20260101
 Status: LOCKED
 Maintainer: Tessaris AI
 Author: Kevin Robinson.
+- Psi: docs/Artifacts/v0.4/Psi/runs/PAEV11_Psi_REBUILD_20260108T134337Z (Lock: LOCK_PSI_44c7d67bd22a)
+
+- Xi: docs/Artifacts/v0.4/Xi/runs/PAEV11_Xi_REBUILD_20260108T140206Z (Lock: LOCK_XI_ed2c58e551c6)
+
+- X: docs/Artifacts/v0.4/X/runs/PAEV11_X_REBUILD_20260108T141913Z (Lock: LOCK_X_061acd7a4a89)

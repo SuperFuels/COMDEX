@@ -1,0 +1,20 @@
+RUN_ID=PAEV11_Psi_REBUILD_20260108T134337Z
+=== RUNNING: backend/photon_algebra/tests/psi1_multi_observer_phase_init.py ===
+/workspaces/COMDEX/backend/photon_algebra/tests/psi1_multi_observer_phase_init.py:82: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+✅ Ψ1 summary saved -> backend/modules/knowledge/Ψ1_multi_observer_phase_init_summary.json
+✅ Visualization saved -> backend/modules/knowledge/Tessaris_Ψ1_MultiObserverPhaseInit.png
+=== RUNNING: backend/photon_algebra/tests/psi2_lattice_coherence_propagation.py ===
+✅ Ψ2 summary saved -> backend/modules/knowledge/Ψ2_lattice_coherence_propagation_summary.json
+✅ Visualization saved -> backend/modules/knowledge/Tessaris_Ψ2_LatticePropagation.png
+Ξ  Lattice coherence stabilized with Φ = 0.000637
+=== RUNNING: backend/photon_algebra/tests/psi3_spatial_interference_cascade.py ===
+✅ Ψ3 summary saved -> backend/modules/knowledge/Ψ3_spatial_interference_cascade_summary.json
+✅ Visualization saved -> backend/modules/knowledge/Tessaris_Ψ3_InterferenceCascade.png
+✅ Heatmap saved -> backend/modules/knowledge/Tessaris_Ψ3_InterferenceCascade_Heatmap.png
+Ξ  Spatial coherence cascade completed with Φ = 0.999998
+=== RUNNING: backend/photon_algebra/tests/psi4_coherence_feedback_stabilization.py ===
+✅ Ψ4 summary saved -> backend/modules/knowledge/Ψ4_coherence_feedback_stabilization_summary.json
+✅ Visualization saved -> backend/modules/knowledge/Tessaris_Ψ4_CoherenceFeedback.png
+✅ Heatmap saved -> backend/modules/knowledge/Tessaris_Ψ4_CoherenceFeedback_Heatmap.png
+Ξ  Adaptive coherence feedback stabilized with Φ = 0.991546, Γ = 0.991

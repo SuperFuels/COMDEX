@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-01-06T23:42:58.985247+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "R_damped_mean": 6.456747322165676e-05,
+    "J_flux_mean": 0.0019468060422008762,
+    "flux_balance": -0.010414396605640919,
+    "equilibrium_ratio": 0.032875722652962194,
+    "stable": false
+  },
+  "notes": [
+    "Equilibrium ratio = 0.033.",
+    "Mean damped curvature \u27e8|R_damped|\u27e9 = 6.457e-05.",
+    "Flux balance = -1.041e-02.",
+    "Stable equilibrium corresponds to gravitational cutoff - event horizon analogue.",
+    "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

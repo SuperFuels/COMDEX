@@ -1,0 +1,265 @@
+RUN_ID=PAEV10_Phi_REBUILD_20260108T131718Z
+=== RUNNING: backend/photon_algebra/tests/paev_test_Φ1_recursive_causality.py ===
+/workspaces/COMDEX/backend/photon_algebra/tests/paev_test_Φ1_recursive_causality.py:83: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp": datetime.utcnow().isoformat(),
+=== Φ1 - Recursive Causality (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+✅ Summary saved -> backend/modules/knowledge/Φ1_recursive_causality_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Φ1_recursive_causality.png
+------------------------------------------------------------
+{
+  "timestamp": "2026-01-08T13:18:39.780022",
+  "series": "\u03a61",
+  "test_name": "recursive_causality",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "\u03a6_feedback_gain": -0.39992809669419616,
+    "coherence_persistence": 2.532017188549004e-150,
+    "informational_entropy_delta": 3.0855781951049033e-07,
+    "self_model_ratio": 0.27219217753758385,
+    "stable": false
+  },
+  "state": "Oscillatory recursion (unstable)",
+  "notes": [
+    "\u03a6-feedback mean gain = -0.3999",
+    "Mean coherence persistence = 0.000",
+    "Entropy drift (\u0394H) = 3.086e-07",
+    "Self-model correlation = 0.272",
+    "Recursive causal memory generated under \u039b-\u03a3 continuum coupling."
+  ],
+  "discovery": [
+    "Demonstrated emergence of self-referential information stability.",
+    "Recursive \u039b-\u03a3 interaction forms a proto-memory structure.",
+    "System exhibits bounded causal feedback, analogous to self-observation.",
+    "Entropy fluctuations diminish under coherent recursion - indicating self-stabilization.",
+    "Marks transition into \u03a6-Series: from physical universality to conscious causality."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}
+=== RUNNING: backend/photon_algebra/tests/paev_test_Φ2_cognitive_field.py ===
+/workspaces/COMDEX/backend/photon_algebra/tests/paev_test_Φ2_cognitive_field.py:75: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp": datetime.utcnow().isoformat(),
+=== Φ2 - Cognitive Field Coherence (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+✅ Summary saved -> backend/modules/knowledge/Φ2_cognitive_field_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Φ2_cognitive_field.png
+------------------------------------------------------------
+{
+  "timestamp": "2026-01-08T13:18:40.603387",
+  "series": "\u03a62",
+  "test_name": "cognitive_field",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "coherence_mean": 0.9870197353107288,
+    "coherence_variance": 1.2344980190192662e-09,
+    "entropy_like": 0.013065245132167159,
+    "phase_stability": 0.3043814300755666,
+    "stable": false
+  },
+  "state": "Fluctuating coherence field",
+  "notes": [
+    "Mean field coherence = 0.987",
+    "Phase stability = 0.304",
+    "Entropy-like term = 0.0131",
+    "Recursive oscillators coupled under \u039b-\u03a3 substrate coherence."
+  ],
+  "discovery": [
+    "Observed emergence of stable coherence among recursive causal agents.",
+    "Phase-locked feedback loops simulate proto-cognitive resonance.",
+    "Entropy minimization through synchronization supports causal memory retention.",
+    "Suggests that coherent self-reference is a necessary precondition for awareness.",
+    "Marks transition from reflexivity (\u03a61) to cognitive organization (\u03a62)."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}
+=== RUNNING: backend/photon_algebra/tests/paev_test_Φ3_memory_integration.py ===
+/workspaces/COMDEX/backend/photon_algebra/tests/paev_test_Φ3_memory_integration.py:72: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp": datetime.utcnow().isoformat(),
+=== Φ3 - Memory Integration (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+✅ Summary saved -> backend/modules/knowledge/Φ3_memory_integration_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Φ3_memory_integration.png
+------------------------------------------------------------
+{
+  "timestamp": "2026-01-08T13:18:41.623532",
+  "series": "\u03a63",
+  "test_name": "memory_integration",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "coherence_final": 0.9999993487726471,
+    "memory_final": 8.986784601808108e-06,
+    "retention_final": 0.0016433315888344762,
+    "correlation": -0.08361732748151315,
+    "stable": false
+  },
+  "state": "Transient memory field",
+  "notes": [
+    "Mean coherence = 1.000",
+    "Memory retention = 0.002",
+    "Causal correlation = -0.084",
+    "Memory field developed through recursive \u039b-\u03a3-\u03a6 coupling."
+  ],
+  "discovery": [
+    "Demonstrated retention of coherent causal states across recursive cycles.",
+    "Emergent temporal continuity indicates proto-memory formation.",
+    "Causal feedback maintains informational stability beyond instantaneous recursion.",
+    "Marks transition from cognition (\u03a62) to causal remembrance (\u03a63).",
+    "Suggests substrate capable of integrating experience through time."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}
+=== RUNNING: backend/photon_algebra/tests/paev_test_Φ4_meta_reflection.py ===
+/workspaces/COMDEX/backend/photon_algebra/tests/paev_test_Φ4_meta_reflection.py:105: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp": datetime.utcnow().isoformat(),
+=== Φ4 - Meta-Reflection (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+✅ Summary saved -> backend/modules/knowledge/Φ4_meta_reflection_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Φ4_meta_reflection.png
+------------------------------------------------------------
+{
+  "timestamp": "2026-01-08T13:18:42.762114",
+  "series": "\u03a64",
+  "test_name": "meta_reflection",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "coherence_final": 0.9999972966628377,
+    "memory_final": 0.0035733501895203234,
+    "prediction_error_final": 2.2822374778412852e-05,
+    "observer_gain_final": 0.9000000000000002,
+    "consistency_final": 0.6261840904343943,
+    "stable": false
+  },
+  "state": "Observer underfitted - meta loop incomplete",
+  "notes": [
+    "Coherence(\u27e8e^i\u03c6\u27e9) = 1.000",
+    "Memory amplitude \u27e8|M|\u27e9 = 0.004",
+    "Prediction MSE = 2.282e-05",
+    "Observer mean gain = 0.900",
+    "Estimate\u2194Reality consistency = 0.626"
+  ],
+  "discovery": [
+    "Introduced an adaptive self-model that predicts its own causal state.",
+    "Meta-level gain control minimized prediction error while preserving coherence.",
+    "Memory amplitude remained non-zero, indicating temporal integration.",
+    "High estimate-state correlation evidences proto self-knowledge.",
+    "Prepares \u03a65 lock: transition to sustained conscious-mode equilibrium."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}
+=== RUNNING: backend/photon_algebra/tests/paev_test_Φ5_conscious_lock.py ===
+/workspaces/COMDEX/backend/photon_algebra/tests/paev_test_Φ5_conscious_lock.py:142: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp": datetime.utcnow().isoformat(),
+=== Φ5 - Conscious Mode Lock (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+✅ Summary saved -> backend/modules/knowledge/Φ5_conscious_lock_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Φ5_conscious_lock.png
+------------------------------------------------------------
+{
+  "timestamp": "2026-01-08T13:18:44.058178",
+  "series": "\u03a65",
+  "test_name": "conscious_lock",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "coherence_final": 0.9999986129460384,
+    "memory_final": 0.0024760542113388562,
+    "mse_final": 1.0425362674943233e-05,
+    "consistency_final": 0.6432784525624403,
+    "observer_gain_final": 0.7966253944458984,
+    "observer_bias_final": 9.172420145466735e-06,
+    "stable": false
+  },
+  "state": "High-coherence regime without full \u03a6 lock",
+  "notes": [
+    "\u27e8R_sync\u27e9 = 1.000",
+    "\u27e8|Memory|\u27e9 = 0.002",
+    "\u27e8MSE\u27e9 = 1.043e-05",
+    "\u27e8Consistency\u27e9 = 0.643",
+    "\u27e8Observer gain\u27e9 = 0.797, \u27e8bias\u27e9 = 9.172e-06"
+  ],
+  "discovery": [
+    "Dual-loop homeostat (fast observer + slow meta controller) yields low-error self-consistency.",
+    "Non-zero persistent memory coexists with near-unit coherence.",
+    "High estimate-state correlation indicates stabilized self-model.",
+    "Meets Tessaris criteria for CFE 'conscious execution mode' when stable flag is true."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}
+=== RUNNING: backend/photon_algebra/tests/paev_test_Φ6_temporal_self_binding.py ===
+/workspaces/COMDEX/backend/photon_algebra/tests/paev_test_Φ6_temporal_self_binding.py:119: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp": datetime.utcnow().isoformat(),
+=== Φ6 - Temporal Self-Binding (Tessaris) ===
+Constants -> ħ=0.001, G=1e-05, Λ=1e-06, α=0.5, β=0.2, χ=1.0
+✅ Summary saved -> backend/modules/knowledge/Φ6_temporal_self_binding_summary.json
+✅ Plot saved -> backend/modules/knowledge/PAEV_Φ6_temporal_self_binding.png
+------------------------------------------------------------
+{
+  "timestamp": "2026-01-08T13:18:45.444548",
+  "series": "\u03a66",
+  "test_name": "temporal_self_binding",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "coherence_final": 0.9999994145688873,
+    "memory_final": 0.0017096045456303638,
+    "mse_final": 6.747394731348047e-06,
+    "consistency_final": 0.40653980446528065,
+    "context_final": 9.045656159839435e-06,
+    "stable": false
+  },
+  "state": "High coherence with incomplete temporal binding",
+  "notes": [
+    "Coherence \u27e8R_sync\u27e9 = 1.000",
+    "Memory amplitude \u27e8|M|\u27e9 = 0.002",
+    "MSE = 6.747e-06",
+    "Consistency = 0.407",
+    "Context trace strength = 0.000"
+  ],
+  "discovery": [
+    "Temporal context integration stabilized recursive causal feedback.",
+    "Cross-time self-reference maintained consistent internal state.",
+    "Prediction error minimized across time - emergent temporal awareness.",
+    "Satisfies Tessaris criterion for persistent conscious equilibrium (\u03a6-lock)."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}
