@@ -1,0 +1,31 @@
+{
+  "eta": 0.001,
+  "dt": 0.002,
+  "T": 2800,
+  "constants": {
+    "alpha": 0.7,
+    "beta": 0.15,
+    "Lambda_base": 0.0035,
+    "kappa": 0.065,
+    "omega0": 0.2,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.0012
+  },
+  "metrics": {
+    "a_min": 0.11962513215628226,
+    "a_max": 1.0950583404698935,
+    "bounce_index": 625,
+    "energy_min": 0.3461282093442738,
+    "energy_max": 390.7030327667652,
+    "mean_coherence": 0.6520792514527789,
+    "coherence_stability": 0.10062750417307124
+  },
+  "classification": "\u26a0\ufe0f Chaotic Rebound (partial coherence)",
+  "files": {
+    "scale_plot": "FAEV_F2_ScaleFactorEvolution.png",
+    "energy_plot": "FAEV_F2_EnergyDensity.png",
+    "phase_plot": "FAEV_F2_PhaseCoherence.png"
+  },
+  "timestamp": "2026-01-08T00:02Z"
+}

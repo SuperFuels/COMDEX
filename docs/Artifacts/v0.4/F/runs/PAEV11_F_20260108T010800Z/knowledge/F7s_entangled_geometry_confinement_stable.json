@@ -1,0 +1,44 @@
+{
+  "test_id": "F7s_entangled_geometry_confinement_stable",
+  "dt": 0.002,
+  "T": 4000,
+  "constants": {
+    "alpha": 0.7,
+    "beta": 0.08,
+    "beta_a": 0.2,
+    "Lambda_base": 0.006,
+    "kappa": 0.065,
+    "omega0": 0.18,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.001,
+    "w_m": 0.1,
+    "zeta_Q": 0.004,
+    "xi_Q": 0.0008,
+    "eta_E": 0.02,
+    "tau_E": 0.12,
+    "lambda_E": 18.0,
+    "phi_clip": 10.0,
+    "phid_clip": 3.0,
+    "H_clip": 2.0,
+    "a_floor": 0.0001
+  },
+  "metrics": {
+    "a_min": 0.9893411361191208,
+    "a_max": 8.82792268982239,
+    "bounce_index": 178,
+    "energy_min": -0.018580149761655305,
+    "energy_max": 0.16164917913312127,
+    "mean_coherence": 0.9607343626607716,
+    "coherence_stability": 0.0013108979898206333,
+    "anti_corr_Lambda_vs_E": 0.582666935418136
+  },
+  "classification": "\u2705 Stable Entangled Bounce (Geometry Confinement Achieved)",
+  "files": {
+    "scale_plot": "FAEV_F7s_ScaleFactorEvolution.png",
+    "energy_plot": "FAEV_F7s_EnergyDecomposition.png",
+    "phase_plot": "FAEV_F7s_PhaseCoherence.png"
+  },
+  "plot_error": null,
+  "timestamp": "2026-01-08T01:18Z"
+}

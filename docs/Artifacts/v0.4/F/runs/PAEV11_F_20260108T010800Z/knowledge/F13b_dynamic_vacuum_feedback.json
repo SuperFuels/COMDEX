@@ -1,0 +1,29 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u03b1": 0.5,
+  "\u039b0": 1e-06,
+  "\u03b3": 0.0022,
+  "\u03b6": 1.45,
+  "\u03ba": 11.0,
+  "\u03bd": 0.00020240000000000001,
+  "\u03c1": 0.08,
+  "timing": {
+    "steps": 2400,
+    "dt": 0.006
+  },
+  "metrics": {
+    "\u039b_final": -1.1267142590839256e-06,
+    "\u039b_drift": -2.1267142590839254e-06,
+    "\u039b_tail_std": 1.0284091283509538e-06,
+    "S_mean": 0.7338345087054242,
+    "E_mean": -0.0005927893567301486
+  },
+  "classification": "\u2705 \u039b self-stabilized (attractor reached)",
+  "files": {
+    "lambda_plot": "PAEV_F13b_LambdaEvolution.png",
+    "entropy_energy_plot": "PAEV_F13b_SEEvolution.png",
+    "phase_feedback_plot": "PAEV_F13b_PhaseFeedback.png"
+  },
+  "timestamp": "2026-01-08T00:12Z"
+}

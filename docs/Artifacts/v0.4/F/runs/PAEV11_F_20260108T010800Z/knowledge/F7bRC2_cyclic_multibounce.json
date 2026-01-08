@@ -1,0 +1,36 @@
+{
+  "config": {
+    "dt": 0.002,
+    "T": 40.0,
+    "alpha": 0.7,
+    "beta": 0.08,
+    "kappa": 0.065,
+    "omega0": 0.18,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.0005,
+    "rho_c": 1.0,
+    "Lambda_base": 0.0035,
+    "kp": 0.18,
+    "ki": 0.004,
+    "kd": 0.03,
+    "g_couple": 0.015,
+    "H0": -0.25,
+    "target_energy": 0.04,
+    "cycle": {
+      "lam_amp": 0.0016,
+      "lam_omega": 1.0,
+      "gate_width": 0.4,
+      "reinject_frac": 0.03
+    }
+  },
+  "metrics": {
+    "num_bounces": 2,
+    "mean_entropy_flux": 0.00011212998383821
+  },
+  "files": {
+    "scale_plot": "FAEV_F7bRC2_Scale.png",
+    "energy_plot": "FAEV_F7bRC2_Energy.png",
+    "entropy_plot": "FAEV_F7bRC2_Entropy.png"
+  }
+}

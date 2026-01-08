@@ -1,0 +1,19 @@
+{
+  "\u039b_eff": 0.0003298711248688407,
+  "G": 1e-05,
+  "\u0127": 0.001,
+  "timing": {
+    "steps": 4000,
+    "dt": 0.004
+  },
+  "metrics": {
+    "a_final": 1.1838014944678967,
+    "acc_tail_mean": 0.0001282228247363737
+  },
+  "classification": "\u2705 Accelerating expansion from \u039b_eff",
+  "files": {
+    "scale_plot": "PAEV_F14a_ScaleFactor.png",
+    "hubble_plot": "PAEV_F14a_Hubble.png"
+  },
+  "timestamp": "2025-10-07T16:44Z"
+}

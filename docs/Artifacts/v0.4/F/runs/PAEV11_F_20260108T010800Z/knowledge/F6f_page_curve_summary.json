@@ -1,0 +1,22 @@
+{
+  "test": "F6f_PageCurve",
+  "dt": 0.02,
+  "steps": 700,
+  "page_step": 3,
+  "page_time": 0.06,
+  "final": {
+    "S_in": 4.190360478645259,
+    "S_out": 8.688704900502987,
+    "S_tot": 8.699761772779233,
+    "Energy": 0.014545446434716213,
+    "Area": 96
+  },
+  "files": {
+    "page_plot": "PAEV_TestF6f_PageCurve_Annotated.png",
+    "infoflux_plot": "PAEV_TestF6f_InfoFlux.png",
+    "energy_area_plot": "PAEV_TestF6f_EnergyArea.png",
+    "animation": "PAEV_TestF6f_Propagation.gif",
+    "csv": "PAEV_TestF6f_PageCurve.csv"
+  },
+  "timestamp": "2025-10-08T10:02:38Z"
+}

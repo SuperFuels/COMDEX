@@ -1,0 +1,245 @@
+% !TEX TS-program = pdflatex
+\documentclass[11pt]{article}
+
+% ---------- Tessaris house style
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{enumitem}
+
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+
+% Ragged-right X columns for wrapping tables
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+
+% RFC-ish keywords
+\newcommand{\MUST}{\textsc{must}}
+\newcommand{\SHOULD}{\textsc{should}}
+\newcommand{\MAY}{\textsc{may}}
+
+% ---------- Document metadata (edit these for new runs)
+\newcommand{\LockID}{PAEV11\_F\_20260108T010800Z}
+\newcommand{\LockStatus}{LOCKED}
+\newcommand{\Maintainer}{Tessaris AI}
+\newcommand{\AuthorName}{Kevin Robinson}
+
+% Footer lock block (required format)
+\fancyfoot[C]{\footnotesize
+Lock ID: \LockID \quad|\quad
+Status: \LockStatus \quad|\quad
+Maintainer: \Maintainer \quad|\quad
+Author: \AuthorName.}
+
+\title{\textbf{FAEV/PAEV F-Series: Stabilized Bounce, Dynamic Vacuum Feedback, and a Discrete-Time Attractor Law for $\Lambda$}}
+\author{\AuthorName \\ \Maintainer}
+\date{2026-01-08}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We report a compact experimental sweep over the ``F-series'' vacuum/bounce test family, including baseline singularity-bounce attempts (F1--F7), stabilized loop-quantum-cosmology (LQC) regulated variants (F7b, F7b-R), a cyclic multi-bounce probe (F7b-RC2), and an explicit discrete-time dynamic vacuum feedback controller (F13b) that self-stabilizes $\Lambda$ via high-pass error regulation with leaky integral anti-drift cancellation. We further summarize a curvature-bounded ``quantum bridge'' classification in the F13/G9 singularity-resolution test. The controller equations in this paper are \emph{code-faithful}: they match the implemented update in \url{backend/photon_algebra/tests/paev_test_F13b_dynamic_vacuum_feedback.py}.
+\end{abstract}
+
+\section{Scope and reproducibility contract}
+This document summarizes results from the run bundle identified by Lock ID \LockID\ and produced from a pinned repository state and artifact folder structure. For reproducibility, the implementation \MUST\ be treated as the reference source of truth. The following files are intended to be sufficient to reproduce this report:
+\begin{itemize}[leftmargin=*]
+  \item Pinned tests: \url{docs/Artifacts/v0.4/F/runs/\LockID/tests/}
+  \item Knowledge cards (JSON): \url{docs/Artifacts/v0.4/F/runs/\LockID/knowledge/}
+  \item Plots: \url{docs/Artifacts/v0.4/F/runs/\LockID/plots/}
+  \item Git revision: \url{docs/Artifacts/v0.4/F/runs/\LockID/GIT_REV.txt}
+  \item UTC timestamp: \url{docs/Artifacts/v0.4/F/runs/\LockID/UTC_TIMESTAMP.txt}
+\end{itemize}
+All numeric values quoted below are derived from console output and/or the corresponding knowledge JSON produced by the run.
+
+\section{Executive summary of outcomes}
+The F-series does \emph{not} remain ``green'' end-to-end in this run: self-organization appears only in the stabilized LQC + feedback variants. In particular, F4--F7 exhibit numeric overflow leading to NaNs and collapse/decoherence, whereas F7b/F7b-R and F13b demonstrate stable attractor behavior.
+
+\subsection{Status table}
+Table~\ref{tab:status} summarizes the observed test classifications (console messages) and key scalar metrics.
+
+\begin{table}[h]
+\centering
+\begin{tabularx}{\linewidth}{@{}l l Y Y@{}}
+\toprule
+Test & Outcome & Key metric(s) & Notes \\
+\midrule
+F1 & \textbf{FAIL} & $a_{\min}=0.1030$, mean coherence $0.721$ & Vacuum collapse (no rebound). \\
+F2 & \textbf{WARN} & $a_{\min}=0.1196$, mean coherence $0.652$ & Chaotic rebound (partial coherence). \\
+F3 & \textbf{FAIL} & $a_{\min}=0.002407$, mean coherence $0.991$ & ``Unstable or weak cancellation''; anti-corr reported as $0.000$. \\
+F4 & \textbf{FAIL} & $a_{\min}\approx 0$, coherence NaN & Overflow $\rightarrow$ NaNs $\rightarrow$ collapse (energy runaway). \\
+F5 & \textbf{FAIL} & $a_{\min}\approx 0$, coherence NaN & Overflow/NaNs $\rightarrow$ collapse or runaway. \\
+F6 & \textbf{FAIL} & $a_{\min}\approx 0$, coherence NaN & Overflow/NaNs $\rightarrow$ collapse or decoherence. \\
+F7 & \textbf{FAIL} & $a_{\min}\approx 0$, coherence NaN & Overflow/NaNs $\rightarrow$ collapse or decoherence. \\
+F7b & \textbf{PASS} & $a_{\min}=0.4784$, coherence $0.867$ & Stable bounce (LQC-regulated), anti-corr$(\Lambda,E)=0.94$. \\
+F7b-R & \textbf{PASS} & $a_{\min}=0.5840$, coherence $0.888$ & Stable dual-field bounce, anti-corr$(\Lambda,E)=0.38$. \\
+F7b-R+ & \textbf{WARN} & mean entropy flux $2.4\times 10^{-4}$ & Soft bounce / weak entropy retention; anti-corr$(\Lambda,E)=0.95$. \\
+F7b-RC & \textbf{FAIL} & num bounces $1$ & Single bounce or collapse. \\
+F7b-RC2 & \textbf{PASS} & bounces $2$, mean entropy flux $1.121\times 10^{-4}$ & Multi-bounce achieved. \\
+F13b & \textbf{PASS} & $\Lambda_{\mathrm{final}}\approx -10^{-6}$ & $\Lambda$ self-stabilized (attractor reached). \\
+F13/G9 & \textbf{PASS} & $a_{\min}=0.8847$, $\kappa_{\max}\approx 0.008$ & ``Quantum bridge formed''; singularity resolved. \\
+\bottomrule
+\end{tabularx}
+\caption{Observed outcomes and scalar summaries for the F-series sweep (Lock ID \LockID).}
+\label{tab:status}
+\end{table}
+
+\section{Observed failure mode: overflow-driven collapse (F4--F7)}
+In F4--F7, the scalar potential and its derivative contain polynomial terms (e.g., $\phi^4$, $\phi^5$) whose naive evaluation overflowed at runtime, producing NaNs that propagated into coherence measurements and the dynamical updates. These failures are numerical (not conceptual) in the sense that they reflect uncontrolled growth in intermediate values and/or insufficient regularization. Stabilized branches (F7b, F7b-R) explicitly introduce LQC-style regulation and damped feedback that bound the evolution and avoid runaway.
+
+\section{Stabilized bounce: LQC + damped feedback (F7b, F7b-R, F7b-RC2)}
+The stabilized variants demonstrate a consistent qualitative signature:
+\begin{itemize}[leftmargin=*]
+  \item Scale factor remains bounded away from zero ($a_{\min}\sim 0.48$--$0.58$) and rebounds.
+  \item Coherence remains high ($\sim 0.87$--$0.89$) and anti-correlation between vacuum response and energy proxy is elevated in some regimes.
+  \item Cyclic extension can produce multiple bounces when parameters support retention (F7b-RC2: two bounces).
+\end{itemize}
+
+\paragraph{Figures.}
+The run bundle includes plots such as \url{plots/FAEV_F7b_ScaleFactorEvolution.png} and \url{plots/FAEV_F7bR_ScaleFactorEvolution.png}. If compiling this paper within the artifact folder, you \MAY\ include them directly:
+\begin{verbatim}
+\includegraphics[width=\linewidth]{../plots/FAEV_F7b_ScaleFactorEvolution.png}
+\end{verbatim}
+
+\section{F13b: code-faithful discrete-time dynamic $\Lambda$ feedback}
+This section is the \emph{authoritative} mathematical transcription of the implemented controller in \url{backend/photon_algebra/tests/paev_test_F13b_dynamic_vacuum_feedback.py} (lines 74--100 in the captured listing). Notation is chosen to make the discrete-time control structure explicit.
+
+\subsection{Driver smoothing and increments}
+We define smoothed drivers via an exponential moving average (EMA) with coefficient $a=0.03$:
+\begin{align}
+E_k^{\mathrm{sm}} &= (1-a)E_{k-1}^{\mathrm{sm}} + a E_k, \\
+S_k^{\mathrm{sm}} &= (1-a)S_{k-1}^{\mathrm{sm}} + a S_k,
+\end{align}
+and the discrete increments used by the controller:
+\begin{align}
+\Delta E_k &= E_k^{\mathrm{sm}} - E_{k-1}, \\
+\Delta S_k &= S_k^{\mathrm{sm}} - S_{k-1}.
+\end{align}
+
+\subsection{Normalized error, deadband, and soft saturation}
+Let $\sigma_\Sigma = \sigma_S + \sigma_E + \varepsilon$ with $\varepsilon=10^{-9}$ (normalization), and define the normalized error
+\begin{equation}
+r_k = \frac{\Delta S_k - \Delta E_k}{\sigma_\Sigma}.
+\end{equation}
+Deadband:
+\begin{equation}
+r_k \leftarrow 0 \quad \text{if } |r_k| < d,
+\end{equation}
+with $d=3\times 10^{-3}$.
+Soft saturation:
+\begin{equation}
+\Delta n_k^{\mathrm{sat}} = \frac{\tanh(k_s r_k)}{k_s},
+\end{equation}
+with $k_s=9.5$.
+
+\subsection{High-pass error and adaptive proportional gain}
+High-pass (DC removal) uses a fast EMA mean tracker with $\eta = 0.040$:
+\begin{align}
+\bar{\Delta n}_k &= (1-\eta)\bar{\Delta n}_{k-1} + \eta \Delta n_k^{\mathrm{sat}}, \\
+\Delta n_k^{\mathrm{hp}} &= \Delta n_k^{\mathrm{sat}} - \bar{\Delta n}_k.
+\end{align}
+Adaptive proportional gain:
+\begin{equation}
+\gamma_k = \frac{\gamma_{\mathrm{base}}}{1 + \kappa |\Delta n_k^{\mathrm{hp}}|},
+\end{equation}
+with $\gamma_{\mathrm{base}}=0.0022$ and $\kappa=11.0$.
+
+\subsection{Leaky integral, anti-windup, and $\Lambda$ update}
+Leaky integral on high-passed error with anti-windup clamp $I_c=0.040$:
+\begin{equation}
+I_k = \mathrm{clip}\!\left(
+I_{k-1} + \Delta t \left(-\rho I_{k-1} + \Delta n_k^{\mathrm{hp}}\right),
+[-I_c, I_c]\right),
+\end{equation}
+with $\rho=0.080$.
+
+Finally, the $\Lambda$ update uses \emph{high-passed} error in both P and I terms:
+\begin{equation}
+\Lambda_k = \Lambda_{k-1} + \Delta t\left(
+\gamma_k \Delta n_k^{\mathrm{hp}}
+- \zeta(\Lambda_{k-1}-\Lambda_{\mathrm{eq}})
+- \nu I_k\right),
+\end{equation}
+with $\zeta=1.45$ and $\Lambda_{\mathrm{eq}}=\Lambda_0$.
+
+\paragraph{DC-cancel tuning.}
+A strict DC-cancel condition is $\nu=\gamma_{\mathrm{base}}\rho$. The implementation applies a small over-cancel to suppress residual bias:
+\begin{equation}
+\nu = 1.15\,\gamma_{\mathrm{base}}\rho.
+\end{equation}
+
+\subsection{Attractor criterion used in this run}
+Let $N=\max(200, T/8)$ be the tail window size. Define
+\begin{align}
+\mathrm{drift} &= \Lambda_T - \Lambda_{\mathrm{eq}},\\
+\sigma_{\mathrm{tail}} &= \mathrm{std}\big(\Lambda_{T-N:T}\big).
+\end{align}
+The run classifies ``attractor reached'' if
+\begin{equation}
+|\mathrm{drift}| < 5\times 10^{-6}
+\quad \text{and}\quad
+\sigma_{\mathrm{tail}} < 8\times 10^{-5}.
+\end{equation}
+
+\subsection{Measured outcome}
+In the recorded run, the console printed:
+\begin{itemize}[leftmargin=*]
+  \item $\hbar=10^{-3}$, $\alpha=0.50$, $\Lambda_0=10^{-6}$,
+  $\gamma_{\mathrm{base}}=0.0022$, $\zeta=1.45$, $\kappa=11.0$, $\rho=0.080$, $\nu\approx 2.02\times 10^{-4}$.
+  \item $\Lambda_{\mathrm{final}}\approx -10^{-6}$, drift $\approx -2\times 10^{-6}$, tail std $\approx 10^{-6}$.
+  \item Classification: \textbf{``$\Lambda$ self-stabilized (attractor reached)''}.
+\end{itemize}
+
+\section{F13/G9: singularity resolution and ``quantum bridge'' classification}
+The F13/G9 test reports a bounded curvature maximum and a nonzero minimum scale factor:
+\begin{align}
+a_{\min} &\approx 0.8846616769, \\
+a_{\max} &\approx 0.999999996, \\
+\kappa_{\max} &\approx 0.00799999879,
+\end{align}
+with NEC violation ratio reported as $\approx 0.968$ and no $\Lambda$ sign flips. The test classification is \textbf{``Quantum Bridge Formed -- Singularity Resolved''}. The run bundle includes \url{plots/FAEV_F13G9_ScaleFactor.png} and \url{plots/FAEV_F13G9_Curvature.png}.
+
+\section{Interpretation and next steps}
+\begin{itemize}[leftmargin=*]
+  \item The ``all-green'' expectation is not warranted for baseline F1--F7. The stabilized family (F7b, F7b-R, F13b, F13/G9) is the current self-organization frontier.
+  \item F4--F7 failures are dominated by numerical overflow and NaN propagation. A next stabilization step \SHOULD\ introduce bounded potentials (e.g., rational saturation), step-size control, and explicit state clamping before coherence evaluation.
+  \item The F13b controller provides a reusable discrete-time attractor primitive: high-pass error regulation + leaky integral with DC cancel. It \MAY\ be transplanted into other vacuum-feedback loops to suppress drift without eliminating responsiveness.
+\end{itemize}
+
+\section{Appendix: File pointers}
+Knowledge cards (JSON) used by this report:
+\begin{itemize}[leftmargin=*]
+  \item \url{knowledge/F1_singularity_bounce.json}
+  \item \url{knowledge/F2_vacuum_reversal_stability.json}
+  \item \url{knowledge/F3_vacuum_cancellation.json}
+  \item \url{knowledge/F4_vacuum_renormalization.json}
+  \item \url{knowledge/F5_dynamic_field_regulation.json}
+  \item \url{knowledge/F6_quantum_backreaction.json}
+  \item \url{knowledge/F7_entangled_geometry_confinement.json}
+  \item \url{knowledge/F7b_stabilized_bounce.json}
+  \item \url{knowledge/F7bR_refined_dualfield.json}
+  \item \url{knowledge/F7bR_entropy_flux.json}
+  \item \url{knowledge/F7bRC2_cyclic_multibounce.json}
+  \item \url{knowledge/F13b_dynamic_vacuum_feedback.json}
+  \item \url{knowledge/F13G9_singularity_resolution.json}
+\end{itemize}
+
+\vfill
+% Lock footer is already enforced via fancyhdr on every page.
+
+\end{document}

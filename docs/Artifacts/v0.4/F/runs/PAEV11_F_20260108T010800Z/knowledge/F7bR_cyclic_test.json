@@ -1,0 +1,18 @@
+{
+  "metrics": {
+    "a_min": 0.4847656148434404,
+    "a_max": 1.0,
+    "num_bounces": 1,
+    "mean_coherence": 0.9897736575574562,
+    "entropy_cycle_mean": 0.00015513902001321672,
+    "entropy_drift": 0.00032377131020973224,
+    "cycle_coherence_decay": 1.0
+  },
+  "classification": "\u274c Single Bounce or Collapse",
+  "files": {
+    "scale_plot": "FAEV_F7bR_Cyclic_ScaleFactor.png",
+    "entropy_plot": "FAEV_F7bR_Cyclic_EntropyFlux.png",
+    "coherence_plot": "FAEV_F7bR_Cyclic_CoherencePerBounce.png"
+  },
+  "timestamp": "2026-01-08T00:03Z"
+}

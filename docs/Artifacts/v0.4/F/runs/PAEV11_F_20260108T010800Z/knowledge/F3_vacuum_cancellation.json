@@ -1,0 +1,54 @@
+{
+  "eta": 0.001,
+  "dt": 0.002,
+  "T": 2800,
+  "constants": {
+    "alpha": 0.7,
+    "beta": 0.15,
+    "Lambda_base": 0.0035,
+    "kappa": 0.065,
+    "omega0": 0.2,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.0012,
+    "w_m": 0.1,
+    "curv_sign": 1.0
+  },
+  "controller": {
+    "kp": 0.45,
+    "ki": 0.008,
+    "kd": 0.1,
+    "i_min": -0.02,
+    "i_max": 0.02,
+    "d_alpha": 0.15,
+    "boost_near_bounce": 0.7,
+    "soft_floor": -0.03,
+    "soft_ceil": 0.03
+  },
+  "numerics": {
+    "A_FLOOR": 0.0001,
+    "PHI_CLIP": 6.0,
+    "PHID_CLIP": 6.0,
+    "DV_CLIP": 150.0,
+    "H_CLIP": 3.0,
+    "H_FRICTION_CAP": 0.5,
+    "curvature_mode": "rho_curv = -(curv_sign*delta)/a^2 (closed k=+1 => negative contribution)"
+  },
+  "metrics": {
+    "a_min": 0.0024068277120032973,
+    "a_max": 1.0,
+    "bounce_index": 2799,
+    "energy_min": 0.0234009375,
+    "energy_max": 28445468.10360247,
+    "mean_coherence": 0.9909345020467827,
+    "coherence_stability": 0.0016781140215987589,
+    "anti_correlation_Lambda_vs_E": 0.0
+  },
+  "classification": "\u274c Unstable or weak cancellation",
+  "files": {
+    "scale_plot": "FAEV_F3_ScaleFactorEvolution.png",
+    "energy_plot": "FAEV_F3_EnergyDecomposition.png",
+    "phase_plot": "FAEV_F3_PhaseCoherence.png"
+  },
+  "timestamp": "2026-01-08T00:03Z"
+}

@@ -1,0 +1,99 @@
+% paste the cleaned F17 note here
+% !TEX TS-program = pdflatex
+\documentclass[11pt]{article}
+
+% ---------- Tessaris house style
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{ragged2e} % for \RaggedRight
+\usepackage{enumitem}
+
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{same}
+
+% Ragged-right X columns for wrapping tables
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+
+% RFC-ish keywords
+\newcommand{\MUST}{\textsc{must}}
+\newcommand{\SHOULD}{\textsc{should}}
+\newcommand{\MAY}{\textsc{may}}
+
+% ---------- Document metadata (edit for new runs)
+\newcommand{\LockID}{PAEV11\_F\_20260108T010800Z}
+\newcommand{\LockStatus}{LOCKED}
+\newcommand{\Maintainer}{Tessaris AI}
+\newcommand{\AuthorName}{Kevin Robinson}
+
+% Footer lock block (required format)
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\footnotesize
+Lock ID: \LockID \quad|\quad
+Status: \LockStatus \quad|\quad
+Maintainer: \Maintainer \quad|\quad
+Author: \AuthorName.}
+
+\title{\textbf{F17 Supporting Note: Quantum Domain Coupling and Curvature Coherence (model-scoped)}}
+\author{\AuthorName \\ \Maintainer}
+\date{2026-01-08}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note is a supporting document for the F-series run bundle \LockID. It adds no new claims beyond
+the locked artifacts. It summarizes the F17 ``quantum domain coupling'' diagnostic and points to
+the pinned knowledge card and figures inside the run folder.
+\end{abstract}
+
+\section{Scope}
+All terms are \textbf{model-scoped}. The implementation and locked outputs in the run folder are the reference.
+This note \MUST\ remain consistent with the locked knowledge JSON and plots.
+
+\section{Question}
+Can previously independent vacuum domains (seeded from the F16 $\Lambda_i$ distribution) synchronize through
+curvature-feedback coupling to achieve cross-domain coherence?
+
+\section{Method (code-faithful summary)}
+Domains are coupled with a curvature interaction term:
+\[
+\dot{\Lambda}_i \;=\; -\gamma_c \sum_j w_{ij}(\Lambda_i - \Lambda_j),
+\qquad
+w_{ij} \;=\; e^{-|r_i-r_j|/\ell_c},
+\]
+with coupling gain $\gamma_c = 0.015$ and correlation length $\ell_c$ (as defined in the implementation/locked card).
+The simulation runs for $T=2400$ steps with $\Delta t = 0.006$.
+
+\section{Results (as recorded in the locked artifacts)}
+\begin{itemize}[leftmargin=*]
+\item Final synchronization index: $S_{\mathrm{final}} \approx 1.000$.
+\item Mean $\Lambda$ drift: $\approx -1.27\times 10^{-6}$.
+\item Classification: \textbf{PASS} (domains synchronized; curvature-coherence achieved).
+\end{itemize}
+
+\section{Figures (run-local)}
+If compiling within the run folder, figures can be included directly (paths may differ depending on where you compile):
+\begin{verbatim}
+\includegraphics[width=\linewidth]{../plots/PAEV_F17_LambdaDomains.png}
+\includegraphics[width=\linewidth]{../plots/PAEV_F17_SynchronizationIndex.png}
+\end{verbatim}
+
+\section{Pinned data source}
+Locked knowledge card:
+\begin{itemize}[leftmargin=*]
+\item \url{../knowledge/F17_quantum_domain_coupling.json}
+\end{itemize}
+
+\vfill
+\end{document}

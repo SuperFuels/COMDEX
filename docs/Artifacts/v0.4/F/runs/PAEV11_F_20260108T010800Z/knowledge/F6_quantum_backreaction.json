@@ -1,0 +1,35 @@
+{
+  "eta": 0.001,
+  "dt": 0.002,
+  "T": 3600,
+  "constants": {
+    "alpha": 0.7,
+    "beta": 0.08,
+    "Lambda_base": 0.0035,
+    "kappa": 0.065,
+    "omega0": 0.18,
+    "xi": 0.015,
+    "delta": 0.05,
+    "noise": 0.001,
+    "eta_Q": 0.015,
+    "zeta_Q": 0.004,
+    "xi_Q": 0.0008
+  },
+  "metrics": {
+    "a_min": 1e-06,
+    "a_max": 1.0,
+    "bounce_index": 1578,
+    "energy_min": NaN,
+    "energy_max": NaN,
+    "mean_coherence": NaN,
+    "coherence_stability": NaN,
+    "anti_corr_Lambda_vs_E": NaN
+  },
+  "classification": "\u274c Collapse or decoherence",
+  "files": {
+    "scale_plot": "FAEV_F6_ScaleFactorEvolution.png",
+    "energy_plot": "FAEV_F6_EnergyDecomposition.png",
+    "phase_plot": "FAEV_F6_PhaseCoherence.png"
+  },
+  "timestamp": "2026-01-08T00:03Z"
+}
