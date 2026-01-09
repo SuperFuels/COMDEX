@@ -1,0 +1,10 @@
+Lock ID: GLYPHOS-BRIDGE-V16-DAG-REUSE
+Status: Draft
+Maintainer: Tessaris AI
+Author: Kevin Robinson.
+
+[Proof Snapshot]
+(see bridge_v16_dag_reuse.md)
+
+[SHA256]
+(see SHA256_v16_dag.txt)

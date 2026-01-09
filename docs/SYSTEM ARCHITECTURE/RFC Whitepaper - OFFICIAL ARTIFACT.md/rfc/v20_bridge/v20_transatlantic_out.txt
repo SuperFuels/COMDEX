@@ -1,0 +1,11 @@
+=== ✅ Bridge Benchmark v20: Transatlantic semantic CDN (template sync + deltas) ===
+Model: repeated HTTP+JSON request shape (headers + tool/system scaffolding); only small deltas vary.
+
+Assumption: mtu_payload=1200 bytes (used only to estimate packet counts)
+
+depth | header_kv | k_msgs | naive_gz | glyph_gz | gz_ratio(naive/glyph) | pkts_naive | pkts_glyph | pkts_ratio
+-----:|----------:|------:|---------:|---------:|----------------------:|-----------:|-----------:|----------:
+    8 |        64 |     64 |     5276 |     3787 |                   1.39 |          5 |          4 |      1.25
+   16 |        64 |    128 |    10802 |     6944 |                   1.56 |         10 |          6 |      1.67
+   32 |       128 |    128 |    14879 |     7909 |                   1.88 |         13 |          7 |      1.86
+   64 |       128 |    256 |    38484 |    16458 |                   2.34 |         33 |         14 |      2.36

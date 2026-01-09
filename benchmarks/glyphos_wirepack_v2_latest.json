@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-01-08T18:11:09.899164+00:00",
+  "depth_steps": 30,
+  "glyph_json_bytes": 1131,
+  "glyph_json_gzip_bytes": 250,
+  "glyphpack_v2_bytes": 410,
+  "glyphpack_v2_gzip_bytes": 178,
+  "baseline_ast_bytes": 27182,
+  "baseline_ast_gzip_bytes": 1134,
+  "baseline_ir_bytes": 7331,
+  "baseline_ir_gzip_bytes": 957,
+  "json_vs_pack_raw_x": 2.7585,
+  "json_vs_pack_gzip_x": 1.4045,
+  "pack_vs_ast_raw_x": 66.2976,
+  "pack_vs_ir_raw_x": 17.8805,
+  "pack_vs_ast_gzip_x": 6.3708,
+  "pack_vs_ir_gzip_x": 5.3764,
+  "runtime_ms": 2.166
+}

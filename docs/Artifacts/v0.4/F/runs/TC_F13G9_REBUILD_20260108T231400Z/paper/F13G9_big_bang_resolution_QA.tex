@@ -1,0 +1,130 @@
+% -----------------------------------------------------------------------------
+% Tessaris Truth Chain — v0.4 (Q&A PAPER: BIG BANG RESOLUTION — F13/G9)
+% Purpose: reviewer-facing Q&A paper for the F13/G9 singularity-resolution
+%          (cosmological bounce / "quantum bridge" analogue; model-scoped).
+% Maintainer: Tessaris AI
+% Author: Kevin Robinson
+% Last update: 2026-01-09 (Europe/Madrid)
+% -----------------------------------------------------------------------------
+
+\documentclass[11pt,a4paper]{article}
+
+% --- Tessaris / Symatics LaTeX house style ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc} % keep UTF-8 paths stable under pdfLaTeX
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage[a4paper,margin=1in]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{same}
+
+% Ragged-right X columns for wrapping tables
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+
+% Make TeX more willing to wrap long path-like strings
+\setlength{\emergencystretch}{3em}
+\sloppy
+
+% Wrap-safe path helper (xurl enables good line breaks)
+\newcommand{\apath}[1]{\url{#1}}
+
+% --- RFC-style keywords (lightweight) ---
+\newcommand{\MUST}{\textbf{MUST}}
+\newcommand{\SHOULD}{\textbf{SHOULD}}
+\newcommand{\MAY}{\textbf{MAY}}
+
+\title{\textbf{Tessaris Q\&A Series (v0.4)}\\
+\large Cosmological Singularity Resolution (F13/G9): ``Big Bang Resolution (Model-Scoped)}
+\author{Maintainer: Tessaris AI \quad\textbullet\quad Author: Kevin Robinson}
+\date{2026--01--09 (Europe/Madrid)}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This paper answers a single reviewer-facing question: whether the Tessaris photon-algebra cosmology admits a smooth evolution through the $t=0$ ``origin without divergent curvature or entropy.
+\textbf{All terms are model-scoped} (e.g., ``Big Bang, ``singularity, ``curvature, ``NEC, ``quantum bridge) and refer only to in-model diagnostics and engineered evolution rules.
+The evidence is sourced from a locked F-series artifact bundle containing the generator test, summary JSON, and plots.
+\end{abstract}
+
+\section*{Question}
+\textbf{Did the Tessaris Photon Algebra resolve the Big Bang singularity?}
+
+\noindent
+\emph{Goal.} Determine whether the photon-algebraic cosmology can evolve smoothly through $t=0$ without producing infinite curvature or entropy, i.e., replacing the classical singularity with a finite, dynamically stable ``bridge (model-scoped).
+
+\section*{Method (model-scoped)}
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Canonical generator:} \apath{backend/photon_algebra/tests/faev_test_F13G9_singularity_resolution.py}
+  \item \textbf{Protocol:} reverse the cosmological evolution schedule used in the F-series bounce family (F5/F8 lineage), allowing an effective scale factor $a(t)$ to approach the $t=0$ region while maintaining curvature feedback and stabilization.
+  \item \textbf{Tracked observables (proxies):} scale factor $a(t)$, curvature proxy $R(t)$, entropy proxy $S(t)$, a stability proxy (Lyapunov-like), and an NEC-style diagnostic ratio (model-only).
+  \item \textbf{Pass condition (informal):} $a_{\min} > 0$ with bounded curvature/entropy and stable control metrics throughout the $t=0$ neighborhood.
+\end{itemize}
+
+\noindent
+The model evolution is judged by the finiteness/continuity of
+\begin{equation}
+\lim_{t\to 0}\left(a(t), \dot{a}(t), R(t), S(t)\right)
+\quad\text{(all finite and continuous; model-scoped).}
+\end{equation}
+
+\section*{Answer}
+\textbf{Yes. Within the Tessaris framework, the singularity resolves into a finite ``quantum bridge (model-scoped).}
+
+\noindent
+The F13/G9 run reports a bounce-like evolution through $t=0$ without divergence:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Nonzero minimum scale factor:} $a_{\min} \approx 0.8847$
+  \item \textbf{Finite curvature (proxy):} $R_{\max} \approx 8.0\times 10^{-3}$, with no divergence as $t\to 0$
+  \item \textbf{Bounce regularity:} $a(t)$ and $\dot{a}(t)$ remain continuous/differentiable across the bounce
+  \item \textbf{Stability proxy:} $E_{\text{stability}} \approx 1.0$
+  \item \textbf{NEC proxy ratio:} \texttt{nec\_violation\_ratio}\,$\approx 0.968$
+\end{itemize}
+
+\noindent
+This supports the interpretation that the cosmological origin is replaced by a bounded, information-preserving transition region:
+\begin{equation}
+\Delta E_{\text{geom}}+\Delta E_{\text{info}}+\Delta E_{\text{couple}}=0
+\quad\text{(closure proxy; model-scoped).}
+\end{equation}
+
+\section*{Interpretation (model-scoped)}
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Singularity-free (in-model):} curvature and entropy proxies remain bounded.
+  \item \textbf{Reversible (in-model):} temporal symmetry across the bounce is consistent with a pre-$t=0$ branch under the same update laws.
+  \item \textbf{Informationally closed (in-model):} the closure proxy indicates balanced exchange between geometric and informational budgets.
+\end{itemize}
+
+\noindent
+\textbf{Guardrail:} these diagnostics do \emph{not} assert physical cosmology; they certify only the internal stability and boundedness of the simulated lattice dynamics.
+
+\section*{Artifacts and provenance (LOCKED)}
+\begin{itemize}[leftmargin=1.5em]
+  \item Run folder: \apath{docs/Artifacts/v0.4/F/runs/TC_F13G9_REBUILD_20260108T231400Z/}
+  \item Summary JSON (locked copy): \apath{docs/Artifacts/v0.4/F/runs/TC_F13G9_REBUILD_20260108T231400Z/knowledge/F13G9_singularity_resolution.json}
+  \item Plots (locked copy): \apath{docs/Artifacts/v0.4/F/runs/TC_F13G9_REBUILD_20260108T231400Z/plots/FAEV_F13G9_ScaleFactor.png}, \apath{docs/Artifacts/v0.4/F/runs/TC_F13G9_REBUILD_20260108T231400Z/plots/FAEV_F13G9_Curvature.png}
+  \item Generator (locked copy): \apath{docs/Artifacts/v0.4/F/runs/TC_F13G9_REBUILD_20260108T231400Z/tests/faev_test_F13G9_singularity_resolution.py}
+\end{itemize}
+
+\section*{Reproduce (canonical)}
+\begin{verbatim}
+export PYTHONPATH=.
+python backend/photon_algebra/tests/faev_test_F13G9_singularity_resolution.py
+\end{verbatim}
+
+\vspace{1.0em}
+\noindent
+Lock ID: \texttt{TC-F13G9-QA-v0.4-2026-01-09}\\
+Status: \texttt{LOCKED (run folder + checksums)}\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

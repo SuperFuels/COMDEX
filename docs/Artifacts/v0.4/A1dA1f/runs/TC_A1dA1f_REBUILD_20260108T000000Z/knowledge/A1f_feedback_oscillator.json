@@ -1,0 +1,32 @@
+{
+  "tessaris_id": "A1f_feedback_oscillator",
+  "title": "A1f \u2014 Adaptive Feedback Oscillator",
+  "description": "Extends A1e by adding adaptive timestep and entropy-controlled noise cooling, demonstrating bounded oscillations under feedback. All quantities are abstract proxies.",
+  "\u0127": 0.001,
+  "\u039b0": 5e-06,
+  "\u03b10": 0.5,
+  "grid": {
+    "N": 512,
+    "L": 50.0,
+    "dx": 0.09765625,
+    "sigma_b": 2.5
+  },
+  "timing": {
+    "T_steps": 8000,
+    "dt_base": 0.001
+  },
+  "metrics": {
+    "proxy_mean": 0.00011336522419078059,
+    "proxy_min": 2.8184311418099795e-11,
+    "entropy_tail": -0.0005583921415962703,
+    "noise_final": 0.0009968205438013302,
+    "frac_dynamic": 6.988434430420134
+  },
+  "classification": "\u2705 Bounded oscillatory equilibrium",
+  "outputs": {
+    "proxy_plot": "PAEV_A1f_Proxy_TimeSeries.png",
+    "entropy_plot": "PAEV_A1f_EntropySlope.png",
+    "noise_plot": "PAEV_A1f_NoiseSchedule.png"
+  },
+  "timestamp": "2025-10-07T14:46Z"
+}

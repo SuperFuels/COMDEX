@@ -1,0 +1,24 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u039b0": 5e-06,
+  "\u03b10": 0.5,
+  "grid": {
+    "N": 512,
+    "L": 50.0,
+    "dx": 0.09765625,
+    "sigma_b": 2.5
+  },
+  "timing": {
+    "T_steps": 8000,
+    "dt": 0.001
+  },
+  "metrics": {
+    "proxy_mean": 4.0891985867106744e-13,
+    "proxy_min": -2.662637385013238e-13,
+    "frac_dynamic": 6.11673273553892,
+    "entropy_tail": 0.0002560093880092449
+  },
+  "classification": "\u2705 Active dynamic regime achieved",
+  "timestamp": "2025-10-07T14:36Z"
+}

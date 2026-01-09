@@ -1,0 +1,203 @@
+{
+  "max_n": 18,
+  "rows": [
+    {
+      "n": 1,
+      "terms": 2,
+      "canon_raw": 25,
+      "canon_gz": 41,
+      "dnf_raw": 23,
+      "dnf_gz": 43,
+      "gz_ratio": 1.048780487804878,
+      "sha256_canon_json": "13b6bd3929608f445c375aff45546538a56be47a7a3320564d0d65882ef20837",
+      "sha256_dnf_json": "def04a4007a6d7ea70365ee79d9e81ede4a616560d62201af37119067ccf9c64"
+    },
+    {
+      "n": 2,
+      "terms": 4,
+      "canon_raw": 43,
+      "canon_gz": 45,
+      "dnf_raw": 47,
+      "dnf_gz": 53,
+      "gz_ratio": 1.1777777777777778,
+      "sha256_canon_json": "d0a5634dee547b0c6fe244437b27857fbbd35e074324bbd51b5bf2013637b6df",
+      "sha256_dnf_json": "20096502df4a558943467f0820aaff0f9f3eb9ee60c40a7eb51ee38824ed230f"
+    },
+    {
+      "n": 3,
+      "terms": 8,
+      "canon_raw": 61,
+      "canon_gz": 48,
+      "dnf_raw": 105,
+      "dnf_gz": 68,
+      "gz_ratio": 1.4166666666666667,
+      "sha256_canon_json": "6f0a3b8add6d7ce72cddb90d0eab54e3ff4965c955186aeccf4c405c4fcbcd67",
+      "sha256_dnf_json": "a2fa7a44ad52f93104f4f1b176aa02ebb06c96437491557c662268a0aa001a0a"
+    },
+    {
+      "n": 4,
+      "terms": 16,
+      "canon_raw": 79,
+      "canon_gz": 51,
+      "dnf_raw": 241,
+      "dnf_gz": 96,
+      "gz_ratio": 1.8823529411764706,
+      "sha256_canon_json": "138c0233de4d1d9f8256c213f5b04a801ef2d88adc017659afeff588028ba9f3",
+      "sha256_dnf_json": "6d0a60082e81b50ea7635e85f1592173f6e2eb88fb85484aceafe04b600beea8"
+    },
+    {
+      "n": 5,
+      "terms": 32,
+      "canon_raw": 97,
+      "canon_gz": 54,
+      "dnf_raw": 553,
+      "dnf_gz": 146,
+      "gz_ratio": 2.7037037037037037,
+      "sha256_canon_json": "55d196f85df029e44e05176461f8834084be07ff75f2dc056e6a584adc62299e",
+      "sha256_dnf_json": "e17d36c6c42256d425a0d5b67f80b8f8fca16419003a5f421efdf6a1ff40f2ed"
+    },
+    {
+      "n": 6,
+      "terms": 64,
+      "canon_raw": 115,
+      "canon_gz": 57,
+      "dnf_raw": 1257,
+      "dnf_gz": 227,
+      "gz_ratio": 3.982456140350877,
+      "sha256_canon_json": "104a1729b3d55aedcce7bba60a62400d53bffa545723a4e1d930737a48b35636",
+      "sha256_dnf_json": "d3a1dd8806c6deae359c7de9523fff6681d9bd32b69658d17f76c55a229352a2"
+    },
+    {
+      "n": 7,
+      "terms": 128,
+      "canon_raw": 133,
+      "canon_gz": 60,
+      "dnf_raw": 2825,
+      "dnf_gz": 396,
+      "gz_ratio": 6.6,
+      "sha256_canon_json": "d8410e7b4e51beac6bdb052b4312bcb719779babbba807fe31b50dd046244220",
+      "sha256_dnf_json": "6e43fa4e6257b04021400ab166af1c4c5806638599bb4c412f84d7ebe83379f8"
+    },
+    {
+      "n": 8,
+      "terms": 256,
+      "canon_raw": 151,
+      "canon_gz": 62,
+      "dnf_raw": 6281,
+      "dnf_gz": 752,
+      "gz_ratio": 12.129032258064516,
+      "sha256_canon_json": "6cadd45fb3b2ad002648264936dd3a8b07e0516340142e67b1a87e651726df6c",
+      "sha256_dnf_json": "c7b3fb3b266ca34c706f36adaa27f7918a6b4b67cc9794163899f76e45b2d54d"
+    },
+    {
+      "n": 9,
+      "terms": 512,
+      "canon_raw": 169,
+      "canon_gz": 65,
+      "dnf_raw": 14345,
+      "dnf_gz": 1420,
+      "gz_ratio": 21.846153846153847,
+      "sha256_canon_json": "de1ae4a899744cf147bba834a0c916edb8e0c63cfb4320a87cdeead4d2af5ee8",
+      "sha256_dnf_json": "8f596b3b744ce652dda38baecb39a7a9cf2dd1c0f0250f83d3468eeb8888ab01"
+    },
+    {
+      "n": 10,
+      "terms": 1024,
+      "canon_raw": 188,
+      "canon_gz": 69,
+      "dnf_raw": 32265,
+      "dnf_gz": 2858,
+      "gz_ratio": 41.42028985507246,
+      "sha256_canon_json": "a35154abfb59fbbc3618b289e03a78d9ceec2e81119357b5438d883c8155070a",
+      "sha256_dnf_json": "e2bdec91df6cffea3f4723b532c1247cdb43814e0e81a1fa0b10d29ac3938813"
+    },
+    {
+      "n": 11,
+      "terms": 2048,
+      "canon_raw": 207,
+      "canon_gz": 71,
+      "dnf_raw": 71689,
+      "dnf_gz": 5845,
+      "gz_ratio": 82.32394366197182,
+      "sha256_canon_json": "4054347cfb62908bf7b79e3c9e40717c2025e232beda9d81ab306ec4109925ea",
+      "sha256_dnf_json": "132270981cfe35dded75dc04bba7061ec2b7684647de47e1c0890350adcb6ece"
+    },
+    {
+      "n": 12,
+      "terms": 4096,
+      "canon_raw": 226,
+      "canon_gz": 74,
+      "dnf_raw": 157705,
+      "dnf_gz": 11773,
+      "gz_ratio": 159.09459459459458,
+      "sha256_canon_json": "824e2d100e5c14926aae6d5857eef5ab3aa4fe78a19230d4fe2489662efb564f",
+      "sha256_dnf_json": "2f359ef5fde9b32c1708146405f33504c7d40bf31e7b08db3095ba98fffb5336"
+    },
+    {
+      "n": 13,
+      "terms": 8192,
+      "canon_raw": 245,
+      "canon_gz": 77,
+      "dnf_raw": 344073,
+      "dnf_gz": 23206,
+      "gz_ratio": 301.3766233766234,
+      "sha256_canon_json": "5ae992ef04166383dfbedeff7e3144ecacb3b4a464d339f7ab7b09aff025bf5e",
+      "sha256_dnf_json": "9cbeded1022cd8821ee79bd609050a03b2cba6546aef6f0b8ce3d9f02faf7b58"
+    },
+    {
+      "n": 14,
+      "terms": 16384,
+      "canon_raw": 264,
+      "canon_gz": 80,
+      "dnf_raw": 745481,
+      "dnf_gz": 46180,
+      "gz_ratio": 577.25,
+      "sha256_canon_json": "2cec23aeea8e3571d726f10e451a7b00054097b21ba55eb7ec6afe0a2fdda135",
+      "sha256_dnf_json": "ac709811a62f30bbd3813988a06b2bc94eb6f818232aa2c73b1bb201afb06655"
+    },
+    {
+      "n": 15,
+      "terms": 32768,
+      "canon_raw": 283,
+      "canon_gz": 84,
+      "dnf_raw": 1605641,
+      "dnf_gz": 96092,
+      "gz_ratio": 1143.952380952381,
+      "sha256_canon_json": "696743e7d8026148490bf068ba4af81f837b3762af2e5d59cfedc059c7c49282",
+      "sha256_dnf_json": "5f60a4850b3e32a3f69c01e0ce5d993c75a1517541cd516ac790550085cdb5e0"
+    },
+    {
+      "n": 16,
+      "terms": 65536,
+      "canon_raw": 302,
+      "canon_gz": 87,
+      "dnf_raw": 3440649,
+      "dnf_gz": 189305,
+      "gz_ratio": 2175.919540229885,
+      "sha256_canon_json": "88eaa0722866d5e96575ebaf8c224617d4fa2093e0b0c893d2d719e19eb9f378",
+      "sha256_dnf_json": "d5b8aa187bdeab762d3d94b0024d191627645514ca06070ba7d540238a8b5238"
+    },
+    {
+      "n": 17,
+      "terms": 131072,
+      "canon_raw": 321,
+      "canon_gz": 90,
+      "dnf_raw": 7340041,
+      "dnf_gz": 380896,
+      "gz_ratio": 4232.177777777778,
+      "sha256_canon_json": "45ee3f37f39d9e0ce5da403e9c59825aff15ab2569df5473e502ec79c849da75",
+      "sha256_dnf_json": "bd04d94f58e0f6dbea4488996f293efd47a664929d659c932744bdd5c7773dc4"
+    },
+    {
+      "n": 18,
+      "terms": 262144,
+      "canon_raw": 340,
+      "canon_gz": 92,
+      "dnf_raw": 15597577,
+      "dnf_gz": 756301,
+      "gz_ratio": 8220.66304347826,
+      "sha256_canon_json": "5d31044dd61cc59ecbe4f678a67c6e403de817786c3368609b87b7fce1fbc1d9",
+      "sha256_dnf_json": "f76ba86b1674637be03e77269f4b9a2c820f1d3095d1232a1f9e33ebf1a372fc"
+    }
+  ]
+}

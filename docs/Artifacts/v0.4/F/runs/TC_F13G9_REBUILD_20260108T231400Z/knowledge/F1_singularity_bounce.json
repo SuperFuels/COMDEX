@@ -1,0 +1,31 @@
+{
+  "eta": 0.001,
+  "dt": 0.002,
+  "T": 2400,
+  "constants": {
+    "alpha": 0.8,
+    "beta": 0.15,
+    "Lambda": 0.0018,
+    "kappa": 0.02,
+    "omega0": 0.2,
+    "xi": 0.015,
+    "delta": 0.07,
+    "noise": 0.0015
+  },
+  "metrics": {
+    "a_min": 0.10295962872279459,
+    "a_max": 1.0610331639432633,
+    "bounce_index": 565,
+    "energy_min": 0.4154948059893181,
+    "energy_max": 705.1444686567125,
+    "mean_coherence": 0.7208256512742953,
+    "coherence_stability": 0.09907557589125913
+  },
+  "classification": "\u274c Vacuum Collapse (no rebound)",
+  "files": {
+    "scale_plot": "FAEV_F1_ScaleFactorEvolution.png",
+    "energy_plot": "FAEV_F1_EnergyDensity.png",
+    "phase_plot": "FAEV_F1_PhaseCoherence.png"
+  },
+  "timestamp": "2025-12-31T00:00Z"
+}

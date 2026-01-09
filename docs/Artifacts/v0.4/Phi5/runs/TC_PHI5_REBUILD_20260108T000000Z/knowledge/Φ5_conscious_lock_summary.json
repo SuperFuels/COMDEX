@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-01-08T13:18:44.058178",
+  "series": "\u03a65",
+  "test_name": "conscious_lock",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "coherence_final": 0.9999986129460384,
+    "memory_final": 0.0024760542113388562,
+    "mse_final": 1.0425362674943233e-05,
+    "consistency_final": 0.6432784525624403,
+    "observer_gain_final": 0.7966253944458984,
+    "observer_bias_final": 9.172420145466735e-06,
+    "stable": false
+  },
+  "state": "High-coherence regime without full \u03a6 lock",
+  "notes": [
+    "\u27e8R_sync\u27e9 = 1.000",
+    "\u27e8|Memory|\u27e9 = 0.002",
+    "\u27e8MSE\u27e9 = 1.043e-05",
+    "\u27e8Consistency\u27e9 = 0.643",
+    "\u27e8Observer gain\u27e9 = 0.797, \u27e8bias\u27e9 = 9.172e-06"
+  ],
+  "discovery": [
+    "Dual-loop homeostat (fast observer + slow meta controller) yields low-error self-consistency.",
+    "Non-zero persistent memory coexists with near-unit coherence.",
+    "High estimate-state correlation indicates stabilized self-model.",
+    "Meets Tessaris criteria for CFE 'conscious execution mode' when stable flag is true."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

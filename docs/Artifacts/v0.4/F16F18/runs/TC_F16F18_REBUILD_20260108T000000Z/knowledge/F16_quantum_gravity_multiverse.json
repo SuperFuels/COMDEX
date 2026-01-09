@@ -1,0 +1,30 @@
+{
+  "\u0127": 0.001,
+  "G": 1e-05,
+  "\u03b1": 0.5,
+  "\u039b0": 1e-06,
+  "\u03b2": 0.02,
+  "\u03be": 0.015,
+  "\u03b6": 0.06,
+  "\u039b_eq": 1e-06,
+  "domains": 48,
+  "wells": 9,
+  "timing": {
+    "steps": 2400,
+    "dt": 0.006
+  },
+  "metrics": {
+    "\u039b_mean": 0.1209421869693778,
+    "\u039b_min": 0.023234168439656484,
+    "\u039b_max": 0.26664175527741435,
+    "\u039b_std": 0.06630172644819474,
+    "rel_range": 2.012594553936546
+  },
+  "classification": "\u2705 Multiverse-like \u039b diversity",
+  "files": {
+    "lambda_diversity_plot": "PAEV_F16_LambdaDiversity.png",
+    "sample_traces_plot": "PAEV_F16_SampleTraces.png",
+    "landscape_plot": "PAEV_F16_LandscapeMap.png"
+  },
+  "timestamp": "2026-01-08T17:06Z"
+}

@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-01-08T21:28Z",
+  "test": "B3_grw_equivalence",
+  "born_target": {
+    "P0": 0.884,
+    "P1": 0.116
+  },
+  "timeseries": [
+    {
+      "t": 0.0,
+      "p0_GRW_mean": 0.884,
+      "p0_PA": 0.884,
+      "delta": 9.99e-16
+    },
+    {
+      "t": 0.66,
+      "p0_GRW_mean": 0.996,
+      "p0_PA": 0.994,
+      "delta": 0.00143
+    },
+    {
+      "t": 1.32,
+      "p0_GRW_mean": 1.0,
+      "p0_PA": 1.0,
+      "delta": 5.27e-05
+    },
+    {
+      "t": 1.98,
+      "p0_GRW_mean": 1.0,
+      "p0_PA": 1.0,
+      "delta": 1.79e-06
+    },
+    {
+      "t": 2.65,
+      "p0_GRW_mean": 1.0,
+      "p0_PA": 1.0,
+      "delta": 5.93e-08
+    },
+    {
+      "t": 3.31,
+      "p0_GRW_mean": 1.0,
+      "p0_PA": 1.0,
+      "delta": 2.06e-09
+    },
+    {
+      "t": 3.97,
+      "p0_GRW_mean": 1.0,
+      "p0_PA": 1.0,
+      "delta": 6.99e-11
+    }
+  ],
+  "final": {
+    "GRW": 1.0,
+    "PA": 1.0,
+    "delta": 6.002e-11
+  },
+  "artifacts": {
+    "plot": "PAEV_TestB3_GRWvsPA.png"
+  },
+  "notes": [
+    "Derived from stdout of canonical test script; model-scoped."
+  ]
+}

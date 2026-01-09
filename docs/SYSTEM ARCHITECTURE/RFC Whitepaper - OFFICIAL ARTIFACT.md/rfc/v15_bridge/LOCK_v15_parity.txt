@@ -1,0 +1,10 @@
+Lock ID: GLYPHOS-BRIDGE-V15-PARITY
+Status: Draft
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+
+[Proof Snapshot]
+(see /tmp/v15_parity_out.txt)
+
+[SHA256]
+(see /tmp/v15_parity_sha256.txt)

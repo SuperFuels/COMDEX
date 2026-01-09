@@ -1,0 +1,70 @@
+{
+  "timestamp": "2026-01-08T21:28Z",
+  "test": "B1B2_weak_measurement_convergence",
+  "born_target": {
+    "P0": 0.8818,
+    "P1": 0.1182
+  },
+  "table": [
+    {
+      "mu": 0.05,
+      "P0_QM": 0.8818,
+      "P0_PA": 1.0,
+      "steps_QM": 0,
+      "steps_PA": 98,
+      "L1err_QM": 2.78e-17,
+      "L1err_PA": 0.236
+    },
+    {
+      "mu": 0.1,
+      "P0_QM": 0.8818,
+      "P0_PA": 1.0,
+      "steps_QM": 0,
+      "steps_PA": 52,
+      "L1err_QM": 2.78e-17,
+      "L1err_PA": 0.236
+    },
+    {
+      "mu": 0.2,
+      "P0_QM": 0.8818,
+      "P0_PA": 1.0,
+      "steps_QM": 0,
+      "steps_PA": 28,
+      "L1err_QM": 2.78e-17,
+      "L1err_PA": 0.236
+    },
+    {
+      "mu": 0.4,
+      "P0_QM": 0.8818,
+      "P0_PA": 1.0,
+      "steps_QM": 0,
+      "steps_PA": 14,
+      "L1err_QM": 2.78e-17,
+      "L1err_PA": 0.236
+    },
+    {
+      "mu": 0.7,
+      "P0_QM": 0.8818,
+      "P0_PA": 1.0,
+      "steps_QM": 0,
+      "steps_PA": 8,
+      "L1err_QM": 2.78e-17,
+      "L1err_PA": 0.236
+    },
+    {
+      "mu": 1.0,
+      "P0_QM": 0.8818,
+      "P0_PA": 1.0,
+      "steps_QM": 0,
+      "steps_PA": 3,
+      "L1err_QM": 2.78e-17,
+      "L1err_PA": 0.236
+    }
+  ],
+  "artifacts": {
+    "plot": "PAEV_TestB1B2_WeakMeas_Convergence.png"
+  },
+  "notes": [
+    "Derived from stdout of canonical test script; model-scoped."
+  ]
+}

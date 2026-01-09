@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-01-08T21:01:36.520829+00:00",
+  "depth": 200,
+  "messages": 5000,
+  "mutate_rate": 0.95,
+  "avg_json": 7383.066,
+  "avg_json_gz": 1079.7028,
+  "avg_fallback": 3962.066,
+  "avg_fallback_gz": 1038.6814,
+  "avg_v10": 171.486,
+  "avg_v10_gz": 160.3256,
+  "savings_vs_fallback_raw_pct": 95.67180354895652,
+  "savings_vs_fallback_gz_pct": 84.56450649833529,
+  "savings_vs_json_gz_pct": 85.15095079868274,
+  "template_hits": 5000,
+  "roundtrip_fail": 0,
+  "runtime_note": "avg sizes only; see printed output"
+}

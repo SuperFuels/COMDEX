@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-10-09T17:05:29.177487+00:00",
+  "constants": {
+    "\u0127": 0.001,
+    "G": 1e-05,
+    "\u039b": 1e-06,
+    "\u03b1": 0.5,
+    "\u03b2": 0.2,
+    "\u03c7": 1.0
+  },
+  "metrics": {
+    "recovery_ratio_lambda": 1.4143903722018591,
+    "recovery_ratio_omega3_ref": 0.4825614816262872,
+    "improved": true
+  },
+  "notes": [
+    "\u039b acts as neutral buffer enabling information re-expansion post-collapse.",
+    "\u039b-buffer recovery ratio = 1.414, \u03a93 ref = 0.483."
+  ],
+  "protocol": "Tessaris Unified Constants & Verification Protocol v1.2"
+}

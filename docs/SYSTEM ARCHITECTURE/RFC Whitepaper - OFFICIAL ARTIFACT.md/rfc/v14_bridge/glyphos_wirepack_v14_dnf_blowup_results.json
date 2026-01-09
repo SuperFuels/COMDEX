@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "artifact": "glyphos_wirepack_v14_dnf_blowup_results",
+    "version": "v14",
+    "generated_utc": "2026-01-08T23:27:33Z",
+    "python": {
+      "version": "3.11.2",
+      "implementation": "CPython",
+      "platform": "Linux-4.4.0-x86_64-with-glibc2.36"
+    },
+    "gzip": {
+      "level": 9
+    },
+    "model": {
+      "formula_family": "F(n)=∧_{i=0..n-1} (x_{2i} ∨ x_{2i+1}) with Top identity",
+      "dnf_terms_semantics": "monotone distributive expansion into explicit DNF term list",
+      "canonical_tree_semantics": "nested operator JSON tree with UTF-8 keys; minified"
+    },
+    "sha256": {
+      "embedded_script_source": "7d09240a0a2ab4cc06470c575b4b8c7016d76234665b31f64dee7dae6a310fdf"
+    }
+  },
+  "rows": [
+    {
+      "n": 1,
+      "terms_dnf": 2,
+      "canon_raw_bytes": 43,
+      "canon_gzip_bytes": 53,
+      "dnf_raw_bytes": 17,
+      "dnf_gzip_bytes": 37,
+      "gzip_ratio_dnf_over_canon": 0.6981132075471698
+    },
+    {
+      "n": 2,
+      "terms_dnf": 4,
+      "canon_raw_bytes": 78,
+      "canon_gzip_bytes": 61,
+      "dnf_raw_bytes": 33,
+      "dnf_gzip_bytes": 45,
+      "gzip_ratio_dnf_over_canon": 0.7377049180327869
+    },
+    {
+      "n": 3,
+      "terms_dnf": 8,
+      "canon_raw_bytes": 113,
+      "canon_gzip_bytes": 67,
+      "dnf_raw_bytes": 73,
+      "dnf_gzip_bytes": 59,
+      "gzip_ratio_dnf_over_canon": 0.8805970149253731
+    },
+    {
+      "n": 4,
+      "terms_dnf": 16,
+      "canon_raw_bytes": 148,
+      "canon_gzip_bytes": 73,
+      "dnf_raw_bytes": 169,
+      "dnf_gzip_bytes": 86,
+      "gzip_ratio_dnf_over_canon": 1.178082191780822
+    },
+    {
+      "n": 5,
+      "terms_dnf": 32,
+      "canon_raw_bytes": 183,
+      "canon_gzip_bytes": 79,
+      "dnf_raw_bytes": 393,
+      "dnf_gzip_bytes": 119,
+      "gzip_ratio_dnf_over_canon": 1.5063291139240507
+    },
+    {
+      "n": 6,
+      "terms_dnf": 64,
+      "canon_raw_bytes": 220,
+      "canon_gzip_bytes": 84,
+      "dnf_raw_bytes": 969,
+      "dnf_gzip_bytes": 182,
+      "gzip_ratio_dnf_over_canon": 2.1666666666666665
+    },
+    {
+      "n": 7,
+      "terms_dnf": 128,
+      "canon_raw_bytes": 257,
+      "canon_gzip_bytes": 91,
+      "dnf_raw_bytes": 2313,
+      "dnf_gzip_bytes": 326,
+      "gzip_ratio_dnf_over_canon": 3.5824175824175826
+    },
+    {
+      "n": 8,
+      "terms_dnf": 256,
+      "canon_raw_bytes": 294,
+      "canon_gzip_bytes": 98,
+      "dnf_raw_bytes": 5385,
+      "dnf_gzip_bytes": 634,
+      "gzip_ratio_dnf_over_canon": 6.469387755102041
+    },
+    {
+      "n": 9,
+      "terms_dnf": 512,
+      "canon_raw_bytes": 331,
+      "canon_gzip_bytes": 105,
+      "dnf_raw_bytes": 12297,
+      "dnf_gzip_bytes": 1244,
+      "gzip_ratio_dnf_over_canon": 11.847619047619048
+    },
+    {
+      "n": 10,
+      "terms_dnf": 1024,
+      "canon_raw_bytes": 368,
+      "canon_gzip_bytes": 112,
+      "dnf_raw_bytes": 27657,
+      "dnf_gzip_bytes": 2508,
+      "gzip_ratio_dnf_over_canon": 22.392857142857142
+    },
+    {
+      "n": 11,
+      "terms_dnf": 2048,
+      "canon_raw_bytes": 405,
+      "canon_gzip_bytes": 118,
+      "dnf_raw_bytes": 61449,
+      "dnf_gzip_bytes": 5187,
+      "gzip_ratio_dnf_over_canon": 43.95762711864407
+    },
+    {
+      "n": 12,
+      "terms_dnf": 4096,
+      "canon_raw_bytes": 442,
+      "canon_gzip_bytes": 123,
+      "dnf_raw_bytes": 135177,
+      "dnf_gzip_bytes": 10315,
+      "gzip_ratio_dnf_over_canon": 83.86178861788618
+    },
+    {
+      "n": 13,
+      "terms_dnf": 8192,
+      "canon_raw_bytes": 479,
+      "canon_gzip_bytes": 127,
+      "dnf_raw_bytes": 294921,
+      "dnf_gzip_bytes": 21553,
+      "gzip_ratio_dnf_over_canon": 169.70866141732284
+    },
+    {
+      "n": 14,
+      "terms_dnf": 16384,
+      "canon_raw_bytes": 516,
+      "canon_gzip_bytes": 131,
+      "dnf_raw_bytes": 638985,
+      "dnf_gzip_bytes": 42918,
+      "gzip_ratio_dnf_over_canon": 327.618320610687
+    },
+    {
+      "n": 15,
+      "terms_dnf": 32768,
+      "canon_raw_bytes": 553,
+      "canon_gzip_bytes": 138,
+      "dnf_raw_bytes": 1376265,
+      "dnf_gzip_bytes": 85750,
+      "gzip_ratio_dnf_over_canon": 621.3768115942029
+    },
+    {
+      "n": 16,
+      "terms_dnf": 65536,
+      "canon_raw_bytes": 590,
+      "canon_gzip_bytes": 142,
+      "dnf_raw_bytes": 2949129,
+      "dnf_gzip_bytes": 171879,
+      "gzip_ratio_dnf_over_canon": 1210.4154929577464
+    },
+    {
+      "n": 17,
+      "terms_dnf": 131072,
+      "canon_raw_bytes": 627,
+      "canon_gzip_bytes": 147,
+      "dnf_raw_bytes": 6291465,
+      "dnf_gzip_bytes": 342916,
+      "gzip_ratio_dnf_over_canon": 2332.7619047619046
+    },
+    {
+      "n": 18,
+      "terms_dnf": 262144,
+      "canon_raw_bytes": 664,
+      "canon_gzip_bytes": 151,
+      "dnf_raw_bytes": 13369353,
+      "dnf_gzip_bytes": 685238,
+      "gzip_ratio_dnf_over_canon": 4538.0
+    }
+  ]
+}

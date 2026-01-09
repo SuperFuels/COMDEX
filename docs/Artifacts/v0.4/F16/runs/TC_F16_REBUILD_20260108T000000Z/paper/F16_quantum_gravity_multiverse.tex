@@ -1,0 +1,117 @@
+% -----------------------------------------------------------------------------
+% Tessaris Truth Chain — v0.4 (F16: Quantum Gravity and Multiverse Diversity) [LOCKED RUN PAPER]
+% Maintainer: Tessaris AI
+% Author: Kevin Robinson
+% Pinned: 2026-01-08 (Europe/Madrid)
+% -----------------------------------------------------------------------------
+\documentclass[11pt,a4paper]{article}
+
+% --- Tessaris / Symatics LaTeX house style ---
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage[a4paper,margin=1in]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{same}
+
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\setlength{\emergencystretch}{3em}
+\sloppy
+
+\newcommand{\apath}[1]{\url{#1}}
+\newcommand{\MUST}{\textbf{MUST}}
+\newcommand{\SHOULD}{\textbf{SHOULD}}
+\newcommand{\MAY}{\textbf{MAY}}
+
+\title{\textbf{F16 — Quantum Gravity and Multiverse Diversity}\\
+\large Multidomain vacuum $\Lambda$ diversity under curvature feedback (model-scoped)}
+\author{Maintainer: Tessaris AI \quad\textbullet\quad Author: Kevin Robinson}
+\date{Locked run: TC\_F16\_REBUILD\_20260108T000000Z \; (Pinned: 2026--01--08, Europe/Madrid)}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+F16 tests whether a quantum--gravitational feedback framework in the Tessaris photon algebra can
+generate multiple self-consistent vacuum domains with distinct effective $\Lambda_i$ values,
+forming a multiverse-like landscape of curvature equilibria \emph{within the model}.
+This paper narrates the locked run outputs only; it makes no physical-world claims.
+\end{abstract}
+
+\section{Question (model-scoped)}
+Can a quantum--gravitational feedback framework naturally generate multiple self-consistent vacuum domains
+with distinct $\Lambda_i$ values, forming a multiverse-like landscape of curvature equilibria?
+
+\section{Method}
+The experiment evolves $N=64$ independent vacuum subdomains with randomized initial curvature offsets
+$\Lambda_i(0)\in[0.5,1.5]\Lambda_0$. Each domain follows a curvature--feedback coupling law:
+\[
+\dot{\Lambda_i} = -\gamma_\Lambda (\Lambda_i - \Lambda_{\text{mean}}) + \xi_i(t),
+\]
+where $\xi_i(t)$ denotes small stochastic fluctuations (nominal $\sigma_\xi = 10^{-4}$).
+
+Simulation parameters:
+\[
+(\hbar, G, \Lambda_0, \alpha) = (10^{-3}, 10^{-5}, 10^{-6}, 0.5), \quad
+T = 2400,\ \Delta t = 0.006.
+\]
+Constants are verified against \texttt{constants\_v1.2.json} per the canonical test implementation.
+
+\section{Results (locked run)}
+The run reports a stable diversity of terminal $\Lambda_i$ values across domains with bounded curvature energy.
+Classification: \textbf{✅ Multiverse-like $\Lambda$ diversity maintained} (model-scoped).
+
+\section{Interpretation (model-scoped)}
+The feedback terms preserve a spread of quasi-stable vacuum solutions without runaway divergence,
+yielding a persistent ``landscape of equilibria in the model. This establishes the diversity leg
+used by F17 (coupling/coherence) and later landscape convergence tests.
+
+\section{Reproduce (canonical)}
+\begin{verbatim}
+export PYTHONPATH=.
+python backend/photon_algebra/tests/paev_test_F16_quantum_gravity_multiverse.py
+\end{verbatim}
+
+\section{Artifacts}
+\begin{itemize}[leftmargin=1.5em]
+  \item Test (locked): \apath{docs/Artifacts/v0.4/F16/runs/TC_F16_REBUILD_20260108T000000Z/tests/paev_test_F16_quantum_gravity_multiverse.py}
+  \item Summary JSON (locked): \apath{docs/Artifacts/v0.4/F16/runs/TC_F16_REBUILD_20260108T000000Z/knowledge/F16_quantum_gravity_multiverse.json}
+  \item Plots (locked): \texttt{PAEV\_F16\_LambdaDiversity.png}, \texttt{PAEV\_F16\_SampleTraces.png}, \texttt{PAEV\_F16\_LandscapeMap.png}
+\end{itemize}
+
+\section{Figures}
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.90\textwidth]{../plots/PAEV_F16_LambdaDiversity.png}
+  \caption{$\Lambda_{\mathrm{eff}}$ diversity across domains (histogram).}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.90\textwidth]{../plots/PAEV_F16_SampleTraces.png}
+  \caption{Sample domain traces illustrating bounded evolution and persistent spread.}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.90\textwidth]{../plots/PAEV_F16_LandscapeMap.png}
+  \caption{$\kappa$-well landscape and domain distribution (model diagnostic visualization).}
+\end{figure}
+
+\vspace{1.0em}
+\noindent
+Lock ID: \texttt{TC-F16-REBUILD-20260108T000000Z}\\
+Status: \texttt{LOCKED}\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

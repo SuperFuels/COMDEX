@@ -1,6 +1,6 @@
 {
   "tessaris_id": "A1f_feedback_oscillator",
-  "title": "A1f \u2014 Adaptive Feedback Oscillator",
+  "title": "A1f - Adaptive Feedback Oscillator",
   "description": "Extends A1e by adding adaptive timestep and entropy-controlled noise cooling, demonstrating bounded oscillations under feedback. All quantities are abstract proxies.",
   "\u0127": 0.001,
   "\u039b0": 5e-06,
@@ -28,5 +28,5 @@
     "entropy_plot": "PAEV_A1f_EntropySlope.png",
     "noise_plot": "PAEV_A1f_NoiseSchedule.png"
   },
-  "timestamp": "2025-10-07T14:46Z"
+  "timestamp": "2026-01-08T19:31Z"
 }

@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-01-08T21:39:47.123529+00:00",
+  "depth": 200,
+  "families": 32,
+  "messages": 20000,
+  "mutate_rate": 0.95,
+  "skew": 0.9,
+  "seed": 1,
+  "avg_json_gz": 1009.95285,
+  "avg_fallback_gz": 974.51675,
+  "avg_catalog_gz": 861.1454,
+  "savings_vs_json_gz": 0.1473409872549991,
+  "savings_vs_fallback_gz": 0.11633596857108919,
+  "handshake_overhead_gz": 323,
+  "roundtrip_fail": 0,
+  "runtime_ms": 60676.59555499995
+}

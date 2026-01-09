@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-01-08T14:19:55.575150+00:00",
+  "series": {
+    "\u03a9": 3,
+    "\u039e": 5,
+    "X": 3
+  },
+  "metrics": {
+    "collapse_mean": NaN,
+    "recovery_mean": 747.3639415250216,
+    "synchrony_mean": 0.9952046590448709,
+    "flux_balance_mean": 0.057345899986332036,
+    "pattern_strength": 0.8971715498685265,
+    "invariance": 0.9731040284067536,
+    "bridge_ratio": NaN,
+    "causal_closure_index": 0.44725137577727314
+  },
+  "state": "Subcritical - incomplete bridge (requires tuning)",
+  "notes": [
+    "Phase IIIc unified integration of \u03a9 (quantum collapse), \u039e (optical coherence), and X (causal thermodynamics).",
+    "Bridge ratio defines the effective transfer function between quantum and classical causal layers.",
+    "Causal closure index measures field self-execution potential.",
+    "Validated under Tessaris Unified Constants & Verification Protocol v1.2."
+  ]
+}

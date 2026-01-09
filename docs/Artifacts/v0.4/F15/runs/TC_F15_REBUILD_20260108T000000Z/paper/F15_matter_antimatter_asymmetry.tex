@@ -1,0 +1,138 @@
+% -----------------------------------------------------------------------------
+% Tessaris Truth Chain — v0.4 (F15) [LOCKABLE PAPER]
+% Maintainer: Tessaris AI
+% Author: Kevin Robinson
+% Last update: 2026-01-08 (Europe/Madrid)
+% -----------------------------------------------------------------------------
+\documentclass[11pt,a4paper]{article}
+
+% --- Tessaris / Symatics LaTeX house style ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage[a4paper,margin=1in]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{same}
+
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\setlength{\emergencystretch}{3em}
+\sloppy
+\newcommand{\apath}[1]{\url{#1}}
+
+\newcommand{\MUST}{\textbf{MUST}}
+\newcommand{\SHOULD}{\textbf{SHOULD}}
+\newcommand{\MAY}{\textbf{MAY}}
+
+\title{\textbf{F15 — Matter--Antimatter Asymmetry}\\
+\large Phase-Dominant CP Violation (model-scoped)}
+\author{Maintainer: Tessaris AI \quad\textbullet\quad Author: Kevin Robinson}
+\date{Pinned: 2026--01--08 (Europe/Madrid)}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This module tests whether a dual-field lattice $(\psi_1,\psi_2)$ in the Tessaris photon-algebra model
+exhibits a persistent CP-like asymmetry under feedback evolution, using a small asymmetric injector
+to probe symmetry stability. All terms are \textbf{model-scoped}. This paper is an indexable summary of the locked artifacts in this run.
+\end{abstract}
+
+\section*{Question}
+Can the dual-field lattice $(\psi_1, \psi_2)$ within the Tessaris photon algebra exhibit spontaneous charge--parity (CP)
+symmetry breaking — manifesting as an emergent matter--antimatter bias — without external forcing?
+
+\section*{Method}
+Two conjugate complex fields were initialized as:
+\[
+\psi_1, \psi_2 = e^{\pm i \phi(x,y)} e^{-((x\pm1.2)^2 + y^2)},
+\]
+with Gaussian curvature wells $\kappa(x,y)$ coupling to feedback-evolving parameters $\alpha(t)$ and $\Lambda(t)$.
+
+A small CP-bias injector ($\Delta\Lambda = \pm 0.0025$) was applied asymmetrically between the two fields to probe symmetry stability.
+The evolution equations were:
+\[
+\dot{\psi_i} = i\hbar\nabla^2\psi_i - \alpha_t \psi_i \pm i(\Lambda_t \pm \text{phase\_bias})\kappa \psi_i,
+\]
+integrated over 2400 steps with feedback coefficients $k_\alpha = 0.002$, $k_\Lambda = 0.0015$.
+
+\section*{Measured signals}
+\begin{itemize}[leftmargin=1.5em]
+  \item Energy-density asymmetry $A(t) = (E_1 - E_2)/(E_1 + E_2)$
+  \item Phase skew $\Delta\phi(t) = \arg\langle \psi_1 \psi_2^* \rangle$
+  \item Mutual information proxy $I(t) = \langle \mathrm{Re}(\psi_1 \psi_2^*) \rangle$
+\end{itemize}
+
+\section*{Results (from locked summary JSON)}
+\begin{itemize}[leftmargin=1.5em]
+  \item Mean asymmetry: $A_{\text{tail}} = 2.28\times10^{-4}$
+  \item Phase skew: $\Delta\phi_{\text{tail}} = 1.43~\text{rad}$
+  \item Mutual information drift: $\Delta I = +987.3$
+  \item Classification: \textbf{Phase-dominant CP violation (low-energy asymmetry)}
+\end{itemize}
+
+The mutual-information curve exhibited exponential amplification after timestep $\sim$1800, while energy asymmetry remained small but nonzero.
+Phase skew stabilized near $\pi/2$, indicating a persistent parity offset between $\psi_1$ and $\psi_2$.
+
+\section*{Interpretation}
+Although energy densities between the dual fields remained closely matched, their phase correlation diverged irreversibly,
+demonstrating a CP-like bias where informational coherence $I(t)$ dominates over energetic imbalance.
+
+This emergent asymmetry is a model-analogue of CP violation in quantum fields: the system’s internal feedback loop selects a preferred phase basin,
+breaking $\psi_1 \leftrightarrow \psi_2^*$ symmetry.
+
+\section*{Significance}
+This is a Tessaris photon-algebra test yielding stable phase-dominant CP-like bias under feedback evolution.
+It provides a computational foundation for \emph{baryogenesis analogues} (model-scoped) — preference for “matter-like” states in a symmetric vacuum
+— emerging from entanglement/feedback dynamics.
+
+\section*{Artifacts (this run)}
+\begin{itemize}[leftmargin=1.5em]
+  \item Tests: \apath{../tests/paev_test_F15_matter_asymmetry.py}, \apath{../tests/paev_test_F15_entanglement_correlation.py}
+  \item Knowledge: \apath{../knowledge/F15_matter_asymmetry.json}, \apath{../knowledge/F15_entanglement_correlation.json}
+  \item Plots: \apath{../plots/PAEV_F15_Asymmetry.png}, \apath{../plots/PAEV_F15_PhaseSkew.png},
+        \apath{../plots/PAEV_F15_MutualInfo.png}, \apath{../plots/PAEV_F15_DensityMaps.png},
+        \apath{../plots/PAEV_F15_EntanglementCorrelation.png}
+\end{itemize}
+
+\section*{Figures}
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.48\textwidth]{../plots/PAEV_F15_Asymmetry.png}
+  \includegraphics[width=0.48\textwidth]{../plots/PAEV_F15_PhaseSkew.png}
+  \caption{Energy-density asymmetry (left) and CP-like phase skew (right) showing stable phase offset.}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.48\textwidth]{../plots/PAEV_F15_MutualInfo.png}
+  \includegraphics[width=0.48\textwidth]{../plots/PAEV_F15_DensityMaps.png}
+  \caption{Mutual information amplification (left) and final field amplitudes $|\psi_1|$, $|\psi_2|$ (right).}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.70\textwidth]{../plots/PAEV_F15_EntanglementCorrelation.png}
+  \caption{Entanglement correlation diagnostic (CHSH surrogate baseline; model-scoped).}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+% REQUIRED LOCK FOOTER FORMAT
+% -----------------------------------------------------------------------------
+\vspace{1.0em}
+\noindent
+Lock ID: \texttt{TC-F15-REBUILD-20260108T000000Z}\\
+Status: \texttt{LOCKED}\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

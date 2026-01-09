@@ -26,7 +26,7 @@
   },
   "metrics": {
     "num_bounces": 2,
-    "mean_entropy_flux": 0.00011192143108586483
+    "mean_entropy_flux": 0.00011209894342030645
   },
   "files": {
     "scale_plot": "FAEV_F7bRC2_Scale.png",

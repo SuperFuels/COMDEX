@@ -1,0 +1,23 @@
+Lock ID: v17-phase-interference-bloat@50a3fda13e849275d7123970830cc559507a4235c07b90ebea3e5ced859222f7
+Status: LOCKED 2026-01-09
+Maintainer: Tessaris AI
+Author: Kevin Robinson.
+
+Benchmark output (backend/tests/glyphos_wirepack_v17_phase_interference_bloat_benchmark.py):
+
+| n   | canon_raw | canon_gz | tagged_raw | tagged_gz | gz_ratio |
+|-----|----------:|---------:|-----------:|----------:|---------:|
+| 1   | 23        | 37       | 43         | 50        | 1.35     |
+| 2   | 39        | 44       | 79         | 56        | 1.27     |
+| 4   | 71        | 55       | 151        | 67        | 1.22     |
+| 8   | 135       | 72       | 295        | 91        | 1.26     |
+| 16  | 276       | 103      | 596        | 130       | 1.26     |
+| 32  | 564       | 157      | 1204       | 195       | 1.24     |
+| 64  | 1140      | 271      | 2420       | 327       | 1.21     |
+| 128 | 2349      | 541      | 4909       | 634       | 1.17     |
+| 256 | 4909      | 1051     | 10029      | 1218      | 1.16     |
+
+Hashes:
+- PhaseInterferenceBloat.lean: 50a3fda13e849275d7123970830cc559507a4235c07b90ebea3e5ced859222f7
+- v17_phase_out.txt: 291215f72c8d8a837185e90dda24b90f7cedf3e2fda393295aea132ccb47fd70
+-/

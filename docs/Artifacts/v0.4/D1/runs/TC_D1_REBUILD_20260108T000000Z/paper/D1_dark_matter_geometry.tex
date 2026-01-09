@@ -1,0 +1,118 @@
+% -----------------------------------------------------------------------------
+% Tessaris Truth Chain — v0.4 (D1: Dark Matter Geometry) [LOCKED RUN PAPER]
+% Maintainer: Tessaris AI
+% Author: Kevin Robinson
+% Pinned: 2026-01-08 (Europe/Madrid)
+% -----------------------------------------------------------------------------
+\documentclass[11pt,a4paper]{article}
+
+% --- Tessaris / Symatics LaTeX house style ---
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage[a4paper,margin=1in]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{same}
+
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\setlength{\emergencystretch}{3em}
+\sloppy
+
+\newcommand{\apath}[1]{\url{#1}}
+\newcommand{\MUST}{\textbf{MUST}}
+\newcommand{\SHOULD}{\textbf{SHOULD}}
+\newcommand{\MAY}{\textbf{MAY}}
+
+\title{\textbf{D1 — Dark Matter Geometry}\\
+\large Hidden Curvature Energy (Dark-Mass Analogue, model-scoped)}
+\author{Maintainer: Tessaris AI \quad\textbullet\quad Author: Kevin Robinson}
+\date{Locked run: TC\_D1\_REBUILD\_20260108T000000Z \; (Pinned: 2026--01--08, Europe/Madrid)}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+D1 tests whether a ``hidden sector can retain curvature-associated energy while remaining invisible to
+the local observables of the visible $\psi$ fields. The result is a model-scoped dark-mass analogue:
+gravitationally active curvature energy not encoded in $(|\psi_1|,|\psi_2|)$.
+This paper is an \emph{artifact narration} of the locked run outputs; it adds no physical-world claims.
+\end{abstract}
+
+\section{Question (model-scoped)}
+Can the Tessaris photon algebra produce regions of curvature energy that exert gravitational influence
+but are invisible to local field observables $(|\psi_1|,|\psi_2|)$, thereby acting as a dark-mass analogue?
+
+\section{Method}
+The simulation extends the wormhole-geometry style setup with a \emph{visible sector} and \emph{hidden sector}:
+\[
+(\psi_1,\psi_2)\;\rightarrow\;\text{visible sector},\qquad
+(\psi_3,\psi_4)\;\rightarrow\;\text{hidden sector}.
+\]
+The hidden fields couple only through the curvature channel $\Lambda_t \kappa(x,y)$ and have no $\alpha$-term interaction.
+Evolution equations:
+\[
+\dot{\psi}_i = i\hbar\nabla^2\psi_i - \alpha_i \psi_i + i\Lambda_i \kappa \psi_i,
+\]
+where $\alpha_i=\alpha$ for visible fields and $\alpha_i=0$ for hidden fields. All fields are initialized
+with Gaussian curvature wells and evolved for $1600$ steps with $\Delta t=0.006$.
+
+\section{Measured observables}
+\begin{align*}
+E_{\text{vis}} &= \langle |\nabla \psi_1|^2 + |\nabla \psi_2|^2 \rangle, \\
+E_{\text{hid}} &= \langle |\nabla \psi_3|^2 + |\nabla \psi_4|^2 \rangle, \\
+f_{\text{dark}} &= \frac{E_{\text{hid}}}{E_{\text{vis}} + E_{\text{hid}}}, \\
+N &= \langle \rho + p \rangle \quad \text{(NEC proxy)} .
+\end{align*}
+
+\section{Results (locked run)}
+Classification: \textbf{Hidden curvature energy detected (dark-mass analogue)}.
+
+\section{Interpretation (model-scoped)}
+The hidden sector maintains a persistent curvature-associated energy density even as visible-field energy decays,
+producing a gravitationally active curvature signature with no corresponding local visibility in $(|\psi_1|,|\psi_2|)$.
+The NEC proxy is positive on average within the model’s diagnostic semantics.
+
+\section{Reproduce (canonical)}
+\begin{verbatim}
+export PYTHONPATH=.
+python backend/photon_algebra/tests/paev_test_D1_dark_matter_geometry.py
+\end{verbatim}
+
+\section{Artifacts}
+\begin{itemize}[leftmargin=1.5em]
+  \item Test (locked): \apath{docs/Artifacts/v0.4/D1/runs/TC_D1_REBUILD_20260108T000000Z/tests/paev_test_D1_dark_matter_geometry.py}
+  \item Summary JSON (locked): \apath{docs/Artifacts/v0.4/D1/runs/TC_D1_REBUILD_20260108T000000Z/knowledge/D1_dark_matter_geometry.json}
+  \item Plots (locked): \texttt{PAEV\_D1\_EnergyTraces.png}, \texttt{PAEV\_D1\_NECProxy.png}, \texttt{PAEV\_D1\_VisibleHiddenMaps.png}
+\end{itemize}
+
+\section{Figures}
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.48\textwidth]{../plots/PAEV_D1_EnergyTraces.png}
+  \includegraphics[width=0.48\textwidth]{../plots/PAEV_D1_NECProxy.png}
+  \caption{Visible vs.\ hidden curvature energy (left) and NEC proxy evolution (right).}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.70\textwidth]{../plots/PAEV_D1_VisibleHiddenMaps.png}
+  \caption{Final field amplitudes $|\psi_1|$ (visible) and $|\psi_3|$ (hidden), showing hidden curvature structure.}
+\end{figure}
+
+\vspace{1.0em}
+\noindent
+Lock ID: \texttt{TC-D1-REBUILD-20260108T000000Z}\\
+Status: \texttt{LOCKED}\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

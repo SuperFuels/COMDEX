@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-01-08T19:53:21.369962+00:00",
+  "macro_enabled": 1,
+  "seed": 7,
+  "trials": 500,
+  "depths": [
+    30,
+    200
+  ],
+  "runtime_ms": 1402.611,
+  "stats": [
+    {
+      "depth": 30,
+      "macro_hits": 130,
+      "misses_on_canonical": 0,
+      "bad_hits": 0,
+      "roundtrip_fail": 0,
+      "avg_pack": 405.11,
+      "avg_gz": 160.626,
+      "hit_rate": 0.26
+    },
+    {
+      "depth": 200,
+      "macro_hits": 127,
+      "misses_on_canonical": 0,
+      "bad_hits": 0,
+      "roundtrip_fail": 0,
+      "avg_pack": 2758.114,
+      "avg_gz": 674.262,
+      "hit_rate": 0.254
+    }
+  ]
+}

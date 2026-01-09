@@ -1,0 +1,5 @@
+=== ✅ Bridge v23: Canonicalization invariance regression (determinism / safety) ===
+seed=23023 cases=5000 max_depth=6
+idempotence_ok=5000/5000
+roundtrip_ok=5000/5000
+drift_sha256=111ae3f55b152ea131d2c14c38f3f07cec7763e043f6165859dafa51038794cb
