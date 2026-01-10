@@ -1,0 +1,11 @@
+Lock ID: GLYPHOS-BRIDGE-V38-CANON-REPLAY
+Status: Draft
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+
+[Proof Snapshot]
+see: rfc/v38_bridge/v38_canon_replay_bridge.md (section “Proof snapshot”)
+
+[SHA256]
+e662b5a38efe67f3c0542e2203fccf6a1bab337522b8f874d2b5b1c048744057  backend/modules/lean/bridge_only/SymaticsBridge/V38_CanonicalDeltaDeterminismReplay.lean
+7f2f3ffc33793782d5d69ff3cb45004e1eb56297841ba7e55839b8081226776f  backend/tests/glyphos_wirepack_v38_canonical_delta_determinism_replay_benchmark.py

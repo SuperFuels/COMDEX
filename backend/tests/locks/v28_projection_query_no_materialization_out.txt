@@ -1,0 +1,12 @@
+v28_projection_query_no_materialization
+seed=28028
+n_agents=4096 k_updates=1024 m_edits=1
+raw_snapshot_stream=21349688
+raw_delta_stream=75892
+raw_ratio(snapshot/delta)=281.316713
+gz_snapshot_stream=175378
+gz_delta_stream=18134
+gz_ratio(snapshot/delta)=9.671225
+queries_ok=True
+query_indices=[0, 1, 17, 999, 2048, 4095]
+drift_sha256=4aa6aa8b84d21be35fb75e4608d45e5201b549116f413cec5dd1cbd408f283e6

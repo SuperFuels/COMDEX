@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, Dict, List, Optional
 
 # ----------------------------------------------------
@@ -55,6 +56,55 @@ def _resolve_symbolic_registry():
 
 symbolic_registry = _resolve_symbolic_registry()
 
+# ----------------------------------------------------
+# Canonical op normalization (namespaced -> raw)
+# ----------------------------------------------------
+_CANONICAL_OP_NS_MAP: Dict[str, str] = {
+    "logic:↔": "↔",
+    "quantum:↔": "↔",
+    "logic:⊕": "⊕",
+    "quantum:⊕": "⊕",
+    "symatics:⊕": "⊕",
+    "symatics:⟲": "⟲",
+    "control:⧖": "⧖",
+    "logic:->": "->",
+    "control:->": "->",
+    "math:∇": "∇",
+    "barrier:⟁": "⟁",
+    "interf:⋈": "⋈",
+    "mod:⌬": "⌬",
+}
+
+
+def _denamespace_ops(text: str) -> str:
+    """
+    Convert canonical namespaced op tokens into their raw glyph equivalents.
+    Intended for Lean preview/validation (Lean doesn’t care about namespaces).
+    """
+    if not isinstance(text, str) or not text:
+        return text
+
+    # fast path: only do work if ':' appears
+    if ":" not in text:
+        return text
+
+    # replace explicit known mappings first
+    for k, v in _CANONICAL_OP_NS_MAP.items():
+        if k in text:
+            text = text.replace(k, v)
+
+    # generic fallback: if something like "logic:XYZ" remains, strip prefix.
+    # Keep it conservative: only strip if RHS is non-empty and contains a non-ascii glyph OR arrow-ish token.
+    def _strip(m: re.Match) -> str:
+        rhs = m.group(2) or ""
+        if not rhs:
+            return m.group(0)
+        return rhs
+
+    # e.g. "foo:↔" -> "↔"
+    text = re.sub(r"\b([a-zA-Z_]\w*):([^\s]+)", _strip, text)
+    return text
+
 
 # ----------------------------------------------------
 # Lean container + metadata helpers
@@ -103,9 +153,43 @@ def extract_lean_metadata(container: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+# ----------------------------------------------------
+# Logic entry collection (IMPORTANT: filter only “entry-shaped” dicts)
+# ----------------------------------------------------
+_ENTRY_SYMBOLS = {
+    "⟦ Theorem ⟧",
+    "⟦ Lemma ⟧",
+    "⟦ Definition ⟧",
+    "⟦ Axiom ⟧",
+    "⟦ Constant ⟧",
+}
+
+_FALLBACK_SYMBOL = "⟦ Theorem ⟧"
+
+
+def _is_logic_entry_dict(d: Dict[str, Any]) -> bool:
+    """
+    True only for Lean “logic entry” dicts, not generic codex instruction trees.
+    """
+    if not isinstance(d, dict):
+        return False
+
+    # Must have a name OR look like a Lean decl; codex instruction trees usually have op/args only.
+    has_nameish = isinstance(d.get("name"), str) and d.get("name", "").strip() != ""
+    has_symbolish = isinstance(d.get("symbol"), str) and d.get("symbol", "").strip() != ""
+    has_logicish = ("logic" in d) or ("logic_raw" in d) or ("codexlang" in d)
+
+    # If it looks like an instruction node only, reject.
+    if "op" in d and "args" in d and not has_nameish:
+        return False
+
+    return has_nameish or (has_symbolish and has_logicish)
+
+
 def _collect_logic_entries(container: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Collect logic entries from all known container fields.
+    Filters out non-entry dicts (like raw instruction trees).
     """
     entries: List[Dict[str, Any]] = []
     for fld in (
@@ -118,7 +202,9 @@ def _collect_logic_entries(container: Dict[str, Any]) -> List[Dict[str, Any]]:
     ):
         v = container.get(fld)
         if isinstance(v, list) and v:
-            entries.extend(v)
+            for it in v:
+                if isinstance(it, dict) and _is_logic_entry_dict(it):
+                    entries.append(it)
     return entries
 
 
@@ -178,6 +264,83 @@ def pretty_print_lean_summary(container: Dict[str, Any]) -> None:
 
 
 # ----------------------------------------------------
+# Normalization helpers for entries
+# ----------------------------------------------------
+def _coerce_symbol(sym: Any) -> str:
+    if isinstance(sym, str) and sym.strip() and sym.strip() not in {"⟦ ? ⟧", "?"}:
+        s = sym.strip()
+        # If user gave raw "Theorem"/"Lemma" etc, map to glyph form.
+        low = s.lower()
+        if low == "theorem":
+            return "⟦ Theorem ⟧"
+        if low == "lemma":
+            return "⟦ Lemma ⟧"
+        if low in {"def", "definition"}:
+            return "⟦ Definition ⟧"
+        if low == "axiom":
+            return "⟦ Axiom ⟧"
+        if low == "constant":
+            return "⟦ Constant ⟧"
+        # If it already looks like ⟦ ... ⟧, keep.
+        if s.startswith("⟦") and s.endswith("⟧"):
+            return s
+        # Otherwise, fallback.
+    return _FALLBACK_SYMBOL
+
+
+def _coerce_name(name: Any, fallback: str = "unnamed") -> str:
+    if isinstance(name, str) and name.strip():
+        return name.strip()
+    return fallback
+
+
+def _coerce_logic(entry: Dict[str, Any]) -> str:
+    codex = entry.get("codexlang")
+    logic_raw = (
+        (codex.get("logic") if isinstance(codex, dict) else None)
+        or entry.get("logic")
+        or entry.get("logic_raw")
+        or entry.get("type")
+        or "True"
+    )
+    if not isinstance(logic_raw, str) or not logic_raw.strip():
+        logic_raw = "True"
+
+    # Denamespace first so Lean sees raw ops.
+    logic_raw = _denamespace_ops(logic_raw)
+
+    # Soft simplify.
+    try:
+        logic_soft = CodexLangRewriter.simplify(logic_raw, mode="soft") or logic_raw
+    except TypeError:
+        logic_soft = CodexLangRewriter.simplify(logic_raw) or logic_raw  # type: ignore
+
+    return logic_soft
+
+
+def normalize_codexlang(container: Dict[str, Any]) -> None:
+    """
+    Soft-normalize logic strings in-place (safe).
+    Also denamespaces canonical ops so validation/preview matches Lean expectations.
+    """
+    for entry in _collect_logic_entries(container):
+        entry["name"] = _coerce_name(entry.get("name"))
+        entry["symbol"] = _coerce_symbol(entry.get("symbol") or (entry.get("codexlang", {}) or {}).get("symbol"))
+        logic_soft = _coerce_logic(entry)
+        entry["logic"] = logic_soft
+        if "logic_raw" not in entry or not isinstance(entry.get("logic_raw"), str) or not entry["logic_raw"].strip():
+            entry["logic_raw"] = logic_soft
+
+        codex = entry.get("codexlang")
+        if not isinstance(codex, dict):
+            codex = {}
+        codex.setdefault("symbol", entry["symbol"])
+        codex["logic"] = logic_soft
+        codex.setdefault("normalized", logic_soft)
+        entry["codexlang"] = codex
+
+
+# ----------------------------------------------------
 # Validation + normalization
 # ----------------------------------------------------
 def validate_logic_trees(container: Dict[str, Any]) -> List[str]:
@@ -187,6 +350,13 @@ def validate_logic_trees(container: Dict[str, Any]) -> List[str]:
     """
     errors: List[str] = []
     entries = _collect_logic_entries(container)
+
+    # Ensure normalization has run (safe even if already normalized).
+    try:
+        normalize_codexlang(container)
+        entries = _collect_logic_entries(container)
+    except Exception:
+        pass
 
     # Law 1: unique non-empty names
     seen_names: Dict[str, bool] = {}
@@ -281,28 +451,9 @@ def normalize_validation_errors(errors: Any) -> List[Dict[str, str]]:
     return [wrap(str(errors))]
 
 
-def normalize_codexlang(container: Dict[str, Any]) -> None:
-    """
-    Soft-normalize logic strings in-place (safe).
-    """
-    for entry in _collect_logic_entries(container):
-        logic = entry.get("logic") or ""
-        if not isinstance(logic, str):
-            logic = str(logic)
-
-        try:
-            simplified = CodexLangRewriter.simplify(logic, mode="soft")
-        except TypeError:
-            simplified = CodexLangRewriter.simplify(logic)  # type: ignore
-
-        if simplified and isinstance(simplified, str):
-            entry["logic"] = simplified
-            codex = entry.get("codexlang")
-            if isinstance(codex, dict):
-                codex["logic"] = simplified
-                entry["codexlang"] = codex
-
-
+# ----------------------------------------------------
+# Preview + link inference
+# ----------------------------------------------------
 def inject_preview_and_links(container: Dict[str, Any]) -> None:
     """
     Populate preview/glyph_string and infer depends_on via name mentions (best-effort).
@@ -312,15 +463,26 @@ def inject_preview_and_links(container: Dict[str, Any]) -> None:
     if not isinstance(logic_list, list) or not logic_list:
         logic_list = _collect_logic_entries(container)
 
+    # Ensure entries are normalized before preview generation
+    try:
+        normalize_codexlang(container)
+    except Exception:
+        pass
+
     name_map = {e.get("name"): e for e in logic_list if e.get("name")}
 
     for entry in logic_list:
         try:
+            entry["name"] = _coerce_name(entry.get("name"))
             codex = entry.get("codexlang", {}) or {}
-            glyph_symbol = codex.get("symbol") or entry.get("symbol") or "⟦ Theorem ⟧"
+            glyph_symbol = _coerce_symbol(codex.get("symbol") or entry.get("symbol"))
             entry["symbol"] = glyph_symbol
 
-            logic = codex.get("logic") or entry.get("logic") or ""
+            logic = entry.get("logic") or codex.get("logic") or ""
+            if not isinstance(logic, str):
+                logic = str(logic)
+            logic = _denamespace_ops(logic)
+
             name = entry.get("name") or ""
 
             if glyph_symbol == "⟦ Definition ⟧":
@@ -342,16 +504,11 @@ def inject_preview_and_links(container: Dict[str, Any]) -> None:
                         deps.append(other_name)
             entry["depends_on"] = sorted(set(deps))
 
-            args = codex.get("args")
-            if isinstance(args, list) and len(args) >= 2 and isinstance(args[1], dict):
-                if glyph_symbol == "⟦ Definition ⟧":
-                    args[1]["type"] = "Definition"
-                elif glyph_symbol in ("⟦ Axiom ⟧", "⟦ Constant ⟧"):
-                    args[1]["type"] = "Assumption"
-                else:
-                    args[1]["type"] = "Proof"
-
             entry["logic"] = logic
+            if not isinstance(codex, dict):
+                codex = {}
+            codex["symbol"] = glyph_symbol
+            codex["logic"] = logic
             entry["codexlang"] = codex
         except Exception:
             continue
@@ -365,12 +522,18 @@ def harmonize_symbols_and_trees(container: Dict[str, Any]) -> None:
     if not isinstance(logic_list, list) or not logic_list:
         logic_list = _collect_logic_entries(container)
 
+    # Ensure normalization has run
+    try:
+        normalize_codexlang(container)
+    except Exception:
+        pass
+
     glyph_by_name: Dict[str, Any] = {}
     for e in logic_list:
         name = e.get("name") or ""
         codex = e.get("codexlang", {}) or {}
-        gsym = codex.get("symbol") or e.get("symbol") or "⟦ Theorem ⟧"
-        logic = codex.get("logic") or e.get("logic") or ""
+        gsym = _coerce_symbol(codex.get("symbol") or e.get("symbol"))
+        logic = _denamespace_ops(codex.get("logic") or e.get("logic") or "")
         if name:
             glyph_by_name[name] = (gsym, logic)
 
@@ -385,7 +548,7 @@ def harmonize_symbols_and_trees(container: Dict[str, Any]) -> None:
         try:
             name = node_entry.get("name") or ""
             node = node_entry.get("node")
-            gsym, logic = glyph_by_name.get(name, (node_entry.get("glyph") or "⟦ Theorem ⟧", ""))
+            gsym, logic = glyph_by_name.get(name, (_coerce_symbol(node_entry.get("glyph")), ""))
 
             node_entry["glyph"] = gsym
 
@@ -431,8 +594,8 @@ def _normalize_logic_entry(decl: Dict[str, Any], lean_path: str) -> Dict[str, An
     Normalize a Lean declaration into a logic entry with safe codexlang dict.
     Keeps behavior compatible with older injector/CLI codepaths.
     """
-    glyph_symbol = decl.get("glyph_symbol", "⟦ Theorem ⟧")
-    name = decl.get("name") or "unnamed"
+    glyph_symbol = _coerce_symbol(decl.get("glyph_symbol", _FALLBACK_SYMBOL))
+    name = _coerce_name(decl.get("name"), fallback="unnamed")
     codexlang = decl.get("codexlang", {}) or {}
 
     if isinstance(decl.get("codexlang_string"), str) and "legacy" not in codexlang:
@@ -447,6 +610,8 @@ def _normalize_logic_entry(decl: Dict[str, Any], lean_path: str) -> Dict[str, An
     )
     if not isinstance(logic_raw, str) or not logic_raw.strip():
         logic_raw = "True"
+
+    logic_raw = _denamespace_ops(logic_raw)
 
     if not isinstance(codexlang, dict):
         codexlang = {}

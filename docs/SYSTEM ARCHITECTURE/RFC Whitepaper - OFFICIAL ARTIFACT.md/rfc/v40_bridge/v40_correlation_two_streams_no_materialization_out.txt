@@ -1,0 +1,70 @@
+SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean:112:55: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean:100:40: warning: This simp argument is unused:
+  Nat.lt_succ_self
+
+Hint: Omit it from the simp argument list.
+  simp [setAt, hx, Nat.lt_irrefl, N̵a̵t̵.̵l̵t̵_̵s̵u̵c̵c̵_̵s̵e̵l̵f̵,̵ ̵sumN]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean:100:58: warning: This simp argument is unused:
+  sumN
+
+Hint: Omit it from the simp argument list.
+  simp [setAt, hx, Nat.lt_irrefl, Nat.lt_succ_self,̵ ̵s̵u̵m̵N̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean:135:39: warning: This simp argument is unused:
+  Int.add_assoc
+
+Hint: Omit it from the simp argument list.
+  simp [hmiss, hlt, hnot_succ,̵ ̵I̵n̵t̵.̵a̵d̵d̵_̵a̵s̵s̵o̵c̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean:167:55: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean:176:55: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean:202:57: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean:213:14: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean:223:57: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean:234:14: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+=== ✅ Bridge Benchmark v40: Correlation over two delta streams (no materialization) ===
+v40_correlation_two_streams_no_materialization_wirepack
+seed=40040
+n_agents=4096 k_updates=2048 m_edits_x=4 m_edits_y=4
+q_checks=256
+canon_idempotent_ok_x=True
+canon_stable_ok_x=True
+canon_idempotent_ok_y=True
+canon_stable_ok_y=True
+query_ok=True
+raw_template_x_bytes=16386
+raw_template_y_bytes=16386
+raw_delta_stream_x_bytes=52984
+raw_delta_stream_y_bytes=53028
+gz_template_x_bytes=11981
+gz_template_y_bytes=11961
+gz_delta_stream_x_bytes=42044
+gz_delta_stream_y_bytes=42069
+final_x_sha256=a53d3bc7ae318d53084d453a1bf0dcbd15c62d43db2a0a982eda3fed0f7ec5f0
+final_y_sha256=91ed6e9253fa22e51a3f30a57c800c81fc8d5f8142b942003f66d948bd4b2c5c
+drift_sha256=0b5a2a507031d758ab405411d0bb3b346739f78fd794d0c278f9f625edd0f931
+
+LEAN_OK=1
+
+SHA256 (v40)
+
+28465147cdc4fa65cf8156e0debcb33d80d58f885aaa8d1c76525f7f1ba9dc4d  /workspaces/COMDEX/backend/modules/lean/workspace/SymaticsBridge/V40_CorrelationTwoStreamsNoMaterialization.lean
+f0526d28773079c9df6c146f83a80b3bb01696ccb02eb10f9f99bfe62074065a  /workspaces/COMDEX/backend/tests/glyphos_wirepack_v40_correlation_two_streams_no_materialization_benchmark.py

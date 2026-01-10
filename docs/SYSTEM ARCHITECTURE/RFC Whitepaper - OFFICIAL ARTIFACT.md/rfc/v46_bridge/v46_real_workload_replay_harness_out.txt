@@ -1,0 +1,22 @@
+=== ✅ Bridge Benchmark v46: Real workload replay harness (telemetry/logs style) ===
+v46_real_workload_replay_harness_wirepack
+seed=46046
+n_items=4096 k_updates=4096 m_edits=4
+hot_fraction=0.02 hot_prob=0.85 burst_prob=0.2
+q_checks=256
+canon_idempotent_ok=True
+canon_stable_ok=True
+replay_ok=True
+raw_template_bytes=16386
+raw_delta_stream_bytes=92530
+gz_template_bytes=13680
+gz_delta_stream_bytes=77738
+final_state_sha256=95008c6d99ccee81631293a4148e3f37a097bce27c91a1aafdc5431797160a42
+drift_sha256=852691539a5244033dd34409a48646878e3cc0f99a24c7a25b5d6a94204277da
+
+LEAN_OK=1
+
+SHA256 (v46)
+
+963792f5f1caeac0260aae8b1e29ec41e093a3f9028da4a9d67c2a6fe1367305  /workspaces/COMDEX/backend/modules/lean/workspace/SymaticsBridge/V46_RealWorkloadReplayHarness.lean
+31ba4b550780f8388788f6603fd027c5228d570d8cc5353f5cd7d6fd552d0625  /workspaces/COMDEX/backend/tests/glyphos_wirepack_v46_real_workload_replay_harness_benchmark.py

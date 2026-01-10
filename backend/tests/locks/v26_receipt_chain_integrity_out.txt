@@ -1,0 +1,15 @@
+v26_receipt_chain_integrity
+seed=26026
+depth=96 headers=96 n_msgs=512 muts=3
+alg_id=1 schema_ver=1 phase_id=7
+template_bytes=8979
+delta_bytes_avg=156
+receipt_bytes_each=137
+verify_ok=True
+raw_template_delta=88914
+raw_template_delta_receipt_auth=159058
+raw_overhead_ratio=1.788897
+gz_template_delta=7645
+gz_template_delta_receipt_auth=59918
+gz_overhead_ratio=7.837541
+drift_sha256(receipt_hash_chain)=04f8468ebf7af81333151423fb87f914e5ba6f47eb28b39b08704b4015d64c01

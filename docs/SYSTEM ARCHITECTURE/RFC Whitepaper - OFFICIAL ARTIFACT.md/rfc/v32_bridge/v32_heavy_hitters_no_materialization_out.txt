@@ -1,0 +1,12 @@
+v32_heavy_hitters_no_materialization
+seed=32032
+n_agents=4096 k_updates=1024 K=10
+raw_snapshot_stream=21026827
+raw_delta_stream=88075
+raw_ratio(snapshot/delta)=238.737746
+gz_snapshot_stream=172418
+gz_delta_stream=23508
+gz_ratio(snapshot/delta)=7.334439
+topk_ok=True
+topk_values=[99351, 99254, 99157, 99060, 98963, 98866, 98769, 98672, 98575, 98478]
+drift_sha256=ac4d71f5fdd9ce10195e534f755ffc7d3e58558f486f88203ae5fe8efc7640d8

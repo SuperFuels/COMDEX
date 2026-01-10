@@ -1,0 +1,22 @@
+=== ✅ Bridge Benchmark v42: Incremental Merkle-style commitment (no materialization) ===
+v42_incremental_merkle_commitment_wirepack
+seed=42042
+n_leaves=4096 k_updates=2048 m_edits=4
+q_checks=256
+root_ok=True
+root_hex=d2c88727e34e06e81d2cb9991b9c790e5e84122cdb8df9c8c5482a3411eab30c
+raw_template_bytes=16386
+raw_delta_stream_bytes=52986
+gz_template_bytes=11994
+gz_delta_stream_bytes=42027
+inc_hash_ops_init=4095
+inc_hash_ops_updates=98304
+full_hash_ops_checks=1048320
+drift_sha256=e6cfd648f3de0e1ee0ee5ebc9c1c57e711167df368116dc8db31cccebaf2b802
+
+LEAN_OK=1
+
+SHA256 (v42)
+
+91f4a06bf51c35e4a9e2c7e3fed11c7267034d32e5bb7086d27eab4057f5d456  /workspaces/COMDEX/backend/modules/lean/workspace/SymaticsBridge/V42_IncrementalMerkleCommitment.lean
+b441633a40aa2148da5ad4d78ffdbdadc0ae78733a3cf759e94a642e8cbe1bdd  /workspaces/COMDEX/backend/tests/glyphos_wirepack_v42_incremental_merkle_commitment_benchmark.py

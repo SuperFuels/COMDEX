@@ -1,0 +1,16 @@
+v37_hierarchical_template_amortization
+seed=37037
+n_units=4096 n_models=64 units_per_model=64
+depth=192 headers=96 model_depth=48
+fleet_template_bytes=15004
+model_template_bytes_each_avg=2015
+unit_delta_bytes_each_avg=76
+unit_snapshot_bytes_each_avg=17094
+verify_ok=True
+raw_snapshot_total=70017897
+raw_hier_total=458213
+raw_ratio(snapshot/hier)=152.806439
+gz_snapshot_total=1364757
+gz_hier_total=50218
+gz_ratio(snapshot/hier)=27.176650
+drift_sha256=8220a4fb5463b3f85496428f1d4ae3e277c5d6bb45b0545973c4cf0622892c55

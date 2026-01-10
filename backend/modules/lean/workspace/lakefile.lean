@@ -8,3 +8,7 @@ package tessaris_lean where
 lean_lib Tessaris where
   roots := #[`Tessaris]
   precompileModules := false
+
+lean_lib SymaticsBridge where
+  roots := #[`SymaticsBridge]
+  precompileModules := false

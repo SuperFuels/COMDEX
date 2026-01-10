@@ -1,0 +1,14 @@
+v39_range_prefix_index_no_materialization
+seed=39039
+n_agents=4096 k_updates=1024 m_edits_per_update=1
+fenwick_ok=True
+prefix_queries_ok=True
+range_queries_ok=True
+raw_snapshot_stream=16369793
+raw_delta_stream=43145
+raw_ratio(snapshot/delta)=379.413443
+gz_snapshot_stream=122833
+gz_delta_stream=15024
+gz_ratio(snapshot/delta)=8.175785
+final_state_sha256=b638b68c432819bdf1787c48a66bf6e7aec0d5529d13a1f8bdf7b30dd2397b1d
+drift_sha256=e9d4908b312ba6352a7fb3a292ef595d7a1751238f79a5df2b9e35d3600b8b3b

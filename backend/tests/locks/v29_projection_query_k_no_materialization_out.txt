@@ -1,0 +1,15 @@
+v29_projection_query_k_no_materialization
+seed=29029
+n_agents=4096 k_updates=1024 m_edits=1
+raw_snapshot_stream=21349688
+raw_delta_stream=75892
+raw_ratio(snapshot/delta)=281.316713
+gz_snapshot_stream=175378
+gz_delta_stream=18134
+gz_ratio(snapshot/delta)=9.671225
+all_k_queries_ok=True
+k=1 ok=True first10=[3750]
+k=8 ok=True first10=[231, 1155, 1172, 1536, 2877, 3641, 3750, 3890]
+k=64 ok=True first10=[66, 99, 231, 251, 302, 469, 471, 478, 556, 570]
+k=512 ok=True first10=[4, 10, 15, 19, 22, 31, 34, 40, 59, 66]
+drift_sha256=7295e0f717bced2c8922bfbc9659aa45b0ae6e6cb72962f160eb197328501200

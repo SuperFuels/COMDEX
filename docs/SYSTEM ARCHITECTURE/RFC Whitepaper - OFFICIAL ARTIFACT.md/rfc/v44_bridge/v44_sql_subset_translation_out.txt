@@ -1,0 +1,28 @@
+=== ✅ Bridge Benchmark v44: SQL subset translation (SELECT/WHERE/GROUP BY + simple JOIN) ===
+v44_sql_subset_translation_wirepack
+seed=44044
+n_rows=4096 n_buckets=64
+k_updates=2048 m_edits_a=4 m_edits_b=4
+q_checks=256
+canon_idempotent_ok=True
+canon_stable_ok=True
+query_ok=True
+raw_template_a_bytes=16386
+raw_template_b_bytes=16386
+raw_delta_stream_a_bytes=52986
+raw_delta_stream_b_bytes=53019
+gz_template_a_bytes=11986
+gz_template_b_bytes=11971
+gz_delta_stream_a_bytes=42038
+gz_delta_stream_b_bytes=42024
+final_a_sha256=bbd819ad86087855dcf6559c79300de7272c7c5f110a6a18e7ced43afafcbae9
+final_b_sha256=bbd5fb92c53c5dc4e290212d953c22bf290a47d2e01537ea189fe7a7a323355a
+result_sha256=557ad6a262f827495ce91c78b32794d5c1398e8cc010d2315cd3751a61a1d168
+drift_sha256=e3c9b9afe6f9b0cf8bac3184900a39285140a1846c3ded6556283dc964c94dae
+
+LEAN_OK=1
+
+SHA256 (v44)
+
+ab1f598876ca90dd3d4b5c6662901603db70606ca8ee904027fcf60f0195fc2c  /workspaces/COMDEX/backend/modules/lean/workspace/SymaticsBridge/V44_SQLSubsetTranslationNoMaterialization.lean
+03f09b079400a1d17c02cb39ae7bf04f1c2dda5099ad7577ed89ee81cb40a89b  /workspaces/COMDEX/backend/tests/glyphos_wirepack_v44_sql_subset_translation_benchmark.py

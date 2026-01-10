@@ -1,0 +1,15 @@
+v31_topk_within_q_no_materialization
+seed=31031
+n_agents=4096 k_updates=1024
+raw_snapshot_stream=21026827
+raw_delta_stream=88075
+raw_ratio(snapshot/delta)=238.737746
+gz_snapshot_stream=172418
+gz_delta_stream=23508
+gz_ratio(snapshot/delta)=7.334439
+all_topk_ok=True
+qk=1 qsize=1 K=10 ok=True first10=[3750] top5=[3713]
+qk=8 qsize=8 K=10 ok=True first10=[231, 1155, 1172, 1536, 2877, 3641, 3750, 3890] top5=[9922, 9633, 8886, 6103, 6093]
+qk=64 qsize=64 K=10 ok=True first10=[66, 99, 231, 251, 302, 469, 471, 478, 556, 570] top5=[91106, 89554, 79854, 71803, 64043]
+qk=512 qsize=512 K=10 ok=True first10=[4, 10, 15, 19, 22, 31, 34, 40, 59, 66] top5=[97217, 96344, 95665, 95568, 93628]
+drift_sha256=dbd4a6b35740cf6d5f5455e2fa306baf506a57de2b1b004c893c1361f48bfcda

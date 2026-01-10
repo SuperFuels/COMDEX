@@ -11,15 +11,25 @@ Symbolic QPU ISA for CodexCore
 - YAML-compatible registry
 """
 
-from typing import Any, Dict, List, Optional
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional, Callable
 import time
 import yaml
-from datetime import datetime
 from uuid import uuid4
+from hashlib import blake2s
+
+from datetime import datetime  # kept (some older code paths reference it)
 from backend.modules.symbolic_spreadsheet.models.glyph_cell import GlyphCell
-from backend.modules.symbolic_spreadsheet.scoring.sqi_scorer import score_sqi
 from backend.modules.patterns.pattern_trace_engine import record_trace
 from backend.modules.utils.time_utils import now_utc_iso, now_utc_ms
+
+# score_sqi can be circular in this repo; keep best-effort import
+try:
+    from backend.modules.symbolic_spreadsheet.scoring.sqi_scorer import score_sqi  # type: ignore
+except Exception:  # pragma: no cover
+    score_sqi = None  # type: ignore
+
 
 # -------------------------------
 # Global runtime flags & metrics
@@ -28,15 +38,16 @@ GLOBAL_QPU_FLAGS: Dict[str, bool] = {
     "entangle_enabled": True,
     "collapse_enabled": True,
     "superpose_enabled": True,
-    "metrics_enabled": True
+    "metrics_enabled": True,
 }
 
 QPU_METRICS: Dict[str, float] = {
     "ops_executed": 0,
     "entangle_count": 0,
     "collapse_count": 0,
-    "superpose_count": 0
+    "superpose_count": 0,
 }
+
 
 # -------------------------------
 # Helper: Log metrics & timing
@@ -44,18 +55,20 @@ QPU_METRICS: Dict[str, float] = {
 def log_qpu_op(op_name: str) -> float:
     """Log QPU opcode execution and track execution time."""
     start_time = time.time()
-    if GLOBAL_QPU_FLAGS["metrics_enabled"]:
+    if GLOBAL_QPU_FLAGS.get("metrics_enabled", False):
         QPU_METRICS["ops_executed"] += 1
         print(f"[QPU] Executed opcode: {op_name}")
     elapsed = time.time() - start_time
     QPU_METRICS[f"{op_name}_time"] = elapsed
     return elapsed
 
+
 # -------------------------------
 # Beam helpers (Phase 8)
 # -------------------------------
 def _new_beam_id(cell_id: str, stage: str) -> str:
     return f"beam_{cell_id}_{stage}_{uuid4().hex[:8]}"
+
 
 def emit_beam(
     cell: GlyphCell,
@@ -66,7 +79,7 @@ def emit_beam(
     parent_id: Optional[str] = None,
     precision: Optional[str] = None,
     entanglement_ids: Optional[List[str]] = None,
-    state: Optional[str] = None
+    state: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Create & attach a lineage beam to a cell (predict/mutate/ingest/collapse/entangle)."""
     beam = {
@@ -87,25 +100,21 @@ def emit_beam(
     cell.wave_beams.append(beam)  # type: ignore[attr-defined]
     return beam
 
-# -------------------------------
-# Core Opcode Implementations
-# -------------------------------
-def op_AND(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
-    log_qpu_op("AND ⊕")
-    return [str(a) for a in args]
 
-# ── top of file (imports) ─────────────────────────────────────────────────────────
-from hashlib import blake2s
-
-# safe, lazy tokenizer import to avoid circulars during tests
+# -------------------------------
+# Safe, lazy tokenizer import to avoid circulars during tests
+# -------------------------------
 try:
-    from backend.modules.glyphos.glyph_tokenizer import tokenize_symbol_text_to_glyphs
-except Exception:
+    from backend.modules.glyphos.glyph_tokenizer import tokenize_symbol_text_to_glyphs  # type: ignore
+except Exception:  # pragma: no cover
     def tokenize_symbol_text_to_glyphs(s: str):
         return [{"type": "operator", "value": t} for t in (s or "").split()]
 
-# ── helper: compute deterministic EID from sheet_run_id + normalized tokens ──────
-def _compute_eid_for_cell(context: dict, cell) -> str:
+
+# -------------------------------
+# EID helpers
+# -------------------------------
+def _compute_eid_for_cell(context: dict, cell: GlyphCell) -> str:
     sheet_run_id = context.get("sheet_run_id", "run")
     logic = (getattr(cell, "logic", "") or "")
     tokens = tokenize_symbol_text_to_glyphs(logic)
@@ -113,29 +122,39 @@ def _compute_eid_for_cell(context: dict, cell) -> str:
     digest = blake2s(f"{sheet_run_id}::{sig}".encode("utf-8"), digest_size=8).hexdigest()
     return f"eid::{sheet_run_id}::{digest}"
 
-# ── helper: append an EQ beam with stage + entanglement tag ──────────────────────
-def _append_eq_beam(cell, stage: str, eid: str, payload: dict, context: dict) -> None:
+
+def _append_eq_beam(cell: Optional[GlyphCell], stage: str, eid: str, payload: dict, context: dict) -> None:
     if not cell:
         return
     if not hasattr(cell, "wave_beams") or cell.wave_beams is None:
         cell.wave_beams = []
-    cell.wave_beams.append({
-        "beam_id": (
-            f"beam_{cell.id}_eq_{stage}_{now_utc_ms()}"
-            if getattr(cell, "id", None) else
-            f"beam_eq_{stage}_{now_utc_ms()}"
-        ),
-        "source": "op_EQ",
-        "stage": stage,          # predict / ingest / collapse
-        "token": "↔",
-        "eid": eid,
-        "entanglement_ids": [eid],
-        "payload": payload,
-        "timestamp": now_utc_iso(),
-    })
-    record_trace(getattr(cell, "id", "↔"), f"[Beam eq/entangle] stage={stage} eid={eid} payload={payload}")
+    cell.wave_beams.append(
+        {
+            "beam_id": (
+                f"beam_{cell.id}_eq_{stage}_{now_utc_ms()}"
+                if getattr(cell, "id", None)
+                else f"beam_eq_{stage}_{now_utc_ms()}"
+            ),
+            "source": "op_EQ",
+            "stage": stage,  # entangle / predict / ingest / collapse
+            "token": "↔",
+            "eid": eid,
+            "entanglement_ids": [eid],
+            "payload": payload,
+            "timestamp": now_utc_iso(),
+        }
+    )
+    record_trace(getattr(cell, "id", "↔"), f"[Beam eq] stage={stage} eid={eid} payload={payload}")
 
-# ── replace the existing op_EQ with this version ─────────────────────────────────
+
+# -------------------------------
+# Core Opcode Implementations
+# -------------------------------
+def op_AND(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
+    log_qpu_op("AND ⊕")
+    return [str(a) for a in args]
+
+
 def op_EQ(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     """
     EQUIVALENCE (↔)
@@ -148,7 +167,10 @@ def op_EQ(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str
     log_qpu_op("EQUIVALENCE ↔")
 
     cell: Optional[GlyphCell] = context.get("cell")
-    eid = _compute_eid_for_cell(context, cell) if cell else f"eid::{context.get('sheet_run_id','run')}::anon"
+    if cell:
+        eid = _compute_eid_for_cell(context, cell)
+    else:
+        eid = f"eid::{context.get('sheet_run_id','run')}::anon"
 
     # ensure entanglement map entry (eid -> set(cell_ids))
     ent_map = context.setdefault("entanglements_map", {})
@@ -164,7 +186,7 @@ def op_EQ(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str
     else:
         payload = {"note": "insufficient_args"}
 
-    # emit staged beams for lineage/visualizers (now includes 'entangle')
+    # emit staged beams for lineage/visualizers
     for stage in ("entangle", "predict", "ingest", "collapse"):
         _append_eq_beam(cell, stage, eid, payload, context)
 
@@ -174,43 +196,8 @@ def op_EQ(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str
     # textual result (kept for compatibility with existing traces/tests)
     if len(args) >= 2:
         return [f"[Entangled {args[0]} ↔ {args[1]} eid={eid}]"]
-    else:
-        return [f"[Entangled eid={eid}]"]
+    return [f"[Entangled eid={eid}]"]
 
-    # local safe beam emit (avoids circular imports)
-    def _emit_beam(stage: str, payload: Dict[str, Any]) -> Dict[str, Any]:
-        try:
-            beam = {
-                "beam_id": f"beam_{cell.id}_eq_{stage}_{int(datetime.utcnow().timestamp()*1000)}" if cell else
-                           f"beam_unknown_eq_{stage}_{int(datetime.utcnow().timestamp()*1000)}",
-                "stage": stage,
-                "source": "qpu_op_EQ",
-                "token": {"type": "operator", "value": "↔"},
-                "payload": payload,
-                "timestamp": datetime.utcnow().isoformat(),
-                "entanglement_ids": [eid],
-            }
-            if cell:
-                getattr(cell, "wave_beams", []).append(beam)
-            record_trace(getattr(cell, "id", "sheet"), f"[Beam eq/{stage}] eid={eid} payload={payload}")
-            return beam
-        except Exception as _e:
-            record_trace(getattr(cell, "id", "sheet"), f"[QPU eq beam error] {str(_e)}")
-            return {"beam_id": "beam_error", "stage": stage, "entanglement_ids": [eid], "error": str(_e)}
-
-    # If insufficient args, still register entanglement + emit a minimal entangle beam.
-    if not cell or len(args) < 2:
-        beam = _emit_beam("entangle", {"note": "insufficient_args"})
-        return [f"[EQ ERROR: Need 2 args]"]
-
-    # Legacy/normal behavior when args are provided
-    a, b = args[0], args[1]
-    context.setdefault("entangled_pairs", []).append((a, b))
-    QPU_METRICS["entangle_count"] += 1
-
-    beam = _emit_beam("entangle", {"a": a, "b": b})
-    cell.append_trace(f"[QPU] Entangled {a} ↔ {b} eid={eid}")
-    return [f"[Entangled {a} ↔ {b} eid={eid} beam={beam['beam_id']}]"]
 
 def op_MUTATE(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("MUTATE ⟲")
@@ -220,9 +207,11 @@ def op_MUTATE(args: List[Any], context: Dict[str, Any], registers: Optional[Dict
         emit_beam(cell, "mutate", {"before": args, "after": mutated}, context)
     return mutated
 
+
 def op_DELAY(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("DELAY ⧖")
     return [f"[Delayed {args}]"]
+
 
 def op_TRIGGER(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("TRIGGER ->")
@@ -230,18 +219,22 @@ def op_TRIGGER(args: List[Any], context: Dict[str, Any], registers: Optional[Dic
     context.setdefault("triggered_ops", []).append(target)
     return [f"[Triggered {target}]"]
 
+
 def op_COMPRESS(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
-    log_qpu_op("COMPRESS ∇")
+    log_qpu_op("COMPRESS ∇c")
     return [f"[Compressed {args}]"]
+
 
 def op_NEGATE(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("NEGATE ⊗")
     return [f"¬{a}" for a in args]
 
+
 def op_MILESTONE(args: List[Any], context: Dict[str, Any], registers: Optional[Dict[str, Any]] = None) -> List[str]:
     log_qpu_op("MILESTONE ✦")
     return [f"[Milestone {args}]"]
-    
+
+
 # -------------------------------
 # G3: numeric ∇ (nabla) opcode for precision profiling
 # -------------------------------
@@ -254,34 +247,37 @@ def _op_nabla(args: List[Any], context: Dict[str, Any], registers: Optional[Dict
     base = 0.6180339887498949  # φ - 1
     cell: Optional[GlyphCell] = context.get("cell")
     cid = getattr(cell, "id", "") if cell else ""
-    # stable per-process but deterministic fingerprint
     cid_factor = (abs(hash(cid)) % 997) / 997.0 if cid else 0.0
     mutation = float(getattr(cell, "mutation_score", 0.0) or 0.0) if cell else 0.0
     return float(base * (1.0 + cid_factor * 0.1) + mutation * 0.001)
+
 
 # -------------------------------
 # Quantum Primitives (Stubs)
 # -------------------------------
 def apply_entanglement(cell: GlyphCell) -> bool:
-    if GLOBAL_QPU_FLAGS["entangle_enabled"]:
+    if GLOBAL_QPU_FLAGS.get("entangle_enabled", False):
         QPU_METRICS["entangle_count"] += 1
         cell.append_trace("🔗 Entanglement applied")
         return True
     return False
 
+
 def apply_collapse(cell: GlyphCell) -> bool:
-    if GLOBAL_QPU_FLAGS["collapse_enabled"]:
+    if GLOBAL_QPU_FLAGS.get("collapse_enabled", False):
         QPU_METRICS["collapse_count"] += 1
         cell.append_trace("💥 Collapse triggered")
         return True
     return False
 
+
 def apply_superpose(cell: GlyphCell) -> bool:
-    if GLOBAL_QPU_FLAGS["superpose_enabled"]:
+    if GLOBAL_QPU_FLAGS.get("superpose_enabled", False):
         QPU_METRICS["superpose_count"] += 1
         cell.append_trace("🔮 Superposition enabled")
         return True
     return False
+
 
 # -------------------------------
 # Prediction Fork Integration
@@ -290,21 +286,40 @@ def update_cell_prediction(cell: GlyphCell) -> List[str]:
     forks: List[str] = []
     base = cell.prediction or ""
     emo = (cell.emotion or "neutral").lower()
+
     if emo in ["curious", "inspired"]:
         forks.append(f"{base} + exploratory")
     elif emo in ["protective", "cautious"]:
         forks.append(f"{base} + conservative")
     else:
         forks.append(base)
+
     if "if" in (cell.logic or ""):
         forks.append(f"{base} | conditional path")
+
     cell.prediction_forks = forks
     cell.append_trace(f"🔮 Prediction forks updated: {forks}")
 
-    # Phase 8: emit predict beam
     ctx = getattr(cell, "_ctx", {}) or {}
     emit_beam(cell, "predict", {"forks": forks}, ctx)
     return forks
+
+
+# -------------------------------
+# Populate / update the opcode registry (single source of truth)
+# -------------------------------
+SYMBOLIC_QPU_OPS: Dict[str, Callable[..., Any]] = {
+    "⊕": op_AND,
+    "↔": op_EQ,
+    "⟲": op_MUTATE,
+    "⧖": op_DELAY,
+    "->": op_TRIGGER,
+    "∇": _op_nabla,     # profiling float opcode
+    "∇c": op_COMPRESS,  # keep COMPRESS under alias
+    "⊗": op_NEGATE,
+    "✦": op_MILESTONE,
+}
+
 
 # -------------------------------
 # Execute a single opcode
@@ -313,40 +328,54 @@ def execute_qpu_opcode(
     op: str,
     args: List[Any],
     cell: Optional[GlyphCell] = None,
-    context: Optional[Dict[str, Any]] = None
+    context: Optional[Dict[str, Any]] = None,
 ) -> List[str]:
     context = context or {}
     if not cell:
-        cell = GlyphCell(id="unknown", logic="", position=[0,0,0,0])
+        cell = GlyphCell(id="unknown", logic="", position=[0, 0, 0, 0])
 
     # thread context into cell so update_cell_prediction can see it
     cell._ctx = context  # type: ignore[attr-defined]
 
+    # resolve namespaced ops like "logic:↔" -> "↔"
+    op_key = op
+    if isinstance(op_key, str) and ":" in op_key:
+        op_key = op_key.split(":", 1)[1]
+
     try:
-        func = SYMBOLIC_QPU_OPS.get(op)
+        func = SYMBOLIC_QPU_OPS.get(op_key)
         if not func:
             return [f"[UnknownOpcode {op}]"]
 
         context["cell"] = cell
         result = func(args, context)
 
-        # ingest beam (op result)
         ingest_beam = emit_beam(cell, "ingest", {"op": op, "args": args, "result": result}, context)
 
-        # quantum stubs + traces (unchanged)
         apply_entanglement(cell)
         apply_collapse(cell)
         apply_superpose(cell)
         update_cell_prediction(cell)
+
         record_trace(cell.id, f"[QPU EXEC] {op}({args}) -> {result}")
 
-        # collapse beam (after collapse stage)
-        emit_beam(cell, "collapse", {"op": op, "result": result}, context, parent_id=ingest_beam["beam_id"], state="collapsed")
+        emit_beam(
+            cell,
+            "collapse",
+            {"op": op, "result": result},
+            context,
+            parent_id=ingest_beam["beam_id"],
+            state="collapsed",
+        )
 
-        return result
+        # normalize return to List[str] for old callers/tests
+        if isinstance(result, list):
+            return [str(x) for x in result]
+        return [str(result)]
     except Exception as e:
         record_trace(cell.id, f"[QPU Error] {op}: {e}")
         return [f"[Error {op}: {e}]"]
+
 
 # -------------------------------
 # Load opcode registry from YAML (optional)
@@ -356,52 +385,45 @@ def load_opcode_registry_from_yaml(filepath: str) -> None:
     try:
         with open(filepath, "r") as f:
             opcodes_yaml = yaml.safe_load(f)
-        SYMBOLIC_QPU_OPS = {
-            op["symbol"]: globals().get(f"op_{op['name']}", lambda a,c,r=None: [f"[Stub]"])
-            for op in opcodes_yaml
-        }
-        print(f"[QPU] Loaded {len(SYMBOLIC_QPU_OPS)} opcodes from {filepath}")
+
+        # NOTE: YAML loader expects op['name'] -> function op_<name>
+        loaded: Dict[str, Callable[..., Any]] = {}
+        for opdef in opcodes_yaml or []:
+            sym = opdef.get("symbol")
+            nm = opdef.get("name")
+            if not sym or not nm:
+                continue
+            fn = globals().get(f"op_{nm}")
+            if callable(fn):
+                loaded[str(sym)] = fn  # type: ignore[assignment]
+
+        # merge: YAML overrides defaults
+        SYMBOLIC_QPU_OPS = {**SYMBOLIC_QPU_OPS, **loaded}
+        print(f"[QPU] Loaded {len(loaded)} opcodes from {filepath}")
     except Exception as e:
         print(f"[QPU Error] Failed to load YAML opcodes: {e}")
 
-# -------------------------------
-# Populate / update the opcode registry
-# -------------------------------
-SYMBOLIC_QPU_OPS: Dict[str, Any] = {
-    "⊕": op_AND,
-    "↔": op_EQ,
-    "⟲": op_MUTATE,
-    "⧖": op_DELAY,
-    "->": op_TRIGGER,
-    # G3: numeric profiling opcode
-    "∇": _op_nabla,
-    # keep COMPRESS available under an alias to avoid functionality loss
-    "∇c": op_COMPRESS,
-    "⊗": op_NEGATE,
-    "✦": op_MILESTONE,
-}
-
-# Override / add numeric ∇ mapping for profiling (G3)
-SYMBOLIC_QPU_OPS["∇"] = _op_nabla
 
 # -------------------------------
 # Reset / Metrics Utilities
 # -------------------------------
 def reset_qpu_metrics() -> None:
-    for key in QPU_METRICS:
+    for key in list(QPU_METRICS.keys()):
         QPU_METRICS[key] = 0
+
 
 def get_qpu_metrics() -> Dict[str, float]:
     return dict(QPU_METRICS)
+
 
 # -------------------------------
 # Standalone Test
 # -------------------------------
 if __name__ == "__main__":
-    test_cell = GlyphCell(id="cell_001", logic="⊕ ↔ ⟲ -> ✦ ∇ ∇c", position=[0,0])
-    context: Dict[str, Any] = {}
-    print(execute_qpu_opcode("⊕", ["a", "b"], test_cell, context))
-    print(execute_qpu_opcode("↔", ["x", "y"], test_cell, context))
-    print(execute_qpu_opcode("∇", [], test_cell, context))   # numeric float
-    print(execute_qpu_opcode("∇c", ["data"], test_cell, context))  # preserved compress behavior
+    test_cell = GlyphCell(id="cell_001", logic="⊕ ↔ ⟲ -> ✦ ∇ ∇c", position=[0, 0])
+    ctx: Dict[str, Any] = {"sheet_run_id": "run_demo"}
+    print(execute_qpu_opcode("⊕", ["a", "b"], test_cell, ctx))
+    print(execute_qpu_opcode("logic:↔", ["x", "y"], test_cell, ctx))
+    print(execute_qpu_opcode("∇", [], test_cell, ctx))
+    print(execute_qpu_opcode("∇c", ["data"], test_cell, ctx))
     print(get_qpu_metrics())

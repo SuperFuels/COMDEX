@@ -1,0 +1,13 @@
+v36_cosine_similarity_no_materialization
+seed=36036
+n_agents=4096 k_updates=1024
+raw_snapshot_stream=12279176
+raw_delta_stream=48536
+raw_ratio(snapshot/delta)=252.991099
+gz_snapshot_stream=89998
+gz_delta_stream=8722
+gz_ratio(snapshot/delta)=10.318505
+cos2_ok=True
+cos2_num=266016100
+cos2_den=49140325156608
+drift_sha256=1c27d10edd0b630a82bf03778dcb86778fc0917c874e811fa8784172ce8c258a

@@ -1,0 +1,4 @@
+Lock ID: v41_receipt_gated_queries
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson.
