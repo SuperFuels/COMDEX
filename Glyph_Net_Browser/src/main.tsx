@@ -1,5 +1,5 @@
 // src/main.tsx
-import "@/lib/radioPatch";   // ← MUST be first: rewrites ws/http calls to VITE_RADIO_BASE
+import "@/lib/radioPatch"; // MUST be first (side-effect import)
 
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -15,6 +15,13 @@ if (
   (window as any).AudioContext = (window as any).webkitAudioContext;
 }
 
+createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  </React.StrictMode>,
+);
 // --- QKD debug flag ---
 ;(window as any).__QKD_E2EE = import.meta.env.VITE_QKD_E2EE;
 console.info("[QKD] E2EE flag =", import.meta.env.VITE_QKD_E2EE);

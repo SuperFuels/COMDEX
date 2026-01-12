@@ -98,3 +98,80 @@ def encode_delta_stream(deltas: List[bytes]) -> bytes:
         out += _uvarint_encode(len(d))
         out += d
     return bytes(out)
+
+# -------------------------
+# Bytes mode (deterministic)
+# -------------------------
+# -------------------------
+# Bytes wrappers (v46 demo shim)
+# Packs bytes into u32 slots using encode_template/decode_template.
+# Format: words = [byte_len_u32] + u32_le(payload_padded_to_4)
+# -------------------------
+import zlib
+
+# WirePack bytes mode v46 (REAL): deflate container in u32 words
+# words = [mode, raw_len, comp_len] + u32_le(comp_bytes_padded_to_4)
+# mode: 0 = identity (no compression), 1 = deflate(zlib)
+
+_WP_MODE_IDENTITY = 0
+_WP_MODE_DEFLATE  = 1
+
+def encode_bytes(raw: bytes) -> bytes:
+    raw = bytes(raw)
+    n = len(raw)
+    if n > 0xFFFFFFFF:
+        raise ValueError("payload too large for u32 length")
+
+    # Try deflate; only keep it if it wins
+    comp = zlib.compress(raw, level=9)
+    use_deflate = len(comp) + 12 < n  # header words cost (3*u32) + padding; conservative win gate
+
+    mode = _WP_MODE_DEFLATE if use_deflate else _WP_MODE_IDENTITY
+    payload = comp if use_deflate else raw
+
+    comp_len = len(payload)
+    if comp_len > 0xFFFFFFFF:
+        raise ValueError("compressed payload too large for u32 length")
+
+    pad = (-comp_len) & 3
+    payload_padded = payload + (b"\x00" * pad)
+
+    words: List[int] = [mode, n, comp_len]
+    if payload_padded:
+        words.extend(struct.unpack_from(f"<{len(payload_padded)//4}I", payload_padded, 0))
+
+    return encode_template([int(w) for w in words])
+
+def decode_bytes(container: bytes) -> bytes:
+    words = decode_template(container)
+    if not words:
+        return b""
+
+    if len(words) < 3:
+        raise ValueError("bad wirepack bytes header")
+
+    mode = int(words[0]) & 0xFFFFFFFF
+    raw_len = int(words[1]) & 0xFFFFFFFF
+    comp_len = int(words[2]) & 0xFFFFFFFF
+
+    body = words[3:]
+    payload_padded = bytearray()
+    for w in body:
+        payload_padded += struct.pack("<I", int(w) & 0xFFFFFFFF)
+
+    if comp_len > len(payload_padded):
+        raise ValueError("truncated bytes container")
+
+    payload = bytes(payload_padded[:comp_len])
+
+    if mode == _WP_MODE_IDENTITY:
+        out = payload
+    elif mode == _WP_MODE_DEFLATE:
+        out = zlib.decompress(payload)
+    else:
+        raise ValueError(f"unknown wirepack bytes mode={mode}")
+
+    if len(out) != raw_len:
+        raise ValueError("wirepack length mismatch")
+
+    return out

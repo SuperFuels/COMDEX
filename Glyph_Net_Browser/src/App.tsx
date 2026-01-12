@@ -19,6 +19,7 @@ import QfcBioPage from "./components/QfcBioPage";
 import WalletPanel from "./components/WalletPanel";
 import AdminDashboard from "./routes/AdminDashboard";
 import SettingsPanel from "./components/SettingsPanel";
+import WirePackDemo from "./routes/WirePackDemo"; // or "./components/WirePackDemo"
 
 // 🔧 DEV-ONLY PANELS (Photon Pay + Wave send)
 import PhotonPayPosPanel from "./components/PhotonPayPosPanel";
@@ -43,7 +44,8 @@ type ActiveTab =
   | "admin"
   | "dev-photon-pos"
   | "dev-photon-buyer"
-  | "dev-wave-send";
+  | "dev-wave-send"
+  | "dev-glyph-protocol";  
 
 type Session = { slug: string; wa: string } | null;
 
@@ -179,6 +181,12 @@ export default function App() {
         if (h.startsWith("#/dev/wave-send")) {
           setActive("dev-wave-send");
           document.title = `Wave Send (dev) — Glyph Net`;
+          return;
+        }
+          // ✅ ADD THIS HERE
+        if (h.startsWith("#/dev/glyph-protocol")) {
+          setActive("dev-glyph-protocol");
+          document.title = `Glyph Protocol (dev) — Glyph Net`;
           return;
         }
       }
@@ -432,37 +440,48 @@ export default function App() {
             },
 
             // 🔧 dev-only quick links under Dev Tools
-            ...(DEV_ROUTES_ENABLED
-              ? [
-                  {
-                    id: "dev-photon-pos" as const,
-                    icon: "💳",
-                    label: "Photon Pay POS (dev)",
-                    onClick: () => {
-                      window.location.hash = "#/dev/photon-pay-pos";
-                      setActive("dev-photon-pos");
-                    },
+          ...(DEV_ROUTES_ENABLED
+            ? [
+                {
+                  id: "dev-photon-pos" as const,
+                  icon: "💳",
+                  label: "Photon Pay POS (dev)",
+                  onClick: () => {
+                    window.location.hash = "#/dev/photon-pay-pos";
+                    setActive("dev-photon-pos");
                   },
-                  {
-                    id: "dev-photon-buyer" as const,
-                    icon: "🙋‍♀️",
-                    label: "Photon Pay Buyer (dev)",
-                    onClick: () => {
-                      window.location.hash = "#/dev/photon-pay-buyer";
-                      setActive("dev-photon-buyer");
-                    },
+                },
+                {
+                  id: "dev-photon-buyer" as const,
+                  icon: "🙋‍♀️",
+                  label: "Photon Pay Buyer (dev)",
+                  onClick: () => {
+                    window.location.hash = "#/dev/photon-pay-buyer";
+                    setActive("dev-photon-buyer");
                   },
-                  {
-                    id: "dev-wave-send" as const,
-                    icon: "📡",
-                    label: "Wave Send (dev)",
-                    onClick: () => {
-                      window.location.hash = "#/dev/wave-send";
-                      setActive("dev-wave-send");
-                    },
+                },
+                {
+                  id: "dev-wave-send" as const,
+                  icon: "📡",
+                  label: "Wave Send (dev)",
+                  onClick: () => {
+                    window.location.hash = "#/dev/wave-send";
+                    setActive("dev-wave-send");
                   },
-                ]
-              : []),
+                },
+
+                // ✅ ADD THIS OBJECT HERE
+                {
+                  id: "dev-glyph-protocol" as const,
+                  icon: "🧬",
+                  label: "Glyph Protocol (dev)",
+                  onClick: () => {
+                    window.location.hash = "#/dev/glyph-protocol";
+                    setActive("dev-glyph-protocol");
+                  },
+                },
+              ]
+            : []),
           ]}
         />
 
@@ -520,6 +539,8 @@ export default function App() {
             <PhotonPayBuyerPanel />
           ) : active === "dev-wave-send" ? (
             <WaveSendPanel />
+          ) : active === "dev-glyph-protocol" ? (
+            <WirePackDemo />
           ) : window.location.hash.startsWith("#/container/") ? (
             <ContainerView />
           ) : (

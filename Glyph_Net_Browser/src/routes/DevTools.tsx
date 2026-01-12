@@ -20,6 +20,7 @@ import QRCode from "qrcode.react";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { useTessarisTelemetry, type TessarisTelemetry } from "../hooks/useTessarisTelemetry";
 import QFCViewport, { type QFCMode } from "../components/QFCViewport";
+import WirePackDemo from "./WirePackDemo";
 // Hologram IR + API
 import type { HoloIR } from "../lib/types/holo"; 
 import {
@@ -35,6 +36,7 @@ type ToolId =
   | "ledger"
   | "guide"
   | "pitch"
+  | "wirepack_demo"
   | "field"
   | "aion"
   | "qfc"  
@@ -241,6 +243,7 @@ export default function DevTools() {
         if (detail.tab === "ledger") target = "ledger";
         if (detail.tab === "language") target = "guide";
         if (detail.tab === "pitch") target = "pitch";
+        if (detail.tab === "wirepack") target = "wirepack_demo";
         if (detail.tab === "aion") target = "aion";
         if (detail.tab === "crystal") target = "crystal";
         if (detail.tab === "qfc") target = "qfc";
@@ -627,6 +630,13 @@ export default function DevTools() {
               activeTool={activeTool}
               onSelect={setActiveTool}
             />
+             <ToolButton
+               id="wirepack_demo"
+               label="WirePack"
+               description="Protocol+codec demo"
+               activeTool={activeTool}
+               onSelect={() => setActiveTool("wirepack_demo")}
+            />
             <ToolButton
               id="field"
               label="Field Lab"
@@ -721,6 +731,10 @@ export default function DevTools() {
               <GmaDevPanel />
             ) : activeTool === "gma_auth" ? (
               <GMAMonetaryAuthorityPanel />
+            ) : activeTool === "wirepack_demo" ? (
+              <div style={{ padding: 12 }}>
+                <WirePackDemo />
+              </div>   
             ) : activeTool === "qfc_bio" ? (
               <div style={{ padding: 12, fontSize: 12, color: "#111827" }}>
                 QFC Bio moved to <code>#/qfc-bio</code>.

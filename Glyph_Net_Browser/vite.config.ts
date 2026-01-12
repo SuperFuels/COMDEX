@@ -23,23 +23,22 @@ export default defineConfig(({ mode }) => {
   // FastAPI (primary backend)
   const fastApiHttp = (env.VITE_FASTAPI_URL || "http://127.0.0.1:8080").replace(/\/+$/, "");
 
-  // ✅ GX1 (separate service) — default to the port you start it on:
-  //   PORT=8091 python -m backend.gx1_api_min
+  // GX1 (separate service)
   const gx1Http = (env.VITE_GX1_URL || "http://127.0.0.1:8091").replace(/\/+$/, "");
 
   // Aion module endpoints (your launch script ports)
-  const srelHttp = (env.VITE_SREL_URL || "http://127.0.0.1:8001").replace(/\/+$/, ""); // /ws/symatics
-  const ralHttp  = (env.VITE_RAL_URL  || "http://127.0.0.1:8002").replace(/\/+$/, ""); // /ws/analytics
-  const aqciHttp = (env.VITE_AQCI_URL || "http://127.0.0.1:8004").replace(/\/+$/, ""); // /ws/control
-  const tcfkHttp = (env.VITE_TCFK_URL || "http://127.0.0.1:8005").replace(/\/+$/, ""); // /ws/fusion
-  const rqfsHttp = (env.VITE_RQFS_URL || "http://127.0.0.1:8006").replace(/\/+$/, ""); // /ws/rqfs_feedback
+  const srelHttp = (env.VITE_SREL_URL || "http://127.0.0.1:8001").replace(/\/+$/, "");
+  const ralHttp  = (env.VITE_RAL_URL  || "http://127.0.0.1:8002").replace(/\/+$/, "");
+  const aqciHttp = (env.VITE_AQCI_URL || "http://127.0.0.1:8004").replace(/\/+$/, "");
+  const tcfkHttp = (env.VITE_TCFK_URL || "http://127.0.0.1:8005").replace(/\/+$/, "");
+  const rqfsHttp = (env.VITE_RQFS_URL || "http://127.0.0.1:8006").replace(/\/+$/, "");
 
   // Optional radio-node (Express)
   const radioDisabled = env.VITE_DISABLE_RADIO === "1";
   const radioHttp = (env.VITE_BACKEND_URL || "http://127.0.0.1:8787").replace(/\/+$/, "");
 
   // Node KG + SCI
-  const kgHttp = (env.VITE_KG_URL || "http://127.0.0.1:3000").replace(/\/+$/, "");
+  const kgHttp  = (env.VITE_KG_URL  || "http://127.0.0.1:3000").replace(/\/+$/, "");
   const sciHttp = (env.VITE_SCI_URL || "http://127.0.0.1:3001").replace(/\/+$/, "");
 
   const httpProxy = (targetHttp: string): ProxyTarget => ({
@@ -49,7 +48,7 @@ export default defineConfig(({ mode }) => {
   });
 
   const wsProxy = (targetHttp: string, rewrite?: (p: string) => string): ProxyTarget => ({
-    target: targetHttp, // http(s) target; ws:true does Upgrade
+    target: targetHttp,
     ws: true,
     changeOrigin: true,
     secure: false,
@@ -62,10 +61,20 @@ export default defineConfig(({ mode }) => {
   const dropApiPrefix = (p: string) => p.replace(/^\/api/, "");
 
   const proxy: Record<string, ProxyTarget | any> = {
-    // ── KG
+    // ─────────────────────────────────────────────────────────────
+    // KG (node)
+    // ─────────────────────────────────────────────────────────────
     "/api/kg": httpProxy(kgHttp),
 
-    // ── FastAPI HTTP APIs
+    // ─────────────────────────────────────────────────────────────
+    // GX1 HTTP APIs (MUST be above catch-all /api)
+    // Frontend calls: 5173/api/gx1/... -> gx1Http/api/gx1/...
+    // ─────────────────────────────────────────────────────────────
+    "/api/gx1": httpProxy(gx1Http),
+
+    // ─────────────────────────────────────────────────────────────
+    // FastAPI HTTP APIs (explicit)
+    // ─────────────────────────────────────────────────────────────
     "/api/photon": httpProxy(fastApiHttp),
     "/api/ast/hologram": httpProxy(fastApiHttp),
     "/api/ast": httpProxy(fastApiHttp),
@@ -95,39 +104,66 @@ export default defineConfig(({ mode }) => {
     "/api/glyphchain": httpProxy(fastApiHttp),
     "/api/lean": httpProxy(fastApiHttp),
 
-    // ✅ GX1 HTTP APIs (MUST be above the catch-all "/api")
-    // Frontend calls: 5173/api/gx1/... -> Vite forwards to gx1Http/api/gx1/...
-    "/api/gx1": httpProxy(gx1Http),
-
     // ─────────────────────────────────────────────────────────────
     // WebSockets
     // ─────────────────────────────────────────────────────────────
-
-    // QFC + containers live on FastAPI as /api/ws/*
     "/api/ws/qfc": wsProxy(fastApiHttp),
     "/api/ws/containers": wsProxy(fastApiHttp),
 
-    // Aion modules live on their own ports as /ws/*
     "/api/ws/symatics": wsProxy(srelHttp, dropApiPrefix),
     "/api/ws/analytics": wsProxy(ralHttp, dropApiPrefix),
     "/api/ws/control": wsProxy(aqciHttp, dropApiPrefix),
     "/api/ws/fusion": wsProxy(tcfkHttp, dropApiPrefix),
     "/api/ws/rqfs_feedback": wsProxy(rqfsHttp, dropApiPrefix),
 
-    // Optional radio-node WS fanout
+    // ─────────────────────────────────────────────────────────────
+    // radio-node (Express) — WirePack + tx/session MUST go here
+    // NOTE: Use regex-anchored keys so nothing weird falls through.
+    // ─────────────────────────────────────────────────────────────
     ...(radioDisabled
       ? {}
       : {
-          "/ws/glyphnet": wsProxy(radioHttp),
-          "/ws/rflink": wsProxy(radioHttp),
-          "/ws/ghx": wsProxy(radioHttp),
-          "/ws": wsProxy(radioHttp),
+          "^/api/wirepack(?:/|$)": httpProxy(radioHttp),
+          "^/api/glyphnet/tx(?:/|$)": httpProxy(radioHttp),
+          "^/api/session(?:/|$)": httpProxy(radioHttp),
+
+          // optional debug helper: lets you confirm actual Express routes quickly
+          "^/__routes(?:/|$)": httpProxy(radioHttp),
+
+          // dev RF mock tools
+          "^/dev/rf(?:/|$)": httpProxy(radioHttp),
+
+          // radio-node extras (top-level)
+          "^/bridge(?:/|$)": httpProxy(radioHttp),
+          "^/containers(?:/|$)": httpProxy(radioHttp),
+          "^/health(?:/|$)": httpProxy(radioHttp),
+
+          // radio-node websockets (same-origin via Vite proxy)
+          "^/ws/glyphnet(?:/|$)": wsProxy(radioHttp),
+          "^/ws/rflink(?:/|$)": wsProxy(radioHttp),
+          "^/ws/ghx(?:/|$)": wsProxy(radioHttp),
+          "^/ws(?:/|$)": wsProxy(radioHttp),
+
+          // legacy/extra prefixes you already use
+          "^/radio/qkd": {
+            target: radioHttp,
+            changeOrigin: true,
+            secure: false,
+            rewrite: (p: string) => p.replace(/^\/radio\/qkd/, "/qkd"),
+          },
+          "^/radio": {
+            target: radioHttp,
+            changeOrigin: true,
+            secure: false,
+            ws: true,
+            rewrite: (p: string) => p.replace(/^\/radio/, ""),
+          },
+          "^/qkd(?:/|$)": httpProxy(radioHttp),
         }),
 
-    // ✅ Dev RF mock tools (leave /dev/rf to frontend)
-    ...(radioDisabled ? {} : { "^/dev(?!/rf)": { target: radioHttp, changeOrigin: true } }),
-
+    // ─────────────────────────────────────────────────────────────
     // SCI proxy
+    // ─────────────────────────────────────────────────────────────
     "/sci": {
       target: sciHttp,
       changeOrigin: true,
@@ -135,35 +171,14 @@ export default defineConfig(({ mode }) => {
       rewrite: (p: string) => p.replace(/^\/sci/, ""),
     },
 
-    // Catch-all /api:
-    // If radio is disabled, DO NOT point /api at 8787.
-    "/api": {
-      target: radioDisabled ? fastApiHttp : radioHttp,
+    // ─────────────────────────────────────────────────────────────
+    // Catch-all /api ALWAYS goes to FastAPI
+    // ─────────────────────────────────────────────────────────────
+    "^/api(?:/|$)": {
+      target: fastApiHttp,
       changeOrigin: true,
       secure: false,
     },
-
-    // radio-node extras (only if enabled)
-    ...(radioDisabled
-      ? {}
-      : {
-          "/bridge": httpProxy(radioHttp),
-          "/containers": httpProxy(radioHttp),
-          "/health": httpProxy(radioHttp),
-
-          "^/radio/qkd": {
-            target: radioHttp,
-            changeOrigin: true,
-            rewrite: (p: string) => p.replace(/^\/radio\/qkd/, "/qkd"),
-          },
-          "^/radio": {
-            target: radioHttp,
-            changeOrigin: true,
-            ws: true,
-            rewrite: (p: string) => p.replace(/^\/radio/, ""),
-          },
-          "^/qkd": httpProxy(radioHttp),
-        }),
   };
 
   return {

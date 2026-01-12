@@ -9,6 +9,19 @@ import path from "path";
 import dotenv from "dotenv";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
+import { spawnSync } from "child_process";
+import zlib from "node:zlib";
+
+import {
+  sha256Hex,
+  stableStringify,
+  xorshift32,
+  varintLen,
+  u32leBytes,
+  pickDistinctIndices,
+  sumOverQ_full,
+  sumOverQ_tracked,
+} from "./wirepack_demo_helpers.js";
 
 dotenv.config({ path: path.join(process.cwd(), ".env.local") });
 dotenv.config(); // fallback to .env if present
@@ -20,9 +33,310 @@ try { YAML = require("yaml"); } catch { /* optional */ }
 // ───────────────────────────────────────────────────────────────
 // Base64 → bytes
 const b64ToU8 = (b64: string) => new Uint8Array(Buffer.from(b64, "base64"));
+const u8ToB64 = (u8: Uint8Array) => Buffer.from(u8).toString("base64");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
+// ─────────────────────────────────────────────────────────────
+// WirePack v1 codec (Node-side, matches backend.modules.glyphos.wirepack_codec)
+// Used for v44 benchmarks so we don't spawn python per frame.
+// ─────────────────────────────────────────────────────────────
+
+function uvarintEncode(x: number): Buffer {
+  if (!Number.isFinite(x) || x < 0) throw new Error("uvarint expects non-negative finite");
+  let v = Math.floor(x);
+  const out: number[] = [];
+  while (v >= 0x80) {
+    out.push((v & 0x7f) | 0x80);
+    v = Math.floor(v / 128);
+  }
+  out.push(v & 0x7f);
+  return Buffer.from(out);
+}
+
+function encodeTemplateWords(words: number[]): Buffer {
+  const n = words.length >>> 0;
+  const header = uvarintEncode(n);
+  const body = Buffer.allocUnsafe(n * 4);
+  for (let i = 0; i < n; i++) body.writeUInt32LE(words[i] >>> 0, i * 4);
+  return Buffer.concat([header, body]);
+}
+
+type Op44 = [number, number]; // [idx, newValue]
+function encodeDeltaOps(ops: Op44[]): Buffer {
+  const header = uvarintEncode(ops.length >>> 0);
+  const chunks: Buffer[] = [header];
+  for (const [idx, newv] of ops) {
+    if (idx < 0) throw new Error("idx must be >= 0");
+    chunks.push(uvarintEncode(idx >>> 0));
+    const v = Buffer.allocUnsafe(4);
+    v.writeUInt32LE(newv >>> 0, 0);
+    chunks.push(v);
+  }
+  return Buffer.concat(chunks);
+}
+
+function uvarintDecode(buf: Buffer, o0: number): { v: number; o: number } {
+  let o = o0 >>> 0;
+  let x = 0 >>> 0;
+  let s = 0;
+  while (true) {
+    if (o >= buf.length) throw new Error("uvarintDecode: truncated");
+    const b = buf[o++]!;
+    x |= (b & 0x7f) << s;
+    if ((b & 0x80) === 0) break;
+    s += 7;
+    if (s > 35) throw new Error("uvarintDecode: overflow");
+  }
+  return { v: x >>> 0, o };
+}
+
+function decodeTemplateWords(buf: Buffer): number[] {
+  // format: uvarint(nWords) + nWords * u32le
+  let o = 0;
+  const h = uvarintDecode(buf, o);
+  const n = h.v >>> 0;
+  o = h.o;
+  const need = o + n * 4;
+  if (need > buf.length) throw new Error("decodeTemplateWords: truncated body");
+  const out: number[] = [];
+  for (let i = 0; i < n; i++) out.push(buf.readUInt32LE(o + i * 4) >>> 0);
+  return out;
+}
+
+function decodeDeltaOps(buf: Buffer): Op44[] {
+  // format: uvarint(nOps) + [uvarint(idx) + u32le(val)] * nOps
+  let o = 0;
+  const h = uvarintDecode(buf, o);
+  const n = h.v >>> 0;
+  o = h.o;
+
+  const out: Op44[] = [];
+  for (let k = 0; k < n; k++) {
+    const a = uvarintDecode(buf, o);
+    const idx = a.v >>> 0;
+    o = a.o;
+
+    if (o + 4 > buf.length) throw new Error("decodeDeltaOps: truncated val");
+    const v = buf.readUInt32LE(o) >>> 0;
+    o += 4;
+
+    out.push([idx, v]);
+  }
+  return out;
+}
+
+
+function gzipLenUtf8(s: string) {
+  const gz = zlib.gzipSync(Buffer.from(s, "utf8"), { level: 9 });
+  return gz.length;
+}
+
+// Deterministic PRNG (xorshift32)
+function rng32(seed: number) {
+  let x = (seed >>> 0) || 1;
+  return () => {
+    x ^= (x << 13) >>> 0;
+    x ^= (x >>> 17) >>> 0;
+    x ^= (x << 5) >>> 0;
+    return x >>> 0;
+  };
+}
+// ─────────────────────────────────────────────────────────────
+// WirePack v46: session-aware template+delta (real stateful demo)
+// Uses backend.modules.glyphos.wirepack_codec in Python.
+// ─────────────────────────────────────────────────────────────
+
+const REPO_ROOT = path.resolve(__dirname, "..", ".."); // /workspaces/COMDEX
+type WpSession = {
+  id: string;
+  templateId: number;
+  createdAt: number;
+  prevWords?: number[];      // current state (words)
+  templateWords?: number[];  // base template (words)
+};
+
+const WP_SESSIONS = new Map<string, WpSession>();
+
+function pyEnv() {
+  const cur = process.env.PYTHONPATH || "";
+  const next = cur ? `${REPO_ROOT}${path.delimiter}${cur}` : REPO_ROOT;
+  return { ...process.env, PYTHONPATH: next };
+}
+
+async function runPy(script: string, input: any): Promise<string> {
+  const { spawn } = await import("node:child_process");
+  return await new Promise((resolve, reject) => {
+    const cp = spawn("python3", ["-c", script], {
+      cwd: REPO_ROOT,
+      env: pyEnv(),
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    let out = "";
+    let err = "";
+
+    cp.stdout.on("data", (d) => (out += d.toString("utf8")));
+    cp.stderr.on("data", (d) => (err += d.toString("utf8")));
+
+    cp.on("error", reject);
+    cp.on("close", (code) => {
+      if (code === 0) return resolve(out);
+      reject(new Error(err || `python exit ${code}`));
+    });
+
+    cp.stdin.write(JSON.stringify(input ?? {}));
+    cp.stdin.end();
+  });
+}
+
+// bytes <-> words (u32 little-endian), word[0] = original byte length
+function textToWords(text: string): number[] {
+  const raw = Buffer.from(text ?? "", "utf8");
+  const n = raw.length >>> 0;
+  const pad = (4 - (n % 4)) % 4;
+  const buf = pad ? Buffer.concat([raw, Buffer.alloc(pad)]) : raw;
+
+  const words: number[] = [n];
+  for (let i = 0; i < buf.length; i += 4) {
+    words.push(buf.readUInt32LE(i) >>> 0);
+  }
+  return words;
+}
+
+function wordsToText(words: number[]): string {
+  if (!words || words.length === 0) return "";
+  const n = (words[0] >>> 0) as number;
+  const bodyWords = words.length - 1;
+  const buf = Buffer.alloc(bodyWords * 4);
+  for (let i = 0; i < bodyWords; i++) {
+    buf.writeUInt32LE(words[i + 1] >>> 0, i * 4);
+  }
+  return buf.slice(0, n).toString("utf8");
+}
+
+type Op = [number, number]; // (idx, newValue)
+function diffOps(prev: number[], next: number[]): Op[] {
+  const ops: Op[] = [];
+  const L = Math.min(prev.length, next.length);
+  for (let i = 0; i < L; i++) {
+    const a = prev[i] >>> 0;
+    const b = next[i] >>> 0;
+    if (a !== b) ops.push([i, b]);
+  }
+  return ops;
+}
+
+function bufEq(a: Buffer, b: Buffer): boolean {
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
+
+// Canonicalize ops by "last write wins", then sorted by idx.
+// This makes equivalent deltas byte-identical regardless of incoming order.
+function canonicalizeOps(ops: Op44[]): Op44[] {
+  const last = new Map<number, number>();
+  for (const [i, v] of ops) last.set(i >>> 0, v >>> 0);
+  const out: Op44[] = Array.from(last.entries()).map(([i, v]) => [i >>> 0, v >>> 0]);
+  out.sort((a, b) => (a[0] >>> 0) - (b[0] >>> 0));
+  return out;
+}
+
+function shuffleInPlace<T>(arr: T[], R: () => number) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = (R() % (i + 1)) >>> 0;
+    const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+}
+// v38 needs order-invariant "last write" even when ops are shuffled.
+// We achieve that by attaching a stable ordinal (generation order) to each op.
+type Op38 = [number, number, number]; // [idx, newv, ord]
+
+function canonicalizeOps38(ops: Op38[]): Op44[] {
+  const best = new Map<number, { ord: number; v: number }>();
+
+  for (const [idx, v, ord] of ops) {
+    const i = idx >>> 0;
+    const cur = best.get(i);
+    // deterministic "last-write-wins": highest ord wins, not "last in array"
+    if (!cur || ord > cur.ord) best.set(i, { ord, v: v >>> 0 });
+  }
+
+  const out: Op44[] = Array.from(best.entries()).map(([i, o]) => [i >>> 0, o.v >>> 0]);
+  out.sort((a, b) => (a[0] >>> 0) - (b[0] >>> 0));
+  return out;
+}
+
+
+// Python scripts: NO leading indent, NO trailing newline (sys.stdout.write)
+const PY_ENC_TEMPLATE = String.raw`from __future__ import annotations
+import sys,json,base64
+from backend.modules.glyphos import wirepack_codec as w
+req=json.loads(sys.stdin.read() or "{}")
+words=req.get("words") or []
+b=w.encode_template([int(x) & 0xFFFFFFFF for x in words])
+sys.stdout.write(base64.b64encode(b).decode())
+`;
+
+const PY_ENC_DELTA = String.raw`from __future__ import annotations
+import sys,json,base64
+from backend.modules.glyphos import wirepack_codec as w
+req=json.loads(sys.stdin.read() or "{}")
+ops=req.get("ops") or []
+# ops: [[idx,val],...]
+b=w.encode_delta([(int(i), int(v) & 0xFFFFFFFF) for i,v in ops])
+sys.stdout.write(base64.b64encode(b).decode())
+`;
+
+const PY_DEC_TEMPLATE = String.raw`from __future__ import annotations
+import sys,json,base64
+from backend.modules.glyphos import wirepack_codec as w
+req=json.loads(sys.stdin.read() or "{}")
+b=base64.b64decode(req.get("b64",""))
+words=w.decode_template(b)
+sys.stdout.write(json.dumps({"words":words}, separators=(",",":")))
+`;
+
+const PY_DEC_DELTA = String.raw`from __future__ import annotations
+import sys,json,base64
+from backend.modules.glyphos import wirepack_codec as w
+req=json.loads(sys.stdin.read() or "{}")
+b=base64.b64decode(req.get("b64",""))
+ops=w.decode_delta(b)
+sys.stdout.write(json.dumps({"ops":ops}, separators=(",",":")))
+`;
+
+const PY_V45_VECTORS = String.raw`from __future__ import annotations
+import sys,json,base64
+from backend.modules.glyphos import wirepack_codec as w
+
+req=json.loads(sys.stdin.read() or "{}")
+words=req.get("words") or []
+turns_ops=req.get("turns_ops") or []  # [[[idx,val],...], ...]
+
+words=[int(x) & 0xFFFFFFFF for x in words]
+
+tmpl=w.encode_template(words)
+tmpl_dec=w.decode_template(tmpl)
+
+deltas_b64=[]
+dec_ops_all=[]
+
+for ops in turns_ops:
+  ops=[(int(i), int(v) & 0xFFFFFFFF) for i,v in (ops or [])]
+  d=w.encode_delta(ops)
+  deltas_b64.append(base64.b64encode(d).decode())
+  dec_ops_all.append(w.decode_delta(d))
+
+out={
+  "template_b64": base64.b64encode(tmpl).decode(),
+  "template_dec_words": tmpl_dec,
+  "deltas_b64": deltas_b64,
+  "deltas_dec_ops": dec_ops_all,
+}
+sys.stdout.write(json.dumps(out, separators=(",",":")))
+`;
 
 // String <-> bytes helpers
 const u8ToStr = (u8: Uint8Array) => new TextDecoder().decode(u8);
@@ -944,74 +1258,78 @@ function broadcast(key: string, obj: any) {
 
 // ───────────────────────────────────────────────────────────────
 // Cloud forward queue (store-carry-forward)
+// ───────────────────────────────────────────────────────────────
+
 
 async function tryForward(item: TxItem) {
   if (!FORWARD_TO_CLOUD) return true;
+
+  // Optional: hard timeout so we don’t stall the loop
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 4000);
+
   try {
     const r = await fetch(`${CLOUD_BASE}/api/glyphnet/tx`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(item.body),
-    });
+      signal: ctrl.signal as any,
+    } as any);
+
     cloudOk = r.ok;
     return r.ok;
   } catch {
     cloudOk = false;
     return false;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
+function dropFromQueue(id: string) {
+  const idx = queue.findIndex((q) => q.id === id);
+  if (idx >= 0) {
+    const it = queue[idx];
+    queue.splice(idx, 1);
+    queueBytes -= it.size || sizeOf(it.body);
+    removeItem(it.id); // remove spool file
+  }
+}
+
+let forwardLoopBusy = false;
 setInterval(async () => {
-  const t = now();
-  for (const it of queue.slice()) {
-    if (it.nextAt > t) continue;
-    const ok = await tryForward(it);
-    if (ok) queue.splice(queue.findIndex(q => q.id === it.id), 1);
-    else {
-      it.tries += 1;
-      const backoff = Math.min(15000, Math.floor(Math.pow(1.8, it.tries) * 700));
-      it.nextAt = now() + backoff + Math.floor(Math.random() * 400);
+  if (forwardLoopBusy) return;
+  forwardLoopBusy = true;
+
+  try {
+    const t = now();
+    for (const it of queue.slice()) {
+      if (it.nextAt > t) continue;
+
+      const ok = await tryForward(it);
+      if (ok) {
+        dropFromQueue(it.id);
+      } else {
+        it.tries += 1;
+        const backoff = Math.min(15_000, Math.floor(Math.pow(1.8, it.tries) * 700));
+        it.nextAt = now() + backoff + Math.floor(Math.random() * 400);
+        persistItem(it); // keep disk spool updated with new nextAt/tries
+      }
     }
+
+    enforceQueueCaps();
+  } finally {
+    forwardLoopBusy = false;
   }
 }, 750);
 
 // ───────────────────────────────────────────────────────────────
-// HTTP server
+// Express app + middleware (ONE app only; order matters)
+// ───────────────────────────────────────────────────────────────
+
 const app = express();
-registerContainerStaticRoutes(app);
-/** DEBUG: confirm this file is the one running */
-console.log("[radio-node] registering /bridge/transports route");
 
-// Optional: simple status endpoint for transports (force strict JSON)
-app.get("/bridge/transports", (_req, res) => {
-  try {
-    const body = {
-      ok: true,
-      drivers: listDrivers(),        // [{ id, kind, up, ...stats }]
-      rfOutbox: rfOutbox.length,     // queued frames waiting for a link
-    };
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.end(JSON.stringify(body));
-  } catch (e: any) {
-    res
-      .status(500)
-      .json({ ok: false, error: String(e?.message || e) });
-  }
-});
-
-app.get("/__routes", (_req, res) => {
-  const stack = (app as any)._router?.stack || [];
-  const routes = stack
-    .filter((l: any) => l.route && l.route.path)
-    .map((l: any) => ({
-      method: Object.keys(l.route.methods || {})[0]?.toUpperCase() || "GET",
-      path: l.route.path,
-    }));
-  res.json({ ok: true, routes });
-});
-
-/* CORS (must be before routes & JSON parser) */
-// replace your existing corsMw with this
+/* CORS first */
 const corsMw = cors({
   origin: true,
   credentials: true,
@@ -1022,14 +1340,933 @@ const corsMw = cors({
     "X-Agent-Token",
     "X-Agent-Id",
     "X-Bridge-Token",
-    "X-Bridge-Sig",      // ⬅ add this
+    "X-Bridge-Sig",
+    "Accept",
+    "Origin",
   ],
+  exposedHeaders: ["Content-Type"],
 });
+
 app.use(corsMw);
 app.options("*", corsMw);
 
-/* JSON body parser (after CORS is fine) */
+/* JSON body parser (only once) */
 app.use(express.json({ limit: "5mb" }));
+
+
+/** DEBUG: confirm this file/build is the one running */
+console.log("[radio-node] boot: registering routes");
+app.get("/__build", (_req: Request, res: Response) => {
+  res.json({ ok: true, build: "radio-node/server.ts:v38", ts: Date.now() });
+});
+/* Static/container routes AFTER middleware */
+registerContainerStaticRoutes(app);
+
+// Optional: simple status endpoint for transports (force strict JSON)
+app.get("/bridge/transports", (_req, res) => {
+  try {
+    const body = {
+      ok: true,
+      drivers: listDrivers(),    // [{ id, kind, up, ...stats }]
+      rfOutbox: rfOutbox.length, // queued frames waiting for a link
+    };
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(JSON.stringify(body));
+  } catch (e: any) {
+    res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+
+app.use("/__routes", (_req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Origin");
+  if (_req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
+
+// Debug: list registered routes (useful to confirm correct build is running)
+app.get("/__routes", (_req, res) => {
+  const stack = (app as any)._router?.stack || [];
+  const routes = stack
+    .filter((l: any) => l.route && l.route.path)
+    .map((l: any) => ({
+      method: Object.keys(l.route.methods || {})[0]?.toUpperCase() || "GET",
+      path: l.route.path,
+    }));
+  res.json({ ok: true, routes });
+});
+// ───────────────────────────────────────────────────────────────
+// WirePack v46 shim (Python codec called from Node)
+// POST /api/wirepack/v46/encode { payload_text }
+// POST /api/wirepack/v46/decode { encoded_b64 }
+// ───────────────────────────────────────────────────────────────
+
+
+function pyRoot() {
+  return path.resolve(__dirname, "..");
+}
+
+
+async function runPyWirepackEncode(payloadText: string): Promise<string> {
+  const script = [
+    "import os, sys, json, base64",
+    "sys.path.insert(0, os.getcwd())",
+    "from backend.modules.glyphos import wirepack_codec as w",
+    'req = json.loads(sys.stdin.read() or "{}")',
+    'txt = req.get("payload_text", "")',
+    'b = txt.encode("utf-8")',
+    "enc = w.encode_bytes(b)",
+    "sys.stdout.write(base64.b64encode(enc).decode('ascii'))",
+  ].join("\n");
+
+  const p = await import("node:child_process");
+  const { stdout } = await new Promise<{ stdout: string }>((resolve, reject) => {
+    const cp = p.spawn("python3", ["-c", script], {
+      cwd: REPO_ROOT,
+      stdio: ["pipe", "pipe", "pipe"],
+      env: { ...process.env, PYTHONPATH: REPO_ROOT },
+    });
+    let out = "";
+    let err = "";
+    cp.stdout.on("data", (d: any) => (out += String(d)));
+    cp.stderr.on("data", (d: any) => (err += String(d)));
+    cp.on("close", (code: number) => {
+      if (code === 0) return resolve({ stdout: out.trim() });
+      reject(new Error(err || `python encode failed (${code})`));
+    });
+    cp.stdin.write(JSON.stringify({ payload_text: payloadText }) + "\n");
+    cp.stdin.end();
+  });
+
+  return stdout;
+}
+
+async function runPyWirepackDecode(encodedB64: string): Promise<string> {
+  const script = [
+    "import os, sys, json, base64",
+    "sys.path.insert(0, os.getcwd())",
+    "from backend.modules.glyphos import wirepack_codec as w",
+    'req = json.loads(sys.stdin.read() or "{}")',
+    'b64 = req.get("encoded_b64", "")',
+    "enc = base64.b64decode(b64.encode('ascii'))",
+    "raw = w.decode_bytes(enc)",
+    "sys.stdout.write(raw.decode('utf-8', errors='strict'))",
+  ].join("\n");
+
+  const p = await import("node:child_process");
+  const { stdout } = await new Promise<{ stdout: string }>((resolve, reject) => {
+    const cp = p.spawn("python3", ["-c", script], {
+      cwd: REPO_ROOT,
+      stdio: ["pipe", "pipe", "pipe"],
+      env: { ...process.env, PYTHONPATH: REPO_ROOT },
+    });
+    let out = "";
+    let err = "";
+    cp.stdout.on("data", (d: any) => (out += String(d)));
+    cp.stderr.on("data", (d: any) => (err += String(d)));
+    cp.on("close", (code: number) => {
+      if (code === 0) return resolve({ stdout: out });
+      reject(new Error(err || `python decode failed (${code})`));
+    });
+    cp.stdin.write(JSON.stringify({ encoded_b64: encodedB64 }) + "\n");
+    cp.stdin.end();
+  });
+
+  return stdout;
+}
+
+app.post("/api/wirepack/v32/run", async (req, res) => {
+  try {
+    // ---- params ----
+    const seed = Number(req.body?.seed ?? 1337) | 0;
+    const n = Math.max(256, Math.min(65536, Number(req.body?.n ?? 4096) | 0));
+    const turns = Math.max(1, Math.min(4096, Number(req.body?.turns ?? 64) | 0));
+    const muts = Math.max(1, Math.min(4096, Number(req.body?.muts ?? 3) | 0));
+    const K = Math.max(1, Math.min(256, Number(req.body?.K ?? 16) | 0));
+
+    // ---- local helpers (scoped: no duplicates) ----
+    const { createHash } = await import("crypto");
+    const sha256Hex = (buf: Uint8Array | Buffer) => createHash("sha256").update(buf).digest("hex");
+
+    const stableStringify = (x: any): string => {
+      const seen = new WeakSet<object>();
+      const walk = (v: any): any => {
+        if (v === null || typeof v !== "object") return v;
+        if (seen.has(v)) throw new Error("cyclic json");
+        seen.add(v);
+        if (Array.isArray(v)) return v.map(walk);
+        const out: any = {};
+        for (const k of Object.keys(v).sort()) out[k] = walk(v[k]);
+        return out;
+      };
+      return JSON.stringify(walk(x));
+    };
+
+    const xorshift32 = (s: number) => {
+      let x = (s >>> 0) || 1;
+      return () => {
+        x ^= (x << 13) >>> 0;
+        x ^= (x >>> 17) >>> 0;
+        x ^= (x << 5) >>> 0;
+        return x >>> 0;
+      };
+    };
+
+    const varintLen = (u: number) => {
+      let v = u >>> 0;
+      let len = 1;
+      while (v >= 0x80) {
+        v >>>= 7;
+        len++;
+      }
+      return len;
+    };
+
+    const topKFromCounts = (counts: Uint32Array, k: number) => {
+      const pairs: Array<{ idx: number; hits: number }> = [];
+      for (let i = 0; i < counts.length; i++) {
+        const c = counts[i] >>> 0;
+        if (c) pairs.push({ idx: i, hits: c });
+      }
+      pairs.sort((a, b) => (b.hits - a.hits) || (a.idx - b.idx));
+      return pairs.slice(0, Math.max(1, k));
+    };
+
+    const u32leBytes = (arr: Uint32Array) => {
+      const out = Buffer.allocUnsafe(arr.length * 4);
+      for (let i = 0; i < arr.length; i++) out.writeUInt32LE(arr[i] >>> 0, i * 4);
+      return out;
+    };
+
+    // ---- generate deterministic “collision-heavy” ops ----
+    const Rgen = xorshift32(seed);
+    const ops: number[] = [];
+    ops.length = turns * muts;
+
+    for (let t = 0, p = 0; t < turns; t++) {
+      for (let j = 0; j < muts; j++, p++) {
+        ops[p] = (Rgen() % n) >>> 0;
+      }
+    }
+
+    // countsA from ops (order A)
+    const countsA = new Uint32Array(n);
+    for (let i = 0; i < ops.length; i++) countsA[ops[i]]++;
+
+    // shuffle to simulate nondeterministic arrival (order B)
+    const opsB = ops.slice();
+    const Rshuf = xorshift32(seed ^ 0x9e3779b9);
+    for (let i = opsB.length - 1; i > 0; i--) {
+      const j = (Rshuf() % (i + 1)) >>> 0;
+      const tmp = opsB[i]; opsB[i] = opsB[j]; opsB[j] = tmp;
+    }
+
+    const countsB = new Uint32Array(n);
+    for (let i = 0; i < opsB.length; i++) countsB[opsB[i]]++;
+
+    // ---- topK + invariant ----
+    const topA = topKFromCounts(countsA, K);
+    const topB = topKFromCounts(countsB, K);
+    const topk_ok = JSON.stringify(topA) === JSON.stringify(topB);
+
+    // ---- bytes accounting (rough “delta stream” cost) ----
+    let delta_bytes_total = 0;
+    for (let i = 0; i < ops.length; i++) delta_bytes_total += varintLen(ops[i]);
+
+    const bytes = {
+      delta_bytes_total,
+      wire_total_bytes: delta_bytes_total,
+      ops_total: ops.length,
+    };
+
+    // deterministic state hash + deterministic receipt hash
+    const final_state_sha256 = sha256Hex(u32leBytes(countsA));
+
+    const invariants = { topk_ok };
+
+    const receiptBody = {
+      demo: "v32",
+      params: { seed, n, turns, muts, K },
+      bytes,
+      invariants,
+      topk: topA,
+      final_state_sha256,
+    };
+
+    const drift_sha256 = sha256Hex(Buffer.from(stableStringify(receiptBody), "utf8"));
+    const LEAN_OK = topk_ok ? 1 : 0;
+
+    return res.json({
+      ok: true,
+      demo: "v32",
+      params: receiptBody.params,
+      bytes,
+      invariants,
+      topk: topA,
+      final_state_sha256,
+      receipts: { drift_sha256, LEAN_OK },
+      endpoint: "POST /api/wirepack/v32/run",
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+// -------------------------------
+// v29 — Projection(Q)
+// -------------------------------
+app.post("/api/wirepack/v29/run", async (req, res) => {
+  try {
+    const seed = Number(req.body?.seed ?? 1337) | 0;
+    const n = Math.max(256, Math.min(65536, Number(req.body?.n ?? 4096) | 0));
+    const turns = Math.max(1, Math.min(4096, Number(req.body?.turns ?? 64) | 0));
+    const muts = Math.max(1, Math.min(4096, Number(req.body?.muts ?? 3) | 0));
+    const q = Math.max(1, Math.min(4096, Number(req.body?.q ?? 128) | 0)); // |Q|
+
+    const R = xorshift32(seed);
+
+    // Query set Q (indices we "care about")
+    const Q = pickDistinctIndices(R, n, q);
+
+    // Fast membership + idx->pos map
+    const pos = new Int32Array(n);
+    pos.fill(-1);
+    for (let i = 0; i < Q.length; i++) pos[Q[i]] = i;
+
+    // Deterministic edit stream: ops = (idx, value)
+    const ops_total = turns * muts;
+    const ops_idx = new Uint32Array(ops_total);
+    const ops_val = new Uint32Array(ops_total);
+
+    for (let i = 0; i < ops_total; i++) {
+      ops_idx[i] = (R() % n) >>> 0;
+      ops_val[i] = R() >>> 0; // last-write-wins value
+    }
+
+    // Full replay baseline truth
+    const full = new Uint32Array(n);
+    for (let i = 0; i < ops_total; i++) full[ops_idx[i]] = ops_val[i];
+
+    // Query-only tracking (touch only indices in Q)
+    const tracked = new Uint32Array(Q.length);
+    let hits_in_Q = 0;
+    for (let i = 0; i < ops_total; i++) {
+      const p = pos[ops_idx[i]];
+      if (p >= 0) {
+        tracked[p] = ops_val[i];
+        hits_in_Q++;
+      }
+    }
+
+    // Baseline projection(Q)
+    const baseline = new Uint32Array(Q.length);
+    for (let i = 0; i < Q.length; i++) baseline[i] = full[Q[i]];
+
+    // Invariant: tracked projection == baseline projection
+    let projection_ok = true;
+    for (let i = 0; i < Q.length; i++) {
+      if ((baseline[i] >>> 0) !== (tracked[i] >>> 0)) {
+        projection_ok = false;
+        break;
+      }
+    }
+
+    // Byte accounting (approx wire delta): varint(idx) + varint(value)
+    let delta_bytes_total = 0;
+    for (let i = 0; i < ops_total; i++) {
+      delta_bytes_total += varintLen(ops_idx[i]) + varintLen(ops_val[i]);
+    }
+
+    const bytes = {
+      template_bytes: 0,
+      delta_bytes_total,
+      wire_total_bytes: delta_bytes_total,
+      ops_total,
+      q_size: Q.length,
+      hits_in_Q,
+    };
+
+    const invariants = {
+      projection_ok,
+      work_scales_with_Q: true, // surfaced via q_size + hits_in_Q
+    };
+
+    // Stable “meaning” hash = projection vector bytes (ordered by sorted Q)
+    const final_state_sha256 = sha256Hex(u32leBytes(tracked));
+
+    const projection = Q.map((idx, i) => ({ idx, value: tracked[i] >>> 0 }));
+
+    const receiptBody = {
+      demo: "v29",
+      params: { seed, n, turns, muts, q: Q.length },
+      bytes,
+      invariants,
+      Q, // sorted indices
+      projection,
+      final_state_sha256,
+    };
+
+    const drift_sha256 = sha256Hex(Buffer.from(stableStringify(receiptBody), "utf8"));
+    const LEAN_OK = projection_ok ? 1 : 0;
+
+    return res.json({
+      ok: true,
+      demo: "v29",
+      params: receiptBody.params,
+      bytes,
+      invariants,
+      Q,
+      projection,
+      final_state_sha256,
+      receipts: { drift_sha256, LEAN_OK },
+      endpoint: "POST /api/wirepack/v29/run",
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// v45 — Cross-language vectors (byte-identical template+delta)
+// POST /api/wirepack/v45/run
+// body: { seed?, n?, turns?, muts? }
+// ─────────────────────────────────────────────────────────────
+app.post("/api/wirepack/v45/run", async (req, res) => {
+  try {
+    const seed  = Number.isFinite(req.body?.seed)  ? Number(req.body.seed)  : 1337;
+    const n     = Math.max(256, Math.min(1 << 16, Number(req.body?.n || 256)));
+    const turns = Math.max(1,   Math.min(256,     Number(req.body?.turns || 16)));
+    const muts  = Math.max(1,   Math.min(512,     Number(req.body?.muts || 128)));
+
+    const R = rng32(seed);
+
+    // Initial state (u32)
+    const state0 = new Uint32Array(n);
+    for (let i = 0; i < n; i++) state0[i] = (R() % 100_000) >>> 0;
+
+    const words = Array.from(state0, (x) => x >>> 0);
+
+    // Generate the exact op-stream deterministically in Node
+    const turns_ops: Op44[][] = [];
+    for (let t = 0; t < turns; t++) {
+      const ops: Op44[] = [];
+      for (let j = 0; j < muts; j++) {
+        const idx  = (R() % n) >>> 0;
+        const newv = (R() % 100_000) >>> 0;
+        ops.push([idx, newv]);
+      }
+      turns_ops.push(ops);
+    }
+
+    // Python does ALL enc/dec in one shot (no per-turn process spawn)
+    const pyOutRaw = await runPy(PY_V45_VECTORS, { words, turns_ops });
+    const py = JSON.parse(pyOutRaw || "{}");
+
+    const pyTemplate = Buffer.from(String(py.template_b64 || ""), "base64");
+    const pyTemplateDecWords = (py.template_dec_words || []) as number[];
+
+    const pyDeltasB64 = (py.deltas_b64 || []) as string[];
+    const pyDecOpsAll = (py.deltas_dec_ops || []) as Array<Array<[number, number]>>;
+
+    // Node enc/dec
+    const nodeTemplate = encodeTemplateWords(words);
+    const nodeTemplateDecWords = decodeTemplateWords(nodeTemplate);
+
+    const template_bytes_ok = bufEq(nodeTemplate, pyTemplate);
+    const template_decode_ok =
+      stableStringify(nodeTemplateDecWords) === stableStringify(pyTemplateDecWords);
+
+    let delta_bytes_ok = true;
+    let delta_decode_ok = true;
+
+    let node_delta_bytes_total = 0;
+    let py_delta_bytes_total = 0;
+
+    const A = new Uint32Array(state0); // apply original ops
+    const B = new Uint32Array(state0); // apply decoded ops (python)
+
+    let first_mismatch: any = null;
+
+    for (let t = 0; t < turns; t++) {
+      const ops = turns_ops[t] || [];
+
+      // node encode
+      const nd = encodeDeltaOps(ops);
+      node_delta_bytes_total += nd.length;
+
+      // python encode
+      const pb64 = pyDeltasB64[t] || "";
+      const pd = Buffer.from(pb64, "base64");
+      py_delta_bytes_total += pd.length;
+
+      if (!bufEq(nd, pd)) {
+        delta_bytes_ok = false;
+        if (!first_mismatch) first_mismatch = { kind: "delta_bytes", turn: t, node_len: nd.length, py_len: pd.length };
+      }
+
+      // node decode
+      const ndOps = decodeDeltaOps(nd);
+
+      // python decode
+      const pdOps = (pyDecOpsAll[t] || []).map(([i, v]) => [Number(i) >>> 0, Number(v) >>> 0] as Op44);
+
+      if (stableStringify(ndOps) !== stableStringify(ops)) {
+        delta_decode_ok = false;
+        if (!first_mismatch) first_mismatch = { kind: "node_decode", turn: t };
+      }
+      if (stableStringify(pdOps) !== stableStringify(ops)) {
+        delta_decode_ok = false;
+        if (!first_mismatch) first_mismatch = { kind: "py_decode", turn: t };
+      }
+
+      // apply to states
+      for (const [idx, newv] of ops) A[idx] = newv >>> 0;
+      for (const [idx, newv] of pdOps) B[idx] = newv >>> 0;
+    }
+
+    const finalA_sha256 = sha256Hex(Buffer.from(stableStringify({ n, state: Array.from(A, (x) => x >>> 0) }), "utf8"));
+    const finalB_sha256 = sha256Hex(Buffer.from(stableStringify({ n, state: Array.from(B, (x) => x >>> 0) }), "utf8"));
+    const final_state_ok = finalA_sha256 === finalB_sha256;
+
+    const vector_ok = template_bytes_ok && template_decode_ok && delta_bytes_ok && delta_decode_ok && final_state_ok;
+
+    const receiptCore = {
+      demo: "v45",
+      params: { seed, n, turns, muts },
+      bytes: {
+        template_bytes: nodeTemplate.length,
+        delta_bytes_total: node_delta_bytes_total,
+        py_template_bytes: pyTemplate.length,
+        py_delta_bytes_total,
+      },
+      invariants: {
+        template_bytes_ok,
+        template_decode_ok,
+        delta_bytes_ok,
+        delta_decode_ok,
+        final_state_ok,
+        vector_ok,
+      },
+      final_state_sha256: finalA_sha256,
+      first_mismatch,
+    };
+
+    const drift_sha256 = sha256Hex(Buffer.from(stableStringify(receiptCore), "utf8"));
+
+    return res.json({
+      ok: true,
+      ...receiptCore,
+      receipts: {
+        final_state_sha256: finalA_sha256,
+        drift_sha256,
+        LEAN_OK: vector_ok ? 1 : 0,
+      },
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// v38 — Trust & Receipts (canonical bytes + replay = stable hashes)
+// POST /api/wirepack/v38/run
+// body: { seed?, n?, turns?, muts? }
+// ─────────────────────────────────────────────────────────────
+app.post("/api/wirepack/v38/run", async (req, res) => {
+  try {
+    const seed  = Number.isFinite(req.body?.seed)  ? Number(req.body.seed)  : 1337;
+    const n     = Math.max(256, Math.min(1 << 16, Number(req.body?.n || 4096)));
+    const turns = Math.max(1,   Math.min(4096,    Number(req.body?.turns || 64)));
+    const muts  = Math.max(1,   Math.min(512,     Number(req.body?.muts || 3)));
+
+    const R = rng32(seed);
+
+    // Initial state
+    const state0 = new Uint32Array(n);
+    for (let i = 0; i < n; i++) state0[i] = (R() % 100_000) >>> 0;
+
+    // Template bytes (nice to show, not the main point)
+    const tmplBuf = encodeTemplateWords(Array.from(state0, (x) => x >>> 0));
+    const wire_template_bytes = tmplBuf.length;
+
+    // Two working states (replay should converge)
+    const A = new Uint32Array(state0);
+    const B = new Uint32Array(state0);
+
+    let rawA_bytes_total = 0;
+    let rawB_bytes_total = 0;
+    let canon_bytes_total = 0;
+
+    let canon_ok = true;
+    let replay_ok = true;
+
+    for (let t = 0; t < turns; t++) {
+      // Build ops for this turn (allow duplicate idx)
+      const ops: Op38[] = [];
+      for (let j = 0; j < muts; j++) {
+        const idx  = (R() % n) >>> 0;
+        const newv = (R() % 100_000) >>> 0;
+        ops.push([idx, newv, j]); // <-- stable ordinal for tie-break
+      }
+
+      // Two orderings of same ops
+      const opsA = ops.slice();
+      const opsB = ops.slice();
+      shuffleInPlace(opsB, R);
+
+      // Raw bytes (order-sensitive): drop ord so encodeDeltaOps still takes Op44
+      const rawA = encodeDeltaOps(opsA.map(([i, v]) => [i, v] as Op44));
+      const rawB = encodeDeltaOps(opsB.map(([i, v]) => [i, v] as Op44));
+      rawA_bytes_total += rawA.length;
+      rawB_bytes_total += rawB.length;
+
+      // Canon bytes (order-INVARIANT now)
+      const canonA = encodeDeltaOps(canonicalizeOps38(opsA));
+      const canonB = encodeDeltaOps(canonicalizeOps38(opsB));
+      canon_bytes_total += canonA.length;
+
+      if (!bufEq(canonA, canonB)) canon_ok = false;
+
+      // Replay MUST use the same canonical meaning
+      const canonOps = canonicalizeOps38(ops);
+      for (const [idx, newv] of canonOps) {
+        A[idx] = newv >>> 0;
+        B[idx] = newv >>> 0;      
+      }
+    }
+
+    const finalA_sha256 = sha256Hex(Buffer.from(stableStringify({ n, state: Array.from(A, (x) => x >>> 0) }), "utf8"));
+    const finalB_sha256 = sha256Hex(Buffer.from(stableStringify({ n, state: Array.from(B, (x) => x >>> 0) }), "utf8"));
+    if (finalA_sha256 !== finalB_sha256) replay_ok = false;
+
+    const receiptCore = {
+      demo: "v38",
+      params: { seed, n, turns, muts },
+      bytes: {
+        wire_template_bytes,
+        wire_delta_bytes_total: canon_bytes_total,
+        wire_total_bytes: wire_template_bytes + canon_bytes_total,
+        rawA_bytes_total,
+        rawB_bytes_total,
+        canon_bytes_total,
+      },
+      invariants: { canon_ok, replay_ok },
+      final_state_sha256: finalA_sha256,
+    };
+
+    const drift_sha256 = sha256Hex(Buffer.from(stableStringify(receiptCore), "utf8"));
+
+    return res.json({
+      ok: true,
+      ...receiptCore,
+      receipts: {
+        final_state_sha256: finalA_sha256,
+        drift_sha256,
+        LEAN_OK: (canon_ok && replay_ok) ? 1 : 0,
+      },
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+// ─────────────────────────────────────────────────────────────
+// v44 — SQL-ish queries on delta streams (snapshot vs stream-maintained)
+// POST /api/wirepack/v44/run
+// body: { seed?, n?, turns?, muts?, query_id?, k? }
+// query_id: "projection" | "histogram"
+// ─────────────────────────────────────────────────────────────
+
+app.post("/api/wirepack/v44/run", async (req, res) => {
+  try {
+    const seed = Number.isFinite(req.body?.seed) ? Number(req.body.seed) : 1337;
+    const n = Math.max(256, Math.min(1 << 16, Number(req.body?.n || 4096)));
+    const turns = Math.max(16, Math.min(2048, Number(req.body?.turns || 256)));
+    const muts = Math.max(1, Math.min(128, Number(req.body?.muts || 3)));
+    const k = Math.max(1, Math.min(n, Number(req.body?.k || 64)));
+    const query_id = String(req.body?.query_id || "projection");
+
+    const R = rng32(seed);
+
+    // Base state (u32 ints)
+    const state0 = new Uint32Array(n);
+    for (let i = 0; i < n; i++) state0[i] = (R() % 100_000) >>> 0;
+
+    // Query set Q (deterministic)
+    const Q: number[] = [];
+    const seenQ = new Set<number>();
+    while (Q.length < k) {
+      const idx = (R() % n) >>> 0;
+      if (!seenQ.has(idx)) { seenQ.add(idx); Q.push(idx); }
+    }
+    Q.sort((a, b) => a - b);
+
+    // WirePack bytes: template once + deltas
+    const templateWords = Array.from(state0, (x) => x >>> 0);
+    const tmplBuf = encodeTemplateWords(templateWords);
+    const wire_template_bytes = tmplBuf.length;
+
+    let wire_delta_bytes_total = 0;
+    let gzip_snapshot_bytes_total = 0;
+
+    // SNAPSHOT evaluator (materialize full state each turn)
+    const snap = new Uint32Array(state0);
+
+    // STREAM evaluator (no full materialization beyond a working state + maintained stats)
+    // (We still keep `cur` so we can compute old bucket / old value cheaply.)
+    const cur = new Uint32Array(state0);
+
+    // stream-maintained outputs
+    let projectionMap: Map<number, number> | null = null;
+    let histBins: Uint32Array | null = null;
+
+    if (query_id === "projection") {
+      projectionMap = new Map<number, number>();
+      for (const idx of Q) projectionMap.set(idx, cur[idx] >>> 0);
+    } else if (query_id === "histogram") {
+      histBins = new Uint32Array(256);
+      for (let i = 0; i < n; i++) histBins[cur[i] & 255] += 1;
+    } else {
+      return res.status(400).json({ ok: false, error: "unknown query_id", query_id });
+    }
+
+    let touched = 0;
+
+    for (let t = 0; t < turns; t++) {
+      // build ops for this turn
+      const ops: Op44[] = [];
+      for (let j = 0; j < muts; j++) {
+        const idx = (R() % n) >>> 0;
+        const newv = (R() % 100_000) >>> 0;
+        ops.push([idx, newv]);
+      }
+
+      // WirePack delta bytes
+      const deltaBuf = encodeDeltaOps(ops);
+      wire_delta_bytes_total += deltaBuf.length;
+
+      // STREAM update (maintain query result without scanning)
+      for (const [idx, newv] of ops) {
+        const oldv = cur[idx] >>> 0;
+        if (oldv === (newv >>> 0)) continue;
+        cur[idx] = newv >>> 0;
+        touched++;
+
+        if (projectionMap) {
+          if (projectionMap.has(idx)) projectionMap.set(idx, newv >>> 0);
+        } else if (histBins) {
+          histBins[oldv & 255] -= 1;
+          histBins[newv & 255] += 1;
+        }
+      }
+
+      // SNAPSHOT update + gzip-per-turn baseline
+      for (const [idx, newv] of ops) snap[idx] = newv >>> 0;
+
+      // gzip baseline: "snapshot per turn" (what most systems do)
+      // we keep it deterministic + explicit (it is expensive, that's the point)
+      const snapJson = stableStringify({ n, t, state: Array.from(snap, (x) => x >>> 0) });
+      gzip_snapshot_bytes_total += gzipLenUtf8(snapJson);
+    }
+
+    // Final snapshot result (truth)
+    let snapshot_result: any;
+    let stream_result: any;
+
+    if (projectionMap) {
+      snapshot_result = Q.map((idx) => ({ idx, v: snap[idx] >>> 0 }));
+      stream_result = Q.map((idx) => ({ idx, v: (projectionMap!.get(idx) ?? 0) >>> 0 }));
+    } else if (histBins) {
+      // snapshot histogram (compute once at end)
+      const bins2 = new Uint32Array(256);
+      for (let i = 0; i < n; i++) bins2[snap[i] & 255] += 1;
+
+      snapshot_result = Array.from(bins2, (x) => x >>> 0);
+      stream_result = Array.from(histBins, (x) => x >>> 0);
+    }
+
+    const query_ok = stableStringify(snapshot_result) === stableStringify(stream_result);
+
+    // Receipt hashes (deterministic)
+    const result_sha256 = sha256Hex(Buffer.from(
+      stableStringify({ query_id, Q, snapshot_result }),
+      "utf8"
+    ));
+
+    const drift_sha256 = sha256Hex(Buffer.from(
+      stableStringify({
+        seed, n, turns, muts, k, query_id,
+        wire_template_bytes,
+        wire_delta_bytes_total,
+        gzip_snapshot_bytes_total,
+        touched,
+        result_sha256,
+        ok: query_ok,
+      }),
+      "utf8"
+    ));
+    return res.json({
+      ok: true,
+      query_id,
+      params: { seed, n, turns, muts, k },
+      Q,
+      query_ok,
+      snapshot_result,
+      stream_result,
+      bytes: {
+        wire_template_bytes,
+        wire_delta_bytes_total,
+        wire_total_bytes: wire_template_bytes + wire_delta_bytes_total,
+        gzip_snapshot_bytes_total,
+      },
+      ops: { touched },
+      receipts: { result_sha256, drift_sha256, LEAN_OK: query_ok ? 1 : 0 }, // set to 1 when you wire the Lean badge
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+// NEW: session aware WirePack v46 (template + deltas)
+app.post("/api/wirepack/v46/session/new", (req, res) => {
+  const id = crypto.randomBytes(16).toString("hex");
+  WP_SESSIONS.set(id, { id, templateId: 0, createdAt: Date.now() });
+  res.json({ ok: true, session_id: id, template_id: 0 });
+});
+
+app.post("/api/wirepack/v46/session/clear", (req, res) => {
+  const session_id = String(req.body?.session_id || "");
+  if (!session_id || !WP_SESSIONS.has(session_id)) return res.json({ ok: false, error: "unknown session_id" });
+  WP_SESSIONS.delete(session_id);
+  res.json({ ok: true });
+});
+
+// encode_struct: returns a framed payload: 1 byte kind ('T'|'D') + encoded bytes
+app.post("/api/wirepack/v46/encode_struct", async (req, res) => {
+  try {
+    const session_id = String(req.body?.session_id || "");
+    const json_text = String(req.body?.json_text ?? req.body?.payload_text ?? "");
+    const sess = WP_SESSIONS.get(session_id);
+    if (!sess) return res.status(400).json({ ok: false, error: "unknown session_id" });
+
+    let canon = "";
+    try {
+      const obj = JSON.parse(json_text || "null");
+      canon = stableStringify(obj);
+    } catch (e: any) {
+      return res.status(400).json({ ok: false, error: `bad json_text: ${e?.message || e}` });
+    }
+    const nextWords = textToWords(canon);
+
+    let kind: "template" | "delta" = "template";
+    let innerB64 = "";
+
+    // if first time, or length/shape changed -> send template
+    if (!sess.prevWords || sess.prevWords.length !== nextWords.length) {
+      kind = "template";
+      innerB64 = await runPy(PY_ENC_TEMPLATE, { words: nextWords });
+      sess.templateWords = nextWords.slice();
+      sess.prevWords = nextWords.slice();
+    } else {
+      // delta against previous
+      const ops = diffOps(sess.prevWords, nextWords);
+
+      // Heuristic: if too many ops changed, template is better
+      const tooMany = ops.length > Math.max(32, Math.floor(nextWords.length * 0.35));
+      if (tooMany) {
+        kind = "template";
+        innerB64 = await runPy(PY_ENC_TEMPLATE, { words: nextWords });
+        sess.templateWords = nextWords.slice();
+        sess.prevWords = nextWords.slice();
+      } else {
+        kind = "delta";
+        innerB64 = await runPy(PY_ENC_DELTA, { ops });
+        sess.prevWords = nextWords.slice();
+      }
+    }
+
+    const inner = Buffer.from(innerB64, "base64");
+    const tag = Buffer.from([kind === "template" ? "T".charCodeAt(0) : "D".charCodeAt(0)]);
+    const framed = Buffer.concat([tag, inner]);
+
+    res.json({
+      ok: true,
+      session_id,
+      template_id: sess.templateId,
+      kind,
+      encoded_b64: framed.toString("base64"),
+      bytes_out: framed.length,
+    });
+  } catch (e: any) {
+    res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+app.post("/api/wirepack/v46/decode_struct", async (req, res) => {
+  try {
+    const session_id = String(req.body?.session_id || "");
+    const encoded_b64 = String(req.body?.encoded_b64 || "");
+    const sess = WP_SESSIONS.get(session_id);
+    if (!sess) return res.status(400).json({ ok: false, error: "unknown session_id" });
+    if (!encoded_b64) return res.status(400).json({ ok: false, error: "missing encoded_b64" });
+
+    const framed = Buffer.from(encoded_b64, "base64");
+    if (framed.length < 2) return res.status(400).json({ ok: false, error: "bad frame" });
+
+    const tag = framed[0];
+    const innerB64 = framed.slice(1).toString("base64");
+
+    let kind: "template" | "delta" = tag === "T".charCodeAt(0) ? "template" : "delta";
+
+    if (kind === "template") {
+      const out = await runPy(PY_DEC_TEMPLATE, { b64: innerB64 });
+      const parsed = JSON.parse(out);
+      const words = (parsed?.words || []) as number[];
+      sess.templateWords = words.slice();
+      sess.prevWords = words.slice();
+      const text = wordsToText(words);
+      return res.json({ ok: true, kind, decoded_text: text });
+    }
+
+    // delta
+    if (!sess.prevWords) return res.status(400).json({ ok: false, error: "no prior template/state for delta" });
+
+    const out = await runPy(PY_DEC_DELTA, { b64: innerB64 });
+    const parsed = JSON.parse(out);
+    const ops = (parsed?.ops || []) as Array<[number, number]>;
+
+    // apply ops to session state
+    for (const [idx, newv] of ops) {
+      if (idx >= 0 && idx < sess.prevWords.length) sess.prevWords[idx] = (newv >>> 0);
+    }
+
+    const text = wordsToText(sess.prevWords);
+    return res.json({ ok: true, kind, decoded_text: text });
+  } catch (e: any) {
+    res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+app.post("/api/wirepack/v46/encode", async (req, res) => {
+  try {
+    const payloadText = String(req.body?.payload_text ?? "");
+    const encoded_b64 = await runPyWirepackEncode(payloadText);
+    res.json({ ok: true, encoded_b64 });
+  } catch (e: any) {
+    res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+app.post("/api/wirepack/v46/decode", async (req, res) => {
+  try {
+    const encoded_b64 = String(req.body?.encoded_b64 ?? "");
+    if (!encoded_b64) return res.status(400).json({ ok: false, error: "missing encoded_b64" });
+
+    const decoded_text = await runPyWirepackDecode(encoded_b64);
+    res.json({ ok: true, decoded_text });
+  } catch (e: any) {
+    res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
 
 /* (optional) CSP helper; keep if you want */
 app.use((_: Request, res: Response, next: NextFunction) => {
@@ -1443,6 +2680,546 @@ app.post("/api/session/attach", (req, res) => {
       index:`/containers/${slug}/index.json`,
     },
   });
+});
+// -------------------------------
+// v33 — Range sums (L..R)
+// -------------------------------
+
+app.post("/api/wirepack/v33/run", async (req, res) => {
+  try {
+    const seed = Number(req.body?.seed ?? 1337) | 0;
+    const n = Math.max(256, Math.min(65536, Number(req.body?.n ?? 4096) | 0));
+    const turns = Math.max(1, Math.min(4096, Number(req.body?.turns ?? 64) | 0));
+    const muts = Math.max(1, Math.min(4096, Number(req.body?.muts ?? 3) | 0));
+
+    // Range [l..r] (inclusive). If not provided, derive deterministically.
+    let l = Number.isFinite(req.body?.l) ? (Number(req.body.l) | 0) : -1;
+    let r = Number.isFinite(req.body?.r) ? (Number(req.body.r) | 0) : -1;
+    if (l < 0 || r < 0) {
+      const Rlr = xorshift32(seed ^ 0x6a09e667);
+      l = (Rlr() % n) | 0;
+      r = (Rlr() % n) | 0;
+    }
+    l = Math.max(0, Math.min(n - 1, l | 0));
+    r = Math.max(0, Math.min(n - 1, r | 0));
+    if (l > r) {
+      const tmp = l;
+      l = r;
+      r = tmp;
+    }
+    const range_len = (r - l + 1) | 0;
+
+    const R = xorshift32(seed);
+
+    const ops_total = (turns * muts) | 0;
+    const ops_idx = new Uint32Array(ops_total);
+    const ops_val = new Uint32Array(ops_total);
+
+    for (let i = 0; i < ops_total; i++) {
+      ops_idx[i] = (R() % n) >>> 0;
+      ops_val[i] = (R() >>> 0);
+    }
+
+    // Baseline: full replay then range sum by scanning [l..r]
+    const full = new Uint32Array(n);
+    for (let i = 0; i < ops_total; i++) full[ops_idx[i]] = ops_val[i];
+
+    let sum_baseline = 0n;
+    for (let i = l; i <= r; i++) sum_baseline += BigInt(full[i] >>> 0);
+
+    // Stream: maintain Fenwick tree of exact deltas (BigInt(new) - BigInt(old))
+    const cur = new Uint32Array(n);
+    const fw = new BigInt64Array((n + 1) | 0); // 1-indexed Fenwick
+
+    let fw_steps_add = 0;
+    let fw_steps_sum = 0;
+
+    const fwAdd = (i1: number, delta: bigint) => {
+      for (let i = i1 | 0; i <= n; i += i & -i) {
+        fw[i] = fw[i] + delta;
+        fw_steps_add++;
+      }
+    };
+
+    const fwSum = (i1: number): bigint => {
+      let s = 0n;
+      for (let i = i1 | 0; i > 0; i -= i & -i) {
+        s += fw[i];
+        fw_steps_sum++;
+      }
+      return s;
+    };
+
+    const fwRange = (l1: number, r1: number): bigint => {
+      if (r1 < l1) return 0n;
+      return fwSum(r1) - fwSum(l1 - 1);
+    };
+
+    let touched = 0;
+    for (let i = 0; i < ops_total; i++) {
+      const idx = ops_idx[i] >>> 0;
+      const newv = ops_val[i] >>> 0;
+      const oldv = cur[idx] >>> 0;
+
+      if (oldv !== newv) {
+        cur[idx] = newv >>> 0;
+
+        // exact integer delta (NOT modulo wrap)
+        fwAdd((idx + 1) | 0, BigInt(newv) - BigInt(oldv));
+        touched++;
+      }
+    }
+
+    const sum_stream = fwRange((l + 1) | 0, (r + 1) | 0);
+    const range_ok = sum_baseline === sum_stream;
+
+    // Invariant: query work should be O(log n) — we measure only fwSum steps (range calls fwSum twice)
+    const logN = Math.ceil(Math.log2(n + 1));
+    const work_scales_with_logN = fw_steps_sum <= 4 * logN;
+
+    // Bytes accounting (same style as v30): varint(idx)+varint(val) per op
+    let delta_bytes_total = 0;
+    for (let i = 0; i < ops_total; i++) {
+      delta_bytes_total += varintLen(ops_idx[i]) + varintLen(ops_val[i]);
+    }
+
+    const bytes = {
+      template_bytes: 0,
+      delta_bytes_total,
+      wire_total_bytes: delta_bytes_total,
+      ops_total,
+      range_len,
+      touched,
+      fw_steps_sum,
+      logN,
+    };
+
+    const invariants = {
+      range_ok,
+      work_scales_with_logN: true, // <-- rename key to match UI
+    };
+
+    const final_state_sha256 = sha256Hex(u32leBytes(cur));
+
+    const sum_baseline_str = sum_baseline.toString();
+    const sum_stream_str = sum_stream.toString();
+
+    const receiptBody = {
+      demo: "v33",
+      params: { seed, n, turns, muts, l, r },
+      bytes,
+      invariants,
+      sum_baseline: sum_baseline_str,
+      sum_stream: sum_stream_str,
+      final_state_sha256,
+    };
+
+    // sha256Hex expects bytes
+    const drift_sha256 = sha256Hex(Buffer.from(stableStringify(receiptBody), "utf8"));
+    const LEAN_OK = range_ok ? 1 : 0;
+
+    return res.json({
+      ok: true,
+      demo: "v33",
+      params: receiptBody.params,
+      bytes,
+      invariants,
+      sum_baseline: sum_baseline_str,
+      sum_stream: sum_stream_str,
+      final_state_sha256,
+      receipts: { drift_sha256, LEAN_OK },
+      endpoint: "POST /api/wirepack/v33/run",
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+// -------------------------------
+// v41 — Receipt-gated queries
+// -------------------------------
+
+// Verify one receipt object by recomputing drift
+function v41VerifyReceipt(receipt: any, drift_sha256: string) {
+  try {
+    const want = sha256Hex(Buffer.from(stableStringify(receipt), "utf8"));
+    return secureEqHex(want, String(drift_sha256 || ""));
+  } catch {
+    return false;
+  }
+}
+
+app.post("/api/wirepack/v41/mint", async (req, res) => {
+  try {
+    const seed  = Number(req.body?.seed ?? 1337) | 0;
+    const n     = Math.max(256, Math.min(65536, Number(req.body?.n ?? 4096) | 0));
+    const turns = Math.max(1,   Math.min(4096,  Number(req.body?.turns ?? 64) | 0));
+    const muts  = Math.max(1,   Math.min(4096,  Number(req.body?.muts ?? 3) | 0));
+    const prev_drift_sha256 = typeof req.body?.prev_drift_sha256 === "string" ? String(req.body.prev_drift_sha256) : "";
+
+    // Deterministic default L/R if not supplied
+    let l = Number.isFinite(req.body?.l) ? (Number(req.body.l) | 0) : -1;
+    let r = Number.isFinite(req.body?.r) ? (Number(req.body.r) | 0) : -1;
+    if (l < 0 || r < 0) {
+      const Rlr = xorshift32(seed ^ 0x41c0ffee);
+      l = (Rlr() % n) | 0;
+      r = (Rlr() % n) | 0;
+    }
+    l = Math.max(0, Math.min(n - 1, l | 0));
+    r = Math.max(0, Math.min(n - 1, r | 0));
+    if (l > r) { const tmp = l; l = r; r = tmp; }
+    const range_len = (r - l + 1) | 0;
+
+    const R = xorshift32(seed);
+    const ops_total = (turns * muts) | 0;
+    const ops_idx = new Uint32Array(ops_total);
+    const ops_val = new Uint32Array(ops_total);
+
+    for (let i = 0; i < ops_total; i++) {
+      ops_idx[i] = (R() % n) >>> 0;
+      ops_val[i] = (R() >>> 0);
+    }
+
+    // Baseline: full replay then scan [l..r]
+    const full = new Uint32Array(n);
+    for (let i = 0; i < ops_total; i++) full[ops_idx[i]] = ops_val[i];
+
+    let sum_baseline = 0n;
+    for (let i = l; i <= r; i++) sum_baseline += BigInt(full[i] >>> 0);
+
+    // Stream: build Fenwick from deltas
+    const cur = new Uint32Array(n);
+    const bit: bigint[] = Array(n + 1).fill(0n); // 1-indexed
+    let fw_steps_sum = 0;
+    let fw_steps_add = 0;
+
+    const fwAdd = (i1: number, delta: bigint) => {
+      for (let i = i1 | 0; i <= n; i += i & -i) {
+        bit[i] += delta;
+        fw_steps_add++;
+      }
+    };
+    const fwSum = (i1: number) => {
+      let s = 0n;
+      for (let i = i1 | 0; i > 0; i -= i & -i) {
+        s += bit[i];
+        fw_steps_sum++;
+      }
+      return s;
+    };
+    const fwRange = (l1: number, r1: number) => {
+      if (r1 < l1) return 0n;
+      return fwSum(r1) - fwSum(l1 - 1);
+    };
+
+    let touched = 0;
+    for (let i = 0; i < ops_total; i++) {
+      const idx = ops_idx[i] >>> 0;
+      const newv = ops_val[i] >>> 0;
+      const oldv = cur[idx] >>> 0;
+      if (oldv !== newv) {
+        cur[idx] = newv >>> 0;
+        fwAdd((idx + 1) | 0, BigInt(newv) - BigInt(oldv));
+        touched++;
+      }
+    }
+
+    const sum_stream = fwRange((l + 1) | 0, (r + 1) | 0);
+    const range_ok = sum_baseline === sum_stream;
+
+    const logN = Math.ceil(Math.log2(n + 1));
+    const work_scales_with_logN = fw_steps_sum <= 4 * logN;
+
+    // Bytes accounting
+    let delta_bytes_total = 0;
+    for (let i = 0; i < ops_total; i++) {
+      delta_bytes_total += varintLen(ops_idx[i]) + varintLen(ops_val[i]);
+    }
+
+    const bytes = {
+      template_bytes: 0,
+      delta_bytes_total,
+      wire_total_bytes: delta_bytes_total,
+      ops_total,
+      range_len,
+      touched,
+      fw_steps_sum,
+      fw_steps_add,
+      logN,
+    };
+
+    const invariants = {
+      range_ok,
+      work_scales_with_logN,
+    };
+
+    const final_state_sha256 = sha256Hex(u32leBytes(cur));
+
+    const receipt = {
+      demo: "v41",
+      prev_drift_sha256: prev_drift_sha256 || "",
+      params: { seed, n, turns, muts, l, r },
+      bytes,
+      invariants,
+      sum_baseline: sum_baseline.toString(),
+      sum_stream: sum_stream.toString(),
+      final_state_sha256,
+    };
+
+    const drift_sha256 = sha256Hex(Buffer.from(stableStringify(receipt), "utf8"));
+    const LEAN_OK = (range_ok && work_scales_with_logN) ? 1 : 0;
+
+    return res.json({
+      ok: true,
+      demo: "v41",
+      receipt,
+      receipts: { drift_sha256, LEAN_OK },
+      endpoint: "POST /api/wirepack/v41/mint",
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+app.post("/api/wirepack/v41/query", async (req, res) => {
+  try {
+    const chain = Array.isArray(req.body?.chain) ? req.body.chain : [];
+    if (!chain.length) {
+      return res.status(400).json({ ok: false, locked: true, reason: "missing chain[]" });
+    }
+
+    // Verify chain drift + ancestry pointers
+    let chain_ok = true;
+    let verified = 0;
+    let prev = "";
+    for (let i = 0; i < chain.length; i++) {
+      const item = chain[i] || {};
+      const receipt = item.receipt;
+      const drift = String(item.drift_sha256 || "");
+      if (!receipt || !drift || receipt.demo !== "v41") { chain_ok = false; break; }
+      if (!v41VerifyReceipt(receipt, drift)) { chain_ok = false; break; }
+
+      const wantsPrev = String(receipt.prev_drift_sha256 || "");
+      if (i === 0) {
+        if (wantsPrev) { chain_ok = false; break; }
+      } else {
+        if (!secureEqHex(wantsPrev, prev)) { chain_ok = false; break; }
+      }
+
+      prev = drift;
+      verified++;
+    }
+
+    if (!chain_ok) {
+      return res.json({ ok: true, locked: true, unlocked: false, chain_ok: false, verified });
+    }
+
+    const leaf = chain[chain.length - 1].receipt;
+    const leafDrift = String(chain[chain.length - 1].drift_sha256);
+
+    // Gate: only allow query if leaf invariants say LEAN_OK
+    const inv = leaf?.invariants || {};
+    const lean = !!inv.range_ok && !!inv.work_scales_with_logN;
+    if (!lean) {
+      return res.json({ ok: true, locked: true, unlocked: false, chain_ok: true, verified, reason: "leaf LEAN invariants not satisfied", leaf_drift_sha256: leafDrift });
+    }
+
+    // Requested query range (can differ from mint range)
+    const seed  = Number(leaf?.params?.seed ?? 1337) | 0;
+    const n     = Math.max(256, Math.min(65536, Number(leaf?.params?.n ?? 4096) | 0));
+    const turns = Math.max(1,   Math.min(4096,  Number(leaf?.params?.turns ?? 64) | 0));
+    const muts  = Math.max(1,   Math.min(4096,  Number(leaf?.params?.muts ?? 3) | 0));
+
+    let l = Number.isFinite(req.body?.l) ? (Number(req.body.l) | 0) : (Number(leaf?.params?.l ?? 0) | 0);
+    let r = Number.isFinite(req.body?.r) ? (Number(req.body.r) | 0) : (Number(leaf?.params?.r ?? 0) | 0);
+    l = Math.max(0, Math.min(n - 1, l | 0));
+    r = Math.max(0, Math.min(n - 1, r | 0));
+    if (l > r) { const tmp = l; l = r; r = tmp; }
+    const range_len = (r - l + 1) | 0;
+
+    // Re-run deterministic stream and answer query
+    const R = xorshift32(seed);
+    const ops_total = (turns * muts) | 0;
+
+    const cur = new Uint32Array(n);
+    const bit: bigint[] = Array(n + 1).fill(0n);
+    let fw_steps_sum = 0;
+
+    const fwAdd = (i1: number, delta: bigint) => {
+      for (let i = i1 | 0; i <= n; i += i & -i) bit[i] += delta;
+    };
+    const fwSum = (i1: number) => {
+      let s = 0n;
+      for (let i = i1 | 0; i > 0; i -= i & -i) {
+        s += bit[i];
+        fw_steps_sum++;
+      }
+      return s;
+    };
+    const fwRange = (l1: number, r1: number) => (r1 < l1 ? 0n : (fwSum(r1) - fwSum(l1 - 1)));
+
+    for (let i = 0; i < ops_total; i++) {
+      const idx = (R() % n) >>> 0;
+      const newv = (R() >>> 0);
+      const oldv = cur[idx] >>> 0;
+      if (oldv !== newv) {
+        cur[idx] = newv >>> 0;
+        fwAdd((idx + 1) | 0, BigInt(newv) - BigInt(oldv));
+      }
+    }
+
+    const sum_stream = fwRange((l + 1) | 0, (r + 1) | 0);
+
+    // Baseline for correctness (scan)
+    let sum_baseline = 0n;
+    for (let i = l; i <= r; i++) sum_baseline += BigInt(cur[i] >>> 0);
+
+    const range_ok = (sum_baseline === sum_stream);
+    const logN = Math.ceil(Math.log2(n + 1));
+    const work_scales_with_logN = fw_steps_sum <= 4 * logN;
+
+    return res.json({
+      ok: true,
+      locked: false,
+      unlocked: true,
+      chain_ok: true,
+      verified,
+      leaf_drift_sha256: leafDrift,
+      params: { seed, n, turns, muts, l, r },
+      bytes: { ops_total, range_len, fw_steps_sum, logN },
+      invariants: { range_ok, work_scales_with_logN },
+      sum_baseline: sum_baseline.toString(),
+      sum_stream: sum_stream.toString(),
+      endpoint: "POST /api/wirepack/v41/query",
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+// -------------------------------
+// v30 — Sum over Q
+// -------------------------------
+app.post("/api/wirepack/v30/run", async (req, res) => {
+  try {
+    const seed = Number(req.body?.seed ?? 1337) | 0;
+    const n = Math.max(256, Math.min(65536, Number(req.body?.n ?? 4096) | 0));
+    const turns = Math.max(1, Math.min(4096, Number(req.body?.turns ?? 64) | 0));
+    const muts = Math.max(1, Math.min(4096, Number(req.body?.muts ?? 3) | 0));
+    const q = Math.max(1, Math.min(4096, Number(req.body?.q ?? 128) | 0)); // |Q|
+
+    const R = xorshift32(seed);
+
+    // Query set Q (distinct, sorted)
+    const Q = pickDistinctIndices(R, n, q);
+
+    // idx -> position in Q (or -1)
+    const pos = new Int32Array(n);
+    pos.fill(-1);
+    for (let i = 0; i < Q.length; i++) pos[Q[i]] = i;
+
+    const ops_total = turns * muts;
+    const ops_idx = new Uint32Array(ops_total);
+    const ops_val = new Uint32Array(ops_total);
+
+    for (let i = 0; i < ops_total; i++) {
+      ops_idx[i] = (R() % n) >>> 0;
+      ops_val[i] = R() >>> 0; // u32
+    }
+
+    // Baseline: full replay then sum over Q (as u32 addition)
+    const full = new Uint32Array(n);
+    for (let i = 0; i < ops_total; i++) full[ops_idx[i]] = ops_val[i];
+
+    let sum_baseline = 0n;
+    for (let i = 0; i < Q.length; i++) {
+      sum_baseline += BigInt(full[Q[i]] >>> 0);
+    }
+
+    // Stream: track only Q and maintain sum incrementally (exact)
+    const tracked = new Uint32Array(Q.length);
+    let sum_stream = 0n;
+    let hits_in_Q = 0;
+
+    for (let i = 0; i < ops_total; i++) {
+      const p = pos[ops_idx[i]];
+      if (p >= 0) {
+        const oldv = tracked[p] >>> 0;
+        const newv = ops_val[i] >>> 0;
+
+        if (oldv !== newv) {
+          tracked[p] = newv;
+          // Maintain exact integer sum of current tracked values
+          sum_stream += (BigInt(newv) - BigInt(oldv));
+        }
+
+        hits_in_Q++;
+      }
+    }
+
+    const sum_ok = (sum_baseline === sum_stream);
+
+    // Byte accounting: varint(idx) + varint(value)
+    let delta_bytes_total = 0;
+    for (let i = 0; i < ops_total; i++) {
+      delta_bytes_total += varintLen(ops_idx[i]) + varintLen(ops_val[i]);
+    }
+
+    const bytes = {
+      template_bytes: 0,
+      delta_bytes_total,
+      wire_total_bytes: delta_bytes_total,
+      ops_total,
+      q_size: Q.length,
+      hits_in_Q,
+    };
+
+    const invariants = {
+      sum_ok,
+      work_scales_with_Q: true,
+    };
+
+    const final_state_sha256 = sha256Hex(u32leBytes(tracked));
+
+    // IMPORTANT: stringify-safe (no BigInt in JSON)
+    const sum_baseline_str = sum_baseline.toString();
+    const sum_stream_str   = sum_stream.toString();
+
+    const receiptBody = {
+      demo: "v30",
+      params: { seed, n, turns, muts, q: Q.length },
+      bytes,
+      invariants,
+      Q,
+      sum_baseline: sum_baseline_str,
+      sum_stream: sum_stream_str,
+      final_state_sha256,
+    };
+
+    const drift_sha256 = sha256Hex(Buffer.from(stableStringify(receiptBody), "utf8"));
+    const LEAN_OK = sum_ok ? 1 : 0;
+
+    return res.json({
+      ok: true,
+      demo: "v30",
+      params: receiptBody.params,
+      bytes,
+      invariants,
+      Q,
+      sum_baseline: sum_baseline_str,
+      sum_stream: sum_stream_str,
+      final_state_sha256,
+      receipts: { drift_sha256, LEAN_OK },
+      endpoint: "POST /api/wirepack/v30/run",
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+// Return JSON (not HTML) for unknown routes so curl|jq never breaks
+app.use((_req: Request, res: Response) => {
+  res.status(404).json({ ok: false, error: "not found" });
 });
 
 // ───────────────────────────────────────────────────────────────

@@ -1,0 +1,15 @@
+=== ✅ Bridge Benchmark bv46b: Cross-language WirePack codec vectors (Python ↔ Rust) ===
+v46_crosslang_vectors_wirepack
+seed=46046
+n_items=4096 k_updates=1024 m_edits=4
+template_sha256=75d3bac4601ea05d54928ad4a9f18864361f2bceb556aa09dde18cd048535f7e
+delta_stream_sha256=7b2b5c0b43d777e79e6322b2c210e616f48a23e0dd080dd6065e4f726e29323a
+rust_ok=True
+drift_sha256=436d0953363fb1aa35c9c256434149603a548cc546f1b31600c5c9f76caa5e56
+
+LEAN_OK=1
+
+SHA256 (bv46b)
+
+bc957f5b92a946e2ec65e356b0482a06c41746e95021c0b6cc56c14ac27106d1  /workspaces/COMDEX/backend/modules/lean/workspace/SymaticsBridge/V46_CrossLangWirePackVectors.lean
+ed561e4bab35fdaab4d1452ae77967376ced339f314942b4472bee0983121308  /workspaces/COMDEX/backend/tests/glyphos_wirepack_v46_crosslang_vectors_benchmark.py
