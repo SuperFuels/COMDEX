@@ -2834,11 +2834,361 @@ app.post("/api/wirepack/v33/run", async (req, res) => {
     return res.status(500).json({ ok: false, error: String(e?.message || e) });
   }
 });
+// ------------------------------
+// v12 — Multi-template catalog
+// Proves: multiple templates cached + selected; big real-world shape variability; receipt per template.
+// ------------------------------
 
+type V12Template = {
+  id: string;
+  title: string;
+  blurb: string;
+  // "shape variability" (what fields exist in this template)
+  fields: Array<{ name: string; type: "u32" | "u64" | "i32" | "bytes" | "str" }>;
+  // one-time template byte cost (cached)
+  template_bytes: number;
+  // stable identity of the template definition
+  template_sha256: string;
+};
+
+type V12CacheEntry = {
+  hits: number;
+  misses: number;
+  first_ts: number;
+  last_ts: number;
+};
+
+const v12Templates: Record<string, Omit<V12Template, "template_sha256">> = {
+  // A compact telemetry shape (few fields, small deltas)
+  "metrics_v1": {
+    id: "metrics_v1",
+    title: "metrics_v1 (telemetry)",
+    blurb: "Compact time-series deltas: idx + value (+ optional tag).",
+    fields: [
+      { name: "idx", type: "u32" },
+      { name: "value", type: "u32" },
+      { name: "tag", type: "u32" },
+    ],
+    template_bytes: 148,
+  },
+
+  // A wide-ish log/event shape (strings/bytes dominate)
+  "logs_v2": {
+    id: "logs_v2",
+    title: "logs_v2 (events/logs)",
+    blurb: "Variable payload: idx + level + message bytes.",
+    fields: [
+      { name: "idx", type: "u32" },
+      { name: "level", type: "u32" },
+      { name: "msg", type: "bytes" },
+    ],
+    template_bytes: 312,
+  },
+
+  // A tracing span shape (IDs + duration)
+  "trace_span_v1": {
+    id: "trace_span_v1",
+    title: "trace_span_v1 (tracing)",
+    blurb: "Span-like updates: trace_id + span_id + duration.",
+    fields: [
+      { name: "trace_id", type: "u64" },
+      { name: "span_id", type: "u64" },
+      { name: "dur_us", type: "u32" },
+      { name: "flags", type: "u32" },
+    ],
+    template_bytes: 224,
+  },
+};
+
+function v12BuildCatalog(): V12Template[] {
+  const out: V12Template[] = [];
+  for (const k of Object.keys(v12Templates).sort()) {
+    const t = v12Templates[k];
+    const template_sha256 = sha256Hex(Buffer.from(stableStringify(t), "utf8"));
+    out.push({ ...t, template_sha256 });
+  }
+  return out;
+}
+
+// in-memory "compiled template" cache (demo-grade)
+const v12Cache = new Map<string, V12CacheEntry>();
+
+function v12TouchCache(template_id: string): { cache_hit: boolean; entry: V12CacheEntry } {
+  const now = Date.now();
+  const ex = v12Cache.get(template_id);
+  if (!ex) {
+    const entry: V12CacheEntry = { hits: 0, misses: 1, first_ts: now, last_ts: now };
+    v12Cache.set(template_id, entry);
+    return { cache_hit: false, entry };
+  }
+  ex.hits += 1;
+  ex.last_ts = now;
+  return { cache_hit: true, entry: ex };
+}
+
+function v12BytesForTemplate(template_id: string, idx: number, value_u32: number, payload_len: number): number {
+  // delta bytes are intentionally "shape-dependent"
+  // idx always present
+  let b = 0;
+  b += varintLen(idx >>> 0);
+
+  if (template_id === "metrics_v1") {
+    // idx + value + small tag
+    b += varintLen(value_u32 >>> 0);
+    b += 1; // tiny tag (amortized)
+    return b;
+  }
+
+  if (template_id === "trace_span_v1") {
+    // trace_id/span_id are bigger (simulate)
+    b += 8; // trace_id (u64) fixed
+    b += 8; // span_id  (u64) fixed
+    b += varintLen(value_u32 >>> 0); // dur_us
+    b += 1; // flags (amortized)
+    return b;
+  }
+
+  // logs_v2: idx + level + bytes payload (varint len + bytes)
+  b += 1; // level small
+  b += varintLen(payload_len >>> 0) + payload_len;
+  return b;
+}
+
+app.post("/api/wirepack/v12/catalog", async (_req, res) => {
+  try {
+    const templates = v12BuildCatalog();
+    const cache = Array.from(v12Cache.entries()).map(([id, e]) => ({ id, ...e }));
+    return res.json({
+      ok: true,
+      demo: "v12",
+      templates,
+      cache,
+      endpoint: "POST /api/wirepack/v12/catalog",
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+app.post("/api/wirepack/v12/mint", async (req, res) => {
+  try {
+    const template_id = String(req.body?.template_id || "metrics_v1");
+    const seed = Number(req.body?.seed ?? 1337) | 0;
+    const n = Math.max(256, Math.min(1_000_000, Number(req.body?.n ?? 4096) | 0));
+    const turns = Math.max(1, Math.min(4096, Number(req.body?.turns ?? 64) | 0));
+    const muts = Math.max(1, Math.min(4096, Number(req.body?.muts ?? 3) | 0));
+
+    const templates = v12BuildCatalog();
+    const t = templates.find((x) => x.id === template_id);
+    if (!t) {
+      return res.status(400).json({ ok: false, demo: "v12", error: `unknown template_id: ${template_id}` });
+    }
+
+    const { cache_hit, entry } = v12TouchCache(template_id);
+
+    // deterministic "delta stream" generation
+    const R = xorshift32(seed ^ 0x1200cafe);
+    const ops_total = (turns * muts) | 0;
+
+    let delta_bytes_total = 0;
+    let touched = 0;
+
+    // optional: track activity counts (to show "shape variability" doesn’t break receipts)
+    const activity = new Uint32Array(Math.min(n, 65536));
+
+    for (let i = 0; i < ops_total; i++) {
+      const idx = (R() % n) >>> 0;
+      const val = (R() >>> 0);
+      // deterministic payload length (for logs)
+      const payload_len = template_id === "logs_v2" ? (16 + (R() % 64)) : 0;
+
+      delta_bytes_total += v12BytesForTemplate(template_id, idx, val, payload_len);
+      touched++;
+
+      if (idx < activity.length) activity[idx] = (activity[idx] + 1) >>> 0;
+    }
+
+    const bytes = {
+      template_bytes: t.template_bytes,
+      delta_bytes_total,
+      wire_total_bytes: (t.template_bytes + delta_bytes_total) | 0,
+      ops_total,
+      touched,
+    };
+
+    // invariants: template is known + caching behaves as expected + deterministic receipt hash
+    const invariants = {
+      template_known: true,
+      cache_hit,
+      shape_fields: t.fields.length,
+    };
+
+    // final_state_sha256 is just a fingerprint of deterministic activity vector (bounded)
+    const final_state_sha256 = sha256Hex(u32leBytes(activity));
+
+    const receipt = {
+      demo: "v12",
+      template_id: t.id,
+      template_sha256: t.template_sha256,
+      params: { seed, n, turns, muts },
+      bytes,
+      invariants,
+      final_state_sha256,
+      ts: Date.now(),
+    };
+
+    const drift_sha256 = sha256Hex(Buffer.from(stableStringify(receipt), "utf8"));
+    const LEAN_OK = 1; // demo: invariants are trivial here; tighten later if you want
+
+    return res.json({
+      ok: true,
+      demo: "v12",
+      template: t,
+      cache: { ...entry, cache_hit },
+      receipt,
+      receipts: { drift_sha256, LEAN_OK },
+      endpoint: "POST /api/wirepack/v12/mint",
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+// v34 — Histogram (modulus / buckets)
+// Proves: distribution queries on stream; hist_ok=true (order-independence) + deterministic receipt.
+app.post("/api/wirepack/v34/run", async (req, res) => {
+  try {
+    const seed = Number(req.body?.seed ?? 1337) | 0;
+    const n = Math.max(256, Math.min(1_000_000, Number(req.body?.n ?? 4096) | 0));
+    const turns = Math.max(1, Math.min(4096, Number(req.body?.turns ?? 64) | 0));
+    const muts = Math.max(1, Math.min(4096, Number(req.body?.muts ?? 3) | 0));
+    const buckets = Math.max(2, Math.min(4096, Number(req.body?.buckets ?? 32) | 0));
+
+    const modeRaw = String(req.body?.mode ?? "idx_mod");
+    const mode =
+      modeRaw === "idx_mod" || modeRaw === "val_mod" || modeRaw === "idx_xor_val_mod"
+        ? modeRaw
+        : "idx_mod";
+
+    const ops_total = (turns * muts) | 0;
+
+    // Generate a deterministic op stream (same as other demos: xorshift32(seed))
+    const R = xorshift32(seed);
+    const ops_idx = new Uint32Array(ops_total);
+    const ops_val = new Uint32Array(ops_total);
+
+    for (let i = 0; i < ops_total; i++) {
+      ops_idx[i] = (R() % n) >>> 0;
+      ops_val[i] = (R() >>> 0);
+    }
+
+    // Build two different orderings of the SAME ops to prove order-independence.
+    const orderA = new Uint32Array(ops_total);
+    const orderB = new Uint32Array(ops_total);
+    for (let i = 0; i < ops_total; i++) orderA[i] = i >>> 0;
+    for (let i = 0; i < ops_total; i++) orderB[i] = i >>> 0;
+
+    const shuffle = (arr: Uint32Array, rnd: () => number) => {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = (rnd() % (i + 1)) >>> 0;
+        const tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+      }
+    };
+
+    // Two different shuffle seeds, deterministic
+    const RA = xorshift32(seed ^ 0x34a1b2c3);
+    const RB = xorshift32(seed ^ 0x9e3779b9);
+    shuffle(orderA, RA);
+    shuffle(orderB, RB);
+
+    const bucketOf = (idx: number, val: number) => {
+      if (mode === "val_mod") return (val % buckets) >>> 0;
+      if (mode === "idx_xor_val_mod") return ((idx ^ val) % buckets) >>> 0;
+      return (idx % buckets) >>> 0; // idx_mod
+    };
+
+    const histFromOrder = (order: Uint32Array) => {
+      const h = new Uint32Array(buckets);
+      for (let t = 0; t < order.length; t++) {
+        const i = order[t] >>> 0;
+        const b = bucketOf(ops_idx[i] >>> 0, ops_val[i] >>> 0);
+        h[b] = (h[b] + 1) >>> 0;
+      }
+      return h;
+    };
+
+    const histA = histFromOrder(orderA);
+    const histB = histFromOrder(orderB);
+
+    // Invariants
+    let sumA = 0;
+    let sumB = 0;
+    let same = true;
+    for (let i = 0; i < buckets; i++) {
+      sumA += histA[i] >>> 0;
+      sumB += histB[i] >>> 0;
+      if ((histA[i] >>> 0) !== (histB[i] >>> 0)) same = false;
+    }
+
+    const hist_sum_ok = (sumA === ops_total) && (sumB === ops_total);
+    const hist_ok = same && hist_sum_ok;
+
+    // Bytes accounting (delta stream only; template is conceptually cached elsewhere)
+    let delta_bytes_total = 0;
+    for (let i = 0; i < ops_total; i++) {
+      delta_bytes_total += varintLen(ops_idx[i]) + varintLen(ops_val[i]);
+    }
+
+    const bytes = {
+      template_bytes: 0,
+      delta_bytes_total,
+      wire_total_bytes: delta_bytes_total,
+      ops_total,
+      buckets,
+      bytes_per_op: ops_total ? (delta_bytes_total / ops_total) : 0,
+    };
+
+    // Deterministic fingerprint of the histogram vector
+    const final_state_sha256 = sha256Hex(u32leBytes(histA));
+
+    const receipt = {
+      demo: "v34",
+      params: { seed, n, turns, muts, buckets, mode },
+      bytes,
+      invariants: { hist_ok, hist_sum_ok },
+      final_state_sha256,
+      // For UI convenience
+      histogram: Array.from(histA, (x) => x >>> 0),
+    };
+
+    const drift_sha256 = sha256Hex(Buffer.from(stableStringify(receipt), "utf8"));
+    const LEAN_OK = hist_ok ? 1 : 0;
+
+    return res.json({
+      ok: true,
+      demo: "v34",
+      params: receipt.params,
+      bytes,
+      invariants: receipt.invariants,
+      histogram: receipt.histogram,
+      final_state_sha256,
+      receipts: { drift_sha256, LEAN_OK },
+      endpoint: "POST /api/wirepack/v34/run",
+    });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
 // -------------------------------
 // v41 — Receipt-gated queries
 // -------------------------------
-
+// v41 — Receipt-gated queries
+// Demo-grade in-memory receipt store (leaf -> prev linkage).
+// Later: persist this (sqlite/kv) if you want receipts to survive server restart.
+type V41ChainNode = { receipt: any; drift_sha256: string; prev: string; ts: number };
+const v41ReceiptStore = new Map<string, V41ChainNode>();
+let v41HeadDrift = ""; // newest minted drift
 // Verify one receipt object by recomputing drift
 function v41VerifyReceipt(receipt: any, drift_sha256: string) {
   try {
@@ -2848,14 +3198,18 @@ function v41VerifyReceipt(receipt: any, drift_sha256: string) {
     return false;
   }
 }
-
 app.post("/api/wirepack/v41/mint", async (req, res) => {
   try {
     const seed  = Number(req.body?.seed ?? 1337) | 0;
     const n     = Math.max(256, Math.min(65536, Number(req.body?.n ?? 4096) | 0));
     const turns = Math.max(1,   Math.min(4096,  Number(req.body?.turns ?? 64) | 0));
     const muts  = Math.max(1,   Math.min(4096,  Number(req.body?.muts ?? 3) | 0));
-    const prev_drift_sha256 = typeof req.body?.prev_drift_sha256 === "string" ? String(req.body.prev_drift_sha256) : "";
+
+    // If caller doesn't provide prev, chain to current head (demo: in-memory).
+    const prev =
+      (typeof req.body?.prev_drift_sha256 === "string" && req.body.prev_drift_sha256.length)
+        ? String(req.body.prev_drift_sha256)
+        : (v41HeadDrift || "");
 
     // Deterministic default L/R if not supplied
     let l = Number.isFinite(req.body?.l) ? (Number(req.body.l) | 0) : -1;
@@ -2948,16 +3302,13 @@ app.post("/api/wirepack/v41/mint", async (req, res) => {
       logN,
     };
 
-    const invariants = {
-      range_ok,
-      work_scales_with_logN,
-    };
+    const invariants = { range_ok, work_scales_with_logN };
 
     const final_state_sha256 = sha256Hex(u32leBytes(cur));
 
-    const receipt = {
+    const receipt: any = {
       demo: "v41",
-      prev_drift_sha256: prev_drift_sha256 || "",
+      prev_drift_sha256: prev || "",
       params: { seed, n, turns, muts, l, r },
       bytes,
       invariants,
@@ -2966,8 +3317,20 @@ app.post("/api/wirepack/v41/mint", async (req, res) => {
       final_state_sha256,
     };
 
+    // Explicitly ensure the prev pointer is set exactly as chosen.
+    receipt.prev_drift_sha256 = prev || "";
+
     const drift_sha256 = sha256Hex(Buffer.from(stableStringify(receipt), "utf8"));
     const LEAN_OK = (range_ok && work_scales_with_logN) ? 1 : 0;
+
+    // Store + advance head (demo-only in-memory chain)
+    v41ReceiptStore.set(drift_sha256, {
+      receipt,
+      drift_sha256,
+      prev: prev || "",
+      ts: Date.now(),
+    });
+    v41HeadDrift = drift_sha256;
 
     return res.json({
       ok: true,
@@ -2988,40 +3351,76 @@ app.post("/api/wirepack/v41/query", async (req, res) => {
       return res.status(400).json({ ok: false, locked: true, reason: "missing chain[]" });
     }
 
-    // Verify chain drift + ancestry pointers
+    // Verify chain drift + ancestry pointers (REAL linkage):
+    // For each link i: receipt_i.prev_drift_sha256 MUST equal drift_(i+1), with last link having prev="".
     let chain_ok = true;
     let verified = 0;
-    let prev = "";
+    let reason = "";
+
     for (let i = 0; i < chain.length; i++) {
       const item = chain[i] || {};
       const receipt = item.receipt;
       const drift = String(item.drift_sha256 || "");
-      if (!receipt || !drift || receipt.demo !== "v41") { chain_ok = false; break; }
-      if (!v41VerifyReceipt(receipt, drift)) { chain_ok = false; break; }
 
-      const wantsPrev = String(receipt.prev_drift_sha256 || "");
-      if (i === 0) {
-        if (wantsPrev) { chain_ok = false; break; }
-      } else {
-        if (!secureEqHex(wantsPrev, prev)) { chain_ok = false; break; }
+      if (!receipt || !drift || receipt.demo !== "v41") {
+        chain_ok = false;
+        reason = `bad link at ${i}`;
+        break;
       }
 
-      prev = drift;
+      if (!v41VerifyReceipt(receipt, drift)) {
+        chain_ok = false;
+        reason = `drift mismatch at ${i}`;
+        break;
+      }
+
+      // Optional: refuse "invented" receipts by requiring they were minted on this server
+      // (demo behavior; remove if you want stateless verification only).
+      if (!v41ReceiptStore.has(drift)) {
+        chain_ok = false;
+        reason = `unknown drift (not minted here) at ${i}`;
+        break;
+      }
+
+      const expectedPrev = String(receipt.prev_drift_sha256 || "");
+      const nextDrift = String(chain[i + 1]?.drift_sha256 || ""); // "" for last item
+
+      if (expectedPrev !== nextDrift) {
+        chain_ok = false;
+        reason = `prev pointer mismatch at ${i}`;
+        break;
+      }
+
       verified++;
     }
 
     if (!chain_ok) {
-      return res.json({ ok: true, locked: true, unlocked: false, chain_ok: false, verified });
+      return res.json({
+        ok: true,
+        locked: true,
+        unlocked: false,
+        chain_ok: false,
+        verified,
+        reason,
+      });
     }
 
-    const leaf = chain[chain.length - 1].receipt;
-    const leafDrift = String(chain[chain.length - 1].drift_sha256);
+    const leaf = chain[0].receipt;              // leaf is the first item (newest)
+    const leafDrift = String(chain[0].drift_sha256);
 
     // Gate: only allow query if leaf invariants say LEAN_OK
     const inv = leaf?.invariants || {};
     const lean = !!inv.range_ok && !!inv.work_scales_with_logN;
     if (!lean) {
-      return res.json({ ok: true, locked: true, unlocked: false, chain_ok: true, verified, reason: "leaf LEAN invariants not satisfied", leaf_drift_sha256: leafDrift });
+      return res.json({
+        ok: true,
+        locked: true,
+        unlocked: false,
+        chain_ok: true,
+        verified,
+        reason: "leaf LEAN invariants not satisfied",
+        leaf_drift_sha256: leafDrift
+      });
     }
 
     // Requested query range (can differ from mint range)

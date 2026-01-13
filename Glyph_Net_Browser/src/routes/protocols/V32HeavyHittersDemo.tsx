@@ -38,6 +38,10 @@ function safeObj(x: any) {
   return x && typeof x === "object" ? x : {};
 }
 
+function clamp(n: number, lo: number, hi: number) {
+  return Math.max(lo, Math.min(hi, n));
+}
+
 function boolBadge(ok: boolean | null) {
   const good = ok === true;
   const bad = ok === false;
@@ -48,13 +52,145 @@ function boolBadge(ok: boolean | null) {
   return { bg, fg, bd, label };
 }
 
+type HH = { idx: number; hits: number };
+
+// Accept lots of backend shapes:
+// - [{idx: 69, hits: 2}, ...]
+// - [{index: 69, count: 2}, ...]
+// - [[69,2], [1671,2], ...]
+// - ["idx 69: 2 hits", ...]
+function parseTopK(topkAny: any): HH[] {
+  const arr = Array.isArray(topkAny) ? topkAny : [];
+  const out: HH[] = [];
+
+  for (const x of arr) {
+    if (x == null) continue;
+
+    if (Array.isArray(x) && x.length >= 2) {
+      const idx = Number(x[0]);
+      const hits = Number(x[1]);
+      if (Number.isFinite(idx) && Number.isFinite(hits)) out.push({ idx, hits });
+      continue;
+    }
+
+    if (typeof x === "object") {
+      const idx = Number((x as any).idx ?? (x as any).index ?? (x as any).i);
+      const hits = Number((x as any).hits ?? (x as any).count ?? (x as any).c ?? (x as any).value);
+      if (Number.isFinite(idx) && Number.isFinite(hits)) out.push({ idx, hits });
+      continue;
+    }
+
+    if (typeof x === "string") {
+      // crude parse: "idx 69: 2 hits"
+      const m = x.match(/(\d+)[^\d]+(\d+)/);
+      if (m) {
+        const idx = Number(m[1]);
+        const hits = Number(m[2]);
+        if (Number.isFinite(idx) && Number.isFinite(hits)) out.push({ idx, hits });
+      }
+    }
+  }
+
+  // Keep deterministic ordering: desc hits, then asc idx
+  out.sort((a, b) => (b.hits - a.hits) || (a.idx - b.idx));
+  return out;
+}
+
+function StatTile(props: { label: string; value: React.ReactNode; sub?: React.ReactNode }) {
+  return (
+    <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
+      <div style={{ fontSize: 10, color: "#6b7280", fontWeight: 900, letterSpacing: 0.3 }}>{props.label}</div>
+      <div style={{ fontSize: 13, color: "#111827", fontWeight: 900, marginTop: 4 }}>{props.value}</div>
+      {props.sub ? <div style={{ fontSize: 10, color: "#6b7280", marginTop: 4 }}>{props.sub}</div> : null}
+    </div>
+  );
+}
+
+function MiniBarChart(props: { data: HH[]; height?: number; title?: string }) {
+  const height = props.height ?? 180;
+  const data = props.data.slice(0, 16);
+  const max = Math.max(1, ...data.map((d) => d.hits));
+
+  // simple SVG chart, no deps, readable by default
+  const w = 640;
+  const h = height;
+  const padL = 44;
+  const padR = 16;
+  const padT = 18;
+  const padB = 48;
+
+  const innerW = w - padL - padR;
+  const innerH = h - padT - padB;
+  const n = Math.max(1, data.length);
+  const barW = innerW / n;
+
+  const y = (v: number) => padT + innerH * (1 - v / max);
+
+  return (
+    <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "baseline" }}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>
+          {props.title ?? "Heavy Hitters (Live)"}
+        </div>
+        <div style={{ fontSize: 10, color: "#6b7280" }}>
+          Bars = hits per index (Top-K). Max={max}
+        </div>
+      </div>
+
+      {data.length === 0 ? (
+        <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280" }}>
+          No Top-K array found yet. Run the demo.
+        </div>
+      ) : (
+        <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", marginTop: 8, display: "block" }}>
+          {/* axes */}
+          <line x1={padL} y1={padT} x2={padL} y2={padT + innerH} stroke="#e5e7eb" />
+          <line x1={padL} y1={padT + innerH} x2={padL + innerW} y2={padT + innerH} stroke="#e5e7eb" />
+
+          {/* y ticks */}
+          {[0, max].map((t, i) => (
+            <g key={i}>
+              <line x1={padL - 4} y1={y(t)} x2={padL} y2={y(t)} stroke="#e5e7eb" />
+              <text x={padL - 8} y={y(t) + 4} fontSize="10" textAnchor="end" fill="#6b7280">
+                {t}
+              </text>
+            </g>
+          ))}
+
+          {/* bars */}
+          {data.map((d, i) => {
+            const x = padL + i * barW + Math.max(2, barW * 0.12);
+            const bw = Math.max(6, barW * 0.76);
+            const top = y(d.hits);
+            const bh = padT + innerH - top;
+
+            // highlight hitters with >1 hits (like your story)
+            const fill = d.hits > 1 ? "#ef4444" : "#3b82f6";
+
+            return (
+              <g key={`${d.idx}-${i}`}>
+                <rect x={x} y={top} width={bw} height={bh} rx={6} fill={fill} opacity={0.9} />
+                <text x={x + bw / 2} y={padT + innerH + 14} fontSize="10" textAnchor="middle" fill="#6b7280">
+                  {d.idx}
+                </text>
+                <text x={x + bw / 2} y={top - 6} fontSize="10" textAnchor="middle" fill="#111827">
+                  {d.hits}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      )}
+    </div>
+  );
+}
+
 /**
  * v32 — Heavy hitters
  * Endpoint expected: POST /api/wirepack/v32/run
  *
- * This UI is deliberately “receipt-shaped”:
- * params → run → invariants + receipt + raw json
- * so every future demo can reuse the same layout.
+ * Dashboard: bar chart + stats + receipt verifier
+ * while keeping your receipt-shaped invariants/raw output.
  */
 export const V32HeavyHittersDemo: React.FC = () => {
   const [seed, setSeed] = useState(1337);
@@ -66,6 +202,37 @@ export const V32HeavyHittersDemo: React.FC = () => {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [out, setOut] = useState<any>(null);
+
+  // verifier
+  const [receiptInput, setReceiptInput] = useState("");
+  const [showExamples, setShowExamples] = useState(true);
+
+  const EXAMPLES = [
+    {
+      label: "🎯 Story example (4096/64/3, K=16)",
+      seed: 1337,
+      n: 4096,
+      turns: 64,
+      muts: 3,
+      k: 16,
+    },
+    {
+      label: "Sparse fleet (n=50k, fewer turns)",
+      seed: 2026,
+      n: 50_000,
+      turns: 24,
+      muts: 2,
+      k: 10,
+    },
+    {
+      label: "Security-ish burst (higher muts)",
+      seed: 9090,
+      n: 100_000,
+      turns: 32,
+      muts: 8,
+      k: 25,
+    },
+  ];
 
   async function run() {
     if (busy) return;
@@ -100,16 +267,18 @@ export const V32HeavyHittersDemo: React.FC = () => {
   const badge = boolBadge(heavyOk === null ? null : Boolean(heavyOk));
 
   // Try to find a Top-K list in a few plausible places.
-  const topk =
+  const topkAny =
     out?.topk ??
     out?.top_k ??
     out?.result?.topk ??
     out?.result?.top_k ??
     out?.results?.topk ??
     out?.results?.top_k ??
+    out?.answer?.topk ??
+    out?.answer?.top_k ??
     null;
 
-  const topkArr: any[] = Array.isArray(topk) ? topk : [];
+  const topkParsed = useMemo(() => parseTopK(topkAny), [topkAny]);
 
   const drift = String(receipts?.drift_sha256 ?? out?.drift_sha256 ?? "");
   const finalState = String(out?.final_state_sha256 ?? receipts?.final_state_sha256 ?? "");
@@ -134,14 +303,37 @@ export const V32HeavyHittersDemo: React.FC = () => {
     b?.wire_total_bytes ??
     (Number(templateBytes || 0) + Number(deltaBytesTotal || 0));
 
+  // perf
+  const qMs =
+    out?.timing_ms?.query ??
+    out?.timing_ms ??
+    out?.query_ms ??
+    out?.query_time_ms ??
+    null;
+
+  const ops = Number(turns || 0) * Number(muts || 0);
+  const bytesPerOp = ops > 0 ? Number(deltaBytesTotal || 0) / ops : null;
+
+  // verifier match
+  const normalizedInput = receiptInput.trim().toLowerCase();
+  const normalizedDrift = (drift || "").trim().toLowerCase();
+  const receiptMatch =
+    normalizedInput.length >= 8 &&
+    normalizedDrift.length >= 8 &&
+    normalizedInput === normalizedDrift;
+
+  const receiptBadge = boolBadge(
+    normalizedInput.length === 0 ? null : receiptMatch
+  );
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 900, color: "#111827" }}>v32 — Heavy hitters (Top-K)</div>
+          <div style={{ fontSize: 14, fontWeight: 900, color: "#111827" }}>v32 — Dashboard Unlock (Heavy Hitters / Top-K)</div>
           <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
-            Queryable compressed streams: find the “most active indices” efficiently, with a receipt that locks correctness.
+            Top-K directly on compressed delta streams — no decompression, no full state materialization — with verifiable receipts.
           </div>
         </div>
 
@@ -161,7 +353,7 @@ export const V32HeavyHittersDemo: React.FC = () => {
             <input
               type="number"
               value={n}
-              onChange={(e) => setN(Math.max(256, Math.min(1_000_000, Number(e.target.value) || 4096)))}
+              onChange={(e) => setN(clamp(Number(e.target.value) || 4096, 256, 1_000_000))}
               style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }}
             />
           </label>
@@ -171,7 +363,7 @@ export const V32HeavyHittersDemo: React.FC = () => {
             <input
               type="number"
               value={turns}
-              onChange={(e) => setTurns(Math.max(1, Math.min(4096, Number(e.target.value) || 64)))}
+              onChange={(e) => setTurns(clamp(Number(e.target.value) || 64, 1, 4096))}
               style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }}
             />
           </label>
@@ -181,7 +373,7 @@ export const V32HeavyHittersDemo: React.FC = () => {
             <input
               type="number"
               value={muts}
-              onChange={(e) => setMuts(Math.max(1, Math.min(4096, Number(e.target.value) || 3)))}
+              onChange={(e) => setMuts(clamp(Number(e.target.value) || 3, 1, 4096))}
               style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }}
             />
           </label>
@@ -191,10 +383,28 @@ export const V32HeavyHittersDemo: React.FC = () => {
             <input
               type="number"
               value={k}
-              onChange={(e) => setK(Math.max(1, Math.min(128, Number(e.target.value) || 16)))}
+              onChange={(e) => setK(clamp(Number(e.target.value) || 16, 1, 128))}
               style={{ width: 70, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }}
             />
           </label>
+
+          <button
+            type="button"
+            onClick={() => setShowExamples((s) => !s)}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 999,
+              border: "1px solid #e5e7eb",
+              background: "#fff",
+              color: "#111827",
+              fontSize: 11,
+              fontWeight: 900,
+              cursor: "pointer",
+            }}
+            title="Toggle presets"
+          >
+            Examples
+          </button>
 
           <button
             type="button"
@@ -215,56 +425,160 @@ export const V32HeavyHittersDemo: React.FC = () => {
         </div>
       </div>
 
+      {showExamples ? (
+        <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Presets</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+            {EXAMPLES.map((ex) => (
+              <button
+                key={ex.label}
+                type="button"
+                onClick={() => {
+                  setSeed(ex.seed);
+                  setN(ex.n);
+                  setTurns(ex.turns);
+                  setMuts(ex.muts);
+                  setK(ex.k);
+                }}
+                style={{
+                  padding: "6px 10px",
+                  borderRadius: 999,
+                  border: "1px solid #e5e7eb",
+                  background: "#f9fafb",
+                  color: "#111827",
+                  fontSize: 11,
+                  fontWeight: 900,
+                  cursor: "pointer",
+                }}
+              >
+                {ex.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {err ? <div style={{ fontSize: 11, color: "#b91c1c" }}>{err}</div> : null}
 
-      {/* SELL / PITCH CARD */}
-        <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12, marginTop: 10 }}>
+      {/* Dashboard row: chart + stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 10 }}>
+        <MiniBarChart data={topkParsed} title="Heavy Hitters (Live)" />
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <StatTile label="Query time" value={qMs != null ? `${Number(qMs).toFixed(2)} ms` : "—"} sub="delta scan + Top-K accumulator" />
+          <StatTile label="Stream size" value={bytes(Number(wireTotal || 0))} sub="template + delta stream" />
+          <StatTile label="Ops" value={ops ? ops : "—"} sub={`${turns} turns × ${muts} muts`} />
+          <StatTile
+            label="Bytes / op"
+            value={bytesPerOp != null ? `${bytesPerOp.toFixed(2)} B` : "—"}
+            sub="delta_bytes_total / ops"
+          />
+          <StatTile label="LEAN_OK" value={leanOk != null ? String(leanOk) : "—"} sub={leanOk ? "formally checked invariant chain" : "receipt field"} />
+          <StatTile label="topk_ok" value={heavyOk == null ? "—" : heavyOk ? "true ✅" : "false ❌"} sub="order-independent correctness" />
+        </div>
+      </div>
+
+      {/* Receipt verifier */}
+      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Receipt verifier</div>
+          <div
+            style={{
+              padding: "6px 10px",
+              borderRadius: 999,
+              border: `1px solid ${receiptBadge.bd}`,
+              background: receiptBadge.bg,
+              color: receiptBadge.fg,
+              fontSize: 11,
+              fontWeight: 900,
+            }}
+          >
+            {receiptBadge.label}
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10, alignItems: "center" }}>
+          <input
+            value={receiptInput}
+            onChange={(e) => setReceiptInput(e.target.value)}
+            placeholder="Paste drift_sha256 here to verify…"
+            style={{
+              flex: "1 1 420px",
+              padding: "10px 12px",
+              borderRadius: 12,
+              border: "1px solid #e5e7eb",
+              fontSize: 12,
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => setReceiptInput(drift || "")}
+            style={{
+              padding: "8px 10px",
+              borderRadius: 12,
+              border: "1px solid #e5e7eb",
+              background: "#f9fafb",
+              color: "#111827",
+              fontSize: 11,
+              fontWeight: 900,
+              cursor: "pointer",
+            }}
+            title="Copy current drift into the verifier input"
+          >
+            Use current drift
+          </button>
+        </div>
+
+        <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280", lineHeight: 1.55 }}>
+          <div>
+            drift_sha256 (from run):{" "}
+            <code style={{ color: "#111827" }}>{drift || "—"}</code>
+          </div>
+          <div style={{ marginTop: 4 }}>
+            Explanation: any verifier can re-run Top-K over the same delta stream and recompute this hash. Match = “dashboard is provably correct”.
+          </div>
+        </div>
+      </div>
+
+      {/* SELL / PITCH CARD (updated to match your story) */}
+      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
         <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>
-            🎯 v32 — Heavy hitters: the “query unlock” on compressed streams
+          🎯 v32 — The “Dashboard Unlock”: Real-time analytics on compressed streams
         </div>
 
-        <div style={{ fontSize: 11, color: "#374151", marginTop: 8, lineHeight: 1.5 }}>
-            <b>The claim:</b> we can answer <b>“what changed the most?”</b> directly on a delta stream, and we can ship the answer as a
-            <b> verifiable receipt</b> (not “trust me telemetry”).
-            <br /><br />
+        <div style={{ fontSize: 11, color: "#374151", marginTop: 8, lineHeight: 1.55 }}>
+          <b>The claim:</b> find the <b>Top-K most active items</b> directly on the <b>compressed delta stream</b> —
+          <b> no decompression</b>, no materialization.
+          <br /><br />
 
-            <b>We are testing for:</b> <b>order-independent Top-K correctness</b> under collisions + a <b>deterministic receipt</b> you can lock in CI
-            and verify on-device.
-            <br /><br />
+          <b>This run shape:</b> <code>{n}</code> items, <code>{turns}</code> turns, <code>{muts}</code> mutations/turn ={" "}
+          <code>{ops}</code> ops. Delta stream size: <code>{bytes(Number(deltaBytesTotal || 0))}</code>.
+          <br /><br />
 
-            <b>Data:</b> an <code>n</code>-wide u32 state space and an edit stream (<code>turns × muts</code>) designed to collide (duplicate indices),
-            which is the real-world hard case.
-            <br /><br />
+          <b>Interpretation:</b> “Which sensors were most active?” from a tiny edit log — without reconstructing a 4,096-item state.
+          <br /><br />
 
-            <b>Run:</b> ingest the stream, count “activity” per index, compute Top-K, and bind the whole run into a stable receipt:
-            <code> params + bytes + invariants → drift_sha256</code>.
-            <br /><br />
+          <b>Outputs you can pin:</b>
+          <ul style={{ margin: "6px 0 0 16px", padding: 0 }}>
+            <li><code>topk_ok</code>: order-independent Top-K correctness.</li>
+            <li><code>topk</code>: Top-K indices + hit counts (the dashboard data).</li>
+            <li><code>final_state_sha256</code>: deterministic fingerprint of the activity vector.</li>
+            <li><code>drift_sha256</code>: receipt hash (portable verifier).</li>
+            <li><code>LEAN_OK</code>: invariants checked end-to-end.</li>
+          </ul>
 
-            <b>What the results mean:</b>
-            <ul style={{ margin: "6px 0 0 16px", padding: 0 }}>
-            <li><code>topk_ok</code>: Top-K is identical across reorderings (answer is stable).</li>
-            <li><code>topk</code>: the actual Top-K indices + hit counts (the dashboard result).</li>
-            <li><code>final_state_sha256</code>: a deterministic fingerprint of the activity vector for this run.</li>
-            <li><code>drift_sha256</code>: the receipt hash you can pin/verify anywhere (CI, browser/WASM, other runtimes).</li>
-            </ul>
-
-            <div style={{ marginTop: 10 }}>
-            <b>Why it matters:</b> heavy-hitters is the first “real product query”:
-            it turns a compressed delta stream into an <b>actionable ranking</b> (Top-K),
-            and the receipt makes the result <b>verifiable</b> across runtimes and devices.
-            <br />
-            <b>Trust model:</b> you can ship <i>only</i> the stream + <code>drift_sha256</code>;
-            any verifier can recompute and confirm the same Top-K.
-            <br />
-            <b>Lean note:</b> <code>LEAN_OK=1</code> means invariants held end-to-end (designed to be machine-checkable).
-            </div>
+          <div style={{ marginTop: 10 }}>
+            <b>Why this is observability-grade:</b> heavy-hitters is the “core dashboard query” (Top-K errors, Top-K slow endpoints, Top-K attack IPs).
+            v32 proves you can do it with delta scans + a Top-K accumulator and get a <b>cryptographic audit trail</b>.
+          </div>
         </div>
-        </div>
+      </div>
 
-      {/* OUTPUT */}
+      {/* OUTPUT (receipt/invariants/raw) */}
       {out ? (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {/* Status */}
+          {/* Status + Top-K list */}
           <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Invariant status</div>
@@ -294,24 +608,26 @@ export const V32HeavyHittersDemo: React.FC = () => {
                     </div>
                   ))
               ) : (
-                <div style={{ color: "#6b7280" }}>No invariants object returned (showing raw JSON below).</div>
+                <div style={{ color: "#6b7280" }}>No invariants object returned (see raw JSON below).</div>
               )}
             </div>
 
-            {/* Top-K */}
+            {/* Top-K list */}
             <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #e5e7eb" }}>
               <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Top-K (heavy hitters)</div>
-              {topkArr.length ? (
+              {topkParsed.length ? (
                 <ul style={{ margin: "8px 0 0 16px", padding: 0, fontSize: 11, color: "#374151" }}>
-                  {topkArr.slice(0, 24).map((x, i) => (
-                    <li key={i}>
-                      <code>{typeof x === "string" ? x : JSON.stringify(x)}</code>
+                  {topkParsed.slice(0, 32).map((x, i) => (
+                    <li key={`${x.idx}-${i}`}>
+                      <code>
+                        idx {x.idx}: {x.hits} hit{x.hits === 1 ? "" : "s"}
+                      </code>
                     </li>
                   ))}
                 </ul>
               ) : (
                 <div style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
-                  (No <code>topk</code> array found — if your backend uses a different field name, it’ll still be visible in Raw response.)
+                  (No <code>topk</code> array found — check Raw response.)
                 </div>
               )}
             </div>

@@ -1,0 +1,29 @@
+{
+  "digests": {
+    "runner_sha256": "a13553c3c4c5c26ddce8cdaaf6c6a4e1ed66b277e4aefc01fd68659a90aaa0b2",
+    "samples_sha256": "124f16bcb78db37e3978893883ffa2bbaa03d592902f6912696fce802506ad40"
+  },
+  "finished_utc": "2026-01-12T14:36:27.821622+00:00",
+  "measured": {
+    "max_phi_invar_abs": 3.552713678800501e-15,
+    "minP": 0.001070116048795139,
+    "phi_positive_count": 32,
+    "phi_positive_min": 2.209800735496258,
+    "phi_zero": 0.0,
+    "rho_zero_norm": 0.0,
+    "sumP_max_abs_err": 2.220446049250313e-16
+  },
+  "runner": {
+    "numpy": "2.4.0",
+    "python": "3.12.1",
+    "relpath": "backend/tests/run_photonalg_lint.py"
+  },
+  "seed": 0,
+  "started_utc": "2026-01-12T14:36:26.610912+00:00",
+  "status": "PASS",
+  "thresholds": {
+    "EPS_PHI_INVAR": 1e-10,
+    "EPS_SUM_P": 1e-12,
+    "MIN_P_GUARD": -1e-15
+  }
+}

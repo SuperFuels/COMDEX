@@ -594,12 +594,12 @@ export default function DevTools() {
           <div
             style={{
               display: "inline-flex",
-              flexWrap: "wrap",
-              borderRadius: 999,
+              alignItems: "center",
+              gap: 0,
+              borderRadius: 12,
               border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              padding: 2,
-              gap: 2,
+              background: "#fff",
+              overflow: "hidden",
             }}
           >
             <ToolButton
@@ -906,42 +906,27 @@ type ToolButtonProps = {
   onSelect: (id: ToolId) => void;
 };
 
-function ToolButton({
-  id,
-  label,
-  description,
-  activeTool,
-  onSelect,
-}: ToolButtonProps) {
+function ToolButton({ id, label, description, activeTool, onSelect }: ToolButtonProps) {
   const active = activeTool === id;
+
   return (
     <button
       type="button"
       onClick={() => onSelect(id)}
       style={{
         border: "none",
-        padding: "4px 10px",
-        borderRadius: 999,
         cursor: "pointer",
-        fontSize: 11,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        minWidth: 120,
-        background: active ? "#0f172a" : "transparent",
-        color: active ? "#e5e7eb" : "#111827",
-        boxShadow: active ? "0 0 0 1px #0ea5e9 inset" : "none",
+        padding: "8px 12px",
+        fontSize: 12,
+        fontWeight: 700,
+        background: active ? "#111827" : "transparent",
+        color: active ? "#ffffff" : "#111827",
+        borderRight: "1px solid #e5e7eb",
+        whiteSpace: "nowrap",
       }}
+      title={description || label}
     >
-      <span style={{ fontWeight: 600 }}>{label}</span>
-      <span
-        style={{
-          fontSize: 10,
-          opacity: 0.8,
-        }}
-      >
-        {description}
-      </span>
+      {label}
     </button>
   );
 }

@@ -1,0 +1,32 @@
+{
+  "digests": {
+    "runner_sha256": "cd52981662d86645498ba317e1dd4804d56e78309a492e9d48a1a3535c0f9f71",
+    "samples_sha256": "40d1f5083969710f6b9289c4662cbc276bf6c215f05c6b3786c2a0ddc7d2e778"
+  },
+  "failures": [],
+  "finished_utc": "2026-01-12T15:01:56.150833+00:00",
+  "measured": {
+    "basis_rank": 6,
+    "max_assoc_l2": 7.045780067924223e-14,
+    "max_basis_herm_fro": 0.0,
+    "max_comm_fro": 0.0,
+    "max_hom_fro": 1.7921362354873633e-15,
+    "max_star_l2": 9.296750665059115e-15
+  },
+  "runner": {
+    "numpy": "2.4.0",
+    "python": "3.12.1",
+    "relpath": "COMDEX/backend/tests/run_photonalg_structure_lint.py"
+  },
+  "seed": 0,
+  "started_utc": "2026-01-12T15:01:56.042976+00:00",
+  "status": "PASS",
+  "thresholds": {
+    "EPS_ASSOC": 1e-12,
+    "EPS_BASIS_HERM": 1e-12,
+    "EPS_COMM": 1e-12,
+    "EPS_HOM": 1e-12,
+    "EPS_STAR": 1e-12,
+    "RANK_TOL": 1e-12
+  }
+}

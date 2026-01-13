@@ -1,0 +1,67 @@
+From HEAD Mon Sep 17 00:00:00 2001
+From: Hypothesis 6.139.2 <no-reply@hypothesis.works>
+Date: Tue, 13 Jan 2026 09:59:38
+Subject: [PATCH] Hypothesis: add explicit examples
+
+---
+--- ./backend/photon_algebra/tests/test_bounded_confluence.py
++++ ./backend/photon_algebra/tests/test_bounded_confluence.py
+@@ -244,6 +244,9 @@
+ 
+ @settings(max_examples=80, deadline=None)
+ @given(exprs)
++@example(
++    e={'op': '¬', 'state': 'a'},
++).via('discovered failure')
+ def test_bounded_confluence_via_variants(e: Expr):
+     nf = rewriter.normalize(e)
+ 
+--- ./backend/photon_algebra/tests/test_properties_normalize.py
++++ ./backend/photon_algebra/tests/test_properties_normalize.py
+@@ -100,12 +100,23 @@
+ 
+ @settings(max_examples=150, deadline=None)
+ @given(exprs, exprs)
++@example(
++    a={'op': '∇', 'state': 'c'},
++    b={'op': '⊕',
++     'states': [{'op': '¬',
++       'state': {'op': '⊕', 'states': [{'op': '⊥'}, 'a']}}]},
++).via('discovered failure')
+ def test_commutativity_stability_product(a: Expr, b: Expr):
+     assert rewriter.normalize(mk_prod([a, b])) == rewriter.normalize(mk_prod([b, a]))
+ 
+ 
+ @settings(max_examples=150, deadline=None)
+ @given(exprs, exprs, exprs)
++@example(
++    a={'op': '⊥'},
++    b={'op': '∇', 'state': {'op': '∅'}},
++    c={'op': '¬', 'state': {'op': '⊕', 'states': [{'op': '⊥'}, 'a']}},
++).via('discovered failure')
+ def test_associativity_stability_sum(a: Expr, b: Expr, c: Expr):
+     left = mk_sum([mk_sum([a, b]), c])
+     right = mk_sum([a, mk_sum([b, c])])
+@@ -114,6 +125,11 @@
+ 
+ @settings(max_examples=150, deadline=None)
+ @given(exprs, exprs, exprs)
++@example(
++    a={'op': '∇', 'state': {'op': '∅'}},
++    b='a',
++    c={'op': '¬', 'state': 'a'},
++).via('discovered failure')
+ def test_associativity_stability_product(a: Expr, b: Expr, c: Expr):
+     left = mk_prod([mk_prod([a, b]), c])
+     right = mk_prod([a, mk_prod([b, c])])
+@@ -122,6 +138,10 @@
+ 
+ @settings(max_examples=150, deadline=None)
+ @given(exprs, exprs)
++@example(
++    a='a',
++    b={'op': '¬', 'state': 'a'},
++).via('discovered failure')
+ def test_absorption_sanity(a: Expr, b: Expr):
+     # a ⊕ (a ⊗ b) == a
+     lhs = mk_sum([a, mk_prod([a, b])])

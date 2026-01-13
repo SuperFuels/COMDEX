@@ -1,0 +1,32 @@
+From HEAD Mon Sep 17 00:00:00 2001
+From: Hypothesis 6.139.2 <no-reply@hypothesis.works>
+Date: Tue, 13 Jan 2026 01:48:44
+Subject: [PATCH] Hypothesis: add explicit examples
+
+---
+--- ./backend/photon_algebra/tests/test_bounded_confluence.py
++++ ./backend/photon_algebra/tests/test_bounded_confluence.py
+@@ -137,6 +137,9 @@
+ 
+ @settings(max_examples=250, deadline=None)
+ @given(exprs)
++@example(
++    e={'op': '⊕', 'states': ['a', {'op': '∅'}, {'op': '∅'}, 'b']},
++).via('discovered failure')
+ def test_bounded_confluence_via_equivalent_variants(e):
+     nf = rewriter.normalize(deepclone(e))
+     for v in variants(e):
+--- ./backend/photon_algebra/tests/test_properties_normalize.py
++++ ./backend/photon_algebra/tests/test_properties_normalize.py
+@@ -113,6 +113,11 @@
+ 
+ @settings(max_examples=200, deadline=None)
+ @given(exprs, exprs, exprs)
++@example(
++    a='a',
++    b='b',
++    c={'op': '⊕', 'states': ['a', 'b']},
++).via('discovered failure')
+ def test_associativity_stability_product(a, b, c):
+     left = PROD(PROD(a, b), c)
+     right = PROD(a, PROD(b, c))

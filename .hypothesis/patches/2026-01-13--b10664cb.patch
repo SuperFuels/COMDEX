@@ -1,0 +1,20 @@
+From HEAD Mon Sep 17 00:00:00 2001
+From: Hypothesis 6.139.2 <no-reply@hypothesis.works>
+Date: Tue, 13 Jan 2026 10:12:49
+Subject: [PATCH] Hypothesis: add explicit examples
+
+---
+--- ./backend/photon_algebra/tests/test_bounded_confluence.py
++++ ./backend/photon_algebra/tests/test_bounded_confluence.py
+@@ -127,6 +127,11 @@
+ 
+ @settings(max_examples=250, deadline=None)
+ @given(exprs)
++@example(
++    e={'op': '⊗',
++     'states': [{'op': '⊕', 'states': ['a', 'b']},
++      {'op': '⊗', 'states': ['a', 'b']}]},
++).via('discovered failure')
+ def test_bounded_confluence_via_one_step_joinability(e):
+     """
+     Bounded joinability evidence: any single AC step anywhere should not change NF.

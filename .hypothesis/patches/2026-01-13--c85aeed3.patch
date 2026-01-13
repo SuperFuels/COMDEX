@@ -1,0 +1,40 @@
+From HEAD Mon Sep 17 00:00:00 2001
+From: Hypothesis 6.139.2 <no-reply@hypothesis.works>
+Date: Tue, 13 Jan 2026 01:58:47
+Subject: [PATCH] Hypothesis: add explicit examples
+
+---
+--- ./backend/photon_algebra/tests/test_bounded_confluence.py
++++ ./backend/photon_algebra/tests/test_bounded_confluence.py
+@@ -188,6 +188,9 @@
+ 
+ @settings(max_examples=250, deadline=None)
+ @given(exprs)
++@example(
++    e={'op': '↔', 'states': ['a', {'op': '⊕', 'states': ['a', {'op': '∅'}]}]},
++).via('discovered failure')
+ def test_bounded_confluence_via_equivalent_variants(e):
+     """
+     For each generated term e, explore a bounded set of one-step alternatives and
+--- ./backend/photon_algebra/tests/test_properties_normalize.py
++++ ./backend/photon_algebra/tests/test_properties_normalize.py
+@@ -92,6 +92,19 @@
+ 
+ @settings(max_examples=200, deadline=None)
+ @given(exprs, exprs)
++@example(
++    a={'op': '⊕',
++     'states': [{'op': '⊕', 'states': ['a', 'c', {'op': '∅'}, {'op': '∅'}]}]},
++    b={'op': '⊕',
++     'states': [{'op': '⊕', 'states': []},
++      {'op': '⊕', 'states': []},
++      'a',
++      {'op': '⊕',
++       'states': ['a',
++        {'op': '⊕', 'states': ['b', 'd']},
++        {'op': '⊕', 'states': ['d', {'op': '∅'}, 'b']},
++        {'op': '⊗', 'states': ['b', {'op': '∅'}, 'a', {'op': '∅'}]}]}]},
++).via('discovered failure')
+ def test_commutativity_stability_product(a, b):
+     assert rewriter.normalize(deepclone(PROD(a, b))) == rewriter.normalize(deepclone(PROD(b, a)))
+ 

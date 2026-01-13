@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "DEMOS"
+git commit -m "Photon Algebra Artifacts"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

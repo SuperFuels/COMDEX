@@ -1,0 +1,25 @@
+{
+  "digests": {
+    "counterexample_sha256": "14f3186a5ce5cc6532cd72b323fcc5ee42c49b4da5a0829b7c32e9de75bdbd4c",
+    "runner_sha256": "969b3c2f0cda52abfb6ad16911e22164a3a547615cba621756bdbbd02d3fe01e"
+  },
+  "failures": [],
+  "finished_utc": "2026-01-12T21:18:09.539787+00:00",
+  "measured": {
+    "distance_distrib": 0.8995171233023482
+  },
+  "phi": {
+    "phi": 1.0471975511965976
+  },
+  "runner": {
+    "numpy": "2.4.0",
+    "python": "3.12.1",
+    "relpath": "backend/tests/run_sym_semiring_separation_lint.py"
+  },
+  "seed": 0,
+  "started_utc": "2026-01-12T21:18:09.539618+00:00",
+  "status": "PASS",
+  "thresholds": {
+    "distrib_distance_min": 1e-06
+  }
+}

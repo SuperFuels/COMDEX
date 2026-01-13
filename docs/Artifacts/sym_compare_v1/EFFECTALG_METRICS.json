@@ -1,0 +1,28 @@
+{
+  "digests": {
+    "counterexample_sha256": "90472750420f76dc3349626fa984cbeb364d2f75b3c3c2a84659cfb8af170cce",
+    "runner_sha256": "2deba4094298b0195870efa2d3648f68a96362846b00465a8526b37760ac97c3"
+  },
+  "failures": [],
+  "finished_utc": "2026-01-12T15:11:19.685094+00:00",
+  "measured": {
+    "distance_candidate": 0.0,
+    "distance_sym": 0.1522419296557033
+  },
+  "phi": {
+    "phi1": 1.0471975511965976,
+    "phi2": 1.5707963267948966
+  },
+  "runner": {
+    "numpy": "2.4.0",
+    "python": "3.12.1",
+    "relpath": "backend/tests/run_sym_effectalg_separation_lint.py"
+  },
+  "seed": 0,
+  "started_utc": "2026-01-12T15:11:19.684809+00:00",
+  "status": "PASS",
+  "thresholds": {
+    "distance_candidate_max": 1e-12,
+    "distance_sym_min": 1e-06
+  }
+}

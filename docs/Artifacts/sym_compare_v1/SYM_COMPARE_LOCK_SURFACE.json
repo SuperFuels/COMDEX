@@ -1,0 +1,32 @@
+{
+  "sym_compare_v1": {
+    "artifact_roots": [
+      "docs/Artifacts/sym_compare_v1"
+    ],
+    "counterexample_sha256": {
+      "effectalg": "90472750420f76dc3349626fa984cbeb364d2f75b3c3c2a84659cfb8af170cce",
+      "semiring": "14f3186a5ce5cc6532cd72b323fcc5ee42c49b4da5a0829b7c32e9de75bdbd4c"
+    },
+    "runners": {
+      "effectalg": {
+        "artifacts": {
+          "counterexample_json": "docs/Artifacts/sym_compare_v1/EFFECTALG_COUNTEREXAMPLE.json",
+          "log": "docs/Artifacts/sym_compare_v1/EFFECTALG_LINT_PROOF.log",
+          "metrics_json": "docs/Artifacts/sym_compare_v1/EFFECTALG_METRICS.json"
+        },
+        "command": "SEED=0 python backend/tests/run_sym_effectalg_separation_lint.py",
+        "relpath": "backend/tests/run_sym_effectalg_separation_lint.py"
+      },
+      "semiring": {
+        "artifacts": {
+          "counterexample_json": "docs/Artifacts/sym_compare_v1/SEMIRING_COUNTEREXAMPLE.json",
+          "log": "docs/Artifacts/sym_compare_v1/SEMIRING_LINT_PROOF.log",
+          "metrics_json": "docs/Artifacts/sym_compare_v1/SEMIRING_METRICS.json"
+        },
+        "command": "SEED=0 python backend/tests/run_sym_semiring_separation_lint.py",
+        "relpath": "backend/tests/run_sym_semiring_separation_lint.py"
+      }
+    }
+  },
+  "version": 1
+}

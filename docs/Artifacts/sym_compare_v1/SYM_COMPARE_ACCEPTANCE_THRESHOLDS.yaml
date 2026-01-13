@@ -1,0 +1,19 @@
+# SYM_COMPARE_ACCEPTANCE_THRESHOLDS.yaml
+# Canonical acceptance thresholds + canonical phase values for sym_compare_v1 locks.
+
+version: 1
+seed: 0
+
+phi:
+  phi1: 1.0471975511965976   # pi/3
+  phi2: 1.5707963267948966   # pi/2
+
+thresholds:
+  # (B) semiring separation (strong distributivity witness)
+  semiring:
+    distrib_distance_min: 1.0e-6
+
+  # (C) effect-algebra / OML separation
+  effectalg:
+    distance_sym_min: 1.0e-6        # MUST show Symatics differs across phi
+    distance_candidate_max: 1.0e-12 # MUST show candidate collapses phi

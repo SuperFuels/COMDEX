@@ -1,0 +1,23 @@
+From HEAD Mon Sep 17 00:00:00 2001
+From: Hypothesis 6.139.2 <no-reply@hypothesis.works>
+Date: Tue, 13 Jan 2026 10:26:27
+Subject: [PATCH] Hypothesis: add explicit examples
+
+---
+--- ./backend/photon_algebra/tests/test_bounded_confluence.py
++++ ./backend/photon_algebra/tests/test_bounded_confluence.py
+@@ -154,6 +154,14 @@
+ 
+ @settings(max_examples=250, deadline=None)
+ @given(exprs)
++@example(
++    e={'op': '⊗',
++     'states': [{'op': '⊗',
++       'states': [{'op': '⊕',
++         'states': ['a', {'op': '⊕', 'states': ['a', 'b']}]},
++        'c']},
++      'a']},
++).via('discovered failure')
+ def test_bounded_confluence_via_one_step_joinability(e):
+     nf = rewriter.normalize(deepclone(e))
+     steps = one_step_variants(deepclone(e))

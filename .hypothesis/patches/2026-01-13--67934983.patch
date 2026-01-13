@@ -1,0 +1,32 @@
+From HEAD Mon Sep 17 00:00:00 2001
+From: Hypothesis 6.139.2 <no-reply@hypothesis.works>
+Date: Tue, 13 Jan 2026 01:26:46
+Subject: [PATCH] Hypothesis: add explicit examples
+
+---
+--- ./backend/photon_algebra/tests/test_bounded_confluence.py
++++ ./backend/photon_algebra/tests/test_bounded_confluence.py
+@@ -229,6 +229,10 @@
+ 
+ @settings(max_examples=120, deadline=None)
+ @given(exprs)
++@example(
++    e={'op': '⊕',
++     'states': ['a', {'op': '⊕', 'states': [{'op': '∅'}, {'op': '∅'}]}]},
++).via('discovered failure')
+ def test_bounded_confluence_via_variants(e):
+     """
+     For a small term e, build a bounded set of one-step variants, normalize all,
+--- ./backend/photon_algebra/tests/test_properties_normalize.py
++++ ./backend/photon_algebra/tests/test_properties_normalize.py
+@@ -65,6 +65,10 @@
+     assert p1 == p2, f"⊗ not associative for {expr1},{expr2},{expr3}"
+ 
+ @given(exprs(), exprs())
++@example(
++    expr1='a',
++    expr2='a',  # or any other generated value
++).via('discovered failure')
+ def test_absorption(expr1, expr2):
+     lhs = rewriter.normalize({"op": "⊕", "args": [
+         expr1, {"op": "⊗", "args": [expr1, expr2]}]})

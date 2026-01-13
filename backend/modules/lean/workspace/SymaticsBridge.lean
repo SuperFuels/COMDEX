@@ -15,3 +15,4 @@ import SymaticsBridge.V37_HierarchicalTemplateAmortization
 import SymaticsBridge.V38_CanonicalDeltaDeterminismReplay
 import SymaticsBridge.V38_ProjectionQueryNoMaterialization
 import SymaticsBridge.V39_RangePrefixIndexNoMaterialization
+import SymaticsBridge.SymCompare.NoGo

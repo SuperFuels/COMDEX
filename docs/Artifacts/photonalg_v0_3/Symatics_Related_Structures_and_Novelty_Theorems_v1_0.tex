@@ -1,0 +1,235 @@
+% Symatics — Related Structures + Novelty Theorems (v1.0)
+% House style: newtxtext/newtxmath, T1+microtype, xurl, tabularx with ragged-right X.
+% Lock status: LOCKED & VERIFIED (Python runners PASS + Lean builds PASS).
+
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage[margin=1in]{geometry}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% Ragged-right X columns for wrapping tables
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\setlist[itemize]{noitemsep,topsep=2pt,leftmargin=*}
+\setlist[enumerate]{noitemsep,topsep=2pt,leftmargin=*}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+
+% ---------------- Lock metadata ----------------
+\newcommand{\LockID}{SYM-COMPARE-NOVELTY-V10-20260112}
+\newcommand{\LockStatus}{LOCKED \& VERIFIED}
+\newcommand{\Maintainer}{Tessaris AI}
+\newcommand{\AuthorName}{Kevin Robinson}
+
+% ---------------- Header / footer ----------------
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Symatics — Related Structures + Novelty Theorems (v1.0)}
+\rhead{\thepage/\pageref{LastPage}}
+\cfoot{}
+
+\title{Symatics — Related Structures + Novelty Theorems (v1.0)}
+\author{\AuthorName \\ \textit{\Maintainer}}
+\date{2026-01-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note provides (i) a structured comparison between Symatics and nearby mathematical formalisms used in quantum theory and
+quantum logic, and (ii) two separation theorems supported by deterministic, audit-grade counterexample artifacts and Lean proofs.
+The emphasis is not on reclassifying standard *-algebraic objects (handled elsewhere), but on demonstrating that the \emph{phase-indexed}
+interference primitive in Symatics is not reducible to common \(\varphi\)-free abstractions (effect algebras/orthomodular lattices) nor to a
+plain semiring of amplitudes, except at boundary phases \(\varphi \in \{0,\pi\}\). The semiring separation is locked in the strong,
+distributivity-obstruction form with an explicit \(\mathrm{LHS}\neq\mathrm{RHS}\) witness.
+\end{abstract}
+
+\section{What is being compared}
+
+Symatics defines an operator calculus over complex-valued amplitude-like objects together with an explicit \emph{phase parameter}
+\(\varphi\) controlling interference. The key feature relevant to this document is that there exist fixed inputs such that
+the \(\varphi\)-indexed interference output (denoted \(\mathrm{Interf}_{\varphi}(\cdot,\cdot)\)) is measurably different as \(\varphi\) varies,
+and this difference is intended and semantically meaningful.
+
+Throughout, ``representation'' means a map \(h\) into a candidate structure that preserves a designated operation (exactly, or up to a
+numerical tolerance) \emph{without access to \(\varphi\)} (for N1), or a candidate algebraic law (for N2).
+
+\section{Related-structures comparison table}
+
+\begin{table}[h]
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabularx}{\linewidth}{@{}l Y Y Y@{}}
+\toprule
+\textbf{Structure} &
+\textbf{What corresponds to an ``event'' / object} &
+\textbf{Native operations / laws} &
+\textbf{Why Symatics does not reduce} \\
+\midrule
+Hilbert-space QM &
+Projectors / effects on a Hilbert space; states as density operators or rays &
+Linear structure; operator product; Born rule; unitary invariance; *-adjoint &
+Symatics is designed to be QM-consistent on intended projections/measurements (see existing Born-rule / projector locks),
+but also includes a governed, explicitly parameterized interference primitive \(\mathrm{Interf}_{\varphi}\) as a first-class operator. \\
+\addlinespace
+Photon Algebra v0.3 (classification) &
+A finite basis of operators with a *-involution &
+Associativity, *-laws, closure under multiplication as specified &
+This classification is \emph{standard} algebraic hygiene: it ensures the operator basis forms a well-defined *-algebra.
+Novelty claims do not hinge on *-algebra existence, but on the additional calculus (interference + collapse governance)
+and on separation theorems against nearby abstractions. \\
+\addlinespace
+Effect algebras / OML / quantum logics &
+``Events'' as effects or lattice elements; partial sum \(\oplus\) (effect algebra) or join/meet (OML) &
+Combination operations are commutative and \(\varphi\)-free by construction; morphisms preserve operations without external parameters &
+A \(\varphi\)-indexed interference output cannot be represented by an operation-preserving morphism into any \(\varphi\)-free
+effect-algebra/OML candidate while tracking \(\varphi\)-dependence for fixed \(A,B\) (Theorem~\ref{thm:effectalg}). \\
+\addlinespace
+Semiring / amplitude calculi &
+Weights / amplitudes in a semiring-like carrier &
+Semiring laws: associativity of \(+\), associativity of \(\times\), distributivity, identities &
+For \(\varphi \neq 0,\pi\), a natural semiring-like candidate (\(+\) as phase-indexed interference, \(\times\) as per-coordinate composition)
+fails strict distributivity on a locked witness (Theorem~\ref{thm:semiring}). \\
+\bottomrule
+\end{tabularx}
+\caption{Structured comparison: candidate encodings and why Symatics does not collapse into them.}
+\end{table}
+
+\section{Novelty theorems}
+
+\subsection{N1: Effect-algebra / OML representation failure (phase irreducibility)}
+
+\begin{definition}[\(\varphi\)-free candidate representation]
+A candidate ``effect-algebra/OML-style representation'' for \(\mathrm{Interf}_{\varphi}(A,B)\) is any map \(h\) into a target
+structure with a commutative, \(\varphi\)-free combination operation \(\boxplus\) (e.g., partial sum \(\oplus\) or join-like operation),
+together with a rule of the form
+\[
+h(\mathrm{Interf}_{\varphi}(A,B)) \;=\; F(h(A),h(B)),
+\]
+where \(F\) is built from \(\varphi\)-free target operations only (no dependence on \(\varphi\)).
+\end{definition}
+
+\begin{theorem}[Phase irreducibility into \(\varphi\)-free effect-algebra/OML candidates]
+\label{thm:effectalg}
+Fix \(\varphi_1=\pi/3\) and \(\varphi_2=\pi/2\). There exist explicit inputs \(A,B\) such that:
+\begin{enumerate}[label=(\alph*)]
+\item \(\mathrm{Interf}_{\varphi_1}(A,B) \neq \mathrm{Interf}_{\varphi_2}(A,B)\) in Symatics, with measured separation
+\(\mathrm{distance}_{\mathrm{sym}}(\varphi_1,\varphi_2) > 10^{-6}\);
+\item for the locked \(\varphi\)-free candidate rule \(h(\mathrm{Interf}_{\varphi}(A,B)) := h(A) \boxplus h(B)\),
+the candidate is forced \(\varphi\)-invariant, yielding \(\mathrm{distance}_{\mathrm{cand}}=0 < 10^{-12}\);
+\item therefore no operation-preserving, \(\varphi\)-free effect-algebra/OML representation can track phase-indexed interference for all \(\varphi\),
+except at boundary phases where interference degenerates (\(\varphi \in \{0,\pi\}\)).
+\end{enumerate}
+\end{theorem}
+
+\paragraph{Locked witness (audit-grade).}
+Deterministic runner (seeded, canonical phases): \texttt{SEED=0 python backend/tests/run\_sym\_effectalg\_separation\_lint.py}.
+Artifacts:
+\begin{itemize}
+\item \url{docs/Artifacts/sym_compare_v1/EFFECTALG_COUNTEREXAMPLE.json} (sha256 \texttt{90472750420f76dc3349626fa984cbeb364d2f75b3c3c2a84659cfb8af170cce})
+\item \url{docs/Artifacts/sym_compare_v1/EFFECTALG_METRICS.json}
+\item \url{docs/Artifacts/sym_compare_v1/EFFECTALG_LINT_PROOF.log}
+\end{itemize}
+The locked numeric witness records:
+\[
+\mathrm{distance}_{\mathrm{sym}}(\varphi_1,\varphi_2) = 0.1522419296557033,\qquad
+\mathrm{distance}_{\mathrm{cand}} = 0,
+\]
+against thresholds \(\mathrm{distance}_{\mathrm{sym}} > 10^{-6}\) and \(\mathrm{distance}_{\mathrm{cand}} < 10^{-12}\) (PASS).
+
+\subsection{N2: Non-semiring (strong distributivity obstruction) for \(\varphi \neq 0,\pi\)}
+
+\begin{definition}[Semiring-like candidate operations used in the lock]
+In the \texttt{sym\_compare\_v1} semiring separation lock, the candidate operations are:
+\begin{itemize}
+\item ``addition'': \(X \oplus Y := \mathrm{canon}(\mathrm{Interf}_{\varphi}(X,Y))\) with fixed \(\varphi=\pi/3\),
+      where \(\mathrm{Interf}_{\varphi}(X,Y)=X+e^{i\varphi}Y\) and \(\mathrm{canon}\) is L2-normalization \(v\mapsto v/\lVert v\rVert\) with a \(0\)-guard;
+\item ``multiplication'': \(X \odot Y := \mathrm{Hadamard}(X,Y)\), i.e.\ componentwise complex multiplication.
+\end{itemize}
+These choices model ``superposition-like'' combination (\(\oplus\)) and ``independent per-coordinate composition'' (\(\odot\)).
+\end{definition}
+
+\begin{theorem}[No semiring distributivity for the locked candidate at non-boundary phase]
+\label{thm:semiring}
+Fix \(\varphi=\pi/3\). For the candidate operations \((\oplus,\odot)\) defined above, there exist explicit inputs \(A,B,C\) such that
+strict distributivity fails:
+\[
+(A \oplus B)\odot C \;\neq\; (A\odot C)\oplus (B\odot C).
+\]
+Equivalently, the distributivity law required of a semiring cannot hold for these natural identifications of ``addition'' and ``multiplication''
+with Symatics interference and per-coordinate composition at \(\varphi\neq 0,\pi\). Therefore Symatics is not representable as a plain semiring
+amplitude calculus at non-boundary phases without discarding phase-governed structure (i.e., collapsing it).
+\end{theorem}
+
+\paragraph{Locked witness (audit-grade).}
+Deterministic runner: \texttt{SEED=0 python backend/tests/run\_sym\_semiring\_separation\_lint.py}. This runner locks a concrete
+distributivity witness (LHS/RHS vectors and their separation). Artifacts:
+\begin{itemize}
+\item \url{docs/Artifacts/sym_compare_v1/SEMIRING_COUNTEREXAMPLE.json} (sha256 \texttt{14f3186a5ce5cc6532cd72b323fcc5ee42c49b4da5a0829b7c32e9de75bdbd4c})
+\item \url{docs/Artifacts/sym_compare_v1/SEMIRING_METRICS.json}
+\item \url{docs/Artifacts/sym_compare_v1/SEMIRING_LINT_PROOF.log}
+\end{itemize}
+The locked witness (from \texttt{SEMIRING\_COUNTEREXAMPLE.json}) records:
+\[
+\mathrm{distance}_{\mathrm{distrib}} = 0.8995171233023482,
+\]
+and the centralized acceptance threshold requires \(\mathrm{distance}_{\mathrm{distrib}} > 10^{-6}\) (PASS), with threshold name
+\texttt{semiring.distrib\_distance\_min} in
+\url{docs/Artifacts/sym_compare_v1/SYM_COMPARE_ACCEPTANCE_THRESHOLDS.yaml}.
+
+\section{Evidence links (locked artifact roots)}
+
+All evidence in this document is tied to deterministic runners and emitted artifacts. Canonical root:
+\url{docs/Artifacts/sym_compare_v1/}, including:
+\begin{itemize}
+\item \url{docs/Artifacts/sym_compare_v1/SYM_COMPARE_ACCEPTANCE_THRESHOLDS.yaml}
+\item \url{docs/Artifacts/sym_compare_v1/SYM_COMPARE_LOCK_SURFACE.json}
+\item \url{docs/Artifacts/sym_compare_v1/EFFECTALG_COUNTEREXAMPLE.json},
+\url{docs/Artifacts/sym_compare_v1/EFFECTALG_METRICS.json},
+\url{docs/Artifacts/sym_compare_v1/EFFECTALG_LINT_PROOF.log}
+\item \url{docs/Artifacts/sym_compare_v1/SEMIRING_COUNTEREXAMPLE.json},
+\url{docs/Artifacts/sym_compare_v1/SEMIRING_METRICS.json},
+\url{docs/Artifacts/sym_compare_v1/SEMIRING_LINT_PROOF.log}
+\end{itemize}
+
+\paragraph{Formal verification (Lean).}
+The no-go statements for N1 and N2 are proved as \emph{abstract} theorems in Lean, while the \emph{concrete}
+numerical witnesses are supplied by the locked JSON artifacts above. Lean proof file:
+\url{backend/modules/lean/workspace/SymaticsBridge/SymCompare/NoGo.lean}. Witness/lock binding module:
+\url{backend/modules/lean/workspace/SymaticsBridge/SymCompare/Witnesses.lean}. Verification command:
+\[
+\texttt{cd backend/modules/lean/workspace \;\&\&\; lake build SymaticsBridge.SymCompare.NoGo SymaticsBridge.SymCompare.Witnesses}.
+\]
+
+\section{Scope statement (what is and is not claimed)}
+
+\begin{itemize}
+\item Photon Algebra v0.3 provides standard *-algebra classification checks (closure, associativity, *-law, etc.). This is not claimed
+as novel mathematics.
+\item The novelty claim is the \emph{operator calculus} built around explicitly parameterized interference and governed collapse, plus the
+\emph{separation theorems} showing Symatics is not reducible to nearby candidate abstractions (effect-algebra/OML, semiring),
+while remaining QM-consistent where intended (Born-rule / projector tests).
+\item Auditability is treated as a first-class requirement: deterministic seeds, canonical parameter choices, and SHA-256 digests are
+considered part of the mathematical object being presented.
+\end{itemize}
+
+\section*{Lock footer}
+
+Lock ID: \LockID \\
+Status: \LockStatus \\
+Maintainer: \Maintainer \\
+Author: \AuthorName.
+
+\end{document}

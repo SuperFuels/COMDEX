@@ -1,0 +1,34 @@
+From HEAD Mon Sep 17 00:00:00 2001
+From: Hypothesis 6.139.2 <no-reply@hypothesis.works>
+Date: Tue, 13 Jan 2026 10:00:29
+Subject: [PATCH] Hypothesis: add explicit examples
+
+---
+--- ./backend/photon_algebra/tests/test_bounded_confluence.py
++++ ./backend/photon_algebra/tests/test_bounded_confluence.py
+@@ -121,6 +121,11 @@
+ 
+ @settings(max_examples=250, deadline=None)
+ @given(exprs)
++@example(
++    e={'op': '⊗',
++     'states': ['a',
++      {'op': '⊗', 'states': ['b', {'op': '⊕', 'states': ['a', 'b']}]}]},
++).via('discovered failure')
+ def test_bounded_confluence_via_one_step_joinability(e):
+     """
+     Practical bounded local confluence evidence:
+--- ./backend/photon_algebra/tests/test_properties_normalize.py
++++ ./backend/photon_algebra/tests/test_properties_normalize.py
+@@ -98,6 +98,11 @@
+ 
+ @settings(max_examples=250, deadline=None)
+ @given(exprs, exprs, exprs)
++@example(
++    a='a',
++    b='b',
++    c={'op': '⊕', 'states': ['a', 'b']},
++).via('discovered failure')
+ def test_associativity_stability_product(a, b, c):
+     a = rewriter.normalize(deepclone(a))
+     b = rewriter.normalize(deepclone(b))
