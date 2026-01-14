@@ -58,6 +58,29 @@ def timesHasFactor (p f : Expr) : Bool :=
   | Expr.times fs => fs.any (fun x => x == f)
   | _ => false
 
+/--
+If *all* terms are `entangle a _` with the same `a`, return `(a, rights)` so
+the caller can build a *canonical* RHS (do **not** construct `Expr.plus` here).
+-/
+def factorEntangleIfPossible (terms : List Expr) : Option (Expr × List Expr) :=
+  match terms with
+  | [] => none
+  | (Expr.entangle a b) :: rest =>
+      if rest.all (fun t =>
+        match t with
+        | Expr.entangle a' _ => a' == a
+        | _ => false
+      ) then
+        let rights :=
+          b :: (rest.map (fun t =>
+            match t with
+            | Expr.entangle _ r => r
+            | _ => Expr.empty))
+        some (a, rights)
+      else
+        none
+  | _ => none
+
 /-- Absorption: if a term `t` appears in ⊕, drop any product term containing `t` as a factor. -/
 def absorb (terms : List Expr) : List Expr :=
   let bases := terms.filter (fun t =>
@@ -72,7 +95,11 @@ def absorb (terms : List Expr) : List Expr :=
     | _ => true
   )
 
-/-- Canonicalize a sum list WITHOUT performing the entangle factoring step. -/
+/--
+Canonicalize a sum **without** factor-entangle.
+This is a single, non-recursive pipeline step used to keep termination simple,
+and to ensure factor-entangle returns a WF (canonical) RHS.
+-/
 def canonPlusNoFactor (terms : List Expr) : Expr :=
   let xs2 := flattenPlus terms
   let xs3 := xs2.filter (fun t => !(t == Expr.empty))
@@ -89,27 +116,15 @@ def canonPlus (terms : List Expr) : Expr :=
   let xs3 := xs2.filter (fun t => !(t == Expr.empty))
   let xs4 := dedupSortedByKey (sortByKey xs3)
   let xs5 := absorb xs4
-  match xs5 with
-  | [] => Expr.empty
-  | [t] => t
-  | (Expr.entangle a b) :: rest =>
-      if rest.all (fun t =>
-        match t with
-        | Expr.entangle a' _ => a' == a
-        | _ => false
-      ) then
-        let rights :=
-          b :: rest.map (fun t =>
-            match t with
-            | Expr.entangle _ r => r
-            | _ => Expr.empty
-          )
-        -- IMPORTANT: canonicalize the RHS list without recursing into canonPlus again
-        Expr.entangle a (canonPlusNoFactor rights)
-      else
-        Expr.plus xs5
-  | _ =>
-      Expr.plus xs5
+  match factorEntangleIfPossible xs5 with
+  | some (a, rights) =>
+      -- IMPORTANT: RHS is canonicalized, so this entangle result is already WF.
+      Expr.entangle a (canonPlusNoFactor rights)
+  | none =>
+      match xs5 with
+      | [] => Expr.empty
+      | [t] => t
+      | _ => Expr.plus xs5
 
 /-- Canonicalize a product (no distribution). -/
 def canonTimesNoDistrib (factors : List Expr) : Expr :=
