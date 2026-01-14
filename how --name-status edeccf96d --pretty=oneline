@@ -1,0 +1,16 @@
+[33mcommit edeccf96dbb11d2e0d4d8273243b2c9406fad6f5[m
+Author: SuperFuels <kevin@super-fuels.com>
+Date:   Wed Jan 14 09:23:56 2026 +0000
+
+    Photon Algebra Artifacts 3
+
+M	README.md
+M	backend/photon_algebra/PhotonAlgebra/BridgeTheorem.lean
+A	backend/photon_algebra/PhotonAlgebra/Canon.lean
+M	backend/photon_algebra/PhotonAlgebra/Normalizer.lean
+M	backend/photon_algebra/PhotonAlgebra/NormalizerLemmas.lean
+M	backend/photon_algebra/PhotonAlgebra/NormalizerWF.lean
+M	backend/photon_algebra/PhotonAlgebra/SnapshotGen.lean
+M	frontend/components/Hologram/quantum_field_canvas.tsx
+A	frontend/lib/types/holo.ts
+A	frontend/src/lib/types/holo.ts

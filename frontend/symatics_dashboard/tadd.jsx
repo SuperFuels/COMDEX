@@ -5,8 +5,8 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts"
 function getHttpBase() {
   // Prefer explicit env override, else same-origin (works for Codespaces + prod)
   const envBase =
-    (import.meta?.env && import.meta.env.VITE_API_BASE) ||
-    (import.meta?.env && import.meta.env.VITE_FASTAPI_URL) ||
+      process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE ||
+      process.env.NEXT_PUBLIC_API_URL ||
     "";
 
   if (envBase) return envBase;

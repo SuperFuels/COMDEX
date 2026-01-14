@@ -1,31 +1,29 @@
-# PhotonAlgebra Theorem Snapshot
+# PhotonAlgebra Theorems Results
 
-Automated proof snapshot (Lean build).
+Automated proof snapshot (Lean).
 
-- Module: `PhotonAlgebra.BridgeTheorem`
-- Build: ❌ FAIL
-- Snapshot source: `/workspaces/COMDEX/backend/photon_algebra/PhotonAlgebra/BridgeTheorem.lean`
+## Bridge
 
-| Item | Statement | Kind | Build |
-|------|-----------|------|-------|
-| `wf_invariant_normStep` | `∀ e, normalizeWF (normStep e) = normalizeWF e` | **THEOREM** | ❌ |
-| `wf_invariant_normalizeFuel` | `∀ k e, normalizeWF (normalizeFuel k e) = normalizeWF e` | **THEOREM** | ❌ |
-| `normalize_bridge` | `∀ e, normalizeWF (normalize e) = normalizeWF e` | **THEOREM** | ❌ |
+| Item | Statement | Status |
+|---|---|---|
+| wf_invariant_normStep | `normalizeWF (normStep e) = normalizeWF e` | ✅ |
+| wf_invariant_normalizeFuel | `normalizeWF (normalizeFuel k e) = normalizeWF e` | ✅ |
+| normalize_bridge | `normalizeWF (normalize e) = normalizeWF e` | ✅ |
 
-## Interpretation
+## Phase-1 (EqNF laws)
 
-- All items above are proved theorems (no axioms detected for these names).
+| Theorem | Statement | Status |
+|---|---|---|
+| CollapseWF | `normalizeWF (∇a) = ∇(normalizeWF a)` | ✅ |
+| T8 | `EqNF (a ⊗ (b ⊕ c)) ((a ⊗ b) ⊕ (a ⊗ c))` | ✅ |
+| T9 | `EqNF (¬(¬a)) a` | ⚠️ TODO |
+| T10 | `EqNF ((a↔b) ⊕ (a↔c)) (a↔(b⊕c))` | ✅ |
+| T11 | `EqNF (a↔a) a` | ✅ |
+| T12 | `EqNF (★(a↔b)) ((★a) ⊕ (★b))` | ⚠️ TODO |
+| T13 | `EqNF (a ⊕ (a ⊗ b)) a` | ✅ |
+| T14 | `NO RULE: factoring is excluded (one-way distribution only)` | ℹ️ DESIGN |
+| T15R | `EqNF (a ⊖ ∅) a` | ✅ |
+| T15L | `EqNF (∅ ⊖ a) a` | ✅ |
+| T15C | `EqNF (a ⊖ a) ∅` | ✅ |
 
-## Reproduce
-
-```bash
-cd /workspaces/COMDEX/backend/modules/lean/workspace
-lake build PhotonAlgebra.BridgeTheorem
-```
-
-## Build stderr (first 2000 chars)
-
-```
-error: build failed
-
-```
+Generated from `PhotonAlgebra/SnapshotGen.lean`.

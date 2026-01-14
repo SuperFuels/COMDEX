@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Photon Algebra Artifacts 8"
+git commit -m "Snapshot Theorems Saved T"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

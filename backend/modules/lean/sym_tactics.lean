@@ -63,7 +63,7 @@ def tensor_invariant_zero (expr : String) : IO Bool := do
 def sym_proof_pipeline (theorem_name : String) (expr : String) : IO Bool := do
   log_event "sym_proof_pipeline" s!"Evaluating {theorem_name}"
   let e₁ ← resonant_tac expr
-  let _ok ← coherence_guard e₁
+  let _ ← coherence_guard e₁
   let result ← tensor_invariant_zero e₁
   log_event "sym_proof_pipeline" s!"Result: {result}"
   return result

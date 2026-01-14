@@ -1,36 +1,38 @@
+import Std
+
 namespace PhotonAlgebra
 
-/-- Photon Algebra (PA-core) AST for Lean formalization (dependency-free, Lean4 stable).
-
-We avoid `DecidableEq` and any mutual recursion tricks; we use `BEq` instead.
-
-Operator mapping:
-  plus      = ⊕
-  times     = ⊗
-  entangle  = ↔
-  neg       = ¬
-  cancel    = ⊖
-  project   = ★
-  collapse  = ∇
-
-`empty` corresponds to ∅.
--/
+/-- Photon Algebra core AST. -/
 inductive Expr where
   | atom     (name : String)
   | empty
-  | plus     (states : List Expr)     -- ⊕ (n-ary)
-  | times    (states : List Expr)     -- ⊗ (n-ary)
-  | entangle (a : Expr) (b : Expr)    -- ↔
-  | neg      (state : Expr)           -- ¬
-  | cancel   (a : Expr) (b : Expr)    -- ⊖
-  | project  (state : Expr)           -- ★
-  | collapse (state : Expr)           -- ∇
-  deriving Repr, BEq
+  | plus     (states : List Expr)
+  | times    (states : List Expr)
+  | entangle (a : Expr) (b : Expr)
+  | neg      (state : Expr)
+  | cancel   (a : Expr) (b : Expr)
+  | project  (state : Expr)
+  | collapse (state : Expr)
+  deriving Repr
+
+/-- Deterministic structural key used for canonicalization/sorting. -/
+def Expr.key : Expr → String
+  | atom name       => "A:" ++ name
+  | empty           => "E"
+  | plus states     =>
+      "P[" ++ String.intercalate "," (states.map Expr.key) ++ "]"
+  | times states    =>
+      "T[" ++ String.intercalate "," (states.map Expr.key) ++ "]"
+  | entangle a b    => "En(" ++ a.key ++ "," ++ b.key ++ ")"
+  | neg e           => "N(" ++ e.key ++ ")"
+  | cancel a b      => "C(" ++ a.key ++ "," ++ b.key ++ ")"
+  | project e       => "Pr(" ++ e.key ++ ")"
+  | collapse e      => "Co(" ++ e.key ++ ")"
 
 abbrev EMPTY : Expr := Expr.empty
 instance : Inhabited Expr := ⟨Expr.empty⟩
 
-/-- Structural size (simple measure for fuel sizing). -/
+/-- Structural size (fuel budget). -/
 def Expr.size : Expr → Nat
   | atom _         => 1
   | empty          => 1
@@ -42,36 +44,43 @@ def Expr.size : Expr → Nat
   | project e      => 1 + e.size
   | collapse e     => 1 + e.size
 
-/-- Deterministic structural key (string) for ordering/dedup.
-Not semantic; only for canonicalization. -/
-def Expr.key : Expr → String
-  | atom s => "A(" ++ s ++ ")"
-  | empty  => "E(∅)"
-  | plus xs =>
-      "P(" ++ joinKeys xs ++ ")"
-  | times xs =>
-      "T(" ++ joinKeys xs ++ ")"
-  | entangle a b =>
-      "R(" ++ a.key ++ "↔" ++ b.key ++ ")"
-  | neg e =>
-      "N(¬" ++ e.key ++ ")"
-  | cancel a b =>
-      "D(" ++ a.key ++ "⊖" ++ b.key ++ ")"
-  | project e =>
-      "S(★" ++ e.key ++ ")"
-  | collapse e =>
-      "C(∇" ++ e.key ++ ")"
-where
-  joinKeys : List Expr → String
-    | []        => ""
-    | [x]       => x.key
-    | x :: xs   => x.key ++ "," ++ joinKeys xs
-
-/-- Helper: BEq for lists using Expr's BEq. -/
-def beqList (xs ys : List Expr) : Bool :=
-  match xs, ys with
+/-- Boolean equality on lists using a provided element equality. -/
+def beqListWith {α : Type} (be : α → α → Bool) : List α → List α → Bool
   | [], [] => true
-  | x::xs, y::ys => (x == y) && beqList xs ys
+  | x :: xs, y :: ys => be x y && beqListWith be xs ys
   | _, _ => false
+
+/-- Fuelled structural equality for Expr (always terminates). -/
+def Expr.beqFuel : Nat → Expr → Expr → Bool
+  | 0, _, _ => false
+  | (Nat.succ fuel), x, y =>
+    match x, y with
+    | Expr.atom a,       Expr.atom b       => decide (a = b)
+    | Expr.empty,        Expr.empty        => true
+    | Expr.plus xs,      Expr.plus ys      =>
+        beqListWith (fun a b => Expr.beqFuel fuel a b) xs ys
+    | Expr.times xs,     Expr.times ys     =>
+        beqListWith (fun a b => Expr.beqFuel fuel a b) xs ys
+    | Expr.entangle a b, Expr.entangle c d =>
+        Expr.beqFuel fuel a c && Expr.beqFuel fuel b d
+    | Expr.neg a,        Expr.neg b        =>
+        Expr.beqFuel fuel a b
+    | Expr.cancel a b,   Expr.cancel c d   =>
+        Expr.beqFuel fuel a c && Expr.beqFuel fuel b d
+    | Expr.project a,    Expr.project b    =>
+        Expr.beqFuel fuel a b
+    | Expr.collapse a,   Expr.collapse b   =>
+        Expr.beqFuel fuel a b
+    | _, _ => false
+
+/-- Default BEq for Expr uses size-based fuel. -/
+def Expr.beq (x y : Expr) : Bool :=
+  Expr.beqFuel (x.size + y.size + 1) x y
+
+instance : BEq Expr := ⟨Expr.beq⟩
+
+/-- Your original helper name. -/
+def beqList (xs ys : List Expr) : Bool :=
+  beqListWith (fun x y => x == y) xs ys
 
 end PhotonAlgebra
