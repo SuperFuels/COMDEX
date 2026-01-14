@@ -24,10 +24,7 @@ import { QuantumFieldCanvasLoader } from "./QuantumFieldCanvasLoader";
 
 // NEW
 import type { HoloIR } from "@/lib/types/holo";
-import {
-  runHoloSnapshot,
-  type HoloRunResult,
-} from "../../../Glyph_Net_Browser/src/lib/api/holo";
+import { runHoloSnapshot, type HoloRunResult } from "@/lib/api/holo";
 
 // 🔧 shape / feature imports
 import EntropyNode from "@/components/QuantumField/styling/EntropyNode";
