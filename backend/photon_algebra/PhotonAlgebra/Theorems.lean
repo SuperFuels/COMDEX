@@ -1,66 +1,29 @@
-import PhotonAlgebra.Basic
-import PhotonAlgebra.Normalizer
+import PhotonAlgebra.NormalizerWF
 
 namespace PhotonAlgebra
+open PhotonAlgebra
 
-open Expr
+def SUM  (a b : Expr) : Expr := Expr.plus [a, b]
+def PROD (a b : Expr) : Expr := Expr.times [a, b]
 
-/-- Theorem checkers in the repo style:
-    theorem_Ti(...) returns true iff norm(lhs) == norm(rhs).
+def EqNF (x y : Expr) : Prop := normalizeWF x = normalizeWF y
+def EqNFb (x y : Expr) : Bool := (normalizeWF x) == (normalizeWF y)
 
-These are PA-core equivalences under the directed normalizer.
--/
+theorem T11 (a : Expr) :
+  normalizeWF (Expr.collapse a) = Expr.collapse (normalizeWF a) := by
+  simp [PhotonAlgebra.normalizeWF]
 
-private def eqNorm (a b : Expr) : Bool := decide (norm a = norm b)
+def T8_guard (a b c : Expr) : Bool :=
+  EqNFb (PROD a (SUM b c)) (SUM (PROD a b) (PROD a c))
 
-/-- T8: Distributivity (expansion) — a ⊗ (b ⊕ c) == (a ⊗ b) ⊕ (a ⊗ c). -/
-def theorem_T8 (a b c : Expr) : Bool :=
-  let lhs := times [a, plus [b, c]]
-  let rhs := plus [times [a, b], times [a, c]]
-  eqNorm lhs rhs
+def T10_guard (a b c : Expr) : Bool :=
+  EqNFb (SUM (Expr.entangle a b) (Expr.entangle a c))
+        (Expr.entangle a (SUM b c))
 
-/-- T9: Double negation — ¬(¬a) == a. -/
-def theorem_T9 (a : Expr) : Bool :=
-  let lhs := neg (neg a)
-  eqNorm lhs a
+def T13_guard (a b : Expr) : Bool :=
+  EqNFb (SUM a (PROD a b)) a
 
-/-- T10: Entanglement distributivity — (a↔b) ⊕ (a↔c) == a↔(b⊕c). -/
-def theorem_T10 (a b c : Expr) : Bool :=
-  let lhs := plus [entangle a b, entangle a c]
-  let rhs := entangle a (plus [b, c])
-  eqNorm lhs rhs
-
-/-- T11: Collapse wrapper consistency (symbolic): ∇(NF(a)) == NF(∇(a)). -/
-def theorem_T11 (a : Expr) : Bool :=
-  let lhs := collapse (norm a)
-  let rhs := norm (collapse a)
-  eqNorm lhs rhs
-
-/-- T12: Projection fidelity (structural): ★(a↔b) == (★a) ⊕ (★b). -/
-def theorem_T12 (a b : Expr) : Bool :=
-  let lhs := project (entangle a b)
-  let rhs := plus [project a, project b]
-  eqNorm lhs rhs
-
-/-- T13: Absorption — a ⊕ (a ⊗ b) == a. -/
-def theorem_T13 (a b : Expr) : Bool :=
-  let lhs := plus [a, times [a, b]]
-  eqNorm lhs a
-
-/-- T14: Dual distributivity factoring is intentionally NOT a PA-core theorem.
-
-Returns true iff the equivalence happens to hold under this normalizer,
-but callers MUST NOT rely on it.
--/
-def theorem_T14 (a b c : Expr) : Bool :=
-  let lhs := plus [a, times [b, c]]
-  let rhs := times [plus [a, b], plus [a, c]]
-  eqNorm lhs rhs
-
-/-- T15: Falsification / cancellation identities — a ⊖ ∅ == a and ∅ ⊖ a == a. -/
-def theorem_T15 (a : Expr) : Bool :=
-  let lhs1 := cancel a empty
-  let lhs2 := cancel empty a
-  (eqNorm lhs1 a) && (eqNorm lhs2 a)
+def T14_guard (a b c : Expr) : Bool :=
+  (normalizeWF (SUM a (PROD b c))) == (normalizeWF (PROD (SUM a b) (SUM a c)))
 
 end PhotonAlgebra

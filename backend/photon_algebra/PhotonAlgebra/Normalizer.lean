@@ -2,172 +2,189 @@ import PhotonAlgebra.Basic
 
 namespace PhotonAlgebra
 
-/-- A monomial is a finite set of factors (order irrelevant, idempotent). -/
-abbrev Mono : Type := Finset Expr
+open PhotonAlgebra
 
-/-- A DNF is a finite set of monomials (order irrelevant, idempotent). -/
-abbrev DNF : Type := Finset Mono
+/-- String ≤ as Bool using `compare` (no extra imports). -/
+def leStr (a b : String) : Bool :=
+  match compare a b with
+  | Ordering.lt => true
+  | Ordering.eq => true
+  | Ordering.gt => false
 
-private def monoSingleton (e : Expr) : Mono := ({e} : Finset Expr)
-private def dnfSingleton (m : Mono) : DNF := ({m} : Finset Mono)
+/-- Insert into a list sorted by Expr.key (insertion sort). -/
+def insertByKey (x : Expr) : List Expr → List Expr
+  | [] => [x]
+  | y :: ys =>
+      if leStr x.key y.key then
+        x :: y :: ys
+      else
+        y :: insertByKey x ys
 
-/-- Deterministic structural key used only for sorting during reification. -/
-def exprKey : Expr -> String
-  | Expr.atom s => "A:" ++ s
-  | Expr.empty => "E:∅"
-  | Expr.plus xs =>
-      let ks := xs.map exprKey
-      "P:(" ++ String.intercalate "," ks ++ ")"
-  | Expr.times xs =>
-      let ks := xs.map exprKey
-      "T:(" ++ String.intercalate "," ks ++ ")"
-  | Expr.entangle a b => "R:(" ++ exprKey a ++ "," ++ exprKey b ++ ")"
-  | Expr.neg a => "N:(" ++ exprKey a ++ ")"
-  | Expr.cancel a b => "D:(" ++ exprKey a ++ "," ++ exprKey b ++ ")"
-  | Expr.project a => "S:(" ++ exprKey a ++ ")"
-  | Expr.collapse a => "C:(" ++ exprKey a ++ ")"
+/-- Deterministic sort by key (insertion sort; small inputs). -/
+def sortByKey (xs : List Expr) : List Expr :=
+  xs.foldl (fun acc x => insertByKey x acc) []
 
-private def sortByKey (xs : List Expr) : List Expr :=
-  xs.qsort (fun a b => exprKey a < exprKey b)
+/-- Dedup adjacent-by-key after sorting. -/
+def dedupSortedByKey (xs : List Expr) : List Expr :=
+  let rec go (prev? : Option String) (acc : List Expr) (rest : List Expr) :=
+    match rest with
+    | [] => acc.reverse
+    | x :: rs =>
+        let k := x.key
+        match prev? with
+        | some pk =>
+            if k == pk then
+              go prev? acc rs
+            else
+              go (some k) (x :: acc) rs
+        | none =>
+            go (some k) (x :: acc) rs
+  go none [] xs
 
-/-- DNF union (⊕ semantics). -/
-def dnfUnion (a b : DNF) : DNF := a ∪ b
+/-- Flatten nested ⊕. -/
+def flattenPlus : List Expr → List Expr
+  | [] => []
+  | (Expr.plus ys) :: xs => ys ++ flattenPlus xs
+  | x :: xs => x :: flattenPlus xs
 
-/-- DNF product (⊗ semantics): set-product of monomials, unioning factors. -/
-def dnfProd (a b : DNF) : DNF :=
-  a.bind (fun m => b.image (fun n => m ∪ n))
+/-- Flatten nested ⊗. -/
+def flattenTimes : List Expr → List Expr
+  | [] => []
+  | (Expr.times ys) :: xs => ys ++ flattenTimes xs
+  | x :: xs => x :: flattenTimes xs
 
-/-- Subsumption check: m is subsumed iff there exists m' in D with m' ⊂ m. -/
-private def isStrictSubset (m' m : Mono) : Bool := decide (m' ⊆ m ∧ m' ≠ m)
+/-- True iff `p` is a product containing factor `f` (syntactic). -/
+def timesHasFactor (p f : Expr) : Bool :=
+  match p with
+  | Expr.times fs => fs.any (fun x => x == f)
+  | _ => false
 
-private def subsumed (d : DNF) (m : Mono) : Bool :=
-  d.any (fun m' => isStrictSubset m' m)
-
-/-- Absorption-style reduction: drop any monomial that strictly contains another. -/
-def reduceSubsumption (d : DNF) : DNF :=
-  d.filter (fun m => !(subsumed d m))
-
-/-- Convert a monomial to an Expr product (⊗ list), or the single factor. -/
-def monoToExpr (m : Mono) : Expr :=
-  let xs := sortByKey m.toList
-  match xs with
-  | [] => Expr.empty
-  | [x] => x
-  | _ => Expr.times xs
-
-/-- Convert a DNF to an Expr sum-of-products (⊕ list). -/
-def dnfToExpr (d : DNF) : Expr :=
-  let terms := (d.toList.map monoToExpr).qsort (fun a b => exprKey a < exprKey b)
+/-- If *all* terms are `entangle a _` with the same `a`, factor into `a ↔ (⊕ ...)`. -/
+def factorEntangleIfPossible (terms : List Expr) : Option Expr :=
   match terms with
-  | [] => Expr.empty
-  | [t] => t
-  | _ => Expr.plus terms
+  | [] => none
+  | (Expr.entangle a b) :: rest =>
+      if rest.all (fun t =>
+        match t with
+        | Expr.entangle a' _ => a' == a
+        | _ => false
+      ) then
+        let rights :=
+          (b :: (rest.map (fun t => match t with | Expr.entangle _ r => r | _ => Expr.empty)))
+        some (Expr.entangle a (Expr.plus rights))
+      else
+        none
+  | _ => none
 
-/-- Normalization (directed): compute a canonical SOP-like Expr.
+/-- Absorption: if a term `t` appears in ⊕, drop any product term containing `t` as a factor. -/
+def absorb (terms : List Expr) : List Expr :=
+  let bases := terms.filter (fun t =>
+    match t with
+    | Expr.times _ => false
+    | _ => true
+  )
+  terms.filter (fun t =>
+    match t with
+    | Expr.times _ =>
+        -- keep product only if it is NOT subsumed by any base factor
+        !(bases.any (fun b => timesHasFactor t b))
+    | _ => true
+  )
 
-This is an executable checker-level normalizer intended to match the repo’s story:
-- distribute ⊗ over ⊕ (DNF product)
-- never factor
-- absorb subsumed terms
-- preserve wrappers (∇, ★) structurally
+/-- Pick the first factor that is a ⊕, returning (prefix, sumStates, suffix). -/
+def pickFirstPlusFactor : List Expr → Option (List Expr × List Expr × List Expr)
+  | [] => none
+  | x :: xs =>
+      match x with
+      | Expr.plus ys => some ([], ys, xs)
+      | _ =>
+          match pickFirstPlusFactor xs with
+          | none => none
+          | some (pre, ys, suf) => some (x :: pre, ys, suf)
 
-This version is dependency-free and is designed for theorem *checkers*.
--/
-mutual
-  /-- Compute reduced DNF for any Expr, treating non-(⊕,⊗) nodes as atomic factors,
-      except for specific distributivities used by T10/T12. -/
-  def dnf : Expr -> DNF
-    | Expr.atom s => dnfSingleton (monoSingleton (Expr.atom s))
-    | Expr.empty => (∅ : DNF)
+/-- One normalization step (may perform one distribution at the top `times` it sees). -/
+def normStep : Expr → Expr
+  | Expr.atom s => Expr.atom s
+  | Expr.empty  => Expr.empty
 
-    | Expr.plus xs =>
-        let d0 : DNF := ∅
-        let u := xs.foldl (fun acc x => dnfUnion acc (dnf x)) d0
-        reduceSubsumption u
+  | Expr.neg e =>
+      let ne := normStep e
+      match ne with
+      | Expr.neg x => x
+      | _ => Expr.neg ne
 
-    | Expr.times xs =>
-        match xs with
-        | [] => (∅ : DNF)
-        | _ =>
-          let one : DNF := dnfSingleton (∅ : Mono)
-          let p := xs.foldl (fun acc x => dnfProd acc (dnf x)) one
-          reduceSubsumption p
+  | Expr.cancel a b =>
+      let na := normStep a
+      let nb := normStep b
+      if na == nb then
+        Expr.empty
+      else if nb == Expr.empty then
+        na
+      else if na == Expr.empty then
+        nb
+      else
+        Expr.cancel na nb
 
-    | Expr.neg (Expr.neg a) => dnf a
-    | Expr.neg a => dnfSingleton (monoSingleton (Expr.neg (norm a)))
+  | Expr.project e =>
+      let ne := normStep e
+      match ne with
+      | Expr.entangle a b =>
+          -- ★(a↔b)  →  (★a) ⊕ (★b)
+          Expr.plus [Expr.project a, Expr.project b]
+      | _ =>
+          Expr.project ne
 
-    | Expr.cancel a b =>
-        if b == Expr.empty then dnf a
-        else if a == Expr.empty then dnf b
-        else if a == b then (∅ : DNF)
-        else dnfSingleton (monoSingleton (Expr.cancel (norm a) (norm b)))
+  | Expr.collapse e =>
+      Expr.collapse (normStep e)
 
-    | Expr.entangle a (Expr.plus xs) =>
-        let d0 : DNF := ∅
-        let u := xs.foldl (fun acc x => dnfUnion acc (dnf (Expr.entangle a x))) d0
-        reduceSubsumption u
+  | Expr.entangle a b =>
+      Expr.entangle (normStep a) (normStep b)
 
-    | Expr.entangle a b =>
-        dnfSingleton (monoSingleton (Expr.entangle (norm a) (norm b)))
+  | Expr.plus xs =>
+      let xs1 := xs.map normStep
+      let xs2 := flattenPlus xs1
+      let xs3 := xs2.filter (fun t => !(t == Expr.empty))
+      let xs4 := dedupSortedByKey (sortByKey xs3)
+      let xs5 := absorb xs4
+      match factorEntangleIfPossible xs5 with
+      | some e => e
+      | none =>
+          match xs5 with
+          | [] => Expr.empty
+          | [t] => t
+          | _ => Expr.plus xs5
 
-    | Expr.project (Expr.entangle a b) =>
-        reduceSubsumption (dnfUnion (dnf (Expr.project a)) (dnf (Expr.project b)))
+  | Expr.times xs =>
+      let xs1 := xs.map normStep
+      let xs2 := flattenTimes xs1
+      if xs2.any (fun t => t == Expr.empty) then
+        Expr.empty
+      else
+        -- distribute once if any factor is ⊕
+        match pickFirstPlusFactor xs2 with
+        | some (pre, ys, suf) =>
+            let terms := ys.map (fun y => Expr.times (pre.reverse ++ [y] ++ suf))
+            Expr.plus terms
+        | none =>
+            let xs3 := dedupSortedByKey (sortByKey xs2)
+            match xs3 with
+            | [] => Expr.empty
+            | [t] => t
+            | _ => Expr.times xs3
 
-    | Expr.project a =>
-        dnfSingleton (monoSingleton (Expr.project (norm a)))
+/-- Fuel-bounded normalization to a fixpoint. -/
+def normalizeFuel : Nat → Expr → Expr
+  | 0, e => e
+  | Nat.succ k, e =>
+      let e' := normStep e
+      if e' == e then
+        e
+      else
+        normalizeFuel k e'
 
-    | Expr.collapse a =>
-        dnfSingleton (monoSingleton (Expr.collapse (norm a)))
-
-  /-- Reified normal form expression. -/
-  def norm : Expr -> Expr
-    | Expr.atom s => Expr.atom s
-    | Expr.empty => Expr.empty
-
-    | Expr.plus xs =>
-        let d0 : DNF := ∅
-        let u := xs.foldl (fun acc x => dnfUnion acc (dnf x)) d0
-        dnfToExpr (reduceSubsumption u)
-
-    | Expr.times xs =>
-        match xs with
-        | [] => Expr.empty
-        | _ =>
-          let one : DNF := dnfSingleton (∅ : Mono)
-          let p := xs.foldl (fun acc x => dnfProd acc (dnf x)) one
-          dnfToExpr (reduceSubsumption p)
-
-    | Expr.neg (Expr.neg a) => norm a
-    | Expr.neg a => Expr.neg (norm a)
-
-    | Expr.cancel a b =>
-        if b == Expr.empty then norm a
-        else if a == Expr.empty then norm b
-        else if a == b then Expr.empty
-        else Expr.cancel (norm a) (norm b)
-
-    | Expr.entangle a (Expr.plus xs) =>
-        let d0 : DNF := ∅
-        let u := xs.foldl (fun acc x => dnfUnion acc (dnf (Expr.entangle a x))) d0
-        dnfToExpr (reduceSubsumption u)
-
-    | Expr.entangle a b => Expr.entangle (norm a) (norm b)
-
-    | Expr.project (Expr.entangle a b) =>
-        let u := dnfUnion (dnf (Expr.project a)) (dnf (Expr.project b))
-        dnfToExpr (reduceSubsumption u)
-
-    | Expr.project a => Expr.project (norm a)
-
-    | Expr.collapse a => Expr.collapse (norm a)
-
-end
-
-termination_by
-  dnf e => Expr.size e
-  norm e => Expr.size e
-
-/-- Convenience alias matching the repo naming. -/
-def normalize (e : Expr) : Expr := norm e
+/-- Public normalizer (PA-core). -/
+def normalize (e : Expr) : Expr :=
+  -- generous fuel: quadratic in size to allow distribution growth but still terminate
+  normalizeFuel (e.size * e.size + 50) e
 
 end PhotonAlgebra

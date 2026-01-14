@@ -1,10 +1,8 @@
 namespace PhotonAlgebra
 
-/-- Photon Algebra (PA-core) AST for the Lean formalization.
+/-- Photon Algebra (PA-core) AST for Lean formalization (dependency-free, Lean4 stable).
 
-Minimal, dependency-free Lean 4 encoding intended for:
-- a deterministic normalizer (directed strategy)
-- theorem checkers (T8–T15) as normal-form equalities
+We avoid `DecidableEq` and any mutual recursion tricks; we use `BEq` instead.
 
 Operator mapping:
   plus      = ⊕
@@ -20,18 +18,19 @@ Operator mapping:
 inductive Expr where
   | atom     (name : String)
   | empty
-  | plus     (states : List Expr)          -- ⊕ (n-ary)
-  | times    (states : List Expr)          -- ⊗ (n-ary)
-  | entangle (a : Expr) (b : Expr)         -- ↔ (binary)
-  | neg      (state : Expr)                -- ¬ (unary)
-  | cancel   (a : Expr) (b : Expr)         -- ⊖ (binary)
-  | project  (state : Expr)                -- ★ (unary)
-  | collapse (state : Expr)                -- ∇ (unary)
-  deriving Repr, DecidableEq
+  | plus     (states : List Expr)     -- ⊕ (n-ary)
+  | times    (states : List Expr)     -- ⊗ (n-ary)
+  | entangle (a : Expr) (b : Expr)    -- ↔
+  | neg      (state : Expr)           -- ¬
+  | cancel   (a : Expr) (b : Expr)    -- ⊖
+  | project  (state : Expr)           -- ★
+  | collapse (state : Expr)           -- ∇
+  deriving Repr, BEq
 
 abbrev EMPTY : Expr := Expr.empty
+instance : Inhabited Expr := ⟨Expr.empty⟩
 
-/-- A simple structural size measure used for termination arguments in the normalizer. -/
+/-- Structural size (simple measure for fuel sizing). -/
 def Expr.size : Expr → Nat
   | atom _         => 1
   | empty          => 1
@@ -43,20 +42,36 @@ def Expr.size : Expr → Nat
   | project e      => 1 + e.size
   | collapse e     => 1 + e.size
 
-/-- Deterministic structural key (string) for ordering.
-
-We only use this for sorting lists during reification.
-It is *not* part of any semantics.
--/
+/-- Deterministic structural key (string) for ordering/dedup.
+Not semantic; only for canonicalization. -/
 def Expr.key : Expr → String
   | atom s => "A(" ++ s ++ ")"
-  | empty => "E(∅)"
-  | plus xs => "P(" ++ String.intercalate "," (xs.map Expr.key) ++ ")"
-  | times xs => "T(" ++ String.intercalate "," (xs.map Expr.key) ++ ")"
-  | entangle a b => "R(" ++ a.key ++ "↔" ++ b.key ++ ")"
-  | neg e => "N(¬" ++ e.key ++ ")"
-  | cancel a b => "D(" ++ a.key ++ "⊖" ++ b.key ++ ")"
-  | project e => "S(★" ++ e.key ++ ")"
-  | collapse e => "C(∇" ++ e.key ++ ")"
+  | empty  => "E(∅)"
+  | plus xs =>
+      "P(" ++ joinKeys xs ++ ")"
+  | times xs =>
+      "T(" ++ joinKeys xs ++ ")"
+  | entangle a b =>
+      "R(" ++ a.key ++ "↔" ++ b.key ++ ")"
+  | neg e =>
+      "N(¬" ++ e.key ++ ")"
+  | cancel a b =>
+      "D(" ++ a.key ++ "⊖" ++ b.key ++ ")"
+  | project e =>
+      "S(★" ++ e.key ++ ")"
+  | collapse e =>
+      "C(∇" ++ e.key ++ ")"
+where
+  joinKeys : List Expr → String
+    | []        => ""
+    | [x]       => x.key
+    | x :: xs   => x.key ++ "," ++ joinKeys xs
+
+/-- Helper: BEq for lists using Expr's BEq. -/
+def beqList (xs ys : List Expr) : Bool :=
+  match xs, ys with
+  | [], [] => true
+  | x::xs, y::ys => (x == y) && beqList xs ys
+  | _, _ => false
 
 end PhotonAlgebra

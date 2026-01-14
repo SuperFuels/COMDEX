@@ -14,10 +14,13 @@ lean_lib SymaticsBridge where
   roots := #[`SymaticsBridge]
   precompileModules := false
 
--- --- Photon Algebra (PA-core) ---
+-- ---------------------------------------------------------------------------
+-- Photon Algebra (PA-core)
+-- Source lives at: backend/photon_algebra/PhotonAlgebra/*.lean
+-- Lake is invoked from: backend/modules/lean/workspace
+-- ---------------------------------------------------------------------------
+
 lean_lib PhotonAlgebra where
-  -- lake is invoked from: backend/modules/lean/workspace
-  -- photon algebra lives at: backend/photon_algebra
   srcDir := "../../../photon_algebra"
   roots := #[`PhotonAlgebra]
   precompileModules := false
@@ -25,4 +28,10 @@ lean_lib PhotonAlgebra where
 lean_exe photon_algebra_test where
   srcDir := "../../../photon_algebra"
   root := `PhotonAlgebra.Test
--- --- end Photon Algebra ---
+
+lean_exe photon_algebra_audit where
+  srcDir := "../../../photon_algebra"
+  root := `PhotonAlgebra.Audit
+
+lean_exe photon_algebra_bridge_snapshot where
+  root := `PhotonAlgebra.BridgeSnapshot
