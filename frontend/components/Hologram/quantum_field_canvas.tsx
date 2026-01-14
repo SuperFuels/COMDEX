@@ -23,7 +23,7 @@ import renderQWaveBeams from "./renderQWaveBeams";
 import { QuantumFieldCanvasLoader } from "./QuantumFieldCanvasLoader";
 
 // NEW
-import type { HoloIR } from "../../../Glyph_Net_Browser/src/lib/types/holo";
+import type { HoloIR } from "@/lib/types/holo";
 import {
   runHoloSnapshot,
   type HoloRunResult,
