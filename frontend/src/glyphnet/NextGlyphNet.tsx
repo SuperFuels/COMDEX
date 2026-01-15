@@ -1,8 +1,13 @@
+"use client";
+
 import React from "react";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 
-// Next app should not use react-router-dom BrowserRouter.
-// If App still uses react-router-dom Routes/Link/etc, then you must keep Option A instead.
 export default function NextGlyphNet() {
-  return <App />;
+  return (
+    <BrowserRouter basename="/glyphnet">
+      <App />
+    </BrowserRouter>
+  );
 }
