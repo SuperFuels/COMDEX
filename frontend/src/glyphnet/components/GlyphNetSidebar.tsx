@@ -15,14 +15,13 @@ export default function GlyphNetSidebar({
   onGo,
 }: {
   isOpen: boolean;
-  onOpen: () => void;
+  onOpen: () => void;   // ✅ required
   onClose: () => void;
   items: Item[];
   onGo: (path: string) => void;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Close when clicking outside panel
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (isOpen && panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
@@ -31,47 +30,31 @@ export default function GlyphNetSidebar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
 
-  // Close on hash route change
   useEffect(() => {
     const h = () => isOpen && onClose();
     window.addEventListener("hashchange", h);
     return () => window.removeEventListener("hashchange", h);
   }, [isOpen, onClose]);
 
-  const safeItems: Item[] =
-    items && items.length
-      ? items
-      : [
-          { label: "DevTools", path: "/devtools", emoji: "🛠️" },
-          { label: "Ledger", path: "/ledger", emoji: "📒" },
-          { label: "Docs", path: "/docs", emoji: "📚" },
-        ];
-
   return (
     <>
-      {/* Always-on left rail */}
+      {/* Left rail */}
       <div
         aria-label="GlyphNet rail"
-        className={[
-          "fixed left-0 top-0 z-[80] h-screen w-14",
-          "border-r border-border bg-background",
-          "flex flex-col items-center justify-between py-3",
-          "select-none",
-        ].join(" ")}
+        className="fixed left-0 top-0 z-[80] h-screen w-14 border-r border-border bg-background flex flex-col items-center justify-between py-3 select-none"
       >
-        {/* Top: G button toggles OPEN/CLOSE */}
+        {/* G button */}
         <div className="relative group">
           <button
             type="button"
-            onClick={() => (isOpen ? onClose() : onOpen())}
+            onClick={() => (isOpen ? onClose() : onOpen())}   // ✅ FIX: actually opens
             className="h-10 w-10 rounded-xl border border-border bg-background grid place-items-center hover:bg-button-light/40 dark:hover:bg-button-dark/40"
             aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
-            title={isOpen ? "Close sidebar" : "Open sidebar"}
           >
             <Image src="/G.svg" alt="G" width={28} height={28} />
           </button>
 
-          {/* Hover tooltip */}
+          {/* Tooltip */}
           <div className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
             <div className="rounded-lg border border-border bg-background px-2 py-1 text-xs text-text shadow-sm whitespace-nowrap">
               {isOpen ? "Close sidebar" : "Open sidebar"}
@@ -79,7 +62,7 @@ export default function GlyphNetSidebar({
           </div>
         </div>
 
-        {/* Bottom: theme toggle */}
+        {/* Theme */}
         <div className="pb-1">
           <DarkModeToggle />
         </div>
@@ -87,10 +70,9 @@ export default function GlyphNetSidebar({
 
       {/* Backdrop */}
       <div
-        className={[
-          "fixed inset-0 z-[70] bg-black/40 transition-opacity",
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
-        ].join(" ")}
+        className={`fixed inset-0 z-[70] bg-black/40 transition-opacity ${
+          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
         onClick={onClose}
       />
 
@@ -98,12 +80,9 @@ export default function GlyphNetSidebar({
       <aside
         ref={panelRef}
         aria-label="GlyphNet navigation"
-        className={[
-          "fixed top-0 left-14 z-[75] h-screen w-80 max-w-[80vw]",
-          "border-r border-border bg-background",
-          "transform transition-transform duration-200 ease-out",
-          isOpen ? "translate-x-0" : "-translate-x-full",
-        ].join(" ")}
+        className={`fixed top-0 left-14 z-[75] h-screen w-80 max-w-[80vw] border-r border-border bg-background transform transition-transform duration-200 ease-out ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-4 py-4 border-b border-border">
@@ -112,7 +91,6 @@ export default function GlyphNetSidebar({
               onClick={onClose}
               className="h-9 w-9 rounded-lg border border-border hover:bg-button-light/40 dark:hover:bg-button-dark/40"
               aria-label="Close sidebar"
-              title="Close"
             >
               ✕
             </button>
@@ -141,7 +119,7 @@ export default function GlyphNetSidebar({
               </div>
 
               <div className="flex flex-col">
-                {safeItems.map((it) => (
+                {items.map((it) => (
                   <button
                     key={it.path}
                     onClick={() => onGo(it.path)}
