@@ -1,7 +1,7 @@
 // Glyph_Net_Browser/src/lib/api/holo.ts
 import type { HoloIR, HoloSourceView } from "../types/holo";
 
-const API_BASE =
+export const API_BASE =
   process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE ?? "http://localhost:8080";
 
 // What DevTools/QFC sends when you press "Export as .holo"

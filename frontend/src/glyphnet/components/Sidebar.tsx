@@ -1,4 +1,4 @@
-// Glyph_Net_Browser/src/components/Sidebar.tsx
+// Sidebar.tsx
 import { useEffect } from "react";
 
 type Props = {
@@ -16,13 +16,12 @@ type Props = {
   onClose: () => void;
 };
 
-// ⚠️ Dev-only flag, easy to rip out later
-const DEV_ROUTES_ENABLED =
+// Dev-only flag (Next.js reads NEXT_PUBLIC_* on the client)
+const showDev =
   process.env.NODE_ENV !== "production" ||
-  process.env.NEXT_PUBLIC_SHOW_DEV_ROUTES === "1";
+  process.env.NEXT_PUBLIC_GLYPHNET_SHOW_DEV_ROUTES === "1";
 
 export default function Sidebar({ open, active, onSelect, onClose }: Props) {
-  // close on ESC
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -60,41 +59,8 @@ export default function Sidebar({ open, active, onSelect, onClose }: Props) {
     </button>
   );
 
-  // Small helper for dev-only hash-based buttons
-  const DevButton = ({
-    label,
-    emoji,
-    hash,
-  }: {
-    label: string;
-    emoji: string;
-    hash: string;
-  }) => (
-    <button
-      onClick={() => {
-        window.location.hash = hash;
-        onSelect("devtools");
-        onClose();
-      }}
-      aria-label={label}
-      title={label}
-      style={{
-        width: 48,
-        height: 48,
-        borderRadius: 12,
-        border: "1px solid #e5e7eb",
-        background: "#fff",
-        cursor: "pointer",
-        fontSize: 20,
-      }}
-    >
-      {emoji}
-    </button>
-  );
-
   return (
     <>
-      {/* Scrim */}
       <div
         onClick={onClose}
         style={{
@@ -108,13 +74,12 @@ export default function Sidebar({ open, active, onSelect, onClose }: Props) {
         }}
       />
 
-      {/* Drawer */}
       <aside
         role="navigation"
         aria-label="Sidebar"
         style={{
           position: "fixed",
-          top: 56, // height of TopBar
+          top: 56,
           left: 0,
           bottom: 0,
           width: 72,
@@ -136,10 +101,10 @@ export default function Sidebar({ open, active, onSelect, onClose }: Props) {
         <Item id="outbox" label="Wave Outbox" emoji="📤" />
         <Item id="wallet" label="Wallet" emoji="🏦" />
         <Item id="kg" label="Knowledge Graph" emoji="🧠" />
-        <Item id="devtools" label="Dev Tools" emoji="🛠️" />
-        <Item id="settings" label="Settings" emoji="⚙️" />
 
-        
+        {showDev && <Item id="devtools" label="Dev Tools" emoji="🛠️" />}
+
+        <Item id="settings" label="Settings" emoji="⚙️" />
       </aside>
     </>
   );

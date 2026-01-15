@@ -13,8 +13,8 @@ export function backendEndpoints() {
 
   // Local dev: honor current page scheme
   const apiHost =
-  (process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE ?? "http://localhost:8080")
-    .replace(/^https?:\/\//, "");
+    (process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE ?? "http://localhost:8080")
+      .replace(/^https?:\/\//, "");
   const http = `${location.protocol === "https:" ? "https" : "http"}://${apiHost}`;
   const ws   = `${location.protocol === "https:" ? "wss"   : "ws"}://${apiHost}`;
   return { http, ws };

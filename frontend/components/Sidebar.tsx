@@ -34,6 +34,7 @@ const SECTIONS: Section[] = [
       { label: 'QWave Field HUD', href: '/aion/qwave-field-hud', emoji: '🌊' },
       { label: 'Glyph Summary HUD', href: '/aion/glyph-summary-hud', emoji: '📝' },
       { label: 'GlyphNet HUD', href: '/aion/glyphnet-hud', emoji: '🖥️' },
+      { label: 'GlyphNet (New)', href: '/glyphnet', emoji: '🕸️' },
     ],
   },
   {
@@ -225,6 +226,12 @@ export default function Sidebar({
                 className="block py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 font-medium"
               >
                 🛒 Products
+              </Link>
+              <Link
+                href="/glyphnet"
+                className="block py-2 px-3 border border-black rounded hover:bg-gray-100 dark:hover:bg-gray-800 font-medium"
+              >
+                🕸️ GlyphNet (New)
               </Link>
               <Link
                 href="/swap"

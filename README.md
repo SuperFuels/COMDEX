@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Snapshot Theorems Saved COMPLETE"
+git commit -m "Glyphnet Frontend"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn
