@@ -1,7 +1,11 @@
 import dynamic from "next/dynamic";
 import React from "react";
 
-const GlyphNetClient = dynamic(() => import("@glyphnet/NextGlyphNet"), {
+// IMPORTANT:
+// Use the GlyphNet entry that does NOT wrap another Router.
+// (Your NextGlyphNet currently wraps BrowserRouter, and your GlyphNet app also wraps a Router,
+// which triggers: "You cannot render a <Router> inside another <Router>.")
+const GlyphNetClient = dynamic(() => import("@glyphnet/index"), {
   ssr: false,
 });
 
@@ -13,12 +17,15 @@ class GlyphNetErrorBoundary extends React.Component<
     super(props);
     this.state = { hasError: false };
   }
+
   static getDerivedStateFromError(err: any) {
     return { hasError: true, msg: String(err?.message || err) };
   }
+
   componentDidCatch(err: any) {
     console.error("[GlyphNet] crash:", err);
   }
+
   render() {
     if (this.state.hasError) {
       return (

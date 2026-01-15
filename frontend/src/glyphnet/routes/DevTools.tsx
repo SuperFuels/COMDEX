@@ -1,4 +1,4 @@
-// Glyph_Net_Browser/src/routes/DevTools.tsx
+// /workspaces/COMDEX/frontend/src/glyphnet/routes/DevTools.tsx
 // Dev Tools dashboard inside the Glyph Net browser.
 
 // NOTE: Photon Pay & WaveSend dev panels are routed in App.tsx
