@@ -1,126 +1,238 @@
-// frontend/components/Navbar.tsx
-'use client'
+"use client";
 
-import Link from 'next/link'
-import Image from 'next/image'
-import { useRouter, usePathname } from 'next/navigation'
-import { useEffect, useState, useRef, useCallback } from 'react'
-import api from '@/lib/api'
-import { UserRole } from '@/hooks/useAuthRedirect'
-import { signInWithEthereum, logout } from '@/utils/auth'
-import Sidebar from './Sidebar'
-import { DarkModeToggle } from './DarkModeToggle'
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 
-export default function Navbar() {
-  const router = useRouter()
-  const pathname = usePathname() || '/'
-  const [account, setAccount] = useState<string | null>(null)
-  const [role, setRole] = useState<UserRole | null>(null)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const wrapperRef = useRef<HTMLDivElement>(null)
+type RadioStatus = "unknown" | "up" | "reconnecting" | "down";
 
-  const handleConnect = useCallback(async () => {
-    if (typeof window === 'undefined') return
-    localStorage.removeItem('manualDisconnect')
-    try {
-      const { address, role: newRole } = await signInWithEthereum()
-      setAccount(address)
-      setRole(newRole as UserRole)
-    } catch (err: any) {
-      console.error('SIWE login failed', err)
-      if (err?.response?.status === 404) router.push('/register')
-    }
-  }, [router])
+type Session = { slug: string; wa: string; name?: string } | null;
 
-  const handleDisconnect = useCallback(() => {
-    if (typeof window === 'undefined') return
-    localStorage.setItem('manualDisconnect', 'true')
-    logout()
-    setAccount(null)
-    setRole(null)
-    setDropdownOpen(false)
-    router.push('/')
-  }, [router])
+function RadioPill({ status = "unknown" }: { status?: RadioStatus }) {
+  const cfg =
+    status === "up"
+      ? { bg: "bg-emerald-200", border: "border-emerald-500", title: "Radio: healthy" }
+      : status === "reconnecting"
+      ? { bg: "bg-amber-200", border: "border-amber-500", title: "Radio: reconnecting…" }
+      : status === "down"
+      ? { bg: "bg-red-200", border: "border-red-500", title: "Radio: down" }
+      : { bg: "bg-gray-200", border: "border-gray-400", title: "Radio: unknown" };
 
-  // bootstrap auth + wallet
+  return (
+    <button
+      type="button"
+      title={cfg.title}
+      className={`h-9 w-9 rounded-full border ${cfg.border} ${cfg.bg} grid place-items-center`}
+    >
+      🛜
+    </button>
+  );
+}
+
+function BlePill() {
+  return (
+    <button
+      type="button"
+      title="Bluetooth / mesh link"
+      className="h-9 w-9 rounded-full border border-blue-500 bg-blue-100 grid place-items-center"
+    >
+      🌀
+    </button>
+  );
+}
+
+function ViewToggle() {
+  return (
+    <div className="inline-flex overflow-hidden rounded-full border border-border bg-background/80">
+      <button
+        type="button"
+        title="Web"
+        className="px-3 py-1 text-sm bg-button-light/60 dark:bg-button-dark/70 text-text hover:bg-button-light/70 dark:hover:bg-button-dark/80"
+        onClick={() => {
+          // no-op: you are already in the web shell
+        }}
+      >
+        🌐
+      </button>
+      <button
+        type="button"
+        title="Multiverse"
+        className="px-3 py-1 text-sm border-l border-border text-text/80 hover:bg-button-light/70 dark:hover:bg-button-dark/80"
+        onClick={() => {
+          window.open("/aion/multiverse", "_blank", "noopener,noreferrer");
+        }}
+      >
+        🌌
+      </button>
+    </div>
+  );
+}
+
+function AddressBar() {
+  const [v, setV] = useState("");
+
+  return (
+    <form
+      className="flex w-full items-center gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const s = v.trim();
+        if (!s) return;
+
+        // very lightweight behavior:
+        // - http(s) opens a new tab
+        // - "#/path" sets hash router path
+        // - otherwise treat as a search-ish token -> devtools for now
+        if (/^https?:\/\//i.test(s)) {
+          window.open(s, "_blank", "noopener,noreferrer");
+          return;
+        }
+        if (s.startsWith("#/")) {
+          window.location.hash = s;
+          return;
+        }
+        window.location.hash = `#/devtools?query=${encodeURIComponent(s)}`;
+      }}
+    >
+      <input
+        value={v}
+        onChange={(e) => setV(e.target.value)}
+        placeholder="Wormhole / URL / query…"
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-ring/30"
+      />
+    </form>
+  );
+}
+
+export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
+  const [session, setSession] = useState<Session>(null);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const [pho, setPho] = useState<string | null>(null);
+  const [phoLoading, setPhoLoading] = useState(false);
+
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  const profileLabel = useMemo(() => {
+    if (!session) return "";
+    return session.name || session.slug || session.wa || "You";
+  }, [session]);
+
+  // close dropdown on outside click
   useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    const token = localStorage.getItem('token')
-    if (token) {
-      api.defaults.headers.common.Authorization = `Bearer ${token}`
-      api
-        .get<{ role: UserRole }>('/auth/profile')
-        .then(res => setRole(res.data.role))
-        .catch(() => {
-          localStorage.removeItem('token')
-          delete (api.defaults.headers.common as any).Authorization
-        })
+    function onDown(e: MouseEvent) {
+      if (loginOpen && wrapRef.current && !wrapRef.current.contains(e.target as Node)) setLoginOpen(false);
     }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [loginOpen]);
 
-    const eth = (window as any).ethereum
-    if (!eth) return
-
-    const manuallyDisconnected = localStorage.getItem('manualDisconnect') === 'true'
-    if (!manuallyDisconnected) {
-      eth
-        .request({ method: 'eth_accounts' })
-        .then((accounts: string[]) => accounts[0] && setAccount(accounts[0]))
-        .catch(console.error)
-    }
-
-    const onAccountsChanged = (accounts: string[]) => {
-      if (accounts.length === 0) handleDisconnect()
-      else if (!manuallyDisconnected) setAccount(accounts[0])
-    }
-    eth.on('accountsChanged', onAccountsChanged)
-    return () => eth.removeListener('accountsChanged', onAccountsChanged)
-  }, [handleDisconnect])
-
-  // close wallet menu on outside click
+  // session bootstrap
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownOpen && wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false)
+    if (typeof window === "undefined") return;
+
+    const read = () => {
+      const slug = localStorage.getItem("gnet:user_slug");
+      const wa = localStorage.getItem("gnet:wa") || localStorage.getItem("gnet:ownerWa");
+      if (slug && wa) setSession({ slug, wa });
+      else setSession(null);
+    };
+
+    read();
+    const handler = () => read();
+    window.addEventListener("gnet:session:changed", handler);
+    return () => window.removeEventListener("gnet:session:changed", handler);
+  }, []);
+
+  // PHO pill
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const refresh = async () => {
+      const wa =
+        localStorage.getItem("gnet:ownerWa") ??
+        localStorage.getItem("gnet:wa") ??
+        null;
+
+      setPhoLoading(true);
+      try {
+        const resp = await fetch("/api/wallet/balances", {
+          headers: wa ? { "X-Owner-WA": wa } : {},
+        });
+        const data = await resp.json().catch(() => ({}));
+        const b = data?.balances || {};
+        setPho(b?.pho ?? null);
+      } catch {
+        setPho(null);
+      } finally {
+        setPhoLoading(false);
       }
+    };
+
+    void refresh();
+    const h = () => void refresh();
+    window.addEventListener("glyphnet:wallet:updated", h);
+    return () => window.removeEventListener("glyphnet:wallet:updated", h);
+  }, []);
+
+  const doLogout = () => {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem("gnet:user_slug");
+    localStorage.removeItem("gnet:wa");
+    localStorage.removeItem("gnet:ownerWa");
+    setSession(null);
+    window.dispatchEvent(new CustomEvent("gnet:session:changed"));
+  };
+
+  async function doLogin(e?: React.FormEvent) {
+    e?.preventDefault();
+    setBusy(true);
+    setErr(null);
+
+    try {
+      // Minimal “keep it working” login:
+      // If you have a website API, wire it via env and do the real call here.
+      // Otherwise we create a local session so GlyphNet controls can use WA headers.
+      const slug = (email.split("@")[0] || "user").toLowerCase().replace(/[^a-z0-9._-]/g, "-");
+      const wa = `${slug}@wave.tp`;
+
+      localStorage.setItem("gnet:user_slug", slug);
+      localStorage.setItem("gnet:wa", wa);
+
+      setLoginOpen(false);
+      setEmail("");
+      setPassword("");
+      setSession({ slug, wa });
+      window.dispatchEvent(new CustomEvent("gnet:session:changed"));
+    } catch (e: any) {
+      setErr(e?.message || "Login failed");
+    } finally {
+      setBusy(false);
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [dropdownOpen])
-
-  const shortAddr = account ? `${account.slice(0, 6)}…${account.slice(-4)}` : ''
-  const [amountIn, setAmountIn] = useState('')
-  const [amountOut, setAmountOut] = useState('')
-
-  const isMultiverse = pathname.startsWith('/aion/multiverse')
+  }
 
   return (
     <>
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        role={role}
-        account={account}
-        onLogout={handleDisconnect}
-      />
-
-      {/* Sidebar toggle */}
+      {/* Sidebar toggle (match your main Navbar: fixed, G icon) */}
       <button
-        onClick={() => setSidebarOpen(true)}
+        onClick={onOpenSidebar}
         className="fixed top-4 left-4 z-50 rounded-lg border border-border bg-background px-2 py-2"
         aria-label="Open menu"
       >
-        {/* 30% larger menu logo */}
         <Image src="/G.svg" alt="Menu" width={32} height={32} />
       </button>
 
+      {/* Sticky header shell (same borders/colors vibe as your main Navbar) */}
       <header className="sticky top-0 z-40 border-b border-border bg-background text-text">
         <div className="flex h-16 items-center justify-between gap-4 px-4">
-          {/* Logo (light + dark) */}
+          {/* Logo (keep your Tessaris logos) */}
           <div className="ml-12 flex items-center">
             <Link href="/" className="logo-link flex items-center">
-              {/* light-mode logo – ~30% bigger */}
               <Image
                 src="/tessaris_light_logo.svg"
                 alt="Tessaris"
@@ -129,7 +241,6 @@ export default function Navbar() {
                 priority
                 className="block dark:hidden border-none"
               />
-              {/* dark-mode logo – ~30% bigger */}
               <Image
                 src="/tessaris_dark_logo.svg"
                 alt="Tessaris"
@@ -141,99 +252,97 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Swap strip */}
-          <div className="flex flex-1 justify-center">
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                inputMode="decimal"
-                value={amountIn}
-                onChange={e => setAmountIn(e.target.value)}
-                placeholder="0"
-                className="w-24 sm:w-28 rounded-lg border border-border bg-background px-2 py-1 text-sm text-text focus:outline-none focus:ring-2 focus:ring-ring/30"
-              />
-              <button
-                type="button"
-                className="flex items-center rounded-lg border border-border bg-background px-2 py-1 text-sm hover:bg-button-light/50 dark:hover:bg-button-dark/50"
-              >
-                <Image src="/tokens/usdt.svg" alt="USDT" width={16} height={16} />
-                <span className="ml-1">USDT</span>
-              </button>
-              <span className="select-none text-lg text-text/70">→</span>
-              <input
-                type="number"
-                inputMode="decimal"
-                value={amountOut}
-                onChange={e => setAmountOut(e.target.value)}
-                placeholder="0"
-                className="w-24 sm:w-28 rounded-lg border border-border bg-background px-2 py-1 text-sm text-text focus:outline-none focus:ring-2 focus:ring-ring/30"
-              />
-              <button
-                type="button"
-                className="flex items-center rounded-lg border border-border bg-background px-2 py-1 text-sm hover:bg-button-light/50 dark:hover:bg-button-dark/50"
-              >
-                <Image src="/tokens/glu.svg" alt="GLU" width={16} height={16} />
-                <span className="ml-1">$GLU</span>
-              </button>
-              <button
-                onClick={() => router.push('/swap')}
-                className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
-              >
-                Swap
-              </button>
+          {/* Center: view toggle + address bar (replaces swap strip) */}
+          <div className="flex flex-1 items-center justify-center gap-3">
+            <ViewToggle />
+            <div className="w-[min(720px,60vw)]">
+              <AddressBar />
             </div>
           </div>
 
-          {/* Right: dark toggle + view toggle + wallet */}
+          {/* Right controls: radio/ble/theme/PHO/waves/login (replaces connect wallet) */}
           <div className="flex items-center gap-3">
+            <RadioPill status="unknown" />
+            <BlePill />
+
             <DarkModeToggle />
 
-            {/* Page | Multiverse toggle */}
-            <div className="inline-flex overflow-hidden rounded-full border border-border bg-background/80">
-              <button
-                onClick={() => router.push('/')}
-                className={`px-3 py-1 text-sm ${
-                  !isMultiverse ? 'bg-button-light/60 dark:bg-button-dark/70 text-text' : 'text-text/80'
-                } hover:bg-button-light/70 dark:hover:bg-button-dark/80`}
-                title="Page"
-              >
-                Page
-              </button>
-              <button
-                onClick={() => router.push('/aion/multiverse')}
-                className={`px-3 py-1 text-sm border-l border-border ${
-                  isMultiverse ? 'bg-button-light/60 dark:bg-button-dark/70 text-text' : 'text-text/80'
-                } hover:bg-button-light/70 dark:hover:bg-button-dark/80`}
-                title="Multiverse"
-              >
-                Multiverse
-              </button>
+            {/* PHO mini pill */}
+            <div
+              className="hidden sm:flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs text-text/80"
+              title="Displayed PHO (from /api/wallet/balances)"
+            >
+              <span>💰</span>
+              <span>{phoLoading ? "…" : pho ?? "—"}</span>
+              <span className="text-text/50">PHO</span>
             </div>
 
-            {!account ? (
-              <button
-                onClick={handleConnect}
-                className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
-              >
-                Connect Wallet
-              </button>
-            ) : (
-              <div ref={wrapperRef} className="relative">
+            {/* Waves (stub action for now) */}
+            <button
+              className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
+              onClick={() => (window.location.hash = "#/devtools")}
+              title="Waves"
+            >
+              🌊
+            </button>
+
+            {/* Auth */}
+            {session ? (
+              <>
                 <button
-                  onClick={() => setDropdownOpen(o => !o)}
                   className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
+                  onClick={() => (window.location.hash = "#/devtools")}
+                  title="Profile / Home container"
                 >
-                  {shortAddr}
+                  {profileLabel}
                 </button>
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-40 rounded-lg border border-border bg-background shadow-lg">
+                <button
+                  className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
+                  onClick={doLogout}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div ref={wrapRef} className="relative">
+                <button
+                  className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
+                  onClick={() => setLoginOpen((v) => !v)}
+                >
+                  Log in
+                </button>
+
+                {loginOpen && (
+                  <form className="absolute right-0 mt-2 w-72 rounded-lg border border-border bg-background p-3 shadow-lg" onSubmit={doLogin}>
+                    <div className="mb-2 text-sm font-semibold">Sign in</div>
+
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="Email"
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                    />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      placeholder="Password"
+                      className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                    />
+
+                    {err && <div className="mt-2 text-xs text-red-500">{err}</div>}
+
                     <button
-                      onClick={handleDisconnect}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-button-light/50 dark:hover:bg-button-dark/60"
+                      type="submit"
+                      disabled={busy}
+                      className="mt-3 w-full rounded-lg border border-border bg-button-light/60 dark:bg-button-dark/70 px-3 py-2 text-sm hover:bg-button-light/70 dark:hover:bg-button-dark/80"
                     >
-                      Logout
+                      {busy ? "Signing in…" : "Sign in"}
                     </button>
-                  </div>
+                  </form>
                 )}
               </div>
             )}
@@ -241,5 +350,5 @@ export default function Navbar() {
         </div>
       </header>
     </>
-  )
+  );
 }
