@@ -1,12 +1,8 @@
 import React from "react";
-import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 
-// If your GlyphNet App already includes a Router, remove BrowserRouter here.
+// Next app should not use react-router-dom BrowserRouter.
+// If App still uses react-router-dom Routes/Link/etc, then you must keep Option A instead.
 export default function NextGlyphNet() {
-  return (
-    <BrowserRouter basename="/glyphnet">
-      <App />
-    </BrowserRouter>
-  );
+  return <App />;
 }
