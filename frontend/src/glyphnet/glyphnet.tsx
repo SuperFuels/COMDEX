@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-const GlyphNetClient = dynamic(() => import("@glyphnet/NextGlyphNet"), {
+const GlyphNetClient = dynamic(() => import("@glyphnet/NextGlyphnetApp"), {
   ssr: false,
 });
 

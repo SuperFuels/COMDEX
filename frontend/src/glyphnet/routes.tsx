@@ -1,20 +1,24 @@
 "use client";
 
 import React from "react";
-import { HashRouter, Routes, Route } from "react-router-dom";
-import AppRoutes from "@glyphnet/routes";
+import { Routes, Route, Navigate } from "react-router-dom";
+
 import DevTools from "./routes/DevTools";
 
-export default function NextGlyphnetApp() {
+export default function GlyphnetRoutes() {
   return (
-    <HashRouter>
-      <Routes>
-        {/* ✅ DevTools route */}
-        <Route path="/devtools" element={<DevTools />} />
+    <Routes>
+      {/* land somewhere useful */}
+      <Route path="/" element={<Navigate to="/devtools" replace />} />
 
-        {/* ✅ Everything else stays in your existing route tree */}
-        <Route path="/*" element={<AppRoutes />} />
-      </Routes>
-    </HashRouter>
+      {/* DevTools */}
+      <Route path="/devtools" element={<DevTools />} />
+
+      {/* optional alias */}
+      <Route path="/dev-tools" element={<Navigate to="/devtools" replace />} />
+
+      {/* fallback */}
+      <Route path="*" element={<Navigate to="/devtools" replace />} />
+    </Routes>
   );
 }

@@ -1,1 +1,1 @@
-export { default } from "./glyphnet"; // OR "./NextGlyphNet"
+export { default } from "./NextGlyphnetApp";
