@@ -11,6 +11,9 @@ function Shell() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const openSidebar = useCallback(() => setSidebarOpen(true), []);
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+
   const go = useCallback(
     (path: string) => {
       navigate(path);
@@ -35,21 +38,26 @@ function Shell() {
 
   return (
     <>
-      <GlyphNetNavbar onOpenSidebar={() => setSidebarOpen(true)} />
+      {/* Sticky top navbar */}
+      <GlyphNetNavbar onOpenSidebar={openSidebar} />
 
+      {/* ChatGPT-style rail + slideout */}
       <GlyphNetSidebar
         isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
+        onOpen={openSidebar}
+        onClose={closeSidebar}
         items={navItems}
         onGo={go}
       />
 
-      {/* Content area (match your site spacing under sticky header) */}
-      <main className="min-h-[calc(100vh-4rem)] bg-background text-text">
+      {/* Content:
+          - pt-16 to sit under sticky navbar (h-16)
+          - pl-14 so the always-on rail doesn't overlap content
+      */}
+      <main className="min-h-screen bg-background text-text pt-16 pl-14">
         <Routes>
           {/* land somewhere useful */}
           <Route path="/" element={<Navigate to="/devtools" replace />} />
-
           <Route path="/devtools" element={<DevTools />} />
 
           {/* aliases */}
