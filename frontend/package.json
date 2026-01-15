@@ -39,6 +39,7 @@
     "monaco-editor": "^0.52.2",
     "nanoid": "^5.1.5",
     "openai": "^5.1.0",
+    "qrcode.react": "^4.2.0",
     "react-draggable": "^4.4.6",
     "react-force-graph": "^1.48.0",
     "react-force-graph-3d": "^1.29.0",
