@@ -1,35 +1,29 @@
-'use client';
+import "@/lib/api";
+import "@/styles/globals.css";
+import type { AppProps } from "next/app";
+import { Inter } from "next/font/google";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import dynamic from "next/dynamic";
 
-import '@/lib/api';
-import '@/styles/globals.css';
-import type { AppProps } from 'next/app';
-import { Inter } from 'next/font/google';
-import { useEffect, useCallback } from 'react';
-import { useRouter } from 'next/router';
+// Client-only wrappers (prevents SSR/prerender crashes)
+const Navbar = dynamic(() => import("@/components/Navbar"), { ssr: false });
+const HUDOverlay = dynamic(() => import("@/components/HUD/HUDOverlay"), { ssr: false });
 
-import Navbar from '@/components/Navbar'; // keep legacy site navbar
-import HUDOverlay from '@/components/HUD/HUDOverlay';
-
-const inter = Inter({ subsets: ['latin'], display: 'swap' });
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   // Hide legacy navbar on GlyphNet (GlyphNet mounts its own navbar)
   const hideNavbar =
-    router.asPath.startsWith('/glyphnet') ||
-    router.pathname.startsWith('/glyphnet');
-
-  // Navbar now requires onOpenSidebar (safe no-op unless you wire a sidebar)
-  const onOpenSidebar = useCallback(() => {
-    // no-op for now
-    // (later you can set a sidebar state here)
-  }, []);
+    router.asPath.startsWith("/glyphnet") ||
+    router.pathname.startsWith("/glyphnet");
 
   useEffect(() => {
-    console.log('🔍 NEXT_PUBLIC_API_URL =', process.env.NEXT_PUBLIC_API_URL);
-    if (typeof window !== 'undefined' && localStorage.getItem('token')) {
-      localStorage.removeItem('manualDisconnect');
+    console.log("🔍 NEXT_PUBLIC_API_URL =", process.env.NEXT_PUBLIC_API_URL);
+    if (typeof window !== "undefined" && localStorage.getItem("token")) {
+      localStorage.removeItem("manualDisconnect");
     }
   }, []);
 
@@ -38,7 +32,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       <HUDOverlay />
 
       <div className="flex-1 flex flex-col">
-        {!hideNavbar && <Navbar onOpenSidebar={onOpenSidebar} />}
+        {!hideNavbar && <Navbar />}
 
         <main className="flex-1 overflow-auto relative">
           <Component {...pageProps} />

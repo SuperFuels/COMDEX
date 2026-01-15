@@ -105,7 +105,11 @@ function AddressBar() {
   );
 }
 
-export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
+export default function GlyphNetNavbar({
+  onOpenSidebar,
+}: {
+  onOpenSidebar?: () => void;
+}) {
   const [session, setSession] = useState<Session>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -219,13 +223,15 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
   return (
     <>
       {/* Sidebar toggle (match your main Navbar: fixed, G icon) */}
-      <button
-        onClick={onOpenSidebar}
-        className="fixed top-4 left-4 z-50 rounded-lg border border-border bg-background px-2 py-2"
-        aria-label="Open menu"
-      >
-        <Image src="/G.svg" alt="Menu" width={32} height={32} />
-      </button>
+      {onOpenSidebar && (
+        <button
+          onClick={onOpenSidebar}
+          className="fixed top-4 left-4 z-50 rounded-lg border border-border bg-background px-2 py-2"
+          aria-label="Open menu"
+        >
+          <Image src="/G.svg" alt="Menu" width={32} height={32} />
+        </button>
+      )}
 
       {/* Sticky header shell (same borders/colors vibe as your main Navbar) */}
       <header className="sticky top-0 z-40 border-b border-border bg-background text-text">
