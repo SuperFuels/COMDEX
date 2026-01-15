@@ -6,65 +6,74 @@ import Link from "next/link";
 import { DarkModeToggle } from "../../../components/DarkModeToggle";
 
 type RadioStatus = "unknown" | "up" | "reconnecting" | "down";
-
 type Session = { slug: string; wa: string; name?: string } | null;
 
-function RadioPill({ status = "unknown" }: { status?: RadioStatus }) {
-  const cfg =
-    status === "up"
-      ? { bg: "bg-emerald-200", border: "border-emerald-500", title: "Radio: healthy" }
-      : status === "reconnecting"
-      ? { bg: "bg-amber-200", border: "border-amber-500", title: "Radio: reconnecting…" }
-      : status === "down"
-      ? { bg: "bg-red-200", border: "border-red-500", title: "Radio: down" }
-      : { bg: "bg-gray-200", border: "border-gray-400", title: "Radio: unknown" };
-
+// unified icon button (transparent, centered, consistent)
+function IconBtn({
+  title,
+  onClick,
+  children,
+}: {
+  title: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
       type="button"
-      title={cfg.title}
-      className={`h-9 w-9 rounded-full border ${cfg.border} ${cfg.bg} grid place-items-center`}
+      title={title}
+      onClick={onClick}
+      className={[
+        "h-11 w-11 rounded-full",
+        "grid place-items-center",
+        "bg-transparent",
+        "hover:bg-button-light/30 dark:hover:bg-button-dark/30",
+        "focus:outline-none focus:ring-2 focus:ring-ring/30",
+      ].join(" ")}
     >
-      🛜
+      {children}
     </button>
+  );
+}
+
+function RadioPill({ status = "unknown" }: { status?: RadioStatus }) {
+  const title =
+    status === "up"
+      ? "Radio: healthy"
+      : status === "reconnecting"
+      ? "Radio: reconnecting…"
+      : status === "down"
+      ? "Radio: down"
+      : "Radio: unknown";
+
+  return (
+    <IconBtn title={title}>
+      <span className="text-xl leading-none">🛜</span>
+    </IconBtn>
   );
 }
 
 function BlePill() {
   return (
-    <button
-      type="button"
-      title="Bluetooth / mesh link"
-      className="h-9 w-9 rounded-full border border-blue-500 bg-blue-100 grid place-items-center"
-    >
-      🌀
-    </button>
+    <IconBtn title="Bluetooth / mesh link">
+      <span className="text-xl leading-none">🌀</span>
+    </IconBtn>
   );
 }
 
 function ViewToggle() {
   return (
-    <div className="inline-flex overflow-hidden rounded-full border border-border bg-background/80">
-      <button
-        type="button"
-        title="Web"
-        className="px-3 py-1 text-sm bg-button-light/60 dark:bg-button-dark/70 text-text hover:bg-button-light/70 dark:hover:bg-button-dark/80"
-        onClick={() => {
-          // no-op: you are already in the web shell
-        }}
-      >
-        🌐
-      </button>
-      <button
-        type="button"
+    <div className="flex items-center gap-2">
+      <IconBtn title="Web">
+        <span className="text-xl leading-none">🌐</span>
+      </IconBtn>
+
+      <IconBtn
         title="Multiverse"
-        className="px-3 py-1 text-sm border-l border-border text-text/80 hover:bg-button-light/70 dark:hover:bg-button-dark/80"
-        onClick={() => {
-          window.open("/aion/multiverse", "_blank", "noopener,noreferrer");
-        }}
+        onClick={() => window.open("/aion/multiverse", "_blank", "noopener,noreferrer")}
       >
-        🌌
-      </button>
+        <span className="text-xl leading-none">🌌</span>
+      </IconBtn>
     </div>
   );
 }
@@ -80,10 +89,6 @@ function AddressBar() {
         const s = v.trim();
         if (!s) return;
 
-        // very lightweight behavior:
-        // - http(s) opens a new tab
-        // - "#/path" sets hash router path
-        // - otherwise treat as a search-ish token -> devtools for now
         if (/^https?:\/\//i.test(s)) {
           window.open(s, "_blank", "noopener,noreferrer");
           return;
@@ -123,7 +128,6 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
     return session.name || session.slug || session.wa || "You";
   }, [session]);
 
-  // close dropdown on outside click
   useEffect(() => {
     function onDown(e: MouseEvent) {
       if (loginOpen && wrapRef.current && !wrapRef.current.contains(e.target as Node)) setLoginOpen(false);
@@ -132,7 +136,6 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
     return () => document.removeEventListener("mousedown", onDown);
   }, [loginOpen]);
 
-  // session bootstrap
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -149,21 +152,15 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
     return () => window.removeEventListener("gnet:session:changed", handler);
   }, []);
 
-  // PHO pill
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const refresh = async () => {
-      const wa =
-        localStorage.getItem("gnet:ownerWa") ??
-        localStorage.getItem("gnet:wa") ??
-        null;
+      const wa = localStorage.getItem("gnet:ownerWa") ?? localStorage.getItem("gnet:wa") ?? null;
 
       setPhoLoading(true);
       try {
-        const resp = await fetch("/api/wallet/balances", {
-          headers: wa ? { "X-Owner-WA": wa } : {},
-        });
+        const resp = await fetch("/api/wallet/balances", { headers: wa ? { "X-Owner-WA": wa } : {} });
         const data = await resp.json().catch(() => ({}));
         const b = data?.balances || {};
         setPho(b?.pho ?? null);
@@ -195,9 +192,6 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
     setErr(null);
 
     try {
-      // Minimal “keep it working” login:
-      // If you have a website API, wire it via env and do the real call here.
-      // Otherwise we create a local session so GlyphNet controls can use WA headers.
       const slug = (email.split("@")[0] || "user").toLowerCase().replace(/[^a-z0-9._-]/g, "-");
       const wa = `${slug}@wave.tp`;
 
@@ -218,19 +212,20 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
 
   return (
     <>
-      {/* Sidebar toggle (match your main Navbar: fixed, G icon) */}
+      {/* ✅ keep ONLY the sidebar trigger (not the G icon) */}
       <button
         onClick={onOpenSidebar}
-        className="fixed top-4 left-4 z-50 rounded-lg border border-border bg-background px-2 py-2"
-        aria-label="Open menu"
+        className="fixed top-4 left-4 z-50 h-11 w-11 rounded-xl border border-border bg-transparent grid place-items-center hover:bg-button-light/30 dark:hover:bg-button-dark/30"
+        aria-label="Open sidebar"
+        title="Open sidebar"
       >
-        <Image src="/G.svg" alt="Menu" width={32} height={32} />
+        {/* hamburger-ish */}
+        <span className="text-xl leading-none">☰</span>
       </button>
 
-      {/* Sticky header shell (same borders/colors vibe as your main Navbar) */}
-      <header className="sticky top-0 z-40 border-b border-border bg-background text-text">
+      {/* ✅ lighter border */}
+      <header className="sticky top-0 z-40 border-b border-[#e5e7eb] bg-background text-text">
         <div className="flex h-16 items-center justify-between gap-4 px-4">
-          {/* Logo (keep your Tessaris logos) */}
           <div className="ml-12 flex items-center">
             <Link href="/" className="logo-link flex items-center">
               <Image
@@ -252,52 +247,48 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
             </Link>
           </div>
 
-          {/* Center: view toggle + address bar (replaces swap strip) */}
-          <div className="flex flex-1 items-center justify-center gap-3">
+          {/* Center */}
+          <div className="flex flex-1 items-center justify-center gap-4">
             <ViewToggle />
             <div className="w-[min(720px,60vw)]">
               <AddressBar />
             </div>
           </div>
 
-          {/* Right controls: radio/ble/theme/PHO/waves/login (replaces connect wallet) */}
-          <div className="flex items-center gap-3">
+          {/* Right controls */}
+          <div className="flex items-center gap-2">
             <RadioPill status="unknown" />
             <BlePill />
-
             <DarkModeToggle />
 
-            {/* PHO mini pill */}
             <div
-              className="hidden sm:flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs text-text/80"
+              className="hidden sm:flex items-center gap-2 rounded-full border border-[#e5e7eb] bg-transparent px-3 py-1 text-xs text-text/80"
               title="Displayed PHO (from /api/wallet/balances)"
             >
-              <span>💰</span>
+              <span className="text-base">💰</span>
               <span>{phoLoading ? "…" : pho ?? "—"}</span>
               <span className="text-text/50">PHO</span>
             </div>
 
-            {/* Waves (stub action for now) */}
             <button
-              className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
+              className="rounded-full bg-transparent h-11 w-11 grid place-items-center hover:bg-button-light/30 dark:hover:bg-button-dark/30"
               onClick={() => (window.location.hash = "#/devtools")}
               title="Waves"
             >
-              🌊
+              <span className="text-xl leading-none">🌊</span>
             </button>
 
-            {/* Auth */}
             {session ? (
               <>
                 <button
-                  className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
+                  className="rounded-lg border border-[#e5e7eb] bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/30 dark:hover:bg-button-dark/30"
                   onClick={() => (window.location.hash = "#/devtools")}
                   title="Profile / Home container"
                 >
                   {profileLabel}
                 </button>
                 <button
-                  className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
+                  className="rounded-lg border border-[#e5e7eb] bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/30 dark:hover:bg-button-dark/30"
                   onClick={doLogout}
                 >
                   Logout
@@ -306,14 +297,17 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
             ) : (
               <div ref={wrapRef} className="relative">
                 <button
-                  className="rounded-lg border border-border bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/50 dark:hover:bg-button-dark/50"
+                  className="rounded-lg border border-[#e5e7eb] bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/30 dark:hover:bg-button-dark/30"
                   onClick={() => setLoginOpen((v) => !v)}
                 >
                   Log in
                 </button>
 
                 {loginOpen && (
-                  <form className="absolute right-0 mt-2 w-72 rounded-lg border border-border bg-background p-3 shadow-lg" onSubmit={doLogin}>
+                  <form
+                    className="absolute right-0 mt-2 w-72 rounded-lg border border-[#e5e7eb] bg-background p-3 shadow-lg"
+                    onSubmit={doLogin}
+                  >
                     <div className="mb-2 text-sm font-semibold">Sign in</div>
 
                     <input
