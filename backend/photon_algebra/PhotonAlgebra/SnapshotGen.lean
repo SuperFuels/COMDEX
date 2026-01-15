@@ -1,22 +1,21 @@
 import PhotonAlgebra.BridgeTheorem
 import PhotonAlgebra.Phase1Theorems
+import PhotonAlgebra.Canonicality
 import PhotonAlgebra.SnapshotStatus
 
 namespace PhotonAlgebra
 
-private def INFO  : String := "ℹ️ DESIGN"
+private def SNAP_INFO : String := "ℹ️ DESIGN"
 
 def theoremSnapshot : String :=
 "# PhotonAlgebra Theorems Results\n\n" ++
 "Automated proof snapshot (Lean).\n\n" ++
-
 "## Bridge\n\n" ++
 "| Item | Statement | Status |\n" ++
 "|---|---|---|\n" ++
 "| wf_invariant_normStep | `normalizeWF (normStep e) = normalizeWF e` | " ++ status_wf_invariant_normStep ++ " |\n" ++
 "| wf_invariant_normalizeFuel | `normalizeWF (normalizeFuel k e) = normalizeWF e` | " ++ status_wf_invariant_normalizeFuel ++ " |\n" ++
 "| normalize_bridge | `normalizeWF (normalize e) = normalizeWF e` | " ++ status_normalize_bridge ++ " |\n\n" ++
-
 "## Phase-1 (EqNF laws)\n\n" ++
 "| Theorem | Statement | Status |\n" ++
 "|---|---|---|\n" ++
@@ -27,13 +26,20 @@ def theoremSnapshot : String :=
 "| T11 | `EqNF (a↔a) a` | " ++ status_T11 ++ " |\n" ++
 "| T12 | `EqNF (★(a↔b)) ((★a) ⊕ (★b))` | " ++ status_T12 ++ " |\n" ++
 "| T13 | `EqNF (a ⊕ (a ⊗ b)) a` | " ++ status_T13 ++ " |\n" ++
-"| T14 | `NO RULE: factoring is excluded (one-way distribution only)` | " ++ INFO ++ " |\n" ++
+"| T14 | `NO RULE: factoring is excluded (one-way distribution only)` | " ++ SNAP_INFO ++ " |\n" ++
 "| T15R | `EqNF (a ⊖ ∅) a` | " ++ status_T15R ++ " |\n" ++
 "| T15L | `EqNF (∅ ⊖ a) a` | " ++ status_T15L ++ " |\n" ++
 "| T15C | `EqNF (a ⊖ a) ∅` | " ++ status_T15C ++ " |\n\n" ++
+"## Canonicality (Tier-2)\n\n" ++
+"| Theorem | Meaning | Status |\n" ++
+"|---|---|---|\n" ++
+"| canonPlus_stable | `normalizeWF (canonPlus (map normalizeWF xs)) = canonPlus (map normalizeWF xs)` | " ++ status_canonPlus_stable ++ " |\n" ++
+"| canonTimes_stable | `normalizeWF (canonTimes (map normalizeWF xs)) = canonTimes (map normalizeWF xs)` | " ++ status_canonTimes_stable ++ " |\n" ++
+"| normalizeWF_idem | `normalizeWF (normalizeWF e) = normalizeWF e` | " ++ status_normalizeWF_idem ++ " |\n" ++
+"| uniqueness_nf | `EqNF e n ∧ NF(n) → normalizeWF e = n` (your uniqueness/characterization lemma) | " ++ status_uniqueness_nf ++ " |\n\n" ++
 "Generated from `PhotonAlgebra/SnapshotGen.lean`.\n"
 
-#eval IO.FS.writeFile
+#eval! IO.FS.writeFile
   "/workspaces/COMDEX/backend/photon_algebra/PhotonAlgebra/theorem_snapshot.md"
   theoremSnapshot
 
