@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { classifyAddress } from "@/lib/nav/parse";
+import { classifyAddress } from "@glyphnet/lib/nav/parse";
 
 type Mode = "wormhole" | "http";
 type NavArg = string | { mode: Mode; address: string };

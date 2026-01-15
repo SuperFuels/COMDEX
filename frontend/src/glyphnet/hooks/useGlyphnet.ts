@@ -1,12 +1,12 @@
 // frontend/src/hooks/useGlyphnet.ts
 import { useEffect, useRef, useState } from "react";
-import { resolveApiBase } from "@/utils/base";
+import { resolveApiBase } from "@glyphnet/utils/base";
 import {
   transportBase,
   buildWsUrl,
   onRadioHealth,
   getTransportMode,
-} from "@/utils/transport";
+} from "@glyphnet/utils/transport";
 
 // ⬇️ QKD decrypt + lease cache
 import { qkdDecrypt } from "../lib/qkd";

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getRecent, rememberTopic } from "@/lib/addressBook";
+import { getRecent, rememberTopic } from "@glyphnet/lib/addressBook";
 
 // Resolve API base for Codespaces, local dev, or custom host
 function resolveApiBase(): string {

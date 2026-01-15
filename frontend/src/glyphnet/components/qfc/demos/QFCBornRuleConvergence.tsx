@@ -152,7 +152,9 @@ export default function QFCBornRuleConvergence({ frame }: { frame?: any }) {
           {/* Main Solid Bar */}
           <mesh geometry={geometry}>
             <shaderMaterial
-              ref={(m) => (matsRef.current[i] = m as THREE.ShaderMaterial)}
+              ref={(m) => {
+                if (m) matsRef.current[i] = m as THREE.ShaderMaterial;
+              }}
               {...bornRuleShader}
               transparent
               depthWrite={false}

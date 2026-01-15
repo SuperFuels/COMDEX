@@ -1,6 +1,16 @@
 // src/components/PhotonPayBuyerPanel.tsx
+"use client";
+
 import { useState } from "react";
-import { QrReader } from "react-qr-reader";
+import dynamic from "next/dynamic";
+
+const QrReader = dynamic(async () => {
+  const m: any = await import("react-qr-reader");
+  return m.QrReader || m.default;
+}, { ssr: false });
+
+const QrReaderAny = QrReader as any;
+
 type PhotonInvoice = {
   invoice_id: string;
   seller_account: string;
@@ -527,9 +537,9 @@ export default function PhotonPayBuyerPanel() {
                 overflow: "hidden",
               }}
             >
-              <QrReader
+              <QrReaderAny
                 constraints={{ facingMode: "environment" }}
-                onResult={async (result: any, error: any) => {
+                onResult={async (result: any) => {
                   if (!result || hasScanned) return;
                   const text = result?.text || result?.getText?.();
                   if (!text) return;
@@ -537,7 +547,6 @@ export default function PhotonPayBuyerPanel() {
                   setHasScanned(true);
                   setScannerOpen(false);
 
-                  // Mirror into glyph string + textarea for visibility
                   setGlyphString(text);
                   setRaw(text);
 

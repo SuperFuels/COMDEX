@@ -3,27 +3,30 @@
 // ─────────────────────────────────────────────────────────────-
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import useGlyphnet from "@/hooks/useGlyphnet";
+import useGlyphnet from "@glyphnet/hooks/useGlyphnet";
 import {
   getRecent,
   rememberTopic,
   rememberLabel,
   resolveHumanAddress,
   getContacts,
-} from "@/lib/addressBook";
-import type { RecentItem } from "@/lib/addressBook";
-import { canonKG, resolveLabelToWA } from "@/utils/nameService";
-import type { GraphKey } from "@/utils/nameService";
-import { makePeer, DEFAULT_ICE } from "@/utils/webrtc";
-import { Telemetry } from "@/utils/telemetry";
-import { resolveApiBase } from "@/utils/base";
-import { importAesKey, attachSenderE2EE, attachReceiverE2EE } from "@/utils/webrtc_e2ee";
-import TransportPicker from "@/components/TransportPicker";
-import { KG_API_BASE } from "@/utils/kgApiBase";
-import VisitHistoryPanel from "@/components/VisitHistoryPanel";
-import { getIdentity, type AgentIdentity } from "@/utils/identity";
-import KGSearchPanel from "@/components/KGSearchPanel";
-// ⚠️ If WS_ID is unused in this file, remove the next line to avoid noUnusedLocals errors.
+} from "@glyphnet/lib/addressBook";
+import type { RecentItem } from "@glyphnet/lib/addressBook";
+import { canonKG, resolveLabelToWA } from "@glyphnet/utils/nameService";
+import type { GraphKey } from "@glyphnet/utils/nameService";
+import { makePeer, DEFAULT_ICE } from "@glyphnet/utils/webrtc";
+import { Telemetry } from "@glyphnet/utils/telemetry";
+import { resolveApiBase } from "@glyphnet/utils/base";
+import {
+  importAesKey,
+  attachSenderE2EE,
+  attachReceiverE2EE,
+} from "@glyphnet/utils/webrtc_e2ee";
+import TransportPicker from "@glyphnet/components/TransportPicker";
+import { KG_API_BASE } from "@glyphnet/utils/kgApiBase";
+import VisitHistoryPanel from "@glyphnet/components/VisitHistoryPanel";
+import { getIdentity, type AgentIdentity } from "@glyphnet/utils/identity";
+import KGSearchPanel from "@glyphnet/components/KGSearchPanel";
 
 import {
   emitTextToKG,
@@ -32,7 +35,7 @@ import {
   emitFloorLock,
   emitCallState,
   emitTranscriptPosted,
-} from "@/lib/kg_emit";
+} from "@glyphnet/lib/kg_emit";
 
 import type {
   SignalCapsule,
@@ -43,19 +46,25 @@ import type {
   VoiceReject,
   VoiceEnd,
   VoiceCaps,
-} from "@/utils/callTypes";
+} from "@glyphnet/utils/callTypes";
 import {
   postTx,
   transportBase,
   onRadioHealth,
   getTransportMode,
   setTransportMode,
-} from "@/utils/transport";
-import type { TransportMode } from "@/utils/transport";
+} from "@glyphnet/utils/transport";
+import type { TransportMode } from "@glyphnet/utils/transport";
+
+import {
+  SIG_TAG,
+  packSig as _packSig,
+  unpackSig as _unpackSig,
+} from "@glyphnet/utils/sigpack";
 
 // ──────────────────────────────────────────────────────────────
 // Owner / environment
-// ──────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────-
 
 function getOwnerWa(): string {
   try {
@@ -69,13 +78,14 @@ function getOwnerWa(): string {
 const IP_BASE_DEFAULT = resolveApiBase();
 const OWNER_WA = getOwnerWa();
 
-
 const CLIENT_ID = (() => {
   const k = "gnet:clientId";
   let v = sessionStorage.getItem(k);
   if (!v) {
     v = "chat-thread#" + Math.random().toString(36).slice(2, 8);
-    try { sessionStorage.setItem(k, v); } catch {}
+    try {
+      sessionStorage.setItem(k, v);
+    } catch {}
   }
   return v;
 })();
@@ -85,16 +95,6 @@ function hash8(s: string) {
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
   return (h >>> 0).toString(36);
 }
-
-// ──────────────────────────────────────────────────────────────
-// Packed-signaling helpers (import only; NO re-exports)
-// Keeping these as locals avoids Vite Fast-Refresh export churn.
-// ─────────────────────────────────────────────────────────────-
-import {
-  SIG_TAG,
-  packSig as _packSig,
-  unpackSig as _unpackSig,
-} from "@/utils/sigpack";
 
 // Local aliases used in this module
 const packSig = _packSig;

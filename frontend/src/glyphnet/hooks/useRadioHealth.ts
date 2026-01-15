@@ -1,5 +1,6 @@
 // src/hooks/useRadioHealth.ts
-import { httpUrl } from "@/lib/net";
+// src/glyphnet/hooks/useRadioHealth.ts
+import { httpUrl } from "@glyphnet/lib/net";
 
 export type RadioStatus = "unknown" | "up" | "reconnecting" | "down";
 

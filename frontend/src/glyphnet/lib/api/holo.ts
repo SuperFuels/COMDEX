@@ -2,7 +2,15 @@
 import type { HoloIR, HoloSourceView } from "../types/holo";
 
 export const API_BASE =
-  process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE ?? "http://localhost:8080";
+  process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE ||
+  (process.env.NODE_ENV === "production" ? "" : "http://localhost:8080");
+
+if (
+  process.env.NODE_ENV === "production" &&
+  !process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE
+) {
+  console.warn("[HoloAPI] Missing NEXT_PUBLIC_GLYPHNET_HTTP_BASE in production build");
+}
 
 // What DevTools/QFC sends when you press "Export as .holo"
 export interface HoloExportViewCtx {

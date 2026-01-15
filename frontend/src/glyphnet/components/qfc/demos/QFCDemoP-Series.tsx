@@ -5,6 +5,10 @@ import { useFrame } from "@react-three/fiber";
 import { Float, Text } from "@react-three/drei";
 import * as THREE from "three";
 
+// Workaround: some Drei/R3F type combos mis-type <Text> props in TS.
+// Runtime is identical; this only unblocks Next typecheck.
+const DreiText: any = Text;
+
 export type PSeriesModeKey =
   | "P6_CHAOS"
   | "P7I_ROBUST"
@@ -185,7 +189,7 @@ export default function QFCDemoPSeries({ frame }: Props) {
         rotationIntensity={0.2}
         floatIntensity={0.5}
       >
-        <Text
+        <DreiText
           position={[0, 3.2, -4]}
           fontSize={0.8}
           color={current.color}
@@ -193,28 +197,33 @@ export default function QFCDemoPSeries({ frame }: Props) {
           anchorY="middle"
         >
           {current.status}
-        </Text>
+        </DreiText>
 
-        <Text
+        <DreiText
           position={[0, 2.35, -4]}
           fontSize={0.28}
           color={"#cbd5e1"}
           anchorX="center"
           anchorY="middle"
         >
-          {current.label}  ·  R={current.rValue.toFixed(4)}  ·  noise={current.noise.toFixed(4)}
-        </Text>
+          {current.label} · R={current.rValue.toFixed(4)} · noise=
+          {current.noise.toFixed(4)}
+        </DreiText>
 
-        {(current.gainMargin != null || current.phaseMargin != null || current.tauM != null) && (
-          <Text
+        {(current.gainMargin != null ||
+          current.phaseMargin != null ||
+          current.tauM != null) && (
+          <DreiText
             position={[0, 1.9, -4]}
             fontSize={0.24}
             color={"#94a3b8"}
             anchorX="center"
             anchorY="middle"
           >
-            {`GM=${current.gainMargin ?? "—"}  PM=${current.phaseMargin ?? "—"}°  τm=${current.tauM ?? "—"}`}
-          </Text>
+            {`GM=${current.gainMargin ?? "—"}  PM=${
+              current.phaseMargin ?? "—"
+            }°  τm=${current.tauM ?? "—"}`}
+          </DreiText>
         )}
       </Float>
     </group>

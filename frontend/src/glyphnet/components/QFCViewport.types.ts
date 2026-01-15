@@ -1,4 +1,4 @@
-import type { TessarisTelemetry } from "@/hooks/useTessarisTelemetry";
+import type { TessarisTelemetry } from "@glyphnet/hooks/useTessarisTelemetry";
 
 export type QFCMode = "gravity" | "tunnel" | "matter" | "connect" | "antigrav" | "sync";
 

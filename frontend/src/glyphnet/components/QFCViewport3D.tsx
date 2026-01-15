@@ -9,8 +9,8 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
 // ✅ LIVE TELEMETRY HOOK (auto-bind)
-import { useTessarisTelemetry } from "@/hooks/useTessarisTelemetry";
-import type { TessarisTelemetry } from "@/hooks/useTessarisTelemetry";
+import { useTessarisTelemetry } from "@glyphnet/hooks/useTessarisTelemetry";
+import type { TessarisTelemetry } from "@glyphnet/hooks/useTessarisTelemetry";
 
 type QFCMode = "gravity" | "tunnel" | "matter" | "connect" | "antigrav" | "sync";
 

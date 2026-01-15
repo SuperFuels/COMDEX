@@ -15,7 +15,9 @@
       "@/components/*": ["./components/*"],
       "@/pages/*": ["./pages/*"],
       "@/hooks/*": ["./hooks/*"],
-      "@/lib/*": ["./lib/*"]
+      "@/lib/*": ["./lib/*"],
+
+      "@glyphnet/*": ["./src/glyphnet/*"]
     },
     "target": "ESNext",
     "allowJs": true,

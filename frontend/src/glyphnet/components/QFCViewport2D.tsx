@@ -6,8 +6,8 @@ import type { CSSProperties } from "react";
 
 // ✅ LIVE TELEMETRY HOOK (auto-bind)
 // If your project doesn't support "@/...", change to: "../hooks/useTessarisTelemetry"
-import { useTessarisTelemetry } from "@/hooks/useTessarisTelemetry";
-import type { TessarisTelemetry } from "@/hooks/useTessarisTelemetry";
+import { useTessarisTelemetry } from "@glyphnet/hooks/useTessarisTelemetry";
+import type { TessarisTelemetry } from "@glyphnet/hooks/useTessarisTelemetry";
 
 type QFCMode = "gravity" | "tunnel" | "matter" | "connect" | "antigrav" | "sync";
 

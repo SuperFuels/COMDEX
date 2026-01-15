@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import useGlyphnet from "@/hooks/useGlyphnet";
-import { VoiceJitterBuffer } from "@/lib/audio/jitter";
-import { getRecent } from "@/lib/addressBook";
+import useGlyphnet from "@glyphnet/hooks/useGlyphnet";
+import { VoiceJitterBuffer } from "@glyphnet/lib/audio/jitter";
+import { getRecent } from "@glyphnet/lib/addressBook";
 
 type InboxItem = {
   id?: string;

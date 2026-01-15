@@ -1,6 +1,10 @@
 // src/components/TransportPicker.tsx
 import { useEffect, useState } from "react";
-import { getTransportMode, setTransportMode, type TransportMode } from "@/utils/transport";
+import {
+  getTransportMode,
+  setTransportMode,
+  type TransportMode,
+} from "@glyphnet/utils/transport";
 
 const OPTIONS: { value: TransportMode; label: string }[] = [
   { value: "auto",       label: "Auto" },

@@ -1,13 +1,15 @@
 // src/components/ContainerView.tsx
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import useWebSocket from "@/hooks/useWebSocket";
-import type { ResolveReply } from "@/lib/api/wormholes";
-import type { DcContainer } from "@/lib/types/dc";
-import DimensionRenderer from "@/components/DimensionRenderer";
-import PromptBar from "@/components/PromptBar";
-import TimeControls from "@/components/TimeControls";
-import { fetchEntanglements, type EntanglementView } from "@/lib/kg";
-import KGDock from "@/components/KGDock"; 
+
+import useWebSocket from "@glyphnet/hooks/useWebSocket";
+import type { ResolveReply } from "@glyphnet/lib/api/wormholes";
+import type { DcContainer } from "@glyphnet/lib/types/dc";
+import DimensionRenderer from "@glyphnet/components/DimensionRenderer";
+import PromptBar from "@glyphnet/components/PromptBar";
+import TimeControls from "@glyphnet/components/TimeControls";
+import KGDock from "@glyphnet/components/KGDock";
+
+import { fetchEntanglements, type EntanglementView } from "@glyphnet/lib/kg";
 
 type TimeStatus = {
   tick?: number;

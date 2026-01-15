@@ -1,5 +1,4 @@
-// src/utils/radioHealth.ts
-import { radioBase } from "@/utils/transport";
+import { radioBase } from "@glyphnet/utils/transport";
 export type RadioHealth = { profile: string; active: { MTU: number; RATE_HZ: number }; rfQueue: number; rfOutbox: number; ok: boolean };
 export async function getRadioHealth(): Promise<RadioHealth | null> {
   try {

@@ -8,7 +8,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import GMADashboardDevPanel from "../components/GMADashboardDevPanel";
 import ChainSimLedgerPanel from "../components/ChainSimLedgerPanel";
 
-import { GlyphChainPerfCard } from "@/components/GlyphChainPerfCard";
+import { GlyphChainPerfCard } from "../components/GlyphChainPerfCard";
 
 type MintBurnEvent = {
   kind: "MINT" | "BURN";

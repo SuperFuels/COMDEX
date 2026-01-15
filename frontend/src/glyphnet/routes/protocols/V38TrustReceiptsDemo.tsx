@@ -252,11 +252,13 @@ export const V38TrustReceiptsDemo: React.FC = () => {
   const [showRaw, setShowRaw] = useState(false);
 
   // derived
-  const inv = resp?.invariants || {};
+  // derived
+  const inv = resp?.invariants;
   const canonOk = inv?.canon_ok == null ? null : Boolean(inv.canon_ok);
   const replayOk = inv?.replay_ok == null ? null : Boolean(inv.replay_ok);
+
   const leanOkVal = resp?.receipts?.LEAN_OK;
-  const leanOk = leanOkVal == null ? null : Boolean(Number(leanOkVal) === 1);
+  const leanOk = leanOkVal == null ? null : Number(leanOkVal) === 1;
 
   const b = resp?.bytes;
   const template = Number(b?.wire_template_bytes ?? 0);

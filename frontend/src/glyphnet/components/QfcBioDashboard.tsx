@@ -9,7 +9,7 @@ import {
   gx1Inspect,
   gx1Run,
   gx1Verify,
-} from "@/lib/gx1Client";
+} from "@glyphnet/lib/gx1Client";
 
 type VerifyLine = { text: string; ok: boolean };
 

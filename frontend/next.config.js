@@ -32,6 +32,9 @@ const nextConfig = {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       "three/webgpu": false,
+
+      // ✅ NEW: GlyphNet alias
+      "@glyphnet": require("path").resolve(__dirname, "src/glyphnet"),
     };
 
     return config;

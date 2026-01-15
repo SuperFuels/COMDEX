@@ -1,28 +1,40 @@
-// src/lib/addressBook.ts
+// frontend/src/glyphnet/lib/addressBook.ts
 
-import type { GraphKey } from "@/utils/nameService";
-import { saveBestLabel, getLabelForWA } from "@/utils/nameService";
+import type { GraphKey } from "@glyphnet/utils/nameService";
+import { saveBestLabel, getLabelForWA } from "@glyphnet/utils/nameService";
 
 /* ──────────────────────────────
    Recents (v2) — per-graph entries
    ────────────────────────────── */
+
+/**
+ * NOTE: Some UI components (e.g. WaveOutbox) expect:
+ *  - getRecent() items include `uses`
+ *  - rememberTopic(topic, label) to be valid (graph optional)
+ *
+ * So we keep v2 fields but add compat fields.
+ */
 export type RecentItem = {
-  topic: string;         // WA (ucs://…)
-  label?: string;        // best-known display label at time of remember
-  graph: GraphKey;       // "personal" | "work"
-  ts: number;            // last-used timestamp (ms)
+  topic: string; // WA (ucs://…)
+  label?: string; // best-known display label at time of remember
+  graph: GraphKey; // "personal" | "work"
+  ts: number; // last-used timestamp (ms)
+
+  // compat / UI fields
+  uses: number; // how many times used (for chips + titles)
+  lastUsedMs: number; // alias of ts for older/newer call-sites
 };
 
-const RECENTS_V2_KEY = "gnet:recents:v2";   // map<string, RecentItem>
-const RECENTS_V1A    = "gnet:recents";      // old array, maybe without graph/ts
-const RECENTS_V1B    = "gnet:recent";       // another legacy name (array)
+const RECENTS_V2_KEY = "gnet:recents:v2"; // map<string, RecentItem>
+const RECENTS_V1A = "gnet:recents"; // old array, maybe without graph/ts/uses
+const RECENTS_V1B = "gnet:recent"; // another legacy name (array)
 
 /* ──────────────────────────────
    Contacts book (label ↔ topics)
    ────────────────────────────── */
 export type Contact = {
-  label: string;                                   // "Kevin"
-  topics: Partial<Record<GraphKey, string>>;       // { personal: "ucs://...", work: "ucs://..." }
+  label: string; // "Kevin"
+  topics: Partial<Record<GraphKey, string>>; // { personal: "ucs://...", work: "ucs://..." }
   uses?: number;
   updatedAt?: number;
 };
@@ -44,26 +56,69 @@ function saveJSON(k: string, v: any) {
   } catch {}
 }
 
+function normalizeGraph(g: any): GraphKey {
+  return g === "work" ? "work" : "personal";
+}
+function normalizeUses(u: any): number {
+  const n = Number(u);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+function normalizeTs(ts: any): number {
+  const n = Number(ts);
+  return Number.isFinite(n) && n > 0 ? n : Date.now();
+}
+
 /* v1 → v2 migration (runs lazily) */
 function loadRecentsMap(): Record<string, RecentItem> {
   // Prefer v2 map
   const v2 = loadJSON<Record<string, RecentItem> | null>(RECENTS_V2_KEY, null);
-  if (v2 && typeof v2 === "object") return v2;
+  if (v2 && typeof v2 === "object") {
+    // ensure compat fields exist (in case older v2 saved without them)
+    const out: Record<string, RecentItem> = {};
+    for (const [k, r] of Object.entries(v2)) {
+      if (!r?.topic) continue;
+      const ts = normalizeTs((r as any).ts ?? (r as any).lastUsedMs);
+      const uses = normalizeUses((r as any).uses);
+      const graph = normalizeGraph((r as any).graph);
+      out[k] = {
+        topic: String(r.topic),
+        label: r.label ? String(r.label) : undefined,
+        graph,
+        ts,
+        uses,
+        lastUsedMs: ts,
+      };
+    }
+    // optionally resave normalized map (safe)
+    saveJSON(RECENTS_V2_KEY, out);
+    return out;
+  }
 
   // Otherwise migrate from either legacy array key
   const legacyA = loadJSON<any[]>(RECENTS_V1A, []);
   const legacyB = legacyA.length ? [] : loadJSON<any[]>(RECENTS_V1B, []);
-
   const legacy = legacyA.length ? legacyA : legacyB;
+
   const map: Record<string, RecentItem> = {};
 
   if (Array.isArray(legacy) && legacy.length) {
     for (const r of legacy) {
-      const graph: GraphKey = r.graph === "work" ? "work" : r.kg === "work" ? "work" : "personal";
-      const topic: string = r.topic || "";
+      const graph: GraphKey = normalizeGraph(r.graph ?? r.kg);
+      const topic: string = String(r.topic || "").trim();
       if (!topic) continue;
-      const ts: number = typeof r.ts === "number" ? r.ts : (typeof r.lastTs === "number" ? r.lastTs : Date.now());
-      const item: RecentItem = { topic, label: r.label, graph, ts };
+
+      const ts: number = normalizeTs(r.ts ?? r.lastTs ?? r.lastUsedMs);
+      const uses: number = normalizeUses(r.uses);
+
+      const item: RecentItem = {
+        topic,
+        label: r.label ? String(r.label) : undefined,
+        graph,
+        ts,
+        uses,
+        lastUsedMs: ts,
+      };
+
       map[`${graph}:${topic}`] = item;
     }
     saveJSON(RECENTS_V2_KEY, map);
@@ -82,15 +137,35 @@ function saveRecentsMap(map: Record<string, RecentItem>) {
    Public API
    ────────────────────────────── */
 
-/** Remember this WA in recents and update alias store/contact book. */
-export function rememberTopic(topic: string, label: string | undefined, graph: GraphKey) {
+/**
+ * Remember this WA in recents and update alias store/contact book.
+ *
+ * IMPORTANT: graph is OPTIONAL for compatibility with call-sites like:
+ *   rememberTopic(topic, label)
+ */
+export function rememberTopic(topic: string, label?: string, graph: GraphKey = "personal") {
   const t = (topic || "").trim();
   if (!t) return;
 
+  const g = normalizeGraph(graph);
   const map = loadRecentsMap();
   const now = Date.now();
-  const item: RecentItem = { topic: t, label, graph, ts: now };
-  map[`${graph}:${t}`] = item;
+
+  const key = `${g}:${t}`;
+  const prev = map[key];
+
+  const nextUses = (prev?.uses ?? 0) + 1;
+
+  const item: RecentItem = {
+    topic: t,
+    label,
+    graph: g,
+    ts: now,
+    uses: nextUses,
+    lastUsedMs: now,
+  };
+
+  map[key] = item;
 
   // keep last 100 by ts
   const entries = Object.values(map).sort((a, b) => b.ts - a.ts).slice(0, 100);
@@ -100,17 +175,23 @@ export function rememberTopic(topic: string, label: string | undefined, graph: G
 
   // WA alias memory (best-known label) to reduce duplicates
   if (label && !label.startsWith("ucs://")) {
-    rememberLabel(graph, t, label);
+    rememberLabel(g, t, label);
   }
 
   // Also keep the simple contacts mapping for quick lookup
   if (label && !label.startsWith("ucs://")) {
-    upsertContact(label, graph, t);
+    upsertContact(label, g, t);
   }
 }
 
-export function getRecent(limit = 20): RecentItem[] {
-  return Object.values(loadRecentsMap()).sort((a, b) => b.ts - a.ts).slice(0, limit);
+/**
+ * Return most recent topics.
+ * NOTE: items include `uses` for UI chips/tooltips.
+ */
+export function getRecent(limit = 20, graph?: GraphKey): RecentItem[] {
+  const all = Object.values(loadRecentsMap()).sort((a, b) => b.ts - a.ts);
+  const filtered = graph ? all.filter((r) => r.graph === graph) : all;
+  return filtered.slice(0, limit);
 }
 
 /* Contacts */
@@ -129,7 +210,7 @@ export function upsertContact(label: string, graph: GraphKey, topic: string) {
   const db = loadBook();
   const c: Contact = db[key] || { label, topics: {} };
   c.label = label;
-  c.topics[graph] = topic;
+  c.topics[normalizeGraph(graph)] = topic;
   c.updatedAt = Date.now();
   c.uses = (c.uses ?? 0) + 1;
   db[key] = c;
@@ -147,7 +228,7 @@ export function getContacts(): Contact[] {
  */
 export function resolveHumanAddress(
   input: string,
-  preferredGraph: GraphKey = "personal"
+  preferredGraph: GraphKey = "personal",
 ): { topic: string; label?: string; graph: GraphKey } {
   const v = (input || "").trim();
   if (!v) return { topic: "", graph: preferredGraph };
@@ -157,7 +238,7 @@ export function resolveHumanAddress(
 
   // Allow "label@work" / "label@personal"
   const m = v.match(/^(.+?)@(work|personal)$/i);
-  const graph: GraphKey = (m?.[2]?.toLowerCase() as GraphKey) || preferredGraph;
+  const graph: GraphKey = normalizeGraph(m?.[2]?.toLowerCase());
   const label = (m?.[1] || v).trim();
 
   const book = loadBook();
@@ -176,10 +257,16 @@ export function resolveHumanAddress(
 
 /** Persist best-known label for WA to reduce duplicates across recents. */
 export function rememberLabel(kg: GraphKey, wa: string, label: string) {
-  try { saveBestLabel(kg, wa, label); } catch {}
+  try {
+    saveBestLabel(kg, wa, label);
+  } catch {}
 }
 
 /** Retrieve a friendly label for a WA (falls back to prettified WA). */
 export function labelForWA(kg: GraphKey, wa: string): string {
-  try { return getLabelForWA(kg, wa); } catch { return wa; }
+  try {
+    return getLabelForWA(kg, wa);
+  } catch {
+    return wa;
+  }
 }

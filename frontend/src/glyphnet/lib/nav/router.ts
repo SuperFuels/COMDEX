@@ -4,13 +4,10 @@ import { resolveWormhole } from "../api/wormholes"; // keeps async resolution
 
 // Open external http in system browser when running under Tauri
 async function openExternal(url: string) {
-  // @ts-ignore – runtime check for Tauri
-  if (typeof window !== "undefined" && (window as any).__TAURI__) {
-    const { open } = await import("@tauri-apps/api/shell");
-    return open(url);
-  }
   // Web: open in a new tab
-  window.open(url, "_blank", "noopener,noreferrer");
+  if (typeof window !== "undefined") {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
 }
 
 export function routeNav(t: Target) {

@@ -16,7 +16,7 @@ import { HoloProgramEditor } from "../components/HoloProgramEditor";
 import { HoloIndexItem } from "../lib/api/holo";
 // 3D hologram scene wrapper (Canvas + OrbitControls)
 import HologramContainerView from "../components/HologramContainerView";
-import QRCode from "qrcode.react";
+//  import QRCode from "react-qr-code";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { useTessarisTelemetry, type TessarisTelemetry } from "../hooks/useTessarisTelemetry";
 import QFCViewport, { type QFCMode } from "../components/QFCViewport";

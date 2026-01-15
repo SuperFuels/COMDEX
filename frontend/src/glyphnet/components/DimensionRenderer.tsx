@@ -1,5 +1,5 @@
 // src/components/DimensionRenderer.tsx
-import type { DcContainer } from "@/lib/types/dc";
+import type { DcContainer } from "@glyphnet/lib/types/dc";
 
 export default function DimensionRenderer({ dc }: { dc: DcContainer }) {
   const glyphs = dc.glyphs ?? [];

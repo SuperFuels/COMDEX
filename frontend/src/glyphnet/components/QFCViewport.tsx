@@ -8,9 +8,8 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
-import { useTessarisTelemetry } from "@/hooks/useTessarisTelemetry";
-import type { TessarisTelemetry } from "@/hooks/useTessarisTelemetry";
-
+import { useTessarisTelemetry } from "@glyphnet/hooks/useTessarisTelemetry";
+import type { TessarisTelemetry } from "@glyphnet/hooks/useTessarisTelemetry";
 // Core demos
 import QFCDemoGravity from "./qfc/demos/QFCDemoGravity";
 import QFCDemoTunnel from "./qfc/demos/QFCDemoTunnel";

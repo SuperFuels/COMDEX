@@ -32,6 +32,14 @@ const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v
 const fract = (v: number) => v - Math.floor(v);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
+const HUD_POS: [number, number, number] = [4.5, 0, 0];
+const ROOT_ROT: [number, number, number] = [Math.PI / 6, 0, Math.PI / 12];
+const RUNG_ROT: [number, number, number] = [Math.PI / 4, 0, Math.PI / 4];
+
+// Workaround: some Drei/R3F type combos mis-type <Text> props in TS.
+// This keeps runtime identical but unblocks builds.
+const DreiText: any = Text;
+
 function parseNodeIndex(id: string, fallback: number) {
   const m = /^n(\d+)$/.exec(String(id || ""));
   if (m) {
@@ -211,10 +219,8 @@ export default function QFCDemoGenome({ frame }: { frame: QFCFrameLike | null })
 
     for (let i = 0; i < edges.length; i++) {
       const e = edges[i];
-      const a =
-        idToPos.get(String(e?.a ?? "")) ?? nodePos[parseNodeIndex(String(e?.a ?? ""), 0) % N];
-      const b =
-        idToPos.get(String(e?.b ?? "")) ?? nodePos[parseNodeIndex(String(e?.b ?? ""), 1) % N];
+      const a = idToPos.get(String(e?.a ?? "")) ?? nodePos[parseNodeIndex(String(e?.a ?? ""), 0) % N];
+      const b = idToPos.get(String(e?.b ?? "")) ?? nodePos[parseNodeIndex(String(e?.b ?? ""), 1) % N];
 
       buf[w++] = a.x;
       buf[w++] = a.y;
@@ -260,10 +266,7 @@ export default function QFCDemoGenome({ frame }: { frame: QFCFrameLike | null })
     // ACTIVE LOCUS / nucleus position
     if (coreRef.current) {
       const travelRate =
-        0.022 +
-        (1 - kappa) * 0.028 +
-        clamp(sourceHz, 0.05, 1.2) * 0.008 +
-        topoGate01 * 0.020;
+        0.022 + (1 - kappa) * 0.028 + clamp(sourceHz, 0.05, 1.2) * 0.008 + topoGate01 * 0.020;
 
       const u = fract(t * travelRate + 0.15 * Math.sin(t * 0.07));
       getMidpointAt(u, tmpMid.current);
@@ -288,7 +291,7 @@ export default function QFCDemoGenome({ frame }: { frame: QFCFrameLike | null })
   const topoEdges = topology?.edges?.length ?? 0;
 
   return (
-    <group ref={group} rotation={[Math.PI / 6, 0, Math.PI / 12]}>
+    <group ref={group} rotation={ROOT_ROT}>
       {/* Strand A (purple) */}
       <mesh>
         <tubeGeometry args={[curveA, 64, 0.06, 8, false]} />
@@ -309,7 +312,7 @@ export default function QFCDemoGenome({ frame }: { frame: QFCFrameLike | null })
             <meshBasicMaterial color={seg.color} transparent opacity={rungOpacity} />
           </mesh>
 
-          <mesh position={seg.mid} rotation={[Math.PI / 4, 0, Math.PI / 4]}>
+          <mesh position={seg.mid} rotation={RUNG_ROT}>
             <octahedronGeometry args={[0.17]} />
             <meshStandardMaterial
               color={seg.color}
@@ -371,14 +374,14 @@ export default function QFCDemoGenome({ frame }: { frame: QFCFrameLike | null })
       <Clouds count={400} opacity={lerp(0.22, 0.4, topoGate01)} />
 
       <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5}>
-        <Text position={[4.5, 0, 0]} fontSize={0.22} color={HELIX_GREEN} font="/fonts/SpaceMono-Regular.ttf" maxWidth={3}>
+        <DreiText position={HUD_POS} fontSize={0.22} color={HELIX_GREEN} font="/fonts/SpaceMono-Regular.ttf" maxWidth={3}>
           {`GENOME_ACTIVE_LOCUS
 COHERENCE: ${kappa.toFixed(5)}
 GATE: ${topoGate01.toFixed(3)} | EPOCH: ${epochText}
 TOPO: nodes=${topoNodes} edges=${topoEdges}
 SRC_HZ: ${sourceHz.toFixed(3)} | BREATH_HZ: ${breathHz.toFixed(3)}
 STATUS: PASS_CERTIFIED`}
-        </Text>
+        </DreiText>
       </Float>
     </group>
   );
