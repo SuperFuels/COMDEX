@@ -19,31 +19,49 @@ type TranslateResponse = {
   compression_ratio?: number;
 };
 
+// ✅ Use configured API base when present (works in dev + prod),
+// ✅ otherwise fall back to same-origin (/api) which your Next rewrite proxies.
+const API_BASE =
+  (typeof window !== "undefined" && (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "")) || "";
+
+// ✅ Build URL robustly (avoids double slashes, works with trailingSlash=true)
+function apiUrl(path: string) {
+  if (!path.startsWith("/")) path = `/${path}`;
+  // If NEXT_PUBLIC_API_URL is set, call it directly; else rely on Next rewrite at /api/*
+  return API_BASE ? `${API_BASE}${path}` : path;
+}
+
 async function translateToGlyphs(code: string, lang: CodeLang): Promise<TranslateResponse> {
-  const res = await fetch("/api/photon/translate", {
+  // ✅ Match your FastAPI photon_api.py exactly:
+  // POST /api/photon/translate  body: { text, language }
+  const res = await fetch(apiUrl("/api/photon/translate"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      code, // fallback key
-      text: code, // compatibility key
-      source: code, // compatibility key
-      lang, // fallback key
-      language: lang, // compatibility key
+      text: code,
+      language: lang,
     }),
   });
 
   if (!res.ok) {
     const ct = res.headers.get("content-type") || "";
     const raw = await res.text().catch(() => "");
-    const msg = ct.includes("text/html")
-      ? `${res.status} ${res.statusText} (HTML response — route missing or wrong method)`
-      : raw.slice(0, 300) || res.statusText;
-    throw new Error(`HTTP ${res.status} — ${msg}`);
+
+    // Helpful diagnostics for the two common failure modes:
+    // - HTML response => you hit Next/another server, not FastAPI (rewrite/env)
+    // - 404/405 => wrong base URL, wrong rewrite, or method not allowed
+    const hint = ct.includes("text/html")
+      ? "HTML response — likely not hitting FastAPI. Check next.config.js rewrites for /api/:path* and NEXT_PUBLIC_API_URL."
+      : "";
+
+    const msg = (raw && raw.slice(0, 400)) || res.statusText;
+    throw new Error(`HTTP ${res.status} — ${msg}${hint ? `\n${hint}` : ""}`);
   }
 
   const ct = res.headers.get("content-type") || "";
   if (ct.includes("application/json")) return (await res.json()) as TranslateResponse;
 
+  // If backend ever returns plain text, accept it too.
   const text = await res.text();
   return { translated: text, chars_before: code.length, chars_after: text.length };
 }
@@ -132,93 +150,109 @@ const Home: NextPage = () => {
                   </p>
                 </div>
 
-                {/* Core equation hero */}
+                {/* Core equation hero (Resonance Glyph 〰️®) */}
                 <div className="bg-white rounded-[3rem] p-16 text-center shadow-xl shadow-gray-200/50 border border-gray-100">
-                  <div className="text-8xl mb-8 tracking-widest flex justify-center items-center gap-4">
-                    〰️ <span className="text-3xl text-gray-300">+</span> 〰️{" "}
-                    <span className="text-3xl text-gray-300">=</span>{" "}
-                    <span className="text-[#0071e3] drop-shadow-xl font-bold">✨</span>
+                  <div className="text-8xl mb-8 tracking-widest flex justify-center items-center gap-6">
+                    {/* Left Side: Raw Waves */}
+                    <span className="font-mono text-gray-800">〰️</span>
+                    <span className="text-4xl text-gray-300 font-light">+</span>
+                    <span className="font-mono text-gray-800">〰️</span>
+
+                    <span className="text-4xl text-gray-300 font-light">=</span>
+
+                    {/* Right Side: Resonance Glyph (〰️®) */}
+                    <div className="relative inline-flex items-center justify-center">
+                      <span className="font-mono text-[#0071e3] drop-shadow-sm">〰️</span>
+                      <span className="absolute -right-6 flex items-center justify-center w-12 h-12 rounded-full border-[3px] border-[#0071e3] text-[#0071e3] text-3xl font-bold bg-white shadow-sm">
+                        R
+                      </span>
+                    </div>
                   </div>
+
                   <p className="text-gray-400 text-lg italic">
                     “Constructive interference produces a coherent/bright result.”
                   </p>
+                </div>
 
-                  {/* ✅ NEW: Text box under the container */}
-                  <div className="mt-10 max-w-3xl mx-auto text-left bg-[#fafafa] rounded-3xl p-8 border border-gray-100">
-                    <div className="text-xs font-bold text-gray-300 uppercase tracking-widest mb-4">
-                      The New Logic of Resonance
-                    </div>
-
-                    <p className="text-gray-600 leading-relaxed">
-                      <span className="font-semibold text-gray-800">
-                        Beyond Counting: Moving from Quantity to Quality
-                      </span>
-                      <br />
-                      In the world we know, math is for accounting. If you have one dollar and add
-                      another, you have two. This is useful for balancing a checkbook, but it is
-                      insufficient for describing the universe.
-                    </p>
-
-                    <div className="mt-6 space-y-2 text-gray-600">
-                      <div>
-                        <span className="font-semibold text-gray-800">Traditional Logic:</span>{" "}
-                        <span className="font-mono">$1 + 1 = 2$</span>
-                      </div>
-                      <div className="text-gray-500">
-                        This is the logic of accumulation—simply having "more of the same."
+                {/* Text explainer moved into its own container */}
+                <div className="bg-white rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100">
+                  <div className="p-10 md:p-12">
+                    <div className="max-w-3xl mx-auto text-left bg-[#fafafa] rounded-3xl p-8 border border-gray-100">
+                      <div className="text-xs font-bold text-gray-300 uppercase tracking-widest mb-4">
+                        The New Logic of Resonance
                       </div>
 
-                      <div className="pt-3">
-                        <span className="font-semibold text-gray-800">Symatic Logic:</span>{" "}
-                        <span className="font-mono">$〰️ + 〰️ = ✨$</span>
-                      </div>
-                      <div className="text-gray-500">
-                        This is the logic of resonance—where two patterns combine to create a new,
-                        superior reality.
-                      </div>
-                    </div>
-
-                    <div className="mt-6">
-                      <div className="font-semibold text-gray-800">The Story of the "Spark"</div>
-                      <p className="mt-2 text-gray-600 leading-relaxed">
-                        To understand Symatics, imagine two people swinging a jump rope. If they
-                        move their arms randomly, the rope tangles and loses its shape (Destructive
-                        Interference). But if they move in perfect rhythm, the rope forms a
-                        powerful, stable arc.
-                      </p>
-                      <p className="mt-3 text-gray-600 leading-relaxed">
-                        In Symatics, we call this Constructive Interference.
+                      <p className="text-gray-600 leading-relaxed">
+                        <span className="font-semibold text-gray-800">
+                          Beyond Counting: Moving from Quantity to Quality
+                        </span>
+                        <br />
+                        In the world we know, math is for accounting. If you have one dollar and add
+                        another, you have two. This is useful for balancing a checkbook, but it is
+                        insufficient for describing the universe.
                       </p>
 
-                      <div className="mt-4 text-xs text-gray-400 italic">ShutterstockExplore</div>
-
-                      <div className="mt-4 space-y-3 text-gray-600">
+                      <div className="mt-6 space-y-2 text-gray-600">
                         <div>
-                          <span className="font-semibold text-gray-800">The Wave ($〰️$):</span> This
-                          represents raw energy, data, or your "intent" in motion. It is information
-                          that hasn't found its rhythm yet.
+                          <span className="font-semibold text-gray-800">Traditional Logic:</span>{" "}
+                          <span className="font-mono">$1 + 1 = 2$</span>
                         </div>
-                        <div>
-                          <span className="font-semibold text-gray-800">The Spark ($✨$):</span> This
-                          is the moment of Coherence. When two waves align perfectly, they don't
-                          just add up—they amplify. The result isn't "two waves"; it is a single,
-                          high-energy result that is far more powerful than the sum of its parts.
+                        <div className="text-gray-500">
+                          This is the logic of accumulation—simply having "more of the same."
+                        </div>
+
+                        <div className="pt-3">
+                          <span className="font-semibold text-gray-800">Symatic Logic:</span>{" "}
+                          <span className="font-mono">$〰️ + 〰️ = 〰️®$</span>
+                        </div>
+                        <div className="text-gray-500">
+                          This is the logic of resonance—where two patterns combine to create a new,
+                          superior reality.
                         </div>
                       </div>
 
-                      <div className="mt-6 font-semibold text-gray-800">Why It Matters</div>
-                      <p className="mt-2 text-gray-600 leading-relaxed">
-                        When your intent ($〰️$) perfectly aligns with the system ($〰️$), the noise
-                        of the world disappears. You aren't just processing more data; you are
-                        achieving Resonance ($⟲$).
-                      </p>
-                      <p className="mt-3 text-gray-600 leading-relaxed">
-                        The result is a "Spark"—a clean, bright, and actionable outcome that
-                        traditional "counting" math could never produce.
-                      </p>
-                      <p className="mt-3 text-gray-600 leading-relaxed">
-                        Symatics doesn't just count the world. It oscillates it into harmony.
-                      </p>
+                      <div className="mt-6">
+                        <div className="font-semibold text-gray-800">The Story of the "Spark"</div>
+                        <p className="mt-2 text-gray-600 leading-relaxed">
+                          To understand Symatics, imagine two people swinging a jump rope. If they
+                          move their arms randomly, the rope tangles and loses its shape (Destructive
+                          Interference). But if they move in perfect rhythm, the rope forms a
+                          powerful, stable arc.
+                        </p>
+                        <p className="mt-3 text-gray-600 leading-relaxed">
+                          In Symatics, we call this Constructive Interference.
+                        </p>
+
+                        <div className="mt-4 text-xs text-gray-400 italic">ShutterstockExplore</div>
+
+                        <div className="mt-4 space-y-3 text-gray-600">
+                          <div>
+                            <span className="font-semibold text-gray-800">The Wave ($〰️$):</span> This
+                            represents raw energy, data, or your "intent" in motion. It is information
+                            that hasn't found its rhythm yet.
+                          </div>
+                          <div>
+                            <span className="font-semibold text-gray-800">The Resonance State ($〰️®$):</span>{" "}
+                            This is the moment of Coherence. When two waves align perfectly, they don’t
+                            just add up—they lock into a stable, amplified pattern that’s qualitatively
+                            different from the inputs.
+                          </div>
+                        </div>
+
+                        <div className="mt-6 font-semibold text-gray-800">Why It Matters</div>
+                        <p className="mt-2 text-gray-600 leading-relaxed">
+                          When your intent ($〰️$) perfectly aligns with the system ($〰️$), the noise
+                          of the world disappears. You aren't just processing more data; you are
+                          achieving Resonance ($⟲$).
+                        </p>
+                        <p className="mt-3 text-gray-600 leading-relaxed">
+                          The result is a Resonance State—clean, bright, and actionable—something
+                          traditional "counting" math could never produce.
+                        </p>
+                        <p className="mt-3 text-gray-600 leading-relaxed">
+                          Symatics doesn't just count the world. It oscillates it into harmony.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -495,8 +529,6 @@ const WaveRow = ({
   const points = 140;
   const twoPi = Math.PI * 2;
 
-  const ampPx = mode === "sum" ? amplitude * 2 : amplitude;
-
   const d = useMemo(() => {
     let path = "";
     for (let i = 0; i <= points; i++) {
@@ -506,8 +538,8 @@ const WaveRow = ({
       const a = Math.sin(theta + t);
       const b = Math.sin(theta + phase + t);
 
-      const v = mode === "sum" ? a + b : b; // for "single" rows we pass phase=0 or phaseB via `phase`
-      const y = mid - v * amplitude; // keep A/B at same scale
+      const v = mode === "sum" ? a + b : b;
+      const y = mid - v * amplitude;
 
       if (i === 0) path += `M ${x.toFixed(2)} ${y.toFixed(2)}`;
       else path += ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
@@ -515,9 +547,6 @@ const WaveRow = ({
     return path;
   }, [width, height, mid, points, cycles, twoPi, t, phase, mode, amplitude]);
 
-  // For sum row, rescale visual so constructive "pops" (like screenshot)
-  // We do this by drawing on a bigger vertical range (ampPx) but compressing the waveform d above at amplitude,
-  // then scaling the SVG group.
   const sumScaleY = mode === "sum" ? 2 : 1;
 
   return (
@@ -536,10 +565,8 @@ const WaveRow = ({
           aria-label={label}
           role="img"
         >
-          {/* baseline */}
           <line x1="0" y1={mid} x2={width} y2={mid} stroke="rgb(229 231 235)" strokeWidth="2" />
 
-          {/* dashed direction arrow (right side) */}
           <line
             x1={width * 0.72}
             y1={18}
@@ -556,12 +583,10 @@ const WaveRow = ({
             opacity="0.65"
           />
 
-          {/* wave */}
           <g transform={`scale(1 ${sumScaleY}) translate(0 ${mode === "sum" ? -(height * 0.25) : 0})`}>
             <path d={d} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" />
           </g>
 
-          {/* subtle left axis dot (visual cue like screenshot) */}
           <circle cx="8" cy="10" r="3" fill="rgb(107 114 128)" opacity="0.6" />
           <circle cx="8" cy={height - 10} r="3" fill="rgb(107 114 128)" opacity="0.6" />
         </svg>
