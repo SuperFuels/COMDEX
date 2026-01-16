@@ -213,6 +213,31 @@ a:hover {
   justify-content: center;
 }
 
+/* Targets math symbols in the MDX paper */
+.symatics-paper-view .katex {
+  font-size: 1.1em;
+}
+
+/* Specifically targets the resonance symbols or highlighted equations */
+.symatics-paper-view .katex-display {
+  padding: 2rem 0;
+  color: #1d1d1f;
+  transition: all 0.3s ease;
+}
+
+/* The Blue Glow Logic */
+.symatics-paper-view strong, 
+.symatics-paper-view .math-emphasis {
+  color: #0071e3;
+  text-shadow: 0 0 15px rgba(0, 113, 227, 0.2);
+}
+
+/* Makes inline math symbols like 〰️® pop */
+.symatics-paper-view .katex .accent {
+  color: #0071e3;
+  filter: drop-shadow(0 0 5px rgba(0, 113, 227, 0.4));
+}
+
 /* Tailwind-style “filled” button but in raw CSS */
 .btn-filled {
   background-color: var(--primary);

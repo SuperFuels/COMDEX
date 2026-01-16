@@ -1,0 +1,352 @@
+# Symatics Technical Specification (Unified Draft)
+**Version 0.2.2 (polished) | Generated: 2025-12-22**
+
+---
+
+## Abstract
+Symatics is a wave-native algebra where *signatures* are first-class values and composition is phase-aware. Its core connective is a phase-parameterized interference operator $\bowtie[\phi]$ whose generic behavior is not reducible to Boolean logic. This specification defines: (i) a minimal semantic model as an evaluation into complex amplitude vectors, (ii) normalization axioms A1–A8 for mechanized rewriting, (iii) derived laws and a formal *Classical Boundary* (Boolean-like behavior only at $\phi\in\{0,\pi\}$), (iv) collapse semantics as a distribution with a default Born-rule bridge, and (v) a reproducible validation workflow and substrate mapping.
+
+---
+
+## 1. Motivation
+Most formal systems begin with discrete tokens (numbers, bits) and approximate wave phenomena later. Symatics inverts this: it begins with measurable wave structure (amplitude and phase) and defines symbolic operators over it.
+
+Design goals:
+
+- **G1 Phase-aware composition:** express constructive vs. destructive behavior.
+- **G2 Substrate portability:** same algebra maps to circuits/light/sound.
+- **G3 Mechanized normalization:** deterministic rewriting + audit trail.
+- **G4 Continuous-to-discrete bridge:** collapse from wave expressions to discrete outcomes.
+
+---
+
+## 2. Core Objects
+
+### 2.1 Signatures
+Atomic labels $\Sigma=\{A,B,\dots\}$.
+
+### 2.2 Wave model (minimal)
+Each signature $\sigma\in\Sigma$ may be interpreted as a phasor with amplitude and phase:
+
+**$$
+\mathrm{Wave}(\sigma)=(\sigma,\alpha_\sigma,\varphi_\sigma)
+\quad\text{where}\quad
+\alpha_\sigma\in\mathbb{R}_{\ge 0},\;\varphi_\sigma\in[0,2\pi).
+$$**
+
+### 2.3 Expressions
+Expressions are trees over $\Sigma$ using operator nodes (Section 3). Implementations may represent expressions as AST nodes or nested structures.
+
+### 2.4 The annihilator $\bot$
+**$\bot$** denotes the *null / annihilated expression*. Semantically, it is the zero amplitude-vector:
+
+**$$
+\mathrm{Eval}(\bot)=\mathbf{0}\in\mathbb{C}^\Sigma.
+$$**
+
+### 2.5 Distributions
+$\mathrm{Dist}(\Sigma)$ denotes probability distributions over discrete outcomes $\sigma\in\Sigma$.
+
+---
+
+## 3. Syntax and Operators
+
+### 3.1 Concrete syntax (illustrative)
+
+**$$
+\begin{aligned}
+\mathrm{Expr} ::= {}& \mathrm{Atom}
+\;\mid\;(\mathrm{Expr}\oplus\mathrm{Expr})
+\;\mid\;(\mathrm{Expr}\bowtie[\phi]\mathrm{Expr})
+\;\mid\;(\mathrm{Expr}\leftrightarrow\mathrm{Expr})\\
+&\mid\;(\circlearrowleft\,\mathrm{Expr})
+\;\mid\;\nabla(\mathrm{Expr})
+\;\mid\;(\mathrm{Action}\Rightarrow\mathrm{Expr})
+\end{aligned}
+$$**
+
+where $\phi\in\mathbb{R}$ is interpreted modulo $2\pi$.
+
+### 3.2 Operator catalogue
+
+| Symbol | Name | Notes |
+| :--- | :--- | :--- |
+| $\oplus$ | Superpose | Linear combine; associative/commutative in base algebra; idempotence optional by law set. |
+| $\ominus$ | Difference | Derived; used as the $\phi=\pi$ boundary form of $\bowtie[\phi]$. |
+| $\bowtie[\phi]$ | Interfere | Primary phase-parameterized connective (beyond-Boolean). |
+| $\leftrightarrow$ | Couple / Entangle | Constructor over paired args; stronger constraints may be added as extensions. |
+| $\circlearrowleft$ | Resonate | Iterative reinforcement/decay; semantics may be substrate/implementation-specific. |
+| $\nabla$ | Collapse / Measure | $\mathrm{Expr}\to \mathrm{Dist}(\Sigma)$; policy is configurable (Born-like default provided). |
+| $\Rightarrow$ | Trigger | Side-effect bridge: symbolic $\to$ runtime action (kept out of algebraic rewrites). |
+
+### 3.3 Boundary behavior
+At $\phi=0$ and $\phi=\pi$, interference degenerates to familiar forms (A7/A8). This is the *Classical Boundary* where Boolean-like behavior can emerge.
+
+---
+
+## 4. Minimal Semantics (Evaluation to Complex Amplitudes)
+This section gives the “ground truth” semantics that a physicist/CS reviewer can verify.
+
+### 4.1 Evaluation function
+Define an evaluation function mapping an expression $E$ to a complex amplitude vector over $\Sigma$:
+
+**$$
+\mathrm{Eval}(E)\in\mathbb{C}^\Sigma,
+\quad\text{where}\quad \mathrm{Eval}(E)(\sigma)\in\mathbb{C}
+\text{ is the amplitude assigned to signature }\sigma.
+$$**
+
+### 4.2 Atoms
+For an atom $A\in\Sigma$:
+
+**$$
+\mathrm{Eval}(A)(A)=\alpha_A\,e^{i\varphi_A},
+\qquad
+\mathrm{Eval}(A)(\sigma)=0\;\;\text{for }\sigma\neq A.
+$$**
+
+### 4.3 Superposition and difference
+For expressions $X,Y$:
+
+**$$
+\mathrm{Eval}(X\oplus Y)=\mathrm{Eval}(X)+\mathrm{Eval}(Y),
+\qquad
+\mathrm{Eval}(X\ominus Y)=\mathrm{Eval}(X)-\mathrm{Eval}(Y).
+$$**
+
+### 4.4 Interference connective $\bowtie[\phi]$
+For expressions $X$ and $Y$ with relative phase shift $\phi$ applied to the *right* operand:
+
+**$$
+\mathrm{Eval}\!\bigl(X\bowtie[\phi]Y\bigr)=\mathrm{Eval}(X)+e^{i\phi}\,\mathrm{Eval}(Y).
+$$**
+
+Componentwise, for each $\sigma\in\Sigma$:
+
+**$$
+\mathrm{Eval}\!\bigl(X\bowtie[\phi]Y\bigr)(\sigma)=\mathrm{Eval}(X)(\sigma)+e^{i\phi}\,\mathrm{Eval}(Y)(\sigma).
+$$**
+
+### 4.5 Phase normalization
+All phases are interpreted modulo $2\pi$ and normalized to $[0,2\pi)$:
+
+**$$
+\mathrm{normalize\_phase}(\phi)=\bigl((\phi \bmod 2\pi)+2\pi\bigr)\bmod 2\pi.
+$$**
+
+### 4.6 Substrate-agnostic core
+This minimal semantics assumes linear superposition at the semantic layer. Substrate-specific effects (loss, dispersion, decoherence, drift) are modeled as additional operators or parameterized noise applied prior to evaluation/collapse.
+
+---
+
+## 5. Axioms and Rewrite Rules (A1–A8)
+A1–A8 define the *normalization interface* for mechanized rewriting of $\bowtie[\phi]$ expressions. They are presented as rewrite schemas used by the rewriter until a fixed point is reached.
+
+**The Golden Law of Resonance:**
+**$$(X \bowtie[0] X)\to X$$** *(Self-identity / constructive alignment)*
+
+**The Law of Annihilation:**
+**$$(X \bowtie[\pi] X)\to \bot$$** *(Self-annihilation / destructive cancellation)*
+
+| Id | Schema | Meaning |
+| :---: | :--- | :--- |
+| **A1** | $(X\bowtie[0]X)\to X$ | Self-identity (constructive alignment). |
+| **A2** | $(X\bowtie[\pi]X)\to \bot$ | Self-annihilation (destructive cancellation). |
+| **A3** | $(X\bowtie[\phi]\bot)\to X$ | Right annihilator (using $\mathrm{Eval}(\bot)=0$). |
+| **A4** | $(X\bowtie[\phi]Y)\to (Y\bowtie[-\phi]X)$ | Swap operands with phase inversion. |
+| **A5** | $((X\bowtie[\phi]Y)\bowtie[\psi]Z)\to (X\bowtie[\phi+\psi](Y\bowtie[\psi]Z))$ | Right-associate; phase addition. |
+| **A6** | $(X\bowtie[\phi](X\bowtie[-\phi]Y))\to Y$ | Cancellation. |
+| **A7** | $(A\bowtie[0]B)\leftrightarrow (A\oplus B)$ | Boundary: $\phi=0$ reduces to superposition. |
+| **A8** | $(A\bowtie[\pi]B)\leftrightarrow (A\ominus B)$ | Boundary: $\phi=\pi$ reduces to difference. |
+
+**Complexity note (engineering).** In the reference normalization strategy, rewriting is performed with phase-canonicalization and associative flattening; empirically and by standard multiset/normal-form arguments, normalization can be implemented in **$O(n\log n)$** time in expression size $n$ (relative to tree depth and sorting/canonicalization steps), ensuring symbolic interference remains far cheaper than brute-force wave-equation simulation.
+
+---
+
+## 6. Theorems and the Classical Boundary
+Theorems are validated by normalization equivalence checks and (optionally) proof-assistant audit. The key separation result is that generic phase behavior cannot be represented by Boolean connectives.
+
+### 6.1 Theorem ledger (informal statements)
+
+| Id | Statement (informal) |
+| :---: | :--- |
+| **T1** | $(A\bowtie[\phi]A)\leftrightarrow A \iff \phi=0$. |
+| **T2** | $(A\bowtie[\phi]A)\leftrightarrow \bot \iff \phi=\pi$. |
+| **T3** | $A\bowtie[\phi](A\bowtie[-\phi]B)\leftrightarrow B$. |
+| **T4** | $((A\bowtie[\phi]B)\bowtie[\psi]C)\leftrightarrow (A\bowtie[\phi+\psi](B\bowtie[\psi]C))$. |
+| **T5** | Distributivity fails for $\phi\notin\{0,\pi\}$. |
+| **T6** | $X=A\bowtie[\phi]X$ has no solutions for $\phi\notin\{0,\pi\}$. |
+| **T7** | (Classical Boundary) non-distributivity with classical conjunction (below). |
+
+### 6.2 Theorem T7 (Classical Boundary / irreducibility)
+**Notation.** In T7, $\land$ denotes *classical Boolean conjunction* used as an external gating/filtering operator for the separation argument (it is not required to be a primitive Symatics operator).
+
+**Statement.** For $\phi\notin\{0,\pi\}$:
+
+**$$
+\bigl((A\bowtie[\phi]B)\land C\bigr)\;\neq\;\bigl((A\land C)\bowtie[\phi](B\land C)\bigr).
+$$**
+
+**Interpretation.** Boolean distributivity is not universal; it is a boundary case of wave behavior. At $\phi\in\{0,\pi\}$, the connective degenerates to classical-like behavior via A7/A8. For all other phases, the system is *beyond-Boolean*.
+
+### 6.3 Irreducibility intuition
+Boolean connectives are phase-insensitive. Since $\bowtie[\phi]$ varies continuously with $\phi$, replacing it by any fixed Boolean connective loses information. T7 captures this as a structural law failure (non-distributivity) for all non-trivial phases.
+
+---
+
+## 7. Collapse Semantics and the Born-Rule Bridge
+
+### 7.1 Collapse as a distribution
+Collapse maps expressions to distributions:
+
+**$$
+\nabla:\mathrm{Expr}\to \mathrm{Dist}(\Sigma),
+\qquad
+\sum_{\sigma\in\Sigma} P(\sigma)=1.
+$$**
+
+This specification is *policy-agnostic*: deterministic or stochastic collapse is permitted, but the policy must be declared.
+
+### 7.2 Default policy: Born-like amplitude-squared normalization
+Let $v=\mathrm{Eval}(E)\in\mathbb{C}^\Sigma$. Define:
+
+**$$
+\mathrm{raw}(\sigma)=|v(\sigma)|^2,
+\qquad
+P(\sigma)=\frac{\mathrm{raw}(\sigma)}{\sum_{\tau\in\Sigma}\mathrm{raw}(\tau)}.
+$$**
+
+This provides a clean bridge from continuous amplitude composition to discrete outcomes. (Extensions may apply decoherence/drift transforms to $v$ prior to squaring.)
+
+### 7.3 Deterministic policy (example)
+A deterministic collapse is permitted as a special case, e.g. $\sigma^\star=\arg\max_\sigma |v(\sigma)|^2$, with $P(\sigma^\star)=1$ and $0$ otherwise.
+
+---
+
+## 8. Substrate Mapping (Electric / Photon / Acoustic)
+Symatics primitives correspond to standard engineering quantities across carriers:
+
+| Primitive | Circuits | Photonics | Acoustics |
+| :--- | :--- | :--- | :--- |
+| Amplitude | Voltage / current | Intensity (photon count) | Pressure variation (dB) |
+| Frequency | Clock / RF carrier | Optical freq / wavelength | Pitch (Hz) |
+| Phase | Phase shift in AC/signal | Optical coherence | Phase offset; beats |
+| Resonance | LC resonance; oscillators | Cavities; laser modes | Room harmonics |
+| Drift | Thermal noise; jitter | Loss; decoherence | Turbulence; damping |
+| Collapse | Logic switch / sampling | Photon detection | Perceptual detection |
+| Coupling | Crosstalk / coupled osc. | Entanglement / splitters | Sympathetic vibration |
+
+---
+
+## 9. Validation Workflow (Reproducible)
+A reference harness checks operator laws and normalization equivalences.
+
+### 9.1 Normalization rewriter for $\bowtie[\phi]$
+The rewriter repeatedly applies A1–A8 until a fixed point is reached, while normalizing phases modulo $2\pi$.
+
+### 9.2 Law checks (optional suites)
+Base-algebra suites may include:
+
+- $\oplus$ commutativity/associativity/identity (and optional idempotence),
+- collapse normalization $\sum P = 1$,
+- theorem-style equivalence checks (T1–T7) via normalization + semantic spot-checks.
+
+### 9.3 Audit note (proof assistants)
+Where available, Lean/Coq/TLA+ audits may be referenced as separate artifacts. If a theorem is not formally proven, it must be labeled as “validated by normalization checks” rather than “formally proven.”
+
+---
+
+## 10. Worked Examples
+
+### 10.1 Cancellation (T3)
+Let $E:=A\bowtie[\phi]\bigl(A\bowtie[-\phi]B\bigr)$. Normalize using A6:
+
+**$$
+A\bowtie[\phi]\bigl(A\bowtie[-\phi]B\bigr)\to B.
+$$**
+
+### 10.2 Phase-swap symmetry (A4)
+
+**$$
+A\bowtie[\phi]B \;\to\; B\bowtie[-\phi]A.
+$$**
+
+This matches the phasor semantics: shifting relative phase from the right operand to the left requires sign inversion.
+
+### 10.3 Interference as a phase gate (sketch)
+Let basis signatures be $|0\rangle=A$, $|1\rangle=B$. Define $\mathrm{state}:=A\bowtie[\phi]B$ and $\mathrm{out}:=\nabla(\mathrm{state})$. With equal amplitudes, $\phi\approx 0$ biases toward constructive outcomes; $\phi\approx\pi$ biases toward cancellation.
+
+### 10.4 Signature-based distance (expanded sketch)
+Let $S_{\mathrm{ref}}$ be a calibrated fringe signature and measurement yields $S_{\mathrm{meas}}$. Define a metric $d$ over signatures (e.g. via phase-frequency correlation). Then distance becomes $d(S_{\mathrm{meas}},S_{\mathrm{ref}})$.
+
+---
+
+## 11. Integration Roadmap
+Symatics is the math layer. Higher layers make it executable and transportable.
+
+| Layer | Purpose | Artifacts |
+| :--- | :--- | :--- |
+| Symatics | Operators + axioms + semantics | Expr, normal forms, theorem checks |
+| GlyphOS | Transport / shorthand for meaning | Dense glyph streams / packets |
+| CodexCore | Deterministic execution + traces | Replayable audit traces, costs/outcomes |
+| Tessaris Engine | Intent orchestration + branch policy | Triggers, branch selection, collapse policies |
+| Carrier mapping | Map glyphs to physical modes | RF/optical/acoustic instantiations |
+
+**Trigger semantics (clarification).** The operator $\Rightarrow$ is intentionally excluded from purely algebraic rewrites. It bridges normalized symbolic patterns to runtime actions (e.g. scheduling an intent, emitting an event, selecting a branch).
+
+---
+
+## 12. Future Work
+
+- **Noise & drift:** tolerance bands; approximate equivalence under decoherence.
+- **Calculus layer:** define $\Delta$ and $\int$ analogs over expression space.
+- **Measurement bases:** explicit basis objects and projections.
+- **Hardware mappings:** compile a glyph set to photonic/RF modes; measure error budgets.
+- **Complexity studies:** normalization complexity of $\bowtie[\phi]$-chains vs. Boolean CNF/DNF expansion.
+
+---
+
+## Appendix A: Glossary
+
+| Term | Definition |
+| :--- | :--- |
+| Signature | Atomic label for a wave-glyph ($A,B,\dots$). |
+| Phase ($\varphi$) | Relative timing/angle of a wave cycle; interpreted mod $2\pi$. |
+| Interference ($\bowtie[\phi]$) | Composition dependent on phase parameter $\phi$. |
+| Collapse ($\nabla$) | Measurement mapping from continuous state to discrete outcomes. |
+| $\bot$ | Null / annihilated expression; semantic zero vector. |
+| Substrate | Physical carrier: circuits, photons, acoustics, etc. |
+
+---
+
+## Appendix B: Reference Files (Snapshot)
+
+- `rewriter.py` (A1–A8 normalization)
+- `law_check.py` (law suites + summary reporting)
+- `axioms.py` (base algebra laws)
+- `quantum_ops.py` (constructors for $\oplus,\leftrightarrow,\circlearrowleft,\nabla,\pi$)
+- `theorems.py` (theorem catalog placeholders)
+- `operator_overloading_layer.py` (syntax sugar)
+
+---
+
+## KaTeX macros (only if you still use LaTeX macros somewhere)
+If any pages still contain old macro names (like `\Sig`, `\C`, `\R`, `\Dist`, `\Eval`, `\normalize`, `\tr`, `\res`, `\botexpr`, `\fuse{}`), add these to your `rehype-katex` config in `next.config.js`:
+
+```js
+rehypePlugins: [
+  [require("rehype-katex"), {
+    macros: {
+      "\\Sig": "\\Sigma",
+      "\\C": "\\mathbb{C}",
+      "\\R": "\\mathbb{R}",
+      "\\Dist": "\\mathrm{Dist}",
+      "\\Eval": "\\mathrm{Eval}",
+      "\\normalize": "\\mathrm{normalize\\_phase}",
+      "\\tr": "\\Rightarrow",
+      "\\res": "\\circlearrowleft",
+      "\\botexpr": "\\bot",
+      "\\fuse": "\\bowtie\\!\\left[#1\\right]"
+    }
+  }]
+]

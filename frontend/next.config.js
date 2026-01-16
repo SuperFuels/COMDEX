@@ -1,9 +1,20 @@
+const withMDX = require('@next/mdx')({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [require('remark-math')],
+    rehypePlugins: [require('rehype-katex')],
+  },
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   trailingSlash: true,
   images: { unoptimized: true },
   eslint: { ignoreDuringBuilds: true },
+  
+  // Support MDX files as pages
+  pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
 
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
@@ -13,18 +24,16 @@ const nextConfig = {
   },
 
   async rewrites() {
-    const radioBase = process.env.NEXT_PUBLIC_RADIO_BASE; // e.g. https://radio-node.yourdomain.com
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"; // FastAPI
+    const radioBase = process.env.NEXT_PUBLIC_RADIO_BASE; 
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"; 
 
     const rules = [];
 
-    // ✅ Proxy FastAPI under /api/*
     rules.push({
       source: "/api/:path*",
       destination: `${apiBase.replace(/\/+$/, "")}/api/:path*`,
     });
 
-    // ✅ Keep your existing radio-node proxy
     if (radioBase) {
       rules.push({
         source: "/containers/:path*",
@@ -46,4 +55,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withMDX(nextConfig);
