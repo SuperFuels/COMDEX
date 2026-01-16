@@ -43,7 +43,6 @@ type TabKey = (typeof TABS)[number]["key"];
 
 // ------------------------------ MDX LOADER ------------------------------
 // ✅ This is the “engine”: it imports the MDX file and renders it as a React component.
-// If your content folder is not at ../content, change this path.
 const SymaticsPaper = dynamic(
   () => import("../content/symatics/symatics_full_technical_document.mdx"),
   {
@@ -62,21 +61,17 @@ const SymaticsPaper = dynamic(
 
 // ------------------------------ API ------------------------------
 
-// ✅ Use configured API base when present (works in dev + prod),
-// ✅ otherwise fall back to same-origin (/api) which your Next rewrite proxies.
 const API_BASE =
-  (typeof window !== "undefined" && (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "")) || "";
+  (typeof window !== "undefined" &&
+    (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "")) ||
+  "";
 
-// ✅ Build URL robustly (avoids double slashes, works with trailingSlash=true)
 function apiUrl(path: string) {
   if (!path.startsWith("/")) path = `/${path}`;
-  // If NEXT_PUBLIC_API_URL is set, call it directly; else rely on Next rewrite at /api/*
   return API_BASE ? `${API_BASE}${path}` : path;
 }
 
 async function translateToGlyphs(code: string, lang: CodeLang): Promise<TranslateResponse> {
-  // ✅ Match your FastAPI photon_api.py exactly:
-  // POST /api/photon/translate  body: { text, language }
   const res = await fetch(apiUrl("/api/photon/translate"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -108,6 +103,65 @@ async function translateToGlyphs(code: string, lang: CodeLang): Promise<Translat
 const Home: NextPage = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("glyph");
   const tabStripRef = useRef<HTMLDivElement | null>(null);
+
+  // ✅ Swipe between tabs (mobile) — ignores mostly-vertical gestures
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX = e.targetTouches[0].clientX;
+      touchStartY = e.targetTouches[0].clientY;
+      touchEndX = touchStartX;
+      touchEndY = touchStartY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      touchEndX = e.targetTouches[0].clientX;
+      touchEndY = e.targetTouches[0].clientY;
+    };
+
+    const handleTouchEnd = () => {
+      const dx = touchStartX - touchEndX;
+      const dy = touchStartY - touchEndY;
+
+      // don't hijack page scroll
+      if (Math.abs(dy) > Math.abs(dx)) return;
+
+      const activeIdx = TABS.findIndex((t) => t.key === activeTab);
+      if (dx > 70 && activeIdx < TABS.length - 1) {
+        setActiveTab(TABS[activeIdx + 1].key); // Swipe Left -> Next Tab
+      } else if (dx < -70 && activeIdx > 0) {
+        setActiveTab(TABS[activeIdx - 1].key); // Swipe Right -> Prev Tab
+      }
+    };
+
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [activeTab]);
+
+  // ✅ Keep active tab pill visible (click OR swipe)
+  useEffect(() => {
+    const el = tabStripRef.current;
+    if (!el) return;
+
+    const idx = TABS.findIndex((t) => t.key === activeTab);
+    if (idx < 0) return;
+
+    const btn = el.children[idx] as HTMLElement | undefined;
+    if (!btn) return;
+
+    btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [activeTab]);
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased">
@@ -170,185 +224,188 @@ const Home: NextPage = () => {
           </nav>
 
           <div className="w-full">
-            {/* GLYPH TAB */}
-            {activeTab === "glyph" && (
-              <section className="animate-in fade-in zoom-in-95 duration-700 space-y-16">
-                <div className="text-center space-y-6">
-                  <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">
-                    Glyph OS
-                  </h1>
-                  <p className="text-2xl text-gray-500 font-light tracking-tight">
-                    The Language of Symbols.{" "}
-                    <span className="text-black font-medium">The Speed of Light.</span>
-                  </p>
-                  <p className="max-w-2xl mx-auto text-lg text-gray-500 leading-relaxed">
-                    An operating system built in symbols, executing at the speed of thought,
-                    compressed for the next era of cognition.
-                  </p>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-10">
-                  <ComparisonCard
-                    title="Culinary Logic"
-                    traditional="Get eggs, crack, whisk, heat pan, add butter, cook, and plate."
-                    glyph="🥚 → 🍳 → 🍽️"
-                    labels="Ingredients → Cook → Serve"
-                  />
-                  <ComparisonCard
-                    title="Document Intelligence"
-                    traditional="Open document, scan for key points, extract data, summarize, and file."
-                    glyph="📄 → ✨ → 🗂️"
-                    labels="Input → Intelligence → Archive"
-                  />
-                </div>
-
-                <div className="text-center font-medium text-gray-400">“Same result. Less noise.”</div>
-                <GlyphTranslateDemo />
-              </section>
-            )}
-
-            {/* SYMATICS TAB */}
-            {activeTab === "symatics" && (
-              <section className="animate-in fade-in zoom-in-95 duration-700 space-y-16">
-                <div className="text-center space-y-6">
-                  <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">
-                    Symatics
-                  </h1>
-                  <p className="text-2xl text-gray-500 font-light tracking-tight">
-                    Start with{" "}
-                    <span className="text-[#0071e3] font-medium uppercase">patterns</span>, not numbers.
-                  </p>
-                </div>
-
-                {/* Core Equation Hero */}
-                <div className="bg-white rounded-[3rem] p-16 text-center shadow-xl shadow-gray-200/50 border border-gray-100">
-                  <div className="text-8xl mb-12 tracking-widest flex justify-center items-center gap-8">
-                    <span className="font-mono text-gray-800">〰️</span>
-                    <span className="text-4xl text-gray-300 font-light">+</span>
-                    <span className="font-mono text-gray-800">〰️</span>
-                    <span className="text-4xl text-gray-300 font-light">=</span>
-                    <div className="relative inline-flex items-center justify-center">
-                      <span className="font-mono text-[#0071e3] drop-shadow-sm">〰️</span>
-                      <span className="absolute -right-8 flex items-center justify-center w-14 h-14 rounded-full border-[3px] border-[#0071e3] text-[#0071e3] text-3xl font-bold bg-white shadow-sm">
-                        R
-                      </span>
-                    </div>
+            {/* ✅ forces remount to trigger your .animate-tab-change animation */}
+            <div key={activeTab} className="animate-tab-change">
+              {/* GLYPH TAB */}
+              {activeTab === "glyph" && (
+                <section className="animate-in fade-in zoom-in-95 duration-700 space-y-16">
+                  <div className="text-center space-y-6">
+                    <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">
+                      Glyph OS
+                    </h1>
+                    <p className="text-2xl text-gray-500 font-light tracking-tight">
+                      The Language of Symbols.{" "}
+                      <span className="text-black font-medium">The Speed of Light.</span>
+                    </p>
+                    <p className="max-w-2xl mx-auto text-lg text-gray-500 leading-relaxed">
+                      An operating system built in symbols, executing at the speed of thought,
+                      compressed for the next era of cognition.
+                    </p>
                   </div>
 
-                  <p className="text-gray-500 text-xl max-w-2xl mx-auto leading-relaxed">
-                    〰️ + 〰️ = 〰️® is a breakthrough in{" "}
-                    <span className="text-black font-semibold">qualitative state change</span>.
-                  </p>
-                </div>
+                  <div className="grid md:grid-cols-2 gap-10">
+                    <ComparisonCard
+                      title="Culinary Logic"
+                      traditional="Get eggs, crack, whisk, heat pan, add butter, cook, and plate."
+                      glyph="🥚 → 🍳 → 🍽️"
+                      labels="Ingredients → Cook → Serve"
+                    />
+                    <ComparisonCard
+                      title="Document Intelligence"
+                      traditional="Open document, scan for key points, extract data, summarize, and file."
+                      glyph="📄 → ✨ → 🗂️"
+                      labels="Input → Intelligence → Archive"
+                    />
+                  </div>
 
-                {/* Text Explainer Container */}
-                <div className="bg-white rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
-                  <div className="p-10 md:p-12">
-                    <div className="max-w-3xl mx-auto text-left bg-[#fafafa] rounded-3xl p-8 border border-gray-100">
-                      <div className="text-xs font-bold text-gray-300 uppercase tracking-widest mb-4">
-                        The New Logic of Resonance
-                      </div>
+                  <div className="text-center font-medium text-gray-400">“Same result. Less noise.”</div>
+                  <GlyphTranslateDemo />
+                </section>
+              )}
 
-                      <p className="text-gray-600 leading-relaxed text-lg">
-                        <span className="font-semibold text-gray-800">
-                          Beyond Counting: Moving from Quantity to Quality
+              {/* SYMATICS TAB */}
+              {activeTab === "symatics" && (
+                <section className="animate-in fade-in zoom-in-95 duration-700 space-y-16">
+                  <div className="text-center space-y-6">
+                    <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">
+                      Symatics
+                    </h1>
+                    <p className="text-2xl text-gray-500 font-light tracking-tight">
+                      Start with{" "}
+                      <span className="text-[#0071e3] font-medium uppercase">patterns</span>, not numbers.
+                    </p>
+                  </div>
+
+                  {/* Core Equation Hero */}
+                  <div className="bg-white rounded-[3rem] p-16 text-center shadow-xl shadow-gray-200/50 border border-gray-100">
+                    <div className="text-8xl mb-12 tracking-widest flex justify-center items-center gap-8">
+                      <span className="font-mono text-gray-800">〰️</span>
+                      <span className="text-4xl text-gray-300 font-light">+</span>
+                      <span className="font-mono text-gray-800">〰️</span>
+                      <span className="text-4xl text-gray-300 font-light">=</span>
+                      <div className="relative inline-flex items-center justify-center">
+                        <span className="font-mono text-[#0071e3] drop-shadow-sm">〰️</span>
+                        <span className="absolute -right-8 flex items-center justify-center w-14 h-14 rounded-full border-[3px] border-[#0071e3] text-[#0071e3] text-3xl font-bold bg-white shadow-sm">
+                          R
                         </span>
-                        <br />
-                        In the world we know, math is for accounting. If you have one dollar and add another, you have two.
-                        This is the logic of accumulation—simply having "more of the same."
-                      </p>
-
-                      <div className="mt-8 space-y-4 border-l-2 border-gray-200 pl-6">
-                        <div>
-                          <span className="font-semibold text-gray-800">Traditional Math:</span>{" "}
-                          <span className="font-mono bg-gray-100 px-3 py-1 rounded text-sm text-gray-600">
-                            1 + 1 = 2
-                          </span>
-                        </div>
-
-                        <div className="pt-2">
-                          <span className="font-semibold text-[#0071e3]">Symatic Logic:</span>{" "}
-                          <span className="font-mono bg-blue-50 text-[#0071e3] px-3 py-1 rounded text-sm">
-                            〰️ + 〰️ = 〰️®
-                          </span>
-                          <div className="text-gray-500 text-sm mt-1 ml-1">
-                            This is the logic of harmony—where patterns combine to create a new, superior reality.
-                          </div>
-                        </div>
                       </div>
+                    </div>
 
-                      <div className="mt-12">
-                        <div className="font-semibold text-gray-800 text-xl mb-4">The Story of the "Spark"</div>
-                        <p className="text-gray-600 leading-relaxed">
-                          Imagine two people swinging a jump rope. If they move their arms randomly, the rope tangles.
-                          But if they move in perfect rhythm, the rope forms a powerful, stable arc.
+                    <p className="text-gray-500 text-xl max-w-2xl mx-auto leading-relaxed">
+                      〰️ + 〰️ = 〰️® is a breakthrough in{" "}
+                      <span className="text-black font-semibold">qualitative state change</span>.
+                    </p>
+                  </div>
+
+                  {/* Text Explainer Container */}
+                  <div className="bg-white rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+                    <div className="p-10 md:p-12">
+                      <div className="max-w-3xl mx-auto text-left bg-[#fafafa] rounded-3xl p-8 border border-gray-100">
+                        <div className="text-xs font-bold text-gray-300 uppercase tracking-widest mb-4">
+                          The New Logic of Resonance
+                        </div>
+
+                        <p className="text-gray-600 leading-relaxed text-lg">
+                          <span className="font-semibold text-gray-800">
+                            Beyond Counting: Moving from Quantity to Quality
+                          </span>
+                          <br />
+                          In the world we know, math is for accounting. If you have one dollar and add another, you have two.
+                          This is the logic of accumulation—simply having "more of the same."
                         </p>
 
-                        <div className="mt-8 space-y-4">
-                          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-start">
-                            <span className="text-2xl mt-1 text-gray-800">〰️</span>
-                            <div>
-                              <span className="font-bold text-gray-800 block">The Wave</span>
-                              <p className="text-gray-600 text-sm">
-                                Raw energy, data, or intent in motion looking for its rhythm.
-                              </p>
-                            </div>
+                        <div className="mt-8 space-y-4 border-l-2 border-gray-200 pl-6">
+                          <div>
+                            <span className="font-semibold text-gray-800">Traditional Math:</span>{" "}
+                            <span className="font-mono bg-gray-100 px-3 py-1 rounded text-sm text-gray-600">
+                              1 + 1 = 2
+                            </span>
                           </div>
 
-                          <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm flex gap-4 items-start">
-                            <span className="text-2xl mt-1 text-[#0071e3]">〰️®</span>
-                            <div>
-                              <span className="font-bold text-[#0071e3] block">Resonance State</span>
-                              <p className="text-gray-600 text-sm">
-                                When patterns lock together, they amplify into a result greater than the sum of its parts.
-                              </p>
+                          <div className="pt-2">
+                            <span className="font-semibold text-[#0071e3]">Symatic Logic:</span>{" "}
+                            <span className="font-mono bg-blue-50 text-[#0071e3] px-3 py-1 rounded text-sm">
+                              〰️ + 〰️ = 〰️®
+                            </span>
+                            <div className="text-gray-500 text-sm mt-1 ml-1">
+                              This is the logic of harmony—where patterns combine to create a new, superior reality.
                             </div>
                           </div>
                         </div>
 
-                        <div className="mt-12 pt-8 border-t border-gray-200">
-                          <div className="font-bold text-gray-800 text-lg mb-3">Why It Matters</div>
+                        <div className="mt-12">
+                          <div className="font-semibold text-gray-800 text-xl mb-4">The Story of the "Spark"</div>
                           <p className="text-gray-600 leading-relaxed">
-                            When your intent (〰️) perfectly aligns with the system (〰️), the noise of the world disappears.
-                            You are achieving Resonance (⟲).
+                            Imagine two people swinging a jump rope. If they move their arms randomly, the rope tangles.
+                            But if they move in perfect rhythm, the rope forms a powerful, stable arc.
                           </p>
-                          <div className="mt-8 text-gray-800 font-medium text-center py-8 bg-white rounded-2xl border border-gray-100 shadow-inner italic text-lg px-6">
-                            “Symatics doesn't just count the world. It oscillates it into harmony.”
+
+                          <div className="mt-8 space-y-4">
+                            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-start">
+                              <span className="text-2xl mt-1 text-gray-800">〰️</span>
+                              <div>
+                                <span className="font-bold text-gray-800 block">The Wave</span>
+                                <p className="text-gray-600 text-sm">
+                                  Raw energy, data, or intent in motion looking for its rhythm.
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm flex gap-4 items-start">
+                              <span className="text-2xl mt-1 text-[#0071e3]">〰️®</span>
+                              <div>
+                                <span className="font-bold text-[#0071e3] block">Resonance State</span>
+                                <p className="text-gray-600 text-sm">
+                                  When patterns lock together, they amplify into a result greater than the sum of its parts.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-12 pt-8 border-t border-gray-200">
+                            <div className="font-bold text-gray-800 text-lg mb-3">Why It Matters</div>
+                            <p className="text-gray-600 leading-relaxed">
+                              When your intent (〰️) perfectly aligns with the system (〰️), the noise of the world disappears.
+                              You are achieving Resonance (⟲).
+                            </p>
+                            <div className="mt-8 text-gray-800 font-medium text-center py-8 bg-white rounded-2xl border border-gray-100 shadow-inner italic text-lg px-6">
+                              “Symatics doesn't just count the world. It oscillates it into harmony.”
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <ResonanceWorkbench />
+                  <ResonanceWorkbench />
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  {["〰️ Wave", "💡 Photon", "⊕ Superpose", "↔ Entangle", "⟲ Resonance", "∇ Collapse", "⇒ Trigger"].map(
-                    (op) => (
-                      <div
-                        key={op}
-                        className="p-5 bg-white rounded-2xl text-center shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-default"
-                      >
-                        <span className="text-sm font-semibold text-gray-700">{op}</span>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </section>
-            )}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    {["〰️ Wave", "💡 Photon", "⊕ Superpose", "↔ Entangle", "⟲ Resonance", "∇ Collapse", "⇒ Trigger"].map(
+                      (op) => (
+                        <div
+                          key={op}
+                          className="p-5 bg-white rounded-2xl text-center shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-default"
+                        >
+                          <span className="text-sm font-semibold text-gray-700">{op}</span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </section>
+              )}
 
-            {/* OTHER TABS (placeholders) */}
-            {activeTab !== "glyph" && activeTab !== "symatics" && (
-              <section className="animate-in fade-in zoom-in-95 duration-700 space-y-10">
-                <div className="text-center space-y-4">
-                  <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-black italic">
-                    {TABS.find((t) => t.key === activeTab)?.label}
-                  </h1>
-                  <p className="text-xl text-gray-500 font-light tracking-tight">Coming next.</p>
-                </div>
-              </section>
-            )}
+              {/* OTHER TABS (placeholders) */}
+              {activeTab !== "glyph" && activeTab !== "symatics" && (
+                <section className="animate-in fade-in zoom-in-95 duration-700 space-y-10">
+                  <div className="text-center space-y-4">
+                    <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-black italic">
+                      {TABS.find((t) => t.key === activeTab)?.label}
+                    </h1>
+                    <p className="text-xl text-gray-500 font-light tracking-tight">Coming next.</p>
+                  </div>
+                </section>
+              )}
+            </div>
           </div>
 
           {/* DOCUMENT READER SECTION */}
@@ -376,7 +433,6 @@ const Home: NextPage = () => {
 
                 <div className="p-12 md:p-20 prose prose-slate max-w-none">
                   <div className="symatics-paper-view">
-                    {/* ✅ Real MDX render (no more placeholder) */}
                     <SymaticsPaper />
                   </div>
                 </div>
@@ -417,7 +473,6 @@ const ResonanceWorkbench = () => {
   const [cycles, setCycles] = useState(6);
   const [speed, setSpeed] = useState(1);
 
-  // time in radians
   const [t, setT] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number>(0);
@@ -471,14 +526,12 @@ const ResonanceWorkbench = () => {
         </div>
       </div>
 
-      {/* Controls */}
       <div className="grid md:grid-cols-3 gap-6">
         <Slider label="Amplitude" value={amplitude} min={8} max={28} step={1} onChange={setAmplitude} suffix="px" />
         <Slider label="Frequency" value={cycles} min={3} max={9} step={1} onChange={setCycles} suffix="cycles" />
         <Slider label="Speed" value={speed} min={0} max={3} step={0.1} onChange={setSpeed} suffix="×" />
       </div>
 
-      {/* Panels */}
       <div className="grid md:grid-cols-2 gap-10">
         <WavePanel title="constructive interference" t={t} amplitude={amplitude} cycles={cycles} phaseB={0} />
         <WavePanel title="destructive interference" t={t} amplitude={amplitude} cycles={cycles} phaseB={Math.PI} />
@@ -542,7 +595,15 @@ const WavePanel = ({
     <div className="space-y-8">
       <WaveRow label="wave A" color="rgb(185 28 28)" t={t} amplitude={amplitude} cycles={cycles} phase={0} mode="a" />
       <WaveRow label="wave B" color="rgb(13 148 136)" t={t} amplitude={amplitude} cycles={cycles} phase={phaseB} mode="b" />
-      <WaveRow label="wave A+B" color="rgb(124 58 237)" t={t} amplitude={amplitude} cycles={cycles} phase={phaseB} mode="sum" />
+      <WaveRow
+        label="wave A+B"
+        color="rgb(124 58 237)"
+        t={t}
+        amplitude={amplitude}
+        cycles={cycles}
+        phase={phaseB}
+        mode="sum"
+      />
     </div>
   </div>
 );
