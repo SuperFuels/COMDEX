@@ -16,9 +16,13 @@ type TranslateResponse = {
 type Scenario = {
   key: string;
   label: string;
+  subtitle: string;
   intentNL: string;
   intentJSON: string;
-  glyphProgram: string; // .ptn-ish source
+
+  // IMPORTANT: we keep a hidden “compiler source” for translation,
+  // but we do NOT show it in the UI (no .ptn panel).
+  compileSource: string;
 };
 
 type TraceStep = {
@@ -33,6 +37,7 @@ const SCENARIOS: readonly Scenario[] = [
   {
     key: "doc-intel",
     label: "Document Intelligence",
+    subtitle: "Scan → extract → brief → store → notify (with deterministic trace)",
     intentNL:
       'Scan the attached document, extract key entities (people, orgs, dates, money), summarize the top 5 points, file it under "Symatics", then notify me with the summary and a link.',
     intentJSON: JSON.stringify(
@@ -50,8 +55,9 @@ const SCENARIOS: readonly Scenario[] = [
       null,
       2,
     ),
-    glyphProgram: [
-      "# GlyphOS program (Photon/.ptn style)",
+    compileSource: [
+      // This is just a translation source; NOT shown.
+      "# GlyphOS compile source (hidden)",
       '⊕ job "doc_intel" {',
       '  in pdf "attachment";',
       "  ⊕ extract entities(person, org, date, money);",
@@ -64,7 +70,8 @@ const SCENARIOS: readonly Scenario[] = [
   },
   {
     key: "ops-fast-action",
-    label: "Compressed Intent → Action",
+    label: "Ops Automation",
+    subtitle: "Compressed intent → action (policy + trace)",
     intentNL:
       "When I say “ship it”, run tests, build, deploy to staging, and post the result to the team channel. If tests fail, open an issue with the failing logs.",
     intentJSON: JSON.stringify(
@@ -82,8 +89,8 @@ const SCENARIOS: readonly Scenario[] = [
       null,
       2,
     ),
-    glyphProgram: [
-      "# “Meaning in motion”",
+    compileSource: [
+      "# Hidden compile source",
       '⊕ trigger "ship it" {',
       "  ⊕ test ci;",
       "  ⊕ build;",
@@ -96,7 +103,8 @@ const SCENARIOS: readonly Scenario[] = [
   },
   {
     key: "agent-orch",
-    label: "AI Orchestration (Policy + Trace)",
+    label: "AI Orchestration",
+    subtitle: "Policy + replayable decision trace",
     intentNL:
       "Plan a 3-step research sprint on Symatics: collect sources, extract a thesis outline, then draft an executive summary. Keep a replayable trace and show the final decision path.",
     intentJSON: JSON.stringify(
@@ -110,8 +118,8 @@ const SCENARIOS: readonly Scenario[] = [
       null,
       2,
     ),
-    glyphProgram: [
-      "# AI orchestration with deterministic trace",
+    compileSource: [
+      "# Hidden compile source",
       '⊕ agent "research_orchestrator" {',
       '  goal "Symatics sprint";',
       "  ⊕ collect sources;",
@@ -124,7 +132,7 @@ const SCENARIOS: readonly Scenario[] = [
   },
 ];
 
-// ------------------------------ API (same behavior as your original) ------------------------------
+// ------------------------------ API (same as your original working behavior) ------------------------------
 
 const API_BASE =
   (typeof window !== "undefined" && (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "")) || "";
@@ -158,7 +166,7 @@ async function translateToGlyphs(code: string, lang: CodeLang): Promise<Translat
   return { translated: text, chars_before: code.length, chars_after: text.length };
 }
 
-// ------------------------------ tiny deterministic hash + rng ------------------------------
+// ------------------------------ deterministic trace (seeded) ------------------------------
 
 function fnv1a(input: string) {
   let h = 0x811c9dc5;
@@ -166,12 +174,10 @@ function fnv1a(input: string) {
     h ^= input.charCodeAt(i);
     h = Math.imul(h, 0x01000193);
   }
-  // unsigned
   return h >>> 0;
 }
 
 function makeRng(seed: number) {
-  // xorshift32
   let x = seed || 123456789;
   return () => {
     x ^= x << 13;
@@ -186,59 +192,47 @@ function buildTrace(seedStr: string): { traceId: string; steps: TraceStep[] } {
   const rng = makeRng(seed);
 
   const base = [
-    { label: "Parse intent", detail: "Decode glyph-wire program", min: 18, max: 42 },
-    { label: "Bind resources", detail: "Resolve inputs / permissions / policy", min: 20, max: 55 },
-    { label: "Execute operators", detail: "Run operator table deterministically", min: 35, max: 90 },
-    { label: "Emit trace", detail: "Write replayable audit + decision path", min: 16, max: 44 },
+    { label: "Parse intent", detail: "Decode meaning-shape", min: 18, max: 42 },
+    { label: "Bind policy", detail: "Resolve permissions + constraints", min: 20, max: 55 },
+    { label: "Execute", detail: "Run operator table deterministically", min: 35, max: 95 },
+    { label: "Emit trace", detail: "Write replayable audit trail", min: 16, max: 44 },
   ];
 
   const steps: TraceStep[] = base.map((b, i) => {
     const ms = Math.round(b.min + (b.max - b.min) * rng());
-    const ok = rng() > 0.04; // small chance of fail for realism (still deterministic)
-    return {
-      id: `s${i + 1}`,
-      label: b.label,
-      detail: b.detail,
-      ms,
-      ok,
-    };
+    const ok = rng() > 0.04;
+    return { id: `s${i + 1}`, label: b.label, detail: b.detail, ms, ok };
   });
 
-  // If any fail, mark last as fail-cascade for “deterministic abort”
   const anyFail = steps.some((s) => !s.ok);
   const finalSteps = anyFail
-    ? steps.map((s, idx) =>
-        idx === steps.length - 1 ? { ...s, ok: false, detail: "Abort + rollback (deterministic)" } : s,
-      )
+    ? steps.map((s, idx) => (idx === steps.length - 1 ? { ...s, ok: false, detail: "Abort + rollback (deterministic)" } : s))
     : steps;
 
   const traceId = `GX-${seed.toString(16).padStart(8, "0").toUpperCase()}`;
   return { traceId, steps: finalSteps };
 }
 
-// ------------------------------ UI ------------------------------
-
-function Pill({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-blue-50 text-[#0071e3] border border-blue-100">
-      {children}
-    </span>
-  );
-}
+// ------------------------------ UI helpers ------------------------------
 
 function Pane({
   title,
+  subtitle,
   right,
   children,
 }: {
   title: string;
+  subtitle?: string;
   right?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[2rem] border border-gray-100 bg-white overflow-hidden shadow-sm">
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
-        <div className="text-sm font-bold text-gray-700">{title}</div>
+    <div className="rounded-[2.5rem] border border-gray-100 bg-white overflow-hidden shadow-xl shadow-gray-200/40">
+      <div className="px-8 py-6 border-b border-gray-100 flex items-start justify-between gap-6">
+        <div>
+          <div className="text-lg font-bold text-gray-900">{title}</div>
+          {subtitle ? <div className="text-sm text-gray-400 mt-1">{subtitle}</div> : null}
+        </div>
         {right ? <div>{right}</div> : <div />}
       </div>
       <div className="bg-[#fafafa]">{children}</div>
@@ -246,46 +240,25 @@ function Pane({
   );
 }
 
-function TextAreaWithLines({
-  value,
-  onChange,
-  readOnly,
-  minRows = 10,
-}: {
-  value: string;
-  onChange?: (v: string) => void;
-  readOnly?: boolean;
-  minRows?: number;
-}) {
-  const lines = useMemo(() => Math.max(1, value.split("\n").length), [value]);
+function CodeWithLines({ value, minRows = 12 }: { value: string; minRows?: number }) {
+  const lines = useMemo(() => Math.max(minRows, value.split("\n").length), [value, minRows]);
 
   return (
     <div className="flex font-mono text-sm leading-6">
-      <div className="select-none text-right text-gray-300 bg-white/40 border-r border-gray-100 px-4 py-4 min-w-[3rem]">
-        {Array.from({ length: Math.max(minRows, lines) }, (_, i) => (
+      <div className="select-none text-right text-gray-300 bg-white/40 border-r border-gray-100 px-6 py-6 min-w-[3.25rem]">
+        {Array.from({ length: lines }, (_, i) => (
           <div key={i}>{i + 1}</div>
         ))}
       </div>
-
-      {readOnly ? (
-        <pre className="flex-1 whitespace-pre-wrap break-words px-4 py-4 text-gray-800">
-          {value && value.trim().length ? value : "—"}
-        </pre>
-      ) : (
-        <textarea
-          value={value}
-          onChange={(e) => onChange?.(e.target.value)}
-          rows={Math.max(minRows, lines)}
-          spellCheck={false}
-          className="flex-1 resize-none bg-transparent px-4 py-4 outline-none text-gray-800"
-        />
-      )}
+      <pre className="flex-1 whitespace-pre-wrap break-words px-6 py-6 text-gray-800">{value}</pre>
     </div>
   );
 }
 
+// ------------------------------ Component ------------------------------
+
 export default function GlyphOSWorkbench() {
-  const [scenarioKey, setScenarioKey] = useState<string>(SCENARIOS[0].key);
+  const [scenarioKey, setScenarioKey] = useState(SCENARIOS[0].key);
   const scenario = useMemo(() => SCENARIOS.find((s) => s.key === scenarioKey) || SCENARIOS[0], [scenarioKey]);
 
   const [view, setView] = useState<"nl" | "json">("nl");
@@ -293,23 +266,19 @@ export default function GlyphOSWorkbench() {
 
   const [intentNL, setIntentNL] = useState(scenario.intentNL);
   const [intentJSON, setIntentJSON] = useState(scenario.intentJSON);
-  const [program, setProgram] = useState(scenario.glyphProgram);
 
   const [glyphWire, setGlyphWire] = useState<string>("—");
+  const [traceId, setTraceId] = useState("—");
+  const [trace, setTrace] = useState<TraceStep[]>([]);
+  const [stats, setStats] = useState<{ before: number; after: number; pct: number } | null>(null);
+
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const [traceId, setTraceId] = useState<string>("—");
-  const [trace, setTrace] = useState<TraceStep[]>([]);
-
-  const [stats, setStats] = useState<{ before: number; after: number; pct: number } | null>(null);
-
-  // Update editors when scenario changes (but preserve if user started editing heavily)
   const loadScenario = (s: Scenario) => {
     setScenarioKey(s.key);
     setIntentNL(s.intentNL);
     setIntentJSON(s.intentJSON);
-    setProgram(s.glyphProgram);
     setGlyphWire("—");
     setTraceId("—");
     setTrace([]);
@@ -322,20 +291,20 @@ export default function GlyphOSWorkbench() {
       setBusy(true);
       setErr(null);
 
-      // 1) compile/translate program → glyph wire
-      const resp = await translateToGlyphs(program, lang);
-      const translated = resp.translated ?? "";
-      const wire = translated && translated.trim().length ? translated : "—";
+      // Translate hidden compile source to glyph wire
+      const resp = await translateToGlyphs(scenario.compileSource, lang);
+      const translated = (resp.translated ?? "").trim();
+      const wire = translated.length ? translated : "—";
       setGlyphWire(wire);
 
-      // show “meaning compression” against NL (what user *wants*)
+      // Compression stats vs Natural Language intent
       const before = intentNL.length;
       const after = wire === "—" ? 0 : wire.length;
       const pct = before > 0 && after > 0 ? (1 - after / before) * 100 : 0;
       setStats(after > 0 ? { before, after, pct } : null);
 
-      // 2) deterministic trace (seeded by scenario + wire)
-      const seedStr = `${scenarioKey}::${wire}::${lang}`;
+      // Deterministic trace seeded by scenario + wire
+      const seedStr = `${scenario.key}::${wire}::${lang}`;
       const t = buildTrace(seedStr);
       setTraceId(t.traceId);
       setTrace(t.steps);
@@ -348,18 +317,18 @@ export default function GlyphOSWorkbench() {
 
   return (
     <section className="space-y-16">
-      {/* Hero (keep your original vibe) */}
+      {/* HERO — match your old sizing (attachment 3) */}
       <div className="text-center space-y-6">
         <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">Glyph OS</h1>
         <p className="text-2xl text-gray-500 font-light tracking-tight">
           The Language of Symbols. <span className="text-black font-medium">The Speed of Light.</span>
         </p>
-        <p className="max-w-2xl mx-auto text-lg text-gray-500 leading-relaxed">
-          Compressed intent → deterministic execution → replayable trace. Built for AI orchestration and meaning-native computation.
+        <p className="max-w-3xl mx-auto text-lg text-gray-500 leading-relaxed">
+          Intent → Glyph-wire (canonical meaning-shape) → deterministic trace → next action (policy).
         </p>
       </div>
 
-      {/* Scenario selector (boutique, not cluttered) */}
+      {/* Scenario selector — clean + boutique */}
       <div className="flex flex-wrap items-center justify-center gap-3">
         {SCENARIOS.map((s) => {
           const active = s.key === scenarioKey;
@@ -367,8 +336,10 @@ export default function GlyphOSWorkbench() {
             <button
               key={s.key}
               onClick={() => loadScenario(s)}
-              className={`px-6 py-3 rounded-full text-sm font-semibold transition-all ${
-                active ? "bg-black text-white shadow-md" : "bg-white text-gray-600 border border-gray-200 hover:text-black"
+              className={`px-7 py-3 rounded-full text-sm font-semibold transition-all ${
+                active
+                  ? "bg-[#0071e3] text-white shadow-xl shadow-gray-200/50"
+                  : "bg-white text-gray-600 border border-gray-200 hover:text-black"
               }`}
             >
               {s.label}
@@ -377,26 +348,20 @@ export default function GlyphOSWorkbench() {
         })}
       </div>
 
-      {/* Main Workbench */}
-      <div className="w-full bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-10 space-y-10">
+      {/* Workbench container — wider, rounded, not squared */}
+      <div className="w-full bg-white rounded-[3rem] shadow-2xl shadow-gray-200/60 border border-gray-100 p-12 space-y-10">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-          <div className="space-y-2">
-            <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">Meaning → Wire → Execution</div>
-            <div className="text-sm text-gray-500">
-              Compare verbose intent with a compact glyph program, then run a deterministic trace.
-            </div>
+          <div>
+            <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">Demo Presets</div>
+            <div className="text-3xl font-bold text-gray-900 mt-2">{scenario.label}</div>
+            <div className="text-gray-500 mt-1">{scenario.subtitle}</div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2">
-              <Pill>Deterministic</Pill>
-              <Pill>Replayable Trace</Pill>
-            </div>
-
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value as CodeLang)}
-              className="px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm outline-none focus:ring-2 focus:ring-blue-200"
+              className="px-5 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm outline-none focus:ring-2 focus:ring-blue-200"
             >
               <option value="photon">Photon (.ptn)</option>
               <option value="python">Python (.py)</option>
@@ -416,10 +381,12 @@ export default function GlyphOSWorkbench() {
 
         {err ? <div className="text-sm text-red-600 whitespace-pre-wrap">{err}</div> : null}
 
-        {/* Editors */}
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* ✅ EXACTLY THREE PANELS — Words / Glyph-wire / Trace */}
+        <div className="grid lg:grid-cols-3 gap-10">
+          {/* 1) WORDS */}
           <Pane
-            title="VERBOSE INTENT"
+            title="Words"
+            subtitle="Verbose intent (what most systems require)"
             right={
               <div className="flex items-center gap-2 bg-white rounded-full border border-gray-200 p-1">
                 <button
@@ -446,72 +413,60 @@ export default function GlyphOSWorkbench() {
                 <textarea
                   value={intentNL}
                   onChange={(e) => setIntentNL(e.target.value)}
-                  className="w-full min-h-[220px] rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-800 leading-relaxed outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full min-h-[280px] rounded-[2rem] border border-gray-200 bg-white p-6 text-sm text-gray-800 leading-relaxed outline-none focus:ring-2 focus:ring-blue-200"
                   spellCheck={false}
                 />
               </div>
             ) : (
-              <TextAreaWithLines value={intentJSON} onChange={setIntentJSON} minRows={12} />
+              <CodeWithLines value={intentJSON} minRows={16} />
             )}
           </Pane>
 
+          {/* 2) GLYPH-WIRE */}
           <Pane
-            title="GLYPH PROGRAM (.PTN)"
-            right={<div className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Meaning-native</div>}
-          >
-            <TextAreaWithLines value={program} onChange={setProgram} minRows={12} />
-          </Pane>
-        </div>
-
-        {/* Output + Trace */}
-        <div className="grid md:grid-cols-2 gap-8">
-          <Pane
-            title="GLYPH WIRE (COMPACT)"
+            title="Glyph-wire"
+            subtitle="Canonical meaning-shape (portable + stable)"
             right={
               stats ? (
                 <div className="text-[11px] text-gray-400">
-                  <span className="font-semibold">{stats.pct.toFixed(1)}%</span> shorter (NL {stats.before} → wire{" "}
-                  {stats.after})
+                  <span className="font-semibold">{stats.pct.toFixed(1)}%</span> shorter ({stats.before} → {stats.after})
                 </div>
               ) : (
                 <div className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Translated</div>
               )
             }
           >
-            <TextAreaWithLines value={glyphWire} readOnly minRows={12} />
+            <CodeWithLines value={glyphWire} minRows={16} />
           </Pane>
 
+          {/* 3) TRACE */}
           <Pane
-            title="DETERMINISTIC TRACE"
-            right={<div className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Trace ID: {traceId}</div>}
+            title="Trace"
+            subtitle="Deterministic execution + audit trail"
+            right={<div className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">{traceId}</div>}
           >
             <div className="p-6 space-y-4">
               {trace.length === 0 ? (
-                <div className="text-sm text-gray-400">Run to generate a replayable execution trace.</div>
+                <div className="text-sm text-gray-400">Press Run to generate a deterministic trace.</div>
               ) : (
                 <div className="space-y-3">
                   {trace.map((s) => (
                     <div
                       key={s.id}
-                      className="flex items-start justify-between gap-4 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm"
+                      className="flex items-start justify-between gap-4 bg-white rounded-[2rem] border border-gray-100 p-5 shadow-sm"
                     >
                       <div className="flex items-start gap-3">
-                        <div
-                          className={`mt-0.5 w-3 h-3 rounded-full ${
-                            s.ok ? "bg-emerald-500" : "bg-rose-500"
-                          }`}
-                        />
+                        <div className={`mt-1 w-3 h-3 rounded-full ${s.ok ? "bg-emerald-500" : "bg-rose-500"}`} />
                         <div>
-                          <div className="text-sm font-semibold text-gray-800">{s.label}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">{s.detail}</div>
+                          <div className="text-sm font-semibold text-gray-900">{s.label}</div>
+                          <div className="text-xs text-gray-500 mt-1">{s.detail}</div>
                         </div>
                       </div>
-                      <div className="text-xs font-mono text-gray-400">{s.ms}ms</div>
+                      <div className="text-xs font-mono text-gray-400 whitespace-nowrap">{s.ms} ms</div>
                     </div>
                   ))}
-
-                  <div className="pt-2 text-xs text-gray-400">
-                    Same wire + same policy ⇒ same trace. (This is the “OS” part.)
+                  <div className="pt-1 text-xs text-gray-400">
+                    Same wire + same policy ⇒ same trace. (Replayable.)
                   </div>
                 </div>
               )}
@@ -520,7 +475,7 @@ export default function GlyphOSWorkbench() {
         </div>
       </div>
 
-      <div className="text-center font-medium text-gray-400 italic">“Same meaning. Less noise. Faster execution.”</div>
+      <div className="text-center font-medium text-gray-400 italic">“Same meaning. Less noise. Deterministic execution.”</div>
     </section>
   );
 }
