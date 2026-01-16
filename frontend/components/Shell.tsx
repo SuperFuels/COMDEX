@@ -28,7 +28,8 @@ function getActiveKeyFromPath(pathname: string): string {
   const exact = TABS.find((t) => t.href === p);
   if (exact) return exact.key;
 
-  const nested = TABS.slice()
+  const nested = TABS
+    .slice()
     .sort((a, b) => b.href.length - a.href.length)
     .find((t) => t.href !== "/" && p.startsWith(t.href + "/"));
   if (nested) return nested.key;
@@ -37,25 +38,38 @@ function getActiveKeyFromPath(pathname: string): string {
   return "glyph";
 }
 
+type MaxWidthClass =
+  | "max-w-5xl"
+  | "max-w-6xl"
+  | "max-w-7xl"
+  | "max-w-screen-xl"
+  | `max-w-[${string}]`;
+
 export default function Shell({
   children,
   activeKey,
   hideHud = false,
   className = "",
+  maxWidth = "max-w-7xl", // ✅ sensible default: fixes squashed panels
 }: {
   children: ReactNode;
-  activeKey?: string; // ✅ optional override for pages
+  activeKey?: string;
   hideHud?: boolean;
   className?: string;
+  maxWidth?: MaxWidthClass;
 }) {
   const router = useRouter();
   const derivedKey = getActiveKeyFromPath(router.asPath || router.pathname || "/");
   const key = activeKey || derivedKey;
 
   return (
-    <div className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}>
+    <div
+      className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}
+    >
       <div className="h-screen overflow-y-auto">
-        <main className="relative z-10 flex flex-col items-center justify-start min-h-full px-6 max-w-5xl mx-auto py-16 pb-32">
+        <main
+          className={`relative z-10 flex flex-col items-center justify-start min-h-full px-6 ${maxWidth} mx-auto py-16 pb-32`}
+        >
           <TabDock tabs={TABS} activeKey={key} />
 
           <div className="w-full">

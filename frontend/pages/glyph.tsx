@@ -7,7 +7,7 @@ import GlyphTab from "../tabs/glyph";
 
 const GlyphPage: NextPage = () => {
   return (
-    <Shell>
+    <Shell maxWidth="max-w-[1400px]">
       <GlyphTab />
     </Shell>
   );

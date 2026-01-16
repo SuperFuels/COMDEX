@@ -1,18 +1,20 @@
 "use client";
 
-export default function SymaticsHero() {
+export default function Hero() {
   return (
     <section className="space-y-16">
       <div className="text-center space-y-6">
-        <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">Symatics</h1>
-        <p className="text-2xl text-gray-500 font-light tracking-tight">
+        <h1 className="text-[5rem] md:text-[9rem] font-bold tracking-tight text-black italic leading-[0.95]">
+          Symatics
+        </h1>
+        <p className="text-2xl md:text-3xl text-gray-500 font-light tracking-tight">
           Start with <span className="text-[#0071e3] font-medium uppercase">patterns</span>, not numbers.
         </p>
       </div>
 
       {/* Core Equation Hero */}
       <div className="bg-white rounded-[3rem] p-16 text-center shadow-xl shadow-gray-200/50 border border-gray-100">
-        <div className="text-8xl mb-12 tracking-widest flex justify-center items-center gap-8">
+        <div className="text-8xl mb-12 tracking-widest flex flex-wrap justify-center items-center gap-8">
           <span className="font-mono text-gray-800">〰️</span>
           <span className="text-4xl text-gray-300 font-light">+</span>
           <span className="font-mono text-gray-800">〰️</span>
@@ -25,16 +27,16 @@ export default function SymaticsHero() {
           </div>
         </div>
 
-        <p className="text-gray-500 text-xl max-w-2xl mx-auto leading-relaxed">
+        <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
           〰️ + 〰️ = 〰️® is a breakthrough in{" "}
           <span className="text-black font-semibold">qualitative state change</span>.
         </p>
       </div>
 
-      {/* Explainer */}
+      {/* Explainer (FULL, including Spark section) */}
       <div className="bg-white rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
         <div className="p-10 md:p-12">
-          <div className="max-w-3xl mx-auto text-left bg-[#fafafa] rounded-3xl p-8 border border-gray-100">
+          <div className="max-w-4xl mx-auto text-left bg-[#fafafa] rounded-3xl p-10 border border-gray-100">
             <div className="text-xs font-bold text-gray-300 uppercase tracking-widest mb-4">
               The New Logic of Resonance
             </div>
@@ -42,8 +44,8 @@ export default function SymaticsHero() {
             <p className="text-gray-600 leading-relaxed text-lg">
               <span className="font-semibold text-gray-800">Beyond Counting: Moving from Quantity to Quality</span>
               <br />
-              In the world we know, math is for accounting. If you have one dollar and add another, you have two. This
-              is the logic of accumulation—simply having "more of the same."
+              In the world we know, math is for accounting. If you have one dollar and add another, you have two.
+              This is the logic of accumulation—simply having "more of the same."
             </p>
 
             <div className="mt-8 space-y-4 border-l-2 border-gray-200 pl-6">
@@ -61,14 +63,45 @@ export default function SymaticsHero() {
               </div>
             </div>
 
-            <div className="mt-12 pt-8 border-t border-gray-200">
-              <div className="font-bold text-gray-800 text-lg mb-3">Why It Matters</div>
+            {/* ✅ RESTORED: Story of the Spark */}
+            <div className="mt-12">
+              <div className="font-semibold text-gray-800 text-2xl mb-4">The Story of the "Spark"</div>
               <p className="text-gray-600 leading-relaxed">
-                When your intent (〰️) perfectly aligns with the system (〰️), the noise of the world disappears. You are
-                achieving Resonance (⟲).
+                Imagine two people swinging a jump rope. If they move their arms randomly, the rope tangles.
+                But if they move in perfect rhythm, the rope forms a powerful, stable arc.
               </p>
-              <div className="mt-8 text-gray-800 font-medium text-center py-8 bg-white rounded-2xl border border-gray-100 shadow-inner italic text-lg px-6">
-                “Symatics doesn't just count the world. It oscillates it into harmony.”
+
+              <div className="mt-8 space-y-4">
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-start">
+                  <span className="text-2xl mt-1 text-gray-800">〰️</span>
+                  <div>
+                    <span className="font-bold text-gray-800 block text-lg">The Wave</span>
+                    <p className="text-gray-600 text-sm">
+                      Raw energy, data, or intent in motion looking for its rhythm.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm flex gap-4 items-start">
+                  <span className="text-2xl mt-1 text-[#0071e3]">〰️®</span>
+                  <div>
+                    <span className="font-bold text-[#0071e3] block text-lg">Resonance State</span>
+                    <p className="text-gray-600 text-sm">
+                      When patterns lock together, they amplify into a result greater than the sum of its parts.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-12 pt-8 border-t border-gray-200">
+                <div className="font-bold text-gray-800 text-xl mb-3">Why It Matters</div>
+                <p className="text-gray-600 leading-relaxed">
+                  When your intent (〰️) perfectly aligns with the system (〰️), the noise of the world disappears.
+                  You are achieving Resonance (⟲).
+                </p>
+                <div className="mt-8 text-gray-800 font-medium text-center py-10 bg-white rounded-2xl border border-gray-100 shadow-inner italic text-lg px-6">
+                  “Symatics doesn't just count the world. It oscillates it into harmony.”
+                </div>
               </div>
             </div>
           </div>
