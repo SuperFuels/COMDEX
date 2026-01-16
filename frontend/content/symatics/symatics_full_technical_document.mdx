@@ -32,11 +32,11 @@ Atomic labels:
 ### 2.2 Wave model (minimal)
 Each signature **$\sigma \in \Sigma$** may be interpreted as a phasor with amplitude and phase:
 
-**$$
+$$
 \mathrm{Wave}(\sigma)=(\sigma,\alpha_\sigma,\varphi_\sigma)
 \quad\text{where}\quad
 \alpha_\sigma \in \mathbb{R}_{\ge 0},\;\varphi_\sigma \in [0,2\pi).
-$$**
+$$
 
 ### 2.3 Expressions
 Expressions are trees over **$\Sigma$** using operator nodes (Section 3). Implementations may represent expressions as AST nodes or nested structures.
@@ -44,9 +44,9 @@ Expressions are trees over **$\Sigma$** using operator nodes (Section 3). Implem
 ### 2.4 The annihilator $\bot$
 **$\bot$** denotes the *null / annihilated expression*. Semantically, it is the zero amplitude-vector:
 
-**$$
+$$
 \mathrm{Eval}(\bot)=\mathbf{0}\in\mathbb{C}^\Sigma.
-$$**
+$$
 
 ### 2.5 Distributions
 $\mathrm{Dist}(\Sigma)$ denotes probability distributions over discrete outcomes $\sigma\in\Sigma$.
@@ -57,7 +57,7 @@ $\mathrm{Dist}(\Sigma)$ denotes probability distributions over discrete outcomes
 
 ### 3.1 Concrete syntax (illustrative)
 
-**$$
+$$
 \begin{aligned}
 \mathrm{Expr} ::= {}& \mathrm{Atom}
 \;\mid\;(\mathrm{Expr}\oplus\mathrm{Expr})
@@ -67,7 +67,7 @@ $\mathrm{Dist}(\Sigma)$ denotes probability distributions over discrete outcomes
 \;\mid\;\nabla(\mathrm{Expr})
 \;\mid\;(\mathrm{Action}\Rightarrow\mathrm{Expr})
 \end{aligned}
-$$**
+$$
 
 where $\phi\in\mathbb{R}$ is interpreted modulo $2\pi$.
 
@@ -94,49 +94,49 @@ This section gives the “ground truth” semantics that a physicist/CS reviewer
 ### 4.1 Evaluation function
 Define an evaluation function mapping an expression $E$ to a complex amplitude vector over $\Sigma$:
 
-**$$
+$$
 \mathrm{Eval}(E)\in\mathbb{C}^\Sigma,
 \quad\text{where}\quad \mathrm{Eval}(E)(\sigma)\in\mathbb{C}
 \text{ is the amplitude assigned to signature }\sigma.
-$$**
+$$
 
 ### 4.2 Atoms
 For an atom $A\in\Sigma$:
 
-**$$
+$$
 \mathrm{Eval}(A)(A)=\alpha_A\,e^{i\varphi_A},
 \qquad
 \mathrm{Eval}(A)(\sigma)=0\;\;\text{for }\sigma\neq A.
-$$**
+$$
 
 ### 4.3 Superposition and difference
 For expressions $X,Y$:
 
-**$$
+$$
 \mathrm{Eval}(X\oplus Y)=\mathrm{Eval}(X)+\mathrm{Eval}(Y),
 \qquad
 \mathrm{Eval}(X\ominus Y)=\mathrm{Eval}(X)-\mathrm{Eval}(Y).
-$$**
+$$
 
 ### 4.4 Interference connective $\bowtie[\phi]$
 For expressions $X$ and $Y$ with relative phase shift $\phi$ applied to the *right* operand:
 
-**$$
+$$
 \mathrm{Eval}\!\bigl(X\bowtie[\phi]Y\bigr)=\mathrm{Eval}(X)+e^{i\phi}\,\mathrm{Eval}(Y).
-$$**
+$$
 
 Componentwise, for each $\sigma\in\Sigma$:
 
-**$$
+$$
 \mathrm{Eval}\!\bigl(X\bowtie[\phi]Y\bigr)(\sigma)=\mathrm{Eval}(X)(\sigma)+e^{i\phi}\,\mathrm{Eval}(Y)(\sigma).
-$$**
+$$
 
 ### 4.5 Phase normalization
 All phases are interpreted modulo $2\pi$ and normalized to $[0,2\pi)$:
 
-**$$
+$$
 \mathrm{normalize\_phase}(\phi)=\bigl((\phi \bmod 2\pi)+2\pi\bigr)\bmod 2\pi.
-$$**
+$$
 
 ### 4.6 Substrate-agnostic core
 This minimal semantics assumes linear superposition at the semantic layer. Substrate-specific effects (loss, dispersion, decoherence, drift) are modeled as additional operators or parameterized noise applied prior to evaluation/collapse.
@@ -147,10 +147,20 @@ This minimal semantics assumes linear superposition at the semantic layer. Subst
 A1–A8 define the *normalization interface* for mechanized rewriting of $\bowtie[\phi]$ expressions. They are presented as rewrite schemas used by the rewriter until a fixed point is reached.
 
 **The Golden Law of Resonance:**
-**$$(X \bowtie[0] X)\to X$$** *(Self-identity / constructive alignment)*
+
+$$
+(X \bowtie[0] X)\to X
+$$
+
+*(Self-identity / constructive alignment)*
 
 **The Law of Annihilation:**
-**$$(X \bowtie[\pi] X)\to \bot$$** *(Self-annihilation / destructive cancellation)*
+
+$$
+(X \bowtie[\pi] X)\to \bot
+$$
+
+*(Self-annihilation / destructive cancellation)*
 
 | Id | Schema | Meaning |
 | :---: | :--- | :--- |
@@ -178,20 +188,20 @@ Theorems are validated by normalization equivalence checks and (optionally) proo
 | **T2** | $(A\bowtie[\phi]A)\leftrightarrow \bot \iff \phi=\pi$. |
 | **T3** | $A\bowtie[\phi](A\bowtie[-\phi]B)\leftrightarrow B$. |
 | **T4** | $((A\bowtie[\phi]B)\bowtie[\psi]C)\leftrightarrow (A\bowtie[\phi+\psi](B\bowtie[\psi]C))$. |
-| **T5** | Distributivity fails for $\phi\notin\{0,\pi\}$. |
-| **T6** | $X=A\bowtie[\phi]X$ has no solutions for $\phi\notin\{0,\pi\}$. |
+| **T5** | Distributivity fails for **$\phi\notin\{0,\pi\}$**. |
+| **T6** | $X=A\bowtie[\phi]X$ has no solutions for **$\phi\notin\{0,\pi\}$**. |
 | **T7** | (Classical Boundary) non-distributivity with classical conjunction (below). |
 
 ### 6.2 Theorem T7 (Classical Boundary / irreducibility)
 **Notation.** In T7, $\land$ denotes *classical Boolean conjunction* used as an external gating/filtering operator for the separation argument (it is not required to be a primitive Symatics operator).
 
-**Statement.** For $\phi\notin\{0,\pi\}$:
+**Statement.** For **$\phi\notin\{0,\pi\}$**:
 
-**$$
+$$
 \bigl((A\bowtie[\phi]B)\land C\bigr)\;\neq\;\bigl((A\land C)\bowtie[\phi](B\land C)\bigr).
-$$**
+$$
 
-**Interpretation.** Boolean distributivity is not universal; it is a boundary case of wave behavior. At $\phi\in\{0,\pi\}$, the connective degenerates to classical-like behavior via A7/A8. For all other phases, the system is *beyond-Boolean*.
+**Interpretation.** Boolean distributivity is not universal; it is a boundary case of wave behavior. At **$\phi\in\{0,\pi\}$**, the connective degenerates to classical-like behavior via A7/A8. For all other phases, the system is *beyond-Boolean*.
 
 ### 6.3 Irreducibility intuition
 Boolean connectives are phase-insensitive. Since $\bowtie[\phi]$ varies continuously with $\phi$, replacing it by any fixed Boolean connective loses information. T7 captures this as a structural law failure (non-distributivity) for all non-trivial phases.
@@ -203,22 +213,22 @@ Boolean connectives are phase-insensitive. Since $\bowtie[\phi]$ varies continuo
 ### 7.1 Collapse as a distribution
 Collapse maps expressions to distributions:
 
-**$$
+$$
 \nabla:\mathrm{Expr}\to \mathrm{Dist}(\Sigma),
 \qquad
 \sum_{\sigma\in\Sigma} P(\sigma)=1.
-$$**
+$$
 
 This specification is *policy-agnostic*: deterministic or stochastic collapse is permitted, but the policy must be declared.
 
 ### 7.2 Default policy: Born-like amplitude-squared normalization
 Let $v=\mathrm{Eval}(E)\in\mathbb{C}^\Sigma$. Define:
 
-**$$
+$$
 \mathrm{raw}(\sigma)=|v(\sigma)|^2,
 \qquad
 P(\sigma)=\frac{\mathrm{raw}(\sigma)}{\sum_{\tau\in\Sigma}\mathrm{raw}(\tau)}.
-$$**
+$$
 
 This provides a clean bridge from continuous amplitude composition to discrete outcomes. (Extensions may apply decoherence/drift transforms to $v$ prior to squaring.)
 
@@ -265,15 +275,15 @@ Where available, Lean/Coq/TLA+ audits may be referenced as separate artifacts. I
 ### 10.1 Cancellation (T3)
 Let $E:=A\bowtie[\phi]\bigl(A\bowtie[-\phi]B\bigr)$. Normalize using A6:
 
-**$$
+$$
 A\bowtie[\phi]\bigl(A\bowtie[-\phi]B\bigr)\to B.
-$$**
+$$
 
 ### 10.2 Phase-swap symmetry (A4)
 
-**$$
+$$
 A\bowtie[\phi]B \;\to\; B\bowtie[-\phi]A.
-$$**
+$$
 
 This matches the phasor semantics: shifting relative phase from the right operand to the left requires sign inversion.
 
