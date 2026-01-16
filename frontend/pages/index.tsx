@@ -169,8 +169,12 @@ const Home: NextPage = () => {
                     </div>
                   </div>
 
-                  <p className="text-gray-400 text-lg italic">
-                    “Constructive interference produces a coherent/bright result.”
+                  <p className="text-gray-500 text-xl max-w-2xl mx-auto leading-relaxed">
+                    Moving from <span className="text-black font-semibold">accumulation</span> to <span className="text-[#0071e3] font-semibold">resonance</span>. 
+                    <br />
+                    <span className="text-gray-400 text-lg italic mt-2 block">
+                      $〰️ + 〰️ = 〰️®$ is a breakthrough in qualitative state change.
+                    </span>
                   </p>
                 </div>
 
@@ -194,15 +198,15 @@ const Home: NextPage = () => {
 
                       <div className="mt-8 space-y-4 border-l-2 border-gray-200 pl-6">
                         <div>
-                          <span className="font-semibold text-gray-800">Traditional Logic:</span>{" "}
+                          <span className="font-semibold text-gray-800">Traditional Math:</span>{" "}
                           <span className="font-mono bg-gray-100 px-3 py-1 rounded text-sm text-gray-600">$1 + 1 = 2$</span>
-                          <div className="text-gray-500 text-sm mt-1 ml-1">The logic of accumulation—simply having "more of the same."</div>
+                          <div className="text-gray-500 text-sm mt-1 ml-1">This is the logic of accumulation—simply having "more of the same."</div>
                         </div>
 
                         <div className="pt-2">
                           <span className="font-semibold text-[#0071e3]">Symatic Logic:</span>{" "}
                           <span className="font-mono bg-blue-50 text-[#0071e3] px-3 py-1 rounded text-sm">$〰️ + 〰️ = 〰️®$</span>
-                          <div className="text-gray-500 text-sm mt-1 ml-1">The logic of resonance—where patterns combine to create a new, superior reality.</div>
+                          <div className="text-gray-500 text-sm mt-1 ml-1">This is the logic of harmony—where two patterns combine to create a new, superior reality.</div>
                         </div>
                       </div>
 
@@ -217,19 +221,23 @@ const Home: NextPage = () => {
                         </p>
                         
                         
+
+[Image of constructive vs destructive wave interference]
+
+
                         <div className="mt-8 space-y-4">
                           <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-start">
-                            <span className="text-2xl mt-1">〰️</span>
+                            <span className="text-2xl mt-1 text-gray-800">〰️</span>
                             <div>
                               <span className="font-bold text-gray-800 block">The Wave</span>
                               <p className="text-gray-600 text-sm">Represents raw energy, data, or your "intent" in motion. It is information looking for its rhythm.</p>
                             </div>
                           </div>
                           <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm flex gap-4 items-start">
-                            <span className="text-2xl mt-1">〰️®</span>
+                            <span className="text-2xl mt-1 text-[#0071e3]">〰️®</span>
                             <div>
-                              <span className="font-bold text-[#0071e3] block">The Resonance State</span>
-                              <p className="text-gray-600 text-sm">The moment of Coherence. When waves align perfectly, they lock into a stable pattern that is qualitatively more powerful than the inputs.</p>
+                              <span className="font-bold text-[#0071e3] block">Resonance State</span>
+                              <p className="text-gray-600 text-sm">The moment of Coherence. When patterns lock together, they don't just "add up"—they amplify each other into a result greater than the sum of its parts.</p>
                             </div>
                           </div>
                         </div>
@@ -250,7 +258,7 @@ const Home: NextPage = () => {
                   </div>
                 </div>
 
-                {/* ✅ Symatics resonance workbench */}
+                {/* ✅ Symatics wave interference demo */}
                 <ResonanceWorkbench />
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -267,7 +275,6 @@ const Home: NextPage = () => {
                 </div>
               </section>
             )}
-          </div>
 
           {/* CTA */}
           <footer className="mt-24 flex gap-6">
