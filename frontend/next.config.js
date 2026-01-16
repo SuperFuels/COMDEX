@@ -1,25 +1,23 @@
-const path = require("path");
+const remarkMathPkg = require("remark-math");
+const rehypeKatexPkg = require("rehype-katex");
+
+const remarkMath = remarkMathPkg.default ?? remarkMathPkg;
+const rehypeKatex = rehypeKatexPkg.default ?? rehypeKatexPkg;
 
 const withMDX = require("@next/mdx")({
   extension: /\.mdx?$/,
   options: {
-    remarkPlugins: [require("remark-math")],
+    remarkPlugins: [remarkMath],
     rehypePlugins: [
       [
-        require("rehype-katex"),
+        rehypeKatex,
         {
           macros: {
             "\\Sig": "\\Sigma",
             "\\C": "\\mathbb{C}",
             "\\R": "\\mathbb{R}",
-            "\\Dist": "\\mathrm{Dist}",
-            "\\Eval": "\\mathrm{Eval}",
-            "\\normalize": "\\mathrm{normalize\\_phase}",
-            "\\tr": "\\Rightarrow",
-            "\\res": "\\circlearrowleft",
             "\\botexpr": "\\bot",
-            // NOTE: KaTeX macro functions use #1 syntax
-            "\\fuse": "\\mathbin{\\bowtie\\!\\left[#1\\right]}",
+            "\\res": "\\circlearrowleft",
           },
         },
       ],
@@ -34,7 +32,6 @@ const nextConfig = {
   images: { unoptimized: true },
   eslint: { ignoreDuringBuilds: true },
 
-  // ✅ Support MDX files as pages/content imports
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
 
   env: {
@@ -49,7 +46,6 @@ const nextConfig = {
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
     const rules = [];
-
     rules.push({
       source: "/api/:path*",
       destination: `${apiBase.replace(/\/+$/, "")}/api/:path*`,
@@ -70,7 +66,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       "three/webgpu": false,
-      "@glyphnet": path.resolve(__dirname, "src/glyphnet"),
+      "@glyphnet": require("path").resolve(__dirname, "src/glyphnet"),
     };
     return config;
   },
