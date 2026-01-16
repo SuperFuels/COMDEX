@@ -3,12 +3,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { DarkModeToggle } from "../../../components/DarkModeToggle";
 
 type RadioStatus = "unknown" | "up" | "reconnecting" | "down";
 type Session = { slug: string; wa: string; name?: string } | null;
 
-// unified icon button (transparent, centered, consistent)
+// ✅ unified icon button: NO BORDER, transparent, centered, uniform size
 function IconBtn({
   title,
   onClick,
@@ -31,7 +30,7 @@ function IconBtn({
         "focus:outline-none focus:ring-2 focus:ring-ring/30",
       ].join(" ")}
     >
-      {children}
+      <span className="text-2xl leading-none">{children}</span>
     </button>
   );
 }
@@ -46,33 +45,22 @@ function RadioPill({ status = "unknown" }: { status?: RadioStatus }) {
       ? "Radio: down"
       : "Radio: unknown";
 
-  return (
-    <IconBtn title={title}>
-      <span className="text-xl leading-none">🛜</span>
-    </IconBtn>
-  );
+  return <IconBtn title={title}>🛜</IconBtn>;
 }
 
 function BlePill() {
-  return (
-    <IconBtn title="Bluetooth / mesh link">
-      <span className="text-xl leading-none">🌀</span>
-    </IconBtn>
-  );
+  return <IconBtn title="Bluetooth / mesh link">🌀</IconBtn>;
 }
 
 function ViewToggle() {
   return (
     <div className="flex items-center gap-2">
-      <IconBtn title="Web">
-        <span className="text-xl leading-none">🌐</span>
-      </IconBtn>
-
+      <IconBtn title="Web">🌐</IconBtn>
       <IconBtn
         title="Multiverse"
         onClick={() => window.open("/aion/multiverse", "_blank", "noopener,noreferrer")}
       >
-        <span className="text-xl leading-none">🌌</span>
+        🌌
       </IconBtn>
     </div>
   );
@@ -128,6 +116,7 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
     return session.name || session.slug || session.wa || "You";
   }, [session]);
 
+  // close dropdown on outside click
   useEffect(() => {
     function onDown(e: MouseEvent) {
       if (loginOpen && wrapRef.current && !wrapRef.current.contains(e.target as Node)) setLoginOpen(false);
@@ -136,6 +125,7 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
     return () => document.removeEventListener("mousedown", onDown);
   }, [loginOpen]);
 
+  // session bootstrap
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -152,6 +142,7 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
     return () => window.removeEventListener("gnet:session:changed", handler);
   }, []);
 
+  // PHO pill
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -212,20 +203,20 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
 
   return (
     <>
-      {/* ✅ keep ONLY the sidebar trigger (not the G icon) */}
+      {/* Sidebar trigger (NOT the G icon; sidebar owns G now) */}
       <button
         onClick={onOpenSidebar}
-        className="fixed top-4 left-4 z-50 h-11 w-11 rounded-xl border border-border bg-transparent grid place-items-center hover:bg-button-light/30 dark:hover:bg-button-dark/30"
+        className="fixed top-4 left-4 z-50 h-11 w-11 rounded-xl bg-transparent grid place-items-center hover:bg-button-light/30 dark:hover:bg-button-dark/30"
         aria-label="Open sidebar"
         title="Open sidebar"
       >
-        {/* hamburger-ish */}
-        <span className="text-xl leading-none">☰</span>
+        <span className="text-2xl leading-none">☰</span>
       </button>
 
-      {/* ✅ lighter border */}
+      {/* Sticky header shell (light grey border) */}
       <header className="sticky top-0 z-40 border-b border-[#e5e7eb] bg-background text-text">
         <div className="flex h-16 items-center justify-between gap-4 px-4">
+          {/* Logo */}
           <div className="ml-12 flex items-center">
             <Link href="/" className="logo-link flex items-center">
               <Image
@@ -255,14 +246,14 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
             </div>
           </div>
 
-          {/* Right controls */}
+          {/* Right controls (NO borders, NO darkmode toggle) */}
           <div className="flex items-center gap-2">
             <RadioPill status="unknown" />
             <BlePill />
-            <DarkModeToggle />
 
+            {/* PHO mini pill: keep text, border removed */}
             <div
-              className="hidden sm:flex items-center gap-2 rounded-full border border-[#e5e7eb] bg-transparent px-3 py-1 text-xs text-text/80"
+              className="hidden sm:flex items-center gap-2 rounded-full bg-transparent px-3 py-1 text-xs text-text/80"
               title="Displayed PHO (from /api/wallet/balances)"
             >
               <span className="text-base">💰</span>
@@ -270,25 +261,28 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
               <span className="text-text/50">PHO</span>
             </div>
 
-            <button
-              className="rounded-full bg-transparent h-11 w-11 grid place-items-center hover:bg-button-light/30 dark:hover:bg-button-dark/30"
-              onClick={() => (window.location.hash = "#/devtools")}
+            {/* Waves inbox: NO border */}
+            <IconBtn
               title="Waves"
+              onClick={() => {
+                window.location.hash = "#/devtools";
+              }}
             >
-              <span className="text-xl leading-none">🌊</span>
-            </button>
+              🌊
+            </IconBtn>
 
+            {/* Auth */}
             {session ? (
               <>
                 <button
-                  className="rounded-lg border border-[#e5e7eb] bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/30 dark:hover:bg-button-dark/30"
+                  className="rounded-lg bg-transparent px-3 py-2 text-sm text-text hover:bg-button-light/30 dark:hover:bg-button-dark/30"
                   onClick={() => (window.location.hash = "#/devtools")}
                   title="Profile / Home container"
                 >
                   {profileLabel}
                 </button>
                 <button
-                  className="rounded-lg border border-[#e5e7eb] bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/30 dark:hover:bg-button-dark/30"
+                  className="rounded-lg bg-transparent px-3 py-2 text-sm text-text hover:bg-button-light/30 dark:hover:bg-button-dark/30"
                   onClick={doLogout}
                 >
                   Logout
@@ -297,7 +291,7 @@ export default function GlyphNetNavbar({ onOpenSidebar }: { onOpenSidebar: () =>
             ) : (
               <div ref={wrapRef} className="relative">
                 <button
-                  className="rounded-lg border border-[#e5e7eb] bg-transparent px-3 py-1 text-sm text-text hover:bg-button-light/30 dark:hover:bg-button-dark/30"
+                  className="rounded-lg bg-transparent px-3 py-2 text-sm text-text hover:bg-button-light/30 dark:hover:bg-button-dark/30"
                   onClick={() => setLoginOpen((v) => !v)}
                 >
                   Log in

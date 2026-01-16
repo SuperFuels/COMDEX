@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { DarkModeToggle } from "../../../components/DarkModeToggle";
 
 type Item = { label: string; path: string; emoji?: string };
 
@@ -15,31 +14,54 @@ export default function GlyphNetSidebar({
   onGo,
 }: {
   isOpen: boolean;
-  onOpen: () => void;   // ✅ required
+  onOpen: () => void;
   onClose: () => void;
   items: Item[];
   onGo: (path: string) => void;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // Close when clicking outside panel (ignore clicks on the left rail)
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (isOpen && panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
+      if (!isOpen) return;
+
+      const panel = panelRef.current;
+      if (!panel) return;
+
+      const target = e.target as Node;
+
+      // If click is inside the panel, do nothing
+      if (panel.contains(target)) return;
+
+      // If click is on the rail (or inside it), do nothing (rail handles its own toggle)
+      const railEl = (e.target as HTMLElement | null)?.closest?.("[data-glyphnet-rail='1']");
+      if (railEl) return;
+
+      onClose();
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
 
+  // Close on hash route change
   useEffect(() => {
     const h = () => isOpen && onClose();
     window.addEventListener("hashchange", h);
     return () => window.removeEventListener("hashchange", h);
   }, [isOpen, onClose]);
 
+  const toggle = () => {
+    if (isOpen) onClose();
+    else onOpen();
+  };
+
   return (
     <>
       {/* Left rail */}
       <div
+        data-glyphnet-rail="1"
         aria-label="GlyphNet rail"
         className="fixed left-0 top-0 z-[80] h-screen w-14 border-r border-border bg-background flex flex-col items-center justify-between py-3 select-none"
       >
@@ -47,11 +69,17 @@ export default function GlyphNetSidebar({
         <div className="relative group">
           <button
             type="button"
-            onClick={() => (isOpen ? onClose() : onOpen())}   // ✅ FIX: actually opens
-            className="h-10 w-10 rounded-xl border border-border bg-background grid place-items-center hover:bg-button-light/40 dark:hover:bg-button-dark/40"
+            onClick={(e) => {
+              // prevent any “outside click” handlers from seeing this as outside
+              e.stopPropagation();
+              toggle();
+            }}
+            className="h-11 w-11 rounded-xl bg-transparent grid place-items-center hover:bg-button-light/40 dark:hover:bg-button-dark/40"
             aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
+            title={isOpen ? "Close sidebar" : "Open sidebar"}
           >
-            <Image src="/G.svg" alt="G" width={28} height={28} />
+            {/* ✅ increase G size ~40% */}
+            <Image src="/G.svg" alt="G" width={40} height={40} />
           </button>
 
           {/* Tooltip */}
@@ -62,10 +90,8 @@ export default function GlyphNetSidebar({
           </div>
         </div>
 
-        {/* Theme */}
-        <div className="pb-1">
-          <DarkModeToggle />
-        </div>
+        {/* Bottom spacer (no dark/light toggle) */}
+        <div className="h-11 w-11" />
       </div>
 
       {/* Backdrop */}
@@ -89,8 +115,9 @@ export default function GlyphNetSidebar({
             <div className="text-lg font-semibold">GlyphNet</div>
             <button
               onClick={onClose}
-              className="h-9 w-9 rounded-lg border border-border hover:bg-button-light/40 dark:hover:bg-button-dark/40"
+              className="h-9 w-9 rounded-lg bg-transparent hover:bg-button-light/40 dark:hover:bg-button-dark/40"
               aria-label="Close sidebar"
+              title="Close"
             >
               ✕
             </button>
@@ -100,14 +127,14 @@ export default function GlyphNetSidebar({
             <div className="flex flex-col gap-2">
               <Link
                 href="/"
-                className="block py-2 px-3 rounded-lg border border-border hover:bg-button-light/40 dark:hover:bg-button-dark/40 font-medium"
+                className="block py-2 px-3 rounded-lg bg-transparent hover:bg-button-light/40 dark:hover:bg-button-dark/40 font-medium"
               >
                 🟢 Back to Site Home
               </Link>
 
               <button
                 onClick={() => onGo("/devtools")}
-                className="text-left py-2 px-3 rounded-lg border border-border hover:bg-button-light/40 dark:hover:bg-button-dark/40 font-medium"
+                className="text-left py-2 px-3 rounded-lg bg-transparent hover:bg-button-light/40 dark:hover:bg-button-dark/40 font-medium"
               >
                 🛠️ DevTools
               </button>
