@@ -1,7 +1,7 @@
 // frontend/pages/index.tsx
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import type { NextPage } from "next";
 
 /**
@@ -9,16 +9,54 @@ import type { NextPage } from "next";
  * breaking the demo until the Provider is implemented.
  */
 
+type CodeLang = "photon" | "python";
+
+type TranslateResponse = {
+  translated?: string;
+  glyph_count?: number;
+  chars_before?: number;
+  chars_after?: number;
+  compression_ratio?: number;
+};
+
+async function translateToGlyphs(code: string, lang: CodeLang): Promise<TranslateResponse> {
+  const res = await fetch("/api/photon/translate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      code, // fallback key
+      text: code, // compatibility key
+      source: code, // compatibility key
+      lang, // fallback key
+      language: lang, // compatibility key
+    }),
+  });
+
+  if (!res.ok) {
+    const ct = res.headers.get("content-type") || "";
+    const raw = await res.text().catch(() => "");
+    const msg = ct.includes("text/html")
+      ? `${res.status} ${res.statusText} (HTML response — route missing or wrong method)`
+      : raw.slice(0, 300) || res.statusText;
+    throw new Error(`HTTP ${res.status} — ${msg}`);
+  }
+
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("application/json")) return (await res.json()) as TranslateResponse;
+
+  const text = await res.text();
+  return { translated: text, chars_before: code.length, chars_after: text.length };
+}
+
 const Home: NextPage = () => {
   const [activeTab, setActiveTab] = useState<"glyph" | "symatics">("glyph");
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased">
-      {/* ✅ LOCAL SCROLL CONTAINER (because global html/body overflow is hidden) */}
       <div className="h-screen overflow-y-auto">
         <main className="relative z-10 flex flex-col items-center justify-start min-h-full px-6 max-w-5xl mx-auto py-16 pb-32">
-          {/*  Minimalist Tab Switcher (Apple Style) */}
-          <nav className="mb-16 p-1 bg-white/70 backdrop-blur-md border border-gray-200 rounded-full flex gap-1 shadow-sm">
+          {/*  Minimalist Tab Switcher (sticky) */}
+          <nav className="mb-16 p-1 bg-white/70 backdrop-blur-md border border-gray-200 rounded-full flex gap-1 shadow-sm sticky top-4 z-50">
             <button
               onClick={() => setActiveTab("glyph")}
               className={`px-10 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
@@ -41,8 +79,8 @@ const Home: NextPage = () => {
             </button>
           </nav>
 
-          {/* 📦 Content Area */}
           <div className="w-full">
+            {/* GLYPH TAB */}
             {activeTab === "glyph" && (
               <section className="animate-in fade-in zoom-in-95 duration-700 space-y-16">
                 <div className="text-center space-y-6">
@@ -76,11 +114,12 @@ const Home: NextPage = () => {
 
                 <div className="text-center font-medium text-gray-400">“Same result. Less noise.”</div>
 
-                {/* ✅ Inline demo (no extra "Glyph Demo" toggle button) */}
+                {/* ✅ Translator panel under the quote */}
                 <GlyphTranslateDemo />
               </section>
             )}
 
+            {/* SYMATICS TAB */}
             {activeTab === "symatics" && (
               <section className="animate-in fade-in zoom-in-95 duration-700 space-y-16">
                 <div className="text-center space-y-6">
@@ -93,6 +132,7 @@ const Home: NextPage = () => {
                   </p>
                 </div>
 
+                {/* Core equation hero */}
                 <div className="bg-white rounded-[3rem] p-16 text-center shadow-xl shadow-gray-200/50 border border-gray-100">
                   <div className="text-8xl mb-8 tracking-widest flex justify-center items-center gap-4">
                     〰️ <span className="text-3xl text-gray-300">+</span> 〰️{" "}
@@ -100,9 +140,12 @@ const Home: NextPage = () => {
                     <span className="text-[#0071e3] drop-shadow-xl font-bold">✨</span>
                   </div>
                   <p className="text-gray-400 text-lg italic">
-                    〰️ + 〰️ = ✨ reads as “constructive interference produces a coherent/bright result”.
+                    “Constructive interference produces a coherent/bright result.”
                   </p>
                 </div>
+
+                {/* ✅ NEW: Symatics demo */}
+                <ResonanceWorkbench />
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {["〰️ Wave", "💡 Photon", "⊕ Superpose", "↔ Entangle", "⟲ Resonance", "∇ Collapse", "⇒ Trigger"].map(
@@ -120,7 +163,7 @@ const Home: NextPage = () => {
             )}
           </div>
 
-          {/* 🔘 Call to Action */}
+          {/* CTA */}
           <footer className="mt-24 flex gap-6">
             <button className="px-12 py-4 bg-black text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all">
               Launch GlyphNet
@@ -132,7 +175,7 @@ const Home: NextPage = () => {
         </main>
       </div>
 
-      {/* 📟 Control HUD */}
+      {/* HUD */}
       <div className="fixed bottom-8 right-8 p-4 bg-white/80 border border-gray-200 rounded-2xl backdrop-blur-xl text-[11px] font-bold text-gray-400 tracking-wider shadow-lg">
         <div className="flex gap-6 uppercase">
           <span>Space: Pause</span>
@@ -144,6 +187,103 @@ const Home: NextPage = () => {
     </div>
   );
 };
+
+/* ---------------------------- SYMATICS MINI DEMO ---------------------------- */
+
+const ResonanceWorkbench = () => {
+  const [waveA, setWaveA] = useState(50);
+  const [waveB, setWaveB] = useState(50);
+
+  // When waves are aligned, coherence is high
+  const resonance = useMemo(() => {
+    const diff = Math.abs(waveA - waveB);
+    return Math.max(0, 100 - diff);
+  }, [waveA, waveB]);
+
+  return (
+    <div className="w-full bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-10 space-y-10">
+      <div className="flex justify-between items-end">
+        <div>
+          <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">
+            Resonance Workbench
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 mt-1">Adjust Pattern Alignment</h3>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-bold text-gray-400 uppercase block">Coherence Level</span>
+          <span
+            className={`text-3xl font-mono font-bold ${
+              resonance > 90 ? "text-blue-500" : "text-gray-700"
+            }`}
+          >
+            {resonance}% {resonance > 90 && "✨"}
+          </span>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-12">
+        {/* Controls */}
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <label className="flex justify-between text-sm font-medium text-gray-500">
+              <span>Intent Wave (A)</span>
+              <span className="font-mono italic">〰️ {waveA}Hz</span>
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={waveA}
+              onChange={(e) => setWaveA(parseInt(e.target.value))}
+              className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            />
+          </div>
+
+          <div className="space-y-4">
+            <label className="flex justify-between text-sm font-medium text-gray-500">
+              <span>System Wave (B)</span>
+              <span className="font-mono italic">〰️ {waveB}Hz</span>
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={waveB}
+              onChange={(e) => setWaveB(parseInt(e.target.value))}
+              className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            />
+          </div>
+        </div>
+
+        {/* Output */}
+        <div className="flex flex-col items-center justify-center bg-[#fafafa] rounded-3xl p-8 border border-dashed border-gray-200">
+          <div className="text-sm text-gray-400 uppercase font-bold tracking-tighter mb-4">
+            Symatic Output
+          </div>
+
+          <div
+            className="transition-all duration-500 ease-out flex items-center justify-center"
+            style={{
+              transform: `scale(${0.5 + resonance / 100})`,
+              filter: `blur(${Math.max(0, (100 - resonance) / 10)}px)`,
+              opacity: 0.2 + resonance / 100,
+            }}
+          >
+            <span className="text-9xl">✨</span>
+          </div>
+
+          <p className="mt-6 text-xs text-center text-gray-400 max-w-[220px]">
+            {resonance > 90
+              ? "Pattern locked. Resonance achieved. Trigger ready."
+              : "Adjust sliders to align wave patterns."}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ------------------------------ GLYPH COMPONENTS ------------------------------ */
 
 const ComparisonCard = ({ title, traditional, glyph, labels }: any) => (
   <div className="p-10 bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col justify-between">
@@ -162,188 +302,39 @@ const ComparisonCard = ({ title, traditional, glyph, labels }: any) => (
   </div>
 );
 
-type TranslateResponse = {
-  translated?: string;
-  glyph_count?: number;
-  chars_before?: number;
-  chars_after?: number;
-  compression_ratio?: number;
-};
-
-async function translateToGlyphs(text: string, language: "photon" | "python"): Promise<TranslateResponse> {
-  // Try POST first (ideal for larger payloads)
-  let res = await fetch("/api/photon/translate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, language }),
-  });
-
-  // If the route is implemented as GET-only (common in Next route handlers), fall back.
-  if (res.status === 405) {
-    const url = `/api/photon/translate?text=${encodeURIComponent(text)}&language=${encodeURIComponent(language)}`;
-    res = await fetch(url, { method: "GET" });
-  }
-
-  if (!res.ok) {
-    const msg = await res.text().catch(() => "");
-    throw new Error(`HTTP ${res.status} — ${msg || res.statusText}`);
-  }
-
-  return (await res.json()) as TranslateResponse;
-}
-
-function lineNumbersFor(text: string): string {
-  const lines = Math.max(1, (text || "").split("\n").length);
-  let out = "";
-  for (let i = 1; i <= lines; i++) out += (i === 1 ? "" : "\n") + i;
-  return out;
-}
-
-const EditorPane = ({
-  title,
-  rightHeader,
-  value,
-  onChange,
-  placeholder,
-  langLabel,
-  langValue,
-  onLangChange,
-}: {
-  title: string;
-  rightHeader?: React.ReactNode;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  langLabel?: string;
-  langValue?: string;
-  onLangChange?: (v: string) => void;
-}) => {
-  const gutterRef = useRef<HTMLPreElement>(null);
-  const areaRef = useRef<HTMLTextAreaElement>(null);
-
-  const nums = useMemo(() => lineNumbersFor(value), [value]);
-
-  const syncScroll = () => {
-    if (!gutterRef.current || !areaRef.current) return;
-    gutterRef.current.scrollTop = areaRef.current.scrollTop;
-  };
-
-  return (
-    <div className="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-        <div className="text-sm font-semibold text-gray-700 tracking-wide">{title}</div>
-        <div className="flex items-center gap-3">
-          {rightHeader}
-          {langLabel && onLangChange ? (
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{langLabel}</span>
-              <select
-                value={langValue}
-                onChange={(e) => onLangChange(e.target.value)}
-                className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-200"
-              >
-                <option value="photon">Photon (.ptn)</option>
-                <option value="python">Python</option>
-              </select>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="flex bg-[#fafafa]">
-        {/* gutter */}
-        <pre
-          ref={gutterRef}
-          className="select-none w-14 shrink-0 text-right pr-4 py-5 text-sm leading-6 font-mono text-gray-300 border-r border-gray-200 overflow-hidden"
-        >
-          {nums}
-        </pre>
-
-        {/* editor */}
-        <textarea
-          ref={areaRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onScroll={syncScroll}
-          spellCheck={false}
-          placeholder={placeholder}
-          className="w-full h-[22rem] resize-none bg-transparent px-5 py-5 text-sm leading-6 font-mono text-gray-800 outline-none"
-        />
-      </div>
-    </div>
-  );
-};
-
-const ReadonlyPane = ({ title, value }: { title: string; value: string }) => {
-  const gutterRef = useRef<HTMLPreElement>(null);
-  const bodyRef = useRef<HTMLPreElement>(null);
-
-  const shown = value && value.length ? value : "—";
-  const nums = useMemo(() => lineNumbersFor(shown), [shown]);
-
-  const syncScroll = () => {
-    if (!gutterRef.current || !bodyRef.current) return;
-    gutterRef.current.scrollTop = bodyRef.current.scrollTop;
-  };
-
-  return (
-    <div className="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-        <div className="text-sm font-semibold text-gray-700 tracking-wide">{title}</div>
-      </div>
-
-      <div className="flex bg-[#fafafa]">
-        <pre
-          ref={gutterRef}
-          className="select-none w-14 shrink-0 text-right pr-4 py-5 text-sm leading-6 font-mono text-gray-300 border-r border-gray-200 overflow-hidden"
-        >
-          {nums}
-        </pre>
-
-        <pre
-          ref={bodyRef}
-          onScroll={syncScroll}
-          className="w-full h-[22rem] overflow-auto px-5 py-5 text-sm leading-6 font-mono text-gray-800 whitespace-pre"
-        >
-          {shown}
-        </pre>
-      </div>
-    </div>
-  );
-};
-
 const GlyphTranslateDemo = () => {
-  const [codeLang, setCodeLang] = useState<"photon" | "python">("photon");
+  const [lang, setLang] = useState<CodeLang>("photon");
   const [source, setSource] = useState(
-    `# Photon test script for SCI IDE
-# Expect: container_id, wave, resonance, memory -> glyphs
-⊕ container main {
-  wave "hello";
-  resonance 0.42;
-  memory "sticky-notes";
-}
-`,
+    [
+      "# Photon test script for SCI IDE",
+      "# Expect: container_id, wave, resonance, memory -> glyphs",
+      "⊕ container main {",
+      '  wave "hello";',
+      "  resonance 0.42;",
+      '  memory "sticky-notes";',
+      "}",
+    ].join("\n"),
   );
-  const [out, setOut] = useState<string>("");
+
+  const [out, setOut] = useState<string>("—");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [stats, setStats] = useState<{ before: number; after: number; pct: number } | null>(null);
 
-  const ext = codeLang === "photon" ? ".PTN" : "PY";
-
   const run = async () => {
     if (!source.trim()) {
-      setOut("");
+      setOut("—");
       setStats(null);
+      setErr(null);
       return;
     }
     try {
       setBusy(true);
       setErr(null);
 
-      const resp = await translateToGlyphs(source, codeLang);
+      const resp = await translateToGlyphs(source, lang);
       const translated = resp.translated ?? "";
-      setOut(translated);
+      setOut(translated || "—");
 
       const before = resp.chars_before ?? source.length;
       const after = resp.chars_after ?? translated.length;
@@ -358,23 +349,16 @@ const GlyphTranslateDemo = () => {
 
   return (
     <div className="w-full bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-10">
-      <div className="flex items-center justify-between gap-6 mb-6">
+      <div className="flex items-start justify-between gap-6 mb-6">
         <div>
           <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">Glyph Translator</div>
-          <div className="text-sm text-gray-500 mt-1">
-            Source ({ext}) → Translated glyph stream
-            {stats ? (
-              <span className="ml-3 text-gray-400">
-                <span className="font-semibold">{stats.pct.toFixed(1)}%</span> shorter ({stats.before} → {stats.after})
-              </span>
-            ) : null}
-          </div>
+          <div className="text-sm text-gray-500 mt-1">Source (.PTN) → Translated glyph stream</div>
         </div>
 
         <button
           onClick={run}
           disabled={busy}
-          className={`px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${
+          className={`px-10 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${
             busy ? "bg-gray-200 text-gray-500" : "bg-[#0071e3] text-white shadow-md hover:brightness-110"
           }`}
         >
@@ -382,21 +366,106 @@ const GlyphTranslateDemo = () => {
         </button>
       </div>
 
-      {err ? <div className="text-sm text-red-600 mb-6">{err}</div> : null}
+      {err ? <div className="text-sm text-red-600 mb-6 whitespace-pre-wrap">{err}</div> : null}
 
       <div className="grid md:grid-cols-2 gap-8">
         <EditorPane
-          title={`SOURCE (${ext})`}
-          langLabel="CODE LANG:"
-          langValue={codeLang}
-          onLangChange={(v) => setCodeLang(v as "photon" | "python")}
-          value={source}
-          onChange={setSource}
-          placeholder="Type source…"
-        />
+          title="SOURCE (.PTN)"
+          rightControl={
+            <div className="flex items-center gap-3">
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">CODE LANG:</div>
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as CodeLang)}
+                className="px-4 py-2 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm outline-none focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="photon">Photon (.ptn)</option>
+                <option value="python">Python (.py)</option>
+              </select>
+            </div>
+          }
+        >
+          <CodeWithLines value={source} onChange={setSource} placeholder="Type code…" />
+        </EditorPane>
 
-        <ReadonlyPane title="GLYPH STREAM" value={out} />
+        <EditorPane
+          title="GLYPH STREAM"
+          rightControl={
+            stats ? (
+              <div className="text-[11px] text-gray-400">
+                <span className="font-semibold">{stats.pct.toFixed(1)}%</span> shorter ({stats.before} →{" "}
+                {stats.after})
+              </div>
+            ) : null
+          }
+        >
+          <ReadOnlyCodeWithLines value={out} />
+        </EditorPane>
       </div>
+    </div>
+  );
+};
+
+const EditorPane = ({
+  title,
+  rightControl,
+  children,
+}: {
+  title: string;
+  rightControl?: React.ReactNode;
+  children: React.ReactNode;
+}) => (
+  <div className="rounded-[2rem] border border-gray-100 bg-white overflow-hidden shadow-sm">
+    <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
+      <div className="text-sm font-bold text-gray-700">{title}</div>
+      {rightControl ? <div>{rightControl}</div> : <div />}
+    </div>
+    <div className="bg-[#fafafa]">{children}</div>
+  </div>
+);
+
+const CodeWithLines = ({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) => {
+  const lines = useMemo(() => Math.max(1, value.split("\n").length), [value]);
+
+  return (
+    <div className="flex font-mono text-sm leading-6">
+      <div className="select-none text-right text-gray-300 bg-white/40 border-r border-gray-100 px-4 py-4 min-w-[3rem]">
+        {Array.from({ length: lines }, (_, i) => (
+          <div key={i}>{i + 1}</div>
+        ))}
+      </div>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={Math.max(10, lines)}
+        placeholder={placeholder}
+        spellCheck={false}
+        className="flex-1 resize-none bg-transparent px-4 py-4 outline-none text-gray-800"
+      />
+    </div>
+  );
+};
+
+const ReadOnlyCodeWithLines = ({ value }: { value: string }) => {
+  const text = value && value.trim().length ? value : "—";
+  const lines = useMemo(() => Math.max(1, text.split("\n").length), [text]);
+
+  return (
+    <div className="flex font-mono text-sm leading-6">
+      <div className="select-none text-right text-gray-300 bg-white/40 border-r border-gray-100 px-4 py-4 min-w-[3rem]">
+        {Array.from({ length: lines }, (_, i) => (
+          <div key={i}>{i + 1}</div>
+        ))}
+      </div>
+      <pre className="flex-1 whitespace-pre-wrap break-words px-4 py-4 text-gray-800">{text}</pre>
     </div>
   );
 };
