@@ -1,4 +1,3 @@
-// frontend/pages/glyph.tsx
 "use client";
 
 import type { NextPage } from "next";
@@ -7,7 +6,7 @@ import GlyphTab from "../tabs/glyph";
 
 const GlyphPage: NextPage = () => {
   return (
-    <Shell maxWidth="max-w-[1400px]">
+    <Shell activeKey="glyph">
       <GlyphTab />
     </Shell>
   );

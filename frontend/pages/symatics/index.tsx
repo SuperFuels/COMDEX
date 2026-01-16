@@ -6,7 +6,7 @@ import SymaticsTab from "../../tabs/symatics";
 
 const SymaticsPage: NextPage = () => {
   return (
-    <Shell maxWidth="max-w-[1400px]">
+    <Shell activeKey="symatics">
       <SymaticsTab />
     </Shell>
   );

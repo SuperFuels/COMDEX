@@ -283,22 +283,7 @@ textarea:focus {
   }
 }
 
-/* 9) Typography */
-h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
-}
-p {
-  font-size: 1rem;
-}
+
 
 /* 10) Logo link fix */
 a.logo-link {

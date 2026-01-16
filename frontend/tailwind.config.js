@@ -2,13 +2,25 @@
 module.exports = {
   darkMode: "class",
   content: [
+    // If tailwind.config.js is inside /frontend, these are correct:
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./tabs/**/*.{js,ts,jsx,tsx,mdx}", // ✅ ADD (this is what was missing)
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./styles/**/*.{css,js,ts,jsx,tsx,mdx}",
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
     "./hooks/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/**/*.{js,ts,jsx,tsx,mdx}", // keep only if exists
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+
+    // If tailwind.config.js is at repo root, keep these too (safe either way):
+    "./frontend/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./frontend/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./frontend/tabs/**/*.{js,ts,jsx,tsx,mdx}",
+    "./frontend/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./frontend/styles/**/*.{css,js,ts,jsx,tsx,mdx}",
+    "./frontend/lib/**/*.{js,ts,jsx,tsx,mdx}",
+    "./frontend/hooks/**/*.{js,ts,jsx,tsx,mdx}",
+    "./frontend/src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {

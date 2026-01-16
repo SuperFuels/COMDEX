@@ -34,29 +34,21 @@ function getActiveKeyFromPath(pathname: string): string {
     .find((t) => t.href !== "/" && p.startsWith(t.href + "/"));
   if (nested) return nested.key;
 
-  if (p === "/") return "glyph";
   return "glyph";
 }
-
-type MaxWidthClass =
-  | "max-w-5xl"
-  | "max-w-6xl"
-  | "max-w-7xl"
-  | "max-w-screen-xl"
-  | `max-w-[${string}]`;
 
 export default function Shell({
   children,
   activeKey,
   hideHud = false,
   className = "",
-  maxWidth = "max-w-7xl", // ✅ sensible default: fixes squashed panels
+  maxWidth = "max-w-[1400px]", // ✅ wider default so 3 panels aren’t crushed
 }: {
   children: ReactNode;
   activeKey?: string;
   hideHud?: boolean;
   className?: string;
-  maxWidth?: MaxWidthClass;
+  maxWidth?: string; // ✅ optional override
 }) {
   const router = useRouter();
   const derivedKey = getActiveKeyFromPath(router.asPath || router.pathname || "/");
@@ -68,7 +60,14 @@ export default function Shell({
     >
       <div className="h-screen overflow-y-auto">
         <main
-          className={`relative z-10 flex flex-col items-center justify-start min-h-full px-6 ${maxWidth} mx-auto py-16 pb-32`}
+          className={[
+            "relative z-10 flex flex-col items-center justify-start min-h-full",
+            "w-full",
+            "px-6 md:px-10", // ✅ more breathing room on wider layouts
+            maxWidth,
+            "mx-auto",
+            "py-16 pb-32",
+          ].join(" ")}
         >
           <TabDock tabs={TABS} activeKey={key} />
 
