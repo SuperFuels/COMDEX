@@ -1,7 +1,7 @@
 // frontend/pages/index.tsx
 "use client";
 
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { NextPage } from "next";
 
 /**
@@ -11,7 +11,6 @@ import type { NextPage } from "next";
 
 const Home: NextPage = () => {
   const [activeTab, setActiveTab] = useState<"glyph" | "symatics">("glyph");
-  const [showGlyphDemo, setShowGlyphDemo] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased">
@@ -77,17 +76,8 @@ const Home: NextPage = () => {
 
                 <div className="text-center font-medium text-gray-400">“Same result. Less noise.”</div>
 
-                {/* ✅ Glyph Demo button + panel */}
-                <div className="flex flex-col items-center gap-6">
-                  <button
-                    onClick={() => setShowGlyphDemo((v) => !v)}
-                    className="px-10 py-3 rounded-full text-sm font-semibold transition-all duration-300 bg-[#0071e3] text-white shadow-md hover:brightness-110"
-                  >
-                    Glyph Demo
-                  </button>
-
-                  {showGlyphDemo ? <GlyphTranslateDemo /> : null}
-                </div>
+                {/* ✅ Inline demo (no extra "Glyph Demo" toggle button) */}
+                <GlyphTranslateDemo />
               </section>
             )}
 
@@ -109,10 +99,8 @@ const Home: NextPage = () => {
                     <span className="text-3xl text-gray-300">=</span>{" "}
                     <span className="text-[#0071e3] drop-shadow-xl font-bold">✨</span>
                   </div>
-
                   <p className="text-gray-400 text-lg italic">
-                    〰️ + 〰️ = ✨ reads as “constructive interference produces a coherent/bright result”
-                    (nice for Symatics).
+                    〰️ + 〰️ = ✨ reads as “constructive interference produces a coherent/bright result”.
                   </p>
                 </div>
 
@@ -182,27 +170,166 @@ type TranslateResponse = {
   compression_ratio?: number;
 };
 
-async function translateToGlyphs(text: string): Promise<TranslateResponse> {
-  const res = await fetch("/api/photon/translate", {
+async function translateToGlyphs(text: string, language: "photon" | "python"): Promise<TranslateResponse> {
+  // Try POST first (ideal for larger payloads)
+  let res = await fetch("/api/photon/translate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, language: "python" }),
+    body: JSON.stringify({ text, language }),
   });
+
+  // If the route is implemented as GET-only (common in Next route handlers), fall back.
+  if (res.status === 405) {
+    const url = `/api/photon/translate?text=${encodeURIComponent(text)}&language=${encodeURIComponent(language)}`;
+    res = await fetch(url, { method: "GET" });
+  }
+
   if (!res.ok) {
     const msg = await res.text().catch(() => "");
     throw new Error(`HTTP ${res.status} — ${msg || res.statusText}`);
   }
+
   return (await res.json()) as TranslateResponse;
 }
 
+function lineNumbersFor(text: string): string {
+  const lines = Math.max(1, (text || "").split("\n").length);
+  let out = "";
+  for (let i = 1; i <= lines; i++) out += (i === 1 ? "" : "\n") + i;
+  return out;
+}
+
+const EditorPane = ({
+  title,
+  rightHeader,
+  value,
+  onChange,
+  placeholder,
+  langLabel,
+  langValue,
+  onLangChange,
+}: {
+  title: string;
+  rightHeader?: React.ReactNode;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  langLabel?: string;
+  langValue?: string;
+  onLangChange?: (v: string) => void;
+}) => {
+  const gutterRef = useRef<HTMLPreElement>(null);
+  const areaRef = useRef<HTMLTextAreaElement>(null);
+
+  const nums = useMemo(() => lineNumbersFor(value), [value]);
+
+  const syncScroll = () => {
+    if (!gutterRef.current || !areaRef.current) return;
+    gutterRef.current.scrollTop = areaRef.current.scrollTop;
+  };
+
+  return (
+    <div className="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="text-sm font-semibold text-gray-700 tracking-wide">{title}</div>
+        <div className="flex items-center gap-3">
+          {rightHeader}
+          {langLabel && onLangChange ? (
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{langLabel}</span>
+              <select
+                value={langValue}
+                onChange={(e) => onLangChange(e.target.value)}
+                className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="photon">Photon (.ptn)</option>
+                <option value="python">Python</option>
+              </select>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="flex bg-[#fafafa]">
+        {/* gutter */}
+        <pre
+          ref={gutterRef}
+          className="select-none w-14 shrink-0 text-right pr-4 py-5 text-sm leading-6 font-mono text-gray-300 border-r border-gray-200 overflow-hidden"
+        >
+          {nums}
+        </pre>
+
+        {/* editor */}
+        <textarea
+          ref={areaRef}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onScroll={syncScroll}
+          spellCheck={false}
+          placeholder={placeholder}
+          className="w-full h-[22rem] resize-none bg-transparent px-5 py-5 text-sm leading-6 font-mono text-gray-800 outline-none"
+        />
+      </div>
+    </div>
+  );
+};
+
+const ReadonlyPane = ({ title, value }: { title: string; value: string }) => {
+  const gutterRef = useRef<HTMLPreElement>(null);
+  const bodyRef = useRef<HTMLPreElement>(null);
+
+  const shown = value && value.length ? value : "—";
+  const nums = useMemo(() => lineNumbersFor(shown), [shown]);
+
+  const syncScroll = () => {
+    if (!gutterRef.current || !bodyRef.current) return;
+    gutterRef.current.scrollTop = bodyRef.current.scrollTop;
+  };
+
+  return (
+    <div className="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="text-sm font-semibold text-gray-700 tracking-wide">{title}</div>
+      </div>
+
+      <div className="flex bg-[#fafafa]">
+        <pre
+          ref={gutterRef}
+          className="select-none w-14 shrink-0 text-right pr-4 py-5 text-sm leading-6 font-mono text-gray-300 border-r border-gray-200 overflow-hidden"
+        >
+          {nums}
+        </pre>
+
+        <pre
+          ref={bodyRef}
+          onScroll={syncScroll}
+          className="w-full h-[22rem] overflow-auto px-5 py-5 text-sm leading-6 font-mono text-gray-800 whitespace-pre"
+        >
+          {shown}
+        </pre>
+      </div>
+    </div>
+  );
+};
+
 const GlyphTranslateDemo = () => {
+  const [codeLang, setCodeLang] = useState<"photon" | "python">("photon");
   const [source, setSource] = useState(
-    "Open document, scan for key points, extract data, summarize, and file.",
+    `# Photon test script for SCI IDE
+# Expect: container_id, wave, resonance, memory -> glyphs
+⊕ container main {
+  wave "hello";
+  resonance 0.42;
+  memory "sticky-notes";
+}
+`,
   );
   const [out, setOut] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [stats, setStats] = useState<{ before: number; after: number; pct: number } | null>(null);
+
+  const ext = codeLang === "photon" ? ".PTN" : "PY";
 
   const run = async () => {
     if (!source.trim()) {
@@ -213,7 +340,8 @@ const GlyphTranslateDemo = () => {
     try {
       setBusy(true);
       setErr(null);
-      const resp = await translateToGlyphs(source);
+
+      const resp = await translateToGlyphs(source, codeLang);
       const translated = resp.translated ?? "";
       setOut(translated);
 
@@ -230,15 +358,23 @@ const GlyphTranslateDemo = () => {
 
   return (
     <div className="w-full bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-10">
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex items-center justify-between gap-6 mb-6">
         <div>
           <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">Glyph Translator</div>
-          <div className="text-sm text-gray-500 mt-1">Left: source · Right: translated glyph stream</div>
+          <div className="text-sm text-gray-500 mt-1">
+            Source ({ext}) → Translated glyph stream
+            {stats ? (
+              <span className="ml-3 text-gray-400">
+                <span className="font-semibold">{stats.pct.toFixed(1)}%</span> shorter ({stats.before} → {stats.after})
+              </span>
+            ) : null}
+          </div>
         </div>
+
         <button
           onClick={run}
           disabled={busy}
-          className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
+          className={`px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${
             busy ? "bg-gray-200 text-gray-500" : "bg-[#0071e3] text-white shadow-md hover:brightness-110"
           }`}
         >
@@ -246,33 +382,20 @@ const GlyphTranslateDemo = () => {
         </button>
       </div>
 
-      {err ? <div className="text-sm text-red-600 mb-4">{err}</div> : null}
+      {err ? <div className="text-sm text-red-600 mb-6">{err}</div> : null}
 
       <div className="grid md:grid-cols-2 gap-8">
-        <div className="rounded-2xl border border-gray-100 bg-[#fafafa] p-6">
-          <div className="text-[10px] text-gray-400 font-bold uppercase mb-3">Source</div>
-          <textarea
-            value={source}
-            onChange={(e) => setSource(e.target.value)}
-            rows={10}
-            className="w-full resize-none bg-transparent outline-none text-gray-700 leading-relaxed"
-            placeholder="Type text…"
-          />
-        </div>
+        <EditorPane
+          title={`SOURCE (${ext})`}
+          langLabel="CODE LANG:"
+          langValue={codeLang}
+          onLangChange={(v) => setCodeLang(v as "photon" | "python")}
+          value={source}
+          onChange={setSource}
+          placeholder="Type source…"
+        />
 
-        <div className="rounded-2xl border border-gray-100 bg-[#fafafa] p-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-[10px] text-[#0071e3] font-bold uppercase tracking-wider">Glyph Stream</div>
-            {stats ? (
-              <div className="text-[11px] text-gray-400">
-                <span className="font-semibold">{stats.pct.toFixed(1)}%</span> shorter ({stats.before} → {stats.after})
-              </div>
-            ) : null}
-          </div>
-          <pre className="whitespace-pre-wrap break-words text-gray-700 leading-relaxed min-h-[12rem]">
-            {out || "—"}
-          </pre>
-        </div>
+        <ReadonlyPane title="GLYPH STREAM" value={out} />
       </div>
     </div>
   );
