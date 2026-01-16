@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
+import "katex/dist/katex.min.css";
 
 // Client-only wrappers (prevents SSR/prerender crashes)
 const Navbar = dynamic(() => import("@/components/Navbar"), { ssr: false });

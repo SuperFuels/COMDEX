@@ -1,10 +1,31 @@
-const withMDX = require('@next/mdx')({
+const path = require("path");
+
+const withMDX = require("@next/mdx")({
   extension: /\.mdx?$/,
   options: {
-    remarkPlugins: [require('remark-math')],
-    rehypePlugins: [require('rehype-katex')],
+    remarkPlugins: [require("remark-math")],
+    rehypePlugins: [
+      [
+        require("rehype-katex"),
+        {
+          macros: {
+            "\\Sig": "\\Sigma",
+            "\\C": "\\mathbb{C}",
+            "\\R": "\\mathbb{R}",
+            "\\Dist": "\\mathrm{Dist}",
+            "\\Eval": "\\mathrm{Eval}",
+            "\\normalize": "\\mathrm{normalize\\_phase}",
+            "\\tr": "\\Rightarrow",
+            "\\res": "\\circlearrowleft",
+            "\\botexpr": "\\bot",
+            // NOTE: KaTeX macro functions use #1 syntax
+            "\\fuse": "\\mathbin{\\bowtie\\!\\left[#1\\right]}",
+          },
+        },
+      ],
+    ],
   },
-})
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -12,9 +33,9 @@ const nextConfig = {
   trailingSlash: true,
   images: { unoptimized: true },
   eslint: { ignoreDuringBuilds: true },
-  
-  // Support MDX files as pages
-  pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
+
+  // ✅ Support MDX files as pages/content imports
+  pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
 
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
@@ -24,8 +45,8 @@ const nextConfig = {
   },
 
   async rewrites() {
-    const radioBase = process.env.NEXT_PUBLIC_RADIO_BASE; 
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"; 
+    const radioBase = process.env.NEXT_PUBLIC_RADIO_BASE;
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
     const rules = [];
 
@@ -49,7 +70,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       "three/webgpu": false,
-      "@glyphnet": require("path").resolve(__dirname, "src/glyphnet"),
+      "@glyphnet": path.resolve(__dirname, "src/glyphnet"),
     };
     return config;
   },
