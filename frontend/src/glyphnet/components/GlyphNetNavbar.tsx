@@ -7,7 +7,7 @@ import Link from "next/link";
 type RadioStatus = "unknown" | "up" | "reconnecting" | "down";
 type Session = { slug: string; wa: string; name?: string } | null;
 
-// ✅ unified icon button: NO BORDER, transparent, centered, uniform size
+// ✅ unified navbar icon button: uses .navbar-icon-btn to opt out of global button borders/padding
 function IconBtn({
   title,
   onClick,
@@ -23,6 +23,7 @@ function IconBtn({
       title={title}
       onClick={onClick}
       className={[
+        "navbar-icon-btn", // ✅ IMPORTANT: kills global button border/padding
         "h-11 w-11 rounded-full",
         "grid place-items-center",
         "bg-transparent",
@@ -60,7 +61,7 @@ function ViewToggle() {
         title="Multiverse"
         onClick={() => window.open("/aion/multiverse", "_blank", "noopener,noreferrer")}
       >
-        🌌
+        🪐
       </IconBtn>
     </div>
   );
@@ -108,7 +109,7 @@ export default function GlyphNetNavbar({
   const [pho, setPho] = useState<string | null>(null);
   const [phoLoading, setPhoLoading] = useState(false);
 
-  // retained (for sidebar integration soon) — but no Login UI in navbar
+  // ✅ Login UI is back (and disappears once logged in)
   const [loginOpen, setLoginOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -121,7 +122,7 @@ export default function GlyphNetNavbar({
     return session.name || session.slug || session.wa || "You";
   }, [session]);
 
-  // close dropdown on outside click (kept for later sidebar move)
+  // close dropdown on outside click
   useEffect(() => {
     function onDown(e: MouseEvent) {
       if (loginOpen && wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
@@ -177,23 +178,23 @@ export default function GlyphNetNavbar({
     return () => window.removeEventListener("glyphnet:wallet:updated", h);
   }, []);
 
-  // kept for later (sidebar auth)
   const doLogout = () => {
     if (typeof window === "undefined") return;
     localStorage.removeItem("gnet:user_slug");
     localStorage.removeItem("gnet:wa");
     localStorage.removeItem("gnet:ownerWa");
     setSession(null);
+    setLoginOpen(false);
     window.dispatchEvent(new CustomEvent("gnet:session:changed"));
   };
 
-  // kept for later (sidebar auth)
   async function doLogin(e?: React.FormEvent) {
     e?.preventDefault();
     setBusy(true);
     setErr(null);
 
     try {
+      // Minimal local session (replace with real auth later)
       const slug = (email.split("@")[0] || "user").toLowerCase().replace(/[^a-z0-9._-]/g, "-");
       const wa = `${slug}@wave.tp`;
 
@@ -216,10 +217,9 @@ export default function GlyphNetNavbar({
     <>
       {/* ✅ no fixed G button, no fixed hamburger; sidebar owns the G toggle now */}
 
-      {/* Sticky header shell (light grey border) */}
       <header className="sticky top-0 z-40 border-b border-[#e5e7eb] bg-background text-text">
         <div className="flex h-16 items-center justify-between gap-4 px-4">
-          {/* ✅ Logo moved slightly left (no extra left margin) */}
+          {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="logo-link flex items-center">
               <Image
@@ -249,12 +249,11 @@ export default function GlyphNetNavbar({
             </div>
           </div>
 
-          {/* Right controls (NO borders, NO darkmode toggle, NO login button) */}
+          {/* Right controls */}
           <div className="flex items-center gap-2">
             <RadioPill status="unknown" />
             <BlePill />
 
-            {/* PHO mini pill: keep text, no border */}
             <div
               className="hidden sm:flex items-center gap-2 rounded-full bg-transparent px-3 py-1 text-xs text-text/80"
               title="Displayed PHO (from /api/wallet/balances)"
@@ -264,53 +263,76 @@ export default function GlyphNetNavbar({
               <span className="text-text/50">PHO</span>
             </div>
 
-            {/* Waves inbox: NO border */}
-            <IconBtn
-              title="Waves"
-              onClick={() => {
-                window.location.hash = "#/devtools";
-              }}
-            >
+            <IconBtn title="Waves" onClick={() => (window.location.hash = "#/devtools")}>
               🌊
             </IconBtn>
 
-            {/* ✅ retain session info display, but remove login UI */}
+            {/* ✅ Login button returns, but disappears once logged in */}
             {session ? (
-              <div
-                className="hidden md:flex items-center gap-2 rounded-full bg-transparent px-3 py-1 text-xs text-text/70"
-                title={session.wa}
-              >
+              <div className="hidden md:flex items-center gap-2 rounded-full bg-transparent px-2 py-1 text-xs text-text/70">
                 <span className="text-text/50">Signed in:</span>
-                <span className="text-text">{profileLabel}</span>
-                {/* optional: keep logout callable but unobtrusive */}
+                <span className="text-text" title={session.wa}>
+                  {profileLabel}
+                </span>
                 <button
                   onClick={doLogout}
-                  className="ml-2 rounded-full px-2 py-1 hover:bg-button-light/30 dark:hover:bg-button-dark/30 text-text/70"
+                  className="navbar-icon-btn ml-1 h-8 w-8 rounded-full grid place-items-center hover:bg-button-light/30 dark:hover:bg-button-dark/30 text-text/70"
                   title="Logout"
                   type="button"
                 >
-                  ⎋
+                  <span className="text-lg leading-none">⎋</span>
                 </button>
               </div>
             ) : (
-              <div className="hidden md:flex items-center rounded-full bg-transparent px-3 py-1 text-xs text-text/50">
-                Not signed in
+              <div ref={wrapRef} className="relative">
+                <button
+                  type="button"
+                  className="rounded-lg bg-transparent px-3 py-2 text-sm text-text hover:bg-button-light/30 dark:hover:bg-button-dark/30"
+                  onClick={() => setLoginOpen((v) => !v)}
+                >
+                  Log in
+                </button>
+
+                {loginOpen && (
+                  <form
+                    className="absolute right-0 mt-2 w-72 rounded-lg border border-[#e5e7eb] bg-background p-3 shadow-lg"
+                    onSubmit={doLogin}
+                  >
+                    <div className="mb-2 text-sm font-semibold">Sign in</div>
+
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="Email"
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                    />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      placeholder="Password"
+                      className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                    />
+
+                    {err && <div className="mt-2 text-xs text-red-500">{err}</div>}
+
+                    <button
+                      type="submit"
+                      disabled={busy}
+                      className="mt-3 w-full rounded-lg border border-border bg-button-light/60 dark:bg-button-dark/70 px-3 py-2 text-sm hover:bg-button-light/70 dark:hover:bg-button-dark/80"
+                    >
+                      {busy ? "Signing in…" : "Sign in"}
+                    </button>
+                  </form>
+                )}
               </div>
             )}
           </div>
         </div>
       </header>
-
-      {/* NOTE: loginOpen/email/password/busy/err/doLogin kept for sidebar migration; navbar renders none */}
-      <div className="hidden">
-        <div ref={wrapRef} />
-        <button onClick={() => setLoginOpen(false)} type="button" />
-        <form onSubmit={doLogin} />
-        <input value={email} readOnly />
-        <input value={password} readOnly />
-        <span>{busy ? "1" : "0"}</span>
-        <span>{err ?? ""}</span>
-      </div>
     </>
   );
 }

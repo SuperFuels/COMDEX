@@ -189,6 +189,30 @@ a:hover {
   color: #ebebeb;
 }
 
+/* Navbar icon buttons: opt-out of global button border/padding */
+.navbar-icon-btn {
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 9999px !important;
+  line-height: 0 !important;
+}
+
+.navbar-icon-btn:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .navbar-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Optional: if you want all icons inside to align nicely */
+.navbar-icon-btn > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Tailwind-style “filled” button but in raw CSS */
 .btn-filled {
   background-color: var(--primary);
