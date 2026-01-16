@@ -22,56 +22,48 @@ const TABS: readonly TabDef[] = [
   { key: "ai", label: "AI", href: "/ai" },
 ];
 
-function getActiveKey(pathname: string): string {
-  // normalize: "/glyph?x=1" -> "/glyph"
+function getActiveKeyFromPath(pathname: string): string {
   const p = pathname.split("?")[0].split("#")[0];
 
-  // exact match first
   const exact = TABS.find((t) => t.href === p);
   if (exact) return exact.key;
 
-  // support nested routes like /symatics/papers/...
-  const nested = TABS
-    .slice()
+  const nested = TABS.slice()
     .sort((a, b) => b.href.length - a.href.length)
     .find((t) => t.href !== "/" && p.startsWith(t.href + "/"));
   if (nested) return nested.key;
 
-  // fallback: treat "/" as glyph (or change if you want)
   if (p === "/") return "glyph";
-
-  // fallback if unknown route
   return "glyph";
 }
 
 export default function Shell({
   children,
+  activeKey,
   hideHud = false,
   className = "",
 }: {
   children: ReactNode;
+  activeKey?: string; // ✅ optional override for pages
   hideHud?: boolean;
   className?: string;
 }) {
   const router = useRouter();
-  const activeKey = getActiveKey(router.asPath || router.pathname || "/");
+  const derivedKey = getActiveKeyFromPath(router.asPath || router.pathname || "/");
+  const key = activeKey || derivedKey;
 
   return (
-    <div
-      className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}
-    >
+    <div className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}>
       <div className="h-screen overflow-y-auto">
         <main className="relative z-10 flex flex-col items-center justify-start min-h-full px-6 max-w-5xl mx-auto py-16 pb-32">
-          <TabDock tabs={TABS} activeKey={activeKey} />
+          <TabDock tabs={TABS} activeKey={key} />
 
-          {/* page content */}
           <div className="w-full">
-            <div key={activeKey} className="animate-tab-change">
+            <div key={key} className="animate-tab-change">
               {children}
             </div>
           </div>
 
-          {/* CTA (optional global footer) */}
           <footer className="mt-24 flex gap-6">
             <button className="px-12 py-4 bg-black text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all">
               Launch GlyphNet
@@ -83,7 +75,6 @@ export default function Shell({
         </main>
       </div>
 
-      {/* HUD (global, optional) */}
       {!hideHud && (
         <div className="fixed bottom-8 right-8 p-4 bg-white/80 border border-gray-200 rounded-2xl backdrop-blur-xl text-[11px] font-bold text-gray-400 tracking-wider shadow-lg">
           <div className="flex gap-6 uppercase">

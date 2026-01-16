@@ -1,49 +1,61 @@
 // frontend/components/TabDock.tsx
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 
 export type TabDef = {
   key: string;
   label: string;
-  href: string; // route path, e.g. "/glyph"
+  href: string; // e.g. "/glyph"
 };
 
 export default function TabDock({
   tabs,
   activeKey,
   className = "",
-  maxWidth = 520, // “~2.5 tabs visible” feel
 }: {
   tabs: readonly TabDef[];
   activeKey: string;
   className?: string;
-  maxWidth?: number;
 }) {
   const router = useRouter();
-  const stripRef = useRef<HTMLDivElement | null>(null);
 
-  const activeIdx = useMemo(
-    () => Math.max(0, tabs.findIndex((t) => t.key === activeKey)),
-    [tabs, activeKey],
-  );
+  const activeIdx = useMemo(() => {
+    const idx = tabs.findIndex((t) => t.key === activeKey);
+    return idx >= 0 ? idx : 0;
+  }, [tabs, activeKey]);
 
   const go = (idx: number) => {
     const t = tabs[idx];
     if (!t) return;
-    // avoid push if already there
     if (router.asPath !== t.href) router.push(t.href);
   };
 
-  // ✅ Swipe between tabs (mobile) — ignores mostly-vertical gestures
+  const goPrev = () => {
+    if (activeIdx > 0) go(activeIdx - 1);
+  };
+
+  const goNext = () => {
+    if (activeIdx < tabs.length - 1) go(activeIdx + 1);
+  };
+
+  // ✅ Swipe between tabs (mobile) — ignores mostly-vertical gestures AND form elements
   useEffect(() => {
     let touchStartX = 0;
     let touchEndX = 0;
     let touchStartY = 0;
     let touchEndY = 0;
 
+    const isFormEl = (el: EventTarget | null) => {
+      const node = el as HTMLElement | null;
+      if (!node) return false;
+      const tag = node.tagName?.toLowerCase();
+      return tag === "input" || tag === "textarea" || tag === "select" || node.isContentEditable;
+    };
+
     const handleTouchStart = (e: TouchEvent) => {
+      if (isFormEl(e.target)) return;
       touchStartX = e.targetTouches[0].clientX;
       touchStartY = e.targetTouches[0].clientY;
       touchEndX = touchStartX;
@@ -51,6 +63,7 @@ export default function TabDock({
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (isFormEl(e.target)) return;
       touchEndX = e.targetTouches[0].clientX;
       touchEndY = e.targetTouches[0].clientY;
     };
@@ -61,12 +74,10 @@ export default function TabDock({
 
       // don't hijack page scroll
       if (Math.abs(dy) > Math.abs(dx)) return;
+      if (Math.abs(dx) < 70) return;
 
-      if (dx > 70 && activeIdx < tabs.length - 1) {
-        go(activeIdx + 1); // Swipe Left -> Next Tab
-      } else if (dx < -70 && activeIdx > 0) {
-        go(activeIdx - 1); // Swipe Right -> Prev Tab
-      }
+      if (dx > 0 && activeIdx < tabs.length - 1) goNext();
+      else if (dx < 0 && activeIdx > 0) goPrev();
     };
 
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
@@ -78,74 +89,64 @@ export default function TabDock({
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [activeIdx, tabs]); // activeIdx updates when route changes
-
-  // ✅ Keep active tab pill visible (click OR swipe)
-  useEffect(() => {
-    const el = stripRef.current;
-    if (!el) return;
-
-    const btn = el.querySelector<HTMLElement>(`[data-tabkey="${activeKey}"]`);
-    if (!btn) return;
-
-    btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, [activeKey]);
+  }, [activeIdx, tabs.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <nav className={`mb-16 sticky top-4 z-50 flex justify-center ${className}`}>
-      <div className="relative">
-        {/* Left scroll button */}
+      <div className="relative group">
+        {/* Left arrow (desktop hover) */}
         <button
           type="button"
-          onClick={() => stripRef.current?.scrollBy({ left: -260, behavior: "smooth" })}
-          className="hidden md:flex absolute left-[-14px] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
-                     bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition"
-          aria-label="Scroll tabs left"
+          onClick={goPrev}
+          disabled={activeIdx <= 0}
+          className="hidden md:flex absolute -left-12 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
+                     bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition
+                     opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+          aria-label="Previous tab"
         >
           <span className="text-gray-500 text-lg">‹</span>
         </button>
 
-        {/* Right scroll button */}
+        {/* Focus Dock */}
+        <div className="flex items-center gap-3 bg-white/70 backdrop-blur-2xl border border-gray-200 p-2 rounded-full shadow-lg shadow-gray-200/50">
+          {tabs.map((t, index) => {
+            const isPrev = index === activeIdx - 1;
+            const isNext = index === activeIdx + 1;
+            const isActive = index === activeIdx;
+
+            // Only render: prev / active / next
+            if (!isPrev && !isNext && !isActive) return null;
+
+            return (
+              <button
+                key={t.key}
+                onClick={() => go(index)}
+                className={`relative px-8 py-3 rounded-full text-sm font-semibold transition-all duration-500 ease-out ${
+                  isActive
+                    ? "bg-[#0071e3] text-white shadow-xl scale-[1.03] z-10"
+                    : "text-gray-400 hover:text-gray-600 scale-95 opacity-70 hover:opacity-100"
+                }`}
+                aria-current={isActive ? "page" : undefined}
+              >
+                {t.label}
+                {isActive && <span className="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse -z-10" />}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right arrow (desktop hover) */}
         <button
           type="button"
-          onClick={() => stripRef.current?.scrollBy({ left: 260, behavior: "smooth" })}
-          className="hidden md:flex absolute right-[-14px] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
-                     bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition"
-          aria-label="Scroll tabs right"
+          onClick={goNext}
+          disabled={activeIdx >= tabs.length - 1}
+          className="hidden md:flex absolute -right-12 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
+                     bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition
+                     opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+          aria-label="Next tab"
         >
           <span className="text-gray-500 text-lg">›</span>
         </button>
-
-        {/* Scroll container */}
-        <div
-          ref={stripRef}
-          className="p-1 bg-white/70 backdrop-blur-md border border-gray-200 rounded-full shadow-sm
-                     flex gap-1 overflow-x-auto no-scrollbar scroll-smooth"
-          style={{
-            maxWidth: `min(${maxWidth}px, 90vw)`,
-            WebkitOverflowScrolling: "touch",
-          }}
-        >
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              data-tabkey={t.key}
-              onClick={() => router.push(t.href)}
-              className={`shrink-0 px-10 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeKey === t.key
-                  ? "bg-[#0071e3] text-white shadow-md"
-                  : "text-gray-500 hover:text-black"
-              }`}
-              aria-current={activeKey === t.key ? "page" : undefined}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Subtle fade edges */}
-        <div className="pointer-events-none absolute left-0 top-0 h-full w-10 rounded-l-full bg-gradient-to-r from-[#f5f5f7] to-transparent" />
-        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 rounded-r-full bg-gradient-to-l from-[#f5f5f7] to-transparent" />
       </div>
     </nav>
   );

@@ -1,682 +1,526 @@
 // frontend/tabs/glyph/GlyphOSWorkbench.tsx
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 
-type Policy = "deterministic" | "conservative" | "aggressive";
+type CodeLang = "photon" | "python";
+
+type TranslateResponse = {
+  translated?: string;
+  glyph_count?: number;
+  chars_before?: number;
+  chars_after?: number;
+  compression_ratio?: number;
+};
+
+type Scenario = {
+  key: string;
+  label: string;
+  intentNL: string;
+  intentJSON: string;
+  glyphProgram: string; // .ptn-ish source
+};
 
 type TraceStep = {
   id: string;
-  op: string;
-  detail?: string;
-  io?: { in?: any; out?: any };
-  cost?: number; // arbitrary “compute units”
-  ms?: number; // simulated time
+  label: string;
+  detail: string;
+  ms: number;
+  ok: boolean;
 };
 
-type DemoPreset = {
-  key: string;
-  title: string;
-  subtitle: string;
-  words: {
-    nl: string;
-    json: string;
-  };
-  wire: any; // canonical meaning-shape (json)
-  run: (policy: Policy) => TraceStep[];
-};
+const SCENARIOS: readonly Scenario[] = [
+  {
+    key: "doc-intel",
+    label: "Document Intelligence",
+    intentNL:
+      'Scan the attached document, extract key entities (people, orgs, dates, money), summarize the top 5 points, file it under "Symatics", then notify me with the summary and a link.',
+    intentJSON: JSON.stringify(
+      {
+        task: "doc_pipeline",
+        input: { type: "pdf", source: "attachment" },
+        steps: [
+          { op: "extract_entities", fields: ["person", "org", "date", "money"] },
+          { op: "summarize", top_k: 5 },
+          { op: "file", folder: "Symatics" },
+          { op: "notify", channel: "inbox", include: ["summary", "link"] },
+        ],
+        constraints: { deterministic: true, trace: true, policy: "safe" },
+      },
+      null,
+      2,
+    ),
+    glyphProgram: [
+      "# GlyphOS program (Photon/.ptn style)",
+      '⊕ job "doc_intel" {',
+      '  in pdf "attachment";',
+      "  ⊕ extract entities(person, org, date, money);",
+      "  ⊕ summarize top 5;",
+      '  ⊕ file to "Symatics";',
+      "  ⊕ notify include(summary, link);",
+      "  ⊕ trace on;",
+      "}",
+    ].join("\n"),
+  },
+  {
+    key: "ops-fast-action",
+    label: "Compressed Intent → Action",
+    intentNL:
+      "When I say “ship it”, run tests, build, deploy to staging, and post the result to the team channel. If tests fail, open an issue with the failing logs.",
+    intentJSON: JSON.stringify(
+      {
+        trigger: "phrase:ship it",
+        pipeline: [
+          { op: "run_tests", mode: "ci" },
+          { op: "build" },
+          { op: "deploy", env: "staging" },
+          { op: "notify", channel: "team" },
+        ],
+        on_fail: [{ op: "open_issue", include: ["logs", "commit", "stack"] }],
+        constraints: { deterministic: true, trace: true },
+      },
+      null,
+      2,
+    ),
+    glyphProgram: [
+      "# “Meaning in motion”",
+      '⊕ trigger "ship it" {',
+      "  ⊕ test ci;",
+      "  ⊕ build;",
+      '  ⊕ deploy "staging";',
+      '  ⊕ notify "team" include(status, link);',
+      "  ⊕ on_fail { open_issue include(logs, commit, stack); }",
+      "  ⊕ trace on;",
+      "}",
+    ].join("\n"),
+  },
+  {
+    key: "agent-orch",
+    label: "AI Orchestration (Policy + Trace)",
+    intentNL:
+      "Plan a 3-step research sprint on Symatics: collect sources, extract a thesis outline, then draft an executive summary. Keep a replayable trace and show the final decision path.",
+    intentJSON: JSON.stringify(
+      {
+        agent: "research_orchestrator",
+        goal: "Symatics sprint",
+        steps: ["collect_sources", "outline_thesis", "draft_exec_summary"],
+        policy: { safety: "strict", citations: true },
+        trace: { replayable: true, include_decisions: true },
+      },
+      null,
+      2,
+    ),
+    glyphProgram: [
+      "# AI orchestration with deterministic trace",
+      '⊕ agent "research_orchestrator" {',
+      '  goal "Symatics sprint";',
+      "  ⊕ collect sources;",
+      "  ⊕ outline thesis;",
+      "  ⊕ draft executive_summary;",
+      "  ⊕ policy strict;",
+      "  ⊕ trace replay(decisions);",
+      "}",
+    ].join("\n"),
+  },
+];
 
-function seededRng(seed: number) {
-  // deterministic PRNG
-  let s = seed >>> 0;
+// ------------------------------ API (same behavior as your original) ------------------------------
+
+const API_BASE =
+  (typeof window !== "undefined" && (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "")) || "";
+
+function apiUrl(path: string) {
+  if (!path.startsWith("/")) path = `/${path}`;
+  return API_BASE ? `${API_BASE}${path}` : path;
+}
+
+async function translateToGlyphs(code: string, lang: CodeLang): Promise<TranslateResponse> {
+  const res = await fetch(apiUrl("/api/photon/translate"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: code, language: lang }),
+  });
+
+  if (!res.ok) {
+    const ct = res.headers.get("content-type") || "";
+    const raw = await res.text().catch(() => "");
+    const hint = ct.includes("text/html")
+      ? "HTML response — likely not hitting FastAPI. Check rewrites for /api/:path* and NEXT_PUBLIC_API_URL."
+      : "";
+    const msg = (raw && raw.slice(0, 400)) || res.statusText;
+    throw new Error(`HTTP ${res.status} — ${msg}${hint ? `\n${hint}` : ""}`);
+  }
+
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("application/json")) return (await res.json()) as TranslateResponse;
+
+  const text = await res.text();
+  return { translated: text, chars_before: code.length, chars_after: text.length };
+}
+
+// ------------------------------ tiny deterministic hash + rng ------------------------------
+
+function fnv1a(input: string) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  // unsigned
+  return h >>> 0;
+}
+
+function makeRng(seed: number) {
+  // xorshift32
+  let x = seed || 123456789;
   return () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 0xffffffff;
+    x ^= x << 13;
+    x ^= x >>> 17;
+    x ^= x << 5;
+    return (x >>> 0) / 0xffffffff;
   };
 }
 
-function prettyJson(x: any) {
-  return JSON.stringify(x, null, 2);
+function buildTrace(seedStr: string): { traceId: string; steps: TraceStep[] } {
+  const seed = fnv1a(seedStr);
+  const rng = makeRng(seed);
+
+  const base = [
+    { label: "Parse intent", detail: "Decode glyph-wire program", min: 18, max: 42 },
+    { label: "Bind resources", detail: "Resolve inputs / permissions / policy", min: 20, max: 55 },
+    { label: "Execute operators", detail: "Run operator table deterministically", min: 35, max: 90 },
+    { label: "Emit trace", detail: "Write replayable audit + decision path", min: 16, max: 44 },
+  ];
+
+  const steps: TraceStep[] = base.map((b, i) => {
+    const ms = Math.round(b.min + (b.max - b.min) * rng());
+    const ok = rng() > 0.04; // small chance of fail for realism (still deterministic)
+    return {
+      id: `s${i + 1}`,
+      label: b.label,
+      detail: b.detail,
+      ms,
+      ok,
+    };
+  });
+
+  // If any fail, mark last as fail-cascade for “deterministic abort”
+  const anyFail = steps.some((s) => !s.ok);
+  const finalSteps = anyFail
+    ? steps.map((s, idx) =>
+        idx === steps.length - 1 ? { ...s, ok: false, detail: "Abort + rollback (deterministic)" } : s,
+      )
+    : steps;
+
+  const traceId = `GX-${seed.toString(16).padStart(8, "0").toUpperCase()}`;
+  return { traceId, steps: finalSteps };
 }
 
-function clamp(n: number, a: number, b: number) {
-  return Math.max(a, Math.min(b, n));
-}
+// ------------------------------ UI ------------------------------
 
-function stepCost(base: number, jitter: number, r: () => number) {
-  return Math.round(base + (r() - 0.5) * jitter);
-}
-
-function stepMs(base: number, jitter: number, r: () => number) {
-  return Math.round(base + (r() - 0.5) * jitter);
-}
-
-const PRESETS: readonly DemoPreset[] = [
-  {
-    key: "doc_intel",
-    title: "Document Intelligence",
-    subtitle: "Scan → extract → brief → store → notify (with deterministic trace)",
-    words: {
-      nl: [
-        "Open the document.",
-        "Identify key entities (people, orgs, dates).",
-        "Create a short summary.",
-        'Save it into the "Research/Briefs" folder.',
-        "Notify me with the summary and a link.",
-      ].join("\n"),
-      json: prettyJson({
-        steps: [
-          { tool: "doc.open", args: { id: "$doc" } },
-          { tool: "nlp.extract_entities", args: { text: "$doc.text" } },
-          { tool: "nlp.summarize", args: { text: "$doc.text", max_tokens: 140 } },
-          { tool: "storage.write", args: { path: "Research/Briefs/$doc.id.md", content: "$summary" } },
-          { tool: "notify.send", args: { channel: "me", text: "$summary", link: "$path" } },
-        ],
-      }),
-    },
-    wire: {
-      Π: "doc-intel:v1",
-      "→": [
-        { ingest: { doc: "$DOC" } },
-        {
-          "⊕": [
-            { extract: { entities: true } },
-            { summarize: { style: "brief", limit: 140 } },
-          ],
-        },
-        { store: { path: "Research/Briefs/{doc.id}.md" } },
-        { notify: { to: "me", include: ["summary", "link"] } },
-        { "∇": { collapse: "policy" } },
-      ],
-    },
-    run: (policy) => {
-      const seed = policy === "deterministic" ? 101 : policy === "conservative" ? 202 : 303;
-      const r = seededRng(seed);
-
-      const docId = Math.floor(r() * 9000 + 1000).toString(16);
-      const textLen = Math.floor(r() * 12000 + 9000);
-
-      const entities = {
-        persons: Math.floor(r() * 6 + 6),
-        orgs: Math.floor(r() * 6 + 4),
-        dates: Math.floor(r() * 10 + 6),
-      };
-
-      const summaryLen = Math.floor(r() * 35 + 110);
-
-      const base: TraceStep[] = [
-        {
-          id: "1",
-          op: "Π doc-intel:v1",
-          detail: "start",
-          io: { in: { $DOC: "paper.pdf" }, out: { run_id: `run_${docId}` } },
-          cost: stepCost(6, 2, r),
-          ms: stepMs(40, 20, r),
-        },
-        {
-          id: "2",
-          op: "ingest(doc)",
-          io: { in: { file: "paper.pdf" }, out: { "doc.id": docId, "text.len": textLen } },
-          cost: stepCost(18, 6, r),
-          ms: stepMs(110, 40, r),
-        },
-        {
-          id: "3a",
-          op: "extract(entities)",
-          detail: "⊕ parallel",
-          io: { in: { "text.len": textLen }, out: entities },
-          cost: stepCost(22, 10, r),
-          ms: stepMs(140, 60, r),
-        },
-        {
-          id: "3b",
-          op: "summarize(brief,140)",
-          detail: "⊕ parallel",
-          io: { in: { "text.len": textLen }, out: { "summary.len": summaryLen } },
-          cost: stepCost(26, 12, r),
-          ms: stepMs(180, 70, r),
-        },
-        {
-          id: "4",
-          op: "store(path)",
-          io: { in: { folder: "Research/Briefs", docId }, out: { path: `Research/Briefs/${docId}.md` } },
-          cost: stepCost(10, 4, r),
-          ms: stepMs(60, 20, r),
-        },
-        {
-          id: "5",
-          op: "notify(me)",
-          io: { in: { channel: "me" }, out: { sent: true } },
-          cost: stepCost(8, 2, r),
-          ms: stepMs(50, 20, r),
-        },
-      ];
-
-      // collapse/policy tail
-      const risk = clamp(Math.round((entities.orgs + entities.persons) * 2 + r() * 8), 8, 42);
-      const costTotal = base.reduce((a, s) => a + (s.cost || 0), 0);
-
-      let next_action: string;
-      let auto_execute: boolean;
-
-      if (policy === "deterministic") {
-        auto_execute = true;
-        next_action = "commit";
-      } else if (policy === "conservative") {
-        auto_execute = costTotal < 90 && risk < 24;
-        next_action = auto_execute ? "commit" : "request_approval";
-      } else {
-        auto_execute = true;
-        next_action = "chain_followup";
-      }
-
-      const tail: TraceStep[] = [
-        {
-          id: "6",
-          op: "∇ collapse(policy)",
-          io: {
-            in: { policy, risk, cost_total: costTotal },
-            out: { auto_execute, next_action },
-          },
-          cost: stepCost(5, 2, r),
-          ms: stepMs(40, 20, r),
-        },
-        {
-          id: "7",
-          op: "result",
-          detail: auto_execute
-            ? `Brief stored + notification sent. next_action=${next_action}`
-            : "Execution paused. next_action=request_approval",
-          io: {
-            out: {
-              stored: true,
-              notified: true,
-              next_action,
-            },
-          },
-          cost: 0,
-          ms: stepMs(20, 10, r),
-        },
-      ];
-
-      return [...base, ...tail];
-    },
-  },
-
-  {
-    key: "ops_auto",
-    title: "Ops Automation",
-    subtitle: "Check → decide → page → open incident (policy controls gate)",
-    words: {
-      nl: [
-        "Check the service status.",
-        "If degraded, page on-call and open an incident.",
-        "Otherwise log and exit.",
-      ].join("\n"),
-      json: prettyJson({
-        steps: [
-          { tool: "status.check", args: { service: "glyphnet-api" } },
-          { tool: "policy.decide", args: { threshold: "degraded" } },
-          { tool: "pager.page", args: { team: "on-call" } },
-          { tool: "incident.open", args: { sev: 2 } },
-        ],
-      }),
-    },
-    wire: {
-      Π: "ops-auto:v1",
-      "→": [
-        { sense: { service: "glyphnet-api" } },
-        { decide: { gate: "policy" } },
-        { act: { on: "degraded", then: ["page(on-call)", "open_incident(sev2)"] } },
-        { "∇": { collapse: "policy" } },
-      ],
-    },
-    run: (policy) => {
-      const seed = policy === "deterministic" ? 111 : policy === "conservative" ? 222 : 333;
-      const r = seededRng(seed);
-
-      const statusRoll = r();
-      const status = statusRoll > 0.72 ? "degraded" : statusRoll > 0.92 ? "down" : "ok";
-
-      const base: TraceStep[] = [
-        { id: "1", op: "Π ops-auto:v1", detail: "start", cost: stepCost(5, 2, r), ms: stepMs(35, 15, r) },
-        {
-          id: "2",
-          op: "sense(status)",
-          io: { in: { service: "glyphnet-api" }, out: { status } },
-          cost: stepCost(14, 6, r),
-          ms: stepMs(95, 35, r),
-        },
-      ];
-
-      const risk = status === "down" ? 40 : status === "degraded" ? 26 : 8;
-
-      let allow: boolean;
-      if (policy === "deterministic") allow = status !== "ok";
-      else if (policy === "conservative") allow = status === "down";
-      else allow = status !== "ok";
-
-      const tail: TraceStep[] = [
-        {
-          id: "3",
-          op: "decide(gate=policy)",
-          io: { in: { policy, status, risk }, out: { allow_actions: allow } },
-          cost: stepCost(6, 3, r),
-          ms: stepMs(45, 20, r),
-        },
-      ];
-
-      if (allow && status !== "ok") {
-        tail.push(
-          {
-            id: "4",
-            op: "page(on-call)",
-            io: { out: { paged: true } },
-            cost: stepCost(10, 4, r),
-            ms: stepMs(70, 30, r),
-          },
-          {
-            id: "5",
-            op: "open_incident(sev2)",
-            io: { out: { incident_id: `INC-${Math.floor(r() * 9000 + 1000)}` } },
-            cost: stepCost(12, 4, r),
-            ms: stepMs(80, 30, r),
-          },
-        );
-      } else {
-        tail.push({
-          id: "4",
-          op: "log",
-          detail: status === "ok" ? "status ok → exit" : "policy blocked → request approval",
-          io: { out: { status, action: status === "ok" ? "exit" : "request_approval" } },
-          cost: stepCost(3, 1, r),
-          ms: stepMs(25, 10, r),
-        });
-      }
-
-      tail.push({
-        id: "6",
-        op: "∇ collapse(policy)",
-        io: { out: { next_action: allow ? "commit" : status === "ok" ? "noop" : "request_approval" } },
-        cost: stepCost(4, 2, r),
-        ms: stepMs(35, 15, r),
-      });
-
-      return [...base, ...tail];
-    },
-  },
-
-  {
-    key: "schedule",
-    title: "Scheduling",
-    subtitle: "Find slot → propose → send (policy governs outreach)",
-    words: {
-      nl: [
-        "Find a 30-minute slot next week.",
-        "Propose 3 options.",
-        "Send them to Sarah.",
-      ].join("\n"),
-      json: prettyJson({
-        steps: [
-          { tool: "calendar.find_slots", args: { duration_min: 30, window: "next_week" } },
-          { tool: "calendar.pick", args: { count: 3 } },
-          { tool: "email.send", args: { to: "sarah", template: "propose_times" } },
-        ],
-      }),
-    },
-    wire: {
-      Π: "schedule:v1",
-      "→": [
-        { query: { calendar: "primary", window: "next_week", duration: "30m" } },
-        { select: { count: 3 } },
-        { notify: { to: "sarah", channel: "email" } },
-        { "∇": { collapse: "policy" } },
-      ],
-    },
-    run: (policy) => {
-      const seed = policy === "deterministic" ? 121 : policy === "conservative" ? 242 : 363;
-      const r = seededRng(seed);
-
-      const slots = Array.from({ length: 7 }, (_, i) => ({
-        day: `D+${i + 1}`,
-        times: Math.floor(r() * 4 + 1),
-      }));
-      const picks = slots
-        .filter((s) => s.times > 1)
-        .slice(0, 3)
-        .map((s, idx) => `${s.day} • ${["10:00", "11:30", "14:00"][idx]}`);
-
-      const base: TraceStep[] = [
-        { id: "1", op: "Π schedule:v1", detail: "start", cost: stepCost(5, 2, r), ms: stepMs(30, 15, r) },
-        {
-          id: "2",
-          op: "query(calendar)",
-          io: { in: { window: "next_week", duration: "30m" }, out: { candidates: slots } },
-          cost: stepCost(16, 7, r),
-          ms: stepMs(110, 45, r),
-        },
-        {
-          id: "3",
-          op: "select(3)",
-          io: { out: { proposals: picks.length ? picks : ["(no slots found)"] } },
-          cost: stepCost(8, 3, r),
-          ms: stepMs(55, 20, r),
-        },
-      ];
-
-      const risk = 18; // outreach-ish
-      const allowSend = policy !== "conservative"; // conservative asks approval before emailing
-
-      const tail: TraceStep[] = [
-        {
-          id: "4",
-          op: "notify(email)",
-          io: { in: { to: "sarah" }, out: { sent: allowSend } },
-          cost: stepCost(10, 4, r),
-          ms: stepMs(80, 30, r),
-        },
-        {
-          id: "5",
-          op: "∇ collapse(policy)",
-          io: {
-            in: { policy, risk },
-            out: { next_action: allowSend ? "commit" : "request_approval" },
-          },
-          cost: stepCost(4, 2, r),
-          ms: stepMs(35, 15, r),
-        },
-      ];
-
-      return [...base, ...tail];
-    },
-  },
-] as const;
-
-function Pill({
-  active,
-  children,
-  onClick,
-}: {
-  active?: boolean;
-  children: React.ReactNode;
-  onClick?: () => void;
-}) {
+function Pill({ children }: { children: React.ReactNode }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border ${
-        active
-          ? "bg-[#0071e3] text-white border-[#0071e3] shadow-sm"
-          : "bg-white/70 text-gray-600 border-gray-200 hover:text-black"
-      }`}
-    >
+    <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-blue-50 text-[#0071e3] border border-blue-100">
       {children}
-    </button>
+    </span>
   );
 }
 
-function CodePane({
+function Pane({
   title,
-  subtitle,
+  right,
   children,
 }: {
   title: string;
-  subtitle?: string;
+  right?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <div className="rounded-[2rem] border border-gray-100 bg-white overflow-hidden shadow-sm">
-      <div className="px-6 py-4 border-b border-gray-100 flex items-start justify-between gap-4">
-        <div>
-          <div className="text-sm font-bold text-gray-800">{title}</div>
-          {subtitle ? <div className="text-xs text-gray-400 mt-1">{subtitle}</div> : null}
-        </div>
+      <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
+        <div className="text-sm font-bold text-gray-700">{title}</div>
+        {right ? <div>{right}</div> : <div />}
       </div>
       <div className="bg-[#fafafa]">{children}</div>
     </div>
   );
 }
 
-function MonoBlock({
-  text,
-  linesMin = 12,
+function TextAreaWithLines({
+  value,
+  onChange,
+  readOnly,
+  minRows = 10,
 }: {
-  text: string;
-  linesMin?: number;
+  value: string;
+  onChange?: (v: string) => void;
+  readOnly?: boolean;
+  minRows?: number;
 }) {
-  const lines = Math.max(linesMin, text.split("\n").length);
+  const lines = useMemo(() => Math.max(1, value.split("\n").length), [value]);
+
   return (
-    <div className="flex font-mono text-[13px] leading-6">
+    <div className="flex font-mono text-sm leading-6">
       <div className="select-none text-right text-gray-300 bg-white/40 border-r border-gray-100 px-4 py-4 min-w-[3rem]">
-        {Array.from({ length: lines }, (_, i) => (
+        {Array.from({ length: Math.max(minRows, lines) }, (_, i) => (
           <div key={i}>{i + 1}</div>
         ))}
       </div>
-      <pre className="flex-1 whitespace-pre-wrap break-words px-4 py-4 text-gray-800">{text}</pre>
-    </div>
-  );
-}
 
-function TraceView({
-  steps,
-  animKey,
-  running,
-}: {
-  steps: TraceStep[];
-  animKey: number;
-  running: boolean;
-}) {
-  // CSS-only “stagger” via inline style (no external libs)
-  return (
-    <div key={animKey} className="p-5 md:p-6 space-y-3">
-      {steps.length === 0 ? (
-        <div className="text-sm text-gray-400 py-10 text-center">
-          Press <span className="font-semibold text-gray-600">Run</span> to generate a deterministic trace.
-        </div>
+      {readOnly ? (
+        <pre className="flex-1 whitespace-pre-wrap break-words px-4 py-4 text-gray-800">
+          {value && value.trim().length ? value : "—"}
+        </pre>
       ) : (
-        steps.map((s, idx) => {
-          const delay = Math.min(0.06 * idx, 0.8);
-          return (
-            <div
-              key={s.id}
-              className={`rounded-2xl border border-gray-100 bg-white shadow-sm px-5 py-4 ${
-                running ? "opacity-0 animate-in fade-in slide-in-from-bottom-2" : ""
-              }`}
-              style={running ? ({ animationDelay: `${delay}s` } as any) : undefined}
-            >
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{s.id}</div>
-                  <div className="text-sm font-semibold text-gray-800">{s.op}</div>
-                </div>
-                <div className="flex items-center gap-3 text-[11px] text-gray-400 font-bold">
-                  {typeof s.cost === "number" ? <span>{s.cost} cu</span> : null}
-                  {typeof s.ms === "number" ? <span>{s.ms} ms</span> : null}
-                </div>
-              </div>
-
-              {s.detail ? <div className="text-xs text-gray-500 mt-2">{s.detail}</div> : null}
-
-              {s.io ? (
-                <div className="mt-3 grid md:grid-cols-2 gap-3">
-                  <div className="rounded-xl bg-[#fafafa] border border-gray-100 p-3">
-                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">
-                      in
-                    </div>
-                    <pre className="font-mono text-[11px] leading-5 text-gray-700 whitespace-pre-wrap break-words">
-                      {s.io.in ? JSON.stringify(s.io.in, null, 2) : "—"}
-                    </pre>
-                  </div>
-                  <div className="rounded-xl bg-[#fafafa] border border-gray-100 p-3">
-                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">
-                      out
-                    </div>
-                    <pre className="font-mono text-[11px] leading-5 text-gray-700 whitespace-pre-wrap break-words">
-                      {s.io.out ? JSON.stringify(s.io.out, null, 2) : "—"}
-                    </pre>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          );
-        })
+        <textarea
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          rows={Math.max(minRows, lines)}
+          spellCheck={false}
+          className="flex-1 resize-none bg-transparent px-4 py-4 outline-none text-gray-800"
+        />
       )}
     </div>
   );
 }
 
 export default function GlyphOSWorkbench() {
-  const [presetKey, setPresetKey] = useState(PRESETS[0].key);
-  const [policy, setPolicy] = useState<Policy>("deterministic");
+  const [scenarioKey, setScenarioKey] = useState<string>(SCENARIOS[0].key);
+  const scenario = useMemo(() => SCENARIOS.find((s) => s.key === scenarioKey) || SCENARIOS[0], [scenarioKey]);
+
+  const [view, setView] = useState<"nl" | "json">("nl");
+  const [lang, setLang] = useState<CodeLang>("photon");
+
+  const [intentNL, setIntentNL] = useState(scenario.intentNL);
+  const [intentJSON, setIntentJSON] = useState(scenario.intentJSON);
+  const [program, setProgram] = useState(scenario.glyphProgram);
+
+  const [glyphWire, setGlyphWire] = useState<string>("—");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const [traceId, setTraceId] = useState<string>("—");
   const [trace, setTrace] = useState<TraceStep[]>([]);
-  const [animKey, setAnimKey] = useState(0);
-  const [running, setRunning] = useState(false);
 
-  const preset = useMemo(
-    () => PRESETS.find((p) => p.key === presetKey) || PRESETS[0],
-    [presetKey],
-  );
+  const [stats, setStats] = useState<{ before: number; after: number; pct: number } | null>(null);
 
-  const lastRunRef = useRef<{ presetKey: string; policy: Policy } | null>(null);
-
-  const run = () => {
-    setRunning(true);
-    const steps = preset.run(policy);
-    setTrace(steps);
-    setAnimKey((k) => k + 1);
-    lastRunRef.current = { presetKey, policy };
-
-    // stop “running” after animation finishes
-    window.setTimeout(() => setRunning(false), 950);
+  // Update editors when scenario changes (but preserve if user started editing heavily)
+  const loadScenario = (s: Scenario) => {
+    setScenarioKey(s.key);
+    setIntentNL(s.intentNL);
+    setIntentJSON(s.intentJSON);
+    setProgram(s.glyphProgram);
+    setGlyphWire("—");
+    setTraceId("—");
+    setTrace([]);
+    setStats(null);
+    setErr(null);
   };
 
-  const replay = () => {
-    // Replay the most recent run with same preset+policy for deterministic feel.
-    const last = lastRunRef.current;
-    if (!last) return run();
+  const run = async () => {
+    try {
+      setBusy(true);
+      setErr(null);
 
-    setRunning(true);
-    const p = PRESETS.find((x) => x.key === last.presetKey) || PRESETS[0];
-    const steps = p.run(last.policy);
-    setTrace(steps);
-    setAnimKey((k) => k + 1);
+      // 1) compile/translate program → glyph wire
+      const resp = await translateToGlyphs(program, lang);
+      const translated = resp.translated ?? "";
+      const wire = translated && translated.trim().length ? translated : "—";
+      setGlyphWire(wire);
 
-    window.setTimeout(() => setRunning(false), 950);
+      // show “meaning compression” against NL (what user *wants*)
+      const before = intentNL.length;
+      const after = wire === "—" ? 0 : wire.length;
+      const pct = before > 0 && after > 0 ? (1 - after / before) * 100 : 0;
+      setStats(after > 0 ? { before, after, pct } : null);
+
+      // 2) deterministic trace (seeded by scenario + wire)
+      const seedStr = `${scenarioKey}::${wire}::${lang}`;
+      const t = buildTrace(seedStr);
+      setTraceId(t.traceId);
+      setTrace(t.steps);
+    } catch (e: any) {
+      setErr(e?.message || "Run failed");
+    } finally {
+      setBusy(false);
+    }
   };
-
-  const wireText = useMemo(() => prettyJson(preset.wire), [preset.wire]);
 
   return (
-    <section className="space-y-10">
-      <div className="text-center space-y-5">
+    <section className="space-y-16">
+      {/* Hero (keep your original vibe) */}
+      <div className="text-center space-y-6">
         <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">Glyph OS</h1>
         <p className="text-2xl text-gray-500 font-light tracking-tight">
-          Compressed <span className="text-black font-medium">meaning</span>. Deterministic{" "}
-          <span className="text-black font-medium">execution</span>.
+          The Language of Symbols. <span className="text-black font-medium">The Speed of Light.</span>
         </p>
         <p className="max-w-2xl mx-auto text-lg text-gray-500 leading-relaxed">
-          Intent → Glyph-wire (canonical meaning-shape) → deterministic trace → next action (policy).
+          Compressed intent → deterministic execution → replayable trace. Built for AI orchestration and meaning-native computation.
         </p>
       </div>
 
-      {/* Preset picker */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/50 p-6 md:p-8">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          <div>
-            <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">Demo presets</div>
-            <div className="text-xl font-semibold text-gray-800 mt-2">{preset.title}</div>
-            <div className="text-sm text-gray-500 mt-1">{preset.subtitle}</div>
-          </div>
+      {/* Scenario selector (boutique, not cluttered) */}
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        {SCENARIOS.map((s) => {
+          const active = s.key === scenarioKey;
+          return (
+            <button
+              key={s.key}
+              onClick={() => loadScenario(s)}
+              className={`px-6 py-3 rounded-full text-sm font-semibold transition-all ${
+                active ? "bg-black text-white shadow-md" : "bg-white text-gray-600 border border-gray-200 hover:text-black"
+              }`}
+            >
+              {s.label}
+            </button>
+          );
+        })}
+      </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {PRESETS.map((p) => (
-              <Pill key={p.key} active={p.key === presetKey} onClick={() => setPresetKey(p.key)}>
-                {p.title}
-              </Pill>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mr-2">Policy</div>
-            <Pill active={policy === "deterministic"} onClick={() => setPolicy("deterministic")}>
-              Deterministic
-            </Pill>
-            <Pill active={policy === "conservative"} onClick={() => setPolicy("conservative")}>
-              Conservative
-            </Pill>
-            <Pill active={policy === "aggressive"} onClick={() => setPolicy("aggressive")}>
-              Aggressive
-            </Pill>
+      {/* Main Workbench */}
+      <div className="w-full bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-10 space-y-10">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+          <div className="space-y-2">
+            <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">Meaning → Wire → Execution</div>
+            <div className="text-sm text-gray-500">
+              Compare verbose intent with a compact glyph program, then run a deterministic trace.
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={replay}
-              className="px-6 py-2.5 rounded-full text-sm font-semibold bg-white border border-gray-200 text-gray-700 hover:text-black hover:shadow-sm transition"
+            <div className="hidden md:flex items-center gap-2">
+              <Pill>Deterministic</Pill>
+              <Pill>Replayable Trace</Pill>
+            </div>
+
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as CodeLang)}
+              className="px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm outline-none focus:ring-2 focus:ring-blue-200"
             >
-              Replay
-            </button>
+              <option value="photon">Photon (.ptn)</option>
+              <option value="python">Python (.py)</option>
+            </select>
+
             <button
-              type="button"
               onClick={run}
-              className="px-8 py-2.5 rounded-full text-sm font-semibold bg-[#0071e3] text-white shadow-md hover:brightness-110 transition"
+              disabled={busy}
+              className={`px-10 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${
+                busy ? "bg-gray-200 text-gray-500" : "bg-[#0071e3] text-white shadow-md hover:brightness-110"
+              }`}
             >
-              Run
+              {busy ? "Running…" : "Run"}
             </button>
           </div>
         </div>
-      </div>
 
-      {/* 3-pane core */}
-      <div className="grid lg:grid-cols-3 gap-8">
-        <CodePane title="Words" subtitle="Verbose intent (what most systems require)">
-          <div className="p-6 space-y-4">
-            <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
-              <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Natural language</div>
+        {err ? <div className="text-sm text-red-600 whitespace-pre-wrap">{err}</div> : null}
+
+        {/* Editors */}
+        <div className="grid md:grid-cols-2 gap-8">
+          <Pane
+            title="VERBOSE INTENT"
+            right={
+              <div className="flex items-center gap-2 bg-white rounded-full border border-gray-200 p-1">
+                <button
+                  onClick={() => setView("nl")}
+                  className={`px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase transition ${
+                    view === "nl" ? "bg-black text-white" : "text-gray-500 hover:text-black"
+                  }`}
+                >
+                  Natural
+                </button>
+                <button
+                  onClick={() => setView("json")}
+                  className={`px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase transition ${
+                    view === "json" ? "bg-black text-white" : "text-gray-500 hover:text-black"
+                  }`}
+                >
+                  JSON
+                </button>
               </div>
-              <MonoBlock text={preset.words.nl} linesMin={10} />
-            </div>
-
-            <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
-              <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Typical pipeline JSON</div>
+            }
+          >
+            {view === "nl" ? (
+              <div className="p-6">
+                <textarea
+                  value={intentNL}
+                  onChange={(e) => setIntentNL(e.target.value)}
+                  className="w-full min-h-[220px] rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-800 leading-relaxed outline-none focus:ring-2 focus:ring-blue-200"
+                  spellCheck={false}
+                />
               </div>
-              <MonoBlock text={preset.words.json} linesMin={14} />
-            </div>
-          </div>
-        </CodePane>
+            ) : (
+              <TextAreaWithLines value={intentJSON} onChange={setIntentJSON} minRows={12} />
+            )}
+          </Pane>
 
-        <CodePane title="Glyph-wire" subtitle="Canonical meaning-shape (portable + stable)">
-          <div className="p-6 space-y-4">
-            <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
-              <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Wire format</div>
-                <div className="text-[10px] text-[#0071e3] font-bold uppercase tracking-widest">
-                  small • stable • replayable
+          <Pane
+            title="GLYPH PROGRAM (.PTN)"
+            right={<div className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Meaning-native</div>}
+          >
+            <TextAreaWithLines value={program} onChange={setProgram} minRows={12} />
+          </Pane>
+        </div>
+
+        {/* Output + Trace */}
+        <div className="grid md:grid-cols-2 gap-8">
+          <Pane
+            title="GLYPH WIRE (COMPACT)"
+            right={
+              stats ? (
+                <div className="text-[11px] text-gray-400">
+                  <span className="font-semibold">{stats.pct.toFixed(1)}%</span> shorter (NL {stats.before} → wire{" "}
+                  {stats.after})
                 </div>
-              </div>
-              <MonoBlock text={wireText} linesMin={22} />
-            </div>
+              ) : (
+                <div className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Translated</div>
+              )
+            }
+          >
+            <TextAreaWithLines value={glyphWire} readOnly minRows={12} />
+          </Pane>
 
-            <div className="rounded-2xl bg-blue-50/60 border border-blue-100 p-4">
-              <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">Why this matters</div>
-              <div className="mt-2 text-sm text-gray-600 leading-relaxed">
-                This isn’t “shorter text.” It’s a compact, deterministic meaning-shape that can be executed, audited,
-                replayed, and governed by policy.
-              </div>
-            </div>
-          </div>
-        </CodePane>
+          <Pane
+            title="DETERMINISTIC TRACE"
+            right={<div className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Trace ID: {traceId}</div>}
+          >
+            <div className="p-6 space-y-4">
+              {trace.length === 0 ? (
+                <div className="text-sm text-gray-400">Run to generate a replayable execution trace.</div>
+              ) : (
+                <div className="space-y-3">
+                  {trace.map((s) => (
+                    <div
+                      key={s.id}
+                      className="flex items-start justify-between gap-4 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`mt-0.5 w-3 h-3 rounded-full ${
+                            s.ok ? "bg-emerald-500" : "bg-rose-500"
+                          }`}
+                        />
+                        <div>
+                          <div className="text-sm font-semibold text-gray-800">{s.label}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{s.detail}</div>
+                        </div>
+                      </div>
+                      <div className="text-xs font-mono text-gray-400">{s.ms}ms</div>
+                    </div>
+                  ))}
 
-        <CodePane title="Trace" subtitle="Deterministic execution + audit trail">
-          <TraceView steps={trace} animKey={animKey} running={running} />
-        </CodePane>
+                  <div className="pt-2 text-xs text-gray-400">
+                    Same wire + same policy ⇒ same trace. (This is the “OS” part.)
+                  </div>
+                </div>
+              )}
+            </div>
+          </Pane>
+        </div>
       </div>
+
+      <div className="text-center font-medium text-gray-400 italic">“Same meaning. Less noise. Faster execution.”</div>
     </section>
   );
 }
