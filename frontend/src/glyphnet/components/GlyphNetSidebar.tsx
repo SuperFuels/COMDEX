@@ -19,28 +19,22 @@ export default function GlyphNetSidebar({
   items: Item[];
   onGo: (path: string) => void;
 }) {
-  const panelRef = useRef<HTMLDivElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
-  // Close when clicking outside panel (ignore clicks on the left rail)
+  const toggle = () => {
+    if (isOpen) onClose();
+    else onOpen();
+  };
+
+  // Close when clicking outside the sidebar
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (!isOpen) return;
-
-      const panel = panelRef.current;
-      if (!panel) return;
-
-      const target = e.target as Node;
-
-      // If click is inside the panel, do nothing
-      if (panel.contains(target)) return;
-
-      // If click is on the rail (or inside it), do nothing (rail handles its own toggle)
-      const railEl = (e.target as HTMLElement | null)?.closest?.("[data-glyphnet-rail='1']");
-      if (railEl) return;
-
+      const el = sidebarRef.current;
+      if (!el) return;
+      if (el.contains(e.target as Node)) return;
       onClose();
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
@@ -52,70 +46,59 @@ export default function GlyphNetSidebar({
     return () => window.removeEventListener("hashchange", h);
   }, [isOpen, onClose]);
 
-  const toggle = () => {
-    if (isOpen) onClose();
-    else onOpen();
-  };
-
   return (
     <>
-      {/* Left rail */}
+      {/* Backdrop (only when open) */}
       <div
-        data-glyphnet-rail="1"
-        aria-label="GlyphNet rail"
-        className="fixed left-0 top-0 z-[80] h-screen w-14 border-r border-border bg-background flex flex-col items-center justify-between py-3 select-none"
-      >
-        {/* G button */}
-        <div className="relative group">
-          <button
-            type="button"
-            onClick={(e) => {
-              // prevent any “outside click” handlers from seeing this as outside
-              e.stopPropagation();
-              toggle();
-            }}
-            className="h-11 w-11 rounded-xl bg-transparent grid place-items-center hover:bg-button-light/40 dark:hover:bg-button-dark/40"
-            aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
-            title={isOpen ? "Close sidebar" : "Open sidebar"}
-          >
-            {/* ✅ increase G size ~40% */}
-            <Image src="/G.svg" alt="G" width={40} height={40} />
-          </button>
-
-          {/* Tooltip */}
-          <div className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="rounded-lg border border-border bg-background px-2 py-1 text-xs text-text shadow-sm whitespace-nowrap">
-              {isOpen ? "Close sidebar" : "Open sidebar"}
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom spacer (no dark/light toggle) */}
-        <div className="h-11 w-11" />
-      </div>
-
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 z-[70] bg-black/40 transition-opacity ${
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+        className={[
+          "fixed inset-0 z-[70] bg-black/40 transition-opacity",
+          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+        ].join(" ")}
         onClick={onClose}
       />
 
-      {/* Slide-out panel */}
+      {/* ✅ SINGLE sidebar that expands (no separate panel) */}
       <aside
-        ref={panelRef}
-        aria-label="GlyphNet navigation"
-        className={`fixed top-0 left-14 z-[75] h-screen w-80 max-w-[80vw] border-r border-border bg-background transform transition-transform duration-200 ease-out ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        ref={sidebarRef}
+        aria-label="GlyphNet sidebar"
+        className={[
+          "fixed left-0 top-0 z-[80] h-screen",
+          "border-r border-border bg-background",
+          "transition-[width] duration-200 ease-out",
+          "overflow-hidden", // important so closed state stays thin
+          isOpen ? "w-80" : "w-14",
+        ].join(" ")}
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between px-4 py-4 border-b border-border">
-            <div className="text-lg font-semibold">GlyphNet</div>
+          {/* Top: G button row (always aligned with menu content) */}
+          <div className="flex items-center justify-between px-2 py-3">
             <button
-              onClick={onClose}
-              className="h-9 w-9 rounded-lg bg-transparent hover:bg-button-light/40 dark:hover:bg-button-dark/40"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggle();
+              }}
+              className="h-11 w-11 rounded-xl bg-transparent grid place-items-center hover:bg-button-light/40 dark:hover:bg-button-dark/40"
+              aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
+              title={isOpen ? "Close sidebar" : "Open sidebar"}
+            >
+              {/* ✅ increase G size ~40% */}
+              <Image src="/G.svg" alt="G" width={40} height={40} />
+            </button>
+
+            {/* Right-side close only visible when open */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className={[
+                "h-11 w-11 rounded-xl bg-transparent grid place-items-center",
+                "hover:bg-button-light/40 dark:hover:bg-button-dark/40",
+                isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
+                "transition-opacity duration-150",
+              ].join(" ")}
               aria-label="Close sidebar"
               title="Close"
             >
@@ -123,44 +106,82 @@ export default function GlyphNetSidebar({
             </button>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-4 py-5 space-y-6">
-            <div className="flex flex-col gap-2">
-              <Link
-                href="/"
-                className="block py-2 px-3 rounded-lg bg-transparent hover:bg-button-light/40 dark:hover:bg-button-dark/40 font-medium"
-              >
-                🟢 Back to Site Home
-              </Link>
+          {/* Divider (only when open) */}
+          <div className={isOpen ? "border-b border-border" : ""} />
 
-              <button
-                onClick={() => onGo("/devtools")}
-                className="text-left py-2 px-3 rounded-lg bg-transparent hover:bg-button-light/40 dark:hover:bg-button-dark/40 font-medium"
-              >
-                🛠️ DevTools
-              </button>
-            </div>
+          {/* Content */}
+          <nav className="flex-1 overflow-y-auto px-2 py-4">
+            {/* When closed: show compact icon stack */}
+            {!isOpen && (
+              <div className="flex flex-col items-center gap-2">
+                {/* Home */}
+                <Link
+                  href="/"
+                  className="h-11 w-11 rounded-xl grid place-items-center hover:bg-button-light/40 dark:hover:bg-button-dark/40"
+                  title="Back to Site Home"
+                >
+                  🟢
+                </Link>
 
-            <section>
-              <div className="mb-2 px-1 text-xs uppercase tracking-wide text-text/60">
-                GlyphNet Pages
-              </div>
-
-              <div className="flex flex-col">
+                {/* Quick items */}
                 {items.map((it) => (
                   <button
                     key={it.path}
                     onClick={() => onGo(it.path)}
-                    className="flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-button-light/40 dark:hover:bg-button-dark/40 text-sm text-left"
+                    className="h-11 w-11 rounded-xl grid place-items-center hover:bg-button-light/40 dark:hover:bg-button-dark/40"
+                    title={it.label}
                   >
-                    <span className="w-5 text-center">{it.emoji ?? "•"}</span>
-                    <span>{it.label}</span>
+                    <span className="text-lg leading-none">{it.emoji ?? "•"}</span>
                   </button>
                 ))}
               </div>
-            </section>
+            )}
+
+            {/* When open: full menu */}
+            {isOpen && (
+              <div className="px-2 space-y-6">
+                <div className="flex flex-col gap-2">
+                  <Link
+                    href="/"
+                    className="block py-3 px-3 rounded-lg bg-transparent hover:bg-button-light/40 dark:hover:bg-button-dark/40 font-medium"
+                  >
+                    🟢 Back to Site Home
+                  </Link>
+
+                  <button
+                    onClick={() => onGo("/devtools")}
+                    className="text-left py-3 px-3 rounded-lg bg-transparent hover:bg-button-light/40 dark:hover:bg-button-dark/40 font-medium"
+                  >
+                    🛠️ DevTools
+                  </button>
+                </div>
+
+                <section>
+                  <div className="mb-2 px-1 text-xs uppercase tracking-wide text-text/60">
+                    GlyphNet Pages
+                  </div>
+
+                  <div className="flex flex-col">
+                    {items.map((it) => (
+                      <button
+                        key={it.path}
+                        onClick={() => onGo(it.path)}
+                        className="flex items-center gap-3 py-3 px-3 rounded-lg hover:bg-button-light/40 dark:hover:bg-button-dark/40 text-sm text-left"
+                      >
+                        <span className="w-6 text-center">{it.emoji ?? "•"}</span>
+                        <span>{it.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
           </nav>
 
-          <div className="px-4 py-4 border-t border-border text-xs text-text/60">© Tessaris</div>
+          {/* Footer */}
+          <div className="border-t border-border px-4 py-4 text-xs text-text/60">
+            {isOpen ? "© Tessaris" : "©"}
+          </div>
         </div>
       </aside>
     </>
