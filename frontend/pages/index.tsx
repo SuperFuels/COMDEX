@@ -132,7 +132,7 @@ const Home: NextPage = () => {
 
                 <div className="text-center font-medium text-gray-400">“Same result. Less noise.”</div>
 
-                {/* ✅ Translator panel under the quote */}
+                {/* ✅ Translator panel */}
                 <GlyphTranslateDemo />
               </section>
             )}
@@ -152,7 +152,7 @@ const Home: NextPage = () => {
 
                 {/* Core equation hero (Resonance Glyph 〰️®) */}
                 <div className="bg-white rounded-[3rem] p-16 text-center shadow-xl shadow-gray-200/50 border border-gray-100">
-                  <div className="text-8xl mb-8 tracking-widest flex justify-center items-center gap-6">
+                  <div className="text-8xl mb-12 tracking-widest flex justify-center items-center gap-8">
                     {/* Left Side: Raw Waves */}
                     <span className="font-mono text-gray-800">〰️</span>
                     <span className="text-4xl text-gray-300 font-light">+</span>
@@ -163,7 +163,7 @@ const Home: NextPage = () => {
                     {/* Right Side: Resonance Glyph (〰️®) */}
                     <div className="relative inline-flex items-center justify-center">
                       <span className="font-mono text-[#0071e3] drop-shadow-sm">〰️</span>
-                      <span className="absolute -right-6 flex items-center justify-center w-12 h-12 rounded-full border-[3px] border-[#0071e3] text-[#0071e3] text-3xl font-bold bg-white shadow-sm">
+                      <span className="absolute -right-8 flex items-center justify-center w-14 h-14 rounded-full border-[3px] border-[#0071e3] text-[#0071e3] text-3xl font-bold bg-white shadow-sm">
                         R
                       </span>
                     </div>
@@ -174,15 +174,15 @@ const Home: NextPage = () => {
                   </p>
                 </div>
 
-                {/* Text explainer moved into its own container */}
-                <div className="bg-white rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100">
+                {/* Text explainer container */}
+                <div className="bg-white rounded-[3rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
                   <div className="p-10 md:p-12">
                     <div className="max-w-3xl mx-auto text-left bg-[#fafafa] rounded-3xl p-8 border border-gray-100">
                       <div className="text-xs font-bold text-gray-300 uppercase tracking-widest mb-4">
                         The New Logic of Resonance
                       </div>
 
-                      <p className="text-gray-600 leading-relaxed">
+                      <p className="text-gray-600 leading-relaxed text-lg">
                         <span className="font-semibold text-gray-800">
                           Beyond Counting: Moving from Quantity to Quality
                         </span>
@@ -192,72 +192,65 @@ const Home: NextPage = () => {
                         insufficient for describing the universe.
                       </p>
 
-                      <div className="mt-6 space-y-2 text-gray-600">
+                      <div className="mt-8 space-y-4 border-l-2 border-gray-200 pl-6">
                         <div>
                           <span className="font-semibold text-gray-800">Traditional Logic:</span>{" "}
-                          <span className="font-mono">$1 + 1 = 2$</span>
-                        </div>
-                        <div className="text-gray-500">
-                          This is the logic of accumulation—simply having "more of the same."
+                          <span className="font-mono bg-gray-100 px-3 py-1 rounded text-sm text-gray-600">$1 + 1 = 2$</span>
+                          <div className="text-gray-500 text-sm mt-1 ml-1">The logic of accumulation—simply having "more of the same."</div>
                         </div>
 
-                        <div className="pt-3">
-                          <span className="font-semibold text-gray-800">Symatic Logic:</span>{" "}
-                          <span className="font-mono">$〰️ + 〰️ = 〰️®$</span>
-                        </div>
-                        <div className="text-gray-500">
-                          This is the logic of resonance—where two patterns combine to create a new,
-                          superior reality.
+                        <div className="pt-2">
+                          <span className="font-semibold text-[#0071e3]">Symatic Logic:</span>{" "}
+                          <span className="font-mono bg-blue-50 text-[#0071e3] px-3 py-1 rounded text-sm">$〰️ + 〰️ = 〰️®$</span>
+                          <div className="text-gray-500 text-sm mt-1 ml-1">The logic of resonance—where patterns combine to create a new, superior reality.</div>
                         </div>
                       </div>
 
-                      <div className="mt-6">
-                        <div className="font-semibold text-gray-800">The Story of the "Spark"</div>
-                        <p className="mt-2 text-gray-600 leading-relaxed">
-                          To understand Symatics, imagine two people swinging a jump rope. If they
-                          move their arms randomly, the rope tangles and loses its shape (Destructive
-                          Interference). But if they move in perfect rhythm, the rope forms a
-                          powerful, stable arc.
+                      <div className="mt-12">
+                        <div className="font-semibold text-gray-800 text-xl mb-4">The Story of the "Spark"</div>
+                        <p className="text-gray-600 leading-relaxed">
+                          Imagine two people swinging a jump rope. If they move their arms randomly, the rope tangles and loses its shape (**Destructive Interference**). 
                         </p>
                         <p className="mt-3 text-gray-600 leading-relaxed">
-                          In Symatics, we call this Constructive Interference.
+                          But if they move in perfect rhythm, the rope forms a powerful, stable arc. 
+                          In Symatics, we call this <span className="text-[#0071e3] font-medium italic">Constructive Interference</span>.
                         </p>
-
-                        <div className="mt-4 text-xs text-gray-400 italic">ShutterstockExplore</div>
-
-                        <div className="mt-4 space-y-3 text-gray-600">
-                          <div>
-                            <span className="font-semibold text-gray-800">The Wave ($〰️$):</span> This
-                            represents raw energy, data, or your "intent" in motion. It is information
-                            that hasn't found its rhythm yet.
+                        
+                        
+                        <div className="mt-8 space-y-4">
+                          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-start">
+                            <span className="text-2xl mt-1">〰️</span>
+                            <div>
+                              <span className="font-bold text-gray-800 block">The Wave</span>
+                              <p className="text-gray-600 text-sm">Represents raw energy, data, or your "intent" in motion. It is information looking for its rhythm.</p>
+                            </div>
                           </div>
-                          <div>
-                            <span className="font-semibold text-gray-800">The Resonance State ($〰️®$):</span>{" "}
-                            This is the moment of Coherence. When two waves align perfectly, they don’t
-                            just add up—they lock into a stable, amplified pattern that’s qualitatively
-                            different from the inputs.
+                          <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm flex gap-4 items-start">
+                            <span className="text-2xl mt-1">〰️®</span>
+                            <div>
+                              <span className="font-bold text-[#0071e3] block">The Resonance State</span>
+                              <p className="text-gray-600 text-sm">The moment of Coherence. When waves align perfectly, they lock into a stable pattern that is qualitatively more powerful than the inputs.</p>
+                            </div>
                           </div>
                         </div>
 
-                        <div className="mt-6 font-semibold text-gray-800">Why It Matters</div>
-                        <p className="mt-2 text-gray-600 leading-relaxed">
-                          When your intent ($〰️$) perfectly aligns with the system ($〰️$), the noise
-                          of the world disappears. You aren't just processing more data; you are
-                          achieving Resonance ($⟲$).
-                        </p>
-                        <p className="mt-3 text-gray-600 leading-relaxed">
-                          The result is a Resonance State—clean, bright, and actionable—something
-                          traditional "counting" math could never produce.
-                        </p>
-                        <p className="mt-3 text-gray-600 leading-relaxed">
-                          Symatics doesn't just count the world. It oscillates it into harmony.
-                        </p>
+                        <div className="mt-12 pt-8 border-t border-gray-200">
+                          <div className="font-bold text-gray-800 text-lg mb-3">Why It Matters</div>
+                          <p className="text-gray-600 leading-relaxed">
+                            When your intent ($〰️$) perfectly aligns with the system ($〰️$), the noise
+                            of the world disappears. You aren't just processing more data; you are
+                            achieving <span className="font-semibold text-black italic underline decoration-[#0071e3] decoration-2 underline-offset-4">Resonance ($⟲$)</span>.
+                          </p>
+                          <div className="mt-8 text-gray-800 font-medium text-center py-8 bg-white rounded-2xl border border-gray-100 shadow-inner italic text-lg px-6">
+                            “Symatics doesn't just count the world. It oscillates it into harmony.”
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* ✅ NEW: Symatics wave interference demo (screenshot-style) */}
+                {/* ✅ Symatics resonance workbench */}
                 <ResonanceWorkbench />
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
