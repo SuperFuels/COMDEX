@@ -99,10 +99,19 @@ async function translateToGlyphs(code: string, lang: CodeLang): Promise<Translat
   const text = await res.text();
   return { translated: text, chars_before: code.length, chars_after: text.length };
 }
-
 const Home: NextPage = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("glyph");
-  const tabStripRef = useRef<HTMLDivElement | null>(null);
+
+  // Active index (stable + reusable)
+  const activeIdx = useMemo(() => TABS.findIndex((t) => t.key === activeTab), [activeTab]);
+
+  const goPrev = () => {
+    if (activeIdx > 0) setActiveTab(TABS[activeIdx - 1].key);
+  };
+
+  const goNext = () => {
+    if (activeIdx < TABS.length - 1) setActiveTab(TABS[activeIdx + 1].key);
+  };
 
   // ✅ Swipe between tabs (mobile) — ignores mostly-vertical gestures
   useEffect(() => {
@@ -111,7 +120,15 @@ const Home: NextPage = () => {
     let touchStartY = 0;
     let touchEndY = 0;
 
+    const isFormEl = (el: EventTarget | null) => {
+      const node = el as HTMLElement | null;
+      if (!node) return false;
+      const tag = node.tagName?.toLowerCase();
+      return tag === "input" || tag === "textarea" || tag === "select" || node.isContentEditable;
+    };
+
     const handleTouchStart = (e: TouchEvent) => {
+      if (isFormEl(e.target)) return;
       touchStartX = e.targetTouches[0].clientX;
       touchStartY = e.targetTouches[0].clientY;
       touchEndX = touchStartX;
@@ -119,6 +136,7 @@ const Home: NextPage = () => {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (isFormEl(e.target)) return;
       touchEndX = e.targetTouches[0].clientX;
       touchEndY = e.targetTouches[0].clientY;
     };
@@ -129,11 +147,11 @@ const Home: NextPage = () => {
 
       // don't hijack page scroll
       if (Math.abs(dy) > Math.abs(dx)) return;
+      if (Math.abs(dx) < 70) return;
 
-      const activeIdx = TABS.findIndex((t) => t.key === activeTab);
-      if (dx > 70 && activeIdx < TABS.length - 1) {
+      if (dx > 0 && activeIdx < TABS.length - 1) {
         setActiveTab(TABS[activeIdx + 1].key); // Swipe Left -> Next Tab
-      } else if (dx < -70 && activeIdx > 0) {
+      } else if (dx < 0 && activeIdx > 0) {
         setActiveTab(TABS[activeIdx - 1].key); // Swipe Right -> Prev Tab
       }
     };
@@ -147,79 +165,68 @@ const Home: NextPage = () => {
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [activeTab]);
-
-  // ✅ Keep active tab pill visible (click OR swipe)
-  useEffect(() => {
-    const el = tabStripRef.current;
-    if (!el) return;
-
-    const idx = TABS.findIndex((t) => t.key === activeTab);
-    if (idx < 0) return;
-
-    const btn = el.children[idx] as HTMLElement | undefined;
-    if (!btn) return;
-
-    btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, [activeTab]);
+  }, [activeIdx]);
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased">
       <div className="h-screen overflow-y-auto">
         <main className="relative z-10 flex flex-col items-center justify-start min-h-full px-6 max-w-5xl mx-auto py-16 pb-32">
-          {/*  Scrollable Tab Switcher (sticky) */}
-          <nav className="mb-16 sticky top-4 z-50">
-            <div className="relative">
-              {/* Left scroll button */}
+          {/*  Focus Dock Tab Switcher (sticky) — NO SCROLLER */}
+          <nav className="mb-16 sticky top-4 z-50 flex justify-center">
+            <div className="relative group">
+              {/* Left arrow (desktop hover) */}
               <button
                 type="button"
-                onClick={() => tabStripRef.current?.scrollBy({ left: -260, behavior: "smooth" })}
-                className="hidden md:flex absolute left-[-14px] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
-                           bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition"
-                aria-label="Scroll tabs left"
+                onClick={goPrev}
+                disabled={activeIdx <= 0}
+                className="hidden md:flex absolute -left-12 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
+                           bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition
+                           opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                aria-label="Previous tab"
               >
                 <span className="text-gray-500 text-lg">‹</span>
               </button>
 
-              {/* Right scroll button */}
+              <div className="flex items-center gap-3 bg-white/70 backdrop-blur-2xl border border-gray-200 p-2 rounded-full shadow-lg shadow-gray-200/50">
+                {TABS.map((t, index) => {
+                  const isPrev = index === activeIdx - 1;
+                  const isNext = index === activeIdx + 1;
+                  const isActive = index === activeIdx;
+
+                  // Only render: prev / active / next
+                  if (!isPrev && !isNext && !isActive) return null;
+
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => setActiveTab(t.key)}
+                      className={`relative px-8 py-3 rounded-full text-sm font-semibold transition-all duration-500 ease-out ${
+                        isActive
+                          ? "bg-[#0071e3] text-white shadow-xl scale-[1.03] z-10"
+                          : "text-gray-400 hover:text-gray-600 scale-95 opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      {t.label}
+                      {isActive && (
+                        <span className="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse -z-10" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Right arrow (desktop hover) */}
               <button
                 type="button"
-                onClick={() => tabStripRef.current?.scrollBy({ left: 260, behavior: "smooth" })}
-                className="hidden md:flex absolute right-[-14px] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
-                           bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition"
-                aria-label="Scroll tabs right"
+                onClick={goNext}
+                disabled={activeIdx >= TABS.length - 1}
+                className="hidden md:flex absolute -right-12 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
+                           bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition
+                           opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                aria-label="Next tab"
               >
                 <span className="text-gray-500 text-lg">›</span>
               </button>
-
-              {/* Scroll container */}
-              <div
-                ref={tabStripRef}
-                className="p-1 bg-white/70 backdrop-blur-md border border-gray-200 rounded-full shadow-sm
-                           flex gap-1 overflow-x-auto no-scrollbar scroll-smooth"
-                style={{
-                  maxWidth: "min(520px, 90vw)", // ~2.5 tabs visible
-                  WebkitOverflowScrolling: "touch",
-                }}
-              >
-                {TABS.map((t) => (
-                  <button
-                    key={t.key}
-                    onClick={() => setActiveTab(t.key)}
-                    className={`shrink-0 px-10 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                      activeTab === t.key
-                        ? "bg-[#0071e3] text-white shadow-md"
-                        : "text-gray-500 hover:text-black"
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Subtle fade edges */}
-              <div className="pointer-events-none absolute left-0 top-0 h-full w-10 rounded-l-full bg-gradient-to-r from-[#f5f5f7] to-transparent" />
-              <div className="pointer-events-none absolute right-0 top-0 h-full w-10 rounded-r-full bg-gradient-to-l from-[#f5f5f7] to-transparent" />
             </div>
           </nav>
 
@@ -464,7 +471,6 @@ const Home: NextPage = () => {
     </div>
   );
 };
-
 /* ---------------------------- SYMATICS MINI DEMO ---------------------------- */
 
 const ResonanceWorkbench = () => {
