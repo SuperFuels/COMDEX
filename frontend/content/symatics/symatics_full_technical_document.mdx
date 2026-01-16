@@ -4,7 +4,9 @@
 ---
 
 ## Abstract
-Symatics is a wave-native algebra where *signatures* are first-class values and composition is phase-aware. Its core connective is a phase-parameterized interference operator $\bowtie[\phi]$ whose generic behavior is not reducible to Boolean logic. This specification defines: (i) a minimal semantic model as an evaluation into complex amplitude vectors, (ii) normalization axioms A1–A8 for mechanized rewriting, (iii) derived laws and a formal *Classical Boundary* (Boolean-like behavior only at $\phi\in\{0,\pi\}$), (iv) collapse semantics as a distribution with a default Born-rule bridge, and (v) a reproducible validation workflow and substrate mapping.
+Symatics is a wave-native algebra where *signatures* are first-class values and composition is phase-aware. Its core connective is a phase-parameterized interference operator **$\bowtie[\phi]$** whose generic behavior is not reducible to Boolean logic.
+
+This specification defines: (i) a minimal semantic model as an evaluation into complex amplitude vectors, (ii) normalization axioms A1–A8 for mechanized rewriting, (iii) derived laws and a formal *Classical Boundary* (Boolean-like behavior only at **$\phi \in \{0,\pi\}$**), (iv) collapse semantics as a distribution with a default Born-rule bridge, and (v) a reproducible validation workflow and substrate mapping.
 
 ---
 
@@ -23,19 +25,21 @@ Design goals:
 ## 2. Core Objects
 
 ### 2.1 Signatures
-Atomic labels $\Sigma=\{A,B,\dots\}$.
+Atomic labels:
+
+**$\Sigma = \{A,B,\dots\}$**
 
 ### 2.2 Wave model (minimal)
-Each signature $\sigma\in\Sigma$ may be interpreted as a phasor with amplitude and phase:
+Each signature **$\sigma \in \Sigma$** may be interpreted as a phasor with amplitude and phase:
 
 **$$
 \mathrm{Wave}(\sigma)=(\sigma,\alpha_\sigma,\varphi_\sigma)
 \quad\text{where}\quad
-\alpha_\sigma\in\mathbb{R}_{\ge 0},\;\varphi_\sigma\in[0,2\pi).
+\alpha_\sigma \in \mathbb{R}_{\ge 0},\;\varphi_\sigma \in [0,2\pi).
 $$**
 
 ### 2.3 Expressions
-Expressions are trees over $\Sigma$ using operator nodes (Section 3). Implementations may represent expressions as AST nodes or nested structures.
+Expressions are trees over **$\Sigma$** using operator nodes (Section 3). Implementations may represent expressions as AST nodes or nested structures.
 
 ### 2.4 The annihilator $\bot$
 **$\bot$** denotes the *null / annihilated expression*. Semantically, it is the zero amplitude-vector:
