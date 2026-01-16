@@ -1,7 +1,7 @@
 // frontend/pages/index.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { NextPage } from "next";
 
 /**
@@ -142,9 +142,88 @@ const Home: NextPage = () => {
                   <p className="text-gray-400 text-lg italic">
                     “Constructive interference produces a coherent/bright result.”
                   </p>
+
+                  {/* ✅ NEW: Text box under the container */}
+                  <div className="mt-10 max-w-3xl mx-auto text-left bg-[#fafafa] rounded-3xl p-8 border border-gray-100">
+                    <div className="text-xs font-bold text-gray-300 uppercase tracking-widest mb-4">
+                      The New Logic of Resonance
+                    </div>
+
+                    <p className="text-gray-600 leading-relaxed">
+                      <span className="font-semibold text-gray-800">
+                        Beyond Counting: Moving from Quantity to Quality
+                      </span>
+                      <br />
+                      In the world we know, math is for accounting. If you have one dollar and add
+                      another, you have two. This is useful for balancing a checkbook, but it is
+                      insufficient for describing the universe.
+                    </p>
+
+                    <div className="mt-6 space-y-2 text-gray-600">
+                      <div>
+                        <span className="font-semibold text-gray-800">Traditional Logic:</span>{" "}
+                        <span className="font-mono">$1 + 1 = 2$</span>
+                      </div>
+                      <div className="text-gray-500">
+                        This is the logic of accumulation—simply having "more of the same."
+                      </div>
+
+                      <div className="pt-3">
+                        <span className="font-semibold text-gray-800">Symatic Logic:</span>{" "}
+                        <span className="font-mono">$〰️ + 〰️ = ✨$</span>
+                      </div>
+                      <div className="text-gray-500">
+                        This is the logic of resonance—where two patterns combine to create a new,
+                        superior reality.
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <div className="font-semibold text-gray-800">The Story of the "Spark"</div>
+                      <p className="mt-2 text-gray-600 leading-relaxed">
+                        To understand Symatics, imagine two people swinging a jump rope. If they
+                        move their arms randomly, the rope tangles and loses its shape (Destructive
+                        Interference). But if they move in perfect rhythm, the rope forms a
+                        powerful, stable arc.
+                      </p>
+                      <p className="mt-3 text-gray-600 leading-relaxed">
+                        In Symatics, we call this Constructive Interference.
+                      </p>
+
+                      <div className="mt-4 text-xs text-gray-400 italic">ShutterstockExplore</div>
+
+                      <div className="mt-4 space-y-3 text-gray-600">
+                        <div>
+                          <span className="font-semibold text-gray-800">The Wave ($〰️$):</span> This
+                          represents raw energy, data, or your "intent" in motion. It is information
+                          that hasn't found its rhythm yet.
+                        </div>
+                        <div>
+                          <span className="font-semibold text-gray-800">The Spark ($✨$):</span> This
+                          is the moment of Coherence. When two waves align perfectly, they don't
+                          just add up—they amplify. The result isn't "two waves"; it is a single,
+                          high-energy result that is far more powerful than the sum of its parts.
+                        </div>
+                      </div>
+
+                      <div className="mt-6 font-semibold text-gray-800">Why It Matters</div>
+                      <p className="mt-2 text-gray-600 leading-relaxed">
+                        When your intent ($〰️$) perfectly aligns with the system ($〰️$), the noise
+                        of the world disappears. You aren't just processing more data; you are
+                        achieving Resonance ($⟲$).
+                      </p>
+                      <p className="mt-3 text-gray-600 leading-relaxed">
+                        The result is a "Spark"—a clean, bright, and actionable outcome that
+                        traditional "counting" math could never produce.
+                      </p>
+                      <p className="mt-3 text-gray-600 leading-relaxed">
+                        Symatics doesn't just count the world. It oscillates it into harmony.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                {/* ✅ NEW: Symatics demo */}
+                {/* ✅ NEW: Symatics wave interference demo (screenshot-style) */}
                 <ResonanceWorkbench />
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -191,93 +270,301 @@ const Home: NextPage = () => {
 /* ---------------------------- SYMATICS MINI DEMO ---------------------------- */
 
 const ResonanceWorkbench = () => {
-  const [waveA, setWaveA] = useState(50);
-  const [waveB, setWaveB] = useState(50);
+  const [paused, setPaused] = useState(false);
+  const [amplitude, setAmplitude] = useState(18);
+  const [cycles, setCycles] = useState(6);
+  const [speed, setSpeed] = useState(1);
 
-  // When waves are aligned, coherence is high
-  const resonance = useMemo(() => {
-    const diff = Math.abs(waveA - waveB);
-    return Math.max(0, 100 - diff);
-  }, [waveA, waveB]);
+  // time in radians
+  const [t, setT] = useState(0);
+  const rafRef = useRef<number | null>(null);
+  const lastRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (paused) return;
+
+    const loop = (now: number) => {
+      const last = lastRef.current || now;
+      const dt = (now - last) / 1000;
+      lastRef.current = now;
+
+      // stable-ish motion: radians advance
+      setT((prev) => prev + dt * speed * 2.2);
+
+      rafRef.current = requestAnimationFrame(loop);
+    };
+
+    rafRef.current = requestAnimationFrame(loop);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
+  }, [paused, speed]);
 
   return (
     <div className="w-full bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-10 space-y-10">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
         <div>
           <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">
-            Resonance Workbench
+            Wave Interference
           </div>
-          <h3 className="text-xl font-semibold text-gray-800 mt-1">Adjust Pattern Alignment</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mt-1">
+            Constructive vs Destructive (A, B, and A+B)
+          </h3>
+          <p className="text-sm text-gray-500 mt-2">
+            Toggle motion, then adjust amplitude / frequency to see how superposition changes the
+            combined result.
+          </p>
         </div>
-        <div className="text-right">
-          <span className="text-xs font-bold text-gray-400 uppercase block">Coherence Level</span>
-          <span
-            className={`text-3xl font-mono font-bold ${
-              resonance > 90 ? "text-blue-500" : "text-gray-700"
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setPaused((p) => !p)}
+            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+              paused
+                ? "bg-[#0071e3] text-white shadow-md hover:brightness-110"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            {resonance}% {resonance > 90 && "✨"}
-          </span>
+            {paused ? "Play" : "Pause"}
+          </button>
+          <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+            {paused ? "stopped" : "running"}
+          </div>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-12">
-        {/* Controls */}
-        <div className="space-y-8">
-          <div className="space-y-4">
-            <label className="flex justify-between text-sm font-medium text-gray-500">
-              <span>Intent Wave (A)</span>
-              <span className="font-mono italic">〰️ {waveA}Hz</span>
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={waveA}
-              onChange={(e) => setWaveA(parseInt(e.target.value))}
-              className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
-            />
-          </div>
+      {/* Controls */}
+      <div className="grid md:grid-cols-3 gap-6">
+        <Slider
+          label="Amplitude"
+          value={amplitude}
+          min={8}
+          max={28}
+          step={1}
+          onChange={setAmplitude}
+          suffix="px"
+        />
+        <Slider
+          label="Frequency"
+          value={cycles}
+          min={3}
+          max={9}
+          step={1}
+          onChange={setCycles}
+          suffix="cycles"
+        />
+        <Slider
+          label="Speed"
+          value={speed}
+          min={0}
+          max={3}
+          step={0.1}
+          onChange={setSpeed}
+          suffix="×"
+        />
+      </div>
 
-          <div className="space-y-4">
-            <label className="flex justify-between text-sm font-medium text-gray-500">
-              <span>System Wave (B)</span>
-              <span className="font-mono italic">〰️ {waveB}Hz</span>
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={waveB}
-              onChange={(e) => setWaveB(parseInt(e.target.value))}
-              className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
-            />
-          </div>
+      {/* Panels (screenshot-style) */}
+      <div className="grid md:grid-cols-2 gap-10">
+        <WavePanel title="constructive interference" t={t} amplitude={amplitude} cycles={cycles} phaseB={0} />
+        <WavePanel
+          title="destructive interference"
+          t={t}
+          amplitude={amplitude}
+          cycles={cycles}
+          phaseB={Math.PI}
+        />
+      </div>
+    </div>
+  );
+};
+
+const Slider = ({
+  label,
+  value,
+  min,
+  max,
+  step,
+  onChange,
+  suffix,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (v: number) => void;
+  suffix?: string;
+}) => (
+  <div className="space-y-3">
+    <label className="flex justify-between text-sm font-medium text-gray-500">
+      <span>{label}</span>
+      <span className="font-mono italic">
+        {typeof value === "number" ? value.toFixed(step < 1 ? 1 : 0) : value}
+        {suffix ? ` ${suffix}` : ""}
+      </span>
+    </label>
+    <input
+      type="range"
+      min={min}
+      max={max}
+      step={step}
+      value={value}
+      onChange={(e) => onChange(parseFloat(e.target.value))}
+      className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
+    />
+  </div>
+);
+
+const WavePanel = ({
+  title,
+  t,
+  amplitude,
+  cycles,
+  phaseB,
+}: {
+  title: string;
+  t: number;
+  amplitude: number;
+  cycles: number;
+  phaseB: number;
+}) => {
+  return (
+    <div className="bg-[#fafafa] rounded-3xl p-8 border border-gray-100">
+      <div className="text-2xl md:text-3xl font-semibold text-gray-700 tracking-tight mb-8">
+        {title}
+      </div>
+
+      <div className="space-y-8">
+        <WaveRow
+          label="wave A"
+          color="rgb(185 28 28)"
+          t={t}
+          amplitude={amplitude}
+          cycles={cycles}
+          phase={0}
+          mode="single"
+        />
+
+        <WaveRow
+          label="wave B"
+          color="rgb(13 148 136)"
+          t={t}
+          amplitude={amplitude}
+          cycles={cycles}
+          phase={phaseB}
+          mode="single"
+        />
+
+        <WaveRow
+          label="wave A+B"
+          color="rgb(124 58 237)"
+          t={t}
+          amplitude={amplitude}
+          cycles={cycles}
+          phase={phaseB}
+          mode="sum"
+        />
+      </div>
+    </div>
+  );
+};
+
+const WaveRow = ({
+  label,
+  color,
+  t,
+  amplitude,
+  cycles,
+  phase,
+  mode,
+}: {
+  label: string;
+  color: string;
+  t: number;
+  amplitude: number;
+  cycles: number;
+  phase: number;
+  mode: "single" | "sum";
+}) => {
+  const width = 520;
+  const height = 80;
+  const mid = height / 2;
+
+  const points = 140;
+  const twoPi = Math.PI * 2;
+
+  const ampPx = mode === "sum" ? amplitude * 2 : amplitude;
+
+  const d = useMemo(() => {
+    let path = "";
+    for (let i = 0; i <= points; i++) {
+      const x = (i / points) * width;
+      const theta = (x / width) * cycles * twoPi;
+
+      const a = Math.sin(theta + t);
+      const b = Math.sin(theta + phase + t);
+
+      const v = mode === "sum" ? a + b : b; // for "single" rows we pass phase=0 or phaseB via `phase`
+      const y = mid - v * amplitude; // keep A/B at same scale
+
+      if (i === 0) path += `M ${x.toFixed(2)} ${y.toFixed(2)}`;
+      else path += ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
+    }
+    return path;
+  }, [width, height, mid, points, cycles, twoPi, t, phase, mode, amplitude]);
+
+  // For sum row, rescale visual so constructive "pops" (like screenshot)
+  // We do this by drawing on a bigger vertical range (ampPx) but compressing the waveform d above at amplitude,
+  // then scaling the SVG group.
+  const sumScaleY = mode === "sum" ? 2 : 1;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-lg font-medium text-gray-500">{label}</div>
+        <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">
+          {mode === "sum" && Math.abs(phase - Math.PI) < 1e-6 ? "cancels" : mode === "sum" ? "adds" : ""}
         </div>
+      </div>
 
-        {/* Output */}
-        <div className="flex flex-col items-center justify-center bg-[#fafafa] rounded-3xl p-8 border border-dashed border-gray-200">
-          <div className="text-sm text-gray-400 uppercase font-bold tracking-tighter mb-4">
-            Symatic Output
-          </div>
+      <div className="relative rounded-2xl bg-white border border-gray-100 overflow-hidden">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="w-full h-[86px]"
+          aria-label={label}
+          role="img"
+        >
+          {/* baseline */}
+          <line x1="0" y1={mid} x2={width} y2={mid} stroke="rgb(229 231 235)" strokeWidth="2" />
 
-          <div
-            className="transition-all duration-500 ease-out flex items-center justify-center"
-            style={{
-              transform: `scale(${0.5 + resonance / 100})`,
-              filter: `blur(${Math.max(0, (100 - resonance) / 10)}px)`,
-              opacity: 0.2 + resonance / 100,
-            }}
-          >
-            <span className="text-9xl">✨</span>
-          </div>
+          {/* dashed direction arrow (right side) */}
+          <line
+            x1={width * 0.72}
+            y1={18}
+            x2={width * 0.94}
+            y2={18}
+            stroke="rgb(107 114 128)"
+            strokeWidth="2"
+            strokeDasharray="7 6"
+            opacity="0.65"
+          />
+          <polygon
+            points={`${width * 0.94},14 ${width * 0.94},22 ${width * 0.97},18`}
+            fill="rgb(107 114 128)"
+            opacity="0.65"
+          />
 
-          <p className="mt-6 text-xs text-center text-gray-400 max-w-[220px]">
-            {resonance > 90
-              ? "Pattern locked. Resonance achieved. Trigger ready."
-              : "Adjust sliders to align wave patterns."}
-          </p>
-        </div>
+          {/* wave */}
+          <g transform={`scale(1 ${sumScaleY}) translate(0 ${mode === "sum" ? -(height * 0.25) : 0})`}>
+            <path d={d} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" />
+          </g>
+
+          {/* subtle left axis dot (visual cue like screenshot) */}
+          <circle cx="8" cy="10" r="3" fill="rgb(107 114 128)" opacity="0.6" />
+          <circle cx="8" cy={height - 10} r="3" fill="rgb(107 114 128)" opacity="0.6" />
+        </svg>
       </div>
     </div>
   );
