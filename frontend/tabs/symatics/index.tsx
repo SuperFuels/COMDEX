@@ -1,4 +1,3 @@
-// frontend/tabs/symatics/index.tsx
 "use client";
 
 import Hero from "./Hero";

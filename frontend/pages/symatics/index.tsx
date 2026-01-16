@@ -1,26 +1,15 @@
-// frontend/pages/symatics/index.tsx
-'use client'
+"use client";
 
-import dynamic from 'next/dynamic'
-import Head from 'next/head'
+import type { NextPage } from "next";
+import Shell from "../../components/Shell";
+import SymaticsTab from "../../tabs/symatics";
 
-// Dynamically import your dashboard so it renders only in the browser
-const SymaticsDashboard = dynamic(() => import('@/symatics_dashboard/App'), { ssr: false })
-
-export default function SymaticsPage() {
+const SymaticsPage: NextPage = () => {
   return (
-    <>
-      <Head>
-        <title>Tessaris Symatics Dashboard</title>
-        <meta
-          name="description"
-          content="Real-time symbolic resonance visualizer for Tessaris AION/QQC."
-        />
-      </Head>
+    <Shell>
+      <SymaticsTab />
+    </Shell>
+  );
+};
 
-      <main className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
-        <SymaticsDashboard />
-      </main>
-    </>
-  )
-}
+export default SymaticsPage;
