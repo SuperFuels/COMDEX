@@ -1,179 +1,217 @@
 // frontend/pages/index.tsx
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import type { NextPage } from 'next';
-import Link from 'next/link';
-import dynamic from 'next/dynamic';
+import type { NextPage } from "next";
+import { useMemo, useState } from "react";
 
-import api from '@/lib/api';
-import Chart, { ChartPoint } from '@/components/Chart';
-
-// 🔌 Client-only QFC canvas (WebGL)
-const QFC = dynamic(
-  () => import('@/components/Hologram/quantum_field_canvas'),
-  { ssr: false }
-);
-
-interface Product {
-  id: number;
-  title: string;
-  price_per_kg: number;
-  origin_country: string;
-  category: string;
-  change_pct: number;
-  rating: number;
-}
+type TabId = "glyph_os" | "symatics";
 
 const Home: NextPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(false);
-  const [selected, setSelected] = useState<Product | null>(null);
-  const [filters, setFilters]   = useState<string[]>([]);
+  const tabs = useMemo(
+    () =>
+      [
+        { id: "glyph_os" as const, label: "Glyph OS" },
+        { id: "symatics" as const, label: "Symatics" },
+        // add more tabs here later
+      ] as const,
+    [],
+  );
 
-  // ✅ New: toggle for SCI / QFC section
-  const [showQFC, setShowQFC]   = useState(false);
+  const [tab, setTab] = useState<TabId>("glyph_os");
 
-  // 1) Fetch products on mount
-  useEffect(() => {
-    setLoading(true);
-    api
-      .get<Product[]>('/products')
-      .then(({ data }) => {
-        setProducts(data);
-        if (data.length) setSelected(data[0]);
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
-
-  // 2) Build chart data
-  const chartData: ChartPoint[] = selected
-    ? Array.from({ length: 24 }, (_, i) => ({
-        time:  Math.floor(Date.now() / 1000) - (23 - i) * 3600,
-        value: selected.price_per_kg * 1000 + (Math.random() - 0.5) * 500,
-      }))
-    : [];
-
-  // 3) Country filter logic
-  const countries = Array.from(new Set(products.map(p => p.origin_country)));
-  const visibleProducts = filters.length
-    ? products.filter(p => filters.includes(p.origin_country))
-    : products;
+  const tabBtn = (id: TabId, label: string) => {
+    const active = tab === id;
+    return (
+      <button
+        key={id}
+        type="button"
+        onClick={() => setTab(id)}
+        aria-pressed={active}
+        className={[
+          "px-4 py-2 rounded-full text-sm font-medium",
+          "bg-transparent",
+          "hover:bg-black/5 dark:hover:bg-white/10",
+          active ? "text-text" : "text-text/60",
+        ].join(" ")}
+        style={{
+          // isolate from your global `button { border: 1px ... }`
+          border: "none",
+          padding: "0.55rem 1rem",
+        }}
+      >
+        {label}
+      </button>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-bg-page text-text-primary">
-      <main className="pt-0 max-w-7xl mx-auto grid grid-cols-12 gap-6 px-4 py-6">
-        {/* ─── Main Column ─────────────────────────────────────────────── */}
-        <div className="col-span-12 md:col-span-9 space-y-6">
-          {loading ? (
-            <p className="text-center text-text-secondary">Loading…</p>
-          ) : error ? (
-            <p className="text-center text-red-500">Failed to load products.</p>
-          ) : (
-            <>
-              {/* Chart Card */}
-              <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg shadow p-4">
-                {selected ? (
-                  <Chart data={chartData} height={300} />
-                ) : (
-                  <p className="text-center text-text-secondary">
-                    No product selected.
-                  </p>
-                )}
+      <main className="min-h-screen flex items-center justify-center px-4">
+        <section className="w-full max-w-[980px]">
+          {/* Center card */}
+          <div
+            className="rounded-2xl bg-white dark:bg-gray-800 shadow"
+            style={{
+              border: "1px solid var(--border-light)",
+            }}
+          >
+            {/* Tabs */}
+            <div className="flex items-center justify-center px-4 pt-6">
+              <div
+                className="inline-flex items-center gap-1 rounded-full"
+                style={{
+                  border: "1px solid var(--border-light)",
+                  background: "transparent",
+                  padding: "0.25rem",
+                }}
+              >
+                {tabs.map((t) => tabBtn(t.id, t.label))}
               </div>
+            </div>
 
-              {/* Products Table Card */}
-              <div className="overflow-x-auto bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg shadow">
-                <table className="min-w-full table-auto">
-                  <thead className="bg-gray-100 dark:bg-gray-700">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-text-secondary">Product</th>
-                      <th className="px-4 py-2 text-left text-text-secondary">Origin</th>
-                      <th className="px-4 py-2 text-left text-text-secondary">Category</th>
-                      <th className="px-4 py-2 text-right text-text-secondary">Price/kg</th>
-                      <th className="px-4 py-2 text-right text-text-secondary">Change %</th>
-                      <th className="px-4 py-2 text-center text-text-secondary">Rating</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibleProducts.map((p) => (
-                      <tr
-                        key={p.id}
-                        className="border-t border-border-light dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-                        onClick={() => setSelected(p)}
+            {/* Content */}
+            <div className="px-6 py-8 md:px-10 md:py-10">
+              {tab === "glyph_os" && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h1 className="text-2xl md:text-3xl font-semibold text-text">
+                      Glyph OS
+                    </h1>
+                    <p className="text-text-secondary">
+                      The language of symbols — compressed pipelines that preserve intent with less noise.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div
+                      className="rounded-xl p-4"
+                      style={{ border: "1px solid var(--border-light)" }}
+                    >
+                      <div className="text-sm font-semibold text-text mb-2">
+                        Traditional (verbose steps)
+                      </div>
+                      <ul className="text-sm text-text-secondary space-y-1 list-disc pl-5">
+                        <li>Get eggs</li>
+                        <li>Crack eggs</li>
+                        <li>Whisk</li>
+                        <li>Heat pan</li>
+                        <li>Add butter</li>
+                        <li>Cook</li>
+                        <li>Plate</li>
+                      </ul>
+                    </div>
+
+                    <div
+                      className="rounded-xl p-4 flex flex-col justify-between"
+                      style={{ border: "1px solid var(--border-light)" }}
+                    >
+                      <div className="text-sm font-semibold text-text mb-2">
+                        Glyph OS (compact pipeline)
+                      </div>
+                      <div className="text-2xl md:text-3xl font-semibold text-text tracking-tight">
+                        🥚 → 🍳 → 🍽️
+                      </div>
+                      <div className="mt-2 text-sm text-text-secondary">
+                        Ingredients → Cook → Serve
+                      </div>
+                    </div>
+
+                    <div
+                      className="rounded-xl p-4"
+                      style={{ border: "1px solid var(--border-light)" }}
+                    >
+                      <div className="text-sm font-semibold text-text mb-2">
+                        Docs (traditional)
+                      </div>
+                      <ul className="text-sm text-text-secondary space-y-1 list-disc pl-5">
+                        <li>Open document</li>
+                        <li>Find key points</li>
+                        <li>Pull dates &amp; names</li>
+                        <li>Write a clean summary</li>
+                        <li>Save it</li>
+                      </ul>
+                    </div>
+
+                    <div
+                      className="rounded-xl p-4 flex flex-col justify-between"
+                      style={{ border: "1px solid var(--border-light)" }}
+                    >
+                      <div className="text-sm font-semibold text-text mb-2">
+                        Docs (Glyph OS)
+                      </div>
+                      <div className="text-2xl md:text-3xl font-semibold text-text tracking-tight">
+                        📄 → ✨ → 🗂️
+                      </div>
+                      <div className="mt-2 text-sm text-text-secondary">
+                        Document → Highlights → Filed
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-sm text-text-secondary">
+                    <span className="font-semibold text-text">Same result.</span> Less noise.
+                  </div>
+                </div>
+              )}
+
+              {tab === "symatics" && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h1 className="text-2xl md:text-3xl font-semibold text-text">
+                      Symatics
+                    </h1>
+                    <p className="text-text-secondary">
+                      Start with patterns, not numbers — operators that combine, link, reinforce, lock, and trigger action.
+                    </p>
+                  </div>
+
+                  <div
+                    className="rounded-xl p-5 text-center"
+                    style={{ border: "1px solid var(--border-light)" }}
+                  >
+                    <div className="text-sm font-semibold text-text mb-3">
+                      Pattern-first equation
+                    </div>
+                    <div className="text-3xl md:text-5xl font-semibold text-text">
+                      🌊 + 🌊 = 🌊✨
+                    </div>
+                    <div className="mt-3 text-sm text-text-secondary">
+                      Two waves combine into one stronger pattern.
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                      "🌊 Wave — a real pattern",
+                      "💡 Photon — a packet of pattern",
+                      "⊕ Superpose — combine waves",
+                      "↔ Entangle — link waves",
+                      "⟲ Resonance — reinforce cycles",
+                      "∇ Collapse — lock in a result",
+                      "⇒ Trigger — turn into action",
+                    ].map((s) => (
+                      <div
+                        key={s}
+                        className="rounded-xl p-4 text-sm text-text"
+                        style={{ border: "1px solid var(--border-light)" }}
                       >
-                        <td className="px-4 py-2">
-                          <Link href={`/products/${p.id}`} className="text-blue-600 hover:underline">
-                            {p.title}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-2 text-text">{p.origin_country}</td>
-                        <td className="px-4 py-2 text-text">{p.category}</td>
-                        <td className="px-4 py-2 text-right text-text">£{p.price_per_kg.toFixed(2)}</td>
-                        <td
-                          className={`px-4 py-2 text-right ${
-                            p.change_pct >= 0 ? 'text-green-600' : 'text-red-600'
-                          }`}
-                        >
-                          {p.change_pct >= 0 ? '↑' : '↓'} {(Math.abs(p.change_pct) * 100).toFixed(2)}%
-                        </td>
-                        <td className="px-4 py-2 text-center text-text">
-                          {p.rating.toFixed(1)}/5
-                        </td>
-                      </tr>
+                        {s}
+                      </div>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* ─── Sidebar ─────────────────────────────────────────────────── */}
-        <aside className="col-span-12 md:col-span-3 space-y-6">
-          {selected && (
-            <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg shadow p-4">
-              <h2 className="text-xl font-semibold text-text">{selected.title}</h2>
-              <p className="text-3xl font-bold text-text">
-                £{(selected.price_per_kg * 1000).toFixed(2)}/t{' '}
-                <span className={selected.change_pct >= 0 ? 'text-green-600' : 'text-red-600'}>
-                  {selected.change_pct >= 0 ? '↑' : '↓'} {(Math.abs(selected.change_pct) * 100).toFixed(2)}%
-                </span>
-              </p>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* 🔘 Toggle SCI/QFC */}
-          <div className="bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-lg shadow p-4">
-            <h3 className="text-lg font-medium text-text mb-2">Spatial Cognition Interface</h3>
-            <button
-              className="px-3 py-2 rounded bg-primary/90 text-white hover:bg-primary"
-              onClick={() => setShowQFC((v) => !v)}
+            {/* Footer / placeholder for more tabs */}
+            <div
+              className="px-6 py-4 md:px-10 text-xs text-text-secondary"
+              style={{ borderTop: "1px solid var(--border-light)" }}
             >
-              {showQFC ? 'Hide QFC Canvas' : 'Show QFC Canvas'}
-            </button>
-            <p className="mt-2 text-sm text-text-secondary">
-              Renders the Quantum Field Canvas (WebGL). Loads on demand.
-            </p>
-          </div>
-        </aside>
-
-        {/* ─── SCI / QFC Canvas Section (full-width) ───────────────────── */}
-        {showQFC && (
-          <section className="col-span-12">
-            <div className="mt-2 rounded-lg border border-border-light dark:border-gray-700 bg-white dark:bg-gray-800 shadow">
-              <div className="px-4 py-2 text-sm text-text-secondary border-b border-border-light dark:border-gray-700">
-                🧠 SCI • QuantumFieldCanvas
-              </div>
-              <div className="h-[70vh] w-full">
-                {/* Minimal props; your canvas handles presence etc. */}
-                <QFC nodes={[]} links={[]} />
-              </div>
+              More modules will appear here as additional tabs.
             </div>
-          </section>
-        )}
+          </div>
+        </section>
       </main>
     </div>
   );
