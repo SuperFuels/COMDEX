@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { NextPage } from "next";
+import dynamic from "next/dynamic";
 
 /**
  * ⚠️ NOTE: QFC is currently disabled to prevent the useQFCFocus error
@@ -18,6 +19,48 @@ type TranslateResponse = {
   chars_after?: number;
   compression_ratio?: number;
 };
+
+// ------------------------------ TABS ------------------------------
+
+const TABS = [
+  { key: "glyph", label: "Glyph OS" },
+  { key: "symatics", label: "Symatics" },
+  { key: "compression", label: "Compression" },
+  { key: "data", label: "Data" },
+  { key: "sqi", label: "SQI" },
+  { key: "photon_algebra", label: "Photon Algebra" },
+  { key: "photon_binary", label: "Photon Binary" },
+  { key: "glyph_net", label: "Glyph Net" },
+  { key: "toe", label: "Theory Of Everything" },
+  { key: "multiverse", label: "Multiverse" },
+  { key: "glyph_chain", label: "Glyph Chain" },
+  { key: "ptn", label: ".ptn" },
+  { key: "photon", label: "Photon" },
+  { key: "ai", label: "AI" },
+] as const;
+
+type TabKey = (typeof TABS)[number]["key"];
+
+// ------------------------------ MDX LOADER ------------------------------
+// ✅ This is the “engine”: it imports the MDX file and renders it as a React component.
+// If your content folder is not at ../content, change this path.
+const SymaticsPaper = dynamic(
+  () => import("../content/symatics/symatics_full_technical_document.mdx"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="text-center py-20">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-4 w-48 bg-gray-200 rounded mb-4"></div>
+          <div className="h-4 w-64 bg-gray-100 rounded"></div>
+          <p className="mt-8 text-gray-400 font-medium">Loading document…</p>
+        </div>
+      </div>
+    ),
+  },
+);
+
+// ------------------------------ API ------------------------------
 
 // ✅ Use configured API base when present (works in dev + prod),
 // ✅ otherwise fall back to same-origin (/api) which your Next rewrite proxies.
@@ -47,9 +90,6 @@ async function translateToGlyphs(code: string, lang: CodeLang): Promise<Translat
     const ct = res.headers.get("content-type") || "";
     const raw = await res.text().catch(() => "");
 
-    // Helpful diagnostics for the two common failure modes:
-    // - HTML response => you hit Next/another server, not FastAPI (rewrite/env)
-    // - 404/405 => wrong base URL, wrong rewrite, or method not allowed
     const hint = ct.includes("text/html")
       ? "HTML response — likely not hitting FastAPI. Check next.config.js rewrites for /api/:path* and NEXT_PUBLIC_API_URL."
       : "";
@@ -61,40 +101,72 @@ async function translateToGlyphs(code: string, lang: CodeLang): Promise<Translat
   const ct = res.headers.get("content-type") || "";
   if (ct.includes("application/json")) return (await res.json()) as TranslateResponse;
 
-  // If backend ever returns plain text, accept it too.
   const text = await res.text();
   return { translated: text, chars_before: code.length, chars_after: text.length };
 }
 
 const Home: NextPage = () => {
-  const [activeTab, setActiveTab] = useState<"glyph" | "symatics">("glyph");
+  const [activeTab, setActiveTab] = useState<TabKey>("glyph");
+  const tabStripRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased">
       <div className="h-screen overflow-y-auto">
         <main className="relative z-10 flex flex-col items-center justify-start min-h-full px-6 max-w-5xl mx-auto py-16 pb-32">
-          {/*  Minimalist Tab Switcher (sticky) */}
-          <nav className="mb-16 p-1 bg-white/70 backdrop-blur-md border border-gray-200 rounded-full flex gap-1 shadow-sm sticky top-4 z-50">
-            <button
-              onClick={() => setActiveTab("glyph")}
-              className={`px-10 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeTab === "glyph"
-                  ? "bg-[#0071e3] text-white shadow-md"
-                  : "text-gray-500 hover:text-black"
-              }`}
-            >
-              Glyph OS
-            </button>
-            <button
-              onClick={() => setActiveTab("symatics")}
-              className={`px-10 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeTab === "symatics"
-                  ? "bg-[#0071e3] text-white shadow-md"
-                  : "text-gray-500 hover:text-black"
-              }`}
-            >
-              Symatics
-            </button>
+          {/*  Scrollable Tab Switcher (sticky) */}
+          <nav className="mb-16 sticky top-4 z-50">
+            <div className="relative">
+              {/* Left scroll button */}
+              <button
+                type="button"
+                onClick={() => tabStripRef.current?.scrollBy({ left: -260, behavior: "smooth" })}
+                className="hidden md:flex absolute left-[-14px] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
+                           bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition"
+                aria-label="Scroll tabs left"
+              >
+                <span className="text-gray-500 text-lg">‹</span>
+              </button>
+
+              {/* Right scroll button */}
+              <button
+                type="button"
+                onClick={() => tabStripRef.current?.scrollBy({ left: 260, behavior: "smooth" })}
+                className="hidden md:flex absolute right-[-14px] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
+                           bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition"
+                aria-label="Scroll tabs right"
+              >
+                <span className="text-gray-500 text-lg">›</span>
+              </button>
+
+              {/* Scroll container */}
+              <div
+                ref={tabStripRef}
+                className="p-1 bg-white/70 backdrop-blur-md border border-gray-200 rounded-full shadow-sm
+                           flex gap-1 overflow-x-auto no-scrollbar scroll-smooth"
+                style={{
+                  maxWidth: "min(520px, 90vw)", // ~2.5 tabs visible
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                {TABS.map((t) => (
+                  <button
+                    key={t.key}
+                    onClick={() => setActiveTab(t.key)}
+                    className={`shrink-0 px-10 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                      activeTab === t.key
+                        ? "bg-[#0071e3] text-white shadow-md"
+                        : "text-gray-500 hover:text-black"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Subtle fade edges */}
+              <div className="pointer-events-none absolute left-0 top-0 h-full w-10 rounded-l-full bg-gradient-to-r from-[#f5f5f7] to-transparent" />
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-10 rounded-r-full bg-gradient-to-l from-[#f5f5f7] to-transparent" />
+            </div>
           </nav>
 
           <div className="w-full">
@@ -164,7 +236,8 @@ const Home: NextPage = () => {
                   </div>
 
                   <p className="text-gray-500 text-xl max-w-2xl mx-auto leading-relaxed">
-                    〰️ + 〰️ = 〰️® is a breakthrough in <span className="text-black font-semibold">qualitative state change</span>.
+                    〰️ + 〰️ = 〰️® is a breakthrough in{" "}
+                    <span className="text-black font-semibold">qualitative state change</span>.
                   </p>
                 </div>
 
@@ -181,41 +254,54 @@ const Home: NextPage = () => {
                           Beyond Counting: Moving from Quantity to Quality
                         </span>
                         <br />
-                        In the world we know, math is for accounting. If you have one dollar and add
-                        another, you have two. This is the logic of accumulation—simply having "more of the same."
+                        In the world we know, math is for accounting. If you have one dollar and add another, you have two.
+                        This is the logic of accumulation—simply having "more of the same."
                       </p>
 
                       <div className="mt-8 space-y-4 border-l-2 border-gray-200 pl-6">
                         <div>
                           <span className="font-semibold text-gray-800">Traditional Math:</span>{" "}
-                          <span className="font-mono bg-gray-100 px-3 py-1 rounded text-sm text-gray-600">1 + 1 = 2</span>
+                          <span className="font-mono bg-gray-100 px-3 py-1 rounded text-sm text-gray-600">
+                            1 + 1 = 2
+                          </span>
                         </div>
 
                         <div className="pt-2">
                           <span className="font-semibold text-[#0071e3]">Symatic Logic:</span>{" "}
-                          <span className="font-mono bg-blue-50 text-[#0071e3] px-3 py-1 rounded text-sm">〰️ + 〰️ = 〰️®</span>
-                          <div className="text-gray-500 text-sm mt-1 ml-1">This is the logic of harmony—where patterns combine to create a new, superior reality.</div>
+                          <span className="font-mono bg-blue-50 text-[#0071e3] px-3 py-1 rounded text-sm">
+                            〰️ + 〰️ = 〰️®
+                          </span>
+                          <div className="text-gray-500 text-sm mt-1 ml-1">
+                            This is the logic of harmony—where patterns combine to create a new, superior reality.
+                          </div>
                         </div>
                       </div>
 
                       <div className="mt-12">
                         <div className="font-semibold text-gray-800 text-xl mb-4">The Story of the "Spark"</div>
                         <p className="text-gray-600 leading-relaxed">
-                          Imagine two people swinging a jump rope. If they move their arms randomly, the rope tangles. But if they move in perfect rhythm, the rope forms a powerful, stable arc. 
+                          Imagine two people swinging a jump rope. If they move their arms randomly, the rope tangles.
+                          But if they move in perfect rhythm, the rope forms a powerful, stable arc.
                         </p>
+
                         <div className="mt-8 space-y-4">
                           <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-start">
                             <span className="text-2xl mt-1 text-gray-800">〰️</span>
                             <div>
                               <span className="font-bold text-gray-800 block">The Wave</span>
-                              <p className="text-gray-600 text-sm">Raw energy, data, or intent in motion looking for its rhythm.</p>
+                              <p className="text-gray-600 text-sm">
+                                Raw energy, data, or intent in motion looking for its rhythm.
+                              </p>
                             </div>
                           </div>
+
                           <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm flex gap-4 items-start">
                             <span className="text-2xl mt-1 text-[#0071e3]">〰️®</span>
                             <div>
                               <span className="font-bold text-[#0071e3] block">Resonance State</span>
-                              <p className="text-gray-600 text-sm">When patterns lock together, they amplify into a result greater than the sum of its parts.</p>
+                              <p className="text-gray-600 text-sm">
+                                When patterns lock together, they amplify into a result greater than the sum of its parts.
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -223,8 +309,8 @@ const Home: NextPage = () => {
                         <div className="mt-12 pt-8 border-t border-gray-200">
                           <div className="font-bold text-gray-800 text-lg mb-3">Why It Matters</div>
                           <p className="text-gray-600 leading-relaxed">
-                            When your intent (〰️) perfectly aligns with the system (〰️), the noise
-                            of the world disappears. You are achieving Resonance (⟲).
+                            When your intent (〰️) perfectly aligns with the system (〰️), the noise of the world disappears.
+                            You are achieving Resonance (⟲).
                           </p>
                           <div className="mt-8 text-gray-800 font-medium text-center py-8 bg-white rounded-2xl border border-gray-100 shadow-inner italic text-lg px-6">
                             “Symatics doesn't just count the world. It oscillates it into harmony.”
@@ -251,7 +337,19 @@ const Home: NextPage = () => {
                 </div>
               </section>
             )}
-          </div> {/* Correct closing tag for w-full */}
+
+            {/* OTHER TABS (placeholders) */}
+            {activeTab !== "glyph" && activeTab !== "symatics" && (
+              <section className="animate-in fade-in zoom-in-95 duration-700 space-y-10">
+                <div className="text-center space-y-4">
+                  <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-black italic">
+                    {TABS.find((t) => t.key === activeTab)?.label}
+                  </h1>
+                  <p className="text-xl text-gray-500 font-light tracking-tight">Coming next.</p>
+                </div>
+              </section>
+            )}
+          </div>
 
           {/* DOCUMENT READER SECTION */}
           <section className="w-full mt-32 animate-in fade-in slide-in-from-bottom-8 duration-1000">
@@ -259,7 +357,10 @@ const Home: NextPage = () => {
               <div className="flex justify-between items-end border-b border-gray-200 pb-6">
                 <div>
                   <h2 className="text-3xl font-bold tracking-tight text-black">Technical Papers</h2>
-                  <p className="text-gray-500 mt-2">Active Document: <span className="text-[#0071e3] font-mono">symatics_full_technical_document.mdx</span></p>
+                  <p className="text-gray-500 mt-2">
+                    Active Document:{" "}
+                    <span className="text-[#0071e3] font-mono">symatics_full_technical_document.mdx</span>
+                  </p>
                 </div>
                 <button className="text-sm font-semibold text-[#0071e3] hover:underline px-4 py-2 bg-blue-50 rounded-full">
                   Download PDF Original
@@ -274,18 +375,9 @@ const Home: NextPage = () => {
                 </div>
 
                 <div className="p-12 md:p-20 prose prose-slate max-w-none">
-                  {/* The MDX content will render here. 
-                      I've added the "Blue Glow" logic via CSS classes in step 3 */}
                   <div className="symatics-paper-view">
-                    {/* For the build to work immediately, we'll placeholder the component 
-                        until you finish the MDX config in step 2 */}
-                    <div className="text-center py-20">
-                      <div className="animate-pulse flex flex-col items-center">
-                        <div className="h-4 w-48 bg-gray-200 rounded mb-4"></div>
-                        <div className="h-4 w-64 bg-gray-100 rounded"></div>
-                        <p className="mt-8 text-gray-400 font-medium">Initializing Symatic Document Engine...</p>
-                      </div>
-                    </div>
+                    {/* ✅ Real MDX render (no more placeholder) */}
+                    <SymaticsPaper />
                   </div>
                 </div>
               </div>
@@ -338,9 +430,7 @@ const ResonanceWorkbench = () => {
       const dt = (now - last) / 1000;
       lastRef.current = now;
 
-      // stable-ish motion: radians advance
       setT((prev) => prev + dt * speed * 2.2);
-
       rafRef.current = requestAnimationFrame(loop);
     };
 
@@ -355,15 +445,12 @@ const ResonanceWorkbench = () => {
     <div className="w-full bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-10 space-y-10">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
         <div>
-          <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">
-            Wave Interference
-          </div>
+          <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">Wave Interference</div>
           <h3 className="text-xl font-semibold text-gray-800 mt-1">
             Constructive vs Destructive (A, B, and A+B)
           </h3>
           <p className="text-sm text-gray-500 mt-2">
-            Toggle motion, then adjust amplitude / frequency to see how superposition changes the
-            combined result.
+            Toggle motion, then adjust amplitude / frequency to see how superposition changes the combined result.
           </p>
         </div>
 
@@ -386,45 +473,15 @@ const ResonanceWorkbench = () => {
 
       {/* Controls */}
       <div className="grid md:grid-cols-3 gap-6">
-        <Slider
-          label="Amplitude"
-          value={amplitude}
-          min={8}
-          max={28}
-          step={1}
-          onChange={setAmplitude}
-          suffix="px"
-        />
-        <Slider
-          label="Frequency"
-          value={cycles}
-          min={3}
-          max={9}
-          step={1}
-          onChange={setCycles}
-          suffix="cycles"
-        />
-        <Slider
-          label="Speed"
-          value={speed}
-          min={0}
-          max={3}
-          step={0.1}
-          onChange={setSpeed}
-          suffix="×"
-        />
+        <Slider label="Amplitude" value={amplitude} min={8} max={28} step={1} onChange={setAmplitude} suffix="px" />
+        <Slider label="Frequency" value={cycles} min={3} max={9} step={1} onChange={setCycles} suffix="cycles" />
+        <Slider label="Speed" value={speed} min={0} max={3} step={0.1} onChange={setSpeed} suffix="×" />
       </div>
 
-      {/* Panels (screenshot-style) */}
+      {/* Panels */}
       <div className="grid md:grid-cols-2 gap-10">
         <WavePanel title="constructive interference" t={t} amplitude={amplitude} cycles={cycles} phaseB={0} />
-        <WavePanel
-          title="destructive interference"
-          t={t}
-          amplitude={amplitude}
-          cycles={cycles}
-          phaseB={Math.PI}
-        />
+        <WavePanel title="destructive interference" t={t} amplitude={amplitude} cycles={cycles} phaseB={Math.PI} />
       </div>
     </div>
   );
@@ -479,47 +536,16 @@ const WavePanel = ({
   amplitude: number;
   cycles: number;
   phaseB: number;
-}) => {
-  return (
-    <div className="bg-[#fafafa] rounded-3xl p-8 border border-gray-100">
-      <div className="text-2xl md:text-3xl font-semibold text-gray-700 tracking-tight mb-8">
-        {title}
-      </div>
-
-      <div className="space-y-8">
-        <WaveRow
-          label="wave A"
-          color="rgb(185 28 28)"
-          t={t}
-          amplitude={amplitude}
-          cycles={cycles}
-          phase={0}
-          mode="single"
-        />
-
-        <WaveRow
-          label="wave B"
-          color="rgb(13 148 136)"
-          t={t}
-          amplitude={amplitude}
-          cycles={cycles}
-          phase={phaseB}
-          mode="single"
-        />
-
-        <WaveRow
-          label="wave A+B"
-          color="rgb(124 58 237)"
-          t={t}
-          amplitude={amplitude}
-          cycles={cycles}
-          phase={phaseB}
-          mode="sum"
-        />
-      </div>
+}) => (
+  <div className="bg-[#fafafa] rounded-3xl p-8 border border-gray-100">
+    <div className="text-2xl md:text-3xl font-semibold text-gray-700 tracking-tight mb-8">{title}</div>
+    <div className="space-y-8">
+      <WaveRow label="wave A" color="rgb(185 28 28)" t={t} amplitude={amplitude} cycles={cycles} phase={0} mode="a" />
+      <WaveRow label="wave B" color="rgb(13 148 136)" t={t} amplitude={amplitude} cycles={cycles} phase={phaseB} mode="b" />
+      <WaveRow label="wave A+B" color="rgb(124 58 237)" t={t} amplitude={amplitude} cycles={cycles} phase={phaseB} mode="sum" />
     </div>
-  );
-};
+  </div>
+);
 
 const WaveRow = ({
   label,
@@ -536,12 +562,11 @@ const WaveRow = ({
   amplitude: number;
   cycles: number;
   phase: number;
-  mode: "single" | "sum";
+  mode: "a" | "b" | "sum";
 }) => {
   const width = 520;
   const height = 80;
   const mid = height / 2;
-
   const points = 140;
   const twoPi = Math.PI * 2;
 
@@ -554,33 +579,28 @@ const WaveRow = ({
       const a = Math.sin(theta + t);
       const b = Math.sin(theta + phase + t);
 
-      const v = mode === "sum" ? a + b : b;
+      const v = mode === "sum" ? a + b : mode === "a" ? a : b;
       const y = mid - v * amplitude;
 
       if (i === 0) path += `M ${x.toFixed(2)} ${y.toFixed(2)}`;
       else path += ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
     }
     return path;
-  }, [width, height, mid, points, cycles, twoPi, t, phase, mode, amplitude]);
+  }, [width, points, cycles, twoPi, t, phase, mode, amplitude, mid]);
 
-  const sumScaleY = mode === "sum" ? 2 : 1;
+  const isCancel = mode === "sum" && Math.abs(phase - Math.PI) < 1e-6;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
         <div className="text-lg font-medium text-gray-500">{label}</div>
         <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">
-          {mode === "sum" && Math.abs(phase - Math.PI) < 1e-6 ? "cancels" : mode === "sum" ? "adds" : ""}
+          {mode === "sum" ? (isCancel ? "cancels" : "adds") : ""}
         </div>
       </div>
 
       <div className="relative rounded-2xl bg-white border border-gray-100 overflow-hidden">
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-[86px]"
-          aria-label={label}
-          role="img"
-        >
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[86px]" aria-label={label} role="img">
           <line x1="0" y1={mid} x2={width} y2={mid} stroke="rgb(229 231 235)" strokeWidth="2" />
 
           <line
@@ -599,9 +619,7 @@ const WaveRow = ({
             opacity="0.65"
           />
 
-          <g transform={`scale(1 ${sumScaleY}) translate(0 ${mode === "sum" ? -(height * 0.25) : 0})`}>
-            <path d={d} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" />
-          </g>
+          <path d={d} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" />
 
           <circle cx="8" cy="10" r="3" fill="rgb(107 114 128)" opacity="0.6" />
           <circle cx="8" cy={height - 10} r="3" fill="rgb(107 114 128)" opacity="0.6" />
@@ -721,8 +739,7 @@ const GlyphTranslateDemo = () => {
           rightControl={
             stats ? (
               <div className="text-[11px] text-gray-400">
-                <span className="font-semibold">{stats.pct.toFixed(1)}%</span> shorter ({stats.before} →{" "}
-                {stats.after})
+                <span className="font-semibold">{stats.pct.toFixed(1)}%</span> shorter ({stats.before} → {stats.after})
               </div>
             ) : null
           }
