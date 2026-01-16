@@ -11,6 +11,7 @@ import type { NextPage } from "next";
 
 const Home: NextPage = () => {
   const [activeTab, setActiveTab] = useState<"glyph" | "symatics">("glyph");
+  const [showGlyphDemo, setShowGlyphDemo] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased">
@@ -75,6 +76,18 @@ const Home: NextPage = () => {
                 </div>
 
                 <div className="text-center font-medium text-gray-400">“Same result. Less noise.”</div>
+
+                {/* ✅ Glyph Demo button + panel */}
+                <div className="flex flex-col items-center gap-6">
+                  <button
+                    onClick={() => setShowGlyphDemo((v) => !v)}
+                    className="px-10 py-3 rounded-full text-sm font-semibold transition-all duration-300 bg-[#0071e3] text-white shadow-md hover:brightness-110"
+                  >
+                    Glyph Demo
+                  </button>
+
+                  {showGlyphDemo ? <GlyphTranslateDemo /> : null}
+                </div>
               </section>
             )}
 
@@ -92,15 +105,19 @@ const Home: NextPage = () => {
 
                 <div className="bg-white rounded-[3rem] p-16 text-center shadow-xl shadow-gray-200/50 border border-gray-100">
                   <div className="text-8xl mb-8 tracking-widest flex justify-center items-center gap-4">
-                    🌊 <span className="text-3xl text-gray-300">+</span> 🌊{" "}
+                    〰️ <span className="text-3xl text-gray-300">+</span> 〰️{" "}
                     <span className="text-3xl text-gray-300">=</span>{" "}
-                    <span className="text-[#0071e3] drop-shadow-xl font-bold">🌊✨</span>
+                    <span className="text-[#0071e3] drop-shadow-xl font-bold">✨</span>
                   </div>
-                  <p className="text-gray-400 text-lg italic">Two waves combine into one stronger pattern.</p>
+
+                  <p className="text-gray-400 text-lg italic">
+                    〰️ + 〰️ = ✨ reads as “constructive interference produces a coherent/bright result”
+                    (nice for Symatics).
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  {["🌊 Wave", "💡 Photon", "⊕ Superpose", "↔ Entangle", "⟲ Resonance", "∇ Collapse", "⇒ Trigger"].map(
+                  {["〰️ Wave", "💡 Photon", "⊕ Superpose", "↔ Entangle", "⟲ Resonance", "∇ Collapse", "⇒ Trigger"].map(
                     (op) => (
                       <div
                         key={op}
@@ -156,5 +173,109 @@ const ComparisonCard = ({ title, traditional, glyph, labels }: any) => (
     </div>
   </div>
 );
+
+type TranslateResponse = {
+  translated?: string;
+  glyph_count?: number;
+  chars_before?: number;
+  chars_after?: number;
+  compression_ratio?: number;
+};
+
+async function translateToGlyphs(text: string): Promise<TranslateResponse> {
+  const res = await fetch("/api/photon/translate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, language: "python" }),
+  });
+  if (!res.ok) {
+    const msg = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status} — ${msg || res.statusText}`);
+  }
+  return (await res.json()) as TranslateResponse;
+}
+
+const GlyphTranslateDemo = () => {
+  const [source, setSource] = useState(
+    "Open document, scan for key points, extract data, summarize, and file.",
+  );
+  const [out, setOut] = useState<string>("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [stats, setStats] = useState<{ before: number; after: number; pct: number } | null>(null);
+
+  const run = async () => {
+    if (!source.trim()) {
+      setOut("");
+      setStats(null);
+      return;
+    }
+    try {
+      setBusy(true);
+      setErr(null);
+      const resp = await translateToGlyphs(source);
+      const translated = resp.translated ?? "";
+      setOut(translated);
+
+      const before = resp.chars_before ?? source.length;
+      const after = resp.chars_after ?? translated.length;
+      const pct = before > 0 ? (1 - after / before) * 100 : 0;
+      setStats({ before, after, pct });
+    } catch (e: any) {
+      setErr(e?.message || "Translate failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="w-full bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-10">
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div>
+          <div className="text-xs font-bold text-gray-300 uppercase tracking-widest">Glyph Translator</div>
+          <div className="text-sm text-gray-500 mt-1">Left: source · Right: translated glyph stream</div>
+        </div>
+        <button
+          onClick={run}
+          disabled={busy}
+          className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
+            busy ? "bg-gray-200 text-gray-500" : "bg-[#0071e3] text-white shadow-md hover:brightness-110"
+          }`}
+        >
+          {busy ? "Translating…" : "Translate"}
+        </button>
+      </div>
+
+      {err ? <div className="text-sm text-red-600 mb-4">{err}</div> : null}
+
+      <div className="grid md:grid-cols-2 gap-8">
+        <div className="rounded-2xl border border-gray-100 bg-[#fafafa] p-6">
+          <div className="text-[10px] text-gray-400 font-bold uppercase mb-3">Source</div>
+          <textarea
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
+            rows={10}
+            className="w-full resize-none bg-transparent outline-none text-gray-700 leading-relaxed"
+            placeholder="Type text…"
+          />
+        </div>
+
+        <div className="rounded-2xl border border-gray-100 bg-[#fafafa] p-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[10px] text-[#0071e3] font-bold uppercase tracking-wider">Glyph Stream</div>
+            {stats ? (
+              <div className="text-[11px] text-gray-400">
+                <span className="font-semibold">{stats.pct.toFixed(1)}%</span> shorter ({stats.before} → {stats.after})
+              </div>
+            ) : null}
+          </div>
+          <pre className="whitespace-pre-wrap break-words text-gray-700 leading-relaxed min-h-[12rem]">
+            {out || "—"}
+          </pre>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default Home;
