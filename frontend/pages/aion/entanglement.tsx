@@ -25,6 +25,10 @@ function sameOriginWsUrl(path: string) {
   return `${proto}://${window.location.host}${path}`;
 }
 
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default function EntanglementGraphPage() {
   const [glyphs, setGlyphs] = useState<Glyph[]>([]);
   const [graphData, setGraphData] = useState<{ nodes: EntangledNode[]; links: EntangledLink[] }>({

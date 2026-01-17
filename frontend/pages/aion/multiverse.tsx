@@ -6,7 +6,11 @@ import { useRouter } from 'next/router';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars, Environment } from '@react-three/drei';
 import dynamic from 'next/dynamic';
+import type { GetServerSideProps } from "next";
 
+export const getServerSideProps: GetServerSideProps = async () => {
+  return { props: {} };
+};
 const ContainerMap3D = dynamic(() => import('@/components/AION/ContainerMap3D'), { ssr: false });
 
 type LayoutType = 'ring' | 'grid' | 'sphere';

@@ -4,6 +4,10 @@ import { useState } from 'react'
 import Head from 'next/head'
 import api from '@/lib/api'
 
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default function CodexPlayground() {
   const [code, setCode] = useState('')
   const [result, setResult] = useState<any | null>(null)

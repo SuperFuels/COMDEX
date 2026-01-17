@@ -12,17 +12,20 @@ steps:
       - "-lc"
       - |
         echo "▶️ Using pnpm via Corepack"
-        cd frontend
-
-        # Enable Corepack so it respects "packageManager": "pnpm@10.20.0"
         corepack enable
         corepack prepare pnpm@10.20.0 --activate
 
-        echo "📦 Installing deps with pnpm…"
+        # Make absolutely sure devDependencies are installed
+        export NODE_ENV=development
+        export NPM_CONFIG_PRODUCTION=false
+        export PNPM_PRODUCTION=false
+
+        echo "📦 Installing deps with pnpm (workspace root)…"
+        cd /workspace
         pnpm install --frozen-lockfile
 
         echo "🏗 Building Next.js frontend…"
-        pnpm build
+        pnpm -C frontend build
 
   # ─── 1) Build Docker image ────────────────────────────────────────
   - id: "docker-build"

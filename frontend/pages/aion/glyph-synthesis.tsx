@@ -5,7 +5,11 @@ import Head from 'next/head'
 import api from '@/lib/api'
 import DriftPanel from '@/components/SQI/DriftPanel'
 import KGList from '@/components/SQI/KGList'
+import type { GetServerSideProps } from "next";
 
+export const getServerSideProps: GetServerSideProps = async () => {
+  return { props: {} };
+};
 type Status = 'idle' | 'loading' | 'done' | 'error'
 
 export default function GlyphSynthesisPage() {

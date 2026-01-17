@@ -28,6 +28,10 @@ interface Deal {
   total_price: number
 }
 
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default function AdminDashboard() {
   // 1) Enforce login + admin
   useAuthRedirect('admin')

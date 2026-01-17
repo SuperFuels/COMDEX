@@ -5,6 +5,12 @@ import React, { useEffect, useState } from "react";
 import GHXReplaySlider from "@/components/Hologram/GHXReplaySlider";
 import { Card, CardContent } from "@/components/ui/card";
 
+import type { GetServerSideProps } from "next";
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return { props: {} };
+};
+
 /** Minimal local shape so we don't depend on "@/types/ghx_types" */
 type GHXPacket = {
   /** Array of frames; each frame is an array of glyph-like records */

@@ -5,6 +5,10 @@ import DnaLogViewer from "../../components/DnaLogViewer";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || '';
 
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default function AIONDashboardClient() {
   const [status, setStatus] = useState<any>(null);
   const [terminalInput, setTerminalInput] = useState("");

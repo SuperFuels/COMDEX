@@ -4,7 +4,11 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 import { QFCFocusProvider } from '@/components/QuantumField/qfc_focus_context';
+import type { GetServerSideProps } from "next";
 
+export const getServerSideProps: GetServerSideProps = async () => {
+  return { props: {} };
+};
 // Use the loader, not the raw canvas, and disable SSR
 const QuantumFieldCanvasLoader = dynamic(
   () => import('@/components/Hologram/QuantumFieldCanvasLoader'),

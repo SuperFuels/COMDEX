@@ -4,8 +4,18 @@ import React, { useRef, useMemo } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
-import { FontLoader, Font } from "three/examples/jsm/loaders/FontLoader";
+
+// ✅ Fix: Some Next/TS interop paths type FontLoader as non-constructable.
+// Import as namespace and extract the constructable class.
+import * as FontLoaderNS from "three/examples/jsm/loaders/FontLoader.js";
+import type { Font } from "three/examples/jsm/loaders/FontLoader.js";
+
 import helvetiker from "three/examples/fonts/helvetiker_regular.typeface.json";
+
+const FontLoaderCtor =
+  (FontLoaderNS as any).FontLoader ??
+  (FontLoaderNS as any).default ??
+  FontLoaderNS;
 
 interface WormholeRendererProps {
   from: [number, number, number];
@@ -56,7 +66,7 @@ export default function WormholeRenderer({
   }, [color, thickness, mode]);
 
   const font = useMemo(() => {
-    const loader = new FontLoader();
+    const loader = new FontLoaderCtor();
     return loader.parse(helvetiker as any) as Font;
   }, []);
 
@@ -85,10 +95,8 @@ export default function WormholeRenderer({
 
   return (
     <>
-      {/* line */}
       <primitive object={new THREE.Line(geometry, material)} ref={lineRef as any} />
 
-      {/* glyph at midpoint */}
       {glyph && textGeometry && (
         <mesh ref={textRef as any} position={midArray}>
           <primitive object={textGeometry as any} attach="geometry" />

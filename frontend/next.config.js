@@ -32,6 +32,8 @@ const nextConfig = {
   images: { unoptimized: true },
   eslint: { ignoreDuringBuilds: true },
 
+  outputFileTracingRoot: require("path").join(__dirname, ".."),
+
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
 
   env: {

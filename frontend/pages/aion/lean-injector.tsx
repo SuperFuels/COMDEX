@@ -3,6 +3,12 @@ import React, { useState } from "react";
 type PreviewMode = "raw" | "normalized";
 type ContainerType = "dc" | "hoberman" | "sec" | "exotic" | "symmetry" | "atom";
 
+import type { GetServerSideProps } from "next";
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return { props: {} };
+};
+
 function apiBase() {
   // If your FastAPI runs on a different origin/port, set NEXT_PUBLIC_API_BASE
   // e.g. http://localhost:8000

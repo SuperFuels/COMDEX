@@ -12,6 +12,10 @@ type AionMetrics = {
   lastAction: string
 }
 
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default function AionDashboard() {
   useAuthRedirect('admin')
 

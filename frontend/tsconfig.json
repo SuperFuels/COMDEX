@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "jsx": "preserve",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
@@ -11,31 +15,53 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./components/*"],
-      "@/pages/*": ["./pages/*"],
-      "@/hooks/*": ["./hooks/*"],
-      "@/lib/*": ["./lib/*"],
-
-      "@glyphnet/*": ["./src/glyphnet/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/pages/*": [
+        "./pages/*"
+      ],
+      "@/hooks/*": [
+        "./hooks/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@glyphnet/*": [
+        "./src/glyphnet/*"
+      ]
     },
     "target": "ESNext",
     "allowJs": true,
     "incremental": true,
     "isolatedModules": true,
-    "types": ["node", "next", "next/types/global"]
+    "types": [
+      "node",
+      "next",
+      "next/types/global"
+    ],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "types/**/*.d.ts",
-
-    "components/AION/ContainerMap2D.tsx",
     "../Glyph_Net_Browser/src/components/AION/ContainerMap3D.tsx",
-    "src/components/maps/map-2d.ts",
+    "components/AION/ContainerMap2D.tsx",
     "components/AION/map-2d.tsx",
-    "components/AION/map-3d.tsx"
+    "components/AION/map-3d.tsx",
+    "next-env.d.ts",
+    "src/components/maps/map-2d.ts",
+    "types/**/*.d.ts",
+    ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
