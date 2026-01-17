@@ -16,7 +16,11 @@ type TranslateResponse = {
 // ✅ Use configured API base when present (works in dev + prod),
 // ✅ otherwise fall back to same-origin (/api) which your Next rewrite proxies.
 const API_BASE =
-  (typeof window !== "undefined" && (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "")) || "";
+  (typeof window !== "undefined" &&
+    (process.env.NEXT_PUBLIC_API_URL || "")
+      .replace(/\/+$/, "")
+      .replace(/\/api\/?$/, "")) ||
+  "";
 
 // ✅ Build URL robustly (avoids double slashes)
 function apiUrl(path: string) {
