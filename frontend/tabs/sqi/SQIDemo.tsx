@@ -14,7 +14,13 @@ export default function SQIDemo() {
   const [coherence, setCoherence] = useState(0.94);
   const [selectedPolicy, setSelectedPolicy] = useState(POLICIES[0]);
   const [activeNode, setActiveNode] = useState<number | null>(null);
-  const [liveTrace, setLiveTrace] = useState(null);
+  type SQITrace = {
+    demo_id?: string;
+    coherence_after?: number;
+    outcome?: { TaskPriority?: string; ResourceAlloc?: string };
+  };
+
+  const [liveTrace, setLiveTrace] = useState<SQITrace | null>(null);
   const [showTrace, setShowTrace] = useState(false);
 
   // --- superposition additions ---
