@@ -13,7 +13,7 @@ export default function SQIDemo() {
   const [hasCollapsed, setHasCollapsed] = useState(false);
   const [coherence, setCoherence] = useState(0.94);
   const [selectedPolicy, setSelectedPolicy] = useState(POLICIES[0]);
-  const [activeNode, setActiveNode] = useState(null);
+  const [activeNode, setActiveNode] = useState<number | null>(null);
   const [liveTrace, setLiveTrace] = useState(null);
   const [showTrace, setShowTrace] = useState(false);
 
