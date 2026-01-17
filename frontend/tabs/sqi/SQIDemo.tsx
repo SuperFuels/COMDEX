@@ -120,13 +120,14 @@ export default function SQIDemo() {
 
               {/* SUPERPOSITION MATH READOUT + TOOLTIP */}
               {superposed && !hasCollapsed && (
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center group cursor-help"
-                     onMouseEnter={() => setShowMathTooltip(true)}
-                     onMouseLeave={() => setShowMathTooltip(false)}>
-                  
+                <div
+                  className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center group cursor-help"
+                  onMouseEnter={() => setShowMathTooltip(true)}
+                  onMouseLeave={() => setShowMathTooltip(false)}
+                >
                   {showMathTooltip && (
                     <div className="mb-2 bg-black text-white text-[9px] p-3 rounded-xl w-48 text-center leading-tight shadow-xl animate-in fade-in slide-in-from-bottom-2">
-                      <span className="font-bold text-blue-400 uppercase">Superposition Active:</span><br/>
+                      <span className="font-bold text-blue-400 uppercase">Superposition Active:</span><br />
                       State A and B exist simultaneously with equal amplitude (Ψ) until observed by policy.
                     </div>
                   )}
@@ -143,9 +144,9 @@ export default function SQIDemo() {
                   Deterministic Collapse Verified
                 </div>
                 <div className="bg-black text-white px-10 py-5 rounded-full font-mono text-base shadow-2xl tracking-tight flex items-center gap-4">
-                  <span className="text-gray-500">{liveTrace?.outcome.TaskPriority}</span>
+                  <span className="text-gray-500">{liveTrace?.outcome?.TaskPriority}</span>
                   <span className="text-blue-500">→</span>
-                  <span className="text-green-400">{liveTrace?.outcome.ResourceAlloc}</span>
+                  <span className="text-green-400">{liveTrace?.outcome?.ResourceAlloc}</span>
                 </div>
                 <div className="flex gap-4 mt-8">
                   <button onClick={() => { 
