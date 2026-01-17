@@ -6,7 +6,7 @@ const POLICIES = [
   { id: "p1", name: "Strict Compliance", effect: "Low Entropy / High Bias", bias: "Dedicated Server" },
   { id: "p2", name: "Creative Expansion", effect: "High Entropy / Multi-Branch", bias: "Shared Cluster" },
   { id: "p3", name: "Balanced Audit", effect: "Deterministic / Trace-Heavy", bias: "Shared Cluster" },
-];
+] as const;
 
 type Policy = (typeof POLICIES)[number];
 
@@ -17,6 +17,7 @@ type LiveTrace = {
     TaskPriority?: string;
     ResourceAlloc?: string;
   };
+  detail?: string; // for backend errors like {"detail":"Not Found"}
   [k: string]: unknown;
 };
 
@@ -53,9 +54,19 @@ export default function SQIDemo() {
         body: JSON.stringify({ policy: selectedPolicy.id }),
       });
 
-      // avoid throwing inside response.json() on non-JSON error payloads
       const text = await response.text();
-      const data: LiveTrace | null = text ? (JSON.parse(text) as LiveTrace) : null;
+
+      let data: LiveTrace | null = null;
+      if (text) {
+        try {
+          data = JSON.parse(text) as LiveTrace;
+        } catch {
+          data = { detail: text.slice(0, 300) };
+        }
+      }
+
+      // If the backend/route returns non-2xx but no JSON detail, surface status.
+      if (!response.ok && data && !data.detail) data.detail = `HTTP ${response.status}`;
 
       setTimeout(() => {
         setLiveTrace(data);
@@ -67,8 +78,14 @@ export default function SQIDemo() {
     } catch (error) {
       console.error("SQI Runtime Error:", error);
       setIsResolving(false);
+      setLiveTrace({ detail: "Fetch failed (see console)" });
+      setHasCollapsed(true);
+      setSuperposed(false);
     }
   };
+
+  const leftOutcome = liveTrace?.outcome?.TaskPriority ?? (liveTrace?.detail ? "Error" : "");
+  const rightOutcome = liveTrace?.outcome?.ResourceAlloc ?? (liveTrace?.detail ? "See Trace" : "");
 
   return (
     <div className="w-full space-y-12 animate-in fade-in duration-700 pb-20">
@@ -198,11 +215,19 @@ export default function SQIDemo() {
                 <div className="text-[10px] font-bold text-[#0071e3] uppercase tracking-widest mb-4">
                   Deterministic Collapse Verified
                 </div>
+
+                {liveTrace?.detail ? (
+                  <div className="mb-4 text-[11px] font-mono text-red-600 bg-red-50 border border-red-200 px-4 py-2 rounded-full">
+                    {String(liveTrace.detail)}
+                  </div>
+                ) : null}
+
                 <div className="bg-black text-white px-10 py-5 rounded-full font-mono text-base shadow-2xl tracking-tight flex items-center gap-4">
-                  <span className="text-gray-500">{liveTrace?.outcome?.TaskPriority}</span>
+                  <span className="text-gray-500">{leftOutcome}</span>
                   <span className="text-blue-500">→</span>
-                  <span className="text-green-400">{liveTrace?.outcome?.ResourceAlloc}</span>
+                  <span className="text-green-400">{rightOutcome}</span>
                 </div>
+
                 <div className="flex gap-4 mt-8">
                   <button
                     onClick={() => {
@@ -210,6 +235,7 @@ export default function SQIDemo() {
                       setCoherence(0.94);
                       setShowTrace(false);
                       setSuperposed(true);
+                      setLiveTrace(null);
                     }}
                     className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest border-b border-transparent hover:border-black"
                   >
@@ -292,7 +318,7 @@ export default function SQIDemo() {
           <div className="mt-10 p-8 bg-[#0a0a0b] rounded-[2.5rem] border border-white/5 animate-in slide-in-from-top-4 duration-500">
             <div className="flex justify-between items-center mb-6">
               <h4 className="text-sm font-bold text-white uppercase tracking-widest italic">Black Box Flight Recorder</h4>
-              <span className="text-[10px] font-mono text-gray-500">{liveTrace?.demo_id}</span>
+              <span className="text-[10px] font-mono text-gray-500">{liveTrace?.demo_id ?? "—"}</span>
             </div>
             <div className="grid md:grid-cols-3 gap-8 mb-8">
               <TraceCaption step="Step 2" title="Entanglement Established" desc="Proving the link between Priority and Resources." />

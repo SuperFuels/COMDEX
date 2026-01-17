@@ -841,6 +841,7 @@ app.include_router(lean_snapshot_router)
 app.include_router(p2p_router, prefix="/api/p2p", tags=["p2p"])
 app.include_router(build_fastapi_router(), prefix="/api")
 app.include_router(sqi_demo_router)
+
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)
 
