@@ -21,6 +21,24 @@ type LiveTrace = {
   [k: string]: unknown;
 };
 
+const SQM_OPERATORS = [
+  {
+    symbol: "⊕",
+    name: "Superposition",
+    desc: "The ability for a system to hold multiple conflicting logic paths as a single coherent state.",
+  },
+  {
+    symbol: "↔",
+    name: "Entanglement",
+    desc: "A symbolic tether between nodes. Resolving the 'Priority' node instantly collapses the 'Resource' node across time and space.",
+  },
+  {
+    symbol: "∇",
+    name: "Collapse",
+    desc: "The deterministic resolution of ambiguity into a single, auditable 'Standard of Truth' based on Policy.",
+  },
+] as const;
+
 export default function SQIDemo() {
   const [isResolving, setIsResolving] = useState<boolean>(false);
   const [hasCollapsed, setHasCollapsed] = useState<boolean>(false);
@@ -332,7 +350,129 @@ export default function SQIDemo() {
         )}
       </div>
 
-      {/* --- EXPLAINER SECTION (PITCH DECK) --- */}
+      {/* ============================================================
+          NEW SECTION 1: The Foundations of SQM
+          ============================================================ */}
+      <div className="grid md:grid-cols-2 gap-16 mt-20 pt-20 border-t border-gray-100">
+        <div className="space-y-6">
+          <h2 className="text-4xl font-bold italic tracking-tight text-black">The Mathematics of Meaning</h2>
+          <p className="text-gray-600 leading-relaxed">
+            Traditional logic is binary (0 or 1). Traditional Quantum Mechanics is probabilistic (amplitudes of particles).{" "}
+            <b>Symbolic Quantum Mechanics (SQM)</b> is semantic. It is a formal algebra where the "Basis States" are not numbers, but{" "}
+            <b>QGlyphs</b>—symbolic atoms of meaning.
+          </p>
+
+          <div className="bg-gray-50 p-6 rounded-3xl font-mono text-sm space-y-4 border border-gray-100">
+            <div className="text-blue-600 font-bold text-[10px] uppercase tracking-widest">Formal State Equation</div>
+            <div className="text-lg text-center py-4">|Ψ⟩ = Σ αᵢ |sᵢ⟩</div>
+            <p className="text-[11px] text-gray-400 leading-tight">
+              Where <b>|sᵢ⟩</b> is a symbolic eigenstate (a specific meaning) and <b>αᵢ</b> is the semantic amplitude—the weight of that
+              meaning within a context before it is observed.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-8">
+          <h3 className="text-xl font-bold tracking-tight">The SQM Operators</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {SQM_OPERATORS.map((op) => (
+              <div key={op.name} className="flex gap-4 p-4 rounded-2xl bg-[#fafafa] border border-gray-100">
+                <span className="text-2xl text-blue-500 font-mono">{op.symbol}</span>
+                <div>
+                  <div className="text-sm font-bold">{op.name}</div>
+                  <div className="text-xs text-gray-500">{op.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================
+          NEW SECTION 2: SQI vs Physical Quantum Systems
+          ============================================================ */}
+      <div className="mt-32 p-12 bg-[#0a0a0b] rounded-[4rem] text-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 blur-[120px] rounded-full" />
+
+        <div className="relative z-10 space-y-12">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl md:text-5xl font-bold italic tracking-tighter">Meaning Scales Differently Than Math</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto font-light">
+              Physical quantum computers are limited by the number of atoms in the universe. <b>SQI is limited only by the depth of your logic.</b>
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* CARD 1 */}
+            <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-4">
+              <div className="text-blue-500 font-mono text-xs uppercase tracking-[0.2em]">The 160 Qubit Wall</div>
+              <p className="text-sm text-gray-300 leading-relaxed">
+                MIT and others note that simulating 160 physical qubits would require every silicon atom on Earth. <b>SQI bypasses this</b>{" "}
+                because we don't simulate the physics of the electron—we encode the <b>structure of the thought.</b>
+              </p>
+            </div>
+
+            {/* CARD 2 */}
+            <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-4">
+              <div className="text-blue-500 font-mono text-xs uppercase tracking-[0.2em]">Infinite QGlyphs</div>
+              <p className="text-sm text-gray-300 leading-relaxed">
+                QGlyphs are <b>Infinitely Scalable.</b> Instead of growing memory exponentially (2ⁿ), SQI uses structural compression. A
+                single QGlyph can represent trillions of latent symbolic branches while staying purely linear on your MacBook.
+              </p>
+            </div>
+
+            {/* CARD 3 */}
+            <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-4">
+              <div className="text-blue-500 font-mono text-xs uppercase tracking-[0.2em]">Hoberman Logic</div>
+              <p className="text-sm text-gray-300 leading-relaxed">
+                Meaning is collapsed and expanded on demand. Like a Hoberman Sphere, SQI logic trees exist in a minimal glyph core and only
+                unfold into full context when triggered by an observer or policy.
+              </p>
+            </div>
+          </div>
+
+          {/* COMPARISON TABLE */}
+          <div className="mt-12 overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500">
+                  <th className="py-4 px-6">Feature</th>
+                  <th className="py-4 px-6">Physical Quantum (Qubits)</th>
+                  <th className="py-4 px-6 text-blue-400">SQI (QGlyphs)</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm font-light">
+                <tr className="border-b border-white/5">
+                  <td className="py-4 px-6 font-bold">State Memory</td>
+                  <td className="py-4 px-6 text-gray-400">
+                    Exponential (2ⁿ) - <b>Static Wall</b>
+                  </td>
+                  <td className="py-4 px-6 text-white font-medium">
+                    Linear (N) - <b>Unbounded</b>
+                  </td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="py-4 px-6 font-bold">Hardware</td>
+                  <td className="py-4 px-6 text-gray-400">$200M Cryogenic Fridge</td>
+                  <td className="py-4 px-6 text-white font-medium">Classical Silicon (Edge/Cloud)</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="py-4 px-6 font-bold">Collapse Mode</td>
+                  <td className="py-4 px-6 text-gray-400">Probabilistic / Random</td>
+                  <td className="py-4 px-6 text-white font-medium">Deterministic / Governed</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-6 font-bold">Execution</td>
+                  <td className="py-4 px-6 text-gray-400">Unitary Gates + Decoherence</td>
+                  <td className="py-4 px-6 text-white font-medium">Recursive Symbolic Re-writing</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* --- EXISTING EXPLAINER SECTION (PITCH DECK) --- */}
       <div className="grid md:grid-cols-2 gap-16 mt-32 border-t border-gray-100 pt-24 pb-20">
         <div className="space-y-8">
           <div className="space-y-4">

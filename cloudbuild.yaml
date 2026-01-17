@@ -19,7 +19,7 @@ steps:
         corepack prepare pnpm@10.20.0 --activate
 
         echo "📦 Installing deps with pnpm…"
-        pnpm install --frozen-lockfile || pnpm install
+        pnpm install --frozen-lockfile
 
         echo "🏗 Building Next.js frontend…"
         pnpm build
