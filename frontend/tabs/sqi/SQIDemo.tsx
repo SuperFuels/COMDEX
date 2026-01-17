@@ -17,10 +17,20 @@ export default function SQIDemo() {
   const [liveTrace, setLiveTrace] = useState<any>(null);
   const [showTrace, setShowTrace] = useState(false);
 
+  // --- superposition additions ---
+  const [superposed, setSuperposed] = useState(true);
+  const [showMathTooltip, setShowMathTooltip] = useState(false);
+
+  // demo amplitudes (explicit “superposition” math)
+  const A0 = 0.707, A1 = 0.707;
+  const B0 = 0.707, B1 = 0.707;
+  // ------------------------------
+
   const triggerCollapse = async () => {
     setIsResolving(true);
     setHasCollapsed(false);
     setLiveTrace(null);
+    setSuperposed(true);
 
     try {
       // LIVE API CALL TO YOUR BACKEND
@@ -29,16 +39,17 @@ export default function SQIDemo() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ policy: selectedPolicy.id }),
       });
-      
+
       const data = await response.json();
-      
+
       // Artificial delay to appreciate the "Resolution" phase
       setTimeout(() => {
         setLiveTrace(data);
         setCoherence(data.coherence_after);
         setIsResolving(false);
         setHasCollapsed(true);
-      }, 1500);
+        setSuperposed(false);
+      }, 2000);
     } catch (error) {
       console.error("SQI Runtime Error:", error);
       setIsResolving(false);
@@ -46,7 +57,8 @@ export default function SQIDemo() {
   };
 
   return (
-    <div className="w-full space-y-12 animate-in fade-in duration-700">
+    <div className="w-full space-y-12 animate-in fade-in duration-700 pb-20">
+      {/* HEADER SECTION */}
       <div className="text-center space-y-6">
         <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">SQI Runtime</h1>
         <p className="text-2xl text-gray-500 font-light tracking-tight">
@@ -56,6 +68,7 @@ export default function SQIDemo() {
 
       <div className="bg-white rounded-[3.5rem] shadow-2xl border border-gray-100 p-10">
         <div className="grid lg:grid-cols-2 gap-12">
+          
           {/* LEFT: THE COUPLING GRAPH */}
           <div className="space-y-6">
             <div className="flex justify-between items-center px-4">
@@ -72,6 +85,14 @@ export default function SQIDemo() {
             </div>
 
             <div className="h-[400px] bg-[#fafafa] rounded-[3rem] border border-gray-100 flex items-center justify-center relative overflow-hidden shadow-inner group">
+              {/* WAVEFRONT ANIMATION (Pulses during superposition) */}
+              {superposed && !hasCollapsed && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-64 h-64 border border-blue-500/10 rounded-full animate-ping" />
+                  <div className="absolute w-48 h-48 border border-blue-400/5 rounded-full animate-pulse" />
+                </div>
+              )}
+
               <svg className="absolute inset-0 w-full h-full p-20">
                 <defs>
                   <filter id="glow">
@@ -81,8 +102,8 @@ export default function SQIDemo() {
                 </defs>
 
                 {/* Entanglement Threads */}
-                <line x1="20%" y1="30%" x2="80%" y2="70%" stroke={activeNode === 0 ? "#0071e3" : "#e5e7eb"} strokeWidth="2" strokeDasharray="4" className="transition-colors duration-500" />
-                <line x1="80%" y1="30%" x2="20%" y2="70%" stroke={activeNode === 1 ? "#0071e3" : "#e5e7eb"} strokeWidth="2" strokeDasharray="4" className="transition-colors duration-500" />
+                <line x1="20%" y1="30%" x2="80%" y2="70%" stroke={superposed ? "#0071e3" : "#e5e7eb"} strokeWidth="1.5" strokeDasharray="4" className={`transition-all duration-1000 ${superposed ? "opacity-100" : "opacity-30"}`} />
+                <line x1="80%" y1="30%" x2="20%" y2="70%" stroke={superposed ? "#0071e3" : "#e5e7eb"} strokeWidth="1.5" strokeDasharray="4" className={`transition-all duration-1000 ${superposed ? "opacity-100" : "opacity-30"}`} />
 
                 {[
                   { x: "20%", y: "30%", label: "TaskPriority" },
@@ -91,14 +112,33 @@ export default function SQIDemo() {
                   { x: "80%", y: "70%", label: "Trace_Root" },
                 ].map((node, idx) => (
                   <g key={idx} onMouseEnter={() => setActiveNode(idx)} onMouseLeave={() => setActiveNode(null)}>
-                    <circle cx={node.x} cy={node.y} r="12" className={`fill-white stroke-2 transition-all duration-500 ${activeNode === idx ? "stroke-[#0071e3] scale-125" : "stroke-gray-300"}`} style={{ filter: activeNode === idx ? "url(#glow)" : "" }} />
+                    <circle cx={node.x} cy={node.y} r="12" className={`fill-white stroke-2 transition-all duration-700 ${superposed ? "stroke-blue-400" : "stroke-gray-300"} ${activeNode === idx ? "scale-125" : "scale-100"}`} style={{ filter: superposed ? "url(#glow)" : "" }} />
                     <text x={node.x} y={node.y} dy="30" textAnchor="middle" className="text-[10px] font-mono fill-gray-400 uppercase tracking-tighter">{node.label}</text>
                   </g>
                 ))}
               </svg>
 
+              {/* SUPERPOSITION MATH READOUT + TOOLTIP */}
+              {superposed && !hasCollapsed && (
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center group cursor-help"
+                     onMouseEnter={() => setShowMathTooltip(true)}
+                     onMouseLeave={() => setShowMathTooltip(false)}>
+                  
+                  {showMathTooltip && (
+                    <div className="mb-2 bg-black text-white text-[9px] p-3 rounded-xl w-48 text-center leading-tight shadow-xl animate-in fade-in slide-in-from-bottom-2">
+                      <span className="font-bold text-blue-400 uppercase">Superposition Active:</span><br/>
+                      State A and B exist simultaneously with equal amplitude (Ψ) until observed by policy.
+                    </div>
+                  )}
+
+                  <div className="text-[11px] font-mono text-blue-600 bg-white/80 backdrop-blur px-4 py-2 rounded-full border border-blue-100 shadow-sm transition-all hover:border-blue-400">
+                    Ψ_A[{A0},{A1}] · Ψ_B[{B0},{B1}]
+                  </div>
+                </div>
+              )}
+
               {/* COLLAPSED STATE OVERLAY */}
-              <div className={`absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur-xl transition-all duration-1000 ${hasCollapsed ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}>
+              <div className={`absolute inset-0 flex flex-col items-center justify-center bg-white/95 backdrop-blur-xl transition-all duration-1000 ${hasCollapsed ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}>
                 <div className="text-[10px] font-bold text-[#0071e3] uppercase tracking-widest mb-4">
                   Deterministic Collapse Verified
                 </div>
@@ -108,7 +148,12 @@ export default function SQIDemo() {
                   <span className="text-green-400">{liveTrace?.outcome.ResourceAlloc}</span>
                 </div>
                 <div className="flex gap-4 mt-8">
-                  <button onClick={() => { setHasCollapsed(false); setCoherence(0.94); setShowTrace(false); }} className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest border-b border-transparent hover:border-black">
+                  <button onClick={() => { 
+                    setHasCollapsed(false); 
+                    setCoherence(0.94); 
+                    setShowTrace(false); 
+                    setSuperposed(true);
+                  }} className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest border-b border-transparent hover:border-black">
                     Reset State
                   </button>
                   <button onClick={() => setShowTrace(!showTrace)} className="text-xs font-bold text-[#0071e3] uppercase tracking-widest border-b border-transparent hover:border-[#0071e3]">
@@ -120,7 +165,7 @@ export default function SQIDemo() {
               {isResolving && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm z-20">
                   <div className="w-12 h-12 border-2 border-[#0071e3] border-t-transparent rounded-full animate-spin mb-4" />
-                  <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#0071e3] animate-pulse">Running SQI Backend...</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#0071e3] animate-pulse">Running SQI Backend...</span>
                 </div>
               )}
             </div>
@@ -133,7 +178,7 @@ export default function SQIDemo() {
               <div className="z-10">
                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-8 flex justify-between">
                   <span>Policy/Observer Selection</span>
-                  <span className="text-blue-500">REALTIME_HARDWARE_MODE</span>
+                  <span className="text-blue-500 font-mono">REALTIME_HARDWARE_MODE</span>
                 </div>
                 <div className="space-y-4">
                   {POLICIES.map((p) => (
@@ -142,13 +187,13 @@ export default function SQIDemo() {
                         <div className={`text-sm font-bold transition-colors ${selectedPolicy.id === p.id ? "text-white" : "text-gray-400"}`}>{p.name}</div>
                         <div className="text-[10px] text-gray-600 mt-1 uppercase tracking-tighter">{p.effect}</div>
                       </div>
-                      <div className={`w-2 h-2 rounded-full transition-all ${selectedPolicy.id === p.id ? "bg-[#0071e3] scale-125" : "bg-gray-800"}`} />
+                      <div className={`w-2 h-2 rounded-full transition-all ${selectedPolicy.id === p.id ? "bg-[#0071e3] scale-125 shadow-[0_0_10px_#0071e3]" : "bg-gray-800"}`} />
                     </button>
                   ))}
                 </div>
               </div>
               <button onClick={triggerCollapse} disabled={isResolving || hasCollapsed} className="w-full mt-10 bg-[#0071e3] text-white py-5 rounded-full font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-[0.2em] shadow-lg shadow-blue-500/20 disabled:opacity-50">
-                {isResolving ? "PROCESSING..." : "TRIGGER GOVERNED COLLAPSE"}
+                {isResolving ? "PROCESSING COLLAPSE..." : "TRIGGER GOVERNED RESOLUTION"}
               </button>
             </div>
           </div>
@@ -179,9 +224,10 @@ export default function SQIDemo() {
           <div className="space-y-4">
             <h2 className="text-4xl font-bold italic tracking-tight text-black">Resolution Under Ambiguity</h2>
             <p className="text-lg text-gray-600 leading-relaxed font-light">
-              Traditional computing is allergic to ambiguity; variables must be A or B. SQI (Symbolic Quantum Intelligence) treats **ambiguity as a first-class citizen.** </p>
-            <p className="text-gray-500 leading-relaxed">
-              In the demo above, Domain A and B are entangled via a Coupling Graph. When you select a Policy and trigger a collapse, SQI doesn't just "pick one"—it resolves the entire graph deterministically based on context and governance.
+              Traditional computing is allergic to ambiguity; variables must be A or B. SQI (Symbolic Quantum Intelligence) treats **ambiguity as a first-class citizen.**{" "}
+            </p>
+            <p className="text-gray-500 leading-relaxed text-sm">
+              In the demo above, Domain A and B are held in **Symbolic Superposition**. When you select a Policy and trigger a collapse, SQI executes a **Governed Measurement**. It doesn't just "pick one"—it forces the entire graph to close deterministically based on context and governance.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-6">
@@ -206,10 +252,11 @@ export default function SQIDemo() {
             </div>
           </div>
           <div className="p-8 rounded-[2.5rem] bg-black text-white relative overflow-hidden">
-             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-2">Standard of Truth</div>
-             <p className="text-lg font-medium italic leading-snug relative z-10">
-               "SQI doesn't replace the human observer; it gives the observer a governing substrate to collapse ambiguity into auditable, replayable truth."
-             </p>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px] rounded-full" />
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-2 relative z-10">Standard of Truth</div>
+            <p className="text-lg font-medium italic leading-snug relative z-10">
+              "SQI doesn't replace the human observer; it gives the observer a governing substrate to collapse ambiguity into auditable, replayable truth."
+            </p>
           </div>
         </div>
       </div>

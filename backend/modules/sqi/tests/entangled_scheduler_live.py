@@ -7,22 +7,37 @@ from backend.modules.glyphos.glyph_quantum_core import GlyphQuantumCore
 
 
 def fnv1a(s: str) -> int:
-    h = 0x811c9dc5
+    h = 0x811C9DC5
     for ch in s:
         h ^= ord(ch)
         h = (h * 0x01000193) & 0xFFFFFFFF
     return h
 
 
+def _force_superposed(qbit: dict) -> dict:
+    """
+    Make the demo *actually* start in superposition, regardless of what
+    GlyphQuantumCore.generate_qbit() randomly chose.
+    """
+    qbit["state"] = "superposed"
+    qbit.pop("collapsed", None)
+    return qbit
+
+
 def run_entangled_scheduler(policy: str, container_id: str = "sqi_demo") -> dict:
     """
-    Minimal “Real Hardware” demo using existing GlyphQuantumCore.
+    “Real Hardware” demo using existing GlyphQuantumCore.
 
-    We model:
+    Models:
       - QBit A: Task priority (Routine vs Emergency)
       - QBit B: Resource allocation (Shared vs Dedicated)
       - Coupling: Emergency => Dedicated, Routine => Shared
-      - Policy controls deterministic collapse (via seed), so it is replayable.
+
+    This version:
+      ✅ forces *true* superposition at init (A and B)
+      ✅ collapses A via core (policy-deterministic)
+      ✅ collapses B via core too, but enforces coupling deterministically
+      ✅ keeps the same JSON response shape + trace
     """
 
     core = GlyphQuantumCore(container_id=container_id)
@@ -30,23 +45,23 @@ def run_entangled_scheduler(policy: str, container_id: str = "sqi_demo") -> dict
     # --- Step 0: superposition (high coherence) ---
     coherence_before = 0.94
 
-    # Deterministic seed per policy so demo is replayable
+    # Deterministic init seed per policy so the same policy is replayable
     random.seed(fnv1a(f"{policy}::init"))
 
-    # Create two “superposed” qbits
-    qbit_a = core.generate_qbit(glyph="⚑", coord="TaskPriority")
-    qbit_b = core.generate_qbit(glyph="🖥", coord="ResourceAlloc")
+    # Create qbits and FORCE them into superposition (demo guarantee)
+    qbit_a = _force_superposed(core.generate_qbit(glyph="⚑", coord="TaskPriority"))
+    qbit_b = _force_superposed(core.generate_qbit(glyph="🖥", coord="ResourceAlloc"))
 
+    # Entangle via core (records linkage / pair id)
     pair_id = core.entangle_qbits("TaskPriority", "ResourceAlloc")
 
-    # --- Step 1: governed collapse (policy decides) ---
-    # Seed again right before collapse so collapse becomes policy-deterministic.
+    # --- Step 1: governed collapse on A (policy decides) ---
     random.seed(fnv1a(f"{policy}::collapse::A"))
     qbit_a = core.collapse_qbit(qbit_a)
     a_bit = qbit_a.get("collapsed", "0")  # "0" or "1"
 
     # --- Step 2: coupling / teleport constraint to B ---
-    # We enforce coupling deterministically:
+    # Enforce coupling deterministically:
     #   A=1 => Emergency => Dedicated
     #   A=0 => Routine   => Shared
     if a_bit == "1":
@@ -58,7 +73,15 @@ def run_entangled_scheduler(policy: str, container_id: str = "sqi_demo") -> dict
         meaning_b = "Shared Cluster"
         forced_b = "0"
 
-    # Collapse B deterministically to match coupling
+    # Collapse B through the core (so any internal tracing/reflection happens),
+    # but deterministically enforce the coupled outcome.
+    #
+    # We seed with forced_b so the "collapse(B)" is replayable and aligned
+    # with the coupling rule.
+    random.seed(fnv1a(f"{policy}::collapse::B::{forced_b}"))
+    qbit_b = core.collapse_qbit(qbit_b)
+
+    # Hard-enforce coupling (belt + suspenders)
     qbit_b["collapsed"] = forced_b
     qbit_b["state"] = "collapsed"
 
