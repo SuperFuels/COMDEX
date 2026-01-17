@@ -1,4 +1,4 @@
-# backend/modules/codex/tests/glyph_compression_benchmark.py
+# backend/tests/glyph_compression_benchmark.py
 import json
 import os
 import time
