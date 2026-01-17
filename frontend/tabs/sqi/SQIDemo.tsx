@@ -8,18 +8,18 @@ const POLICIES = [
   { id: "p3", name: "Balanced Audit", effect: "Deterministic / Trace-Heavy", bias: "Shared Cluster" },
 ];
 
+type SQITrace = {
+  demo_id?: string;
+  coherence_after?: number;
+  outcome?: { TaskPriority?: string; ResourceAlloc?: string };
+};
+
 export default function SQIDemo() {
   const [isResolving, setIsResolving] = useState(false);
   const [hasCollapsed, setHasCollapsed] = useState(false);
   const [coherence, setCoherence] = useState(0.94);
   const [selectedPolicy, setSelectedPolicy] = useState(POLICIES[0]);
   const [activeNode, setActiveNode] = useState<number | null>(null);
-  type SQITrace = {
-    demo_id?: string;
-    coherence_after?: number;
-    outcome?: { TaskPriority?: string; ResourceAlloc?: string };
-  };
-
   const [liveTrace, setLiveTrace] = useState<SQITrace | null>(null);
   const [showTrace, setShowTrace] = useState(false);
 
@@ -39,19 +39,19 @@ export default function SQIDemo() {
     setSuperposed(true);
 
     try {
+      // LIVE API CALL TO YOUR BACKEND
       const response = await fetch("/api/sqi/demo/entangled_scheduler", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ policy: selectedPolicy.id }),
       });
 
-      // avoid throwing inside response.json() on non-JSON error payloads
-      const text = await response.text();
-      const data = text ? JSON.parse(text) : null;
+      const data = (await response.json()) as SQITrace;
 
+      // Artificial delay to appreciate the "Resolution" phase
       setTimeout(() => {
         setLiveTrace(data);
-        setCoherence(Number(data?.coherence_after ?? 0.31));
+        setCoherence(data.coherence_after ?? 0.31);
         setIsResolving(false);
         setHasCollapsed(true);
         setSuperposed(false);
@@ -85,7 +85,7 @@ export default function SQIDemo() {
               </div>
               <div className="text-right">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Coherence Score</span>
-                <div className="text-xl font-mono font-bold text-black">{Number(coherence).toFixed(2)}</div>
+                <div className="text-xl font-mono font-bold text-black">{coherence.toFixed(2)}</div>
               </div>
             </div>
 
@@ -102,34 +102,13 @@ export default function SQIDemo() {
                 <defs>
                   <filter id="glow">
                     <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
-                    <feMerge>
-                      <feMergeNode in="coloredBlur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
+                    <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
                   </filter>
                 </defs>
 
                 {/* Entanglement Threads */}
-                <line
-                  x1="20%"
-                  y1="30%"
-                  x2="80%"
-                  y2="70%"
-                  stroke={superposed ? "#0071e3" : "#e5e7eb"}
-                  strokeWidth="1.5"
-                  strokeDasharray="4"
-                  className={`transition-all duration-1000 ${superposed ? "opacity-100" : "opacity-30"}`}
-                />
-                <line
-                  x1="80%"
-                  y1="30%"
-                  x2="20%"
-                  y2="70%"
-                  stroke={superposed ? "#0071e3" : "#e5e7eb"}
-                  strokeWidth="1.5"
-                  strokeDasharray="4"
-                  className={`transition-all duration-1000 ${superposed ? "opacity-100" : "opacity-30"}`}
-                />
+                <line x1="20%" y1="30%" x2="80%" y2="70%" stroke={superposed ? "#0071e3" : "#e5e7eb"} strokeWidth="1.5" strokeDasharray="4" className={`transition-all duration-1000 ${superposed ? "opacity-100" : "opacity-30"}`} />
+                <line x1="80%" y1="30%" x2="20%" y2="70%" stroke={superposed ? "#0071e3" : "#e5e7eb"} strokeWidth="1.5" strokeDasharray="4" className={`transition-all duration-1000 ${superposed ? "opacity-100" : "opacity-30"}`} />
 
                 {[
                   { x: "20%", y: "30%", label: "TaskPriority" },
@@ -138,24 +117,8 @@ export default function SQIDemo() {
                   { x: "80%", y: "70%", label: "Trace_Root" },
                 ].map((node, idx) => (
                   <g key={idx} onMouseEnter={() => setActiveNode(idx)} onMouseLeave={() => setActiveNode(null)}>
-                    <circle
-                      cx={node.x}
-                      cy={node.y}
-                      r="12"
-                      className={`fill-white stroke-2 transition-all duration-700 ${
-                        superposed ? "stroke-blue-400" : "stroke-gray-300"
-                      } ${activeNode === idx ? "scale-125" : "scale-100"}`}
-                      style={{ filter: superposed ? "url(#glow)" : "" }}
-                    />
-                    <text
-                      x={node.x}
-                      y={node.y}
-                      dy="30"
-                      textAnchor="middle"
-                      className="text-[10px] font-mono fill-gray-400 uppercase tracking-tighter"
-                    >
-                      {node.label}
-                    </text>
+                    <circle cx={node.x} cy={node.y} r="12" className={`fill-white stroke-2 transition-all duration-700 ${superposed ? "stroke-blue-400" : "stroke-gray-300"} ${activeNode === idx ? "scale-125" : "scale-100"}`} style={{ filter: superposed ? "url(#glow)" : "" }} />
+                    <text x={node.x} y={node.y} dy="30" textAnchor="middle" className="text-[10px] font-mono fill-gray-400 uppercase tracking-tighter">{node.label}</text>
                   </g>
                 ))}
               </svg>
@@ -169,8 +132,7 @@ export default function SQIDemo() {
                 >
                   {showMathTooltip && (
                     <div className="mb-2 bg-black text-white text-[9px] p-3 rounded-xl w-48 text-center leading-tight shadow-xl animate-in fade-in slide-in-from-bottom-2">
-                      <span className="font-bold text-blue-400 uppercase">Superposition Active:</span>
-                      <br />
+                      <span className="font-bold text-blue-400 uppercase">Superposition Active:</span><br />
                       State A and B exist simultaneously with equal amplitude (Ψ) until observed by policy.
                     </div>
                   )}
@@ -182,11 +144,7 @@ export default function SQIDemo() {
               )}
 
               {/* COLLAPSED STATE OVERLAY */}
-              <div
-                className={`absolute inset-0 flex flex-col items-center justify-center bg-white/95 backdrop-blur-xl transition-all duration-1000 ${
-                  hasCollapsed ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-                }`}
-              >
+              <div className={`absolute inset-0 flex flex-col items-center justify-center bg-white/95 backdrop-blur-xl transition-all duration-1000 ${hasCollapsed ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}>
                 <div className="text-[10px] font-bold text-[#0071e3] uppercase tracking-widest mb-4">
                   Deterministic Collapse Verified
                 </div>
@@ -196,21 +154,15 @@ export default function SQIDemo() {
                   <span className="text-green-400">{liveTrace?.outcome?.ResourceAlloc}</span>
                 </div>
                 <div className="flex gap-4 mt-8">
-                  <button
-                    onClick={() => {
-                      setHasCollapsed(false);
-                      setCoherence(0.94);
-                      setShowTrace(false);
-                      setSuperposed(true);
-                    }}
-                    className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest border-b border-transparent hover:border-black"
-                  >
+                  <button onClick={() => {
+                    setHasCollapsed(false);
+                    setCoherence(0.94);
+                    setShowTrace(false);
+                    setSuperposed(true);
+                  }} className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest border-b border-transparent hover:border-black">
                     Reset State
                   </button>
-                  <button
-                    onClick={() => setShowTrace(!showTrace)}
-                    className="text-xs font-bold text-[#0071e3] uppercase tracking-widest border-b border-transparent hover:border-[#0071e3]"
-                  >
+                  <button onClick={() => setShowTrace(!showTrace)} className="text-xs font-bold text-[#0071e3] uppercase tracking-widest border-b border-transparent hover:border-[#0071e3]">
                     {showTrace ? "Hide Trace" : "View Audit Trace"}
                   </button>
                 </div>
@@ -219,9 +171,7 @@ export default function SQIDemo() {
               {isResolving && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm z-20">
                   <div className="w-12 h-12 border-2 border-[#0071e3] border-t-transparent rounded-full animate-spin mb-4" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#0071e3] animate-pulse">
-                    Running SQI Backend...
-                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#0071e3] animate-pulse">Running SQI Backend...</span>
                 </div>
               )}
             </div>
@@ -238,41 +188,17 @@ export default function SQIDemo() {
                 </div>
                 <div className="space-y-4">
                   {POLICIES.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setSelectedPolicy(p)}
-                      className={`w-full text-left p-6 rounded-3xl border transition-all duration-300 flex justify-between items-center group ${
-                        selectedPolicy.id === p.id
-                          ? "border-[#0071e3] bg-blue-500/5"
-                          : "border-white/5 hover:border-white/20"
-                      }`}
-                    >
+                    <button key={p.id} onClick={() => setSelectedPolicy(p)} className={`w-full text-left p-6 rounded-3xl border transition-all duration-300 flex justify-between items-center group ${selectedPolicy.id === p.id ? "border-[#0071e3] bg-blue-500/5" : "border-white/5 hover:border-white/20"}`}>
                       <div>
-                        <div
-                          className={`text-sm font-bold transition-colors ${
-                            selectedPolicy.id === p.id ? "text-white" : "text-gray-400"
-                          }`}
-                        >
-                          {p.name}
-                        </div>
+                        <div className={`text-sm font-bold transition-colors ${selectedPolicy.id === p.id ? "text-white" : "text-gray-400"}`}>{p.name}</div>
                         <div className="text-[10px] text-gray-600 mt-1 uppercase tracking-tighter">{p.effect}</div>
                       </div>
-                      <div
-                        className={`w-2 h-2 rounded-full transition-all ${
-                          selectedPolicy.id === p.id
-                            ? "bg-[#0071e3] scale-125 shadow-[0_0_10px_#0071e3]"
-                            : "bg-gray-800"
-                        }`}
-                      />
+                      <div className={`w-2 h-2 rounded-full transition-all ${selectedPolicy.id === p.id ? "bg-[#0071e3] scale-125 shadow-[0_0_10px_#0071e3]" : "bg-gray-800"}`} />
                     </button>
                   ))}
                 </div>
               </div>
-              <button
-                onClick={triggerCollapse}
-                disabled={isResolving || hasCollapsed}
-                className="w-full mt-10 bg-[#0071e3] text-white py-5 rounded-full font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-[0.2em] shadow-lg shadow-blue-500/20 disabled:opacity-50"
-              >
+              <button onClick={triggerCollapse} disabled={isResolving || hasCollapsed} className="w-full mt-10 bg-[#0071e3] text-white py-5 rounded-full font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-[0.2em] shadow-lg shadow-blue-500/20 disabled:opacity-50">
                 {isResolving ? "PROCESSING COLLAPSE..." : "TRIGGER GOVERNED RESOLUTION"}
               </button>
             </div>
@@ -284,7 +210,7 @@ export default function SQIDemo() {
           <div className="mt-10 p-8 bg-[#0a0a0b] rounded-[2.5rem] border border-white/5 animate-in slide-in-from-top-4 duration-500">
             <div className="flex justify-between items-center mb-6">
               <h4 className="text-sm font-bold text-white uppercase tracking-widest italic">Black Box Flight Recorder</h4>
-              <span className="text-[10px] font-mono text-gray-500">{liveTrace?.demo_id}</span>
+              <span className="text-[10px] font-mono text-gray-500">{liveTrace.demo_id}</span>
             </div>
             <div className="grid md:grid-cols-3 gap-8 mb-8">
               <TraceCaption step="Step 2" title="Entanglement Established" desc="Proving the link between Priority and Resources." />
@@ -304,24 +230,15 @@ export default function SQIDemo() {
           <div className="space-y-4">
             <h2 className="text-4xl font-bold italic tracking-tight text-black">Resolution Under Ambiguity</h2>
             <p className="text-lg text-gray-600 leading-relaxed font-light">
-              Traditional computing is allergic to ambiguity; variables must be A or B. SQI (Symbolic Quantum Intelligence) treats{" "}
-              <b>ambiguity as a first-class citizen.</b>{" "}
+              Traditional computing is allergic to ambiguity; variables must be A or B. SQI (Symbolic Quantum Intelligence) treats **ambiguity as a first-class citizen.**{" "}
             </p>
             <p className="text-gray-500 leading-relaxed text-sm">
-              In the demo above, Domain A and B are held in <b>Symbolic Superposition</b>. When you select a Policy and trigger a collapse,
-              SQI executes a <b>Governed Measurement</b>. It doesn't just "pick one"—it forces the entire graph to close deterministically
-              based on context and governance.
+              In the demo above, Domain A and B are held in **Symbolic Superposition**. When you select a Policy and trigger a collapse, SQI executes a **Governed Measurement**. It doesn't just "pick one"—it forces the entire graph to close deterministically based on context and governance.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-6">
-            <MetricCard
-              label="Coherence Score"
-              desc="A real-time signal of system stability. High coherence (0.9+) represents an unresolved state of potential; low coherence represents a settled outcome."
-            />
-            <MetricCard
-              label="Drift Reports"
-              desc="A structured report of incompleteness or unstable logic. If a state cannot collapse cleanly, SQI tells you exactly why and what logic is missing."
-            />
+            <MetricCard label="Coherence Score" desc="A real-time signal of system stability. High coherence (0.9+) represents an unresolved state of potential; low coherence represents a settled outcome." />
+            <MetricCard label="Drift Reports" desc="A structured report of incompleteness or unstable logic. If a state cannot collapse cleanly, SQI tells you exactly why and what logic is missing." />
           </div>
         </div>
 
@@ -329,8 +246,7 @@ export default function SQIDemo() {
           <div className="space-y-4">
             <h3 className="text-xl font-bold tracking-tight">The "MacBook" Supremacy</h3>
             <p className="text-sm text-gray-400 leading-relaxed">
-              While the industry waits for the "$200M Quantum Fridge," GlyphOS delivers <b>Quantum-Inspired Logic on classical silicon.</b>{" "}
-              By using formal semantics (SQM) instead of physical qubits, we enable superposition and entanglement in standard cloud containers.
+              While the industry waits for the "$200M Quantum Fridge," GlyphOS delivers **Quantum-Inspired Logic on classical silicon.** By using formal semantics (SQM) instead of physical qubits, we enable superposition and entanglement in standard cloud containers.
             </p>
           </div>
           <div className="space-y-6">
@@ -345,8 +261,7 @@ export default function SQIDemo() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px] rounded-full" />
             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-2 relative z-10">Standard of Truth</div>
             <p className="text-lg font-medium italic leading-snug relative z-10">
-              "SQI doesn't replace the human observer; it gives the observer a governing substrate to collapse ambiguity into auditable,
-              replayable truth."
+              "SQI doesn't replace the human observer; it gives the observer a governing substrate to collapse ambiguity into auditable, replayable truth."
             </p>
           </div>
         </div>
@@ -356,7 +271,7 @@ export default function SQIDemo() {
 }
 
 // SUB-COMPONENTS
-function TraceCaption({ step, title, desc }) {
+function TraceCaption({ step, title, desc }: any) {
   return (
     <div className="space-y-1">
       <div className="text-[10px] font-bold text-[#0071e3] uppercase tracking-widest">{step}</div>
@@ -366,7 +281,7 @@ function TraceCaption({ step, title, desc }) {
   );
 }
 
-function MetricCard({ label, desc }) {
+function MetricCard({ label, desc }: any) {
   return (
     <div className="p-8 bg-gray-50 rounded-[2.5rem] border border-gray-100">
       <div className="text-[10px] font-bold text-blue-600 uppercase mb-2">{label}</div>
@@ -375,7 +290,7 @@ function MetricCard({ label, desc }) {
   );
 }
 
-function UseCaseItem({ num, title, desc }) {
+function UseCaseItem({ num, title, desc }: any) {
   return (
     <div className="flex gap-4 items-start group">
       <span className="text-[#0071e3] font-mono font-bold mt-1">{num}</span>
