@@ -4,7 +4,9 @@ import QKDSecurityDemo from "./QKDSecurityDemo";
 
 export default function SovereignQKDTab() {
   return (
-    <section className="space-y-16 pb-24">
+    // FIX: remove pb-24 + mt-32 patterns that can interact badly with a parent scroll container,
+    // and keep this tab as "content-only" (like GlyphTab). Content is unchanged.
+    <section className="space-y-16">
       {/* 1. HERO HEADER */}
       <div className="text-center space-y-6">
         <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">
@@ -24,7 +26,7 @@ export default function SovereignQKDTab() {
       <QKDSecurityDemo />
 
       {/* 3. THE PITCH DECK (UNDERNEATH) */}
-      <div className="grid md:grid-cols-2 gap-12 mt-32 border-t border-gray-100 pt-24">
+      <div className="grid md:grid-cols-2 gap-12 border-t border-gray-100 pt-24">
         {/* The Strategy */}
         <div className="space-y-8">
           <div className="space-y-4">
