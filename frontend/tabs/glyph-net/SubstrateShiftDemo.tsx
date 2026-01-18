@@ -261,19 +261,6 @@ export default function SubstrateShiftDemo() {
         <section className="grid md:grid-cols-2 gap-8">
           <div className="bg-gray-50 rounded-[2.5rem] p-10 border border-gray-100">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Learn More</p>
-            <h3 className="text-2xl font-bold italic tracking-tighter">How the RF Radio Mesh Works</h3>
-            <p className="mt-4 text-gray-600 leading-relaxed italic">
-              The Radio Mesh is a decentralized mesh substrate that functions entirely without the internet, cell towers, or
-              satellites. By using low-power, long-range radio (LoRa) frequencies, each device becomes a node in a spiderweb
-              of connectivity. When you send a message, it does not travel to a central server; instead, it is spooled into
-              small RF Capsules that hop from one radio node to another until they find the recipient. Because it uses the
-              SRK-17 band profile, it automatically adjusts its pacing to ensure messages get through even over miles of
-              rugged terrain or through thick building walls.
-            </p>
-          </div>
-
-          <div className="bg-gray-50 rounded-[2.5rem] p-10 border border-gray-100">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Learn More</p>
             <h3 className="text-2xl font-bold italic tracking-tighter">The Intelligence of GlyphNet</h3>
             <p className="mt-4 text-gray-600 leading-relaxed italic">
               Unlike traditional networking that treats data as bits moving through a pipe, GlyphNet treats the wave itself
@@ -486,6 +473,21 @@ export default function SubstrateShiftDemo() {
           <Metric label="Tamper Detection" glyph="Instant (Physical)" legacy="Post-Facto (Log)" highlight />
           <Metric label="Validation Latency" glyph="< 1.2ms" legacy="~45.0ms" highlight />
           <Metric label="Data Integrity" glyph={isIntercepted ? "0.0%" : "99.99%"} legacy="100% (Blind)" alert={isIntercepted} />
+        </section>
+
+                <section className="grid md:grid-cols-2 gap-8">
+          <div className="bg-gray-50 rounded-[2.5rem] p-10 border border-gray-100">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Learn More</p>
+            <h3 className="text-2xl font-bold italic tracking-tighter">How the RF Radio Mesh Works</h3>
+            <p className="mt-4 text-gray-600 leading-relaxed italic">
+              The Radio Mesh is a decentralized mesh substrate that functions entirely without the internet, cell towers, or
+              satellites. By using low-power, long-range radio (LoRa) frequencies, each device becomes a node in a spiderweb
+              of connectivity. When you send a message, it does not travel to a central server; instead, it is spooled into
+              small RF Capsules that hop from one radio node to another until they find the recipient. Because it uses the
+              SRK-17 band profile, it automatically adjusts its pacing to ensure messages get through even over miles of
+              rugged terrain or through thick building walls.
+            </p>
+          </div>
         </section>
 
         {/* =====================

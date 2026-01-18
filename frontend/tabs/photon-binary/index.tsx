@@ -10,7 +10,7 @@ export default function BridgeTab() {
       {/* 1. HERO HEADER - Matching Compression Style */}
       <div className="text-center space-y-6">
         <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">
-          GlyphNet
+          Photon Binary
         </h1>
         <p className="text-2xl text-gray-500 font-light tracking-tight">
           Beyond the binary bootloader —{" "}
