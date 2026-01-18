@@ -2,8 +2,7 @@ import "@/lib/api";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import "katex/dist/katex.min.css";
 
@@ -14,16 +13,16 @@ const HUDOverlay = dynamic(() => import("@/components/HUD/HUDOverlay"), { ssr: f
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-  const router = useRouter();
-
-  // Hide legacy navbar on GlyphNet (GlyphNet mounts its own navbar)
-  const hideNavbar =
-    router.asPath.startsWith("/glyphnet") ||
-    router.pathname.startsWith("/glyphnet");
+  const [hideNavbar, setHideNavbar] = useState(false);
 
   useEffect(() => {
+    // Hide legacy navbar on GlyphNet (GlyphNet mounts its own navbar)
+    const path = window.location.pathname || "";
+    setHideNavbar(path.startsWith("/glyphnet"));
+
     console.log("🔍 NEXT_PUBLIC_API_URL =", process.env.NEXT_PUBLIC_API_URL);
-    if (typeof window !== "undefined" && localStorage.getItem("token")) {
+
+    if (localStorage.getItem("token")) {
       localStorage.removeItem("manualDisconnect");
     }
   }, []);

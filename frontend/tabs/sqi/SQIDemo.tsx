@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 const POLICIES = [
   { id: "p1", name: "Strict Compliance", effect: "Low Entropy / High Bias", bias: "Dedicated Server" },
@@ -58,6 +59,27 @@ export default function SQIDemo() {
   const B0 = 0.707,
     B1 = 0.707;
   // ------------------------------
+
+  // ============================================================
+  // 1) Burst Resolution Simulation State (NEW)
+  // ============================================================
+  const [burstActive, setBurstActive] = useState(false);
+  const [burstDots, setBurstDots] = useState<{ x: number; y: number }[]>([]);
+
+  const triggerBurstSim = () => {
+    setBurstActive(true);
+
+    const dots = Array.from({ length: 100 }).map(() => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+    }));
+    setBurstDots(dots);
+
+    setTimeout(() => {
+      setBurstActive(false);
+      setBurstDots([]);
+    }, 1500);
+  };
 
   const triggerCollapse = async () => {
     setIsResolving(true);
@@ -351,24 +373,46 @@ export default function SQIDemo() {
       </div>
 
       {/* ============================================================
-          NEW SECTION 1: The Foundations of SQM
+          SECTION 1 (SWAPPED): The "Jump Rope" Metaphor + Burst Visualizer
           ============================================================ */}
       <div className="grid md:grid-cols-2 gap-16 mt-20 pt-20 border-t border-gray-100">
         <div className="space-y-6">
-          <h2 className="text-4xl font-bold italic tracking-tight text-black">The Mathematics of Meaning</h2>
-          <p className="text-gray-600 leading-relaxed">
-            Traditional logic is binary (0 or 1). Traditional Quantum Mechanics is probabilistic (amplitudes of particles).{" "}
-            <b>Symbolic Quantum Mechanics (SQM)</b> is semantic. It is a formal algebra where the "Basis States" are not numbers, but{" "}
-            <b>QGlyphs</b>—symbolic atoms of meaning.
+          <h2 className="text-4xl font-bold italic tracking-tight text-black">The "Jump Rope" Metaphor</h2>
+          <p className="text-gray-600 leading-relaxed italic">
+            "Imagine a jump rope spinning so fast it looks like a solid blur. That 'blur' is the superposition—it contains every position the
+            rope could be in at once."
+          </p>
+          <p className="text-sm text-gray-500">
+            In a classical computer, you have to stop the rope to see where it is. In <b>SQI</b>, we calculate the <b>Symbolic Shape</b> of
+            the blur. Because we calculate the logic instead of the physics, we can simulate millions of "spinning ropes" on a standard laptop.
           </p>
 
-          <div className="bg-gray-50 p-6 rounded-3xl font-mono text-sm space-y-4 border border-gray-100">
-            <div className="text-blue-600 font-bold text-[10px] uppercase tracking-widest">Formal State Equation</div>
-            <div className="text-lg text-center py-4">|Ψ⟩ = Σ αᵢ |sᵢ⟩</div>
-            <p className="text-[11px] text-gray-400 leading-tight">
-              Where <b>|sᵢ⟩</b> is a symbolic eigenstate (a specific meaning) and <b>αᵢ</b> is the semantic amplitude—the weight of that
-              meaning within a context before it is observed.
-            </p>
+          <div
+            className="bg-gray-50 p-6 rounded-3xl font-mono text-sm space-y-4 border border-gray-100 relative group cursor-pointer"
+            onClick={triggerBurstSim}
+          >
+            <div className="text-blue-600 font-bold text-[10px] uppercase tracking-widest flex justify-between">
+              <span>Formal State Equation</span>
+              <span className="animate-pulse">Click to Visualize Burst Resolution</span>
+            </div>
+            <div className="text-2xl text-center py-4 font-serif">|Ψ⟩ = Σ αᵢ |sᵢ⟩</div>
+
+            {/* BURST RESOLUTION VISUALIZER OVERLAY */}
+            {burstActive && (
+              <div className="absolute inset-0 bg-white/90 backdrop-blur-sm rounded-3xl flex items-center justify-center overflow-hidden">
+                {burstDots.map((dot, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1, x: dot.x - 50, y: dot.y - 50 }}
+                    className="absolute w-1 h-1 bg-blue-400 rounded-full"
+                  />
+                ))}
+                <div className="text-[10px] font-bold text-blue-600 uppercase tracking-widest z-10 bg-white px-2">
+                  Interference & Collapse (O(n log n))
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -389,7 +433,7 @@ export default function SQIDemo() {
       </div>
 
       {/* ============================================================
-          NEW SECTION 2: SQI vs Physical Quantum Systems
+          SECTION 2: SQI vs Physical Quantum Systems (UPDATED)
           ============================================================ */}
       <div className="mt-32 p-12 bg-[#0a0a0b] rounded-[4rem] text-white overflow-hidden relative">
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 blur-[120px] rounded-full" />
@@ -416,8 +460,8 @@ export default function SQIDemo() {
             <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-4">
               <div className="text-blue-500 font-mono text-xs uppercase tracking-[0.2em]">Infinite QGlyphs</div>
               <p className="text-sm text-gray-300 leading-relaxed">
-                QGlyphs are <b>Infinitely Scalable.</b> Instead of growing memory exponentially (2ⁿ), SQI uses structural compression. A
-                single QGlyph can represent trillions of latent symbolic branches while staying purely linear on your MacBook.
+                QGlyphs are <b>Infinitely Scalable.</b> Instead of growing memory exponentially (2ⁿ), SQI uses structural compression. A single
+                QGlyph can represent trillions of latent symbolic branches while staying purely linear on your MacBook.
               </p>
             </div>
 
@@ -425,13 +469,26 @@ export default function SQIDemo() {
             <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 space-y-4">
               <div className="text-blue-500 font-mono text-xs uppercase tracking-[0.2em]">Hoberman Logic</div>
               <p className="text-sm text-gray-300 leading-relaxed">
-                Meaning is collapsed and expanded on demand. Like a Hoberman Sphere, SQI logic trees exist in a minimal glyph core and only
-                unfold into full context when triggered by an observer or policy.
+                Meaning is collapsed and expanded on demand. Like a Hoberman Sphere, SQI logic trees exist in a minimal glyph core and only unfold
+                into full context when triggered by an observer or policy.
+              </p>
+            </div>
+
+            {/* ============================================================
+                3) Burst Resolution & High-Entropy (NEW CARD)
+                ============================================================ */}
+            <div className="p-8 rounded-[2.5rem] bg-blue-600 text-white space-y-4">
+              <div className="text-white/60 font-mono text-xs uppercase tracking-[0.2em]">Burst Resolution</div>
+              <h4 className="text-xl font-bold italic">No Logic Explosions.</h4>
+              <p className="text-sm text-blue-100 leading-relaxed">
+                Normally, "Creative Expansion" would cause a branch explosion that freezes a CPU. SQI uses <b>Destructive Interference</b>:
+                contradictory logic paths cancel each other out before they ever reach your processor, keeping the execution path lean and{" "}
+                <b>O(n log n)</b>.
               </p>
             </div>
           </div>
 
-          {/* COMPARISON TABLE */}
+          {/* COMPARISON TABLE (UPDATED TBODY) */}
           <div className="mt-12 overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -441,30 +498,27 @@ export default function SQIDemo() {
                   <th className="py-4 px-6 text-blue-400">SQI (QGlyphs)</th>
                 </tr>
               </thead>
+
               <tbody className="text-sm font-light">
                 <tr className="border-b border-white/5">
-                  <td className="py-4 px-6 font-bold">State Memory</td>
-                  <td className="py-4 px-6 text-gray-400">
-                    Exponential (2ⁿ) - <b>Static Wall</b>
-                  </td>
-                  <td className="py-4 px-6 text-white font-medium">
-                    Linear (N) - <b>Unbounded</b>
-                  </td>
+                  <td className="py-4 px-6 font-bold text-white">Goal</td>
+                  <td className="py-4 px-6 text-gray-400 text-xs">Simulate Physical Atoms</td>
+                  <td className="py-4 px-6 text-blue-400 font-medium">Resolve Symbolic Ambiguity</td>
                 </tr>
                 <tr className="border-b border-white/5">
-                  <td className="py-4 px-6 font-bold">Hardware</td>
-                  <td className="py-4 px-6 text-gray-400">$200M Cryogenic Fridge</td>
-                  <td className="py-4 px-6 text-white font-medium">Classical Silicon (Edge/Cloud)</td>
+                  <td className="py-4 px-6 font-bold text-white">Limit</td>
+                  <td className="py-4 px-6 text-gray-400 text-xs">Decoherence (Physical Noise)</td>
+                  <td className="py-4 px-6 text-blue-400 font-medium">Entropy (Logical Contradiction)</td>
                 </tr>
                 <tr className="border-b border-white/5">
-                  <td className="py-4 px-6 font-bold">Collapse Mode</td>
-                  <td className="py-4 px-6 text-gray-400">Probabilistic / Random</td>
-                  <td className="py-4 px-6 text-white font-medium">Deterministic / Governed</td>
+                  <td className="py-4 px-6 font-bold text-white">Hardware</td>
+                  <td className="py-4 px-6 text-gray-400 text-xs">$200M Sub-Zero Cryo-Fridge</td>
+                  <td className="py-4 px-6 text-blue-400 font-medium">Your MacBook Pro (Chrome)</td>
                 </tr>
-                <tr>
-                  <td className="py-4 px-6 font-bold">Execution</td>
-                  <td className="py-4 px-6 text-gray-400">Unitary Gates + Decoherence</td>
-                  <td className="py-4 px-6 text-white font-medium">Recursive Symbolic Re-writing</td>
+                <tr className="border-b border-white/5">
+                  <td className="py-4 px-6 font-bold text-white">Output</td>
+                  <td className="py-4 px-6 text-gray-400 text-xs">Probabilistic Guesses</td>
+                  <td className="py-4 px-6 text-blue-400 font-medium">Auditable, Deterministic Truth</td>
                 </tr>
               </tbody>
             </table>
@@ -482,9 +536,9 @@ export default function SQIDemo() {
               <b>ambiguity as a first-class citizen.</b>{" "}
             </p>
             <p className="text-gray-500 leading-relaxed text-sm">
-              In the demo above, Domain A and B are held in <b>Symbolic Superposition</b>. When you select a Policy and trigger a collapse,
-              SQI executes a <b>Governed Measurement</b>. It doesn't just "pick one"—it forces the entire graph to close deterministically
-              based on context and governance.
+              In the demo above, Domain A and B are held in <b>Symbolic Superposition</b>. When you select a Policy and trigger a collapse, SQI
+              executes a <b>Governed Measurement</b>. It doesn't just "pick one"—it forces the entire graph to close deterministically based on
+              context and governance.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-6">
@@ -503,8 +557,8 @@ export default function SQIDemo() {
           <div className="space-y-4">
             <h3 className="text-xl font-bold tracking-tight">The "MacBook" Supremacy</h3>
             <p className="text-sm text-gray-400 leading-relaxed">
-              While the industry waits for the "$200M Quantum Fridge," GlyphOS delivers <b>Quantum-Inspired Logic on classical silicon.</b>{" "}
-              By using formal semantics (SQM) instead of physical qubits, we enable superposition and entanglement in standard cloud containers.
+              While the industry waits for the "$200M Quantum Fridge," GlyphOS delivers <b>Quantum-Inspired Logic on classical silicon.</b> By
+              using formal semantics (SQM) instead of physical qubits, we enable superposition and entanglement in standard cloud containers.
             </p>
           </div>
           <div className="space-y-6">
@@ -519,9 +573,33 @@ export default function SQIDemo() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px] rounded-full" />
             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-2 relative z-10">Standard of Truth</div>
             <p className="text-lg font-medium italic leading-snug relative z-10">
-              "SQI doesn't replace the human observer; it gives the observer a governing substrate to collapse ambiguity into auditable,
-              replayable truth."
+              "SQI doesn't replace the human observer; it gives the observer a governing substrate to collapse ambiguity into auditable, replayable
+              truth."
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================
+          5) No-Code Reality Section (NEW)
+          ============================================================ */}
+      <div className="mt-32 border-t border-gray-100 pt-24 text-center space-y-8">
+        <h2 className="text-5xl font-bold italic tracking-tighter">Zero-Code, Total Clarity.</h2>
+        <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
+          <div className="space-y-4">
+            <div className="text-blue-600 font-bold text-3xl">01</div>
+            <h3 className="font-bold uppercase text-xs tracking-widest">The Observer Interface</h3>
+            <p className="text-xs text-gray-500">You don't write logic; you select a Policy Identity. The system does the heavy lifting.</p>
+          </div>
+          <div className="space-y-4">
+            <div className="text-blue-600 font-bold text-3xl">02</div>
+            <h3 className="font-bold uppercase text-xs tracking-widest">Coherence Scores</h3>
+            <p className="text-xs text-gray-500">Instantly see if a plan is stable (0.9+) or if it contains hidden contradictions.</p>
+          </div>
+          <div className="space-y-4">
+            <div className="text-blue-600 font-bold text-3xl">03</div>
+            <h3 className="font-bold uppercase text-xs tracking-widest">Drift Reports</h3>
+            <p className="text-xs text-gray-500">If a state can't collapse, GlyphNetView maps the missing pieces in your logic graph.</p>
           </div>
         </div>
       </div>
