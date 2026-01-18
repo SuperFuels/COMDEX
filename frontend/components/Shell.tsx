@@ -14,6 +14,7 @@ const TABS: readonly TabDef[] = [
   { key: "photon_binary", label: "Photon Binary", href: "/photon-binary" },
   { key: "glyph_net", label: "Glyph Net", href: "/glyph-net" },
   { key: "sle_resonance", label: "SLE Resonance", href: "/sle-resonance" },
+  { key: "rqc_awareness", label: "RQC Awareness", href: "/rqc-awareness" },
   { key: "data", label: "Data", href: "/data" },
   { key: "multiverse", label: "Multiverse", href: "/multiverse" },
   { key: "photon_algebra", label: "Photon Algebra", href: "/photon-algebra" },
