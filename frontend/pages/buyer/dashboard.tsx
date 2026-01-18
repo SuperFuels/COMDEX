@@ -25,6 +25,19 @@ const METRICS: Array<{ key: keyof BuyerMetrics; label: string; color: string }> 
 const COMMAND_TABS = ["Deal Flow", "Shipments", "Messages", "Escrow", "Contracts", "Suppliers", "Products"];
 
 export default function BuyerDashboard() {
+  // ✅ Prevent any router/auth-hook work until we're mounted on the client.
+  // This avoids build/prerender failures like "NextRouter was not mounted".
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <p>Loading…</p>
+      </div>
+    );
+  }
+
+  // ✅ Safe now (router is mounted).
   useAuthRedirect("buyer");
 
   // ── Metrics
