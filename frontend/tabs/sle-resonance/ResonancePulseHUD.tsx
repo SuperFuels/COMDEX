@@ -44,8 +44,9 @@ export default function ResonancePulseHUD() {
   const [phaseOk, setPhaseOk] = useState(false); // πₛ closure (validator)
   const [highKappa, setHighKappa] = useState(false); // semantic density toggle
   const [theoremJson, setTheoremJson] = useState<string>("");
+  const [running, setRunning] = useState(false);
 
-  // “Holographic State” polish: freeze + glow when beam 10 is stabilized
+  // “Holographic Persistence” polish: freeze + glow when beam 10 is stabilized
   const [collapsed, setCollapsed] = useState(false);
 
   const status = coherence >= 0.85 ? "STABILIZED" : "ADJUSTING";
@@ -130,14 +131,14 @@ export default function ResonancePulseHUD() {
 
   // Advance beams until collapse (stop at the 10th beam)
   useEffect(() => {
-    if (collapsed) return;
+    if (!running || collapsed) return;
 
     const id = setInterval(() => {
       setTick((t) => Math.min(t + 1, deltaCorrections.length - 1));
     }, 1200);
 
     return () => clearInterval(id);
-  }, [collapsed, deltaCorrections.length]);
+  }, [running, collapsed, deltaCorrections.length]);
 
   // Apply beam telemetry on tick
   useEffect(() => {
@@ -149,16 +150,16 @@ export default function ResonancePulseHUD() {
     const tone: LogLine["tone"] = okCoherence ? "ok" : "warn";
 
     pushLog(
-      `[MorphicFeedback] Beam ${cur.beam}/10: ΔC=${cur.dc >= 0 ? "+" : ""}${cur.dc.toFixed(
+      `[MorphicFeedback] GWIP Beam ${cur.beam}/10: ΔC=${cur.dc >= 0 ? "+" : ""}${cur.dc.toFixed(
         4
       )} applied • coherence=${cur.c.toFixed(3)}`,
       tone
     );
 
-    // Collapse polish: once 10th beam is stabilized, freeze + glow
+    // Holographic Persistence: once 10th beam is stabilized, freeze + glow
     if (cur.beam === 10 && cur.c >= 0.85) {
       setCollapsed(true);
-      pushLog("[HST Collapse] Beam 10 stabilized → wavefield locked into permanent node.", "ok");
+      pushLog("[Holographic Persistence] Beam 10 stabilized → Resonance Ledger commit sealed.", "ok");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tick]);
@@ -178,134 +179,188 @@ export default function ResonancePulseHUD() {
   const amp = (highKappa ? 95 : 60) * coherence;
   const wobble = highKappa ? 18 : 0;
 
+  // Branding palette (Tailwind approximations)
+  // Lattice Black: #020617 (slate-950), Resonance Cyan: #22d3ee (cyan-400),
+  // Morphic Green: #4ade80 (green-400), Entropy Red: #ef4444 (red-500), GWave Gold: #facc15 (yellow-400)
   return (
-    <div className="w-full bg-slate-950 text-cyan-300 py-10 selection:bg-cyan-200/20 font-mono">
+    <div className="w-full bg-slate-950 text-cyan-300 py-10 selection:bg-cyan-200/20">
       <div className="max-w-7xl mx-auto px-6 space-y-10">
-        {/* TOP EXPLAINER (updated: closer framing) */}
+        {/* TOP EXPLAINER (branding + canonical language) */}
         <section className="bg-black/40 border border-cyan-900/60 rounded-[2.5rem] p-8">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-cyan-700 font-bold">Closer Demo</p>
-          <h2 className="mt-2 text-3xl font-bold italic tracking-tighter text-cyan-200">
-            Tessaris SLE: The “Resonance Pulse” (Morphic Coherence Loop)
+          <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-500/70 font-semibold">
+            Tessaris Photonic Systems • AION Standard Interface
+          </p>
+
+          <h2 className="mt-2 text-3xl font-extrabold italic tracking-tight text-cyan-200">
+            RESONANCE PULSE • SYMBOLIC LIGHTWAVE ENGINE (SLE)
           </h2>
 
           <div className="mt-4 space-y-4 text-cyan-200/80 italic leading-relaxed">
             <p>
-              The Photonic Interference Chamber is not decoration — it visualizes the <span className="text-cyan-200">ψ–κ–T tensor</span>.
-              When coherence drops, the geometry becomes unstable; as the Morphic Correction Log fires ΔC values (for example +0.0669),
-              the system is literally repairing the computation in-flight. This is “error correction” made visible and intuitive.
+              The <span className="text-cyan-200 font-semibold">Photonic Interference Chamber</span> visualizes the{" "}
+              <span className="text-cyan-200 font-semibold">ψ–κ–T tensor</span>. When coherence is low, the wave geometry fragments; as{" "}
+              <span className="text-cyan-200 font-semibold">Morphic Feedback</span> applies ΔC (e.g., +0.0669), the computation visibly{" "}
+              <span className="text-cyan-200 font-semibold">stabilizes</span> in-flight.
             </p>
 
             <p>
-              The <span className="text-cyan-200">πₛ Phase Closure</span> badge is the integrity claim. Legacy stacks use checksums after the fact.
-              SLE uses closure: if the loop doesn’t close to 2π, logic leaks (“ghost glyphs”). When πₛ flips to OK, the message is simple:
-              the circle of light is complete — the computation is mathematically sealed.
+              The <span className="text-cyan-200 font-semibold">πₛ Phase Closure</span> badge is the integrity claim. Legacy stacks rely on
+              post-facto checksums. SLE uses closure: if the loop doesn’t close to 2π, logic leaks (“ghost glyphs”). When πₛ flips to{" "}
+              <span className="text-green-300 font-semibold">OK</span>, the circle of light is complete — mathematically sealed.
             </p>
 
             <p>
-              The bottom use cases answer “so what?”: sovereign offline payments and critical infrastructure defense. The pitch framing is:
-              “In standard compute, high entropy causes failure. In SLE, we adapt. κ is semantic density — we aren’t just storing bits,
-              we store the shape of information, so the device can hold the proof even without an internet connection.”
+              The end state is <span className="text-cyan-200 font-semibold">Holographic Persistence</span>: a commit to the{" "}
+              <span className="text-cyan-200 font-semibold">Resonance Ledger</span>, suitable for{" "}
+              <span className="text-cyan-200 font-semibold">Sovereign Offline Payments</span> and{" "}
+              <span className="text-cyan-200 font-semibold">Critical Infrastructure Defense</span>.
             </p>
           </div>
         </section>
 
-        {/* HUD HEADER (updated controls) */}
+        {/* HUD HEADER (branding: typography + badges + canonical terms) */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b border-cyan-900/50 pb-5">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold italic tracking-tighter uppercase text-cyan-200">
-              Tessaris SLE v0.5 HUD
+            <h1 className="text-2xl md:text-3xl font-extrabold italic tracking-[0.06em] uppercase text-cyan-200">
+              TESSARIS SLE V0.5 HUD
             </h1>
-            <p className="mt-1 text-[11px] text-cyan-700">
-              Session: {SESSION_ID} • ψ={metrics.psi.toFixed(5)} • κ={metrics.kappa.toFixed(6)} • T={metrics.T.toFixed(6)}
+            <p className="mt-1 text-[11px] text-cyan-500/70 font-mono">
+              SESSION_ID: {SESSION_ID} • ψ={metrics.psi.toFixed(5)} • κ={metrics.kappa.toFixed(6)} • T={metrics.T.toFixed(6)}
             </p>
+
+            {/* Compliance / Integrity markers */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border border-yellow-400/30 text-yellow-300 bg-yellow-500/5">
+                GWave Carrier • SRK-17
+              </span>
+              <span className="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border border-cyan-400/25 text-cyan-200 bg-cyan-500/5">
+                SHA3-512 INTEGRITY
+              </span>
+              <span className="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border border-cyan-400/25 text-cyan-200 bg-cyan-500/5">
+                SRK-17 COMPLIANT
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-3 items-center">
+            {/* πs “Closer” badge: Entropy Red pulsating LOCKED -> Morphic Green OK */}
             <div
               className={`px-4 py-2 border rounded-full text-[10px] font-bold uppercase tracking-widest ${
                 phaseOk
-                  ? "border-cyan-400 bg-cyan-900/20 text-cyan-200"
-                  : "border-red-500 bg-red-950/40 text-red-300 animate-pulse"
+                  ? "border-green-400/60 bg-green-500/10 text-green-200"
+                  : "border-red-500 bg-red-500/10 text-red-300 animate-pulse"
               }`}
             >
-              πₛ Closure: {phaseOk ? "OK" : "LOCKED"}
+              πₛ PHASE CLOSURE: {phaseOk ? "OK" : "LOCKED"}
             </div>
 
             <div
               className={`px-4 py-2 border rounded-full text-[10px] font-bold uppercase tracking-widest ${
                 status === "STABILIZED"
-                  ? "border-green-400/60 bg-green-900/10 text-green-200"
-                  : "border-cyan-900/60 bg-black/30"
+                  ? "border-green-400/60 bg-green-500/10 text-green-200"
+                  : "border-cyan-900/60 bg-black/30 text-cyan-200/80"
               }`}
             >
-              {collapsed ? "COLLAPSED" : status}
+              {collapsed ? "HOLOGRAPHIC PERSISTENCE" : status}
             </div>
 
+            {/* Stream control */}
+            <button
+              onClick={() => setRunning((v) => !v)}
+              className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${
+                running
+                  ? "bg-cyan-500/10 border-cyan-400/40 text-cyan-200"
+                  : "bg-transparent border-cyan-400/20 hover:bg-white/5 text-cyan-200"
+              }`}
+            >
+              {running ? "STOP STREAM" : "START STREAM"}
+            </button>
+
+            {/* High κ toggle */}
             <button
               onClick={() => setHighKappa((v) => !v)}
               className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${
                 highKappa
-                  ? "bg-purple-500/10 border-purple-400/40 text-purple-200"
-                  : "bg-transparent border-cyan-400/20 hover:bg-white/5"
+                  ? "bg-yellow-500/10 border-yellow-400/40 text-yellow-200"
+                  : "bg-transparent border-cyan-400/20 hover:bg-white/5 text-cyan-200"
               }`}
+              title="Curvature / semantic density mode"
             >
-              High κ: {highKappa ? "ON" : "OFF"}
+              {highKappa ? "HIGH κ: ON" : "HIGH κ: OFF"}
             </button>
 
+            {/* πs validator */}
             <button
               onClick={runPiSValidator}
               className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${
                 phaseOk
                   ? "bg-green-500/10 border-green-400/40 text-green-200"
-                  : "bg-transparent border-cyan-400/20 hover:bg-white/5"
+                  : "bg-transparent border-cyan-400/20 hover:bg-white/5 text-cyan-200"
               }`}
             >
-              {phaseOk ? "Validator: PASSED" : "Run πₛ Validator"}
+              {phaseOk ? "πₛ VALIDATOR: PASSED" : "RUN πₛ VALIDATOR"}
             </button>
 
+            {/* Download theorem */}
             <button
               onClick={downloadTheorem}
               className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${
                 phaseOk
                   ? "bg-cyan-500/10 border-cyan-400/40 text-cyan-200"
-                  : "bg-transparent border-cyan-400/20 hover:bg-white/5"
+                  : "bg-transparent border-cyan-400/20 text-cyan-200/50"
               }`}
               disabled={!phaseOk}
               title={!phaseOk ? "Run πₛ validator first" : "Download JSON-LD proof"}
             >
-              Download Theorem
+              DOWNLOAD PROOF (JSON-LD)
             </button>
 
+            {/* Reset */}
             <button
-              onClick={resetPulse}
-              className="px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border border-cyan-400/20 hover:bg-white/5 transition-all"
+              onClick={() => {
+                setRunning(false);
+                resetPulse();
+              }}
+              className="px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border border-cyan-400/20 hover:bg-white/5 transition-all text-cyan-200"
             >
-              Reset
+              RESET
             </button>
           </div>
         </div>
 
         {/* MAIN GRID */}
         <div className="grid grid-cols-12 gap-8">
-          {/* INTERFERENCE CHAMBER (updated: freeze+glow on collapse) */}
+          {/* INTERFERENCE CHAMBER */}
           <div
             className={`col-span-12 lg:col-span-8 bg-black border border-cyan-900/60 rounded-[2rem] p-6 relative overflow-hidden ${
-              collapsed ? "shadow-[0_0_60px_rgba(34,211,238,0.18)]" : ""
+              collapsed ? "shadow-[0_0_70px_rgba(34,211,238,0.18)]" : ""
             }`}
           >
-            <div className="absolute top-4 right-4 flex gap-2">
-              <span className="text-[10px] bg-cyan-900/40 border border-cyan-900/60 px-3 py-1 rounded-full">
-                LIVE_COHERENCE_STREAM
+            <div
+              className="absolute inset-0 opacity-20 pointer-events-none"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle, rgba(34,211,238,0.55) 1px, rgba(0,0,0,0) 1px)",
+                backgroundSize: "28px 28px",
+              }}
+            />
+
+            <div className="absolute top-4 right-4 flex flex-wrap gap-2">
+              <span className="text-[10px] bg-cyan-500/5 border border-cyan-400/20 px-3 py-1 rounded-full font-mono uppercase tracking-widest">
+                GWIP STREAM: LIVE
+              </span>
+              <span className="text-[10px] bg-yellow-500/5 border border-yellow-400/25 px-3 py-1 rounded-full font-mono uppercase tracking-widest text-yellow-200">
+                GWave MODULATION
               </span>
               {collapsed && (
-                <span className="text-[10px] bg-cyan-500/10 border border-cyan-400/40 px-3 py-1 rounded-full text-cyan-200">
-                  HST_NODE_LOCKED
+                <span className="text-[10px] bg-green-500/10 border border-green-400/35 px-3 py-1 rounded-full font-mono uppercase tracking-widest text-green-200">
+                  LEDGER COMMIT: SEALED
                 </span>
               )}
             </div>
 
-            <h3 className="text-[12px] uppercase tracking-widest text-cyan-700 mb-4">
-              Photonic Interference Chamber
+            <h3 className="text-[12px] uppercase tracking-[0.28em] text-cyan-500/70 mb-4 font-semibold">
+              PHOTONIC INTERFERENCE CHAMBER
             </h3>
 
             <div className="h-64 flex items-center justify-center border-y border-cyan-900/30">
@@ -320,11 +375,12 @@ export default function ResonancePulseHUD() {
                   fill="none"
                   animate={
                     collapsed
-                      ? { opacity: 1, filter: "drop-shadow(0px 0px 14px rgba(34,211,238,0.9))" }
-                      : { opacity: [0.5, 1, 0.5] }
+                      ? { opacity: 1, filter: "drop-shadow(0px 0px 16px rgba(34,211,238,0.95))" }
+                      : { opacity: [0.55, 1, 0.55] }
                   }
                   transition={collapsed ? { duration: 0.2 } : { repeat: Infinity, duration: highKappa ? 0.85 : 1.2 }}
                 />
+
                 <motion.path
                   d={`M 0 100
                       C 120 ${100 + amp}, 220 ${100 - amp}, 320 100
@@ -335,15 +391,35 @@ export default function ResonancePulseHUD() {
                   fill="none"
                   animate={
                     collapsed
-                      ? { opacity: 0.85, filter: "drop-shadow(0px 0px 10px rgba(34,211,238,0.7))" }
-                      : { opacity: [0.25, 0.8, 0.25] }
+                      ? { opacity: 0.9, filter: "drop-shadow(0px 0px 12px rgba(34,211,238,0.75))" }
+                      : { opacity: [0.25, 0.85, 0.25] }
                   }
                   transition={collapsed ? { duration: 0.2 } : { repeat: Infinity, duration: highKappa ? 0.85 : 1.4 }}
                 />
+
+                {/* High-frequency modulation markers (GWave Gold) */}
+                <motion.g
+                  animate={collapsed ? { opacity: 0.9 } : { opacity: [0.3, 0.9, 0.3] }}
+                  transition={collapsed ? { duration: 0.2 } : { repeat: Infinity, duration: 1.1 }}
+                >
+                  {[120, 260, 400, 540, 680].map((x) => (
+                    <line
+                      key={x}
+                      x1={x}
+                      y1={70}
+                      x2={x}
+                      y2={130}
+                      stroke="#facc15"
+                      strokeOpacity={0.55}
+                      strokeWidth={1}
+                    />
+                  ))}
+                </motion.g>
               </svg>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-3 text-[11px] text-cyan-200/80">
+            {/* ψ-κ-T tensor tiles (mono telemetry, branded colors) */}
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-3 text-[11px] text-cyan-200/80 font-mono">
               <div className="bg-white/5 border border-cyan-900/50 rounded-xl p-3">
                 ψ (Entropy)
                 <div className="text-xl font-bold italic text-cyan-200">{metrics.psi.toFixed(5)}</div>
@@ -366,22 +442,22 @@ export default function ResonancePulseHUD() {
               </div>
             </div>
 
-            <div className="mt-4 text-[11px] text-cyan-300/70">
-              Beam {deltaCorrections[Math.min(tick, deltaCorrections.length - 1)].beam}/10 • Coherence{" "}
+            <div className="mt-4 text-[11px] text-cyan-300/70 font-mono">
+              GWIP Beam {deltaCorrections[Math.min(tick, deltaCorrections.length - 1)].beam}/10 • Coherence{" "}
               <span className={coherence >= 0.8 ? "text-green-300" : "text-red-300"}>{(coherence * 100).toFixed(2)}%</span>{" "}
               • ΔC <span className="text-cyan-200">{dc >= 0 ? "+" : ""}{dc.toFixed(4)}</span>
-              {highKappa && <span className="ml-2 text-purple-200/80">• High κ mode (folded)</span>}
+              {highKappa && <span className="ml-2 text-yellow-200/90">• HIGH κ (SEMANTIC DENSITY)</span>}
             </div>
           </div>
 
-          {/* MORPHIC LOG TERMINAL (updated: includes validator/theorem events) */}
-          <div className="col-span-12 lg:col-span-4 bg-slate-900 border border-cyan-900/60 rounded-[2rem] p-5 flex flex-col">
-            <h3 className="text-[12px] uppercase tracking-widest text-cyan-200 border-b border-cyan-900/40 pb-3">
-              Morphic Correction Log
+          {/* MORPHIC LOG TERMINAL */}
+          <div className="col-span-12 lg:col-span-4 bg-slate-900/60 border border-cyan-900/60 rounded-[2rem] p-5 flex flex-col">
+            <h3 className="text-[12px] uppercase tracking-[0.28em] text-cyan-200 border-b border-cyan-900/40 pb-3 font-semibold">
+              MORPHIC FEEDBACK LOG
             </h3>
 
-            <div className="mt-4 flex-grow space-y-2 text-[11px]">
-              {(logs.length ? logs : [{ t: 0, msg: "[MorphicFeedback] awaiting beam injections…", tone: "warn" }]).map((l) => (
+            <div className="mt-4 flex-grow space-y-2 text-[11px] font-mono">
+              {(logs.length ? logs : [{ t: 0, msg: "[MorphicFeedback] awaiting GWIP beam injections…", tone: "warn" }]).map((l) => (
                 <div
                   key={`${l.t}-${l.msg}`}
                   className={
@@ -397,9 +473,10 @@ export default function ResonancePulseHUD() {
               ))}
             </div>
 
-            <div className="mt-5 p-4 bg-black border border-cyan-900/60 rounded-xl">
-              <div className="flex justify-between text-[11px]">
-                <span className="text-cyan-700">COHERENCE</span>
+            {/* Resonance Stabilization meter */}
+            <div className="mt-5 p-4 bg-black/70 border border-cyan-900/60 rounded-xl">
+              <div className="flex justify-between text-[11px] font-mono">
+                <span className="text-cyan-500/70 uppercase tracking-widest">RESONANCE STABILIZATION</span>
                 <span className={coherence >= 0.8 ? "text-green-300" : "text-red-300"}>
                   {(coherence * 100).toFixed(2)}%
                 </span>
@@ -407,13 +484,13 @@ export default function ResonancePulseHUD() {
 
               <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-2">
                 <motion.div
-                  className="h-full bg-cyan-500"
+                  className={coherence >= 0.8 ? "h-full bg-green-400" : "h-full bg-red-500"}
                   animate={{ width: `${Math.max(2, Math.min(100, coherence * 100))}%` }}
                   transition={{ duration: 0.4 }}
                 />
               </div>
 
-              <div className="mt-3 text-[11px] text-cyan-700">
+              <div className="mt-3 text-[11px] text-cyan-500/70 font-mono">
                 ΔC applied:{" "}
                 <span className="text-cyan-200">
                   {dc >= 0 ? "+" : ""}
@@ -421,25 +498,33 @@ export default function ResonancePulseHUD() {
                 </span>
               </div>
 
-              <div className="mt-2 text-[10px] text-cyan-300/60">
-                Integrity: {phaseOk ? <span className="text-green-300">πₛ VERIFIED</span> : <span className="text-red-300">LOCKED</span>}
+              <div className="mt-2 text-[10px] text-cyan-300/60 font-mono uppercase tracking-widest">
+                πₛ Integrity:{" "}
+                {phaseOk ? (
+                  <span className="text-green-300">VERIFIED</span>
+                ) : (
+                  <span className="text-red-300">LOCKED</span>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* THEOREM / CERTIFICATE PANEL (added: inline JSON-LD view) */}
+        {/* THEOREM / CERTIFICATE PANEL (branding language: Resonance Ledger / proof capsule) */}
         <section className="bg-black/40 border border-cyan-900/60 rounded-[2.5rem] p-8">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-cyan-700 font-bold">Certificate</p>
-          <h3 className="mt-2 text-2xl font-bold italic tracking-tighter text-cyan-200">
-            Theorem Proof • πₛ Phase Closure
+          <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-500/70 font-semibold">RESONANCE LEDGER CERTIFICATE</p>
+
+          <h3 className="mt-2 text-2xl font-extrabold italic tracking-tight text-cyan-200">
+            πₛ PHASE CLOSURE PROOF • JSON-LD CAPSULE
           </h3>
+
           <p className="mt-4 text-cyan-200/80 italic leading-relaxed">
-            When πₛ is OK, the wavefield forms a closed circuit (2π) and does not leak logic into the environment. In demo terms:
-            the wave you see is not “an animation” — it is a validated coherence loop, and the collapse event represents stable holographic state.
+            When πₛ is OK, the wavefield is a closed circuit (2π) with no logic leakage into the environment. The collapse event represents{" "}
+            <span className="text-cyan-200 font-semibold">Holographic Persistence</span>: a sealed state committed to the{" "}
+            <span className="text-cyan-200 font-semibold">Resonance Ledger</span>.
           </p>
 
-          <div className="mt-5 grid md:grid-cols-3 gap-4 text-[11px]">
+          <div className="mt-5 grid md:grid-cols-3 gap-4 text-[11px] font-mono">
             <div className="bg-white/5 border border-cyan-900/50 rounded-2xl p-4">
               Artifact: <span className="text-cyan-200">docs/rfc/holo_theorem.md</span>
             </div>
@@ -450,17 +535,19 @@ export default function ResonancePulseHUD() {
               </span>
             </div>
             <div className="bg-white/5 border border-cyan-900/50 rounded-2xl p-4">
-              Output: <span className="text-cyan-200">JSON-LD proof capsule</span>
+              Output: <span className="text-cyan-200">Proof Capsule (JSON-LD)</span>
             </div>
           </div>
 
           {theoremJson && (
             <div className="mt-6 bg-black/60 border border-cyan-900/50 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-500/70">JSON-LD Proof (preview)</div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-500/70 font-mono">
+                  JSON-LD PROOF PREVIEW
+                </div>
                 <button
                   onClick={() => setTheoremJson("")}
-                  className="text-[10px] font-mono text-cyan-300/70 hover:text-cyan-200"
+                  className="text-[10px] font-mono text-cyan-300/70 hover:text-cyan-200 uppercase tracking-widest"
                 >
                   close
                 </button>
@@ -472,25 +559,25 @@ export default function ResonancePulseHUD() {
           )}
         </section>
 
-        {/* USE CASES (kept + tightened) */}
+        {/* USE CASES (keep content, align language) */}
         <section className="bg-black/40 border border-cyan-900/60 rounded-[2.5rem] p-8">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-cyan-700 font-bold">Use Cases</p>
-          <h3 className="mt-2 text-2xl font-bold italic tracking-tighter text-cyan-200">From demo to deployment</h3>
+          <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-500/70 font-semibold">DEPLOYMENT PATH</p>
+          <h3 className="mt-2 text-2xl font-extrabold italic tracking-tight text-cyan-200">FROM DEMO TO FIELD SYSTEM</h3>
 
           <div className="mt-5 grid md:grid-cols-3 gap-6">
             <div className="border border-cyan-900/60 rounded-2xl p-5 bg-black/30">
               <h4 className="text-cyan-200 font-bold italic">Critical Infrastructure Defense</h4>
               <p className="mt-3 text-cyan-200/75 text-sm italic leading-relaxed">
-                When primary links fail, the system keeps coherence, routing, and integrity guarantees — so emergency operations can persist
-                without “message failed” events.
+                When primary links fail, the system keeps coherence, routing, and integrity guarantees — resilient GWIP continuity without
+                “message failed” events.
               </p>
             </div>
 
             <div className="border border-cyan-900/60 rounded-2xl p-5 bg-black/30">
               <h4 className="text-cyan-200 font-bold italic">Sovereign Offline Payments</h4>
               <p className="mt-3 text-cyan-200/75 text-sm italic leading-relaxed">
-                Devices can carry the mathematical proof of a transaction in a stabilized state even without internet access, then reconcile
-                when connectivity returns.
+                Devices can carry the mathematical proof of a transaction in a stabilized holographic state offline, then reconcile on return
+                connectivity.
               </p>
             </div>
 
