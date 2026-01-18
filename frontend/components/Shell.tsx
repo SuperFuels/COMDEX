@@ -47,53 +47,54 @@ export default function Shell({
   activeKey,
   hideHud = false,
   className = "",
-  maxWidth = "max-w-[1400px]", // ✅ wider default so 3 panels aren’t crushed
+  maxWidth = "max-w-[1400px]",
 }: {
   children: ReactNode;
   activeKey?: string;
   hideHud?: boolean;
   className?: string;
-  maxWidth?: string; // ✅ optional override
+  maxWidth?: string;
 }) {
   const router = useRouter();
   const derivedKey = getActiveKeyFromPath(router.asPath || router.pathname || "/");
 
-  // ✅ normalize so "sovereign-qkd" works even if someone passes hyphenated keys
+  // normalize so "sovereign-qkd" works even if someone passes hyphenated keys
   const key = normalizeKey(activeKey) || normalizeKey(derivedKey) || "glyph";
 
   return (
     <div
       className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}
     >
-      {/* ✅ FIX: remove the inner h-screen/overflow-y-auto scroll trap.
-          Let the document scroll naturally so long pages (QKD / Photon Binary) work. */}
-      <main
-        className={[
-          "relative z-10 flex flex-col items-center justify-start",
-          "w-full",
-          "px-6 md:px-10", // ✅ more breathing room on wider layouts
-          maxWidth,
-          "mx-auto",
-          "py-16 pb-32",
-        ].join(" ")}
-      >
-        <TabDock tabs={TABS} activeKey={key} />
+      {/* ✅ single scroll container (restored) */}
+      <div className="h-screen overflow-y-auto overflow-x-hidden">
+        <main
+          className={[
+            "relative z-10 flex flex-col items-center justify-start min-h-full",
+            "w-full",
+            "px-6 md:px-10",
+            maxWidth,
+            "mx-auto",
+            "py-16 pb-32",
+          ].join(" ")}
+        >
+          <TabDock tabs={TABS} activeKey={key} />
 
-        <div className="w-full">
-          <div key={key} className="animate-tab-change">
-            {children}
+          <div className="w-full">
+            <div key={key} className="animate-tab-change">
+              {children}
+            </div>
           </div>
-        </div>
 
-        <footer className="mt-24 flex gap-6">
-          <button className="px-12 py-4 bg-black text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all">
-            Launch GlyphNet
-          </button>
-          <button className="px-12 py-4 border-2 border-black text-black rounded-full font-semibold text-lg hover:bg-black hover:text-white transition-all">
-            View Multiverse
-          </button>
-        </footer>
-      </main>
+          <footer className="mt-24 flex gap-6">
+            <button className="px-12 py-4 bg-black text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all">
+              Launch GlyphNet
+            </button>
+            <button className="px-12 py-4 border-2 border-black text-black rounded-full font-semibold text-lg hover:bg-black hover:text-white transition-all">
+              View Multiverse
+            </button>
+          </footer>
+        </main>
+      </div>
 
       {!hideHud && (
         <div className="fixed bottom-8 right-8 p-4 bg-white/80 border border-gray-200 rounded-2xl backdrop-blur-xl text-[11px] font-bold text-gray-400 tracking-wider shadow-lg">
