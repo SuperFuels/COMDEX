@@ -13,7 +13,6 @@ const TABS: readonly TabDef[] = [
   { key: "data", label: "Data", href: "/data" },
   { key: "photon_algebra", label: "Photon Algebra", href: "/photon-algebra" },
   { key: "photon_binary", label: "Photon Binary", href: "/photon-binary" },
-  { key: "photon_bridge", label: "Photon Bridge", href: "/photon-bridge" },
   { key: "glyph_net", label: "Glyph Net", href: "/glyph-net" },
   { key: "toe", label: "Theory Of Everything", href: "/toe" },
   { key: "multiverse", label: "Multiverse", href: "/multiverse" },

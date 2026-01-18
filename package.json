@@ -7,11 +7,11 @@
     "node": ">=20 <23"
   },
   "scripts": {
-    "build": "cd frontend && next build",
-    "start": "cd frontend && next start -p 3000",
-    "dev": "concurrently \"cd frontend && next dev\" \"npm run collab\" \"npm run kg\"",
+    "build": "pnpm -C frontend build",
+    "start": "pnpm -C frontend start -p 3000",
+    "dev": "concurrently \"pnpm -C frontend dev\" \"npm run collab\" \"npm run kg\"",
     "collab": "ts-node --transpile-only -P tsconfig.collab.json server/collab-server.ts",
-    "lint": "cd frontend && next lint",
+    "lint": "pnpm -C frontend lint",
     "preview": "npm run build && npm run start",
     "kg": "ts-node --transpile-only -P server/tsconfig.json server/kg.ts",
     "dev:server": "ts-node -P server/tsconfig.json server/kg.ts",
