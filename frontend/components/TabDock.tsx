@@ -10,6 +10,10 @@ export type TabDef = {
   href: string; // e.g. "/glyph"
 };
 
+function normalizeKey(k?: string) {
+  return (k || "").trim().replace(/-/g, "_");
+}
+
 export default function TabDock({
   tabs,
   activeKey,
@@ -22,7 +26,8 @@ export default function TabDock({
   const router = useRouter();
 
   const activeIdx = useMemo(() => {
-    const idx = tabs.findIndex((t) => t.key === activeKey);
+    const ak = normalizeKey(activeKey);
+    const idx = tabs.findIndex((t) => normalizeKey(t.key) === ak);
     return idx >= 0 ? idx : 0;
   }, [tabs, activeKey]);
 
@@ -51,7 +56,12 @@ export default function TabDock({
       const node = el as HTMLElement | null;
       if (!node) return false;
       const tag = node.tagName?.toLowerCase();
-      return tag === "input" || tag === "textarea" || tag === "select" || node.isContentEditable;
+      return (
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        (node as any).isContentEditable
+      );
     };
 
     const handleTouchStart = (e: TouchEvent) => {
@@ -107,32 +117,31 @@ export default function TabDock({
           <span className="text-gray-500 text-lg">‹</span>
         </button>
 
-        {/* Focus Dock */}
-        <div className="flex items-center gap-3 bg-white/70 backdrop-blur-2xl border border-gray-200 p-2 rounded-full shadow-lg shadow-gray-200/50">
-          {tabs.map((t, index) => {
-            const isPrev = index === activeIdx - 1;
-            const isNext = index === activeIdx + 1;
-            const isActive = index === activeIdx;
+        {/* Scrollable Dock (renders ALL tabs) */}
+        <div className="max-w-[92vw] overflow-x-auto">
+          <div className="flex items-center gap-3 bg-white/70 backdrop-blur-2xl border border-gray-200 p-2 rounded-full shadow-lg shadow-gray-200/50 whitespace-nowrap">
+            {tabs.map((t, index) => {
+              const isActive = index === activeIdx;
 
-            // Only render: prev / active / next
-            if (!isPrev && !isNext && !isActive) return null;
-
-            return (
-              <button
-                key={t.key}
-                onClick={() => go(index)}
-                className={`relative px-8 py-3 rounded-full text-sm font-semibold transition-all duration-500 ease-out ${
-                  isActive
-                    ? "bg-[#0071e3] text-white shadow-xl scale-[1.03] z-10"
-                    : "text-gray-400 hover:text-gray-600 scale-95 opacity-70 hover:opacity-100"
-                }`}
-                aria-current={isActive ? "page" : undefined}
-              >
-                {t.label}
-                {isActive && <span className="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse -z-10" />}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => go(index)}
+                  className={`relative px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${
+                    isActive
+                      ? "bg-[#0071e3] text-white shadow-xl scale-[1.02] z-10"
+                      : "text-gray-500 hover:text-gray-700 hover:bg-white/60"
+                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {t.label}
+                  {isActive && (
+                    <span className="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse -z-10" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Right arrow (desktop hover) */}

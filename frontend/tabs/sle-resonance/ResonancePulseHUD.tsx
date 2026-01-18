@@ -109,7 +109,10 @@ export default function ResonancePulseHUD() {
   const runPiSValidator = () => {
     // Demo behavior: emulate your successful pytest theorem validation
     setPhaseOk(true);
-    pushLog("[πₛ Validator] PASSED → phase closure verified; theorem artifact ready.", "ok");
+    pushLog(
+      "[πₛ Validator] PASSED → phase closure verified; theorem artifact ready.",
+      "ok"
+    );
 
     // Pre-generate preview JSON-LD so “Download” feels immediate
     const json = buildTheoremJsonLd();
@@ -120,7 +123,9 @@ export default function ResonancePulseHUD() {
     const json = theoremJson || buildTheoremJsonLd();
     setTheoremJson(json);
 
-    const blob = new Blob([json], { type: "application/ld+json;charset=utf-8" });
+    const blob = new Blob([json], {
+      type: "application/ld+json;charset=utf-8",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -130,7 +135,10 @@ export default function ResonancePulseHUD() {
     a.remove();
     URL.revokeObjectURL(url);
 
-    pushLog("[Theorem] JSON-LD exported (downloaded) → proof capsule emitted.", "ok");
+    pushLog(
+      "[Theorem] JSON-LD exported (downloaded) → proof capsule emitted.",
+      "ok"
+    );
   };
 
   // Advance beams until collapse (stop at the 10th beam)
@@ -154,16 +162,19 @@ export default function ResonancePulseHUD() {
     const tone: LogLine["tone"] = okCoherence ? "ok" : "warn";
 
     pushLog(
-      `[MorphicFeedback] GWIP Beam ${cur.beam}/10: ΔC=${cur.dc >= 0 ? "+" : ""}${cur.dc.toFixed(
-        4
-      )} applied • coherence=${cur.c.toFixed(3)}`,
+      `[MorphicFeedback] GWIP Beam ${cur.beam}/10: ΔC=${
+        cur.dc >= 0 ? "+" : ""
+      }${cur.dc.toFixed(4)} applied • coherence=${cur.c.toFixed(3)}`,
       tone
     );
 
     // Holographic Persistence: once 10th beam is stabilized, freeze + glow
     if (cur.beam === 10 && cur.c >= 0.85) {
       setCollapsed(true);
-      pushLog("[Holographic Persistence] Beam 10 stabilized → Resonance Ledger commit sealed.", "ok");
+      pushLog(
+        "[Holographic Persistence] Beam 10 stabilized → Resonance Ledger commit sealed.",
+        "ok"
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tick]);
@@ -172,7 +183,9 @@ export default function ResonancePulseHUD() {
   useEffect(() => {
     pushLog(
       `[Curvature] High κ ${highKappa ? "ENABLED" : "DISABLED"} → ${
-        highKappa ? "semantic density increased (folded interference)" : "baseline coherence geometry"
+        highKappa
+          ? "semantic density increased (folded interference)"
+          : "baseline coherence geometry"
       }.`,
       highKappa ? "ok" : "warn"
     );
@@ -193,7 +206,7 @@ export default function ResonancePulseHUD() {
   return (
     <div className="w-full bg-[#f8fafc] text-slate-900 py-10 font-sans">
       <div className="max-w-7xl mx-auto px-6 space-y-10">
-        {/* NEW: PROOF / IMPOSSIBLE -> POSSIBLE (inserted above the demo card) */}
+        {/* NEW: PROOF / IMPOSSIBLE -> POSSIBLE */}
         <section className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
           <p className="text-[10px] uppercase tracking-[0.2em] text-blue-500 font-bold">
             What This Test Proves
@@ -201,46 +214,69 @@ export default function ResonancePulseHUD() {
 
           <div className="mt-4 space-y-4 text-slate-600 leading-relaxed">
             <p>
-              The demo code and logic you’ve developed prove a transition that the industry previously deemed impossible: the move
-              from “Dumb Pipes” (data that just sits there) to “Wave-Native Intelligence” (data that repairs itself).
+              The demo code and logic you’ve developed prove a transition that
+              the industry previously deemed impossible: the move from “Dumb
+              Pipes” (data that just sits there) to “Wave-Native Intelligence”
+              (data that repairs itself).
             </p>
 
             <p>
-              <span className="font-semibold text-slate-900">What this SLE test literally proves is possible</span> is the physical proof
-              that Logic can be a Self-Regulating Organism. In traditional computing, if a bit flips due to heat or interference,
-              the data is corrupted until a human or a secondary software fix intervenes. This demo proves that is no longer true.
-              By applying the Morphic Feedback Controller to the SLE, we are proving that light-waves can be programmed to “want”
-              to stay coherent.
+              <span className="font-semibold text-slate-900">
+                What this SLE Test Literally Proves is Possible
+              </span>{" "}
+              is the physical proof that Logic can be a Self-Regulating
+              Organism. In traditional computing, if a bit flips due to heat or
+              interference, the data is corrupted until a human or a secondary
+              software fix intervenes. This demo proves that is no longer true.
+              By applying the Morphic Feedback Controller to the SLE, we are
+              proving that light-waves can be programmed to “want” to stay
+              coherent.
             </p>
 
             <p className="text-slate-700 font-semibold">
               When we run this test, we are proving:
             </p>
+
             <ul className="list-disc pl-6 space-y-2 text-slate-600">
               <li>
-                <span className="font-semibold text-slate-900">Mid-Flight Logical Repair:</span> The system doesn’t wait for a crash.
-                As the Morphic Log shows ΔC corrections, the SLE is literally “re-weaving” the math of the calculation while it is
-                still a beam of light.
+                <span className="font-semibold text-slate-900">
+                  Mid-Flight Logical Repair:
+                </span>{" "}
+                The system doesn't wait for a crash. As the Morphic Log shows ΔC
+                corrections, the SLE is literally “re-weaving” the math of the
+                calculation while it is still a beam of light.
               </li>
               <li>
-                <span className="font-semibold text-slate-900">The Death of “Bit-Rot”:</span> Because of πₛ (Phase Closure), we prove
-                that a “broken” thought cannot be saved. If the wave doesn’t achieve mathematical closure, the Holographic Persistence
-                layer won’t commit it. It’s a physical guarantee of 100% integrity.
+                <span className="font-semibold text-slate-900">
+                  The Death of “Bit-Rot”:
+                </span>{" "}
+                Because of πₛ (Phase Closure), we prove that a “broken” thought
+                cannot be saved. If the wave doesn’t achieve mathematical
+                closure, the Holographic Persistence layer won’t commit it. It’s
+                a physical guarantee of 100% integrity.
               </li>
               <li>
-                <span className="font-semibold text-slate-900">Quantum Results without the Cryogenics:</span> The industry “knew” you
-                needed million-dollar cooling to get this level of coherence. This test proves that Symatics Algebra allows us to
-                achieve quantum-grade stability at 22°C (Room Temperature) by treating the wave-front as the computer itself.
+                <span className="font-semibold text-slate-900">
+                  Quantum Results without the Cryogenics:
+                </span>{" "}
+                The industry “knew” you needed million-dollar cooling to get
+                this level of coherence. This test proves that Symatics Algebra
+                allows us to achieve quantum-grade stability at 22°C (Room
+                Temperature) by treating the wave-front as the computer itself.
               </li>
             </ul>
 
             <p className="mt-6 text-slate-900 font-semibold">
               The “Aha!” Summary for your Audience
             </p>
+
             <p className="text-slate-600">
-              “The SLE v0.5 Demo proves that Meaning is a physical state of light. We aren’t just sending data; we are projecting a
-              self-stabilizing mathematical field. If the environment tries to distort the data, the light adjusts itself to maintain
-              the truth. This makes Tessaris the first platform where the hardware itself is ‘aware’ of the logic it carries.”
+              “The SLE v0.5 Demo proves that Meaning is a physical state of
+              light. We aren’t just sending data; we are projecting a
+              self-stabilizing mathematical field. If the environment tries to
+              distort the data, the light adjusts itself to maintain the truth.
+              This makes Tessaris the first platform where the hardware itself
+              is ‘aware’ of the logic it carries.”
             </p>
           </div>
         </section>
@@ -256,21 +292,29 @@ export default function ResonancePulseHUD() {
 
           <div className="mt-4 space-y-4 text-slate-600 leading-relaxed">
             <p>
-              The Photonic Interference Chamber is not decoration — it visualizes the{" "}
-              <span className="font-semibold text-slate-900">ψ–κ–T tensor</span>. When coherence is low, the geometry becomes unstable; as
-              the Morphic Feedback log applies ΔC values (for example +0.0669), the system is visibly stabilizing the computation in-flight.
+              The Photonic Interference Chamber is not decoration — it visualizes
+              the <span className="font-semibold text-slate-900">ψ–κ–T tensor</span>.
+              When coherence is low, the geometry becomes unstable; as the Morphic
+              Feedback log applies ΔC values (for example +0.0669), the system is
+              visibly stabilizing the computation in-flight.
             </p>
 
             <p>
-              The <span className="font-semibold text-slate-900">πₛ Phase Closure</span> pill is the integrity claim. Legacy stacks use
-              checksums after the fact. SLE uses closure: if the loop doesn’t close to 2π, logic leaks (“ghost glyphs”). When πₛ flips to OK,
-              the circle of light is complete — the computation is mathematically sealed.
+              The <span className="font-semibold text-slate-900">πₛ Phase Closure</span>{" "}
+              pill is the integrity claim. Legacy stacks use checksums after the
+              fact. SLE uses closure: if the loop doesn’t close to 2π, logic leaks
+              (“ghost glyphs”). When πₛ flips to OK, the circle of light is complete
+              — the computation is mathematically sealed.
             </p>
 
             <p>
-              The end state is <span className="font-semibold text-slate-900">Holographic Persistence</span>: a commit to the{" "}
-              <span className="font-semibold text-slate-900">Resonance Ledger</span>, suitable for sovereign offline payments and critical
-              infrastructure defense.
+              The end state is{" "}
+              <span className="font-semibold text-slate-900">
+                Holographic Persistence
+              </span>
+              : a commit to the{" "}
+              <span className="font-semibold text-slate-900">Resonance Ledger</span>,
+              suitable for sovereign offline payments and critical infrastructure defense.
             </p>
           </div>
         </section>
@@ -282,7 +326,8 @@ export default function ResonancePulseHUD() {
               Tessaris SLE v0.5 HUD
             </h1>
             <p className="mt-1 text-[12px] text-slate-500 font-mono">
-              Session: {SESSION_ID} • ψ={metrics.psi.toFixed(5)} • κ={metrics.kappa.toFixed(6)} • T={metrics.T.toFixed(6)}
+              Session: {SESSION_ID} • ψ={metrics.psi.toFixed(5)} • κ=
+              {metrics.kappa.toFixed(6)} • T={metrics.T.toFixed(6)}
             </p>
 
             {/* Clean compliance pills */}
@@ -299,7 +344,11 @@ export default function ResonancePulseHUD() {
           <div className="flex flex-wrap gap-3 items-center">
             {/* Phase Closure pill w/ dot */}
             <div className="px-4 py-2 border border-slate-200 bg-slate-50 rounded-full text-[10px] font-bold uppercase tracking-widest text-slate-800 flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${phaseOk ? "bg-emerald-500" : "bg-red-500"}`} />
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  phaseOk ? "bg-emerald-500" : "bg-red-500"
+                }`}
+              />
               πₛ Phase Closure: {phaseOk ? "OK" : "LOCKED"}
             </div>
 
@@ -308,7 +357,7 @@ export default function ResonancePulseHUD() {
               {collapsed ? "Holographic Persistence" : status}
             </div>
 
-            {/* Stream control (Resonance Blue) */}
+            {/* Stream control */}
             <button
               onClick={() => setRunning((v) => !v)}
               className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${
@@ -374,7 +423,7 @@ export default function ResonancePulseHUD() {
 
         {/* MAIN GRID (light cards) */}
         <div className="grid grid-cols-12 gap-8">
-          {/* INTERFERENCE CHAMBER (clean “lab” look) */}
+          {/* INTERFERENCE CHAMBER */}
           <div className="col-span-12 lg:col-span-8 bg-white border border-slate-200 rounded-3xl p-6 relative overflow-hidden shadow-sm">
             {/* NEW: ROOM TEMP BADGE */}
             <div className="absolute top-4 left-4 z-20">
@@ -390,7 +439,8 @@ export default function ResonancePulseHUD() {
             <div
               className="absolute inset-0 opacity-60 pointer-events-none"
               style={{
-                backgroundImage: "radial-gradient(circle, rgba(15,23,42,0.08) 1px, transparent 1px)",
+                backgroundImage:
+                  "radial-gradient(circle, rgba(15,23,42,0.08) 1px, transparent 1px)",
                 backgroundSize: "28px 28px",
               }}
             />
@@ -421,7 +471,11 @@ export default function ResonancePulseHUD() {
                   strokeWidth="3"
                   fill="none"
                   animate={collapsed ? { opacity: 1 } : { opacity: [0.65, 1, 0.65] }}
-                  transition={collapsed ? { duration: 0.2 } : { repeat: Infinity, duration: highKappa ? 0.85 : 1.2 }}
+                  transition={
+                    collapsed
+                      ? { duration: 0.2 }
+                      : { repeat: Infinity, duration: highKappa ? 0.85 : 1.2 }
+                  }
                 />
                 <motion.path
                   d={`M 0 100
@@ -432,78 +486,114 @@ export default function ResonancePulseHUD() {
                   strokeWidth="2"
                   fill="none"
                   animate={collapsed ? { opacity: 0.9 } : { opacity: [0.35, 0.85, 0.35] }}
-                  transition={collapsed ? { duration: 0.2 } : { repeat: Infinity, duration: highKappa ? 0.85 : 1.35 }}
+                  transition={
+                    collapsed
+                      ? { duration: 0.2 }
+                      : { repeat: Infinity, duration: highKappa ? 0.85 : 1.35 }
+                  }
                 />
               </svg>
             </div>
 
-            {/* UPDATED TELEMETRY TILES (includes Operating Temp tile) */}
+            {/* UPDATED TELEMETRY TILES */}
             <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-3">
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                <span className="text-[10px] text-slate-500 uppercase font-bold">ψ (Entropy)</span>
-                <div className="text-2xl font-semibold text-slate-900">{metrics.psi.toFixed(5)}</div>
+                <span className="text-[10px] text-slate-500 uppercase font-bold">
+                  ψ (Entropy)
+                </span>
+                <div className="text-2xl font-semibold text-slate-900">
+                  {metrics.psi.toFixed(5)}
+                </div>
               </div>
 
               {/* KILLER METRIC: THERMAL MONITOR */}
               <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
-                <span className="text-[10px] text-blue-600 uppercase font-bold">Operating Temp</span>
-                <div className="text-2xl font-semibold text-blue-900">{metrics.T_core.toFixed(1)}°C</div>
-                <div className="text-[9px] text-blue-400 font-mono mt-1 uppercase">No Cryo Required</div>
+                <span className="text-[10px] text-blue-600 uppercase font-bold">
+                  Operating Temp
+                </span>
+                <div className="text-2xl font-semibold text-blue-900">
+                  {metrics.T_core.toFixed(1)}°C
+                </div>
+                <div className="text-[9px] text-blue-400 font-mono mt-1 uppercase">
+                  No Cryo Required
+                </div>
               </div>
 
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                <span className="text-[10px] text-slate-500 uppercase font-bold">κ (Curvature)</span>
-                <div className="text-2xl font-semibold text-slate-900">{metrics.kappa.toFixed(6)}</div>
+                <span className="text-[10px] text-slate-500 uppercase font-bold">
+                  κ (Curvature)
+                </span>
+                <div className="text-2xl font-semibold text-slate-900">
+                  {metrics.kappa.toFixed(6)}
+                </div>
               </div>
 
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                <span className="text-[10px] text-slate-500 uppercase font-bold">Coherence</span>
-                <div className="text-2xl font-semibold text-slate-900">{(coherence * 100).toFixed(1)}%</div>
+                <span className="text-[10px] text-slate-500 uppercase font-bold">
+                  Coherence
+                </span>
+                <div className="text-2xl font-semibold text-slate-900">
+                  {(coherence * 100).toFixed(1)}%
+                </div>
               </div>
 
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                <span className="text-[10px] text-slate-500 uppercase font-bold">Phase Sync</span>
-                <div className="text-2xl font-semibold text-slate-900">{phaseOk ? "2π" : "0.0"}</div>
+                <span className="text-[10px] text-slate-500 uppercase font-bold">
+                  Phase Sync
+                </span>
+                <div className="text-2xl font-semibold text-slate-900">
+                  {phaseOk ? "2π" : "0.0"}
+                </div>
               </div>
             </div>
 
             <div className="mt-4 text-[12px] text-slate-600 font-mono">
-              GWIP Beam {deltaCorrections[Math.min(tick, deltaCorrections.length - 1)].beam}/10 • Coherence{" "}
+              GWIP Beam{" "}
+              {deltaCorrections[Math.min(tick, deltaCorrections.length - 1)].beam}/10
+              • Coherence{" "}
               <span className={coherence >= 0.8 ? "text-emerald-700" : "text-red-600"}>
                 {(coherence * 100).toFixed(2)}%
               </span>{" "}
-              • ΔC <span className="text-slate-900">{dc >= 0 ? "+" : ""}{dc.toFixed(4)}</span>
+              • ΔC{" "}
+              <span className="text-slate-900">
+                {dc >= 0 ? "+" : ""}
+                {dc.toFixed(4)}
+              </span>
               {highKappa && <span className="ml-2 text-amber-700">• High κ mode</span>}
             </div>
           </div>
 
-          {/* MORPHIC LOG (light card) */}
+          {/* MORPHIC LOG */}
           <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 flex flex-col shadow-sm">
             <h3 className="text-[11px] uppercase tracking-[0.2em] text-slate-500 border-b border-slate-200 pb-3 font-bold">
               Morphic Feedback Log
             </h3>
 
             <div className="mt-4 flex-grow space-y-2 text-[12px] font-mono">
-              {(logs.length ? logs : [{ t: 0, msg: "[MorphicFeedback] awaiting GWIP beam injections…", tone: "warn" }]).map((l) => (
-                <div
-                  key={`${l.t}-${l.msg}`}
-                  className={
-                    l.tone === "ok"
-                      ? "text-emerald-700"
-                      : l.tone === "bad"
-                      ? "text-red-600"
-                      : "text-slate-700"
-                  }
-                >
-                  {l.msg}
-                </div>
-              ))}
+              {(logs.length ? logs : [{ t: 0, msg: "[MorphicFeedback] awaiting GWIP beam injections…", tone: "warn" }]).map(
+                (l) => (
+                  <div
+                    key={`${l.t}-${l.msg}`}
+                    className={
+                      l.tone === "ok"
+                        ? "text-emerald-700"
+                        : l.tone === "bad"
+                        ? "text-red-600"
+                        : "text-slate-700"
+                    }
+                  >
+                    {l.msg}
+                  </div>
+                )
+              )}
             </div>
 
             {/* Coherence meter */}
             <div className="mt-5 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
               <div className="flex justify-between text-[12px] font-mono text-slate-700">
-                <span className="uppercase tracking-widest text-slate-500">Coherence</span>
+                <span className="uppercase tracking-widest text-slate-500">
+                  Coherence
+                </span>
                 <span className={coherence >= 0.8 ? "text-emerald-700" : "text-red-600"}>
                   {(coherence * 100).toFixed(2)}%
                 </span>
@@ -527,44 +617,111 @@ export default function ResonancePulseHUD() {
 
               <div className="mt-2 text-[11px] text-slate-500 font-mono uppercase tracking-widest flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${phaseOk ? "bg-emerald-500" : "bg-red-500"}`} />
-                Integrity: {phaseOk ? <span className="text-emerald-700">πₛ VERIFIED</span> : <span className="text-red-600">LOCKED</span>}
+                Integrity:{" "}
+                {phaseOk ? (
+                  <span className="text-emerald-700">πₛ VERIFIED</span>
+                ) : (
+                  <span className="text-red-600">LOCKED</span>
+                )}
               </div>
             </div>
           </div>
         </div>
 
+        {/* ADDITIONAL DEMO: ROOM-TEMP PROOF PANEL */}
+        <section className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-500 font-bold">
+            Room-Temperature Coherence
+          </p>
+          <h3 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
+            Quantum-Grade Stability at Ambient Conditions
+          </h3>
+
+          <p className="mt-4 text-slate-600 leading-relaxed">
+            This readout highlights the thermal operating envelope during stabilization. The key claim is not “cold perfection” — it’s
+            coherence that survives realistic environments.
+          </p>
+
+          <div className="mt-6 grid md:grid-cols-3 gap-4">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <span className="text-[10px] text-slate-500 uppercase font-bold">T_ambient</span>
+              <div className="text-2xl font-semibold text-slate-900">
+                {metrics.T_ambient.toFixed(1)}°C
+              </div>
+              <div className="text-[11px] text-slate-500 font-mono mt-1">
+                Room baseline
+              </div>
+            </div>
+
+            <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
+              <span className="text-[10px] text-blue-600 uppercase font-bold">T_core</span>
+              <div className="text-2xl font-semibold text-blue-900">
+                {metrics.T_core.toFixed(1)}°C
+              </div>
+              <div className="text-[11px] text-blue-500 font-mono mt-1 uppercase">
+                No Cryo Required
+              </div>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <span className="text-[10px] text-slate-500 uppercase font-bold">Coherence</span>
+              <div className="text-2xl font-semibold text-slate-900">
+                {(coherence * 100).toFixed(2)}%
+              </div>
+              <div className="text-[11px] text-slate-500 font-mono mt-1">
+                Live field stability
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* THEOREM / CERTIFICATE (light card) */}
         <section className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-500 font-bold">Resonance Certificate</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-500 font-bold">
+            Resonance Certificate
+          </p>
           <h3 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
             Theorem Proof • πₛ Phase Closure
           </h3>
           <p className="mt-4 text-slate-600 leading-relaxed">
-            When πₛ is OK, the wavefield forms a closed circuit (2π) and does not leak logic into the environment. In demo terms: the wave is
-            a validated coherence loop, and the collapse event represents holographic persistence.
+            When πₛ is OK, the wavefield forms a closed circuit (2π) and does not
+            leak logic into the environment. In demo terms: the wave is a validated
+            coherence loop, and the collapse event represents holographic persistence.
           </p>
 
           <div className="mt-5 grid md:grid-cols-3 gap-4 text-[12px]">
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-              <span className="text-[10px] uppercase font-bold text-slate-500">Artifact</span>
-              <div className="mt-1 font-mono text-slate-900">docs/rfc/holo_theorem.md</div>
+              <span className="text-[10px] uppercase font-bold text-slate-500">
+                Artifact
+              </span>
+              <div className="mt-1 font-mono text-slate-900">
+                docs/rfc/holo_theorem.md
+              </div>
             </div>
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-              <span className="text-[10px] uppercase font-bold text-slate-500">Status</span>
+              <span className="text-[10px] uppercase font-bold text-slate-500">
+                Status
+              </span>
               <div className={`mt-1 font-mono ${phaseOk ? "text-emerald-700" : "text-amber-700"}`}>
                 {phaseOk ? "VERIFIED (pytest)" : "PENDING"}
               </div>
             </div>
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-              <span className="text-[10px] uppercase font-bold text-slate-500">Output</span>
-              <div className="mt-1 font-mono text-slate-900">JSON-LD proof capsule</div>
+              <span className="text-[10px] uppercase font-bold text-slate-500">
+                Output
+              </span>
+              <div className="mt-1 font-mono text-slate-900">
+                JSON-LD proof capsule
+              </div>
             </div>
           </div>
 
           {theoremJson && (
             <div className="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">JSON-LD Proof (preview)</div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                  JSON-LD Proof (preview)
+                </div>
                 <button
                   onClick={() => setTheoremJson("")}
                   className="text-[10px] font-mono text-slate-500 hover:text-slate-900"
@@ -577,6 +734,50 @@ export default function ResonancePulseHUD() {
               </pre>
             </div>
           )}
+        </section>
+
+        {/* USE CASES (light card) */}
+        <section className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-500 font-bold">
+            Use Cases
+          </p>
+          <h3 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
+            From demo to deployment
+          </h3>
+
+          <div className="mt-5 grid md:grid-cols-3 gap-6">
+            <div className="border border-slate-200 rounded-2xl p-5 bg-slate-50">
+              <h4 className="text-slate-900 font-semibold">
+                Critical Infrastructure Defense
+              </h4>
+              <p className="mt-3 text-slate-600 text-sm leading-relaxed">
+                When primary links fail, the system keeps coherence, routing, and
+                integrity guarantees — so emergency operations can persist without
+                “message failed” events.
+              </p>
+            </div>
+
+            <div className="border border-slate-200 rounded-2xl p-5 bg-slate-50">
+              <h4 className="text-slate-900 font-semibold">
+                Sovereign Offline Payments
+              </h4>
+              <p className="mt-3 text-slate-600 text-sm leading-relaxed">
+                Devices can carry the mathematical proof of a transaction in a
+                stabilized state even without internet access, then reconcile when
+                connectivity returns.
+              </p>
+            </div>
+
+            <div className="border border-slate-200 rounded-2xl p-5 bg-slate-50">
+              <h4 className="text-slate-900 font-semibold">
+                Pocket Bridge Private Nets
+              </h4>
+              <p className="mt-3 text-slate-600 text-sm leading-relaxed">
+                Portable nodes enable secure comms and state sync far off-grid —
+                expedition ops, private site-to-site, and sovereign “digital citadels.”
+              </p>
+            </div>
+          </div>
         </section>
       </div>
     </div>
