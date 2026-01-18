@@ -13,6 +13,8 @@ const TABS: readonly TabDef[] = [
   { key: "sovereign_qkd", label: "Sovereign QKD", href: "/sovereign-qkd" },
   { key: "photon_binary", label: "Photon Binary", href: "/photon-binary" },
   { key: "glyph_net", label: "Glyph Net", href: "/glyph-net" },
+  { key: "substrate_comparison", label: "Substrate Demo", href: "/substrate-comparison" },
+  { key: "sle_resonance", label: "SLE Resonance", href: "/sle-resonance" },
   { key: "data", label: "Data", href: "/data" },
   { key: "multiverse", label: "Multiverse", href: "/multiverse" },
   { key: "photon_algebra", label: "Photon Algebra", href: "/photon-algebra" },

@@ -47,7 +47,7 @@ async def main():
         print(f"⚙️ Morphic Regulation -> {regulation['status']} (ΔC={regulation['correction']:+.4f})")
 
         # Optional: broadcast after each tick
-        await asyncio.to_thread(bridge.broadcast_field_state)
+        await bridge.broadcast_field_state()
         await asyncio.sleep(0.25)
 
     # 3️⃣ Field Analyzer summary
