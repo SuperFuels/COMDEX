@@ -51,6 +51,36 @@ const MESH_STATUS: Record<
   },
 };
 
+// =====================
+// Added explainer content (ONLY ADDITIONS)
+// =====================
+const STRATEGIC_COMPARISON_ROWS: Array<{
+  feature: string;
+  legacy: string;
+  glyphnet: string;
+}> = [
+  {
+    feature: "Dependency",
+    legacy: "Requires ISPs, Cables, and Power Grid",
+    glyphnet: "Requires only Node-to-Node proximity",
+  },
+  {
+    feature: "Reliability",
+    legacy: 'Single Point of Failure (The "Line Cut")',
+    glyphnet: 'Self-Healing (The "Resonance Field")',
+  },
+  {
+    feature: "Security",
+    legacy: "Centralized Certificates (Hackable)",
+    glyphnet: "QKD-Backed E2EE (Quantum-Resistant)",
+  },
+  {
+    feature: "Routing",
+    legacy: "DNS / IP Addresses",
+    glyphnet: "Topic-based Symbolic Routing",
+  },
+];
+
 export default function SubstrateShiftDemo() {
   // =====================
   // DEMO A state
@@ -224,6 +254,37 @@ export default function SubstrateShiftDemo() {
             </button>
           </div>
         </div>
+
+        {/* =====================
+            ADDED: Top explainer (ONLY ADD)
+           ===================== */}
+        <section className="grid md:grid-cols-2 gap-8">
+          <div className="bg-gray-50 rounded-[2.5rem] p-10 border border-gray-100">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Learn More</p>
+            <h3 className="text-2xl font-bold italic tracking-tighter">How the RF Radio Mesh Works</h3>
+            <p className="mt-4 text-gray-600 leading-relaxed italic">
+              The Radio Mesh is a decentralized mesh substrate that functions entirely without the internet, cell towers, or
+              satellites. By using low-power, long-range radio (LoRa) frequencies, each device becomes a node in a spiderweb
+              of connectivity. When you send a message, it does not travel to a central server; instead, it is spooled into
+              small RF Capsules that hop from one radio node to another until they find the recipient. Because it uses the
+              SRK-17 band profile, it automatically adjusts its pacing to ensure messages get through even over miles of
+              rugged terrain or through thick building walls.
+            </p>
+          </div>
+
+          <div className="bg-gray-50 rounded-[2.5rem] p-10 border border-gray-100">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Learn More</p>
+            <h3 className="text-2xl font-bold italic tracking-tighter">The Intelligence of GlyphNet</h3>
+            <p className="mt-4 text-gray-600 leading-relaxed italic">
+              Unlike traditional networking that treats data as bits moving through a pipe, GlyphNet treats the wave itself
+              as the data. This is Wave-Native networking. GlyphNet uses CRDT (Conflict-Free Replicated Data Types) to ensure
+              that every person on the network sees the exact same state at the same time. If the internet is cut, GlyphNet
+              does not crash; it downshifts the medium from Fiber to Radio. Because the logic is contained within the Glyph
+              itself, the system restores the conversation instantly—no “Message Failed to Send” errors, just a seamless
+              transition to the next available substrate.
+            </p>
+          </div>
+        </section>
 
         {/* DEMO A: COMPARISON LANES (kept) */}
         <div className="grid grid-rows-2 gap-8">
@@ -428,6 +489,61 @@ export default function SubstrateShiftDemo() {
         </section>
 
         {/* =====================
+            ADDED: QKD explainer + comparison (ONLY ADD)
+           ===================== */}
+        <section className="bg-gray-50 rounded-[3rem] p-10 border border-gray-100">
+          <div className="flex flex-col lg:flex-row gap-10">
+            <div className="flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Learn More</p>
+              <h3 className="text-2xl font-bold italic tracking-tighter">Quantum-Resistant Mesh Security (QKD)</h3>
+              <p className="mt-4 text-gray-600 leading-relaxed italic">
+                Most radio communications are easy to intercept, but GlyphNet is secured by QKD (Quantum Key Distribution).
+                Before a single byte is sent over the air, the sender and receiver perform a Quantum Handshake to derive a
+                unique encryption key based on a Collapse Hash. To an eavesdropper, the radio signal looks like meaningless
+                Base64 noise. Even a quantum computer cannot break this encryption because the key is never sent over the
+                mesh; it is mathematically collapsed into existence at both ends simultaneously, ensuring that your private
+                network stays truly private.
+              </p>
+            </div>
+
+            <div className="flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">
+                Strategic Comparisons
+              </p>
+
+              <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left px-4 py-3 text-[11px] uppercase tracking-widest text-gray-500">Feature</th>
+                      <th className="text-left px-4 py-3 text-[11px] uppercase tracking-widest text-gray-500">
+                        Traditional Internet (Legacy)
+                      </th>
+                      <th className="text-left px-4 py-3 text-[11px] uppercase tracking-widest text-gray-500">
+                        GlyphNet Mesh (Wave-Native)
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {STRATEGIC_COMPARISON_ROWS.map((r) => (
+                      <tr key={r.feature} className="border-t border-gray-100">
+                        <td className="px-4 py-3 font-semibold text-gray-800">{r.feature}</td>
+                        <td className="px-4 py-3 text-gray-600">{r.legacy}</td>
+                        <td className="px-4 py-3 text-gray-700">{r.glyphnet}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <p className="mt-3 text-[11px] text-gray-400 italic">
+                (This is the intuition behind the two demos below: “line cut” becomes a downshift, not a failure state.)
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* =====================
             DEMO B: Mesh Resilience (new section)
            ===================== */}
         <section className="w-full bg-black text-white py-16 px-8 rounded-[4rem] overflow-hidden border border-gray-800">
@@ -621,6 +737,43 @@ export default function SubstrateShiftDemo() {
                   {meshTransport === "RADIO" && meshIsSending ? `Outbox: ${meshSpool.toFixed(0)}% • Pacing bursts` : "Idle"}
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =====================
+            ADDED: Use cases (ONLY ADD)
+           ===================== */}
+        <section className="bg-gray-50 rounded-[3rem] p-10 border border-gray-100">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Real-World Use Cases</p>
+          <h3 className="text-2xl font-bold italic tracking-tighter">What this enables in practice</h3>
+
+          <div className="mt-8 grid md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600">Sovereign Offline Payments</p>
+              <p className="mt-4 text-gray-600 leading-relaxed italic">
+                Imagine a grid-down scenario where banks are offline. Because GlyphNet maintains a Shared Wavefield (Ledger)
+                across the mesh, you can perform peer-to-peer blockchain-style transactions using radio nodes. The mesh
+                records the Resonance of the payment, which syncs back to the main ledger once internet is restored.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600">Critical Infrastructure Defense</p>
+              <p className="mt-4 text-gray-600 leading-relaxed italic">
+                If an adversary cuts undersea fiber cables or disables local ISPs, GlyphNet’s Self-Healing logic instantly
+                detects the loss of the primary substrate and reroutes emergency communications, PTT voice, and data over the
+                RF Mesh.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600">The Pocket Bridge for Private Nets</p>
+              <p className="mt-4 text-gray-600 leading-relaxed italic">
+                Using a battery-powered Puck, users can turn any smartphone into a secure workstation that operates miles away
+                from any cell signal—perfect for remote exploration, secure site-to-site communication, or creating a private
+                Digital Citadel for sensitive data.
+              </p>
             </div>
           </div>
         </section>
