@@ -258,7 +258,7 @@ export default function SubstrateShiftDemo() {
         {/* =====================
             ADDED: Top explainer (ONLY ADD)
            ===================== */}
-        <section className="grid md:grid-cols-2 gap-8">
+        <section className="grid grid-cols-1 gap-8">
           <div className="bg-gray-50 rounded-[2.5rem] p-10 border border-gray-100">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Learn More</p>
             <h3 className="text-2xl font-bold italic tracking-tighter">The Intelligence of GlyphNet</h3>
@@ -475,7 +475,7 @@ export default function SubstrateShiftDemo() {
           <Metric label="Data Integrity" glyph={isIntercepted ? "0.0%" : "99.99%"} legacy="100% (Blind)" alert={isIntercepted} />
         </section>
 
-                <section className="grid md:grid-cols-2 gap-8">
+        <section className="grid grid-cols-1 gap-8">
           <div className="bg-gray-50 rounded-[2.5rem] p-10 border border-gray-100">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Learn More</p>
             <h3 className="text-2xl font-bold italic tracking-tighter">How the RF Radio Mesh Works</h3>
