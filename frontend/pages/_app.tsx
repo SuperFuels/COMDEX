@@ -1,3 +1,4 @@
+// /workspaces/COMDEX/frontend/pages/_app.tsx
 import "@/lib/api";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
@@ -34,7 +35,8 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       <div className="flex-1 flex flex-col">
         {!hideNavbar && <Navbar />}
 
-        <main className="flex-1 overflow-auto relative">
+        {/* NOTE: removed overflow-auto to restore normal page scrolling */}
+        <main className="flex-1 relative">
           <Component {...pageProps} />
         </main>
       </div>

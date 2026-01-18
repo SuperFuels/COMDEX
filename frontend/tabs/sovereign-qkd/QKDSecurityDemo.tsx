@@ -57,10 +57,9 @@ export default function QKDSecurityDemo() {
   };
 
   return (
-    // IMPORTANT: no hero header here; the tab page renders the hero.
-    // Also: no min-h-screen and no overflow rules that can block page scrolling.
     <div className="w-full">
-      <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 bg-white p-2 rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden">
+      {/* FIX: remove overflow-hidden here so the page/tab can scroll normally */}
+      <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 bg-white p-2 rounded-[3rem] shadow-2xl border border-gray-100">
         {/* Left: The "Quantum Pipe" */}
         <div
           className={`relative h-[550px] rounded-[2.5rem] overflow-hidden transition-all duration-700 ${
@@ -70,12 +69,7 @@ export default function QKDSecurityDemo() {
           <div className="flex flex-col items-center justify-center h-full">
             <AnimatePresence mode="wait">
               {status === "IDLE" && (
-                <motion.div
-                  key="idle"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                >
+                <motion.div key="idle" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
                   <button
                     onClick={triggerHandshake}
                     className="bg-white text-black px-10 py-5 rounded-full font-bold text-sm tracking-widest transition-all hover:scale-105"
@@ -94,9 +88,7 @@ export default function QKDSecurityDemo() {
                   className="flex flex-col items-center gap-6"
                 >
                   <div className="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                  <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-200">
-                    HANDSHAKING…
-                  </div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-200">HANDSHAKING…</div>
                 </motion.div>
               )}
 
@@ -141,21 +133,15 @@ export default function QKDSecurityDemo() {
         <div className="flex flex-col gap-8 p-10">
           <div className="space-y-6">
             <div className="min-h-[160px]">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">
-                {INFO_PARAGRAPHS[activeInfo].title}
-              </h3>
-              <p className="text-sm text-gray-500 leading-relaxed font-light">
-                {INFO_PARAGRAPHS[activeInfo].text}
-              </p>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">{INFO_PARAGRAPHS[activeInfo].title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed font-light">{INFO_PARAGRAPHS[activeInfo].text}</p>
             </div>
             <div className="flex gap-4">
               {[0, 1, 2].map((i) => (
                 <button
                   key={i}
                   onClick={() => setActiveInfo(i)}
-                  className={`h-1 flex-1 rounded-full transition-all ${
-                    activeInfo === i ? "bg-black" : "bg-gray-100"
-                  }`}
+                  className={`h-1 flex-1 rounded-full transition-all ${activeInfo === i ? "bg-black" : "bg-gray-100"}`}
                   aria-label={`Show info ${i + 1}`}
                 />
               ))}
@@ -165,10 +151,7 @@ export default function QKDSecurityDemo() {
           <div className="bg-black rounded-3xl p-6 font-mono text-[10px] h-44 overflow-hidden space-y-2">
             <div className="text-blue-500 mb-2"># QKD_LOG_STREAM</div>
             {logs.map((log, i) => (
-              <div
-                key={i}
-                className={log.includes("🚨") ? "text-red-500 font-bold animate-pulse" : "text-gray-400"}
-              >
+              <div key={i} className={log.includes("🚨") ? "text-red-500 font-bold animate-pulse" : "text-gray-400"}>
                 {log}
               </div>
             ))}
