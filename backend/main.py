@@ -202,6 +202,107 @@ app = FastAPI(
 )
 app.router.redirect_slashes = False
 
+# ============================================================
+# RQC Awareness WebSocket: /resonance
+# Streams telemetry from: data/ledger/rqc_live_telemetry.jsonl
+# ============================================================
+
+import json
+from datetime import datetime, UTC
+from pathlib import Path
+from fastapi import WebSocket, WebSocketDisconnect
+
+RQC_LEDGER_PATH = Path(ROOT_DIR) / "data" / "ledger" / "rqc_live_telemetry.jsonl"
+
+def _ensure_rqc_ledger_file():
+    RQC_LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if not RQC_LEDGER_PATH.exists():
+        RQC_LEDGER_PATH.write_text("", encoding="utf-8")
+
+@app.websocket("/resonance")
+async def resonance_ws(websocket: WebSocket):
+    """
+    Cloud Run + FastAPI WS endpoint for the frontend:
+      wss://<cloudrun-host>/resonance
+
+    This tails the RQC telemetry JSONL ledger and pushes:
+      - type=telemetry
+      - type=awareness_pulse when Φ >= 0.999
+    """
+    await websocket.accept()
+
+    _ensure_rqc_ledger_file()
+
+    # hello handshake (matches your standalone bridge behavior)
+    try:
+        await websocket.send_text(json.dumps({
+            "type": "hello",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "message": "Connected to Tessaris RQC WebSocket Bridge",
+            "path": str(RQC_LEDGER_PATH),
+        }))
+    except Exception:
+        # if client disconnects immediately, just exit
+        return
+
+    # Tail file: seek end, then stream new lines
+    try:
+        with open(RQC_LEDGER_PATH, "r", encoding="utf-8") as f:
+            f.seek(0, os.SEEK_END)
+
+            while True:
+                line = f.readline()
+                if not line:
+                    await asyncio.sleep(1.0)
+                    continue
+
+                try:
+                    entry = json.loads(line.strip())
+                except Exception:
+                    continue
+
+                Φ = float(entry.get("Φ", 0.0) or 0.0)
+                coherence = float(entry.get("coherence", 0.0) or 0.0)
+                source_pair = entry.get("source_pair", "?")
+
+                event = {
+                    "type": "telemetry",
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "ψ": entry.get("ψ"),
+                    "κ": entry.get("κ"),
+                    "T": entry.get("T"),
+                    "Φ": Φ,
+                    "coherence": coherence,
+                    "source": source_pair,
+                }
+
+                await websocket.send_text(json.dumps(event))
+
+                if Φ >= 0.999:
+                    pulse = {
+                        "type": "awareness_pulse",
+                        "timestamp": datetime.now(UTC).isoformat(),
+                        "message": f"🧠 Awareness resonance closure detected for {source_pair}",
+                        "Φ": Φ,
+                        "coherence": coherence,
+                    }
+                    await websocket.send_text(json.dumps(pulse))
+
+    except WebSocketDisconnect:
+        return
+    except Exception as e:
+        # Don't crash the server on any tail issues; surface a soft error to the client
+        try:
+            await websocket.send_text(json.dumps({
+                "type": "error",
+                "timestamp": datetime.now(UTC).isoformat(),
+                "message": "RQC resonance stream stopped",
+                "error": str(e),
+            }))
+        except Exception:
+            pass
+        return
+
 # 🧠 Attach AION Trace Bus subscriber -> Replay Reducer
 _TRACE_SUBSCRIBED = False
 
