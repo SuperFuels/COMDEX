@@ -179,114 +179,106 @@ export default function ResonancePulseHUD() {
   const amp = (highKappa ? 95 : 60) * coherence;
   const wobble = highKappa ? 18 : 0;
 
-  // Branding palette (Tailwind approximations)
-  // Lattice Black: #020617 (slate-950), Resonance Cyan: #22d3ee (cyan-400),
-  // Morphic Green: #4ade80 (green-400), Entropy Red: #ef4444 (red-500), GWave Gold: #facc15 (yellow-400)
-  return (
-    <div className="w-full bg-slate-950 text-cyan-300 py-10 selection:bg-cyan-200/20">
-      <div className="max-w-7xl mx-auto px-6 space-y-10">
-        {/* TOP EXPLAINER (branding + canonical language) */}
-        <section className="bg-black/40 border border-cyan-900/60 rounded-[2.5rem] p-8">
-          <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-500/70 font-semibold">
-            Tessaris Photonic Systems • AION Standard Interface
-          </p>
+  // Light branding colors
+  const RESONANCE_BLUE = "#3b82f6";
+  const ENTROPY_RED = "#ef4444";
 
-          <h2 className="mt-2 text-3xl font-extrabold italic tracking-tight text-cyan-200">
-            RESONANCE PULSE • SYMBOLIC LIGHTWAVE ENGINE (SLE)
+  // Wave color: blue for constructive / stable, red for destructive / locked
+  const waveStroke = phaseOk ? RESONANCE_BLUE : ENTROPY_RED;
+
+  return (
+    <div className="w-full bg-[#f8fafc] text-slate-900 py-10 font-sans">
+      <div className="max-w-7xl mx-auto px-6 space-y-10">
+        {/* TOP EXPLAINER (light card) */}
+        <section className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-500 font-bold">
+            Resonance Documentation
+          </p>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+            Tessaris SLE: The “Resonance Pulse”
           </h2>
 
-          <div className="mt-4 space-y-4 text-cyan-200/80 italic leading-relaxed">
+          <div className="mt-4 space-y-4 text-slate-600 leading-relaxed">
             <p>
-              The <span className="text-cyan-200 font-semibold">Photonic Interference Chamber</span> visualizes the{" "}
-              <span className="text-cyan-200 font-semibold">ψ–κ–T tensor</span>. When coherence is low, the wave geometry fragments; as{" "}
-              <span className="text-cyan-200 font-semibold">Morphic Feedback</span> applies ΔC (e.g., +0.0669), the computation visibly{" "}
-              <span className="text-cyan-200 font-semibold">stabilizes</span> in-flight.
+              The Photonic Interference Chamber is not decoration — it visualizes the{" "}
+              <span className="font-semibold text-slate-900">ψ–κ–T tensor</span>. When coherence is low, the geometry becomes unstable; as
+              the Morphic Feedback log applies ΔC values (for example +0.0669), the system is visibly stabilizing the computation in-flight.
             </p>
 
             <p>
-              The <span className="text-cyan-200 font-semibold">πₛ Phase Closure</span> badge is the integrity claim. Legacy stacks rely on
-              post-facto checksums. SLE uses closure: if the loop doesn’t close to 2π, logic leaks (“ghost glyphs”). When πₛ flips to{" "}
-              <span className="text-green-300 font-semibold">OK</span>, the circle of light is complete — mathematically sealed.
+              The <span className="font-semibold text-slate-900">πₛ Phase Closure</span> pill is the integrity claim. Legacy stacks use
+              checksums after the fact. SLE uses closure: if the loop doesn’t close to 2π, logic leaks (“ghost glyphs”). When πₛ flips to OK,
+              the circle of light is complete — the computation is mathematically sealed.
             </p>
 
             <p>
-              The end state is <span className="text-cyan-200 font-semibold">Holographic Persistence</span>: a commit to the{" "}
-              <span className="text-cyan-200 font-semibold">Resonance Ledger</span>, suitable for{" "}
-              <span className="text-cyan-200 font-semibold">Sovereign Offline Payments</span> and{" "}
-              <span className="text-cyan-200 font-semibold">Critical Infrastructure Defense</span>.
+              The end state is <span className="font-semibold text-slate-900">Holographic Persistence</span>: a commit to the{" "}
+              <span className="font-semibold text-slate-900">Resonance Ledger</span>, suitable for sovereign offline payments and critical
+              infrastructure defense.
             </p>
           </div>
         </section>
 
-        {/* HUD HEADER (branding: typography + badges + canonical terms) */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b border-cyan-900/50 pb-5">
+        {/* HUD HEADER (light + pills) */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b border-slate-200 pb-5">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold italic tracking-[0.06em] uppercase text-cyan-200">
-              TESSARIS SLE V0.5 HUD
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight uppercase text-slate-900">
+              Tessaris SLE v0.5 HUD
             </h1>
-            <p className="mt-1 text-[11px] text-cyan-500/70 font-mono">
-              SESSION_ID: {SESSION_ID} • ψ={metrics.psi.toFixed(5)} • κ={metrics.kappa.toFixed(6)} • T={metrics.T.toFixed(6)}
+            <p className="mt-1 text-[12px] text-slate-500 font-mono">
+              Session: {SESSION_ID} • ψ={metrics.psi.toFixed(5)} • κ={metrics.kappa.toFixed(6)} • T={metrics.T.toFixed(6)}
             </p>
 
-            {/* Compliance / Integrity markers */}
+            {/* Clean compliance pills */}
             <div className="mt-3 flex flex-wrap gap-2">
-              <span className="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border border-yellow-400/30 text-yellow-300 bg-yellow-500/5">
-                GWave Carrier • SRK-17
-              </span>
-              <span className="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border border-cyan-400/25 text-cyan-200 bg-cyan-500/5">
+              <span className="px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-widest border border-slate-200 bg-slate-50 text-slate-700">
                 SHA3-512 INTEGRITY
               </span>
-              <span className="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border border-cyan-400/25 text-cyan-200 bg-cyan-500/5">
+              <span className="px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-widest border border-slate-200 bg-slate-50 text-slate-700">
                 SRK-17 COMPLIANT
               </span>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-3 items-center">
-            {/* πs “Closer” badge: Entropy Red pulsating LOCKED -> Morphic Green OK */}
-            <div
-              className={`px-4 py-2 border rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                phaseOk
-                  ? "border-green-400/60 bg-green-500/10 text-green-200"
-                  : "border-red-500 bg-red-500/10 text-red-300 animate-pulse"
-              }`}
-            >
-              πₛ PHASE CLOSURE: {phaseOk ? "OK" : "LOCKED"}
+            {/* Phase Closure pill w/ dot */}
+            <div className="px-4 py-2 border border-slate-200 bg-slate-50 rounded-full text-[10px] font-bold uppercase tracking-widest text-slate-800 flex items-center gap-2">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  phaseOk ? "bg-emerald-500" : "bg-red-500"
+                }`}
+              />
+              πₛ Phase Closure: {phaseOk ? "OK" : "LOCKED"}
             </div>
 
-            <div
-              className={`px-4 py-2 border rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                status === "STABILIZED"
-                  ? "border-green-400/60 bg-green-500/10 text-green-200"
-                  : "border-cyan-900/60 bg-black/30 text-cyan-200/80"
-              }`}
-            >
-              {collapsed ? "HOLOGRAPHIC PERSISTENCE" : status}
+            {/* Status pill */}
+            <div className="px-4 py-2 border border-slate-200 bg-white rounded-full text-[10px] font-bold uppercase tracking-widest text-slate-800">
+              {collapsed ? "Holographic Persistence" : status}
             </div>
 
-            {/* Stream control */}
+            {/* Stream control (Resonance Blue) */}
             <button
               onClick={() => setRunning((v) => !v)}
               className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${
                 running
-                  ? "bg-cyan-500/10 border-cyan-400/40 text-cyan-200"
-                  : "bg-transparent border-cyan-400/20 hover:bg-white/5 text-cyan-200"
+                  ? "bg-blue-50 border-blue-200 text-blue-700"
+                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
               }`}
             >
-              {running ? "STOP STREAM" : "START STREAM"}
+              {running ? "Stop Stream" : "Start Stream"}
             </button>
 
-            {/* High κ toggle */}
+            {/* Curvature toggle */}
             <button
               onClick={() => setHighKappa((v) => !v)}
               className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${
                 highKappa
-                  ? "bg-yellow-500/10 border-yellow-400/40 text-yellow-200"
-                  : "bg-transparent border-cyan-400/20 hover:bg-white/5 text-cyan-200"
+                  ? "bg-amber-50 border-amber-200 text-amber-700"
+                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
               }`}
               title="Curvature / semantic density mode"
             >
-              {highKappa ? "HIGH κ: ON" : "HIGH κ: OFF"}
+              {highKappa ? "High κ: ON" : "High κ: OFF"}
             </button>
 
             {/* πs validator */}
@@ -294,11 +286,11 @@ export default function ResonancePulseHUD() {
               onClick={runPiSValidator}
               className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${
                 phaseOk
-                  ? "bg-green-500/10 border-green-400/40 text-green-200"
-                  : "bg-transparent border-cyan-400/20 hover:bg-white/5 text-cyan-200"
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
               }`}
             >
-              {phaseOk ? "πₛ VALIDATOR: PASSED" : "RUN πₛ VALIDATOR"}
+              {phaseOk ? "Validator: PASSED" : "Run πₛ Validator"}
             </button>
 
             {/* Download theorem */}
@@ -306,13 +298,13 @@ export default function ResonancePulseHUD() {
               onClick={downloadTheorem}
               className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${
                 phaseOk
-                  ? "bg-cyan-500/10 border-cyan-400/40 text-cyan-200"
-                  : "bg-transparent border-cyan-400/20 text-cyan-200/50"
+                  ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700"
+                  : "bg-white border-slate-200 text-slate-400 cursor-not-allowed"
               }`}
               disabled={!phaseOk}
               title={!phaseOk ? "Run πₛ validator first" : "Download JSON-LD proof"}
             >
-              DOWNLOAD PROOF (JSON-LD)
+              Download Theorem
             </button>
 
             {/* Reset */}
@@ -321,151 +313,118 @@ export default function ResonancePulseHUD() {
                 setRunning(false);
                 resetPulse();
               }}
-              className="px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border border-cyan-400/20 hover:bg-white/5 transition-all text-cyan-200"
+              className="px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-all"
             >
-              RESET
+              Reset
             </button>
           </div>
         </div>
 
-        {/* MAIN GRID */}
+        {/* MAIN GRID (light cards) */}
         <div className="grid grid-cols-12 gap-8">
-          {/* INTERFERENCE CHAMBER */}
-          <div
-            className={`col-span-12 lg:col-span-8 bg-black border border-cyan-900/60 rounded-[2rem] p-6 relative overflow-hidden ${
-              collapsed ? "shadow-[0_0_70px_rgba(34,211,238,0.18)]" : ""
-            }`}
-          >
+          {/* INTERFERENCE CHAMBER (clean “lab” look) */}
+          <div className="col-span-12 lg:col-span-8 bg-white border border-slate-200 rounded-3xl p-6 relative overflow-hidden shadow-sm">
+            {/* very light grid */}
             <div
-              className="absolute inset-0 opacity-20 pointer-events-none"
+              className="absolute inset-0 opacity-60 pointer-events-none"
               style={{
-                backgroundImage:
-                  "radial-gradient(circle, rgba(34,211,238,0.55) 1px, rgba(0,0,0,0) 1px)",
+                backgroundImage: "radial-gradient(circle, rgba(15,23,42,0.08) 1px, transparent 1px)",
                 backgroundSize: "28px 28px",
               }}
             />
 
             <div className="absolute top-4 right-4 flex flex-wrap gap-2">
-              <span className="text-[10px] bg-cyan-500/5 border border-cyan-400/20 px-3 py-1 rounded-full font-mono uppercase tracking-widest">
-                GWIP STREAM: LIVE
-              </span>
-              <span className="text-[10px] bg-yellow-500/5 border border-yellow-400/25 px-3 py-1 rounded-full font-mono uppercase tracking-widest text-yellow-200">
-                GWave MODULATION
+              <span className="text-[10px] bg-slate-50 border border-slate-200 px-3 py-1 rounded-full font-mono uppercase tracking-widest text-slate-700">
+                GWIP Stream: Live
               </span>
               {collapsed && (
-                <span className="text-[10px] bg-green-500/10 border border-green-400/35 px-3 py-1 rounded-full font-mono uppercase tracking-widest text-green-200">
-                  LEDGER COMMIT: SEALED
+                <span className="text-[10px] bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full font-mono uppercase tracking-widest text-emerald-700">
+                  Ledger Commit: Sealed
                 </span>
               )}
             </div>
 
-            <h3 className="text-[12px] uppercase tracking-[0.28em] text-cyan-500/70 mb-4 font-semibold">
-              PHOTONIC INTERFERENCE CHAMBER
+            <h3 className="text-[11px] uppercase tracking-[0.2em] text-slate-500 mb-4 font-bold">
+              Photonic Interference Chamber
             </h3>
 
-            <div className="h-64 flex items-center justify-center border-y border-cyan-900/30">
+            <div className="h-64 flex items-center justify-center border-y border-slate-100">
               <svg width="100%" height="100%" viewBox="0 0 800 200">
                 <motion.path
                   d={`M 0 100
                       C 120 ${100 - amp}, 220 ${100 + amp}, 320 100
                       S 520 ${100 - (amp - wobble)}, 640 100
                       S 760 ${100 + (amp - wobble)}, 800 100`}
-                  stroke="currentColor"
-                  strokeWidth="2"
+                  stroke={waveStroke}
+                  strokeWidth="3"
                   fill="none"
-                  animate={
-                    collapsed
-                      ? { opacity: 1, filter: "drop-shadow(0px 0px 16px rgba(34,211,238,0.95))" }
-                      : { opacity: [0.55, 1, 0.55] }
-                  }
+                  animate={collapsed ? { opacity: 1 } : { opacity: [0.65, 1, 0.65] }}
                   transition={collapsed ? { duration: 0.2 } : { repeat: Infinity, duration: highKappa ? 0.85 : 1.2 }}
                 />
-
                 <motion.path
                   d={`M 0 100
                       C 120 ${100 + amp}, 220 ${100 - amp}, 320 100
                       S 520 ${100 + (amp - wobble)}, 640 100
                       S 760 ${100 - (amp - wobble)}, 800 100`}
-                  stroke="currentColor"
-                  strokeWidth="1.5"
+                  stroke={phaseOk ? "#1d4ed8" : ENTROPY_RED}
+                  strokeWidth="2"
                   fill="none"
-                  animate={
-                    collapsed
-                      ? { opacity: 0.9, filter: "drop-shadow(0px 0px 12px rgba(34,211,238,0.75))" }
-                      : { opacity: [0.25, 0.85, 0.25] }
-                  }
-                  transition={collapsed ? { duration: 0.2 } : { repeat: Infinity, duration: highKappa ? 0.85 : 1.4 }}
+                  animate={collapsed ? { opacity: 0.9 } : { opacity: [0.35, 0.85, 0.35] }}
+                  transition={collapsed ? { duration: 0.2 } : { repeat: Infinity, duration: highKappa ? 0.85 : 1.35 }}
                 />
-
-                {/* High-frequency modulation markers (GWave Gold) */}
-                <motion.g
-                  animate={collapsed ? { opacity: 0.9 } : { opacity: [0.3, 0.9, 0.3] }}
-                  transition={collapsed ? { duration: 0.2 } : { repeat: Infinity, duration: 1.1 }}
-                >
-                  {[120, 260, 400, 540, 680].map((x) => (
-                    <line
-                      key={x}
-                      x1={x}
-                      y1={70}
-                      x2={x}
-                      y2={130}
-                      stroke="#facc15"
-                      strokeOpacity={0.55}
-                      strokeWidth={1}
-                    />
-                  ))}
-                </motion.g>
               </svg>
             </div>
 
-            {/* ψ-κ-T tensor tiles (mono telemetry, branded colors) */}
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-3 text-[11px] text-cyan-200/80 font-mono">
-              <div className="bg-white/5 border border-cyan-900/50 rounded-xl p-3">
-                ψ (Entropy)
-                <div className="text-xl font-bold italic text-cyan-200">{metrics.psi.toFixed(5)}</div>
+            {/* Telemetry tiles (white pill style) */}
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <span className="text-[10px] text-slate-500 uppercase font-bold">ψ (Entropy)</span>
+                <div className="text-2xl font-semibold text-slate-900">{metrics.psi.toFixed(5)}</div>
               </div>
-              <div className="bg-white/5 border border-cyan-900/50 rounded-xl p-3">
-                κ (Curvature)
-                <div className="text-xl font-bold italic text-cyan-200">{metrics.kappa.toFixed(6)}</div>
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <span className="text-[10px] text-slate-500 uppercase font-bold">κ (Curvature)</span>
+                <div className="text-2xl font-semibold text-slate-900">{metrics.kappa.toFixed(6)}</div>
               </div>
-              <div className="bg-white/5 border border-cyan-900/50 rounded-xl p-3">
-                T (Temporal)
-                <div className="text-xl font-bold italic text-cyan-200">{metrics.T.toFixed(6)}</div>
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <span className="text-[10px] text-slate-500 uppercase font-bold">T (Temporal)</span>
+                <div className="text-2xl font-semibold text-slate-900">{metrics.T.toFixed(6)}</div>
               </div>
-              <div className="bg-white/5 border border-cyan-900/50 rounded-xl p-3">
-                Target C
-                <div className="text-xl font-bold italic text-cyan-200">{(metrics.target * 100).toFixed(0)}%</div>
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <span className="text-[10px] text-slate-500 uppercase font-bold">Target C</span>
+                <div className="text-2xl font-semibold text-slate-900">{(metrics.target * 100).toFixed(0)}%</div>
               </div>
-              <div className="bg-white/5 border border-cyan-900/50 rounded-xl p-3">
-                Gain
-                <div className="text-xl font-bold italic text-cyan-200">{metrics.gain.toFixed(3)}</div>
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <span className="text-[10px] text-slate-500 uppercase font-bold">Gain</span>
+                <div className="text-2xl font-semibold text-slate-900">{metrics.gain.toFixed(3)}</div>
               </div>
             </div>
 
-            <div className="mt-4 text-[11px] text-cyan-300/70 font-mono">
+            <div className="mt-4 text-[12px] text-slate-600 font-mono">
               GWIP Beam {deltaCorrections[Math.min(tick, deltaCorrections.length - 1)].beam}/10 • Coherence{" "}
-              <span className={coherence >= 0.8 ? "text-green-300" : "text-red-300"}>{(coherence * 100).toFixed(2)}%</span>{" "}
-              • ΔC <span className="text-cyan-200">{dc >= 0 ? "+" : ""}{dc.toFixed(4)}</span>
-              {highKappa && <span className="ml-2 text-yellow-200/90">• HIGH κ (SEMANTIC DENSITY)</span>}
+              <span className={coherence >= 0.8 ? "text-emerald-700" : "text-red-600"}>
+                {(coherence * 100).toFixed(2)}%
+              </span>{" "}
+              • ΔC <span className="text-slate-900">{dc >= 0 ? "+" : ""}{dc.toFixed(4)}</span>
+              {highKappa && <span className="ml-2 text-amber-700">• High κ mode</span>}
             </div>
           </div>
 
-          {/* MORPHIC LOG TERMINAL */}
-          <div className="col-span-12 lg:col-span-4 bg-slate-900/60 border border-cyan-900/60 rounded-[2rem] p-5 flex flex-col">
-            <h3 className="text-[12px] uppercase tracking-[0.28em] text-cyan-200 border-b border-cyan-900/40 pb-3 font-semibold">
-              MORPHIC FEEDBACK LOG
+          {/* MORPHIC LOG (light card) */}
+          <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 flex flex-col shadow-sm">
+            <h3 className="text-[11px] uppercase tracking-[0.2em] text-slate-500 border-b border-slate-200 pb-3 font-bold">
+              Morphic Feedback Log
             </h3>
 
-            <div className="mt-4 flex-grow space-y-2 text-[11px] font-mono">
+            <div className="mt-4 flex-grow space-y-2 text-[12px] font-mono">
               {(logs.length ? logs : [{ t: 0, msg: "[MorphicFeedback] awaiting GWIP beam injections…", tone: "warn" }]).map((l) => (
                 <div
                   key={`${l.t}-${l.msg}`}
                   className={
                     l.tone === "ok"
-                      ? "text-green-300"
+                      ? "text-emerald-700"
                       : l.tone === "bad"
-                      ? "text-red-300"
-                      : "text-cyan-200/80"
+                      ? "text-red-600"
+                      : "text-slate-700"
                   }
                 >
                   {l.msg}
@@ -473,117 +432,110 @@ export default function ResonancePulseHUD() {
               ))}
             </div>
 
-            {/* Resonance Stabilization meter */}
-            <div className="mt-5 p-4 bg-black/70 border border-cyan-900/60 rounded-xl">
-              <div className="flex justify-between text-[11px] font-mono">
-                <span className="text-cyan-500/70 uppercase tracking-widest">RESONANCE STABILIZATION</span>
-                <span className={coherence >= 0.8 ? "text-green-300" : "text-red-300"}>
+            {/* Coherence meter */}
+            <div className="mt-5 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+              <div className="flex justify-between text-[12px] font-mono text-slate-700">
+                <span className="uppercase tracking-widest text-slate-500">Coherence</span>
+                <span className={coherence >= 0.8 ? "text-emerald-700" : "text-red-600"}>
                   {(coherence * 100).toFixed(2)}%
                 </span>
               </div>
 
-              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-2">
+              <div className="w-full bg-white border border-slate-200 h-2 rounded-full overflow-hidden mt-2">
                 <motion.div
-                  className={coherence >= 0.8 ? "h-full bg-green-400" : "h-full bg-red-500"}
+                  className={coherence >= 0.8 ? "h-full bg-emerald-500" : "h-full bg-red-500"}
                   animate={{ width: `${Math.max(2, Math.min(100, coherence * 100))}%` }}
                   transition={{ duration: 0.4 }}
                 />
               </div>
 
-              <div className="mt-3 text-[11px] text-cyan-500/70 font-mono">
+              <div className="mt-3 text-[12px] text-slate-600 font-mono">
                 ΔC applied:{" "}
-                <span className="text-cyan-200">
+                <span className="text-slate-900">
                   {dc >= 0 ? "+" : ""}
                   {dc.toFixed(4)}
                 </span>
               </div>
 
-              <div className="mt-2 text-[10px] text-cyan-300/60 font-mono uppercase tracking-widest">
-                πₛ Integrity:{" "}
-                {phaseOk ? (
-                  <span className="text-green-300">VERIFIED</span>
-                ) : (
-                  <span className="text-red-300">LOCKED</span>
-                )}
+              <div className="mt-2 text-[11px] text-slate-500 font-mono uppercase tracking-widest flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${phaseOk ? "bg-emerald-500" : "bg-red-500"}`} />
+                Integrity: {phaseOk ? <span className="text-emerald-700">πₛ VERIFIED</span> : <span className="text-red-600">LOCKED</span>}
               </div>
             </div>
           </div>
         </div>
 
-        {/* THEOREM / CERTIFICATE PANEL (branding language: Resonance Ledger / proof capsule) */}
-        <section className="bg-black/40 border border-cyan-900/60 rounded-[2.5rem] p-8">
-          <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-500/70 font-semibold">RESONANCE LEDGER CERTIFICATE</p>
-
-          <h3 className="mt-2 text-2xl font-extrabold italic tracking-tight text-cyan-200">
-            πₛ PHASE CLOSURE PROOF • JSON-LD CAPSULE
+        {/* THEOREM / CERTIFICATE (light card) */}
+        <section className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-500 font-bold">Resonance Certificate</p>
+          <h3 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
+            Theorem Proof • πₛ Phase Closure
           </h3>
-
-          <p className="mt-4 text-cyan-200/80 italic leading-relaxed">
-            When πₛ is OK, the wavefield is a closed circuit (2π) with no logic leakage into the environment. The collapse event represents{" "}
-            <span className="text-cyan-200 font-semibold">Holographic Persistence</span>: a sealed state committed to the{" "}
-            <span className="text-cyan-200 font-semibold">Resonance Ledger</span>.
+          <p className="mt-4 text-slate-600 leading-relaxed">
+            When πₛ is OK, the wavefield forms a closed circuit (2π) and does not leak logic into the environment. In demo terms: the wave is
+            a validated coherence loop, and the collapse event represents holographic persistence.
           </p>
 
-          <div className="mt-5 grid md:grid-cols-3 gap-4 text-[11px] font-mono">
-            <div className="bg-white/5 border border-cyan-900/50 rounded-2xl p-4">
-              Artifact: <span className="text-cyan-200">docs/rfc/holo_theorem.md</span>
+          <div className="mt-5 grid md:grid-cols-3 gap-4 text-[12px]">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <span className="text-[10px] uppercase font-bold text-slate-500">Artifact</span>
+              <div className="mt-1 font-mono text-slate-900">docs/rfc/holo_theorem.md</div>
             </div>
-            <div className="bg-white/5 border border-cyan-900/50 rounded-2xl p-4">
-              Status:{" "}
-              <span className={phaseOk ? "text-green-300" : "text-yellow-200"}>
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <span className="text-[10px] uppercase font-bold text-slate-500">Status</span>
+              <div className={`mt-1 font-mono ${phaseOk ? "text-emerald-700" : "text-amber-700"}`}>
                 {phaseOk ? "VERIFIED (pytest)" : "PENDING"}
-              </span>
+              </div>
             </div>
-            <div className="bg-white/5 border border-cyan-900/50 rounded-2xl p-4">
-              Output: <span className="text-cyan-200">Proof Capsule (JSON-LD)</span>
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <span className="text-[10px] uppercase font-bold text-slate-500">Output</span>
+              <div className="mt-1 font-mono text-slate-900">JSON-LD proof capsule</div>
             </div>
           </div>
 
           {theoremJson && (
-            <div className="mt-6 bg-black/60 border border-cyan-900/50 rounded-2xl p-4">
+            <div className="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-500/70 font-mono">
-                  JSON-LD PROOF PREVIEW
-                </div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">JSON-LD Proof (preview)</div>
                 <button
                   onClick={() => setTheoremJson("")}
-                  className="text-[10px] font-mono text-cyan-300/70 hover:text-cyan-200 uppercase tracking-widest"
+                  className="text-[10px] font-mono text-slate-500 hover:text-slate-900"
                 >
                   close
                 </button>
               </div>
-              <pre className="text-[10px] leading-relaxed font-mono text-cyan-200/80 overflow-x-auto whitespace-pre">
+              <pre className="text-[11px] leading-relaxed font-mono text-slate-800 overflow-x-auto whitespace-pre">
 {theoremJson}
               </pre>
             </div>
           )}
         </section>
 
-        {/* USE CASES (keep content, align language) */}
-        <section className="bg-black/40 border border-cyan-900/60 rounded-[2.5rem] p-8">
-          <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-500/70 font-semibold">DEPLOYMENT PATH</p>
-          <h3 className="mt-2 text-2xl font-extrabold italic tracking-tight text-cyan-200">FROM DEMO TO FIELD SYSTEM</h3>
+        {/* USE CASES (light card) */}
+        <section className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-blue-500 font-bold">Use Cases</p>
+          <h3 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">From demo to deployment</h3>
 
           <div className="mt-5 grid md:grid-cols-3 gap-6">
-            <div className="border border-cyan-900/60 rounded-2xl p-5 bg-black/30">
-              <h4 className="text-cyan-200 font-bold italic">Critical Infrastructure Defense</h4>
-              <p className="mt-3 text-cyan-200/75 text-sm italic leading-relaxed">
-                When primary links fail, the system keeps coherence, routing, and integrity guarantees — resilient GWIP continuity without
-                “message failed” events.
+            <div className="border border-slate-200 rounded-2xl p-5 bg-slate-50">
+              <h4 className="text-slate-900 font-semibold">Critical Infrastructure Defense</h4>
+              <p className="mt-3 text-slate-600 text-sm leading-relaxed">
+                When primary links fail, the system keeps coherence, routing, and integrity guarantees — so emergency operations can persist
+                without “message failed” events.
               </p>
             </div>
 
-            <div className="border border-cyan-900/60 rounded-2xl p-5 bg-black/30">
-              <h4 className="text-cyan-200 font-bold italic">Sovereign Offline Payments</h4>
-              <p className="mt-3 text-cyan-200/75 text-sm italic leading-relaxed">
-                Devices can carry the mathematical proof of a transaction in a stabilized holographic state offline, then reconcile on return
-                connectivity.
+            <div className="border border-slate-200 rounded-2xl p-5 bg-slate-50">
+              <h4 className="text-slate-900 font-semibold">Sovereign Offline Payments</h4>
+              <p className="mt-3 text-slate-600 text-sm leading-relaxed">
+                Devices can carry the mathematical proof of a transaction in a stabilized state even without internet access, then reconcile
+                when connectivity returns.
               </p>
             </div>
 
-            <div className="border border-cyan-900/60 rounded-2xl p-5 bg-black/30">
-              <h4 className="text-cyan-200 font-bold italic">Pocket Bridge Private Nets</h4>
-              <p className="mt-3 text-cyan-200/75 text-sm italic leading-relaxed">
+            <div className="border border-slate-200 rounded-2xl p-5 bg-slate-50">
+              <h4 className="text-slate-900 font-semibold">Pocket Bridge Private Nets</h4>
+              <p className="mt-3 text-slate-600 text-sm leading-relaxed">
                 Portable nodes enable secure comms and state sync far off-grid — expedition ops, private site-to-site, and sovereign “digital
                 citadels.”
               </p>
