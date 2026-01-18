@@ -23,8 +23,12 @@ const TABS: readonly TabDef[] = [
   { key: "ai", label: "AI", href: "/ai" },
 ];
 
+function normalizeKey(k?: string) {
+  return (k || "").trim().replace(/-/g, "_");
+}
+
 function getActiveKeyFromPath(pathname: string): string {
-  const p = pathname.split("?")[0].split("#")[0];
+  const p = (pathname || "/").split("?")[0].split("#")[0];
 
   const exact = TABS.find((t) => t.href === p);
   if (exact) return exact.key;
@@ -53,41 +57,43 @@ export default function Shell({
 }) {
   const router = useRouter();
   const derivedKey = getActiveKeyFromPath(router.asPath || router.pathname || "/");
-  const key = activeKey || derivedKey;
+
+  // ✅ normalize so "sovereign-qkd" works even if someone passes hyphenated keys
+  const key = normalizeKey(activeKey) || normalizeKey(derivedKey) || "glyph";
 
   return (
     <div
       className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}
     >
-      <div className="h-screen overflow-y-auto">
-        <main
-          className={[
-            "relative z-10 flex flex-col items-center justify-start min-h-full",
-            "w-full",
-            "px-6 md:px-10", // ✅ more breathing room on wider layouts
-            maxWidth,
-            "mx-auto",
-            "py-16 pb-32",
-          ].join(" ")}
-        >
-          <TabDock tabs={TABS} activeKey={key} />
+      {/* ✅ FIX: remove the inner h-screen/overflow-y-auto scroll trap.
+          Let the document scroll naturally so long pages (QKD / Photon Binary) work. */}
+      <main
+        className={[
+          "relative z-10 flex flex-col items-center justify-start",
+          "w-full",
+          "px-6 md:px-10", // ✅ more breathing room on wider layouts
+          maxWidth,
+          "mx-auto",
+          "py-16 pb-32",
+        ].join(" ")}
+      >
+        <TabDock tabs={TABS} activeKey={key} />
 
-          <div className="w-full">
-            <div key={key} className="animate-tab-change">
-              {children}
-            </div>
+        <div className="w-full">
+          <div key={key} className="animate-tab-change">
+            {children}
           </div>
+        </div>
 
-          <footer className="mt-24 flex gap-6">
-            <button className="px-12 py-4 bg-black text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all">
-              Launch GlyphNet
-            </button>
-            <button className="px-12 py-4 border-2 border-black text-black rounded-full font-semibold text-lg hover:bg-black hover:text-white transition-all">
-              View Multiverse
-            </button>
-          </footer>
-        </main>
-      </div>
+        <footer className="mt-24 flex gap-6">
+          <button className="px-12 py-4 bg-black text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all">
+            Launch GlyphNet
+          </button>
+          <button className="px-12 py-4 border-2 border-black text-black rounded-full font-semibold text-lg hover:bg-black hover:text-white transition-all">
+            View Multiverse
+          </button>
+        </footer>
+      </main>
 
       {!hideHud && (
         <div className="fixed bottom-8 right-8 p-4 bg-white/80 border border-gray-200 rounded-2xl backdrop-blur-xl text-[11px] font-bold text-gray-400 tracking-wider shadow-lg">
