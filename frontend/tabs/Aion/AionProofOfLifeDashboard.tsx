@@ -13,11 +13,21 @@ import type {
   AkgSnapshot,
 } from "./demos/types";
 
+// ✅ Existing demos
 import { demo01Meta, Demo01MetabolismPanel } from "./demos/demo01_metabolism";
 import { demo02Meta, Demo02AdrPanel } from "./demos/demo02_immune_adr";
 import { demo03Meta, Demo03HeartbeatPanel } from "./demos/Demo03Heartbeat";
 import { demo04Meta, Demo04ReflexGridPanel } from "./demos/demo04_reflex_grid";
 import { demo05Meta, Demo05AkgPanel } from "./demos/demo5_akg_consolidation";
+
+// ✅ NEW: Pillar 0/Integrity (Homeostasis REAL) + Pillar 6/Awareness (Mirror)
+// NOTE: these files must exist; if not, comment these imports until you add them.
+import { demo00Meta, Demo00HomeostasisPanel } from "./demos/demo00_homeostasis_real";
+import { demo06Meta, Demo06MirrorPanel } from "./demos/demo06_mirror_reflection";
+
+/* ---------------- Types (tolerant; don’t block compilation) ---------------- */
+type HomeostasisEnvelope = any; // /api/aion/dashboard payload
+type MirrorEnvelope = any;      // /api/mirror payload (optional)
 
 /* ---------------- API helpers (unchanged behavior) ---------------- */
 
@@ -61,10 +71,6 @@ async function postUrl(url: string): Promise<void> {
 
 function classNames(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(" ");
-}
-
-function clamp(n: number, lo: number, hi: number) {
-  return Math.max(lo, Math.min(hi, n));
 }
 
 function fmtAgeMs(ageMs?: number | null) {
@@ -125,11 +131,13 @@ function PillarSection(props: {
 /* ---------------- Data hook (polls all demos) ---------------- */
 
 function useAionDemoData(pollMs = 500) {
+  const [homeostasis, setHomeostasis] = useState<HomeostasisEnvelope | null>(null);
   const [phi, setPhi] = useState<PhiBundle | null>(null);
   const [adr, setAdr] = useState<AdrBundle | null>(null);
   const [heartbeat, setHeartbeat] = useState<HeartbeatEnvelope | null>(null);
   const [reflex, setReflex] = useState<ReflexEnvelope | null>(null);
   const [akg, setAkg] = useState<AkgSnapshot | null>(null);
+  const [mirror, setMirror] = useState<MirrorEnvelope | null>(null);
 
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -140,28 +148,44 @@ function useAionDemoData(pollMs = 500) {
 
     const tick = async () => {
       try {
-        const [phiRes, adrRes, hbRes, reflexRes, akgRes] = await Promise.allSettled([
+        const [
+          homeoRes,
+          phiRes,
+          adrRes,
+          hbRes,
+          reflexRes,
+          akgRes,
+          mirrorRes,
+        ] = await Promise.allSettled([
+          // ✅ REAL is served here in your repo (backend/api/aion_dashboard.py)
+          fetchJson<HomeostasisEnvelope>(apiUrl("/aion/dashboard")),
           fetchJson<PhiBundle>(apiUrl("/phi")),
           fetchJson<AdrBundle>(apiUrl("/adr")),
           fetchJson<HeartbeatEnvelope>(apiUrl("/heartbeat?namespace=demo")),
           fetchJson<ReflexEnvelope>(apiUrl("/reflex")),
           fetchJson<AkgSnapshot>(apiUrl("/akg")),
+          fetchJson<MirrorEnvelope>(apiUrl("/mirror")), // optional until backend exists
         ]);
 
         if (cancelled) return;
 
+        if (homeoRes.status === "fulfilled") setHomeostasis(homeoRes.value);
         if (phiRes.status === "fulfilled") setPhi(phiRes.value);
         if (adrRes.status === "fulfilled") setAdr(adrRes.value);
         if (hbRes.status === "fulfilled") setHeartbeat(hbRes.value);
         if (reflexRes.status === "fulfilled") setReflex(reflexRes.value);
         if (akgRes.status === "fulfilled") setAkg(akgRes.value);
+        if (mirrorRes.status === "fulfilled") setMirror(mirrorRes.value);
 
         const errors: string[] = [];
+        // NOTE: we *do* include errors, but the UI must tolerate missing pillars while endpoints are being wired.
+        if (homeoRes.status === "rejected") errors.push(homeoRes.reason?.message || String(homeoRes.reason));
         if (phiRes.status === "rejected") errors.push(phiRes.reason?.message || String(phiRes.reason));
         if (adrRes.status === "rejected") errors.push(adrRes.reason?.message || String(adrRes.reason));
         if (hbRes.status === "rejected") errors.push(hbRes.reason?.message || String(hbRes.reason));
         if (reflexRes.status === "rejected") errors.push(reflexRes.reason?.message || String(reflexRes.reason));
         if (akgRes.status === "rejected") errors.push(akgRes.reason?.message || String(akgRes.reason));
+        if (mirrorRes.status === "rejected") errors.push(mirrorRes.reason?.message || String(mirrorRes.reason));
 
         setErr(errors.length ? errors.join(" • ") : null);
       } catch (e: any) {
@@ -179,13 +203,12 @@ function useAionDemoData(pollMs = 500) {
     };
   }, [pollMs]);
 
-  return { phi, adr, heartbeat, reflex, akg, err, loading };
+  return { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading };
 }
 
 /* ---------------- Status badge (brand + telemetry-aware) ---------------- */
 
 function useDashboardHealth() {
-  // Best-effort telemetry derived from any Envelope-ish payload.
   const [events, setEvents] = useState<number | null>(null);
   const [age_ms, setAgeMs] = useState<number | null>(null);
   const [title, setTitle] = useState<string>("");
@@ -254,7 +277,6 @@ function StatusBadge(props: { loading: boolean; err: string | null; health: Retu
       <span className={classNames("h-2 w-2 rounded-full", dot, !loading && !err && "animate-pulse")} />
       <span>{state.label}</span>
 
-      {/* tiny telemetry chips */}
       <span className="ml-1 hidden sm:inline-flex items-center gap-2 text-[10px] font-mono tracking-widest text-white/60">
         <span className="h-3 w-px bg-white/10" />
         <span>EVT:{health.events ?? "—"}</span>
@@ -264,18 +286,7 @@ function StatusBadge(props: { loading: boolean; err: string | null; health: Retu
   );
 }
 
-/* ---------------- Summary Table (Act 1: Biological Containers) ---------------- */
-
-function Row(props: { pillar: string; comp: string; target: string; status: React.ReactNode }) {
-  return (
-    <div className="grid grid-cols-12 px-4 py-3 text-slate-200">
-      <div className="col-span-3 font-semibold">{props.pillar}</div>
-      <div className="col-span-4 font-mono text-[12px] text-slate-300">{props.comp}</div>
-      <div className="col-span-3 text-slate-400">{props.target}</div>
-      <div className="col-span-2 text-right font-mono text-[12px] uppercase tracking-wider">{props.status}</div>
-    </div>
-  );
-}
+/* ---------------- Summary table (Act 1) ---------------- */
 
 function SummaryTable(props: {
   homeostasis?: any | null;
@@ -289,8 +300,8 @@ function SummaryTable(props: {
   const hbAge = props.heartbeat?.age_ms;
 
   const phiState = props.phi?.state || props.phi || {};
-  const coh = phiState["Φ_coherence"];
-  const ent = phiState["Φ_entropy"];
+  const coh = phiState["Φ_coherence"] ?? phiState?.state?.["Φ_coherence"];
+  const ent = phiState["Φ_entropy"] ?? phiState?.state?.["Φ_entropy"];
 
   const fieldOk = (label: string) => (
     <span className="inline-flex items-center gap-2">
@@ -319,20 +330,21 @@ function SummaryTable(props: {
       ? hbAge < 2000
         ? fieldOk(`PULSE ${hbAge}ms`)
         : hbAge < 6000
-          ? fieldWarn(`PULSE ${hbAge}ms`)
-          : fieldBad(`STALE ${hbAge}ms`)
+        ? fieldWarn(`PULSE ${hbAge}ms`)
+        : fieldBad(`STALE ${hbAge}ms`)
       : fieldWarn("NO_PULSE");
 
-  // Replace once REAL endpoint exists:
-  const homeoStatus = props.homeostasis?.locked ? fieldOk("LOCKED") : fieldWarn("UNLOCKED");
+  const homeoLast = props.homeostasis?.homeostasis?.last ?? props.homeostasis?.last ?? null;
+  const homeoLocked = typeof homeoLast?.locked === "boolean" ? homeoLast.locked : null;
+  const homeoStatus =
+    homeoLocked === true ? fieldOk("LOCKED") : homeoLocked === false ? fieldWarn("UNLOCKED") : fieldWarn("NO_FEED");
 
-  // Mirror + AKG optional until endpoints are live
   const mirrorA = props.mirror?.A ?? props.mirror?.state?.A;
   const mirrorStatus =
     typeof mirrorA === "number"
       ? mirrorA >= 0.75
-        ? fieldOk(`A=${mirrorA}`)
-        : fieldWarn(`A=${mirrorA}`)
+        ? fieldOk(`A=${mirrorA.toFixed(3)}`)
+        : fieldWarn(`A=${mirrorA.toFixed(3)}`)
       : fieldWarn("NO_FEED");
 
   const reinf = props.akg?.reinforcements ?? props.akg?.snapshot?.reinforcements;
@@ -341,7 +353,7 @@ function SummaryTable(props: {
 
   return (
     <div className="mt-16 rounded-2xl border border-white/5 bg-white/3 p-6 backdrop-blur-sm">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-6">
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-500">
           Act 1 Summary // Biological Containers
         </div>
@@ -359,21 +371,11 @@ function SummaryTable(props: {
         </div>
 
         <div className="divide-y divide-white/5 text-sm">
-          <Row pillar="Integrity" comp="Phase Closure Monitor" target="π_s = 2π" status={homeoStatus} />
-          <Row
-            pillar="Awareness"
-            comp="Mirror Reflection Log"
-            target="Linguistic Accuracy > 90%"
-            status={mirrorStatus}
-          />
+          <Row pillar="Integrity" comp="Phase Closure Monitor" target="⟲ ≥ 0.975 + sqi_checkpoint" status={homeoStatus} />
+          <Row pillar="Awareness" comp="Mirror Reflection Log" target="Linguistic Accuracy > 90%" status={mirrorStatus} />
           <Row pillar="Stability" comp="RSI Stability Bar" target="RSI > 0.95 (Green)" status={adrStatus} />
           <Row pillar="Learning" comp="AKG Strength Delta" target="+12% reinforcement" status={akgStatus} />
-          <Row
-            pillar="Metabolism"
-            comp="Φ-Field Calorimetry"
-            target={`ΔΦ balance (coh=${coh ?? "?"}, ent=${ent ?? "?"})`}
-            status={fieldOk("LIVE")}
-          />
+          <Row pillar="Metabolism" comp="Φ-Field Calorimetry" target={`ΔΦ balance (coh=${coh ?? "?"}, ent=${ent ?? "?"})`} status={fieldOk("LIVE")} />
           <Row pillar="Reflex" comp="Drift Repair Pulse" target="Trigger at RSI < 0.6" status={adrStatus} />
           <Row pillar="Continuity" comp="Resonant Heartbeat" target="60s periodic pulse" status={hbStatus} />
         </div>
@@ -382,19 +384,30 @@ function SummaryTable(props: {
   );
 }
 
+function Row(props: { pillar: string; comp: string; target: string; status: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-12 px-4 py-3 text-slate-200">
+      <div className="col-span-3 font-semibold">{props.pillar}</div>
+      <div className="col-span-4 font-mono text-[12px] text-slate-300">{props.comp}</div>
+      <div className="col-span-3 text-slate-400">{props.target}</div>
+      <div className="col-span-2 text-right font-mono text-[12px] uppercase tracking-wider">{props.status}</div>
+    </div>
+  );
+}
+
 /* ---------------- Page ---------------- */
 
 export default function AionProofOfLifeDashboard() {
-  const { phi, adr, heartbeat, reflex, akg, err, loading } = useAionDemoData(500);
+  const { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading } = useAionDemoData(500);
 
   // shared busy flag: demo panels only read this to disable buttons + show labels
   const [actionBusy, setActionBusy] = useState<string | null>(null);
 
   const health = useDashboardHealth();
   useEffect(() => {
-    health.updateFrom([phi as any, adr as any, heartbeat as any, reflex as any, akg as any], err, loading);
+    health.updateFrom([homeostasis as any, phi as any, adr as any, heartbeat as any, reflex as any, akg as any, mirror as any], err, loading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phi, adr, heartbeat, reflex, akg, err, loading]);
+  }, [homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading]);
 
   async function runBusy(name: string, fn: () => Promise<void>) {
     try {
@@ -407,7 +420,7 @@ export default function AionProofOfLifeDashboard() {
 
   const footerRight = useMemo(() => {
     // best effort: show a phase string if present in any demo snapshot
-    const candidates = [akg as any, reflex as any, heartbeat as any, adr as any, phi as any].filter(Boolean);
+    const candidates = [homeostasis as any, akg as any, reflex as any, heartbeat as any, adr as any, phi as any, mirror as any].filter(Boolean);
     for (const c of candidates) {
       const s =
         (c?.schema as string) ||
@@ -418,7 +431,7 @@ export default function AionProofOfLifeDashboard() {
       if (s) return s;
     }
     return "Resonance_Engine";
-  }, [akg, reflex, heartbeat, adr, phi]);
+  }, [homeostasis, akg, reflex, heartbeat, adr, phi, mirror]);
 
   return (
     <div className="min-h-screen bg-[#0F172A] text-white selection:bg-[#1B74E4]/30">
@@ -439,8 +452,8 @@ export default function AionProofOfLifeDashboard() {
                 Act 1: The Resonant Organism
               </h1>
               <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-400">
-                Live monitoring of AION’s physiological + cognitive field. Stabilizing memory recall, reflex drift, and
-                triplet reinforcement across the runtime.
+                By presenting these as Biological Containers, you teach the audience how to read the “vitals” of a synthetic organism.
+                You must show Response to Stress and Autonomous Recovery — not just data.
               </p>
             </div>
 
@@ -448,11 +461,23 @@ export default function AionProofOfLifeDashboard() {
           </div>
 
           {err ? (
-            <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-rose-300/80">{err}</div>
+            <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-rose-300/80">
+              {err}
+            </div>
           ) : null}
         </header>
 
-        {/* Demo 01 */}
+        {/* ✅ Demo 00 (REAL) */}
+        <PillarSection
+          id={demo00Meta.id}
+          pillar={demo00Meta.pillar}
+          title={demo00Meta.title}
+          testName={demo00Meta.testName}
+          copy={demo00Meta.copy}
+          container={<Demo00HomeostasisPanel homeostasis={homeostasis} />}
+        />
+
+        {/* ✅ Demo 01 */}
         <PillarSection
           id={demo01Meta.id}
           pillar={demo01Meta.pillar}
@@ -470,7 +495,7 @@ export default function AionProofOfLifeDashboard() {
           }
         />
 
-        {/* Demo 02 */}
+        {/* ✅ Demo 02 */}
         <PillarSection
           id={demo02Meta.id}
           pillar={demo02Meta.pillar}
@@ -487,7 +512,7 @@ export default function AionProofOfLifeDashboard() {
           }
         />
 
-        {/* Demo 03 */}
+        {/* ✅ Demo 03 */}
         <PillarSection
           id={demo03Meta.id}
           pillar={demo03Meta.pillar}
@@ -497,7 +522,7 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo03HeartbeatPanel heartbeat={heartbeat as any} namespace="demo" />}
         />
 
-        {/* Demo 04 */}
+        {/* ✅ Demo 04 */}
         <PillarSection
           id={demo04Meta.id}
           pillar={demo04Meta.pillar}
@@ -515,7 +540,7 @@ export default function AionProofOfLifeDashboard() {
           }
         />
 
-        {/* Demo 05 */}
+        {/* ✅ Demo 05 */}
         <PillarSection
           id={demo05Meta.id}
           pillar={demo05Meta.pillar}
@@ -533,13 +558,23 @@ export default function AionProofOfLifeDashboard() {
           }
         />
 
-        {/* ✅ Summary Table (bottom of Act 1 list) */}
+        {/* ✅ Demo 06 (Mirror) — will show “no feed” until backend /api/mirror exists */}
+        <PillarSection
+          id={demo06Meta.id}
+          pillar={demo06Meta.pillar}
+          title={demo06Meta.title}
+          testName={demo06Meta.testName}
+          copy={demo06Meta.copy}
+          container={<Demo06MirrorPanel mirror={mirror as any} />}
+        />
+
+        {/* ✅ Summary Table (required) */}
         <SummaryTable
-          homeostasis={null /* wire when REAL endpoint exists */}
+          homeostasis={homeostasis}
           adr={adr}
           phi={phi}
           akg={akg}
-          mirror={null /* wire when /api/mirror exists */}
+          mirror={mirror}
           heartbeat={heartbeat}
         />
 

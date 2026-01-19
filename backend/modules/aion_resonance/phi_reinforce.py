@@ -141,7 +141,24 @@ def reinforce_from_memory():
 # ----------------------------------------------------------
 # Dynamic Belief Update (used by cognitive_feedback)
 # ----------------------------------------------------------
+def breathe_tick():
+    """
+    Tiny idle-motion for the demo: gently relax Φ fields toward DEFAULT_BASELINE.
+    Does NOT touch memory; safe to run as a background loop.
+    """
+    state = _load_json(REINFORCE_PATH, DEFAULT_BASELINE.copy())
 
+    # gentle pull to baseline
+    alpha = 0.06
+    for k in ("Φ_load", "Φ_flux", "Φ_entropy", "Φ_coherence"):
+        tgt = float(DEFAULT_BASELINE.get(k, 0.0))
+        cur = float(state.get(k, tgt))
+        state[k] = cur + alpha * (tgt - cur)
+
+    # timestamp + persist
+    state["last_update"] = datetime.datetime.utcnow().isoformat()
+    _save_json(REINFORCE_PATH, state)
+    return state
 # ----------------------------------------------------------
 # Dynamic Belief Update (stabilized with decay + resistance)
 # ----------------------------------------------------------

@@ -3,7 +3,7 @@
 import React from "react";
 
 // --- Branding Constants from Tessaris Style Playbook ---
-const TESSARIS_COLORS = {
+export const TESSARIS_COLORS = {
   blue: "#1B74E4",    // tessarisBlue
   ink: "#0F172A",     // tessarisInk
   slate: "#64748B",   // tessarisGray
@@ -17,6 +17,7 @@ export function classNames(...xs: Array<string | false | null | undefined>) {
 }
 
 export function clamp01(x: number) {
+  if (!Number.isFinite(x)) return 0;
   return Math.max(0, Math.min(1, x));
 }
 
@@ -30,11 +31,36 @@ export function fmt3(x?: number | null) {
   return x.toFixed(3);
 }
 
+/**
+ * ✅ Needed by demo01_metabolism.tsx
+ * Accepts: seconds, ms, ISO string, numeric string, Date.
+ * Returns age in ms (clamped >= 0) or null if invalid.
+ */
+export function safeDateAgeMs(ts: any, nowMs: number = Date.now()): number | null {
+  if (ts == null) return null;
+
+  let tMs: number | null = null;
+
+  if (typeof ts === "number") {
+    tMs = ts < 1e12 ? ts * 1000 : ts; // seconds vs ms
+  } else if (typeof ts === "string") {
+    const n = Number(ts);
+    if (Number.isFinite(n)) tMs = n < 1e12 ? n * 1000 : n;
+    else {
+      const d = new Date(ts);
+      if (!Number.isNaN(d.getTime())) tMs = d.getTime();
+    }
+  } else if (ts instanceof Date) {
+    tMs = ts.getTime();
+  }
+
+  if (tMs == null || !Number.isFinite(tMs)) return null;
+  const age = nowMs - tMs;
+  return Number.isFinite(age) ? Math.max(0, age) : null;
+}
+
 // --- Branding UI atoms ---
 
-/**
- * Card: Updated to tessarisInk with subtle slate borders
- */
 export function Card(props: { title: string; subtitle?: string; right?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-slate-800 bg-[#0F172A] p-6 shadow-xl ring-1 ring-white/5">
@@ -56,9 +82,6 @@ export function Card(props: { title: string; subtitle?: string; right?: React.Re
   );
 }
 
-/**
- * StatRow: Optimized for technical resonance telemetry
- */
 export function StatRow(props: { label: string; value: React.ReactNode; hint?: string }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-white/5 py-3 last:border-0">
@@ -79,18 +102,16 @@ export function StatRow(props: { label: string; value: React.ReactNode; hint?: s
   );
 }
 
-/**
- * MiniBar: Updated with Tessaris brand color logic
- */
 export function MiniBar(props: { value: number; goodMin?: number; warnMin?: number; label?: string }) {
   const v = clamp01(props.value);
-  const goodMin = props.goodMin ?? 0.975; // Phase 6D Homeostasis Lock Threshold
+  const goodMin = props.goodMin ?? 0.975;
   const warnMin = props.warnMin ?? 0.85;
-  
-  const tone = v >= goodMin 
-    ? "bg-[#10B981] shadow-[0_0_8px_#10b98166]" 
-    : v >= warnMin 
-      ? "bg-[#F59E0B]" 
+
+  const tone =
+    v >= goodMin
+      ? "bg-[#10B981] shadow-[0_0_8px_#10b98166]"
+      : v >= warnMin
+      ? "bg-[#F59E0B]"
       : "bg-[#EF4444]";
 
   return (
@@ -101,9 +122,9 @@ export function MiniBar(props: { value: number; goodMin?: number; warnMin?: numb
         </div>
       ) : null}
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-        <div 
-          className={classNames("h-full transition-all duration-500 ease-out", tone)} 
-          style={{ width: `${Math.round(v * 100)}%` }} 
+        <div
+          className={classNames("h-full transition-all duration-500 ease-out", tone)}
+          style={{ width: `${Math.round(v * 100)}%` }}
         />
       </div>
       <div className="flex justify-between font-mono text-[9px] font-medium text-slate-500">
@@ -115,14 +136,14 @@ export function MiniBar(props: { value: number; goodMin?: number; warnMin?: numb
   );
 }
 
-/**
- * Button: Styled with Tessaris primary blue and ink-neutral tones
- */
-export function Button(props: React.ButtonHTMLAttributes<HTMLButtonElement> & { tone?: "primary" | "neutral" | "danger" }) {
+export function Button(
+  props: React.ButtonHTMLAttributes<HTMLButtonElement> & { tone?: "primary" | "neutral" | "danger" }
+) {
   const tone = props.tone || "neutral";
-  
-  const baseStyles = "inline-flex items-center justify-center rounded-lg px-4 py-2 text-[11px] font-bold tracking-widest uppercase transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed";
-  
+
+  const baseStyles =
+    "inline-flex items-center justify-center rounded-lg px-4 py-2 text-[11px] font-bold tracking-widest uppercase transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed";
+
   const variants = {
     primary: "bg-[#1B74E4] text-white hover:bg-[#1B74E4]/90 shadow-lg shadow-blue-900/20",
     neutral: "bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white border border-slate-700",
@@ -130,9 +151,6 @@ export function Button(props: React.ButtonHTMLAttributes<HTMLButtonElement> & { 
   };
 
   return (
-    <button
-      {...props}
-      className={classNames(baseStyles, variants[tone], props.className)}
-    />
+    <button {...props} className={classNames(baseStyles, variants[tone], props.className)} />
   );
 }

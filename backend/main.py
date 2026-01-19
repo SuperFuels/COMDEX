@@ -132,7 +132,31 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning("[consensus] start failed (continuing): %s", e)
 
+    # ✅ AION DEMO: Φ breathing tick (env-gated)
+    # --- optional Φ breathe tick (demo) ---
+    try:
+        if _truthy("AION_DEMO_PHI_BREATHE", False):
+            from backend.modules.aion_resonance.phi_reinforce import update_beliefs
+
+            async def _phi_breathe_loop():
+                while True:
+                    try:
+                        update_beliefs({})  # equilibrium pull
+                    except Exception:
+                        pass
+                    await asyncio.sleep(float(os.getenv("AION_DEMO_PHI_BREATHE_S", "0.75")))
+
+            asyncio.create_task(_phi_breathe_loop())
+            logger.warning("[phi] breathe tick enabled")
+    except Exception as e:
+        logger.warning("[phi] breathe tick not started: %s", e)
+
     yield
+
+    # ✅ stop Φ breathing loop
+    t = getattr(app.state, "_phi_breathe_task", None)
+    if t is not None:
+        t.cancel()
 
     # --- shutdown ---
     try:
@@ -718,6 +742,9 @@ from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_rout
 from backend.routes.aion_heartbeat_api import router as aion_heartbeat_router
 from backend.api.aion_dashboard import router as aion_dashboard_router
 from backend.routes.aion_akg_demo_api import router as aion_akg_demo_router
+from backend.api.aion_proof_of_life import router as aion_proof_of_life_router
+from backend.routes.aion_mirror_api import router as aion_mirror_router
+from backend.routes.aion_homeostasis_alias import router as aion_homeostasis_alias_router
 
 from backend.modules.chain_sim.chain_sim_routes import (
     router as chain_sim_router,
@@ -971,7 +998,10 @@ app.include_router(photon_router)
 app.include_router(aion_heartbeat_router, prefix="/api")
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)
+app.include_router(aion_proof_of_life_router)
 app.include_router(aion_akg_demo_router)
+app.include_router(aion_mirror_router)
+app.include_router(aion_homeostasis_alias_router)
 register_voice_events(app)
 
 # --- Floor-control lock sweeper (PTT) ---
