@@ -1,14 +1,22 @@
-"use client";
-
 import dynamic from "next/dynamic";
-import Shell from "@/components/Shell";
+import type { NextPage } from "next";
 
-const AionTab = dynamic(() => import("@/tabs/Aion"), { ssr: false });
+// Client-only mount: prevents Next export/prerender from evaluating router-dependent code.
+const AiClient = dynamic(
+  () =>
+    import("../src/glyphnet/NextGlyphnetApp").then((m: any) => m.default ?? m.NextGlyphnetApp),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ padding: 24, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
+        Loading Aion…
+      </div>
+    ),
+  }
+);
 
-export default function AiPage() {
-  return (
-    <Shell activeKey="ai">
-      <AionTab />
-    </Shell>
-  );
-}
+const AiPage: NextPage = () => {
+  return <AiClient />;
+};
+
+export default AiPage;

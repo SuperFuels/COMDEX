@@ -15,6 +15,7 @@ const TABS: readonly TabDef[] = [
   { key: "glyph_net", label: "Glyph Net", href: "/glyph-net" },
   { key: "sle_resonance", label: "SLE Resonance", href: "/sle-resonance" },
   { key: "rqc_awareness", label: "RQC Awareness", href: "/rqc-awareness" },
+  { key: "aion", label: "AION", href: "/aion" },
   { key: "ai", label: "AI", href: "/ai" },
   { key: "data", label: "Data", href: "/data" },
   { key: "multiverse", label: "Multiverse", href: "/multiverse" },
@@ -23,7 +24,6 @@ const TABS: readonly TabDef[] = [
   { key: "glyph_chain", label: "Glyph Chain", href: "/glyph-chain" },
   { key: "ptn", label: ".ptn", href: "/ptn" },
   { key: "photon", label: "Photon", href: "/photon" },
-  { key: "ai", label: "AI", href: "/ai" },
 ];
 
 function normalizeKey(k?: string) {

@@ -63,6 +63,9 @@ from fastapi import FastAPI, Query, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 
+from fastapi import APIRouter
+
+router = APIRouter(tags=["AION Demo Bridge"])
 # -----------------------------------------------------------------------------
 # Repo root on sys.path so "backend...." imports work reliably (even when mounted)
 # -----------------------------------------------------------------------------
@@ -299,14 +302,23 @@ def mirror_compute_frame() -> dict:
     _write_json(MIRROR_STATE_PATH, frame)
     return frame
 
-@app.get("/api/mirror")
+@router.get("/api/mirror")
 def api_mirror() -> Dict[str, Any]:
     st = _read_json(MIRROR_STATE_PATH, default=None)
     if not isinstance(st, dict):
-        st = mirror_compute_frame()
-    return {"ok": True, "data_root": str(DATA_ROOT), "source_file": str(MIRROR_STATE_PATH), "age_ms": _age_ms_for(MIRROR_STATE_PATH), "state": st}
+        try:
+            st = mirror_compute_frame()
+        except Exception:
+            st = {}
+    return {
+        "ok": True,
+        "data_root": str(DATA_ROOT),
+        "source_file": str(MIRROR_STATE_PATH),
+        "age_ms": _age_ms_for(MIRROR_STATE_PATH),
+        "state": st,
+    }
 
-@app.post("/api/demo/mirror/reset")
+@router.post("/api/demo/mirror/reset")
 def api_mirror_reset() -> Dict[str, Any]:
     try:
         if MIRROR_STATE_PATH.exists():
@@ -315,23 +327,33 @@ def api_mirror_reset() -> Dict[str, Any]:
         pass
     return {"ok": True, "action": "reset"}
 
-@app.post("/api/demo/mirror/step")
+@router.post("/api/demo/mirror/step")
 def api_mirror_step() -> Dict[str, Any]:
-    frame = mirror_compute_frame()
+    try:
+        frame = mirror_compute_frame()
+    except Exception:
+        frame = {}
     return {"ok": True, "action": "step", "frame": frame}
 
-@app.post("/api/demo/mirror/run")
+@router.post("/api/demo/mirror/run")
 async def api_mirror_run(steps: int = 24, interval_s: float = 0.15) -> Dict[str, Any]:
     steps = max(1, int(steps))
-    frames = []
+    interval_s = max(0.0, float(interval_s))
+
+    frames: list[dict[str, Any]] = []
     for _ in range(steps):
-        frames.append(mirror_compute_frame())
-        await asyncio.sleep(float(interval_s))
-    payload = {
+        try:
+            frames.append(mirror_compute_frame())
+        except Exception:
+            frames.append({})
+        if interval_s:
+            await asyncio.sleep(interval_s)
+
+    payload: Dict[str, Any] = {
         "demo": "demo6_mirror_reflection",
         "ts": time.time(),
         "steps": steps,
-        "A_final": frames[-1]["A"] if frames else None,
+        "A_final": frames[-1].get("A") if frames else None,
         "frames": frames,
     }
     _write_json(MIRROR_TELEMETRY_PATH, payload)
@@ -866,6 +888,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(router)
 
 @app.on_event("startup")
 async def _maybe_autostart_heartbeat() -> None:
@@ -904,8 +927,7 @@ async def _maybe_autostart_heartbeat() -> None:
         # Never fail app startup because of autostart attempts
         return
 
-
-@app.get("/health")
+@router.get("/health")
 def health() -> Dict[str, Any]:
     return {
         "ok": True,
@@ -916,11 +938,11 @@ def health() -> Dict[str, Any]:
     }
 
 # --- AKG (Demo 05) ---
-@app.get("/api/akg")
+@router.get("/api/akg")
 def api_akg() -> Dict[str, Any]:
     return akg_snapshot()
 
-@app.post("/api/demo/akg/reset")
+@router.post("/api/demo/akg/reset")
 def api_akg_reset() -> Dict[str, Any]:
     try:
         if AKG_SNAPSHOT_PATH.exists():
@@ -937,19 +959,19 @@ def api_akg_reset() -> Dict[str, Any]:
             pass
     return {"ok": True, "action": "reset", **akg_snapshot()}
 
-@app.post("/api/demo/akg/step")
+@router.post("/api/demo/akg/step")
 def api_akg_step() -> Dict[str, Any]:
     # one small consolidation tick
     out = akg_consolidate(rounds=1)
     return {"ok": True, "action": "step", **out, "snapshot": akg_snapshot()}
 
-@app.post("/api/demo/akg/run")
+@router.post("/api/demo/akg/run")
 def api_akg_run(rounds: int = 400) -> Dict[str, Any]:
-    out = akg_consolidate(rounds=rounds)
+    out = akg_consolidate(rounds=int(rounds))
     return {"ok": True, "action": "run", **out, "snapshot": akg_snapshot()}
 
 # --- Reflex (Demo 4) ---
-@app.get("/api/reflex")
+@router.get("/api/reflex")
 def api_reflex() -> Dict[str, Any]:
     st = reflex_mod.get_state(REFLEX_STATE_PATH)
     return {
@@ -961,68 +983,64 @@ def api_reflex() -> Dict[str, Any]:
         "state": st,
     }
 
-@app.post("/api/demo/reflex/reset")
+@router.post("/api/demo/reflex/reset")
 def api_reflex_reset() -> Dict[str, Any]:
     st = reflex_mod.reset(REFLEX_STATE_PATH)
     return {"ok": True, "state": st}
 
-@app.post("/api/demo/reflex/step")
+@router.post("/api/demo/reflex/step")
 async def api_reflex_step() -> Dict[str, Any]:
     st = await reflex_mod.step_once(REFLEX_STATE_PATH)
     return {"ok": True, "state": st}
 
-@app.post("/api/demo/reflex/run")
+@router.post("/api/demo/reflex/run")
 async def api_reflex_run(steps: int = 60, interval_s: float = 0.25) -> Dict[str, Any]:
-    st = await reflex_mod.start_run(REFLEX_STATE_PATH, steps=steps, interval_s=interval_s)
+    st = await reflex_mod.start_run(
+        REFLEX_STATE_PATH,
+        steps=max(1, int(steps)),
+        interval_s=max(0.0, float(interval_s)),
+    )
     return {"ok": True, "state": st}
 
 # --- Φ endpoints ---
-@app.get("/api/phi")
+@router.get("/api/phi")
 def api_phi() -> Dict[str, Any]:
     return phi_state()
 
-
-@app.post("/api/demo/phi/reset")
+@router.post("/api/demo/phi/reset")
 def api_phi_reset() -> Dict[str, Any]:
     return phi_reset()
 
-
-@app.post("/api/demo/phi/inject_entropy")
+@router.post("/api/demo/phi/inject_entropy")
 def api_phi_inject_entropy() -> Dict[str, Any]:
     return phi_inject_entropy(coherence=0.10, entropy=0.90)
 
-
-@app.post("/api/demo/phi/recover")
+@router.post("/api/demo/phi/recover")
 def api_phi_recover() -> Dict[str, Any]:
     return phi_recover()
 
-
 # --- ADR endpoints ---
-@app.get("/api/adr")
+@router.get("/api/adr")
 def api_adr() -> Dict[str, Any]:
     return adr_state()
 
-
-@app.post("/api/demo/adr/inject")
+@router.post("/api/demo/adr/inject")
 def api_adr_inject() -> Dict[str, Any]:
     return adr_inject(stability=0.45, drift_entropy=0.92, source="demo_bridge")
 
-
-@app.post("/api/demo/adr/run")
+@router.post("/api/demo/adr/run")
 def api_adr_run() -> Dict[str, Any]:
     return adr_run_resonance_feedback()
 
-
 # --- Heartbeat endpoint (Demo 3) ---
-@app.get("/api/heartbeat")
+@router.get("/api/heartbeat")
 def api_heartbeat(
     namespace: Optional[str] = Query(default=None, description="Prefer <namespace>_heartbeat_live.json"),
 ) -> Dict[str, Any]:
     return heartbeat_state(namespace=namespace)
 
-
 # --- Compat: old one-button endpoint (keeps older frontend calls working) ---
-@app.post("/api/demo/inject_entropy")
+@router.post("/api/demo/inject_entropy")
 def api_demo_inject_entropy() -> Dict[str, Any]:
     """
     Old "one button" demo:
@@ -1035,10 +1053,8 @@ def api_demo_inject_entropy() -> Dict[str, Any]:
     run = adr_run_resonance_feedback()
     return {"ok": True, "phi": phi, "adr": adr, "run": run, "ts": time.time()}
 
-
 # --- Websocket streaming ---
-# --- Websocket streaming ---
-@app.websocket("/ws/aion-demo")
+@router.websocket("/ws/aion-demo")
 async def ws_aion_demo(ws: WebSocket) -> None:
     await ws.accept()
     interval_s = float(os.getenv("AION_DEMO_WS_INTERVAL_S", "0.5"))

@@ -745,7 +745,9 @@ from backend.routes.aion_akg_demo_api import router as aion_akg_demo_router
 from backend.api.aion_proof_of_life import router as aion_proof_of_life_router
 from backend.routes.aion_mirror_api import router as aion_mirror_router
 from backend.routes.aion_homeostasis_alias import router as aion_homeostasis_alias_router
-from backend.routes.aion_demo_alias_api import router as aion_demo_alias_router
+from backend.api.aion_dashboard_ws import router as aion_dashboard_router
+from backend.modules.aion_demo.demo_bridge import router as aion_demo_bridge_router
+from backend.routes.aion_cognitive_api import router as aion_cognitive_router
 from backend.modules.chain_sim.chain_sim_routes import (
     router as chain_sim_router,
     chain_sim_async_startup,
@@ -1002,7 +1004,9 @@ app.include_router(aion_proof_of_life_router)
 app.include_router(aion_akg_demo_router)
 app.include_router(aion_mirror_router)
 app.include_router(aion_homeostasis_alias_router)
-app.include_router(aion_demo_alias_router)
+app.include_router(aion_dashboard_router)
+app.include_router(aion_demo_bridge_router)
+app.include_router(aion_cognitive_router)
 register_voice_events(app)
 
 # --- Floor-control lock sweeper (PTT) ---
