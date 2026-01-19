@@ -51,40 +51,51 @@ def _pick(d: Dict[str, Any], *keys: str) -> Optional[float]:
 
 def _compute_equilibrium(metrics: Dict[str, Any]) -> Optional[float]:
     """
-    Credible Homeostasis ⟲ headline metric (strict).
-    Uses SQI + coherence + stability, and penalizes drift.
+    Homeostasis headline score ⟲ (v2):
 
-    Intuition:
-      - SQI must be high to get near 1
-      - coherence must be high
-      - entropy (Ī / Φ_entropy) must be low (stability high)
-      - drift ΔΦ reduces the score
+    Components (all clamped 0..1):
+      - SQI   : learning/clarity score
+      - ρ     : coherence
+      - (1-Ī) : stability (low entropy)
+      - drift : 1 - |ΔΦ|/ΔΦ_max   (penalize recent change)
 
-    With your current numbers (SQI=0.5, ρ=0.85, Ī=0.51) ⟲ should NOT reach 0.975.
+    Output:
+      geometric mean => only reaches ~1 when ALL components are high.
+      0.975 is intentionally "near-perfect lock".
     """
     sqi = _pick(metrics, "SQI", "sqi", "sqi_checkpoint")
-    coh = _pick(metrics, "Φ_coherence", "Phi_coherence", "ρ", "rho")
-    ent = _pick(metrics, "Φ_entropy", "Phi_entropy", "Ī", "iota", "I")
+    rho = _pick(metrics, "ρ", "rho", "Φ_coherence", "Phi_coherence")
+    iota = _pick(metrics, "Ī", "iota", "I", "Φ_entropy", "Phi_entropy")
     dphi = _pick(metrics, "ΔΦ", "dphi", "resonance_delta", "delta_phi")
 
-    if sqi is None and coh is None and ent is None:
-        return None
+    # Fallback raw equilibrium if needed (legacy)
+    raw = _pick(metrics, "⟲", "res_eq", "equilibrium")
 
-    s = _clamp01(float(sqi or 0.0))
-    c = _clamp01(float(coh or 0.0))
-    e = _clamp01(float(ent or 0.0))
-    stab = _clamp01(1.0 - e)
+    # If we have rho+iota we can always compute a raw baseline
+    if rho is not None and iota is not None:
+        raw = _clamp01(float(rho) * (1.0 - float(iota))) if raw is None else _clamp01(float(raw))
 
-    # Drift penalty: treat >0.25 as "high drift" and cap penalty at 50%
-    dp = _clamp01(float(dphi or 0.0))
-    drift_penalty = min(0.5, dp / 0.25 * 0.5)  # 0..0.5
+    # If we have nothing except raw, return raw.
+    if sqi is None and rho is None and iota is None and dphi is None:
+        return _clamp01(float(raw)) if raw is not None else None
 
-    # Multiplicative gating (strict): you only get near-1 when all are near-1
-    # Exponents tuned so entropy isn't over-dominant but still matters.
-    eq = (s ** 0.85) * (c ** 1.0) * (stab ** 0.55)
-    eq = eq * (1.0 - drift_penalty)
+    # Defaults (conservative)
+    sqi_v = _clamp01(float(sqi)) if sqi is not None else (0.0 if raw is None else _clamp01(float(raw)))
+    rho_v = _clamp01(float(rho)) if rho is not None else (0.0 if raw is None else _clamp01(float(raw)))
+    iota_v = _clamp01(float(iota)) if iota is not None else (1.0 - (0.0 if raw is None else _clamp01(float(raw))))
 
-    return _clamp01(eq)
+    stability = _clamp01(1.0 - iota_v)
+
+    # Drift score: 1 when stable; falls to 0 when |ΔΦ| >= ΔΦ_max
+    dphi_max = float(os.getenv("AION_HOMEOSTASIS_DPHI_MAX", "0.15"))
+    if dphi is None or not _is_num(dphi):
+        drift = 1.0
+    else:
+        drift = _clamp01(1.0 - (abs(float(dphi)) / max(1e-9, dphi_max)))
+
+    # Geometric mean of 4 components
+    prod = max(0.0, sqi_v * rho_v * stability * drift)
+    return _clamp01(prod ** 0.25)
 
 
 def _mk_lock_id() -> str:
@@ -196,7 +207,10 @@ def log_event(
 
 def query_resonance(term: str) -> Dict[str, Any]:
     """
-    Returns normalized resonance metrics and guarantees ⟲, ΔΦ.
+    Returns normalized resonance metrics and guarantees:
+      - ⟲_raw : legacy/raw proxy (ρ*(1-Ī))
+      - ⟲     : headline homeostasis score (via _compute_equilibrium v2)
+      - ΔΦ    : drift (derived if engine doesn't provide it)
     """
     global _LAST_EQ_FOR_DPHI
 
@@ -204,34 +218,43 @@ def query_resonance(term: str) -> Dict[str, Any]:
     if not res:
         res = update_resonance(term)
 
+    # Normalize
     out: Dict[str, Any] = {
         "SQI": res.get("SQI") or res.get("sqi"),
         "ρ": res.get("ρ") or res.get("rho"),
         "Ī": res.get("Ī") or res.get("iota") or res.get("I"),
         "ΔΦ": res.get("ΔΦ") or res.get("resonance_delta"),
         "E": res.get("E"),
-        "Φ_coherence": res.get("Φ_coherence") or res.get("Phi_coherence"),
-        "Φ_entropy": res.get("Φ_entropy") or res.get("Phi_entropy"),
+        # legacy aliases (keep tools happy)
+        "Φ_coherence": res.get("Φ_coherence") or res.get("Phi_coherence") or res.get("ρ") or res.get("rho"),
+        "Φ_entropy": res.get("Φ_entropy") or res.get("Phi_entropy") or res.get("Ī") or res.get("iota") or res.get("I"),
     }
 
-    # Keep the old raw proxy for debugging (NOT the headline metric)
+    # Always compute raw proxy (for debugging + stability baselines)
     rho0 = float(out.get("ρ") or 0.0)
     iota0 = float(out.get("Ī") or 0.0)
-    out["⟲_raw"] = _clamp01(rho0 * (1.0 - iota0))
+    raw = _clamp01(rho0 * (1.0 - iota0))
+    out["⟲_raw"] = float(raw)
 
-    # Headline metric ⟲: strict definition (SQI+coherence+stability+drift)
-    eq = _compute_equilibrium(out)
-    if eq is None:
-        eq = 0.0
-    out["⟲"] = float(eq)
+    # If engine provided explicit equilibrium, preserve it as an alternate raw hint
+    # (but do NOT use it as headline unless _compute_equilibrium chooses to).
+    if _is_num(res.get("⟲")):
+        out["⟲_raw"] = _clamp01(float(res.get("⟲")))  # keep as raw channel only
 
-    # derive ΔΦ if missing
+    # Derive ΔΦ if missing: base it on RAW so "headline" changes don't fake drift
     if out.get("ΔΦ") is None:
         if _LAST_EQ_FOR_DPHI is None:
             out["ΔΦ"] = None
         else:
-            out["ΔΦ"] = abs(float(out["⟲"]) - float(_LAST_EQ_FOR_DPHI))
-    _LAST_EQ_FOR_DPHI = float(out["⟲"])
+            out["ΔΦ"] = abs(float(out["⟲_raw"]) - float(_LAST_EQ_FOR_DPHI))
+
+    # Headline metric ⟲: strict v2 (SQI + coherence + stability + drift)
+    # Important: pass ⟲_raw in so _compute_equilibrium can use it as fallback.
+    head = _compute_equilibrium({**out, "⟲": out["⟲_raw"]})
+    out["⟲"] = float(head if head is not None else out["⟲_raw"])
+
+    # Update drift baseline (RAW baseline)
+    _LAST_EQ_FOR_DPHI = float(out["⟲_raw"])
 
     return out
 

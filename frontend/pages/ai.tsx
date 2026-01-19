@@ -1,22 +1,24 @@
+// frontend/pages/ai.tsx
 import dynamic from "next/dynamic";
 import type { NextPage } from "next";
+import Shell from "@/components/Shell";
 
-// Client-only mount: prevents Next export/prerender from evaluating router-dependent code.
-const AiClient = dynamic(
-  () =>
-    import("../src/glyphnet/NextGlyphnetApp").then((m: any) => m.default ?? m.NextGlyphnetApp),
-  {
-    ssr: false,
-    loading: () => (
-      <div style={{ padding: 24, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
-        Loading Aion…
-      </div>
-    ),
-  }
-);
+// Client-only mount
+const ProofClient = dynamic(() => import("@/tabs/Aion/AionProofOfLifeDashboard"), {
+  ssr: false,
+  loading: () => (
+    <div style={{ padding: 24, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
+      Loading AI…
+    </div>
+  ),
+});
 
 const AiPage: NextPage = () => {
-  return <AiClient />;
+  return (
+    <Shell activeKey="ai">
+      <ProofClient />
+    </Shell>
+  );
 };
 
 export default AiPage;
