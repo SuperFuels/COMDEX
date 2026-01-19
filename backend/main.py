@@ -202,6 +202,13 @@ app = FastAPI(
 )
 app.router.redirect_slashes = False
 
+# ✅ Mount AION Demo Bridge under a safe prefix (no route collisions)
+try:
+    from backend.modules.aion_demo import demo_bridge as aion_demo_bridge
+    app.mount("/aion-demo", aion_demo_bridge.app)
+    logger.warning("[aion-demo] mounted at /aion-demo")
+except Exception as e:
+    logger.warning("[aion-demo] not mounted: %s", e)
 # ============================================================
 # RQC Awareness WebSocket: /resonance
 # Streams telemetry from: data/ledger/rqc_live_telemetry.jsonl
@@ -694,6 +701,8 @@ from backend.routes.sqi_demo import router as sqi_demo_router
 from backend.api.photon_bridge import router as photon_router
 from backend.modules.staking.staking_routes import router as staking_router
 from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
+from backend.routes.aion_heartbeat_api import router as aion_heartbeat_router
+
 from backend.modules.chain_sim.chain_sim_routes import (
     router as chain_sim_router,
     chain_sim_async_startup,
@@ -943,6 +952,7 @@ app.include_router(p2p_router, prefix="/api/p2p", tags=["p2p"])
 app.include_router(build_fastapi_router(), prefix="/api")
 app.include_router(sqi_demo_router)
 app.include_router(photon_router)
+app.include_router(aion_heartbeat_router, prefix="/api")
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)
 
