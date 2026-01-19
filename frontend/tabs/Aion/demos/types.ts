@@ -1,14 +1,24 @@
 // frontend/tabs/Aion/demos/types.ts
 // Keep this minimal + tolerant: backend payloads may evolve.
 
-export type JsonValue = null | boolean | number | string | JsonValue[] | { [k: string]: JsonValue };
+export type JsonValue =
+  | null
+  | boolean
+  | number
+  | string
+  | JsonValue[]
+  | { [k: string]: JsonValue };
 
 export type Envelope<T = any> = {
   ok?: boolean;
   ts?: number | string;
+
+  // common backend “where did this come from” fields
   data_root?: string;
   source_file?: string | null;
   source_files?: Record<string, string>;
+
+  // many endpoints include a derived bucket
   derived?: Record<string, any>;
 } & T;
 
@@ -55,13 +65,10 @@ export type HeartbeatEnvelope = Envelope<{
 
 /* ---------------- Demo 04 (Reflex / Cognitive Grid) ----------------
    Expected shape from demo_bridge:
-     "reflex": { "ok": true, "state": { ... } }
-   And (recommended) /api/reflex returns:
-     { ok, state, derived? }
+     /api/reflex -> { ok, state, derived? }
 */
 
 export type ReflexState = {
-  // minimal expected fields; keep optional
   grid_size?: number;
   vision_range?: number;
   max_steps?: number;
@@ -73,10 +80,8 @@ export type ReflexState = {
   position?: [number, number];
   alive?: boolean;
 
-  // last event / reflection (optional)
   last_event?: Record<string, any> | null;
 
-  // anything else the backend writes
   [k: string]: any;
 };
 
@@ -94,3 +99,62 @@ export type DemoMeta = {
   testName: string;
   copy: string;
 };
+
+/* ---------------- Demo 05 (AKG / Memory Consolidation) ---------------- */
+
+export type AkgEdge = {
+  s: string;
+  r: string;
+  o: string;
+  strength: number;
+  count: number;
+  last_ts?: number; // optional (exists in Edge)
+};
+
+export type AkgGraphNode = {
+  id: string;
+  label: string;
+};
+
+export type AkgGraphLink = {
+  source: string;
+  target: string;
+  predicate: string;
+  strength: number;
+  count: number;
+  thickness?: number; // exported by akg_graph_export
+  glow?: number;      // exported by akg_graph_export
+  last_ts?: number;
+};
+
+export type AkgGraphExport = Envelope<{
+  version?: number;
+  nodes?: AkgGraphNode[];
+  links?: AkgGraphLink[];
+}>;
+
+export type AkgSnapshot = Envelope<{
+  demo?: "demo5_akg_consolidation" | string;
+  session_id?: string;
+
+  alpha?: number;
+  half_life_s?: number;
+  rounds?: number;
+
+  edges_total?: number;
+  reinforcements?: number;
+
+  top_edges?: AkgEdge[];
+
+  artifacts?: {
+    akg_store?: string;
+    plot?: string;
+    graph?: string;
+    timeline?: string;
+  };
+
+  // UI/debug friendliness
+  fallback_used?: boolean;
+  lex_triplets_loaded?: number;
+  errors?: string[];
+}>;

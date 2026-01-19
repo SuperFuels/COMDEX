@@ -7,11 +7,31 @@
 # Now includes Δ-tracking for insight into cognitive drift.
 # =========================================================
 
+# backend/modules/aion_resonance/phi_reinforce.py
 import json, os, datetime
+from pathlib import Path
 from statistics import mean
 
-MEMORY_PATH = "data/conversation_memory.json"
-REINFORCE_PATH = "data/phi_reinforce_state.json"
+ENV_DATA_ROOT = "TESSARIS_DATA_ROOT"
+
+def _repo_root() -> Path:
+    p = Path(__file__).resolve()
+    for parent in p.parents:
+        if (parent / "backend").exists():
+            return parent
+    return Path.cwd()
+
+def _data_root() -> Path:
+    v = os.getenv(ENV_DATA_ROOT, "").strip()
+    if v:
+        return Path(v).expanduser()
+    return _repo_root() / "data"
+
+DATA_ROOT = _data_root()
+DATA_ROOT.mkdir(parents=True, exist_ok=True)
+
+MEMORY_PATH = str(DATA_ROOT / "conversation_memory.json")
+REINFORCE_PATH = str(DATA_ROOT / "phi_reinforce_state.json")
 
 DEFAULT_BASELINE = {
     "Φ_load": 0.0,

@@ -32,6 +32,8 @@ def _ensure_data_root():
     (data / "goals").mkdir(parents=True, exist_ok=True)
     (data / "aion_field").mkdir(parents=True, exist_ok=True)
     (data / "knowledge").mkdir(parents=True, exist_ok=True)
+    (data / "akg").mkdir(parents=True, exist_ok=True)
+    (data / "telemetry").mkdir(parents=True, exist_ok=True)
 
 _ensure_data_root()
 
@@ -201,6 +203,18 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.router.redirect_slashes = False
+
+# ✅ AION Live Dashboard API + WS
+try:
+    from backend.api.aion_dashboard import router as aion_dashboard_router
+    from backend.api.aion_dashboard import ws_router as aion_dashboard_ws_router
+
+    app.include_router(aion_dashboard_router)     # /api/aion/dashboard/*
+    app.include_router(aion_dashboard_ws_router)  # /ws/aion/dashboard
+    logger.warning("[aion-dashboard] mounted: /api/aion/dashboard + /ws/aion/dashboard")
+except Exception as e:
+    logger.warning("[aion-dashboard] not mounted: %s", e)
+
 
 # ✅ Mount AION Demo Bridge under a safe prefix (no route collisions)
 try:
@@ -702,6 +716,8 @@ from backend.api.photon_bridge import router as photon_router
 from backend.modules.staking.staking_routes import router as staking_router
 from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
 from backend.routes.aion_heartbeat_api import router as aion_heartbeat_router
+from backend.api.aion_dashboard import router as aion_dashboard_router
+from backend.routes.aion_akg_demo_api import router as aion_akg_demo_router
 
 from backend.modules.chain_sim.chain_sim_routes import (
     router as chain_sim_router,
@@ -955,7 +971,7 @@ app.include_router(photon_router)
 app.include_router(aion_heartbeat_router, prefix="/api")
 # AION Memory / Holo seeds API – expose as /api/holo/aion/*
 app.include_router(holo_aion_router)
-
+app.include_router(aion_akg_demo_router)
 register_voice_events(app)
 
 # --- Floor-control lock sweeper (PTT) ---

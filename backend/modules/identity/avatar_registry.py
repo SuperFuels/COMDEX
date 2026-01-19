@@ -1,9 +1,3 @@
-cd /workspaces/COMDEX
-
-mkdir -p backend/modules/identity
-touch backend/modules/identity/__init__.py
-
-cat > backend/modules/identity/avatar_registry.py <<'PY'
 """
 Avatar Identity Registry (shim)
 
@@ -90,4 +84,3 @@ def get_avatar_identity(avatar_id: str, default: Optional[Dict[str, Any]] = None
 
     _cache[aid] = ident
     return ident
-PY

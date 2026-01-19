@@ -77,9 +77,6 @@ if str(_REPO_ROOT) not in sys.path:
 
 from backend.modules.aion_demo import reflex_grid as reflex_mod
 
-# Reflex (Demo 4)
-REFLEX_STATE_PATH = DATA_ROOT / "grid_state.json"
-
 
 # -----------------------------------------------------------------------------
 # Data-root discovery (MRTC-aligned)
@@ -186,6 +183,27 @@ DATA_ROOT = pick_data_root()
 _ensure_local_data_points_to(DATA_ROOT)
 
 # -----------------------------------------------------------------------------
+# Ensure baseline directories exist (so demos never fail on first boot)
+# -----------------------------------------------------------------------------
+(DATA_ROOT / "akg").mkdir(parents=True, exist_ok=True)
+(DATA_ROOT / "telemetry").mkdir(parents=True, exist_ok=True)
+(DATA_ROOT / "memory").mkdir(parents=True, exist_ok=True)  # lex_memory.json lives here
+
+# Reflex (Demo 4)
+REFLEX_STATE_PATH = DATA_ROOT / "grid_state.json"
+
+# -----------------------------------------------------------------------------
+# Demo 05 (AKG) + Demo 06 (Mirror) paths
+# -----------------------------------------------------------------------------
+AKG_SNAPSHOT_PATH = DATA_ROOT / "akg" / "akg_snapshot.json"
+AKG_TELEMETRY_PATH = DATA_ROOT / "telemetry" / "demo5_akg_consolidation.qdata.json"
+
+MIRROR_STATE_PATH = DATA_ROOT / "telemetry" / "demo6_mirror_state.json"
+MIRROR_TELEMETRY_PATH = DATA_ROOT / "telemetry" / "demo6_mirror_reflection.qdata.json"
+
+LEX_MEMORY_PATH = DATA_ROOT / "memory" / "lex_memory.json"
+
+# -----------------------------------------------------------------------------
 # Paths (relative to DATA_ROOT)
 # -----------------------------------------------------------------------------
 PHI_PATH = DATA_ROOT / "phi_reinforce_state.json"
@@ -213,6 +231,281 @@ def _read_json(path: Path, default: Any = None) -> Any:
     except Exception:
         return default
 
+def mirror_compute_frame() -> dict:
+    """
+    Uses REAL sources:
+      - phi_state() -> reads phi_reinforce_state.json
+      - heartbeat_state()
+      - adr_state() -> derived zone/status
+    Produces A = alignment score (0..1) based on stability + freshness - drift.
+    """
+    phi = phi_state()
+    adr = adr_state()
+    hb = heartbeat_state(namespace=DEFAULT_HEARTBEAT_NS)
+
+    # pull numeric signals
+    st = 0.5
+    coh = 0.5
+    try:
+        beliefs = (phi.get("state") or {}).get("beliefs") or {}
+        st = float(beliefs.get("stability", st))
+        coh = float((phi.get("state") or {}).get("Φ_coherence", coh))
+    except Exception:
+        pass
+
+    hb_age = hb.get("age_ms")
+    hb_fresh = 0.0
+    try:
+        if isinstance(hb_age, (int, float)):
+            hb_fresh = max(0.0, min(1.0, 1.0 - (float(hb_age) / 5000.0)))
+        else:
+            hb_fresh = 0.25
+    except Exception:
+        hb_fresh = 0.25
+
+    # drift proxy: compare last mirror frame Φ_coherence to current
+    prev = _read_json(MIRROR_STATE_PATH, default={}) or {}
+    prev_coh = None
+    try:
+        prev_coh = float((prev.get("phi") or {}).get("Φ_coherence"))
+    except Exception:
+        prev_coh = None
+
+    drift = 0.0
+    if prev_coh is not None:
+        drift = abs(coh - prev_coh)
+
+    # ADR zone effect
+    zone = ((adr.get("derived") or {}).get("zone") or "UNKNOWN").upper()
+    zone_penalty = 0.0
+    if zone == "RED":
+        zone_penalty = 0.25
+    elif zone == "YELLOW":
+        zone_penalty = 0.10
+
+    A = (0.45 * st + 0.35 * coh + 0.20 * hb_fresh) - (0.40 * min(1.0, drift)) - zone_penalty
+    A = max(0.0, min(1.0, A))
+
+    frame = {
+        "ts": time.time(),
+        "phi": (phi.get("state") or {}),
+        "adr_derived": (adr.get("derived") or {}),
+        "heartbeat": (hb.get("heartbeat") or {}),
+        "A": round(float(A), 4),
+        "drift": round(float(drift), 6),
+        "hb_fresh": round(float(hb_fresh), 4),
+    }
+
+    _write_json(MIRROR_STATE_PATH, frame)
+    return frame
+
+@app.get("/api/mirror")
+def api_mirror() -> Dict[str, Any]:
+    st = _read_json(MIRROR_STATE_PATH, default=None)
+    if not isinstance(st, dict):
+        st = mirror_compute_frame()
+    return {"ok": True, "data_root": str(DATA_ROOT), "source_file": str(MIRROR_STATE_PATH), "age_ms": _age_ms_for(MIRROR_STATE_PATH), "state": st}
+
+@app.post("/api/demo/mirror/reset")
+def api_mirror_reset() -> Dict[str, Any]:
+    try:
+        if MIRROR_STATE_PATH.exists():
+            MIRROR_STATE_PATH.unlink()
+    except Exception:
+        pass
+    return {"ok": True, "action": "reset"}
+
+@app.post("/api/demo/mirror/step")
+def api_mirror_step() -> Dict[str, Any]:
+    frame = mirror_compute_frame()
+    return {"ok": True, "action": "step", "frame": frame}
+
+@app.post("/api/demo/mirror/run")
+async def api_mirror_run(steps: int = 24, interval_s: float = 0.15) -> Dict[str, Any]:
+    steps = max(1, int(steps))
+    frames = []
+    for _ in range(steps):
+        frames.append(mirror_compute_frame())
+        await asyncio.sleep(float(interval_s))
+    payload = {
+        "demo": "demo6_mirror_reflection",
+        "ts": time.time(),
+        "steps": steps,
+        "A_final": frames[-1]["A"] if frames else None,
+        "frames": frames,
+    }
+    _write_json(MIRROR_TELEMETRY_PATH, payload)
+    return {"ok": True, "action": "run", **payload}
+
+def _pick_existing(*paths: Path) -> Optional[Path]:
+    for p in paths:
+        try:
+            if p and p.exists():
+                return p
+        except Exception:
+            pass
+    return None
+
+def _age_ms_for(path: Optional[Path]) -> Optional[int]:
+    if not path:
+        return None
+    try:
+        return int((time.time() - path.stat().st_mtime) * 1000)
+    except Exception:
+        return None
+
+def _read_lex_entries() -> list[dict]:
+    """
+    Reads LexMemory v2 format (entries list), but stays tolerant.
+    """
+    p = _pick_existing(LEX_MEMORY_PATH, DATA_ROOT / "data" / "memory" / "lex_memory.json")
+    if not p:
+        return []
+    raw = _read_json(p, default=None)
+    if isinstance(raw, dict) and isinstance(raw.get("entries"), list):
+        return [e for e in raw["entries"] if isinstance(e, dict)]
+    return []
+
+_AKG_SINGLETON = None
+
+def _get_akg():
+    global _AKG_SINGLETON
+    if _AKG_SINGLETON is not None:
+        return _AKG_SINGLETON
+    try:
+        from backend.modules.aion_cognition.akg_triplets import AKGTripletStore
+        _AKG_SINGLETON = AKGTripletStore()
+        return _AKG_SINGLETON
+    except Exception:
+        _AKG_SINGLETON = None
+        return None
+
+def _extract_top_edges(akg: Any, k: int = 20) -> list[dict]:
+    """
+    Best-effort extraction. Works with common patterns:
+      - akg.edges dict keyed by (s,r,o) -> {strength,count}
+      - akg._edges dict
+    """
+    edges = None
+    for name in ("edges", "_edges", "store", "_store"):
+        v = getattr(akg, name, None)
+        if isinstance(v, dict):
+            edges = v
+            break
+
+    out = []
+    if not isinstance(edges, dict):
+        return out
+
+    for key, val in edges.items():
+        try:
+            if isinstance(key, (list, tuple)) and len(key) == 3:
+                s, r, o = key
+            elif isinstance(key, str) and "|" in key:
+                s, r, o = key.split("|", 2)
+            else:
+                continue
+
+            strength = None
+            count = None
+            if isinstance(val, dict):
+                strength = val.get("strength", val.get("w", val.get("weight")))
+                count = val.get("count", val.get("n"))
+            out.append({
+                "s": str(s),
+                "r": str(r),
+                "o": str(o),
+                "strength": float(strength) if strength is not None else 0.0,
+                "count": int(count) if count is not None else 0,
+            })
+        except Exception:
+            continue
+
+    out.sort(key=lambda e: (e.get("strength", 0.0), e.get("count", 0)), reverse=True)
+    return out[:k]
+
+def akg_snapshot() -> dict:
+    """
+    Source of truth: snapshot file if present, else derive from AKG store.
+    """
+    snap_file = _pick_existing(AKG_SNAPSHOT_PATH, AKG_TELEMETRY_PATH, DATA_ROOT / "data" / "akg" / "akg_snapshot.json")
+    if snap_file:
+        obj = _read_json(snap_file, default={}) or {}
+        return {
+            "ok": True,
+            "data_root": str(DATA_ROOT),
+            "source_file": str(snap_file),
+            "age_ms": _age_ms_for(snap_file),
+            **(obj if isinstance(obj, dict) else {}),
+        }
+
+    akg = _get_akg()
+    if not akg:
+        return {"ok": False, "data_root": str(DATA_ROOT), "source_file": None, "age_ms": None, "errors": ["AKG unavailable"]}
+
+    top = _extract_top_edges(akg, k=25)
+    return {
+        "ok": True,
+        "data_root": str(DATA_ROOT),
+        "source_file": None,
+        "age_ms": None,
+        "edges_total": len(top),
+        "top_edges": top,
+    }
+
+def akg_consolidate(rounds: int = 400) -> dict:
+    """
+    Real learning: reinforce AKG edges using LexMemory entries.
+    This matches your design: correct recall => reinforce(prompt, answer_is, answer).
+    """
+    akg = _get_akg()
+    if not akg:
+        return {"ok": False, "errors": ["AKG unavailable"]}
+
+    entries = _read_lex_entries()
+    if not entries:
+        return {"ok": True, "reinforcements": 0, "note": "No lex_memory entries found"}
+
+    # sample deterministically but safely
+    rounds = max(1, int(rounds))
+    reinforcements = 0
+
+    # prefer higher SQI if present
+    def score(e: dict) -> float:
+        try:
+            return float(e.get("sqi", 0.0) or 0.0)
+        except Exception:
+            return 0.0
+
+    entries_sorted = sorted(entries, key=score, reverse=True)
+    chosen = entries_sorted[: min(rounds, len(entries_sorted))]
+
+    for e in chosen:
+        p = str(e.get("prompt", "") or "").strip()
+        a = str(e.get("answer", "") or "").strip()
+        if not p or not a:
+            continue
+        hit = score(e) or 1.0
+        try:
+            akg.reinforce(p, "answer_is", a, hit=float(hit))
+            reinforcements += 1
+        except Exception:
+            continue
+
+    try:
+        akg.save()
+    except Exception:
+        pass
+
+    snap = {
+        "demo": "demo5_akg_consolidation",
+        "ts": time.time(),
+        "rounds": rounds,
+        "reinforcements": reinforcements,
+        "top_edges": _extract_top_edges(akg, k=25),
+    }
+    _write_json(AKG_SNAPSHOT_PATH, snap)
+    return {"ok": True, **snap}
 
 def _write_json(path: Path, obj: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -622,6 +915,39 @@ def health() -> Dict[str, Any]:
         "default_heartbeat_namespace": DEFAULT_HEARTBEAT_NS,
     }
 
+# --- AKG (Demo 05) ---
+@app.get("/api/akg")
+def api_akg() -> Dict[str, Any]:
+    return akg_snapshot()
+
+@app.post("/api/demo/akg/reset")
+def api_akg_reset() -> Dict[str, Any]:
+    try:
+        if AKG_SNAPSHOT_PATH.exists():
+            AKG_SNAPSHOT_PATH.unlink()
+    except Exception:
+        pass
+    # best-effort also clear store if the AKG class supports it
+    akg = _get_akg()
+    if akg and hasattr(akg, "reset"):
+        try:
+            akg.reset()
+            akg.save()
+        except Exception:
+            pass
+    return {"ok": True, "action": "reset", **akg_snapshot()}
+
+@app.post("/api/demo/akg/step")
+def api_akg_step() -> Dict[str, Any]:
+    # one small consolidation tick
+    out = akg_consolidate(rounds=1)
+    return {"ok": True, "action": "step", **out, "snapshot": akg_snapshot()}
+
+@app.post("/api/demo/akg/run")
+def api_akg_run(rounds: int = 400) -> Dict[str, Any]:
+    out = akg_consolidate(rounds=rounds)
+    return {"ok": True, "action": "run", **out, "snapshot": akg_snapshot()}
+
 # --- Reflex (Demo 4) ---
 @app.get("/api/reflex")
 def api_reflex() -> Dict[str, Any]:
@@ -723,6 +1049,8 @@ async def ws_aion_demo(ws: WebSocket) -> None:
                 "phi": phi_state(),
                 "adr": adr_state(),
                 "heartbeat": heartbeat_state(namespace=hb_ns),
+                "akg": akg_snapshot(),
+                "mirror": _read_json(MIRROR_STATE_PATH, default=None) or None,
 
                 # ✅ Demo 4: Reflex (Cognitive Grid)
                 "reflex": {
