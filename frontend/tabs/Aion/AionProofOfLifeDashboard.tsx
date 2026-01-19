@@ -27,7 +27,7 @@ import { demo06Meta, Demo06MirrorPanel } from "./demos/demo06_mirror_reflection"
 
 /* ---------------- Types (tolerant; don’t block compilation) ---------------- */
 type HomeostasisEnvelope = any; // /api/aion/dashboard payload
-type MirrorEnvelope = any;      // /api/mirror payload (optional)
+type MirrorEnvelope = any; // /api/mirror payload (optional)
 
 /* ---------------- API helpers (unchanged behavior) ---------------- */
 
@@ -88,7 +88,36 @@ function safeNum(x: any): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/* ---------------- Brand-aligned section card ---------------- */
+/* ---------------- Light theme primitives ---------------- */
+
+const BRAND = {
+  blue: "#1B74E4", // Tessaris Blue
+};
+
+function Chip(props: { tone: "good" | "warn" | "bad" | "neutral"; children: React.ReactNode }) {
+  const tone = props.tone;
+  const cls =
+    tone === "good"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : tone === "warn"
+      ? "border-amber-200 bg-amber-50 text-amber-700"
+      : tone === "bad"
+      ? "border-rose-200 bg-rose-50 text-rose-700"
+      : "border-slate-200 bg-white text-slate-700";
+
+  return (
+    <span
+      className={classNames(
+        "inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.22em]",
+        cls
+      )}
+    >
+      {props.children}
+    </span>
+  );
+}
+
+/* ---------------- Brand-aligned section card (LIGHT) ---------------- */
 
 function PillarSection(props: {
   id: string;
@@ -99,29 +128,26 @@ function PillarSection(props: {
   copy: string;
 }) {
   return (
-    <section
-      id={props.id}
-      className="grid grid-cols-1 gap-8 py-10 lg:grid-cols-5 border-b border-white/5 last:border-0"
-    >
+    <section id={props.id} className="grid grid-cols-1 gap-8 py-10 lg:grid-cols-5 border-b border-slate-200 last:border-0">
       <div className="lg:col-span-3">{props.container}</div>
 
       <div className="lg:col-span-2 flex items-center">
-        <div className="w-full rounded-2xl border border-slate-800/70 bg-white/5 p-6 backdrop-blur-sm shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
-          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-[#1B74E4]">
+        <div className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em]" style={{ color: BRAND.blue }}>
             {props.pillar}
           </div>
 
-          <div className="mt-3 text-xl font-black tracking-tight text-white uppercase italic">
+          <div className="mt-3 text-xl font-black tracking-tight text-slate-900 uppercase italic">
             {props.title}
           </div>
 
-          <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-slate-400">
-            ENGINE_MODE: <span className="text-slate-200">{props.testName}</span>
+          <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-slate-500">
+            ENGINE_MODE: <span className="text-slate-800">{props.testName}</span>
           </div>
 
-          <div className="mt-6 h-px w-10 bg-[#1B74E4]/70" />
+          <div className="mt-6 h-px w-10" style={{ backgroundColor: `${BRAND.blue}99` }} />
 
-          <p className="mt-6 text-sm leading-relaxed text-slate-300 font-medium">{props.copy}</p>
+          <p className="mt-6 text-sm leading-relaxed text-slate-600 font-medium">{props.copy}</p>
         </div>
       </div>
     </section>
@@ -148,23 +174,14 @@ function useAionDemoData(pollMs = 500) {
 
     const tick = async () => {
       try {
-        const [
-          homeoRes,
-          phiRes,
-          adrRes,
-          hbRes,
-          reflexRes,
-          akgRes,
-          mirrorRes,
-        ] = await Promise.allSettled([
-          // ✅ REAL is served here in your repo (backend/api/aion_dashboard.py)
+        const [homeoRes, phiRes, adrRes, hbRes, reflexRes, akgRes, mirrorRes] = await Promise.allSettled([
           fetchJson<HomeostasisEnvelope>(apiUrl("/aion/dashboard")),
           fetchJson<PhiBundle>(apiUrl("/phi")),
           fetchJson<AdrBundle>(apiUrl("/adr")),
           fetchJson<HeartbeatEnvelope>(apiUrl("/heartbeat?namespace=demo")),
           fetchJson<ReflexEnvelope>(apiUrl("/reflex")),
           fetchJson<AkgSnapshot>(apiUrl("/akg")),
-          fetchJson<MirrorEnvelope>(apiUrl("/mirror")), // optional until backend exists
+          fetchJson<MirrorEnvelope>(apiUrl("/mirror")),
         ]);
 
         if (cancelled) return;
@@ -178,7 +195,6 @@ function useAionDemoData(pollMs = 500) {
         if (mirrorRes.status === "fulfilled") setMirror(mirrorRes.value);
 
         const errors: string[] = [];
-        // NOTE: we *do* include errors, but the UI must tolerate missing pillars while endpoints are being wired.
         if (homeoRes.status === "rejected") errors.push(homeoRes.reason?.message || String(homeoRes.reason));
         if (phiRes.status === "rejected") errors.push(phiRes.reason?.message || String(phiRes.reason));
         if (adrRes.status === "rejected") errors.push(adrRes.reason?.message || String(adrRes.reason));
@@ -206,7 +222,7 @@ function useAionDemoData(pollMs = 500) {
   return { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading };
 }
 
-/* ---------------- Status badge (brand + telemetry-aware) ---------------- */
+/* ---------------- Status badge (LIGHT) ---------------- */
 
 function useDashboardHealth() {
   const [events, setEvents] = useState<number | null>(null);
@@ -250,35 +266,33 @@ function useDashboardHealth() {
 function StatusBadge(props: { loading: boolean; err: string | null; health: ReturnType<typeof useDashboardHealth> }) {
   const { loading, err, health } = props;
 
-  const state = loading
-    ? { label: "LINKING…", tone: "neutral" as const }
-    : err
-    ? { label: "OFFLINE / DRIFT", tone: "bad" as const }
-    : { label: "FIELD_LOCKED", tone: "good" as const };
+  const tone: "neutral" | "bad" | "good" = loading ? "neutral" : err ? "bad" : "good";
 
-  const classes =
-    state.tone === "good"
-      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-      : state.tone === "bad"
-      ? "border-rose-500/40 bg-rose-500/10 text-rose-300"
-      : "border-slate-500/30 bg-white/5 text-slate-200";
+  const label = loading ? "LINKING…" : err ? "OFFLINE / DRIFT" : "FIELD_LOCKED";
 
-  const dot =
-    state.tone === "good" ? "bg-emerald-400" : state.tone === "bad" ? "bg-rose-400" : "bg-slate-300";
+  const dotCls =
+    tone === "good" ? "bg-emerald-500" : tone === "bad" ? "bg-rose-500" : "bg-slate-500";
+
+  const borderCls =
+    tone === "good"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : tone === "bad"
+      ? "border-rose-200 bg-rose-50 text-rose-700"
+      : "border-slate-200 bg-white text-slate-700";
 
   return (
     <div
       className={classNames(
-        "flex items-center gap-3 rounded-full border px-4 py-2 font-mono text-[10px] font-bold tracking-[0.22em] uppercase transition-colors",
-        classes
+        "flex items-center gap-3 rounded-full border px-4 py-2 font-mono text-[10px] font-bold tracking-[0.22em] uppercase shadow-sm",
+        borderCls
       )}
       title={health.title}
     >
-      <span className={classNames("h-2 w-2 rounded-full", dot, !loading && !err && "animate-pulse")} />
-      <span>{state.label}</span>
+      <span className={classNames("h-2 w-2 rounded-full", dotCls, !loading && !err && "animate-pulse")} />
+      <span>{label}</span>
 
-      <span className="ml-1 hidden sm:inline-flex items-center gap-2 text-[10px] font-mono tracking-widest text-white/60">
-        <span className="h-3 w-px bg-white/10" />
+      <span className="ml-1 hidden sm:inline-flex items-center gap-2 text-[10px] font-mono tracking-widest text-slate-500">
+        <span className="h-3 w-px bg-slate-200" />
         <span>EVT:{health.events ?? "—"}</span>
         <span>AGE:{fmtAgeMs(health.age_ms)}</span>
       </span>
@@ -286,7 +300,7 @@ function StatusBadge(props: { loading: boolean; err: string | null; health: Retu
   );
 }
 
-/* ---------------- Summary table (Act 1) ---------------- */
+/* ---------------- Summary table (LIGHT) ---------------- */
 
 function SummaryTable(props: {
   homeostasis?: any | null;
@@ -304,22 +318,22 @@ function SummaryTable(props: {
   const ent = phiState["Φ_entropy"] ?? phiState?.state?.["Φ_entropy"];
 
   const fieldOk = (label: string) => (
-    <span className="inline-flex items-center gap-2">
-      <span className="h-2 w-2 rounded-full bg-emerald-400/90" />
+    <Chip tone="good">
+      <span className="h-2 w-2 rounded-full bg-emerald-500" />
       <span>{label}</span>
-    </span>
+    </Chip>
   );
   const fieldWarn = (label: string) => (
-    <span className="inline-flex items-center gap-2">
-      <span className="h-2 w-2 rounded-full bg-amber-400/90" />
+    <Chip tone="warn">
+      <span className="h-2 w-2 rounded-full bg-amber-500" />
       <span>{label}</span>
-    </span>
+    </Chip>
   );
   const fieldBad = (label: string) => (
-    <span className="inline-flex items-center gap-2">
-      <span className="h-2 w-2 rounded-full bg-rose-400/90" />
+    <Chip tone="bad">
+      <span className="h-2 w-2 rounded-full bg-rose-500" />
       <span>{label}</span>
-    </span>
+    </Chip>
   );
 
   const adrStatus =
@@ -352,30 +366,35 @@ function SummaryTable(props: {
     typeof reinf === "number" ? (reinf > 0 ? fieldOk(`+${reinf}`) : fieldWarn("0")) : fieldWarn("NO_DATA");
 
   return (
-    <div className="mt-16 rounded-2xl border border-white/5 bg-white/3 p-6 backdrop-blur-sm">
+    <div className="mt-16 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between gap-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-500">
+        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
           Act 1 Summary // Biological Containers
         </div>
-        <div className="font-mono text-[10px] uppercase tracking-widest text-slate-600">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-slate-500">
           Response to Stress • Autonomous Recovery
         </div>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-white/5">
-        <div className="grid grid-cols-12 bg-white/2 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-slate-500">
+      <div className="mt-6 overflow-hidden rounded-xl border border-slate-200">
+        <div className="grid grid-cols-12 bg-slate-50 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-slate-600">
           <div className="col-span-3">Pillar</div>
           <div className="col-span-4">UI Component</div>
           <div className="col-span-3">Target Metric</div>
           <div className="col-span-2 text-right">Status</div>
         </div>
 
-        <div className="divide-y divide-white/5 text-sm">
+        <div className="divide-y divide-slate-200 text-sm">
           <Row pillar="Integrity" comp="Phase Closure Monitor" target="⟲ ≥ 0.975 + sqi_checkpoint" status={homeoStatus} />
           <Row pillar="Awareness" comp="Mirror Reflection Log" target="Linguistic Accuracy > 90%" status={mirrorStatus} />
           <Row pillar="Stability" comp="RSI Stability Bar" target="RSI > 0.95 (Green)" status={adrStatus} />
           <Row pillar="Learning" comp="AKG Strength Delta" target="+12% reinforcement" status={akgStatus} />
-          <Row pillar="Metabolism" comp="Φ-Field Calorimetry" target={`ΔΦ balance (coh=${coh ?? "?"}, ent=${ent ?? "?"})`} status={fieldOk("LIVE")} />
+          <Row
+            pillar="Metabolism"
+            comp="Φ-Field Calorimetry"
+            target={`ΔΦ balance (coh=${coh ?? "?"}, ent=${ent ?? "?"})`}
+            status={fieldOk("LIVE")}
+          />
           <Row pillar="Reflex" comp="Drift Repair Pulse" target="Trigger at RSI < 0.6" status={adrStatus} />
           <Row pillar="Continuity" comp="Resonant Heartbeat" target="60s periodic pulse" status={hbStatus} />
         </div>
@@ -386,11 +405,13 @@ function SummaryTable(props: {
 
 function Row(props: { pillar: string; comp: string; target: string; status: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-12 px-4 py-3 text-slate-200">
+    <div className="grid grid-cols-12 px-4 py-3 text-slate-800">
       <div className="col-span-3 font-semibold">{props.pillar}</div>
-      <div className="col-span-4 font-mono text-[12px] text-slate-300">{props.comp}</div>
-      <div className="col-span-3 text-slate-400">{props.target}</div>
-      <div className="col-span-2 text-right font-mono text-[12px] uppercase tracking-wider">{props.status}</div>
+      <div className="col-span-4 font-mono text-[12px] text-slate-700">{props.comp}</div>
+      <div className="col-span-3 text-slate-600">{props.target}</div>
+      <div className="col-span-2 text-right font-mono text-[12px] uppercase tracking-wider">
+        {props.status}
+      </div>
     </div>
   );
 }
@@ -405,7 +426,11 @@ export default function AionProofOfLifeDashboard() {
 
   const health = useDashboardHealth();
   useEffect(() => {
-    health.updateFrom([homeostasis as any, phi as any, adr as any, heartbeat as any, reflex as any, akg as any, mirror as any], err, loading);
+    health.updateFrom(
+      [homeostasis as any, phi as any, adr as any, heartbeat as any, reflex as any, akg as any, mirror as any],
+      err,
+      loading
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading]);
 
@@ -419,7 +444,6 @@ export default function AionProofOfLifeDashboard() {
   }
 
   const footerRight = useMemo(() => {
-    // best effort: show a phase string if present in any demo snapshot
     const candidates = [homeostasis as any, akg as any, reflex as any, heartbeat as any, adr as any, phi as any, mirror as any].filter(Boolean);
     for (const c of candidates) {
       const s =
@@ -434,24 +458,24 @@ export default function AionProofOfLifeDashboard() {
   }, [homeostasis, akg, reflex, heartbeat, adr, phi, mirror]);
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-white selection:bg-[#1B74E4]/30">
-      {/* subtle brand glow */}
-      <div className="pointer-events-none fixed inset-0 opacity-60">
-        <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[#1B74E4]/20 blur-3xl" />
-        <div className="absolute bottom-0 right-[-140px] h-[420px] w-[420px] rounded-full bg-white/5 blur-3xl" />
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1B74E4]/10">
+      {/* subtle light brand glow */}
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute -top-48 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[#1B74E4]/10 blur-3xl" />
+        <div className="absolute bottom-[-140px] right-[-140px] h-[520px] w-[520px] rounded-full bg-slate-200/40 blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 py-12">
-        <header className="mb-14 border-l-4 border-[#1B74E4] pl-6">
+        <header className="mb-14 border-l-4 pl-6" style={{ borderColor: BRAND.blue }}>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="font-mono text-[10px] font-bold uppercase tracking-[0.34em] text-slate-500">
                 AION // Tessaris Intelligence
               </div>
-              <h1 className="mt-2 text-4xl font-black tracking-tighter uppercase italic">
+              <h1 className="mt-2 text-4xl font-black tracking-tighter uppercase italic text-slate-900">
                 Act 1: The Resonant Organism
               </h1>
-              <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-400">
+              <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-600">
                 By presenting these as Biological Containers, you teach the audience how to read the “vitals” of a synthetic organism.
                 You must show Response to Stress and Autonomous Recovery — not just data.
               </p>
@@ -461,7 +485,7 @@ export default function AionProofOfLifeDashboard() {
           </div>
 
           {err ? (
-            <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-rose-300/80">
+            <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-rose-700">
               {err}
             </div>
           ) : null}
@@ -558,7 +582,7 @@ export default function AionProofOfLifeDashboard() {
           }
         />
 
-        {/* ✅ Demo 06 (Mirror) — will show “no feed” until backend /api/mirror exists */}
+        {/* ✅ Demo 06 (Mirror) */}
         <PillarSection
           id={demo06Meta.id}
           pillar={demo06Meta.pillar}
@@ -568,7 +592,7 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo06MirrorPanel mirror={mirror as any} />}
         />
 
-        {/* ✅ Summary Table (required) */}
+        {/* ✅ Summary Table */}
         <SummaryTable
           homeostasis={homeostasis}
           adr={adr}
@@ -578,11 +602,11 @@ export default function AionProofOfLifeDashboard() {
           heartbeat={heartbeat}
         />
 
-        <footer className="mt-16 flex flex-col gap-3 border-t border-white/5 pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-600">
+        <footer className="mt-16 flex flex-col gap-3 border-t border-slate-200 pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">
             Tessaris Intelligence // Research Division // 2026
           </div>
-          <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-600">{footerRight}</div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">{footerRight}</div>
         </footer>
       </div>
     </div>
