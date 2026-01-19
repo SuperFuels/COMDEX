@@ -10,6 +10,10 @@ export type TabDef = {
   href: string; // e.g. "/glyph"
 };
 
+function classNames(...xs: Array<string | false | null | undefined>) {
+  return xs.filter(Boolean).join(" ");
+}
+
 export default function TabDock({
   tabs,
   activeKey,
@@ -41,7 +45,21 @@ export default function TabDock({
     if (activeIdx < tabs.length - 1) go(activeIdx + 1);
   };
 
-  // Keep active tab centered in the dock (when it overflows)
+  // ✅ Windowed dock: show 2 at edges, 3 otherwise (prev/active/next)
+  const visible = useMemo(() => {
+    if (tabs.length <= 3) return { start: 0, end: tabs.length - 1 };
+
+    if (activeIdx <= 0) return { start: 0, end: 1 };
+    if (activeIdx >= tabs.length - 1) return { start: tabs.length - 2, end: tabs.length - 1 };
+
+    return { start: activeIdx - 1, end: activeIdx + 1 };
+  }, [tabs.length, activeIdx]);
+
+  const visibleTabs = useMemo(() => {
+    return tabs.slice(visible.start, visible.end + 1);
+  }, [tabs, visible.start, visible.end]);
+
+  // Keep active tab centered in the dock (still useful if you later widen to more tabs)
   useEffect(() => {
     const root = dockRef.current;
     if (!root) return;
@@ -53,7 +71,7 @@ export default function TabDock({
   }, [activeKey]);
 
   // ✅ Swipe between tabs (mobile) — ignores vertical gestures AND form elements
-  // Also: if the gesture starts on the dock itself, don't hijack (lets users horizontally scroll the dock).
+  // Also: if the gesture starts on the dock itself, don't hijack (lets users scroll the dock if needed).
   useEffect(() => {
     let touchStartX = 0;
     let touchEndX = 0;
@@ -76,7 +94,6 @@ export default function TabDock({
 
     const handleTouchStart = (e: TouchEvent) => {
       if (isFormEl(e.target)) return;
-      // let the dock be scrollable without switching tabs
       if (startedOnDock(e.target)) return;
 
       touchStartX = e.targetTouches[0].clientX;
@@ -117,17 +134,19 @@ export default function TabDock({
   }, [activeIdx, tabs.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <nav className={`mb-16 sticky top-4 z-50 flex justify-center ${className}`}>
+    <nav className={classNames("mb-16 sticky top-4 z-50 flex justify-center", className)}>
       <div className="relative group w-full max-w-[1400px]">
         {/* Left arrow (desktop hover) */}
         <button
           type="button"
           onClick={goPrev}
           disabled={activeIdx <= 0}
-          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
-                     bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition
-                     opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed z-10"
           aria-label="Previous tab"
+          className={classNames(
+            "hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full",
+            "bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition",
+            "opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed z-10"
+          )}
         >
           <span className="text-gray-500 text-lg">‹</span>
         </button>
@@ -137,45 +156,52 @@ export default function TabDock({
           type="button"
           onClick={goNext}
           disabled={activeIdx >= tabs.length - 1}
-          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full
-                     bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition
-                     opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed z-10"
           aria-label="Next tab"
+          className={classNames(
+            "hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full",
+            "bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition",
+            "opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed z-10"
+          )}
         >
           <span className="text-gray-500 text-lg">›</span>
         </button>
 
-        {/* Dock (scrollable) */}
+        {/* Dock (windowed: 2–3 tabs only, same style) */}
         <div
           ref={dockRef}
-          className="flex items-center gap-3 bg-white/70 backdrop-blur-2xl border border-gray-200 p-2 rounded-full shadow-lg shadow-gray-200/50
-                     overflow-x-auto no-scrollbar px-3 md:px-14"
+          className={classNames(
+            "flex items-center justify-center gap-3",
+            "bg-white/70 backdrop-blur-2xl border border-gray-200 p-2 rounded-full shadow-lg shadow-gray-200/50",
+            "overflow-x-auto no-scrollbar px-3 md:px-14"
+          )}
         >
-          {tabs.map((t, index) => {
-            const isActive = index === activeIdx;
+          {visibleTabs.map((t) => {
+            const isActive = t.key === activeKey;
+
+            // Find original index so clicks still navigate correctly
+            const idx = tabs.findIndex((x) => x.key === t.key);
 
             return (
               <button
                 key={t.key}
                 data-tabkey={t.key}
-                onClick={() => go(index)}
-                className={`relative whitespace-nowrap px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 ease-out ${
+                onClick={() => go(idx)}
+                className={classNames(
+                  "relative whitespace-nowrap px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 ease-out",
                   isActive
                     ? "bg-[#0071e3] text-white shadow-xl scale-[1.03] z-10"
                     : "text-gray-500 hover:text-gray-800 bg-transparent hover:bg-white/60"
-                }`}
+                )}
                 aria-current={isActive ? "page" : undefined}
               >
                 {t.label}
-                {isActive && (
-                  <span className="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse -z-10" />
-                )}
+                {isActive && <span className="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse -z-10" />}
               </button>
             );
           })}
         </div>
 
-        {/* Tailwind utility (no-scrollbar) fallback if you don't have it globally */}
+        {/* no-scrollbar helper (kept local so build never depends on global css) */}
         <style jsx>{`
           .no-scrollbar::-webkit-scrollbar {
             display: none;

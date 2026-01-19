@@ -7,11 +7,15 @@ import { demo01Meta, Demo01MetabolismPanel } from "./demos/demo01_metabolism";
 import { demo02Meta, Demo02AdrPanel } from "./demos/demo02_immune_adr";
 import { demo03Meta, Demo03HeartbeatPanel } from "./demos/Demo03Heartbeat";
 
+// ✅ Demo 04 (Reflex / Cognitive Grid)
+import { demo04Meta, Demo04ReflexGridPanel } from "./demos/demo04_reflex_grid";
+
 /* ---------------- Types only (keep local, minimal) ---------------- */
 
 type PhiState = any;
 type AdrBundle = any;
 type HeartbeatEnvelope = any;
+type ReflexEnvelope = any;
 
 /* ---------------- API helpers ---------------- */
 
@@ -83,6 +87,7 @@ function useAionDemoData(pollMs = 500) {
   const [phi, setPhi] = useState<PhiState | null>(null);
   const [adr, setAdr] = useState<AdrBundle | null>(null);
   const [heartbeat, setHeartbeat] = useState<HeartbeatEnvelope | null>(null);
+  const [reflex, setReflex] = useState<ReflexEnvelope | null>(null);
 
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,10 +98,12 @@ function useAionDemoData(pollMs = 500) {
 
     const tick = async () => {
       try {
-        const [phiRes, adrRes, hbRes] = await Promise.allSettled([
+        const [phiRes, adrRes, hbRes, reflexRes] = await Promise.allSettled([
           fetchJson<PhiState>(apiUrl("/phi")),
           fetchJson<AdrBundle>(apiUrl("/adr")),
           fetchJson<HeartbeatEnvelope>(apiUrl("/heartbeat?namespace=demo")),
+          // ✅ Demo 04 endpoint (expects demo_bridge to include "reflex")
+          fetchJson<ReflexEnvelope>(apiUrl("/reflex")),
         ]);
 
         if (cancelled) return;
@@ -104,11 +111,13 @@ function useAionDemoData(pollMs = 500) {
         if (phiRes.status === "fulfilled") setPhi(phiRes.value);
         if (adrRes.status === "fulfilled") setAdr(adrRes.value);
         if (hbRes.status === "fulfilled") setHeartbeat(hbRes.value);
+        if (reflexRes.status === "fulfilled") setReflex(reflexRes.value);
 
         const errors: string[] = [];
         if (phiRes.status === "rejected") errors.push(phiRes.reason?.message || String(phiRes.reason));
         if (adrRes.status === "rejected") errors.push(adrRes.reason?.message || String(adrRes.reason));
         if (hbRes.status === "rejected") errors.push(hbRes.reason?.message || String(hbRes.reason));
+        if (reflexRes.status === "rejected") errors.push(reflexRes.reason?.message || String(reflexRes.reason));
         setErr(errors.length ? errors.join(" • ") : null);
       } catch (e: any) {
         if (!cancelled) setErr(e?.message || String(e));
@@ -125,13 +134,13 @@ function useAionDemoData(pollMs = 500) {
     };
   }, [pollMs]);
 
-  return { phi, adr, heartbeat, err, loading };
+  return { phi, adr, heartbeat, reflex, err, loading };
 }
 
 /* ---------------- Page ---------------- */
 
 export default function AionProofOfLifeDashboard() {
-  const { phi, adr, heartbeat, err, loading } = useAionDemoData(500);
+  const { phi, adr, heartbeat, reflex, err, loading } = useAionDemoData(500);
 
   // shared busy flag: demo panels only read this to disable buttons + show labels
   const [actionBusy, setActionBusy] = useState<string | null>(null);
@@ -154,7 +163,7 @@ export default function AionProofOfLifeDashboard() {
               <div className="text-xs font-medium uppercase tracking-wider text-white/60">AION • Proof of Life</div>
               <h1 className="mt-2 text-2xl font-semibold tracking-tight">Act 1 — Synthetic Homeostasis</h1>
               <p className="mt-2 max-w-2xl text-sm text-white/70">
-                Metabolism (Φ), Immune Response (ADR), and Heartbeat (Θ) are live. Everything else stays modular and drops in as a new demo panel.
+                Metabolism (Φ), Immune Response (ADR), Heartbeat (Θ) are live. Reflex (Cognitive Grid) drops in as Demo 04.
               </p>
             </div>
 
@@ -218,6 +227,26 @@ export default function AionProofOfLifeDashboard() {
           testName={demo03Meta.testName}
           copy={demo03Meta.copy}
           container={<Demo03HeartbeatPanel heartbeat={heartbeat} namespace="demo" />}
+        />
+
+        <div className="my-10 h-px w-full bg-white/10" />
+
+        {/* ✅ Demo 04 — Reflex (Cognitive Grid Curiosity-Drift) */}
+        <PillarSection
+          id={demo04Meta.id}
+          pillar={demo04Meta.pillar}
+          title={demo04Meta.title}
+          testName={demo04Meta.testName}
+          copy={demo04Meta.copy}
+          container={
+            <Demo04ReflexGridPanel
+              reflex={reflex}
+              actionBusy={actionBusy}
+              onReset={() => runBusy("reflex_reset", () => post("/demo/reflex/reset"))}
+              onStep={() => runBusy("reflex_step", () => post("/demo/reflex/step"))}
+              onRun={() => runBusy("reflex_run", () => post("/demo/reflex/run"))}
+            />
+          }
         />
 
         <footer className="mt-10 text-xs text-white/45">

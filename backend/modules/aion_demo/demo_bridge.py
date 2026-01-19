@@ -75,6 +75,12 @@ for _p in _REPO_ROOT.parents:
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from backend.modules.aion_demo import reflex_grid as reflex_mod
+
+# Reflex (Demo 4)
+REFLEX_STATE_PATH = DATA_ROOT / "grid_state.json"
+
+
 # -----------------------------------------------------------------------------
 # Data-root discovery (MRTC-aligned)
 # -----------------------------------------------------------------------------
@@ -616,6 +622,33 @@ def health() -> Dict[str, Any]:
         "default_heartbeat_namespace": DEFAULT_HEARTBEAT_NS,
     }
 
+# --- Reflex (Demo 4) ---
+@app.get("/api/reflex")
+def api_reflex() -> Dict[str, Any]:
+    st = reflex_mod.get_state(REFLEX_STATE_PATH)
+    return {
+        "ok": True,
+        "data_root": str(DATA_ROOT),
+        "source_file": str(REFLEX_STATE_PATH),
+        "age_ms": st.get("age_ms"),
+        "now_s": st.get("now_s"),
+        "state": st,
+    }
+
+@app.post("/api/demo/reflex/reset")
+def api_reflex_reset() -> Dict[str, Any]:
+    st = reflex_mod.reset(REFLEX_STATE_PATH)
+    return {"ok": True, "state": st}
+
+@app.post("/api/demo/reflex/step")
+async def api_reflex_step() -> Dict[str, Any]:
+    st = await reflex_mod.step_once(REFLEX_STATE_PATH)
+    return {"ok": True, "state": st}
+
+@app.post("/api/demo/reflex/run")
+async def api_reflex_run(steps: int = 60, interval_s: float = 0.25) -> Dict[str, Any]:
+    st = await reflex_mod.start_run(REFLEX_STATE_PATH, steps=steps, interval_s=interval_s)
+    return {"ok": True, "state": st}
 
 # --- Φ endpoints ---
 @app.get("/api/phi")
@@ -678,12 +711,11 @@ def api_demo_inject_entropy() -> Dict[str, Any]:
 
 
 # --- Websocket streaming ---
+# --- Websocket streaming ---
 @app.websocket("/ws/aion-demo")
 async def ws_aion_demo(ws: WebSocket) -> None:
     await ws.accept()
     interval_s = float(os.getenv("AION_DEMO_WS_INTERVAL_S", "0.5"))
-    # If the frontend cares about a specific namespace, you can set:
-    #   AION_DEMO_HEARTBEAT_NAMESPACE=demo
     hb_ns = os.getenv("AION_DEMO_HEARTBEAT_NAMESPACE", DEFAULT_HEARTBEAT_NS)
     try:
         while True:
@@ -691,6 +723,15 @@ async def ws_aion_demo(ws: WebSocket) -> None:
                 "phi": phi_state(),
                 "adr": adr_state(),
                 "heartbeat": heartbeat_state(namespace=hb_ns),
+
+                # ✅ Demo 4: Reflex (Cognitive Grid)
+                "reflex": {
+                    "ok": True,
+                    "data_root": str(DATA_ROOT),
+                    "source_file": str(REFLEX_STATE_PATH),
+                    "state": reflex_mod.get_state(REFLEX_STATE_PATH),
+                },
+
                 "ts": time.time(),
             }
             await ws.send_text(json.dumps(payload, ensure_ascii=False))
