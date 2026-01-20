@@ -32,16 +32,14 @@ const withMDX = require("@next/mdx")({
 const nextConfig = {
   reactStrictMode: true,
 
-  // ✅ Server build (Cloud Run / Node). DO NOT use static export.
-  // If you previously had `output: "export"`, keep it REMOVED.
-  // output: "export",
+  // ✅ Server build (Vercel/Node/Cloud Run). Static export must be OFF.
+  // (Do not add `output: "export"`.)
 
   eslint: { ignoreDuringBuilds: true },
 
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
 
-  // ✅ Prefer runtime env (process.env) in your code.
-  // Keeping this block is fine, but not required.
+  // Prefer runtime env via process.env in code; keeping is OK if you rely on it.
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL || "",
@@ -49,7 +47,7 @@ const nextConfig = {
     NEXT_PUBLIC_CONTAINER_NAV: process.env.NEXT_PUBLIC_CONTAINER_NAV || "site",
   },
 
-  // ✅ Proxy API calls in dev/prod via rewrites (works in server mode)
+  // ✅ Proxy API calls (works in server mode)
   async rewrites() {
     const radioBase = process.env.NEXT_PUBLIC_RADIO_BASE;
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
@@ -81,10 +79,8 @@ const nextConfig = {
     return config;
   },
 
-  // 🔻 OPTIONAL: if you truly need trailing slash URLs, re-enable:
+  // OPTIONAL:
   // trailingSlash: true,
-
-  // 🔻 OPTIONAL: if you truly need unoptimized images, re-enable:
   // images: { unoptimized: true },
 };
 
