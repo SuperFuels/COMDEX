@@ -71,3 +71,4 @@ web3>=7.3.0,<8.0.0
 siwe @ git+https://github.com/spruceid/siwe-py.git@v4.4.0#egg=siwe
 alembic==1.16.1
 psycopg2-binary==2.9.10
+sse-starlette==2.1.3
