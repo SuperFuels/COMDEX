@@ -1,9 +1,11 @@
 # backend/modules/mesh/mesh_tx.py
 
 from __future__ import annotations
-from typing import TypedDict, List
+
 import time
 import uuid
+from typing import List
+from typing_extensions import TypedDict
 
 from .mesh_types import DeviceId, AccountId, ClusterId
 
@@ -35,12 +37,11 @@ def new_mesh_tx(
     cluster_id: ClusterId,
     from_account: AccountId,
     to_account: AccountId,
-    amount_pho: str,
+    amount_pho: amount_pho,
     prev_local_seq: int,
     sender_device_id: DeviceId,
     sender_signature: str,
 ) -> MeshTx:
-    """Helper to construct a MeshTx with a fresh ID + timestamp."""
     return MeshTx(
         mesh_tx_id=f"m_{uuid.uuid4().hex}",
         cluster_id=cluster_id,

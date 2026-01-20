@@ -1,6 +1,6 @@
 # Dockerfile – build frontend, run backend (Cloud Run / Cloud Build safe)
 
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PORT=8080 \

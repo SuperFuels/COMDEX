@@ -1,7 +1,9 @@
 # backend/modules/mesh/mesh_types.py
 
 from __future__ import annotations
-from typing import TypedDict, Dict
+
+from typing import Dict
+from typing_extensions import TypedDict
 
 DeviceId = str
 AccountId = str
