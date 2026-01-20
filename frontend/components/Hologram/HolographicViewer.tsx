@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { OrbitControls, Html } from "@react-three/drei";
+import { OrbitControls, Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 import { forwardRef } from "react";              // <-- fixes 'forwardRef' not found
 import { Canvas, useFrame, useThree } from "@react-three/fiber"; // <-- ensures types are present
@@ -99,9 +99,9 @@ function LayeredContainerSphere({
               emissive="#00ffff"
               emissiveIntensity={0.8}
             />
-            <Html distanceFactor={12}>
+            <DreiHtml distanceFactor={12}>
               <div className="text-xs text-cyan-300">{g.symbol}</div>
-            </Html>
+            </DreiHtml>
           </mesh>
         );
       })}
@@ -636,11 +636,11 @@ const AnimatedGlyphNode = forwardRef<any, AnimatedGlyphNodeProps>((props, fwdRef
         emissive={mutated ? "#ff4444" : baseColor}
         emissiveIntensity={glyph.light_intensity}
       />
-      <Html distanceFactor={8}>
+      <DreiHtml distanceFactor={8}>
         <div className="text-xs text-white bg-black/50 px-1 py-0.5 rounded">
           {glyph.symbol}
         </div>
-      </Html>
+      </DreiHtml>
     </mesh>
   );
 });

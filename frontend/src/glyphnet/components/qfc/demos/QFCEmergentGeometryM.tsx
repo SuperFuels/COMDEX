@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -134,7 +134,7 @@ export default function QFCEmergentGeometryM_V2() {
 
   return (
     <group>
-      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+      <DreiHtml fullscreen transform={false} zIndexRange={[100, 0]}>
         <div className="pointer-events-none w-full h-full font-mono text-white p-8">
           <div className="absolute top-10 left-10 p-6 bg-black/40 backdrop-blur-xl border border-white/5 rounded-lg w-80 shadow-2xl">
             <div className="text-purple-400 text-[10px] tracking-[0.4em] font-bold border-b border-purple-500/20 pb-2 mb-4">
@@ -158,7 +158,7 @@ export default function QFCEmergentGeometryM_V2() {
             </div>
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       <mesh ref={meshRef} geometry={geometry} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -2, -10]}>
         <shaderMaterial

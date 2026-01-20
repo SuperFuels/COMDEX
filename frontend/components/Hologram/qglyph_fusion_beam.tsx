@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { animated, useSpring } from "@react-spring/three";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 type BeamProps = {
   source: THREE.Vector3;
@@ -126,7 +126,7 @@ export const QGlyphFusionBeam: React.FC<BeamProps> = ({
       </animated.mesh>
 
       {showLabel && (
-        <Html position={midArray} center distanceFactor={10}>
+        <DreiHtml position={midArray} center distanceFactor={10}>
           <div
             style={{
               background: "rgba(0,0,0,0.6)",
@@ -140,7 +140,7 @@ export const QGlyphFusionBeam: React.FC<BeamProps> = ({
           >
             {logicType || "beam"}
           </div>
-        </Html>
+        </DreiHtml>
       )}
     </>
   );

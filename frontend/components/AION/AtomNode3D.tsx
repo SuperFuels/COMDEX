@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 type Viz = {
   glyph?: string;
@@ -64,7 +64,7 @@ export default function AtomNode3D({
       ))}
 
       {/* label */}
-      <Html distanceFactor={12}>
+      <DreiHtml distanceFactor={12}>
         <div
           style={{
             color: "#cfe",
@@ -75,7 +75,7 @@ export default function AtomNode3D({
         >
           {id}
         </div>
-      </Html>
+      </DreiHtml>
 
       {/* children */}
       {childrenAtoms.map((c, i) => (

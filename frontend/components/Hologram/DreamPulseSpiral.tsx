@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 interface DreamPulseSpiralProps {
@@ -43,7 +43,7 @@ export default function DreamPulseSpiral({
         const color = getDreamColor(glyph, pulse);
 
         return (
-          <Html key={i} position={[x, height, z]} center distanceFactor={12}>
+          <DreiHtml key={i} position={[x, height, z]} center distanceFactor={12}>
             <div
               style={{
                 fontSize: "12px",
@@ -55,7 +55,7 @@ export default function DreamPulseSpiral({
             >
               {glyph}
             </div>
-          </Html>
+          </DreiHtml>
         );
       })}
     </group>

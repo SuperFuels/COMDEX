@@ -17,6 +17,7 @@ const TABS: readonly TabDef[] = [
   { key: "rqc_awareness", label: "RQC Awareness", href: "/rqc-awareness" },
   { key: "aion", label: "AION", href: "/aion" },
   { key: "ai", label: "AI", href: "/ai" },
+  { key: "wirepack", label: "WirePack", href: "/wirepack" },
   { key: "data", label: "Data", href: "/data" },
   { key: "multiverse", label: "Multiverse", href: "/multiverse" },
   { key: "photon_algebra", label: "Photon Algebra", href: "/photon-algebra" },

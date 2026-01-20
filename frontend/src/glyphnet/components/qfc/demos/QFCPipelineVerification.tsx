@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 const srk8PipelineShader = {
@@ -124,7 +124,7 @@ export default function QFCPipelineVerification({ frame }: { frame?: any }) {
   return (
     <group>
       {/* HUD (DOM must live in Html, NOT as <div> in the R3F tree) */}
-      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+      <DreiHtml fullscreen transform={false} zIndexRange={[100, 0]}>
         <div className="pointer-events-none w-full h-full font-mono">
           <div className="absolute top-8 left-8 pointer-events-auto text-[10px] text-blue-300 space-y-2 bg-black/60 p-4 border border-blue-900/30 backdrop-blur-sm">
             <p className="text-white font-bold underline">SRK-8: THEOREM_LEDGER_AUDIT</p>
@@ -150,7 +150,7 @@ export default function QFCPipelineVerification({ frame }: { frame?: any }) {
             PROOF_SOURCE: symatics_tensor.lean | BUNDLE: v0.3
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       <points geometry={geometry} rotation={[-0.2, 0, 0]}>
         <shaderMaterial

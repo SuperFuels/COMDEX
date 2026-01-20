@@ -1,7 +1,7 @@
 // ✅ File: frontend/components/QuantumField/Memory/goal_nodes_renderer.tsx
 
 import React from "react";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 export interface GoalNode {
@@ -28,11 +28,11 @@ export const GoalNodeRenderer: React.FC<{ node: GoalNode }> = ({ node }) => {
         <sphereGeometry args={[0.15, 32, 32]} />
         <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.6} />
       </mesh>
-      <Html distanceFactor={10} className="text-xs text-white text-center">
+      <DreiHtml distanceFactor={10} className="text-xs text-white text-center">
         <div className="bg-black/80 px-2 py-1 rounded-md">
           {node.type.toUpperCase()}: {node.label}
         </div>
-      </Html>
+      </DreiHtml>
     </group>
   );
 };

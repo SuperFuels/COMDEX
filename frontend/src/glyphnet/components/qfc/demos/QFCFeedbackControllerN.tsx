@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 const nSeriesShader = {
@@ -131,7 +131,7 @@ export default function QFCWormholeStyledController() {
   return (
     <group>
       {/* HUD: Retaining the Cyan-Grid styling you love */}
-      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+      <DreiHtml fullscreen transform={false} zIndexRange={[100, 0]}>
         <div className="w-full h-full pointer-events-none font-mono text-white">
           <div className="absolute top-6 left-6 pointer-events-auto p-5 border border-cyan-500/30 bg-black/80 backdrop-blur-md w-80 shadow-[0_0_15px_rgba(0,180,255,0.2)]">
             <div className="flex justify-between items-center border-b border-cyan-500/30 pb-2 mb-4">
@@ -167,7 +167,7 @@ export default function QFCWormholeStyledController() {
             </div>
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       {/* Visual Scene: Point Cloud with Additive Blending */}
       <points geometry={geometry} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -2, 0]}>

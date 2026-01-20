@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -138,7 +138,7 @@ export default function QFCTelemetryAuditV4({ frame }: { frame?: any }) {
 
   return (
     <group rotation={[Math.PI / 12, 0, 0]}>
-      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+      <DreiHtml fullscreen transform={false} zIndexRange={[100, 0]}>
         <div className="pointer-events-none w-full h-full font-mono text-white">
           {/* Top Info Bar */}
           <div className="absolute top-8 left-8 flex items-center gap-6 pointer-events-auto bg-black/40 backdrop-blur-md p-4 border border-white/10 rounded">
@@ -171,7 +171,7 @@ export default function QFCTelemetryAuditV4({ frame }: { frame?: any }) {
             Causal Trace Replay • System Deterministic
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       <points geometry={geometry}>
         <shaderMaterial

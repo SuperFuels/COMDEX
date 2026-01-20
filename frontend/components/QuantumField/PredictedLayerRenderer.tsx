@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useMemo } from "react";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 /* ----------------------------- Types ----------------------------- */
@@ -91,7 +91,7 @@ const PredictedLayerRenderer: React.FC<Props> = ({ nodes, links, visible = true 
             wireframe
           />
           {(node.delta != null || node.branch) && (
-            <Html position={[node.position[0], node.position[1] + 0.8, node.position[2]]}>
+            <DreiHtml position={[node.position[0], node.position[1] + 0.8, node.position[2]]}>
               <div className="text-xs text-blue-300 bg-black/60 rounded px-2 py-1 shadow">
                 {node.delta != null && (
                   <div>
@@ -101,7 +101,7 @@ const PredictedLayerRenderer: React.FC<Props> = ({ nodes, links, visible = true 
                 )}
                 {node.branch && <div>Branch: {node.branch}</div>}
               </div>
-            </Html>
+            </DreiHtml>
           )}
         </mesh>
       ))}

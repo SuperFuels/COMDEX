@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 export interface ElectronProps {
   id: string;
@@ -49,11 +49,11 @@ export const ElectronSphere: React.FC<ElectronProps> = ({
       <meshStandardMaterial color={hovered ? hoverColor : defaultColor} />
 
       {hovered && predictedGlyph && (
-        <Html position={[0, 0.4, 0]} center distanceFactor={8} className="text-xs">
+        <DreiHtml position={[0, 0.4, 0]} center distanceFactor={8} className="text-xs">
           <div className="bg-black/80 text-white px-2 py-1 rounded shadow">
             {predictedGlyph}
           </div>
-        </Html>
+        </DreiHtml>
       )}
     </mesh>
   );

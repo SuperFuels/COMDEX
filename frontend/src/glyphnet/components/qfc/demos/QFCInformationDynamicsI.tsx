@@ -2,7 +2,7 @@
 
 import React, { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -116,7 +116,7 @@ export default function QFCInformationDynamicsI({ frame }: { frame?: any }) {
 
   return (
     <group position={[0, -0.5, 0]}>
-      <Html fullscreen transform={false}>
+      <DreiHtml fullscreen transform={false}>
         <div className="pointer-events-none w-full h-full font-mono text-white p-10">
           {/* Diagnostic Sidebar */}
           <div className="absolute top-10 left-10 w-80 p-6 bg-black/60 backdrop-blur-xl border border-white/5 rounded-sm">
@@ -157,7 +157,7 @@ export default function QFCInformationDynamicsI({ frame }: { frame?: any }) {
             </div>
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       {/* Ground Reference Grid */}
       <gridHelper args={[20, 40, 0x112233, 0x05060a]} rotation={[Math.PI / 2, 0, 0]} />

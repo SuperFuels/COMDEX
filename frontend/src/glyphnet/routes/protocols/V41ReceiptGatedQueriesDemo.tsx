@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useState } from "react";
 
 /** ---------------- helpers (same “standard” as v32/v44) ---------------- */
@@ -18,26 +20,72 @@ function clamp(n: number, lo: number, hi: number) {
 }
 
 function safeObj(x: any) {
-  return x && typeof x === "object" ? x : {};
+  return x && typeof x !== "object" ? {} : x && typeof x === "object" ? x : {};
 }
 
 function boolBadge(ok: boolean | null) {
   const good = ok === true;
   const bad = ok === false;
-  const bg = good ? "#ecfdf5" : bad ? "#fef2f2" : "#f9fafb";
-  const fg = good ? "#065f46" : bad ? "#991b1b" : "#6b7280";
-  const bd = good ? "#a7f3d0" : bad ? "#fecaca" : "#e5e7eb";
+  const bg = good ? "#ecfdf5" : bad ? "#fef2f2" : "#f8fafc";
+  const fg = good ? "#065f46" : bad ? "#991b1b" : "#64748b";
+  const bd = good ? "#a7f3d0" : bad ? "#fecaca" : "#e2e8f0";
   const label = good ? "✅ VERIFIED" : bad ? "❌ FAIL" : "—";
   return { bg, fg, bd, label };
 }
 
+/** ---------------- branded atoms (SLE/RQC light) ---------------- */
+
 function StatTile(props: { label: string; value: React.ReactNode; sub?: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
-      <div style={{ fontSize: 10, color: "#6b7280", fontWeight: 900, letterSpacing: 0.3 }}>{props.label}</div>
-      <div style={{ fontSize: 13, color: "#111827", fontWeight: 900, marginTop: 4 }}>{props.value}</div>
-      {props.sub ? <div style={{ fontSize: 10, color: "#6b7280", marginTop: 4 }}>{props.sub}</div> : null}
+    <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{props.label}</div>
+      <div className="mt-1 text-sm font-extrabold text-slate-900">{props.value}</div>
+      {props.sub ? <div className="mt-1 text-[11px] text-slate-500">{props.sub}</div> : null}
     </div>
+  );
+}
+
+function Card(props: { title?: string; subtitle?: React.ReactNode; right?: React.ReactNode; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={["rounded-2xl border border-slate-200 bg-white p-4 shadow-sm", props.className || ""].join(" ")}>
+      {(props.title || props.right) && (
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            {props.title ? <div className="text-sm font-extrabold tracking-tight text-slate-900">{props.title}</div> : null}
+            {props.subtitle ? <div className="mt-1 text-xs font-medium text-slate-500">{props.subtitle}</div> : null}
+          </div>
+          {props.right ? <div className="shrink-0">{props.right}</div> : null}
+        </div>
+      )}
+      <div className={(props.title || props.right) ? "mt-3" : ""}>{props.children}</div>
+    </div>
+  );
+}
+
+function PillButton(props: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  variant?: "ghost" | "primary";
+  title?: string;
+}) {
+  const v = props.variant || "ghost";
+  const base =
+    "px-4 py-2 rounded-full text-xs font-semibold border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B74E4]/30";
+  const ghost = "border-slate-200 bg-white text-slate-800 hover:bg-slate-50";
+  const primary = "border-[#1B74E4] bg-[#1B74E4] text-white hover:brightness-110";
+  const disabled = "opacity-60 cursor-not-allowed hover:brightness-100";
+
+  return (
+    <button
+      type="button"
+      onClick={props.onClick}
+      disabled={props.disabled}
+      title={props.title}
+      className={[base, v === "primary" ? primary : ghost, props.disabled ? disabled : ""].join(" ")}
+    >
+      {props.children}
+    </button>
   );
 }
 
@@ -98,16 +146,12 @@ function GateTimelineChart(props: { steps: { label: string; ok: boolean | null }
   const n = Math.max(1, steps.length);
   const stepW = innerW / n;
 
-  const color = (ok: boolean | null) => (ok === null ? "#e5e7eb" : ok ? "#34d399" : "#f87171");
-  const stroke = (ok: boolean | null) => (ok === null ? "#d1d5db" : ok ? "#10b981" : "#ef4444");
+  // light theme mapping
+  const color = (ok: boolean | null) => (ok === null ? "#e2e8f0" : ok ? "#34d399" : "#f87171");
+  const stroke = (ok: boolean | null) => (ok === null ? "#cbd5e1" : ok ? "#10b981" : "#ef4444");
 
   return (
-    <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Gate pipeline</div>
-        <div style={{ fontSize: 10, color: "#6b7280" }}>You don’t get results unless all checks pass</div>
-      </div>
-
+    <Card title="Gate pipeline" subtitle="You don’t get results unless all checks pass">
       <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", marginTop: 8, display: "block" }}>
         {steps.map((s, i) => {
           const x = pad.l + i * stepW;
@@ -122,20 +166,20 @@ function GateTimelineChart(props: { steps: { label: string; ok: boolean | null }
                   y1={cy}
                   x2={cx}
                   y2={cy}
-                  stroke="#e5e7eb"
+                  stroke="#e2e8f0"
                   strokeWidth={3}
                   strokeLinecap="round"
                 />
               ) : null}
               <circle cx={cx} cy={cy} r={12} fill={color(ok)} stroke={stroke(ok)} strokeWidth={2} />
-              <text x={cx} y={cy + 36} fontSize="10" textAnchor="middle" fill="#6b7280">
+              <text x={cx} y={cy + 36} fontSize="10" textAnchor="middle" fill="#64748b">
                 {s.label}
               </text>
             </g>
           );
         })}
       </svg>
-    </div>
+    </Card>
   );
 }
 
@@ -149,13 +193,12 @@ function WorkVsLogChart(props: { fwStepsSum?: number | null; logN?: number | nul
   const innerW = w - pad.l - pad.r;
   const innerH = h - pad.t - pad.b;
 
-  // draw two bars if present: fwStepsSum and logN (scaled independently but gives feel)
   const vals = [fw ?? 0, ln ?? 0];
   const max = Math.max(1, ...vals);
 
   const bars = [
-    { label: "fw_steps_sum", v: fw ?? 0, fill: "#111827" },
-    { label: "logN", v: ln ?? 0, fill: "#3b82f6" },
+    { label: "fw_steps_sum", v: fw ?? 0, fill: "#0f172a" }, // slate-900-ish
+    { label: "logN", v: ln ?? 0, fill: "#1B74E4" }, // brand primary
   ];
   const barW = innerW / bars.length;
 
@@ -163,22 +206,17 @@ function WorkVsLogChart(props: { fwStepsSum?: number | null; logN?: number | nul
   const bh = (v: number) => pad.t + innerH - y(v);
 
   return (
-    <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Work scaling signal</div>
-        <div style={{ fontSize: 10, color: "#6b7280" }}>fw_steps_sum should track logN (not range length)</div>
-      </div>
-
+    <Card title="Work scaling signal" subtitle="fw_steps_sum should track logN (not range length)">
       {fw == null && ln == null ? (
-        <div style={{ marginTop: 8, fontSize: 11, color: "#6b7280" }}>No work metrics returned yet.</div>
+        <div className="mt-2 text-xs text-slate-500">No work metrics returned yet.</div>
       ) : (
         <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", marginTop: 8, display: "block" }}>
-          <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + innerH} stroke="#e5e7eb" />
-          <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke="#e5e7eb" />
+          <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + innerH} stroke="#e2e8f0" />
+          <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke="#e2e8f0" />
           {[0, max].map((t, i) => (
             <g key={i}>
-              <line x1={pad.l - 4} y1={y(t)} x2={pad.l} y2={y(t)} stroke="#e5e7eb" />
-              <text x={pad.l - 8} y={y(t) + 4} fontSize="10" textAnchor="end" fill="#6b7280">
+              <line x1={pad.l - 4} y1={y(t)} x2={pad.l} y2={y(t)} stroke="#e2e8f0" />
+              <text x={pad.l - 8} y={y(t) + 4} fontSize="10" textAnchor="end" fill="#64748b">
                 {t}
               </text>
             </g>
@@ -190,10 +228,10 @@ function WorkVsLogChart(props: { fwStepsSum?: number | null; logN?: number | nul
             return (
               <g key={b.label}>
                 <rect x={x} y={top} width={bw} height={bh(b.v)} rx={10} fill={b.fill} opacity={0.9} />
-                <text x={x + bw / 2} y={top - 6} fontSize="10" textAnchor="middle" fill="#111827">
+                <text x={x + bw / 2} y={top - 6} fontSize="10" textAnchor="middle" fill="#0f172a">
                   {b.v}
                 </text>
-                <text x={x + bw / 2} y={pad.t + innerH + 18} fontSize="10" textAnchor="middle" fill="#6b7280">
+                <text x={x + bw / 2} y={pad.t + innerH + 18} fontSize="10" textAnchor="middle" fill="#64748b">
                   {b.label}
                 </text>
               </g>
@@ -201,51 +239,36 @@ function WorkVsLogChart(props: { fwStepsSum?: number | null; logN?: number | nul
           })}
         </svg>
       )}
-    </div>
+    </Card>
   );
 }
 
 function ChainList(props: { chain: { drift_sha256: string; prev: string }[] }) {
   const chain = props.chain ?? [];
   return (
-    <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-      <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Receipt chain (newest → oldest)</div>
-      <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8 }}>
+    <Card title="Receipt chain" subtitle="newest → oldest">
+      <div className="mt-2 flex flex-col gap-2">
         {chain.length === 0 ? (
-          <div style={{ fontSize: 11, color: "#6b7280" }}>No chain yet — mint to create a leaf.</div>
+          <div className="text-xs text-slate-500">No chain yet — mint to create a leaf.</div>
         ) : (
           chain.slice(0, 12).map((x, i) => (
-            <div
-              key={i}
-              style={{
-                borderRadius: 12,
-                border: "1px solid #e5e7eb",
-                padding: 10,
-                background: "#f9fafb",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                <div style={{ fontSize: 11, color: "#111827", fontWeight: 900 }}>
-                  Leaf {i + 1}
-                </div>
-                <div style={{ fontSize: 10, color: "#6b7280" }}>
-                  {i === 0 ? "active" : "ancestor"}
-                </div>
+            <div key={i} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="text-xs font-extrabold text-slate-900">Leaf {i + 1}</div>
+                <div className="text-[11px] font-semibold text-slate-500">{i === 0 ? "active" : "ancestor"}</div>
               </div>
-              <div style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
-                drift_sha256: <code style={{ color: "#111827" }}>{x.drift_sha256}</code>
+              <div className="mt-2 text-xs text-slate-500">
+                drift_sha256: <code className="text-slate-900">{x.drift_sha256}</code>
               </div>
-              <div style={{ marginTop: 4, fontSize: 11, color: "#6b7280" }}>
-                prev_drift_sha256: <code style={{ color: "#111827" }}>{x.prev || "—"}</code>
+              <div className="mt-1 text-xs text-slate-500">
+                prev_drift_sha256: <code className="text-slate-900">{x.prev || "—"}</code>
               </div>
             </div>
           ))
         )}
-        {chain.length > 12 ? (
-          <div style={{ fontSize: 11, color: "#6b7280" }}>… {chain.length - 12} more</div>
-        ) : null}
+        {chain.length > 12 ? <div className="text-xs text-slate-500">… {chain.length - 12} more</div> : null}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -300,10 +323,7 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
 
   const receipts = safeObj(mintOut?.receipts);
   const leafLeanOk =
-    receipts?.LEAN_OK === 1 ||
-    receipts?.LEAN_OK === true ||
-    mintOut?.LEAN_OK === 1 ||
-    mintOut?.LEAN_OK === true;
+    receipts?.LEAN_OK === 1 || receipts?.LEAN_OK === true || mintOut?.LEAN_OK === 1 || mintOut?.LEAN_OK === true;
 
   // ---- query fields (robust to small shape diffs)
   const q = queryOut?.query || queryOut?.result || queryOut || {};
@@ -326,11 +346,7 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
   const receiptVerified = !!localVerified && !!leafLeanOk;
 
   // gate unlocked can be explicit, otherwise treat as unlocked if query ran
-  const gateUnlocked =
-    queryOut?.unlocked === true ||
-    queryOut?.locked === false ||
-    queryOut?.gate?.status === "UNLOCKED" ||
-    queryRan;
+  const gateUnlocked = queryOut?.unlocked === true || queryOut?.locked === false || queryOut?.gate?.status === "UNLOCKED" || queryRan;
 
   const leanVerified = receiptVerified && queryOk;
 
@@ -350,9 +366,9 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
   const sumBaseline = q?.sum_baseline ?? queryOut?.sum_baseline ?? null;
   const sumStream = q?.sum_stream ?? queryOut?.sum_stream ?? null;
 
-  const gateBadge = boolBadge(gateUnlocked ? true : (queryOut ? false : null));
+  const gateBadge = boolBadge(gateUnlocked ? true : queryOut ? false : null);
   const receiptBadge = boolBadge(localVerified === null ? null : localVerified);
-  const leanBadge = boolBadge(leanVerified ? true : (queryOut || mintOut ? false : null));
+  const leanBadge = boolBadge(leanVerified ? true : queryOut || mintOut ? false : null);
 
   const normalizedInput = receiptInput.trim().toLowerCase();
   const normalizedDrift = (drift || "").trim().toLowerCase();
@@ -437,98 +453,43 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
   );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div className="rounded-[2.5rem] border border-slate-200 bg-[#F8FAFC] p-6 shadow-xl">
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div style={{ fontSize: 14, fontWeight: 900, color: "#111827" }}>v41 — Receipt-gated queries</div>
-          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+          <div className="text-[11px] font-bold uppercase tracking-widest text-slate-400">WirePack / Trust</div>
+          <div className="mt-1 text-base font-black tracking-tight text-slate-900">v41 — Receipt-gated queries</div>
+          <div className="mt-1 text-xs text-slate-600 max-w-[860px]">
             Queries are locked unless the receipt chain verifies (anti “demo theater”). Shows drift check + ancestry + unlock.
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: `1px solid ${leanBadge.bd}`,
-              background: leanBadge.bg,
-              color: leanBadge.fg,
-              fontSize: 11,
-              fontWeight: 900,
-              whiteSpace: "nowrap",
-            }}
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className={[
+              "px-3 py-1 rounded-full border text-xs font-extrabold whitespace-nowrap",
+              leanVerified ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-slate-200 bg-white text-slate-700",
+            ].join(" ")}
           >
             {leanVerified ? "LEAN VERIFIED" : "LEAN PENDING"}
-          </div>
+          </span>
 
-          <button
-            type="button"
-            onClick={() => setShowExamples((s) => !s)}
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: "1px solid #e5e7eb",
-              background: "#fff",
-              color: "#111827",
-              fontSize: 11,
-              fontWeight: 900,
-              cursor: "pointer",
-            }}
-          >
-            Examples
-          </button>
-
-          <button
-            type="button"
-            onClick={mint}
-            disabled={busyMint}
-            style={{
-              padding: "6px 12px",
-              borderRadius: 999,
-              border: "1px solid " + (busyMint ? "#e5e7eb" : "#111827"),
-              background: busyMint ? "#f9fafb" : "#111827",
-              color: busyMint ? "#6b7280" : "#fff",
-              fontSize: 11,
-              fontWeight: 900,
-              cursor: busyMint ? "not-allowed" : "pointer",
-            }}
-          >
+          <PillButton onClick={() => setShowExamples((s) => !s)}>Examples</PillButton>
+          <PillButton onClick={mint} disabled={busyMint} variant="primary">
             {busyMint ? "Minting…" : "Mint receipt"}
-          </button>
-
-          <button
-            type="button"
-            onClick={runQuery}
-            disabled={busyQuery || !chain.length}
-            style={{
-              padding: "6px 12px",
-              borderRadius: 999,
-              border: "1px solid " + (busyQuery || !chain.length ? "#e5e7eb" : "#111827"),
-              background: busyQuery || !chain.length ? "#f9fafb" : "#111827",
-              color: busyQuery || !chain.length ? "#6b7280" : "#fff",
-              fontSize: 11,
-              fontWeight: 900,
-              cursor: busyQuery || !chain.length ? "not-allowed" : "pointer",
-            }}
-          >
+          </PillButton>
+          <PillButton onClick={runQuery} disabled={busyQuery || !chain.length} variant="primary">
             {busyQuery ? "Querying…" : "Run gated query"}
-          </button>
+          </PillButton>
         </div>
       </div>
 
       {showExamples ? (
-        <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
-          <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Presets</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+        <Card title="Presets">
+          <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((ex) => (
-              <button
+              <PillButton
                 key={ex.label}
-                type="button"
                 onClick={() => {
                   setSeed(ex.seed);
                   setN(ex.n);
@@ -537,28 +498,17 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
                   setL(ex.l);
                   setR(ex.r);
                 }}
-                style={{
-                  padding: "6px 10px",
-                  borderRadius: 999,
-                  border: "1px solid #e5e7eb",
-                  background: "#f9fafb",
-                  color: "#111827",
-                  fontSize: 11,
-                  fontWeight: 900,
-                  cursor: "pointer",
-                }}
               >
                 {ex.label}
-              </button>
+              </PillButton>
             ))}
           </div>
-        </div>
+        </Card>
       ) : null}
 
       {/* Params */}
-      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Parameters</div>
-        <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 8 }}>
+      <Card title="Parameters">
+        <div className="grid gap-2 md:grid-cols-6">
           {[
             { label: "seed", v: seed, set: setSeed, lo: 0, hi: 1_000_000 },
             { label: "n", v: n, set: setN, lo: 256, hi: 65536 },
@@ -567,7 +517,7 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
             { label: "L", v: l, set: setL, lo: 0, hi: n - 1 },
             { label: "R", v: r, set: setR, lo: 0, hi: n - 1 },
           ].map((x) => (
-            <label key={x.label} style={{ fontSize: 11, color: "#374151" }}>
+            <label key={x.label} className="text-xs font-semibold text-slate-600">
               {x.label}
               <input
                 type="number"
@@ -575,109 +525,90 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
                 min={x.lo}
                 max={x.hi}
                 onChange={(e) => x.set(clamp(Number(e.target.value) || 0, x.lo, x.hi))}
-                style={{ width: "100%", marginTop: 6, padding: "8px 10px", borderRadius: 12, border: "1px solid #e5e7eb" }}
+                className="mt-2 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B74E4]/30"
               />
             </label>
           ))}
         </div>
-        <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280" }}>
-          ops_total (turns × muts): <b style={{ color: "#111827" }}>{opsTotal}</b> · range: <b style={{ color: "#111827" }}>[{l}..{r}]</b>{" "}
-          · len: <b style={{ color: "#111827" }}>{rangeLen}</b>
-        </div>
-      </div>
 
-      {err ? <div style={{ fontSize: 11, color: "#b91c1c" }}>{err}</div> : null}
+        <div className="mt-3 text-xs text-slate-600">
+          ops_total (turns × muts): <span className="font-extrabold text-slate-900">{opsTotal}</span> · range:{" "}
+          <span className="font-extrabold text-slate-900">
+            [{l}..{r}]
+          </span>{" "}
+          · len: <span className="font-extrabold text-slate-900">{rangeLen}</span>
+        </div>
+      </Card>
+
+      {err ? <div className="text-xs font-semibold text-red-700">{err}</div> : null}
 
       {/* Seller container (pitch) */}
-      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>
-          🎯 v41 — The “trust unlock”: queries only execute when receipts verify
-        </div>
-        <div style={{ fontSize: 11, color: "#374151", marginTop: 8, lineHeight: 1.55 }}>
-          <b>The claim:</b> You can’t get a query answer unless you present a valid receipt chain.
+      <Card title="🎯 v41 — The “trust unlock”" subtitle="queries only execute when receipts verify">
+        <div className="text-xs text-slate-700 leading-relaxed">
+          <span className="font-semibold">The claim:</span> You can’t get a query answer unless you present a valid receipt chain.
           <br />
           <br />
-          <b>What’s enforced:</b>
-          <ul style={{ margin: "6px 0 0 16px", padding: 0 }}>
+          <span className="font-semibold">What’s enforced:</span>
+          <ul className="mt-1 ml-4 list-disc text-slate-700">
             <li>
-              <b>Determinism</b>: the receipt serializes stably and hashes to <code>drift_sha256</code>.
+              <span className="font-semibold">Determinism</span>: the receipt serializes stably and hashes to <code className="text-slate-900">drift_sha256</code>.
             </li>
             <li>
-              <b>Ancestry</b>: each receipt points to <code>prev_drift_sha256</code> (no forked story).
+              <span className="font-semibold">Ancestry</span>: each receipt points to <code className="text-slate-900">prev_drift_sha256</code> (no forked story).
             </li>
             <li>
-              <b>Gating</b>: server stays <b>LOCKED</b> until chain verifies; only then it runs the query invariants.
+              <span className="font-semibold">Gating</span>: server stays <span className="font-extrabold">LOCKED</span> until chain verifies; only then it runs the query invariants.
             </li>
           </ul>
-          <div style={{ marginTop: 10 }}>
-            <b>Translation:</b> this kills “demo theater.” You can ship stream + receipts, and anyone can verify that the query answer was permitted and correct.
+          <div className="mt-3">
+            <span className="font-semibold">Translation:</span> this kills “demo theater.” You can ship stream + receipts, and anyone can verify that the query answer was permitted and correct.
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Charts + stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 10, alignItems: "start" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr] items-start">
+        <div className="flex flex-col gap-3">
           <GateTimelineChart steps={pipelineSteps} />
           <WorkVsLogChart fwStepsSum={fwStepsSumN} logN={logNN} />
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div className="grid gap-3 md:grid-cols-2">
           <StatTile
             label="Gate"
             value={
               <span
-                style={{
-                  padding: "2px 8px",
-                  borderRadius: 999,
-                  border: `1px solid ${gateBadge.bd}`,
-                  background: gateBadge.bg,
-                  color: gateBadge.fg,
-                  fontSize: 11,
-                  fontWeight: 900,
-                }}
+                className="px-3 py-1 rounded-full border text-xs font-extrabold"
+                style={{ borderColor: gateBadge.bd, background: gateBadge.bg, color: gateBadge.fg }}
               >
-                {gateUnlocked ? "UNLOCKED" : (queryOut ? "LOCKED" : "—")}
+                {gateUnlocked ? "UNLOCKED" : queryOut ? "LOCKED" : "—"}
               </span>
             }
-            sub={queryOut?.reason ? <span style={{ color: "#991b1b" }}>{String(queryOut.reason)}</span> : "server state"}
+            sub={queryOut?.reason ? <span className="text-red-700">{String(queryOut.reason)}</span> : "server state"}
           />
           <StatTile
             label="Local drift check"
             value={
               <span
-                style={{
-                  padding: "2px 8px",
-                  borderRadius: 999,
-                  border: `1px solid ${receiptBadge.bd}`,
-                  background: receiptBadge.bg,
-                  color: receiptBadge.fg,
-                  fontSize: 11,
-                  fontWeight: 900,
-                }}
+                className="px-3 py-1 rounded-full border text-xs font-extrabold"
+                style={{ borderColor: receiptBadge.bd, background: receiptBadge.bg, color: receiptBadge.fg }}
               >
                 {receiptBadge.label}
               </span>
             }
             sub="browser recompute"
           />
-          <StatTile
-            label="Mint LEAN_OK"
-            value={mintOut ? (leafLeanOk ? "1 ✅" : "0 ❌") : "—"}
-            sub="backend check"
-          />
+          <StatTile label="Mint LEAN_OK" value={mintOut ? (leafLeanOk ? "1 ✅" : "0 ❌") : "—"} sub="backend check" />
           <StatTile
             label="Query invariants"
             value={
               <span
+                className="px-3 py-1 rounded-full border text-xs font-extrabold"
                 style={{
-                  padding: "2px 8px",
-                  borderRadius: 999,
-                  border: `1px solid ${boolBadge(queryOut ? queryOk : null).bd}`,
-                  background: boolBadge(queryOut ? queryOk : null).bg,
-                  color: boolBadge(queryOut ? queryOk : null).fg,
-                  fontSize: 11,
-                  fontWeight: 900,
+                  ...(() => {
+                    const bb = boolBadge(queryOut ? queryOk : null);
+                    return { borderColor: bb.bd, background: bb.bg, color: bb.fg };
+                  })(),
                 }}
               >
                 {queryOut ? (queryOk ? "✅ OK" : "❌ FAIL") : "—"}
@@ -687,129 +618,109 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
           />
           <StatTile label="sum_baseline" value={sumBaseline ?? "—"} sub="reference" />
           <StatTile label="sum_stream" value={sumStream ?? "—"} sub="gated result" />
-          <StatTile label="wire_total_bytes" value={wireTotalBytes ? bytes(wireTotalBytes) : "—"} sub={wireTotalBytes ? `${wireTotalBytes} B` : "optional"} />
-          <StatTile label="range_len" value={qBytes?.range_len ?? rangeLen} sub="query span" />
+          <StatTile
+            label="wire_total_bytes"
+            value={wireTotalBytes ? bytes(wireTotalBytes) : "—"}
+            sub={wireTotalBytes ? `${wireTotalBytes} B` : "optional"}
+          />
+          <StatTile label="range_len" value={(qBytes as any)?.range_len ?? rangeLen} sub="query span" />
         </div>
       </div>
 
       {/* Receipt verifier (input-driven like v44) */}
-      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-          <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Receipt verifier</div>
-          <div
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: `1px solid ${inputBadge.bd}`,
-              background: inputBadge.bg,
-              color: inputBadge.fg,
-              fontSize: 11,
-              fontWeight: 900,
-            }}
-          >
-            {inputBadge.label}
-          </div>
-        </div>
-
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10, alignItems: "center" }}>
+      <Card title="Receipt verifier" right={<span className="px-3 py-1 rounded-full border text-xs font-extrabold" style={{ borderColor: inputBadge.bd, background: inputBadge.bg, color: inputBadge.fg }}>{inputBadge.label}</span>}>
+        <div className="flex flex-wrap items-center gap-2">
           <input
             value={receiptInput}
             onChange={(e) => setReceiptInput(e.target.value)}
             placeholder="Paste drift_sha256 here to compare against current leaf…"
-            style={{
-              flex: "1 1 420px",
-              padding: "10px 12px",
-              borderRadius: 12,
-              border: "1px solid #e5e7eb",
-              fontSize: 12,
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-            }}
+            className="flex-1 min-w-[320px] px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B74E4]/30"
+            style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}
           />
-          <button
-            type="button"
-            onClick={() => setReceiptInput(drift || "")}
-            style={{
-              padding: "8px 10px",
-              borderRadius: 12,
-              border: "1px solid #e5e7eb",
-              background: "#f9fafb",
-              color: "#111827",
-              fontSize: 11,
-              fontWeight: 900,
-              cursor: "pointer",
-            }}
-          >
-            Use current drift
-          </button>
+          <PillButton onClick={() => setReceiptInput(drift || "")}>Use current drift</PillButton>
         </div>
 
-        <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280", lineHeight: 1.55 }}>
+        <div className="mt-3 text-xs text-slate-500 leading-relaxed">
           <div>
-            current drift_sha256: <code style={{ color: "#111827" }}>{drift || "—"}</code>
+            current drift_sha256: <code className="text-slate-900">{drift || "—"}</code>
           </div>
-          <div style={{ marginTop: 4 }}>
-            Note: this input compare is just a UX helper; the real proof is the browser-side recompute (Local drift check) + backend LEAN_OK.
+          <div className="mt-1">
+            Note: this input compare is a UX helper; the real proof is the browser-side recompute (Local drift check) + backend LEAN_OK.
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Chain + Receipt + Query details */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, alignItems: "start" }}>
+      <div className="grid gap-3 lg:grid-cols-2 items-start">
         <ChainList chain={chainViz} />
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Current leaf receipt</div>
-            <div style={{ marginTop: 10, fontSize: 11, color: "#374151", lineHeight: 1.6 }}>
-              <div>drift_sha256: <code>{drift || "—"}</code></div>
-              <div>final_state_sha256: <code>{String(receipt?.final_state_sha256 || "—")}</code></div>
-              <div>prev_drift_sha256: <code>{String(receipt?.prev_drift_sha256 || "—")}</code></div>
-              <div>LEAN_OK: <code>{mintOut ? (leafLeanOk ? "1" : "0") : "—"}</code></div>
-            </div>
-          </div>
-
-          <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Query invariants</div>
-            <div style={{ marginTop: 10, fontSize: 11, color: "#374151", lineHeight: 1.6 }}>
-              <div>range_ok: <code>{rangeOk === null ? "—" : String(rangeOk)}</code></div>
-              <div>work_scales_with_logN: <code>{workLogOk === null ? "—" : String(workLogOk)}</code></div>
-              <div>sum_baseline: <code>{String(sumBaseline ?? "—")}</code></div>
-              <div>sum_stream: <code>{String(sumStream ?? "—")}</code></div>
-              <div style={{ paddingTop: 8, borderTop: "1px solid #e5e7eb", marginTop: 8 }}>
-                ops_total: <code>{qBytes?.ops_total ?? opsTotal ?? "—"}</code>
+        <div className="flex flex-col gap-3">
+          <Card title="Current leaf receipt">
+            <div className="text-xs text-slate-700 leading-relaxed">
+              <div>
+                drift_sha256: <code className="text-slate-900">{drift || "—"}</code>
               </div>
-              <div>range_len: <code>{qBytes?.range_len ?? rangeLen}</code></div>
-              <div>fw_steps_sum: <code>{qBytes?.fw_steps_sum ?? "—"}</code> / logN <code>{qBytes?.logN ?? "—"}</code></div>
+              <div>
+                final_state_sha256: <code className="text-slate-900">{String(receipt?.final_state_sha256 || "—")}</code>
+              </div>
+              <div>
+                prev_drift_sha256: <code className="text-slate-900">{String(receipt?.prev_drift_sha256 || "—")}</code>
+              </div>
+              <div>
+                LEAN_OK: <code className="text-slate-900">{mintOut ? (leafLeanOk ? "1" : "0") : "—"}</code>
+              </div>
             </div>
-          </div>
+          </Card>
+
+          <Card title="Query invariants">
+            <div className="text-xs text-slate-700 leading-relaxed">
+              <div>
+                range_ok: <code className="text-slate-900">{rangeOk === null ? "—" : String(rangeOk)}</code>
+              </div>
+              <div>
+                work_scales_with_logN: <code className="text-slate-900">{workLogOk === null ? "—" : String(workLogOk)}</code>
+              </div>
+              <div>
+                sum_baseline: <code className="text-slate-900">{String(sumBaseline ?? "—")}</code>
+              </div>
+              <div>
+                sum_stream: <code className="text-slate-900">{String(sumStream ?? "—")}</code>
+              </div>
+              <div className="mt-2 pt-2 border-t border-slate-200">
+                ops_total: <code className="text-slate-900">{(qBytes as any)?.ops_total ?? opsTotal ?? "—"}</code>
+              </div>
+              <div>
+                range_len: <code className="text-slate-900">{(qBytes as any)?.range_len ?? rangeLen}</code>
+              </div>
+              <div>
+                fw_steps_sum: <code className="text-slate-900">{(qBytes as any)?.fw_steps_sum ?? "—"}</code> / logN{" "}
+                <code className="text-slate-900">{(qBytes as any)?.logN ?? "—"}</code>
+              </div>
+            </div>
+          </Card>
         </div>
 
         {/* Raw */}
-        <div style={{ gridColumn: "1 / -1", borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Raw responses</div>
-          <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <div style={{ borderRadius: 12, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10 }}>
-              <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>mint</div>
-              <pre style={{ marginTop: 8, fontSize: 11, color: "#111827", whiteSpace: "pre-wrap" }}>
-                {mintOut ? JSON.stringify(mintOut, null, 2) : "—"}
-              </pre>
+        <div className="lg:col-span-2">
+          <Card title="Raw responses">
+            <div className="mt-2 grid gap-3 lg:grid-cols-2">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div className="text-xs font-extrabold text-slate-900">mint</div>
+                <pre className="mt-2 text-xs text-slate-900 whitespace-pre-wrap">{mintOut ? JSON.stringify(mintOut, null, 2) : "—"}</pre>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div className="text-xs font-extrabold text-slate-900">query</div>
+                <pre className="mt-2 text-xs text-slate-900 whitespace-pre-wrap">{queryOut ? JSON.stringify(queryOut, null, 2) : "—"}</pre>
+              </div>
             </div>
-            <div style={{ borderRadius: 12, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10 }}>
-              <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>query</div>
-              <pre style={{ marginTop: 8, fontSize: 11, color: "#111827", whiteSpace: "pre-wrap" }}>
-                {queryOut ? JSON.stringify(queryOut, null, 2) : "—"}
-              </pre>
-            </div>
-          </div>
+          </Card>
         </div>
       </div>
 
       {/* Endpoint footer */}
-      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10, fontSize: 11, color: "#6b7280" }}>
-        Endpoints:
-        <div style={{ marginTop: 6 }}>
-          <code>POST /api/wirepack/v41/mint</code> · <code>POST /api/wirepack/v41/query</code>
-        </div>
+      <div className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-600">
+        Endpoints: <code className="text-slate-900">POST /api/wirepack/v41/mint</code> ·{" "}
+        <code className="text-slate-900">POST /api/wirepack/v41/query</code>
       </div>
     </div>
   );

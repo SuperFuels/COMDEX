@@ -1,7 +1,7 @@
 import React, { useRef, useMemo } from "react";
 import { animated, useSpring } from "@react-spring/three";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 import type { AtomModel, Vec3 } from "@/types/atom";
 
@@ -110,7 +110,7 @@ const AtomContainer: React.FC<AtomContainerProps> = ({
       )}
 
       {/* === Label === */}
-      <Html distanceFactor={12}>
+      <DreiHtml distanceFactor={12}>
         <div
           style={{
             fontSize: "0.6rem",
@@ -124,7 +124,7 @@ const AtomContainer: React.FC<AtomContainerProps> = ({
         >
           {container?.name ?? containerId} • {id}
         </div>
-      </Html>
+      </DreiHtml>
     </animated.group>
   );
 };

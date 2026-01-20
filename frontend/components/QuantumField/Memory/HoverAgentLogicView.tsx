@@ -1,5 +1,5 @@
 import React from "react";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 interface HoverAgentLogicViewProps {
   position: [number, number, number];
@@ -15,7 +15,7 @@ const HoverAgentLogicView: React.FC<HoverAgentLogicViewProps> = ({
   agentId,
 }) => {
   return (
-    <Html
+    <DreiHtml
       position={position}
       center
       style={{
@@ -45,7 +45,7 @@ const HoverAgentLogicView: React.FC<HoverAgentLogicViewProps> = ({
           </div>
         )}
       </div>
-    </Html>
+    </DreiHtml>
   );
 };
 

@@ -1,7 +1,7 @@
 // ✅ File: frontend/components/QuantumField/Memory/hover_agent_logic_view.tsx
 
 import React from "react";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import { cn } from "@/lib/utils";
 
 export interface HoverLogicProps {
@@ -28,7 +28,7 @@ const HoverAgentLogicView: React.FC<HoverLogicProps> = ({
   if (!visible) return null;
 
   return (
-    <Html position={position} center distanceFactor={10} occlude>
+    <DreiHtml position={position} center distanceFactor={10} occlude>
       <div
         className={cn(
           "bg-black/80 text-white text-xs p-3 rounded-lg border border-white/20 shadow-xl max-w-xs backdrop-blur-sm",
@@ -46,7 +46,7 @@ const HoverAgentLogicView: React.FC<HoverLogicProps> = ({
           )}
         </div>
       </div>
-    </Html>
+    </DreiHtml>
   );
 };
 

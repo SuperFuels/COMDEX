@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Html } from "@react-three/drei";
+import { OrbitControls, Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

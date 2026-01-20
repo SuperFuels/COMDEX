@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const smooth01 = (t: number) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
@@ -326,7 +326,7 @@ export default function QFCDemoGlyphOS({ frame }: { frame: any }) {
 
   return (
     <group>
-      <Html fullscreen>
+      <DreiHtml fullscreen>
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
           {/* HUD bottom-right */}
           <div
@@ -633,7 +633,7 @@ export default function QFCDemoGlyphOS({ frame }: { frame: any }) {
             </Card>
           </div>
         </div>
-      </Html>
+      </DreiHtml>
     </group>
   );
 }

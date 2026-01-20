@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useState } from "react";
 
 /** ---------- shared helpers ---------- */
@@ -47,19 +49,69 @@ function safeObj(x: any) {
 function boolBadge(ok: boolean | null) {
   const good = ok === true;
   const bad = ok === false;
-  const bg = good ? "#ecfdf5" : bad ? "#fef2f2" : "#f9fafb";
-  const fg = good ? "#065f46" : bad ? "#991b1b" : "#6b7280";
-  const bd = good ? "#a7f3d0" : bad ? "#fecaca" : "#e5e7eb";
   const label = good ? "✅ VERIFIED" : bad ? "❌ FAIL" : "—";
-  return { bg, fg, bd, label };
+  const cls = good
+    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+    : bad
+      ? "border-red-200 bg-red-50 text-red-800"
+      : "border-slate-200 bg-slate-50 text-slate-500";
+  return { label, cls };
+}
+
+/** ---------- branded atoms ---------- */
+
+function Card(props: { title?: string; right?: React.ReactNode; children: React.ReactNode; subtitle?: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      {(props.title || props.right) && (
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            {props.title ? (
+              <div className="text-sm font-extrabold tracking-tight text-slate-900">{props.title}</div>
+            ) : null}
+            {props.subtitle ? <div className="mt-1 text-xs font-medium text-slate-500">{props.subtitle}</div> : null}
+          </div>
+          {props.right ? <div className="shrink-0">{props.right}</div> : null}
+        </div>
+      )}
+      <div className={(props.title || props.right) ? "mt-3" : ""}>{props.children}</div>
+    </div>
+  );
+}
+
+function PillButton(props: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  variant?: "ghost" | "primary";
+  title?: string;
+}) {
+  const v = props.variant || "ghost";
+  const base =
+    "px-4 py-2 rounded-full text-xs font-semibold border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B74E4]/30";
+  const ghost = "border-slate-200 bg-white text-slate-800 hover:bg-slate-50";
+  const primary = "border-[#1B74E4] bg-[#1B74E4] text-white hover:brightness-110";
+  const disabled = "opacity-60 cursor-default hover:brightness-100";
+
+  return (
+    <button
+      type="button"
+      onClick={props.onClick}
+      disabled={props.disabled}
+      title={props.title}
+      className={[base, v === "primary" ? primary : ghost, props.disabled ? disabled : ""].join(" ")}
+    >
+      {props.children}
+    </button>
+  );
 }
 
 function StatTile(props: { label: string; value: React.ReactNode; sub?: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
-      <div style={{ fontSize: 10, color: "#6b7280", fontWeight: 900, letterSpacing: 0.3 }}>{props.label}</div>
-      <div style={{ fontSize: 13, color: "#111827", fontWeight: 900, marginTop: 4 }}>{props.value}</div>
-      {props.sub ? <div style={{ fontSize: 10, color: "#6b7280", marginTop: 4 }}>{props.sub}</div> : null}
+    <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{props.label}</div>
+      <div className="mt-1 text-sm font-extrabold text-slate-900">{props.value}</div>
+      {props.sub ? <div className="mt-1 text-[11px] text-slate-500">{props.sub}</div> : null}
     </div>
   );
 }
@@ -76,38 +128,29 @@ function BytesCompareChart(props: { wire: number; gz: number }) {
   const innerH = h - pad.t - pad.b;
 
   const bars = [
-    { label: "WirePack", v: wire, fill: "#3b82f6" },
-    { label: "gzip snapshots", v: gz, fill: "#111827" },
+    { label: "WirePack", v: wire, fill: "#1B74E4" },
+    { label: "gzip snapshots", v: gz, fill: "#0f172a" }, // slate-900-ish
   ];
 
   const barW = innerW / bars.length;
-
   const y = (v: number) => pad.t + innerH * (1 - v / max);
   const barH = (v: number) => pad.t + innerH - y(v);
 
   return (
-    <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "baseline" }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Bytes comparison</div>
-        <div style={{ fontSize: 10, color: "#6b7280" }}>Lower is better (storage + scan cost)</div>
-      </div>
+    <Card title="Bytes comparison" subtitle="Lower is better (storage + scan cost)">
+      <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 block w-full">
+        <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + innerH} stroke="#e2e8f0" />
+        <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke="#e2e8f0" />
 
-      <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", marginTop: 8, display: "block" }}>
-        {/* axis */}
-        <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + innerH} stroke="#e5e7eb" />
-        <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke="#e5e7eb" />
-
-        {/* y ticks */}
         {[0, max].map((t, i) => (
           <g key={i}>
-            <line x1={pad.l - 4} y1={y(t)} x2={pad.l} y2={y(t)} stroke="#e5e7eb" />
-            <text x={pad.l - 8} y={y(t) + 4} fontSize="10" textAnchor="end" fill="#6b7280">
+            <line x1={pad.l - 4} y1={y(t)} x2={pad.l} y2={y(t)} stroke="#e2e8f0" />
+            <text x={pad.l - 8} y={y(t) + 4} fontSize="10" textAnchor="end" fill="#64748b">
               {i === 0 ? "0" : bytes(t)}
             </text>
           </g>
         ))}
 
-        {/* bars */}
         {bars.map((b, i) => {
           const x = pad.l + i * barW + Math.max(18, barW * 0.2);
           const bw = Math.max(80, barW * 0.6);
@@ -116,17 +159,17 @@ function BytesCompareChart(props: { wire: number; gz: number }) {
           return (
             <g key={b.label}>
               <rect x={x} y={top} width={bw} height={bh} rx={10} fill={b.fill} opacity={0.9} />
-              <text x={x + bw / 2} y={top - 6} fontSize="10" textAnchor="middle" fill="#111827">
+              <text x={x + bw / 2} y={top - 6} fontSize="10" textAnchor="middle" fill="#0f172a">
                 {bytes(b.v)}
               </text>
-              <text x={x + bw / 2} y={pad.t + innerH + 18} fontSize="10" textAnchor="middle" fill="#6b7280">
+              <text x={x + bw / 2} y={pad.t + innerH + 18} fontSize="10" textAnchor="middle" fill="#64748b">
                 {b.label}
               </text>
             </g>
           );
         })}
       </svg>
-    </div>
+    </Card>
   );
 }
 
@@ -153,34 +196,28 @@ function ProjectionSpark(props: { rows: any[] }) {
   const barW = innerW / n;
 
   return (
-    <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "baseline" }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Projection preview</div>
-        <div style={{ fontSize: 10, color: "#6b7280" }}>first {Math.min(32, vals.length)} values (magnitude)</div>
-      </div>
-
+    <Card title="Projection preview" subtitle={`first ${Math.min(32, vals.length)} values (magnitude)`}>
       {vals.length === 0 ? (
-        <div style={{ marginTop: 8, fontSize: 11, color: "#6b7280" }}>No projection-like rows found.</div>
+        <div className="mt-2 text-xs text-slate-500">No projection-like rows found.</div>
       ) : (
-        <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", marginTop: 8, display: "block" }}>
-          <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke="#e5e7eb" />
+        <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 block w-full">
+          <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke="#e2e8f0" />
           {vals.map((v, i) => {
             const x = pad.l + i * barW + Math.max(1, barW * 0.1);
             const bw = Math.max(4, barW * 0.8);
             const bh = innerH * (Math.abs(v) / max);
             const y = pad.t + innerH - bh;
-            return <rect key={i} x={x} y={y} width={bw} height={bh} rx={3} fill="#3b82f6" opacity={0.85} />;
+            return <rect key={i} x={x} y={y} width={bw} height={bh} rx={3} fill="#1B74E4" opacity={0.85} />;
           })}
         </svg>
       )}
-    </div>
+    </Card>
   );
 }
 
 /** For histogram: show first 32 bins as bars. Accepts many shapes. */
 function HistogramChart(props: { rows: any[] }) {
   const rowsRaw = Array.isArray(props.rows) ? props.rows : [];
-  // Interpret each row as [bin, count] or {bin,count}
   const bins: { bin: number; count: number }[] = [];
   for (const r of rowsRaw) {
     if (r == null) continue;
@@ -212,25 +249,18 @@ function HistogramChart(props: { rows: any[] }) {
   const y = (v: number) => pad.t + innerH * (1 - v / max);
 
   return (
-    <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "baseline" }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Histogram preview</div>
-        <div style={{ fontSize: 10, color: "#6b7280" }}>first {Math.min(32, data.length)} bins</div>
-      </div>
-
+    <Card title="Histogram preview" subtitle={`first ${Math.min(32, data.length)} bins`}>
       {data.length === 0 ? (
-        <div style={{ marginTop: 8, fontSize: 11, color: "#6b7280" }}>No histogram-like rows found.</div>
+        <div className="mt-2 text-xs text-slate-500">No histogram-like rows found.</div>
       ) : (
-        <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", marginTop: 8, display: "block" }}>
-          {/* axes */}
-          <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + innerH} stroke="#e5e7eb" />
-          <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke="#e5e7eb" />
+        <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 block w-full">
+          <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + innerH} stroke="#e2e8f0" />
+          <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke="#e2e8f0" />
 
-          {/* y ticks */}
           {[0, max].map((t, i) => (
             <g key={i}>
-              <line x1={pad.l - 4} y1={y(t)} x2={pad.l} y2={y(t)} stroke="#e5e7eb" />
-              <text x={pad.l - 8} y={y(t) + 4} fontSize="10" textAnchor="end" fill="#6b7280">
+              <line x1={pad.l - 4} y1={y(t)} x2={pad.l} y2={y(t)} stroke="#e2e8f0" />
+              <text x={pad.l - 8} y={y(t) + 4} fontSize="10" textAnchor="end" fill="#64748b">
                 {t}
               </text>
             </g>
@@ -243,8 +273,8 @@ function HistogramChart(props: { rows: any[] }) {
             const bh = pad.t + innerH - top;
             return (
               <g key={`${d.bin}-${i}`}>
-                <rect x={x} y={top} width={bw} height={bh} rx={6} fill="#111827" opacity={0.85} />
-                <text x={x + bw / 2} y={pad.t + innerH + 16} fontSize="9" textAnchor="middle" fill="#6b7280">
+                <rect x={x} y={top} width={bw} height={bh} rx={6} fill="#0f172a" opacity={0.85} />
+                <text x={x + bw / 2} y={pad.t + innerH + 16} fontSize="9" textAnchor="middle" fill="#64748b">
                   {d.bin}
                 </text>
               </g>
@@ -252,7 +282,7 @@ function HistogramChart(props: { rows: any[] }) {
           })}
         </svg>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -270,7 +300,6 @@ export function V44SqlOnStreamsDemo() {
   const [k, setK] = useState(64);
   const [seed, setSeed] = useState(1337);
 
-  // “dashboard standard” extras
   const [showExamples, setShowExamples] = useState(true);
   const [receiptInput, setReceiptInput] = useState("");
 
@@ -290,9 +319,7 @@ export function V44SqlOnStreamsDemo() {
     try {
       const body = { query_id: queryId, n, turns, muts, k, seed };
 
-      // try v44 route first (if you later add it, this will start working automatically)
       let res = await fetchJson("/api/wirepack/v44/run", body, 60000);
-      // fallback to v46
       if (res.status === 404) res = await fetchJson("/api/wirepack/v46/run", body, 60000);
 
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${JSON.stringify(res.json)}`);
@@ -309,16 +336,13 @@ export function V44SqlOnStreamsDemo() {
   const b = useMemo(() => safeObj(out?.bytes), [out]);
   const rec = useMemo(() => safeObj(out?.receipts), [out]);
 
-  // correctness
   const queryOk = out ? Boolean(out.query_ok ?? out.ok ?? out?.invariants?.query_ok) : null;
   const correctnessBadge = boolBadge(queryOk === null ? null : queryOk);
 
-  // receipts
   const drift = String(rec?.drift_sha256 ?? out?.drift_sha256 ?? "");
   const resultSha = String(rec?.result_sha256 ?? out?.result_sha256 ?? "");
   const leanOk = rec?.LEAN_OK ?? out?.LEAN_OK ?? null;
 
-  // bytes
   const wire = Number(b?.wire_total_bytes ?? 0);
   const gz = Number(b?.gzip_snapshot_bytes_total ?? 0);
   const factor = wire && gz ? gz / wire : null;
@@ -327,18 +351,11 @@ export function V44SqlOnStreamsDemo() {
   const templateBytes = Number(b?.wire_template_bytes ?? b?.template_bytes ?? 0);
   const deltaBytesTotal = Number(b?.wire_delta_bytes_total ?? b?.delta_bytes_total ?? 0);
 
-  // perf (optional fields)
-  const qMs =
-    out?.timing_ms?.query ??
-    out?.timing_ms ??
-    out?.query_ms ??
-    out?.query_time_ms ??
-    null;
+  const qMs = out?.timing_ms?.query ?? out?.timing_ms ?? out?.query_ms ?? out?.query_time_ms ?? null;
 
   const ops = Number(turns || 0) * Number(muts || 0);
   const bytesPerOp = ops > 0 ? deltaBytesTotal / ops : null;
 
-  // outputs
   const Q = Array.isArray(out?.Q) ? out.Q : Array.isArray(out?.params?.Q) ? out.params.Q : null;
 
   const snapshotResult = out?.snapshot_result ?? out?.snapshot ?? out?.snapshot_head ?? null;
@@ -348,40 +365,29 @@ export function V44SqlOnStreamsDemo() {
   const streamArr = Array.isArray(streamResult) ? streamResult : [];
 
   const previewRows =
-    queryId === "histogram"
-      ? (Array.isArray(streamArr) && streamArr.length ? streamArr : Array.isArray(snapArr) ? snapArr : [])
-      : (Array.isArray(streamArr) && streamArr.length ? streamArr : Array.isArray(snapArr) ? snapArr : []);
+    Array.isArray(streamArr) && streamArr.length ? streamArr : Array.isArray(snapArr) ? snapArr : [];
 
-  // verifier
   const normalizedInput = receiptInput.trim().toLowerCase();
   const normalizedDrift = (drift || "").trim().toLowerCase();
-  const receiptMatch =
-    normalizedInput.length >= 8 && normalizedDrift.length >= 8 && normalizedInput === normalizedDrift;
-
+  const receiptMatch = normalizedInput.length >= 8 && normalizedDrift.length >= 8 && normalizedInput === normalizedDrift;
   const receiptBadge = boolBadge(normalizedInput.length === 0 ? null : receiptMatch);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div className="flex flex-col gap-3">
       {/* Header + controls */}
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div style={{ fontSize: 14, fontWeight: 900, color: "#111827" }}>v44 — SQL on Streams (Queryable Compression)</div>
-          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+          <div className="text-sm font-extrabold text-slate-900">v44 — SQL on Streams (Queryable Compression)</div>
+          <div className="mt-1 text-xs font-medium text-slate-600">
             Run SQL-shaped queries directly on compressed delta streams, and ship a receipt that locks correctness.
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        <div className="flex flex-wrap items-center gap-2">
           <select
             value={queryId}
             onChange={(e) => setQueryId(e.target.value as any)}
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: "1px solid #e5e7eb",
-              background: "#fff",
-              fontSize: 11,
-            }}
+            className="px-4 py-2 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B74E4]/30"
           >
             <option value="projection">SELECT idx,value WHERE idx IN Q</option>
             <option value="histogram">GROUP BY (value % 256) COUNT(*)</option>
@@ -394,7 +400,7 @@ export function V44SqlOnStreamsDemo() {
             ["k", k, setK, 1, 4096],
             ["seed", seed, setSeed, 1, 1_000_000],
           ].map(([label, val, setVal, lo, hi]: any) => (
-            <label key={label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#374151" }}>
+            <label key={label} className="flex items-center gap-2 text-xs font-semibold text-slate-600">
               {label}
               <input
                 type="number"
@@ -406,57 +412,27 @@ export function V44SqlOnStreamsDemo() {
                   if (!Number.isFinite(nv)) return;
                   setVal(clamp(nv, lo, hi));
                 }}
-                style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }}
+                className="w-[92px] px-3 py-2 rounded-full border border-slate-200 bg-white text-slate-800 text-xs font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B74E4]/30"
               />
             </label>
           ))}
 
-          <button
-            type="button"
-            onClick={() => setShowExamples((s) => !s)}
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: "1px solid #e5e7eb",
-              background: "#fff",
-              color: "#111827",
-              fontSize: 11,
-              fontWeight: 900,
-              cursor: "pointer",
-            }}
-            title="Toggle presets"
-          >
+          <PillButton onClick={() => setShowExamples((s) => !s)} title="Toggle presets">
             Examples
-          </button>
+          </PillButton>
 
-          <button
-            type="button"
-            onClick={run}
-            disabled={busy}
-            style={{
-              padding: "6px 12px",
-              borderRadius: 999,
-              border: "1px solid " + (busy ? "#e5e7eb" : "#111827"),
-              background: busy ? "#f9fafb" : "#111827",
-              color: busy ? "#6b7280" : "#fff",
-              fontSize: 11,
-              fontWeight: 900,
-              cursor: busy ? "default" : "pointer",
-            }}
-          >
+          <PillButton onClick={run} disabled={busy} variant="primary">
             {busy ? "Running…" : "Run"}
-          </button>
+          </PillButton>
         </div>
       </div>
 
       {showExamples ? (
-        <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
-          <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Presets</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+        <Card title="Presets">
+          <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((ex) => (
-              <button
+              <PillButton
                 key={ex.label}
-                type="button"
                 onClick={() => {
                   setQueryId(ex.queryId);
                   setN(ex.n);
@@ -465,81 +441,57 @@ export function V44SqlOnStreamsDemo() {
                   setK(ex.k);
                   setSeed(ex.seed);
                 }}
-                style={{
-                  padding: "6px 10px",
-                  borderRadius: 999,
-                  border: "1px solid #e5e7eb",
-                  background: "#f9fafb",
-                  color: "#111827",
-                  fontSize: 11,
-                  fontWeight: 900,
-                  cursor: "pointer",
-                }}
               >
                 {ex.label}
-              </button>
+              </PillButton>
             ))}
           </div>
-        </div>
+        </Card>
       ) : null}
 
-      {err ? <div style={{ fontSize: 11, color: "#b91c1c" }}>{err}</div> : null}
+      {err ? <div className="text-xs font-semibold text-red-700">{err}</div> : null}
 
-      {/* Seller container (pitch) */}
-      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>
-          🎯 SQL-shaped analytics on compressed streams (projection + group-by)
-        </div>
-        <div style={{ fontSize: 11, color: "#374151", marginTop: 8, lineHeight: 1.55 }}>
-          <b>What this demo proves:</b> You can run common “dashboard queries” directly on a compressed delta stream and still produce a{" "}
-          <b>verifiable receipt</b>.
-          <br />
-          <br />
-          <b>Query modes:</b>
-          <ul style={{ margin: "6px 0 0 16px", padding: 0 }}>
-            <li>
-              <b>Projection</b> — <code>SELECT idx,value WHERE idx IN Q</code> (panel pulls specific metrics fast).
-            </li>
-            <li>
-              <b>Histogram</b> — <code>GROUP BY (value % 256) COUNT(*)</code> (rollups / distributions without scanning raw snapshots).
-            </li>
-          </ul>
-          <div style={{ marginTop: 10 }}>
-            <b>Trust model:</b> snapshot result vs stream result must match (<code>query_ok</code>), and the whole run is bound into{" "}
-            <code> drift_sha256</code> so any verifier can recompute and confirm the same answer.
+      {/* Pitch */}
+      <Card
+        title="🎯 SQL-shaped analytics on compressed streams (projection + group-by)"
+        subtitle={
+          <span>
+            <span className="font-semibold text-slate-700">What this proves:</span>{" "}
+            dashboard queries can execute on the delta stream and still emit a verifiable receipt.
+          </span>
+        }
+      >
+        <div className="text-xs text-slate-700 leading-relaxed">
+          <div className="mt-1">
+            <span className="font-semibold">Projection</span>{" "}
+            <code className="text-slate-900">SELECT idx,value WHERE idx IN Q</code>
+            {" — "}panel pulls specific metrics fast.
+          </div>
+          <div className="mt-1">
+            <span className="font-semibold">Histogram</span>{" "}
+            <code className="text-slate-900">GROUP BY (value % 256) COUNT(*)</code>
+            {" — "}rollups without scanning raw snapshots.
+          </div>
+          <div className="mt-3">
+            <span className="font-semibold">Trust model:</span>{" "}
+            snapshot vs stream must match (<code className="text-slate-900">query_ok</code>) and the run is bound into{" "}
+            <code className="text-slate-900">drift_sha256</code>.
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Dashboard: charts + stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 10, alignItems: "start" }}>
-        {/* left: result chart (query-dependent) */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {queryId === "histogram" ? (
-            <HistogramChart rows={previewRows} />
-          ) : (
-            <ProjectionSpark rows={previewRows} />
-          )}
-
+      <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr] items-start">
+        <div className="flex flex-col gap-3">
+          {queryId === "histogram" ? <HistogramChart rows={previewRows} /> : <ProjectionSpark rows={previewRows} />}
           {wire || gz ? <BytesCompareChart wire={wire} gz={gz} /> : null}
         </div>
 
-        {/* right: stats tiles */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div className="grid grid-cols-2 gap-3">
           <StatTile
             label="Correctness"
             value={
-              <span
-                style={{
-                  padding: "2px 8px",
-                  borderRadius: 999,
-                  border: `1px solid ${correctnessBadge.bd}`,
-                  background: correctnessBadge.bg,
-                  color: correctnessBadge.fg,
-                  fontSize: 11,
-                  fontWeight: 900,
-                }}
-              >
+              <span className={`px-3 py-1 rounded-full border text-xs font-extrabold ${correctnessBadge.cls}`}>
                 {correctnessBadge.label}
               </span>
             }
@@ -548,11 +500,7 @@ export function V44SqlOnStreamsDemo() {
           <StatTile label="Query time" value={qMs != null ? `${Number(qMs).toFixed(2)} ms` : "—"} sub="if backend returns timing" />
           <StatTile label="Stream size" value={wire ? bytes(wire) : "—"} sub="WirePack total bytes" />
           <StatTile label="gzip size" value={gz ? bytes(gz) : "—"} sub="snapshot baseline" />
-          <StatTile
-            label="Compression"
-            value={factor ? `~${factor.toFixed(1)}×` : "—"}
-            sub={pctSaved != null ? `${pctSaved.toFixed(1)}% less` : "—"}
-          />
+          <StatTile label="Compression" value={factor ? `~${factor.toFixed(1)}×` : "—"} sub={pctSaved != null ? `${pctSaved.toFixed(1)}% less` : "—"} />
           <StatTile label="Bytes / op" value={bytesPerOp != null ? `${bytesPerOp.toFixed(2)} B` : "—"} sub={`${ops} ops`} />
           <StatTile label="Template" value={templateBytes ? bytes(templateBytes) : "—"} sub="one-time" />
           <StatTile label="Delta total" value={deltaBytesTotal ? bytes(deltaBytesTotal) : "—"} sub="all deltas" />
@@ -560,82 +508,55 @@ export function V44SqlOnStreamsDemo() {
       </div>
 
       {/* Receipt verifier */}
-      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-          <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Receipt verifier</div>
-          <div
-            style={{
-              padding: "6px 10px",
-              borderRadius: 999,
-              border: `1px solid ${receiptBadge.bd}`,
-              background: receiptBadge.bg,
-              color: receiptBadge.fg,
-              fontSize: 11,
-              fontWeight: 900,
-            }}
-          >
+      <Card
+        title="Receipt verifier"
+        right={
+          <span className={`px-3 py-1 rounded-full border text-xs font-extrabold ${receiptBadge.cls}`}>
             {receiptBadge.label}
-          </div>
-        </div>
-
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10, alignItems: "center" }}>
+          </span>
+        }
+      >
+        <div className="flex flex-wrap items-center gap-2">
           <input
             value={receiptInput}
             onChange={(e) => setReceiptInput(e.target.value)}
             placeholder="Paste drift_sha256 here to verify…"
-            style={{
-              flex: "1 1 420px",
-              padding: "10px 12px",
-              borderRadius: 12,
-              border: "1px solid #e5e7eb",
-              fontSize: 12,
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-            }}
+            className="flex-1 min-w-[320px] px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-mono focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B74E4]/30"
           />
-          <button
-            type="button"
-            onClick={() => setReceiptInput(drift || "")}
-            style={{
-              padding: "8px 10px",
-              borderRadius: 12,
-              border: "1px solid #e5e7eb",
-              background: "#f9fafb",
-              color: "#111827",
-              fontSize: 11,
-              fontWeight: 900,
-              cursor: "pointer",
-            }}
-            title="Copy current drift into the verifier input"
-          >
+          <PillButton onClick={() => setReceiptInput(drift || "")} title="Copy current drift into the verifier input">
             Use current drift
-          </button>
+          </PillButton>
         </div>
 
-        <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280", lineHeight: 1.55 }}>
+        <div className="mt-3 text-xs text-slate-500 leading-relaxed">
           <div>
-            drift_sha256 (from run): <code style={{ color: "#111827" }}>{drift || "—"}</code>
+            drift_sha256 (from run): <code className="text-slate-900">{drift || "—"}</code>
           </div>
-          <div style={{ marginTop: 4 }}>
-            Any party can recompute this hash from the same stream + params. Match = “query result is provably the same.”
-          </div>
+          <div className="mt-1">Match = “query result is provably the same.”</div>
         </div>
-      </div>
+      </Card>
 
-      {/* Receipt + outputs (same “receipt-shaped” vibe as v32) */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, alignItems: "start" }}>
-        <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Receipt</div>
-          <div style={{ marginTop: 10, fontSize: 11, color: "#374151", lineHeight: 1.6 }}>
-            <div>query_ok: <code>{out ? String(queryOk) : "—"}</code></div>
-            <div>result_sha256: <code>{resultSha || "—"}</code></div>
-            <div>drift_sha256: <code>{drift || "—"}</code></div>
-            <div>LEAN_OK: <code>{leanOk ?? "—"}</code></div>
+      {/* Receipt + outputs */}
+      <div className="grid gap-3 lg:grid-cols-2 items-start">
+        <Card title="Receipt">
+          <div className="text-xs text-slate-700 leading-relaxed">
+            <div>
+              query_ok: <code className="text-slate-900">{out ? String(queryOk) : "—"}</code>
+            </div>
+            <div>
+              result_sha256: <code className="text-slate-900">{resultSha || "—"}</code>
+            </div>
+            <div>
+              drift_sha256: <code className="text-slate-900">{drift || "—"}</code>
+            </div>
+            <div>
+              LEAN_OK: <code className="text-slate-900">{leanOk ?? "—"}</code>
+            </div>
           </div>
-        </div>
+        </Card>
 
-        <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Outputs (truncated)</div>
-          <pre style={{ marginTop: 8, fontSize: 11, overflow: "auto", maxHeight: 360, whiteSpace: "pre-wrap" }}>
+        <Card title="Outputs (truncated)">
+          <pre className="mt-1 max-h-[360px] overflow-auto whitespace-pre-wrap text-xs text-slate-900">
             {out
               ? JSON.stringify(
                   {
@@ -648,27 +569,24 @@ export function V44SqlOnStreamsDemo() {
                     bytes: out.bytes,
                   },
                   null,
-                  2
+                  2,
                 )
               : "Run to populate outputs."}
           </pre>
-        </div>
+        </Card>
       </div>
 
-      {/* Raw (full width, like v32) */}
-      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Raw response</div>
-        <pre style={{ marginTop: 8, fontSize: 11, color: "#111827", whiteSpace: "pre-wrap" }}>
+      {/* Raw */}
+      <Card title="Raw response">
+        <pre className="mt-1 whitespace-pre-wrap text-xs text-slate-900">
           {out ? JSON.stringify(out, null, 2) : "—"}
         </pre>
-      </div>
+      </Card>
 
       {/* Endpoint note */}
-      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10, fontSize: 11, color: "#6b7280" }}>
-        Endpoints tried:
-        <div style={{ marginTop: 6 }}>
-          <code>POST /api/wirepack/v44/run</code> → fallback <code>POST /api/wirepack/v46/run</code>
-        </div>
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+        Endpoints tried: <code className="text-slate-900">POST /api/wirepack/v44/run</code> → fallback{" "}
+        <code className="text-slate-900">POST /api/wirepack/v46/run</code>
       </div>
     </div>
   );

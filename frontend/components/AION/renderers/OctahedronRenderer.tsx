@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 interface OctahedronRendererProps {
   position: [number, number, number];
@@ -111,7 +111,7 @@ const OctahedronRenderer: React.FC<OctahedronRendererProps> = ({
       <group ref={glyphOrbitRef} />
 
       {/* 🏷 Label */}
-      <Html distanceFactor={12}>
+      <DreiHtml distanceFactor={12}>
         <div
           style={{
             textAlign: "center",
@@ -122,7 +122,7 @@ const OctahedronRenderer: React.FC<OctahedronRendererProps> = ({
         >
           🔶 {container.name}
         </div>
-      </Html>
+      </DreiHtml>
     </group>
   );
 };

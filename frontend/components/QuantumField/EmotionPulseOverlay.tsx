@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import type { GlyphNode } from "@/types/qfc";
 
@@ -67,7 +67,7 @@ export const HtmlEmotionPulse: React.FC<{ node: GlyphNode }> = ({ node }) => {
   const sizeRem = Math.min(1.5, 0.5 + Math.max(0, emo.intensity));
 
   return (
-    <Html position={pos} zIndexRange={[1, 0]} center>
+    <DreiHtml position={pos} zIndexRange={[1, 0]} center>
       <div
         className="animate-ping absolute rounded-full opacity-75"
         style={{
@@ -76,7 +76,7 @@ export const HtmlEmotionPulse: React.FC<{ node: GlyphNode }> = ({ node }) => {
           backgroundColor: color,
         }}
       />
-    </Html>
+    </DreiHtml>
   );
 };
 

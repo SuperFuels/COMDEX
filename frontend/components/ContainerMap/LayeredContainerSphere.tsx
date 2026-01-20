@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import React, { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 type GlyphLayer = {
   symbol: string;
@@ -69,7 +69,7 @@ export default function LayeredContainerSphere({
                 emissiveIntensity={0.8}
               />
               {/* crisp label via Html (avoids drei <Text/> typings) */}
-              <Html distanceFactor={12}>
+              <DreiHtml distanceFactor={12}>
                 <div
                   style={{
                     fontSize: "10px",
@@ -81,7 +81,7 @@ export default function LayeredContainerSphere({
                 >
                   {glyph.symbol}
                 </div>
-              </Html>
+              </DreiHtml>
             </mesh>
           );
         });

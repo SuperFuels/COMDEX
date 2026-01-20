@@ -2,7 +2,7 @@
 
 import React from "react";
 import * as THREE from "three";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 interface HighlightedOperatorProps {
   position: [number, number, number];
@@ -36,7 +36,7 @@ export const HighlightedOperator: React.FC<HighlightedOperatorProps> = ({
           emissiveIntensity={2}
         />
       </mesh>
-      <Html>
+      <DreiHtml>
         <div
           style={{
             color: style.color,
@@ -47,7 +47,7 @@ export const HighlightedOperator: React.FC<HighlightedOperatorProps> = ({
         >
           {operator}
         </div>
-      </Html>
+      </DreiHtml>
     </group>
   );
 };

@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 interface DNASpiralRendererProps {
   position: [number, number, number];
@@ -146,7 +146,7 @@ const DNASpiralRenderer: React.FC<DNASpiralRendererProps> = ({
       <group ref={glyphGroupRef} />
 
       {/* 📛 Label */}
-      <Html distanceFactor={12}>
+      <DreiHtml distanceFactor={12}>
         <div
           style={{
             textAlign: "center",
@@ -157,7 +157,7 @@ const DNASpiralRenderer: React.FC<DNASpiralRendererProps> = ({
         >
           🧬 {container.name}
         </div>
-      </Html>
+      </DreiHtml>
     </group>
   );
 };

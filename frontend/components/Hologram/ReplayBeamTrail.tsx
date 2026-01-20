@@ -1,7 +1,7 @@
 // frontend/components/Hologram/ReplayBeamTrail.tsx
 import React from "react";
 import * as THREE from "three";
-import { Html } from '@react-three/drei';
+import { Html as DreiHtml } from '@react-three/drei';
 
 interface ReplayBeamTrailProps {
   trail: [number, number, number][];
@@ -41,11 +41,11 @@ const ReplayBeamTrail: React.FC<ReplayBeamTrailProps> = ({
 
       {/* Optional Tick Label */}
       {tick !== undefined && (
-        <Html position={points[Math.floor(points.length / 2)]}>
+        <DreiHtml position={points[Math.floor(points.length / 2)]}>
           <div className="text-[10px] text-white bg-black/80 px-2 py-1 rounded shadow">
             ⏪ Tick {tick}
           </div>
-        </Html>
+        </DreiHtml>
       )}
     </>
   );

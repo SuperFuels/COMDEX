@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 interface MemoryHaloProps {
   glyphs: { symbol: string; weight?: number }[]; // glyph + memory density
@@ -57,7 +57,7 @@ export default function MemoryHaloRing({
         const opacity = 0.7 + 0.3 * Math.sin(pulseRef.current + i);
 
         return (
-          <Html key={i} position={[pos.x, pos.y, pos.z]} center distanceFactor={16}>
+          <DreiHtml key={i} position={[pos.x, pos.y, pos.z]} center distanceFactor={16}>
             <div
               style={{
                 color,
@@ -71,7 +71,7 @@ export default function MemoryHaloRing({
             >
               {g.symbol}
             </div>
-          </Html>
+          </DreiHtml>
         );
       })}
     </group>

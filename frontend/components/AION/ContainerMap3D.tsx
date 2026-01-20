@@ -2,7 +2,7 @@
 
 import React, { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 import axios from "axios";
 
@@ -227,7 +227,7 @@ export default function ContainerMap3D({
           />
         </mesh>
 
-        <Html distanceFactor={10} style={{ pointerEvents: "none" }}>
+        <DreiHtml distanceFactor={10} style={{ pointerEvents: "none" }}>
           <div style={{ fontSize: "0.7rem", color: "#00f0ff", textAlign: "center" }}>
             <div>{container.name}</div>
             <div style={{ opacity: 0.6 }}>
@@ -244,7 +244,7 @@ export default function ContainerMap3D({
               </div>
             )}
           </div>
-        </Html>
+        </DreiHtml>
 
         {container.glyph && (
           <GlyphSprite position={position} glyph={container.glyph} />
@@ -504,17 +504,17 @@ export default function ContainerMap3D({
 
   if (loading) {
     return (
-      <Html position={[0, 0, 0]}>
+      <DreiHtml position={[0, 0, 0]}>
         <div style={{ color: "#00f0ff" }}>Loading containers...</div>
-      </Html>
+      </DreiHtml>
     );
   }
 
   if (error) {
     return (
-      <Html position={[0, 0, 0]}>
+      <DreiHtml position={[0, 0, 0]}>
         <div style={{ color: "red" }}>{error}</div>
-      </Html>
+      </DreiHtml>
     );
   }
 
@@ -539,7 +539,7 @@ export default function ContainerMap3D({
         onWarpComplete={(z) => setActiveZone(z)}
       />
 
-      <Html position={[-4, 3, 0]}>
+      <DreiHtml position={[-4, 3, 0]}>
         <div
           style={{
             background: "#0008",
@@ -558,15 +558,15 @@ export default function ContainerMap3D({
             Symbolic Scale
           </label>
         </div>
-      </Html>
+      </DreiHtml>
 
-      <Html position={[4.5, 3, 0]} transform>
+      <DreiHtml position={[4.5, 3, 0]} transform>
         <div style={{ width: 340 }}>
           <RuntimeGlyphTrace />
         </div>
-      </Html>
+      </DreiHtml>
 
-      <Html position={[0, -3, 0]}>
+      <DreiHtml position={[0, -3, 0]}>
         <div
           style={{
             background: "#000a",
@@ -667,7 +667,7 @@ export default function ContainerMap3D({
             ♻️ Load State
           </button>
         </div>
-      </Html>
+      </DreiHtml>
 
       {(engineState?.nested_containers ?? []).map((nested, i, arr) => {
         const angle = (i / Math.max(arr.length, 1)) * Math.PI * 2;

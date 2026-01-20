@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import { QGlyphFusionBeam } from "./qglyph_fusion_beam";
 
 type GlyphNode = {
@@ -124,7 +124,7 @@ export const MorphicOverlayDriver: React.FC<MorphicOverlayProps> = ({
     return glyphs.map((glyph) => {
       if (!glyph.goalScore || glyph.goalScore < 0.5) return null;
       return (
-        <Html
+        <DreiHtml
           key={`goal-${glyph.id}`}
           position={new THREE.Vector3(...glyph.position)}
           distanceFactor={10}
@@ -138,7 +138,7 @@ export const MorphicOverlayDriver: React.FC<MorphicOverlayProps> = ({
           }}
         >
           🎯 Goal {Math.round(glyph.goalScore * 100)}%
-        </Html>
+        </DreiHtml>
       );
     }).filter(Boolean);
   }, [glyphs]);

@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -134,7 +134,7 @@ export default function QFCCausalSpacetimeK({ frame }: { frame?: any }) {
   return (
     <group rotation={[-Math.PI / 3, 0, 0]} position={[0, -1, 0]}>
       {/* HUD Architecture (DOM is ONLY inside Html) */}
-      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+      <DreiHtml fullscreen transform={false} zIndexRange={[100, 0]}>
         <div className="pointer-events-none w-full h-full font-mono text-white">
           <div className="absolute top-10 left-10 p-5 border border-cyan-500/20 bg-black/60 backdrop-blur-md rounded w-72 pointer-events-auto">
             <div className="border-b border-cyan-800/40 pb-2 mb-4">
@@ -169,7 +169,7 @@ export default function QFCCausalSpacetimeK({ frame }: { frame?: any }) {
             Phase: Locked & Deterministic
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       <points geometry={geometry}>
         <shaderMaterial

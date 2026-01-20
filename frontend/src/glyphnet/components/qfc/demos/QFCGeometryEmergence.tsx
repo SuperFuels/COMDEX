@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -168,7 +168,7 @@ export default function QFCGeometryEmergenceV3() {
 
   return (
     <group>
-      <Html fullscreen transform={false}>
+      <DreiHtml fullscreen transform={false}>
         <div className="pointer-events-none w-full h-full font-mono text-white p-10">
           {/* Dashboard */}
           <div className="absolute top-10 left-10 w-72 p-6 bg-black/60 backdrop-blur-2xl border border-white/10 rounded-lg shadow-2xl">
@@ -204,7 +204,7 @@ export default function QFCGeometryEmergenceV3() {
             </div>
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       <points geometry={geometry}>
         <shaderMaterial

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -134,7 +134,7 @@ export default function QFCSemanticCurvatureV2({ frame }: { frame?: any }) {
   return (
     <group rotation={[-Math.PI / 4, 0, 0]}>
       {/* HUD: Design Architecture */}
-      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+      <DreiHtml fullscreen transform={false} zIndexRange={[100, 0]}>
         <div className="pointer-events-none w-full h-full font-mono text-white">
           <div className="absolute top-10 left-10 pointer-events-auto p-4 border border-white/10 bg-black/40 backdrop-blur-xl rounded shadow-2xl w-72">
             <div className="flex justify-between items-center border-b border-cyan-500/30 pb-2 mb-3">
@@ -162,7 +162,7 @@ export default function QFCSemanticCurvatureV2({ frame }: { frame?: any }) {
             </div>
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       <points geometry={geometry}>
         <shaderMaterial

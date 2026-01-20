@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Html } from "@react-three/drei";
+import { OrbitControls, Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 export interface GlyphGrid3DProps {
@@ -60,9 +60,9 @@ const GlyphCube = ({
       <boxGeometry args={[0.9, 0.9, 0.9]} />
       <meshStandardMaterial color={color} emissive={data.denied ? "#f87171" : "#000000"} emissiveIntensity={data.denied ? 0.5 : 0} />
       {label && (
-        <Html center distanceFactor={8} style={{ fontSize: "10px", pointerEvents: "none" }}>
+        <DreiHtml center distanceFactor={8} style={{ fontSize: "10px", pointerEvents: "none" }}>
           {label}
-        </Html>
+        </DreiHtml>
       )}
     </mesh>
   );

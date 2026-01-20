@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -106,7 +106,7 @@ export default function QFCBornRuleConvergence({ frame }: { frame?: any }) {
 
   return (
     <group position={[0, -4, 0]}>
-      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+      <DreiHtml fullscreen transform={false} zIndexRange={[100, 0]}>
         <div className="pointer-events-none w-full h-full font-mono text-white">
           {/* Header Panel */}
           <div className="absolute top-10 left-10 p-5 bg-black/60 border border-emerald-500/20 backdrop-blur-md w-80">
@@ -144,7 +144,7 @@ export default function QFCBornRuleConvergence({ frame }: { frame?: any }) {
             Projector Validation • N=5 • K=100k
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       {/* Probability Bars */}
       {Array.from({ length: 5 }).map((_, i) => (

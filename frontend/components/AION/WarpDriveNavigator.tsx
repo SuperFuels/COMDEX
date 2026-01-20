@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -128,7 +128,7 @@ export default function WarpDriveNavigator({
 
       {/* HUD during warp */}
       {isWarping && (
-        <Html fullscreen>
+        <DreiHtml fullscreen>
           <div className="flex flex-col items-center justify-center w-full h-full bg-black/90 text-white z-50">
             <div className="text-3xl animate-pulse mb-4">
               🚀 Warp Drive Engaged: {zone}
@@ -140,7 +140,7 @@ export default function WarpDriveNavigator({
               />
             </div>
           </div>
-        </Html>
+        </DreiHtml>
       )}
     </>
   );
@@ -227,11 +227,11 @@ function ZoneBeacon({
         />
       </mesh>
 
-      <Html distanceFactor={12}>
+      <DreiHtml distanceFactor={12}>
         <div className="text-center text-white text-sm bg-black/50 px-2 py-1 rounded cursor-pointer">
           🚀 {zone.name}
         </div>
-      </Html> 
+      </DreiHtml> 
     </group>
   );
 }

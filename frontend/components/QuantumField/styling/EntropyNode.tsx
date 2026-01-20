@@ -1,6 +1,6 @@
 import React from "react";
 import * as THREE from "three";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 export interface EntropyNodeProps {
   position: [number, number, number];
@@ -26,11 +26,11 @@ const EntropyNode: React.FC<EntropyNodeProps> = ({ position, entropy, nodeId }) 
         <meshStandardMaterial color={color} emissive={color} emissiveIntensity={1.2} />
       </mesh>
       {nodeId && (
-        <Html distanceFactor={10} position={[0, 0.3, 0]}>
+        <DreiHtml distanceFactor={10} position={[0, 0.3, 0]}>
           <div className="text-xs text-white bg-black/80 rounded px-1 py-0.5 shadow">
             ✨ {entropy.toFixed(2)}
           </div>
-        </Html>
+        </DreiHtml>
       )}
     </group>
   );

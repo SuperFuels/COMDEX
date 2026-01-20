@@ -1,5 +1,5 @@
 // GHXReplaySelector.tsx
-import { Html } from '@react-three/drei';
+import { Html as DreiHtml } from '@react-three/drei';
 
 export function GHXReplaySelector({ trace = [], onSelect }: { trace: any[]; onSelect: (idx: number) => void }) {
   return (
@@ -15,9 +15,9 @@ export function GHXReplaySelector({ trace = [], onSelect }: { trace: any[]; onSe
         >
           <sphereGeometry args={[0.05, 16, 16]} />
           <meshStandardMaterial emissive="#ffaa00" emissiveIntensity={1.5} />
-          <Html center>
+          <DreiHtml center>
             <div style={{ fontSize: "0.7em", color: "#ffaa00" }}>⧖ {idx}</div>
-          </Html>
+          </DreiHtml>
         </mesh>
       ))}
     </group>

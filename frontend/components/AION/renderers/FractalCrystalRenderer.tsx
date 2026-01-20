@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 interface FractalCrystalRendererProps {
   position: [number, number, number];
@@ -148,7 +148,7 @@ const FractalCrystalRenderer: React.FC<FractalCrystalRendererProps> = ({
       <group ref={glyphGroupRef} />
 
       {/* 🏷 Label */}
-      <Html distanceFactor={14}>
+      <DreiHtml distanceFactor={14}>
         <div
           style={{
             textAlign: "center",
@@ -159,7 +159,7 @@ const FractalCrystalRenderer: React.FC<FractalCrystalRendererProps> = ({
         >
           ✧ {container.name}
         </div>
-      </Html>
+      </DreiHtml>
     </group>
   );
 };

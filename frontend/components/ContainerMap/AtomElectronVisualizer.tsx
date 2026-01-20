@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
+import { Html as DreiHtml } from '@react-three/drei';
 
 interface ElectronData {
   meta: {
@@ -167,7 +167,7 @@ function Electron({
         <sphereGeometry args={[isBest ? 1.0 : 0.7, 16, 16]} />
         <meshStandardMaterial color={color} emissive={color} />
         {hovered && (
-          <Html center>
+          <DreiHtml center>
             <div className="bg-gray-900 border border-white text-white text-xs px-2 py-1 rounded shadow-md">
               <div className="font-bold">{data.meta.label}</div>
               {data.glyphs.map((g, i) => (
@@ -180,7 +180,7 @@ function Electron({
               ))}
               <div className="text-purple-400 mt-1">Click → teleport</div>
             </div>
-          </Html>
+          </DreiHtml>
         )}
       </mesh>
 

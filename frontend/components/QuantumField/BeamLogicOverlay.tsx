@@ -1,6 +1,6 @@
 // 📁 components/QuantumField/BeamLogicOverlay.tsx
 import React from "react";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 interface BeamLogicPacket {
   trace_direction?: string;
@@ -20,7 +20,7 @@ const BeamLogicOverlay: React.FC<BeamLogicOverlayProps> = ({ position, packet, v
   if (!visible || !packet) return null;
 
   return (
-    <Html
+    <DreiHtml
       position={[position[0], position[1] + 1.2, position[2]]}
       center
       distanceFactor={8}
@@ -58,7 +58,7 @@ const BeamLogicOverlay: React.FC<BeamLogicOverlayProps> = ({ position, packet, v
           </div>
         )}
       </div>
-    </Html>
+    </DreiHtml>
   );
 };
 

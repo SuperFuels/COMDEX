@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import axios from "axios";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Html, OrbitControls } from "@react-three/drei";
+import { Html as DreiHtml, OrbitControls } from "@react-three/drei";
 import useWebSocket from "@/hooks/useWebSocket"; // default import
 import { useCollapseMetrics } from "@/hooks/useCollapseMetrics";
 import { useRouter } from "next/router";
@@ -212,7 +212,7 @@ const ElectronShells: React.FC<{
 
                 {/* Tooltip */}
                 {e.label && (
-                  <Html distanceFactor={10}>
+                  <DreiHtml distanceFactor={10}>
                     <div className="electron-tooltip">
                       {e.meta?.previewImage && (
                         <img
@@ -223,7 +223,7 @@ const ElectronShells: React.FC<{
                       )}
                       <div>{e.label}</div>
                     </div>
-                  </Html>
+                  </DreiHtml>
                 )}
               </mesh>
             );
@@ -263,7 +263,7 @@ const QEntropySpiral: React.FC = () => {
         emissive="#2299ff"
         emissiveIntensity={1.2}
       />
-      <Html center>
+      <DreiHtml center>
         <div
           style={{
             color: "#88ccff",
@@ -273,7 +273,7 @@ const QEntropySpiral: React.FC = () => {
         >
           🌀
         </div>
-      </Html>
+      </DreiHtml>
     </mesh>
   );
 };
@@ -410,7 +410,7 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
 
         {/* 🔒 Lock */}
         {locked && (
-          <Html center>
+          <DreiHtml center>
             <div
               style={{
                 fontSize: "1.5em",
@@ -421,12 +421,12 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
             >
               🔒
             </div>
-          </Html>
+          </DreiHtml>
         )}
 
         {/* 🔏 Signature */}
         {hovered && hoverMeta?.signature_block && (
-          <Html center>
+          <DreiHtml center>
             <div
               style={{
                 fontSize: "1.4em",
@@ -437,13 +437,13 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
             >
               {signatureBadge}
             </div>
-          </Html>
+          </DreiHtml>
         )}
       </mesh>
 
       {/* 🧠 Hover metadata */}
       {hovered && hoverCid && hoverMeta && (
-        <Html center distanceFactor={12}>
+        <DreiHtml center distanceFactor={12}>
           <div
             style={{
               padding: "8px 10px",
@@ -466,11 +466,11 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
               {JSON.stringify(hoverMeta, null, 2)}
             </code>
           </div>
-        </Html>
+        </DreiHtml>
       )}
 
       {/* 🔤 Label + extras */}
-      <Html center>
+      <DreiHtml center>
         <div
           style={{
             color: emissiveColor,
@@ -517,7 +517,7 @@ const GlyphHologram: React.FC<GlyphHologramProps> = ({
             <div style={{ fontSize: "0.7em", color: "#ffaa00", marginTop: "4px" }}>🔒 Read-Only</div>
           )}
         </div>
-      </Html>
+      </DreiHtml>
 
       {/* 📍 Anchor guide */}
       {anchor && (

@@ -1,6 +1,6 @@
 // 🧠 HoverStrategySuggestions.tsx
 import React from "react";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import { pull_to_field } from "@/utils/pull_to_field";
 import useWebSocket from "@/hooks/useWebSocket";
 import type { GlyphNode } from "@/types/qfc"; // ✅ bring in the expected type
@@ -72,7 +72,7 @@ const HoverStrategySuggestions: React.FC<HoverStrategySuggestionsProps> = ({
           emotionColorMap[emotion?.toLowerCase() || ""] || "bg-yellow-500";
 
         return (
-          <Html
+          <DreiHtml
             key={`strategy-${nodeId}-${i}`}
             position={[position[0], position[1] + 1.8, position[2]]}
             center
@@ -117,7 +117,7 @@ const HoverStrategySuggestions: React.FC<HoverStrategySuggestionsProps> = ({
                 📥 Pull Strategy
               </button>
             </div>
-          </Html>
+          </DreiHtml>
         );
       })}
     </>

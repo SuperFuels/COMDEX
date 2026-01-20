@@ -3,7 +3,7 @@
 import React, { useRef, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { MeshDistortMaterial, Html } from "@react-three/drei";
+import { MeshDistortMaterial, Html as DreiHtml } from "@react-three/drei";
 import { animated, useSpring } from "@react-spring/three";
 
 interface SymbolicExpansionSphereProps {
@@ -92,7 +92,7 @@ export default function ExpansionCore({
         const x = Math.cos(i) * 1.2;
         const y = Math.sin(i) * 1.2;
         return (
-          <Html key={i} position={[x, y, 0]} distanceFactor={12}>
+          <DreiHtml key={i} position={[x, y, 0]} distanceFactor={12}>
             <div
               style={{
                 fontSize: "12px",
@@ -104,12 +104,12 @@ export default function ExpansionCore({
             >
               {glyph}
             </div>
-          </Html>
+          </DreiHtml>
         );
       })}
 
       {/* Container label */}
-      <Html center position={[0, -1.5, 0]}>
+      <DreiHtml center position={[0, -1.5, 0]}>
         <div
           style={{
             fontSize: "0.85rem",
@@ -119,7 +119,7 @@ export default function ExpansionCore({
         >
           {containerId}
         </div>
-      </Html>
+      </DreiHtml>
     </group>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 const h2TemporalShader = {
@@ -102,7 +102,7 @@ export default function QFCEmergentTimeH2() {
       </points>
 
       {/* HUD overlay (DOM) - must be Html inside Canvas */}
-      <Html fullscreen transform={false} zIndexRange={[10, 0]}>
+      <DreiHtml fullscreen transform={false} zIndexRange={[10, 0]}>
         <div className="w-full h-full pointer-events-none font-mono">
           <div className="absolute top-8 left-8 z-10 p-4 border border-yellow-900/40 bg-black/90 text-[10px] pointer-events-auto">
             <p className="text-yellow-500 font-bold border-b border-yellow-900/50 pb-1 mb-2">
@@ -123,7 +123,7 @@ export default function QFCEmergentTimeH2() {
             REPRO: python backend/photon_algebra/tests/haev_test_H2_arrow_of_time_emergence.py
           </div>
         </div>
-      </Html>
+      </DreiHtml>
     </group>
   );
 }

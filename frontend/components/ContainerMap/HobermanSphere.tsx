@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { animated, useSpring } from "@react-spring/three";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 interface HobermanSphereProps {
@@ -104,7 +104,7 @@ export default function HobermanSphere({
       )}
 
       {/* Label tag */}
-      <Html distanceFactor={12}>
+      <DreiHtml distanceFactor={12}>
         <div
           style={{
             fontSize: "0.6rem",
@@ -118,7 +118,7 @@ export default function HobermanSphere({
         >
           {containerId}
         </div>
-      </Html>
+      </DreiHtml>
     </animated.group>
   );
 }

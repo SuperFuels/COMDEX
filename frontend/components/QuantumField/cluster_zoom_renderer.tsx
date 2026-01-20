@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 
 export interface GlyphNode {
   id: string;
@@ -109,11 +109,11 @@ const ClusterZoomRenderer: React.FC<ClusterZoomRendererProps> = ({
           ))}
 
           {/* 🏷️ Cluster Label */}
-          <Html>
+          <DreiHtml>
             <div className="text-sm font-bold text-yellow-400 drop-shadow">
               🔍 Cluster ({cluster.length})
             </div>
-          </Html>
+          </DreiHtml>
         </group>
       ))}
     </>

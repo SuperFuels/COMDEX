@@ -2,14 +2,20 @@
 
 import React, { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html, Text, Float, OrbitControls } from "@react-three/drei";
+import {
+  Html as DreiHtmlRaw,
+  Text as DreiTextRaw,
+  Float as DreiFloatRaw,
+  OrbitControls as DreiOrbitControlsRaw,
+} from "@react-three/drei";
 import * as THREE from "three";
 
 // Workaround: Drei/R3F typing mismatches in some Next builds.
 // Runtime is identical; this only unblocks Next typecheck.
-const DreiText: any = Text;
-const DreiFloat: any = Float;
-const DreiOrbitControls: any = OrbitControls;
+const DreiHtml: any = DreiHtmlRaw;
+const DreiText: any = DreiTextRaw;
+const DreiFloat: any = DreiFloatRaw;
+const DreiOrbitControls: any = DreiOrbitControlsRaw;
 
 /**
  * O-Series Observer Dashboard (typecheck-safe for Next build)
@@ -221,8 +227,16 @@ export default function QFCObserverDashboardO({ frame }: { frame?: any }) {
     <group>
       <DreiOrbitControls enableDamping dampingFactor={0.05} />
 
-      <VolumetricField isObserver={false} modeData={current} time={tRef.current} />
-      <VolumetricField isObserver={true} modeData={current} time={tRef.current} />
+      <VolumetricField
+        isObserver={false}
+        modeData={current}
+        time={tRef.current}
+      />
+      <VolumetricField
+        isObserver={true}
+        modeData={current}
+        time={tRef.current}
+      />
       <CouplingLattice modeData={current} time={tRef.current} />
 
       <DreiFloat speed={1.5} floatIntensity={0.2}>
@@ -244,7 +258,7 @@ export default function QFCObserverDashboardO({ frame }: { frame?: any }) {
         </DreiText>
       </DreiFloat>
 
-      <Html fullscreen transform={false}>
+      <DreiHtml fullscreen transform={false}>
         <div className="pointer-events-none w-full h-full font-mono text-slate-200 p-8">
           {/* Top Right HUD Panel */}
           <div className="absolute top-8 right-8 w-80 p-6 bg-black/60 backdrop-blur-xl border border-white/10 rounded-lg pointer-events-auto">
@@ -322,7 +336,7 @@ export default function QFCObserverDashboardO({ frame }: { frame?: any }) {
             </div>
           </div>
         </div>
-      </Html>
+      </DreiHtml>
     </group>
   );
 }

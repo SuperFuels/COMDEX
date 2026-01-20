@@ -2,7 +2,7 @@
 
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html, Sphere, Points } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -126,7 +126,7 @@ export default function QFCVacuumLandscapeF({ frame }: { frame?: any }) {
 
   return (
     <group>
-      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+      <DreiHtml fullscreen transform={false} zIndexRange={[100, 0]}>
         <div className="pointer-events-none w-full h-full font-mono text-white">
           {/* Top Left: Deterministic Metrics */}
           <div className="absolute top-10 left-10 p-5 bg-black/60 backdrop-blur-xl border border-white/10 rounded w-80">
@@ -166,7 +166,7 @@ export default function QFCVacuumLandscapeF({ frame }: { frame?: any }) {
              </div>
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       {/* Main Spacetime Lattice (Points) */}
       <points geometry={geometry}>

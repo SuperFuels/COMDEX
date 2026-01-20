@@ -3,7 +3,7 @@
 
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 type Electron = {
@@ -86,7 +86,7 @@ export const ElectronShells: React.FC<ElectronShellsProps> = ({ center, shells, 
                 />
               </mesh>
 
-              <Html center distanceFactor={6}>
+              <DreiHtml center distanceFactor={6}>
                 <div
                   style={{
                     background: "rgba(0,0,50,0.65)",
@@ -99,7 +99,7 @@ export const ElectronShells: React.FC<ElectronShellsProps> = ({ center, shells, 
                 >
                   {label}
                 </div>
-              </Html>
+              </DreiHtml>
             </group>
           );
         })

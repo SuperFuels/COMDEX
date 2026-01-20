@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Float, Html } from "@react-three/drei";
+import { Float, Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 type ThoughtGlyph = {
@@ -42,7 +42,7 @@ const OrbitingGlyph: React.FC<{
   return (
     <group ref={ref as any}>
       <Float speed={glyph.pulse ? 2 : 0} floatIntensity={glyph.pulse ? 1.5 : 0.2}>
-        <Html center distanceFactor={14}>
+        <DreiHtml center distanceFactor={14}>
           <div
             style={{
               color: glyph.color || "#ffffff",
@@ -55,7 +55,7 @@ const OrbitingGlyph: React.FC<{
           >
             {glyph.symbol}
           </div>
-        </Html>
+        </DreiHtml>
       </Float>
     </group>
   );

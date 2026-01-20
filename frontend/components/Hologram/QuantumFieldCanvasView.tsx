@@ -4,7 +4,7 @@
 import * as React from "react";
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Html } from "@react-three/drei";
+import { OrbitControls, Html as DreiHtml } from "@react-three/drei";
 
 import { QWaveBeam } from "@/components/QuantumField/beam_renderer";
 import { Node } from "@/components/QuantumField/Node";
@@ -182,9 +182,9 @@ const QuantumFieldCanvasView: React.FC<ViewProps> = (p) => {
           <Node node={node} onTeleport={p.onTeleport} />
 
           {node.locked && (
-            <Html position={[node.position[0], node.position[1] + 1.5, node.position[2]]}>
+            <DreiHtml position={[node.position[0], node.position[1] + 1.5, node.position[2]]}>
               <div className="text-2xl text-red-500 font-bold drop-shadow">🔒</div>
-            </Html>
+            </DreiHtml>
           )}
         </React.Fragment>
       ))}

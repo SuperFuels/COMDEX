@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html as DreiHtml } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -131,7 +131,7 @@ export default function QFCInformationCoherenceV2({ frame }: { frame?: any }) {
 
   return (
     <group position={[0, 0.2, 0]}>
-      <Html fullscreen transform={false} zIndexRange={[100, 0]}>
+      <DreiHtml fullscreen transform={false} zIndexRange={[100, 0]}>
         <div className="pointer-events-none w-full h-full font-mono">
           <div className="absolute top-10 left-10 pointer-events-auto p-5 border border-cyan-500/20 bg-black/60 backdrop-blur-lg rounded shadow-2xl w-80">
             <div className="flex justify-between items-center border-b border-cyan-900/40 pb-2 mb-4">
@@ -166,7 +166,7 @@ export default function QFCInformationCoherenceV2({ frame }: { frame?: any }) {
             </div>
           </div>
         </div>
-      </Html>
+      </DreiHtml>
 
       <points geometry={geometry}>
         <shaderMaterial
