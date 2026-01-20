@@ -4,64 +4,46 @@ substitutions:
   _REGION: us-central1
 
 steps:
-  # ─── 0) Build frontend (Next.js via pnpm/Corepack) ────────────────
-  - id: "frontend-build"
-    name: "node:20"
+  # 0) Print exactly what Cloud Build received (helps catch wrong Dockerfile / stray text)
+  - id: "print-sources"
+    name: "ubuntu:22.04"
     entrypoint: "bash"
     args:
       - "-lc"
       - |
-        echo "▶️ Using pnpm via Corepack"
-        corepack enable
-        corepack prepare pnpm@10.20.0 --activate
+        set -e
+        echo "=== cloudbuild.yaml (first 120 lines) ==="
+        nl -ba cloudbuild.yaml | sed -n '1,120p' || true
+        echo
+        echo "=== Dockerfiles found ==="
+        find . -maxdepth 4 -name 'Dockerfile*' -print || true
+        echo
+        echo "=== ./Dockerfile (first 120 lines) ==="
+        nl -ba Dockerfile | sed -n '1,120p' || true
+        echo
+        echo "=== FROM lines ==="
+        grep -n '^FROM' Dockerfile || true
 
-        # Make absolutely sure devDependencies are installed
-        export NODE_ENV=development
-        export NPM_CONFIG_PRODUCTION=false
-        export PNPM_PRODUCTION=false
-
-        echo "📦 Installing deps with pnpm (workspace root)…"
-        cd /workspace
-        pnpm install --frozen-lockfile
-
-        echo "🏗 Building Next.js frontend…"
-        pnpm -C frontend build
-
-  # ─── 1) Build Docker image ────────────────────────────────────────
   - id: "docker-build"
     name: "gcr.io/cloud-builders/docker"
     args:
       [
         "build",
         "--no-cache",
-        "-f",
-        "Dockerfile",
-        "-t",
-        "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID",
-        "-t",
-        "gcr.io/$PROJECT_ID/${_SERVICE}:latest",
+        "-f", "Dockerfile",
+        "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID",
+        "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:latest",
         "."
       ]
 
-  # ─── 2) Push image with build ID ──────────────────────────────────
   - id: "docker-push-buildid"
     name: "gcr.io/cloud-builders/docker"
-    args:
-      [
-        "push",
-        "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"
-      ]
+    args: ["push", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"]
 
-  # ─── 3) Push latest tag ───────────────────────────────────────────
   - id: "docker-push-latest"
     name: "gcr.io/cloud-builders/docker"
-    args:
-      [
-        "push",
-        "gcr.io/$PROJECT_ID/${_SERVICE}:latest"
-      ]
+    args: ["push", "gcr.io/$PROJECT_ID/${_SERVICE}:latest"]
 
-  # ─── 4) Deploy using env-vars-file ONLY ───────────────────────────
   - id: "deploy-cloud-run"
     name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: "gcloud"

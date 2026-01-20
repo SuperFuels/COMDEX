@@ -1,5 +1,19 @@
 import React, { useMemo, useState } from "react";
 
+const BRAND = {
+  pageBg: "#F8FAFC",
+  cardBg: "#FFFFFF",
+  border: "#E2E8F0",
+  soft: "#F1F5F9",
+  soft2: "#F8FAFC",
+  text: "#0F172A",
+  text2: "#334155",
+  muted: "#64748B",
+  accent: "#1B74E4",
+  accentSoft: "rgba(27,116,228,0.10)",
+  shadow: "0 1px 2px rgba(15,23,42,0.06)",
+};
+
 async function fetchJson(url: string, body: any, timeoutMs = 20000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -35,7 +49,7 @@ function bytes(n: number) {
 }
 
 function tri(ok: boolean | null) {
-  if (ok === null) return { label: "—", color: "#6b7280", bg: "#f9fafb", bd: "#e5e7eb" };
+  if (ok === null) return { label: "—", color: BRAND.muted, bg: BRAND.soft2, bd: BRAND.border };
   return ok
     ? { label: "OK", color: "#065f46", bg: "#ecfdf5", bd: "#a7f3d0" }
     : { label: "FAIL", color: "#991b1b", bg: "#fef2f2", bd: "#fecaca" };
@@ -49,26 +63,33 @@ function pillStyle(active: boolean) {
   return {
     padding: "6px 10px",
     borderRadius: 999,
-    border: "1px solid " + (active ? "#111827" : "#e5e7eb"),
-    background: active ? "#111827" : "#fff",
-    color: active ? "#fff" : "#111827",
+    border: "1px solid " + (active ? BRAND.accent : BRAND.border),
+    background: active ? BRAND.accent : BRAND.cardBg,
+    color: active ? "#fff" : BRAND.text,
     fontSize: 11,
     fontWeight: 900 as const,
     cursor: "pointer",
     whiteSpace: "nowrap" as const,
+    boxShadow: active ? BRAND.shadow : undefined,
   };
 }
 
 function cardStyle() {
-  return { borderRadius: 16, border: "1px solid #e5e7eb", background: "#fff", padding: 12 };
+  return {
+    borderRadius: 16,
+    border: `1px solid ${BRAND.border}`,
+    background: BRAND.cardBg,
+    padding: 12,
+    boxShadow: BRAND.shadow,
+  };
 }
 
 function miniLabel() {
-  return { fontSize: 11, color: "#374151", fontWeight: 900 as const };
+  return { fontSize: 11, color: BRAND.text2, fontWeight: 900 as const };
 }
 
 function miniText() {
-  return { fontSize: 11, color: "#6b7280", lineHeight: 1.45 };
+  return { fontSize: 11, color: BRAND.muted, lineHeight: 1.45 };
 }
 
 function svgHistogram(opts: {
@@ -104,9 +125,11 @@ function svgHistogram(opts: {
     const y = pad + (plotH - h);
     const isHi = highlight === i;
     const isHover = hovered === i;
-    const stroke = isHover ? "#111827" : "#e5e7eb";
-    const fill = isHi ? "#eef2ff" : "#f9fafb";
-    const fill2 = isHover ? "#e0e7ff" : fill;
+
+    const stroke = isHover ? BRAND.text : BRAND.border;
+    const fill = isHi ? BRAND.accentSoft : BRAND.soft2;
+    const fill2 = isHover ? "rgba(27,116,228,0.18)" : fill;
+
     return (
       <rect
         key={i}
@@ -139,30 +162,26 @@ function svgHistogram(opts: {
     }
     cdfPath =
       "M " +
-      pts
-        .map(([x, y], idx) => `${x.toFixed(2)} ${y.toFixed(2)}${idx === pts.length - 1 ? "" : " L "}`)
-        .join("");
+      pts.map(([x, y], idx) => `${x.toFixed(2)} ${y.toFixed(2)}${idx === pts.length - 1 ? "" : " L "}`).join("");
   }
 
   const yTicks = [0.25, 0.5, 0.75, 1].map((t) => {
     const y = pad + (1 - t) * plotH;
     return (
       <g key={t}>
-        <line x1={pad} y1={y} x2={W - pad} y2={y} stroke="#f3f4f6" />
+        <line x1={pad} y1={y} x2={W - pad} y2={y} stroke={BRAND.soft} />
       </g>
     );
   });
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} role="img" aria-label="Histogram graph">
-      <rect x={0} y={0} width={W} height={H} rx={16} ry={16} fill="#fff" />
+      <rect x={0} y={0} width={W} height={H} rx={16} ry={16} fill={BRAND.cardBg} />
       {yTicks}
       {/* plot border */}
-      <rect x={pad} y={pad} width={plotW} height={plotH} rx={12} ry={12} fill="transparent" stroke="#e5e7eb" />
+      <rect x={pad} y={pad} width={plotW} height={plotH} rx={12} ry={12} fill="transparent" stroke={BRAND.border} />
       {bars}
-      {showCdf && cdfPath ? (
-        <path d={cdfPath} fill="none" stroke="#111827" strokeWidth={2} opacity={0.75} />
-      ) : null}
+      {showCdf && cdfPath ? <path d={cdfPath} fill="none" stroke={BRAND.accent} strokeWidth={2} opacity={0.9} /> : null}
     </svg>
   );
 }
@@ -272,14 +291,10 @@ export const V34HistogramDemo: React.FC = () => {
   const histTri = tri(histOk);
 
   const leanOk =
-    receipts?.LEAN_OK === 1 || receipts?.LEAN_OK === true
-      ? true
-      : receipts?.LEAN_OK === 0
-        ? false
-        : null;
+    receipts?.LEAN_OK === 1 || receipts?.LEAN_OK === true ? true : receipts?.LEAN_OK === 0 ? false : null;
   const leanTri = tri(leanOk);
 
-  const ops_total = b?.ops_total ?? (turns * muts);
+  const ops_total = b?.ops_total ?? turns * muts;
   const wire_total_bytes = b?.wire_total_bytes ?? b?.delta_bytes_total ?? 0;
   const bytes_per_op = Number(b?.bytes_per_op ?? (ops_total ? Number(wire_total_bytes || 0) / ops_total : 0));
 
@@ -309,11 +324,11 @@ export const V34HistogramDemo: React.FC = () => {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 900, color: "#111827" }}>
+          <div style={{ fontSize: 13, fontWeight: 900, color: BRAND.text }}>
             v34 — Histogram query (buckets / modulus){" "}
-            <span style={{ fontSize: 11, fontWeight: 900, color: "#6b7280" }}>· seller-grade demo</span>
+            <span style={{ fontSize: 11, fontWeight: 900, color: BRAND.muted }}>· seller-grade demo</span>
           </div>
-          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 3, maxWidth: 820 }}>
+          <div style={{ fontSize: 11, color: BRAND.muted, marginTop: 3, maxWidth: 820 }}>
             Run a distribution query on the live stream and get a verifiable receipt (drift hash + LEAN check). This layout
             frames it as a “seller pushes updates to many buyers” problem.
           </div>
@@ -327,7 +342,7 @@ export const V34HistogramDemo: React.FC = () => {
               gap: 8,
               padding: "5px 10px",
               borderRadius: 999,
-              border: "1px solid " + leanTri.bd,
+              border: `1px solid ${leanTri.bd}`,
               background: leanTri.bg,
               color: leanTri.color,
               fontSize: 11,
@@ -346,12 +361,13 @@ export const V34HistogramDemo: React.FC = () => {
             style={{
               padding: "7px 12px",
               borderRadius: 999,
-              border: "1px solid " + (busy ? "#e5e7eb" : "#111827"),
-              background: busy ? "#f3f4f6" : "#111827",
-              color: busy ? "#6b7280" : "#fff",
+              border: `1px solid ${busy ? BRAND.border : BRAND.accent}`,
+              background: busy ? BRAND.soft : BRAND.accent,
+              color: busy ? BRAND.muted : "#fff",
               fontSize: 11,
               fontWeight: 900,
               cursor: busy ? "not-allowed" : "pointer",
+              boxShadow: busy ? undefined : BRAND.shadow,
             }}
           >
             {busy ? "Running…" : "Run"}
@@ -361,7 +377,7 @@ export const V34HistogramDemo: React.FC = () => {
 
       {/* Presets + quick actions */}
       <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-        <span style={{ fontSize: 11, color: "#6b7280", fontWeight: 900 }}>Presets</span>
+        <span style={{ fontSize: 11, color: BRAND.muted, fontWeight: 900 }}>Presets</span>
         <button type="button" onClick={() => applyPreset("balanced")} style={pillStyle(false)}>
           Balanced
         </button>
@@ -372,18 +388,18 @@ export const V34HistogramDemo: React.FC = () => {
           Tiny
         </button>
 
-        <span style={{ width: 1, height: 18, background: "#e5e7eb", marginLeft: 6, marginRight: 6 }} />
+        <span style={{ width: 1, height: 18, background: BRAND.border, marginLeft: 6, marginRight: 6 }} />
 
         <button type="button" onClick={copyCurl} style={pillStyle(false)} title="Copy a reproducible curl">
           Copy curl
         </button>
 
-        <label style={{ display: "inline-flex", gap: 8, alignItems: "center", fontSize: 11, fontWeight: 900, color: "#111827" }}>
+        <label style={{ display: "inline-flex", gap: 8, alignItems: "center", fontSize: 11, fontWeight: 900, color: BRAND.text }}>
           <input type="checkbox" checked={showCdf} onChange={(e) => setShowCdf(e.target.checked)} />
           Show CDF line
         </label>
 
-        <label style={{ display: "inline-flex", gap: 8, alignItems: "center", fontSize: 11, fontWeight: 900, color: "#111827" }}>
+        <label style={{ display: "inline-flex", gap: 8, alignItems: "center", fontSize: 11, fontWeight: 900, color: BRAND.text }}>
           <input type="checkbox" checked={showRaw} onChange={(e) => setShowRaw(e.target.checked)} />
           Raw JSON
         </label>
@@ -401,68 +417,68 @@ export const V34HistogramDemo: React.FC = () => {
         {/* Seller panel */}
         <div style={{ ...cardStyle() }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Seller panel</div>
-            <div style={{ fontSize: 10, color: "#6b7280", fontWeight: 900 }}>fanout framing</div>
+            <div style={{ fontSize: 12, fontWeight: 900, color: BRAND.text }}>Seller panel</div>
+            <div style={{ fontSize: 10, color: BRAND.muted, fontWeight: 900 }}>fanout framing</div>
           </div>
           <div style={{ marginTop: 8, ...miniText() }}>
             Treat the stream as “catalog/inventory updates”. The histogram is a distribution query on the stream without shipping full state.
           </div>
 
           <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            <label style={{ fontSize: 11, color: "#374151" }}>
+            <label style={{ fontSize: 11, color: BRAND.text2 }}>
               Seller name
               <input
                 value={sellerName}
                 onChange={(e) => setSellerName(e.target.value)}
-                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: "1px solid #e5e7eb" }}
+                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: `1px solid ${BRAND.border}` }}
               />
             </label>
-            <label style={{ fontSize: 11, color: "#374151" }}>
+            <label style={{ fontSize: 11, color: BRAND.text2 }}>
               SKU
               <input
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
-                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: "1px solid #e5e7eb" }}
+                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: `1px solid ${BRAND.border}` }}
               />
             </label>
-            <label style={{ fontSize: 11, color: "#374151" }}>
+            <label style={{ fontSize: 11, color: BRAND.text2 }}>
               Buyers
               <input
                 type="number"
                 value={buyers}
                 min={0}
                 onChange={(e) => setBuyers(Math.max(0, Number(e.target.value) || 0))}
-                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: "1px solid #e5e7eb" }}
+                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: `1px solid ${BRAND.border}` }}
               />
             </label>
-            <label style={{ fontSize: 11, color: "#374151" }}>
+            <label style={{ fontSize: 11, color: BRAND.text2 }}>
               Price (€)
               <input
                 type="number"
                 value={price}
                 min={0}
                 onChange={(e) => setPrice(Math.max(0, Number(e.target.value) || 0))}
-                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: "1px solid #e5e7eb" }}
+                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: `1px solid ${BRAND.border}` }}
               />
             </label>
           </div>
 
-          <div style={{ marginTop: 12, borderRadius: 14, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10 }}>
+          <div style={{ marginTop: 12, borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.soft2, padding: 10 }}>
             <div style={{ ...miniLabel() }}>What the seller “ships”</div>
-            <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr", gap: 6, fontSize: 11, color: "#374151" }}>
+            <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr", gap: 6, fontSize: 11, color: BRAND.text2 }}>
               <div>
-                Update bytes (one buyer): <b style={{ color: "#111827" }}>{bytes(Number(wire_total_bytes || 0))}</b>
+                Update bytes (one buyer): <b style={{ color: BRAND.text }}>{bytes(Number(wire_total_bytes || 0))}</b>
               </div>
               <div>
-                Fanout bytes (all buyers): <b style={{ color: "#111827" }}>{bytes(fanoutBytes)}</b>
+                Fanout bytes (all buyers): <b style={{ color: BRAND.text }}>{bytes(fanoutBytes)}</b>
               </div>
               <div>
-                Ops touched: <b style={{ color: "#111827" }}>{String(ops_total)}</b>{" "}
-                <span style={{ color: "#6b7280" }}>({bytes_per_op ? `${bytes_per_op.toFixed(2)} B/op` : "—"})</span>
+                Ops touched: <b style={{ color: BRAND.text }}>{String(ops_total)}</b>{" "}
+                <span style={{ color: BRAND.muted }}>({bytes_per_op ? `${bytes_per_op.toFixed(2)} B/op` : "—"})</span>
               </div>
               <div>
-                Est. gross revenue: <b style={{ color: "#111827" }}>{estRevenue.toLocaleString()}</b>{" "}
-                <span style={{ color: "#6b7280" }}>({buyers.toLocaleString()} buyers)</span>
+                Est. gross revenue: <b style={{ color: BRAND.text }}>{estRevenue.toLocaleString()}</b>{" "}
+                <span style={{ color: BRAND.muted }}>({buyers.toLocaleString()} buyers)</span>
               </div>
             </div>
           </div>
@@ -472,9 +488,9 @@ export const V34HistogramDemo: React.FC = () => {
             histogram resolution (more bins).
           </div>
 
-          <div style={{ marginTop: 10, borderTop: "1px solid #f3f4f6", paddingTop: 10 }}>
+          <div style={{ marginTop: 10, borderTop: `1px solid ${BRAND.border}`, paddingTop: 10 }}>
             <div style={{ ...miniLabel() }}>Endpoint</div>
-            <div style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
+            <div style={{ marginTop: 6, fontSize: 11, color: BRAND.muted }}>
               <code>POST /api/wirepack/v34/run</code>
             </div>
           </div>
@@ -482,19 +498,19 @@ export const V34HistogramDemo: React.FC = () => {
 
         {/* Main graph + controls */}
         <div style={{ ...cardStyle() }}>
-          {/* Controls (compact, upgraded) */}
+          {/* Controls */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 8 }}>
-            <label style={{ fontSize: 11, color: "#374151" }}>
+            <label style={{ fontSize: 11, color: BRAND.text2 }}>
               seed
               <input
                 type="number"
                 value={seed}
                 onChange={(e) => setSeed(Number(e.target.value) || 0)}
-                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: "1px solid #e5e7eb" }}
+                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: `1px solid ${BRAND.border}` }}
               />
             </label>
 
-            <label style={{ fontSize: 11, color: "#374151" }}>
+            <label style={{ fontSize: 11, color: BRAND.text2 }}>
               n
               <input
                 type="number"
@@ -502,11 +518,11 @@ export const V34HistogramDemo: React.FC = () => {
                 min={256}
                 max={1_000_000}
                 onChange={(e) => setN(clamp(Number(e.target.value) || 4096, 256, 1_000_000))}
-                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: "1px solid #e5e7eb" }}
+                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: `1px solid ${BRAND.border}` }}
               />
             </label>
 
-            <label style={{ fontSize: 11, color: "#374151" }}>
+            <label style={{ fontSize: 11, color: BRAND.text2 }}>
               turns
               <input
                 type="number"
@@ -514,11 +530,11 @@ export const V34HistogramDemo: React.FC = () => {
                 min={1}
                 max={4096}
                 onChange={(e) => setTurns(clamp(Number(e.target.value) || 64, 1, 4096))}
-                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: "1px solid #e5e7eb" }}
+                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: `1px solid ${BRAND.border}` }}
               />
             </label>
 
-            <label style={{ fontSize: 11, color: "#374151" }}>
+            <label style={{ fontSize: 11, color: BRAND.text2 }}>
               muts
               <input
                 type="number"
@@ -526,11 +542,11 @@ export const V34HistogramDemo: React.FC = () => {
                 min={1}
                 max={4096}
                 onChange={(e) => setMuts(clamp(Number(e.target.value) || 3, 1, 4096))}
-                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: "1px solid #e5e7eb" }}
+                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: `1px solid ${BRAND.border}` }}
               />
             </label>
 
-            <label style={{ fontSize: 11, color: "#374151" }}>
+            <label style={{ fontSize: 11, color: BRAND.text2 }}>
               buckets
               <input
                 type="number"
@@ -538,11 +554,11 @@ export const V34HistogramDemo: React.FC = () => {
                 min={2}
                 max={4096}
                 onChange={(e) => setBuckets(clamp(Number(e.target.value) || 32, 2, 4096))}
-                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: "1px solid #e5e7eb" }}
+                style={{ width: "100%", marginTop: 4, padding: "7px 9px", borderRadius: 12, border: `1px solid ${BRAND.border}` }}
               />
             </label>
 
-            <label style={{ fontSize: 11, color: "#374151" }}>
+            <label style={{ fontSize: 11, color: BRAND.text2 }}>
               mode
               <select
                 value={mode}
@@ -552,8 +568,8 @@ export const V34HistogramDemo: React.FC = () => {
                   marginTop: 4,
                   padding: "7px 9px",
                   borderRadius: 12,
-                  border: "1px solid #e5e7eb",
-                  background: "#fff",
+                  border: `1px solid ${BRAND.border}`,
+                  background: BRAND.cardBg,
                 }}
               >
                 <option value="idx_mod">idx_mod</option>
@@ -567,12 +583,12 @@ export const V34HistogramDemo: React.FC = () => {
           {/* Graph */}
           <div style={{ marginTop: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-              <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Distribution graph</div>
-              <div style={{ fontSize: 11, color: "#374151" }}>
+              <div style={{ fontSize: 12, fontWeight: 900, color: BRAND.text }}>Distribution graph</div>
+              <div style={{ fontSize: 11, color: BRAND.text2 }}>
                 hist_ok: <b style={{ color: histTri.color }}>{histTri.label}</b>
                 {"  "}· LEAN: <b style={{ color: leanTri.color }}>{leanTri.label}</b>
                 {"  "}· max: <b>{String(inv?.max ?? derived.max ?? "—")}</b>{" "}
-                <span style={{ color: "#6b7280" }}>
+                <span style={{ color: BRAND.muted }}>
                   (bucket <b>{String(inv?.max_bucket ?? derived.maxBucket ?? "—")}</b>)
                 </span>
               </div>
@@ -580,7 +596,7 @@ export const V34HistogramDemo: React.FC = () => {
 
             <div style={{ marginTop: 10 }}>
               {hist.length ? (
-                <div style={{ borderRadius: 16, border: "1px solid #e5e7eb", overflow: "hidden" }}>
+                <div style={{ borderRadius: 16, border: `1px solid ${BRAND.border}`, overflow: "hidden" }}>
                   {svgHistogram({
                     hist,
                     height: 170,
@@ -591,63 +607,50 @@ export const V34HistogramDemo: React.FC = () => {
                   })}
                 </div>
               ) : (
-                <div
-                  style={{
-                    borderRadius: 16,
-                    border: "1px dashed #e5e7eb",
-                    background: "#f9fafb",
-                    padding: 14,
-                    fontSize: 11,
-                    color: "#6b7280",
-                  }}
-                >
+                <div style={{ borderRadius: 16, border: `1px dashed ${BRAND.border}`, background: BRAND.soft2, padding: 14, fontSize: 11, color: BRAND.muted }}>
                   No output yet — hit <b>Run</b>.
                 </div>
               )}
             </div>
 
-            {/* Hover tooltip line */}
+            {/* Hover tiles */}
             {hist.length ? (
               <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-                <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
+                <div style={{ borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.cardBg, padding: 10 }}>
                   <div style={{ ...miniLabel() }}>Hovered bucket</div>
-                  <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
+                  <div style={{ marginTop: 6, fontSize: 11, color: BRAND.text2 }}>
                     {hovered === null ? "—" : `#${hovered} = ${hist[hovered] ?? 0}`}
                   </div>
                 </div>
-                <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
+                <div style={{ borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.cardBg, padding: 10 }}>
                   <div style={{ ...miniLabel() }}>Skew (max/mean)</div>
-                  <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-                    <b style={{ color: "#111827" }}>{derived.mean ? derived.skew.toFixed(2) : "—"}</b>{" "}
-                    <span style={{ color: "#6b7280" }}>
-                      (mean {derived.mean.toFixed(2)}, σ {derived.stdev.toFixed(2)})
-                    </span>
+                  <div style={{ marginTop: 6, fontSize: 11, color: BRAND.text2 }}>
+                    <b style={{ color: BRAND.text }}>{derived.mean ? derived.skew.toFixed(2) : "—"}</b>{" "}
+                    <span style={{ color: BRAND.muted }}>(mean {derived.mean.toFixed(2)}, σ {derived.stdev.toFixed(2)})</span>
                   </div>
                 </div>
-                <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
+                <div style={{ borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.cardBg, padding: 10 }}>
                   <div style={{ ...miniLabel() }}>Wire efficiency</div>
-                  <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-                    <b style={{ color: "#111827" }}>{bytes(Number(wire_total_bytes || 0))}</b>{" "}
-                    <span style={{ color: "#6b7280" }}>
-                      ({bytes_per_op ? `${bytes_per_op.toFixed(2)} B/op` : "—"})
-                    </span>
+                  <div style={{ marginTop: 6, fontSize: 11, color: BRAND.text2 }}>
+                    <b style={{ color: BRAND.text }}>{bytes(Number(wire_total_bytes || 0))}</b>{" "}
+                    <span style={{ color: BRAND.muted }}>({bytes_per_op ? `${bytes_per_op.toFixed(2)} B/op` : "—"})</span>
                   </div>
                 </div>
               </div>
             ) : null}
 
-            <div style={{ marginTop: 10, fontSize: 10, color: "#6b7280" }}>
-              Bars show bucket counts. Mode <code>{mode}</code> maps <code>{mode === "val_mod" ? "value" : "index"}</code> to{" "}
-              <code>% buckets</code>. Optional black line is the cumulative distribution (CDF).
+            <div style={{ marginTop: 10, fontSize: 10, color: BRAND.muted }}>
+              Bars show bucket counts. Mode <code>{mode}</code> maps <code>{mode === "val_mod" ? "value" : "index"}</code> to <code>% buckets</code>.
+              Optional line is the cumulative distribution (CDF).
             </div>
           </div>
 
-          {/* Receipts (compact but complete) */}
+          {/* Receipts */}
           {out ? (
             <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <div style={{ borderRadius: 16, border: "1px solid #e5e7eb", padding: 12 }}>
-                <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Receipt (verifiable)</div>
-                <div style={{ marginTop: 8, fontSize: 11, color: "#374151", lineHeight: 1.6 }}>
+              <div style={{ borderRadius: 16, border: `1px solid ${BRAND.border}`, padding: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 900, color: BRAND.text }}>Receipt (verifiable)</div>
+                <div style={{ marginTop: 8, fontSize: 11, color: BRAND.text2, lineHeight: 1.6 }}>
                   <div>
                     drift_sha256: <code>{String(receipts?.drift_sha256 || "—")}</code>
                   </div>
@@ -660,9 +663,9 @@ export const V34HistogramDemo: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ borderRadius: 16, border: "1px solid #e5e7eb", padding: 12 }}>
-                <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Seller story (what buyers get)</div>
-                <div style={{ marginTop: 8, fontSize: 11, color: "#374151", lineHeight: 1.6 }}>
+              <div style={{ borderRadius: 16, border: `1px solid ${BRAND.border}`, padding: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 900, color: BRAND.text }}>Seller story (what buyers get)</div>
+                <div style={{ marginTop: 8, fontSize: 11, color: BRAND.text2, lineHeight: 1.6 }}>
                   <div>
                     Seller: <b>{sellerName || "Seller"}</b> · SKU: <b>{sku || "—"}</b>
                   </div>
@@ -672,7 +675,7 @@ export const V34HistogramDemo: React.FC = () => {
                   <div>
                     Broadcast to {buyers.toLocaleString()} buyers: <b>{bytes(fanoutBytes)}</b>
                   </div>
-                  <div style={{ color: "#6b7280" }}>
+                  <div style={{ color: BRAND.muted }}>
                     “Proof stamp” is the receipt + LEAN_OK — buyers can verify your distribution claim without trusting you.
                   </div>
                 </div>
@@ -682,11 +685,9 @@ export const V34HistogramDemo: React.FC = () => {
 
           {/* Raw */}
           {out && showRaw ? (
-            <div style={{ marginTop: 12, borderRadius: 16, border: "1px solid #e5e7eb", padding: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Raw response</div>
-              <pre style={{ marginTop: 8, fontSize: 11, color: "#111827", whiteSpace: "pre-wrap" }}>
-                {JSON.stringify(out, null, 2)}
-              </pre>
+            <div style={{ marginTop: 12, borderRadius: 16, border: `1px solid ${BRAND.border}`, padding: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 900, color: BRAND.text }}>Raw response</div>
+              <pre style={{ marginTop: 8, fontSize: 11, color: BRAND.text, whiteSpace: "pre-wrap" }}>{JSON.stringify(out, null, 2)}</pre>
             </div>
           ) : null}
         </div>
@@ -694,52 +695,52 @@ export const V34HistogramDemo: React.FC = () => {
         {/* What’s special explainer */}
         <div style={{ ...cardStyle() }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>What’s so special?</div>
-            <div style={{ fontSize: 10, color: "#6b7280", fontWeight: 900 }}>why this matters</div>
+            <div style={{ fontSize: 12, fontWeight: 900, color: BRAND.text }}>What’s so special?</div>
+            <div style={{ fontSize: 10, color: BRAND.muted, fontWeight: 900 }}>why this matters</div>
           </div>
 
           <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
-            <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10 }}>
+            <div style={{ borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.soft2, padding: 10 }}>
               <div style={{ ...miniLabel() }}>1) Query the stream, don’t ship the state</div>
               <div style={{ marginTop: 6, ...miniText() }}>
                 You’re not sending 4,096 items to everyone. You send a <b>tiny delta</b> and still answer “what’s the distribution?”
               </div>
-              <div style={{ marginTop: 8, fontSize: 11, color: "#374151" }}>
+              <div style={{ marginTop: 8, fontSize: 11, color: BRAND.text2 }}>
                 Example claim: <code>histogram = f(stream, buckets)</code>
               </div>
             </div>
 
-            <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10 }}>
+            <div style={{ borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.soft2, padding: 10 }}>
               <div style={{ ...miniLabel() }}>2) Verifiable receipts (anti-drift)</div>
               <div style={{ marginTop: 6, ...miniText() }}>
                 The result comes with a drift hash + final state hash so downstream systems can detect mismatch / tampering.
               </div>
-              <div style={{ marginTop: 8, fontSize: 11, color: "#374151" }}>
+              <div style={{ marginTop: 8, fontSize: 11, color: BRAND.text2 }}>
                 <div>
-                  <code>drift_sha256</code> = <span style={{ color: "#6b7280" }}>“did we diverge?”</span>
+                  <code>drift_sha256</code> = <span style={{ color: BRAND.muted }}>“did we diverge?”</span>
                 </div>
                 <div>
-                  <code>final_state_sha256</code> = <span style={{ color: "#6b7280" }}>“what state produced this?”</span>
+                  <code>final_state_sha256</code> = <span style={{ color: BRAND.muted }}>“what state produced this?”</span>
                 </div>
               </div>
             </div>
 
-            <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10 }}>
+            <div style={{ borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.soft2, padding: 10 }}>
               <div style={{ ...miniLabel() }}>3) LEAN-checked invariants</div>
               <div style={{ marginTop: 6, ...miniText() }}>
                 If <b>LEAN_OK</b> is true, you’re not just trusting the server’s math — invariants like histogram integrity are machine-checked.
               </div>
-              <div style={{ marginTop: 8, fontSize: 11, color: "#374151" }}>
+              <div style={{ marginTop: 8, fontSize: 11, color: BRAND.text2 }}>
                 <code>hist_ok</code> · <code>hist_sum_ok</code>
               </div>
             </div>
 
-            <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
+            <div style={{ borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.cardBg, padding: 10 }}>
               <div style={{ ...miniLabel() }}>4) Seller-grade use cases</div>
               <div style={{ marginTop: 6, ...miniText() }}>
                 Anywhere you broadcast frequent updates: pricing, inventory, rate limits, anomaly buckets, feature flags, or telemetry summaries.
               </div>
-              <div style={{ marginTop: 8, fontSize: 11, color: "#374151", lineHeight: 1.55 }}>
+              <div style={{ marginTop: 8, fontSize: 11, color: BRAND.text2, lineHeight: 1.55 }}>
                 <div>• Latency buckets: <code>dur_ms % 64</code></div>
                 <div>• Status distribution: <code>status % 16</code></div>
                 <div>• WAF/security: <code>ip_hash % 128</code></div>
@@ -747,9 +748,9 @@ export const V34HistogramDemo: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
+            <div style={{ borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.cardBg, padding: 10 }}>
               <div style={{ ...miniLabel() }}>Reproducible command</div>
-              <pre style={{ marginTop: 8, fontSize: 10, color: "#111827", whiteSpace: "pre-wrap" }}>{curl}</pre>
+              <pre style={{ marginTop: 8, fontSize: 10, color: BRAND.text, whiteSpace: "pre-wrap" }}>{curl}</pre>
             </div>
           </div>
         </div>
@@ -760,11 +761,11 @@ export const V34HistogramDemo: React.FC = () => {
         style={{
           marginTop: 12,
           borderRadius: 16,
-          border: "1px solid #e5e7eb",
-          background: "#f9fafb",
+          border: `1px solid ${BRAND.border}`,
+          background: BRAND.soft2,
           padding: 10,
           fontSize: 11,
-          color: "#6b7280",
+          color: BRAND.muted,
           display: "flex",
           justifyContent: "space-between",
           gap: 10,
@@ -772,11 +773,13 @@ export const V34HistogramDemo: React.FC = () => {
         }}
       >
         <div>
-          endpoint: <code>POST /api/wirepack/v34/run</code>
+          endpoint: <code style={{ color: BRAND.text }}>POST /api/wirepack/v34/run</code>
         </div>
         <div>
-          wire: <b style={{ color: "#111827" }}>{bytes(Number(wire_total_bytes || 0))}</b>{" "}
-          <span style={{ color: "#6b7280" }}>· ops {String(ops_total)} · bytes/op {bytes_per_op ? bytes_per_op.toFixed(2) : "—"}</span>
+          wire: <b style={{ color: BRAND.text }}>{bytes(Number(wire_total_bytes || 0))}</b>{" "}
+          <span style={{ color: BRAND.muted }}>
+            · ops {String(ops_total)} · bytes/op {bytes_per_op ? bytes_per_op.toFixed(2) : "—"}
+          </span>
         </div>
       </div>
     </div>

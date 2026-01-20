@@ -1,7 +1,6 @@
 # backend/api/aion/__init__.py
 
 from fastapi import APIRouter
-from backend.main import app  # ✅ Ensure 'app' is imported if not already
 
 from .grid_loop import router as grid_loop_router
 from .grid_tiles import router as grid_tiles_router
@@ -18,5 +17,5 @@ router.include_router(grid_loop_router)
 router.include_router(grid_tiles_router)
 router.include_router(container_router, prefix="")  # mounts at /api/aion/...
 
-# ✅ Mount QWave Engine routes
-app.include_router(qwave_router, prefix="/api/aion", tags=["QWave Engine"])
+# ✅ Mount QWave Engine routes onto the AION router (NOT the app)
+router.include_router(qwave_router, prefix="/api/aion", tags=["QWave Engine"])
