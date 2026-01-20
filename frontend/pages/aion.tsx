@@ -1,9 +1,7 @@
 // frontend/pages/aion.tsx
-"use client";
-
 import dynamic from "next/dynamic";
-import Shell from "@/components/Shell";
 
+const Shell = dynamic(() => import("@/components/Shell"), { ssr: false });
 const AionTab = dynamic(() => import("@/tabs/Aion"), { ssr: false });
 
 export default function AionPage() {

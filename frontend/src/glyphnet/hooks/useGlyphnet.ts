@@ -95,6 +95,7 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
   // NEW: track mode changes announced by setTransportMode (same-tab reliable)
   const [modeKey, setModeKey] = useState<string>(getTransportMode());
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const onMode = (e: any) => setModeKey(String(e.detail || getTransportMode()));
     window.addEventListener("gnet:transport-mode", onMode);
     return () => window.removeEventListener("gnet:transport-mode", onMode);
@@ -147,7 +148,7 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
         if (changed) forceReopen();
       }
     };
-    window.addEventListener("storage", onStorage);
+    if (typeof window !== "undefined") window.addEventListener("storage", onStorage);
 
     // Always compute initial base before opening
     computeBase();
@@ -157,7 +158,7 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
       setReconnectIn(null);
 
       const kg = (graph || "personal").toLowerCase();
-      const token = (import.meta as any)?.env?.VITE_DEV_WS_TOKEN || "dev-token";
+      const token = process.env.NEXT_PUBLIC_DEV_WS_TOKEN || "dev-token";
       const qs = new URLSearchParams({ topic, kg, token }).toString();
       const wsUrl = buildWsUrl(baseRef.current, "/ws/glyphnet", qs);
 
@@ -348,7 +349,7 @@ export default function useGlyphnet(topic: string, graph: GraphKey = "personal")
       }
       msgBufRef.current = [];
 
-      window.removeEventListener("storage", onStorage);
+      if (typeof window !== "undefined") window.removeEventListener("storage", onStorage);
       stopHealth();
 
       setReconnecting(false);

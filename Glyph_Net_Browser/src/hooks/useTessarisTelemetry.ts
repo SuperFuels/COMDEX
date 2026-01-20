@@ -1,12 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export type TessarisTelemetry = {
-  analytics?: any; // /api/ws/analytics  -> proxied to 8002 (/ws/analytics)
-  symatics?: any;  // /api/ws/symatics   -> proxied to 8001 (/ws/symatics)
-  fusion?: any;    // /api/ws/fusion     -> proxied to 8005 (/ws/fusion)
-  rqfs?: any;      // /api/ws/rqfs_feedback -> proxied to 8006 (/ws/rqfs_feedback)
+  analytics?: any; // /api/ws/analytics  -> proxied upstream
+  symatics?: any;  // /api/ws/symatics
+  fusion?: any;    // /api/ws/fusion
+  rqfs?: any;      // /api/ws/rqfs_feedback
   updatedAt?: number;
 };
+
+function trimSlash(s: string) {
+  return s.replace(/\/+$/, "");
+}
+
+function httpToWs(httpBase: string) {
+  return httpBase.replace(/^http:/i, "ws:").replace(/^https:/i, "wss:");
+}
 
 function useJsonWS(url: string, onMsg: (data: any) => void) {
   const onMsgRef = useRef(onMsg);
@@ -32,7 +40,7 @@ function useJsonWS(url: string, onMsg: (data: any) => void) {
       };
 
       ws.onopen = () => {
-        retryMs = 800; // reset backoff after a clean connect
+        retryMs = 800;
       };
 
       ws.onclose = () => {
@@ -61,18 +69,29 @@ function useJsonWS(url: string, onMsg: (data: any) => void) {
         // ignore
       }
     };
-  }, [url]); // IMPORTANT: only url
+  }, [url]);
 }
 
 export function useTessarisTelemetry(): TessarisTelemetry {
   const [t, setT] = useState<TessarisTelemetry>({});
 
-  // We want WS to go through the Vite dev server (5173) so proxy rules apply.
-  const httpBase =
-    (import.meta as any)?.env?.VITE_API_BASE ||
-    (typeof window !== "undefined" ? window.location.origin : "http://localhost:5173");
+  // Next-compatible env (browser-safe). Prefer explicit env, else same-origin.
+  const httpBase = useMemo(() => {
+    const envBase = (process.env.NEXT_PUBLIC_API_URL || "").trim();
+    if (envBase) return trimSlash(envBase);
 
-  const wsBase = useMemo(() => httpBase.replace(/^http/i, "ws"), [httpBase]);
+    // same-origin (works with your Next rewrites: /api/* -> backend)
+    if (typeof window !== "undefined") return window.location.origin;
+
+    // SSR fallback (should rarely matter because this hook runs client-side)
+    return "http://localhost:8080";
+  }, []);
+
+  const wsBase = useMemo(() => {
+    const envWs = (process.env.NEXT_PUBLIC_WS_URL || "").trim();
+    if (envWs) return trimSlash(envWs);
+    return trimSlash(httpToWs(httpBase));
+  }, [httpBase]);
 
   const WS = useMemo(
     () => ({

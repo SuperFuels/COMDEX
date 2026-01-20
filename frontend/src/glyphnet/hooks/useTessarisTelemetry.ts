@@ -69,8 +69,11 @@ export function useTessarisTelemetry(): TessarisTelemetry {
 
   // We want WS to go through the Vite dev server (5173) so proxy rules apply.
   const httpBase =
-    (import.meta as any)?.env?.VITE_API_BASE ||
-    (typeof window !== "undefined" ? window.location.origin : "http://localhost:5173");
+    (process.env.NEXT_PUBLIC_API_ORIGIN as string | undefined) ||
+    (process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE as string | undefined) ||
+    (typeof window !== "undefined"
+      ? window.location.origin
+      : "http://localhost:8080");
 
   const wsBase = useMemo(() => httpBase.replace(/^http/i, "ws"), [httpBase]);
 

@@ -1,13 +1,20 @@
 // frontend/pages/ai.tsx
 import dynamic from "next/dynamic";
 import type { NextPage } from "next";
-import Shell from "@/components/Shell";
+
+// Make Shell client-only too
+const Shell = dynamic(() => import("@/components/Shell"), { ssr: false });
 
 // Client-only mount
 const ProofClient = dynamic(() => import("@/tabs/Aion/AionProofOfLifeDashboard"), {
   ssr: false,
   loading: () => (
-    <div style={{ padding: 24, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
+    <div
+      style={{
+        padding: 24,
+        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+      }}
+    >
       Loading AI…
     </div>
   ),

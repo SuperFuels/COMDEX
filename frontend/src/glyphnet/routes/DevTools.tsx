@@ -2386,37 +2386,6 @@ export function QFCHudPanel({
   // NOTE: QFCViewport already renders demos by `mode`
   // ─────────────────────────────────────────────────────────────
 
-  // ✅ DO NOT `export` inside a component. Use the imported QFCMode.
-  const isQfcMode = (x: any): x is QFCMode =>
-    x === "gravity" ||
-    x === "tunnel" ||
-    x === "matter" ||
-    x === "connect" ||
-    x === "wormhole" ||
-    x === "genome" ||
-    x === "topology" ||
-    x === "glyphos" ||
-    // --- new demos ---
-    x === "axiom_stability" ||
-    x === "born_rule_convergence" ||
-    x === "causal_spacetime_k" ||
-    x === "p_series" ||
-    x === "emergent_geometry_m" ||
-    x === "emergent_time_h2" ||
-    x === "feedback_controller_n" ||
-    x === "geometry_emergence" ||
-    x === "governed_selection" ||
-    x === "information_coherence" ||
-    x === "information_dynamics" ||
-    x === "observer_dashboard" ||
-    x === "pipeline_verification" ||
-    x === "semantic_curvature" ||
-    x === "telemetry_audit_v3" ||
-    x === "vacuum_landscape" ||
-    // optional legacy
-    x === "antigrav" ||
-    x === "sync";
-
   const [demoMode, setDemoMode] = useState<QFCMode>(() => {
     try {
       const p = new URLSearchParams(window.location.search);
@@ -2603,11 +2572,33 @@ export function QFCHudPanel({
 
   const wsUrl = useMemo(() => {
     if (typeof window === "undefined") return "";
-    const fastApiPublic =
-      (import.meta as any)?.env?.VITE_FASTAPI_PUBLIC_URL as string | undefined;
-    const baseHttp = fastApiPublic || window.location.origin;
-    const baseWs = baseHttp.replace(/^http/i, "ws");
-    return `${baseWs}/api/ws/qfc`;
+
+    const fastapiPublicUrl = (
+      process.env.NEXT_PUBLIC_FASTAPI_PUBLIC_URL as string | undefined
+    )?.trim();
+
+    const base = fastapiPublicUrl && fastapiPublicUrl.length > 0
+      ? fastapiPublicUrl
+      : window.location.origin;
+
+    try {
+      const u = new URL(base, window.location.origin);
+
+      // Convert http(s) -> ws(s); leave ws(s) as-is
+      if (u.protocol === "http:") u.protocol = "ws:";
+      else if (u.protocol === "https:") u.protocol = "wss:";
+
+      // Force the expected websocket endpoint path
+      u.pathname = "/api/ws/qfc";
+      u.search = "";
+      u.hash = "";
+
+      return u.toString();
+    } catch {
+      // Fallback if base isn't a valid URL string for some reason
+      const baseWs = base.replace(/^http/i, "ws").replace(/\/+$/, "");
+      return `${baseWs}/api/ws/qfc`;
+    }
   }, []);
 
   const clearVerifyTimeout = () => {

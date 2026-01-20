@@ -4,15 +4,28 @@
 # 🧠 AION Cognitive Reinforcement Engine
 # Adjusts Φ-baseline and emergent "belief vectors"
 # from memory coherence / entropy trends.
-# Now includes Δ-tracking for insight into cognitive drift.
+# Includes Δ-tracking + optional demo breathe tick.
 # =========================================================
 
-# backend/modules/aion_resonance/phi_reinforce.py
-import json, os, datetime
+from __future__ import annotations
+
+import datetime
+import json
+import logging
+import os
 from pathlib import Path
 from statistics import mean
+from typing import Any, Dict
+
+log = logging.getLogger("comdex")
 
 ENV_DATA_ROOT = "TESSARIS_DATA_ROOT"
+
+# Print / log gates
+ENV_REINFORCE_PRINT = "AION_REINFORCE_PRINT"     # "1" -> print deltas
+ENV_BELIEF_PRINT = "AION_BELIEF_PRINT"           # "1" -> print beliefs
+ENV_PHI_BREATHE = "AION_PHI_BREATHE"             # "1" -> allow breathe_tick loop usage
+ENV_VERBOSE_LOG = "AION_PHI_VERBOSE_LOG"         # "1" -> info logs
 
 def _repo_root() -> Path:
     p = Path(__file__).resolve()
@@ -33,7 +46,7 @@ DATA_ROOT.mkdir(parents=True, exist_ok=True)
 MEMORY_PATH = str(DATA_ROOT / "conversation_memory.json")
 REINFORCE_PATH = str(DATA_ROOT / "phi_reinforce_state.json")
 
-DEFAULT_BASELINE = {
+DEFAULT_BASELINE: Dict[str, Any] = {
     "Φ_load": 0.0,
     "Φ_flux": 0.25,
     "Φ_entropy": 0.35,
@@ -42,160 +55,185 @@ DEFAULT_BASELINE = {
         "stability": 0.5,
         "curiosity": 0.5,
         "trust": 0.5,
-        "clarity": 0.5
+        "clarity": 0.5,
     },
-    "last_update": None
+    "last_update": None,
 }
 
 # ----------------------------------------------------------
 # Helpers
 # ----------------------------------------------------------
 
-def _load_json(path, default):
+def _load_json(path: str, default: Any) -> Any:
     if os.path.exists(path):
         try:
-            with open(path, "r") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
-            pass
+            return default
     return default
 
-def _save_json(path, data):
+def _save_json(path: str, data: Any) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(data, f, indent=2)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+def _truthy_env(key: str, default: str = "0") -> bool:
+    return os.getenv(key, default).strip().lower() in {"1", "true", "yes", "y", "on"}
+
+def _clamp01(x: float) -> float:
+    return max(0.0, min(1.0, float(x)))
+
+def _round4(x: float) -> float:
+    return float(f"{x:.4f}")
 
 # ----------------------------------------------------------
 # Baseline Reinforcement
 # ----------------------------------------------------------
 
-def reinforce_from_memory():
+def reinforce_from_memory() -> Dict[str, Any]:
     """
     Read recent Φ-memory, compute average coherence / entropy,
     update baseline + belief vector accordingly.
-    Now prints delta changes per reinforcement cycle.
+    Prints deltas ONLY if AION_REINFORCE_PRINT=1.
     """
     memory = _load_json(MEMORY_PATH, [])
-    baseline = _load_json(REINFORCE_PATH, DEFAULT_BASELINE.copy())
+    baseline = _load_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
 
     if not memory:
         return baseline
 
-    # --- Aggregate statistics ---
-    coherences = [e["phi"].get("Φ_coherence", 0) for e in memory if "phi" in e]
-    entropies  = [e["phi"].get("Φ_entropy", 0)   for e in memory if "phi" in e]
+    coherences = [e.get("phi", {}).get("Φ_coherence", 0) for e in memory if isinstance(e, dict)]
+    entropies  = [e.get("phi", {}).get("Φ_entropy", 0) for e in memory if isinstance(e, dict)]
 
-    avg_coh = mean(coherences) if coherences else baseline["Φ_coherence"]
-    avg_ent = mean(entropies)  if entropies  else baseline["Φ_entropy"]
+    avg_coh = mean(coherences) if coherences else float(baseline.get("Φ_coherence", DEFAULT_BASELINE["Φ_coherence"]))
+    avg_ent = mean(entropies)  if entropies  else float(baseline.get("Φ_entropy", DEFAULT_BASELINE["Φ_entropy"]))
 
-    # --- Capture previous state for delta tracking ---
-    prev = baseline.copy()
+    prev = dict(baseline)
+    prev_beliefs = dict((prev.get("beliefs") or DEFAULT_BASELINE["beliefs"]))
 
-    # --- Trend logic ---
-    drift = avg_coh - baseline["Φ_coherence"]
+    drift = float(avg_coh) - float(baseline.get("Φ_coherence", DEFAULT_BASELINE["Φ_coherence"]))
 
-    # Update baseline Φ-fields gradually
-    α = 0.25  # learning rate
-    baseline["Φ_coherence"] += α * (avg_coh - baseline["Φ_coherence"])
-    baseline["Φ_entropy"]   += α * (avg_ent - baseline["Φ_entropy"])
-    baseline["Φ_flux"]      += α * ((avg_coh - avg_ent) - baseline["Φ_flux"])
-    baseline["Φ_load"]      += α * (drift / 10)
+    α = 0.25
+    baseline["Φ_coherence"] = float(baseline.get("Φ_coherence", DEFAULT_BASELINE["Φ_coherence"])) + α * (float(avg_coh) - float(baseline.get("Φ_coherence", DEFAULT_BASELINE["Φ_coherence"])))
+    baseline["Φ_entropy"]   = float(baseline.get("Φ_entropy", DEFAULT_BASELINE["Φ_entropy"]))     + α * (float(avg_ent) - float(baseline.get("Φ_entropy", DEFAULT_BASELINE["Φ_entropy"])))
+    baseline["Φ_flux"]      = float(baseline.get("Φ_flux", DEFAULT_BASELINE["Φ_flux"]))          + α * ((float(avg_coh) - float(avg_ent)) - float(baseline.get("Φ_flux", DEFAULT_BASELINE["Φ_flux"])))
+    baseline["Φ_load"]      = float(baseline.get("Φ_load", DEFAULT_BASELINE["Φ_load"]))          + α * (drift / 10.0)
 
-    # --- Belief reinforcement ---
-    beliefs = baseline["beliefs"]
-    prev_beliefs = prev["beliefs"].copy()
+    beliefs = dict((baseline.get("beliefs") or DEFAULT_BASELINE["beliefs"]))
 
-    if avg_coh > 0.8 and avg_ent < 0.3:
-        beliefs["stability"] = min(1.0, beliefs["stability"] + 0.02)
-        beliefs["trust"]     = min(1.0, beliefs["trust"] + 0.01)
-        beliefs["clarity"]   = min(1.0, beliefs["clarity"] + 0.015)
-    elif avg_ent > 0.6:
-        beliefs["curiosity"] = min(1.0, beliefs["curiosity"] + 0.02)
-        beliefs["stability"] = max(0.0, beliefs["stability"] - 0.01)
+    if float(avg_coh) > 0.8 and float(avg_ent) < 0.3:
+        beliefs["stability"] = _clamp01(beliefs.get("stability", 0.5) + 0.02)
+        beliefs["trust"]     = _clamp01(beliefs.get("trust", 0.5) + 0.01)
+        beliefs["clarity"]   = _clamp01(beliefs.get("clarity", 0.5) + 0.015)
+    elif float(avg_ent) > 0.6:
+        beliefs["curiosity"] = _clamp01(beliefs.get("curiosity", 0.5) + 0.02)
+        beliefs["stability"] = _clamp01(beliefs.get("stability", 0.5) - 0.01)
     else:
-        beliefs["clarity"] = max(0.0, beliefs["clarity"] - 0.005)
+        beliefs["clarity"]   = _clamp01(beliefs.get("clarity", 0.5) - 0.005)
 
-    # --- Timestamp + persist ---
+    baseline["beliefs"] = beliefs
     baseline["last_update"] = datetime.datetime.utcnow().isoformat()
     _save_json(REINFORCE_PATH, baseline)
 
-    # --- Print delta summary ---
-    coh_delta = baseline["Φ_coherence"] - prev["Φ_coherence"]
-    ent_delta = baseline["Φ_entropy"] - prev["Φ_entropy"]
-    flux_delta = baseline["Φ_flux"] - prev["Φ_flux"]
-    load_delta = baseline["Φ_load"] - prev["Φ_load"]
-
-    belief_deltas = {
-        k: round(beliefs[k] - prev_beliefs.get(k, 0), 4)
-        for k in beliefs
-    }
-
-    print(f"[AION Reinforce ΔΦ] coherence {coh_delta:+.4f}, entropy {ent_delta:+.4f}, flux {flux_delta:+.4f}, load {load_delta:+.4f}")
-    print(f"[AION Belief Δ] {', '.join([f'{k} {v:+.3f}' for k,v in belief_deltas.items()])}")
+    if _truthy_env(ENV_REINFORCE_PRINT, "0"):
+        coh_delta = float(baseline["Φ_coherence"]) - float(prev.get("Φ_coherence", 0.0))
+        ent_delta = float(baseline["Φ_entropy"]) - float(prev.get("Φ_entropy", 0.0))
+        flux_delta = float(baseline["Φ_flux"]) - float(prev.get("Φ_flux", 0.0))
+        load_delta = float(baseline["Φ_load"]) - float(prev.get("Φ_load", 0.0))
+        belief_deltas = {k: _round4(float(beliefs.get(k, 0.0)) - float(prev_beliefs.get(k, 0.0))) for k in beliefs}
+        print(f"[AION Reinforce ΔΦ] coherence {coh_delta:+.4f}, entropy {ent_delta:+.4f}, flux {flux_delta:+.4f}, load {load_delta:+.4f}")
+        print(f"[AION Belief Δ] " + ", ".join([f"{k} {v:+.3f}" for k, v in belief_deltas.items()]))
 
     return baseline
 
 # ----------------------------------------------------------
-# Public Accessors
+# Demo breathe tick (optional)
 # ----------------------------------------------------------
-# ----------------------------------------------------------
-# Dynamic Belief Update (used by cognitive_feedback)
-# ----------------------------------------------------------
-def breathe_tick():
+
+def breathe_tick() -> Dict[str, Any]:
     """
     Tiny idle-motion for the demo: gently relax Φ fields toward DEFAULT_BASELINE.
-    Does NOT touch memory; safe to run as a background loop.
-    """
-    state = _load_json(REINFORCE_PATH, DEFAULT_BASELINE.copy())
+    Safe to run in a background loop.
 
-    # gentle pull to baseline
+    If AION_PHI_BREATHE != 1 -> no-op (returns current state).
+    """
+    if not _truthy_env(ENV_PHI_BREATHE, "0"):
+        return _load_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+
+    state = _load_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+
     alpha = 0.06
     for k in ("Φ_load", "Φ_flux", "Φ_entropy", "Φ_coherence"):
         tgt = float(DEFAULT_BASELINE.get(k, 0.0))
         cur = float(state.get(k, tgt))
         state[k] = cur + alpha * (tgt - cur)
 
-    # timestamp + persist
     state["last_update"] = datetime.datetime.utcnow().isoformat()
     _save_json(REINFORCE_PATH, state)
+
+    if _truthy_env(ENV_VERBOSE_LOG, "0"):
+        log.info("[phi] breathe tick")
+
     return state
+
 # ----------------------------------------------------------
-# Dynamic Belief Update (stabilized with decay + resistance)
+# Belief updates (used by feedback loops)
 # ----------------------------------------------------------
 
-def update_beliefs(delta: dict):
+def update_beliefs(delta: Dict[str, float]) -> Dict[str, Any]:
     """
     Incrementally update AION's belief vector in response to feedback.
     Includes decay toward neutral (0.5) and resistance to abrupt jumps.
+
+    NO SPAM:
+      - prints only if AION_BELIEF_PRINT=1
+      - only emits when something actually changed (epsilon)
+      - logs to comdex DEBUG (respects uvicorn log level)
     """
-    state = _load_json(REINFORCE_PATH, DEFAULT_BASELINE.copy())
-    beliefs = state.get("beliefs", {})
+    state = _load_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+    beliefs = dict((state.get("beliefs") or DEFAULT_BASELINE["beliefs"]))
+    before = dict(beliefs)
 
-    resistance = 0.3  # higher = slower changes
-    decay_rate = 0.02  # gentle pull toward equilibrium
+    resistance = 0.3   # higher = slower changes
+    decay_rate = 0.02  # pull toward equilibrium
 
-    for k in beliefs:
-        base = beliefs[k]
-        # Decay toward neutral
+    for k in beliefs.keys():
+        base = float(beliefs.get(k, 0.5))
         base += (0.5 - base) * decay_rate
-        # Apply delta with resistance scaling
         if k in delta:
-            base += delta[k] * (1 - resistance)
-        beliefs[k] = max(0.0, min(1.0, base))
+            try:
+                base += float(delta[k]) * (1.0 - resistance)
+            except Exception:
+                pass
+        beliefs[k] = _clamp01(base)
 
-    state["beliefs"] = beliefs
-    state["last_update"] = datetime.datetime.utcnow().isoformat()
-    _save_json(REINFORCE_PATH, state)
+    # Only persist/emit if there was a real change
+    eps = 1e-6
+    changed = any(abs(float(beliefs[k]) - float(before.get(k, 0.0))) > eps for k in beliefs.keys())
 
-    print(f"[🧭 Beliefs adjusted] {beliefs}")
+    if changed:
+        state["beliefs"] = beliefs
+        state["last_update"] = datetime.datetime.utcnow().isoformat()
+        _save_json(REINFORCE_PATH, state)
+
+        # debug log (won’t show at warning level)
+        log.debug("[beliefs] adjusted %s", beliefs)
+
+        if _truthy_env(ENV_BELIEF_PRINT, "0"):
+            print(f"[🧭 Beliefs adjusted] {beliefs}")
+
     return state
-    
-def get_reinforce_state():
-    """Return last saved reinforcement baseline."""
-    return _load_json(REINFORCE_PATH, DEFAULT_BASELINE)
 
-def reset_reinforce_state():
-    """Reset baseline to defaults."""
-    _save_json(REINFORCE_PATH, DEFAULT_BASELINE)
-    print("[AION Reinforce] Baseline reset to defaults.")
-    return DEFAULT_BASELINE
+# ----------------------------------------------------------
+# Public Accessors
+# ----------------------------------------------------------
+
+def get_reinforce_state() -> Dict[str, Any]:
+    return _load_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+
+def reset_reinforce_state() -> Dict[str, Any]:
+    _save_json(REINFORCE_PATH, dict(DEFAULT_BASELINE))
+    if _truthy_env(ENV_REINFORCE_PRINT, "0") or _truthy_env(ENV_BELIEF_PRINT, "0"):
+        print("[AION Reinforce] Baseline reset to defaults.")
+    return dict(DEFAULT_BASELINE)
