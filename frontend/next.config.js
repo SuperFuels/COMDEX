@@ -31,15 +31,11 @@ const withMDX = require("@next/mdx")({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-
-  // ✅ Server build (Vercel/Node/Cloud Run). Static export must be OFF.
-  // (Do not add `output: "export"`.)
-
   eslint: { ignoreDuringBuilds: true },
-
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
 
-  // Prefer runtime env via process.env in code; keeping is OK if you rely on it.
+  // Use runtime env in server rewrites:
+  // FASTAPI_ORIGIN should be like: https://<your-fastapi-host>  (NO trailing /api)
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL || "",
@@ -47,26 +43,28 @@ const nextConfig = {
     NEXT_PUBLIC_CONTAINER_NAV: process.env.NEXT_PUBLIC_CONTAINER_NAV || "site",
   },
 
-  // ✅ Proxy API calls (works in server mode)
   async rewrites() {
-    const radioBase = process.env.NEXT_PUBLIC_RADIO_BASE;
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    const fastapiOrigin = (process.env.FASTAPI_ORIGIN || process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
 
-    const rules = [
+    // If you set NEXT_PUBLIC_API_URL as the full FastAPI base (WITHOUT /api), this works too.
+    // Example:
+    //   FASTAPI_ORIGIN=https://api.tessaris.ai
+    // or NEXT_PUBLIC_API_URL=https://api.tessaris.ai
+    if (!fastapiOrigin) return [];
+
+    return [
+      // ✅ WirePack FIRST (most important)
+      {
+        source: "/api/wirepack/:path*",
+        destination: `${fastapiOrigin}/api/wirepack/:path*`,
+      },
+
+      // ✅ Then the rest of /api/*
       {
         source: "/api/:path*",
-        destination: `${apiBase.replace(/\/+$/, "")}/api/:path*`,
+        destination: `${fastapiOrigin}/api/:path*`,
       },
     ];
-
-    if (radioBase) {
-      rules.push({
-        source: "/containers/:path*",
-        destination: `${radioBase.replace(/\/+$/, "")}/containers/:path*`,
-      });
-    }
-
-    return rules;
   },
 
   webpack(config) {
@@ -78,10 +76,6 @@ const nextConfig = {
     };
     return config;
   },
-
-  // OPTIONAL:
-  // trailingSlash: true,
-  // images: { unoptimized: true },
 };
 
 module.exports = withMDX(nextConfig);

@@ -21,7 +21,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   // FastAPI (primary backend)
-  const fastApiHttp = (env.VITE_FASTAPI_URL || "http://127.0.0.1:8080").replace(/\/+$/, "");
+  // IMPORTANT: default to 8099 (your working local FastAPI in this wirepack run)
+  const fastApiHttp = (env.VITE_FASTAPI_URL || "http://127.0.0.1:8099").replace(/\/+$/, "");
 
   // GX1 (separate service)
   const gx1Http = (env.VITE_GX1_URL || "http://127.0.0.1:8091").replace(/\/+$/, "");
@@ -33,9 +34,11 @@ export default defineConfig(({ mode }) => {
   const tcfkHttp = (env.VITE_TCFK_URL || "http://127.0.0.1:8005").replace(/\/+$/, "");
   const rqfsHttp = (env.VITE_RQFS_URL || "http://127.0.0.1:8006").replace(/\/+$/, "");
 
-  // Optional radio-node (Express)
+  // Optional radio-node (Express) — KEEP vars, but DO NOT PROXY ANYTHING TO IT here.
+  // (Offline browser only, per your instruction.)
   const radioDisabled = env.VITE_DISABLE_RADIO === "1";
   const radioHttp = (env.VITE_BACKEND_URL || "http://127.0.0.1:8787").replace(/\/+$/, "");
+  void radioDisabled; void radioHttp;
 
   // Node KG + SCI
   const kgHttp  = (env.VITE_KG_URL  || "http://127.0.0.1:3000").replace(/\/+$/, "");
@@ -104,6 +107,9 @@ export default defineConfig(({ mode }) => {
     "/api/glyphchain": httpProxy(fastApiHttp),
     "/api/lean": httpProxy(fastApiHttp),
 
+    // ✅ WirePack is served by FastAPI here (NOT radio-node)
+    "/api/wirepack": httpProxy(fastApiHttp),
+
     // ─────────────────────────────────────────────────────────────
     // WebSockets
     // ─────────────────────────────────────────────────────────────
@@ -116,50 +122,9 @@ export default defineConfig(({ mode }) => {
     "/api/ws/fusion": wsProxy(tcfkHttp, dropApiPrefix),
     "/api/ws/rqfs_feedback": wsProxy(rqfsHttp, dropApiPrefix),
 
-    // ─────────────────────────────────────────────────────────────
-    // radio-node (Express) — WirePack + tx/session MUST go here
-    // NOTE: Use regex-anchored keys so nothing weird falls through.
-    // ─────────────────────────────────────────────────────────────
-    ...(radioDisabled
-      ? {}
-      : {
-          "^/api/wirepack(?:/|$)": httpProxy(radioHttp),
-          "^/api/glyphnet/tx(?:/|$)": httpProxy(radioHttp),
-          "^/api/session(?:/|$)": httpProxy(radioHttp),
-
-          // optional debug helper: lets you confirm actual Express routes quickly
-          "^/__routes(?:/|$)": httpProxy(radioHttp),
-
-          // dev RF mock tools
-          "^/dev/rf(?:/|$)": httpProxy(radioHttp),
-
-          // radio-node extras (top-level)
-          "^/bridge(?:/|$)": httpProxy(radioHttp),
-          "^/containers(?:/|$)": httpProxy(radioHttp),
-          "^/health(?:/|$)": httpProxy(radioHttp),
-
-          // radio-node websockets (same-origin via Vite proxy)
-          "^/ws/glyphnet(?:/|$)": wsProxy(radioHttp),
-          "^/ws/rflink(?:/|$)": wsProxy(radioHttp),
-          "^/ws/ghx(?:/|$)": wsProxy(radioHttp),
-          "^/ws(?:/|$)": wsProxy(radioHttp),
-
-          // legacy/extra prefixes you already use
-          "^/radio/qkd": {
-            target: radioHttp,
-            changeOrigin: true,
-            secure: false,
-            rewrite: (p: string) => p.replace(/^\/radio\/qkd/, "/qkd"),
-          },
-          "^/radio": {
-            target: radioHttp,
-            changeOrigin: true,
-            secure: false,
-            ws: true,
-            rewrite: (p: string) => p.replace(/^\/radio/, ""),
-          },
-          "^/qkd(?:/|$)": httpProxy(radioHttp),
-        }),
+    // extra WS endpoints you actually use
+    "/ws": wsProxy(fastApiHttp),
+    "/resonance": wsProxy(fastApiHttp),
 
     // ─────────────────────────────────────────────────────────────
     // SCI proxy

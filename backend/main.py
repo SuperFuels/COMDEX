@@ -749,6 +749,7 @@ from backend.api.aion_dashboard_ws import router as aion_dashboard_router
 from backend.modules.aion_demo.demo_bridge import router as aion_demo_bridge_router
 from backend.routes.aion_cognitive_api import router as aion_cognitive_router
 from backend.api.aion import router as aion_router
+from backend.api.wirepack_api import router as wirepack_router
 from backend.modules.chain_sim.chain_sim_routes import (
     router as chain_sim_router,
     chain_sim_async_startup,
@@ -839,7 +840,7 @@ from backend.api.aion.grid_progress    import router as grid_progress_router
 from backend.routes.aion_grid_progress import router as aion_grid_progress_router
 
 # ── 13) Mount all routers under /api prefix
-api = APIRouter(prefix="/api")
+api = APIRouter()
 
 api.include_router(auth_router)
 api.include_router(products_router)
@@ -866,9 +867,9 @@ api.include_router(game_event_router)
 api.include_router(game_router, prefix="/aion")
 api.include_router(skill_router)
 app.include_router(aion_memory.router, prefix="/api/aion")
-
+api.include_router(wirepack_router, prefix="/wirepack", tags=["wirepack"])
 # ── 14) Include API router on main app
-app.include_router(api)
+app.include_router(api, prefix="/api")
 
 # ── 15) Include standalone routers
 app.include_router(aion_grid_progress_router)
