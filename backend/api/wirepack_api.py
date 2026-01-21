@@ -20,7 +20,7 @@ def _raw_json_bytes(obj: Any) -> int:
 
 def _gzip_json_bytes(obj: Any) -> int:
     return len(gzip.compress(_stable_dumps(obj).encode("utf-8"), compresslevel=6))
-    
+
 # ============================================================
 # Utilities (stable JSON hashing that matches frontend intent)
 # ============================================================
@@ -991,6 +991,9 @@ def v41_query(req: V41QueryRequest) -> Dict[str, Any]:
         },
     }
 
+def _gz_len_utf8(s: str, level: int = 6) -> int:
+    return len(gzip.compress(s.encode("utf-8"), compresslevel=level))
+
 @router.post("/v44/run")
 def v44_run(req: V44RunRequest) -> Dict[str, Any]:
     qid = str(req.query_id)
@@ -999,12 +1002,12 @@ def v44_run(req: V44RunRequest) -> Dict[str, Any]:
 
     t0 = time.time()
 
-    # --- IMPORTANT: keep the full final snapshot state for baseline ---
+    # SIMULATE ONCE so we have a real state snapshot + touched ops (for baselines)
     state, touched = _simulate_state(req.seed, req.n, req.turns, req.muts)
 
     if qid == "projection":
         Q = _make_Q(req.seed ^ 0x3344, req.n, req.k)
-        snap = [[int(i), int(state[i])] for i in Q]  # query result rows
+        snap = [[int(i), int(state[i])] for i in Q]
         stream = snap[:]  # demo contract
     else:
         buckets = max(1, min(int(req.k), 4096))
@@ -1015,33 +1018,61 @@ def v44_run(req: V44RunRequest) -> Dict[str, Any]:
         snap = [[i, int(hist[i])] for i in range(buckets)]
         stream = snap[:]
 
+    # --- WirePack bytes (your existing model) ---
     ops = int(req.turns) * int(req.muts)
     template_bytes = _bytes_estimate_template(req.n)
     delta_bytes_total = ops * _bytes_estimate_delta_per_op()
     wire_total_bytes = template_bytes + delta_bytes_total
 
-    # --- BASELINES (correct scopes) ---
-    # Query-output payload (what dashboard actually needs)
-    raw_query_result_bytes_total = _raw_json_bytes(snap)
-    gzip_query_result_bytes_total = _gzip_json_bytes(snap)
+    # ============================================================
+    # REAL BASELINES (the stuff you actually want to compare)
+    # ============================================================
 
-    # Full snapshot payload (what you'd have to ship without streams)
-    raw_full_snapshot_bytes_total = _raw_json_bytes(state)
-    gzip_full_snapshot_bytes_total = _gzip_json_bytes(state)
+    # 1) Full snapshot baseline: gzip of full state (n values)
+    state_json = _stable_dumps(state)
+    raw_full_snapshot_bytes_total = len(state_json.encode("utf-8"))
+    gzip_full_snapshot_bytes_total = _gz_len_utf8(state_json)
 
-    # Back-compat field: make it mean what its name says (gzip of full snapshot)
-    gzip_snapshot_bytes_total = gzip_full_snapshot_bytes_total
+    # 2) Naive JSON op-stream baseline: NDJSON of touched ops (same "ops" scope as wire_total_bytes)
+    muts_i = max(1, int(req.muts))
+    ndjson_lines: List[str] = []
+    raw_json_total = 0
 
+    # touched length should match ops; clamp defensively
+    ops_len = min(len(touched), ops)
+    for i in range(ops_len):
+        msg = {"t": int(i // muts_i), "idx": int(touched[i]), "op": "inc"}
+        s = _stable_dumps(msg)
+        raw_json_total += len(s.encode("utf-8"))
+        ndjson_lines.append(s)
+
+    gzip_stream_total = _gz_len_utf8("\n".join(ndjson_lines))
+
+    # 3) Query payload sizes (optional but useful)
+    query_json = _stable_dumps(snap)
+    raw_query_payload_bytes = len(query_json.encode("utf-8"))
+    gzip_query_payload_bytes = _gz_len_utf8(query_json)
+
+    # --- Receipt ---
     result_sha256 = _sha256_hex_utf8(_stable_dumps({"query_id": qid, "Q": Q[:256], "stream": stream[:256]}))
-
     receipt_core = {
         "query_id": qid,
-        "params": _stable_dumps(req.model_dump()),
+        "params": req.model_dump(),
         "result_sha256": result_sha256,
         "bytes": {
             "wire_total_bytes": wire_total_bytes,
+            "wire_template_bytes": template_bytes,
+            "wire_delta_bytes_total": delta_bytes_total,
+
+            # NEW: real baselines (consistent across demos)
+            "raw_json_total": raw_json_total,
+            "gzip_stream_total": gzip_stream_total,
+            "raw_full_snapshot_bytes_total": raw_full_snapshot_bytes_total,
             "gzip_full_snapshot_bytes_total": gzip_full_snapshot_bytes_total,
-            "gzip_query_result_bytes_total": gzip_query_result_bytes_total,
+
+            # NEW: query payload sizes (optional)
+            "raw_query_payload_bytes": raw_query_payload_bytes,
+            "gzip_query_payload_bytes": gzip_query_payload_bytes,
         },
     }
     drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_core))
@@ -1053,29 +1084,16 @@ def v44_run(req: V44RunRequest) -> Dict[str, Any]:
         "Q": Q,
         "snapshot_result": snap,
         "stream_result": stream,
-        "bytes": {
-            # stream transport (estimated)
-            "wire_total_bytes": wire_total_bytes,
-            "wire_template_bytes": template_bytes,
-            "wire_delta_bytes_total": delta_bytes_total,
-
-            # legacy name (now correct meaning)
-            "gzip_snapshot_bytes_total": gzip_snapshot_bytes_total,
-
-            # explicit scopes (use these in UI everywhere)
-            "raw_query_result_bytes_total": raw_query_result_bytes_total,
-            "gzip_query_result_bytes_total": gzip_query_result_bytes_total,
-            "raw_full_snapshot_bytes_total": raw_full_snapshot_bytes_total,
-            "gzip_full_snapshot_bytes_total": gzip_full_snapshot_bytes_total,
-
-            # optional: tell UI what to compare
-            "baseline_scope": "wire_total_bytes vs gzip_full_snapshot_bytes_total; query bytes vs full snapshot bytes",
-        },
+        "bytes": receipt_core["bytes"],
         "receipts": {"drift_sha256": drift_sha256, "result_sha256": result_sha256, "LEAN_OK": 1},
         "query_ok": True,
         "timing_ms": {"query": dt_ms},
         "ops": ops,
     }
+
+@router.post("/v46/run")
+def v46_run(req: V44RunRequest) -> Dict[str, Any]:
+    return v44_run(req)
 # ============================================================
 # v45 — Cross-language vectors (single endpoint)
 # ============================================================
