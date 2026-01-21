@@ -512,6 +512,45 @@ def v12_catalog(_: V12CatalogRequest) -> Dict[str, Any]:
         )
     return {"templates": out}
 
+
+def _v12_baseline_samples(tid: str, req: V12MintRequest, t: Dict[str, Any], cap: int = 128) -> list[str]:
+    max_turns = max(1, min(int(req.turns), cap))
+    max_muts = max(1, min(int(req.muts), 32))
+
+    # deterministic xorshift32
+    x = (int(req.seed) & 0xFFFFFFFF) or 1
+    def R() -> int:
+        nonlocal x
+        x ^= ((x << 13) & 0xFFFFFFFF)
+        x ^= (x >> 17)
+        x ^= ((x << 5) & 0xFFFFFFFF)
+        x &= 0xFFFFFFFF
+        return x
+
+    # base message per template
+    if tid == "metrics_v1":
+        cur: Dict[str, Any] = {"cpu": 0.12, "mem": 0.34, "p95_ms": 12.3}
+    else:
+        fields = t.get("fields") or []
+        cur = {f["name"]: 0.0 for f in fields} if fields else {"template_id": tid, "value": 0}
+
+    parts: list[str] = []
+    for i in range(max_turns):
+        msg = dict(cur)
+
+        # apply bounded “mutations” (same idea as your UI)
+        for _ in range(max_muts):
+            r = R()
+            if "cpu" in msg:   msg["cpu"]   = float(msg["cpu"])   + (((r % 7) - 3) * 0.001)
+            if "mem" in msg:   msg["mem"]   = float(msg["mem"])   + ((((r >> 3) % 7) - 3) * 0.001)
+            if "p95_ms" in msg: msg["p95_ms"] = float(msg["p95_ms"]) + ((((r >> 6) % 5) - 2) * 0.1)
+
+        msg["_t"] = i
+        parts.append(_stable_dumps(msg))  # IMPORTANT: return canonical JSON strings
+        cur = msg
+
+    return parts
+
 @router.post("/v12/mint")
 def v12_mint(req: V12MintRequest) -> Dict[str, Any]:
     tid = str(req.template_id)
@@ -530,6 +569,7 @@ def v12_mint(req: V12MintRequest) -> Dict[str, Any]:
     wire_total_bytes = template_bytes + delta_bytes_total
 
     final_state_sha256 = _sha256_hex_utf8(f"{tid}|{req.seed}|{req.n}|{req.turns}|{req.muts}")
+    baseline_samples = _v12_baseline_samples(tid, req, t, cap=128)
 
     receipt_obj = {
         "template_id": tid,
@@ -541,6 +581,7 @@ def v12_mint(req: V12MintRequest) -> Dict[str, Any]:
             "wire_total_bytes": wire_total_bytes,
         },
         "invariants": {"cache_hit": bool(cache_hit)},
+        "baseline_samples": baseline_samples,   # <<< ADD THIS LINE
     }
     # NOTE: v12 doesn’t locally verify drift in the UI, but keep it consistent anyway.
     drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_obj))
