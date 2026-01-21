@@ -13,7 +13,14 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 router = APIRouter()
+import gzip
 
+def _raw_json_bytes(obj: Any) -> int:
+    return len(_stable_dumps(obj).encode("utf-8"))
+
+def _gzip_json_bytes(obj: Any) -> int:
+    return len(gzip.compress(_stable_dumps(obj).encode("utf-8"), compresslevel=6))
+    
 # ============================================================
 # Utilities (stable JSON hashing that matches frontend intent)
 # ============================================================
@@ -984,27 +991,6 @@ def v41_query(req: V41QueryRequest) -> Dict[str, Any]:
         },
     }
 
-# ============================================================
-# v44 — Query primitive (projection|histogram) with stream vs snapshot
-# ============================================================
-
-def _v44_projection(seed: int, n: int, turns: int, muts: int, k: int) -> Tuple[List[int], List[List[int]]]:
-    state, _ = _simulate_state(seed, n, turns, muts)
-    Q = _make_Q(seed ^ 0x3344, n, k)
-    # snapshot_result rows: [idx, value]
-    snap = [[int(i), int(state[i])] for i in Q]
-    return Q, snap
-
-def _v44_histogram(seed: int, n: int, turns: int, muts: int, k: int) -> Tuple[List[int], List[List[int]]]:
-    # k used as buckets here (demo treats k as knob)
-    buckets = max(1, min(int(k), 4096))
-    _, touched = _simulate_state(seed, n, turns, muts)
-    hist = [0] * buckets
-    for idx in touched:
-        hist[int(idx) % buckets] += 1
-    rows = [[i, int(hist[i])] for i in range(buckets)]
-    return list(range(buckets)), rows
-
 @router.post("/v44/run")
 def v44_run(req: V44RunRequest) -> Dict[str, Any]:
     qid = str(req.query_id)
@@ -1012,11 +998,21 @@ def v44_run(req: V44RunRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail="query_id must be projection|histogram")
 
     t0 = time.time()
+
+    # --- IMPORTANT: keep the full final snapshot state for baseline ---
+    state, touched = _simulate_state(req.seed, req.n, req.turns, req.muts)
+
     if qid == "projection":
-        Q, snap = _v44_projection(req.seed, req.n, req.turns, req.muts, req.k)
-        stream = snap[:]  # for demo contract
+        Q = _make_Q(req.seed ^ 0x3344, req.n, req.k)
+        snap = [[int(i), int(state[i])] for i in Q]  # query result rows
+        stream = snap[:]  # demo contract
     else:
-        Q, snap = _v44_histogram(req.seed, req.n, req.turns, req.muts, req.k)
+        buckets = max(1, min(int(req.k), 4096))
+        hist = [0] * buckets
+        for idx in touched:
+            hist[int(idx) % buckets] += 1
+        Q = list(range(buckets))
+        snap = [[i, int(hist[i])] for i in range(buckets)]
         stream = snap[:]
 
     ops = int(req.turns) * int(req.muts)
@@ -1024,14 +1020,29 @@ def v44_run(req: V44RunRequest) -> Dict[str, Any]:
     delta_bytes_total = ops * _bytes_estimate_delta_per_op()
     wire_total_bytes = template_bytes + delta_bytes_total
 
-    gzip_snapshot_bytes_total = len(_stable_dumps(snap).encode("utf-8"))  # baseline “gzip-ish” placeholder
+    # --- BASELINES (correct scopes) ---
+    # Query-output payload (what dashboard actually needs)
+    raw_query_result_bytes_total = _raw_json_bytes(snap)
+    gzip_query_result_bytes_total = _gzip_json_bytes(snap)
+
+    # Full snapshot payload (what you'd have to ship without streams)
+    raw_full_snapshot_bytes_total = _raw_json_bytes(state)
+    gzip_full_snapshot_bytes_total = _gzip_json_bytes(state)
+
+    # Back-compat field: make it mean what its name says (gzip of full snapshot)
+    gzip_snapshot_bytes_total = gzip_full_snapshot_bytes_total
 
     result_sha256 = _sha256_hex_utf8(_stable_dumps({"query_id": qid, "Q": Q[:256], "stream": stream[:256]}))
+
     receipt_core = {
         "query_id": qid,
         "params": _stable_dumps(req.model_dump()),
         "result_sha256": result_sha256,
-        "bytes": {"wire_total_bytes": wire_total_bytes, "gzip_snapshot_bytes_total": gzip_snapshot_bytes_total},
+        "bytes": {
+            "wire_total_bytes": wire_total_bytes,
+            "gzip_full_snapshot_bytes_total": gzip_full_snapshot_bytes_total,
+            "gzip_query_result_bytes_total": gzip_query_result_bytes_total,
+        },
     }
     drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_core))
     dt_ms = (time.time() - t0) * 1000.0
@@ -1043,22 +1054,28 @@ def v44_run(req: V44RunRequest) -> Dict[str, Any]:
         "snapshot_result": snap,
         "stream_result": stream,
         "bytes": {
+            # stream transport (estimated)
             "wire_total_bytes": wire_total_bytes,
-            "gzip_snapshot_bytes_total": gzip_snapshot_bytes_total,
             "wire_template_bytes": template_bytes,
             "wire_delta_bytes_total": delta_bytes_total,
+
+            # legacy name (now correct meaning)
+            "gzip_snapshot_bytes_total": gzip_snapshot_bytes_total,
+
+            # explicit scopes (use these in UI everywhere)
+            "raw_query_result_bytes_total": raw_query_result_bytes_total,
+            "gzip_query_result_bytes_total": gzip_query_result_bytes_total,
+            "raw_full_snapshot_bytes_total": raw_full_snapshot_bytes_total,
+            "gzip_full_snapshot_bytes_total": gzip_full_snapshot_bytes_total,
+
+            # optional: tell UI what to compare
+            "baseline_scope": "wire_total_bytes vs gzip_full_snapshot_bytes_total; query bytes vs full snapshot bytes",
         },
         "receipts": {"drift_sha256": drift_sha256, "result_sha256": result_sha256, "LEAN_OK": 1},
         "query_ok": True,
         "timing_ms": {"query": dt_ms},
         "ops": ops,
     }
-
-# Frontend fallback path: /v46/run (same shape as v44/run)
-@router.post("/v46/run")
-def v46_run(req: V44RunRequest) -> Dict[str, Any]:
-    return v44_run(req)
-
 # ============================================================
 # v45 — Cross-language vectors (single endpoint)
 # ============================================================
