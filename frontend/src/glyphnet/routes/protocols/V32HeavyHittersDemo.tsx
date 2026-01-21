@@ -54,6 +54,58 @@ function boolBadge(ok: boolean | null) {
 
 type HH = { idx: number; hits: number };
 
+// stable JSON (deterministic ordering)
+function stableStringify(x: any): string {
+  const seen = new WeakSet<object>();
+  const walk = (v: any): any => {
+    if (v === null || typeof v !== "object") return v;
+    if (seen.has(v)) throw new Error("cyclic json");
+    seen.add(v);
+    if (Array.isArray(v)) return v.map(walk);
+    const out: any = {};
+    for (const k of Object.keys(v).sort()) out[k] = walk(v[k]);
+    return out;
+  };
+  return JSON.stringify(walk(x));
+}
+
+function utf8Len(s: string): number {
+  try {
+    return new TextEncoder().encode(s).length;
+  } catch {
+    return s.length;
+  }
+}
+
+async function gzipLenUtf8(s: string): Promise<number | null> {
+  try {
+    // @ts-ignore
+    if (typeof CompressionStream === "undefined") return null;
+    const u8 = new TextEncoder().encode(s);
+    // @ts-ignore
+    const stream = new Blob([u8]).stream().pipeThrough(new CompressionStream("gzip"));
+    const ab = await new Response(stream).arrayBuffer();
+    return new Uint8Array(ab).length;
+  } catch {
+    return null;
+  }
+}
+
+async function gzipStreamLenUtf8(parts: string[], sep = "\n"): Promise<number | null> {
+  try {
+    // @ts-ignore
+    if (typeof CompressionStream === "undefined") return null;
+    const joined = parts.join(sep);
+    const u8 = new TextEncoder().encode(joined);
+    // @ts-ignore
+    const stream = new Blob([u8]).stream().pipeThrough(new CompressionStream("gzip"));
+    const ab = await new Response(stream).arrayBuffer();
+    return new Uint8Array(ab).length;
+  } catch {
+    return null;
+  }
+}
+
 // Accept lots of backend shapes:
 // - [{idx: 69, hits: 2}, ...]
 // - [{index: 69, count: 2}, ...]
@@ -111,7 +163,6 @@ function MiniBarChart(props: { data: HH[]; height?: number; title?: string }) {
   const data = props.data.slice(0, 16);
   const max = Math.max(1, ...data.map((d) => d.hits));
 
-  // simple SVG chart, no deps, readable by default
   const w = 640;
   const h = height;
   const padL = 44;
@@ -143,11 +194,9 @@ function MiniBarChart(props: { data: HH[]; height?: number; title?: string }) {
         </div>
       ) : (
         <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", marginTop: 8, display: "block" }}>
-          {/* axes */}
           <line x1={padL} y1={padT} x2={padL} y2={padT + innerH} stroke="#e5e7eb" />
           <line x1={padL} y1={padT + innerH} x2={padL + innerW} y2={padT + innerH} stroke="#e5e7eb" />
 
-          {/* y ticks */}
           {[0, max].map((t, i) => (
             <g key={i}>
               <line x1={padL - 4} y1={y(t)} x2={padL} y2={y(t)} stroke="#e5e7eb" />
@@ -157,14 +206,12 @@ function MiniBarChart(props: { data: HH[]; height?: number; title?: string }) {
             </g>
           ))}
 
-          {/* bars */}
           {data.map((d, i) => {
             const x = padL + i * barW + Math.max(2, barW * 0.12);
             const bw = Math.max(6, barW * 0.76);
             const top = y(d.hits);
             const bh = padT + innerH - top;
 
-            // highlight hitters with >1 hits (like your story)
             const fill = d.hits > 1 ? "#ef4444" : "#3b82f6";
 
             return (
@@ -185,13 +232,6 @@ function MiniBarChart(props: { data: HH[]; height?: number; title?: string }) {
   );
 }
 
-/**
- * v32 — Heavy hitters
- * Endpoint expected: POST /api/wirepack/v32/run
- *
- * Dashboard: bar chart + stats + receipt verifier
- * while keeping your receipt-shaped invariants/raw output.
- */
 export const V32HeavyHittersDemo: React.FC = () => {
   const [seed, setSeed] = useState(1337);
   const [n, setN] = useState(4096);
@@ -207,31 +247,16 @@ export const V32HeavyHittersDemo: React.FC = () => {
   const [receiptInput, setReceiptInput] = useState("");
   const [showExamples, setShowExamples] = useState(true);
 
+  // baselines (ONLY if backend provides samples)
+  const [rawJsonTotalBytes, setRawJsonTotalBytes] = useState<number | null>(null);
+  const [gzipPerFrameTotalBytes, setGzipPerFrameTotalBytes] = useState<number | null>(null);
+  const [gzipStreamTotalBytes, setGzipStreamTotalBytes] = useState<number | null>(null);
+  const [baselineNote, setBaselineNote] = useState<string | null>(null);
+
   const EXAMPLES = [
-    {
-      label: "🎯 Story example (4096/64/3, K=16)",
-      seed: 1337,
-      n: 4096,
-      turns: 64,
-      muts: 3,
-      k: 16,
-    },
-    {
-      label: "Sparse fleet (n=50k, fewer turns)",
-      seed: 2026,
-      n: 50_000,
-      turns: 24,
-      muts: 2,
-      k: 10,
-    },
-    {
-      label: "Security-ish burst (higher muts)",
-      seed: 9090,
-      n: 100_000,
-      turns: 32,
-      muts: 8,
-      k: 25,
-    },
+    { label: "🎯 Story example (4096/64/3, K=16)", seed: 1337, n: 4096, turns: 64, muts: 3, k: 16 },
+    { label: "Sparse fleet (n=50k, fewer turns)", seed: 2026, n: 50_000, turns: 24, muts: 2, k: 10 },
+    { label: "Security-ish burst (higher muts)", seed: 9090, n: 100_000, turns: 32, muts: 8, k: 25 },
   ];
 
   async function run() {
@@ -240,11 +265,59 @@ export const V32HeavyHittersDemo: React.FC = () => {
     setErr(null);
     setOut(null);
 
+    setRawJsonTotalBytes(null);
+    setGzipPerFrameTotalBytes(null);
+    setGzipStreamTotalBytes(null);
+    setBaselineNote(null);
+
     try {
       const body = { seed, n, turns, muts, k };
       const { ok, status, json } = await fetchJson("/api/wirepack/v32/run", body, 60000);
       if (!ok) throw new Error(`HTTP ${status}: ${JSON.stringify(json)}`);
       setOut(json);
+
+      // -------- baseline handling (backend-provided only) --------
+      const receiptSamples =
+        Array.isArray(json?.receipts?.baseline_samples) ? json.receipts.baseline_samples :
+        Array.isArray(json?.receipt?.baseline_samples) ? json.receipt.baseline_samples :
+        Array.isArray(json?.baseline_samples) ? json.baseline_samples :
+        null;
+
+      if (!receiptSamples || receiptSamples.length === 0) {
+        setBaselineNote("Baseline comparison unavailable (backend did not return baseline_samples). Use v46 for real streaming baselines.");
+        return;
+      }
+
+      const parts: string[] = [];
+      for (const s of receiptSamples) {
+        if (typeof s === "string") parts.push(s);
+        else parts.push(stableStringify(s));
+      }
+
+      let rawTotal = 0;
+      for (const p of parts) rawTotal += utf8Len(p);
+      setRawJsonTotalBytes(rawTotal);
+
+      // per-frame gzip
+      let gzFrameKnown = true;
+      let gzFrameTotal = 0;
+      for (const p of parts) {
+        const g = await gzipLenUtf8(p);
+        if (g == null) { gzFrameKnown = false; break; }
+        gzFrameTotal += g;
+      }
+      setGzipPerFrameTotalBytes(gzFrameKnown ? gzFrameTotal : null);
+
+      // stream gzip
+      const gzStream = await gzipStreamLenUtf8(parts);
+      setGzipStreamTotalBytes(gzStream);
+
+      // @ts-ignore
+      if (typeof CompressionStream === "undefined") {
+        setBaselineNote("Baseline_samples provided, but gzip unsupported in this browser.");
+      } else {
+        setBaselineNote(`Baselines computed from backend-provided baseline_samples (n=${parts.length}).`);
+      }
     } catch (e: any) {
       setErr(e?.message || "Demo failed");
     } finally {
@@ -256,47 +329,26 @@ export const V32HeavyHittersDemo: React.FC = () => {
   const receipts = useMemo(() => safeObj(out?.receipts), [out]);
   const b = useMemo(() => safeObj(out?.bytes), [out]);
 
-  // Prefer common naming, but stay robust.
-  const heavyOk =
-    invariants?.heavy_hitters_ok ??
-    invariants?.topk_ok ??
-    invariants?.query_ok ??
-    invariants?.ok ??
-    null;
-
-  const badge = boolBadge(heavyOk === null ? null : Boolean(heavyOk));
-
-  // Try to find a Top-K list in a few plausible places.
-  const topkAny =
-    out?.topk ??
-    out?.top_k ??
-    out?.result?.topk ??
-    out?.result?.top_k ??
-    out?.results?.topk ??
-    out?.results?.top_k ??
-    out?.answer?.topk ??
-    out?.answer?.top_k ??
-    null;
-
+  const topkAny = out?.topk ?? out?.top_k ?? out?.result?.topk ?? out?.results?.topk ?? out?.answer?.topk ?? null;
   const topkParsed = useMemo(() => parseTopK(topkAny), [topkAny]);
 
+  const heavyOk = (invariants?.topk_ok ?? invariants?.heavy_hitters_ok ?? invariants?.ok ?? null) as any;
+  const badge = boolBadge(heavyOk === null ? null : Boolean(heavyOk));
+
   const drift = String(receipts?.drift_sha256 ?? out?.drift_sha256 ?? "");
-  const finalState = String(out?.final_state_sha256 ?? receipts?.final_state_sha256 ?? "");
+  const finalState = String(out?.final_state_sha256 ?? "");
+
   const leanOk = receipts?.LEAN_OK ?? out?.LEAN_OK ?? null;
 
-  // Bytes (accept several naming conventions)
+  // wire bytes
   const templateBytes =
     b?.wire_template_bytes ??
     b?.template_bytes ??
-    b?.template_bytes_out ??
-    b?.template ??
     0;
 
   const deltaBytesTotal =
     b?.wire_delta_bytes_total ??
-    b?.wire_delta_bytes_total_sum ??
     b?.delta_bytes_total ??
-    b?.delta_total ??
     0;
 
   const wireTotal =
@@ -304,34 +356,34 @@ export const V32HeavyHittersDemo: React.FC = () => {
     (Number(templateBytes || 0) + Number(deltaBytesTotal || 0));
 
   // perf
-  const qMs =
-    out?.timing_ms?.query ??
-    out?.timing_ms ??
-    out?.query_ms ??
-    out?.query_time_ms ??
-    null;
+  const qMs = out?.timing_ms?.query ?? out?.timing_ms ?? out?.query_ms ?? null;
 
   const ops = Number(turns || 0) * Number(muts || 0);
   const bytesPerOp = ops > 0 ? Number(deltaBytesTotal || 0) / ops : null;
 
-  // verifier match
+  // receipt verifier
   const normalizedInput = receiptInput.trim().toLowerCase();
   const normalizedDrift = (drift || "").trim().toLowerCase();
-  const receiptMatch =
-    normalizedInput.length >= 8 &&
-    normalizedDrift.length >= 8 &&
-    normalizedInput === normalizedDrift;
+  const receiptMatch = normalizedInput.length >= 8 && normalizedDrift.length >= 8 && normalizedInput === normalizedDrift;
+  const receiptBadge = boolBadge(normalizedInput.length === 0 ? null : receiptMatch);
 
-  const receiptBadge = boolBadge(
-    normalizedInput.length === 0 ? null : receiptMatch
-  );
+  // baseline comparisons (only if we computed)
+  const wireVsRawPct =
+    rawJsonTotalBytes != null && rawJsonTotalBytes > 0 ? (Number(wireTotal) / rawJsonTotalBytes - 1) * 100 : null;
+
+  const wireVsGzFramePct =
+    gzipPerFrameTotalBytes != null && gzipPerFrameTotalBytes > 0 ? (Number(wireTotal) / gzipPerFrameTotalBytes - 1) * 100 : null;
+
+  const wireVsGzStreamPct =
+    gzipStreamTotalBytes != null && gzipStreamTotalBytes > 0 ? (Number(wireTotal) / gzipStreamTotalBytes - 1) * 100 : null;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {/* Header */}
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 900, color: "#111827" }}>v32 — Dashboard Unlock (Heavy Hitters / Top-K)</div>
+          <div style={{ fontSize: 14, fontWeight: 900, color: "#111827" }}>
+            v32 — Dashboard Unlock (Heavy Hitters / Top-K)
+          </div>
           <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
             Top-K directly on compressed delta streams — no decompression, no full state materialization — with verifiable receipts.
           </div>
@@ -340,52 +392,32 @@ export const V32HeavyHittersDemo: React.FC = () => {
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#374151" }}>
             seed
-            <input
-              type="number"
-              value={seed}
-              onChange={(e) => setSeed(Number(e.target.value) || 0)}
-              style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }}
-            />
+            <input type="number" value={seed} onChange={(e) => setSeed(Number(e.target.value) || 0)}
+              style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }} />
           </label>
 
           <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#374151" }}>
             n
-            <input
-              type="number"
-              value={n}
-              onChange={(e) => setN(clamp(Number(e.target.value) || 4096, 256, 1_000_000))}
-              style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }}
-            />
+            <input type="number" value={n} onChange={(e) => setN(clamp(Number(e.target.value) || 4096, 256, 1_000_000))}
+              style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }} />
           </label>
 
           <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#374151" }}>
             turns
-            <input
-              type="number"
-              value={turns}
-              onChange={(e) => setTurns(clamp(Number(e.target.value) || 64, 1, 4096))}
-              style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }}
-            />
+            <input type="number" value={turns} onChange={(e) => setTurns(clamp(Number(e.target.value) || 64, 1, 4096))}
+              style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }} />
           </label>
 
           <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#374151" }}>
             muts
-            <input
-              type="number"
-              value={muts}
-              onChange={(e) => setMuts(clamp(Number(e.target.value) || 3, 1, 4096))}
-              style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }}
-            />
+            <input type="number" value={muts} onChange={(e) => setMuts(clamp(Number(e.target.value) || 3, 1, 4096))}
+              style={{ width: 90, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }} />
           </label>
 
           <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#374151" }}>
             K
-            <input
-              type="number"
-              value={k}
-              onChange={(e) => setK(clamp(Number(e.target.value) || 16, 1, 128))}
-              style={{ width: 70, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }}
-            />
+            <input type="number" value={k} onChange={(e) => setK(clamp(Number(e.target.value) || 16, 1, 128))}
+              style={{ width: 70, padding: "6px 8px", borderRadius: 999, border: "1px solid #e5e7eb" }} />
           </label>
 
           <button
@@ -401,7 +433,6 @@ export const V32HeavyHittersDemo: React.FC = () => {
               fontWeight: 900,
               cursor: "pointer",
             }}
-            title="Toggle presets"
           >
             Examples
           </button>
@@ -433,13 +464,7 @@ export const V32HeavyHittersDemo: React.FC = () => {
               <button
                 key={ex.label}
                 type="button"
-                onClick={() => {
-                  setSeed(ex.seed);
-                  setN(ex.n);
-                  setTurns(ex.turns);
-                  setMuts(ex.muts);
-                  setK(ex.k);
-                }}
+                onClick={() => { setSeed(ex.seed); setN(ex.n); setTurns(ex.turns); setMuts(ex.muts); setK(ex.k); }}
                 style={{
                   padding: "6px 10px",
                   borderRadius: 999,
@@ -460,7 +485,6 @@ export const V32HeavyHittersDemo: React.FC = () => {
 
       {err ? <div style={{ fontSize: 11, color: "#b91c1c" }}>{err}</div> : null}
 
-      {/* Dashboard row: chart + stats */}
       <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 10 }}>
         <MiniBarChart data={topkParsed} title="Heavy Hitters (Live)" />
 
@@ -468,13 +492,52 @@ export const V32HeavyHittersDemo: React.FC = () => {
           <StatTile label="Query time" value={qMs != null ? `${Number(qMs).toFixed(2)} ms` : "—"} sub="delta scan + Top-K accumulator" />
           <StatTile label="Stream size" value={bytes(Number(wireTotal || 0))} sub="template + delta stream" />
           <StatTile label="Ops" value={ops ? ops : "—"} sub={`${turns} turns × ${muts} muts`} />
-          <StatTile
-            label="Bytes / op"
-            value={bytesPerOp != null ? `${bytesPerOp.toFixed(2)} B` : "—"}
-            sub="delta_bytes_total / ops"
-          />
-          <StatTile label="LEAN_OK" value={leanOk != null ? String(leanOk) : "—"} sub={leanOk ? "formally checked invariant chain" : "receipt field"} />
+          <StatTile label="Bytes / op" value={bytesPerOp != null ? `${bytesPerOp.toFixed(2)} B` : "—"} sub="delta_bytes_total / ops" />
+          <StatTile label="LEAN_OK" value={leanOk != null ? String(leanOk) : "—"} sub="formally checked invariant chain" />
           <StatTile label="topk_ok" value={heavyOk == null ? "—" : heavyOk ? "true ✅" : "false ❌"} sub="order-independent correctness" />
+        </div>
+      </div>
+
+      {/* Baselines (truthful) */}
+      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Baselines (truthful)</div>
+
+        <div style={{ marginTop: 8, fontSize: 11, color: "#374151" }}>
+          raw_json_total: <b>{rawJsonTotalBytes == null ? "—" : bytes(rawJsonTotalBytes)}</b>{" "}
+          <span style={{ color: "#6b7280" }}>({rawJsonTotalBytes ?? "—"} B)</span>{" "}
+          {wireVsRawPct != null ? (
+            <span style={{ color: wireVsRawPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+              {" "}({wireVsRawPct > 0 ? "+" : ""}{wireVsRawPct.toFixed(1)}%)
+            </span>
+          ) : null}
+        </div>
+
+        <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
+          gzip_per_frame_total: <b>{gzipPerFrameTotalBytes == null ? "—" : bytes(gzipPerFrameTotalBytes)}</b>{" "}
+          <span style={{ color: "#6b7280" }}>({gzipPerFrameTotalBytes ?? "—"} B)</span>{" "}
+          {wireVsGzFramePct != null ? (
+            <span style={{ color: wireVsGzFramePct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+              {" "}({wireVsGzFramePct > 0 ? "+" : ""}{wireVsGzFramePct.toFixed(1)}%)
+            </span>
+          ) : (
+            <span style={{ color: "#6b7280" }}> (unavailable)</span>
+          )}
+        </div>
+
+        <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
+          gzip_stream_total: <b>{gzipStreamTotalBytes == null ? "—" : bytes(gzipStreamTotalBytes)}</b>{" "}
+          <span style={{ color: "#6b7280" }}>({gzipStreamTotalBytes ?? "—"} B)</span>{" "}
+          {wireVsGzStreamPct != null ? (
+            <span style={{ color: wireVsGzStreamPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+              {" "}({wireVsGzStreamPct > 0 ? "+" : ""}{wireVsGzStreamPct.toFixed(1)}%)
+            </span>
+          ) : (
+            <span style={{ color: "#6b7280" }}> (unavailable)</span>
+          )}
+        </div>
+
+        <div style={{ marginTop: 8, fontSize: 10, color: "#6b7280" }}>
+          {baselineNote ? baselineNote : "Baselines require backend-provided baseline_samples (or use v46 for real streaming)."}
         </div>
       </div>
 
@@ -536,49 +599,13 @@ export const V32HeavyHittersDemo: React.FC = () => {
             <code style={{ color: "#111827" }}>{drift || "—"}</code>
           </div>
           <div style={{ marginTop: 4 }}>
-            Explanation: any verifier can re-run Top-K over the same delta stream and recompute this hash. Match = “dashboard is provably correct”.
+            Any verifier can re-run Top-K over the same delta stream and recompute this hash. Match = “dashboard is provably correct”.
           </div>
         </div>
       </div>
 
-      {/* SELL / PITCH CARD (updated to match your story) */}
-      <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>
-          🎯 v32 — The “Dashboard Unlock”: Real-time analytics on compressed streams
-        </div>
-
-        <div style={{ fontSize: 11, color: "#374151", marginTop: 8, lineHeight: 1.55 }}>
-          <b>The claim:</b> find the <b>Top-K most active items</b> directly on the <b>compressed delta stream</b> —
-          <b> no decompression</b>, no materialization.
-          <br /><br />
-
-          <b>This run shape:</b> <code>{n}</code> items, <code>{turns}</code> turns, <code>{muts}</code> mutations/turn ={" "}
-          <code>{ops}</code> ops. Delta stream size: <code>{bytes(Number(deltaBytesTotal || 0))}</code>.
-          <br /><br />
-
-          <b>Interpretation:</b> “Which sensors were most active?” from a tiny edit log — without reconstructing a 4,096-item state.
-          <br /><br />
-
-          <b>Outputs you can pin:</b>
-          <ul style={{ margin: "6px 0 0 16px", padding: 0 }}>
-            <li><code>topk_ok</code>: order-independent Top-K correctness.</li>
-            <li><code>topk</code>: Top-K indices + hit counts (the dashboard data).</li>
-            <li><code>final_state_sha256</code>: deterministic fingerprint of the activity vector.</li>
-            <li><code>drift_sha256</code>: receipt hash (portable verifier).</li>
-            <li><code>LEAN_OK</code>: invariants checked end-to-end.</li>
-          </ul>
-
-          <div style={{ marginTop: 10 }}>
-            <b>Why this is observability-grade:</b> heavy-hitters is the “core dashboard query” (Top-K errors, Top-K slow endpoints, Top-K attack IPs).
-            v32 proves you can do it with delta scans + a Top-K accumulator and get a <b>cryptographic audit trail</b>.
-          </div>
-        </div>
-      </div>
-
-      {/* OUTPUT (receipt/invariants/raw) */}
       {out ? (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {/* Status + Top-K list */}
           <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Invariant status</div>
@@ -594,34 +621,28 @@ export const V32HeavyHittersDemo: React.FC = () => {
                 }}
               >
                 {badge.label}
-                {heavyOk !== null ? ` (${Object.keys(invariants).length ? "invariants" : "ok"})` : ""}
               </div>
             </div>
 
             <div style={{ marginTop: 10, fontSize: 11, color: "#374151", lineHeight: 1.6 }}>
               {Object.keys(invariants).length ? (
-                Object.keys(invariants)
-                  .sort()
-                  .map((k) => (
-                    <div key={k}>
-                      {k}: <code>{String(invariants[k])}</code>
-                    </div>
-                  ))
+                Object.keys(invariants).sort().map((k) => (
+                  <div key={k}>
+                    {k}: <code>{String(invariants[k])}</code>
+                  </div>
+                ))
               ) : (
                 <div style={{ color: "#6b7280" }}>No invariants object returned (see raw JSON below).</div>
               )}
             </div>
 
-            {/* Top-K list */}
             <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #e5e7eb" }}>
               <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Top-K (heavy hitters)</div>
               {topkParsed.length ? (
                 <ul style={{ margin: "8px 0 0 16px", padding: 0, fontSize: 11, color: "#374151" }}>
                   {topkParsed.slice(0, 32).map((x, i) => (
                     <li key={`${x.idx}-${i}`}>
-                      <code>
-                        idx {x.idx}: {x.hits} hit{x.hits === 1 ? "" : "s"}
-                      </code>
+                      <code>idx {x.idx}: {x.hits} hit{x.hits === 1 ? "" : "s"}</code>
                     </li>
                   ))}
                 </ul>
@@ -633,7 +654,6 @@ export const V32HeavyHittersDemo: React.FC = () => {
             </div>
           </div>
 
-          {/* Receipt */}
           <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
             <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Receipt</div>
             <div style={{ marginTop: 10, fontSize: 11, color: "#374151", lineHeight: 1.6 }}>
@@ -642,14 +662,13 @@ export const V32HeavyHittersDemo: React.FC = () => {
               <div>wire_total_bytes: <code>{bytes(Number(wireTotal || 0))}</code></div>
 
               <div style={{ paddingTop: 8, borderTop: "1px solid #e5e7eb", marginTop: 8 }}>
-                final_state_sha256: <code>{finalState}</code>
+                final_state_sha256: <code>{finalState || "—"}</code>
               </div>
-              <div>drift_sha256: <code>{drift}</code></div>
+              <div>drift_sha256: <code>{drift || "—"}</code></div>
               <div>LEAN_OK: <code>{String(leanOk)}</code></div>
             </div>
           </div>
 
-          {/* Raw */}
           <div style={{ gridColumn: "1 / -1", borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
             <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>Raw response</div>
             <pre style={{ marginTop: 8, fontSize: 11, color: "#111827", whiteSpace: "pre-wrap" }}>
@@ -659,7 +678,6 @@ export const V32HeavyHittersDemo: React.FC = () => {
         </div>
       ) : null}
 
-      {/* Endpoint */}
       <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10, fontSize: 11, color: "#6b7280" }}>
         Endpoint used:
         <div style={{ marginTop: 6 }}>

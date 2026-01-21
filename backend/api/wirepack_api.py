@@ -709,6 +709,14 @@ def v32_run(req: V32RunRequest) -> Dict[str, Any]:
     top = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:k]
     topk = [{"idx": int(i), "hits": int(c)} for i, c in top]
 
+    # --- baseline_samples (for truthful baseline comparisons in UI) ---
+    # cap ~64–256. Use canonical JSON strings to avoid frontend re-stringify differences.
+    cap = max(64, min(int(req.turns), 256))
+    baseline_samples = []
+    for i in range(min(cap, len(topk))):
+        msg = {"idx": topk[i]["idx"], "hits": topk[i]["hits"], "_t": i}
+        baseline_samples.append(_stable_dumps(msg))  # canonical JSON string
+
     ops_total = int(req.turns) * int(req.muts)
     template_bytes = _bytes_estimate_template(req.n)
     delta_bytes_total = ops_total * _bytes_estimate_delta_per_op()
@@ -734,7 +742,7 @@ def v32_run(req: V32RunRequest) -> Dict[str, Any]:
             "wire_total_bytes": wire_total_bytes,
         },
         "final_state_sha256": final_state_sha256,
-        "receipts": {"drift_sha256": drift_sha256, "LEAN_OK": 1},
+        "receipts": {"drift_sha256": drift_sha256, "LEAN_OK": 1, "baseline_samples": baseline_samples},
         "timing_ms": {"query": 0.0},
     }
 
