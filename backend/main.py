@@ -410,28 +410,41 @@ if ALLOW_ALL:
     allow_origin_regex = r"^https?://.*$"
     allow_credentials = False
 else:
-    # Allow common local dev hosts
-    allow_origins = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        # include https variants just in case a proxy terminates TLS locally
-        "https://localhost:5173",
-        "https://127.0.0.1:5173",
-        "https://comdex-fawn.vercel.app",
-    ]
-    # Codespaces (e.g. https://<id>-5173.app.github.dev) and Vercel previews
-    allow_origin_regex = r"^https://[-a-z0-9]+-(5173|8080)\.app\.github\.dev$|^https://.*\.vercel\.app$"
-    allow_credentials = True
+    # Allow common local dev hosts + your production domains
+# Allow common local dev hosts + prod site + vercel
+allow_origins = [
+    # local dev
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://localhost:5173",
+    "https://127.0.0.1:5173",
+
+    # prod domains
+    "https://tessaris.ai",
+    "https://www.tessaris.ai",
+
+    # vercel (explicit common ones)
+    "https://comdex-fawn.vercel.app",
+]
+
+# Codespaces + any vercel preview + (optional) *.web.app if you use that
+allow_origin_regex = (
+    r"^https://[-a-z0-9]+-(5173|8080)\.app\.github\.dev$"
+    r"|^https://.*\.vercel\.app$"
+    r"|^https://.*\.web\.app$"
+)
+
+allow_credentials = True
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allow_origins,          # may be empty when using regex
+    allow_origins=allow_origins,
     allow_origin_regex=allow_origin_regex,
-    allow_credentials=allow_credentials,  # must be False if ALLOW_ALL is used
+    allow_credentials=allow_credentials,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["*"],                  # covers X-Agent-Id, X-Agent-Token, Content-Type…
+    allow_headers=["*"],
     expose_headers=["*"],
     max_age=86400,
 )

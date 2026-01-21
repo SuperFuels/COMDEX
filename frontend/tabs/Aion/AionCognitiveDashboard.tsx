@@ -31,18 +31,22 @@ function toneFor(v: number, goodMin = 0.975, warnMin = 0.85) {
 }
 
 function pickWsUrl() {
-  const envWs = process.env.NEXT_PUBLIC_AION_DASHBOARD_WS;
-  if (envWs) return envWs;
-
-  if (typeof window !== "undefined") {
-    // In Next dev server (3000), default to backend 8080.
-    if (window.location.port === "3000") return `ws://127.0.0.1:8080/api/aion/dashboard/ws`;
-
-    const proto = window.location.protocol === "https:" ? "wss" : "ws";
-    return `${proto}://${window.location.host}/api/aion/dashboard/ws`;
+  const envWs = (process.env.NEXT_PUBLIC_AION_DASHBOARD_WS || "").trim();
+  if (envWs) {
+    // allow people to paste https://... and we convert it
+    if (envWs.startsWith("https://")) return "wss://" + envWs.slice("https://".length);
+    if (envWs.startsWith("http://")) return "ws://" + envWs.slice("http://".length);
+    return envWs; // ws:// or wss://
   }
 
-  return "ws://127.0.0.1:8080/api/aion/dashboard/ws";
+  if (typeof window !== "undefined") {
+    if (window.location.port === "3000") return `ws://127.0.0.1:8080/ws/aion-demo`;
+
+    const proto = window.location.protocol === "https:" ? "wss" : "ws";
+    return `${proto}://${window.location.host}/ws/aion-demo`;
+  }
+
+  return "ws://127.0.0.1:8080/ws/aion-demo";
 }
 
 function pickApiBase() {

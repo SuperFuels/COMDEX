@@ -174,7 +174,7 @@ function useAionDemoData(pollMs = 500) {
 
     const tick = async () => {
       try {
-        const [homeoRes, phiRes, adrRes, hbRes, reflexRes, akgRes, mirrorRes] = await Promise.allSettled([
+        const results = await Promise.allSettled([
           fetchJson<HomeostasisEnvelope>(apiUrl("/aion/dashboard")),
           fetchJson<PhiBundle>(apiUrl("/phi")),
           fetchJson<AdrBundle>(apiUrl("/adr")),
@@ -186,6 +186,16 @@ function useAionDemoData(pollMs = 500) {
 
         if (cancelled) return;
 
+        const [
+          homeoRes,
+          phiRes,
+          adrRes,
+          hbRes,
+          reflexRes,
+          akgRes,
+          mirrorRes,
+        ] = results;
+
         if (homeoRes.status === "fulfilled") setHomeostasis(homeoRes.value);
         if (phiRes.status === "fulfilled") setPhi(phiRes.value);
         if (adrRes.status === "fulfilled") setAdr(adrRes.value);
@@ -194,16 +204,23 @@ function useAionDemoData(pollMs = 500) {
         if (akgRes.status === "fulfilled") setAkg(akgRes.value);
         if (mirrorRes.status === "fulfilled") setMirror(mirrorRes.value);
 
-        const errors: string[] = [];
-        if (homeoRes.status === "rejected") errors.push(homeoRes.reason?.message || String(homeoRes.reason));
-        if (phiRes.status === "rejected") errors.push(phiRes.reason?.message || String(phiRes.reason));
-        if (adrRes.status === "rejected") errors.push(adrRes.reason?.message || String(adrRes.reason));
-        if (hbRes.status === "rejected") errors.push(hbRes.reason?.message || String(hbRes.reason));
-        if (reflexRes.status === "rejected") errors.push(reflexRes.reason?.message || String(reflexRes.reason));
-        if (akgRes.status === "rejected") errors.push(akgRes.reason?.message || String(akgRes.reason));
-        if (mirrorRes.status === "rejected") errors.push(mirrorRes.reason?.message || String(mirrorRes.reason));
+        const anyOk = results.some((r) => r.status === "fulfilled");
 
-        setErr(errors.length ? errors.join(" • ") : null);
+        const failures: string[] = [];
+        const pushFail = (label: string, r: PromiseSettledResult<any>) => {
+          if (r.status === "rejected") failures.push(`${label}: ${r.reason?.message || String(r.reason)}`);
+        };
+
+        pushFail("homeostasis", homeoRes);
+        pushFail("phi", phiRes);
+        pushFail("adr", adrRes);
+        pushFail("heartbeat", hbRes);
+        pushFail("reflex", reflexRes);
+        pushFail("akg", akgRes);
+        pushFail("mirror", mirrorRes);
+
+        // Only show OFFLINE if literally nothing can be reached.
+        setErr(!anyOk ? (failures.length ? failures.join(" • ") : "All feeds offline") : null);
       } catch (e: any) {
         if (!cancelled) setErr(e?.message || String(e));
       } finally {
