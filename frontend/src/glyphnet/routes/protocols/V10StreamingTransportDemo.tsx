@@ -566,7 +566,10 @@ export const V10StreamingTransportDemo: React.FC = () => {
   const packetsEstTotal = Number(b?.packets_est_total ?? 0);
 
   const avgPerFrame = framesPlanned > 0 ? wireTotal / framesPlanned : 0;
-  const pctSmaller = gzTotal && gzTotal > 0 ? (1 - wireTotal / gzTotal) * 100 : null;
+
+  // % difference of WirePack vs gzip (negative = smaller than gzip, positive = bigger)
+  const wireVsGzPct =
+    gzTotal != null && gzTotal > 0 ? ((wireTotal / gzTotal) - 1) * 100 : null;
 
   const minimalCurl = useMemo(() => {
     // NOTE: use same host the frontend is hitting (Vite proxy -> FastAPI)
@@ -874,10 +877,10 @@ curl -sS -X POST ${host}/api/wirepack/v46/encode_struct \\
                 <div style={{ ...miniLabel() }}>Gzip baseline</div>
                 <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
                   <b style={{ color: "#111827" }}>{gzTotal == null ? "—" : bytes(gzTotal)}</b>{" "}
-                  {pctSmaller != null ? (
-                    <span style={{ color: pctSmaller >= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
-                      ({pctSmaller >= 0 ? "-" : "+"}
-                      {Math.abs(pctSmaller).toFixed(1)}%)
+                  {wireVsGzPct != null ? (
+                    <span style={{ color: wireVsGzPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+                      ({wireVsGzPct > 0 ? "+" : ""}
+                      {wireVsGzPct.toFixed(1)}%)
                     </span>
                   ) : (
                     <span style={{ color: "#6b7280" }}>(unsupported)</span>
