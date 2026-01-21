@@ -50,6 +50,39 @@ def _rng32(seed: int):
         return x & 0xFFFFFFFF
     return next_u32
 
+def _pack_u32_words(data: bytes) -> List[int]:
+    n = len(data)
+    out: List[int] = [n & 0xFFFFFFFF]
+    for i in range(0, n, 4):
+        chunk = data[i : i + 4]
+        chunk = chunk + b"\x00" * (4 - len(chunk))
+        w = chunk[0] | (chunk[1] << 8) | (chunk[2] << 16) | (chunk[3] << 24)
+        out.append(w & 0xFFFFFFFF)
+    return out
+
+def _unpack_u32_words(words: List[int]) -> bytes:
+    if not words:
+        return b""
+    n = int(words[0]) & 0xFFFFFFFF
+    raw = bytearray()
+    for w in words[1:]:
+        w = int(w) & 0xFFFFFFFF
+        raw.append(w & 0xFF)
+        raw.append((w >> 8) & 0xFF)
+        raw.append((w >> 16) & 0xFF)
+        raw.append((w >> 24) & 0xFF)
+    return bytes(raw[:n])
+
+Op = Tuple[int, int]
+
+def _diff_ops(prev: List[int], nxt: List[int]) -> List[Op]:
+    n = min(len(prev), len(nxt))
+    ops: List[Op] = []
+    for i in range(n):
+        if int(prev[i]) != int(nxt[i]):
+            ops.append((i, int(nxt[i]) & 0xFFFFFFFF))
+    return ops
+
 # ============================================================
 # Optional real codec import (best effort)
 # ============================================================
@@ -139,12 +172,8 @@ def _codec_decode(sess_obj: Any, b: bytes) -> str:
 @dataclass
 class _Sess:
     ts: float
-    template_sent: bool
-    codec_sess: Any = None
-    # Map encoded payload fingerprint -> exact text (so decode_struct can return exact original string)
-    frame_text_by_sha: Dict[str, str] = field(default_factory=dict)
-    # Small LRU list of keys to cap memory
-    frame_keys: List[str] = field(default_factory=list)
+    frames: int = 0
+    prev_words: Optional[List[int]] = None
 
 _SESS: Dict[str, _Sess] = {}
 _SESS_MAX = 2048
@@ -286,7 +315,7 @@ def health() -> Dict[str, Any]:
 def v46_session_new() -> SessionNewResponse:
     _gc_sessions()
     sid = uuid.uuid4().hex
-    _SESS[sid] = _Sess(ts=time.time(), template_sent=False, codec_sess=_new_codec_session())
+    _SESS[sid] = _Sess(ts=time.time(), frames=0, prev_words=None)
     return SessionNewResponse(session_id=sid)
 
 @router.post("/v46/encode_struct", response_model=EncodeStructResponse)
@@ -295,31 +324,55 @@ def v46_encode_struct(req: EncodeStructRequest) -> EncodeStructResponse:
     sess = _SESS.get(req.session_id)
     if sess is None:
         raise HTTPException(status_code=404, detail="Unknown session_id")
+    if wp is None:
+        raise HTTPException(status_code=503, detail=f"wirepack_codec import failed: {_WP_IMPORT_ERR}")
 
-    # MUST preserve exact string roundtrip for the frontend (do not normalize here).
-    exact_text = str(req.json_text or "")
+    # Canonicalize like the radio-node did (stableStringify-ish)
+    try:
+        obj = json.loads(req.json_text or "null")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"bad json_text: {e}")
 
-    # Enforce template-once behavior for the v10 demo UI.
-    # First encode in a session MUST be "template", all later MUST be "delta".
-    first = not sess.template_sent
-    kind = "template" if first else "delta"
+    canon = _stable_dumps(obj)
+    next_words = _pack_u32_words(canon.encode("utf-8"))
 
-    k2, encoded = _codec_encode(sess.codec_sess, exact_text)
+    kind: str
+    inner: bytes
 
-    # Do NOT allow codec to change kind; it breaks template_once_ok if codec returns "delta" first,
-    # and breaks template_once_ok if codec ever emits "template" again.
-    # (Keep k2 only for debugging if you want.)
+    prev = sess.prev_words
+    first = (sess.frames == 0) or (prev is None) or (len(prev) != len(next_words))
 
-    sess.template_sent = True
+    if first:
+        kind = "template"
+        inner = wp.encode_template(next_words)
+        sess.prev_words = [int(x) & 0xFFFFFFFF for x in next_words]
+    else:
+        prev_words = [int(x) & 0xFFFFFFFF for x in prev]
+        ops = _diff_ops(prev_words, next_words)
+
+        # heuristic: if too many edits, send template
+        too_many = len(ops) > max(64, int(len(next_words) * 0.45))
+        if too_many:
+            kind = "template"
+            inner = wp.encode_template(next_words)
+            sess.prev_words = [int(x) & 0xFFFFFFFF for x in next_words]
+        else:
+            kind = "delta"
+            inner = wp.encode_delta(ops)
+            # apply delta bytes to prev_words using library routine
+            wp.apply_delta_inplace(prev_words, inner)
+            sess.prev_words = prev_words
+
+    sess.frames += 1
     sess.ts = time.time()
 
-    # Store mapping so decode can return the exact original string for that blob.
-    _sess_store_frame(sess, encoded, exact_text)
+    tag = b"T" if kind == "template" else b"D"
+    framed = tag + inner
 
     return EncodeStructResponse(
         kind=kind,
-        bytes_out=int(len(encoded)),
-        encoded_b64=base64.b64encode(encoded).decode("ascii"),
+        bytes_out=int(len(framed)),
+        encoded_b64=base64.b64encode(framed).decode("ascii"),
     )
 
 @router.post("/v46/decode_struct", response_model=DecodeStructResponse)
@@ -328,22 +381,48 @@ def v46_decode_struct(req: DecodeStructRequest) -> DecodeStructResponse:
     sess = _SESS.get(req.session_id)
     if sess is None:
         raise HTTPException(status_code=404, detail="Unknown session_id")
+    if wp is None:
+        raise HTTPException(status_code=503, detail=f"wirepack_codec import failed: {_WP_IMPORT_ERR}")
 
     try:
-        b = base64.b64decode((req.encoded_b64 or "").encode("ascii"))
+        framed = base64.b64decode((req.encoded_b64 or "").encode("ascii"))
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"bad encoded_b64: {e}")
+    if len(framed) < 2:
+        raise HTTPException(status_code=400, detail="bad frame")
 
-    # Return exact text if we’ve seen this blob in this session.
-    k = _sha256_hex_bytes(b)
-    if k in sess.frame_text_by_sha:
-        sess.ts = time.time()
-        return DecodeStructResponse(kind="delta", decoded_text=sess.frame_text_by_sha[k])
+    tag = framed[0:1]
+    inner = framed[1:]
 
-    # Fallback: best-effort decode via codec/raw.
-    txt = _codec_decode(sess.codec_sess, b)
+    if tag == b"T":
+        words = wp.decode_template(inner)
+        sess.prev_words = [int(x) & 0xFFFFFFFF for x in words]
+        kind = "template"
+    elif tag == b"D":
+        if sess.prev_words is None:
+            raise HTTPException(status_code=400, detail="delta without session state")
+        prev_words = [int(x) & 0xFFFFFFFF for x in sess.prev_words]
+        wp.apply_delta_inplace(prev_words, inner)
+        sess.prev_words = prev_words
+        kind = "delta"
+    else:
+        raise HTTPException(status_code=400, detail="unknown tag")
+
     sess.ts = time.time()
-    return DecodeStructResponse(kind="delta", decoded_text=txt)
+
+    data = _unpack_u32_words(sess.prev_words or [])
+    decoded_text = data.decode("utf-8", errors="replace")
+    return DecodeStructResponse(kind=kind, decoded_text=decoded_text)
+
+
+@router.post("/v46/session/clear")
+def v46_session_clear(body: Dict[str, Any]) -> Dict[str, Any]:
+    _gc_sessions()
+    sid = str(body.get("session_id") or "")
+    if not sid or sid not in _SESS:
+        raise HTTPException(status_code=404, detail="Unknown session_id")
+    _SESS.pop(sid, None)
+    return {"ok": True}
 
 # ============================================================
 # Demo helpers (shared simulation for v29+)

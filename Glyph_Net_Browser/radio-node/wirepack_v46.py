@@ -5,29 +5,33 @@ import os
 import secrets
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Iterable, List, Tuple
 
 # Ensure repo root is on sys.path
-# /COMDEX/Glyph_Net_Browser/radio-node/wirepack_v46.py -> parents[2] == /COMDEX
+# /COMDEX/.../wirepack_v46.py -> parents[2] == /COMDEX  (adjust if your location differs)
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-# NOTE: these exist in backend/modules/glyphos/wirepack_codec.py per your grep
 from backend.modules.glyphos.wirepack_codec import (  # type: ignore
     encode_template,
     decode_template,
     encode_delta,
     decode_delta,
+    apply_delta_inplace,
 )
 
 # -----------------------
-# u32 word packing (unchanged)
+# u32 word packing (byte-stable, positional)
 # -----------------------
 
 def pack_u32_words(data: bytes) -> List[int]:
+    """
+    word0 = original byte length (u32)
+    word1.. = payload bytes packed little-endian 4-per-word, padded with zeros
+    """
     n = len(data)
-    out = [n & 0xFFFFFFFF]
+    out: List[int] = [n & 0xFFFFFFFF]
     for i in range(0, n, 4):
         chunk = data[i : i + 4]
         chunk = chunk + b"\x00" * (4 - len(chunk))
@@ -51,19 +55,16 @@ def unpack_u32_words(words: List[int]) -> bytes:
 
 
 # -----------------------
-# simple persistent session store
+# persistent session store (works even if script is run per-request)
 # -----------------------
 
 SESS_DIR = Path(__file__).resolve().parent / ".wirepack_v46_sessions"
 
-
 def _sid_ok(s: str) -> bool:
     return isinstance(s, str) and len(s) >= 16 and all(c in "0123456789abcdef" for c in s)
 
-
 def _sess_path(session_id: str) -> Path:
     return SESS_DIR / f"{session_id}.json"
-
 
 def load_sess(session_id: str) -> Dict[str, Any]:
     p = _sess_path(session_id)
@@ -77,14 +78,12 @@ def load_sess(session_id: str) -> Dict[str, Any]:
     except Exception:
         return {"frames": 0}
 
-
 def save_sess(session_id: str, st: Dict[str, Any]) -> None:
     SESS_DIR.mkdir(parents=True, exist_ok=True)
     p = _sess_path(session_id)
     tmp = p.with_suffix(".tmp")
     tmp.write_text(json.dumps(st, separators=(",", ":")), "utf-8")
     os.replace(tmp, p)
-
 
 def new_session_id() -> str:
     return secrets.token_hex(16)
@@ -115,12 +114,6 @@ def diff_ops(prev_words: List[int], next_words: List[int]) -> List[Op]:
     return ops
 
 
-def apply_ops_inplace(state: List[int], ops: List[Op]) -> None:
-    for idx, newv in ops:
-        if 0 <= idx < len(state):
-            state[idx] = int(newv) & 0xFFFFFFFF
-
-
 # -----------------------
 # v46 “HTTP contract” modes
 # -----------------------
@@ -129,7 +122,6 @@ def mode_session_new() -> Dict[str, Any]:
     sid = new_session_id()
     save_sess(sid, {"frames": 0})
     return {"ok": True, "session_id": sid}
-
 
 def mode_session_clear(req: Dict[str, Any]) -> Dict[str, Any]:
     session_id = str(req.get("session_id") or "")
@@ -142,7 +134,6 @@ def mode_session_clear(req: Dict[str, Any]) -> Dict[str, Any]:
         return {"ok": True}
     except Exception as e:
         return {"ok": False, "error": f"session_clear: {e}"}
-
 
 def mode_encode_struct(req: Dict[str, Any]) -> Dict[str, Any]:
     session_id = str(req.get("session_id") or "")
@@ -159,22 +150,22 @@ def mode_encode_struct(req: Dict[str, Any]) -> Dict[str, Any]:
 
     st = load_sess(session_id)
     frames = int(st.get("frames") or 0)
-    prev_words = st.get("prev_words")
+    prev_words_any = st.get("prev_words")
 
     kind: str
     inner: bytes
 
     # first frame or incompatible shape -> template
-    if frames == 0 or not isinstance(prev_words, list) or len(prev_words) != len(next_words):
+    if frames == 0 or not isinstance(prev_words_any, list) or len(prev_words_any) != len(next_words):
         kind = "template"
         inner = encode_template(next_words)
         st["prev_words"] = next_words
     else:
-        prev_words_int = [int(x) & 0xFFFFFFFF for x in prev_words]
-        ops = diff_ops(prev_words_int, next_words)
+        prev_words = [int(x) & 0xFFFFFFFF for x in prev_words_any]
+        ops = diff_ops(prev_words, next_words)
 
-        # heuristic: if too many changes, template is cheaper than a huge delta list
-        too_many = len(ops) > max(32, int(len(next_words) * 0.35))
+        # heuristic: if too many changes, send template
+        too_many = len(ops) > max(64, int(len(next_words) * 0.45))
         if too_many:
             kind = "template"
             inner = encode_template(next_words)
@@ -182,8 +173,9 @@ def mode_encode_struct(req: Dict[str, Any]) -> Dict[str, Any]:
         else:
             kind = "delta"
             inner = encode_delta(ops)
-            apply_ops_inplace(prev_words_int, ops)
-            st["prev_words"] = prev_words_int
+            # keep session state correct using library apply
+            apply_delta_inplace(prev_words, inner)
+            st["prev_words"] = prev_words
 
     st["frames"] = frames + 1
     save_sess(session_id, st)
@@ -198,7 +190,6 @@ def mode_encode_struct(req: Dict[str, Any]) -> Dict[str, Any]:
         "encoded_b64": base64.b64encode(framed).decode("ascii"),
     }
 
-
 def mode_decode_struct(req: Dict[str, Any]) -> Dict[str, Any]:
     session_id = str(req.get("session_id") or "")
     if not _sid_ok(session_id):
@@ -209,9 +200,10 @@ def mode_decode_struct(req: Dict[str, Any]) -> Dict[str, Any]:
         return {"ok": False, "error": "decode_struct: missing encoded_b64"}
 
     st = load_sess(session_id)
-    prev_words = st.get("prev_words")
-    if not isinstance(prev_words, list):
-        prev_words = None
+    prev_words_any = st.get("prev_words")
+    prev_words: List[int] | None = None
+    if isinstance(prev_words_any, list):
+        prev_words = [int(x) & 0xFFFFFFFF for x in prev_words_any]
 
     try:
         framed = base64.b64decode(encoded_b64)
@@ -231,10 +223,8 @@ def mode_decode_struct(req: Dict[str, Any]) -> Dict[str, Any]:
     elif tag == b"D":
         if prev_words is None:
             return {"ok": False, "error": "decode_struct: delta without session state"}
-        ops = decode_delta(inner)
-        prev_words_int = [int(x) & 0xFFFFFFFF for x in prev_words]
-        apply_ops_inplace(prev_words_int, ops)
-        st["prev_words"] = prev_words_int
+        apply_delta_inplace(prev_words, inner)
+        st["prev_words"] = prev_words
         kind = "delta"
     else:
         return {"ok": False, "error": "decode_struct: unknown tag"}
@@ -275,7 +265,6 @@ def mode_encode(req: Dict[str, Any]) -> Dict[str, Any]:
         "kind": "template",
     }
 
-
 def mode_decode(req: Dict[str, Any]) -> Dict[str, Any]:
     encoded_b64 = str(req.get("encoded_b64") or "")
     packed = base64.b64decode(encoded_b64)
@@ -308,7 +297,6 @@ def main() -> None:
         out = {"ok": False, "error": "bad mode"}
 
     print(json.dumps(out))
-
 
 if __name__ == "__main__":
     main()

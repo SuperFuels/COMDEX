@@ -885,8 +885,8 @@ api.include_router(game_router, prefix="/aion")
 api.include_router(skill_router)
 app.include_router(aion_memory.router, prefix="/api/aion")
 api.include_router(wirepack_router, prefix="/wirepack", tags=["wirepack"])
-# ── 14) Include API router on main app
 app.include_router(api, prefix="/api")
+
 
 # ── 15) Include standalone routers
 app.include_router(aion_grid_progress_router)
