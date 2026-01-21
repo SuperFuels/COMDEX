@@ -701,6 +701,7 @@ def v30_run(req: V30RunRequest) -> Dict[str, Any]:
 @router.post("/v32/run")
 def v32_run(req: V32RunRequest) -> Dict[str, Any]:
     _, touched = _simulate_state(req.seed, req.n, req.turns, req.muts)
+
     counts: Dict[int, int] = {}
     for idx in touched:
         counts[idx] = counts.get(idx, 0) + 1
@@ -709,25 +710,39 @@ def v32_run(req: V32RunRequest) -> Dict[str, Any]:
     top = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:k]
     topk = [{"idx": int(i), "hits": int(c)} for i, c in top]
 
-    # --- baseline_samples (for truthful baseline comparisons in UI) ---
-    # cap ~64–256. Use canonical JSON strings to avoid frontend re-stringify differences.
-    cap = max(64, min(int(req.turns), 256))
-    baseline_samples = []
-    for i in range(min(cap, len(topk))):
-        msg = {"idx": topk[i]["idx"], "hits": topk[i]["hits"], "_t": i}
-        baseline_samples.append(_stable_dumps(msg))  # canonical JSON string
-
     ops_total = int(req.turns) * int(req.muts)
     template_bytes = _bytes_estimate_template(req.n)
     delta_bytes_total = ops_total * _bytes_estimate_delta_per_op()
     wire_total_bytes = template_bytes + delta_bytes_total
 
+    # -----------------------------
+    # NEW: baseline_samples (naive JSON per-op stream)
+    # This is what the UI needs to compute raw/gzip baselines truthfully.
+    # -----------------------------
+    muts_i = max(1, int(req.muts))
+    cap = 8192  # safety cap; increase if you want (or set to ops_total)
+    take = min(len(touched), cap)
+
+    baseline_samples = []
+    for i in range(take):
+        idx = int(touched[i])
+        t = i // muts_i
+        # per-op naive JSON message (deterministic keys via _stable_dumps)
+        baseline_samples.append(_stable_dumps({"t": int(t), "idx": idx, "op": "inc"}))
+
+    # If we cap, be explicit so UI text is honest
+    baseline_truncated = take < len(touched)
+
     final_state_sha256 = _sha256_hex_utf8(f"hh|{req.seed}|{req.n}|{req.turns}|{req.muts}|{k}")
+
     receipt_core = {
         "params": {"seed": req.seed, "n": req.n, "turns": req.turns, "muts": req.muts, "k": k},
         "topk": topk,
         "final_state_sha256": final_state_sha256,
         "bytes": {"wire_total_bytes": wire_total_bytes},
+        # NEW (UI reads receipt.baseline_samples OR out.baseline_samples)
+        "baseline_samples": baseline_samples,
+        "baseline_truncated": baseline_truncated,
     }
     drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_core))
 
@@ -742,8 +757,12 @@ def v32_run(req: V32RunRequest) -> Dict[str, Any]:
             "wire_total_bytes": wire_total_bytes,
         },
         "final_state_sha256": final_state_sha256,
-        "receipts": {"drift_sha256": drift_sha256, "LEAN_OK": 1, "baseline_samples": baseline_samples},
+        "receipts": {"drift_sha256": drift_sha256, "LEAN_OK": 1},
         "timing_ms": {"query": 0.0},
+
+        # ALSO expose it top-level (your UI checks both places)
+        "baseline_samples": baseline_samples,
+        "baseline_truncated": baseline_truncated,
     }
 
 # ============================================================
