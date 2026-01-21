@@ -54,7 +54,7 @@ type Template = {
   template_sha256: string;
 };
 
-// stable JSON (same as v10 spirit) so “raw bytes” isn’t browser-dependent field order
+// stable JSON so “raw bytes” isn’t field-order dependent
 function stableStringify(x: any): string {
   const seen = new WeakSet<object>();
   const walk = (v: any): any => {
@@ -69,12 +69,10 @@ function stableStringify(x: any): string {
   return JSON.stringify(walk(x));
 }
 
-// UTF-8 byte length of a string
 function utf8Len(s: string): number {
   try {
     return new TextEncoder().encode(s).length;
   } catch {
-    // fallback: approximate (rarely hit in modern browsers)
     return s.length;
   }
 }
@@ -85,6 +83,22 @@ async function gzipLenUtf8(s: string): Promise<number | null> {
     // @ts-ignore
     if (typeof CompressionStream === "undefined") return null;
     const u8 = new TextEncoder().encode(s);
+    // @ts-ignore
+    const stream = new Blob([u8]).stream().pipeThrough(new CompressionStream("gzip"));
+    const ab = await new Response(stream).arrayBuffer();
+    return new Uint8Array(ab).length;
+  } catch {
+    return null;
+  }
+}
+
+// gzip a whole run as ONE stream (stronger, cross-message redundancy allowed)
+async function gzipStreamLenUtf8(parts: string[], sep = "\n"): Promise<number | null> {
+  try {
+    // @ts-ignore
+    if (typeof CompressionStream === "undefined") return null;
+    const joined = parts.join(sep);
+    const u8 = new TextEncoder().encode(joined);
     // @ts-ignore
     const stream = new Blob([u8]).stream().pipeThrough(new CompressionStream("gzip"));
     const ab = await new Response(stream).arrayBuffer();
@@ -108,12 +122,12 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
   const [err, setErr] = useState<string | null>(null);
   const [out, setOut] = useState<any>(null);
 
-  // baseline metrics (computed client-side)
-  const [rawBytesTotal, setRawBytesTotal] = useState<number | null>(null);
-  const [gzipTotalBytes, setGzipTotalBytes] = useState<number | null>(null);
+  // baselines (client-side) — must be “same payload”, not “request body”
+  const [rawJsonTotalBytes, setRawJsonTotalBytes] = useState<number | null>(null);
+  const [gzipFrameTotalBytes, setGzipFrameTotalBytes] = useState<number | null>(null);
+  const [gzipStreamTotalBytes, setGzipStreamTotalBytes] = useState<number | null>(null);
   const [baselineNote, setBaselineNote] = useState<string | null>(null);
 
-  // load catalog once (and whenever the demo mounts)
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -140,25 +154,92 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
     setBusy(true);
     setErr(null);
     setOut(null);
-    setRawBytesTotal(null);
-    setGzipTotalBytes(null);
+
+    setRawJsonTotalBytes(null);
+    setGzipFrameTotalBytes(null);
+    setGzipStreamTotalBytes(null);
     setBaselineNote(null);
 
     try {
       const body = { template_id: templateId, seed, n, turns, muts };
 
-      // compute baselines from the SAME request shape
-      const canon = stableStringify(body);
-      const rawLen = utf8Len(canon);
-      setRawBytesTotal(rawLen);
-
-      const gzLen = await gzipLenUtf8(canon);
-      setGzipTotalBytes(gzLen);
-      if (gzLen == null) setBaselineNote("gzip baseline unsupported in this browser");
-
+      // 1) mint first (authoritative wire bytes come from backend receipt)
       const { ok, status, json } = await fetchJson("/api/wirepack/v12/mint", body, 25000);
       if (!ok) throw new Error(`HTTP ${status}: ${JSON.stringify(json)}`);
       setOut(json);
+
+      // 2) compute *real* baselines from the payload stream the demo implies
+      // Prefer backend-provided payload samples if present; else do deterministic, bounded client synthesis.
+      const receipt = json?.receipt || {};
+      const samples: any[] | null = Array.isArray(receipt?.baseline_samples) ? receipt.baseline_samples : null;
+
+      const parts: string[] = [];
+
+      if (samples && samples.length) {
+        for (const s of samples) parts.push(stableStringify(s));
+      } else {
+        // Fallback: synthesize “turns” messages with small mutations, bounded work.
+        // This is not a fake claim: we label it as “client-side synthetic stream”.
+        const maxTurns = Math.max(1, Math.min(256, Number(turns || 1))); // cap to keep browser fast
+        const maxMuts = Math.max(1, Math.min(32, Number(muts || 1)));
+        const baseMsg: any =
+          templateId === "metrics_v1"
+            ? { cpu: 0.12, mem: 0.34, p95_ms: 12.3 }
+            : { template_id: templateId, value: 0 };
+
+        let x = (seed >>> 0) || 1;
+        const R = () => {
+          x ^= (x << 13) >>> 0;
+          x ^= (x >>> 17) >>> 0;
+          x ^= (x << 5) >>> 0;
+          return x >>> 0;
+        };
+
+        let cur = baseMsg;
+        for (let i = 0; i < maxTurns; i++) {
+          const msg = typeof structuredClone === "function" ? structuredClone(cur) : JSON.parse(JSON.stringify(cur));
+          // apply a few numeric nudges
+          for (let j = 0; j < maxMuts; j++) {
+            const r = R();
+            if ("cpu" in msg) msg.cpu = Number(msg.cpu) + (((r % 7) - 3) * 0.001);
+            if ("mem" in msg) msg.mem = Number(msg.mem) + ((((r >>> 3) % 7) - 3) * 0.001);
+            if ("p95_ms" in msg) msg.p95_ms = Number(msg.p95_ms) + ((((r >>> 6) % 5) - 2) * 0.1);
+            msg._t = i;
+          }
+          const canon = stableStringify(msg);
+          parts.push(canon);
+          cur = msg;
+        }
+        setBaselineNote("baselines = client-side synthetic stream (bounded); backend can optionally return baseline_samples for exactness");
+      }
+
+      // raw json total = sum utf8(msg_i)
+      let rawTotal = 0;
+      for (const p of parts) rawTotal += utf8Len(p);
+      setRawJsonTotalBytes(rawTotal);
+
+      // gzip per-frame total = sum gzip(msg_i)
+      let gzFrameKnown = true;
+      let gzFrameTotal = 0;
+      for (const p of parts) {
+        const g = await gzipLenUtf8(p);
+        if (g == null) {
+          gzFrameKnown = false;
+          break;
+        }
+        gzFrameTotal += g;
+      }
+      setGzipFrameTotalBytes(gzFrameKnown ? gzFrameTotal : null);
+
+      // gzip stream total = gzip(concat(all msgs))
+      const gzStream = await gzipStreamLenUtf8(parts);
+      setGzipStreamTotalBytes(gzStream);
+
+      // notes for unsupported CompressionStream
+      // @ts-ignore
+      if (typeof CompressionStream === "undefined") {
+        setBaselineNote((prev) => (prev ? prev + " · gzip unsupported in this browser" : "gzip unsupported in this browser"));
+      }
     } catch (e: any) {
       setErr(e?.message || "Demo failed");
     } finally {
@@ -180,11 +261,15 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
 
   const wireTotal = Number(b?.wire_total_bytes || 0);
 
-  // Ratios (wire/raw, wire/gzip)
+  // Percent deltas: (wire/baseline - 1)*100
   const wireVsRawPct =
-    rawBytesTotal != null && rawBytesTotal > 0 ? ((wireTotal / rawBytesTotal) - 1) * 100 : null;
-  const wireVsGzPct =
-    gzipTotalBytes != null && gzipTotalBytes > 0 ? ((wireTotal / gzipTotalBytes) - 1) * 100 : null;
+    rawJsonTotalBytes != null && rawJsonTotalBytes > 0 ? ((wireTotal / rawJsonTotalBytes) - 1) * 100 : null;
+
+  const wireVsGzFramePct =
+    gzipFrameTotalBytes != null && gzipFrameTotalBytes > 0 ? ((wireTotal / gzipFrameTotalBytes) - 1) * 100 : null;
+
+  const wireVsGzStreamPct =
+    gzipStreamTotalBytes != null && gzipStreamTotalBytes > 0 ? ((wireTotal / gzipStreamTotalBytes) - 1) * 100 : null;
 
   return (
     <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
@@ -262,7 +347,9 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
               <option value="metrics_v1">metrics_v1</option>
             )}
           </select>
-          <div style={{ marginTop: 4, fontSize: 10, color: "#6b7280" }}>{t?.blurb || (catalogErr ? "catalog unavailable" : "—")}</div>
+          <div style={{ marginTop: 4, fontSize: 10, color: "#6b7280" }}>
+            {t?.blurb || (catalogErr ? "catalog unavailable" : "—")}
+          </div>
         </label>
 
         <label style={{ fontSize: 11, color: "#374151" }}>
@@ -326,8 +413,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
             </div>
 
             <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-              cache:{" "}
-              <b style={{ color: cacheHit ? "#065f46" : "#991b1b" }}>{cacheLabel}</b>
+              cache: <b style={{ color: cacheHit ? "#065f46" : "#991b1b" }}>{cacheLabel}</b>
             </div>
 
             <div style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
@@ -335,8 +421,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
             </div>
 
             <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280" }}>
-              fields:{" "}
-              <code>{t?.fields ? t.fields.map((f) => `${f.name}:${f.type}`).join(", ") : "—"}</code>
+              fields: <code>{t?.fields ? t.fields.map((f) => `${f.name}:${f.type}`).join(", ") : "—"}</code>
             </div>
           </div>
 
@@ -358,30 +443,51 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
               <span style={{ color: "#6b7280" }}>({b?.wire_total_bytes ?? 0} B)</span>
             </div>
 
-            {/* Baselines (raw + gzip) */}
-            <div style={{ marginTop: 10, fontSize: 11, color: "#374151" }}>
-              raw_json_bytes:{" "}
-              <b>{rawBytesTotal == null ? "—" : bytes(rawBytesTotal)}</b>{" "}
-              <span style={{ color: "#6b7280" }}>({rawBytesTotal ?? "—"} B)</span>{" "}
-              {wireVsRawPct != null ? (
-                <span style={{ color: wireVsRawPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
-                  {" "}({wireVsRawPct > 0 ? "+" : ""}{wireVsRawPct.toFixed(1)}%)
-                </span>
-              ) : null}
-            </div>
+            {/* Baselines (correct: based on the message stream, not the request body) */}
+            <div style={{ marginTop: 10, borderRadius: 12, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Baselines (client-side)</div>
 
-            <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-              gzip_bytes:{" "}
-              <b>{gzipTotalBytes == null ? "—" : bytes(gzipTotalBytes)}</b>{" "}
-              <span style={{ color: "#6b7280" }}>({gzipTotalBytes ?? "—"} B)</span>{" "}
-              {wireVsGzPct != null ? (
-                <span style={{ color: wireVsGzPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
-                  {" "}({wireVsGzPct > 0 ? "+" : ""}{wireVsGzPct.toFixed(1)}%)
-                </span>
-              ) : (
-                <span style={{ color: "#6b7280" }}> (unsupported)</span>
-              )}
-              {baselineNote ? <span style={{ color: "#6b7280" }}> · {baselineNote}</span> : null}
+              <div style={{ marginTop: 8, fontSize: 11, color: "#374151" }}>
+                raw_json_total:{" "}
+                <b>{rawJsonTotalBytes == null ? "—" : bytes(rawJsonTotalBytes)}</b>{" "}
+                <span style={{ color: "#6b7280" }}>({rawJsonTotalBytes ?? "—"} B)</span>{" "}
+                {wireVsRawPct != null ? (
+                  <span style={{ color: wireVsRawPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+                    {" "}({wireVsRawPct > 0 ? "+" : ""}{wireVsRawPct.toFixed(1)}%)
+                  </span>
+                ) : null}
+              </div>
+
+              <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
+                gzip_per_frame_total:{" "}
+                <b>{gzipFrameTotalBytes == null ? "—" : bytes(gzipFrameTotalBytes)}</b>{" "}
+                <span style={{ color: "#6b7280" }}>({gzipFrameTotalBytes ?? "—"} B)</span>{" "}
+                {wireVsGzFramePct != null ? (
+                  <span style={{ color: wireVsGzFramePct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+                    {" "}({wireVsGzFramePct > 0 ? "+" : ""}{wireVsGzFramePct.toFixed(1)}%)
+                  </span>
+                ) : (
+                  <span style={{ color: "#6b7280" }}> (unsupported)</span>
+                )}
+              </div>
+
+              <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
+                gzip_stream_total:{" "}
+                <b>{gzipStreamTotalBytes == null ? "—" : bytes(gzipStreamTotalBytes)}</b>{" "}
+                <span style={{ color: "#6b7280" }}>({gzipStreamTotalBytes ?? "—"} B)</span>{" "}
+                {wireVsGzStreamPct != null ? (
+                  <span style={{ color: wireVsGzStreamPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+                    {" "}({wireVsGzStreamPct > 0 ? "+" : ""}{wireVsGzStreamPct.toFixed(1)}%)
+                  </span>
+                ) : (
+                  <span style={{ color: "#6b7280" }}> (unsupported)</span>
+                )}
+              </div>
+
+              <div style={{ marginTop: 8, fontSize: 10, color: "#6b7280" }}>
+                per-frame = gzip each message; stream = gzip across the whole run (stronger gzip).
+                {baselineNote ? <span> · {baselineNote}</span> : null}
+              </div>
             </div>
 
             <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280" }}>
@@ -408,7 +514,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
               </div>
 
               <div style={{ marginTop: 8 }}>
-                <b>WirePack vs baseline (messaging)</b>: the <b>raw_json_bytes</b> and <b>gzip_bytes</b> lines above show explicit size deltas vs common baselines (client-side).
+                <b>WirePack vs baseline (messaging)</b>: baselines above are computed from a <b>message stream</b>, not the request body. Labels explicitly state per-frame vs stream gzip.
               </div>
 
               <div style={{ marginTop: 8 }}>

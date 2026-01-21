@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 /** ---------- shared helpers ---------- */
 
@@ -56,6 +56,43 @@ function boolBadge(ok: boolean | null) {
       ? "border-red-200 bg-red-50 text-red-800"
       : "border-slate-200 bg-slate-50 text-slate-500";
   return { label, cls };
+}
+
+// stable JSON (deterministic ordering)
+function stableStringify(x: any): string {
+  const seen = new WeakSet<object>();
+  const walk = (v: any): any => {
+    if (v === null || typeof v !== "object") return v;
+    if (seen.has(v)) throw new Error("cyclic json");
+    seen.add(v);
+    if (Array.isArray(v)) return v.map(walk);
+    const out: any = {};
+    for (const k of Object.keys(v).sort()) out[k] = walk(v[k]);
+    return out;
+  };
+  return JSON.stringify(walk(x));
+}
+
+function utf8Len(s: string): number {
+  try {
+    return new TextEncoder().encode(s).length;
+  } catch {
+    return s.length;
+  }
+}
+
+async function gzipLenUtf8(s: string): Promise<number | null> {
+  try {
+    // @ts-ignore
+    if (typeof CompressionStream === "undefined") return null;
+    const u8 = new TextEncoder().encode(s);
+    // @ts-ignore
+    const stream = new Blob([u8]).stream().pipeThrough(new CompressionStream("gzip"));
+    const ab = await new Response(stream).arrayBuffer();
+    return new Uint8Array(ab).length;
+  } catch {
+    return null;
+  }
 }
 
 /** ---------- branded atoms ---------- */
@@ -116,11 +153,11 @@ function StatTile(props: { label: string; value: React.ReactNode; sub?: React.Re
   );
 }
 
-/** simple 2-bar compare chart: gzip vs wire */
-function BytesCompareChart(props: { wire: number; gz: number }) {
+/** simple 2-bar compare chart: baseline vs wire */
+function BytesCompareChart(props: { wire: number; base: number; baseLabel: string }) {
   const wire = Number(props.wire || 0);
-  const gz = Number(props.gz || 0);
-  const max = Math.max(1, wire, gz);
+  const base = Number(props.base || 0);
+  const max = Math.max(1, wire, base);
   const w = 560;
   const h = 170;
   const pad = { l: 70, r: 16, t: 18, b: 42 };
@@ -129,7 +166,7 @@ function BytesCompareChart(props: { wire: number; gz: number }) {
 
   const bars = [
     { label: "WirePack", v: wire, fill: "#1B74E4" },
-    { label: "gzip snapshots", v: gz, fill: "#0f172a" }, // slate-900-ish
+    { label: props.baseLabel, v: base, fill: "#0f172a" },
   ];
 
   const barW = innerW / bars.length;
@@ -137,7 +174,7 @@ function BytesCompareChart(props: { wire: number; gz: number }) {
   const barH = (v: number) => pad.t + innerH - y(v);
 
   return (
-    <Card title="Bytes comparison" subtitle="Lower is better (storage + scan cost)">
+    <Card title="Bytes comparison" subtitle="Like-for-like only. Positive % means WirePack is larger.">
       <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 block w-full">
         <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + innerH} stroke="#e2e8f0" />
         <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke="#e2e8f0" />
@@ -303,6 +340,12 @@ export function V44SqlOnStreamsDemo() {
   const [showExamples, setShowExamples] = useState(true);
   const [receiptInput, setReceiptInput] = useState("");
 
+  // baseline interpretation (fixes “wirepack losing” confusion)
+  const [baseLabel, setBaseLabel] = useState("gzip baseline");
+  const [baseNote, setBaseNote] = useState<string | null>(null);
+  const [snapPayloadRaw, setSnapPayloadRaw] = useState<number | null>(null);
+  const [snapPayloadGz, setSnapPayloadGz] = useState<number | null>(null);
+
   const EXAMPLES = [
     { label: "Projection (dashboard panel)", queryId: "projection" as const, n: 4096, turns: 256, muts: 3, k: 64, seed: 1337 },
     { label: "Histogram (rollup/group-by)", queryId: "histogram" as const, n: 4096, turns: 256, muts: 3, k: 64, seed: 1337 },
@@ -344,16 +387,14 @@ export function V44SqlOnStreamsDemo() {
   const leanOk = rec?.LEAN_OK ?? out?.LEAN_OK ?? null;
 
   const wire = Number(b?.wire_total_bytes ?? 0);
-  const gz = Number(b?.gzip_snapshot_bytes_total ?? 0);
-  const factor = wire && gz ? gz / wire : null;
-  const pctSaved = wire && gz ? (1 - wire / gz) * 100 : null;
+  const gzBackend = Number(b?.gzip_snapshot_bytes_total ?? 0);
 
   const templateBytes = Number(b?.wire_template_bytes ?? b?.template_bytes ?? 0);
   const deltaBytesTotal = Number(b?.wire_delta_bytes_total ?? b?.delta_bytes_total ?? 0);
 
   const qMs = out?.timing_ms?.query ?? out?.timing_ms ?? out?.query_ms ?? out?.query_time_ms ?? null;
 
-  const ops = Number(turns || 0) * Number(muts || 0);
+  const ops = Number(out?.ops ?? (Number(turns || 0) * Number(muts || 0)));
   const bytesPerOp = ops > 0 ? deltaBytesTotal / ops : null;
 
   const Q = Array.isArray(out?.Q) ? out.Q : Array.isArray(out?.params?.Q) ? out.params.Q : null;
@@ -366,6 +407,65 @@ export function V44SqlOnStreamsDemo() {
 
   const previewRows =
     Array.isArray(streamArr) && streamArr.length ? streamArr : Array.isArray(snapArr) ? snapArr : [];
+
+  // --- baseline scope detection (important) ---
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setBaseNote(null);
+      setSnapPayloadRaw(null);
+      setSnapPayloadGz(null);
+
+      if (!out) {
+        setBaseLabel("gzip baseline");
+        return;
+      }
+
+      // If backend “gzip_snapshot_bytes_total” is tiny, it may actually be gzip(query result payload).
+      // We test by gzipping snapshotResult payload client-side and comparing.
+      if (snapArr.length) {
+        try {
+          const canon = stableStringify(snapArr);
+          const raw = utf8Len(canon);
+          const gz = await gzipLenUtf8(canon);
+
+          if (!alive) return;
+
+          setSnapPayloadRaw(raw);
+          setSnapPayloadGz(gz);
+
+          if (gz != null && gzBackend > 0) {
+            const ratio = gzBackend / gz; // ~1 means match
+            const close = ratio > 0.8 && ratio < 1.25; // within 25%
+            if (close) {
+              setBaseLabel("gzip(query result payload)");
+              setBaseNote("Backend baseline matches gzip(snapshot_result payload). This is NOT gzip of full snapshots-over-time.");
+            } else {
+              setBaseLabel("gzip(backend baseline)");
+              setBaseNote("Backend baseline scope differs from gzip(snapshot_result payload). Check server definition of gzip_snapshot_bytes_total.");
+            }
+          } else {
+            setBaseLabel("gzip(backend baseline)");
+            setBaseNote(typeof CompressionStream === "undefined" ? "Browser gzip unsupported; baseline label uses backend only." : null);
+          }
+        } catch {
+          setBaseLabel("gzip(backend baseline)");
+        }
+      } else {
+        setBaseLabel("gzip(backend baseline)");
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [out]);
+
+  // Correct comparison math:
+  // ratio = wire/gzip, pct = (wire/gzip - 1)*100 (positive means WirePack is bigger)
+  const base = gzBackend;
+  const ratioWireOverBase = wire > 0 && base > 0 ? wire / base : null;
+  const pctWireVsBase = wire > 0 && base > 0 ? (wire / base - 1) * 100 : null;
 
   const normalizedInput = receiptInput.trim().toLowerCase();
   const normalizedDrift = (drift || "").trim().toLowerCase();
@@ -484,7 +584,18 @@ export function V44SqlOnStreamsDemo() {
       <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr] items-start">
         <div className="flex flex-col gap-3">
           {queryId === "histogram" ? <HistogramChart rows={previewRows} /> : <ProjectionSpark rows={previewRows} />}
-          {wire || gz ? <BytesCompareChart wire={wire} gz={gz} /> : null}
+          {wire || base ? <BytesCompareChart wire={wire} base={base} baseLabel={baseLabel} /> : null}
+          {baseNote ? (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+              <span className="font-semibold">Note:</span> {baseNote}
+              {snapPayloadRaw != null ? (
+                <div className="mt-1 text-slate-500">
+                  snapshot_result payload raw≈{bytes(snapPayloadRaw)}
+                  {snapPayloadGz != null ? ` · gzip≈${bytes(snapPayloadGz)}` : ""}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -498,9 +609,15 @@ export function V44SqlOnStreamsDemo() {
             sub="snapshot vs stream"
           />
           <StatTile label="Query time" value={qMs != null ? `${Number(qMs).toFixed(2)} ms` : "—"} sub="if backend returns timing" />
-          <StatTile label="Stream size" value={wire ? bytes(wire) : "—"} sub="WirePack total bytes" />
-          <StatTile label="gzip size" value={gz ? bytes(gz) : "—"} sub="snapshot baseline" />
-          <StatTile label="Compression" value={factor ? `~${factor.toFixed(1)}×` : "—"} sub={pctSaved != null ? `${pctSaved.toFixed(1)}% less` : "—"} />
+          <StatTile label="Stream bytes" value={wire ? bytes(wire) : "—"} sub="wire_total_bytes" />
+          <StatTile label={baseLabel} value={base ? bytes(base) : "—"} sub="backend field" />
+
+          <StatTile
+            label="Wire vs gzip"
+            value={ratioWireOverBase != null ? `${ratioWireOverBase.toFixed(2)}×` : "—"}
+            sub={pctWireVsBase != null ? `${pctWireVsBase >= 0 ? "+" : ""}${pctWireVsBase.toFixed(1)}% (WirePack vs baseline)` : "—"}
+          />
+
           <StatTile label="Bytes / op" value={bytesPerOp != null ? `${bytesPerOp.toFixed(2)} B` : "—"} sub={`${ops} ops`} />
           <StatTile label="Template" value={templateBytes ? bytes(templateBytes) : "—"} sub="one-time" />
           <StatTile label="Delta total" value={deltaBytesTotal ? bytes(deltaBytesTotal) : "—"} sub="all deltas" />
