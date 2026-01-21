@@ -169,6 +169,25 @@ async function gzipLenUtf8(s: string): Promise<number | null> {
   }
 }
 
+// gzip a whole run as ONE stream (cross-frame redundancy allowed)
+async function gzipStreamLenUtf8(parts: string[], sep = "\n"): Promise<number | null> {
+  try {
+    // @ts-ignore
+    if (typeof CompressionStream === "undefined") return null;
+
+    const s = parts.join(sep);
+    const u8 = new TextEncoder().encode(s);
+    const copy = new Uint8Array(u8);
+
+    // @ts-ignore
+    const stream = new Blob([copy]).stream().pipeThrough(new CompressionStream("gzip"));
+    const ab = await new Response(stream).arrayBuffer();
+    return new Uint8Array(ab).length;
+  } catch {
+    return null;
+  }
+}
+
 // -------------------------------
 // “real endpoints” (v46 session codec)
 // -------------------------------
@@ -226,9 +245,9 @@ function makeBase(caseId: CaseId) {
       device: "dev_01",
       readings: Array.from({ length: 64 }).map((_, i) => ({
         t: 1700000000000 + i * 250,
-        temp_mC: 18500 + (i % 7) * 100, // 18.500C in milli-C
-        hum_mP: 450 + (i % 11) * 10,    // 0.450 in milli-percent-ish
-        vib_mG: (i % 5) * 20,           // milli-g
+        temp_mC: 18500 + (i % 7) * 100,
+        hum_mP: 450 + (i % 11) * 10,
+        vib_mG: (i % 5) * 20,
         flags_ok: 1,
         flags_cal: i % 16 === 0 ? 1 : 0,
       })),
@@ -263,13 +282,13 @@ function patchFrame(base: any, caseId: CaseId, i: number, R: () => number) {
     if (Array.isArray(o.headers) && o.headers[0]?.v) {
       o.headers[0].v = String(o.headers[0].v).replace(/trace=\d+/g, `trace=${tr3}`);
     }
-    const j = String(((R() % 97) >>> 0)).padStart(2, "0"); // 00..96
+    const j = String(((R() % 97) >>> 0)).padStart(2, "0");
     o.path = `/api/v1/search?q=glyphos+wirepack&j=${j}`;
   } else if (caseId === "iot") {
     const k = (R() % Math.max(1, o.readings?.length || 1)) >>> 0;
     if (Array.isArray(o.readings) && o.readings[k]) {
       o.readings[k].temp_mC = (o.readings[k].temp_mC ?? 18500) + (((R() % 5) - 2) | 0);
-      o.readings[k].hum_mP  = (o.readings[k].hum_mP  ?? 450)   + ((((R() % 5) - 2) | 0) * 1);
+      o.readings[k].hum_mP = (o.readings[k].hum_mP ?? 450) + ((((R() % 5) - 2) | 0) * 1);
     }
     o.device = `dev_${String((i % 24) + 1).padStart(2, "0")}`;
   } else {
@@ -294,10 +313,20 @@ function svgTransportGraph(opts: {
   frames: number;
   packetsEstTotal: number;
   payloadPerPacket: number;
-  gzTotal: number | null;
+  gzStreamTotal: number | null;
   height?: number;
 }) {
-  const { templateBytes, deltaBytesTotal, wireTotal, frames, packetsEstTotal, payloadPerPacket, gzTotal, height = 210 } = opts;
+  const {
+    templateBytes,
+    deltaBytesTotal,
+    wireTotal,
+    frames,
+    packetsEstTotal,
+    payloadPerPacket,
+    gzStreamTotal,
+    height = 210,
+  } = opts;
+
   const W = 900;
   const H = height;
   const pad = 18;
@@ -309,7 +338,7 @@ function svgTransportGraph(opts: {
   const x1 = x0 + plotW;
 
   const bandH = Math.max(18, Math.round(plotH * 0.18));
-  const gap = Math.max(14, Math.round(plotH * 0.10));
+  const gap = Math.max(14, Math.round(plotH * 0.1));
 
   const bytesBandY = y0 + Math.round(plotH * 0.12);
   const pktBandY = bytesBandY + bandH + gap;
@@ -325,10 +354,10 @@ function svgTransportGraph(opts: {
   const bytesPerFrame = total / framesSafe;
 
   const perFramePkts = payloadPerPacket > 0 ? bytesPerFrame / payloadPerPacket : 0;
-  const pktFrac = Math.max(0, Math.min(1, perFramePkts)); // 0..1 means “fits in ~one packet”
+  const pktFrac = Math.max(0, Math.min(1, perFramePkts));
   const pktFillW = Math.round(plotW * pktFrac);
 
-  const gz = gzTotal == null ? null : Math.max(1, Number(gzTotal || 0));
+  const gz = gzStreamTotal == null ? null : Math.max(1, Number(gzStreamTotal || 0));
   const ratio = gz ? total / gz : null;
 
   return (
@@ -336,7 +365,6 @@ function svgTransportGraph(opts: {
       <rect x={0} y={0} width={W} height={H} rx={16} ry={16} fill="#fff" />
       <rect x={x0} y={y0} width={plotW} height={plotH} rx={12} ry={12} fill="transparent" stroke="#e5e7eb" />
 
-      {/* Bytes band */}
       <text x={x0} y={bytesBandY - 6} fontSize={11} fill="#6b7280">
         Wire footprint split: template burst vs delta stream
       </text>
@@ -356,10 +384,9 @@ function svgTransportGraph(opts: {
         template={bytes(templateBytes)} · deltas={bytes(deltaBytesTotal)} · total={bytes(total)}
       </text>
       <text x={x1} y={bytesBandY + bandH + 14} fontSize={11} fill="#6b7280" textAnchor="end">
-        {ratio == null ? "gzip baseline: —" : `wire/gzip≈${ratio.toFixed(2)}×`}
+        {ratio == null ? "gzip(stream) baseline: —" : `wire/gzip(stream)≈${ratio.toFixed(2)}×`}
       </text>
 
-      {/* Packets band */}
       <text x={x0} y={pktBandY - 6} fontSize={11} fill="#6b7280">
         Packetization pressure: avg bytes/frame vs payload budget
       </text>
@@ -382,17 +409,14 @@ function svgTransportGraph(opts: {
 // -------------------------------
 
 export const V10StreamingTransportDemo: React.FC = () => {
-  // params
   const [seed, setSeed] = useState(1337);
   const [caseId, setCaseId] = useState<CaseId>("http");
   const [seconds, setSeconds] = useState(12);
   const [hz, setHz] = useState(12);
 
-  // MTU story (transport sell): estimate packets
   const [mtu, setMtu] = useState(1200);
   const [headerOverhead, setHeaderOverhead] = useState(80);
 
-  // UI
   const [showRaw, setShowRaw] = useState(false);
 
   const [busy, setBusy] = useState(false);
@@ -447,8 +471,12 @@ export const V10StreamingTransportDemo: React.FC = () => {
       let deltaBytesTotal = 0;
       let templatesCount = 0;
 
-      let gzipTotal = 0;
-      let gzipKnown = true;
+      // Baseline #1: gzip each frame and sum (per-frame gzip)
+      let gzFrameTotal = 0;
+      let gzFrameKnown = true;
+
+      // For baseline #2: gzip once over entire run (stream gzip)
+      const canonParts: string[] = [];
 
       let packetsEstTotal = 0;
       let lastEncodedB64 = "";
@@ -461,9 +489,11 @@ export const V10StreamingTransportDemo: React.FC = () => {
         const canon = stableStringify(frameObj);
         lastCanon = canon;
 
+        canonParts.push(canon);
+
         const gzLen = await gzipLenUtf8(canon);
-        if (gzLen == null) gzipKnown = false;
-        else gzipTotal += gzLen;
+        if (gzLen == null) gzFrameKnown = false;
+        else gzFrameTotal += gzLen;
 
         const enc = await wpEncodeStruct(sid, canon);
         lastEncodedB64 = enc.encoded_b64;
@@ -478,6 +508,7 @@ export const V10StreamingTransportDemo: React.FC = () => {
         packetsEstTotal += ceilDiv(enc.bytes_out, payloadPerPacket);
 
         if (i % 10 === 0 && i > 0) {
+          const wireSoFar = templateBytes + deltaBytesTotal;
           setNote(`streaming… ${i}/${framesPlanned} frames`);
           setOut((prev: any) => ({
             ...(prev || {}),
@@ -485,8 +516,9 @@ export const V10StreamingTransportDemo: React.FC = () => {
             bytes: {
               template_bytes: templateBytes,
               delta_bytes_total: deltaBytesTotal,
-              wire_total_bytes: templateBytes + deltaBytesTotal,
-              gzip_total_bytes: gzipKnown ? gzipTotal : null,
+              wire_total_bytes: wireSoFar,
+              gzip_frame_total_bytes: gzFrameKnown ? gzFrameTotal : null,
+              gzip_stream_total_bytes: null, // computed at end
               packets_est_total: packetsEstTotal,
               mtu,
               header_overhead: headerOverhead,
@@ -495,6 +527,8 @@ export const V10StreamingTransportDemo: React.FC = () => {
           }));
         }
       }
+
+      const gzStreamTotalBytes = await gzipStreamLenUtf8(canonParts);
 
       let roundtrip_ok: boolean | null = null;
       if (lastEncodedB64) {
@@ -517,7 +551,8 @@ export const V10StreamingTransportDemo: React.FC = () => {
           template_bytes: templateBytes,
           delta_bytes_total: deltaBytesTotal,
           wire_total_bytes,
-          gzip_total_bytes: gzipKnown ? gzipTotal : null,
+          gzip_frame_total_bytes: gzFrameKnown ? gzFrameTotal : null,
+          gzip_stream_total_bytes: gzStreamTotalBytes,
           packets_est_total: packetsEstTotal,
           payload_per_packet: payloadPerPacket,
         },
@@ -562,18 +597,20 @@ export const V10StreamingTransportDemo: React.FC = () => {
   const templateBytes = Number(b?.template_bytes ?? 0);
   const deltaBytesTotal = Number(b?.delta_bytes_total ?? 0);
   const wireTotal = Number(b?.wire_total_bytes ?? (templateBytes + deltaBytesTotal));
-  const gzTotal = b?.gzip_total_bytes == null ? null : Number(b.gzip_total_bytes || 0);
-  const packetsEstTotal = Number(b?.packets_est_total ?? 0);
+
+  const gzFrameTotal = b?.gzip_frame_total_bytes == null ? null : Number(b.gzip_frame_total_bytes || 0);
+  const gzStreamTotal = b?.gzip_stream_total_bytes == null ? null : Number(b.gzip_stream_total_bytes || 0);
+
+  const wireVsGzFramePct =
+    gzFrameTotal != null && gzFrameTotal > 0 ? ((wireTotal / gzFrameTotal) - 1) * 100 : null;
+
+  const wireVsGzStreamPct =
+    gzStreamTotal != null && gzStreamTotal > 0 ? ((wireTotal / gzStreamTotal) - 1) * 100 : null;
 
   const avgPerFrame = framesPlanned > 0 ? wireTotal / framesPlanned : 0;
 
-  // % difference of WirePack vs gzip (negative = smaller than gzip, positive = bigger)
-  const wireVsGzPct =
-    gzTotal != null && gzTotal > 0 ? ((wireTotal / gzTotal) - 1) * 100 : null;
-
   const minimalCurl = useMemo(() => {
-    // NOTE: use same host the frontend is hitting (Vite proxy -> FastAPI)
-    const host = window.location.origin; // e.g. http://127.0.0.1:5173
+    const host = window.location.origin;
     const canon0 = stableStringify(makeBase(caseId));
 
     return `# 1) create session
@@ -592,6 +629,9 @@ curl -sS -X POST ${host}/api/wirepack/v46/encode_struct \\
       // ignore
     }
   }
+
+  // (used in UI)
+  const packetsEstTotal = Number(b?.packets_est_total ?? 0);
 
   return (
     <div style={{ ...cardStyle(), padding: 14 }}>
@@ -686,7 +726,7 @@ curl -sS -X POST ${host}/api/wirepack/v46/encode_struct \\
           gap: 12,
         }}
       >
-        {/* Left: seller-style narrative panel (NO fake seller fields) */}
+        {/* Left: seller-style narrative panel */}
         <div style={{ ...cardStyle() }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
             <div style={{ fontSize: 12, fontWeight: 900, color: "#111827" }}>🎯 v10 — Transport unlock</div>
@@ -845,7 +885,7 @@ curl -sS -X POST ${host}/api/wirepack/v46/encode_struct \\
                     frames: framesPlanned,
                     packetsEstTotal,
                     payloadPerPacket,
-                    gzTotal,
+                    gzStreamTotal, // ✅ stream gzip baseline used in graph label
                     height: 210,
                   })}
                 </div>
@@ -873,18 +913,40 @@ curl -sS -X POST ${host}/api/wirepack/v46/encode_struct \\
                 </div>
               </div>
 
+              {/* ✅ Replaces old single gzTotal card */}
               <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
-                <div style={{ ...miniLabel() }}>Gzip baseline</div>
+                <div style={{ ...miniLabel() }}>Gzip baselines</div>
+
                 <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-                  <b style={{ color: "#111827" }}>{gzTotal == null ? "—" : bytes(gzTotal)}</b>{" "}
-                  {wireVsGzPct != null ? (
-                    <span style={{ color: wireVsGzPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
-                      ({wireVsGzPct > 0 ? "+" : ""}
-                      {wireVsGzPct.toFixed(1)}%)
-                    </span>
-                  ) : (
-                    <span style={{ color: "#6b7280" }}>(unsupported)</span>
-                  )}
+                  <div>
+                    <b style={{ color: "#111827" }}>per-frame:</b>{" "}
+                    <b style={{ color: "#111827" }}>{gzFrameTotal == null ? "—" : bytes(gzFrameTotal)}</b>{" "}
+                    {wireVsGzFramePct != null ? (
+                      <span style={{ color: wireVsGzFramePct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+                        ({wireVsGzFramePct > 0 ? "+" : ""}
+                        {wireVsGzFramePct.toFixed(1)}%)
+                      </span>
+                    ) : (
+                      <span style={{ color: "#6b7280" }}>(unsupported)</span>
+                    )}
+                  </div>
+
+                  <div style={{ marginTop: 4 }}>
+                    <b style={{ color: "#111827" }}>stream:</b>{" "}
+                    <b style={{ color: "#111827" }}>{gzStreamTotal == null ? "—" : bytes(gzStreamTotal)}</b>{" "}
+                    {wireVsGzStreamPct != null ? (
+                      <span style={{ color: wireVsGzStreamPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+                        ({wireVsGzStreamPct > 0 ? "+" : ""}
+                        {wireVsGzStreamPct.toFixed(1)}%)
+                      </span>
+                    ) : (
+                      <span style={{ color: "#6b7280" }}>(unsupported)</span>
+                    )}
+                  </div>
+
+                  <div style={{ marginTop: 6, fontSize: 10, color: "#6b7280" }}>
+                    per-frame = gzip each message; stream = gzip across the whole run (stronger gzip).
+                  </div>
                 </div>
               </div>
             </div>
@@ -938,7 +1000,16 @@ curl -sS -X POST ${host}/api/wirepack/v46/encode_struct \\
                     wire_total_bytes: <b style={{ color: "#111827" }}>{bytes(wireTotal)}</b>{" "}
                     <span style={{ color: "#6b7280" }}>{b?.wire_total_bytes != null ? `(${b.wire_total_bytes} B)` : ""}</span>
                   </div>
-                  <div style={{ color: "#6b7280" }}>
+
+                  <div style={{ marginTop: 8, fontWeight: 900, color: "#111827" }}>Gzip baselines</div>
+                  <div style={{ color: "#374151" }}>
+                    gzip_frame_total_bytes: <b style={{ color: "#111827" }}>{gzFrameTotal == null ? "—" : bytes(gzFrameTotal)}</b>
+                  </div>
+                  <div style={{ color: "#374151" }}>
+                    gzip_stream_total_bytes: <b style={{ color: "#111827" }}>{gzStreamTotal == null ? "—" : bytes(gzStreamTotal)}</b>
+                  </div>
+
+                  <div style={{ marginTop: 8, color: "#6b7280" }}>
                     packets_est_total: <code>{String(b?.packets_est_total ?? "—")}</code>{" "}
                     <span style={{ color: "#6b7280" }}>(payload≈{String(b?.payload_per_packet ?? payloadPerPacket)} B)</span>
                   </div>
