@@ -384,7 +384,9 @@ function svgTransportGraph(opts: {
         template={bytes(templateBytes)} · deltas={bytes(deltaBytesTotal)} · total={bytes(total)}
       </text>
       <text x={x1} y={bytesBandY + bandH + 14} fontSize={11} fill="#6b7280" textAnchor="end">
-        {ratio == null ? "gzip(stream) baseline: —" : `wire/gzip(stream)≈${ratio.toFixed(2)}×`}
+        {ratio == null
+          ? "gzip(stream) baseline: —"
+          : `wire/gzip(stream)≈${ratio.toFixed(2)}× (${((ratio - 1) * 100).toFixed(1)}%)`}
       </text>
 
       <text x={x0} y={pktBandY - 6} fontSize={11} fill="#6b7280">
