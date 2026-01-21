@@ -1,15 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-async function fetchJson(url: string, body: any, timeoutMs = 20000) {
+async function fetchJson(url: string, body?: any, timeoutMs = 20000, method: "GET" | "POST" = "POST") {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    const r = await fetch(url, {
-      method: "POST",
+    const init: RequestInit = {
+      method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body ?? {}),
       signal: ctrl.signal,
-    });
+    };
+
+    // Don’t send a body on GET (some servers/proxies will reject it)
+    if (method === "POST") init.body = JSON.stringify(body ?? {});
+    const r = await fetch(url, init);
+
     const txt = await r.text();
     let json: any = {};
     try {
@@ -77,7 +81,6 @@ function utf8Len(s: string): number {
   }
 }
 
-// gzip (browser CompressionStream) — best effort
 async function gzipLenUtf8(s: string): Promise<number | null> {
   try {
     // @ts-ignore
@@ -92,7 +95,6 @@ async function gzipLenUtf8(s: string): Promise<number | null> {
   }
 }
 
-// gzip a whole run as ONE stream (stronger, cross-message redundancy allowed)
 async function gzipStreamLenUtf8(parts: string[], sep = "\n"): Promise<number | null> {
   try {
     // @ts-ignore
@@ -122,7 +124,6 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
   const [err, setErr] = useState<string | null>(null);
   const [out, setOut] = useState<any>(null);
 
-  // baselines (client-side) — must be “same payload”, not “request body”
   const [rawJsonTotalBytes, setRawJsonTotalBytes] = useState<number | null>(null);
   const [gzipFrameTotalBytes, setGzipFrameTotalBytes] = useState<number | null>(null);
   const [gzipStreamTotalBytes, setGzipStreamTotalBytes] = useState<number | null>(null);
@@ -133,10 +134,21 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
     (async () => {
       try {
         setCatalogErr(null);
-        const { ok, status, json } = await fetchJson("/api/wirepack/v12/catalog", {}, 12000);
-        if (!ok) throw new Error(`HTTP ${status}: ${JSON.stringify(json)}`);
+
+        // Try GET first (common), fall back to POST (your original)
+        let res = await fetchJson("/api/wirepack/v12/catalog", undefined, 12000, "GET");
+        if (!res.ok) res = await fetchJson("/api/wirepack/v12/catalog", {}, 12000, "POST");
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${JSON.stringify(res.json)}`);
         if (!alive) return;
-        setTemplates(Array.isArray(json?.templates) ? json.templates : []);
+
+        const list =
+          (Array.isArray(res.json?.templates) && res.json.templates) ||
+          (Array.isArray(res.json?.catalog?.templates) && res.json.catalog.templates) ||
+          [];
+        setTemplates(list);
+
+        // If current templateId not present, snap to first available
+        if (list.length && !list.some((x: any) => x?.id === templateId)) setTemplateId(String(list[0].id));
       } catch (e: any) {
         if (!alive) return;
         setCatalogErr(e?.message || String(e));
@@ -145,6 +157,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
     return () => {
       alive = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const t = useMemo(() => templates.find((x) => x.id === templateId) || null, [templates, templateId]);
@@ -163,25 +176,28 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
     try {
       const body = { template_id: templateId, seed, n, turns, muts };
 
-      // 1) mint first (authoritative wire bytes come from backend receipt)
-      const { ok, status, json } = await fetchJson("/api/wirepack/v12/mint", body, 25000);
+      const { ok, status, json } = await fetchJson("/api/wirepack/v12/mint", body, 25000, "POST");
       if (!ok) throw new Error(`HTTP ${status}: ${JSON.stringify(json)}`);
       setOut(json);
 
-      // 2) compute *real* baselines from the payload stream the demo implies
-      // Prefer backend-provided payload samples if present; else do deterministic, bounded client synthesis.
       const receipt = json?.receipt || {};
-      const samples: any[] | null = Array.isArray(receipt?.baseline_samples) ? receipt.baseline_samples : null;
+      const samples: any[] | null =
+        Array.isArray(receipt?.baseline_samples) ? receipt.baseline_samples :
+        Array.isArray(json?.baseline_samples) ? json.baseline_samples :
+        null;
 
       const parts: string[] = [];
 
       if (samples && samples.length) {
-        for (const s of samples) parts.push(stableStringify(s));
+        // IMPORTANT: if backend already gives canonical JSON strings, don’t re-stringify them
+        for (const s of samples) {
+          if (typeof s === "string") parts.push(s);
+          else parts.push(stableStringify(s));
+        }
       } else {
-        // Fallback: synthesize “turns” messages with small mutations, bounded work.
-        // This is not a fake claim: we label it as “client-side synthetic stream”.
-        const maxTurns = Math.max(1, Math.min(256, Number(turns || 1))); // cap to keep browser fast
+        const maxTurns = Math.max(1, Math.min(256, Number(turns || 1)));
         const maxMuts = Math.max(1, Math.min(32, Number(muts || 1)));
+
         const baseMsg: any =
           templateId === "metrics_v1"
             ? { cpu: 0.12, mem: 0.34, p95_ms: 12.3 }
@@ -198,7 +214,6 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
         let cur = baseMsg;
         for (let i = 0; i < maxTurns; i++) {
           const msg = typeof structuredClone === "function" ? structuredClone(cur) : JSON.parse(JSON.stringify(cur));
-          // apply a few numeric nudges
           for (let j = 0; j < maxMuts; j++) {
             const r = R();
             if ("cpu" in msg) msg.cpu = Number(msg.cpu) + (((r % 7) - 3) * 0.001);
@@ -206,19 +221,16 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
             if ("p95_ms" in msg) msg.p95_ms = Number(msg.p95_ms) + ((((r >>> 6) % 5) - 2) * 0.1);
             msg._t = i;
           }
-          const canon = stableStringify(msg);
-          parts.push(canon);
+          parts.push(stableStringify(msg));
           cur = msg;
         }
         setBaselineNote("baselines = client-side synthetic stream (bounded); backend can optionally return baseline_samples for exactness");
       }
 
-      // raw json total = sum utf8(msg_i)
       let rawTotal = 0;
       for (const p of parts) rawTotal += utf8Len(p);
       setRawJsonTotalBytes(rawTotal);
 
-      // gzip per-frame total = sum gzip(msg_i)
       let gzFrameKnown = true;
       let gzFrameTotal = 0;
       for (const p of parts) {
@@ -231,11 +243,9 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
       }
       setGzipFrameTotalBytes(gzFrameKnown ? gzFrameTotal : null);
 
-      // gzip stream total = gzip(concat(all msgs))
       const gzStream = await gzipStreamLenUtf8(parts);
       setGzipStreamTotalBytes(gzStream);
 
-      // notes for unsupported CompressionStream
       // @ts-ignore
       if (typeof CompressionStream === "undefined") {
         setBaselineNote((prev) => (prev ? prev + " · gzip unsupported in this browser" : "gzip unsupported in this browser"));
@@ -252,28 +262,28 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
   const b = receipt?.bytes || out?.bytes || {};
   const inv = receipt?.invariants || out?.invariants || {};
 
-  const leanOk =
-    receipts?.LEAN_OK === 1 || receipts?.LEAN_OK === true ? true : receipts?.LEAN_OK === 0 ? false : null;
+  // Robust LEAN_OK sources (you were only checking out.receipts)
+  const leanRaw =
+    receipts?.LEAN_OK ?? receipt?.LEAN_OK ?? out?.LEAN_OK ?? out?.lean_ok ?? null;
+  const leanOk = leanRaw === 1 || leanRaw === true ? true : leanRaw === 0 ? false : null;
   const lean = badge(leanOk);
 
-  const cacheHit = inv?.cache_hit === true;
-  const cacheLabel = cacheHit ? "CACHE HIT" : inv?.cache_hit === false ? "CACHE MISS" : "—";
+  const cacheHit = inv?.cache_hit ?? receipt?.cache_hit ?? out?.cache_hit ?? null;
+  const cacheLabel = cacheHit === true ? "CACHE HIT" : cacheHit === false ? "CACHE MISS" : "—";
 
-  const wireTotal = Number(b?.wire_total_bytes || 0);
+  const wireTotal = Number(b?.wire_total_bytes ?? receipt?.wire_total_bytes ?? out?.wire_total_bytes ?? 0);
 
-  // Percent deltas: (wire/baseline - 1)*100
   const wireVsRawPct =
-    rawJsonTotalBytes != null && rawJsonTotalBytes > 0 ? ((wireTotal / rawJsonTotalBytes) - 1) * 100 : null;
+    rawJsonTotalBytes != null && rawJsonTotalBytes > 0 ? (wireTotal / rawJsonTotalBytes - 1) * 100 : null;
 
   const wireVsGzFramePct =
-    gzipFrameTotalBytes != null && gzipFrameTotalBytes > 0 ? ((wireTotal / gzipFrameTotalBytes) - 1) * 100 : null;
+    gzipFrameTotalBytes != null && gzipFrameTotalBytes > 0 ? (wireTotal / gzipFrameTotalBytes - 1) * 100 : null;
 
   const wireVsGzStreamPct =
-    gzipStreamTotalBytes != null && gzipStreamTotalBytes > 0 ? ((wireTotal / gzipStreamTotalBytes) - 1) * 100 : null;
+    gzipStreamTotalBytes != null && gzipStreamTotalBytes > 0 ? (wireTotal / gzipStreamTotalBytes - 1) * 100 : null;
 
   return (
     <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
-      {/* Header */}
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
         <div>
           <div style={{ fontSize: 13, fontWeight: 900, color: "#111827" }}>v12 — Multi-template catalog</div>
@@ -321,21 +331,13 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
         </div>
       </div>
 
-      {/* Controls */}
       <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "2fr repeat(4, 1fr)", gap: 8 }}>
         <label style={{ fontSize: 11, color: "#374151" }}>
           template
           <select
             value={templateId}
             onChange={(e) => setTemplateId(String(e.target.value))}
-            style={{
-              width: "100%",
-              marginTop: 4,
-              padding: "6px 8px",
-              borderRadius: 10,
-              border: "1px solid #e5e7eb",
-              background: "#fff",
-            }}
+            style={{ width: "100%", marginTop: 4, padding: "6px 8px", borderRadius: 10, border: "1px solid #e5e7eb", background: "#fff" }}
           >
             {templates.length ? (
               templates.map((x) => (
@@ -402,7 +404,6 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
       {catalogErr ? <div style={{ marginTop: 8, fontSize: 11, color: "#b91c1c" }}>catalog: {catalogErr}</div> : null}
       {err ? <div style={{ marginTop: 8, fontSize: 11, color: "#b91c1c" }}>{err}</div> : null}
 
-      {/* Output */}
       {out ? (
         <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <div style={{ borderRadius: 12, border: "1px solid #e5e7eb", padding: 10 }}>
@@ -413,7 +414,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
             </div>
 
             <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-              cache: <b style={{ color: cacheHit ? "#065f46" : "#991b1b" }}>{cacheLabel}</b>
+              cache: <b style={{ color: cacheHit === true ? "#065f46" : cacheHit === false ? "#991b1b" : "#374151" }}>{cacheLabel}</b>
             </div>
 
             <div style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
@@ -439,17 +440,15 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
             </div>
 
             <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-              wire_total_bytes: <b>{bytes(Number(b?.wire_total_bytes || 0))}</b>{" "}
-              <span style={{ color: "#6b7280" }}>({b?.wire_total_bytes ?? 0} B)</span>
+              wire_total_bytes: <b>{bytes(wireTotal)}</b>{" "}
+              <span style={{ color: "#6b7280" }}>({wireTotal} B)</span>
             </div>
 
-            {/* Baselines (correct: based on the message stream, not the request body) */}
             <div style={{ marginTop: 10, borderRadius: 12, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
               <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Baselines (client-side)</div>
 
               <div style={{ marginTop: 8, fontSize: 11, color: "#374151" }}>
-                raw_json_total:{" "}
-                <b>{rawJsonTotalBytes == null ? "—" : bytes(rawJsonTotalBytes)}</b>{" "}
+                raw_json_total: <b>{rawJsonTotalBytes == null ? "—" : bytes(rawJsonTotalBytes)}</b>{" "}
                 <span style={{ color: "#6b7280" }}>({rawJsonTotalBytes ?? "—"} B)</span>{" "}
                 {wireVsRawPct != null ? (
                   <span style={{ color: wireVsRawPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
@@ -459,8 +458,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
               </div>
 
               <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-                gzip_per_frame_total:{" "}
-                <b>{gzipFrameTotalBytes == null ? "—" : bytes(gzipFrameTotalBytes)}</b>{" "}
+                gzip_per_frame_total: <b>{gzipFrameTotalBytes == null ? "—" : bytes(gzipFrameTotalBytes)}</b>{" "}
                 <span style={{ color: "#6b7280" }}>({gzipFrameTotalBytes ?? "—"} B)</span>{" "}
                 {wireVsGzFramePct != null ? (
                   <span style={{ color: wireVsGzFramePct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
@@ -472,8 +470,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
               </div>
 
               <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-                gzip_stream_total:{" "}
-                <b>{gzipStreamTotalBytes == null ? "—" : bytes(gzipStreamTotalBytes)}</b>{" "}
+                gzip_stream_total: <b>{gzipStreamTotalBytes == null ? "—" : bytes(gzipStreamTotalBytes)}</b>{" "}
                 <span style={{ color: "#6b7280" }}>({gzipStreamTotalBytes ?? "—"} B)</span>{" "}
                 {wireVsGzStreamPct != null ? (
                   <span style={{ color: wireVsGzStreamPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
@@ -491,7 +488,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
             </div>
 
             <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280" }}>
-              drift_sha256: <code>{String(receipts?.drift_sha256 || "—")}</code>
+              drift_sha256: <code>{String(receipts?.drift_sha256 || receipt?.drift_sha256 || "—")}</code>
             </div>
 
             <div style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
@@ -499,7 +496,6 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
             </div>
           </div>
 
-          {/* What this demo proves */}
           <div style={{ gridColumn: "1 / -1", borderRadius: 12, border: "1px solid #e5e7eb", padding: 10, background: "#f9fafb" }}>
             <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>What this demo proves</div>
 
@@ -509,24 +505,25 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
               </div>
 
               <div style={{ marginTop: 8 }}>
-                <b>We are testing for</b>: (1) <b>template selection</b>, (2) <b>template caching</b> (no re-sending schema every time), and (3) a receipt that binds{" "}
+                <b>We are testing for</b>: (1) <b>template selection</b>, (2) <b>template caching</b>, and (3) a receipt that binds{" "}
                 <code>template_id + template_sha256 + bytes</code> into <code>drift_sha256</code>.
               </div>
 
               <div style={{ marginTop: 8 }}>
-                <b>WirePack vs baseline (messaging)</b>: baselines above are computed from a <b>message stream</b>, not the request body. Labels explicitly state per-frame vs stream gzip.
+                <b>WirePack vs baseline (messaging)</b>: baselines computed from a <b>message stream</b>, not the request body.
               </div>
 
               <div style={{ marginTop: 8 }}>
-                <b>Why it matters</b>: this is the “product” unlock — you can carry logs, metrics, traces (different shapes) through the same pipeline without losing verifiability or efficiency.
+                <b>Why it matters</b>: logs/metrics/traces (different shapes) through the same pipeline without losing verifiability or efficiency.
               </div>
             </div>
           </div>
 
-          {/* Raw */}
           <div style={{ gridColumn: "1 / -1", borderRadius: 12, border: "1px solid #e5e7eb", padding: 10 }}>
             <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Raw response</div>
-            <pre style={{ marginTop: 8, fontSize: 11, color: "#111827", whiteSpace: "pre-wrap" }}>{JSON.stringify(out, null, 2)}</pre>
+            <pre style={{ marginTop: 8, fontSize: 11, color: "#111827", whiteSpace: "pre-wrap" }}>
+              {JSON.stringify(out, null, 2)}
+            </pre>
           </div>
         </div>
       ) : null}
@@ -534,7 +531,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
       <div style={{ marginTop: 12, borderRadius: 12, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10, fontSize: 11, color: "#6b7280" }}>
         Endpoints:
         <div style={{ marginTop: 6 }}>
-          <code>POST /api/wirepack/v12/catalog</code>
+          <code>GET/POST /api/wirepack/v12/catalog</code>
         </div>
         <div style={{ marginTop: 4 }}>
           <code>POST /api/wirepack/v12/mint</code>
