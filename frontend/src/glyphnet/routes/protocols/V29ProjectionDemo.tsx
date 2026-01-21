@@ -225,14 +225,20 @@ export const V29ProjectionDemo: React.FC = () => {
   const drift = typeof receipts?.drift_sha256 === "string" ? receipts.drift_sha256 : null;
 
   const ops_total = Number(b?.ops_total ?? turns * muts);
-  const wire_total_bytes = Number(b?.wire_total_bytes ?? b?.delta_bytes_total ?? 0);
-  const bytes_per_op = Number(b?.bytes_per_op ?? (ops_total ? wire_total_bytes / ops_total : 0));
+  const wire_total_bytes = Number(b?.wire_total_bytes ?? 0); // full stream (kept for reference)
+  const subset_wire_total_bytes = Number(b?.subset_wire_total_bytes ?? wire_total_bytes); // Q-only bytes (new, preferred)
+
+  const bytes_per_op = Number(
+    b?.subset_bytes_per_op ??
+    b?.bytes_per_op ??
+    (ops_total ? subset_wire_total_bytes / ops_total : 0)
+  );
 
   const q_size = Number(b?.q_size ?? q);
   const hits_in_Q = Number(b?.hits_in_Q ?? inv?.hits_in_Q ?? inv?.hits_in_q ?? 0);
 
   // seller framing
-  const fanoutBytes = wire_total_bytes * Math.max(0, Number(audience || 0));
+  const fanoutBytes = subset_wire_total_bytes * Math.max(0, Number(audience || 0));
   const estRevenue = Math.max(0, Number(audience || 0)) * Math.max(0, Number(price || 0));
 
   const curl = useMemo(() => {
@@ -381,17 +387,29 @@ export const V29ProjectionDemo: React.FC = () => {
 
           <div style={{ marginTop: 12, borderRadius: 14, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10 }}>
             <div style={{ ...miniLabel() }}>What the seller “ships”</div>
+
             <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr", gap: 6, fontSize: 11, color: "#374151" }}>
+              {/* What a single consumer receives (the point of v29) */}
               <div>
                 Update bytes (one consumer): <b style={{ color: "#111827" }}>{bytes(wire_total_bytes)}</b>
               </div>
+
+              {/* Reference: what you’d pay if you shipped the whole world instead of only Q */}
+              <div>
+                Full stream bytes (reference): <b style={{ color: "#111827" }}>{bytes(wire_total_bytes)}</b>
+                <span style={{ color: "#6b7280" }}> (template + all deltas)</span>
+              </div>
+
+              {/* Fanout at scale */}
               <div>
                 Fanout bytes (all consumers): <b style={{ color: "#111827" }}>{bytes(fanoutBytes)}</b>
               </div>
+
               <div>
                 Ops touched: <b style={{ color: "#111827" }}>{ops_total.toLocaleString()}</b>{" "}
                 <span style={{ color: "#6b7280" }}>({bytes_per_op ? `${bytes_per_op.toFixed(2)} B/op` : "—"})</span>
               </div>
+
               <div>
                 Est. gross revenue: <b style={{ color: "#111827" }}>{estRevenue.toLocaleString()}</b>{" "}
                 <span style={{ color: "#6b7280" }}>({audience.toLocaleString()} consumers)</span>

@@ -598,7 +598,7 @@ def v12_mint(req: V12MintRequest) -> Dict[str, Any]:
     }
 
 # ============================================================
-# v29 — Projection(Q)
+# v29 — Projection(Q)  (UPDATED: subset bytes + baseline_samples)
 # ============================================================
 
 @router.post("/v29/run")
@@ -607,39 +607,96 @@ def v29_run(req: V29RunRequest) -> Dict[str, Any]:
     Q = _make_Q(req.seed, req.n, req.q)
     Qset = set(Q)
 
-    hits_in_Q = sum(1 for idx in touched if idx in Qset)
-    projection = [{"idx": i, "value": int(state[i])} for i in Q]
+    # which ops touched Q (order matters)
+    hits_mask = [1 if (int(idx) in Qset) else 0 for idx in touched]
+    hits_in_Q = int(sum(hits_mask))
+
+    projection = [{"idx": int(i), "value": int(state[i])} for i in Q]
 
     ops_total = int(req.turns) * int(req.muts)
+
     template_bytes = _bytes_estimate_template(req.n)
-    delta_bytes_total = ops_total * _bytes_estimate_delta_per_op()
+    per_op = _bytes_estimate_delta_per_op()
+
+    # full stream transport (what you already had)
+    delta_bytes_total = ops_total * per_op
     wire_total_bytes = template_bytes + delta_bytes_total
-    bytes_per_op = wire_total_bytes / ops_total if ops_total else 0.0
+    bytes_per_op = (wire_total_bytes / ops_total) if ops_total else 0.0
+
+    # NEW: subset transport (ONLY ops that hit Q)
+    subset_delta_bytes_total = hits_in_Q * per_op
+    subset_wire_total_bytes = template_bytes + subset_delta_bytes_total
+    subset_bytes_per_op = (subset_wire_total_bytes / ops_total) if ops_total else 0.0
+
+    # -----------------------------
+    # NEW: baseline_samples (naive per-op JSON stream)
+    # UI can compute:
+    #   raw_json_total, gzip_per_frame_total, gzip_stream_total
+    # -----------------------------
+    muts_i = max(1, int(req.muts))
+    cap = 8192
+    take = min(len(touched), cap)
+
+    baseline_samples = []
+    for i in range(take):
+        idx = int(touched[i])
+        t = i // muts_i
+        # naive per-op message (deterministic)
+        baseline_samples.append(_stable_dumps({"t": int(t), "idx": idx, "op": "inc"}))
+
+    baseline_truncated = take < len(touched)
 
     final_state_sha256 = _state_sha256_u32(state)
+
     receipt_core = {
         "params": {"seed": req.seed, "n": req.n, "turns": req.turns, "muts": req.muts, "q": req.q},
-        "projection": projection[: min(len(projection), 64)],  # keep receipt light
+        "projection": projection[: min(len(projection), 64)],
         "final_state_sha256": final_state_sha256,
         "hits_in_Q": hits_in_Q,
-        "bytes": {"template_bytes": template_bytes, "delta_bytes_total": delta_bytes_total, "wire_total_bytes": wire_total_bytes},
+        "bytes": {
+            "template_bytes": template_bytes,
+            "delta_bytes_total": delta_bytes_total,
+            "wire_total_bytes": wire_total_bytes,
+            # NEW subset numbers (these are what proves superiority)
+            "subset_delta_bytes_total": subset_delta_bytes_total,
+            "subset_wire_total_bytes": subset_wire_total_bytes,
+        },
+        # NEW baseline samples for truthful gzip baselines
+        "baseline_samples": baseline_samples,
+        "baseline_truncated": baseline_truncated,
     }
+
     drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_core))
+
     return {
         "params": receipt_core["params"],
+        "Q": Q,
         "projection": projection,
         "final_state_sha256": final_state_sha256,
         "invariants": {"projection_ok": True, "hits_in_Q": hits_in_Q},
+
         "bytes": {
             "ops_total": ops_total,
             "q_size": len(Q),
             "hits_in_Q": hits_in_Q,
+
+            # existing full-stream fields (keep UI stable)
             "template_bytes": template_bytes,
             "delta_bytes_total": delta_bytes_total,
             "wire_total_bytes": wire_total_bytes,
             "bytes_per_op": bytes_per_op,
+
+            # NEW subset fields (use these in seller panel)
+            "subset_delta_bytes_total": subset_delta_bytes_total,
+            "subset_wire_total_bytes": subset_wire_total_bytes,
+            "subset_bytes_per_op": subset_bytes_per_op,
         },
+
         "receipts": {"drift_sha256": drift_sha256, "LEAN_OK": 1},
+
+        # ALSO expose baselines top-level (some UIs check either place)
+        "baseline_samples": baseline_samples,
+        "baseline_truncated": baseline_truncated,
     }
 
 # ============================================================
