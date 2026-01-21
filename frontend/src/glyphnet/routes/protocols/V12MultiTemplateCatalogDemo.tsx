@@ -12,16 +12,25 @@ async function fetchJson(url: string, body: any, timeoutMs = 20000) {
     });
     const txt = await r.text();
     let json: any = {};
-    try { json = txt ? JSON.parse(txt) : {}; }
-    catch { json = { _nonJson: true, _text: txt.slice(0, 400) }; }
+    try {
+      json = txt ? JSON.parse(txt) : {};
+    } catch {
+      json = { _nonJson: true, _text: txt.slice(0, 400) };
+    }
     return { ok: r.ok, status: r.status, json };
-  } finally { clearTimeout(t); }
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 function bytes(n: number) {
   const units = ["B", "KB", "MB", "GB"];
-  let v = Number(n || 0), i = 0;
-  while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+  let v = Number(n || 0),
+    i = 0;
+  while (v >= 1024 && i < units.length - 1) {
+    v /= 1024;
+    i++;
+  }
   return `${v.toFixed(i === 0 ? 0 : 2)} ${units[i]}`;
 }
 
@@ -45,6 +54,46 @@ type Template = {
   template_sha256: string;
 };
 
+// stable JSON (same as v10 spirit) so “raw bytes” isn’t browser-dependent field order
+function stableStringify(x: any): string {
+  const seen = new WeakSet<object>();
+  const walk = (v: any): any => {
+    if (v === null || typeof v !== "object") return v;
+    if (seen.has(v)) throw new Error("cyclic json");
+    seen.add(v);
+    if (Array.isArray(v)) return v.map(walk);
+    const out: any = {};
+    for (const k of Object.keys(v).sort()) out[k] = walk(v[k]);
+    return out;
+  };
+  return JSON.stringify(walk(x));
+}
+
+// UTF-8 byte length of a string
+function utf8Len(s: string): number {
+  try {
+    return new TextEncoder().encode(s).length;
+  } catch {
+    // fallback: approximate (rarely hit in modern browsers)
+    return s.length;
+  }
+}
+
+// gzip (browser CompressionStream) — best effort
+async function gzipLenUtf8(s: string): Promise<number | null> {
+  try {
+    // @ts-ignore
+    if (typeof CompressionStream === "undefined") return null;
+    const u8 = new TextEncoder().encode(s);
+    // @ts-ignore
+    const stream = new Blob([u8]).stream().pipeThrough(new CompressionStream("gzip"));
+    const ab = await new Response(stream).arrayBuffer();
+    return new Uint8Array(ab).length;
+  } catch {
+    return null;
+  }
+}
+
 export const V12MultiTemplateCatalogDemo: React.FC = () => {
   const [seed, setSeed] = useState(1337);
   const [n, setN] = useState(4096);
@@ -58,6 +107,11 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [out, setOut] = useState<any>(null);
+
+  // baseline metrics (computed client-side)
+  const [rawBytesTotal, setRawBytesTotal] = useState<number | null>(null);
+  const [gzipTotalBytes, setGzipTotalBytes] = useState<number | null>(null);
+  const [baselineNote, setBaselineNote] = useState<string | null>(null);
 
   // load catalog once (and whenever the demo mounts)
   useEffect(() => {
@@ -74,21 +128,34 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
         setCatalogErr(e?.message || String(e));
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  const t = useMemo(
-    () => templates.find((x) => x.id === templateId) || null,
-    [templates, templateId]
-  );
+  const t = useMemo(() => templates.find((x) => x.id === templateId) || null, [templates, templateId]);
 
   async function mint() {
     if (busy) return;
     setBusy(true);
     setErr(null);
     setOut(null);
+    setRawBytesTotal(null);
+    setGzipTotalBytes(null);
+    setBaselineNote(null);
+
     try {
       const body = { template_id: templateId, seed, n, turns, muts };
+
+      // compute baselines from the SAME request shape
+      const canon = stableStringify(body);
+      const rawLen = utf8Len(canon);
+      setRawBytesTotal(rawLen);
+
+      const gzLen = await gzipLenUtf8(canon);
+      setGzipTotalBytes(gzLen);
+      if (gzLen == null) setBaselineNote("gzip baseline unsupported in this browser");
+
       const { ok, status, json } = await fetchJson("/api/wirepack/v12/mint", body, 25000);
       if (!ok) throw new Error(`HTTP ${status}: ${JSON.stringify(json)}`);
       setOut(json);
@@ -104,39 +171,48 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
   const b = receipt?.bytes || out?.bytes || {};
   const inv = receipt?.invariants || out?.invariants || {};
 
-  const leanOk = receipts?.LEAN_OK === 1 || receipts?.LEAN_OK === true ? true : (receipts?.LEAN_OK === 0 ? false : null);
+  const leanOk =
+    receipts?.LEAN_OK === 1 || receipts?.LEAN_OK === true ? true : receipts?.LEAN_OK === 0 ? false : null;
   const lean = badge(leanOk);
 
   const cacheHit = inv?.cache_hit === true;
-  const cacheLabel = cacheHit ? "CACHE HIT" : (inv?.cache_hit === false ? "CACHE MISS" : "—");
+  const cacheLabel = cacheHit ? "CACHE HIT" : inv?.cache_hit === false ? "CACHE MISS" : "—";
+
+  const wireTotal = Number(b?.wire_total_bytes || 0);
+
+  // Ratios (wire/raw, wire/gzip)
+  const wireVsRawPct =
+    rawBytesTotal != null && rawBytesTotal > 0 ? ((wireTotal / rawBytesTotal) - 1) * 100 : null;
+  const wireVsGzPct =
+    gzipTotalBytes != null && gzipTotalBytes > 0 ? ((wireTotal / gzipTotalBytes) - 1) * 100 : null;
 
   return (
     <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 900, color: "#111827" }}>
-            v12 — Multi-template catalog
-          </div>
+          <div style={{ fontSize: 13, fontWeight: 900, color: "#111827" }}>v12 — Multi-template catalog</div>
           <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
             Multiple templates cached + selected; real-world shape variability; receipt per template.
           </div>
         </div>
 
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "4px 10px",
-            borderRadius: 999,
-            border: `1px solid ${lean.bd}`,
-            background: lean.bg,
-            color: lean.fg,
-            fontSize: 11,
-            fontWeight: 900,
-            whiteSpace: "nowrap",
-          }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "4px 10px",
+              borderRadius: 999,
+              border: `1px solid ${lean.bd}`,
+              background: lean.bg,
+              color: lean.fg,
+              fontSize: 11,
+              fontWeight: 900,
+              whiteSpace: "nowrap",
+            }}
+          >
             {lean.label}
           </div>
 
@@ -167,44 +243,72 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
           <select
             value={templateId}
             onChange={(e) => setTemplateId(String(e.target.value))}
-            style={{ width: "100%", marginTop: 4, padding: "6px 8px", borderRadius: 10, border: "1px solid #e5e7eb", background: "#fff" }}
+            style={{
+              width: "100%",
+              marginTop: 4,
+              padding: "6px 8px",
+              borderRadius: 10,
+              border: "1px solid #e5e7eb",
+              background: "#fff",
+            }}
           >
-            {templates.length ? templates.map((x) => (
-              <option key={x.id} value={x.id}>{x.title}</option>
-            )) : (
+            {templates.length ? (
+              templates.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.title}
+                </option>
+              ))
+            ) : (
               <option value="metrics_v1">metrics_v1</option>
             )}
           </select>
-          <div style={{ marginTop: 4, fontSize: 10, color: "#6b7280" }}>
-            {t?.blurb || (catalogErr ? "catalog unavailable" : "—")}
-          </div>
+          <div style={{ marginTop: 4, fontSize: 10, color: "#6b7280" }}>{t?.blurb || (catalogErr ? "catalog unavailable" : "—")}</div>
         </label>
 
         <label style={{ fontSize: 11, color: "#374151" }}>
           seed
-          <input type="number" value={seed} onChange={(e) => setSeed(Number(e.target.value) || 0)}
-            style={{ width: "100%", marginTop: 4, padding: "6px 8px", borderRadius: 10, border: "1px solid #e5e7eb" }} />
+          <input
+            type="number"
+            value={seed}
+            onChange={(e) => setSeed(Number(e.target.value) || 0)}
+            style={{ width: "100%", marginTop: 4, padding: "6px 8px", borderRadius: 10, border: "1px solid #e5e7eb" }}
+          />
         </label>
 
         <label style={{ fontSize: 11, color: "#374151" }}>
           n
-          <input type="number" value={n} min={256} max={1_000_000}
+          <input
+            type="number"
+            value={n}
+            min={256}
+            max={1_000_000}
             onChange={(e) => setN(Math.max(256, Math.min(1_000_000, Number(e.target.value) || 4096)))}
-            style={{ width: "100%", marginTop: 4, padding: "6px 8px", borderRadius: 10, border: "1px solid #e5e7eb" }} />
+            style={{ width: "100%", marginTop: 4, padding: "6px 8px", borderRadius: 10, border: "1px solid #e5e7eb" }}
+          />
         </label>
 
         <label style={{ fontSize: 11, color: "#374151" }}>
           turns
-          <input type="number" value={turns} min={1} max={4096}
+          <input
+            type="number"
+            value={turns}
+            min={1}
+            max={4096}
             onChange={(e) => setTurns(Math.max(1, Math.min(4096, Number(e.target.value) || 64)))}
-            style={{ width: "100%", marginTop: 4, padding: "6px 8px", borderRadius: 10, border: "1px solid #e5e7eb" }} />
+            style={{ width: "100%", marginTop: 4, padding: "6px 8px", borderRadius: 10, border: "1px solid #e5e7eb" }}
+          />
         </label>
 
         <label style={{ fontSize: 11, color: "#374151" }}>
           muts
-          <input type="number" value={muts} min={1} max={4096}
+          <input
+            type="number"
+            value={muts}
+            min={1}
+            max={4096}
             onChange={(e) => setMuts(Math.max(1, Math.min(4096, Number(e.target.value) || 3)))}
-            style={{ width: "100%", marginTop: 4, padding: "6px 8px", borderRadius: 10, border: "1px solid #e5e7eb" }} />
+            style={{ width: "100%", marginTop: 4, padding: "6px 8px", borderRadius: 10, border: "1px solid #e5e7eb" }}
+          />
         </label>
       </div>
 
@@ -223,9 +327,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
 
             <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
               cache:{" "}
-              <b style={{ color: cacheHit ? "#065f46" : "#991b1b" }}>
-                {cacheLabel}
-              </b>
+              <b style={{ color: cacheHit ? "#065f46" : "#991b1b" }}>{cacheLabel}</b>
             </div>
 
             <div style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
@@ -234,9 +336,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
 
             <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280" }}>
               fields:{" "}
-              <code>
-                {t?.fields ? t.fields.map((f) => `${f.name}:${f.type}`).join(", ") : "—"}
-              </code>
+              <code>{t?.fields ? t.fields.map((f) => `${f.name}:${f.type}`).join(", ") : "—"}</code>
             </div>
           </div>
 
@@ -244,15 +344,44 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
             <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Receipt</div>
 
             <div style={{ marginTop: 8, fontSize: 11, color: "#374151" }}>
-              template_bytes: <b>{bytes(Number(b?.template_bytes || 0))}</b> <span style={{ color: "#6b7280" }}>({b?.template_bytes ?? 0} B)</span>
+              template_bytes: <b>{bytes(Number(b?.template_bytes || 0))}</b>{" "}
+              <span style={{ color: "#6b7280" }}>({b?.template_bytes ?? 0} B)</span>
             </div>
 
             <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-              delta_bytes_total: <b>{bytes(Number(b?.delta_bytes_total || 0))}</b> <span style={{ color: "#6b7280" }}>({b?.delta_bytes_total ?? 0} B)</span>
+              delta_bytes_total: <b>{bytes(Number(b?.delta_bytes_total || 0))}</b>{" "}
+              <span style={{ color: "#6b7280" }}>({b?.delta_bytes_total ?? 0} B)</span>
             </div>
 
             <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-              wire_total_bytes: <b>{bytes(Number(b?.wire_total_bytes || 0))}</b> <span style={{ color: "#6b7280" }}>({b?.wire_total_bytes ?? 0} B)</span>
+              wire_total_bytes: <b>{bytes(Number(b?.wire_total_bytes || 0))}</b>{" "}
+              <span style={{ color: "#6b7280" }}>({b?.wire_total_bytes ?? 0} B)</span>
+            </div>
+
+            {/* Baselines (raw + gzip) */}
+            <div style={{ marginTop: 10, fontSize: 11, color: "#374151" }}>
+              raw_json_bytes:{" "}
+              <b>{rawBytesTotal == null ? "—" : bytes(rawBytesTotal)}</b>{" "}
+              <span style={{ color: "#6b7280" }}>({rawBytesTotal ?? "—"} B)</span>{" "}
+              {wireVsRawPct != null ? (
+                <span style={{ color: wireVsRawPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+                  {" "}({wireVsRawPct > 0 ? "+" : ""}{wireVsRawPct.toFixed(1)}%)
+                </span>
+              ) : null}
+            </div>
+
+            <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
+              gzip_bytes:{" "}
+              <b>{gzipTotalBytes == null ? "—" : bytes(gzipTotalBytes)}</b>{" "}
+              <span style={{ color: "#6b7280" }}>({gzipTotalBytes ?? "—"} B)</span>{" "}
+              {wireVsGzPct != null ? (
+                <span style={{ color: wireVsGzPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
+                  {" "}({wireVsGzPct > 0 ? "+" : ""}{wireVsGzPct.toFixed(1)}%)
+                </span>
+              ) : (
+                <span style={{ color: "#6b7280" }}> (unsupported)</span>
+              )}
+              {baselineNote ? <span style={{ color: "#6b7280" }}> · {baselineNote}</span> : null}
             </div>
 
             <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280" }}>
@@ -269,16 +398,21 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
             <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>What this demo proves</div>
 
             <div style={{ marginTop: 8, fontSize: 11, color: "#374151", lineHeight: 1.55 }}>
-              <div><b>Claim</b>: the transport layer can support <b>multiple real-world data shapes</b> (templates) and still mint a <b>deterministic receipt</b> per template.</div>
-
-              <div style={{ marginTop: 8 }}>
-                <b>We are testing for</b>: (1) <b>template selection</b>, (2) <b>template caching</b> (no re-sending schema every time),
-                and (3) a receipt that binds <code>template_id + template_sha256 + bytes</code> into <code>drift_sha256</code>.
+              <div>
+                <b>Claim</b>: the transport layer can support <b>multiple real-world data shapes</b> (templates) and still mint a <b>deterministic receipt</b> per template.
               </div>
 
               <div style={{ marginTop: 8 }}>
-                <b>Why it matters</b>: this is the “product” unlock — you can carry logs, metrics, traces (different shapes) through the same pipeline
-                without losing verifiability or efficiency.
+                <b>We are testing for</b>: (1) <b>template selection</b>, (2) <b>template caching</b> (no re-sending schema every time), and (3) a receipt that binds{" "}
+                <code>template_id + template_sha256 + bytes</code> into <code>drift_sha256</code>.
+              </div>
+
+              <div style={{ marginTop: 8 }}>
+                <b>WirePack vs baseline (messaging)</b>: the <b>raw_json_bytes</b> and <b>gzip_bytes</b> lines above show explicit size deltas vs common baselines (client-side).
+              </div>
+
+              <div style={{ marginTop: 8 }}>
+                <b>Why it matters</b>: this is the “product” unlock — you can carry logs, metrics, traces (different shapes) through the same pipeline without losing verifiability or efficiency.
               </div>
             </div>
           </div>
@@ -286,17 +420,19 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
           {/* Raw */}
           <div style={{ gridColumn: "1 / -1", borderRadius: 12, border: "1px solid #e5e7eb", padding: 10 }}>
             <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Raw response</div>
-            <pre style={{ marginTop: 8, fontSize: 11, color: "#111827", whiteSpace: "pre-wrap" }}>
-              {JSON.stringify(out, null, 2)}
-            </pre>
+            <pre style={{ marginTop: 8, fontSize: 11, color: "#111827", whiteSpace: "pre-wrap" }}>{JSON.stringify(out, null, 2)}</pre>
           </div>
         </div>
       ) : null}
 
       <div style={{ marginTop: 12, borderRadius: 12, border: "1px solid #e5e7eb", background: "#f9fafb", padding: 10, fontSize: 11, color: "#6b7280" }}>
         Endpoints:
-        <div style={{ marginTop: 6 }}><code>POST /api/wirepack/v12/catalog</code></div>
-        <div style={{ marginTop: 4 }}><code>POST /api/wirepack/v12/mint</code></div>
+        <div style={{ marginTop: 6 }}>
+          <code>POST /api/wirepack/v12/catalog</code>
+        </div>
+        <div style={{ marginTop: 4 }}>
+          <code>POST /api/wirepack/v12/mint</code>
+        </div>
       </div>
     </div>
   );
