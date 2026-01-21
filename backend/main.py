@@ -411,43 +411,47 @@ if ALLOW_ALL:
     allow_credentials = False
 else:
     # Allow common local dev hosts + your production domains
-# Allow common local dev hosts + prod site + vercel
-allow_origins = [
-    # local dev
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://localhost:5173",
-    "https://127.0.0.1:5173",
+    # Allow common local dev hosts + prod site + vercel
+    # Allow common local dev hosts + your deployed frontends
+    allow_origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://localhost:5173",
+        "https://127.0.0.1:5173",
 
-    # prod domains
-    "https://tessaris.ai",
-    "https://www.tessaris.ai",
+        # Vercel
+        "https://comdex-fawn.vercel.app",
+        "https://comdex-kevins-projects-e296122e.vercel.app",
 
-    # vercel (explicit common ones)
-    "https://comdex-fawn.vercel.app",
-]
+        # Firebase / web.app (your screenshot)
+        "https://swift-area-459514-d1.web.app",
 
-# Codespaces + any vercel preview + (optional) *.web.app if you use that
-allow_origin_regex = (
-    r"^https://[-a-z0-9]+-(5173|8080)\.app\.github\.dev$"
-    r"|^https://.*\.vercel\.app$"
-    r"|^https://.*\.web\.app$"
-)
+        # Your custom domain
+        "https://tessaris.ai",
+        "https://www.tessaris.ai",
+    ]
 
-allow_credentials = True
+    # Codespaces + Vercel previews + web.app previews
+    allow_origin_regex = (
+        r"^https://[-a-z0-9]+-(5173|3000|8080)\.app\.github\.dev$"
+        r"|^https://.*\.vercel\.app$"
+        r"|^https://.*\.web\.app$"
+    )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allow_origins,
-    allow_origin_regex=allow_origin_regex,
-    allow_credentials=allow_credentials,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-    max_age=86400,
-)
+    allow_credentials = True
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allow_origins,
+        allow_origin_regex=allow_origin_regex,
+        allow_credentials=allow_credentials,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["*"],
+        expose_headers=["*"],
+        max_age=86400,
+    )
 
 # Optional: explicit preflight for /api/glyphnet/tx (router is prefixed with /api/glyphnet)
 from backend.modules.glyphnet.glyphnet_router import router as glyphnet_router

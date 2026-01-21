@@ -186,16 +186,9 @@ function useAionDemoData(pollMs = 500) {
 
         if (cancelled) return;
 
-        const [
-          homeoRes,
-          phiRes,
-          adrRes,
-          hbRes,
-          reflexRes,
-          akgRes,
-          mirrorRes,
-        ] = results;
+        const [homeoRes, phiRes, adrRes, hbRes, reflexRes, akgRes, mirrorRes] = results;
 
+        // Update whichever feeds are alive
         if (homeoRes.status === "fulfilled") setHomeostasis(homeoRes.value);
         if (phiRes.status === "fulfilled") setPhi(phiRes.value);
         if (adrRes.status === "fulfilled") setAdr(adrRes.value);
@@ -204,23 +197,18 @@ function useAionDemoData(pollMs = 500) {
         if (akgRes.status === "fulfilled") setAkg(akgRes.value);
         if (mirrorRes.status === "fulfilled") setMirror(mirrorRes.value);
 
-        const anyOk = results.some((r) => r.status === "fulfilled");
+        // Only mark the whole dashboard OFFLINE if *all* feeds are down
+        const okCount = results.filter((r) => r.status === "fulfilled").length;
 
-        const failures: string[] = [];
-        const pushFail = (label: string, r: PromiseSettledResult<any>) => {
-          if (r.status === "rejected") failures.push(`${label}: ${r.reason?.message || String(r.reason)}`);
-        };
-
-        pushFail("homeostasis", homeoRes);
-        pushFail("phi", phiRes);
-        pushFail("adr", adrRes);
-        pushFail("heartbeat", hbRes);
-        pushFail("reflex", reflexRes);
-        pushFail("akg", akgRes);
-        pushFail("mirror", mirrorRes);
-
-        // Only show OFFLINE if literally nothing can be reached.
-        setErr(!anyOk ? (failures.length ? failures.join(" • ") : "All feeds offline") : null);
+        if (okCount === 0) {
+          const errors: string[] = [];
+          for (const r of results) {
+            if (r.status === "rejected") errors.push(r.reason?.message || String(r.reason));
+          }
+          setErr(errors.length ? errors.join(" • ") : "All feeds offline");
+        } else {
+          setErr(null);
+        }
       } catch (e: any) {
         if (!cancelled) setErr(e?.message || String(e));
       } finally {
