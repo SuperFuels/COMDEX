@@ -1,32 +1,10 @@
 #!/usr/bin/env python3
-"""
-wirepack_v46.py — Streaming transport demo backend shim
-
-Fixes the original bug where "delta" frames were still encoded as full templates.
-
-Contract (stdin JSON):
-  { "mode": "session_new" } -> { ok, session_id }
-  { "mode": "encode_struct", "session_id": "...", "json_text": "..." }
-  { "mode": "decode_struct", "session_id": "...", "encoded_b64": "..." }
-
-Legacy compatibility:
-  { "mode": "encode", "payload_text": "..." }
-  { "mode": "decode", "encoded_b64": "..." }
-
-Encoding formats:
-  - Template frame: backend.modules.glyphos.wirepack_codec.encode_template(words)
-  - Delta frame: custom "WPD46" patch against stored template_words in session.
-    (delta packets are NOT passed through wirepack_codec; they are already compact)
-"""
-
 import base64
 import json
 import os
 import secrets
-import struct
 import sys
 from pathlib import Path
-from typing import Any
 
 # Ensure repo root is on sys.path
 # /COMDEX/Glyph_Net_Browser/radio-node/wirepack_v46.py -> parents[2] == /COMDEX
@@ -34,12 +12,17 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from backend.modules.glyphos.wirepack_codec import encode_template, decode_template  # type: ignore
+from backend.modules.glyphos.wirepack_codec import (  # type: ignore
+    encode_template,
+    decode_template,
+    encode_delta,
+    decode_delta,
+    apply_delta_inplace,
+)
 
 # -----------------------
 # u32 word packing (unchanged)
 # -----------------------
-
 
 def pack_u32_words(data: bytes) -> list[int]:
     # Layout:
@@ -70,116 +53,10 @@ def unpack_u32_words(words: list[int]) -> bytes:
 
 
 # -----------------------
-# v46 delta codec (template-once + patch thereafter)
-# -----------------------
-
-MAGIC = b"WPD46"  # 5 bytes
-VER = 1  # 1 byte
-
-
-def _uvarint_enc(x: int) -> bytes:
-    x = int(x)
-    if x < 0:
-        raise ValueError("uvarint expects non-negative")
-    out = bytearray()
-    while True:
-        b = x & 0x7F
-        x >>= 7
-        if x:
-            out.append(0x80 | b)
-        else:
-            out.append(b)
-            break
-    return bytes(out)
-
-
-def _uvarint_dec(buf: bytes, i: int) -> tuple[int, int]:
-    shift = 0
-    x = 0
-    while True:
-        if i >= len(buf):
-            raise ValueError("uvarint eof")
-        b = buf[i]
-        i += 1
-        x |= (b & 0x7F) << shift
-        if not (b & 0x80):
-            return x, i
-        shift += 7
-        if shift > 63:
-            raise ValueError("uvarint too long")
-
-
-def _delta_make(base_words: list[int], cur_words: list[int]) -> bytes:
-    """
-    Produce a compact patch that can reconstruct cur_words from base_words.
-
-    Format:
-      MAGIC (5) + VER (1)
-      n_total uvarint
-      n_updates uvarint
-      repeated:
-        idx uvarint
-        word u32 little-endian
-    """
-    n_total = max(len(base_words), len(cur_words))
-    updates: list[tuple[int, int]] = []
-
-    for idx in range(n_total):
-        bw = base_words[idx] if idx < len(base_words) else 0
-        cw = cur_words[idx] if idx < len(cur_words) else 0
-        bw &= 0xFFFFFFFF
-        cw &= 0xFFFFFFFF
-        if bw != cw:
-            updates.append((idx, cw))
-
-    out = bytearray()
-    out += MAGIC
-    out.append(VER)
-    out += _uvarint_enc(n_total)
-    out += _uvarint_enc(len(updates))
-    for idx, w in updates:
-        out += _uvarint_enc(idx)
-        out += struct.pack("<I", int(w) & 0xFFFFFFFF)
-    return bytes(out)
-
-
-def _delta_apply(base_words: list[int], packed: bytes) -> list[int]:
-    if not packed.startswith(MAGIC):
-        raise ValueError("not a v46 delta packet")
-    i = len(MAGIC)
-    if i >= len(packed):
-        raise ValueError("delta header eof")
-    ver = packed[i]
-    i += 1
-    if ver != VER:
-        raise ValueError(f"delta ver mismatch {ver} != {VER}")
-
-    n_total, i = _uvarint_dec(packed, i)
-    n_upd, i = _uvarint_dec(packed, i)
-
-    # start from base (or 0-padded)
-    out = list(base_words[:n_total])
-    if len(out) < n_total:
-        out.extend([0] * (n_total - len(out)))
-
-    for _ in range(n_upd):
-        idx, i = _uvarint_dec(packed, i)
-        if i + 4 > len(packed):
-            raise ValueError("delta word eof")
-        w = struct.unpack("<I", packed[i : i + 4])[0]
-        i += 4
-        if 0 <= idx < n_total:
-            out[idx] = int(w) & 0xFFFFFFFF
-
-    return out
-
-
-# -----------------------
 # simple persistent session store (works even if this script is run per-request)
 # -----------------------
 
 SESS_DIR = Path(__file__).resolve().parent / ".wirepack_v46_sessions"
-
 
 def _sid_ok(s: str) -> bool:
     # keep it very simple: hex token
@@ -193,16 +70,18 @@ def _sess_path(session_id: str) -> Path:
 def load_sess(session_id: str) -> dict:
     p = _sess_path(session_id)
     if not p.exists():
-        return {"frames": 0, "template_words": None}
+        return {"frames": 0, "state_words": []}
     try:
         st = json.loads(p.read_text("utf-8") or "{}") or {}
+        if not isinstance(st, dict):
+            return {"frames": 0, "state_words": []}
         if "frames" not in st:
             st["frames"] = 0
-        if "template_words" not in st:
-            st["template_words"] = None
+        if "state_words" not in st or not isinstance(st["state_words"], list):
+            st["state_words"] = []
         return st
     except Exception:
-        return {"frames": 0, "template_words": None}
+        return {"frames": 0, "state_words": []}
 
 
 def save_sess(session_id: str, st: dict) -> None:
@@ -222,10 +101,15 @@ def new_session_id() -> str:
 # v46 “HTTP contract” modes
 # -----------------------
 
+# Prefix one byte so decode_struct can tell template vs delta:
+#   0x00 = template payload (decode_template)
+#   0x01 = delta payload    (apply_delta_inplace)
+PFX_TEMPLATE = b"\x00"
+PFX_DELTA = b"\x01"
 
 def mode_session_new() -> dict:
     sid = new_session_id()
-    save_sess(sid, {"frames": 0, "template_words": None})
+    save_sess(sid, {"frames": 0, "state_words": []})
     return {"ok": True, "session_id": sid}
 
 
@@ -240,13 +124,18 @@ def mode_encode_struct(req: dict) -> dict:
 
     st = load_sess(session_id)
     frames = int(st.get("frames") or 0)
-    base_words = st.get("template_words")
+    state = st.get("state_words") or []
+    try:
+        state = [int(x) & 0xFFFFFFFF for x in state]
+    except Exception:
+        state = []
 
-    # First frame (or missing base): emit real template + store base words
-    if frames == 0 or not isinstance(base_words, list) or len(base_words) == 0:
-        packed = encode_template(words)
-        st["frames"] = frames + 1
-        st["template_words"] = words
+    # First frame: send a template, store full state.
+    if frames == 0 or not state:
+        payload = encode_template(words)
+        packed = PFX_TEMPLATE + payload
+        st["frames"] = 1
+        st["state_words"] = [int(x) & 0xFFFFFFFF for x in words]
         save_sess(session_id, st)
         return {
             "ok": True,
@@ -255,14 +144,32 @@ def mode_encode_struct(req: dict) -> dict:
             "encoded_b64": base64.b64encode(packed).decode("ascii"),
         }
 
-    # Subsequent frames: emit compact delta against stored base words
-    packed = _delta_make(base_words, words)
+    # Subsequent frames: compute delta against stored state (word-level).
+    # Keep state length in sync with current words length to avoid stale tails.
+    if len(state) < len(words):
+        state.extend([0] * (len(words) - len(state)))
+    elif len(state) > len(words):
+        state = state[: len(words)]
+
+    ops = []
+    for i, w in enumerate(words):
+        w = int(w) & 0xFFFFFFFF
+        if (state[i] & 0xFFFFFFFF) != w:
+            ops.append((i, w))
+
+    delta_bytes = encode_delta(ops)
+    packed = PFX_DELTA + delta_bytes
+
+    # Update state using the same apply routine the decoder uses.
+    apply_delta_inplace(state, delta_bytes)
+
     st["frames"] = frames + 1
+    st["state_words"] = [int(x) & 0xFFFFFFFF for x in state]
     save_sess(session_id, st)
 
     return {
         "ok": True,
-        "kind": "delta",
+        "kind": "delta",  # <-- now it's REAL deltas
         "bytes_out": len(packed),
         "encoded_b64": base64.b64encode(packed).decode("ascii"),
     }
@@ -274,23 +181,52 @@ def mode_decode_struct(req: dict) -> dict:
         return {"ok": False, "error": "decode_struct: bad session_id"}
 
     encoded_b64 = str(req.get("encoded_b64") or "")
-    try:
-        packed = base64.b64decode(encoded_b64)
-    except Exception:
-        return {"ok": False, "error": "decode_struct: invalid base64"}
+    packed = base64.b64decode(encoded_b64)
 
     st = load_sess(session_id)
-
+    state = st.get("state_words") or []
     try:
-        if packed.startswith(MAGIC):
-            base_words = st.get("template_words")
-            if not isinstance(base_words, list) or len(base_words) == 0:
-                return {"ok": False, "error": "decode_struct: missing template in session"}
-            words = _delta_apply(base_words, packed)
-        else:
-            words = decode_template(packed)
-    except Exception as e:
-        return {"ok": False, "error": f"decode_struct: {e}"}
+        state = [int(x) & 0xFFFFFFFF for x in state]
+    except Exception:
+        state = []
+
+    words: list[int]
+
+    # Backward compatibility: if no prefix, treat as template payload.
+    if len(packed) == 0:
+        return {"ok": False, "error": "decode_struct: empty payload"}
+
+    pfx = packed[:1]
+    payload = packed[1:] if pfx in (PFX_TEMPLATE, PFX_DELTA) else packed
+
+    if pfx == PFX_TEMPLATE or pfx not in (PFX_TEMPLATE, PFX_DELTA):
+        # Template decode resets state.
+        words = decode_template(payload)
+        st["state_words"] = [int(x) & 0xFFFFFFFF for x in words]
+        save_sess(session_id, st)
+    else:
+        # Delta apply requires existing state.
+        if not state:
+            return {"ok": False, "error": "decode_struct: missing session state (no template yet)"}
+
+        # Ensure state is long enough for any op index in the delta.
+        ops = decode_delta(payload)
+        max_idx = -1
+        for idx, _newv in ops:
+            try:
+                ii = int(idx)
+            except Exception:
+                continue
+            if ii > max_idx:
+                max_idx = ii
+        need_len = (max_idx + 1) if max_idx >= 0 else len(state)
+        if len(state) < need_len:
+            state.extend([0] * (need_len - len(state)))
+
+        apply_delta_inplace(state, payload)
+        st["state_words"] = [int(x) & 0xFFFFFFFF for x in state]
+        save_sess(session_id, st)
+        words = state
 
     data = unpack_u32_words(words)
     try:
@@ -311,7 +247,6 @@ def mode_decode_struct(req: dict) -> dict:
 # -----------------------
 # legacy modes (keep compatibility with your old usage)
 # -----------------------
-
 
 def mode_encode(req: dict) -> dict:
     payload_text = str(req.get("payload_text") or "")
@@ -340,11 +275,8 @@ def mode_decode(req: dict) -> dict:
     return {"ok": True, "decoded_text": txt, "raw_len": len(data), "words": len(words), "bytes_in": len(packed)}
 
 
-def main() -> None:
-    try:
-        req: dict[str, Any] = json.loads(sys.stdin.read() or "{}")
-    except Exception:
-        req = {}
+def main():
+    req = json.loads(sys.stdin.read() or "{}")
     mode = req.get("mode")
 
     if mode == "session_new":
