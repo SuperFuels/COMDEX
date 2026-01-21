@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
 
   // FastAPI (primary backend)
   // IMPORTANT: default to 8099 (your working local FastAPI in this wirepack run)
-  const fastApiHttp = (env.VITE_FASTAPI_URL || "http://127.0.0.1:8099").replace(/\/+$/, "");
+  const fastApiHttp = (env.VITE_FASTAPI_URL || "http://127.0.0.1:8080").replace(/\/+$/, "");
 
   // GX1 (separate service)
   const gx1Http = (env.VITE_GX1_URL || "http://127.0.0.1:8091").replace(/\/+$/, "");

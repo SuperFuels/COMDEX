@@ -226,10 +226,11 @@ function makeBase(caseId: CaseId) {
       device: "dev_01",
       readings: Array.from({ length: 64 }).map((_, i) => ({
         t: 1700000000000 + i * 250,
-        temp_c: 18.5 + (i % 7) * 0.1,
-        hum: 0.45 + (i % 11) * 0.01,
-        vib: (i % 5) * 0.02,
-        flags: { ok: true, cal: i % 16 === 0 },
+        temp_mC: 18500 + (i % 7) * 100, // 18.500C in milli-C
+        hum_mP: 450 + (i % 11) * 10,    // 0.450 in milli-percent-ish
+        vib_mG: (i % 5) * 20,           // milli-g
+        flags_ok: 1,
+        flags_cal: i % 16 === 0 ? 1 : 0,
       })),
     };
   }
@@ -262,18 +263,19 @@ function patchFrame(base: any, caseId: CaseId, i: number, R: () => number) {
     if (Array.isArray(o.headers) && o.headers[0]?.v) {
       o.headers[0].v = String(o.headers[0].v).replace(/trace=\d+/g, `trace=${tr3}`);
     }
-    o.path = `/api/v1/search?q=glyphos+wirepack&j=${R() % 97}`;
+    const j = String(((R() % 97) >>> 0)).padStart(2, "0"); // 00..96
+    o.path = `/api/v1/search?q=glyphos+wirepack&j=${j}`;
   } else if (caseId === "iot") {
     const k = (R() % Math.max(1, o.readings?.length || 1)) >>> 0;
     if (Array.isArray(o.readings) && o.readings[k]) {
-      o.readings[k].temp_c = (o.readings[k].temp_c ?? 18.5) + ((R() % 5) - 2) * 0.01;
-      o.readings[k].hum = (o.readings[k].hum ?? 0.45) + ((R() % 5) - 2) * 0.001;
+      o.readings[k].temp_mC = (o.readings[k].temp_mC ?? 18500) + (((R() % 5) - 2) | 0);
+      o.readings[k].hum_mP  = (o.readings[k].hum_mP  ?? 450)   + ((((R() % 5) - 2) | 0) * 1);
     }
     o.device = `dev_${String((i % 24) + 1).padStart(2, "0")}`;
   } else {
     const idx = (R() % Math.max(1, o.rows?.length || 1)) >>> 0;
     if (Array.isArray(o.rows) && o.rows[idx]) {
-      o.rows[idx].status = ["PENDING", "PAID", "FAILED"][(i + (R() % 3)) % 3];
+      o.rows[idx].status = ["PEND", "PAID", "FAIL"][(i + (R() % 3)) % 3];
       o.rows[idx].note = `invoice=${Math.floor(idx / 3)}; batch=v10; tr=${tr3}`;
     }
   }
@@ -369,7 +371,7 @@ function svgTransportGraph(opts: {
         {Number(packetsEstTotal || 0).toLocaleString()}
       </text>
       <text x={x1} y={pktBandY + bandH + 14} fontSize={11} fill="#6b7280" textAnchor="end">
-        ~1 pkt/frame
+        {payloadPerPacket > 0 ? `~${Math.ceil(bytesPerFrame / payloadPerPacket)} pkts/frame` : "—"}
       </text>
     </svg>
   );
@@ -567,13 +569,15 @@ export const V10StreamingTransportDemo: React.FC = () => {
   const pctSmaller = gzTotal && gzTotal > 0 ? (1 - wireTotal / gzTotal) * 100 : null;
 
   const minimalCurl = useMemo(() => {
-    // v10 is session-based; this is the smallest “prove template+encode works” command set.
+    // NOTE: use same host the frontend is hitting (Vite proxy -> FastAPI)
+    const host = window.location.origin; // e.g. http://127.0.0.1:5173
     const canon0 = stableStringify(makeBase(caseId));
+
     return `# 1) create session
-SID=$(curl -sS -X POST http://127.0.0.1:8787/api/wirepack/v46/session/new -H 'content-type: application/json' -d '{}' | jq -r .session_id)
+SID=$(curl -sS -X POST ${host}/api/wirepack/v46/session/new -H 'content-type: application/json' -d '{}' | jq -r .session_id)
 
 # 2) encode one frame (will typically emit template on first call)
-curl -sS -X POST http://127.0.0.1:8787/api/wirepack/v46/encode_struct \\
+curl -sS -X POST ${host}/api/wirepack/v46/encode_struct \\
   -H 'content-type: application/json' \\
   -d $(jq -n --arg session_id "$SID" --arg json_text '${canon0.replace(/'/g, "'\\''")}' '{session_id:$session_id,json_text:$json_text}') | jq`;
   }, [caseId]);
