@@ -9,11 +9,8 @@ async function fetchJson(url: string, body?: any, timeoutMs = 20000, method: "GE
       headers: { "Content-Type": "application/json" },
       signal: ctrl.signal,
     };
-
-    // Don’t send a body on GET (some servers/proxies will reject it)
     if (method === "POST") init.body = JSON.stringify(body ?? {});
     const r = await fetch(url, init);
-
     const txt = await r.text();
     let json: any = {};
     try {
@@ -58,56 +55,41 @@ type Template = {
   template_sha256: string;
 };
 
-// stable JSON so “raw bytes” isn’t field-order dependent
-function stableStringify(x: any): string {
-  const seen = new WeakSet<object>();
-  const walk = (v: any): any => {
-    if (v === null || typeof v !== "object") return v;
-    if (seen.has(v)) throw new Error("cyclic json");
-    seen.add(v);
-    if (Array.isArray(v)) return v.map(walk);
-    const out: any = {};
-    for (const k of Object.keys(v).sort()) out[k] = walk(v[k]);
-    return out;
-  };
-  return JSON.stringify(walk(x));
+// -----------------------------------------------------------------------------
+// v12 LOCK-BACKED BENCH (pinned)
+// backend/tests/glyphos_wirepack_v12_multitemplate_catalog_benchmark.py
+// env: depth=30 families=8 messages=4096 mutate=1.0 seed=1337 skew=0.8
+// stdout sha256: 2352c10f8fc74037cecc7a4a913736f0c0a56893e6acc164a31a505a9f34e11c
+// script  sha256: 7877073a53831c1a9e0ab35c6558b3cd37f48cad2e2c6c04d4d6cf2a203fb6f6
+// -----------------------------------------------------------------------------
+const V12_LOCK = {
+  run: {
+    depth: 30,
+    families: 8,
+    messages: 4096,
+    mutate_rate: 1.0,
+    seed: 1337,
+    skew: 0.8,
+  },
+  baselines_gzip_avg_bytes: {
+    json: 257.479,
+    fallback: 217.246,
+    catalog: 167.277,
+  },
+  handshake_overhead_gz_bytes: 97,
+  roundtrip_fail: { fail: 0, total: 4096 },
+  out_sha256: "2352c10f8fc74037cecc7a4a913736f0c0a56893e6acc164a31a505a9f34e11c",
+  script_sha256: "7877073a53831c1a9e0ab35c6558b3cd37f48cad2e2c6c04d4d6cf2a203fb6f6",
+};
+
+function pctDelta(wire: number, baseline: number): number | null {
+  if (!baseline || baseline <= 0) return null;
+  return (wire / baseline - 1) * 100;
 }
 
-function utf8Len(s: string): number {
-  try {
-    return new TextEncoder().encode(s).length;
-  } catch {
-    return s.length;
-  }
-}
-
-async function gzipLenUtf8(s: string): Promise<number | null> {
-  try {
-    // @ts-ignore
-    if (typeof CompressionStream === "undefined") return null;
-    const u8 = new TextEncoder().encode(s);
-    // @ts-ignore
-    const stream = new Blob([u8]).stream().pipeThrough(new CompressionStream("gzip"));
-    const ab = await new Response(stream).arrayBuffer();
-    return new Uint8Array(ab).length;
-  } catch {
-    return null;
-  }
-}
-
-async function gzipStreamLenUtf8(parts: string[], sep = "\n"): Promise<number | null> {
-  try {
-    // @ts-ignore
-    if (typeof CompressionStream === "undefined") return null;
-    const joined = parts.join(sep);
-    const u8 = new TextEncoder().encode(joined);
-    // @ts-ignore
-    const stream = new Blob([u8]).stream().pipeThrough(new CompressionStream("gzip"));
-    const ab = await new Response(stream).arrayBuffer();
-    return new Uint8Array(ab).length;
-  } catch {
-    return null;
-  }
+function pctSavings(baseline: number, better: number): number | null {
+  if (!baseline || baseline <= 0) return null;
+  return (1 - better / baseline) * 100;
 }
 
 export const V12MultiTemplateCatalogDemo: React.FC = () => {
@@ -124,18 +106,11 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
   const [err, setErr] = useState<string | null>(null);
   const [out, setOut] = useState<any>(null);
 
-  const [rawJsonTotalBytes, setRawJsonTotalBytes] = useState<number | null>(null);
-  const [gzipFrameTotalBytes, setGzipFrameTotalBytes] = useState<number | null>(null);
-  const [gzipStreamTotalBytes, setGzipStreamTotalBytes] = useState<number | null>(null);
-  const [baselineNote, setBaselineNote] = useState<string | null>(null);
-
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
         setCatalogErr(null);
-
-        // Try GET first (common), fall back to POST (your original)
         let res = await fetchJson("/api/wirepack/v12/catalog", undefined, 12000, "GET");
         if (!res.ok) res = await fetchJson("/api/wirepack/v12/catalog", {}, 12000, "POST");
         if (!res.ok) throw new Error(`HTTP ${res.status}: ${JSON.stringify(res.json)}`);
@@ -147,7 +122,6 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
           [];
         setTemplates(list);
 
-        // If current templateId not present, snap to first available
         if (list.length && !list.some((x: any) => x?.id === templateId)) setTemplateId(String(list[0].id));
       } catch (e: any) {
         if (!alive) return;
@@ -168,88 +142,11 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
     setErr(null);
     setOut(null);
 
-    setRawJsonTotalBytes(null);
-    setGzipFrameTotalBytes(null);
-    setGzipStreamTotalBytes(null);
-    setBaselineNote(null);
-
     try {
       const body = { template_id: templateId, seed, n, turns, muts };
-
       const { ok, status, json } = await fetchJson("/api/wirepack/v12/mint", body, 25000, "POST");
       if (!ok) throw new Error(`HTTP ${status}: ${JSON.stringify(json)}`);
       setOut(json);
-
-      const receipt = json?.receipt || {};
-      const samples: any[] | null =
-        Array.isArray(receipt?.baseline_samples) ? receipt.baseline_samples :
-        Array.isArray(json?.baseline_samples) ? json.baseline_samples :
-        null;
-
-      const parts: string[] = [];
-
-      if (samples && samples.length) {
-        // IMPORTANT: if backend already gives canonical JSON strings, don’t re-stringify them
-        for (const s of samples) {
-          if (typeof s === "string") parts.push(s);
-          else parts.push(stableStringify(s));
-        }
-      } else {
-        const maxTurns = Math.max(1, Math.min(256, Number(turns || 1)));
-        const maxMuts = Math.max(1, Math.min(32, Number(muts || 1)));
-
-        const baseMsg: any =
-          templateId === "metrics_v1"
-            ? { cpu: 0.12, mem: 0.34, p95_ms: 12.3 }
-            : { template_id: templateId, value: 0 };
-
-        let x = (seed >>> 0) || 1;
-        const R = () => {
-          x ^= (x << 13) >>> 0;
-          x ^= (x >>> 17) >>> 0;
-          x ^= (x << 5) >>> 0;
-          return x >>> 0;
-        };
-
-        let cur = baseMsg;
-        for (let i = 0; i < maxTurns; i++) {
-          const msg = typeof structuredClone === "function" ? structuredClone(cur) : JSON.parse(JSON.stringify(cur));
-          for (let j = 0; j < maxMuts; j++) {
-            const r = R();
-            if ("cpu" in msg) msg.cpu = Number(msg.cpu) + (((r % 7) - 3) * 0.001);
-            if ("mem" in msg) msg.mem = Number(msg.mem) + ((((r >>> 3) % 7) - 3) * 0.001);
-            if ("p95_ms" in msg) msg.p95_ms = Number(msg.p95_ms) + ((((r >>> 6) % 5) - 2) * 0.1);
-            msg._t = i;
-          }
-          parts.push(stableStringify(msg));
-          cur = msg;
-        }
-        setBaselineNote("baselines = client-side synthetic stream (bounded); backend can optionally return baseline_samples for exactness");
-      }
-
-      let rawTotal = 0;
-      for (const p of parts) rawTotal += utf8Len(p);
-      setRawJsonTotalBytes(rawTotal);
-
-      let gzFrameKnown = true;
-      let gzFrameTotal = 0;
-      for (const p of parts) {
-        const g = await gzipLenUtf8(p);
-        if (g == null) {
-          gzFrameKnown = false;
-          break;
-        }
-        gzFrameTotal += g;
-      }
-      setGzipFrameTotalBytes(gzFrameKnown ? gzFrameTotal : null);
-
-      const gzStream = await gzipStreamLenUtf8(parts);
-      setGzipStreamTotalBytes(gzStream);
-
-      // @ts-ignore
-      if (typeof CompressionStream === "undefined") {
-        setBaselineNote((prev) => (prev ? prev + " · gzip unsupported in this browser" : "gzip unsupported in this browser"));
-      }
     } catch (e: any) {
       setErr(e?.message || "Demo failed");
     } finally {
@@ -262,9 +159,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
   const b = receipt?.bytes || out?.bytes || {};
   const inv = receipt?.invariants || out?.invariants || {};
 
-  // Robust LEAN_OK sources (you were only checking out.receipts)
-  const leanRaw =
-    receipts?.LEAN_OK ?? receipt?.LEAN_OK ?? out?.LEAN_OK ?? out?.lean_ok ?? null;
+  const leanRaw = receipts?.LEAN_OK ?? receipt?.LEAN_OK ?? out?.LEAN_OK ?? out?.lean_ok ?? null;
   const leanOk = leanRaw === 1 || leanRaw === true ? true : leanRaw === 0 ? false : null;
   const lean = badge(leanOk);
 
@@ -273,22 +168,35 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
 
   const wireTotal = Number(b?.wire_total_bytes ?? receipt?.wire_total_bytes ?? out?.wire_total_bytes ?? 0);
 
-  const wireVsRawPct =
-    rawJsonTotalBytes != null && rawJsonTotalBytes > 0 ? (wireTotal / rawJsonTotalBytes - 1) * 100 : null;
+  // LOCKED baselines (gzip avg bytes per message)
+  const baseJson = V12_LOCK.baselines_gzip_avg_bytes.json;
+  const baseFallback = V12_LOCK.baselines_gzip_avg_bytes.fallback;
+  const baseCatalog = V12_LOCK.baselines_gzip_avg_bytes.catalog;
 
-  const wireVsGzFramePct =
-    gzipFrameTotalBytes != null && gzipFrameTotalBytes > 0 ? (wireTotal / gzipFrameTotalBytes - 1) * 100 : null;
+  // If API is returning a per-request wire_total_bytes, compare that to locked baselines *as a reference*.
+  // (This is “apples-to-oranges” unless your backend wire_total_bytes corresponds to the same per-message measure.)
+  // So we present locked bench primarily, and show wire_total_bytes separately.
+  const savingsVsJson = pctSavings(baseJson, baseCatalog);
+  const savingsVsFallback = pctSavings(baseFallback, baseCatalog);
 
-  const wireVsGzStreamPct =
-    gzipStreamTotalBytes != null && gzipStreamTotalBytes > 0 ? (wireTotal / gzipStreamTotalBytes - 1) * 100 : null;
+  // UI helper: label deltas correctly
+  const fmtDelta = (d: number | null) =>
+    d == null ? "—" : `${d > 0 ? "+" : ""}${d.toFixed(1)}%`;
+
+  // Optional: if you want to show how wire_total compares to baselines (note: not same unit)
+  const wireVsJsonPct = pctDelta(wireTotal, baseJson);
+  const wireVsFallbackPct = pctDelta(wireTotal, baseFallback);
+  const wireVsCatalogPct = pctDelta(wireTotal, baseCatalog);
 
   return (
     <div style={{ borderRadius: 14, border: "1px solid #e5e7eb", background: "#fff", padding: 12 }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 900, color: "#111827" }}>v12 — Multi-template catalog</div>
+          <div style={{ fontSize: 13, fontWeight: 900, color: "#111827" }}>
+            v12 — Multi-template catalog (lock-backed)
+          </div>
           <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
-            Multiple templates cached + selected; real-world shape variability; receipt per template.
+            Mixed-shape transport via catalog template_id; cache + deterministic receipt. Bench numbers pinned to stdout/script locks.
           </div>
         </div>
 
@@ -404,6 +312,67 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
       {catalogErr ? <div style={{ marginTop: 8, fontSize: 11, color: "#b91c1c" }}>catalog: {catalogErr}</div> : null}
       {err ? <div style={{ marginTop: 8, fontSize: 11, color: "#b91c1c" }}>{err}</div> : null}
 
+      {/* LOCKED BENCH PANEL (always visible) */}
+      <div style={{ marginTop: 12, borderRadius: 12, border: "1px solid #e5e7eb", padding: 10, background: "#f9fafb" }}>
+        <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Locked benchmark (authoritative)</div>
+
+        <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div>
+            <div style={{ fontSize: 11, color: "#374151" }}>
+              Avg JSON (gzip): <b>{baseJson.toFixed(3)} B</b>
+            </div>
+            <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
+              Avg Fallback (gzip): <b>{baseFallback.toFixed(3)} B</b>
+            </div>
+            <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
+              Avg Catalog msg (gzip): <b>{baseCatalog.toFixed(3)} B</b>
+            </div>
+          </div>
+
+          <div>
+            <div style={{ fontSize: 11, color: "#374151" }}>
+              Savings vs JSON (gzip):{" "}
+              <b style={{ color: (savingsVsJson ?? 0) >= 0 ? "#065f46" : "#991b1b" }}>
+                {savingsVsJson == null ? "—" : `${savingsVsJson.toFixed(2)}%`}
+              </b>
+            </div>
+            <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
+              Savings vs fallback (gzip):{" "}
+              <b style={{ color: (savingsVsFallback ?? 0) >= 0 ? "#065f46" : "#991b1b" }}>
+                {savingsVsFallback == null ? "—" : `${savingsVsFallback.toFixed(2)}%`}
+              </b>
+            </div>
+            <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
+              Handshake overhead (gzip): <b>{V12_LOCK.handshake_overhead_gz_bytes} B</b>{" "}
+              <span style={{ color: "#6b7280" }}>(one-time)</span>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 10, fontSize: 11, color: "#374151" }}>
+          Roundtrip failures:{" "}
+          <b style={{ color: V12_LOCK.roundtrip_fail.fail === 0 ? "#065f46" : "#991b1b" }}>
+            {V12_LOCK.roundtrip_fail.fail}/{V12_LOCK.roundtrip_fail.total}
+          </b>
+        </div>
+
+        <div style={{ marginTop: 10, borderTop: "1px solid #e5e7eb", paddingTop: 10, fontSize: 10, color: "#6b7280" }}>
+          Locked run: depth={V12_LOCK.run.depth}, families={V12_LOCK.run.families}, messages={V12_LOCK.run.messages}, mutate={V12_LOCK.run.mutate_rate},
+          seed={V12_LOCK.run.seed}, skew={V12_LOCK.run.skew}
+        </div>
+
+        <div style={{ marginTop: 8, fontSize: 10, color: "#6b7280" }}>
+          Audit locks:
+          <div style={{ marginTop: 6 }}>
+            stdout sha256: <code>{V12_LOCK.out_sha256}</code>
+          </div>
+          <div style={{ marginTop: 4 }}>
+            script sha256: <code>{V12_LOCK.script_sha256}</code>
+          </div>
+        </div>
+      </div>
+
+      {/* LIVE MINT RESULT (optional) */}
       {out ? (
         <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <div style={{ borderRadius: 12, border: "1px solid #e5e7eb", padding: 10 }}>
@@ -427,7 +396,7 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
           </div>
 
           <div style={{ borderRadius: 12, border: "1px solid #e5e7eb", padding: 10 }}>
-            <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Receipt</div>
+            <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Receipt (from API)</div>
 
             <div style={{ marginTop: 8, fontSize: 11, color: "#374151" }}>
               template_bytes: <b>{bytes(Number(b?.template_bytes || 0))}</b>{" "}
@@ -445,45 +414,23 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
             </div>
 
             <div style={{ marginTop: 10, borderRadius: 12, border: "1px solid #e5e7eb", background: "#fff", padding: 10 }}>
-              <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Baselines (client-side)</div>
+              <div style={{ fontSize: 11, fontWeight: 900, color: "#111827" }}>Reference deltas (note: unit mismatch)</div>
+              <div style={{ marginTop: 8, fontSize: 10, color: "#6b7280", lineHeight: 1.55 }}>
+                The locked baselines are <b>avg gzip bytes per message</b> from the v12 benchmark. The API’s <code>wire_total_bytes</code> is a
+                request-level estimate. We show these deltas only as a rough reference.
+              </div>
 
               <div style={{ marginTop: 8, fontSize: 11, color: "#374151" }}>
-                raw_json_total: <b>{rawJsonTotalBytes == null ? "—" : bytes(rawJsonTotalBytes)}</b>{" "}
-                <span style={{ color: "#6b7280" }}>({rawJsonTotalBytes ?? "—"} B)</span>{" "}
-                {wireVsRawPct != null ? (
-                  <span style={{ color: wireVsRawPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
-                    {" "}({wireVsRawPct > 0 ? "+" : ""}{wireVsRawPct.toFixed(1)}%)
-                  </span>
-                ) : null}
+                wire_total vs Avg JSON(gz):{" "}
+                <b style={{ color: (wireVsJsonPct ?? 0) <= 0 ? "#065f46" : "#991b1b" }}>{fmtDelta(wireVsJsonPct)}</b>
               </div>
-
               <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-                gzip_per_frame_total: <b>{gzipFrameTotalBytes == null ? "—" : bytes(gzipFrameTotalBytes)}</b>{" "}
-                <span style={{ color: "#6b7280" }}>({gzipFrameTotalBytes ?? "—"} B)</span>{" "}
-                {wireVsGzFramePct != null ? (
-                  <span style={{ color: wireVsGzFramePct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
-                    {" "}({wireVsGzFramePct > 0 ? "+" : ""}{wireVsGzFramePct.toFixed(1)}%)
-                  </span>
-                ) : (
-                  <span style={{ color: "#6b7280" }}> (unsupported)</span>
-                )}
+                wire_total vs Avg Fallback(gz):{" "}
+                <b style={{ color: (wireVsFallbackPct ?? 0) <= 0 ? "#065f46" : "#991b1b" }}>{fmtDelta(wireVsFallbackPct)}</b>
               </div>
-
               <div style={{ marginTop: 6, fontSize: 11, color: "#374151" }}>
-                gzip_stream_total: <b>{gzipStreamTotalBytes == null ? "—" : bytes(gzipStreamTotalBytes)}</b>{" "}
-                <span style={{ color: "#6b7280" }}>({gzipStreamTotalBytes ?? "—"} B)</span>{" "}
-                {wireVsGzStreamPct != null ? (
-                  <span style={{ color: wireVsGzStreamPct <= 0 ? "#065f46" : "#991b1b", fontWeight: 900 }}>
-                    {" "}({wireVsGzStreamPct > 0 ? "+" : ""}{wireVsGzStreamPct.toFixed(1)}%)
-                  </span>
-                ) : (
-                  <span style={{ color: "#6b7280" }}> (unsupported)</span>
-                )}
-              </div>
-
-              <div style={{ marginTop: 8, fontSize: 10, color: "#6b7280" }}>
-                per-frame = gzip each message; stream = gzip across the whole run (stronger gzip).
-                {baselineNote ? <span> · {baselineNote}</span> : null}
+                wire_total vs Avg Catalog(gz):{" "}
+                <b style={{ color: (wireVsCatalogPct ?? 0) <= 0 ? "#065f46" : "#991b1b" }}>{fmtDelta(wireVsCatalogPct)}</b>
               </div>
             </div>
 
@@ -501,20 +448,15 @@ export const V12MultiTemplateCatalogDemo: React.FC = () => {
 
             <div style={{ marginTop: 8, fontSize: 11, color: "#374151", lineHeight: 1.55 }}>
               <div>
-                <b>Claim</b>: the transport layer can support <b>multiple real-world data shapes</b> (templates) and still mint a <b>deterministic receipt</b> per template.
+                <b>Claim</b>: the transport layer supports <b>multiple data shapes</b> (catalog templates) while minting a{" "}
+                <b>deterministic receipt</b>.
               </div>
-
               <div style={{ marginTop: 8 }}>
-                <b>We are testing for</b>: (1) <b>template selection</b>, (2) <b>template caching</b>, and (3) a receipt that binds{" "}
+                <b>We test</b>: (1) <b>template selection</b>, (2) <b>cache behavior</b>, and (3) receipt binding of{" "}
                 <code>template_id + template_sha256 + bytes</code> into <code>drift_sha256</code>.
               </div>
-
               <div style={{ marginTop: 8 }}>
-                <b>WirePack vs baseline (messaging)</b>: baselines computed from a <b>message stream</b>, not the request body.
-              </div>
-
-              <div style={{ marginTop: 8 }}>
-                <b>Why it matters</b>: logs/metrics/traces (different shapes) through the same pipeline without losing verifiability or efficiency.
+                <b>Important</b>: the locked benchmark demonstrates <b>multi-template traffic</b> (families=8) with skewed distribution and 0 roundtrip failures.
               </div>
             </div>
           </div>

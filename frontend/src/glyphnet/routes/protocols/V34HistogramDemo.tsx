@@ -586,6 +586,10 @@ export const V34HistogramDemo: React.FC = () => {
               <div style={{ fontSize: 12, fontWeight: 900, color: BRAND.text }}>Distribution graph</div>
               <div style={{ fontSize: 11, color: BRAND.text2 }}>
                 hist_ok: <b style={{ color: histTri.color }}>{histTri.label}</b>
+                {"  "}· hist_sum_ok:{" "}
+                <b style={{ color: tri(typeof inv?.hist_sum_ok === "boolean" ? inv.hist_sum_ok : null).color }}>
+                  {tri(typeof inv?.hist_sum_ok === "boolean" ? inv.hist_sum_ok : null).label}
+                </b>
                 {"  "}· LEAN: <b style={{ color: leanTri.color }}>{leanTri.label}</b>
                 {"  "}· max: <b>{String(inv?.max ?? derived.max ?? "—")}</b>{" "}
                 <span style={{ color: BRAND.muted }}>
@@ -621,13 +625,26 @@ export const V34HistogramDemo: React.FC = () => {
                   <div style={{ marginTop: 6, fontSize: 11, color: BRAND.text2 }}>
                     {hovered === null ? "—" : `#${hovered} = ${hist[hovered] ?? 0}`}
                   </div>
-                </div>
-                <div style={{ borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.cardBg, padding: 10 }}>
-                  <div style={{ ...miniLabel() }}>Skew (max/mean)</div>
-                  <div style={{ marginTop: 6, fontSize: 11, color: BRAND.text2 }}>
-                    <b style={{ color: BRAND.text }}>{derived.mean ? derived.skew.toFixed(2) : "—"}</b>{" "}
-                    <span style={{ color: BRAND.muted }}>(mean {derived.mean.toFixed(2)}, σ {derived.stdev.toFixed(2)})</span>
+                  <div style={{ marginTop: 4, fontSize: 10, color: BRAND.muted }}>
+                    hist_sum: <b style={{ color: BRAND.text }}>{String(inv?.hist_sum ?? derived.sum ?? "—")}</b>{" "}
+                    <span style={{ color: BRAND.muted }}>· n {String(out?.params?.n ?? n)}</span>
                   </div>
+                </div>
+                <div style={{ ...miniLabel() }}>Skew (max/mean)</div>
+                <div style={{ marginTop: 6, fontSize: 11, color: BRAND.text2 }}>
+                  {Number.isFinite(Number(inv?.skew)) ? (
+                    <>
+                      <b style={{ color: BRAND.text }}>{Number(inv.skew).toFixed(2)}</b>{" "}
+                      <span style={{ color: BRAND.muted }}>
+                        (mean {Number(inv?.mean ?? 0).toFixed(2)}, σ {Number(inv?.sigma ?? 0).toFixed(2)})
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <b style={{ color: BRAND.text }}>{derived.mean ? derived.skew.toFixed(2) : "—"}</b>{" "}
+                      <span style={{ color: BRAND.muted }}>(mean {derived.mean.toFixed(2)}, σ {derived.stdev.toFixed(2)})</span>
+                    </>
+                  )}
                 </div>
                 <div style={{ borderRadius: 14, border: `1px solid ${BRAND.border}`, background: BRAND.cardBg, padding: 10 }}>
                   <div style={{ ...miniLabel() }}>Wire efficiency</div>

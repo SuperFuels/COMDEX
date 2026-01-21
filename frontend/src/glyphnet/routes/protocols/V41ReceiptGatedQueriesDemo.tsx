@@ -356,12 +356,21 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
   // Optional bytes (if backend returns them)
   const wireTotalBytes = Number(qBytes?.wire_total_bytes ?? qBytes?.wire_total ?? qBytes?.wire ?? 0) || null;
 
-  // Optional work metrics
-  const fwStepsSum: number | null = Number(qBytes?.fw_steps_sum ?? qBytes?.fw_steps_sum_total ?? qBytes?.fw_steps ?? NaN);
-  const logN: number | null = Number(qBytes?.logN ?? qBytes?.log_n ?? qBytes?.logn ?? NaN);
+  // Optional work metrics (v41 API now also returns explicit counters in invariants)
+  const scanSteps = Number(qInv?.scan_steps ?? NaN);
+  const fenwickQuerySteps = Number(qInv?.fenwick_query_steps ?? NaN);
+  const fenwickUpdateStepsTotal = Number(qInv?.fenwick_update_steps_total ?? NaN);
+
+  // Back-compat (chart expects these keys)
+  const fwStepsSum: number | null = Number(qBytes?.fw_steps_sum ?? NaN);
+  const logN: number | null = Number(qBytes?.logN ?? NaN);
 
   const fwStepsSumN = Number.isFinite(fwStepsSum) ? fwStepsSum : null;
   const logNN = Number.isFinite(logN) ? logN : null;
+
+  const scanStepsN = Number.isFinite(scanSteps) ? scanSteps : null;
+  const fenwickQueryStepsN = Number.isFinite(fenwickQuerySteps) ? fenwickQuerySteps : null;
+  const fenwickUpdateStepsTotalN = Number.isFinite(fenwickUpdateStepsTotal) ? fenwickUpdateStepsTotal : null;
 
   const sumBaseline = q?.sum_baseline ?? queryOut?.sum_baseline ?? null;
   const sumStream = q?.sum_stream ?? queryOut?.sum_stream ?? null;
@@ -423,7 +432,7 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
     try {
       if (!chain.length) throw new Error("Missing receipt chain — mint first.");
 
-      const { ok, status, json } = await fetchJson("/api/wirepack/v41/query", { chain, l, r }, 20000);
+      const { ok, status, json } = await fetchJson("/api/wirepack/v41/query", { chain, l, r, n }, 20000);
       if (!ok) throw new Error(`HTTP ${status}: ${JSON.stringify(json)}`);
       setQueryOut(json);
     } catch (e: any) {
@@ -679,6 +688,15 @@ export const V41ReceiptGatedQueriesDemo: React.FC = () => {
               </div>
               <div>
                 work_scales_with_logN: <code className="text-slate-900">{workLogOk === null ? "—" : String(workLogOk)}</code>
+              </div>
+              <div>
+                scan_steps: <code className="text-slate-900">{scanStepsN ?? "—"}</code>
+              </div>
+              <div>
+                fenwick_query_steps: <code className="text-slate-900">{fenwickQueryStepsN ?? "—"}</code>
+              </div>
+              <div>
+                fenwick_update_steps_total: <code className="text-slate-900">{fenwickUpdateStepsTotalN ?? "—"}</code>
               </div>
               <div>
                 sum_baseline: <code className="text-slate-900">{String(sumBaseline ?? "—")}</code>

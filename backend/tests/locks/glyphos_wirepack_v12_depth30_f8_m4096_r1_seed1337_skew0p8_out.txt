@@ -1,0 +1,22 @@
+
+=== ✅ GlyphOS WirePack v12 Multi-Template Catalog Benchmark ===
+Depth (GLYPHOS_BENCH_DEPTH):        30
+Families (GLYPHOS_FAMILIES):        8
+Messages (GLYPHOS_MESSAGES):        4096
+Mutate rate (GLYPHOS_MUTATE_RATE):  1.0
+Skew (GLYPHOS_SKEW):                0.8
+Seed (GLYPHOS_SEED):                1337
+
+Avg JSON (gzip):                    257.479 B
+Avg Fallback (gzip):                217.246 B
+Avg Catalog msg (gzip):             167.277 B
+
+✅ Savings vs JSON (gzip):           35.03%
+✅ Savings vs fallback (gzip):       23.00%
+
+Handshake overhead (catalog, gzip): 97 B  (one-time)
+Roundtrip failures:                 0/4096
+Runtime:                            1564.231 ms
+
+Saved:                              ./benchmarks/glyphos_wirepack_v12_multitemplate_catalog_latest.json
+

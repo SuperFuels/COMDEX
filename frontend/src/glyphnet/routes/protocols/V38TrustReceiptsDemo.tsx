@@ -131,7 +131,12 @@ type V38Resp = {
     rawB_bytes_total: number;
     canon_bytes_total: number;
   };
-  invariants?: { canon_ok: boolean; replay_ok: boolean };
+  invariants?: {
+    canon_ok: boolean;
+    replay_ok: boolean;
+    canon_idempotent_ok?: boolean;
+    canon_stable_ok?: boolean;
+  };
   final_state_sha256?: string;
   receipts?: { final_state_sha256: string; drift_sha256: string; LEAN_OK: number };
   error?: string;
@@ -297,6 +302,8 @@ export const V38TrustReceiptsDemo: React.FC = () => {
   const inv = resp?.invariants;
   const canonOk = inv?.canon_ok == null ? null : Boolean(inv.canon_ok);
   const replayOk = inv?.replay_ok == null ? null : Boolean(inv.replay_ok);
+  const canonIdemOk = inv?.canon_idempotent_ok == null ? null : Boolean(inv.canon_idempotent_ok);
+  const canonStableOk = inv?.canon_stable_ok == null ? null : Boolean(inv.canon_stable_ok);
 
   const leanOkVal = resp?.receipts?.LEAN_OK;
   const leanOk = leanOkVal == null ? null : Number(leanOkVal) === 1;
@@ -629,10 +636,29 @@ export const V38TrustReceiptsDemo: React.FC = () => {
           {resp ? (
             <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               <div style={{ borderRadius: 16, border: `1px solid ${BRAND.border}`, padding: 12 }}>
-                <div style={{ fontSize: 12, fontWeight: 900, color: BRAND.text, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 900,
+                    color: BRAND.text,
+                    display: "flex",
+                    gap: 8,
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                  }}
+                >
                   Invariants
                   <Badge ok={canonOk} label={`canon_ok: ${canonOk === true ? "OK" : canonOk === false ? "FAIL" : "—"}`} />
                   <Badge ok={replayOk} label={`replay_ok: ${replayOk === true ? "OK" : replayOk === false ? "FAIL" : "—"}`} />
+                  {/* NEW (sub-checks) */}
+                  <Badge
+                    ok={canonIdemOk}
+                    label={`canon_idempotent_ok: ${canonIdemOk === true ? "OK" : canonIdemOk === false ? "FAIL" : "—"}`}
+                  />
+                  <Badge
+                    ok={canonStableOk}
+                    label={`canon_stable_ok: ${canonStableOk === true ? "OK" : canonStableOk === false ? "FAIL" : "—"}`}
+                  />
                 </div>
 
                 <div style={{ marginTop: 8, fontSize: 11, color: BRAND.text2, lineHeight: 1.6 }}>
@@ -642,6 +668,15 @@ export const V38TrustReceiptsDemo: React.FC = () => {
                   <div>
                     replay_ok: <code>{String(inv?.replay_ok)}</code>
                   </div>
+
+                  {/* NEW (sub-checks, shown even if undefined) */}
+                  <div>
+                    canon_idempotent_ok: <code>{String((inv as any)?.canon_idempotent_ok)}</code>
+                  </div>
+                  <div>
+                    canon_stable_ok: <code>{String((inv as any)?.canon_stable_ok)}</code>
+                  </div>
+
                   <div style={{ marginTop: 10, fontWeight: 900, color: BRAND.text }}>Bytes</div>
                   <div>
                     rawA_bytes_total: <code>{rawA.toLocaleString()} B</code>
@@ -650,7 +685,7 @@ export const V38TrustReceiptsDemo: React.FC = () => {
                     rawB_bytes_total: <code>{rawB.toLocaleString()} B</code>
                   </div>
                   <div>
-                    canon_bytes_total: <code>{canon.toLocaleString()} B</code>
+                    canon_delta_bytes_total: <code>{canon.toLocaleString()} B</code>
                   </div>
                 </div>
               </div>

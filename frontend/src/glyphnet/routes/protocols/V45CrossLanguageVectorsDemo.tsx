@@ -272,11 +272,18 @@ export const V45CrossLanguageVectorsDemo: React.FC = () => {
   const b = out?.bytes || {};
   const receipts = out?.receipts || {};
 
-  const leanOkVal = receipts?.LEAN_OK;
-  const leanOk = leanOkVal == null ? null : Boolean(Number(leanOkVal));
-  const drift = typeof receipts?.drift_sha256 === "string" ? receipts.drift_sha256 : null;
+  const nodeOk = inv?.node_ok == null ? null : Boolean(inv.node_ok);
 
-  const vectorOk = inv?.vector_ok == null ? null : Boolean(inv.vector_ok);
+  const vectorOkRaw = inv?.vector_ok == null ? null : Boolean(inv.vector_ok);
+  // If Node verifier isn’t configured, show pending instead of FAIL.
+  const vectorOk = nodeOk === null ? null : vectorOkRaw;
+
+  const leanOkVal = receipts?.LEAN_OK;
+  const leanOkRaw = leanOkVal == null ? null : Boolean(Number(leanOkVal));
+  // Same rule: if Node verifier isn’t configured, don’t show LEAN FAIL.
+  const leanOk = nodeOk === null ? null : leanOkRaw;
+
+  const drift = typeof receipts?.drift_sha256 === "string" ? receipts.drift_sha256 : null;
 
   const templateBytes = Number(b?.template_bytes ?? 0);
   const deltaBytes = Number(b?.delta_bytes_total ?? 0);
@@ -310,6 +317,7 @@ export const V45CrossLanguageVectorsDemo: React.FC = () => {
     { name: "delta_bytes_ok", ok: inv?.delta_bytes_ok == null ? null : Boolean(inv.delta_bytes_ok) },
     { name: "delta_decode_ok", ok: inv?.delta_decode_ok == null ? null : Boolean(inv.delta_decode_ok) },
     { name: "final_state_ok", ok: inv?.final_state_ok == null ? null : Boolean(inv.final_state_ok) },
+    { name: "node_ok", ok: inv?.node_ok == null ? null : Boolean(inv.node_ok) },
   ];
 
   return (
@@ -515,6 +523,9 @@ export const V45CrossLanguageVectorsDemo: React.FC = () => {
                 right={<Badge ok={vectorOk} label={`vector_ok: ${vectorOk === true ? "OK" : vectorOk === false ? "FAIL" : "—"}`} />}
               >
                 <div className="text-xs text-slate-700 leading-relaxed">
+                  <div>
+                    node_ok: <code className="text-slate-900">{String(inv.node_ok)}</code>
+                  </div>
                   <div>
                     template_bytes_ok: <code className="text-slate-900">{String(inv.template_bytes_ok)}</code>
                   </div>

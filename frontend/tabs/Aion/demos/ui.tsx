@@ -4,9 +4,10 @@ import React from "react";
 
 /**
  * frontend/tabs/Aion/demos/ui.tsx
- * Light-mode “SLE / RQC HUD” branding:
+ * Light-mode “SLE / RQC HUD” branding + DARK data-surface for live feeds
  * - page bg handled in AionProofOfLifeDashboard.tsx
  * - these atoms are neutral + clean, with Tessaris blue as accent
+ * - includes: dark tiles (for unreadable left panels), API/WS base helpers, freshness helpers
  */
 
 export const TESSARIS_COLORS = {
@@ -65,6 +66,65 @@ export function safeDateAgeMs(ts: any, nowMs: number = Date.now()): number | nul
   return Number.isFinite(age) ? Math.max(0, age) : null;
 }
 
+/* ---------------- Base URL helpers (fixes “relative /api hits FE origin”) ---------------- */
+
+const RAW_BASE = (process.env.NEXT_PUBLIC_AION_API_BASE || "").trim().replace(/\/+$/, "");
+
+/** Use for HTTP fetches. If env is unset, keeps same-origin relative paths working. */
+export function apiUrl(path: string) {
+  return RAW_BASE ? `${RAW_BASE}${path}` : path;
+}
+
+/** Convert the API base into ws/wss automatically. */
+export function wsUrl(path: string) {
+  if (!RAW_BASE) return path;
+  const wsBase = RAW_BASE.startsWith("https://")
+    ? RAW_BASE.replace("https://", "wss://")
+    : RAW_BASE.replace("http://", "ws://");
+  return `${wsBase}${path}`;
+}
+
+/* ---------------- Freshness helpers (NO_FEED / STALE / LIVE) ---------------- */
+
+export type FeedStatus = "NO_FEED" | "STALE" | "LIVE";
+
+/** Default staleness window used across AION panels. */
+export const DEFAULT_STALE_MS = 5000;
+
+/** Given an age_ms, classify feed status. */
+export function feedStatus(ageMs: number | null | undefined, staleMs: number = DEFAULT_STALE_MS): FeedStatus {
+  if (ageMs == null || !Number.isFinite(ageMs)) return "NO_FEED";
+  return ageMs > staleMs ? "STALE" : "LIVE";
+}
+
+export function feedLabel(s: FeedStatus) {
+  return s;
+}
+
+export function feedTone(s: FeedStatus): { bg: string; bd: string; fg: string } {
+  if (s === "LIVE") return { bg: "bg-emerald-50", bd: "border-emerald-200", fg: "text-emerald-700" };
+  if (s === "STALE") return { bg: "bg-amber-50", bd: "border-amber-200", fg: "text-amber-700" };
+  return { bg: "bg-slate-50", bd: "border-slate-200", fg: "text-slate-500" };
+}
+
+export function FeedPill(props: { status: FeedStatus; right?: React.ReactNode; title?: string }) {
+  const t = feedTone(props.status);
+  return (
+    <div
+      title={props.title || ""}
+      className={classNames(
+        "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold tracking-widest uppercase",
+        t.bg,
+        t.bd,
+        t.fg
+      )}
+    >
+      <span>{feedLabel(props.status)}</span>
+      {props.right ? <span className="opacity-80">{props.right}</span> : null}
+    </div>
+  );
+}
+
 /* ---------------- Light-mode UI atoms ---------------- */
 
 export function Card(props: { title: string; subtitle?: string; right?: React.ReactNode; children: React.ReactNode }) {
@@ -72,9 +132,7 @@ export function Card(props: { title: string; subtitle?: string; right?: React.Re
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <div className="text-base font-bold tracking-tight text-slate-900 uppercase">
-            {props.title}
-          </div>
+          <div className="text-base font-bold tracking-tight text-slate-900 uppercase">{props.title}</div>
           {props.subtitle ? (
             <div className="mt-1 font-mono text-[11px] font-medium tracking-wide text-slate-500 uppercase">
               {props.subtitle}
@@ -94,19 +152,11 @@ export function StatRow(props: { label: string; value: React.ReactNode; hint?: s
   return (
     <div className="flex items-center justify-between gap-4 border-b border-slate-100 py-3 last:border-0">
       <div className="flex flex-col">
-        <span className="text-xs font-semibold tracking-wide text-slate-700 uppercase">
-          {props.label}
-        </span>
-        {props.hint ? (
-          <span className="text-[10px] leading-tight text-slate-500 italic">
-            {props.hint}
-          </span>
-        ) : null}
+        <span className="text-xs font-semibold tracking-wide text-slate-700 uppercase">{props.label}</span>
+        {props.hint ? <span className="text-[10px] leading-tight text-slate-500 italic">{props.hint}</span> : null}
       </div>
 
-      <div className="font-mono text-sm font-bold tabular-nums text-slate-900">
-        {props.value}
-      </div>
+      <div className="font-mono text-sm font-bold tabular-nums text-slate-900">{props.value}</div>
     </div>
   );
 }
@@ -116,26 +166,16 @@ export function MiniBar(props: { value: number; goodMin?: number; warnMin?: numb
   const goodMin = props.goodMin ?? 0.975;
   const warnMin = props.warnMin ?? 0.85;
 
-  const tone =
-    v >= goodMin
-      ? "bg-emerald-500"
-      : v >= warnMin
-      ? "bg-amber-500"
-      : "bg-rose-500";
+  const tone = v >= goodMin ? "bg-emerald-500" : v >= warnMin ? "bg-amber-500" : "bg-rose-500";
 
   return (
     <div className="w-full space-y-2">
       {props.label ? (
-        <div className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">
-          {props.label}
-        </div>
+        <div className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">{props.label}</div>
       ) : null}
 
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-        <div
-          className={classNames("h-full transition-all duration-500 ease-out", tone)}
-          style={{ width: `${Math.round(v * 100)}%` }}
-        />
+        <div className={classNames("h-full transition-all duration-500 ease-out", tone)} style={{ width: `${Math.round(v * 100)}%` }} />
       </div>
 
       <div className="flex justify-between font-mono text-[9px] font-medium text-slate-500">
@@ -162,4 +202,75 @@ export function Button(
   };
 
   return <button {...props} className={classNames(base, variants[tone], props.className)} />;
+}
+
+/* ---------------- DARK “data surface” atoms (fix unreadable panels) ---------------- */
+
+export function DarkCard(props: {
+  title: string;
+  subtitle?: string;
+  right?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-700/30 bg-gradient-to-b from-[#0B1220] to-[#0A1020] p-6 shadow-[0_10px_30px_rgba(2,6,23,0.25)]">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <div className="text-base font-bold tracking-tight text-slate-100 uppercase">{props.title}</div>
+          {props.subtitle ? (
+            <div className="mt-1 font-mono text-[11px] font-medium tracking-wide text-slate-400 uppercase">
+              {props.subtitle}
+            </div>
+          ) : null}
+        </div>
+
+        {props.right ? <div className="shrink-0">{props.right}</div> : null}
+      </div>
+
+      {props.children}
+    </div>
+  );
+}
+
+export function DarkStatRow(props: { label: string; value: React.ReactNode; hint?: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-slate-700/20 py-3 last:border-0">
+      <div className="flex flex-col">
+        <span className="text-xs font-semibold tracking-wide text-slate-300 uppercase">{props.label}</span>
+        {props.hint ? <span className="text-[10px] leading-tight text-slate-400 italic">{props.hint}</span> : null}
+      </div>
+
+      <div className="font-mono text-sm font-bold tabular-nums text-slate-100">{props.value}</div>
+    </div>
+  );
+}
+
+/**
+ * Dark mini bar (same semantics as MiniBar) for monitors placed on dark panels.
+ * IMPORTANT: callers should pass 0..1 ONLY when feed is LIVE; otherwise show placeholder.
+ */
+export function DarkMiniBar(props: { value: number; goodMin?: number; warnMin?: number; label?: string }) {
+  const v = clamp01(props.value);
+  const goodMin = props.goodMin ?? 0.975;
+  const warnMin = props.warnMin ?? 0.85;
+
+  const tone = v >= goodMin ? "bg-emerald-400" : v >= warnMin ? "bg-amber-400" : "bg-rose-400";
+
+  return (
+    <div className="w-full space-y-2">
+      {props.label ? (
+        <div className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">{props.label}</div>
+      ) : null}
+
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-700/40">
+        <div className={classNames("h-full transition-all duration-500 ease-out", tone)} style={{ width: `${Math.round(v * 100)}%` }} />
+      </div>
+
+      <div className="flex justify-between font-mono text-[9px] font-medium text-slate-500">
+        <span>0.00</span>
+        <span className="text-slate-200">{v.toFixed(3)}</span>
+        <span>1.00</span>
+      </div>
+    </div>
+  );
 }

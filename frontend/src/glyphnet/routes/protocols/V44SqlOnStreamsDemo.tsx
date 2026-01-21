@@ -377,7 +377,9 @@ export function V44SqlOnStreamsDemo() {
       const body = { query_id: queryId, n, turns, muts, k, seed };
 
       let res = await fetchJson("/api/wirepack/v44/run", body, 60000);
-      if (res.status === 404) res = await fetchJson("/api/wirepack/v46/run", body, 60000);
+      if (res.status === 404 || (res.json?.detail && String(res.json.detail).includes("Not Found"))) {
+        res = await fetchJson("/api/wirepack/v46/run", body, 60000);
+      }
 
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${JSON.stringify(res.json)}`);
       if (!res.json?.ok && res.json?.ok !== undefined) throw new Error(res.json?.error || "backend returned ok=false");
@@ -401,7 +403,12 @@ export function V44SqlOnStreamsDemo() {
   const leanOk = rec?.LEAN_OK ?? out?.LEAN_OK ?? null;
 
   const wire = Number(b?.wire_total_bytes ?? 0);
-  const gzBackend = Number(b?.gzip_snapshot_bytes_total ?? 0);
+  const gzBackend = Number(
+    b?.gzip_stream_total ??
+    b?.gzip_full_snapshot_bytes_total ??
+    b?.gzip_snapshot_bytes_total ?? // legacy fallback
+    0
+  );
 
   const templateBytes = Number(b?.wire_template_bytes ?? b?.template_bytes ?? 0);
   const deltaBytesTotal = Number(b?.wire_delta_bytes_total ?? b?.delta_bytes_total ?? 0);
@@ -409,7 +416,7 @@ export function V44SqlOnStreamsDemo() {
   const qMs = out?.timing_ms?.query ?? out?.timing_ms ?? out?.query_ms ?? out?.query_time_ms ?? null;
 
   const ops = Number(out?.ops ?? (Number(turns || 0) * Number(muts || 0)));
-  const bytesPerOp = ops > 0 ? deltaBytesTotal / ops : null;
+  const bytesPerOp = ops > 0 ? wire / ops : null;
 
   const Q = Array.isArray(out?.Q) ? out.Q : Array.isArray(out?.params?.Q) ? out.params.Q : null;
 

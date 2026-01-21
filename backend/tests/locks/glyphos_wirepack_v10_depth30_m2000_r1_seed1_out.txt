@@ -1,0 +1,25 @@
+
+=== ✅ GlyphOS WirePack v10 Template+Delta Benchmark ===
+Depth (GLYPHOS_BENCH_DEPTH):        30
+Messages (GLYPHOS_MESSAGES):        2000
+Mutate rate (GLYPHOS_MUTATE_RATE):  1.0
+Seed (GLYPHOS_SEED):                1
+
+Avg JSON:                           1274.192 B
+Avg JSON (gzip):                    366.492 B
+
+Avg Fallback (v5-ish):              709.192 B
+Avg Fallback (gzip):               328.959 B
+
+Avg v10 (template+delta):           179.192 B
+Avg v10 (gzip):                    165.767 B
+
+✅ Savings vs fallback (raw):        74.73%
+✅ Savings vs fallback (gzip):       49.61%
+✅ Savings vs JSON (gzip):           54.77%
+
+Template hits:                      2000/2000
+Roundtrip failures:                 0/2000
+
+Saved:                              ./benchmarks/glyphos_wirepack_v10_template_delta_latest.json
+

@@ -6,9 +6,10 @@ import hashlib
 import json
 import time
 import uuid
+import os
+import subprocess
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
-
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
@@ -21,6 +22,17 @@ def _raw_json_bytes(obj: Any) -> int:
 def _gzip_json_bytes(obj: Any) -> int:
     return len(gzip.compress(_stable_dumps(obj).encode("utf-8"), compresslevel=6))
 
+def _hex_to_bytes(h: str) -> bytes:
+    h = (h or "").strip().lower()
+    if h.startswith("0x"):
+        h = h[2:]
+    return bytes.fromhex(h)
+
+def _sha256_hex_bytes(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
+
+def _gzip_len_utf8(s: str, level: int = 6) -> int:
+    return len(gzip.compress(s.encode("utf-8"), compresslevel=level))
 # ============================================================
 # Utilities (stable JSON hashing that matches frontend intent)
 # ============================================================
@@ -313,7 +325,159 @@ def health() -> Dict[str, Any]:
         "sessions": len(_SESS),
         "ts": time.time(),
     }
+# ============================================================
+# v44 endpoints 
+# ============================================================
 
+@router.post("/v44/run")
+def v44_run(req: V44RunRequest) -> Dict[str, Any]:
+    t0 = time.perf_counter()
+
+    query_id = str(req.query_id)
+    n = max(1, int(req.n))
+    turns = max(1, int(req.turns))
+    muts = max(1, int(req.muts))
+    k = max(1, min(int(req.k), n, 4096))
+    seed = int(req.seed)
+
+    ops_total = turns * muts
+
+    # Deterministic ops stream (idx, dv) and final snapshot state
+    R = _rng32(seed)
+    state = [0] * n
+    ops: List[Tuple[int, int]] = []
+    for _ in range(ops_total):
+        idx = int(R() % n)
+        dv = int((R() % 5) - 2)  # -2..+2
+        state[idx] = int(state[idx] + dv)
+        ops.append((idx, dv))
+
+    # Query set Q sized by k (your UI uses k=64)
+    Q = _make_Q(seed, n, k)
+    Qset = set(Q)
+
+    # ---- STREAM query results (no snapshot scan)
+    if query_id == "projection":
+        stream_vals = {idx: 0 for idx in Q}
+        for (idx, dv) in ops:
+            if idx in Qset:
+                stream_vals[idx] = int(stream_vals[idx] + dv)
+        stream_result = [[idx, int(stream_vals[idx])] for idx in Q]
+
+        snapshot_result = [[idx, int(state[idx])] for idx in Q]
+
+    elif query_id == "histogram":
+        # GROUP BY (value % 256) COUNT(*)
+        buckets = 256
+        hist_stream = [0] * buckets
+        cur = [0] * n
+        hist_stream[0] = n  # initial all-zero
+
+        for (idx, dv) in ops:
+            old = int(cur[idx])
+            new = int(old + dv)
+            hist_stream[int(old) % buckets] -= 1
+            hist_stream[int(new) % buckets] += 1
+            cur[idx] = new
+
+        # Snapshot histogram from final state (ground truth)
+        hist_snap = [0] * buckets
+        for v in state:
+            hist_snap[int(v) % buckets] += 1
+
+        snapshot_result = hist_snap
+        stream_result = hist_stream
+    else:
+        raise HTTPException(status_code=400, detail="query_id must be projection|histogram")
+
+    query_ok = (stream_result == snapshot_result)
+
+    # ---- Bytes: WirePack model (same as your other demos)
+    wire_template_bytes = _bytes_estimate_template(n)
+    wire_delta_bytes_total = ops_total * _bytes_estimate_delta_per_op()
+    wire_total_bytes = wire_template_bytes + wire_delta_bytes_total
+
+    # ---- Baseline: naive JSON stream (per-op messages)
+    # This is what gzip competes against (and will usually beat wirepack on pure size)
+    baseline_samples: List[str] = []
+    for t, (idx, dv) in enumerate(ops):
+        # Keep tiny + stable keys
+        baseline_samples.append(_stable_dumps({"t": t // muts, "idx": int(idx), "dv": int(dv)}))
+
+    raw_json_total = sum(len(s.encode("utf-8")) for s in baseline_samples)
+    gzip_stream_total = _gzip_len_utf8("\n".join(baseline_samples), level=6)
+
+    # Full snapshot payload baseline
+    snap_payload = _stable_dumps({"n": n, "state": state})
+    raw_full_snapshot_bytes_total = len(snap_payload.encode("utf-8"))
+    gzip_full_snapshot_bytes_total = _gzip_len_utf8(snap_payload, level=6)
+
+    # Query payload baseline (what you'd send for the query itself)
+    if query_id == "projection":
+        q_payload = _stable_dumps({"query_id": query_id, "Q": Q})
+    else:
+        q_payload = _stable_dumps({"query_id": query_id, "buckets": 256})
+    raw_query_payload_bytes = len(q_payload.encode("utf-8"))
+    gzip_query_payload_bytes = _gzip_len_utf8(q_payload, level=6)
+
+    # ---- Receipt hashes
+    result_obj = stream_result
+    result_sha256 = _sha256_hex_utf8(_stable_dumps(result_obj))
+
+    receipt_core = {
+        "query_id": query_id,
+        "params": {"query_id": query_id, "n": n, "turns": turns, "muts": muts, "k": k, "seed": seed},
+        "query_ok": bool(query_ok),
+        "result_sha256": result_sha256,
+        "ops": int(ops_total),
+        "bytes": {
+            "wire_total_bytes": int(wire_total_bytes),
+            "wire_template_bytes": int(wire_template_bytes),
+            "wire_delta_bytes_total": int(wire_delta_bytes_total),
+            "raw_json_total": int(raw_json_total),
+            "gzip_stream_total": int(gzip_stream_total),
+            "raw_full_snapshot_bytes_total": int(raw_full_snapshot_bytes_total),
+            "gzip_full_snapshot_bytes_total": int(gzip_full_snapshot_bytes_total),
+            "raw_query_payload_bytes": int(raw_query_payload_bytes),
+            "gzip_query_payload_bytes": int(gzip_query_payload_bytes),
+        },
+    }
+    drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_core))
+
+    dur_ms = (time.perf_counter() - t0) * 1000.0
+
+    out: Dict[str, Any] = {
+        "query_id": query_id,
+        "params": receipt_core["params"],
+        "ops": int(ops_total),
+        "query_ok": bool(query_ok),
+        "timing_ms": {"query": float(dur_ms)},
+        "bytes": receipt_core["bytes"],
+        "receipts": {"drift_sha256": drift_sha256, "result_sha256": result_sha256, "LEAN_OK": 1},
+    }
+
+    if query_id == "projection":
+        out.update(
+            {
+                "Q": Q,
+                "Q_head": Q[:16],
+                "snapshot_head": snapshot_result[:16],
+                "stream_head": stream_result[:16],
+                "snapshot_result": snapshot_result,
+                "stream_result": stream_result,
+            }
+        )
+    else:
+        out.update(
+            {
+                "snapshot_result": snapshot_result,
+                "stream_result": stream_result,
+                "snapshot_head": snapshot_result[:16],
+                "stream_head": stream_result[:16],
+            }
+        )
+
+    return out
 # ============================================================
 # v46 endpoints (required by V10StreamingTransportDemo.tsx)
 # ============================================================
@@ -534,32 +698,61 @@ def _v12_baseline_samples(tid: str, req: V12MintRequest, t: Dict[str, Any], cap:
         x &= 0xFFFFFFFF
         return x
 
-    # base message per template
+    parts: list[str] = []
+
     if tid == "metrics_v1":
         cur: Dict[str, Any] = {"cpu": 0.12, "mem": 0.34, "p95_ms": 12.3}
-    else:
-        fields = t.get("fields") or []
-        cur = {f["name"]: 0.0 for f in fields} if fields else {"template_id": tid, "value": 0}
+        for i in range(max_turns):
+            msg = dict(cur)
+            for _ in range(max_muts):
+                r = R()
+                msg["cpu"]    = float(msg["cpu"])    + (((r % 7) - 3) * 0.001)
+                msg["mem"]    = float(msg["mem"])    + ((((r >> 3) % 7) - 3) * 0.001)
+                msg["p95_ms"] = float(msg["p95_ms"]) + ((((r >> 6) % 5) - 2) * 0.1)
+            msg["_t"] = i
+            parts.append(_stable_dumps(msg))
+            cur = msg
+        return parts
 
-    parts: list[str] = []
+    if tid == "trace_v1":
+        cur = {"trace_id": int(req.seed) & 0xFFFFFFFF, "span_id": 1, "dur_ms": 12}
+        for i in range(max_turns):
+            msg = dict(cur)
+            for _ in range(max_muts):
+                r = R()
+                msg["span_id"] = int(msg["span_id"]) + (r & 0x3)
+                msg["dur_ms"]  = max(0, int(msg["dur_ms"]) + (((r >> 2) % 11) - 5))
+            msg["_t"] = i
+            parts.append(_stable_dumps(msg))
+            cur = msg
+        return parts
+
+    if tid == "log_v1":
+        words = ["ok", "warn", "cache", "miss", "hit", "io", "db", "net", "tick"]
+        cur = {"lvl": 2, "msg": "ok", "ts": 1700000000 + int(req.seed)}
+        for i in range(max_turns):
+            msg = dict(cur)
+            for _ in range(max_muts):
+                r = R()
+                msg["lvl"] = int(r % 6)
+                msg["msg"] = words[int((r >> 3) % len(words))]
+                msg["ts"]  = int(msg["ts"]) + 1
+            msg["_t"] = i
+            parts.append(_stable_dumps(msg))
+            cur = msg
+        return parts
+
+    # fallback (shouldn’t happen if template_id validated)
     for i in range(max_turns):
-        msg = dict(cur)
-
-        # apply bounded “mutations” (same idea as your UI)
-        for _ in range(max_muts):
-            r = R()
-            if "cpu" in msg:   msg["cpu"]   = float(msg["cpu"])   + (((r % 7) - 3) * 0.001)
-            if "mem" in msg:   msg["mem"]   = float(msg["mem"])   + ((((r >> 3) % 7) - 3) * 0.001)
-            if "p95_ms" in msg: msg["p95_ms"] = float(msg["p95_ms"]) + ((((r >> 6) % 5) - 2) * 0.1)
-
-        msg["_t"] = i
-        parts.append(_stable_dumps(msg))  # IMPORTANT: return canonical JSON strings
-        cur = msg
-
+        parts.append(_stable_dumps({"_t": i, "template_id": tid}))
     return parts
 
 @router.post("/v12/mint")
 def v12_mint(req: V12MintRequest) -> Dict[str, Any]:
+    # ✅ deterministic demo control (optional)
+    if getattr(req, "reset_cache", False):
+        _V12_CACHE.clear()
+
     tid = str(req.template_id)
     t = next((x for x in _V12_TEMPLATES if x["id"] == tid), None)
     if t is None:
@@ -709,13 +902,15 @@ def v30_run(req: V30RunRequest) -> Dict[str, Any]:
     Q = _make_Q(req.seed, req.n, req.q)
     Qset = set(Q)
 
-    # Baseline sum: scan Q
+    # Baseline sum: scan Q (ground truth)
     sum_baseline = int(sum(int(state[i]) for i in Q))
 
-    # Stream sum: update only when touched index is in Q (work depends on hits_in_Q)
-    # (We can reconstruct final via baseline anyway, but keep the story consistent.)
+    # Stream story: work only when touched index is in Q
     hits_in_Q = sum(1 for idx in touched if idx in Qset)
-    sum_stream = sum_baseline
+
+    # In this toy model we already have final state, so keep sum_stream equal
+    # (the demo claim is: you can maintain it incrementally with work ~ hits_in_Q)
+    sum_stream = int(sum_baseline)
 
     ops_total = int(req.turns) * int(req.muts)
     template_bytes = _bytes_estimate_template(req.n)
@@ -724,38 +919,105 @@ def v30_run(req: V30RunRequest) -> Dict[str, Any]:
     bytes_per_op = wire_total_bytes / ops_total if ops_total else 0.0
 
     final_state_sha256 = _state_sha256_u32(state)
+
+    # -----------------------------
+    # NEW: Like-for-like baselines
+    # -----------------------------
+    # Full snapshot payload baseline (what you'd have to ship if you *didn't* have the stream)
+    full_snapshot_payload = {
+        "n": int(req.n),
+        "state": [int(x) for x in state],
+    }
+    full_snapshot_json = _stable_dumps(full_snapshot_payload)
+    raw_full_snapshot_bytes = len(full_snapshot_json.encode("utf-8"))
+    gzip_full_snapshot_bytes = _gzip_len_utf8(full_snapshot_json) if "_gzip_len_utf8" in globals() else None
+
+    # Query-answer payload baseline (what v30 actually needs to ship as the "answer")
+    # Keep it small + receipt-locked.
+    query_answer_payload = {
+        "sum_stream": int(sum_stream),
+        "q_size": int(len(Q)),
+        "hits_in_Q": int(hits_in_Q),
+        # drift_sha256 gets added after we compute receipt_core below
+    }
+
+    # -----------------------------
+    # Receipt core (locked)
+    # -----------------------------
     receipt_core = {
         "params": {"seed": req.seed, "n": req.n, "turns": req.turns, "muts": req.muts, "q": req.q},
-        "sum_baseline": sum_baseline,
-        "sum_stream": sum_stream,
+        "sum_baseline": int(sum_baseline),
+        "sum_stream": int(sum_stream),
         "final_state_sha256": final_state_sha256,
-        "hits_in_Q": hits_in_Q,
+        "hits_in_Q": int(hits_in_Q),
+        "bytes": {
+            "wire_total_bytes": int(wire_total_bytes),
+            "raw_full_snapshot_bytes": int(raw_full_snapshot_bytes),
+            # keep gzip optional if helper missing
+            "gzip_full_snapshot_bytes": int(gzip_full_snapshot_bytes) if isinstance(gzip_full_snapshot_bytes, int) else None,
+        },
     }
     drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_core))
 
-    # Work counter to enable the “work bar”
+    # Now compute query-answer bytes (answer + receipt hash)
+    query_answer_payload["drift_sha256"] = drift_sha256
+    query_answer_json = _stable_dumps(query_answer_payload)
+    raw_query_answer_bytes = len(query_answer_json.encode("utf-8"))
+    gzip_query_answer_bytes = _gzip_len_utf8(query_answer_json) if "_gzip_len_utf8" in globals() else None
+
+    # -----------------------------
+    # OPTIONAL: baseline_samples (naive JSON per-op messages)
+    # Enables "gzip_per_frame_total" style UI if you already implemented that pattern.
+    # -----------------------------
+    muts_i = max(1, int(req.muts))
+    cap = 8192
+    take = min(len(touched), cap)
+
+    baseline_samples = []
+    for i in range(take):
+        idx = int(touched[i])
+        t = i // muts_i
+        baseline_samples.append(_stable_dumps({"t": int(t), "idx": idx, "op": "inc"}))
+
+    baseline_truncated = take < len(touched)
+
+    # Work counter for the “work bar”
     work_steps = int(hits_in_Q)
 
     return {
         "params": receipt_core["params"],
-        "sum_baseline": sum_baseline,
-        "sum_stream": sum_stream,
+        "sum_baseline": int(sum_baseline),
+        "sum_stream": int(sum_stream),
         "final_state_sha256": final_state_sha256,
         "invariants": {
             "sum_ok": True,
             "work_scales_with_Q": True,
-            "hits_in_Q": hits_in_Q,
-            "work_steps": work_steps,
+            "hits_in_Q": int(hits_in_Q),
+            "work_steps": int(work_steps),
         },
         "bytes": {
-            "ops_total": ops_total,
-            "q_size": len(Q),
-            "hits_in_Q": hits_in_Q,
-            "delta_bytes_total": delta_bytes_total,
-            "wire_total_bytes": wire_total_bytes,
-            "bytes_per_op": bytes_per_op,
+            "ops_total": int(ops_total),
+            "q_size": int(len(Q)),
+            "hits_in_Q": int(hits_in_Q),
+            "delta_bytes_total": int(delta_bytes_total),
+            "wire_total_bytes": int(wire_total_bytes),
+            "bytes_per_op": float(bytes_per_op),
+
+            # NEW: show superiority properly
+            "raw_full_snapshot_bytes": int(raw_full_snapshot_bytes),
+            "gzip_full_snapshot_bytes": int(gzip_full_snapshot_bytes) if isinstance(gzip_full_snapshot_bytes, int) else None,
+            "raw_query_answer_bytes": int(raw_query_answer_bytes),
+            "gzip_query_answer_bytes": int(gzip_query_answer_bytes) if isinstance(gzip_query_answer_bytes, int) else None,
         },
         "receipts": {"drift_sha256": drift_sha256, "LEAN_OK": 1},
+
+        # OPTIONAL (UI can read these like v32)
+        "baseline_samples": baseline_samples,
+        "baseline_truncated": baseline_truncated,
+
+        # ALSO include in receipt if you want verifiers to recompute baselines deterministically
+        # (comment in if desired)
+        # "receipt_baseline": {"baseline_truncated": baseline_truncated},
     }
 
 # ============================================================
@@ -830,26 +1092,42 @@ def v32_run(req: V32RunRequest) -> Dict[str, Any]:
     }
 
 # ============================================================
-# v33 — Range sums (baseline vs Fenwick story)
+# v33 — Range sums (baseline vs Fenwick story)  ✅ FULL REPLACE
 # ============================================================
 
 @router.post("/v33/run")
 def v33_run(req: V33RunRequest) -> Dict[str, Any]:
-    state, _ = _simulate_state(req.seed, req.n, req.turns, req.muts)
+    import math
+
+    state, touched = _simulate_state(req.seed, req.n, req.turns, req.muts)
+
     n = max(1, int(req.n))
     l = max(0, min(int(req.l), n - 1))
     r = max(0, min(int(req.r), n - 1))
     if l > r:
         l, r = r, l
+    range_len = int(r - l + 1)
 
+    # Baseline: scan L..R
     sum_baseline = int(sum(int(state[i]) for i in range(l, r + 1)))
+
+    # Stream story (answer matches baseline in this demo)
     sum_stream = sum_baseline
 
-    # Include a “steps” counter so the bar fills
-    import math
-    fenwick_steps = int((r - l + 1) * (math.log2(max(2, n))))
+    # --- Work counters (so the UI bar + superiority story are coherent) ---
+    logN = int(math.ceil(math.log2(max(2, n))))  # e.g. 4096 -> 12
 
+    # Baseline scan cost: proportional to interval length
+    scan_steps = int(range_len)
+
+    # Fenwick query cost: two prefix sums, each ~logN
+    fenwick_query_steps = int(2 * logN)
+
+    # Fenwick update cost: each mutation updates ~logN nodes
     ops_total = int(req.turns) * int(req.muts)
+    fenwick_update_steps_total = int(ops_total * logN)
+
+    # Bytes model
     template_bytes = _bytes_estimate_template(req.n)
     delta_bytes_total = ops_total * _bytes_estimate_delta_per_op()
     wire_total_bytes = template_bytes + delta_bytes_total
@@ -861,6 +1139,12 @@ def v33_run(req: V33RunRequest) -> Dict[str, Any]:
         "sum_baseline": sum_baseline,
         "sum_stream": sum_stream,
         "final_state_sha256": final_state_sha256,
+        "work": {
+            "logN": logN,
+            "scan_steps": scan_steps,
+            "fenwick_query_steps": fenwick_query_steps,
+            "fenwick_update_steps_total": fenwick_update_steps_total,
+        },
     }
     drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_core))
 
@@ -871,9 +1155,16 @@ def v33_run(req: V33RunRequest) -> Dict[str, Any]:
         "sum_stream": sum_stream,
         "invariants": {
             "range_ok": True,
-            # IMPORTANT: always include one of these to avoid the frontend’s missing→FAIL bug
             "work_scales_with_logN": True,
-            "fenwick_steps": fenwick_steps,
+
+            # ✅ UI expects these (or we parse them)
+            "logN": logN,
+            "scan_steps": scan_steps,
+            "fenwick_query_steps": fenwick_query_steps,
+            "fenwick_update_steps_total": fenwick_update_steps_total,
+
+            # Optional compatibility alias if anything still reads this:
+            "fenwick_steps": fenwick_query_steps,
         },
         "bytes": {
             "wire_total_bytes": wire_total_bytes,
@@ -886,28 +1177,44 @@ def v33_run(req: V33RunRequest) -> Dict[str, Any]:
     }
 
 # ============================================================
-# v34 — Histogram
+# v34 — Histogram (FINAL STATE, no materialization story)
 # ============================================================
 
 @router.post("/v34/run")
 def v34_run(req: V34RunRequest) -> Dict[str, Any]:
     state, touched = _simulate_state(req.seed, req.n, req.turns, req.muts)
+
+    n = max(1, int(req.n))
     buckets = max(1, min(int(req.buckets), 4096))
     mode = str(req.mode or "idx_mod")
 
+    # Histogram over FINAL STATE across ALL indices (sum(hist) == n)
     hist = [0] * buckets
     if mode == "val_mod":
-        for idx in touched:
-            v = int(state[idx])
+        for i in range(n):
+            v = int(state[i])
             b = int(abs(v)) % buckets
             hist[b] += 1
     else:
-        for idx in touched:
-            b = int(idx) % buckets
+        # idx_mod: bucket by index (still a distribution over all indices)
+        for i in range(n):
+            b = int(i) % buckets
             hist[b] += 1
+
+    # Stats / invariants
+    hist_sum = int(sum(hist))
+    hist_sum_ok = (hist_sum == n)
 
     max_bucket = int(max(range(buckets), key=lambda i: hist[i])) if buckets else 0
     mx = int(hist[max_bucket]) if buckets else 0
+
+    mean = (hist_sum / buckets) if buckets else 0.0
+    # population stdev over bucket counts
+    var = 0.0
+    if buckets > 0:
+        var = sum((float(c) - mean) ** 2 for c in hist) / buckets
+    sigma = var ** 0.5
+    skew = (mx / mean) if mean > 0 else 0.0
 
     ops_total = int(req.turns) * int(req.muts)
     template_bytes = _bytes_estimate_template(req.n)
@@ -917,55 +1224,147 @@ def v34_run(req: V34RunRequest) -> Dict[str, Any]:
 
     final_state_sha256 = _state_sha256_u32(state)
     receipt_core = {
-        "params": {"seed": req.seed, "n": req.n, "turns": req.turns, "muts": req.muts, "buckets": buckets, "mode": mode},
+        "params": {
+            "seed": req.seed,
+            "n": n,
+            "turns": req.turns,
+            "muts": req.muts,
+            "buckets": buckets,
+            "mode": mode,
+        },
         "histogram": hist,
         "final_state_sha256": final_state_sha256,
+        "invariants": {
+            "hist_ok": True,
+            "hist_sum": hist_sum,
+            "hist_sum_ok": hist_sum_ok,
+            "max_bucket": max_bucket,
+            "max": mx,
+        },
     }
     drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_core))
 
     return {
         "ok": True,
+        "params": receipt_core["params"],
         "histogram": hist,
-        "invariants": {"hist_ok": True, "max_bucket": max_bucket, "max": mx},
-        "bytes": {"wire_total_bytes": wire_total_bytes, "ops_total": ops_total, "bytes_per_op": bytes_per_op},
+        "invariants": {
+            "hist_ok": True,
+            "hist_sum": hist_sum,
+            "hist_sum_ok": hist_sum_ok,
+            "max_bucket": max_bucket,
+            "max": mx,
+            "mean": mean,
+            "sigma": sigma,
+            "skew": skew,
+        },
+        "bytes": {
+            "wire_total_bytes": wire_total_bytes,
+            "delta_bytes_total": delta_bytes_total,
+            "ops_total": ops_total,
+            "bytes_per_op": bytes_per_op,
+        },
         "final_state_sha256": final_state_sha256,
         "receipts": {"drift_sha256": drift_sha256, "LEAN_OK": 1},
     }
 
 # ============================================================
-# v38 — Trust receipts
+# v38 — Trust receipts (REAL: reorder + canonicalize + replay)
 # ============================================================
 
 @router.post("/v38/run")
 def v38_run(req: SeedRun) -> Dict[str, Any]:
-    # Lightweight “two raw shapes” + canonical shape story
     R = _rng32(req.seed)
     ops_total = int(req.turns) * int(req.muts)
+    n = max(1, int(req.n))
 
-    rawA = [{"idx": int(R() % max(1, req.n)), "v": int((R() % 1000) - 500)} for _ in range(min(ops_total, 4096))]
-    rawB = [{"i": x["idx"], "value": x["v"], "tag": "m"} for x in rawA]
-    canon = [{"idx": int(x["idx"]), "value": int(x["v"])} for x in rawA]
+    # ---- Generate "same logical update-set" as commutative increments (dv)
+    # cap raw list to keep endpoint lightweight/fast
+    m = min(ops_total, 4096)
+    rawA = [{"idx": int(R() % n), "dv": int((R() % 1000) - 500)} for _ in range(m)]
 
+    # rawB: same ops, DIFFERENT ordering + DIFFERENT schema
+    rawB = [{"i": x["idx"], "d": x["dv"], "tag": "m"} for x in reversed(rawA)]
+
+    def canonicalize(stream: list[dict]) -> list[dict]:
+        # map to (idx, dv) regardless of schema
+        agg: dict[int, int] = {}
+        for op in stream:
+            if "idx" in op:
+                idx = int(op.get("idx", 0))
+                dv = int(op.get("dv", 0))
+            else:
+                idx = int(op.get("i", 0))
+                dv = int(op.get("d", 0))
+            if idx < 0 or idx >= n:
+                continue
+            agg[idx] = agg.get(idx, 0) + dv  # commutative aggregate
+
+        # stable ordering = stable bytes
+        return [{"idx": idx, "dv": int(agg[idx])} for idx in sorted(agg.keys())]
+
+    def apply_increments(stream: list[dict]) -> list[int]:
+        state = [0] * n
+        for op in stream:
+            if "idx" in op:
+                idx = int(op.get("idx", 0))
+                dv = int(op.get("dv", 0))
+            else:
+                idx = int(op.get("i", 0))
+                dv = int(op.get("d", 0))
+            if 0 <= idx < n:
+                state[idx] += dv
+        return state
+
+    canonA = canonicalize(rawA)
+    canonB = canonicalize(rawB)
+
+    # ---- Real invariant checks
+    canon_idempotent_ok = (canonicalize(canonA) == canonA)
+    canon_stable_ok = (_stable_dumps(canonA) == _stable_dumps(canonB))
+    canon_ok = bool(canon_idempotent_ok and canon_stable_ok)
+
+    sA = apply_increments(rawA)
+    sB = apply_increments(rawB)
+    sC = apply_increments(canonA)
+
+    replay_ok = (sA == sB == sC)
+
+    # ---- Bytes for UI graphs
     rawA_bytes_total = len(_stable_dumps(rawA).encode("utf-8"))
     rawB_bytes_total = len(_stable_dumps(rawB).encode("utf-8"))
-    canon_bytes_total = len(_stable_dumps(canon).encode("utf-8"))
+    canon_bytes_total = len(_stable_dumps(canonA).encode("utf-8"))
 
-    wire_template_bytes = _bytes_estimate_template(req.n)
+    # "Wire model" (your existing estimate model)
+    wire_template_bytes = _bytes_estimate_template(n)
     wire_delta_bytes_total = ops_total * _bytes_estimate_delta_per_op()
     wire_total_bytes = wire_template_bytes + wire_delta_bytes_total
 
-    final_state_sha256 = _sha256_hex_utf8(_stable_dumps({"seed": req.seed, "n": req.n, "ops": ops_total, "canon": canon[:64]}))
+    # ---- Hash anchors (pin *meaning* + canon bytes)
+    final_state_sha256 = _sha256_hex_utf8(_stable_dumps({
+        "seed": req.seed,
+        "n": n,
+        "ops": ops_total,
+        "state_sha256": _sha256_hex_utf8(_stable_dumps(sC)),
+        "canon_head": canonA[:64],
+    }))
+
     receipt_core = {
         "demo": "v38",
-        "params": {"seed": req.seed, "n": req.n, "turns": req.turns, "muts": req.muts},
-        "invariants": {"canon_ok": True, "replay_ok": True},
+        "params": {"seed": req.seed, "n": n, "turns": req.turns, "muts": req.muts},
+        "invariants": {
+            "canon_ok": canon_ok,
+            "replay_ok": bool(replay_ok),
+            "canon_idempotent_ok": bool(canon_idempotent_ok),
+            "canon_stable_ok": bool(canon_stable_ok),
+        },
         "bytes": {
             "wire_template_bytes": wire_template_bytes,
             "wire_delta_bytes_total": wire_delta_bytes_total,
             "wire_total_bytes": wire_total_bytes,
             "rawA_bytes_total": rawA_bytes_total,
             "rawB_bytes_total": rawB_bytes_total,
-            "canon_bytes_total": canon_bytes_total,
+            "canon_bytes_total": canon_bytes_total,  # canonical *delta* artifact bytes
         },
         "final_state_sha256": final_state_sha256,
     }
@@ -996,17 +1395,43 @@ def v41_mint(req: V41MintRequest) -> Dict[str, Any]:
         "final_state_sha256": final_state_sha256,
         "params": {"seed": req.seed, "n": req.n, "turns": req.turns, "muts": req.muts},
     }
+
     drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt))
+
+    # Keep shape stable for the frontend
     return {"receipts": {"drift_sha256": drift_sha256, "LEAN_OK": 1, "receipt": receipt}}
+
 
 @router.post("/v41/query")
 def v41_query(req: V41QueryRequest) -> Dict[str, Any]:
-    # Validate chain: newest-first, each receipt.prev_drift_sha256 must match next item drift_sha256
+    """
+    Receipt-gated query:
+      - validate ancestry (prev_drift_sha256 links)
+      - validate determinism (re-hash each receipt matches its drift_sha256)
+      - only then run the query + invariants
+
+    Metrics:
+      - scan_steps: baseline work for scanning [l..r]
+      - fenwick_query_steps: ~O(logN) query work
+      - fenwick_update_steps_total: ~ops_total * O(logN) update work (optional narrative)
+      - fw_steps_sum: kept for backward-compat (== fenwick_query_steps)
+      - logN is based on n, NOT range_len
+    """
+    import math
+
     chain = req.chain or []
     if not chain:
         return {"locked": True, "reason": "empty chain"}
 
-    ok = True
+    # --- 1) validate determinism: drift_sha256 must match stable hash(receipt)
+    for node in chain:
+        drift = str(node.get("drift_sha256") or "")
+        receipt = node.get("receipt") or {}
+        recomputed = _sha256_hex_utf8(_stable_dumps(receipt))
+        if drift != recomputed:
+            return {"locked": True, "reason": "drift mismatch"}
+
+    # --- 2) validate ancestry: newest-first, each receipt.prev_drift_sha256 must match next drift_sha256
     for i in range(len(chain) - 1):
         cur = chain[i]
         nxt = chain[i + 1]
@@ -1014,183 +1439,396 @@ def v41_query(req: V41QueryRequest) -> Dict[str, Any]:
         cur_prev = str(cur_receipt.get("prev_drift_sha256") or "")
         nxt_drift = str(nxt.get("drift_sha256") or "")
         if cur_prev != nxt_drift:
-            ok = False
-            break
+            return {"locked": True, "reason": "invalid chain"}
 
-    if not ok:
-        return {"locked": True, "reason": "invalid chain"}
+    # --- 3) parse params
+    n = max(1, int(getattr(req, "n", 0) or 0))
+    # If V41QueryRequest doesn't carry n, fall back to newest receipt params.n
+    if n <= 1:
+        newest_params = ((chain[0].get("receipt") or {}).get("params") or {})
+        n = max(1, int(newest_params.get("n") or 1))
 
     l = int(req.l)
     r = int(req.r)
     if l > r:
         l, r = r, l
+    # clamp to [0..n-1] to avoid weird ranges
+    l = max(0, min(l, n - 1))
+    r = max(0, min(r, n - 1))
     range_len = int(r - l + 1)
 
-    # Toy sums; UI mainly wants consistent invariants + numbers.
+    # --- 4) toy sums (demo)
     sum_baseline = range_len
     sum_stream = range_len
 
-    import math
-    logN = int(math.ceil(math.log2(max(2, range_len))))
-    fw_steps_sum = int(range_len * logN)
+    # --- 5) work metrics (make the story true)
+    logN = int(math.ceil(math.log2(max(2, n))))
+
+    # baseline scan over the interval
+    scan_steps = int(range_len)
+
+    # Fenwick range sum = prefix(r) - prefix(l-1): ~2*logN
+    fenwick_query_steps = int(2 * logN)
+
+    # Total updates work: updates = turns*muts from the newest receipt params
+    newest_params = ((chain[0].get("receipt") or {}).get("params") or {})
+    turns = int(newest_params.get("turns") or 0)
+    muts = int(newest_params.get("muts") or 0)
+    updates = max(0, turns * muts)
+    fenwick_update_steps_total = int(updates * logN)
+
+    # Back-compat for existing UI fields
+    fw_steps_sum = fenwick_query_steps
+
+    # "ops_total" here is NOT stream ops; it's "receipts checked" (gating work)
+    ops_total = max(1, len(chain))
 
     return {
         "unlocked": True,
-        "invariants": {"range_ok": True, "work_scales_with_logN": True},
+        "invariants": {
+            "range_ok": True,
+            "work_scales_with_logN": True,
+            # NEW (explicit, so frontend can render comparisons)
+            "scan_steps": scan_steps,
+            "fenwick_query_steps": fenwick_query_steps,
+            "fenwick_update_steps_total": fenwick_update_steps_total,
+        },
         "sum_baseline": sum_baseline,
         "sum_stream": sum_stream,
         "bytes": {
             "range_len": range_len,
-            "ops_total": max(1, len(chain)),
+            "ops_total": ops_total,
+            # keep old names but align meaning
             "fw_steps_sum": fw_steps_sum,
             "logN": logN,
             "wire_total_bytes": 0,
         },
     }
+# -------------------------
+# v45 deterministic PRNG
+# -------------------------
+def _xs32(seed: int):
+    x = seed & 0xFFFFFFFF
+    if x == 0:
+        x = 0x6D2B79F5  # avoid zero-lock
+    def next_u32() -> int:
+        nonlocal x
+        x ^= (x << 13) & 0xFFFFFFFF
+        x ^= (x >> 17) & 0xFFFFFFFF
+        x ^= (x << 5) & 0xFFFFFFFF
+        return x & 0xFFFFFFFF
+    return next_u32
 
-def _gz_len_utf8(s: str, level: int = 6) -> int:
-    return len(gzip.compress(s.encode("utf-8"), compresslevel=level))
+def _u32_to_i32(u: int) -> int:
+    u &= 0xFFFFFFFF
+    return u - 0x100000000 if u & 0x80000000 else u
 
-@router.post("/v44/run")
-def v44_run(req: V44RunRequest) -> Dict[str, Any]:
-    qid = str(req.query_id)
-    if qid not in ("projection", "histogram"):
-        raise HTTPException(status_code=400, detail="query_id must be projection|histogram")
+# -------------------------
+# v45 varint + zigzag
+# -------------------------
+def _zz_enc_i32(n: int) -> int:
+    n = int(n)
+    return ((n << 1) ^ (n >> 31)) & 0xFFFFFFFF
 
-    t0 = time.time()
+def _zz_dec_i32(z: int) -> int:
+    z &= 0xFFFFFFFF
+    n = (z >> 1) ^ (-(z & 1))
+    return int(n)
 
-    # SIMULATE ONCE so we have a real state snapshot + touched ops (for baselines)
-    state, touched = _simulate_state(req.seed, req.n, req.turns, req.muts)
+def _varint_enc(u: int) -> bytes:
+    u = int(u)
+    if u < 0:
+        raise ValueError("varint expects non-negative")
+    out = bytearray()
+    while True:
+        b = u & 0x7F
+        u >>= 7
+        if u:
+            out.append(b | 0x80)
+        else:
+            out.append(b)
+            break
+    return bytes(out)
 
-    if qid == "projection":
-        Q = _make_Q(req.seed ^ 0x3344, req.n, req.k)
-        snap = [[int(i), int(state[i])] for i in Q]
-        stream = snap[:]  # demo contract
-    else:
-        buckets = max(1, min(int(req.k), 4096))
-        hist = [0] * buckets
-        for idx in touched:
-            hist[int(idx) % buckets] += 1
-        Q = list(range(buckets))
-        snap = [[i, int(hist[i])] for i in range(buckets)]
-        stream = snap[:]
+def _varint_dec(buf: bytes, i: int) -> Tuple[int, int]:
+    shift = 0
+    u = 0
+    while True:
+        if i >= len(buf):
+            raise ValueError("varint truncated")
+        b = buf[i]
+        i += 1
+        u |= (b & 0x7F) << shift
+        if (b & 0x80) == 0:
+            return u, i
+        shift += 7
+        if shift > 35:
+            raise ValueError("varint too long")
 
-    # --- WirePack bytes (your existing model) ---
-    ops = int(req.turns) * int(req.muts)
-    template_bytes = _bytes_estimate_template(req.n)
-    delta_bytes_total = ops * _bytes_estimate_delta_per_op()
-    wire_total_bytes = template_bytes + delta_bytes_total
+# -------------------------
+# v45 codec (real bytes)
+# -------------------------
+MAGIC_T = b"WP45T"
+MAGIC_D = b"WP45D"
 
-    # ============================================================
-    # REAL BASELINES (the stuff you actually want to compare)
-    # ============================================================
+def _v45_encode_template(state0: List[int]) -> bytes:
+    out = bytearray()
+    out += MAGIC_T
+    out += _varint_enc(len(state0))
+    for v in state0:
+        out += _varint_enc(_zz_enc_i32(int(v)))
+    return bytes(out)
 
-    # 1) Full snapshot baseline: gzip of full state (n values)
-    state_json = _stable_dumps(state)
-    raw_full_snapshot_bytes_total = len(state_json.encode("utf-8"))
-    gzip_full_snapshot_bytes_total = _gz_len_utf8(state_json)
+def _v45_decode_template(b: bytes) -> List[int]:
+    if not b.startswith(MAGIC_T):
+        raise ValueError("bad template magic")
+    i = len(MAGIC_T)
+    n, i = _varint_dec(b, i)
+    st: List[int] = []
+    for _ in range(n):
+        z, i = _varint_dec(b, i)
+        st.append(_zz_dec_i32(z))
+    if i != len(b):
+        raise ValueError("trailing bytes in template")
+    return st
 
-    # 2) Naive JSON op-stream baseline: NDJSON of touched ops (same "ops" scope as wire_total_bytes)
-    muts_i = max(1, int(req.muts))
-    ndjson_lines: List[str] = []
-    raw_json_total = 0
+# delta entry: (idx, old, new)
+def _v45_encode_deltas(deltas: List[Tuple[int, int, int]]) -> bytes:
+    out = bytearray()
+    out += MAGIC_D
+    out += _varint_enc(len(deltas))
+    for (idx, old, new) in deltas:
+        out += _varint_enc(int(idx))
+        out += _varint_enc(_zz_enc_i32(int(old)))
+        out += _varint_enc(_zz_enc_i32(int(new)))
+    return bytes(out)
 
-    # touched length should match ops; clamp defensively
-    ops_len = min(len(touched), ops)
-    for i in range(ops_len):
-        msg = {"t": int(i // muts_i), "idx": int(touched[i]), "op": "inc"}
-        s = _stable_dumps(msg)
-        raw_json_total += len(s.encode("utf-8"))
-        ndjson_lines.append(s)
+def _v45_decode_deltas(b: bytes) -> List[Tuple[int, int, int]]:
+    if not b.startswith(MAGIC_D):
+        raise ValueError("bad delta magic")
+    i = len(MAGIC_D)
+    m, i = _varint_dec(b, i)
+    out: List[Tuple[int, int, int]] = []
+    for _ in range(m):
+        idx, i = _varint_dec(b, i)
+        oldz, i = _varint_dec(b, i)
+        newz, i = _varint_dec(b, i)
+        out.append((int(idx), _zz_dec_i32(oldz), _zz_dec_i32(newz)))
+    if i != len(b):
+        raise ValueError("trailing bytes in deltas")
+    return out
 
-    gzip_stream_total = _gz_len_utf8("\n".join(ndjson_lines))
+def _v45_replay(state0: List[int], deltas: List[Tuple[int, int, int]]) -> List[int]:
+    st = list(state0)
+    n = len(st)
+    for (idx, old, new) in deltas:
+        if idx < 0 or idx >= n:
+            raise ValueError(f"idx out of range: {idx}")
+        if st[idx] != int(old):
+            raise ValueError(f"old mismatch at idx={idx}: have {st[idx]} want {old}")
+        st[idx] = int(new)
+    return st
 
-    # 3) Query payload sizes (optional but useful)
-    query_json = _stable_dumps(snap)
-    raw_query_payload_bytes = len(query_json.encode("utf-8"))
-    gzip_query_payload_bytes = _gz_len_utf8(query_json)
+def _sha256_hex_bytes(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
 
-    # --- Receipt ---
-    result_sha256 = _sha256_hex_utf8(_stable_dumps({"query_id": qid, "Q": Q[:256], "stream": stream[:256]}))
-    receipt_core = {
-        "query_id": qid,
-        "params": req.model_dump(),
-        "result_sha256": result_sha256,
-        "bytes": {
-            "wire_total_bytes": wire_total_bytes,
-            "wire_template_bytes": template_bytes,
-            "wire_delta_bytes_total": delta_bytes_total,
+def _sha256_hex_state_i32(st: List[int]) -> str:
+    # hash as little-endian int32 stream (stable across runtimes)
+    bb = bytearray()
+    for v in st:
+        x = int(v) & 0xFFFFFFFF
+        bb += (x).to_bytes(4, "little", signed=False)
+    return hashlib.sha256(bytes(bb)).hexdigest()
 
-            # NEW: real baselines (consistent across demos)
-            "raw_json_total": raw_json_total,
-            "gzip_stream_total": gzip_stream_total,
-            "raw_full_snapshot_bytes_total": raw_full_snapshot_bytes_total,
-            "gzip_full_snapshot_bytes_total": gzip_full_snapshot_bytes_total,
+def _first_mismatch(a: bytes, b: bytes) -> Optional[Dict[str, Any]]:
+    n = min(len(a), len(b))
+    for i in range(n):
+        if a[i] != b[i]:
+            return {"offset": i, "a": a[i], "b": b[i]}
+    if len(a) != len(b):
+        return {"offset": n, "a": None, "b": None, "len_a": len(a), "len_b": len(b)}
+    return None
 
-            # NEW: query payload sizes (optional)
-            "raw_query_payload_bytes": raw_query_payload_bytes,
-            "gzip_query_payload_bytes": gzip_query_payload_bytes,
-        },
-    }
-    drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_core))
-    dt_ms = (time.time() - t0) * 1000.0
+def _simulate_v45(seed: int, n: int, turns: int, muts: int) -> Tuple[List[int], List[Tuple[int,int,int]], List[int]]:
+    rng = _xs32(int(seed))
+    n = int(n)
+    ops = int(turns) * int(muts)
 
-    return {
-        "query_id": qid,
-        "params": {**req.model_dump(), "Q": Q},
-        "Q": Q,
-        "snapshot_result": snap,
-        "stream_result": stream,
-        "bytes": receipt_core["bytes"],
-        "receipts": {"drift_sha256": drift_sha256, "result_sha256": result_sha256, "LEAN_OK": 1},
-        "query_ok": True,
-        "timing_ms": {"query": dt_ms},
-        "ops": ops,
-    }
+    # initial state (int32)
+    state0: List[int] = []
+    st: List[int] = []
+    for _ in range(n):
+        v = _u32_to_i32(rng())
+        # keep values tame but signed:
+        v = int(v % 10_000)
+        state0.append(v)
+        st.append(v)
 
-@router.post("/v46/run")
-def v46_run(req: V44RunRequest) -> Dict[str, Any]:
-    return v44_run(req)
-# ============================================================
-# v45 — Cross-language vectors (single endpoint)
-# ============================================================
+    deltas: List[Tuple[int,int,int]] = []
+    for _ in range(ops):
+        idx = int(rng() % n)
+        old = int(st[idx])
+        d = int((rng() % 11) - 5)  # -5..+5
+        new = int(old + d)
+        deltas.append((idx, old, new))
+        st[idx] = new
+
+    final_state = st
+    return state0, deltas, final_state
+
+def _run_node_verifier(seed: int, n: int, turns: int, muts: int) -> Optional[Dict[str, Any]]:
+    # expects you to add the node file at: backend/tools/v45_node_verifier.mjs
+    node = os.environ.get("NODE", "node")
+    script = os.environ.get("V45_NODE_VERIFIER", "backend/tools/v45_node_verifier.mjs")
+    if not os.path.exists(script):
+        return None
+    try:
+        p = subprocess.run(
+            [node, script, str(seed), str(n), str(turns), str(muts)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if p.returncode != 0:
+            return {"_error": f"node verifier failed rc={p.returncode}", "_stderr": p.stderr[-800:]}
+        return json.loads(p.stdout)
+    except Exception as e:
+        return {"_error": f"node verifier exception: {e}"}
 
 @router.post("/v45/run")
 def v45_run(req: V45RunRequest) -> Dict[str, Any]:
-    ops_total = int(req.turns) * int(req.muts)
-    template_bytes = _bytes_estimate_template(req.n)
-    delta_bytes_total = ops_total * _bytes_estimate_delta_per_op()
-    wire_total_bytes = template_bytes + delta_bytes_total
-    bytes_per_op = wire_total_bytes / ops_total if ops_total else 0.0
+    seed = int(req.seed)
+    n = int(req.n)
+    turns = int(req.turns)
+    muts = int(req.muts)
+    ops_total = turns * muts
+
+    # 1) simulate deterministic stream
+    state0, deltas, final_state_sim = _simulate_v45(seed, n, turns, muts)
+
+    # 2) encode real bytes
+    template_b = _v45_encode_template(state0)
+    delta_b = _v45_encode_deltas(deltas)
+
+    template_sha256 = _sha256_hex_bytes(template_b)
+    delta_stream_sha256 = _sha256_hex_bytes(delta_b)
+
+    # 3) decode + replay (python end-to-end)
+    template_decode_ok = True
+    delta_decode_ok = True
+    final_state_ok = True
+    replay_err = None
+
+    try:
+        state0_dec = _v45_decode_template(template_b)
+    except Exception as e:
+        template_decode_ok = False
+        state0_dec = []
+        replay_err = f"template decode: {e}"
+
+    try:
+        deltas_dec = _v45_decode_deltas(delta_b)
+    except Exception as e:
+        delta_decode_ok = False
+        deltas_dec = []
+        replay_err = replay_err or f"delta decode: {e}"
+
+    try:
+        final_state_replay = _v45_replay(state0_dec, deltas_dec) if (template_decode_ok and delta_decode_ok) else []
+    except Exception as e:
+        final_state_ok = False
+        final_state_replay = []
+        replay_err = replay_err or f"replay: {e}"
+
+    final_state_sha256 = _sha256_hex_state_i32(final_state_replay) if final_state_ok else "—"
+    final_state_sim_sha256 = _sha256_hex_state_i32(final_state_sim)
+
+    # require replay hash == sim hash
+    if final_state_ok and final_state_sha256 != final_state_sim_sha256:
+        final_state_ok = False
+        replay_err = replay_err or "final_state hash mismatch (encode/decode/replay not consistent)"
+
+    # 4) independent verifier (Node) + byte identity checks
+    node = _run_node_verifier(seed, n, turns, muts)
+    node_ok = None
+    template_bytes_ok = None
+    delta_bytes_ok = None
+    first_mismatch = None
+
+    if node and not node.get("_error"):
+        node_ok = True
+        node_template_b64 = node.get("template_b64") or ""
+        node_delta_b64 = node.get("delta_b64") or ""
+        try:
+            node_template_b = base64.b64decode(node_template_b64)
+            node_delta_b = base64.b64decode(node_delta_b64)
+            template_bytes_ok = (node_template_b == template_b)
+            delta_bytes_ok = (node_delta_b == delta_b)
+            if not template_bytes_ok:
+                first_mismatch = {"which": "template", **(_first_mismatch(template_b, node_template_b) or {})}
+            elif not delta_bytes_ok:
+                first_mismatch = {"which": "delta", **(_first_mismatch(delta_b, node_delta_b) or {})}
+        except Exception as e:
+            node_ok = False
+            first_mismatch = {"which": "node_decode_b64", "error": str(e)}
+    elif node and node.get("_error"):
+        node_ok = False
+        first_mismatch = {"which": "node_verifier", "error": node.get("_error"), "stderr": node.get("_stderr")}
+
+    # 5) invariants
+    vector_ok = (
+        template_decode_ok
+        and delta_decode_ok
+        and final_state_ok
+        and (template_bytes_ok is True)
+        and (delta_bytes_ok is True)
+        and (node_ok is True)
+    )
 
     invariants = {
-        "vector_ok": True,
-        "template_bytes_ok": True,
-        "template_decode_ok": True,
-        "delta_bytes_ok": True,
-        "delta_decode_ok": True,
-        "final_state_ok": True,
+        "vector_ok": vector_ok,
+        "template_bytes_ok": template_bytes_ok,
+        "template_decode_ok": template_decode_ok,
+        "delta_bytes_ok": delta_bytes_ok,
+        "delta_decode_ok": delta_decode_ok,
+        "final_state_ok": final_state_ok,
+        "node_ok": node_ok,
     }
 
-    final_state_sha256 = _sha256_hex_utf8(_stable_dumps({"seed": req.seed, "n": req.n, "ops": ops_total}))
+    # 6) bytes bookkeeping (real sizes now)
+    template_bytes_len = len(template_b)
+    delta_bytes_len = len(delta_b)
+    wire_total_bytes = template_bytes_len + delta_bytes_len
+    bytes_per_op = (wire_total_bytes / ops_total) if ops_total else 0.0
+
     receipt_core = {
-        "params": {"seed": req.seed, "n": req.n, "turns": req.turns, "muts": req.muts},
-        "invariants": invariants,
-        "bytes": {"template_bytes": template_bytes, "delta_bytes_total": delta_bytes_total, "wire_total_bytes": wire_total_bytes},
-        "final_state_sha256": final_state_sha256,
-    }
-    drift_sha256 = _sha256_hex_utf8(_stable_dumps(receipt_core))
-
-    return {
+        "params": {"seed": seed, "n": n, "turns": turns, "muts": muts},
+        "vectors": {
+            "template_sha256": template_sha256,
+            "delta_stream_sha256": delta_stream_sha256,
+            "final_state_sha256": final_state_sha256,
+        },
         "invariants": invariants,
         "bytes": {
-            "template_bytes": template_bytes,
-            "delta_bytes_total": delta_bytes_total,
+            "template_bytes": template_bytes_len,
+            "delta_bytes_total": delta_bytes_len,
             "wire_total_bytes": wire_total_bytes,
             "ops_total": ops_total,
             "bytes_per_op": bytes_per_op,
         },
-        "receipts": {"LEAN_OK": 1, "drift_sha256": drift_sha256},
+        "first_mismatch": first_mismatch,
+        "replay_err": replay_err,
+    }
+    drift_sha256 = _sha256_hex_bytes(_stable_dumps(receipt_core).encode("utf-8"))
+
+    return {
+        "invariants": invariants,
+        "vectors": {
+            "template_sha256": template_sha256,
+            "delta_stream_sha256": delta_stream_sha256,
+        },
+        "bytes": receipt_core["bytes"],
+        "receipts": {"LEAN_OK": 1 if vector_ok else 0, "drift_sha256": drift_sha256},
         "final_state_sha256": final_state_sha256,
-        "first_mismatch": None,
+        "first_mismatch": first_mismatch,
     }

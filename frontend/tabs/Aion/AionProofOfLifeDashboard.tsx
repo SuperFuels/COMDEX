@@ -20,8 +20,7 @@ import { demo03Meta, Demo03HeartbeatPanel } from "./demos/Demo03Heartbeat";
 import { demo04Meta, Demo04ReflexGridPanel } from "./demos/demo04_reflex_grid";
 import { demo05Meta, Demo05AkgPanel } from "./demos/demo5_akg_consolidation";
 
-// ✅ NEW: Pillar 0/Integrity (Homeostasis REAL) + Pillar 6/Awareness (Mirror)
-// NOTE: these files must exist; if not, comment these imports until you add them.
+// ✅ Integrity + Mirror
 import { demo00Meta, Demo00HomeostasisPanel } from "./demos/demo00_homeostasis_real";
 import { demo06Meta, Demo06MirrorPanel } from "./demos/demo06_mirror_reflection";
 
@@ -29,18 +28,34 @@ import { demo06Meta, Demo06MirrorPanel } from "./demos/demo06_mirror_reflection"
 type HomeostasisEnvelope = any; // /api/aion/dashboard payload
 type MirrorEnvelope = any; // /api/mirror payload (optional)
 
-/* ---------------- API helpers (unchanged behavior) ---------------- */
+/* ---------------- API base (FIX: stop silently hitting wrong server) ---------------- */
+/**
+ * Priority:
+ *  1) NEXT_PUBLIC_AION_API_BASE        (preferred; matches AionCognitiveDashboard)
+ *  2) NEXT_PUBLIC_API_URL              (legacy)
+ *  3) Auto: if FE on :3000 (localhost), assume BE :8080
+ *  4) Otherwise: same-origin (""), so /api/* hits current host
+ */
+function resolveApiBase(): string {
+  const aion = (process.env.NEXT_PUBLIC_AION_API_BASE || "").trim();
+  if (aion) return aion.replace(/\/+$/, "");
 
-function apiBase(): string | null {
-  const raw = (process.env.NEXT_PUBLIC_API_URL || "").trim();
-  if (!raw) return null;
-  return raw.replace(/\/+$/, "");
+  const legacy = (process.env.NEXT_PUBLIC_API_URL || "").trim();
+  if (legacy) return legacy.replace(/\/+$/, "");
+
+  if (typeof window !== "undefined") {
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocal && window.location.port === "3000") return "http://127.0.0.1:8080";
+    return ""; // same-origin
+  }
+  return "";
 }
 
 function apiUrl(path: string): string {
-  const base = apiBase();
+  const base = resolveApiBase();
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
   if (!base) return `/api${cleanPath}`;
+  // if user accidentally includes /api in the base, normalize it out
   const normalized = base.replace(/\/api$/i, "");
   return `${normalized}/api${cleanPath}`;
 }
@@ -62,7 +77,6 @@ async function post(path: string): Promise<void> {
   await fetchJson<any>(apiUrl(path), { method: "POST" });
 }
 
-// ✅ POST helper that supports querystrings without changing all callers
 async function postUrl(url: string): Promise<void> {
   await fetchJson<any>(url, { method: "POST" });
 }
@@ -88,11 +102,11 @@ function safeNum(x: any): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/* ---------------- Light theme primitives ---------------- */
-
 const BRAND = {
-  blue: "#1B74E4", // Tessaris Blue
+  blue: "#1B74E4",
 };
+
+/* ---------------- Chips ---------------- */
 
 function Chip(props: { tone: "good" | "warn" | "bad" | "neutral"; children: React.ReactNode }) {
   const tone = props.tone;
@@ -117,7 +131,40 @@ function Chip(props: { tone: "good" | "warn" | "bad" | "neutral"; children: Reac
   );
 }
 
-/* ---------------- Brand-aligned section card (LIGHT) ---------------- */
+function ageChip(ageMs: number | null, okMs = 2000, warnMs = 6000) {
+  if (ageMs == null) {
+    return (
+      <Chip tone="warn">
+        <span className="h-2 w-2 rounded-full bg-amber-500" />
+        <span>NO_FEED</span>
+      </Chip>
+    );
+  }
+  if (ageMs <= okMs) {
+    return (
+      <Chip tone="good">
+        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+        <span>PULSE {Math.round(ageMs)}ms</span>
+      </Chip>
+    );
+  }
+  if (ageMs <= warnMs) {
+    return (
+      <Chip tone="warn">
+        <span className="h-2 w-2 rounded-full bg-amber-500" />
+        <span>AGING {Math.round(ageMs)}ms</span>
+      </Chip>
+    );
+  }
+  return (
+    <Chip tone="bad">
+      <span className="h-2 w-2 rounded-full bg-rose-500" />
+      <span>STALE {Math.round(ageMs)}ms</span>
+    </Chip>
+  );
+}
+
+/* ---------------- Brand-aligned section card ---------------- */
 
 function PillarSection(props: {
   id: string;
@@ -126,10 +173,25 @@ function PillarSection(props: {
   pillar: string;
   testName: string;
   copy: string;
+  tone?: "light" | "dark";
 }) {
+  const tone = props.tone || "light";
+
+  const stage =
+    tone === "dark"
+      ? "rounded-3xl border border-slate-900/10 bg-slate-950/[0.90] p-6 shadow-sm"
+      : "rounded-3xl border border-slate-200 bg-white p-0 shadow-sm";
+
+  const stageInnerPad = tone === "dark" ? "" : "p-0";
+
   return (
-    <section id={props.id} className="grid grid-cols-1 gap-8 py-10 lg:grid-cols-5 border-b border-slate-200 last:border-0">
-      <div className="lg:col-span-3">{props.container}</div>
+    <section
+      id={props.id}
+      className="grid grid-cols-1 gap-8 py-10 lg:grid-cols-5 border-b border-slate-200 last:border-0"
+    >
+      <div className="lg:col-span-3">
+        <div className={classNames(stage, stageInnerPad)}>{props.container}</div>
+      </div>
 
       <div className="lg:col-span-2 flex items-center">
         <div className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -137,9 +199,7 @@ function PillarSection(props: {
             {props.pillar}
           </div>
 
-          <div className="mt-3 text-xl font-black tracking-tight text-slate-900 uppercase italic">
-            {props.title}
-          </div>
+          <div className="mt-3 text-xl font-black tracking-tight text-slate-900 uppercase italic">{props.title}</div>
 
           <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-slate-500">
             ENGINE_MODE: <span className="text-slate-800">{props.testName}</span>
@@ -188,7 +248,6 @@ function useAionDemoData(pollMs = 500) {
 
         const [homeoRes, phiRes, adrRes, hbRes, reflexRes, akgRes, mirrorRes] = results;
 
-        // Update whichever feeds are alive
         if (homeoRes.status === "fulfilled") setHomeostasis(homeoRes.value);
         if (phiRes.status === "fulfilled") setPhi(phiRes.value);
         if (adrRes.status === "fulfilled") setAdr(adrRes.value);
@@ -197,14 +256,10 @@ function useAionDemoData(pollMs = 500) {
         if (akgRes.status === "fulfilled") setAkg(akgRes.value);
         if (mirrorRes.status === "fulfilled") setMirror(mirrorRes.value);
 
-        // Only mark the whole dashboard OFFLINE if *all* feeds are down
         const okCount = results.filter((r) => r.status === "fulfilled").length;
-
         if (okCount === 0) {
           const errors: string[] = [];
-          for (const r of results) {
-            if (r.status === "rejected") errors.push(r.reason?.message || String(r.reason));
-          }
+          for (const r of results) if (r.status === "rejected") errors.push(r.reason?.message || String(r.reason));
           setErr(errors.length ? errors.join(" • ") : "All feeds offline");
         } else {
           setErr(null);
@@ -227,7 +282,7 @@ function useAionDemoData(pollMs = 500) {
   return { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading };
 }
 
-/* ---------------- Status badge (LIGHT) ---------------- */
+/* ---------------- Status badge ---------------- */
 
 function useDashboardHealth() {
   const [events, setEvents] = useState<number | null>(null);
@@ -272,11 +327,9 @@ function StatusBadge(props: { loading: boolean; err: string | null; health: Retu
   const { loading, err, health } = props;
 
   const tone: "neutral" | "bad" | "good" = loading ? "neutral" : err ? "bad" : "good";
-
   const label = loading ? "LINKING…" : err ? "OFFLINE / DRIFT" : "FIELD_LOCKED";
 
-  const dotCls =
-    tone === "good" ? "bg-emerald-500" : tone === "bad" ? "bg-rose-500" : "bg-slate-500";
+  const dotCls = tone === "good" ? "bg-emerald-500" : tone === "bad" ? "bg-rose-500" : "bg-slate-500";
 
   const borderCls =
     tone === "good"
@@ -305,7 +358,7 @@ function StatusBadge(props: { loading: boolean; err: string | null; health: Retu
   );
 }
 
-/* ---------------- Summary table (LIGHT) ---------------- */
+/* ---------------- Summary table ---------------- */
 
 function SummaryTable(props: {
   homeostasis?: any | null;
@@ -314,61 +367,107 @@ function SummaryTable(props: {
   akg?: any | null;
   mirror?: any | null;
   heartbeat?: any | null;
+  reflex?: any | null;
 }) {
-  const adrZone = String(props.adr?.derived?.zone || "UNKNOWN");
-  const hbAge = props.heartbeat?.age_ms;
-
-  const phiState = props.phi?.state || props.phi || {};
-  const coh = phiState["Φ_coherence"] ?? phiState?.state?.["Φ_coherence"];
-  const ent = phiState["Φ_entropy"] ?? phiState?.state?.["Φ_entropy"];
-
-  const fieldOk = (label: string) => (
-    <Chip tone="good">
-      <span className="h-2 w-2 rounded-full bg-emerald-500" />
-      <span>{label}</span>
-    </Chip>
-  );
-  const fieldWarn = (label: string) => (
-    <Chip tone="warn">
-      <span className="h-2 w-2 rounded-full bg-amber-500" />
-      <span>{label}</span>
-    </Chip>
-  );
-  const fieldBad = (label: string) => (
-    <Chip tone="bad">
-      <span className="h-2 w-2 rounded-full bg-rose-500" />
-      <span>{label}</span>
-    </Chip>
-  );
-
-  const adrStatus =
-    adrZone === "GREEN" ? fieldOk("GREEN") : adrZone === "YELLOW" ? fieldWarn("YELLOW") : fieldBad("RED");
-
-  const hbStatus =
-    typeof hbAge === "number"
-      ? hbAge < 2000
-        ? fieldOk(`PULSE ${hbAge}ms`)
-        : hbAge < 6000
-        ? fieldWarn(`PULSE ${hbAge}ms`)
-        : fieldBad(`STALE ${hbAge}ms`)
-      : fieldWarn("NO_PULSE");
-
   const homeoLast = props.homeostasis?.homeostasis?.last ?? props.homeostasis?.last ?? null;
   const homeoLocked = typeof homeoLast?.locked === "boolean" ? homeoLast.locked : null;
+
   const homeoStatus =
-    homeoLocked === true ? fieldOk("LOCKED") : homeoLocked === false ? fieldWarn("UNLOCKED") : fieldWarn("NO_FEED");
+    homeoLocked === true ? (
+      <Chip tone="good">
+        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+        <span>LOCKED</span>
+      </Chip>
+    ) : homeoLocked === false ? (
+      <Chip tone="warn">
+        <span className="h-2 w-2 rounded-full bg-amber-500" />
+        <span>UNLOCKED</span>
+      </Chip>
+    ) : (
+      <Chip tone="warn">
+        <span className="h-2 w-2 rounded-full bg-amber-500" />
+        <span>NO_FEED</span>
+      </Chip>
+    );
+
+  const adrZone = String(props.adr?.derived?.zone || "UNKNOWN");
+  const adrStatus =
+    adrZone === "GREEN" ? (
+      <Chip tone="good">
+        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+        <span>GREEN</span>
+      </Chip>
+    ) : adrZone === "YELLOW" ? (
+      <Chip tone="warn">
+        <span className="h-2 w-2 rounded-full bg-amber-500" />
+        <span>YELLOW</span>
+      </Chip>
+    ) : adrZone === "RED" ? (
+      <Chip tone="bad">
+        <span className="h-2 w-2 rounded-full bg-rose-500" />
+        <span>RED</span>
+      </Chip>
+    ) : (
+      <Chip tone="warn">
+        <span className="h-2 w-2 rounded-full bg-amber-500" />
+        <span>NO_FEED</span>
+      </Chip>
+    );
+
+  const hbAge = safeNum(props.heartbeat?.age_ms);
+  const hbStatus = ageChip(hbAge);
+
+  const phiAge = safeNum(props.phi?.age_ms);
+  const phiState = props.phi?.state || props.phi || {};
+  const coh = phiState["Φ_coherence"] ?? phiState?.state?.["Φ_coherence"] ?? phiState?.Phi_coherence;
+  const ent = phiState["Φ_entropy"] ?? phiState?.state?.["Φ_entropy"] ?? phiState?.Phi_entropy;
+
+  const phiStatus = ageChip(phiAge);
 
   const mirrorA = props.mirror?.A ?? props.mirror?.state?.A;
   const mirrorStatus =
-    typeof mirrorA === "number"
-      ? mirrorA >= 0.75
-        ? fieldOk(`A=${mirrorA.toFixed(3)}`)
-        : fieldWarn(`A=${mirrorA.toFixed(3)}`)
-      : fieldWarn("NO_FEED");
+    typeof mirrorA === "number" ? (
+      mirrorA >= 0.9 ? (
+        <Chip tone="good">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span>A={mirrorA.toFixed(3)}</span>
+        </Chip>
+      ) : (
+        <Chip tone="warn">
+          <span className="h-2 w-2 rounded-full bg-amber-500" />
+          <span>A={mirrorA.toFixed(3)}</span>
+        </Chip>
+      )
+    ) : (
+      <Chip tone="warn">
+        <span className="h-2 w-2 rounded-full bg-amber-500" />
+        <span>NO_FEED</span>
+      </Chip>
+    );
 
   const reinf = props.akg?.reinforcements ?? props.akg?.snapshot?.reinforcements;
   const akgStatus =
-    typeof reinf === "number" ? (reinf > 0 ? fieldOk(`+${reinf}`) : fieldWarn("0")) : fieldWarn("NO_DATA");
+    typeof reinf === "number" ? (
+      reinf > 0 ? (
+        <Chip tone="good">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span>+{reinf}</span>
+        </Chip>
+      ) : (
+        <Chip tone="warn">
+          <span className="h-2 w-2 rounded-full bg-amber-500" />
+          <span>0</span>
+        </Chip>
+      )
+    ) : (
+      <Chip tone="warn">
+        <span className="h-2 w-2 rounded-full bg-amber-500" />
+        <span>NO_DATA</span>
+      </Chip>
+    );
+
+  const reflexAge = safeNum(props.reflex?.age_ms);
+  const reflexStatus = ageChip(reflexAge);
 
   return (
     <div className="mt-16 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -391,17 +490,17 @@ function SummaryTable(props: {
 
         <div className="divide-y divide-slate-200 text-sm">
           <Row pillar="Integrity" comp="Phase Closure Monitor" target="⟲ ≥ 0.975 + sqi_checkpoint" status={homeoStatus} />
-          <Row pillar="Awareness" comp="Mirror Reflection Log" target="Linguistic Accuracy > 90%" status={mirrorStatus} />
+          <Row pillar="Awareness" comp="Mirror Reflection Log" target="Commentary + A ≥ 0.90" status={mirrorStatus} />
           <Row pillar="Stability" comp="RSI Stability Bar" target="RSI > 0.95 (Green)" status={adrStatus} />
-          <Row pillar="Learning" comp="AKG Strength Delta" target="+12% reinforcement" status={akgStatus} />
+          <Row pillar="Learning" comp="AKG Strength Delta" target="reinforcement > 0" status={akgStatus} />
           <Row
             pillar="Metabolism"
             comp="Φ-Field Calorimetry"
-            target={`ΔΦ balance (coh=${coh ?? "?"}, ent=${ent ?? "?"})`}
-            status={fieldOk("LIVE")}
+            target={`ΔΦ balance (coh=${coh ?? "—"}, ent=${ent ?? "—"})`}
+            status={phiStatus}
           />
-          <Row pillar="Reflex" comp="Drift Repair Pulse" target="Trigger at RSI < 0.6" status={adrStatus} />
-          <Row pillar="Continuity" comp="Resonant Heartbeat" target="60s periodic pulse" status={hbStatus} />
+          <Row pillar="Reflex" comp="Cognitive Grid (Reflex)" target="fresh grid state" status={reflexStatus} />
+          <Row pillar="Continuity" comp="Resonant Heartbeat" target="fresh Θ pulse" status={hbStatus} />
         </div>
       </div>
     </div>
@@ -414,9 +513,7 @@ function Row(props: { pillar: string; comp: string; target: string; status: Reac
       <div className="col-span-3 font-semibold">{props.pillar}</div>
       <div className="col-span-4 font-mono text-[12px] text-slate-700">{props.comp}</div>
       <div className="col-span-3 text-slate-600">{props.target}</div>
-      <div className="col-span-2 text-right font-mono text-[12px] uppercase tracking-wider">
-        {props.status}
-      </div>
+      <div className="col-span-2 text-right font-mono text-[12px] uppercase tracking-wider">{props.status}</div>
     </div>
   );
 }
@@ -426,7 +523,6 @@ function Row(props: { pillar: string; comp: string; target: string; status: Reac
 export default function AionProofOfLifeDashboard() {
   const { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading } = useAionDemoData(500);
 
-  // shared busy flag: demo panels only read this to disable buttons + show labels
   const [actionBusy, setActionBusy] = useState<string | null>(null);
 
   const health = useDashboardHealth();
@@ -462,6 +558,11 @@ export default function AionProofOfLifeDashboard() {
     return "Resonance_Engine";
   }, [homeostasis, akg, reflex, heartbeat, adr, phi, mirror]);
 
+  const resolvedApi = useMemo(() => {
+    const base = resolveApiBase();
+    return base ? base : "(same-origin)";
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1B74E4]/10">
       {/* subtle light brand glow */}
@@ -481,32 +582,34 @@ export default function AionProofOfLifeDashboard() {
                 Act 1: The Resonant Organism
               </h1>
               <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-600">
-                By presenting these as Biological Containers, you teach the audience how to read the “vitals” of a synthetic organism.
-                You must show Response to Stress and Autonomous Recovery — not just data.
+                These panels are “biological containers.” If a feed is stale, treat it as a genuine organismal failure mode (drift / disconnect),
+                not a UI glitch.
               </p>
+
+              <div className="mt-4 font-mono text-[11px] text-slate-500">
+                API base: <span className="text-slate-800">{resolvedApi}</span>{" "}
+                <span className="text-slate-400">(auto: FE :3000 → BE :8080)</span>
+              </div>
             </div>
 
             <StatusBadge loading={loading} err={err} health={health} />
           </div>
 
-          {err ? (
-            <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-rose-700">
-              {err}
-            </div>
-          ) : null}
+          {err ? <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-rose-700">{err}</div> : null}
         </header>
 
-        {/* ✅ Demo 00 (REAL) */}
+        {/* Demo 00 (dark-stage: your panel uses dark-mode classes) */}
         <PillarSection
           id={demo00Meta.id}
           pillar={demo00Meta.pillar}
           title={demo00Meta.title}
           testName={demo00Meta.testName}
           copy={demo00Meta.copy}
+          tone="dark"
           container={<Demo00HomeostasisPanel homeostasis={homeostasis} />}
         />
 
-        {/* ✅ Demo 01 */}
+        {/* Demo 01 */}
         <PillarSection
           id={demo01Meta.id}
           pillar={demo01Meta.pillar}
@@ -524,7 +627,7 @@ export default function AionProofOfLifeDashboard() {
           }
         />
 
-        {/* ✅ Demo 02 */}
+        {/* Demo 02 */}
         <PillarSection
           id={demo02Meta.id}
           pillar={demo02Meta.pillar}
@@ -541,7 +644,7 @@ export default function AionProofOfLifeDashboard() {
           }
         />
 
-        {/* ✅ Demo 03 */}
+        {/* Demo 03 */}
         <PillarSection
           id={demo03Meta.id}
           pillar={demo03Meta.pillar}
@@ -551,7 +654,7 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo03HeartbeatPanel heartbeat={heartbeat as any} namespace="demo" />}
         />
 
-        {/* ✅ Demo 04 */}
+        {/* Demo 04 */}
         <PillarSection
           id={demo04Meta.id}
           pillar={demo04Meta.pillar}
@@ -569,13 +672,14 @@ export default function AionProofOfLifeDashboard() {
           }
         />
 
-        {/* ✅ Demo 05 */}
+        {/* Demo 05 (dark-stage: you said left panel text is invisible) */}
         <PillarSection
           id={demo05Meta.id}
           pillar={demo05Meta.pillar}
           title={demo05Meta.title}
           testName={demo05Meta.testName}
           copy={demo05Meta.copy}
+          tone="dark"
           container={
             <Demo05AkgPanel
               akg={akg as any}
@@ -587,25 +691,19 @@ export default function AionProofOfLifeDashboard() {
           }
         />
 
-        {/* ✅ Demo 06 (Mirror) */}
+        {/* Demo 06 (dark-stage: mirror panel is dark-mode + you need contrast) */}
         <PillarSection
           id={demo06Meta.id}
           pillar={demo06Meta.pillar}
           title={demo06Meta.title}
           testName={demo06Meta.testName}
           copy={demo06Meta.copy}
+          tone="dark"
           container={<Demo06MirrorPanel mirror={mirror as any} />}
         />
 
-        {/* ✅ Summary Table */}
-        <SummaryTable
-          homeostasis={homeostasis}
-          adr={adr}
-          phi={phi}
-          akg={akg}
-          mirror={mirror}
-          heartbeat={heartbeat}
-        />
+        {/* Summary */}
+        <SummaryTable homeostasis={homeostasis} adr={adr} phi={phi} akg={akg} mirror={mirror} heartbeat={heartbeat} reflex={reflex} />
 
         <footer className="mt-16 flex flex-col gap-3 border-t border-slate-200 pt-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">
