@@ -1065,6 +1065,8 @@ def api_reflex() -> Dict[str, Any]:
         "state": st,
     }
 
+
+
 @router.post("/api/demo/reflex/reset")
 def api_reflex_reset() -> Dict[str, Any]:
     st = reflex_mod.reset(REFLEX_STATE_PATH)
@@ -1076,11 +1078,18 @@ async def api_reflex_step() -> Dict[str, Any]:
     return {"ok": True, "state": st}
 
 @router.post("/api/demo/reflex/run")
-async def api_reflex_run(steps: int = 60, interval_s: float = 0.25) -> Dict[str, Any]:
+async def api_reflex_run(
+    max_runtime_s: int = 300,
+    max_episodes: int = 5,
+    episode_steps: int = 80,
+    interval_s: float = 0.25,
+) -> Dict[str, Any]:
     st = await reflex_mod.start_run(
         REFLEX_STATE_PATH,
-        steps=max(1, int(steps)),
-        interval_s=max(0.0, float(interval_s)),
+        max_runtime_s=max(1, int(max_runtime_s)),
+        max_episodes=max(1, int(max_episodes)),
+        episode_steps=max(1, int(episode_steps)),
+        interval_s=max(0.05, float(interval_s)),
     )
     return {"ok": True, "state": st}
 

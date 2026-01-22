@@ -265,24 +265,6 @@ def api_reflex() -> Dict[str, Any]:
     st = reflex_mod.get_state(DATA_ROOT / "grid_state.json")
     return {"ok": True, "data_root": str(DATA_ROOT), "state": st}
 
-@router.post("/api/demo/reflex/reset")
-def api_reflex_reset() -> Dict[str, Any]:
-    from backend.modules.aion_demo import reflex_grid as reflex_mod
-    st = reflex_mod.reset(DATA_ROOT / "grid_state.json")
-    return {"ok": True, "state": st}
-
-@router.post("/api/demo/reflex/step")
-async def api_reflex_step() -> Dict[str, Any]:
-    from backend.modules.aion_demo import reflex_grid as reflex_mod
-    st = await reflex_mod.step_once(DATA_ROOT / "grid_state.json")
-    return {"ok": True, "state": st}
-
-@router.post("/api/demo/reflex/run")
-async def api_reflex_run(steps: int = 60, interval_s: float = 0.25) -> Dict[str, Any]:
-    from backend.modules.aion_demo import reflex_grid as reflex_mod
-    st = await reflex_mod.start_run(DATA_ROOT / "grid_state.json", steps=steps, interval_s=interval_s)
-    return {"ok": True, "state": st}
-
 # -----------------------------
 # Homeostasis alias (so dashboard can call /api/homeostasis)
 # -----------------------------

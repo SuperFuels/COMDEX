@@ -32,7 +32,6 @@ function gridToWorld(x: number, y: number, n: number) {
 
 // ---------- Dot-man geometry helpers ----------
 function randOnSphere(r: number) {
-  // random point on sphere surface
   const u = Math.random();
   const v = Math.random();
   const theta = 2 * Math.PI * u;
@@ -62,20 +61,11 @@ function pushCylinder(points: number[], cx: number, cy0: number, cy1: number, cz
 }
 
 function buildDotManGeometry() {
-  // Chibi silhouette: head + torso + arms + legs
   const pts: number[] = [];
-
-  // Head
   pushSphere(pts, 0, 0.55, 0, 0.22, 180);
-
-  // Torso
   pushCylinder(pts, 0, 0.10, 0.48, 0, 0.18, 220);
-
-  // Arms (two small cylinders)
   pushCylinder(pts, -0.22, 0.22, 0.42, 0, 0.07, 90);
   pushCylinder(pts, +0.22, 0.22, 0.42, 0, 0.07, 90);
-
-  // Legs
   pushCylinder(pts, -0.10, -0.22, 0.12, 0, 0.08, 120);
   pushCylinder(pts, +0.10, -0.22, 0.12, 0, 0.08, 120);
 
@@ -92,12 +82,22 @@ export default function QFCDemoReflexGrid(_: { frame: any }) {
     (typeof window !== "undefined" && (window as any).__API_BASE__) ||
     ""; // same-origin
 
+  // ✅ start the bounded backend runner once per open window
+  const startedRef = useRef(false);
+  useEffect(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+
+    fetch(`${API_BASE}/api/demo/reflex/run`, { method: "POST" }).catch(() => {});
+  }, [API_BASE]);
+
+  // ✅ poll state
   useEffect(() => {
     let alive = true;
 
     const tick = async () => {
       try {
-        const r = await fetch(`${API_BASE}/api/reflex`, { cache: "no-store" });
+        const r = await fetch(`${API_BASE}/aion-demo/api/reflex`, { cache: "no-store" });
         const j: Envelope = await r.json();
         if (!alive) return;
         setSt(j?.state ?? null);
@@ -141,17 +141,15 @@ export default function QFCDemoReflexGrid(_: { frame: any }) {
 
     if (rigRef.current) {
       target.copy(gridToWorld(pos.x, pos.y, n));
-      target.y = -1.55; // sits above the grid plane in this demo
-      rigRef.current.position.lerp(target, 1 - Math.pow(0.001, dt)); // smooth follow
+      target.y = -1.55;
+      rigRef.current.position.lerp(target, 1 - Math.pow(0.001, dt));
 
-      // tiny bob + “walk” sway
       const t = state.clock.getElapsedTime();
       rigRef.current.position.y = target.y + 0.05 * Math.sin(t * 7.0);
       rigRef.current.rotation.y = 0.25 * Math.sin(t * 3.0);
     }
 
     if (matRef.current) {
-      // subtle pulse
       const t = state.clock.getElapsedTime();
       matRef.current.size = 0.06 + 0.015 * Math.sin(t * 6.0);
       matRef.current.needsUpdate = true;
@@ -204,7 +202,7 @@ export default function QFCDemoReflexGrid(_: { frame: any }) {
           />
         </points>
 
-        {/* tiny “core” glow so it reads even when dots overlap */}
+        {/* tiny “core” glow */}
         <mesh position={[0, 0.28, 0]}>
           <sphereGeometry args={[0.10, 16, 16]} />
           <meshStandardMaterial
