@@ -1005,7 +1005,15 @@ async def api_reflex_run(steps: int = 60, interval_s: float = 0.25) -> Dict[str,
 # --- Φ endpoints ---
 @router.get("/api/phi")
 def api_phi() -> Dict[str, Any]:
-    return phi_state()
+    st = phi_state()
+    s = (st.get("state") or {})
+    return {
+        "ok": True,
+        **s,
+        "derived": st.get("derived") or {},
+        "data_root": st.get("data_root"),
+        "source_file": st.get("source_file"),
+    }
 
 @router.post("/api/demo/phi/reset")
 def api_phi_reset() -> Dict[str, Any]:
@@ -1059,27 +1067,84 @@ async def ws_aion_demo(ws: WebSocket) -> None:
     await ws.accept()
     interval_s = float(os.getenv("AION_DEMO_WS_INTERVAL_S", "0.5"))
     hb_ns = os.getenv("AION_DEMO_HEARTBEAT_NAMESPACE", DEFAULT_HEARTBEAT_NS)
+
     try:
         while True:
-            payload = {
-                "phi": phi_state(),
-                "adr": adr_state(),
-                "heartbeat": heartbeat_state(namespace=hb_ns),
-                "akg": akg_snapshot(),
-                "mirror": _read_json(MIRROR_STATE_PATH, default=None) or None,
+            phi = phi_state()
+            adr = adr_state()
+            hb = heartbeat_state(namespace=hb_ns)
 
-                # ✅ Demo 4: Reflex (Cognitive Grid)
-                "reflex": {
-                    "ok": True,
-                    "data_root": str(DATA_ROOT),
-                    "source_file": str(REFLEX_STATE_PATH),
-                    "state": reflex_mod.get_state(REFLEX_STATE_PATH),
+            # Optional: compute mirror frame so A is real + fresh
+            try:
+                mirror = mirror_compute_frame()
+            except Exception:
+                mirror = _read_json(MIRROR_STATE_PATH, default=None) or None
+
+            # Reflex snapshot (no stepping here; just publish state)
+            try:
+                reflex_state = reflex_mod.get_state(REFLEX_STATE_PATH)
+            except Exception:
+                reflex_state = {}
+
+            # Pull commonly-used signals
+            phi_s = (phi.get("state") or {})
+            beliefs = (phi_s.get("beliefs") or {})
+
+            rho = phi_s.get("Φ_coherence")
+            iota = phi_s.get("Φ_entropy")
+            dphi = phi_s.get("Φ_flux")  # best available ΔΦ proxy in this state file
+
+            # Mirror produces A (alignment) which is what your “Awareness” pillar wants
+            A = None
+            if isinstance(mirror, dict):
+                A = mirror.get("A")
+
+            # ADR produces RSI + zone
+            rsi = ((adr.get("derived") or {}).get("rsi"))
+            zone = ((adr.get("derived") or {}).get("zone"))
+
+            # Phase closure / equilibrium target:
+            # use A if available, else fall back to stability belief
+            eq = A
+            if eq is None:
+                eq = beliefs.get("stability")
+
+            payload = {
+                "type": "telemetry",
+                "command": "telemetry",
+                "ts": time.time(),
+
+                # ✅ FLAT metrics for your UI scanners
+                "metrics": {
+                    "SQI": beliefs.get("trust"),        # or replace with your real SQI producer when available
+                    "ρ": rho,
+                    "Ī": iota,
+                    "ΔΦ": dphi,
+                    "⟲": eq,
+
+                    "A": A,
+                    "RSI": rsi,
+                    "zone": zone,
+
+                    "locked": (mirror or {}).get("locked") if isinstance(mirror, dict) else None,
+                    "threshold": (mirror or {}).get("threshold") if isinstance(mirror, dict) else None,
+                    "lock_id": (mirror or {}).get("lock_id") if isinstance(mirror, dict) else None,
                 },
 
-                "ts": time.time(),
+                # Keep rich sub-objects for panels that want detail
+                "phi": phi_s,
+                "phi_meta": (phi.get("derived") or {}),
+                "adr": (adr.get("derived") or {}),
+                "heartbeat": (hb.get("heartbeat") or {}),
+                "heartbeat_meta": {"age_ms": hb.get("age_ms"), "source_file": hb.get("source_file")},
+                "reflex": reflex_state,
+                "mirror": mirror,
+                "akg": akg_snapshot(),
             }
+
             await ws.send_text(json.dumps(payload, ensure_ascii=False))
             await asyncio.sleep(interval_s)
+
     except WebSocketDisconnect:
         return
     except Exception:
