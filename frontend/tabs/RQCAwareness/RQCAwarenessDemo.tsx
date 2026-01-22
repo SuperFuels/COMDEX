@@ -70,7 +70,7 @@ function pickRqcWsUrl() {
   if (env) {
     if (env.startsWith("https://")) return "wss://" + env.slice("https://".length);
     if (env.startsWith("http://")) return "ws://" + env.slice("http://".length);
-    return env; // ws:// or wss://
+    return env; // ws:// or wss:// (full URL)
   }
 
   const origin = resolveOrigin();
@@ -80,8 +80,14 @@ function pickRqcWsUrl() {
     return `${proto}://${host}/resonance`;
   }
 
-  // final fallback (dev)
-  return "ws://127.0.0.1:8080/resonance";
+  // IMPORTANT: do NOT force localhost in prod.
+  // Returning "" means: no wsUrl => SIM mode.
+  if (typeof window !== "undefined") {
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocal) return "ws://127.0.0.1:8080/resonance";
+  }
+
+  return "";
 }
 
 function pickAionDemoBase() {

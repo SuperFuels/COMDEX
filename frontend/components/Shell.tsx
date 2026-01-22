@@ -16,7 +16,6 @@ const TABS: readonly TabDef[] = [
   { key: "glyph_net", label: "Glyph Net", href: "/glyph-net" },
   { key: "sle_resonance", label: "SLE Resonance", href: "/sle-resonance" },
   { key: "rqc_awareness", label: "RQC Awareness", href: "/rqc-awareness" },
-  { key: "aion", label: "AION", href: "/aion" },
   { key: "ai", label: "AI", href: "/ai" },
   { key: "wirepack", label: "WirePack", href: "/wirepack" },
   { key: "qfc_canvas", label: "QFC Canvas", href: "/qfc-canvas" },

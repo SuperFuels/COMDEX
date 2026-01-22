@@ -23,7 +23,7 @@ import { demo05Meta, Demo05AkgPanel } from "./demos/demo5_akg_consolidation";
 // ✅ Integrity + Mirror
 import { demo00Meta, Demo00HomeostasisPanel } from "./demos/demo00_homeostasis_real";
 import { demo06Meta, Demo06MirrorPanel } from "./demos/demo06_mirror_reflection";
-
+import AionCognitiveDashboard from "./AionCognitiveDashboard";
 /* ---------------- Types (tolerant; don’t block compilation) ---------------- */
 type HomeostasisEnvelope = any; // GET /api/aion/dashboard payload
 type MirrorEnvelope = any; // GET /api/mirror payload
@@ -397,6 +397,14 @@ function StatusBadge(props: { loading: boolean; err: string | null; health: Retu
 
 /* ---------------- Summary table ---------------- */
 
+function ageFromLastUpdate(x: any): number | null {
+  const lu = x?.last_update ?? x?.state?.last_update ?? x?.snapshot?.last_update;
+  if (!lu) return null;
+  const t = Date.parse(String(lu));
+  if (!Number.isFinite(t)) return null;
+  return Math.max(0, Date.now() - t);
+}
+
 function SummaryTable(props: {
   homeostasis?: any | null;
   adr?: any | null;
@@ -454,7 +462,8 @@ function SummaryTable(props: {
   const hbAge = safeNum(props.heartbeat?.age_ms);
   const hbStatus = ageChip(hbAge);
 
-  const phiAge = safeNum(props.phi?.age_ms);
+  // ✅ FIX: phi producer often doesn't include age_ms; derive it from last_update instead.
+  const phiAge = safeNum(props.phi?.age_ms) ?? ageFromLastUpdate(props.phi);
   const phiState = props.phi?.state || props.phi || {};
   const coh = phiState["Φ_coherence"] ?? phiState?.state?.["Φ_coherence"] ?? phiState?.Phi_coherence;
   const ent = phiState["Φ_entropy"] ?? phiState?.state?.["Φ_entropy"] ?? phiState?.Phi_entropy;
@@ -620,8 +629,8 @@ export default function AionProofOfLifeDashboard() {
                 Act 1: The Resonant Organism
               </h1>
               <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-600">
-                These panels are “biological containers.” If a feed is stale, treat it as a genuine organismal failure mode (drift / disconnect),
-                not a UI glitch.
+                These panels are “biological containers.” If a feed is stale, treat it as a genuine organismal failure mode
+                (drift / disconnect), not a UI glitch.
               </p>
 
               <div className="mt-4 font-mono text-[11px] text-slate-500">
@@ -636,7 +645,7 @@ export default function AionProofOfLifeDashboard() {
           {err ? <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-rose-700">{err}</div> : null}
         </header>
 
-        {/* Demo 00 */}
+        {/* Demo 00 (Homeostasis / Auto-Lock) */}
         <PillarSection
           id={demo00Meta.id}
           pillar={demo00Meta.pillar}
@@ -646,6 +655,51 @@ export default function AionProofOfLifeDashboard() {
           tone="dark"
           container={<Demo00HomeostasisPanel homeostasis={homeostasis} />}
         />
+
+        {/* ✅ Reflex directly under Auto-Lock/Homeostasis (keep this one) */}
+        <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
+                Demo Container 04
+              </div>
+              <div className="mt-1 text-xl font-black tracking-tight text-slate-900 uppercase italic">
+                Reflex (Cognitive Grid)
+              </div>
+              <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-slate-500">
+                GET <span className="text-slate-800">/api/reflex</span> · POST{" "}
+                <span className="text-slate-800">/api/demo/reflex/{`{reset,step,run}`}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {ageChip(safeNum((reflex as any)?.age_ms))}
+              <div className="font-mono text-[11px] text-slate-500">
+                state: <span className="text-slate-800">{(reflex as any)?.state ? "online" : "offline"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <Demo04ReflexGridPanel
+              reflex={reflex as any}
+              actionBusy={actionBusy}
+              onReset={() => runBusy("reflex_reset", () => postApi(httpBase, "/demo/reflex/reset"))}
+              onStep={() => runBusy("reflex_step", () => postApi(httpBase, "/demo/reflex/step"))}
+              onRun={() => runBusy("reflex_run", () => postApi(httpBase, "/demo/reflex/run"))}
+            />
+          </div>
+
+          <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
+              What this demonstrates
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600 font-medium">
+              Reflex layer: novelty-seeking movement + immediate “stability breached” style self-report on danger nodes.
+              Treat stalls as organismal drift, not UI glitch.
+            </p>
+          </div>
+        </div>
 
         {/* Demo 01 */}
         <PillarSection
@@ -692,24 +746,6 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo03HeartbeatPanel heartbeat={heartbeat as any} namespace="demo" />}
         />
 
-        {/* Demo 04 */}
-        <PillarSection
-          id={demo04Meta.id}
-          pillar={demo04Meta.pillar}
-          title={demo04Meta.title}
-          testName={demo04Meta.testName}
-          copy={demo04Meta.copy}
-          container={
-            <Demo04ReflexGridPanel
-              reflex={reflex as any}
-              actionBusy={actionBusy}
-              onReset={() => runBusy("reflex_reset", () => postApi(httpBase, "/demo/reflex/reset"))}
-              onStep={() => runBusy("reflex_step", () => postApi(httpBase, "/demo/reflex/step"))}
-              onRun={() => runBusy("reflex_run", () => postApi(httpBase, "/demo/reflex/run"))}
-            />
-          }
-        />
-
         {/* Demo 05 */}
         <PillarSection
           id={demo05Meta.id}
@@ -739,6 +775,11 @@ export default function AionProofOfLifeDashboard() {
           tone="dark"
           container={<Demo06MirrorPanel mirror={mirror as any} />}
         />
+
+        {/* AION Cognitive Dashboard (directly under Mirror Container) */}
+        <div className="mt-10">
+          <AionCognitiveDashboard />
+        </div>
 
         {/* Summary */}
         <SummaryTable
