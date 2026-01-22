@@ -656,6 +656,51 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo00HomeostasisPanel homeostasis={homeostasis} />}
         />
 
+        {/* ✅ Reflex directly under Auto-Lock/Homeostasis (keep this one) */}
+        <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
+                Demo Container 04
+              </div>
+              <div className="mt-1 text-xl font-black tracking-tight text-slate-900 uppercase italic">
+                Reflex (Cognitive Grid)
+              </div>
+              <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-slate-500">
+                GET <span className="text-slate-800">/api/reflex</span> · POST{" "}
+                <span className="text-slate-800">/api/demo/reflex/{`{reset,step,run}`}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {ageChip(safeNum((reflex as any)?.age_ms))}
+              <div className="font-mono text-[11px] text-slate-500">
+                state: <span className="text-slate-800">{(reflex as any)?.state ? "online" : "offline"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <Demo04ReflexGridPanel
+              reflex={reflex as any}
+              actionBusy={actionBusy}
+              onReset={() => runBusy("reflex_reset", () => postApi(httpBase, "/demo/reflex/reset"))}
+              onStep={() => runBusy("reflex_step", () => postApi(httpBase, "/demo/reflex/step"))}
+              onRun={() => runBusy("reflex_run", () => postApi(httpBase, "/demo/reflex/run"))}
+            />
+          </div>
+
+          <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
+              What this demonstrates
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600 font-medium">
+              Reflex layer: novelty-seeking movement + immediate “stability breached” style self-report on danger nodes.
+              Treat stalls as organismal drift, not UI glitch.
+            </p>
+          </div>
+        </div>
+
         {/* Demo 01 */}
         <PillarSection
           id={demo01Meta.id}
