@@ -7,18 +7,19 @@ import TabDock, { type TabDef } from "./TabDock";
 
 const TABS: readonly TabDef[] = [
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
-  { key: "symatics", label: "Symatics", href: "/symatics" },
   { key: "compression", label: "Compression", href: "/compression" },
+  { key: "symatics", label: "Symatics", href: "/symatics" },
+  { key: "photon-algebra-demo", label: "Photon Algebra", href: "/photon-algebra-demo" },
+  { key: "photon_binary", label: "Photon Binary", href: "/photon-binary" },
   { key: "sqi", label: "SQI", href: "/sqi" },
   { key: "sovereign_qkd", label: "Sovereign QKD", href: "/sovereign-qkd" },
-  { key: "photon_binary", label: "Photon Binary", href: "/photon-binary" },
   { key: "glyph_net", label: "Glyph Net", href: "/glyph-net" },
   { key: "sle_resonance", label: "SLE Resonance", href: "/sle-resonance" },
   { key: "rqc_awareness", label: "RQC Awareness", href: "/rqc-awareness" },
   { key: "aion", label: "AION", href: "/aion" },
   { key: "ai", label: "AI", href: "/ai" },
   { key: "wirepack", label: "WirePack", href: "/wirepack" },
-  { key: "photon-algebra-demo", label: "Photon Algebra", href: "/photon-algebra-demo" },
+  { key: "qfc_canvas", label: "QFC Canvas", href: "/qfc-canvas" },
 ];
 //  { key: "toe", label: "Theory Of Everything", href: "/toe" },
 //  { key: "multiverse", label: "Multiverse", href: "/multiverse" },

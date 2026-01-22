@@ -39,4 +39,4 @@ RUN cp -r frontend/.next backend/static/.next && \
 EXPOSE 8080
 
 WORKDIR /srv/backend
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["sh", "-lc", "python -u modules/aion_cognition/tessaris_cognitive_fusion_kernel.py & uvicorn main:app --host 0.0.0.0 --port 8080"]

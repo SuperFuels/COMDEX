@@ -114,6 +114,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("[chain_sim] async startup failed (continuing): %s", e)
 
+
     # ✅ consensus (PR2): start once, on the running loop
     if _truthy("GLYPHCHAIN_CONSENSUS_ENABLE", True):
         try:
@@ -150,6 +151,15 @@ async def lifespan(app: FastAPI):
             logger.warning("[phi] breathe tick enabled")
     except Exception as e:
         logger.warning("[phi] breathe tick not started: %s", e)
+
+    # ✅ START FUSION IN-PROCESS (PUT THIS HERE)
+    if _truthy("AION_ENABLE_FUSION", True):
+        try:
+            from backend.modules.aion_cognition.tessaris_cognitive_fusion_kernel import main as fusion_main
+            asyncio.create_task(fusion_main())
+            logger.warning("[fusion] TCFK started in-process on :8005")
+        except Exception as e:
+            logger.warning("[fusion] failed to start: %s", e)
 
     yield
 
