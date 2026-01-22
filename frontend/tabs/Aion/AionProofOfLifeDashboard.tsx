@@ -152,11 +152,41 @@ function pickStr(m: any, keys: string[]) {
   return null;
 }
 
+function parseLastUpdateMs(lu: any): number | null {
+  if (!lu) return null;
+  const s0 = String(lu).trim();
+  if (!s0) return null;
+
+  // Handles:
+  //  - "2026-01-22T23:05:22.432092" (microseconds, no timezone)
+  //  - "2026-01-22T23:05:22.432Z"
+  //  - "2026-01-22T23:05:22"
+  // We normalize to milliseconds + append Z if no timezone is present.
+  // Also clamps fractional seconds to 3 digits.
+  const hasTZ = /[zZ]$|[+\-]\d{2}:\d{2}$/.test(s0);
+
+  const m = s0.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(\.(\d+))?([zZ]|[+\-]\d{2}:\d{2})?$/);
+  if (!m) {
+    const t = Date.parse(s0);
+    return Number.isFinite(t) ? t : null;
+  }
+
+  const base = m[1];
+  const frac = m[3] || ""; // digits
+  const tz = m[4] || (hasTZ ? "" : "Z");
+
+  // keep only milliseconds (3 digits), pad right if needed
+  const ms3 = (frac + "000").slice(0, 3);
+  const norm = `${base}.${ms3}${tz}`;
+
+  const t = Date.parse(norm);
+  return Number.isFinite(t) ? t : null;
+}
+
 function ageFromLastUpdate(x: any): number | null {
   const lu = x?.last_update ?? x?.state?.last_update ?? x?.snapshot?.last_update;
-  if (!lu) return null;
-  const t = Date.parse(String(lu));
-  if (!Number.isFinite(t)) return null;
+  const t = parseLastUpdateMs(lu);
+  if (t == null) return null;
   return Math.max(0, Date.now() - t);
 }
 
@@ -616,7 +646,7 @@ function SummaryTable(props: {
   const hbStatus = ageChip(hbAge);
 
   // ✅ FIX: phi producer often doesn't include age_ms; derive it from last_update instead.
-  const phiAge = safeNum(props.phi?.age_ms) ?? ageFromLastUpdate(props.phi);
+  const phiAge = ageFromLastUpdate(props.phi) ?? safeNum(props.phi?.age_ms);
   const phiState = props.phi?.state || props.phi || {};
   const coh = phiState["Φ_coherence"] ?? phiState?.state?.["Φ_coherence"] ?? phiState?.Phi_coherence;
   const ent = phiState["Φ_entropy"] ?? phiState?.state?.["Φ_entropy"] ?? phiState?.Phi_entropy;
