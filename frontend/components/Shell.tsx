@@ -19,12 +19,12 @@ const TABS: readonly TabDef[] = [
   { key: "ai", label: "AI", href: "/ai" },
   { key: "wirepack", label: "WirePack", href: "/wirepack" },
   { key: "photon-algebra-demo", label: "Photon Algebra", href: "/photon-algebra-demo" },
-  { key: "multiverse", label: "Multiverse", href: "/multiverse" },
-  { key: "toe", label: "Theory Of Everything", href: "/toe" },
-  { key: "glyph_chain", label: "Glyph Chain", href: "/glyph-chain" },
-  { key: "ptn", label: ".ptn", href: "/ptn" },
-  { key: "photon", label: "Photon", href: "/photon" },
 ];
+//  { key: "toe", label: "Theory Of Everything", href: "/toe" },
+//  { key: "multiverse", label: "Multiverse", href: "/multiverse" },
+//  { key: "glyph_chain", label: "Glyph Chain", href: "/glyph-chain" },
+//  { key: "ptn", label: ".ptn", href: "/ptn" },
+//  { key: "photon", label: "Photon", href: "/photon" },
 
 function normalizeKey(k?: string) {
   return (k || "").trim().replace(/-/g, "_");

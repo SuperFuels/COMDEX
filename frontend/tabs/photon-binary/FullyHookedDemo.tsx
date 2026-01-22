@@ -118,7 +118,7 @@ export default function PhotonBridgeDemo() {
 
   return (
     <div className="w-full bg-white text-black py-20 selection:bg-blue-100">
-      <div className="max-w-7xl mx-auto px-8 space-y-16">
+      <div className="mx-auto w-full max-w-[96rem] px-4 sm:px-8 lg:px-12 space-y-16">
         {/* DEMO CONTAINER */}
         <section className="bg-gray-50 rounded-[3rem] border border-gray-100 p-8 md:p-16 shadow-xl relative overflow-visible">
           <div className="grid lg:grid-cols-2 gap-16">
