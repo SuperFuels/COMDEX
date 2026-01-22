@@ -741,38 +741,33 @@ export default function GlyphOSWorkbench() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        {/* NEW LAYOUT: Execution Trace full-width on top, then 2-up below */}
+        <div className="grid gap-8">
+          {/* ROW 1: EXECUTION TRACE (FULL WIDTH) */}
           <div className="space-y-4">
-            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Natural Language Intent</div>
-            <div className="p-6 bg-[#fafafa] rounded-3xl border border-gray-100 h-40 flex items-center italic text-gray-600 leading-relaxed">
-              “{compCurrent.intent}”
-            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Execution Trace</div>
 
-            <div className="pt-2">
-              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Scenario</div>
-              <div className="text-sm font-semibold text-gray-800">{compCurrent.title}</div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="text-[10px] font-bold text-[#0071e3] uppercase tracking-widest">Glyph-Wire Program</div>
-            <div className="p-6 bg-blue-50/50 rounded-3xl border border-blue-100 h-40 flex flex-col items-center justify-center relative overflow-hidden">
-              <div className="text-3xl md:text-4xl tracking-[0.12em] font-mono text-[#0071e3] drop-shadow-sm z-10 text-center">
-                {compGlyphWire === "—" ? (compCurrent.glyphsHint || "—") : compGlyphWire}
+              <div className="flex items-center gap-3">
+                <div className="text-[11px] text-gray-400 font-medium uppercase tracking-widest">
+                  Deterministic: <span className="text-green-500">Verified</span>
+                </div>
+                <button
+                  onClick={compDownloadTrace}
+                  disabled={compTraceId === "—" || compGlyphWire === "—"}
+                  className={`text-xs font-bold px-4 py-2 rounded-full transition-all ${
+                    compTraceId === "—" || compGlyphWire === "—"
+                      ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                      : "bg-white border border-gray-200 text-gray-700 hover:text-black hover:shadow-sm"
+                  }`}
+                >
+                  Download Trace
+                </button>
               </div>
-              <div className="absolute inset-0 bg-blue-400/5 animate-pulse" />
             </div>
 
-            <div className="text-xs text-gray-400 font-mono">
-              TRACE_ID: <span className="text-gray-600">{compTraceId}</span>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Execution Trace</div>
-
-            <div className="p-6 bg-black rounded-3xl border border-gray-800 h-40 overflow-hidden font-mono text-[10px] relative">
-              <div className={`space-y-1 transition-all duration-1000 ${compIsExecuting ? "translate-y-[-50%]" : "translate-y-0"}`}>
+            <div className="p-6 bg-black rounded-3xl border border-gray-800 h-56 md:h-64 overflow-hidden font-mono text-[10px] relative">
+              <div className={`space-y-1 transition-all duration-1000 ${compIsExecuting ? "translate-y-[-35%]" : "translate-y-0"}`}>
                 {compCurrent.steps.map((step, i) => (
                   <div key={i} className="flex gap-3">
                     <span className="text-gray-600">[{i + 1}]</span>
@@ -788,29 +783,41 @@ export default function GlyphOSWorkbench() {
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm">
                   <button
                     onClick={compRunExecution}
-                    className="bg-white text-black px-6 py-2 rounded-full font-bold text-xs hover:scale-105 transition-all shadow-xl"
+                    className="bg-white text-black px-10 py-3 rounded-full font-bold text-xs hover:scale-105 transition-all shadow-xl"
                   >
                     RUN PROGRAM
                   </button>
                 </div>
               )}
             </div>
+          </div>
 
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] text-gray-400 font-medium uppercase tracking-widest">
-                Deterministic: <span className="text-green-500">Verified</span>
+          {/* ROW 2: INTENT + GLYPH-WIRE (TWO UP) */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Natural Language Intent</div>
+              <div className="p-6 bg-[#fafafa] rounded-3xl border border-gray-100 min-h-[11rem] flex items-center italic text-gray-600 leading-relaxed">
+                “{compCurrent.intent}”
               </div>
-              <button
-                onClick={compDownloadTrace}
-                disabled={compTraceId === "—" || compGlyphWire === "—"}
-                className={`text-xs font-bold px-4 py-2 rounded-full transition-all ${
-                  compTraceId === "—" || compGlyphWire === "—"
-                    ? "bg-gray-100 text-gray-300 cursor-not-allowed"
-                    : "bg-white border border-gray-200 text-gray-700 hover:text-black hover:shadow-sm"
-                }`}
-              >
-                Download Trace
-              </button>
+
+              <div className="pt-2">
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Scenario</div>
+                <div className="text-sm font-semibold text-gray-800">{compCurrent.title}</div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="text-[10px] font-bold text-[#0071e3] uppercase tracking-widest">Glyph-Wire Program</div>
+              <div className="p-6 bg-blue-50/50 rounded-3xl border border-blue-100 min-h-[11rem] flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="text-3xl md:text-4xl tracking-[0.12em] font-mono text-[#0071e3] drop-shadow-sm z-10 text-center">
+                  {compGlyphWire === "—" ? (compCurrent.glyphsHint || "—") : compGlyphWire}
+                </div>
+                <div className="absolute inset-0 bg-blue-400/5 animate-pulse" />
+              </div>
+
+              <div className="text-xs text-gray-400 font-mono">
+                TRACE_ID: <span className="text-gray-600">{compTraceId}</span>
+              </div>
             </div>
           </div>
         </div>
