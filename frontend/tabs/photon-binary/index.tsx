@@ -24,7 +24,7 @@ export default function BridgeTab() {
       </div>
 
       {/* 2. LIVE INTERACTIVE BRIDGE DEMO */}
-      <div className="max-w-5xl mx-auto">
+      <div className="mx-auto w-full max-w-[120rem] px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <FullyHookedDemo />
       </div>
 

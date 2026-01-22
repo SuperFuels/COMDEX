@@ -129,13 +129,57 @@ export default function SQIDemo() {
 
   return (
     <div className="w-full space-y-12 animate-in fade-in duration-700 pb-20">
-      {/* HEADER SECTION */}
-      <div className="text-center space-y-6">
-        <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">SQI Runtime</h1>
-        <p className="text-2xl text-gray-500 font-light tracking-tight">
-          Symbolic Quantum Intelligence. <span className="text-black font-medium">Classical Hardware.</span>
+    {/* HEADER SECTION */}
+    <div className="text-center space-y-6">
+      <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-black italic">SQI Runtime</h1>
+      <p className="text-2xl text-gray-500 font-light tracking-tight">
+        Symbolic Quantum Intelligence. <span className="text-black font-medium">Classical Hardware.</span>
+      </p>
+
+      {/* NEW PARAGRAPH (slot: above demo, below main title/subtitle) */}
+      <div className="max-w-4xl mx-auto text-left sm:text-center space-y-4">
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-black">
+          Symbolic Quantum Intelligence: Quantum-Like Computing on Your Laptop
+        </h2>
+
+        <p className="text-lg text-gray-600 leading-relaxed">
+          Traditional quantum computers require $200 million cryogenic systems, operate near absolute zero, and struggle to
+          maintain coherence beyond a few hundred qubits. SQI runs on your MacBook.
+        </p>
+
+        <p className="text-base text-gray-600 leading-relaxed">
+          The breakthrough isn't in the hardware—it's in what we're computing. Physical quantum computers manipulate atoms and
+          electrons to create superposition states. SQI manipulates symbolic meanings using the same mathematical principles:
+          superposition, entanglement, and governed collapse. By calculating the logic structure of ambiguity rather than the
+          physics of quantum states, we've eliminated the need for specialized hardware entirely.
+        </p>
+
+        <p className="text-base text-gray-600 leading-relaxed">
+          Think of it this way: A physical quantum computer is like trying to juggle actual spinning tops to solve a
+          problem—you need perfect conditions, isolation from vibration, and extreme cold to keep them spinning. SQI calculates
+          the mathematical shape of what those spinning tops represent. We don't need to actually spin them; we just need to
+          understand what the blur means.
+        </p>
+
+        <p className="text-base text-gray-600 leading-relaxed">
+          This architectural shift has profound implications. Where IBM's quantum systems are limited by the exponential growth
+          of physical qubits (simulating 160 qubits would require every silicon atom on Earth), SQI uses structural
+          compression. A single QGlyph can represent trillions of symbolic branches while maintaining linear memory footprint.
+          The system scales with the depth of your logic, not the number of atoms in the universe.
+        </p>
+
+        <p className="text-base text-gray-600 leading-relaxed">
+          The result: Quantum-inspired computation that's deterministic, auditable, and runs in a browser tab. No cryogenics.
+          No decoherence. No million-dollar lab. Just symbolic quantum mechanics executing in standard cloud containers,
+          producing cryptographically verifiable proofs of correctness.
+        </p>
+
+        <p className="text-base text-gray-600 leading-relaxed">
+          While the quantum computing industry waits for hardware to catch up with theory, SQI delivers quantum-like
+          capabilities today—on the device you're reading this on.
         </p>
       </div>
+    </div>
 
       <div className="bg-white rounded-[3.5rem] shadow-2xl border border-gray-100 p-10">
         <div className="grid lg:grid-cols-2 gap-12">
