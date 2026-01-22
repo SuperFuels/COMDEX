@@ -16,6 +16,10 @@ type FeedItem = { ts: number; kind: string; payload: AnyObj; raw?: string };
  *    NEXT_PUBLIC_AION_DASHBOARD_WS or NEXT_PUBLIC_AION_WS_BASE (ws://... or wss://... or https://... )
  */
 
+function stripSlash(s: string) {
+  return (s || "").trim().replace(/\/+$/, "");
+}
+
 function normalizeWsMaybe(input: string) {
   const s = (input || "").trim();
   if (!s) return "";
@@ -25,38 +29,67 @@ function normalizeWsMaybe(input: string) {
   return s;
 }
 
-function resolveApiBase(): string {
-  const env = (process.env.NEXT_PUBLIC_AION_API_BASE || "").trim();
-  if (env) return env.replace(/\/+$/, "");
+function resolveAionDemoHttpBase(): string {
+  const envDemo = stripSlash(process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE || "");
+  if (envDemo) return envDemo;
+
+  const envAion = stripSlash(process.env.NEXT_PUBLIC_AION_API_BASE || "");
+  if (envAion) return envAion;
+
+  // If someone only set NEXT_PUBLIC_API_URL=https://<host>/api, derive demo mount.
+  const apiUrl = stripSlash(process.env.NEXT_PUBLIC_API_URL || "");
+  if (apiUrl && apiUrl.endsWith("/api")) {
+    return apiUrl.slice(0, -4) + "/aion-demo";
+  }
 
   if (typeof window !== "undefined") {
-    // If FE is on :3000, assume BE is :8080 unless user overrides.
     const isDevFe = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     if (isDevFe && window.location.port === "3000") return "http://127.0.0.1:8080";
-    // Otherwise, same-origin API routes are fine (reverse proxy / single origin deploy).
+    // same-origin (reverse proxy) is acceptable only if you *actually* proxy /aion-demo
     return "";
   }
+
   return "";
 }
 
 function resolveWsUrl(): string {
-  const envWs = normalizeWsMaybe(process.env.NEXT_PUBLIC_AION_DASHBOARD_WS || process.env.NEXT_PUBLIC_AION_WS_BASE || "");
-  if (envWs) return envWs.replace(/\/+$/, "") + "/ws/aion-demo";
+  // First: explicit WS vars
+  const envRaw =
+    process.env.NEXT_PUBLIC_AION_DASHBOARD_WS ||
+    process.env.NEXT_PUBLIC_AION_WS_BASE ||
+    process.env.NEXT_PUBLIC_WS_URL ||
+    "";
 
+  const envWs = stripSlash(normalizeWsMaybe(envRaw));
+  if (envWs) {
+    // If they gave the full ws endpoint already, do NOT append.
+    if (envWs.includes("/ws/")) return envWs;
+    return envWs + "/ws/aion-demo";
+  }
+
+  // Second: derive WS from the HTTP base if present
+  const httpBase = resolveAionDemoHttpBase();
+  if (httpBase) {
+    const wsBase = stripSlash(normalizeWsMaybe(httpBase));
+    // httpBase might be https://<host>/aion-demo → wsBase becomes wss://<host>/aion-demo
+    return wsBase + "/ws/aion-demo";
+  }
+
+  // Dev fallback
   if (typeof window !== "undefined") {
     const isDevFe = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     if (isDevFe && window.location.port === "3000") return "ws://127.0.0.1:8080/ws/aion-demo";
-
     const proto = window.location.protocol === "https:" ? "wss" : "ws";
     return `${proto}://${window.location.host}/ws/aion-demo`;
   }
+
   return "ws://127.0.0.1:8080/ws/aion-demo";
 }
 
 function joinUrl(base: string, path: string) {
   const p = path.startsWith("/") ? path : `/${path}`;
   if (!base) return p; // same-origin
-  return base.replace(/\/+$/, "") + p;
+  return stripSlash(base) + p;
 }
 
 /* ------------------------ small utils ------------------------ */
@@ -168,7 +201,7 @@ function findLatestMetricItem(items: FeedItem[]) {
 /* ------------------------ component ------------------------ */
 
 export default function AionCognitiveDashboard() {
-  const apiBase = useMemo(() => resolveApiBase(), []);
+  const apiBase = useMemo(() => resolveAionDemoHttpBase(), []);
   const wsUrl = useMemo(() => resolveWsUrl(), []);
 
   const [status, setStatus] = useState<"connecting" | "open" | "closed" | "error">("connecting");
@@ -222,6 +255,10 @@ export default function AionCognitiveDashboard() {
         if (!alive) return;
         setStatus("open");
         backoffRef.current = 250;
+
+        try {
+          ws.send(JSON.stringify({ type: "hello", client: "AionCognitiveDashboard" }));
+        } catch {}
       };
 
       ws.onclose = () => {
