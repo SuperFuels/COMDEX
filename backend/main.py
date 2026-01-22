@@ -768,11 +768,11 @@ from backend.modules.staking.staking_routes import router as staking_router
 from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
 from backend.routes.aion_heartbeat_api import router as aion_heartbeat_router
 from backend.api.aion_dashboard import router as aion_dashboard_router
+from backend.api.aion_dashboard_ws import router as aion_dashboard_router
 from backend.routes.aion_akg_demo_api import router as aion_akg_demo_router
 from backend.api.aion_proof_of_life import router as aion_proof_of_life_router
 from backend.routes.aion_mirror_api import router as aion_mirror_router
 from backend.routes.aion_homeostasis_alias import router as aion_homeostasis_alias_router
-from backend.api.aion_dashboard_ws import router as aion_dashboard_router
 from backend.routes.aion_cognitive_api import router as aion_cognitive_router
 from backend.api.aion import router as aion_router
 from backend.api.wirepack_api import router as wirepack_router

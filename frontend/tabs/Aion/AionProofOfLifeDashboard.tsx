@@ -25,56 +25,64 @@ import { demo00Meta, Demo00HomeostasisPanel } from "./demos/demo00_homeostasis_r
 import { demo06Meta, Demo06MirrorPanel } from "./demos/demo06_mirror_reflection";
 
 /* ---------------- Types (tolerant; don’t block compilation) ---------------- */
-type HomeostasisEnvelope = any; // /api/aion/dashboard payload
-type MirrorEnvelope = any; // /api/mirror payload (optional)
+type HomeostasisEnvelope = any; // GET /api/aion/dashboard payload
+type MirrorEnvelope = any; // GET /api/mirror payload
 
-/* ---------------- API base (FIX: stop silently hitting wrong server) ---------------- */
-/**
- * Priority:
- *  1) NEXT_PUBLIC_AION_API_BASE        (preferred; matches AionCognitiveDashboard)
- *  2) NEXT_PUBLIC_API_URL              (legacy)
- *  3) Auto: if FE on :3000 (localhost), assume BE :8080
- *  4) Otherwise: same-origin (""), so /api/* hits current host
- */
-function resolveApiBase(): string {
-  const aion = (process.env.NEXT_PUBLIC_AION_API_BASE || "").trim();
-  if (aion) return aion.replace(/\/+$/, "");
+/* ---------------- URL resolution (match live BE: /api/*, NOT /aion-demo/*) ---------------- */
 
-  const legacy = (process.env.NEXT_PUBLIC_API_URL || "").trim();
-  if (legacy) return legacy.replace(/\/+$/, "");
+function stripSlash(s: string) {
+  return (s || "").trim().replace(/\/+$/, "");
+}
 
+function normalizeHttpBase(raw: string) {
+  let b = stripSlash(raw);
+  if (!b) return "";
+  // tolerate people pasting ".../api" or ".../aion-demo"
+  b = b.replace(/\/api$/i, "");
+  b = b.replace(/\/aion-demo$/i, "");
+  return b;
+}
+
+function resolveHttpBase(): string {
+  // Prefer the deployment vars you’re actually setting now
+  const envDemo = normalizeHttpBase(process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE || "");
+  if (envDemo) return envDemo;
+
+  const envAion = normalizeHttpBase(process.env.NEXT_PUBLIC_AION_API_BASE || "");
+  if (envAion) return envAion;
+
+  const legacy = normalizeHttpBase(process.env.NEXT_PUBLIC_API_URL || "");
+  if (legacy) return legacy;
+
+  // Local dev convenience
   if (typeof window !== "undefined") {
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     if (isLocal && window.location.port === "3000") return "http://127.0.0.1:8080";
-    return ""; // same-origin
+    return ""; // same-origin fallback
   }
+
   return "";
 }
 
-function resolveHomeostasisBase(): string {
-  const v = (process.env.NEXT_PUBLIC_HOMEOSTASIS_BASE || "").trim();
-  if (!v) return "";
-  // normalize: if someone pastes .../api, strip it
-  return v.replace(/\/+$/, "").replace(/\/api$/i, "");
-}
-function homeostasisUrl(path: string): string {
-  const base = resolveHomeostasisBase();
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  if (!base) return `/api${cleanPath}`; // same-origin fallback
-  const normalized = base.replace(/\/api$/i, "");
-  return `${normalized}/api${cleanPath}`;
+function joinUrl(base: string, path: string) {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  if (!base) return p; // same-origin
+  return stripSlash(base) + p;
 }
 
-function apiUrl(path: string): string {
-  const base = resolveApiBase();
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
-
-  const prefix = "/aion-demo"; // ✅ bridge mount
-
-  if (!base) return `${prefix}/api${cleanPath}`;
-
-  const normalized = base.replace(/\/api$/i, "").replace(/\/+$/, "");
-  return `${normalized}${prefix}/api${cleanPath}`;
+/**
+ * Accepts:
+ *  - "/api/..."   (used as-is)
+ *  - "/demo/..."  (mapped to "/api/demo/...")
+ *  - "/aion/..."  (mapped to "/api/aion/...")
+ */
+function toApiPath(path: string) {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  if (p.startsWith("/api/")) return p;
+  if (p.startsWith("/demo/")) return `/api${p}`; // /api/demo/...
+  if (p.startsWith("/aion/")) return `/api${p}`; // /api/aion/...
+  // default: assume already intended under /api
+  return `/api${p}`;
 }
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -90,8 +98,8 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-async function post(path: string): Promise<void> {
-  await fetchJson<any>(apiUrl(path), { method: "POST" });
+async function postApi(base: string, path: string): Promise<void> {
+  await fetchJson<any>(joinUrl(base, toApiPath(path)), { method: "POST" });
 }
 
 async function postUrl(url: string): Promise<void> {
@@ -234,8 +242,9 @@ function PillarSection(props: {
 /* ---------------- Data hook (polls all demos) ---------------- */
 
 function useAionDemoData(pollMs = 500) {
+  const httpBase = useMemo(() => resolveHttpBase(), []);
+
   const [homeostasis, setHomeostasis] = useState<HomeostasisEnvelope | null>(null);
-  const homeoBase = useMemo(() => resolveHomeostasisBase(), []);
   const [phi, setPhi] = useState<PhiBundle | null>(null);
   const [adr, setAdr] = useState<AdrBundle | null>(null);
   const [heartbeat, setHeartbeat] = useState<HeartbeatEnvelope | null>(null);
@@ -252,16 +261,24 @@ function useAionDemoData(pollMs = 500) {
 
     const tick = async () => {
       try {
+        const urls = {
+          homeo: joinUrl(httpBase, "/api/aion/dashboard"),
+          phi: joinUrl(httpBase, "/api/phi"),
+          adr: joinUrl(httpBase, "/api/adr"),
+          hb: joinUrl(httpBase, "/api/heartbeat?namespace=demo"),
+          reflex: joinUrl(httpBase, "/api/reflex"),
+          akg: joinUrl(httpBase, "/api/akg"),
+          mirror: joinUrl(httpBase, "/api/mirror"),
+        };
+
         const results = await Promise.allSettled([
-          homeoBase
-          ? fetchJson<HomeostasisEnvelope>(`${homeoBase}/api/aion/dashboard`)
-          : fetchJson<HomeostasisEnvelope>(apiUrl("/aion/dashboard")),
-          fetchJson<PhiBundle>(apiUrl("/phi")),
-          fetchJson<AdrBundle>(apiUrl("/adr")),
-          fetchJson<HeartbeatEnvelope>(apiUrl("/heartbeat?namespace=demo")),
-          fetchJson<ReflexEnvelope>(apiUrl("/reflex")),
-          fetchJson<AkgSnapshot>(apiUrl("/akg")),
-          fetchJson<MirrorEnvelope>(apiUrl("/mirror")),
+          fetchJson<HomeostasisEnvelope>(urls.homeo),
+          fetchJson<PhiBundle>(urls.phi),
+          fetchJson<AdrBundle>(urls.adr),
+          fetchJson<HeartbeatEnvelope>(urls.hb),
+          fetchJson<ReflexEnvelope>(urls.reflex),
+          fetchJson<AkgSnapshot>(urls.akg),
+          fetchJson<MirrorEnvelope>(urls.mirror),
         ]);
 
         if (cancelled) return;
@@ -297,9 +314,9 @@ function useAionDemoData(pollMs = 500) {
       cancelled = true;
       if (t) clearTimeout(t);
     };
-  }, [pollMs]);
+  }, [pollMs, httpBase]);
 
-  return { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading };
+  return { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase };
 }
 
 /* ---------------- Status badge ---------------- */
@@ -441,10 +458,10 @@ function SummaryTable(props: {
   const phiState = props.phi?.state || props.phi || {};
   const coh = phiState["Φ_coherence"] ?? phiState?.state?.["Φ_coherence"] ?? phiState?.Phi_coherence;
   const ent = phiState["Φ_entropy"] ?? phiState?.state?.["Φ_entropy"] ?? phiState?.Phi_entropy;
-
   const phiStatus = ageChip(phiAge);
 
-  const mirrorA = props.mirror?.A ?? props.mirror?.state?.A;
+  // mirror payload (your live BE): { ok, age_ms, state:{..., A:0.8337, ...} }
+  const mirrorA = props.mirror?.A ?? props.mirror?.state?.A ?? props.mirror?.state?.derived?.A;
   const mirrorStatus =
     typeof mirrorA === "number" ? (
       mirrorA >= 0.9 ? (
@@ -533,7 +550,9 @@ function Row(props: { pillar: string; comp: string; target: string; status: Reac
       <div className="col-span-3 font-semibold">{props.pillar}</div>
       <div className="col-span-4 font-mono text-[12px] text-slate-700">{props.comp}</div>
       <div className="col-span-3 text-slate-600">{props.target}</div>
-      <div className="col-span-2 text-right font-mono text-[12px] uppercase tracking-wider">{props.status}</div>
+      <div className="col-span-2 text-right font-mono text-[12px] uppercase tracking-wider">
+        {props.status}
+      </div>
     </div>
   );
 }
@@ -541,7 +560,7 @@ function Row(props: { pillar: string; comp: string; target: string; status: Reac
 /* ---------------- Page ---------------- */
 
 export default function AionProofOfLifeDashboard() {
-  const { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading } = useAionDemoData(500);
+  const { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase } = useAionDemoData(500);
 
   const [actionBusy, setActionBusy] = useState<string | null>(null);
 
@@ -579,9 +598,8 @@ export default function AionProofOfLifeDashboard() {
   }, [homeostasis, akg, reflex, heartbeat, adr, phi, mirror]);
 
   const resolvedApi = useMemo(() => {
-    const base = resolveApiBase();
-    return base ? base : "(same-origin)";
-  }, []);
+    return httpBase ? httpBase : "(same-origin)";
+  }, [httpBase]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1B74E4]/10">
@@ -608,7 +626,7 @@ export default function AionProofOfLifeDashboard() {
 
               <div className="mt-4 font-mono text-[11px] text-slate-500">
                 API base: <span className="text-slate-800">{resolvedApi}</span>{" "}
-                <span className="text-slate-400">(auto: FE :3000 → BE :8080)</span>
+                <span className="text-slate-400">(expects /api/*)</span>
               </div>
             </div>
 
@@ -618,7 +636,7 @@ export default function AionProofOfLifeDashboard() {
           {err ? <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-rose-700">{err}</div> : null}
         </header>
 
-        {/* Demo 00 (dark-stage: your panel uses dark-mode classes) */}
+        {/* Demo 00 */}
         <PillarSection
           id={demo00Meta.id}
           pillar={demo00Meta.pillar}
@@ -640,9 +658,9 @@ export default function AionProofOfLifeDashboard() {
             <Demo01MetabolismPanel
               phi={phi as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("reset", () => post("/demo/phi/reset"))}
-              onInjectEntropy={() => runBusy("inject", () => post("/demo/phi/inject_entropy"))}
-              onRecover={() => runBusy("recover", () => post("/demo/phi/recover"))}
+              onReset={() => runBusy("reset", () => postApi(httpBase, "/demo/phi/reset"))}
+              onInjectEntropy={() => runBusy("inject", () => postApi(httpBase, "/demo/phi/inject_entropy"))}
+              onRecover={() => runBusy("recover", () => postApi(httpBase, "/demo/phi/recover"))}
             />
           }
         />
@@ -658,8 +676,8 @@ export default function AionProofOfLifeDashboard() {
             <Demo02AdrPanel
               adr={adr as any}
               actionBusy={actionBusy}
-              onInject={() => runBusy("adr_inject", () => post("/demo/adr/inject"))}
-              onRun={() => runBusy("adr_run", () => post("/demo/adr/run"))}
+              onInject={() => runBusy("adr_inject", () => postApi(httpBase, "/demo/adr/inject"))}
+              onRun={() => runBusy("adr_run", () => postApi(httpBase, "/demo/adr/run"))}
             />
           }
         />
@@ -685,14 +703,14 @@ export default function AionProofOfLifeDashboard() {
             <Demo04ReflexGridPanel
               reflex={reflex as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("reflex_reset", () => post("/demo/reflex/reset"))}
-              onStep={() => runBusy("reflex_step", () => post("/demo/reflex/step"))}
-              onRun={() => runBusy("reflex_run", () => post("/demo/reflex/run"))}
+              onReset={() => runBusy("reflex_reset", () => postApi(httpBase, "/demo/reflex/reset"))}
+              onStep={() => runBusy("reflex_step", () => postApi(httpBase, "/demo/reflex/step"))}
+              onRun={() => runBusy("reflex_run", () => postApi(httpBase, "/demo/reflex/run"))}
             />
           }
         />
 
-        {/* Demo 05 (dark-stage: you said left panel text is invisible) */}
+        {/* Demo 05 */}
         <PillarSection
           id={demo05Meta.id}
           pillar={demo05Meta.pillar}
@@ -704,14 +722,14 @@ export default function AionProofOfLifeDashboard() {
             <Demo05AkgPanel
               akg={akg as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("akg_reset", () => post("/demo/akg/reset"))}
-              onStep={() => runBusy("akg_step", () => post("/demo/akg/step"))}
-              onRun={() => runBusy("akg_run", () => postUrl(apiUrl("/demo/akg/run?rounds=400")))}
+              onReset={() => runBusy("akg_reset", () => postApi(httpBase, "/demo/akg/reset"))}
+              onStep={() => runBusy("akg_step", () => postApi(httpBase, "/demo/akg/step"))}
+              onRun={() => runBusy("akg_run", () => postUrl(joinUrl(httpBase, "/api/demo/akg/run?rounds=400")))}
             />
           }
         />
 
-        {/* Demo 06 (dark-stage: mirror panel is dark-mode + you need contrast) */}
+        {/* Demo 06 */}
         <PillarSection
           id={demo06Meta.id}
           pillar={demo06Meta.pillar}
@@ -723,7 +741,15 @@ export default function AionProofOfLifeDashboard() {
         />
 
         {/* Summary */}
-        <SummaryTable homeostasis={homeostasis} adr={adr} phi={phi} akg={akg} mirror={mirror} heartbeat={heartbeat} reflex={reflex} />
+        <SummaryTable
+          homeostasis={homeostasis}
+          adr={adr}
+          phi={phi}
+          akg={akg}
+          mirror={mirror}
+          heartbeat={heartbeat}
+          reflex={reflex}
+        />
 
         <footer className="mt-16 flex flex-col gap-3 border-t border-slate-200 pt-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">
