@@ -39,4 +39,4 @@ RUN cp -r frontend/.next backend/static/.next && \
 EXPOSE 8080
 
 WORKDIR /srv/backend
-CMD ["sh", "-lc", "python -u modules/aion_cognition/tessaris_cognitive_fusion_kernel.py & exec uvicorn backend.modules.aion_demo.demo_bridge:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["sh", "-lc", "if [ \"${AION_ENABLE_FUSION:-0}\" = \"1\" ]; then python -u backend/modules/aion_cognition/tessaris_cognitive_fusion_kernel.py & fi; exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT}"]
