@@ -285,12 +285,11 @@ export default function RQCAwarenessDemo() {
     window.setTimeout(() => setIsInjecting(false), 900);
   };
 
-  // ─────────────────────────────────────────────────────────────
-  // LIVE MODE: connect to /resonance when running
-  // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// LIVE MODE: connect to /resonance when running
+// ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!running) return;
-
     if (!wsUrl) return; // SIM mode
 
     const ws = new WebSocket(wsUrl);
@@ -298,25 +297,32 @@ export default function RQCAwarenessDemo() {
 
     ws.onopen = () => {
       setLiveConnected(true);
-      addLog(`[RQC_LIVE] Connected → ${wsUrl}`, "ok");
-      // backend sends its own hello; we can send a client hello but it's optional
+      addLog(`[RQC_LIVE] OPEN → ${wsUrl}`, "ok");
+
       try {
-        ws.send(JSON.stringify({ type: "hello", client: "RQCAwarenessDemo", sessionId: SESSION_ID }));
-      } catch {}
+        const hello = { type: "hello", client: "RQCAwarenessDemo", sessionId: SESSION_ID };
+        ws.send(JSON.stringify(hello));
+        addLog(`[RQC_LIVE] SENT hello`, "info");
+      } catch (e: any) {
+        addLog(`[RQC_LIVE] SEND failed: ${e?.message || String(e)}`, "warn");
+      }
     };
 
-    ws.onclose = () => {
+    ws.onclose = (ev) => {
       setLiveConnected(false);
-      addLog("[RQC_LIVE] Disconnected.", "warn");
+      addLog(`[RQC_LIVE] CLOSE code=${ev.code} reason=${ev.reason || "—"}`, "warn");
     };
 
-    ws.onerror = () => {
+    ws.onerror = (ev) => {
       setLiveConnected(false);
-      addLog("[RQC_LIVE] Socket error.", "warn");
+      addLog(`[RQC_LIVE] ERROR (see console)`, "warn");
+      // Keep this so you can see the real underlying cause in DevTools
+      console.error("WS error", ev);
     };
 
     ws.onmessage = (evt) => {
       setLastLiveAt(Date.now());
+      addLog(`[RQC_LIVE] RX ${String(evt.data).slice(0, 120)}`, "info");
 
       let data: any = null;
       try {
@@ -391,7 +397,6 @@ export default function RQCAwarenessDemo() {
       setLiveConnected(false);
     };
   }, [running, wsUrl]); // eslint-disable-line react-hooks/exhaustive-deps
-
   // ─────────────────────────────────────────────────────────────
   // SIM MODE: drive state only when running && no wsUrl
   // ─────────────────────────────────────────────────────────────
