@@ -75,8 +75,15 @@ function buildDotManGeometry() {
   return geo;
 }
 
-export default function QFCDemoReflexGrid(_: { frame: any }) {
-  const [st, setSt] = useState<ReflexState | null>(null);
+export default function QFCDemoReflexGrid(props: { frame: any }) {
+  // ✅ PRIMARY: take reflex state from the injected frame (no polling needed when wired)
+  const stFromFrame: ReflexState | null =
+    (props?.frame?.reflex as ReflexState) ??
+    (props?.frame?.reflex?.state as ReflexState) ??
+    null;
+
+  // ✅ fallback (only used if frame is missing)
+  const [stFallback, setStFallback] = useState<ReflexState | null>(null);
 
   const API_BASE =
     (typeof window !== "undefined" && (window as any).__API_BASE__) ||
@@ -91,29 +98,34 @@ export default function QFCDemoReflexGrid(_: { frame: any }) {
     fetch(`${API_BASE}/api/demo/reflex/run`, { method: "POST" }).catch(() => {});
   }, [API_BASE]);
 
-  // ✅ poll state
+  // ✅ fallback poll (ONLY when frame isn't feeding state)
   useEffect(() => {
+    if (stFromFrame) return;
+
     let alive = true;
 
     const tick = async () => {
       try {
-        const r = await fetch(`${API_BASE}/aion-demo/api/reflex`, { cache: "no-store" });
+        // ✅ FIX: do NOT hardcode /aion-demo here; your FE expects /api/*
+        const r = await fetch(`${API_BASE}/api/reflex`, { cache: "no-store" });
         const j: Envelope = await r.json();
         if (!alive) return;
-        setSt(j?.state ?? null);
+        setStFallback(j?.state ?? null);
       } catch {
         if (!alive) return;
-        setSt(null);
+        setStFallback(null);
       }
     };
 
     tick();
-    const iv = setInterval(tick, 200);
+    const iv = setInterval(tick, 250);
     return () => {
       alive = false;
       clearInterval(iv);
     };
-  }, [API_BASE]);
+  }, [API_BASE, stFromFrame]);
+
+  const st = stFromFrame ?? stFallback;
 
   const n = st?.grid_size ?? 10;
   const pos = st?.position ?? { x: 0, y: 0 };

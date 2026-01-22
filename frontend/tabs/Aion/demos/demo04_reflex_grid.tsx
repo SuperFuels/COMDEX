@@ -2,9 +2,9 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Card, StatRow, MiniBar, Button, clamp01, classNames } from "./ui";
+import { Card, MiniBar, Button, clamp01, classNames } from "./ui";
 
-// ✅ add import (your earlier snippet)
+// ✅ QFC viewport
 import QFCViewport from "@/src/glyphnet/components/QFCViewport";
 
 export const demo04Meta = {
@@ -49,6 +49,25 @@ export type ReflexEnvelope = {
   state?: ReflexState | null;
 };
 
+function StatBox(props: { k: string; v: React.ReactNode; tone?: "good" | "warn" | "bad" | "neutral" }) {
+  const tone = props.tone || "neutral";
+  const toneCls =
+    tone === "good"
+      ? "border-emerald-500/20 bg-emerald-500/10"
+      : tone === "warn"
+      ? "border-amber-500/20 bg-amber-500/10"
+      : tone === "bad"
+      ? "border-rose-500/20 bg-rose-500/10"
+      : "border-white/10 bg-white/5";
+
+  return (
+    <div className={classNames("rounded-lg border p-3", toneCls)}>
+      <div className="text-[11px] uppercase tracking-widest text-white/50">{props.k}</div>
+      <div className="mt-1 font-mono text-sm text-white">{props.v}</div>
+    </div>
+  );
+}
+
 export function Demo04ReflexGridPanel(props: {
   reflex: ReflexEnvelope | null;
   actionBusy: string | null;
@@ -70,7 +89,12 @@ export function Demo04ReflexGridPanel(props: {
 
   const interpretation = useMemo(() => {
     if (!st) return { label: "OFFLINE", tone: "text-rose-300", desc: "No reflex state detected from backend." };
-    if (danger) return { label: "PAIN REFLEX", tone: "text-rose-300", desc: "Danger contact: entropy spike + “Stability breached.”" };
+    if (danger)
+      return {
+        label: "PAIN REFLEX",
+        tone: "text-rose-300",
+        desc: "Danger contact: entropy spike + “Stability breached.”",
+      };
     return { label: "CURIOSITY SEEKING", tone: "text-emerald-200", desc: "Novelty gradient is driving movement." };
   }, [st, danger]);
 
@@ -98,16 +122,16 @@ export function Demo04ReflexGridPanel(props: {
         </div>
       }
     >
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {/* LEFT: QFC canvas */}
+      <div className="grid grid-cols-1 gap-5">
+        {/* TOP: QFC canvas (full width) */}
         <div className="rounded-xl border border-white/10 bg-black/20 p-4">
           <div className="mb-3 flex items-center justify-between">
             <div className="text-sm font-semibold text-white">Grid (live)</div>
             <div className={classNames("text-xs font-semibold", interpretation.tone)}>{interpretation.label}</div>
           </div>
 
-          {/* ✅ QFC canvas render */}
-          <div className="h-[340px] w-full">
+          {/* ✅ taller canvas */}
+          <div className="h-[460px] w-full">
             <QFCViewport
               title="Reflex Grid — Live"
               subtitle="Cognitive Grid Curiosity-Drift"
@@ -118,45 +142,69 @@ export function Demo04ReflexGridPanel(props: {
             />
           </div>
 
-          {/* keep your buttons */}
+          {/* controls */}
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button tone="neutral" disabled={actionBusy !== null} onClick={onReset} title="POST /api/demo/reflex/reset">
               {actionBusy === "reflex_reset" ? "Resetting…" : "Reset world"}
             </Button>
-            <Button tone="primary" disabled={actionBusy !== null || !alive} onClick={onStep} title="POST /api/demo/reflex/step">
+            <Button
+              tone="primary"
+              disabled={actionBusy !== null || !alive}
+              onClick={onStep}
+              title="POST /api/demo/reflex/step"
+            >
               {actionBusy === "reflex_step" ? "Stepping…" : "Step once"}
             </Button>
-            <Button tone="primary" disabled={actionBusy !== null || !alive} onClick={onRun} title="POST /api/demo/reflex/run">
+            <Button
+              tone="primary"
+              disabled={actionBusy !== null || !alive}
+              onClick={onRun}
+              title="POST /api/demo/reflex/run"
+            >
               {actionBusy === "reflex_run" ? "Running…" : "Run (60s)"}
             </Button>
           </div>
         </div>
 
-        {/* RIGHT: metrics + proof (unchanged) */}
+        {/* BOTTOM: metrics + proof (horizontal) */}
         <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-          <div className="mb-2 text-sm font-semibold text-white">Reflex Bio-metrics</div>
+          <div className="mb-3 text-sm font-semibold text-white">Reflex Bio-metrics</div>
 
-          <div className="divide-y divide-white/10">
-            <StatRow label="age_ms" hint="freshness proof" value={reflex?.age_ms != null ? `${reflex.age_ms} ms` : "—"} />
-            <StatRow label="position" hint="agent coordinates" value={<span className="font-mono">{st?.position?.x ?? 0},{st?.position?.y ?? 0}</span>} />
-            <StatRow label="steps" hint="time in environment" value={<span className="font-mono">{st?.steps ?? "—"}</span>} />
-            <StatRow label="event" hint="last reflex trigger" value={<span className="font-mono">{evType}</span>} />
+          {/* stat tiles */}
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <StatBox k="age_ms" v={reflex?.age_ms != null ? `${reflex.age_ms} ms` : "—"} tone={reflex?.age_ms != null ? "good" : "warn"} />
+            <StatBox
+              k="position"
+              v={
+                <span className="font-mono">
+                  {st?.position?.x ?? 0},{st?.position?.y ?? 0}
+                </span>
+              }
+            />
+            <StatBox k="steps" v={<span className="font-mono">{st?.steps ?? "—"}</span>} />
+            <StatBox k="event" v={<span className="font-mono">{evType}</span>} tone={danger ? "bad" : "good"} />
           </div>
 
-          <div className="mt-4">
-            <div className="text-xs text-white/50 mb-2">Novelty</div>
-            <MiniBar value={clamp01(novelty)} goodMin={0.65} warnMin={0.25} />
-            <div className="mt-3 text-xs text-white/50 mb-2">Coherence</div>
-            <MiniBar value={clamp01(coherence)} goodMin={0.85} warnMin={0.5} />
-            <div className="mt-3 text-xs text-white/50 mb-2">Entropy</div>
-            <MiniBar value={clamp01(entropy)} goodMin={0.25} warnMin={0.6} />
+          {/* bars */}
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div>
+              <div className="text-xs text-white/50 mb-2">Novelty</div>
+              <MiniBar value={clamp01(novelty)} goodMin={0.65} warnMin={0.25} />
+            </div>
+            <div>
+              <div className="text-xs text-white/50 mb-2">Coherence</div>
+              <MiniBar value={clamp01(coherence)} goodMin={0.85} warnMin={0.5} />
+            </div>
+            <div>
+              <div className="text-xs text-white/50 mb-2">Entropy</div>
+              <MiniBar value={clamp01(entropy)} goodMin={0.25} warnMin={0.6} />
+            </div>
           </div>
 
+          {/* proof */}
           <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
             <div className="text-xs font-medium uppercase tracking-wider text-white/60">Proof (self-report)</div>
-            <p className="mt-2 text-sm leading-6 text-white/80">
-              {st?.last_reflection || interpretation.desc}
-            </p>
+            <p className="mt-2 text-sm leading-6 text-white/80">{st?.last_reflection || interpretation.desc}</p>
           </div>
         </div>
       </div>

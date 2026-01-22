@@ -4,14 +4,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 // ✅ Prefer your shared types (keeps things consistent + tolerant)
-import type {
-  Envelope,
-  PhiBundle,
-  AdrBundle,
-  HeartbeatEnvelope,
-  ReflexEnvelope,
-  AkgSnapshot,
-} from "./demos/types";
+import type { Envelope, PhiBundle, AdrBundle, HeartbeatEnvelope, ReflexEnvelope, AkgSnapshot } from "./demos/types";
 
 // ✅ Existing demos
 import { demo01Meta, Demo01MetabolismPanel } from "./demos/demo01_metabolism";
@@ -24,11 +17,12 @@ import { demo05Meta, Demo05AkgPanel } from "./demos/demo5_akg_consolidation";
 import { demo00Meta, Demo00HomeostasisPanel } from "./demos/demo00_homeostasis_real";
 import { demo06Meta, Demo06MirrorPanel } from "./demos/demo06_mirror_reflection";
 import AionCognitiveDashboard from "./AionCognitiveDashboard";
-/* ---------------- Types (tolerant; don’t block compilation) ---------------- */
-type HomeostasisEnvelope = any; // GET /api/aion/dashboard payload
-type MirrorEnvelope = any; // GET /api/mirror payload
 
-/* ---------------- URL resolution (match live BE: /api/*, NOT /aion-demo/*) ---------------- */
+/* ---------------- Types (tolerant; don’t block compilation) ---------------- */
+type HomeostasisEnvelope = any; // GET /api/aion/dashboard payload (backend.main)
+type MirrorEnvelope = any; // GET /aion-demo/api/mirror payload (demo_bridge)
+
+/* ---------------- URL resolution (supports BOTH main + demo mounts) ---------------- */
 
 function stripSlash(s: string) {
   return (s || "").trim().replace(/\/+$/, "");
@@ -37,9 +31,8 @@ function stripSlash(s: string) {
 function normalizeHttpBase(raw: string) {
   let b = stripSlash(raw);
   if (!b) return "";
-  // tolerate people pasting ".../api" or ".../aion-demo"
+  // tolerate people pasting ".../api" (but DO NOT strip /aion-demo — we need it when present)
   b = b.replace(/\/api$/i, "");
-  b = b.replace(/\/aion-demo$/i, "");
   return b;
 }
 
@@ -244,6 +237,12 @@ function PillarSection(props: {
 function useAionDemoData(pollMs = 500) {
   const httpBase = useMemo(() => resolveHttpBase(), []);
 
+  // ✅ Split bases:
+  // - apiBase: backend.main root routes (/api/aion/dashboard)
+  // - demoBase: demo_bridge mounted under /aion-demo (/aion-demo/api/*)
+  const apiBase = useMemo(() => httpBase, [httpBase]);
+  const demoBase = useMemo(() => joinUrl(httpBase, "/aion-demo"), [httpBase]);
+
   const [homeostasis, setHomeostasis] = useState<HomeostasisEnvelope | null>(null);
   const [phi, setPhi] = useState<PhiBundle | null>(null);
   const [adr, setAdr] = useState<AdrBundle | null>(null);
@@ -262,13 +261,16 @@ function useAionDemoData(pollMs = 500) {
     const tick = async () => {
       try {
         const urls = {
-          homeo: joinUrl(httpBase, "/api/aion/dashboard"),
-          phi: joinUrl(httpBase, "/api/phi"),
-          adr: joinUrl(httpBase, "/api/adr"),
-          hb: joinUrl(httpBase, "/api/heartbeat?namespace=demo"),
-          reflex: joinUrl(httpBase, "/api/reflex"),
-          akg: joinUrl(httpBase, "/api/akg"),
-          mirror: joinUrl(httpBase, "/api/mirror"),
+          // backend.main (root)
+          homeo: joinUrl(apiBase, "/api/aion/dashboard"),
+
+          // demo_bridge (mounted)
+          phi: joinUrl(demoBase, "/api/phi"),
+          adr: joinUrl(demoBase, "/api/adr"),
+          hb: joinUrl(demoBase, "/api/heartbeat?namespace=demo"),
+          reflex: joinUrl(demoBase, "/api/reflex"),
+          akg: joinUrl(demoBase, "/api/akg"),
+          mirror: joinUrl(demoBase, "/api/mirror"),
         };
 
         const results = await Promise.allSettled([
@@ -314,9 +316,9 @@ function useAionDemoData(pollMs = 500) {
       cancelled = true;
       if (t) clearTimeout(t);
     };
-  }, [pollMs, httpBase]);
+  }, [pollMs, apiBase, demoBase]);
 
-  return { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase };
+  return { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase, apiBase, demoBase };
 }
 
 /* ---------------- Status badge ---------------- */
@@ -569,17 +571,14 @@ function Row(props: { pillar: string; comp: string; target: string; status: Reac
 /* ---------------- Page ---------------- */
 
 export default function AionProofOfLifeDashboard() {
-  const { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase } = useAionDemoData(500);
+  const { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase, apiBase, demoBase } =
+    useAionDemoData(500);
 
   const [actionBusy, setActionBusy] = useState<string | null>(null);
 
   const health = useDashboardHealth();
   useEffect(() => {
-    health.updateFrom(
-      [homeostasis as any, phi as any, adr as any, heartbeat as any, reflex as any, akg as any, mirror as any],
-      err,
-      loading
-    );
+    health.updateFrom([homeostasis as any, phi as any, adr as any, heartbeat as any, reflex as any, akg as any, mirror as any], err, loading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading]);
 
@@ -595,20 +594,13 @@ export default function AionProofOfLifeDashboard() {
   const footerRight = useMemo(() => {
     const candidates = [homeostasis as any, akg as any, reflex as any, heartbeat as any, adr as any, phi as any, mirror as any].filter(Boolean);
     for (const c of candidates) {
-      const s =
-        (c?.schema as string) ||
-        (c?.demo as string) ||
-        (c?.version as string) ||
-        (c?.derived?.phase as string) ||
-        null;
+      const s = (c?.schema as string) || (c?.demo as string) || (c?.version as string) || (c?.derived?.phase as string) || null;
       if (s) return s;
     }
     return "Resonance_Engine";
   }, [homeostasis, akg, reflex, heartbeat, adr, phi, mirror]);
 
-  const resolvedApi = useMemo(() => {
-    return httpBase ? httpBase : "(same-origin)";
-  }, [httpBase]);
+  const resolvedApi = useMemo(() => (httpBase ? httpBase : "(same-origin)"), [httpBase]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1B74E4]/10">
@@ -622,20 +614,19 @@ export default function AionProofOfLifeDashboard() {
         <header className="mb-14 border-l-4 pl-6" style={{ borderColor: BRAND.blue }}>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.34em] text-slate-500">
-                AION // Tessaris Intelligence
-              </div>
-              <h1 className="mt-2 text-4xl font-black tracking-tighter uppercase italic text-slate-900">
-                Act 1: The Resonant Organism
-              </h1>
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.34em] text-slate-500">AION // Tessaris Intelligence</div>
+              <h1 className="mt-2 text-4xl font-black tracking-tighter uppercase italic text-slate-900">Act 1: The Resonant Organism</h1>
               <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-600">
-                These panels are “biological containers.” If a feed is stale, treat it as a genuine organismal failure mode
-                (drift / disconnect), not a UI glitch.
+                These panels are “biological containers.” If a feed is stale, treat it as a genuine organismal failure mode (drift / disconnect), not a UI glitch.
               </p>
 
               <div className="mt-4 font-mono text-[11px] text-slate-500">
                 API base: <span className="text-slate-800">{resolvedApi}</span>{" "}
-                <span className="text-slate-400">(expects /api/*)</span>
+                <span className="text-slate-400">(main: /api/* · demo: /aion-demo/api/*)</span>
+              </div>
+              <div className="mt-1 font-mono text-[11px] text-slate-500">
+                main: <span className="text-slate-800">{apiBase || "(same-origin)"}</span> · demo:{" "}
+                <span className="text-slate-800">{demoBase || "/aion-demo"}</span>
               </div>
             </div>
 
@@ -645,7 +636,7 @@ export default function AionProofOfLifeDashboard() {
           {err ? <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-rose-700">{err}</div> : null}
         </header>
 
-        {/* Demo 00 (Homeostasis / Auto-Lock) */}
+        {/* Demo 00 (Homeostasis / Auto-Lock) - main backend */}
         <PillarSection
           id={demo00Meta.id}
           pillar={demo00Meta.pillar}
@@ -656,19 +647,15 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo00HomeostasisPanel homeostasis={homeostasis} />}
         />
 
-        {/* ✅ Reflex directly under Auto-Lock/Homeostasis (keep this one) */}
+        {/* ✅ Reflex directly under Auto-Lock/Homeostasis (demo_bridge) */}
         <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
-                Demo Container 04
-              </div>
-              <div className="mt-1 text-xl font-black tracking-tight text-slate-900 uppercase italic">
-                Reflex (Cognitive Grid)
-              </div>
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">Demo Container 04</div>
+              <div className="mt-1 text-xl font-black tracking-tight text-slate-900 uppercase italic">Reflex (Cognitive Grid)</div>
               <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-slate-500">
-                GET <span className="text-slate-800">/api/reflex</span> · POST{" "}
-                <span className="text-slate-800">/api/demo/reflex/{`{reset,step,run}`}</span>
+                GET <span className="text-slate-800">/aion-demo/api/reflex</span> · POST{" "}
+                <span className="text-slate-800">/aion-demo/api/demo/reflex/{`{reset,step,run}`}</span>
               </div>
             </div>
 
@@ -684,24 +671,21 @@ export default function AionProofOfLifeDashboard() {
             <Demo04ReflexGridPanel
               reflex={reflex as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("reflex_reset", () => postApi(httpBase, "/demo/reflex/reset"))}
-              onStep={() => runBusy("reflex_step", () => postApi(httpBase, "/demo/reflex/step"))}
-              onRun={() => runBusy("reflex_run", () => postApi(httpBase, "/demo/reflex/run"))}
+              onReset={() => runBusy("reflex_reset", () => postApi(demoBase, "/demo/reflex/reset"))}
+              onStep={() => runBusy("reflex_step", () => postApi(demoBase, "/demo/reflex/step"))}
+              onRun={() => runBusy("reflex_run", () => postApi(demoBase, "/demo/reflex/run"))}
             />
           </div>
 
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
-              What this demonstrates
-            </div>
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">What this demonstrates</div>
             <p className="mt-2 text-sm leading-relaxed text-slate-600 font-medium">
-              Reflex layer: novelty-seeking movement + immediate “stability breached” style self-report on danger nodes.
-              Treat stalls as organismal drift, not UI glitch.
+              Reflex layer: novelty-seeking movement + immediate “stability breached” style self-report on danger nodes. Treat stalls as organismal drift, not UI glitch.
             </p>
           </div>
         </div>
 
-        {/* Demo 01 */}
+        {/* Demo 01 (demo_bridge) */}
         <PillarSection
           id={demo01Meta.id}
           pillar={demo01Meta.pillar}
@@ -712,14 +696,14 @@ export default function AionProofOfLifeDashboard() {
             <Demo01MetabolismPanel
               phi={phi as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("reset", () => postApi(httpBase, "/demo/phi/reset"))}
-              onInjectEntropy={() => runBusy("inject", () => postApi(httpBase, "/demo/phi/inject_entropy"))}
-              onRecover={() => runBusy("recover", () => postApi(httpBase, "/demo/phi/recover"))}
+              onReset={() => runBusy("reset", () => postApi(demoBase, "/demo/phi/reset"))}
+              onInjectEntropy={() => runBusy("inject", () => postApi(demoBase, "/demo/phi/inject_entropy"))}
+              onRecover={() => runBusy("recover", () => postApi(demoBase, "/demo/phi/recover"))}
             />
           }
         />
 
-        {/* Demo 02 */}
+        {/* Demo 02 (demo_bridge) */}
         <PillarSection
           id={demo02Meta.id}
           pillar={demo02Meta.pillar}
@@ -730,13 +714,13 @@ export default function AionProofOfLifeDashboard() {
             <Demo02AdrPanel
               adr={adr as any}
               actionBusy={actionBusy}
-              onInject={() => runBusy("adr_inject", () => postApi(httpBase, "/demo/adr/inject"))}
-              onRun={() => runBusy("adr_run", () => postApi(httpBase, "/demo/adr/run"))}
+              onInject={() => runBusy("adr_inject", () => postApi(demoBase, "/demo/adr/inject"))}
+              onRun={() => runBusy("adr_run", () => postApi(demoBase, "/demo/adr/run"))}
             />
           }
         />
 
-        {/* Demo 03 */}
+        {/* Demo 03 (demo_bridge) */}
         <PillarSection
           id={demo03Meta.id}
           pillar={demo03Meta.pillar}
@@ -746,7 +730,7 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo03HeartbeatPanel heartbeat={heartbeat as any} namespace="demo" />}
         />
 
-        {/* Demo 05 */}
+        {/* Demo 05 (demo_bridge) */}
         <PillarSection
           id={demo05Meta.id}
           pillar={demo05Meta.pillar}
@@ -758,14 +742,14 @@ export default function AionProofOfLifeDashboard() {
             <Demo05AkgPanel
               akg={akg as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("akg_reset", () => postApi(httpBase, "/demo/akg/reset"))}
-              onStep={() => runBusy("akg_step", () => postApi(httpBase, "/demo/akg/step"))}
-              onRun={() => runBusy("akg_run", () => postUrl(joinUrl(httpBase, "/api/demo/akg/run?rounds=400")))}
+              onReset={() => runBusy("akg_reset", () => postApi(demoBase, "/demo/akg/reset"))}
+              onStep={() => runBusy("akg_step", () => postApi(demoBase, "/demo/akg/step"))}
+              onRun={() => runBusy("akg_run", () => postUrl(joinUrl(demoBase, "/api/demo/akg/run?rounds=400")))}
             />
           }
         />
 
-        {/* Demo 06 */}
+        {/* Demo 06 (demo_bridge) */}
         <PillarSection
           id={demo06Meta.id}
           pillar={demo06Meta.pillar}
@@ -776,26 +760,16 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo06MirrorPanel mirror={mirror as any} />}
         />
 
-        {/* AION Cognitive Dashboard (directly under Mirror Container) */}
+        {/* AION Cognitive Dashboard (WS; already correct) */}
         <div className="mt-10">
           <AionCognitiveDashboard />
         </div>
 
         {/* Summary */}
-        <SummaryTable
-          homeostasis={homeostasis}
-          adr={adr}
-          phi={phi}
-          akg={akg}
-          mirror={mirror}
-          heartbeat={heartbeat}
-          reflex={reflex}
-        />
+        <SummaryTable homeostasis={homeostasis} adr={adr} phi={phi} akg={akg} mirror={mirror} heartbeat={heartbeat} reflex={reflex} />
 
         <footer className="mt-16 flex flex-col gap-3 border-t border-slate-200 pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">
-            Tessaris Intelligence // Research Division // 2026
-          </div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">Tessaris Intelligence // Research Division // 2026</div>
           <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">{footerRight}</div>
         </footer>
       </div>
