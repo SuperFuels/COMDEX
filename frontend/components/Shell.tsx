@@ -27,8 +27,18 @@ const TABS: readonly TabDef[] = [
 //  { key: "ptn", label: ".ptn", href: "/ptn" },
 //  { key: "photon", label: "Photon", href: "/photon" },
 
-function normalizeKey(k?: string) {
-  return (k || "").trim().replace(/-/g, "_");
+function normalizeKeyAgainstTabs(k: string | undefined, tabs: readonly TabDef[]) {
+  const raw = (k || "").trim();
+  if (!raw) return "";
+
+  // If it's already a valid key, keep it (IMPORTANT for "photon-algebra-demo")
+  if (tabs.some((t) => t.key === raw)) return raw;
+
+  // Otherwise allow hyphen->underscore fallback for legacy callers
+  const alt = raw.replace(/-/g, "_");
+  if (tabs.some((t) => t.key === alt)) return alt;
+
+  return raw;
 }
 
 function getActiveKeyFromPath(pathname: string): string {
@@ -63,7 +73,7 @@ export default function Shell({
   const derivedKey = getActiveKeyFromPath(router.asPath || router.pathname || "/");
 
   // normalize so "sovereign-qkd" works even if someone passes hyphenated keys
-  const key = normalizeKey(activeKey) || normalizeKey(derivedKey) || "glyph";
+  const key = normalizeKeyAgainstTabs(activeKey, TABS) || normalizeKeyAgainstTabs(derivedKey, TABS) || "glyph";
 
   return (
     <div

@@ -773,7 +773,6 @@ from backend.api.aion_proof_of_life import router as aion_proof_of_life_router
 from backend.routes.aion_mirror_api import router as aion_mirror_router
 from backend.routes.aion_homeostasis_alias import router as aion_homeostasis_alias_router
 from backend.api.aion_dashboard_ws import router as aion_dashboard_router
-from backend.modules.aion_demo.demo_bridge import router as aion_demo_bridge_router
 from backend.routes.aion_cognitive_api import router as aion_cognitive_router
 from backend.api.aion import router as aion_router
 from backend.api.wirepack_api import router as wirepack_router

@@ -64,7 +64,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 
 from fastapi import APIRouter
-
+BRIDGE_BUILD = os.getenv("BRIDGE_BUILD", "dev")
 router = APIRouter(tags=["AION Demo Bridge"])
 # -----------------------------------------------------------------------------
 # Repo root on sys.path so "backend...." imports work reliably (even when mounted)
@@ -964,13 +964,11 @@ app = FastAPI(title="AION Demo Bridge", version="0.2.1")
 # Keep CORS permissive for local dev demos.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=["https://tessaris.ai"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.include_router(router)
 
 @app.on_event("startup")
 async def _maybe_autostart_heartbeat() -> None:
@@ -1014,6 +1012,8 @@ def health() -> Dict[str, Any]:
     return {
         "ok": True,
         "service": "aion-demo-bridge",
+        "version": "0.2.1",
+        "bridge_build": BRIDGE_BUILD,
         "ts": time.time(),
         "data_root": str(DATA_ROOT),
         "default_heartbeat_namespace": DEFAULT_HEARTBEAT_NS,
@@ -1129,6 +1129,10 @@ def api_heartbeat(
 ) -> Dict[str, Any]:
     return heartbeat_state(namespace=namespace)
 
+@router.get("/aion-demo/api/heartbeat")
+def api_heartbeat_prefixed(namespace: Optional[str] = Query(default=None)):
+    return heartbeat_state(namespace=namespace)
+
 # --- Compat: old one-button endpoint (keeps older frontend calls working) ---
 @router.post("/api/demo/inject_entropy")
 def api_demo_inject_entropy() -> Dict[str, Any]:
@@ -1233,6 +1237,7 @@ async def ws_aion_demo(ws: WebSocket) -> None:
     except Exception:
         return
 
+app.include_router(router)
 
 if __name__ == "__main__":
     import uvicorn
