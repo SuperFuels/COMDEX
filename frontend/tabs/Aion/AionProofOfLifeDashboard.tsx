@@ -51,13 +51,30 @@ function resolveApiBase(): string {
   return "";
 }
 
+function resolveHomeostasisBase(): string {
+  const v = (process.env.NEXT_PUBLIC_HOMEOSTASIS_BASE || "").trim();
+  if (!v) return "";
+  // normalize: if someone pastes .../api, strip it
+  return v.replace(/\/+$/, "").replace(/\/api$/i, "");
+}
+function homeostasisUrl(path: string): string {
+  const base = resolveHomeostasisBase();
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  if (!base) return `/api${cleanPath}`; // same-origin fallback
+  const normalized = base.replace(/\/api$/i, "");
+  return `${normalized}/api${cleanPath}`;
+}
+
 function apiUrl(path: string): string {
   const base = resolveApiBase();
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  if (!base) return `/api${cleanPath}`;
-  // if user accidentally includes /api in the base, normalize it out
-  const normalized = base.replace(/\/api$/i, "");
-  return `${normalized}/api${cleanPath}`;
+
+  const prefix = "/aion-demo"; // ✅ bridge mount
+
+  if (!base) return `${prefix}/api${cleanPath}`;
+
+  const normalized = base.replace(/\/api$/i, "").replace(/\/+$/, "");
+  return `${normalized}${prefix}/api${cleanPath}`;
 }
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -218,6 +235,7 @@ function PillarSection(props: {
 
 function useAionDemoData(pollMs = 500) {
   const [homeostasis, setHomeostasis] = useState<HomeostasisEnvelope | null>(null);
+  const homeoBase = useMemo(() => resolveHomeostasisBase(), []);
   const [phi, setPhi] = useState<PhiBundle | null>(null);
   const [adr, setAdr] = useState<AdrBundle | null>(null);
   const [heartbeat, setHeartbeat] = useState<HeartbeatEnvelope | null>(null);
@@ -235,7 +253,9 @@ function useAionDemoData(pollMs = 500) {
     const tick = async () => {
       try {
         const results = await Promise.allSettled([
-          fetchJson<HomeostasisEnvelope>(apiUrl("/aion/dashboard")),
+          homeoBase
+          ? fetchJson<HomeostasisEnvelope>(`${homeoBase}/api/aion/dashboard`)
+          : fetchJson<HomeostasisEnvelope>(apiUrl("/aion/dashboard")),
           fetchJson<PhiBundle>(apiUrl("/phi")),
           fetchJson<AdrBundle>(apiUrl("/adr")),
           fetchJson<HeartbeatEnvelope>(apiUrl("/heartbeat?namespace=demo")),

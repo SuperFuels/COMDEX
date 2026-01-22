@@ -19,7 +19,11 @@ type FeedItem = { ts: number; kind: string; payload: AnyObj; raw?: string };
 function stripSlash(s: string) {
   return (s || "").trim().replace(/\/+$/, "");
 }
-
+function resolveHomeostasisBase(): string {
+  const v = stripSlash(process.env.NEXT_PUBLIC_HOMEOSTASIS_BASE || "");
+  if (!v) return "";
+  return v.replace(/\/api$/i, "");
+}
 function normalizeWsMaybe(input: string) {
   const s = (input || "").trim();
   if (!s) return "";
@@ -201,7 +205,7 @@ function findLatestMetricItem(items: FeedItem[]) {
 /* ------------------------ component ------------------------ */
 
 export default function AionCognitiveDashboard() {
-  const apiBase = useMemo(() => resolveAionDemoHttpBase(), []);
+  const apiBase = useMemo(() => resolveHomeostasisBase() || resolveAionDemoHttpBase(), []);
   const wsUrl = useMemo(() => resolveWsUrl(), []);
 
   const [status, setStatus] = useState<"connecting" | "open" | "closed" | "error">("connecting");
