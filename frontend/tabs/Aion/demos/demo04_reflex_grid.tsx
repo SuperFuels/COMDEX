@@ -2,7 +2,10 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Card, StatRow, MiniBar, Button, clamp01, classNames, fmt2, fmt3 } from "./ui";
+import { Card, StatRow, MiniBar, Button, clamp01, classNames } from "./ui";
+
+// ✅ add import (your earlier snippet)
+import QFCViewport from "@/src/glyphnet/components/QFCViewport";
 
 export const demo04Meta = {
   id: "reflex",
@@ -46,10 +49,6 @@ export type ReflexEnvelope = {
   state?: ReflexState | null;
 };
 
-function tileKey(x: number, y: number) {
-  return `${x},${y}`;
-}
-
 export function Demo04ReflexGridPanel(props: {
   reflex: ReflexEnvelope | null;
   actionBusy: string | null;
@@ -75,65 +74,51 @@ export function Demo04ReflexGridPanel(props: {
     return { label: "CURIOSITY SEEKING", tone: "text-emerald-200", desc: "Novelty gradient is driving movement." };
   }, [st, danger]);
 
-  const gridSize = st?.grid_size ?? 10;
-  const pos = st?.position || { x: 0, y: 0 };
-  const world = st?.world || {};
+  // ✅ feed reflex state into the QFC scene via a lightweight frame extension
+  const qfcFrame = useMemo(() => {
+    return {
+      t: Date.now(),
+      mode: "reflex_grid",
+      reflex: st, // <— QFCDemoReflexGrid reads this
+    } as any;
+  }, [st]);
 
   return (
     <Card
       title="Cognitive Grid — Curiosity + Danger Reflex"
       subtitle="GET /api/reflex • POST /api/demo/reflex/{reset,step,run}"
       right={
-        <div className={classNames("rounded-full px-3 py-1 text-xs", danger ? "bg-rose-500/20 text-rose-200" : "bg-emerald-500/15 text-emerald-200")}>
+        <div
+          className={classNames(
+            "rounded-full px-3 py-1 text-xs",
+            danger ? "bg-rose-500/20 text-rose-200" : "bg-emerald-500/15 text-emerald-200"
+          )}
+        >
           {danger ? "Stability breached" : "Exploring"}
         </div>
       }
     >
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {/* LEFT: grid */}
+        {/* LEFT: QFC canvas */}
         <div className="rounded-xl border border-white/10 bg-black/20 p-4">
           <div className="mb-3 flex items-center justify-between">
             <div className="text-sm font-semibold text-white">Grid (live)</div>
             <div className={classNames("text-xs font-semibold", interpretation.tone)}>{interpretation.label}</div>
           </div>
 
-          <div
-            className="grid gap-1"
-            style={{ gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))` }}
-          >
-            {Array.from({ length: gridSize * gridSize }).map((_, i) => {
-              const x = Math.floor(i / gridSize);
-              const y = i % gridSize;
-              const k = tileKey(x, y);
-              const token = world[k];
-              const isMe = pos.x === x && pos.y === y;
-
-              const base =
-                token === "pit" || token === "spike"
-                  ? "bg-rose-500/25 border-rose-400/30"
-                  : token && token.length === 1 && token !== "—"
-                  ? "bg-white/10 border-white/10"
-                  : token && token.length > 1
-                  ? "bg-white/5 border-white/10"
-                  : "bg-black/20 border-white/5";
-
-              return (
-                <div
-                  key={k}
-                  className={classNames(
-                    "relative aspect-square rounded-md border flex items-center justify-center text-[10px] select-none",
-                    base,
-                    isMe ? "ring-2 ring-emerald-400/60" : ""
-                  )}
-                  title={token ? `${k}: ${token}` : k}
-                >
-                  <span className="opacity-90">{token ? (token.length > 2 ? token[0].toUpperCase() : token) : ""}</span>
-                  {isMe ? <span className="absolute -bottom-1 -right-1 text-[9px]">🧠</span> : null}
-                </div>
-              );
-            })}
+          {/* ✅ QFC canvas render */}
+          <div className="h-[340px] w-full">
+            <QFCViewport
+              title="Reflex Grid — Live"
+              subtitle="Cognitive Grid Curiosity-Drift"
+              domainLabel="BIO"
+              mode={"reflex_grid" as any}
+              frame={qfcFrame}
+              showDataPanel={false}
+            />
           </div>
 
+          {/* keep your buttons */}
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button tone="neutral" disabled={actionBusy !== null} onClick={onReset} title="POST /api/demo/reflex/reset">
               {actionBusy === "reflex_reset" ? "Resetting…" : "Reset world"}
@@ -147,13 +132,13 @@ export function Demo04ReflexGridPanel(props: {
           </div>
         </div>
 
-        {/* RIGHT: metrics + proof */}
+        {/* RIGHT: metrics + proof (unchanged) */}
         <div className="rounded-xl border border-white/10 bg-black/20 p-4">
           <div className="mb-2 text-sm font-semibold text-white">Reflex Bio-metrics</div>
 
           <div className="divide-y divide-white/10">
             <StatRow label="age_ms" hint="freshness proof" value={reflex?.age_ms != null ? `${reflex.age_ms} ms` : "—"} />
-            <StatRow label="position" hint="agent coordinates" value={<span className="font-mono">{pos.x},{pos.y}</span>} />
+            <StatRow label="position" hint="agent coordinates" value={<span className="font-mono">{st?.position?.x ?? 0},{st?.position?.y ?? 0}</span>} />
             <StatRow label="steps" hint="time in environment" value={<span className="font-mono">{st?.steps ?? "—"}</span>} />
             <StatRow label="event" hint="last reflex trigger" value={<span className="font-mono">{evType}</span>} />
           </div>

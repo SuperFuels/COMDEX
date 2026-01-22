@@ -36,6 +36,7 @@ import QFCPipelineVerification from "./qfc/demos/QFCPipelineVerification";
 import QFCSemanticCurvature from "./qfc/demos/QFCSemanticCurvature";
 import QFCTelemetryAuditv3 from "./qfc/demos/QFCTelemetryAuditv3";
 import QFCVacuumLandscapeF from "./qfc/demos/QFCVacuumLandscapeF";
+import QFCDemoReflexGrid from "@/src/glyphnet/components/QFCDemoReflexGrid";
 
 // GlyphOS demo
 import QFCMultiverseActionDemo from "./qfc/demos/QFC_Demo_GlyphOS";
@@ -75,6 +76,7 @@ export const QFC_MODES = [
   "semantic_curvature",
   "telemetry_audit_v3",
   "vacuum_landscape_f",
+  "reflex_grid",
 
   // optional legacy aliases
   "antigrav",
@@ -330,6 +332,7 @@ const DEMO_REGISTRY: Record<QFCMode, React.ComponentType<{ frame: QFCFrame | nul
   semantic_curvature: QFCSemanticCurvature,
   telemetry_audit_v3: QFCTelemetryAuditv3,
   vacuum_landscape_f: QFCVacuumLandscapeF,
+  reflex_grid: QFCDemoReflexGrid,
 
   // legacy aliases (map to a sane default)
   antigrav: QFCDemoGravity,
