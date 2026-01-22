@@ -57,7 +57,6 @@ export default function PhotonBridgeDemo() {
     setActiveIndex(-1);
   }, [clearAllTimers]);
 
-  // ✅ Fix: typed param
   const goToIndex = (index: number) => {
     clearAllTimers();
     setIsAutoPlaying(false);
@@ -102,7 +101,6 @@ export default function PhotonBridgeDemo() {
     }
   };
 
-  // ✅ Optional safety: clear timers if user navigates away while autoplaying
   useEffect(() => {
     return () => clearAllTimers();
   }, [clearAllTimers]);
@@ -118,10 +116,12 @@ export default function PhotonBridgeDemo() {
 
   return (
     <div className="w-full bg-white text-black py-20 selection:bg-blue-100">
-      <div className="mx-auto w-full max-w-[96rem] px-4 sm:px-8 lg:px-12 space-y-16">
+      {/* WIDENED: remove tight max-width + reduce side padding on large screens */}
+      <div className="mx-auto w-full max-w-[120rem] px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-16">
         {/* DEMO CONTAINER */}
-        <section className="bg-gray-50 rounded-[3rem] border border-gray-100 p-8 md:p-16 shadow-xl relative overflow-visible">
-          <div className="grid lg:grid-cols-2 gap-16">
+        <section className="w-full bg-gray-50 rounded-[3rem] border border-gray-100 p-6 sm:p-8 md:p-12 lg:p-14 xl:p-16 shadow-xl relative overflow-visible">
+          {/* Slightly bias space to the visualizer on big screens */}
+          <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-14 xl:gap-16">
             {/* VISUALIZER (Left Side) */}
             <div className="space-y-8">
               <div className="flex justify-between items-center px-4">
@@ -138,7 +138,7 @@ export default function PhotonBridgeDemo() {
               </div>
 
               {/* The "Black Box" Visualizer */}
-              <div className="h-[500px] bg-black rounded-[2.5rem] relative flex items-center justify-center overflow-hidden shadow-2xl group border-[12px] border-gray-900/10">
+              <div className="h-[520px] lg:h-[560px] bg-black rounded-[2.5rem] relative flex items-center justify-center overflow-hidden shadow-2xl group border-[12px] border-gray-900/10">
                 <AnimatePresence mode="wait">
                   {stage === "binary" ? (
                     <motion.div
@@ -165,8 +165,8 @@ export default function PhotonBridgeDemo() {
                     >
                       {/* WAVEFORM DIAGRAM */}
                       <svg
-                        width="90%"
-                        height="200"
+                        width="92%"
+                        height="220"
                         viewBox="0 0 400 100"
                         className="drop-shadow-[0_0_25px_rgba(59,130,246,0.6)]"
                       >
@@ -224,7 +224,7 @@ export default function PhotonBridgeDemo() {
             </div>
 
             {/* CONTENT (Right Side) */}
-            <div className="flex flex-col justify-between py-10 min-h-[500px]">
+            <div className="flex flex-col justify-between py-10 min-h-[520px] lg:min-h-[560px]">
               <div className="space-y-10">
                 <AnimatePresence mode="wait">
                   {activeIndex === -1 ? (
@@ -338,6 +338,7 @@ export default function PhotonBridgeDemo() {
               exchange.
             </p>
           </div>
+
           <div className="p-12 bg-black text-white rounded-[3rem] shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
               <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
@@ -352,6 +353,7 @@ export default function PhotonBridgeDemo() {
               evident.
             </p>
           </div>
+
           <div className="p-12 bg-gray-50 rounded-[3rem] border border-gray-100 hover:border-blue-100 transition-colors group">
             <p className="text-blue-600 font-bold text-xs uppercase tracking-widest mb-6">Execution</p>
             <h3 className="text-3xl font-bold italic mb-4 group-hover:text-blue-600 transition-colors tracking-tighter">
