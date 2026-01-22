@@ -70,7 +70,7 @@ function pickRqcWsUrl() {
   if (env) {
     if (env.startsWith("https://")) return "wss://" + env.slice("https://".length);
     if (env.startsWith("http://")) return "ws://" + env.slice("http://".length);
-    return env; // ws:// or wss:// (full URL)
+    return env; // ws:// or wss://
   }
 
   const origin = resolveOrigin();
@@ -80,14 +80,8 @@ function pickRqcWsUrl() {
     return `${proto}://${host}/resonance`;
   }
 
-  // IMPORTANT: do NOT force localhost in prod.
-  // Returning "" means: no wsUrl => SIM mode.
-  if (typeof window !== "undefined") {
-    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    if (isLocal) return "ws://127.0.0.1:8080/resonance";
-  }
-
-  return "";
+  // final fallback (dev)
+  return "ws://127.0.0.1:8080/resonance";
 }
 
 function pickAionDemoBase() {
@@ -285,11 +279,12 @@ export default function RQCAwarenessDemo() {
     window.setTimeout(() => setIsInjecting(false), 900);
   };
 
-// ─────────────────────────────────────────────────────────────
-// LIVE MODE: connect to /resonance when running
-// ─────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
+  // LIVE MODE: connect to /resonance when running
+  // ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!running) return;
+
     if (!wsUrl) return; // SIM mode
 
     const ws = new WebSocket(wsUrl);
@@ -297,32 +292,25 @@ export default function RQCAwarenessDemo() {
 
     ws.onopen = () => {
       setLiveConnected(true);
-      addLog(`[RQC_LIVE] OPEN → ${wsUrl}`, "ok");
-
+      addLog(`[RQC_LIVE] Connected → ${wsUrl}`, "ok");
+      // backend sends its own hello; we can send a client hello but it's optional
       try {
-        const hello = { type: "hello", client: "RQCAwarenessDemo", sessionId: SESSION_ID };
-        ws.send(JSON.stringify(hello));
-        addLog(`[RQC_LIVE] SENT hello`, "info");
-      } catch (e: any) {
-        addLog(`[RQC_LIVE] SEND failed: ${e?.message || String(e)}`, "warn");
-      }
+        ws.send(JSON.stringify({ type: "hello", client: "RQCAwarenessDemo", sessionId: SESSION_ID }));
+      } catch {}
     };
 
-    ws.onclose = (ev) => {
+    ws.onclose = () => {
       setLiveConnected(false);
-      addLog(`[RQC_LIVE] CLOSE code=${ev.code} reason=${ev.reason || "—"}`, "warn");
+      addLog("[RQC_LIVE] Disconnected.", "warn");
     };
 
-    ws.onerror = (ev) => {
+    ws.onerror = () => {
       setLiveConnected(false);
-      addLog(`[RQC_LIVE] ERROR (see console)`, "warn");
-      // Keep this so you can see the real underlying cause in DevTools
-      console.error("WS error", ev);
+      addLog("[RQC_LIVE] Socket error.", "warn");
     };
 
     ws.onmessage = (evt) => {
       setLastLiveAt(Date.now());
-      addLog(`[RQC_LIVE] RX ${String(evt.data).slice(0, 120)}`, "info");
 
       let data: any = null;
       try {
@@ -397,6 +385,7 @@ export default function RQCAwarenessDemo() {
       setLiveConnected(false);
     };
   }, [running, wsUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ─────────────────────────────────────────────────────────────
   // SIM MODE: drive state only when running && no wsUrl
   // ─────────────────────────────────────────────────────────────
