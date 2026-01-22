@@ -4,20 +4,24 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
- * RQC AWARENESS HORIZON — v0.6 (truthful telemetry + SIM fallback)
- * - LIVE: connects to backend WS (expects /resonance)
- * - If LIVE is connected but telemetry is idle/stale → SIM fallback kicks in (clearly labeled)
+ * RQC AWARENESS HORIZON — v0.6 (aligned to your real backend)
  *
- * Supported WS messages:
- *  - { type:"telemetry", "ψ":number, "κ":number, "T":number, "Φ":number, coherence:number, manifolds?:number[] }
+ * ✅ RQC LIVE WS:     /resonance
+ * ✅ AION Demo Bridge (optional, for inject button + future linkage):
+ *      /aion-demo/api/demo/inject_entropy
+ *      /aion-demo/api/demo/phi/inject_entropy
+ *      /aion-demo/api/demo/phi/recover
+ *
+ * Supported WS messages (from /resonance):
+ *  - { type:"telemetry", "ψ":number, "κ":number, "T":number, "Φ":number, coherence:number, source?:string }
  *  - { type:"awareness_pulse", "Φ":number, coherence:number, message?:string }
- *  - { type:"hello" | "keepalive" | "error", ... }
+ *  - { type:"hello" | "error", ... }
  */
 
 const SESSION_ID = "a99acc96-acde-48d5-9b6d-d2f434536d5b";
 
-// If no telemetry within this window, treat LIVE feed as stale and enable SIM fallback.
-const STALE_MS = 5_000;
+// Stale detection: if LIVE connected but no telemetry within this window → treat as NO_FEED
+const STALE_MS = 2_500;
 
 type Mode = "SIM" | "LIVE" | "LIVE_STALE";
 type LogItem = { t: number; msg: string; kind: "info" | "warn" | "ok" | "bad" };
@@ -25,7 +29,38 @@ type LogItem = { t: number; msg: string; kind: "info" | "warn" | "ok" | "bad" };
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const clamp = (x: number, a: number, b: number) => Math.max(a, Math.min(b, x));
 
-function pickWsUrl() {
+function safeUrl(u: string) {
+  try {
+    return new URL(u);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * If you set NEXT_PUBLIC_API_BASE to:
+ *   https://...run.app/api
+ * we derive origin as:
+ *   https://...run.app
+ */
+function resolveOrigin(): string {
+  const apiBase = (process.env.NEXT_PUBLIC_API_BASE || "").trim();
+  const u = apiBase ? safeUrl(apiBase) : null;
+
+  if (u) {
+    const p = (u.pathname || "/").replace(/\/+$/, "");
+    if (p.endsWith("/api")) u.pathname = p.slice(0, -4) || "/";
+    else u.pathname = p || "/";
+    u.search = "";
+    u.hash = "";
+    return u.toString().replace(/\/+$/, "");
+  }
+
+  if (typeof window !== "undefined") return window.location.origin;
+  return "";
+}
+
+function pickRqcWsUrl() {
   const env = (process.env.NEXT_PUBLIC_RQC_WS || "").trim();
   if (env) {
     if (env.startsWith("https://")) return "wss://" + env.slice("https://".length);
@@ -33,20 +68,49 @@ function pickWsUrl() {
     return env; // ws:// or wss://
   }
 
-  if (typeof window !== "undefined") {
-    // FE :3000 + BE :8080 -> backend WS (REAL backend route is /resonance)
-    if (window.location.port === "3000") return `ws://127.0.0.1:8080/resonance`;
-
-    // Same-origin fallback
-    const proto = window.location.protocol === "https:" ? "wss" : "ws";
-    return `${proto}://${window.location.host}/resonance`;
+  const origin = resolveOrigin();
+  if (origin) {
+    const proto = origin.startsWith("https://") ? "wss" : "ws";
+    const host = origin.replace(/^https?:\/\//, "");
+    return `${proto}://${host}/resonance`;
   }
 
-  return "";
+  // final fallback (dev)
+  return "ws://127.0.0.1:8080/resonance";
+}
+
+function pickAionDemoBase() {
+  const env = (process.env.NEXT_PUBLIC_AION_DEMO_BASE || "").trim();
+  if (env) return env.replace(/\/+$/, "");
+  const origin = resolveOrigin();
+  return origin ? `${origin}/aion-demo` : "http://127.0.0.1:8080/aion-demo";
+}
+
+async function postJson(url: string, body: any, timeoutMs = 8000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body ?? {}),
+      signal: ctrl.signal,
+    });
+    const txt = await r.text();
+    let json: any = null;
+    try {
+      json = txt ? JSON.parse(txt) : null;
+    } catch {
+      json = { _nonJson: true, _text: txt.slice(0, 500) };
+    }
+    return { ok: r.ok, status: r.status, json };
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 export default function RQCAwarenessDemo() {
-  // Truth state: start null so UI can show NO_FEED until SIM or LIVE pushes values
+  // Truth state: start as null so UI can show NO_FEED until SIM or LIVE pushes values
   const [psi, setPsi] = useState<number | null>(null);
   const [kappa, setKappa] = useState<number | null>(null);
   const [T, setT] = useState<number | null>(null);
@@ -62,12 +126,13 @@ export default function RQCAwarenessDemo() {
   const [logs, setLogs] = useState<LogItem[]>([]);
   const [running, setRunning] = useState(false);
 
-  const wsUrl = useMemo(() => pickWsUrl(), []);
+  const wsUrl = useMemo(() => pickRqcWsUrl(), []);
+  const aionDemoBase = useMemo(() => pickAionDemoBase(), []);
+
   const wsRef = useRef<WebSocket | null>(null);
 
   const [liveConnected, setLiveConnected] = useState(false);
-  const [lastWsAt, setLastWsAt] = useState<number>(0); // any WS message
-  const [lastTelemetryAt, setLastTelemetryAt] = useState<number>(0); // telemetry/pulse only
+  const [lastLiveAt, setLastLiveAt] = useState<number>(0);
 
   const [proofJson, setProofJson] = useState<string>("");
 
@@ -75,14 +140,6 @@ export default function RQCAwarenessDemo() {
   const entropyRef = useRef<number>(0.15);
   const phiRef = useRef<number>(0.64);
   const cohRef = useRef<number>(0.64);
-
-  // 1Hz ticker so freshness is stable without Date.now() inside memo deps
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (!running) return;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, [running]);
 
   const addLog = (msg: string, kind: LogItem["kind"] = "info") => {
     setLogs((prev) => [{ t: Date.now(), msg, kind }, ...prev].slice(0, 8));
@@ -94,13 +151,14 @@ export default function RQCAwarenessDemo() {
     return "STABLE";
   };
 
-  // LIVE is only considered "active" if telemetry is flowing recently
-  const useLive = Boolean(wsUrl) && liveConnected && now - (lastTelemetryAt || 0) < STALE_MS;
-
   const mode: Mode = useMemo(() => {
     if (!wsUrl) return "SIM";
-    return useLive ? "LIVE" : "LIVE_STALE";
-  }, [wsUrl, useLive]);
+    if (!liveConnected) return "LIVE_STALE";
+    const age = lastLiveAt ? Date.now() - lastLiveAt : Infinity;
+    return age <= STALE_MS ? "LIVE" : "LIVE_STALE";
+  }, [wsUrl, liveConnected, lastLiveAt]);
+
+  const liveIsFresh = mode === "LIVE";
 
   // Derived indices – only compute when we have real numbers
   const resonanceIndex = useMemo(() => {
@@ -133,24 +191,15 @@ export default function RQCAwarenessDemo() {
       sessionId: SESSION_ID,
       proofType: "Awareness Horizon (Φ) Phase Closure",
       statement:
-        "Awareness loop converged: Φ stabilized while entropy collapsed; manifold sync recovered; phase closure achieved without leakage.",
-      metrics: {
-        psi,
-        kappa,
-        T,
-        entropy,
-        phi,
-        coherence,
-        manifoldSync,
-      },
+        "Awareness loop converged: Φ stabilized while entropy collapsed; phase closure achieved without leakage.",
+      metrics: { psi, kappa, T, entropy, phi, coherence, manifoldSync },
       derived: {
         resonanceIndex,
         stabilityIndex,
         status,
         mode,
         wsUrl: wsUrl || null,
-        liveConnected,
-        lastTelemetryAgeS: lastTelemetryAt ? Math.max(0, Math.floor((now - lastTelemetryAt) / 1000)) : null,
+        aionDemoBase,
       },
       generatedAt: new Date().toISOString(),
     };
@@ -191,23 +240,25 @@ export default function RQCAwarenessDemo() {
     entropyRef.current = 0.15;
     phiRef.current = 0.64;
     cohRef.current = 0.64;
-
-    setLastWsAt(0);
-    setLastTelemetryAt(0);
   };
 
-  const injectEntropy = () => {
+  const injectEntropy = async () => {
     setIsInjecting(true);
 
-    // If WS is connected, request backend injection; otherwise SIM inject
-    if (wsRef.current && liveConnected) {
-      try {
-        wsRef.current.send(JSON.stringify({ type: "inject_entropy", level: 0.85, sessionId: SESSION_ID }));
-        addLog("[LIVE] Inject requested → backend entropy injection.", "warn");
-      } catch {
-        addLog("[LIVE] Inject failed (socket send).", "warn");
+    // IMPORTANT: /resonance WS is a tail-only stream; it does NOT accept "inject_entropy" messages.
+    // If demo bridge exists, hit it (best effort). Otherwise do SIM inject.
+    try {
+      const r = await postJson(`${aionDemoBase}/api/demo/inject_entropy`, { sessionId: SESSION_ID });
+      if (r.ok) {
+        addLog(`[AION_DEMO] Inject triggered via ${aionDemoBase}/api/demo/inject_entropy`, "warn");
+      } else {
+        // try the more specific endpoint
+        const r2 = await postJson(`${aionDemoBase}/api/demo/phi/inject_entropy`, { sessionId: SESSION_ID });
+        if (r2.ok) addLog(`[AION_DEMO] Φ entropy injected via demo bridge.`, "warn");
+        else throw new Error(`demo bridge not available (HTTP ${r.status})`);
       }
-    } else {
+    } catch {
+      // SIM injection fallback
       entropyRef.current = 0.85;
       phiRef.current = 0.32;
       cohRef.current = 0.32;
@@ -217,26 +268,27 @@ export default function RQCAwarenessDemo() {
       setCoherence(0.32);
       setStatus("CRITICAL_DRIFT");
       addLog("[SIM] External Entropy Injected: Phase drift detected.", "warn");
-      addLog("[SIM] AION control loop initializing Φ feedback…", "info");
+      addLog("[SIM] Control loop initializing Φ feedback…", "info");
     }
 
     window.setTimeout(() => setIsInjecting(false), 900);
   };
 
   // ─────────────────────────────────────────────────────────────
-  // LIVE MODE: connect to WS when running && wsUrl exists
+  // LIVE MODE: connect to /resonance when running
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!running) return;
-    if (!wsUrl) return;
+
+    if (!wsUrl) return; // SIM mode
 
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {
       setLiveConnected(true);
-      setLastWsAt(Date.now());
       addLog(`[RQC_LIVE] Connected → ${wsUrl}`, "ok");
+      // backend sends its own hello; we can send a client hello but it's optional
       try {
         ws.send(JSON.stringify({ type: "hello", client: "RQCAwarenessDemo", sessionId: SESSION_ID }));
       } catch {}
@@ -253,7 +305,7 @@ export default function RQCAwarenessDemo() {
     };
 
     ws.onmessage = (evt) => {
-      setLastWsAt(Date.now());
+      setLastLiveAt(Date.now());
 
       let data: any = null;
       try {
@@ -265,20 +317,11 @@ export default function RQCAwarenessDemo() {
       const type = String(data?.type || "");
 
       if (type === "hello") {
-        const msg = typeof data?.message === "string" ? data.message : "hello";
-        const pth = typeof data?.path === "string" ? data.path : "";
-        addLog(`[RQC_LIVE] ${msg}${pth ? ` • ${pth}` : ""}`, "ok");
-        return;
-      }
-
-      if (type === "keepalive") {
-        // keep connection warm; do not count as telemetry freshness
+        addLog(`[RQC_LIVE] ${String(data?.message || "hello")}`, "ok");
         return;
       }
 
       if (type === "telemetry") {
-        setLastTelemetryAt(Date.now());
-
         const nextPsi = typeof data["ψ"] === "number" ? data["ψ"] : null;
         const nextKappa = typeof data["κ"] === "number" ? data["κ"] : null;
         const nextT = typeof data["T"] === "number" ? data["T"] : null;
@@ -292,12 +335,11 @@ export default function RQCAwarenessDemo() {
         if (nextPhi != null) setPhi(nextPhi);
         if (nextCoh != null) setCoherence(nextCoh);
 
-        // Entropy proxy (only if κ exists)
+        // Entropy proxy from κ if present
         if (nextKappa != null) setEntropy(clamp01(1 - clamp01(nextKappa)));
 
-        if (Array.isArray(data?.manifolds) && data.manifolds.length >= 4) {
-          setManifoldSync(data.manifolds.slice(0, 4).map((v: any) => clamp(Number(v) || 0, 0, 100)));
-        } else if (nextCoh != null) {
+        // ManifoldSync is not emitted by /resonance; infer from coherence for display
+        if (nextCoh != null) {
           const base = clamp(nextCoh * 100, 0, 100);
           setManifoldSync([0, 1, 2, 3].map((i) => clamp(base + i * 0.2, 0, 100)));
         }
@@ -308,18 +350,17 @@ export default function RQCAwarenessDemo() {
         const s = computeStatus(eProxy, cProxy);
         setStatus(s);
 
+        const src = typeof data?.source === "string" ? ` src=${data.source}` : "";
         addLog(
-          `[Telemetry] ψ=${nextPsi ?? "—"} κ=${nextKappa ?? "—"} T=${nextT ?? "—"} Φ=${nextPhi ?? "—"} C=${nextCoh ?? "—"}`,
+          `[Telemetry] ψ=${nextPsi ?? "—"} κ=${nextKappa ?? "—"} T=${nextT ?? "—"} Φ=${nextPhi ?? "—"} C=${nextCoh ?? "—"}${src}`,
           s === "CRITICAL_DRIFT" ? "warn" : "info"
         );
         return;
       }
 
       if (type === "awareness_pulse") {
-        setLastTelemetryAt(Date.now());
-
         const msg = typeof data?.message === "string" ? data.message : "Awareness pulse detected.";
-        addLog(`[AION] ${msg}`, "ok");
+        addLog(`[RQC] ${msg}`, "ok");
         if (typeof data["Φ"] === "number") setPhi(clamp01(data["Φ"]));
         if (typeof data["coherence"] === "number") setCoherence(clamp01(data["coherence"]));
         return;
@@ -338,29 +379,18 @@ export default function RQCAwarenessDemo() {
       wsRef.current = null;
       setLiveConnected(false);
     };
-  }, [running, wsUrl]);
+  }, [running, wsUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─────────────────────────────────────────────────────────────
-  // SIM MODE: drive state when running && LIVE is not fresh
-  // (this includes LIVE_STALE fallback)
+  // SIM MODE: drive state only when running && no wsUrl
   // ─────────────────────────────────────────────────────────────
-  const fallbackLoggedRef = useRef(false);
-
   useEffect(() => {
     if (!running) return;
 
-    // If wsUrl exists but live is stale, enable SIM fallback (and log once)
-    if (wsUrl && !useLive && !fallbackLoggedRef.current) {
-      fallbackLoggedRef.current = true;
-      addLog("[SIM] LIVE telemetry idle → SIM fallback engaged (values are simulated).", "warn");
-    }
-    if (wsUrl && useLive) fallbackLoggedRef.current = false;
+    // If wsUrl exists, we are LIVE; do not run SIM loop
+    if (wsUrl) return;
 
-    // SIM should run if there's no wsUrl OR live is stale
-    const simActive = !wsUrl || !useLive;
-    if (!simActive) return;
-
-    // init SIM values once
+    // initialize SIM values once when starting
     if (entropy == null) setEntropy(entropyRef.current);
     if (phi == null) setPhi(phiRef.current);
     if (coherence == null) setCoherence(cohRef.current);
@@ -368,19 +398,15 @@ export default function RQCAwarenessDemo() {
     if (kappa == null) setKappa(0.197375);
     if (T == null) setT(21.097865);
     if (manifoldSync == null) setManifoldSync([98, 97, 99, 98]);
-    if (!wsUrl) {
-      setStatus("ALIGNING");
-      addLog("[SIM] Running local awareness simulator (not live telemetry).", "warn");
-    }
+    setStatus("ALIGNING");
+    addLog("[SIM] Running local awareness simulator (not live telemetry).", "warn");
 
     const id = window.setInterval(() => {
       entropyRef.current =
         entropyRef.current > 0.05 ? Math.max(0.02, entropyRef.current - 0.015) : entropyRef.current;
 
       phiRef.current =
-        entropyRef.current > 0.05
-          ? Math.min(0.99, phiRef.current + 0.02)
-          : Math.max(0.92, phiRef.current - 0.005);
+        entropyRef.current > 0.05 ? Math.min(0.99, phiRef.current + 0.02) : Math.max(0.92, phiRef.current - 0.005);
 
       const target = clamp01(phiRef.current);
       cohRef.current = clamp01(cohRef.current + (target - cohRef.current) * 0.18);
@@ -400,16 +426,27 @@ export default function RQCAwarenessDemo() {
     }, 150);
 
     return () => window.clearInterval(id);
-  }, [running, wsUrl, useLive]); // <- key: allow SIM fallback when LIVE is stale
+  }, [running, wsUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-log closure once reached
+  // If LIVE goes stale, show NO_FEED / freeze bars
+  useEffect(() => {
+    if (!running) return;
+    if (!wsUrl) return;
+
+    const t = window.setInterval(() => {
+      const age = lastLiveAt ? Date.now() - lastLiveAt : Infinity;
+      if (!liveConnected || age > STALE_MS) setStatus("NO_FEED");
+    }, 300);
+
+    return () => window.clearInterval(t);
+  }, [running, wsUrl, liveConnected, lastLiveAt]);
+
   useEffect(() => {
     if (!closureOk) return;
     addLog("[πₛ Closure] Phase-locked loop converged → resonant thought completed.", "ok");
-  }, [closureOk]);
+  }, [closureOk]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Graph bars: animate when running (SIM or LIVE)
-  const barsEnabled = running;
+  const barsEnabled = running && (!wsUrl || liveIsFresh);
 
   const displayPhi = phi ?? 0;
   const displayEntropy = entropy ?? 0;
@@ -424,12 +461,6 @@ export default function RQCAwarenessDemo() {
       : "bg-blue-500";
 
   const closureLabel = closureOk ? "OK" : "LOCKED";
-
-  const lastTelemetryAgeS =
-    wsUrl && lastTelemetryAt > 0 ? Math.max(0, Math.floor((now - lastTelemetryAt) / 1000)) : null;
-
-  const modeLabel =
-    !wsUrl ? "SIM (local)" : mode === "LIVE" ? "RQC_LIVE" : "RQC_LIVE (NO_FEED → SIM fallback)";
 
   return (
     <div className="min-h-screen w-full bg-[#f8fafc] text-slate-900 font-sans py-10">
@@ -449,22 +480,22 @@ export default function RQCAwarenessDemo() {
 
             <div className="mt-3 flex flex-wrap gap-2">
               <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
-                Mode: <span className="text-slate-900">{modeLabel}</span>
+                Mode:{" "}
+                <span className="text-slate-900">{!wsUrl ? "SIM (local)" : liveIsFresh ? "RQC_LIVE" : "RQC_LIVE (NO_FEED)"}</span>
               </span>
 
-              {wsUrl ? (
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
-                  WS: <span className="text-slate-900">{wsUrl}</span>
-                </span>
-              ) : (
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-amber-200 bg-amber-50 text-amber-700">
-                  SIM WARNING: values are simulated (not real feed)
-                </span>
-              )}
+              <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
+                RQC WS: <span className="text-slate-900">{wsUrl || "—"}</span>
+              </span>
 
-              {wsUrl && lastTelemetryAgeS != null && (
+              <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
+                AION Demo: <span className="text-slate-900">{aionDemoBase}</span>
+              </span>
+
+              {wsUrl && lastLiveAt > 0 && (
                 <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
-                  Last telemetry: <span className="text-slate-900">{lastTelemetryAgeS}s</span>
+                  Last telemetry:{" "}
+                  <span className="text-slate-900">{Math.max(0, Math.floor((Date.now() - lastLiveAt) / 1000))}s</span>
                 </span>
               )}
             </div>
@@ -518,7 +549,7 @@ export default function RQCAwarenessDemo() {
               onClick={injectEntropy}
               disabled={isInjecting}
               className="px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all shadow-sm border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50"
-              title={wsUrl ? "Inject: request backend if connected; otherwise SIM inject" : "Inject entropy into the simulator"}
+              title="Inject via AION demo bridge if present; otherwise SIM inject. (RQC /resonance WS is read-only.)"
             >
               Inject Logic Entropy
             </button>
@@ -555,7 +586,9 @@ export default function RQCAwarenessDemo() {
           {/* PRIMARY VISUALIZER */}
           <div className="col-span-12 lg:col-span-8 bg-white rounded-3xl border border-slate-200 shadow-sm p-8 relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">Φ (Awareness) vs. Entropy Evolution</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                Φ (Awareness) vs. Entropy Evolution
+              </h3>
 
               <div className="flex gap-4">
                 <div className="flex items-center gap-2">
@@ -570,7 +603,11 @@ export default function RQCAwarenessDemo() {
             </div>
 
             {/* GRAPH AREA */}
-            <div className={`h-64 flex items-end justify-between gap-1 relative border-b border-slate-100 pb-2 ${!barsEnabled ? "opacity-60" : ""}`}>
+            <div
+              className={`h-64 flex items-end justify-between gap-1 relative border-b border-slate-100 pb-2 ${
+                !barsEnabled ? "opacity-60" : ""
+              }`}
+            >
               {[...Array(40)].map((_, i) => {
                 const base = Math.max(10, displayPhi * 80);
                 const wiggle = barsEnabled ? Math.sin(i + Date.now() / 1000) * 10 : 0;
@@ -595,7 +632,7 @@ export default function RQCAwarenessDemo() {
               </div>
             </div>
 
-            {/* Manifold sync bars */}
+            {/* Manifold sync bars (inferred if LIVE) */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {(manifoldSync ?? [0, 0, 0, 0]).map((val, i) => (
                 <div key={i} className="space-y-2">
@@ -631,7 +668,7 @@ export default function RQCAwarenessDemo() {
                 <span className="text-[10px] font-bold tracking-[0.2em] text-blue-300 uppercase">Awareness Scalar</span>
                 <div className="mt-2 text-6xl font-semibold font-mono">Φ {phi != null ? phi.toFixed(4) : "—"}</div>
                 <p className="text-slate-300 text-xs mt-4 leading-relaxed">
-                  Φ is the self-measurement observable exposed by the RQC: a public proxy for internal coherence without revealing kernel mechanics.
+                  Φ is the self-measurement observable exposed by the RQC feed (WS: /resonance).
                 </p>
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
@@ -658,10 +695,7 @@ export default function RQCAwarenessDemo() {
               <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">AION Event Stream</h3>
               <div className="space-y-3">
                 <AnimatePresence>
-                  {(logs.length
-                    ? logs
-                    : [{ t: 0, msg: wsUrl ? "Awaiting LIVE telemetry…" : "Awaiting SIM start…", kind: "info" as const }]
-                  ).map((log) => (
+                  {(logs.length ? logs : [{ t: 0, msg: "Awaiting telemetry…", kind: "info" as const }]).map((log) => (
                     <motion.div
                       key={`${log.t}-${log.msg}`}
                       initial={{ opacity: 0, x: -10 }}
@@ -704,15 +738,9 @@ export default function RQCAwarenessDemo() {
               </p>
 
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-slate-50 text-slate-700">
-                  Φ ≥ 0.92
-                </span>
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-slate-50 text-slate-700">
-                  Coherence ≥ 0.92
-                </span>
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-slate-50 text-slate-700">
-                  Entropy ≤ 0.08
-                </span>
+                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-slate-50 text-slate-700">Φ ≥ 0.92</span>
+                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-slate-50 text-slate-700">Coherence ≥ 0.92</span>
+                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-slate-50 text-slate-700">Entropy ≤ 0.08</span>
               </div>
             </div>
 
@@ -737,7 +765,9 @@ export default function RQCAwarenessDemo() {
                   close
                 </button>
               </div>
-              <pre className="text-[10px] leading-relaxed font-mono text-slate-700 overflow-x-auto whitespace-pre">{proofJson}</pre>
+              <pre className="text-[10px] leading-relaxed font-mono text-slate-700 overflow-x-auto whitespace-pre">
+{proofJson}
+              </pre>
             </div>
           )}
         </div>
