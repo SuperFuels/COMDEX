@@ -3,6 +3,11 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
+// ✅ moved/added: Reflex demo block lives BELOW the REAL section in this dashboard
+import QFCViewport from "../../src/glyphnet/components/QFCViewport";
+import type { ReflexEnvelope } from "./demos/demo04_reflex_grid";
+import { Demo04ReflexGridPanel } from "./demos/demo04_reflex_grid";
+
 type AnyObj = Record<string, any>;
 type FeedItem = { ts: number; kind: string; payload: AnyObj; raw?: string };
 
@@ -47,7 +52,9 @@ function resolveAionDemoHttpBase(): string {
   }
 
   if (typeof window !== "undefined") {
-    const isDevFe = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const isDevFe =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
     if (isDevFe && window.location.port === "3000") return "http://127.0.0.1:8080";
     // same-origin (reverse proxy) is acceptable only if you *actually* proxy /aion-demo
     return "";
@@ -81,7 +88,9 @@ function resolveWsUrl(): string {
 
   // Dev fallback
   if (typeof window !== "undefined") {
-    const isDevFe = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const isDevFe =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
     if (isDevFe && window.location.port === "3000") return "ws://127.0.0.1:8080/ws/aion-demo";
     const proto = window.location.protocol === "https:" ? "wss" : "ws";
     return `${proto}://${window.location.host}/ws/aion-demo`;
@@ -147,6 +156,18 @@ async function postJson(url: string, body: any, timeoutMs = 20000) {
   }
 }
 
+async function getJson(url: string, timeoutMs = 12000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, { method: "GET", cache: "no-store", signal: ctrl.signal });
+    const j = await safeJson(r);
+    return { ok: r.ok, status: r.status, json: j };
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 /* ------------------------ payload parsing ------------------------ */
 
 function extractMetrics(obj: AnyObj) {
@@ -158,7 +179,8 @@ function extractMetrics(obj: AnyObj) {
 
   const SQI = m.SQI ?? m.sqi ?? m.sqi_checkpoint ?? m.checkpoint_sqi;
   const rho = m["ρ"] ?? m.rho ?? m.phi_coherence ?? m["Φ_coherence"] ?? m["Phi_coherence"];
-  const iota = m["Ī"] ?? m.iota ?? m.Ibar ?? m["I"] ?? m.phi_entropy ?? m["Φ_entropy"] ?? m["Phi_entropy"];
+  const iota =
+    m["Ī"] ?? m.iota ?? m.Ibar ?? m["I"] ?? m.phi_entropy ?? m["Φ_entropy"] ?? m["Phi_entropy"];
   const dphi = m["ΔΦ"] ?? m.dphi ?? m.delta_phi ?? m.resonance_delta;
   const eq = m["⟲"] ?? m.eq ?? m.res_eq ?? m.equilibrium;
 
@@ -245,6 +267,15 @@ export default function AionCognitiveDashboard() {
     return { kind, term, ...mm };
   }, [metricItem]);
 
+  /* ------------------------ Reflex (Demo Container 04) state ------------------------ */
+  const [reflex, setReflex] = useState<ReflexEnvelope | null>(null);
+  const [reflexBusy, setReflexBusy] = useState<string | null>(null);
+
+  const reflexMetrics = reflex?.state?.metrics ?? {};
+  const reflexNovelty = clamp01(Number(reflexMetrics?.novelty ?? 0));
+  const reflexCoherence = clamp01(Number(reflexMetrics?.coherence ?? 0));
+  const reflexEntropy = clamp01(Number(reflexMetrics?.entropy ?? 0));
+
   useEffect(() => {
     let alive = true;
 
@@ -312,6 +343,32 @@ export default function AionCognitiveDashboard() {
     };
   }, [wsUrl]);
 
+  // ✅ Reflex poll (kept simple; doesn’t touch WS)
+  useEffect(() => {
+    let alive = true;
+    const tick = async () => {
+      try {
+        const { ok, json } = await getJson(joinUrl(apiBase, "/api/reflex"), 12000);
+        if (!alive) return;
+        if (!ok) {
+          setReflex((prev) => prev ?? null);
+          return;
+        }
+        setReflex((json as any) ?? null);
+      } catch {
+        if (!alive) return;
+        setReflex(null);
+      }
+    };
+
+    tick();
+    const iv = setInterval(tick, 350);
+    return () => {
+      alive = false;
+      clearInterval(iv);
+    };
+  }, [apiBase]);
+
   const ageMs = lastMsgAt ? Date.now() - lastMsgAt : null;
 
   const eqNum = Number(latest.eq);
@@ -323,7 +380,11 @@ export default function AionCognitiveDashboard() {
     setLastActionErr(null);
     setLastActionOk(null);
     try {
-      const { ok, status, json } = await postJson(joinUrl(apiBase, "/api/aion/teach"), { term: teachTerm, level: teachLevel }, 25000);
+      const { ok, status, json } = await postJson(
+        joinUrl(apiBase, "/api/aion/teach"),
+        { term: teachTerm, level: teachLevel },
+        25000
+      );
       if (!ok) throw new Error(json?.detail || `teach failed (${status})`);
       setLastActionOk("Teach: OK");
     } catch (e: any) {
@@ -338,7 +399,11 @@ export default function AionCognitiveDashboard() {
     setLastActionErr(null);
     setLastActionOk(null);
     try {
-      const { ok, status, json } = await postJson(joinUrl(apiBase, "/api/aion/ask"), { question: askQ }, 25000);
+      const { ok, status, json } = await postJson(
+        joinUrl(apiBase, "/api/aion/ask"),
+        { question: askQ },
+        25000
+      );
       if (!ok) throw new Error(json?.detail || `ask failed (${status})`);
       setLastActionOk("Ask: OK");
     } catch (e: any) {
@@ -353,7 +418,11 @@ export default function AionCognitiveDashboard() {
     setLastActionErr(null);
     setLastActionOk(null);
     try {
-      const { ok, status, json } = await postJson(joinUrl(apiBase, "/api/aion/checkpoint"), { term: checkpointTerm }, 25000);
+      const { ok, status, json } = await postJson(
+        joinUrl(apiBase, "/api/aion/checkpoint"),
+        { term: checkpointTerm },
+        25000
+      );
       if (!ok) throw new Error(json?.detail || `checkpoint failed (${status})`);
       setLastActionOk("Checkpoint: OK");
     } catch (e: any) {
@@ -382,6 +451,37 @@ export default function AionCognitiveDashboard() {
     }
   }
 
+  /* ------------------------ Reflex actions ------------------------ */
+  async function doReflexReset() {
+    setReflexBusy("reflex_reset");
+    try {
+      await postJson(joinUrl(apiBase, "/api/demo/reflex/reset"), {}, 20000);
+      const { json } = await getJson(joinUrl(apiBase, "/api/reflex"), 12000);
+      setReflex((json as any) ?? null);
+    } finally {
+      setReflexBusy(null);
+    }
+  }
+  async function doReflexStep() {
+    setReflexBusy("reflex_step");
+    try {
+      await postJson(joinUrl(apiBase, "/api/demo/reflex/step"), {}, 20000);
+      const { json } = await getJson(joinUrl(apiBase, "/api/reflex"), 12000);
+      setReflex((json as any) ?? null);
+    } finally {
+      setReflexBusy(null);
+    }
+  }
+  async function doReflexRun() {
+    setReflexBusy("reflex_run");
+    try {
+      await postJson(joinUrl(apiBase, "/api/demo/reflex/run"), {}, 20000);
+      // state will update via poll
+    } finally {
+      setReflexBusy(null);
+    }
+  }
+
   const resolvedApi = apiBase ? apiBase : "(same-origin)";
   const resolvedWs = wsUrl;
 
@@ -403,7 +503,8 @@ export default function AionCognitiveDashboard() {
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-[11px]">
-            WS: <span className="font-bold">{status}</span> · last: <span className="font-bold">{fmtAge(ageMs)}</span>
+            WS: <span className="font-bold">{status}</span> · last:{" "}
+            <span className="font-bold">{fmtAge(ageMs)}</span>
           </div>
 
           <button
@@ -493,7 +594,10 @@ export default function AionCognitiveDashboard() {
         </div>
 
         <div>
-          <div className="text-xs font-black tracking-widest text-gray-500 uppercase">Homeostasis Lock</div>
+          <div className="text-xs font-black tracking-widest text-gray-500 uppercase">
+            Resonant Equilibrium Auto-Lock (REAL)
+          </div>
+
           <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-3">
             <input
               value={lockTerm}
@@ -552,7 +656,8 @@ export default function AionCognitiveDashboard() {
 
         <div className="lg:col-span-2 font-mono text-[11px] text-gray-500">
           Tip: FE :3000 + BE :8080 → set{" "}
-          <span className="font-bold">NEXT_PUBLIC_AION_API_BASE=http://127.0.0.1:8080</span> (or rely on the auto-default in this file).
+          <span className="font-bold">NEXT_PUBLIC_AION_API_BASE=http://127.0.0.1:8080</span>{" "}
+          (or rely on the auto-default in this file).
         </div>
       </div>
 
@@ -574,7 +679,10 @@ export default function AionCognitiveDashboard() {
             <div className="pt-2">
               <div className="mb-2 text-[11px] font-black tracking-widest text-gray-500 uppercase">Homeostasis ⟲</div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-black/10">
-                <div className={`${eqTone} h-full transition-all duration-500`} style={{ width: `${Math.round(eq * 100)}%` }} />
+                <div
+                  className={`${eqTone} h-full transition-all duration-500`}
+                  style={{ width: `${Math.round(eq * 100)}%` }}
+                />
               </div>
               <div className="mt-2 flex justify-between text-[10px] text-gray-400">
                 <span>0.00</span>
@@ -590,8 +698,12 @@ export default function AionCognitiveDashboard() {
                   {latest.locked === true ? "LOCKED" : latest.locked === false ? "UNLOCKED" : "—"}
                 </span>
               </div>
-              {latest.threshold != null ? <div className="mt-1 text-gray-500">thr={String(latest.threshold)}</div> : null}
-              {latest.lock_id ? <div className="mt-1 text-gray-500">lock_id={String(latest.lock_id)}</div> : null}
+              {latest.threshold != null ? (
+                <div className="mt-1 text-gray-500">thr={String(latest.threshold)}</div>
+              ) : null}
+              {latest.lock_id ? (
+                <div className="mt-1 text-gray-500">lock_id={String(latest.lock_id)}</div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -617,7 +729,9 @@ export default function AionCognitiveDashboard() {
                 {items.map((it, idx) => (
                   <li key={`${it.ts}-${idx}`} className="p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="font-mono text-[11px] text-gray-500">{new Date(it.ts * 1000).toLocaleString()}</div>
+                      <div className="font-mono text-[11px] text-gray-500">
+                        {new Date(it.ts * 1000).toLocaleString()}
+                      </div>
                       <div className="rounded-full border border-black/10 bg-white px-2 py-0.5 font-mono text-[10px] font-bold">
                         {String(it.kind)}
                       </div>
@@ -632,7 +746,77 @@ export default function AionCognitiveDashboard() {
           </div>
 
           <div className="mt-3 font-mono text-[11px] text-gray-500">
-            If you see <span className="font-bold">Method Not Allowed</span>, you were hitting the FE origin before — this file now defaults FE:3000 → BE:8080 automatically.
+            If you see <span className="font-bold">Method Not Allowed</span>, you were hitting the FE origin before — this
+            file now defaults FE:3000 → BE:8080 automatically.
+          </div>
+        </div>
+      </div>
+
+      {/* ✅ MOVED: Demo Container 04 — Reflex + new canvas/paragraph/metrics BELOW REAL */}
+      <div className="mt-10 rounded-2xl border border-black/10 bg-white p-6">
+        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+          <div>
+            <div className="text-lg font-black tracking-tight">Demo Container 04 — Reflex (Cognitive Grid)</div>
+            <div className="mt-1 font-mono text-[11px] text-gray-500">
+              Cognitive Grid Curiosity-Drift · GET /api/reflex · POST /api/demo/reflex/{`{reset,step,run}`}
+            </div>
+          </div>
+          <div className="rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-[11px] text-gray-700">
+            state: <span className="font-bold">{reflex?.state ? "online" : "offline"}</span> · age_ms:{" "}
+            <span className="font-bold">{reflex?.age_ms ?? "—"}</span>
+          </div>
+        </div>
+
+        {/* Keep everything else the same; the grid layout changes are inside demo04_reflex_grid.tsx */}
+        <div className="mt-6">
+          <Demo04ReflexGridPanel
+            reflex={reflex}
+            actionBusy={reflexBusy}
+            onReset={doReflexReset}
+            onStep={doReflexStep}
+            onRun={doReflexRun}
+          />
+        </div>
+
+        {/* New canvas + paragraph + mini-metrics (now BELOW REAL, and BELOW the reflex card) */}
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.6fr_1fr]">
+          <div className="rounded-xl border border-black/10 bg-white p-4">
+            <QFCViewport
+              title="Reflex Grid — Live"
+              subtitle="Cognitive Grid Curiosity-Drift"
+              domainLabel="BIO"
+              mode={"reflex_grid" as any}
+              showDataPanel={false}
+            />
+
+            <div className="mt-4 rounded-xl border border-black/10 bg-black/[0.02] p-4">
+              <div className="text-xs font-black tracking-widest text-gray-500 uppercase">What this demonstrates</div>
+              <p className="mt-2 text-sm leading-6 text-gray-700">
+                This is AION’s reflex layer. The agent moves toward novelty (inverse visit frequency). When it hits a
+                danger node, it triggers an immediate entropy spike and emits the linguistic reflex: “Stability breached.”
+                That’s the pain-response primitive: an internal state change + a self-report, without operator prompting.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-black/10 bg-white p-4">
+            <div className="text-xs font-black tracking-widest text-gray-500 uppercase">Reflex micro-metrics</div>
+
+            <div className="mt-4 space-y-3 font-mono text-sm">
+              <Row k="novelty" v={fmt3(reflexNovelty)} />
+              <Row k="coherence" v={fmt3(reflexCoherence)} />
+              <Row k="entropy" v={fmt3(reflexEntropy)} />
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <Bar label="Novelty" v={reflexNovelty} />
+              <Bar label="Coherence" v={reflexCoherence} />
+              <Bar label="Entropy" v={reflexEntropy} invert />
+            </div>
+
+            <div className="mt-4 font-mono text-[11px] text-gray-500">
+              Note: the 3D “avatar” is the emissive sphere inside the QFCViewport reflex scene.
+            </div>
           </div>
         </div>
       </div>
@@ -645,6 +829,23 @@ function Row(props: { k: string; v: string }) {
     <div className="flex justify-between gap-4">
       <span className="text-gray-500">{props.k}</span>
       <span className="font-bold">{props.v}</span>
+    </div>
+  );
+}
+
+function Bar(props: { label: string; v: number; invert?: boolean }) {
+  const vv = clamp01(props.v);
+  const tone = props.invert ? toneFor(1 - vv, 0.9, 0.6) : toneFor(vv, 0.9, 0.6);
+
+  return (
+    <div>
+      <div className="mb-1 flex justify-between font-mono text-[11px] text-gray-500">
+        <span>{props.label}</span>
+        <span className="font-bold text-gray-700">{vv.toFixed(3)}</span>
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-black/10">
+        <div className={`${tone} h-full transition-all duration-500`} style={{ width: `${Math.round(vv * 100)}%` }} />
+      </div>
     </div>
   );
 }

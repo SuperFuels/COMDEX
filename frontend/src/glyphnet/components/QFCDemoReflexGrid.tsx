@@ -24,24 +24,77 @@ function parseKey(k: string): [number, number] | null {
 }
 
 function gridToWorld(x: number, y: number, n: number) {
-  // center the grid at origin; map (x,y) -> (X,Z)
   const half = (n - 1) / 2;
   const X = x - half;
   const Z = y - half;
   return new THREE.Vector3(X, 0, Z);
 }
 
+// ---------- Dot-man geometry helpers ----------
+function randOnSphere(r: number) {
+  // random point on sphere surface
+  const u = Math.random();
+  const v = Math.random();
+  const theta = 2 * Math.PI * u;
+  const phi = Math.acos(2 * v - 1);
+  const x = r * Math.sin(phi) * Math.cos(theta);
+  const y = r * Math.sin(phi) * Math.sin(theta);
+  const z = r * Math.cos(phi);
+  return [x, y, z] as const;
+}
+
+function pushSphere(points: number[], cx: number, cy: number, cz: number, r: number, count: number) {
+  for (let i = 0; i < count; i++) {
+    const [x, y, z] = randOnSphere(r);
+    points.push(cx + x, cy + y, cz + z);
+  }
+}
+
+function pushCylinder(points: number[], cx: number, cy0: number, cy1: number, cz: number, r: number, count: number) {
+  for (let i = 0; i < count; i++) {
+    const t = Math.random();
+    const y = cy0 + (cy1 - cy0) * t;
+    const a = Math.random() * Math.PI * 2;
+    const x = Math.cos(a) * r;
+    const z = Math.sin(a) * r;
+    points.push(cx + x, y, cz + z);
+  }
+}
+
+function buildDotManGeometry() {
+  // Chibi silhouette: head + torso + arms + legs
+  const pts: number[] = [];
+
+  // Head
+  pushSphere(pts, 0, 0.55, 0, 0.22, 180);
+
+  // Torso
+  pushCylinder(pts, 0, 0.10, 0.48, 0, 0.18, 220);
+
+  // Arms (two small cylinders)
+  pushCylinder(pts, -0.22, 0.22, 0.42, 0, 0.07, 90);
+  pushCylinder(pts, +0.22, 0.22, 0.42, 0, 0.07, 90);
+
+  // Legs
+  pushCylinder(pts, -0.10, -0.22, 0.12, 0, 0.08, 120);
+  pushCylinder(pts, +0.10, -0.22, 0.12, 0, 0.08, 120);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+  geo.computeBoundingSphere();
+  return geo;
+}
+
 export default function QFCDemoReflexGrid(_: { frame: any }) {
   const [st, setSt] = useState<ReflexState | null>(null);
 
-  // ✅ point this at whatever your browser app uses as API base
-  // If you already have a central helper, swap this to use it.
   const API_BASE =
     (typeof window !== "undefined" && (window as any).__API_BASE__) ||
-    ""; // "" -> same-origin
+    ""; // same-origin
 
   useEffect(() => {
     let alive = true;
+
     const tick = async () => {
       try {
         const r = await fetch(`${API_BASE}/api/reflex`, { cache: "no-store" });
@@ -77,22 +130,40 @@ export default function QFCDemoReflexGrid(_: { frame: any }) {
     return out;
   }, [st]);
 
-  // agent mesh
-  const agentRef = useRef<THREE.Mesh>(null);
+  // dot-man rig
+  const rigRef = useRef<THREE.Group>(null);
+  const matRef = useRef<THREE.PointsMaterial>(null);
   const target = useMemo(() => new THREE.Vector3(), []);
-  useFrame(() => {
-    if (!agentRef.current) return;
-    target.copy(gridToWorld(pos.x, pos.y, n));
-    target.y = 0.45;
-    agentRef.current.position.lerp(target, 0.22);
+  const dotManGeo = useMemo(() => buildDotManGeometry(), []);
+
+  useFrame((state, dtRaw) => {
+    const dt = Math.min(dtRaw, 1 / 30);
+
+    if (rigRef.current) {
+      target.copy(gridToWorld(pos.x, pos.y, n));
+      target.y = -1.55; // sits above the grid plane in this demo
+      rigRef.current.position.lerp(target, 1 - Math.pow(0.001, dt)); // smooth follow
+
+      // tiny bob + “walk” sway
+      const t = state.clock.getElapsedTime();
+      rigRef.current.position.y = target.y + 0.05 * Math.sin(t * 7.0);
+      rigRef.current.rotation.y = 0.25 * Math.sin(t * 3.0);
+    }
+
+    if (matRef.current) {
+      // subtle pulse
+      const t = state.clock.getElapsedTime();
+      matRef.current.size = 0.06 + 0.015 * Math.sin(t * 6.0);
+      matRef.current.needsUpdate = true;
+    }
   });
 
   return (
     <group>
-      {/* Base grid plane (slightly above the QFC ground) */}
+      {/* Base grid plane */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.95, 0]}>
         <planeGeometry args={[n, n]} />
-        <meshStandardMaterial color={danger ? "#1a0b0b" : "#050a14"} />
+        <meshStandardMaterial color={danger ? "#12060a" : "#050a14"} />
       </mesh>
 
       {/* World markers */}
@@ -118,15 +189,33 @@ export default function QFCDemoReflexGrid(_: { frame: any }) {
         );
       })}
 
-      {/* Agent avatar */}
-      <mesh ref={agentRef}>
-        <sphereGeometry args={[0.38, 28, 28]} />
-        <meshStandardMaterial
-          color={"#e2e8f0"}
-          emissive={danger ? "#fb7185" : "#7dd3fc"}
-          emissiveIntensity={0.95}
-        />
-      </mesh>
+      {/* Dot-man avatar */}
+      <group ref={rigRef}>
+        <points geometry={dotManGeo}>
+          <pointsMaterial
+            ref={matRef}
+            size={0.06}
+            sizeAttenuation
+            transparent
+            opacity={0.95}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            color={danger ? "#ff4d6d" : "#7dd3fc"}
+          />
+        </points>
+
+        {/* tiny “core” glow so it reads even when dots overlap */}
+        <mesh position={[0, 0.28, 0]}>
+          <sphereGeometry args={[0.10, 16, 16]} />
+          <meshStandardMaterial
+            color={"#e2e8f0"}
+            emissive={danger ? "#ff4d6d" : "#7dd3fc"}
+            emissiveIntensity={1.25}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      </group>
     </group>
   );
 }
