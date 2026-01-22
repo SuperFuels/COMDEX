@@ -44,7 +44,12 @@ function safeUrl(u: string) {
  *   https://...run.app
  */
 function resolveOrigin(): string {
-  const apiBase = (process.env.NEXT_PUBLIC_API_BASE || "").trim();
+  const apiBase = (
+    process.env.NEXT_PUBLIC_AION_API_BASE ||
+    process.env.NEXT_PUBLIC_API_BASE ||
+    ""
+  ).trim();
+
   const u = apiBase ? safeUrl(apiBase) : null;
 
   if (u) {

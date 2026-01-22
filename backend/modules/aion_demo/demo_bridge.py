@@ -112,11 +112,21 @@ def pick_data_root() -> Path:
       3) ./data
     Chooses best by sentinel hits + newest mtime.
     """
-    # 1) explicit override
+    # 1) explicit override (ALWAYS honor it; create minimal dirs)
     if ENV_DATA_ROOT in os.environ:
         p = Path(os.environ[ENV_DATA_ROOT]).expanduser()
-        if (p / "control").exists() or any((p / s).exists() for s in KNOWN_SENTINELS):
-            return p
+        try:
+            p.mkdir(parents=True, exist_ok=True)
+            (p / "logs").mkdir(parents=True, exist_ok=True)
+            (p / "feedback").mkdir(parents=True, exist_ok=True)
+            (p / "prediction").mkdir(parents=True, exist_ok=True)
+            (p / "aion_field").mkdir(parents=True, exist_ok=True)
+            (p / "control").mkdir(parents=True, exist_ok=True)
+            (p / "learning").mkdir(parents=True, exist_ok=True)
+            (p / "analysis").mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
+        return p
 
     # 2) prefer runtime-moved data if present
     candidates: List[Path] = []
@@ -155,21 +165,35 @@ def pick_data_root() -> Path:
 def _ensure_local_data_points_to(root: Path) -> None:
     """
     Compatibility shim: many subsystems write to relative 'data/...'.
-    If DATA_ROOT is a runtime-moved path, prefer making ./data a symlink to it.
-    Safe: if ./data is a real dir already, we don't rewrite it.
+
+    If DATA_ROOT is NOT ./data, try to make ./data a symlink to DATA_ROOT.
+    Safe rules:
+      - if ./data exists as a real dir/file -> do nothing
+      - if ./data is a valid symlink -> keep it
+      - if ./data is a broken symlink -> replace it
     """
     try:
         local = Path("data")
         root = root.resolve()
-        if root.name != "data":
+
+        # If DATA_ROOT already *is* ./data, nothing to do.
+        try:
+            if local.exists() and local.resolve() == root:
+                return
+        except Exception:
+            pass
+        if root == local:
             return
 
-        # If local is a broken symlink, replace it.
+        # If local is a valid symlink, keep it.
         if local.is_symlink():
             try:
-                local.resolve(strict=True)
-                return  # valid symlink, keep
+                if local.resolve(strict=True) == root:
+                    return
+                # points somewhere else -> leave it alone (avoid surprising rewires)
+                return
             except FileNotFoundError:
+                # broken symlink -> replace it
                 local.unlink(missing_ok=True)
 
         # If local exists as a real directory/file, leave it alone.
@@ -222,6 +246,64 @@ SUPERVISOR_STATE_PATH = Path("/tmp/aion_heartbeat_state.json")
 
 # Default heartbeat namespace preference (your dashboard “demo 3” usually wants demo)
 DEFAULT_HEARTBEAT_NS = os.getenv("AION_DEMO_HEARTBEAT_NAMESPACE", "demo")
+
+
+import subprocess, threading
+
+_PROCS: list[subprocess.Popen] = []
+_LAST_CLIENT_TS = 0.0
+_SUPERVISOR_STARTED = False
+
+def _spawn(cmd: list[str], log_name: str) -> subprocess.Popen:
+    log_dir = DATA_ROOT / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    f = open(log_dir / log_name, "a", encoding="utf-8")
+    env = os.environ.copy()
+    env.setdefault("PYTHONPATH", str(_REPO_ROOT))
+    env.setdefault("AION_HOST", "127.0.0.1")
+    env.setdefault("TESSARIS_DATA_ROOT", str(DATA_ROOT))
+    return subprocess.Popen(cmd, env=env, stdout=f, stderr=f)
+
+def ensure_producers_running():
+    global _PROCS, _SUPERVISOR_STARTED
+    if any(p.poll() is None for p in _PROCS):
+        return
+
+    _PROCS = [
+        _spawn([sys.executable, "backend/modules/aion_integrity/meta_resonant_telemetry_consolidator.py"], "mrtc.log"),
+        _spawn([sys.executable, "backend/modules/aion_integrity/resonant_quantum_feedback_synchronizer.py"], "rqfs.log"),
+        _spawn([sys.executable, "backend/modules/aion_resonance/resonant_feedback_daemon.py"], "rfd.log"),
+        _spawn([sys.executable, "backend/modules/aion_resonance/resonant_optimizer_loop.py"], "rol.log"),
+        # add more only if needed:
+        # _spawn([sys.executable, "backend/modules/aion_cognition/tessaris_cognitive_fusion_kernel.py"], "tcfk.log"),
+        # _spawn([sys.executable, "backend/modules/aion_control/adaptive_quantum_control_interface.py"], "aqci.log"),
+        # _spawn([sys.executable, "backend/modules/aion_integrity/symbolic_resonance_export_layer.py"], "srel.log"),
+        # _spawn([sys.executable, "backend/modules/aion_integrity/resonant_analytics_layer.py"], "ral.log"),
+    ]
+
+    if not _SUPERVISOR_STARTED:
+        _SUPERVISOR_STARTED = True
+        threading.Thread(target=_idle_killer_loop, daemon=True).start()
+
+def touch_client_activity():
+    global _LAST_CLIENT_TS
+    _LAST_CLIENT_TS = time.time()
+
+def _idle_killer_loop():
+    idle_s = float(os.getenv("AION_DEMO_IDLE_STOP_S", "120"))
+    while True:
+        time.sleep(5)
+        if _LAST_CLIENT_TS <= 0:
+            continue
+        if time.time() - _LAST_CLIENT_TS < idle_s:
+            continue
+        for p in list(_PROCS):
+            try:
+                if p.poll() is None:
+                    p.terminate()
+            except Exception:
+                pass
+        _PROCS.clear()
 
 # -----------------------------------------------------------------------------
 # Utilities
@@ -1065,11 +1147,22 @@ def api_demo_inject_entropy() -> Dict[str, Any]:
 @router.websocket("/ws/aion-demo")
 async def ws_aion_demo(ws: WebSocket) -> None:
     await ws.accept()
+
+    # ✅ On-demand producers (start when a client connects)
+    try:
+        ensure_producers_running()
+    except Exception:
+        pass
+    touch_client_activity()
+
     interval_s = float(os.getenv("AION_DEMO_WS_INTERVAL_S", "0.5"))
     hb_ns = os.getenv("AION_DEMO_HEARTBEAT_NAMESPACE", DEFAULT_HEARTBEAT_NS)
 
     try:
         while True:
+            # ✅ keep-alive for idle killer
+            touch_client_activity()
+
             phi = phi_state()
             adr = adr_state()
             hb = heartbeat_state(namespace=hb_ns)
@@ -1095,9 +1188,7 @@ async def ws_aion_demo(ws: WebSocket) -> None:
             dphi = phi_s.get("Φ_flux")  # best available ΔΦ proxy in this state file
 
             # Mirror produces A (alignment) which is what your “Awareness” pillar wants
-            A = None
-            if isinstance(mirror, dict):
-                A = mirror.get("A")
+            A = mirror.get("A") if isinstance(mirror, dict) else None
 
             # ADR produces RSI + zone
             rsi = ((adr.get("derived") or {}).get("rsi"))
@@ -1105,33 +1196,25 @@ async def ws_aion_demo(ws: WebSocket) -> None:
 
             # Phase closure / equilibrium target:
             # use A if available, else fall back to stability belief
-            eq = A
-            if eq is None:
-                eq = beliefs.get("stability")
+            eq = A if A is not None else beliefs.get("stability")
 
             payload = {
                 "type": "telemetry",
                 "command": "telemetry",
                 "ts": time.time(),
-
-                # ✅ FLAT metrics for your UI scanners
                 "metrics": {
-                    "SQI": beliefs.get("trust"),        # or replace with your real SQI producer when available
+                    "SQI": beliefs.get("trust"),
                     "ρ": rho,
                     "Ī": iota,
                     "ΔΦ": dphi,
                     "⟲": eq,
-
                     "A": A,
                     "RSI": rsi,
                     "zone": zone,
-
                     "locked": (mirror or {}).get("locked") if isinstance(mirror, dict) else None,
                     "threshold": (mirror or {}).get("threshold") if isinstance(mirror, dict) else None,
                     "lock_id": (mirror or {}).get("lock_id") if isinstance(mirror, dict) else None,
                 },
-
-                # Keep rich sub-objects for panels that want detail
                 "phi": phi_s,
                 "phi_meta": (phi.get("derived") or {}),
                 "adr": (adr.get("derived") or {}),
