@@ -1,3 +1,4 @@
+// QFCDemoReflexGrid.tsx
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -10,9 +11,51 @@ type ReflexState = {
   world?: Record<string, string>;
   last_event_type?: string;
   stability_breached?: boolean;
+  age_ms?: number;
 };
 
-type Envelope = { state?: ReflexState | null };
+type Envelope = { state?: ReflexState | null; age_ms?: number };
+
+function stripSlash(s: string) {
+  return (s || "").trim().replace(/\/+$/, "");
+}
+
+function normalizeHttpBase(raw: string) {
+  let b = stripSlash(raw);
+  if (!b) return "";
+  b = b.replace(/\/api$/i, "");
+  b = b.replace(/\/aion-demo$/i, "");
+  return b;
+}
+
+function resolveHttpBase(): string {
+  const env =
+    (process.env.NEXT_PUBLIC_API_ORIGIN as string | undefined) ||
+    (process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE as string | undefined) ||
+    (process.env.NEXT_PUBLIC_API_URL as string | undefined) ||
+    (process.env.NEXT_PUBLIC_API_BASE as string | undefined) ||
+    (process.env.NEXT_PUBLIC_AION_API_BASE as string | undefined) ||
+    "";
+
+  const cleaned = normalizeHttpBase(env);
+  if (cleaned) return cleaned;
+
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    const port = window.location.port;
+    const isLocal = host === "localhost" || host === "127.0.0.1";
+    if (isLocal && (port === "3000" || port === "5173")) return "http://127.0.0.1:8080";
+    return ""; // same-origin only if actually proxied
+  }
+
+  return "";
+}
+
+function joinUrl(base: string, path: string) {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  if (!base) return p;
+  return stripSlash(base) + p;
+}
 
 function parseKey(k: string): [number, number] | null {
   const parts = String(k).split(",");
@@ -25,9 +68,7 @@ function parseKey(k: string): [number, number] | null {
 
 function gridToWorld(x: number, y: number, n: number) {
   const half = (n - 1) / 2;
-  const X = x - half;
-  const Z = y - half;
-  return new THREE.Vector3(X, 0, Z);
+  return new THREE.Vector3(x - half, 0, y - half);
 }
 
 // ---------- Dot-man geometry helpers ----------
@@ -75,30 +116,34 @@ function buildDotManGeometry() {
   return geo;
 }
 
-export default function QFCDemoReflexGrid(props: { frame: any }) {
-  // ✅ PRIMARY: take reflex state from the injected frame (no polling needed when wired)
+export default function QFCDemoReflexGrid(props: { frame?: any }) {
+  // ✅ Source-of-truth: QFC frame (when present)
   const stFromFrame: ReflexState | null =
     (props?.frame?.reflex as ReflexState) ??
     (props?.frame?.reflex?.state as ReflexState) ??
     null;
 
-  // ✅ fallback (only used if frame is missing)
+  // ✅ Fallback only when frame is missing
   const [stFallback, setStFallback] = useState<ReflexState | null>(null);
 
-  const API_BASE =
-    (typeof window !== "undefined" && (window as any).__API_BASE__) ||
-    ""; // same-origin
+  const httpBase = useMemo(() => resolveHttpBase(), []);
+  const demoBase = useMemo(() => {
+    // demo bridge is mounted under /aion-demo on the same backend host
+    const b = httpBase ? joinUrl(httpBase, "/aion-demo") : "/aion-demo";
+    return stripSlash(b);
+  }, [httpBase]);
 
-  // ✅ start the bounded backend runner once per open window
+  // Start runner ONLY in fallback mode (no frame)
   const startedRef = useRef(false);
   useEffect(() => {
+    if (stFromFrame) return; // frame drives it; do not start local runner
     if (startedRef.current) return;
     startedRef.current = true;
 
-    fetch(`${API_BASE}/api/demo/reflex/run`, { method: "POST" }).catch(() => {});
-  }, [API_BASE]);
+    fetch(joinUrl(demoBase, "/api/demo/reflex/run"), { method: "POST" }).catch(() => {});
+  }, [demoBase, stFromFrame]);
 
-  // ✅ fallback poll (ONLY when frame isn't feeding state)
+  // Poll ONLY in fallback mode (no frame)
   useEffect(() => {
     if (stFromFrame) return;
 
@@ -106,11 +151,10 @@ export default function QFCDemoReflexGrid(props: { frame: any }) {
 
     const tick = async () => {
       try {
-        // ✅ FIX: do NOT hardcode /aion-demo here; your FE expects /api/*
-        const r = await fetch(`${API_BASE}/api/reflex`, { cache: "no-store" });
+        const r = await fetch(joinUrl(demoBase, "/api/reflex"), { cache: "no-store" });
         const j: Envelope = await r.json();
         if (!alive) return;
-        setStFallback(j?.state ?? null);
+        setStFallback((j?.state ?? null) as any);
       } catch {
         if (!alive) return;
         setStFallback(null);
@@ -123,7 +167,7 @@ export default function QFCDemoReflexGrid(props: { frame: any }) {
       alive = false;
       clearInterval(iv);
     };
-  }, [API_BASE, stFromFrame]);
+  }, [demoBase, stFromFrame]);
 
   const st = stFromFrame ?? stFallback;
 
@@ -142,7 +186,6 @@ export default function QFCDemoReflexGrid(props: { frame: any }) {
     return out;
   }, [st]);
 
-  // dot-man rig
   const rigRef = useRef<THREE.Group>(null);
   const matRef = useRef<THREE.PointsMaterial>(null);
   const target = useMemo(() => new THREE.Vector3(), []);
@@ -170,13 +213,11 @@ export default function QFCDemoReflexGrid(props: { frame: any }) {
 
   return (
     <group>
-      {/* Base grid plane */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.95, 0]}>
         <planeGeometry args={[n, n]} />
         <meshStandardMaterial color={danger ? "#12060a" : "#050a14"} />
       </mesh>
 
-      {/* World markers */}
       {markers.map((m, i) => {
         const p = gridToWorld(m.x, m.y, n);
         p.y = -1.60;
@@ -199,7 +240,6 @@ export default function QFCDemoReflexGrid(props: { frame: any }) {
         );
       })}
 
-      {/* Dot-man avatar */}
       <group ref={rigRef}>
         <points geometry={dotManGeo}>
           <pointsMaterial
@@ -214,7 +254,6 @@ export default function QFCDemoReflexGrid(props: { frame: any }) {
           />
         </points>
 
-        {/* tiny “core” glow */}
         <mesh position={[0, 0.28, 0]}>
           <sphereGeometry args={[0.10, 16, 16]} />
           <meshStandardMaterial
