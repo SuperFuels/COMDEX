@@ -52,35 +52,56 @@ function pickMetric(obj: any, keys: string[]) {
 }
 
 /**
- * STRICT extractor:
- * - ψ only from ψ/psi/presence keys (NOT rho)
- * - coherence from C/coherence/SQI/Φ_coherence keys
- * - rho only from ρ/rho keys
- * - entropy from E/entropy/Ī/Ibar keys
- * - Φ from Φ/phi keys, else fallback to coherence
- * - also pull backend lock fields if present
+ * Telemetry extractor (STRICT + DOC-CORRECT)
+ *
+ * Rules:
+ * - Never derive ψ from ρ. ψ comes only from explicit psi/presence keys.
+ * - Coherence uses the AION Φ-field contract: Φ_coherence is primary.
+ *   Legacy aliases (C/SQI/coherence) are accepted only as compatibility fallbacks.
+ * - Entropy uses the AION Φ-field contract: Φ_entropy is primary.
+ *   Legacy aliases (E/entropy/Ibar) are accepted only as compatibility fallbacks.
+ * - Φ scalar is taken only if explicitly emitted (Φ/phi). Otherwise Φ := Φ_coherence.
+ * - ρ is kept separate and never used for ψ or coherence.
+ * - Also extracts lock/threshold/id if present (mirror/lock fields).
  */
 function extractMetrics(msg: any) {
   const m = msg?.metrics ?? msg?.state?.metrics ?? msg?.state ?? msg ?? {};
   const phiObj = msg?.phi ?? msg?.state?.phi ?? {};
 
+  // ψ / κ / T are never inferred from other channels
   const psi = pickMetric(m, ["ψ", "psi", "wave_presence", "wavePresence", "presence"]);
   const kappa = pickMetric(m, ["κ", "kappa", "curvature"]);
   const T = pickMetric(m, ["T", "temporal", "time", "timestamp", "updatedAt_ms"]);
 
+  // DOC-CORRECT Φ fields (prefer phi.* then metrics.*)
   const C =
-    pickMetric(phiObj, ["Φ_coherence", "phi_coherence", "C", "coherence", "SQI", "sqi"]) ??
-    pickMetric(m, ["Φ_coherence", "phi_coherence", "C", "coherence", "SQI", "sqi"]);
+    pickMetric(phiObj, ["Φ_coherence", "phi_coherence"]) ??
+    pickMetric(m, ["Φ_coherence", "phi_coherence"]) ??
+    // compatibility aliases (ONLY if backend defines them as Φ_coherence)
+    pickMetric(phiObj, ["coherence"]) ??
+    pickMetric(m, ["coherence"]) ??
+    pickMetric(m, ["C", "SQI", "sqi"]);
 
   const entropy =
-    pickMetric(phiObj, ["Φ_entropy", "phi_entropy", "E", "entropy", "Ī", "Ibar", "Ī", "iota"]) ??
-    pickMetric(m, ["Φ_entropy", "phi_entropy", "E", "entropy", "Ī", "Ibar", "Ī", "iota"]);
+    pickMetric(phiObj, ["Φ_entropy", "phi_entropy"]) ??
+    pickMetric(m, ["Φ_entropy", "phi_entropy"]) ??
+    // compatibility aliases (ONLY if backend defines them as Φ_entropy)
+    pickMetric(phiObj, ["entropy"]) ??
+    pickMetric(m, ["entropy"]) ??
+    pickMetric(m, ["E"]);
 
-  const Phi = pickMetric(m, ["Φ", "phi"]) ?? pickMetric(phiObj, ["Φ", "phi"]) ?? (C != null ? C : null);
+  // Φ scalar only if explicitly emitted, else display Φ := Φ_coherence
+  const Phi =
+    pickMetric(phiObj, ["Φ", "phi"]) ??
+    pickMetric(m, ["Φ", "phi"]) ??
+    (C != null ? C : null);
 
-  const rho = pickMetric(m, ["ρ", "rho"]) ?? pickMetric(phiObj, ["ρ", "rho"]);
-  const Ibar = pickMetric(m, ["Ī", "Ibar", "Ī", "iota"]) ?? pickMetric(phiObj, ["Ī", "Ibar", "Ī", "iota"]);
+  // keep rho + Ibar separate (never used for ψ / coherence)
+  const rho = pickMetric(phiObj, ["ρ", "rho"]) ?? pickMetric(m, ["ρ", "rho"]);
+  const Ibar =
+    pickMetric(phiObj, ["Ī", "Ibar", "Ī", "iota"]) ?? pickMetric(m, ["Ī", "Ibar", "Ī", "iota"]);
 
+  // lock fields (if present)
   const lockedRaw = m?.locked ?? msg?.mirror?.locked ?? null;
   const locked =
     typeof lockedRaw === "boolean"
@@ -90,7 +111,8 @@ function extractMetrics(msg: any) {
       : String(lockedRaw).toLowerCase() === "true";
 
   const threshold = num(m?.threshold ?? msg?.mirror?.threshold);
-  const lockId = (m?.lock_id ?? msg?.mirror?.lock_id) != null ? String(m?.lock_id ?? msg?.mirror?.lock_id) : null;
+  const lockId =
+    (m?.lock_id ?? msg?.mirror?.lock_id) != null ? String(m?.lock_id ?? msg?.mirror?.lock_id) : null;
 
   return { psi, kappa, T, Phi, C, entropy, rho, Ibar, locked, threshold, lockId };
 }
