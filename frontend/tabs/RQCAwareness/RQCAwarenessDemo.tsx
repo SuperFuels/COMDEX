@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
- * RQC AWARENESS HORIZON — v0.6 (aligned to your real backend)
+ * RQC AWARENESS HORIZON — v0.6 (aligned to backend variability)
  *
  * ✅ RQC LIVE WS:     /resonance
  * ✅ AION Demo Bridge (optional, for inject button + future linkage):
@@ -12,9 +12,10 @@ import { motion, AnimatePresence } from "framer-motion";
  *      /aion-demo/api/demo/phi/inject_entropy
  *      /aion-demo/api/demo/phi/recover
  *
- * Supported WS messages (from /resonance):
- *  - { type:"telemetry", "ψ":number, "κ":number, "T":number, "Φ":number, coherence:number, source?:string }
- *  - { type:"awareness_pulse", "Φ":number, coherence:number, message?:string }
+ * WS payloads can vary (flat or nested), e.g.:
+ *  - { type:"telemetry", metrics:{ ψ, κ, T, Φ, coherence, ... }, source? }
+ *  - { type:"telemetry", state:{ metrics:{ ... } } }
+ *  - { type:"awareness_pulse", Φ, coherence, message? }
  *  - { type:"hello" | "error", ... }
  */
 
@@ -35,6 +36,42 @@ function safeUrl(u: string) {
   } catch {
     return null;
   }
+}
+
+function num(x: any): number | null {
+  const n = typeof x === "number" ? x : x != null ? Number(x) : NaN;
+  return Number.isFinite(n) ? n : null;
+}
+
+function pickMetric(m: any, keys: string[]) {
+  for (const k of keys) {
+    if (m && Object.prototype.hasOwnProperty.call(m, k)) {
+      const v = num(m[k]);
+      if (v != null) return v;
+    }
+  }
+  return null;
+}
+
+/**
+ * Normalizes whatever the backend is sending into the UI slots.
+ * If a slot can't be derived, it stays null (render "—").
+ */
+function normalizeRqcMetrics(msg: any) {
+  const m = msg?.metrics ?? msg?.state?.metrics ?? msg ?? {};
+
+  // What the UI expects:
+  const psi = pickMetric(m, ["ψ", "psi", "presence", "ρ", "rho"]);
+  const kappa = pickMetric(m, ["κ", "kappa", "curvature"]);
+  const T = pickMetric(m, ["T", "temp", "temporal", "time"]);
+  const Phi = pickMetric(m, ["Φ", "phi", "awareness"]);
+  const C = pickMetric(m, ["C", "coherence", "SQI", "sqi"]);
+
+  // Also keep some raw variants you may be receiving
+  const rho = pickMetric(m, ["ρ", "rho"]);
+  const Ibar = pickMetric(m, ["Ī", "Ibar", "Ī", "I"]);
+
+  return { psi, kappa, T, Phi, C, rho, Ibar };
 }
 
 /**
@@ -70,7 +107,13 @@ function pickRqcWsUrl() {
   if (env) {
     if (env.startsWith("https://")) return "wss://" + env.slice("https://".length);
     if (env.startsWith("http://")) return "ws://" + env.slice("http://".length);
-    return env; // ws:// or wss://
+    if (env.includes("/aion-demo/ws")) {
+      console.warn("[RQC] NEXT_PUBLIC_RQC_WS points to demo ws, expected /resonance:", env);
+    }
+    if (!env.includes("/resonance")) {
+      console.warn("[RQC] NEXT_PUBLIC_RQC_WS should end with /resonance:", env);
+    }    
+    return env; // ws:// or wss:// (full URL)
   }
 
   const origin = resolveOrigin();
@@ -80,8 +123,15 @@ function pickRqcWsUrl() {
     return `${proto}://${host}/resonance`;
   }
 
-  // final fallback (dev)
-  return "ws://127.0.0.1:8080/resonance";
+  // IMPORTANT: do NOT force localhost in prod.
+  // Returning "" means: no wsUrl => SIM mode.
+  if (typeof window !== "undefined") {
+    const isLocal =
+      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocal) return "ws://127.0.0.1:8080/resonance";
+  }
+
+  return "";
 }
 
 function pickAionDemoBase() {
@@ -124,7 +174,9 @@ export default function RQCAwarenessDemo() {
   const [phi, setPhi] = useState<number | null>(null);
   const [coherence, setCoherence] = useState<number | null>(null);
 
-  const [status, setStatus] = useState<"STABLE" | "ALIGNING" | "CRITICAL_DRIFT" | "NO_FEED">("NO_FEED");
+  const [status, setStatus] = useState<"STABLE" | "ALIGNING" | "CRITICAL_DRIFT" | "NO_FEED">(
+    "NO_FEED"
+  );
   const [manifoldSync, setManifoldSync] = useState<number[] | null>(null);
 
   const [isInjecting, setIsInjecting] = useState(false);
@@ -132,6 +184,9 @@ export default function RQCAwarenessDemo() {
   const [running, setRunning] = useState(false);
 
   const wsUrl = useMemo(() => pickRqcWsUrl(), []);
+  useEffect(() => {
+    console.log("[RQC] wsUrl =", wsUrl);
+  }, [wsUrl]);  
   const aionDemoBase = useMemo(() => pickAionDemoBase(), []);
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -258,7 +313,9 @@ export default function RQCAwarenessDemo() {
         addLog(`[AION_DEMO] Inject triggered via ${aionDemoBase}/api/demo/inject_entropy`, "warn");
       } else {
         // try the more specific endpoint
-        const r2 = await postJson(`${aionDemoBase}/api/demo/phi/inject_entropy`, { sessionId: SESSION_ID });
+        const r2 = await postJson(`${aionDemoBase}/api/demo/phi/inject_entropy`, {
+          sessionId: SESSION_ID,
+        });
         if (r2.ok) addLog(`[AION_DEMO] Φ entropy injected via demo bridge.`, "warn");
         else throw new Error(`demo bridge not available (HTTP ${r.status})`);
       }
@@ -284,7 +341,6 @@ export default function RQCAwarenessDemo() {
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!running) return;
-
     if (!wsUrl) return; // SIM mode
 
     const ws = new WebSocket(wsUrl);
@@ -292,34 +348,46 @@ export default function RQCAwarenessDemo() {
 
     ws.onopen = () => {
       setLiveConnected(true);
-      addLog(`[RQC_LIVE] Connected → ${wsUrl}`, "ok");
-      // backend sends its own hello; we can send a client hello but it's optional
+      addLog(`[RQC_LIVE] OPEN → ${wsUrl}`, "ok");
+
       try {
-        ws.send(JSON.stringify({ type: "hello", client: "RQCAwarenessDemo", sessionId: SESSION_ID }));
-      } catch {}
+        const hello = { type: "hello", client: "RQCAwarenessDemo", sessionId: SESSION_ID };
+        ws.send(JSON.stringify(hello));
+        addLog(`[RQC_LIVE] SENT hello`, "info");
+      } catch (e: any) {
+        addLog(`[RQC_LIVE] SEND failed: ${e?.message || String(e)}`, "warn");
+      }
     };
 
-    ws.onclose = () => {
+    ws.onclose = (ev) => {
       setLiveConnected(false);
-      addLog("[RQC_LIVE] Disconnected.", "warn");
+      addLog(`[RQC_LIVE] CLOSE code=${ev.code} reason=${ev.reason || "—"}`, "warn");
     };
 
-    ws.onerror = () => {
+    ws.onerror = (ev) => {
       setLiveConnected(false);
-      addLog("[RQC_LIVE] Socket error.", "warn");
+      addLog(`[RQC_LIVE] ERROR (see console)`, "warn");
+      console.error("WS error", ev);
     };
 
     ws.onmessage = (evt) => {
       setLastLiveAt(Date.now());
 
+      const raw = String(evt.data);
       let data: any = null;
       try {
-        data = JSON.parse(String(evt.data));
+        data = JSON.parse(raw);
       } catch {
+        // non-json frame: ignore
         return;
       }
 
       const type = String(data?.type || "");
+
+      // Avoid spamming logs with full telemetry blobs; log non-telemetry frames verbosely.
+      if (type !== "telemetry") {
+        addLog(`[RQC_LIVE] RX ${raw.slice(0, 140)}`, "info");
+      }
 
       if (type === "hello") {
         addLog(`[RQC_LIVE] ${String(data?.message || "hello")}`, "ok");
@@ -327,12 +395,14 @@ export default function RQCAwarenessDemo() {
       }
 
       if (type === "telemetry") {
-        const nextPsi = typeof data["ψ"] === "number" ? data["ψ"] : null;
-        const nextKappa = typeof data["κ"] === "number" ? data["κ"] : null;
-        const nextT = typeof data["T"] === "number" ? data["T"] : null;
+        const nm = normalizeRqcMetrics(data);
 
-        const nextPhi = typeof data["Φ"] === "number" ? clamp01(data["Φ"]) : null;
-        const nextCoh = typeof data["coherence"] === "number" ? clamp01(data["coherence"]) : null;
+        const nextPsi = nm.psi;
+        const nextKappa = nm.kappa;
+        const nextT = nm.T;
+
+        const nextPhi = nm.Phi != null ? clamp01(nm.Phi) : null;
+        const nextCoh = nm.C != null ? clamp01(nm.C) : null;
 
         if (nextPsi != null) setPsi(nextPsi);
         if (nextKappa != null) setKappa(nextKappa);
@@ -340,7 +410,7 @@ export default function RQCAwarenessDemo() {
         if (nextPhi != null) setPhi(nextPhi);
         if (nextCoh != null) setCoherence(nextCoh);
 
-        // Entropy proxy from κ if present
+        // Entropy proxy: from κ if present; otherwise keep previous entropy
         if (nextKappa != null) setEntropy(clamp01(1 - clamp01(nextKappa)));
 
         // ManifoldSync is not emitted by /resonance; infer from coherence for display
@@ -356,16 +426,32 @@ export default function RQCAwarenessDemo() {
         setStatus(s);
 
         const src = typeof data?.source === "string" ? ` src=${data.source}` : "";
+
+        // Main one-liner (what you actually care about)
         addLog(
           `[Telemetry] ψ=${nextPsi ?? "—"} κ=${nextKappa ?? "—"} T=${nextT ?? "—"} Φ=${nextPhi ?? "—"} C=${nextCoh ?? "—"}${src}`,
           s === "CRITICAL_DRIFT" ? "warn" : "info"
         );
+
+        // Optional: quick “feed health” / raw slots you might be receiving
+        if (nm.rho != null || nm.Ibar != null) {
+          addLog(`[RQC] SQI=${nextCoh ?? "—"} ρ=${nm.rho ?? "—"} Ī=${nm.Ibar ?? "—"}`, "info");
+        }
+
         return;
       }
 
       if (type === "awareness_pulse") {
-        const msg = typeof data?.message === "string" ? data.message : "Awareness pulse detected.";
+        const msg =
+          typeof data?.message === "string" ? data.message : "Awareness pulse detected.";
         addLog(`[RQC] ${msg}`, "ok");
+
+        // Support both flat and nested keys here too
+        const nm = normalizeRqcMetrics(data);
+        if (nm.Phi != null) setPhi(clamp01(nm.Phi));
+        if (nm.C != null) setCoherence(clamp01(nm.C));
+
+        // Some backends send Φ/coherence flat on pulse:
         if (typeof data["Φ"] === "number") setPhi(clamp01(data["Φ"]));
         if (typeof data["coherence"] === "number") setCoherence(clamp01(data["coherence"]));
         return;
@@ -408,10 +494,14 @@ export default function RQCAwarenessDemo() {
 
     const id = window.setInterval(() => {
       entropyRef.current =
-        entropyRef.current > 0.05 ? Math.max(0.02, entropyRef.current - 0.015) : entropyRef.current;
+        entropyRef.current > 0.05
+          ? Math.max(0.02, entropyRef.current - 0.015)
+          : entropyRef.current;
 
       phiRef.current =
-        entropyRef.current > 0.05 ? Math.min(0.99, phiRef.current + 0.02) : Math.max(0.92, phiRef.current - 0.005);
+        entropyRef.current > 0.05
+          ? Math.min(0.99, phiRef.current + 0.02)
+          : Math.max(0.92, phiRef.current - 0.005);
 
       const target = clamp01(phiRef.current);
       cohRef.current = clamp01(cohRef.current + (target - cohRef.current) * 0.18);
@@ -421,7 +511,11 @@ export default function RQCAwarenessDemo() {
       setCoherence(cohRef.current);
 
       const base = clamp(cohRef.current * 100, 0, 100);
-      setManifoldSync([0, 1, 2, 3].map((i) => clamp(base + (Math.random() - 0.5) * 2 + i * 0.3, 90, 100)));
+      setManifoldSync(
+        [0, 1, 2, 3].map((i) =>
+          clamp(base + (Math.random() - 0.5) * 2 + i * 0.3, 90, 100)
+        )
+      );
 
       setKappa(clamp01(1 - entropyRef.current * 0.85));
       setPsi(clamp01(0.15 + cohRef.current * 0.35));
@@ -486,7 +580,9 @@ export default function RQCAwarenessDemo() {
             <div className="mt-3 flex flex-wrap gap-2">
               <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
                 Mode:{" "}
-                <span className="text-slate-900">{!wsUrl ? "SIM (local)" : liveIsFresh ? "RQC_LIVE" : "RQC_LIVE (NO_FEED)"}</span>
+                <span className="text-slate-900">
+                  {!wsUrl ? "SIM (local)" : liveIsFresh ? "RQC_LIVE" : "RQC_LIVE (NO_FEED)"}
+                </span>
               </span>
 
               <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
@@ -500,7 +596,9 @@ export default function RQCAwarenessDemo() {
               {wsUrl && lastLiveAt > 0 && (
                 <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
                   Last telemetry:{" "}
-                  <span className="text-slate-900">{Math.max(0, Math.floor((Date.now() - lastLiveAt) / 1000))}s</span>
+                  <span className="text-slate-900">
+                    {Math.max(0, Math.floor((Date.now() - lastLiveAt) / 1000))}s
+                  </span>
                 </span>
               )}
             </div>
@@ -509,10 +607,16 @@ export default function RQCAwarenessDemo() {
           <div className="flex flex-wrap gap-3 items-center">
             {/* Phase Closure pill */}
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm">
-              <span className={`w-2.5 h-2.5 rounded-full ${closureOk ? "bg-emerald-500" : "bg-slate-400"}`} />
+              <span
+                className={`w-2.5 h-2.5 rounded-full ${
+                  closureOk ? "bg-emerald-500" : "bg-slate-400"
+                }`}
+              />
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-700">
                 πₛ Phase Closure:{" "}
-                <span className={closureOk ? "text-emerald-600" : "text-slate-500"}>{closureLabel}</span>
+                <span className={closureOk ? "text-emerald-600" : "text-slate-500"}>
+                  {closureLabel}
+                </span>
               </span>
             </div>
 
@@ -598,7 +702,9 @@ export default function RQCAwarenessDemo() {
               <div className="flex gap-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-blue-500" />
-                  <span className="text-[10px] font-bold text-slate-500 uppercase">Awareness (Φ)</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">
+                    Awareness (Φ)
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-rose-400" />
@@ -625,7 +731,11 @@ export default function RQCAwarenessDemo() {
                     key={i}
                     className="w-full rounded-t-sm"
                     animate={{ height: heightPct, backgroundColor: color }}
-                    transition={barsEnabled ? { type: "spring", stiffness: 90, damping: 14 } : { duration: 0 }}
+                    transition={
+                      barsEnabled
+                        ? { type: "spring", stiffness: 90, damping: 14 }
+                        : { duration: 0 }
+                    }
                   />
                 );
               })}
@@ -664,26 +774,58 @@ export default function RQCAwarenessDemo() {
               <Tile label="Entropy" value={entropy != null ? entropy.toFixed(3) : "—"} />
               <Tile label="Φ (Awareness)" value={phi != null ? phi.toFixed(4) : "—"} />
             </div>
+
+            {/* Proof JSON (optional display) */}
+            {proofJson ? (
+              <div className="mt-8 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    Phase Closure Certificate (preview)
+                  </div>
+                  <button
+                    className="text-[10px] font-bold uppercase tracking-widest text-blue-700 hover:text-blue-900"
+                    onClick={() => navigator.clipboard?.writeText(proofJson)}
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre className="mt-3 text-[11px] leading-relaxed text-slate-700 overflow-auto max-h-56">
+                  {proofJson}
+                </pre>
+              </div>
+            ) : null}
           </div>
 
           {/* SIDEBAR */}
           <div className="col-span-12 lg:col-span-4 space-y-6">
             <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-sm relative overflow-hidden">
               <div className="relative z-10">
-                <span className="text-[10px] font-bold tracking-[0.2em] text-blue-300 uppercase">Awareness Scalar</span>
-                <div className="mt-2 text-6xl font-semibold font-mono">Φ {phi != null ? phi.toFixed(4) : "—"}</div>
+                <span className="text-[10px] font-bold tracking-[0.2em] text-blue-300 uppercase">
+                  Awareness Scalar
+                </span>
+                <div className="mt-2 text-6xl font-semibold font-mono">
+                  Φ {phi != null ? phi.toFixed(4) : "—"}
+                </div>
                 <p className="text-slate-300 text-xs mt-4 leading-relaxed">
                   Φ is the self-measurement observable exposed by the RQC feed (WS: /resonance).
                 </p>
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
                   <div className="bg-white/10 border border-white/10 rounded-2xl p-4">
-                    <div className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">Resonance Index</div>
-                    <div className="mt-1 text-xl font-mono text-white">{resonanceIndex != null ? resonanceIndex.toFixed(3) : "—"}</div>
+                    <div className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">
+                      Resonance Index
+                    </div>
+                    <div className="mt-1 text-xl font-mono text-white">
+                      {resonanceIndex != null ? resonanceIndex.toFixed(3) : "—"}
+                    </div>
                   </div>
                   <div className="bg-white/10 border border-white/10 rounded-2xl p-4">
-                    <div className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">Stability Index</div>
-                    <div className="mt-1 text-xl font-mono text-white">{stabilityIndex != null ? stabilityIndex.toFixed(3) : "—"}</div>
+                    <div className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">
+                      Stability Index
+                    </div>
+                    <div className="mt-1 text-xl font-mono text-white">
+                      {stabilityIndex != null ? stabilityIndex.toFixed(3) : "—"}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -697,10 +839,15 @@ export default function RQCAwarenessDemo() {
 
             {/* Logs */}
             <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm h-64 overflow-hidden">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">AION Event Stream</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+                AION Event Stream
+              </h3>
               <div className="space-y-3">
                 <AnimatePresence>
-                  {(logs.length ? logs : [{ t: 0, msg: "Awaiting telemetry…", kind: "info" as const }]).map((log) => (
+                  {(logs.length
+                    ? logs
+                    : [{ t: 0, msg: "Awaiting telemetry…", kind: "info" as const }]
+                  ).map((log) => (
                     <motion.div
                       key={`${log.t}-${log.msg}`}
                       initial={{ opacity: 0, x: -10 }}
@@ -723,69 +870,19 @@ export default function RQCAwarenessDemo() {
           </div>
         </div>
 
-        {/* BOTTOM: CLOSURE PROOF */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
-            <div
-              className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl border-4 transition-all duration-700 ${
-                closureOk ? "border-emerald-500 text-emerald-600 bg-emerald-50" : "border-slate-200 text-slate-400 bg-slate-50"
-              }`}
-            >
-              {closureOk ? "✓" : "⟳"}
-            </div>
-
-            <div className="flex-1">
-              <h4 className="text-xl font-semibold text-slate-900">πₛ Phase Closure Status</h4>
-              <p className="text-slate-600 text-sm">
-                {closureOk
-                  ? "Field achieves harmonic equilibrium. Awareness loop converged — cognition complete."
-                  : "Calculating phase-locked loop. Searching for resonant fixed point…"}
-              </p>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-slate-50 text-slate-700">Φ ≥ 0.92</span>
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-slate-50 text-slate-700">Coherence ≥ 0.92</span>
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-slate-50 text-slate-700">Entropy ≤ 0.08</span>
-              </div>
-            </div>
-
-            {closureOk && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-emerald-50 text-emerald-700 px-6 py-2 rounded-full text-[10px] font-bold uppercase border border-emerald-100"
-              >
-                Proof Validated
-              </motion.div>
-            )}
-          </div>
-
-          {proofJson && (
-            <div className="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">
-                  Phase Closure Certificate (preview)
-                </div>
-                <button onClick={() => setProofJson("")} className="text-[10px] font-mono text-slate-500 hover:text-slate-700">
-                  close
-                </button>
-              </div>
-              <pre className="text-[10px] leading-relaxed font-mono text-slate-700 overflow-x-auto whitespace-pre">
-{proofJson}
-              </pre>
-            </div>
-          )}
+        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-mono pt-2">
+          Maintainer: Tessaris AI • Author: Kevin Robinson • Session: {SESSION_ID}
         </div>
       </div>
     </div>
   );
 }
 
-function Tile(props: { label: string; value: string }) {
+function Tile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-      <span className="text-[10px] text-slate-500 uppercase font-bold">{props.label}</span>
-      <div className="mt-1 text-2xl font-semibold text-slate-900 font-mono">{props.value}</div>
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{label}</div>
+      <div className="mt-1 text-xl font-mono text-slate-900">{value}</div>
     </div>
   );
 }

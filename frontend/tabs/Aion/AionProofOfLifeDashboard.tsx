@@ -19,8 +19,8 @@ import { demo06Meta, Demo06MirrorPanel } from "./demos/demo06_mirror_reflection"
 import AionCognitiveDashboard from "./AionCognitiveDashboard";
 
 /* ---------------- Types (tolerant; don’t block compilation) ---------------- */
-type HomeostasisEnvelope = any; // GET /api/aion/dashboard payload (backend.main OR demo_bridge)
-type MirrorEnvelope = any; // GET /api/mirror or /aion-demo/api/mirror payload
+type HomeostasisEnvelope = any; // GET /api/aion/dashboard payload (backend.main)
+type MirrorEnvelope = any; // GET /aion-demo/api/mirror payload (demo_bridge)
 
 /* ---------------- URL resolution (supports BOTH main + demo mounts) ---------------- */
 
@@ -31,12 +31,13 @@ function stripSlash(s: string) {
 function normalizeHttpBase(raw: string) {
   let b = stripSlash(raw);
   if (!b) return "";
-  // tolerate people pasting ".../api"
+  // tolerate people pasting ".../api" (but DO NOT strip /aion-demo — we need it when present)
   b = b.replace(/\/api$/i, "");
   return b;
 }
 
 function resolveHttpBase(): string {
+  // Prefer the deployment vars you’re actually setting now
   const envDemo = normalizeHttpBase(process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE || "");
   if (envDemo) return envDemo;
 
@@ -46,11 +47,13 @@ function resolveHttpBase(): string {
   const legacy = normalizeHttpBase(process.env.NEXT_PUBLIC_API_URL || "");
   if (legacy) return legacy;
 
+  // Local dev convenience
   if (typeof window !== "undefined") {
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     if (isLocal && window.location.port === "3000") return "http://127.0.0.1:8080";
-    return ""; // same-origin
+    return ""; // same-origin fallback
   }
+
   return "";
 }
 
@@ -63,14 +66,15 @@ function joinUrl(base: string, path: string) {
 /**
  * Accepts:
  *  - "/api/..."   (used as-is)
- *  - "/demo/..."  (mapped to "/api/demo/..."
- *  - "/aion/..."  (mapped to "/api/aion/..."
+ *  - "/demo/..."  (mapped to "/api/demo/...")
+ *  - "/aion/..."  (mapped to "/api/aion/...")
  */
 function toApiPath(path: string) {
   const p = path.startsWith("/") ? path : `/${path}`;
   if (p.startsWith("/api/")) return p;
-  if (p.startsWith("/demo/")) return `/api${p}`;
-  if (p.startsWith("/aion/")) return `/api${p}`;
+  if (p.startsWith("/demo/")) return `/api${p}`; // /api/demo/...
+  if (p.startsWith("/aion/")) return `/api${p}`; // /api/aion/...
+  // default: assume already intended under /api
   return `/api${p}`;
 }
 
@@ -116,81 +120,9 @@ function safeNum(x: any): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function safeStr(x: any): string | null {
-  if (typeof x === "string") return x;
-  if (x == null) return null;
-  try {
-    const s = String(x);
-    return s.length ? s : null;
-  } catch {
-    return null;
-  }
-}
-
-function num(x: any): number | null {
-  const n = typeof x === "number" ? x : x != null ? Number(x) : NaN;
-  return Number.isFinite(n) ? n : null;
-}
-
-function pickMetric(m: any, keys: string[]) {
-  for (const k of keys) {
-    if (m && Object.prototype.hasOwnProperty.call(m, k)) {
-      const v = num(m[k]);
-      if (v != null) return v;
-    }
-  }
-  return null;
-}
-
-function pickStr(m: any, keys: string[]) {
-  for (const k of keys) {
-    if (m && Object.prototype.hasOwnProperty.call(m, k)) {
-      const v = safeStr(m[k]);
-      if (v != null) return v;
-    }
-  }
-  return null;
-}
-
-function parseLastUpdateMs(lu: any): number | null {
-  if (!lu) return null;
-  const s0 = String(lu).trim();
-  if (!s0) return null;
-
-  // Handles:
-  //  - "2026-01-22T23:05:22.432092" (microseconds, no timezone)
-  //  - "2026-01-22T23:05:22.432Z"
-  //  - "2026-01-22T23:05:22"
-  // We normalize to milliseconds + append Z if no timezone is present.
-  // Also clamps fractional seconds to 3 digits.
-  const hasTZ = /[zZ]$|[+\-]\d{2}:\d{2}$/.test(s0);
-
-  const m = s0.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(\.(\d+))?([zZ]|[+\-]\d{2}:\d{2})?$/);
-  if (!m) {
-    const t = Date.parse(s0);
-    return Number.isFinite(t) ? t : null;
-  }
-
-  const base = m[1];
-  const frac = m[3] || ""; // digits
-  const tz = m[4] || (hasTZ ? "" : "Z");
-
-  // keep only milliseconds (3 digits), pad right if needed
-  const ms3 = (frac + "000").slice(0, 3);
-  const norm = `${base}.${ms3}${tz}`;
-
-  const t = Date.parse(norm);
-  return Number.isFinite(t) ? t : null;
-}
-
-function ageFromLastUpdate(x: any): number | null {
-  const lu = x?.last_update ?? x?.state?.last_update ?? x?.snapshot?.last_update;
-  const t = parseLastUpdateMs(lu);
-  if (t == null) return null;
-  return Math.max(0, Date.now() - t);
-}
-
-const BRAND = { blue: "#1B74E4" };
+const BRAND = {
+  blue: "#1B74E4",
+};
 
 /* ---------------- Chips ---------------- */
 
@@ -271,7 +203,10 @@ function PillarSection(props: {
   const stageInnerPad = tone === "dark" ? "" : "p-0";
 
   return (
-    <section id={props.id} className="grid grid-cols-1 gap-8 py-10 lg:grid-cols-5 border-b border-slate-200 last:border-0">
+    <section
+      id={props.id}
+      className="grid grid-cols-1 gap-8 py-10 lg:grid-cols-5 border-b border-slate-200 last:border-0"
+    >
       <div className="lg:col-span-3">
         <div className={classNames(stage, stageInnerPad)}>{props.container}</div>
       </div>
@@ -297,15 +232,16 @@ function PillarSection(props: {
   );
 }
 
-/* ---------------- Data hook (polls all demos) ----------------
-   ✅ FIX: auto-detect whether your feeds live under /api/* OR /aion-demo/api/*
-   ✅ FIX: use the detected mount for POST actions, so buttons work again
-*/
-
-type DemoMount = "api" | "aion-demo" | null;
+/* ---------------- Data hook (polls all demos) ---------------- */
 
 function useAionDemoData(pollMs = 500) {
   const httpBase = useMemo(() => resolveHttpBase(), []);
+
+  // ✅ Split bases:
+  // - apiBase: backend.main root routes (/api/aion/dashboard)
+  // - demoBase: demo_bridge mounted under /aion-demo (/aion-demo/api/*)
+  const apiBase = useMemo(() => httpBase, [httpBase]);
+  const demoBase = useMemo(() => joinUrl(httpBase, "/aion-demo"), [httpBase]);
 
   const [homeostasis, setHomeostasis] = useState<HomeostasisEnvelope | null>(null);
   const [phi, setPhi] = useState<PhiBundle | null>(null);
@@ -317,21 +253,6 @@ function useAionDemoData(pollMs = 500) {
 
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [demoMount, setDemoMount] = useState<DemoMount>(null);
-
-  function u(path: string) {
-    return joinUrl(httpBase, path);
-  }
-
-  async function firstOk<T>(urls: string[]): Promise<{ url: string; value: T } | null> {
-    for (const url of urls) {
-      try {
-        const v = await fetchJson<T>(url);
-        return { url, value: v };
-      } catch {}
-    }
-    return null;
-  }
 
   useEffect(() => {
     let cancelled = false;
@@ -339,44 +260,49 @@ function useAionDemoData(pollMs = 500) {
 
     const tick = async () => {
       try {
-        const homeoUrls = [u("/api/aion/dashboard"), u("/aion-demo/api/aion/dashboard")];
+        const urls = {
+          // backend.main (root)
+          homeo: joinUrl(apiBase, "/api/aion/dashboard"),
 
-        const phiUrls = [u("/api/phi"), u("/aion-demo/api/phi")];
-        const adrUrls = [u("/api/adr"), u("/aion-demo/api/adr")];
-        const hbUrls = [u("/api/heartbeat?namespace=demo"), u("/aion-demo/api/heartbeat?namespace=demo")];
-        const reflexUrls = [u("/api/reflex"), u("/aion-demo/api/reflex")];
-        const akgUrls = [u("/api/akg"), u("/aion-demo/api/akg")];
-        const mirrorUrls = [u("/api/mirror"), u("/aion-demo/api/mirror")];
+          // demo_bridge (mounted)
+          phi: joinUrl(demoBase, "/api/phi"),
+          adr: joinUrl(demoBase, "/api/adr"),
+          hb: joinUrl(demoBase, "/api/heartbeat?namespace=demo"),
+          reflex: joinUrl(demoBase, "/api/reflex"),
+          akg: joinUrl(demoBase, "/api/akg"),
+          mirror: joinUrl(demoBase, "/api/mirror"),
+        };
 
-        const [homeoRes, phiRes, adrRes, hbRes, reflexRes, akgRes, mirrorRes] = await Promise.all([
-          firstOk<HomeostasisEnvelope>(homeoUrls),
-          firstOk<PhiBundle>(phiUrls),
-          firstOk<AdrBundle>(adrUrls),
-          firstOk<HeartbeatEnvelope>(hbUrls),
-          firstOk<ReflexEnvelope>(reflexUrls),
-          firstOk<AkgSnapshot>(akgUrls),
-          firstOk<MirrorEnvelope>(mirrorUrls),
+        const results = await Promise.allSettled([
+          fetchJson<HomeostasisEnvelope>(urls.homeo),
+          fetchJson<PhiBundle>(urls.phi),
+          fetchJson<AdrBundle>(urls.adr),
+          fetchJson<HeartbeatEnvelope>(urls.hb),
+          fetchJson<ReflexEnvelope>(urls.reflex),
+          fetchJson<AkgSnapshot>(urls.akg),
+          fetchJson<MirrorEnvelope>(urls.mirror),
         ]);
 
         if (cancelled) return;
 
-        if (homeoRes) setHomeostasis(homeoRes.value);
-        if (phiRes) setPhi(phiRes.value);
-        if (adrRes) setAdr(adrRes.value);
-        if (hbRes) setHeartbeat(hbRes.value);
-        if (reflexRes) setReflex(reflexRes.value);
-        if (akgRes) setAkg(akgRes.value);
-        if (mirrorRes) setMirror(mirrorRes.value);
+        const [homeoRes, phiRes, adrRes, hbRes, reflexRes, akgRes, mirrorRes] = results;
 
-        const demoHits = [phiRes, adrRes, hbRes, reflexRes, akgRes, mirrorRes].filter(Boolean) as Array<{ url: string }>;
-        if (demoHits.length) {
-          const anyAionDemo = demoHits.some((x) => x.url.includes("/aion-demo/api/"));
-          setDemoMount(anyAionDemo ? "aion-demo" : "api");
+        if (homeoRes.status === "fulfilled") setHomeostasis(homeoRes.value);
+        if (phiRes.status === "fulfilled") setPhi(phiRes.value);
+        if (adrRes.status === "fulfilled") setAdr(adrRes.value);
+        if (hbRes.status === "fulfilled") setHeartbeat(hbRes.value);
+        if (reflexRes.status === "fulfilled") setReflex(reflexRes.value);
+        if (akgRes.status === "fulfilled") setAkg(akgRes.value);
+        if (mirrorRes.status === "fulfilled") setMirror(mirrorRes.value);
+
+        const okCount = results.filter((r) => r.status === "fulfilled").length;
+        if (okCount === 0) {
+          const errors: string[] = [];
+          for (const r of results) if (r.status === "rejected") errors.push(r.reason?.message || String(r.reason));
+          setErr(errors.length ? errors.join(" • ") : "All feeds offline");
+        } else {
+          setErr(null);
         }
-
-        const okCount = [homeoRes, phiRes, adrRes, hbRes, reflexRes, akgRes, mirrorRes].filter(Boolean).length;
-        if (okCount === 0) setErr("All feeds offline (no /api/* or /aion-demo/api/* responders).");
-        else setErr(null);
       } catch (e: any) {
         if (!cancelled) setErr(e?.message || String(e));
       } finally {
@@ -390,29 +316,9 @@ function useAionDemoData(pollMs = 500) {
       cancelled = true;
       if (t) clearTimeout(t);
     };
-  }, [pollMs, httpBase]);
+  }, [pollMs, apiBase, demoBase]);
 
-  // ✅ For POST actions: if demo is mounted at /aion-demo, base must be ".../aion-demo"
-  const demoActionBase = useMemo(() => {
-    if (demoMount === "aion-demo") return joinUrl(httpBase, "/aion-demo");
-    // default to old working behavior (/api/*)
-    return httpBase;
-  }, [httpBase, demoMount]);
-
-  return {
-    homeostasis,
-    phi,
-    adr,
-    heartbeat,
-    reflex,
-    akg,
-    mirror,
-    err,
-    loading,
-    httpBase,
-    demoMount,
-    demoActionBase,
-  };
+  return { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase, apiBase, demoBase };
 }
 
 /* ---------------- Status badge ---------------- */
@@ -491,102 +397,15 @@ function StatusBadge(props: { loading: boolean; err: string | null; health: Retu
   );
 }
 
-/* ---------------- Phase closure + cognition metrics (FIX your “—” panel) ---------------- */
+/* ---------------- Summary table ---------------- */
 
-type LatestMetrics = {
-  event: string | null;
-  term: string | null;
-  sqi: number | null;
-  rho: number | null;
-  Ibar: number | null;
-  dPhi: number | null;
-  closure: number | null; // ⟲
-  lock: boolean | null;
-};
-
-function extractHomeostasis(h: any) {
-  const root = h?.homeostasis?.last ?? h?.homeostasis ?? h?.last ?? h?.state ?? h ?? {};
-  const lock = typeof root?.locked === "boolean" ? root.locked : typeof h?.locked === "boolean" ? h.locked : null;
-
-  const m = root?.metrics ?? root?.state?.metrics ?? root?.derived ?? root ?? {};
-
-  const closure = pickMetric(m, ["⟲", "closure", "cycle", "homeostasis", "turns", "loop"]);
-  const sqi_checkpoint = pickMetric(m, ["sqi_checkpoint", "SQI_checkpoint", "checkpoint_sqi"]);
-  const age = safeNum(h?.age_ms) ?? ageFromLastUpdate(h);
-
-  return { lock, closure, sqi_checkpoint, age, raw: root };
+function ageFromLastUpdate(x: any): number | null {
+  const lu = x?.last_update ?? x?.state?.last_update ?? x?.snapshot?.last_update;
+  if (!lu) return null;
+  const t = Date.parse(String(lu));
+  if (!Number.isFinite(t)) return null;
+  return Math.max(0, Date.now() - t);
 }
-
-function extractLatestMetrics(args: {
-  homeostasis: any | null;
-  phi: any | null;
-  adr: any | null;
-  mirror: any | null;
-}): LatestMetrics {
-  const { homeostasis, phi, adr, mirror } = args;
-
-  // Best effort sources
-  const homeo = homeostasis ? extractHomeostasis(homeostasis) : { lock: null, closure: null, sqi_checkpoint: null, age: null, raw: null as any };
-
-  const phiState = phi?.state ?? phi?.snapshot ?? phi ?? {};
-  const adrState = adr?.state ?? adr?.snapshot ?? adr ?? {};
-  const mirState = mirror?.state ?? mirror ?? {};
-
-  // Event / term: mirror first, then ADR/phi/homeostasis
-  const event = pickStr(mirState, ["event", "evt", "kind", "type"]) ?? pickStr(adrState, ["event", "evt", "kind", "type"]) ?? pickStr(phiState, ["event", "evt", "kind", "type"]) ?? null;
-  const term = pickStr(mirState, ["term", "token", "label", "mode"]) ?? pickStr(adrState, ["term", "token", "label", "mode"]) ?? pickStr(phiState, ["term", "token", "label", "mode"]) ?? null;
-
-  // SQI / ρ / Ī can show up anywhere; prefer explicit metric bags if present
-  const mm = mirState?.metrics ?? mirState?.state?.metrics ?? {};
-  const pm = phiState?.metrics ?? phiState?.state?.metrics ?? phiState ?? {};
-  const am = adrState?.metrics ?? adrState?.state?.metrics ?? adrState ?? {};
-
-  const sqi =
-    pickMetric(mm, ["SQI", "sqi", "C", "coherence"]) ??
-    pickMetric(pm, ["SQI", "sqi", "C", "coherence", "Φ_coherence", "Phi_coherence"]) ??
-    pickMetric(am, ["SQI", "sqi", "C", "coherence"]) ??
-    null;
-
-  const rho =
-    pickMetric(mm, ["ρ", "rho"]) ??
-    pickMetric(pm, ["ρ", "rho"]) ??
-    pickMetric(am, ["ρ", "rho"]) ??
-    null;
-
-  const Ibar =
-    pickMetric(mm, ["Ī", "Ibar", "Ī", "I"]) ??
-    pickMetric(pm, ["Ī", "Ibar", "Ī", "I"]) ??
-    pickMetric(am, ["Ī", "Ibar", "Ī", "I"]) ??
-    null;
-
-  // ΔΦ: either explicit, or derived from (coh - ent) when available in phi
-  const coh =
-    pickMetric(phiState, ["Φ_coherence", "Phi_coherence", "coherence", "C"]) ??
-    pickMetric(pm, ["Φ_coherence", "Phi_coherence", "coherence", "C"]) ??
-    null;
-
-  const ent =
-    pickMetric(phiState, ["Φ_entropy", "Phi_entropy", "entropy"]) ??
-    pickMetric(pm, ["Φ_entropy", "Phi_entropy", "entropy"]) ??
-    null;
-
-  const dPhi =
-    pickMetric(phiState, ["ΔΦ", "dPhi", "delta_phi", "deltaPhi"]) ??
-    (coh != null && ent != null ? coh - ent : null);
-
-  return {
-    event,
-    term,
-    sqi,
-    rho,
-    Ibar,
-    dPhi,
-    closure: homeo.closure,
-    lock: homeo.lock,
-  };
-}
-
-/* ---------------- Summary table (unchanged except existing phi-age fix) ---------------- */
 
 function SummaryTable(props: {
   homeostasis?: any | null;
@@ -597,8 +416,8 @@ function SummaryTable(props: {
   heartbeat?: any | null;
   reflex?: any | null;
 }) {
-  const homeoLast = props.homeostasis?.homeostasis?.last ?? props.homeostasis?.last ?? props.homeostasis?.state ?? null;
-  const homeoLocked = typeof homeoLast?.locked === "boolean" ? homeoLast.locked : typeof props.homeostasis?.locked === "boolean" ? props.homeostasis.locked : null;
+  const homeoLast = props.homeostasis?.homeostasis?.last ?? props.homeostasis?.last ?? null;
+  const homeoLocked = typeof homeoLast?.locked === "boolean" ? homeoLast.locked : null;
 
   const homeoStatus =
     homeoLocked === true ? (
@@ -618,7 +437,7 @@ function SummaryTable(props: {
       </Chip>
     );
 
-  const adrZone = String(props.adr?.derived?.zone || props.adr?.zone || "UNKNOWN");
+  const adrZone = String(props.adr?.derived?.zone || "UNKNOWN");
   const adrStatus =
     adrZone === "GREEN" ? (
       <Chip tone="good">
@@ -646,12 +465,13 @@ function SummaryTable(props: {
   const hbStatus = ageChip(hbAge);
 
   // ✅ FIX: phi producer often doesn't include age_ms; derive it from last_update instead.
-  const phiAge = ageFromLastUpdate(props.phi) ?? safeNum(props.phi?.age_ms);
+  const phiAge = safeNum(props.phi?.age_ms) ?? ageFromLastUpdate(props.phi);
   const phiState = props.phi?.state || props.phi || {};
   const coh = phiState["Φ_coherence"] ?? phiState?.state?.["Φ_coherence"] ?? phiState?.Phi_coherence;
   const ent = phiState["Φ_entropy"] ?? phiState?.state?.["Φ_entropy"] ?? phiState?.Phi_entropy;
   const phiStatus = ageChip(phiAge);
 
+  // mirror payload (your live BE): { ok, age_ms, state:{..., A:0.8337, ...} }
   const mirrorA = props.mirror?.A ?? props.mirror?.state?.A ?? props.mirror?.state?.derived?.A;
   const mirrorStatus =
     typeof mirrorA === "number" ? (
@@ -703,7 +523,9 @@ function SummaryTable(props: {
         <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
           Act 1 Summary // Biological Containers
         </div>
-        <div className="font-mono text-[10px] uppercase tracking-widest text-slate-500">Response to Stress • Autonomous Recovery</div>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-slate-500">
+          Response to Stress • Autonomous Recovery
+        </div>
       </div>
 
       <div className="mt-6 overflow-hidden rounded-xl border border-slate-200">
@@ -719,7 +541,12 @@ function SummaryTable(props: {
           <Row pillar="Awareness" comp="Mirror Reflection Log" target="Commentary + A ≥ 0.90" status={mirrorStatus} />
           <Row pillar="Stability" comp="RSI Stability Bar" target="RSI > 0.95 (Green)" status={adrStatus} />
           <Row pillar="Learning" comp="AKG Strength Delta" target="reinforcement > 0" status={akgStatus} />
-          <Row pillar="Metabolism" comp="Φ-Field Calorimetry" target={`ΔΦ balance (coh=${coh ?? "—"}, ent=${ent ?? "—"})`} status={phiStatus} />
+          <Row
+            pillar="Metabolism"
+            comp="Φ-Field Calorimetry"
+            target={`ΔΦ balance (coh=${coh ?? "—"}, ent=${ent ?? "—"})`}
+            status={phiStatus}
+          />
           <Row pillar="Reflex" comp="Cognitive Grid (Reflex)" target="fresh grid state" status={reflexStatus} />
           <Row pillar="Continuity" comp="Resonant Heartbeat" target="fresh Θ pulse" status={hbStatus} />
         </div>
@@ -744,7 +571,7 @@ function Row(props: { pillar: string; comp: string; target: string; status: Reac
 /* ---------------- Page ---------------- */
 
 export default function AionProofOfLifeDashboard() {
-  const { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase, demoMount, demoActionBase } =
+  const { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase, apiBase, demoBase } =
     useAionDemoData(500);
 
   const [actionBusy, setActionBusy] = useState<string | null>(null);
@@ -775,16 +602,6 @@ export default function AionProofOfLifeDashboard() {
 
   const resolvedApi = useMemo(() => (httpBase ? httpBase : "(same-origin)"), [httpBase]);
 
-  const homeo = useMemo(() => (homeostasis ? extractHomeostasis(homeostasis) : null), [homeostasis]);
-
-  // ✅ This drives the “Latest Metrics” block so it stops showing “—”
-  const latest = useMemo(
-    () => extractLatestMetrics({ homeostasis, phi, adr, mirror }),
-    [homeostasis, phi, adr, mirror]
-  );
-
-  const closureOk = (latest.closure ?? 0) >= 0.975 && latest.lock === true;
-
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1B74E4]/10">
       {/* subtle light brand glow */}
@@ -794,26 +611,22 @@ export default function AionProofOfLifeDashboard() {
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 py-12">
-        <header className="mb-10 border-l-4 pl-6" style={{ borderColor: BRAND.blue }}>
+        <header className="mb-14 border-l-4 pl-6" style={{ borderColor: BRAND.blue }}>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.34em] text-slate-500">
-                AION // Tessaris Intelligence
-              </div>
-              <h1 className="mt-2 text-4xl font-black tracking-tighter uppercase italic text-slate-900">
-                Act 1: The Resonant Organism
-              </h1>
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.34em] text-slate-500">AION // Tessaris Intelligence</div>
+              <h1 className="mt-2 text-4xl font-black tracking-tighter uppercase italic text-slate-900">Act 1: The Resonant Organism</h1>
               <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-600">
                 These panels are “biological containers.” If a feed is stale, treat it as a genuine organismal failure mode (drift / disconnect), not a UI glitch.
               </p>
 
               <div className="mt-4 font-mono text-[11px] text-slate-500">
                 API base: <span className="text-slate-800">{resolvedApi}</span>{" "}
-                <span className="text-slate-400">(auto-detects /api/* vs /aion-demo/api/*)</span>
+                <span className="text-slate-400">(main: /api/* · demo: /aion-demo/api/*)</span>
               </div>
               <div className="mt-1 font-mono text-[11px] text-slate-500">
-                demo mount: <span className="text-slate-800">{demoMount ?? "detecting…"}</span> · action base:{" "}
-                <span className="text-slate-800">{demoActionBase || "(same-origin)"}</span>
+                main: <span className="text-slate-800">{apiBase || "(same-origin)"}</span> · demo:{" "}
+                <span className="text-slate-800">{demoBase || "/aion-demo"}</span>
               </div>
             </div>
 
@@ -823,33 +636,7 @@ export default function AionProofOfLifeDashboard() {
           {err ? <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-rose-700">{err}</div> : null}
         </header>
 
-        {/* ✅ FIXED Phase Closure Monitor (top-of-page, no more “Awaiting…”) */}
-        <div className="mb-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">Phase Closure Monitor</div>
-              <div className="mt-2 text-sm font-semibold text-slate-900">⟲ ≥ 0.975</div>
-              <div className="mt-1 font-mono text-[11px] text-slate-500">
-                source: <span className="text-slate-800">/api/aion/dashboard</span> (or{" "}
-                <span className="text-slate-800">/aion-demo/api/aion/dashboard</span>)
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              {homeo ? ageChip(homeo.age, 2000, 6000) : ageChip(null)}
-              <Chip tone={latest.lock === true ? "good" : latest.lock === false ? "warn" : "warn"}>
-                <span className={classNames("h-2 w-2 rounded-full", latest.lock === true ? "bg-emerald-500" : "bg-amber-500")} />
-                <span>lock {latest.lock == null ? "—" : latest.lock ? "ON" : "OFF"}</span>
-              </Chip>
-              <Chip tone={closureOk ? "good" : "warn"}>
-                <span className={classNames("h-2 w-2 rounded-full", closureOk ? "bg-emerald-500" : "bg-amber-500")} />
-                <span>⟲ {latest.closure == null ? "—" : latest.closure.toFixed(3)}</span>
-              </Chip>
-            </div>
-          </div>
-        </div>
-
-        {/* Demo 00 (Homeostasis / Auto-Lock) */}
+        {/* Demo 00 (Homeostasis / Auto-Lock) - main backend */}
         <PillarSection
           id={demo00Meta.id}
           pillar={demo00Meta.pillar}
@@ -860,17 +647,15 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo00HomeostasisPanel homeostasis={homeostasis} />}
         />
 
-        {/* Reflex (uses detected demoActionBase for POSTs) */}
+        {/* ✅ Reflex directly under Auto-Lock/Homeostasis (demo_bridge) */}
         <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">Demo Container 04</div>
               <div className="mt-1 text-xl font-black tracking-tight text-slate-900 uppercase italic">Reflex (Cognitive Grid)</div>
               <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-slate-500">
-                GET <span className="text-slate-800">{demoMount === "aion-demo" ? "/aion-demo/api/reflex" : "/api/reflex"}</span> · POST{" "}
-                <span className="text-slate-800">
-                  {demoMount === "aion-demo" ? "/aion-demo/api/demo/reflex/{reset,step,run}" : "/api/demo/reflex/{reset,step,run}"}
-                </span>
+                GET <span className="text-slate-800">/aion-demo/api/reflex</span> · POST{" "}
+                <span className="text-slate-800">/aion-demo/api/demo/reflex/{`{reset,step,run}`}</span>
               </div>
             </div>
 
@@ -886,9 +671,9 @@ export default function AionProofOfLifeDashboard() {
             <Demo04ReflexGridPanel
               reflex={reflex as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("reflex_reset", () => postApi(demoActionBase, "/demo/reflex/reset"))}
-              onStep={() => runBusy("reflex_step", () => postApi(demoActionBase, "/demo/reflex/step"))}
-              onRun={() => runBusy("reflex_run", () => postApi(demoActionBase, "/demo/reflex/run"))}
+              onReset={() => runBusy("reflex_reset", () => postApi(demoBase, "/demo/reflex/reset"))}
+              onStep={() => runBusy("reflex_step", () => postApi(demoBase, "/demo/reflex/step"))}
+              onRun={() => runBusy("reflex_run", () => postApi(demoBase, "/demo/reflex/run"))}
             />
           </div>
 
@@ -900,7 +685,7 @@ export default function AionProofOfLifeDashboard() {
           </div>
         </div>
 
-        {/* Demo 01 */}
+        {/* Demo 01 (demo_bridge) */}
         <PillarSection
           id={demo01Meta.id}
           pillar={demo01Meta.pillar}
@@ -911,14 +696,14 @@ export default function AionProofOfLifeDashboard() {
             <Demo01MetabolismPanel
               phi={phi as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("reset", () => postApi(demoActionBase, "/demo/phi/reset"))}
-              onInjectEntropy={() => runBusy("inject", () => postApi(demoActionBase, "/demo/phi/inject_entropy"))}
-              onRecover={() => runBusy("recover", () => postApi(demoActionBase, "/demo/phi/recover"))}
+              onReset={() => runBusy("reset", () => postApi(demoBase, "/demo/phi/reset"))}
+              onInjectEntropy={() => runBusy("inject", () => postApi(demoBase, "/demo/phi/inject_entropy"))}
+              onRecover={() => runBusy("recover", () => postApi(demoBase, "/demo/phi/recover"))}
             />
           }
         />
 
-        {/* Demo 02 */}
+        {/* Demo 02 (demo_bridge) */}
         <PillarSection
           id={demo02Meta.id}
           pillar={demo02Meta.pillar}
@@ -929,13 +714,13 @@ export default function AionProofOfLifeDashboard() {
             <Demo02AdrPanel
               adr={adr as any}
               actionBusy={actionBusy}
-              onInject={() => runBusy("adr_inject", () => postApi(demoActionBase, "/demo/adr/inject"))}
-              onRun={() => runBusy("adr_run", () => postApi(demoActionBase, "/demo/adr/run"))}
+              onInject={() => runBusy("adr_inject", () => postApi(demoBase, "/demo/adr/inject"))}
+              onRun={() => runBusy("adr_run", () => postApi(demoBase, "/demo/adr/run"))}
             />
           }
         />
 
-        {/* Demo 03 */}
+        {/* Demo 03 (demo_bridge) */}
         <PillarSection
           id={demo03Meta.id}
           pillar={demo03Meta.pillar}
@@ -945,7 +730,7 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo03HeartbeatPanel heartbeat={heartbeat as any} namespace="demo" />}
         />
 
-        {/* Demo 05 */}
+        {/* Demo 05 (demo_bridge) */}
         <PillarSection
           id={demo05Meta.id}
           pillar={demo05Meta.pillar}
@@ -957,16 +742,14 @@ export default function AionProofOfLifeDashboard() {
             <Demo05AkgPanel
               akg={akg as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("akg_reset", () => postApi(demoActionBase, "/demo/akg/reset"))}
-              onStep={() => runBusy("akg_step", () => postApi(demoActionBase, "/demo/akg/step"))}
-              onRun={() =>
-                runBusy("akg_run", () => postUrl(joinUrl(demoActionBase, "/api/demo/akg/run?rounds=400")))
-              }
+              onReset={() => runBusy("akg_reset", () => postApi(demoBase, "/demo/akg/reset"))}
+              onStep={() => runBusy("akg_step", () => postApi(demoBase, "/demo/akg/step"))}
+              onRun={() => runBusy("akg_run", () => postUrl(joinUrl(demoBase, "/api/demo/akg/run?rounds=400")))}
             />
           }
         />
 
-        {/* Demo 06 */}
+        {/* Demo 06 (demo_bridge) */}
         <PillarSection
           id={demo06Meta.id}
           pillar={demo06Meta.pillar}
@@ -977,42 +760,7 @@ export default function AionProofOfLifeDashboard() {
           container={<Demo06MirrorPanel mirror={mirror as any} />}
         />
 
-        {/* ✅ FIXED “Latest Metrics” block for the AION cognition section */}
-        <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">AION Cognition Container</div>
-              <div className="mt-1 text-xl font-black tracking-tight text-slate-900 uppercase italic">Latest Metrics</div>
-              <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-slate-500">
-                derived from: homeostasis + phi + adr + mirror (no WS required)
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Chip tone={latest.lock === true ? "good" : latest.lock === false ? "warn" : "warn"}>
-                <span className={classNames("h-2 w-2 rounded-full", latest.lock === true ? "bg-emerald-500" : "bg-amber-500")} />
-                <span>lock {latest.lock == null ? "—" : latest.lock ? "ON" : "OFF"}</span>
-              </Chip>
-              <Chip tone={closureOk ? "good" : "warn"}>
-                <span className={classNames("h-2 w-2 rounded-full", closureOk ? "bg-emerald-500" : "bg-amber-500")} />
-                <span>⟲ {latest.closure == null ? "—" : latest.closure.toFixed(3)}</span>
-              </Chip>
-            </div>
-          </div>
-
-          <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-            <Metric label="event" value={latest.event ?? "—"} />
-            <Metric label="term" value={latest.term ?? "—"} />
-            <Metric label="SQI" value={latest.sqi == null ? "—" : latest.sqi.toFixed(3)} />
-            <Metric label="ρ" value={latest.rho == null ? "—" : latest.rho.toFixed(3)} />
-            <Metric label="Ī" value={latest.Ibar == null ? "—" : latest.Ibar.toFixed(3)} />
-            <Metric label="ΔΦ" value={latest.dPhi == null ? "—" : latest.dPhi.toFixed(3)} />
-            <Metric label="⟲" value={latest.closure == null ? "—" : latest.closure.toFixed(3)} />
-            <Metric label="Homeostasis ⟲" value={closureOk ? "1.00" : latest.closure == null ? "—" : (Math.min(1, Math.max(0, latest.closure / 0.975))).toFixed(2)} />
-          </div>
-        </div>
-
-        {/* AION Cognitive Dashboard (kept) */}
+        {/* AION Cognitive Dashboard (WS; already correct) */}
         <div className="mt-10">
           <AionCognitiveDashboard />
         </div>
@@ -1025,15 +773,6 @@ export default function AionProofOfLifeDashboard() {
           <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">{footerRight}</div>
         </footer>
       </div>
-    </div>
-  );
-}
-
-function Metric(props: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-      <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-500">{props.label}</div>
-      <div className="mt-2 font-mono text-[14px] font-bold text-slate-900">{props.value}</div>
     </div>
   );
 }
