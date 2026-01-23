@@ -244,6 +244,8 @@ HEARTBEAT_JSONL_PATH = DATA_ROOT / "aion_field" / "resonant_heartbeat.jsonl"
 HEARTBEAT_DIR = DATA_ROOT / "aion_field"
 SUPERVISOR_STATE_PATH = Path("/tmp/aion_heartbeat_state.json")
 
+FUSION_STATE_JSONL_PATH = DATA_ROOT / "learning" / "fusion_state.jsonl"
+
 # Default heartbeat namespace preference (your dashboard “demo 3” usually wants demo)
 DEFAULT_HEARTBEAT_NS = os.getenv("AION_DEMO_HEARTBEAT_NAMESPACE", "global_theta")
 
@@ -274,8 +276,8 @@ def ensure_producers_running():
         _spawn([sys.executable, "backend/modules/aion_integrity/resonant_quantum_feedback_synchronizer.py"], "rqfs.log"),
         _spawn([sys.executable, "backend/modules/aion_resonance/resonant_feedback_daemon.py"], "rfd.log"),
         _spawn([sys.executable, "backend/modules/aion_resonance/resonant_optimizer_loop.py"], "rol.log"),
+        _spawn([sys.executable, "backend/modules/aion_cognition/tessaris_cognitive_fusion_kernel.py"], "tcfk.log"),
         # add more only if needed:
-        # _spawn([sys.executable, "backend/modules/aion_cognition/tessaris_cognitive_fusion_kernel.py"], "tcfk.log"),
         # _spawn([sys.executable, "backend/modules/aion_control/adaptive_quantum_control_interface.py"], "aqci.log"),
         # _spawn([sys.executable, "backend/modules/aion_integrity/symbolic_resonance_export_layer.py"], "srel.log"),
         # _spawn([sys.executable, "backend/modules/aion_integrity/resonant_analytics_layer.py"], "ral.log"),
@@ -308,6 +310,11 @@ def _idle_killer_loop():
 # -----------------------------------------------------------------------------
 # Utilities
 # -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Utilities
+# -----------------------------------------------------------------------------
+
 def _read_json(path: Path, default: Any = None) -> Any:
     try:
         if not path.exists():
@@ -315,6 +322,20 @@ def _read_json(path: Path, default: Any = None) -> Any:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return default
+
+def fusion_state() -> Dict[str, Any]:
+    """
+    Tail last fusion packet produced by TCFK (data/learning/fusion_state.jsonl).
+    This is where σ / γ̃ / ψ̃ / κ̃ live.
+    """
+    j = _read_last_jsonl(FUSION_STATE_JSONL_PATH)
+    return {
+        "ok": isinstance(j, dict),
+        "data_root": str(DATA_ROOT),
+        "source_file": str(FUSION_STATE_JSONL_PATH) if FUSION_STATE_JSONL_PATH.exists() else None,
+        "age_ms": _age_ms_for(FUSION_STATE_JSONL_PATH) if FUSION_STATE_JSONL_PATH.exists() else None,
+        "fusion": j if isinstance(j, dict) else None,
+    }
 
 def mirror_compute_frame() -> dict:
     """
@@ -937,11 +958,21 @@ def adr_run_resonance_feedback() -> Dict[str, Any]:
     """
     import subprocess
 
-    cmd = [sys.executable, "backend/modules/aion_perception/pal_core.py", "--mode=resonance-feedback"]
+    pal_core = _REPO_ROOT / "backend" / "modules" / "aion_perception" / "pal_core.py"
+    cmd = [sys.executable, str(pal_core), "--mode=resonance-feedback"]
+
     env = os.environ.copy()
-    env["PYTHONPATH"] = env.get("PYTHONPATH", ".") or "."
+    env.setdefault("PYTHONPATH", str(_REPO_ROOT))
+
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=45)
+        r = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=45,
+            cwd=str(_REPO_ROOT),
+        )
         out = (r.stdout or "").splitlines()[-25:]
         err = (r.stderr or "").splitlines()[-25:]
         return {
@@ -954,7 +985,6 @@ def adr_run_resonance_feedback() -> Dict[str, Any]:
         }
     except subprocess.TimeoutExpired:
         return {"ok": False, "action": "adr_run", "error": "timeout", **adr_state()}
-
 
 # -----------------------------------------------------------------------------
 # FastAPI app
@@ -1180,6 +1210,30 @@ async def ws_aion_demo(ws: WebSocket) -> None:
             adr = adr_state()
             hb = heartbeat_state(namespace=hb_ns)
 
+            # Pull commonly-used signals FIRST (so fallbacks can use them)
+            phi_s = (phi.get("state") or {})
+            beliefs = (phi_s.get("beliefs") or {})
+
+            rho = phi_s.get("Φ_coherence")
+            iota = phi_s.get("Φ_entropy")
+            dphi = phi_s.get("Φ_flux")  # best available ΔΦ proxy in this state file
+
+            # Fusion telemetry
+            fusion = fusion_state()
+            f = (fusion.get("fusion") or {}) if isinstance(fusion, dict) else {}
+
+            psi_v = f.get("ψ̃", f.get("psi_tilde", f.get("cognition_signal")))
+            kappa_v = f.get("κ̃", f.get("kappa_tilde", f.get("curl_rms")))
+            T_v = f.get("timestamp", f.get("updatedAt_ms"))
+
+            # ✅ fallbacks so HUD never shows "—"
+            if psi_v is None:
+                psi_v = rho  # fallback to coherence
+            if kappa_v is None:
+                kappa_v = abs(float(dphi or 0.0))  # curvature-ish fallback
+            if T_v is None:
+                T_v = time.time()
+
             # Optional: compute mirror frame so A is real + fresh
             try:
                 mirror = mirror_compute_frame()
@@ -1191,14 +1245,6 @@ async def ws_aion_demo(ws: WebSocket) -> None:
                 reflex_state = reflex_mod.get_state(REFLEX_STATE_PATH)
             except Exception:
                 reflex_state = {}
-
-            # Pull commonly-used signals
-            phi_s = (phi.get("state") or {})
-            beliefs = (phi_s.get("beliefs") or {})
-
-            rho = phi_s.get("Φ_coherence")
-            iota = phi_s.get("Φ_entropy")
-            dphi = phi_s.get("Φ_flux")  # best available ΔΦ proxy in this state file
 
             # Mirror produces A (alignment) which is what your “Awareness” pillar wants
             A = mirror.get("A") if isinstance(mirror, dict) else None
@@ -1212,6 +1258,27 @@ async def ws_aion_demo(ws: WebSocket) -> None:
             eq = A if A is not None else beliefs.get("stability")
 
             payload_metrics = {
+                # what the UI expects
+                "C": rho,                 # coherence should be Φ_coherence
+                "E": iota,                # entropy should be Φ_entropy
+                "ψ": psi_v,
+                "κ": kappa_v,
+                "T": T_v,
+
+                # --- QFC tensor metrics from TCFK (fusion_state.jsonl) ---
+                # HUD labels: σ (Stability), γ̃ (Feedback Gain), ψ̃ (Cognitive Wave), κ̃ (Resonance Field)
+                "sigma": f.get("sigma", f.get("σ", f.get("stability"))),
+                "gamma_tilde": f.get("gamma_tilde", f.get("γ̃", f.get("coupling_score"))),
+                "psi_tilde": f.get("psi_tilde", f.get("ψ̃", f.get("cognition_signal"))),
+                "kappa_tilde": f.get("kappa_tilde", f.get("κ̃", f.get("curl_rms"))),
+
+                # unicode aliases (in case UI reads them directly)
+                "σ": f.get("σ", f.get("stability")),
+                "γ̃": f.get("γ̃", f.get("coupling_score")),
+                "ψ̃": f.get("ψ̃", f.get("cognition_signal")),
+                "κ̃": f.get("κ̃", f.get("curl_rms")),
+
+                # keep your extra fields too
                 "SQI": beliefs.get("trust"),
                 "ρ": rho,
                 "Ī": iota,
@@ -1235,6 +1302,13 @@ async def ws_aion_demo(ws: WebSocket) -> None:
                 "state": {
                     "phi": phi_s,
                     "metrics": payload_metrics,
+                },
+
+                "fusion": f,
+                "fusion_meta": {
+                    "ok": fusion.get("ok") if isinstance(fusion, dict) else None,
+                    "age_ms": fusion.get("age_ms") if isinstance(fusion, dict) else None,
+                    "source_file": fusion.get("source_file") if isinstance(fusion, dict) else None,
                 },
 
                 "phi": phi_s,
