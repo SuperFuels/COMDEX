@@ -96,18 +96,17 @@ function normalizeRqcMetrics(msg: any) {
  *   https://...run.app
  */
 function resolveOrigin(): string {
-  const apiBase = (
+  const raw = (
+    process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE ||
+    process.env.NEXT_PUBLIC_API_URL ||
     process.env.NEXT_PUBLIC_AION_API_BASE ||
     process.env.NEXT_PUBLIC_API_BASE ||
     ""
   ).trim();
 
-  const u = apiBase ? safeUrl(apiBase) : null;
-
+  const u = raw ? safeUrl(raw) : null;
   if (u) {
-    const p = (u.pathname || "/").replace(/\/+$/, "");
-    if (p.endsWith("/api")) u.pathname = p.slice(0, -4) || "/";
-    else u.pathname = p || "/";
+    u.pathname = "/";
     u.search = "";
     u.hash = "";
     return u.toString().replace(/\/+$/, "");
@@ -118,38 +117,57 @@ function resolveOrigin(): string {
 }
 
 function pickRqcWsUrl() {
-  const raw = (process.env.NEXT_PUBLIC_RQC_WS || "").trim();
-  if (raw) {
-    // normalize http(s) -> ws(s)
-    let env = raw;
-    if (env.startsWith("https://")) env = "wss://" + env.slice("https://".length);
-    if (env.startsWith("http://")) env = "ws://" + env.slice("http://".length);
+  const normalizeWs = (raw: string) => {
+    let s = (raw || "").trim().replace(/\/+$/, "");
+    if (!s) return "";
+    if (s.startsWith("https://")) s = "wss://" + s.slice("https://".length);
+    else if (s.startsWith("http://")) s = "ws://" + s.slice("http://".length);
+    return s;
+  };
 
-    return env; // ws:// or wss:// (full URL)
+  // 1) Explicit override (recommended in prod):
+  // NEXT_PUBLIC_RQC_WS = wss://<host>/aion-demo/ws/aion-demo
+  const raw = normalizeWs(process.env.NEXT_PUBLIC_RQC_WS || "");
+  if (raw) return raw;
+
+  // 2) If you provided demo base, derive WS from it.
+  // Accept either:
+  //   NEXT_PUBLIC_AION_DEMO_BASE = https://<host>/aion-demo
+  // or NEXT_PUBLIC_AION_DEMO_HTTP_BASE = https://<host>
+  const demoBase =
+    (process.env.NEXT_PUBLIC_AION_DEMO_BASE ||
+      process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE ||
+      "").trim();
+
+  if (demoBase) {
+    const http = demoBase.replace(/\/+$/, "");
+    const wsRoot = normalizeWs(http);
+    // If env already ends with /aion-demo, append only /ws/aion-demo
+    if (http.endsWith("/aion-demo")) return `${wsRoot}/ws/aion-demo`;
+    // Else assume origin, append full path
+    return `${wsRoot}/aion-demo/ws/aion-demo`;
   }
 
-  // fallback: derive from API base / window origin
-  const origin = resolveOrigin();
+  // 3) Fallback: derive from API origin (same host)
+  const origin = resolveOrigin(); // returns https://<host> (no /api)
   if (origin) {
-    const proto = origin.startsWith("https://") ? "wss" : "ws";
-    const host = origin.replace(/^https?:\/\//, "");
-    return `${proto}://${host}/resonance`;
+    const wsRoot = normalizeWs(origin);
+    return `${wsRoot}/aion-demo/ws/aion-demo`;
   }
 
+  // 4) Local dev fallback
   if (typeof window !== "undefined") {
     const isLocal =
       window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    if (isLocal) return "ws://127.0.0.1:8080/resonance";
+    if (isLocal) return "ws://127.0.0.1:8080/aion-demo/ws/aion-demo";
   }
 
   return "";
 }
 
 function pickAionDemoBase() {
-  const env = (process.env.NEXT_PUBLIC_AION_DEMO_BASE || "").trim();
-  if (env) return env.replace(/\/+$/, "");
   const origin = resolveOrigin();
-  return origin ? `${origin}/aion-demo` : "http://127.0.0.1:8080/aion-demo";
+  return origin ? `${origin}/aion-demo` : "";
 }
 
 async function postJson(url: string, body: any, timeoutMs = 8000) {
