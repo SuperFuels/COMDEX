@@ -172,6 +172,94 @@ function pickAionDemoBase() {
   return origin ? `${origin}/aion-demo` : "";
 }
 
+function useJsonWS(
+  url: string,
+  enabled: boolean,
+  handlers: {
+    onOpen?: (ws: WebSocket) => void;
+    onClose?: (ev: CloseEvent) => void;
+    onError?: (ev: Event) => void;
+    onMessage: (data: any) => void;
+  }
+) {
+  const handlersRef = useRef(handlers);
+  handlersRef.current = handlers;
+
+  useEffect(() => {
+    if (!enabled) return;
+    if (!url) return;
+
+    let ws: WebSocket | null = null;
+    let stopped = false;
+    let retry = 0;
+    let retryTimer: any = null;
+
+    const scheduleReconnect = () => {
+      if (stopped) return;
+      const base = Math.min(8000, 300 * Math.pow(2, retry));
+      const jitter = Math.floor(Math.random() * 250);
+      const delay = base + jitter;
+      retry = Math.min(6, retry + 1);
+      retryTimer = window.setTimeout(connect, delay);
+    };
+
+    const connect = () => {
+      if (stopped) return;
+
+      try {
+        ws?.close(1000, "reconnect");
+      } catch {}
+      ws = null;
+
+      try {
+        ws = new WebSocket(url);
+      } catch (e) {
+        scheduleReconnect();
+        return;
+      }
+
+      ws.onopen = () => {
+        retry = 0;
+        handlersRef.current.onOpen?.(ws!);
+      };
+
+      ws.onclose = (ev) => {
+        handlersRef.current.onClose?.(ev);
+        if (stopped) return;
+        scheduleReconnect();
+      };
+
+      ws.onerror = (ev) => {
+        handlersRef.current.onError?.(ev);
+        try {
+          ws?.close();
+        } catch {}
+      };
+
+      ws.onmessage = (evt) => {
+        let data: any;
+        try {
+          data = JSON.parse(String(evt.data));
+        } catch {
+          return;
+        }
+        handlersRef.current.onMessage(data);
+      };
+    };
+
+    connect();
+
+    return () => {
+      stopped = true;
+      if (retryTimer) window.clearTimeout(retryTimer);
+      try {
+        ws?.close(1000, "client stop");
+      } catch {}
+      ws = null;
+    };
+  }, [url, enabled]);
+}
+
 async function postJson(url: string, body: any, timeoutMs = 8000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -282,6 +370,29 @@ export default function RQCAwarenessDemo() {
 
   const closureLabel = closureOk ? "LOCKED" : "UNLOCKED";
 
+    // effective target for injection (prefer live feed identity if present)
+  const effectiveSessionId = feedSessionId ?? SESSION_ID;
+  const effectiveNamespace = feedNamespace ?? "demo";
+  const feedHasIdentity = !!feedSessionId || !!feedNamespace;
+
+  function fmt2(x: number | null) {
+    return x == null ? "—" : x.toFixed(2);
+  }
+
+  function fmtTime(T: number | null) {
+    if (T == null) return "—";
+    // epoch ms
+    if (T > 1e12) {
+      const ageMs = Date.now() - T;
+      const ageS = ageMs / 1000;
+      if (Math.abs(ageS) < 120) return `${ageS >= 0 ? "-" : "+"}${Math.abs(ageS).toFixed(1)}s`;
+      return new Date(T).toISOString().replace(".000Z", "Z");
+    }
+    // seconds
+    if (T > 1e9) return new Date(T * 1000).toISOString().replace(".000Z", "Z");
+    return T.toFixed(2);
+  }
+
   // ✅ allow clearing to null when feed omits a field (prevents “stuck” illusion)
   const setIfChanged = (
     key: keyof typeof lastValsRef.current,
@@ -320,37 +431,39 @@ export default function RQCAwarenessDemo() {
 
   const injectEntropyFn = async () => {
     setIsInjecting(true);
+
+    const sid = effectiveSessionId;
+    const ns = effectiveNamespace;
+
     try {
-      const r = await postJson(`${aionDemoBase}/api/demo/inject_entropy`, {
-        sessionId: SESSION_ID,
-        namespace: "demo",
-      });
+      const r = await postJson(`${aionDemoBase}/api/demo/inject_entropy`, { sessionId: sid, namespace: ns });
 
       if (r.ok) {
         injectAtRef.current = Date.now();
-        injectEntropyRef.current = entropy; // baseline at inject time
-        addLog(`[AION_DEMO] Inject OK → ${aionDemoBase}/api/demo/inject_entropy (sid=${SESSION_ID})`, "warn");
+        injectEntropyRef.current = entropy;
+        addLog(`[AION_DEMO] Inject OK → sid=${sid} ns=${ns}${feedHasIdentity ? "" : " (fallback)"}`, "warn");
       } else {
-        const r2 = await postJson(`${aionDemoBase}/api/demo/phi/inject_entropy`, {
-          sessionId: SESSION_ID,
-          namespace: "demo",
-        });
+        const r2 = await postJson(`${aionDemoBase}/api/demo/phi/inject_entropy`, { sessionId: sid, namespace: ns });
 
         if (r2.ok) {
           injectAtRef.current = Date.now();
           injectEntropyRef.current = entropy;
-          addLog(`[AION_DEMO] Inject OK → ${aionDemoBase}/api/demo/phi/inject_entropy (sid=${SESSION_ID})`, "warn");
+          addLog(`[AION_DEMO] Inject OK (phi) → sid=${sid} ns=${ns}${feedHasIdentity ? "" : " (fallback)"}`, "warn");
         } else {
-          addLog(`[AION_DEMO] Inject failed (HTTP ${r.status})`, "warn");
+          addLog(
+            `[AION_DEMO] Inject failed (HTTP ${r.status}/${r2.status}) sid=${sid} ns=${ns}${feedHasIdentity ? "" : " (fallback)"}`,
+            "warn"
+          );
         }
       }
     } catch (e: any) {
-      addLog(`[AION_DEMO] Inject error: ${e?.message || String(e)}`, "warn");
+      addLog(`[AION_DEMO] Inject error: ${e?.message || String(e)} sid=${sid} ns=${ns}`, "warn");
     }
+
     window.setTimeout(() => setIsInjecting(false), 900);
   };
 
-  // LIVE WS (auto-reconnect)
+  // LIVE WS (auto-reconnect) — paste this whole block back in place
   useEffect(() => {
     if (!running) return;
     if (!wsUrl) return;
@@ -376,7 +489,13 @@ export default function RQCAwarenessDemo() {
       } catch {}
       wsRef.current = null;
 
-      const ws = new WebSocket(wsUrl);
+      let ws: WebSocket;
+      try {
+        ws = new WebSocket(wsUrl);
+      } catch (e) {
+        scheduleReconnect();
+        return;
+      }
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -391,7 +510,7 @@ export default function RQCAwarenessDemo() {
       ws.onclose = (ev) => {
         setLiveConnected(false);
         addLog(`[RQC_LIVE] CLOSE code=${ev.code} reason=${ev.reason || "—"}`, "warn");
-        scheduleReconnect();
+        if (!stopped) scheduleReconnect();
       };
 
       ws.onerror = (ev) => {
@@ -406,17 +525,16 @@ export default function RQCAwarenessDemo() {
       ws.onmessage = (evt) => {
         setLastTelemetryAt(Date.now());
 
-        const raw = String(evt.data);
         let data: any;
         try {
-          data = JSON.parse(raw);
+          data = JSON.parse(String(evt.data));
         } catch {
           return;
         }
 
         const type = String(data?.type || "");
 
-        // ✅ capture stream identity (session/namespace) so you can see mismatches
+        // capture stream identity (session/namespace)
         const sid =
           data?.sessionId ?? data?.state?.sessionId ?? data?.meta?.sessionId ?? data?.metrics?.sessionId ?? null;
         const ns =
@@ -443,7 +561,7 @@ export default function RQCAwarenessDemo() {
           setIfChanged("entropy", setEntropy, nextEntropy);
           setIfChanged("phi", setPhi, nextPhi);
 
-          // ✅ auto-recovery detector (observe only)
+          // auto-recovery detector (observe only)
           const injAt = injectAtRef.current;
           if (injAt > 0 && nextEntropy != null) {
             const age = Date.now() - injAt;
@@ -754,11 +872,11 @@ export default function RQCAwarenessDemo() {
             </div>
 
             <div className="mt-8 grid grid-cols-2 md:grid-cols-5 gap-4">
-              <Tile label="ψ (Wave Presence)" value={psi != null ? psi.toFixed(5) : "—"} />
-              <Tile label="κ (Curvature)" value={kappa != null ? kappa.toFixed(6) : "—"} />
-              <Tile label="T (Temporal)" value={T != null ? T.toFixed(3) : "—"} />
-              <Tile label="Entropy" value={entropy != null ? entropy.toFixed(3) : "—"} />
-              <Tile label="Φ (Awareness)" value={phi != null ? phi.toFixed(4) : "—"} />
+              <Tile label="ψ (Wave Presence)" value={fmt2(psi)} />
+              <Tile label="κ (Curvature)" value={fmt2(kappa)} />
+              <Tile label="T (Temporal)" value={fmtTime(T)} />
+              <Tile label="Entropy" value={fmt2(entropy)} />
+              <Tile label="Φ (Awareness)" value={fmt2(phi)} />
             </div>
           </div>
 
@@ -766,7 +884,7 @@ export default function RQCAwarenessDemo() {
             <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-sm relative overflow-hidden">
               <div className="relative z-10">
                 <span className="text-[10px] font-bold tracking-[0.2em] text-blue-300 uppercase">Awareness Scalar</span>
-                <div className="mt-2 text-6xl font-semibold font-mono">Φ {phi != null ? phi.toFixed(4) : "—"}</div>
+                <div className="mt-2 text-6xl font-semibold font-mono">Φ {fmt2(phi)}</div>
                 <p className="text-slate-300 text-xs mt-4 leading-relaxed">
                   Φ is the self-measurement observable. If Φ is not explicitly emitted, it falls back to coherence (SQI/C).
                 </p>
@@ -774,11 +892,15 @@ export default function RQCAwarenessDemo() {
                 <div className="mt-5 grid grid-cols-2 gap-3">
                   <div className="bg-white/10 border border-white/10 rounded-2xl p-4">
                     <div className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">Resonance Index</div>
-                    <div className="mt-1 text-xl font-mono text-white">{resonanceIndex != null ? resonanceIndex.toFixed(3) : "—"}</div>
+                    <div className="mt-1 text-xl font-mono text-white">
+                      {resonanceIndex != null ? resonanceIndex.toFixed(2) : "—"}
+                    </div>
                   </div>
                   <div className="bg-white/10 border border-white/10 rounded-2xl p-4">
                     <div className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">Stability Index</div>
-                    <div className="mt-1 text-xl font-mono text-white">{stabilityIndex != null ? stabilityIndex.toFixed(3) : "—"}</div>
+                    <div className="mt-1 text-xl font-mono text-white">
+                      {stabilityIndex != null ? stabilityIndex.toFixed(2) : "—"}
+                    </div>
                   </div>
                 </div>
               </div>
