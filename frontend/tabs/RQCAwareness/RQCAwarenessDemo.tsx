@@ -125,19 +125,6 @@ function pickRqcWsUrl() {
     if (env.startsWith("https://")) env = "wss://" + env.slice("https://".length);
     if (env.startsWith("http://")) env = "ws://" + env.slice("http://".length);
 
-    // guardrails
-    if (env.includes("/aion-demo/ws")) {
-      console.warn("[RQC] NEXT_PUBLIC_RQC_WS points to demo ws, expected /resonance:", env);
-
-      // optional: auto-fix the common misconfig
-      env = env.replace(/\/aion-demo\/ws\/aion-demo\/?$/, "/resonance");
-      console.warn("[RQC] Auto-corrected to:", env);
-    }
-
-    if (!env.includes("/resonance")) {
-      console.warn("[RQC] NEXT_PUBLIC_RQC_WS should end with /resonance:", env);
-    }
-
     return env; // ws:// or wss:// (full URL)
   }
 
