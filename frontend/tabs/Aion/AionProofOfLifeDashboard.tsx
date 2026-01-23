@@ -14,7 +14,7 @@ import { demo04Meta, Demo04ReflexGridPanel } from "./demos/demo04_reflex_grid";
 import { demo05Meta, Demo05AkgPanel } from "./demos/demo5_akg_consolidation";
 
 // ✅ Integrity + Mirror
-import { demo00Meta, Demo00HomeostasisPanel } from "./demos/demo00_homeostasis_real";
+import { demo00Meta } from "./demos/demo00_homeostasis_real";
 import { demo06Meta, Demo06MirrorPanel } from "./demos/demo06_mirror_reflection";
 import AionCognitiveDashboard from "./AionCognitiveDashboard";
 
@@ -31,18 +31,27 @@ function stripSlash(s: string) {
 function normalizeHttpBase(raw: string) {
   let b = stripSlash(raw);
   if (!b) return "";
-
   // tolerate people pasting ".../api" or ".../aion-demo"
   b = b.replace(/\/api$/i, "");
   b = b.replace(/\/aion-demo$/i, "");
-
   return b;
 }
 
 function resolveHttpBase(): string {
-  // ✅ Single source of truth now
+  // ✅ Prefer the new unified base...
   const envDemo = normalizeHttpBase(process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE || "");
   if (envDemo) return envDemo;
+
+  // ✅ ...but DO NOT break the old config
+  const envHomeo = normalizeHttpBase(process.env.NEXT_PUBLIC_HOMEOSTASIS_BASE || "");
+  if (envHomeo) return envHomeo;
+
+  // other common aliases
+  const envApi =
+    normalizeHttpBase(process.env.NEXT_PUBLIC_API_URL || "") ||
+    normalizeHttpBase(process.env.NEXT_PUBLIC_AION_API_BASE || "") ||
+    normalizeHttpBase(process.env.NEXT_PUBLIC_API_BASE || "");
+  if (envApi) return envApi;
 
   // Local dev convenience
   if (typeof window !== "undefined") {
@@ -71,7 +80,6 @@ function toApiPath(path: string) {
   if (p.startsWith("/api/")) return p;
   if (p.startsWith("/demo/")) return `/api${p}`; // /api/demo/...
   if (p.startsWith("/aion/")) return `/api${p}`; // /api/aion/...
-  // default: assume already intended under /api
   return `/api${p}`;
 }
 
@@ -93,19 +101,22 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   if (!ct.includes("application/json")) {
     throw new Error(
       `${url} -> Expected JSON but got "${ct || "unknown"}". ` +
-        `Your NEXT_PUBLIC_AION_DEMO_HTTP_BASE is probably pointing at the FRONTEND, not the API service.`
+        `Your base env var is probably pointing at the FRONTEND, not the API service.`
     );
   }
 
   return JSON.parse(text) as T;
 }
 
-async function postApi(base: string, path: string): Promise<void> {
-  await fetchJson<any>(joinUrl(base, toApiPath(path)), { method: "POST" });
+async function postApi(base: string, path: string, body?: any): Promise<void> {
+  await fetchJson<any>(joinUrl(base, toApiPath(path)), {
+    method: "POST",
+    body: body != null ? JSON.stringify(body) : undefined,
+  });
 }
 
-async function postUrl(url: string): Promise<void> {
-  await fetchJson<any>(url, { method: "POST" });
+async function postUrl(url: string, body?: any): Promise<void> {
+  await fetchJson<any>(url, { method: "POST", body: body != null ? JSON.stringify(body) : undefined });
 }
 
 /* ---------------- Small UI helpers ---------------- */
@@ -129,9 +140,7 @@ function safeNum(x: any): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-const BRAND = {
-  blue: "#1B74E4",
-};
+const BRAND = { blue: "#1B74E4" };
 
 /* ---------------- Chips ---------------- */
 
@@ -243,17 +252,14 @@ function PillarSection(props: {
 
 /* ---------------- Data hook (polls all demos) ---------------- */
 
-function useAionDemoData(pollMs = 500) {
+function useAionDemoData(pollMs = 1500) {
   const httpBase = useMemo(() => resolveHttpBase(), []);
 
   // ✅ Split bases:
   // - apiBase: backend.main root routes (/api/aion/dashboard)
   // - demoBase: demo_bridge mounted under /aion-demo (/aion-demo/api/*)
   const apiBase = useMemo(() => httpBase, [httpBase]);
-  const demoBase = useMemo(
-    () => (httpBase ? joinUrl(httpBase, "/aion-demo") : "/aion-demo"),
-    [httpBase]
-  );
+  const demoBase = useMemo(() => (httpBase ? joinUrl(httpBase, "/aion-demo") : "/aion-demo"), [httpBase]);
 
   const [homeostasis, setHomeostasis] = useState<HomeostasisEnvelope | null>(null);
   const [phi, setPhi] = useState<PhiBundle | null>(null);
@@ -272,11 +278,10 @@ function useAionDemoData(pollMs = 500) {
 
     const tick = async () => {
       try {
+        // NOTE: poll spam breaks DevTools response viewing (Chrome evicts bodies).
+        // 1500ms is still “live” but lets you actually inspect JSON.
         const urls = {
-          // backend.main (root)
           homeo: joinUrl(apiBase, "/api/aion/dashboard"),
-
-          // demo_bridge (mounted)
           phi: joinUrl(demoBase, "/api/phi"),
           adr: joinUrl(demoBase, "/api/adr"),
           hb: joinUrl(demoBase, "/api/heartbeat?namespace=demo"),
@@ -331,6 +336,32 @@ function useAionDemoData(pollMs = 500) {
   }, [pollMs, apiBase, demoBase]);
 
   return { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase, apiBase, demoBase };
+}
+
+/* ---------------- Feed meta (sessionId + namespace) ---------------- */
+
+function pickFirstStringDeep(obj: any, keys: string[]): string | null {
+  if (!obj) return null;
+  for (const k of keys) {
+    const v =
+      obj?.[k] ??
+      obj?.state?.[k] ??
+      obj?.meta?.[k] ??
+      obj?.metrics?.[k] ??
+      obj?.state?.meta?.[k] ??
+      obj?.state?.metrics?.[k];
+    if (v != null && String(v).trim() !== "") return String(v);
+  }
+  return null;
+}
+
+function extractFeedMeta(payloads: any[]) {
+  for (const p of payloads) {
+    const sid = pickFirstStringDeep(p, ["sessionId", "session_id", "sid"]);
+    const ns = pickFirstStringDeep(p, ["namespace", "ns"]);
+    if (sid || ns) return { sid: sid ?? null, ns: ns ?? null };
+  }
+  return { sid: null as string | null, ns: null as string | null };
 }
 
 /* ---------------- Status badge ---------------- */
@@ -409,7 +440,7 @@ function StatusBadge(props: { loading: boolean; err: string | null; health: Retu
   );
 }
 
-/* ---------------- Summary table ---------------- */
+/* ---------------- Summary table helpers ---------------- */
 
 function ageFromLastUpdate(x: any): number | null {
   const lu = x?.last_update ?? x?.state?.last_update ?? x?.snapshot?.last_update;
@@ -419,178 +450,16 @@ function ageFromLastUpdate(x: any): number | null {
   return Math.max(0, Date.now() - t);
 }
 
-function SummaryTable(props: {
-  homeostasis?: any | null;
-  adr?: any | null;
-  phi?: any | null;
-  akg?: any | null;
-  mirror?: any | null;
-  heartbeat?: any | null;
-  reflex?: any | null;
-}) {
-  const homeoLast = props.homeostasis?.homeostasis?.last ?? props.homeostasis?.last ?? null;
-  const homeoLocked = typeof homeoLast?.locked === "boolean" ? homeoLast.locked : null;
-
-  const homeoStatus =
-    homeoLocked === true ? (
-      <Chip tone="good">
-        <span className="h-2 w-2 rounded-full bg-emerald-500" />
-        <span>LOCKED</span>
-      </Chip>
-    ) : homeoLocked === false ? (
-      <Chip tone="warn">
-        <span className="h-2 w-2 rounded-full bg-amber-500" />
-        <span>UNLOCKED</span>
-      </Chip>
-    ) : (
-      <Chip tone="warn">
-        <span className="h-2 w-2 rounded-full bg-amber-500" />
-        <span>NO_FEED</span>
-      </Chip>
-    );
-
-  const adrZone = String(props.adr?.derived?.zone || "UNKNOWN");
-  const adrStatus =
-    adrZone === "GREEN" ? (
-      <Chip tone="good">
-        <span className="h-2 w-2 rounded-full bg-emerald-500" />
-        <span>GREEN</span>
-      </Chip>
-    ) : adrZone === "YELLOW" ? (
-      <Chip tone="warn">
-        <span className="h-2 w-2 rounded-full bg-amber-500" />
-        <span>YELLOW</span>
-      </Chip>
-    ) : adrZone === "RED" ? (
-      <Chip tone="bad">
-        <span className="h-2 w-2 rounded-full bg-rose-500" />
-        <span>RED</span>
-      </Chip>
-    ) : (
-      <Chip tone="warn">
-        <span className="h-2 w-2 rounded-full bg-amber-500" />
-        <span>NO_FEED</span>
-      </Chip>
-    );
-
-  const hbAge = safeNum(props.heartbeat?.age_ms);
-  const hbStatus = ageChip(hbAge);
-
-  // ✅ FIX: phi producer often doesn't include age_ms; derive it from last_update instead.
-  const phiAge = safeNum(props.phi?.age_ms) ?? ageFromLastUpdate(props.phi);
-  const phiState = props.phi?.state || props.phi || {};
-  const coh = phiState["Φ_coherence"] ?? phiState?.state?.["Φ_coherence"] ?? phiState?.Phi_coherence;
-  const ent = phiState["Φ_entropy"] ?? phiState?.state?.["Φ_entropy"] ?? phiState?.Phi_entropy;
-  const phiStatus = ageChip(phiAge);
-
-  // mirror payload (your live BE): { ok, age_ms, state:{..., A:0.8337, ...} }
-  const mirrorA = props.mirror?.A ?? props.mirror?.state?.A ?? props.mirror?.state?.derived?.A;
-  const mirrorStatus =
-    typeof mirrorA === "number" ? (
-      mirrorA >= 0.9 ? (
-        <Chip tone="good">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
-          <span>A={mirrorA.toFixed(3)}</span>
-        </Chip>
-      ) : (
-        <Chip tone="warn">
-          <span className="h-2 w-2 rounded-full bg-amber-500" />
-          <span>A={mirrorA.toFixed(3)}</span>
-        </Chip>
-      )
-    ) : (
-      <Chip tone="warn">
-        <span className="h-2 w-2 rounded-full bg-amber-500" />
-        <span>NO_FEED</span>
-      </Chip>
-    );
-
-  const reinf = props.akg?.reinforcements ?? props.akg?.snapshot?.reinforcements;
-  const akgStatus =
-    typeof reinf === "number" ? (
-      reinf > 0 ? (
-        <Chip tone="good">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
-          <span>+{reinf}</span>
-        </Chip>
-      ) : (
-        <Chip tone="warn">
-          <span className="h-2 w-2 rounded-full bg-amber-500" />
-          <span>0</span>
-        </Chip>
-      )
-    ) : (
-      <Chip tone="warn">
-        <span className="h-2 w-2 rounded-full bg-amber-500" />
-        <span>NO_DATA</span>
-      </Chip>
-    );
-
-  const reflexAge = safeNum(props.reflex?.age_ms);
-  const reflexStatus = ageChip(reflexAge);
-
-  return (
-    <div className="mt-16 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="flex items-center justify-between gap-6">
-        <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
-          Act 1 Summary // Biological Containers
-        </div>
-        <div className="font-mono text-[10px] uppercase tracking-widest text-slate-500">
-          Response to Stress • Autonomous Recovery
-        </div>
-      </div>
-
-      <div className="mt-6 overflow-hidden rounded-xl border border-slate-200">
-        <div className="grid grid-cols-12 bg-slate-50 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-slate-600">
-          <div className="col-span-3">Pillar</div>
-          <div className="col-span-4">UI Component</div>
-          <div className="col-span-3">Target Metric</div>
-          <div className="col-span-2 text-right">Status</div>
-        </div>
-
-        <div className="divide-y divide-slate-200 text-sm">
-          <Row pillar="Integrity" comp="Phase Closure Monitor" target="⟲ ≥ 0.975 + sqi_checkpoint" status={homeoStatus} />
-          <Row pillar="Awareness" comp="Mirror Reflection Log" target="Commentary + A ≥ 0.90" status={mirrorStatus} />
-          <Row pillar="Stability" comp="RSI Stability Bar" target="RSI > 0.95 (Green)" status={adrStatus} />
-          <Row pillar="Learning" comp="AKG Strength Delta" target="reinforcement > 0" status={akgStatus} />
-          <Row
-            pillar="Metabolism"
-            comp="Φ-Field Calorimetry"
-            target={`ΔΦ balance (coh=${coh ?? "—"}, ent=${ent ?? "—"})`}
-            status={phiStatus}
-          />
-          <Row pillar="Reflex" comp="Cognitive Grid (Reflex)" target="fresh grid state" status={reflexStatus} />
-          <Row pillar="Continuity" comp="Resonant Heartbeat" target="fresh Θ pulse" status={hbStatus} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Row(props: { pillar: string; comp: string; target: string; status: React.ReactNode }) {
-  return (
-    <div className="grid grid-cols-12 px-4 py-3 text-slate-800">
-      <div className="col-span-3 font-semibold">{props.pillar}</div>
-      <div className="col-span-4 font-mono text-[12px] text-slate-700">{props.comp}</div>
-      <div className="col-span-3 text-slate-600">{props.target}</div>
-      <div className="col-span-2 text-right font-mono text-[12px] uppercase tracking-wider">
-        {props.status}
-      </div>
-    </div>
-  );
-}
 /* ---------------- Phase Closure Monitor (REAL feed render) ---------------- */
 
 function pickMetricLoose(src: any, keys: string[]): number | null {
   if (!src) return null;
 
   for (const k of keys) {
-    // direct
     const v = src?.[k];
     const n = safeNum(v);
     if (n != null) return n;
 
-    // common aliases (camel/snake)
     const k2 = k.replace(/[\s\-]/g, "_");
     const v2 = src?.[k2];
     const n2 = safeNum(v2);
@@ -640,7 +509,6 @@ function pickFirstBool(sources: any[], keys: string[]): boolean | null {
 }
 
 function extractPhaseClosure(homeostasis: any | null, mirror: any | null) {
-  // homeostasis feed can vary (tolerant)
   const homeoLast =
     homeostasis?.homeostasis?.last ??
     homeostasis?.last ??
@@ -651,30 +519,32 @@ function extractPhaseClosure(homeostasis: any | null, mirror: any | null) {
 
   const homeoMetrics = homeoLast?.metrics ?? homeoLast ?? null;
 
-  // mirror feed can also carry lock fields
   const mirrorState = mirror?.state ?? mirror ?? null;
 
-  const sources = [homeoMetrics, homeostasis, mirrorState].filter(Boolean);
+  // ✅ IMPORTANT: closure must come from HOMEOSTASIS feed only (NOT mirror A).
+  const homeoSources = [homeoMetrics, homeoLast, homeostasis].filter(Boolean);
+  const mirrorSources = [mirrorState].filter(Boolean);
 
-  // PRIMARY: stability / closure scalar (what you show as ⟲)
-  // accept A/stability/closure keys + literal ⟲
-  const closure = pickFirstNumber(sources, ["⟲", "closure", "phase_closure", "phaseClosure", "stability", "S", "A"]);
+  const closure = pickFirstNumber(homeoSources, ["⟲", "closure", "phase_closure", "phaseClosure", "stability", "S"]);
+  const dPhi = pickFirstNumber(homeoSources, ["ΔΦ", "dPhi", "delta_phi", "deltaPhi", "phi_drift", "drift", "drift_phi"]);
 
-  // ΔΦ drift (if provided)
-  const dPhi = pickFirstNumber(sources, ["ΔΦ", "dPhi", "delta_phi", "deltaPhi", "phi_drift", "drift", "drift_phi"]);
+  // coherence checkpoint: accept sqi_checkpoint if that’s what your producer emits
+  const sqi =
+    pickFirstNumber(homeoSources, ["sqi_checkpoint", "sqiCheckpoint", "Φ_coherence", "phi_coherence", "SQI", "sqi", "C", "coherence"]) ??
+    pickFirstNumber(mirrorSources, ["sqi_checkpoint", "sqiCheckpoint", "Φ_coherence", "phi_coherence", "SQI", "sqi", "C", "coherence"]);
 
-  // DOC-CORRECT coherence checkpoint (SQI / Φ_coherence)
-  const sqi = pickFirstNumber(sources, ["Φ_coherence", "phi_coherence", "SQI", "sqi", "C", "coherence"]);
+  const rho = pickFirstNumber(homeoSources, ["ρ", "rho"]) ?? pickFirstNumber(mirrorSources, ["ρ", "rho"]);
+  const Ibar =
+    pickFirstNumber(homeoSources, ["Ī", "Ibar", "Ī", "iota"]) ?? pickFirstNumber(mirrorSources, ["Ī", "Ibar", "Ī", "iota"]);
 
-  // rho and Ibar (kept separate)
-  const rho = pickFirstNumber(sources, ["ρ", "rho"]);
-  const Ibar = pickFirstNumber(sources, ["Ī", "Ibar", "Ī", "iota"]);
+  const locked =
+    pickFirstBool(homeoSources, ["locked", "lock", "is_locked", "isLocked"]) ??
+    pickFirstBool(mirrorSources, ["locked", "lock", "is_locked", "isLocked"]);
 
-  // lock info
-  const locked = pickFirstBool(sources, ["locked", "lock", "is_locked", "isLocked"]);
-  const lockId = pickFirstString(sources, ["lock_id", "lockId", "lockID", "id"]);
+  const lockId =
+    pickFirstString(homeoSources, ["lock_id", "lockId", "lockID", "LOCK_ID", "id"]) ??
+    pickFirstString(mirrorSources, ["lock_id", "lockId", "lockID", "LOCK_ID", "id"]);
 
-  // feed freshness
   const ageMs =
     safeNum(homeostasis?.age_ms) ??
     ageFromLastUpdate(homeostasis) ??
@@ -701,13 +571,14 @@ function PhaseClosureMonitorPanel(props: { homeostasis: any | null; mirror: any 
     [props.homeostasis, props.mirror]
   );
 
-  const noFeed = ageMs == null;
+  // ✅ Treat stale as NO_FEED (your producer is not running)
+  const noFeed = ageMs == null || ageMs > 10_000;
   const isLocked = locked === true || (closure != null && closure >= THRESH);
   const status = noFeed ? "NO_FEED" : isLocked ? "FIELD_LOCKED" : "ALIGNING";
 
   const badge = noFeed ? (
-    <Chip tone="warn">
-      <span className="h-2 w-2 rounded-full bg-amber-500" />
+    <Chip tone="bad">
+      <span className="h-2 w-2 rounded-full bg-rose-500" />
       <span>NO_FEED</span>
     </Chip>
   ) : isLocked ? (
@@ -732,7 +603,9 @@ function PhaseClosureMonitorPanel(props: { homeostasis: any | null; mirror: any 
             ⟲ ≥ <span className="text-white">{THRESH.toFixed(3)}</span>
           </div>
           <div className="mt-3 text-sm font-medium text-slate-300">
-            {noFeed ? "Awaiting homeostasis feed (run your REAL producer / aggregator)." : "Proof-of-life: stability is detected internally, then promoted to a lockable state."}
+            {noFeed
+              ? "Homeostasis producer is not emitting (or dashboard route is returning a stub)."
+              : "Proof-of-life: stability is detected internally, then promoted to a lockable state."}
           </div>
         </div>
 
@@ -745,9 +618,7 @@ function PhaseClosureMonitorPanel(props: { homeostasis: any | null; mirror: any 
       </div>
 
       <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
-        <div className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-300">
-          {status}
-        </div>
+        <div className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-300">{status}</div>
 
         <MetricLine label="⟲" value={closure != null ? closure.toFixed(4) : "—"} />
         <MetricLine label="ΔΦ" value={dPhi != null ? dPhi.toFixed(6) : "—"} />
@@ -759,17 +630,25 @@ function PhaseClosureMonitorPanel(props: { homeostasis: any | null; mirror: any 
     </div>
   );
 }
+
 /* ---------------- Page ---------------- */
 
 export default function AionProofOfLifeDashboard() {
   const { homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading, httpBase, apiBase, demoBase } =
-    useAionDemoData(500);
+    useAionDemoData(1500);
+
+  const payloads = [homeostasis, phi, adr, heartbeat, reflex, akg, mirror].filter(Boolean);
+  const { sid: feedSessionId, ns: feedNamespace } = useMemo(() => extractFeedMeta(payloads), [homeostasis, phi, adr, heartbeat, reflex, akg, mirror]);
 
   const [actionBusy, setActionBusy] = useState<string | null>(null);
 
   const health = useDashboardHealth();
   useEffect(() => {
-    health.updateFrom([homeostasis as any, phi as any, adr as any, heartbeat as any, reflex as any, akg as any, mirror as any], err, loading);
+    health.updateFrom(
+      [homeostasis as any, phi as any, adr as any, heartbeat as any, reflex as any, akg as any, mirror as any],
+      err,
+      loading
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [homeostasis, phi, adr, heartbeat, reflex, akg, mirror, err, loading]);
 
@@ -792,6 +671,11 @@ export default function AionProofOfLifeDashboard() {
   }, [homeostasis, akg, reflex, heartbeat, adr, phi, mirror]);
 
   const resolvedApi = useMemo(() => (httpBase ? httpBase : "(same-origin)"), [httpBase]);
+
+  // ✅ Default namespace for demo bridge if feed doesn't say
+  const ns = feedNamespace || "demo";
+  // ✅ If you have a real sessionId emitted, use it for ALL actions
+  const sid = feedSessionId || "demo";
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1B74E4]/10">
@@ -819,6 +703,10 @@ export default function AionProofOfLifeDashboard() {
                 main: <span className="text-slate-800">{apiBase || "(same-origin)"}</span> · demo:{" "}
                 <span className="text-slate-800">{demoBase || "/aion-demo"}</span>
               </div>
+              <div className="mt-1 font-mono text-[10px] text-slate-500">
+                feed_session=<span className="text-slate-800">{feedSessionId || "—"}</span> • feed_ns=
+                <span className="text-slate-800">{feedNamespace || "—"}</span>
+              </div>
             </div>
 
             <StatusBadge loading={loading} err={err} health={health} />
@@ -838,7 +726,7 @@ export default function AionProofOfLifeDashboard() {
           container={<PhaseClosureMonitorPanel homeostasis={homeostasis} mirror={mirror} />}
         />
 
-        {/* ✅ Reflex directly under Auto-Lock/Homeostasis (demo_bridge) */}
+        {/* Reflex */}
         <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -846,7 +734,7 @@ export default function AionProofOfLifeDashboard() {
               <div className="mt-1 text-xl font-black tracking-tight text-slate-900 uppercase italic">Reflex (Cognitive Grid)</div>
               <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-slate-500">
                 GET <span className="text-slate-800">/aion-demo/api/reflex</span> · POST{" "}
-                <span className="text-slate-800">/aion-demo/api/demo/reflex/{`{reset,step,run}`}</span>
+                <span className="text-slate-800">/aion-demo/api/demo/reflex/{"{reset,step,run}"}</span>
               </div>
             </div>
 
@@ -862,17 +750,10 @@ export default function AionProofOfLifeDashboard() {
             <Demo04ReflexGridPanel
               reflex={reflex as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("reflex_reset", () => postApi(demoBase, "/demo/reflex/reset"))}
-              onStep={() => runBusy("reflex_step", () => postApi(demoBase, "/demo/reflex/step"))}
-              onRun={() => runBusy("reflex_run", () => postApi(demoBase, "/demo/reflex/run"))}
+              onReset={() => runBusy("reflex_reset", () => postApi(demoBase, "/demo/reflex/reset", { sessionId: sid, namespace: ns }))}
+              onStep={() => runBusy("reflex_step", () => postApi(demoBase, "/demo/reflex/step", { sessionId: sid, namespace: ns }))}
+              onRun={() => runBusy("reflex_run", () => postApi(demoBase, "/demo/reflex/run", { sessionId: sid, namespace: ns }))}
             />
-          </div>
-
-          <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">What this demonstrates</div>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600 font-medium">
-              Reflex layer: novelty-seeking movement + immediate “stability breached” style self-report on danger nodes. Treat stalls as organismal drift, not UI glitch.
-            </p>
           </div>
         </div>
 
@@ -887,9 +768,9 @@ export default function AionProofOfLifeDashboard() {
             <Demo01MetabolismPanel
               phi={phi as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("reset", () => postApi(demoBase, "/demo/phi/reset"))}
-              onInjectEntropy={() => runBusy("inject", () => postApi(demoBase, "/demo/phi/inject_entropy"))}
-              onRecover={() => runBusy("recover", () => postApi(demoBase, "/demo/phi/recover"))}
+              onReset={() => runBusy("reset", () => postApi(demoBase, "/demo/phi/reset", { sessionId: sid, namespace: ns }))}
+              onInjectEntropy={() => runBusy("inject", () => postApi(demoBase, "/demo/phi/inject_entropy", { sessionId: sid, namespace: ns }))}
+              onRecover={() => runBusy("recover", () => postApi(demoBase, "/demo/phi/recover", { sessionId: sid, namespace: ns }))}
             />
           }
         />
@@ -905,8 +786,8 @@ export default function AionProofOfLifeDashboard() {
             <Demo02AdrPanel
               adr={adr as any}
               actionBusy={actionBusy}
-              onInject={() => runBusy("adr_inject", () => postApi(demoBase, "/demo/adr/inject"))}
-              onRun={() => runBusy("adr_run", () => postApi(demoBase, "/demo/adr/run"))}
+              onInject={() => runBusy("adr_inject", () => postApi(demoBase, "/demo/adr/inject", { sessionId: sid, namespace: ns }))}
+              onRun={() => runBusy("adr_run", () => postApi(demoBase, "/demo/adr/run", { sessionId: sid, namespace: ns }))}
             />
           }
         />
@@ -918,7 +799,7 @@ export default function AionProofOfLifeDashboard() {
           title={demo03Meta.title}
           testName={demo03Meta.testName}
           copy={demo03Meta.copy}
-          container={<Demo03HeartbeatPanel heartbeat={heartbeat as any} namespace="demo" />}
+          container={<Demo03HeartbeatPanel heartbeat={heartbeat as any} namespace={ns} />}
         />
 
         {/* Demo 05 (demo_bridge) */}
@@ -933,9 +814,13 @@ export default function AionProofOfLifeDashboard() {
             <Demo05AkgPanel
               akg={akg as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("akg_reset", () => postApi(demoBase, "/demo/akg/reset"))}
-              onStep={() => runBusy("akg_step", () => postApi(demoBase, "/demo/akg/step"))}
-              onRun={() => runBusy("akg_run", () => postUrl(joinUrl(demoBase, "/api/demo/akg/run?rounds=400")))}
+              onReset={() => runBusy("akg_reset", () => postApi(demoBase, "/demo/akg/reset", { sessionId: sid, namespace: ns }))}
+              onStep={() => runBusy("akg_step", () => postApi(demoBase, "/demo/akg/step", { sessionId: sid, namespace: ns }))}
+              onRun={() =>
+                runBusy("akg_run", () =>
+                  postUrl(joinUrl(demoBase, "/api/demo/akg/run?rounds=400"), { sessionId: sid, namespace: ns })
+                )
+              }
             />
           }
         />
@@ -955,9 +840,6 @@ export default function AionProofOfLifeDashboard() {
         <div className="mt-10">
           <AionCognitiveDashboard />
         </div>
-
-        {/* Summary */}
-        <SummaryTable homeostasis={homeostasis} adr={adr} phi={phi} akg={akg} mirror={mirror} heartbeat={heartbeat} reflex={reflex} />
 
         <footer className="mt-16 flex flex-col gap-3 border-t border-slate-200 pt-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">Tessaris Intelligence // Research Division // 2026</div>
