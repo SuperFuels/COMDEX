@@ -579,7 +579,186 @@ function Row(props: { pillar: string; comp: string; target: string; status: Reac
     </div>
   );
 }
+/* ---------------- Phase Closure Monitor (REAL feed render) ---------------- */
 
+function pickMetricLoose(src: any, keys: string[]): number | null {
+  if (!src) return null;
+
+  for (const k of keys) {
+    // direct
+    const v = src?.[k];
+    const n = safeNum(v);
+    if (n != null) return n;
+
+    // common aliases (camel/snake)
+    const k2 = k.replace(/[\s\-]/g, "_");
+    const v2 = src?.[k2];
+    const n2 = safeNum(v2);
+    if (n2 != null) return n2;
+
+    const k3 = k.replace(/_/g, "");
+    const v3 = src?.[k3];
+    const n3 = safeNum(v3);
+    if (n3 != null) return n3;
+  }
+
+  return null;
+}
+
+function pickFirstNumber(sources: any[], keys: string[]): number | null {
+  for (const s of sources) {
+    const v = pickMetricLoose(s, keys);
+    if (v != null) return v;
+  }
+  return null;
+}
+
+function pickFirstString(sources: any[], keys: string[]): string | null {
+  for (const s of sources) {
+    if (!s) continue;
+    for (const k of keys) {
+      const v = s?.[k] ?? s?.[k.replace(/[\s\-]/g, "_")] ?? s?.[k.replace(/_/g, "")];
+      if (v != null && String(v).trim() !== "") return String(v);
+    }
+  }
+  return null;
+}
+
+function pickFirstBool(sources: any[], keys: string[]): boolean | null {
+  for (const s of sources) {
+    if (!s) continue;
+    for (const k of keys) {
+      const v = s?.[k] ?? s?.[k.replace(/[\s\-]/g, "_")] ?? s?.[k.replace(/_/g, "")];
+      if (typeof v === "boolean") return v;
+      if (v == null) continue;
+      const sv = String(v).toLowerCase();
+      if (sv === "true") return true;
+      if (sv === "false") return false;
+    }
+  }
+  return null;
+}
+
+function extractPhaseClosure(homeostasis: any | null, mirror: any | null) {
+  // homeostasis feed can vary (tolerant)
+  const homeoLast =
+    homeostasis?.homeostasis?.last ??
+    homeostasis?.last ??
+    homeostasis?.state?.last ??
+    homeostasis?.state ??
+    homeostasis ??
+    null;
+
+  const homeoMetrics = homeoLast?.metrics ?? homeoLast ?? null;
+
+  // mirror feed can also carry lock fields
+  const mirrorState = mirror?.state ?? mirror ?? null;
+
+  const sources = [homeoMetrics, homeostasis, mirrorState].filter(Boolean);
+
+  // PRIMARY: stability / closure scalar (what you show as ⟲)
+  // accept A/stability/closure keys + literal ⟲
+  const closure = pickFirstNumber(sources, ["⟲", "closure", "phase_closure", "phaseClosure", "stability", "S", "A"]);
+
+  // ΔΦ drift (if provided)
+  const dPhi = pickFirstNumber(sources, ["ΔΦ", "dPhi", "delta_phi", "deltaPhi", "phi_drift", "drift", "drift_phi"]);
+
+  // DOC-CORRECT coherence checkpoint (SQI / Φ_coherence)
+  const sqi = pickFirstNumber(sources, ["Φ_coherence", "phi_coherence", "SQI", "sqi", "C", "coherence"]);
+
+  // rho and Ibar (kept separate)
+  const rho = pickFirstNumber(sources, ["ρ", "rho"]);
+  const Ibar = pickFirstNumber(sources, ["Ī", "Ibar", "Ī", "iota"]);
+
+  // lock info
+  const locked = pickFirstBool(sources, ["locked", "lock", "is_locked", "isLocked"]);
+  const lockId = pickFirstString(sources, ["lock_id", "lockId", "lockID", "id"]);
+
+  // feed freshness
+  const ageMs =
+    safeNum(homeostasis?.age_ms) ??
+    ageFromLastUpdate(homeostasis) ??
+    safeNum(mirror?.age_ms) ??
+    ageFromLastUpdate(mirror);
+
+  return { closure, dPhi, sqi, rho, Ibar, locked, lockId, ageMs };
+}
+
+function MetricLine(props: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-white/10 py-2 last:border-0">
+      <div className="font-mono text-[11px] uppercase tracking-widest text-slate-300">{props.label}</div>
+      <div className="font-mono text-[12px] font-bold tracking-wider text-white">{props.value}</div>
+    </div>
+  );
+}
+
+function PhaseClosureMonitorPanel(props: { homeostasis: any | null; mirror: any | null }) {
+  const THRESH = 0.975;
+
+  const { closure, dPhi, sqi, rho, Ibar, locked, lockId, ageMs } = useMemo(
+    () => extractPhaseClosure(props.homeostasis, props.mirror),
+    [props.homeostasis, props.mirror]
+  );
+
+  const noFeed = ageMs == null;
+  const isLocked = locked === true || (closure != null && closure >= THRESH);
+  const status = noFeed ? "NO_FEED" : isLocked ? "FIELD_LOCKED" : "ALIGNING";
+
+  const badge = noFeed ? (
+    <Chip tone="warn">
+      <span className="h-2 w-2 rounded-full bg-amber-500" />
+      <span>NO_FEED</span>
+    </Chip>
+  ) : isLocked ? (
+    <Chip tone="good">
+      <span className="h-2 w-2 rounded-full bg-emerald-500" />
+      <span>LOCKED</span>
+    </Chip>
+  ) : (
+    <Chip tone="warn">
+      <span className="h-2 w-2 rounded-full bg-amber-500" />
+      <span>ALIGNING</span>
+    </Chip>
+  );
+
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/[0.90] p-8 shadow-sm">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-blue-300">Integrity</div>
+          <div className="mt-2 text-2xl font-black tracking-tight text-white uppercase italic">Phase Closure Monitor</div>
+          <div className="mt-3 font-mono text-[11px] uppercase tracking-widest text-slate-300">
+            ⟲ ≥ <span className="text-white">{THRESH.toFixed(3)}</span>
+          </div>
+          <div className="mt-3 text-sm font-medium text-slate-300">
+            {noFeed ? "Awaiting homeostasis feed (run your REAL producer / aggregator)." : "Proof-of-life: stability is detected internally, then promoted to a lockable state."}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {badge}
+          <div className="font-mono text-[11px] uppercase tracking-widest text-slate-400">
+            AGE: <span className="text-slate-200">{fmtAgeMs(ageMs)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
+        <div className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-300">
+          {status}
+        </div>
+
+        <MetricLine label="⟲" value={closure != null ? closure.toFixed(4) : "—"} />
+        <MetricLine label="ΔΦ" value={dPhi != null ? dPhi.toFixed(6) : "—"} />
+        <MetricLine label="SQI" value={sqi != null ? sqi.toFixed(6) : "—"} />
+        <MetricLine label="ρ" value={rho != null ? rho.toFixed(6) : "—"} />
+        <MetricLine label="Ī" value={Ibar != null ? Ibar.toFixed(6) : "—"} />
+        <MetricLine label="lock_id" value={lockId ?? "—"} />
+      </div>
+    </div>
+  );
+}
 /* ---------------- Page ---------------- */
 
 export default function AionProofOfLifeDashboard() {
@@ -656,7 +835,7 @@ export default function AionProofOfLifeDashboard() {
           testName={demo00Meta.testName}
           copy={demo00Meta.copy}
           tone="dark"
-          container={<Demo00HomeostasisPanel homeostasis={homeostasis} />}
+          container={<PhaseClosureMonitorPanel homeostasis={homeostasis} mirror={mirror} />}
         />
 
         {/* ✅ Reflex directly under Auto-Lock/Homeostasis (demo_bridge) */}
