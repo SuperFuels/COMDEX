@@ -64,39 +64,49 @@ function pickMetric(obj: any, keys: string[]) {
  * Telemetry extractor (STRICT + DOC-CORRECT)
  */
 function extractMetrics(msg: any) {
-  const m = msg?.metrics ?? msg?.state?.metrics ?? msg?.state ?? msg ?? {};
+  const m = msg?.metrics ?? msg?.state?.metrics ?? {};
   const phiObj = msg?.phi ?? msg?.state?.phi ?? {};
+  const mirror = msg?.mirror ?? {};
 
-  const psi = pickMetric(m, ["ψ", "psi", "wave_presence", "wavePresence", "presence"]);
-  const kappa = pickMetric(m, ["κ", "kappa", "curvature"]);
+  const psi =
+    pickMetric(m, ["psi_tilde", "ψ̃", "psiWave", "cognition_signal"]) ?? null;
+
+  const kappa =
+    pickMetric(m, ["kappa_tilde", "κ̃", "curl_rms", "kappa"]) ?? null;
+
   const T =
-    pickMetric(m, ["T", "temporal", "time", "timestamp", "updatedAt_ms", "ts", "ts_ms", "t_ms"]) ??
-    pickMetric(msg, ["T", "timestamp", "ts", "ts_ms", "t_ms", "updatedAt_ms", "last_update"]) ??
-    pickMetric(msg?.state, ["last_update", "updatedAt_ms", "ts", "ts_ms", "t_ms"]);
+    pickMetric(m, ["T", "timestamp", "updatedAt_ms"]) ??
+    pickMetric(msg, ["ts", "timestamp"]) ??
+    null;
 
   const C =
-    pickMetric(phiObj, ["Φ_coherence", "phi_coherence"]) ??
-    pickMetric(m, ["Φ_coherence", "phi_coherence"]) ??
-    pickMetric(phiObj, ["coherence"]) ??
-    pickMetric(m, ["coherence"]) ??
-    pickMetric(m, ["C", "SQI", "sqi"]);
+    pickMetric(m, ["C", "ρ", "rho", "Φ_coherence"]) ??
+    pickMetric(phiObj, ["Φ_coherence"]) ??
+    pickMetric(m, ["SQI"]) ??
+    null;
 
   const entropy =
-    pickMetric(phiObj, ["Φ_entropy", "phi_entropy"]) ??
-    pickMetric(m, ["Φ_entropy", "phi_entropy"]) ??
-    pickMetric(phiObj, ["entropy"]) ??
-    pickMetric(m, ["entropy"]) ??
-    pickMetric(m, ["E"]);
+    pickMetric(m, ["E", "Ī", "Ibar", "Ī", "Φ_entropy"]) ??
+    pickMetric(phiObj, ["Φ_entropy"]) ??
+    null;
 
   const Phi =
-    pickMetric(phiObj, ["Φ", "phi"]) ??
-    pickMetric(m, ["Φ", "phi"]) ??
+    pickMetric(m, ["A"]) ??
+    pickMetric(mirror, ["A"]) ??
     (C != null ? C : null);
 
-  const rho = pickMetric(phiObj, ["ρ", "rho"]) ?? pickMetric(m, ["ρ", "rho"]);
-  const Ibar = pickMetric(phiObj, ["Ī", "Ibar", "Ī", "iota"]) ?? pickMetric(m, ["Ī", "Ibar", "Ī", "iota"]);
+  // ✅ bring these back (your logger expects them)
+  const rho =
+    pickMetric(m, ["ρ", "rho"]) ??
+    pickMetric(phiObj, ["ρ", "rho"]) ??
+    null;
 
-  const lockedRaw = m?.locked ?? msg?.mirror?.locked ?? null;
+  const Ibar =
+    pickMetric(m, ["Ī", "Ibar", "Ī"]) ??
+    pickMetric(phiObj, ["Ī", "Ibar", "Ī"]) ??
+    null;
+
+  const lockedRaw = m?.locked ?? mirror?.locked ?? null;
   const locked =
     typeof lockedRaw === "boolean"
       ? lockedRaw
@@ -104,9 +114,11 @@ function extractMetrics(msg: any) {
       ? null
       : String(lockedRaw).toLowerCase() === "true";
 
-  const threshold = num(m?.threshold ?? msg?.mirror?.threshold);
+  const threshold = num(m?.threshold ?? mirror?.threshold);
   const lockId =
-    (m?.lock_id ?? msg?.mirror?.lock_id) != null ? String(m?.lock_id ?? msg?.mirror?.lock_id) : null;
+    (m?.lock_id ?? mirror?.lock_id) != null
+      ? String(m?.lock_id ?? mirror?.lock_id)
+      : null;
 
   return { psi, kappa, T, Phi, C, entropy, rho, Ibar, locked, threshold, lockId };
 }
@@ -140,28 +152,29 @@ function pickRqcWsUrl() {
     return s;
   };
 
+  // If explicitly provided, trust it.
   const raw = normalizeWs(process.env.NEXT_PUBLIC_RQC_WS || "");
   if (raw) return raw;
 
-  const demoBase =
-    (process.env.NEXT_PUBLIC_AION_DEMO_BASE || process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE || "").trim();
+  // Prefer API base (Cloud Run) if set
+  const httpBase = (
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_API_BASE ||
+    process.env.NEXT_PUBLIC_AION_API_BASE ||
+    process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE ||
+    ""
+  ).trim();
 
-  if (demoBase) {
-    const http = demoBase.replace(/\/+$/, "");
-    const wsRoot = normalizeWs(http);
-    if (http.endsWith("/aion-demo")) return `${wsRoot}/ws/aion-demo`;
-    return `${wsRoot}/aion-demo/ws/aion-demo`;
+  if (httpBase) {
+    const wsRoot = normalizeWs(httpBase);
+    // ✅ Bridge-first
+    return `${wsRoot}/ws/aion-demo`;
   }
 
-  const origin = resolveOrigin();
-  if (origin) {
-    const wsRoot = normalizeWs(origin);
-    return `${wsRoot}/aion-demo/ws/aion-demo`;
-  }
-
+  // Same-origin fallback
   if (typeof window !== "undefined") {
-    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    if (isLocal) return "ws://127.0.0.1:8007/ws/aion-demo";
+    const wsRoot = normalizeWs(window.location.origin);
+    return `${wsRoot}/ws/aion-demo`;
   }
 
   return "";
@@ -549,9 +562,9 @@ export default function RQCAwarenessDemo() {
           if (nm.lockId != null) setLockId(nm.lockId);
           if (nm.threshold != null) setLockThreshold(nm.threshold);
 
-          setIfChanged("psi", setPsi, nm.psi != null ? clamp01(nm.psi) : null);
-          setIfChanged("kappa", setKappa, nm.kappa != null ? clamp01(nm.kappa) : null);
-          setIfChanged("T", setT, nm.T != null ? nm.T : null);
+          setIfChanged("psi", setPsi, nm.psi != null ? clamp01(nm.psi) : null); // keep clamp if ψ̃ is normalized
+          setIfChanged("kappa", setKappa, nm.kappa != null ? nm.kappa : null);  // DO NOT clamp κ
+          setIfChanged("T", setT, nm.T != null ? nm.T : null);                  // keep raw
 
           const nextCoh = nm.C != null ? clamp01(nm.C) : null;
           const nextEntropy = nm.entropy != null ? clamp01(nm.entropy) : null;
@@ -595,7 +608,7 @@ export default function RQCAwarenessDemo() {
 
             const line =
               `[Telemetry] ψ=${nm.psi != null ? clamp01(nm.psi).toFixed(5) : "—"} ` +
-              `κ=${nm.kappa != null ? clamp01(nm.kappa).toFixed(5) : "—"} ` +
+              `κ=${nm.kappa != null ? Number(nm.kappa).toFixed(5) : "—"} ` +
               `T=${nm.T != null ? Number(nm.T).toFixed(3) : "—"} ` +
               `C=${nextCoh != null ? nextCoh.toFixed(4) : "—"} ` +
               `E=${nextEntropy != null ? nextEntropy.toFixed(4) : "—"} ` +
