@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Glyphnet Frontend 127"
+git commit -m "Glyphnet Frontend 128"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn
