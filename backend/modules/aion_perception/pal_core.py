@@ -65,22 +65,38 @@ add_triplet = _load_kg_add_triplet()
 # ─────────────────────────────────────────────
 # Setup paths
 # ─────────────────────────────────────────────
-DATA_DIR = Path("data/perception")
+_DATA_ROOT = Path(os.getenv("DATA_ROOT", "data"))  # e.g. .runtime/COMDEX_MOVE/data or ./data
+
+DATA_DIR = _DATA_ROOT / "perception"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 MEM_PATH = DATA_DIR / "exemplars.jsonl"
-METRICS_PATH = Path("data/learning/ral_metrics.jsonl")  # produced by RAL
-EVENTS_PATH = Path("data/analysis/pal_events.jsonl")
+
+# produced by RAL (already correct in your version, just normalized)
+METRICS_PATH = _DATA_ROOT / "learning" / "ral_metrics.jsonl"
+
+EVENTS_PATH = _DATA_ROOT / "analysis" / "pal_events.jsonl"
 EVENTS_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 random.seed(42)
 
 # ─────────────────────────────────────────────
+# Self-regulation thresholds (RAL-driven)
+# ─────────────────────────────────────────────
+EPS_FLOOR   = 0.05
+EPS_CEILING = 0.25   # <- THIS is what stops the 0.597 pin
+DAMP_EPS_MULT = 0.60   # stronger clamp (reduces exploration when unstable)
+DAMP_K_BONUS  = 3      # widen neighbor smoothing when unstable
+DAMP_W_MULT   = 0.90   # soften reinforcement when unstable
+STABILITY_MIN = 0.75   # self-heal threshold
+DAMP_COOLDOWN_STEPS = 10  # don't spam damping every ask()
+
+# ─────────────────────────────────────────────
 # ADR / feedback streams (Act 1: immune response)
 # ─────────────────────────────────────────────
-RESONANCE_STREAM_PATH = Path("data/feedback/resonance_stream.jsonl")
-DRIFT_REPAIR_LOG_PATH = Path("data/feedback/drift_repair.log")
-PAL_STATE_PATH = Path("data/prediction/pal_state.json")
+RESONANCE_STREAM_PATH = _DATA_ROOT / "feedback" / "resonance_stream.jsonl"
+DRIFT_REPAIR_LOG_PATH = _DATA_ROOT / "feedback" / "drift_repair.log"
+PAL_STATE_PATH = _DATA_ROOT / "prediction" / "pal_state.json"
 
 # ─────────────────────────────────────────────
 # ADR helpers (used by resonance-feedback mode)
@@ -127,7 +143,7 @@ def _apply_adr(pal: "PAL", evt: dict) -> bool:
         }
 
         # “Heal” parameters (safe defaults; tweak later once you like the feel)
-        pal.epsilon = 0.30
+        pal.pulse_boost = max(pal.pulse_boost, 0.35)
         pal.k = 7
         pal.memory_weight = max(1.0, float(getattr(pal, "memory_weight", 1.0)) * 0.95)
 
@@ -168,6 +184,7 @@ def _apply_adr(pal: "PAL", evt: dict) -> bool:
         print(f"⚠️ ADR apply failed: {e}")
         return False
 
+
 # ─────────────────────────────────────────────
 # Core data structures
 # ─────────────────────────────────────────────
@@ -186,9 +203,14 @@ class PAL:
     max_mem: int = 5000
     memory: List[Exemplar] = field(default_factory=list)
 
-    # 🔧 added attributes for resonance feedback scaling
-    memory_weight: float = 1.0     # reinforcement scaling factor
-    feedback_scale: float = 1.0    # modulation of feedback strength
+    # resonance feedback scaling
+    memory_weight: float = 1.0
+    feedback_scale: float = 1.0
+    # NEW: SQI/ADR pulse (0..1), decays each ask()
+    pulse_boost: float = 0.0
+
+    # damping control
+    damp_cooldown: int = 0
 
     # ---------- IO ----------
     def load(self):
@@ -263,13 +285,43 @@ class PAL:
         sims = [1.0 / (1.0 + d) for d in dists]
         return sum(sims) / len(sims)
 
+    def apply_damping(self, stability: float, entropy: float) -> None:
+        """
+        Self-heal: clamp exploration down, smooth neighbor selection, soften reinforcement.
+        (This is the “breathing” contraction when stability drops.)
+        """
+        self.epsilon = max(EPS_FLOOR, min(EPS_CEILING, self.epsilon * DAMP_EPS_MULT))
+        self.k = max(3, min(10, self.k + DAMP_K_BONUS))
+        self.memory_weight = max(1.0, self.memory_weight * DAMP_W_MULT)
+
+        if getattr(self, "verbose", False):
+            print(
+                f"🫁 DAMPING applied | S={stability:.3f} H={entropy:.3f} -> "
+                f"ε={self.epsilon:.3f} k={self.k} w={self.memory_weight:.3f}"
+            )
+
     def ask(self, prompt: str, options: List[str]) -> Tuple[str, float, List[float]]:
         vec = self.current_feature()
+
+        # NEW: pulse decays every decision
+        self.pulse_boost *= 0.90
+
+        # --- self-heal hook (uses RAL feature: [nu, phi, amp, stability, entropy]) ---
+        stability = float(vec[3]) if len(vec) > 3 else 1.0
+        entropy   = float(vec[4]) if len(vec) > 4 else 0.0
+
+        if self.damp_cooldown > 0:
+            self.damp_cooldown -= 1
+        elif stability < STABILITY_MIN:
+            self.apply_damping(stability=stability, entropy=entropy)
+            self.damp_cooldown = DAMP_COOLDOWN_STEPS
+
         if random.random() < self.epsilon or len(self.memory) < 5:
             choice = random.choice(options)
             conf = 1.0 / len(options)
             return choice, conf, vec
-        scored = [(opt, self._nearest_score(prompt, opt, vec)) for opt in options]
+
+        scored = [(opt, self._nearest_score(prompt, opt, vec) + self.pulse_boost) for opt in options]
         total = sum(max(s, 1e-6) for _, s in scored)
         probs = [(opt, max(s, 1e-6) / total) for opt, s in scored]
         probs.sort(key=lambda x: x[1], reverse=True)
@@ -283,7 +335,6 @@ class PAL:
             self.append(Exemplar(prompt=prompt, option=correct, vec=vec, reward=reward * self.memory_weight))
             if getattr(self, "verbose", False):
                 print(f"✅ Reinforced {prompt} -> {correct} (reward={reward:.2f}, ε={self.epsilon:.3f})")
-            # Knowledge Graph logging...
             try:
                 concept = prompt.split()[-1] if prompt else "unknown"
                 add_triplet(f"prompt:{prompt}", "elicited_choice", f"glyph:{correct}", vec=vec, strength=reward)
@@ -292,11 +343,11 @@ class PAL:
             except Exception as e:
                 print(f"⚠️ KG logging failed: {e}")
         else:
-            # nudge exploration up briefly after errors
-            self.epsilon = min(0.5, self.epsilon + 0.02)
+            # nudge exploration up briefly after errors (bounded)
+            self.epsilon = min(EPS_CEILING, self.epsilon + 0.01)
 
         # decay ε gradually to reach perceptual stability
-        self.epsilon = max(0.05, self.epsilon * 0.995)
+        self.epsilon = max(EPS_FLOOR, self.epsilon * 0.98)
 
     def _log_event(self, prompt, choice, correct, reward, acc):
         rec = {
@@ -313,6 +364,7 @@ class PAL:
         with open(EVENTS_PATH, "a") as f:
             f.write(json.dumps(rec) + "\n")
 
+
 # ─────────────────────────────────────────────
 # PAL State Checkpoint Persistence
 # ─────────────────────────────────────────────
@@ -324,11 +376,6 @@ class PALState:
         self.w = w
 
     def save_checkpoint(self, tag: str = "checkpoint"):
-        """
-        Save a labeled PAL state checkpoint for SQI stabilization or later recovery.
-        Example:
-            pal_state.save_checkpoint(tag="SQI_Stabilized_v1")
-        """
         import json as _json
         import os as _os
         import time as _time
@@ -338,7 +385,6 @@ class PALState:
             "k": getattr(self, "k", None),
             "w": getattr(self, "w", None),
             "timestamp": _time.strftime("%Y-%m-%d %H:%M:%S", _time.localtime()),
-            "exemplar_count": len(self.memory) if hasattr(self, "memory") else None,
             "tag": tag,
         }
 
@@ -352,24 +398,20 @@ class PALState:
 
         print(f"💾 Checkpoint saved -> {fname} | ε={state['epsilon']:.3f}, k={state['k']}, w={state['w']}")
 
-    # ─────────────────────────────────────────────
-    # Resonance Feedback Integration
-    # ─────────────────────────────────────────────
     def apply_resonance_feedback(pal):
-        """
-        Integrate Predictive Bias -> PAL -> SQI resonance feedback loop.
-        Reinforces PAL exemplars based on the latest predictive transitions.
-        """
         from datetime import datetime
 
         print("🔁 Applying Aion Resonance Feedback Loop...")
-        LOG_PATH = Path("data/analysis/resonance_feedback.log")
+        LOG_PATH = _DATA_ROOT / "analysis" / "resonance_feedback.log"
         LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
         try:
             from backend.modules.aion_prediction.predictive_bias_layer import PredictiveBias
             pb = PredictiveBias()
-            pb.load_state()
+            if hasattr(pb, "load_state"):
+                pb.load_state()
+            elif hasattr(pb, "load"):
+                pb.load()
             transitions = getattr(pb, "transitions", {}) or {}
             print(f"🔮 Loaded {len(transitions)} predictive transitions for feedback.")
 
@@ -399,7 +441,6 @@ class PALState:
             except Exception as e:
                 print(f"⚠️ SQI feedback skipped or failed: {e}")
 
-            # Log feedback cycle
             with open(LOG_PATH, "a") as logf:
                 logf.write(
                     json.dumps(
@@ -420,6 +461,7 @@ class PALState:
         except Exception as e:
             print(f"⚠️ Resonance feedback failed: {e}")
 
+
 # ─────────────────────────────────────────────
 # Resonant self-tuning entry point (SQI-Integrated)
 # ─────────────────────────────────────────────
@@ -428,7 +470,7 @@ def self_tune(
     prompts: List[str],
     options: List[str],
     correct_map: Optional[Dict[str, str]] = None,
-    max_rounds: int = 5000,  # ⟲ Extended for long equilibrium sessions
+    max_rounds: int = 5000,
     target_acc: float = 0.97,
     momentum: float = 0.35,
     learning_rate: float = 0.12,
@@ -450,21 +492,10 @@ def self_tune(
 
     stable_rounds = 0
     reward_momentum = 0.0
-    ε_floor, ε_ceiling = 0.05, 0.6
+    ε_floor, ε_ceiling = EPS_FLOOR, EPS_CEILING  # recommended
     acc_trace, eps_trace = [], []
     sqi_cooldown = 0
     plt.ion()
-
-    # (this branch will be false at start; kept for continuity)
-    if len(acc_trace) > 50:
-        drift = abs(np.mean(acc_trace[-10:]) - np.mean(acc_trace[-30:-20]))
-        if drift > 0.05:
-            print(f"⚠️ Drift detected (Δ={drift:.3f}) -> triggering micro-feedback pulse.")
-            from backend.modules.aion_perception.qwave import SQIField, ResonancePulse
-            sqi_field = SQIField.load_last_state()
-            sqi_field.apply(ResonancePulse(frequency=1.35, gain=0.28, damping=0.90))
-    else:
-        drift = 0.0
 
     # ─────────────────────────────────────────────
     # SQI-style warmup - small pre-training loop
@@ -473,7 +504,7 @@ def self_tune(
     for i in range(3):
         for p in prompts:
             ans = correct_map.get(p, random.choice(options)) if correct_map else random.choice(options)
-            vec = np.random.randn(5).tolist()  # IMPORTANT: must be 5D to match PAL feature space
+            vec = np.random.randn(5).tolist()
             pal.feedback(p, ans, ans, vec, 1.0)
         pal.epsilon = max(ε_floor, pal.epsilon * 0.9)
         print(f"🌀 Warmup {i+1}/3 complete -> ε={pal.epsilon:.3f}")
@@ -513,8 +544,15 @@ def self_tune(
                 try:
                     from backend.modules.aion_perception.qwave import SQIField, ResonancePulse
                     sqi_field = SQIField.load_last_state()
-                    sqi_field.apply(ResonancePulse(frequency=1.35, gain=0.28, damping=0.90))
-                    sqi_cooldown = 20  # wait 20 rounds before next drift pulse
+                    sqi_field.apply(
+                        ResonancePulse(
+                            frequency=1.35,
+                            coherence=0.985,  # ✅ FIX: required arg
+                            gain=0.28,
+                            damping=0.90,
+                        )
+                    )
+                    sqi_cooldown = 20
                 except Exception as e:
                     print(f"⚠️ SQI micro-feedback failed: {e}")
 
@@ -534,12 +572,15 @@ def self_tune(
         # ─────────────────────────────────────────────
         # Dynamic epsilon adaptation
         # ─────────────────────────────────────────────
-        if acc < 0.3:
-            pal.epsilon = min(ε_ceiling, pal.epsilon + learning_rate * 0.2)
-        elif acc > 0.7:
-            pal.epsilon = max(ε_floor, pal.epsilon - learning_rate * 0.3)
+        if acc > 0.7:
+            pal.epsilon -= learning_rate * 0.3
+        elif acc < 0.3:
+            if pal.epsilon < 0.20:
+                pal.epsilon += learning_rate * 0.1
         else:
-            pal.epsilon *= 0.99
+            pal.epsilon *= 0.995
+
+        pal.epsilon = max(ε_floor, min(ε_ceiling, pal.epsilon))
 
         # ─────────────────────────────────────────────
         # Asymmetric reinforcement scaling
@@ -570,7 +611,14 @@ def self_tune(
             from backend.modules.aion_perception.qwave import meta_eq_bias
             domain_key = "|".join(sorted(set(prompts)))
             eps_bias = meta_eq_bias(domain_key, pal.epsilon)
-            pal.epsilon = max(0.05, min(0.60, pal.epsilon + eps_bias))
+
+            # ✅ meta-eq may only COOL epsilon (never heat it)
+            if eps_bias > 0:
+                eps_bias = 0.0
+
+            pal.epsilon = pal.epsilon + eps_bias
+            pal.epsilon = max(ε_floor, min(ε_ceiling, pal.epsilon))
+
             if getattr(pal, "verbose", False):
                 print(f"⚙️  Meta-eq bias applied -> Δε={eps_bias:+.4f} -> ε={pal.epsilon:.3f}")
         except Exception as _e:
@@ -647,7 +695,7 @@ if __name__ == "__main__":
         if last_ckpt.exists():
             print(f"🔁 Loading last PAL checkpoint -> {last_ckpt.name}")
             state = json.load(open(last_ckpt))
-            pal.epsilon = state.get("epsilon", pal.epsilon)
+            pal.epsilon = max(0.05, min(0.60, float(state.get("epsilon", pal.epsilon))))
             pal.k = state.get("k", pal.k)
             pal.memory_weight = state.get("w", pal.memory_weight)
     except Exception as e:
@@ -737,6 +785,10 @@ if __name__ == "__main__":
             from backend.modules.aion_prediction.predictive_bias_layer import PredictiveBias
             pb = PredictiveBias()
             pb.load_state()
+            # Ensure PredictiveBias reads the same data root as PAL
+            # If you're using the runtime-moved data, export DATA_ROOT accordingly when launching PAL
+            if os.getenv("DATA_ROOT"):
+                os.environ["TESSARIS_DATA_ROOT"] = os.getenv("DATA_ROOT")
 
             transitions = getattr(pb, "transitions", {}) or {}
             transitions_count = len(transitions)
@@ -763,7 +815,7 @@ if __name__ == "__main__":
         # Log cycle ONLY if something happened (transitions OR ADR)
         # ─────────────────────────────────────────────
         if applied_count > 0 or adr_fired:
-            log_path = Path("data/analysis/resonance_feedback.log")
+            log_path = _DATA_ROOT / "analysis" / "resonance_feedback.log"
             log_path.parent.mkdir(parents=True, exist_ok=True)
             with open(log_path, "a") as log:
                 log.write(

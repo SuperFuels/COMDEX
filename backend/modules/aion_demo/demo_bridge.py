@@ -6,46 +6,7 @@ Purpose:
 - Provide a single, stable backend surface for the frontend "Proof of Life" dashboard.
 - Avoid tailing multiple files inside React; the bridge reads canonical state files
   and exposes them as JSON endpoints + websocket streaming.
-
-Endpoints:
-- GET  /health
-
-Metabolism (Φ):
-- GET  /api/phi
-- POST /api/demo/phi/reset
-- POST /api/demo/phi/inject_entropy
-- POST /api/demo/phi/recover
-
-Immune Response (ADR):
-- GET  /api/adr
-- POST /api/demo/adr/inject
-- POST /api/demo/adr/run
-
-Heartbeat / Persistent Presence (Demo 3):
-- GET  /api/heartbeat
-    Optional query:
-      ?namespace=demo            -> prefer <DATA_ROOT>/aion_field/demo_heartbeat_live.json
-      ?namespace=state_manager   -> prefer <DATA_ROOT>/aion_field/state_manager_heartbeat_live.json
-
-Compat (old one-button demo):
-- POST /api/demo/inject_entropy   (runs: phi inject + adr inject + adr run)
-
-Websocket:
-- WS   /ws/aion-demo  (pushes {phi, adr, heartbeat, ts} periodically)
-
-Files (source of truth; resolved via MRTC-aligned data-root discovery):
-- <DATA_ROOT>/phi_reinforce_state.json
-- <DATA_ROOT>/conversation_memory.json
-- <DATA_ROOT>/feedback/resonance_stream.jsonl
-- <DATA_ROOT>/feedback/drift_repair.log        (JSONL records)
-- <DATA_ROOT>/prediction/pal_state.json
-- <DATA_ROOT>/aion_field/resonant_heartbeat.jsonl   (preferred, if present)
-- <DATA_ROOT>/aion_field/*heartbeat_live.json       (fallback)
-- /tmp/aion_heartbeat_state.json                    (fallback)
-
-Optional:
-- If AION_DEMO_AUTOSTART_HEARTBEAT=1, the bridge will *attempt* to start
-  resonance_heartbeat.py in the background (idempotent-ish via freshness check).
+...
 """
 
 from __future__ import annotations
@@ -64,8 +25,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 
 from fastapi import APIRouter
+
 BRIDGE_BUILD = os.getenv("BRIDGE_BUILD", "dev")
 router = APIRouter(tags=["AION Demo Bridge"])
+
 # -----------------------------------------------------------------------------
 # Repo root on sys.path so "backend...." imports work reliably (even when mounted)
 # -----------------------------------------------------------------------------
@@ -80,11 +43,12 @@ if str(_REPO_ROOT) not in sys.path:
 
 from backend.modules.aion_demo import reflex_grid as reflex_mod
 
-
 # -----------------------------------------------------------------------------
 # Data-root discovery (MRTC-aligned)
+# We MUST honor BOTH because the repo uses both patterns across modules.
 # -----------------------------------------------------------------------------
-ENV_DATA_ROOT = "TESSARIS_DATA_ROOT"
+ENV_DATA_ROOT_PRIMARY = "TESSARIS_DATA_ROOT"
+ENV_DATA_ROOT_COMPAT = "DATA_ROOT"
 
 KNOWN_SENTINELS = [
     "control/aqci_log.jsonl",
@@ -96,49 +60,60 @@ KNOWN_SENTINELS = [
 ]
 
 
-def _truthy(name: str, default: bool = False) -> bool:
-    v = os.getenv(name)
-    if v is None:
-        return default
-    return v.strip().lower() in {"1", "true", "yes", "on"}
+def _mkdir_baseline(p: Path) -> None:
+    try:
+        p.mkdir(parents=True, exist_ok=True)
+        for d in (
+            "logs",
+            "feedback",
+            "prediction",
+            "aion_field",
+            "control",
+            "learning",
+            "analysis",
+            "telemetry",
+            "perception",
+            "memory",
+            "akg",
+        ):
+            (p / d).mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
 
 
 def pick_data_root() -> Path:
     """
-    Mirrors backend/modules/aion_integrity/meta_resonant_telemetry_consolidator.py.
     Tries:
-      1) ENV override
-      2) .runtime/*/data
-      3) ./data
+      1) TESSARIS_DATA_ROOT (primary)
+      2) DATA_ROOT (compat)
+      3) .runtime/*/data
+      4) ./data
     Chooses best by sentinel hits + newest mtime.
     """
-    # 1) explicit override (ALWAYS honor it; create minimal dirs)
-    if ENV_DATA_ROOT in os.environ:
-        p = Path(os.environ[ENV_DATA_ROOT]).expanduser()
-        try:
-            p.mkdir(parents=True, exist_ok=True)
-            (p / "logs").mkdir(parents=True, exist_ok=True)
-            (p / "feedback").mkdir(parents=True, exist_ok=True)
-            (p / "prediction").mkdir(parents=True, exist_ok=True)
-            (p / "aion_field").mkdir(parents=True, exist_ok=True)
-            (p / "control").mkdir(parents=True, exist_ok=True)
-            (p / "learning").mkdir(parents=True, exist_ok=True)
-            (p / "analysis").mkdir(parents=True, exist_ok=True)
-        except Exception:
-            pass
+    # 1) explicit override (primary)
+    v = os.getenv(ENV_DATA_ROOT_PRIMARY, "").strip()
+    if v:
+        p = Path(v).expanduser()
+        _mkdir_baseline(p)
         return p
 
-    # 2) prefer runtime-moved data if present
-    candidates: List[Path] = []
+    # 2) explicit override (compat)
+    v = os.getenv(ENV_DATA_ROOT_COMPAT, "").strip()
+    if v:
+        p = Path(v).expanduser()
+        _mkdir_baseline(p)
+        return p
+
+    # 3) runtime-moved data
+    candidates: list[Path] = []
     rt = Path(".runtime")
     if rt.exists():
-        for d in rt.glob("*/data"):
-            candidates.append(d)
+        candidates += list(rt.glob("*/data"))
 
-    # 3) include local ./data
+    # 4) local ./data
     candidates.append(Path("data"))
 
-    def score(d: Path) -> Tuple[int, float]:
+    def score(d: Path) -> tuple[int, float]:
         hits = 0
         newest = 0.0
         for s in KNOWN_SENTINELS:
@@ -149,17 +124,11 @@ def pick_data_root() -> Path:
                     newest = max(newest, f.stat().st_mtime)
                 except Exception:
                     pass
-        return (hits, newest)
+        return hits, newest
 
-    best = None
-    best_score = (-1, -1.0)
-    for d in candidates:
-        sc = score(d)
-        if sc > best_score:
-            best = d
-            best_score = sc
-
-    return best if best else Path("data")
+    best = max(candidates, key=score, default=Path("data"))
+    _mkdir_baseline(best)
+    return best
 
 
 def _ensure_local_data_points_to(root: Path) -> None:
@@ -208,6 +177,10 @@ def _ensure_local_data_points_to(root: Path) -> None:
 
 DATA_ROOT = pick_data_root()
 _ensure_local_data_points_to(DATA_ROOT)
+
+# Force a single truth for all submodules (some read DATA_ROOT, others TESSARIS_DATA_ROOT)
+os.environ["TESSARIS_DATA_ROOT"] = str(DATA_ROOT)
+os.environ["DATA_ROOT"] = str(DATA_ROOT)
 
 # -----------------------------------------------------------------------------
 # Ensure baseline directories exist (so demos never fail on first boot)
@@ -262,7 +235,7 @@ def _spawn(cmd: list[str], log_name: str) -> subprocess.Popen:
     f = open(log_dir / log_name, "a", encoding="utf-8")
     env = os.environ.copy()
     env.setdefault("PYTHONPATH", str(_REPO_ROOT))
-    env.setdefault("AION_HOST", "127.0.0.1")
+    env.setdefault("AION_HOST", os.getenv("AION_HOST", "127.0.0.1"))
     env.setdefault("TESSARIS_DATA_ROOT", str(DATA_ROOT))
     return subprocess.Popen(cmd, env=env, stdout=f, stderr=f)
 
@@ -963,6 +936,8 @@ def adr_run_resonance_feedback() -> Dict[str, Any]:
 
     env = os.environ.copy()
     env.setdefault("PYTHONPATH", str(_REPO_ROOT))
+    env["TESSARIS_DATA_ROOT"] = str(DATA_ROOT)
+    env["DATA_ROOT"] = str(DATA_ROOT)
 
     try:
         r = subprocess.run(
@@ -992,13 +967,26 @@ def adr_run_resonance_feedback() -> Dict[str, Any]:
 app = FastAPI(title="AION Demo Bridge", version="0.2.1")
 
 # Keep CORS permissive for local dev demos.
+def _cors_origins() -> list[str]:
+    # comma-separated
+    raw = os.getenv("AION_DEMO_CORS_ORIGINS", "").strip()
+    if raw:
+        return [o.strip() for o in raw.split(",") if o.strip()]
+    # sane default: prod domains only
+    return ["https://tessaris.ai", "https://www.tessaris.ai"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://tessaris.ai", "https://www.tessaris.ai"],
+    allow_origins=_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+def _truthy(name: str, default: bool = False) -> bool:
+    v = os.getenv(name)
+    if v is None:
+        return default
+    return v.strip().lower() in {"1", "true", "yes", "on"}
 
 @app.on_event("startup")
 async def _maybe_autostart_heartbeat() -> None:

@@ -1,8 +1,7 @@
 {
-  "epsilon": 0.4937187720606898,
+  "epsilon": 0.245,
   "k": 10,
-  "w": 1.0907498915496823,
-  "timestamp": "2025-10-22 21:46:42",
-  "exemplar_count": null,
+  "w": 1.0125,
+  "timestamp": "2026-01-23 21:22:43",
   "tag": "SQI_Stabilized_v2"
 }

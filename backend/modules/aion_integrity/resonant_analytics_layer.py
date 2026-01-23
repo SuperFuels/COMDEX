@@ -63,27 +63,29 @@ def compute_metrics(entries: list[dict]) -> dict | None:
         if not isinstance(e, dict):
             continue
 
-        # ✅ New MRTC schema: rqfs_feedback.state.{nu_bias, phi_bias, amp_bias}
         rqfs_fb = e.get("rqfs_feedback") if isinstance(e.get("rqfs_feedback"), dict) else {}
-        state   = rqfs_fb.get("state") if isinstance(rqfs_fb.get("state"), dict) else {}
+        aqci    = e.get("aqci") if isinstance(e.get("aqci"), dict) else {}
+        aq_bias = aqci.get("bias") if isinstance(aqci.get("bias"), dict) else {}
 
-        # Fallback to older schemas if present
-        rfc  = e.get("rfc") if isinstance(e.get("rfc"), dict) else {}
-        rqfs = e.get("rqfs") if isinstance(e.get("rqfs"), dict) else {}
+        # Preferred (current MRTC): rqfs_feedback.{nu_bias, phi_bias, amp_bias}
+        if any(k in rqfs_fb for k in ("nu_bias", "phi_bias", "amp_bias")):
+            nu  = _f(rqfs_fb.get("nu_bias", 0.0))
+            phi = _f(rqfs_fb.get("phi_bias", 0.0))
+            amp = _f(rqfs_fb.get("amp_bias", 0.0))
 
-        nu  = _f(state.get("nu_bias", 0.0), 0.0)
-        phi = _f(state.get("phi_bias", 0.0), 0.0)
-        amp = _f(state.get("amp_bias", 0.0), 0.0)
+        # Fallback (also present in your MRTC): aqci.bias.{nu_bias, phi_bias, amp_bias}
+        elif any(k in aq_bias for k in ("nu_bias", "phi_bias", "amp_bias")):
+            nu  = _f(aq_bias.get("nu_bias", 0.0))
+            phi = _f(aq_bias.get("phi_bias", 0.0))
+            amp = _f(aq_bias.get("amp_bias", 0.0))
 
-        if nu is None and phi is None and amp is None:
-            # Older schema fallback
+        # Legacy fallback (older schemas)
+        else:
+            rfc  = e.get("rfc") if isinstance(e.get("rfc"), dict) else {}
+            rqfs = e.get("rqfs") if isinstance(e.get("rqfs"), dict) else {}
             nu  = (_f(rfc.get("nu_bias", 0.0)) + _f(rqfs.get("nu_bias", 0.0))) / 2.0
             phi = (_f(rfc.get("phase_offset", 0.0)) + _f(rqfs.get("phase_offset", 0.0))) / 2.0
             amp = (_f(rfc.get("amp_gain", 0.0)) + _f(rqfs.get("amp_gain", 0.0))) / 2.0
-        else:
-            nu  = _f(state.get("nu_bias", 0.0))
-            phi = _f(state.get("phi_bias", 0.0))
-            amp = _f(state.get("amp_bias", 0.0))
 
         nus.append(nu); phis.append(phi); amps.append(amp)
 
