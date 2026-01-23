@@ -238,6 +238,17 @@ app = FastAPI(
 )
 app.router.redirect_slashes = False
 
+# ✅ Minimal alias so Proof-of-Life can always poll a stable endpoint.
+# If you later wire the real implementation, keep the path + shape.
+@app.get("/api/aion/dashboard")
+def aion_dashboard_alias():
+    return {
+        "ok": True,
+        "homeostasis": {
+            "last": {"locked": None}
+        }
+    }
+
 # ✅ AION Live Dashboard WS only
 try:
     from backend.api.aion_dashboard import ws_router as aion_dashboard_ws_router
