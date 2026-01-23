@@ -6,88 +6,100 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 type AnyObj = Record<string, any>;
 type FeedItem = { ts: number; kind: string; payload: AnyObj; raw?: string };
 
-/* ------------------------ URL resolution (FIXES wrong server) ------------------------ */
+/* ------------------------ URL resolution (SOURCE OF TRUTH) ------------------------ */
 /**
- * Goal:
- * - NEVER silently hit the FE origin when BE is elsewhere.
- * - Default local dev: FE :3000, BE :8080
- * - Allow override via env:
- *    NEXT_PUBLIC_AION_API_BASE   (e.g. http://127.0.0.1:8080 or https://... )
- *    NEXT_PUBLIC_AION_DASHBOARD_WS or NEXT_PUBLIC_AION_WS_BASE (ws://... or wss://... or https://... )
+ * Single rule-set (matches useTessarisTelemetry + Proof-of-Life dashboard):
+ *
+ * HTTP base comes from:
+ *   NEXT_PUBLIC_API_ORIGIN
+ *   NEXT_PUBLIC_GLYPHNET_HTTP_BASE
+ *   NEXT_PUBLIC_API_URL
+ *   NEXT_PUBLIC_API_BASE
+ *   NEXT_PUBLIC_AION_API_BASE
+ *
+ * WS prefix comes from:
+ *   NEXT_PUBLIC_WS_PREFIX (default: "/api/ws")
+ *
+ * This dashboard WS endpoint is assumed to be:
+ *   ${WS_PREFIX}/qfc
+ * which matches your vite proxy:
+ *   "/api/ws/qfc": wsProxy(fastApiHttp)
  */
 
 function stripSlash(s: string) {
   return (s || "").trim().replace(/\/+$/, "");
 }
-function resolveHomeostasisBase(): string {
-  const v = stripSlash(process.env.NEXT_PUBLIC_HOMEOSTASIS_BASE || "");
-  if (!v) return "";
-  return v.replace(/\/api$/i, "");
-}
-function normalizeWsMaybe(input: string) {
-  const s = (input || "").trim();
-  if (!s) return "";
-  if (s.startsWith("wss://") || s.startsWith("ws://")) return s;
-  if (s.startsWith("https://")) return "wss://" + s.slice("https://".length);
-  if (s.startsWith("http://")) return "ws://" + s.slice("http://".length);
-  return s;
+
+function normalizeHttpBase(raw: string) {
+  let b = stripSlash(raw);
+  if (!b) return "";
+  // tolerate pastes like ".../api" or ".../aion-demo"
+  b = b.replace(/\/api$/i, "");
+  b = b.replace(/\/aion-demo$/i, "");
+  return b;
 }
 
-function resolveAionDemoHttpBase(): string {
-  const envDemo = stripSlash(process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE || "");
-  if (envDemo) return envDemo;
+function resolveHttpBase(): string {
+  const env =
+    (process.env.NEXT_PUBLIC_API_ORIGIN as string | undefined) ||
+    (process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE as string | undefined) ||
+    (process.env.NEXT_PUBLIC_API_URL as string | undefined) ||
+    (process.env.NEXT_PUBLIC_API_BASE as string | undefined) ||
+    (process.env.NEXT_PUBLIC_AION_API_BASE as string | undefined) ||
+    "";
 
-  const envAion = stripSlash(process.env.NEXT_PUBLIC_AION_API_BASE || "");
-  if (envAion) return envAion;
+  const cleaned = normalizeHttpBase(env);
+  if (cleaned) return cleaned;
 
-  // If someone only set NEXT_PUBLIC_API_URL=https://<host>/api, derive demo mount.
-  const apiUrl = stripSlash(process.env.NEXT_PUBLIC_API_URL || "");
-  if (apiUrl && apiUrl.endsWith("/api")) {
-    return apiUrl.slice(0, -4) + "/aion-demo";
-  }
-
+  // Local dev: FE :3000 -> BE :8080
   if (typeof window !== "undefined") {
-    const isDevFe = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    if (isDevFe && window.location.port === "3000") return "http://127.0.0.1:8080";
-    // same-origin (reverse proxy) is acceptable only if you *actually* proxy /aion-demo
+    const host = window.location.hostname;
+    const port = window.location.port;
+    const isLocal = host === "localhost" || host === "127.0.0.1";
+    if (isLocal && port === "3000") return "http://127.0.0.1:8080";
+    // same-origin only if you truly proxy /api + /api/ws in the FE
     return "";
   }
 
   return "";
 }
 
-function resolveWsUrl(): string {
-  // First: explicit WS vars
-  const envRaw =
-    process.env.NEXT_PUBLIC_AION_DASHBOARD_WS ||
-    process.env.NEXT_PUBLIC_AION_WS_BASE ||
-    process.env.NEXT_PUBLIC_WS_URL ||
-    "";
+/** Convert an HTTP base into WS ORIGIN only (no path). */
+function wsOriginFromHttpBase(input: string) {
+  const s = (input || "").trim();
+  if (!s) return "";
 
-  const envWs = stripSlash(normalizeWsMaybe(envRaw));
-  if (envWs) {
-    // If they gave the full ws endpoint already, do NOT append.
-    if (envWs.includes("/ws/")) return envWs;
-    return envWs + "/ws/aion-demo";
+  // already ws(s)://
+  if (s.startsWith("ws://") || s.startsWith("wss://")) {
+    try {
+      const u = new URL(s);
+      return `${u.protocol}//${u.host}`;
+    } catch {
+      return stripSlash(s);
+    }
   }
 
-  // Second: derive WS from the HTTP base if present
-  const httpBase = resolveAionDemoHttpBase();
-  if (httpBase) {
-    const wsBase = stripSlash(normalizeWsMaybe(httpBase));
-    // httpBase might be https://<host>/aion-demo → wsBase becomes wss://<host>/aion-demo
-    return wsBase + "/ws/aion-demo";
+  // http(s)://
+  if (s.startsWith("http://") || s.startsWith("https://")) {
+    try {
+      const u = new URL(s);
+      const proto = u.protocol === "https:" ? "wss:" : "ws:";
+      return `${proto}//${u.host}`;
+    } catch {
+      const cleaned = stripSlash(s);
+      if (cleaned.startsWith("https://")) return "wss://" + cleaned.slice("https://".length);
+      if (cleaned.startsWith("http://")) return "ws://" + cleaned.slice("http://".length);
+      return cleaned;
+    }
   }
 
-  // Dev fallback
-  if (typeof window !== "undefined") {
-    const isDevFe = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    if (isDevFe && window.location.port === "3000") return "ws://127.0.0.1:8080/ws/aion-demo";
-    const proto = window.location.protocol === "https:" ? "wss" : "ws";
-    return `${proto}://${window.location.host}/ws/aion-demo`;
-  }
+  // bare host
+  return "wss://" + stripSlash(s).replace(/^\/+/, "");
+}
 
-  return "ws://127.0.0.1:8080/ws/aion-demo";
+function wsPrefix() {
+  const p = (process.env.NEXT_PUBLIC_WS_PREFIX || "/api/ws").trim();
+  return (p.startsWith("/") ? p : "/" + p).replace(/\/+$/, "");
 }
 
 function joinUrl(base: string, path: string) {
@@ -198,8 +210,12 @@ function findLatestMetricItem(items: FeedItem[]) {
 /* ------------------------ component ------------------------ */
 
 export default function AionCognitiveDashboard() {
-  const apiBase = useMemo(() => resolveHomeostasisBase() || resolveAionDemoHttpBase(), []);
-  const wsUrl = useMemo(() => resolveWsUrl(), []);
+  const httpBase = useMemo(() => resolveHttpBase(), []);
+  const apiBase = useMemo(() => httpBase, [httpBase]);
+
+  const wsBase = useMemo(() => wsOriginFromHttpBase(httpBase), [httpBase]);
+  const prefix = useMemo(() => wsPrefix(), []);
+  const wsUrl = useMemo(() => `${wsBase}${prefix}/qfc`, [wsBase, prefix]);
 
   const [status, setStatus] = useState<"connecting" | "open" | "closed" | "error">("connecting");
   const [lastMsgAt, setLastMsgAt] = useState<number | null>(null);
@@ -243,9 +259,23 @@ export default function AionCognitiveDashboard() {
 
     function connect() {
       if (!alive) return;
+
+      // if wsUrl can't be built, don't spam reconnect loops
+      if (!wsUrl || !wsUrl.startsWith("ws")) {
+        setStatus("error");
+        return;
+      }
+
       setStatus("connecting");
 
-      const ws = new WebSocket(wsUrl);
+      let ws: WebSocket;
+      try {
+        ws = new WebSocket(wsUrl);
+      } catch {
+        setStatus("error");
+        return;
+      }
+
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -310,56 +340,43 @@ export default function AionCognitiveDashboard() {
   const eq = Number.isFinite(eqNum) ? clamp01(eqNum) : 0;
   const eqTone = toneFor(eq);
 
-  async function doTeach() {
-    setBusy("teach");
+  async function runBusy(name: "teach" | "ask" | "checkpoint" | "lock", fn: () => Promise<void>) {
+    setBusy(name);
     setLastActionErr(null);
     setLastActionOk(null);
     try {
+      await fn();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function doTeach() {
+    await runBusy("teach", async () => {
       const { ok, status, json } = await postJson(joinUrl(apiBase, "/api/aion/teach"), { term: teachTerm, level: teachLevel }, 25000);
       if (!ok) throw new Error(json?.detail || `teach failed (${status})`);
       setLastActionOk("Teach: OK");
-    } catch (e: any) {
-      setLastActionErr(String(e?.message || e));
-    } finally {
-      setBusy(null);
-    }
+    }).catch((e: any) => setLastActionErr(String(e?.message || e)));
   }
 
   async function doAsk() {
-    setBusy("ask");
-    setLastActionErr(null);
-    setLastActionOk(null);
-    try {
+    await runBusy("ask", async () => {
       const { ok, status, json } = await postJson(joinUrl(apiBase, "/api/aion/ask"), { question: askQ }, 25000);
       if (!ok) throw new Error(json?.detail || `ask failed (${status})`);
       setLastActionOk("Ask: OK");
-    } catch (e: any) {
-      setLastActionErr(String(e?.message || e));
-    } finally {
-      setBusy(null);
-    }
+    }).catch((e: any) => setLastActionErr(String(e?.message || e)));
   }
 
   async function doCheckpoint() {
-    setBusy("checkpoint");
-    setLastActionErr(null);
-    setLastActionOk(null);
-    try {
+    await runBusy("checkpoint", async () => {
       const { ok, status, json } = await postJson(joinUrl(apiBase, "/api/aion/checkpoint"), { term: checkpointTerm }, 25000);
       if (!ok) throw new Error(json?.detail || `checkpoint failed (${status})`);
       setLastActionOk("Checkpoint: OK");
-    } catch (e: any) {
-      setLastActionErr(String(e?.message || e));
-    } finally {
-      setBusy(null);
-    }
+    }).catch((e: any) => setLastActionErr(String(e?.message || e)));
   }
 
   async function doHomeostasisLock() {
-    setBusy("lock");
-    setLastActionErr(null);
-    setLastActionOk(null);
-    try {
+    await runBusy("lock", async () => {
       const { ok, status, json } = await postJson(
         joinUrl(apiBase, "/api/aion/homeostasis_lock"),
         { term: lockTerm, threshold: lockThr, window_s: lockWindowSec },
@@ -367,11 +384,7 @@ export default function AionCognitiveDashboard() {
       );
       if (!ok) throw new Error(json?.detail || `homeostasis_lock failed (${status})`);
       setLastActionOk("Homeostasis lock: OK");
-    } catch (e: any) {
-      setLastActionErr(String(e?.message || e));
-    } finally {
-      setBusy(null);
-    }
+    }).catch((e: any) => setLastActionErr(String(e?.message || e)));
   }
 
   const resolvedApi = apiBase ? apiBase : "(same-origin)";
@@ -389,6 +402,9 @@ export default function AionCognitiveDashboard() {
             </div>
             <div>
               WS: <span className="text-gray-700">{resolvedWs}</span>
+            </div>
+            <div>
+              WS_PREFIX: <span className="text-gray-700">{prefix}</span>
             </div>
           </div>
         </div>
@@ -485,9 +501,7 @@ export default function AionCognitiveDashboard() {
         </div>
 
         <div>
-          <div className="text-xs font-black tracking-widest text-gray-500 uppercase">
-            Resonant Equilibrium Auto-Lock (REAL)
-          </div>
+          <div className="text-xs font-black tracking-widest text-gray-500 uppercase">Resonant Equilibrium Auto-Lock (REAL)</div>
 
           <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-3">
             <input
@@ -546,9 +560,8 @@ export default function AionCognitiveDashboard() {
         ) : null}
 
         <div className="lg:col-span-2 font-mono text-[11px] text-gray-500">
-          Tip: FE :3000 + BE :8080 → set{" "}
-          <span className="font-bold">NEXT_PUBLIC_AION_API_BASE=http://127.0.0.1:8080</span>{" "}
-          (or rely on the auto-default in this file).
+          Env: set <span className="font-bold">NEXT_PUBLIC_API_URL=https://&lt;cloud-run-host&gt;</span> and{" "}
+          <span className="font-bold">NEXT_PUBLIC_WS_PREFIX=/api/ws</span>.
         </div>
       </div>
 
@@ -570,10 +583,7 @@ export default function AionCognitiveDashboard() {
             <div className="pt-2">
               <div className="mb-2 text-[11px] font-black tracking-widest text-gray-500 uppercase">Homeostasis ⟲</div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-black/10">
-                <div
-                  className={`${eqTone} h-full transition-all duration-500`}
-                  style={{ width: `${Math.round(eq * 100)}%` }}
-                />
+                <div className={`${eqTone} h-full transition-all duration-500`} style={{ width: `${Math.round(eq * 100)}%` }} />
               </div>
               <div className="mt-2 flex justify-between text-[10px] text-gray-400">
                 <span>0.00</span>
@@ -585,9 +595,7 @@ export default function AionCognitiveDashboard() {
             <div className="pt-2 text-[11px]">
               <div className="flex justify-between">
                 <span className="text-gray-500">lock</span>
-                <span className="font-bold">
-                  {latest.locked === true ? "LOCKED" : latest.locked === false ? "UNLOCKED" : "—"}
-                </span>
+                <span className="font-bold">{latest.locked === true ? "LOCKED" : latest.locked === false ? "UNLOCKED" : "—"}</span>
               </div>
               {latest.threshold != null ? <div className="mt-1 text-gray-500">thr={String(latest.threshold)}</div> : null}
               {latest.lock_id ? <div className="mt-1 text-gray-500">lock_id={String(latest.lock_id)}</div> : null}
@@ -600,9 +608,7 @@ export default function AionCognitiveDashboard() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-xs font-black tracking-widest text-gray-500 uppercase">Live Feed</div>
-              <div className="mt-1 font-mono text-[11px] text-gray-400">
-                Buttons above (or CLI) emit events — they should appear here in realtime.
-              </div>
+              <div className="mt-1 font-mono text-[11px] text-gray-400">Buttons above (or CLI) emit events — they should appear here in realtime.</div>
             </div>
             <div className="font-mono text-[11px] text-gray-500">{items.length} events</div>
           </div>
@@ -615,12 +621,8 @@ export default function AionCognitiveDashboard() {
                 {items.map((it, idx) => (
                   <li key={`${it.ts}-${idx}`} className="p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="font-mono text-[11px] text-gray-500">
-                        {new Date(it.ts * 1000).toLocaleString()}
-                      </div>
-                      <div className="rounded-full border border-black/10 bg-white px-2 py-0.5 font-mono text-[10px] font-bold">
-                        {String(it.kind)}
-                      </div>
+                      <div className="font-mono text-[11px] text-gray-500">{new Date(it.ts * 1000).toLocaleString()}</div>
+                      <div className="rounded-full border border-black/10 bg-white px-2 py-0.5 font-mono text-[10px] font-bold">{String(it.kind)}</div>
                     </div>
                     <pre className="mt-3 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-white p-3 text-[11px] text-gray-700">
                       {JSON.stringify(it.payload, null, 2)}
@@ -632,8 +634,7 @@ export default function AionCognitiveDashboard() {
           </div>
 
           <div className="mt-3 font-mono text-[11px] text-gray-500">
-            If you see <span className="font-bold">Method Not Allowed</span>, you were hitting the FE origin before — this
-            file now defaults FE:3000 → BE:8080 automatically.
+            If this feed is empty but your API health is OK, your backend may not be serving <span className="font-bold">{prefix}/qfc</span>.
           </div>
         </div>
       </div>
