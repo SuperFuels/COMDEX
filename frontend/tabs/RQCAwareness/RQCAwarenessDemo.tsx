@@ -148,7 +148,7 @@ function pickRqcWsUrl() {
 
   if (typeof window !== "undefined") {
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    if (isLocal) return "ws://127.0.0.1:8080/aion-demo/ws/aion-demo";
+    if (isLocal) return "ws://127.0.0.1:8007/ws/aion-demo";
   }
 
   return "";

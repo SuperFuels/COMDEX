@@ -17,7 +17,7 @@ Data-root discovery aligns with MRTC:
 """
 
 from __future__ import annotations
-
+import datetime
 import argparse
 import json
 import logging
@@ -102,6 +102,24 @@ def _atomic_write_text(path: Path, text: str) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(text, encoding="utf-8")
     tmp.replace(path)
+
+def _read_json(path: Path) -> Optional[dict]:
+    try:
+        if path.exists():
+            j = json.loads(path.read_text(encoding="utf-8"))
+            return j if isinstance(j, dict) else None
+    except Exception:
+        return None
+    return None
+
+def _phi_state_candidates(data_root: Path) -> list[Path]:
+    return [
+        data_root / "phi_reinforce_state.json",
+        data_root / "data" / "phi_reinforce_state.json",
+        Path("backend/data/phi_reinforce_state.json"),
+        Path("data/phi_reinforce_state.json"),
+        Path("data/data/phi_reinforce_state.json"),
+    ]
 
 # ─────────────────────────────────────────────────────────────
 # Heartbeat
@@ -207,24 +225,64 @@ class ResonanceHeartbeat:
     # ------------------------------------------------------------
     def tick(self) -> Dict[str, Any]:
         with self._lock:
-            phi = mean(self._rho) if self._rho else float(self._last_pulse.get("Φ_coherence", 0.5))
-            ent = mean(self._entropy) if self._entropy else float(self._last_pulse.get("Φ_entropy", 0.5))
-            flux = mean(abs(d) for d in self._delta) if self._delta else float(self._last_pulse.get("Φ_flux", 0.0))
+            # 1) Prefer authoritative φ from disk (metabolism state), else fall back to buffers/last_pulse
+            st = None
+            candidates = [
+                DATA_ROOT / "phi_reinforce_state.json",
+                DATA_ROOT / "data" / "phi_reinforce_state.json",
+                Path("backend/data/phi_reinforce_state.json"),
+                Path("data/phi_reinforce_state.json"),
+                Path("data/data/phi_reinforce_state.json"),
+            ]
+            for p in candidates:
+                try:
+                    if p.exists():
+                        j = json.loads(p.read_text(encoding="utf-8"))
+                        if isinstance(j, dict) and any(k in j for k in ("Φ_coherence", "Φ_entropy", "Φ_flux")):
+                            st = j
+                            break
+                except Exception:
+                    continue
+
+            if st:
+                phi = float(st.get("Φ_coherence", self._last_pulse.get("Φ_coherence", 0.5)))
+                ent = float(st.get("Φ_entropy",   self._last_pulse.get("Φ_entropy", 0.5)))
+                flux = float(st.get("Φ_flux",     self._last_pulse.get("Φ_flux", 0.0)))
+            else:
+                phi  = mean(self._rho)     if self._rho     else float(self._last_pulse.get("Φ_coherence", 0.5))
+                ent  = mean(self._entropy) if self._entropy else float(self._last_pulse.get("Φ_entropy", 0.5))
+                flux = mean(abs(d) for d in self._delta) if self._delta else float(self._last_pulse.get("Φ_flux", 0.0))
+
             sqi = mean(self._sqi) if self._sqi else float(self._last_pulse.get("sqi", 0.5))
             delta_now = self._delta[-1] if self._delta else 0.0
 
+            # Θ frequency modulation (bounded)
             freq_mod = 1.0 + ((phi - ent) * 0.75)
-            freq_mod = max(0.5, min(2.0, freq_mod))
+            freq_mod = max(0.5, min(2.0, float(freq_mod)))
+
+            # timestamps (both machine + human)
+            now_epoch = float(time.time())
+            now_iso = datetime.datetime.now(datetime.UTC).isoformat().replace("+00:00", "Z")
 
             pulse = {
                 "namespace": self.namespace,
+
+                # computed values
                 "Φ_coherence": round(float(phi), 3),
                 "Φ_entropy": round(float(ent), 3),
                 "Φ_flux": round(float(flux), 3),
                 "sqi": round(float(sqi), 3),
+
+                # derived
                 "resonance_delta": round(float(delta_now), 3),
                 "Θ_frequency": round(float(freq_mod), 3),
-                "timestamp": time.time(),
+
+                # freshness markers
+                "timestamp": now_epoch,
+                "last_update": now_iso,
+
+                # source/debug
+                "phi_source_file": str(p) if st else None,
                 "data_root": str(DATA_ROOT),
             }
             self._last_pulse = pulse

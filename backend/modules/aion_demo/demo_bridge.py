@@ -245,7 +245,7 @@ HEARTBEAT_DIR = DATA_ROOT / "aion_field"
 SUPERVISOR_STATE_PATH = Path("/tmp/aion_heartbeat_state.json")
 
 # Default heartbeat namespace preference (your dashboard “demo 3” usually wants demo)
-DEFAULT_HEARTBEAT_NS = os.getenv("AION_DEMO_HEARTBEAT_NAMESPACE", "demo")
+DEFAULT_HEARTBEAT_NS = os.getenv("AION_DEMO_HEARTBEAT_NAMESPACE", "global_theta")
 
 
 import subprocess, threading
@@ -1254,6 +1254,10 @@ async def ws_aion_demo(ws: WebSocket) -> None:
         return
     except Exception:
         return
+
+@router.websocket("/aion-demo/ws/aion-demo")
+async def ws_aion_demo_prefixed(ws: WebSocket) -> None:
+    await ws_aion_demo(ws)  
 
 app.include_router(router)
 

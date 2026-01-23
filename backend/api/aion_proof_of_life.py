@@ -112,7 +112,7 @@ def phi_state() -> Dict[str, Any]:
     last = st.get("last_update")
     dt = _parse_iso(last) if isinstance(last, str) else None
     age = _age_s(dt)
-    pulse_active = (age is not None) and (age <= 2.0)
+    pulse_active = (age is not None) and (age <= 30.0)
 
     return {
         "ok": bool(st),
