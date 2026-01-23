@@ -4,29 +4,26 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
- * RQC AWARENESS HORIZON — v0.7 (FIXED)
+ * RQC AWARENESS HORIZON — v0.7 (STRICT METRIC MAPPING + LOG THROTTLE)
  *
- * Goals:
- * 1) Correct mapping: Φ is NOT ψ, and entropy is NOT guessed from κ unless we truly have no entropy signal.
- * 2) Stable event stream: throttle telemetry logging + keep a rolling history for the graph.
- * 3) Manifold bars: derived from coherence (C) only; never from Φ/ψ.
- * 4) Works with payload variability (flat / nested / phi object).
- *
- * Expected live feed (from your stream):
- *  - SQI or coherence is the "C" value (0..1)
- *  - Φ (awareness) may be absent; if absent, we derive Φ from C (your current demo does that)
- *  - Entropy is Ī / Ibar (0..1) if provided; else derive from 1-C (NOT κ)
- *  - ψ (wave presence) is ψ if present; else use ρ if present; else derive from C
+ * Fixes:
+ *  1) DO NOT map ρ/rho to ψ. Ever. (That was the main bug making ψ==Φ==C)
+ *  2) Coherence comes from C/coherence/SQI — not from rho.
+ *  3) Event stream is throttled + telemetry line is UPDATED in-place (no flashing).
+ *  4) ψ/κ/T stay "—" unless backend actually emits them.
  */
 
 const SESSION_ID = "a99acc96-acde-48d5-9b6d-d2f434536d5b";
-
 const STALE_MS = 2_500;
-const TELEMETRY_LOG_EVERY_MS = 1_000; // throttle to 1 log / sec
-const HISTORY_LEN = 64; // graph history points
+
+// log throttles
+const TELEMETRY_LOG_EVERY_MS = 650; // don’t spam UI
+const MAX_LOGS = 10;
+
+// tiny epsilon to avoid pointless state churn
+const EPS = 1e-6;
 
 type Mode = "SIM" | "LIVE" | "LIVE_STALE";
-type Status = "STABLE" | "ALIGNING" | "CRITICAL_DRIFT" | "NO_FEED";
 type LogItem = { t: number; msg: string; kind: "info" | "warn" | "ok" | "bad" };
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
@@ -45,14 +42,10 @@ function num(x: any): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function hasOwn(o: any, k: string) {
-  return o && Object.prototype.hasOwnProperty.call(o, k);
-}
-
-function pickMetric(m: any, keys: string[]) {
+function pickMetric(obj: any, keys: string[]) {
   for (const k of keys) {
-    if (hasOwn(m, k)) {
-      const v = num(m[k]);
+    if (obj && Object.prototype.hasOwnProperty.call(obj, k)) {
+      const v = num(obj[k]);
       if (v != null) return v;
     }
   }
@@ -60,46 +53,43 @@ function pickMetric(m: any, keys: string[]) {
 }
 
 /**
- * Normalize incoming message to a stable set of signals.
- * Returns raw candidates; we finalize/derive in applyTelemetry().
+ * STRICT extractor:
+ * - ψ only from ψ/psi/presence keys (NOT rho)
+ * - coherence from C/coherence/SQI keys
+ * - rho only from ρ/rho keys
+ * - entropy from E/entropy/Ī/Ibar keys
+ * - Φ from Φ/phi keys, else fallback to coherence
  */
-function normalize(msg: any) {
-  const root = msg ?? {};
-  const m = root?.metrics ?? root?.state?.metrics ?? root;
-  const phiObj = root?.phi ?? root?.state?.phi ?? root?.state?.Φ ?? {};
+function extractMetrics(msg: any) {
+  const m = msg?.metrics ?? msg?.state?.metrics ?? msg?.state ?? msg ?? {};
+  const phiObj = msg?.phi ?? msg?.state?.phi ?? {};
 
-  // Primary coherence / quality signal:
-  // - demo shows SQI and ρ same value; that's your coherence (C)
-  const C =
-    pickMetric(phiObj, ["Φ_coherence", "phi_coherence", "coherence", "C"]) ??
-    pickMetric(m, ["C", "coherence", "SQI", "sqi", "ρ", "rho"]);
+  // ψ MUST NOT accept rho
+  const psi = pickMetric(m, ["ψ", "psi", "wave_presence", "wavePresence", "presence"]);
 
-  // Awareness:
-  // - use Φ if actually provided, else derive from C (per your design)
-  const Phi =
-    pickMetric(m, ["Φ", "phi"]) ??
-    pickMetric(phiObj, ["Φ", "phi"]) ??
-    null;
-
-  // Entropy:
-  // - prefer explicit Φ_entropy or Ibar (Ī) if present
-  const entropy =
-    pickMetric(phiObj, ["Φ_entropy", "phi_entropy", "entropy", "E"]) ??
-    pickMetric(m, ["Ī", "Ibar", "Ī", "iota", "entropy", "E"]);
-
-  // Wave presence (ψ):
-  // - prefer ψ; else ρ; else derive from C later
-  const psi = pickMetric(m, ["ψ", "psi", "presence"]) ?? pickMetric(m, ["ρ", "rho"]);
-
-  // Curvature & temporal are optional; don't invent them
   const kappa = pickMetric(m, ["κ", "kappa", "curvature"]);
-  const T = pickMetric(m, ["T", "temp", "temporal", "time"]);
+  const T = pickMetric(m, ["T", "temporal", "temp", "time"]);
 
-  const rho = pickMetric(m, ["ρ", "rho"]);
-  const Ibar = pickMetric(m, ["Ī", "Ibar", "Ī", "iota"]);
+  // coherence from explicit coherence/SQI/C only
+  const C =
+    pickMetric(phiObj, ["Φ_coherence", "phi_coherence", "C", "coherence", "SQI", "sqi"]) ??
+    pickMetric(m, ["Φ_coherence", "phi_coherence", "C", "coherence", "SQI", "sqi"]);
 
-  const src = typeof root?.source === "string" ? root.source : null;
-  return { psi, kappa, T, Phi, C, entropy, rho, Ibar, src };
+  // entropy from explicit entropy/Ibar only
+  const entropy =
+    pickMetric(phiObj, ["Φ_entropy", "phi_entropy", "E", "entropy", "Ī", "Ibar", "Ī", "iota"]) ??
+    pickMetric(m, ["Φ_entropy", "phi_entropy", "E", "entropy", "Ī", "Ibar", "Ī", "iota"]);
+
+  // Φ explicit else fallback to coherence
+  const Phi =
+    pickMetric(m, ["Φ", "phi"]) ?? pickMetric(phiObj, ["Φ", "phi"]) ?? (C != null ? C : null);
+
+  // keep rho separate (never used as ψ or C)
+  const rho = pickMetric(m, ["ρ", "rho"]) ?? pickMetric(phiObj, ["ρ", "rho"]);
+  const Ibar =
+    pickMetric(m, ["Ī", "Ibar", "Ī", "iota"]) ?? pickMetric(phiObj, ["Ī", "Ibar", "Ī", "iota"]);
+
+  return { psi, kappa, T, Phi, C, entropy, rho, Ibar };
 }
 
 /**
@@ -124,7 +114,6 @@ function resolveOrigin(): string {
     u.hash = "";
     return u.toString().replace(/\/+$/, "");
   }
-
   if (typeof window !== "undefined") return window.location.origin;
   return "";
 }
@@ -138,14 +127,11 @@ function pickRqcWsUrl() {
     return s;
   };
 
-  // Explicit override:
   const raw = normalizeWs(process.env.NEXT_PUBLIC_RQC_WS || "");
   if (raw) return raw;
 
   const demoBase =
-    (process.env.NEXT_PUBLIC_AION_DEMO_BASE ||
-      process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE ||
-      "").trim();
+    (process.env.NEXT_PUBLIC_AION_DEMO_BASE || process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE || "").trim();
 
   if (demoBase) {
     const http = demoBase.replace(/\/+$/, "");
@@ -161,8 +147,7 @@ function pickRqcWsUrl() {
   }
 
   if (typeof window !== "undefined") {
-    const isLocal =
-      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     if (isLocal) return "ws://127.0.0.1:8080/aion-demo/ws/aion-demo";
   }
 
@@ -198,21 +183,16 @@ async function postJson(url: string, body: any, timeoutMs = 8000) {
 }
 
 export default function RQCAwarenessDemo() {
-  // Live slots (truth):
   const [psi, setPsi] = useState<number | null>(null);
   const [kappa, setKappa] = useState<number | null>(null);
   const [T, setT] = useState<number | null>(null);
 
-  const [entropy, setEntropy] = useState<number | null>(null); // E
-  const [phi, setPhi] = useState<number | null>(null); // Φ
-  const [coherence, setCoherence] = useState<number | null>(null); // C / SQI
+  const [entropy, setEntropy] = useState<number | null>(null);
+  const [phi, setPhi] = useState<number | null>(null);
+  const [coherence, setCoherence] = useState<number | null>(null);
 
-  const [status, setStatus] = useState<Status>("NO_FEED");
+  const [status, setStatus] = useState<"STABLE" | "ALIGNING" | "CRITICAL_DRIFT" | "NO_FEED">("NO_FEED");
   const [manifoldSync, setManifoldSync] = useState<number[] | null>(null);
-
-  // Graph history (fixed)
-  const [phiHist, setPhiHist] = useState<number[]>([]);
-  const [entHist, setEntHist] = useState<number[]>([]);
 
   const [isInjecting, setIsInjecting] = useState(false);
   const [logs, setLogs] = useState<LogItem[]>([]);
@@ -221,25 +201,40 @@ export default function RQCAwarenessDemo() {
   const wsUrl = useMemo(() => pickRqcWsUrl(), []);
   const aionDemoBase = useMemo(() => pickAionDemoBase(), []);
 
+  useEffect(() => console.log("[RQC] wsUrl =", wsUrl), [wsUrl]);
+
   const wsRef = useRef<WebSocket | null>(null);
   const [liveConnected, setLiveConnected] = useState(false);
   const [lastLiveAt, setLastLiveAt] = useState<number>(0);
 
-  const lastTelemetryLogAtRef = useRef(0);
-
-  // SIM refs
-  const entropyRef = useRef<number>(0.15);
-  const phiRef = useRef<number>(0.64);
-  const cohRef = useRef<number>(0.64);
-
-  // Last-known refs for stable derivation
-  const lastStateRef = useRef<{ e: number; c: number; phi: number; psi: number } | null>(null);
+  // refs to dampen rerenders + prevent log spam
+  const lastTelemetryLogAtRef = useRef<number>(0);
+  const lastValsRef = useRef({
+    psi: null as number | null,
+    kappa: null as number | null,
+    T: null as number | null,
+    entropy: null as number | null,
+    phi: null as number | null,
+    coherence: null as number | null,
+  });
 
   const addLog = (msg: string, kind: LogItem["kind"] = "info") => {
-    setLogs((prev) => [{ t: Date.now(), msg, kind }, ...prev].slice(0, 10));
+    setLogs((prev) => [{ t: Date.now(), msg, kind }, ...prev].slice(0, MAX_LOGS));
   };
 
-  const computeStatus = (e: number, c: number): Status => {
+  // update the top telemetry line instead of adding a new one each frame
+  const upsertTelemetryLine = (msg: string, kind: LogItem["kind"]) => {
+    setLogs((prev) => {
+      const next = [...prev];
+      const idx = next.findIndex((x) => x.msg.startsWith("[Telemetry]"));
+      const item = { t: Date.now(), msg, kind };
+      if (idx >= 0) next[idx] = item;
+      else next.unshift(item);
+      return next.slice(0, MAX_LOGS);
+    });
+  };
+
+  const computeStatus = (e: number, c: number) => {
     if (e >= 0.6 || c <= 0.35) return "CRITICAL_DRIFT";
     if (e >= 0.12 || c < 0.85) return "ALIGNING";
     return "STABLE";
@@ -254,57 +249,21 @@ export default function RQCAwarenessDemo() {
 
   const liveIsFresh = mode === "LIVE";
 
-  // Derived indices
-  const resonanceIndex = useMemo(() => {
-    if (entropy == null) return null;
-    return clamp01(1 - entropy * 0.2);
-  }, [entropy]);
-
-  const stabilityIndex = useMemo(() => {
-    if (phi == null) return null;
-    return clamp01(phi * 0.95);
-  }, [phi]);
+  const resonanceIndex = useMemo(() => (entropy == null ? null : clamp01(1 - entropy * 0.2)), [entropy]);
+  const stabilityIndex = useMemo(() => (phi == null ? null : clamp01(phi * 0.95)), [phi]);
 
   const closureOk = useMemo(() => {
     if (phi == null || coherence == null || entropy == null) return false;
     return phi >= 0.92 && coherence >= 0.92 && entropy <= 0.08;
   }, [phi, coherence, entropy]);
 
-  const buildProofJsonLd = () => {
-    const payload = {
-      "@context": {
-        "@vocab": "https://tessaris.ai/rfc#",
-        sessionId: "sessionId",
-        proofType: "proofType",
-        statement: "statement",
-        metrics: "metrics",
-        derived: "derived",
-        generatedAt: "generatedAt",
-      },
-      "@type": "RQCAwarenessClosureProof",
-      sessionId: SESSION_ID,
-      proofType: "Awareness Horizon (Φ) Phase Closure",
-      statement:
-        "Awareness loop converged: Φ stabilized while entropy collapsed; phase closure achieved without leakage.",
-      metrics: { psi, kappa, T, entropy, phi, coherence, manifoldSync },
-      derived: { resonanceIndex, stabilityIndex, status, mode, wsUrl: wsUrl || null, aionDemoBase },
-      generatedAt: new Date().toISOString(),
-    };
-    return JSON.stringify(payload, null, 2);
-  };
-
-  const downloadProof = () => {
-    const json = buildProofJsonLd();
-    const blob = new Blob([json], { type: "application/ld+json;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `rqc_awareness_proof_${SESSION_ID.slice(0, 8)}.jsonld`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    addLog("[Certificate] JSON-LD exported → Phase Closure Certificate emitted.", "ok");
+  const setIfChanged = (key: keyof typeof lastValsRef.current, setter: (v: any) => void, next: number | null) => {
+    const prev = lastValsRef.current[key];
+    if (next == null) return;
+    if (prev == null || Math.abs(prev - next) > EPS) {
+      lastValsRef.current[key] = next;
+      setter(next);
+    }
   };
 
   const reset = () => {
@@ -315,135 +274,30 @@ export default function RQCAwarenessDemo() {
     setPhi(null);
     setCoherence(null);
     setManifoldSync(null);
-    setPhiHist([]);
-    setEntHist([]);
     setStatus("NO_FEED");
     setIsInjecting(false);
     setLogs([]);
-    lastStateRef.current = null;
-
-    entropyRef.current = 0.15;
-    phiRef.current = 0.64;
-    cohRef.current = 0.64;
-
+    lastValsRef.current = { psi: null, kappa: null, T: null, entropy: null, phi: null, coherence: null };
     addLog("[System] Reset: Awareness Horizon re-armed.", "info");
-  };
-
-  const applyTelemetry = (nm: ReturnType<typeof normalize>) => {
-    // Coherence: MUST come from C/SQI/rho (not psi)
-    const c =
-      nm.C != null
-        ? clamp01(nm.C)
-        : lastStateRef.current?.c ?? null;
-
-    // Entropy: prefer explicit; else use Ibar; else derive from (1 - C)
-    let e: number | null =
-      nm.entropy != null
-        ? clamp01(nm.entropy)
-        : nm.Ibar != null
-        ? clamp01(nm.Ibar)
-        : null;
-
-    if (e == null && c != null) e = clamp01(1 - c);
-
-    // Phi: prefer explicit Φ; else derive from C (your demo behaviour)
-    let p: number | null = nm.Phi != null ? clamp01(nm.Phi) : null;
-    if (p == null && c != null) p = c;
-
-    // Psi: prefer ψ; else ρ; else derive from C (soft)
-    let ps: number | null = nm.psi != null ? clamp01(nm.psi) : null;
-    if (ps == null && nm.rho != null) ps = clamp01(nm.rho);
-    if (ps == null && c != null) ps = clamp01(0.15 + c * 0.35);
-
-    // Only set optional slots if provided
-    if (nm.kappa != null) setKappa(nm.kappa);
-    if (nm.T != null) setT(nm.T);
-
-    if (ps != null) setPsi(ps);
-    if (c != null) setCoherence(c);
-    if (p != null) setPhi(p);
-    if (e != null) setEntropy(e);
-
-    // History for graph (smooth, correct)
-    if (p != null) {
-      setPhiHist((prev) => {
-        const next = [...prev, p];
-        return next.length > HISTORY_LEN ? next.slice(next.length - HISTORY_LEN) : next;
-      });
-    }
-    if (e != null) {
-      setEntHist((prev) => {
-        const next = [...prev, e];
-        return next.length > HISTORY_LEN ? next.slice(next.length - HISTORY_LEN) : next;
-      });
-    }
-
-    // Manifold bars derive from coherence only (0..100)
-    if (c != null) {
-      const base = clamp(c * 100, 0, 100);
-      setManifoldSync([0, 1, 2, 3].map((i) => clamp(base + i * 0.2, 0, 100)));
-    }
-
-    // Status uses (entropy, coherence)
-    const eUsed = e ?? lastStateRef.current?.e ?? 0.5;
-    const cUsed = c ?? lastStateRef.current?.c ?? 0.5;
-    const s = computeStatus(eUsed, cUsed);
-    setStatus(s);
-
-    lastStateRef.current = {
-      e: eUsed,
-      c: cUsed,
-      phi: p ?? lastStateRef.current?.phi ?? cUsed,
-      psi: ps ?? lastStateRef.current?.psi ?? 0.0,
-    };
-
-    // Throttled event stream line (stable)
-    const now = Date.now();
-    if (now - lastTelemetryLogAtRef.current >= TELEMETRY_LOG_EVERY_MS) {
-      lastTelemetryLogAtRef.current = now;
-      const src = nm.src ? ` src=${nm.src}` : "";
-      addLog(
-        `[Telemetry] ψ=${ps != null ? ps.toFixed(5) : "—"} κ=${nm.kappa != null ? nm.kappa : "—"} T=${nm.T != null ? nm.T : "—"} Φ=${p != null ? p.toFixed(4) : "—"} C=${c != null ? c.toFixed(4) : "—"} E=${e != null ? e.toFixed(4) : "—"}${src}`,
-        s === "CRITICAL_DRIFT" ? "warn" : "info"
-      );
-      if (c != null && (nm.rho != null || nm.Ibar != null)) {
-        addLog(
-          `[RQC] SQI=${c.toFixed(4)} ρ=${nm.rho != null ? nm.rho.toFixed(4) : "—"} Ī=${
-            nm.Ibar != null ? nm.Ibar.toFixed(4) : "—"
-          }`,
-          "info"
-        );
-      }
-    }
   };
 
   const injectEntropy = async () => {
     setIsInjecting(true);
     try {
       const r = await postJson(`${aionDemoBase}/api/demo/inject_entropy`, { sessionId: SESSION_ID });
-      if (r.ok) addLog(`[AION_DEMO] Inject triggered (${aionDemoBase}/api/demo/inject_entropy)`, "warn");
+      if (r.ok) addLog(`[AION_DEMO] Inject triggered via /api/demo/inject_entropy`, "warn");
       else {
         const r2 = await postJson(`${aionDemoBase}/api/demo/phi/inject_entropy`, { sessionId: SESSION_ID });
-        if (r2.ok) addLog(`[AION_DEMO] Φ entropy injected (demo bridge).`, "warn");
-        else throw new Error("demo bridge not available");
+        if (r2.ok) addLog(`[AION_DEMO] Φ entropy injected via /api/demo/phi/inject_entropy`, "warn");
+        else addLog(`[AION_DEMO] Inject failed (HTTP ${r.status})`, "warn");
       }
-    } catch {
-      // SIM fallback
-      entropyRef.current = 0.85;
-      phiRef.current = 0.32;
-      cohRef.current = 0.32;
-
-      setEntropy(0.85);
-      setPhi(0.32);
-      setCoherence(0.32);
-      setStatus("CRITICAL_DRIFT");
-      addLog("[SIM] External Entropy Injected: Phase drift detected.", "warn");
-    } finally {
-      window.setTimeout(() => setIsInjecting(false), 900);
+    } catch (e: any) {
+      addLog(`[AION_DEMO] Inject error: ${e?.message || String(e)}`, "warn");
     }
+    window.setTimeout(() => setIsInjecting(false), 900);
   };
 
-  // LIVE MODE
+  // LIVE WS
   useEffect(() => {
     if (!running) return;
     if (!wsUrl) return;
@@ -466,8 +320,8 @@ export default function RQCAwarenessDemo() {
 
     ws.onerror = (ev) => {
       setLiveConnected(false);
-      addLog(`[RQC_LIVE] ERROR (see console)`, "warn");
       console.error("WS error", ev);
+      addLog(`[RQC_LIVE] ERROR (see console)`, "warn");
     };
 
     ws.onmessage = (evt) => {
@@ -483,8 +337,66 @@ export default function RQCAwarenessDemo() {
 
       const type = String(data?.type || "");
 
-      if (type === "error") {
-        addLog(`[RQC_LIVE] ${String(data?.message || "error")}`, "warn");
+      if (type === "telemetry" || type === "awareness_pulse") {
+        const nm = extractMetrics(data);
+
+        // Push only real values; otherwise leave as "—"
+        setIfChanged("psi", setPsi, nm.psi != null ? clamp01(nm.psi) : null);
+        setIfChanged("kappa", setKappa, nm.kappa != null ? clamp01(nm.kappa) : null);
+        setIfChanged("T", setT, nm.T != null ? nm.T : null);
+
+        const nextCoh = nm.C != null ? clamp01(nm.C) : null;
+        const nextEntropy = nm.entropy != null ? clamp01(nm.entropy) : null;
+        const nextPhi = nm.Phi != null ? clamp01(nm.Phi) : (nextCoh != null ? nextCoh : null);
+
+        setIfChanged("coherence", setCoherence, nextCoh);
+        setIfChanged("entropy", setEntropy, nextEntropy);
+        setIfChanged("phi", setPhi, nextPhi);
+
+        // Manifold = coherence proxy (only when coherence exists)
+        if (nextCoh != null) {
+          const base = clamp(nextCoh * 100, 0, 100);
+          setManifoldSync([0, 1, 2, 3].map((i) => clamp(base + i * 0.2, 0, 100)));
+        }
+
+        // Status calculation requires both entropy + coherence
+        const eForStatus = nextEntropy ?? lastValsRef.current.entropy ?? 0.5;
+        const cForStatus = nextCoh ?? lastValsRef.current.coherence ?? 0.5;
+        const s = computeStatus(eForStatus, cForStatus);
+        setStatus(s);
+
+        // Throttled telemetry UI line (prevents flashing)
+        const now = Date.now();
+        if (now - lastTelemetryLogAtRef.current >= TELEMETRY_LOG_EVERY_MS) {
+          lastTelemetryLogAtRef.current = now;
+
+          const line =
+            `[Telemetry] ψ=${nm.psi != null ? clamp01(nm.psi).toFixed(5) : "—"} ` +
+            `κ=${nm.kappa != null ? clamp01(nm.kappa).toFixed(5) : "—"} ` +
+            `T=${nm.T != null ? Number(nm.T).toFixed(3) : "—"} ` +
+            `C=${nextCoh != null ? nextCoh.toFixed(4) : "—"} ` +
+            `E=${nextEntropy != null ? nextEntropy.toFixed(4) : "—"} ` +
+            `Φ=${nextPhi != null ? nextPhi.toFixed(4) : "—"}`;
+
+          upsertTelemetryLine(line, s === "CRITICAL_DRIFT" ? "warn" : "info");
+
+          // Separate RQC line (shows SQI/coherence vs rho vs Ibar) — also throttled
+          if (nm.rho != null || nm.Ibar != null || nm.C != null) {
+            const rqcLine =
+              `[RQC] SQI=${nextCoh != null ? nextCoh.toFixed(4) : "—"} ` +
+              `ρ=${nm.rho != null ? clamp01(nm.rho).toFixed(4) : "—"} ` +
+              `Ī=${nm.Ibar != null ? clamp01(nm.Ibar).toFixed(4) : "—"}`;
+            // don’t spam; update/insert
+            setLogs((prev) => {
+              const next = [...prev];
+              const idx = next.findIndex((x) => x.msg.startsWith("[RQC] "));
+              const item = { t: Date.now(), msg: rqcLine, kind: "info" as const };
+              if (idx >= 0) next[idx] = item;
+              else next.unshift(item);
+              return next.slice(0, MAX_LOGS);
+            });
+          }
+        }
         return;
       }
 
@@ -493,12 +405,12 @@ export default function RQCAwarenessDemo() {
         return;
       }
 
-      if (type === "telemetry" || type === "awareness_pulse") {
-        applyTelemetry(normalize(data));
+      if (type === "error") {
+        addLog(`[RQC_LIVE] ${String(data?.message || "error")}`, "warn");
         return;
       }
 
-      // Unknown frame: show once
+      // Non-telemetry frames (rare) — keep short
       addLog(`[RQC_LIVE] RX ${raw.slice(0, 140)}`, "info");
     };
 
@@ -511,58 +423,45 @@ export default function RQCAwarenessDemo() {
     };
   }, [running, wsUrl]);
 
-  // SIM MODE
+  // SIM MODE (only when no wsUrl)
+  const entropyRef = useRef<number>(0.15);
+  const phiRef = useRef<number>(0.64);
+  const cohRef = useRef<number>(0.64);
+
   useEffect(() => {
     if (!running) return;
     if (wsUrl) return;
 
-    if (entropy == null) setEntropy(entropyRef.current);
-    if (phi == null) setPhi(phiRef.current);
-    if (coherence == null) setCoherence(cohRef.current);
-    if (psi == null) setPsi(clamp01(0.15 + cohRef.current * 0.35));
-    if (kappa == null) setKappa(0.197375);
-    if (T == null) setT(21.097865);
-    if (manifoldSync == null) setManifoldSync([98, 97, 99, 98]);
-    setStatus("ALIGNING");
     addLog("[SIM] Running local awareness simulator (not live telemetry).", "warn");
+    setStatus("ALIGNING");
 
     const id = window.setInterval(() => {
-      entropyRef.current =
-        entropyRef.current > 0.05 ? Math.max(0.02, entropyRef.current - 0.015) : entropyRef.current;
+      entropyRef.current = entropyRef.current > 0.05 ? Math.max(0.02, entropyRef.current - 0.015) : entropyRef.current;
 
-      // drive coherence + phi together (demo-style)
-      cohRef.current = clamp01(1 - entropyRef.current);
-      phiRef.current = cohRef.current;
+      phiRef.current =
+        entropyRef.current > 0.05 ? Math.min(0.99, phiRef.current + 0.02) : Math.max(0.92, phiRef.current - 0.005);
 
-      const c = cohRef.current;
-      const e = entropyRef.current;
-      const p = phiRef.current;
-      const ps = clamp01(0.15 + c * 0.35);
+      const target = clamp01(phiRef.current);
+      cohRef.current = clamp01(cohRef.current + (target - cohRef.current) * 0.18);
 
-      setCoherence(c);
-      setEntropy(e);
-      setPhi(p);
-      setPsi(ps);
+      setEntropy(entropyRef.current);
+      setPhi(phiRef.current);
+      setCoherence(cohRef.current);
 
-      const base = clamp(c * 100, 0, 100);
-      setManifoldSync([0, 1, 2, 3].map((i) => clamp(base + (Math.random() - 0.5) * 1.5 + i * 0.2, 0, 100)));
+      const base = clamp(cohRef.current * 100, 0, 100);
+      setManifoldSync([0, 1, 2, 3].map((i) => clamp(base + i * 0.3, 0, 100)));
 
-      setStatus(computeStatus(e, c));
+      setPsi(clamp01(0.15 + cohRef.current * 0.35));
+      setKappa(null);
+      setT(null);
 
-      setPhiHist((prev) => {
-        const next = [...prev, p];
-        return next.length > HISTORY_LEN ? next.slice(next.length - HISTORY_LEN) : next;
-      });
-      setEntHist((prev) => {
-        const next = [...prev, e];
-        return next.length > HISTORY_LEN ? next.slice(next.length - HISTORY_LEN) : next;
-      });
+      setStatus(computeStatus(entropyRef.current, cohRef.current));
     }, 200);
 
     return () => window.clearInterval(id);
   }, [running, wsUrl]);
 
-  // Stale detection
+  // stale → NO_FEED
   useEffect(() => {
     if (!running) return;
     if (!wsUrl) return;
@@ -582,11 +481,9 @@ export default function RQCAwarenessDemo() {
 
   const barsEnabled = running && (!wsUrl || liveIsFresh);
 
-  // Graph uses history (no fake wiggle)
-  const phiSeries = phiHist.length ? phiHist : [phi ?? 0];
-  const entSeries = entHist.length ? entHist : [entropy ?? 0];
+  const displayPhi = phi ?? 0;
+  const displayEntropy = entropy ?? 0;
 
-  const closureLabel = closureOk ? "OK" : "LOCKED";
   const pillDot =
     status === "NO_FEED"
       ? "bg-slate-400"
@@ -595,6 +492,8 @@ export default function RQCAwarenessDemo() {
       : closureOk
       ? "bg-emerald-500"
       : "bg-blue-500";
+
+  const closureLabel = closureOk ? "OK" : "LOCKED";
 
   return (
     <div className="min-h-screen w-full bg-[#f8fafc] text-slate-900 font-sans py-10">
@@ -614,42 +513,34 @@ export default function RQCAwarenessDemo() {
 
             <div className="mt-3 flex flex-wrap gap-2">
               <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
-                Mode:{" "}
-                <span className="text-slate-900">
-                  {!wsUrl ? "SIM (local)" : liveIsFresh ? "RQC_LIVE" : "RQC_LIVE (NO_FEED)"}
-                </span>
+                Mode: <span className="text-slate-900">{!wsUrl ? "SIM (local)" : liveIsFresh ? "RQC_LIVE" : "RQC_LIVE (NO_FEED)"}</span>
               </span>
 
               <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
-                RQC WS: <span className="text-slate-900 break-all">{wsUrl || "—"}</span>
+                RQC WS: <span className="text-slate-900">{wsUrl || "—"}</span>
               </span>
 
               <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
-                AION Demo: <span className="text-slate-900 break-all">{aionDemoBase}</span>
+                AION Demo: <span className="text-slate-900">{aionDemoBase}</span>
               </span>
 
               {wsUrl && lastLiveAt > 0 && (
                 <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase border border-slate-200 bg-white text-slate-600">
                   Last telemetry:{" "}
-                  <span className="text-slate-900">
-                    {Math.max(0, Math.floor((Date.now() - lastLiveAt) / 1000))}s
-                  </span>
+                  <span className="text-slate-900">{Math.max(0, Math.floor((Date.now() - lastLiveAt) / 1000))}s</span>
                 </span>
               )}
             </div>
           </div>
 
           <div className="flex flex-wrap gap-3 items-center">
-            {/* Phase Closure */}
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm">
               <span className={`w-2.5 h-2.5 rounded-full ${closureOk ? "bg-emerald-500" : "bg-slate-400"}`} />
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-700">
-                πₛ Phase Closure:{" "}
-                <span className={closureOk ? "text-emerald-600" : "text-slate-500"}>{closureLabel}</span>
+                πₛ Phase Closure: <span className={closureOk ? "text-emerald-600" : "text-slate-500"}>{closureLabel}</span>
               </span>
             </div>
 
-            {/* Status */}
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm">
               <span className={`w-2.5 h-2.5 rounded-full ${pillDot}`} />
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-700">
@@ -685,21 +576,9 @@ export default function RQCAwarenessDemo() {
               onClick={injectEntropy}
               disabled={isInjecting}
               className="px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all shadow-sm border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50"
-              title="Inject via AION demo bridge if present; otherwise SIM inject."
+              title="Inject via AION demo bridge if present; otherwise no-op for read-only feeds."
             >
               Inject Logic Entropy
-            </button>
-
-            <button
-              onClick={downloadProof}
-              disabled={!closureOk}
-              className={`px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all shadow-sm border ${
-                closureOk
-                  ? "bg-white border-slate-200 hover:bg-slate-50 text-slate-900"
-                  : "bg-white border-slate-200 text-slate-400 cursor-not-allowed"
-              }`}
-            >
-              Download Certificate
             </button>
 
             <button
@@ -714,14 +593,11 @@ export default function RQCAwarenessDemo() {
           </div>
         </div>
 
-        {/* MAIN GRID */}
+        {/* MAIN HUD GRID */}
         <div className="grid grid-cols-12 gap-8">
-          {/* PRIMARY */}
           <div className="col-span-12 lg:col-span-8 bg-white rounded-3xl border border-slate-200 shadow-sm p-8 relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                Φ (Awareness) vs. Entropy Evolution
-              </h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">Φ (Awareness) vs. Entropy Evolution</h3>
 
               <div className="flex gap-4">
                 <div className="flex items-center gap-2">
@@ -735,34 +611,27 @@ export default function RQCAwarenessDemo() {
               </div>
             </div>
 
-            {/* GRAPH (history-based) */}
             <div className={`h-64 flex items-end justify-between gap-1 relative border-b border-slate-100 pb-2 ${!barsEnabled ? "opacity-60" : ""}`}>
-              {Array.from({ length: 40 }).map((_, i) => {
-                const idx = Math.max(0, phiSeries.length - 40 + i);
-                const p = phiSeries[idx] ?? phiSeries[phiSeries.length - 1] ?? 0;
-                const e = entSeries[idx] ?? entSeries[entSeries.length - 1] ?? 0;
-
-                const heightPct = `${clamp(p * 100, 2, 100)}%`;
-                const color = e > 0.4 ? "#fb7185" : "#3b82f6";
-
+              {[...Array(40)].map((_, i) => {
+                const base = Math.max(10, displayPhi * 80);
+                const wiggle = barsEnabled ? Math.sin(i + Date.now() / 1000) * 10 : 0;
+                const heightPct = `${base + wiggle}%`;
+                const color = displayEntropy > 0.4 ? "#fb7185" : "#3b82f6";
                 return (
                   <motion.div
                     key={i}
                     className="w-full rounded-t-sm"
                     animate={{ height: heightPct, backgroundColor: color }}
-                    transition={barsEnabled ? { type: "spring", stiffness: 90, damping: 18 } : { duration: 0 }}
+                    transition={barsEnabled ? { type: "spring", stiffness: 90, damping: 14 } : { duration: 0 }}
                   />
                 );
               })}
 
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-7xl md:text-8xl font-black text-slate-900/5 select-none uppercase tracking-tighter">
-                  {status}
-                </span>
+                <span className="text-7xl md:text-8xl font-black text-slate-900/5 select-none uppercase tracking-tighter">{status}</span>
               </div>
             </div>
 
-            {/* Manifold sync bars (coherence-based) */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {(manifoldSync ?? [0, 0, 0, 0]).map((val, i) => (
                 <div key={i} className="space-y-2">
@@ -781,46 +650,32 @@ export default function RQCAwarenessDemo() {
               ))}
             </div>
 
-            {/* Telemetry tiles */}
             <div className="mt-8 grid grid-cols-2 md:grid-cols-5 gap-4">
               <Tile label="ψ (Wave Presence)" value={psi != null ? psi.toFixed(5) : "—"} />
-              <Tile label="κ (Curvature)" value={kappa != null ? String(kappa) : "—"} />
-              <Tile label="T (Temporal)" value={T != null ? String(T) : "—"} />
+              <Tile label="κ (Curvature)" value={kappa != null ? kappa.toFixed(6) : "—"} />
+              <Tile label="T (Temporal)" value={T != null ? T.toFixed(3) : "—"} />
               <Tile label="Entropy" value={entropy != null ? entropy.toFixed(3) : "—"} />
               <Tile label="Φ (Awareness)" value={phi != null ? phi.toFixed(4) : "—"} />
             </div>
           </div>
 
-          {/* SIDEBAR */}
           <div className="col-span-12 lg:col-span-4 space-y-6">
             <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-sm relative overflow-hidden">
               <div className="relative z-10">
-                <span className="text-[10px] font-bold tracking-[0.2em] text-blue-300 uppercase">
-                  Awareness Scalar
-                </span>
-                <div className="mt-2 text-6xl font-semibold font-mono">
-                  Φ {phi != null ? phi.toFixed(4) : "—"}
-                </div>
+                <span className="text-[10px] font-bold tracking-[0.2em] text-blue-300 uppercase">Awareness Scalar</span>
+                <div className="mt-2 text-6xl font-semibold font-mono">Φ {phi != null ? phi.toFixed(4) : "—"}</div>
                 <p className="text-slate-300 text-xs mt-4 leading-relaxed">
-                  Φ is the self-measurement observable. In your current demo feed, Φ is derived from coherence (SQI/C) when Φ isn’t explicitly emitted.
+                  Φ is the self-measurement observable. If Φ is not explicitly emitted, it falls back to coherence (SQI/C).
                 </p>
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
                   <div className="bg-white/10 border border-white/10 rounded-2xl p-4">
-                    <div className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">
-                      Resonance Index
-                    </div>
-                    <div className="mt-1 text-xl font-mono text-white">
-                      {resonanceIndex != null ? resonanceIndex.toFixed(3) : "—"}
-                    </div>
+                    <div className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">Resonance Index</div>
+                    <div className="mt-1 text-xl font-mono text-white">{resonanceIndex != null ? resonanceIndex.toFixed(3) : "—"}</div>
                   </div>
                   <div className="bg-white/10 border border-white/10 rounded-2xl p-4">
-                    <div className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">
-                      Stability Index
-                    </div>
-                    <div className="mt-1 text-xl font-mono text-white">
-                      {stabilityIndex != null ? stabilityIndex.toFixed(3) : "—"}
-                    </div>
+                    <div className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">Stability Index</div>
+                    <div className="mt-1 text-xl font-mono text-white">{stabilityIndex != null ? stabilityIndex.toFixed(3) : "—"}</div>
                   </div>
                 </div>
               </div>
@@ -832,11 +687,8 @@ export default function RQCAwarenessDemo() {
               />
             </div>
 
-            {/* Logs (stable) */}
             <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm h-64 overflow-hidden">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-                AION Event Stream
-              </h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">AION Event Stream</h3>
               <div className="space-y-3">
                 <AnimatePresence>
                   {(logs.length ? logs : [{ t: 0, msg: "Awaiting telemetry…", kind: "info" as const }]).map((log) => (
