@@ -31,21 +31,18 @@ function stripSlash(s: string) {
 function normalizeHttpBase(raw: string) {
   let b = stripSlash(raw);
   if (!b) return "";
-  // tolerate people pasting ".../api" (but DO NOT strip /aion-demo — we need it when present)
+
+  // tolerate people pasting ".../api" or ".../aion-demo"
   b = b.replace(/\/api$/i, "");
+  b = b.replace(/\/aion-demo$/i, "");
+
   return b;
 }
 
 function resolveHttpBase(): string {
-  // Prefer the deployment vars you’re actually setting now
+  // ✅ Single source of truth now
   const envDemo = normalizeHttpBase(process.env.NEXT_PUBLIC_AION_DEMO_HTTP_BASE || "");
   if (envDemo) return envDemo;
-
-  const envAion = normalizeHttpBase(process.env.NEXT_PUBLIC_AION_API_BASE || "");
-  if (envAion) return envAion;
-
-  const legacy = normalizeHttpBase(process.env.NEXT_PUBLIC_API_URL || "");
-  if (legacy) return legacy;
 
   // Local dev convenience
   if (typeof window !== "undefined") {
@@ -84,11 +81,23 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
     headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
     cache: "no-store",
   });
+
+  const ct = res.headers.get("content-type") || "";
+  const text = await res.text().catch(() => "");
+
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`${url} -> ${res.status} ${res.statusText}${text ? `: ${text}` : ""}`);
+    throw new Error(`${url} -> ${res.status} ${res.statusText}${text ? `: ${text.slice(0, 160)}` : ""}`);
   }
-  return (await res.json()) as T;
+
+  // ✅ If BASE points at a frontend (Next) you'll get text/html 404 pages.
+  if (!ct.includes("application/json")) {
+    throw new Error(
+      `${url} -> Expected JSON but got "${ct || "unknown"}". ` +
+        `Your NEXT_PUBLIC_AION_DEMO_HTTP_BASE is probably pointing at the FRONTEND, not the API service.`
+    );
+  }
+
+  return JSON.parse(text) as T;
 }
 
 async function postApi(base: string, path: string): Promise<void> {
@@ -241,7 +250,10 @@ function useAionDemoData(pollMs = 500) {
   // - apiBase: backend.main root routes (/api/aion/dashboard)
   // - demoBase: demo_bridge mounted under /aion-demo (/aion-demo/api/*)
   const apiBase = useMemo(() => httpBase, [httpBase]);
-  const demoBase = useMemo(() => joinUrl(httpBase, "/aion-demo"), [httpBase]);
+  const demoBase = useMemo(
+    () => (httpBase ? joinUrl(httpBase, "/aion-demo") : "/aion-demo"),
+    [httpBase]
+  );
 
   const [homeostasis, setHomeostasis] = useState<HomeostasisEnvelope | null>(null);
   const [phi, setPhi] = useState<PhiBundle | null>(null);
