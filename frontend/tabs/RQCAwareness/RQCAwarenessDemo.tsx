@@ -59,19 +59,34 @@ function pickMetric(m: any, keys: string[]) {
  */
 function normalizeRqcMetrics(msg: any) {
   const m = msg?.metrics ?? msg?.state?.metrics ?? msg ?? {};
+  const phiObj = msg?.phi ?? msg?.state?.phi ?? {};
 
-  // What the UI expects:
+  // /resonance-style (ψ κ T Φ coherence) if present
   const psi = pickMetric(m, ["ψ", "psi", "presence", "ρ", "rho"]);
   const kappa = pickMetric(m, ["κ", "kappa", "curvature"]);
   const T = pickMetric(m, ["T", "temp", "temporal", "time"]);
-  const Phi = pickMetric(m, ["Φ", "phi", "awareness"]);
-  const C = pickMetric(m, ["C", "coherence", "SQI", "sqi"]);
 
-  // Also keep some raw variants you may be receiving
+  // Spec-correct coherence + entropy from demo bridge
+  const C =
+    pickMetric(phiObj, ["Φ_coherence", "phi_coherence"]) ??
+    pickMetric(m, ["C", "coherence", "ρ", "rho", "SQI", "sqi"]);
+
+  const entropy =
+    pickMetric(phiObj, ["Φ_entropy", "phi_entropy"]) ??
+    pickMetric(m, ["Ī", "Ibar", "Ī", "iota"]);
+
+  // Φ is self-measurement scalar; demo bridge doesn’t currently emit a separate Φ,
+  // so drive Φ from Φ_coherence (per your current state file design).
+  const Phi =
+    pickMetric(m, ["Φ", "phi"]) ??
+    pickMetric(phiObj, ["Φ", "phi"]) ??
+    pickMetric(phiObj, ["Φ_coherence", "phi_coherence"]);
+
+  const A = pickMetric(m, ["A", "⟲"]);
   const rho = pickMetric(m, ["ρ", "rho"]);
-  const Ibar = pickMetric(m, ["Ī", "Ibar", "Ī", "I"]);
+  const Ibar = pickMetric(m, ["Ī", "Ibar", "Ī", "iota"]);
 
-  return { psi, kappa, T, Phi, C, rho, Ibar };
+  return { psi, kappa, T, Phi, C, entropy, A, rho, Ibar };
 }
 
 /**
@@ -103,19 +118,30 @@ function resolveOrigin(): string {
 }
 
 function pickRqcWsUrl() {
-  const env = (process.env.NEXT_PUBLIC_RQC_WS || "").trim();
-  if (env) {
-    if (env.startsWith("https://")) return "wss://" + env.slice("https://".length);
-    if (env.startsWith("http://")) return "ws://" + env.slice("http://".length);
+  const raw = (process.env.NEXT_PUBLIC_RQC_WS || "").trim();
+  if (raw) {
+    // normalize http(s) -> ws(s)
+    let env = raw;
+    if (env.startsWith("https://")) env = "wss://" + env.slice("https://".length);
+    if (env.startsWith("http://")) env = "ws://" + env.slice("http://".length);
+
+    // guardrails
     if (env.includes("/aion-demo/ws")) {
       console.warn("[RQC] NEXT_PUBLIC_RQC_WS points to demo ws, expected /resonance:", env);
+
+      // optional: auto-fix the common misconfig
+      env = env.replace(/\/aion-demo\/ws\/aion-demo\/?$/, "/resonance");
+      console.warn("[RQC] Auto-corrected to:", env);
     }
+
     if (!env.includes("/resonance")) {
       console.warn("[RQC] NEXT_PUBLIC_RQC_WS should end with /resonance:", env);
-    }    
+    }
+
     return env; // ws:// or wss:// (full URL)
   }
 
+  // fallback: derive from API base / window origin
   const origin = resolveOrigin();
   if (origin) {
     const proto = origin.startsWith("https://") ? "wss" : "ws";
@@ -123,8 +149,6 @@ function pickRqcWsUrl() {
     return `${proto}://${host}/resonance`;
   }
 
-  // IMPORTANT: do NOT force localhost in prod.
-  // Returning "" means: no wsUrl => SIM mode.
   if (typeof window !== "undefined") {
     const isLocal =
       window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
@@ -186,7 +210,7 @@ export default function RQCAwarenessDemo() {
   const wsUrl = useMemo(() => pickRqcWsUrl(), []);
   useEffect(() => {
     console.log("[RQC] wsUrl =", wsUrl);
-  }, [wsUrl]);  
+  }, [wsUrl]);
   const aionDemoBase = useMemo(() => pickAionDemoBase(), []);
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -200,6 +224,12 @@ export default function RQCAwarenessDemo() {
   const entropyRef = useRef<number>(0.15);
   const phiRef = useRef<number>(0.64);
   const cohRef = useRef<number>(0.64);
+
+  // Refs to avoid stale-closure bugs in LIVE WS handler too
+  const entropyStateRef = useRef<number | null>(null);
+  const coherenceStateRef = useRef<number | null>(null);
+  useEffect(() => void (entropyStateRef.current = entropy), [entropy]);
+  useEffect(() => void (coherenceStateRef.current = coherence), [coherence]);
 
   const addLog = (msg: string, kind: LogItem["kind"] = "info") => {
     setLogs((prev) => [{ t: Date.now(), msg, kind }, ...prev].slice(0, 8));
@@ -300,6 +330,9 @@ export default function RQCAwarenessDemo() {
     entropyRef.current = 0.15;
     phiRef.current = 0.64;
     cohRef.current = 0.64;
+
+    entropyStateRef.current = null;
+    coherenceStateRef.current = null;
   };
 
   const injectEntropy = async () => {
@@ -397,21 +430,29 @@ export default function RQCAwarenessDemo() {
       if (type === "telemetry") {
         const nm = normalizeRqcMetrics(data);
 
+        // base slots
         const nextPsi = nm.psi;
         const nextKappa = nm.kappa;
         const nextT = nm.T;
 
+        // spec/demo-bridge slots
         const nextPhi = nm.Phi != null ? clamp01(nm.Phi) : null;
         const nextCoh = nm.C != null ? clamp01(nm.C) : null;
+        const nextEntropy = nm.entropy != null ? clamp01(nm.entropy) : null;
 
         if (nextPsi != null) setPsi(nextPsi);
         if (nextKappa != null) setKappa(nextKappa);
         if (nextT != null) setT(nextT);
+
+        // ✅ consume demo-bridge telemetry correctly
+        if (nextEntropy != null) setEntropy(nextEntropy);
         if (nextPhi != null) setPhi(nextPhi);
         if (nextCoh != null) setCoherence(nextCoh);
 
-        // Entropy proxy: from κ if present; otherwise keep previous entropy
-        if (nextKappa != null) setEntropy(clamp01(1 - clamp01(nextKappa)));
+        // Entropy proxy from κ ONLY if real entropy wasn't provided
+        if (nextEntropy == null && nextKappa != null) {
+          setEntropy(clamp01(1 - clamp01(nextKappa)));
+        }
 
         // ManifoldSync is not emitted by /resonance; infer from coherence for display
         if (nextCoh != null) {
@@ -419,21 +460,31 @@ export default function RQCAwarenessDemo() {
           setManifoldSync([0, 1, 2, 3].map((i) => clamp(base + i * 0.2, 0, 100)));
         }
 
-        const eProxy = nextKappa != null ? clamp01(1 - clamp01(nextKappa)) : entropy ?? 0.5;
-        const cProxy = nextCoh != null ? nextCoh : coherence ?? 0.5;
+        // Status should prefer real entropy; else κ-proxy; else last known
+        const lastE = entropyStateRef.current ?? 0.5;
+        const lastC = coherenceStateRef.current ?? 0.5;
+
+        const eProxy =
+          nextEntropy != null
+            ? nextEntropy
+            : nextKappa != null
+            ? clamp01(1 - clamp01(nextKappa))
+            : lastE;
+
+        const cProxy = nextCoh != null ? nextCoh : lastC;
 
         const s = computeStatus(eProxy, cProxy);
         setStatus(s);
 
         const src = typeof data?.source === "string" ? ` src=${data.source}` : "";
 
-        // Main one-liner (what you actually care about)
         addLog(
-          `[Telemetry] ψ=${nextPsi ?? "—"} κ=${nextKappa ?? "—"} T=${nextT ?? "—"} Φ=${nextPhi ?? "—"} C=${nextCoh ?? "—"}${src}`,
+          `[Telemetry] ψ=${nextPsi ?? "—"} κ=${nextKappa ?? "—"} T=${nextT ?? "—"} Φ=${
+            nextPhi ?? "—"
+          } C=${nextCoh ?? "—"} E=${nextEntropy ?? (nextKappa != null ? clamp01(1 - clamp01(nextKappa)).toFixed(3) : "—")}${src}`,
           s === "CRITICAL_DRIFT" ? "warn" : "info"
         );
 
-        // Optional: quick “feed health” / raw slots you might be receiving
         if (nm.rho != null || nm.Ibar != null) {
           addLog(`[RQC] SQI=${nextCoh ?? "—"} ρ=${nm.rho ?? "—"} Ī=${nm.Ibar ?? "—"}`, "info");
         }
@@ -450,6 +501,7 @@ export default function RQCAwarenessDemo() {
         const nm = normalizeRqcMetrics(data);
         if (nm.Phi != null) setPhi(clamp01(nm.Phi));
         if (nm.C != null) setCoherence(clamp01(nm.C));
+        if (nm.entropy != null) setEntropy(clamp01(nm.entropy));
 
         // Some backends send Φ/coherence flat on pulse:
         if (typeof data["Φ"] === "number") setPhi(clamp01(data["Φ"]));

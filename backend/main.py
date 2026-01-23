@@ -238,17 +238,18 @@ app = FastAPI(
 )
 app.router.redirect_slashes = False
 
-# ✅ AION Live Dashboard API + WS
+# ✅ AION Live Dashboard WS only
 try:
-    from backend.api.aion_dashboard import router as aion_dashboard_router
     from backend.api.aion_dashboard import ws_router as aion_dashboard_ws_router
 
-    app.include_router(aion_dashboard_router)     # /api/aion/dashboard/*
     app.include_router(aion_dashboard_ws_router)  # /ws/aion/dashboard
-    logger.warning("[aion-dashboard] mounted: /api/aion/dashboard + /ws/aion/dashboard")
+    logger.warning("[aion-dashboard] mounted: /ws/aion/dashboard")
 except Exception as e:
     logger.warning("[aion-dashboard] not mounted: %s", e)
 
+# ✅ AION Live Dashboard API + WS
+    # from backend.api.aion_dashboard import router as aion_dashboard_router
+    # app.include_router(aion_dashboard_router)     # /api/aion/dashboard/*
 
 # ✅ Mount AION Demo Bridge under a safe prefix (no route collisions)
 try:
@@ -768,7 +769,7 @@ from backend.modules.staking.staking_routes import router as staking_router
 from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
 from backend.routes.aion_heartbeat_api import router as aion_heartbeat_router
 from backend.api.aion_dashboard import router as aion_dashboard_router
-from backend.api.aion_dashboard_ws import router as aion_dashboard_router
+# from backend.api.aion_dashboard_ws import router as aion_dashboard_router
 from backend.routes.aion_akg_demo_api import router as aion_akg_demo_router
 from backend.api.aion_proof_of_life import router as aion_proof_of_life_router
 from backend.routes.aion_mirror_api import router as aion_mirror_router
@@ -776,7 +777,7 @@ from backend.routes.aion_homeostasis_alias import router as aion_homeostasis_ali
 from backend.routes.aion_cognitive_api import router as aion_cognitive_router
 from backend.api.aion import router as aion_router
 from backend.api.wirepack_api import router as wirepack_router
-from backend.modules.aion_demo.demo_bridge import router as aion_demo_router
+# from backend.modules.aion_demo.demo_bridge import router as aion_demo_router
 from backend.modules.chain_sim.chain_sim_routes import (
     router as chain_sim_router,
     chain_sim_async_startup,
@@ -1033,10 +1034,10 @@ app.include_router(aion_proof_of_life_router)
 app.include_router(aion_akg_demo_router)
 app.include_router(aion_mirror_router)
 app.include_router(aion_homeostasis_alias_router)
-app.include_router(aion_dashboard_router)
+# app.include_router(aion_dashboard_router)
 app.include_router(aion_cognitive_router)
 app.include_router(aion_router, prefix="/api/aion", tags=["AION"])
-app.include_router(aion_demo_router, prefix="/aion-demo")
+# app.include_router(aion_demo_router, prefix="/aion-demo")
 register_voice_events(app)
 
 # --- Floor-control lock sweeper (PTT) ---

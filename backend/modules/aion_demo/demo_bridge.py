@@ -964,7 +964,7 @@ app = FastAPI(title="AION Demo Bridge", version="0.2.1")
 # Keep CORS permissive for local dev demos.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://tessaris.ai"],
+    allow_origins=["https://tessaris.ai", "https://www.tessaris.ai"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -1211,23 +1211,32 @@ async def ws_aion_demo(ws: WebSocket) -> None:
             # use A if available, else fall back to stability belief
             eq = A if A is not None else beliefs.get("stability")
 
+            payload_metrics = {
+                "SQI": beliefs.get("trust"),
+                "ρ": rho,
+                "Ī": iota,
+                "ΔΦ": dphi,
+                "⟲": eq,
+                "A": A,
+                "RSI": rsi,
+                "zone": zone,
+                "locked": (mirror or {}).get("locked") if isinstance(mirror, dict) else None,
+                "threshold": (mirror or {}).get("threshold") if isinstance(mirror, dict) else None,
+                "lock_id": (mirror or {}).get("lock_id") if isinstance(mirror, dict) else None,
+            }
+
             payload = {
                 "type": "telemetry",
                 "command": "telemetry",
                 "ts": time.time(),
-                "metrics": {
-                    "SQI": beliefs.get("trust"),
-                    "ρ": rho,
-                    "Ī": iota,
-                    "ΔΦ": dphi,
-                    "⟲": eq,
-                    "A": A,
-                    "RSI": rsi,
-                    "zone": zone,
-                    "locked": (mirror or {}).get("locked") if isinstance(mirror, dict) else None,
-                    "threshold": (mirror or {}).get("threshold") if isinstance(mirror, dict) else None,
-                    "lock_id": (mirror or {}).get("lock_id") if isinstance(mirror, dict) else None,
+                "metrics": payload_metrics,
+
+                # ✅ what the frontend expects now
+                "state": {
+                    "phi": phi_s,
+                    "metrics": payload_metrics,
                 },
+
                 "phi": phi_s,
                 "phi_meta": (phi.get("derived") or {}),
                 "adr": (adr.get("derived") or {}),
