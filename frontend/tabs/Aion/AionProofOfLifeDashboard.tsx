@@ -3,7 +3,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 
-import type { Envelope, PhiBundle, AdrBundle, HeartbeatEnvelope, ReflexEnvelope, AkgSnapshot } from "./demos/types";
+import type { PhiBundle, AdrBundle, HeartbeatEnvelope, ReflexEnvelope, AkgSnapshot } from "./demos/types";
 
 import { demo01Meta, Demo01MetabolismPanel } from "./demos/demo01_metabolism";
 import { demo02Meta, Demo02AdrPanel } from "./demos/demo02_immune_adr";
@@ -194,7 +194,10 @@ function PillarSection(props: {
       : "rounded-3xl border border-slate-200 bg-white p-0 shadow-sm";
 
   return (
-    <section id={props.id} className="grid grid-cols-1 gap-8 py-10 lg:grid-cols-5 border-b border-slate-200 last:border-0">
+    <section
+      id={props.id}
+      className="grid grid-cols-1 gap-8 py-10 lg:grid-cols-5 border-b border-slate-200 last:border-0"
+    >
       <div className="lg:col-span-3">
         <div className={stage}>{props.container}</div>
       </div>
@@ -214,6 +217,42 @@ function PillarSection(props: {
       </div>
     </section>
   );
+}
+
+/* ---------------- ADR adapter ----------------
+Backend (current): GET /api/adr returns:
+  { latest_stream_event, latest_drift_repair, pal_state, derived, ... }
+UI expects AdrBundle:
+  { stream, lastRepair, palState }
+---------------------------------------------- */
+
+function adaptAdr(raw: any): AdrBundle {
+  if (!raw || typeof raw !== "object") return { stream: null, lastRepair: null, palState: null } as any;
+
+  const stream = raw.stream ?? raw.latest_stream_event ?? raw.latestStreamEvent ?? null;
+  const lastRepair = raw.lastRepair ?? raw.latest_drift_repair ?? raw.latestDriftRepair ?? null;
+  const palState = raw.palState ?? raw.pal_state ?? raw.palStateJson ?? null;
+
+  // pass-through useful fields (panel ignores them but great for debug)
+  const extra = {
+    derived: raw.derived,
+    source_files: raw.source_files,
+    data_root: raw.data_root,
+  };
+
+  return { stream, lastRepair, palState, ...(extra as any) } as any;
+}
+
+/* ---------------- Akg adapter (tolerant) ---------------- */
+
+function adaptAkg(raw: any): AkgSnapshot | null {
+  if (!raw) return null;
+  if (raw.top_edges || raw.edges_total != null) return raw as AkgSnapshot;
+
+  const candidate = raw.state ?? raw.snapshot ?? raw.data ?? null;
+  if (candidate && (candidate.top_edges || candidate.edges_total != null)) return candidate as AkgSnapshot;
+
+  return raw as AkgSnapshot; // last resort
 }
 
 /* ---------------- Poller (with per-feed errors) ---------------- */
@@ -242,9 +281,12 @@ function useAionDemoData(pollMs = 1500) {
 
     const tick = async () => {
       const urls = {
+        // main (non-demo)
         homeo: joinUrl(apiBase, "/api/aion/dashboard"),
+        adr: joinUrl(apiBase, "/api/adr"), // ✅ ADR lives on main router
+
+        // demo routes
         phi: joinUrl(demoBase, "/api/phi"),
-        adr: joinUrl(apiBase, "/api/adr"),
         hb: joinUrl(demoBase, "/api/heartbeat?namespace=demo"),
         reflex: joinUrl(demoBase, "/api/reflex"),
         akg: joinUrl(demoBase, "/api/akg"),
@@ -257,10 +299,10 @@ function useAionDemoData(pollMs = 1500) {
         const results = await Promise.allSettled([
           fetchJson<HomeostasisEnvelope>(urls.homeo),
           fetchJson<PhiBundle>(urls.phi),
-          fetchJson<AdrBundle>(urls.adr),
+          fetchJson<any>(urls.adr), // raw -> adaptAdr()
           fetchJson<HeartbeatEnvelope>(urls.hb),
           fetchJson<ReflexEnvelope>(urls.reflex),
-          fetchJson<AkgSnapshot>(urls.akg),
+          fetchJson<any>(urls.akg), // raw -> adaptAkg()
           fetchJson<MirrorEnvelope>(urls.mirror),
         ]);
 
@@ -274,7 +316,7 @@ function useAionDemoData(pollMs = 1500) {
         if (phiRes.status === "fulfilled") setPhi(phiRes.value);
         else nextErrs.phi = String((phiRes as any).reason?.message || (phiRes as any).reason || "error");
 
-        if (adrRes.status === "fulfilled") setAdr(adrRes.value);
+        if (adrRes.status === "fulfilled") setAdr(adaptAdr(adrRes.value));
         else nextErrs.adr = String((adrRes as any).reason?.message || (adrRes as any).reason || "error");
 
         if (hbRes.status === "fulfilled") setHeartbeat(hbRes.value);
@@ -283,7 +325,7 @@ function useAionDemoData(pollMs = 1500) {
         if (reflexRes.status === "fulfilled") setReflex(reflexRes.value);
         else nextErrs.reflex = String((reflexRes as any).reason?.message || (reflexRes as any).reason || "error");
 
-        if (akgRes.status === "fulfilled") setAkg(akgRes.value);
+        if (akgRes.status === "fulfilled") setAkg(adaptAkg(akgRes.value));
         else nextErrs.akg = String((akgRes as any).reason?.message || (akgRes as any).reason || "error");
 
         if (mirrorRes.status === "fulfilled") setMirror(mirrorRes.value);
@@ -383,7 +425,6 @@ function pickFirstBool(sources: any[], keys: string[]): boolean | null {
 }
 
 function extractPhaseClosure(homeostasis: any | null, mirror: any | null) {
-  // ---- peel "homeostasis last" in a tolerant way
   const homeoLast =
     homeostasis?.homeostasis?.last ??
     homeostasis?.homeostasis ??
@@ -400,34 +441,17 @@ function extractPhaseClosure(homeostasis: any | null, mirror: any | null) {
     homeoLast ??
     null;
 
-  const mirrorState =
-    mirror?.state ??
-    mirror?.snapshot ??
-    mirror?.mirror ??
-    mirror ??
-    null;
+  const mirrorState = mirror?.state ?? mirror?.snapshot ?? mirror?.mirror ?? mirror ?? null;
 
-  // ---- sources (homeostasis is source-of-truth for closure/dPhi/lock, mirror only fallback for aux)
   const homeoSources = [homeoMetrics, homeoLast, homeostasis].filter(Boolean);
   const mirrorSources = [mirrorState].filter(Boolean);
 
-  // ---- metric helpers that also look into ".metrics" if present
   const H = (s: any) => [s, s?.metrics, s?.state, s?.state?.metrics, s?.snapshot, s?.snapshot?.metrics].filter(Boolean);
 
   const homeoDeep = homeoSources.flatMap(H);
   const mirrorDeep = mirrorSources.flatMap(H);
 
-  // ---- closure + drift MUST come from homeostasis (never mirror-first)
-  const closure = pickFirstNumber(homeoDeep, [
-    "⟲",
-    "closure",
-    "phase_closure",
-    "phaseClosure",
-    "equilibrium",
-    "eq",
-    "stability",
-    "S",
-  ]);
+  const closure = pickFirstNumber(homeoDeep, ["⟲", "closure", "phase_closure", "phaseClosure", "equilibrium", "eq", "stability", "S"]);
 
   const dPhi = pickFirstNumber(homeoDeep, [
     "ΔΦ",
@@ -440,7 +464,6 @@ function extractPhaseClosure(homeostasis: any | null, mirror: any | null) {
     "resonance_delta",
   ]);
 
-  // ---- SQI / rho / Ibar can be homeostasis-first, mirror fallback
   const sqi =
     pickFirstNumber(homeoDeep, [
       "sqi_checkpoint",
@@ -481,7 +504,6 @@ function extractPhaseClosure(homeostasis: any | null, mirror: any | null) {
     pickFirstString(homeoDeep, ["lock_id", "lockId", "lockID", "LOCK_ID", "id", "lock"]) ??
     pickFirstString(mirrorDeep, ["lock_id", "lockId", "lockID", "LOCK_ID", "id", "lock"]);
 
-  // ---- age: accept several shapes (age_ms, timestamp, last_update)
   const ageMs =
     safeNum(homeostasis?.age_ms) ??
     safeNum(homeoLast?.age_ms) ??
@@ -535,7 +557,6 @@ function PhaseClosureMonitorPanel(props: { homeostasis: any | null; mirror: any 
     [props.homeostasis, props.mirror]
   );
 
-  // less aggressive while debugging prod (10s was too strict)
   const noFeed = ageMs == null || ageMs > 120_000;
 
   const isLocked = locked === true || (closure != null && closure >= THRESH);
@@ -603,10 +624,6 @@ export default function AionProofOfLifeDashboard() {
 
   const [actionBusy, setActionBusy] = useState<string | null>(null);
 
-  // default namespace/session for demo actions
-  const ns = "demo";
-  const sid = "demo";
-
   async function runBusy(name: string, fn: () => Promise<void>) {
     try {
       setActionBusy(name);
@@ -646,12 +663,17 @@ export default function AionProofOfLifeDashboard() {
             </div>
 
             <Chip tone={loading ? "neutral" : errSummary ? "bad" : "good"}>
-              <span className={classNames("h-2 w-2 rounded-full", loading ? "bg-slate-500" : errSummary ? "bg-rose-500" : "bg-emerald-500", !loading && !errSummary && "animate-pulse")} />
+              <span
+                className={classNames(
+                  "h-2 w-2 rounded-full",
+                  loading ? "bg-slate-500" : errSummary ? "bg-rose-500" : "bg-emerald-500",
+                  !loading && !errSummary && "animate-pulse"
+                )}
+              />
               <span>{loading ? "LINKING…" : errSummary ? "OFFLINE / DRIFT" : "FIELD_LOCKED"}</span>
             </Chip>
           </div>
 
-          {/* per-feed error visibility (this is the key fix) */}
           {!loading && Object.keys(errs).length ? (
             <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4">
               <div className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-rose-700">feed_errors</div>
@@ -681,8 +703,12 @@ export default function AionProofOfLifeDashboard() {
         <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">Demo Container 04</div>
-              <div className="mt-1 text-xl font-black tracking-tight text-slate-900 uppercase italic">Reflex (Cognitive Grid)</div>
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
+                Demo Container 04
+              </div>
+              <div className="mt-1 text-xl font-black tracking-tight text-slate-900 uppercase italic">
+                Reflex (Cognitive Grid)
+              </div>
             </div>
 
             <div className="flex items-center gap-3">
@@ -698,19 +724,13 @@ export default function AionProofOfLifeDashboard() {
               reflex={reflex as any}
               actionBusy={actionBusy}
               onReset={() =>
-                runBusy("reflex_reset", () =>
-                  postJson(joinUrl(demoBase, "/api/demo/reflex/reset"), { sessionId: sid, namespace: ns })
-                )
+                runBusy("reflex_reset", () => postJson(joinUrl(demoBase, "/api/demo/reflex/reset"), { sessionId: "demo", namespace: "demo" }))
               }
               onStep={() =>
-                runBusy("reflex_step", () =>
-                  postJson(joinUrl(demoBase, "/api/demo/reflex/step"), { sessionId: sid, namespace: ns })
-                )
+                runBusy("reflex_step", () => postJson(joinUrl(demoBase, "/api/demo/reflex/step"), { sessionId: "demo", namespace: "demo" }))
               }
               onRun={() =>
-                runBusy("reflex_run", () =>
-                  postJson(joinUrl(demoBase, "/api/demo/reflex/run"), { sessionId: sid, namespace: ns })
-                )
+                runBusy("reflex_run", () => postJson(joinUrl(demoBase, "/api/demo/reflex/run"), { sessionId: "demo", namespace: "demo" }))
               }
             />
           </div>
@@ -727,18 +747,14 @@ export default function AionProofOfLifeDashboard() {
             <Demo01MetabolismPanel
               phi={phi as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("phi_reset", () => postJson(joinUrl(demoBase, "/api/demo/phi/reset"), { sessionId: sid, namespace: ns }))}
-              onInjectEntropy={() =>
-                runBusy("phi_inject", () => postJson(joinUrl(demoBase, "/api/demo/phi/inject_entropy"), { sessionId: sid, namespace: ns }))
-              }
-              onRecover={() =>
-                runBusy("phi_recover", () => postJson(joinUrl(demoBase, "/api/demo/phi/recover"), { sessionId: sid, namespace: ns }))
-              }
+              onReset={() => runBusy("phi_reset", () => postJson(joinUrl(demoBase, "/api/demo/phi/reset"), { sessionId: "demo", namespace: "demo" }))}
+              onInjectEntropy={() => runBusy("phi_inject", () => postJson(joinUrl(demoBase, "/api/demo/phi/inject_entropy"), { sessionId: "demo", namespace: "demo" }))}
+              onRecover={() => runBusy("phi_recover", () => postJson(joinUrl(demoBase, "/api/demo/phi/recover"), { sessionId: "demo", namespace: "demo" }))}
             />
           }
         />
 
-        {/* Demo 02 */}
+        {/* Demo 02 (ADR) — ✅ fixed to main router endpoints */}
         <PillarSection
           id={demo02Meta.id}
           pillar={demo02Meta.pillar}
@@ -749,8 +765,8 @@ export default function AionProofOfLifeDashboard() {
             <Demo02AdrPanel
               adr={adr as any}
               actionBusy={actionBusy}
-              onInject={() => runBusy("adr_inject", () => postJson(joinUrl(demoBase, "/api/demo/adr/inject"), { sessionId: sid, namespace: ns }))}
-              onRun={() => runBusy("adr_run", () => postJson(joinUrl(demoBase, "/api/demo/adr/run"), { sessionId: sid, namespace: ns }))}
+              onInject={() => runBusy("adr_inject", () => postJson(joinUrl(apiBase, "/api/adr/inject"), { amount: 0.33 }))}
+              onRun={() => runBusy("adr_run", () => postJson(joinUrl(apiBase, "/api/adr/run"), {}))}
             />
           }
         />
@@ -762,7 +778,7 @@ export default function AionProofOfLifeDashboard() {
           title={demo03Meta.title}
           testName={demo03Meta.testName}
           copy={demo03Meta.copy}
-          container={<Demo03HeartbeatPanel heartbeat={heartbeat as any} namespace={ns} />}
+          container={<Demo03HeartbeatPanel heartbeat={heartbeat as any} namespace="demo" />}
         />
 
         {/* Demo 05 */}
@@ -777,13 +793,9 @@ export default function AionProofOfLifeDashboard() {
             <Demo05AkgPanel
               akg={akg as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("akg_reset", () => postJson(joinUrl(demoBase, "/api/demo/akg/reset"), { sessionId: sid, namespace: ns }))}
-              onStep={() => runBusy("akg_step", () => postJson(joinUrl(demoBase, "/api/demo/akg/step"), { sessionId: sid, namespace: ns }))}
-              onRun={() =>
-                runBusy("akg_run", () =>
-                  postJson(joinUrl(demoBase, "/api/demo/akg/run?rounds=400"), { sessionId: sid, namespace: ns })
-                )
-              }
+              onReset={() => runBusy("akg_reset", () => postJson(joinUrl(demoBase, "/api/demo/akg/reset"), { sessionId: "demo", namespace: "demo" }))}
+              onStep={() => runBusy("akg_step", () => postJson(joinUrl(demoBase, "/api/demo/akg/step"), { sessionId: "demo", namespace: "demo" }))}
+              onRun={() => runBusy("akg_run", () => postJson(joinUrl(demoBase, "/api/demo/akg/run?rounds=400"), { sessionId: "demo", namespace: "demo" }))}
             />
           }
         />
@@ -808,9 +820,7 @@ export default function AionProofOfLifeDashboard() {
           <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">
             Tessaris Intelligence // Research Division // 2026
           </div>
-          <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">
-            Resonance_Engine
-          </div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">Resonance_Engine</div>
         </footer>
       </div>
     </div>
