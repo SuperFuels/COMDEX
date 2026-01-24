@@ -244,7 +244,7 @@ function useAionDemoData(pollMs = 1500) {
       const urls = {
         homeo: joinUrl(apiBase, "/api/aion/dashboard"),
         phi: joinUrl(demoBase, "/api/phi"),
-        adr: joinUrl(demoBase, "/api/adr"),
+        adr: joinUrl(apiBase, "/api/adr"),
         hb: joinUrl(demoBase, "/api/heartbeat?namespace=demo"),
         reflex: joinUrl(demoBase, "/api/reflex"),
         akg: joinUrl(demoBase, "/api/akg"),
@@ -383,43 +383,137 @@ function pickFirstBool(sources: any[], keys: string[]): boolean | null {
 }
 
 function extractPhaseClosure(homeostasis: any | null, mirror: any | null) {
+  // ---- peel "homeostasis last" in a tolerant way
   const homeoLast =
     homeostasis?.homeostasis?.last ??
+    homeostasis?.homeostasis ??
     homeostasis?.last ??
     homeostasis?.state?.last ??
     homeostasis?.state ??
     homeostasis ??
     null;
 
-  const homeoMetrics = homeoLast?.metrics ?? homeoLast ?? null;
-  const mirrorState = mirror?.state ?? mirror ?? null;
+  const homeoMetrics =
+    homeoLast?.metrics ??
+    homeoLast?.state?.metrics ??
+    homeoLast?.snapshot?.metrics ??
+    homeoLast ??
+    null;
 
+  const mirrorState =
+    mirror?.state ??
+    mirror?.snapshot ??
+    mirror?.mirror ??
+    mirror ??
+    null;
+
+  // ---- sources (homeostasis is source-of-truth for closure/dPhi/lock, mirror only fallback for aux)
   const homeoSources = [homeoMetrics, homeoLast, homeostasis].filter(Boolean);
   const mirrorSources = [mirrorState].filter(Boolean);
 
-  const closure = pickFirstNumber(homeoSources, ["⟲", "closure", "phase_closure", "phaseClosure", "stability", "S"]);
-  const dPhi = pickFirstNumber(homeoSources, ["ΔΦ", "dPhi", "delta_phi", "deltaPhi", "phi_drift", "drift", "drift_phi"]);
+  // ---- metric helpers that also look into ".metrics" if present
+  const H = (s: any) => [s, s?.metrics, s?.state, s?.state?.metrics, s?.snapshot, s?.snapshot?.metrics].filter(Boolean);
 
+  const homeoDeep = homeoSources.flatMap(H);
+  const mirrorDeep = mirrorSources.flatMap(H);
+
+  // ---- closure + drift MUST come from homeostasis (never mirror-first)
+  const closure = pickFirstNumber(homeoDeep, [
+    "⟲",
+    "closure",
+    "phase_closure",
+    "phaseClosure",
+    "equilibrium",
+    "eq",
+    "stability",
+    "S",
+  ]);
+
+  const dPhi = pickFirstNumber(homeoDeep, [
+    "ΔΦ",
+    "dPhi",
+    "delta_phi",
+    "deltaPhi",
+    "phi_drift",
+    "drift_phi",
+    "drift",
+    "resonance_delta",
+  ]);
+
+  // ---- SQI / rho / Ibar can be homeostasis-first, mirror fallback
   const sqi =
-    pickFirstNumber(homeoSources, ["sqi_checkpoint", "sqiCheckpoint", "Φ_coherence", "phi_coherence", "SQI", "sqi", "C", "coherence"]) ??
-    pickFirstNumber(mirrorSources, ["sqi_checkpoint", "sqiCheckpoint", "Φ_coherence", "phi_coherence", "SQI", "sqi", "C", "coherence"]);
+    pickFirstNumber(homeoDeep, [
+      "sqi_checkpoint",
+      "sqiCheckpoint",
+      "SQI",
+      "sqi",
+      "checkpoint_sqi",
+      "Φ_coherence",
+      "phi_coherence",
+      "coherence",
+      "C",
+    ]) ??
+    pickFirstNumber(mirrorDeep, [
+      "sqi_checkpoint",
+      "sqiCheckpoint",
+      "SQI",
+      "sqi",
+      "checkpoint_sqi",
+      "Φ_coherence",
+      "phi_coherence",
+      "coherence",
+      "C",
+    ]);
 
-  const rho = pickFirstNumber(homeoSources, ["ρ", "rho"]) ?? pickFirstNumber(mirrorSources, ["ρ", "rho"]);
-  const Ibar = pickFirstNumber(homeoSources, ["Ī", "Ibar", "Ī", "iota"]) ?? pickFirstNumber(mirrorSources, ["Ī", "Ibar", "Ī", "iota"]);
+  const rho =
+    pickFirstNumber(homeoDeep, ["ρ", "rho", "Phi_coherence", "Φ_coherence", "phi_coherence"]) ??
+    pickFirstNumber(mirrorDeep, ["ρ", "rho", "Phi_coherence", "Φ_coherence", "phi_coherence"]);
+
+  const Ibar =
+    pickFirstNumber(homeoDeep, ["Ī", "Ibar", "Ī", "iota", "Φ_entropy", "Phi_entropy", "phi_entropy"]) ??
+    pickFirstNumber(mirrorDeep, ["Ī", "Ibar", "Ī", "iota", "Φ_entropy", "Phi_entropy", "phi_entropy"]);
 
   const locked =
-    pickFirstBool(homeoSources, ["locked", "lock", "is_locked", "isLocked"]) ??
-    pickFirstBool(mirrorSources, ["locked", "lock", "is_locked", "isLocked"]);
+    pickFirstBool(homeoDeep, ["locked", "lock", "is_locked", "isLocked"]) ??
+    pickFirstBool(mirrorDeep, ["locked", "lock", "is_locked", "isLocked"]);
 
   const lockId =
-    pickFirstString(homeoSources, ["lock_id", "lockId", "lockID", "LOCK_ID", "id"]) ??
-    pickFirstString(mirrorSources, ["lock_id", "lockId", "lockID", "LOCK_ID", "id"]);
+    pickFirstString(homeoDeep, ["lock_id", "lockId", "lockID", "LOCK_ID", "id", "lock"]) ??
+    pickFirstString(mirrorDeep, ["lock_id", "lockId", "lockID", "LOCK_ID", "id", "lock"]);
 
+  // ---- age: accept several shapes (age_ms, timestamp, last_update)
   const ageMs =
     safeNum(homeostasis?.age_ms) ??
+    safeNum(homeoLast?.age_ms) ??
+    safeNum(homeoMetrics?.age_ms) ??
     ageFromLastUpdate(homeostasis) ??
+    ageFromLastUpdate(homeoLast) ??
+    (() => {
+      const ts =
+        homeostasis?.timestamp ??
+        homeostasis?.ts ??
+        homeoLast?.timestamp ??
+        homeoLast?.ts ??
+        homeoMetrics?.timestamp ??
+        homeoMetrics?.ts ??
+        null;
+
+      const t =
+        typeof ts === "number"
+          ? ts > 1e12
+            ? ts
+            : ts > 1e9
+            ? ts * 1000
+            : null
+          : ts
+          ? Date.parse(String(ts))
+          : null;
+
+      return Number.isFinite(t as number) ? Math.max(0, Date.now() - (t as number)) : null;
+    })() ??
     safeNum(mirror?.age_ms) ??
-    ageFromLastUpdate(mirror);
+    ageFromLastUpdate(mirror) ??
+    null;
 
   return { closure, dPhi, sqi, rho, Ibar, locked, lockId, ageMs };
 }
@@ -441,7 +535,9 @@ function PhaseClosureMonitorPanel(props: { homeostasis: any | null; mirror: any 
     [props.homeostasis, props.mirror]
   );
 
-  const noFeed = ageMs == null || ageMs > 10_000;
+  // less aggressive while debugging prod (10s was too strict)
+  const noFeed = ageMs == null || ageMs > 120_000;
+
   const isLocked = locked === true || (closure != null && closure >= THRESH);
   const status = noFeed ? "NO_FEED" : isLocked ? "FIELD_LOCKED" : "ALIGNING";
 
@@ -472,7 +568,9 @@ function PhaseClosureMonitorPanel(props: { homeostasis: any | null; mirror: any 
             ⟲ ≥ <span className="text-white">{THRESH.toFixed(3)}</span>
           </div>
           <div className="mt-3 text-sm font-medium text-slate-300">
-            {noFeed ? "Homeostasis producer is not emitting (or dashboard route is returning a stub)." : "Proof-of-life: stability is detected internally, then promoted to a lockable state."}
+            {noFeed
+              ? "Homeostasis producer is not emitting (or dashboard route is returning a stub)."
+              : "Proof-of-life: stability is detected internally, then promoted to a lockable state."}
           </div>
         </div>
 

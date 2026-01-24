@@ -1137,7 +1137,7 @@ def api_phi_recover() -> Dict[str, Any]:
     return phi_recover()
 
 # --- ADR endpoints ---
-@router.get("/api/adr")
+@router.get("/api/aion-demo/adr")
 def api_adr() -> Dict[str, Any]:
     return adr_state()
 

@@ -238,17 +238,6 @@ app = FastAPI(
 )
 app.router.redirect_slashes = False
 
-# ✅ Minimal alias so Proof-of-Life can always poll a stable endpoint.
-# If you later wire the real implementation, keep the path + shape.
-@app.get("/api/aion/dashboard")
-def aion_dashboard_alias():
-    return {
-        "ok": True,
-        "homeostasis": {
-            "last": {"locked": None}
-        }
-    }
-
 # ✅ AION Live Dashboard WS only
 try:
     from backend.api.aion_dashboard import ws_router as aion_dashboard_ws_router
@@ -258,9 +247,14 @@ try:
 except Exception as e:
     logger.warning("[aion-dashboard] not mounted: %s", e)
 
-# ✅ AION Live Dashboard API + WS
-    # from backend.api.aion_dashboard import router as aion_dashboard_router
-    # app.include_router(aion_dashboard_router)     # /api/aion/dashboard/*
+
+# ✅ AION Live Dashboard API + WS (REAL)  <<< PUT IT HERE
+try:
+    from backend.api.aion_dashboard_ws import router as aion_dashboard_router
+    app.include_router(aion_dashboard_router)  # /api/aion/dashboard (+ actions + /api/aion/dashboard/ws)
+    logger.warning("[aion-dashboard] mounted: /api/aion/dashboard (+ actions)")
+except Exception as e:
+    logger.warning("[aion-dashboard] API not mounted: %s", e)
 
 # ✅ Mount AION Demo Bridge under a safe prefix (no route collisions)
 try:
@@ -779,7 +773,7 @@ from backend.api.photon_bridge import router as photon_router
 from backend.modules.staking.staking_routes import router as staking_router
 from backend.routes.glyphchain_perf_routes import router as glyphchain_perf_router
 from backend.routes.aion_heartbeat_api import router as aion_heartbeat_router
-from backend.api.aion_dashboard import router as aion_dashboard_router
+# from backend.api.aion_dashboard import router as aion_dashboard_router
 # from backend.api.aion_dashboard_ws import router as aion_dashboard_router
 from backend.routes.aion_akg_demo_api import router as aion_akg_demo_router
 from backend.api.aion_proof_of_life import router as aion_proof_of_life_router

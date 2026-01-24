@@ -4,23 +4,44 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Card, StatRow, MiniBar, Button, clamp01, classNames, fmt2, fmt3 } from "./ui";
 
+/**
+ * Backend now returns:
+ * GET /api/adr =>
+ * {
+ *   latest_stream_event, latest_drift_repair, pal_state, derived:{rsi,zone,adr_status,red_pulse,...}
+ * }
+ *
+ * And actions:
+ * POST /api/adr/inject   { amount?: number, source?: string }
+ * POST /api/adr/run      {}
+ */
+
+// ---------- Types matching backend (tolerant) ----------
+
 export type AdrStreamEvent = {
-  timestamp?: number;
-  stability?: number; // used as RSI in your current emitters
+  timestamp?: number; // new shape
+  t?: number; // old shape
+  stability?: number; // used as RSI in emitters
   RSI?: number;
   drift_entropy?: number;
   entropy?: number;
   source?: string;
+  source_pair?: string;
 };
 
 export type DriftRepairEvent = {
   timestamp?: number;
   event?: string;
+  type?: string;
   source?: string;
   rsi?: number;
   drift_entropy?: number;
+  amount?: number;
   pre?: { epsilon?: number; k?: number; memory_weight?: number };
   post?: { epsilon?: number; k?: number; memory_weight?: number };
+  before?: { epsilon?: number; k?: number; memory_weight?: number };
+  after?: { epsilon?: number; k?: number; memory_weight?: number };
+  pal_returncode?: number;
 };
 
 export type PalState = {
@@ -28,13 +49,36 @@ export type PalState = {
   k?: number;
   memory_weight?: number;
   timestamp?: number;
+  ts?: number;
   reason?: string;
 };
 
+export type AdrDerived = {
+  rsi?: number;
+  zone?: "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+  adr_status?: string; // "ARMED" | "TRIGGERED" | "RECOVERING" | ...
+  red_pulse?: boolean;
+  last_trigger_age_s?: number | null;
+};
+
+export type AdrApiResponse = {
+  ok?: boolean;
+  data_root?: string;
+  source_files?: Record<string, string>;
+  latest_stream_event?: AdrStreamEvent | null;
+  latest_drift_repair?: DriftRepairEvent | null;
+  pal_state?: PalState | null;
+  derived?: AdrDerived | null;
+};
+
+// For compatibility with older wiring in AionProofOfLifeDashboard
 export type AdrBundle = {
   stream?: AdrStreamEvent | null;
   lastRepair?: DriftRepairEvent | null;
   palState?: PalState | null;
+  derived?: AdrDerived | null;
+  source_files?: Record<string, string>;
+  data_root?: string;
 };
 
 // small local hook (demo-local effect)
@@ -52,6 +96,20 @@ function usePulse(ms = 750) {
   return { on, pulse };
 }
 
+function toMs(ts: number): number {
+  // accept seconds or ms
+  return ts > 1e12 ? ts : ts > 1e9 ? ts * 1000 : ts * 1000;
+}
+
+function fmtWhen(ts?: number | null) {
+  if (!ts) return "—";
+  try {
+    return new Date(toMs(ts)).toLocaleString();
+  } catch {
+    return "—";
+  }
+}
+
 // --- Demo 02 exports ---
 export const demo02Meta = {
   id: "immune",
@@ -63,53 +121,98 @@ export const demo02Meta = {
 } as const;
 
 export function Demo02AdrPanel(props: {
-  adr: AdrBundle | null;
+  adr: AdrBundle | AdrApiResponse | null;
   actionBusy: string | null;
   onInject: () => Promise<void>;
   onRun: () => Promise<void>;
 }) {
   const { adr, actionBusy, onInject, onRun } = props;
 
+  // ---- normalize shape (old bundle vs new api response) ----
+  const stream: AdrStreamEvent | null = (adr as any)?.latest_stream_event ?? (adr as any)?.stream ?? null;
+  const lastRepair: DriftRepairEvent | null = (adr as any)?.latest_drift_repair ?? (adr as any)?.lastRepair ?? null;
+  const palState: PalState | null = (adr as any)?.pal_state ?? (adr as any)?.palState ?? null;
+  const derived: AdrDerived | null = (adr as any)?.derived ?? null;
+
   // ---- derived ADR state ----
   const rsi = useMemo(() => {
-    const s = adr?.stream;
-    const v = s?.RSI ?? s?.stability;
+    // backend derived.rsi is preferred
+    const d = derived?.rsi;
+    if (typeof d === "number") return d;
+
+    const v = stream?.RSI ?? stream?.stability;
     return typeof v === "number" ? v : 1.0;
-  }, [adr]);
+  }, [derived?.rsi, stream]);
 
   const driftEntropy = useMemo(() => {
-    const s = adr?.stream;
-    const v = s?.drift_entropy ?? s?.entropy;
+    const v = stream?.drift_entropy ?? stream?.entropy;
     return typeof v === "number" ? v : 0.0;
-  }, [adr]);
+  }, [stream]);
 
   const adrStatus = useMemo(() => {
+    const s = (derived?.adr_status || "").toString();
+    if (s) {
+      // map backend style to UI labels
+      if (s.toUpperCase() === "TRIGGERED") return "Triggered";
+      if (s.toUpperCase() === "RECOVERING") return "Recovering";
+      if (s.toUpperCase() === "ARMED") return "Armed";
+      return s;
+    }
+
+    // fallback heuristic
     if (rsi < 0.6) return "Triggered";
     if (rsi < 0.95) return "Armed";
     return "Stable";
-  }, [rsi]);
+  }, [derived?.adr_status, rsi]);
 
   const adrTone =
-    adrStatus === "Triggered" ? "text-rose-300" : adrStatus === "Armed" ? "text-amber-200" : "text-emerald-200";
+    adrStatus === "Triggered"
+      ? "text-rose-300"
+      : adrStatus === "Recovering"
+      ? "text-amber-200"
+      : adrStatus === "Armed"
+      ? "text-amber-200"
+      : "text-emerald-200";
 
-  // red pulse when lastRepair timestamp changes
+  // red pulse when:
+  // - backend derived.red_pulse true, OR
+  // - lastRepair timestamp changes
   const { on: redPulseOn, pulse: fireRedPulse } = usePulse(750);
   const lastRepairTsRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const ts = adr?.lastRepair?.timestamp ?? null;
-    if (ts && ts !== lastRepairTsRef.current) {
+    if (derived?.red_pulse) {
+      fireRedPulse();
+      return;
+    }
+    const ts = (lastRepair as any)?.timestamp ?? null;
+    if (typeof ts === "number" && ts !== lastRepairTsRef.current) {
       lastRepairTsRef.current = ts;
       fireRedPulse();
     }
-  }, [adr?.lastRepair?.timestamp, fireRedPulse]);
+  }, [derived?.red_pulse, (lastRepair as any)?.timestamp, fireRedPulse]);
+
+  // proof fields: support both (pre/post) and (before/after)
+  const pre = (lastRepair as any)?.pre ?? (lastRepair as any)?.before ?? null;
+  const post = (lastRepair as any)?.post ?? (lastRepair as any)?.after ?? null;
+
+  const repairLabel =
+    (lastRepair as any)?.event ||
+    (lastRepair as any)?.type ||
+    ((lastRepair as any)?.amount != null ? "inject_drift" : "") ||
+    "—";
 
   return (
     <Card
       title="Adaptive Drift Repair (ADR) Activation"
       subtitle="GET /api/adr • sources: resonance_stream.jsonl + drift_repair.log + pal_state.json"
       right={
-        <div className={classNames("rounded-full px-3 py-1 text-xs", redPulseOn ? "bg-rose-500 text-white" : "bg-white/10 text-white/70")}>
+        <div
+          className={classNames(
+            "rounded-full px-3 py-1 text-xs",
+            redPulseOn ? "bg-rose-500 text-white" : "bg-white/10 text-white/70"
+          )}
+        >
           {redPulseOn ? "Red Pulse" : "Pulse"}
         </div>
       }
@@ -131,15 +234,15 @@ export function Demo02AdrPanel(props: {
             </div>
             <div>
               <div className="text-xs text-white/50">source</div>
-              <div className="mt-1 font-mono text-sm text-white">{adr?.stream?.source || "—"}</div>
+              <div className="mt-1 font-mono text-sm text-white">{stream?.source || stream?.source_pair || "—"}</div>
             </div>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <Button tone="neutral" disabled={actionBusy !== null} onClick={onInject} title="POST /api/demo/adr/inject">
+            <Button tone="neutral" disabled={actionBusy !== null} onClick={onInject} title="POST /api/adr/inject">
               {actionBusy === "adr_inject" ? "Injecting…" : "Inject drift"}
             </Button>
-            <Button tone="primary" disabled={actionBusy !== null} onClick={onRun} title="POST /api/demo/adr/run">
+            <Button tone="primary" disabled={actionBusy !== null} onClick={onRun} title="POST /api/adr/run">
               {actionBusy === "adr_run" ? "Running…" : "Run ADR"}
             </Button>
           </div>
@@ -150,14 +253,19 @@ export function Demo02AdrPanel(props: {
           <div className="mb-2 text-sm font-semibold text-white">Immune Action Panel</div>
 
           <div className="divide-y divide-white/10">
+            <StatRow label="Latest ADR event" hint="drift_repair.log" value={repairLabel} />
+            <StatRow label="Latest ADR time" hint="drift_repair.log" value={fmtWhen((lastRepair as any)?.timestamp ?? null)} />
             <StatRow
-              label="Latest ADR trigger"
-              hint="drift_repair.log"
-              value={adr?.lastRepair?.timestamp ? new Date((adr.lastRepair.timestamp as number) * 1000).toLocaleString() : "—"}
+              label="ε (exploration)"
+              hint="pal_state.json"
+              value={<span className="font-mono">{fmt3(palState?.epsilon ?? null)}</span>}
             />
-            <StatRow label="ε (exploration)" hint="pal_state.json" value={<span className="font-mono">{fmt3(adr?.palState?.epsilon ?? null)}</span>} />
-            <StatRow label="k (k-NN depth)" hint="pal_state.json" value={<span className="font-mono">{adr?.palState?.k ?? "—"}</span>} />
-            <StatRow label="memory_weight" hint="pal_state.json" value={<span className="font-mono">{fmt3(adr?.palState?.memory_weight ?? null)}</span>} />
+            <StatRow label="k (k-NN depth)" hint="pal_state.json" value={<span className="font-mono">{palState?.k ?? "—"}</span>} />
+            <StatRow
+              label="memory_weight"
+              hint="pal_state.json"
+              value={<span className="font-mono">{fmt3(palState?.memory_weight ?? null)}</span>}
+            />
           </div>
 
           <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
@@ -166,14 +274,27 @@ export function Demo02AdrPanel(props: {
               <div>
                 <div className="text-xs text-white/50">ε</div>
                 <div className="mt-1 font-mono text-white">
-                  {fmt3(adr?.lastRepair?.pre?.epsilon ?? null)} → {fmt3(adr?.lastRepair?.post?.epsilon ?? null)}
+                  {fmt3(pre?.epsilon ?? null)} → {fmt3(post?.epsilon ?? null)}
                 </div>
               </div>
               <div>
                 <div className="text-xs text-white/50">k</div>
                 <div className="mt-1 font-mono text-white">
-                  {adr?.lastRepair?.pre?.k ?? "—"} → {adr?.lastRepair?.post?.k ?? "—"}
+                  {pre?.k ?? "—"} → {post?.k ?? "—"}
                 </div>
+              </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <div className="text-xs text-white/50">memory_weight</div>
+                <div className="mt-1 font-mono text-white">
+                  {fmt3(pre?.memory_weight ?? null)} → {fmt3(post?.memory_weight ?? null)}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-white/50">zone</div>
+                <div className="mt-1 font-mono text-white">{derived?.zone ?? "—"}</div>
               </div>
             </div>
           </div>
