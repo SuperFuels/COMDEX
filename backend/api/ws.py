@@ -25,6 +25,29 @@ async def _ws_send(ws: WebSocket, payload: Dict[str, Any]) -> None:
     except Exception:
         pass
 
+# ---- QFC broadcast helper (feeds /api/ws/qfc clients) ----
+async def broadcast_to_qfc_clients(message: dict) -> None:
+    dead = []
+    for ws in list(QFC_CLIENTS):
+        try:
+            await _ws_send(ws, message)
+        except Exception:
+            dead.append(ws)
+    for ws in dead:
+        try:
+            QFC_CLIENTS.discard(ws)
+        except Exception:
+            pass
+
+
+def fire_and_forget_qfc(message: dict) -> None:
+    """Safe non-blocking emit (works even if called from sync code)."""
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(broadcast_to_qfc_clients(message))
+    except RuntimeError:
+        asyncio.run(broadcast_to_qfc_clients(message))
+
 
 async def broadcast_qfc(payload: Dict[str, Any]) -> None:
     if not QFC_CLIENTS:

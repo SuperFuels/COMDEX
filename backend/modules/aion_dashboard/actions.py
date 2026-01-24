@@ -143,10 +143,6 @@ def log_event(
     mode: str = "aion_actions",
     typ: str = "api",
 ) -> Dict[str, Any]:
-    """
-    Canonical dashboard event writer (JSONL).
-    Writes both canonical + legacy aliases.
-    """
     payload = payload or {}
 
     rho = _pick(payload, "ρ", "rho")
@@ -192,17 +188,45 @@ def log_event(
         "lock_id",
         "reason",
         "E",
+        "container_id",  # recommended: lets API callers steer QFC target
     ):
         if k in payload:
             entry[k] = payload[k]
 
+    # 1) write JSONL (never block broadcast)
     try:
         with open(DASHBOARD_LOG_PATH, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     except Exception:
         pass
 
-    return entry
+    # 2) broadcast to /api/ws/qfc (best-effort)
+    try:
+        cid = (
+            payload.get("container_id")
+            or entry.get("container_id")
+            or os.getenv("AION_CONTAINER_ID")
+            or "hqce_main_runtime"
+        )
+
+        # prints in uvicorn logs (NOT bash)
+        print("[qfc_ws] emit", entry.get("command"), "cid=", cid)
+
+        from backend.api import ws as qfc_ws_mod  # uses QFC_CLIENTS inside uvicorn
+
+        msg = {
+            "type": "qfc_stream",
+            "ts": int(time.time() * 1000),
+            "container_id": cid,
+            "source": "aion_actions",
+            "payload": entry,
+        }
+
+        # IMPORTANT: this is the correct function name in your ws.py
+        qfc_ws_mod.fire_and_forget_qfc(msg)
+
+    except Exception as e:
+        print("[qfc_ws] FAIL:", repr(e))
 
 
 def query_resonance(term: str) -> Dict[str, Any]:

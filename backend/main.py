@@ -227,6 +227,7 @@ Base.metadata.create_all(bind=engine)
 logger.info("✅ Database tables checked/created.")
 
 # ── Instantiate FastAPI (ensure docs & schema are always visible)
+# ── Instantiate FastAPI
 app = FastAPI(
     title="COMDEX API",
     version="1.0.0",
@@ -237,6 +238,19 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.router.redirect_slashes = False
+
+@app.get("/health", tags=["Health"])
+def health_check():
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return {"status": "ok", "database": "connected"}
+    except OperationalError:
+        return {"status": "error", "database": "not connected"}
+
+@app.get("/api/health", include_in_schema=False)
+def api_health_alias():
+    return health_check()
 
 # ✅ AION Live Dashboard WS only
 try:
@@ -782,6 +796,7 @@ from backend.routes.aion_homeostasis_alias import router as aion_homeostasis_ali
 from backend.routes.aion_cognitive_api import router as aion_cognitive_router
 from backend.api.aion import router as aion_router
 from backend.api.wirepack_api import router as wirepack_router
+from backend.api.ws import router as ws_router
 # from backend.modules.aion_demo.demo_bridge import router as aion_demo_router
 from backend.modules.chain_sim.chain_sim_routes import (
     router as chain_sim_router,
@@ -1042,6 +1057,7 @@ app.include_router(aion_homeostasis_alias_router)
 # app.include_router(aion_dashboard_router)
 app.include_router(aion_cognitive_router)
 app.include_router(aion_router, prefix="/api/aion", tags=["AION"])
+app.include_router(ws_router) 
 # app.include_router(aion_demo_router, prefix="/aion-demo")
 register_voice_events(app)
 
@@ -1160,6 +1176,7 @@ def health_check():
 @app.websocket("/websocket/symbol_tree/{container_id}")
 async def websocket_endpoint(websocket: WebSocket, container_id: str):
     await stream_symbol_tree(websocket, container_id)
+
 
 # ── 20) Dream cycle endpoint for Cloud Scheduler
 @app.post("/api/aion/run-dream")

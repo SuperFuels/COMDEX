@@ -20,6 +20,15 @@ import AionCognitiveDashboard from "./AionCognitiveDashboard";
 type HomeostasisEnvelope = any; // GET /api/aion/dashboard
 type MirrorEnvelope = any; // GET /aion-demo/api/mirror
 
+type QfcEvent = {
+  type?: string;
+  ts?: number;
+  container_id?: string;
+  source?: string;
+  payload?: any;
+  [k: string]: any;
+};
+
 /* ---------------- URL helpers ---------------- */
 
 function stripSlash(s: string) {
@@ -623,6 +632,7 @@ export default function AionProofOfLifeDashboard() {
     useAionDemoData(1500);
 
   const [actionBusy, setActionBusy] = useState<string | null>(null);
+  const [qfcEvents, setQfcEvents] = useState<QfcEvent[]>([]);
 
   async function runBusy(name: string, fn: () => Promise<void>) {
     try {
@@ -632,6 +642,59 @@ export default function AionProofOfLifeDashboard() {
       setActionBusy(null);
     }
   }
+
+  // QFC WS stream (backend/api/ws.py -> /api/ws/qfc)
+  useEffect(() => {
+    const httpBase = resolveBackendHttpBase();
+    const wsBase = httpBase ? httpBase.replace(/^http/i, "ws") : "";
+    const wsUrl = `${wsBase}/api/ws/qfc`;
+
+    let ws: WebSocket | null = null;
+    let closed = false;
+    let retry: any = null;
+
+    const connect = () => {
+      if (closed) return;
+
+      try {
+        ws = new WebSocket(wsUrl);
+
+        ws.onmessage = (ev) => {
+          try {
+            const msg: any = JSON.parse(ev.data);
+            if (!msg || typeof msg !== "object") return;
+            if (msg.type !== "qfc_stream") return;
+
+            setQfcEvents((prev: QfcEvent[]) => [msg as QfcEvent, ...prev].slice(0, 200));
+          } catch {
+            // ignore
+          }
+        };
+
+        ws.onclose = () => {
+          if (closed) return;
+          retry = setTimeout(connect, 750);
+        };
+
+        ws.onerror = () => {
+          try {
+            ws?.close();
+          } catch {}
+        };
+      } catch {
+        retry = setTimeout(connect, 750);
+      }
+    };
+
+    connect();
+    return () => {
+      closed = true;
+      if (retry) clearTimeout(retry);
+      try {
+        ws?.close();
+      } catch {}
+    };
+  }, []);
 
   const resolvedApi = base ? base : "(same-origin)";
 
@@ -659,6 +722,11 @@ export default function AionProofOfLifeDashboard() {
               <div className="mt-1 font-mono text-[11px] text-slate-500">
                 main: <span className="text-slate-800">{apiBase || "(same-origin)"}</span> · demo:{" "}
                 <span className="text-slate-800">{demoBase}</span>
+              </div>
+
+              {/* Optional: quick WS heartbeat indicator */}
+              <div className="mt-1 font-mono text-[11px] text-slate-500">
+                qfc_ws: <span className="text-slate-800">{qfcEvents.length ? "streaming" : "idle"}</span>
               </div>
             </div>
 
@@ -724,13 +792,19 @@ export default function AionProofOfLifeDashboard() {
               reflex={reflex as any}
               actionBusy={actionBusy}
               onReset={() =>
-                runBusy("reflex_reset", () => postJson(joinUrl(demoBase, "/api/demo/reflex/reset"), { sessionId: "demo", namespace: "demo" }))
+                runBusy("reflex_reset", () =>
+                  postJson(joinUrl(demoBase, "/api/demo/reflex/reset"), { sessionId: "demo", namespace: "demo" })
+                )
               }
               onStep={() =>
-                runBusy("reflex_step", () => postJson(joinUrl(demoBase, "/api/demo/reflex/step"), { sessionId: "demo", namespace: "demo" }))
+                runBusy("reflex_step", () =>
+                  postJson(joinUrl(demoBase, "/api/demo/reflex/step"), { sessionId: "demo", namespace: "demo" })
+                )
               }
               onRun={() =>
-                runBusy("reflex_run", () => postJson(joinUrl(demoBase, "/api/demo/reflex/run"), { sessionId: "demo", namespace: "demo" }))
+                runBusy("reflex_run", () =>
+                  postJson(joinUrl(demoBase, "/api/demo/reflex/run"), { sessionId: "demo", namespace: "demo" })
+                )
               }
             />
           </div>
@@ -747,9 +821,21 @@ export default function AionProofOfLifeDashboard() {
             <Demo01MetabolismPanel
               phi={phi as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("phi_reset", () => postJson(joinUrl(demoBase, "/api/demo/phi/reset"), { sessionId: "demo", namespace: "demo" }))}
-              onInjectEntropy={() => runBusy("phi_inject", () => postJson(joinUrl(demoBase, "/api/demo/phi/inject_entropy"), { sessionId: "demo", namespace: "demo" }))}
-              onRecover={() => runBusy("phi_recover", () => postJson(joinUrl(demoBase, "/api/demo/phi/recover"), { sessionId: "demo", namespace: "demo" }))}
+              onReset={() =>
+                runBusy("phi_reset", () =>
+                  postJson(joinUrl(demoBase, "/api/demo/phi/reset"), { sessionId: "demo", namespace: "demo" })
+                )
+              }
+              onInjectEntropy={() =>
+                runBusy("phi_inject", () =>
+                  postJson(joinUrl(demoBase, "/api/demo/phi/inject_entropy"), { sessionId: "demo", namespace: "demo" })
+                )
+              }
+              onRecover={() =>
+                runBusy("phi_recover", () =>
+                  postJson(joinUrl(demoBase, "/api/demo/phi/recover"), { sessionId: "demo", namespace: "demo" })
+                )
+              }
             />
           }
         />
@@ -793,9 +879,21 @@ export default function AionProofOfLifeDashboard() {
             <Demo05AkgPanel
               akg={akg as any}
               actionBusy={actionBusy}
-              onReset={() => runBusy("akg_reset", () => postJson(joinUrl(demoBase, "/api/demo/akg/reset"), { sessionId: "demo", namespace: "demo" }))}
-              onStep={() => runBusy("akg_step", () => postJson(joinUrl(demoBase, "/api/demo/akg/step"), { sessionId: "demo", namespace: "demo" }))}
-              onRun={() => runBusy("akg_run", () => postJson(joinUrl(demoBase, "/api/demo/akg/run?rounds=400"), { sessionId: "demo", namespace: "demo" }))}
+              onReset={() =>
+                runBusy("akg_reset", () =>
+                  postJson(joinUrl(demoBase, "/api/demo/akg/reset"), { sessionId: "demo", namespace: "demo" })
+                )
+              }
+              onStep={() =>
+                runBusy("akg_step", () =>
+                  postJson(joinUrl(demoBase, "/api/demo/akg/step"), { sessionId: "demo", namespace: "demo" })
+                )
+              }
+              onRun={() =>
+                runBusy("akg_run", () =>
+                  postJson(joinUrl(demoBase, "/api/demo/akg/run?rounds=400"), { sessionId: "demo", namespace: "demo" })
+                )
+              }
             />
           }
         />
