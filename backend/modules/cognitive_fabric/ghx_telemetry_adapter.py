@@ -2,7 +2,7 @@
 #  Tessaris * GHX Telemetry Adapter
 #  Stage 13.4 -> 13.5 - Live Metrics ↔ GHXVisualizer + MorphicLedger
 #  Streams Φ-ψ resonance and coherence metrics into GHX front-end
-#  and appends to data/ledger/rqc_live_telemetry.jsonl for SSE feeds.
+#  and appends to rqc_live_telemetry.jsonl for WS/SSE feeds.
 # ──────────────────────────────────────────────
 
 import os
@@ -10,20 +10,54 @@ import time
 import json
 import logging
 import threading
+from pathlib import Path
 from typing import Dict, Any, Optional
 
 from backend.modules.cognitive_fabric.metrics_bridge import CODEX_METRICS
 
 logger = logging.getLogger(__name__)
 
-LEDGER_PATH = "data/ledger/rqc_live_telemetry.jsonl"
+# -----------------------------------------------------------------------------
+# Ledger path resolution (stable + env override + prefer runtime truth feed)
+# -----------------------------------------------------------------------------
+
+def _resolve_rqc_ledger_path() -> Path:
+    """
+    Resolution order:
+      1) RQC_LEDGER_PATH (absolute/relative full path)
+      2) RQC_LEDGER_FILE:
+           - if contains a slash => treat as full path
+           - else => join with RQC_LEDGER_DIR (default data/ledger)
+      3) Prefer runtime truth feed if present:
+           .runtime/COMDEX_MOVE/data/ledger/rqc_live_telemetry.jsonl
+      4) Fallback:
+           data/ledger/rqc_live_telemetry.jsonl
+    """
+    p = (os.getenv("RQC_LEDGER_PATH") or "").strip()
+    if p:
+        return Path(p)
+
+    f = (os.getenv("RQC_LEDGER_FILE") or "").strip()
+    d = (os.getenv("RQC_LEDGER_DIR") or "data/ledger").strip()
+
+    if f:
+        if "/" in f or "\\" in f:
+            return Path(f)
+        return Path(d) / f
+
+    runtime = Path(".runtime") / "COMDEX_MOVE" / "data" / "ledger" / "rqc_live_telemetry.jsonl"
+    root = Path("data") / "ledger" / "rqc_live_telemetry.jsonl"
+    return runtime if runtime.exists() else root
+
+
+LEDGER_PATH = str(_resolve_rqc_ledger_path())
 
 
 class GHXTelemetryAdapter:
     """
     Periodically polls CodexMetrics for the latest resonance event,
     broadcasts formatted telemetry to GHXVisualizer via UCS runtime,
-    and persists snapshots to the MorphicLedger JSONL file.
+    and persists snapshots to the RQC telemetry JSONL ledger.
     """
 
     def __init__(self, poll_interval: float = 5.0):
@@ -39,10 +73,15 @@ class GHXTelemetryAdapter:
     def start(self):
         if self.running:
             return
+        # hard guard in case startup hooks fire twice
+        if self._thread and self._thread.is_alive():
+            self.running = True
+            return
+
         self.running = True
         self._thread = threading.Thread(target=self._loop, daemon=True)
         self._thread.start()
-        logger.info(f"[GHXTelemetry] 🩶 started (interval={self.poll_interval}s)")
+        logger.info(f"[GHXTelemetry] 🩶 started (interval={self.poll_interval}s, ledger={LEDGER_PATH})")
 
     def stop(self):
         self.running = False
@@ -59,14 +98,19 @@ class GHXTelemetryAdapter:
         if self._latest:
             return self._latest
 
-        # fallback: last line from ledger
+        # fallback: last line from ledger (bounded read)
         if os.path.exists(LEDGER_PATH):
             try:
-                with open(LEDGER_PATH, "r", encoding="utf-8") as f:
-                    lines = f.readlines()
-                    if lines:
-                        self._latest = json.loads(lines[-1])
-                        return self._latest
+                with open(LEDGER_PATH, "rb") as f:
+                    try:
+                        f.seek(-4096, os.SEEK_END)
+                    except OSError:
+                        f.seek(0)
+                    tail = f.read().decode("utf-8", errors="ignore")
+                lines = [ln for ln in tail.splitlines() if ln.strip()]
+                if lines:
+                    self._latest = json.loads(lines[-1])
+                    return self._latest
             except Exception as e:
                 logger.warning(f"[GHXTelemetry] ledger read fail: {e}")
 
@@ -93,22 +137,52 @@ class GHXTelemetryAdapter:
                     time.sleep(self.poll_interval)
                     continue
 
-                ts = entry.get("timestamp")
+                ts = entry.get("timestamp") or time.time()
+
+                # Avoid re-writing the same snapshot
                 if ts == self.last_timestamp:
                     time.sleep(self.poll_interval)
                     continue
                 self.last_timestamp = ts
 
+                # CODEX_METRICS.record_event() often stores the user payload under "payload"
+                inner = entry.get("payload") if isinstance(entry.get("payload"), dict) else {}
+
+                # prefer values from inner first (that’s where record_event puts them)
+                def pick(*keys, default=None):
+                    for k in keys:
+                        v = inner.get(k) if isinstance(inner, dict) else None
+                        if v is None:
+                            v = entry.get(k)
+                        if v is not None:
+                            return v
+                    return default
+
                 payload = {
                     "timestamp": ts,
-                    "Φ_mean": entry.get("Φ_mean"),
-                    "ψ_mean": entry.get("ψ_mean"),
-                    "resonance_index": entry.get("resonance_index"),
-                    "coherence_energy": entry.get("coherence_energy"),
-                    "κ": entry.get("payload", {}).get("κ", 0.0),
-                    "T": entry.get("payload", {}).get("T", 0.0),
+                    "operator": entry.get("event") or inner.get("operator") or "unknown",
                     "event": entry.get("event", "resonance_update"),
+
+                    "Φ_mean": pick("Φ_mean", "phi", "Φ"),
+                    "ψ_mean": pick("ψ_mean", "psi", "ψ"),
+                    "resonance_index": pick("resonance_index"),
+                    "coherence_energy": pick("coherence_energy"),
+                    "entanglement_fidelity": pick("entanglement_fidelity"),
+                    "mutual_coherence": pick("mutual_coherence"),
+                    "phase_correlation": pick("phase_correlation"),
+
+                    "gain": pick("gain"),
+                    "closure_state": pick("closure_state"),
+                    "phi_dot": pick("phi_dot"),
+
+                    "κ": pick("κ", "kappa", default=0.0),
+                    "T": pick("T", default=0.0),
                 }
+
+                # IMPORTANT: if this event contains no metrics, don't write it to the ledger
+                if payload["Φ_mean"] is None and payload["ψ_mean"] is None and payload["resonance_index"] is None:
+                    time.sleep(self.poll_interval)
+                    continue
 
                 self._latest = payload
                 self._write_ledger(payload)
@@ -116,17 +190,18 @@ class GHXTelemetryAdapter:
 
             except Exception as e:
                 logger.warning(f"[GHXTelemetry] Poll failed: {e}")
+
             time.sleep(self.poll_interval)
 
     # ──────────────────────────────────────────────
     #  Ledger Writer
     # ──────────────────────────────────────────────
     def _write_ledger(self, payload: dict):
-        """Append payload to the MorphicLedger JSONL."""
+        """Append payload to the RQC telemetry JSONL ledger."""
         try:
-            os.makedirs(os.path.dirname(LEDGER_PATH), exist_ok=True)
+            Path(LEDGER_PATH).parent.mkdir(parents=True, exist_ok=True)
             with open(LEDGER_PATH, "a", encoding="utf-8") as f:
-                f.write(json.dumps(payload) + "\n")
+                f.write(json.dumps(payload, ensure_ascii=False) + "\n")
         except Exception as e:
             logger.warning(f"[GHXTelemetry] Ledger write failed: {e}")
 
@@ -140,6 +215,7 @@ class GHXTelemetryAdapter:
         """
         try:
             from backend.modules.dimensions.universal_container_system.ucs_runtime import UCSRuntime
+
             UCSRuntime.broadcast(
                 tag="ghx_telemetry_update",
                 payload={"type": "resonance", "data": data},

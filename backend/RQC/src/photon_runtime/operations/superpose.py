@@ -21,14 +21,17 @@ Output:
     }
 """
 
-import numpy as np
 import time
 from typing import Union, Dict, Any
-from backend.RQC.src.photon_runtime.telemetry.resonance_bridge import publish_metrics
+
+import numpy as np
 
 
-def superpose(phi: Union[np.ndarray, float], psi: Union[np.ndarray, float],
-              meta: Dict[str, Any] = None) -> Dict[str, Any]:
+def superpose(
+    phi: Union[np.ndarray, float],
+    psi: Union[np.ndarray, float],
+    meta: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
     """Core ⊕ operation (superposition kernel)."""
     meta = meta or {}
 
@@ -47,11 +50,12 @@ def superpose(phi: Union[np.ndarray, float], psi: Union[np.ndarray, float],
     phi_mean = float(np.mean(np.abs(phi_norm)))
     psi_mean = float(np.mean(np.abs(psi_norm)))
     coherence_energy = float(np.mean(np.abs(result) ** 2))
-    # Correlation as resonance index (phase-alignment)
-    resonance_index = float(np.abs(np.vdot(phi_norm, psi_norm)) /
-                            (np.linalg.norm(phi_norm) * np.linalg.norm(psi_norm) + 1e-12))
 
-    payload = {
+    # Correlation as resonance index (phase-alignment)
+    denom = (np.linalg.norm(phi_norm) * np.linalg.norm(psi_norm) + 1e-12)
+    resonance_index = float(np.abs(np.vdot(phi_norm, psi_norm)) / denom)
+
+    payload: Dict[str, Any] = {
         "state": result,
         "Φ_mean": phi_mean,
         "ψ_mean": psi_mean,
@@ -60,18 +64,28 @@ def superpose(phi: Union[np.ndarray, float], psi: Union[np.ndarray, float],
         "timestamp": time.time(),
     }
 
-    # Push metrics to CodexTrace / GHX / MorphicLedger
+    # Push metrics to CodexMetrics + MorphicLedger (via resonance_bridge.publish_metrics)
+    # IMPORTANT: don't send numpy arrays to telemetry/ledger.
     try:
-        publish_metrics("superpose", payload)
+        from backend.RQC.src.photon_runtime.telemetry.resonance_bridge import publish_metrics
+
+        publish_metrics("⊕", {
+            "Φ_mean": payload["Φ_mean"],
+            "ψ_mean": payload["ψ_mean"],
+            "resonance_index": payload["resonance_index"],
+            "coherence_energy": payload["coherence_energy"],
+            "timestamp": payload["timestamp"],
+            # optional awareness fields if you ever add them:
+            # "gain": meta.get("gain"),
+            # "closure_state": meta.get("closure_state"),
+            # "phi_dot": meta.get("phi_dot"),
+        })
     except Exception as e:
         print(f"[⊕] Telemetry publish failed: {e}")
 
     return payload
 
 
-# ───────────────────────────────────────────────
-# Optional: demo when run standalone
-# ───────────────────────────────────────────────
 if __name__ == "__main__":
     φ = np.exp(1j * np.linspace(0, np.pi, 100))
     ψ = np.exp(1j * np.linspace(0, np.pi, 100) + 0.1j)

@@ -419,5 +419,13 @@
       },
       "last_hov_embed": "2026-01-04T23:21:05.579284"
     }
+  },
+  "test": {
+    "address": "ucs://local/test#container",
+    "kind": "container",
+    "meta": {
+      "domain": "test",
+      "address": "ucs://local/test#container"
+    }
   }
 }

@@ -252,6 +252,13 @@ def health_check():
 def api_health_alias():
     return health_check()
 
+try:
+    from backend.modules.cognitive_fabric.ghx_telemetry_adapter import GHX_TELEMETRY
+    GHX_TELEMETRY.start()
+    logger.warning("[GHXTelemetry] started")
+except Exception as e:
+    logger.warning("[GHXTelemetry] not started: %s", e)
+
 # ✅ AION Live Dashboard WS only
 try:
     from backend.api.aion_dashboard import ws_router as aion_dashboard_ws_router
@@ -277,22 +284,101 @@ try:
     logger.warning("[aion-demo] mounted at /aion-demo")
 except Exception as e:
     logger.warning("[aion-demo] not mounted: %s", e)
+
 # ============================================================
 # RQC Awareness WebSocket: /resonance
-# Streams telemetry from: data/ledger/rqc_live_telemetry.jsonl
+# Streams telemetry from: RQC_LEDGER_PATH (env/runtime/root)
 # ============================================================
 
+import os
 import json
+import asyncio
 from datetime import datetime, UTC
 from pathlib import Path
+from typing import Dict, Any, Optional
+
 from fastapi import WebSocket, WebSocketDisconnect
 
-RQC_LEDGER_PATH = Path(ROOT_DIR) / "data" / "ledger" / "rqc_live_telemetry.jsonl"
+# ---- ledger path (runtime + env override) ----
+_env = (os.getenv("RQC_LEDGER_FILE") or "").strip()
+if _env:
+    RQC_LEDGER_PATH = Path(_env)
+else:
+    _runtime = Path(ROOT_DIR) / ".runtime" / "COMDEX_MOVE" / "data" / "ledger" / "rqc_live_telemetry.jsonl"
+    _root = Path(ROOT_DIR) / "data" / "ledger" / "rqc_live_telemetry.jsonl"
+    RQC_LEDGER_PATH = _runtime if _runtime.exists() else _root
 
-def _ensure_rqc_ledger_file():
+
+def _ensure_rqc_ledger_file() -> None:
     RQC_LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
     if not RQC_LEDGER_PATH.exists():
         RQC_LEDGER_PATH.write_text("", encoding="utf-8")
+
+
+def _parse_line(line: str) -> Optional[Dict[str, Any]]:
+    s = (line or "").strip()
+    if not s:
+        return None
+    try:
+        entry = json.loads(s)
+    except Exception:
+        return None
+    return entry if isinstance(entry, dict) else None
+
+
+def _pick(entry: Dict[str, Any], *keys, default=None):
+    for k in keys:
+        v = entry.get(k)
+        if v is not None:
+            return v
+    return default
+
+
+def _has_any_metric(entry: Dict[str, Any]) -> bool:
+    # accept both v2 and legacy keys; if none present, skip
+    return any(
+        entry.get(k) is not None
+        for k in (
+            "Φ", "phi", "Φ_mean", "phi_mean",
+            "ψ", "psi", "ψ_mean", "psi_mean",
+            "resonance_index", "coherence_energy", "coherence", "C",
+            "κ", "kappa", "T", "T_mean",
+        )
+    )
+
+
+def _to_event(entry: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if not _has_any_metric(entry):
+        return None
+
+    Φ = _pick(entry, "Φ", "phi", "Φ_mean", "phi_mean", default=0.0) or 0.0
+    ψ = _pick(entry, "ψ", "psi", "ψ_mean", "psi_mean", default=None)
+    κ = _pick(entry, "κ", "kappa", default=0.0) or 0.0
+    T = _pick(entry, "T", "T_mean", default=0.0) or 0.0
+
+    coherence = _pick(entry, "coherence", "C", "coherence_energy", "resonance_index", default=0.0) or 0.0
+    source = _pick(entry, "operator", "event", "source_pair", "source", default="?")
+
+    try:
+        Φf = float(Φ or 0.0)
+    except Exception:
+        Φf = 0.0
+    try:
+        Cf = float(coherence or 0.0)
+    except Exception:
+        Cf = 0.0
+
+    return {
+        "type": "telemetry",
+        "timestamp": datetime.now(UTC).isoformat(),
+        "ψ": ψ,
+        "κ": float(κ) if κ is not None else 0.0,
+        "T": float(T) if T is not None else 0.0,
+        "Φ": Φf,
+        "coherence": Cf,
+        "source": source,
+    }
+
 
 @app.websocket("/resonance")
 async def resonance_ws(websocket: WebSocket):
@@ -300,27 +386,70 @@ async def resonance_ws(websocket: WebSocket):
     Cloud Run + FastAPI WS endpoint for the frontend:
       wss://<cloudrun-host>/resonance
 
-    This tails the RQC telemetry JSONL ledger and pushes:
+    Tails the RQC telemetry JSONL ledger and pushes:
       - type=telemetry
       - type=awareness_pulse when Φ >= 0.999
+
+    Also replays the last valid telemetry frame immediately on connect.
     """
     await websocket.accept()
-
     _ensure_rqc_ledger_file()
 
-    # hello handshake (matches your standalone bridge behavior)
+    # hello handshake
     try:
         await websocket.send_text(json.dumps({
             "type": "hello",
             "timestamp": datetime.now(UTC).isoformat(),
             "message": "Connected to Tessaris RQC WebSocket Bridge",
             "path": str(RQC_LEDGER_PATH),
-        }))
+        }, ensure_ascii=False))
     except Exception:
-        # if client disconnects immediately, just exit
         return
 
-    # Tail file: seek end, then stream new lines
+    async def _send_event_and_pulse(event: Dict[str, Any]) -> None:
+        await websocket.send_text(json.dumps(event, ensure_ascii=False))
+        Φf = float(event.get("Φ") or 0.0)
+        if Φf >= 0.999:
+            pulse = {
+                "type": "awareness_pulse",
+                "timestamp": datetime.now(UTC).isoformat(),
+                "message": f"🧠 Awareness resonance closure detected ({event.get('source', '?')})",
+                "Φ": Φf,
+                "coherence": float(event.get("coherence") or 0.0),
+            }
+            await websocket.send_text(json.dumps(pulse, ensure_ascii=False))
+
+    # ------------------------------------------------------------
+    # REPLAY: send the last valid telemetry line immediately
+    # ------------------------------------------------------------
+    try:
+        last_event: Optional[Dict[str, Any]] = None
+        if RQC_LEDGER_PATH.exists():
+            with open(RQC_LEDGER_PATH, "rb") as fb:
+                try:
+                    fb.seek(-8192, os.SEEK_END)
+                except OSError:
+                    fb.seek(0)
+                tail = fb.read().decode("utf-8", errors="ignore")
+
+            for ln in reversed([x for x in tail.splitlines() if x.strip()]):
+                ent = _parse_line(ln)
+                if not ent:
+                    continue
+                ev = _to_event(ent)
+                if ev:
+                    last_event = ev
+                    break
+
+        if last_event:
+            await _send_event_and_pulse(last_event)
+    except Exception:
+        # best-effort only
+        pass
+
+    # ------------------------------------------------------------
+    # TAIL: seek end, then stream new lines
+    # ------------------------------------------------------------
     try:
         with open(RQC_LEDGER_PATH, "r", encoding="utf-8") as f:
             f.seek(0, os.SEEK_END)
@@ -328,58 +457,57 @@ async def resonance_ws(websocket: WebSocket):
             while True:
                 line = f.readline()
                 if not line:
-                    await asyncio.sleep(1.0)
+                    await asyncio.sleep(0.25)
                     continue
 
-                try:
-                    entry = json.loads(line.strip())
-                except Exception:
+                entry = _parse_line(line)
+                if not entry:
                     continue
 
-                Φ = float(entry.get("Φ", 0.0) or 0.0)
-                coherence = float(entry.get("coherence", 0.0) or 0.0)
-                source_pair = entry.get("source_pair", "?")
+                event = _to_event(entry)
+                if not event:
+                    continue
 
-                event = {
-                    "type": "telemetry",
-                    "timestamp": datetime.now(UTC).isoformat(),
-                    "ψ": entry.get("ψ"),
-                    "κ": entry.get("κ"),
-                    "T": entry.get("T"),
-                    "Φ": Φ,
-                    "coherence": coherence,
-                    "source": source_pair,
-                }
-
-                await websocket.send_text(json.dumps(event))
-
-                if Φ >= 0.999:
-                    pulse = {
-                        "type": "awareness_pulse",
-                        "timestamp": datetime.now(UTC).isoformat(),
-                        "message": f"🧠 Awareness resonance closure detected for {source_pair}",
-                        "Φ": Φ,
-                        "coherence": coherence,
-                    }
-                    await websocket.send_text(json.dumps(pulse))
+                await _send_event_and_pulse(event)
 
     except WebSocketDisconnect:
         return
     except Exception as e:
-        # Don't crash the server on any tail issues; surface a soft error to the client
         try:
             await websocket.send_text(json.dumps({
                 "type": "error",
                 "timestamp": datetime.now(UTC).isoformat(),
                 "message": "RQC resonance stream stopped",
                 "error": str(e),
-            }))
+            }, ensure_ascii=False))
         except Exception:
             pass
         return
-
+        
 # 🧠 Attach AION Trace Bus subscriber -> Replay Reducer
 _TRACE_SUBSCRIBED = False
+
+# ============================================================
+# Start GHX telemetry poller on app startup (feeds /resonance)
+# ============================================================
+
+@app.on_event("startup")
+async def _start_ghx_telemetry():
+    try:
+        from backend.modules.cognitive_fabric.ghx_telemetry_adapter import GHX_TELEMETRY, LEDGER_PATH
+        GHX_TELEMETRY.start()
+        logger.warning("[ghx-telemetry] started (ledger=%s)", LEDGER_PATH)
+    except Exception as e:
+        logger.warning("[ghx-telemetry] NOT started: %s", e)
+
+@app.on_event("shutdown")
+async def _stop_ghx_telemetry():
+    try:
+        from backend.modules.cognitive_fabric.ghx_telemetry_adapter import GHX_TELEMETRY
+        GHX_TELEMETRY.stop()
+        logger.warning("[ghx-telemetry] stopped")
+    except Exception as e:
+        logger.warning("[ghx-telemetry] stop failed: %s", e)
 
 def on_trace_event(event: dict):
     """

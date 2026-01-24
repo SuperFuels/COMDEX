@@ -84,6 +84,7 @@ function shallowEqualMetrics(a: LiveMetrics, b: LiveMetrics) {
 function resolveBackendHttpBase(): string {
   const env =
     (process.env.NEXT_PUBLIC_API_ORIGIN as string | undefined) ||
+    (process.env.NEXT_PUBLIC_HOMEOSTASIS_BASE as string | undefined) || // add this
     (process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE as string | undefined) ||
     (process.env.NEXT_PUBLIC_API_URL as string | undefined) ||
     (process.env.NEXT_PUBLIC_API_BASE as string | undefined) ||
@@ -117,6 +118,35 @@ function toWsBase(httpBase: string): string {
  */
 function extractMetricsFromFrame(frame: any): LiveMetrics {
   const root = frame ?? {};
+
+  // ------------------------------------------------------------
+  // RQC /resonance frames (FastAPI WS)
+  // { type:"telemetry", Φ, ψ, κ, T, coherence, source, ... }
+  // ------------------------------------------------------------
+  if (root?.type === "telemetry" && (root["Φ"] != null || root.coherence != null)) {
+    return {
+      // map directly
+      Phi: pickFirstNumber(root["Φ"], root.Phi, root.phi),
+      C: pickFirstNumber(root.coherence, root.C, root.c),
+      psi: pickFirstNumber(root["ψ"], root.psi),
+      kappa: pickFirstNumber(root["κ"], root.kappa),
+      T: pickFirstNumber(root["T"], root.T),
+      _frameTs: Date.now(),
+    };
+  }
+
+  // optional: awareness pulse carries Φ + coherence
+  if (root?.type === "awareness_pulse" && (root["Φ"] != null || root.coherence != null)) {
+    return {
+      Phi: pickFirstNumber(root["Φ"], root.Phi, root.phi),
+      C: pickFirstNumber(root.coherence, root.C, root.c),
+      _frameTs: Date.now(),
+    };
+  }
+
+  // ------------------------------------------------------------
+  // legacy / other envelopes
+  // ------------------------------------------------------------
   const payload = root.payload ?? root.data ?? root.envelope ?? root.msg ?? null;
 
   const m =
@@ -135,10 +165,14 @@ function extractMetricsFromFrame(frame: any): LiveMetrics {
 
   // --- coherence / entropy
   const C = pickFirstNumber(
+    // canonical/legacy
     m.C,
     m.c,
     m["ρ"],
     m.rho,
+    m.coherence,
+    // RQC-like keys that might be nested
+    m.resonance_index,
     m["Φ_coherence"],
     m.phi_coherence,
     phiObj?.["Φ_coherence"],
@@ -165,14 +199,18 @@ function extractMetricsFromFrame(frame: any): LiveMetrics {
     m.Phi,
     m.phi,
     m.awareness,
+    // RQC mean keys (sometimes appear in other feeds too)
+    m["Φ_mean"],
+    m.phi_mean,
     phiObj?.["Φ"],
     phiObj?.Phi,
     phiObj?.phi,
+    phiObj?.["Φ_mean"],
+    phiObj?.phi_mean,
     // common “scalar box” fallbacks
     m.SQI,
     m.sqi,
     m.sqi_checkpoint,
-    m.coherence,
     C
   );
 
@@ -186,8 +224,28 @@ function extractMetricsFromFrame(frame: any): LiveMetrics {
     phiObj?.dPhi
   );
 
-  const psi_tilde = pickFirstNumber(m.psi_tilde, m["ψ̃"], m["ψ"], m.psi, phiObj?.psi_tilde, phiObj?.psi);
-  const kappa_tilde = pickFirstNumber(m.kappa_tilde, m["κ̃"], m["κ"], m.kappa, phiObj?.kappa_tilde, phiObj?.kappa);
+  const psi_tilde = pickFirstNumber(
+    m.psi_tilde,
+    m["ψ̃"],
+    m["ψ"],
+    m.psi,
+    // RQC mean keys
+    m["ψ_mean"],
+    m.psi_mean,
+    phiObj?.psi_tilde,
+    phiObj?.psi,
+    phiObj?.["ψ_mean"],
+    phiObj?.psi_mean
+  );
+
+  const kappa_tilde = pickFirstNumber(
+    m.kappa_tilde,
+    m["κ̃"],
+    m["κ"],
+    m.kappa,
+    phiObj?.kappa_tilde,
+    phiObj?.kappa
+  );
 
   const sigma = pickFirstNumber(m.sigma, m["σ"]);
   const gamma_tilde = pickFirstNumber(m.gamma_tilde, m["γ̃"]);
@@ -365,11 +423,9 @@ export default function ResonancePulseHUD() {
 
     // include the endpoints you’ve used across builds
     const endpoints = [
-      // AION dashboard WS (mounted in backend/main.py)
-      `${wsBase}/ws/aion/dashboard`,
-
-      // QFC stream WS (mounted in backend/api/ws.py)
-      `${wsBase}/api/ws/qfc`,
+      `${wsBase}/resonance`,          // ✅ REAL telemetry WS (RQC ledger tail + pulses)
+      `${wsBase}/ws/aion/dashboard`,  // optional
+      `${wsBase}/api/ws/qfc`,         // optional
     ];
 
     const scheduleReconnect = (why: string) => {

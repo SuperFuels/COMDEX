@@ -42,6 +42,9 @@ THETA_DASH_WRITE_MIN_INTERVAL_S = float(os.getenv("AION_THETA_DASH_WRITE_MIN_INT
 THETA_MODELOG_MIN_INTERVAL_S = float(os.getenv("AION_THETA_MODELOG_MIN_INTERVAL_S", "10"))
 THETA_STABILIZE_PROB = float(os.getenv("AION_THETA_STABILIZE_PROB", "0.2"))  # default keeps prior behavior
 
+# Dashboard path is now configurable (keeps existing default)
+THETA_DASH_PATH = os.getenv("AION_LIVE_DASHBOARD_PATH", "data/analysis/aion_live_dashboard.jsonl")
+
 # ─────────────────────────────────────────────
 # Safe arithmetic evaluator for FAST loop
 # ─────────────────────────────────────────────
@@ -141,6 +144,7 @@ class ThinkingLoop:
     def _dash_append(self, event_key: str, payload: Dict[str, Any], min_interval_s: float) -> None:
         """
         Rate-limited JSONL append to data/analysis/aion_live_dashboard.jsonl
+        (path configurable via AION_LIVE_DASHBOARD_PATH)
         """
         now = time.time()
         last = self._last_dash_write.get(event_key, 0.0)
@@ -152,9 +156,10 @@ class ThinkingLoop:
             from pathlib import Path
             import json
 
-            Path("data/analysis").mkdir(parents=True, exist_ok=True)
-            with open("data/analysis/aion_live_dashboard.jsonl", "a", encoding="utf-8") as dash:
-                dash.write(json.dumps(payload) + "\n")
+            dash_path = THETA_DASH_PATH
+            Path(os.path.dirname(dash_path) or ".").mkdir(parents=True, exist_ok=True)
+            with open(dash_path, "a", encoding="utf-8") as dash:
+                dash.write(json.dumps(payload, ensure_ascii=False) + "\n")
         except Exception as e:
             log.warning(f"[Θ] Dashboard log write failed: {e}")
 
@@ -189,6 +194,20 @@ class ThinkingLoop:
             "timestamp": time.time(),
         }
         self.Theta.event("fast_loop", **result)
+
+        # Optional dashboard mirror (kept very light + rate-limited)
+        self._dash_append(
+            "fast_loop",
+            {
+                "timestamp": result["timestamp"],
+                "event": "fast_loop",
+                "stimulus": stimulus,
+                "response": response,
+                "namespace": self.Theta.namespace,
+            },
+            min_interval_s=THETA_DASH_WRITE_MIN_INTERVAL_S,
+        )
+
         return result
 
     # ───────────────────────────────────────────
@@ -296,6 +315,7 @@ class ThinkingLoop:
                 "SQI": sqi,
                 "ΔΦ": delta,
                 "strategy": strategy,
+                "namespace": self.Theta.namespace,
             },
             min_interval_s=THETA_DASH_WRITE_MIN_INTERVAL_S,
         )

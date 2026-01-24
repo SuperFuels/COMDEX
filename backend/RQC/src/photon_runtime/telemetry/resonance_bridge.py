@@ -15,15 +15,12 @@ Ledger Schema v2 fields:
 """
 
 import os
-import json
 import time
 import logging
 from typing import Dict, Any, Optional
 
 from backend.modules.cognitive_fabric.metrics_bridge import CODEX_METRICS
-
-LEDGER_PATH = "data/ledger/rqc_live_telemetry.jsonl"
-os.makedirs(os.path.dirname(LEDGER_PATH), exist_ok=True)
+from backend.modules.holograms.morphic_ledger import morphic_ledger
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +33,9 @@ def publish_metrics(op_name: str, payload: Dict[str, Any]) -> None:
     Adds awareness-related fields for resonance closure and adaptive feedback.
     """
     try:
-        timestamp = payload.get("timestamp", time.time())
+        timestamp = float(payload.get("timestamp", time.time()))
 
+        # v2 telemetry entry (CodexTrace/GHX friendly)
         entry: Dict[str, Any] = {
             "operator": op_name,
             "timestamp": timestamp,
@@ -54,7 +52,7 @@ def publish_metrics(op_name: str, payload: Dict[str, Any]) -> None:
             "phi_dot": payload.get("phi_dot"),
         }
 
-        # 1️⃣  Push to CodexMetrics -> CFA / GHX
+        # 1️⃣ Push to CodexMetrics -> CFA / GHX
         try:
             CODEX_METRICS.record_event(
                 event=f"RQC::{op_name}",
@@ -64,13 +62,35 @@ def publish_metrics(op_name: str, payload: Dict[str, Any]) -> None:
             )
             logger.info(f"[ResonanceBridge] Published ({op_name}) -> CodexMetrics")
         except Exception as e:
-            logger.warning(f"[ResonanceBridge] Publish failed ({op_name}): {e}")
+            logger.warning(f"[ResonanceBridge] CodexMetrics publish failed ({op_name}): {e}")
 
-        # 2️⃣  Append to MorphicLedger (JSONL)
-        with open(LEDGER_PATH, "a", encoding="utf-8") as f:
-            f.write(json.dumps(entry) + "\n")
+        # 2️⃣ Append to MorphicLedger (single stable file + optional sharding handled internally)
+        # Map into MorphicLedger’s ψ/κ/T/coherence-oriented schema while preserving the full v2 entry in metadata.
+        tensor_data: Dict[str, Any] = {
+            # best-effort mapping (safe defaults)
+            "psi": payload.get("ψ_mean", payload.get("psi", payload.get("ψ", entry.get("ψ_mean", 0.0))) ) or 0.0,
+            "kappa": payload.get("kappa", payload.get("κ", 0.0)) or 0.0,
+            "T": payload.get("T", 0.0) or 0.0,
+            "coherence": payload.get("coherence", payload.get("C", 0.0)) or 0.0,
+            "gradient": payload.get("gradient", 0.0) or 0.0,
+            "stability": payload.get("stability", 0.0) or 0.0,
 
-        # 3️⃣  Optional log
+            # ensure Φ flows into MorphicLedger’s phi-awareness mirror
+            "phi": entry.get("Φ_mean", payload.get("phi", payload.get("Φ"))),
+
+            # preserve all resonance-bridge fields for dashboards/analysis
+            "metadata": {
+                "rqc_bridge_v2": True,
+                "operator": op_name,
+                **{k: v for k, v in entry.items() if v is not None},
+            },
+
+            # optional link passthrough (if upstream provides)
+            "link": payload.get("link"),
+        }
+
+        morphic_ledger.append(tensor_data, observer=f"RQC::{op_name}")
+
         logger.debug(
             f"[ResonanceBridge] Ledger<- {op_name} Φ={entry.get('Φ_mean')} ψ={entry.get('ψ_mean')} "
             f"gain={entry.get('gain')} state={entry.get('closure_state')}"
@@ -105,4 +125,4 @@ if __name__ == "__main__":
         "timestamp": time.time(),
     }
     publish_metrics("demo_op", demo)
-    print("✅ Demo entry written to MorphicLedger v2 and CodexMetrics.")
+    print(f"✅ Demo entry written to MorphicLedger ({morphic_ledger.ledger_path}) and CodexMetrics.")

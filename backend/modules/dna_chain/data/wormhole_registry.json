@@ -285,5 +285,26 @@
     "meta": {
       "reason": "auto_hub"
     }
+  },
+  "photon_runtime->ucs_hub": {
+    "from": "photon_runtime",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_phi_awareness_history->ucs_hub": {
+    "from": "symatics_phi_awareness_history",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "test->ucs_hub": {
+    "from": "test",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
   }
 }

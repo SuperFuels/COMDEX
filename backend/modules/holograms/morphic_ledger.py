@@ -67,23 +67,25 @@ class MorphicLedger:
                 self._init_sqlite()
 
                 # Add 'link' column if not present
-                cur = self._db_conn.cursor()
-                cur.execute("""ALTER TABLE morphic_records ADD COLUMN link TEXT""")
-                self._db_conn.commit()
-                logger.info("[MorphicLedger] Initialized SQLite ledger backend with link column.")
-            except sqlite3.OperationalError:
-                # Column may already exist
-                logger.info("[MorphicLedger] SQLite ledger already has 'link' column.")
+                try:
+                    cur = self._db_conn.cursor()
+                    cur.execute("ALTER TABLE morphic_records ADD COLUMN link TEXT")
+                    self._db_conn.commit()
+                    logger.info("[MorphicLedger] Added 'link' column to morphic_records.")
+                except sqlite3.OperationalError:
+                    # Column may already exist
+                    logger.info("[MorphicLedger] SQLite morphic_records already has 'link' column.")
+
+                logger.info("[MorphicLedger] Initialized SQLite ledger backend.")
             except Exception as e:
                 logger.warning(f"[MorphicLedger] SQLite unavailable: {e}. Falling back to JSONL.")
-
-        logger.info(f"[MorphicLedger] Session initialized -> {self.ledger_path}")
+                self._db_conn = None
 
     # ──────────────────────────────────────────────
     #  JSONL Append Path
     # ──────────────────────────────────────────────
     def append(self, tensor_data: Dict[str, Any], observer: Optional[str] = None) -> None:
-        """Append a tensor record to the active Morphic Ledger."""
+        """Append a tensor record to the active Morphic Ledger (JSONL + optional SQLite mirror)."""
         record = {
             "id": f"entry_{uuid.uuid4().hex[:10]}",
             "timestamp": time.time(),
@@ -102,13 +104,19 @@ class MorphicLedger:
 
         # 🔁 Flattened aliases (for external tests & analytics)
         record["psi"] = record["tensor"]["psi"]
-        record["phi"] = tensor_data.get("phi", tensor_data.get("Φ", 0.0))
+        record["phi"] = tensor_data.get("phi", tensor_data.get("Φ", tensor_data.get("\u03a6", 0.0)))
         record["coherence"] = record["tensor"]["coherence"]
 
         try:
             # Write to JSONL ledger
             with open(self.ledger_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(record) + "\n")
+
+            # SQLite mirror (if enabled)
+            try:
+                self._sqlite_insert_record(record)
+            except Exception as e:
+                logger.warning(f"[MorphicLedger] SQLite insert failed: {e}")
 
             logger.debug(
                 f"[MorphicLedger] + Appended ψ={record['tensor']['psi']:.3f} "
@@ -139,14 +147,16 @@ class MorphicLedger:
 
             # 🪶 Mirror Φ-awareness if Φ present
             if record["phi"] not in (None, 0.0):
-                self.log_phi_awareness({
-                    "timestamp": record["timestamp"],
-                    "Φ": record["phi"],
-                    "ψ": record["tensor"]["psi"],
-                    "κ": record["tensor"]["kappa"],
-                    "T": record["tensor"]["T"],
-                    "coherence": record["tensor"]["coherence"],
-                })
+                self.log_phi_awareness(
+                    {
+                        "timestamp": record["timestamp"],
+                        "Φ": record["phi"],
+                        "ψ": record["tensor"]["psi"],
+                        "κ": record["tensor"]["kappa"],
+                        "T": record["tensor"]["T"],
+                        "coherence": record["tensor"]["coherence"],
+                    }
+                )
 
         except Exception as e:
             logger.error(f"[MorphicLedger] Failed to append record: {e}")
@@ -243,10 +253,42 @@ class MorphicLedger:
                 coherence REAL,
                 gradient REAL,
                 stability REAL,
-                meta TEXT
+                meta TEXT,
+                link TEXT
             )
         """)
         self._db_conn.commit()
+
+
+    def _sqlite_insert_record(self, record: Dict[str, Any]) -> None:
+        """Insert a ledger record into SQLite if enabled."""
+        if not self._db_conn:
+            return
+        try:
+            cur = self._db_conn.cursor()
+            cur.execute(
+                """
+                INSERT INTO morphic_records
+                (id, timestamp, observer, psi, kappa, T, coherence, gradient, stability, meta, link)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    record.get("id"),
+                    float(record.get("timestamp", time.time())),
+                    record.get("observer"),
+                    float(record.get("tensor", {}).get("psi", 0.0)),
+                    float(record.get("tensor", {}).get("kappa", 0.0)),
+                    float(record.get("tensor", {}).get("T", 0.0)),
+                    float(record.get("tensor", {}).get("coherence", 0.0)),
+                    float(record.get("tensor", {}).get("gradient", 0.0)),
+                    float(record.get("tensor", {}).get("stability", 0.0)),
+                    json.dumps(record.get("meta", {}) or {}),
+                    json.dumps(record.get("link")) if record.get("link") is not None else None,
+                ),
+            )
+            self._db_conn.commit()
+        except Exception as e:
+            logger.warning(f"[MorphicLedger] SQLite insert failed: {e}")
 
     # ──────────────────────────────────────────────
     #  Retrieval / Query
@@ -369,19 +411,7 @@ class MorphicLedger:
     #  Φ-Awareness Trend Retrieval & Visualization
     # ──────────────────────────────────────────────
     def get_phi_history(self, limit: int = 1000) -> List[Dict[str, Any]]:
-        """
-        Load the most recent Φ-awareness events from phi_awareness_history.jsonl.
-        """
-        path = os.path.join(self.base_path, "phi_awareness_history.jsonl")
-        if not os.path.exists(path):
-            return []
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                lines = [json.loads(line) for line in f if line.strip()]
-            return lines[-limit:]
-        except Exception as e:
-            logger.error(f"[ΦHistory] Failed to load Φ history: {e}")
-            return []
+        return self.query_phi_history(limit=limit)
 
     # ──────────────────────────────────────────────
     #  Export for Analysis or Dashboard
