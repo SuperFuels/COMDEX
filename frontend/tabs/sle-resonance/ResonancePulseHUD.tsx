@@ -365,10 +365,11 @@ export default function ResonancePulseHUD() {
 
     // include the endpoints you’ve used across builds
     const endpoints = [
-      `${wsBase}/ws/aion-demo`,
-      `${wsBase}/aion-demo/ws/aion-demo`,
-      `${wsBase}/api/ws/aion-demo`,
-      `${wsBase}/api/ws/aion-demo/`,
+      // AION dashboard WS (mounted in backend/main.py)
+      `${wsBase}/ws/aion/dashboard`,
+
+      // QFC stream WS (mounted in backend/api/ws.py)
+      `${wsBase}/api/ws/qfc`,
     ];
 
     const scheduleReconnect = (why: string) => {
@@ -404,6 +405,7 @@ export default function ResonancePulseHUD() {
 
         ws.onopen = () => {
           attemptRef.current = 0;
+          lastFrameAtRef.current = Date.now();
           setWsOk(true);
           pushLog(`[WS] Connected → ${url}`, "ok");
         };
