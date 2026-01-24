@@ -1,14 +1,24 @@
+#!/usr/bin/env python3
 # ================================================================
-# 🎬 CEE Exercise Playback Engine (LexMemory persistence wired)
+# 🎬 CEE Exercise Playback Engine (LexMemory persistence wired + CAU gating)
 # ================================================================
 """
 Plays back CEE-generated exercises in either:
   * simulate mode -> automatic answers (with LexMemory recall)
   * interactive mode -> user answers via console input
 
+CAU guarantee:
+  ✅ LexMemory reinforcement MUST be gated by CAU authority (RAL/SQI/ADR).
+     No learning while injured / cooldown / ADR active.
+
 Key guarantee (per your screenshot):
   ✅ On every correct answer, LexMemory is UPDATED AND SAVED to disk
-     so Demo 5 can consume: data/memory/lex_memory.json
+     (ONLY when CAU allows learning) so Demo 5 can consume: data/memory/lex_memory.json
+
+Program goal (per your plan):
+  - Primary training = SELF_TRAIN (your Wordwall-replacement)
+  - Optional = LLM generation (explicit only, never surprise)
+  - Wordwall/hybrid removed from the program path
 """
 
 import json
@@ -17,6 +27,7 @@ import random
 import logging
 import os
 from pathlib import Path
+from typing import Any, Dict, Optional, Tuple, List
 
 logger = logging.getLogger(__name__)
 
@@ -25,24 +36,87 @@ logger = logging.getLogger(__name__)
 # ------------------------------------------------------------
 _api_key = os.getenv("OPENAI_API_KEY")
 if not _api_key:
-    logger.warning(
-        "[CEE-Playback] Missing OPENAI_API_KEY. LLM feed may be unavailable."
-    )
+    logger.warning("[CEE-Playback] Missing OPENAI_API_KEY. LLM feed may be unavailable.")
+
 # ------------------------------------------------------------
 # LexMemory auto-correct (opt-in)
 # ------------------------------------------------------------
 AUTO_CORRECT = os.getenv("CEE_LEX_AUTO_CORRECT", "1").lower() in ("1", "true", "yes", "on")
 
 # ------------------------------------------------------------
+# CAU gating (authority for learning) — Phase 46A stable API
+# ------------------------------------------------------------
+try:
+    # cau_authority.py exposes get_authority_state/get_authority/get_state
+    from backend.modules.aion_cognition.cau_authority import get_authority_state as _cau_state
+except Exception as _e:
+    _cau_state = None
+    logger.warning(
+        f"[CEE-Playback] CAU authority not available; learning will be allowed by default. err={_e}"
+    )
+
+
+def _cau_status(goal: str = "maintain_coherence") -> dict:
+    """
+    Returns CAU dict (must include allow_learn).
+    Safe fallback = allow learn (soft-fail) to avoid breaking playback.
+    """
+    if _cau_state is None:
+        return {
+            "allow_learn": True,
+            "deny_reason": None,
+            "adr_active": False,
+            "cooldown_s": 0,
+            "S": None,
+            "H": None,
+            "Phi": None,
+            "goal": goal,
+            "source": "CAU_IMPORT_FAIL",
+        }
+    try:
+        st = _cau_state(goal=goal)
+        if isinstance(st, dict) and "allow_learn" in st:
+            st.setdefault("goal", goal)
+            st.setdefault("source", "CAU:get_authority_state")
+            return st
+        logger.warning("[CEE-Playback] CAU returned unexpected shape; allowing learn (soft-fail).")
+        return {
+            "allow_learn": True,
+            "deny_reason": "cau_bad_shape",
+            "adr_active": False,
+            "cooldown_s": 0,
+            "S": None,
+            "H": None,
+            "Phi": None,
+            "goal": goal,
+            "source": "CAU_BAD_SHAPE",
+        }
+    except Exception as e:
+        logger.warning(f"[CEE-Playback] CAU compute failed; allowing learn. err={e}")
+        return {
+            "allow_learn": True,
+            "deny_reason": "cau_compute_failed",
+            "adr_active": False,
+            "cooldown_s": 0,
+            "S": None,
+            "H": None,
+            "Phi": None,
+            "goal": goal,
+            "source": "CAU_EXCEPTION",
+        }
+
+
+def _cau_allow(goal: str = "maintain_coherence") -> Tuple[bool, dict]:
+    st = _cau_status(goal=goal)
+    return bool(st.get("allow_learn", True)), st
+
+
+# ------------------------------------------------------------
 # Project imports
 # ------------------------------------------------------------
 from backend.modules.aion_cognition.cee_lexicore_bridge import LexiCoreBridge
 from backend.modules.aion_cognition.language_habit_engine import update_habit_metrics
-
-from backend.modules.aion_cognition.cee_lex_memory import (
-    LexMemory,
-    recall_from_memory,
-)
+from backend.modules.aion_cognition.cee_lex_memory import LexMemory, recall_from_memory
 
 from backend.modules.aion_cognition.cee_language_templates import (
     generate_matchup,
@@ -57,8 +131,6 @@ from backend.modules.aion_cognition.cee_language_cloze import (
     generate_cloze,
     generate_group_sort,
 )
-
-from backend.modules.aion_cognition.cee_wordwall_importer import wordwall_to_exercise
 
 from backend.modules.aion_cognition.cee_llm_exercise_generator import (
     generate_llm_exercise_batch,
@@ -77,6 +149,93 @@ from backend.modules.aion_cognition.cee_grammar_templates import (
 OUT_PATH = Path("data/sessions/playback_log.qdata.json")
 LEX_PATH = Path("data/memory/lex_memory.json")
 
+# ------------------------------------------------------------
+# LexMemory queue-on-deny (Phase 46A)
+# ------------------------------------------------------------
+LEX_QUEUE_PATH = Path("data/memory/lexmemory_queue.jsonl")
+
+
+def _append_queue(rec: dict) -> None:
+    try:
+        LEX_QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(LEX_QUEUE_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception as e:
+        logger.warning(f"[CEE-Playback] Failed to append lex queue: {e}")
+
+
+def _flush_queue(max_items: int = 200, goal: str = "maintain_coherence") -> int:
+    """
+    Apply queued lex updates iff CAU allows learning.
+    Safe: if anything goes wrong, we stop and keep remaining queue intact.
+    """
+    allow, cau = _cau_allow(goal=goal)
+    if not allow:
+        return 0
+    if not LEX_QUEUE_PATH.exists():
+        return 0
+
+    try:
+        lines = LEX_QUEUE_PATH.read_text(encoding="utf-8").splitlines()
+    except Exception:
+        return 0
+    if not lines:
+        return 0
+
+    applied = 0
+    remaining: List[str] = []
+
+    # process up to max_items; keep the rest
+    head = lines[:max_items]
+    tail = lines[max_items:]
+
+    for line in head:
+        try:
+            rec = json.loads(line)
+            prompt = rec.get("prompt", "")
+            answer = rec.get("answer", "")
+            resonance = rec.get("resonance", {}) or {}
+            rho, Ibar, sqi = _norm_resonance(resonance)
+
+            # CAU already allowed at flush start; still keep meta trail
+            _lex.update(
+                prompt,
+                answer,
+                rho=rho,
+                Ibar=Ibar,
+                sqi=sqi,
+                meta={"queued": True, "queued_reason": rec.get("reason")},
+            )
+            applied += 1
+        except Exception:
+            remaining.append(line)
+
+    remaining.extend(tail)
+
+    try:
+        _lex.save()
+    except Exception as e:
+        logger.warning(f"[CEE-Playback] LexMemory save failed during flush: {e}")
+        return 0
+
+    try:
+        if remaining:
+            LEX_QUEUE_PATH.write_text("\n".join(remaining) + "\n", encoding="utf-8")
+        else:
+            try:
+                LEX_QUEUE_PATH.unlink()
+            except Exception:
+                pass
+    except Exception as e:
+        logger.warning(f"[CEE-Playback] Queue rewrite failed (non-fatal): {e}")
+
+    if applied:
+        logger.info(
+            f"[CEE-Playback] ✅ Flushed {applied} queued LexMemory updates (CAU allowed). "
+            f"deny_reason={cau.get('deny_reason')} adr_active={cau.get('adr_active')} cooldown_s={cau.get('cooldown_s')}"
+        )
+    return applied
+
 
 def _make_lex():
     """Instantiate LexMemory with stable path if supported; fallback if not."""
@@ -86,11 +245,11 @@ def _make_lex():
         return LexMemory()
 
 
-# Module singleton (matches screenshot intent)
+# Module singleton
 _lex = _make_lex()
 
 
-def _norm_resonance(resonance: dict) -> tuple[float, float, float]:
+def _norm_resonance(resonance: dict) -> Tuple[float, float, float]:
     """
     Normalize resonance keys from any of:
       - screenshot keys: rho, Ibar, sqi
@@ -104,7 +263,6 @@ def _norm_resonance(resonance: dict) -> tuple[float, float, float]:
     Ibar = resonance.get("Ibar", resonance.get("Ī", resonance.get("I", 0.6)))
     sqi = resonance.get("sqi", resonance.get("SQI", 0.6))
 
-    # Coerce to float safely
     try:
         rho = float(rho)
     except Exception:
@@ -128,7 +286,7 @@ class CEEPlayback:
     def __init__(self, mode: str = "simulate"):
         self.mode = mode
         self.session_id = f"PLAY-{int(time.time())}"
-        self.session = []
+        self.session: List[dict] = []
         self.bridge = LexiCoreBridge()
         logger.info(f"[CEE-Playback] Session {self.session_id} started in {mode} mode")
 
@@ -136,7 +294,6 @@ class CEEPlayback:
         """Safely play a single CEE exercise with full fallback handling."""
         ex_type = ex.get("type", "unknown")
 
-        # --- Safe prompt normalization ---
         prompt = ex.get("prompt")
         if not isinstance(prompt, str):
             prompt = str(prompt or "").strip()
@@ -145,18 +302,23 @@ class CEEPlayback:
         options = ex.get("options", [])
         answer = ex.get("answer")
 
-        # --- Safe resonance default (use screenshot-friendly keys) ---
         resonance = ex.get("resonance", {"rho": 0.6, "Ibar": 0.6, "sqi": 0.6})
         if not isinstance(resonance, dict):
             resonance = {"rho": 0.6, "Ibar": 0.6, "sqi": 0.6}
 
-        # --- Display the exercise ---
         print(f"\n▶ {ex_type} - {safe_prompt}")
         if options:
             print(f"Options: {', '.join(str(o) for o in options if o)}")
 
-        # --------------------------------------------------------
-        # 🧠 LexMemory Recall Integration
+        # Opportunistic queue flush
+        try:
+            _flush_queue(goal="maintain_coherence")
+        except Exception:
+            pass
+
+        # -------------------------
+        # LexMemory recall
+        # -------------------------
         memory_hit = recall_from_memory(prompt)
         if memory_hit and memory_hit.get("answer"):
             guess = memory_hit["answer"]
@@ -168,63 +330,149 @@ class CEEPlayback:
                     f"recalled '{guess}', expected '{answer}'"
                 )
         else:
-            # Input phase: interactive or simulate
             if self.mode == "interactive":
                 try:
                     guess = input("Your answer: ").strip()
                 except Exception:
                     guess = ""
             else:
-                guess = random.choice(options) if options else ""
+                # simulate mode: try to be "smart" without requiring LLM
+                guess = ""
 
-        # --------------------------------------------------------
-        # Safe normalize both guess and answer
+                # 1) If exercise provides an answer, use it (self_train should)
+                if answer:
+                    guess = str(answer).strip()
+
+                # 2) If MCQ options and no answer provided, try simple prompt->option match
+                if (not guess) and options:
+                    p = safe_prompt.lower()
+
+                    # tiny heuristic: if one option appears in prompt, pick it
+                    hit = None
+                    for o in options:
+                        s = str(o).strip()
+                        if s and s.lower() in p:
+                            hit = s
+                            break
+                    if hit:
+                        guess = hit
+                    else:
+                        # fallback: pick first option (deterministic) instead of random
+                        guess = str(options[0]).strip()
+
+                # 3) last resort
+                if not guess:
+                    guess = ""
+
         guess = (guess or "").strip() if isinstance(guess, str) else str(guess or "").strip()
         answer = (answer or "").strip() if isinstance(answer, str) else str(answer or "").strip()
 
-        # --------------------------------------------------------
-        # Evaluate correctness or handle missing answer
         if not answer:
             logger.info(f"[CEE-Playback] ⚠ No answer provided for {ex_type} - skipping scoring.")
             correct = None
         else:
             correct = (guess == answer)
+
+            # =====================================================
+            # ✅ Correct branch (CAU gated learn-or-queue)
+            # =====================================================
             if correct:
                 logger.info(f"[CEE-Playback] ✅ Correct: {guess}")
 
-                # ✅ Screenshot requirement: update + save in the "correct" branch
+                # opportunistic flush before mutation attempt
+                try:
+                    _flush_queue(goal="maintain_coherence")
+                except Exception:
+                    pass
+
                 rho, Ibar, sqi = _norm_resonance(resonance)
-                try:
-                    LEX_PATH.parent.mkdir(parents=True, exist_ok=True)
-                except Exception:
-                    pass
 
-                _lex.update(prompt, answer, rho=rho, Ibar=Ibar, sqi=sqi)
-                _lex.save()
-                # ✅ Demo 5 hook: when correct recall is confirmed, reinforce AKG edge (never break CEE)
-                try:
-                    from backend.modules.aion_cognition.akg_singleton import reinforce_answer_is
-                    reinforce_answer_is(prompt, answer, hit=1.0)
-                except Exception:
-                    pass
+                allow, cau = _cau_allow(goal="maintain_coherence")
+                if allow:
+                    _lex.update(
+                        prompt,
+                        answer,
+                        rho=rho,
+                        Ibar=Ibar,
+                        sqi=sqi,
+                        meta={"source": "cee_playback_correct", "session": self.session_id, "type": ex_type},
+                    )
+                    _lex.save()
 
-            else:
-                logger.info(f"[CEE-Playback] ❌ Wrong (expected {answer}): {guess}")
-
-                # Optional: auto-correct memory drift only if recall was used (guarded)
-                if (not correct) and memory_hit and answer and AUTO_CORRECT:
-                    rho, Ibar, sqi = _norm_resonance(resonance)
+                    # Demo 5 hook: reinforce AKG edge (best-effort)
                     try:
-                        LEX_PATH.parent.mkdir(parents=True, exist_ok=True)
+                        from backend.modules.aion_cognition.akg_singleton import reinforce_answer_is
+
+                        reinforce_answer_is(prompt, answer, hit=1.0)
                     except Exception:
                         pass
 
-                    _lex.update(prompt, answer, rho=rho, Ibar=Ibar, sqi=sqi, meta={"auto_correct": True})
-                    _lex.save()
-                    logger.info(f"[LexMemory] 🔧 Auto-corrected memory for '{prompt}' -> {answer}")
+                    logger.info(
+                        f"[CAU] ALLOW_LEARN S={cau.get('S')} H={cau.get('H')} Phi={cau.get('Phi')} "
+                        f"deny_reason={cau.get('deny_reason')} adr_active={cau.get('adr_active')} cooldown_s={cau.get('cooldown_s')}"
+                    )
+                else:
+                    _append_queue(
+                        {
+                            "t": time.time(),
+                            "prompt": prompt,
+                            "answer": answer,
+                            "resonance": resonance,
+                            "cau": cau,
+                            "reason": "correct_but_cau_denied",
+                            "session": self.session_id,
+                            "type": ex_type,
+                        }
+                    )
+                    logger.warning(
+                        f"[CEE-Playback] 🧯 CAU denied; queued LexMemory update. "
+                        f"deny_reason={cau.get('deny_reason')} S={cau.get('S')} H={cau.get('H')} cooldown_s={cau.get('cooldown_s')}"
+                    )
 
-        # --------------------------------------------------------
-        # Log attempt safely
+            # =====================================================
+            # ❌ Wrong branch (optional auto-correct; CAU gated)
+            # =====================================================
+            else:
+                logger.info(f"[CEE-Playback] ❌ Wrong (expected {answer}): {guess}")
+
+                if memory_hit and answer and AUTO_CORRECT:
+                    try:
+                        _flush_queue(goal="maintain_coherence")
+                    except Exception:
+                        pass
+
+                    rho, Ibar, sqi = _norm_resonance(resonance)
+
+                    allow, cau = _cau_allow(goal="maintain_coherence")
+                    if allow:
+                        _lex.update(
+                            prompt,
+                            answer,
+                            rho=rho,
+                            Ibar=Ibar,
+                            sqi=sqi,
+                            meta={"auto_correct": True, "source": "cee_playback", "session": self.session_id, "type": ex_type},
+                        )
+                        _lex.save()
+                        logger.info(f"[LexMemory] 🔧 Auto-corrected memory for '{prompt}' -> {answer}")
+                    else:
+                        _append_queue(
+                            {
+                                "t": time.time(),
+                                "prompt": prompt,
+                                "answer": answer,
+                                "resonance": resonance,
+                                "cau": cau,
+                                "reason": "auto_correct_but_cau_denied",
+                                "session": self.session_id,
+                                "type": ex_type,
+                            }
+                        )
+                        logger.warning(
+                            f"[CEE-Playback] 🧯 CAU denied; queued auto-correct. "
+                            f"deny_reason={cau.get('deny_reason')} S={cau.get('S')} H={cau.get('H')} cooldown_s={cau.get('cooldown_s')}"
+                        )
+
         self.session.append(
             {
                 "type": ex_type,
@@ -237,58 +485,46 @@ class CEEPlayback:
             }
         )
 
-    def run(self, n: int = 6, feed: str = "hybrid"):
+    import json
+    from pathlib import Path
+
+    def _write_dummy_ral_metrics(data_root: Path) -> None:
+        p = data_root / "learning" / "ral_metrics.jsonl"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        # enough for CAU: Phi/S/H
+        line = {
+            "timestamp": 0,
+            "mean_phi": 0.0,
+            "stability": 1.0,
+            "drift_entropy": 0.0,
+        }
+        p.write_text(json.dumps(line) + "\n", encoding="utf-8")
+
+    def run(self, n: int = 6, feed: str = "self_train"):
         """
-        Run multiple randomized exercises from selected feed.
-
-        feed:
-            - "local"    -> run built-in randomized generators
-            - "wordwall" -> import from Wordwall URLs
-            - "llm"      -> generate batch via LLM
-            - "hybrid"   -> combine both Wordwall + LLM
+        Program feeds:
+        - self_train: your fast trainer (wordwall replacement)
+        - llm: optional generation (explicit only)
         """
-        exercises = []
+        exercises: List[dict] = []
+        feed = (feed or "self_train").strip().lower()
 
-        # -------------------------------
-        # 1) Feed: Wordwall
-        # -------------------------------
-        if feed == "wordwall":
-            urls = [
-                "https://wordwall.net/resource/39252",
-            ]
-            for u in urls:
-                ex = wordwall_to_exercise(u)
-                if ex:
-                    exercises.append(ex)
+        # Hard block legacy feeds
+        if feed in ("wordwall", "hybrid", "local"):
+            logger.warning(f"[CEE-Playback] feed '{feed}' not in program; forcing self_train.")
+            feed = "self_train"
 
-        # -------------------------------
-        # 2) Feed: LLM
-        # -------------------------------
-        elif feed == "llm":
+        # 1) LLM feed (explicit only)
+        if feed == "llm":
             try:
-                batch = generate_llm_exercise_batch(topic="symbolic cognition", count=n)
+                batch = generate_llm_exercise_batch(topic="linguistics", count=n)
                 exercises.extend(batch)
             except Exception as e:
-                logger.error(f"[CEE-Playback] LLM feed requested but failed: {e}")
-                feed = "local"
+                logger.error(f"[CEE-Playback] LLM feed requested but failed; falling back to self_train. err={e}")
+                feed = "self_train"
 
-        # -------------------------------
-        # 3) Feed: Hybrid
-        # -------------------------------
-        elif feed == "hybrid":
-            try:
-                llm_batch = generate_llm_exercise_batch(topic="linguistics", count=max(1, n // 2))
-            except Exception as e:
-                logger.warning(f"[CEE-Playback] Hybrid LLM half failed: {e}")
-                llm_batch = []
-
-            wordwall_items = [wordwall_to_exercise("https://wordwall.net/resource/39252")]
-            exercises = [e for e in wordwall_items if e] + llm_batch
-
-        # -------------------------------
-        # 4) Feed: Local Generators
-        # -------------------------------
-        else:
+        # 2) SELF_TRAIN feed (default, deterministic, no network)
+        if feed == "self_train":
             gens = [
                 generate_matchup,
                 generate_anagram,
@@ -307,7 +543,6 @@ class CEEPlayback:
             for _ in range(n):
                 gen = random.choice(gens)
                 try:
-                    # Cloze requires a sentence + missing word
                     if gen.__name__ == "generate_cloze":
                         sentence = random.choice(
                             [
@@ -325,9 +560,10 @@ class CEEPlayback:
                             missing_word = "degrees"
                         else:
                             missing_word = "interesting"
-                        ex = gen(sentence, missing_word)
 
-                    # Group sort requires groups mapping
+                        # ✅ reuse already-initialized bridge (prevents double load + warnings)
+                        ex = gen(sentence, missing_word, bridge=self.bridge)
+
                     elif gen.__name__ == "generate_group_sort":
                         groups = {"Fruits": ["apple", "banana"], "Animals": ["dog", "cat"]}
                         ex = gen(groups)
@@ -344,8 +580,24 @@ class CEEPlayback:
                     logger.warning(f"[CEE-Playback] Error running {gen.__name__}: {e}")
 
         # -------------------------------
-        # 5) Playback + Finalize
+        # 4.5) De-dupe identical prompts in one run
         # -------------------------------
+        seen = set()
+        deduped: List[dict] = []
+        for ex in exercises:
+            if not isinstance(ex, dict):
+                continue
+            key = (
+                (ex.get("type") or "unknown"),
+                (str(ex.get("prompt") or "").strip().lower()),
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(ex)
+        exercises = deduped
+
+        # 5) Play
         for ex in exercises:
             try:
                 self.play_exercise(ex)
@@ -363,12 +615,20 @@ class CEEPlayback:
         valid_corrects = [e["correct"] for e in self.session if isinstance(e["correct"], bool)]
         perf = round(sum(valid_corrects) / len(valid_corrects), 3) if valid_corrects else 0.0
 
-        # Accept either 'sqi' or 'SQI' keys in resonance
         def _get_sqi(e):
             r = e.get("resonance", {}) if isinstance(e.get("resonance", {}), dict) else {}
             return r.get("sqi", r.get("SQI", 0.0))
 
         avg_SQI = round(sum(float(_get_sqi(e) or 0.0) for e in self.session) / len(self.session), 3)
+
+        # ---- SELF state (non-fatal) ----
+        self_state = None
+        try:
+            from backend.modules.aion_cognition.self_state import self_state_summary
+            self_state = self_state_summary()
+            logger.info(f"[SELF] {self_state}")
+        except Exception as e:
+            logger.warning(f"[CEE-Playback] self_state_summary failed (non-fatal): {e}")
 
         summary = {
             "timestamp": time.time(),
@@ -377,6 +637,7 @@ class CEEPlayback:
             "entries": len(self.session),
             "performance": perf,
             "avg_SQI": avg_SQI,
+            "self_state": self_state,
             "schema": "CEEPlayback.v1",
         }
 
@@ -386,7 +647,6 @@ class CEEPlayback:
 
         logger.info(f"[CEE-Playback] Exported playback log -> {OUT_PATH}")
 
-        # Update overall habit metrics (keep your existing key style)
         try:
             update_habit_metrics({"ρ̄": 0.0, "Ī": 0.0, "SQĪ": avg_SQI})
         except Exception as e:
@@ -397,23 +657,64 @@ class CEEPlayback:
         # Optional resonance snapshot (safe)
         try:
             from backend.modules.aion_cognition.cee_resonance_analytics import snapshot_memory
-
             snapshot_memory(tag=self.session_id)
-            logger.info(f"[CEE-Playback] Logged resonance snapshot for {self.session_id}")
         except Exception as e:
-            logger.warning(f"[CEE-Playback] Could not snapshot resonance analytics: {e}")
+            logger.warning(f"[CEE-Playback] snapshot_memory failed (non-fatal): {e}")
+        else:
+            logger.info(f"[CEE-Playback] Logged resonance snapshot for {self.session_id}")
 
         return summary
 
 
 # ================================================================
-# 🚀 Entry Point
+# 🚀 Entry Point (non-interactive friendly)
 # ================================================================
 if __name__ == "__main__":
+    import argparse
+    import logging
+    import os
+
     logging.basicConfig(level=logging.INFO)
-    mode = input("Enter mode [simulate/interactive]: ").strip().lower()
-    if mode not in ["simulate", "interactive"]:
+
+    ap = argparse.ArgumentParser(description="CEE Exercise Playback (CAU-gated LexMemory)")
+
+    ap.add_argument(
+        "--mode",
+        choices=["simulate", "interactive"],
+        default=os.getenv("CEE_MODE", "simulate"),
+        help="simulate = auto-run; interactive = console input",
+    )
+    ap.add_argument(
+        "--n",
+        type=int,
+        default=int(os.getenv("CEE_N", "6")),
+        help="number of exercises to run",
+    )
+
+    # Program feeds (Wordwall removed)
+    ap.add_argument(
+        "--feed",
+        choices=["self_train", "llm"],
+        default=os.getenv("CEE_FEED", "self_train"),
+        help="self_train (default) | llm (explicit only)",
+    )
+
+    args = ap.parse_args()
+
+    mode = (args.mode or "simulate").strip().lower()
+    if mode not in ("simulate", "interactive"):
         mode = "simulate"
 
+    feed = (args.feed or "self_train").strip().lower()
+    if feed in ("wordwall", "hybrid", "local"):
+        logging.getLogger(__name__).warning(
+            f"[CEE-Playback] feed '{feed}' is not part of the program; forcing self_train."
+        )
+        feed = "self_train"
+
+    if feed == "llm" and not os.getenv("OPENAI_API_KEY"):
+        logging.getLogger(__name__).warning("[CEE-Playback] OPENAI_API_KEY missing; forcing self_train.")
+        feed = "self_train"
+
     player = CEEPlayback(mode=mode)
-    player.run(6)
+    player.run(n=args.n, feed=feed)

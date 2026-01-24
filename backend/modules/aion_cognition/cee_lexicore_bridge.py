@@ -2,141 +2,246 @@
 # 🧠 LexiCore + ThesauriNet Bridge - Cognitive Exercise Engine
 # ================================================================
 """
-Provides unified access to lexical data for language-based cognitive
-exercises in the CEE (Cognitive Exercise Engine).
+Unified access to lexical data for CEE generators.
 
-Connects to:
-  * LexiCore: internal JSON/SQLite word index (synonyms, antonyms)
-  * ThesauriNet: extended semantic web of related words
-  * ResonantLex: optional layer for semantic resonance mapping (ρ, I, SQI)
-
-Outputs:
-  Synonym, antonym, and related word sets for any input token.
+Goals:
+  - Lazy load (no eager dataset load at import time).
+  - Singleton bridge to avoid repeated "Missing data source" spam.
+  - Safe fallbacks when datasets are absent.
+  - Back-compat: `bridge`, `get_synonyms`, `get_antonyms`, `get_related`.
 """
 
-import json, random, logging
+from __future__ import annotations
+
+import json
+import random
+import logging
+import os
 from pathlib import Path
+from typing import Dict, List, Optional, Any
 
 logger = logging.getLogger(__name__)
 
-DATA_DIR = Path("data/lexicore")
+
+def _data_root() -> Path:
+    return Path(os.getenv("DATA_ROOT", "data"))
+
+
+DATA_DIR = _data_root() / "lexicore"
 LEXICORE_PATH = DATA_DIR / "lexicore_index.json"
 THESAURI_PATH = DATA_DIR / "thesaurinet.json"
 
-# ------------------------------------------------------------
+
+def _load_json(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        logger.warning(f"[LexiCoreBridge] Missing data source: {path}")
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8")) or {}
+    except Exception as e:
+        logger.error(f"[LexiCoreBridge] Failed to load JSON {path}: {e}")
+        return {}
+
+
+def _dedupe_clean(xs: List[Any]) -> List[str]:
+    out: List[str] = []
+    seen = set()
+    for x in xs or []:
+        s = str(x).strip()
+        if not s:
+            continue
+        sl = s.lower()
+        if sl in seen:
+            continue
+        seen.add(sl)
+        out.append(s)
+    return out
+
+
 class LexiCoreBridge:
     """Bridge for lexical and semantic word relationships."""
 
-    def __init__(self):
-        self.lexicore = self._load_json(LEXICORE_PATH)
-        self.thesauri = self._load_json(THESAURI_PATH)
-        logger.info(f"[LexiCoreBridge] Loaded {len(self.lexicore)} LexiCore entries, "
-                    f"{len(self.thesauri)} ThesauriNet entries.")
+    def __init__(self, lexicore_path: Path = LEXICORE_PATH, thesauri_path: Path = THESAURI_PATH):
+        self.lexicore_path = lexicore_path
+        self.thesauri_path = thesauri_path
+        self.lexicore: Dict[str, Any] = {}
+        self.thesauri: Dict[str, Any] = {}
+        self._loaded = False
 
-    # --------------------------------------------------------
-    def _load_json(self, path: Path):
-        if not path.exists():
-            logger.warning(f"[LexiCoreBridge] Missing data source: {path}")
-            return {}
-        with open(path, "r") as f:
-            try:
-                return json.load(f)
-            except json.JSONDecodeError:
-                logger.error(f"[LexiCoreBridge] Corrupt JSON file: {path}")
-                return {}
+    def ensure_loaded(self) -> None:
+        if self._loaded:
+            return
+        self.lexicore = _load_json(self.lexicore_path)
+        self.thesauri = _load_json(self.thesauri_path)
+        self._loaded = True
+        logger.info(
+            f"[LexiCoreBridge] Loaded {len(self.lexicore)} LexiCore entries, {len(self.thesauri)} ThesauriNet entries."
+        )
 
-    # --------------------------------------------------------
-    def get_synonyms(self, word: str):
-        """Fetch synonyms from LexiCore or ThesauriNet."""
-        synonyms = []
-        if word in self.lexicore and "synonyms" in self.lexicore[word]:
-            synonyms.extend(self.lexicore[word]["synonyms"])
-        elif word in self.thesauri and "synonyms" in self.thesauri[word]:
-            synonyms.extend(self.thesauri[word]["synonyms"])
-        else:
-            synonyms = self._approximate(word)
-        logger.debug(f"[LexiCoreBridge] Synonyms({word}) -> {synonyms}")
-        return list(set(synonyms))
+    def get_synonyms(self, word: str) -> List[str]:
+        self.ensure_loaded()
+        w = (word or "").strip()
+        if not w:
+            return []
+        synonyms: List[Any] = []
+        if w in self.lexicore and isinstance(self.lexicore[w], dict):
+            synonyms.extend(self.lexicore[w].get("synonyms", []) or [])
+        if not synonyms and w in self.thesauri and isinstance(self.thesauri[w], dict):
+            synonyms.extend(self.thesauri[w].get("synonyms", []) or [])
+        if not synonyms:
+            synonyms = self._approximate(negative=False)
+        return _dedupe_clean(synonyms)
 
-    # --------------------------------------------------------
-    def get_antonyms(self, word: str):
-        """Fetch antonyms from LexiCore or ThesauriNet."""
-        antonyms = []
-        if word in self.lexicore and "antonyms" in self.lexicore[word]:
-            antonyms.extend(self.lexicore[word]["antonyms"])
-        elif word in self.thesauri and "antonyms" in self.thesauri[word]:
-            antonyms.extend(self.thesauri[word]["antonyms"])
-        else:
-            antonyms = self._approximate(word, negative=True)
-        logger.debug(f"[LexiCoreBridge] Antonyms({word}) -> {antonyms}")
-        return list(set(antonyms))
+    def get_antonyms(self, word: str) -> List[str]:
+        self.ensure_loaded()
+        w = (word or "").strip()
+        if not w:
+            return []
+        antonyms: List[Any] = []
+        if w in self.lexicore and isinstance(self.lexicore[w], dict):
+            antonyms.extend(self.lexicore[w].get("antonyms", []) or [])
+        if not antonyms and w in self.thesauri and isinstance(self.thesauri[w], dict):
+            antonyms.extend(self.thesauri[w].get("antonyms", []) or [])
+        if not antonyms:
+            antonyms = self._approximate(negative=True)
+        return _dedupe_clean(antonyms)
 
-    # --------------------------------------------------------
-    def get_related(self, word: str, depth: int = 1):
-        """Fetch related words recursively up to depth."""
-        related = set()
-        if word in self.thesauri and "related" in self.thesauri[word]:
-            related.update(self.thesauri[word]["related"])
+    def get_related(self, word: str, depth: int = 1) -> List[str]:
+        self.ensure_loaded()
+        w = (word or "").strip()
+        if not w:
+            return []
+        depth = max(1, int(depth or 1))
+
+        related: set[str] = set()
+        node = self.thesauri.get(w)
+        if isinstance(node, dict):
+            for x in (node.get("related", []) or []):
+                if x:
+                    related.add(str(x).strip())
 
         if depth > 1:
-            for r in list(related):
-                related.update(self.get_related(r, depth=depth-1))
-        return list(related)
+            # bounded recursion, avoids infinite fan-out
+            frontier = list(related)
+            for _ in range(depth - 1):
+                if not frontier:
+                    break
+                nxt: List[str] = []
+                for r in frontier:
+                    node2 = self.thesauri.get(r)
+                    if isinstance(node2, dict):
+                        for x in (node2.get("related", []) or []):
+                            s = str(x).strip()
+                            if s and s not in related:
+                                related.add(s)
+                                nxt.append(s)
+                frontier = nxt
 
-    # --------------------------------------------------------
-    def _approximate(self, word: str, negative=False):
-        """Fallback generator using simple heuristics."""
-        pool = list(self.lexicore.keys()) or ["bright", "dark", "fast", "slow"]
+        return _dedupe_clean(list(related))
+
+    def _approximate(self, negative: bool = False) -> List[str]:
+        # fallback pool when datasets are missing
+        pool = list(self.lexicore.keys()) if self.lexicore else []
         if not pool:
-            return []
-        if negative:
-            return random.sample(pool, min(2, len(pool)))
-        else:
-            return random.sample(pool, min(3, len(pool)))
+            pool = ["bright", "dark", "fast", "slow", "light", "heavy", "hot", "cold", "calm", "angry"]
+        k = 2 if negative else 3
+        if len(pool) <= k:
+            return pool
+        return random.sample(pool, k=k)
 
 
-# ================================================================
-# 🔤 Runtime Helpers - Lexical Access API for CEE
-# ================================================================
+# ---------------------------
+# Singleton accessor (CEE uses this)
+# ---------------------------
+_BRIDGE: Optional[LexiCoreBridge] = None
 
-def get_synonyms(word: str):
-    """Return synonyms for a word from loaded data or fallback."""
+
+def get_bridge() -> LexiCoreBridge:
+    global _BRIDGE
+    if _BRIDGE is None:
+        _BRIDGE = LexiCoreBridge()
+    return _BRIDGE
+
+
+# ---------------------------
+# Back-compat: `bridge` proxy + helper functions
+# ---------------------------
+class _BridgeProxy:
+    def __getattr__(self, name: str):
+        return getattr(get_bridge(), name)
+
+
+bridge = _BridgeProxy()
+
+
+_FALLBACK_SYNONYMS: Dict[str, List[str]] = {
+    "happy": ["joyful", "content", "cheerful"],
+    "bright": ["light", "vivid", "smart"],
+    "fast": ["quick", "rapid", "swift"],
+    "calm": ["peaceful", "serene", "still"],
+}
+
+_FALLBACK_ANTONYMS: Dict[str, List[str]] = {
+    "happy": ["sad", "unhappy"],
+    "bright": ["dim", "dull"],
+    "fast": ["slow", "sluggish"],
+    "calm": ["angry", "agitated"],
+}
+
+
+def get_synonyms(word: str) -> List[str]:
+    w = (word or "").strip()
+    if not w:
+        return []
     try:
-        fallback = {
-            "happy": ["joyful", "content", "cheerful"],
-            "bright": ["light", "vivid", "smart"],
-            "fast": ["quick", "rapid", "swift"],
-        }
-        return fallback.get(word.lower(), ["calm", "neutral"])
-    except Exception:
-        return ["neutral"]
+        syns = get_bridge().get_synonyms(w)
+        if syns:
+            return syns
+    except Exception as e:
+        logger.debug(f"[LexiCoreBridge] get_synonyms bridge failed: {e}")
+    return _FALLBACK_SYNONYMS.get(w.lower(), ["neutral"])
 
-def get_antonyms(word: str):
-    """Return antonyms for a word from loaded data or fallback."""
+
+def get_antonyms(word: str) -> List[str]:
+    w = (word or "").strip()
+    if not w:
+        return []
     try:
-        fallback = {
-            "happy": ["sad", "unhappy"],
-            "bright": ["dim", "dull"],
-            "fast": ["slow", "sluggish"],
-        }
-        return fallback.get(word.lower(), ["opposite"])
-    except Exception:
-        return ["opposite"]
+        ants = get_bridge().get_antonyms(w)
+        if ants:
+            return ants
+    except Exception as e:
+        logger.debug(f"[LexiCoreBridge] get_antonyms bridge failed: {e}")
+    return _FALLBACK_ANTONYMS.get(w.lower(), ["opposite"])
 
 
-__all__ = ["LexiCoreBridge", "get_synonyms", "get_antonyms"]
+def get_related(word: str, depth: int = 1) -> List[str]:
+    w = (word or "").strip()
+    if not w:
+        return []
+    try:
+        return get_bridge().get_related(w, depth=depth)
+    except Exception as e:
+        logger.debug(f"[LexiCoreBridge] get_related bridge failed: {e}")
+        return []
 
 
-# ------------------------------------------------------------
-# CLI Quick Test
-# ------------------------------------------------------------
+__all__ = [
+    "LexiCoreBridge",
+    "get_bridge",
+    "bridge",
+    "get_synonyms",
+    "get_antonyms",
+    "get_related",
+]
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    bridge = LexiCoreBridge()
     w = "happy"
     print("Synonyms:", bridge.get_synonyms(w))
     print("Antonyms:", bridge.get_antonyms(w))
     print("Related:", bridge.get_related(w))
-    # direct API test
     print("get_synonyms('fast') ->", get_synonyms("fast"))
     print("get_antonyms('bright') ->", get_antonyms("bright"))
+    print("get_related('calm', depth=2) ->", get_related("calm", depth=2))
