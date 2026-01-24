@@ -299,7 +299,7 @@ function useAionDemoData(pollMs = 1500) {
         hb: joinUrl(demoBase, "/api/heartbeat?namespace=demo"),
         reflex: joinUrl(demoBase, "/api/reflex"),
         akg: joinUrl(demoBase, "/api/akg"),
-        mirror: joinUrl(demoBase, "/api/mirror"),
+        mirror: joinUrl(apiBase, "/api/mirror"),
       };
 
       const nextErrs: FeedErrs = {};
