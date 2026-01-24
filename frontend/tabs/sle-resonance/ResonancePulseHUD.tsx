@@ -8,12 +8,14 @@ const SESSION_ID = "a99acc96-acde-48d5-9b6d-d2f434536d5b";
 type LogLine = { t: number; msg: string; tone?: "ok" | "warn" | "bad" };
 
 type LiveMetrics = {
-  // canonical fields we care about
+  // canonical
   C?: number; // coherence
   E?: number; // entropy
-  psi?: number; // ψ̃ / cognition signal (optional)
-  kappa?: number; // κ̃ / curvature-ish (optional)
-  T?: number; // timestamp-ish (bridge uses time)
+  Phi?: number; // awareness / Φ
+  psi?: number;
+  kappa?: number;
+  T?: number;
+
   sigma?: number;
   gamma_tilde?: number;
   psi_tilde?: number;
@@ -28,8 +30,14 @@ type LiveMetrics = {
   A?: number;
   RSI?: number;
   zone?: string;
-  phaseSync?: string; // "2π" or "0.0" (we still compute locally via phaseOk)
+
+  // internal
+  _frameTs?: number;
 };
+
+function stripSlash(s: string) {
+  return (s || "").trim().replace(/\/+$/, "");
+}
 
 function num(v: any): number | undefined {
   const n = typeof v === "number" ? v : v != null ? Number(v) : NaN;
@@ -44,17 +52,51 @@ function pickFirstNumber(...vals: any[]): number | undefined {
   return undefined;
 }
 
-function guessApiBase(): string {
-  const envBase =
-    (process.env.NEXT_PUBLIC_API_URL ||
-      process.env.NEXT_PUBLIC_API_BASE ||
-      process.env.NEXT_PUBLIC_AION_API_BASE ||
-      "")?.trim();
+function shallowEqualMetrics(a: LiveMetrics, b: LiveMetrics) {
+  const keys: (keyof LiveMetrics)[] = [
+    "C",
+    "E",
+    "Phi",
+    "psi",
+    "kappa",
+    "T",
+    "sigma",
+    "gamma_tilde",
+    "psi_tilde",
+    "kappa_tilde",
+    "rho",
+    "iota",
+    "dPhi",
+    "A",
+    "RSI",
+    "zone",
+  ];
+  for (const k of keys) {
+    if (a[k] !== b[k]) return false;
+  }
+  return true;
+}
 
-  if (envBase) return envBase.replace(/\/+$/, "");
+/**
+ * Use the same “backend root only” resolution logic you used elsewhere.
+ * This avoids deploying frontend with a base that accidentally points at the wrong origin/path.
+ */
+function resolveBackendHttpBase(): string {
+  const env =
+    (process.env.NEXT_PUBLIC_API_ORIGIN as string | undefined) ||
+    (process.env.NEXT_PUBLIC_GLYPHNET_HTTP_BASE as string | undefined) ||
+    (process.env.NEXT_PUBLIC_API_URL as string | undefined) ||
+    (process.env.NEXT_PUBLIC_API_BASE as string | undefined) ||
+    (process.env.NEXT_PUBLIC_AION_API_BASE as string | undefined) ||
+    "";
 
-  // fallback: same origin (works if frontend is served by same host/proxy)
-  if (typeof window !== "undefined") return window.location.origin;
+  const cleaned = stripSlash(env).replace(/\/api$/i, "").replace(/\/aion-demo$/i, "");
+  if (cleaned) return cleaned;
+
+  if (typeof window !== "undefined") {
+    // same-origin is fine if you have Next rewrites / proxy
+    return window.location.origin;
+  }
   return "";
 }
 
@@ -63,8 +105,126 @@ function toWsBase(httpBase: string): string {
   return httpBase.replace(/^https:\/\//, "wss://").replace(/^http:\/\//, "ws://");
 }
 
+/**
+ * Telemetry in your stack has appeared in multiple shapes over time:
+ * - { metrics: {...} }
+ * - { state: { metrics: {...} } }
+ * - { payload: { metrics: {...} } }
+ * - { data: { metrics: {...} } }
+ * - { phi: {...}, adr: {...}, mirror: {...} }
+ *
+ * This extractor is intentionally tolerant and only pulls the fields we render.
+ */
+function extractMetricsFromFrame(frame: any): LiveMetrics {
+  const root = frame ?? {};
+  const payload = root.payload ?? root.data ?? root.envelope ?? root.msg ?? null;
+
+  const m =
+    root.metrics ??
+    root.state?.metrics ??
+    root.state ??
+    payload?.metrics ??
+    payload?.state?.metrics ??
+    payload?.state ??
+    payload ??
+    {};
+
+  const phiObj = root.phi ?? payload?.phi ?? m.phi ?? m.Phi ?? null;
+  const adrObj = root.adr ?? payload?.adr ?? m.adr ?? null;
+  const mirrorObj = root.mirror ?? payload?.mirror ?? m.mirror ?? null;
+
+  // --- coherence / entropy
+  const C = pickFirstNumber(
+    m.C,
+    m.c,
+    m["ρ"],
+    m.rho,
+    m["Φ_coherence"],
+    m.phi_coherence,
+    phiObj?.["Φ_coherence"],
+    phiObj?.phi_coherence,
+    root?.phi?.["Φ_coherence"]
+  );
+
+  const E = pickFirstNumber(
+    m.E,
+    m.e,
+    m["Ī"],
+    m["Ī"],
+    m.iota,
+    m["Φ_entropy"],
+    m.phi_entropy,
+    phiObj?.["Φ_entropy"],
+    phiObj?.phi_entropy,
+    root?.phi?.["Φ_entropy"]
+  );
+
+  // --- awareness / Φ (preferred if present, else fall back)
+  const Phi = pickFirstNumber(
+    m["Φ"],
+    m.Phi,
+    m.phi,
+    m.awareness,
+    phiObj?.["Φ"],
+    phiObj?.Phi,
+    phiObj?.phi,
+    // common “scalar box” fallbacks
+    m.SQI,
+    m.sqi,
+    m.sqi_checkpoint,
+    m.coherence,
+    C
+  );
+
+  // --- drifts / tilde fields
+  const dPhi = pickFirstNumber(
+    m["ΔΦ"],
+    m.dPhi,
+    m.deltaPhi,
+    m.delta_phi,
+    phiObj?.["Φ_flux"],
+    phiObj?.dPhi
+  );
+
+  const psi_tilde = pickFirstNumber(m.psi_tilde, m["ψ̃"], m["ψ"], m.psi, phiObj?.psi_tilde, phiObj?.psi);
+  const kappa_tilde = pickFirstNumber(m.kappa_tilde, m["κ̃"], m["κ"], m.kappa, phiObj?.kappa_tilde, phiObj?.kappa);
+
+  const sigma = pickFirstNumber(m.sigma, m["σ"]);
+  const gamma_tilde = pickFirstNumber(m.gamma_tilde, m["γ̃"]);
+
+  const T = pickFirstNumber(m.T, m.t, m.timestamp, root?.ts, payload?.ts);
+
+  const zone =
+    typeof m.zone === "string"
+      ? m.zone
+      : typeof adrObj?.zone === "string"
+      ? adrObj.zone
+      : typeof root?.zone === "string"
+      ? root.zone
+      : undefined;
+
+  const RSI = pickFirstNumber(m.RSI, m.rsi, adrObj?.rsi, adrObj?.RSI);
+  const A = pickFirstNumber(m.A, mirrorObj?.A, mirrorObj?.awareness, root?.A);
+
+  return {
+    C,
+    E,
+    Phi,
+    dPhi,
+    psi_tilde,
+    kappa_tilde,
+    sigma,
+    gamma_tilde,
+    T,
+    zone,
+    RSI,
+    A,
+    _frameTs: Date.now(),
+  };
+}
+
 export default function ResonancePulseHUD() {
-  // Beam corrections from your Stage 4 coupling test (kept as a fallback demo)
+  // Beam corrections (fallback demo)
   const deltaCorrections = useMemo(
     () => [
       { beam: 1, c: 0.673, dc: +0.0987 },
@@ -85,33 +245,38 @@ export default function ResonancePulseHUD() {
   const [coherenceSim, setCoherenceSim] = useState(deltaCorrections[0].c);
   const [dc, setDc] = useState(deltaCorrections[0].dc);
   const [logs, setLogs] = useState<LogLine[]>([]);
-  const [phaseOk, setPhaseOk] = useState(false); // πₛ closure (validator)
-  const [highKappa, setHighKappa] = useState(false); // semantic density toggle
+  const [phaseOk, setPhaseOk] = useState(false);
+  const [highKappa, setHighKappa] = useState(false);
   const [theoremJson, setTheoremJson] = useState<string>("");
   const [running, setRunning] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  // --- LIVE FEED ---
+  // LIVE
   const [wsOk, setWsOk] = useState(false);
   const [live, setLive] = useState<LiveMetrics>({});
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectRef = useRef<number | null>(null);
+
+  // connection guards
+  const stoppedRef = useRef(false);
+  const attemptRef = useRef(0);
+  const reconnectTimerRef = useRef<number | null>(null);
+  const lastFrameAtRef = useRef<number>(0);
+  const liveRef = useRef<LiveMetrics>({});
 
   const pushLog = (msg: string, tone: LogLine["tone"] = "warn") => {
     setLogs((prev) => [{ t: Date.now(), msg, tone }, ...prev].slice(0, 9));
   };
 
-  // If your bridge is up, take metrics from WS. Otherwise fall back to beam sim.
+  // --- derived (render) ---
   const coherenceLive = pickFirstNumber(live.C, live.rho);
   const entropyLive = pickFirstNumber(live.E, live.iota);
   const kappaLive = pickFirstNumber(live.kappa_tilde, live.kappa);
-  const psiWaveLive = pickFirstNumber(live.psi_tilde, live.psi); // cognition signal (if present)
+  const psiWaveLive = pickFirstNumber(live.psi_tilde, live.psi);
   const Tlive = pickFirstNumber(live.T);
+  const phiLive = pickFirstNumber(live.Phi);
 
   const coherence = coherenceLive ?? coherenceSim;
 
-  // NOTE: Your bridge does NOT publish real temperatures right now.
-  // Keep as ambient constants unless/until you add a temperature feed.
   const T_ambient = 22.4;
   const T_core = 22.6;
 
@@ -130,7 +295,6 @@ export default function ResonancePulseHUD() {
 
   const buildTheoremJsonLd = () => {
     const cur = deltaCorrections[Math.min(tick, deltaCorrections.length - 1)];
-
     const payload = {
       "@context": {
         "@vocab": "https://tessaris.ai/rfc#",
@@ -147,6 +311,7 @@ export default function ResonancePulseHUD() {
       statement:
         "Wavefield phase sum closes to 2π under morphic feedback; no information leakage (ghost glyphs) observed for this session telemetry.",
       metrics: {
+        Phi: phiLive,
         C: coherenceLive ?? coherenceSim,
         E: entropyLive,
         psi_tilde: psiWaveLive,
@@ -160,15 +325,13 @@ export default function ResonancePulseHUD() {
       },
       generatedAt: new Date().toISOString(),
     };
-
     return JSON.stringify(payload, null, 2);
   };
 
   const runPiSValidator = () => {
     setPhaseOk(true);
     pushLog("[πₛ Validator] PASSED → phase closure verified; theorem artifact ready.", "ok");
-    const json = buildTheoremJsonLd();
-    setTheoremJson(json);
+    setTheoremJson(buildTheoremJsonLd());
   };
 
   const downloadTheorem = () => {
@@ -188,23 +351,49 @@ export default function ResonancePulseHUD() {
     pushLog("[Theorem] JSON-LD exported (downloaded) → proof capsule emitted.", "ok");
   };
 
-  // --- WebSocket connect (always-on while page is mounted) ---
+  // --- WS connect (hardened) ---
   useEffect(() => {
-    const apiBase = guessApiBase();
+    stoppedRef.current = false;
+
+    const apiBase = resolveBackendHttpBase();
     const wsBase = toWsBase(apiBase);
 
     if (!wsBase) {
-      pushLog("[WS] No API base found (NEXT_PUBLIC_API_URL). Using demo fallback only.", "warn");
+      pushLog("[WS] No API base found. Using demo fallback only.", "warn");
       return;
     }
 
-    const endpoints = [`${wsBase}/ws/aion-demo`, `${wsBase}/aion-demo/ws/aion-demo`];
+    // include the endpoints you’ve used across builds
+    const endpoints = [
+      `${wsBase}/ws/aion-demo`,
+      `${wsBase}/aion-demo/ws/aion-demo`,
+      `${wsBase}/api/ws/aion-demo`,
+      `${wsBase}/api/ws/aion-demo/`,
+    ];
 
-    let stopped = false;
+    const scheduleReconnect = (why: string) => {
+      if (stoppedRef.current) return;
+
+      attemptRef.current += 1;
+
+      // exponential backoff with jitter (prevents “flashing”)
+      const base = Math.min(8000, 600 * Math.pow(1.6, attemptRef.current));
+      const jitter = Math.floor(Math.random() * 250);
+      const delay = base + jitter;
+
+      if (reconnectTimerRef.current) window.clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = window.setTimeout(() => connect(), delay);
+
+      // don’t spam logs
+      if (attemptRef.current <= 3 || attemptRef.current % 5 === 0) {
+        pushLog(`[WS] ${why} → retry in ${Math.round(delay)}ms`, "warn");
+      }
+    };
+
     let idx = 0;
 
     const connect = () => {
-      if (stopped) return;
+      if (stoppedRef.current) return;
 
       const url = endpoints[idx % endpoints.length];
       idx += 1;
@@ -214,41 +403,24 @@ export default function ResonancePulseHUD() {
         wsRef.current = ws;
 
         ws.onopen = () => {
+          attemptRef.current = 0;
           setWsOk(true);
           pushLog(`[WS] Connected → ${url}`, "ok");
         };
 
         ws.onmessage = (ev) => {
           try {
-            const msg = JSON.parse(ev.data);
-            const m = msg?.metrics || msg?.state?.metrics || {};
-            // Bridge payload_metrics includes: C,E,ψ,κ,T plus sigma/gamma_tilde/psi_tilde/kappa_tilde + unicode variants.
-            const C = pickFirstNumber(m.C, m["ρ"], m.rho, m["Φ_coherence"], msg?.phi?.["Φ_coherence"]);
-            const E = pickFirstNumber(m.E, m["Ī"], m.iota, m["Φ_entropy"], msg?.phi?.["Φ_entropy"]);
-            const dPhi = pickFirstNumber(m["ΔΦ"], m.dPhi, msg?.phi?.["Φ_flux"]);
-            const psi_tilde = pickFirstNumber(m.psi_tilde, m["ψ̃"], m["ψ"]);
-            const kappa_tilde = pickFirstNumber(m.kappa_tilde, m["κ̃"], m["κ"]);
-            const sigma = pickFirstNumber(m.sigma, m["σ"]);
-            const gamma_tilde = pickFirstNumber(m.gamma_tilde, m["γ̃"]);
-            const T = pickFirstNumber(m.T, m.timestamp, msg?.ts);
+            const frame = JSON.parse(ev.data);
+            const next = extractMetricsFromFrame(frame);
 
-            const zone = typeof m.zone === "string" ? m.zone : typeof msg?.adr?.zone === "string" ? msg.adr.zone : undefined;
-            const RSI = pickFirstNumber(m.RSI, msg?.adr?.rsi);
-            const A = pickFirstNumber(m.A, msg?.mirror?.A);
+            lastFrameAtRef.current = Date.now();
 
-            setLive({
-              C,
-              E,
-              dPhi,
-              psi_tilde,
-              kappa_tilde,
-              sigma,
-              gamma_tilde,
-              T,
-              zone,
-              RSI,
-              A,
-            });
+            // only update state if something changed (prevents render storms / flashing)
+            const prev = liveRef.current || {};
+            if (!shallowEqualMetrics(prev, next)) {
+              liveRef.current = next;
+              setLive(next);
+            }
           } catch {
             // ignore malformed frames
           }
@@ -257,48 +429,55 @@ export default function ResonancePulseHUD() {
         ws.onclose = () => {
           setWsOk(false);
           wsRef.current = null;
-          if (stopped) return;
-          pushLog("[WS] Disconnected → retrying…", "warn");
-          if (reconnectRef.current) window.clearTimeout(reconnectRef.current);
-          reconnectRef.current = window.setTimeout(connect, 900);
+          if (stoppedRef.current) return;
+          scheduleReconnect("Disconnected");
         };
 
         ws.onerror = () => {
-          // will usually be followed by close
+          // close will follow; don’t do anything noisy here
         };
       } catch {
         setWsOk(false);
-        if (reconnectRef.current) window.clearTimeout(reconnectRef.current);
-        reconnectRef.current = window.setTimeout(connect, 900);
+        scheduleReconnect("Connect failed");
       }
     };
 
     connect();
 
+    // watchdog: if ws stays “open” but no frames, treat as dead
+    const watchdog = window.setInterval(() => {
+      if (stoppedRef.current) return;
+      if (!wsRef.current) return;
+      const age = Date.now() - (lastFrameAtRef.current || 0);
+      if (age > 15000) {
+        try {
+          wsRef.current.close();
+        } catch {}
+      }
+    }, 3000);
+
     return () => {
-      stopped = true;
+      stoppedRef.current = true;
       setWsOk(false);
-      if (reconnectRef.current) window.clearTimeout(reconnectRef.current);
+      if (reconnectTimerRef.current) window.clearTimeout(reconnectTimerRef.current);
+      window.clearInterval(watchdog);
       try {
         wsRef.current?.close();
       } catch {}
       wsRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Advance beams until collapse (stop at the 10th beam) — demo-only animation
+  // Demo-only beam advance
   useEffect(() => {
     if (!running || collapsed) return;
-
     const id = setInterval(() => {
       setTick((t) => Math.min(t + 1, deltaCorrections.length - 1));
     }, 1200);
-
     return () => clearInterval(id);
   }, [running, collapsed, deltaCorrections.length]);
 
-  // Apply beam telemetry on tick (demo fallback)
+  // Demo fallback telemetry
   useEffect(() => {
     const cur = deltaCorrections[Math.min(tick, deltaCorrections.length - 1)];
     setCoherenceSim(cur.c);
@@ -308,9 +487,7 @@ export default function ResonancePulseHUD() {
     const tone: LogLine["tone"] = okCoherence ? "ok" : "warn";
 
     pushLog(
-      `[MorphicFeedback] GWIP Beam ${cur.beam}/10: ΔC=${cur.dc >= 0 ? "+" : ""}${cur.dc.toFixed(
-        4
-      )} applied • coherence=${cur.c.toFixed(3)}`,
+      `[MorphicFeedback] GWIP Beam ${cur.beam}/10: ΔC=${cur.dc >= 0 ? "+" : ""}${cur.dc.toFixed(4)} applied • coherence=${cur.c.toFixed(3)}`,
       tone
     );
 
@@ -321,7 +498,6 @@ export default function ResonancePulseHUD() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tick]);
 
-  // Curvature toggle should be “felt” immediately
   useEffect(() => {
     pushLog(
       `[Curvature] High κ ${highKappa ? "ENABLED" : "DISABLED"} → ${
@@ -332,22 +508,21 @@ export default function ResonancePulseHUD() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highKappa]);
 
-  // Wave geometry: folds when High κ is enabled
   const amp = (highKappa ? 95 : 60) * (coherence ?? 0);
   const wobble = highKappa ? 18 : 0;
 
-  // Light branding colors
   const RESONANCE_BLUE = "#3b82f6";
   const ENTROPY_RED = "#ef4444";
 
-  // Wave color: blue for constructive / stable, red for destructive / locked
   const waveStroke = phaseOk ? RESONANCE_BLUE : ENTROPY_RED;
 
-  // Display fields (what the tiles show)
-  const displayEntropy = entropyLive; // <- this is the one you said never moves (now live)
+  // display
+  const displayEntropy = entropyLive;
   const displayKappa = kappaLive;
-  const displayPsiWave = psiWaveLive; // optional extra (not used in tile)
   const displayT = Tlive;
+
+  // awareness scalar (what your other panel calls Φ)
+  const awareness = phiLive;
 
   return (
     <div className="w-full bg-[#f8fafc] text-slate-900 py-10 font-sans">
@@ -355,12 +530,10 @@ export default function ResonancePulseHUD() {
         {/* HUD HEADER */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b border-slate-200 pb-5">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight uppercase text-slate-900">
-              Tessaris SLE v0.5 HUD
-            </h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight uppercase text-slate-900">Tessaris SLE v0.5 HUD</h1>
             <p className="mt-1 text-[12px] text-slate-500 font-mono">
-              Session: {SESSION_ID} • WS: {wsOk ? "LIVE" : "OFF"} • C={num(coherence)?.toFixed(5) ?? "—"} • E=
-              {displayEntropy != null ? displayEntropy.toFixed(5) : "—"} • κ=
+              Session: {SESSION_ID} • WS: {wsOk ? "LIVE" : "OFF"} • Φ={awareness != null ? awareness.toFixed(4) : "—"} • C=
+              {num(coherence)?.toFixed(5) ?? "—"} • E={displayEntropy != null ? displayEntropy.toFixed(5) : "—"} • κ=
               {displayKappa != null ? displayKappa.toFixed(6) : "—"}
             </p>
 
@@ -449,9 +622,7 @@ export default function ResonancePulseHUD() {
             <div className="absolute top-4 left-4 z-20">
               <div className="flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-full">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">
-                  Thermal State: Ambient (STATIC)
-                </span>
+                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Thermal State: Ambient (STATIC)</span>
               </div>
             </div>
 
@@ -474,9 +645,7 @@ export default function ResonancePulseHUD() {
               )}
             </div>
 
-            <h3 className="text-[11px] uppercase tracking-[0.2em] text-slate-500 mb-4 font-bold">
-              Photonic Interference Chamber
-            </h3>
+            <h3 className="text-[11px] uppercase tracking-[0.2em] text-slate-500 mb-4 font-bold">Photonic Interference Chamber</h3>
 
             <div className="h-64 flex items-center justify-center border-y border-slate-100">
               <svg width="100%" height="100%" viewBox="0 0 800 200">
@@ -508,13 +677,15 @@ export default function ResonancePulseHUD() {
             {/* TELEMETRY TILES */}
             <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-3">
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <span className="text-[10px] text-slate-500 uppercase font-bold">Φ (Awareness)</span>
+                <div className="text-2xl font-semibold text-slate-900">{awareness != null ? awareness.toFixed(4) : "—"}</div>
+                <div className="text-[9px] text-slate-400 font-mono mt-1 uppercase">Source: Φ / SQI / C</div>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                 <span className="text-[10px] text-slate-500 uppercase font-bold">ψ (Entropy)</span>
-                <div className="text-2xl font-semibold text-slate-900">
-                  {displayEntropy != null ? displayEntropy.toFixed(5) : "—"}
-                </div>
-                <div className="text-[9px] text-slate-400 font-mono mt-1 uppercase">
-                  Source: Φ_entropy (E/Ī)
-                </div>
+                <div className="text-2xl font-semibold text-slate-900">{displayEntropy != null ? displayEntropy.toFixed(5) : "—"}</div>
+                <div className="text-[9px] text-slate-400 font-mono mt-1 uppercase">Source: Φ_entropy (E/Ī)</div>
               </div>
 
               <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
@@ -525,41 +696,28 @@ export default function ResonancePulseHUD() {
 
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                 <span className="text-[10px] text-slate-500 uppercase font-bold">κ (Curvature)</span>
-                <div className="text-2xl font-semibold text-slate-900">
-                  {displayKappa != null ? displayKappa.toFixed(6) : "—"}
-                </div>
+                <div className="text-2xl font-semibold text-slate-900">{displayKappa != null ? displayKappa.toFixed(6) : "—"}</div>
                 <div className="text-[9px] text-slate-400 font-mono mt-1 uppercase">Source: κ̃/κ</div>
               </div>
 
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                 <span className="text-[10px] text-slate-500 uppercase font-bold">Coherence</span>
-                <div className="text-2xl font-semibold text-slate-900">
-                  {coherence != null ? (coherence * 100).toFixed(1) : "—"}%
-                </div>
+                <div className="text-2xl font-semibold text-slate-900">{coherence != null ? (coherence * 100).toFixed(1) : "—"}%</div>
                 <div className="text-[9px] text-slate-400 font-mono mt-1 uppercase">Source: C/ρ</div>
-              </div>
-
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                <span className="text-[10px] text-slate-500 uppercase font-bold">Phase Sync</span>
-                <div className="text-2xl font-semibold text-slate-900">{phaseOk ? "2π" : "0.0"}</div>
               </div>
             </div>
 
             <div className="mt-4 text-[12px] text-slate-600 font-mono">
               GWIP Beam {deltaCorrections[Math.min(tick, deltaCorrections.length - 1)].beam}/10 • Coherence{" "}
-              <span className={coherence >= 0.8 ? "text-emerald-700" : "text-red-600"}>
-                {(coherence * 100).toFixed(2)}%
-              </span>{" "}
-              • ΔC <span className="text-slate-900">{dc >= 0 ? "+" : ""}{dc.toFixed(4)}</span>
+              <span className={coherence >= 0.8 ? "text-emerald-700" : "text-red-600"}>{(coherence * 100).toFixed(2)}%</span> • ΔC{" "}
+              <span className="text-slate-900">{dc >= 0 ? "+" : ""}{dc.toFixed(4)}</span>
               {highKappa && <span className="ml-2 text-amber-700">• High κ mode</span>}
             </div>
 
             {wsOk && (
               <div className="mt-3 text-[11px] text-slate-500 font-mono">
-                Live: σ={live.sigma != null ? live.sigma.toFixed(4) : "—"} • γ̃=
-                {live.gamma_tilde != null ? live.gamma_tilde.toFixed(4) : "—"} • A=
-                {live.A != null ? live.A.toFixed(4) : "—"} • RSI=
-                {live.RSI != null ? live.RSI.toFixed(4) : "—"} • zone={live.zone ?? "—"} • T=
+                Live: σ={live.sigma != null ? live.sigma.toFixed(4) : "—"} • γ̃={live.gamma_tilde != null ? live.gamma_tilde.toFixed(4) : "—"} • A=
+                {live.A != null ? live.A.toFixed(4) : "—"} • RSI={live.RSI != null ? live.RSI.toFixed(4) : "—"} • zone={live.zone ?? "—"} • T=
                 {displayT != null ? displayT.toFixed(3) : "—"}
               </div>
             )}
@@ -567,16 +725,11 @@ export default function ResonancePulseHUD() {
 
           {/* MORPHIC LOG */}
           <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 flex flex-col shadow-sm">
-            <h3 className="text-[11px] uppercase tracking-[0.2em] text-slate-500 border-b border-slate-200 pb-3 font-bold">
-              Morphic Feedback Log
-            </h3>
+            <h3 className="text-[11px] uppercase tracking-[0.2em] text-slate-500 border-b border-slate-200 pb-3 font-bold">Morphic Feedback Log</h3>
 
             <div className="mt-4 flex-grow space-y-2 text-[12px] font-mono">
               {(logs.length ? logs : [{ t: 0, msg: "[MorphicFeedback] awaiting GWIP beam injections…", tone: "warn" }]).map((l) => (
-                <div
-                  key={`${l.t}-${l.msg}`}
-                  className={l.tone === "ok" ? "text-emerald-700" : l.tone === "bad" ? "text-red-600" : "text-slate-700"}
-                >
+                <div key={`${l.t}-${l.msg}`} className={l.tone === "ok" ? "text-emerald-700" : l.tone === "bad" ? "text-red-600" : "text-slate-700"}>
                   {l.msg}
                 </div>
               ))}
@@ -585,9 +738,7 @@ export default function ResonancePulseHUD() {
             <div className="mt-5 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
               <div className="flex justify-between text-[12px] font-mono text-slate-700">
                 <span className="uppercase tracking-widest text-slate-500">Coherence</span>
-                <span className={coherence >= 0.8 ? "text-emerald-700" : "text-red-600"}>
-                  {(coherence * 100).toFixed(2)}%
-                </span>
+                <span className={coherence >= 0.8 ? "text-emerald-700" : "text-red-600"}>{(coherence * 100).toFixed(2)}%</span>
               </div>
 
               <div className="w-full bg-white border border-slate-200 h-2 rounded-full overflow-hidden mt-2">
@@ -604,8 +755,7 @@ export default function ResonancePulseHUD() {
 
               <div className="mt-2 text-[11px] text-slate-500 font-mono uppercase tracking-widest flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${phaseOk ? "bg-emerald-500" : "bg-red-500"}`} />
-                Integrity:{" "}
-                {phaseOk ? <span className="text-emerald-700">πₛ VERIFIED</span> : <span className="text-red-600">LOCKED</span>}
+                Integrity: {phaseOk ? <span className="text-emerald-700">πₛ VERIFIED</span> : <span className="text-red-600">LOCKED</span>}
               </div>
             </div>
           </div>
