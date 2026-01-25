@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Aggregate demo proof into two files:
+Aggregate Phase 3–6 demo proof into one file.
 
 Writes:
-  $DATA_ROOT/telemetry/demo_summary.json        (human / full)
-  $DATA_ROOT/telemetry/demo_summary.lock.json   (deterministic / for sha256)
+  $DATA_ROOT/telemetry/demo_summary.json        (full JSON, human-readable)
+  $DATA_ROOT/telemetry/demo_summary.lock.json   (stable JSON for sha256 locks)
 
 Reads (if present):
   - telemetry/turn_log.jsonl
@@ -23,7 +23,7 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 
 def _data_root() -> Path:
@@ -37,12 +37,33 @@ def _read_json(path: Path) -> Optional[Dict[str, Any]]:
         return None
 
 
-def _stable_json(obj: Any) -> str:
-    # deterministic serialization (hash-safe)
-    return json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+def _read_jsonl(path: Path, limit: int = 200_000) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for i, line in enumerate(f):
+                if i >= limit:
+                    break
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    out.append(json.loads(line))
+                except Exception:
+                    continue
+    except Exception:
+        pass
+    return out
+
+
+def _avg(nums: List[float]) -> Optional[float]:
+    if not nums:
+        return None
+    return float(sum(nums) / len(nums))
 
 
 def _env_thresholds() -> Dict[str, Any]:
+    # mirror your Phase 5 env gates (record what was used)
     def _f(name: str, default: str) -> float:
         try:
             return float(os.getenv(name, default) or default)
@@ -62,6 +83,51 @@ def _env_thresholds() -> Dict[str, Any]:
     }
 
 
+def _write_pretty(path: Path, obj: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def _write_canonical(path: Path, obj: Any) -> None:
+    # canonical encoding for hashing (stable ordering + no pretty whitespace)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _make_lock(full: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Produce a stable lock representation.
+    Goal: deterministic across runs, even if underlying counts drift.
+    Keep only:
+      - thresholds (env + rollup) as recorded
+      - set of deny reason keys (not counts)
+      - artifact presence booleans (not paths)
+    """
+    deny_reasons = full.get("deny_reasons") if isinstance(full.get("deny_reasons"), dict) else {}
+    thresholds = full.get("thresholds") if isinstance(full.get("thresholds"), dict) else {}
+
+    # Stable: list of deny reason keys only (no counts)
+    deny_reason_keys = sorted([k for k in deny_reasons.keys() if isinstance(k, str) and k])
+
+    # Stable: artifact presence (bool), not paths
+    art = full.get("artifacts") if isinstance(full.get("artifacts"), dict) else {}
+    artifacts_present: Dict[str, bool] = {k: bool(art.get(k)) for k in sorted(art.keys())}
+
+    lock = {
+        "schema": "AION.DemoSummaryLock.v3",
+        "thresholds": {
+            "env": thresholds.get("env"),
+            "rollup": thresholds.get("rollup"),
+        },
+        "deny_reason_keys": deny_reason_keys,
+        "artifacts_present": artifacts_present,
+    }
+    return lock
+
+
 def main() -> int:
     root = _data_root()
     tel = root / "telemetry"
@@ -76,24 +142,75 @@ def main() -> int:
     goal_p = tel / "goal_transition_log.jsonl"
     playback_p = ses / "playback_log.qdata.json"
 
+    # load
+    turn = _read_jsonl(turn_log_p) if turn_log_p.exists() else []
+    corr = _read_jsonl(corr_p) if corr_p.exists() else []
+    fc = _read_jsonl(forecast_jsonl_p) if forecast_jsonl_p.exists() else []
+    miss = _read_jsonl(miss_p) if miss_p.exists() else []
+    risk = _read_jsonl(risk_p) if risk_p.exists() else []
+    goals = _read_jsonl(goal_p) if goal_p.exists() else []
+
     rollup = _read_json(rollup_p) if rollup_p.exists() else None
     playback = _read_json(playback_p) if playback_p.exists() else None
 
-    # human session id (best-effort)
+    # session id (best-effort)
     session_id = None
     if isinstance(rollup, dict) and rollup.get("session"):
         session_id = rollup.get("session")
     elif isinstance(playback, dict) and playback.get("session"):
         session_id = playback.get("session")
 
-    # -------------------------
-    # HUMAN summary (may vary)
-    # -------------------------
-    out_human = {
+    # denies / ADR / misc from turn log
+    n_turns = len(turn)
+    denies = 0
+    adr_active_turns = 0
+    deny_reasons: Dict[str, int] = {}
+    for r in turn:
+        allow = r.get("allow_learn")
+        if allow is False:
+            denies += 1
+        if r.get("adr_active") is True:
+            adr_active_turns += 1
+        dr = r.get("deny_reason")
+        if isinstance(dr, str) and dr:
+            deny_reasons[dr] = deny_reasons.get(dr, 0) + 1
+
+    # averages (human view only; DO NOT put these in lock)
+    def _to_f(x: Any) -> Optional[float]:
+        try:
+            if isinstance(x, (int, float)):
+                return float(x)
+            if isinstance(x, str) and x.strip():
+                return float(x)
+        except Exception:
+            return None
+        return None
+
+    avg_conf = _avg([v for v in (_to_f(r.get("confidence")) for r in fc) if v is not None])
+    avg_rho_err = _avg([v for v in (_to_f(r.get("rho_err")) for r in miss) if v is not None])
+    avg_sqi_err = _avg([v for v in (_to_f(r.get("sqi_err")) for r in miss) if v is not None])
+
+    full = {
         "schema": "AION.DemoSummary.v1",
         "ts": time.time(),
         "data_root": str(root),
         "session": session_id,
+        "counts": {
+            "n_turns": n_turns,
+            "n_denies": denies,
+            "n_adr_active_turns": adr_active_turns,
+            "n_corrections": len(corr),
+            "n_forecasts": len(fc),
+            "n_prediction_miss": len(miss),
+            "n_risk_awareness": len(risk),
+            "n_goal_transitions": len(goals),
+        },
+        "averages": {
+            "avg_confidence": avg_conf,
+            "avg_rho_err": avg_rho_err,
+            "avg_sqi_err": avg_sqi_err,
+        },
+        "deny_reasons": deny_reasons,
         "thresholds": {
             "env": _env_thresholds(),
             "rollup": (rollup.get("thresholds") if isinstance(rollup, dict) else None),
@@ -110,41 +227,14 @@ def main() -> int:
         },
     }
 
-    # -------------------------
-    # LOCK summary (must be stable)
-    # IMPORTANT: no counts/averages/session/time/tmp paths
-    # -------------------------
-    out_lock = {
-        "schema": "AION.DemoSummaryLock.v2",
-        "thresholds": {
-            "env": _env_thresholds(),
-            "rollup": (rollup.get("thresholds") if isinstance(rollup, dict) else None),
-        },
-        "schemas_seen": {
-            "forecast_rollup": (rollup.get("schema") if isinstance(rollup, dict) else None),
-        },
-        "files_present": {
-            "telemetry/turn_log.jsonl": turn_log_p.exists(),
-            "telemetry/correction_events.jsonl": corr_p.exists(),
-            "telemetry/forecast_report.jsonl": forecast_jsonl_p.exists(),
-            "telemetry/prediction_miss_log.jsonl": miss_p.exists(),
-            "telemetry/risk_awareness_log.jsonl": risk_p.exists(),
-            "telemetry/forecast_report.json": rollup_p.exists(),
-            "telemetry/goal_transition_log.jsonl": goal_p.exists(),
-            "sessions/playback_log.qdata.json": playback_p.exists(),
-        },
-    }
+    out_json = tel / "demo_summary.json"
+    out_lock = tel / "demo_summary.lock.json"
 
-    tel.mkdir(parents=True, exist_ok=True)
+    _write_pretty(out_json, full)
+    _write_canonical(out_lock, _make_lock(full))
 
-    human_path = tel / "demo_summary.json"
-    lock_path = tel / "demo_summary.lock.json"
-
-    human_path.write_text(json.dumps(out_human, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    lock_path.write_text(_stable_json(out_lock), encoding="utf-8")
-
-    print(str(human_path))
-    print(str(lock_path))
+    # print the lock path (keeps your step logs clean & greppable)
+    print(str(out_lock))
     return 0
 
 

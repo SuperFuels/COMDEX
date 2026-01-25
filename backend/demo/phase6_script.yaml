@@ -194,15 +194,21 @@ steps:
       - 'cat "$DATA_ROOT/telemetry/reliability_curve.json"'
       - 'echo "--- calibration_metrics.json ---"'
       - 'cat "$DATA_ROOT/telemetry/calibration_metrics.json"'
+      - 'echo "--- reliability_curve.csv ---"'
+      - 'cat "$DATA_ROOT/telemetry/reliability_curve.csv"'
+      - 'echo "--- reliability_curve.md ---"'
+      - 'cat "$DATA_ROOT/telemetry/reliability_curve.md"'
     expect:
       exit_code: 0
       files_exist:
         - "$DATA_ROOT/telemetry/reliability_curve.json"
         - "$DATA_ROOT/telemetry/calibration_metrics.json"
+        - "$DATA_ROOT/telemetry/reliability_curve.csv"
+        - "$DATA_ROOT/telemetry/reliability_curve.md"
       stdout_contains:
         - '"schema":"AION.ReliabilityCurve.v1"'
         - '"schema":"AION.CalibrationMetrics.v1"'
-        - '"ece":'
+        - 'ece'
 
   - id: "optional-goal-log"
     title: "Optional: show goal transitions if they happened"

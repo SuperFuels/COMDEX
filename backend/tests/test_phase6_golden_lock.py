@@ -46,6 +46,9 @@ def test_phase6_golden_lock():
         env = os.environ.copy()
         env["DATA_ROOT"] = tmp
         env["PYTHONPATH"] = str(repo_root)
+        env["PYTHONHASHSEED"] = "0"
+        env["TZ"] = "UTC"
+        env["LC_ALL"] = "C"
 
         subprocess.check_call(
             ["python", str(run_demo), str(demo_script)],
