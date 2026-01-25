@@ -1,0 +1,7 @@
+{
+  "files": {
+    "telemetry/demo_summary.lock.json": "216bafc97ae98aebd889b6967824996a2517de6f4cebd61918afe53683145076",
+    "telemetry/forecast_report.lock.json": "776a91f48fad246acbec456a281786f208986f5cc3648ea4202542e3c8cd7fee"
+  },
+  "schema": "AION.Phase6LockBundle.v1"
+}

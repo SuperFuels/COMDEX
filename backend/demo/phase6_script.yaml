@@ -1,0 +1,202 @@
+# Phase 6 — Killer Demo Script (GlyphChain / Tessaris AI)
+# File: phase6_script.yaml
+# Purpose: 10-minute, screen-record-friendly, one-command run script for AION CEE + telemetry/audit proof.
+# Notes:
+#  - Uses DATA_ROOT so the demo is self-contained and reproducible.
+#  - Assumes tests already green (Phase 0–5).
+#  - This script is "read-only orchestration": it does not change learning authority.
+
+schema: "AION.DemoScript.v1"
+id: "PHASE6-CEE-FORECAST-DEMO"
+title: "AION Phase 6: Observable Cognition + Goals + Forecast + Risk + Rollup"
+version: "0.1.0"
+estimated_minutes: 10
+
+defaults:
+  shell: "bash"
+  cwd: "."
+  env:
+    PYTHONPATH: "$PWD"
+    # Keep the demo deterministic and readable
+    AION_COMMENTARY: "1"
+    AION_VERBOSITY: "minimal"
+    CEE_LEX_AUTO_CORRECT: "0"
+    # Force prediction-miss emission (so viewers see events)
+    AION_FORECAST_MIN_CONF: "0.10"
+    AION_FORECAST_RHO_ERR: "0.05"
+    AION_FORECAST_SQI_ERR: "0.05"
+    # Force risk emission even if CAU lacks S/H (NO_RAL_METRICS)
+    AION_RISK_MIN_CONF: "0.10"
+    AION_RISK_MIN_SCORE: "0.00"
+
+artifacts:
+  - "$DATA_ROOT/sessions/playback_log.qdata.json"
+  - "$DATA_ROOT/telemetry/turn_log.jsonl"
+  - "$DATA_ROOT/telemetry/forecast_report.jsonl"
+  - "$DATA_ROOT/telemetry/prediction_miss_log.jsonl"
+  - "$DATA_ROOT/telemetry/risk_awareness_log.jsonl"
+  - "$DATA_ROOT/telemetry/forecast_report.json"
+  - "$DATA_ROOT/memory/lexmemory_queue.jsonl"
+  - "$DATA_ROOT/telemetry/goal_transition_log.jsonl" # may be absent if no goal changes occur
+
+steps:
+  - id: "setup"
+    title: "Setup isolated DATA_ROOT"
+    run:
+      - 'export DATA_ROOT="$(mktemp -d)"'
+      - 'echo "DATA_ROOT=$DATA_ROOT"'
+      - 'mkdir -p "$DATA_ROOT"'
+    expect:
+      stdout_contains:
+        - "DATA_ROOT="
+
+  - id: "prove-tests-green"
+    title: "Proof of safety: tests (Phase 4–5)"
+    run:
+      - "pytest -q backend/tests/test_goal_transition_log_data_root.py"
+      - "pytest -q backend/tests/test_forecast_report_jsonl.py"
+      - "pytest -q backend/tests/test_prediction_miss_log_jsonl.py"
+      - "pytest -q backend/tests/test_risk_awareness_log_jsonl.py"
+      - "pytest -q backend/tests/test_forecast_report_summary_json.py"
+    expect:
+      exit_code: 0
+
+  - id: "demo-run-1"
+    title: "Run CEE playback (simulate) to generate all Phase 5 artifacts"
+    run:
+      - 'export CEE_SEED=6001'
+      - 'export CEE_GENS=generate_unjumble,generate_flashcard,grammar_fix_sentence,grammar_agreement_mcq,generate_find_match,generate_spin_wheel'
+      - >
+        AION_COMMENTARY=1 AION_VERBOSITY=minimal
+        AION_FORECAST_MIN_CONF=0.1 AION_FORECAST_RHO_ERR=0.05 AION_FORECAST_SQI_ERR=0.05
+        AION_RISK_MIN_CONF=0.1 AION_RISK_MIN_SCORE=0.0
+        PYTHONPATH=$PWD
+        python backend/modules/aion_cognition/cee_exercise_playback.py --n 6 --feed self_train --gens "$CEE_GENS"
+    expect:
+      stdout_contains:
+        - "[AION] deny_learn=1 goal="
+        - "Exported playback log"
+      files_exist:
+        - "$DATA_ROOT/sessions/playback_log.qdata.json"
+        - "$DATA_ROOT/telemetry/turn_log.jsonl"
+        - "$DATA_ROOT/telemetry/forecast_report.jsonl"
+        - "$DATA_ROOT/telemetry/prediction_miss_log.jsonl"
+        - "$DATA_ROOT/telemetry/risk_awareness_log.jsonl"
+        - "$DATA_ROOT/telemetry/forecast_report.json"
+
+  - id: "assert-cau-tokens"
+    title: "Assert expected CAU/self-state tokens appear in demo-run log"
+    run:
+      - 'test -f "$DATA_ROOT/sessions/demo_step_03_demo-run-1.log.txt"'
+      - 'grep -F "[AION] deny_learn=1 goal=" "$DATA_ROOT/sessions/demo_step_03_demo-run-1.log.txt"'
+      - 'grep -F "deny_reason=" "$DATA_ROOT/sessions/demo_step_03_demo-run-1.log.txt"'
+      - 'grep -F "Exported playback log" "$DATA_ROOT/sessions/demo_step_03_demo-run-1.log.txt"'
+    expect:
+      exit_code: 0
+
+  - id: "show-forecast-lines"
+    title: "Show forecasts (per-turn, read-only)"
+    run:
+      - 'echo "--- forecast_report.jsonl (tail) ---"'
+      - 'tail -n 10 "$DATA_ROOT/telemetry/forecast_report.jsonl"'
+    expect:
+      stdout_contains:
+        - '"schema": "AION.Forecast.v1"'
+
+  - id: "show-miss-lines"
+    title: "Show prediction-miss events (thresholded, low-cardinality cause)"
+    run:
+      - 'echo "--- prediction_miss_log.jsonl (tail) ---"'
+      - 'tail -n 10 "$DATA_ROOT/telemetry/prediction_miss_log.jsonl"'
+    expect:
+      stdout_contains:
+        - '"schema": "AION.PredictionMiss.v1"'
+        - '"cause": "prediction_miss"'
+        - '"thresholds":'
+
+  - id: "show-risk-lines"
+    title: "Show risk-awareness events (confidence-gated)"
+    run:
+      - 'echo "--- risk_awareness_log.jsonl (tail) ---"'
+      - 'tail -n 10 "$DATA_ROOT/telemetry/risk_awareness_log.jsonl"'
+    expect:
+      stdout_contains:
+        - '"schema": "AION.RiskAwareness.v1"'
+        - '"cause": "risk_awareness"'
+
+  - id: "show-rollup"
+    title: "Show end-of-run rollup (single file per session)"
+    run:
+      - 'echo "--- forecast_report.json ---"'
+      - 'cat "$DATA_ROOT/telemetry/forecast_report.json"'
+    expect:
+      stdout_contains:
+        - '"schema": "AION.ForecastReport.v1"'
+        - '"session":'
+        - '"n_forecasts":'
+
+  - id: "demo-summary"
+    title: "Generate post-demo summary dump (single proof file)"
+    run:
+      - 'python backend/demo/demo_summary.py'
+      - 'echo "--- demo_summary.json ---"'
+      - 'cat "$DATA_ROOT/telemetry/demo_summary.json"'
+    expect:
+      files_exist:
+        - "$DATA_ROOT/telemetry/demo_summary.json"
+      stdout_contains:
+        - '"schema": "AION.DemoSummary.v1"'
+        - '"n_denies"'
+        - '"n_forecasts"'
+        - '"n_prediction_miss"'
+        - '"n_risk_awareness"' 
+
+  - id: "voice-demo"
+    title: "Voice: narrate demo summary via ElevenLabs (optional)"
+    run:
+      - 'test -f .env && set -a && . ./.env && set +a || true'
+      - "python backend/demo/elevenlabs_voice.py"
+      - 'test -f "$DATA_ROOT/sessions/phase6_voiceover.mp3" && ls -lah "$DATA_ROOT/sessions/phase6_voiceover.mp3" || true'
+    expect:
+      stdout_any_of:
+        - "[VOICE] Wrote:"
+        - "Missing ELEVENLABS_API_KEY"
+
+  - id: "lock-bundle"
+    title: "Create sanitized lock bundle + sha256"
+    run:
+      - "python backend/demo/make_phase6_lock_bundle.py"
+      - 'echo "--- phase6_lock_bundle.json ---"'
+      - 'cat "$DATA_ROOT/telemetry/phase6_lock_bundle.json"'
+    expect:
+      files_exist:
+        - "$DATA_ROOT/telemetry/forecast_report.lock.json"
+        - "$DATA_ROOT/telemetry/demo_summary.lock.json"
+        - "$DATA_ROOT/telemetry/phase6_lock_bundle.json"
+      stdout_contains:
+        - '"schema": "AION.Phase6LockBundle.v1"'
+        - "forecast_report.lock.json"
+        - "demo_summary.lock.json" 
+
+  - id: "optional-goal-log"
+    title: "Optional: show goal transitions if they happened"
+    run:
+      - 'echo "--- goal_transition_log.jsonl (if present) ---"'
+      - 'test -f "$DATA_ROOT/telemetry/goal_transition_log.jsonl" && tail -n 10 "$DATA_ROOT/telemetry/goal_transition_log.jsonl" || echo "(no goal transitions emitted in this run)"'
+    expect:
+      stdout_any_of:
+        - '"schema": "AION.GoalTransition.v1"'
+        - "(no goal transitions emitted in this run)"
+
+  - id: "closing-proof"
+    title: "Closing proof: list artifacts"
+    run:
+      - 'echo "--- Artifact tree ---"'
+      - 'ls -R "$DATA_ROOT"'
+    expect:
+      files_exist:
+        - "$DATA_ROOT/telemetry/forecast_report.json"
+      stdout_contains:
+        - "telemetry"
+        - "sessions"
+        - "memory"

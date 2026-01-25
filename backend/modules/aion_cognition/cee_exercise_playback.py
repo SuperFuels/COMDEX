@@ -11,24 +11,35 @@ CAU guarantee:
   ✅ LexMemory reinforcement MUST be gated by CAU authority (RAL/SQI/ADR).
      No learning while injured / cooldown / ADR active.
 
-Key guarantee (per your screenshot):
+Key guarantee:
   ✅ On every correct answer, LexMemory is UPDATED AND SAVED to disk
      (ONLY when CAU allows learning) so Demo 5 can consume: data/memory/lex_memory.json
 
-Program goal (per your plan):
-  - Primary training = SELF_TRAIN (your Wordwall-replacement)
+Program goal:
+  - Primary training = SELF_TRAIN (Wordwall replacement)
   - Optional = LLM generation (explicit only, never surprise)
   - Wordwall/hybrid removed from the program path
 """
 
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+# Allow running this file directly without PYTHONPATH (pytest subprocess / CLI)
+_REPO_ROOT = Path(__file__).resolve().parents[3]  # .../backend/modules/aion_cognition -> repo root
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
 import json
-import time
-import random
 import logging
 import os
+import random
+import time
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, List
-
+from typing import Any, Dict, List, Optional, Tuple
+from backend.modules.aion_cognition.correction_history import get_correction_history
+from backend.modules.aion_cognition.goal_transitions import log_goal_transition
 logger = logging.getLogger(__name__)
 
 # ------------------------------------------------------------
@@ -41,22 +52,104 @@ if not _api_key:
 # ------------------------------------------------------------
 # LexMemory auto-correct (opt-in)
 # ------------------------------------------------------------
-AUTO_CORRECT = os.getenv("CEE_LEX_AUTO_CORRECT", "1").lower() in ("1", "true", "yes", "on")
+AUTO_CORRECT = (os.getenv("CEE_LEX_AUTO_CORRECT", "1") or "1").strip().lower() in (
+    "1",
+    "true",
+    "yes",
+    "on",
+)
+
+# ------------------------------------------------------------
+# DATA_ROOT-aware paths
+# ------------------------------------------------------------
+def _data_root() -> Path:
+    return Path(os.getenv("DATA_ROOT", "data"))
+
+
+def _paths() -> Tuple[Path, Path, Path, Path, Path]:
+    root = _data_root()
+    out_path = root / "sessions" / "playback_log.qdata.json"
+    lex_path = root / "memory" / "lex_memory.json"
+    queue_path = root / "memory" / "lexmemory_queue.jsonl"
+    turn_log_path = root / "telemetry" / "turn_log.jsonl"
+    corr_log_path = root / "telemetry" / "correction_events.jsonl"
+    return out_path, lex_path, queue_path, turn_log_path, corr_log_path
+
+
+OUT_PATH, LEX_PATH, LEX_QUEUE_PATH, TURN_LOG_PATH, CORRECTION_LOG_PATH = _paths()
 
 # ------------------------------------------------------------
 # CAU gating (authority for learning) — Phase 46A stable API
 # ------------------------------------------------------------
 try:
-    # cau_authority.py exposes get_authority_state/get_authority/get_state
-    from backend.modules.aion_cognition.cau_authority import get_authority_state as _cau_state
+    from backend.modules.aion_cognition.cau_authority import (
+        get_authority_state as _cau_state,
+    )
 except Exception as _e:
     _cau_state = None
     logger.warning(
         f"[CEE-Playback] CAU authority not available; learning will be allowed by default. err={_e}"
     )
 
-def _data_root() -> Path:
-    return Path(os.getenv("DATA_ROOT", "data"))
+
+def _cau_status(goal: str = "maintain_coherence") -> dict:
+    """
+    Returns CAU dict (must include allow_learn).
+    Safe fallback = allow learn (soft-fail) to avoid breaking playback.
+    """
+    if _cau_state is None:
+        return {
+            "t": time.time(),
+            "allow_learn": True,
+            "deny_reason": None,
+            "adr_active": False,
+            "cooldown_s": 0,
+            "S": None,
+            "H": None,
+            "Phi": None,
+            "goal": goal,
+            "source": "CAU_IMPORT_FAIL",
+        }
+    try:
+        st = _cau_state(goal=goal)
+        if isinstance(st, dict) and "allow_learn" in st:
+            st.setdefault("goal", goal)
+            st.setdefault("source", "CAU:get_authority_state")
+            st.setdefault("t", time.time())
+            return st
+        logger.warning("[CEE-Playback] CAU returned unexpected shape; allowing learn (soft-fail).")
+        return {
+            "t": time.time(),
+            "allow_learn": True,
+            "deny_reason": "cau_bad_shape",
+            "adr_active": False,
+            "cooldown_s": 0,
+            "S": None,
+            "H": None,
+            "Phi": None,
+            "goal": goal,
+            "source": "CAU_BAD_SHAPE",
+        }
+    except Exception as e:
+        logger.warning(f"[CEE-Playback] CAU compute failed; allowing learn. err={e}")
+        return {
+            "t": time.time(),
+            "allow_learn": True,
+            "deny_reason": "cau_compute_failed",
+            "adr_active": False,
+            "cooldown_s": 0,
+            "S": None,
+            "H": None,
+            "Phi": None,
+            "goal": goal,
+            "source": "CAU_EXCEPTION",
+        }
+
+
+def _cau_allow(goal: str = "maintain_coherence") -> Tuple[bool, dict]:
+    st = _cau_status(goal=goal)
+    return bool(st.get("allow_learn", True)), st
+
 
 def get_cognitive_status(goal: str = "maintain_coherence") -> dict:
     """
@@ -77,83 +170,155 @@ def get_cognitive_status(goal: str = "maintain_coherence") -> dict:
         "source": st.get("source"),
     }
 
+
+# ------------------------------------------------------------
+# Phase-2: commentary + verbosity gates (NO cached globals)
+# ------------------------------------------------------------
+def _env_truthy(name: str, default: str = "0") -> bool:
+    v = os.getenv(name, default)
+    return str(v).strip().lower() in ("1", "true", "yes", "on")
+
+
+def _verbosity_level() -> str:
+    # off|minimal|terse|verbose (unknown -> terse)
+    v = (os.getenv("AION_VERBOSITY", "off") or "off").strip().lower()
+    if v not in ("off", "minimal", "terse", "verbose"):
+        return "terse"
+    return v
+
+
+def _commentary_enabled() -> bool:
+    # Hard rule: VERBOSITY=off disables commentary entirely
+    if _verbosity_level() == "off":
+        return False
+    # Commentary is opt-in
+    return _env_truthy("AION_COMMENTARY", "0")
+
+
+def _emit_aion_commentary_line(goal: str = "maintain_coherence") -> None:
+    """
+    Emits exactly one stdout line prefixed [AION] when enabled.
+    Always emits the tag (even if self_state fails) so pytest capture is deterministic.
+    """
+    if not _commentary_enabled():
+        return
+
+    msg: str
+    try:
+        from backend.modules.aion_cognition.self_state import self_state_summary
+        msg = self_state_summary(goal=goal)
+    except Exception:
+        msg = "state unavailable"
+
+    print(f"[AION] {msg}", flush=True)
+
+
+def _infer_intent(ex_type: str, prompt: str = "") -> str:
+    """
+    Minimal intent classifier for per-turn telemetry.
+    Keep stable strings (used for dashboards later).
+    """
+    t = (ex_type or "unknown").strip().lower()
+    if t in ("flashcard", "matchup", "find_match"):
+        return "recall"
+    if t in ("anagram", "unjumble", "cloze"):
+        return "solve"
+    if t.startswith("grammar_") or t in ("grammar_fix", "grammar_agreement", "grammar_punctuation", "grammar_order"):
+        return "edit"
+    if t in ("spin_wheel", "group_sort"):
+        return "associate"
+    return "unknown"
+
+
+def _coherence_from_cau(cs: dict | None) -> float | None:
+    """
+    Cheap coherence scalar for logs only.
+    Not physics. Just a monotone-ish proxy based on CAU stability/entropy.
+    """
+    if not isinstance(cs, dict):
+        return None
+    S = cs.get("S")
+    H = cs.get("H")
+    try:
+        if S is None or H is None:
+            return None
+        Sf = float(S)
+        Hf = float(H)
+        # map to 0..1-ish: higher S and lower H => higher coherence
+        return max(0.0, min(1.0, 0.5 * Sf + 0.5 * (1.0 - Hf)))
+    except Exception:
+        return None
+
+# ------------------------------------------------------------
+# Phase-2 per-turn telemetry (DATA_ROOT aware)
+# ------------------------------------------------------------
+
+TURN_LOG_SCHEMA_V1 = {
+    "schema": "AION.TurnLog.v1",
+    "required": [
+        "ts","session","mode","type","prompt",
+        "intent","coherence","correct",
+        "allow_learn","deny_reason","adr_active","cooldown_s",
+        "S","H","Phi",
+        "response_time_ms",
+    ],
+    "optional": ["guess", "answer"],
+}
+
+def _validate_turn_log(rec: dict) -> dict:
+    rec = dict(rec or {})
+    rec.setdefault("schema", TURN_LOG_SCHEMA_V1["schema"])
+    for k in TURN_LOG_SCHEMA_V1["required"]:
+        rec.setdefault(k, None)
+    for k in TURN_LOG_SCHEMA_V1.get("optional", []):
+        rec.setdefault(k, None)
+    return rec
+
 def _append_turn_log(rec: dict) -> None:
     try:
+        rec = _validate_turn_log(rec)
         TURN_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(TURN_LOG_PATH, "a", encoding="utf-8") as f:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     except Exception as e:
         logger.warning(f"[CEE-Playback] Failed to append turn log: {e}")
 
-def _cau_status(goal: str = "maintain_coherence") -> dict:
-    """
-    Returns CAU dict (must include allow_learn).
-    Safe fallback = allow learn (soft-fail) to avoid breaking playback.
-    """
-    if _cau_state is None:
-        return {
-            "allow_learn": True,
-            "deny_reason": None,
-            "adr_active": False,
-            "cooldown_s": 0,
-            "S": None,
-            "H": None,
-            "Phi": None,
-            "goal": goal,
-            "source": "CAU_IMPORT_FAIL",
-        }
+CORRECTION_SCHEMA_V1 = {
+    "schema": "AION.CorrectionEvent.v1",
+    "required": [
+        "ts", "session", "prompt",
+        "from_answer", "to_answer",
+        "cause", "allow_learn", "deny_reason",
+    ],
+}
+
+def _append_correction_event(rec: dict) -> None:
     try:
-        st = _cau_state(goal=goal)
-        if isinstance(st, dict) and "allow_learn" in st:
-            st.setdefault("goal", goal)
-            st.setdefault("source", "CAU:get_authority_state")
-            return st
-        logger.warning("[CEE-Playback] CAU returned unexpected shape; allowing learn (soft-fail).")
-        return {
-            "allow_learn": True,
-            "deny_reason": "cau_bad_shape",
-            "adr_active": False,
-            "cooldown_s": 0,
-            "S": None,
-            "H": None,
-            "Phi": None,
-            "goal": goal,
-            "source": "CAU_BAD_SHAPE",
-        }
+        rec = dict(rec or {})
+        rec.setdefault("schema", CORRECTION_SCHEMA_V1["schema"])
+        for k in CORRECTION_SCHEMA_V1["required"]:
+            rec.setdefault(k, None)
+
+        CORRECTION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(CORRECTION_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     except Exception as e:
-        logger.warning(f"[CEE-Playback] CAU compute failed; allowing learn. err={e}")
-        return {
-            "allow_learn": True,
-            "deny_reason": "cau_compute_failed",
-            "adr_active": False,
-            "cooldown_s": 0,
-            "S": None,
-            "H": None,
-            "Phi": None,
-            "goal": goal,
-            "source": "CAU_EXCEPTION",
-        }
-
-
-def _cau_allow(goal: str = "maintain_coherence") -> Tuple[bool, dict]:
-    st = _cau_status(goal=goal)
-    return bool(st.get("allow_learn", True)), st
-
+        logger.warning(f"[CEE-Playback] Failed to append correction event: {e}")
 
 # ------------------------------------------------------------
 # Project imports
 # ------------------------------------------------------------
 from backend.modules.aion_cognition.cee_lexicore_bridge import LexiCoreBridge
-from backend.modules.aion_cognition.language_habit_engine import update_habit_metrics
 from backend.modules.aion_cognition.cee_lex_memory import LexMemory, recall_from_memory
+from backend.modules.aion_cognition.language_habit_engine import update_habit_metrics
 
 from backend.modules.aion_cognition.cee_language_templates import (
-    generate_matchup,
     generate_anagram,
-    generate_unjumble,
-    generate_flashcard,
     generate_find_match,
+    generate_flashcard,
+    generate_matchup,
     generate_spin_wheel,
+    generate_unjumble,
 )
 
 from backend.modules.aion_cognition.cee_language_cloze import (
@@ -166,33 +331,15 @@ from backend.modules.aion_cognition.cee_llm_exercise_generator import (
 )
 
 from backend.modules.aion_cognition.cee_grammar_templates import (
-    grammar_fix_sentence,
     grammar_agreement_mcq,
+    grammar_fix_sentence,
     grammar_punctuation_insert,
     grammar_word_order,
 )
 
 # ------------------------------------------------------------
-# Stable output paths
-# ------------------------------------------------------------
-def _paths() -> Tuple[Path, Path, Path]:
-    root = _data_root()
-    out_path = root / "sessions" / "playback_log.qdata.json"
-    lex_path = root / "memory" / "lex_memory.json"
-    queue_path = root / "memory" / "lexmemory_queue.jsonl"
-    return out_path, lex_path, queue_path
-
-OUT_PATH, LEX_PATH, LEX_QUEUE_PATH = _paths()
-
-DATA_ROOT = Path(os.getenv("DATA_ROOT", "data"))
-TURN_LOG_PATH = DATA_ROOT / "telemetry" / "turn_log.jsonl"
-
-AION_COMMENTARY = os.getenv("AION_COMMENTARY", "0").lower() in ("1", "true", "yes", "on")
-AION_VERBOSITY = (os.getenv("AION_VERBOSITY", "terse") or "terse").strip().lower()
-# ------------------------------------------------------------
 # LexMemory queue-on-deny (Phase 46A)
 # ------------------------------------------------------------
-
 def _append_queue(rec: dict) -> None:
     try:
         LEX_QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -202,11 +349,42 @@ def _append_queue(rec: dict) -> None:
         logger.warning(f"[CEE-Playback] Failed to append lex queue: {e}")
 
 
+def _make_lex():
+    """Instantiate LexMemory with stable path if supported; fallback if not."""
+    try:
+        return LexMemory(path=LEX_PATH)
+    except TypeError:
+        return LexMemory()
+
+
+_lex = _make_lex()
+
+
+def _norm_resonance(resonance: dict) -> Tuple[float, float, float]:
+    if not isinstance(resonance, dict):
+        resonance = {}
+
+    rho = resonance.get("rho", resonance.get("ρ", 0.6))
+    Ibar = resonance.get("Ibar", resonance.get("Ī", resonance.get("I", 0.6)))
+    sqi = resonance.get("sqi", resonance.get("SQI", 0.6))
+
+    try:
+        rho = float(rho)
+    except Exception:
+        rho = 0.6
+    try:
+        Ibar = float(Ibar)
+    except Exception:
+        Ibar = 0.6
+    try:
+        sqi = float(sqi)
+    except Exception:
+        sqi = 0.6
+
+    return rho, Ibar, sqi
+
+
 def _flush_queue(max_items: int = 200, goal: str = "maintain_coherence") -> int:
-    """
-    Apply queued lex updates iff CAU allows learning.
-    Safe: if anything goes wrong, we stop and keep remaining queue intact.
-    """
     allow, cau = _cau_allow(goal=goal)
     if not allow:
         return 0
@@ -223,7 +401,6 @@ def _flush_queue(max_items: int = 200, goal: str = "maintain_coherence") -> int:
     applied = 0
     remaining: List[str] = []
 
-    # process up to max_items; keep the rest
     head = lines[:max_items]
     tail = lines[max_items:]
 
@@ -235,7 +412,6 @@ def _flush_queue(max_items: int = 200, goal: str = "maintain_coherence") -> int:
             resonance = rec.get("resonance", {}) or {}
             rho, Ibar, sqi = _norm_resonance(resonance)
 
-            # CAU already allowed at flush start; still keep meta trail
             _lex.update(
                 prompt,
                 answer,
@@ -275,47 +451,38 @@ def _flush_queue(max_items: int = 200, goal: str = "maintain_coherence") -> int:
     return applied
 
 
-def _make_lex():
-    """Instantiate LexMemory with stable path if supported; fallback if not."""
+def _compute_goal_from_cau(cs: dict | None, current_goal: str) -> str:
+    if not isinstance(cs, dict):
+        return current_goal or "maintain_coherence"
+
+    # CAU denial gates learning, but SHOULD NOT override the active goal.
+    # Keep goal stable to avoid thrash.
+    allow = cs.get("allow_learn")
+    if allow is False:
+        return current_goal or "maintain_coherence"
+
+    # If we're in conflict resolution, do not auto-promote to improve_accuracy.
+    if (current_goal or "").strip() == "resolve_conflict":
+        return "resolve_conflict"
+
+    S = cs.get("S")
+    H = cs.get("H")
     try:
-        return LexMemory(path=LEX_PATH)
-    except TypeError:
-        return LexMemory()
-
-
-# Module singleton
-_lex = _make_lex()
-
-
-def _norm_resonance(resonance: dict) -> Tuple[float, float, float]:
-    """
-    Normalize resonance keys from any of:
-      - screenshot keys: rho, Ibar, sqi
-      - your earlier keys: ρ, I, SQI
-      - other variants: Ī
-    """
-    if not isinstance(resonance, dict):
-        resonance = {}
-
-    rho = resonance.get("rho", resonance.get("ρ", 0.6))
-    Ibar = resonance.get("Ibar", resonance.get("Ī", resonance.get("I", 0.6)))
-    sqi = resonance.get("sqi", resonance.get("SQI", 0.6))
-
-    try:
-        rho = float(rho)
+        if S is not None and H is not None:
+            Sf = float(S)
+            Hf = float(H)
+            if Sf >= 0.85 and Hf <= 0.15:
+                return "improve_accuracy"
     except Exception:
-        rho = 0.6
-    try:
-        Ibar = float(Ibar)
-    except Exception:
-        Ibar = 0.6
-    try:
-        sqi = float(sqi)
-    except Exception:
-        sqi = 0.6
+        pass
 
-    return rho, Ibar, sqi
+    return current_goal or "maintain_coherence"
 
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, str(default)) or str(default))
+    except Exception:
+        return default
 
 # ================================================================
 # 🧩 Playback Engine
@@ -326,12 +493,23 @@ class CEEPlayback:
         self.session_id = f"PLAY-{int(time.time())}"
         self.session: List[dict] = []
         self.bridge = LexiCoreBridge()
+        self.goal = "maintain_coherence"
+        self._recent_correct: List[bool] = []
+
+        # Phase 5: last observed actuals (used to forecast next)
+        self._last_rho: float = 0.6
+        self._last_sqi: float = 0.6
+
+        # Phase 5: last emitted forecast (used for predicted-vs-actual comparison)
+        self._last_forecast_rho: float = 0.6
+        self._last_forecast_sqi: float = 0.6
+        self._last_forecast_conf: float = 0.2
+
         logger.info(f"[CEE-Playback] Session {self.session_id} started in {mode} mode")
 
     def play_exercise(self, ex: dict):
         """Safely play a single CEE exercise with full fallback handling."""
         t0 = time.perf_counter()
-        cau_snap = None
 
         ex_type = ex.get("type", "unknown")
 
@@ -351,19 +529,103 @@ class CEEPlayback:
         if options:
             print(f"Options: {', '.join(str(o) for o in options if o)}")
 
-        # Phase-2: optional cognitive commentary line (fact-only)
-        if AION_COMMENTARY:
-            try:
-                from backend.modules.aion_cognition.self_state import self_state_summary
-                print(f"[AION] {self_state_summary(goal='maintain_coherence')}")
-            except Exception:
-                pass
+        # --- CAU snapshot once per turn (so goal can transition even if no learn path runs) ---
+        _, cau_snap = _cau_allow(goal=self.goal)
 
-        # Opportunistic queue flush
+        # --- Phase 4 starter: compute + log goal transition ---
+        new_goal = _compute_goal_from_cau(cau_snap, self.goal)
+        if new_goal != self.goal:
+            log_goal_transition(
+                ts=time.time(),
+                from_goal=self.goal,
+                to_goal=new_goal,
+                cause="cau_update",
+                session=self.session_id,
+            )
+            self.goal = new_goal
+
+            # refresh CAU snapshot under the new goal (keeps telemetry consistent)
+            _, cau_snap = _cau_allow(goal=self.goal)
+
+        # --- Phase 5: Forecast (read-only) + persist last-forecast fields ---
         try:
-            _flush_queue(goal="maintain_coherence")
+            from backend.modules.aion_cognition.forecast_report import append_forecast
+
+            # confidence from CAU if present, else low confidence
+            conf = 0.2
+            if isinstance(cau_snap, dict):
+                S = cau_snap.get("S")
+                H = cau_snap.get("H")
+                try:
+                    if S is not None and H is not None:
+                        Sf = float(S)
+                        Hf = float(H)
+                        conf = max(0.0, min(1.0, 0.5 * Sf + 0.5 * (1.0 - Hf)))
+                except Exception:
+                    conf = 0.2
+
+            # Forecast = "next" predicted values (stub: carry-forward last observed)
+            rho_next = float(getattr(self, "_last_rho", 0.6))
+            sqi_next = float(getattr(self, "_last_sqi", 0.6))
+
+            append_forecast(
+                ts=time.time(),
+                session=self.session_id,
+                goal=self.goal,
+                rho_next=rho_next,
+                sqi_next=sqi_next,
+                confidence=conf,
+            )
+
+            # store what we just forecasted (for predicted-vs-actual on the NEXT turn)
+            self._last_forecast_rho = float(rho_next)
+            self._last_forecast_sqi = float(sqi_next)
+            self._last_forecast_conf = float(conf)
         except Exception:
             pass
+
+        # Phase-2: optional cognitive commentary line (fact-only) — uses current goal
+        _emit_aion_commentary_line(goal=self.goal)
+
+        # --- Phase 5: Risk awareness (read-only; gated by confidence) ---
+        try:
+            from backend.modules.aion_cognition.risk_awareness import (
+                append_risk_awareness,
+                compute_risk_from_cau,
+            )
+
+            min_conf = float(os.getenv("AION_RISK_MIN_CONF", "0.6") or "0.6")
+            min_score = float(os.getenv("AION_RISK_MIN_SCORE", "0.65") or "0.65")
+
+            topic = _infer_intent(ex_type, safe_prompt)
+            risk = compute_risk_from_cau(cau_snap if isinstance(cau_snap, dict) else {}, conf)
+
+            if conf >= min_conf and risk >= min_score:
+                S = cau_snap.get("S") if isinstance(cau_snap, dict) else None
+                H = cau_snap.get("H") if isinstance(cau_snap, dict) else None
+                append_risk_awareness(
+                    ts=time.time(),
+                    session=self.session_id,
+                    goal=self.goal,
+                    topic=topic,
+                    risk=risk,
+                    confidence=conf,
+                    S=None if S is None else float(S),
+                    H=None if H is None else float(H),
+                    cause="risk_awareness",
+                )
+        except Exception:
+            pass
+
+        # Opportunistic queue flush — uses current goal
+        try:
+            _flush_queue(goal=self.goal)
+        except Exception:
+            pass
+
+        # Defaults (avoid UnboundLocalError)
+        guess = ""
+        correct: Optional[bool] = None
 
         # -------------------------
         # LexMemory recall
@@ -378,6 +640,23 @@ class CEEPlayback:
                     f"[LexMemory] ⚠ Recall mismatch for '{prompt}': "
                     f"recalled '{guess}', expected '{answer}'"
                 )
+
+                # --- Phase 5 (stub): contradiction -> resolve_conflict ---
+                # Deterministic: only when recalled answer conflicts with provided answer.
+                if self.goal != "resolve_conflict":
+                    try:
+                        log_goal_transition(
+                            ts=time.time(),
+                            from_goal=self.goal,
+                            to_goal="resolve_conflict",
+                            cause="contradiction",
+                            session=self.session_id,
+                        )
+                        self.goal = "resolve_conflict"
+                        # refresh CAU snapshot under new goal (keeps rest-of-turn consistent)
+                        _, cau_snap = _cau_allow(goal=self.goal)
+                    except Exception:
+                        pass
         else:
             if self.mode == "interactive":
                 try:
@@ -385,36 +664,71 @@ class CEEPlayback:
                 except Exception:
                     guess = ""
             else:
-                # simulate mode: try to be "smart" without requiring LLM
                 guess = ""
-
-                # 1) If exercise provides an answer, use it (self_train should)
                 if answer:
                     guess = str(answer).strip()
 
-                # 2) If MCQ options and no answer provided, try simple prompt->option match
                 if (not guess) and options:
                     p = safe_prompt.lower()
-
-                    # tiny heuristic: if one option appears in prompt, pick it
                     hit = None
                     for o in options:
                         s = str(o).strip()
                         if s and s.lower() in p:
                             hit = s
                             break
-                    if hit:
-                        guess = hit
-                    else:
-                        # fallback: pick first option (deterministic) instead of random
-                        guess = str(options[0]).strip()
+                    guess = hit if hit else str(options[0]).strip()
 
-                # 3) last resort
                 if not guess:
                     guess = ""
 
         guess = (guess or "").strip() if isinstance(guess, str) else str(guess or "").strip()
         answer = (answer or "").strip() if isinstance(answer, str) else str(answer or "").strip()
+
+        # --- Phase 5: update last observed values (actuals for next forecast) ---
+        # Do this once per turn, regardless of correct/wrong/denied.
+        try:
+            rho_obs, _, sqi_obs = _norm_resonance(resonance)
+            self._last_rho = float(rho_obs)
+            self._last_sqi = float(sqi_obs)
+        except Exception:
+            pass
+
+        # --- Phase 5: predicted vs actual + prediction miss event (read-only) ---
+        try:
+            rho_actual = float(getattr(self, "_last_rho", 0.6))
+            sqi_actual = float(getattr(self, "_last_sqi", 0.6))
+
+            rho_pred = float(getattr(self, "_last_forecast_rho", 0.6))
+            sqi_pred = float(getattr(self, "_last_forecast_sqi", 0.6))
+            conf_pred = float(getattr(self, "_last_forecast_conf", 0.2))
+
+            rho_err = abs(rho_actual - rho_pred)
+            sqi_err = abs(sqi_actual - sqi_pred)
+
+            # thresholds (stable defaults; env-overridable for tests)
+            TH_CONF = float(os.getenv("AION_FORECAST_MIN_CONF", "0.6") or "0.6")
+            TH_RHO = float(os.getenv("AION_FORECAST_RHO_ERR", "0.25") or "0.25")
+            TH_SQI = float(os.getenv("AION_FORECAST_SQI_ERR", "0.25") or "0.25")
+
+            if conf_pred >= TH_CONF and (rho_err >= TH_RHO or sqi_err >= TH_SQI):
+                from backend.modules.aion_cognition.prediction_miss import append_prediction_miss
+
+                append_prediction_miss(
+                    ts=time.time(),
+                    session=self.session_id,
+                    goal=self.goal,
+                    rho_pred=rho_pred,
+                    sqi_pred=sqi_pred,
+                    rho_actual=rho_actual,
+                    sqi_actual=sqi_actual,
+                    rho_err=rho_err,
+                    sqi_err=sqi_err,
+                    confidence=conf_pred,
+                    thresholds={"min_conf": TH_CONF, "rho_err": TH_RHO, "sqi_err": TH_SQI},
+                    cause="prediction_miss",
+                )
+        except Exception:
+            pass
 
         if not answer:
             logger.info(f"[CEE-Playback] ⚠ No answer provided for {ex_type} - skipping scoring.")
@@ -422,22 +736,40 @@ class CEEPlayback:
         else:
             correct = (guess == answer)
 
+            # --- Phase 4: repeated-error trigger (local, deterministic) ---
+            if isinstance(correct, bool):
+                self._recent_correct.append(bool(correct))
+                if len(self._recent_correct) > 6:
+                    self._recent_correct = self._recent_correct[-6:]
+
+                wrongs = sum(1 for v in self._recent_correct if v is False)
+                # 3 wrong in last 6 -> improve_accuracy
+                if wrongs >= 3 and self.goal != "improve_accuracy":
+                    log_goal_transition(
+                        ts=time.time(),
+                        from_goal=self.goal,
+                        to_goal="improve_accuracy",
+                        cause="repeated_errors",
+                        session=self.session_id,
+                    )
+                    self.goal = "improve_accuracy"
+                    _, cau_snap = _cau_allow(goal=self.goal)
+
             # =====================================================
             # ✅ Correct branch (CAU gated learn-or-queue)
             # =====================================================
             if correct:
                 logger.info(f"[CEE-Playback] ✅ Correct: {guess}")
 
-                # opportunistic flush before mutation attempt
                 try:
-                    _flush_queue(goal="maintain_coherence")
+                    _flush_queue(goal=self.goal)
                 except Exception:
                     pass
 
                 rho, Ibar, sqi = _norm_resonance(resonance)
 
-                allow, cau = _cau_allow(goal="maintain_coherence")
-                cau_snap = cau
+                allow = bool(cau_snap.get("allow_learn", True)) if isinstance(cau_snap, dict) else True
+                cau = cau_snap or {}
 
                 if allow:
                     _lex.update(
@@ -450,7 +782,6 @@ class CEEPlayback:
                     )
                     _lex.save()
 
-                    # Demo 5 hook: reinforce AKG edge (best-effort)
                     try:
                         from backend.modules.aion_cognition.akg_singleton import reinforce_answer_is
                         reinforce_answer_is(prompt, answer, hit=1.0)
@@ -478,7 +809,6 @@ class CEEPlayback:
                         f"[CEE-Playback] 🧯 CAU denied; queued LexMemory update. "
                         f"deny_reason={cau.get('deny_reason')} S={cau.get('S')} H={cau.get('H')} cooldown_s={cau.get('cooldown_s')}"
                     )
-
             # =====================================================
             # ❌ Wrong branch (optional auto-correct; CAU gated)
             # =====================================================
@@ -487,14 +817,15 @@ class CEEPlayback:
 
                 if memory_hit and answer and AUTO_CORRECT:
                     try:
-                        _flush_queue(goal="maintain_coherence")
+                        _flush_queue(goal=self.goal)
                     except Exception:
                         pass
 
                     rho, Ibar, sqi = _norm_resonance(resonance)
 
-                    allow, cau = _cau_allow(goal="maintain_coherence")
-                    cau_snap = cau
+                    # use the per-turn CAU snapshot
+                    allow = bool(cau_snap.get("allow_learn", True)) if isinstance(cau_snap, dict) else True
+                    cau = cau_snap or {}
 
                     if allow:
                         _lex.update(
@@ -511,6 +842,21 @@ class CEEPlayback:
                             },
                         )
                         _lex.save()
+
+                        # ✅ Phase-3 correction event (persisted)
+                        _append_correction_event(
+                            {
+                                "ts": time.time(),
+                                "session": self.session_id,
+                                "prompt": safe_prompt,
+                                "from_answer": guess,
+                                "to_answer": answer,
+                                "cause": "auto_correct",
+                                "allow_learn": True,
+                                "deny_reason": None,
+                            }
+                        )
+
                         logger.info(f"[LexMemory] 🔧 Auto-corrected memory for '{prompt}' -> {answer}")
                     else:
                         _append_queue(
@@ -525,6 +871,21 @@ class CEEPlayback:
                                 "type": ex_type,
                             }
                         )
+
+                        # ✅ Phase-3 correction event (denied, queued)
+                        _append_correction_event(
+                            {
+                                "ts": time.time(),
+                                "session": self.session_id,
+                                "prompt": safe_prompt,
+                                "from_answer": guess,
+                                "to_answer": answer,
+                                "cause": "auto_correct_denied_queued",
+                                "allow_learn": False,
+                                "deny_reason": cau.get("deny_reason"),
+                            }
+                        )
+
                         logger.warning(
                             f"[CEE-Playback] 🧯 CAU denied; queued auto-correct. "
                             f"deny_reason={cau.get('deny_reason')} S={cau.get('S')} H={cau.get('H')} cooldown_s={cau.get('cooldown_s')}"
@@ -540,8 +901,13 @@ class CEEPlayback:
                 "mode": self.mode,
                 "type": ex_type,
                 "prompt": safe_prompt,
+                "intent": _infer_intent(ex_type, safe_prompt),
+                "coherence": _coherence_from_cau(cs),
                 "correct": correct,
-                "allow_learn": bool(cs.get("allow_learn")) if cs else None,
+                "guess": guess,
+                "answer": answer,
+                "goal": self.goal,
+                "allow_learn": cs.get("allow_learn") if cs else None,
                 "deny_reason": cs.get("deny_reason") if cs else None,
                 "adr_active": cs.get("adr_active") if cs else None,
                 "cooldown_s": cs.get("cooldown_s") if cs else None,
@@ -552,7 +918,6 @@ class CEEPlayback:
             }
         )
 
-        # keep session record (include CAU snapshot if we have it)
         self.session.append(
             {
                 "type": ex_type,
@@ -562,38 +927,33 @@ class CEEPlayback:
                 "correct": correct,
                 "resonance": resonance,
                 "timestamp": time.time(),
-                "cau": cs if cs else _cau_status(goal="maintain_coherence"),
+                "cau": cs if cs else _cau_status(goal=self.goal),
+                "goal": self.goal,
                 "response_time_ms": rt_ms,
             }
         )
 
-    def _write_dummy_ral_metrics(data_root: Path) -> None:
-        p = data_root / "learning" / "ral_metrics.jsonl"
-        p.parent.mkdir(parents=True, exist_ok=True)
-        # enough for CAU: Phi/S/H
-        line = {
-            "timestamp": 0,
-            "mean_phi": 0.0,
-            "stability": 1.0,
-            "drift_entropy": 0.0,
-        }
-        p.write_text(json.dumps(line) + "\n", encoding="utf-8")
-
-    def run(self, n: int = 6, feed: str = "self_train"):
+    def run(self, n: int = 6, feed: str = "self_train", gens_csv: str = ""):
         """
         Program feeds:
-        - self_train: your fast trainer (wordwall replacement)
+        - self_train: deterministic trainer (default)
         - llm: optional generation (explicit only)
         """
         exercises: List[dict] = []
         feed = (feed or "self_train").strip().lower()
 
-        # Hard block legacy feeds
+        seed = _env_int("CEE_SEED", 0)
+        if seed:
+            random.seed(seed)
+
+        # ✅ Important for tests: emit one commentary line at run start (if enabled),
+        # even if n=0 or generator fails (so stdout capture is deterministic).
+        _emit_aion_commentary_line(goal=self.goal)
+
         if feed in ("wordwall", "hybrid", "local"):
             logger.warning(f"[CEE-Playback] feed '{feed}' not in program; forcing self_train.")
             feed = "self_train"
 
-        # 1) LLM feed (explicit only)
         if feed == "llm":
             try:
                 batch = generate_llm_exercise_batch(topic="linguistics", count=n)
@@ -602,7 +962,6 @@ class CEEPlayback:
                 logger.error(f"[CEE-Playback] LLM feed requested but failed; falling back to self_train. err={e}")
                 feed = "self_train"
 
-        # 2) SELF_TRAIN feed (default, deterministic, no network)
         if feed == "self_train":
             gens = [
                 generate_matchup,
@@ -618,6 +977,22 @@ class CEEPlayback:
                 grammar_punctuation_insert,
                 grammar_word_order,
             ]
+
+            name_to_gen = {g.__name__: g for g in gens}
+
+            forced: List[str] = []
+            if gens_csv:
+                forced = [s.strip() for s in gens_csv.split(",") if s.strip()]
+
+            for i in range(n):
+                if forced:
+                    gname = forced[i % len(forced)]
+                    gen = name_to_gen.get(gname)
+                    if gen is None:
+                        logger.warning(f"[CEE-Playback] Unknown gen '{gname}', falling back to random.")
+                        gen = random.choice(gens)
+                else:
+                    gen = random.choice(gens)
 
             for _ in range(n):
                 gen = random.choice(gens)
@@ -639,8 +1014,6 @@ class CEEPlayback:
                             missing_word = "degrees"
                         else:
                             missing_word = "interesting"
-
-                        # ✅ reuse already-initialized bridge (prevents double load + warnings)
                         ex = gen(sentence, missing_word, bridge=self.bridge)
 
                     elif gen.__name__ == "generate_group_sort":
@@ -658,9 +1031,7 @@ class CEEPlayback:
                 except Exception as e:
                     logger.warning(f"[CEE-Playback] Error running {gen.__name__}: {e}")
 
-        # -------------------------------
-        # 4.5) De-dupe identical prompts in one run
-        # -------------------------------
+        # De-dupe identical prompts in one run
         seen = set()
         deduped: List[dict] = []
         for ex in exercises:
@@ -676,7 +1047,6 @@ class CEEPlayback:
             deduped.append(ex)
         exercises = deduped
 
-        # 5) Play
         for ex in exercises:
             try:
                 self.play_exercise(ex)
@@ -700,11 +1070,10 @@ class CEEPlayback:
 
         avg_SQI = round(sum(float(_get_sqi(e) or 0.0) for e in self.session) / len(self.session), 3)
 
-        # ---- SELF state (non-fatal) ----
         self_state = None
         try:
             from backend.modules.aion_cognition.self_state import self_state_summary
-            self_state = self_state_summary()
+            self_state = self_state_summary(goal=self.goal)
             logger.info(f"[SELF] {self_state}")
         except Exception as e:
             logger.warning(f"[CEE-Playback] self_state_summary failed (non-fatal): {e}")
@@ -726,6 +1095,13 @@ class CEEPlayback:
 
         logger.info(f"[CEE-Playback] Exported playback log -> {OUT_PATH}")
 
+        # --- Phase 5: end-of-run forecast rollup ---
+        try:
+            from backend.modules.aion_cognition.forecast_summary import write_forecast_report_summary
+            write_forecast_report_summary(session=self.session_id, ts=time.time())
+        except Exception as e:
+            logger.warning(f"[CEE-Playback] forecast_report summary failed (non-fatal): {e}")
+
         try:
             update_habit_metrics({"ρ̄": 0.0, "Ī": 0.0, "SQĪ": avg_SQI})
         except Exception as e:
@@ -733,7 +1109,6 @@ class CEEPlayback:
 
         print(json.dumps(summary, indent=2))
 
-        # Optional resonance snapshot (safe)
         try:
             from backend.modules.aion_cognition.cee_resonance_analytics import snapshot_memory
             snapshot_memory(tag=self.session_id)
@@ -750,13 +1125,10 @@ class CEEPlayback:
 # ================================================================
 if __name__ == "__main__":
     import argparse
-    import logging
-    import os
 
     logging.basicConfig(level=logging.INFO)
 
     ap = argparse.ArgumentParser(description="CEE Exercise Playback (CAU-gated LexMemory)")
-
     ap.add_argument(
         "--mode",
         choices=["simulate", "interactive"],
@@ -769,8 +1141,6 @@ if __name__ == "__main__":
         default=int(os.getenv("CEE_N", "6")),
         help="number of exercises to run",
     )
-
-    # Program feeds (Wordwall removed)
     ap.add_argument(
         "--feed",
         choices=["self_train", "llm"],
@@ -778,7 +1148,60 @@ if __name__ == "__main__":
         help="self_train (default) | llm (explicit only)",
     )
 
+    # Phase 3: correction history query (CLI)
+    ap.add_argument(
+        "--history",
+        type=str,
+        default="",
+        help="print correction history for a prompt and exit",
+    )
+    ap.add_argument(
+        "--history_n",
+        type=int,
+        default=int(os.getenv("AION_HISTORY_N", "20")),
+        help="max history events (default 20)",
+    )
+    ap.add_argument(
+        "--since_ts",
+        type=float,
+        default=None,
+        help="Only return events with t >= since_ts (float seconds; e.g. 1769339264.05)",
+    )
+    ap.add_argument(
+        "--until_ts",
+        type=float,
+        default=None,
+        help="Only return events with t <= until_ts (float seconds; use +0.5/+1.0 for whole-second windows)",
+    )
+    ap.add_argument(
+        "--gens",
+        type=str,
+        default=os.getenv("CEE_GENS", ""),
+        help="Comma-separated generator names to use in order (overrides random selection).",
+    )
+
     args = ap.parse_args()
+
+    # Phase 3: history mode exits early
+    if args.history:
+        try:
+            evs = get_correction_history(
+                args.history,
+                limit=args.history_n,
+                since_ts=getattr(args, "since_ts", None),
+                until_ts=getattr(args, "until_ts", None),
+            )
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"[CEE-Playback] history query failed: {e}")
+            evs = []
+        print(
+            json.dumps(
+                {"prompt": args.history, "events": evs, "schema": "AION.CorrectionHistory.v1"},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        raise SystemExit(0)
 
     mode = (args.mode or "simulate").strip().lower()
     if mode not in ("simulate", "interactive"):
@@ -796,4 +1219,4 @@ if __name__ == "__main__":
         feed = "self_train"
 
     player = CEEPlayback(mode=mode)
-    player.run(n=args.n, feed=feed)
+    player.run(n=args.n, feed=feed, gens_csv=args.gens)
