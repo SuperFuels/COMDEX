@@ -1,7 +1,1 @@
-{
-  "files": {
-    "telemetry/demo_summary.lock.json": "216bafc97ae98aebd889b6967824996a2517de6f4cebd61918afe53683145076",
-    "telemetry/forecast_report.lock.json": "776a91f48fad246acbec456a281786f208986f5cc3648ea4202542e3c8cd7fee"
-  },
-  "schema": "AION.Phase6LockBundle.v1"
-}
+{"files":{"telemetry/demo_summary.lock.json":"3511bcdafb34ba791c9161d12b20e2e34b2c744b04d3ca9afd9451fff2667dc8","telemetry/forecast_report.lock.json":"5a7e32b52c558776e39cc245dde945e6ba610bbba08022c95ef34f823073663b"},"schema":"AION.Phase6LockBundle.v1"}
