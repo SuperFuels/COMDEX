@@ -55,6 +55,35 @@ except Exception as _e:
         f"[CEE-Playback] CAU authority not available; learning will be allowed by default. err={_e}"
     )
 
+def _data_root() -> Path:
+    return Path(os.getenv("DATA_ROOT", "data"))
+
+def get_cognitive_status(goal: str = "maintain_coherence") -> dict:
+    """
+    Canonical cognitive status object (v0).
+    For now: CAU is the source of truth.
+    """
+    st = _cau_status(goal=goal)
+    return {
+        "t": st.get("t", time.time()),
+        "Phi": st.get("Phi"),
+        "S": st.get("S"),
+        "H": st.get("H"),
+        "allow_learn": bool(st.get("allow_learn", False)),
+        "adr_active": bool(st.get("adr_active", False)),
+        "cooldown_s": int(st.get("cooldown_s", 0) or 0),
+        "deny_reason": st.get("deny_reason"),
+        "goal": st.get("goal", goal),
+        "source": st.get("source"),
+    }
+
+def _append_turn_log(rec: dict) -> None:
+    try:
+        TURN_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(TURN_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception as e:
+        logger.warning(f"[CEE-Playback] Failed to append turn log: {e}")
 
 def _cau_status(goal: str = "maintain_coherence") -> dict:
     """
@@ -146,14 +175,23 @@ from backend.modules.aion_cognition.cee_grammar_templates import (
 # ------------------------------------------------------------
 # Stable output paths
 # ------------------------------------------------------------
-OUT_PATH = Path("data/sessions/playback_log.qdata.json")
-LEX_PATH = Path("data/memory/lex_memory.json")
+def _paths() -> Tuple[Path, Path, Path]:
+    root = _data_root()
+    out_path = root / "sessions" / "playback_log.qdata.json"
+    lex_path = root / "memory" / "lex_memory.json"
+    queue_path = root / "memory" / "lexmemory_queue.jsonl"
+    return out_path, lex_path, queue_path
 
+OUT_PATH, LEX_PATH, LEX_QUEUE_PATH = _paths()
+
+DATA_ROOT = Path(os.getenv("DATA_ROOT", "data"))
+TURN_LOG_PATH = DATA_ROOT / "telemetry" / "turn_log.jsonl"
+
+AION_COMMENTARY = os.getenv("AION_COMMENTARY", "0").lower() in ("1", "true", "yes", "on")
+AION_VERBOSITY = (os.getenv("AION_VERBOSITY", "terse") or "terse").strip().lower()
 # ------------------------------------------------------------
 # LexMemory queue-on-deny (Phase 46A)
 # ------------------------------------------------------------
-LEX_QUEUE_PATH = Path("data/memory/lexmemory_queue.jsonl")
-
 
 def _append_queue(rec: dict) -> None:
     try:
@@ -292,6 +330,9 @@ class CEEPlayback:
 
     def play_exercise(self, ex: dict):
         """Safely play a single CEE exercise with full fallback handling."""
+        t0 = time.perf_counter()
+        cau_snap = None
+
         ex_type = ex.get("type", "unknown")
 
         prompt = ex.get("prompt")
@@ -309,6 +350,14 @@ class CEEPlayback:
         print(f"\n▶ {ex_type} - {safe_prompt}")
         if options:
             print(f"Options: {', '.join(str(o) for o in options if o)}")
+
+        # Phase-2: optional cognitive commentary line (fact-only)
+        if AION_COMMENTARY:
+            try:
+                from backend.modules.aion_cognition.self_state import self_state_summary
+                print(f"[AION] {self_state_summary(goal='maintain_coherence')}")
+            except Exception:
+                pass
 
         # Opportunistic queue flush
         try:
@@ -388,6 +437,8 @@ class CEEPlayback:
                 rho, Ibar, sqi = _norm_resonance(resonance)
 
                 allow, cau = _cau_allow(goal="maintain_coherence")
+                cau_snap = cau
+
                 if allow:
                     _lex.update(
                         prompt,
@@ -402,7 +453,6 @@ class CEEPlayback:
                     # Demo 5 hook: reinforce AKG edge (best-effort)
                     try:
                         from backend.modules.aion_cognition.akg_singleton import reinforce_answer_is
-
                         reinforce_answer_is(prompt, answer, hit=1.0)
                     except Exception:
                         pass
@@ -444,6 +494,8 @@ class CEEPlayback:
                     rho, Ibar, sqi = _norm_resonance(resonance)
 
                     allow, cau = _cau_allow(goal="maintain_coherence")
+                    cau_snap = cau
+
                     if allow:
                         _lex.update(
                             prompt,
@@ -451,7 +503,12 @@ class CEEPlayback:
                             rho=rho,
                             Ibar=Ibar,
                             sqi=sqi,
-                            meta={"auto_correct": True, "source": "cee_playback", "session": self.session_id, "type": ex_type},
+                            meta={
+                                "auto_correct": True,
+                                "source": "cee_playback",
+                                "session": self.session_id,
+                                "type": ex_type,
+                            },
                         )
                         _lex.save()
                         logger.info(f"[LexMemory] 🔧 Auto-corrected memory for '{prompt}' -> {answer}")
@@ -473,6 +530,29 @@ class CEEPlayback:
                             f"deny_reason={cau.get('deny_reason')} S={cau.get('S')} H={cau.get('H')} cooldown_s={cau.get('cooldown_s')}"
                         )
 
+        # ---- turn telemetry (Phase-2) ----
+        rt_ms = int(round((time.perf_counter() - t0) * 1000.0))
+        cs = cau_snap or {}
+        _append_turn_log(
+            {
+                "ts": time.time(),
+                "session": self.session_id,
+                "mode": self.mode,
+                "type": ex_type,
+                "prompt": safe_prompt,
+                "correct": correct,
+                "allow_learn": bool(cs.get("allow_learn")) if cs else None,
+                "deny_reason": cs.get("deny_reason") if cs else None,
+                "adr_active": cs.get("adr_active") if cs else None,
+                "cooldown_s": cs.get("cooldown_s") if cs else None,
+                "S": cs.get("S") if cs else None,
+                "H": cs.get("H") if cs else None,
+                "Phi": cs.get("Phi") if cs else None,
+                "response_time_ms": rt_ms,
+            }
+        )
+
+        # keep session record (include CAU snapshot if we have it)
         self.session.append(
             {
                 "type": ex_type,
@@ -482,11 +562,10 @@ class CEEPlayback:
                 "correct": correct,
                 "resonance": resonance,
                 "timestamp": time.time(),
+                "cau": cs if cs else _cau_status(goal="maintain_coherence"),
+                "response_time_ms": rt_ms,
             }
         )
-
-    import json
-    from pathlib import Path
 
     def _write_dummy_ral_metrics(data_root: Path) -> None:
         p = data_root / "learning" / "ral_metrics.jsonl"
