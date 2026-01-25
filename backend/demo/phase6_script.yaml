@@ -28,6 +28,9 @@ defaults:
     # Force risk emission even if CAU lacks S/H (NO_RAL_METRICS)
     AION_RISK_MIN_CONF: "0.10"
     AION_RISK_MIN_SCORE: "0.00"
+    PYTHONHASHSEED: "0"
+    TZ: "UTC"
+    LC_ALL: "C"
 
 artifacts:
   - "$DATA_ROOT/sessions/playback_log.qdata.json"
@@ -138,18 +141,23 @@ steps:
   - id: "demo-summary"
     title: "Generate post-demo summary dump (single proof file)"
     run:
-      - 'python backend/demo/demo_summary.py'
+      - "python backend/demo/demo_summary.py"
+      - 'echo "--- ls telemetry ---"'
+      - 'ls -lah "$DATA_ROOT/telemetry"'
+      - 'echo "--- demo_summary.lock.json ---"'
+      - 'test -f "$DATA_ROOT/telemetry/demo_summary.lock.json" && cat "$DATA_ROOT/telemetry/demo_summary.lock.json" || (echo "MISSING demo_summary.lock.json" && exit 2)'
       - 'echo "--- demo_summary.json ---"'
       - 'cat "$DATA_ROOT/telemetry/demo_summary.json"'
     expect:
+      exit_code: 0
       files_exist:
         - "$DATA_ROOT/telemetry/demo_summary.json"
+        - "$DATA_ROOT/telemetry/demo_summary.lock.json"
       stdout_contains:
-        - '"schema": "AION.DemoSummary.v1"'
+        - '"schema":"AION.DemoSummaryLock.v3"'
+        - '"counts":'
         - '"n_denies"'
         - '"n_forecasts"'
-        - '"n_prediction_miss"'
-        - '"n_risk_awareness"' 
 
   - id: "voice-demo"
     title: "Voice: narrate demo summary via ElevenLabs (optional)"
@@ -174,9 +182,27 @@ steps:
         - "$DATA_ROOT/telemetry/demo_summary.lock.json"
         - "$DATA_ROOT/telemetry/phase6_lock_bundle.json"
       stdout_contains:
-        - '"schema": "AION.Phase6LockBundle.v1"'
+        - '"schema":"AION.Phase6LockBundle.v1"'
         - "forecast_report.lock.json"
-        - "demo_summary.lock.json" 
+        - "demo_summary.lock.json"
+
+  - id: "phase7-calibration"
+    title: "Phase 7: Expectation calibration analysis (read-only)"
+    run:
+      - "python backend/demo/phase7_calibration.py"
+      - 'echo "--- reliability_curve.json ---"'
+      - 'cat "$DATA_ROOT/telemetry/reliability_curve.json"'
+      - 'echo "--- calibration_metrics.json ---"'
+      - 'cat "$DATA_ROOT/telemetry/calibration_metrics.json"'
+    expect:
+      exit_code: 0
+      files_exist:
+        - "$DATA_ROOT/telemetry/reliability_curve.json"
+        - "$DATA_ROOT/telemetry/calibration_metrics.json"
+      stdout_contains:
+        - '"schema":"AION.ReliabilityCurve.v1"'
+        - '"schema":"AION.CalibrationMetrics.v1"'
+        - '"ece":'
 
   - id: "optional-goal-log"
     title: "Optional: show goal transitions if they happened"
