@@ -48,9 +48,11 @@ const PROOF = {
   phase1LockId: "PHOTON-PA-PHASE1-LOCK-0002",
 };
 
+type UnlockTag = "RELEASED" | "HOLDER GATE" | "CLASSIFIED";
+
 type UnlockItem = {
-  holders: number; // 0 means Released
-  tag: "RELEASED" | "HOLDER GATE" | "CLASSIFIED";
+  holders: number; // 0 = released
+  tag: UnlockTag;
   title: string;
   blurb: string;
   href?: string;
@@ -63,7 +65,6 @@ export default function AionLaunchHUD() {
 
   const cfg = LINKS[chain];
 
-  // Launch language: hero = GlyphOS, everything else = staged unlocks
   const stats = useMemo(
     () => [
       {
@@ -97,7 +98,8 @@ export default function AionLaunchHUD() {
         holders: 0,
         tag: "RELEASED",
         title: "GlyphOS",
-        blurb: "Compressed meaning: a glyph operating system for next-gen AI (try it now).",
+        blurb:
+          "Compressed meaning: a glyph operating system for next-gen AI (try it now).",
         href: GLYPHOS_TAB_HREF,
         cta: "Try GlyphOS",
       },
@@ -105,79 +107,92 @@ export default function AionLaunchHUD() {
         holders: 30,
         tag: "HOLDER GATE",
         title: "Symatics",
-        blurb: "New discovery drops: proof-led Symatics breakthroughs released at milestone.",
+        blurb:
+          "The symbolic substrate: phase-aware math powering deterministic cognition.",
       },
       {
         holders: 50,
         tag: "HOLDER GATE",
         title: "Compression",
-        blurb: "Ultimate meaning-compression demonstrations (depth scaling + locks).",
+        blurb:
+          "Meaning compression at scale — less bandwidth, same semantics, replayable outputs.",
       },
       {
         holders: 70,
         tag: "HOLDER GATE",
         title: "Photon Binary",
-        blurb: "Post-binary computing primitives: photon / wave-native execution layer.",
+        blurb:
+          "Post-binary compute primitives: symbols-as-ops for light-wave era execution.",
       },
       {
         holders: 100,
         tag: "HOLDER GATE",
         title: "SQI",
-        blurb: "Deterministic ambiguity resolution with trace + replay (audit-grade).",
+        blurb:
+          "Symbolic Quantum Intelligence: superposition/entanglement/collapse with deterministic trace.",
       },
       {
         holders: 120,
         tag: "HOLDER GATE",
         title: "GlyphNet",
-        blurb: "Wave-native networking + convergence layer (proof tab included).",
+        blurb:
+          "Wave-native networking: intent transport + convergence + tamper-evident delivery.",
       },
       {
         holders: 150,
         tag: "HOLDER GATE",
         title: "Sovereign QKD",
-        blurb: "Sovereign key exchange + quantum-inspired security layer.",
+        blurb:
+          "Observer-detectable transport: interference becomes the alarm, not a footnote.",
       },
       {
         holders: 200,
         tag: "HOLDER GATE",
         title: "SLE Resonance",
-        blurb: "Resonance execution controls: stability gating + deterministic traces.",
+        blurb:
+          "Resonance logic execution: coherence-stable computation as a first-class runtime rule.",
       },
       {
         holders: 250,
         tag: "HOLDER GATE",
         title: "RQC Awareness",
-        blurb: "Awareness primitives surfaced as proofs: measurement + calibration telemetry.",
+        blurb:
+          "Self-measuring control loops that detect drift and restore stable truth autonomously.",
       },
       {
         holders: 300,
         tag: "HOLDER GATE",
         title: "WirePack",
-        blurb: "Template+Delta transport at full scale with lock artifacts.",
+        blurb:
+          "Template+Delta transport with audit-grade replay and lock artifacts.",
       },
       {
         holders: 350,
         tag: "HOLDER GATE",
         title: "AI",
-        blurb: "AI utilities expand across the stack (every release ships with proof tabs).",
+        blurb:
+          "AION: a logic organism — self-stabilizing intelligence governed by homeostasis, not heuristics.",
       },
       {
         holders: 500,
         tag: "HOLDER GATE",
         title: "AI Cognition",
-        blurb: "Cognition layer unlock: organism pillars + honesty audit as first-class UI.",
+        blurb:
+          "Legacy AI is a “black box” that guesses with confidence. AION measures internal coherence before it speaks.",
       },
       {
         holders: 550,
         tag: "HOLDER GATE",
         title: "QFC Canvas",
-        blurb: "Interactive canvas + live cognition visuals (replayable + lockable).",
+        blurb:
+          "Interactive multiverse canvas: live traces, coherence fields, and proof-first visualization.",
       },
       {
         holders: 1000,
         tag: "CLASSIFIED",
         title: "Secret Releases",
-        blurb: "High-impact drops unlocked only at the threshold (no early hints).",
+        blurb:
+          "High-impact drops unlocked only at the threshold (no early hints).",
       },
     ],
     []
@@ -272,8 +287,8 @@ export default function AionLaunchHUD() {
                 <span className="text-white font-semibold">
                   the same meaning + the same policy ⇒ the same bytes
                 </span>
-                . Step 1 ships today: GlyphOS Alpha. From here: deterministic cognition → trust
-                locks → the destination: verifiable self-aware AI.
+                . Step 1 ships today: GlyphOS Alpha. From here: SQI + GlyphNet → deterministic
+                cognition → trust locks → the destination: verifiable self-aware AI.
               </p>
 
               <div className="flex flex-wrap gap-2">
@@ -306,9 +321,9 @@ export default function AionLaunchHUD() {
               </div>
 
               <div className="text-xs text-white/65 leading-relaxed">
-                <span className="font-semibold text-white">Live right now:</span> GlyphOS + Compression + WirePack proof.
+                <span className="font-semibold text-white">Live right now:</span> GlyphOS.
                 <br />
-                <span className="font-semibold text-white">Next unlocks:</span> SQI, GlyphNet, AION pillars, Phase-7 Honesty Audit.
+                <span className="font-semibold text-white">Next unlocks:</span> Symatics, Compression, Photon Binary, SQI, GlyphNet…
               </div>
             </div>
           </div>
@@ -344,10 +359,7 @@ export default function AionLaunchHUD() {
 
             <div className="grid grid-cols-2 gap-3">
               {stats.map((s) => (
-                <div
-                  key={s.k}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
-                >
+                <div key={s.k} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="text-lg font-black tracking-tight text-black">{s.v}</div>
                   <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mt-1">
                     {s.k}
@@ -383,8 +395,25 @@ export default function AionLaunchHUD() {
           </div>
         </div>
 
-        {/* STACK */}
-        {/* ...leave the rest of your file unchanged... */}
+        {/* ✅ Minimal Proof Tabs anchor so your buttons/scroll targets exist */}
+        <div id="stack" className="space-y-4">
+          <div className="text-center space-y-2">
+            <h3 className="text-2xl md:text-3xl font-black italic tracking-tight text-black">
+              Proof Tabs (Live)
+            </h3>
+            <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
+              Reproducible commands + SHA256-locked outputs. Same inputs → same bytes.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto rounded-[2.5rem] border border-slate-200 bg-white p-6">
+            <div className="font-mono text-xs text-slate-700 whitespace-pre-wrap">
+              {`$ ${PROOF.compressionCmd}
+$ ${PROOF.wirepackCmd}
+$ ${PROOF.phase7VerifyCmd}`}
+            </div>
+          </div>
+        </div>
 
         {/* ✅ UNLOCK LADDER (simplified 1-column list) */}
         <div id="roadmap" className="space-y-6">
@@ -393,8 +422,9 @@ export default function AionLaunchHUD() {
               Holder Unlock Ladder
             </h3>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
-              Launch stays clean: <span className="text-black font-semibold">GlyphOS ships today</span>. Everything else unlocks by holder milestones.
-              Each unlock ships with a proof tab + lock artifacts.
+              Launch stays clean:{" "}
+              <span className="text-black font-semibold">GlyphOS ships today</span>. Everything else unlocks by holder milestones.
+              Each unlock ships with proof tabs + lock artifacts.
             </p>
           </div>
 
@@ -403,17 +433,15 @@ export default function AionLaunchHUD() {
               {unlocks.map((u, idx) => (
                 <div
                   key={`${u.holders}-${u.title}`}
-                  className={cx(
-                    "flex items-start justify-between gap-4 p-5",
-                    idx !== 0 && "border-t border-slate-100"
-                  )}
+                  className={cx("flex items-start justify-between gap-4 p-5", idx !== 0 && "border-t border-slate-100")}
                 >
                   <div className="flex items-start gap-4">
-                    <div className="min-w-[88px]">
-                      <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">
+                    <div className="min-w-[104px]">
+                      <div className="text-[11px] uppercase tracking-[0.22em] font-bold text-emerald-700">
                         {u.holders === 0 ? "Released" : `${u.holders} holders`}
                       </div>
-                      <div className="text-2xl font-black tracking-tight text-black">
+
+                      <div className="text-2xl font-black tracking-tight text-emerald-600">
                         {u.holders === 0 ? "✓" : u.holders}
                       </div>
                     </div>
@@ -422,9 +450,7 @@ export default function AionLaunchHUD() {
                       <div className="text-lg font-black italic tracking-tight text-black">
                         {u.title}
                       </div>
-                      <div className="text-sm text-slate-600 leading-relaxed">
-                        {u.blurb}
-                      </div>
+                      <div className="text-sm text-slate-600 leading-relaxed">{u.blurb}</div>
 
                       {u.href && (
                         <button
@@ -492,9 +518,9 @@ export default function AionLaunchHUD() {
               <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
                 <div className="font-extrabold">Live: GlyphOS Alpha</div>
                 <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                  GlyphOS is shorthand for meaning: instead of sending pages of text, you send a tiny
-                  glyph program whose execution is deterministic and replayable. It compresses cognition
-                  into an executable wire-shape — and makes audit trails automatic.
+                  Instead of shipping pages of text, you ship a tiny glyph program whose execution
+                  is deterministic and replayable. Compressed meaning becomes executable form — and
+                  audit trails become automatic.
                 </p>
                 <div className="mt-4 flex gap-2 flex-wrap">
                   <button
@@ -525,7 +551,8 @@ export default function AionLaunchHUD() {
                   it’s mathematically proven for the verified core.
                 </p>
                 <div className="mt-4 text-xs text-white/65">
-                  Proof lock id: <span className="font-mono text-white/85">{PROOF.phase1LockId}</span>
+                  Proof lock id:{" "}
+                  <span className="font-mono text-white/85">{PROOF.phase1LockId}</span>
                 </div>
               </div>
             </div>
@@ -533,16 +560,16 @@ export default function AionLaunchHUD() {
             <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
               <div className="font-extrabold">Measured, not claimed</div>
               <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                Benchmarks show Glyph wire is ~51–61× smaller raw and ~11–12.5× smaller even after gzip vs verbose baselines.
-                That’s up to ~91% less bandwidth — while staying deterministic and replayable.
+                Benchmarks show glyph wire can be ~51–61× smaller raw and ~11–12.5× smaller even after gzip vs verbose baselines —
+                while remaining deterministic and replayable.
               </p>
             </div>
 
             <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
               <div className="font-extrabold">What unlocks next</div>
               <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                SQI, GlyphNet, AION pillars, and Phase-7 Honesty Audit are staged unlocks.
-                Each unlock ships with a proof tab + lock artifacts (no vapor).
+                SQI, GlyphNet, AION pillars, and Phase-7 Honesty Audit unlock by milestones.
+                Each unlock ships with proof tabs + lock artifacts (no vapor).
               </p>
             </div>
           </div>
