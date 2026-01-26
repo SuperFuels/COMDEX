@@ -32,6 +32,12 @@ function safeOpen(url: string) {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
+function shortAddr(addr: string, head = 6, tail = 4) {
+  if (!addr) return "";
+  if (addr.length <= head + tail + 3) return addr;
+  return `${addr.slice(0, head)}…${addr.slice(-tail)}`;
+}
+
 // ✅ Try Glyph OS should go to your real tab route:
 const GLYPHOS_TAB_HREF = "/glyph"; // <- per your tabs list
 
@@ -115,59 +121,84 @@ export default function AionLaunchHUD() {
 
   return (
     <>
-      <div className="space-y-10">
+      {/* page padding for mobile */}
+      <div className="space-y-8 sm:space-y-10 px-3 sm:px-6">
         {/* TOPBAR */}
-        <div className="sticky top-0 z-20">
-          <div className="rounded-[1.75rem] border border-slate-200 bg-white/80 backdrop-blur px-4 py-3 shadow-sm">
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-200/60 via-white to-blue-200/60" />
-                <div>
-                  <div className="text-sm font-extrabold tracking-tight text-black">GlyphOS Launch</div>
-                  <div className="text-[11px] text-slate-500 tracking-wide">Shipped Today • Formally Verified • Audit-Ready</div>
+        <div className="sticky top-0 z-20 -mx-3 sm:-mx-6 px-3 sm:px-6">
+          <div className="rounded-[1.25rem] sm:rounded-[1.75rem] border border-slate-200 bg-white/85 backdrop-blur px-3 sm:px-4 py-3 shadow-sm">
+            <div className="flex items-start sm:items-center justify-between gap-3">
+              {/* left */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="h-10 w-10 rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-200/60 via-white to-blue-200/60 shrink-0" />
+                <div className="min-w-0">
+                  <div className="text-sm font-extrabold tracking-tight text-black">Pair: GPH</div>
+
+                  {/* mobile: short contract; desktop: full */}
+                  <div className="text-[11px] text-slate-500 tracking-wide leading-snug min-w-0">
+                    <span className="inline sm:hidden">
+                      Contract:{" "}
+                      <span className="font-mono text-slate-700 select-all" title={cfg.contract}>
+                        {shortAddr(cfg.contract)}
+                      </span>{" "}
+                      • Liquidity: LOCKED
+                    </span>
+                    <span className="hidden sm:inline">
+                      Contract:{" "}
+                      <span className="font-mono text-slate-700 select-all" title={cfg.contract}>
+                        {cfg.contract}
+                      </span>{" "}
+                      • Liquidity: LOCKED (add lock link)
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* ✅ updated topbar actions */}
-              <div className="flex items-center gap-2 flex-wrap">
+              {/* actions: horizontal scroll on mobile */}
+              <div
+                className={cx(
+                  "flex items-center gap-2",
+                  "whitespace-nowrap overflow-x-auto max-w-[55vw] sm:max-w-none",
+                  "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                )}
+              >
                 <a
                   href="#roadmap"
-                  className="px-3 py-2 rounded-full border border-emerald-200 bg-emerald-50 text-xs font-bold tracking-wide text-emerald-700 hover:border-emerald-300"
+                  className="px-3 py-2 rounded-full border border-emerald-200 bg-emerald-50 text-xs font-bold tracking-wide text-emerald-700 hover:border-emerald-300 shrink-0"
                 >
-                  Unlock Ladder
+                  Unlock
                 </a>
 
                 <button
                   onClick={() => (window.location.href = GLYPHOS_TAB_HREF)}
-                  className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300"
+                  className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300 shrink-0"
                 >
                   Glyph OS
                 </button>
 
                 <button
                   onClick={() => safeOpen(SOCIAL.chart)}
-                  className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300"
+                  className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300 shrink-0"
                 >
                   Chart
                 </button>
 
                 <button
                   onClick={() => safeOpen(SOCIAL.telegram)}
-                  className="px-3 py-2 rounded-full border border-blue-200 bg-blue-50 text-xs font-extrabold tracking-wide text-blue-700 hover:border-blue-300"
+                  className="px-3 py-2 rounded-full border border-blue-200 bg-blue-50 text-xs font-extrabold tracking-wide text-blue-700 hover:border-blue-300 shrink-0"
                 >
                   Telegram
                 </button>
 
                 <button
                   onClick={() => safeOpen(SOCIAL.x)}
-                  className="px-3 py-2 rounded-full border border-slate-200 bg-black text-xs font-extrabold tracking-wide text-white hover:opacity-90"
+                  className="px-3 py-2 rounded-full border border-slate-200 bg-black text-xs font-extrabold tracking-wide text-white hover:opacity-90 shrink-0"
                 >
                   X
                 </button>
 
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  className="px-3 py-2 rounded-full border border-emerald-200 bg-emerald-600 text-xs font-extrabold tracking-wide text-white hover:bg-emerald-700"
+                  className="px-3 py-2 rounded-full border border-emerald-200 bg-emerald-600 text-xs font-extrabold tracking-wide text-white hover:bg-emerald-700 shrink-0"
                 >
                   Buy GPH
                 </button>
@@ -177,11 +208,11 @@ export default function AionLaunchHUD() {
         </div>
 
         {/* HERO GRID */}
-        <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-6" id="glyphos">
+        <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-4 sm:gap-6" id="glyphos">
           {/* LEFT (Hero) */}
-          <div className="rounded-[2.5rem] border border-slate-200 bg-black text-white p-8 relative overflow-hidden">
+          <div className="rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-black text-white p-5 sm:p-8 relative overflow-hidden">
             <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_0%,rgba(59,130,246,0.6),transparent_55%),radial-gradient(circle_at_80%_20%,rgba(16,185,129,0.5),transparent_55%),radial-gradient(circle_at_90%_90%,rgba(244,63,94,0.35),transparent_60%)]" />
-            <div className="relative space-y-6">
+            <div className="relative space-y-5 sm:space-y-6">
               <div className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-bold tracking-widest">
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -195,12 +226,12 @@ export default function AionLaunchHUD() {
 
               <div className="space-y-2">
                 <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">GlyphOS</div>
-                <h2 className="text-3xl md:text-6xl font-black italic tracking-tight">
+                <h2 className="text-3xl sm:text-4xl md:text-6xl font-black italic tracking-tight">
                   The Language of Symbols. The Speed of Thought.
                 </h2>
               </div>
 
-              <p className="text-white/75 text-base md:text-lg leading-relaxed max-w-2xl">
+              <p className="text-white/75 text-base sm:text-lg leading-relaxed max-w-2xl">
                 An operating system built in symbols — compressing intent into executable{" "}
                 <span className="text-white font-semibold">glyph wire</span> so{" "}
                 <span className="text-white font-semibold">the same meaning + the same policy ⇒ the same bytes</span>.
@@ -208,24 +239,24 @@ export default function AionLaunchHUD() {
                 destination: verifiable self-aware AI.
               </p>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
                 <button
                   onClick={() => (window.location.href = GLYPHOS_TAB_HREF)}
-                  className="px-4 py-3 rounded-2xl bg-white text-black font-extrabold tracking-wide hover:opacity-95"
+                  className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-white text-black font-extrabold tracking-wide hover:opacity-95"
                 >
                   Open Glyph OS
                 </button>
 
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  className="px-4 py-3 rounded-2xl bg-emerald-600 text-white font-extrabold tracking-wide hover:bg-emerald-700"
+                  className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-emerald-600 text-white font-extrabold tracking-wide hover:bg-emerald-700"
                 >
                   Buy GPH
                 </button>
 
                 <button
                   onClick={() => setOverlayOpen(true)}
-                  className="px-4 py-3 rounded-2xl border border-amber-200/30 bg-amber-200/10 text-amber-100 font-bold tracking-wide hover:bg-amber-200/15"
+                  className="w-full sm:w-auto px-4 py-3 rounded-2xl border border-amber-200/30 bg-amber-200/10 text-amber-100 font-bold tracking-wide hover:bg-amber-200/15"
                 >
                   What’s proven today
                 </button>
@@ -233,14 +264,17 @@ export default function AionLaunchHUD() {
 
               <div className="pt-4 border-t border-white/10 text-xs text-white/65 leading-relaxed">
                 Pair: <span className="font-semibold text-white">{cfg.label}</span> • Contract:{" "}
-                <span className="font-mono text-white/90">{cfg.contract}</span> • Liquidity:{" "}
-                <span className="font-semibold">LOCKED</span> (add lock link) • Not financial advice.
+                <span className="font-mono text-white/90 select-all" title={cfg.contract}>
+                  <span className="inline sm:hidden">{shortAddr(cfg.contract)}</span>
+                  <span className="hidden sm:inline">{cfg.contract}</span>
+                </span>{" "}
+                • Liquidity: <span className="font-semibold">LOCKED</span> (add lock link) • Not financial advice.
               </div>
             </div>
           </div>
 
           {/* RIGHT (Launch Console) */}
-          <div className="rounded-[2.5rem] border border-slate-200 bg-white p-8 space-y-6">
+          <div className="rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-white p-5 sm:p-8 space-y-5 sm:space-y-6">
             <div className="space-y-2">
               <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">Launch Console</p>
               <p className="text-slate-600 leading-relaxed">
@@ -267,7 +301,8 @@ export default function AionLaunchHUD() {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            {/* ✅ mobile: 1 col; desktop: 2 col */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {stats.map((s) => (
                 <div key={s.k} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="text-lg font-black tracking-tight text-black">{s.v}</div>
@@ -299,18 +334,16 @@ export default function AionLaunchHUD() {
           </div>
         </div>
 
-        {/* ✅ FORMAL PROOF REPOSITORY (replaces old Proof Tabs block) */}
+        {/* ✅ FORMAL PROOF REPOSITORY */}
         <div id="proofs" className="space-y-4">
-          <div className="text-center space-y-2">
-            <h3 className="text-2xl md:text-3xl font-black italic tracking-tight text-black">
-              Git Formal Proof Repository
-            </h3>
+          <div className="text-center space-y-2 px-1">
+            <h3 className="text-2xl md:text-3xl font-black italic tracking-tight text-black">Git Formal Proof Repository</h3>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
               Verifiable mathematical equations, frameworks, tests & papers — machine-checkable proof, not screenshots.
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto rounded-[2.5rem] border border-slate-200 bg-white p-6 space-y-4">
+          <div className="max-w-4xl mx-auto rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-white p-4 sm:p-6 space-y-4">
             <div className="grid md:grid-cols-2 gap-3">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">
@@ -323,19 +356,16 @@ export default function AionLaunchHUD() {
 
                 <button
                   onClick={() => safeOpen(GITHUB_REPO_URL)}
-                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-black text-white text-xs font-extrabold tracking-wide hover:opacity-90"
+                  className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-black text-white text-xs font-extrabold tracking-wide hover:opacity-90"
                 >
-                  Open GitHub
-                  <span className="text-white/60">→</span>
+                  Open GitHub <span className="text-white/60">→</span>
                 </button>
 
                 <div className="mt-2 text-[11px] text-slate-500">Audited by a third party (add auditor link if available).</div>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">
-                  Missing Links Checklist
-                </div>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">Missing Links Checklist</div>
 
                 <div className="mt-2 text-sm text-slate-700 leading-relaxed space-y-2">
                   <div>
@@ -350,10 +380,9 @@ export default function AionLaunchHUD() {
 
                 <button
                   onClick={() => safeOpen(PROOF.leanSnapshotHref)}
-                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300"
+                  className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-2xl border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300"
                 >
-                  Open Lean Proof Anchor
-                  <span className="text-black/40">→</span>
+                  Open Lean Proof Anchor <span className="text-black/40">→</span>
                 </button>
               </div>
             </div>
@@ -371,7 +400,7 @@ export default function AionLaunchHUD() {
               <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
                 Reproducible Verification Commands
               </div>
-              <div className="font-mono text-xs text-slate-700 whitespace-pre-wrap">
+              <div className="font-mono text-xs text-slate-700 whitespace-pre-wrap break-words">
                 {`$ ${PROOF.compressionCmd}
 $ ${PROOF.wirepackCmd}
 $ ${PROOF.phase7VerifyCmd}`}
@@ -380,9 +409,9 @@ $ ${PROOF.phase7VerifyCmd}`}
           </div>
         </div>
 
-        {/* ✅ UNLOCK LADDER (single-column list) */}
+        {/* ✅ UNLOCK LADDER */}
         <div id="roadmap" className="space-y-6">
-          <div className="space-y-2 text-center">
+          <div className="space-y-2 text-center px-1">
             <h3 className="text-3xl font-black italic tracking-tight text-black">Holder Unlock Ladder</h3>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
               Launch stays clean: <span className="text-black font-semibold">GlyphOS ships today</span>. Everything else unlocks by
@@ -391,21 +420,20 @@ $ ${PROOF.phase7VerifyCmd}`}
           </div>
 
           <div className="max-w-3xl mx-auto">
-            <div className="rounded-[2.5rem] border border-slate-200 bg-white overflow-hidden">
+            <div className="rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-white overflow-hidden">
               {unlocks.map((u, idx) => {
-                // ✅ ONLY GREEN FOR FIRST ROW (Released ✓)
                 const isReleaseRow = idx === 0;
 
                 return (
                   <div
                     key={`${u.holders}-${u.title}`}
-                    className={cx("flex items-start justify-between gap-4 p-5", idx !== 0 && "border-t border-slate-100")}
+                    className={cx("flex items-start justify-between gap-3 sm:gap-4 p-4 sm:p-5", idx !== 0 && "border-t border-slate-100")}
                   >
-                    <div className="flex items-start gap-4">
-                      <div className="min-w-[104px]">
+                    <div className="flex items-start gap-3 sm:gap-4 min-w-0">
+                      <div className="min-w-[84px] sm:min-w-[104px]">
                         <div
                           className={cx(
-                            "text-[11px] uppercase tracking-[0.22em] font-bold",
+                            "text-[10px] sm:text-[11px] uppercase tracking-[0.22em] font-bold",
                             isReleaseRow ? "text-emerald-700" : "text-slate-500"
                           )}
                         >
@@ -414,7 +442,7 @@ $ ${PROOF.phase7VerifyCmd}`}
 
                         <div
                           className={cx(
-                            "text-2xl font-black tracking-tight",
+                            "text-xl sm:text-2xl font-black tracking-tight",
                             isReleaseRow ? "text-emerald-600" : "text-black"
                           )}
                         >
@@ -422,9 +450,9 @@ $ ${PROOF.phase7VerifyCmd}`}
                         </div>
                       </div>
 
-                      <div className="space-y-1">
-                        <div className="text-lg font-black italic tracking-tight text-black">{u.title}</div>
-                        <div className="text-sm text-slate-600 leading-relaxed">{u.blurb}</div>
+                      <div className="space-y-1 min-w-0">
+                        <div className="text-base sm:text-lg font-black italic tracking-tight text-black">{u.title}</div>
+                        <div className="text-sm text-slate-600 leading-relaxed break-words">{u.blurb}</div>
 
                         {u.href && (
                           <button
@@ -440,7 +468,7 @@ $ ${PROOF.phase7VerifyCmd}`}
 
                     <span
                       className={cx(
-                        "px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-[0.22em] whitespace-nowrap",
+                        "shrink-0 px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-[0.22em] whitespace-nowrap",
                         u.tag === "RELEASED"
                           ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                           : u.tag === "CLASSIFIED"
@@ -455,27 +483,27 @@ $ ${PROOF.phase7VerifyCmd}`}
               })}
             </div>
 
-            <div className="mt-4 text-center text-xs text-slate-500">
+            <div className="mt-4 text-center text-xs text-slate-500 px-1">
               Rule: anything listed here ships with proof tabs + lock artifacts when unlocked.
             </div>
           </div>
         </div>
       </div>
 
-      {/* OVERLAY */}
+      {/* OVERLAY (mobile: scrollable modal) */}
       {overlayOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur flex items-center justify-center p-3 sm:p-4"
           onClick={() => setOverlayOpen(false)}
         >
           <div
-            className="w-full max-w-3xl rounded-[2.5rem] border border-white/10 bg-black text-white p-8 space-y-6"
+            className="w-full max-w-3xl rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 bg-black text-white p-5 sm:p-8 space-y-5 sm:space-y-6 max-h-[85vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">What’s proven today</div>
-                <div className="text-2xl font-black italic mt-2">GlyphOS ships with proof — not promises.</div>
+                <div className="text-xl sm:text-2xl font-black italic mt-2">GlyphOS ships with proof — not promises.</div>
               </div>
               <button
                 onClick={() => setOverlayOpen(false)}
@@ -485,16 +513,16 @@ $ ${PROOF.phase7VerifyCmd}`}
               </button>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
+            <div className="grid md:grid-cols-2 gap-3 sm:gap-4">
+              <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 bg-white/5 p-5">
                 <div className="font-extrabold">Live: GlyphOS Alpha</div>
                 <p className="text-white/70 mt-2 text-sm leading-relaxed">
                   Instead of shipping pages of text, you ship a tiny glyph program whose execution is deterministic and replayable.
                   Compressed meaning becomes executable form — and audit trails become automatic.
                 </p>
-                <div className="mt-4 flex gap-2 flex-wrap">
+                <div className="mt-4 flex flex-col sm:flex-row gap-2">
                   <button
-                    className="px-4 py-2 rounded-2xl bg-white text-black font-extrabold"
+                    className="w-full sm:w-auto px-4 py-2 rounded-2xl bg-white text-black font-extrabold"
                     onClick={() => {
                       setOverlayOpen(false);
                       window.location.href = GLYPHOS_TAB_HREF;
@@ -503,7 +531,7 @@ $ ${PROOF.phase7VerifyCmd}`}
                     Open Glyph OS
                   </button>
                   <button
-                    className="px-4 py-2 rounded-2xl border border-white/15 bg-white/5 font-bold"
+                    className="w-full sm:w-auto px-4 py-2 rounded-2xl border border-white/15 bg-white/5 font-bold"
                     onClick={() => {
                       setOverlayOpen(false);
                       document.getElementById("roadmap")?.scrollIntoView({ behavior: "smooth" });
@@ -514,18 +542,18 @@ $ ${PROOF.phase7VerifyCmd}`}
                 </div>
               </div>
 
-              <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
+              <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 bg-white/5 p-5">
                 <div className="font-extrabold">Formal Verification (Lean)</div>
                 <p className="text-white/70 mt-2 text-sm leading-relaxed">
                   Where others say “trust us”, we use machine-checked proofs. Determinism isn’t a vibe — it’s proven for the verified core.
                 </p>
                 <div className="mt-4 text-xs text-white/65">
-                  Proof lock id: <span className="font-mono text-white/85">{PROOF.phase1LockId}</span>
+                  Proof lock id: <span className="font-mono text-white/85 select-all">{PROOF.phase1LockId}</span>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
+            <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 bg-white/5 p-5">
               <div className="font-extrabold">Measured, not claimed</div>
               <p className="text-white/70 mt-2 text-sm leading-relaxed">
                 Benchmarks show glyph wire can be ~51–61× smaller raw and ~11–12.5× smaller even after gzip vs verbose baselines —
@@ -533,7 +561,7 @@ $ ${PROOF.phase7VerifyCmd}`}
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
+            <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 bg-white/5 p-5">
               <div className="font-extrabold">What unlocks next</div>
               <p className="text-white/70 mt-2 text-sm leading-relaxed">
                 SQI, GlyphNet, AION pillars, and Phase-7 Honesty Audit unlock by milestones. Each unlock ships with proof tabs + lock artifacts (no vapor).
