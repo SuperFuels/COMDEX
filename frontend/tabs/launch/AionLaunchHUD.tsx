@@ -5,10 +5,7 @@ import React, { useMemo, useState } from "react";
 
 type ChainKey = "ETH" | "SOL";
 
-const LINKS: Record<
-  ChainKey,
-  { label: string; dex: string; contract: string; pairLabel: string }
-> = {
+const LINKS: Record<ChainKey, { label: string; dex: string; contract: string; pairLabel: string }> = {
   ETH: {
     label: "ETH",
     pairLabel: "Pair: ETH",
@@ -29,18 +26,27 @@ function cx(...xs: Array<string | false | null | undefined>) {
 
 function safeOpen(url: string) {
   if (!url || url === "#" || url.includes("YOUR_DEX_LINK")) {
-    alert("Set your DEX link in AionLaunchHUD.tsx (LINKS) before publishing.");
+    alert("Set your link in AionLaunchHUD.tsx before publishing.");
     return;
   }
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
-// ✅ Set this to the real tab route for your GlyphOS page.
-const GLYPHOS_TAB_HREF = "/glyphos"; // <-- change if your tab is different
+// ✅ Try Glyph OS should go to your real tab route:
+const GLYPHOS_TAB_HREF = "/glyph"; // <- per your tabs list
 
-// --- OPTIONAL: if you want to show proof anchors, set these strings.
+// ✅ Set real links
+const SOCIAL = {
+  telegram: "https://t.me/YOUR_TELEGRAM",
+  x: "https://x.com/YOUR_HANDLE",
+  chart: "https://YOUR_CHART_LINK",
+};
+
+// ✅ Set real repo
+const GITHUB_REPO_URL = "https://github.com/YOUR_ORG/YOUR_REPO";
+
 const PROOF = {
-  leanSnapshotHref: "#", // e.g. "/docs/theorem_snapshot" or a static file
+  leanSnapshotHref: "#",
   phase7Href: "/phase7-calibration",
   wirepackCmd: "python backend/tests/glyphos_wirepack_v10_template_delta_benchmark.py",
   compressionCmd: "python backend/tests/glyphos_compression_benchmark.py --depth 60",
@@ -67,133 +73,42 @@ export default function AionLaunchHUD() {
 
   const stats = useMemo(
     () => [
-      {
-        v: "LIVE",
-        k: "GlyphOS Alpha",
-        s: "A symbol-native OS: intent → glyph-wire → deterministic replay + trace.",
-      },
-      {
-        v: "≈11×",
-        k: "Gzip Advantage",
-        s: "Glyph wire stays ~11–12.5× smaller than verbose baselines at scale.",
-      },
-      {
-        v: "≈51–61×",
-        k: "Raw Compression",
-        s: "Meaning compression improves as complexity increases (depth scaling).",
-      },
-      {
-        v: "AUDIT",
-        k: "Proof Artifacts",
-        s: "SHA256-locked outputs + reproducible commands (not promises).",
-      },
+      { v: "LIVE", k: "GlyphOS Alpha", s: "intent → glyph-wire → deterministic replay + trace." },
+      { v: "≈11×", k: "Gzip Advantage", s: "Glyph wire stays ~11–12.5× smaller at scale." },
+      { v: "≈51–61×", k: "Raw Compression", s: "Meaning compression improves as complexity increases." },
+      { v: "AUDIT", k: "Proof Artifacts", s: "SHA256-locked outputs + reproducible commands." },
     ],
     []
   );
 
-  // ✅ Simplified, single-column unlock ladder (1-liners)
   const unlocks = useMemo<UnlockItem[]>(
     () => [
       {
         holders: 0,
         tag: "RELEASED",
         title: "GlyphOS",
-        blurb:
-          "Compressed meaning: a glyph operating system for next-gen AI (try it now).",
+        blurb: "Compressed meaning: a glyph operating system for next-gen AI (try it now).",
         href: GLYPHOS_TAB_HREF,
-        cta: "Try GlyphOS",
+        cta: "Open Glyph OS",
       },
-      {
-        holders: 30,
-        tag: "HOLDER GATE",
-        title: "Symatics",
-        blurb:
-          "The symbolic substrate: phase-aware math powering deterministic cognition.",
-      },
-      {
-        holders: 50,
-        tag: "HOLDER GATE",
-        title: "Compression",
-        blurb:
-          "Meaning compression at scale — less bandwidth, same semantics, replayable outputs.",
-      },
-      {
-        holders: 70,
-        tag: "HOLDER GATE",
-        title: "Photon Binary",
-        blurb:
-          "Post-binary compute primitives: symbols-as-ops for light-wave era execution.",
-      },
-      {
-        holders: 100,
-        tag: "HOLDER GATE",
-        title: "SQI",
-        blurb:
-          "Symbolic Quantum Intelligence: superposition/entanglement/collapse with deterministic trace.",
-      },
-      {
-        holders: 120,
-        tag: "HOLDER GATE",
-        title: "GlyphNet",
-        blurb:
-          "Wave-native networking: intent transport + convergence + tamper-evident delivery.",
-      },
-      {
-        holders: 150,
-        tag: "HOLDER GATE",
-        title: "Sovereign QKD",
-        blurb:
-          "Observer-detectable transport: interference becomes the alarm, not a footnote.",
-      },
-      {
-        holders: 200,
-        tag: "HOLDER GATE",
-        title: "SLE Resonance",
-        blurb:
-          "Resonance logic execution: coherence-stable computation as a first-class runtime rule.",
-      },
-      {
-        holders: 250,
-        tag: "HOLDER GATE",
-        title: "RQC Awareness",
-        blurb:
-          "Self-measuring control loops that detect drift and restore stable truth autonomously.",
-      },
-      {
-        holders: 300,
-        tag: "HOLDER GATE",
-        title: "WirePack",
-        blurb:
-          "Template+Delta transport with audit-grade replay and lock artifacts.",
-      },
-      {
-        holders: 350,
-        tag: "HOLDER GATE",
-        title: "AI",
-        blurb:
-          "AION: a logic organism — self-stabilizing intelligence governed by homeostasis, not heuristics.",
-      },
+      { holders: 30, tag: "HOLDER GATE", title: "Symatics", blurb: "The symbolic substrate: phase-aware math powering deterministic cognition." },
+      { holders: 50, tag: "HOLDER GATE", title: "Compression", blurb: "Meaning compression at scale — less bandwidth, same semantics, replayable outputs." },
+      { holders: 70, tag: "HOLDER GATE", title: "Photon Binary", blurb: "Post-binary compute primitives: symbols-as-ops for light-wave era execution." },
+      { holders: 100, tag: "HOLDER GATE", title: "SQI", blurb: "Symbolic Quantum Intelligence: superposition/entanglement/collapse with deterministic trace." },
+      { holders: 120, tag: "HOLDER GATE", title: "GlyphNet", blurb: "Wave-native networking: intent transport + convergence + tamper-evident delivery." },
+      { holders: 150, tag: "HOLDER GATE", title: "Sovereign QKD", blurb: "Observer-detectable transport: interference becomes the alarm, not a footnote." },
+      { holders: 200, tag: "HOLDER GATE", title: "SLE Resonance", blurb: "Resonance logic execution: coherence-stable computation as a first-class runtime rule." },
+      { holders: 250, tag: "HOLDER GATE", title: "RQC Awareness", blurb: "Self-measuring control loops that detect drift and restore stable truth autonomously." },
+      { holders: 300, tag: "HOLDER GATE", title: "WirePack", blurb: "Template+Delta transport with audit-grade replay and lock artifacts." },
+      { holders: 350, tag: "HOLDER GATE", title: "AI", blurb: "AION: a logic organism — self-stabilizing intelligence governed by homeostasis, not heuristics." },
       {
         holders: 500,
         tag: "HOLDER GATE",
         title: "AI Cognition",
-        blurb:
-          "Legacy AI is a “black box” that guesses with confidence. AION measures internal coherence before it speaks.",
+        blurb: 'Legacy AI is a "black box" that guesses with confidence. AION measures internal coherence before it speaks.',
       },
-      {
-        holders: 550,
-        tag: "HOLDER GATE",
-        title: "QFC Canvas",
-        blurb:
-          "Interactive multiverse canvas: live traces, coherence fields, and proof-first visualization.",
-      },
-      {
-        holders: 1000,
-        tag: "CLASSIFIED",
-        title: "Secret Releases",
-        blurb:
-          "High-impact drops unlocked only at the threshold (no early hints).",
-      },
+      { holders: 550, tag: "HOLDER GATE", title: "QFC Canvas", blurb: "Interactive multiverse canvas: live traces, coherence fields, and proof-first visualization." },
+      { holders: 1000, tag: "CLASSIFIED", title: "Secret Releases", blurb: "High-impact drops unlocked only at the threshold (no early hints)." },
     ],
     []
   );
@@ -208,28 +123,13 @@ export default function AionLaunchHUD() {
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-200/60 via-white to-blue-200/60" />
                 <div>
-                  <div className="text-sm font-extrabold tracking-tight text-black">
-                    GlyphOS Launch
-                  </div>
-                  <div className="text-[11px] text-slate-500 tracking-wide">
-                    Shipped Today • Formally Verified • Audit-Ready
-                  </div>
+                  <div className="text-sm font-extrabold tracking-tight text-black">GlyphOS Launch</div>
+                  <div className="text-[11px] text-slate-500 tracking-wide">Shipped Today • Formally Verified • Audit-Ready</div>
                 </div>
               </div>
 
+              {/* ✅ updated topbar actions */}
               <div className="flex items-center gap-2 flex-wrap">
-                <a
-                  href="#glyphos"
-                  className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-bold tracking-wide text-slate-600 hover:text-black hover:border-slate-300"
-                >
-                  GlyphOS
-                </a>
-                <a
-                  href="#stack"
-                  className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-bold tracking-wide text-slate-600 hover:text-black hover:border-slate-300"
-                >
-                  Proof Tabs
-                </a>
                 <a
                   href="#roadmap"
                   className="px-3 py-2 rounded-full border border-emerald-200 bg-emerald-50 text-xs font-bold tracking-wide text-emerald-700 hover:border-emerald-300"
@@ -241,14 +141,35 @@ export default function AionLaunchHUD() {
                   onClick={() => (window.location.href = GLYPHOS_TAB_HREF)}
                   className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300"
                 >
-                  Try GlyphOS
+                  Glyph OS
+                </button>
+
+                <button
+                  onClick={() => safeOpen(SOCIAL.chart)}
+                  className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300"
+                >
+                  Chart
+                </button>
+
+                <button
+                  onClick={() => safeOpen(SOCIAL.telegram)}
+                  className="px-3 py-2 rounded-full border border-blue-200 bg-blue-50 text-xs font-extrabold tracking-wide text-blue-700 hover:border-blue-300"
+                >
+                  Telegram
+                </button>
+
+                <button
+                  onClick={() => safeOpen(SOCIAL.x)}
+                  className="px-3 py-2 rounded-full border border-slate-200 bg-black text-xs font-extrabold tracking-wide text-white hover:opacity-90"
+                >
+                  X
                 </button>
 
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  className="px-3 py-2 rounded-full border border-slate-200 bg-black text-xs font-extrabold tracking-wide text-white hover:opacity-90"
+                  className="px-3 py-2 rounded-full border border-emerald-200 bg-emerald-600 text-xs font-extrabold tracking-wide text-white hover:bg-emerald-700"
                 >
-                  Buy ({cfg.label})
+                  Buy GPH
                 </button>
               </div>
             </div>
@@ -273,9 +194,7 @@ export default function AionLaunchHUD() {
               </div>
 
               <div className="space-y-2">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">
-                  GlyphOS
-                </div>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">GlyphOS</div>
                 <h2 className="text-3xl md:text-6xl font-black italic tracking-tight">
                   The Language of Symbols. The Speed of Thought.
                 </h2>
@@ -284,11 +203,9 @@ export default function AionLaunchHUD() {
               <p className="text-white/75 text-base md:text-lg leading-relaxed max-w-2xl">
                 An operating system built in symbols — compressing intent into executable{" "}
                 <span className="text-white font-semibold">glyph wire</span> so{" "}
-                <span className="text-white font-semibold">
-                  the same meaning + the same policy ⇒ the same bytes
-                </span>
-                . Step 1 ships today: GlyphOS Alpha. From here: SQI + GlyphNet → deterministic
-                cognition → trust locks → the destination: verifiable self-aware AI.
+                <span className="text-white font-semibold">the same meaning + the same policy ⇒ the same bytes</span>.
+                Step 1 ships today: GlyphOS Alpha. From here: SQI + GlyphNet → deterministic cognition → trust locks → the
+                destination: verifiable self-aware AI.
               </p>
 
               <div className="flex flex-wrap gap-2">
@@ -296,14 +213,14 @@ export default function AionLaunchHUD() {
                   onClick={() => (window.location.href = GLYPHOS_TAB_HREF)}
                   className="px-4 py-3 rounded-2xl bg-white text-black font-extrabold tracking-wide hover:opacity-95"
                 >
-                  Try GlyphOS (Alpha)
+                  Open Glyph OS
                 </button>
 
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  className="px-4 py-3 rounded-2xl border border-white/20 bg-white/5 text-white font-bold tracking-wide hover:bg-white/10"
+                  className="px-4 py-3 rounded-2xl bg-emerald-600 text-white font-extrabold tracking-wide hover:bg-emerald-700"
                 >
-                  Buy ({cfg.label})
+                  Buy GPH
                 </button>
 
                 <button
@@ -319,27 +236,20 @@ export default function AionLaunchHUD() {
                 <span className="font-mono text-white/90">{cfg.contract}</span> • Liquidity:{" "}
                 <span className="font-semibold">LOCKED</span> (add lock link) • Not financial advice.
               </div>
-
-              <div className="text-xs text-white/65 leading-relaxed">
-                <span className="font-semibold text-white">Live right now:</span> GlyphOS.
-                <br />
-                <span className="font-semibold text-white">Next unlocks:</span> Symatics, Compression, Photon Binary, SQI, GlyphNet…
-              </div>
             </div>
           </div>
 
           {/* RIGHT (Launch Console) */}
           <div className="rounded-[2.5rem] border border-slate-200 bg-white p-8 space-y-6">
             <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">
-                Launch Console
-              </p>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">Launch Console</p>
               <p className="text-slate-600 leading-relaxed">
-                This launch is built for skepticism. GlyphOS is shipped. Proof tabs are live.
-                Anything called <span className="text-black font-semibold">proven</span> has artifacts behind it.
+                This launch is built for skepticism. GlyphOS is shipped. Anything called{" "}
+                <span className="text-black font-semibold">proven</span> has artifacts behind it.
               </p>
             </div>
 
+            {/* keep pair toggle */}
             <div className="flex flex-wrap gap-2">
               {(["ETH", "SOL"] as ChainKey[]).map((k) => (
                 <button
@@ -361,9 +271,7 @@ export default function AionLaunchHUD() {
               {stats.map((s) => (
                 <div key={s.k} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="text-lg font-black tracking-tight text-black">{s.v}</div>
-                  <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mt-1">
-                    {s.k}
-                  </div>
+                  <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mt-1">{s.k}</div>
                   <div className="text-xs text-slate-500 mt-2 leading-relaxed">{s.s}</div>
                 </div>
               ))}
@@ -375,109 +283,176 @@ export default function AionLaunchHUD() {
               </div>
               <div className="flex flex-col gap-1">
                 <span>
-                  Try GlyphOS tab:{" "}
-                  <span className="font-mono text-slate-700">{GLYPHOS_TAB_HREF}</span>
+                  Glyph OS tab: <span className="font-mono text-slate-700">{GLYPHOS_TAB_HREF}</span>
                 </span>
                 <span>
-                  Phase-7 Honesty Audit:{" "}
-                  <span className="font-mono text-slate-700">{PROOF.phase7Href}</span>
+                  Phase-7 Honesty Audit: <span className="font-mono text-slate-700">{PROOF.phase7Href}</span>
                 </span>
                 <span>
-                  Lean theorem snapshot:{" "}
-                  <span className="font-mono text-slate-700">{PROOF.leanSnapshotHref}</span>
+                  Lean theorem snapshot: <span className="font-mono text-slate-700">{PROOF.leanSnapshotHref}</span>
                 </span>
                 <span>
-                  Proof lock id:{" "}
-                  <span className="font-mono text-slate-700">{PROOF.phase1LockId}</span>
+                  Proof lock id: <span className="font-mono text-slate-700">{PROOF.phase1LockId}</span>
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ✅ Minimal Proof Tabs anchor so your buttons/scroll targets exist */}
-        <div id="stack" className="space-y-4">
+        {/* ✅ FORMAL PROOF REPOSITORY (replaces old Proof Tabs block) */}
+        <div id="proofs" className="space-y-4">
           <div className="text-center space-y-2">
             <h3 className="text-2xl md:text-3xl font-black italic tracking-tight text-black">
-              Proof Tabs (Live)
+              Git Formal Proof Repository
             </h3>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
-              Reproducible commands + SHA256-locked outputs. Same inputs → same bytes.
+              Verifiable mathematical equations, frameworks, tests & papers — machine-checkable proof, not screenshots.
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto rounded-[2.5rem] border border-slate-200 bg-white p-6">
-            <div className="font-mono text-xs text-slate-700 whitespace-pre-wrap">
-              {`$ ${PROOF.compressionCmd}
+          <div className="max-w-4xl mx-auto rounded-[2.5rem] border border-slate-200 bg-white p-6 space-y-4">
+            <div className="grid md:grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">
+                  GitHub Repository (Public)
+                </div>
+                <div className="mt-2 text-sm text-slate-700 leading-relaxed">
+                  <span className="font-semibold text-black">Required:</span> a public repo containing{" "}
+                  <span className="font-mono">.lean</span> files + reproducible test commands.
+                </div>
+
+                <button
+                  onClick={() => safeOpen(GITHUB_REPO_URL)}
+                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-black text-white text-xs font-extrabold tracking-wide hover:opacity-90"
+                >
+                  Open GitHub
+                  <span className="text-white/60">→</span>
+                </button>
+
+                <div className="mt-2 text-[11px] text-slate-500">Audited by a third party (add auditor link if available).</div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">
+                  Missing Links Checklist
+                </div>
+
+                <div className="mt-2 text-sm text-slate-700 leading-relaxed space-y-2">
+                  <div>
+                    • <span className="font-semibold text-black">Lean proof anchor:</span>{" "}
+                    <span className="font-mono">PROOF.leanSnapshotHref</span> is still a placeholder.
+                  </div>
+                  <div>
+                    • <span className="font-semibold text-black">Contract address:</span> set{" "}
+                    <span className="font-mono">LINKS[chain].contract</span> to the real address.
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => safeOpen(PROOF.leanSnapshotHref)}
+                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300"
+                >
+                  Open Lean Proof Anchor
+                  <span className="text-black/40">→</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <div className="text-[11px] uppercase tracking-[0.22em] text-amber-700 font-bold">The Reality</div>
+              <p className="mt-2 text-sm text-amber-900 leading-relaxed">
+                Writing formal proofs for AI logic is incredibly difficult and time-consuming. If someone claims they’ve done it,
+                they should provide a public GitHub repository with <span className="font-mono">.lean</span> files. Without that link,
+                the claim is just text on a screen.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
+                Reproducible Verification Commands
+              </div>
+              <div className="font-mono text-xs text-slate-700 whitespace-pre-wrap">
+                {`$ ${PROOF.compressionCmd}
 $ ${PROOF.wirepackCmd}
 $ ${PROOF.phase7VerifyCmd}`}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* ✅ UNLOCK LADDER (simplified 1-column list) */}
+        {/* ✅ UNLOCK LADDER (single-column list) */}
         <div id="roadmap" className="space-y-6">
           <div className="space-y-2 text-center">
-            <h3 className="text-3xl font-black italic tracking-tight text-black">
-              Holder Unlock Ladder
-            </h3>
+            <h3 className="text-3xl font-black italic tracking-tight text-black">Holder Unlock Ladder</h3>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
-              Launch stays clean:{" "}
-              <span className="text-black font-semibold">GlyphOS ships today</span>. Everything else unlocks by holder milestones.
-              Each unlock ships with proof tabs + lock artifacts.
+              Launch stays clean: <span className="text-black font-semibold">GlyphOS ships today</span>. Everything else unlocks by
+              holder milestones. Each unlock ships with proof tabs + lock artifacts.
             </p>
           </div>
 
           <div className="max-w-3xl mx-auto">
             <div className="rounded-[2.5rem] border border-slate-200 bg-white overflow-hidden">
-              {unlocks.map((u, idx) => (
-                <div
-                  key={`${u.holders}-${u.title}`}
-                  className={cx("flex items-start justify-between gap-4 p-5", idx !== 0 && "border-t border-slate-100")}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="min-w-[104px]">
-                      <div className="text-[11px] uppercase tracking-[0.22em] font-bold text-emerald-700">
-                        {u.holders === 0 ? "Released" : `${u.holders} holders`}
-                      </div>
+              {unlocks.map((u, idx) => {
+                // ✅ ONLY GREEN FOR FIRST ROW (Released ✓)
+                const isReleaseRow = idx === 0;
 
-                      <div className="text-2xl font-black tracking-tight text-emerald-600">
-                        {u.holders === 0 ? "✓" : u.holders}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="text-lg font-black italic tracking-tight text-black">
-                        {u.title}
-                      </div>
-                      <div className="text-sm text-slate-600 leading-relaxed">{u.blurb}</div>
-
-                      {u.href && (
-                        <button
-                          onClick={() => (window.location.href = u.href!)}
-                          className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-black text-white text-xs font-extrabold tracking-wide hover:opacity-90"
-                        >
-                          {u.cta ?? "Open"}
-                          <span className="text-white/60">→</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <span
-                    className={cx(
-                      "px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-[0.22em] whitespace-nowrap",
-                      u.tag === "RELEASED"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : u.tag === "CLASSIFIED"
-                        ? "border-amber-200 bg-amber-50 text-amber-800"
-                        : "border-slate-200 bg-slate-50 text-slate-600"
-                    )}
+                return (
+                  <div
+                    key={`${u.holders}-${u.title}`}
+                    className={cx("flex items-start justify-between gap-4 p-5", idx !== 0 && "border-t border-slate-100")}
                   >
-                    {u.tag}
-                  </span>
-                </div>
-              ))}
+                    <div className="flex items-start gap-4">
+                      <div className="min-w-[104px]">
+                        <div
+                          className={cx(
+                            "text-[11px] uppercase tracking-[0.22em] font-bold",
+                            isReleaseRow ? "text-emerald-700" : "text-slate-500"
+                          )}
+                        >
+                          {u.holders === 0 ? "Released" : `${u.holders} holders`}
+                        </div>
+
+                        <div
+                          className={cx(
+                            "text-2xl font-black tracking-tight",
+                            isReleaseRow ? "text-emerald-600" : "text-black"
+                          )}
+                        >
+                          {u.holders === 0 ? "✓" : u.holders}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="text-lg font-black italic tracking-tight text-black">{u.title}</div>
+                        <div className="text-sm text-slate-600 leading-relaxed">{u.blurb}</div>
+
+                        {u.href && (
+                          <button
+                            onClick={() => (window.location.href = u.href!)}
+                            className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-black text-white text-xs font-extrabold tracking-wide hover:opacity-90"
+                          >
+                            {u.cta ?? "Open"}
+                            <span className="text-white/60">→</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <span
+                      className={cx(
+                        "px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-[0.22em] whitespace-nowrap",
+                        u.tag === "RELEASED"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : u.tag === "CLASSIFIED"
+                          ? "border-amber-200 bg-amber-50 text-amber-800"
+                          : "border-slate-200 bg-slate-50 text-slate-600"
+                      )}
+                    >
+                      {u.tag}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="mt-4 text-center text-xs text-slate-500">
@@ -499,12 +474,8 @@ $ ${PROOF.phase7VerifyCmd}`}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">
-                  What’s proven today
-                </div>
-                <div className="text-2xl font-black italic mt-2">
-                  GlyphOS ships with proof — not promises.
-                </div>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">What’s proven today</div>
+                <div className="text-2xl font-black italic mt-2">GlyphOS ships with proof — not promises.</div>
               </div>
               <button
                 onClick={() => setOverlayOpen(false)}
@@ -518,9 +489,8 @@ $ ${PROOF.phase7VerifyCmd}`}
               <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
                 <div className="font-extrabold">Live: GlyphOS Alpha</div>
                 <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                  Instead of shipping pages of text, you ship a tiny glyph program whose execution
-                  is deterministic and replayable. Compressed meaning becomes executable form — and
-                  audit trails become automatic.
+                  Instead of shipping pages of text, you ship a tiny glyph program whose execution is deterministic and replayable.
+                  Compressed meaning becomes executable form — and audit trails become automatic.
                 </p>
                 <div className="mt-4 flex gap-2 flex-wrap">
                   <button
@@ -530,16 +500,16 @@ $ ${PROOF.phase7VerifyCmd}`}
                       window.location.href = GLYPHOS_TAB_HREF;
                     }}
                   >
-                    Try GlyphOS
+                    Open Glyph OS
                   </button>
                   <button
                     className="px-4 py-2 rounded-2xl border border-white/15 bg-white/5 font-bold"
                     onClick={() => {
                       setOverlayOpen(false);
-                      document.getElementById("stack")?.scrollIntoView({ behavior: "smooth" });
+                      document.getElementById("roadmap")?.scrollIntoView({ behavior: "smooth" });
                     }}
                   >
-                    See Proof Tabs
+                    View Unlock Ladder
                   </button>
                 </div>
               </div>
@@ -547,12 +517,10 @@ $ ${PROOF.phase7VerifyCmd}`}
               <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
                 <div className="font-extrabold">Formal Verification (Lean)</div>
                 <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                  Where others say “trust us”, we use machine-checked proofs. Determinism isn’t a vibe —
-                  it’s mathematically proven for the verified core.
+                  Where others say “trust us”, we use machine-checked proofs. Determinism isn’t a vibe — it’s proven for the verified core.
                 </p>
                 <div className="mt-4 text-xs text-white/65">
-                  Proof lock id:{" "}
-                  <span className="font-mono text-white/85">{PROOF.phase1LockId}</span>
+                  Proof lock id: <span className="font-mono text-white/85">{PROOF.phase1LockId}</span>
                 </div>
               </div>
             </div>
@@ -568,8 +536,7 @@ $ ${PROOF.phase7VerifyCmd}`}
             <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
               <div className="font-extrabold">What unlocks next</div>
               <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                SQI, GlyphNet, AION pillars, and Phase-7 Honesty Audit unlock by milestones.
-                Each unlock ships with proof tabs + lock artifacts (no vapor).
+                SQI, GlyphNet, AION pillars, and Phase-7 Honesty Audit unlock by milestones. Each unlock ships with proof tabs + lock artifacts (no vapor).
               </p>
             </div>
           </div>
