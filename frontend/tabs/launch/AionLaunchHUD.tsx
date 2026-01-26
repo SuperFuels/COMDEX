@@ -174,13 +174,6 @@ export default function AionLaunchHUD() {
                   "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 )}
               >
-                <a
-                  href="#roadmap"
-                  className="px-3 py-2 rounded-full border border-emerald-200 bg-emerald-50 text-xs font-bold tracking-wide text-emerald-700 hover:border-emerald-300 shrink-0"
-                >
-                  Unlock
-                </a>
-
                 <button
                   onClick={() => (window.location.href = GLYPHOS_TAB_HREF)}
                   className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300 shrink-0"
@@ -188,18 +181,42 @@ export default function AionLaunchHUD() {
                   Glyph OS
                 </button>
 
+                {/* Chart -> DexTools icon */}
                 <button
                   onClick={() => safeOpen(SOCIAL.chart)}
-                  className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-slate-300 shrink-0"
+                  aria-label="DexTools chart"
+                  title="Chart"
+                  className="px-3 py-2 rounded-full border border-slate-200 bg-white hover:border-slate-300 shrink-0 inline-flex items-center justify-center"
                 >
-                  Chart
+                  <span className="h-5 w-5 overflow-hidden rounded-full">
+                    <Image
+                      src="/images/dextools.png"
+                      alt="DexTools"
+                      width={20}
+                      height={20}
+                      className="h-full w-full object-contain"
+                      priority
+                    />
+                  </span>
                 </button>
 
+                {/* Telegram -> icon */}
                 <button
                   onClick={() => safeOpen(SOCIAL.telegram)}
-                  className="px-3 py-2 rounded-full border border-blue-200 bg-blue-50 text-xs font-extrabold tracking-wide text-blue-700 hover:border-blue-300 shrink-0"
+                  aria-label="Telegram"
+                  title="Telegram"
+                  className="px-3 py-2 rounded-full border border-blue-200 bg-blue-50 hover:border-blue-300 shrink-0 inline-flex items-center justify-center"
                 >
-                  Telegram
+                  <span className="h-5 w-5 overflow-hidden rounded-full">
+                    <Image
+                      src="/images/telegram.png"
+                      alt="Telegram"
+                      width={20}
+                      height={20}
+                      className="h-full w-full object-contain"
+                      priority
+                    />
+                  </span>
                 </button>
 
                 <button
@@ -208,6 +225,7 @@ export default function AionLaunchHUD() {
                 >
                   X
                 </button>
+
                 <button
                   onClick={() => safeOpen(cfg.dex)}
                   aria-label="Buy GPH on Uniswap"
