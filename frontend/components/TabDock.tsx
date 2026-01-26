@@ -1,8 +1,8 @@
 // frontend/components/TabDock.tsx
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import { useRouter } from "next/router";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 
 export type TabDef = {
   key: string;
@@ -23,60 +23,72 @@ export default function TabDock({
   activeKey: string;
   className?: string;
 }) {
-  const router = useRouter();
-  const dockRef = useRef<HTMLDivElement | null>(null);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const [canL, setCanL] = useState(false);
+  const [canR, setCanR] = useState(false);
 
   const activeIdx = useMemo(() => {
     const idx = tabs.findIndex((t) => t.key === activeKey);
     return idx >= 0 ? idx : 0;
   }, [tabs, activeKey]);
 
-  const go = (idx: number) => {
-    const t = tabs[idx];
-    if (!t) return;
-    if (router.asPath !== t.href) router.push(t.href);
-  };
-
-  const goPrev = () => {
-    if (activeIdx > 0) go(activeIdx - 1);
-  };
-
-  const goNext = () => {
-    if (activeIdx < tabs.length - 1) go(activeIdx + 1);
-  };
-
-  // ✅ Windowed dock: show 2 at edges, 3 otherwise (prev/active/next)
-  const visible = useMemo(() => {
-    if (tabs.length <= 3) return { start: 0, end: tabs.length - 1 };
-
-    if (activeIdx <= 0) return { start: 0, end: 1 };
-    if (activeIdx >= tabs.length - 1) return { start: tabs.length - 2, end: tabs.length - 1 };
-
-    return { start: activeIdx - 1, end: activeIdx + 1 };
-  }, [tabs.length, activeIdx]);
-
-  const visibleTabs = useMemo(() => {
-    return tabs.slice(visible.start, visible.end + 1);
-  }, [tabs, visible.start, visible.end]);
-
-  // Keep active tab centered in the dock (still useful if you later widen to more tabs)
-  useEffect(() => {
-    const root = dockRef.current;
-    if (!root) return;
-
-    const el = root.querySelector<HTMLButtonElement>(`button[data-tabkey="${activeKey}"]`);
+  const updateEdges = () => {
+    const el = scrollerRef.current;
     if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setCanL(el.scrollLeft > 2);
+    setCanR(el.scrollLeft < max - 2);
+  };
 
-    el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  const nudge = (dir: -1 | 1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * Math.max(220, el.clientWidth * 0.6), behavior: "smooth" });
+  };
+
+  // keep active tab centered-ish
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const chip = el.querySelector<HTMLElement>(`a[data-tabkey="${activeKey}"]`);
+    if (!chip) return;
+
+    const left = chip.offsetLeft - (el.clientWidth - chip.clientWidth) / 2;
+    el.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
   }, [activeKey]);
 
-  // ✅ Swipe between tabs (mobile) — ignores vertical gestures AND form elements
-  // Also: if the gesture starts on the dock itself, don't hijack (lets users scroll the dock if needed).
+  // edges + resize
   useEffect(() => {
-    let touchStartX = 0;
-    let touchEndX = 0;
-    let touchStartY = 0;
-    let touchEndY = 0;
+    updateEdges();
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    const onScroll = () => updateEdges();
+    const onResize = () => updateEdges();
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+
+    requestAnimationFrame(updateEdges);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [tabs.length]);
+
+  // ✅ Swipe between tabs (mobile) — only when gesture starts on the dock
+  useEffect(() => {
+    let sx = 0,
+      sy = 0,
+      ex = 0,
+      ey = 0;
+
+    const startedOnDock = (target: EventTarget | null) => {
+      const node = target as Node | null;
+      const root = scrollerRef.current;
+      if (!node || !root) return false;
+      return root.contains(node);
+    };
 
     const isFormEl = (el: EventTarget | null) => {
       const node = el as HTMLElement | null;
@@ -85,123 +97,126 @@ export default function TabDock({
       return tag === "input" || tag === "textarea" || tag === "select" || node.isContentEditable;
     };
 
-    const startedOnDock = (target: EventTarget | null) => {
-      const node = target as Node | null;
-      const root = dockRef.current;
-      if (!node || !root) return false;
-      return root.contains(node);
-    };
-
-    const handleTouchStart = (e: TouchEvent) => {
+    const onStart = (e: TouchEvent) => {
       if (isFormEl(e.target)) return;
-      if (startedOnDock(e.target)) return;
+      if (!startedOnDock(e.target)) return;
 
-      touchStartX = e.targetTouches[0].clientX;
-      touchStartY = e.targetTouches[0].clientY;
-      touchEndX = touchStartX;
-      touchEndY = touchStartY;
+      sx = e.targetTouches[0].clientX;
+      sy = e.targetTouches[0].clientY;
+      ex = sx;
+      ey = sy;
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
+    const onMove = (e: TouchEvent) => {
       if (isFormEl(e.target)) return;
-      if (startedOnDock(e.target)) return;
+      if (!startedOnDock(e.target)) return;
 
-      touchEndX = e.targetTouches[0].clientX;
-      touchEndY = e.targetTouches[0].clientY;
+      ex = e.targetTouches[0].clientX;
+      ey = e.targetTouches[0].clientY;
     };
 
-    const handleTouchEnd = () => {
-      const dx = touchStartX - touchEndX;
-      const dy = touchStartY - touchEndY;
+    const onEnd = () => {
+      const dx = sx - ex;
+      const dy = sy - ey;
 
-      // don't hijack page scroll
+      // don't hijack vertical scrolling
       if (Math.abs(dy) > Math.abs(dx)) return;
       if (Math.abs(dx) < 70) return;
 
-      if (dx > 0 && activeIdx < tabs.length - 1) goNext();
-      else if (dx < 0 && activeIdx > 0) goPrev();
+      // swipe left => next tab, swipe right => prev tab
+      const next = Math.min(tabs.length - 1, activeIdx + 1);
+      const prev = Math.max(0, activeIdx - 1);
+
+      if (dx > 0 && next !== activeIdx) window.location.href = tabs[next].href;
+      if (dx < 0 && prev !== activeIdx) window.location.href = tabs[prev].href;
     };
 
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchmove", handleTouchMove, { passive: true });
-    window.addEventListener("touchend", handleTouchEnd);
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("touchend", onEnd);
 
     return () => {
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchmove", handleTouchMove);
-      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
     };
-  }, [activeIdx, tabs.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeIdx, tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <nav className={classNames("mb-16 sticky top-4 z-50 flex justify-center", className)}>
-      <div className="relative group w-full max-w-[1400px]">
-        {/* Left arrow (desktop hover) */}
+    <nav className={classNames("sticky top-2 z-50 flex justify-center", className)}>
+      {/* ✅ fit-content wrapper so the pill doesn't span the whole navbar */}
+      <div className="relative w-fit max-w-[calc(100vw-16px)]">
+        {/* Left arrow (desktop only) */}
         <button
           type="button"
-          onClick={goPrev}
-          disabled={activeIdx <= 0}
-          aria-label="Previous tab"
+          onClick={() => nudge(-1)}
+          aria-label="Scroll tabs left"
           className={classNames(
-            "hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full",
+            "hidden md:grid place-items-center",
+            "absolute left-[-34px] top-1/2 -translate-y-1/2 h-8 w-8 rounded-full",
             "bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition",
-            "opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed z-10"
+            canL ? "opacity-100" : "opacity-30 pointer-events-none"
           )}
         >
-          <span className="text-gray-500 text-lg">‹</span>
+          <span className="text-gray-500 text-lg leading-none">‹</span>
         </button>
 
-        {/* Right arrow (desktop hover) */}
+        {/* Right arrow (desktop only) */}
         <button
           type="button"
-          onClick={goNext}
-          disabled={activeIdx >= tabs.length - 1}
-          aria-label="Next tab"
+          onClick={() => nudge(1)}
+          aria-label="Scroll tabs right"
           className={classNames(
-            "hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full",
+            "hidden md:grid place-items-center",
+            "absolute right-[-34px] top-1/2 -translate-y-1/2 h-8 w-8 rounded-full",
             "bg-white/90 border border-gray-200 shadow-sm backdrop-blur-md hover:shadow-md transition",
-            "opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed z-10"
+            canR ? "opacity-100" : "opacity-30 pointer-events-none"
           )}
         >
-          <span className="text-gray-500 text-lg">›</span>
+          <span className="text-gray-500 text-lg leading-none">›</span>
         </button>
 
-        {/* Dock (windowed: 2–3 tabs only, same style) */}
+        {/* ✅ Scroller: capsule only slightly wider than tabs */}
         <div
-          ref={dockRef}
+          ref={scrollerRef}
           className={classNames(
-            "flex items-center justify-center gap-3",
-            "bg-white/70 backdrop-blur-2xl border border-gray-200 p-2 rounded-full shadow-lg shadow-gray-200/50",
-            "overflow-x-auto no-scrollbar px-3 md:px-14"
+            "max-w-[calc(100vw-16px)] md:max-w-[min(980px,calc(100vw-120px))]",
+            "overflow-x-auto overflow-y-hidden no-scrollbar",
+            "bg-white/70 backdrop-blur-2xl border border-gray-200",
+            "rounded-full shadow-lg shadow-gray-200/50",
+            "px-2 py-2"
           )}
         >
-          {visibleTabs.map((t) => {
-            const isActive = t.key === activeKey;
+          <div className="inline-flex items-center gap-2">
+            {tabs.map((t) => {
+              const isActive = t.key === activeKey;
 
-            // Find original index so clicks still navigate correctly
-            const idx = tabs.findIndex((x) => x.key === t.key);
-
-            return (
-              <button
-                key={t.key}
-                data-tabkey={t.key}
-                onClick={() => go(idx)}
-                className={classNames(
-                  "relative whitespace-nowrap px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 ease-out",
-                  isActive
-                    ? "bg-[#0071e3] text-white shadow-xl scale-[1.03] z-10"
-                    : "text-gray-500 hover:text-gray-800 bg-transparent hover:bg-white/60"
-                )}
-                aria-current={isActive ? "page" : undefined}
-              >
-                {t.label}
-                {isActive && <span className="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse -z-10" />}
-              </button>
-            );
-          })}
+              return (
+                <Link
+                  key={t.key}
+                  href={t.href}
+                  data-tabkey={t.key}
+                  className={classNames(
+                    "relative shrink-0 whitespace-nowrap rounded-full border transition-all duration-200 ease-out",
+                    "px-3 py-1.5 md:px-4 md:py-2",
+                    "text-xs md:text-sm font-semibold",
+                    isActive
+                      ? "bg-[#0071e3] text-white border-[#0071e3] shadow-sm"
+                      : "bg-white/60 border-transparent text-gray-600 hover:text-gray-900 hover:bg-white"
+                  )}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {t.label}
+                  {isActive && <span className="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse -z-10" />}
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
-        {/* no-scrollbar helper (kept local so build never depends on global css) */}
+        {/* mobile hint */}
+        <div className="md:hidden mt-1 text-[10px] text-slate-400 text-center select-none">swipe tabs →</div>
+
         <style jsx>{`
           .no-scrollbar::-webkit-scrollbar {
             display: none;
