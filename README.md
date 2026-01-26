@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "launch4"
+git commit -m "launch5"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn
