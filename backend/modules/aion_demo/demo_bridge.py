@@ -17,6 +17,7 @@ import os
 import sys
 import time
 import hashlib
+import subprocess, threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -223,8 +224,367 @@ PHASE7_MET_LOCK_P  = DATA_ROOT / "telemetry" / "calibration_metrics.lock.json"
 PHASE7_BUNDLE_P    = DATA_ROOT / "telemetry" / "phase7_lock_bundle.json"
 
 # Committed golden (repo)
-PHASE7_GOLDEN_P    = _REPO_ROOT / "backend" / "tests" / "locks" / "phase7_lock_bundle.sha256.json"
+# Phase7 golden lock path (repo layouts differ: repo-root vs backend-root)
+PHASE7_GOLDEN_CANDIDATES = [
+    _REPO_ROOT / "backend" / "tests" / "locks" / "phase7_lock_bundle.sha256.json",
+    _REPO_ROOT / "tests" / "locks" / "phase7_lock_bundle.sha256.json",
+    _REPO_ROOT.parent / "backend" / "tests" / "locks" / "phase7_lock_bundle.sha256.json",
+]
+PHASE7_GOLDEN_P = next((p for p in PHASE7_GOLDEN_CANDIDATES if p.exists()), PHASE7_GOLDEN_CANDIDATES[0])
 
+@router.get("/aion-demo/api/phase7")
+def api_phase7_prefixed() -> Dict[str, Any]:
+    return api_phase7()
+
+@router.get("/aion-demo/api/phase7/verify")
+def api_phase7_verify_prefixed() -> Dict[str, Any]:
+    return api_phase7_verify()
+
+@router.post("/aion-demo/api/demo/phase7/run")
+def api_phase7_run_prefixed() -> Dict[str, Any]:
+    return api_phase7_run()
+
+from typing import Optional
+import subprocess, sys, os
+from pathlib import Path
+
+_PHASE7_PROC: Optional[subprocess.Popen] = None
+
+@router.post("/api/demo/phase7/run")
+def api_phase7_run() -> Dict[str, Any]:
+    """
+    Start Phase 7 generator in the background (non-blocking).
+    Poll /aion-demo/api/phase7 until ok=true.
+    """
+    global _PHASE7_PROC
+    try:
+        # _REPO_ROOT might be repo root OR "backend/" depending on how demo_bridge.py computed it.
+        bases = []
+        for b in (_REPO_ROOT, _REPO_ROOT.parent, _REPO_ROOT.parent.parent):
+            if isinstance(b, Path) and b not in bases:
+                bases.append(b)
+
+        candidates = []
+        for base in bases:
+            # If base == /workspaces/COMDEX/backend, these hit the real file:
+            candidates += [
+                base / "demo" / "make_phase7_lock_bundle.py",                 # /backend/demo/...
+                base / "modules" / "aion_cognition" / "phase7" / "make_phase7_lock_bundle.py",
+            ]
+            # If base == /workspaces/COMDEX, these hit the real file:
+            candidates += [
+                base / "backend" / "demo" / "make_phase7_lock_bundle.py",    # /backend/demo/...
+                base / "backend" / "modules" / "aion_cognition" / "phase7" / "make_phase7_lock_bundle.py",
+                base / "modules" / "aion_cognition" / "phase7" / "make_phase7_lock_bundle.py",
+            ]
+
+        script = next((p for p in candidates if p.exists()), None)
+        if script is None:
+            return {
+                "ok": False,
+                "error": f"Missing generator script. Looked in: {[str(p) for p in candidates]}",
+                "phase7": api_phase7(),
+            }
+
+        # Don’t start a second one
+        if _PHASE7_PROC is not None and _PHASE7_PROC.poll() is None:
+            return {
+                "ok": True,
+                "started": False,
+                "already_running": True,
+                "pid": _PHASE7_PROC.pid,
+                "phase7": api_phase7(),
+            }
+
+        # log file
+        log_dir = DATA_ROOT / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / "phase7_run.log"
+
+        # Use the repo root as cwd (best effort)
+        repo_root = next((b for b in bases if (b / "backend").exists()), bases[0])
+
+        env = os.environ.copy()
+        env["TESSARIS_DATA_ROOT"] = str(DATA_ROOT)
+        env["DATA_ROOT"] = str(DATA_ROOT)
+        env.setdefault("PYTHONPATH", str(repo_root))
+
+        lf = open(log_path, "a", encoding="utf-8")
+        _PHASE7_PROC = subprocess.Popen(
+            [sys.executable, str(script)],
+            stdout=lf,
+            stderr=lf,
+            env=env,
+            cwd=str(repo_root),
+        )
+
+        return {
+            "ok": True,
+            "started": True,
+            "pid": _PHASE7_PROC.pid,
+            "script": str(script),
+            "cwd": str(repo_root),
+            "log_file": str(log_path),
+            "phase7": api_phase7(),
+        }
+
+    except Exception as e:
+        return {"ok": False, "error": str(e), "phase7": api_phase7()}
+
+@router.post("/api/demo/run_all")
+def api_demo_run_all(n: int = 30) -> Dict[str, Any]:
+    """
+    Self-heal: run Phase6 playback -> demo_summary -> phase6 bundle
+              -> phase7 calibration -> phase7 bundle.
+    Writes into DATA_ROOT and logs to DATA_ROOT/logs/run_all.log
+    """
+    try:
+        repo = _REPO_ROOT
+        if (repo / "backend").exists():  # repo-root layout
+            repo_root = repo
+            backend_root = repo / "backend"
+        else:  # backend-root layout
+            backend_root = repo
+            repo_root = repo.parent
+
+        log_dir = DATA_ROOT / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "run_all.log"
+
+        gens = (
+            "generate_unjumble,generate_flashcard,grammar_fix_sentence,"
+            "grammar_agreement_mcq,generate_find_match,generate_spin_wheel"
+        )
+
+        # Build a single bash command so env applies consistently
+        cmd = (
+            "set -euo pipefail\n"
+            f'echo "[run_all] DATA_ROOT={DATA_ROOT}"\n'
+            f'echo "[run_all] n={n}"\n'
+            f'export DATA_ROOT="{DATA_ROOT}"\n'
+            f'export TESSARIS_DATA_ROOT="{DATA_ROOT}"\n'
+            f'export PYTHONPATH="{repo_root}"\n'
+            f'export CEE_GENS="{gens}"\n'
+            # Phase6 playback (produces forecast_report.json + prediction_miss_log.jsonl)
+            f'{sys.executable} "{backend_root}/modules/aion_cognition/cee_exercise_playback.py" '
+            f'--n {int(n)} --feed self_train --gens "$CEE_GENS"\n'
+            # Summary + Phase6 bundle
+            f'{sys.executable} "{backend_root}/demo/demo_summary.py"\n'
+            f'{sys.executable} "{backend_root}/demo/make_phase6_lock_bundle.py"\n'
+            # Phase7 calibration + Phase7 bundle
+            f'{sys.executable} "{backend_root}/demo/phase7_calibration.py"\n'
+            f'{sys.executable} "{backend_root}/demo/make_phase7_lock_bundle.py"\n'
+            'echo "[run_all] DONE"\n'
+        )
+
+        # Fire-and-forget, write logs to file
+        with open(log_file, "w", encoding="utf-8") as lf:
+            p = subprocess.Popen(
+                ["bash", "-lc", cmd],
+                cwd=str(backend_root),
+                env=os.environ.copy(),
+                stdout=lf,
+                stderr=subprocess.STDOUT,
+            )
+
+        return {
+            "ok": True,
+            "started": True,
+            "pid": int(p.pid),
+            "cwd": str(backend_root),
+            "log_file": str(log_file),
+            "phase7": api_phase7(),
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e), "phase7": api_phase7()}
+
+@router.post("/api/demo/run_all")
+def api_demo_run_all() -> Dict[str, Any]:
+    """
+    Self-heal for public demo: Phase6 playback → demo_summary → phase6 bundle → phase7 calibration → phase7 bundle.
+
+    Runs in background and writes a log:
+      $DATA_ROOT/logs/run_all.log
+    """
+    try:
+        # --- Figure out roots (works whether _REPO_ROOT is repo-root or backend-root) ---
+        backend_root = _REPO_ROOT
+        repo_root = _REPO_ROOT
+
+        # If we're sitting in /.../backend (backend-root), repo-root is parent
+        if (backend_root / "demo").exists() and (backend_root / "modules").exists() and (backend_root.parent / "backend").exists():
+            repo_root = backend_root.parent
+
+        # --- Paths ---
+        log_dir = DATA_ROOT / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "run_all.log"
+
+        playback = repo_root / "backend" / "modules" / "aion_cognition" / "cee_exercise_playback.py"
+        if not playback.exists():
+            # fallback when repo_root is already backend-root (so "backend/..." doesn't exist)
+            playback = backend_root / "modules" / "aion_cognition" / "cee_exercise_playback.py"
+
+        demo_summary = backend_root / "demo" / "demo_summary.py"
+        mk6 = backend_root / "demo" / "make_phase6_lock_bundle.py"
+        cal7 = backend_root / "demo" / "phase7_calibration.py"
+        mk7 = backend_root / "demo" / "make_phase7_lock_bundle.py"
+
+        missing = [str(p) for p in [playback, demo_summary, mk6, cal7, mk7] if not p.exists()]
+        if missing:
+            return {"ok": False, "error": f"Missing scripts: {missing}", "phase7": api_phase7()}
+
+        # --- Env ---
+        env = os.environ.copy()
+        env["DATA_ROOT"] = str(DATA_ROOT)
+        env["TESSARIS_DATA_ROOT"] = str(DATA_ROOT)
+
+        # Ensure imports resolve regardless of cwd
+        env.setdefault("PYTHONPATH", str(repo_root))
+
+        # Use sane Phase7 defaults unless caller already set them
+        env.setdefault("AION_FORECAST_MIN_CONF", "0.10")
+        env.setdefault("AION_FORECAST_RHO_ERR", "0.25")
+        env.setdefault("AION_FORECAST_SQI_ERR", "0.25")
+
+        # Demo-friendly defaults
+        env.setdefault("AION_COMMENTARY", "1")
+        env.setdefault("AION_VERBOSITY", "minimal")
+        env.setdefault("PYTHONHASHSEED", "0")
+        env.setdefault("TZ", "UTC")
+        env.setdefault("LC_ALL", "C")
+
+        # Playback config (match your Phase6 script style)
+        env.setdefault("CEE_SEED", "6001")
+        env.setdefault(
+            "CEE_GENS",
+            "generate_unjumble,generate_flashcard,grammar_fix_sentence,grammar_agreement_mcq,generate_find_match,generate_spin_wheel",
+        )
+
+        # --- Command list (sequential) ---
+        cmds = [
+            [sys.executable, str(playback), "--n", "6", "--feed", "self_train", "--gens", env["CEE_GENS"]],
+            [sys.executable, str(demo_summary)],
+            [sys.executable, str(mk6)],
+            [sys.executable, str(cal7)],
+            [sys.executable, str(mk7)],
+        ]
+
+        # Run in background, stream everything to log file
+        with open(log_file, "w", encoding="utf-8") as lf:
+            lf.write(f"[run_all] DATA_ROOT={DATA_ROOT}\n")
+            lf.write(f"[run_all] repo_root={repo_root}\n")
+            lf.write(f"[run_all] backend_root={backend_root}\n")
+            lf.flush()
+
+            # Wrap as a tiny python runner so we get one PID and ordered execution
+            runner = [
+                sys.executable,
+                "-c",
+                (
+                    "import os,sys,subprocess\n"
+                    "cmds = eval(os.environ['AION_RUN_ALL_CMDS'])\n"
+                    "cwd = os.environ['AION_RUN_ALL_CWD']\n"
+                    "for c in cmds:\n"
+                    "  print('\\n$ ' + ' '.join(c), flush=True)\n"
+                    "  r = subprocess.run(c, cwd=cwd)\n"
+                    "  if r.returncode != 0:\n"
+                    "    print(f'FAILED rc={r.returncode}', flush=True)\n"
+                    "    sys.exit(r.returncode)\n"
+                    "print('OK', flush=True)\n"
+                ),
+            ]
+
+            env2 = dict(env)
+            env2["AION_RUN_ALL_CWD"] = str(backend_root)  # consistent with your phase7_run cwd
+            env2["AION_RUN_ALL_CMDS"] = repr(cmds)
+
+            p = subprocess.Popen(
+                runner,
+                stdout=lf,
+                stderr=subprocess.STDOUT,
+                env=env2,
+                cwd=str(backend_root),
+            )
+
+        return {
+            "ok": True,
+            "started": True,
+            "pid": p.pid,
+            "cwd": str(backend_root),
+            "log_file": str(log_file),
+            "phase7": api_phase7(),
+        }
+
+    except Exception as e:
+        return {"ok": False, "error": str(e), "phase7": api_phase7()}
+
+@router.post("/api/demo/run_all")
+def api_demo_run_all(n: int = 30) -> Dict[str, Any]:
+    """
+    Self-heal: run Phase6 playback -> demo_summary -> phase6 bundle
+              -> phase7 calibration -> phase7 bundle.
+    Writes into DATA_ROOT and logs to DATA_ROOT/logs/run_all.log
+    """
+    try:
+        repo = _REPO_ROOT
+        if (repo / "backend").exists():  # repo-root layout
+            repo_root = repo
+            backend_root = repo / "backend"
+        else:  # backend-root layout
+            backend_root = repo
+            repo_root = repo.parent
+
+        log_dir = DATA_ROOT / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "run_all.log"
+
+        gens = (
+            "generate_unjumble,generate_flashcard,grammar_fix_sentence,"
+            "grammar_agreement_mcq,generate_find_match,generate_spin_wheel"
+        )
+
+        # Build a single bash command so env applies consistently
+        cmd = (
+            "set -euo pipefail\n"
+            f'echo "[run_all] DATA_ROOT={DATA_ROOT}"\n'
+            f'echo "[run_all] n={n}"\n'
+            f'export DATA_ROOT="{DATA_ROOT}"\n'
+            f'export TESSARIS_DATA_ROOT="{DATA_ROOT}"\n'
+            f'export PYTHONPATH="{repo_root}"\n'
+            f'export CEE_GENS="{gens}"\n'
+            # Phase6 playback (produces forecast_report.json + prediction_miss_log.jsonl)
+            f'{sys.executable} "{backend_root}/modules/aion_cognition/cee_exercise_playback.py" '
+            f'--n {int(n)} --feed self_train --gens "$CEE_GENS"\n'
+            # Summary + Phase6 bundle
+            f'{sys.executable} "{backend_root}/demo/demo_summary.py"\n'
+            f'{sys.executable} "{backend_root}/demo/make_phase6_lock_bundle.py"\n'
+            # Phase7 calibration + Phase7 bundle
+            f'{sys.executable} "{backend_root}/demo/phase7_calibration.py"\n'
+            f'{sys.executable} "{backend_root}/demo/make_phase7_lock_bundle.py"\n'
+            'echo "[run_all] DONE"\n'
+        )
+
+        # Fire-and-forget, write logs to file
+        with open(log_file, "w", encoding="utf-8") as lf:
+            p = subprocess.Popen(
+                ["bash", "-lc", cmd],
+                cwd=str(backend_root),
+                env=os.environ.copy(),
+                stdout=lf,
+                stderr=subprocess.STDOUT,
+            )
+
+        return {
+            "ok": True,
+            "started": True,
+            "pid": int(p.pid),
+            "cwd": str(backend_root),
+            "log_file": str(log_file),
+            "phase7": api_phase7(),
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e), "phase7": api_phase7()}
 # -----------------------------------------------------------------------------
 # Paths (relative to DATA_ROOT)
 # -----------------------------------------------------------------------------
@@ -243,9 +603,6 @@ FUSION_STATE_JSONL_PATH = DATA_ROOT / "learning" / "fusion_state.jsonl"
 
 # Default heartbeat namespace preference (your dashboard “demo 3” usually wants demo)
 DEFAULT_HEARTBEAT_NS = os.getenv("AION_DEMO_HEARTBEAT_NAMESPACE", "global_theta")
-
-
-import subprocess, threading
 
 _PROCS: list[subprocess.Popen] = []
 _LAST_CLIENT_TS = 0.0
@@ -459,9 +816,13 @@ async def api_mirror_run(steps: int = 24, interval_s: float = 0.15) -> Dict[str,
 
 @router.get("/api/phase7")
 def api_phase7() -> Dict[str, Any]:
-    # read best-effort; ok indicates presence of core outputs
     curve = _read_json(PHASE7_REL_CURVE_P, default=None)
+    if not isinstance(curve, dict):
+        curve = _read_json(PHASE7_REL_LOCK_P, default=None)
+
     metrics = _read_json(PHASE7_METRICS_P, default=None)
+    if not isinstance(metrics, dict):
+        metrics = _read_json(PHASE7_MET_LOCK_P, default=None)
 
     ok = isinstance(curve, dict) and isinstance(metrics, dict)
 
@@ -475,7 +836,6 @@ def api_phase7() -> Dict[str, Any]:
             "calibration_metrics_lock": str(PHASE7_MET_LOCK_P) if PHASE7_MET_LOCK_P.exists() else None,
             "bundle": str(PHASE7_BUNDLE_P) if PHASE7_BUNDLE_P.exists() else None,
         },
-        # raw content (frontend uses metrics.bins + metrics.ece)
         "curve": curve if isinstance(curve, dict) else None,
         "metrics": metrics if isinstance(metrics, dict) else None,
     }

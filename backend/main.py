@@ -37,6 +37,13 @@ def _ensure_data_root():
 
 _ensure_data_root()
 
+# ✅ Force a single DATA_ROOT for everything (bridge + generators + producers)
+from pathlib import Path
+
+DATA_DIR = str((Path(ROOT_DIR) / "data").resolve())
+os.environ.setdefault("TESSARIS_DATA_ROOT", DATA_DIR)
+os.environ.setdefault("DATA_ROOT", DATA_DIR)
+
 from fastapi import FastAPI, APIRouter, Request, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
