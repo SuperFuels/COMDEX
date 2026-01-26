@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/router";
 import TabDock, { type TabDef } from "./TabDock";
 
-const TABS: readonly TabDef[] = [
+export const TABS: readonly TabDef[] = [
   { key: "launch", label: "Launch", href: "/launch" },
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
   { key: "compression", label: "Compression", href: "/compression" },
@@ -22,20 +22,13 @@ const TABS: readonly TabDef[] = [
   { key: "wirepack", label: "WirePack", href: "/wirepack" },
   { key: "qfc_canvas", label: "QFC Canvas", href: "/qfc-canvas" },
 ];
-//  { key: "toe", label: "Theory Of Everything", href: "/toe" },
-//  { key: "multiverse", label: "Multiverse", href: "/multiverse" },
-//  { key: "glyph_chain", label: "Glyph Chain", href: "/glyph-chain" },
-//  { key: "ptn", label: ".ptn", href: "/ptn" },
-//  { key: "photon", label: "Photon", href: "/photon" },
 
 function normalizeKeyAgainstTabs(k: string | undefined, tabs: readonly TabDef[]) {
   const raw = (k || "").trim();
   if (!raw) return "";
 
-  // If it's already a valid key, keep it (IMPORTANT for "photon-algebra-demo")
   if (tabs.some((t) => t.key === raw)) return raw;
 
-  // Otherwise allow hyphen->underscore fallback for legacy callers
   const alt = raw.replace(/-/g, "_");
   if (tabs.some((t) => t.key === alt)) return alt;
 
@@ -57,42 +50,64 @@ function getActiveKeyFromPath(pathname: string): string {
   return "glyph";
 }
 
+/** ✅ Tabs bar meant to be mounted inside the navbar (mobile scroll). */
+export function ShellTabsBar({ activeKey }: { activeKey?: string }) {
+  const router = useRouter();
+  const derivedKey = getActiveKeyFromPath(router.asPath || router.pathname || "/");
+  const key =
+    normalizeKeyAgainstTabs(activeKey, TABS) ||
+    normalizeKeyAgainstTabs(derivedKey, TABS) ||
+    "glyph";
+
+  return (
+    <div className="w-full overflow-x-auto overflow-y-hidden">
+      <div className="min-w-max">
+        <TabDock tabs={TABS} activeKey={key} />
+      </div>
+    </div>
+  );
+}
+
 export default function Shell({
   children,
   activeKey,
   hideHud = false,
   className = "",
   maxWidth = "max-w-[1400px]",
+  tabsInNavbar = true, // ✅ default: tabs live in navbar now
 }: {
   children: ReactNode;
   activeKey?: string;
   hideHud?: boolean;
   className?: string;
   maxWidth?: string;
+  tabsInNavbar?: boolean;
 }) {
   const router = useRouter();
   const derivedKey = getActiveKeyFromPath(router.asPath || router.pathname || "/");
-
-  // normalize so "sovereign-qkd" works even if someone passes hyphenated keys
-  const key = normalizeKeyAgainstTabs(activeKey, TABS) || normalizeKeyAgainstTabs(derivedKey, TABS) || "glyph";
+  const key =
+    normalizeKeyAgainstTabs(activeKey, TABS) ||
+    normalizeKeyAgainstTabs(derivedKey, TABS) ||
+    "glyph";
 
   return (
     <div
       className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}
     >
-      {/* ✅ single scroll container (restored) */}
+      {/* ✅ single scroll container */}
       <div className="h-screen overflow-y-auto overflow-x-hidden">
         <main
           className={[
             "relative z-10 flex flex-col items-center justify-start min-h-full",
             "w-full",
-            "px-6 md:px-10",
+            "px-4 sm:px-6 md:px-10",
             maxWidth,
             "mx-auto",
-            "py-16 pb-32",
+            "pt-6 pb-24", // smaller top padding since tabs are in navbar
           ].join(" ")}
         >
-          <TabDock tabs={TABS} activeKey={key} />
+          {/* ✅ Tabs moved to navbar */}
+          {!tabsInNavbar && <TabDock tabs={TABS} activeKey={key} />}
 
           <div className="w-full">
             <div key={key} className="animate-tab-change">
@@ -100,11 +115,11 @@ export default function Shell({
             </div>
           </div>
 
-          <footer className="mt-24 flex gap-6">
-            <button className="px-12 py-4 bg-black text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all">
+          <footer className="mt-16 flex flex-col sm:flex-row gap-3 sm:gap-6 w-full justify-center">
+            <button className="px-8 py-3 bg-black text-white rounded-full font-semibold text-base hover:bg-gray-800 transition-all">
               Launch GlyphNet
             </button>
-            <button className="px-12 py-4 border-2 border-black text-black rounded-full font-semibold text-lg hover:bg-black hover:text-white transition-all">
+            <button className="px-8 py-3 border-2 border-black text-black rounded-full font-semibold text-base hover:bg-black hover:text-white transition-all">
               View Multiverse
             </button>
           </footer>
@@ -112,8 +127,8 @@ export default function Shell({
       </div>
 
       {!hideHud && (
-        <div className="fixed bottom-8 right-8 p-4 bg-white/80 border border-gray-200 rounded-2xl backdrop-blur-xl text-[11px] font-bold text-gray-400 tracking-wider shadow-lg">
-          <div className="flex gap-6 uppercase">
+        <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 p-3 bg-white/80 border border-gray-200 rounded-2xl backdrop-blur-xl text-[10px] font-bold text-gray-400 tracking-wider shadow-lg">
+          <div className="flex gap-4 uppercase">
             <span>Space: Pause</span>
             <span>1-4: Glyph</span>
             <span>5-8: Symatics</span>
