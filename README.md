@@ -31,7 +31,7 @@ gcloud run deploy comdex-api \
   --timeout=300s
 
 git add .
-git commit -m "Phase7: stable lock bundle + determinism"
+git commit -m "Phase7: demo"
 git push origin main
 
 Dollar in glyph : symbol: ✲✬☀Ptn

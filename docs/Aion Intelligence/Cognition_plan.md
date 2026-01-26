@@ -202,24 +202,47 @@ Phase 5 — Predictive Self-Expectation (implemented)
     • Test locked → backend/tests/test_forecast_report_summary_json.py
 ⸻
 
-Phase 6 — Killer Demo Script (1 day)
-
-[ ] 10-minute demo script
-    • exact prompts
-    • expected CAU states
-
-[ ] One-command demo runner
-    • heartbeat
-    • CLI panel
-    • scripted dialogue
-
-[ ] Golden run prompts + outputs
-[ ] Screen-record-friendly layout
-[ ] Post-demo summary dump
-    • deny events
-    • ADR triggers
-    • corrections
-    • forecasts
+Phase 6 — Killer Demo Script ✅ COMPLETE
+	•	10-minute demo script
+• exact prompts
+• expected CAU states
+• phase-by-phase narrative pacing
+• deterministic ordering (no branching)
+	•	One-command demo runner
+• heartbeat
+• CLI panel
+• scripted dialogue
+• isolated DATA_ROOT per run
+• fixed environment controls (TZ, HASHSEED, locale)
+	•	Golden run prompts + outputs
+• forecast_report.lock.json
+• demo_summary.lock.json
+• phase6_lock_bundle.json
+• hash-verified by test_phase6_golden_lock.py
+	•	Screen-record-friendly layout
+• linear 14-step execution
+• stable log ordering
+• no interactive input required
+• deterministic timing boundaries
+	•	Post-demo summary dump
+• deny events
+• ADR triggers
+• corrections
+• forecasts
+• threshold configuration snapshot
+• artifact manifest (relative paths only)
+	•	Safety & invariants proof gate (missing from original list)
+• Phase 4–5 proofs enforced before demo runs
+• demo aborts if proofs fail
+• guarantees “no unsafe demo state”
+	•	Reproducibility harness (missing from original list)
+• clean temp workspace per run
+• golden-lock comparison
+• CI-enforced determinism
+	•	Audit readiness (missing from original list)
+• immutable telemetry logs
+• machine-verifiable artifacts
+• no hidden state or mutable caches
 
 ⸻
 

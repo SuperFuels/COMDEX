@@ -16,6 +16,7 @@ import json
 import os
 import sys
 import time
+import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -174,6 +175,16 @@ def _ensure_local_data_points_to(root: Path) -> None:
     except Exception:
         pass
 
+def _sha256_file(p: Path) -> str:
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def _require_exists(p: Path, msg: str) -> None:
+    if not p.exists():
+        raise FileNotFoundError(msg)
 
 DATA_ROOT = pick_data_root()
 _ensure_local_data_points_to(DATA_ROOT)
@@ -202,6 +213,17 @@ MIRROR_STATE_PATH = DATA_ROOT / "telemetry" / "demo6_mirror_state.json"
 MIRROR_TELEMETRY_PATH = DATA_ROOT / "telemetry" / "demo6_mirror_reflection.qdata.json"
 
 LEX_MEMORY_PATH = DATA_ROOT / "memory" / "lex_memory.json"
+
+# Phase 7 artifacts (relative to DATA_ROOT)
+PHASE7_REL_CURVE_P = DATA_ROOT / "telemetry" / "reliability_curve.json"
+PHASE7_METRICS_P   = DATA_ROOT / "telemetry" / "calibration_metrics.json"
+
+PHASE7_REL_LOCK_P  = DATA_ROOT / "telemetry" / "reliability_curve.lock.json"
+PHASE7_MET_LOCK_P  = DATA_ROOT / "telemetry" / "calibration_metrics.lock.json"
+PHASE7_BUNDLE_P    = DATA_ROOT / "telemetry" / "phase7_lock_bundle.json"
+
+# Committed golden (repo)
+PHASE7_GOLDEN_P    = _REPO_ROOT / "backend" / "tests" / "locks" / "phase7_lock_bundle.sha256.json"
 
 # -----------------------------------------------------------------------------
 # Paths (relative to DATA_ROOT)
@@ -434,6 +456,68 @@ async def api_mirror_run(steps: int = 24, interval_s: float = 0.15) -> Dict[str,
     }
     _write_json(MIRROR_TELEMETRY_PATH, payload)
     return {"ok": True, "action": "run", **payload}
+
+@router.get("/api/phase7")
+def api_phase7() -> Dict[str, Any]:
+    # read best-effort; ok indicates presence of core outputs
+    curve = _read_json(PHASE7_REL_CURVE_P, default=None)
+    metrics = _read_json(PHASE7_METRICS_P, default=None)
+
+    ok = isinstance(curve, dict) and isinstance(metrics, dict)
+
+    return {
+        "ok": ok,
+        "data_root": str(DATA_ROOT),
+        "files": {
+            "reliability_curve": str(PHASE7_REL_CURVE_P) if PHASE7_REL_CURVE_P.exists() else None,
+            "calibration_metrics": str(PHASE7_METRICS_P) if PHASE7_METRICS_P.exists() else None,
+            "reliability_curve_lock": str(PHASE7_REL_LOCK_P) if PHASE7_REL_LOCK_P.exists() else None,
+            "calibration_metrics_lock": str(PHASE7_MET_LOCK_P) if PHASE7_MET_LOCK_P.exists() else None,
+            "bundle": str(PHASE7_BUNDLE_P) if PHASE7_BUNDLE_P.exists() else None,
+        },
+        # raw content (frontend uses metrics.bins + metrics.ece)
+        "curve": curve if isinstance(curve, dict) else None,
+        "metrics": metrics if isinstance(metrics, dict) else None,
+    }
+
+@router.get("/api/phase7/verify")
+def api_phase7_verify() -> Dict[str, Any]:
+    try:
+        _require_exists(PHASE7_GOLDEN_P, f"Missing golden: {PHASE7_GOLDEN_P}")
+        _require_exists(PHASE7_BUNDLE_P, f"Missing produced bundle: {PHASE7_BUNDLE_P}")
+
+        golden = _read_json(PHASE7_GOLDEN_P, default={}) or {}
+        produced = _read_json(PHASE7_BUNDLE_P, default={}) or {}
+
+        gfiles = golden.get("files") if isinstance(golden.get("files"), dict) else {}
+        pfiles = produced.get("files") if isinstance(produced.get("files"), dict) else {}
+
+        mismatches = []
+        # compare only keys present in golden
+        for rel_path, exp_sha in gfiles.items():
+            fp = DATA_ROOT / rel_path
+            if not fp.exists():
+                mismatches.append({"path": rel_path, "expected": str(exp_sha), "actual": "MISSING"})
+                continue
+            act_sha = _sha256_file(fp)
+            if act_sha != exp_sha:
+                mismatches.append({"path": rel_path, "expected": str(exp_sha), "actual": act_sha})
+
+        match = (len(mismatches) == 0)
+
+        return {
+            "ok": True,
+            "golden_path": str(PHASE7_GOLDEN_P),
+            "produced_path": str(PHASE7_BUNDLE_P),
+            "golden_schema": golden.get("schema"),
+            "produced_schema": produced.get("schema"),
+            "golden_files": gfiles,
+            "produced_files": pfiles,
+            "match": match,
+            "mismatches": mismatches or None,
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e), "match": False}
 
 def _pick_existing(*paths: Path) -> Optional[Path]:
     for p in paths:
@@ -1306,6 +1390,7 @@ async def ws_aion_demo(ws: WebSocket) -> None:
                 "heartbeat_meta": {"age_ms": hb.get("age_ms"), "source_file": hb.get("source_file")},
                 "reflex": reflex_state,
                 "mirror": mirror,
+                "phase7": api_phase7(),
                 "akg": akg_snapshot(),
             }
 
