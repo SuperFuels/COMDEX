@@ -10,22 +10,34 @@ export default function AionLaunchTab() {
       {/* HERO */}
       <div className="text-center space-y-6">
         <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500 font-bold">
-          GLYPHOS ALPHA — LIVE TODAY • ROLLING ALPHAS — WIRES, NET, SQI, AION
+          GLYPHOS ALPHA — SHIPPED TODAY • PROOF TABS — LIVE • UNLOCKS — BY HOLDER
+          MILESTONES
         </p>
 
         <h1 className="text-5xl md:text-7xl font-black tracking-tight text-black italic">
-          AION
+          GlyphOS
         </h1>
 
         <p className="text-xl md:text-2xl text-slate-500 font-light tracking-tight">
-          Compressed Meaning —{" "}
-          <span className="text-black font-medium">verifiable intelligence.</span>
+          The Language of Symbols.{" "}
+          <span className="text-black font-medium">The Speed of Thought.</span>
         </p>
 
         <p className="max-w-3xl mx-auto text-lg text-slate-500 leading-relaxed">
-          AION ships intent as a stable wire-shape, executes deterministically, and
-          exposes calibration locks. Not “bigger models” — <strong>measurable honesty</strong>
-          about uncertainty.
+          A next-generation operating system built in symbols — compressing intent
+          into executable <strong>glyph-wire</strong> so{" "}
+          <strong>the same meaning produces the same bytes</strong>, every time.
+        </p>
+
+        <p className="max-w-3xl mx-auto text-lg text-slate-500 leading-relaxed">
+          <strong className="text-black">Step 1</strong> is live today:{" "}
+          <strong className="text-black">GlyphOS Alpha</strong>. From here:{" "}
+          <strong className="text-black">SQI + GlyphNet</strong> → deterministic
+          cognition → trust locks →{" "}
+          <strong className="text-black">
+            the world’s first verifiable self-aware AI
+          </strong>
+          .
         </p>
       </div>
 
@@ -42,7 +54,7 @@ export default function AionLaunchTab() {
               What’s Live Today
             </h2>
             <p className="text-gray-600 leading-relaxed">
-              GlyphOS Alpha + core proof tabs: Compression benchmarks, WirePack v10
+              GlyphOS Alpha + core proof tabs: compression benchmarks, WirePack v10
               template+delta transport, and deterministic lock artifacts.
             </p>
           </div>
@@ -62,21 +74,22 @@ export default function AionLaunchTab() {
         <div className="space-y-12">
           <div className="p-8 rounded-[2.5rem] bg-black text-white">
             <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400 mb-2">
-              The Vision
+              The Arc
             </h4>
             <p className="text-xl font-medium italic leading-snug">
-              “Not just predictions — provable honesty about uncertainty, shipped as
-              compressed meaning.”
+              “Step 1 is GlyphOS: compressed meaning + deterministic replay. From
+              here we unlock SQI + GlyphNet → trust locks → verifiable self-aware AI.”
             </p>
           </div>
 
           <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100">
             <h4 className="text-sm font-bold uppercase tracking-widest text-amber-600 mb-3">
-              Rolling Alphas
+              Rolling Unlocks
             </h4>
             <p className="text-sm text-gray-500 leading-relaxed">
-              GlyphNet, SQI runtime, and AION organism pillars (Φ / ADR / REAL / Mirror)
-              unlock progressively as gated alphas.
+              SQI runtime, GlyphNet, and the AION cognition stack unlock progressively
+              by holder milestones — each release ships with its own proof tab + lock
+              artifacts (no vapor).
             </p>
           </div>
         </div>
