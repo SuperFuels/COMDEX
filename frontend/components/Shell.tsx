@@ -71,14 +71,12 @@ export function ShellTabsBar({ activeKey }: { activeKey?: string }) {
 export default function Shell({
   children,
   activeKey,
-  hideHud = false,
   className = "",
   maxWidth = "max-w-[1400px]",
   tabsInNavbar = true, // ✅ default: tabs live in navbar now
 }: {
   children: ReactNode;
   activeKey?: string;
-  hideHud?: boolean;
   className?: string;
   maxWidth?: string;
   tabsInNavbar?: boolean;
@@ -115,27 +113,10 @@ export default function Shell({
             </div>
           </div>
 
-          <footer className="mt-16 flex flex-col sm:flex-row gap-3 sm:gap-6 w-full justify-center">
-            <button className="px-8 py-3 bg-black text-white rounded-full font-semibold text-base hover:bg-gray-800 transition-all">
-              Launch GlyphNet
-            </button>
-            <button className="px-8 py-3 border-2 border-black text-black rounded-full font-semibold text-base hover:bg-black hover:text-white transition-all">
-              View Multiverse
-            </button>
-          </footer>
+          {/* ✅ removed footer buttons */}
+          {/* ✅ removed bottom-right HUD overlay */}
         </main>
       </div>
-
-      {!hideHud && (
-        <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 p-3 bg-white/80 border border-gray-200 rounded-2xl backdrop-blur-xl text-[10px] font-bold text-gray-400 tracking-wider shadow-lg">
-          <div className="flex gap-4 uppercase">
-            <span>Space: Pause</span>
-            <span>1-4: Glyph</span>
-            <span>5-8: Symatics</span>
-            <span className="text-[#0071e3]">R: Restart</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
