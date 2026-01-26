@@ -334,7 +334,7 @@ export default function AionLaunchHUD() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {(["ETH", "SOL"] as ChainKey[]).map((k) => (
+              {(["SOL"] as ChainKey[]).map((k) => (
                 <button
                   key={k}
                   onClick={() => setChain(k)}
@@ -557,10 +557,19 @@ $ ${PROOF.phase7VerifyCmd}`}
             <div className="grid md:grid-cols-2 gap-3 sm:gap-4">
               <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 bg-white/5 p-5">
                 <div className="font-extrabold">Live: GlyphOS Alpha</div>
-                <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                  Instead of shipping pages of text, you ship a tiny glyph program whose execution is deterministic and replayable.
-                  Compressed meaning becomes executable form — and audit trails become automatic.
-                </p>
+
+                {/* image only (no text) */}
+                <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+                  <Image
+                    src="/images/GIP.png"
+                    alt="GIP"
+                    width={1200}
+                    height={700}
+                    className="h-auto w-full object-contain"
+                    priority
+                  />
+                </div>
+
                 <div className="mt-4 flex flex-col sm:flex-row gap-2">
                   <button
                     className="w-full sm:w-auto px-4 py-2 rounded-2xl bg-white text-black font-extrabold"
