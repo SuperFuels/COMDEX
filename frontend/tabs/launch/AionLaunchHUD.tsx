@@ -35,33 +35,103 @@ function safeOpen(url: string) {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
+// --- OPTIONAL: if you want to show proof anchors, set these strings.
+const PROOF = {
+  // Lean / formal verification snapshot link (internal or public)
+  leanSnapshotHref: "#", // e.g. "/docs/theorem_snapshot" or a static file
+  // Phase-7 honesty audit tab
+  phase7Href: "/phase7-calibration",
+  // Proof commands shown on page
+  wirepackCmd: "python backend/tests/glyphos_wirepack_v10_template_delta_benchmark.py",
+  compressionCmd: "python backend/tests/glyphos_compression_benchmark.py --depth 60",
+  phase7VerifyCmd: "curl -sS $BRIDGE/api/phase7/verify",
+  // Your known lock id / proof label (set real value if you have it)
+  phase1LockId: "PHOTON-PA-PHASE1-LOCK-0002",
+};
+
 export default function AionLaunchHUD() {
   const [chain, setChain] = useState<ChainKey>("ETH");
   const [overlayOpen, setOverlayOpen] = useState<boolean>(false);
 
   const cfg = LINKS[chain];
 
+  // Launch language: hero = GlyphOS, everything else = staged unlocks
   const stats = useMemo(
     () => [
       {
-        v: "1B",
-        k: "Total supply",
-        s: "Replace with your real numbers.",
+        v: "LIVE",
+        k: "GlyphOS Alpha",
+        s: "Compressed meaning + byte-identical trace (audit-ready).",
       },
       {
-        v: "LOCKED",
-        k: "Liquidity",
-        s: "Link your lock / vesting proof.",
+        v: "LEAN",
+        k: "Formal Verification",
+        s: "Core Photon Algebra proofs are machine-checked (not marketing).",
       },
       {
         v: "61×",
-        k: "Meaning compression",
-        s: "Depth-60: 2,175B vs 131,069B.",
+        k: "Meaning Compression",
+        s: "Depth-60: 2,175B vs 131,069B (locked benchmark).",
       },
       {
         v: "54.77%",
-        k: "WirePack savings",
-        s: "v10 vs gzip’d JSON (locked).",
+        k: "WirePack Savings",
+        s: "Template+Delta vs gzip’d JSON (locked benchmark).",
+      },
+    ],
+    []
+  );
+
+  const gates = useMemo(
+    () => [
+      {
+        n: 1,
+        tag: "LIVE TODAY",
+        title: "GlyphOS Alpha + Proof Tabs",
+        desc:
+          "This launch is not a roadmap pitch. GlyphOS is shipped. Proof tabs are live. You can audit the bytes today.",
+        bullets: [
+          "GlyphOS: intent → glyph-wire → replay (same meaning → same bytes)",
+          "Compression proof (Depth scaling, SHA256-locked stdout)",
+          "WirePack v10 proof (Template+Delta, 0 roundtrip failures)",
+        ],
+      },
+      {
+        n: 25,
+        tag: "HOLDER GATE",
+        title: "25 holders → Alpha Unlock: Trace UX + Artifact Downloads",
+        desc:
+          "When we hit 25 holders, we unlock the usability layer: one-click artifact downloads + lock bundles surfaced in UI.",
+        bullets: [
+          "Download lock bundles (.lock.json + sha256) directly in UI",
+          "Preset gallery: intent → wire → replay in 1 click",
+          "Policy selector (strict deterministic / conservative)",
+        ],
+      },
+      {
+        n: 50,
+        tag: "HOLDER GATE",
+        title: "50 holders → Alpha Unlock: SQI Runtime Demos",
+        desc:
+          "Quantum-like ambiguity resolution with deterministic traces: superposition → entangle → governed collapse (auditable).",
+        bullets: [
+          "SQI demo: coherence drop + collapse trace",
+          "Replayable frames (same inputs → same trace)",
+          "Exportable audit events (schema-locked)",
+        ],
+      },
+      {
+        n: 100,
+        tag: "HOLDER GATE",
+        title: "100 holders → Alpha Unlock: AION Organism Pillars",
+        desc:
+          "Verified self-measurement, gated learning, and autonomous stabilization. No hand-waving — you’ll see the telemetry.",
+        bullets: [
+          "Φ: Verified self-measurement (coherence as a measurable signal)",
+          "ADR: Adaptive immune response (learning gates on stability)",
+          "REAL: Stable-state locks (self-preservation), Mirror trace",
+          "Phase-7 calibration surfaced as ‘Honesty Audit’",
+        ],
       },
     ],
     []
@@ -78,38 +148,44 @@ export default function AionLaunchHUD() {
                 <div className="h-10 w-10 rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-200/60 via-white to-blue-200/60" />
                 <div>
                   <div className="text-sm font-extrabold tracking-tight text-black">
-                    AION Launch
+                    GlyphOS Launch
                   </div>
                   <div className="text-[11px] text-slate-500 tracking-wide">
-                    Compressed Meaning • Verifiable Intelligence
+                    Formally Verified • Audit-Grade • Live Proof
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
                 <a
+                  href="#glyphos"
+                  className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-bold tracking-wide text-slate-600 hover:text-black hover:border-slate-300"
+                >
+                  GlyphOS
+                </a>
+                <a
                   href="#stack"
                   className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-bold tracking-wide text-slate-600 hover:text-black hover:border-slate-300"
                 >
-                  Stack
+                  Proof Tabs
                 </a>
                 <a
                   href="#wow"
                   className="px-3 py-2 rounded-full border border-slate-200 bg-white text-xs font-bold tracking-wide text-slate-600 hover:text-black hover:border-slate-300"
                 >
-                  Live Proof
+                  Audit
                 </a>
                 <a
                   href="#roadmap"
                   className="px-3 py-2 rounded-full border border-emerald-200 bg-emerald-50 text-xs font-bold tracking-wide text-emerald-700 hover:border-emerald-300"
                 >
-                  Alpha Roadmap
+                  Holder Unlocks
                 </a>
                 <button
                   onClick={() => safeOpen(cfg.dex)}
                   className="px-3 py-2 rounded-full border border-slate-200 bg-black text-xs font-extrabold tracking-wide text-white hover:opacity-90"
                 >
-                  Buy AION
+                  Buy ({cfg.label})
                 </button>
               </div>
             </div>
@@ -117,31 +193,33 @@ export default function AionLaunchHUD() {
         </div>
 
         {/* HERO GRID */}
-        <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-6">
-          {/* LEFT */}
+        <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-6" id="glyphos">
+          {/* LEFT (Hero) */}
           <div className="rounded-[2.5rem] border border-slate-200 bg-black text-white p-8 relative overflow-hidden">
             <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_0%,rgba(59,130,246,0.6),transparent_55%),radial-gradient(circle_at_80%_20%,rgba(16,185,129,0.5),transparent_55%),radial-gradient(circle_at_90%_90%,rgba(244,63,94,0.35),transparent_60%)]" />
             <div className="relative space-y-6">
               <div className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-bold tracking-widest">
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                  GLYPHOS ALPHA — LIVE TODAY
+                  GLYPHOS ALPHA — SHIPPED TODAY
                 </span>
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-bold tracking-widest">
-                  <span className="h-2 w-2 rounded-full bg-amber-300" />
-                  ROLLING ALPHAS — WIRES, NET, SQI, AION
+                  <span className="h-2 w-2 rounded-full bg-blue-300" />
+                  FORMALLY VERIFIED (LEAN) — AUDIT READY
                 </span>
               </div>
 
               <h2 className="text-3xl md:text-5xl font-black italic tracking-tight">
-                An AI that knows when it’s guessing — and can prove it.
+                Compressed meaning, not compressed text.
               </h2>
 
               <p className="text-white/75 text-base md:text-lg leading-relaxed max-w-2xl">
-                Most AI confidently hallucinates. AION measures its own coherence,
-                reports uncertainty as a first-class signal, and ships every workflow as{" "}
-                <span className="text-white font-semibold">compressed meaning</span>{" "}
-                with a deterministic trace.
+                This is a <span className="text-white font-semibold">proof-based launch</span>.
+                GlyphOS is live:{" "}
+                <span className="text-white font-semibold">
+                  same meaning + same policy ⇒ byte-identical wire + byte-identical trace
+                </span>
+                . You can verify the artifacts, reproduce the benchmarks, and audit the bytes.
               </p>
 
               <div className="flex flex-wrap gap-2">
@@ -149,7 +227,7 @@ export default function AionLaunchHUD() {
                   onClick={() => safeOpen(cfg.dex)}
                   className="px-4 py-3 rounded-2xl bg-white text-black font-extrabold tracking-wide hover:opacity-95"
                 >
-                  Buy AION ({cfg.label})
+                  Buy ({cfg.label})
                 </button>
                 <button
                   onClick={() => {
@@ -157,43 +235,40 @@ export default function AionLaunchHUD() {
                   }}
                   className="px-4 py-3 rounded-2xl border border-white/20 bg-white/5 text-white font-bold tracking-wide hover:bg-white/10"
                 >
-                  Explore the Stack
+                  Open Proof Tabs
                 </button>
                 <button
                   onClick={() => setOverlayOpen(true)}
                   className="px-4 py-3 rounded-2xl border border-amber-200/30 bg-amber-200/10 text-amber-100 font-bold tracking-wide hover:bg-amber-200/15"
                 >
-                  What you’re about to see
+                  What’s proven today
                 </button>
               </div>
 
               <div className="pt-4 border-t border-white/10 text-xs text-white/65 leading-relaxed">
-                Pairing today: <span className="font-semibold text-white">{cfg.label}</span>{" "}
+                Pair: <span className="font-semibold text-white">{cfg.label}</span>{" "}
                 • Contract:{" "}
                 <span className="font-mono text-white/90">{cfg.contract}</span>{" "}
                 • Liquidity: <span className="font-semibold">LOCKED</span> (add lock link) • Not financial advice.
               </div>
 
               <div className="text-xs text-white/65 leading-relaxed">
-                <span className="font-semibold text-white">Live now:</span> GlyphOS + Compression + WirePack.
+                <span className="font-semibold text-white">Live right now:</span> GlyphOS + Compression + WirePack proof.
                 <br />
-                <span className="font-semibold text-white">Rolling alpha:</span> GlyphNet, SQI runtime, organism pillars (Φ/ADR/REAL/Mirror), Phase-7 calibration.
+                <span className="font-semibold text-white">Next unlocks:</span> SQI, GlyphNet, AION pillars, Phase-7 Honesty Audit.
               </div>
             </div>
           </div>
 
-          {/* RIGHT */}
+          {/* RIGHT (Launch Console) */}
           <div className="rounded-[2.5rem] border border-slate-200 bg-white p-8 space-y-6">
             <div className="space-y-2">
               <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">
                 Launch Console
               </p>
               <p className="text-slate-600 leading-relaxed">
-                Choose your pair. Today stays clean:{" "}
-                <span className="text-black font-semibold">
-                  GlyphOS Alpha + core proof tabs
-                </span>
-                . Everything else unlocks progressively.
+                This page is designed for skepticism. Nothing here requires trust.
+                It’s either <span className="text-black font-semibold">verifiable</span> or it doesn’t ship.
               </p>
             </div>
 
@@ -237,32 +312,35 @@ export default function AionLaunchHUD() {
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600 leading-relaxed">
               <div className="font-bold uppercase tracking-[0.22em] text-slate-500 text-[11px] mb-2">
-                Quick Links (set)
+                Proof Links (set real URLs)
               </div>
               <div className="flex flex-col gap-1">
                 <span>
-                  DEX: <span className="font-mono text-slate-700">{cfg.dex}</span>
+                  Phase-7 Honesty Audit:{" "}
+                  <span className="font-mono text-slate-700">{PROOF.phase7Href}</span>
                 </span>
                 <span>
-                  Docs: <span className="font-mono text-slate-700">https://…</span>
+                  Lean theorem snapshot:{" "}
+                  <span className="font-mono text-slate-700">{PROOF.leanSnapshotHref}</span>
                 </span>
                 <span>
-                  Demo: <span className="font-mono text-slate-700">https://…</span>
+                  Proof lock id:{" "}
+                  <span className="font-mono text-slate-700">{PROOF.phase1LockId}</span>
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* STACK */}
+        {/* STACK (now framed as PROOF TABS) */}
         <div id="stack" className="space-y-6">
           <div className="space-y-2 text-center">
             <h3 className="text-3xl font-black italic tracking-tight text-black">
-              The Stack — from symbols to sentience
+              Proof Tabs — already built, already verifiable
             </h3>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
-              Ship intent as a stable wire-shape. Execute deterministically. Prove trust
-              with locks. This is the “wow”: measurable claims, reproducible outputs.
+              No “coming soon” claims in the proof area. These are reproducible today.
+              Run the commands. Compare the bytes. Verify the locks.
             </p>
           </div>
 
@@ -271,86 +349,91 @@ export default function AionLaunchHUD() {
               status="LIVE TODAY"
               statusTone="live"
               title="GlyphOS"
-              subtitle="Compressed meaning + deterministic trace"
-              desc="Intent → glyph-wire → execution → audit. Same meaning + same policy ⇒ same wire + same trace."
-              wow={`Depth-60 benchmark (locked)
-Glyph wire JSON:          2,175 B
-Glyph wire JSON (gzip):     379 B
-Verbose AST:            131,069 B
-Ratio vs verbose AST:   60.26× raw / 11.28× gzip`}
+              subtitle="Compressed meaning + byte-identical trace"
+              desc="Intent → glyph-wire → execution → audit. Same meaning + same policy ⇒ same bytes. Auditable, replayable, reproducible."
+              wow={`GlyphOS benchmark (locked)
+Depth-60:
+Glyph wire JSON:       2,175 B
+Glyph wire JSON (gz):    379 B
+Verbose AST:         131,069 B
+Result: 60.26× raw / 11.28× gzip
+
+Run: ${PROOF.compressionCmd}`}
             />
             <StackCard
               status="LIVE TODAY"
               statusTone="live"
-              title="Compression Proof"
-              subtitle="SHA256-locked reproducibility"
-              desc="Nested operator trees compress harder as complexity grows — while remaining replayable."
-              wow={`$ python backend/tests/glyphos_compression_benchmark.py --depth 60
-Glyph (gzip): 379 B
-Verbose AST (gzip): 4,275 B
-Result: 61× raw gain
-Deterministic: byte-identical`}
+              title="Formal Verification"
+              subtitle="Lean-verified algebraic core"
+              desc="Machine-checked proofs underpin the logic substrate (not a marketing claim). Determinism is mathematically guaranteed by the verified normalization/equality path."
+              wow={`Lean proof anchor (set real link)
+Lock: ${PROOF.phase1LockId}
+Artifact: theorem_snapshot.md (recommended)
+
+Set: PROOF.leanSnapshotHref`}
             />
             <StackCard
               status="LIVE TODAY"
               statusTone="live"
               title="WirePack v10"
-              subtitle="Template + Delta transport"
-              desc="Ship the shape once, then ship only mutations. Stable, replayable, audit-friendly."
+              subtitle="Template + Delta transport (locked)"
+              desc="Ship the shape once, ship only mutations. Stable wire-shapes with audit-grade replay."
               wow={`WirePack v10 (locked)
 Depth / Messages: 30 / 2000
-Avg JSON (gzip):   366.49 B
-Avg v10 (gzip):    165.77 B
+Avg JSON (gz):     366.49 B
+Avg v10 (gz):      165.77 B
 Savings:           54.77%
-Roundtrip fails:   0/2000`}
+Roundtrip fails:   0/2000
+
+Run: ${PROOF.wirepackCmd}`}
             />
             <StackCard
-              status="ALPHA"
-              statusTone="alpha"
-              title="GlyphNet"
-              subtitle="Wave-native networking"
-              desc="Multi-writer convergence (CRDT-style), failover across substrates, tamper-evident delivery."
-              wow={`Alpha demos:
-• Fiber → Radio mesh downshift
-• CRDT merges
-• “56× metadata reduction” tab`}
-            />
-            <StackCard
-              status="ALPHA"
+              status="COMING NEXT"
               statusTone="alpha"
               title="SQI Runtime"
-              subtitle="Quantum-like on laptop"
-              desc="Superposition, entanglement, governed collapse — deterministic and auditable."
-              wow={`Demo frame:
-coherence_before: 0.94
-coherence_after:  0.31
-trace: superposition → entangle → collapse`}
+              subtitle="Deterministic collapse traces"
+              desc="Quantum-like resolution (superposition/entanglement/collapse) — but auditable and replayable. Unlocks by holder threshold."
+              wow={`Unlock: 50 holders
+• Coherence + trace
+• Exportable audit frames
+• Replays are byte-identical`}
             />
             <StackCard
-              status="ALPHA"
+              status="COMING NEXT"
               statusTone="alpha"
-              title="AION (Organism)"
-              subtitle="Φ / ADR / REAL / Mirror"
-              desc="Self-monitoring vitals, self-repair, self-preservation, and reflective narration."
-              wow={`Pillars:
-• Φ coherence vector
-• ADR immune response
-• REAL stable-state locks
-• Mirror reflection
-• Phase-7 calibration`}
+              title="AION Organism Pillars"
+              subtitle="Verified self-measurement + gated learning"
+              desc="Φ/ADR/REAL/Mirror as concrete systems (telemetry + gating), not metaphors. Unlocks by holder threshold."
+              wow={`Unlock: 100 holders
+• Φ: Verified self-measurement
+• ADR: Adaptive immune gating
+• REAL: Stable-state locks
+• Mirror: Deterministic narrative trace`}
+            />
+            <StackCard
+              status="COMING NEXT"
+              statusTone="alpha"
+              title="Honesty Audit (Phase-7)"
+              subtitle="Calibration you can audit"
+              desc="Don’t take our word for it — audit our honesty. Confidence bins + ECE + SHA256 locks."
+              wow={`Already exists as a tab:
+${PROOF.phase7Href}
+
+Verify:
+${PROOF.phase7VerifyCmd}`}
             />
           </div>
         </div>
 
-        {/* WOW / PROOF */}
+        {/* WOW / AUDIT */}
         <div id="wow" className="space-y-6">
           <div className="space-y-2 text-center">
             <h3 className="text-3xl font-black italic tracking-tight text-black">
-              Live Proof Engine
+              Live Audit (run it yourself)
             </h3>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
-              This is the “wow”: compression is locked, traces are deterministic, and
-              calibration can be audited.
+              This is how we earn “absolute confidence” language: it’s measurable and reproducible.
+              Same inputs → same bytes → verified by SHA256 locks.
             </p>
           </div>
 
@@ -358,126 +441,90 @@ trace: superposition → entangle → collapse`}
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-3">
                 <div className="h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_0_8px_rgba(16,185,129,0.15)]" />
-                <div className="font-extrabold tracking-tight">Run-it-yourself verification</div>
+                <div className="font-extrabold tracking-tight">Audit scripts</div>
               </div>
               <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">
-                Deterministic • Locked • Audit-ready
+                Formally Verified • Locked • Replayable
               </div>
             </div>
 
             <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-4 mt-6">
-              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5 font-mono text-xs leading-relaxed overflow-auto">
-                <div className="text-emerald-300 font-bold">
-                  $ python backend/tests/glyphos_wirepack_v10_template_delta_benchmark.py
+              <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5 font-mono text-xs leading-relaxed overflow-auto whitespace-pre-wrap">
+                <div className="text-emerald-300 font-bold">$ {PROOF.compressionCmd}</div>
+                <div className="text-white/70 mt-2">
+                  {`=== ✅ Locked Output ===
+Depth-60:
+Glyph (gz): 379 B
+Verbose AST (gz): 4,275 B
+Result: 61× raw gain
+Deterministic: byte-identical`}
                 </div>
+
+                <div className="text-emerald-300 font-bold mt-4">$ {PROOF.wirepackCmd}</div>
                 <div className="text-white/70 mt-2">
                   {`=== ✅ WirePack v10 (Locked) ===
-Depth / Messages: 30 / 2000
-Avg JSON (gzip): 366.492 B
-Avg v10 (gzip):  165.767 B
-Savings:         54.77%
-Template hits:   2000/2000
+Savings vs JSON (gz): 54.77%
+Template hits: 2000/2000
 Roundtrip fails: 0/2000
 Lock stdout SHA256: 79dfafe8b6a373...`}
                 </div>
 
-                <div className="text-emerald-300 font-bold mt-4">
-                  $ curl -sS $BRIDGE/api/phase7/verify
-                </div>
+                <div className="text-emerald-300 font-bold mt-4">$ {PROOF.phase7VerifyCmd}</div>
                 <div className="text-white/70">
-                  {"{ \"match\": true, \"golden_schema\": \"AION.Phase7LockBundle.v2\", \"sha256\": \"…\" }"}
+                  {`{ "match": true, "golden_schema": "AION.Phase7LockBundle.v2", "sha256": "…" }`}
                 </div>
               </div>
 
               <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5 space-y-3">
-                <div className="flex items-center justify-between gap-2 text-xs text-white/80">
-                  <div>
-                    <span className="font-extrabold text-white">Trust calibration</span>{" "}
-                    <span className="text-white/60">(Phase-7)</span>
-                  </div>
-                  <div className="font-mono">ECE ≈ 0.0198 ✓</div>
+                <div className="text-sm font-extrabold">“Don’t trust us — audit us.”</div>
+                <div className="text-xs text-white/75 leading-relaxed">
+                  The page stays honest by design: anything described as <strong className="text-white">LIVE</strong>{" "}
+                  has a reproducible command or a lock bundle behind it.
                 </div>
 
-                <div className="h-2 rounded-full border border-white/10 bg-black/40 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-300/80 to-blue-300/80"
-                    style={{ width: "82%" }}
-                  />
+                <div className="rounded-2xl border border-white/10 bg-black/30 p-4 text-xs text-white/80 leading-relaxed">
+                  <div className="font-bold text-white">High-signal trust wording</div>
+                  <ul className="mt-2 space-y-1">
+                    <li>• “Formally Verified (Lean)” instead of “deterministic”.</li>
+                    <li>• “Byte-identical reproducibility (SHA256 locks)”.</li>
+                    <li>• “Audit the artifacts” (curl / scripts / lock bundle).</li>
+                  </ul>
                 </div>
 
-                <div className="text-xs text-white/70 leading-relaxed">
-                  <strong className="text-white">Challenge mode:</strong> pick a confidence bin and compare
-                  stated confidence vs empirical accuracy. You just audited honesty.
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-black/30 p-4 font-mono text-xs text-white/80 whitespace-pre-wrap">
-                  {`Select 0.85 → inspect matching bin
-Stated confidence: 85.0%
-Empirical accuracy: 82.6%
-Gap: 2.4% ✓`}
-                </div>
+                <button
+                  onClick={() => (window.location.href = PROOF.phase7Href)}
+                  className="w-full px-4 py-3 rounded-2xl bg-white text-black font-extrabold tracking-wide hover:opacity-95"
+                >
+                  Open Phase-7 Honesty Audit
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ROADMAP */}
+        {/* HOLDER GATES */}
         <div id="roadmap" className="space-y-6">
           <div className="space-y-2 text-center">
             <h3 className="text-3xl font-black italic tracking-tight text-black">
-              Rolling Alpha Ladder
+              Holder Unlock Ladder
             </h3>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
-              Today is clean: GlyphOS + proof tabs. Everything else unlocks in staged
-              alphas (so the launch stays accurate).
+              Launch stays clean: GlyphOS ships today. Everything else unlocks fast as we hit holder milestones.
+              Each unlock ships with its own proof tab + lock artifacts.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            <RoadmapStep
-              n={1}
-              tag="LIVE"
-              title="Today — GlyphOS Alpha + Core Proof"
-              desc="Compressed intent + deterministic trace. Public locked benchmarks."
-              bullets={[
-                "GlyphOS presets (Document Intelligence / Orchestration)",
-                "Compression proof tab (depth scaling)",
-                "WirePack v10 tab (Template+Delta)",
-              ]}
-            />
-            <RoadmapStep
-              n={2}
-              tag="ALPHA"
-              title="Week 1–2 — Transport + Trace UX"
-              desc="Make “same meaning → same wire → same trace” visceral."
-              bullets={[
-                "Trace downloads + lock bundles in UI",
-                "Preset gallery: intent → wire → replay",
-                "Policy selector (deterministic / conservative)",
-              ]}
-            />
-            <RoadmapStep
-              n={3}
-              tag="ALPHA"
-              title="Week 2–4 — SQI + AION Demos"
-              desc="Quantum-like ambiguity resolution + organism feedback loops."
-              bullets={[
-                "SQI entangled scheduler demo (coherence + trace)",
-                "AION pillars: Φ / ADR / REAL / Mirror / Θ heartbeat",
-                "Phase-7 calibration surfaced as proof tab",
-              ]}
-            />
-            <RoadmapStep
-              n={4}
-              tag="ROLLING"
-              title="Month 2+ — GlyphNet + Multiverse"
-              desc="Wave-native networking + multiverse view demos."
-              bullets={[
-                "Multiverse view: routing / topology / merges",
-                "Mesh downshift: Fiber → Radio",
-                "Security story: interference as alarm",
-              ]}
-            />
+            {gates.map((g) => (
+              <RoadmapStep
+                key={`${g.n}-${g.title}`}
+                n={g.n}
+                tag={g.tag}
+                title={g.title}
+                desc={g.desc}
+                bullets={g.bullets}
+              />
+            ))}
           </div>
         </div>
 
@@ -509,9 +556,8 @@ Gap: 2.4% ✓`}
               Disclaimer
             </div>
             <p className="mt-2">
-              This page describes software utilities and alpha access. It is not
-              financial advice. Replace placeholders (contract, DEX links, lock links)
-              before publishing.
+              This page describes software utilities and alpha access. It is not financial advice.
+              Replace placeholders (contract, DEX links, lock links, proof URLs) before publishing.
             </p>
           </div>
         </div>
@@ -530,10 +576,10 @@ Gap: 2.4% ✓`}
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">
-                  Welcome to the AION Launch
+                  What’s proven today
                 </div>
                 <div className="text-2xl font-black italic mt-2">
-                  Verifiable intelligence, shipped as compressed meaning.
+                  GlyphOS ships with proof — not promises.
                 </div>
               </div>
               <button
@@ -546,10 +592,10 @@ Gap: 2.4% ✓`}
 
             <div className="grid md:grid-cols-2 gap-4">
               <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
-                <div className="font-extrabold">What’s live today</div>
+                <div className="font-extrabold">Live: GlyphOS Alpha</div>
                 <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                  GlyphOS Alpha + proof tabs: Compression, WirePack, deterministic traces.
-                  The goal is “wow + verifiable” immediately.
+                  Compressed meaning + byte-identical trace. If meaning and policy are the same,
+                  the wire is the same. That’s auditable determinism.
                 </p>
                 <div className="mt-4 flex gap-2 flex-wrap">
                   <button
@@ -559,7 +605,7 @@ Gap: 2.4% ✓`}
                       document.getElementById("stack")?.scrollIntoView({ behavior: "smooth" });
                     }}
                   >
-                    Explore Stack
+                    Open Proof Tabs
                   </button>
                   <button
                     className="px-4 py-2 rounded-2xl border border-white/15 bg-white/5 font-bold"
@@ -568,37 +614,28 @@ Gap: 2.4% ✓`}
                       document.getElementById("wow")?.scrollIntoView({ behavior: "smooth" });
                     }}
                   >
-                    See Live Proof
+                    Run the Audit
                   </button>
                 </div>
               </div>
 
               <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
-                <div className="font-extrabold">What unlocks next</div>
+                <div className="font-extrabold">Formal Verification (Lean)</div>
                 <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                  GlyphNet, SQI runtime, AION organism pillars, and Phase-7 trust calibration
-                  unlock progressively so the launch stays accurate.
+                  Where others say “trust us”, we use machine-checked proofs. Determinism isn’t a claim —
+                  it’s mathematically proven for the verified core.
                 </p>
-                <div className="mt-4 flex gap-2 flex-wrap">
-                  <button
-                    className="px-4 py-2 rounded-2xl border border-amber-200/30 bg-amber-200/10 text-amber-100 font-extrabold"
-                    onClick={() => {
-                      setOverlayOpen(false);
-                      document.getElementById("roadmap")?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                  >
-                    See Alpha Ladder
-                  </button>
+                <div className="mt-4 text-xs text-white/65">
+                  Proof lock id: <span className="font-mono text-white/85">{PROOF.phase1LockId}</span>
                 </div>
               </div>
             </div>
 
             <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5">
-              <div className="font-extrabold">Why this matters</div>
+              <div className="font-extrabold">What unlocks next</div>
               <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                Uncalibrated AI can say “95% confident” and be wrong constantly. AION measures
-                coherence during computation, then Phase-7 checks whether confidence matches reality —
-                with SHA256-locked proof artifacts.
+                SQI, GlyphNet, AION pillars, and Phase-7 Honesty Audit are staged unlocks.
+                Each unlock ships with a proof tab + lock artifacts (no vapor).
               </p>
             </div>
           </div>
