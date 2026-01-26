@@ -2,13 +2,11 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Image from "next/image";
 
 type ChainKey = "ETH" | "SOL";
 
-const LINKS: Record<
-  ChainKey,
-  { label: string; dex: string; contract: string; pairLabel: string }
-> = {
+const LINKS: Record<ChainKey, { label: string; dex: string; contract: string; pairLabel: string }> = {
   ETH: {
     label: "ETH",
     pairLabel: "Pair: ETH",
@@ -134,11 +132,20 @@ export default function AionLaunchHUD() {
             <div className="flex items-start sm:items-center justify-between gap-3">
               {/* left */}
               <div className="flex items-center gap-3 min-w-0">
-                <div className="h-10 w-10 rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-200/60 via-white to-blue-200/60 shrink-0" />
+                {/* ✅ icon swapped to your image */}
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                  <Image
+                    src="/images/g_logo.jpeg"
+                    alt="GPH"
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-cover"
+                    priority
+                  />
+                </div>
+
                 <div className="min-w-0">
-                  <div className="text-sm font-extrabold tracking-tight text-black">
-                    Pair: GPH
-                  </div>
+                  <div className="text-sm font-extrabold tracking-tight text-black">Pair: GPH</div>
 
                   {/* mobile: short contract */}
                   <div className="text-[11px] text-slate-500 tracking-wide leading-snug min-w-0">
@@ -232,9 +239,7 @@ export default function AionLaunchHUD() {
               </div>
 
               <div className="space-y-2">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">
-                  GlyphOS
-                </div>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">GlyphOS</div>
                 <h2 className="text-3xl sm:text-4xl md:text-6xl font-black italic tracking-tight">
                   The Language of Symbols. The Speed of Thought.
                 </h2>
@@ -243,8 +248,8 @@ export default function AionLaunchHUD() {
               <p className="text-white/75 text-base sm:text-lg leading-relaxed max-w-2xl">
                 An operating system built in symbols — compressing intent into executable{" "}
                 <span className="text-white font-semibold">glyph wire</span> so{" "}
-                <span className="text-white font-semibold">the same meaning + the same policy ⇒ the same bytes</span>.
-                Step 1 ships today: GlyphOS Alpha. From here: SQI + GlyphNet → deterministic cognition → trust locks → verifiable self-aware AI.
+                <span className="text-white font-semibold">the same meaning + the same policy ⇒ the same bytes</span>. Step 1 ships
+                today: GlyphOS Alpha. From here: SQI + GlyphNet → deterministic cognition → trust locks → verifiable self-aware AI.
               </p>
 
               {/* ✅ mobile: stacked buttons */}
@@ -285,9 +290,7 @@ export default function AionLaunchHUD() {
           {/* RIGHT */}
           <div className="rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-white p-5 sm:p-8 space-y-5 sm:space-y-6">
             <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">
-                Launch Console
-              </p>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">Launch Console</p>
               <p className="text-slate-600 leading-relaxed">
                 This launch is built for skepticism. GlyphOS is shipped. Anything called{" "}
                 <span className="text-black font-semibold">proven</span> has artifacts behind it.
@@ -316,18 +319,14 @@ export default function AionLaunchHUD() {
               {stats.map((s) => (
                 <div key={s.k} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="text-lg font-black tracking-tight text-black">{s.v}</div>
-                  <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mt-1">
-                    {s.k}
-                  </div>
+                  <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mt-1">{s.k}</div>
                   <div className="text-xs text-slate-500 mt-2 leading-relaxed">{s.s}</div>
                 </div>
               ))}
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600 leading-relaxed">
-              <div className="font-bold uppercase tracking-[0.22em] text-slate-500 text-[11px] mb-2">
-                Proof Links (set real URLs)
-              </div>
+              <div className="font-bold uppercase tracking-[0.22em] text-slate-500 text-[11px] mb-2">Proof Links (set real URLs)</div>
               <div className="flex flex-col gap-1">
                 <span>
                   Glyph OS tab: <span className="font-mono text-slate-700">{GLYPHOS_TAB_HREF}</span>
@@ -346,12 +345,129 @@ export default function AionLaunchHUD() {
           </div>
         </div>
 
+        {/* ✅ GLYPHOS IN PLAIN ENGLISH (single column, stacked) */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* Container 1: What it is / problem */}
+          <section className="rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-white p-5 sm:p-8">
+            <div className="space-y-2">
+              <h3 className="text-2xl sm:text-3xl font-black italic tracking-tight text-black">GlyphOS in Plain English</h3>
+              <p className="text-slate-600 leading-relaxed">
+                <span className="font-semibold text-black">What it is • The problem it solves</span>
+              </p>
+              <p className="text-slate-600 leading-relaxed">
+                Traditional systems are like sending a novel when you only need to say “turn left.”
+                Most software communicates with huge JSON/XML payloads full of repeated labels. GlyphOS sends the essential{" "}
+                <span className="font-semibold text-black">structure</span> — compact glyph programs that preserve meaning.
+              </p>
+            </div>
+
+            {/* easy-to-read examples (light, grey) */}
+            <div className="mt-5 grid gap-4">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
+                  Traditional way (verbose)
+                </div>
+                <pre className="text-xs sm:text-[12px] leading-relaxed font-mono text-slate-700 whitespace-pre-wrap break-words">
+{`// Traditional way (327 bytes)
+{
+  "operation": "process_document",
+  "action_type": "extract_and_summarize",
+  "parameters": {
+    "document_id": "report_2024_Q3",
+    "extraction_fields": ["revenue", "expenses", "profit"],
+    "summary_length": 5,
+    "output_format": "brief"
+  },
+  "metadata": {
+    "timestamp": "2024-01-26",
+    "user": "analyst_01"
+  }
+}`}
+                </pre>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
+                  GlyphOS way (compact)
+                </div>
+                <pre className="text-xs sm:text-[12px] leading-relaxed font-mono text-slate-700 whitespace-pre-wrap break-words">
+{`// GlyphOS way (45 bytes)
+⊕ doc("Q3") → extract(rev, exp, profit) → sum(5)`}
+                </pre>
+                <p className="mt-2 text-sm text-slate-600">
+                  Same meaning. <span className="font-semibold text-black">~7× smaller</span> — and it improves as tasks get more complex.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Container 2: Examples + templates/deltas + trace (light, grey) */}
+          <section className="rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-white p-5 sm:p-8">
+            <div className="space-y-2">
+              <h4 className="text-xl sm:text-2xl font-black italic tracking-tight text-black">Real examples</h4>
+              <p className="text-slate-600 leading-relaxed">
+                The point is simple: software starts to communicate like humans text — shorthand that preserves meaning, plus{" "}
+                <span className="font-semibold text-black">templates + deltas</span>, plus <span className="font-semibold text-black">proof-grade replay</span>.
+              </p>
+            </div>
+
+            <div className="mt-5 grid gap-4">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
+                  WirePack (send once, then only deltas)
+                </div>
+                <pre className="text-xs sm:text-[12px] leading-relaxed font-mono text-slate-700 whitespace-pre-wrap break-words">
+{`// Send once (template)
+TEMPLATE_47: ⊕ doc($NAME) → extract(fields) → summarize
+
+// Then only deltas
+Task 1: { template: 47, $NAME: "Q3_Report" }
+Task 2: { template: 47, $NAME: "Q4_Report" }`}
+                </pre>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
+                  Deterministic trace (proof-grade replay)
+                </div>
+                <pre className="text-xs sm:text-[12px] leading-relaxed font-mono text-slate-700 whitespace-pre-wrap break-words">
+{`Trace ID: GX-51ECA33C
+Step 1: Load doc("Q3_Report") → OK, 23ms
+Step 2: Extract(rev, exp)     → OK, 17ms
+Step 3: Summarize(5)          → OK, 24ms
+deterministic ✓ (same glyph tomorrow → same bytes)`}
+                </pre>
+              </div>
+            </div>
+
+            {/* optional: softer CTA row (grey/white/blue buttons as you asked) */}
+            <div className="mt-6 flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={() => (window.location.href = GLYPHOS_TAB_HREF)}
+                className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-white border border-slate-200 text-black font-extrabold tracking-wide hover:border-slate-300"
+              >
+                Open Glyph OS
+              </button>
+              <button
+                onClick={() => document.getElementById("proofs")?.scrollIntoView({ behavior: "smooth" })}
+                className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 font-extrabold tracking-wide hover:border-slate-300"
+              >
+                Proof repo
+              </button>
+              <button
+                onClick={() => document.getElementById("roadmap")?.scrollIntoView({ behavior: "smooth" })}
+                className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-blue-600 text-white font-extrabold tracking-wide hover:bg-blue-700"
+              >
+                Unlock ladder
+              </button>
+            </div>
+          </section>
+        </div>
+
         {/* FORMAL PROOF REPOSITORY */}
         <div id="proofs" className="space-y-4">
           <div className="text-center space-y-2 px-1">
-            <h3 className="text-2xl md:text-3xl font-black italic tracking-tight text-black">
-              Git Formal Proof Repository
-            </h3>
+            <h3 className="text-2xl md:text-3xl font-black italic tracking-tight text-black">Git Formal Proof Repository</h3>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
               Verifiable mathematical equations, frameworks, tests & papers — machine-checkable proof, not screenshots.
             </p>
@@ -360,9 +476,7 @@ export default function AionLaunchHUD() {
           <div className="max-w-4xl mx-auto rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-white p-4 sm:p-6 space-y-4">
             <div className="grid md:grid-cols-2 gap-3">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">
-                  GitHub Repository (Public)
-                </div>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">GitHub Repository (Public)</div>
                 <div className="mt-2 text-sm text-slate-700 leading-relaxed">
                   <span className="font-semibold text-black">Required:</span> a public repo containing{" "}
                   <span className="font-mono">.lean</span> files + reproducible test commands.
@@ -375,15 +489,11 @@ export default function AionLaunchHUD() {
                   Open GitHub <span className="text-white/60">→</span>
                 </button>
 
-                <div className="mt-2 text-[11px] text-slate-500">
-                  Audited by a third party (add auditor link if available).
-                </div>
+                <div className="mt-2 text-[11px] text-slate-500">Audited by a third party (add auditor link if available).</div>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">
-                  Missing Links Checklist
-                </div>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold">Missing Links Checklist</div>
 
                 <div className="mt-2 text-sm text-slate-700 leading-relaxed space-y-2">
                   <div>
@@ -391,8 +501,8 @@ export default function AionLaunchHUD() {
                     <span className="font-mono">PROOF.leanSnapshotHref</span> is still a placeholder.
                   </div>
                   <div>
-                    • <span className="font-semibold text-black">Contract address:</span>{" "}
-                    set <span className="font-mono">LINKS[chain].contract</span> to the real address.
+                    • <span className="font-semibold text-black">Contract address:</span> set{" "}
+                    <span className="font-mono">LINKS[chain].contract</span> to the real address.
                   </div>
                 </div>
 
@@ -406,13 +516,11 @@ export default function AionLaunchHUD() {
             </div>
 
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-amber-700 font-bold">
-                The Reality
-              </div>
+              <div className="text-[11px] uppercase tracking-[0.22em] text-amber-700 font-bold">The Reality</div>
               <p className="mt-2 text-sm text-amber-900 leading-relaxed">
-                Writing formal proofs for AI logic is incredibly difficult and time-consuming.
-                If someone claims they’ve done it, they should provide a public GitHub repository
-                with <span className="font-mono">.lean</span> files. Without that link, the claim is just text on a screen.
+                Writing formal proofs for AI logic is incredibly difficult and time-consuming. If someone claims they’ve done it,
+                they should provide a public GitHub repository with <span className="font-mono">.lean</span> files. Without that link,
+                the claim is just text on a screen.
               </p>
             </div>
 
@@ -432,12 +540,10 @@ $ ${PROOF.phase7VerifyCmd}`}
         {/* UNLOCK LADDER */}
         <div id="roadmap" className="space-y-6">
           <div className="space-y-2 text-center px-1">
-            <h3 className="text-3xl font-black italic tracking-tight text-black">
-              Holder Unlock Ladder
-            </h3>
+            <h3 className="text-3xl font-black italic tracking-tight text-black">Holder Unlock Ladder</h3>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
-              Launch stays clean: <span className="text-black font-semibold">GlyphOS ships today</span>. Everything else unlocks by holder milestones.
-              Each unlock ships with proof tabs + lock artifacts.
+              Launch stays clean: <span className="text-black font-semibold">GlyphOS ships today</span>. Everything else unlocks by
+              holder milestones. Each unlock ships with proof tabs + lock artifacts.
             </p>
           </div>
 
@@ -449,10 +555,7 @@ $ ${PROOF.phase7VerifyCmd}`}
                 return (
                   <div
                     key={`${u.holders}-${u.title}`}
-                    className={cx(
-                      "flex items-start justify-between gap-3 sm:gap-4 p-4 sm:p-5",
-                      idx !== 0 && "border-t border-slate-100"
-                    )}
+                    className={cx("flex items-start justify-between gap-3 sm:gap-4 p-4 sm:p-5", idx !== 0 && "border-t border-slate-100")}
                   >
                     <div className="flex items-start gap-3 sm:gap-4 min-w-0">
                       <div className="min-w-[84px] sm:min-w-[104px]">
@@ -466,22 +569,15 @@ $ ${PROOF.phase7VerifyCmd}`}
                         </div>
 
                         <div
-                          className={cx(
-                            "text-xl sm:text-2xl font-black tracking-tight",
-                            isReleaseRow ? "text-emerald-600" : "text-black"
-                          )}
+                          className={cx("text-xl sm:text-2xl font-black tracking-tight", isReleaseRow ? "text-emerald-600" : "text-black")}
                         >
                           {u.holders === 0 ? "✓" : u.holders}
                         </div>
                       </div>
 
                       <div className="space-y-1 min-w-0">
-                        <div className="text-base sm:text-lg font-black italic tracking-tight text-black">
-                          {u.title}
-                        </div>
-                        <div className="text-sm text-slate-600 leading-relaxed break-words">
-                          {u.blurb}
-                        </div>
+                        <div className="text-base sm:text-lg font-black italic tracking-tight text-black">{u.title}</div>
+                        <div className="text-sm text-slate-600 leading-relaxed break-words">{u.blurb}</div>
 
                         {u.href && (
                           <button
@@ -530,12 +626,8 @@ $ ${PROOF.phase7VerifyCmd}`}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">
-                  What’s proven today
-                </div>
-                <div className="text-xl sm:text-2xl font-black italic mt-2">
-                  GlyphOS ships with proof — not promises.
-                </div>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-white/70 font-bold">What’s proven today</div>
+                <div className="text-xl sm:text-2xl font-black italic mt-2">GlyphOS ships with proof — not promises.</div>
               </div>
               <button
                 onClick={() => setOverlayOpen(false)}
@@ -580,10 +672,7 @@ $ ${PROOF.phase7VerifyCmd}`}
                   Where others say “trust us”, we use machine-checked proofs. Determinism isn’t a vibe — it’s proven for the verified core.
                 </p>
                 <div className="mt-4 text-xs text-white/65">
-                  Proof lock id:{" "}
-                  <span className="font-mono text-white/85 select-all">
-                    {PROOF.phase1LockId}
-                  </span>
+                  Proof lock id: <span className="font-mono text-white/85 select-all">{PROOF.phase1LockId}</span>
                 </div>
               </div>
             </div>
