@@ -1,4 +1,4 @@
-// /workspaces/COMDEX/frontend/tabs/launch/index.tsx
+// /// /workspaces/COMDEX/frontend/tabs/launch/index.tsx
 "use client";
 
 import React from "react";
@@ -46,7 +46,7 @@ export default function AionLaunchTab() {
         <AionLaunchHUD />
       </div>
 
-      {/* EXPLAINER (NEW: full Plain English + examples panel) */}
+      {/* EXPLAINER */}
       <div className="border-t border-gray-100 pt-16">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="text-center space-y-3">
@@ -54,14 +54,16 @@ export default function AionLaunchTab() {
               GlyphOS in Plain English
             </h2>
             <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed">
-              It’s not “smaller files.” It’s <span className="text-black font-semibold">portable meaning</span>: condensed intent
-              that runs deterministically and leaves an audit-grade trace.
+              It’s not “smaller files.” It’s{" "}
+              <span className="text-black font-semibold">portable meaning</span>:
+              condensed intent that runs deterministically and leaves an audit-grade
+              trace.
             </p>
           </div>
 
-          {/* Wide two-panel row (stack on mobile, side-by-side on xl) */}
-          <div className="grid xl:grid-cols-[1.25fr_0.75fr] gap-6">
-            {/* LEFT: full explanation */}
+          {/* ✅ FORCE SINGLE COLUMN (stack) */}
+          <div className="grid grid-cols-1 gap-6">
+            {/* CARD 1: What it is + core code comparison */}
             <div className="rounded-[2.25rem] border border-slate-200 bg-white p-6 sm:p-10 space-y-10">
               {/* What it is */}
               <div className="space-y-3">
@@ -69,64 +71,56 @@ export default function AionLaunchTab() {
                   What it is • The problem it solves
                 </div>
                 <p className="text-slate-700 leading-relaxed">
-                  Traditional systems are like sending a novel when you only need to say{" "}
-                  <span className="font-semibold text-black">“turn left.”</span> Most software communicates by shipping huge
-                  JSON/XML payloads full of redundant keys and repeated structure.
+                  Traditional systems are like sending a novel when you only need to
+                  say{" "}
+                  <span className="font-semibold text-black">“turn left.”</span>{" "}
+                  Most software communicates by shipping huge JSON/XML payloads full
+                  of redundant keys and repeated structure.
                 </p>
               </div>
 
-              {/* Traditional vs GlyphOS code */}
+              {/* ✅ Traditional vs GlyphOS (keep 2-up on desktop, but fix code styling) */}
               <div className="grid lg:grid-cols-2 gap-4">
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                   <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
                     Traditional way (example)
                   </div>
-                  <div className="rounded-xl border border-slate-300/70 bg-[#0b1220] p-4 font-mono text-xs leading-relaxed text-slate-100 overflow-auto">
-                    <span className="text-slate-300">// Traditional way (327 bytes)</span>
-                    {"\n"}
-                    <span className="text-emerald-200">{"{"}</span>
-                    {"\n"}  <span className="text-sky-200">"operation"</span>:{" "}
-                    <span className="text-amber-200">"process_document"</span>,{"\n"}  <span className="text-sky-200">"action_type"</span>:{" "}
-                    <span className="text-amber-200">"extract_and_summarize"</span>,{"\n"}  <span className="text-sky-200">"parameters"</span>:{" "}
-                    <span className="text-emerald-200">{"{"}</span>
-                    {"\n"}    <span className="text-sky-200">"document_id"</span>:{" "}
-                    <span className="text-amber-200">"report_2024_Q3"</span>,{"\n"}    <span className="text-sky-200">"extraction_fields"</span>:{" "}
-                    <span className="text-emerald-200">[</span>
-                    <span className="text-amber-200">"revenue"</span>,{" "}
-                    <span className="text-amber-200">"expenses"</span>,{" "}
-                    <span className="text-amber-200">"profit"</span>
-                    <span className="text-emerald-200">]</span>,{"\n"}    <span className="text-sky-200">"summary_length"</span>:{" "}
-                    <span className="text-amber-200">5</span>,{"\n"}    <span className="text-sky-200">"output_format"</span>:{" "}
-                    <span className="text-amber-200">"brief"</span>
-                    {"\n"}  <span className="text-emerald-200">{"}"}</span>,{"\n"}  <span className="text-sky-200">"metadata"</span>:{" "}
-                    <span className="text-emerald-200">{"{"}</span>
-                    {"\n"}    <span className="text-sky-200">"timestamp"</span>:{" "}
-                    <span className="text-amber-200">"2024-01-26"</span>,{"\n"}    <span className="text-sky-200">"user"</span>:{" "}
-                    <span className="text-amber-200">"analyst_01"</span>
-                    {"\n"}  <span className="text-emerald-200">{"}"}</span>
-                    {"\n"}<span className="text-emerald-200">{"}"}</span>
-                  </div>
+
+                  {/* ✅ plain: dark grey text on light grey */}
+                  <pre className="rounded-xl border border-slate-200 bg-slate-100 p-4 font-mono text-xs leading-relaxed text-slate-800 overflow-auto whitespace-pre-wrap break-words">
+{`// Traditional way (327 bytes)
+{
+  "operation": "process_document",
+  "action_type": "extract_and_summarize",
+  "parameters": {
+    "document_id": "report_2024_Q3",
+    "extraction_fields": ["revenue", "expenses", "profit"],
+    "summary_length": 5,
+    "output_format": "brief"
+  },
+  "metadata": {
+    "timestamp": "2024-01-26",
+    "user": "analyst_01"
+  }
+}`}
+                  </pre>
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                   <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
                     GlyphOS way (same meaning)
                   </div>
-                  <div className="rounded-xl border border-slate-300/70 bg-[#0b1220] p-4 font-mono text-xs leading-relaxed text-slate-100 overflow-auto">
-                    <span className="text-slate-300">// GlyphOS way (45 bytes)</span>
-                    {"\n"}
-                    <span className="text-sky-200">⊕</span>{" "}
-                    <span className="text-amber-200">doc</span>(<span className="text-emerald-200">"Q3"</span>){" "}
-                    <span className="text-slate-200">→</span>{" "}
-                    <span className="text-amber-200">extract</span>(<span className="text-emerald-200">rev, exp, profit</span>){" "}
-                    <span className="text-slate-200">→</span>{" "}
-                    <span className="text-amber-200">sum</span>(<span className="text-emerald-200">5</span>)
-                  </div>
+
+                  {/* ✅ plain: dark grey text on light grey */}
+                  <pre className="rounded-xl border border-slate-200 bg-slate-100 p-4 font-mono text-xs leading-relaxed text-slate-800 overflow-auto whitespace-pre-wrap break-words">
+{`// GlyphOS way (45 bytes)
+⊕ doc("Q3") → extract(rev, exp, profit) → sum(5)`}
+                  </pre>
 
                   <div className="mt-3 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 leading-relaxed">
                     <span className="font-semibold">Same meaning.</span>{" "}
-                    <span className="font-semibold">7× smaller.</span>{" "}
-                    And it improves as operations get more complex.
+                    <span className="font-semibold">7× smaller.</span> And it
+                    improves as operations get more complex.
                   </div>
                 </div>
               </div>
@@ -141,88 +135,80 @@ export default function AionLaunchTab() {
                   <div className="rounded-2xl border border-slate-200 bg-white p-5">
                     <div className="font-bold text-black">1) Edge devices can think</div>
                     <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                      Instead of megabytes of verbose instructions, edge devices receive kilobytes of glyphs. That makes more
-                      AI operations feasible without cloud round-trips.
+                      Instead of megabytes of verbose instructions, edge devices
+                      receive kilobytes of glyphs. That makes more AI operations
+                      feasible without cloud round-trips.
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-slate-200 bg-white p-5">
                     <div className="font-bold text-black">2) IoT networks don’t choke</div>
                     <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                      Factories and sensor grids can ship more updates on the same bandwidth because the redundant structure is removed.
+                      Factories and sensor grids can ship more updates on the same
+                      bandwidth because the redundant structure is removed.
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-slate-200 bg-white p-5">
                     <div className="font-bold text-black">3) Audit trails you can trust</div>
                     <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                      Every glyph produces a deterministic trace — run it twice and you get the same outputs byte-for-byte.
-                      That turns “logs” into provable execution.
+                      Every glyph produces a deterministic trace — run it twice and
+                      you get the same outputs byte-for-byte. That turns “logs” into
+                      provable execution.
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-slate-200 bg-white p-5">
                     <div className="font-bold text-black">4) Real cost savings</div>
                     <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                      Less bandwidth, less compute churn, and fewer round-trips. The bigger the agent network, the more this compounds.
+                      Less bandwidth, less compute churn, and fewer round-trips. The
+                      bigger the agent network, the more this compounds.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* WirePack + determinism */}
+              {/* WirePack + determinism (keep as-is layout, but fix code styling) */}
               <div className="grid lg:grid-cols-2 gap-4">
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                   <div className="font-bold text-black">WirePack: send once, reference forever</div>
                   <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                    When instructions are similar, GlyphOS ships the structure once as a template — then only the deltas.
+                    When instructions are similar, GlyphOS ships the structure once
+                    as a template — then only the deltas.
                   </p>
 
-                  <div className="mt-3 rounded-xl border border-slate-300/70 bg-[#0b1220] p-4 font-mono text-xs text-slate-100 overflow-auto">
-                    <span className="text-slate-300">// Send once (template)</span>
-                    {"\n"}
-                    <span className="text-sky-200">TEMPLATE_47:</span>{" "}
-                    <span className="text-amber-200">⊕</span>{" "}
-                    <span className="text-amber-200">doc</span>(<span className="text-sky-200">$NAME</span>){" "}
-                    <span className="text-slate-200">→</span>{" "}
-                    <span className="text-amber-200">extract</span>(fields){" "}
-                    <span className="text-slate-200">→</span>{" "}
-                    <span className="text-amber-200">summarize</span>
-                    {"\n\n"}
-                    <span className="text-slate-300">// Then only deltas</span>
-                    {"\n"}
-                    <span className="text-sky-200">Task 1:</span>{" "}
-                    <span className="text-emerald-200">{"{template: 47, $NAME: \"Q3_Report\"}"}</span>
-                    {"\n"}
-                    <span className="text-sky-200">Task 2:</span>{" "}
-                    <span className="text-emerald-200">{"{template: 47, $NAME: \"Q4_Report\"}"}</span>
-                  </div>
+                  {/* ✅ plain code */}
+                  <pre className="mt-3 rounded-xl border border-slate-200 bg-slate-100 p-4 font-mono text-xs leading-relaxed text-slate-800 overflow-auto whitespace-pre-wrap break-words">
+{`// Send once (template)
+TEMPLATE_47: ⊕ doc($NAME) → extract(fields) → summarize
+
+// Then only deltas
+Task 1: { template: 47, $NAME: "Q3_Report" }
+Task 2: { template: 47, $NAME: "Q4_Report" }`}
+                  </pre>
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                   <div className="font-bold text-black">Determinism: prove it happened</div>
                   <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                    Execution produces a trace you can reproduce later — auditors, regulators, and courts can replay the same glyph
-                    and verify identical results.
+                    Execution produces a trace you can reproduce later — auditors,
+                    regulators, and courts can replay the same glyph and verify
+                    identical results.
                   </p>
 
-                  <div className="mt-3 rounded-xl border border-slate-300/70 bg-[#0b1220] p-4 font-mono text-xs text-slate-100 overflow-auto">
-                    <span className="text-sky-200">Trace ID:</span>{" "}
-                    <span className="text-emerald-200">GX-51ECA33C</span>
-                    {"\n"}
-                    <span className="text-slate-300">Step 1:</span> Load doc("Q3_Report") → OK, 23ms
-                    {"\n"}
-                    <span className="text-slate-300">Step 2:</span> Extract(rev, exp) → OK, 17ms
-                    {"\n"}
-                    <span className="text-slate-300">Step 3:</span> Summarize(5) → OK, 24ms
-                    {"\n\n"}
-                    <span className="text-emerald-200">deterministic ✓</span>{" "}
-                    <span className="text-slate-300">(same glyph tomorrow → same bytes)</span>
-                  </div>
+                  {/* ✅ plain code */}
+                  <pre className="mt-3 rounded-xl border border-slate-200 bg-slate-100 p-4 font-mono text-xs leading-relaxed text-slate-800 overflow-auto whitespace-pre-wrap break-words">
+{`Trace ID: GX-51ECA33C
+Step 1: Load doc("Q3_Report") → OK, 23ms
+Step 2: Extract(rev, exp) → OK, 17ms
+Step 3: Summarize(5) → OK, 24ms
+
+deterministic ✓ (same glyph tomorrow → same bytes)`}
+                  </pre>
                 </div>
               </div>
 
-              {/* What's live today */}
+              {/* What's live today (keep as-is) */}
               <div className="rounded-[2rem] border border-blue-200 bg-blue-50 p-6">
                 <div className="text-[11px] uppercase tracking-[0.22em] text-blue-700 font-bold">
                   What’s live today
@@ -234,16 +220,14 @@ export default function AionLaunchTab() {
                   <li><span className="font-semibold">Deterministic locks</span> — SHA256-verified artifacts</li>
                 </ul>
 
-                <div className="mt-4 rounded-xl border border-blue-300/50 bg-white p-4 font-mono text-xs text-slate-800 overflow-auto">
-                  <span className="text-slate-500">$</span>{" "}
-                  python3 backend/tests/glyph_compression_benchmark.py --depth 60
-                  {"\n"}
-                  <span className="text-slate-500">Result:</span> 2,175 bytes (GlyphOS) vs 132,582 bytes (traditional) = 61×
-                </div>
+                <pre className="mt-4 rounded-xl border border-blue-300/50 bg-white p-4 font-mono text-xs text-slate-800 overflow-auto whitespace-pre-wrap break-words">
+{`$ python3 backend/tests/glyph_compression_benchmark.py --depth 60
+Result: 2,175 bytes (GlyphOS) vs 132,582 bytes (traditional) = 61×`}
+                </pre>
               </div>
             </div>
 
-            {/* RIGHT: examples + CTA (grey/white, blue buttons) */}
+            {/* CARD 2: Real examples (now stacked under, not right column) */}
             <div className="rounded-[2.25rem] border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-6 sm:p-10 space-y-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.22em] text-slate-600">
@@ -297,7 +281,6 @@ export default function AionLaunchTab() {
                 </ul>
               </div>
 
-              {/* Buttons row */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => (window.location.href = "/glyph")}

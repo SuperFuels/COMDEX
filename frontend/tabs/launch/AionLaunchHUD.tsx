@@ -3,7 +3,6 @@
 
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
-
 type ChainKey = "ETH" | "SOL";
 
 const LINKS: Record<ChainKey, { label: string; dex: string; contract: string; pairLabel: string }> = {
@@ -209,12 +208,22 @@ export default function AionLaunchHUD() {
                 >
                   X
                 </button>
-
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  className="px-3 py-2 rounded-full border border-emerald-200 bg-emerald-600 text-xs font-extrabold tracking-wide text-white hover:bg-emerald-700 shrink-0"
+                  aria-label="Buy GPH on Uniswap"
+                  title="Buy GPH"
+                  className="px-3 py-2 rounded-full border border-emerald-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-emerald-300 hover:bg-emerald-50 shrink-0 inline-flex items-center justify-center"
                 >
-                  Buy GPH
+                  <span className="h-5 w-5 overflow-hidden rounded-full">
+                    <Image
+                      src="/images/uniswap.svg.png"
+                      alt="Uniswap"
+                      width={20}
+                      height={20}
+                      className="h-full w-full object-contain"
+                      priority
+                    />
+                  </span>
                 </button>
               </div>
             </div>
@@ -260,14 +269,23 @@ export default function AionLaunchHUD() {
                 >
                   Open Glyph OS
                 </button>
-
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-emerald-600 text-white font-extrabold tracking-wide hover:bg-emerald-700"
+                  aria-label="Buy GPH on Uniswap"
+                  title="Buy GPH"
+                  className="w-full sm:w-auto px-4 py-3 rounded-2xl border border-emerald-200 bg-white hover:bg-emerald-50 hover:border-emerald-300 transition inline-flex items-center justify-center"
                 >
-                  Buy GPH
+                  <span className="h-6 w-6 overflow-hidden rounded-full">
+                    <Image
+                      src="/images/uniswap.svg.png"
+                      alt="Uniswap"
+                      width={24}
+                      height={24}
+                      className="h-full w-full object-contain"
+                      priority
+                    />
+                  </span>
                 </button>
-
                 <button
                   onClick={() => setOverlayOpen(true)}
                   className="w-full sm:w-auto px-4 py-3 rounded-2xl border border-amber-200/30 bg-amber-200/10 text-amber-100 font-bold tracking-wide hover:bg-amber-200/15"
