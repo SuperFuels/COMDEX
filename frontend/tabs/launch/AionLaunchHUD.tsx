@@ -144,7 +144,7 @@ export default function AionLaunchHUD() {
                 </div>
 
                 <div className="min-w-0">
-                  <div className="text-sm font-extrabold tracking-tight text-black">Pair: GPH</div>
+                  <div className="text-sm font-extrabold tracking-tight text-black">Pair: GPH | Contract: 0xYOUR_ETH_CONTRACT</div>
 
                   {/* mobile: short contract */}
                   <div className="text-[11px] text-slate-500 tracking-wide leading-snug min-w-0">
@@ -160,7 +160,7 @@ export default function AionLaunchHUD() {
                       <span className="font-mono text-slate-700 select-all" title={cfg.contract}>
                         {cfg.contract}
                       </span>{" "}
-                      • Liquidity: LOCKED (add lock link)
+                      • Liquidity: LOCKED (tiny url)
                     </span>
                   </div>
                 </div>
@@ -361,125 +361,6 @@ export default function AionLaunchHUD() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* ✅ GLYPHOS IN PLAIN ENGLISH (single column, stacked) */}
-        <div className="space-y-4 sm:space-y-6">
-          {/* Container 1: What it is / problem */}
-          <section className="rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-white p-5 sm:p-8">
-            <div className="space-y-2">
-              <h3 className="text-2xl sm:text-3xl font-black italic tracking-tight text-black">GlyphOS in Plain English</h3>
-              <p className="text-slate-600 leading-relaxed">
-                <span className="font-semibold text-black">What it is • The problem it solves</span>
-              </p>
-              <p className="text-slate-600 leading-relaxed">
-                Traditional systems are like sending a novel when you only need to say “turn left.”
-                Most software communicates with huge JSON/XML payloads full of repeated labels. GlyphOS sends the essential{" "}
-                <span className="font-semibold text-black">structure</span> — compact glyph programs that preserve meaning.
-              </p>
-            </div>
-
-            {/* easy-to-read examples (light, grey) */}
-            <div className="mt-5 grid gap-4">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
-                  Traditional way (verbose)
-                </div>
-                <pre className="text-xs sm:text-[12px] leading-relaxed font-mono text-slate-700 whitespace-pre-wrap break-words">
-{`// Traditional way (327 bytes)
-{
-  "operation": "process_document",
-  "action_type": "extract_and_summarize",
-  "parameters": {
-    "document_id": "report_2024_Q3",
-    "extraction_fields": ["revenue", "expenses", "profit"],
-    "summary_length": 5,
-    "output_format": "brief"
-  },
-  "metadata": {
-    "timestamp": "2024-01-26",
-    "user": "analyst_01"
-  }
-}`}
-                </pre>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
-                  GlyphOS way (compact)
-                </div>
-                <pre className="text-xs sm:text-[12px] leading-relaxed font-mono text-slate-700 whitespace-pre-wrap break-words">
-{`// GlyphOS way (45 bytes)
-⊕ doc("Q3") → extract(rev, exp, profit) → sum(5)`}
-                </pre>
-                <p className="mt-2 text-sm text-slate-600">
-                  Same meaning. <span className="font-semibold text-black">~7× smaller</span> — and it improves as tasks get more complex.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Container 2: Examples + templates/deltas + trace (light, grey) */}
-          <section className="rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-white p-5 sm:p-8">
-            <div className="space-y-2">
-              <h4 className="text-xl sm:text-2xl font-black italic tracking-tight text-black">Real examples</h4>
-              <p className="text-slate-600 leading-relaxed">
-                The point is simple: software starts to communicate like humans text — shorthand that preserves meaning, plus{" "}
-                <span className="font-semibold text-black">templates + deltas</span>, plus <span className="font-semibold text-black">proof-grade replay</span>.
-              </p>
-            </div>
-
-            <div className="mt-5 grid gap-4">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
-                  WirePack (send once, then only deltas)
-                </div>
-                <pre className="text-xs sm:text-[12px] leading-relaxed font-mono text-slate-700 whitespace-pre-wrap break-words">
-{`// Send once (template)
-TEMPLATE_47: ⊕ doc($NAME) → extract(fields) → summarize
-
-// Then only deltas
-Task 1: { template: 47, $NAME: "Q3_Report" }
-Task 2: { template: 47, $NAME: "Q4_Report" }`}
-                </pre>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-bold mb-2">
-                  Deterministic trace (proof-grade replay)
-                </div>
-                <pre className="text-xs sm:text-[12px] leading-relaxed font-mono text-slate-700 whitespace-pre-wrap break-words">
-{`Trace ID: GX-51ECA33C
-Step 1: Load doc("Q3_Report") → OK, 23ms
-Step 2: Extract(rev, exp)     → OK, 17ms
-Step 3: Summarize(5)          → OK, 24ms
-deterministic ✓ (same glyph tomorrow → same bytes)`}
-                </pre>
-              </div>
-            </div>
-
-            {/* optional: softer CTA row (grey/white/blue buttons as you asked) */}
-            <div className="mt-6 flex flex-col sm:flex-row gap-2">
-              <button
-                onClick={() => (window.location.href = GLYPHOS_TAB_HREF)}
-                className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-white border border-slate-200 text-black font-extrabold tracking-wide hover:border-slate-300"
-              >
-                Open Glyph OS
-              </button>
-              <button
-                onClick={() => document.getElementById("proofs")?.scrollIntoView({ behavior: "smooth" })}
-                className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 font-extrabold tracking-wide hover:border-slate-300"
-              >
-                Proof repo
-              </button>
-              <button
-                onClick={() => document.getElementById("roadmap")?.scrollIntoView({ behavior: "smooth" })}
-                className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-blue-600 text-white font-extrabold tracking-wide hover:bg-blue-700"
-              >
-                Unlock ladder
-              </button>
-            </div>
-          </section>
         </div>
 
         {/* FORMAL PROOF REPOSITORY */}
