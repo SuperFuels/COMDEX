@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import TabDock, { type TabDef } from "./TabDock";
 
 const TABS: readonly TabDef[] = [
+  { key: "launch", label: "Launch", href: "/launch" },
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
   { key: "compression", label: "Compression", href: "/compression" },
   { key: "symatics", label: "Symatics", href: "/symatics" },
