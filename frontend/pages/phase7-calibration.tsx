@@ -8,7 +8,7 @@ const Phase7CalibrationTab = dynamic(
   { ssr: false }
 );
 
-export default function Phase7CalibrationPage() {
+export default function CognitionPage() {
   return (
     <Shell activeKey="phase7-calibration">
       <Phase7CalibrationTab />
