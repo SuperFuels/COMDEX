@@ -255,3 +255,11 @@ backend/modules/knowledge/*.json
 
 # --- Local tools / scratch ---
 backend/paev_ladder/tools/
+# Solana keys (only)
+keys/
+keys/*.json
+tools/solana/glyphos-token/*.json
+# Solana keys (only)
+keys/
+keys/*.json
+tools/solana/glyphos-token/*.json

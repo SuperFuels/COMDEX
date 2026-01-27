@@ -5,22 +5,10 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/router";
 import TabDock, { type TabDef } from "./TabDock";
 
+// ✅ Only show these two tabs
 export const TABS: readonly TabDef[] = [
   { key: "launch", label: "Launch", href: "/launch" },
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
-  { key: "compression", label: "Compression", href: "/compression" },
-  { key: "symatics", label: "Symatics", href: "/symatics" },
-  { key: "photon-algebra-demo", label: "Photon Algebra", href: "/photon-algebra-demo" },
-  { key: "photon_binary", label: "Photon Binary", href: "/photon-binary" },
-  { key: "sqi", label: "SQI", href: "/sqi" },
-  { key: "sovereign_qkd", label: "Sovereign QKD", href: "/sovereign-qkd" },
-  { key: "glyph_net", label: "Glyph Net", href: "/glyph-net" },
-  { key: "sle_resonance", label: "SLE Resonance", href: "/sle-resonance" },
-  { key: "rqc_awareness", label: "RQC Awareness", href: "/rqc-awareness" },
-  { key: "ai", label: "AI", href: "/ai" },
-  { key: "phase7-calibration", label: "Cognition", href: "/phase7-calibration" },
-  { key: "wirepack", label: "WirePack", href: "/wirepack" },
-  { key: "qfc_canvas", label: "QFC Canvas", href: "/qfc-canvas" },
 ];
 
 function normalizeKeyAgainstTabs(k: string | undefined, tabs: readonly TabDef[]) {
@@ -47,6 +35,7 @@ function getActiveKeyFromPath(pathname: string): string {
     .find((t) => t.href !== "/" && p.startsWith(t.href + "/"));
   if (nested) return nested.key;
 
+  // ✅ default to glyph for any unknown routes
   return "glyph";
 }
 
@@ -101,7 +90,7 @@ export default function Shell({
             "px-4 sm:px-6 md:px-10",
             maxWidth,
             "mx-auto",
-            "pt-6 pb-24", // smaller top padding since tabs are in navbar
+            "pt-6 pb-24",
           ].join(" ")}
         >
           {/* ✅ Tabs moved to navbar */}
