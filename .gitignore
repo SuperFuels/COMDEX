@@ -263,3 +263,6 @@ tools/solana/glyphos-token/*.json
 keys/
 keys/*.json
 tools/solana/glyphos-token/*.json
+
+# telegram
+/tools/telegram/groups.txt
