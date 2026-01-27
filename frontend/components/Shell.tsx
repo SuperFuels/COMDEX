@@ -8,6 +8,14 @@ import TabDock, { type TabDef } from "./TabDock";
 export const TABS: readonly TabDef[] = [
   { key: "launch", label: "Launch", href: "/launch" },
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
+
+  // ✅ restore demo tabs (these routes must exist)
+  { key: "compression", label: "Compression", href: "/compression" },
+  { key: "symatics", label: "Symatics", href: "/symatics" },
+  { key: "photon-algebra-demo", label: "Photon Algebra", href: "/photon-algebra-demo" },
+  { key: "photon-binary", label: "Photon Binary", href: "/photon-binary" },
+  { key: "sqi", label: "SQI", href: "/sqi" },
+  { key: "multiverse", label: "Multiverse", href: "/multiverse" }, // if you have it
 ];
 
 function normalizeKeyAgainstTabs(k: string | undefined, tabs: readonly TabDef[]) {
@@ -34,17 +42,17 @@ function getActiveKeyFromPath(pathname: string): string {
     .find((t) => t.href !== "/" && p.startsWith(t.href + "/"));
   if (nested) return nested.key;
 
-  return "glyph";
+  return "launch";
 }
 
-/** ✅ Tabs bar meant to be mounted inside the navbar (mobile scroll). */
+/** Tabs bar meant to be mounted inside the navbar (mobile scroll). */
 export function ShellTabsBar({ activeKey }: { activeKey?: string }) {
   const router = useRouter();
   const derivedKey = getActiveKeyFromPath(router.asPath || router.pathname || "/");
   const key =
     normalizeKeyAgainstTabs(activeKey, TABS) ||
     normalizeKeyAgainstTabs(derivedKey, TABS) ||
-    "glyph";
+    "launch";
 
   return (
     <div className="w-full overflow-x-auto overflow-y-hidden">
@@ -73,7 +81,7 @@ export default function Shell({
   const key =
     normalizeKeyAgainstTabs(activeKey, TABS) ||
     normalizeKeyAgainstTabs(derivedKey, TABS) ||
-    "glyph";
+    "launch";
 
   return (
     <div className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}>
