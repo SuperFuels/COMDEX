@@ -228,14 +228,14 @@ export default function AionLaunchHUD() {
 
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  aria-label="Buy GIP on Uniswap"
+                  aria-label="Buy GIP on Raydium"
                   title="Buy GIP"
                   className="px-3 py-2 rounded-full border border-emerald-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-emerald-300 hover:bg-emerald-50 shrink-0 inline-flex items-center justify-center"
                 >
                   <span className="h-5 w-5 overflow-hidden rounded-full">
                     <Image
-                      src="/images/uniswap.svg.png"
-                      alt="Uniswap"
+                      src="/images/Raydium.png"
+                      alt="Raydium"
                       width={20}
                       height={20}
                       className="h-full w-full object-contain"
@@ -289,13 +289,13 @@ export default function AionLaunchHUD() {
                 </button>
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  aria-label="Buy GIP on Uniswap"
+                  aria-label="Buy GIP on Radium"
                   title="Buy GIP"
                   className="w-full sm:w-auto px-4 py-3 rounded-2xl border border-emerald-200 bg-white hover:bg-emerald-50 hover:border-emerald-300 transition inline-flex items-center justify-center"
                 >
                   <span className="h-6 w-6 overflow-hidden rounded-full">
                     <Image
-                      src="/images/uniswap.svg.png"
+                      src="/images/Raydium.png"
                       alt="Uniswap"
                       width={24}
                       height={24}
