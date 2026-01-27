@@ -17,7 +17,6 @@ from telethon.errors import (
     UsernameNotOccupiedError,
     UsernameInvalidError,
     PeerIdInvalidError,
-    RPCError,
 )
 
 # -------- config via env --------
@@ -28,18 +27,28 @@ SESSION = os.getenv("TG_SESSION", "data/telegram/gip0101")  # prefix; telethon c
 IN_FILE = Path(os.getenv("TG_DM_IN", "data/telegram/users.txt"))  # one @username per line
 OUT_LOG = Path(os.getenv("TG_DM_LOG", "data/telegram/dm_log.json"))
 
-MAX_SEND = int(os.getenv("TG_DM_MAX", "5"))                 # send to N total per run
-SLEEP_BETWEEN_SEC = float(os.getenv("TG_DM_SLEEP", "45"))   # pause between DMs (go higher when warm)
-JITTER_SEC = float(os.getenv("TG_DM_JITTER", "8"))          # random-ish jitter (we'll use time-based)
+MAX_SEND = int(os.getenv("TG_DM_MAX", "10"))  # send to N total per run
+SLEEP_BETWEEN_SEC = float(os.getenv("TG_DM_SLEEP", "12"))  # pause between DMs
+
+# Media (your GIF in repo)
+GIF_PATH = os.getenv(
+    "TG_DM_GIF",
+    "/workspaces/COMDEX/frontend/public/images/GIP_repo_animated.gif",
+)
 
 # Links
 GROUP_LINK = os.getenv("TG_GROUP_LINK", "https://t.me/Glyph_Os").strip()
+BOT_START_LINK = os.getenv("TG_BOT_START", "").strip()  # optional; can be empty
 X_LINK = os.getenv("TG_X_LINK", "https://x.com/Glyph_Os").strip()
 SITE_LINK = os.getenv("TG_SITE_LINK", "https://tessaris.ai").strip()
 
-# -------- MESSAGE (TEXT ONLY) --------
-# Put URLs on their own lines for best linkification in Telegram.
-MESSAGE_DEFAULT = f"""💲🧬🔤💎  $GIP  💎🔤🧬💲
+# IMPORTANT: default to ONE MESSAGE (no follow-up)
+SEND_LINKS_FOLLOWUP = os.getenv("TG_DM_SEND_LINKS", "0").strip() not in ("0", "false", "False")
+
+# -------- HYPE CARD (caption) --------
+# Key: captions on media often fail to auto-link when you use markdown parse_mode.
+# We explicitly send parse_mode=None and put URLs on their own lines for reliable linkification.
+CAPTION_DEFAULT = f"""💲🧬🔤💎  $GIP  💎🔤🧬💲
 
 $GIP ⚡ on Solana — launching the next internet layer (not another meme)
 
@@ -70,7 +79,29 @@ $GIP isn’t waiting. Are you? 💪
 {X_LINK}
 """.strip()
 
-MESSAGE = os.getenv("TG_DM_TEXT", MESSAGE_DEFAULT).strip()
+CAPTION = os.getenv("TG_DM_CAPTION", CAPTION_DEFAULT).strip()
+
+# Optional follow-up message (only sent when TG_DM_SEND_LINKS=1)
+def build_links_text() -> str:
+    lines = [
+        "Links:",
+        f"• 📢 Telegram Group: {GROUP_LINK}",
+    ]
+    if BOT_START_LINK:
+        lines.append(f"• ✉ Bot: {BOT_START_LINK}")
+    lines.extend(
+        [
+            f"• 🐣 X: {X_LINK}",
+            f"• 🌐 Site: {SITE_LINK}",
+            "",
+            "If you don’t want DMs, reply ‘stop’ and I won’t message again.",
+        ]
+    )
+    return "\n".join(lines).strip()
+
+
+LINKS_TEXT = os.getenv("TG_DM_LINKS_TEXT", build_links_text()).strip()
+
 
 # -------- helpers --------
 def load_usernames(path: Path) -> List[str]:
@@ -83,8 +114,10 @@ def load_usernames(path: Path) -> List[str]:
             continue
         if s.startswith("@"):
             s = s[1:]
+        # basic sanity: telegram usernames are 5-32, letters/digits/underscore
         if 5 <= len(s) <= 32:
             out.append(s)
+
     # de-dupe while preserving order
     seen = set()
     uniq: List[str] = []
@@ -95,6 +128,7 @@ def load_usernames(path: Path) -> List[str]:
         uniq.append(u)
     return uniq
 
+
 def load_log(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {"sent": {}, "failed": {}, "ts": int(time.time())}
@@ -103,19 +137,19 @@ def load_log(path: Path) -> Dict[str, Any]:
     except Exception:
         return {"sent": {}, "failed": {}, "ts": int(time.time())}
 
+
 def save_log(path: Path, data: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
 
-def sleepy(base_sec: float, jitter_sec: float) -> float:
-    # deterministic-ish jitter (no random import): based on current ms
-    ms = int(time.time() * 1000) % 1000
-    j = (ms / 1000.0) * jitter_sec
-    return max(0.0, base_sec + j)
 
 async def main():
     if not API_ID or not API_HASH:
         raise SystemExit("Set TG_API_ID and TG_API_HASH in env")
+
+    gif = Path(GIF_PATH)
+    if not gif.exists():
+        raise SystemExit(f"GIF not found: {gif}")
 
     usernames = load_usernames(IN_FILE)
     log = load_log(OUT_LOG)
@@ -123,7 +157,7 @@ async def main():
     already_sent = set((log.get("sent") or {}).keys())
     already_failed = set((log.get("failed") or {}).keys())
 
-    # reruns continue down the list
+    # IMPORTANT: reruns continue down the list (won't re-DM the same first N)
     candidates = [u for u in usernames if u not in already_sent and u not in already_failed]
     to_send = candidates[:MAX_SEND]
 
@@ -135,9 +169,10 @@ async def main():
         print("Nothing to send.")
         return
 
-    print("\n----- MESSAGE TO SEND -----\n")
-    print(MESSAGE)
-    print("\n----- END MESSAGE -----\n")
+    # Print the exact caption being sent (prevents “wrong caption” confusion)
+    print("\n----- CAPTION TO SEND -----\n")
+    print(CAPTION)
+    print("\n----- END CAPTION -----\n")
 
     client = TelegramClient(SESSION, API_ID, API_HASH)
     await client.start()
@@ -150,19 +185,24 @@ async def main():
         try:
             entity = await client.get_entity(target)
 
-            # TEXT ONLY (avoids SendMediaRequest -> PeerFloodError spikes)
-            await client.send_message(
+            # 1) Send GIF + caption (inline) — ONE message
+            await client.send_file(
                 entity,
-                MESSAGE,
-                link_preview=True,
-                parse_mode=None,  # IMPORTANT: allow Telegram to auto-link plain URLs
+                file=str(gif),
+                caption=CAPTION,         # keep plain text urls
+                force_document=False,    # inline media
+                parse_mode=None,         # IMPORTANT: let Telegram auto-link
             )
+
+            # 2) Optional follow-up links (OFF by default)
+            if SEND_LINKS_FOLLOWUP:
+                await client.send_message(entity, LINKS_TEXT, link_preview=True)
 
             ok += 1
             log.setdefault("sent", {})[uname] = {
                 "at": int(time.time()),
                 "target": target,
-                "mode": "text",
+                "mode": "gif+caption" + ("+links" if SEND_LINKS_FOLLOWUP else ""),
             }
             print(f"[OK {i}/{len(to_send)}] {target}")
 
@@ -177,23 +217,6 @@ async def main():
             save_log(OUT_LOG, log)
             await client.disconnect()
             return
-
-        except RPCError as e:
-            # Includes PeerFloodError (Too many requests)
-            fail += 1
-            name = e.__class__.__name__
-            print(f"[FAIL] {target} -> {name}({str(e)[:120]})")
-            log.setdefault("failed", {})[uname] = {
-                "at": int(time.time()),
-                "target": target,
-                "err": f"{name}:{str(e)[:200]}",
-            }
-            # If Telegram is flagging you (PeerFloodError), you should stop early
-            if "PeerFlood" in name or "Too many requests" in str(e):
-                save_log(OUT_LOG, log)
-                await client.disconnect()
-                print("\n[STOP] PeerFlood/Too many requests detected. Pause for hours+ and increase TG_DM_SLEEP.")
-                return
 
         except (UserPrivacyRestrictedError, ChatWriteForbiddenError, PeerIdInvalidError) as e:
             fail += 1
@@ -223,13 +246,12 @@ async def main():
             print(f"[FAIL] {target} -> {repr(e)[:200]}")
 
         save_log(OUT_LOG, log)
-
         if i < len(to_send):
-            t = sleepy(SLEEP_BETWEEN_SEC, JITTER_SEC)
-            await asyncio.sleep(t)
+            await asyncio.sleep(SLEEP_BETWEEN_SEC)
 
     print(f"\nDone. ok={ok} fail={fail} attempted={len(to_send)}")
     await client.disconnect()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

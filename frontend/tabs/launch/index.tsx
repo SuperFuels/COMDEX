@@ -78,18 +78,11 @@ export default function AionLaunchTab() {
                     />
                   </div>
                   <div className="mt-2 text-lg sm:text-xl font-black tracking-tight text-black">
-                    {live ? "LIVE NOW" : "GIP Fair Launch goes live"}
+                    We just launched
                   </div>
+
                   <div className="mt-1 text-sm text-slate-600">
-                    {live ? (
-                      <span className="font-semibold text-emerald-700">Trading is open.</span>
-                    ) : (
-                      <>
-                        Tomorrow at <span className="font-semibold text-black">9:00 PM UK (GMT)</span>{" "}
-                        <span className="text-slate-400">•</span>{" "}
-                        <span className="font-mono text-slate-700">{launchAt.toUTCString().replace("GMT", "UTC")}</span>
-                      </>
-                    )}
+                    <span className="font-semibold text-emerald-700">Trading is open.</span>
                   </div>
                 </div>
 

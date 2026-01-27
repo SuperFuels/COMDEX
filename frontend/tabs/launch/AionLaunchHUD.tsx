@@ -3,6 +3,7 @@
 
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
+
 type ChainKey = "ETH" | "SOL";
 
 const LINKS: Record<ChainKey, { label: string; dex: string; contract: string; pairLabel: string }> = {
@@ -41,14 +42,14 @@ function shortAddr(addr: string, head = 6, tail = 4) {
 // ✅ Try Glyph OS should go to your real tab route:
 const GLYPHOS_TAB_HREF = "/glyph";
 
-// ✅ Set real links
+// ✅ Set real links (UPDATED)
 const SOCIAL = {
-  telegram: "https://t.me/YOUR_TELEGRAM",
-  x: "https://x.com/YOUR_HANDLE",
+  telegram: "https://t.me/Glyph_Os",
+  x: "https://x.com/Glyph_Os",
   chart: "https://YOUR_CHART_LINK",
 };
 
-// ✅ Set real repo
+// ✅ Set real repo (kept, but section below is commented out)
 const GITHUB_REPO_URL = "https://github.com/YOUR_ORG/YOUR_REPO";
 
 const PROOF = {
@@ -72,7 +73,7 @@ type UnlockItem = {
 };
 
 export default function AionLaunchHUD() {
-  const [chain, setChain] = useState<ChainKey>("ETH");
+  const [chain, setChain] = useState<ChainKey>("SOL");
   const [overlayOpen, setOverlayOpen] = useState<boolean>(false);
 
   const cfg = LINKS[chain];
@@ -123,15 +124,12 @@ export default function AionLaunchHUD() {
     <>
       {/* ✅ mobile-safe gutters */}
       <div className="space-y-8 sm:space-y-10 px-3 sm:px-6">
-        {/* ✅ MOBILE-SAFE TOPBAR:
-            - no nested sticky on mobile (it causes weirdness in scroll containers)
-            - becomes sticky from sm+ only */}
+        {/* ✅ MOBILE-SAFE TOPBAR */}
         <div className="sm:sticky sm:top-0 sm:z-20 sm:-mx-6 sm:px-6">
           <div className="rounded-[1.25rem] sm:rounded-[1.75rem] border border-slate-200 bg-white/85 backdrop-blur px-3 sm:px-4 py-3 shadow-sm">
             <div className="flex items-start sm:items-center justify-between gap-3">
               {/* left */}
               <div className="flex items-center gap-3 min-w-0">
-                {/* ✅ icon swapped to your image */}
                 <div className="h-10 w-10 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white">
                   <Image
                     src="/images/g_logo.jpeg"
@@ -146,7 +144,6 @@ export default function AionLaunchHUD() {
                 <div className="min-w-0">
                   <div className="text-sm font-extrabold tracking-tight text-black">Pair: GIP | Contract: Solana contract</div>
 
-                  {/* mobile: short contract */}
                   <div className="text-[11px] text-slate-500 tracking-wide leading-snug min-w-0">
                     <span className="inline sm:hidden">
                       Contract:{" "}
@@ -166,7 +163,7 @@ export default function AionLaunchHUD() {
                 </div>
               </div>
 
-              {/* ✅ actions become horizontally scrollable on mobile */}
+              {/* actions */}
               <div
                 className={cx(
                   "flex items-center gap-2",
@@ -248,7 +245,7 @@ export default function AionLaunchHUD() {
           </div>
         </div>
 
-        {/* HERO GRID (collapses naturally) */}
+        {/* HERO GRID */}
         <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-4 sm:gap-6" id="glyphos">
           {/* LEFT */}
           <div className="rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 bg-black text-white p-5 sm:p-8 relative overflow-hidden">
@@ -279,7 +276,6 @@ export default function AionLaunchHUD() {
                 today: GlyphOS Alpha. From here: SQI + GlyphNet → deterministic cognition → trust locks → verifiable self-aware AI.
               </p>
 
-              {/* ✅ mobile: stacked buttons */}
               <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
                 <button
                   onClick={() => (window.location.href = GLYPHOS_TAB_HREF)}
@@ -287,16 +283,17 @@ export default function AionLaunchHUD() {
                 >
                   Open Glyph OS
                 </button>
+
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  aria-label="Buy GIP on Radium"
+                  aria-label="Buy GIP on Raydium"
                   title="Buy GIP"
                   className="w-full sm:w-auto px-4 py-3 rounded-2xl border border-emerald-200 bg-white hover:bg-emerald-50 hover:border-emerald-300 transition inline-flex items-center justify-center"
                 >
                   <span className="h-6 w-6 overflow-hidden rounded-full">
                     <Image
                       src="/images/Raydium.png"
-                      alt="Uniswap"
+                      alt="Raydium"
                       width={24}
                       height={24}
                       className="h-full w-full object-contain"
@@ -304,6 +301,7 @@ export default function AionLaunchHUD() {
                     />
                   </span>
                 </button>
+
                 <button
                   onClick={() => setOverlayOpen(true)}
                   className="w-full sm:w-auto px-4 py-3 rounded-2xl border border-amber-200/30 bg-amber-200/10 text-amber-100 font-bold tracking-wide hover:bg-amber-200/15"
@@ -350,7 +348,6 @@ export default function AionLaunchHUD() {
               ))}
             </div>
 
-            {/* ✅ mobile: 1 col */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {stats.map((s) => (
                 <div key={s.k} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -381,7 +378,11 @@ export default function AionLaunchHUD() {
           </div>
         </div>
 
-        {/* FORMAL PROOF REPOSITORY */}
+        {/* ===========================
+            FORMAL PROOF REPOSITORY
+            (COMMENTED OUT FOR LATER RELEASE)
+           =========================== */}
+        {/*
         <div id="proofs" className="space-y-4">
           <div className="text-center space-y-2 px-1">
             <h3 className="text-2xl md:text-3xl font-black italic tracking-tight text-black">Git Formal Proof Repository</h3>
@@ -453,6 +454,7 @@ $ ${PROOF.phase7VerifyCmd}`}
             </div>
           </div>
         </div>
+        */}
 
         {/* UNLOCK LADDER */}
         <div id="roadmap" className="space-y-6">
@@ -558,7 +560,6 @@ $ ${PROOF.phase7VerifyCmd}`}
               <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 bg-white/5 p-5">
                 <div className="font-extrabold">Live: GlyphOS Alpha</div>
 
-                {/* image only (no text) */}
                 <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
                   <Image
                     src="/images/GIP.png"
