@@ -98,9 +98,41 @@ export default function AionLaunchHUD() {
         href: GLYPHOS_TAB_HREF,
         cta: "Open Glyph OS",
       },
-      { holders: 30, tag: "HOLDER GATE", title: "Symatics", blurb: "The symbolic substrate: phase-aware math powering deterministic cognition." },
-      { holders: 50, tag: "HOLDER GATE", title: "Compression", blurb: "Meaning compression at scale — less bandwidth, same semantics, replayable outputs." },
-      { holders: 70, tag: "HOLDER GATE", title: "Photon Binary", blurb: "Post-binary compute primitives: symbols-as-ops for light-wave era execution." },
+
+      {
+        holders: 0,
+        tag: "RELEASED",
+        title: "Symatics",
+        blurb: "The symbolic substrate: phase-aware math powering deterministic cognition.",
+        href: "/symatics",
+        cta: "Open Symatics",
+      },
+
+      {
+        holders: 0,
+        tag: "RELEASED",
+        title: "Photon Algebra",
+        blurb: "Formally verified operator core (Lean) — the proof substrate behind deterministic cognition.",
+        href: "/photon-algebra-demo",
+        cta: "Open Photon Algebra",
+      },
+
+      {
+        holders: 0,
+        tag: "RELEASED",
+        title: "Compression",
+        blurb: "Meaning compression at scale — less bandwidth, same semantics, replayable outputs.",
+        href: "/compression",
+        cta: "Open Compression",
+      },
+      {
+        holders: 0,
+        tag: "RELEASED",
+        title: "Photon Binary",
+        blurb: "Post-binary compute primitives: symbols-as-ops for light-wave era execution.",
+        href: "/photon-binary",
+        cta: "Open Photon Binary",
+      },
       { holders: 100, tag: "HOLDER GATE", title: "SQI", blurb: "Symbolic Quantum Intelligence: superposition/entanglement/collapse with deterministic trace." },
       { holders: 120, tag: "HOLDER GATE", title: "GlyphNet", blurb: "Wave-native networking: intent transport + convergence + tamper-evident delivery." },
       { holders: 150, tag: "HOLDER GATE", title: "Sovereign QKD", blurb: "Observer-detectable transport: interference becomes the alarm, not a footnote." },
@@ -142,20 +174,29 @@ export default function AionLaunchHUD() {
                 </div>
 
                 <div className="min-w-0">
-                  <div className="text-sm font-extrabold tracking-tight text-black">Pair: GIP | Contract: Solana contract</div>
+                  <div className="text-sm font-extrabold tracking-tight text-black">
+                    Pair: GIP | Contract: EgeMuFoxWthBQbBcoWq8BNXowJJcVpjP6zZZZbnn8qFP
+                  </div>
 
                   <div className="text-[11px] text-slate-500 tracking-wide leading-snug min-w-0">
                     <span className="inline sm:hidden">
                       Contract:{" "}
-                      <span className="font-mono text-slate-700 select-all" title={cfg.contract}>
-                        {shortAddr(cfg.contract)}
+                      <span
+                        className="font-mono text-slate-700 select-all"
+                        title="EgeMuFoxWthBQbBcoWq8BNXowJJcVpjP6zZZZbnn8qFP"
+                      >
+                        {shortAddr("EgeMuFoxWthBQbBcoWq8BNXowJJcVpjP6zZZZbnn8qFP")}
                       </span>{" "}
                       • Liquidity: LOCKED
                     </span>
+
                     <span className="hidden sm:inline">
                       Contract:{" "}
-                      <span className="font-mono text-slate-700 select-all" title={cfg.contract}>
-                        {cfg.contract}
+                      <span
+                        className="font-mono text-slate-700 select-all"
+                        title="EgeMuFoxWthBQbBcoWq8BNXowJJcVpjP6zZZZbnn8qFP"
+                      >
+                        EgeMuFoxWthBQbBcoWq8BNXowJJcVpjP6zZZZbnn8qFP
                       </span>{" "}
                       • Liquidity: LOCKED (tiny url)
                     </span>
@@ -312,9 +353,14 @@ export default function AionLaunchHUD() {
 
               <div className="pt-4 border-t border-white/10 text-xs text-white/65 leading-relaxed">
                 Pair: <span className="font-semibold text-white">{cfg.label}</span> • Contract:{" "}
-                <span className="font-mono text-white/90 select-all" title={cfg.contract}>
-                  <span className="inline sm:hidden">{shortAddr(cfg.contract)}</span>
-                  <span className="hidden sm:inline">{cfg.contract}</span>
+                <span
+                  className="font-mono text-white/90 select-all"
+                  title="EgeMuFoxWthBQbBcoWq8BNXowJJcVpjP6zZZZbnn8qFP"
+                >
+                  <span className="inline sm:hidden">
+                    {shortAddr("EgeMuFoxWthBQbBcoWq8BNXowJJcVpjP6zZZZbnn8qFP")}
+                  </span>
+                  <span className="hidden sm:inline">EgeMuFoxWthBQbBcoWq8BNXowJJcVpjP6zZZZbnn8qFP</span>
                 </span>{" "}
                 • Liquidity: <span className="font-semibold">LOCKED</span> (add lock link) • Not financial advice.
               </div>

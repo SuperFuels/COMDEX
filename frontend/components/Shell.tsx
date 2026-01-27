@@ -12,6 +12,10 @@ import TabDock, { type TabDef } from "./TabDock";
 export const TABS: readonly TabDef[] = [
   { key: "launch", label: "Launch", href: "/launch" },
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
+  { key: "compression", label: "Compression", href: "/compression" },
+  { key: "symatics", label: "Symatics", href: "/symatics" },
+  { key: "photon-algebra-demo", label: "Photon Algebra", href: "/photon-algebra-demo" },
+  { key: "photon_binary", label: "Photon Binary", href: "/photon-binary" },
 ];
 
 function normalizeKeyAgainstTabs(k: string | undefined, tabs: readonly TabDef[]) {
