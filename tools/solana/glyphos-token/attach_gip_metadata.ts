@@ -1,11 +1,18 @@
 import fs from "fs";
-import { Connection, Keypair, PublicKey, Transaction } from "@solana/web3.js";
-import { createCreateMetadataAccountV3Instruction } from "@metaplex-foundation/mpl-token-metadata";
+import { Connection, Keypair, PublicKey, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
+import {
+  PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
+  createCreateMetadataAccountV3Instruction,
+} from "@metaplex-foundation/mpl-token-metadata";
 
-// Metaplex Token Metadata program (fixed)
-const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
-  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-);
+const RPC = process.env.RPC ?? "https://api.mainnet-beta.solana.com";
+const TREASURY_KEYPAIR = process.env.TREASURY_KEYPAIR ?? "";
+const MINT = process.env.MINT ?? "";
+const URI = process.env.URI ?? "";
+
+if (!TREASURY_KEYPAIR) throw new Error("Set TREASURY_KEYPAIR=/path/to/keypair.json");
+if (!MINT) throw new Error("Set MINT=<mint pubkey>");
+if (!URI) throw new Error("Set URI=<https metadata json>");
 
 function loadKeypair(path: string): Keypair {
   const raw = JSON.parse(fs.readFileSync(path, "utf8"));
@@ -13,15 +20,6 @@ function loadKeypair(path: string): Keypair {
 }
 
 async function main() {
-  const RPC = process.env.RPC ?? "https://api.mainnet-beta.solana.com";
-  const TREASURY_KEYPAIR = process.env.TREASURY_KEYPAIR ?? "";
-  const MINT = process.env.MINT ?? "";
-  const URI = process.env.URI ?? "";
-
-  if (!TREASURY_KEYPAIR) throw new Error("Set TREASURY_KEYPAIR");
-  if (!MINT) throw new Error("Set MINT");
-  if (!URI) throw new Error("Set URI");
-
   const connection = new Connection(RPC, "confirmed");
   const treasury = loadKeypair(TREASURY_KEYPAIR);
   const mint = new PublicKey(MINT);
@@ -31,6 +29,16 @@ async function main() {
     TOKEN_METADATA_PROGRAM_ID
   );
 
+  const data = {
+    name: "Glyph Internet Protocol",
+    symbol: "GIP",
+    uri: URI,
+    sellerFeeBasisPoints: 0,
+    creators: null,     // keep simple for fungible tokens
+    collection: null,
+    uses: null,
+  };
+
   const ix = createCreateMetadataAccountV3Instruction(
     {
       metadata: metadataPda,
@@ -38,31 +46,20 @@ async function main() {
       mintAuthority: treasury.publicKey,
       payer: treasury.publicKey,
       updateAuthority: treasury.publicKey,
+      systemProgram: new PublicKey("11111111111111111111111111111111"),
+      rent: new PublicKey("SysvarRent111111111111111111111111111111111"),
     },
     {
       createMetadataAccountArgsV3: {
-        data: {
-          name: "Glyph Internet Protocol",
-          symbol: "GIP",
-          uri: URI,
-          sellerFeeBasisPoints: 0,
-          creators: null,
-          collection: null,
-          uses: null,
-        },
+        data,
         isMutable: true,
         collectionDetails: null,
       },
     }
   );
 
-  const { blockhash } = await connection.getLatestBlockhash("confirmed");
   const tx = new Transaction().add(ix);
-  tx.feePayer = treasury.publicKey;
-  tx.recentBlockhash = blockhash;
-
-  const sig = await connection.sendTransaction(tx, [treasury], { skipPreflight: false });
-  await connection.confirmTransaction(sig, "confirmed");
+  const sig = await sendAndConfirmTransaction(connection, tx, [treasury], { commitment: "confirmed" });
 
   console.log("MINT:", mint.toBase58());
   console.log("METADATA_PDA:", metadataPda.toBase58());

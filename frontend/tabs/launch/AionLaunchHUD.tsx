@@ -144,7 +144,7 @@ export default function AionLaunchHUD() {
                 </div>
 
                 <div className="min-w-0">
-                  <div className="text-sm font-extrabold tracking-tight text-black">Pair: GIP | Contract: 0xYOUR_ETH_CONTRACT</div>
+                  <div className="text-sm font-extrabold tracking-tight text-black">Pair: GIP | Contract: Solana contract</div>
 
                   {/* mobile: short contract */}
                   <div className="text-[11px] text-slate-500 tracking-wide leading-snug min-w-0">

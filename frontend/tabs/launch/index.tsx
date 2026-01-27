@@ -77,7 +77,7 @@ export default function AionLaunchTab() {
                     <span className={live ? "h-2 w-2 rounded-full bg-emerald-500" : "h-2 w-2 rounded-full bg-blue-500 animate-pulse"} />
                   </div>
                   <div className="mt-2 text-lg sm:text-xl font-black tracking-tight text-black">
-                    {live ? "LIVE NOW" : "GPH Fair Launch goes live"}
+                    {live ? "LIVE NOW" : "GIP Fair Launch goes live"}
                   </div>
                   <div className="mt-1 text-sm text-slate-600">
                     {live ? (
