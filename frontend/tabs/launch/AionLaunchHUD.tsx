@@ -135,7 +135,7 @@ export default function AionLaunchHUD() {
                 <div className="h-10 w-10 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white">
                   <Image
                     src="/images/g_logo.jpeg"
-                    alt="GPH"
+                    alt="GIP"
                     width={40}
                     height={40}
                     className="h-full w-full object-cover"
@@ -144,7 +144,7 @@ export default function AionLaunchHUD() {
                 </div>
 
                 <div className="min-w-0">
-                  <div className="text-sm font-extrabold tracking-tight text-black">Pair: GPH | Contract: 0xYOUR_ETH_CONTRACT</div>
+                  <div className="text-sm font-extrabold tracking-tight text-black">Pair: GIP | Contract: 0xYOUR_ETH_CONTRACT</div>
 
                   {/* mobile: short contract */}
                   <div className="text-[11px] text-slate-500 tracking-wide leading-snug min-w-0">
@@ -228,8 +228,8 @@ export default function AionLaunchHUD() {
 
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  aria-label="Buy GPH on Uniswap"
-                  title="Buy GPH"
+                  aria-label="Buy GIP on Uniswap"
+                  title="Buy GIP"
                   className="px-3 py-2 rounded-full border border-emerald-200 bg-white text-xs font-extrabold tracking-wide text-black hover:border-emerald-300 hover:bg-emerald-50 shrink-0 inline-flex items-center justify-center"
                 >
                   <span className="h-5 w-5 overflow-hidden rounded-full">
@@ -289,8 +289,8 @@ export default function AionLaunchHUD() {
                 </button>
                 <button
                   onClick={() => safeOpen(cfg.dex)}
-                  aria-label="Buy GPH on Uniswap"
-                  title="Buy GPH"
+                  aria-label="Buy GIP on Uniswap"
+                  title="Buy GIP"
                   className="w-full sm:w-auto px-4 py-3 rounded-2xl border border-emerald-200 bg-white hover:bg-emerald-50 hover:border-emerald-300 transition inline-flex items-center justify-center"
                 >
                   <span className="h-6 w-6 overflow-hidden rounded-full">
