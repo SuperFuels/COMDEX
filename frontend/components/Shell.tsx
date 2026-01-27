@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/router";
 import TabDock, { type TabDef } from "./TabDock";
 
-// ✅ Only show these two tabs
 export const TABS: readonly TabDef[] = [
   { key: "launch", label: "Launch", href: "/launch" },
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
@@ -35,7 +34,6 @@ function getActiveKeyFromPath(pathname: string): string {
     .find((t) => t.href !== "/" && p.startsWith(t.href + "/"));
   if (nested) return nested.key;
 
-  // ✅ default to glyph for any unknown routes
   return "glyph";
 }
 
@@ -62,7 +60,7 @@ export default function Shell({
   activeKey,
   className = "",
   maxWidth = "max-w-[1400px]",
-  tabsInNavbar = true, // ✅ default: tabs live in navbar now
+  tabsInNavbar = true,
 }: {
   children: ReactNode;
   activeKey?: string;
@@ -78,34 +76,24 @@ export default function Shell({
     "glyph";
 
   return (
-    <div
-      className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}
-    >
-      {/* ✅ single scroll container */}
-      <div className="h-screen overflow-y-auto overflow-x-hidden">
-        <main
-          className={[
-            "relative z-10 flex flex-col items-center justify-start min-h-full",
-            "w-full",
-            "px-4 sm:px-6 md:px-10",
-            maxWidth,
-            "mx-auto",
-            "pt-6 pb-24",
-          ].join(" ")}
-        >
-          {/* ✅ Tabs moved to navbar */}
-          {!tabsInNavbar && <TabDock tabs={TABS} activeKey={key} />}
-
-          <div className="w-full">
-            <div key={key} className="animate-tab-change">
-              {children}
-            </div>
+    <div className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}>
+      <main
+        className={[
+          "relative z-10 flex flex-col items-center justify-start",
+          "w-full",
+          "px-4 sm:px-6 md:px-10",
+          maxWidth,
+          "mx-auto",
+          "pt-6 pb-24",
+        ].join(" ")}
+      >
+        {!tabsInNavbar && <TabDock tabs={TABS} activeKey={key} />}
+        <div className="w-full">
+          <div key={key} className="animate-tab-change">
+            {children}
           </div>
-
-          {/* ✅ removed footer buttons */}
-          {/* ✅ removed bottom-right HUD overlay */}
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
