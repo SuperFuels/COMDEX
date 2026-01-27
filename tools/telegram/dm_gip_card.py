@@ -1,4 +1,7 @@
- # pip install telethon python-dotenv
+#!/usr/bin/env python3
+# tools/telegram/dm_gip_card.py
+# pip install telethon python-dotenv
+
 import asyncio
 import json
 import os
@@ -21,66 +24,84 @@ API_ID = int(os.getenv("TG_API_ID", "0"))
 API_HASH = os.getenv("TG_API_HASH", "")
 SESSION = os.getenv("TG_SESSION", "data/telegram/gip0101")  # prefix; telethon creates .session
 
-IN_FILE = Path(os.getenv("TG_DM_IN", "data/telegram/usernames.txt"))   # one username per line
+IN_FILE = Path(os.getenv("TG_DM_IN", "data/telegram/users.txt"))  # one @username per line
 OUT_LOG = Path(os.getenv("TG_DM_LOG", "data/telegram/dm_log.json"))
 
-MAX_SEND = int(os.getenv("TG_DM_MAX", "5"))                 # send to 5 total per run
-SLEEP_BETWEEN_SEC = float(os.getenv("TG_DM_SLEEP", "12"))   # pause between DMs
+MAX_SEND = int(os.getenv("TG_DM_MAX", "5"))  # send to N total per run
+SLEEP_BETWEEN_SEC = float(os.getenv("TG_DM_SLEEP", "12"))  # pause between DMs
 
 # Media (your GIF in repo)
 GIF_PATH = os.getenv(
     "TG_DM_GIF",
-    "/workspaces/COMDEX/frontend/public/images/GIP_repo_animated.gif"
+    "/workspaces/COMDEX/frontend/public/images/GIP_repo_animated.gif",
 )
 
-# Links (optional follow-up msg so caption stays clean)
-GROUP_LINK = os.getenv("TG_GROUP_LINK", "https://t.me/ElonDeSade")
-BOT_START_LINK = os.getenv("TG_BOT_START", "https://t.me/YourBotUsername?start=gip_guard")
-X_LINK = os.getenv("TG_X_LINK", "https://x.com/Glyph_Os")
-SITE_LINK = os.getenv("TG_SITE_LINK", "https://tessaris.ai")
+# Links
+GROUP_LINK = os.getenv("TG_GROUP_LINK", "https://t.me/Glyph_Os").strip()
+BOT_START_LINK = os.getenv("TG_BOT_START", "").strip()  # optional; can be empty
+X_LINK = os.getenv("TG_X_LINK", "https://x.com/Glyph_Os").strip()
+SITE_LINK = os.getenv("TG_SITE_LINK", "https://tessaris.ai").strip()
 
-SEND_LINKS_FOLLOWUP = os.getenv("TG_DM_SEND_LINKS", "1").strip() not in ("0", "false", "False")
+# IMPORTANT: default to ONE MESSAGE (no follow-up)
+SEND_LINKS_FOLLOWUP = os.getenv("TG_DM_SEND_LINKS", "0").strip() not in ("0", "false", "False")
 
-CAPTION = os.getenv(
-    "TG_DM_CAPTION",
-    """Most tokens launch memes.
-$GIP is launching the next internet layer — on Solana.
+# -------- HYPE CARD (caption) --------
+# Key: captions on media often fail to auto-link when you use markdown parse_mode.
+# We explicitly send parse_mode=None and put URLs on their own lines for reliable linkification.
+CAPTION_DEFAULT = f"""💲🧬🔤💎  $GIP  💎🔤🧬💲
 
-GlyphOS Alpha — live right now
-• 61× meaning compression (depth 60 locked proof)
-• WirePack deltas — 54%+ savings vs gzip JSON
-• AION organism — self-healing, self aware intelligence
-• SQI runtime — quantum-like reasoning on your laptop
+$GIP ⚡ on Solana — launching the next internet layer (not another meme)
 
-Demos already running → tessaris.ai
+🚀 GlyphOS Alpha — LIVE
+✅ 61× meaning compression (depth-60 locked proof)
+✅ WirePack deltas — 54%+ savings vs gzip JSON
+✅ AION organism — self-healing, self-aware intelligence
+✅ SQI runtime — quantum-like reasoning on your laptop
 
-Fair Launch Countdown
-GIP Fair Launch goes live Tomorrow at 9:00 PM UK (GMT) • Wed, 28 Jan 2026 21:00:00 UTC
-⏳ 1d 10h 14m 48s remaining
+🧪 Demos running now:
+{SITE_LINK}
 
-Do this in 20 seconds:
-🥱 Join the GIP Telegram group
-🤘 Scroll pinned proofs & live demos
-😎 Start the Guard bot (launch + liquidity alerts)
+⏳ FAIR LAUNCH COUNTDOWN
+🗓 Wed, 28 Jan 2026 • 21:00 UTC (9:00 PM UK GMT)
+
+⚡ Do this in 20 seconds:
+👉 Join the GIP Telegram group
+👉 Scroll pinned proofs + live demos
+👉 Enable alerts inside the group
 
 $GIP isn’t waiting. Are you? 💪
-
 👇 Enter before it’s obvious 👇
 
-✉ Guard Bot | 🐣 X | 🌐 tessaris.ai | 📢 Telegram Group"""
-).strip()
+📢 Telegram Group:
+{GROUP_LINK}
 
-LINKS_TEXT = os.getenv(
-    "TG_DM_LINKS_TEXT",
-    (
-        "Links:\n"
-        f"• 📢 Telegram Group: {GROUP_LINK}\n"
-        f"• ✉ Guard Bot: {BOT_START_LINK}\n"
-        f"• 🐣 X: {X_LINK}\n"
-        f"• 🌐 Site: {SITE_LINK}\n\n"
-        "If you don’t want DMs, reply ‘stop’ and I won’t message again."
+🐣 X:
+{X_LINK}
+""".strip()
+
+CAPTION = os.getenv("TG_DM_CAPTION", CAPTION_DEFAULT).strip()
+
+# Optional follow-up message (only sent when TG_DM_SEND_LINKS=1)
+def build_links_text() -> str:
+    lines = [
+        "Links:",
+        f"• 📢 Telegram Group: {GROUP_LINK}",
+    ]
+    if BOT_START_LINK:
+        lines.append(f"• ✉ Bot: {BOT_START_LINK}")
+    lines.extend(
+        [
+            f"• 🐣 X: {X_LINK}",
+            f"• 🌐 Site: {SITE_LINK}",
+            "",
+            "If you don’t want DMs, reply ‘stop’ and I won’t message again.",
+        ]
     )
-).strip()
+    return "\n".join(lines).strip()
+
+
+LINKS_TEXT = os.getenv("TG_DM_LINKS_TEXT", build_links_text()).strip()
+
 
 # -------- helpers --------
 def load_usernames(path: Path) -> List[str]:
@@ -93,9 +114,20 @@ def load_usernames(path: Path) -> List[str]:
             continue
         if s.startswith("@"):
             s = s[1:]
+        # basic sanity: telegram usernames are 5-32, letters/digits/underscore
         if 5 <= len(s) <= 32:
             out.append(s)
-    return out
+
+    # de-dupe while preserving order
+    seen = set()
+    uniq: List[str] = []
+    for u in out:
+        if u in seen:
+            continue
+        seen.add(u)
+        uniq.append(u)
+    return uniq
+
 
 def load_log(path: Path) -> Dict[str, Any]:
     if not path.exists():
@@ -105,13 +137,16 @@ def load_log(path: Path) -> Dict[str, Any]:
     except Exception:
         return {"sent": {}, "failed": {}, "ts": int(time.time())}
 
+
 def save_log(path: Path, data: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
 
+
 async def main():
     if not API_ID or not API_HASH:
         raise SystemExit("Set TG_API_ID and TG_API_HASH in env")
+
     gif = Path(GIF_PATH)
     if not gif.exists():
         raise SystemExit(f"GIF not found: {gif}")
@@ -119,13 +154,14 @@ async def main():
     usernames = load_usernames(IN_FILE)
     log = load_log(OUT_LOG)
 
-    already_sent = set(log.get("sent", {}).keys())
-    already_failed = set(log.get("failed", {}).keys())
+    already_sent = set((log.get("sent") or {}).keys())
+    already_failed = set((log.get("failed") or {}).keys())
 
+    # IMPORTANT: reruns continue down the list (won't re-DM the same first N)
     candidates = [u for u in usernames if u not in already_sent and u not in already_failed]
     to_send = candidates[:MAX_SEND]
 
-    print(f"Loaded {len(usernames)} usernames.")
+    print(f"Loaded {len(usernames)} usernames from: {IN_FILE}")
     print(f"Already sent: {len(already_sent)} | failed: {len(already_failed)}")
     print(f"Will attempt: {len(to_send)} (max {MAX_SEND})\n")
 
@@ -133,8 +169,13 @@ async def main():
         print("Nothing to send.")
         return
 
+    # Print the exact caption being sent (prevents “wrong caption” confusion)
+    print("\n----- CAPTION TO SEND -----\n")
+    print(CAPTION)
+    print("\n----- END CAPTION -----\n")
+
     client = TelegramClient(SESSION, API_ID, API_HASH)
-    await client.start()  # will prompt phone on first run
+    await client.start()
 
     ok = 0
     fail = 0
@@ -144,15 +185,16 @@ async def main():
         try:
             entity = await client.get_entity(target)
 
-            # 1) Send GIF + caption (inline)
+            # 1) Send GIF + caption (inline) — ONE message
             await client.send_file(
                 entity,
                 file=str(gif),
-                caption=CAPTION,
-                force_document=False,  # IMPORTANT: inline
+                caption=CAPTION,         # keep plain text urls
+                force_document=False,    # inline media
+                parse_mode=None,         # IMPORTANT: let Telegram auto-link
             )
 
-            # 2) Optional follow-up links message
+            # 2) Optional follow-up links (OFF by default)
             if SEND_LINKS_FOLLOWUP:
                 await client.send_message(entity, LINKS_TEXT, link_preview=True)
 
@@ -209,6 +251,7 @@ async def main():
 
     print(f"\nDone. ok={ok} fail={fail} attempted={len(to_send)}")
     await client.disconnect()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

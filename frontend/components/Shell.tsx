@@ -5,17 +5,13 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/router";
 import TabDock, { type TabDef } from "./TabDock";
 
+/**
+ * Only show Launch + Glyph OS tabs.
+ * (Everything else remains unchanged.)
+ */
 export const TABS: readonly TabDef[] = [
   { key: "launch", label: "Launch", href: "/launch" },
   { key: "glyph", label: "Glyph OS", href: "/glyph" },
-
-  // ✅ restore demo tabs (these routes must exist)
-  { key: "compression", label: "Compression", href: "/compression" },
-  { key: "symatics", label: "Symatics", href: "/symatics" },
-  { key: "photon-algebra-demo", label: "Photon Algebra", href: "/photon-algebra-demo" },
-  { key: "photon-binary", label: "Photon Binary", href: "/photon-binary" },
-  { key: "sqi", label: "SQI", href: "/sqi" },
-  { key: "multiverse", label: "Multiverse", href: "/multiverse" }, // if you have it
 ];
 
 function normalizeKeyAgainstTabs(k: string | undefined, tabs: readonly TabDef[]) {
@@ -42,17 +38,18 @@ function getActiveKeyFromPath(pathname: string): string {
     .find((t) => t.href !== "/" && p.startsWith(t.href + "/"));
   if (nested) return nested.key;
 
-  return "launch";
+  // default to glyph (keeps previous behavior)
+  return "glyph";
 }
 
-/** Tabs bar meant to be mounted inside the navbar (mobile scroll). */
+/** ✅ Tabs bar meant to be mounted inside the navbar (mobile scroll). */
 export function ShellTabsBar({ activeKey }: { activeKey?: string }) {
   const router = useRouter();
   const derivedKey = getActiveKeyFromPath(router.asPath || router.pathname || "/");
   const key =
     normalizeKeyAgainstTabs(activeKey, TABS) ||
     normalizeKeyAgainstTabs(derivedKey, TABS) ||
-    "launch";
+    "glyph";
 
   return (
     <div className="w-full overflow-x-auto overflow-y-hidden">
@@ -68,7 +65,7 @@ export default function Shell({
   activeKey,
   className = "",
   maxWidth = "max-w-[1400px]",
-  tabsInNavbar = true,
+  tabsInNavbar = true, // ✅ default: tabs live in navbar now
 }: {
   children: ReactNode;
   activeKey?: string;
@@ -81,27 +78,37 @@ export default function Shell({
   const key =
     normalizeKeyAgainstTabs(activeKey, TABS) ||
     normalizeKeyAgainstTabs(derivedKey, TABS) ||
-    "launch";
+    "glyph";
 
   return (
-    <div className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}>
-      <main
-        className={[
-          "relative z-10 flex flex-col items-center justify-start",
-          "w-full",
-          "px-4 sm:px-6 md:px-10",
-          maxWidth,
-          "mx-auto",
-          "pt-6 pb-24",
-        ].join(" ")}
-      >
-        {!tabsInNavbar && <TabDock tabs={TABS} activeKey={key} />}
-        <div className="w-full">
-          <div key={key} className="animate-tab-change">
-            {children}
+    <div
+      className={`min-h-screen bg-[#f5f5f7] text-[#1d1d1f] selection:bg-blue-100 font-sans antialiased ${className}`}
+    >
+      {/* ✅ single scroll container */}
+      <div className="h-screen overflow-y-auto overflow-x-hidden">
+        <main
+          className={[
+            "relative z-10 flex flex-col items-center justify-start min-h-full",
+            "w-full",
+            "px-4 sm:px-6 md:px-10",
+            maxWidth,
+            "mx-auto",
+            "pt-6 pb-24", // smaller top padding since tabs are in navbar
+          ].join(" ")}
+        >
+          {/* ✅ Tabs moved to navbar */}
+          {!tabsInNavbar && <TabDock tabs={TABS} activeKey={key} />}
+
+          <div className="w-full">
+            <div key={key} className="animate-tab-change">
+              {children}
+            </div>
           </div>
-        </div>
-      </main>
+
+          {/* ✅ removed footer buttons */}
+          {/* ✅ removed bottom-right HUD overlay */}
+        </main>
+      </div>
     </div>
   );
 }
