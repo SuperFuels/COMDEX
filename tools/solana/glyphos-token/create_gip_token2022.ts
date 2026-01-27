@@ -32,7 +32,7 @@ if (!TREASURY_KEYPAIR) {
 // Token params (Glyph Internet Protocol)
 const NAME = "Glyph Internet Protocol";
 const SYMBOL = "GIP";
-const DECIMALS = 9;
+const DECIMALS = 8;                    
 const SUPPLY_TOKENS = 100_000_000_000n; // 100Bn
 
 // Transfer fee params
