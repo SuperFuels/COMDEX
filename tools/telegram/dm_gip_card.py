@@ -27,7 +27,7 @@ SESSION = os.getenv("TG_SESSION", "data/telegram/gip0101")  # prefix; telethon c
 IN_FILE = Path(os.getenv("TG_DM_IN", "data/telegram/users.txt"))  # one @username per line
 OUT_LOG = Path(os.getenv("TG_DM_LOG", "data/telegram/dm_log.json"))
 
-MAX_SEND = int(os.getenv("TG_DM_MAX", "5"))  # send to N total per run
+MAX_SEND = int(os.getenv("TG_DM_MAX", "10"))  # send to N total per run
 SLEEP_BETWEEN_SEC = float(os.getenv("TG_DM_SLEEP", "12"))  # pause between DMs
 
 # Media (your GIF in repo)
