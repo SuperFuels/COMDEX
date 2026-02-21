@@ -21,7 +21,7 @@ import subprocess, threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
+from backend.modules.aion_resonance.aion_llm_bridge import router as aion_llm_router
 from fastapi import FastAPI, Query, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
@@ -1762,12 +1762,25 @@ async def ws_aion_demo(ws: WebSocket) -> None:
     except Exception:
         return
 
+@router.post("/aion-demo/api/llm/respond")
+async def api_llm_respond_prefixed(payload: dict):
+    from backend.modules.aion_resonance.aion_llm_bridge import aion_llm_respond, LLMRespondRequest
+    return await aion_llm_respond(LLMRespondRequest(**payload))
+
+@router.get("/aion-demo/api/llm/context")
+async def api_llm_context_prefixed():
+    from backend.modules.aion_resonance.aion_llm_bridge import aion_llm_context
+    return await aion_llm_context()
+
+# keep this near bottom
+app.include_router(router)
+
 @router.websocket("/aion-demo/ws/aion-demo")
 async def ws_aion_demo_prefixed(ws: WebSocket) -> None:
     await ws_aion_demo(ws)  
 
 app.include_router(router)
-
+app.include_router(aion_llm_router)
 if __name__ == "__main__":
     import uvicorn
 
