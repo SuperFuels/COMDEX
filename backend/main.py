@@ -159,14 +159,16 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("[phi] breathe tick not started: %s", e)
 
-    # ✅ START FUSION IN-PROCESS (PUT THIS HERE)
-    if _truthy("AION_ENABLE_FUSION", True):
+    # ✅ START FUSION IN-PROCESS (env-gated; default OFF to avoid duplicate TCFK when external launcher is used)
+    if _truthy("AION_ENABLE_FUSION", False):
         try:
             from backend.modules.aion_cognition.tessaris_cognitive_fusion_kernel import main as fusion_main
             asyncio.create_task(fusion_main())
             logger.warning("[fusion] TCFK started in-process on :8005")
         except Exception as e:
             logger.warning("[fusion] failed to start: %s", e)
+    else:
+        logger.warning("[fusion] TCFK in-process autostart disabled (AION_ENABLE_FUSION=0)")
 
     yield
 
