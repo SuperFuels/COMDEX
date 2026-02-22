@@ -39,6 +39,28 @@ except Exception:  # pragma: no cover - fail-open import
         }
 
 
+# ---------------------------------------------------------------------
+# Optional Phase 3C DMIP learning summary import (fail-open)
+# ---------------------------------------------------------------------
+try:
+    from backend.modules.aion_trading.dmip_learning_summary import (
+        get_llm_weighting_summary,
+    )
+except Exception:  # pragma: no cover - fail-open import
+    get_llm_weighting_summary = None  # type: ignore[assignment]
+
+
+# ---------------------------------------------------------------------
+# Optional Phase 3D reusable LLM synthesis import (fail-open)
+# ---------------------------------------------------------------------
+try:
+    from backend.modules.aion_trading.dmip_llm_synthesis import (
+        get_llm_weighted_bias,
+    )
+except Exception:  # pragma: no cover - fail-open import
+    get_llm_weighted_bias = None  # type: ignore[assignment]
+
+
 # Optional governed weighting runtime (Phase D / learning)
 try:
     from backend.modules.aion_learning.decision_influence_runtime import (
@@ -86,6 +108,22 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
         return float(value)
     except Exception:
         return default
+
+
+def _safe_bool(value: Any, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        v = value.strip().lower()
+        if v in {"1", "true", "yes", "y", "on"}:
+            return True
+        if v in {"0", "false", "no", "n", "off"}:
+            return False
+    return default
 
 
 # ---------------------------------------------------------------------
@@ -172,9 +210,26 @@ def _extract_weighted_bias_hint(
     weights_snapshot: Optional[Dict[str, Any]],
 ) -> Dict[str, Any]:
     """
-    Lightweight synthesis hook (P3D) without changing risk invariants.
-    Produces metadata only + confidence hinting (capped).
+    Phase 3D reusable synthesis adapter (preferred):
+    use dmip_llm_synthesis.get_llm_weighted_bias(...) when available.
+
+    Falls back to the prior inline behavior-preserving logic if the module is
+    unavailable or throws, so DMIP remains importable/non-breaking.
     """
+    if callable(get_llm_weighted_bias):
+        try:
+            out = get_llm_weighted_bias(
+                pair=pair,
+                llm_pair=llm_pair,
+                weights_snapshot=weights_snapshot,
+            )
+            out_d = _safe_dict(out)
+            if out_d:
+                return out_d
+        except Exception:
+            # fail-open to legacy inline logic below
+            pass
+
     a = _safe_str(llm_pair.get("claude_bias")).upper()
     b = _safe_str(llm_pair.get("gpt4_bias")).upper()
     conf = _safe_str(llm_pair.get("confidence"), "MEDIUM").upper()
@@ -281,9 +336,50 @@ def run_dmip_checkpoint(
     pair_biases: List[PairBias] = []
     agreement_flags: Dict[str, str] = {}
 
+    # -----------------------------------------------------------------
+    # Phase 3C summary diagnostics (read-only, fail-open, no behavior change)
+    # -----------------------------------------------------------------
+    llm_weighting_summary_diag: Dict[str, Any] = {
+        "ok": False,
+        "available": False,
+        "non_blocking": True,
+        "error": None,
+        "message": None,
+        "focus_by_pair": {},
+    }
+
     # Phase 3 runtime lookup (read-only, fail-open)
     weighting_runtime, weighting_runtime_error = _get_weighting_runtime()
     weighting_scope = _build_weighting_scope(checkpoint=cp, market_snapshot=market_snapshot)
+
+    # Phase 3C: optional summary read for diagnostics (no synthesis logic change yet)
+    if get_llm_weighting_summary is None:
+        llm_weighting_summary_diag["error"] = "dmip_learning_summary_import_unavailable"
+    else:
+        llm_weighting_summary_diag["available"] = True
+        try:
+            focus_by_pair: Dict[str, Any] = {}
+            for pair in pairs:
+                s = get_llm_weighting_summary(
+                    pair=pair,
+                    checkpoint=cp,
+                    days=30,
+                )
+                s_dict = _safe_dict(s)
+                focus = _safe_dict(s_dict.get("focus"))
+                hints = _safe_dict(s_dict.get("weighting_hints"))
+                focus_by_pair[pair] = {
+                    "ok": _safe_bool(s_dict.get("ok"), default=False),
+                    "focus": focus,
+                    "weighting_hints": hints,
+                }
+
+            llm_weighting_summary_diag["ok"] = True
+            llm_weighting_summary_diag["focus_by_pair"] = focus_by_pair
+        except Exception as e:
+            llm_weighting_summary_diag["ok"] = False
+            llm_weighting_summary_diag["error"] = "dmip_learning_summary_read_error"
+            llm_weighting_summary_diag["message"] = str(e)
 
     weights_snapshot: Optional[Dict[str, Any]] = None
     weights_runtime_notes: List[str] = []
@@ -344,6 +440,7 @@ def run_dmip_checkpoint(
 
             # ----------------------------------------------------------
             # Phase 3D weighted synthesis hint (metadata / confidence hint)
+            # via reusable dmip_llm_synthesis module (fail-open adapter)
             # ----------------------------------------------------------
             weighted_hint = _extract_weighted_bias_hint(
                 pair=pair,
@@ -467,6 +564,9 @@ def run_dmip_checkpoint(
                 or (weights_snapshot or {}).get("version")
             ),
             "decision_influence_snapshot_hash": (weights_snapshot or {}).get("snapshot_hash"),
+            "dmip_learning_summary_available": bool(llm_weighting_summary_diag.get("available")),
+            "dmip_learning_summary_ok": bool(llm_weighting_summary_diag.get("ok")),
+            "dmip_llm_synthesis_module_available": bool(callable(get_llm_weighted_bias)),
             "risk_invariants_mutated": False,  # explicit P3F guardrail signal
         },
     ).validate()
@@ -484,10 +584,13 @@ def run_dmip_checkpoint(
             "disagreement_preserved_as_signal",
             "risk_invariants_not_mutated",
             "p3a_p3b_learning_capture_stubs_non_blocking",
+            "p3c_learning_summary_diagnostic_fail_open",
+            "p3d_reusable_dmip_llm_synthesis_adapter_enabled_fail_open",
         ],
         # Phase 3 additive outputs (non-breaking)
         "llm_weighted_hints": weighted_llm_hints,
         "learning_events": learning_events,
+        "llm_weighting_summary_diagnostic": llm_weighting_summary_diag,
         "decision_influence_weighting": {
             "scope": weighting_scope,
             "loaded": bool(weights_snapshot),
