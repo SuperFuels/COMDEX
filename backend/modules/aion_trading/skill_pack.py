@@ -1,7 +1,9 @@
 from __future__ import annotations
-
+import json
+import time
+import uuid
 from typing import Any, Dict, List, TYPE_CHECKING, Tuple
-
+from pathlib import Path
 from backend.modules.aion_trading.knowledge_runtime import get_forex_curriculum_v1
 from backend.modules.aion_trading.strategy_registry import list_strategy_specs, get_strategy_spec
 from backend.modules.aion_trading.dmip_runtime import run_dmip_checkpoint
@@ -52,7 +54,243 @@ def _safe_float_or_none(value: Any) -> Any:
     except Exception:
         return value
 
+# ---------------------------------------------------------------------
+# Decision-influence capture / journal integration (P3O/P3P/P3Q)
+# ---------------------------------------------------------------------
 
+_DECISION_INFLUENCE_JOURNAL_PATH = Path(
+    ".runtime/COMDEX_MOVE/data/trading/decision_influence_journal.jsonl"
+)
+
+
+def _safe_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(value)
+    except Exception:
+        return default
+
+
+def _safe_str_list(value: Any) -> List[str]:
+    if isinstance(value, list):
+        return [str(x) for x in value]
+    return []
+
+
+def _atomic_append_jsonl(path: Path, row: Dict[str, Any]) -> None:
+    """
+    Simple append-safe JSONL write.
+    If directory does not exist, create it.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    line = json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n"
+    with path.open("a", encoding="utf-8") as f:
+        f.write(line)
+
+
+def _normalize_validated_diff_rows_for_capture(value: Any) -> List[Dict[str, Any]]:
+    """
+    Accept list-style or dict-style diff payloads and normalize to a list of rows.
+    Keeps capture contract stable even if underlying diff shape evolves.
+    """
+    # Newer path: list[dict]
+    if isinstance(value, list):
+        rows: List[Dict[str, Any]] = []
+        for item in value:
+            if isinstance(item, dict):
+                rows.append(dict(item))
+        return rows
+
+    # Older/alternate path: {"changed": {...}} or generic dict
+    if isinstance(value, dict):
+        changed = value.get("changed")
+        if isinstance(changed, dict):
+            rows = []
+            for k in sorted(changed.keys()):
+                ch = changed.get(k)
+                if not isinstance(ch, dict):
+                    continue
+                rows.append(
+                    {
+                        "key": str(k),
+                        "old": ch.get("before"),
+                        "new": ch.get("after_normalized", ch.get("after")),
+                        "after_raw": ch.get("after_raw"),
+                        "delta": ch.get("delta"),
+                    }
+                )
+            return rows
+        # generic dict fallback: preserve as one object row for traceability
+        return [dict(value)]
+
+    return []
+
+
+def _build_decision_influence_journal_artifacts(
+    *,
+    normalized_output: Dict[str, Any],
+    requested_inputs: Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Build stable capture artifacts for decision influence weight show/update skill.
+    Returns:
+      {
+        "trading_journal": [...],
+        "journal_summary": {...},
+        "trading_capture_result": {...}
+      }
+
+    Never raises; caller expects non-breaking behavior.
+    """
+    now_ts = time.time()
+    req_inputs = _safe_dict(requested_inputs)
+    out = _safe_dict(normalized_output)
+
+    action = str(out.get("action") or "show").strip().lower()
+    dry_run = _safe_bool(out.get("dry_run"), default=True)
+    ok = _safe_bool(out.get("ok"), default=False)
+    applied = _safe_bool(out.get("applied"), default=False)
+
+    patch = _safe_dict(out.get("proposed_patch") or req_inputs.get("patch"))
+    scope = _safe_dict(out.get("scope") or req_inputs.get("scope"))
+    warnings = _safe_str_list(out.get("warnings"))
+    validated_diff_rows = _normalize_validated_diff_rows_for_capture(out.get("validated_diff"))
+
+    changed_keys: List[str] = []
+
+    # 1) Preferred path: derive from validated diff rows
+    for row in validated_diff_rows:
+        k = row.get("key")
+        if k is not None and str(k).strip():
+            changed_keys.append(str(k).strip())
+
+    # 2) Fallback: passthrough changed_keys from normalized/runtime output
+    if not changed_keys:
+        changed_keys.extend(
+            [s for s in _safe_str_list(out.get("changed_keys")) if str(s).strip()]
+        )
+
+    # 3) Final fallback (dry-run safe): infer intent from patch ops
+    #    This preserves useful journal summaries even if runtime omits diff rows.
+    if not changed_keys:
+        ops = patch.get("ops")
+        if isinstance(ops, list):
+            for op in ops:
+                if not isinstance(op, dict):
+                    continue
+                k = op.get("key")
+                if k is not None and str(k).strip():
+                    changed_keys.append(str(k).strip())
+
+    changed_keys = sorted(set(changed_keys))
+
+    snapshot_hash = out.get("snapshot_hash")
+    previous_snapshot_hash = out.get("previous_snapshot_hash")
+    version = out.get("version")
+
+    source = str(out.get("source") or req_inputs.get("source") or "skill_pack_adapter")
+    reason = str(out.get("reason") or req_inputs.get("reason") or "").strip()
+
+    event_id = f"diw_{uuid.uuid4().hex[:16]}"
+    event_type = "decision_influence_weights_show" if action == "show" else "decision_influence_weights_update"
+
+    journal_row: Dict[str, Any] = {
+        "schema_version": "aion.trading_journal_entry.v1",
+        "entry_id": event_id,
+        "timestamp_unix": now_ts,
+        "event_type": event_type,
+        "ok": ok,
+        "action": action,
+        "dry_run": dry_run,
+        "applied": applied,
+        "source": source,
+        "reason": reason,
+        "scope": scope,
+        "patch": patch if action == "update" else {},
+        "validated_diff": validated_diff_rows,
+        "changed_keys": changed_keys,
+        "warnings": warnings,
+        "snapshot_hash": str(snapshot_hash) if snapshot_hash is not None else None,
+        "previous_snapshot_hash": str(previous_snapshot_hash) if previous_snapshot_hash is not None else None,
+        "version": version,
+        "metadata": {
+            "skill_id": "skill.trading_update_decision_influence_weights",
+            "capture_layer": "skill_pack_adapter",
+        },
+    }
+
+    summary: Dict[str, Any] = {
+        "event_type": event_type,
+        "ok": ok,
+        "action": action,
+        "dry_run": dry_run,
+        "applied": applied,
+        "changed_count": len(changed_keys),
+        "changed_keys": changed_keys,
+        "warning_count": len(warnings),
+        "version": version,
+        "snapshot_hash": str(snapshot_hash) if snapshot_hash is not None else None,
+        "previous_snapshot_hash": str(previous_snapshot_hash) if previous_snapshot_hash is not None else None,
+    }
+
+    capture_result: Dict[str, Any] = {
+        "ok": False,  # set true only after append succeeds
+        "capture_type": "decision_influence_journal_append",
+        "non_blocking": True,
+        "path": str(_DECISION_INFLUENCE_JOURNAL_PATH),
+        "entry_id": event_id,
+        "journal_summary": dict(summary),
+        "error": None,
+        "message": None,
+    }
+
+    try:
+        _atomic_append_jsonl(_DECISION_INFLUENCE_JOURNAL_PATH, journal_row)
+        capture_result["ok"] = True
+    except Exception as e:
+        # Non-breaking by design (P3P)
+        capture_result["ok"] = False
+        capture_result["error"] = "decision_influence_capture_append_failed"
+        capture_result["message"] = str(e)
+
+    return {
+        "trading_journal": [journal_row],  # returned row for immediate audit/debug visibility
+        "journal_summary": summary,
+        "trading_capture_result": capture_result,
+    }
+
+
+def _attach_decision_influence_capture_artifacts(
+    *,
+    normalized_output: Dict[str, Any],
+    requested_inputs: Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Fail-open wrapper. Never raises; returns enriched output.
+    """
+    out = dict(normalized_output or {})
+    try:
+        artifacts = _build_decision_influence_journal_artifacts(
+            normalized_output=out,
+            requested_inputs=requested_inputs,
+        )
+        out.update(artifacts)
+        return out
+    except Exception as e:
+        # Absolute fallback: preserve primary skill success/failure and add capture failure metadata
+        out["trading_capture_result"] = {
+            "ok": False,
+            "capture_type": "decision_influence_journal_append",
+            "non_blocking": True,
+            "error": "decision_influence_capture_wrapper_exception",
+            "message": str(e),
+        }
+        out.setdefault("journal_summary", {
+            "event_type": "decision_influence_weights_unknown",
+            "ok": _safe_bool(out.get("ok"), default=False),
+        })
+        out.setdefault("trading_journal", [])
+        return out
+        
 # ---------------------------------------------------------------------
 # Decision-influence output normalization (drop-in contract shape)
 # ---------------------------------------------------------------------
@@ -75,7 +313,7 @@ def _normalize_decision_influence_skill_output(
         "dry_run": bool,
         "applied": bool,
         "proposed_patch": {...},
-        "validated_diff": {...},
+        "validated_diff": [...] | {...},
         "warnings": [...],
         "snapshot_hash": str|None,
         "weights": {...}|None,
@@ -118,11 +356,16 @@ def _normalize_decision_influence_skill_output(
         or req_inputs.get("patch")
     )
 
-    validated_diff = _safe_dict(
-        payload.get("validated_diff")
-        or payload.get("diff")
-        or {}
-    )
+    # validated_diff may be list[rows] (newer path) OR dict (older path)
+    _validated_diff_raw = payload.get("validated_diff", payload.get("diff"))
+    if isinstance(_validated_diff_raw, list):
+        validated_diff = [dict(x) for x in _validated_diff_raw if isinstance(x, dict)]
+    elif isinstance(_validated_diff_raw, dict):
+        validated_diff = dict(_validated_diff_raw)
+    else:
+        # keep contract stable: list for new path, but empty dict also accepted by older schema.
+        # choose [] so capture layer can compute changed_keys consistently.
+        validated_diff = []
 
     warnings_raw = payload.get("warnings", d.get("warnings", []))
     warnings = [str(x) for x in _safe_list(warnings_raw)]
@@ -317,7 +560,11 @@ def skill_trading_update_decision_influence_weights(inputs: Dict[str, Any]) -> D
         if mode == "function":
             try:
                 out = target(req_inputs)
-                return _normalize_decision_influence_skill_output(out, requested_inputs=req_inputs)
+                normalized = _normalize_decision_influence_skill_output(out, requested_inputs=req_inputs)
+                return _attach_decision_influence_capture_artifacts(
+                    normalized_output=normalized,
+                    requested_inputs=req_inputs,
+                )
             except TypeError:
                 # Might be a function expecting SkillRunRequest
                 pass
@@ -337,13 +584,18 @@ def skill_trading_update_decision_influence_weights(inputs: Dict[str, Any]) -> D
             # function exported but expects req object
             res = target(req)
 
-        return _normalize_decision_influence_skill_output(res, requested_inputs=req_inputs)
+        normalized = _normalize_decision_influence_skill_output(res, requested_inputs=req_inputs)
+        return _attach_decision_influence_capture_artifacts(
+            normalized_output=normalized,
+            requested_inputs=req_inputs,
+        )
 
     except Exception as e:
         # Keep registry/runtime startup non-breaking; surface structured error
         # in the SAME contract shape so orchestrator/UI parsing remains stable.
         dry_run = _safe_bool(req_inputs.get("dry_run"), default=True)
-        return {
+
+        error_out = {
             "ok": False,
             "skill_id": "skill.trading_update_decision_influence_weights",
             "schema_version": "aion.trading_decision_influence_update_result.v1",
@@ -361,6 +613,10 @@ def skill_trading_update_decision_influence_weights(inputs: Dict[str, Any]) -> D
             "message": str(e),
             "source": str(req_inputs.get("source") or "skill_registry_adapter"),
         }
+        return _attach_decision_influence_capture_artifacts(
+            normalized_output=error_out,
+            requested_inputs=req_inputs,
+        )
 
 
 def register_aion_trading_skills(registry: "SkillRegistry") -> "SkillRegistry":
