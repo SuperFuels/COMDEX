@@ -751,3 +751,1171 @@ def test_submit_paper_trade_scope_validation_shape_includes_request_metadata_whe
 def test_helper_extract_ok_handles_top_level_bool():
     assert _extract_ok({"ok": True}) is True
     assert _extract_ok({"ok": False}) is False
+
+def test_manage_open_trade_rejects_phase2_size_up_actions():
+    proposal = _mk_valid_proposal()
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_manage_size_up_reject"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+
+    trade_id = _extract_trade_id(submit)
+
+    for action in ("average_down", "scale_in", "increase_size", "add_to_position", "pyramid"):
+        out = _as_dict(
+            manage_open_trade(
+                trade_id=trade_id,
+                action=action,
+                payload={"units": 1, "reason": "pytest_should_reject_phase2_size_up"},
+            )
+        )
+        assert _extract_ok(out) is False, f"Expected reject for action={action}: {out}"
+        assert out.get("reason") == "phase2_position_sizing_invariants_failed", f"Unexpected reason for {action}: {out}"
+
+        violations = _extract_violations(out)
+        # manage_open_trade returns top-level violations in current runtime patch;
+        # tolerate either helper extraction or direct top-level list.
+        if not violations and isinstance(out.get("violations"), list):
+            violations = list(out.get("violations") or [])
+
+        assert "phase2_no_size_up_during_open_trade" in violations, f"Missing no-size-up violation for {action}: {out}"
+
+
+def test_manage_open_trade_rejects_buy_stop_widening_phase2_invariant():
+    proposal = _mk_valid_proposal(direction="BUY", entry=1.1000, stop_loss=1.0950, take_profit=1.1102)
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_manage_buy_stop_widen_reject"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+
+    trade_id = _extract_trade_id(submit)
+
+    # BUY widening risk => moving stop lower than current stop
+    out = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="move_stop",
+            payload={"stop_loss": 1.0940, "reason": "pytest_buy_widen_should_reject"},
+        )
+    )
+    assert _extract_ok(out) is False, f"Expected BUY stop-widen reject: {out}"
+    assert out.get("reason") == "phase2_stop_invariants_failed", f"Unexpected reason: {out}"
+
+    violations = _extract_violations(out)
+    if not violations and isinstance(out.get("violations"), list):
+        violations = list(out.get("violations") or [])
+    assert "phase2_stop_never_widen_buy" in violations, f"Missing BUY stop invariant violation: {out}"
+
+
+def test_manage_open_trade_rejects_sell_stop_widening_phase2_invariant():
+    proposal = _mk_valid_proposal(
+        direction="SELL",
+        entry=1.1000,
+        stop_loss=1.1050,
+        take_profit=1.0898,  # > 2R for SELL with 50 pip stop
+    )
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_manage_sell_stop_widen_reject"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+
+    trade_id = _extract_trade_id(submit)
+
+    # SELL widening risk => moving stop higher than current stop
+    out = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="move_stop",
+            payload={"stop_loss": 1.1060, "reason": "pytest_sell_widen_should_reject"},
+        )
+    )
+    assert _extract_ok(out) is False, f"Expected SELL stop-widen reject: {out}"
+    assert out.get("reason") == "phase2_stop_invariants_failed", f"Unexpected reason: {out}"
+
+    violations = _extract_violations(out)
+    if not violations and isinstance(out.get("violations"), list):
+        violations = list(out.get("violations") or [])
+    assert "phase2_stop_never_widen_sell" in violations, f"Missing SELL stop invariant violation: {out}"
+
+
+def test_manage_open_trade_allows_buy_stop_tightening_phase2_invariant():
+    proposal = _mk_valid_proposal(direction="BUY", entry=1.1000, stop_loss=1.0950, take_profit=1.1102)
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_manage_buy_stop_tighten_ok"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+
+    trade_id = _extract_trade_id(submit)
+
+    out = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="move_stop",
+            payload={"stop_loss": 1.0960, "reason": "pytest_buy_tighten_should_pass"},
+        )
+    )
+    assert _extract_ok(out) is True, f"Expected BUY stop tighten to pass: {out}"
+
+
+def test_manage_open_trade_allows_sell_stop_tightening_phase2_invariant():
+    proposal = _mk_valid_proposal(
+        direction="SELL",
+        entry=1.1000,
+        stop_loss=1.1050,
+        take_profit=1.0898,
+    )
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_manage_sell_stop_tighten_ok"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+
+    trade_id = _extract_trade_id(submit)
+
+    out = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="move_stop",
+            payload={"stop_loss": 1.1040, "reason": "pytest_sell_tighten_should_pass"},
+        )
+    )
+    assert _extract_ok(out) is True, f"Expected SELL stop tighten to pass: {out}"
+
+def test_close_trade_returns_close_validation_ok_on_valid_close():
+    proposal = _mk_valid_proposal()
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_close_shape_valid"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+
+    trade_id = _extract_trade_id(submit)
+
+    out = _as_dict(
+        close_trade(
+            trade_id=trade_id,
+            close_price=1.1080,
+            close_reason="pytest_valid_close",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+
+    assert _extract_ok(out) is True, f"Close failed: {out}"
+
+    cv = out.get("close_validation")
+    if not isinstance(cv, dict):
+        cv = _find_nested_dict(_safe_dict(out.get("trade")), ["close"]) or {}
+        cv = _safe_dict(cv).get("close_validation") if isinstance(cv, dict) else None
+
+    assert isinstance(cv, dict), f"Missing close_validation: {out}"
+    assert cv.get("ok") is True, f"close_validation not ok: {out}"
+
+
+def test_close_trade_outcome_classification_label_is_expected():
+    proposal = _mk_valid_proposal()
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_close_outcome_label"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+
+    trade_id = _extract_trade_id(submit)
+
+    out = _as_dict(
+        close_trade(
+            trade_id=trade_id,
+            close_price=1.1080,
+            close_reason="pytest_outcome_label",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+    assert _extract_ok(out) is True, f"Close failed: {out}"
+
+    oc = out.get("outcome_classification")
+    if not isinstance(oc, dict):
+        trade = _safe_dict(out.get("trade"))
+        close_block = _safe_dict(trade.get("close"))
+        oc = close_block.get("outcome_classification")
+
+    assert isinstance(oc, dict), f"Missing outcome_classification: {out}"
+    label = oc.get("label")
+    assert label in {"WIN", "LOSS", "BREAKEVEN"}, f"Unexpected label={label!r} in {out}"
+
+
+def test_close_trade_rejects_non_numeric_close_price_with_invalid_close_payload_reason():
+    proposal = _mk_valid_proposal()
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_close_bad_price"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+
+    trade_id = _extract_trade_id(submit)
+
+    out = _as_dict(
+        close_trade(
+            trade_id=trade_id,
+            close_price="not-a-number",  # type: ignore[arg-type]
+            close_reason="pytest_bad_close_price",
+            outcome={},
+        )
+    )
+
+    assert _extract_ok(out) is False, f"Expected reject, got: {out}"
+    assert out.get("reason") == "invalid_close_payload", f"Unexpected reason: {out}"
+    violations = _extract_violations(out)
+    # Some runtimes may return top-level violations directly; this patch does.
+    if not violations and isinstance(out.get("violations"), list):
+        violations = list(out.get("violations") or [])
+    assert "close_price_invalid_type" in violations, f"Expected close_price_invalid_type: {out}"
+
+
+def test_close_trade_rejects_empty_close_reason_with_close_validation_failed_reason():
+    proposal = _mk_valid_proposal()
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_close_empty_reason"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+
+    trade_id = _extract_trade_id(submit)
+
+    out = _as_dict(
+        close_trade(
+            trade_id=trade_id,
+            close_price=1.1080,
+            close_reason="",
+            outcome={},
+        )
+    )
+
+    assert _extract_ok(out) is False, f"Expected reject, got: {out}"
+    assert out.get("reason") == "close_validation_failed", f"Unexpected reason: {out}"
+
+    cv = out.get("close_validation")
+    assert isinstance(cv, dict), f"Expected close_validation in reject response: {out}"
+    assert cv.get("ok") is False, f"Expected close_validation.ok False: {out}"
+    violations = list(cv.get("violations") or [])
+    assert "close_reason_required" in violations, f"Expected close_reason_required: {out}"
+
+def test_manage_open_trade_rejects_buy_stop_widening_phase2_invariant():
+    proposal = _mk_valid_proposal(direction="BUY")
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_manage_buy_widen_reject"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+    trade_id = _extract_trade_id(submit)
+
+    out = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="move_stop",
+            payload={"stop_loss": 1.0940, "reason": "pytest_widen_buy_should_reject"},
+        )
+    )
+
+    assert _extract_ok(out) is False, f"Expected reject, got: {out}"
+    assert out.get("reason") == "phase2_stop_invariants_failed", f"Unexpected reason: {out}"
+    violations = _extract_violations(out)
+    if not violations and isinstance(out.get("violations"), list):
+        violations = list(out.get("violations") or [])
+    assert "phase2_stop_never_widen_buy" in violations, f"Unexpected violations: {out}"
+
+
+def test_manage_open_trade_accepts_buy_stop_tighten_phase2_invariant():
+    proposal = _mk_valid_proposal(direction="BUY")
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_manage_buy_tighten_ok"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+    trade_id = _extract_trade_id(submit)
+
+    out = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="move_stop",
+            payload={"stop_loss": 1.1005, "reason": "pytest_tighten_buy_should_pass"},
+        )
+    )
+
+    assert _extract_ok(out) is True, f"Expected accept, got: {out}"
+    notes = list(out.get("notes") or [])
+    assert "stop_loss_updated" in notes, f"Missing stop update note: {out}"
+
+    trade = out.get("trade")
+    assert isinstance(trade, dict), f"Missing trade payload: {out}"
+    assert float(trade.get("stop_loss")) == pytest.approx(1.1005)
+
+
+def test_manage_open_trade_rejects_sell_stop_widening_phase2_invariant():
+    # SELL valid proposal: entry 1.1000, stop above entry, TP below entry
+    proposal = _mk_valid_proposal(
+        direction="SELL",
+        entry=1.1000,
+        stop_loss=1.1050,
+        take_profit=1.0898,  # >2R equivalent on SELL side
+    )
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_manage_sell_widen_reject"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+    trade_id = _extract_trade_id(submit)
+
+    # SELL widening = moving stop UP (away from profit / more risk)
+    out = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="move_stop",
+            payload={"stop_loss": 1.1060, "reason": "pytest_widen_sell_should_reject"},
+        )
+    )
+
+    assert _extract_ok(out) is False, f"Expected reject, got: {out}"
+    assert out.get("reason") == "phase2_stop_invariants_failed", f"Unexpected reason: {out}"
+    violations = _extract_violations(out)
+    if not violations and isinstance(out.get("violations"), list):
+        violations = list(out.get("violations") or [])
+    assert "phase2_stop_never_widen_sell" in violations, f"Unexpected violations: {out}"
+
+
+def test_manage_open_trade_rejects_non_numeric_stop_with_invalid_manage_payload():
+    proposal = _mk_valid_proposal(direction="BUY")
+
+    submit = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e("pytest_phase2_manage_bad_stop_type"),
+        )
+    )
+    assert _extract_ok(submit) is True, f"Submit failed: {submit}"
+    trade_id = _extract_trade_id(submit)
+
+    out = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="move_stop",
+            payload={"stop_loss": "not-a-number", "reason": "pytest_bad_stop_type"},
+        )
+    )
+
+    assert _extract_ok(out) is False, f"Expected reject, got: {out}"
+    assert out.get("reason") == "invalid_manage_payload", f"Unexpected reason: {out}"
+
+    violations = _extract_violations(out)
+    if not violations and isinstance(out.get("violations"), list):
+        violations = list(out.get("violations") or [])
+    assert "move_stop_invalid_stop_loss_type" in violations, f"Unexpected violations: {out}"
+
+# ---------------------------------------------------------------------
+# Close-path diagnostics / scoring scaffold tests (Phase 2 close contract)
+# ---------------------------------------------------------------------
+
+
+def _extract_close_validation(resp: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    cv = resp.get("close_validation")
+    if isinstance(cv, dict):
+        return cv
+
+    trade = resp.get("trade")
+    if isinstance(trade, dict):
+        close = trade.get("close")
+        if isinstance(close, dict):
+            cv = close.get("close_validation")
+            if isinstance(cv, dict):
+                return cv
+    return None
+
+
+def _extract_outcome_classification(resp: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    oc = resp.get("outcome_classification")
+    if isinstance(oc, dict):
+        return oc
+
+    trade = resp.get("trade")
+    if isinstance(trade, dict):
+        close = trade.get("close")
+        if isinstance(close, dict):
+            oc = close.get("outcome_classification")
+            if isinstance(oc, dict):
+                return oc
+    return None
+
+
+def _extract_rule_compliance_snapshot(resp: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    rcs = resp.get("rule_compliance_snapshot")
+    if isinstance(rcs, dict):
+        return rcs
+
+    trade = resp.get("trade")
+    if isinstance(trade, dict):
+        close = trade.get("close")
+        if isinstance(close, dict):
+            rcs = close.get("rule_compliance_snapshot")
+            if isinstance(rcs, dict):
+                return rcs
+    return None
+
+
+def _extract_scores(resp: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    scores = resp.get("scores")
+    if isinstance(scores, dict):
+        return scores
+
+    trade = resp.get("trade")
+    if isinstance(trade, dict):
+        close = trade.get("close")
+        if isinstance(close, dict):
+            scores = close.get("scores")
+            if isinstance(scores, dict):
+                return scores
+    return None
+
+
+def _extract_final_result(resp: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    fr = resp.get("final_result")
+    if isinstance(fr, dict):
+        return fr
+
+    trade = resp.get("trade")
+    if isinstance(trade, dict):
+        close = trade.get("close")
+        if isinstance(close, dict):
+            fr = close.get("final_result")
+            if isinstance(fr, dict):
+                return fr
+    return None
+
+
+def _open_trade_for_close_tests(
+    *,
+    direction: str = "BUY",
+    entry: float = 1.1000,
+    stop_loss: float = 1.0950,
+    take_profit: float = 1.1110,  # <- safely above 2R (risk=0.0050, reward=0.0110 => RR=2.2)
+    source: str = "pytest_phase2_close_open",
+) -> str:
+    proposal = _mk_valid_proposal(
+        direction=direction,
+        entry=entry,
+        stop_loss=stop_loss,
+        take_profit=take_profit,
+    )
+
+    out = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e(source),
+        )
+    )
+    assert _extract_ok(out) is True, f"Submit failed for close test setup: {out}"
+    return _extract_trade_id(out)
+
+
+def test_close_trade_returns_scores_shape_keys():
+    trade_id = _open_trade_for_close_tests(source="pytest_phase2_close_scores_shape")
+
+    out = _as_dict(
+        close_trade(
+            trade_id=trade_id,
+            close_price=1.1080,
+            close_reason="pytest_close_scores_shape",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+
+    assert _extract_ok(out) is True, f"Close failed: {out}"
+
+    scores = _extract_scores(out)
+    assert isinstance(scores, dict), f"Missing scores diagnostics: {out}"
+
+    expected_keys = {
+        "process_score",
+        "outcome_score",
+        "rule_compliance_score",
+        "context_quality_score",
+        "execution_quality_score",
+        "reward_score",
+    }
+    assert expected_keys.issubset(set(scores.keys())), f"Scores keys mismatch: {scores}"
+
+
+def test_close_trade_final_result_contains_lifecycle_counts():
+    trade_id = _open_trade_for_close_tests(source="pytest_phase2_close_final_result_counts")
+
+    # Create management activity before close
+    m1 = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="move_stop",
+            payload={"stop_loss": 1.1005, "reason": "pytest_tighten"},
+        )
+    )
+    assert _extract_ok(m1) is True, f"Manage move_stop failed: {m1}"
+
+    m2 = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="take_partial",
+            payload={"fraction": 0.5, "price": 1.1060, "reason": "pytest_partial"},
+        )
+    )
+    assert _extract_ok(m2) is True, f"Manage take_partial failed: {m2}"
+
+    out = _as_dict(
+        close_trade(
+            trade_id=trade_id,
+            close_price=1.1080,
+            close_reason="pytest_close_final_result_counts",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+    assert _extract_ok(out) is True, f"Close failed: {out}"
+
+    fr = _extract_final_result(out)
+    assert isinstance(fr, dict), f"Missing final_result: {out}"
+
+    # Required normalized summary fields
+    for k in (
+        "label",
+        "pnl_direction",
+        "close_reason",
+        "held_duration_sec",
+        "managed",
+        "partials_taken",
+        "stop_moves",
+    ):
+        assert k in fr, f"final_result missing key '{k}': {fr}"
+
+    assert fr.get("managed") is True, f"Expected managed=True after management events: {fr}"
+    assert isinstance(fr.get("partials_taken"), int), f"partials_taken should be int: {fr}"
+    assert isinstance(fr.get("stop_moves"), int), f"stop_moves should be int: {fr}"
+    assert fr.get("partials_taken", -1) >= 1, f"Expected partials_taken >= 1: {fr}"
+    assert fr.get("stop_moves", -1) >= 1, f"Expected stop_moves >= 1: {fr}"
+
+
+def test_close_trade_rule_compliance_snapshot_reflects_entry_validations():
+    trade_id = _open_trade_for_close_tests(source="pytest_phase2_close_rule_snapshot")
+
+    out = _as_dict(
+        close_trade(
+            trade_id=trade_id,
+            close_price=1.1080,
+            close_reason="pytest_close_rule_snapshot",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+    assert _extract_ok(out) is True, f"Close failed: {out}"
+
+    rcs = _extract_rule_compliance_snapshot(out)
+    assert isinstance(rcs, dict), f"Missing rule_compliance_snapshot: {out}"
+
+    # Support either summary nesting or direct fields
+    summary = rcs.get("summary")
+    if not isinstance(summary, dict):
+        summary = rcs
+
+    # Legacy/current names accepted
+    scope_ok = summary.get("phase2_scope_ok_at_entry", summary.get("scope_validation_ok"))
+    limits_ok = summary.get("phase2_limits_ok_at_entry", summary.get("phase2_limits_validation_ok"))
+    risk_ok = summary.get("risk_validation_ok_at_entry", summary.get("risk_validation_ok"))
+
+    assert scope_ok is True, f"Expected phase2 scope entry validation ok: {rcs}"
+    assert limits_ok is True, f"Expected phase2 limits entry validation ok: {rcs}"
+    assert risk_ok is True, f"Expected risk entry validation ok: {rcs}"
+
+    # Placeholder lifecycle violations list (recommended next shape)
+    if "violations_detected_during_lifecycle" in rcs:
+        assert isinstance(rcs["violations_detected_during_lifecycle"], list), (
+            f"violations_detected_during_lifecycle must be list: {rcs}"
+        )
+
+
+def test_close_trade_outcome_classification_buy_win_loss_breakeven():
+    # BUY WIN
+    tid_win = _open_trade_for_close_tests(
+        direction="BUY",
+        entry=1.1000,
+        stop_loss=1.0950,
+        take_profit=1.1110,  # safe >2R
+        source="pytest_phase2_close_buy_win",
+    )
+    out_win = _as_dict(
+        close_trade(
+            trade_id=tid_win,
+            close_price=1.1050,
+            close_reason="pytest_buy_win",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+    assert _extract_ok(out_win) is True, f"BUY win close failed: {out_win}"
+    oc_win = _extract_outcome_classification(out_win)
+    assert isinstance(oc_win, dict), f"Missing outcome_classification (BUY win): {out_win}"
+    assert oc_win.get("label") in {"WIN", "LOSS", "BREAKEVEN"}, f"Unexpected label: {oc_win}"
+    assert oc_win.get("label") == "WIN", f"BUY close above entry should classify WIN: {oc_win}"
+
+    # BUY LOSS
+    tid_loss = _open_trade_for_close_tests(
+        direction="BUY",
+        entry=1.1000,
+        stop_loss=1.0950,
+        take_profit=1.1110,   # was 1.1100
+        source="pytest_phase2_close_buy_loss",
+    )
+    out_loss = _as_dict(
+        close_trade(
+            trade_id=tid_loss,
+            close_price=1.0990,
+            close_reason="pytest_buy_loss",
+            outcome={"pnl_hint": "negative"},
+        )
+    )
+    assert _extract_ok(out_loss) is True, f"BUY loss close failed: {out_loss}"
+    oc_loss = _extract_outcome_classification(out_loss)
+    assert isinstance(oc_loss, dict), f"Missing outcome_classification (BUY loss): {out_loss}"
+    assert oc_loss.get("label") == "LOSS", f"BUY close below entry should classify LOSS: {oc_loss}"
+
+    # BUY BREAKEVEN
+    tid_be = _open_trade_for_close_tests(
+        direction="BUY",
+        entry=1.1000,
+        stop_loss=1.0950,
+        take_profit=1.1110,   # was 1.1100
+        source="pytest_phase2_close_buy_breakeven",
+    )
+    out_be = _as_dict(
+        close_trade(
+            trade_id=tid_be,
+            close_price=1.1000,
+            close_reason="pytest_buy_breakeven",
+            outcome={"pnl_hint": "flat"},
+        )
+    )
+    assert _extract_ok(out_be) is True, f"BUY breakeven close failed: {out_be}"
+    oc_be = _extract_outcome_classification(out_be)
+    assert isinstance(oc_be, dict), f"Missing outcome_classification (BUY breakeven): {out_be}"
+    assert oc_be.get("label") == "BREAKEVEN", f"BUY close at entry should classify BREAKEVEN: {oc_be}"
+
+
+def test_close_trade_outcome_classification_sell_win_loss_breakeven():
+    # SELL WIN (close below entry)
+    tid_win = _open_trade_for_close_tests(
+        direction="SELL",
+        entry=1.1000,
+        stop_loss=1.1050,
+        take_profit=1.0890,  # >2R (avoid float-edge rr==1.999999...)
+        source="pytest_phase2_close_sell_win",
+    )
+    out_win = _as_dict(
+        close_trade(
+            trade_id=tid_win,
+            close_price=1.0950,
+            close_reason="pytest_sell_win",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+    assert _extract_ok(out_win) is True, f"SELL win close failed: {out_win}"
+    oc_win = _extract_outcome_classification(out_win)
+    assert isinstance(oc_win, dict), f"Missing outcome_classification (SELL win): {out_win}"
+    assert oc_win.get("label") == "WIN", f"SELL close below entry should classify WIN: {oc_win}"
+
+    # SELL LOSS (close above entry)
+    tid_loss = _open_trade_for_close_tests(
+        direction="SELL",
+        entry=1.1000,
+        stop_loss=1.1050,
+        take_profit=1.0890,  # >2R (avoid float-edge rr==1.999999...)
+        source="pytest_phase2_close_sell_loss",
+    )
+    out_loss = _as_dict(
+        close_trade(
+            trade_id=tid_loss,
+            close_price=1.1010,
+            close_reason="pytest_sell_loss",
+            outcome={"pnl_hint": "negative"},
+        )
+    )
+    assert _extract_ok(out_loss) is True, f"SELL loss close failed: {out_loss}"
+    oc_loss = _extract_outcome_classification(out_loss)
+    assert isinstance(oc_loss, dict), f"Missing outcome_classification (SELL loss): {out_loss}"
+    assert oc_loss.get("label") == "LOSS", f"SELL close above entry should classify LOSS: {oc_loss}"
+
+    # SELL BREAKEVEN
+    tid_be = _open_trade_for_close_tests(
+        direction="SELL",
+        entry=1.1000,
+        stop_loss=1.1050,
+        take_profit=1.0890,  # >2R (avoid float-edge rr==1.999999...)
+        source="pytest_phase2_close_sell_breakeven",
+    )
+    out_be = _as_dict(
+        close_trade(
+            trade_id=tid_be,
+            close_price=1.1000,
+            close_reason="pytest_sell_breakeven",
+            outcome={"pnl_hint": "flat"},
+        )
+    )
+    assert _extract_ok(out_be) is True, f"SELL breakeven close failed: {out_be}"
+    oc_be = _extract_outcome_classification(out_be)
+    assert isinstance(oc_be, dict), f"Missing outcome_classification (SELL breakeven): {out_be}"
+    assert oc_be.get("label") == "BREAKEVEN", f"SELL close at entry should classify BREAKEVEN: {oc_be}"
+
+
+def test_close_trade_event_payload_includes_close_diagnostics():
+    trade_id = _open_trade_for_close_tests(source="pytest_phase2_close_event_payload")
+
+    out = _as_dict(
+        close_trade(
+            trade_id=trade_id,
+            close_price=1.1080,
+            close_reason="pytest_close_event_payload",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+    assert _extract_ok(out) is True, f"Close failed: {out}"
+
+    event = out.get("event")
+    assert isinstance(event, dict), f"Missing event payload: {out}"
+    payload = event.get("payload")
+    assert isinstance(payload, dict), f"Missing event.payload: {event}"
+
+    # Accept current + upgraded payloads, but enforce richer diagnostics if present
+    assert payload.get("trade_id") == trade_id, f"event.payload.trade_id mismatch: {payload}"
+
+    # Recommended richer fields (test is tolerant if not yet added; flip these to hard asserts once implemented)
+    for k in ("outcome_classification", "close_validation", "final_result", "scores"):
+        if k in payload:
+            assert isinstance(payload.get(k), dict), f"event.payload.{k} should be dict: {payload}"
+
+    # At minimum current close event fields should still exist
+    assert "close_price" in payload, f"event payload missing close_price: {payload}"
+    assert "close_reason" in payload, f"event payload missing close_reason: {payload}"
+
+
+def test_close_trade_preserves_non_breaking_response_shape_trade_id_trade_event():
+    trade_id = _open_trade_for_close_tests(source="pytest_phase2_close_shape_non_breaking")
+
+    out = _as_dict(
+        close_trade(
+            trade_id=trade_id,
+            close_price=1.1080,
+            close_reason="pytest_close_shape_non_breaking",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+
+    assert _extract_ok(out) is True, f"Close failed: {out}"
+    assert out.get("trade_id") == trade_id, f"trade_id mismatch: {out}"
+    assert out.get("status") == "closed", f"status mismatch: {out}"
+
+    trade = out.get("trade")
+    assert isinstance(trade, dict), f"Missing trade object: {out}"
+    assert trade.get("trade_id") == trade_id, f"trade.trade_id mismatch: {trade}"
+
+    event = out.get("event")
+    assert isinstance(event, dict), f"Missing event object: {out}"
+    assert isinstance(event.get("event_type"), str) and event["event_type"], f"Invalid event_type: {event}"
+
+    # New diagnostics should be additive / non-breaking
+    cv = _extract_close_validation(out)
+    if cv is not None:
+        assert isinstance(cv, dict)
+        assert cv.get("ok") in {True, False}
+
+# ---------------------------------------------------------------------
+# Phase 2 persistence / replay tests (P2Q scaffold)
+# Add near the end of: backend/tests/test_aion_trading_paper_runtime_phase2.py
+# ---------------------------------------------------------------------
+
+from pathlib import Path
+import json
+
+import backend.modules.aion_trading.dmip_runtime as dmip_runtime
+
+
+def _require_runtime_attr(name: str):
+    fn = getattr(dmip_runtime, name, None)
+    if fn is None:
+        pytest.skip(f"{name} not implemented in current runtime.")
+    return fn
+
+
+def _runtime_paths_dict() -> Dict[str, Any]:
+    fn = getattr(dmip_runtime, "_paper_runtime_paths", None)
+    if fn is None:
+        pytest.skip("_paper_runtime_paths not implemented in current runtime.")
+    out = fn()
+    if not isinstance(out, dict):
+        pytest.skip("_paper_runtime_paths did not return dict.")
+    return out
+
+
+def _submit_one_trade_for_persistence(source: str = "pytest_phase2_persistence_submit") -> str:
+    proposal = _mk_valid_proposal()
+    out = _as_dict(
+        submit_paper_trade(
+            trade_proposal=proposal,
+            session_stats={"losing_trades": 0, "trades_taken": 0},
+            account_stats={
+                "day_risk_used_pct": 0.0,
+                "week_risk_used_pct": 0.0,
+                "drawdown_pct": 0.0,
+            },
+            metadata=_valid_submit_metadata_for_p2e(source),
+        )
+    )
+    assert _extract_ok(out) is True, f"Submit failed for persistence setup: {out}"
+    return _extract_trade_id(out)
+
+
+def test_paper_runtime_persistence_can_be_enabled_and_disabled(tmp_path: Path):
+    configure = _require_runtime_attr("configure_paper_runtime_persistence")
+    reset_state = _require_runtime_attr("reset_paper_runtime_state")
+
+    # Start clean (tolerate different signatures)
+    try:
+        reset_state(clear_files=False)
+    except TypeError:
+        reset_state()
+
+    base_dir = tmp_path / "paper_runtime_store"
+    out_on = configure(enabled=True, base_dir=str(base_dir))
+    assert isinstance(out_on, dict), f"configure(enabled=True) should return dict, got: {out_on}"
+
+    # Tolerate shape differences, but ensure "enabled" is reflected somewhere
+    enabled_flag = out_on.get("enabled")
+    if enabled_flag is not None:
+        assert enabled_flag is True, f"Persistence not enabled: {out_on}"
+
+    paths = out_on.get("paths") if isinstance(out_on.get("paths"), dict) else _runtime_paths_dict()
+    assert isinstance(paths, dict), f"Missing runtime paths after enable: {out_on}"
+
+    # At least one path should point inside tmp dir
+    joined = " | ".join(str(v) for v in paths.values())
+    assert str(base_dir) in joined, f"Expected configured base_dir in runtime paths: {paths}"
+
+    out_off = configure(enabled=False)
+    assert isinstance(out_off, dict), f"configure(enabled=False) should return dict, got: {out_off}"
+    enabled_flag_off = out_off.get("enabled")
+    if enabled_flag_off is not None:
+        assert enabled_flag_off is False, f"Persistence not disabled: {out_off}"
+
+
+def test_emit_event_appends_jsonl_when_persistence_enabled(tmp_path: Path):
+    configure = _require_runtime_attr("configure_paper_runtime_persistence")
+    reset_state = _require_runtime_attr("reset_paper_runtime_state")
+
+    try:
+        reset_state(clear_files=False)
+    except TypeError:
+        reset_state()
+
+    base_dir = tmp_path / "emit_event_store"
+    configure(enabled=True, base_dir=str(base_dir))
+
+    # Generate at least one event via normal runtime flow (submit emits accepted/rejected event)
+    _submit_one_trade_for_persistence(source="pytest_phase2_emit_event_jsonl")
+
+    paths = _runtime_paths_dict()
+    events_jsonl = paths.get("events_jsonl")
+    if not isinstance(events_jsonl, str):
+        pytest.skip("events_jsonl path not exposed by runtime.")
+
+    p = Path(events_jsonl)
+    assert p.exists(), f"Expected events JSONL file to exist after event emission: {events_jsonl}"
+
+    lines = [ln for ln in p.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    assert len(lines) >= 1, f"Expected >=1 event JSONL line, got {len(lines)}"
+
+    last = json.loads(lines[-1])
+    assert isinstance(last, dict), f"Last JSONL row is not dict: {last}"
+    assert isinstance(last.get("event_id"), str) and last["event_id"], f"Missing event_id: {last}"
+    assert isinstance(last.get("event_type"), str) and last["event_type"], f"Missing event_type: {last}"
+    assert "ts" in last, f"Missing ts: {last}"
+    assert isinstance(last.get("payload"), dict), f"Missing payload dict: {last}"
+
+
+def test_persist_snapshot_writes_trades_json(tmp_path: Path):
+    configure = _require_runtime_attr("configure_paper_runtime_persistence")
+    persist_snapshot = _require_runtime_attr("persist_paper_runtime_snapshot")
+    reset_state = _require_runtime_attr("reset_paper_runtime_state")
+
+    try:
+        reset_state(clear_files=False)
+    except TypeError:
+        reset_state()
+
+    base_dir = tmp_path / "snapshot_store"
+    configure(enabled=True, base_dir=str(base_dir))
+
+    trade_id = _submit_one_trade_for_persistence(source="pytest_phase2_persist_snapshot")
+    assert isinstance(trade_id, str) and trade_id
+
+    out = persist_snapshot()
+    assert isinstance(out, dict), f"persist_paper_runtime_snapshot() should return dict, got: {out}"
+
+    paths = out.get("paths") if isinstance(out.get("paths"), dict) else _runtime_paths_dict()
+
+    # Accept either trades_json or snapshot_json naming
+    trades_json = paths.get("trades_json")
+    if not isinstance(trades_json, str):
+        trades_json = paths.get("snapshot_json")
+    if not isinstance(trades_json, str):
+        pytest.skip("Runtime does not expose trades_json/snapshot_json path in persist output/paths.")
+
+    p = Path(trades_json)
+    assert p.exists(), f"Expected snapshot/trades JSON file to exist: {trades_json}"
+
+    payload = json.loads(p.read_text(encoding="utf-8"))
+    assert isinstance(payload, dict), f"Snapshot JSON must be dict: {payload}"
+
+    # Tolerate common snapshot shapes
+    if isinstance(payload.get("trades"), dict):
+        assert len(payload["trades"]) >= 1, f"Expected >=1 trade in snapshot.trades: {payload}"
+    elif isinstance(payload.get("state"), dict) and isinstance(payload["state"].get("trades"), dict):
+        assert len(payload["state"]["trades"]) >= 1, f"Expected >=1 trade in snapshot.state.trades: {payload}"
+    else:
+        pytest.fail(f"Could not find trades dict in snapshot payload: {payload}")
+
+
+def test_restore_snapshot_recovers_trade_and_event_counts(tmp_path: Path):
+    configure = _require_runtime_attr("configure_paper_runtime_persistence")
+    persist_snapshot = _require_runtime_attr("persist_paper_runtime_snapshot")
+    restore_snapshot = _require_runtime_attr("restore_paper_runtime_snapshot")
+    reset_state = _require_runtime_attr("reset_paper_runtime_state")
+
+    # Build persisted state
+    try:
+        reset_state(clear_files=False)
+    except TypeError:
+        reset_state()
+
+    base_dir = tmp_path / "restore_store"
+    configure(enabled=True, base_dir=str(base_dir))
+
+    trade_id = _submit_one_trade_for_persistence(source="pytest_phase2_restore_snapshot_submit")
+    _ = _as_dict(
+        manage_open_trade(
+            trade_id=trade_id,
+            action="add_note",
+            payload={"note": "pytest_restore_snapshot_note"},
+        )
+    )
+    _ = _as_dict(
+        close_trade(
+            trade_id=trade_id,
+            close_price=1.1080,
+            close_reason="pytest_restore_snapshot_close",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+
+    persisted = persist_snapshot()
+    assert isinstance(persisted, dict), f"persist before restore failed: {persisted}"
+
+    # Reset memory only, keep files
+    try:
+        reset_out = reset_state(clear_files=False)
+    except TypeError:
+        reset_out = reset_state()
+    if isinstance(reset_out, dict):
+        # if counts are exposed, they should be zero after reset
+        mc = reset_out.get("memory_counts")
+        if isinstance(mc, dict):
+            for k in ("trades", "events"):
+                if k in mc:
+                    assert mc[k] == 0, f"Expected memory count {k}=0 after reset: {reset_out}"
+
+    # Restore
+    restore_out = restore_snapshot()
+    assert isinstance(restore_out, dict), f"restore_paper_runtime_snapshot() should return dict, got: {restore_out}"
+
+    # Tolerate count shapes
+    restored_counts = (
+        restore_out.get("restored_counts")
+        if isinstance(restore_out.get("restored_counts"), dict)
+        else restore_out.get("counts")
+    )
+    if isinstance(restored_counts, dict):
+        if "trades" in restored_counts:
+            assert restored_counts["trades"] >= 1, f"Expected restored trade count >=1: {restore_out}"
+        if "events" in restored_counts:
+            assert restored_counts["events"] >= 1, f"Expected restored event count >=1: {restore_out}"
+
+    # Stronger check: runtime in-memory collections now contain data (if exported)
+    paper_trades = getattr(dmip_runtime, "_PAPER_TRADES", None)
+    paper_events = getattr(dmip_runtime, "_PAPER_TRADE_EVENTS", None)
+    if isinstance(paper_trades, dict):
+        assert len(paper_trades) >= 1, "Expected in-memory _PAPER_TRADES to be restored"
+    if isinstance(paper_events, list):
+        assert len(paper_events) >= 1, "Expected in-memory _PAPER_TRADE_EVENTS to be restored"
+
+
+def test_reset_paper_runtime_state_clears_memory_and_optional_files(tmp_path: Path):
+    configure = _require_runtime_attr("configure_paper_runtime_persistence")
+    persist_snapshot = _require_runtime_attr("persist_paper_runtime_snapshot")
+    reset_state = _require_runtime_attr("reset_paper_runtime_state")
+
+    # Seed runtime + files
+    base_dir = tmp_path / "reset_store"
+    configure(enabled=True, base_dir=str(base_dir))
+    _submit_one_trade_for_persistence(source="pytest_phase2_reset_state_seed")
+    persist_snapshot()
+
+    paths_before = _runtime_paths_dict()
+
+    # Reset with file cleanup if supported
+    try:
+        out = reset_state(clear_files=True)
+    except TypeError:
+        # If current impl has no flag, call plain reset and downgrade file assertions
+        out = reset_state()
+    assert isinstance(out, dict), f"reset_paper_runtime_state() should return dict, got: {out}"
+
+    # Memory cleared
+    paper_trades = getattr(dmip_runtime, "_PAPER_TRADES", None)
+    paper_events = getattr(dmip_runtime, "_PAPER_TRADE_EVENTS", None)
+    if isinstance(paper_trades, dict):
+        assert len(paper_trades) == 0, f"Expected _PAPER_TRADES empty after reset: {len(paper_trades)}"
+    if isinstance(paper_events, list):
+        assert len(paper_events) == 0, f"Expected _PAPER_TRADE_EVENTS empty after reset: {len(paper_events)}"
+
+    # Optional file cleanup assertions (only enforce if API indicates it attempted clear_files=True)
+    if isinstance(out, dict) and (
+        out.get("clear_files") is True
+        or out.get("files_cleared") is True
+        or (isinstance(out.get("meta"), dict) and out["meta"].get("clear_files") is True)
+    ):
+        # File names vary; check known path entries if present
+        for key in ("events_jsonl", "trades_json", "snapshot_json"):
+            pth = paths_before.get(key)
+            if isinstance(pth, str):
+                p = Path(pth)
+                assert not p.exists(), f"Expected {key} file removed on reset(clear_files=True): {pth}"

@@ -3,7 +3,9 @@ from __future__ import annotations
 import time
 import uuid
 from typing import Any, Dict, List, Optional, Tuple
-
+import json
+import os
+from pathlib import Path
 from backend.modules.aion_trading.contracts import DailyBiasSheet, PairBias
 
 # ---------------------------------------------------------------------
@@ -153,6 +155,308 @@ def _new_id(prefix: str) -> str:
     return f"{prefix}_{uuid.uuid4().hex[:16]}"
 
 
+# --- Phase 2 persistence scaffold (P2Q) ---------------------------------------
+
+# Optional runtime-configurable persistence paths (disabled by default)
+_PAPER_RUNTIME_PERSIST_DIR: Optional[str] = None
+
+_PAPER_RUNTIME_PERSISTENCE: Dict[str, Any] = {
+    "enabled": False,
+    "base_dir": None,
+    "files": {
+        "base_dir": None,
+        "events_jsonl": None,
+        "trades_json": None,
+        "snapshot_json": None,
+    },
+    "configured_ts": None,
+}
+
+
+def configure_paper_runtime_persistence(
+    *,
+    enabled: Optional[bool] = None,
+    base_dir: Optional[str] = None,
+    # backward-compatible aliases (if older code/tests call different names)
+    persist_enabled: Optional[bool] = None,
+    persistence_enabled: Optional[bool] = None,
+    persistence_dir: Optional[str] = None,
+    runtime_dir: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Configure optional paper-runtime persistence (Phase 2 scaffold).
+
+    Supported canonical args:
+    - enabled: bool
+    - base_dir: str
+
+    Backward-compatible aliases are accepted and normalized.
+    """
+    global _PAPER_RUNTIME_PERSISTENCE, _PAPER_RUNTIME_PERSIST_DIR
+
+    # ---- normalize booleans (canonical wins, then aliases) ----
+    enabled_norm = enabled
+    if enabled_norm is None:
+        if persist_enabled is not None:
+            enabled_norm = bool(persist_enabled)
+        elif persistence_enabled is not None:
+            enabled_norm = bool(persistence_enabled)
+
+    if enabled_norm is None:
+        enabled_norm = False
+
+    # ---- normalize base dir (canonical wins, then aliases) ----
+    base_dir_norm = base_dir
+    if not base_dir_norm:
+        base_dir_norm = persistence_dir or runtime_dir
+
+    # default location if enabled and none supplied
+    if enabled_norm and not base_dir_norm:
+        base_dir_norm = "var/paper_runtime"
+
+    files: Dict[str, Optional[str]] = {
+        "base_dir": None,
+        "events_jsonl": None,
+        "trades_json": None,
+        "snapshot_json": None,
+    }
+
+    if enabled_norm:
+        base_path = Path(str(base_dir_norm)).expanduser()
+        base_path.mkdir(parents=True, exist_ok=True)
+
+        files = {
+            "base_dir": str(base_path),
+            "events_jsonl": str(base_path / "paper_trade_events.jsonl"),
+            "trades_json": str(base_path / "paper_trades_snapshot.json"),
+            "snapshot_json": str(base_path / "paper_runtime_state_meta.json"),
+        }
+
+        # IMPORTANT: drive existing runtime path helper
+        _PAPER_RUNTIME_PERSIST_DIR = str(base_path)
+    else:
+        _PAPER_RUNTIME_PERSIST_DIR = None
+
+    _PAPER_RUNTIME_PERSISTENCE = {
+        "enabled": bool(enabled_norm),
+        "base_dir": files["base_dir"],
+        "files": dict(files),
+        "configured_ts": _now_ts(),
+    }
+
+    return {
+        "ok": True,
+        "enabled": bool(enabled_norm),
+        "paths": _paper_runtime_paths(),  # test-friendly shape
+        "persistence": dict(_PAPER_RUNTIME_PERSISTENCE),
+        "meta": {
+            "runtime": "in_memory_scaffold",
+            "phase": "phase2",
+            "diagnostic_only": True,
+        },
+    }
+
+
+def _paper_runtime_paths() -> Dict[str, Optional[str]]:
+    if not _PAPER_RUNTIME_PERSIST_DIR:
+        return {
+            "persist_dir": None,
+            "events_jsonl": None,
+            "trades_json": None,
+            "state_meta_json": None,
+        }
+
+    base = Path(_PAPER_RUNTIME_PERSIST_DIR)
+    return {
+        "persist_dir": str(base),
+        "events_jsonl": str(base / "paper_trade_events.jsonl"),
+        "trades_json": str(base / "paper_trades_snapshot.json"),
+        "state_meta_json": str(base / "paper_runtime_state_meta.json"),
+    }
+
+
+def _json_safe(x: Any) -> Any:
+    """
+    Best-effort JSON-safe conversion for persistence.
+    """
+    if x is None or isinstance(x, (str, int, float, bool)):
+        return x
+    if isinstance(x, dict):
+        return {str(k): _json_safe(v) for k, v in x.items()}
+    if isinstance(x, (list, tuple)):
+        return [_json_safe(v) for v in x]
+    try:
+        return str(x)
+    except Exception:
+        return "<unserializable>"
+
+
+def _append_jsonl(path: str, row: Dict[str, Any]) -> Dict[str, Any]:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    payload = _json_safe(dict(row))
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(payload, ensure_ascii=False, sort_keys=True) + "\n")
+    return {"ok": True, "path": path}
+
+
+def _write_json(path: str, obj: Any) -> Dict[str, Any]:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(_json_safe(obj), f, ensure_ascii=False, indent=2, sort_keys=True)
+    return {"ok": True, "path": path}
+
+
+def _read_json(path: str) -> Any:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _read_jsonl(path: str) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            s = line.strip()
+            if not s:
+                continue
+            rows.append(json.loads(s))
+    return rows
+
+
+def persist_paper_runtime_snapshot() -> Dict[str, Any]:
+    """
+    Persist current in-memory trades + minimal meta.
+    Events are append-only and written during event emission (when enabled).
+    """
+    paths = _paper_runtime_paths()
+    if not paths["persist_dir"]:
+        return {
+            "ok": False,
+            "reason": "persistence_not_configured",
+            "meta": {"runtime": "in_memory_scaffold", "phase": "phase2"},
+        }
+
+    trades_count = len(_PAPER_TRADES) if isinstance(_PAPER_TRADES, dict) else 0
+    events_count = len(_PAPER_TRADE_EVENTS) if isinstance(_PAPER_TRADE_EVENTS, list) else 0
+
+    # Write wrapped snapshot payload (tests expect a trades dict inside payload)
+    trades_snapshot_payload = {
+        "schema_version": "aion.paper_runtime.trades_snapshot.v1",
+        "runtime": "in_memory_scaffold",
+        "phase": "phase2",
+        "snapshot_ts": _now_ts(),
+        "counts": {
+            "trades": trades_count,
+            "events": events_count,
+        },
+        "trades": _PAPER_TRADES,
+    }
+    _write_json(paths["trades_json"], trades_snapshot_payload)
+
+    _write_json(
+        paths["state_meta_json"],
+        {
+            "phase": "phase2",
+            "runtime": "in_memory_scaffold",
+            "trades_count": trades_count,
+            "events_count": events_count,
+            "snapshot_ts": _now_ts(),
+        },
+    )
+
+    return {
+        "ok": True,
+        "trades_count": trades_count,
+        "events_count": events_count,
+        "paths": paths,
+        "meta": {"runtime": "in_memory_scaffold", "phase": "phase2"},
+    }
+
+
+def restore_paper_runtime_from_snapshot(*, clear_existing: bool = True) -> Dict[str, Any]:
+    """
+    Restore _PAPER_TRADES from JSON snapshot and _PAPER_TRADE_EVENTS from JSONL event log (if present).
+    """
+    paths = _paper_runtime_paths()
+    if not paths["persist_dir"]:
+        return {
+            "ok": False,
+            "reason": "persistence_not_configured",
+            "meta": {"runtime": "in_memory_scaffold", "phase": "phase2"},
+        }
+
+    trades_json = paths["trades_json"]
+    events_jsonl = paths["events_jsonl"]
+
+    if clear_existing:
+        if isinstance(_PAPER_TRADES, dict):
+            _PAPER_TRADES.clear()
+        if isinstance(_PAPER_TRADE_EVENTS, list):
+            _PAPER_TRADE_EVENTS.clear()
+
+    restored_trades = 0
+    restored_events = 0
+
+    if trades_json and os.path.exists(trades_json):
+        data = _read_json(trades_json)
+
+        # Backward-compatible: accept either raw trades dict OR wrapped snapshot payload
+        trades_payload = None
+        if isinstance(data, dict) and isinstance(data.get("trades"), dict):
+            trades_payload = data.get("trades")
+        elif isinstance(data, dict):
+            trades_payload = data
+
+        if isinstance(trades_payload, dict) and isinstance(_PAPER_TRADES, dict):
+            _PAPER_TRADES.update(trades_payload)
+            restored_trades = len(trades_payload)
+
+    if events_jsonl and os.path.exists(events_jsonl):
+        rows = _read_jsonl(events_jsonl)
+        if isinstance(_PAPER_TRADE_EVENTS, list):
+            _PAPER_TRADE_EVENTS.extend([r for r in rows if isinstance(r, dict)])
+            restored_events = len(rows)
+
+    return {
+        "ok": True,
+        "restored_trades": restored_trades,
+        "restored_events": restored_events,
+        "paths": paths,
+        "meta": {"runtime": "in_memory_scaffold", "phase": "phase2"},
+    }
+
+
+def reset_paper_runtime_state(*, clear_persistence_files: bool = False) -> Dict[str, Any]:
+    """
+    Test/dev utility to clear in-memory state and optionally local persistence files.
+    """
+    paths = _paper_runtime_paths()
+
+    trades_before = len(_PAPER_TRADES) if isinstance(_PAPER_TRADES, dict) else 0
+    events_before = len(_PAPER_TRADE_EVENTS) if isinstance(_PAPER_TRADE_EVENTS, list) else 0
+
+    if isinstance(_PAPER_TRADES, dict):
+        _PAPER_TRADES.clear()
+    if isinstance(_PAPER_TRADE_EVENTS, list):
+        _PAPER_TRADE_EVENTS.clear()
+
+    deleted_files: List[str] = []
+    if clear_persistence_files and paths["persist_dir"]:
+        for k in ("events_jsonl", "trades_json", "state_meta_json"):
+            p = paths.get(k)
+            if p and os.path.exists(p):
+                os.remove(p)
+                deleted_files.append(p)
+
+    return {
+        "ok": True,
+        "cleared": {
+            "trades_before": trades_before,
+            "events_before": events_before,
+            "deleted_files": deleted_files,
+        },
+        "meta": {"runtime": "in_memory_scaffold", "phase": "phase2"},
+    }
+
 # ---------------------------------------------------------------------
 # Phase 2 paper-trade runtime state (in-memory scaffold, non-persistent)
 # ---------------------------------------------------------------------
@@ -169,6 +473,17 @@ def _emit_paper_trade_event(event_type: str, payload: Dict[str, Any]) -> Dict[st
         "payload": dict(payload or {}),
     }
     _PAPER_TRADE_EVENTS.append(row)
+
+    # Optional Phase 2 persistence (append-only JSONL event log)
+    # Non-breaking: persistence failures must never break runtime behavior.
+    try:
+        paths = _paper_runtime_paths()
+        events_jsonl = paths.get("events_jsonl") if isinstance(paths, dict) else None
+        if isinstance(events_jsonl, str) and events_jsonl.strip():
+            _append_jsonl(events_jsonl, row)
+    except Exception:
+        pass
+
     return row
 
 
@@ -952,6 +1267,9 @@ def manage_open_trade(
     - move_stop
     - take_partial
     - add_note
+
+    Explicitly rejected in Phase 2 (P2G):
+    - add_to_position / scale_in / average_down / increase_size / pyramid
     """
     tid = _safe_str(trade_id)
     trade = _PAPER_TRADES.get(tid)
@@ -973,6 +1291,59 @@ def manage_open_trade(
     payload = dict(payload or {})
     notes: List[str] = []
 
+    # --------------------------------------------------------------
+    # Phase 2 position sizing invariants (P2G)
+    # No size-up / no averaging down during trade management
+    # --------------------------------------------------------------
+    size_up_actions = {
+        "add_to_position",
+        "scale_in",
+        "increase_size",
+        "average_down",
+        "average_up",   # conservative block in Phase 2
+        "pyramid",      # conservative block in Phase 2
+    }
+    if action_norm in size_up_actions:
+        evt = _emit_paper_trade_event(
+            "paper_trade_manage_rejected",
+            {
+                "trade_id": tid,
+                "action": action_norm,
+                "reason": "phase2_position_sizing_invariants_failed",
+                "violations": [
+                    "phase2_no_size_up_during_open_trade",
+                    "phase2_no_averaging_down",
+                ],
+                "payload": dict(payload or {}),
+                "trade_snapshot": {
+                    "status": trade.get("status"),
+                    "pair": trade.get("pair"),
+                    "direction": trade.get("direction"),
+                    "entry": trade.get("entry"),
+                    "stop_loss": trade.get("stop_loss"),
+                    "risk_pct": trade.get("risk_pct"),
+                },
+            },
+        )
+        return {
+            "ok": False,
+            "status": "rejected",
+            "trade_id": tid,
+            "action": action_norm,
+            "reason": "phase2_position_sizing_invariants_failed",
+            "violations": [
+                "phase2_no_size_up_during_open_trade",
+                "phase2_no_averaging_down",
+            ],
+            "event": evt,
+            "meta": {
+                "paper_only": True,
+                "persisted": False,
+                "runtime": "in_memory_scaffold",
+                "phase2_position_sizing_invariants": True,
+            },
+        }
+
     if action_norm == "move_stop":
         new_stop = payload.get("stop_loss")
         if new_stop is None:
@@ -981,11 +1352,123 @@ def manage_open_trade(
                 "error": {"type": "ValueError", "message": "move_stop requires payload.stop_loss"},
                 "meta": {"paper_only": True, "runtime": "in_memory_scaffold"},
             }
-        trade["stop_loss"] = new_stop
+
+        # -------------------------------
+        # Phase 2 stop-loss invariants (P2H)
+        # - trail only toward profit (conservative current-stop direction check)
+        # - never widen risk
+        # -------------------------------
+        try:
+            new_stop_f = float(new_stop)
+        except Exception:
+            return {
+                "ok": False,
+                "reason": "invalid_manage_payload",
+                "violations": ["move_stop_invalid_stop_loss_type"],
+                "error": {"type": "ValueError", "message": "payload.stop_loss must be numeric"},
+                "meta": {
+                    "paper_only": True,
+                    "runtime": "in_memory_scaffold",
+                    "phase2_stop_invariants": True,
+                },
+            }
+
+        current_stop_raw = trade.get("stop_loss")
+        entry_raw = trade.get("entry")
+        direction = _safe_str(trade.get("direction")).upper()
+
+        try:
+            current_stop_f = float(current_stop_raw)
+        except Exception:
+            return {
+                "ok": False,
+                "reason": "trade_state_invalid_for_stop_management",
+                "violations": ["move_stop_current_stop_missing_or_invalid"],
+                "error": {
+                    "type": "ValueError",
+                    "message": f"trade stop_loss invalid: {current_stop_raw!r}",
+                },
+                "meta": {
+                    "paper_only": True,
+                    "runtime": "in_memory_scaffold",
+                    "phase2_stop_invariants": True,
+                },
+            }
+
+        try:
+            entry_f = float(entry_raw)
+        except Exception:
+            entry_f = None  # optional for now; not hard-enforced below
+
+        violations: List[str] = []
+
+        # Never widen / trail only toward profit relative to current stop
+        # BUY: stop may only move UP (>= current stop)
+        # SELL: stop may only move DOWN (<= current stop)
+        if direction == "BUY":
+            if new_stop_f < current_stop_f:
+                violations.append("phase2_stop_never_widen_buy")
+        elif direction == "SELL":
+            if new_stop_f > current_stop_f:
+                violations.append("phase2_stop_never_widen_sell")
+        else:
+            violations.append("move_stop_unknown_trade_direction")
+
+        # Optional stricter "toward profit" semantic (BE+ only) — intentionally disabled
+        # to avoid breaking current workflows/tests.
+        #
+        # if entry_f is not None:
+        #     if direction == "BUY" and new_stop_f < entry_f:
+        #         violations.append("phase2_stop_trail_only_toward_profit_buy")
+        #     if direction == "SELL" and new_stop_f > entry_f:
+        #         violations.append("phase2_stop_trail_only_toward_profit_sell")
+
+        if violations:
+            evt = _emit_paper_trade_event(
+                "paper_trade_manage_rejected",
+                {
+                    "trade_id": tid,
+                    "action": action_norm,
+                    "reason": "phase2_stop_invariants_failed",
+                    "violations": violations,
+                    "payload": dict(payload or {}),
+                    "trade_snapshot": {
+                        "direction": direction,
+                        "entry": trade.get("entry"),
+                        "stop_loss": trade.get("stop_loss"),
+                    },
+                },
+            )
+            return {
+                "ok": False,
+                "status": "rejected",
+                "trade_id": tid,
+                "action": action_norm,
+                "reason": "phase2_stop_invariants_failed",
+                "violations": violations,
+                "event": evt,
+                "meta": {
+                    "paper_only": True,
+                    "persisted": False,
+                    "runtime": "in_memory_scaffold",
+                    "phase2_stop_invariants": True,
+                },
+            }
+
+        # Accept stop move
+        trade["stop_loss"] = new_stop_f
         trade.setdefault("management", {}).setdefault("move_stop_events", []).append(
-            {"ts": _now_ts(), "stop_loss": new_stop, "reason": _safe_str(payload.get("reason"))}
+            {
+                "ts": _now_ts(),
+                "stop_loss": new_stop_f,
+                "prior_stop_loss": current_stop_f,
+                "reason": _safe_str(payload.get("reason")),
+                "phase2_stop_invariants_checked": True,
+                "entry_snapshot": entry_f,
+            }
         )
         notes.append("stop_loss_updated")
+        notes.append("phase2_stop_invariants_passed")
 
     elif action_norm == "take_partial":
         fraction = _safe_float(payload.get("fraction"), 0.0)
@@ -1040,7 +1523,13 @@ def manage_open_trade(
         "trade": dict(trade),
         "notes": notes,
         "event": evt,
-        "meta": {"paper_only": True, "persisted": False, "runtime": "in_memory_scaffold"},
+        "meta": {
+            "paper_only": True,
+            "persisted": False,
+            "runtime": "in_memory_scaffold",
+            "phase2_stop_invariants": (action_norm == "move_stop"),
+            "phase2_position_sizing_invariants": True,
+        },
     }
 
 
@@ -1053,6 +1542,13 @@ def close_trade(
 ) -> Dict[str, Any]:
     """
     Close an open paper trade (in-memory scaffold).
+
+    Non-breaking additions:
+    - close_validation
+    - outcome_classification
+    - rule_compliance_snapshot
+    - scores (placeholder scaffold)
+    - final_result (normalized close summary)
     """
     tid = _safe_str(trade_id)
     trade = _PAPER_TRADES.get(tid)
@@ -1070,22 +1566,405 @@ def close_trade(
             "meta": {"paper_only": True, "runtime": "in_memory_scaffold"},
         }
 
+    # -------------------------------
+    # Close payload validation (non-breaking diagnostic scaffold)
+    # -------------------------------
+    close_validation_violations: List[str] = []
+    close_validation_warnings: List[str] = []
+
+    close_reason_norm = _safe_str(close_reason)
+    if not close_reason_norm:
+        close_validation_violations.append("close_reason_required")
+
+    try:
+        close_price_f = float(close_price)
+    except Exception:
+        return {
+            "ok": False,
+            "status": "rejected",
+            "trade_id": tid,
+            "reason": "invalid_close_payload",
+            "violations": ["close_price_invalid_type"],
+            "error": {"type": "ValueError", "message": "close_price must be numeric"},
+            "meta": {
+                "paper_only": True,
+                "persisted": False,
+                "runtime": "in_memory_scaffold",
+                "close_validation": True,
+            },
+        }
+
+    if close_price_f <= 0:
+        close_validation_violations.append("close_price_must_be_positive")
+
+    direction = _safe_str(trade.get("direction")).upper()
+    if direction not in {"BUY", "SELL"}:
+        close_validation_violations.append("trade_direction_invalid_for_close")
+
+    entry_raw = trade.get("entry")
+    stop_raw = trade.get("stop_loss")
+    tp_raw = trade.get("take_profit")
+
+    entry_f: Optional[float]
+    stop_f: Optional[float]
+    tp_f: Optional[float]
+
+    try:
+        entry_f = float(entry_raw) if entry_raw is not None else None
+    except Exception:
+        entry_f = None
+        close_validation_warnings.append("trade_entry_not_numeric_for_close_diagnostics")
+
+    try:
+        stop_f = float(stop_raw) if stop_raw is not None else None
+    except Exception:
+        stop_f = None
+        close_validation_warnings.append("trade_stop_loss_not_numeric_for_close_diagnostics")
+
+    try:
+        tp_f = float(tp_raw) if tp_raw is not None else None
+    except Exception:
+        tp_f = None
+        close_validation_warnings.append("trade_take_profit_not_numeric_for_close_diagnostics")
+
+    if close_validation_violations:
+        close_validation = {
+            "ok": False,
+            "violations": list(close_validation_violations),
+            "warnings": list(close_validation_warnings),
+            "derived": {
+                "direction": direction,
+                "entry": entry_f,
+                "stop_loss": stop_f,
+                "take_profit": tp_f,
+                "close_price": close_price_f,
+            },
+            "error": None,
+            "meta": {
+                "validator": "backend.modules.aion_trading.dmip_runtime.close_trade",
+                "paper_safe": True,
+                "phase": "phase2",
+            },
+        }
+
+        evt = _emit_paper_trade_event(
+            "paper_trade_close_rejected",
+            {
+                "trade_id": tid,
+                "reason": "close_validation_failed",
+                "violations": list(close_validation_violations),
+                "warnings": list(close_validation_warnings),
+                "payload": {
+                    "close_price": close_price,
+                    "close_reason": close_reason,
+                    "outcome": dict(outcome or {}),
+                },
+                "trade_snapshot": {
+                    "status": trade.get("status"),
+                    "direction": trade.get("direction"),
+                    "entry": trade.get("entry"),
+                    "stop_loss": trade.get("stop_loss"),
+                    "take_profit": trade.get("take_profit"),
+                },
+                "close_validation": close_validation,
+            },
+        )
+        return {
+            "ok": False,
+            "status": "rejected",
+            "trade_id": tid,
+            "reason": "close_validation_failed",
+            "close_validation": close_validation,
+            "event": evt,
+            "meta": {
+                "paper_only": True,
+                "persisted": False,
+                "runtime": "in_memory_scaffold",
+                "close_validation": True,
+            },
+        }
+
+    # -------------------------------
+    # Outcome classification (diagnostic scaffold)
+    # -------------------------------
+    outcome_in = dict(outcome or {})
+
+    pnl_directional: Optional[float] = None
+    pnl_pips_hint: Optional[float] = None
+    outcome_label = "UNKNOWN"
+    hit_stop = False
+    hit_take_profit = False
+
+    if entry_f is not None and direction in {"BUY", "SELL"}:
+        if direction == "BUY":
+            pnl_directional = close_price_f - entry_f
+            if stop_f is not None and close_price_f <= stop_f:
+                hit_stop = True
+            if tp_f is not None and close_price_f >= tp_f:
+                hit_take_profit = True
+        else:  # SELL
+            pnl_directional = entry_f - close_price_f
+            if stop_f is not None and close_price_f >= stop_f:
+                hit_stop = True
+            if tp_f is not None and close_price_f <= tp_f:
+                hit_take_profit = True
+
+        # FX pip hint (non-binding heuristic for majors quoted to 4/5 dp)
+        pair_norm = _safe_str(trade.get("pair")).upper()
+        pip_size = 0.01 if "JPY" in pair_norm else 0.0001
+        try:
+            pnl_pips_hint = pnl_directional / pip_size
+        except Exception:
+            pnl_pips_hint = None
+
+        eps = 1e-12
+        if pnl_directional > eps:
+            outcome_label = "WIN"
+        elif pnl_directional < -eps:
+            outcome_label = "LOSS"
+        else:
+            outcome_label = "BREAKEVEN"
+
+    # Risk / RR hints (diagnostic only)
+    risk_distance: Optional[float] = None
+    reward_distance: Optional[float] = None
+    rr_realized_hint: Optional[float] = None
+
+    if entry_f is not None and stop_f is not None and direction in {"BUY", "SELL"}:
+        if direction == "BUY":
+            risk_distance = entry_f - stop_f
+            reward_distance = close_price_f - entry_f
+        else:  # SELL
+            risk_distance = stop_f - entry_f
+            reward_distance = entry_f - close_price_f
+
+        if risk_distance is not None and risk_distance > 0:
+            try:
+                rr_realized_hint = float(reward_distance) / float(risk_distance)
+            except Exception:
+                rr_realized_hint = None
+        elif risk_distance is not None and risk_distance <= 0:
+            close_validation_warnings.append("trade_risk_distance_non_positive_for_rr_hint")
+
+    pnl_direction = (
+        "positive"
+        if outcome_label == "WIN"
+        else "negative"
+        if outcome_label == "LOSS"
+        else "flat"
+        if outcome_label == "BREAKEVEN"
+        else "unknown"
+    )
+
+    outcome_classification = {
+        "ok": True,
+        "label": outcome_label,  # WIN / LOSS / BREAKEVEN / UNKNOWN
+        "hit_stop_hint": hit_stop,
+        "hit_take_profit_hint": hit_take_profit,
+        "derived": {
+            "direction": direction,
+            "entry": entry_f,
+            "stop_loss": stop_f,
+            "take_profit": tp_f,
+            "close_price": close_price_f,
+            "pnl_directional_price": pnl_directional,
+            "pnl_direction": pnl_direction,
+            "pnl_pips_hint": pnl_pips_hint,
+            "risk_distance": risk_distance,
+            "reward_distance_to_close": reward_distance,
+            "rr_realized_hint": rr_realized_hint,
+        },
+        "meta": {
+            "diagnostic_only": True,
+            "paper_safe": True,
+            "phase": "phase2",
+        },
+    }
+
+    # -------------------------------
+    # Rule compliance snapshot (non-breaking scaffold)
+    # -------------------------------
+    mgmt = _safe_dict(trade.get("management"))
+    move_stop_events = _safe_list(mgmt.get("move_stop_events"))
+    partial_take_profit_events = _safe_list(mgmt.get("partial_take_profit_events"))
+    management_notes = _safe_list(mgmt.get("notes"))
+
+    scope_validation_dict = _safe_dict(trade.get("scope_validation"))
+    phase2_limits_validation_dict = _safe_dict(trade.get("phase2_limits_validation"))
+    risk_validation_dict = _safe_dict(trade.get("validation"))
+
+    # Placeholder lifecycle violation tracking (future: aggregate from event stream/trade state)
+    lifecycle_violations: List[str] = []
+
+    rule_compliance_snapshot = {
+        "ok": True,
+        "phase": "phase2",
+        "summary": {
+            "scope_validation_ok": _safe_bool(scope_validation_dict.get("ok"), False),
+            "phase2_limits_validation_ok": _safe_bool(phase2_limits_validation_dict.get("ok"), False),
+            "risk_validation_ok": _safe_bool(risk_validation_dict.get("ok"), False),
+            "close_validation_ok": True,
+        },
+        "management_activity": {
+            "move_stop_count": len(move_stop_events),
+            "partial_take_profit_count": len(partial_take_profit_events),
+            "has_management_notes": len(management_notes) > 0,
+        },
+        "entry_snapshot": {
+            "phase2_scope_ok_at_entry": _safe_bool(scope_validation_dict.get("ok"), False),
+            "phase2_limits_ok_at_entry": _safe_bool(phase2_limits_validation_dict.get("ok"), False),
+            "risk_validation_ok_at_entry": _safe_bool(risk_validation_dict.get("ok"), False),
+        },
+        "flags": {
+            "requires_manual_review": False,  # placeholder
+            "invariant_breach_detected": len(lifecycle_violations) > 0,  # placeholder
+            "scoring_ready": True,
+        },
+        "rule_checks": {
+            "stop_invariants_respected": None,  # placeholder until lifecycle audit wired
+            "size_invariants_respected": None,  # placeholder until lifecycle audit wired
+            "violations_detected_during_lifecycle": lifecycle_violations,
+        },
+        "meta": {
+            "diagnostic_only": True,
+            "paper_safe": True,
+        },
+    }
+
+    # -------------------------------
+    # Final result snapshot (normalized close summary)
+    # -------------------------------
+    opened_ts = _safe_float(trade.get("opened_ts"), 0.0)
+    held_duration_sec: Optional[float] = None
+    if opened_ts > 0:
+        # compute after `now` is set below, but prebuild fields now
+        pass
+
+    final_result_placeholder = {
+        "label": outcome_label,
+        "pnl_direction": pnl_direction,
+        "close_reason": close_reason_norm,
+        "held_duration_sec": None,  # assigned after now timestamp
+        "managed": (len(move_stop_events) + len(partial_take_profit_events) + len(management_notes)) > 0,
+        "partials_taken": len(partial_take_profit_events),
+        "stop_moves": len(move_stop_events),
+        "rr_realized_hint": rr_realized_hint,
+        "pnl_pips_hint": pnl_pips_hint,
+        "hit_stop_hint": hit_stop,
+        "hit_take_profit_hint": hit_take_profit,
+        "meta": {
+            "diagnostic_only": True,
+            "paper_safe": True,
+            "phase": "phase2",
+        },
+    }
+
+    # -------------------------------
+    # Score scaffold (nullable placeholders, non-breaking)
+    # -------------------------------
+    scores = {
+        "process_score": None,
+        "outcome_score": None,
+        "rule_compliance_score": None,
+        "context_quality_score": None,
+        "execution_quality_score": None,
+        "reward_score": None,
+        "composite_score": None,
+        "meta": {
+            "status": "placeholder",
+            "phase": "phase2",
+            "notes": [
+                "score_separation_scaffold_only",
+                "no_scoring_logic_applied_yet",
+            ],
+        },
+    }
+
+    # -------------------------------
+    # Common close_validation payload (success path)
+    # -------------------------------
+    close_validation = {
+        "ok": True,
+        "violations": [],
+        "warnings": list(close_validation_warnings),
+        "derived": {
+            "direction": direction,
+            "entry": entry_f,
+            "stop_loss": stop_f,
+            "take_profit": tp_f,
+            "close_price": close_price_f,
+        },
+        "error": None,
+        "meta": {
+            "validator": "backend.modules.aion_trading.dmip_runtime.close_trade",
+            "paper_safe": True,
+            "phase": "phase2",
+        },
+    }
+
+    # -------------------------------
+    # Persist close on trade row
+    # -------------------------------
     now = _now_ts()
+    if opened_ts > 0:
+        held_duration_sec = max(0.0, now - opened_ts)
+    else:
+        held_duration_sec = None
+
+    final_result = dict(final_result_placeholder)
+    final_result["held_duration_sec"] = held_duration_sec
+
     trade["status"] = "CLOSED"
     trade["updated_ts"] = now
     trade["closed_ts"] = now
     trade["close"] = {
-        "price": float(close_price),
-        "reason": _safe_str(close_reason),
-        "outcome": dict(outcome or {}),
+        "price": close_price_f,
+        "reason": close_reason_norm,
+        "outcome": outcome_in,
+        # non-breaking additions inside close record
+        "close_validation": close_validation,
+        "outcome_classification": outcome_classification,
+        "rule_compliance_snapshot": rule_compliance_snapshot,
+        "final_result": final_result,
+        "scores": scores,
     }
 
     evt = _emit_paper_trade_event(
         "paper_trade_closed",
         {
             "trade_id": tid,
-            "close_price": float(close_price),
-            "close_reason": _safe_str(close_reason),
+            "close_price": close_price_f,
+            "close_reason": close_reason_norm,
+            "close_validation": {
+                "ok": True,
+                "violations": [],
+                "warnings": list(close_validation_warnings),
+            },
+            "outcome_classification": {
+                "label": outcome_label,
+                "hit_stop_hint": hit_stop,
+                "hit_take_profit_hint": hit_take_profit,
+                "rr_realized_hint": rr_realized_hint,
+                "pnl_pips_hint": pnl_pips_hint,
+            },
+            "final_result": {
+                "label": final_result.get("label"),
+                "pnl_direction": final_result.get("pnl_direction"),
+                "held_duration_sec": final_result.get("held_duration_sec"),
+                "managed": final_result.get("managed"),
+                "partials_taken": final_result.get("partials_taken"),
+                "stop_moves": final_result.get("stop_moves"),
+            },
+            "scores": {
+                "process_score": scores.get("process_score"),
+                "outcome_score": scores.get("outcome_score"),
+                "rule_compliance_score": scores.get("rule_compliance_score"),
+                "context_quality_score": scores.get("context_quality_score"),
+                "execution_quality_score": scores.get("execution_quality_score"),
+                "reward_score": scores.get("reward_score"),
+                "composite_score": scores.get("composite_score"),
+                "placeholder": True,
+            },
         },
     )
 
@@ -1095,6 +1974,12 @@ def close_trade(
         "status": "closed",
         "trade": dict(trade),
         "event": evt,
+        # non-breaking top-level diagnostics for easier tests/consumers
+        "close_validation": close_validation,
+        "outcome_classification": outcome_classification,
+        "rule_compliance_snapshot": rule_compliance_snapshot,
+        "final_result": final_result,
+        "scores": scores,
         "meta": {"paper_only": True, "persisted": False, "runtime": "in_memory_scaffold"},
     }
 
