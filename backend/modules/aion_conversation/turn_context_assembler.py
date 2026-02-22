@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-import os
-import re
 from typing import Any, Dict, List, Optional
 
-from backend.modules.aion_resonance.resonance_state import load_phi_state
-from backend.modules.aion_resonance.phi_reinforce import get_reinforce_state
+from backend.modules.aion_conversation.response_mode_planner import ResponseModePlanner
 
-try:
-    from backend.modules.consciousness.state_manager import STATE as UCS_STATE
-except Exception:  # pragma: no cover
-    UCS_STATE = None  # type: ignore
+
+_MODE_PLANNER = ResponseModePlanner()
+
+
+def _norm(text: str) -> str:
+    return " ".join((text or "").strip().lower().split())
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
@@ -20,165 +19,384 @@ def _safe_float(v: Any, default: float = 0.0) -> float:
         return default
 
 
-def _tokenize(text: str) -> List[str]:
-    return re.findall(r"[a-z0-9]+", (text or "").lower())
+def _topic_norm(topic: Optional[str]) -> str:
+    return _norm(topic or "")
 
 
-def infer_intent(user_text: str) -> str:
-    t = (user_text or "").lower()
-    if any(x in t for x in ["summarize", "summary", "recap"]):
-        return "summarize"
-    if any(x in t for x in ["why", "how", "explain", "what"]):
-        return "answer"
-    if any(x in t for x in ["do ", "run ", "execute ", "create ", "build "]):
-        return "act"
-    if any(x in t for x in ["think", "reflect"]):
-        return "reflect"
-    if "?" in t:
-        return "answer"
-    return "answer"
+def _is_generic_topic(topic: Optional[str]) -> bool:
+    t = _topic_norm(topic)
+    return t in {"", "aion response", "response", "general", "unknown"}
 
 
-def infer_topic(user_text: str, prior_topic: Optional[str] = None) -> str:
-    t = (user_text or "").lower()
-    if "aion" in t and ("build" in t or "roadmap" in t or "next" in t):
+def _is_short_followup(text: str) -> bool:
+    t = _norm(text)
+    return t in {
+        "and then what",
+        "then what",
+        "what next",
+        "next",
+        "go on",
+        "continue",
+        "and then",
+        "what should we do next",
+    }
+
+
+def _is_summary_request(text: str) -> bool:
+    t = _norm(text)
+    phrases = [
+        "summarize",
+        "sum up",
+        "recap",
+        "where are we at",
+        "what have we done",
+    ]
+    return any(p in t for p in phrases)
+
+
+def _is_reflection_request(text: str) -> bool:
+    t = _norm(text)
+    phrases = [
+        "reflect",
+        "how are we doing",
+        "what does this mean",
+        "status of aion thinking",
+    ]
+    return any(p in t for p in phrases)
+
+
+def _is_status_progress_request(text: str) -> bool:
+    t = _norm(text)
+    phrases = [
+        "status",
+        "progress",
+        "where we are",
+        "where are we",
+        "where we at",
+    ]
+    return any(p in t for p in phrases)
+
+
+def _infer_topic_from_text(user_text: str, dialogue_state: Dict[str, Any]) -> str:
+    """
+    Lightweight deterministic topic inference.
+    Prefer existing state topic when available and non-generic.
+    """
+    state_topic = str((dialogue_state or {}).get("topic") or "").strip()
+    if state_topic and not _is_generic_topic(state_topic):
+        return state_topic
+
+    t = _norm(user_text)
+
+    if "roadmap" in t or "building next" in t or "what is aion building" in t:
         return "AION roadmap"
-    if "aion" in t and "teaching" in t:
+    if "teach" in t or "teaching" in t:
         return "AION teaching pipeline"
-    if "aion" in t and "conversation" in t:
-        return "AION conversation intelligence"
-    if "weather" in t:
-        return "weather"
-    if prior_topic:
-        return prior_topic
+    if "composer" in t or "respond" in t:
+        return "AION response pipeline"
+    if "conversation" in t or "orchestrator" in t:
+        return "AION conversation runtime"
+    if "skill" in t or "skills" in t:
+        return "AION skill runtime"
+    if "learn" in t or "learning" in t:
+        return "AION learning loop"
+
     return "AION response"
 
 
-def choose_response_mode(
-    *,
-    user_text: str,
-    intent: str,
-    unresolved: List[str],
-    confidence_hint: float,
-) -> str:
-    t = (user_text or "").lower()
+def _infer_intent(user_text: str) -> str:
+    """
+    Deterministic intent label for the LLMRespondRequest path.
+    Keep coarse-grained for now.
+    """
+    t = _norm(user_text)
 
-    if intent == "summarize":
+    if _is_summary_request(t):
         return "summarize"
-    if intent == "reflect":
+    if _is_reflection_request(t):
         return "reflect"
 
-    if any(x in t for x in ["clarify", "what do you mean", "not sure"]):
-        return "ask"
-
-    if confidence_hint < 0.35 and intent == "answer":
-        return "ask"
-
-    if unresolved and any(x in t for x in ["continue", "next", "proceed"]):
+    if "?" in (user_text or ""):
         return "answer"
 
-    if intent == "act":
-        return "act"
+    if _is_short_followup(t):
+        return "answer"
+
+    if any(p in t for p in ["what should", "how do", "how should", "which", "why", "explain"]):
+        return "answer"
 
     return "answer"
 
 
-def _runtime_context() -> Dict[str, Any]:
-    out: Dict[str, Any] = {}
-    try:
-        if UCS_STATE is None:
-            return out
+def _infer_response_mode_hint(user_text: str) -> str:
+    t = _norm(user_text)
+    if _is_summary_request(t):
+        return "summarize"
+    if _is_reflection_request(t):
+        return "reflect"
+    return "answer"
 
-        paused = None
-        current_container = None
-        context = None
 
-        try:
-            paused = bool(UCS_STATE.is_paused())
-        except Exception:
-            pass
-        try:
-            current_container = UCS_STATE.get_current_container()
-        except Exception:
-            pass
-        try:
-            context = UCS_STATE.get_context()
-        except Exception:
-            pass
+def _recent_turns(dialogue_state: Dict[str, Any], limit: int = 8) -> List[Dict[str, Any]]:
+    recent = list((dialogue_state or {}).get("recent_turns", []) or [])
+    clean = [r for r in recent if isinstance(r, dict)]
+    if limit <= 0:
+        return clean
+    return clean[-limit:]
 
-        out = {
-            "paused": paused,
-            "current_container": current_container if isinstance(current_container, dict) else None,
-            "context": context if isinstance(context, dict) else None,
-        }
-    except Exception:
-        return {}
-    return out
+
+def _extract_recent_user_prompts(recent_turns: List[Dict[str, Any]], limit: int = 4) -> List[str]:
+    msgs: List[str] = []
+    for item in recent_turns:
+        if item.get("role") == "user":
+            txt = str(item.get("text") or "").strip()
+            if txt:
+                msgs.append(txt)
+    return msgs[-limit:]
+
+
+def _extract_last_assistant_response(recent_turns: List[Dict[str, Any]]) -> Optional[str]:
+    for item in reversed(recent_turns):
+        if item.get("role") == "assistant":
+            txt = str(item.get("text") or "").strip()
+            if txt:
+                return txt
+    return None
+
+
+def _extract_recent_assistant_modes(recent_turns: List[Dict[str, Any]], limit: int = 4) -> List[str]:
+    modes: List[str] = []
+    for item in recent_turns:
+        if item.get("role") == "assistant":
+            m = str(item.get("mode") or "").strip()
+            if m:
+                modes.append(m)
+    return modes[-limit:]
+
+
+def _followup_features(user_text: str, dialogue_state: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Richer follow-up extraction for Phase B Sprint 2.
+    Produces deterministic hints that the orchestrator/composer can use.
+    """
+    state = dialogue_state or {}
+    recent = _recent_turns(state, limit=10)
+    state_topic = str(state.get("topic") or "")
+    state_topic_n = _topic_norm(state_topic)
+    generic_topics = {"", "aion response", "response", "general", "unknown"}
+
+    has_recent_context = len(recent) > 0
+    has_topic_context = state_topic_n not in generic_topics
+
+    user_text_n = _norm(user_text)
+    short_followup = _is_short_followup(user_text_n)
+
+    recent_user_prompts = _extract_recent_user_prompts(recent, limit=4)
+    last_assistant_response = _extract_last_assistant_response(recent)
+    recent_assistant_modes = _extract_recent_assistant_modes(recent, limit=4)
+
+    continuity_from_topic = bool(has_topic_context and short_followup)
+    continuity_from_recent = bool(has_recent_context and short_followup)
+
+    has_prior_summary = "summarize" in recent_assistant_modes
+    has_prior_clarify = "clarify" in recent_assistant_modes
+
+    return {
+        "is_short_followup": short_followup,
+        "has_recent_context": has_recent_context,
+        "has_topic_context": has_topic_context,
+        "state_topic": state_topic,
+        "recent_user_prompts": recent_user_prompts,
+        "last_assistant_response": last_assistant_response,
+        "recent_assistant_modes": recent_assistant_modes,
+        "continuity_signals": {
+            "topic_continuity": continuity_from_topic,
+            "recent_turn_continuity": continuity_from_recent,
+            "has_prior_summary": has_prior_summary,
+            "has_prior_clarify": has_prior_clarify,
+        },
+        "turn_count": int(state.get("turn_count") or 0),
+    }
+
+
+def _confidence_hint(
+    *,
+    user_text: str,
+    topic: str,
+    intent: str,
+    dialogue_state: Dict[str, Any],
+    followup: Dict[str, Any],
+) -> float:
+    """
+    Deterministic confidence hint for downstream composer request.
+    This is a hint, not a final truth score.
+    """
+    t = _norm(user_text)
+    base = 0.58
+
+    if intent in {"summarize", "reflect"}:
+        base = 0.68
+
+    if not _is_generic_topic(topic):
+        base += 0.04
+
+    if followup.get("is_short_followup"):
+        if followup.get("has_topic_context") or followup.get("has_recent_context"):
+            base += 0.04
+        else:
+            base -= 0.18
+
+    if "explain" in t or "what should" in t or "how do" in t:
+        base += 0.02
+
+    if _is_status_progress_request(t):
+        base += 0.01
+
+    unresolved = list((dialogue_state or {}).get("unresolved", []) or [])
+    if unresolved:
+        base -= min(0.08, 0.02 * len(unresolved))
+
+    return max(0.20, min(0.90, round(base, 2)))
+
+
+def _build_context_hints(
+    *,
+    user_text: str,
+    topic: str,
+    ds_view: Dict[str, Any],
+    followup: Dict[str, Any],
+) -> List[str]:
+    hints: List[str] = []
+
+    if followup.get("is_short_followup"):
+        if followup.get("has_topic_context") or followup.get("has_recent_context"):
+            hints.append("interpret_as_followup_to_active_context")
+        else:
+            hints.append("likely_requires_clarification_without_context")
+
+    if not _is_generic_topic(topic):
+        hints.append("topic_is_non_generic")
+
+    if ds_view.get("unresolved"):
+        hints.append("carry_forward_unresolved_items")
+
+    if ds_view.get("commitments"):
+        hints.append("consider_prior_commitments")
+
+    if _is_summary_request(user_text):
+        hints.append("prefer_state_summarization")
+
+    if _is_reflection_request(user_text):
+        hints.append("prefer_meta_reflection")
+
+    if _is_status_progress_request(user_text):
+        hints.append("prefer_status_progress_answer")
+
+    if followup.get("continuity_signals", {}).get("has_prior_clarify"):
+        hints.append("may_resolve_after_prior_clarification")
+
+    return hints
 
 
 def build_turn_context(
     *,
     user_text: str,
-    dialogue_state: Dict[str, Any],
+    dialogue_state: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
-    Assemble a compact turn packet for the orchestrator.
+    Phase B Sprint 2 (richer turn-context assembly)
+    -----------------------------------------------
+    Deterministically assembles a turn packet for the orchestrator/composer.
+    This intentionally remains lightweight and safe:
+      - no side effects
+      - no external calls
+      - no mutation of tracker state
+      - stable shape for downstream consumers
+      - includes prebuilt planner output for orchestrator reuse
+
+    Inputs:
+      - user_text
+      - dialogue_state (snapshot from DialogueStateTracker)
+
+    Output:
+      dict with:
+        user_text, intent, topic, response_mode, confidence_hint,
+        phi_state, beliefs, runtime_context (best-effort placeholders),
+        dialogue_state (shallow relevant view),
+        followup_context, context_hints, source_refs, planner
     """
-    phi = load_phi_state() or {}
-    reinforce = get_reinforce_state() or {}
-    beliefs = (reinforce.get("beliefs", {}) if isinstance(reinforce, dict) else {}) or {}
+    state = dict(dialogue_state or {})
+    topic = _infer_topic_from_text(user_text, state)
+    intent = _infer_intent(user_text)
+    response_mode = _infer_response_mode_hint(user_text)
 
-    prior_topic = dialogue_state.get("topic")
-    unresolved = list(dialogue_state.get("unresolved") or [])
-
-    intent = infer_intent(user_text)
-    topic = infer_topic(user_text, prior_topic=prior_topic)
-
-    phi_coh = _safe_float(phi.get("Φ_coherence"), 0.4)
-    trust = _safe_float(beliefs.get("trust"), 0.4)
-    clarity = _safe_float(beliefs.get("clarity"), 0.4)
-    confidence_hint = round(max(0.15, min(0.95, 0.45 * phi_coh + 0.30 * trust + 0.25 * clarity)), 2)
-
-    response_mode = choose_response_mode(
+    followup = _followup_features(user_text=user_text, dialogue_state=state)
+    confidence_hint = _confidence_hint(
         user_text=user_text,
+        topic=topic,
         intent=intent,
-        unresolved=unresolved,
-        confidence_hint=confidence_hint,
+        dialogue_state=state,
+        followup=followup,
     )
 
-    recent_turns = dialogue_state.get("recent_turns") or []
-    recent_summary = [
-        {
-            "role": t.get("role"),
-            "text": t.get("text", "")[:240],
-            "mode": t.get("mode"),
-            "confidence": t.get("confidence"),
-        }
-        for t in recent_turns[-6:]
-        if isinstance(t, dict)
+    # These are placeholders at assembler layer; orchestrator can enrich
+    # using runtime modules and actual phi/beliefs sources downstream.
+    phi_state: Dict[str, Any] = {}
+    beliefs: Dict[str, Any] = {}
+    runtime_context: Dict[str, Any] = {}
+
+    # Dialogue state subset to keep packet compact + predictable
+    ds_view = {
+        "session_id": state.get("session_id"),
+        "topic": state.get("topic"),
+        "intent": state.get("intent"),
+        "turn_count": int(state.get("turn_count") or 0),
+        "unresolved": list(state.get("unresolved", []) or []),
+        "commitments": list(state.get("commitments", []) or []),
+        "last_mode": state.get("last_mode"),
+        "recent_turns": _recent_turns(state, limit=6),
+    }
+
+    context_hints = _build_context_hints(
+        user_text=user_text,
+        topic=topic,
+        ds_view=ds_view,
+        followup=followup,
+    )
+
+    # Prebuild planner output so orchestrator and debug views use one deterministic plan source
+    planner_obj = _MODE_PLANNER.plan(
+        user_text=user_text,
+        dialogue_state=state,
+        topic=topic,
+        intent=intent,
+    )
+    planner = planner_obj.to_dict()
+
+    # Keep top-level response_mode aligned with planner mode
+    response_mode = str(planner.get("mode") or response_mode or "answer")
+
+    source_refs = [
+        "turn_context_assembler",
+        "dialogue_state_tracker",
+        "response_mode_planner",
     ]
+
+    if followup.get("has_topic_context") or followup.get("has_recent_context"):
+        source_refs.append("followup_context_extractor")
 
     return {
         "user_text": user_text,
         "intent": intent,
         "topic": topic,
         "response_mode": response_mode,
-        "confidence_hint": confidence_hint,
-        "phi_state": phi,
+        "confidence_hint": _safe_float(confidence_hint, 0.58),
+        "phi_state": phi_state,
         "beliefs": beliefs,
-        "runtime_context": _runtime_context(),
-        "dialogue_state": {
-            "session_id": dialogue_state.get("session_id"),
-            "turn_count": dialogue_state.get("turn_count", 0),
-            "unresolved": unresolved,
-            "commitments": list(dialogue_state.get("commitments") or []),
-            "last_mode": dialogue_state.get("last_mode"),
-            "recent_turns": recent_summary,
-        },
-        "source_refs": [
-            "turn_context_assembler",
-            "resonance_state",
-            "phi_reinforce",
-            "dialogue_state_tracker",
-        ],
+        "runtime_context": runtime_context,
+        "dialogue_state": ds_view,
+        "followup_context": followup,
+        "context_hints": context_hints,
+        "source_refs": source_refs,
+        "planner": planner,
     }

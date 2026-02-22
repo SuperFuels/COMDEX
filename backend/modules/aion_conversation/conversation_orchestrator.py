@@ -404,6 +404,197 @@ def _parse_trade_risk_request_from_text(user_text: str) -> Dict[str, Any]:
 
     return out
 
+def _normalize_influence_key(raw_key: str) -> str:
+    """
+    Maps natural-language keys to canonical decision influence keys.
+    Keep aliases here so parser stays simple.
+    """
+    k = _norm(raw_key).replace("-", " ").replace("_", " ")
+    aliases = {
+        "liquidity sweep": "liquidity_sweep",
+        "liquidity sweeps": "liquidity_sweep",
+        "sweep": "liquidity_sweep",
+        "news risk filter": "news_risk_filter",
+        "news filter": "news_risk_filter",
+        "news risk": "news_risk_filter",
+        "session bias": "session_bias",
+        "market structure": "market_structure",
+        "order flow": "order_flow",
+        "volatility regime": "volatility_regime",
+        "trend alignment": "trend_alignment",
+    }
+    if k in aliases:
+        return aliases[k]
+    return k.replace(" ", "_")
+
+
+# ------------------------------------------------------------------
+# Trading Sprint 3 parser helpers: decision influence weights patch
+# ------------------------------------------------------------------
+
+def _extract_decision_influence_key_from_text(text: str) -> Optional[str]:
+    t = _norm(text)
+
+    # Canonical key aliases (expand over time)
+    key_aliases = [
+        (["liquidity sweep", "liquidity_sweep", "sweep influence"], "liquidity_sweep"),
+        (["news risk filter", "news_risk_filter", "news filter", "news risk"], "news_risk_filter"),
+        (["session bias", "session_bias"], "session_bias"),
+        (["market structure", "market_structure"], "market_structure"),
+        (["order flow", "order_flow"], "order_flow"),
+        (["volatility regime", "volatility_regime", "volatility influence"], "volatility_regime"),
+        (["trend alignment", "trend_alignment"], "trend_alignment"),
+    ]
+
+    for aliases, canonical in key_aliases:
+        if any(a in t for a in aliases):
+            return canonical
+    return None
+
+
+def _extract_decision_influence_scope_from_text(text: str) -> Dict[str, Any]:
+    """
+    Optional scope parsing (safe, partial). Keep empty when not present.
+    """
+    t = _norm(text)
+    scope: Dict[str, Any] = {}
+
+    pair = _extract_pair_from_text(text)
+    if pair:
+        scope["pair"] = pair
+
+    # simple timeframe parsing
+    for tf in ["m1", "m5", "m15", "m30", "h1", "h4", "d1"]:
+        if f" {tf} " in f" {t} ":
+            scope["timeframe"] = tf.upper()
+            break
+
+    # optional checkpoint/session tags
+    if "london" in t:
+        scope["session"] = "london"
+    elif "new york" in t or "ny" in t:
+        scope["session"] = "new_york"
+    elif "asia" in t:
+        scope["session"] = "asia"
+
+    return scope
+
+
+def _parse_decision_influence_request_from_text(user_text: str) -> Dict[str, Any]:
+    """
+    Deterministic parser for decision influence weights commands.
+
+    Returns:
+      {
+        "intent": "show" | "update",
+        "dry_run": bool,
+        "patch": {"ops":[...]},
+        "scope": {...},
+        "warnings": [...],
+        "reason": str,
+      }
+    """
+    raw = str(user_text or "")
+    t = _norm(raw)
+
+    warnings: List[str] = []
+
+    # Safety default
+    dry_run = True
+    if any(x in t for x in ["apply live", "live apply", "commit", "write now", "not dry run"]):
+        dry_run = False
+    if "dry run" in t or "dry-run" in t:
+        dry_run = True
+
+    # "show" / read intent
+    show_phrases = [
+        "show decision influence weights",
+        "show influence weights",
+        "display decision influence weights",
+        "view decision influence weights",
+        "get decision influence weights",
+    ]
+    if any(p in t for p in show_phrases):
+        return {
+            "intent": "show",
+            "dry_run": True,          # read path stays safe
+            "patch": {},
+            "scope": _extract_decision_influence_scope_from_text(raw),
+            "warnings": [],
+            "reason": "User requested current decision influence weights snapshot.",
+        }
+
+    # Update intent (delta/set)
+    key = _extract_decision_influence_key_from_text(raw)
+    scope = _extract_decision_influence_scope_from_text(raw)
+
+    # Delta patterns: "increase X by 0.05", "decrease X by 0.02"
+    inc_m = re.search(
+        r"\b(?:increase|raise|up)\b.*?\bby\s*([-+]?[0-9]+(?:\.[0-9]+)?)\b",
+        raw,
+        flags=re.IGNORECASE,
+    )
+    dec_m = re.search(
+        r"\b(?:decrease|lower|reduce|down)\b.*?\bby\s*([-+]?[0-9]+(?:\.[0-9]+)?)\b",
+        raw,
+        flags=re.IGNORECASE,
+    )
+
+    # Set patterns: "set X to 0.08", "set X = 0.08"
+    set_m = re.search(
+        r"\bset\b.*?\b(?:to|=)\s*([-+]?[0-9]+(?:\.[0-9]+)?)\b",
+        raw,
+        flags=re.IGNORECASE,
+    )
+
+    patch_ops: List[Dict[str, Any]] = []
+
+    if key is None:
+        # if user clearly asks update but no key parsed
+        if any(x in t for x in ["decision influence", "influence weights", "update influence", "increase", "decrease", "set "]):
+            warnings.append("No recognized decision influence key found in request.")
+
+    if inc_m and key:
+        try:
+            v = float(inc_m.group(1))
+            patch_ops.append({"op": "delta", "key": key, "value": abs(v)})
+        except Exception:
+            warnings.append("Could not parse increase delta value.")
+    elif dec_m and key:
+        try:
+            v = float(dec_m.group(1))
+            patch_ops.append({"op": "delta", "key": key, "value": -abs(v)})
+        except Exception:
+            warnings.append("Could not parse decrease delta value.")
+    elif set_m and key:
+        try:
+            v = float(set_m.group(1))
+            patch_ops.append({"op": "set", "key": key, "value": v})
+        except Exception:
+            warnings.append("Could not parse set value.")
+
+    # Fallback intent if generic phrase but no op parsed
+    if not patch_ops:
+        if any(p in t for p in ["decision influence weights", "update influence weights", "decision influence dry run"]):
+            warnings.append("No patch operation parsed; returning empty patch for validation/display path.")
+            return {
+                "intent": "update",
+                "dry_run": dry_run,
+                "patch": {},
+                "scope": scope,
+                "warnings": warnings,
+                "reason": "User requested decision influence update, but parser could not extract a patch op.",
+            }
+
+    return {
+        "intent": "update",
+        "dry_run": dry_run,
+        "patch": {"ops": patch_ops} if patch_ops else {},
+        "scope": scope,
+        "warnings": warnings,
+        "reason": "User-requested decision influence weights update via orchestrator route.",
+    }
+
 def _turn_ctx_as_dict(turn_ctx: Any) -> Dict[str, Any]:
     """
     Accept either dict (current assembler output) or TurnContext contract.
@@ -772,7 +963,7 @@ def _should_try_skill_mode(user_text: str, topic: Optional[str], plan: Dict[str,
     if "priorit" in t and _is_roadmap_topic(topic):
         return True
 
-    # Trading Sprint 2/2.1 triggers
+    # Trading Sprint 2/2.1/3 triggers (kept intentionally specific to avoid false positives)
     trading_triggers = [
         "forex curriculum",
         "trading curriculum",
@@ -787,16 +978,58 @@ def _should_try_skill_mode(user_text: str, topic: Optional[str], plan: Dict[str,
         "validate trade risk",
         "check trade risk",
         "risk check trade",
+        "validate risk",
+        "risk validation",
         "update decision influence weights",
         "decision influence weights",
         "decision influence dry run",
         "update influence weights",
+        "show decision influence weights",
+        "show influence weights",
+        # NOTE: intentionally NOT adding broad "show weights"
     ]
     if any(p in t for p in trading_triggers):
         return True
 
+    # Decision influence command verbs + qualifiers (more precise than broad trigger strings)
+    # Supports:
+    # - increase liquidity sweep influence by 0.05 dry run
+    # - set news risk filter to 0.08
+    # - decrease trend alignment by 0.02 apply live
+    if (
+        any(v in t for v in ["increase ", "raise ", "decrease ", "lower ", "reduce ", "set "])
+        and (
+            "influence" in t
+            or "decision influence" in t
+            or "influence weights" in t
+            or any(
+                k in t
+                for k in [
+                    "liquidity sweep",
+                    "news risk filter",
+                    "session bias",
+                    "market structure",
+                    "order flow",
+                    "volatility regime",
+                    "trend alignment",
+                ]
+            )
+        )
+    ):
+        return True
+
     # Also allow common direct strategy lookups even without "list"
-    if "strategy" in t and any(k in t for k in ["tier 1", "tier1", "tier 2", "tier2", "tier 3", "tier3", "tier 4", "tier4", "tier 5", "tier5", "smc", "macro", "swing"]):
+    if "strategy" in t and any(
+        k in t
+        for k in [
+            "tier 1", "tier1",
+            "tier 2", "tier2",
+            "tier 3", "tier3",
+            "tier 4", "tier4",
+            "tier 5", "tier5",
+            "smc", "macro", "swing",
+        ]
+    ):
         return True
 
     return False
@@ -1006,7 +1239,7 @@ def _build_skill_request_for_turn(
             },
         ).validate()
 
-    # 6) Sprint 3 governed decision influence update (dry-run safe default)
+    # 6) Sprint 3 governed decision influence read/update (parser -> structured patch)
     if any(
         p in t
         for p in [
@@ -1014,27 +1247,45 @@ def _build_skill_request_for_turn(
             "decision influence weights",
             "decision influence dry run",
             "update influence weights",
+            "show decision influence weights",
+            "show influence weights",
+            "show weights",
+            "increase ",
+            "decrease ",
+            "set ",
         ]
     ):
-        dry_run = True
-        if any(x in t for x in ["apply live", "commit", "write now", "not dry run"]):
-            # governance/runtime should still enforce whether writes are allowed
-            dry_run = False
+        parsed = _parse_decision_influence_request_from_text(user_text)
+
+        intent = str(parsed.get("intent") or "update").strip().lower()   # "show" | "update"
+        dry_run = bool(parsed.get("dry_run", True))                      # hard-safe default
+        patch = dict(parsed.get("patch") or {})
+        scope = dict(parsed.get("scope") or {})
+        warnings = list(parsed.get("warnings") or [])
+        reason = str(parsed.get("reason") or "").strip() or (
+            "User-requested decision influence weights read/update via orchestrator route."
+        )
 
         return SkillRunRequest(
             skill_id="skill.trading_update_decision_influence_weights",
             inputs={
+                "action": intent,     # <-- skill expects action, not intent
                 "dry_run": dry_run,
-                "patch": {},
-                "scope": {},
-                "reason": "User-requested decision influence update via orchestrator route.",
+                "patch": patch,       # {} for show, {"ops":[...]} for update
+                "scope": scope,
+                "reason": reason,
                 "source": "conversation_orchestrator",
             },
             session_id=session_id,
             turn_id=turn_id,
             metadata={
                 "route": "trading_update_decision_influence_weights_skill",
+                "action": intent,
                 "dry_run": dry_run,
+                "parsed_ops_count": len(list((patch or {}).get("ops") or [])),
+                "parsed_ops": list((patch or {}).get("ops") or []),
+                "parser_warnings": warnings,
+                "parser_mode": "regex_v2_decision_influence_request",
             },
         ).validate()
 
@@ -1865,10 +2116,23 @@ class ConversationOrchestrator:
                 outp = dict(skill_out.output or {})
                 dry_run = bool(outp.get("dry_run", True))
                 applied = bool(outp.get("applied", False))
-                skill_summary = (
-                    f"Decision influence weights update {'DRY-RUN' if dry_run else 'EXECUTED'}."
-                    f" Applied={applied}."
-                )
+                action = str(outp.get("action") or "update")
+                warnings = list(outp.get("warnings") or [])
+                diff = list(outp.get("validated_diff") or [])
+                snapshot_hash = str(outp.get("snapshot_hash") or outp.get("resulting_snapshot_hash") or "")
+
+                if action == "show":
+                    weight_count = len(dict(outp.get("weights") or {}))
+                    skill_summary = (
+                        f"Decision influence weights snapshot loaded ({weight_count} weights). "
+                        f"Snapshot hash: {snapshot_hash or 'n/a'}."
+                    )
+                else:
+                    skill_summary = (
+                        f"Decision influence weights update {'DRY-RUN' if dry_run else 'EXECUTED'}; "
+                        f"applied={applied}; diff_items={len(diff)}; warnings={len(warnings)}"
+                        + (f"; snapshot_hash={snapshot_hash}." if snapshot_hash else ".")
+                    )
 
             else:
                 skill_summary = f"Skill execution completed ({skill_out.skill_id}) with output: {skill_out.output}"

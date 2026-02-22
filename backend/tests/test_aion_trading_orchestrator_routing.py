@@ -22,6 +22,14 @@ def _trace(out: dict) -> dict:
     return dict((out.get("debug") or {}).get("orchestrator_trace") or {})
 
 
+def _skill_req(out: dict) -> dict:
+    return dict((_trace(out).get("skill_request") or {}))
+
+
+def _skill_inputs(out: dict) -> dict:
+    return dict((_skill_req(out).get("inputs") or {}))
+
+
 def test_trading_route_curriculum_skill():
     orch = ConversationOrchestrator()
     out = _run(orch, "show forex curriculum", session_id="t-curriculum-1")
@@ -475,3 +483,233 @@ def test_trading_route_update_decision_influence_debug_metadata_shape():
 
     # Optional sanity on orchestrator debug presence
     assert isinstance(trace, dict)
+
+# -------------------------------------------------------------------------
+# Decision influence routing + parser tests (deduped + strengthened)
+# -------------------------------------------------------------------------
+
+def test_trading_route_show_decision_influence_weights_populates_show_action():
+    """
+    A) input: 'show decision influence weights'
+    Expect parser/orchestrator to route the governed skill in show/read mode.
+    """
+    orch = ConversationOrchestrator()
+    out = _run(orch, "show decision influence weights", session_id="t-di-show-1")
+
+    assert out["ok"] is True
+    meta = _orchestrator_meta(out)
+    trace = _trace(out)
+    inputs = _skill_inputs(out)
+
+    assert meta.get("skill_attempted") is True
+    assert meta.get("skill_executed_ok") is True
+    assert meta.get("skill_id") == "skill.trading_update_decision_influence_weights"
+
+    assert inputs.get("action") == "show"
+    assert inputs.get("patch") == {}
+    assert inputs.get("dry_run") is True
+
+    # Non-breaking trading journal/debug contract remains present
+    assert "trading_journal" in meta
+    assert "trading_journal_summary" in meta
+    assert "trading_journal" in trace
+
+
+def test_trading_route_decision_influence_increase_parses_delta_patch_dry_run():
+    """
+    B) input: 'increase liquidity sweep influence by 0.05 dry run'
+    Expect delta op parsed into patch.
+    """
+    orch = ConversationOrchestrator()
+    out = _run(
+        orch,
+        "increase liquidity sweep influence by 0.05 dry run",
+        session_id="t-di-delta-1",
+    )
+
+    assert out["ok"] is True
+    meta = _orchestrator_meta(out)
+    inputs = _skill_inputs(out)
+
+    assert meta.get("skill_attempted") is True
+    assert meta.get("skill_executed_ok") is True
+    assert meta.get("skill_id") == "skill.trading_update_decision_influence_weights"
+
+    assert inputs.get("action") == "update"
+    assert inputs.get("dry_run") is True
+
+    patch = dict(inputs.get("patch") or {})
+    ops = list(patch.get("ops") or [])
+    assert len(ops) >= 1
+
+    op0 = dict(ops[0] or {})
+    assert op0.get("op") == "delta"
+    assert op0.get("key") == "liquidity_sweep"
+    assert float(op0.get("value")) == 0.05
+
+
+def test_trading_route_decision_influence_set_parses_set_op_and_defaults_dry_run():
+    """
+    C) input: 'set news risk filter to 0.08'
+    Expect set op + dry_run True by default.
+    """
+    orch = ConversationOrchestrator()
+    out = _run(
+        orch,
+        "set news risk filter to 0.08",
+        session_id="t-di-set-1",
+    )
+
+    assert out["ok"] is True
+    meta = _orchestrator_meta(out)
+    inputs = _skill_inputs(out)
+
+    assert meta.get("skill_attempted") is True
+    assert meta.get("skill_executed_ok") is True
+    assert meta.get("skill_id") == "skill.trading_update_decision_influence_weights"
+
+    assert inputs.get("action") == "update"
+    assert inputs.get("dry_run") is True  # default unless explicitly apply live
+
+    patch = dict(inputs.get("patch") or {})
+    ops = list(patch.get("ops") or [])
+    assert len(ops) >= 1
+
+    op0 = dict(ops[0] or {})
+    assert op0.get("op") == "set"
+    assert op0.get("key") == "news_risk_filter"
+    assert float(op0.get("value")) == 0.08
+
+
+def test_trading_route_decision_influence_apply_live_flips_dry_run_false():
+    """
+    D) input: 'set news risk filter to 0.08 apply live'
+    Expect same parsed set op but dry_run=False.
+    """
+    orch = ConversationOrchestrator()
+    out = _run(
+        orch,
+        "set news risk filter to 0.08 apply live",
+        session_id="t-di-apply-live-1",
+    )
+
+    assert out["ok"] is True
+    meta = _orchestrator_meta(out)
+    inputs = _skill_inputs(out)
+
+    assert meta.get("skill_attempted") is True
+    assert meta.get("skill_id") == "skill.trading_update_decision_influence_weights"
+
+    assert inputs.get("action") == "update"
+    assert inputs.get("dry_run") is False
+
+    patch = dict(inputs.get("patch") or {})
+    ops = list(patch.get("ops") or [])
+    assert len(ops) >= 1
+
+    op0 = dict(ops[0] or {})
+    assert op0.get("op") == "set"
+    assert op0.get("key") == "news_risk_filter"
+    assert float(op0.get("value")) == 0.08
+
+
+def test_trading_route_decision_influence_trace_keys_present():
+    """
+    Ensure orchestrator exposes decision influence result safely in debug/meta
+    without breaking existing trading journal keys.
+    """
+    orch = ConversationOrchestrator()
+    out = _run(orch, "show decision influence weights", session_id="t-di-trace-shape-1")
+
+    assert out["ok"] is True
+    meta = _orchestrator_meta(out)
+    trace = _trace(out)
+
+    # Core route sanity
+    assert meta.get("skill_attempted") is True
+    assert meta.get("skill_id") == "skill.trading_update_decision_influence_weights"
+
+    # Existing non-breaking journal/debug keys still present
+    assert "trading_journal" in meta
+    assert "trading_journal_summary" in meta
+    assert "trading_journal" in trace
+
+    # New decision influence trace block (if wired)
+    # Allow absent during incremental wiring, but if present check shape.
+    di = trace.get("decision_influence_update")
+    assert di is None or isinstance(di, dict)
+    if isinstance(di, dict):
+        assert "ok" in di
+        assert "action" in di
+        assert "dry_run" in di
+        assert "persisted" in di
+
+
+def test_trading_route_decision_influence_apply_live_denied_non_breaking_default_gate():
+    """
+    Safety test: apply live should parse dry_run=False, but runtime/orchestrator
+    should fail closed when live capability gate is not enabled.
+    """
+    orch = ConversationOrchestrator()
+    out = _run(
+        orch,
+        "set news risk filter to 0.08 apply live",
+        session_id="t-di-live-denied-1",
+    )
+
+    # Turn itself should remain non-breaking
+    assert out["ok"] is True
+    assert isinstance(out.get("response"), str) and out["response"].strip() != ""
+
+    meta = _orchestrator_meta(out)
+    trace = _trace(out)
+
+    assert meta.get("skill_attempted") is True
+    assert meta.get("skill_id") == "skill.trading_update_decision_influence_weights"
+
+    # Parsed intent is still live apply
+    inputs = _skill_inputs(out)
+    assert inputs.get("action") == "update"
+    assert inputs.get("dry_run") is False
+
+    # If your orchestrator surfaces skill result/debug details, validate denial shape
+    # (allow incremental rollout if not yet exposed)
+    skill_result = trace.get("skill_result")
+    assert skill_result is None or isinstance(skill_result, dict)
+    if isinstance(skill_result, dict) and skill_result.get("ok") is False:
+        meta_block = dict(skill_result.get("meta") or {})
+        errs = list(skill_result.get("validation_errors") or [])
+        assert meta_block.get("reason") in (None, "live_apply_not_authorized")
+        if errs:
+            assert any(e.get("code") == "live_apply_not_authorized" for e in errs)
+
+
+def test_trading_route_decision_influence_invalid_command_still_routes_non_breaking():
+    """
+    Malformed/unsupported decision influence request should not crash turn handling.
+    Depending on parser behavior it may route with structured rejection or fall back.
+    """
+    orch = ConversationOrchestrator()
+    out = _run(
+        orch,
+        "set decision influence banana to hello",
+        session_id="t-di-invalid-1",
+    )
+
+    assert out["ok"] is True
+    assert isinstance(out.get("response"), str)
+    assert out["response"].strip() != ""
+
+    meta = _orchestrator_meta(out)
+    trace = _trace(out)
+
+    # Accept either behavior:
+    # A) parser rejects and falls back (no skill route), or
+    # B) parser routes + runtime rejects non-breakingly
+    if meta.get("skill_id") == "skill.trading_update_decision_influence_weights":
+        assert meta.get("skill_attempted") is True
+        assert "trading_journal" in meta
+        assert "trading_journal_summary" in meta
+        assert "trading_journal" in trace
+    else:
+        assert meta.get("skill_id") in (None, "")

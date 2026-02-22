@@ -59,6 +59,110 @@ def _state_topic(dialogue_state: Dict[str, Any], topic: Optional[str]) -> str:
     return str(dialogue_state.get("topic") or "").strip()
 
 
+def _is_generic_topic(topic: Optional[str]) -> bool:
+    return _norm(topic or "") in {"", "aion response", "response", "general", "unknown"}
+
+
+def _looks_like_contextual_why_followup(text: str) -> bool:
+    """
+    Handle high-value multi-turn follow-ups like:
+      - why that order
+      - why this order
+      - why that?
+      - why first?
+      - how so?
+      - why though
+    These should answer directly when strong context exists.
+    """
+    t = _norm(text)
+    if t in {
+        "why that order",
+        "why this order",
+        "why that",
+        "why this",
+        "why first",
+        "why that first",
+        "why this first",
+        "how so",
+        "why though",
+        "why",
+        "how",
+    }:
+        return True
+
+    # Slightly broader phrase checks (still deterministic / conservative)
+    why_phrases = [
+        "why that order",
+        "why this order",
+        "why first",
+        "why that first",
+        "why this first",
+    ]
+    return any(p in t for p in why_phrases)
+
+
+def _has_recent_answer_turn(recent_turns: List[Dict[str, Any]]) -> bool:
+    for item in reversed(recent_turns or []):
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("role") or "") != "assistant":
+            continue
+        mode = _norm(str(item.get("mode") or ""))
+        txt = str(item.get("text") or "").strip()
+        if txt and (mode == "answer" or mode == ""):
+            return True
+    return False
+
+
+def _has_recent_clarify_turn(recent_turns: List[Dict[str, Any]]) -> bool:
+    for item in reversed(recent_turns or []):
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("role") or "") != "assistant":
+            continue
+        mode = _norm(str(item.get("mode") or ""))
+        if mode == "clarify":
+            return True
+    return False
+
+
+def _is_contextual_elaboration_followup(text: str) -> bool:
+    """
+    Contextual expansion / elaboration follow-ups that should answer
+    directly when context continuity is strong.
+    """
+    t = _norm(text)
+
+    exacts = {
+        "explain that",
+        "explain that in more detail",
+        "explain in more detail",
+        "more detail",
+        "more details",
+        "go into more detail",
+        "expand on that",
+        "expand that",
+        "elaborate",
+        "elaborate on that",
+        "tell me more",
+        "explain more",
+        "more info",
+        "more information",
+    }
+    if t in exacts:
+        return True
+
+    phrases = [
+        "explain that",
+        "in more detail",
+        "go into more detail",
+        "expand on that",
+        "elaborate on that",
+        "tell me more",
+    ]
+    return any(p in t for p in phrases)
+
+
 @dataclass
 class PlannedMode:
     mode: str  # answer | ask | clarify | summarize | reflect
@@ -79,7 +183,7 @@ class PlannedMode:
 
 class ResponseModePlanner:
     """
-    Phase B Sprint 1:
+    Phase B Sprint 1 / 1.5 / 2 refinement:
     Deterministic response mode planner + repair/clarify heuristics.
 
     Goals:
@@ -87,6 +191,8 @@ class ResponseModePlanner:
     - better short follow-up handling
     - explicit summary/reflect routing
     - clear planner reasons for observability
+    - contextual 'why/how' follow-ups can answer directly when continuity is strong
+    - contextual elaboration follow-ups ('explain that in more detail') answer when continuity is strong
     """
 
     def plan(
@@ -99,7 +205,7 @@ class ResponseModePlanner:
     ) -> PlannedMode:
         text = (user_text or "").strip()
         text_l = _norm(text)
-        toks = _tokens(text)
+        toks = _tokens(text)  # kept for future heuristics / observability
 
         state = dialogue_state or {}
         unresolved = list(state.get("unresolved", []) or [])
@@ -107,10 +213,16 @@ class ResponseModePlanner:
         turn_count = _safe_int(state.get("turn_count"), 0)
 
         state_topic = _state_topic(state, topic)
-        generic_topics = {"", "aion response", "response", "general", "unknown"}
-        has_topic_context = _norm(state_topic) not in generic_topics
+        has_topic_context = not _is_generic_topic(state_topic)
         has_recent_context = _has_meaningful_recent_context(recent_turns)
         has_context = bool(has_topic_context or has_recent_context or turn_count > 0)
+
+        has_recent_answer = _has_recent_answer_turn(recent_turns)
+        has_recent_clarify = _has_recent_clarify_turn(recent_turns)
+        strong_continuity = bool(
+            (has_topic_context and has_recent_context)
+            or (has_topic_context and has_recent_answer)
+        )
 
         # ==========================================================
         # 1) Explicit summarize requests
@@ -136,6 +248,8 @@ class ResponseModePlanner:
                     "requires_state_context": True,
                     "has_context": has_context,
                     "turn_count": turn_count,
+                    "has_topic_context": has_topic_context,
+                    "has_recent_context": has_recent_context,
                 },
             )
 
@@ -162,6 +276,8 @@ class ResponseModePlanner:
                     "meta": True,
                     "has_context": has_context,
                     "turn_count": turn_count,
+                    "has_topic_context": has_topic_context,
+                    "has_recent_context": has_recent_context,
                 },
             )
 
@@ -188,15 +304,47 @@ class ResponseModePlanner:
         }
 
         if _exact_any(text_l, list(short_followups)):
+            # Refine "why/how" when continuity is weak: clarify
+            if text_l in {"why", "how", "which one"} and not strong_continuity:
+                if has_context:
+                    return PlannedMode(
+                        mode="clarify",
+                        reason="underspecified_why_how_with_weak_continuity",
+                        confidence_hint=0.40,
+                        ask_prompt=(
+                            "Do you want me to explain the reasoning, the implementation details, "
+                            "or the next step?"
+                        ),
+                        flags={
+                            "uses_dialogue_context": True,
+                            "has_topic_context": has_topic_context,
+                            "has_recent_context": has_recent_context,
+                            "strong_continuity": strong_continuity,
+                            "turn_count": turn_count,
+                        },
+                    )
+                return PlannedMode(
+                    mode="clarify",
+                    reason="short_followup_without_context",
+                    confidence_hint=0.30,
+                    ask_prompt=(
+                        "Do you mean the next AION build step, the next code task, "
+                        "or the next roadmap phase?"
+                    ),
+                    flags={"uses_dialogue_context": False, "turn_count": turn_count},
+                )
+
             if has_context:
                 return PlannedMode(
                     mode="answer",
                     reason="short_followup_with_context",
-                    confidence_hint=0.62,
+                    confidence_hint=0.62 if not strong_continuity else 0.66,
                     flags={
                         "uses_dialogue_context": True,
                         "has_topic_context": has_topic_context,
                         "has_recent_context": has_recent_context,
+                        "strong_continuity": strong_continuity,
+                        "has_recent_answer": has_recent_answer,
                         "turn_count": turn_count,
                     },
                 )
@@ -208,6 +356,93 @@ class ResponseModePlanner:
                     "Do you mean the next AION build step, the next code task, "
                     "or the next roadmap phase?"
                 ),
+                flags={"uses_dialogue_context": False, "turn_count": turn_count},
+            )
+
+        # ==========================================================
+        # 3.5) Contextual "why/how" follow-ups with strong continuity
+        #      (high-leverage refinement)
+        # ==========================================================
+        if _looks_like_contextual_why_followup(text_l):
+            if strong_continuity:
+                return PlannedMode(
+                    mode="answer",
+                    reason="contextual_why_followup_with_continuity",
+                    confidence_hint=0.68,
+                    flags={
+                        "uses_dialogue_context": True,
+                        "has_topic_context": has_topic_context,
+                        "has_recent_context": has_recent_context,
+                        "strong_continuity": strong_continuity,
+                        "has_recent_answer": has_recent_answer,
+                        "turn_count": turn_count,
+                    },
+                )
+
+            # If there is some context but not strong continuity, prefer clarify
+            if has_context:
+                return PlannedMode(
+                    mode="clarify",
+                    reason="contextual_why_followup_weak_continuity",
+                    confidence_hint=0.42,
+                    ask_prompt=(
+                        "Do you want the reasoning for the roadmap order, the implementation details, "
+                        "or the next step?"
+                    ),
+                    flags={
+                        "uses_dialogue_context": True,
+                        "has_topic_context": has_topic_context,
+                        "has_recent_context": has_recent_context,
+                        "strong_continuity": strong_continuity,
+                        "turn_count": turn_count,
+                    },
+                )
+
+        # ==========================================================
+        # 3.6) Contextual elaboration follow-up
+        #      (e.g. "Explain that in more detail", "Tell me more")
+        # ==========================================================
+        if _is_contextual_elaboration_followup(text_l):
+            if strong_continuity:
+                return PlannedMode(
+                    mode="answer",
+                    reason="contextual_elaboration_followup",
+                    confidence_hint=0.68 if has_topic_context else 0.62,
+                    flags={
+                        "uses_dialogue_context": True,
+                        "has_topic_context": has_topic_context,
+                        "has_recent_context": has_recent_context,
+                        "strong_continuity": strong_continuity,
+                        "has_recent_answer": has_recent_answer,
+                        "turn_count": turn_count,
+                        "elaboration_followup": True,
+                    },
+                )
+
+            if has_context:
+                return PlannedMode(
+                    mode="clarify",
+                    reason="contextual_elaboration_followup_weak_continuity",
+                    confidence_hint=0.42,
+                    ask_prompt=(
+                        "Do you want more detail on the roadmap order, the implementation, "
+                        "or the next step?"
+                    ),
+                    flags={
+                        "uses_dialogue_context": True,
+                        "has_topic_context": has_topic_context,
+                        "has_recent_context": has_recent_context,
+                        "strong_continuity": strong_continuity,
+                        "turn_count": turn_count,
+                        "elaboration_followup": True,
+                    },
+                )
+
+            return PlannedMode(
+                mode="clarify",
+                reason="elaboration_followup_without_context",
+                confidence_hint=0.34,
+                ask_prompt="What would you like me to explain in more detail?",
                 flags={"uses_dialogue_context": False, "turn_count": turn_count},
             )
 
@@ -236,11 +471,40 @@ class ResponseModePlanner:
 
         # ==========================================================
         # 5) Unresolved-state disambiguation
+        #    Do NOT force clarify if strong continuity exists for a
+        #    contextual why/how OR elaboration follow-up.
         # ==========================================================
         if unresolved and _contains_any(
             text_l,
             ["why", "how", "which one", "what do you mean", "explain that", "clarify"],
         ):
+            if _looks_like_contextual_why_followup(text_l) and strong_continuity:
+                return PlannedMode(
+                    mode="answer",
+                    reason="contextual_why_followup_overrides_unresolved_clarify",
+                    confidence_hint=0.66,
+                    flags={
+                        "uses_dialogue_context": True,
+                        "unresolved_count": len(unresolved),
+                        "has_context": has_context,
+                        "strong_continuity": strong_continuity,
+                    },
+                )
+
+            if _is_contextual_elaboration_followup(text_l) and strong_continuity:
+                return PlannedMode(
+                    mode="answer",
+                    reason="contextual_elaboration_overrides_unresolved_clarify",
+                    confidence_hint=0.66,
+                    flags={
+                        "uses_dialogue_context": True,
+                        "unresolved_count": len(unresolved),
+                        "has_context": has_context,
+                        "strong_continuity": strong_continuity,
+                        "elaboration_followup": True,
+                    },
+                )
+
             return PlannedMode(
                 mode="clarify",
                 reason="unresolved_state_needs_disambiguation",
@@ -252,6 +516,9 @@ class ResponseModePlanner:
                 flags={
                     "unresolved_count": len(unresolved),
                     "has_context": has_context,
+                    "has_topic_context": has_topic_context,
+                    "has_recent_context": has_recent_context,
+                    "has_recent_clarify": has_recent_clarify,
                 },
             )
 
@@ -269,8 +536,6 @@ class ResponseModePlanner:
                 "decide between",
             ],
         ):
-            # We still route to "answer" for now unless you implement a dedicated ask handler.
-            # Keeping reason explicit makes this easy to promote later.
             return PlannedMode(
                 mode="answer",
                 reason="decision_request_answer_mode",
@@ -278,6 +543,8 @@ class ResponseModePlanner:
                 flags={
                     "decision_request": True,
                     "has_context": has_context,
+                    "has_topic_context": has_topic_context,
+                    "has_recent_context": has_recent_context,
                 },
             )
 
@@ -289,7 +556,13 @@ class ResponseModePlanner:
                 mode="answer",
                 reason="question_detected_answer_mode",
                 confidence_hint=0.64 if has_context else 0.60,
-                flags={"has_context": has_context},
+                flags={
+                    "has_context": has_context,
+                    "has_topic_context": has_topic_context,
+                    "has_recent_context": has_recent_context,
+                    "strong_continuity": strong_continuity,
+                    "token_count": len(toks),
+                },
             )
 
         # ==========================================================
@@ -300,7 +573,12 @@ class ResponseModePlanner:
                 mode="answer",
                 reason="default_answer_mode",
                 confidence_hint=0.64,
-                flags={"has_context": has_context},
+                flags={
+                    "has_context": has_context,
+                    "has_topic_context": has_topic_context,
+                    "has_recent_context": has_recent_context,
+                    "strong_continuity": strong_continuity,
+                },
             )
 
         # ==========================================================
@@ -310,5 +588,9 @@ class ResponseModePlanner:
             mode="answer",
             reason="fallback_answer_mode",
             confidence_hint=0.55,
-            flags={"has_context": has_context},
+            flags={
+                "has_context": has_context,
+                "has_topic_context": has_topic_context,
+                "has_recent_context": has_recent_context,
+            },
         )
