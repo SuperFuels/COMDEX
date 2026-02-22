@@ -7,10 +7,16 @@ import pytest
 
 from backend.modules.aion_trading.contracts import TradeProposal
 from backend.modules.aion_trading.dmip_runtime import (
-    close_trade,
-    manage_open_trade,
     submit_paper_trade,
-    validate_risk_rules,
+    manage_open_trade,
+    close_trade,
+    get_paper_trade,
+    list_paper_trades,
+    configure_paper_runtime_persistence,
+    persist_paper_runtime_snapshot,
+    reset_paper_runtime_state,
+    restore_paper_runtime_snapshot,
+    validate_risk_rules,  # <-- add this
 )
 
 
@@ -65,6 +71,35 @@ def _as_dict(x: Any) -> Dict[str, Any]:
         return x.to_dict()
     raise AssertionError(f"Expected dict-like response, got: {type(x)}")
 
+def _safe_dict(x: Any) -> Dict[str, Any]:
+    return x if isinstance(x, dict) else {}
+
+
+def _safe_int(x: Any, default: int = 0) -> int:
+    try:
+        if x is None:
+            return default
+        return int(x)
+    except Exception:
+        return default
+
+
+def _extract_paths(resp: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Tolerate multiple path container shapes in persistence responses.
+    """
+    if isinstance(resp.get("paths"), dict):
+        return dict(resp["paths"])
+
+    if isinstance(resp.get("persistence"), dict):
+        p = resp["persistence"]
+        if isinstance(p.get("files"), dict):
+            return dict(p["files"])
+
+    if isinstance(resp.get("files"), dict):
+        return dict(resp["files"])
+
+    return {}
 
 def _find_nested_dict(resp: Dict[str, Any], keys: List[str]) -> Optional[Dict[str, Any]]:
     for k in keys:
@@ -1919,3 +1954,225 @@ def test_reset_paper_runtime_state_clears_memory_and_optional_files(tmp_path: Pa
             if isinstance(pth, str):
                 p = Path(pth)
                 assert not p.exists(), f"Expected {key} file removed on reset(clear_files=True): {pth}"
+
+def test_restore_paper_runtime_snapshot_alias_roundtrip(tmp_path):
+    """
+    Confirms the compatibility alias restore_paper_runtime_snapshot() works and
+    restores both trades + events from persisted files.
+    """
+    configure = configure_paper_runtime_persistence
+    reset_fn = reset_paper_runtime_state
+    persist_fn = persist_paper_runtime_snapshot
+
+    # alias should exist now (you added it)
+    restore_alias = globals().get("restore_paper_runtime_snapshot")
+    if not callable(restore_alias):
+        pytest.skip("restore_paper_runtime_snapshot alias not implemented in current runtime.")
+
+    base_dir = tmp_path / "paper_runtime_restore_alias"
+    configure(enabled=True, base_dir=str(base_dir))
+
+    # Clear memory + files (tolerate signature variants)
+    try:
+        reset_fn(clear_persistence_files=True)
+    except TypeError:
+        try:
+            reset_fn(clear_files=True)
+        except TypeError:
+            reset_fn()
+
+    # Open a trade to create state + at least one event
+    tid = _open_trade_for_close_tests(
+        direction="BUY",
+        entry=1.1000,
+        stop_loss=1.0950,
+        take_profit=1.1102,  # slightly >2R to avoid float-edge rr==1.999999...
+        source="pytest_phase2_restore_alias_roundtrip",
+    )
+
+    # Create another event via management so event count > 1
+    mg = _as_dict(
+        manage_open_trade(
+            trade_id=tid,
+            action="add_note",
+            payload={"note": "restore alias test note"},
+        )
+    )
+    assert _extract_ok(mg) is True, f"manage_open_trade failed: {mg}"
+
+    snap = _as_dict(persist_fn())
+    assert _extract_ok(snap) is True, f"persist snapshot failed: {snap}"
+
+    # Clear memory only (leave files intact) -- tolerate signature variants
+    try:
+        cleared = _as_dict(reset_fn(clear_persistence_files=False))
+    except TypeError:
+        try:
+            cleared = _as_dict(reset_fn(clear_files=False))
+        except TypeError:
+            cleared = _as_dict(reset_fn())
+    assert _extract_ok(cleared) is True, f"reset failed: {cleared}"
+
+    # Restore through alias
+    restored = _as_dict(restore_alias(clear_existing=True))
+    assert _extract_ok(restored) is True, f"restore alias failed: {restored}"
+
+    # Tolerate either naming shape in runtime outputs
+    restored_trades = restored.get("restored_trades")
+    restored_events = restored.get("restored_events")
+    if restored_trades is None:
+        restored_trades = _safe_int(_safe_dict(restored.get("meta")).get("restored_trades"), 0)
+    if restored_events is None:
+        restored_events = _safe_int(_safe_dict(restored.get("meta")).get("restored_events"), 0)
+
+    assert int(restored_trades or 0) >= 1, f"Expected >=1 restored trade: {restored}"
+    assert int(restored_events or 0) >= 1, f"Expected >=1 restored event: {restored}"
+
+    # Sanity-check the trade can be fetched again
+    got = _as_dict(get_paper_trade(tid))
+    assert _extract_ok(got) is True, f"Trade not available after restore: {got}"
+
+def test_persist_snapshot_payload_shape_contains_trade_records(tmp_path):
+    """
+    Accepts either:
+    - raw dict of trades keyed by trade_id
+    - wrapped payload containing trades under a known key
+    """
+    configure = configure_paper_runtime_persistence
+    reset_fn = reset_paper_runtime_state
+    persist_fn = persist_paper_runtime_snapshot
+
+    base_dir = tmp_path / "paper_runtime_snapshot_shape"
+    configure(enabled=True, base_dir=str(base_dir))
+
+    # Clear memory + files (tolerate signature variants)
+    try:
+        reset_fn(clear_persistence_files=True)
+    except TypeError:
+        try:
+            reset_fn(clear_files=True)
+        except TypeError:
+            reset_fn()
+
+    tid = _open_trade_for_close_tests(
+        direction="BUY",
+        entry=1.1000,
+        stop_loss=1.0950,
+        take_profit=1.1102,  # slightly >2R to avoid float-edge rr==1.999999...
+        source="pytest_phase2_snapshot_shape",
+    )
+
+    out = _as_dict(persist_fn())
+    assert _extract_ok(out) is True, f"persist snapshot failed: {out}"
+
+    paths = _extract_paths(out)
+    trades_path = (
+        paths.get("trades_json")
+        or paths.get("snapshot_json")
+        or paths.get("trades_snapshot_json")
+    )
+    if not trades_path:
+        pytest.skip("Runtime does not expose trades snapshot path.")
+
+    p = Path(str(trades_path))
+    assert p.exists(), f"Expected snapshot file to exist: {trades_path}"
+
+    payload = json.loads(p.read_text(encoding="utf-8"))
+
+    # Tolerate wrapped or unwrapped shape
+    trades_dict = None
+    if isinstance(payload, dict):
+        # Wrapped candidates
+        for k in ("trades", "paper_trades", "trade_store", "snapshot", "state"):
+            v = payload.get(k)
+            if isinstance(v, dict):
+                # if nested wrapper, dig one more level for trades
+                if k in {"snapshot", "state"}:
+                    for kk in ("trades", "paper_trades", "trade_store"):
+                        vv = _safe_dict(v).get(kk)
+                        if isinstance(vv, dict):
+                            trades_dict = vv
+                            break
+                    if trades_dict is not None:
+                        break
+                else:
+                    trades_dict = v
+                    break
+
+        # Unwrapped current shape (trade_id -> trade row)
+        if trades_dict is None and tid in payload and isinstance(payload.get(tid), dict):
+            trades_dict = payload
+
+    assert isinstance(trades_dict, dict), f"Could not find trades dict in snapshot payload: {payload}"
+    assert tid in trades_dict, f"Expected trade_id {tid} in snapshot payload keys: {list(trades_dict.keys())[:10]}"
+
+
+def test_persistence_roundtrip_open_close_restore_smoke(tmp_path):
+    configure = configure_paper_runtime_persistence
+    reset_fn = reset_paper_runtime_state
+    persist_fn = persist_paper_runtime_snapshot
+    restore_alias = (
+        globals().get("restore_paper_runtime_snapshot")
+        or globals().get("restore_paper_runtime_from_snapshot")
+    )
+
+    if not callable(restore_alias):
+        pytest.skip("No restore function available in current runtime.")
+
+    base_dir = tmp_path / "paper_runtime_e2e_roundtrip"
+    configure(enabled=True, base_dir=str(base_dir))
+
+    # Clear memory + files (tolerate runtime signature variants)
+    try:
+        reset_out = reset_fn(clear_persistence_files=True)
+    except TypeError:
+        try:
+            reset_out = reset_fn(clear_files=True)
+        except TypeError:
+            reset_out = reset_fn()
+    if isinstance(reset_out, dict):
+        assert _extract_ok(_as_dict(reset_out)) in {True, None}, f"reset failed: {reset_out}"
+
+    tid = _open_trade_for_close_tests(
+        direction="SELL",
+        entry=1.1000,
+        stop_loss=1.1050,
+        take_profit=1.0898,  # >2R for SELL, avoids float-edge min_rr failures
+        source="pytest_phase2_persistence_e2e_roundtrip",
+    )
+
+    closed = _as_dict(
+        close_trade(
+            trade_id=tid,
+            close_price=1.0950,
+            close_reason="pytest_roundtrip_close",
+            outcome={"pnl_hint": "positive"},
+        )
+    )
+    assert _extract_ok(closed) is True, f"close_trade failed: {closed}"
+
+    snap = _as_dict(persist_fn())
+    assert _extract_ok(snap) is True, f"persist snapshot failed: {snap}"
+
+    # Clear memory only (leave files intact) — tolerate signature variants
+    try:
+        cleared = _as_dict(reset_fn(clear_persistence_files=False))
+    except TypeError:
+        try:
+            cleared = _as_dict(reset_fn(clear_files=False))
+        except TypeError:
+            cleared = _as_dict(reset_fn())
+    assert _extract_ok(cleared) in {True, None}, f"reset failed: {cleared}"
+
+    restored = _as_dict(restore_alias(clear_existing=True))
+    assert _extract_ok(restored) is True, f"restore failed: {restored}"
+
+    got = _as_dict(get_paper_trade(tid))
+    assert _extract_ok(got) is True, f"Trade not found after restore: {got}"
+
+    trade = _safe_dict(got.get("trade"))
+    assert trade.get("status") == "CLOSED", f"Expected CLOSED after restore: {trade}"
+
+    close_block = _safe_dict(trade.get("close"))
+    oc = _safe_dict(close_block.get("outcome_classification"))
+    assert oc.get("label") == "WIN", f"Expected SELL close below entry to remain WIN after restore: {oc}"

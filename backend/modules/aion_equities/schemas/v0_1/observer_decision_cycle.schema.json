@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/observer_decision_cycle.schema.json",
+  "title": "AION Observer Decision Cycle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "observer_cycle_id",
+    "thesis_id",
+    "timestamp",
+    "process_quality",
+    "outcome_quality",
+    "bias_metrics",
+    "timing_metrics"
+  ],
+  "properties": {
+    "observer_cycle_id": { "type": "string" },
+    "thesis_id": { "type": "string", "pattern": "^thesis/" },
+    "timestamp": { "type": "string", "format": "date-time" },
+
+    "process_quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "notes": { "type": "string" },
+        "gate_adherence": { "type": "boolean" },
+        "evidence_completeness": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+
+    "outcome_quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["known"],
+      "properties": {
+        "known": { "type": "boolean" },
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "return_pct": { "type": "number" },
+        "max_adverse_excursion_pct": { "type": "number" },
+        "max_favorable_excursion_pct": { "type": "number" },
+        "timing_validity": { "type": "string", "enum": ["valid", "invalid", "unknown"] },
+        "thesis_validity": { "type": "string", "enum": ["valid", "invalid", "mixed", "unknown"] }
+      }
+    },
+
+    "bias_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "confidence_inflation_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "thesis_lock_in_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "recency_bias_score": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+
+    "timing_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "catalyst_timing_error_days": { "type": "integer" },
+        "collapse_timing_error_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "drift_warning_effective": { "type": "boolean" }
+      }
+    },
+
+    "sector_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sector_ref": { "type": "string", "pattern": "^sector/" },
+        "false_positive_bucket": { "type": "boolean" }
+      }
+    }
+  }
+}

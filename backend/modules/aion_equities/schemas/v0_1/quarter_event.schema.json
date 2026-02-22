@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/quarter_event.schema.json",
+  "title": "AION Quarter Event Container",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "quarter_event_id",
+    "company_ref",
+    "period",
+    "event_type",
+    "as_reported_date",
+    "source",
+    "extraction",
+    "analysis",
+    "audit"
+  ],
+  "properties": {
+    "quarter_event_id": {
+      "type": "string",
+      "pattern": "^company/[A-Za-z0-9._:-]+/quarter/[0-9]{4}-Q[1-4]$"
+    },
+    "company_ref": { "type": "string", "pattern": "^company/" },
+
+    "period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fiscal_year", "fiscal_quarter"],
+      "properties": {
+        "fiscal_year": { "type": "integer", "minimum": 1900 },
+        "fiscal_quarter": { "type": "integer", "enum": [1, 2, 3, 4] },
+        "period_start": { "type": "string", "format": "date" },
+        "period_end": { "type": "string", "format": "date" }
+      }
+    },
+
+    "event_type": { "type": "string", "enum": ["quarterly_results", "interim_report", "annual_report_snapshot", "trading_update"] },
+    "as_reported_date": { "type": "string", "format": "date" },
+    "earnings_call_date": { "type": "string", "format": "date" },
+
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_refs", "source_hashes"],
+      "properties": {
+        "document_refs": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "source_hashes": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "provider": { "type": "string" }
+      }
+    },
+
+    "extraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["financials", "narrative"],
+      "properties": {
+        "financials": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "revenue": { "type": "number" },
+            "gross_margin_pct": { "type": "number" },
+            "operating_margin_pct": { "type": "number" },
+            "ebitda": { "type": "number" },
+            "free_cash_flow": { "type": "number" },
+            "net_debt": { "type": "number" },
+            "interest_cover": { "type": "number" },
+            "capex": { "type": "number" }
+          }
+        },
+        "narrative": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["summary"],
+          "properties": {
+            "summary": { "type": "string" },
+            "guidance_text_excerpt_refs": { "type": "array", "items": { "type": "string" } },
+            "management_claim_refs": { "type": "array", "items": { "type": "string" } },
+            "ast_applied": { "type": "boolean" },
+            "ast_result_ref": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deltas_vs_prior", "flags", "assessment_refs"],
+      "properties": {
+        "deltas_vs_prior": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "revenue_yoy_pct": { "type": "number" },
+            "operating_margin_bps": { "type": "number" },
+            "fcf_yoy_pct": { "type": "number" },
+            "net_debt_change": { "type": "number" }
+          }
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "margin_compression",
+              "debt_risk_rising",
+              "guidance_weakened",
+              "guidance_strengthened",
+              "contradiction_detected",
+              "automation_signal_positive",
+              "automation_signal_negative",
+              "needs_targeted_ast"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "assessment_refs": { "type": "array", "items": { "type": "string" } },
+        "pattern_match_refs": { "type": "array", "items": { "type": "string" } },
+        "sqi_trace_refs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

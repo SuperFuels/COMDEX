@@ -228,6 +228,7 @@ def configure_paper_runtime_persistence(
         files = {
             "base_dir": str(base_path),
             "events_jsonl": str(base_path / "paper_trade_events.jsonl"),
+            # keep aligned with _paper_runtime_paths()
             "trades_json": str(base_path / "paper_trades_snapshot.json"),
             "snapshot_json": str(base_path / "paper_runtime_state_meta.json"),
         }
@@ -247,12 +248,19 @@ def configure_paper_runtime_persistence(
     return {
         "ok": True,
         "enabled": bool(enabled_norm),
-        "paths": _paper_runtime_paths(),  # test-friendly shape
+        "base_dir": files["base_dir"],
+        "paths": _paper_runtime_paths(),  # test-friendly shape (persist_dir/events_jsonl/trades_json/state_meta_json)
         "persistence": dict(_PAPER_RUNTIME_PERSISTENCE),
         "meta": {
             "runtime": "in_memory_scaffold",
             "phase": "phase2",
             "diagnostic_only": True,
+            "aliases_supported": [
+                "persist_enabled",
+                "persistence_enabled",
+                "persistence_dir",
+                "runtime_dir",
+            ],
         },
     }
 
@@ -2499,3 +2507,6 @@ def run_dmip_checkpoint(
             "snapshot_hash": (weights_snapshot or {}).get("snapshot_hash"),
         },
     }
+
+def restore_paper_runtime_snapshot(*, clear_existing: bool = True) -> Dict[str, Any]:
+    return restore_paper_runtime_from_snapshot(clear_existing=clear_existing)

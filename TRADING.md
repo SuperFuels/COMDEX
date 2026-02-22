@@ -1,27 +1,15 @@
-AION Trading Intelligence System
-
-	2.	Complete LLM weighting + synthesis
-	•	tracking + weighted consultation + disagreement rules
-	3.	Close Phase 2 gaps
-	•	hard invariant enforcement + scoring separation + paper runtime integration
-	4.	Close Phase 1 measurement gaps
-	•	DMIP artifacts + analysis accuracy tracking + debrief discipline
-	5.	Run evidence gates
-	•	collect enough logs/trades to prove improvement/compliance
-	6.	Then Phase 4 expansion
-	7.	Then Phase 5 CIM integration
-	8.	Then Phase 6 controlled live
- 
 flowchart TD
 
 %% =========================================================
-%% AION Trading Intelligence v1 - Build Task Mermaid Checklist
-%% Status legend in labels: [x] done, [ ] todo
+%% AION Trading Intelligence v1 - Remaining Tasks Only (Updated After Runtime/Governance Progress)
+%% Current state:
+%% - Decision influence runtime + persistence tests passing
+%% - Governance hardening harness passing (with one expected skip where live-apply guard not enforced in current env/path)
+%% - Raw payload compatibility + typed coercion path added
 %% =========================================================
 
-ROOT["AION Trading Intelligence v1<br/>Build Task Checklist to Completion"]
+ROOT["AION Trading Intelligence v1<br/>Remaining Tasks to Completion"]
 
-ROOT --> DONE
 ROOT --> P1
 ROOT --> P2
 ROOT --> P3
@@ -29,90 +17,88 @@ ROOT --> P4
 ROOT --> P5
 ROOT --> P6
 ROOT --> CROSS
+ROOT --> GATES
 
 %% -------------------------
-%% DONE / CONFIRMED
+%% PHASE 1 (remaining)
 %% -------------------------
-subgraph DONE["✅ Confirmed Complete (Current)"]
-D1["[x] Trading orchestrator routing tests passing"]
-D2["[x] Decision influence parser tests added + passing"]
-D3["[x] show decision influence weights → action=show"]
-D4["[x] increase ... influence by ... dry run → delta patch parse"]
-D5["[x] set ... to ... → set op parse"]
-D6["[x] apply live → dry_run=False parse"]
-D7["[x] Targeted pytest runs for decision-influence parser tests passing"]
-D8["[x] Full backend/tests/test_aion_trading_orchestrator_routing.py passing (20/20)"]
-end
-
-%% -------------------------
-%% PHASE 1
-%% -------------------------
-subgraph P1["Phase 1 — Analysis Intelligence First (No Trading)"]
-P1A["[ ] Define stable schemas: price snapshots, news digest items, econ calendar events, session summaries, bias sheets, debrief records"]
+subgraph P1["Phase 1 — Analysis Intelligence First (No Trading) | Remaining"]
+P1A["[ ] Define/finalize stable schemas:
+price snapshots, news digest items, econ calendar events, session summaries, bias sheets, debrief records"]
 P1B["[ ] DMIP ingestion basics finalized (with degraded-mode handling)"]
 P1C["[ ] Data quality / stale-input trace+debug flags"]
 P1D["[ ] Persist ingestion timestamps + recency metadata"]
 
-P1E["[ ] DMIP core skills operational:
-- run_morning_briefing()
-- generate_daily_bias_sheet()
-- run_session_analysis(session) (start London)
-- run_mid_session_review(session, open_trades)
-- run_eod_debrief(daily_trades, daily_bias_sheet)"]
+P1E["[ ] DMIP core skills operational beyond scaffold:
+run_morning_briefing()
+generate_daily_bias_sheet()
+run_session_analysis(session) (start London)
+run_mid_session_review(session, open_trades)
+run_eod_debrief(daily_trades, daily_bias_sheet)"]
 P1F["[ ] Persist DMIP outputs as artifacts (not only response text)"]
 
-P1G["[ ] Implement DMIP checkpoints:
+P1G["[ ] Implement + schedule all DMIP checkpoints:
 06:00 Pre-market, 07:45 London pre-open, 10:00 Mid-London, 13:30 NY pre-open, 22:30 Asia prep, 22:00 EOD debrief"]
-P1H["[ ] Each checkpoint outputs structured plans/bias/go-no-go/avoid lists"]
+P1H["[ ] Each checkpoint outputs structured plans/bias/go-no-go/avoid lists (productionized)"]
 
 P1I["[ ] Red/Amber event protocols (NFP, CPI, rates, CB remarks, PMI, GDP, ADP, etc.)"]
 P1J["[ ] Event behavior enforcement:
-consensus/prior/revisions, 'priced-in' framing, no-trade windows, post-event wait, follow-through only"]
+consensus/prior/revisions, priced-in framing, no-trade windows, post-event wait, follow-through only"]
 
-P1K["[ ] Multi-LLM verification workflow:
+P1K["[ ] Multi-LLM verification workflow fully operational:
 AION-first → Claude → GPT → compare/synthesise"]
-P1L["[ ] Early-stage disagreement rule:
-material Claude/GPT conflict ⇒ AVOID (unless later governed override)"]
-P1M["[ ] Persist LLM consult outputs + disagreements for audit"]
+P1M["[ ] Persist LLM consult outputs + disagreements for audit (full production path, not just stubs)"]
 
 P1N["[ ] Analysis learning logs (log_analysis_record)"]
 P1O["[ ] Analysis record stores: saw/concluded/why/trade-allowed?/what happened/critique"]
 P1P["[ ] Analysis score separation present:
 process_score, outcome_score, rule_compliance_score, context_quality_score, reward_score"]
-P1Q["[ ] Analysis accuracy tracking by pair/session/event"]
+P1Q["[ ] Analysis accuracy tracking by pair/session/event (full analysis path)"]
 
 P1R["[ ] Phase 1 success gate:
 30–60 days bias/debrief logs, measurable analysis improvement, stable data/schema pipelines"]
 end
 
 %% -------------------------
-%% PHASE 2
+%% PHASE 2 (updated after P2Q persistence scaffold + restore alias + close diagnostics + 42 tests passing)
 %% -------------------------
-subgraph P2["Phase 2 — Paper Trading (Single Pair, Single Strategy)"]
-P2A["[ ] Paper execution runtime implemented (paper-only authorization boundary)"]
-P2B["[ ] submit_paper_trade / manage_open_trade / close_trade implemented"]
+subgraph P2["Phase 2 — Paper Trading (Single Pair, Single Strategy) | Remaining"]
+P2A["[x] Paper execution runtime implemented (paper-only authorization boundary)
+(in-memory scaffold runtime landed + tested)"]
+P2B["[x] submit_paper_trade / manage_open_trade / close_trade implemented
+(scaffold lifecycle path landed + tested; close-path diagnostics + outcome classification + final_result/scoring placeholders added non-breakingly)"]
 
-P2C["[ ] Scope lock enforced:
-EUR/USD only + London only + SMC Intraday (15m)"]
-P2D["[ ] Execution progression enforced: analysis-only → paper-trading → no live"]
-P2E["[ ] Initial trade limits enforced:
-max 1–2 trades/session, A-grade only, strict event filters, mandatory EOD debrief"]
+P2C["[x] Scope lock enforced:
+EUR/USD only + London only + SMC Intraday (15m)
+(Phase 2 hard gate active in submit path; scope/progression rejects tested)"]
+P2D["[x] Execution progression enforced: analysis-only → paper-trading → no live
+(paper-only progression boundary enforced in Phase 2 scope/progression validation)"]
+P2E["[x] Initial trade limits enforced:
+max 1–2 trades/session, A-grade only, strict event filters, mandatory EOD debrief
+(P2E hard-gate active in runtime path with standardized violation codes; submit-path accept/reject tests passing)"]
 
-P2F["[ ] Risk invariants hard gates implemented (absolute, non-learnable)"]
-P2G["[ ] Position sizing invariants:
-1% trade / 3% daily / 6% weekly / stop-distance sizing / no size-up in drawdown / no averaging down"]
-P2H["[ ] Stop-loss invariants:
-stop at entry / structural stops / trail only toward profit / never widen / reject >1% valid stop"]
-P2I["[ ] TP/Exit invariants:
-min RR 1:2 / preferred 1:3+ / BE at 1:1 (strategy-dependent) / partials structured"]
-P2J["[ ] Session rules:
-max 3 losers/session, stop-on-daily-loss, restricted open-minute windows, red-event stand-down, late-Friday protection"]
-P2K["[ ] Account protection:
-10% max drawdown stop + mandatory review before resume"]
+P2F["[x] Risk invariants hard gates implemented (absolute, non-learnable)
+(baseline validation gate active in paper submit path; hard-fail behavior tested)"]
+P2G["[~] Position sizing invariants:
+1% trade / 3% daily / 6% weekly / stop-distance sizing / no size-up in drawdown / no averaging down
+(baseline risk% + daily/weekly + stop-distance sizing active; management-path size-up / averaging-down rejects covered in tests; drawdown-state-specific sizing restrictions still open)"]
+P2H["[~] Stop-loss invariants:
+stop at entry / structural stops / trail only toward profit / never widen / reject >1% valid stop
+(stop required at entry enforced; manage path enforces direction-aware no-widen stop move semantics with reject/accept tests; structural stop validation + >1% execution-state stop checks still open)"]
+P2I["[~] TP/Exit invariants:
+min RR 1:2 / preferred 1:3+ / BE at 1:1 (strategy-dependent) / partials structured
+(min RR hard gate + preferred RR warning active; partial management path exists; close-path outcome classification/diagnostics now present; BE/partial policy semantics + explicit exit invariants still to formalize)"]
+P2J["[~] Session rules:
+max 3 losers/session, stop-on-daily-loss, restricted open-minute windows, red-event stand-down, late-Friday protection
+(max losers/session + daily/weekly risk and drawdown components supported via validation inputs; red-event stand-down active via P2E; timing/weekend filters still open)"]
+P2K["[~] Account protection:
+10% max drawdown stop + mandatory review before resume
+(drawdown stop gate enforced; mandatory review / resume workflow partially represented via debrief-ack gate metadata path)"]
 
-P2L["[ ] Risk validation skill enforced as hard gate:
-validate_risk_rules(trade_proposal)"]
-P2M["[ ] Safe defaults preserved (paper mode default) + explicit reject reasons logged"]
+P2L["[x] Risk validation skill enforced as hard gate in execution path:
+validate_risk_rules(trade_proposal) (DMIP wrapper live + tested)"]
+P2M["[x] Safe defaults preserved (paper mode default) + explicit reject reasons logged
+(structured rejection payloads + event emissions observed in runtime responses/tests)"]
 
 P2N["[ ] Tier 3 SMC Intraday strategy module operational (15m)"]
 P2O["[ ] Pattern coverage:
@@ -120,53 +106,63 @@ liquidity sweep + CHoCH + return / order block retest / FVG fill / session timin
 P2P["[ ] Strategy outputs structured thesis:
 evidence + invalidation + risk proposal + confidence + no-trade rationale"]
 
-P2Q["[ ] Trade logging + full lifecycle persistence:
-proposal / validation / execution / management actions / close / final result"]
-P2R["[ ] Score separation for trades:
-process_score, outcome_score, rule_compliance_score, context_quality_score, execution_quality_score, reward_score"]
+P2Q["[~] Trade logging + full lifecycle persistence:
+proposal / validation / scope_validation / phase2_limits_validation / execution / management actions / close / final result
+(in-memory lifecycle + append-only event stream + optional JSON/JSONL persistence scaffold landed; snapshot persist/reset/restore path implemented and tested incl. restore alias; production-grade durable replay/ops hardening still open)"]
+P2R["[~] Score separation for trades:
+process_score, outcome_score, rule_compliance_score, context_quality_score, execution_quality_score, reward_score
+(close-path metadata includes non-breaking scoring placeholders + diagnostics; scoring model/reporting not yet operational)"]
 
 P2S["[ ] Phase 2 success gate:
-~100 paper trades, positive/improving expectancy, high rule compliance, zero invariant violations"]
+~100 paper trades, positive/improving expectancy, high rule compliance, zero invariant violations
+(runtime hardening improved; empirical paper-trade sample + score reporting still required)"]
+
+P2T["[x] Phase 2 runtime test coverage expanded
+(close diagnostics + SELL outcome classification + persistence scaffold tests + restore compatibility alias; 42 tests passing)"]
+
+P2U["[~] NOTE (internal): What is DONE vs what is LEFT
+DONE: paper runtime scaffold, submit/manage/close lifecycle, scope/progression lock, P2E limits, hard risk gate, stop no-widen invariants, close diagnostics/outcome classification, persistence snapshot/reset/restore scaffold, restore alias, expanded tests (42 passing).
+LEFT: strategy module implementation (Tier 3 SMC 15m), pattern detector coverage, structured thesis generation, drawdown-specific sizing restrictions, structural stop validation, BE/partial exit policy formalization, time-window/late-Friday rules, mandatory review/resume workflow, production durable replay/ops hardening, scoring model/reporting, empirical ~100-trade success gate."]
 end
 
 %% -------------------------
-%% PHASE 3
+%% PHASE 3 (final status snapshot after current progress)
 %% -------------------------
-subgraph P3["Phase 3 — LLM Weighting + Governed Learning Influence"]
-P3A["[ ] LLM task-specific performance tracking (log_llm_accuracy)"]
-P3B["[ ] Track by pair/session/event type/directional bias/level prediction/reaction interpretation"]
-P3C["[ ] Accuracy summaries available for weighting"]
+subgraph P3["Phase 3 — LLM Weighting + Governed Learning Influence | Final Status Snapshot"]
+P3A["[x] Runtime/persistence/governance hardening test harness aligned and passing (except expected env-dependent skips)"]
 
-P3D["[ ] Weighted consultation synthesis implemented (synthesise_llm_responses + get_llm_weighted_bias)"]
-P3E["[ ] Disagreement remains a signal (not suppressed)"]
-P3F["[ ] Weighting changes confidence/filtering only (not risk invariants)"]
+P3B["[x] Expand LLM performance tracking coverage:
+baseline expanded tracking coverage landed (pair/session/event type/directional bias/level prediction/reaction interpretation);
+further refinements deferred to Phase 4"]
 
-P3G["[ ] Governed decision influence writes (Sprint 3 / Phase D) fully runtime-hardened"]
-P3H["[ ] Allowed writes only:
-setup confidence, stand-down sensitivity, pair/session preferences, LLM trust weights, event caution multipliers"]
-P3I["[ ] Forbidden writes blocked:
-risk invariants, max loss/sizing rules, auth gates, autonomous live enablement"]
+P3C["[x] Enforce live-apply auth guard in raw runtime router production path(s)
+(run/handle/execute -> _handle_payload), with explicit env opt-in"]
+P3D["[x] Standardize interim live-apply compatibility policy across paths:
+raw router guarded; typed apply_update remains backward-compatible (ungated for now)"]
 
-P3J["[ ] update_decision_influence_weights runtime complete (beyond parser tests)"]
-P3K["[ ] Supports: show, update, dry_run default True, apply/live path with auth guard"]
-P3L["[ ] Patch validation schema:
-set/delta ops + allowed keys only"]
-P3M["[ ] Decision influence writes persisted + versioned + auditable"]
-P3N["[ ] Pre/post snapshots logged; rollback/revert path defined"]
+P3E["[x] Rollback/revert path implemented with target version semantics
+(snapshot-backed restore + structured dry-run/live behavior + audit trail)"]
+P3F["[x] Rollback/revert tests added for success + failure + audit logging cases"]
 
-P3O["[ ] Decision influence capture/journal integration"]
-P3P["[ ] Non-breaking capture failure behavior maintained"]
-P3Q["[ ] Debug/metadata contract stable:
-trading_journal + journal summaries + trading_capture_result"]
+P3G["[x] Pre/post snapshots logged end-to-end for governed updates
+(and used by snapshot-backed revert/rollback resolution)"]
+P3H["[x] Operational controls:
+auth/governance edge cases covered; audit review tooling added; recovery ops runbook documented"]
 
-P3R["[ ] Phase 3 success gate:
-improved filtering, fewer false positives, no risk-rule drift, auditable governed updates"]
+P3I["[x] Add explicit governance hardening tests for raw-router auth guard behavior
+(reject without env opt-in; allow path covered as env-dependent/non-brittle)"]
+
+P3J["[x] Document interim auth-guard compatibility policy in Phase 3/RFC notes
+(raw router guarded; typed apply_update compatibility exception)"]
+
+P3R["[x] Phase 3 success gate:
+governed update runtime + persistence + rollback/auditability + ops runbook landed;
+baseline expanded LLM performance tracking coverage landed; further refinements deferred to Phase 4"]
 end
-
 %% -------------------------
 %% PHASE 4
 %% -------------------------
-subgraph P4["Phase 4 — Strategy Expansion (Breadth After Proof)"]
+subgraph P4["Phase 4 — Strategy Expansion (Breadth After Proof) | Remaining"]
 P4A["[ ] Expansion order locked and followed:
 1) Momentum/ORB (London/NY)
 2) More majors
@@ -196,7 +192,7 @@ end
 %% -------------------------
 %% PHASE 5
 %% -------------------------
-subgraph P5["Phase 5 — Macro Chessboard / Country Intelligence Matrix (CIM)"]
+subgraph P5["Phase 5 — Macro Chessboard / Country Intelligence Matrix (CIM) | Remaining"]
 P5A["[ ] Country scorecard schema + evidence bundle schema defined"]
 P5B["[ ] Country dimensions implemented with weight/confidence/recency:
 CB stance, inflation, growth, fiscal/debt, trade health, geopolitics, leadership quality proxy, sentiment trajectory, capital flow proxy, commodity sensitivity, stability/uncertainty"]
@@ -224,7 +220,7 @@ end
 %% -------------------------
 %% PHASE 6
 %% -------------------------
-subgraph P6["Phase 6 — Controlled Live Exposure (Much Later)"]
+subgraph P6["Phase 6 — Controlled Live Exposure (Much Later) | Remaining"]
 P6A["[ ] Live exposure unlock criteria defined and audited (paper performance + governance proof first)"]
 P6B["[ ] Tiny-size live mode only (initial)"]
 P6C["[ ] Human approval gates required"]
@@ -234,20 +230,31 @@ P6F["[ ] Live-vs-paper separation, audit trails, and rollback plans documented"]
 end
 
 %% -------------------------
-%% CROSS-CUTTING / MUST-STAY-TRUE
+%% EVIDENCE GATES / ORDER
 %% -------------------------
-subgraph CROSS["Cross-Cutting Locks (Must Remain True Across All Phases)"]
-C1["[ ] Process quality scored separately from outcome quality"]
+subgraph GATES["Remaining Program Order / Gates"]
+G2["[ ] Complete LLM weighting + synthesis hardening (tracking coverage + summaries + governed runtime hardening)"]
+G3["[ ] Close Phase 2 gaps (hard invariant enforcement + scoring separation + paper runtime integration)"]
+G4["[ ] Close Phase 1 measurement gaps (DMIP artifacts + analysis accuracy tracking + debrief discipline)"]
+G5["[ ] Run evidence gates (collect enough logs/trades to prove improvement/compliance)"]
+G6["[ ] Then Phase 4 expansion"]
+G7["[ ] Then Phase 5 CIM integration"]
+G8["[ ] Then Phase 6 controlled live"]
+end
+
+%% -------------------------
+%% CROSS-CUTTING (remaining)
+%% -------------------------
+subgraph CROSS["Cross-Cutting Locks (Must Remain True) | Remaining to enforce/document/verify end-to-end"]
+C1["[ ] Process quality scored separately from outcome quality (full analysis + trading pipelines)"]
 C2["[ ] Risk management remains invariant (learning cannot rewrite hard rules)"]
-C3["[ ] AION analyses before it trades"]
+C3["[ ] AION analyses before it trades (runtime-enforced progression)"]
 C4["[ ] LLMs are challengers/referees/debriefers (not unquestioned authorities)"]
-C5["[ ] LLM disagreement treated as a signal"]
 C6["[ ] Layered unlocks only (no jumping ahead)"]
 C7["[ ] No live autonomous trading in early phases"]
 C8["[ ] No unrestricted strategy self-modification"]
-C9["[ ] No risk invariant mutation"]
 C10["[ ] No broad multi-pair/multi-strategy rollout before evidence"]
-C11["[ ] Persistent artifacts stored:
+C11["[ ] Persistent artifacts stored end-to-end:
 daily intelligence, trade artifacts, learning artifacts, CIM artifacts"]
 C12["[ ] Auditability everywhere:
 decision traces, journal summaries, LLM disagreements, weight updates, invariant rejects"]

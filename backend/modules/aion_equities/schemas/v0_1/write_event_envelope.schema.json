@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/write_event_envelope.schema.json",
+  "title": "AION Investing Write Event Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "stage",
+    "timestamp",
+    "entity_id",
+    "entity_type",
+    "operation",
+    "payload",
+    "provenance",
+    "trace"
+  ],
+  "properties": {
+    "event_id": { "type": "string", "minLength": 3 },
+    "stage": {
+      "type": "string",
+      "enum": ["ingestion", "interpretation", "decision", "outcome"]
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "entity_id": { "type": "string", "minLength": 3 },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "company",
+        "sector",
+        "macro",
+        "quarter_event",
+        "earnings_event",
+        "filing_event",
+        "news_event",
+        "catalyst_event",
+        "assessment",
+        "thesis_state",
+        "kg_edge",
+        "pattern",
+        "observer_decision_cycle"
+      ]
+    },
+    "operation": { "type": "string", "enum": ["create", "update", "upsert", "append", "close"] },
+
+    "payload": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["schema_id", "data"],
+      "properties": {
+        "schema_id": { "type": "string" },
+        "data": { "type": "object" }
+      }
+    },
+
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_kind", "source_refs", "generated_by"],
+      "properties": {
+        "source_kind": {
+          "type": "string",
+          "enum": ["pdf", "news", "manual", "pipeline", "sqi", "observer", "pattern_engine", "system"]
+        },
+        "source_refs": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "source_hashes": { "type": "array", "items": { "type": "string" } },
+        "generated_by": { "type": "string" }
+      }
+    },
+
+    "trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["correlation_id"],
+      "properties": {
+        "correlation_id": { "type": "string" },
+        "sqi_trace_id": { "type": "string" },
+        "stability_trace_id": { "type": "string" },
+        "observer_cycle_id": { "type": "string" }
+      }
+    }
+  }
+}

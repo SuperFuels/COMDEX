@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/kg_edge.schema.json",
+  "title": "AION Investing KG Edge",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "edge_id",
+    "src",
+    "dst",
+    "link_type",
+    "created_at",
+    "confidence",
+    "active",
+    "provenance"
+  ],
+  "properties": {
+    "edge_id": { "type": "string", "minLength": 3 },
+    "src": { "type": "string", "minLength": 3 },
+    "dst": { "type": "string", "minLength": 3 },
+    "link_type": {
+      "type": "string",
+      "enum": [
+        "causal",
+        "exposure",
+        "competitor",
+        "supplier_customer",
+        "dependency",
+        "catalyst_for",
+        "supports_thesis",
+        "contradicts_thesis",
+        "invalidates_thesis",
+        "pattern_match",
+        "pattern_analogue",
+        "confidence_modifier",
+        "drift_signal",
+        "management_claim",
+        "evidence_source"
+      ]
+    },
+    "directionality": { "type": "string", "enum": ["directed", "undirected"], "default": "directed" },
+    "weight": { "type": "number", "minimum": -1, "maximum": 1 },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+    "active": { "type": "boolean" },
+    "valid_from": { "type": "string", "format": "date-time" },
+    "valid_to": { "type": "string", "format": "date-time" },
+    "payload": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "relation_note": { "type": "string" },
+        "magnitude_hint": { "type": "number" },
+        "lag_days_hint": { "type": "integer", "minimum": 0 },
+        "sector_scope": { "type": "string" },
+        "contradiction_kind": { "type": "string" },
+        "pattern_score": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_event_ids", "generated_by"],
+      "properties": {
+        "source_event_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "source_hashes": { "type": "array", "items": { "type": "string" } },
+        "generated_by": { "type": "string" },
+        "trace_id": { "type": "string" }
+      }
+    },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}

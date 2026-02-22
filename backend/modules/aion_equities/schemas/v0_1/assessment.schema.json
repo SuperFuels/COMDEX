@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/assessment.schema.json",
+  "title": "AION Investing Assessment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "assessment_id",
+    "entity_id",
+    "entity_type",
+    "as_of",
+    "version",
+    "bqs",
+    "acs",
+    "aot",
+    "risk",
+    "catalyst",
+    "provenance"
+  ],
+  "properties": {
+    "assessment_id": {
+      "type": "string",
+      "pattern": "^assessment/[A-Za-z0-9._:-]+/[0-9]{4}-[0-9]{2}-[0-9]{2}T"
+    },
+    "entity_id": { "type": "string", "minLength": 3 },
+    "entity_type": {
+      "type": "string",
+      "enum": ["company", "quarter_event", "earnings_event", "catalyst_event", "thesis"]
+    },
+    "as_of": { "type": "string", "format": "date-time" },
+    "version": { "type": "string", "default": "1.0.0" },
+
+    "bqs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "scale", "components"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "scale": { "type": "string", "const": "0-100" },
+        "components": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "revenue_trajectory_quality",
+            "margin_direction_resilience",
+            "fcf_generation_quality",
+            "balance_sheet_strength",
+            "debt_maturity_refinancing_risk",
+            "interest_coverage_quality",
+            "moat_durability",
+            "management_credibility_guidance_accuracy",
+            "capital_allocation_discipline"
+          ],
+          "properties": {
+            "revenue_trajectory_quality": { "$ref": "#/$defs/scored_component" },
+            "margin_direction_resilience": { "$ref": "#/$defs/scored_component" },
+            "fcf_generation_quality": { "$ref": "#/$defs/scored_component" },
+            "balance_sheet_strength": { "$ref": "#/$defs/scored_component" },
+            "debt_maturity_refinancing_risk": { "$ref": "#/$defs/scored_component_inverted_risk" },
+            "interest_coverage_quality": { "$ref": "#/$defs/scored_component" },
+            "moat_durability": { "$ref": "#/$defs/scored_component" },
+            "management_credibility_guidance_accuracy": { "$ref": "#/$defs/scored_component" },
+            "capital_allocation_discipline": { "$ref": "#/$defs/scored_component" }
+          }
+        },
+        "summary": { "type": "string" }
+      }
+    },
+
+    "acs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "scale", "components"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "scale": { "type": "string", "const": "0-100" },
+        "components": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "public_data_clarity",
+            "reporting_consistency",
+            "earnings_predictability",
+            "commodity_input_opacity",
+            "hedging_book_opacity",
+            "regulatory_complexity",
+            "segment_complexity",
+            "narrative_coherence",
+            "historical_model_error_stability"
+          ],
+          "properties": {
+            "public_data_clarity": { "$ref": "#/$defs/scored_component" },
+            "reporting_consistency": { "$ref": "#/$defs/scored_component" },
+            "earnings_predictability": { "$ref": "#/$defs/scored_component" },
+            "commodity_input_opacity": { "$ref": "#/$defs/scored_component_inverted_risk" },
+            "hedging_book_opacity": { "$ref": "#/$defs/scored_component_inverted_risk" },
+            "regulatory_complexity": { "$ref": "#/$defs/scored_component_inverted_risk" },
+            "segment_complexity": { "$ref": "#/$defs/scored_component_inverted_risk" },
+            "narrative_coherence": { "$ref": "#/$defs/scored_component" },
+            "historical_model_error_stability": { "$ref": "#/$defs/scored_component" }
+          }
+        },
+        "summary": { "type": "string" }
+      }
+    },
+
+    "aot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["automation_beneficiary_score", "automation_threat_score", "signals"],
+      "properties": {
+        "automation_beneficiary_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "automation_threat_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "signals": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "estimated_automatable_cost_base_pct",
+            "capex_ability_to_automate",
+            "management_execution_credibility",
+            "debt_blocks_transition",
+            "customer_substitution_risk",
+            "sector_ai_adoption_pace"
+          ],
+          "properties": {
+            "estimated_automatable_cost_base_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+            "capex_ability_to_automate": { "$ref": "#/$defs/scored_component" },
+            "management_execution_credibility": { "$ref": "#/$defs/scored_component" },
+            "debt_blocks_transition": { "$ref": "#/$defs/scored_component_inverted_risk" },
+            "customer_substitution_risk": { "$ref": "#/$defs/scored_component_inverted_risk" },
+            "sector_ai_adoption_pace": { "$ref": "#/$defs/scored_component" }
+          }
+        },
+        "summary": { "type": "string" }
+      }
+    },
+
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analytical_confidence_gate_pass", "short_requires_catalyst", "notes"],
+      "properties": {
+        "analytical_confidence_gate_pass": { "type": "boolean" },
+        "short_requires_catalyst": { "type": "boolean", "const": true },
+        "borrow_cost_estimate_annualized_pct": { "type": "number", "minimum": 0 },
+        "position_risk_flags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "catalyst": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["has_active_catalyst", "catalyst_count"],
+      "properties": {
+        "has_active_catalyst": { "type": "boolean" },
+        "catalyst_count": { "type": "integer", "minimum": 0 },
+        "next_catalyst_date": { "type": "string", "format": "date" },
+        "catalyst_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["earnings", "debt_refinancing", "regulatory", "contract", "dividend", "agm", "guidance", "other"]
+          },
+          "uniqueItems": true
+        },
+        "timing_confidence": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_event_ids", "source_hashes", "generated_by", "generated_at"],
+      "properties": {
+        "source_event_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "source_hashes": { "type": "array", "items": { "type": "string" } },
+        "generated_by": { "type": "string" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "model_version": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "scored_component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "confidence"],
+      "properties": {
+        "value": { "type": "number", "minimum": 0, "maximum": 100 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+        "note": { "type": "string" },
+        "evidence_refs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "scored_component_inverted_risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "confidence"],
+      "properties": {
+        "value": { "type": "number", "minimum": 0, "maximum": 100 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+        "note": { "type": "string" },
+        "evidence_refs": { "type": "array", "items": { "type": "string" } },
+        "interpretation": { "type": "string", "const": "higher_value_means_higher_risk" }
+      }
+    }
+  }
+}
