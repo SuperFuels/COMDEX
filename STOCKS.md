@@ -1,6 +1,164 @@
 AION Equity Intelligence Build Plan
 
 flowchart TD
+    A[Schema + store bootstrap complete] --> B[Runtime integration pass]
+    B --> B1[Integrate quarter event creation into runtime]
+    B --> B2[Integrate catalyst event creation into runtime]
+    B --> B3[Integrate observer decision cycle creation into runtime]
+    B --> B4[Expand full company intelligence snapshot loader]
+
+    B4 --> C[Reference maintenance]
+    C --> C1[Update company.latest_assessment_ref]
+    C --> C2[Update company.active_thesis_refs]
+    C --> C3[Update company.quarter_event_refs]
+    C --> C4[Update company.catalyst_event_refs]
+    C --> C5[Attach observer cycle refs to thesis/runtime snapshot]
+
+    C5 --> D[Linked runtime replay]
+    D --> D1[Load company plus latest assessment]
+    D --> D2[Load thesis by mode and window]
+    D --> D3[Load quarter history]
+    D --> D4[Load catalyst history]
+    D --> D5[Load observer cycle history]
+    D --> D6[Load related KG edges]
+
+    D6 --> E[Document ingestion MVP]
+    E --> E1[PDF source registration]
+    E --> E2[Quarter event creation from filing metadata]
+    E --> E3[Structured financial extraction mapping]
+    E --> E4[Narrative summary mapping]
+    E --> E5[Assessment creation from quarter event]
+
+    E5 --> F[Pattern and catalyst linkage]
+    F --> F1[Debt wall stress pattern refs]
+    F --> F2[Gradual deterioration pattern refs]
+    F --> F3[Post-earnings reaction pattern refs]
+    F --> F4[AI margin expansion pattern refs]
+
+    F4 --> G[Observer learning loop]
+    G --> G1[Process vs outcome review]
+    G --> G2[Bias tracking]
+    G --> G3[Timing error tracking]
+    G --> G4[False positive sector bucket tracking]
+
+    G4 --> H[FTSE pilot bootstrap set]
+    H --> H1[Seed first 3 to 5 companies]
+    H --> H2[Create quarter events]
+    H --> H3[Create assessments]
+    H --> H4[Create theses]
+    H --> H5[Create catalysts]
+    H --> H6[Create observer cycles]
+
+    H6 --> I[Validation and threshold tuning]
+    I --> I1[Check SQI signal distributions]
+    I --> I2[Check thesis coherence behaviour]
+    I --> I3[Check catalyst gating behaviour]
+    I --> I4[Check observer metrics]
+
+flowchart TD
+    F[Wire SQI Integration]
+    F --> F1[Thesis coherence scoring]
+    F --> F2[Drift analyzer hooks]
+    F --> F3[Stability trace logging]
+    F --> F4[Contradiction pressure scoring]
+    F --> F5[Collapse-readiness policy gate]
+
+    F5 --> M0[Add Macro Regime + Capital Flow Layer]
+    M0 --> M01[Create macro regime container schema/runtime]
+    M0 --> M02[Track USD, USDJPY, real yields, gold]
+    M0 --> M03[Track sector rotation and ETF-relative flows]
+    M0 --> M04[Track Mag 7 breadth/divergence]
+    M0 --> M05[Track credit spread stress proxies]
+    M0 --> M06[Classify regime daily]
+    M0 --> M061[risk_on]
+    M0 --> M062[risk_off]
+    M0 --> M063[rotating]
+    M0 --> M064[transitioning]
+    M0 --> M07[Feed regime signals into SQI and company assessments]
+    M0 --> M08[Apply regime multiplier to thesis confidence]
+    M0 --> M09[Produce daily helicopter-view briefing]
+
+    M09 --> I[Document Ingestion MVP]
+
+	flowchart TD
+    H4[Observer and Audit Instrumentation] --> HR[Macro Regime and Capital Flow Layer]
+    HR --> HR1[Dollar / Yen risk-appetite monitor]
+    HR --> HR2[Rates and real-yields regime]
+    HR --> HR3[Gold and stress signal monitor]
+    HR --> HR4[Sector and ETF capital flow tracker]
+    HR --> HR5[Credit spread stress monitor]
+    HR --> HR6[Mag 7 concentration/divergence monitor]
+    HR --> HR7[Daily macro regime classification]
+    HR --> HR8[Regime multipliers into company/thesis scoring]
+
+    HR8 --> I[Document Ingestion MVP]
+
+	Phase 2.5 — Macro regime + capital flow layer
+	•	Create macro_regime container/runtime object
+	•	Track:
+	•	USD broad direction
+	•	USD/JPY
+	•	rates direction
+	•	real yields
+	•	gold trend
+	•	credit spread regime
+	•	sector relative strength / rotation
+	•	Mag 7 concentration vs divergence
+	•	Classify daily regime:
+	•	risk_on
+	•	risk_off
+	•	rotation
+	•	transition
+	•	Write regime snapshot daily
+	•	Link macro regime into:
+	•	company containers
+	•	sector containers
+	•	thesis containers
+	•	Feed regime outputs into:
+	•	ACS confidence adjustment
+	•	SQI coherence weighting
+	•	contradiction pressure
+	•	catalyst timing confidence
+	•	Add “helicopter view” morning summary object before company-specific analysis
+
+New key rule to add
+
+6) No company thesis is evaluated in macro isolation
+
+Every company/thesis decision must be conditioned on:
+	•	macro regime
+	•	capital-flow direction
+	•	sector-relative flow
+	•	credit stress backdrop
+	•	dollar / rates context
+
+What this means architecturally
+
+Add these canonical objects:
+	•	macro/regime/<YYYY-MM-DD>
+	•	macro/flow/<YYYY-MM-DD>
+	•	macro/rates/<YYYY-MM-DD>
+	•	macro/credit/<YYYY-MM-DD>
+	•	macro/fx/<YYYY-MM-DD>
+	•	macro/gold/<YYYY-MM-DD>
+	•	macro/mag7/<YYYY-MM-DD>
+
+And add these KG links:
+	•	macro_regime -> company via confidence_modifier
+	•	macro_regime -> sector via causal
+	•	credit_regime -> thesis via drift_signal
+	•	fx_regime -> company via exposure
+	•	sector_flow -> thesis via supports_thesis / contradicts_thesis
+
+Add this to the runtime spec doc
+
+Use this section:
+
+
+
+___________________________________________
+
+flowchart TD
     A[Pause Forex Workstreams] --> B[Create Investing Domain Namespace]
     B --> C[Define Container Taxonomy]
     C --> C1[Company containers]

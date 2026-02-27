@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/macro_regime.schema.json",
+  "title": "AION Macro Regime Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "macro_regime_id",
+    "as_of_date",
+    "regime_state",
+    "summary",
+    "signals",
+    "sector_flows",
+    "market_style",
+    "risk_flags",
+    "audit"
+  ],
+  "properties": {
+    "macro_regime_id": {
+      "type": "string",
+      "pattern": "^macro/regime/[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "as_of_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "regime_state": {
+      "type": "string",
+      "enum": ["risk_on", "risk_off", "rotation", "transition"]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+
+    "signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "usd_direction",
+        "usd_jpy_signal",
+        "rates_direction",
+        "real_yields_direction",
+        "gold_direction",
+        "credit_spread_regime"
+      ],
+      "properties": {
+        "usd_direction": {
+          "type": "string",
+          "enum": ["strengthening", "weakening", "flat", "unknown"]
+        },
+        "usd_jpy_signal": {
+          "type": "string",
+          "enum": ["risk_supportive", "risk_negative", "neutral", "unknown"]
+        },
+        "rates_direction": {
+          "type": "string",
+          "enum": ["rising", "falling", "flat", "unknown"]
+        },
+        "real_yields_direction": {
+          "type": "string",
+          "enum": ["rising", "falling", "flat", "unknown"]
+        },
+        "gold_direction": {
+          "type": "string",
+          "enum": ["rising", "falling", "flat", "unknown"]
+        },
+        "credit_spread_regime": {
+          "type": "string",
+          "enum": ["tightening", "stable", "widening", "stressed", "unknown"]
+        }
+      }
+    },
+
+    "sector_flows": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["leaders", "laggards"],
+      "properties": {
+        "leaders": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "laggards": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+
+    "market_style": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mag7_state"],
+      "properties": {
+        "mag7_state": {
+          "type": "string",
+          "enum": ["leading", "diverging", "weakening", "mixed", "unknown"]
+        },
+        "breadth_state": {
+          "type": "string",
+          "enum": ["broadening", "narrowing", "mixed", "unknown"]
+        },
+        "ai_trade_state": {
+          "type": "string",
+          "enum": ["expanding", "concentrated", "cooling", "mixed", "unknown"]
+        }
+      }
+    },
+
+    "risk_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "yen_carry_unwind_risk",
+          "real_yield_headwind",
+          "credit_stress_rising",
+          "sector_rotation_fast",
+          "gold_stress_divergence",
+          "macro_transition_unclear",
+          "mag7_concentration_risk"
+        ]
+      },
+      "uniqueItems": true
+    },
+
+    "regime_multipliers": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "business_quality_multiplier": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 2.0
+        },
+        "analytical_confidence_multiplier": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 2.0
+        },
+        "thesis_coherence_multiplier": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 2.0
+        }
+      }
+    },
+
+    "linked_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fx_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "rates_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "credit_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "gold_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "sector_flow_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}
