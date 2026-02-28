@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/credit_trajectory.schema.json",
+  "title": "AION Credit Trajectory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "credit_trajectory_id",
+    "entity_ref",
+    "entity_type",
+    "as_of_date",
+    "official_rating",
+    "shadow_rating",
+    "trajectory",
+    "signals",
+    "audit"
+  ],
+  "properties": {
+    "credit_trajectory_id": {
+      "type": "string",
+      "pattern": "^(company|country)/[A-Za-z0-9._:-]+/credit/[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "entity_ref": {
+      "type": "string",
+      "pattern": "^(company|country)/"
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": ["company", "country"]
+    },
+    "as_of_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "official_rating": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["composite", "outlook"],
+      "properties": {
+        "composite": { "type": "string", "minLength": 1 },
+        "outlook": {
+          "type": "string",
+          "enum": ["positive", "stable", "negative", "watch_positive", "watch_negative", "unknown"]
+        },
+        "sp": { "type": "string" },
+        "moodys": { "type": "string" },
+        "fitch": { "type": "string" }
+      }
+    },
+    "shadow_rating": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["composite", "confidence", "direction"],
+      "properties": {
+        "composite": { "type": "string", "minLength": 1 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+        "direction": {
+          "type": "string",
+          "enum": ["improving", "stable", "deteriorating", "unknown"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "trajectory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "downgrade_risk", "upgrade_potential"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": [
+            "stable",
+            "downgrade_candidate",
+            "upgrade_candidate",
+            "fallen_angel_risk",
+            "rising_star_candidate",
+            "stressed",
+            "unknown"
+          ]
+        },
+        "downgrade_risk": { "type": "number", "minimum": 0, "maximum": 100 },
+        "upgrade_potential": { "type": "number", "minimum": 0, "maximum": 100 },
+        "watch_window_days": { "type": "integer", "minimum": 0 },
+        "notes": { "type": "string" }
+      }
+    },
+    "signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leverage_signal",
+        "coverage_signal",
+        "liquidity_signal",
+        "spread_signal"
+      ],
+      "properties": {
+        "leverage_signal": {
+          "type": "string",
+          "enum": ["supportive", "neutral", "negative", "critical", "unknown"]
+        },
+        "coverage_signal": {
+          "type": "string",
+          "enum": ["supportive", "neutral", "negative", "critical", "unknown"]
+        },
+        "liquidity_signal": {
+          "type": "string",
+          "enum": ["supportive", "neutral", "negative", "critical", "unknown"]
+        },
+        "spread_signal": {
+          "type": "string",
+          "enum": ["tightening", "stable", "widening", "stressed", "unknown"]
+        },
+        "refinancing_signal": {
+          "type": "string",
+          "enum": ["benign", "manageable", "pressured", "distressed", "unknown"]
+        }
+      }
+    },
+    "linked_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "assessment_refs": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^assessment/" }
+        },
+        "quarter_event_refs": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^(company|country)/" }
+        },
+        "thesis_refs": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^thesis/" }
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

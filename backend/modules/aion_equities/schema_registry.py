@@ -33,6 +33,12 @@ class AionEquitiesSchemaRegistry:
           observer_decision_cycle.schema.json
           macro_regime.schema.json
           top_down_levers_snapshot.schema.json
+          country_ambassador.schema.json
+          country_relationship.schema.json
+          global_capital_markets.schema.json
+          sector_template.schema.json
+          company_structural_profile.schema.json
+          credit_trajectory.schema.json
           sqi_field_mapping.v0_1.json
     """
 
@@ -47,6 +53,12 @@ class AionEquitiesSchemaRegistry:
         "observer_decision_cycle": "observer_decision_cycle.schema.json",
         "macro_regime": "macro_regime.schema.json",
         "top_down_levers_snapshot": "top_down_levers_snapshot.schema.json",
+        "country_ambassador": "country_ambassador.schema.json",
+        "country_relationship": "country_relationship.schema.json",
+        "global_capital_markets": "global_capital_markets.schema.json",
+        "sector_template": "sector_template.schema.json",
+        "company_structural_profile": "company_structural_profile.schema.json",
+        "credit_trajectory": "credit_trajectory.schema.json",
         # mapping doc (not JSON Schema, but versioned alongside schemas)
         "sqi_field_mapping": "sqi_field_mapping.v0_1.json",
     }

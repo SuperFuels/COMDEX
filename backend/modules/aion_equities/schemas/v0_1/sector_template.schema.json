@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/sector_template.schema.json",
+  "title": "AION Sector Template",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sector_template_id",
+    "sector_ref",
+    "sector_name",
+    "as_of_date",
+    "variable_map",
+    "reporting_template",
+    "fingerprint_defaults",
+    "audit"
+  ],
+  "properties": {
+    "sector_template_id": {
+      "type": "string",
+      "pattern": "^sector_template/[A-Za-z0-9._:-]+$"
+    },
+    "sector_ref": {
+      "type": "string",
+      "pattern": "^sector/"
+    },
+    "sector_name": {
+      "type": "string",
+      "minLength": 2
+    },
+    "as_of_date": {
+      "type": "string",
+      "format": "date"
+    },
+
+    "variable_map": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_variables", "secondary_variables"],
+      "properties": {
+        "primary_variables": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "category", "directionality", "typical_lag_days"],
+            "properties": {
+              "name": { "type": "string", "minLength": 2 },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "macro",
+                  "rates",
+                  "fx",
+                  "commodity",
+                  "weather",
+                  "consumer",
+                  "labour",
+                  "credit",
+                  "regulatory",
+                  "company_reported",
+                  "sector_flow",
+                  "other"
+                ]
+              },
+              "directionality": {
+                "type": "string",
+                "enum": ["positive", "negative", "mixed", "contextual"]
+              },
+              "typical_lag_days": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "secondary_variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "category"],
+            "properties": {
+              "name": { "type": "string", "minLength": 2 },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "macro",
+                  "rates",
+                  "fx",
+                  "commodity",
+                  "weather",
+                  "consumer",
+                  "labour",
+                  "credit",
+                  "regulatory",
+                  "company_reported",
+                  "sector_flow",
+                  "other"
+                ]
+              },
+              "notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "reporting_template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "core_metrics",
+        "margin_focus",
+        "cash_flow_focus",
+        "balance_sheet_focus"
+      ],
+      "properties": {
+        "core_metrics": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "margin_focus": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "cash_flow_focus": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "balance_sheet_focus": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "management_signals": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "fingerprint_defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_report_count_for_calibration", "base_predictability"],
+      "properties": {
+        "expected_report_count_for_calibration": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "base_predictability": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "seasonality_strength": {
+          "type": "string",
+          "enum": ["high", "medium", "low", "unknown"]
+        },
+        "macro_sensitivity": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "linked_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "company_refs": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^company/" }
+        },
+        "country_refs": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^country/" }
+        },
+        "macro_refs": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^macro/" }
+        }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

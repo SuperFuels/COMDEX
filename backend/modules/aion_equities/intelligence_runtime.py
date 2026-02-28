@@ -20,11 +20,11 @@ class IntelligenceRuntime:
     """
     First integrated AION Equities runtime loop.
 
-    This proves the end-to-end path for one company:
+    Core path:
       company -> assessment -> sqi signals -> thesis -> kg edges
 
-    Extended v1:
-      macro_regime + top_down_levers -> rules engine -> helicopter view
+    Extended path:
+      macro_regime + top_down_snapshot -> rules engine -> helicopter view
     """
 
     def __init__(self, base_dir: str | Path):
@@ -85,17 +85,6 @@ class IntelligenceRuntime:
         macro_regime_id: Optional[str] = None,
         top_down_snapshot_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """
-        Build and persist the first working intelligence loop for a company.
-
-        Optional macro inputs:
-          - macro_regime_id
-          - top_down_snapshot_id
-
-        If both are present, runtime also produces:
-          - helicopter_view
-          - macro-aware sqi context
-        """
         helicopter_view: Optional[Dict[str, Any]] = None
         if macro_regime_id and top_down_snapshot_id:
             helicopter_view = self.build_daily_helicopter_view(
@@ -103,7 +92,6 @@ class IntelligenceRuntime:
                 top_down_snapshot_id=top_down_snapshot_id,
             )
 
-        # 1) Company
         company_payload = self.company_store.upsert_company(
             ticker=ticker,
             name=name,
@@ -122,7 +110,6 @@ class IntelligenceRuntime:
         )
         company_id = company_payload["company_id"]
 
-        # 2) Assessment
         assessment_payload = self.assessment_store.save_assessment(
             entity_id=company_id,
             entity_type="company",
@@ -134,7 +121,6 @@ class IntelligenceRuntime:
         )
         assessment_id = assessment_payload["assessment_id"]
 
-        # 3) SQI bridge
         kg_context = {
             "supports_count": 0,
             "contradicts_count": 0,
@@ -142,12 +128,10 @@ class IntelligenceRuntime:
             "confidence_modifier": 0.0,
             "pattern_match_score": 0.0,
         }
-
         pattern_context = {
             "aggregate_score": 0.0,
             "stability_modifier": 0.0,
         }
-
         observer_context = {
             "bias_penalty": 0.0,
         }
@@ -181,7 +165,6 @@ class IntelligenceRuntime:
             },
         )
 
-        # 4) Thesis
         linked_assessment_refs = list(assessment_refs or [])
         if assessment_id not in linked_assessment_refs:
             linked_assessment_refs.append(assessment_id)
@@ -199,7 +182,6 @@ class IntelligenceRuntime:
         )
         thesis_id = thesis_payload["thesis_id"]
 
-        # update company intelligence refs after assessment + thesis exist
         company_payload = self.company_store.upsert_company(
             ticker=ticker,
             name=company_payload["name"],
@@ -232,7 +214,6 @@ class IntelligenceRuntime:
             validate=validate,
         )
 
-        # 5) KG edges
         edges: List[Dict[str, Any]] = []
 
         edges.append(
@@ -283,10 +264,9 @@ class IntelligenceRuntime:
             )
         )
 
-        # optional macro linkage
         if helicopter_view:
             macro_regime = helicopter_view["macro_regime"]
-            top_down_snapshot = helicopter_view["top_down_levers"]
+            top_down_snapshot = helicopter_view["top_down_snapshot"]
 
             edges.append(
                 self.kg_edge_store.save_edge(

@@ -1,13 +1,71 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 
-def _materiality(value: Any, default: float = 50.0) -> float:
-    try:
-        return float(value)
-    except Exception:
-        return default
+def _get(d: Dict[str, Any], *path: str, default=None):
+    cur: Any = d
+    for p in path:
+        if not isinstance(cur, dict):
+            return default
+        cur = cur.get(p)
+        if cur is None:
+            return default
+    return cur
+
+
+def _sector_posture_map(snapshot: Dict[str, Any]) -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    for item in snapshot.get("sector_posture", []) or []:
+        if not isinstance(item, dict):
+            continue
+        sector_ref = item.get("sector_ref")
+        posture = item.get("posture")
+        if isinstance(sector_ref, str) and isinstance(posture, str):
+            out[sector_ref.removeprefix("sector/")] = posture
+    return out
+
+
+def _active_lever_map(snapshot: Dict[str, Any]) -> Dict[str, Tuple[str, float]]:
+    out: Dict[str, Tuple[str, float]] = {}
+    for item in snapshot.get("active_levers", []) or []:
+        if not isinstance(item, dict):
+            continue
+        lever = item.get("lever")
+        direction = item.get("direction")
+        materiality = item.get("materiality", 50.0)
+        if isinstance(lever, str) and isinstance(direction, str):
+            try:
+                mat = float(materiality)
+            except Exception:
+                mat = 50.0
+            out[lever] = (direction, mat)
+    return out
+
+
+def _mk_implication(
+    *,
+    rule: str,
+    summary: str,
+    affected_scope: str,
+    effect_direction: str,
+    confidence: float,
+    target_refs: List[str] | None = None,
+) -> Dict[str, Any]:
+    """
+    Emit both legacy and schema-oriented keys so old tests and newer runtime
+    consumers can coexist.
+    """
+    return {
+        "rule": rule,
+        "rule_id": rule,
+        "summary": summary,
+        "impact": summary,  # legacy-friendly alias
+        "affected_scope": affected_scope,
+        "effect_direction": effect_direction,
+        "confidence": confidence,
+        "target_refs": target_refs or [],
+    }
 
 
 def derive_top_down_implications(
@@ -15,212 +73,205 @@ def derive_top_down_implications(
     macro_regime: Dict[str, Any],
     top_down_snapshot: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """
-    Normalize macro regime + top-down snapshot into a lightweight derived
-    helicopter view used by runtime/tests.
-
-    This version is aligned to the current v0_1 schema shapes:
-
-      macro_regime:
-        - macro_regime_id
-        - regime_state
-        - summary
-        - signals
-        - risk_flags
-
-      top_down_snapshot:
-        - snapshot_id
-        - active_levers[]
-        - cascade_implications[]
-        - sector_posture[]
-        - conviction_state{}
-    """
-
     regime_name = (
-        macro_regime.get("summary")
-        or macro_regime.get("regime_name")
+        macro_regime.get("regime_name")
+        or macro_regime.get("summary")
         or macro_regime.get("regime_state")
         or "unknown"
     )
+    regime_conf = float(macro_regime.get("regime_confidence", 0.0) or 0.0)
 
-    regime_confidence = float(
-        macro_regime.get("regime_confidence", 0.0) or 0.0
-    )
+    lever_map = _active_lever_map(top_down_snapshot)
+    sector_posture = _sector_posture_map(top_down_snapshot)
 
-    active_levers: List[Dict[str, Any]] = list(top_down_snapshot.get("active_levers") or [])
-    input_cascades: List[Dict[str, Any]] = list(top_down_snapshot.get("cascade_implications") or [])
-    input_sector_posture: List[Dict[str, Any]] = list(top_down_snapshot.get("sector_posture") or [])
-    conviction_state: Dict[str, Any] = dict(top_down_snapshot.get("conviction_state") or {})
+    active_levers: List[Dict[str, Any]] = list(top_down_snapshot.get("active_levers", []) or [])
+    cascade_implications: List[Dict[str, Any]] = list(top_down_snapshot.get("cascade_implications", []) or [])
 
-    derived_sector_posture: Dict[str, str] = {}
-    derived_cascades: List[Dict[str, Any]] = list(input_cascades)
     contradictions = 0
 
-    # ------------------------------------------------------------------
-    # Start with explicit sector posture already present in snapshot
-    # ------------------------------------------------------------------
-    for row in input_sector_posture:
-        sector_ref = row.get("sector_ref")
-        posture = row.get("posture")
-        if isinstance(sector_ref, str) and sector_ref.startswith("sector/") and isinstance(posture, str):
-            short_name = sector_ref.split("/", 1)[1]
-            derived_sector_posture[short_name] = posture
+    def lever_dir(name: str) -> str | None:
+        item = lever_map.get(name)
+        return item[0] if item else None
 
-    # ------------------------------------------------------------------
-    # Read active levers into a map
-    # ------------------------------------------------------------------
-    lever_map: Dict[str, Dict[str, Any]] = {}
-    for lever in active_levers:
-        name = lever.get("lever")
-        if isinstance(name, str):
-            lever_map[name] = lever
+    dollar_dir = lever_dir("dollar")
+    yen_dir = lever_dir("yen")
+    gold_dir = lever_dir("gold")
+    oil_dir = lever_dir("oil")
+    real_yields_dir = lever_dir("real_yields")
+    credit_dir = lever_dir("credit_spreads")
+    ai_dir = lever_dir("ai_leadership")
+    mag7_dir = lever_dir("mag7_breadth")
 
-    def has(lever_name: str, direction: str | None = None) -> bool:
-        row = lever_map.get(lever_name)
-        if not row:
-            return False
-        if direction is None:
-            return True
-        return row.get("direction") == direction
+    # Fallback support for older nested snapshot shapes
+    if dollar_dir is None:
+        fx_usd = _get(top_down_snapshot, "fx", "usd_broad", "direction")
+        if fx_usd == "up":
+            dollar_dir = "up"
+        elif fx_usd == "down":
+            dollar_dir = "down"
 
-    # ------------------------------------------------------------------
-    # Add derived cascades / posture from active levers
-    # ------------------------------------------------------------------
-    if has("dollar", "up"):
-        derived_cascades.append(
-            {
-                "rule_id": "stronger_dollar",
-                "summary": "Dollar strength creates headwinds for risk assets and foreign earnings translation.",
-                "affected_scope": "cross_asset",
-                "effect_direction": "decrease_conviction",
-                "confidence": _materiality(lever_map["dollar"].get("materiality"), 70.0),
-                "target_refs": [],
-            }
-        )
+    if yen_dir is None:
+        fx_jpy = _get(top_down_snapshot, "fx", "usd_jpy", "direction")
+        if fx_jpy == "down":
+            yen_dir = "risk_off"
+        elif fx_jpy == "up":
+            yen_dir = "risk_on"
 
-    if has("yen", "up") or has("yen", "risk_off"):
-        derived_cascades.append(
-            {
-                "rule_id": "yen_carry_unwind",
-                "summary": "Yen strength signals carry unwind / risk-off conditions.",
-                "affected_scope": "macro",
-                "effect_direction": "de_risk",
-                "confidence": _materiality(lever_map["yen"].get("materiality"), 85.0),
-                "target_refs": [],
-            }
-        )
-        derived_sector_posture.setdefault("defensives", "green")
-        derived_sector_posture.setdefault("high_beta", "red")
+    if real_yields_dir is None:
+        ry = _get(top_down_snapshot, "rates", "real_yields", "direction")
+        if ry == "up":
+            real_yields_dir = "up"
+        elif ry == "down":
+            real_yields_dir = "down"
 
-    if has("gold", "up"):
-        derived_cascades.append(
-            {
-                "rule_id": "gold_rising",
-                "summary": "Gold strength suggests stress, defensive demand, or declining confidence in risk assets.",
-                "affected_scope": "cross_asset",
-                "effect_direction": "de_risk",
-                "confidence": _materiality(lever_map["gold"].get("materiality"), 68.0),
-                "target_refs": [],
-            }
-        )
+    if credit_dir is None:
+        cs = _get(top_down_snapshot, "credit", "spreads", "direction")
+        if cs in {"widening", "tightening"}:
+            credit_dir = cs
 
-    if has("credit_spreads", "up") or has("credit_spreads", "risk_off"):
-        derived_cascades.append(
-            {
-                "rule_id": "credit_spreads_widening",
-                "summary": "Widening credit spreads increase stress for cyclicals and high-debt names.",
-                "affected_scope": "sector",
-                "effect_direction": "headwind",
-                "confidence": _materiality(lever_map["credit_spreads"].get("materiality"), 88.0),
-                "target_refs": [],
-            }
-        )
-        derived_sector_posture.setdefault("high_debt", "red")
+    if gold_dir is None:
+        gd = _get(top_down_snapshot, "commodities", "gold", "direction")
+        if gd in {"up", "down"}:
+            gold_dir = gd
 
-    if has("real_yields", "up") or has("real_yields", "tightening"):
-        derived_cascades.append(
-            {
-                "rule_id": "real_yields_up",
-                "summary": "Rising real yields pressure long-duration growth valuations.",
-                "affected_scope": "sector",
-                "effect_direction": "headwind",
-                "confidence": _materiality(lever_map["real_yields"].get("materiality"), 78.0),
-                "target_refs": [],
-            }
-        )
-        derived_sector_posture.setdefault("long_duration_growth", "red")
+    if oil_dir is None:
+        od = _get(top_down_snapshot, "commodities", "oil", "direction")
+        if od in {"up", "down"}:
+            oil_dir = od
 
-    if has("oil", "up"):
-        derived_cascades.append(
-            {
-                "rule_id": "oil_rising",
-                "summary": "Oil strength supports energy and pressures fuel/input-cost sensitive sectors.",
-                "affected_scope": "sector",
-                "effect_direction": "tailwind",
-                "confidence": _materiality(lever_map["oil"].get("materiality"), 72.0),
-                "target_refs": [],
-            }
-        )
-        derived_sector_posture.setdefault("energy", "green")
+    if not sector_posture:
+        defensives = _get(top_down_snapshot, "sector_flows", "defensives", "direction")
+        energy = _get(top_down_snapshot, "sector_flows", "energy", "direction")
+        ai_infra = _get(top_down_snapshot, "sector_flows", "ai_infrastructure", "direction")
 
-    if has("sector_rotation", "risk_off"):
-        derived_sector_posture.setdefault("defensives", "green")
-        derived_sector_posture.setdefault("cyclicals", "red")
+        if defensives == "into":
+            sector_posture["defensives"] = "green"
+            sector_posture["cyclicals"] = "red"
+        elif defensives == "out_of":
+            sector_posture["defensives"] = "red"
+            sector_posture["cyclicals"] = "green"
 
-    if has("ai_leadership", "down"):
-        derived_sector_posture.setdefault("ai_infrastructure", "red")
-    elif has("ai_leadership", "up"):
-        derived_sector_posture.setdefault("ai_infrastructure", "green")
+        if energy == "into":
+            sector_posture["energy"] = "green"
+        elif energy == "out_of":
+            sector_posture["energy"] = "red"
 
-    # ------------------------------------------------------------------
-    # Contradiction detection
-    # ------------------------------------------------------------------
-    if has("dollar", "up") and has("gold", "up"):
+        if ai_infra == "into":
+            sector_posture["ai_infrastructure"] = "green"
+        elif ai_infra == "out_of":
+            sector_posture["ai_infrastructure"] = "red"
+
+    # Only derive if not already supplied
+    if not cascade_implications:
+        if dollar_dir == "up":
+            cascade_implications.append(
+                _mk_implication(
+                    rule="stronger_usd",
+                    summary="headwind_for_em_and_dollar_sensitive_risk_assets",
+                    affected_scope="cross_asset",
+                    effect_direction="headwind",
+                    confidence=70.0,
+                )
+            )
+        elif dollar_dir == "down":
+            cascade_implications.append(
+                _mk_implication(
+                    rule="weaker_usd",
+                    summary="supportive_for_risk_assets_and_commodities",
+                    affected_scope="cross_asset",
+                    effect_direction="tailwind",
+                    confidence=65.0,
+                )
+            )
+
+        if yen_dir == "risk_off":
+            cascade_implications.append(
+                _mk_implication(
+                    rule="yen_strength",
+                    summary="risk_off_carry_unwind_signal",
+                    affected_scope="macro",
+                    effect_direction="de_risk",
+                    confidence=85.0,
+                )
+            )
+            sector_posture.setdefault("defensives", "green")
+            sector_posture.setdefault("high_beta", "red")
+
+        if gold_dir == "up":
+            cascade_implications.append(
+                _mk_implication(
+                    rule="gold_rising",
+                    summary="stress_or_defensive_bid_signal",
+                    affected_scope="cross_asset",
+                    effect_direction="uncertain",
+                    confidence=68.0,
+                )
+            )
+
+        if credit_dir == "widening":
+            cascade_implications.append(
+                _mk_implication(
+                    rule="credit_spreads_widening",
+                    summary="pressure_on_high_debt_and_cyclical_names",
+                    affected_scope="macro",
+                    effect_direction="headwind",
+                    confidence=88.0,
+                )
+            )
+            sector_posture.setdefault("high_debt", "red")
+        elif credit_dir == "tightening":
+            sector_posture.setdefault("credit_sensitive", "green")
+
+        if real_yields_dir == "up":
+            cascade_implications.append(
+                _mk_implication(
+                    rule="real_yields_up",
+                    summary="multiple_pressure_on_long_duration_growth",
+                    affected_scope="sector",
+                    effect_direction="headwind",
+                    confidence=78.0,
+                )
+            )
+            sector_posture.setdefault("long_duration_growth", "red")
+        elif real_yields_dir == "down":
+            sector_posture.setdefault("long_duration_growth", "green")
+
+    regime_state = top_down_snapshot.get("regime_state") or macro_regime.get("regime_state") or ""
+
+    if dollar_dir == "up" and gold_dir == "up":
         contradictions += 1
-    if (has("real_yields", "up") or has("real_yields", "tightening")) and has("ai_leadership", "up"):
+    if real_yields_dir == "up" and ai_dir in {"up", "risk_on"}:
         contradictions += 1
-    if (has("credit_spreads", "up") or has("credit_spreads", "risk_off")) and has("ai_leadership", "up"):
+    if credit_dir == "widening" and ai_dir in {"up", "risk_on"}:
+        contradictions += 1
+    if yen_dir == "risk_off" and oil_dir == "up":
         contradictions += 1
 
-    # Also respect snapshot conviction_state if present
-    signal_coherence = conviction_state.get("signal_coherence")
-    uncertainty_score = conviction_state.get("uncertainty_score")
-
-    if signal_coherence is None:
-        if contradictions >= 2:
-            signal_coherence = 25.0
-        elif contradictions == 1:
-            signal_coherence = 55.0
-        else:
-            signal_coherence = 80.0
-
-    if uncertainty_score is None:
-        if contradictions >= 2:
-            uncertainty_score = 80.0
-        elif contradictions == 1:
-            uncertainty_score = 50.0
-        else:
-            uncertainty_score = 25.0
+    if regime_state == "risk_off":
+        if sector_posture.get("cyclicals") == "green":
+            contradictions += 1
+        if sector_posture.get("long_duration_growth") == "green":
+            contradictions += 1
+        if credit_dir == "widening" and sector_posture.get("defensives") not in {"green", "amber"}:
+            contradictions += 1
 
     if contradictions >= 2:
-        coherence_label = "low"
+        coherence = "low"
     elif contradictions == 1:
-        coherence_label = "medium"
+        coherence = "medium"
     else:
-        coherence_label = "high"
+        coherence = "high"
 
     return {
         "regime_summary": {
             "regime_name": regime_name,
-            "regime_confidence": regime_confidence,
+            "regime_confidence": regime_conf,
         },
         "active_levers": active_levers,
-        "cascade_implications": derived_cascades,
-        "sector_posture": derived_sector_posture,
+        "cascade_implications": cascade_implications,
+        "sector_posture": sector_posture,
         "conviction_filter": {
-            "macro_signal_coherence": coherence_label,
+            "macro_signal_coherence": coherence,
             "contradiction_count": contradictions,
-            "signal_coherence": float(signal_coherence),
-            "uncertainty_score": float(uncertainty_score),
         },
     }

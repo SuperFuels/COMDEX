@@ -156,6 +156,332 @@ Use this section:
 
 
 
+
+
+flowchart TD
+A[Remaining build] –> B[Country FX and Pair Context Layer]
+B –> B1[Map country ambassadors into currency pair context]
+B –> B2[Compute pair-level macro coherence]
+B –> B3[Compute carry unwind and risk-appetite signals]
+B –> B4[Score major plus selected exotic pairs]
+B –> B5[Write pair-context outputs into forex and equity intelligence]
+
+B5 --> C[Company Structural Profile Layer]
+C --> C1[Create company cost-structure profile]
+C --> C2[Track labour cost ratio]
+C --> C3[Track energy cost ratio]
+C --> C4[Track commodity and input exposure]
+C --> C5[Track debt service burden]
+C --> C6[Track fixed vs variable cost structure]
+C --> C7[Track geographic revenue and cost exposure]
+C --> C8[Track acquisition history and capital allocation quality]
+C --> C9[Track key hires and departures]
+C --> C10[Track competitor and market-share pressure]
+
+C10 --> D[Credit Trajectory Layer]
+D --> D1[Track sovereign ratings by agency]
+D --> D2[Track corporate ratings by agency]
+D --> D3[Track positive and negative outlook plus watch states]
+D --> D4[Build AION shadow rating model]
+D --> D5[Flag downgrade candidates and upgrade candidates]
+D --> D6[Add fallen angel and rising star workflows]
+
+D6 --> E[20-Report Causal Fingerprint Layer]
+E --> E1[Read 20 quarterly and annual reports per company]
+E --> E2[Start from sector template then calibrate to company]
+E --> E3[Extract recurring business drivers]
+E --> E4[Estimate lag structure of key variables]
+E --> E5[Estimate sensitivity coefficients]
+E --> E6[Track management guidance behaviour]
+E --> E7[Build company analytical fingerprint]
+
+E7 --> F[Live Pre-Earnings Engine]
+F --> F1[Track key variables daily between reports]
+F --> F2[Map variable moves to expected revenue and margin impact]
+F --> F3[Update rolling pre-earnings estimate]
+F --> F4[Compare AION estimate vs market consensus]
+F --> F5[Flag long and short catalyst candidates]
+
+F5 --> G[Post-Report Calibration Loop]
+G --> G1[Store actual vs predicted result]
+G --> G2[Update sensitivity coefficients]
+G --> G3[Refine lag estimates]
+G --> G4[Update management guidance-bias model]
+G --> G5[Score prediction quality and confidence drift]
+
+G5 --> H[Runtime Propagation and Decision Layer]
+H --> H1[Propagate country shocks through coupling graph]
+H --> H2[Propagate rating actions through company universe]
+H --> H3[Propagate macro and bilateral changes into thesis coherence]
+H --> H4[Adjust ACS and SQI by regime and pair context]
+H --> H5[Adjust catalyst timing confidence]
+H --> H6[Adjust position sizing and conviction]
+
+H6 --> I[Pilot Universe Build]
+I --> I1[Select 10 to 20 boring predictable companies]
+I --> I2[Run 20-report learning pass]
+I --> I3[Run live variable tracking]
+I --> I4[Run first pre-earnings prediction cycle]
+I --> I5[Evaluate hit rate and recalibrate]
+	New key notes to lock in
+
+New rule 7 — No company is evaluated in country isolation
+
+Every company must be conditioned on:
+	•	home-country ambassador state
+	•	key customer-country ambassador state
+	•	key supplier-country ambassador state
+	•	bilateral relationship score between relevant countries
+	•	FX and yield differential context
+
+New rule 8 — Bond markets are first-class
+
+Each major country model must include:
+	•	2y / 10y / 30y curve
+	•	real yields
+	•	credit spreads
+	•	refinancing wall
+	•	foreign ownership vulnerability
+
+Because capital flow, currency strength, and valuation regime are downstream of this.
+
+New rule 9 — Ratings are mechanical flow triggers
+
+AION must explicitly track:
+	•	sovereign ratings
+	•	corporate ratings
+	•	outlook/watch states
+	•	shadow rating divergence
+
+Because upgrades/downgrades create forced capital flows, not just opinion changes.
+
+New rule 10 — Money supply is a regime lead signal
+
+Country ambassadors must track:
+	•	money supply growth / contraction
+	•	liquidity conditions
+	•	credit availability regime
+
+Because this changes the background tolerance for leverage, asset inflation, and refinancing risk.
+
+New rule 11 — Every company needs a structural profile
+
+Each company container should include:
+	•	labour exposure
+	•	energy exposure
+	•	commodity exposure
+	•	debt-service exposure
+	•	geographic exposure
+	•	operating leverage
+	•	acquisition behaviour
+	•	management-change signals
+	•	competitor pressure
+
+So macro changes can be translated into company-specific earnings impact.
+
+New rule 12 — AION learns the causal fingerprint, not just the latest report
+
+For each priority company, AION should build from ~20 reports:
+	•	the 2–5 variables that actually move the business
+	•	the lag between those variables and reported results
+	•	the typical sensitivity of revenue/margins to those variables
+	•	management honesty/beat-miss behaviour
+
+This becomes the company’s analytical fingerprint.
+
+New rule 13 — Pre-earnings estimation is core alpha
+
+Between reports, AION should not “wait.”
+It should:
+	•	track the key variables live
+	•	translate them into expected reported impact
+	•	compare expected outcome to consensus
+	•	flag pre-earnings long/short setups
+
+That is the actual edge.
+
+⸻
+
+What this adds architecturally
+
+Add these new canonical object families:
+	•	country/<country_code>
+	•	country/<country_code>/rates/<YYYY-MM-DD>
+	•	country/<country_code>/credit/<YYYY-MM-DD>
+	•	country/<country_code>/money/<YYYY-MM-DD>
+	•	country/<country_code>/energy/<YYYY-MM-DD>
+	•	country/<country_code>/rating/<YYYY-MM-DD>
+	•	relationship/<country_a>/<country_b>/<YYYY-MM-DD>
+	•	global/capital_markets/<YYYY-MM-DD>
+	•	company/<ticker>/structural_profile
+	•	company/<ticker>/credit_profile
+	•	company/<ticker>/analytical_fingerprint
+	•	company/<ticker>/pre_earnings/<report_window>
+
+And these KG links:
+	•	country -> company via confidence_modifier
+	•	country -> currency_pair via causal
+	•	relationship -> company via exposure
+	•	relationship -> thesis via supports_thesis / contradicts_thesis
+	•	yield_differential -> currency_pair via causal
+	•	sovereign_rating -> company via confidence_modifier
+	•	corporate_rating -> thesis via drift_signal
+	•	money_supply_regime -> sector via causal
+	•	structural_profile -> thesis via confidence_modifier
+	•	pre_earnings_estimate -> catalyst_event via supports_thesis
+
+⸻
+
+What should be built next from this new layer
+
+In order:
+	1.	Country ambassador schema + store
+	2.	Country relationship schema + store
+	3.	Global capital markets schema + store
+	4.	Company structural profile schema + store
+	5.	Credit rating / shadow rating layer
+	6.	Analytical fingerprint layer
+	7.	Pre-earnings engine
+	8.	Runtime propagation of these signals into thesis confidence
+
+⸻
+
+Practical recommendation
+
+Do not jump straight to all countries.
+
+Start with:
+	•	US
+	•	UK
+	•	Germany
+	•	Japan
+	•	China
+
+Then bilateral:
+	•	US/UK
+	•	US/Germany
+	•	US/Japan
+	•	Germany/China
+	•	UK/EU bloc proxy
+
+And first company universe:
+	•	boring, predictable names
+	•	clear quarterly drivers
+	•	public leading indicators
+	•	meaningful but understandable earnings sensitivity
+
+That will give the cleanest first real edge.
+
+Next I’d write the Phase 3 extension mermaid as a locked implementation spec and then give you the first two concrete files:
+	•	country_ambassador.schema.json
+	•	country_ambassador_store.py
+
+
+
+What to add to the rules / architecture
+
+New rule
+
+No company fingerprint is built in country isolation.
+
+Every company profile must be conditioned on:
+	•	home-country ambassador state
+	•	key export/import counterpart country ambassadors
+	•	bilateral relationship score
+	•	local bond/yield regime
+	•	sovereign rating trajectory
+	•	money supply direction
+	•	energy-cost regime
+
+New required canonical objects
+	•	country/<iso3>
+	•	country/<iso3>/ambassador/latest
+	•	country_relationship/<iso3_a>/<iso3_b>
+	•	global_capital_markets/<YYYY-MM-DD>
+	•	sector_template/<sector_name>
+	•	company/<ticker>/structural_profile
+	•	company/<ticker>/fingerprint
+
+What the country ambassador must hold
+	•	central bank stance
+	•	yield curve / real yields
+	•	money supply trend
+	•	sovereign rating + outlook
+	•	energy-cost profile
+	•	trade-policy posture
+	•	fiscal pressure / refinancing wall
+	•	capital-flow state
+	•	risk flags
+	•	forward outlook score
+
+Why sector template comes before fingerprints
+
+Claude’s point is right:
+	•	sector template = common variable map
+	•	company fingerprint = sector template + company calibration
+
+That means:
+	•	faster onboarding of new companies
+	•	fewer reports needed to get usable estimates
+	•	cleaner transfer learning across sectors
+
+Immediate next files
+
+First two I’d do now:
+	1.	backend/modules/aion_equities/schemas/v0_1/country_ambassador.schema.json
+	2.	backend/modules/aion_equities/country_ambassador_store.py
+
+Then:
+3. backend/tests/test_aion_equities_country_ambassador_store.py
+
+What remains from your original plan
+
+Remaining main items now are:
+	•	Runtime integration expansion
+	•	wire quarter/catalyst/observer creation fully into runtime flows
+	•	expand snapshot loader into a true linked replay loader
+	•	Reference maintenance
+	•	keep company refs updated for quarter events, catalysts, observer cycles
+	•	attach observer refs into thesis/runtime snapshots
+	•	Linked runtime replay
+	•	load company + assessment + thesis + quarter history + catalyst history + observer history + KG edges in one pass
+	•	Document ingestion MVP
+	•	PDF source registration
+	•	filing metadata → quarter event
+	•	structured extraction mapping
+	•	narrative mapping
+	•	assessment creation from quarter event
+	•	Pattern and catalyst linkage
+	•	debt wall
+	•	deterioration
+	•	post-earnings reaction
+	•	AI margin expansion
+	•	Observer learning loop
+	•	process vs outcome review
+	•	bias tracking
+	•	timing error tracking
+	•	false-positive sector buckets
+	•	Pilot universe
+	•	first 3–5 companies
+	•	seed quarter events / assessments / theses / catalysts / observer cycles
+	•	Validation / threshold tuning
+	•	SQI distributions
+	•	coherence behaviour
+	•	catalyst gating
+	•	observer metrics
+	•	New country-ambassador / sector-template extension
+	•	country ambassadors
+	•	bilateral relationships
+	•	global capital markets layer
+	•	sector templates
+	•	company structural profiles
+	•	company fingerprints
+	•	pre-earnings engine
+	•	post-report calibration loop
+
+The correct next move is still:
+
+country ambassador schema + store + test
 ___________________________________________
 
 flowchart TD
