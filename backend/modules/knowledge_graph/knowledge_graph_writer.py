@@ -297,7 +297,7 @@ class KnowledgeGraphWriter:
                 "domain": node.get("domain"),
                 "meta": {
                     "created_by": "SQI",
-                    "last_updated": datetime.utcnow().isoformat(),
+                    "last_updated": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                     "ghx": {"hover": True, "collapsed": True},
                     "address": f"ucs://knowledge/{node.get('domain','unknown')}/{container_id}"
                 },
@@ -339,7 +339,7 @@ class KnowledgeGraphWriter:
         container["glyph_grid"] = gg
 
         # Touch last_updated
-        meta["last_updated"] = datetime.utcnow().isoformat()
+        meta["last_updated"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
         if commit:
             self._safe_save_container(path, container)

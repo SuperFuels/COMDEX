@@ -427,5 +427,68 @@
       "domain": "test",
       "address": "ucs://local/test#container"
     }
+  },
+  "equities/company/ULVR.L": {
+    "address": "ucs://local/equities/company/ULVR.L#container",
+    "kind": "container",
+    "meta": {
+      "source_ref": "company/ULVR.L",
+      "topic": "ucs://local/aion_equities",
+      "address": "ucs://local/equities/company/ULVR.L#container"
+    }
+  },
+  "equities/assessment/assessment__company__ULVR.L__2026-03-01": {
+    "address": "ucs://local/equities/assessment/assessment__company__ULVR.L__2026-03-01#container",
+    "kind": "container",
+    "meta": {
+      "source_ref": "assessment/company/ULVR.L/2026-03-01",
+      "topic": "ucs://local/aion_equities",
+      "address": "ucs://local/equities/assessment/assessment__company__ULVR.L__2026-03-01#container"
+    }
+  },
+  "equities/thesis/thesis__ULVR.L__long__medium_term": {
+    "address": "ucs://local/equities/thesis/thesis__ULVR.L__long__medium_term#container",
+    "kind": "container",
+    "meta": {
+      "source_ref": "thesis/ULVR.L/long/medium_term",
+      "topic": "ucs://local/aion_equities",
+      "address": "ucs://local/equities/thesis/thesis__ULVR.L__long__medium_term#container"
+    }
+  },
+  "equities/pre_earnings/company__ULVR.L__pre_earnings__2026-Q1": {
+    "address": "ucs://local/equities/pre_earnings/company__ULVR.L__pre_earnings__2026-Q1#container",
+    "kind": "container",
+    "meta": {
+      "source_ref": "company/ULVR.L/pre_earnings/2026-Q1",
+      "topic": "ucs://local/aion_equities",
+      "address": "ucs://local/equities/pre_earnings/company__ULVR.L__pre_earnings__2026-Q1#container"
+    }
+  },
+  "equities/trigger_map/company__ULVR.L__trigger_map__2026Q1": {
+    "address": "ucs://local/equities/trigger_map/company__ULVR.L__trigger_map__2026Q1#container",
+    "kind": "container",
+    "meta": {
+      "source_ref": "company/ULVR.L/trigger_map/2026Q1",
+      "topic": "ucs://local/aion_equities",
+      "address": "ucs://local/equities/trigger_map/company__ULVR.L__trigger_map__2026Q1#container"
+    }
+  },
+  "equities/pre_earnings/company__ULVR.L__pre_earnings__2026-Q4": {
+    "address": "ucs://local/equities/pre_earnings/company__ULVR.L__pre_earnings__2026-Q4#container",
+    "kind": "container",
+    "meta": {
+      "source_ref": "company/ULVR.L/pre_earnings/2026-Q4",
+      "topic": "ucs://local/aion_equities",
+      "address": "ucs://local/equities/pre_earnings/company__ULVR.L__pre_earnings__2026-Q4#container"
+    }
+  },
+  "equities/assessment/assessment__company__ULVR.L__2026-Q4": {
+    "address": "ucs://local/equities/assessment/assessment__company__ULVR.L__2026-Q4#container",
+    "kind": "container",
+    "meta": {
+      "source_ref": "assessment/company/ULVR.L/2026-Q4",
+      "topic": "ucs://local/aion_equities",
+      "address": "ucs://local/equities/assessment/assessment__company__ULVR.L__2026-Q4#container"
+    }
   }
 }

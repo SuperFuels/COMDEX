@@ -39,6 +39,10 @@ class AionEquitiesSchemaRegistry:
           sector_template.schema.json
           company_structural_profile.schema.json
           credit_trajectory.schema.json
+          company_fingerprint.schema.json
+          pre_earnings_estimate.schema.json
+          post_report_calibration.schema.json
+          pair_context.schema.json
           sqi_field_mapping.v0_1.json
     """
 
@@ -59,6 +63,10 @@ class AionEquitiesSchemaRegistry:
         "sector_template": "sector_template.schema.json",
         "company_structural_profile": "company_structural_profile.schema.json",
         "credit_trajectory": "credit_trajectory.schema.json",
+        "company_fingerprint": "company_fingerprint.schema.json",
+        "pre_earnings_estimate": "pre_earnings_estimate.schema.json",
+        "post_report_calibration": "post_report_calibration.schema.json",
+        "pair_context": "pair_context.schema.json",
         # mapping doc (not JSON Schema, but versioned alongside schemas)
         "sqi_field_mapping": "sqi_field_mapping.v0_1.json",
     }
