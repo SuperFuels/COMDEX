@@ -1,3 +1,14 @@
+# ============================================================================
+# G CLOUD SETUP ONLY
+# This file is for Cloud Run deployment only.
+# Local device mode does NOT use this file.
+#
+# To reactivate G Cloud later:
+# 1. Re-enable Cloud Run deployment
+# 2. Reuse/update the values below
+# 3. Keep local runtime using .env.local separately
+# ============================================================================
+
 DATABASE_URL: "postgresql+psycopg2://comdex:Wn8smx123@/comdex?host=/cloudsql/swift-area-459514-d1:us-central1:comdex-db"
 ENV: "production"
 DB_USER: "comdex"

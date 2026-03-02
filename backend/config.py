@@ -13,7 +13,7 @@ DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 # ===============================
 # 🔍 Robust .env loader
 # ===============================
-# Will search both backend/ and project root (/srv)
+# Will search both backend/ and project root
 env_paths = [
     Path(__file__).resolve().parent / ".env.local",
     Path(__file__).resolve().parent.parent / ".env.local",
@@ -30,31 +30,60 @@ else:
 # ===============================
 # 🌍 Environment Configuration
 # ===============================
-ENV = os.getenv("ENV", "").lower()
+ENV = (os.getenv("ENV") or "development").lower()
 
 if ENV != "production":
-    # local/dev: use SQLite (no external DB required)
+    # =========================================================================
+    # LOCAL DEVICE SETUP
+    # - default to local SQLite so the project runs with no Cloud SQL dependency
+    # - can still be overridden by SQLALCHEMY_DATABASE_URL in .env.local
+    # =========================================================================
     SQLALCHEMY_DATABASE_URL = os.getenv(
         "SQLALCHEMY_DATABASE_URL",
-        "sqlite:///./dev.db"
+        "sqlite:///./dev.db",
     )
+
+    # Optional convenience aliases for local use
+    DB_USER = os.getenv("DB_USER", "")
+    DB_PASS = os.getenv("DB_PASS", "")
+    DB_NAME = os.getenv("DB_NAME", "")
+    INSTANCE_CONNECTION_NAME = os.getenv("INSTANCE_CONNECTION_NAME", "")
+
 else:
-    # prod: build from Cloud SQL socket (or override with env var)
-    DB_USER                  = os.getenv("DB_USER")
-    DB_PASS                  = os.getenv("DB_PASS")
-    DB_NAME                  = os.getenv("DB_NAME")
+    # =========================================================================
+    # G CLOUD SETUP
+    # Uncomment / use this production branch to reactivate Cloud SQL.
+    # If you move back to G Cloud later, keep this branch and remove/ignore the
+    # local-only override values in your .env.local.
+    # =========================================================================
+    DB_USER = os.getenv("DB_USER")
+    DB_PASS = os.getenv("DB_PASS")
+    DB_NAME = os.getenv("DB_NAME")
     INSTANCE_CONNECTION_NAME = os.getenv("INSTANCE_CONNECTION_NAME")
-    SQLALCHEMY_DATABASE_URL  = os.getenv("SQLALCHEMY_DATABASE_URL") or (
+
+    SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL") or (
         f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@/{DB_NAME}"
         f"?host=/cloudsql/{INSTANCE_CONNECTION_NAME}"
     )
+
+# ============================================================================
+# G CLOUD EXAMPLE REFERENCE ONLY
+# Uncomment these ideas in env if you reactivate G Cloud later:
+#
+# ENV=production
+# DB_USER=comdex
+# DB_PASS=...
+# DB_NAME=comdex
+# INSTANCE_CONNECTION_NAME=swift-area-459514-d1:us-central1:comdex-db
+# SQLALCHEMY_DATABASE_URL=postgresql+psycopg2://comdex:...@/comdex?host=/cloudsql/...
+# ============================================================================
 
 # ===============================
 # ⚙️ Feature Toggles
 # ===============================
 ENABLE_GLYPH_LOGGING = os.getenv("ENABLE_GLYPH_LOGGING", "").lower()
 if ENABLE_GLYPH_LOGGING == "":
-    ENABLE_GLYPH_LOGGING = True  # default if not set in env
+    ENABLE_GLYPH_LOGGING = True
 else:
     ENABLE_GLYPH_LOGGING = ENABLE_GLYPH_LOGGING == "true"
 
@@ -73,6 +102,7 @@ SPE_AUTO_FUSE = os.getenv("SPE_AUTO_FUSE", "false").lower() == "true"
 # ===============================
 import yaml
 
+
 def load_qqc_config(path=None):
     """
     Loads and merges QQC kernel configuration from YAML file,
@@ -87,9 +117,10 @@ def load_qqc_config(path=None):
     cfg["auto_start"] = os.getenv("QQC_AUTO_START", "false").lower() == "true"
     return cfg
 
+
 QQC_CONFIG_PATH = os.getenv(
     "QQC_CONFIG_PATH",
-    "backend/QQC/qqc_kernel_v2_config.yaml"
+    "backend/QQC/qqc_kernel_v2_config.yaml",
 )
 
 QQC_MODE = os.getenv("QQC_MODE", "resonant").lower()

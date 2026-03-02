@@ -1526,30 +1526,50 @@ def _start_aion_scheduler():
     except Exception as e:
         logger.warning(f"⚠️ Dream scheduler could not start: {e}")
 
-# ── 23) Cloud Function: Stop Cloud Run if over budget
-def shutdown_service(event, context):
-    logger.info("🔔 Budget alert Pub/Sub triggered.")
-    try:
-        service = "comdex-api"
-        region = "us-central1"
+# ── 23) Local-only placeholder for former G Cloud budget shutdown hook
+# ============================================================================
+# G CLOUD SETUP
+# This function used to be a Cloud Function / PubSub budget hook that called:
+#   gcloud run services update ...
+#
+# To reactivate G Cloud later:
+# 1. Uncomment the old implementation below
+# 2. Delete this local placeholder
+# 3. Reconnect the function in your G Cloud budget / PubSub flow
+# ============================================================================
 
-        result = subprocess.run([
-            "gcloud", "run", "services", "update", service,
-            "--region", region,
-            "--platform", "managed",
-            "--no-traffic"
-        ], check=True, capture_output=True, text=True)
+def shutdown_service(event=None, context=None):
+    logger.info("🔕 Local mode: shutdown_service() called, but G Cloud shutdown hook is disabled.")
+    return {
+        "status": "disabled",
+        "mode": "local",
+        "message": "G Cloud shutdown hook disabled for local device mode.",
+    }
 
-        logger.info("✅ Successfully disabled Cloud Run traffic.")
-        logger.debug(result.stdout)
-    except subprocess.CalledProcessError as e:
-        logger.error("❌ Error disabling Cloud Run traffic.")
-        logger.error(e.stderr)
-    except Exception as e:
-        logger.exception("❌ Unexpected error during Cloud Function shutdown.")
-
-    for route in app.routes:
-        print(f"[📡 ROUTE] {route.path} ({route.name})")
+# --- G CLOUD SETUP (commented reference) ---
+# def shutdown_service(event, context):
+#     logger.info("🔔 Budget alert Pub/Sub triggered.")
+#     try:
+#         service = "comdex-api"
+#         region = "us-central1"
+#
+#         result = subprocess.run([
+#             "gcloud", "run", "services", "update", service,
+#             "--region", region,
+#             "--platform", "managed",
+#             "--no-traffic"
+#         ], check=True, capture_output=True, text=True)
+#
+#         logger.info("✅ Successfully disabled Cloud Run traffic.")
+#         logger.debug(result.stdout)
+#     except subprocess.CalledProcessError as e:
+#         logger.error("❌ Error disabling Cloud Run traffic.")
+#         logger.error(e.stderr)
+#     except Exception as e:
+#         logger.exception("❌ Unexpected error during Cloud Function shutdown.")
+#
+#     for route in app.routes:
+#         print(f"[📡 ROUTE] {route.path} ({route.name})")
 
 def verify_snapshot(steps: int = 1024, dt_ms: int = 16, spec_version: str = "v1") -> dict:
     snap = {"steps": int(steps), "dt_ms": int(dt_ms)}

@@ -10,18 +10,36 @@ from sqlalchemy.pool import NullPool
 from backend.modules.dna_chain.dna_switch import DNA_SWITCH
 DNA_SWITCH.register(__file__)  # Allow tracking + upgrades to this file
 
-# Choose DATABASE_URL from env, fallback to SQLite (for local development)
-DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URL") or "sqlite:///./dev.db"
+# -----------------------------------------------------------------------------
+# Local device default:
+# - uses SQLite unless DATABASE_URL / SQLALCHEMY_DATABASE_URL is explicitly set
+# - this lets the full project boot locally without G Cloud / Cloud SQL
+#
+# G Cloud setup:
+# - to reactivate G Cloud later, set ENV=production plus a postgres/cloudsql URL
+# - then you can delete this comment block and reuse the old prod env values
+# -----------------------------------------------------------------------------
+DATABASE_URL = (
+    os.getenv("DATABASE_URL")
+    or os.getenv("SQLALCHEMY_DATABASE_URL")
+    or "sqlite:///./dev.db"
+)
 
-# Log the selected database URL (sanitized for safety)
+# Log the selected database URL safely
 logging.basicConfig(level=logging.INFO)
-sanitized_url = DATABASE_URL.replace(os.getenv("Wn8smx123", "*****"), "*****")  # optional masking
-logging.info(f"🔍 Using DATABASE_URL = {DATABASE_URL}")
 
-# Special connect_args if SQLite is being used
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+sanitized_url = DATABASE_URL
+db_pass = os.getenv("DB_PASS")
+if db_pass:
+    sanitized_url = sanitized_url.replace(db_pass, "*****")
 
-# Create SQLAlchemy engine (disable pooling for serverless like Cloud Run)
+logging.info(f"🔍 Using DATABASE_URL = {sanitized_url}")
+
+# SQLite needs check_same_thread disabled
+is_sqlite = DATABASE_URL.startswith("sqlite")
+connect_args = {"check_same_thread": False} if is_sqlite else {}
+
+# NullPool is fine for local and also keeps prior Cloud Run behaviour simple
 engine = create_engine(
     DATABASE_URL,
     connect_args=connect_args,
@@ -30,7 +48,11 @@ engine = create_engine(
 )
 
 # Create a session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+)
 
 # Base class for models
 Base = declarative_base()
