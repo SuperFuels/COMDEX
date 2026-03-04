@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
+import re
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from backend.modules.aion_equities.constants import SCHEMA_PACK_VERSION
 from backend.modules.aion_equities.investing_ids import make_company_id, make_quarter_event_id
@@ -13,6 +14,10 @@ from backend.modules.aion_equities.schema_validate import validate_payload
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _utc_today_date() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 
 def _iso_z(value: Any) -> str:
@@ -53,6 +58,22 @@ def _deep_merge(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
         else:
             out[k] = deepcopy(v)
     return out
+
+
+def _parse_fiscal_period(value: Any) -> Tuple[int, int]:
+    if isinstance(value, dict):
+        fy = value.get("fiscal_year")
+        fq = value.get("fiscal_quarter")
+        if fy is not None and fq is not None:
+            return int(fy), int(fq)
+
+    s = str(value or "").strip()
+    m = re.search(r"(\d{4})\s*[-_/]?\s*Q\s*([1-4])", s, flags=re.IGNORECASE)
+    if not m:
+        m = re.search(r"(\d{4})\s*Q\s*([1-4])", s, flags=re.IGNORECASE)
+    if not m:
+        raise ValueError(f"Unsupported fiscal_period format: {value!r}")
+    return int(m.group(1)), int(m.group(2))
 
 
 def quarter_event_storage_path(
@@ -210,10 +231,49 @@ class QuarterEventStore:
     def storage_path(self, quarter_event_id: str) -> Path:
         return quarter_event_storage_path(quarter_event_id, base_dir=self.events_dir)
 
+    def _save_simple_quarter_event(
+        self,
+        *,
+        company_ref: str,
+        quarter_event: Dict[str, Any],
+        document_ref: Optional[str] = None,
+        thesis_ref: Optional[str] = None,
+        created_by: str = "aion_equities.quarter_event_store",
+        payload_patch: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        fiscal_period = quarter_event.get("fiscal_period") or quarter_event.get("period")
+        if not fiscal_period:
+            raise TypeError("_save_simple_quarter_event() requires fiscal_period/period")
+
+        qid = f"quarter_event/{company_ref}/{fiscal_period}"
+
+        payload: Dict[str, Any] = {
+            "quarter_event_id": qid,
+            "company_ref": str(company_ref),
+            "document_ref": document_ref or quarter_event.get("document_ref") or quarter_event.get("source_document_ref"),
+            "thesis_ref": thesis_ref or quarter_event.get("thesis_ref"),
+            "generated_by": str(created_by),
+            "fiscal_period": fiscal_period,
+            "published_at": quarter_event.get("published_at"),
+            "headline": quarter_event.get("headline"),
+            "summary": quarter_event.get("summary"),
+            "key_numbers": deepcopy(quarter_event.get("key_numbers", {})),
+            "source_document_ref": quarter_event.get("source_document_ref") or document_ref,
+            "payload": deepcopy(quarter_event),
+        }
+
+        if payload_patch:
+            payload = _deep_merge(payload, payload_patch)
+
+        path = self.storage_path(qid)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        return payload
+
     def save_quarter_event(
         self,
         *,
-        ticker: str,
+        ticker: Optional[str] = None,
         fiscal_year: Optional[int] = None,
         fiscal_quarter: Optional[int] = None,
         as_reported_date: Optional[Any] = None,
@@ -224,6 +284,51 @@ class QuarterEventStore:
         validate: bool = True,
         **kwargs: Any,
     ) -> Dict[str, Any]:
+        """
+        Dual-mode save:
+
+        Legacy canonical mode:
+          save_quarter_event(
+            ticker=...,
+            fiscal_year=...,
+            fiscal_quarter=...,
+            as_reported_date=...,
+            ...
+          )
+
+        Intake/simple mode:
+          save_quarter_event(
+            company_ref="company/AHT.L",
+            document_ref="document/AHT.L/2026-Q1",
+            thesis_ref="thesis/...",
+            quarter_event={...},
+          )
+
+        Also accepts payload=... as alias for quarter_event in simple mode.
+        """
+        company_ref = kwargs.pop("company_ref", None)
+        document_ref = kwargs.pop("document_ref", None)
+        thesis_ref = kwargs.pop("thesis_ref", None)
+        quarter_event = kwargs.pop("quarter_event", None)
+        payload_alias = kwargs.pop("payload", None)
+
+        # New/simple intake mode
+        if ticker is None and company_ref is not None and (quarter_event is not None or payload_alias is not None):
+            seed = deepcopy(quarter_event or payload_alias or {})
+            if not isinstance(seed, dict):
+                raise TypeError("quarter_event/payload must be a dict in simple intake mode")
+
+            payload_patch = quarter_event_payload_patch or kwargs.pop("payload_patch", None)
+
+            return self._save_simple_quarter_event(
+                company_ref=str(company_ref),
+                quarter_event=seed,
+                document_ref=document_ref,
+                thesis_ref=thesis_ref,
+                created_by=created_by,
+                payload_patch=payload_patch,
+            )
+
         # Legacy aliases from older tests/runtime
         if fiscal_year is None:
             fiscal_year = kwargs.pop("year", None)
@@ -251,7 +356,6 @@ class QuarterEventStore:
             kwargs["event_type"] = mapping.get(filing_kind, "quarterly_results")
 
         # legacy / extra args from tests or older callers
-        kwargs.pop("company_ref", None)
         kwargs.pop("quarter_event_id", None)
 
         assessment_ref = kwargs.pop("assessment_ref", None)
@@ -281,13 +385,13 @@ class QuarterEventStore:
 
         kwargs["assessment_refs"] = assessment_refs
 
-        if fiscal_year is None or fiscal_quarter is None or as_reported_date is None:
+        if ticker is None or fiscal_year is None or fiscal_quarter is None or as_reported_date is None:
             raise TypeError(
-                "save_quarter_event() requires fiscal_year/fiscal_quarter/as_reported_date "
-                "(legacy aliases year/quarter/filing_date are also accepted)"
+                "save_quarter_event() requires either "
+                "(ticker, fiscal_year, fiscal_quarter, as_reported_date) "
+                "or (company_ref plus quarter_event/payload)"
             )
 
-        # be permissive for bootstrap tests
         if not document_refs:
             document_refs = ["document:unknown"]
 
@@ -315,13 +419,120 @@ class QuarterEventStore:
         save_quarter_event_payload(payload, base_dir=self.events_dir, validate=False)
         return payload
 
-    def load_quarter_event(self, quarter_event_id: str, *, validate: bool = True) -> Dict[str, Any]:
-        return load_quarter_event_payload(quarter_event_id, base_dir=self.events_dir, validate=validate)
+    def save_quarter_event_from_seed(
+        self,
+        *,
+        company_ref: str,
+        quarter_event_seed: Dict[str, Any],
+        document_ref: Optional[str] = None,
+        created_by: str = "aion_equities.quarter_event_store",
+        quarter_event_payload_patch: Optional[Dict[str, Any]] = None,
+        validate: bool = True,
+        **aliases: Any,
+    ) -> Dict[str, Any]:
+        seed = deepcopy(quarter_event_seed or aliases.get("payload") or {})
+        if not isinstance(seed, dict):
+            raise TypeError("quarter_event_seed must be a dict")
+
+        company_ref = str(company_ref or seed.get("company_ref") or "")
+        if not company_ref:
+            raise TypeError("save_quarter_event_from_seed() requires company_ref")
+
+        if "/" in company_ref:
+            _, ticker = company_ref.split("/", 1)
+        else:
+            ticker = company_ref
+
+        document_ref = (
+            document_ref
+            or seed.get("document_ref")
+            or seed.get("source_document_ref")
+            or seed.get("ref")
+        )
+
+        fiscal_period = seed.get("fiscal_period") or seed.get("period")
+        if fiscal_period is None:
+            raise TypeError("save_quarter_event_from_seed() requires fiscal_period in seed")
+
+        fiscal_year, fiscal_quarter = _parse_fiscal_period(fiscal_period)
+
+        as_reported_date = (
+            seed.get("published_at")
+            or seed.get("as_reported_date")
+            or seed.get("date")
+            or _utc_today_date()
+        )
+
+        document_refs = []
+        if document_ref:
+            document_refs.append(str(document_ref))
+        if isinstance(seed.get("document_refs"), list):
+            document_refs.extend([str(x) for x in seed["document_refs"] if x])
+        if not document_refs:
+            document_refs = ["document:unknown"]
+
+        source_hashes = seed.get("source_hashes")
+        if not isinstance(source_hashes, list) or len(source_hashes) == 0:
+            prov = seed.get("provenance_hash") or seed.get("source_hash") or "sha256:unknown"
+            source_hashes = [str(prov)]
+
+        narrative_summary = seed.get("summary") or ""
+
+        financials: Dict[str, Any] = {}
+        if isinstance(seed.get("key_numbers"), dict):
+            financials = deepcopy(seed["key_numbers"])
+
+        payload = build_quarter_event_payload(
+            ticker=str(ticker),
+            fiscal_year=int(fiscal_year),
+            fiscal_quarter=int(fiscal_quarter),
+            as_reported_date=as_reported_date,
+            document_refs=list(document_refs),
+            source_hashes=list(source_hashes),
+            created_by=created_by,
+            financials=financials,
+            narrative_summary=str(narrative_summary),
+            validate=False,
+        )
+
+        patch: Dict[str, Any] = {
+            "extraction": {
+                "narrative": {
+                    "headline": seed.get("headline"),
+                }
+            }
+        }
+
+        if quarter_event_payload_patch:
+            patch = _deep_merge(patch, quarter_event_payload_patch)
+
+        payload = _deep_merge(payload, patch)
+
+        if validate:
+            validate_payload("quarter_event", payload, version=SCHEMA_PACK_VERSION)
+
+        save_quarter_event_payload(payload, base_dir=self.events_dir, validate=False)
+        return payload
+
+    def load_quarter_event(self, quarter_event_id: str, *, validate: bool = False) -> Dict[str, Any]:
+        path = self.storage_path(quarter_event_id)
+        if not path.exists():
+            raise FileNotFoundError(f"Quarter event payload not found: {path}")
+
+        payload = json.loads(path.read_text(encoding="utf-8"))
+
+        # If it's the intake/simple shape, return as-is
+        if "headline" in payload or "key_numbers" in payload or "payload" in payload:
+            return payload
+
+        if validate:
+            validate_payload("quarter_event", payload, version=SCHEMA_PACK_VERSION)
+        return payload
 
     def quarter_event_exists(self, quarter_event_id: str) -> bool:
         return self.storage_path(quarter_event_id).exists()
 
-    def list_quarter_events(self, company_ref: str) -> List[str]:
+    def list_quarter_events(self, company_ref: Optional[str] = None) -> List[str]:
         if not self.events_dir.exists():
             return []
 
@@ -331,8 +542,12 @@ class QuarterEventStore:
                 payload = json.loads(path.read_text(encoding="utf-8"))
             except Exception:
                 continue
-            if payload.get("company_ref") == company_ref:
-                qid = payload.get("quarter_event_id")
-                if isinstance(qid, str):
-                    out.append(qid)
+
+            if company_ref is not None and payload.get("company_ref") != company_ref:
+                continue
+
+            qid = payload.get("quarter_event_id")
+            if isinstance(qid, str):
+                out.append(qid)
+
         return out

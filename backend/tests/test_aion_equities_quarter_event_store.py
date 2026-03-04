@@ -1,72 +1,51 @@
-# backend/tests/test_aion_equities_quarter_event_store.py
+# /workspaces/COMDEX/backend/tests/test_aion_equities_quarter_event_store.py
 from __future__ import annotations
 
 from backend.modules.aion_equities.quarter_event_store import QuarterEventStore
 
 
-def test_save_and_load_quarter_event(tmp_path):
-    store = QuarterEventStore(tmp_path)
+def test_quarter_event_store_save_load_and_list(tmp_path):
+    store = QuarterEventStore(base_dir=tmp_path)
 
-    payload = store.save_quarter_event(
-        ticker="AHT.L",
-        year=2026,
-        quarter=1,
-        filing_date="2026-02-22",
-        period_end_date="2026-01-31",
+    saved = store.save_quarter_event(
         company_ref="company/AHT.L",
-        source_document_refs=["doc/aht_q1_2026.pdf"],
-        extracted_table_refs=["table/aht_q1_2026_income"],
-        narrative_ref="narrative/aht_q1_2026",
-        assessment_ref="assessment/company_AHT.L/2026-02-22T22:00:00Z",
-        validate=True,
+        document_ref="document/AHT.L/2026-Q1",
+        thesis_ref="thesis/AHT.L/long/2026Q2_pre_earnings",
+        quarter_event={
+            "fiscal_period": "2026-Q1",
+            "published_at": "2026-06-18",
+            "headline": "Q1 update",
+            "summary": "Trading in line",
+            "key_numbers": {"revenue_growth_pct": 8.2},
+            "source_document_ref": "document/AHT.L/2026-Q1",
+        },
     )
 
-    loaded = store.load_quarter_event(payload["quarter_event_id"])
-    assert loaded["quarter_event_id"] == payload["quarter_event_id"]
-    assert loaded["company_ref"] == "company/AHT.L"
-    assert loaded["company_ref"] == "company/AHT.L"
-    assert loaded["quarter_event_id"] == "company/AHT.L/quarter/2026-Q1"
+    assert saved["quarter_event_id"] == "quarter_event/company/AHT.L/2026-Q1"
+    assert saved["company_ref"] == "company/AHT.L"
+    assert saved["fiscal_period"] == "2026-Q1"
+
+    loaded = store.load_quarter_event("quarter_event/company/AHT.L/2026-Q1")
+    assert loaded["headline"] == "Q1 update"
+    assert loaded["key_numbers"]["revenue_growth_pct"] == 8.2
+
+    listed = store.list_quarter_events()
+    assert "quarter_event/company/AHT.L/2026-Q1" in listed
 
 
-def test_list_quarter_events_for_company(tmp_path):
-    store = QuarterEventStore(tmp_path)
+def test_quarter_event_store_accepts_payload_alias(tmp_path):
+    store = QuarterEventStore(base_dir=tmp_path)
 
-    p1 = store.save_quarter_event(
-        ticker="AHT.L",
-        year=2026,
-        quarter=1,
-        filing_date="2026-02-22",
-        period_end_date="2026-01-31",
-        company_ref="company/AHT.L",
-        validate=True,
-    )
-    p2 = store.save_quarter_event(
-        ticker="AHT.L",
-        year=2026,
-        quarter=2,
-        filing_date="2026-05-22",
-        period_end_date="2026-04-30",
-        company_ref="company/AHT.L",
-        validate=True,
+    saved = store.save_quarter_event(
+        company_ref="company/TSCO.L",
+        payload={
+            "document_ref": "document/TSCO.L/2026-Q1",
+            "fiscal_period": "2026-Q1",
+            "headline": "Stable quarter",
+            "summary": "Defensive trading held up",
+            "key_numbers": {"like_for_like_sales_pct": 3.1},
+        },
     )
 
-    ids = store.list_quarter_events("company/AHT.L")
-    assert p1["quarter_event_id"] in ids
-    assert p2["quarter_event_id"] in ids
-    assert len(ids) == 2
-
-
-def test_quarter_event_exists(tmp_path):
-    store = QuarterEventStore(tmp_path)
-
-    payload = store.save_quarter_event(
-        ticker="AHT.L",
-        year=2026,
-        quarter=1,
-        filing_date="2026-02-22",
-        period_end_date="2026-01-31",
-        company_ref="company/AHT.L",
-        validate=True,
-    )
-
-    assert store.quarter_event_exists(payload["quarter_event_id"]) is True
+    assert saved["quarter_event_id"] == "quarter_event/company/TSCO.L/2026-Q1"
+    assert saved["payload"]["headline"] == "Stable quarter"

@@ -1,3 +1,110 @@
+	1.	Sector template layer
+
+	•	Create sector template objects before company fingerprints
+	•	Define common variable maps per sector
+	•	Use sector template as the starting model for company calibration
+
+	2.	Deployment timing layer
+
+	•	Create deployment readiness signal
+	•	Score:
+	•	thesis clarity
+	•	price dislocation vs intrinsic value
+	•	variable confirmation strength
+	•	Emit tranche deployment guidance
+	•	Apply macro regime multiplier to deployment readiness
+
+	3.	Post-results reaction layer
+
+	•	Classify market reaction after results
+	•	Flag:
+	•	overreaction positive
+	•	overreaction negative
+	•	proportionate reaction
+	•	Feed deployment timing after report
+
+	4.	Runtime integration expansion
+
+	•	Fully wire quarter event creation into runtime flows
+	•	Fully wire catalyst event creation into runtime flows
+	•	Fully wire observer decision cycle creation into runtime flows
+	•	Expand load_company_intelligence_snapshot into a true linked replay loader
+
+	5.	Linked runtime replay
+
+	•	Load in one pass:
+	•	company
+	•	latest assessment
+	•	thesis by mode/window
+	•	quarter history
+	•	catalyst history
+	•	observer cycle history
+	•	related KG edges
+
+	6.	Document ingestion completion layer
+
+	•	Filing metadata → quarter event
+	•	Structured financial extraction mapping
+	•	Narrative summary mapping
+	•	Assessment creation from quarter event
+	•	Fingerprint extraction from reports
+	•	Trigger map extraction from reports
+
+	7.	Pattern and catalyst linkage
+
+	•	Debt wall stress pattern refs
+	•	Gradual deterioration pattern refs
+	•	Post-earnings reaction pattern refs
+	•	AI margin expansion pattern refs
+
+	8.	Observer learning loop
+
+	•	Process vs outcome review
+	•	Bias tracking
+	•	Timing error tracking
+	•	False-positive sector bucket tracking
+
+	9.	Runtime propagation and decision layer
+
+	•	Propagate country shocks through coupling graph
+	•	Propagate rating actions through company universe
+	•	Propagate macro + bilateral changes into thesis coherence
+	•	Adjust ACS / SQI by regime and pair context
+	•	Adjust catalyst timing confidence
+	•	Adjust position sizing and conviction
+
+	10.	Pilot universe expansion / validation
+
+	•	Ensure full 10–20 boring predictable companies are seeded
+	•	Ensure sector spread for templates
+	•	Run 20-report learning pass
+	•	Feed outputs into post-report recalibration loop
+	•	Evaluate hit rate and recalibrate
+
+	11.	Validation / threshold tuning
+
+	•	Check SQI signal distributions
+	•	Check thesis coherence behaviour
+	•	Check catalyst gating behaviour
+	•	Check observer metrics
+
+Completed today on the OpenAI/AION side:
+	•	operating brief store
+	•	context packet builder
+	•	decision notes store
+	•	execution instruction store
+	•	response mapper
+	•	trade review pipeline
+	•	document analysis runtime
+	•	company profile mapper
+	•	trade decision runtime
+	•	review artifact store
+	•	trade review orchestrator
+
+Best next build from here is Sector template layer.
+
+
+
 Remaining tasks
 	1.	Sector template layer
 • Create sector template objects before company fingerprints

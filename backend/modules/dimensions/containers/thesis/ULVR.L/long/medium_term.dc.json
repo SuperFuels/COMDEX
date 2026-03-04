@@ -5,7 +5,7 @@
   "domain": "equities_thesis",
   "meta": {
     "created_by": "SQI",
-    "last_updated": "2026-03-01T22:09:22.333835+00:00",
+    "last_updated": "2026-03-02T23:35:15.335711+00:00",
     "ghx": {
       "hover": true,
       "collapsed": true
@@ -28,7 +28,7 @@
         "mode": "long",
         "window": "medium_term",
         "status": "active",
-        "as_of": "2026-03-01T22:09:22Z",
+        "as_of": "2026-03-02T23:35:15Z",
         "entity_ref": "company/ULVR.L",
         "conviction": {
           "score": 75.85,
@@ -92,7 +92,7 @@
           "mode": "long",
           "window": "medium_term",
           "status": "active",
-          "as_of": "2026-03-01T22:09:22Z",
+          "as_of": "2026-03-02T23:35:15Z",
           "entity_ref": "company/ULVR.L",
           "conviction": {
             "score": 75.85,
