@@ -99,6 +99,72 @@ class AssessmentStore:
                 out.append(assessment_id)
         return out
 
+    def save_assessment_payload(
+        self,
+        payload: Dict[str, Any],
+        *,
+        create_write_event: bool = True,
+        generated_by: str = "aion_equities.assessment_store",
+        validate: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Persist a fully-built assessment payload (runtime-produced) without rebuilding.
+
+        This is needed for runtimes that already produce an assessment payload and just
+        want it stored under the same latest/history layout.
+        """
+        if not isinstance(payload, dict):
+            raise TypeError("save_assessment_payload() requires payload dict")
+
+        if validate:
+            validate_payload("assessment", payload, version="v0_1")
+
+        entity_id = str(payload.get("entity_id") or payload.get("entity_ref") or "")
+        if not entity_id:
+            raise TypeError("assessment payload missing entity_id/entity_ref")
+
+        as_of = str(payload.get("as_of") or "")
+        if not as_of:
+            raise TypeError("assessment payload missing as_of")
+
+        latest_path = self._latest_path(entity_id)
+        history_path = self._history_path(entity_id, as_of)
+
+        self._write_json(history_path, payload)
+        self._write_json(latest_path, payload)
+
+        if create_write_event:
+            env = build_write_event_envelope(
+                event_id=f"write_event/{entity_id}/interpretation/{as_of}",
+                stage="interpretation",
+                timestamp=as_of,
+                entity_id=entity_id,
+                entity_type=str(payload.get("entity_type") or "company"),
+                operation="upsert",
+                payload_schema_id="assessment",
+                payload_data=payload,
+                source_kind="system",
+                source_refs=payload.get("provenance", {}).get("source_event_ids", [entity_id]),
+                generated_by=generated_by,
+                correlation_id=f"corr_{_safe_segment(entity_id)}",
+                validate=validate,
+            )
+            self._write_json(
+                self._write_event_path(entity_id, "interpretation", env["event_id"]),
+                env,
+            )
+
+        return payload
+
+
+    # compatibility aliases (some runtimes/tests call these names)
+    def upsert_assessment(self, payload: Dict[str, Any], *, validate: bool = True) -> Dict[str, Any]:
+        return self.save_assessment_payload(payload, validate=validate)
+
+
+    def upsert(self, payload: Dict[str, Any], *, validate: bool = True) -> Dict[str, Any]:
+        return self.save_assessment_payload(payload, validate=validate)
+
     def load_assessment(self, entity_id: str, assessment_id: str) -> Dict[str, Any]:
         p = self._history_entity_dir(entity_id)
         if not p.exists():

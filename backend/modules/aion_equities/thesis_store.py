@@ -254,3 +254,90 @@ class ThesisStore:
         if not stage_dir.exists():
             return []
         return [self._read_json(p) for p in sorted(stage_dir.glob("*.json"))]
+
+    def save_thesis(
+        self,
+        payload: Dict[str, Any],
+        *,
+        create_write_event: bool = True,
+        generated_by: str = "aion_equities.thesis_store",
+        validate: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Persist a fully-built thesis payload (runtime-produced).
+
+        ThesisRuntime builds richer payloads than build_thesis_state_payload_minimal(),
+        so we store it as-is. Validation is off by default because this payload is not
+        necessarily the v0_1 thesis_state schema shape.
+        """
+        if not isinstance(payload, dict):
+            raise TypeError("save_thesis() requires payload dict")
+
+        thesis_id = str(payload.get("thesis_id") or "")
+        if not thesis_id:
+            raise TypeError("thesis payload missing thesis_id")
+
+        as_of = str(payload.get("as_of") or "")
+        if not as_of:
+            raise TypeError("thesis payload missing as_of")
+
+        # Optional schema validation if/when you add a thesis schema for this richer payload
+        if validate:
+            # best-effort: if it looks like a thesis_state payload, validate it
+            try:
+                validate_payload("thesis_state", payload, version="v0_1")
+            except Exception:
+                pass
+
+        latest_path = self._latest_path(thesis_id)
+        history_path = self._history_path(thesis_id, as_of)
+
+        self._write_json(history_path, payload)
+        self._write_json(latest_path, payload)
+
+        if create_write_event:
+            source_refs = []
+            linked = payload.get("linked_refs") if isinstance(payload.get("linked_refs"), dict) else {}
+            if isinstance(linked.get("assessment_refs"), list):
+                source_refs = list(linked.get("assessment_refs") or [])
+            if not source_refs:
+                # fall back to embedded assessment_refs if present
+                if isinstance(payload.get("assessment_refs"), list):
+                    source_refs = list(payload.get("assessment_refs") or [])
+            if not source_refs:
+                source_refs = [thesis_id]
+
+            env = build_write_event_envelope(
+                event_id=f"write_event/{thesis_id}/decision/{as_of}",
+                stage="decision",
+                timestamp=as_of,
+                entity_id=thesis_id,
+                entity_type="thesis",
+                operation="upsert",
+                payload_schema_id="thesis",
+                payload_data=payload,
+                source_kind="system",
+                source_refs=source_refs,
+                generated_by=generated_by,
+                correlation_id=f"corr_{_safe_segment(thesis_id)}",
+                validate=False,
+            )
+            self._write_json(
+                self._write_event_path(thesis_id, "decision", env["event_id"]),
+                env,
+            )
+
+        return payload
+
+
+    # compatibility aliases expected by ThesisRuntime._persist_thesis
+    def upsert_thesis(self, payload: Dict[str, Any], *, validate: bool = False) -> Dict[str, Any]:
+        return self.save_thesis(payload, validate=validate)
+
+
+    def upsert(self, payload: Dict[str, Any], *, validate: bool = False) -> Dict[str, Any]:
+        return self.save_thesis(payload, validate=validate)
+
+
+    def save_thesis_state_payload(self, payload: Dict[str, Any], *, validate: bool = False) -> Dict[str, Any]:
+        return self.save_thesis(payload, validate=validate)

@@ -266,3 +266,4 @@ tools/solana/glyphos-token/*.json
 
 # telegram
 /tools/telegram/groups.txt
+.runtime/

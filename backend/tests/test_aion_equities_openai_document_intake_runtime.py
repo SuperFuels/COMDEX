@@ -1,6 +1,6 @@
-# /workspaces/COMDEX/backend/tests/test_aion_equities_openai_document_intake_runtime.py
 from __future__ import annotations
 
+from backend.modules.aion_equities.company_trigger_map_store import CompanyTriggerMapStore
 from backend.modules.aion_equities.openai_company_profile_mapper import (
     OpenAICompanyProfileMapper,
 )
@@ -13,6 +13,8 @@ from backend.modules.aion_equities.openai_document_intake_runtime import (
 from backend.modules.aion_equities.openai_operating_brief_store import (
     OpenAIOperatingBriefStore,
 )
+from backend.modules.aion_equities.quarter_event_store import QuarterEventStore
+from backend.modules.aion_equities.variable_watch_store import VariableWatchStore
 
 
 def test_openai_document_intake_runtime_returns_consolidated_artifact(tmp_path):
@@ -50,14 +52,16 @@ def test_openai_document_intake_runtime_returns_consolidated_artifact(tmp_path):
                     {
                         "trigger_id": "utilisation_up",
                         "variable_name": "fleet_utilisation",
+                        "data_source": "feed/fleet_utilisation",
                         "impact_direction": "positive",
+                        "impact_weight": 0.7,
+                        "confidence": 80,
+                        "thesis_action": "increase_conviction",
                     }
                 ]
             },
             "feed_candidates": {
-                "feeds": [
-                    {"feed_id": "feed/us_construction_activity", "kind": "macro"}
-                ]
+                "feeds": [{"feed_id": "feed/us_construction_activity", "kind": "macro"}]
             },
             "assessment_seed": {
                 "acs_band": "high",
@@ -84,9 +88,16 @@ def test_openai_document_intake_runtime_returns_consolidated_artifact(tmp_path):
         openai_client=fake_openai_client,
     )
     mapper = OpenAICompanyProfileMapper()
+    quarter_event_store = QuarterEventStore(base_dir=tmp_path)
+    trigger_map_store = CompanyTriggerMapStore(base_dir=tmp_path)
+    variable_watch_store = VariableWatchStore(base_dir=tmp_path)
+
     runtime = OpenAIDocumentIntakeRuntime(
         document_analysis_runtime=analysis_runtime,
         company_profile_mapper=mapper,
+        quarter_event_store=quarter_event_store,
+        company_trigger_map_store=trigger_map_store,
+        variable_watch_store=variable_watch_store,
     )
 
     out = runtime.run_document_intake(
@@ -97,20 +108,20 @@ def test_openai_document_intake_runtime_returns_consolidated_artifact(tmp_path):
         thesis_ref="thesis/AHT.L/long/2026Q2_pre_earnings",
     )
 
-    assert out["company_ref"] == "company/AHT.L"
-    assert out["document_ref"] == "document/AHT.L/2026-Q1"
-    assert out["document_type"] == "board_pack"
-    assert out["thesis_ref"] == "thesis/AHT.L/long/2026Q2_pre_earnings"
+    # Quarter event persisted
+    assert out["persisted_objects"]["quarter_event_ref"] == "quarter_event/company/AHT.L/2026-Q1"
+    loaded_qe = quarter_event_store.load_quarter_event("quarter_event/company/AHT.L/2026-Q1")
+    assert loaded_qe["headline"] == "Q1 update"
 
-    assert out["normalized_analysis"]["company_profile"]["name"] == "Ashtead Group"
-    assert out["mapped_objects"]["company_profile"]["name"] == "Ashtead Group"
-    assert out["mapped_objects"]["quarter_event"]["fiscal_period"] == "2026-Q1"
-    assert out["mapped_objects"]["assessment_seed"]["payload"]["acs_band"] == "high"
-    assert out["mapped_objects"]["thesis_seed"]["payload"]["mode"] == "long"
-    assert out["mapped_objects"]["variable_watch_seed"]["payload"]["variables"] == [
-        "fleet_utilisation",
-        "rental_rate_growth",
-    ]
+    # Trigger map persisted
+    assert out["persisted_objects"]["trigger_map_ref"] == "company/AHT.L/trigger_map/2026-Q1"
+    loaded_tm = trigger_map_store.load_company_trigger_map("company/AHT.L", "2026-Q1", validate=False)
+    assert loaded_tm["company_trigger_map_id"] == "company/AHT.L/trigger_map/2026-Q1"
+
+    # Variable watch persisted
+    assert out["persisted_objects"]["variable_watch_ref"] == "company/AHT.L/variable_watch/2026-Q1"
+    loaded_vw = variable_watch_store.load_variable_watch("company/AHT.L", "2026-Q1")
+    assert loaded_vw["variables"] == ["fleet_utilisation", "rental_rate_growth"]
 
 
 def test_openai_document_intake_runtime_intake_document_alias_works(tmp_path):
@@ -136,15 +147,16 @@ def test_openai_document_intake_runtime_intake_document_alias_works(tmp_path):
                 "headline": "Stable quarter",
                 "summary": "Defensive trading held up",
                 "key_numbers": {"like_for_like_sales_pct": 3.1},
+                "fiscal_period": "2026-Q1",
             },
             "triggers": [
-                {"trigger_id": "volume_trend", "variable_name": "volume_growth"}
+                {
+                    "trigger_id": "volume_trend",
+                    "variable_name": "volume_growth",
+                    "data_source": "feed/uk_consumer_spend",
+                    "impact_direction": "positive",
+                }
             ],
-            "feeds": [
-                {"feed_id": "feed/uk_consumer_spend", "kind": "macro"}
-            ],
-            "assessment": {"acs_band": "medium_high"},
-            "thesis": {"mode": "long"},
             "watchlist": {"variables": ["volume_growth"]},
         }
 
@@ -153,9 +165,16 @@ def test_openai_document_intake_runtime_intake_document_alias_works(tmp_path):
         openai_client=fake_openai_client,
     )
     mapper = OpenAICompanyProfileMapper()
+    quarter_event_store = QuarterEventStore(base_dir=tmp_path)
+    trigger_map_store = CompanyTriggerMapStore(base_dir=tmp_path)
+    variable_watch_store = VariableWatchStore(base_dir=tmp_path)
+
     runtime = OpenAIDocumentIntakeRuntime(
         document_analysis_runtime=analysis_runtime,
         company_profile_mapper=mapper,
+        quarter_event_store=quarter_event_store,
+        company_trigger_map_store=trigger_map_store,
+        variable_watch_store=variable_watch_store,
     )
 
     out = runtime.intake_document(
@@ -164,9 +183,10 @@ def test_openai_document_intake_runtime_intake_document_alias_works(tmp_path):
         document_text="Extracted text",
     )
 
-    assert out["normalized_analysis"]["company_profile"]["name"] == "Tesco"
-    assert out["mapped_objects"]["company_profile"]["sector"] == "consumer_staples"
-    assert out["mapped_objects"]["trigger_map"]["triggers"][0]["trigger_id"] == "volume_trend"
-    assert out["mapped_objects"]["feed_candidates"]["feeds"][0]["feed_id"] == "feed/uk_consumer_spend"
-    assert out["mapped_objects"]["assessment_seed"]["payload"]["acs_band"] == "medium_high"
-    assert out["mapped_objects"]["thesis_seed"]["payload"]["mode"] == "long"
+    assert out["persisted_objects"]["quarter_event_ref"] == "quarter_event/company/TSCO.L/2026-Q1"
+    assert out["persisted_objects"]["trigger_map_ref"] == "company/TSCO.L/trigger_map/2026-Q1"
+
+    # Variable watch persisted (alias watchlist)
+    assert out["persisted_objects"]["variable_watch_ref"] == "company/TSCO.L/variable_watch/2026-Q1"
+    loaded_vw = variable_watch_store.load_variable_watch("company/TSCO.L", "2026-Q1")
+    assert loaded_vw["variables"] == ["volume_growth"]

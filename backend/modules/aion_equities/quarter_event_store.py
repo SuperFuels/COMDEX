@@ -245,30 +245,96 @@ class QuarterEventStore:
         if not fiscal_period:
             raise TypeError("_save_simple_quarter_event() requires fiscal_period/period")
 
-        qid = f"quarter_event/{company_ref}/{fiscal_period}"
+        # Keep the ID shape your tests expect
+        quarter_event_id = f"quarter_event/{company_ref}/{fiscal_period}"
 
-        payload: Dict[str, Any] = {
-            "quarter_event_id": qid,
+        # Derive canonical-ish fields needed by AssessmentRuntime
+        fiscal_year, fiscal_quarter = _parse_fiscal_period(fiscal_period)
+
+        published_at = quarter_event.get("published_at")
+        as_reported_date = (
+            published_at
+            or quarter_event.get("as_reported_date")
+            or quarter_event.get("date")
+            or _utc_today_date()
+        )
+
+        doc_ref = (
+            document_ref
+            or quarter_event.get("document_ref")
+            or quarter_event.get("source_document_ref")
+        )
+
+        document_refs = []
+        if doc_ref:
+            document_refs.append(str(doc_ref))
+        if isinstance(quarter_event.get("document_refs"), list):
+            document_refs.extend([str(x) for x in quarter_event["document_refs"] if x])
+        if not document_refs:
+            document_refs = ["document:unknown"]
+
+        source_hashes = quarter_event.get("source_hashes")
+        if not isinstance(source_hashes, list) or len(source_hashes) == 0:
+            prov = quarter_event.get("provenance_hash") or quarter_event.get("source_hash") or "sha256:unknown"
+            source_hashes = [str(prov)]
+
+        # Map key_numbers -> extraction.financials
+        financials: Dict[str, Any] = {}
+        if isinstance(quarter_event.get("key_numbers"), dict):
+            financials = deepcopy(quarter_event["key_numbers"])
+
+        narrative_summary = str(quarter_event.get("summary") or "").strip()
+
+        canonical_like: Dict[str, Any] = {
+            "quarter_event_id": quarter_event_id,
             "company_ref": str(company_ref),
-            "document_ref": document_ref or quarter_event.get("document_ref") or quarter_event.get("source_document_ref"),
+            "period": {
+                "fiscal_year": int(fiscal_year),
+                "fiscal_quarter": int(fiscal_quarter),
+            },
+            "event_type": "quarterly_results",
+            "as_reported_date": _date_str(as_reported_date),
+            "source": {
+                "document_refs": list(document_refs),
+                "source_hashes": list(source_hashes),
+            },
+            "extraction": {
+                "financials": deepcopy(financials),
+                "narrative": {
+                    "summary": narrative_summary,
+                    "headline": quarter_event.get("headline"),
+                    "ast_applied": bool(quarter_event.get("ast_applied", False)),
+                },
+            },
+            "analysis": {
+                "deltas_vs_prior": deepcopy(quarter_event.get("deltas_vs_prior", {})) if isinstance(quarter_event.get("deltas_vs_prior"), dict) else {},
+                "flags": list(quarter_event.get("flags") or []) if isinstance(quarter_event.get("flags"), list) else [],
+                "assessment_refs": list(quarter_event.get("assessment_refs") or []) if isinstance(quarter_event.get("assessment_refs"), list) else [],
+            },
+            "audit": {
+                "created_at": _utc_now_iso(),
+                "updated_at": _utc_now_iso(),
+                "created_by": str(created_by),
+            },
+            # Keep compatibility top-level fields for existing tests + quick reading
+            "document_ref": doc_ref,
             "thesis_ref": thesis_ref or quarter_event.get("thesis_ref"),
-            "generated_by": str(created_by),
             "fiscal_period": fiscal_period,
-            "published_at": quarter_event.get("published_at"),
+            "published_at": published_at,
             "headline": quarter_event.get("headline"),
             "summary": quarter_event.get("summary"),
             "key_numbers": deepcopy(quarter_event.get("key_numbers", {})),
-            "source_document_ref": quarter_event.get("source_document_ref") or document_ref,
+            "source_document_ref": quarter_event.get("source_document_ref") or doc_ref,
             "payload": deepcopy(quarter_event),
         }
 
         if payload_patch:
-            payload = _deep_merge(payload, payload_patch)
+            canonical_like = _deep_merge(canonical_like, payload_patch)
 
-        path = self.storage_path(qid)
+        path = self.storage_path(quarter_event_id)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-        return payload
+        path.write_text(json.dumps(canonical_like, ensure_ascii=False, indent=2), encoding="utf-8")
+        return canonical_like
 
     def save_quarter_event(
         self,

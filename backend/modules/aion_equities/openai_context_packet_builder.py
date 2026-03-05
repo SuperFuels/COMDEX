@@ -1,16 +1,38 @@
+# /workspaces/COMDEX/backend/modules/aion_equities/openai_context_packet_builder.py
 from __future__ import annotations
 
 from copy import deepcopy
 from typing import Any, Dict, Optional
 
+from backend.modules.aion_equities.company_intelligence_snapshot_loader import (
+    CompanyIntelligenceSnapshotLoader,
+)
 from backend.modules.aion_equities.openai_operating_brief_store import (
     OpenAIOperatingBriefStore,
 )
 
 
 class OpenAIContextPacketBuilder:
-    def __init__(self, *, operating_brief_store: OpenAIOperatingBriefStore):
+    """
+    Builds the canonical OpenAI trade review context packet.
+
+    New capability:
+      - If no company_intelligence_pack is supplied, but a CompanyIntelligenceSnapshotLoader
+        is provided, we auto-load a linked replay snapshot (one-pass pack) for company_ref.
+
+    Backward compatibility:
+      - Accepts alias shapes for proposal and business status
+      - Preserves legacy top-level keys required by existing tests
+    """
+
+    def __init__(
+        self,
+        *,
+        operating_brief_store: OpenAIOperatingBriefStore,
+        company_snapshot_loader: Optional[CompanyIntelligenceSnapshotLoader] = None,
+    ):
         self.operating_brief_store = operating_brief_store
+        self.company_snapshot_loader = company_snapshot_loader
 
     def _load_brief(
         self,
@@ -31,6 +53,32 @@ class OpenAIContextPacketBuilder:
 
         return deepcopy(brief)
 
+    def _resolve_company_pack(
+        self,
+        *,
+        company_ref: Optional[str],
+        provided_pack: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """
+        If caller provided a pack, use it.
+        Else if we have a loader + company_ref, load snapshot.
+        """
+        if provided_pack:
+            return deepcopy(provided_pack)
+
+        if self.company_snapshot_loader is None:
+            return {}
+
+        if not company_ref:
+            return {}
+
+        try:
+            snap = self.company_snapshot_loader.load_snapshot(company_ref=str(company_ref))
+            return deepcopy(snap)
+        except Exception:
+            # best-effort: packet builder should not hard-fail if snapshot is missing
+            return {}
+
     def build_context_packet(
         self,
         *,
@@ -41,7 +89,7 @@ class OpenAIContextPacketBuilder:
         review_id: Optional[str] = None,
         thesis_ref: Optional[str] = None,
 
-        # NEW: explicit requested action (tests require this)
+        # explicit requested action
         requested_action: Optional[str] = None,
 
         # inputs (accept multiple alias shapes)
@@ -70,7 +118,9 @@ class OpenAIContextPacketBuilder:
 
         resolved_proposal_packet = deepcopy(proposal_packet or proposal or {})
         resolved_business_status = deepcopy(current_business_status or business_status or {})
-        resolved_company_pack = deepcopy(
+
+        # Prefer explicit pack if supplied; otherwise allow snapshot loader fallback.
+        provided_pack = deepcopy(
             company_intelligence_pack
             or company_state
             or company_profile
@@ -78,7 +128,8 @@ class OpenAIContextPacketBuilder:
             or {}
         )
 
-        resolved_company_ref = company_ref or resolved_company_pack.get("company_ref")
+        # Resolve IDs
+        resolved_company_ref = company_ref or provided_pack.get("company_ref")
         resolved_proposal_id = proposal_id or proposal_ref or resolved_proposal_packet.get("proposal_id")
         resolved_review_id = review_id or resolved_proposal_packet.get("review_id")
 
@@ -87,6 +138,16 @@ class OpenAIContextPacketBuilder:
             or resolved_proposal_packet.get("requested_action")
             or resolved_proposal_packet.get("action")
         )
+
+        # If no pack provided, try to auto-load linked snapshot
+        resolved_company_pack = self._resolve_company_pack(
+            company_ref=resolved_company_ref,
+            provided_pack=provided_pack,
+        )
+
+        # If pack load resolved company_ref but the caller didn't provide it, sync it back
+        if not resolved_company_ref:
+            resolved_company_ref = resolved_company_pack.get("company_ref")
 
         packet: Dict[str, Any] = {
             "context_packet_type": "openai_trade_review",

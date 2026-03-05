@@ -3,3283 +3,3213 @@
         "type": "frontend_ui",
         "dna_id": "frontend.ai",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.104402+00:00",
+        "last_modified": "2026-03-05T23:31:04.732265+00:00",
         "switch": true
     },
     "frontend/plugins/FrameBridge.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.plugins.FrameBridge",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.104947+00:00",
+        "last_modified": "2026-03-05T23:31:04.732966+00:00",
         "switch": true
     },
     "frontend/plugins/PluginHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.plugins.PluginHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.105195+00:00",
+        "last_modified": "2026-03-05T23:31:04.733240+00:00",
         "switch": true
     },
     "frontend/collab/PresenceLayer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.collab.PresenceLayer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.107353+00:00",
+        "last_modified": "2026-03-05T23:31:04.735795+00:00",
         "switch": true
     },
     "frontend/pages/_document.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages._document",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.260293+00:00",
+        "last_modified": "2026-03-05T23:31:04.736586+00:00",
         "switch": true
     },
     "frontend/pages/register.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.register",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.260609+00:00",
+        "last_modified": "2026-03-05T23:31:04.736856+00:00",
         "switch": true
     },
     "frontend/pages/sovereign-qkd.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.sovereign-qkd",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.260888+00:00",
+        "last_modified": "2026-03-05T23:31:04.737109+00:00",
         "switch": true
     },
     "frontend/pages/aion.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.261181+00:00",
+        "last_modified": "2026-03-05T23:31:04.737413+00:00",
         "switch": true
     },
     "frontend/pages/glyph-net.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.glyph-net",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.261478+00:00",
+        "last_modified": "2026-03-05T23:31:04.737720+00:00",
         "switch": true
     },
     "frontend/pages/wirepack.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.wirepack",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.261726+00:00",
+        "last_modified": "2026-03-05T23:31:04.738067+00:00",
         "switch": true
     },
     "frontend/pages/compression.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.compression",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.262011+00:00",
+        "last_modified": "2026-03-05T23:31:04.738384+00:00",
         "switch": true
     },
     "frontend/pages/escrow-test.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.escrow-test",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.262312+00:00",
+        "last_modified": "2026-03-05T23:31:04.738773+00:00",
         "switch": true
     },
     "frontend/pages/homeostasis.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.homeostasis",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.262601+00:00",
+        "last_modified": "2026-03-05T23:31:04.739144+00:00",
         "switch": true
     },
     "frontend/pages/chart.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.chart",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.262913+00:00",
+        "last_modified": "2026-03-05T23:31:04.739515+00:00",
         "switch": true
     },
     "frontend/pages/qfc-canvas.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.qfc-canvas",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.263237+00:00",
+        "last_modified": "2026-03-05T23:31:04.739915+00:00",
         "switch": true
     },
     "frontend/pages/photon-binary.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.photon-binary",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.263577+00:00",
+        "last_modified": "2026-03-05T23:31:04.740285+00:00",
         "switch": true
     },
     "frontend/pages/dev-tools.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.dev-tools",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.263888+00:00",
+        "last_modified": "2026-03-05T23:31:04.740695+00:00",
         "switch": true
     },
     "frontend/pages/sci.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.sci",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.264254+00:00",
+        "last_modified": "2026-03-05T23:31:04.741106+00:00",
         "switch": true
     },
     "frontend/pages/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.264569+00:00",
+        "last_modified": "2026-03-05T23:31:04.741533+00:00",
         "switch": true
     },
     "frontend/pages/glyph.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.glyph",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.264945+00:00",
+        "last_modified": "2026-03-05T23:31:04.741912+00:00",
         "switch": true
     },
     "frontend/pages/search.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.search",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.265357+00:00",
+        "last_modified": "2026-03-05T23:31:04.742331+00:00",
         "switch": true
     },
     "frontend/pages/phase7-calibration.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.phase7-calibration",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.265723+00:00",
+        "last_modified": "2026-03-05T23:31:04.742754+00:00",
         "switch": true
     },
     "frontend/pages/symatics.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.symatics",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.266075+00:00",
+        "last_modified": "2026-03-05T23:31:04.743182+00:00",
         "switch": true
     },
     "frontend/pages/sle-resonance.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.sle-resonance",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.266438+00:00",
+        "last_modified": "2026-03-05T23:31:04.743640+00:00",
         "switch": true
     },
     "frontend/pages/rqc-awareness.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.rqc-awareness",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.266799+00:00",
+        "last_modified": "2026-03-05T23:31:04.744087+00:00",
         "switch": true
     },
     "frontend/pages/photon-algebra-demo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.photon-algebra-demo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.267171+00:00",
+        "last_modified": "2026-03-05T23:31:04.744690+00:00",
         "switch": true
     },
     "frontend/pages/sqi.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.sqi",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.267578+00:00",
+        "last_modified": "2026-03-05T23:31:04.745145+00:00",
         "switch": true
     },
     "frontend/pages/ai.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.ai",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.267957+00:00",
+        "last_modified": "2026-03-05T23:31:04.745631+00:00",
         "switch": true
     },
     "frontend/pages/login.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.login",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.268331+00:00",
+        "last_modified": "2026-03-05T23:31:04.746038+00:00",
         "switch": true
     },
     "frontend/pages/glyphnet.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.glyphnet",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.268718+00:00",
+        "last_modified": "2026-03-05T23:31:04.746411+00:00",
         "switch": true
     },
     "frontend/pages/_app.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages._app",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.269116+00:00",
+        "last_modified": "2026-03-05T23:31:04.746879+00:00",
         "switch": true
     },
     "frontend/pages/launch.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.launch",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.269487+00:00",
+        "last_modified": "2026-03-05T23:31:04.747252+00:00",
         "switch": true
     },
     "frontend/pages/codex/scroll.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.codex.scroll",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.270130+00:00",
+        "last_modified": "2026-03-05T23:31:04.747850+00:00",
         "switch": true
     },
     "frontend/pages/contracts/[id].tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.contracts.[id]",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.270546+00:00",
+        "last_modified": "2026-03-05T23:31:04.748314+00:00",
         "switch": true
     },
     "frontend/pages/contracts/new.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.contracts.new",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.270936+00:00",
+        "last_modified": "2026-03-05T23:31:04.748725+00:00",
         "switch": true
     },
     "frontend/pages/contracts/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.contracts.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.271380+00:00",
+        "last_modified": "2026-03-05T23:31:04.749214+00:00",
         "switch": true
     },
     "frontend/pages/creative/replay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.creative.replay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.271884+00:00",
+        "last_modified": "2026-03-05T23:31:04.749738+00:00",
         "switch": true
     },
     "frontend/pages/symatics/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.symatics.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.272381+00:00",
+        "last_modified": "2026-03-05T23:31:04.750236+00:00",
         "switch": true
     },
     "frontend/pages/symatics/symatics_index_demo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.symatics.symatics_index_demo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.272831+00:00",
+        "last_modified": "2026-03-05T23:31:04.750664+00:00",
         "switch": true
     },
     "frontend/pages/buyer/dashboard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.buyer.dashboard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.273337+00:00",
+        "last_modified": "2026-03-05T23:31:04.751119+00:00",
         "switch": true
     },
     "frontend/pages/aion/multiverse.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.multiverse",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.273864+00:00",
+        "last_modified": "2026-03-05T23:31:04.751611+00:00",
         "switch": true
     },
     "frontend/pages/aion/sqi-drift.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.sqi-drift",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.274367+00:00",
+        "last_modified": "2026-03-05T23:31:04.752111+00:00",
         "switch": true
     },
     "frontend/pages/aion/glyph-synthesis.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.glyph-synthesis",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.274885+00:00",
+        "last_modified": "2026-03-05T23:31:04.752564+00:00",
         "switch": true
     },
     "frontend/pages/aion/avatar-runtime.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.avatar-runtime",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.275437+00:00",
+        "last_modified": "2026-03-05T23:31:04.753052+00:00",
         "switch": true
     },
     "frontend/pages/aion/codex-playground.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.codex-playground",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.275964+00:00",
+        "last_modified": "2026-03-05T23:31:04.753538+00:00",
         "switch": true
     },
     "frontend/pages/aion/quantum-field.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.quantum-field",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.276496+00:00",
+        "last_modified": "2026-03-05T23:31:04.753998+00:00",
         "switch": true
     },
     "frontend/pages/aion/photon-binary-bridge.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.photon-binary-bridge",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.277047+00:00",
+        "last_modified": "2026-03-05T23:31:04.754480+00:00",
         "switch": true
     },
     "frontend/pages/aion/entanglement.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.entanglement",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.277574+00:00",
+        "last_modified": "2026-03-05T23:31:04.754944+00:00",
         "switch": true
     },
     "frontend/pages/aion/KnowledgeBrainMap.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.KnowledgeBrainMap",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.278169+00:00",
+        "last_modified": "2026-03-05T23:31:04.755494+00:00",
         "switch": true
     },
     "frontend/pages/aion/replay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.replay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.278843+00:00",
+        "last_modified": "2026-03-05T23:31:04.755969+00:00",
         "switch": true
     },
     "frontend/pages/aion/codex-hud.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.codex-hud",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.279594+00:00",
+        "last_modified": "2026-03-05T23:31:04.756468+00:00",
         "switch": true
     },
     "frontend/pages/aion/holographic-viewer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.holographic-viewer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.280296+00:00",
+        "last_modified": "2026-03-05T23:31:04.756959+00:00",
         "switch": true
     },
     "frontend/pages/aion/lean-injector.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.lean-injector",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.280973+00:00",
+        "last_modified": "2026-03-05T23:31:04.757471+00:00",
         "switch": true
     },
     "frontend/pages/aion/AIONDashboard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.AIONDashboard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.281677+00:00",
+        "last_modified": "2026-03-05T23:31:04.758044+00:00",
         "switch": true
     },
     "frontend/pages/aion/vaultUI.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.vaultUI",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.282405+00:00",
+        "last_modified": "2026-03-05T23:31:04.758571+00:00",
         "switch": true
     },
     "frontend/pages/aion/ghx/replay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.aion.ghx.replay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.283181+00:00",
+        "last_modified": "2026-03-05T23:31:04.759125+00:00",
         "switch": true
     },
     "frontend/pages/products/[id].tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.products.[id]",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.283939+00:00",
+        "last_modified": "2026-03-05T23:31:04.759810+00:00",
         "switch": true
     },
     "frontend/pages/products/new.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.products.new",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.284866+00:00",
+        "last_modified": "2026-03-05T23:31:04.760412+00:00",
         "switch": true
     },
     "frontend/pages/products/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.products.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.285691+00:00",
+        "last_modified": "2026-03-05T23:31:04.760969+00:00",
         "switch": true
     },
     "frontend/pages/products/create.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.products.create",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.286300+00:00",
+        "last_modified": "2026-03-05T23:31:04.761542+00:00",
         "switch": true
     },
     "frontend/pages/products/edit/[id].tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.products.edit.[id]",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.287135+00:00",
+        "last_modified": "2026-03-05T23:31:04.762155+00:00",
         "switch": true
     },
     "frontend/pages/products/[id]/zoom.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.products.[id].zoom",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.287869+00:00",
+        "last_modified": "2026-03-05T23:31:04.762738+00:00",
         "switch": true
     },
     "frontend/pages/products/[id]/sample.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.products.[id].sample",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.288639+00:00",
+        "last_modified": "2026-03-05T23:31:04.763287+00:00",
         "switch": true
     },
     "frontend/pages/admin/dashboard_aion.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.admin.dashboard_aion",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.289476+00:00",
+        "last_modified": "2026-03-05T23:31:04.763892+00:00",
         "switch": true
     },
     "frontend/pages/admin/dashboard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.admin.dashboard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.290278+00:00",
+        "last_modified": "2026-03-05T23:31:04.764459+00:00",
         "switch": true
     },
     "frontend/pages/supplier/inventory.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.supplier.inventory",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.291071+00:00",
+        "last_modified": "2026-03-05T23:31:04.765053+00:00",
         "switch": true
     },
     "frontend/pages/supplier/dashboard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.supplier.dashboard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.292005+00:00",
+        "last_modified": "2026-03-05T23:31:04.765631+00:00",
         "switch": true
     },
     "frontend/pages/supplier/inventory/edit/[id].tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.supplier.inventory.edit.[id]",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.293050+00:00",
+        "last_modified": "2026-03-05T23:31:04.766590+00:00",
         "switch": true
     },
     "frontend/pages/sci/sci_memory_panel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.sci.sci_memory_panel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.294039+00:00",
+        "last_modified": "2026-03-05T23:31:04.767553+00:00",
         "switch": true
     },
     "frontend/pages/sci/sci_editor_panel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.sci.sci_editor_panel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.294955+00:00",
+        "last_modified": "2026-03-05T23:31:04.768759+00:00",
         "switch": true
     },
     "frontend/pages/sci/sci_atomsheet_panel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.sci.sci_atomsheet_panel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.295881+00:00",
+        "last_modified": "2026-03-05T23:31:04.769708+00:00",
         "switch": true
     },
     "frontend/pages/sci/sci_sqs_panel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.sci.sci_sqs_panel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.296831+00:00",
+        "last_modified": "2026-03-05T23:31:04.770790+00:00",
         "switch": true
     },
     "frontend/pages/sci/SciPanelHost.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.sci.SciPanelHost",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.297828+00:00",
+        "last_modified": "2026-03-05T23:31:04.771788+00:00",
         "switch": true
     },
     "frontend/pages/deals/[id].tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.deals.[id]",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.298621+00:00",
+        "last_modified": "2026-03-05T23:31:04.772767+00:00",
         "switch": true
     },
     "frontend/pages/deals/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.deals.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.299260+00:00",
+        "last_modified": "2026-03-05T23:31:04.773782+00:00",
         "switch": true
     },
     "frontend/pages/deals/create/[product_id].tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.pages.deals.create.[product_id]",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.299945+00:00",
+        "last_modified": "2026-03-05T23:31:04.774828+00:00",
         "switch": true
     },
     "frontend/tabs/sqi/SQIDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.sqi.SQIDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.301077+00:00",
+        "last_modified": "2026-03-05T23:31:04.776362+00:00",
         "switch": true
     },
     "frontend/tabs/photon-binary/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.photon-binary.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.301980+00:00",
+        "last_modified": "2026-03-05T23:31:04.777188+00:00",
         "switch": true
     },
     "frontend/tabs/photon-binary/FullyHookedDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.photon-binary.FullyHookedDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.302888+00:00",
+        "last_modified": "2026-03-05T23:31:04.778104+00:00",
         "switch": true
     },
     "frontend/tabs/glyph-net/SubstrateShiftDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.glyph-net.SubstrateShiftDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.303919+00:00",
+        "last_modified": "2026-03-05T23:31:04.778856+00:00",
         "switch": true
     },
     "frontend/tabs/glyph-net/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.glyph-net.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.304716+00:00",
+        "last_modified": "2026-03-05T23:31:04.779536+00:00",
         "switch": true
     },
     "frontend/tabs/glyph/ComparisonCard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.glyph.ComparisonCard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.305539+00:00",
+        "last_modified": "2026-03-05T23:31:04.780232+00:00",
         "switch": true
     },
     "frontend/tabs/glyph/GlyphOSWorkbench.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.glyph.GlyphOSWorkbench",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.306578+00:00",
+        "last_modified": "2026-03-05T23:31:04.781024+00:00",
         "switch": true
     },
     "frontend/tabs/glyph/GlyphTranslateDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.glyph.GlyphTranslateDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.307787+00:00",
+        "last_modified": "2026-03-05T23:31:04.781831+00:00",
         "switch": true
     },
     "frontend/tabs/glyph/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.glyph.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.309039+00:00",
+        "last_modified": "2026-03-05T23:31:04.782732+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/AionCognitiveDashboard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.AionCognitiveDashboard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.310204+00:00",
+        "last_modified": "2026-03-05T23:31:04.783613+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.311268+00:00",
+        "last_modified": "2026-03-05T23:31:04.784496+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/AionProofOfLifeDashboard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.AionProofOfLifeDashboard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.312096+00:00",
+        "last_modified": "2026-03-05T23:31:04.785293+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/demos/Demo03Heartbeat.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.demos.Demo03Heartbeat",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.312970+00:00",
+        "last_modified": "2026-03-05T23:31:04.786198+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/demos/ui.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.demos.ui",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.314028+00:00",
+        "last_modified": "2026-03-05T23:31:04.787100+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/demos/demo04_reflex_grid.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.demos.demo04_reflex_grid",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.315018+00:00",
+        "last_modified": "2026-03-05T23:31:04.787936+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/demos/demo01_metabolism.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.demos.demo01_metabolism",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.315874+00:00",
+        "last_modified": "2026-03-05T23:31:04.788783+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/demos/demo00_homeostasis_real.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.demos.demo00_homeostasis_real",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.316767+00:00",
+        "last_modified": "2026-03-05T23:31:04.789628+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/demos/demo06_mirror_reflection.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.demos.demo06_mirror_reflection",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.317684+00:00",
+        "last_modified": "2026-03-05T23:31:04.790472+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/demos/demo02_immune_adr.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.demos.demo02_immune_adr",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.318566+00:00",
+        "last_modified": "2026-03-05T23:31:04.792034+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/demos/demo5_akg_consolidation.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.demos.demo5_akg_consolidation",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.319471+00:00",
+        "last_modified": "2026-03-05T23:31:04.792922+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/homeostasis/HomeostasisAutoLockDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.homeostasis.HomeostasisAutoLockDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.320419+00:00",
+        "last_modified": "2026-03-05T23:31:04.793847+00:00",
         "switch": true
     },
     "frontend/tabs/Aion/homeostasis/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.Aion.homeostasis.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.321298+00:00",
+        "last_modified": "2026-03-05T23:31:04.794733+00:00",
         "switch": true
     },
     "frontend/tabs/symatics/ResonanceWorkbench.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.symatics.ResonanceWorkbench",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.322248+00:00",
+        "last_modified": "2026-03-05T23:31:04.795668+00:00",
         "switch": true
     },
     "frontend/tabs/symatics/Hero.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.symatics.Hero",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.323520+00:00",
+        "last_modified": "2026-03-05T23:31:04.796557+00:00",
         "switch": true
     },
     "frontend/tabs/symatics/PaperViewer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.symatics.PaperViewer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.330314+00:00",
+        "last_modified": "2026-03-05T23:31:04.797482+00:00",
         "switch": true
     },
     "frontend/tabs/symatics/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.symatics.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.332483+00:00",
+        "last_modified": "2026-03-05T23:31:04.798387+00:00",
         "switch": true
     },
     "frontend/tabs/cognition/phase7-calibration/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.cognition.phase7-calibration.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.334343+00:00",
+        "last_modified": "2026-03-05T23:31:04.799506+00:00",
         "switch": true
     },
     "frontend/tabs/cognition/phase7-calibration/Phase7CalibrationHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.cognition.phase7-calibration.Phase7CalibrationHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.335728+00:00",
+        "last_modified": "2026-03-05T23:31:04.800452+00:00",
         "switch": true
     },
     "frontend/tabs/qfc-canvas/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.qfc-canvas.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.337172+00:00",
+        "last_modified": "2026-03-05T23:31:04.801422+00:00",
         "switch": true
     },
     "frontend/tabs/qfc-canvas/qfc_demo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.qfc-canvas.qfc_demo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.338450+00:00",
+        "last_modified": "2026-03-05T23:31:04.802370+00:00",
         "switch": true
     },
     "frontend/tabs/compression/CompressionOrchestratorDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.compression.CompressionOrchestratorDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.340034+00:00",
+        "last_modified": "2026-03-05T23:31:04.803382+00:00",
         "switch": true
     },
     "frontend/tabs/compression/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.compression.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.341044+00:00",
+        "last_modified": "2026-03-05T23:31:04.804374+00:00",
         "switch": true
     },
     "frontend/tabs/photon_algebra_demo/PhotonWorkbench.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.photon_algebra_demo.PhotonWorkbench",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.342420+00:00",
+        "last_modified": "2026-03-05T23:31:04.805411+00:00",
         "switch": true
     },
     "frontend/tabs/photon_algebra_demo/PhotonDecidableEquality.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.photon_algebra_demo.PhotonDecidableEquality",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.343901+00:00",
+        "last_modified": "2026-03-05T23:31:04.806413+00:00",
         "switch": true
     },
     "frontend/tabs/photon_algebra_demo/PhotonTheoremGrid.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.photon_algebra_demo.PhotonTheoremGrid",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.345715+00:00",
+        "last_modified": "2026-03-05T23:31:04.807446+00:00",
         "switch": true
     },
     "frontend/tabs/photon_algebra_demo/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.photon_algebra_demo.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.347152+00:00",
+        "last_modified": "2026-03-05T23:31:04.808471+00:00",
         "switch": true
     },
     "frontend/tabs/photon_algebra_demo/PhotonHero.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.photon_algebra_demo.PhotonHero",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.348773+00:00",
+        "last_modified": "2026-03-05T23:31:04.809496+00:00",
         "switch": true
     },
     "frontend/tabs/RQCAwareness/RQCAwarenessDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.RQCAwareness.RQCAwarenessDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.350737+00:00",
+        "last_modified": "2026-03-05T23:31:04.810565+00:00",
         "switch": true
     },
     "frontend/tabs/RQCAwareness/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.RQCAwareness.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.352147+00:00",
+        "last_modified": "2026-03-05T23:31:04.811603+00:00",
         "switch": true
     },
     "frontend/tabs/WirePack/WirePackWorkbench.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.WirePack.WirePackWorkbench",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.353796+00:00",
+        "last_modified": "2026-03-05T23:31:04.812695+00:00",
         "switch": true
     },
     "frontend/tabs/WirePack/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.WirePack.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.355394+00:00",
+        "last_modified": "2026-03-05T23:31:04.813759+00:00",
         "switch": true
     },
     "frontend/tabs/sle-resonance/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.sle-resonance.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.357147+00:00",
+        "last_modified": "2026-03-05T23:31:04.814927+00:00",
         "switch": true
     },
     "frontend/tabs/sle-resonance/ResonancePulseHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.sle-resonance.ResonancePulseHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.359102+00:00",
+        "last_modified": "2026-03-05T23:31:04.816161+00:00",
         "switch": true
     },
     "frontend/tabs/launch/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.launch.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.361245+00:00",
+        "last_modified": "2026-03-05T23:31:04.817369+00:00",
         "switch": true
     },
     "frontend/tabs/launch/AionLaunchHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.launch.AionLaunchHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.362692+00:00",
+        "last_modified": "2026-03-05T23:31:04.818264+00:00",
         "switch": true
     },
     "frontend/tabs/sovereign-qkd/QKDSecurityDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.sovereign-qkd.QKDSecurityDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.364608+00:00",
+        "last_modified": "2026-03-05T23:31:04.819286+00:00",
         "switch": true
     },
     "frontend/tabs/sovereign-qkd/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.tabs.sovereign-qkd.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.366520+00:00",
+        "last_modified": "2026-03-05T23:31:04.820377+00:00",
         "switch": true
     },
     "frontend/components/AIONDashboardClient_OLD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AIONDashboardClient_OLD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.368481+00:00",
+        "last_modified": "2026-03-05T23:31:04.821931+00:00",
         "switch": true
     },
     "frontend/components/MDXComponents.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.MDXComponents",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.369648+00:00",
+        "last_modified": "2026-03-05T23:31:04.822917+00:00",
         "switch": true
     },
     "frontend/components/QuoteModal.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuoteModal",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.371026+00:00",
+        "last_modified": "2026-03-05T23:31:04.824167+00:00",
         "switch": true
     },
     "frontend/components/DarkModeToggle.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.DarkModeToggle",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.373195+00:00",
+        "last_modified": "2026-03-05T23:31:04.825271+00:00",
         "switch": true
     },
     "frontend/components/runtime_player.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.runtime_player",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.375377+00:00",
+        "last_modified": "2026-03-05T23:31:04.826362+00:00",
         "switch": true
     },
     "frontend/components/InventoryEdit.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.InventoryEdit",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.377508+00:00",
+        "last_modified": "2026-03-05T23:31:04.827503+00:00",
         "switch": true
     },
     "frontend/components/SwapPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SwapPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.379149+00:00",
+        "last_modified": "2026-03-05T23:31:04.828625+00:00",
         "switch": true
     },
     "frontend/components/SmartQuote.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SmartQuote",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.382588+00:00",
+        "last_modified": "2026-03-05T23:31:04.829734+00:00",
         "switch": true
     },
     "frontend/components/Sidebar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Sidebar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.384742+00:00",
+        "last_modified": "2026-03-05T23:31:04.830887+00:00",
         "switch": true
     },
     "frontend/components/PhotonTranslatorStandalone.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.PhotonTranslatorStandalone",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.387160+00:00",
+        "last_modified": "2026-03-05T23:31:04.832047+00:00",
         "switch": true
     },
     "frontend/components/WalletConnect.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.WalletConnect",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.389447+00:00",
+        "last_modified": "2026-03-05T23:31:04.833221+00:00",
         "switch": true
     },
     "frontend/components/Shell.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Shell",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.391317+00:00",
+        "last_modified": "2026-03-05T23:31:04.834386+00:00",
         "switch": true
     },
     "frontend/components/PhotonTranslatorPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.PhotonTranslatorPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.395682+00:00",
+        "last_modified": "2026-03-05T23:31:04.835573+00:00",
         "switch": true
     },
     "frontend/components/InventoryActive.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.InventoryActive",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.397853+00:00",
+        "last_modified": "2026-03-05T23:31:04.836789+00:00",
         "switch": true
     },
     "frontend/components/TabDock.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.TabDock",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.400956+00:00",
+        "last_modified": "2026-03-05T23:31:04.838015+00:00",
         "switch": true
     },
     "frontend/components/CommandBar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.CommandBar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.402879+00:00",
+        "last_modified": "2026-03-05T23:31:04.839242+00:00",
         "switch": true
     },
     "frontend/components/PhotonEditor.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.PhotonEditor",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.404572+00:00",
+        "last_modified": "2026-03-05T23:31:04.840499+00:00",
         "switch": true
     },
     "frontend/components/CreateProductForm.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.CreateProductForm",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.406179+00:00",
+        "last_modified": "2026-03-05T23:31:04.841740+00:00",
         "switch": true
     },
     "frontend/components/ProductCard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ProductCard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.407775+00:00",
+        "last_modified": "2026-03-05T23:31:04.843057+00:00",
         "switch": true
     },
     "frontend/components/Chart.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Chart",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.409404+00:00",
+        "last_modified": "2026-03-05T23:31:04.844371+00:00",
         "switch": true
     },
     "frontend/components/PhotonTranslatorWidget.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.PhotonTranslatorWidget",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.411089+00:00",
+        "last_modified": "2026-03-05T23:31:04.845747+00:00",
         "switch": true
     },
     "frontend/components/Navbar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Navbar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.412766+00:00",
+        "last_modified": "2026-03-05T23:31:04.847047+00:00",
         "switch": true
     },
     "frontend/components/Swap.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Swap",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.414440+00:00",
+        "last_modified": "2026-03-05T23:31:04.848382+00:00",
         "switch": true
     },
     "frontend/components/SwapBar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SwapBar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.416207+00:00",
+        "last_modified": "2026-03-05T23:31:04.850166+00:00",
         "switch": true
     },
     "frontend/components/AIONStatus.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AIONStatus",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.418304+00:00",
+        "last_modified": "2026-03-05T23:31:04.851571+00:00",
         "switch": true
     },
     "frontend/components/DnaLogViewer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.DnaLogViewer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.420318+00:00",
+        "last_modified": "2026-03-05T23:31:04.853181+00:00",
         "switch": true
     },
     "frontend/components/PhotonLensCanvas.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.PhotonLensCanvas",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.422547+00:00",
+        "last_modified": "2026-03-05T23:31:04.854718+00:00",
         "switch": true
     },
     "frontend/components/PdfModal.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.PdfModal",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.425127+00:00",
+        "last_modified": "2026-03-05T23:31:04.856573+00:00",
         "switch": true
     },
     "frontend/components/PhotonGlyphStream.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.PhotonGlyphStream",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.428827+00:00",
+        "last_modified": "2026-03-05T23:31:04.858427+00:00",
         "switch": true
     },
     "frontend/components/AIONDashboardClient.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AIONDashboardClient",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.430559+00:00",
+        "last_modified": "2026-03-05T23:31:04.860107+00:00",
         "switch": true
     },
     "frontend/components/InventoryCreate.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.InventoryCreate",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.432287+00:00",
+        "last_modified": "2026-03-05T23:31:04.861708+00:00",
         "switch": true
     },
     "frontend/components/PaperFrame.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.PaperFrame",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.434007+00:00",
+        "last_modified": "2026-03-05T23:31:04.863331+00:00",
         "switch": true
     },
     "frontend/components/EscrowActions.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.EscrowActions",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.436029+00:00",
+        "last_modified": "2026-03-05T23:31:04.864893+00:00",
         "switch": true
     },
     "frontend/components/AIONTerminal.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AIONTerminal",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.437786+00:00",
+        "last_modified": "2026-03-05T23:31:04.866634+00:00",
         "switch": true
     },
     "frontend/components/ReplayControls.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ReplayControls",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.440143+00:00",
+        "last_modified": "2026-03-05T23:31:04.868140+00:00",
         "switch": true
     },
     "frontend/components/DreamReflections.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.DreamReflections",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.444290+00:00",
+        "last_modified": "2026-03-05T23:31:04.870094+00:00",
         "switch": true
     },
     "frontend/components/Hologram/AvatarThoughtAura.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.AvatarThoughtAura",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.447026+00:00",
+        "last_modified": "2026-03-05T23:31:04.871687+00:00",
         "switch": true
     },
     "frontend/components/Hologram/ghx_overlay_driver.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.ghx_overlay_driver",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.449455+00:00",
+        "last_modified": "2026-03-05T23:31:04.873254+00:00",
         "switch": true
     },
     "frontend/components/Hologram/AvatarThoughtProjection.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.AvatarThoughtProjection",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.451499+00:00",
+        "last_modified": "2026-03-05T23:31:04.874694+00:00",
         "switch": true
     },
     "frontend/components/Hologram/MemoryHaloRing.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.MemoryHaloRing",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.454341+00:00",
+        "last_modified": "2026-03-05T23:31:04.876130+00:00",
         "switch": true
     },
     "frontend/components/Hologram/HeatMapOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.HeatMapOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.457204+00:00",
+        "last_modified": "2026-03-05T23:31:04.877857+00:00",
         "switch": true
     },
     "frontend/components/Hologram/GHXTimeline.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.GHXTimeline",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.460717+00:00",
+        "last_modified": "2026-03-05T23:31:04.879909+00:00",
         "switch": true
     },
     "frontend/components/Hologram/CollapseGraph.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.CollapseGraph",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.464130+00:00",
+        "last_modified": "2026-03-05T23:31:04.882012+00:00",
         "switch": true
     },
     "frontend/components/Hologram/HoverMemorySummary.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.HoverMemorySummary",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.465961+00:00",
+        "last_modified": "2026-03-05T23:31:04.883968+00:00",
         "switch": true
     },
     "frontend/components/Hologram/ghx_visualizer_field.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.ghx_visualizer_field",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.468651+00:00",
+        "last_modified": "2026-03-05T23:31:04.885761+00:00",
         "switch": true
     },
     "frontend/components/Hologram/renderQWaveBeams.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.renderQWaveBeams",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.470371+00:00",
+        "last_modified": "2026-03-05T23:31:04.887586+00:00",
         "switch": true
     },
     "frontend/components/Hologram/QuantumFieldCanvasView.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.QuantumFieldCanvasView",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.472941+00:00",
+        "last_modified": "2026-03-05T23:31:04.889134+00:00",
         "switch": true
     },
     "frontend/components/Hologram/ReplayBeamTrail.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.ReplayBeamTrail",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.475361+00:00",
+        "last_modified": "2026-03-05T23:31:04.890675+00:00",
         "switch": true
     },
     "frontend/components/Hologram/HologramHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.HologramHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.478164+00:00",
+        "last_modified": "2026-03-05T23:31:04.892496+00:00",
         "switch": true
     },
     "frontend/components/Hologram/RecursiveLogicField.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.RecursiveLogicField",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.480571+00:00",
+        "last_modified": "2026-03-05T23:31:04.894600+00:00",
         "switch": true
     },
     "frontend/components/Hologram/MemoryBridgeBeams.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.MemoryBridgeBeams",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.482854+00:00",
+        "last_modified": "2026-03-05T23:31:04.896512+00:00",
         "switch": true
     },
     "frontend/components/Hologram/QuantumFieldCanvasLoader.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.QuantumFieldCanvasLoader",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.485028+00:00",
+        "last_modified": "2026-03-05T23:31:04.898583+00:00",
         "switch": true
     },
     "frontend/components/Hologram/GHXSignatureTrail.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.GHXSignatureTrail",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.487319+00:00",
+        "last_modified": "2026-03-05T23:31:04.900682+00:00",
         "switch": true
     },
     "frontend/components/Hologram/qglyph_fusion_beam.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.qglyph_fusion_beam",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.491471+00:00",
+        "last_modified": "2026-03-05T23:31:04.902864+00:00",
         "switch": true
     },
     "frontend/components/Hologram/ReplayTrails.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.ReplayTrails",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.494261+00:00",
+        "last_modified": "2026-03-05T23:31:04.905066+00:00",
         "switch": true
     },
     "frontend/components/Hologram/GHXReplaySlider.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.GHXReplaySlider",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.498918+00:00",
+        "last_modified": "2026-03-05T23:31:04.906987+00:00",
         "switch": true
     },
     "frontend/components/Hologram/quantum_field_canvas.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.quantum_field_canvas",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.501469+00:00",
+        "last_modified": "2026-03-05T23:31:04.908989+00:00",
         "switch": true
     },
     "frontend/components/Hologram/GHXTrailCanvas.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.GHXTrailCanvas",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.504517+00:00",
+        "last_modified": "2026-03-05T23:31:04.910723+00:00",
         "switch": true
     },
     "frontend/components/Hologram/GHXVisualizer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.GHXVisualizer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.507580+00:00",
+        "last_modified": "2026-03-05T23:31:04.912344+00:00",
         "switch": true
     },
     "frontend/components/Hologram/HolographicViewer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.HolographicViewer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.510905+00:00",
+        "last_modified": "2026-03-05T23:31:04.913897+00:00",
         "switch": true
     },
     "frontend/components/Hologram/morphic_overlay_driver.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.morphic_overlay_driver",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.513499+00:00",
+        "last_modified": "2026-03-05T23:31:04.915506+00:00",
         "switch": true
     },
     "frontend/components/Hologram/replayFrame.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.replayFrame",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.516247+00:00",
+        "last_modified": "2026-03-05T23:31:04.917096+00:00",
         "switch": true
     },
     "frontend/components/Hologram/qfc_overlay_driver.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.qfc_overlay_driver",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.520684+00:00",
+        "last_modified": "2026-03-05T23:31:04.919274+00:00",
         "switch": true
     },
     "frontend/components/Hologram/DreamPulseSpiral.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Hologram.DreamPulseSpiral",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.523118+00:00",
+        "last_modified": "2026-03-05T23:31:04.921629+00:00",
         "switch": true
     },
     "frontend/components/codex/CodexRegisterDebugTrace.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.CodexRegisterDebugTrace",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.526258+00:00",
+        "last_modified": "2026-03-05T23:31:04.924328+00:00",
         "switch": true
     },
     "frontend/components/codex/CodexRegisterViewer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.CodexRegisterViewer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.532271+00:00",
+        "last_modified": "2026-03-05T23:31:04.926932+00:00",
         "switch": true
     },
     "frontend/components/codex/GlyphLogEntry.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.GlyphLogEntry",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.534751+00:00",
+        "last_modified": "2026-03-05T23:31:04.928852+00:00",
         "switch": true
     },
     "frontend/components/codex/ghx_pattern_overlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.ghx_pattern_overlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.537703+00:00",
+        "last_modified": "2026-03-05T23:31:04.930273+00:00",
         "switch": true
     },
     "frontend/components/codex/CodexLangEditor.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.CodexLangEditor",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.540876+00:00",
+        "last_modified": "2026-03-05T23:31:04.931698+00:00",
         "switch": true
     },
     "frontend/components/codex/EntanglementLinks.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.EntanglementLinks",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.545760+00:00",
+        "last_modified": "2026-03-05T23:31:04.933984+00:00",
         "switch": true
     },
     "frontend/components/codex/EntanglementGraph.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.EntanglementGraph",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.552463+00:00",
+        "last_modified": "2026-03-05T23:31:04.936100+00:00",
         "switch": true
     },
     "frontend/components/codex/PatternOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.PatternOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.556150+00:00",
+        "last_modified": "2026-03-05T23:31:04.937826+00:00",
         "switch": true
     },
     "frontend/components/codex/CodexScrollPresets.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.CodexScrollPresets",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.559152+00:00",
+        "last_modified": "2026-03-05T23:31:04.939665+00:00",
         "switch": true
     },
     "frontend/components/codex/CodexScrollRunner.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.CodexScrollRunner",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.562466+00:00",
+        "last_modified": "2026-03-05T23:31:04.941279+00:00",
         "switch": true
     },
     "frontend/components/codex/CodexRegisterDebug.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.CodexRegisterDebug",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.565558+00:00",
+        "last_modified": "2026-03-05T23:31:04.942767+00:00",
         "switch": true
     },
     "frontend/components/codex/RuntimeGlyphTrace.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.RuntimeGlyphTrace",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.568422+00:00",
+        "last_modified": "2026-03-05T23:31:04.944148+00:00",
         "switch": true
     },
     "frontend/components/codex/CodexDiffViewer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.CodexDiffViewer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.571537+00:00",
+        "last_modified": "2026-03-05T23:31:04.945554+00:00",
         "switch": true
     },
     "frontend/components/codex/CodexScrollHistory.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.codex.CodexScrollHistory",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.574229+00:00",
+        "last_modified": "2026-03-05T23:31:04.946956+00:00",
         "switch": true
     },
     "frontend/components/GlyphLab/PluginManager.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GlyphLab.PluginManager",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.577674+00:00",
+        "last_modified": "2026-03-05T23:31:04.948597+00:00",
         "switch": true
     },
     "frontend/components/WaveScope/WaveScopePanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.WaveScope.WaveScopePanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.580519+00:00",
+        "last_modified": "2026-03-05T23:31:04.950385+00:00",
         "switch": true
     },
     "frontend/components/SQS/CellOverlayPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SQS.CellOverlayPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.585619+00:00",
+        "last_modified": "2026-03-05T23:31:04.952486+00:00",
         "switch": true
     },
     "frontend/components/SQS/LiveQpuCpuPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SQS.LiveQpuCpuPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.588630+00:00",
+        "last_modified": "2026-03-05T23:31:04.953941+00:00",
         "switch": true
     },
     "frontend/components/SQS/EmotionSQIPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SQS.EmotionSQIPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.591669+00:00",
+        "last_modified": "2026-03-05T23:31:04.955447+00:00",
         "switch": true
     },
     "frontend/components/SQS/SciGoalPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SQS.SciGoalPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.595416+00:00",
+        "last_modified": "2026-03-05T23:31:04.956958+00:00",
         "switch": true
     },
     "frontend/components/SQS/Badge.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SQS.Badge",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.598734+00:00",
+        "last_modified": "2026-03-05T23:31:04.958492+00:00",
         "switch": true
     },
     "frontend/components/SQS/SheetTraceViewer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SQS.SheetTraceViewer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.601605+00:00",
+        "last_modified": "2026-03-05T23:31:04.960040+00:00",
         "switch": true
     },
     "frontend/components/CodexHUD/ReplayHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.CodexHUD.ReplayHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.604208+00:00",
+        "last_modified": "2026-03-05T23:31:04.961746+00:00",
         "switch": true
     },
     "frontend/components/CodexHUD/ReplayListPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.CodexHUD.ReplayListPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.606698+00:00",
+        "last_modified": "2026-03-05T23:31:04.963525+00:00",
         "switch": true
     },
     "frontend/components/CodexHUD/DriftBadge.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.CodexHUD.DriftBadge",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.609409+00:00",
+        "last_modified": "2026-03-05T23:31:04.965276+00:00",
         "switch": true
     },
     "frontend/components/photon/CodexScrollRunner.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.photon.CodexScrollRunner",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.611978+00:00",
+        "last_modified": "2026-03-05T23:31:04.967076+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphSprite.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphSprite",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.614024+00:00",
+        "last_modified": "2026-03-05T23:31:04.968875+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphExecutor.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphExecutor",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.615529+00:00",
+        "last_modified": "2026-03-05T23:31:04.970606+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphInspector.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphInspector",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.617105+00:00",
+        "last_modified": "2026-03-05T23:31:04.972097+00:00",
         "switch": true
     },
     "frontend/components/AION/ContainerStatus.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.ContainerStatus",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.618697+00:00",
+        "last_modified": "2026-03-05T23:31:04.973585+00:00",
         "switch": true
     },
     "frontend/components/AION/WormholeRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.WormholeRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.620336+00:00",
+        "last_modified": "2026-03-05T23:31:04.975064+00:00",
         "switch": true
     },
     "frontend/components/AION/TessarisIntentExecutor.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.TessarisIntentExecutor",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.621983+00:00",
+        "last_modified": "2026-03-05T23:31:04.976577+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphQROverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphQROverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.623628+00:00",
+        "last_modified": "2026-03-05T23:31:04.978059+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphGrid.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphGrid",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.625293+00:00",
+        "last_modified": "2026-03-05T23:31:04.979563+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphNetHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphNetHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.626939+00:00",
+        "last_modified": "2026-03-05T23:31:04.981071+00:00",
         "switch": true
     },
     "frontend/components/AION/TimelineControls.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.TimelineControls",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.628610+00:00",
+        "last_modified": "2026-03-05T23:31:04.982626+00:00",
         "switch": true
     },
     "frontend/components/AION/GoalList.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GoalList",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.630280+00:00",
+        "last_modified": "2026-03-05T23:31:04.984180+00:00",
         "switch": true
     },
     "frontend/components/AION/ContainerMap3D.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.ContainerMap3D",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.631965+00:00",
+        "last_modified": "2026-03-05T23:31:04.985751+00:00",
         "switch": true
     },
     "frontend/components/AION/map-2d.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.map-2d",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.633671+00:00",
+        "last_modified": "2026-03-05T23:31:04.987355+00:00",
         "switch": true
     },
     "frontend/components/AION/TessarisIntentVisualizer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.TessarisIntentVisualizer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.635380+00:00",
+        "last_modified": "2026-03-05T23:31:04.988936+00:00",
         "switch": true
     },
     "frontend/components/AION/TessarisVisualizer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.TessarisVisualizer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.637495+00:00",
+        "last_modified": "2026-03-05T23:31:04.990552+00:00",
         "switch": true
     },
     "frontend/components/AION/ContainerMap2D.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.ContainerMap2D",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.639261+00:00",
+        "last_modified": "2026-03-05T23:31:04.992154+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphTriggerEditor.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphTriggerEditor",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.641012+00:00",
+        "last_modified": "2026-03-05T23:31:04.993824+00:00",
         "switch": true
     },
     "frontend/components/AION/PulseFlowParticles.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.PulseFlowParticles",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.642808+00:00",
+        "last_modified": "2026-03-05T23:31:04.995899+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphGrid3D.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphGrid3D",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.644768+00:00",
+        "last_modified": "2026-03-05T23:31:04.998034+00:00",
         "switch": true
     },
     "frontend/components/AION/ContainerMap3DScene.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.ContainerMap3DScene",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.646553+00:00",
+        "last_modified": "2026-03-05T23:31:04.999960+00:00",
         "switch": true
     },
     "frontend/components/AION/CodexHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.CodexHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.648339+00:00",
+        "last_modified": "2026-03-05T23:31:05.001967+00:00",
         "switch": true
     },
     "frontend/components/AION/TessarisTracePanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.TessarisTracePanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.650134+00:00",
+        "last_modified": "2026-03-05T23:31:05.003938+00:00",
         "switch": true
     },
     "frontend/components/AION/WarpDriveNavigator.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.WarpDriveNavigator",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.651879+00:00",
+        "last_modified": "2026-03-05T23:31:05.005908+00:00",
         "switch": true
     },
     "frontend/components/AION/QWaveFieldHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.QWaveFieldHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.653707+00:00",
+        "last_modified": "2026-03-05T23:31:05.007884+00:00",
         "switch": true
     },
     "frontend/components/AION/map-3d.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.map-3d",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.655493+00:00",
+        "last_modified": "2026-03-05T23:31:05.009868+00:00",
         "switch": true
     },
     "frontend/components/AION/AtomNode3D.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.AtomNode3D",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.657313+00:00",
+        "last_modified": "2026-03-05T23:31:05.011869+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphCompressorPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphCompressorPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.659549+00:00",
+        "last_modified": "2026-03-05T23:31:05.013891+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphBytecodeEditor.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphBytecodeEditor",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.661323+00:00",
+        "last_modified": "2026-03-05T23:31:05.015905+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphSummaryHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphSummaryHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.663100+00:00",
+        "last_modified": "2026-03-05T23:31:05.017937+00:00",
         "switch": true
     },
     "frontend/components/AION/GlyphMutator.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.GlyphMutator",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.664978+00:00",
+        "last_modified": "2026-03-05T23:31:05.019962+00:00",
         "switch": true
     },
     "frontend/components/AION/MutationDiffViewer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.MutationDiffViewer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.666757+00:00",
+        "last_modified": "2026-03-05T23:31:05.021984+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/TesseractRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.TesseractRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.668669+00:00",
+        "last_modified": "2026-03-05T23:31:05.024113+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/TetrahedronRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.TetrahedronRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.670901+00:00",
+        "last_modified": "2026-03-05T23:31:05.026116+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/OctahedronRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.OctahedronRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.673257+00:00",
+        "last_modified": "2026-03-05T23:31:05.028072+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/MemoryPearlRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.MemoryPearlRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.675116+00:00",
+        "last_modified": "2026-03-05T23:31:05.029843+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/DNASpiralRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.DNASpiralRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.676945+00:00",
+        "last_modified": "2026-03-05T23:31:05.031603+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/VortexRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.VortexRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.679183+00:00",
+        "last_modified": "2026-03-05T23:31:05.033317+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/FractalCrystalRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.FractalCrystalRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.681328+00:00",
+        "last_modified": "2026-03-05T23:31:05.035031+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/DodecahedronRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.DodecahedronRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.683560+00:00",
+        "last_modified": "2026-03-05T23:31:05.036752+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/MirrorContainerRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.MirrorContainerRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.685789+00:00",
+        "last_modified": "2026-03-05T23:31:05.038777+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/BlackHoleRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.BlackHoleRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.688148+00:00",
+        "last_modified": "2026-03-05T23:31:05.040509+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/TorusRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.TorusRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.690356+00:00",
+        "last_modified": "2026-03-05T23:31:05.042210+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/IcosahedronRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.IcosahedronRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.692900+00:00",
+        "last_modified": "2026-03-05T23:31:05.044042+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/AtomContainerRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.AtomContainerRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.696442+00:00",
+        "last_modified": "2026-03-05T23:31:05.045972+00:00",
         "switch": true
     },
     "frontend/components/AION/renderers/QuantumOrdRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.AION.renderers.QuantumOrdRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.700186+00:00",
+        "last_modified": "2026-03-05T23:31:05.047838+00:00",
         "switch": true
     },
     "frontend/components/GlyphNet/GlyphNetTerminal.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GlyphNet.GlyphNetTerminal",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.702729+00:00",
+        "last_modified": "2026-03-05T23:31:05.049635+00:00",
         "switch": true
     },
     "frontend/components/GlyphNet/GlyphNetLogViewer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GlyphNet.GlyphNetLogViewer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.705153+00:00",
+        "last_modified": "2026-03-05T23:31:05.051324+00:00",
         "switch": true
     },
     "frontend/components/GlyphNet/GlyphNetReplay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GlyphNet.GlyphNetReplay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.707609+00:00",
+        "last_modified": "2026-03-05T23:31:05.053100+00:00",
         "switch": true
     },
     "frontend/components/GHX/GHXAnchorMemory.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GHX.GHXAnchorMemory",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.709891+00:00",
+        "last_modified": "2026-03-05T23:31:05.054912+00:00",
         "switch": true
     },
     "frontend/components/GHX/ResonancePulseWidget.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GHX.ResonancePulseWidget",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.712294+00:00",
+        "last_modified": "2026-03-05T23:31:05.056637+00:00",
         "switch": true
     },
     "frontend/components/GHX/GHXReplaySelector.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GHX.GHXReplaySelector",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.714735+00:00",
+        "last_modified": "2026-03-05T23:31:05.058444+00:00",
         "switch": true
     },
     "frontend/components/GHX/GHXCoherencePanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GHX.GHXCoherencePanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.717284+00:00",
+        "last_modified": "2026-03-05T23:31:05.060265+00:00",
         "switch": true
     },
     "frontend/components/GHX/DreamGhostEntry.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GHX.DreamGhostEntry",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.719269+00:00",
+        "last_modified": "2026-03-05T23:31:05.062085+00:00",
         "switch": true
     },
     "frontend/components/GHX/GHXVisualizerPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GHX.GHXVisualizerPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.720932+00:00",
+        "last_modified": "2026-03-05T23:31:05.063917+00:00",
         "switch": true
     },
     "frontend/components/GHX/GHXTeleportTrail.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GHX.GHXTeleportTrail",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.722655+00:00",
+        "last_modified": "2026-03-05T23:31:05.066049+00:00",
         "switch": true
     },
     "frontend/components/GHX/SymbolicTeleportPath.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GHX.SymbolicTeleportPath",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.724338+00:00",
+        "last_modified": "2026-03-05T23:31:05.069213+00:00",
         "switch": true
     },
     "frontend/components/GHX/atoms/electronOrbit.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.GHX.atoms.electronOrbit",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.726062+00:00",
+        "last_modified": "2026-03-05T23:31:05.072129+00:00",
         "switch": true
     },
     "frontend/components/Multiverse/AtomScene.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Multiverse.AtomScene",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.727722+00:00",
+        "last_modified": "2026-03-05T23:31:05.075125+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/LinkLine.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.LinkLine",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.729520+00:00",
+        "last_modified": "2026-03-05T23:31:05.077791+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/MultiNodeCollapseTrail.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.MultiNodeCollapseTrail",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.731247+00:00",
+        "last_modified": "2026-03-05T23:31:05.080306+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/BreakthroughDeadendTrail.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.BreakthroughDeadendTrail",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.733226+00:00",
+        "last_modified": "2026-03-05T23:31:05.082165+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/MemoryScroller.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.MemoryScroller",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.735858+00:00",
+        "last_modified": "2026-03-05T23:31:05.084042+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/ScrollReplayOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.ScrollReplayOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.738298+00:00",
+        "last_modified": "2026-03-05T23:31:05.086578+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/cluster_zoom_renderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.cluster_zoom_renderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.740215+00:00",
+        "last_modified": "2026-03-05T23:31:05.088723+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/SplitScreenView.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.SplitScreenView",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.742171+00:00",
+        "last_modified": "2026-03-05T23:31:05.090775+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/HoverStrategySuggestions.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.HoverStrategySuggestions",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.744088+00:00",
+        "last_modified": "2026-03-05T23:31:05.092790+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/overlay_toggles.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.overlay_toggles",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.746002+00:00",
+        "last_modified": "2026-03-05T23:31:05.094788+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/ReplayBranchSelector.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.ReplayBranchSelector",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.747973+00:00",
+        "last_modified": "2026-03-05T23:31:05.096679+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Node.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Node",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.750150+00:00",
+        "last_modified": "2026-03-05T23:31:05.098565+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/spatial_engine.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.spatial_engine",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.752337+00:00",
+        "last_modified": "2026-03-05T23:31:05.100460+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/EmotionOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.EmotionOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.754557+00:00",
+        "last_modified": "2026-03-05T23:31:05.102356+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/PredictedLayerRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.PredictedLayerRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.756777+00:00",
+        "last_modified": "2026-03-05T23:31:05.104289+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/highlighted_symbolic_operators.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.highlighted_symbolic_operators",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.758920+00:00",
+        "last_modified": "2026-03-05T23:31:05.106236+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/HoverMutationTrace.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.HoverMutationTrace",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.761062+00:00",
+        "last_modified": "2026-03-05T23:31:05.108194+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/camera_controls.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.camera_controls",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.763153+00:00",
+        "last_modified": "2026-03-05T23:31:05.110261+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/StrategyOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.StrategyOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.765334+00:00",
+        "last_modified": "2026-03-05T23:31:05.112345+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/ObserverViewport.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.ObserverViewport",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.767485+00:00",
+        "last_modified": "2026-03-05T23:31:05.114459+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/beam_renderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.beam_renderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.769641+00:00",
+        "last_modified": "2026-03-05T23:31:05.116569+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/QWavePreviewPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.QWavePreviewPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.772313+00:00",
+        "last_modified": "2026-03-05T23:31:05.118681+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/EmotionPulseOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.EmotionPulseOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.775013+00:00",
+        "last_modified": "2026-03-05T23:31:05.120794+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/BeamLogicOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.BeamLogicOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.777276+00:00",
+        "last_modified": "2026-03-05T23:31:05.122919+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/qfc_focus_context.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.qfc_focus_context",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.780293+00:00",
+        "last_modified": "2026-03-05T23:31:05.125580+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/AtomView/atom_orbit_renderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.AtomView.atom_orbit_renderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.783473+00:00",
+        "last_modified": "2026-03-05T23:31:05.128558+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/AtomView/memory_echo_beams.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.AtomView.memory_echo_beams",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.786387+00:00",
+        "last_modified": "2026-03-05T23:31:05.131138+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/AtomView/electron_predictive_glyphs.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.AtomView.electron_predictive_glyphs",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.789763+00:00",
+        "last_modified": "2026-03-05T23:31:05.134740+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/AtomView/snap_to_energy_shells.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.AtomView.snap_to_energy_shells",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.793005+00:00",
+        "last_modified": "2026-03-05T23:31:05.137149+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Memory/goal_nodes_renderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Memory.goal_nodes_renderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.795732+00:00",
+        "last_modified": "2026-03-05T23:31:05.139636+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Memory/memory_embedding_renderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Memory.memory_embedding_renderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.798705+00:00",
+        "last_modified": "2026-03-05T23:31:05.141949+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Memory/HoverAgentLogicView.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Memory.HoverAgentLogicView",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.801921+00:00",
+        "last_modified": "2026-03-05T23:31:05.144321+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Memory/knowledge_node_renderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Memory.knowledge_node_renderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.804018+00:00",
+        "last_modified": "2026-03-05T23:31:05.146836+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Memory/hover_agent_logic_view.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Memory.hover_agent_logic_view",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.806114+00:00",
+        "last_modified": "2026-03-05T23:31:05.149233+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/styling/EntropyNode.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.styling.EntropyNode",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.808243+00:00",
+        "last_modified": "2026-03-05T23:31:05.151877+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Replay/holographic_path_overlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Replay.holographic_path_overlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.810364+00:00",
+        "last_modified": "2026-03-05T23:31:05.154508+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Replay/forked_path_visualizer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Replay.forked_path_visualizer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.812421+00:00",
+        "last_modified": "2026-03-05T23:31:05.156664+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Replay/holographic_causality_trails.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Replay.holographic_causality_trails",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.814511+00:00",
+        "last_modified": "2026-03-05T23:31:05.159238+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Replay/trace_collapse_renderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Replay.trace_collapse_renderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.816738+00:00",
+        "last_modified": "2026-03-05T23:31:05.161650+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Replay/timeline_slider.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Replay.timeline_slider",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.818981+00:00",
+        "last_modified": "2026-03-05T23:31:05.164062+00:00",
         "switch": true
     },
     "frontend/components/QuantumField/Replay/ReplayPulse.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.QuantumField.Replay.ReplayPulse",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.821332+00:00",
+        "last_modified": "2026-03-05T23:31:05.166525+00:00",
         "switch": true
     },
     "frontend/components/sci/PhotonLensOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.sci.PhotonLensOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.823821+00:00",
+        "last_modified": "2026-03-05T23:31:05.169051+00:00",
         "switch": true
     },
     "frontend/components/sci/CoherenceStatus.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.sci.CoherenceStatus",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.829521+00:00",
+        "last_modified": "2026-03-05T23:31:05.171500+00:00",
         "switch": true
     },
     "frontend/components/sci/CoherencePanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.sci.CoherencePanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.831951+00:00",
+        "last_modified": "2026-03-05T23:31:05.173923+00:00",
         "switch": true
     },
     "frontend/components/sci/SQIEnergyMeter.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.sci.SQIEnergyMeter",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.834425+00:00",
+        "last_modified": "2026-03-05T23:31:05.176220+00:00",
         "switch": true
     },
     "frontend/components/sci/SciBottomDock.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.sci.SciBottomDock",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.836912+00:00",
+        "last_modified": "2026-03-05T23:31:05.178576+00:00",
         "switch": true
     },
     "frontend/components/sci/SciFileCabinet.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.sci.SciFileCabinet",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.840580+00:00",
+        "last_modified": "2026-03-05T23:31:05.180882+00:00",
         "switch": true
     },
     "frontend/components/Atoms/AtomContainerWrapper.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Atoms.AtomContainerWrapper",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.843128+00:00",
+        "last_modified": "2026-03-05T23:31:05.183194+00:00",
         "switch": true
     },
     "frontend/components/Atoms/AtomContainerController.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Atoms.AtomContainerController",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.845635+00:00",
+        "last_modified": "2026-03-05T23:31:05.185559+00:00",
         "switch": true
     },
     "frontend/components/ContainerMap/HobermanSphereController.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ContainerMap.HobermanSphereController",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.848280+00:00",
+        "last_modified": "2026-03-05T23:31:05.187947+00:00",
         "switch": true
     },
     "frontend/components/ContainerMap/WormholeRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ContainerMap.WormholeRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.850890+00:00",
+        "last_modified": "2026-03-05T23:31:05.190262+00:00",
         "switch": true
     },
     "frontend/components/ContainerMap/AtomContainer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ContainerMap.AtomContainer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.853460+00:00",
+        "last_modified": "2026-03-05T23:31:05.192630+00:00",
         "switch": true
     },
     "frontend/components/ContainerMap/SymbolicExpansionSphere.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ContainerMap.SymbolicExpansionSphere",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.856013+00:00",
+        "last_modified": "2026-03-05T23:31:05.194986+00:00",
         "switch": true
     },
     "frontend/components/ContainerMap/AtomElectronVisualizer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ContainerMap.AtomElectronVisualizer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.858564+00:00",
+        "last_modified": "2026-03-05T23:31:05.197363+00:00",
         "switch": true
     },
     "frontend/components/ContainerMap/LayeredContainerSphere.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ContainerMap.LayeredContainerSphere",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.861114+00:00",
+        "last_modified": "2026-03-05T23:31:05.199728+00:00",
         "switch": true
     },
     "frontend/components/ContainerMap/HobermanSphere.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ContainerMap.HobermanSphere",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.863660+00:00",
+        "last_modified": "2026-03-05T23:31:05.202147+00:00",
         "switch": true
     },
     "frontend/components/ContainerMap/HobermanSphereWrapper.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ContainerMap.HobermanSphereWrapper",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.866230+00:00",
+        "last_modified": "2026-03-05T23:31:05.204542+00:00",
         "switch": true
     },
     "frontend/components/debugger/CodexLogicDebugger.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.debugger.CodexLogicDebugger",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.869039+00:00",
+        "last_modified": "2026-03-05T23:31:05.206950+00:00",
         "switch": true
     },
     "frontend/components/Soul/SoulLawHUD.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.Soul.SoulLawHUD",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.871541+00:00",
+        "last_modified": "2026-03-05T23:31:05.209489+00:00",
         "switch": true
     },
     "frontend/components/lean/LeanInjectorPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.lean.LeanInjectorPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.873973+00:00",
+        "last_modified": "2026-03-05T23:31:05.212158+00:00",
         "switch": true
     },
     "frontend/components/ui/badge.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ui.badge",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.877030+00:00",
+        "last_modified": "2026-03-05T23:31:05.214592+00:00",
         "switch": true
     },
     "frontend/components/ui/select.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ui.select",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.882887+00:00",
+        "last_modified": "2026-03-05T23:31:05.216780+00:00",
         "switch": true
     },
     "frontend/components/ui/tooltip.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ui.tooltip",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.885122+00:00",
+        "last_modified": "2026-03-05T23:31:05.219042+00:00",
         "switch": true
     },
     "frontend/components/ui/button.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ui.button",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.888302+00:00",
+        "last_modified": "2026-03-05T23:31:05.221477+00:00",
         "switch": true
     },
     "frontend/components/ui/card.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ui.card",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.891719+00:00",
+        "last_modified": "2026-03-05T23:31:05.223894+00:00",
         "switch": true
     },
     "frontend/components/ui/input.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ui.input",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.898109+00:00",
+        "last_modified": "2026-03-05T23:31:05.226177+00:00",
         "switch": true
     },
     "frontend/components/ui/switch.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ui.switch",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.900930+00:00",
+        "last_modified": "2026-03-05T23:31:05.228614+00:00",
         "switch": true
     },
     "frontend/components/ui/scroll-area.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ui.scroll-area",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.903541+00:00",
+        "last_modified": "2026-03-05T23:31:05.231045+00:00",
         "switch": true
     },
     "frontend/components/ui/textarea.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.ui.textarea",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.906277+00:00",
+        "last_modified": "2026-03-05T23:31:05.233591+00:00",
         "switch": true
     },
     "frontend/components/CreativeCore/InnovationScoreOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.CreativeCore.InnovationScoreOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.908817+00:00",
+        "last_modified": "2026-03-05T23:31:05.236388+00:00",
         "switch": true
     },
     "frontend/components/CreativeCore/InnovationOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.CreativeCore.InnovationOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.911301+00:00",
+        "last_modified": "2026-03-05T23:31:05.239041+00:00",
         "switch": true
     },
     "frontend/components/SQI/KGList.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SQI.KGList",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.913688+00:00",
+        "last_modified": "2026-03-05T23:31:05.241770+00:00",
         "switch": true
     },
     "frontend/components/SQI/DriftPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.SQI.DriftPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.916048+00:00",
+        "last_modified": "2026-03-05T23:31:05.244428+00:00",
         "switch": true
     },
     "frontend/components/HUD/HUDOverlay.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.components.HUD.HUDOverlay",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.918628+00:00",
+        "last_modified": "2026-03-05T23:31:05.247194+00:00",
         "switch": true
     },
     "frontend/sci/pages/IDE.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.sci.pages.IDE",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.921797+00:00",
+        "last_modified": "2026-03-05T23:31:05.250006+00:00",
         "switch": true
     },
     "frontend/sci/components/MemorySidebar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.sci.components.MemorySidebar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.924459+00:00",
+        "last_modified": "2026-03-05T23:31:05.252746+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/App.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.App",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.927282+00:00",
+        "last_modified": "2026-03-05T23:31:05.255567+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/index.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.index",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.929933+00:00",
+        "last_modified": "2026-03-05T23:31:05.258289+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/NextGlyphnetApp.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.NextGlyphnetApp",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.932685+00:00",
+        "last_modified": "2026-03-05T23:31:05.261162+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/glyphnet.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.glyphnet",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.935436+00:00",
+        "last_modified": "2026-03-05T23:31:05.263947+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/AdminDashboard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.AdminDashboard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.938325+00:00",
+        "last_modified": "2026-03-05T23:31:05.266860+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/ChatThread.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.ChatThread",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.941002+00:00",
+        "last_modified": "2026-03-05T23:31:05.269627+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/WirePackDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.WirePackDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.946804+00:00",
+        "last_modified": "2026-03-05T23:31:05.272406+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/BridgePanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.BridgePanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.949599+00:00",
+        "last_modified": "2026-03-05T23:31:05.275219+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/DevTools.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.DevTools",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.952414+00:00",
+        "last_modified": "2026-03-05T23:31:05.278053+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V29ProjectionDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V29ProjectionDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.955262+00:00",
+        "last_modified": "2026-03-05T23:31:05.281537+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V45CrossLanguageVectorsDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V45CrossLanguageVectorsDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.958022+00:00",
+        "last_modified": "2026-03-05T23:31:05.284545+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V32HeavyHittersDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V32HeavyHittersDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.960784+00:00",
+        "last_modified": "2026-03-05T23:31:05.287126+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V41ReceiptGatedQueriesDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V41ReceiptGatedQueriesDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.963623+00:00",
+        "last_modified": "2026-03-05T23:31:05.290133+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V46StreamingTransportDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V46StreamingTransportDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.966463+00:00",
+        "last_modified": "2026-03-05T23:31:05.292803+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V33RangeSumsDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V33RangeSumsDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.969234+00:00",
+        "last_modified": "2026-03-05T23:31:05.295260+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V30SumOverQDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V30SumOverQDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.972011+00:00",
+        "last_modified": "2026-03-05T23:31:05.297838+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V10StreamingTransportDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V10StreamingTransportDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.974843+00:00",
+        "last_modified": "2026-03-05T23:31:05.300952+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V38TrustReceiptsDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V38TrustReceiptsDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.977651+00:00",
+        "last_modified": "2026-03-05T23:31:05.304458+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V34HistogramDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V34HistogramDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.980827+00:00",
+        "last_modified": "2026-03-05T23:31:05.306988+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V12MultiTemplateCatalogDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V12MultiTemplateCatalogDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.983284+00:00",
+        "last_modified": "2026-03-05T23:31:05.309526+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/routes/protocols/V44SqlOnStreamsDemo.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.routes.protocols.V44SqlOnStreamsDemo",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.986554+00:00",
+        "last_modified": "2026-03-05T23:31:05.312018+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/pages/bridge.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.pages.bridge",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.990370+00:00",
+        "last_modified": "2026-03-05T23:31:05.314549+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/DimensionRenderer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.DimensionRenderer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.994472+00:00",
+        "last_modified": "2026-03-05T23:31:05.317429+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/HoloProgramEditor.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.HoloProgramEditor",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:01.997643+00:00",
+        "last_modified": "2026-03-05T23:31:05.320073+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/ChainSimLedgerPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.ChainSimLedgerPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.000502+00:00",
+        "last_modified": "2026-03-05T23:31:05.322787+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/AstHologramGuide.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.AstHologramGuide",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.003400+00:00",
+        "last_modified": "2026-03-05T23:31:05.325481+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/PhotonStubPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.PhotonStubPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.006369+00:00",
+        "last_modified": "2026-03-05T23:31:05.328227+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/TransportPicker.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.TransportPicker",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.009368+00:00",
+        "last_modified": "2026-03-05T23:31:05.330754+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/PhotonGuide.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.PhotonGuide",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.012259+00:00",
+        "last_modified": "2026-03-05T23:31:05.333269+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/DevFieldHologram3DContainer.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.DevFieldHologram3DContainer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.015215+00:00",
+        "last_modified": "2026-03-05T23:31:05.335826+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/Sidebar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.Sidebar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.018158+00:00",
+        "last_modified": "2026-03-05T23:31:05.338370+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/DevFieldHologram3D.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.DevFieldHologram3D",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.021097+00:00",
+        "last_modified": "2026-03-05T23:31:05.340919+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/GlyphNetNavbar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.GlyphNetNavbar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.024033+00:00",
+        "last_modified": "2026-03-05T23:31:05.343581+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/WaveOutbox.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.WaveOutbox",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.026944+00:00",
+        "last_modified": "2026-03-05T23:31:05.346113+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/TopBar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.TopBar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.029876+00:00",
+        "last_modified": "2026-03-05T23:31:05.348971+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/AionHoloIndexPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.AionHoloIndexPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.032819+00:00",
+        "last_modified": "2026-03-05T23:31:05.351548+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/DevPitch.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.DevPitch",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.036297+00:00",
+        "last_modified": "2026-03-05T23:31:05.354112+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/GlyphNetSidebar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.GlyphNetSidebar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.039610+00:00",
+        "last_modified": "2026-03-05T23:31:05.356719+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/Gx1AdapterPad.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.Gx1AdapterPad",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.042313+00:00",
+        "last_modified": "2026-03-05T23:31:05.359349+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/PhotonEditor.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.PhotonEditor",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.045121+00:00",
+        "last_modified": "2026-03-05T23:31:05.363477+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/DevFieldCanvas.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.DevFieldCanvas",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.047918+00:00",
+        "last_modified": "2026-03-05T23:31:05.366301+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/KGDock.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.KGDock",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.050720+00:00",
+        "last_modified": "2026-03-05T23:31:05.368895+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/ContainerView.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.ContainerView",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.053547+00:00",
+        "last_modified": "2026-03-05T23:31:05.371492+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/WaveInbox.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.WaveInbox",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.056481+00:00",
+        "last_modified": "2026-03-05T23:31:05.374091+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/HologramContainerView.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.HologramContainerView",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.059139+00:00",
+        "last_modified": "2026-03-05T23:31:05.376745+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/WormholeBar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.WormholeBar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.061786+00:00",
+        "last_modified": "2026-03-05T23:31:05.379333+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/QfcHudPage.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.QfcHudPage",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.064436+00:00",
+        "last_modified": "2026-03-05T23:31:05.382123+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/QFCViewport3D.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.QFCViewport3D",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.067097+00:00",
+        "last_modified": "2026-03-05T23:31:05.385308+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/QFCDemoReflexGrid.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.QFCDemoReflexGrid",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.069742+00:00",
+        "last_modified": "2026-03-05T23:31:05.388497+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/KGSearchPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.KGSearchPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.072413+00:00",
+        "last_modified": "2026-03-05T23:31:05.393105+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/DialpadModal.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.DialpadModal",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.075094+00:00",
+        "last_modified": "2026-03-05T23:31:05.397353+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/PhotonPayPosPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.PhotonPayPosPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.077757+00:00",
+        "last_modified": "2026-03-05T23:31:05.400851+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/QFCViewport2D.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.QFCViewport2D",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.080685+00:00",
+        "last_modified": "2026-03-05T23:31:05.404025+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/VisitHistoryPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.VisitHistoryPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.083642+00:00",
+        "last_modified": "2026-03-05T23:31:05.407838+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/GMADashboardDevPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.GMADashboardDevPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.086587+00:00",
+        "last_modified": "2026-03-05T23:31:05.411490+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/PhotonMonacoEditor.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.PhotonMonacoEditor",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.107853+00:00",
+        "last_modified": "2026-03-05T23:31:05.414997+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/QfcCanvasPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.QfcCanvasPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.111355+00:00",
+        "last_modified": "2026-03-05T23:31:05.417700+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/AionMemoryFieldPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.AionMemoryFieldPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.115293+00:00",
+        "last_modified": "2026-03-05T23:31:05.420542+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/WalletPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.WalletPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.119521+00:00",
+        "last_modified": "2026-03-05T23:31:05.424451+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/GHXVisualizerField.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.GHXVisualizerField",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.123756+00:00",
+        "last_modified": "2026-03-05T23:31:05.427809+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/TimeControls.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.TimeControls",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.126493+00:00",
+        "last_modified": "2026-03-05T23:31:05.431021+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/MeshPolicyPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.MeshPolicyPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.129668+00:00",
+        "last_modified": "2026-03-05T23:31:05.434394+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/QfcBioPage.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.QfcBioPage",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.132881+00:00",
+        "last_modified": "2026-03-05T23:31:05.437657+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/ErrorBoundary.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.ErrorBoundary",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.136066+00:00",
+        "last_modified": "2026-03-05T23:31:05.440886+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/CrystalPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.CrystalPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.139229+00:00",
+        "last_modified": "2026-03-05T23:31:05.444253+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/QFCViewport.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.QFCViewport",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.142419+00:00",
+        "last_modified": "2026-03-05T23:31:05.447525+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/PhotonPayBuyerPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.PhotonPayBuyerPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.146918+00:00",
+        "last_modified": "2026-03-05T23:31:05.450809+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/QfcBioDashboard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.QfcBioDashboard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.151538+00:00",
+        "last_modified": "2026-03-05T23:31:05.454051+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/SidebarRail.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.SidebarRail",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.156147+00:00",
+        "last_modified": "2026-03-05T23:31:05.457743+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/GlyphChainPerfCard.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.GlyphChainPerfCard",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.159536+00:00",
+        "last_modified": "2026-03-05T23:31:05.461725+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/WaveSendPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.WaveSendPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.162311+00:00",
+        "last_modified": "2026-03-05T23:31:05.464711+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/LedgerInspector.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.LedgerInspector",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.165350+00:00",
+        "last_modified": "2026-03-05T23:31:05.468058+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/SettingsPanel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.SettingsPanel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.168526+00:00",
+        "last_modified": "2026-03-05T23:31:05.472584+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/PromptBar.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.PromptBar",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.171771+00:00",
+        "last_modified": "2026-03-05T23:31:05.475903+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/chat/ContactsRail.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.chat.ContactsRail",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.175091+00:00",
+        "last_modified": "2026-03-05T23:31:05.479089+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/auth/LoginPrompt.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.auth.LoginPrompt",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.178301+00:00",
+        "last_modified": "2026-03-05T23:31:05.482726+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/ui/card.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.ui.card",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.181560+00:00",
+        "last_modified": "2026-03-05T23:31:05.486041+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCDemoTunnel.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCDemoTunnel",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.184957+00:00",
+        "last_modified": "2026-03-05T23:31:05.489427+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCInformationCoherence.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCInformationCoherence",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.188203+00:00",
+        "last_modified": "2026-03-05T23:31:05.492689+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCDemoConnect.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCDemoConnect",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.191476+00:00",
+        "last_modified": "2026-03-05T23:31:05.495998+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCFeedbackControllerN.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCFeedbackControllerN",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.194777+00:00",
+        "last_modified": "2026-03-05T23:31:05.499341+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFC_Demo_GlyphOS.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFC_Demo_GlyphOS",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.198117+00:00",
+        "last_modified": "2026-03-05T23:31:05.502670+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCGeometryEmergence.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCGeometryEmergence",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.201418+00:00",
+        "last_modified": "2026-03-05T23:31:05.506236+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCInformationDynamicsI.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCInformationDynamicsI",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.204818+00:00",
+        "last_modified": "2026-03-05T23:31:05.509577+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCObserverDashboardO.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCObserverDashboardO",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.208193+00:00",
+        "last_modified": "2026-03-05T23:31:05.512918+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCDemoGravity.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCDemoGravity",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.211606+00:00",
+        "last_modified": "2026-03-05T23:31:05.516305+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCPipelineVerification.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCPipelineVerification",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.214978+00:00",
+        "last_modified": "2026-03-05T23:31:05.520042+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCDemoTopology.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCDemoTopology",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.219309+00:00",
+        "last_modified": "2026-03-05T23:31:05.524290+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCDemoWormhole.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCDemoWormhole",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.222628+00:00",
+        "last_modified": "2026-03-05T23:31:05.528652+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCCausalSpacetimeK.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCCausalSpacetimeK",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.226264+00:00",
+        "last_modified": "2026-03-05T23:31:05.531586+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCGovernedSelection.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCGovernedSelection",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.229671+00:00",
+        "last_modified": "2026-03-05T23:31:05.534474+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCSemanticCurvature.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCSemanticCurvature",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.232796+00:00",
+        "last_modified": "2026-03-05T23:31:05.537685+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCTelemetryAuditv3.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCTelemetryAuditv3",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.235744+00:00",
+        "last_modified": "2026-03-05T23:31:05.542061+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCDemoP-Series.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCDemoP-Series",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.238714+00:00",
+        "last_modified": "2026-03-05T23:31:05.547342+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCVacuumLandscapeF.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCVacuumLandscapeF",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.241703+00:00",
+        "last_modified": "2026-03-05T23:31:05.553080+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCBornRuleConvergence.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCBornRuleConvergence",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.244682+00:00",
+        "last_modified": "2026-03-05T23:31:05.558373+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCEmergentGeometryM.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCEmergentGeometryM",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.247659+00:00",
+        "last_modified": "2026-03-05T23:31:05.563300+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCDemoMatter.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCDemoMatter",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.251085+00:00",
+        "last_modified": "2026-03-05T23:31:05.568389+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCEmergentTimeH2.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCEmergentTimeH2",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.254284+00:00",
+        "last_modified": "2026-03-05T23:31:05.575695+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCDemoGenome.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCDemoGenome",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.257283+00:00",
+        "last_modified": "2026-03-05T23:31:05.582359+00:00",
         "switch": true
     },
     "frontend/src/glyphnet/components/qfc/demos/QFCAxiomStability.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.src.glyphnet.components.qfc.demos.QFCAxiomStability",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.261462+00:00",
+        "last_modified": "2026-03-05T23:31:05.588146+00:00",
         "switch": true
     },
     "frontend/hooks/useQFCFocus.tsx": {
         "type": "frontend_ui",
         "dna_id": "frontend.hooks.useQFCFocus",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.265058+00:00",
+        "last_modified": "2026-03-05T23:31:05.593992+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/dna_chain/dc_handler.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.dna_chain.dc_handler",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:02.276359+00:00",
+        "last_modified": "2026-03-05T23:31:05.598669+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/dna_chain/dna_writer.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.dna_chain.dna_writer",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:13.140205+00:00",
+        "last_modified": "2026-03-05T23:31:11.115963+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/hexcore/memory_engine.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.hexcore.memory_engine",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:13.993070+00:00",
+        "last_modified": "2026-03-05T23:31:11.628828+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/consciousness/personality_engine.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.consciousness.personality_engine",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:14.365895+00:00",
+        "last_modified": "2026-03-05T23:31:11.726948+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/tessaris/tessaris_store.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.tessaris.tessaris_store",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:14.505572+00:00",
+        "last_modified": "2026-03-05T23:31:11.749629+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/consciousness/planning_engine.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.consciousness.planning_engine",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:14.509878+00:00",
+        "last_modified": "2026-03-05T23:31:11.753374+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/consciousness/context_engine.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.consciousness.context_engine",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:14.513877+00:00",
+        "last_modified": "2026-03-05T23:31:11.756950+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/consciousness/emotion_engine.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.consciousness.emotion_engine",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:14.518371+00:00",
+        "last_modified": "2026-03-05T23:31:11.760579+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/consciousness/identity_engine.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.consciousness.identity_engine",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:14.541523+00:00",
+        "last_modified": "2026-03-05T23:31:11.765140+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/consciousness/awareness_engine.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.consciousness.awareness_engine",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:16.317740+00:00",
+        "last_modified": "2026-03-05T23:31:11.768548+00:00",
         "switch": true
     },
     "/workspaces/COMDEX/backend/modules/consciousness/state_manager.py": {
         "type": "unspecified",
         "dna_id": ".workspaces.COMDEX.backend.modules.consciousness.state_manager",
         "registered": true,
-        "last_modified": "2026-03-02T23:35:14.559527+00:00",
-        "switch": true
-    },
-    "/workspaces/COMDEX/backend/modules/skills/boot_selector.py": {
-        "type": "unspecified",
-        "dna_id": ".workspaces.COMDEX.backend.modules.skills.boot_selector",
-        "registered": true,
-        "last_modified": "2026-03-02T23:35:15.435981+00:00",
-        "switch": true
-    },
-    "/workspaces/COMDEX/backend/modules/skills/milestone_tracker.py": {
-        "type": "unspecified",
-        "dna_id": ".workspaces.COMDEX.backend.modules.skills.milestone_tracker",
-        "registered": true,
-        "last_modified": "2026-03-02T23:35:15.439789+00:00",
-        "switch": true
-    },
-    "/workspaces/COMDEX/backend/modules/consciousness/ethics_engine.py": {
-        "type": "unspecified",
-        "dna_id": ".workspaces.COMDEX.backend.modules.consciousness.ethics_engine",
-        "registered": true,
-        "last_modified": "2026-03-02T23:35:16.259630+00:00",
-        "switch": true
-    },
-    "/workspaces/COMDEX/backend/modules/consciousness/privacy_vault.py": {
-        "type": "unspecified",
-        "dna_id": ".workspaces.COMDEX.backend.modules.consciousness.privacy_vault",
-        "registered": true,
-        "last_modified": "2026-03-02T23:35:16.264911+00:00",
-        "switch": true
-    },
-    "/workspaces/COMDEX/backend/modules/aion_reflection/reflection_engine.py": {
-        "type": "unspecified",
-        "dna_id": ".workspaces.COMDEX.backend.modules.aion_reflection.reflection_engine",
-        "registered": true,
-        "last_modified": "2026-03-02T23:35:16.269463+00:00",
-        "switch": true
-    },
-    "/workspaces/COMDEX/backend/modules/consciousness/situational_engine.py": {
-        "type": "unspecified",
-        "dna_id": ".workspaces.COMDEX.backend.modules.consciousness.situational_engine",
-        "registered": true,
-        "last_modified": "2026-03-02T23:35:16.273065+00:00",
-        "switch": true
-    },
-    "/workspaces/COMDEX/backend/modules/skills/dream_post_processor.py": {
-        "type": "unspecified",
-        "dna_id": ".workspaces.COMDEX.backend.modules.skills.dream_post_processor",
-        "registered": true,
-        "last_modified": "2026-03-02T23:35:16.276837+00:00",
-        "switch": true
-    },
-    "/workspaces/COMDEX/backend/modules/codex/codex_core.py": {
-        "type": "unspecified",
-        "dna_id": ".workspaces.COMDEX.backend.modules.codex.codex_core",
-        "registered": true,
-        "last_modified": "2026-03-02T23:35:16.281825+00:00",
-        "switch": true
-    },
-    "/workspaces/COMDEX/backend/modules/aion/dream_core.py": {
-        "type": "unspecified",
-        "dna_id": ".workspaces.COMDEX.backend.modules.aion.dream_core",
-        "registered": true,
-        "last_modified": "2026-03-02T23:35:16.296815+00:00",
-        "switch": true
-    },
-    "/workspaces/COMDEX/backend/modules/glyphos/glyph_logic.py": {
-        "type": "unspecified",
-        "dna_id": ".workspaces.COMDEX.backend.modules.glyphos.glyph_logic",
-        "registered": true,
-        "last_modified": "2026-03-02T23:35:17.025295+00:00",
+        "last_modified": "2026-03-05T23:31:11.774091+00:00",
         "switch": true
     }
 }

@@ -108,14 +108,32 @@ def _normalize_impact_weight(value: Any) -> float:
 
 
 def _normalize_trigger_item(
-    item: Dict[str, Any],
+    item: Any,
     *,
     company_ref: str,
     fiscal_period_ref: str,
 ) -> Dict[str, Any]:
+    """
+    Accepts:
+      - dict (preferred)
+      - str (treated as a variable name / trigger label)
+      - any other type (stringified)
+    Produces a canonical trigger entry dict.
+    """
+    # --- coerce non-dict forms into a dict ---
+    if isinstance(item, str):
+        item = {"variable_name": item}
+    elif not isinstance(item, dict):
+        item = {"variable_name": str(item)}
+
     trigger_id = str(item.get("trigger_id") or "").strip()
-    variable_name = str(item.get("variable_name") or "").strip()
-    data_source = str(item.get("data_source") or "").strip()
+    variable_name = str(item.get("variable_name") or item.get("name") or item.get("type") or "").strip()
+    data_source = str(item.get("data_source") or item.get("source") or item.get("feed_id") or "").strip()
+
+    # allow "details" -> notes for the OpenAI style triggers you showed
+    notes = item.get("notes")
+    if notes is None and item.get("details") is not None:
+        notes = item.get("details")
 
     if not trigger_id:
         slug = _safe_segment(variable_name or data_source or "trigger").lower()
@@ -134,9 +152,11 @@ def _normalize_trigger_item(
         "thesis_action": str(item.get("thesis_action") or "").strip(),
     }
 
+    if notes is not None:
+        out["notes"] = deepcopy(notes)
+
     optional_fields = [
         "linked_report_ref",
-        "notes",
         "last_observed_value",
         "next_check_date",
         "latest_value",
@@ -151,7 +171,7 @@ def _normalize_trigger_item(
 
 
 def _normalize_trigger_entries(
-    entries: Optional[List[Dict[str, Any]]],
+    entries: Optional[List[Any]],
     *,
     company_ref: str,
     fiscal_period_ref: str,
