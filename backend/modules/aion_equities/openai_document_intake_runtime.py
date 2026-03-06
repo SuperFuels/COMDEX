@@ -1,9 +1,11 @@
 # /workspaces/COMDEX/backend/modules/aion_equities/openai_document_intake_runtime.py
 from __future__ import annotations
 
+import json
+import re
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from backend.modules.aion_equities.assessment_runtime import AssessmentRuntime
 from backend.modules.aion_equities.assessment_store import AssessmentStore
@@ -25,6 +27,13 @@ def _safe_read_text(path: Path) -> str:
         return ""
 
 
+def _safe_read_json(path: Path) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
 def _coalesce(*values: Any, default: Any = None) -> Any:
     for v in values:
         if v is None:
@@ -35,6 +44,28 @@ def _coalesce(*values: Any, default: Any = None) -> Any:
             continue
         return v
     return default
+
+
+def _ticker_from_company_ref(company_ref: str) -> str:
+    # company/ULVR.L -> ULVR.L
+    parts = str(company_ref or "").split("/")
+    return parts[-1].strip() if parts else ""
+
+
+def _company_folder_name(company_ref: str) -> str:
+    # repo uses: company_ULVR.L
+    t = _ticker_from_company_ref(company_ref)
+    return f"company_{t}" if t else "company_unknown"
+
+
+def _normalize_key(s: Any) -> str:
+    """
+    Used for matching master variable name <-> trigger variable_name.
+    Keeps this intentionally conservative (no lossy tokenization).
+    """
+    txt = str(s or "").strip().lower()
+    txt = re.sub(r"\s+", " ", txt)
+    return txt
 
 
 class OpenAIDocumentIntakeRuntime:
@@ -54,7 +85,17 @@ class OpenAIDocumentIntakeRuntime:
     - OPTIONAL: auto-load document_text from SourceDocumentStore.parsed_text_ref if document_text empty
     - HARDEN: ensure quarter_event seed contains fiscal_period (required by QuarterEventStore)
     - HARDEN: allow caller to provide fiscal_period_ref so we never fall back to "unknown" for period-bearing stores
-    - return one consolidated intake artifact
+
+    NEW (critical):
+    - Load master variables from:
+        backend/modules/aion_equities/master_intelligence/company_<TICKER>/v1.variables.json
+      and:
+        * if OpenAI yields 0 variables -> fallback to master variables (never persist empty)
+        * otherwise -> merge master + OpenAI variables (master baseline + any new candidates)
+
+    NEW (critical for live monitoring):
+    - Enrich trigger entries with feed_id (machine routing key) using master variables,
+      because trigger map stores typically have only human labels in data_source.
     """
 
     def __init__(
@@ -73,6 +114,11 @@ class OpenAIDocumentIntakeRuntime:
         # allow auto-loading text from a registered source document
         source_document_store: Optional[SourceDocumentStore] = None,
         document_text_base_dir: Optional[str | Path] = None,
+        # master intelligence (repo canonical)
+        master_intelligence_base_dir: Optional[str | Path] = None,
+        master_variables_version: str = "v1",
+        use_master_variables_fallback: bool = True,
+        merge_master_variables: bool = True,
     ):
         self.document_analysis_runtime = document_analysis_runtime
         self.company_profile_mapper = company_profile_mapper
@@ -88,6 +134,20 @@ class OpenAIDocumentIntakeRuntime:
         self.source_document_store = source_document_store
         self.document_text_base_dir = Path(document_text_base_dir) if document_text_base_dir else None
 
+        # Default repo canonical master intelligence location:
+        # /workspaces/COMDEX/backend/modules/aion_equities/master_intelligence
+        if master_intelligence_base_dir is None:
+            self.master_intelligence_base_dir = Path(__file__).resolve().parent / "master_intelligence"
+        else:
+            self.master_intelligence_base_dir = Path(master_intelligence_base_dir)
+
+        self.master_variables_version = str(master_variables_version or "v1").strip() or "v1"
+        self.use_master_variables_fallback = bool(use_master_variables_fallback)
+        self.merge_master_variables = bool(merge_master_variables)
+
+    # -----------------------------
+    # document text autoload
+    # -----------------------------
     def _autoload_document_text(self, *, document_ref: str) -> str:
         """
         Best-effort:
@@ -147,6 +207,235 @@ class OpenAIDocumentIntakeRuntime:
 
         return _safe_read_text(p)
 
+    # -----------------------------
+    # master intelligence (variables)
+    # -----------------------------
+    def _master_variables_path(self, *, company_ref: str) -> Path:
+        folder = _company_folder_name(company_ref)
+        # backend/modules/aion_equities/master_intelligence/company_ULVR.L/v1.variables.json
+        return self.master_intelligence_base_dir / folder / f"{self.master_variables_version}.variables.json"
+
+    def _load_master_variables(self, *, company_ref: str) -> List[Dict[str, Any]]:
+        p = self._master_variables_path(company_ref=company_ref)
+        obj = _safe_read_json(p)
+        if isinstance(obj, list):
+            out: List[Dict[str, Any]] = []
+            for it in obj:
+                if isinstance(it, dict):
+                    out.append(deepcopy(it))
+            return out
+        return []
+
+    def _index_master_variables(self, *, master_vars: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+        """
+        Two indices:
+          - by feed_id (strong)
+          - by name (for trigger_map variable_name matching)
+        """
+        out: Dict[str, Dict[str, Any]] = {}
+        for v in master_vars or []:
+            if not isinstance(v, dict):
+                continue
+
+            fid = str(v.get("feed_id") or "").strip()
+            if fid:
+                out[f"feed_id:{fid}"] = v
+
+            name = _normalize_key(v.get("name"))
+            if name:
+                out[f"name:{name}"] = v
+
+            vid = str(v.get("variable_id") or "").strip()
+            if vid:
+                out[f"variable_id:{vid}"] = v
+
+        return out
+
+    def _extract_ai_variables_from_mapped(self, mapped_objects: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Mapper stores:
+          mapped_objects["variable_watch_seed"] = {"payload": <seed>}
+        where seed ideally contains {"variables":[...]}
+        """
+        if not isinstance(mapped_objects, dict):
+            return []
+
+        vws = mapped_objects.get("variable_watch_seed")
+        if not isinstance(vws, dict):
+            return []
+
+        payload = vws.get("payload")
+        if not isinstance(payload, dict):
+            return []
+
+        variables = payload.get("variables")
+        if isinstance(variables, list):
+            return [deepcopy(v) for v in variables if isinstance(v, dict)]
+        return []
+
+    def _merge_variables(
+        self,
+        *,
+        master_vars: List[Dict[str, Any]],
+        ai_vars: List[Dict[str, Any]],
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        """
+        Merge policy:
+          - Use master as baseline.
+          - Add any AI variables not present in master (by feed_id or variable_id).
+          - For collisions: keep master, but fill missing keys from AI if master is missing/empty.
+            (Does NOT overwrite good master definitions.)
+
+        Returns: (merged_vars, stats)
+        """
+        stats: Dict[str, Any] = {
+            "master_count": len(master_vars),
+            "ai_count": len(ai_vars),
+            "merged_count": 0,
+            "added_from_ai": 0,
+            "filled_from_ai": 0,
+            "skipped_ai_missing_key": 0,
+        }
+
+        def key(v: Dict[str, Any]) -> str:
+            fid = str(v.get("feed_id") or "").strip()
+            if fid:
+                return f"feed_id:{fid}"
+            vid = str(v.get("variable_id") or "").strip()
+            if vid:
+                return f"variable_id:{vid}"
+            return ""
+
+        merged: List[Dict[str, Any]] = []
+        index: Dict[str, Dict[str, Any]] = {}
+
+        # load master first
+        for v in master_vars:
+            if not isinstance(v, dict):
+                continue
+            k = key(v)
+            if not k:
+                continue
+            vv = deepcopy(v)
+            index[k] = vv
+            merged.append(vv)
+
+        # merge in AI
+        for v in ai_vars:
+            if not isinstance(v, dict):
+                continue
+            k = key(v)
+            if not k:
+                stats["skipped_ai_missing_key"] += 1
+                continue
+
+            if k not in index:
+                index[k] = deepcopy(v)
+                merged.append(index[k])
+                stats["added_from_ai"] += 1
+                continue
+
+            # collision: fill missing keys only
+            base = index[k]
+            filled_any = False
+            for kk, vv in v.items():
+                if kk not in base:
+                    base[kk] = deepcopy(vv)
+                    filled_any = True
+                    continue
+
+                bv = base.get(kk)
+                if bv is None and vv is not None:
+                    base[kk] = deepcopy(vv)
+                    filled_any = True
+                    continue
+
+                if isinstance(bv, str) and not bv.strip() and vv is not None:
+                    base[kk] = deepcopy(vv)
+                    filled_any = True
+                    continue
+
+                if isinstance(bv, list) and len(bv) == 0 and isinstance(vv, list) and len(vv) > 0:
+                    base[kk] = deepcopy(vv)
+                    filled_any = True
+                    continue
+
+                if isinstance(bv, dict) and len(bv) == 0 and isinstance(vv, dict) and len(vv) > 0:
+                    base[kk] = deepcopy(vv)
+                    filled_any = True
+                    continue
+
+            if filled_any:
+                stats["filled_from_ai"] += 1
+
+        stats["merged_count"] = len(merged)
+        return merged, stats
+
+    def _build_variable_watch_seed(self, *, variables: List[Dict[str, Any]], source: str) -> Dict[str, Any]:
+        # VariableWatchStore keeps payload, and extracts variables from multiple shapes.
+        return {
+            "variables": deepcopy(variables),
+            "seed_source": str(source),
+        }
+
+    # -----------------------------
+    # trigger-map enrichment
+    # -----------------------------
+    def _enrich_trigger_entries_with_feed_ids(
+        self,
+        *,
+        trigger_entries: Any,
+        company_ref: str,
+        master_index: Dict[str, Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """
+        Ensures each trigger entry has feed_id as a machine routing key.
+
+        Your trigger map payload on disk uses:
+          trigger_entries: [{variable_name, data_source, ...}]
+        NOT:
+          triggers: [...]
+
+        We match:
+          trigger["variable_name"]  <-> master_var["name"]
+        and then set:
+          trigger["feed_id"] = master_var["feed_id"]
+          trigger["data_source_id"] = same feed_id (optional alias)
+        """
+        entries: List[Dict[str, Any]] = []
+        if isinstance(trigger_entries, list):
+            for t in trigger_entries:
+                if isinstance(t, dict):
+                    entries.append(deepcopy(t))
+        if not entries:
+            return []
+
+        for t in entries:
+            if str(t.get("feed_id") or "").strip():
+                continue
+
+            vname = _normalize_key(t.get("variable_name") or t.get("name"))
+            if not vname:
+                continue
+
+            mv = master_index.get(f"name:{vname}")
+            if not mv:
+                # Some stored trigger maps might have slightly different casing/punctuation.
+                # Don't do aggressive fuzzy matching here; keep safe.
+                continue
+
+            fid = str(mv.get("feed_id") or "").strip()
+            if not fid:
+                continue
+
+            t["feed_id"] = fid
+            t.setdefault("data_source_id", fid)
+
+        return entries
+
+    # -----------------------------
+    # fiscal period helpers
+    # -----------------------------
     def _derive_fiscal_period_ref(
         self,
         *,
@@ -204,6 +493,9 @@ class OpenAIDocumentIntakeRuntime:
 
         return out
 
+    # -----------------------------
+    # main entrypoint
+    # -----------------------------
     def run_document_intake(
         self,
         *,
@@ -225,7 +517,6 @@ class OpenAIDocumentIntakeRuntime:
         trigger_map_fiscal_period_ref: Optional[str] = None,
         update_company_references: bool = True,
         autoload_document_text: bool = True,
-        # strong fallback for quarter_event + trigger_map + variable_watch period
         fiscal_period_ref: Optional[str] = None,
     ) -> Dict[str, Any]:
         resolved_document_text = str(document_text or "")
@@ -233,8 +524,22 @@ class OpenAIDocumentIntakeRuntime:
             resolved_document_text = self._autoload_document_text(document_ref=document_ref)
 
         # Prefer caller-provided fiscal_period_ref for anything that must be parseable.
-        # We still derive later if needed, but this is the strong canonical fallback.
         period_fallback = str(fiscal_period_ref or "").strip() or "unknown"
+
+        # Load master vars once (used for:
+        #   - OpenAI context injection
+        #   - variable_watch fallback/merge
+        #   - trigger_map feed_id enrichment)
+        master_vars = self._load_master_variables(company_ref=company_ref)
+        master_index = self._index_master_variables(master_vars=master_vars)
+
+        # Inject master context for OpenAI (optional, bounded).
+        cip = deepcopy(company_intelligence_pack or {})
+        if master_vars:
+            cip.setdefault("master", {})
+            cip["master"].setdefault("variables_version", self.master_variables_version)
+            cip["master"].setdefault("variables_count", len(master_vars))
+            cip["master"]["variables"] = deepcopy(master_vars)
 
         analysis_out = self.document_analysis_runtime.analyze_document(
             company_ref=company_ref,
@@ -243,11 +548,11 @@ class OpenAIDocumentIntakeRuntime:
             document_type=document_type,
             thesis_ref=thesis_ref,
             current_business_status=deepcopy(current_business_status or {}),
-            company_intelligence_pack=deepcopy(company_intelligence_pack or {}),
+            company_intelligence_pack=cip,
             operating_brief_id=operating_brief_id,
             operating_brief_version=operating_brief_version,
             generated_by=generated_by,
-            fiscal_period_ref=fiscal_period_ref,  # ✅ pass-through for Phase-2 prompts
+            fiscal_period_ref=fiscal_period_ref,
         )
 
         mapped_objects = self.company_profile_mapper.map_analysis_to_company_profile(
@@ -261,7 +566,7 @@ class OpenAIDocumentIntakeRuntime:
         persisted_objects: Dict[str, Any] = {}
         persisted_objects["resolved_document_text_len"] = len(resolved_document_text or "")
 
-        # If caller didn't provide, derive from analysis/mapped (but avoid "unknown" if possible)
+        # If caller didn't provide, derive from analysis/mapped
         if period_fallback == "unknown":
             period_fallback = self._derive_fiscal_period_ref(
                 analysis_out=analysis_out,
@@ -293,12 +598,15 @@ class OpenAIDocumentIntakeRuntime:
                 persisted_objects["quarter_event_ref"] = saved_quarter_event.get("quarter_event_id")
 
         # -----------------------
-        # Trigger map persistence
+        # Trigger map persistence (now enriched with feed_id)
         # -----------------------
         if persist_trigger_map and self.company_trigger_map_store is not None:
             trigger_map_seed = deepcopy(mapped_objects.get("trigger_map") or {})
             if isinstance(trigger_map_seed, dict):
-                triggers = trigger_map_seed.get("triggers")
+                triggers = trigger_map_seed.get("trigger_entries")
+                if triggers is None:
+                    triggers = trigger_map_seed.get("triggers")
+
                 if isinstance(triggers, list) and len(triggers) > 0:
                     fiscal_period = _coalesce(
                         trigger_map_fiscal_period_ref,
@@ -310,10 +618,21 @@ class OpenAIDocumentIntakeRuntime:
                         default=period_fallback,
                     )
 
+                    enriched = self._enrich_trigger_entries_with_feed_ids(
+                        trigger_entries=triggers,
+                        company_ref=company_ref,
+                        master_index=master_index,
+                    )
+
+                    persisted_objects["trigger_map_enriched_count"] = len(enriched)
+                    persisted_objects["trigger_map_enriched_missing_feed_id"] = sum(
+                        1 for t in enriched if isinstance(t, dict) and not str(t.get("feed_id") or "").strip()
+                    )
+
                     saved_trigger_map = self.company_trigger_map_store.save_company_trigger_map(
                         company_ref=company_ref,
                         fiscal_period_ref=str(fiscal_period),
-                        trigger_entries=deepcopy(triggers),
+                        trigger_entries=deepcopy(enriched),
                         generated_by=generated_by,
                         validate=False,
                         linked_refs_patch={
@@ -325,19 +644,38 @@ class OpenAIDocumentIntakeRuntime:
                     persisted_objects["trigger_map_ref"] = saved_trigger_map.get("company_trigger_map_id")
 
         # -----------------------
-        # Variable watch persistence
+        # Variable watch persistence (MASTER SAFE)
         # -----------------------
         if persist_variable_watch and self.variable_watch_store is not None:
-            # IMPORTANT:
-            # - OpenAIDocumentAnalysisRuntime (Phase-2) overwrites normalized_analysis["variable_watch_seed"]
-            #   to {"variables":[...structured...], "phase2_generated_by": ...} when it succeeds.
-            # - OpenAICompanyProfileMapper maps "variable_watch_seed" into mapped_objects["variable_watch_seed"]["payload"].
-            # - We persist that payload as the seed so VariableWatchStore can extract variables[].
-            vw_seed: Dict[str, Any] = {}
-            if isinstance(mapped_objects.get("variable_watch_seed"), dict):
-                vw_seed = deepcopy((mapped_objects["variable_watch_seed"] or {}).get("payload") or {})
+            ai_vars = self._extract_ai_variables_from_mapped(mapped_objects)
 
-            if isinstance(vw_seed, dict) and vw_seed:
+            variables_to_persist: List[Dict[str, Any]] = []
+            vw_seed_source = "openai"
+
+            if ai_vars:
+                if self.merge_master_variables and master_vars:
+                    merged, stats = self._merge_variables(master_vars=master_vars, ai_vars=ai_vars)
+                    variables_to_persist = merged
+                    vw_seed_source = "master+openai"
+                    persisted_objects["variable_watch_merge_stats"] = stats
+                else:
+                    variables_to_persist = ai_vars
+                    vw_seed_source = "openai"
+            else:
+                if self.use_master_variables_fallback and master_vars:
+                    variables_to_persist = master_vars
+                    vw_seed_source = "master_fallback"
+                else:
+                    variables_to_persist = []
+                    vw_seed_source = "empty"
+
+            persisted_objects["variable_watch_source"] = vw_seed_source
+            persisted_objects["variable_watch_ai_count"] = len(ai_vars)
+            persisted_objects["variable_watch_master_count"] = len(master_vars)
+            persisted_objects["variable_watch_persist_count"] = len(variables_to_persist)
+
+            if variables_to_persist:
+                vw_seed = self._build_variable_watch_seed(variables=variables_to_persist, source=vw_seed_source)
                 saved_vw = self.variable_watch_store.save_variable_watch(
                     company_ref=company_ref,
                     fiscal_period_ref=str(period_fallback),
@@ -347,6 +685,8 @@ class OpenAIDocumentIntakeRuntime:
                 )
                 persisted_objects["variable_watch"] = deepcopy(saved_vw)
                 persisted_objects["variable_watch_ref"] = saved_vw.get("variable_watch_id")
+            else:
+                persisted_objects["variable_watch_not_saved"] = True
 
         # -----------------------
         # Assessment persistence (runtime-built from saved quarter_event)
@@ -396,7 +736,6 @@ class OpenAIDocumentIntakeRuntime:
                 )
 
                 if self.thesis_store is not None:
-                    # tolerate store API drift
                     if hasattr(self.thesis_store, "save_thesis"):
                         self.thesis_store.save_thesis(
                             thesis_payload,
@@ -405,7 +744,6 @@ class OpenAIDocumentIntakeRuntime:
                             validate=False,
                         )
                     else:
-                        # fallback to known method name in ThesisStore
                         self.thesis_store.save_thesis_state(
                             thesis_id=thesis_payload.get("thesis_id"),
                             ticker=thesis_payload.get("ticker") or company_ref.split("/")[-1],
@@ -428,8 +766,6 @@ class OpenAIDocumentIntakeRuntime:
         # Reference maintenance (company pointers)
         # -----------------------
         if update_company_references and self.reference_maintenance_runtime is not None:
-            # Prefer passing trigger_map_ref + variable_watch_ref (newer runtime),
-            # but keep backwards compatibility with older runtimes.
             try:
                 self.reference_maintenance_runtime.refresh_from_runtime_objects(
                     company_ref=company_ref,
@@ -456,9 +792,9 @@ class OpenAIDocumentIntakeRuntime:
             "document_ref": str(document_ref),
             "document_type": str(document_type),
             "thesis_ref": thesis_ref,
-            "analysis_packet": deepcopy(analysis_out["analysis_packet"]),
-            "analysis_response": deepcopy(analysis_out["analysis_response"]),
-            "normalized_analysis": deepcopy(analysis_out["normalized_analysis"]),
+            "analysis_packet": deepcopy(analysis_out.get("analysis_packet")),
+            "analysis_response": deepcopy(analysis_out.get("analysis_response")),
+            "normalized_analysis": deepcopy(analysis_out.get("normalized_analysis")),
             "mapped_objects": deepcopy(mapped_objects),
             "persisted_objects": deepcopy(persisted_objects),
         }

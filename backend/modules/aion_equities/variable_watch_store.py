@@ -1,3 +1,4 @@
+# /workspaces/COMDEX/backend/modules/aion_equities/variable_watch_store.py
 from __future__ import annotations
 
 import json
@@ -58,15 +59,48 @@ def _canonicalize_name_from_note(note: str) -> str:
     return s
 
 
+def _looks_like_master_schema(v: Dict[str, Any]) -> bool:
+    """
+    Detect the long-term master variable schema objects so we can preserve fields.
+
+    Key idea:
+      - If the incoming object already has master fields, we should NOT down-convert it
+        into a legacy {name, importance, notes, ...} shape.
+      - We should preserve the object as-is and only normalize a couple of safe scalars.
+    """
+    if not isinstance(v, dict):
+        return False
+    master_keys = {
+        "variable_id",
+        "category",
+        "update_frequency",
+        "is_leading",
+        "is_zero_lag",
+        "feed_adapter",
+        "data_source_url",
+        "sensitivity_coefficient",
+        "current_state",
+        "current_value_unit",
+        "current_value_as_of",
+        "threshold_break",
+    }
+    return any(k in v for k in master_keys)
+
+
 def _normalize_variable_dict(v: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Normalize a variable dict into the minimal canonical shape:
-      {
-        "name": <str>,
-        "importance": "High"|"Medium"|"Low",
-        "notes": <str|optional>,
-        ... passthrough extra fields ...
-      }
+    Normalize a variable dict.
+
+    ✅ IMPORTANT:
+    - If input is already in the MASTER schema (variable_id/category/update_frequency/etc),
+      we PRESERVE ALL FIELDS and only lightly normalize the human-readable name.
+    - If input is legacy, we normalize into the legacy minimal shape:
+        {
+          "name": <str>,
+          "importance": "High"|"Medium"|"Low",
+          "notes": <str|optional>,
+          ... passthrough extra fields ...
+        }
 
     Accepts alternative keys:
       - name | variable_name | variable | title
@@ -76,6 +110,48 @@ def _normalize_variable_dict(v: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     if not isinstance(v, dict):
         return None
 
+    # -------------------------
+    # MASTER schema passthrough
+    # -------------------------
+    if _looks_like_master_schema(v):
+        out = deepcopy(v)
+
+        # normalize name (do not erase if missing; only try to fill)
+        name = (
+            _as_str(out.get("name"))
+            or _as_str(out.get("variable_name"))
+            or _as_str(out.get("variable"))
+            or _as_str(out.get("title"))
+        )
+        name = _clean_name(name)
+
+        # if name missing, try to derive from existing notes-ish fields
+        if not name:
+            for k in ("notes", "why_it_matters", "description", "details"):
+                if out.get(k) is not None:
+                    cand = _clean_name(out.get(k))
+                    if cand:
+                        name = _canonicalize_name_from_note(cand) or cand
+                        break
+
+        if not name:
+            return None
+
+        out["name"] = name
+
+        # keep legacy "importance" as optional convenience (do NOT overwrite if present)
+        if "importance" not in out or out.get("importance") is None:
+            out["importance"] = _normalize_importance(out.get("priority") or out.get("importance"))
+
+        # If feed_id exists, normalize whitespace only
+        if "feed_id" in out and out.get("feed_id") is not None:
+            out["feed_id"] = _as_str(out.get("feed_id"))
+
+        return out
+
+    # -------------------------
+    # Legacy normalization path
+    # -------------------------
     name = (
         _as_str(v.get("name"))
         or _as_str(v.get("variable_name"))
@@ -100,15 +176,16 @@ def _normalize_variable_dict(v: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     if not name:
         return None
 
-    out: Dict[str, Any] = {
+    out_legacy: Dict[str, Any] = {
         "name": name,
         "importance": _normalize_importance(v.get("importance") or v.get("priority")),
     }
     if notes_s:
-        out["notes"] = notes_s
+        out_legacy["notes"] = notes_s
 
     # passthrough useful structured fields if present (safe, optional)
     passthrough_fields = [
+        # legacy/common
         "data_source",
         "feed_id",
         "current_value",
@@ -116,6 +193,7 @@ def _normalize_variable_dict(v: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         "current_state",
         "threshold_early",
         "threshold_confirm",
+        "threshold_break",
         "threshold_rule",
         "confirmation_rule",
         "direction",
@@ -124,12 +202,28 @@ def _normalize_variable_dict(v: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         "thesis_action_on_confirm",
         "thesis_action_on_break",
         "last_updated",
+        # master-ish fields (do not drop them even if coming via legacy path)
+        "variable_id",
+        "category",
+        "update_frequency",
+        "is_leading",
+        "is_zero_lag",
+        "feed_adapter",
+        "data_source_url",
+        "sensitivity_coefficient",
+        "current_value_as_of",
+        "prior_period_value",
+        "prior_period_label",
+        "state_entered_at",
+        "first_observed_period",
+        "last_validated_period",
+        "source_document_ref",
     ]
     for k in passthrough_fields:
-        if k in v and v[k] is not None and k not in out:
-            out[k] = deepcopy(v[k])
+        if k in v and v[k] is not None and k not in out_legacy:
+            out_legacy[k] = deepcopy(v[k])
 
-    return out
+    return out_legacy
 
 
 def _extract_variables(seed: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -180,7 +274,7 @@ def _extract_variables(seed: Dict[str, Any]) -> List[Dict[str, Any]]:
             seen = set()
             deduped: List[Dict[str, Any]] = []
             for v in out:
-                key = v.get("name", "").strip().lower()
+                key = str(v.get("name", "")).strip().lower()
                 if not key or key in seen:
                     continue
                 seen.add(key)
@@ -217,7 +311,7 @@ def _extract_variables(seed: Dict[str, Any]) -> List[Dict[str, Any]]:
     seen = set()
     deduped: List[Dict[str, Any]] = []
     for v in out:
-        key = v.get("name", "").strip().lower()
+        key = str(v.get("name", "")).strip().lower()
         if not key or key in seen:
             continue
         seen.add(key)

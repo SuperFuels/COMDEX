@@ -1,3 +1,4 @@
+# /workspaces/COMDEX/backend/modules/aion_equities/company_trigger_map_store.py
 from __future__ import annotations
 
 import json
@@ -107,6 +108,54 @@ def _normalize_impact_weight(value: Any) -> float:
     return max(0.0, min(1.0, x))
 
 
+def _as_str(x: Any) -> str:
+    return str(x).strip() if x is not None else ""
+
+
+def _normalize_feed_id(item: Dict[str, Any]) -> Optional[str]:
+    """
+    Preferred: item["feed_id"].
+
+    Also tolerate:
+      - source_feed_id
+      - data_source_id
+      - feed_key
+      - feed
+    """
+    for k in ("feed_id", "source_feed_id", "data_source_id", "feed_key", "feed"):
+        v = _as_str(item.get(k))
+        if v:
+            return v
+    return None
+
+
+def _trigger_matches_feed_id(trigger: Dict[str, Any], feed_id: str) -> bool:
+    """
+    IMPORTANT:
+    - feed_id is the machine key used by FeedRegistry / LiveVariableTracker.
+    - data_source is often a human label, so do NOT rely on it.
+    - But keep data_source == feed_id as a last-resort legacy fallback.
+    """
+    fid = _as_str(feed_id)
+    if not fid:
+        return False
+
+    t_fid = _as_str(trigger.get("feed_id"))
+    if t_fid == fid and t_fid:
+        return True
+
+    # tolerate old keys
+    for k in ("source_feed_id", "data_source_id", "feed_key", "feed"):
+        if _as_str(trigger.get(k)) == fid:
+            return True
+
+    # last resort legacy (dangerous but preserves older maps)
+    if _as_str(trigger.get("data_source")) == fid:
+        return True
+
+    return False
+
+
 def _normalize_trigger_item(
     item: Any,
     *,
@@ -119,6 +168,10 @@ def _normalize_trigger_item(
       - str (treated as a variable name / trigger label)
       - any other type (stringified)
     Produces a canonical trigger entry dict.
+
+    Canonical fields include BOTH:
+      - data_source (human readable label)
+      - feed_id (machine feed key used by LiveVariableTracker)
     """
     # --- coerce non-dict forms into a dict ---
     if isinstance(item, str):
@@ -126,9 +179,14 @@ def _normalize_trigger_item(
     elif not isinstance(item, dict):
         item = {"variable_name": str(item)}
 
-    trigger_id = str(item.get("trigger_id") or "").strip()
-    variable_name = str(item.get("variable_name") or item.get("name") or item.get("type") or "").strip()
-    data_source = str(item.get("data_source") or item.get("source") or item.get("feed_id") or "").strip()
+    trigger_id = _as_str(item.get("trigger_id"))
+    variable_name = _as_str(item.get("variable_name") or item.get("name") or item.get("type"))
+
+    # HUMAN label only (do not fall back to feed_id here)
+    data_source = _as_str(item.get("data_source") or item.get("source"))
+
+    # MACHINE key (feed_id)
+    feed_id = _normalize_feed_id(item)
 
     # allow "details" -> notes for the OpenAI style triggers you showed
     notes = item.get("notes")
@@ -136,7 +194,7 @@ def _normalize_trigger_item(
         notes = item.get("details")
 
     if not trigger_id:
-        slug = _safe_segment(variable_name or data_source or "trigger").lower()
+        slug = _safe_segment(variable_name or feed_id or data_source or "trigger").lower()
         trigger_id = f"{company_ref}/trigger/{fiscal_period_ref}/{slug}"
 
     out: Dict[str, Any] = {
@@ -144,17 +202,22 @@ def _normalize_trigger_item(
         "variable_name": variable_name or "unknown_variable",
         "data_source": data_source or "unknown_source",
         "current_state": _normalize_trigger_state(item.get("current_state")),
-        "threshold_rule": str(item.get("threshold_rule") or "").strip(),
-        "lag_expectation": str(item.get("lag_expectation") or "").strip(),
+        "threshold_rule": _as_str(item.get("threshold_rule")),
+        "lag_expectation": _as_str(item.get("lag_expectation")),
         "impact_direction": _normalize_impact_direction(item.get("impact_direction")),
         "impact_weight": _normalize_impact_weight(item.get("impact_weight")),
         "confidence": _normalize_confidence(item.get("confidence")),
-        "thesis_action": str(item.get("thesis_action") or "").strip(),
+        "thesis_action": _as_str(item.get("thesis_action")),
     }
+
+    # NEW: persist feed_id if available
+    if feed_id:
+        out["feed_id"] = feed_id
 
     if notes is not None:
         out["notes"] = deepcopy(notes)
 
+    # Pass-through fields that runtime may mutate
     optional_fields = [
         "linked_report_ref",
         "last_observed_value",
@@ -162,9 +225,14 @@ def _normalize_trigger_item(
         "latest_value",
         "last_updated_at",
         "update_history",
+        # tolerate legacy feed keys too (kept if present)
+        "source_feed_id",
+        "data_source_id",
+        "feed_key",
+        "feed",
     ]
     for field in optional_fields:
-        if field in item and item[field] is not None:
+        if field in item and item[field] is not None and field not in out:
             out[field] = deepcopy(item[field])
 
     return out
@@ -286,7 +354,11 @@ def build_company_trigger_map_payload(
     payload = _with_legacy_aliases(payload)
 
     if validate:
-        validate_or_false("company_trigger_map", _strip_legacy_aliases(payload), version=SCHEMA_PACK_VERSION)
+        validate_or_false(
+            "company_trigger_map",
+            _strip_legacy_aliases(payload),
+            version=SCHEMA_PACK_VERSION,
+        )
 
     return payload
 
@@ -493,8 +565,18 @@ class CompanyTriggerMapStore:
         *,
         validate: bool = False,
     ) -> List[Dict[str, Any]]:
-        feed_id = str(feed_id).strip()
+        """
+        Returns trigger maps that contain at least one trigger matching feed_id.
+
+        Matching uses:
+          - trigger.feed_id (preferred)
+          - trigger.source_feed_id / trigger.data_source_id / trigger.feed_key / trigger.feed
+          - trigger.data_source == feed_id (legacy fallback)
+        """
+        fid = _as_str(feed_id)
         out: List[Dict[str, Any]] = []
+        if not fid:
+            return out
 
         if not self.base_dir.exists():
             return out
@@ -505,10 +587,11 @@ class CompanyTriggerMapStore:
                     payload = json.loads(json_file.read_text(encoding="utf-8"))
                     if validate:
                         validate_or_false("company_trigger_map", payload, version=SCHEMA_PACK_VERSION)
-                    payload = _with_legacy_aliases(payload)
 
-                    triggers = payload.get("triggers", [])
-                    if any(str(t.get("data_source", "")).strip() == feed_id for t in triggers):
+                    payload = _with_legacy_aliases(payload)
+                    triggers = payload.get("triggers", []) or []
+
+                    if any(isinstance(t, dict) and _trigger_matches_feed_id(t, fid) for t in triggers):
                         out.append(payload)
                 except Exception:
                     continue

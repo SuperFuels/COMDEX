@@ -1,12 +1,11 @@
+# /workspaces/COMDEX/backend/modules/aion_equities/live_variable_tracker.py
 from __future__ import annotations
 
 from copy import deepcopy
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
-from backend.modules.aion_equities.company_trigger_map_store import (
-    CompanyTriggerMapStore,
-)
+from backend.modules.aion_equities.company_trigger_map_store import CompanyTriggerMapStore
 from backend.modules.aion_equities.feed_registry import FeedRegistry
 
 
@@ -93,16 +92,52 @@ def _infer_trigger_state(
     return current_state
 
 
+def _trigger_matches_feed(trigger: Dict[str, Any], feed_id: str) -> bool:
+    fid = str(feed_id or "").strip()
+    if not fid:
+        return False
+
+    # preferred
+    t_feed_id = str(trigger.get("feed_id") or "").strip()
+    if t_feed_id and t_feed_id == fid:
+        return True
+
+    # tolerated aliases
+    t_data_source_id = str(trigger.get("data_source_id") or "").strip()
+    if t_data_source_id and t_data_source_id == fid:
+        return True
+
+    t_source_feed_id = str(trigger.get("source_feed_id") or "").strip()
+    if t_source_feed_id and t_source_feed_id == fid:
+        return True
+
+    # last resort legacy (often human label; only match if it literally equals feed_id)
+    t_data_source = str(trigger.get("data_source") or "").strip()
+    if t_data_source and t_data_source == fid:
+        return True
+
+    return False
+
+
+def _get_trigger_list_and_key(trigger_map: Dict[str, Any]) -> tuple[list, str]:
+    """
+    Your trigger-map store uses 'trigger_entries' (seen in ULVR file),
+    but some older code uses 'triggers'. Support both and write back to the same key.
+    """
+    if isinstance(trigger_map.get("triggers"), list):
+        return trigger_map["triggers"], "triggers"
+    if isinstance(trigger_map.get("trigger_entries"), list):
+        return trigger_map["trigger_entries"], "trigger_entries"
+    return [], "trigger_entries"
+
+
 class LiveVariableTracker:
     """
     Bridges feed updates into company trigger-map state.
 
-    Responsibilities:
-    - register / inspect known feeds via FeedRegistry
-    - accept feed updates
-    - route updates into trigger map entries that depend on that feed
-    - update trigger states: inactive / early_watch / building / confirmed / broken
-    - persist variable history per company in-memory for runtime usage
+    IMPORTANT:
+      Trigger maps must carry a machine routing key per entry (feed_id / source_feed_id / data_source_id).
+      'data_source' is treated as a human label.
     """
 
     def __init__(
@@ -110,10 +145,12 @@ class LiveVariableTracker:
         *,
         trigger_map_store: CompanyTriggerMapStore,
         feed_registry: FeedRegistry,
+        observers: Optional[List[Callable[[Dict[str, Any]], None]]] = None,
     ):
         self.trigger_map_store = trigger_map_store
         self.feed_registry = feed_registry
         self._company_variable_history: Dict[str, List[Dict[str, Any]]] = {}
+        self.observers: List[Callable[[Dict[str, Any]], None]] = list(observers or [])
 
     def get_company_variable_history(self, company_ref: str) -> List[Dict[str, Any]]:
         return deepcopy(self._company_variable_history.get(company_ref, []))
@@ -137,12 +174,21 @@ class LiveVariableTracker:
         updates: List[Dict[str, Any]] = []
 
         for trigger_map in affected_maps:
-            trigger_map_id = trigger_map["company_trigger_map_id"]
-            company_ref = trigger_map["company_ref"]
+            trigger_map_id = trigger_map.get("company_trigger_map_id")
+            company_ref = trigger_map.get("company_ref")
+            if not trigger_map_id or not company_ref:
+                continue
+
+            triggers, _key = _get_trigger_list_and_key(trigger_map)
+            if not triggers:
+                continue
+
             changed = False
 
-            for trigger in trigger_map.get("triggers", []):
-                if str(trigger.get("data_source", "")).strip() != feed_id:
+            for trigger in triggers:
+                if not isinstance(trigger, dict):
+                    continue
+                if not _trigger_matches_feed(trigger, feed_id):
                     continue
 
                 previous_value = trigger.get("latest_value")
@@ -183,24 +229,26 @@ class LiveVariableTracker:
 
             if changed:
                 self.trigger_map_store.save_trigger_map_payload(trigger_map, validate=False)
-
                 self._company_variable_history.setdefault(company_ref, []).append(
-                    {
-                        "as_of": as_of,
-                        "feed_id": feed_id,
-                        "value": value,
-                        "metadata": deepcopy(metadata),
-                    }
+                    {"as_of": as_of, "feed_id": feed_id, "value": value, "metadata": deepcopy(metadata)}
                 )
 
-        return {
+        event = {
             "feed_id": feed_id,
             "as_of": as_of,
+            "value": value,
+            "metadata": deepcopy(metadata),
             "affected_trigger_maps": sorted({u["trigger_map_id"] for u in updates}),
-            "updates": updates,
+            "updates": deepcopy(updates),
         }
 
+        for cb in self.observers:
+            try:
+                cb(deepcopy(event))
+            except Exception:
+                pass
 
-__all__ = [
-    "LiveVariableTracker",
-]
+        return event
+
+
+__all__ = ["LiveVariableTracker"]

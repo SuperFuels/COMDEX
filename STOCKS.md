@@ -1,3 +1,74 @@
+flowchart TD
+  A[Goal: Live Monitoring + Dashboard] --> B[Company Onboarding Assets]
+  A --> C[Live Monitoring Runtime]
+  A --> D[Scheduling / Automation]
+  A --> E[Dashboard / Visibility]
+  A --> F[Alerts / Actions]
+  A --> G[Testing / Hardening]
+
+  %% -------------------------
+  %% ONBOARDING
+  %% -------------------------
+  subgraph B[1) Company Onboarding Assets (manual, per company)]
+    B1["✅ master narrative\nbackend/modules/aion_equities/master_intelligence/<SAFE_COMPANY_REF>/vX.md"] 
+    B2["✅ master variables\nbackend/modules/aion_equities/master_intelligence/<SAFE_COMPANY_REF>/vX.variables.json\n(schema v1)"]
+    B3["⬜ company schedule (next boardpack/results)\nbackend/modules/aion_equities/master_intelligence/<SAFE_COMPANY_REF>/schedule.json"]
+    B4["⬜ feed config (company-specific mapping)\nbackend/modules/aion_equities/master_intelligence/<SAFE_COMPANY_REF>/feeds.json"]
+  end
+
+  %% -------------------------
+  %% MONITORING RUNTIME
+  %% -------------------------
+  subgraph C[2) Live Monitoring Runtime (generic + flexible)]
+    C1["⬜ Define feed adapter interface\nbackend/modules/aion_equities/feeds/base.py\n- fetch(variable) -> {value, as_of, meta}"]
+    C2["⬜ Implement core adapters (starter set)\nbackend/modules/aion_equities/feeds/\n- ecb_fx_daily\n- market_price (ULVR.L etc)\n- commodities (brent, fcpo)\n- macro (PMI etc)\n- manual"]
+    C3["⬜ Adapter registry + routing\nbackend/modules/aion_equities/feeds/registry.py\n- maps feed_adapter -> class"]
+    C4["⬜ VariableTrackerRuntime\nbackend/modules/aion_equities/variable_tracker_runtime.py\n- load master vars\n- route to adapters\n- update current_value/as_of\n- eval thresholds\n- set current_state/state_entered_at\n- persist"]
+    C5["⬜ Threshold evaluation engine (pluggable)\nbackend/modules/aion_equities/thresholds/\n- parse numeric + window\n- supports fx/commodity/company_reported differences"]
+    C6["⬜ Persistence targets\n- write LIVE.json (recommended)\n  .runtime/equities/variable_watch/<SAFE_COMPANY_REF>/LIVE.json\n- optionally also write per-period snapshots"]
+    C7["⬜ Merge policy (company-specific)\n- base = master vars\n- add AI 'new candidates' to review bucket\n- never overwrite master without human approval"]
+  end
+
+  %% -------------------------
+  %% AUTOMATION
+  %% -------------------------
+  subgraph D[3) Scheduling / Automation]
+    D1["⬜ CLI runner script\nbackend/scripts/run_variable_tracker.py\n--company-ref\n--as-of\n--mode live|period"]
+    D2["⬜ Multi-company runner\nbackend/scripts/run_variable_tracker_all.py\n- iterate companies with schedule.json"]
+    D3["⬜ Scheduler hookup (choose one)\n- cron/systemd (local)\n- Cloud Scheduler -> Cloud Run Job\n- GitHub Actions schedule"]
+    D4["⬜ Boardpack due checks\n- uses schedule.json\n- emits 'due soon' flags\n- optional reminders"]
+  end
+
+  %% -------------------------
+  %% DASHBOARD
+  %% -------------------------
+  subgraph E[4) Dashboard / Visibility]
+    E1["⬜ Status API (fast)\nbackend/modules/aion_equities/status_api.py\n- load snapshot + LIVE.json\n- returns JSON summary"]
+    E2["⬜ CLI status command\nbackend/scripts/aion_equities_status.py\n- prints 'Monitoring ULVR.L: ...'\n- shows last update times"]
+    E3["⬜ Web dashboard (later)\napps/web (or separate)\n- company list\n- per company: variables + states + next event\n- filters: confirmed / early_watch / broken"]
+  end
+
+  %% -------------------------
+  %% ALERTS
+  %% -------------------------
+  subgraph F[5) Alerts / Actions]
+    F1["⬜ Alert rules\n- when state changes\n- when confirmed/broken\n- when boardpack due"]
+    F2["⬜ Notification adapters\n- email\n- webhook\n- WhatsApp/Telegram (later)"]
+    F3["⬜ Action logging\n- append audit JSONL\n.runtime/equities/alerts/audit.jsonl"]
+  end
+
+  %% -------------------------
+  %% TESTS
+  %% -------------------------
+  subgraph G[6) Testing / Hardening]
+    G1["⬜ Unit tests: adapter outputs\n- stable parsing\n- rate limits / retry"]
+    G2["⬜ Unit tests: threshold parser\n- numeric comparator + window\n- fx special cases"]
+    G3["⬜ Integration test: ULVR.L\n- uses v1.variables.json\n- produces LIVE.json\n- snapshot reflects states"]
+    G4["⬜ Data validation\n- enforce required fields\n- reject empty strings\n- keep schema intact through store"]
+  end
+
+
+
 	1.	Sector template layer
 
 	•	Create sector template objects before company fingerprints
