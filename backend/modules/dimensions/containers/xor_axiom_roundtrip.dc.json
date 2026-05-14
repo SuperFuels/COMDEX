@@ -1,0 +1,88 @@
+{
+  "id": "xor_axiom_roundtrip",
+  "type": "dc",
+  "glyphs": [
+    "⟦ Axiom ⟧ | xor_axiom_roundtrip : (A ⊕ B) → (B ⊕ A) → Prove ⟧"
+  ],
+  "symbolic_logic": [
+    {
+      "name": "xor_axiom_roundtrip",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⊕ B) → (B ⊕ A)",
+      "logic_raw": "(A ⊕ B) → (B ⊕ A)",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "xor_axiom_roundtrip",
+        "logic": "(A ⊕ B) → (B ⊕ A)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⊕ B) → (B ⊕ A)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⊕ B) → (B ⊕ A)"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "xor_axiom_roundtrip",
+        "logic": "(A ⊕ B) → (B ⊕ A)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⊕ B) → (B ⊕ A)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/xor_axiom_roundtrip.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⊕ B) → (B ⊕ A)",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    }
+  ],
+  "thought_tree": [
+    {
+      "name": "xor_axiom_roundtrip",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "xor_axiom_roundtrip",
+        "logic": "(A ⊕ B) → (B ⊕ A)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⊕ B) → (B ⊕ A)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    }
+  ],
+  "validation_errors": [],
+  "validation_errors_version": "v1",
+  "codex_ast": [
+    "(A ⊕ B) → (B ⊕ A)"
+  ],
+  "sqi_scores": [
+    null
+  ],
+  "mutations": []
+}

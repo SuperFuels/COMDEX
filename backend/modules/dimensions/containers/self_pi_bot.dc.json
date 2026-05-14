@@ -1,0 +1,88 @@
+{
+  "id": "self_pi_bot",
+  "type": "dc",
+  "glyphs": [
+    "⟦ Axiom ⟧ | self_pi_bot : (A ⋈[π] A) ↔ ⊥ → Prove ⟧"
+  ],
+  "symbolic_logic": [
+    {
+      "name": "self_pi_bot",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⋈[π] A) ↔ ⊥",
+      "logic_raw": "(A ⋈[π] A) ↔ ⊥",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "self_pi_bot",
+        "logic": "(A ⋈[π] A) ↔ ⊥",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[π] A) ↔ ⊥"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⋈[π] A) ↔ ⊥"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "self_pi_bot",
+        "logic": "(A ⋈[π] A) ↔ ⊥",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[π] A) ↔ ⊥"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/self_pi_bot.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⋈[π] A) ↔ ⊥",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    }
+  ],
+  "thought_tree": [
+    {
+      "name": "self_pi_bot",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "self_pi_bot",
+        "logic": "(A ⋈[π] A) ↔ ⊥",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[π] A) ↔ ⊥"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    }
+  ],
+  "validation_errors": [],
+  "validation_errors_version": "v1",
+  "codex_ast": [
+    "(A ⋈[π] A) ↔ ⊥"
+  ],
+  "sqi_scores": [
+    null
+  ],
+  "mutations": []
+}

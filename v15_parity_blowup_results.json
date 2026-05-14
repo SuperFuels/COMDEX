@@ -1,0 +1,164 @@
+[
+  {
+    "n": 1,
+    "terms": 1,
+    "canon_raw": 2,
+    "canon_gz": 22,
+    "dnf_raw": 2,
+    "dnf_gz": 22,
+    "ratio": 1.0
+  },
+  {
+    "n": 2,
+    "terms": 2,
+    "canon_raw": 11,
+    "canon_gz": 31,
+    "dnf_raw": 23,
+    "dnf_gz": 36,
+    "ratio": 1.16
+  },
+  {
+    "n": 3,
+    "terms": 4,
+    "canon_raw": 20,
+    "canon_gz": 35,
+    "dnf_raw": 80,
+    "dnf_gz": 46,
+    "ratio": 1.31
+  },
+  {
+    "n": 4,
+    "terms": 8,
+    "canon_raw": 29,
+    "canon_gz": 39,
+    "dnf_raw": 224,
+    "dnf_gz": 64,
+    "ratio": 1.64
+  },
+  {
+    "n": 5,
+    "terms": 16,
+    "canon_raw": 38,
+    "canon_gz": 43,
+    "dnf_raw": 572,
+    "dnf_gz": 95,
+    "ratio": 2.21
+  },
+  {
+    "n": 6,
+    "terms": 32,
+    "canon_raw": 47,
+    "canon_gz": 45,
+    "dnf_raw": 1388,
+    "dnf_gz": 139,
+    "ratio": 3.09
+  },
+  {
+    "n": 7,
+    "terms": 64,
+    "canon_raw": 56,
+    "canon_gz": 47,
+    "dnf_raw": 3260,
+    "dnf_gz": 217,
+    "ratio": 4.62
+  },
+  {
+    "n": 8,
+    "terms": 128,
+    "canon_raw": 65,
+    "canon_gz": 50,
+    "dnf_raw": 7484,
+    "dnf_gz": 367,
+    "ratio": 7.34
+  },
+  {
+    "n": 9,
+    "terms": 256,
+    "canon_raw": 74,
+    "canon_gz": 53,
+    "dnf_raw": 16892,
+    "dnf_gz": 716,
+    "ratio": 13.51
+  },
+  {
+    "n": 10,
+    "terms": 512,
+    "canon_raw": 83,
+    "canon_gz": 55,
+    "dnf_raw": 37628,
+    "dnf_gz": 1446,
+    "ratio": 26.29
+  },
+  {
+    "n": 11,
+    "terms": 1024,
+    "canon_raw": 93,
+    "canon_gz": 59,
+    "dnf_raw": 83964,
+    "dnf_gz": 2862,
+    "ratio": 48.51
+  },
+  {
+    "n": 12,
+    "terms": 2048,
+    "canon_raw": 103,
+    "canon_gz": 62,
+    "dnf_raw": 185340,
+    "dnf_gz": 5581,
+    "ratio": 90.02
+  },
+  {
+    "n": 13,
+    "terms": 4096,
+    "canon_raw": 113,
+    "canon_gz": 65,
+    "dnf_raw": 405500,
+    "dnf_gz": 11347,
+    "ratio": 174.57
+  },
+  {
+    "n": 14,
+    "terms": 8192,
+    "canon_raw": 123,
+    "canon_gz": 68,
+    "dnf_raw": 880636,
+    "dnf_gz": 22120,
+    "ratio": 325.29
+  },
+  {
+    "n": 15,
+    "terms": 16384,
+    "canon_raw": 133,
+    "canon_gz": 71,
+    "dnf_raw": 1900540,
+    "dnf_gz": 44944,
+    "ratio": 633.01
+  },
+  {
+    "n": 16,
+    "terms": 32768,
+    "canon_raw": 143,
+    "canon_gz": 73,
+    "dnf_raw": 4079612,
+    "dnf_gz": 88210,
+    "ratio": 1208.36
+  },
+  {
+    "n": 17,
+    "terms": 65536,
+    "canon_raw": 153,
+    "canon_gz": 74,
+    "dnf_raw": 8716284,
+    "dnf_gz": 188271,
+    "ratio": 2544.2
+  },
+  {
+    "n": 18,
+    "terms": 131072,
+    "canon_raw": 163,
+    "canon_gz": 76,
+    "dnf_raw": 18546684,
+    "dnf_gz": 374969,
+    "ratio": 4933.8
+  }
+]

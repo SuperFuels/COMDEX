@@ -1,0 +1,6 @@
+{
+  "id": "shared__acme_hq",
+  "label": "Acme HQ",
+  "role": "member",
+  "permissions": ["read", "post"]
+}

@@ -1,0 +1,12 @@
+# radio-node/band_profile.yml
+NA-915:
+  MTU: 180
+  RATE_HZ: 10
+
+EU-868:
+  MTU: 51
+  RATE_HZ: 6
+
+ISM-2.4:
+  MTU: 200
+  RATE_HZ: 20

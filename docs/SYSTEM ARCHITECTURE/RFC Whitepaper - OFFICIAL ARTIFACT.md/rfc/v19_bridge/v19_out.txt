@@ -1,0 +1,9 @@
+=== ✅ Bridge Benchmark v19: Context/token amortization (template+delta vs naive) ===
+Model: k messages repeat a large template; only small deltas vary.
+
+depth | header_kv | k_msgs | naive_raw | naive_gz | glyph_raw | glyph_gz | gz_ratio(naive/glyph)
+-----:|----------:|------:|----------:|---------:|----------:|---------:|-------------------:
+    8 |        64 |    64 |      82358 |     1052 |       3987 |      588 |                1.79
+   16 |        64 |   128 |     222098 |     1962 |       7215 |      800 |                2.45
+   32 |       128 |   128 |     442258 |     3377 |       8935 |     1059 |                3.19
+   64 |       128 |   256 |    1343378 |     8217 |      16359 |     1504 |                5.46

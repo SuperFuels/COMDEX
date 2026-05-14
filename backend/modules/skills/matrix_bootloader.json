@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Swarm Intelligence",
+    "tags": ["swarm", "agent", "collective_learning"],
+    "description": "Learn how decentralized agents coordinate like ants or bees to solve problems.",
+    "priority": 2
+  },
+  {
+    "title": "Agent Negotiation",
+    "tags": ["agent", "swarm", "explorer"],
+    "description": "Study how agents can negotiate or trade tasks using consensus or reinforcement.",
+    "priority": 3
+  },
+  {
+    "title": "Distributed Planning",
+    "tags": ["swarm", "explorer", "planning"],
+    "description": "Understand how multi-agent systems plan in parallel to solve goals efficiently.",
+    "priority": 2
+  }
+]

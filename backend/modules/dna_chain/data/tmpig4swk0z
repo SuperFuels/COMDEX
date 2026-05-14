@@ -1,0 +1,239 @@
+{
+  "tsx-frontend_components_AIONDashboardClient_tsx": {
+    "type": "frontend",
+    "path": "frontend/components/AIONDashboardClient.tsx",
+    "description": "Main client component for AION dashboard interface",
+    "tags": [
+      "ui",
+      "dashboard",
+      "client"
+    ]
+  },
+  "backend_modules_dna_chain_dna_switch_py": {
+    "type": "backend",
+    "path": "backend/modules/dna_chain/dna_switch.py",
+    "description": "DNA Switch logic module",
+    "tags": [
+      "core",
+      "dna",
+      "switch"
+    ]
+  },
+  "backend_api_aion_goal_py": {
+    "type": "api",
+    "path": "backend/api/aion/goal.py",
+    "description": "Goal endpoint handler for AION",
+    "tags": [
+      "api",
+      "goals"
+    ]
+  },
+  "database.py": {
+    "name": "database.py",
+    "path": "/workspaces/COMDEX/backend/database.py"
+  },
+  "user.py": {
+    "name": "user.py",
+    "path": "/workspaces/COMDEX/backend/schemas/user.py"
+  },
+  "shipment.py": {
+    "name": "shipment.py",
+    "path": "/workspaces/COMDEX/backend/models/shipment.py"
+  },
+  "deal.py": {
+    "name": "deal.py",
+    "path": "/workspaces/COMDEX/backend/routes/deal.py"
+  },
+  "product.py": {
+    "name": "product.py",
+    "path": "/workspaces/COMDEX/backend/schemas/product.py"
+  },
+  "contract.py": {
+    "name": "contract.py",
+    "path": "/workspaces/COMDEX/backend/schemas/contract.py"
+  },
+  "dream.py": {
+    "name": "dream.py",
+    "path": "/workspaces/COMDEX/backend/models/dream.py"
+  },
+  "main.py": {
+    "name": "main.py",
+    "path": "/workspaces/COMDEX/backend/main.py"
+  },
+  "config.py": {
+    "name": "config.py",
+    "path": "/workspaces/COMDEX/backend/config.py"
+  },
+  "auth.py": {
+    "name": "auth.py",
+    "path": "/workspaces/COMDEX/backend/routes/auth.py"
+  },
+  "base.py": {
+    "name": "base.py",
+    "path": "/workspaces/COMDEX/backend/schemas/base.py"
+  },
+  "products.py": {
+    "name": "products.py",
+    "path": "/workspaces/COMDEX/backend/routes/products.py"
+  },
+  "contracts.py": {
+    "name": "contracts.py",
+    "path": "/workspaces/COMDEX/backend/routes/contracts.py"
+  },
+  "admin.py": {
+    "name": "admin.py",
+    "path": "/workspaces/COMDEX/backend/routes/admin.py"
+  },
+  "news.py": {
+    "name": "news.py",
+    "path": "/workspaces/COMDEX/backend/utils/news.py"
+  },
+  "terminal.py": {
+    "name": "terminal.py",
+    "path": "/workspaces/COMDEX/backend/routes/terminal.py"
+  },
+  "buyer.py": {
+    "name": "buyer.py",
+    "path": "/workspaces/COMDEX/backend/routes/buyer.py"
+  },
+  "supplier.py": {
+    "name": "supplier.py",
+    "path": "/workspaces/COMDEX/backend/routes/supplier.py"
+  },
+  "aion.py": {
+    "name": "aion.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion.py"
+  },
+  "aion_goals.py": {
+    "name": "aion_goals.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_goals.py"
+  },
+  "aion_plan.py": {
+    "name": "aion_plan.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_plan.py"
+  },
+  "aion_dream.py": {
+    "name": "aion_dream.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_dream.py"
+  },
+  "aion_gridworld.py": {
+    "name": "aion_gridworld.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_gridworld.py"
+  },
+  "aion_game_dream.py": {
+    "name": "aion_game_dream.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_game_dream.py"
+  },
+  "game.py": {
+    "name": "game.py",
+    "path": "/workspaces/COMDEX/backend/routes/game.py"
+  },
+  "aion_game.py": {
+    "name": "aion_game.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_game.py"
+  },
+  "game_event.py": {
+    "name": "game_event.py",
+    "path": "/workspaces/COMDEX/backend/routes/game_event.py"
+  },
+  "skill.py": {
+    "name": "skill.py",
+    "path": "/workspaces/COMDEX/backend/routes/skill.py"
+  },
+  "aion_strategy_plan.py": {
+    "name": "aion_strategy_plan.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_strategy_plan.py"
+  },
+  "aion_prompt.py": {
+    "name": "aion_prompt.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_prompt.py"
+  },
+  "aion_command.py": {
+    "name": "aion_command.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_command.py"
+  },
+  "aion_suggest.py": {
+    "name": "aion_suggest.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_suggest.py"
+  },
+  "aion_core.py": {
+    "name": "aion_core.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_core.py"
+  },
+  "dna_chain.py": {
+    "name": "dna_chain.py",
+    "path": "/workspaces/COMDEX/backend/routes/dna_chain.py"
+  },
+  "teleport.py": {
+    "name": "teleport.py",
+    "path": "/workspaces/COMDEX/backend/modules/dna_chain/teleport.py"
+  },
+  "grid_loop.py": {
+    "name": "grid_loop.py",
+    "path": "/workspaces/COMDEX/backend/api/aion/grid_loop.py"
+  },
+  "grid_tiles.py": {
+    "name": "grid_tiles.py",
+    "path": "/workspaces/COMDEX/backend/api/aion/grid_tiles.py"
+  },
+  "grid_map.py": {
+    "name": "grid_map.py",
+    "path": "/workspaces/COMDEX/backend/api/aion/grid_map.py"
+  },
+  "status.py": {
+    "name": "status.py",
+    "path": "/workspaces/COMDEX/backend/api/aion/status.py"
+  },
+  "grid_progress.py": {
+    "name": "grid_progress.py",
+    "path": "/workspaces/COMDEX/backend/api/aion/grid_progress.py"
+  },
+  "aion_grid_progress.py": {
+    "name": "aion_grid_progress.py",
+    "path": "/workspaces/COMDEX/backend/routes/aion_grid_progress.py"
+  },
+  "scheduler.py": {
+    "name": "scheduler.py",
+    "path": "/workspaces/COMDEX/backend/tasks/scheduler.py"
+  },
+  "glyph_executor.py": {
+    "name": "glyph_executor.py",
+    "path": "/workspaces/COMDEX/backend/modules/glyphos/glyph_executor.py"
+  },
+  "failure_logger.py": {
+    "name": "failure_logger.py",
+    "path": "/workspaces/COMDEX/backend/modules/logging/failure_logger.py"
+  },
+  "test_milestone_tracker.py": {
+    "name": "test_milestone_tracker.py",
+    "path": "/workspaces/COMDEX/backend/test_milestone_tracker.py"
+  },
+  "start.py": {
+    "name": "start.py",
+    "path": "/workspaces/COMDEX/backend/start.py"
+  },
+  "holo_aion_routes.py": {
+    "name": "holo_aion_routes.py",
+    "path": "/workspaces/COMDEX/backend/routes/holo_aion_routes.py"
+  },
+  "aion_memory_container.py": {
+    "name": "aion_memory_container.py",
+    "path": "/workspaces/COMDEX/backend/modules/holo/aion_memory_container.py"
+  },
+  "aion_memory_holo_api.py": {
+    "name": "aion_memory_holo_api.py",
+    "path": "/workspaces/COMDEX/backend/modules/aion_cognition/aion_memory_holo_api.py"
+  },
+  "holo_index_routes.py": {
+    "name": "holo_index_routes.py",
+    "path": "/workspaces/COMDEX/backend/routes/holo_index_routes.py"
+  },
+  "crystal_container.py": {
+    "name": "crystal_container.py",
+    "path": "/workspaces/COMDEX/backend/modules/holo/crystal_container.py"
+  },
+  "crystal_routes.py": {
+    "name": "crystal_routes.py",
+    "path": "/workspaces/COMDEX/backend/routes/crystal_routes.py"
+  }
+}

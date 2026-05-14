@@ -1,0 +1,7 @@
+# lake build outputs
+.lake/
+lake-packages/
+
+# generated snapshot proofs (runtime)
+Generated/
+Generated/snapshot_*.lean

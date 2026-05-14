@@ -1,0 +1,11 @@
+{
+  "id": "creativecore_trace_test",
+  "type": "CreativeCore",
+  "name": "Idea Mutation Path",
+  "creativeTrace": [
+    { "step": 0, "glyph": "T-shirt", "mutation": "→ Waterproof" },
+    { "step": 1, "glyph": "Waterproof", "mutation": "→ Bulletproof" },
+    { "step": 2, "glyph": "Bulletproof", "mutation": "→ Fireproof" },
+    { "step": 3, "glyph": "Fireproof", "mutation": "→ Nanofiber" }
+  ]
+}

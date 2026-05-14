@@ -1,0 +1,253 @@
+{
+  "holo_id": "holo:container/dc_aion_core/t=0/v3",
+  "container_id": "dc_aion_core",
+  "name": "Holo Test Container",
+  "symbol": "\u25c6",
+  "kind": "memory",
+  "origin": {
+    "created_at": "2025-12-05T18:17:13.225050+00:00",
+    "created_by": "aion",
+    "reason": "hologram_container_view_export",
+    "source_view": "qfc"
+  },
+  "version": {
+    "major": 0,
+    "minor": 1,
+    "patch": 0,
+    "revision": 3
+  },
+  "ghx": {
+    "nodes": [
+      {
+        "type": "kg_node",
+        "id": "dc_aion_core",
+        "kind": "container",
+        "meta": {
+          "address": "ucs://local/dc_aion_core#container",
+          "ghx": {
+            "hover": true,
+            "collapsed": true,
+            "density": "auto",
+            "version": "1.0"
+          },
+          "hov": {
+            "lazy_ready": true
+          },
+          "time_dilation": {
+            "mode": "normal",
+            "snapshot_rate": 1.0,
+            "reason": {
+              "glyphs": 0,
+              "nodes": 0
+            }
+          },
+          "last_hov_embed": "2025-12-05T18:17:13.078171"
+        },
+        "viz": {
+          "ghx_hover": true,
+          "ghx_collapsed": true
+        },
+        "expansion": {
+          "includes": [],
+          "counts": {}
+        }
+      },
+      {
+        "type": "kg_node",
+        "id": "ucs_hub",
+        "kind": "container",
+        "meta": {
+          "address": "ucs://root/hub#container",
+          "tags": [
+            "hub"
+          ],
+          "nodes": [
+            "root"
+          ],
+          "ghx": {
+            "hover": true,
+            "collapsed": true,
+            "density": "auto",
+            "version": "1.0"
+          },
+          "hov": {
+            "lazy_ready": true
+          },
+          "time_dilation": {
+            "mode": "normal",
+            "snapshot_rate": 1.0,
+            "reason": {
+              "glyphs": 0,
+              "nodes": 0
+            }
+          },
+          "last_hov_embed": "2025-12-05T18:17:13.096580"
+        },
+        "viz": {
+          "ghx_hover": true,
+          "ghx_collapsed": true
+        },
+        "expansion": {
+          "includes": [],
+          "counts": {}
+        }
+      },
+      {
+        "type": "kg_node",
+        "id": "tesseract_hq",
+        "kind": "container",
+        "meta": {
+          "address": "ucs://local/tesseract_hq#container",
+          "ghx": {
+            "hover": true,
+            "collapsed": true,
+            "density": "auto",
+            "version": "1.0"
+          },
+          "hov": {
+            "lazy_ready": true
+          },
+          "time_dilation": {
+            "mode": "normal",
+            "snapshot_rate": 1.0,
+            "reason": {
+              "glyphs": 0,
+              "nodes": 0
+            }
+          },
+          "last_hov_embed": "2025-12-05T18:17:13.124472"
+        },
+        "viz": {
+          "ghx_hover": true,
+          "ghx_collapsed": true
+        },
+        "expansion": {
+          "includes": [],
+          "counts": {}
+        }
+      },
+      {
+        "type": "kg_node",
+        "id": "cross_links",
+        "kind": "container",
+        "meta": {
+          "address": "ucs://local/cross_links#dc",
+          "ghx": {
+            "hover": true,
+            "collapsed": true,
+            "density": "auto",
+            "version": "1.0"
+          },
+          "hov": {
+            "lazy_ready": true
+          },
+          "time_dilation": {
+            "mode": "normal",
+            "snapshot_rate": 1.0,
+            "reason": {
+              "glyphs": 0,
+              "nodes": 0
+            }
+          },
+          "last_hov_embed": "2025-12-05T18:17:13.143402"
+        },
+        "viz": {
+          "ghx_hover": true,
+          "ghx_collapsed": true
+        },
+        "expansion": {
+          "includes": [],
+          "counts": {}
+        }
+      },
+      {
+        "type": "kg_node",
+        "id": "symatics_morphic_field",
+        "kind": "container",
+        "meta": {
+          "domain": "symatics/morphic_field",
+          "address": "ucs://local/symatics_morphic_field#container",
+          "ghx": {
+            "hover": true,
+            "collapsed": true,
+            "density": "auto",
+            "version": "1.0"
+          },
+          "hov": {
+            "lazy_ready": true
+          },
+          "time_dilation": {
+            "mode": "normal",
+            "snapshot_rate": 1.0,
+            "reason": {
+              "glyphs": 0,
+              "nodes": 0
+            }
+          },
+          "last_hov_embed": "2025-12-05T18:17:13.175282"
+        },
+        "viz": {
+          "ghx_hover": true,
+          "ghx_collapsed": true
+        },
+        "expansion": {
+          "includes": [],
+          "counts": {}
+        }
+      }
+    ],
+    "edges": [
+      {
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
+      },
+      {
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
+      },
+      {
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
+      }
+    ],
+    "layout": "grid",
+    "ghx_mode": "hologram",
+    "overlay_layers": [],
+    "entangled_links": []
+  },
+  "field": {
+    "psi_kappa_T": {
+      "frame": "mutated",
+      "state_vector": {}
+    },
+    "metrics": {
+      "coherence": 1.0,
+      "drift": 0.0,
+      "tick": 0
+    }
+  },
+  "beams": [],
+  "multiverse_frame": "mutated",
+  "views": {},
+  "indexing": {
+    "tags": [],
+    "patterns": [],
+    "topic_vector": null
+  },
+  "timefold": {
+    "tick": 0,
+    "t_label": null
+  },
+  "ledger": {},
+  "security": {},
+  "sandbox": {},
+  "collaboration": {},
+  "references": {
+    "container_kg_export": "/workspaces/COMDEX/backend/modules/dimensions/containers/kg_exports/Holo Test Container.kg.json",
+    "container_dc_path": null
+  },
+  "extra": {}
+}

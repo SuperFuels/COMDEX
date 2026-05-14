@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "P16_DATASETS_V0",
+  "status": "FROZEN_PILOT_V1",
+  "datasets": [
+    {
+      "id": "P16_PILOT_SYNTH_TATA_V1",
+      "name": "P16 pilot (synthetic, frozen): TATA motif positives vs negatives",
+      "version": "P16_PILOT_SYNTH_TATA_V1_2026-01-03",
+      "license": "CC0-1.0",
+      "source": {
+        "kind": "INTERNAL_SYNTHETIC_FROZEN",
+        "accession": "SYNTH_P16_PILOT_0001",
+        "url": "N/A_LOCAL_FROZEN_FILE"
+      },
+      "files": [
+        { "path": "Glyph_Net_Browser/src/sim/calibration/p16/datasets/pilot/p16_pilot_sequences.tsv", "sha256": "b3f36ae517e3b446a5cd99571581e9657341edc9c34bcfb8933ecb8aed1856b7" }
+      ],
+      "notes": [
+        "Frozen pilot dataset committed in-repo for deterministic evaluator bring-up.",
+        "This is NOT a biological claim; it is a scaffold to prove end-to-end calibration plumbing."
+      ]
+    }
+  ]
+}

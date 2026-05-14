@@ -1,0 +1,71 @@
+{
+  "container_id": "mixed_beam_test",
+  "label": "Mixed Beam Type Test Container",
+  "glyphs": [
+    {
+      "id": "live1",
+      "label": "Live Glyph",
+      "position": [0, 0, 0],
+      "collapse_state": "live",
+      "beam_type": "qwave"
+    },
+    {
+      "id": "collapsed1",
+      "label": "Collapsed Glyph",
+      "position": [2, 0, 0],
+      "collapse_state": "collapsed",
+      "beam_type": "qwave"
+    },
+    {
+      "id": "predicted1",
+      "label": "Predicted Glyph",
+      "position": [4, 0, 0],
+      "collapse_state": "predicted",
+      "beam_type": "qwave"
+    },
+    {
+      "id": "contradicted1",
+      "label": "Contradicted Glyph",
+      "position": [6, 0, 0],
+      "collapse_state": "contradicted",
+      "beam_type": "qwave"
+    },
+    {
+      "id": "broken1",
+      "label": "Broken Glyph",
+      "position": [8, 0, 0],
+      "collapse_state": "broken",
+      "beam_type": "invalid"
+    },
+    {
+      "id": "forked1",
+      "label": "Fork A",
+      "position": [3, 2, 0],
+      "collapse_state": "predicted",
+      "beam_type": "qwave",
+      "parent_id": "live1"
+    },
+    {
+      "id": "forked2",
+      "label": "Fork B",
+      "position": [5, 2, 0],
+      "collapse_state": "contradicted",
+      "beam_type": "qwave",
+      "parent_id": "live1"
+    }
+  ],
+  "links": [
+    { "source": "live1", "target": "collapsed1" },
+    { "source": "collapsed1", "target": "predicted1" },
+    { "source": "predicted1", "target": "contradicted1" },
+    { "source": "contradicted1", "target": "broken1" },
+    { "source": "live1", "target": "forked1" },
+    { "source": "live1", "target": "forked2" }
+  ],
+  "metadata": {
+    "test_type": "A7a - Mixed Beam Type",
+    "created_by": "QWaveTestSuite",
+    "sqi_version": "1.4.2",
+    "notes": "Render test for all beam/collapse types"
+  }
+}

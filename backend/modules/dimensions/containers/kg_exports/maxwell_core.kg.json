@@ -1,0 +1,58 @@
+{
+  "id": "maxwell_core",
+  "name": null,
+  "symbol": "\u2754",
+  "glyph_categories": [],
+  "nodes": [
+    {
+      "id": "E",
+      "label": "Electric Field E",
+      "domain": "physics.em",
+      "tags": [
+        "field",
+        "maxwell"
+      ],
+      "type": "kg_node"
+    },
+    {
+      "id": "B",
+      "label": "Magnetic Field B",
+      "domain": "physics.em",
+      "tags": [
+        "field",
+        "maxwell"
+      ],
+      "type": "kg_node"
+    },
+    {
+      "id": "\u03c1",
+      "label": "Charge Density \u03c1",
+      "domain": "physics.em",
+      "tags": [
+        "source"
+      ],
+      "type": "kg_node"
+    },
+    {
+      "id": "J",
+      "label": "Current Density J",
+      "domain": "physics.em",
+      "tags": [
+        "source"
+      ],
+      "type": "kg_node"
+    }
+  ],
+  "links": [
+    {
+      "src": "E",
+      "dst": "\u03c1",
+      "relation": "div_E = \u03c1/\u03b50"
+    },
+    {
+      "src": "B",
+      "dst": "J",
+      "relation": "curl_B = \u03bc0 J + \u03bc0 \u03b50 \u2202E/\u2202t"
+    }
+  ]
+}

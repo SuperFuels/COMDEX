@@ -1,0 +1,91 @@
+\appendix
+\section*{Appendix A: Analytical Assessment of the Tessaris Unified Equation (Post-G-Series)}
+
+\subsection*{Overview}
+This appendix provides a theoretical analysis of the post-G-series evolution of the Tessaris Unified Equation (TUE), which introduces cross-domain coupling and Lyapunov feedback as stabilizing mechanisms.  
+It formalizes the interpretation of each extended term and establishes correspondence between the analytical formulation and its computational realization within the Tessaris simulation framework.
+
+\subsection*{1. Core Identity}
+\begin{equation}
+E = \frac{c^4}{8 \pi G_{\text{eff}}} R_{\psi}
+  + k_B T_{\text{eff}} S
+  + \hbar \dot{I}_{\text{mut}}
+  + \Lambda_{\text{eff}} \Phi_{\text{couple}} .
+\end{equation}
+\begin{itemize}
+  \item $R_{\psi}$ – curvature of the coupled visible–hidden manifold, potentially encoding dark-sector or sub-quantum curvature effects.  
+  \item $k_B T_{\text{eff}} S$ – thermodynamic energy, reflecting emergent entropy-temperature relations consistent with entropic gravity.  
+  \item $\hbar \dot{I}_{\text{mut}}$ – informational flux, computationally modeled as $\mathrm{Re}(\dot{\psi}\,\psi^*)$, representing quantum coherence transfer.  
+  \item $\Lambda_{\text{eff}} \Phi_{\text{couple}}$ – coupling potential connecting geometric and informational domains, where $\Phi_{\text{couple}}\!\sim\!\kappa\dot{I}_{\text{mut}}$ in the computational basis.
+\end{itemize}
+
+\subsection*{2. Dynamic Feedback Law}
+\begin{equation}
+\frac{dE}{dt} = -\kappa_L\nabla_{\text{sys}}V(E,S,I,R)
+  + \gamma_{\text{sync}}\frac{d}{dt}(\Lambda_{\text{eff}}I_{\text{mut}}),
+\end{equation}
+ensuring Lyapunov-controlled descent along the system potential $V$.  
+Here, $\kappa_L$ functions as a damping coefficient driving the system toward stability, while $\gamma_{\text{sync}}$ regulates phase coherence between curvature and information flux.  
+This synchronization term establishes a feedback pathway through which informational coherence modulates the evolution of $\Lambda_{\text{eff}}$, potentially mirroring dark-energy adaptation.
+
+\subsection*{3. Conservation with Cross-Domain Coupling}
+\begin{equation}
+\frac{d}{dt}\!\left(\frac{c^4}{8\pi G_{\text{eff}}}R_{\psi}
+-\Lambda_{\text{eff}}\rho_c a^3
++\rho_{\text{fields}}+\rho_{\text{info}}+\rho_{\text{couple}}\right)=0,
+\end{equation}
+where $\rho_{\text{couple}}\!\propto\!\Lambda_{\text{eff}}\Phi_{\text{couple}}$ represents stored linkage energy at the information–geometry interface.  
+This term ensures conservation across both physical and informational domains.
+
+\subsection*{4. Effective Mass–Energy Equivalence}
+\begin{equation}
+M_{\text{eff}}c^2=\frac{c^4}{8\pi G_{\text{eff}}}R_{\psi}
++k_B T_{\text{eff}}S+\hbar\dot{I}_{\text{mut}}
++\Lambda_{\text{eff}}\Phi_{\text{couple}},
+\end{equation}
+extending Einstein’s relation to include geometric, thermodynamic, informational, and coupling contributions, yielding an emergent total mass–energy form.
+
+\subsection*{5. Stability and Adaptive Feedback}
+\begin{align}
+\dot G_{\text{eff}} &= -k_G\,\frac{\partial E}{\partial R_{\psi}}, &
+\dot\Lambda_{\text{eff}} &= -k_L\,\frac{\partial E}{\partial I_{\text{mut}}}, &
+\dot T_{\text{eff}} &= -k_T\,\frac{\partial E}{\partial S}.
+\end{align}
+These adaptive couplings dynamically stabilize $E_{\text{tot}}$ through gradient descent, maintaining the Lyapunov lock condition ($E_{\text{stability}}\!\approx\!1$).  
+The feedback loop continuously renormalizes the effective constants, enabling self-correcting evolution.
+
+\subsection*{6. Unified Conservation Closure}
+\begin{equation}
+\Delta E_{\text{geom}}+\Delta E_{\text{matter}}
++\Delta E_{\text{info}}+\Delta E_{\text{couple}}=0,
+\end{equation}
+confirming total energy redistribution without loss—an informationally closed cosmological system.
+
+\subsection*{7. Computational Implementation}
+A simplified computational scheme illustrates the iterative feedback process:
+
+\begin{verbatim}
+for t in range(steps):
+    R = mean(laplacian(kappa))
+    S = -mean(|psi|^2 * log(|psi|^2))
+    I_mut = mean(Re(psi_t * conj(psi)))
+    E_tot = E_geom + E_therm + E_info + E_couple
+    G_eff -= dt * k_G * ∂E/∂R
+    Λ_eff -= dt * k_L * ∂E/∂I_mut
+    T_eff -= dt * k_T * ∂E/∂S
+\end{verbatim}
+
+This pseudocode captures the dynamic equilibrium between curvature ($R$), entropy ($S$), and information flux ($I_{\text{mut}}$) under the influence of adaptive feedback.
+
+\subsection*{8. Interpretation}
+The Lyapunov-controlled closure mathematically defines a steady oscillatory attractor—a limit cycle where curvature, entropy, and information remain phase-locked.  
+This generates a reproducible, testable model of informational cosmology, where stability directly maps to coherence in the energy–information continuum.
+
+\subsection*{9. Assessment Summary}
+The post-G-series TUE addresses earlier theoretical limitations by:
+\begin{itemize}
+  \item explicitly coupling $\dot{I}_{\text{mut}}$ to measurable coherence functions;
+  \item dynamically renormalizing effective constants through adaptive feedback;
+  \item enabling falsifiable predictions for curvature–information interactions.
+\end{itemize}
+The revised equation thus constitutes a rigorous, reproducible, and self-consistent foundation for the Tessaris Framework’s unified treatment of geometry, energy, and cognition.

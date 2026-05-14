@@ -1,0 +1,86 @@
+{
+  "id": "demo1",
+  "type": "dc",
+  "glyphs": [
+    "⟦ Axiom ⟧ | foo : True → Prove ⟧"
+  ],
+  "symbolic_logic": [
+    {
+      "name": "foo",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "True",
+      "logic_raw": "True",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "foo",
+        "logic": "",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": ""
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": ""
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "foo",
+        "logic": "",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": ""
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "demo.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "True",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    }
+  ],
+  "thought_tree": [
+    {
+      "name": "foo",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "foo",
+        "logic": "",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": ""
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    }
+  ],
+  "validation_errors": [
+    {
+      "code": "validation_error",
+      "message": "foo logic string looks malformed: True"
+    }
+  ],
+  "validation_errors_version": "v1"
+}

@@ -1,0 +1,115 @@
+console.log("Buyer private key:", buyer._signingKey().privateKey);
+console.log("Buyer GLU balance:", ethers.utils.formatUnits(balance, 18));
+const balance = await glu.balanceOf(buyer.address);
+// 5) Confirm the buyer’s balance
+await glu.connect(deployer).transfer(buyer.address, amount);
+// 4) Transfer from deployer → buyer
+const amount = ethers.utils.parseUnits("1000", 18);
+// 3) Define how many tokens to send (e.g. 1000 GLU)
+);
+  process.env.PRIVATE_GLU_ADDRESS || "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  "GLU",
+const glu = await ethers.getContractAt(
+// 2) Get your GLU token instance
+const [deployer, supplier, buyer] = await ethers.getSigners();
+// 1) Grab the first three signers: deployer, supplier, buyer
+console.log("Supplier GLU after release:",(await glu.balanceOf(supplier.address)).toString())
+console.log("Escrow GLU after release:",  (await glu.balanceOf(escrow.address)).toString())
+await (await escrow.connect(deployer).release(0)).wait()
+console.log("Deposit 0:",    await escrow.deposits(0))
+console.log("Total escrows:", (await escrow.nextId()).toString())
+console.log("Escrow GLU:",  (await glu.balanceOf(escrow.address)).toString())
+console.log("Buyer GLU:",   (await glu.balanceOf(buyer.address)).toString())
+const escrow = await ethers.getContractAt("GLUEscrow","0xe7f1725e7734ce288f8367e1bb143e90bb3f0512")
+const glu    = await ethers.getContractAt("GLU",       "0x5FbDB2315678afecb367f032d93F642f64180aa3")
+const [deployer, supplier, buyer] = await ethers.getSigners()
+EOF
+  WHERE email = 'kevin@glu.com';
+  SET wallet_address = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+UPDATE users
+psql postgres://comdex:Wn8smx123@localhost:5432/comdex <<'EOF'
+console.log("Escrow  GLU:",   (await glu.balanceOf(escrow.address)).toString())
+console.log("Supplier GLU:",  (await glu.balanceOf(supplier.address)).toString())
+console.log("Buyer   GLU:",   (await glu.balanceOf(buyer.address)).toString())
+await (await escrow.connect(deployer).release(0)).wait()
+const escrow = await ethers.getContractAt("GLUEscrow","0xe7f1725e7734ce288f8367e1bb143e90bb3f0512")
+const glu    = await ethers.getContractAt("GLU",       "0x5FbDB2315678afecb367f032d93F642f64180aa3")
+const [deployer, supplier, buyer] = await ethers.getSigners()
+cd ~/Desktop/Comdex/frontend/smart-contracts
+console.log("Supplier GLU after release:", (await glu.balanceOf(supplier.address)).toString())
+console.log("Buyer GLU after release:",  (await glu.balanceOf(buyer.address)).toString())
+await (await escrow.connect(supplier).release(0)).wait()
+console.log("  released:",deposit0[3])
+console.log("  amount:",  deposit0[2].toString())
+console.log("  supplier:",deposit0[1])
+console.log("  buyer:",   deposit0[0])
+console.log("  released yet?       ", deposit0.released)
+console.log("  amount locked:       ", deposit0.amount.toString())
+console.log("  beneficiary (supplier):", deposit0.beneficiary)
+console.log("  depositor (buyer):   ", deposit0.depositor)
+console.log("  amount:  ", deposit0.amount.toString())
+console.log("  supplier:", deposit0.supplier)
+console.log("  buyer:   ", deposit0.buyer)
+console.log("deposit0:", deposit0)
+const deposit0 = await escrow.deposits(0)
+console.log("total escrows:", total.toString())
+const total = await escrow.nextId()
+console.log(Object.keys(escrow.interface.functions))
+console.log("deals(0):", await escrow.deals(0))
+}
+  console.log("escrow(0):",  await escrow.escrow(0))
+} else {
+  console.log("escrows(0):", await escrow.escrows(0))
+if (typeof escrow.escrows === "function") {
+console.log("Escrow GLU:", (await glu.balanceOf(escrow.address)).toString())
+console.log("Buyer GLU:",  (await glu.balanceOf(buyer.address)).toString())
+)
+  "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"
+  "GLUEscrow",
+const escrow = await ethers.getContractAt(
+)
+  "0x5fbdb2315678afecb367f032d93f642f64180aa3"
+  "GLU",
+const glu    = await ethers.getContractAt(
+const [deployer, supplier, buyer] = await ethers.getSigners()
+}
+  console.log("escrow(0):",  await escrow.escrow(0));
+} else {
+  console.log("escrows(0):", await escrow.escrows(0));
+if (typeof escrow.escrows === 'function') {
+console.log("Escrow GLU:", (await glu.balanceOf(escrow.address)).toString());
+console.log("Buyer GLU:",  (await glu.balanceOf(buyer.address)).toString());
+const escrow = await ethers.getContractAt("GLUEscrow", process.env.NEXT_PUBLIC_ESCROW_ADDRESS);
+const glu    = await ethers.getContractAt("GLU",      process.env.NEXT_PUBLIC_GLU_TOKEN_ADDRESS);
+const [deployer, supplier, buyer] = await ethers.getSigners();
+console.log(deal)
+const deal = await escrow.escrows(0)
+// if your first escrow was ID 0:
+)
+  process.env.PRIVATE_ESCROW_ADDRESS || "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"
+  "GLUEscrow",
+const escrow = await ethers.getContractAt(
+console.log("Buyer    GLU:", (await glu.balanceOf(buyer.address)).toString())
+console.log("Supplier GLU:", (await glu.balanceOf(supplier.address)).toString())
+await (await glu.transfer(   buyer.address, amt)).wait()
+await (await glu.transfer(supplier.address, amt)).wait()
+const amt = ethers.utils.parseUnits("1000", 18)
+)
+  "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  "GLU",
+const glu = await ethers.getContractAt(
+const [deployer, supplier, buyer] = await ethers.getSigners()
+npx hardhat console --network localhost --config hardhat.config.js
+cd ~/Desktop/Comdex/frontend/smart-contracts
+await (await glu.transfer(buyer.address,    amt)).wait();
+await (await glu.transfer(supplier.address, amt)).wait();
+const amt = ethers.utils.parseUnits("1000",18);
+const glu = await ethers.getContractAt("GLU", "0x5FbDB2315678afecb367f032d93F642f64180aa3");
+const [deployer, supplier, buyer] = await ethers.getSigners();
+console.log("Buyer    GLU:", (await glu.balanceOf(buyer.address)).toString())
+console.log("Supplier GLU:", (await glu.balanceOf(supplier.address)).toString())
+await (await glu.transfer(buyer.address,    amt)).wait()
+await (await glu.transfer(supplier.address, amt)).wait()
+const amt = ethers.utils.parseUnits("1000", 18)
+const glu = await ethers.getContractAt("GLU", process.env.PRIVATE_GLU_ADDRESS || "0x5FbDB2315678afecb367f032d93F642f64180aa3")
+const [deployer, supplier, buyer] = await ethers.getSigners()

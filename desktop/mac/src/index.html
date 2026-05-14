@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        style-src 'self' 'unsafe-inline';
+        script-src 'self' 'unsafe-inline';
+        img-src 'self' data: http://127.0.0.1:8080 http://localhost:8080;
+        connect-src 'self' http://127.0.0.1:8080 http://localhost:8080 ws://127.0.0.1:8080 ws://localhost:8080;
+        frame-src 'none';
+      "
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tessaris</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script src="./lib/desktop-state-contracts.js"></script>
+    <script src="./lib/desktop-cache.js"></script>
+    <script src="./lib/desktop-store.js"></script>
+
+    <script src="./runtime_shared.js"></script>
+    <script src="./live_agents_runtime.js"></script>
+    <script src="./boardroom_runtime.js"></script>
+    <script src="./desktop-runtime-adapter.js"></script>
+
+    <script src="./vendor/three.min.js"></script>
+    <script src="./lib/desktop-boardroom-renderer.js"></script>
+    <script src="./lib/desktop-operations-renderer.js"></script>
+
+    <script src="./workflow/nodeEditor/configs/textParserConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/toolsConfig.js"></script>
+    <script src="./workflow/nodeEditor/configs/index.js"></script>
+    <script src="./workflow/nodeEditor/nodeEditor.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

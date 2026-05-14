@@ -1,0 +1,82 @@
+# File: backend/modules/dimensions/ucs/zones/experiments/hyperdrive/hyperdrive_gear_shift_manager.py
+
+"""
+⚙️ Gear Shift Manager Module (Hyperdrive)
+----------------------------
+• Handles gear shifting logic for Hyperdrive engines.
+• Implements pulse-gated field ramping with drift dampening.
+• Supports slow clutch ramping to stabilize resonance during transitions.
+
+🔥 Features:
+    • Pulse-gated gear ramping (only shift during stable resonance pulses).
+    • Drift dampener to auto-correct instability during gear shifts.
+    • Slow clutch ramp duration (20–30s) to prevent collapse.
+    • Inline harmonic injection during plasma/wave stages.
+    • PI Surge safeguard for G4.5 stage (requires PI > 100k & SQI drift lock).
+"""
+
+import time
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_constants import (
+    STAGE_CONFIGS,
+    HARMONIC_DEFAULTS,
+    RESONANCE_DRIFT_THRESHOLD,
+)
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_qwave_tuning import HyperdriveTuning
+
+
+def gear_shift(engine, gear_idx, GEAR_MAP, clutch_duration=25):
+    """
+    Perform a pulse-gated gear shift on the given engine.
+
+    Args:
+        engine: Hyperdrive engine instance.
+        gear_idx: Target gear index (from GEAR_MAP).
+        GEAR_MAP: Dict of gear field configs (gravity, magnetism, wave_frequency).
+        clutch_duration: Time (seconds) to complete the shift.
+    """
+
+    # ✅ Clamp gear index to valid range
+    if gear_idx not in GEAR_MAP:
+        print(f"⚠ Gear index {gear_idx} out of range. Clamping to max valid gear.")
+        gear_idx = max(GEAR_MAP.keys() if isinstance(GEAR_MAP, dict) else range(len(GEAR_MAP)))
+
+    # 🚦 G4.5 PI Surge Safeguard (PI > 100k & SQI drift lock < 0.01 required)
+    if gear_idx == "G4.5":
+        drift_window = max(engine.resonance_filtered[-50:], default=0) - min(engine.resonance_filtered[-50:], default=0)
+        pi_val = sum(e.get("impact_speed", 0) for e in engine.exhaust_log[-500:])
+        if drift_window < 0.01 and pi_val > 100000:
+            print(f"⚡ PI Surge Ready: Drift={drift_window:.5f} | PI={pi_val:.2f} → Engaging G4.5")
+        else:
+            print(f"⚠ PI Surge Aborted: Drift={drift_window:.5f}, PI={pi_val:.2f} (lock not met)")
+            return
+
+    target_fields = GEAR_MAP[gear_idx]
+    print(f"\n⚙ Gear Shift → {gear_idx} | Clutch engaged.")
+    engine.stability_threshold *= 2  # Relax stability during ramp
+
+    start = time.time()
+    while time.time() - start < clutch_duration:
+        # Calculate resonance drift
+        drift = max(engine.resonance_filtered[-20:], default=0) - min(engine.resonance_filtered[-20:], default=0)
+
+        # Pulse-gated ramping: only adjust fields during low drift pulses
+        if drift < 0.05:
+            for field in target_fields:
+                step = (target_fields[field] - engine.fields[field]) * 0.05
+                engine.fields[field] += step
+        else:
+            print(f"⏸ Paused shift: Drift spike detected ({drift:.3f})")
+
+        # Drift dampener: counter instability by boosting gravity
+        if drift > 0.1:
+            engine.fields["gravity"] *= 1.01
+            print(f"🛠 Drift dampener applied: gravity={engine.fields['gravity']:.3f}")
+
+        # Tick engine and inject harmonics if in plasma/wave stages
+        engine.tick()
+        if engine.stages[engine.current_stage] in ["plasma_excitation", "wave_focus"]:
+            engine._inject_harmonics(HARMONIC_DEFAULTS)
+
+    # ✅ Reset stability threshold to default using constants
+    engine.stability_threshold = RESONANCE_DRIFT_THRESHOLD / 2
+    print(f"✅ Gear {gear_idx} stabilized.")

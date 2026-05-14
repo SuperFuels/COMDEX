@@ -1,0 +1,5 @@
+{
+  "memory_engine": "backend/modules/hexcore/memory_engine.py",
+  "dream_core": "backend/modules/hexcore/dream_core.py",
+  "frontend/components/AIONDashboardClient.tsx": "frontend/components/AIONDashboardClient.tsx"
+}

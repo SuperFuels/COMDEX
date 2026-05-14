@@ -1,0 +1,100 @@
+{
+  "holo_id": "holo:crystal::user:devtools:motif=motif:unknown/t=0/v=1",
+  "container_id": "dc_aion_core",
+  "tick": 0,
+  "revision": 1,
+  "ghx": {
+    "ghx_version": "1.0",
+    "origin": "motif:photon",
+    "container_id": "dc_aion_core",
+    "nodes": [
+      {
+        "id": "cross_links",
+        "data": {
+          "label": "cross_links",
+          "kind": "motif_node"
+        }
+      },
+      {
+        "id": "dc_aion_core",
+        "data": {
+          "label": "dc_aion_core",
+          "kind": "motif_node"
+        }
+      },
+      {
+        "id": "symatics_morphic_field",
+        "data": {
+          "label": "symatics_morphic_field",
+          "kind": "motif_node"
+        }
+      },
+      {
+        "id": "tesseract_hq",
+        "data": {
+          "label": "tesseract_hq",
+          "kind": "motif_node"
+        }
+      },
+      {
+        "id": "ucs_hub",
+        "data": {
+          "label": "ucs_hub",
+          "kind": "motif_node"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e0",
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "kind": "motif_edge"
+      },
+      {
+        "id": "e1",
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "kind": "motif_edge"
+      },
+      {
+        "id": "e2",
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "kind": "motif_edge"
+      },
+      {
+        "id": "e3",
+        "src": "dc_aion_core",
+        "dst": "dc_aion_core",
+        "kind": "motif_edge"
+      }
+    ],
+    "metadata": {
+      "motif": {
+        "id": "motif:unknown",
+        "tick": null,
+        "revision": null,
+        "node_count": 5,
+        "edge_count": 4
+      }
+    }
+  },
+  "metadata": {
+    "motif": {
+      "id": "motif:unknown",
+      "tick": null,
+      "revision": null,
+      "node_count": 5,
+      "edge_count": 4
+    }
+  },
+  "version": {
+    "revision": 2
+  },
+  "extra": {
+    "run_count": 1,
+    "last_run_at": "2025-12-09T17:45:54.263355+00:00",
+    "last_run_mode": "qqc"
+  }
+}

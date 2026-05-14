@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "P16_PREPROCESS_CONTRACT_V0",
+  "status": "FROZEN_PILOT_V1",
+  "pipelines": [
+    {
+      "id": "P16_PREPROCESS_PILOT_TSV_V1",
+      "name": "Pilot TSV canonicalization (deterministic)",
+      "version": "P16_PREPROCESS_PILOT_TSV_V1_2026-01-03",
+      "inputs": {
+        "datasetId": "P16_PILOT_SYNTH_TATA_V1",
+        "requiredFiles": [
+          "Glyph_Net_Browser/src/sim/calibration/p16/datasets/pilot/p16_pilot_sequences.tsv"
+        ]
+      },
+      "steps": [
+        "Read TSV with header: id,label,sequence",
+        "Trim whitespace in all fields",
+        "Uppercase sequence",
+        "Validate sequence alphabet: A,C,G,T only",
+        "Output canonical JSON lines with stable key order and stable row order (lexicographic by id)"
+      ],
+      "outputs": {
+        "primaryPath": "Glyph_Net_Browser/src/sim/calibration/p16/preprocess/out/P16_PILOT_TATA_V1.canon.jsonl",
+        "sha256": "fd6ee387c918a90c4358f46736b77f9c47a42694617a6e569d4a16e40bb7cbb7"
+      },
+      "notes": [
+        "Contract defines deterministic preprocessing; output sha256 becomes frozen when we stage the output artifact.",
+        "No biological claim; this is a plumbing baseline."
+      ]
+    }
+  ]
+}

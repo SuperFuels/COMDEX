@@ -1,0 +1,11 @@
+
+=== Test F3 — Nonlinear Feedback & Coherence Lifetime ===
+⟨ℒ⟩ final = -5.7277e-05
+⟨θ·κ⟩ final = 3.8653e-03
+Spectral entropy final = 1.1607e+00
+Estimated coherence lifetime τ_c ≈ 55 steps
+Transition detected at step 0
+Perturbation mode: ON
+
+All output files saved in working directory.
+----------------------------------------------------------

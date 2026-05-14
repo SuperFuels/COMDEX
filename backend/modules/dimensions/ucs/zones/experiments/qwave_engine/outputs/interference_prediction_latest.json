@@ -1,0 +1,202 @@
+{
+  "harmonic": 4,
+  "alpha": 0.08,
+  "nu": 0.02,
+  "predictions": [
+    {
+      "phi": 0.0,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S1_constructive",
+      "expected_pickup_norm": 1.0,
+      "expected_pickup_estimate": 0.9906012480000002,
+      "expected_pickup_range": [
+        0.9606012480000001,
+        0.990601248
+      ],
+      "expected_coherence": 0.97,
+      "reference_cos2_model": 1.0
+    },
+    {
+      "phi": 0.523599,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S2_intermediate",
+      "expected_pickup_norm": 0.9330126457917832,
+      "expected_pickup_estimate": 0.9428750203565845,
+      "expected_pickup_range": [
+        0.9128750203565845,
+        0.9728750203565846
+      ],
+      "expected_coherence": 0.94,
+      "reference_cos2_model": 0.9330126457917832
+    },
+    {
+      "phi": 1.047198,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S2_intermediate",
+      "expected_pickup_norm": 0.7499998056624009,
+      "expected_pickup_estimate": 0.8124845522910236,
+      "expected_pickup_range": [
+        0.7824845522910235,
+        0.8424845522910236
+      ],
+      "expected_coherence": 0.94,
+      "reference_cos2_model": 0.7499998056624009
+    },
+    {
+      "phi": 1.570796,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S2_intermediate",
+      "expected_pickup_norm": 0.5000001633974483,
+      "expected_pickup_estimate": 0.6343682499151639,
+      "expected_pickup_range": [
+        0.6043682499151639,
+        0.664368249915164
+      ],
+      "expected_coherence": 0.94,
+      "reference_cos2_model": 0.5000001633974483
+    },
+    {
+      "phi": 2.094395,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S2_intermediate",
+      "expected_pickup_norm": 0.25000004433755557,
+      "expected_pickup_estimate": 0.45625160783901103,
+      "expected_pickup_range": [
+        0.42625160783901106,
+        0.486251607839011
+      ],
+      "expected_coherence": 0.94,
+      "reference_cos2_model": 0.25000004433755557
+    },
+    {
+      "phi": 2.617994,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S2_intermediate",
+      "expected_pickup_norm": 0.0669872676056575,
+      "expected_pickup_estimate": 0.32586118494201666,
+      "expected_pickup_range": [
+        0.29586118494201663,
+        0.3558611849420167
+      ],
+      "expected_coherence": 0.94,
+      "reference_cos2_model": 0.0669872676056575
+    },
+    {
+      "phi": 3.141593,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S4_destructive",
+      "expected_pickup_norm": 3.000000781252362e-14,
+      "expected_pickup_estimate": 0.27813501900002136,
+      "expected_pickup_range": [
+        0.278135019,
+        0.3081350190000214
+      ],
+      "expected_coherence": 0.58,
+      "reference_cos2_model": 3.000000781252362e-14
+    },
+    {
+      "phi": 3.665191,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S2_intermediate",
+      "expected_pickup_norm": 0.06698719081079754,
+      "expected_pickup_estimate": 0.32586113022827234,
+      "expected_pickup_range": [
+        0.2958611302282723,
+        0.35586113022827237
+      ],
+      "expected_coherence": 0.94,
+      "reference_cos2_model": 0.06698719081079754
+    },
+    {
+      "phi": 4.18879,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S2_intermediate",
+      "expected_pickup_norm": 0.24999991132489677,
+      "expected_pickup_estimate": 0.45625151307198364,
+      "expected_pickup_range": [
+        0.4262515130719836,
+        0.48625151307198367
+      ],
+      "expected_coherence": 0.94,
+      "reference_cos2_model": 0.24999991132489677
+    },
+    {
+      "phi": 4.712389,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S2_intermediate",
+      "expected_pickup_norm": 0.500000009807655,
+      "expected_pickup_estimate": 0.634368140487623,
+      "expected_pickup_range": [
+        0.604368140487623,
+        0.664368140487623
+      ],
+      "expected_coherence": 0.94,
+      "reference_cos2_model": 0.500000009807655
+    },
+    {
+      "phi": 5.235988,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S2_intermediate",
+      "expected_pickup_norm": 0.7500001056624579,
+      "expected_pickup_estimate": 0.8124847660309329,
+      "expected_pickup_range": [
+        0.7824847660309329,
+        0.8424847660309329
+      ],
+      "expected_coherence": 0.94,
+      "reference_cos2_model": 0.7500001056624579
+    },
+    {
+      "phi": 5.759587,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S2_intermediate",
+      "expected_pickup_norm": 0.93301281899685,
+      "expected_pickup_estimate": 0.9428751437593454,
+      "expected_pickup_range": [
+        0.9128751437593454,
+        0.9728751437593455
+      ],
+      "expected_coherence": 0.94,
+      "reference_cos2_model": 0.93301281899685
+    },
+    {
+      "phi": 6.283185,
+      "harmonic": 4,
+      "alpha": 0.08,
+      "nu": 0.02,
+      "expected_state": "S1_constructive",
+      "expected_pickup_norm": 0.9999999999999765,
+      "expected_pickup_estimate": 0.9906012479999833,
+      "expected_pickup_range": [
+        0.9606012479999833,
+        0.990601248
+      ],
+      "expected_coherence": 0.97,
+      "reference_cos2_model": 0.9999999999999765
+    }
+  ]
+}

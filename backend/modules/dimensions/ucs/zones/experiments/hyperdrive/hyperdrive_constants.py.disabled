@@ -1,0 +1,107 @@
+# ---------------------------------
+# 🌌 Hyperdrive Constants & Config (Stable 80k Warp Baseline, Revised)
+# ---------------------------------
+
+from datetime import datetime
+
+STAGE_CONFIGS = {
+    "G1":    {"gravity": 0.8,  "magnetism": 0.5,  "wave_frequency": 0.5},
+    "G1.5":  {"gravity": 1.2,  "magnetism": 1.4,  "wave_frequency": 1.1},
+    "G2":    {"gravity": 1.5,  "magnetism": 1.6,  "wave_frequency": 1.4},
+    "G2.5":  {"gravity": 1.9,  "magnetism": 1.8,  "wave_frequency": 1.7},
+    "G3":    {"gravity": 2.4,  "magnetism": 2.1,  "wave_frequency": 1.9},
+    "G3.5":  {"gravity": 3.0,  "magnetism": 2.2,  "wave_frequency": 1.5},
+
+    # Warp prep & surge stages
+    "G4":    {"gravity": 3.3,  "magnetism": 2.3,  "wave_frequency": 1.55},
+    "G4.25": {"gravity": 3.5,  "magnetism": 2.35, "wave_frequency": 1.52},
+    "G4.5":  {"gravity": 3.6,  "magnetism": 2.4,  "wave_frequency": 1.55},
+    "G5":    {"gravity": 3.8,  "magnetism": 2.5,  "wave_frequency": 1.6},
+}
+
+# Harmonics & field tuning
+HARMONIC_DEFAULTS = [2, 3, 4, 6, 8]
+HARMONIC_GAIN = 0.065
+DECAY_RATE = 0.965
+DAMPING_FACTOR = 0.10
+DAMPING_FACTOR_G4_PLUS = 0.08
+
+# Drift & velocity control
+RESONANCE_DRIFT_THRESHOLD = 4.0
+DRIFT_THRESHOLD_G4_PLUS = 4.5
+SPEED_THRESHOLD = 600
+MAX_PARTICLE_SPEED = 5e5
+
+# Warp milestone
+WARP_PI_THRESHOLD = 95000
+
+# Stability safeguards
+ENABLE_COLLAPSE = True
+
+# 🔄 Harmonic History Tracking (for SQI learning & diagnostics)
+HARMONIC_HISTORY = []  # [(timestamp, gain)]
+
+# ---------------------------------
+# 🔧 Runtime Accessors
+# ---------------------------------
+def get_stage_config(stage: str) -> dict:
+    config = STAGE_CONFIGS.get(stage)
+    if config is None:
+        raise ValueError(f"Invalid hyperdrive stage: {stage}")
+    cfg = config.copy()
+    if stage in ["G4", "G4.25", "G4.5", "G5"]:
+        cfg["damping_factor"] = DAMPING_FACTOR_G4_PLUS
+        cfg["drift_threshold"] = DRIFT_THRESHOLD_G4_PLUS
+    else:
+        cfg["damping_factor"] = DAMPING_FACTOR
+        cfg["drift_threshold"] = RESONANCE_DRIFT_THRESHOLD
+    return cfg
+
+def get_stage_drift_bounds(stage: str) -> float:
+    """
+    Return appropriate drift threshold for a given stage.
+    Used by SQI rollback and diagnostic logs.
+    """
+    return DRIFT_THRESHOLD_G4_PLUS if stage.startswith("G4") or stage.startswith("G5") else RESONANCE_DRIFT_THRESHOLD
+
+# ✅ SQI Runtime Mutators
+def set_harmonic_gain(gain: float):
+    global HARMONIC_GAIN
+    HARMONIC_GAIN = gain
+    record_harmonic_gain(gain)
+    print(f"🎚 Harmonic gain set → {gain}")
+
+def set_decay_rate(rate: float):
+    global DECAY_RATE
+    DECAY_RATE = rate
+    print(f"🌀 Decay rate updated → {rate}")
+
+def set_damping_factor(factor: float, warp_mode=False):
+    global DAMPING_FACTOR, DAMPING_FACTOR_G4_PLUS
+    if warp_mode:
+        DAMPING_FACTOR_G4_PLUS = factor
+        print(f"🛡 Warp-phase damping factor updated → {factor}")
+    else:
+        DAMPING_FACTOR = factor
+        print(f"🛡 Base damping factor updated → {factor}")
+
+def set_resonance_threshold(threshold: float, warp_mode=False):
+    global RESONANCE_DRIFT_THRESHOLD, DRIFT_THRESHOLD_G4_PLUS
+    if warp_mode:
+        DRIFT_THRESHOLD_G4_PLUS = threshold
+        print(f"⚠ Warp drift threshold updated → {threshold}")
+    else:
+        RESONANCE_DRIFT_THRESHOLD = threshold
+        print(f"⚠ Base drift threshold updated → {threshold}")
+
+# ---------------------------------
+# 🧠 Harmonic History Helper
+# ---------------------------------
+def record_harmonic_gain(gain: float):
+    """
+    Records harmonic gain changes with timestamps for SQI refinement and rollback diagnostics.
+    Maintains rolling history (last 1000 entries).
+    """
+    HARMONIC_HISTORY.append((datetime.utcnow().isoformat(), gain))
+    if len(HARMONIC_HISTORY) > 1000:
+        HARMONIC_HISTORY.pop(0)

@@ -1,0 +1,82 @@
+// frontend/utils/socket.ts
+
+// ✅ Ensure this file only runs in the browser
+if (typeof window === "undefined") {
+  throw new Error("WebSocket client attempted to run on the server.");
+}
+
+// ✅ Define a typed interface for incoming WebSocket messages
+interface ContainerMessage {
+  event: string;
+  containerId?: string;
+  cubes?: Record<string, any>;
+  [key: string]: any;
+}
+
+// ✅ Initialize the WebSocket with dynamic protocol
+const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+const socket = new WebSocket(`${protocol}://${window.location.host}/ws/containers`);
+
+// ✅ Listener registry
+const listeners: Array<(msg: ContainerMessage) => void> = [];
+
+// ✅ Connection events
+socket.addEventListener("open", () => {
+  console.log("✅ WebSocket connection opened.");
+});
+
+socket.addEventListener("close", () => {
+  console.warn("🔌 WebSocket connection closed.");
+});
+
+socket.addEventListener("error", (err) => {
+  console.error("❌ WebSocket error:", err);
+});
+
+// ✅ Incoming message handler
+socket.addEventListener("message", (event) => {
+  try {
+    const msg: ContainerMessage = JSON.parse(event.data);
+
+    // 🔁 Dispatch to registered listeners
+    for (const listener of listeners) {
+      try {
+        listener(msg);
+      } catch (e) {
+        console.error("Listener error:", e);
+      }
+    }
+
+    // ⏳ Trigger a container bundle if requested
+    if (msg.event === "trigger_bundle_send" && msg.containerId) {
+      fetch(`/api/aion/bundle/${msg.containerId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ container_id: msg.containerId }),
+      })
+        .then((res) => res.json())
+        .then((res) => console.log("📦 Bundle Sent:", res))
+        .catch((err) => console.error("❌ Bundle Send Error:", err));
+    }
+
+    // 🔄 Log glyph updates (if needed for debugging)
+    if (msg.event === "glyph_update" && msg.cubes) {
+      console.log("🔄 Glyph Update Received");
+    }
+
+  } catch (err) {
+    console.error("❌ WebSocket message error:", err);
+  }
+});
+
+// ✅ Public API
+export const addWebSocketListener = (cb: (msg: ContainerMessage) => void) => {
+  listeners.push(cb);
+};
+
+export const removeWebSocketListener = (cb: (msg: ContainerMessage) => void) => {
+  const idx = listeners.indexOf(cb);
+  if (idx !== -1) listeners.splice(idx, 1);
+};
+
+export default socket;

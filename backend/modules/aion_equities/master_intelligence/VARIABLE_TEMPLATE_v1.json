@@ -1,0 +1,51 @@
+{
+  "variable_id": "company/{TICKER}/var/{feed_id}",
+  "name": "",
+  "feed_id": "",
+  "category": "company_reported",
+  "why_it_matters": "",
+  "data_source": "",
+  "data_source_url": null,
+  "feed_adapter": "manual",
+  "unit": "other",
+  "update_frequency": "quarterly",
+  "lag_weeks": 0,
+  "is_leading": false,
+  "is_zero_lag": false,
+  "direction": "positive",
+  "impact_weight": 0.10,
+  "sensitivity_coefficient": "",
+  "current_value": null,
+  "current_value_unit": "other",
+  "current_value_as_of": null,
+  "prior_period_value": null,
+  "prior_period_label": "",
+  "current_state": "inactive",
+  "state_entered_at": null,
+  "threshold_early": "",
+  "threshold_confirm": "",
+  "threshold_break": "",
+  "thesis_action_on_confirm": "",
+  "thesis_action_on_break": "",
+  "notes": null,
+  "first_observed_period": "",
+  "last_validated_period": "",
+  "source_document_ref": "company/{TICKER}/source_document/{FISCAL}/board_pack",
+
+  "_template_notes": {
+    "required_minimum_fields": [
+      "variable_id","name","feed_id","category","why_it_matters",
+      "data_source","unit","update_frequency","lag_weeks","is_leading",
+      "is_zero_lag","direction","impact_weight","current_state",
+      "threshold_early","threshold_confirm","threshold_break",
+      "thesis_action_on_confirm","thesis_action_on_break"
+    ],
+    "rules": [
+      "feed_id MUST be snake_case and unique within company",
+      "impact_weight MUST be numeric; company total should land ~0.85–1.15",
+      "threshold_* MUST include comparator + time window (no vague text)",
+      "lag_weeks < 0 means leading indicator published before company report",
+      "current_value/current_value_as_of can stay null on onboarding"
+    ]
+  }
+}

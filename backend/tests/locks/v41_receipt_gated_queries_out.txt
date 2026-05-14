@@ -1,0 +1,28 @@
+SymaticsBridge/V41_ReceiptGatedQueries.lean:114:26: warning: unused variable `r2`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+=== ✅ Bridge Benchmark v41: Receipt-gated queries (auth + ancestry bound) ===
+v41_receipt_gated_queries_wirepack
+seed=41041
+n_agents=4096 k_updates=2048 m_edits=4
+q_checks=256
+query_ok=True
+verify_ok=True
+gated_ok=True
+tamper_ok_delta=True
+tamper_ok_parent=True
+tamper_ok_reorder=True
+tamper_ok_splice=True
+raw_template_bytes=16386
+raw_delta_stream_bytes=53014
+gz_template_bytes=11975
+gz_delta_stream_bytes=42072
+final_x_sha256=48fe9601b71e40f7364777d2f57f0ce4b6c9a019813c99f3852d399701b2bdbf
+drift_sha256=d1727936465dd6b9f93820d1f4d67ae1fbaba6259d9cb04ed169d8cac392e50d
+
+LEAN_OK=1
+
+SHA256 (v41)
+
+ff6e047d88d52b4dc51eb3222623c12de8086dbccc2f8225c607f61cb22f0110  /workspaces/COMDEX/backend/modules/lean/workspace/SymaticsBridge/V41_ReceiptGatedQueries.lean
+ee5db85f2b8a37854356e16c40e95252555ddb5bee991752d58679c5f0ba5530  /workspaces/COMDEX/backend/tests/glyphos_wirepack_v41_receipt_gated_queries_benchmark.py

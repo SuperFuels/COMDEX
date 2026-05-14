@@ -1,0 +1,350 @@
+# ──────────────────────────────
+# 📦 Node.js Modules
+# ──────────────────────────────
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+Glyph_Net_Browser/node_modules/
+.pnpm-store/
+*.pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ──────────────────────────────
+# ⚙️ Frontend Builds & Caches (Next/Vite/Tauri)
+# ──────────────────────────────
+.next/
+out/
+dist/
+frontend/dist/
+Glyph_Net_Browser/dist/
+Glyph_Net_Browser/.vite/
+Glyph_Net_Browser/src-tauri/target/
+# keep Rust Cargo.lock for reproducible binary builds
+!Glyph_Net_Browser/src-tauri/Cargo.lock
+
+# ──────────────────────────────
+# 🌱 Environment Files
+# ──────────────────────────────
+.env
+.env.*
+*.env
+env.yaml
+env_vars.env
+cors_env.yaml
+backend/.env
+backend/.env.*
+
+# ──────────────────────────────
+# 🐍 Python Virtual Envs
+# ──────────────────────────────
+.venv/
+venv*/
+backend/venv*/
+backend/venv_test*/
+COMDEX_restore/
+
+# ──────────────────────────────
+# 🐍 Python Caches & Artifacts
+# ──────────────────────────────
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.db
+*.sqlite*
+*.tmp
+*.bak
+*.log
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# ──────────────────────────────
+# 🔥 Firebase Hosting Cache
+# ──────────────────────────────
+.firebase/**/hosting.*.cache
+
+# ──────────────────────────────
+# 💎 Hardhat / Solidity
+# ──────────────────────────────
+/cache
+/artifacts
+/typechain
+/typechain-types
+/coverage
+/coverage.json
+ignition/deployments/chain-31337
+
+# ──────────────────────────────
+# ☁️ Google Cloud SDK & Archives
+# ──────────────────────────────
+google-cloud-sdk/
+*.tar
+*.tar.gz
+*.tgz
+*.gz
+*.zip
+
+# ──────────────────────────────
+# 💻 IDE / OS junk
+# ──────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ──────────────────────────────
+# 🧠 Tessaris / Symatics Knowledge & Temp Lexicons
+# ──────────────────────────────
+data/knowledge/
+data/wiki_seed/
+data/cache/
+data/tmp/
+tmp/
+*.wiki.phn
+*.qkg.json
+*.log.json
+backend/data/knowledge_index.jsonl
+
+# ──────────────────────────────
+# 🧩 Temporary / Build Artifacts
+# ──────────────────────────────
+*.ipynb_checkpoints
+workspace-backup-*.tgz
+
+# ──────────────────────────────
+# AION runtime cache and locks
+# ──────────────────────────────
+data/memory/resonant_memory_cache.json
+data/memory/resonant_memory_cache.*bak
+data/memory/resonant_memory_cache.*lock
+
+# ──────────────────────────────
+# 🧠 AION Runtime Outputs / Telemetry (noisy, large)
+# ──────────────────────────────
+logs/
+backend/logs/
+data/analysis/
+data/learning/
+data/control/
+data/telemetry/
+data/benchmarks/
+data/sources/
+data/tasks/
+data/aion_field/*.json
+*.json.lock
+*.lexbak
+*.bak2
+*.bz2
+*.xml
+*.glyph
+data/ledger/*.jsonl
+data/traces/*.json
+
+# Explicit heavy inputs (keep out of Git)
+data/sources/enwiktionary-pages-articles.xml.bz2
+data/sources/enwiktionary-sample.xml.bz2
+data/sources/gcide_full.xml
+
+# ConceptNet model blobs
+backend/data/conceptnet/numberbatch-en-19.08.txt
+backend/data/conceptnet/numberbatch-en-*.txt
+
+# ──────────────────────────────
+# Dimension containers (generated)
+# ──────────────────────────────
+backend/modules/dimensions/containers_saved/*.dc.json
+backend/modules/dimensions/containers_saved/*.kg.json
+backend/modules/dimensions/containers_saved/kg_exports/*.kg.json
+
+# ──────────────────────────────
+# Repo-local data/state we don't want in VCS
+# ──────────────────────────────
+backend/state/
+dev.db
+*.jsonl
+*.trace.json
+*.photo
+
+# Root demo artifact (safe-ignore)
+# (We keep .photon libs anywhere else — only hide the root demo)
+#/demo.photon
+/demo.photon
+backend/modules/knowledge_graph/knowledge_index_runtime.glyph
+backend/modules/knowledge_graph/knowledge_index_runtime.glyph
+backend/modules/knowledge_graph/knowledge_index_runtime.glyph
+
+# perf harness outputs
+backend/tests/artifacts/*.jsonbackend/tests/artifacts/*.json
+
+# runtime output (never commit)
+data/ledger/*.jsonl
+data/ledger/*.db
+data/photon_sci/*.photon
+data/photon_sci/*.jsonl
+data/logs/**
+exports/**
+
+# optional: if you never want ANY runtime data tracked
+# data/**# INERTIA artifacts: keep only what is already tracked; ignore future runs
+INERTIA/artifacts/programmable_inertia/**/*
+
+# local artifacts
+**/artifacts/
+
+# Tessaris: local artifacts (generated)
+**/artifacts/**
+
+
+# runtime / generated
+.runtime/
+**/.runtime/
+
+# deps
+node_modules/
+**/node_modules/
+
+# lean build outputs
+**/.lake/
+
+# (optional) python junk
+**/__pycache__/
+*.pyc
+
+
+# runtime / caches
+.runtime/
+
+# deps
+node_modules/
+**/node_modules/
+
+# lean workspace build output (keep sources, ignore build dir)
+backend/modules/lean/workspace/.lake/
+backend/modules/lean/workspace/lake-packages/
+
+# generated artifacts (these look like outputs)
+CONNECTIVITY/artifacts/
+ENERGY/artifacts/
+GRAVITY/artifacts/
+INERTIA/artifacts/
+MAGNETISM/artifacts/
+MATTER/artifacts/
+TUNNEL/artifacts/
+
+**/node_modules
+Glyph_Net_Browser/node_modules
+/Glyph_Net_Browser/node_modules
+/node_modules
+**/node_modules
+
+
+
+# --- GX1 generated artifacts (do not commit) ---
+docs/Artifacts/v0.4/P21_GX1/
+
+# --- Generated knowledge outputs (do not commit) ---
+backend/modules/knowledge/*.json
+
+# --- Local tools / scratch ---
+backend/paev_ladder/tools/
+# Solana keys (only)
+keys/
+keys/*.json
+tools/solana/glyphos-token/*.json
+# Solana keys (only)
+keys/
+keys/*.json
+tools/solana/glyphos-token/*.json
+
+# telegram
+/tools/telegram/groups.txt
+.runtime/
+
+# local env files
+env.local
+*.local
+*.secret
+
+# local app.js backups
+desktop/mac/src/app.js.bak-*
+desktop/mac/src/app.js.bak*
+
+# accidental terminal/scratch files
+Your daily*
+null_surface.csv
+refined_null_surface.csv
+resonance_prediction.json
+
+# local snapshots/runtime diagnostics
+snapshots/
+benchmarks/sqi_semiprime_lab/
+
+# Firebase local/build output
+.firebase/
+.firebase/**
+
+# frontend generated builds
+**/.next/
+**/out/
+**/dist/
+
+# backend-served frontend build output
+backend/static/_next/
+backend/static/_next/**
+backend/static/**/*.js.map
+
+# backup files
+*.bak
+*.bak.*
+*.bak-*
+*.bak-*
+*.bak.md
+*.bak.*
+
+# timestamp backup files
+*.tsx.bak.*
+*.ts.bak.*
+*.py.bak-*
+*.js.bak-*
+
+# Firebase project binding
+.firebaserc
+**/.firebaserc
+
+# old git backups / accidental repo copies
+.git_old*/
+.git_old_before_tessaris_sync_*/
+
+# local ML model blobs
+*.safetensors
+*.bin
+
+# generated static builds
+backend/static/_next/
+backend/static/.next/
+.firebase/
+.firebase/**
+
+# local backups
+*.bak
+*.bak-*
+*.bak.*
+
+# local ML model blobs only
+backend/models/all-MiniLM-L6-v2/
+
+# local embedding/model downloads
+models/
+models/**
+backend/models/all-MiniLM-L6-v2/
+backend/models/all-MiniLM-L6-v2/**
+*.safetensors
+*.bin

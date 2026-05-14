@@ -1,0 +1,225 @@
+{
+  "holo_id": "holo:container/dc_aion_core/t=0/v6",
+  "container_id": "dc_aion_core",
+  "name": "Holo Test Container",
+  "symbol": "\u25c6",
+  "kind": "memory",
+  "origin": {
+    "created_at": "2025-12-09T16:55:51.612825+00:00",
+    "created_by": "aion",
+    "reason": "hologram_container_view_export",
+    "source_view": "qfc"
+  },
+  "version": {
+    "major": 0,
+    "minor": 1,
+    "patch": 0,
+    "revision": 9
+  },
+  "ghx": {
+    "ghx_version": "1.0",
+    "origin": "holo:container/dc_aion_core/t=0/v6",
+    "container_id": "dc_aion_core",
+    "nodes": [
+      {
+        "id": "f1",
+        "label": "Load x",
+        "type": "holo_node",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo",
+          "role": "input",
+          "config": {
+            "from": "x"
+          }
+        }
+      },
+      {
+        "id": "f2",
+        "label": "Multiply by 2",
+        "type": "holo_node",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo",
+          "role": "mul",
+          "config": {
+            "factor": 2
+          }
+        }
+      },
+      {
+        "id": "f3",
+        "label": "Add 3",
+        "type": "holo_node",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo",
+          "role": "add",
+          "config": {
+            "value": 3
+          }
+        }
+      },
+      {
+        "id": "f4",
+        "label": "Write to y",
+        "type": "holo_node",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo",
+          "role": "output",
+          "config": {
+            "to": "y"
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "src": "f1",
+        "dst": "f2",
+        "source": "f1",
+        "target": "f2",
+        "kind": "flow",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo"
+        }
+      },
+      {
+        "id": "e2",
+        "src": "f2",
+        "dst": "f3",
+        "source": "f2",
+        "target": "f3",
+        "kind": "flow",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo"
+        }
+      },
+      {
+        "id": "e3",
+        "src": "f3",
+        "dst": "f4",
+        "source": "f3",
+        "target": "f4",
+        "kind": "flow",
+        "tags": [],
+        "meta": {},
+        "data": {
+          "from": "holo"
+        }
+      }
+    ],
+    "metadata": {
+      "holo_id": "holo:container/dc_aion_core/t=0/v6",
+      "kind": "program_hologram",
+      "timefold": {
+        "t_label": null,
+        "tick": 0
+      }
+    }
+  },
+  "field": {
+    "psi_kappa_T": {
+      "frame": "mutated",
+      "state_vector": {}
+    },
+    "metrics": {
+      "coherence": 1,
+      "drift": 0,
+      "tick": 0
+    }
+  },
+  "beams": [],
+  "multiverse_frame": "mutated",
+  "views": {},
+  "indexing": {
+    "tags": [],
+    "patterns": [],
+    "topic_vector": null
+  },
+  "timefold": {
+    "tick": 0,
+    "t_label": null
+  },
+  "ledger": {},
+  "security": {},
+  "sandbox": {},
+  "collaboration": {},
+  "references": {
+    "container_kg_export": "/workspaces/COMDEX/backend/modules/dimensions/containers/kg_exports/Holo Test Container.kg.json",
+    "container_dc_path": null
+  },
+  "extra": {
+    "program_frames": [
+      {
+        "id": "f1",
+        "role": "input",
+        "label": "Load x",
+        "order": 0,
+        "config": {
+          "from": "x"
+        }
+      },
+      {
+        "id": "f2",
+        "role": "mul",
+        "label": "Multiply by 2",
+        "order": 1,
+        "config": {
+          "factor": 2
+        }
+      },
+      {
+        "id": "f3",
+        "role": "add",
+        "label": "Add 3",
+        "order": 2,
+        "config": {
+          "value": 3
+        }
+      },
+      {
+        "id": "f4",
+        "role": "output",
+        "label": "Write to y",
+        "order": 3,
+        "config": {
+          "to": "y"
+        }
+      }
+    ],
+    "program_edges": [
+      {
+        "id": "e1",
+        "source": "f1",
+        "target": "f2",
+        "kind": "flow"
+      },
+      {
+        "id": "e2",
+        "source": "f2",
+        "target": "f3",
+        "kind": "flow"
+      },
+      {
+        "id": "e3",
+        "source": "f3",
+        "target": "f4",
+        "kind": "flow"
+      }
+    ],
+    "run_count": 3,
+    "last_run_at": "2025-12-09T17:51:02.713755+00:00",
+    "last_run_mode": "qqc"
+  }
+}

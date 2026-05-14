@@ -1,0 +1,13 @@
+{
+  "id": "logic_core_atom",
+  "type": "atom",
+  "glyph_vault": "e86e0f2326971f6ac36000838b6fedf18f6697d515c26470350259f5023b",
+  "meta": {
+    "description": "Logic core atom for UCS routing test",
+    "caps": ["lean.replay", "proof.graph"],
+    "tags": ["math", "proof"],
+    "nodes": ["logic_core"],
+    "address": "ucs://math/logic_core#atom"
+  },
+  "symbolic_logic": []
+}

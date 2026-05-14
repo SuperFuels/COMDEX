@@ -1,0 +1,18 @@
+{
+  "id": "default_container",
+  "name": "Fallback Context",
+  "description": "A neutral space loaded when no container is available.",
+  "created_by": "system",
+  "created_on": "2025-07-07T16:40:00Z",
+  "welcome_message": "Fallback environment loaded. Please configure start container.",
+  "rules": ["Maintain integrity", "Await instructions"],
+  "current_goals": [],
+  "milestones": [],
+  "dreams": [],
+  "navigation": {
+    "methods": ["observe_only"]
+  },
+  "available_containers": [],
+  "restrictions": [],
+  "dna_switch": true
+}

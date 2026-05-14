@@ -1,0 +1,51 @@
+{
+  "timestamp": "2026-01-08T18:48:59.317261+00:00",
+  "depth_steps": 30,
+  "runtime_ms": 2.477,
+  "cases": [
+    {
+      "name": "canonical(depth)",
+      "macro_used": false,
+      "variant": "fallback(v5-ish)",
+      "json_bytes": 1131,
+      "json_gzip_bytes": 250,
+      "pack_bytes": 566,
+      "pack_gzip_bytes": 207,
+      "json_vs_pack_raw_x": 1.9982,
+      "json_vs_pack_gzip_x": 1.2077
+    },
+    {
+      "name": "near-miss(one-leaf)",
+      "macro_used": false,
+      "variant": "fallback(v5-ish)",
+      "json_bytes": 1132,
+      "json_gzip_bytes": 252,
+      "pack_bytes": 567,
+      "pack_gzip_bytes": 210,
+      "json_vs_pack_raw_x": 1.9965,
+      "json_vs_pack_gzip_x": 1.2
+    },
+    {
+      "name": "relabel(namespace)",
+      "macro_used": false,
+      "variant": "fallback(v5-ish)",
+      "json_bytes": 1071,
+      "json_gzip_bytes": 249,
+      "pack_bytes": 506,
+      "pack_gzip_bytes": 203,
+      "json_vs_pack_raw_x": 2.1166,
+      "json_vs_pack_gzip_x": 1.2266
+    },
+    {
+      "name": "canonical(depth+1)",
+      "macro_used": false,
+      "variant": "fallback(v5-ish)",
+      "json_bytes": 1166,
+      "json_gzip_bytes": 255,
+      "pack_bytes": 584,
+      "pack_gzip_bytes": 213,
+      "json_vs_pack_raw_x": 1.9966,
+      "json_vs_pack_gzip_x": 1.1972
+    }
+  ]
+}

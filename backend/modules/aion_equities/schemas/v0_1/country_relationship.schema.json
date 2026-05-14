@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/country_relationship.schema.json",
+  "title": "AION Country Relationship",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "country_relationship_id",
+    "lhs_country_ref",
+    "rhs_country_ref",
+    "as_of_date",
+    "relationship_score",
+    "relationship_drift",
+    "trade_policy",
+    "geopolitics",
+    "yield_differential",
+    "capital_flows",
+    "audit"
+  ],
+  "properties": {
+    "country_relationship_id": {
+      "type": "string",
+      "pattern": "^country_relationship/[A-Z]{2}-[A-Z]{2}$"
+    },
+
+    "lhs_country_ref": {
+      "type": "string",
+      "pattern": "^country/[A-Z]{2}$"
+    },
+    "rhs_country_ref": {
+      "type": "string",
+      "pattern": "^country/[A-Z]{2}$"
+    },
+    "as_of_date": {
+      "type": "string",
+      "format": "date"
+    },
+
+    "relationship_score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "confidence", "regime"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+        "regime": {
+          "type": "string",
+          "enum": ["supportive", "balanced", "fragile", "stressed"]
+        },
+        "summary": { "type": "string" }
+      }
+    },
+
+    "relationship_drift": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direction", "velocity"],
+      "properties": {
+        "direction": {
+          "type": "string",
+          "enum": ["improving", "stable", "deteriorating", "volatile"]
+        },
+        "velocity": {
+          "type": "string",
+          "enum": ["slow", "moderate", "fast", "shock"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "trade_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tariff_regime", "trade_alignment"],
+      "properties": {
+        "tariff_regime": {
+          "type": "string",
+          "enum": ["open", "friction", "restrictive", "escalating"]
+        },
+        "trade_alignment": {
+          "type": "string",
+          "enum": ["aligned", "mixed", "strained", "adversarial"]
+        },
+        "export_dependency_regime": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "import_dependency_regime": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "geopolitics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alignment_regime", "policy_coordination"],
+      "properties": {
+        "alignment_regime": {
+          "type": "string",
+          "enum": ["aligned", "cooperative", "mixed", "strained", "hostile"]
+        },
+        "policy_coordination": {
+          "type": "string",
+          "enum": ["strong", "working", "limited", "weak", "broken"]
+        },
+        "sanctions_risk": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "yield_differential": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["front_end_bps", "long_end_bps", "carry_regime"],
+      "properties": {
+        "front_end_bps": { "type": "number" },
+        "long_end_bps": { "type": "number" },
+        "real_yield_diff_bps": { "type": "number" },
+        "carry_regime": {
+          "type": "string",
+          "enum": ["lhs_supportive", "rhs_supportive", "balanced", "unstable"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "capital_flows": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pair_flow_regime", "funding_stress_regime"],
+      "properties": {
+        "pair_flow_regime": {
+          "type": "string",
+          "enum": ["lhs_inflow", "rhs_inflow", "balanced", "unstable"]
+        },
+        "funding_stress_regime": {
+          "type": "string",
+          "enum": ["calm", "watch", "stressed", "dislocated"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "risk_flags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+
+    "linked_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lhs_ambassador_ref": {
+          "type": "string",
+          "pattern": "^country/[A-Z]{2}$"
+        },
+        "rhs_ambassador_ref": {
+          "type": "string",
+          "pattern": "^country/[A-Z]{2}$"
+        },
+        "macro_regime_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "company_refs": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^company/" }
+        }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

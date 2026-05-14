@@ -1,0 +1,66 @@
+{
+  "id": "electron_prediction_test",
+  "type": "SymbolicExpansionContainer",
+  "glyphs": [
+    {
+      "id": "e1",
+      "type": "electron",
+      "meta": {
+        "predictive_outcomes": [
+          {
+            "glyph": { "type": "action", "name": "bind_atom_A" },
+            "logic_score": 0.85,
+            "entropy_delta": 0.1,
+            "goal_score": 0.6
+          },
+          {
+            "glyph": { "type": "action", "name": "bind_atom_B" },
+            "logic_score": 0.65,
+            "entropy_delta": 0.05,
+            "goal_score": 0.9
+          }
+        ]
+      }
+    },
+    {
+      "id": "e2",
+      "type": "electron",
+      "meta": {
+        "predictive_outcomes": [
+          {
+            "glyph": { "type": "action", "name": "join_field_X" },
+            "logic_score": 0.9,
+            "entropy_delta": 0.2,
+            "goal_score": 0.3
+          },
+          {
+            "glyph": { "type": "action", "name": "join_field_Y" },
+            "logic_score": 0.7,
+            "entropy_delta": 0.1,
+            "goal_score": 0.7
+          }
+        ]
+      }
+    },
+    {
+      "id": "e3",
+      "type": "electron",
+      "meta": {
+        "predictive_outcomes": [
+          {
+            "glyph": { "type": "action", "name": "excite" },
+            "logic_score": 0.6,
+            "entropy_delta": 0.4,
+            "goal_score": 0.4
+          },
+          {
+            "glyph": { "type": "action", "name": "stabilize" },
+            "logic_score": 0.9,
+            "entropy_delta": 0.1,
+            "goal_score": 0.8
+          }
+        ]
+      }
+    }
+  ]
+}

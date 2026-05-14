@@ -1,0 +1,10 @@
+Lock ID: v43_multiwriter_merge
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson.
+
+backend/modules/lean/workspace/SymaticsBridge/V43_MultiWriterMergeNoMaterialization.lean
+sha256: a8caeedc0b80d9baec914959e98582cc6961f251e99e81d0c747d46be5fa181c
+
+backend/tests/locks/v43_multiwriter_merge_out.txt
+sha256: <PASTE_SHA256_OF_docs_rfc_v43_bridge_v43_multiwriter_merge_out_txt_AFTER_COPY>

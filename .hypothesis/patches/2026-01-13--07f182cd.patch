@@ -1,0 +1,74 @@
+From HEAD Mon Sep 17 00:00:00 2001
+From: Hypothesis 6.139.2 <no-reply@hypothesis.works>
+Date: Tue, 13 Jan 2026 09:58:44
+Subject: [PATCH] Hypothesis: add explicit examples
+
+---
+--- ./backend/photon_algebra/tests/test_bounded_confluence.py
++++ ./backend/photon_algebra/tests/test_bounded_confluence.py
+@@ -137,6 +137,9 @@
+ 
+ @settings(max_examples=250, deadline=None)
+ @given(exprs)
++@example(
++    e={'op': '⊗', 'states': ['a', 'b', {'op': '⊕', 'states': ['a', 'b']}]},
++).via('discovered failure')
+ def test_bounded_confluence_via_equivalent_variants(e):
+     nf = rewriter.normalize(deepclone(e))
+     for v in variants(e):
+--- ./backend/photon_algebra/tests/test_properties_normalize.py
++++ ./backend/photon_algebra/tests/test_properties_normalize.py
+@@ -97,6 +97,10 @@
+ 
+ @settings(max_examples=200, deadline=None)
+ @given(exprs, exprs)
++@example(
++    a='b',
++    b={'op': '⊗', 'states': ['a', {'op': '⊕', 'states': ['b', 'c']}]},
++).via('discovered failure')
+ def test_commutativity_stability_product(a, b):
+     left = PROD(a, b)
+     right = PROD(b, a)
+@@ -105,6 +109,30 @@
+ 
+ @settings(max_examples=200, deadline=None)
+ @given(exprs, exprs, exprs)
++@example(
++    a={'op': '⊗',
++     'states': ['b',
++      {'op': '⊕', 'states': [{'op': '∅'}]},
++      {'op': '⊗',
++       'states': [{'op': '⊕', 'states': []},
++        {'op': '⊗',
++         'states': [{'op': '⊕', 'states': ['d']},
++          {'op': '∅'},
++          {'op': '⊗',
++           'states': [{'op': '∅'}, {'op': '∅'}, {'op': '∅'}, {'op': '∅'}]},
++          {'op': '⊗', 'states': [{'op': '∅'}, 'c']}]},
++        {'op': '⊗',
++         'states': ['c',
++          {'op': '⊕', 'states': ['a', {'op': '∅'}, 'b', {'op': '∅'}]}]},
++        {'op': '⊗',
++         'states': [{'op': '∅'},
++          {'op': '⊕', 'states': [{'op': '∅'}, 'a', 'a']}]}]},
++      {'op': '⊕', 'states': []}]},
++    b={'op': '⊕',
++     'states': [{'op': '⊕', 'states': [{'op': '∅'}]},
++      {'op': '⊗', 'states': ['c', 'd', 'c']}]},
++    c={'op': '⊗', 'states': []},
++).via('discovered failure')
+ def test_associativity_stability_sum(a, b, c):
+     left = SUM(SUM(a, b), c)
+     right = SUM(a, SUM(b, c))
+@@ -113,6 +141,11 @@
+ 
+ @settings(max_examples=200, deadline=None)
+ @given(exprs, exprs, exprs)
++@example(
++    a='a',
++    b='b',
++    c={'op': '⊕', 'states': ['a', 'b']},
++).via('discovered failure')
+ def test_associativity_stability_product(a, b, c):
+     left = PROD(PROD(a, b), c)
+     right = PROD(a, PROD(b, c))

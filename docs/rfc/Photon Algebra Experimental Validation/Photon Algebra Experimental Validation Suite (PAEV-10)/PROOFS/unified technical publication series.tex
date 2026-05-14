@@ -1,0 +1,57 @@
+% ──────────────────────────────────────────────────────────────
+% Tessaris Symatics Documentation — Standard Frontmatter
+% For Volumes 0–III (CodexCore Publication Series)
+% ──────────────────────────────────────────────────────────────
+
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,graphicx,booktabs,array,xcolor,hyperref,sectsty}
+\usepackage{fancyhdr}
+
+% ───────────── Visual Theme ─────────────
+\definecolor{tessarisblue}{HTML}{1B5FE0}
+\definecolor{tessarisgray}{HTML}{4A4A4A}
+\definecolor{tessarislight}{HTML}{E9ECF5}
+\definecolor{tessarisaccent}{HTML}{C27BA0}
+
+\sectionfont{\color{tessarisblue}}
+\subsectionfont{\color{tessarisgray}}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=tessarisblue,
+    urlcolor=tessarisaccent
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\textcolor{tessarisgray}{Tessaris Symatics Series \textbullet\ Page \thepage}}
+\renewcommand{\headrulewidth}{0pt}
+
+% ───────────── Cover Layout ─────────────
+\newcommand{\TessarisCover}[5]{%
+    \begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    {\Huge \textbf{Tessaris Symatics Project}}\\[1.2cm]
+    {\LARGE \textbf{#1}}\\[4pt]
+    {\large CodexCore Publication Series}\\[1cm]
+    \includegraphics[width=0.22\textwidth]{tessaris_logo.png}\\[0.6cm]
+    {\Large \textbf{#2}}\\[3pt]
+    {\color{tessarisgray}#3}\\[0.5cm]
+    \rule{0.6\textwidth}{0.5pt}\\[0.5cm]
+    {\color{tessarisblue}\Large #4}\\[0.3cm]
+    {\color{tessarisaccent}\small #5}\\[2cm]
+    \textbf{Maintainer:} Tessaris Core Systems / Codex Intelligence Group\\[2pt]
+    \textbf{Repository:} backend/symatics/\\[4pt]
+    \vfill
+    {\small \color{tessarisgray}© 2025 Tessaris / CodexCore. All rights reserved.}
+    \end{titlepage}
+}
+
+% Usage:
+% \TessarisCover
+%   {Volume II — Symatics Runtime Law Framework}
+%   {v0.4.2 CodexTrace Edition}
+%   {October 2025}
+%   {Runtime Enforcement and Telemetry of Symbolic Laws}
+%   {Part of the Symatics Documentation Set (Volumes 0–III)}

@@ -1,0 +1,258 @@
+{
+  "holo_id": "holo:container/dc_holo_test/t=0/v1",
+  "container_id": "dc_holo_test",
+  "name": "Holo Test Container",
+  "symbol": "\u25c6",
+  "kind": "memory",
+  "origin": {
+    "created_at": "2025-12-03T09:36:21.955309+00:00",
+    "created_by": "aion",
+    "reason": "curl_test",
+    "source_view": "qfc"
+  },
+  "version": {
+    "major": 0,
+    "minor": 1,
+    "patch": 0,
+    "revision": 1
+  },
+  "ghx": {
+    "nodes": [
+      {
+        "type": "kg_node",
+        "id": "dc_holo_test",
+        "kind": "container",
+        "meta": {
+          "address": "ucs://local/dc_holo_test#container",
+          "ghx": {
+            "hover": true,
+            "collapsed": true,
+            "density": "auto",
+            "version": "1.0"
+          },
+          "hov": {
+            "lazy_ready": true
+          },
+          "time_dilation": {
+            "mode": "normal",
+            "snapshot_rate": 1.0,
+            "reason": {
+              "glyphs": 0,
+              "nodes": 0
+            }
+          },
+          "last_hov_embed": "2025-12-03T09:36:21.802576"
+        },
+        "viz": {
+          "ghx_hover": true,
+          "ghx_collapsed": true
+        },
+        "expansion": {
+          "includes": [],
+          "counts": {}
+        }
+      },
+      {
+        "type": "kg_node",
+        "id": "ucs_hub",
+        "kind": "container",
+        "meta": {
+          "address": "ucs://root/hub#container",
+          "tags": [
+            "hub"
+          ],
+          "nodes": [
+            "root"
+          ],
+          "ghx": {
+            "hover": true,
+            "collapsed": true,
+            "density": "auto",
+            "version": "1.0"
+          },
+          "hov": {
+            "lazy_ready": true
+          },
+          "time_dilation": {
+            "mode": "normal",
+            "snapshot_rate": 1.0,
+            "reason": {
+              "glyphs": 0,
+              "nodes": 0
+            }
+          },
+          "last_hov_embed": "2025-12-03T09:36:21.819610"
+        },
+        "viz": {
+          "ghx_hover": true,
+          "ghx_collapsed": true
+        },
+        "expansion": {
+          "includes": [],
+          "counts": {}
+        }
+      },
+      {
+        "type": "kg_node",
+        "id": "tesseract_hq",
+        "kind": "container",
+        "meta": {
+          "address": "ucs://local/tesseract_hq#container",
+          "ghx": {
+            "hover": true,
+            "collapsed": true,
+            "density": "auto",
+            "version": "1.0"
+          },
+          "hov": {
+            "lazy_ready": true
+          },
+          "time_dilation": {
+            "mode": "normal",
+            "snapshot_rate": 1.0,
+            "reason": {
+              "glyphs": 0,
+              "nodes": 0
+            }
+          },
+          "last_hov_embed": "2025-12-03T09:36:21.836667"
+        },
+        "viz": {
+          "ghx_hover": true,
+          "ghx_collapsed": true
+        },
+        "expansion": {
+          "includes": [],
+          "counts": {}
+        }
+      },
+      {
+        "type": "kg_node",
+        "id": "cross_links",
+        "kind": "container",
+        "meta": {
+          "address": "ucs://local/cross_links#dc",
+          "ghx": {
+            "hover": true,
+            "collapsed": true,
+            "density": "auto",
+            "version": "1.0"
+          },
+          "hov": {
+            "lazy_ready": true
+          },
+          "time_dilation": {
+            "mode": "normal",
+            "snapshot_rate": 1.0,
+            "reason": {
+              "glyphs": 0,
+              "nodes": 0
+            }
+          },
+          "last_hov_embed": "2025-12-03T09:36:21.850596"
+        },
+        "viz": {
+          "ghx_hover": true,
+          "ghx_collapsed": true
+        },
+        "expansion": {
+          "includes": [],
+          "counts": {}
+        }
+      },
+      {
+        "type": "kg_node",
+        "id": "symatics_morphic_field",
+        "kind": "container",
+        "meta": {
+          "domain": "symatics/morphic_field",
+          "address": "ucs://local/symatics_morphic_field#container",
+          "ghx": {
+            "hover": true,
+            "collapsed": true,
+            "density": "auto",
+            "version": "1.0"
+          },
+          "hov": {
+            "lazy_ready": true
+          },
+          "time_dilation": {
+            "mode": "normal",
+            "snapshot_rate": 1.0,
+            "reason": {
+              "glyphs": 0,
+              "nodes": 0
+            }
+          },
+          "last_hov_embed": "2025-12-03T09:36:21.871343"
+        },
+        "viz": {
+          "ghx_hover": true,
+          "ghx_collapsed": true
+        },
+        "expansion": {
+          "includes": [],
+          "counts": {}
+        }
+      }
+    ],
+    "edges": [
+      {
+        "src": "dc_holo_test",
+        "dst": "dc_holo_test",
+        "relation": "containers/dc_holo_test/glyphs/dc_holo_test"
+      },
+      {
+        "src": "dc_holo_test",
+        "dst": "dc_holo_test",
+        "relation": "containers/dc_holo_test/glyphs/dc_holo_test"
+      },
+      {
+        "src": "dc_holo_test",
+        "dst": "dc_holo_test",
+        "relation": "containers/dc_holo_test/glyphs/dc_holo_test"
+      },
+      {
+        "src": "dc_holo_test",
+        "dst": "dc_holo_test",
+        "relation": "containers/dc_holo_test/glyphs/dc_holo_test"
+      }
+    ],
+    "layout": "grid",
+    "ghx_mode": "hologram",
+    "overlay_layers": [],
+    "entangled_links": []
+  },
+  "field": {
+    "psi_kappa_T": {
+      "frame": "mutated",
+      "state_vector": {}
+    },
+    "metrics": {
+      "coherence": 1.0,
+      "drift": 0.0,
+      "tick": 0
+    }
+  },
+  "beams": [],
+  "multiverse_frame": "mutated",
+  "views": {},
+  "indexing": {
+    "tags": [],
+    "patterns": [],
+    "topic_vector": null
+  },
+  "timefold": {
+    "tick": 0,
+    "t_label": null
+  },
+  "ledger": {},
+  "security": {},
+  "sandbox": {},
+  "collaboration": {},
+  "references": {
+    "container_kg_export": "/workspaces/COMDEX/backend/modules/dimensions/containers/kg_exports/Holo Test Container.kg.json",
+    "container_dc_path": null
+  },
+  "extra": {}
+}

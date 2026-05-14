@@ -1,0 +1,20 @@
+[P10] grid 1/12: width=64 period=512 amp=0
+[P10] grid 2/12: width=64 period=512 amp=0.01
+[P10] grid 3/12: width=64 period=512 amp=0.02
+[P10] grid 4/12: width=64 period=1024 amp=0
+[P10] grid 5/12: width=64 period=1024 amp=0.01
+[P10] grid 6/12: width=64 period=1024 amp=0.02
+[P10] grid 7/12: width=256 period=512 amp=0
+[P10] grid 8/12: width=256 period=512 amp=0.01
+[P10] grid 9/12: width=256 period=512 amp=0.02
+[P10] grid 10/12: width=256 period=1024 amp=0
+[P10] grid 11/12: width=256 period=1024 amp=0.01
+[P10] grid 12/12: width=256 period=1024 amp=0.02
+=== P10 — Resilience Gateway (Flash Flood bursts) ===
+✅ JSON -> backend/modules/knowledge/P10_resilience_flash_flood.json
+✅ PNG  -> backend/modules/knowledge/PAEV_P10_Resilience_Boundary_vs_Period.png
+✅ PNG  -> backend/modules/knowledge/PAEV_P10_Resilience_Boundary_vs_Duty.png
+✅ PNG  -> backend/modules/knowledge/PAEV_P10_Resilience_PassRateHeatmap.png
+RUN_ID  -> P1020260101T222552Z_P10_FLOOD
+MODE    -> fast=True jobs=6
+CHECKS  -> overall_pass=True | orthogonality_ok=True

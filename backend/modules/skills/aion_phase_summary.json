@@ -1,0 +1,17 @@
+{
+  "current_phase": "Sage",
+  "unlocked_modules": [
+    "memory_engine",
+    "dream_core",
+    "memory_access",
+    "strategy_planner"
+  ],
+  "locked_modules": [
+    "vision_core",
+    "voice_interface",
+    "wallet_logic",
+    "nova_frontend"
+  ],
+  "milestone_count": 453,
+  "last_updated": "2025-07-09T10:55:25.236470"
+}

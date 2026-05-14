@@ -1,0 +1,19 @@
+
+=== Test G5 — Planck-Scale Unification Calibration ===
+Final diagnostics (dimensionless, normalized units):
+  ⟨ℒ⟩ final            = 4.400289e+01
+  Spectral entropy S    = 0.817463
+  G_eff (final)         = 3.602680e-02
+  ħ_eff (final)         = 9.273548e-01
+  Λ_proxy (final = K−I) = 4.190801e+00
+
+Heuristic mappings:
+  ρ_P  ~ I * K
+  G_eff ~ 1 / sqrt(ρ_P)
+  ħ_eff ~ sqrt(I / (K + ε))
+
+Files:
+  - PAEV_TestG5_Unification_Trace.png
+  - PAEV_TestG5_LambdaProxy.png
+  - PAEV_TestG5_PhasePortrait_IK.png
+  - PAEV_TestG5_Unification_Fields.gif

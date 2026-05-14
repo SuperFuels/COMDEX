@@ -1,0 +1,73 @@
+{
+  "container_id": "sqi_runtime_master",
+  "name": "SQI Runtime Master Container",
+  "glyphs": [
+    "\u2b01",
+    "\u2194",
+    "\u29d6",
+    "\ud83e\uddec",
+    "\ud83c\udf19",
+    "\ud83e\ude9e"
+  ],
+  "modules": {
+    "dna_chain": [
+      "dna_writer.py",
+      "mutation_checker.py",
+      "symbolic_entangler.py"
+    ],
+    "core_logic": [
+      "glyph_executor.py",
+      "tessaris_engine.py",
+      "codex_executor.py",
+      "codex_context_adapter.py"
+    ],
+    "memory": [
+      "memory_engine.py",
+      "strategy_planner.py",
+      "memory_bridge.py",
+      "milestone_tracker.py"
+    ],
+    "expansion": [
+      "hoberman_container.py",
+      "container_runtime.py",
+      "teleport_packet.py"
+    ],
+    "security": [
+      "symbolic_key_deriver.py",
+      "vault_bridge.py",
+      "soul_law_validator.py",
+      "identity_registry.py",
+      "glyphnet_crypto.py"
+    ],
+    "broadcast": [
+      "glyphnet_ws.py",
+      "glyph_trace_logger.py",
+      "glyphnet_terminal.py",
+      "gip_packet.py",
+      "gip_adapter_http.py"
+    ],
+    "frontend": [
+      "CodexHUD.tsx",
+      "RuntimeGlyphTrace.tsx",
+      "GHXVisualizer.tsx",
+      "HolographicViewer.tsx",
+      "replay.tsx",
+      "entanglement.tsx"
+    ],
+    "agent": [
+      "agent_comm.py",
+      "voice_interface.py",
+      "aion_prompt_engine.py"
+    ]
+  },
+  "metadata": {
+    "version": "1.0",
+    "type": "symbolic_expansion",
+    "tags": [
+      "sqi",
+      "holographic",
+      "codexcore",
+      "glyphnet"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+test,V_mean,V_std,V_mu_mean,V_mu_std,V_A_mean_mean,V_A_mean_std,V_B_mean_mean,V_B_mean_std,V_corr_mean_mean,V_corr_mean_std,V_corr_std_mean,V_corr_std_std,Vc_decoupled_mean,Vc_decoupled_std,Vc_resonant_mean,Vc_resonant_std,Vc_entangled_mean,Vc_entangled_std,V_wave_mean,V_wave_std,V_proj_mean,V_proj_std
+PAEV_Test3_PiSweep,0.99902,0.00123,,,,,,,,,,,,,,,,,,,,
+PAEV_Test3_Summary,,,0.99933,0.00081,,,,,,,,,,,,,,,,,,
+PAEV_Test4_ResonantCoupling,,,,,0.99997,0.00006,1.00000,0.00000,0.31173,0.53537,0.05447,0.09391,,,,,,,,,,
+PAEV_Test5_TemporalDecay,,,,,,,,,,,,,0.99712,0.00539,1.00196,0.00000,0.96826,0.00059,,,,
+PAEV_Test7_DualCollapse,,,,,,,,,,,,,,,,,,,0.99996,0.00005,0.95019,0.05231

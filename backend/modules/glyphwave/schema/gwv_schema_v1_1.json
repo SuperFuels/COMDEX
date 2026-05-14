@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tessaris.ai/schema/gwv_schema_v1_1.json",
+  "title": "GWV Structured Frame Schema v1.1",
+  "description": "Graphical Wave Visualization (GWV) structured file for QFC/Holographic playback and analysis.",
+  "type": "object",
+  "required": ["schema_version", "container_id", "snapshot_count", "frames"],
+  "properties": {
+    "schema_version": {
+      "const": "1.1",
+      "description": "Semantic schema version identifier."
+    },
+    "container_id": {
+      "type": "string",
+      "description": "Unique identifier for the holographic container or QFC overlay stream."
+    },
+    "snapshot_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of snapshots captured in this file."
+    },
+    "stability": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Aggregate system stability (1.0 = fully coherent)."
+    },
+
+    "nodes": {
+      "type": "array",
+      "description": "Optional top-level node definitions for container visualization.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "rgb": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 0, "maximum": 255 },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "alpha": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "z": { "type": "number" }
+        },
+        "required": ["id", "rgb", "alpha"]
+      }
+    },
+
+    "edges": {
+      "type": "array",
+      "description": "Optional top-level edge definitions for container visualization.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source": { "type": "string" },
+          "target": { "type": "string" },
+          "rgb": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 0, "maximum": 255 },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "phi": { "type": "number" }
+        },
+        "required": ["source", "target", "rgb"]
+      }
+    },
+
+    "frames": {
+      "type": "array",
+      "description": "Sequence of visual frames recorded over time.",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "collapse_rate", "decoherence_rate", "frame"],
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "UTC timestamp for the snapshot."
+          },
+          "collapse_rate": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "decoherence_rate": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "frame": {
+            "type": "object",
+            "description": "Full GHX/QFC visual payload at capture time.",
+            "properties": {
+              "nodes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "rgb": {
+                      "type": "array",
+                      "items": { "type": "integer", "minimum": 0, "maximum": 255 },
+                      "minItems": 3,
+                      "maxItems": 3
+                    },
+                    "alpha": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                    "z": { "type": "number" }
+                  },
+                  "required": ["id", "rgb", "alpha"]
+                }
+              },
+              "edges": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "source": { "type": "string" },
+                    "target": { "type": "string" },
+                    "rgb": {
+                      "type": "array",
+                      "items": { "type": "integer", "minimum": 0, "maximum": 255 },
+                      "minItems": 3,
+                      "maxItems": 3
+                    },
+                    "phi": { "type": "number" }
+                  },
+                  "required": ["source", "target", "rgb"]
+                }
+              },
+              "projection": {
+                "type": "object",
+                "properties": {
+                  "mode": { "type": "string", "enum": ["holographic", "planar"] },
+                  "depth_field": {
+                    "type": "array",
+                    "items": { "type": "number" }
+                  }
+                }
+              }
+            },
+            "required": ["nodes", "edges"]
+          }
+        }
+      }
+    },
+
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "avg_collapse": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "avg_decoherence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "entropy_index": { "type": "number", "minimum": 0.0 }
+      }
+    }
+  },
+
+  "additionalProperties": false
+}

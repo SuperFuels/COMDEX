@@ -1,0 +1,20 @@
+{
+  "default": {
+    "id": "default",
+    "name": "DK-default",
+    "geometry": "Dimension Kernel",
+    "type": "dimension_kernel",
+    "meta": {
+      "address": "ucs://local/default#dimension"
+    }
+  },
+  "tesseract_hq": {
+    "id": "tesseract_hq",
+    "name": "DK-tesseract_hq",
+    "geometry": "Dimension Kernel",
+    "type": "dimension_kernel",
+    "meta": {
+      "address": "ucs://local/tesseract_hq#dimension"
+    }
+  }
+}

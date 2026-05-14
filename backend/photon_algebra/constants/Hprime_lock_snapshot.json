@@ -1,0 +1,25 @@
+{
+    "timestamp": "2025-10-10 10:03:51",
+    "source": "backend/photon_algebra/constants/paev_constants.json",
+    "series": [
+        "Hprime4",
+        "Hprime5"
+    ],
+    "constants": {
+        "Hprime4": {
+            "timestamp": "2025-10-10 09:58:37",
+            "best_gain": 0.9500000000000001,
+            "best_harmonic": 1,
+            "RCI_%": 76.27262978877216,
+            "Unified_Stability_%": 66.43935102836714
+        },
+        "Hprime5": {
+            "timestamp": "2025-10-10 10:00:48",
+            "RCI_fine_%": 100.0,
+            "Unified_Coherence_Index_%": 78.30303613398107,
+            "best_gain": 0.8,
+            "best_harmonic": 1.25
+        }
+    },
+    "hash": "90faa35a467b795a23cbe63d498c691de969ac236cfb12e5688d53f26f2c9871"
+}

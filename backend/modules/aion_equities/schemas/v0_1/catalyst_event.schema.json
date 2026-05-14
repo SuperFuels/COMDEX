@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/catalyst_event.schema.json",
+  "title": "AION Catalyst Event Container",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "catalyst_event_id",
+    "company_ref",
+    "catalyst_type",
+    "status",
+    "expected_date",
+    "timing_confidence",
+    "thesis_refs",
+    "audit"
+  ],
+  "properties": {
+    "catalyst_event_id": {
+      "type": "string",
+      "pattern": "^company/[A-Za-z0-9._:-]+/catalyst/[A-Za-z0-9._:-]+$"
+    },
+    "company_ref": { "type": "string", "pattern": "^company/" },
+
+    "catalyst_type": {
+      "type": "string",
+      "enum": ["earnings", "debt_refinancing", "regulatory", "contract", "dividend", "agm", "guidance", "other"]
+    },
+
+    "status": {
+      "type": "string",
+      "enum": ["scheduled", "monitoring", "active_window", "occurred", "cancelled", "expired"]
+    },
+
+    "expected_date": { "type": "string", "format": "date" },
+    "window_start": { "type": "string", "format": "date" },
+    "window_end": { "type": "string", "format": "date" },
+    "timing_confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+
+    "importance": { "type": "number", "minimum": 0, "maximum": 100 },
+
+    "details": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "headline": { "type": "string" },
+        "description": { "type": "string" },
+        "debt_amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "counterparty": { "type": "string" },
+        "regulator": { "type": "string" }
+      }
+    },
+
+    "preconditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "thesis_refs": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^thesis/" }
+    },
+
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resolved_date": { "type": "string", "format": "date" },
+        "resolution_summary": { "type": "string" },
+        "market_reaction_1d_pct": { "type": "number" },
+        "market_reaction_5d_pct": { "type": "number" },
+        "market_reaction_20d_pct": { "type": "number" }
+      }
+    },
+
+    "source_refs": { "type": "array", "items": { "type": "string" } },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

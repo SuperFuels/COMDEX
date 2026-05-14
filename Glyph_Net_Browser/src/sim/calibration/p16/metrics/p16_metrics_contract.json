@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "P16_METRICS_CONTRACT_V0",
+  "status": "FROZEN_PILOT_V1",
+  "nullModelPolicy": "LABEL_PERMUTATION_N=1000_SEED=1337_TWO_SIDED",
+  "multipleHypothesisPolicy": "N_A_SINGLE_METRIC_PILOT",
+  "metrics": [
+    {
+      "id": "P16_MOTIF_LOG2_ODDS_TATA",
+      "name": "motif_log2_odds_tata",
+      "expected": "Positives are enriched for the literal motif 'TATA' relative to negatives (pilot sanity only).",
+      "units": "log2_odds_ratio",
+      "uncertainty": "BOOTSTRAP_CI_N=1000_SEED=1337",
+      "passFailRule": "PASS_IF estimate>=1.0 AND pValue<=0.05"
+    }
+  ]
+}

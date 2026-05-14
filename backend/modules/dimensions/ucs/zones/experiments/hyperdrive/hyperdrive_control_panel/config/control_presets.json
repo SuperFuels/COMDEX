@@ -1,0 +1,72 @@
+{
+  "85%": {
+    "fields": {
+      "gravity": 1.7,
+      "magnetism": 0.9,
+      "wave_frequency": 0.45,
+      "field_pressure": 1.0
+    },
+    "harmonics": {
+      "harmonic_gain": 0.025,
+      "harmonic_rate": 0.0018,
+      "damping_factor": 0.95,
+      "decay_rate": 0.002
+    }
+  },
+  "90%": {
+    "fields": {
+      "gravity": 1.8,
+      "magnetism": 1.0,
+      "wave_frequency": 0.48,
+      "field_pressure": 1.05
+    },
+    "harmonics": {
+      "harmonic_gain": 0.028,
+      "harmonic_rate": 0.0019,
+      "damping_factor": 0.96,
+      "decay_rate": 0.002
+    }
+  },
+  "95%": {
+    "fields": {
+      "gravity": 1.9,
+      "magnetism": 1.05,
+      "wave_frequency": 0.495,
+      "field_pressure": 1.08
+    },
+    "harmonics": {
+      "harmonic_gain": 0.029,
+      "harmonic_rate": 0.002,
+      "damping_factor": 0.97,
+      "decay_rate": 0.0018
+    }
+  },
+  "99%": {
+    "fields": {
+      "gravity": 1.95,
+      "magnetism": 1.1,
+      "wave_frequency": 0.50,
+      "field_pressure": 1.1
+    },
+    "harmonics": {
+      "harmonic_gain": 0.030,
+      "harmonic_rate": 0.002,
+      "damping_factor": 0.975,
+      "decay_rate": 0.0017
+    }
+  },
+  "100%": {
+    "fields": {
+      "gravity": 2.0,
+      "magnetism": 1.15,
+      "wave_frequency": 0.52,
+      "field_pressure": 1.12
+    },
+    "harmonics": {
+      "harmonic_gain": 0.032,
+      "harmonic_rate": 0.0022,
+      "damping_factor": 0.98,
+      "decay_rate": 0.0015
+    }
+  }
+}

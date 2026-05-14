@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/post_report_calibration.schema.json",
+  "title": "AION Post Report Calibration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "post_report_calibration_id",
+    "company_ref",
+    "as_of_date",
+    "report_ref",
+    "prediction_ref",
+    "actuals",
+    "prediction_comparison",
+    "calibration_actions",
+    "confidence_drift",
+    "audit"
+  ],
+  "properties": {
+    "post_report_calibration_id": {
+      "type": "string",
+      "pattern": "^company/[A-Za-z0-9._:-]+/calibration/[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "company_ref": {
+      "type": "string",
+      "pattern": "^company/"
+    },
+    "as_of_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "report_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "prediction_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actuals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reported_revenue", "reported_operating_margin"],
+      "properties": {
+        "reported_revenue": { "type": "number" },
+        "reported_operating_margin": { "type": "number" },
+        "reported_eps": { "type": "number" },
+        "reported_free_cash_flow": { "type": "number" },
+        "notes": { "type": "string" }
+      }
+    },
+    "prediction_comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revenue_error_pct", "margin_error_bps", "prediction_quality"],
+      "properties": {
+        "revenue_error_pct": { "type": "number" },
+        "margin_error_bps": { "type": "number" },
+        "eps_error_pct": { "type": "number" },
+        "fcf_error_pct": { "type": "number" },
+        "prediction_quality": {
+          "type": "string",
+          "enum": ["strong", "acceptable", "weak", "failed"]
+        },
+        "summary": { "type": "string" }
+      }
+    },
+    "calibration_actions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sensitivity_update_required",
+        "lag_update_required",
+        "guidance_bias_update_required"
+      ],
+      "properties": {
+        "sensitivity_update_required": { "type": "boolean" },
+        "lag_update_required": { "type": "boolean" },
+        "guidance_bias_update_required": { "type": "boolean" },
+        "sensitivity_notes": { "type": "string" },
+        "lag_notes": { "type": "string" },
+        "guidance_notes": { "type": "string" }
+      }
+    },
+    "confidence_drift": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["previous_confidence", "new_confidence"],
+      "properties": {
+        "previous_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "new_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "drift_reason": { "type": "string" }
+      }
+    },
+    "linked_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fingerprint_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^company/.+/fingerprint/"
+          }
+        },
+        "pre_earnings_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^company/.+/pre_earnings/"
+          }
+        },
+        "quarter_event_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^company/.+/quarter/"
+          }
+        },
+        "assessment_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^assessment/"
+          }
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

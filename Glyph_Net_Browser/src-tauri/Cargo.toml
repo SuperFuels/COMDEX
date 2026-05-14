@@ -1,0 +1,19 @@
+[package]
+name = "glyph_net_browser"
+version = "0.1.0"
+description = "Glyph_Net_Browser"
+authors = ["Tessaris"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1", features = [] }
+
+[dependencies]
+tauri = { version = "1", features = [ "shell-all", "dialog-all"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+# keep this to enable Tauri's custom protocol in prod builds
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

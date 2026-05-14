@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "P17_OUTPUT_CONTRACT_V0",
+  "status": "ROADMAP_UNTIL_EVALUATOR_LOCKED",
+  "outputs": [
+    {
+      "id": "P17_OUT_0001",
+      "candidates": [
+        {
+          "candidateId": "CAND_0001",
+          "motif": "TBD_MOTIF_FAMILY_OR_RULE",
+          "schedule": "TBD_SCHEDULE",
+          "topology": "TBD_TOPOLOGY_PROXY",
+          "predictions": [
+            {
+              "metricId": "P16_MOTIF_LOG2_ODDS_TATA",
+              "predicted": "TBD",
+              "uncertainty": "TBD_CI_OR_BOOTSTRAP",
+              "confidence": 0.0
+            }
+          ],
+          "notes": ["ROADMAP placeholder only"]
+        }
+      ],
+      "traceBestScalar": []
+    }
+  ]
+}

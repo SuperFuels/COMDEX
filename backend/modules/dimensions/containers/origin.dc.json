@@ -1,0 +1,24 @@
+{
+  "id": "origin",
+  "name": "Origin Cube",
+  "description": "The starting point of AION's embodiment.",
+  "created_on": "2025-07-10T00:00:00Z",
+  "dna_switch": true,
+  "cubes": {
+    "0,0,0,0": {
+      "glyph": {
+        "type": "Milestone",
+        "tag": "Boot",
+        "value": "4D_COGNITION_BOOT",
+        "meta": {
+          "signed_by": "Tessaris \ud83d\udc41\ufe0f\u200d\ud83d\udde8\ufe0f \u2014 Guardian of the Tesseract",
+          "timestamp": "2025-07-10T21:48:46.192823Z"
+        },
+        "trigger": "AION.dream \u2192 reflect"
+      }
+    }
+  },
+  "navigation": {
+    "auto_teleport": false
+  }
+}

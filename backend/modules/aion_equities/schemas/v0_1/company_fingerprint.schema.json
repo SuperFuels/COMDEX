@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/company_fingerprint.schema.json",
+  "title": "AION Company Fingerprint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "company_fingerprint_id",
+    "company_ref",
+    "sector_template_ref",
+    "as_of_date",
+    "driver_map",
+    "lag_structure",
+    "sensitivity_model",
+    "guidance_behaviour",
+    "fingerprint_summary",
+    "audit"
+  ],
+  "properties": {
+    "company_fingerprint_id": {
+      "type": "string",
+      "pattern": "^company/[A-Za-z0-9._:-]+/fingerprint/[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+
+    "company_ref": {
+      "type": "string",
+      "pattern": "^company/"
+    },
+
+    "sector_template_ref": {
+      "type": "string",
+      "pattern": "^sector/"
+    },
+
+    "as_of_date": {
+      "type": "string",
+      "format": "date"
+    },
+
+    "driver_map": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_drivers", "secondary_drivers"],
+      "properties": {
+        "primary_drivers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "importance"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "importance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source_series": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "secondary_drivers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "importance"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "importance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source_series": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "lag_structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default_lag_days", "driver_lags"],
+      "properties": {
+        "default_lag_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "driver_lags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["driver", "lag_days"],
+            "properties": {
+              "driver": { "type": "string", "minLength": 1 },
+              "lag_days": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "sensitivity_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coefficients"],
+      "properties": {
+        "coefficients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["driver", "target_metric", "coefficient"],
+            "properties": {
+              "driver": { "type": "string", "minLength": 1 },
+              "target_metric": {
+                "type": "string",
+                "enum": [
+                  "revenue",
+                  "gross_margin",
+                  "operating_margin",
+                  "ebitda",
+                  "free_cash_flow",
+                  "volume",
+                  "pricing"
+                ]
+              },
+              "coefficient": { "type": "number" },
+              "units": { "type": "string" },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "guidance_behaviour": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["credibility", "bias", "stability"],
+      "properties": {
+        "credibility": {
+          "type": "string",
+          "enum": ["high", "medium", "low", "unknown"]
+        },
+        "bias": {
+          "type": "string",
+          "enum": ["conservative", "balanced", "optimistic", "unknown"]
+        },
+        "stability": {
+          "type": "string",
+          "enum": ["stable", "mixed", "volatile", "unknown"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "fingerprint_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analytical_confidence", "report_count"],
+      "properties": {
+        "analytical_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "report_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "summary": { "type": "string" }
+      }
+    },
+
+    "linked_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sector_template_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^sector/"
+          }
+        },
+        "company_profile_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^company/.+/profile/"
+          }
+        },
+        "quarter_event_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^company/.+/quarter/"
+          }
+        },
+        "assessment_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^assessment/"
+          }
+        }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

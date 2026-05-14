@@ -1,0 +1,20 @@
+{
+  "id": "glyph_synthesis_lab",
+  "name": "Glyph Synthesis Lab",
+  "description": "Dedicated runtime container for storing and testing synthesized glyphs.",
+  "created_by": "system",
+  "created_on": "2025-07-17T00:00:00Z",
+  "tags": ["glyphs", "synthesis", "runtime"],
+  "gates": {
+    "traits": {
+      "creativity": 0.2,
+      "ethics": 0.3
+    }
+  },
+  "children": [],
+  "links": {},
+  "cubes": {},
+  "metadata": {
+    "purpose": "Glyph compression + injection testing ground"
+  }
+}

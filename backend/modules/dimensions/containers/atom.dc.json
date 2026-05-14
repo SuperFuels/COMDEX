@@ -1,0 +1,52 @@
+{
+  "atoms": [
+    {
+      "id": "lean_replay_core",
+      "kind": "tool/lean",
+      "title": "Lean Proof Replay Core",
+      "caps": ["lean.replay", "proof.graph", "tactic.search"],
+      "requires": ["theorem_id?","lemma_set?"],
+      "produces": ["proof_state", "kg.links", "drift_trace"],
+      "links": [{"rel":"docs","href":"kg://data_tertiary/textbooks"}],
+      "nodes": ["logic_core","proof_systems"],
+      "tags": ["math","proof","lean","core"],
+      "resources": {
+        "image": "ghcr.io/aion/lean:latest",
+        "entrypoint": "python -m adapters.lean.run",
+        "env": {"LEAN_PATH":"/opt/mathlib"}
+      },
+      "viz": {
+        "glyph": "↔",
+        "color": "#cc66ff",
+        "orbit": {"radius": 1.6, "speed": 0.4},
+        "emissive": 1.2
+      }
+    },
+    {
+      "id": "pde_solver_fem",
+      "kind": "tool/solver",
+      "title": "FEM PDE Solver",
+      "caps": ["pde.solve","mesh.import","field.export"],
+      "requires": ["problem_spec","mesh?"],
+      "produces": ["field_solution","residuals","kg.links"],
+      "nodes": ["maxwell_eqs","navier_stokes","poisson"],
+      "tags": ["physics","fem","simulation"],
+      "resources": {
+        "image": "ghcr.io/aion/fem:latest",
+        "entrypoint": "python -m adapters.fem.run"
+      },
+      "viz": {"glyph":"⧖","color":"#00e0ff","orbit":{"radius":2.1,"speed":0.25}}
+    },
+    {
+      "id": "dataset_slice_mathlib",
+      "kind": "data/corpus",
+      "title": "Mathlib Slice (Algebra, Topology)",
+      "caps": ["data.provide","index.search"],
+      "requires": [],
+      "produces": ["docs","citations","kg.links"],
+      "tags": ["math","corpus"],
+      "resources": {"mount": "s3://bucket/mathlib-slice/"},
+      "viz": {"glyph":"🧬","color":"#66ff99","orbit":{"radius":1.2,"speed":0.18}}
+    }
+  ]
+}

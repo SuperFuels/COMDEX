@@ -1,0 +1,14 @@
+{
+  "status": "MISSING_MEASUREMENT",
+  "selectivity": 0.0,
+  "topology_rule_success": 0.0,
+  "stable_under_detuning": false,
+  "run_id": "",
+  "ran_at_utc": "",
+  "operator": "",
+  "device_id": "",
+  "rig_version": "",
+  "raw_artifact_dir": "backend/paev_ladder/raw/C1",
+  "raw_sha256sums_sha256": "",
+  "notes": "Template only. Replace with real MEASURED values + raw SHA256SUMS hash."
+}

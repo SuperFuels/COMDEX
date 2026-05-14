@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/global_capital_markets.schema.json",
+  "title": "AION Global Capital Markets Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "global_capital_markets_id",
+    "as_of_date",
+    "liquidity_regime",
+    "dollar_funding",
+    "yield_curves",
+    "real_yields",
+    "credit_spreads",
+    "cross_market_signals",
+    "audit"
+  ],
+  "properties": {
+    "global_capital_markets_id": {
+      "type": "string",
+      "pattern": "^global_capital_markets/[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "as_of_date": {
+      "type": "string",
+      "format": "date"
+    },
+
+    "liquidity_regime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "confidence"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["loose", "neutral", "tight", "stressed"]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "summary": {
+          "type": "string"
+        }
+      }
+    },
+
+    "dollar_funding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["regime"],
+      "properties": {
+        "regime": {
+          "type": "string",
+          "enum": ["easy", "normal", "tight", "stressed", "unknown"]
+        },
+        "dxy_direction": {
+          "type": "string",
+          "enum": ["up", "down", "flat", "unknown"]
+        },
+        "cross_currency_basis_regime": {
+          "type": "string",
+          "enum": ["benign", "watch", "stressed", "unknown"]
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+
+    "yield_curves": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/yield_curve_snapshot"
+      }
+    },
+
+    "real_yields": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/real_yield_snapshot"
+      }
+    },
+
+    "credit_spreads": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/credit_spread_snapshot"
+      }
+    },
+
+    "yield_differential_matrix": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/yield_differential_snapshot"
+      }
+    },
+
+    "foreign_ownership_vulnerability": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/foreign_ownership_snapshot"
+      }
+    },
+
+    "market_structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "vix_regime": {
+          "type": "string",
+          "enum": ["calm", "normal", "elevated", "stressed", "unknown"]
+        },
+        "gamma_regime": {
+          "type": "string",
+          "enum": ["supportive", "neutral", "fragile", "unstable", "unknown"]
+        },
+        "liquidity_depth_regime": {
+          "type": "string",
+          "enum": ["deep", "normal", "thin", "stressed", "unknown"]
+        },
+        "algo_pressure_regime": {
+          "type": "string",
+          "enum": ["normal", "momentum_amplified", "fragile", "unknown"]
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+
+    "cross_market_signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["risk_appetite_regime"],
+      "properties": {
+        "risk_appetite_regime": {
+          "type": "string",
+          "enum": ["risk_on", "risk_off", "mixed", "transition", "unknown"]
+        },
+        "carry_regime": {
+          "type": "string",
+          "enum": ["supportive", "unwinding", "fragile", "unknown"]
+        },
+        "equity_bond_correlation_regime": {
+          "type": "string",
+          "enum": ["normal", "inflationary", "deflationary", "unstable", "unknown"]
+        },
+        "stress_notes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+
+    "linked_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "macro_regime_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "top_down_snapshot_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "country_ambassador_refs": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^country/" }
+        },
+        "country_relationship_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "yield_curve_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["country_code", "curve_regime"],
+      "properties": {
+        "country_code": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "yield_2y": { "type": "number" },
+        "yield_10y": { "type": "number" },
+        "yield_30y": { "type": "number" },
+        "curve_regime": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "inverted",
+            "bear_flattening",
+            "bull_steepening",
+            "bear_steepening",
+            "flat",
+            "unknown"
+          ]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "real_yield_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["country_code", "real_rate_regime"],
+      "properties": {
+        "country_code": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "real_yield_10y": { "type": "number" },
+        "real_yield_2y": { "type": "number" },
+        "real_rate_regime": {
+          "type": "string",
+          "enum": [
+            "positive_rising",
+            "positive_falling",
+            "negative_rising",
+            "negative_falling",
+            "unknown"
+          ]
+        }
+      }
+    },
+
+    "credit_spread_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["country_code", "spread_regime"],
+      "properties": {
+        "country_code": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "ig_oas_bps": { "type": "number", "minimum": 0 },
+        "hy_oas_bps": { "type": "number", "minimum": 0 },
+        "spread_regime": {
+          "type": "string",
+          "enum": ["tight", "normal", "wide", "stressed", "unknown"]
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["widening", "tightening", "flat", "unknown"]
+        }
+      }
+    },
+
+    "yield_differential_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base_country", "quote_country"],
+      "properties": {
+        "base_country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "quote_country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "diff_2y_bps": { "type": "number" },
+        "diff_10y_bps": { "type": "number" },
+        "regime": {
+          "type": "string",
+          "enum": ["base_favored", "quote_favored", "balanced", "unstable", "unknown"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "foreign_ownership_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["country_code", "vulnerability_regime"],
+      "properties": {
+        "country_code": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "foreign_ownership_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "vulnerability_regime": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical", "unknown"]
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

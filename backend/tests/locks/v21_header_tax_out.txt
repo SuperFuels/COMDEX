@@ -1,0 +1,11 @@
+=== ✅ Bridge Benchmark v21: Header tax (JWT/microservice headers) via stream StringDict ===
+Model: request stream with repeated HTTP header strings; per-request id + jwt vary.
+
+Assumption: mtu_payload=1200 bytes (used only to estimate packet counts)
+
+n_msgs | headers | json_gz | dict_gz | gz_ratio(json/dict) | pkts_json | pkts_dict | pkts_ratio
+-----:|--------:|-------:|-------:|---------------------:|---------:|---------:|----------:
+   64 |      11 |     839 |     749 |                  1.12 |         1 |         1 |       1.00
+  128 |      11 |    1293 |    1142 |                  1.13 |         2 |         1 |       2.00
+  256 |      11 |    2180 |    1927 |                  1.13 |         2 |         2 |       1.00
+  512 |      11 |    3920 |    3494 |                  1.12 |         4 |         3 |       1.33

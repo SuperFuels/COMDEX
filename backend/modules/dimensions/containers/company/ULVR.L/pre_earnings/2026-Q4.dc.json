@@ -1,0 +1,149 @@
+{
+  "id": "company/ULVR.L/pre_earnings/2026-Q4",
+  "type": "container",
+  "kind": "fact",
+  "domain": "equities_pre_earnings",
+  "meta": {
+    "created_by": "SQI",
+    "last_updated": "2026-03-01T20:58:51.159848+00:00",
+    "ghx": {
+      "hover": true,
+      "collapsed": true
+    },
+    "address": "ucs://knowledge/equities_pre_earnings/company/ULVR.L/pre_earnings/2026-Q4"
+  },
+  "atoms": {},
+  "wormholes": [
+    "ucs_hub"
+  ],
+  "nodes": [
+    {
+      "id": "company/ULVR.L/pre_earnings/2026-Q4",
+      "label": "PreEarnings company/ULVR.L",
+      "domain": "equities_pre_earnings",
+      "kind": "fact",
+      "payload": {
+        "pre_earnings_estimate_id": "company/ULVR.L/pre_earnings/2026-Q4",
+        "company_ref": "company/ULVR.L",
+        "fiscal_period_ref": "2026-Q4",
+        "as_of": "2026-03-01T20:58:51Z",
+        "company_snapshot": {
+          "company_id": "company/ULVR.L",
+          "ticker": "ULVR.L",
+          "name": "Unilever PLC",
+          "sector_template_ref": "sector_template/consumer_staples",
+          "fingerprint_ref": "company/ULVR.L/fingerprint/latest",
+          "credit_profile_ref": "company/ULVR.L/credit_profile/latest",
+          "pair_context_ref": "pair_context/ULVR.L/latest"
+        },
+        "trigger_summary": {
+          "total_triggers": 1,
+          "confirmed_trigger_count": 1,
+          "building_trigger_count": 0,
+          "broken_trigger_count": 0,
+          "inactive_trigger_count": 0,
+          "positive_weight": 0.7,
+          "negative_weight": 0.0,
+          "broken_weight": 0.0,
+          "net_signal": 0.7
+        },
+        "variable_tracking": {
+          "history_points": 0,
+          "latest_points": []
+        },
+        "divergence": {
+          "divergence_score": 70.0,
+          "confidence": 47.0
+        },
+        "signal": {
+          "catalyst_strength": 18.0,
+          "long_candidate": true,
+          "short_candidate": false
+        },
+        "linked_refs": {
+          "company_ref": "company/ULVR.L",
+          "trigger_map_ref": "company/ULVR.L/trigger_map/2026-Q4",
+          "thesis_ref": "thesis/ULVR.L/long/medium_term",
+          "assessment_ref": "assessment/company/ULVR.L/2026-03-01"
+        },
+        "runtime_notes": {
+          "acs_band": "high",
+          "band_multiplier": 1.0,
+          "variable_depth_bonus": 0.0
+        }
+      },
+      "tags": [
+        "aion_equities",
+        "equities_pre_earnings",
+        "pre_earnings_estimate"
+      ]
+    }
+  ],
+  "glyphs": [],
+  "glyph_grid": [
+    {
+      "type": "kg_node",
+      "metadata": {
+        "id": "company/ULVR.L/pre_earnings/2026-Q4",
+        "label": "PreEarnings company/ULVR.L",
+        "domain": "equities_pre_earnings",
+        "kind": "fact",
+        "payload": {
+          "pre_earnings_estimate_id": "company/ULVR.L/pre_earnings/2026-Q4",
+          "company_ref": "company/ULVR.L",
+          "fiscal_period_ref": "2026-Q4",
+          "as_of": "2026-03-01T20:58:51Z",
+          "company_snapshot": {
+            "company_id": "company/ULVR.L",
+            "ticker": "ULVR.L",
+            "name": "Unilever PLC",
+            "sector_template_ref": "sector_template/consumer_staples",
+            "fingerprint_ref": "company/ULVR.L/fingerprint/latest",
+            "credit_profile_ref": "company/ULVR.L/credit_profile/latest",
+            "pair_context_ref": "pair_context/ULVR.L/latest"
+          },
+          "trigger_summary": {
+            "total_triggers": 1,
+            "confirmed_trigger_count": 1,
+            "building_trigger_count": 0,
+            "broken_trigger_count": 0,
+            "inactive_trigger_count": 0,
+            "positive_weight": 0.7,
+            "negative_weight": 0.0,
+            "broken_weight": 0.0,
+            "net_signal": 0.7
+          },
+          "variable_tracking": {
+            "history_points": 0,
+            "latest_points": []
+          },
+          "divergence": {
+            "divergence_score": 70.0,
+            "confidence": 47.0
+          },
+          "signal": {
+            "catalyst_strength": 18.0,
+            "long_candidate": true,
+            "short_candidate": false
+          },
+          "linked_refs": {
+            "company_ref": "company/ULVR.L",
+            "trigger_map_ref": "company/ULVR.L/trigger_map/2026-Q4",
+            "thesis_ref": "thesis/ULVR.L/long/medium_term",
+            "assessment_ref": "assessment/company/ULVR.L/2026-03-01"
+          },
+          "runtime_notes": {
+            "acs_band": "high",
+            "band_multiplier": 1.0,
+            "variable_depth_bonus": 0.0
+          }
+        },
+        "tags": [
+          "aion_equities",
+          "equities_pre_earnings",
+          "pre_earnings_estimate"
+        ]
+      }
+    }
+  ]
+}

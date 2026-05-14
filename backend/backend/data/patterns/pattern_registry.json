@@ -1,0 +1,27 @@
+[
+  {
+    "name": "XOR Pattern",
+    "pattern_id": "pattern-93357b45",
+    "glyphs": [
+      {
+        "type": "variable"
+      },
+      {
+        "type": "operator",
+        "value": "\u2295"
+      },
+      {
+        "type": "variable"
+      }
+    ],
+    "type": "logic",
+    "trigger_logic": "a \u2295 b",
+    "prediction": [],
+    "sqi_score": null,
+    "source_container": null,
+    "metadata": {},
+    "signature": "a13105de54755dee",
+    "entropy": 0.33333333333333337,
+    "symmetry": 1.0
+  }
+]

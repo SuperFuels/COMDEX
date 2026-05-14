@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-12-21T21:24:36.315942",
+  "event_type": "QQC_BENCHMARK",
+  "container_id": "maxwell_core",
+  "symbolic_score": 4818,
+  "entropy": 1100,
+  "compression_ratio": 0.228,
+  "hardware_mode": false,
+  "hyperdrive_guard": false,
+  "execution_time_ms": 600.7801120013028
+}

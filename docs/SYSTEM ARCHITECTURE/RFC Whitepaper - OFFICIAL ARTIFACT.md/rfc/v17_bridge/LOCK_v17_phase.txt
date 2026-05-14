@@ -1,0 +1,10 @@
+Lock ID: GLYPHOS-BRIDGE-V17-PHASE-TAG-BLOAT
+Status: Draft
+Maintainer: Tessaris AI
+Author: Kevin Robinson.
+
+[Proof Snapshot]
+(see v17_bridge/PROOF_v17_phase_out.txt)
+
+[SHA256]
+(see v17_bridge/SHA256_v17_phase.txt)

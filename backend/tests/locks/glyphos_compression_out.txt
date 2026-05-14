@@ -1,0 +1,23 @@
+
+=== ✅ GlyphOS Compression Benchmark (Defensible) ===
+Depth steps used:              30
+
+Glyph (wire JSON):              1131 bytes
+Glyph (wire JSON, gzip):        250 bytes
+
+Baseline A (verbose AST):       57161 bytes
+Baseline A (verbose AST, gzip): 2505 bytes
+✅ Compression vs A (raw):       50.5402x  (baseline/glyph)
+✅ Compression vs A (gzip):      10.02x
+
+Baseline B (expanded instr):       18857 bytes
+Baseline B (expanded instr, gzip): 1629 bytes
+✅ Compression vs B (raw):          16.6729x  (baseline/glyph)
+✅ Compression vs B (gzip):         6.516x
+
+Tree token estimate:            135
+Expanded instruction count:     135
+Structural score (internal):    7098
+Runtime:                        (suppressed for lock)
+Saved:                          ./benchmarks/glyphos_compression_latest.json
+

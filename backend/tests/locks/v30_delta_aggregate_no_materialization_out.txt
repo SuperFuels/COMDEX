@@ -1,0 +1,15 @@
+v30_delta_aggregate_no_materialization
+seed=30030
+n_agents=4096 k_updates=1024
+raw_snapshot_stream=21026827
+raw_delta_stream=88075
+raw_ratio(snapshot/delta)=238.737746
+gz_snapshot_stream=172418
+gz_delta_stream=23508
+gz_ratio(snapshot/delta)=7.334439
+all_k_sums_ok=True
+k=1 qsize=1 ok=True first10=[3750]
+k=8 qsize=8 ok=True first10=[231, 1155, 1172, 1536, 2877, 3641, 3750, 3890]
+k=64 qsize=64 ok=True first10=[66, 99, 231, 251, 302, 469, 471, 478, 556, 570]
+k=512 qsize=512 ok=True first10=[4, 10, 15, 19, 22, 31, 34, 40, 59, 66]
+drift_sha256=622b3a040503b54e5509cbad59425aee11894e20dd3ca574117995b424b51b92

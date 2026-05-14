@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-10-10 10:36:32",
+  "mean_E": 0.8198452215345392,
+  "mean_psi_kappa": 0.3881356960519433,
+  "mean_entropy": 0.06696360547461157,
+  "steps": 1000,
+  "source_csv": "backend/photon_algebra/tests/results_G9_emergent_gravity_coupling.csv"
+}

@@ -1,0 +1,14 @@
+# physics_demo.codex (UTF-8)
+∇ {"field": {"expr":"x^2 + y^2"}, "coords": ["x","y"]}
+∇· {"vec": {"expr":["x","y","z"]}, "coords": ["x","y","z"]}
+∇× {"vec": {"expr":["y","-x","0"]}, "coords": ["x","y","z"]}
+Δ {"field": {"expr":"x*y"}, "coords": ["x","y"]}
+d/dt {"expr": {"expr":"sin(ω*t)"}, "t":"t"}
+· {"A": {"expr":["1","0","0"]}, "B": {"expr":["0","1","0"]}}
+× {"A": {"expr":["1","0","0"]}, "B": {"expr":["0","1","0"]}}
+⊗ {"A": {"expr":["Ex","Ey"]}, "B": {"expr":["Bx","By"]}}
+
+# ASCII aliases also work:
+GRAD {"field": {"expr":"x^2"}, "coords": ["x"]}
+DOT {"A": {"expr":["a1","a2"]}, "B": {"expr":["b1","b2"]}}
+TENSOR {"A": {"expr":["a1","a2"]}, "B": {"expr":["b1","b2"]}}

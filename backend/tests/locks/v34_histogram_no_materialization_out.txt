@@ -1,0 +1,13 @@
+v34_histogram_no_materialization
+seed=34034
+n_agents=4096 k_updates=1024 M=256
+raw_snapshot_stream=21026827
+raw_delta_stream=88075
+raw_ratio(snapshot/delta)=238.737746
+gz_snapshot_stream=172418
+gz_delta_stream=23508
+gz_ratio(snapshot/delta)=7.334439
+histogram_ok=True
+histogram_head16=[16, 17, 16, 16, 17, 18, 16, 16, 16, 16, 16, 17, 17, 17, 16, 16]
+histogram_tail16=[16, 16, 16, 17, 16, 16, 16, 17, 17, 17, 16, 15, 16, 15, 15, 15]
+drift_sha256=b79133b26e5b731ffcf6a33f725df728ebb878b780f1e90f1b13ac3e9fe6554a

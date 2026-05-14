@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "P15_PREPROCESS_CONTRACT_V0",
+  "status": "ROADMAP_UNTIL_FROZEN",
+  "id": "P15_PREPROCESS_V0_TBD",
+  "pipelineVersion": "P15_PREPROCESS_V0_TBD",
+  "pipelineHash": "TBD_PIPELINE_HASH",
+  "determinism": [
+    "seed_pinned",
+    "stable_sorting",
+    "stable_serialization"
+  ],
+  "inputs": [],
+  "outputs": [],
+  "notes": [
+    "ROADMAP placeholder only; not asserted or used for scoring yet."
+  ]
+}

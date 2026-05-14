@@ -1,0 +1,13 @@
+{
+  "as_of": "2025-06-30T00:00:00Z",
+  "values": {
+    "rec_uk_permanent_placements": 38,
+    "france_insee_business_confidence": 96,
+    "germany_ifo_employment_expectations": -12.2,
+
+    "page_fee_earner_headcount": 5163,
+    "page_gross_profit_growth_cc": -10.5,
+    "page_france_gross_profit_growth": -20.0,
+    "page_productivity_gp_per_fe": 145.5
+  }
+}

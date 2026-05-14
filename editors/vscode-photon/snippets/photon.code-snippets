@@ -1,0 +1,57 @@
+{
+  "⊕ superposition": {
+    "prefix": ["⊕", "oplus"],
+    "body": ["⊕(${1:a}, ${2:b})$0"],
+    "description": "Superposition"
+  },
+  "μ measurement": {
+    "prefix": ["μ", "mu"],
+    "body": ["μ(${1:x})$0"],
+    "description": "Deterministic collapse"
+  },
+  "↔ entanglement": {
+    "prefix": ["↔", "ent"],
+    "body": ["↔(${1:A}, ${2:B})$0"],
+    "description": "Entanglement coupling"
+  },
+  "⟲ resonance": {
+    "prefix": ["⟲", "res"],
+    "body": ["⟲(${1:x})$0"],
+    "description": "Resonance / reinforcement"
+  },
+  "π projection": {
+    "prefix": ["π", "proj"],
+    "body": ["π[${1:x}]$0"],
+    "description": "Projection to observer/percept"
+  },
+  "≔ define": {
+    "prefix": ["defeq", "≔"],
+    "body": ["${1:name} ≔ ${2:expr}$0"],
+    "description": "Definition binding"
+  },
+  "≟ compare": {
+    "prefix": ["cmp", "≟"],
+    "body": ["${1:a} ≟ ${2:b}$0"],
+    "description": "Safe equivalence compare"
+  },
+  "⟶ implies": {
+    "prefix": ["impl", "⟶"],
+    "body": ["${1:A} ⟶ ${2:B}$0"],
+    "description": "Implication / flow"
+  },
+  "Brackets ⟮⟯": {
+    "prefix": ["par", "⟮"],
+    "body": ["⟮${1}⟯$0"],
+    "description": "Photon parentheses"
+  },
+  "Brackets ⟦⟧": {
+    "prefix": ["brk", "⟦"],
+    "body": ["⟦${1}⟧$0"],
+    "description": "Photon brackets"
+  },
+  "Brackets ⦃⦄": {
+    "prefix": ["blk", "⦃"],
+    "body": ["⦃\n\t$0\n⦄"],
+    "description": "Photon block braces"
+  }
+}

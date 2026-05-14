@@ -1,0 +1,17 @@
+{
+  "name": "Memory Pearl",
+  "symbol": "🧿",
+  "geometry_type": "memory_pearl",
+  "description": "Sequential symbolic memory chain container, binding glyph recall and entanglement.",
+  "sqi_hooks": {
+    "chain": ["link_memory", "sequence_store"],
+    "codex_integration": ["memory_indexing", "entangled_recall"]
+  },
+  "properties": {
+    "logic_density": "medium",
+    "pearl_count": 7,
+    "memory_mode": "sequential",
+    "codex_binding": true
+  },
+  "linked_next": "mirror_container.dc.json"
+}

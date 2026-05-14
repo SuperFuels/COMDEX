@@ -1,0 +1,15 @@
+{
+  "name": "Dodecahedron Higher Mind Core",
+  "symbol": "🔷",
+  "geometry_type": "dodecahedron",
+  "description": "Higher-order symbolic processing; reflective cognition and self-reference.",
+  "sqi_hooks": {
+    "mind": ["meta_cognition", "recursive_logic"]
+  },
+  "properties": {
+    "logic_density": "high",
+    "role": "higher_mind",
+    "connections": 12
+  },
+  "linked_next": "tesseract.dc.json"
+}

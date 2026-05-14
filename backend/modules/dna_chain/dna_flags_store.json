@@ -1,0 +1,6 @@
+{
+  "test_container_001": {
+    "self_growth": false,
+    "growth_factor": 2
+  }
+}

@@ -1,0 +1,6 @@
+symbol_id,name,semantic_state,phi,phi_degrees,harmonics,stability,lock_quality,drift,mean_pickup,pickup_std,ticks,locked,rank_score
+S0,S0_constructive_1,constructive,0.000000000,0.000000,[1],0.979148,5.502474,0.008262,0.931283,0.010423,10,False,10.844376
+S1,S1_constructive_1_2,constructive,0.000000000,0.000000,"[1, 2]",0.961628,5.389718,0.012860,0.935041,0.018159,10,False,10.606235
+S2,S2_beyond_boolean_positive_1_2,beyond_boolean_positive,1.570796327,90.000000,"[1, 2]",0.965804,5.091425,0.015718,0.778274,0.013472,10,False,10.026706
+S3,S3_beyond_boolean_positive_1,beyond_boolean_positive,1.570796327,90.000000,[1],0.969562,4.948358,0.025735,0.783804,0.020473,10,False,9.743635
+S4,S4_beyond_boolean_negative_1,beyond_boolean_negative,4.712388980,270.000000,[1],0.814499,4.573448,0.028731,0.840994,0.014737,10,False,8.890069

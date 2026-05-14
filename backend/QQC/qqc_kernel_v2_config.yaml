@@ -1,0 +1,191 @@
+# ──────────────────────────────────────────────────────────────
+#  Tessaris • Quantum Quad Core (QQC) v2
+#  Central Configuration File
+#  (ψ–κ–T Holographic Quantum Cognition Parameters)
+# ──────────────────────────────────────────────────────────────
+
+meta:
+  version: 2.0
+  build: "HQCE–Resonant–Stable"
+  description: >
+    Configuration for Tessaris Quantum Quad Core v2 runtime.
+    Defines core modules, inter-layer dependencies, synchronization coefficients,
+    and symbolic–quantum–holographic coherence tuning.
+
+boot:
+  order:
+    - codex_core
+    - symatics_core
+    - photon_core
+    - control_core
+    - dimension_runtime
+    - knowledge_graph
+    - theorem_engine
+    - resonance_qcomputer
+    - observer_beam_system
+    - portal_layer
+    - qfc_layer
+    - holographic_cortex
+    - central_kernel
+
+  mode: "resonant"
+  allow_hot_reload: true
+  telemetry_broadcast: true
+  log_level: "INFO"
+
+# ──────────────────────────────────────────────────────────────
+#  ψ–κ–T Field Regulation (HST + Morphic Feedback)
+# ──────────────────────────────────────────────────────────────
+field:
+  coherence_target: 0.88        # target coherence per cycle
+  psi_weight: 0.33
+  kappa_weight: 0.33
+  tau_weight: 0.34
+  feedback_gain: 0.12
+  auto_stabilize: true
+  entropy_floor: 0.025
+  drift_decay: 0.002
+  broadcast_interval_ms: 100
+
+# ──────────────────────────────────────────────────────────────
+#  Codex / Symbolic Runtime Parameters
+# ──────────────────────────────────────────────────────────────
+codex:
+  enable_metrics: true
+  cost_threshold: 10
+  max_glyphs_per_cycle: 128
+  entropy_weight: 0.25
+  rewrite_autoheal: true
+  lean_proof_verification: true
+  symbolic_timeout_ms: 150
+
+# ──────────────────────────────────────────────────────────────
+#  SQI / Entropy Layer
+# ──────────────────────────────────────────────────────────────
+sqi:
+  drift_sensitivity: 0.45
+  coherence_threshold: 0.75
+  max_entropy_variation: 0.2
+  enable_trace_logging: true
+  auto_repair: true
+  observer_feedback_weight: 0.2
+
+# ──────────────────────────────────────────────────────────────
+#  Resonance Quantum Computer
+# ──────────────────────────────────────────────────────────────
+resonance_qcomputer:
+  mode: "hybrid"                # options: simulated | holographic | hybrid
+  max_qglyphs: 256
+  qbit_precision: 32
+  entanglement_depth: 6
+  resonance_harmonics: 8
+  qwave_sync_interval_ms: 50
+
+# ──────────────────────────────────────────────────────────────
+#  Observer–Beam–Collapse System
+# ──────────────────────────────────────────────────────────────
+observer:
+  enable_bias_monitoring: true
+  bias_correction_factor: 0.08
+  collapse_trigger_threshold: 0.82
+  beam_log_depth: 50
+  holographic_sync: true
+
+# ──────────────────────────────────────────────────────────────
+#  Dimension Containers
+# ──────────────────────────────────────────────────────────────
+containers:
+  autosave_interval_s: 15
+  max_instances: 64
+  memory_quota_mb: 256
+  link_knowledge_graph: true
+  runtime_mode: "quantum-isolated"
+  compression: "lz4"
+
+# ──────────────────────────────────────────────────────────────
+#  Knowledge Graph / Tessaris Integration
+# ──────────────────────────────────────────────────────────────
+knowledge_graph:
+  adapter: "glyphnet"
+  persist_to_disk: true
+  entanglement_limit: 128
+  drift_relink_interval_s: 5
+  enable_semantic_broadcast: true
+
+# ──────────────────────────────────────────────────────────────
+#  Portal / Teleportation Layer
+# ──────────────────────────────────────────────────────────────
+portal:
+  wormhole_count: 4
+  max_hops: 16
+  teleport_sync_interval_s: 3
+  field_tunnel_compression: true
+  energy_conservation_ratio: 0.97
+  integrity_check: true
+
+# ──────────────────────────────────────────────────────────────
+#  QFC (Quantum Field Computation Layer)
+# ──────────────────────────────────────────────────────────────
+qfc:
+  field_driver_mode: "adaptive"
+  field_gain: 1.2
+  field_dampening: 0.15
+  coherence_update_interval_s: 0.2
+  max_field_emitters: 16
+  websocket_broadcast: true
+
+# ──────────────────────────────────────────────────────────────
+#  HQCE (Holographic Quantum Cognition Engine)
+# ──────────────────────────────────────────────────────────────
+hqce:
+  cycle_interval_s: 0.05
+  commit_strategy: "two_phase"
+  repair_strategy: "entropy_threshold"
+  max_commit_latency_ms: 20
+  coherence_fallback: 0.7
+  broadcast_to_observers: true
+
+# ──────────────────────────────────────────────────────────────
+#  Aion / External AI Plug Layer
+# ──────────────────────────────────────────────────────────────
+aion:
+  enable_plugins: true
+  trusted_agents:
+    - "Tessaris-Core"
+    - "Aion-Lambda"
+    - "CodexGlyph-Proxy"
+  semantic_coherence_tolerance: 0.1
+  intent_fusion_enabled: true
+  relay_mode: "passive"
+
+# ──────────────────────────────────────────────────────────────
+#  Logging & Telemetry
+# ──────────────────────────────────────────────────────────────
+telemetry:
+  enable_state_stream: true
+  websocket_port: 8088
+  persist_history: true
+  history_path: "data/qqc_history.jsonl"
+  metrics_interval_s: 1.0
+  observer_channel: "ψκT/broadcast"
+
+# ──────────────────────────────────────────────────────────────
+#  Safety / Threshold Guards
+# ──────────────────────────────────────────────────────────────
+safety:
+  max_entropy_spike: 0.3
+  max_drift_rate: 0.05
+  coherence_emergency_floor: 0.5
+  auto_shutdown_on_instability: true
+  emergency_dump_path: "logs/qqc_emergency_state.json"
+  rollback_limit: 3
+
+# ──────────────────────────────────────────────────────────────
+#  Miscellaneous
+# ──────────────────────────────────────────────────────────────
+misc:
+  random_seed: 42
+  enable_holographic_visualization: true
+  lean_auto_reload: true
+  resonance_visualizer: "backend.tools.resonance_viz"
+  metrics_bus: "sqi_event_bus"

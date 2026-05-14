@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-01-08T19:52:52.982296+00:00",
+  "macro_enabled": 1,
+  "seed": 7,
+  "samples": 5000,
+  "depths": [
+    30,
+    200
+  ],
+  "canonical_share": 0.1,
+  "runtime_ms": 22278.784,
+  "stats": [
+    {
+      "depth": 30,
+      "samples": 5000,
+      "macro_enabled": 1,
+      "macro_hits": 515,
+      "canonical_misses": 0,
+      "bad_macro_hits": 0,
+      "roundtrip_fail": 0,
+      "avg_json": 1113.743,
+      "avg_json_gz": 251.692,
+      "avg_pack": 490.754,
+      "avg_pack_gz": 190.021,
+      "avg_fallback_pack": 548.743,
+      "avg_fallback_gz": 208.973,
+      "savings_vs_fallback_raw": 0.105676,
+      "savings_vs_fallback_gz": 0.090691
+    },
+    {
+      "depth": 200,
+      "samples": 5000,
+      "macro_enabled": 1,
+      "macro_hits": 487,
+      "canonical_misses": 0,
+      "bad_macro_hits": 0,
+      "roundtrip_fail": 0,
+      "avg_json": 7129.527,
+      "avg_json_gz": 961.698,
+      "avg_pack": 3336.265,
+      "avg_pack_gz": 810.873,
+      "avg_fallback_pack": 3708.527,
+      "avg_fallback_gz": 896.78,
+      "savings_vs_fallback_raw": 0.10038,
+      "savings_vs_fallback_gz": 0.095795
+    }
+  ]
+}

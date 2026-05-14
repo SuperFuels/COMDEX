@@ -1,0 +1,27 @@
+# Ignore Python venvs
+.venv/
+venv/
+
+# Ignore everything except .env and required folders
+.env.local
+/env.yaml
+
+# Re-include .env if needed
+!/.env
+
+# Ignore git and node junk
+.git
+.gitignore
+node_modules/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Frontend build artifacts we don't want copied directly
+frontend/node_modules/
+frontend/.env.local
+
+# DO NOT ignore .next anymore — we build it inside the container
+# DO NOT ignore frontend/out either (not used now)
+#frontend/.next/
+#frontend/out/

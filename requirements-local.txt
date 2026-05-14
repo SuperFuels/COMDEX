@@ -1,0 +1,6 @@
+uvicorn
+fastapi
+SQLAlchemy
+filelock
+matplotlib
+websockets

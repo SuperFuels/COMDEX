@@ -1,0 +1,27 @@
+{
+  "module": "INERTIA",
+  "audit_safe_framing": [
+    "Model-level programmable coupling control in a lattice simulator",
+    "I02 uses a saturation / cutoff proxy near c_eff (near-wall regime)",
+    "No real-world propulsion claims"
+  ],
+  "code_commit": "4ef9c8e76",
+  "registry_commit": "fa158b84f",
+  "artifacts_root": "INERTIA/artifacts/programmable_inertia",
+  "pinned_runs": {
+    "I01": {
+      "tessaris_alpha_hold": "7a54bba",
+      "open_loop": "287c929",
+      "random_jitter_alpha": "0b9dbc7"
+    },
+    "I02": {
+      "tessaris_alpha_hold": "5c4fedf",
+      "open_loop": "a4e4e7b",
+      "random_jitter_alpha": "b807487"
+    }
+  },
+  "repro": {
+    "pytest": "env PYTHONPATH=$PWD/INERTIA/src python -m pytest INERTIA/tests/programmable_inertia -q",
+    "print_pinned": "python INERTIA/tools/print_pinned.py"
+  }
+}

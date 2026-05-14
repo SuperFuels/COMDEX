@@ -1,0 +1,161 @@
+{
+  "id": "data_tertiary",
+  "name": "Tertiary Data (References/Summaries)",
+  "type": "dc",
+  "symbol": "🌐",
+  "metadata": {
+    "version": "1.1",
+    "created_by": "AION Seed Generator",
+    "domain": "Data",
+    "tier": "tertiary",
+    "provenance": "seed",
+    "integration": {
+      "linked_domains": [
+        "physics_core",
+        "biology_core",
+        "economics_core",
+        "engineering_materials",
+        "control_systems",
+        "data_primary",
+        "data_secondary"
+      ],
+      "export_ready": true
+    },
+    "ingestion": {
+      "priority": "low_latency_disabled",
+      "expected_formats": ["PDF", "TeX", "XML", "HTML", "CSV", "JSON", "BibTeX", "RIS"],
+      "ops": ["parse", "extract_citations", "normalize_entities", "dedupe", "embed", "index"],
+      "entity_maps": ["authors", "affiliations", "venues", "dois", "grants", "topics", "ontologies"]
+    }
+  },
+  "glyph_categories": [
+    { "id": "ref",    "label": "Reference Works",         "emoji": "📚" },
+    { "id": "papers", "label": "Papers/Preprints",        "emoji": "📝" },
+    { "id": "kb",     "label": "Knowledge Bases",         "emoji": "🗂️" },
+    { "id": "summ",   "label": "Summaries/Reviews",       "emoji": "🧾" },
+    { "id": "meta",   "label": "Meta: Citations/Ontology", "emoji": "🧭" },
+    { "id": "code",   "label": "Code/Implementations",    "emoji": "💻" }
+  ],
+  "nodes": [
+    { "id": "encyclopedias",      "label": "Encyclopedias/Handbooks",  "cat": "ref",
+      "examples": ["CRC Handbook of Chemistry & Physics", "Springer Handbooks", "Oxford Handbooks"],
+      "quality": "high", "coverage": "broad", "external": true },
+
+    { "id": "textbooks",          "label": "Textbooks",                "cat": "ref",
+      "examples": ["Ogata: Modern Control", "Khalil: Nonlinear Systems", "Jackson: Classical Electrodynamics",
+                   "Goldstein: Classical Mechanics", "Bishop & Dorf: Modern Control Systems",
+                   "Griffiths: Introduction to QM"],
+      "quality": "high", "coverage": "foundational", "external": true },
+
+    { "id": "curated_kbs",        "label": "Curated Knowledge Bases",  "cat": "kb",
+      "examples": ["UniProt", "Gene Ontology", "Materials Project", "NIST Constants", "OECD Stats", "World Bank"],
+      "quality": "varied", "coverage": "domain", "external": true },
+
+    { "id": "paper_corpora",      "label": "Paper Corpora",            "cat": "papers",
+      "formats": ["PDF", "TeX", "XML"], "sources": ["journals", "preprints"],
+      "examples": ["arXiv", "PubMed", "CrossRef", "OpenAlex", "Semantic Scholar"],
+      "external": true },
+
+    { "id": "review_articles",    "label": "Review Articles",          "cat": "summ",
+      "notes": "systematic reviews, surveys, meta-analyses", "external": true },
+
+    { "id": "datasheets",         "label": "Datasheets/Standards",     "cat": "ref",
+      "notes": "material specs, device curves, control IC datasheets, ISO/IEC/ANSI standards",
+      "examples": ["JEDEC", "ISO 9001", "IEC 61508"], "external": true },
+
+    { "id": "benchmarks",         "label": "Benchmarks/Leaderboards",  "cat": "kb",
+      "notes": "ML/controls/econ standardized tasks & metrics",
+      "examples": ["MATH, AIME/IMO sets", "ImageNet-like task sets for physics vision", "RL control suites"],
+      "external": true },
+
+    { "id": "conference_proceedings", "label": "Conference Proceedings", "cat": "papers",
+      "examples": ["CDC", "ACC", "NeurIPS", "ICML", "ICLR", "APS March", "MRS", "AAS"],
+      "external": true },
+
+    { "id": "preprint_servers",   "label": "Preprint Servers",         "cat": "papers",
+      "examples": ["arXiv", "bioRxiv", "medRxiv"], "external": true },
+
+    { "id": "policy_whitepapers", "label": "Policy/Whitepapers",       "cat": "summ",
+      "examples": ["NIST AI RMF", "OECD AI", "EU AI Act Tech Docs"], "external": true },
+
+    { "id": "technical_blogs",    "label": "Technical Blogs/Notes",    "cat": "summ",
+      "notes": "lab blogs; research notes; engineering writeups", "external": true },
+
+    { "id": "code_repos",         "label": "Reference Code Repositories", "cat": "code",
+      "examples": ["mathlib4", "scipy", "control-toolbox", "OpenFOAM", "Geant4", "Cantera"],
+      "license": "varies", "external": true },
+
+    { "id": "ontology_vocabularies", "label": "Ontologies/Vocabularies", "cat": "meta",
+      "examples": ["W3C PROV", "Dublin Core", "GO", "CHEBI", "Units/UDUNITS", "QUDT"],
+      "purpose": "entity normalization, provenance", "external": true },
+
+    { "id": "citation_graphs",    "label": "Citation Graphs",          "cat": "meta",
+      "examples": ["OpenAlex Graph", "MAG (legacy)", "CrossRef links"], "external": true },
+
+    { "id": "dataset_catalogs",   "label": "Dataset Catalogs/Portals", "cat": "kb",
+      "examples": ["KDNuggets", "paperswithcode Datasets", "NASA DAACs", "data.gov"],
+      "external": true },
+
+    { "id": "units_conversions",  "label": "Units/Conversions",        "cat": "meta",
+      "examples": ["NIST", "QUDT"], "notes": "used for unit_convert ops in secondary" },
+
+    { "id": "errata_corrections", "label": "Errata/Corrections",       "cat": "meta",
+      "notes": "publisher errata; official corrections; corrigenda", "external": true },
+
+    { "id": "retractions",        "label": "Retractions",              "cat": "meta",
+      "examples": ["Retraction Watch DB"], "notes": "safety & quality gates", "external": true },
+
+    { "id": "replication_studies","label": "Replication Studies",      "cat": "summ",
+      "notes": "reproducibility audits & replications", "external": true },
+
+    { "id": "survey_datasets",    "label": "Survey/Meta Datasets",     "cat": "summ",
+      "notes": "hand-built tables extracted from reviews; ready for features" },
+
+    { "id": "wikipedia",          "label": "Wikipedia/Companions",     "cat": "summ",
+      "notes": "lightweight tertiary background; not authoritative", "external": true },
+
+    { "id": "stackexchange_archives","label": "StackExchange Archives", "cat": "summ",
+      "notes": "Q/A corpora for heuristics; tag-filtered by domain", "external": true },
+
+    { "id": "lecture_notes",      "label": "Lecture Notes/OpenCourseWare", "cat": "summ",
+      "examples": ["MIT OCW math/physics", "CMU SCS notes"], "external": true }
+  ],
+  "links": [
+    { "src": "encyclopedias",       "dst": "review_articles",    "relation": "summarized_in" },
+    { "src": "paper_corpora",       "dst": "review_articles",    "relation": "synthesized_by" },
+    { "src": "curated_kbs",         "dst": "datasheets",         "relation": "includes" },
+    { "src": "textbooks",           "dst": "datasheets",         "relation": "supports" },
+    { "src": "benchmarks",          "dst": "paper_corpora",      "relation": "cited_by" },
+    { "src": "conference_proceedings","dst": "paper_corpora",    "relation": "contributes_to" },
+    { "src": "preprint_servers",    "dst": "paper_corpora",      "relation": "feeds" },
+    { "src": "policy_whitepapers",  "dst": "review_articles",    "relation": "contextualized_by" },
+    { "src": "technical_blogs",     "dst": "review_articles",    "relation": "inspired_by" },
+    { "src": "code_repos",          "dst": "benchmarks",         "relation": "evaluated_by" },
+    { "src": "ontology_vocabularies","dst": "curated_kbs",       "relation": "normalizes" },
+    { "src": "citation_graphs",     "dst": "paper_corpora",      "relation": "indexes" },
+    { "src": "dataset_catalogs",    "dst": "golden_datasets",    "relation": "registered_in" },
+    { "src": "units_conversions",   "dst": "tidy_tables",        "relation": "enables_unit_convert" },
+    { "src": "errata_corrections",  "dst": "golden_datasets",    "relation": "quality_gate_for" },
+    { "src": "retractions",         "dst": "golden_datasets",    "relation": "exclusion_policy_for" },
+    { "src": "replication_studies", "dst": "review_articles",    "relation": "validated_by" },
+    { "src": "survey_datasets",     "dst": "model_ready_sets",   "relation": "feeds" },
+    { "src": "wikipedia",           "dst": "review_articles",    "relation": "background_for" },
+    { "src": "stackexchange_archives","dst": "feature_marts",    "relation": "mined_into" },
+    { "src": "lecture_notes",       "dst": "textbooks",          "relation": "supplements" },
+    { "src": "textbooks:jackson_em",  "dst": "maxwell_eqs", "relation": "cites" },
+    { "src": "textbooks:khalil_nonlinear", "dst": "state_space", "relation": "teaches" },
+    { "src": "textbooks:ogata_control", "dst": "pid_control", "relation": "derives" },
+    { "src": "papers:helmholtz_1858", "dst": "fourier_transform", "relation": "foundation_of" },
+
+
+    { "src": "review_articles",     "dst": "golden_datasets",    "relation": "curation_policy_informs" },
+    { "src": "paper_corpora",       "dst": "feature_marts",      "relation": "ner_entities_featureized_into" },
+    { "src": "curated_kbs",         "dst": "tidy_tables",        "relation": "normalized_into" },
+    { "src": "datasheets",          "dst": "agg_panels",         "relation": "aggregated_into" },
+
+
+    { "src": "datasheets",          "dst": "sensor_timeseries",  "relation": "calibration_guides" },
+    { "src": "curated_kbs",         "dst": "lab_experiments",    "relation": "protocol_informs" },
+    { "src": "ontology_vocabularies","dst": "raw_provenance",    "relation": "vocab_for" }
+  ]
+}

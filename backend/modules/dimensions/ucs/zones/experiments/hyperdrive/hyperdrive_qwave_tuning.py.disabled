@@ -1,0 +1,64 @@
+"""
+🎛 Hyperdrive QWave Tuning CLI
+----------------------------
+• Orchestrates Hyperdrive tuning using modularized engine control.
+• Uses: HyperdriveTuningConstants, ECU Runtime Loop, Engine Factory, Auto-Tuner.
+• Simplified entrypoint for CLI-driven engine tuning operations.
+"""
+
+import argparse
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_tuning_constants_module import HyperdriveTuningConstants
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.ecu_runtime_module import ecu_runtime_loop
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.engine_factory_module import create_engine
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_control_panel.modules.hyperdrive_auto_tuner_module import HyperdriveAutoTuner
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Hyperdrive QWave Engine Tuning CLI")
+    parser.add_argument("--ticks", type=int, default=2000, help="Runtime ticks for ECU loop.")
+    parser.add_argument("--sqi", type=int, default=50, help="SQI interval for tuning feedback.")
+    parser.add_argument("--fuel", type=int, default=4, help="Injector cycle interval.")
+    parser.add_argument("--disable-injectors", action="store_true", help="Disable injector firing.")
+    parser.add_argument("--harmonic-gain", type=float, help="Override harmonic gain.")
+    parser.add_argument("--gravity", type=float, default=1.0, help="Initial gravity field.")
+    parser.add_argument("--magnetism", type=float, default=1.0, help="Initial magnetism field.")
+    parser.add_argument("--wave-frequency", type=float, default=1.0, help="Initial wave frequency.")
+    parser.add_argument("--manual-stage", action="store_true", help="Force manual stage transitions.")
+    parser.add_argument("--enable-sqi", action="store_true", help="Enable SQI-driven modulation.")
+    parser.add_argument("--pulse-seek", action="store_true", help="Run pulse-seek baseline before ECU loop.")
+    parser.add_argument("--auto-tune", action="store_true", help="Run SQI-driven auto-tuner after ECU runtime.")
+    parser.add_argument("--safe-mode", action="store_true", help="Initialize engine in safe mode.")
+    parser.add_argument("--injectors", type=int, default=4, help="Number of injectors.")
+    parser.add_argument("--injector-interval", type=int, default=4, help="Injector firing interval.")
+    parser.add_argument("--intake-rate", type=float, default=1.0, help="Particle intake rate.")
+    parser.add_argument("--harmonics", type=float, default=HyperdriveTuningConstants.HARMONIC_GAIN, help="Initial harmonic gain.")
+    args = parser.parse_args()
+
+    print("⚙ Initializing Hyperdrive Engine...")
+    engine = create_engine(name="engine-A", args=args)
+
+    # 🔍 Optional pulse-seek baseline
+    if args.pulse_seek:
+        print("🔍 Pulse-seek mode enabled: Resetting baseline fields.")
+        engine.fields.update({
+            "gravity": args.gravity,
+            "magnetism": args.magnetism,
+            "wave_frequency": args.wave_frequency
+        })
+        print(f"⚙ Pulse baseline applied: {engine.fields}")
+
+    # 🚦 ECU Runtime Loop
+    ecu_runtime_loop(
+        engine_a=engine,
+        ticks=args.ticks,
+        sqi_interval=args.sqi,
+        fuel_cycle=args.fuel,
+        manual_stage=args.manual_stage,
+        sqi_phase_aware=args.enable_sqi
+    )
+
+    # 🔧 Auto-Tune Phase
+    if args.auto_tune:
+        print("\n🔧 Running Hyperdrive Auto-Tuner...")
+        tuner = HyperdriveAutoTuner(engine)
+        tuner.tune(iterations=50, warmup_ticks=50)
+        print("✅ Auto-Tuning Complete.")

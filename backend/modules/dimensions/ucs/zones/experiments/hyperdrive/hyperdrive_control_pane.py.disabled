@@ -1,0 +1,321 @@
+"""-----------------------------------------
+⚙️ QWave Engine Control Panel (Orchestrator)
+--------------------------------------------
+• Coordinates ignition, ECU runtime tuning, gear shifting, SQI, and multi-engine sync.
+• Imports modular subsystems:
+    - 🧩 Tesseract Injector: Multi-stage compression injectors + compression chambers.
+    - 🧩 Gear Shift Manager: Pulse-gated gear shifting with drift dampener.
+    - 🧩 Engine Sync: Twin-engine resonance lock + exhaust → intake chaining.
+    - 🧩 Idle Manager: Ignition sequence, idle detection, and auto-recovery.
+• SQI Integration: Inline drift auto-corrections and resonance feedback.
+• ECU Runtime Loop: Harmonics-fuel-injector orchestration with velocity clamps.
+
+🔥 Features Included:
+    • Full ignition → idle stabilization with SQI drift feedback.
+    • Tesseract injector with staged density amplification.
+    • ECU runtime driver (harmonics ↔ injectors ↔ SQI tuning).
+    • Pulse-gated gear shifting with sub-step gears (1.2, 1.5 before Gear 2).
+    • Twin-engine resonance synchronization (F2).
+    • Exhaust → intake chaining for multi-engine amplification (F3).
+    • Auto-recovery: Reload idle state post-collapse.
+"""
+
+"""
+🚀 Hyperdrive Control Panel (Enhanced)
+--------------------------------------
+• Coordinates ignition, ECU runtime tuning, gear shifting, SQI, and multi-engine sync.
+• Adds experimental Hyperdrive features:
+    - ✅ Integrated intake scaling (engine.intake_rate respected automatically)
+    - ✅ Expanded harmonics injection at SQI peaks
+    - ✅ Auto-pulse ramps (pre-runtime and during runtime)
+    - ✅ Warp readiness checks (PI, SQI drift audit, harmonic coherence)
+    - ✅ Retains twin-engine gear-shift loop & exhaust chaining
+    - ✅ Preserves all ignition-to-idle & SQI sync logic
+"""
+
+import os
+import time
+import json
+import gzip
+import argparse
+from datetime import datetime
+
+# -------------------------
+# CLI Argument Parser
+# -------------------------
+parser = argparse.ArgumentParser(description="Hyperdrive Engine Control Panel Runtime")
+parser.add_argument("--ticks", type=int, default=5000, help="Total ECU runtime ticks (default: 5000)")
+parser.add_argument("--sqi", type=int, default=200, help="SQI correction interval in ticks (default: 200)")
+parser.add_argument("--fuel", type=int, default=5, help="Fuel cycle frequency (ticks per fuel inject)")
+parser.add_argument("--harmonics", type=int, nargs="+", default=[2, 3, 4, 5], help="Harmonic frequencies list (expanded for Hyperdrive).")
+parser.add_argument("--injector-interval", type=int, default=5, help="Tick interval for proton injection.")
+parser.add_argument("--injectors", type=int, default=6, help="Number of tesseract injectors (scaling).")
+parser.add_argument("--intake-rate", type=int, default=1, help="Particles added per tick intake cycle.")
+parser.add_argument("--auto-pulse", action="store_true", help="Enable automated field ramping.")
+parser.add_argument("--gravity", type=float, default=1.0, help="Initial gravity field strength")
+parser.add_argument("--magnetism", type=float, default=1.0, help="Initial magnetism field strength")
+parser.add_argument("--wave-frequency", type=float, default=1.0, help="Initial wave frequency")
+parser.add_argument("--enable-sqi", action="store_true", help="Enable SQI-driven stage adjustments.")
+parser.add_argument("--sqi-phase-aware", action="store_true", help="Enable SQI phase-aware dynamic stage tuning.")
+parser.add_argument("--manual-stage", action="store_true", help="Force manual stage levers (disable SQI control).")
+parser.add_argument("--enable-engine-b", action="store_true", help="Enable second engine for twin sync tests.")
+parser.add_argument("--safe-mode", action="store_true", help="Enable Safe Mode (reduced particle count & capped fields).")
+args = parser.parse_args()
+
+# -------------------------
+# Imports
+# -------------------------
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_engine import HyperdriveEngine
+from backend.modules.dimensions.containers.symbolic_expansion_container import SymbolicExpansionContainer
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_tesseract_injector import TesseractInjector, CompressionChamber
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_gear_shift_manager import gear_shift
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_engine_sync import sync_twin_engines, exhaust_to_intake
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_idle_manager import ignition_to_idle, save_idle_state
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_qwave_tuning import HyperdriveTuning
+
+# -------------------------
+# Harmonic Coherence Measure
+# -------------------------
+def measure_harmonic_coherence(engine):
+    if not engine.resonance_filtered:
+        return 0.0
+    peak = max(engine.resonance_filtered[-50:], default=1)
+    drift = max(engine.resonance_filtered[-50:], default=1) - min(engine.resonance_filtered[-50:], default=0)
+    return min(1.0, (peak / (drift + 1e-6)) * 0.01)
+
+import os
+import time
+import json
+import gzip
+from datetime import datetime
+from backend.modules.dimensions.ucs.zones.experiments.hyperdrive.hyperdrive_qwave_tuning import HyperdriveTuning
+
+# -------------------------
+# ECU Runtime Loop (80k-Stable PI with SQI Sync + Damping + Logging + Particle Clamp)
+# -------------------------  
+def ecu_runtime_loop(engine_a, engine_b=None, sqi_phase_aware=False, sqi_interval=100,
+                     fuel_cycle=5, manual_stage=False, ticks=10000):
+    tick_counter = 0
+    print(f"🚦 ECU Runtime Loop Start: Target Ticks={ticks}")
+
+    # 🔧 Logging Setup
+    log_dir = "data/qwave_logs"
+    os.makedirs(log_dir, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    main_log_file = os.path.join(log_dir, f"ecu_runtime_log_{timestamp}.jsonl.gz")
+    latest_log_file = os.path.join(log_dir, "ecu_runtime_latest.jsonl")
+
+    prev_fields = None
+    segment_size = 2000
+
+    with gzip.open(main_log_file, "wt", encoding="utf-8") as log_f, open(latest_log_file, "w") as latest_f:
+        while tick_counter < ticks:
+            # Core tick updates
+            engine_a.tick()
+            if engine_b:
+                engine_b.tick()
+            tick_counter += 1
+
+            # 🔧 Particle velocity clamp & damping
+            for p in engine_a.particles:
+                vx = max(min(p["vx"], HyperdriveTuning.MAX_V), -HyperdriveTuning.MAX_V)
+                vy = max(min(p["vy"], HyperdriveTuning.MAX_V), -HyperdriveTuning.MAX_V)
+                vz = max(min(p["vz"], HyperdriveTuning.MAX_V), -HyperdriveTuning.MAX_V)
+                _ = math.sqrt(vx**2 + vy**2 + vz**2)
+                p["vx"] *= 0.98
+                p["vy"] *= 0.98
+                p["vz"] *= 0.98
+
+            if engine_b:
+                for p in engine_b.particles:
+                    vx = max(min(p["vx"], HyperdriveTuning.MAX_V), -HyperdriveTuning.MAX_V)
+                    vy = max(min(p["vy"], HyperdriveTuning.MAX_V), -HyperdriveTuning.MAX_V)
+                    vz = max(min(p["vz"], HyperdriveTuning.MAX_V), -HyperdriveTuning.MAX_V)
+                    _ = math.sqrt(vx**2 + vy**2 + vz**2)
+                    p["vx"] *= 0.98
+                    p["vy"] *= 0.98
+                    p["vz"] *= 0.98
+
+            # Proton intake scaling
+            for _ in range(getattr(engine_a, "intake_rate", 1)):
+                engine_a.inject_proton()
+            if engine_b:
+                for _ in range(getattr(engine_b, "intake_rate", 1)):
+                    engine_b.inject_proton()
+
+            # Harmonic injection (periodic baseline)
+            if tick_counter % sqi_interval == 0 and getattr(engine_a, "sqi_locked", False):
+                engine_a._inject_harmonics(HyperdriveTuning.HARMONIC_DEFAULTS)
+                if engine_b and getattr(engine_b, "sqi_locked", False):
+                    engine_b._inject_harmonics(HyperdriveTuning.HARMONIC_DEFAULTS)
+
+            # SQI phase sync
+            if sqi_phase_aware and engine_b:
+                drift_diff = abs(engine_a.resonance_phase - engine_b.resonance_phase)
+                if drift_diff > 0.01:
+                    adj = (engine_a.resonance_phase - engine_b.resonance_phase) * 0.5
+                    engine_b.resonance_phase += adj
+                    print(f"🔗 SQI Phase Sync: Engine B adjusted by {adj:.5f} (Δ={drift_diff:.5f})")
+                if tick_counter % sqi_interval == 0:
+                    engine_b.fields = engine_a.fields.copy()
+                    print(f"🔄 SQI Field Sync @tick {tick_counter}: Engine B fields matched.")
+
+            # Drift damping safeguard (Δ scaling)
+            drift_a = max(engine_a.resonance_filtered[-30:], default=0) - min(engine_a.resonance_filtered[-30:], default=0)
+            if drift_a > HyperdriveTuning.RESONANCE_DRIFT_THRESHOLD:
+                Δ = getattr(engine_a, "delta", 1.0) * 0.5
+                engine_a.delta = Δ
+                print(f"⚠ Drift spike detected (A: {drift_a:.2f}) → Δ dampened to {Δ:.4f}")
+                engine_a.fields["gravity"] *= 0.96
+                engine_a.fields["magnetism"] *= 0.96
+                engine_a.fields["wave_frequency"] *= 0.98
+
+            if engine_b:
+                drift_b = max(engine_b.resonance_filtered[-30:], default=0) - min(engine_b.resonance_filtered[-30:], default=0)
+                if drift_b > HyperdriveTuning.RESONANCE_DRIFT_THRESHOLD:
+                    Δb = getattr(engine_b, "delta", 1.0) * 0.5
+                    engine_b.delta = Δb
+                    print(f"⚠ Drift spike detected (B: {drift_b:.2f}) → Δ dampened to {Δb:.4f}")
+                    engine_b.fields["gravity"] *= 0.96
+                    engine_b.fields["magnetism"] *= 0.96
+                    engine_b.fields["wave_frequency"] *= 0.98
+
+            # Particle bleeding safeguard (pre-collapse)
+            if len(engine_a.particles) > 70000:
+                engine_a.sqi.bleed_particles(rate=0.03)
+            if engine_b and len(engine_b.particles) > 70000:
+                engine_b.sqi.bleed_particles(rate=0.03)
+
+            # Harmonic injection (tight phase lock)
+            if abs(engine_a.sqi.resonance - engine_a.target_phase) < 0.005:
+                for h in HyperdriveTuning.HARMONICS:
+                    engine_a.sqi.inject_harmonic(h, getattr(engine_a, "delta", 1.0))
+            if engine_b and abs(engine_b.sqi.resonance - engine_b.target_phase) < 0.005:
+                for h in HyperdriveTuning.HARMONICS:
+                    engine_b.sqi.inject_harmonic(h, getattr(engine_b, "delta", 1.0))
+
+            # Particle count auto-collapse
+            if len(engine_a.particles) > 85000:
+                print("⚠ Particle count critical (>85k). Auto-collapsing Engine A field.")
+                engine_a._collapse_field()
+            if engine_b and len(engine_b.particles) > 85000:
+                print("⚠ Particle count critical (Engine B >85k). Auto-collapsing Engine B field.")
+                engine_b._collapse_field()
+
+            # Auto-pulse (mild ramp)
+            if args.auto_pulse and tick_counter % 200 == 0:
+                engine_a.fields["gravity"] *= 1.005
+                engine_a.fields["magnetism"] *= 1.005
+                engine_a.fields["wave_frequency"] *= 1.002
+                print(f"🎶 Auto-pulse applied (mild). Tick={tick_counter}")
+
+            # Warp readiness checks (PI, SQI stability, harmonic lock)
+            warp_checks = {}
+            if tick_counter % 500 == 0:
+                pi_val = sum(e.get("impact_speed", 0) for e in engine_a.exhaust_log[-500:])
+                warp_checks["pi_threshold"] = pi_val > 5000
+                if warp_checks["pi_threshold"]:
+                    print(f"✅ PI threshold achieved ({pi_val:.0f})")
+                drift_var = max(engine_a.resonance_filtered[-100:], default=0) - min(engine_a.resonance_filtered[-100:], default=0)
+                warp_checks["sqi_stable"] = drift_var < 0.01
+                if warp_checks["sqi_stable"]:
+                    print("✅ SQI warp-ready stability confirmed.")
+                coherence = measure_harmonic_coherence(engine_a)
+                warp_checks["harmonic_lock"] = coherence >= 0.95
+                if warp_checks["harmonic_lock"]:
+                    print("✅ Harmonic warp-lock confirmed.")
+
+            # Telemetry logging (compressed, every 500 ticks)
+            if tick_counter % 500 == 0:
+                drift_b = (max(engine_b.resonance_filtered[-30:], default=0) - min(engine_b.resonance_filtered[-30:], default=0)) if engine_b else None
+                delta_fields = {k: v for k, v in engine_a.fields.items()} if prev_fields is None else \
+                               {k: v for k, v in engine_a.fields.items() if abs(v - prev_fields[k]) > 0.01}
+                prev_fields = engine_a.fields.copy()
+
+                telemetry = {
+                    "tick": tick_counter,
+                    "particles_a": len(engine_a.particles),
+                    "resonance_a": engine_a.resonance_phase,
+                    "drift_a": drift_a,
+                    "particles_b": len(engine_b.particles) if engine_b else None,
+                    "resonance_b": engine_b.resonance_phase if engine_b else None,
+                    "drift_b": drift_b,
+                    "warp_checks": warp_checks,
+                    "delta_fields": delta_fields,
+                    "timestamp": datetime.utcnow().isoformat()
+                }
+                json.dump(telemetry, log_f); log_f.write("\n"); log_f.flush()
+
+                latest_f.seek(0); latest_f.truncate()
+                json.dump(telemetry, latest_f); latest_f.write("\n"); latest_f.flush()
+
+                drift_b_display = f"{drift_b:.4f}" if drift_b is not None else "N/A"
+                print(f"📊 Tick={tick_counter} | Drift A={drift_a:.4f} | Drift B={drift_b_display}")
+
+                if tick_counter % segment_size == 0:
+                    log_f.close()
+                    seg_file = os.path.join(log_dir, f"ecu_runtime_log_{timestamp}_seg{tick_counter//segment_size}.jsonl.gz")
+                    log_f = gzip.open(seg_file, "wt", encoding="utf-8")
+
+            time.sleep(0.01)
+
+    print(f"✅ ECU Runtime Loop Complete. Logs compressed in: {log_dir}")
+    
+# -------------------------
+# Engine Init
+# -------------------------
+def create_engine(name="engine"):
+    container = SymbolicExpansionContainer(container_id=name)
+    engine = HyperdriveEngine(
+        container=container,
+        safe_mode=args.safe_mode,
+        stage_lock=4,
+        virtual_absorber=True
+    )
+    engine.injectors = [TesseractInjector(i, phase_offset=i * 2) for i in range(args.injectors)]
+    engine.chambers = [CompressionChamber(i, compression_factor=1.3) for i in range(4)]
+    engine.injector_interval = args.injector_interval
+    engine.fields.update({"gravity": args.gravity, "magnetism": args.magnetism, "wave_frequency": args.wave_frequency})
+    engine.sqi_enabled = args.enable_sqi
+    engine.intake_rate = args.intake_rate
+    HyperdriveTuning.HARMONICS = args.harmonics
+    return engine
+
+# -------------------------
+# CLI Entry Point
+# -------------------------
+if __name__ == "__main__":
+    print("⚙ Initializing Engine A...")
+    engine_a = create_engine("engine-A")
+    ignition_to_idle(engine_a)
+
+    engine_b = None
+    if args.enable_engine_b:
+        print("⚙ Initializing Engine B...")
+        engine_b = create_engine("engine-B")
+        ignition_to_idle(engine_b)
+        sync_twin_engines(engine_a, engine_b)
+
+    if args.auto_pulse:
+        print("🔧 Pre-runtime Auto-pulse ramp applied.")
+        for f in ["gravity", "magnetism"]:
+            engine_a.fields[f] *= 1.01
+        engine_a.fields["wave_frequency"] *= 1.005
+
+    print("🚦 Starting ECU Runtime Loop...")
+    ecu_runtime_loop(
+        engine_a,
+        engine_b=engine_b,
+        sqi_phase_aware=args.sqi_phase_aware,
+        sqi_interval=args.sqi,
+        fuel_cycle=args.fuel,
+        manual_stage=args.manual_stage,
+        ticks=args.ticks
+    )
+
+    if engine_b:
+        for g in [1, 2]:
+            gear_shift(engine_a, g, HyperdriveTuning.STAGE_CONFIGS)
+            gear_shift(engine_b, g, HyperdriveTuning.STAGE_CONFIGS)
+            exhaust_to_intake(engine_a, engine_b)
+        print("🚀 Engine A ↔ B twin sync + chaining complete.")

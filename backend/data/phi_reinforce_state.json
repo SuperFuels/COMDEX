@@ -1,0 +1,13 @@
+{
+  "Φ_load": 0.0,
+  "Φ_flux": 0.25,
+  "Φ_entropy": 0.35,
+  "Φ_coherence": 0.65,
+  "beliefs": {
+    "stability": 0.5,
+    "curiosity": 0.5,
+    "trust": 0.5,
+    "clarity": 0.5
+  },
+  "last_update": null
+}

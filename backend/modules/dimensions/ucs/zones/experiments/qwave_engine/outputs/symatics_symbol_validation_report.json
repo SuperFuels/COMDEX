@@ -1,0 +1,173 @@
+{
+  "catalog": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_symbol_catalog.json",
+  "overall_metrics": {
+    "samples_total": 3,
+    "samples_with_expected_symbol": 3,
+    "samples_with_expected_semantic_state": 3,
+    "exact_symbol_hits": 3,
+    "semantic_hits": 3,
+    "exact_symbol_accuracy": 1.0,
+    "semantic_accuracy": 1.0,
+    "mean_confidence": 0.2658360811541803,
+    "mean_margin": 0.2799030402060049
+  },
+  "per_symbol_summary": [
+    {
+      "symbol_id": "S1",
+      "semantic_state": "constructive",
+      "samples": 1,
+      "exact_symbol_hits": 1,
+      "semantic_hits": 1,
+      "exact_symbol_accuracy": 1.0,
+      "semantic_accuracy": 1.0,
+      "mean_confidence": 0.1843858058663043,
+      "min_confidence": 0.1843858058663043,
+      "max_confidence": 0.1843858058663043
+    },
+    {
+      "symbol_id": "S2",
+      "semantic_state": "beyond_boolean_positive",
+      "samples": 1,
+      "exact_symbol_hits": 1,
+      "semantic_hits": 1,
+      "exact_symbol_accuracy": 1.0,
+      "semantic_accuracy": 1.0,
+      "mean_confidence": 0.34900519939649693,
+      "min_confidence": 0.34900519939649693,
+      "max_confidence": 0.34900519939649693
+    },
+    {
+      "symbol_id": "S4",
+      "semantic_state": "beyond_boolean_negative",
+      "samples": 1,
+      "exact_symbol_hits": 1,
+      "semantic_hits": 1,
+      "exact_symbol_accuracy": 1.0,
+      "semantic_accuracy": 1.0,
+      "mean_confidence": 0.26411723819973965,
+      "min_confidence": 0.26411723819973965,
+      "max_confidence": 0.26411723819973965
+    }
+  ],
+  "confusion_matrix": {
+    "labels": [
+      "S1",
+      "S2",
+      "S4"
+    ],
+    "rows": {
+      "S1": {
+        "S1": 1,
+        "S2": 0,
+        "S4": 0
+      },
+      "S2": {
+        "S1": 0,
+        "S2": 1,
+        "S4": 0
+      },
+      "S4": {
+        "S1": 0,
+        "S2": 0,
+        "S4": 1
+      }
+    }
+  },
+  "cases": [
+    {
+      "source": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_capture_20260314T230711Z.jsonl",
+      "source_kind": "capture_jsonl",
+      "expected_symbol_id": "S1",
+      "expected_semantic_state": "constructive",
+      "expected_phi": 0.0,
+      "expected_harmonics": [
+        1,
+        2
+      ],
+      "predicted_symbol_id": "S1",
+      "predicted_name": "S1_constructive_1_2",
+      "predicted_semantic_state": "constructive",
+      "predicted_phi": null,
+      "predicted_harmonics": null,
+      "confidence": 0.1843858058663043,
+      "distance": 4.423410957810314,
+      "runner_up_symbol_id": "S0",
+      "runner_up_confidence": 0.17068601026202007,
+      "margin": 0.43530000780954037,
+      "agreed_symbol": true,
+      "agreed_semantic_state": true,
+      "observation_pickup": 0.9540719918880803,
+      "observation_stability": 0.9788591957818824,
+      "observation_drift": 3.125856616822708,
+      "observation_phi": 0.0,
+      "notes": {
+        "match_count": 5,
+        "expected_harmonics_key": "1,2",
+        "predicted_harmonics_key": ""
+      }
+    },
+    {
+      "source": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_capture_20260314T230726Z.jsonl",
+      "source_kind": "capture_jsonl",
+      "expected_symbol_id": "S2",
+      "expected_semantic_state": "beyond_boolean_positive",
+      "expected_phi": 1.5707963267948966,
+      "expected_harmonics": [
+        1,
+        2
+      ],
+      "predicted_symbol_id": "S2",
+      "predicted_name": "S2_beyond_boolean_positive_1_2",
+      "predicted_semantic_state": "beyond_boolean_positive",
+      "predicted_phi": null,
+      "predicted_harmonics": null,
+      "confidence": 0.34900519939649693,
+      "distance": 1.865286825896031,
+      "runner_up_symbol_id": "S3",
+      "runner_up_confidence": 0.3168444159314249,
+      "margin": 0.29083633650942975,
+      "agreed_symbol": true,
+      "agreed_semantic_state": true,
+      "observation_pickup": 0.8098851299455687,
+      "observation_stability": 0.9708896815981536,
+      "observation_drift": 0.013451077200680703,
+      "observation_phi": 1.57079632679,
+      "notes": {
+        "match_count": 5,
+        "expected_harmonics_key": "1,2",
+        "predicted_harmonics_key": ""
+      }
+    },
+    {
+      "source": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_capture_20260314T230747Z.jsonl",
+      "source_kind": "capture_jsonl",
+      "expected_symbol_id": "S4",
+      "expected_semantic_state": "beyond_boolean_negative",
+      "expected_phi": 4.71238898038469,
+      "expected_harmonics": [
+        1
+      ],
+      "predicted_symbol_id": "S4",
+      "predicted_name": "S4_beyond_boolean_negative_1",
+      "predicted_semantic_state": "beyond_boolean_negative",
+      "predicted_phi": null,
+      "predicted_harmonics": null,
+      "confidence": 0.26411723819973965,
+      "distance": 2.7861973978530936,
+      "runner_up_symbol_id": "S3",
+      "runner_up_confidence": 0.2564253674814089,
+      "margin": 0.11357277629904461,
+      "agreed_symbol": true,
+      "agreed_semantic_state": true,
+      "observation_pickup": 0.234885489179818,
+      "observation_stability": 0.8163784727990564,
+      "observation_drift": 0.014655795978487283,
+      "observation_phi": 3.14159265359,
+      "notes": {
+        "match_count": 5,
+        "expected_harmonics_key": "1",
+        "predicted_harmonics_key": ""
+      }
+    }
+  ]
+}

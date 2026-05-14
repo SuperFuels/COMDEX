@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/pre_earnings_estimate.schema.json",
+  "title": "AION Pre Earnings Estimate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pre_earnings_estimate_id",
+    "company_ref",
+    "as_of_date",
+    "next_report_date",
+    "estimate_window",
+    "estimate_summary",
+    "consensus_comparison",
+    "driver_impacts",
+    "signal_flags",
+    "audit"
+  ],
+  "properties": {
+    "pre_earnings_estimate_id": {
+      "type": "string",
+      "pattern": "^company/[A-Za-z0-9._:-]+/pre_earnings/[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+
+    "company_ref": {
+      "type": "string",
+      "pattern": "^company/"
+    },
+
+    "as_of_date": {
+      "type": "string",
+      "format": "date"
+    },
+
+    "next_report_date": {
+      "type": "string",
+      "format": "date"
+    },
+
+    "estimate_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["window_label", "days_to_report"],
+      "properties": {
+        "window_label": {
+          "type": "string",
+          "enum": ["far", "building", "decision_window", "imminent"]
+        },
+        "days_to_report": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "quarter_label": {
+          "type": "string"
+        }
+      }
+    },
+
+    "estimate_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "revenue_direction",
+        "margin_direction",
+        "expected_quality",
+        "analytical_confidence"
+      ],
+      "properties": {
+        "revenue_direction": {
+          "type": "string",
+          "enum": ["up", "flat", "down", "mixed", "unknown"]
+        },
+        "margin_direction": {
+          "type": "string",
+          "enum": ["up", "flat", "down", "mixed", "unknown"]
+        },
+        "expected_quality": {
+          "type": "string",
+          "enum": ["beat", "in_line", "miss", "mixed", "unknown"]
+        },
+        "analytical_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "summary": {
+          "type": "string"
+        }
+      }
+    },
+
+    "consensus_comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["consensus_state", "divergence_score"],
+      "properties": {
+        "consensus_state": {
+          "type": "string",
+          "enum": ["above_consensus", "near_consensus", "below_consensus", "unknown"]
+        },
+        "divergence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "consensus_notes": {
+          "type": "string"
+        }
+      }
+    },
+
+    "driver_impacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["driver", "impact_direction", "magnitude"],
+        "properties": {
+          "driver": {
+            "type": "string",
+            "minLength": 1
+          },
+          "impact_direction": {
+            "type": "string",
+            "enum": ["tailwind", "headwind", "mixed", "neutral"]
+          },
+          "magnitude": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "target_metric": {
+            "type": "string",
+            "enum": [
+              "revenue",
+              "gross_margin",
+              "operating_margin",
+              "ebitda",
+              "free_cash_flow",
+              "volume",
+              "pricing",
+              "reported_numbers"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+
+    "signal_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "fx_tailwind",
+          "fx_headwind",
+          "commodity_tailwind",
+          "commodity_headwind",
+          "demand_improving",
+          "demand_softening",
+          "margin_risk",
+          "consensus_gap_long",
+          "consensus_gap_short",
+          "watch_only",
+          "low_confidence"
+        ]
+      },
+      "uniqueItems": true
+    },
+
+    "linked_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "company_fingerprint_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^company/.+/fingerprint/"
+          }
+        },
+        "company_profile_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^company/.+/profile/"
+          }
+        },
+        "quarter_event_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^company/.+/quarter/"
+          }
+        },
+        "macro_regime_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^macro/"
+          }
+        },
+        "top_down_snapshot_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

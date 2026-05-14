@@ -1,0 +1,10 @@
+{
+  "container_id": "atom_test_01",
+  "saved_on": "2025-08-14T22:54:01.872825",
+  "memory_snapshot": {
+    "note": "fake memory test"
+  },
+  "encrypted_glyph_data": "3128506b612f2cadc2ffae689bc72822f4d0018ebcc3e1bbd2003ba84aac",
+  "runtime_mode": "compressed",
+  "container_type": "hoberman"
+}

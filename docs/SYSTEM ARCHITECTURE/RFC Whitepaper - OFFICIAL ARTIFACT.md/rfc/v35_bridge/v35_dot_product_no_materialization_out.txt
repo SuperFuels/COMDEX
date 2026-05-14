@@ -1,0 +1,12 @@
+v35_dot_product_no_materialization
+seed=35035
+n_agents=4096 k_updates=1024
+raw_snapshot_stream=21026827
+raw_delta_stream=88075
+raw_ratio(snapshot/delta)=238.737746
+gz_snapshot_stream=172418
+gz_delta_stream=23508
+gz_ratio(snapshot/delta)=7.334439
+dot_ok=True
+dot_value=274956227
+drift_sha256=4ee07ff2780748982f8d6cc9b10dde02a5d9182dfb97631cead18f54b8a396b1

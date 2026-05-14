@@ -1,0 +1,207 @@
+{
+  "id": "dc_aion_core",
+  "name": "Holo Test Container",
+  "symbol": "\u25c6",
+  "glyph_categories": [],
+  "nodes": [
+    {
+      "type": "kg_node",
+      "id": "dc_aion_core",
+      "kind": "container",
+      "meta": {
+        "address": "ucs://local/dc_aion_core#container",
+        "ghx": {
+          "hover": true,
+          "collapsed": true,
+          "density": "auto",
+          "version": "1.0"
+        },
+        "hov": {
+          "lazy_ready": true
+        },
+        "time_dilation": {
+          "mode": "normal",
+          "snapshot_rate": 1.0,
+          "reason": {
+            "glyphs": 0,
+            "nodes": 0
+          }
+        },
+        "last_hov_embed": "2025-12-09T17:45:38.949132"
+      },
+      "viz": {
+        "ghx_hover": true,
+        "ghx_collapsed": true
+      },
+      "expansion": {
+        "includes": [],
+        "counts": {}
+      }
+    },
+    {
+      "type": "kg_node",
+      "id": "ucs_hub",
+      "kind": "container",
+      "meta": {
+        "address": "ucs://root/hub#container",
+        "tags": [
+          "hub"
+        ],
+        "nodes": [
+          "root"
+        ],
+        "ghx": {
+          "hover": true,
+          "collapsed": true,
+          "density": "auto",
+          "version": "1.0"
+        },
+        "hov": {
+          "lazy_ready": true
+        },
+        "time_dilation": {
+          "mode": "normal",
+          "snapshot_rate": 1.0,
+          "reason": {
+            "glyphs": 0,
+            "nodes": 0
+          }
+        },
+        "last_hov_embed": "2025-12-09T17:45:38.968553"
+      },
+      "viz": {
+        "ghx_hover": true,
+        "ghx_collapsed": true
+      },
+      "expansion": {
+        "includes": [],
+        "counts": {}
+      }
+    },
+    {
+      "type": "kg_node",
+      "id": "tesseract_hq",
+      "kind": "container",
+      "meta": {
+        "address": "ucs://local/tesseract_hq#container",
+        "ghx": {
+          "hover": true,
+          "collapsed": true,
+          "density": "auto",
+          "version": "1.0"
+        },
+        "hov": {
+          "lazy_ready": true
+        },
+        "time_dilation": {
+          "mode": "normal",
+          "snapshot_rate": 1.0,
+          "reason": {
+            "glyphs": 0,
+            "nodes": 0
+          }
+        },
+        "last_hov_embed": "2025-12-09T17:45:38.987496"
+      },
+      "viz": {
+        "ghx_hover": true,
+        "ghx_collapsed": true
+      },
+      "expansion": {
+        "includes": [],
+        "counts": {}
+      }
+    },
+    {
+      "type": "kg_node",
+      "id": "cross_links",
+      "kind": "container",
+      "meta": {
+        "address": "ucs://local/cross_links#dc",
+        "ghx": {
+          "hover": true,
+          "collapsed": true,
+          "density": "auto",
+          "version": "1.0"
+        },
+        "hov": {
+          "lazy_ready": true
+        },
+        "time_dilation": {
+          "mode": "normal",
+          "snapshot_rate": 1.0,
+          "reason": {
+            "glyphs": 0,
+            "nodes": 0
+          }
+        },
+        "last_hov_embed": "2025-12-09T17:45:39.004946"
+      },
+      "viz": {
+        "ghx_hover": true,
+        "ghx_collapsed": true
+      },
+      "expansion": {
+        "includes": [],
+        "counts": {}
+      }
+    },
+    {
+      "type": "kg_node",
+      "id": "symatics_morphic_field",
+      "kind": "container",
+      "meta": {
+        "domain": "symatics/morphic_field",
+        "address": "ucs://local/symatics_morphic_field#container",
+        "ghx": {
+          "hover": true,
+          "collapsed": true,
+          "density": "auto",
+          "version": "1.0"
+        },
+        "hov": {
+          "lazy_ready": true
+        },
+        "time_dilation": {
+          "mode": "normal",
+          "snapshot_rate": 1.0,
+          "reason": {
+            "glyphs": 0,
+            "nodes": 0
+          }
+        },
+        "last_hov_embed": "2025-12-09T17:45:39.024207"
+      },
+      "viz": {
+        "ghx_hover": true,
+        "ghx_collapsed": true
+      },
+      "expansion": {
+        "includes": [],
+        "counts": {}
+      }
+    }
+  ],
+  "links": [
+    {
+      "src": "dc_aion_core",
+      "dst": "dc_aion_core",
+      "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
+    },
+    {
+      "src": "dc_aion_core",
+      "dst": "dc_aion_core",
+      "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
+    },
+    {
+      "src": "dc_aion_core",
+      "dst": "dc_aion_core",
+      "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
+    },
+    {
+      "src": "dc_aion_core",
+      "dst": "dc_aion_core",
+      "relation": "containers/dc_aion_core/glyphs/dc_aion_core"
+    }
+  ]
+}

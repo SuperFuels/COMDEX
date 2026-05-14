@@ -1,0 +1,188 @@
+{
+  "ucs_hub": {
+    "address": "ucs://root/hub#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://root/hub#container",
+      "tags": [
+        "hub"
+      ],
+      "nodes": [
+        "root"
+      ]
+    }
+  },
+  "Math Core": {
+    "address": "ucs://local/Math Core#SymbolicExpansionContainer",
+    "kind": "SymbolicExpansionContainer",
+    "meta": {
+      "address": "ucs://local/Math Core#SymbolicExpansionContainer"
+    }
+  },
+  "physics_core": {
+    "address": "ucs://local/physics_core#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/physics_core#container"
+    }
+  },
+  "control_systems": {
+    "address": "ucs://local/control_systems#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/control_systems#container"
+    }
+  },
+  "engineering_materials": {
+    "address": "ucs://local/engineering_materials#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/engineering_materials#container"
+    }
+  },
+  "biology_core": {
+    "address": "ucs://local/biology_core#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/biology_core#container"
+    }
+  },
+  "economics_core": {
+    "address": "ucs://local/economics_core#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/economics_core#container"
+    }
+  },
+  "Cross-Domain Links": {
+    "address": "ucs://local/Cross-Domain Links#dc",
+    "kind": "dc",
+    "meta": {
+      "address": "ucs://local/Cross-Domain Links#dc"
+    }
+  },
+  "tesseract_hq": {
+    "address": "ucs://local/tesseract_hq#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/tesseract_hq#container"
+    }
+  },
+  "lean_replay_core.dc": {
+    "address": "ucs://local/lean_replay_core.dc#container",
+    "kind": "container",
+    "meta": {
+      "source": "mathlib_slice.dc.json",
+      "purpose": "Lean theorem replay testing core",
+      "address": "ucs://local/lean_replay_core.dc#container"
+    }
+  },
+  "lean_replay_core": {
+    "address": "ucs://local/atoms/lean_replay_core",
+    "kind": "dc",
+    "meta": {
+      "address": "ucs://local/atoms/lean_replay_core",
+      "viz": {
+        "icon": "🧮",
+        "color": "#3b82f6"
+      },
+      "about": "Atom that exposes Lean replay over the mathlib slice container."
+    }
+  },
+  "math_core": {
+    "address": "ucs://local/math_core#SymbolicExpansionContainer",
+    "kind": "SymbolicExpansionContainer",
+    "meta": {
+      "address": "ucs://local/math_core#SymbolicExpansionContainer"
+    }
+  },
+  "cross_links": {
+    "address": "ucs://local/cross_links#dc",
+    "kind": "dc",
+    "meta": {
+      "address": "ucs://local/cross_links#dc"
+    }
+  },
+  "problem_gauss": {
+    "address": "ucs://local/problem_gauss#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/problem_gauss#container"
+    }
+  },
+  "problem_gauss.dc": {
+    "address": "ucs://local/problem_gauss.dc#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/problem_gauss.dc#container"
+    }
+  },
+  "atom_maxwell": {
+    "address": "ucs://local/atom_maxwell#atom",
+    "kind": "atom",
+    "meta": {
+      "address": "ucs://local/atom_maxwell#atom"
+    }
+  },
+  "atom_maxwell_bundle": {
+    "address": "ucs://local/atom_maxwell_bundle#container",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://local/atom_maxwell_bundle#container"
+    }
+  },
+  "maxwell_core": {
+    "address": "ucs://knowledge/facts/physics.em/maxwell_core",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://knowledge/facts/physics.em/maxwell_core",
+      "created_by": "SQI",
+      "last_updated": "2025-08-13T20:37:54.059746",
+      "ghx": {
+        "hover": true,
+        "collapsed": true,
+        "density": "auto",
+        "version": "1.0"
+      },
+      "hov": {
+        "lazy_ready": true
+      },
+      "time_dilation": {
+        "mode": "normal",
+        "snapshot_rate": 1.0,
+        "reason": {
+          "glyphs": 0,
+          "nodes": 0
+        }
+      },
+      "last_hov_embed": "2025-08-13T20:37:54.059775"
+    }
+  },
+  "physics_kernel_facts": {
+    "address": "ucs://knowledge/facts/physics.kernel/physics_kernel_facts",
+    "kind": "container",
+    "meta": {
+      "address": "ucs://knowledge/facts/physics.kernel/physics_kernel_facts",
+      "created_by": "SQI",
+      "last_updated": "2025-08-14T20:37:28.049435",
+      "ghx": {
+        "hover": true,
+        "collapsed": true,
+        "density": "auto",
+        "version": "1.0"
+      },
+      "hov": {
+        "lazy_ready": true
+      },
+      "time_dilation": {
+        "mode": "normal",
+        "snapshot_rate": 1.0,
+        "reason": {
+          "glyphs": 0,
+          "nodes": 0
+        }
+      },
+      "last_hov_embed": "2025-08-14T20:37:34.982652"
+    }
+  }
+}

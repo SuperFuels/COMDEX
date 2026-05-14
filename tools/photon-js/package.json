@@ -1,0 +1,22 @@
+{
+  "name": "photon-js",
+  "version": "0.1.2",
+  "private": true,
+  "type": "module",
+  "description": "Photon JS/TS transform CLI (AST-masked replace with tree-sitter).",
+  "bin": { "photon-js": "dist/index.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "tree-sitter": "^0.22.1",
+    "tree-sitter-javascript": "^0.20.1",
+    "tree-sitter-typescript": "^0.20.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,307 @@
+{
+  "count": 10,
+  "runs": [
+    {
+      "cfg": {
+        "N": 128,
+        "controller": "open_loop",
+        "created_utc": "2025-12-25T23:33:37Z",
+        "drift_sigma": 0.001,
+        "git_commit": "1da797bed1deadecf73440ffae17dadf115f904f",
+        "run_hash": "f68243a",
+        "seed": 1,
+        "steps": 80,
+        "test_id": "G01",
+        "tups_version": "TUPS_V1.2",
+        "well_amp": 10.0,
+        "well_sigma": 10.0
+      },
+      "controller": "open_loop",
+      "metrics": {
+        "controller": "open_loop",
+        "mse_final": 0.002051397411096189,
+        "run_hash": "f68243a",
+        "seed": 1,
+        "test_id": "G01"
+      },
+      "namespace": "programmable_gravity",
+      "run_dir": "GRAVITY/artifacts/programmable_gravity/G01/f68243a",
+      "run_hash": "f68243a",
+      "seed": 1,
+      "test_id": "G01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "N": 128,
+        "controller": "random_jitter",
+        "created_utc": "2025-12-25T23:33:37Z",
+        "drift_sigma": 0.001,
+        "git_commit": "1da797bed1deadecf73440ffae17dadf115f904f",
+        "run_hash": "f2abffe",
+        "seed": 1,
+        "steps": 80,
+        "test_id": "G01",
+        "tups_version": "TUPS_V1.2",
+        "well_amp": 10.0,
+        "well_sigma": 10.0
+      },
+      "controller": "random_jitter",
+      "metrics": {
+        "controller": "random_jitter",
+        "mse_final": 0.619494044369574,
+        "run_hash": "f2abffe",
+        "seed": 1,
+        "test_id": "G01"
+      },
+      "namespace": "programmable_gravity",
+      "run_dir": "GRAVITY/artifacts/programmable_gravity/G01/f2abffe",
+      "run_hash": "f2abffe",
+      "seed": 1,
+      "test_id": "G01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "N": 128,
+        "controller": "tessaris_curvature_hold",
+        "created_utc": "2025-12-25T23:33:37Z",
+        "drift_sigma": 0.001,
+        "git_commit": "1da797bed1deadecf73440ffae17dadf115f904f",
+        "run_hash": "e2b8382",
+        "seed": 1,
+        "steps": 80,
+        "test_id": "G01",
+        "tups_version": "TUPS_V1.2",
+        "well_amp": 10.0,
+        "well_sigma": 10.0
+      },
+      "controller": "tessaris_curvature_hold",
+      "metrics": {
+        "controller": "tessaris_curvature_hold",
+        "mse_final": 2.5621950599854184e-05,
+        "run_hash": "e2b8382",
+        "seed": 1,
+        "test_id": "G01"
+      },
+      "namespace": "programmable_gravity",
+      "run_dir": "GRAVITY/artifacts/programmable_gravity/G01/e2b8382",
+      "run_hash": "e2b8382",
+      "seed": 1,
+      "test_id": "G01",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "N": 128,
+        "controller": "open_loop",
+        "created_utc": "2025-12-25T23:33:37Z",
+        "drift_sigma": 0.002,
+        "git_commit": "1da797bed1deadecf73440ffae17dadf115f904f",
+        "run_hash": "a3e37d2",
+        "seed": 1,
+        "steps": 90,
+        "test_id": "G02",
+        "tups_version": "TUPS_V1.2",
+        "well_amp": 10.0,
+        "well_sigma": 10.0
+      },
+      "controller": "open_loop",
+      "metrics": {
+        "controller": "open_loop",
+        "mse_final": 0.0076879999163478215,
+        "run_hash": "a3e37d2",
+        "seed": 1,
+        "test_id": "G02"
+      },
+      "namespace": "programmable_gravity",
+      "run_dir": "GRAVITY/artifacts/programmable_gravity/G02/a3e37d2",
+      "run_hash": "a3e37d2",
+      "seed": 1,
+      "test_id": "G02",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "N": 128,
+        "controller": "random_jitter",
+        "created_utc": "2025-12-25T23:33:37Z",
+        "drift_sigma": 0.002,
+        "git_commit": "1da797bed1deadecf73440ffae17dadf115f904f",
+        "run_hash": "aff203d",
+        "seed": 1,
+        "steps": 90,
+        "test_id": "G02",
+        "tups_version": "TUPS_V1.2",
+        "well_amp": 10.0,
+        "well_sigma": 10.0
+      },
+      "controller": "random_jitter",
+      "metrics": {
+        "controller": "random_jitter",
+        "mse_final": 0.7023599458972087,
+        "run_hash": "aff203d",
+        "seed": 1,
+        "test_id": "G02"
+      },
+      "namespace": "programmable_gravity",
+      "run_dir": "GRAVITY/artifacts/programmable_gravity/G02/aff203d",
+      "run_hash": "aff203d",
+      "seed": 1,
+      "test_id": "G02",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "N": 128,
+        "controller": "tessaris_curvature_hold",
+        "created_utc": "2025-12-25T23:33:37Z",
+        "drift_sigma": 0.002,
+        "git_commit": "1da797bed1deadecf73440ffae17dadf115f904f",
+        "run_hash": "1cd3905",
+        "seed": 1,
+        "steps": 90,
+        "test_id": "G02",
+        "tups_version": "TUPS_V1.2",
+        "well_amp": 10.0,
+        "well_sigma": 10.0
+      },
+      "controller": "tessaris_curvature_hold",
+      "metrics": {
+        "controller": "tessaris_curvature_hold",
+        "mse_final": 0.0018624364856644766,
+        "run_hash": "1cd3905",
+        "seed": 1,
+        "test_id": "G02"
+      },
+      "namespace": "programmable_gravity",
+      "run_dir": "GRAVITY/artifacts/programmable_gravity/G02/1cd3905",
+      "run_hash": "1cd3905",
+      "seed": 1,
+      "test_id": "G02",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "N": 128,
+        "controller": "tessaris_curvature_hold",
+        "created_utc": "2025-12-25T00:20:08+00:00Z",
+        "drift_sigma": 0.002,
+        "git_commit": "f957124e9359981858892acc0572b7f269a03fa8",
+        "run_hash": "963b289",
+        "seed": 1,
+        "steps": 90,
+        "test_id": "G02",
+        "tups_version": "TUPS_V1.2",
+        "well_amp": 10.0,
+        "well_sigma": 10.0
+      },
+      "controller": "unknown",
+      "metrics": {
+        "controller": "unknown",
+        "mse_final": 0.0018624364856644766,
+        "run_hash": "963b289",
+        "seed": 1,
+        "test_id": "G02"
+      },
+      "namespace": "programmable_gravity",
+      "run_dir": "GRAVITY/artifacts/programmable_gravity/G02/963b289",
+      "run_hash": "963b289",
+      "seed": 1,
+      "test_id": "G02",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "N": 128,
+        "controller": "random_jitter",
+        "created_utc": "2025-12-25T00:20:08+00:00Z",
+        "drift_sigma": 0.002,
+        "git_commit": "f957124e9359981858892acc0572b7f269a03fa8",
+        "run_hash": "a823bd6",
+        "seed": 1,
+        "steps": 90,
+        "test_id": "G02",
+        "tups_version": "TUPS_V1.2",
+        "well_amp": 10.0,
+        "well_sigma": 10.0
+      },
+      "controller": "unknown",
+      "metrics": {
+        "controller": "unknown",
+        "mse_final": 0.7023599458972087,
+        "run_hash": "a823bd6",
+        "seed": 1,
+        "test_id": "G02"
+      },
+      "namespace": "programmable_gravity",
+      "run_dir": "GRAVITY/artifacts/programmable_gravity/G02/a823bd6",
+      "run_hash": "a823bd6",
+      "seed": 1,
+      "test_id": "G02",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "N": 128,
+        "controller": "open_loop",
+        "created_utc": "2025-12-25T00:20:08+00:00Z",
+        "drift_sigma": 0.002,
+        "git_commit": "f957124e9359981858892acc0572b7f269a03fa8",
+        "run_hash": "b6475e0",
+        "seed": 1,
+        "steps": 90,
+        "test_id": "G02",
+        "tups_version": "TUPS_V1.2",
+        "well_amp": 10.0,
+        "well_sigma": 10.0
+      },
+      "controller": "unknown",
+      "metrics": {
+        "controller": "unknown",
+        "mse_final": 0.0076879999163478215,
+        "run_hash": "b6475e0",
+        "seed": 1,
+        "test_id": "G02"
+      },
+      "namespace": "programmable_gravity",
+      "run_dir": "GRAVITY/artifacts/programmable_gravity/G02/b6475e0",
+      "run_hash": "b6475e0",
+      "seed": 1,
+      "test_id": "G02",
+      "timestamp": null
+    },
+    {
+      "cfg": {
+        "N": 128,
+        "controller": "static_sweep",
+        "created_utc": "2025-12-25T23:33:37Z",
+        "drift_sigma": 0.0,
+        "git_commit": null,
+        "run_hash": "9c70a08",
+        "seed": 1,
+        "steps": 1,
+        "test_id": "G03",
+        "tups_version": "TUPS_V1.2",
+        "well_amp": 1.0,
+        "well_sigma": 1.4
+      },
+      "controller": "static_sweep",
+      "metrics": {
+        "controller": "static_sweep",
+        "intercept": -4.979259726554883e-26,
+        "r2": 1.0,
+        "run_hash": "9c70a08",
+        "seed": 1,
+        "slope": -5.951024238358613e-11,
+        "test_id": "G03"
+      },
+      "namespace": "programmable_gravity",
+      "run_dir": "GRAVITY/artifacts/programmable_gravity/G03/9c70a08",
+      "run_hash": "9c70a08",
+      "seed": 1,
+      "test_id": "G03",
+      "timestamp": null
+    }
+  ]
+}

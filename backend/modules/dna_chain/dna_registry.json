@@ -1,0 +1,15 @@
+{
+  "proposals": [
+    {
+      "proposal_id": "9049c297-f68c-41d2-9d1f-5ef9f5f8787e",
+      "file": "test_trigger.dc.json",
+      "reason": "Testing glyph mutation from \u2726 to \ud83e\udded",
+      "replaced_code": "{\n  \"glyph\": \"\\u2726\",\n  \"type\": \"Memory\",\n  \"action\": \"store\",\n  \"tag\": \"note\",\n  \"value\": \"just a note\"\n}",
+      "new_code": "{\n  \"glyph\": \"\\ud83e\\udded\",\n  \"type\": \"Memory\",\n  \"action\": \"store\",\n  \"tag\": \"test-mutation\",\n  \"value\": \"just a note\"\n}",
+      "diff": "\u2726 \u2192 \ud83e\udded at 0,0,0",
+      "approved": true,
+      "timestamp": "2025-07-09T19:43:38.396804",
+      "approved_on": "2025-07-09T19:46:48.365308"
+    }
+  ]
+}

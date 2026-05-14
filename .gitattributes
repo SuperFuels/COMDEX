@@ -1,0 +1,39 @@
+# ──────────────────────────────
+# 🧠 Tessaris / Symatics Attributes
+# ──────────────────────────────
+
+# Normalize everything to LF by default
+* text=auto eol=lf
+
+# LFS-tracked native blobs (avoid committing node_modules if possible)
+node_modules/@next/swc-darwin-arm64/next-swc.darwin-arm64.node filter=lfs diff=lfs merge=lfs -text
+
+# Treat large/binary capsules & archives as binary
+*.wiki.phn binary
+*.qkg.json binary
+*.log.json binary
+*.tar.gz binary
+*.zip binary
+*.db binary
+*.photo binary
+
+# Generated telemetry/log streams — don’t diff/merge
+*.jsonl -diff -merge
+*.trace.json -diff -merge
+
+# Code line endings
+*.py   text eol=lf diff=python
+*.js   text eol=lf diff=javascript
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.jsx  text eol=lf
+*.md   text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+*.json text eol=lf diff=json
+*.css  text eol=lf
+
+# Photon filters
+*.photon filter=photon
+photon_src/*.py filter=photonlang
+*.csv text eol=lf

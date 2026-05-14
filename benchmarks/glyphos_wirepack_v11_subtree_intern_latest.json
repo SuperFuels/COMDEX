@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-01-08T20:52:38.268300+00:00",
+  "depth": 200,
+  "messages": 20000,
+  "mutate_rate": 0.95,
+  "avg_json_gz": 2016.30795,
+  "avg_fallback_gz": 1883.29605,
+  "stream_intern_bytes": 85859337,
+  "stream_intern_gz_bytes": 27902855,
+  "avg_stream_intern_gz": 1395.14275,
+  "improvement_vs_json_gz": 1.4452341525625245,
+  "improvement_vs_fallback_gz": 1.3498948763486747
+}

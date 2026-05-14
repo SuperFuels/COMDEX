@@ -1,0 +1,2 @@
+ab1f598876ca90dd3d4b5c6662901603db70606ca8ee904027fcf60f0195fc2c  backend/modules/lean/workspace/SymaticsBridge/V44_SQLSubsetTranslationNoMaterialization.lean
+2a26bf2371036e72080e26c0aefcfa9baa3e407a363decaf7515cbf141cddb68  backend/tests/locks/v44_sql_subset_translation_out.txt

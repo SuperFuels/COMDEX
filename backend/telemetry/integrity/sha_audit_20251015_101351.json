@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "timestamp": "2025-10-15T10:13:51.338159",
+  "verified_targets": [
+    "O-Series",
+    "P-Series"
+  ],
+  "hashes": {
+    "O-Series": {},
+    "P-Series": {}
+  }
+}

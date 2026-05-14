@@ -1,0 +1,14 @@
+=== ✅ Bridge Benchmark v17: Phase-interference tag bloat vs native operator ===
+family: inter(phi) chain over atoms 0..n
+
+   n   canon_raw  canon_gz   tagged_raw  tagged_gz  gz_ratio
+----  ----------  --------  -----------  ---------  --------
+   1          23        37           43         50      1.35
+   2          39        44           79         56      1.27
+   4          71        55          151         67      1.22
+   8         135        72          295         91      1.26
+  16         276       103          596        130      1.26
+  32         564       157         1204        195      1.24
+  64        1140       271         2420        327      1.21
+ 128        2349       541         4909        634      1.17
+ 256        4909      1051        10029       1218      1.16

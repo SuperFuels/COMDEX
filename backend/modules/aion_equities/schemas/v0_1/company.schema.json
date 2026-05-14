@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/company.schema.json",
+  "title": "AION Company Container",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "company_id",
+    "ticker",
+    "name",
+    "exchange",
+    "currency",
+    "sector_ref",
+    "status",
+    "predictability_profile",
+    "intelligence_state",
+    "audit"
+  ],
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "pattern": "^company/[A-Za-z0-9._:-]+$"
+    },
+    "ticker": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "exchange": { "type": "string", "minLength": 1 },
+    "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+    "country": { "type": "string" },
+    "sector_ref": { "type": "string", "pattern": "^sector/" },
+    "industry": { "type": "string" },
+    "status": { "type": "string", "enum": ["active", "watchlist", "inactive", "delisted"] },
+
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "isin": { "type": "string" },
+        "lei": { "type": "string" },
+        "cusip": { "type": "string" }
+      }
+    },
+
+    "business_profile": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "description": { "type": "string" },
+        "geographic_exposure_summary": { "type": "string" },
+        "segment_summary": { "type": "string" },
+        "moat_hypotheses": { "type": "array", "items": { "type": "string" } },
+        "cost_base_structure_notes": { "type": "string" },
+        "management_behavior_profile": { "type": "string" }
+      }
+    },
+
+    "predictability_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["acs_band", "sector_confidence_tier"],
+      "properties": {
+        "acs_band": { "type": "string", "enum": ["high", "medium", "low", "unknown"] },
+        "sector_confidence_tier": { "type": "string", "enum": ["tier_1", "tier_2", "tier_3"] },
+        "commodity_exposure_notes": { "type": "string" },
+        "hedging_opacity_notes": { "type": "string" },
+        "regulatory_complexity_notes": { "type": "string" }
+      }
+    },
+
+    "intelligence_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["latest_assessment_ref", "active_thesis_refs"],
+      "properties": {
+        "latest_assessment_ref": { "type": "string" },
+        "active_thesis_refs": { "type": "array", "items": { "type": "string" } },
+        "quarter_event_refs": { "type": "array", "items": { "type": "string" } },
+        "catalyst_event_refs": { "type": "array", "items": { "type": "string" } },
+        "pattern_refs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

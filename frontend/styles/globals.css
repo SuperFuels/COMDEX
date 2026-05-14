@@ -1,0 +1,326 @@
+/* ======================================================================
+   GLOBAL STYLES FOR STICKEY.ai / TESSARIS
+   ====================================================================== */
+
+/* stylelint-disable */
+/* prettier-ignore-start */
+/* eslint-disable */
+
+/* 1) (Optional) Import Canva Sans if you self-host it */
+/* @import url('/fonts/canvasans.css'); */
+
+/* 2) Tailwind’s layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 3) CSS VARIABLES (light & dark – HEX palette mapped to HSL where needed) */
+:root {
+  /* legacy vars still used in some components (LIGHT MODE) */
+  --bg-page:         #ffffff;
+  --bg-header:       #ffffff;
+  --text-primary:    #4a4a4a; /* light ink */
+  --text-secondary:  #7a7a7a;
+  --border-light:    #e0e0e0;
+  --scrollbar-thumb: #a1a1a1;
+  --primary:         #4a4a4a; /* buttons */
+  --primary-hover:   #a1a1a1;
+
+  /* shadcn / tailwind token-style vars (HSL components only) */
+  --background: 0 0% 100%;   /* #ffffff */
+  --foreground: 0 0% 29%;    /* #4a4a4a */
+
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 29%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 29%;
+
+  --muted: 0 0% 96%;          /* soft grey background */
+  --muted-foreground: 0 0% 45%;
+
+  --border: 0 0% 29%;         /* #4a4a4a borders in light mode */
+  --input: 0 0% 85%;
+  --ring: 0 0% 29%;
+
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 29%;
+
+  --accent: 0 0% 96%;
+  --accent-foreground: 0 0% 29%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --chart-1: 0 0% 29%;
+  --chart-2: 0 0% 45%;
+  --chart-3: 0 0% 63%;
+  --chart-4: 0 0% 75%;
+  --chart-5: 0 0% 85%;
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* legacy vars (DARK MODE) */
+  --bg-page:         #4a4a4a; /* dark-mode background */
+  --bg-header:       #4a4a4a; /* navbar matches page */
+  --text-primary:    #ebebeb; /* dark-mode text */
+  --text-secondary:  #f5f5f5;
+  --border-light:    #ffffff; /* containers / cards get white border */
+  --scrollbar-thumb: #ebebeb;
+  --primary:         #ebebeb;
+  --primary-hover:   #ffffff;
+
+  /* token vars in HSL */
+  --background: 0 0% 29%;    /* #4a4a4a */
+  --foreground: 0 0% 92%;    /* #ebebeb */
+
+  --card: 0 0% 29%;
+  --card-foreground: 0 0% 92%;
+
+  --popover: 0 0% 29%;
+  --popover-foreground: 0 0% 92%;
+
+  --muted: 0 0% 35%;
+  --muted-foreground: 0 0% 92%;
+
+  --border: 0 0% 100%;       /* all Tailwind border-border => white in dark mode */
+  --input: 0 0% 100%;
+  --ring: 0 0% 100%;
+
+  --secondary: 0 0% 35%;
+  --secondary-foreground: 0 0% 92%;
+
+  --accent: 0 0% 35%;
+  --accent-foreground: 0 0% 92%;
+
+  --destructive: 0 62% 40%;
+  --destructive-foreground: 0 0% 100%;
+
+  --chart-1: 0 0% 92%;
+  --chart-2: 0 0% 82%;
+  --chart-3: 0 0% 72%;
+  --chart-4: 0 0% 62%;
+  --chart-5: 0 0% 52%;
+}
+
+/* 4) RESET + GLOBALS */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-color: hsl(var(--border));
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Canva Sans", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  line-height: 1.6;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* 5) Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-page);
+}
+
+/* 6) Containers & Cards */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.card {
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 7) Buttons (pure CSS – no @apply) */
+button,
+.btn,
+a {
+  background-color: transparent;
+  border: 1px solid var(--text-primary);
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+button:hover,
+.btn:hover,
+a:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode: force white borders + light text for buttons/links */
+.dark button,
+.dark .btn,
+.dark a {
+  border-color: #ffffff;
+  color: #ebebeb;
+}
+
+/* Navbar icon buttons: opt-out of global button border/padding */
+.navbar-icon-btn {
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 9999px !important;
+  line-height: 0 !important;
+}
+
+.navbar-icon-btn:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .navbar-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Optional: if you want all icons inside to align nicely */
+.navbar-icon-btn > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Targets math symbols in the MDX paper */
+.symatics-paper-view .katex {
+  font-size: 1.1em;
+}
+
+/* Specifically targets the resonance symbols or highlighted equations */
+.symatics-paper-view .katex-display {
+  padding: 2rem 0;
+  color: #1d1d1f;
+  transition: all 0.3s ease;
+}
+
+/* The Blue Glow Logic */
+.symatics-paper-view strong, 
+.symatics-paper-view .math-emphasis {
+  color: #0071e3;
+  text-shadow: 0 0 15px rgba(0, 113, 227, 0.2);
+}
+
+/* Makes inline math symbols like 〰️® pop */
+.symatics-paper-view .katex .accent {
+  color: #0071e3;
+  filter: drop-shadow(0 0 5px rgba(0, 113, 227, 0.4));
+}
+
+/* Tailwind-style “filled” button but in raw CSS */
+.btn-filled {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+.btn-filled:hover {
+  background-color: var(--primary-hover);
+}
+
+/* 8) Form Inputs */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgb(74, 74, 74); /* #4a4a4a */
+  box-shadow: 0 0 0 2px rgba(74, 74, 74, 0.2);
+}
+
+/* Custom animation for the tab change */
+.animate-tab-change {
+  animation: tabSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes tabSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+
+/* 10) Logo link fix */
+a.logo-link {
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Split Pane Layout (AION dashboard specific) */
+.split-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+.split-container > .pane {
+  flex: 1;
+  background: var(--bg-page);
+  overflow-y: auto;
+  padding: 1rem;
+}
+.splitter {
+  width: 4px;
+  background-color: var(--border-light);
+  cursor: col-resize;
+}
+
+/* Footer anchor (fixed terminal) */
+.footer-terminal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--bg-header);
+  border-top: 1px solid var(--border-light);
+  z-index: 10;
+}
+
+/* prettier-ignore-end */
+/* stylelint-enable */
+/* eslint-enable */

@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/country_ambassador.schema.json",
+  "title": "AION Country Ambassador",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "country_ambassador_id",
+    "country_code",
+    "country_name",
+    "as_of_date",
+    "country_outlook",
+    "central_bank",
+    "sovereign_risk",
+    "monetary_conditions",
+    "energy_profile",
+    "credit_rating",
+    "capital_flows",
+    "audit"
+  ],
+  "properties": {
+    "country_ambassador_id": {
+      "type": "string",
+      "pattern": "^country/[A-Z]{2}$"
+    },
+    "country_code": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "country_name": {
+      "type": "string",
+      "minLength": 2
+    },
+    "as_of_date": {
+      "type": "string",
+      "format": "date"
+    },
+
+    "country_outlook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "confidence", "regime"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+        "regime": {
+          "type": "string",
+          "enum": ["supportive", "neutral", "fragile", "stressed"]
+        },
+        "summary": { "type": "string" },
+        "risk_flags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+
+    "central_bank": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_rate", "policy_bias"],
+      "properties": {
+        "policy_rate": { "type": "number" },
+        "policy_bias": {
+          "type": "string",
+          "enum": ["tightening", "easing", "on_hold", "uncertain"]
+        },
+        "forward_guidance": { "type": "string" },
+        "balance_sheet_direction": {
+          "type": "string",
+          "enum": ["expanding", "shrinking", "flat", "unknown"]
+        }
+      }
+    },
+
+    "sovereign_risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debt_to_gdp_pct", "fiscal_deficit_pct_gdp", "refinancing_wall_pressure"],
+      "properties": {
+        "debt_to_gdp_pct": { "type": "number", "minimum": 0 },
+        "fiscal_deficit_pct_gdp": { "type": "number" },
+        "refinancing_wall_pressure": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "debt_maturity_notes": { "type": "string" }
+      }
+    },
+
+    "monetary_conditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["money_supply_regime", "real_rate_regime"],
+      "properties": {
+        "money_supply_regime": {
+          "type": "string",
+          "enum": ["expanding", "contracting", "stable", "unknown"]
+        },
+        "m1_yoy_pct": { "type": "number" },
+        "m2_yoy_pct": { "type": "number" },
+        "m3_yoy_pct": { "type": "number" },
+        "real_rate_regime": {
+          "type": "string",
+          "enum": ["positive_rising", "positive_falling", "negative_rising", "negative_falling", "unknown"]
+        }
+      }
+    },
+
+    "energy_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["import_dependency_regime", "industrial_energy_cost_regime"],
+      "properties": {
+        "import_dependency_regime": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "industrial_energy_cost_regime": {
+          "type": "string",
+          "enum": ["advantaged", "normal", "elevated", "stressed"]
+        },
+        "power_price_notes": { "type": "string" },
+        "gas_price_notes": { "type": "string" }
+      }
+    },
+
+    "credit_rating": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["composite", "outlook"],
+      "properties": {
+        "composite": { "type": "string", "minLength": 1 },
+        "outlook": {
+          "type": "string",
+          "enum": ["positive", "stable", "negative", "watch_positive", "watch_negative", "unknown"]
+        },
+        "sp": { "type": "string" },
+        "moodys": { "type": "string" },
+        "fitch": { "type": "string" }
+      }
+    },
+
+    "capital_flows": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency_pressure", "equity_flow_regime", "bond_flow_regime"],
+      "properties": {
+        "currency_pressure": {
+          "type": "string",
+          "enum": ["inflow_supportive", "outflow_risk", "balanced", "unknown"]
+        },
+        "equity_flow_regime": {
+          "type": "string",
+          "enum": ["inflows", "outflows", "mixed", "unknown"]
+        },
+        "bond_flow_regime": {
+          "type": "string",
+          "enum": ["inflows", "outflows", "mixed", "unknown"]
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "linked_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "macro_regime_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "top_down_snapshot_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "company_refs": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^company/" }
+        }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

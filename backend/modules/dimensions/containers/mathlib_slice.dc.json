@@ -1,0 +1,565 @@
+{
+  "type": "dc_container",
+  "id": "lean::dc::mathlib_slice.lean",
+  "metadata": {
+    "origin": "lean_import",
+    "source_path": "backend/modules/lean/mathlib_slice.lean",
+    "logic_type": "lean_math"
+  },
+  "glyphs": [
+    "⟦ Definition ⟧ | double : Nat → Define ⟧",
+    "⟦ Lemma ⟧ | add_comm_nat : a + b = b + a → Prove ⟧",
+    "⟦ Theorem ⟧ | add_assoc_nat : a + b + c = a + (b + c) → Prove ⟧",
+    "⟦ Lemma ⟧ | mul_comm_nat : a * b = b * a → Prove ⟧",
+    "⟦ Theorem ⟧ | imp_trans : (p → q) → (q → r) → (p → r) → Prove ⟧",
+    "⟦ Definition ⟧ | HeatEqStatement : Prop → Define ⟧",
+    "⟦ Theorem ⟧ | heat_eq_linear : HeatEqStatement → Prove ⟧",
+    "⟦ Theorem ⟧ | double_add : double (x + y) = double x + double y → Prove ⟧"
+  ],
+  "symbolic_logic": [
+    {
+      "name": "double",
+      "symbol": "⟦ Definition ⟧",
+      "logic": "Nat",
+      "logic_raw": "Nat",
+      "codexlang": {
+        "symbol": "⟦ Definition ⟧",
+        "name": "double",
+        "logic": "Nat",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "Nat"
+          },
+          {
+            "type": "Definition",
+            "value": "n + n\n\n/-- commutativity of addition (Nat) -/"
+          }
+        ],
+        "normalized": "Nat"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "double",
+        "logic": "Nat",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "Nat"
+          },
+          {
+            "type": "Definition",
+            "value": "n + n\n\n/-- commutativity of addition (Nat) -/"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/mathlib_slice.lean",
+      "body": "n + n\n\n/-- commutativity of addition (Nat) -/"
+    },
+    {
+      "name": "add_comm_nat",
+      "symbol": "⟦ Lemma ⟧",
+      "logic": "a + b = b + a",
+      "logic_raw": "a + b = b + a",
+      "codexlang": {
+        "symbol": "⟦ Lemma ⟧",
+        "name": "add_comm_nat",
+        "logic": "a + b = b + a",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b = b + a"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  simpa [Nat.add_comm]\n\n/-- associativity of addition (Nat) -/"
+          }
+        ],
+        "normalized": "a + b = b + a"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "add_comm_nat",
+        "logic": "a + b = b + a",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b = b + a"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  simpa [Nat.add_comm]\n\n/-- associativity of addition (Nat) -/"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/mathlib_slice.lean",
+      "body": "by\n  simpa [Nat.add_comm]\n\n/-- associativity of addition (Nat) -/"
+    },
+    {
+      "name": "add_assoc_nat",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "a + b + c = a + (b + c)",
+      "logic_raw": "a + b + c = a + (b + c)",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "add_assoc_nat",
+        "logic": "a + b + c = a + (b + c)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b + c = a + (b + c)"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  simpa [Nat.add_assoc]\n\n/-- commutativity of multiplication (Nat) -/"
+          }
+        ],
+        "normalized": "a + b + c = a + (b + c)"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "add_assoc_nat",
+        "logic": "a + b + c = a + (b + c)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b + c = a + (b + c)"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  simpa [Nat.add_assoc]\n\n/-- commutativity of multiplication (Nat) -/"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/mathlib_slice.lean",
+      "body": "by\n  simpa [Nat.add_assoc]\n\n/-- commutativity of multiplication (Nat) -/"
+    },
+    {
+      "name": "mul_comm_nat",
+      "symbol": "⟦ Lemma ⟧",
+      "logic": "a * b = b * a",
+      "logic_raw": "a * b = b * a",
+      "codexlang": {
+        "symbol": "⟦ Lemma ⟧",
+        "name": "mul_comm_nat",
+        "logic": "a * b = b * a",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a * b = b * a"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  simpa [Nat.mul_comm]\n\n/-- a simple propositional implication transitivity -/"
+          }
+        ],
+        "normalized": "a * b = b * a"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "mul_comm_nat",
+        "logic": "a * b = b * a",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a * b = b * a"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  simpa [Nat.mul_comm]\n\n/-- a simple propositional implication transitivity -/"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/mathlib_slice.lean",
+      "body": "by\n  simpa [Nat.mul_comm]\n\n/-- a simple propositional implication transitivity -/"
+    },
+    {
+      "name": "imp_trans",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "(p → q) → (q → r) → (p → r)",
+      "logic_raw": "(p → q) → (q → r) → (p → r)",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "imp_trans",
+        "logic": "(p → q) → (q → r) → (p → r)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(p → q) → (q → r) → (p → r)"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  intro h1 h2 hp\n  exact h2 (h1 hp)\n\n/-- symmetry of ↔ -/"
+          }
+        ],
+        "normalized": "(p → q) → (q → r) → (p → r)"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "imp_trans",
+        "logic": "(p → q) → (q → r) → (p → r)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(p → q) → (q → r) → (p → r)"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  intro h1 h2 hp\n  exact h2 (h1 hp)\n\n/-- symmetry of ↔ -/"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/mathlib_slice.lean",
+      "body": "by\n  intro h1 h2 hp\n  exact h2 (h1 hp)\n\n/-- symmetry of ↔ -/"
+    },
+    {
+      "name": "HeatEqStatement",
+      "symbol": "⟦ Definition ⟧",
+      "logic": "Prop",
+      "logic_raw": "Prop",
+      "codexlang": {
+        "symbol": "⟦ Definition ⟧",
+        "name": "HeatEqStatement",
+        "logic": "Prop",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "Prop"
+          },
+          {
+            "type": "Definition",
+            "value": "True\n\n/-- trivial “proof” of the placeholder statement -/"
+          }
+        ],
+        "normalized": "Prop"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "HeatEqStatement",
+        "logic": "Prop",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "Prop"
+          },
+          {
+            "type": "Definition",
+            "value": "True\n\n/-- trivial “proof” of the placeholder statement -/"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/mathlib_slice.lean",
+      "body": "True\n\n/-- trivial “proof” of the placeholder statement -/"
+    },
+    {
+      "name": "heat_eq_linear",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "HeatEqStatement",
+      "logic_raw": "HeatEqStatement",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "heat_eq_linear",
+        "logic": "HeatEqStatement",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "HeatEqStatement"
+          },
+          {
+            "type": "Proof",
+            "value": "trivial\n\n/-- `double` distributes over addition -/"
+          }
+        ],
+        "normalized": "HeatEqStatement"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "heat_eq_linear",
+        "logic": "HeatEqStatement",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "HeatEqStatement"
+          },
+          {
+            "type": "Proof",
+            "value": "trivial\n\n/-- `double` distributes over addition -/"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/mathlib_slice.lean",
+      "body": "trivial\n\n/-- `double` distributes over addition -/"
+    },
+    {
+      "name": "double_add",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "double (x + y) = double x + double y",
+      "logic_raw": "double (x + y) = double x + double y",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "double_add",
+        "logic": "double (x + y) = double x + double y",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "double (x + y) = double x + double y"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  unfold double\n  simp [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]"
+          }
+        ],
+        "normalized": "double (x + y) = double x + double y"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "double_add",
+        "logic": "double (x + y) = double x + double y",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "double (x + y) = double x + double y"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  unfold double\n  simp [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]"
+          }
+        ]
+      },
+      "source": "backend/modules/lean/mathlib_slice.lean",
+      "body": "by\n  unfold double\n  simp [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]"
+    }
+  ],
+  "thought_tree": [
+    {
+      "name": "double",
+      "glyph": "⟦ Definition ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "double",
+        "logic": "Nat",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "Nat"
+          },
+          {
+            "type": "Definition",
+            "value": "n + n\n\n/-- commutativity of addition (Nat) -/"
+          }
+        ]
+      }
+    },
+    {
+      "name": "add_comm_nat",
+      "glyph": "⟦ Lemma ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "add_comm_nat",
+        "logic": "a + b = b + a",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b = b + a"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  simpa [Nat.add_comm]\n\n/-- associativity of addition (Nat) -/"
+          }
+        ]
+      }
+    },
+    {
+      "name": "add_assoc_nat",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "add_assoc_nat",
+        "logic": "a + b + c = a + (b + c)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b + c = a + (b + c)"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  simpa [Nat.add_assoc]\n\n/-- commutativity of multiplication (Nat) -/"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mul_comm_nat",
+      "glyph": "⟦ Lemma ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "mul_comm_nat",
+        "logic": "a * b = b * a",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a * b = b * a"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  simpa [Nat.mul_comm]\n\n/-- a simple propositional implication transitivity -/"
+          }
+        ]
+      }
+    },
+    {
+      "name": "imp_trans",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "imp_trans",
+        "logic": "(p → q) → (q → r) → (p → r)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(p → q) → (q → r) → (p → r)"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  intro h1 h2 hp\n  exact h2 (h1 hp)\n\n/-- symmetry of ↔ -/"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HeatEqStatement",
+      "glyph": "⟦ Definition ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "HeatEqStatement",
+        "logic": "Prop",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "Prop"
+          },
+          {
+            "type": "Definition",
+            "value": "True\n\n/-- trivial “proof” of the placeholder statement -/"
+          }
+        ]
+      }
+    },
+    {
+      "name": "heat_eq_linear",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "heat_eq_linear",
+        "logic": "HeatEqStatement",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "HeatEqStatement"
+          },
+          {
+            "type": "Proof",
+            "value": "trivial\n\n/-- `double` distributes over addition -/"
+          }
+        ]
+      }
+    },
+    {
+      "name": "double_add",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "double_add",
+        "logic": "double (x + y) = double x + double y",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "double (x + y) = double x + double y"
+          },
+          {
+            "type": "Proof",
+            "value": "by\n  unfold double\n  simp [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]"
+          }
+        ]
+      }
+    }
+  ],
+  "previews": [
+    "⟦ Definition ⟧ | double : Nat → Define ⟧",
+    "⟦ Lemma ⟧ | add_comm_nat : a + b = b + a → Prove ⟧",
+    "⟦ Theorem ⟧ | add_assoc_nat : a + b + c = a + (b + c) → Prove ⟧",
+    "⟦ Lemma ⟧ | mul_comm_nat : a * b = b * a → Prove ⟧",
+    "⟦ Theorem ⟧ | imp_trans : (p → q) → (q → r) → (p → r) → Prove ⟧",
+    "⟦ Definition ⟧ | HeatEqStatement : Prop → Define ⟧",
+    "⟦ Theorem ⟧ | heat_eq_linear : HeatEqStatement → Prove ⟧",
+    "⟦ Theorem ⟧ | double_add : double (x + y) = double x + double y → Prove ⟧"
+  ],
+  "dependencies": [
+    {
+      "theorem": "double",
+      "depends_on": []
+    },
+    {
+      "theorem": "add_comm_nat",
+      "depends_on": [
+        "Nat.add_comm"
+      ]
+    },
+    {
+      "theorem": "add_assoc_nat",
+      "depends_on": [
+        "Nat.add_assoc"
+      ]
+    },
+    {
+      "theorem": "mul_comm_nat",
+      "depends_on": [
+        "Nat.mul_comm"
+      ]
+    },
+    {
+      "theorem": "imp_trans",
+      "depends_on": []
+    },
+    {
+      "theorem": "HeatEqStatement",
+      "depends_on": []
+    },
+    {
+      "theorem": "heat_eq_linear",
+      "depends_on": []
+    },
+    {
+      "theorem": "double_add",
+      "depends_on": [
+        "Nat.add_comm",
+        "Nat.add_left_comm",
+        "Nat.add_assoc"
+      ]
+    }
+  ]
+}

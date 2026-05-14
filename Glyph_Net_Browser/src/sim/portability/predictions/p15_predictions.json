@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "P15_PREDICTIONS_V0",
+  "status": "ROADMAP_UNTIL_FROZEN",
+  "predictions": [
+    {
+      "id": "P15-PRED-0001",
+      "datasetId": "ENCODE_TF_CHIPSEQ_CANDIDATE",
+      "preprocessContractId": "P15_PREPROCESS_V0_TBD",
+      "metrics": [
+        {
+          "name": "motif_enrichment_delta",
+          "expected": "targeted motif family enrichment vs matched negatives (directional; TBD)",
+          "tolerance": "TBD"
+        },
+        {
+          "name": "selectivity_vs_background",
+          "expected": "signal separation between keyed vs unkeyed sites under null (TBD)",
+          "tolerance": "TBD"
+        }
+      ],
+      "controls": {
+        "negatives": [
+          "shuffle_keys_preserve_gc",
+          "scramble_motif_positions",
+          "random_matched_regions"
+        ],
+        "ablations": [
+          "remove_key_constraint",
+          "remove_topology_proxy",
+          "remove_separation_term"
+        ]
+      },
+      "passFailRule": "TBD: preregister null model + p-value/FDR + effect size threshold; negatives must fail; ablations must degrade.",
+      "notes": [
+        "ROADMAP placeholder only; not asserted or used for scoring yet."
+      ]
+    }
+  ]
+}

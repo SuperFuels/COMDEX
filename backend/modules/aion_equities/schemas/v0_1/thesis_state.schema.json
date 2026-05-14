@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/thesis_state.schema.json",
+  "title": "AION Thesis State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "thesis_id",
+    "ticker",
+    "mode",
+    "window",
+    "status",
+    "as_of",
+    "superposition",
+    "assessment_refs",
+    "sqi",
+    "policy_gate",
+    "risk_invariants",
+    "invalidation_conditions",
+    "audit"
+  ],
+  "properties": {
+    "thesis_id": {
+      "type": "string",
+      "pattern": "^thesis/[A-Za-z0-9._:-]+/(long|catalyst_long|swing_short|short|neutral_watch)/[A-Za-z0-9._:-]+$"
+    },
+    "ticker": { "type": "string", "minLength": 1 },
+    "mode": {
+      "type": "string",
+      "enum": ["long", "catalyst_long", "swing_short", "short", "neutral_watch"]
+    },
+    "window": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["watching", "candidate", "ready", "collapsed", "rejected", "invalidated", "resolved"]
+    },
+    "as_of": { "type": "string", "format": "date-time" },
+
+    "superposition": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/thesis_candidate" }
+    },
+
+    "selected_candidate_id": { "type": "string" },
+
+    "assessment_refs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+
+    "evidence_links": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "KG edge IDs or evidence node IDs"
+    },
+
+    "catalyst": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "required": { "type": "boolean" },
+        "present": { "type": "boolean" },
+        "catalyst_event_id": { "type": "string" },
+        "catalyst_type": {
+          "type": "string",
+          "enum": ["earnings", "debt_refinancing", "regulatory", "contract", "dividend", "agm", "guidance", "other"]
+        },
+        "expected_date": { "type": "string", "format": "date" },
+        "timing_confidence": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+
+    "borrow": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "required": { "type": "boolean" },
+        "borrow_cost_estimate_annualized_pct": { "type": "number", "minimum": 0 },
+        "locate_status": { "type": "string", "enum": ["unknown", "available", "tight", "unavailable"] }
+      }
+    },
+
+    "sizing_proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unit_type": { "type": "string", "enum": ["risk_units", "capital_pct", "notional"] },
+        "proposed_size": { "type": "number", "minimum": 0 },
+        "max_size": { "type": "number", "minimum": 0 },
+        "stop_logic": { "type": "string" },
+        "target_logic": { "type": "string" }
+      }
+    },
+
+    "sqi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coherence_score",
+        "drift_score",
+        "contradiction_pressure",
+        "stability_score",
+        "collapse_readiness_score"
+      ],
+      "properties": {
+        "coherence_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "drift_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "contradiction_pressure": { "type": "number", "minimum": 0, "maximum": 100 },
+        "stability_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "collapse_readiness_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "trace_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "policy_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bqs_pass",
+        "acs_pass",
+        "sqi_coherence_pass",
+        "drift_pass",
+        "contradiction_pass",
+        "catalyst_pass",
+        "risk_invariants_pass",
+        "ready_for_action"
+      ],
+      "properties": {
+        "bqs_pass": { "type": "boolean" },
+        "acs_pass": { "type": "boolean" },
+        "sqi_coherence_pass": { "type": "boolean" },
+        "drift_pass": { "type": "boolean" },
+        "contradiction_pass": { "type": "boolean" },
+        "catalyst_pass": { "type": "boolean" },
+        "risk_invariants_pass": { "type": "boolean" },
+        "ready_for_action": { "type": "boolean" },
+        "reasons": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "risk_invariants": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["version"],
+      "properties": {
+        "version": { "type": "string" }
+      }
+    },
+
+    "invalidation_conditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/invalidation_condition" }
+    },
+
+    "collapse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "collapsed": { "type": "boolean" },
+        "collapsed_at": { "type": "string", "format": "date-time" },
+        "collapsed_candidate_id": { "type": "string" },
+        "decision_type": { "type": "string", "enum": ["promote", "stand_down", "defer", "reject"] },
+        "gate_trace_id": { "type": "string" }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" },
+        "write_stage_refs": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "$defs": {
+    "thesis_candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_id", "label", "probability_mass_hint", "expected_move_direction"],
+      "properties": {
+        "candidate_id": { "type": "string" },
+        "label": { "type": "string", "enum": ["long", "short", "neutral"] },
+        "probability_mass_hint": { "type": "number", "minimum": 0, "maximum": 1 },
+        "expected_move_direction": { "type": "string", "enum": ["up", "down", "flat", "unclear"] },
+        "expected_move_pct_range": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "low": { "type": "number" },
+            "high": { "type": "number" }
+          }
+        },
+        "evidence_refs": { "type": "array", "items": { "type": "string" } },
+        "pattern_refs": { "type": "array", "items": { "type": "string" } },
+        "note": { "type": "string" }
+      }
+    },
+    "invalidation_condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "condition_type", "rule"],
+      "properties": {
+        "id": { "type": "string" },
+        "condition_type": {
+          "type": "string",
+          "enum": ["fundamental", "catalyst", "price_action", "risk", "time", "borrow_cost", "other"]
+        },
+        "rule": { "type": "string" },
+        "severity": { "type": "string", "enum": ["warn", "hard"] }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "mode": { "enum": ["short", "swing_short"] } },
+        "required": ["mode"]
+      },
+      "then": {
+        "properties": {
+          "borrow": {
+            "required": ["required", "borrow_cost_estimate_annualized_pct"]
+          },
+          "catalyst": {
+            "required": ["required", "present"]
+          }
+        }
+      }
+    }
+  ]
+}

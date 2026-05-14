@@ -1,0 +1,14 @@
+v38_canonical_delta_determinism_replay_wirepack
+seed=38038
+n_agents=4096 k_updates=1024 m_edits_per_update=1
+canon_idempotent_ok=True
+canon_stable_ok=True
+replay_ok=True
+raw_template_bytes=16386
+raw_delta_stream_bytes=8162
+raw_ratio(template/delta)=2.007596
+gz_template_bytes=11468
+gz_delta_stream_bytes=5162
+gz_ratio(template/delta)=2.221620
+final_state_sha256=71800dd26cd235a7191922d224d91b2a32e0c0bba602d2b7c6e1aab2ad59caa5
+drift_sha256=d58e5b9d0a489461822a2e524bae5f09c377d983f50cbbb44e298ec49eb64bcf

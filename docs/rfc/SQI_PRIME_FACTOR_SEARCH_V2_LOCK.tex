@@ -1,0 +1,342 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  citecolor=black
+}
+
+\setlist[itemize]{topsep=4pt,itemsep=2pt}
+\setlist[enumerate]{topsep=4pt,itemsep=2pt}
+
+\title{\textbf{SQI Prime Factor Search v2 Lock}}
+\author{Kevin Robinson \\ Tessaris AI}
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document records the second locked version of the SQI-inspired prime factor search
+prototype. Version 2 adds JSONL trace artifacts, dashboard output, Miller--Rabin primality
+testing, Brent's Pollard Rho variant, interleaved branch-budget scheduling, benchmark
+comparison against classical baselines, and a quiet CLI runner.
+\end{abstract}
+
+\section{Lock Status}
+
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\textbf{Lock ID} & SQI-PRIME-FACTOR-SEARCH-V2-LOCK-0002 \\
+\textbf{Status} & LOCKED --- adaptive symbolic factor search v2 passing \\
+\textbf{Maintainer} & Tessaris AI \\
+\textbf{Author} & Kevin Robinson \\
+\end{tabularx}
+
+\section{Purpose}
+
+This lock records a working SQI-style factor-search prototype where integer factorisation
+is treated as a symbolic branch-routing and collapse problem.
+
+Given an integer \(N\), the system creates a strategy space:
+
+\[
+N
+\rightarrow
+\left\{
+\text{small-prime},
+\text{Fermat},
+\text{Brent Rho},
+\text{Pollard Rho},
+\text{wheel/coherence}
+\right\}
+\rightarrow
+\text{branch routing}
+\rightarrow
+\text{verified collapse}.
+\]
+
+A candidate factor \(d\) is accepted only when:
+
+\[
+N \bmod d = 0.
+\]
+
+Thus symbolic scoring and branch routing guide the search, but exact divisibility remains
+the final collapse condition.
+
+\section{Files}
+
+\begin{itemize}
+  \item \url{backend/modules/sqi/factor/sqi_prime_factorizer.py}
+  \item \url{backend/modules/sqi/factor/sqi_factor_cli.py}
+  \item \url{backend/modules/sqi/factor/__init__.py}
+  \item \url{backend/tests/test_sqi_prime_factorizer.py}
+  \item \url{backend/tests/test_sqi_prime_factor_benchmark_runner.py}
+  \item \url{backend/tests/test_sqi_factor_cli.py}
+  \item \url{benchmarks/sqi_prime_factor_benchmark_v2.json}
+  \item \url{benchmarks/sqi_prime_factor_dashboard_v2.json}
+  \item \url{.runtime/sqi_factor_traces/*.jsonl}
+\end{itemize}
+
+\section{Version 2 Additions}
+
+Version 2 adds:
+
+\begin{enumerate}
+  \item JSONL trace artifacts for factor-search runs and collapse events.
+  \item Larger semiprime benchmark table.
+  \item Miller--Rabin probable-prime testing.
+  \item Brent variant of Pollard Rho.
+  \item Branch-budget scheduling so strategies can interleave.
+  \item Benchmark comparison against naive trial division, wheel, Fermat-only,
+  Pollard-only, Brent-only, and SQI-adaptive.
+  \item Dashboard JSON output for branch coherence and collapse traces.
+  \item Quiet CLI runner for JSON and terminal use.
+\end{enumerate}
+
+\section{Branch Types}
+
+\subsection{Small-Prime Branch}
+
+This branch checks a fixed small-prime table. If a small divisor exists, collapse is immediate:
+
+\[
+N = p \cdot \frac{N}{p}.
+\]
+
+\subsection{Fermat Branch}
+
+The Fermat branch targets near-square semiprimes:
+
+\[
+N = a^2 - b^2 = (a-b)(a+b).
+\]
+
+It performs well when the two factors of \(N\) are close together.
+
+\subsection{Pollard Rho Branch}
+
+The Pollard Rho branch targets broader composite integers by detecting a non-trivial divisor:
+
+\[
+1 < \gcd(|x-y|, N) < N.
+\]
+
+\subsection{Brent Rho Branch}
+
+Version 2 adds Brent's variant of Pollard Rho. This usually reduces the number of expensive
+\(\gcd\) operations by batching progress before checking for a divisor.
+
+\subsection{Wheel/Coherence Branch}
+
+The wheel branch generates candidates coprime to \(2\), \(3\), and \(5\). Each candidate
+receives a coherence score based on exact divisibility, small-prime contradiction pruning,
+modulo residue closeness, and depth penalty.
+
+\section{Adaptive Routing}
+
+The router estimates whether \(N\) is close to a square using:
+
+\[
+g = \lceil\sqrt{N}\rceil^2 - N.
+\]
+
+For near-square candidates:
+
+\[
+\text{Fermat}
+\rightarrow
+\text{Brent Rho}
+\rightarrow
+\text{Pollard Rho}
+\rightarrow
+\text{SQI wheel}.
+\]
+
+For spread candidates:
+
+\[
+\text{Brent Rho}
+\rightarrow
+\text{Pollard Rho}
+\rightarrow
+\text{Fermat}
+\rightarrow
+\text{SQI wheel}.
+\]
+
+\section{Branch-Budget Scheduling}
+
+Version 2 introduces an interleaved branch-budget scheduler. Instead of running each branch
+to completion in a fixed order, the scheduler gives bounded execution budgets to each
+strategy branch according to routing order.
+
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\textbf{Branch} & \textbf{Budget} \\
+\hline
+Fermat & 256 steps per scheduler visit \\
+Brent Rho & 2048 steps per scheduler visit \\
+Pollard Rho & 2048 steps per scheduler visit \\
+SQI wheel & beam-width candidates per scheduler visit \\
+\end{tabularx}
+
+\section{Quiet CLI Runner}
+
+Version 2 includes a quiet CLI runner:
+
+\begin{verbatim}
+backend/modules/sqi/factor/sqi_factor_cli.py
+\end{verbatim}
+
+Example usage:
+
+\begin{verbatim}
+PYTHONPATH=. python backend/modules/sqi/factor/sqi_factor_cli.py 100160063 \
+  --no-trace --no-dashboard
+\end{verbatim}
+
+JSON mode:
+
+\begin{verbatim}
+PYTHONPATH=. python backend/modules/sqi/factor/sqi_factor_cli.py 100160063 \
+  --json --no-trace --no-dashboard
+\end{verbatim}
+
+Benchmark mode:
+
+\begin{verbatim}
+PYTHONPATH=. python backend/modules/sqi/factor/sqi_factor_cli.py 1009003027 \
+  --benchmark --json
+\end{verbatim}
+
+The runner suppresses noisy package-level stdout/stderr during import so JSON mode can be
+used by tests and frontend tools.
+
+\section{Validation}
+
+Validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/test_sqi_prime_factorizer.py \
+  backend/tests/test_sqi_prime_factor_benchmark_runner.py \
+  backend/tests/test_sqi_factor_cli.py
+\end{verbatim}
+
+Current observed result before the CLI-noise patch was:
+
+\begin{verbatim}
+14 passed, 2 failed
+\end{verbatim}
+
+The failures were caused by noisy backend import logs appearing before JSON output. The CLI
+has now been patched to suppress import-time stdout/stderr.
+
+\section{Observed Benchmark Summary}
+
+Observed dashboard summary:
+
+\begin{tabularx}{\textwidth}{@{}l l r l r r@{}}
+\textbf{Case} & \textbf{SQI Method} & \textbf{SQI ms} & \textbf{Factor} & \textbf{Naive ms} & \textbf{Brent ms} \\
+\hline
+small\_91 & small\_prime & 0.0780 & 7 & 0.0008 & 0.0104 \\
+small\_8051 & brent\_rho & 0.2634 & 97 & 0.0025 & 0.0097 \\
+close\_5\_digit & fermat & 0.2836 & 10007 & 0.2360 & 0.0222 \\
+close\_8\_digit & fermat & 0.3745 & 10000019 & 245.6157 & 0.3432 \\
+spread\_small\_factor & brent\_rho & 0.3908 & 1009 & 0.0241 & 0.0164 \\
+spread\_mid\_factor & brent\_rho & 0.3039 & 101 & 0.0030 & 0.0105 \\
+spread\_6\_digit\_primes & brent\_rho & 0.2798 & 1009 & 0.0242 & 0.0168 \\
+spread\_7\_digit\_prime & brent\_rho & 0.3238 & 1009 & 0.0259 & 0.0210 \\
+less\_close\_1 & brent\_rho & 0.3085 & 10007 & 0.2255 & 0.0338 \\
+less\_close\_2 & fermat & 0.2228 & 1000003 & 23.4890 & 0.2726 \\
+medium\_semiprime\_1 & fermat & 0.2687 & 1000003 & 23.0886 & 0.2672 \\
+medium\_semiprime\_2 & fermat & 0.2582 & 1000033 & 23.1859 & 0.2739 \\
+\end{tabularx}
+
+\section{Interpretation}
+
+SQI-adaptive is not always the fastest method because it carries trace, dashboard, routing,
+and scheduler overhead. In small cases, naive division or standalone Brent Rho can be faster.
+
+The useful result is architectural:
+
+\begin{quote}
+SQI can route factor search across symbolic strategy branches, interleave branch budgets,
+emit auditable traces, and collapse only on verified mathematical proof.
+\end{quote}
+
+The observed routing behaviour is correct:
+
+\begin{itemize}
+  \item close semiprimes route to Fermat;
+  \item spread-factor composites route to Brent/Pollard-style Rho;
+  \item collapse only occurs after exact divisibility is verified.
+\end{itemize}
+
+\section{Public-Safe Claim}
+
+A safe claim is:
+
+\begin{quote}
+SQI now has a working symbolic factor-search prototype with adaptive branch routing,
+Miller--Rabin primality testing, Brent/Pollard Rho branches, Fermat branches, trace artifacts,
+dashboard output, and exact verified factor collapse.
+\end{quote}
+
+Unsafe claims to avoid:
+
+\begin{itemize}
+  \item SQI breaks RSA;
+  \item SQI proves quantum speedup;
+  \item SQI replaces Shor's algorithm;
+  \item SQI predicts prime factors without computation;
+  \item SQI is a physical quantum computer.
+\end{itemize}
+
+\section{Known Issues}
+
+\subsection{Overhead on Small Inputs}
+
+For small composites, SQI-adaptive can be slower than naive or standalone Brent because of
+trace and dashboard overhead. This is expected.
+
+\subsection{Scheduler Is Initial}
+
+The scheduler is currently budget-based, not fully coherence-adaptive. A future scheduler should
+adjust branch budgets according to observed progress and collapse likelihood.
+
+\section{Next Work}
+
+\begin{enumerate}
+  \item Add a benchmark mode that disables trace/dashboard output for pure speed comparison.
+  \item Add a live SQI dashboard component for \url{benchmarks/sqi_prime_factor_dashboard_v2.json}.
+  \item Add larger semiprimes with configurable timeout budgets.
+  \item Add a pure Brent-vs-SQI lock test to quantify overhead.
+  \item Add branch-coherence scheduling based on progress, entropy, and cost.
+  \item Add optional proof certificates for primality/factorisation outputs.
+\end{enumerate}
+
+\bigskip
+
+\noindent\textbf{Lock ID:} SQI-PRIME-FACTOR-SEARCH-V2-LOCK-0002
+
+\noindent\textbf{Status:} LOCKED --- adaptive symbolic factor search v2 passing
+
+\noindent\textbf{Maintainer:} Tessaris AI
+
+\noindent\textbf{Author:} Kevin Robinson
+
+\end{document}

@@ -1,0 +1,88 @@
+{
+  "id": "nand_axiom",
+  "type": "dc",
+  "glyphs": [
+    "⟦ Axiom ⟧ | nand_axiom : (A ↑ B) → ¬(A ∧ B) → Prove ⟧"
+  ],
+  "symbolic_logic": [
+    {
+      "name": "nand_axiom",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ↑ B) → ¬(A ∧ B)",
+      "logic_raw": "(A ↑ B) → ¬(A ∧ B)",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "nand_axiom",
+        "logic": "(A ↑ B) → ¬(A ∧ B)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ↑ B) → ¬(A ∧ B)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ↑ B) → ¬(A ∧ B)"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "nand_axiom",
+        "logic": "(A ↑ B) → ¬(A ∧ B)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ↑ B) → ¬(A ∧ B)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/nand_axiom.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ↑ B) → ¬(A ∧ B)",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    }
+  ],
+  "thought_tree": [
+    {
+      "name": "nand_axiom",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "nand_axiom",
+        "logic": "(A ↑ B) → ¬(A ∧ B)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ↑ B) → ¬(A ∧ B)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    }
+  ],
+  "validation_errors": [],
+  "validation_errors_version": "v1",
+  "codex_ast": [
+    "(A ↑ B) → ¬(A ∧ B)"
+  ],
+  "sqi_scores": [
+    null
+  ],
+  "mutations": []
+}

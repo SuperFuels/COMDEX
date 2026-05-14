@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "name": "Test Grid Runtime",
+    "description": "Small container for glyph execution test",
+    "version": "1.0",
+    "created_by": "kevin",
+    "dimensions": [5, 5, 1]
+  },
+  "cubes": {
+    "0,0,0": { "glyph": "🌐", "traits": { "type": "teleport" } },
+    "1,1,0": { "glyph": "🔒", "traits": { "type": "lock" } },
+    "2,2,0": { "glyph": "🧠", "traits": { "type": "boot" } },
+    "3,3,0": { "glyph": "⚙", "traits": { "type": "execute" } }
+  }
+}

@@ -1,0 +1,23 @@
+affirmative:
+  Φ_load: 0.010
+  Φ_flux: 0.000
+  Φ_entropy: 0.100
+  Φ_coherence: 0.990
+
+negative:
+  Φ_load: -0.020
+  Φ_flux: 0.030
+  Φ_entropy: 0.500
+  Φ_coherence: 0.700
+
+ack:
+  Φ_load: 0.000
+  Φ_flux: 0.000
+  Φ_entropy: 0.200
+  Φ_coherence: 0.950
+
+error:
+  Φ_load: 0.050
+  Φ_flux: 0.400
+  Φ_entropy: 0.800
+  Φ_coherence: 0.400

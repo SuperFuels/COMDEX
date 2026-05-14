@@ -1,0 +1,17 @@
+{
+  "name": "Fractal Crystal",
+  "symbol": "🧊",
+  "geometry_type": "fractal_crystal",
+  "description": "Infinite zoom structure for recursive symbolic inspection and Codex-linked fractal logic mapping.",
+  "sqi_hooks": {
+    "zoom": ["recursive_depth", "infinite_focus"],
+    "codex_integration": ["fractal_analysis", "deep_symbolic_trace"]
+  },
+  "properties": {
+    "logic_density": "high",
+    "zoom_levels": 5,
+    "crystal_mode": "nested",
+    "codex_binding": true
+  },
+  "linked_next": "memory_pearl.dc.json"
+}

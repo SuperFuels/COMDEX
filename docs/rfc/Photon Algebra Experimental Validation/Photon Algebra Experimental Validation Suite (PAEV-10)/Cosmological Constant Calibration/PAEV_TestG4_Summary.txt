@@ -1,0 +1,10 @@
+
+=== Test G4 — Predictive Photon Coupling Calibration Complete ===
+ᾱ (emergent) = 5.542051e-05
+68% CI        = [4.102958e-05, 7.017140e-05]
+⟨ℒ⟩ final     = 4.557324e-03
+Entropy final = 4.439925e-01
+χ final       = 9.582184e-02
+Perturbation mode: ON
+All output files saved in working directory.
+----------------------------------------------------------

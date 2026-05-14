@@ -1,0 +1,15 @@
+{
+  "name": "Icosahedron Dream Container",
+  "symbol": "🔶",
+  "geometry_type": "icosahedron",
+  "description": "Holds dream states, subconscious glyph sequences, and symbolic mutations.",
+  "sqi_hooks": {
+    "dream": ["mutation_seed", "vision_trace"]
+  },
+  "properties": {
+    "logic_density": "medium-high",
+    "role": "dream",
+    "connections": 12
+  },
+  "linked_next": "dodecahedron.dc.json"
+}

@@ -1,0 +1,21 @@
+=== Test G1 — Cosmological Constant Calibration ===
+
+Grid: 80x80, steps=320, dt=0.02
+Coeffs: c1=0.35, c3=0.08, d1=0.15, d2=0.2, d3=-0.03
+Noise amplitude: 0.0003
+
+Mapping: Λ = β * max(⟨ℒ⟩,0) * (1 - S)^γ
+  β=1.0, γ=2.0
+Where S is normalized spectral entropy of θ's spectrum.
+
+Results:
+  Λ̄ (window-mean)  = 1.077323e-04
+  68% CI (bootstrap)= [1.043604e-04, 1.106297e-04]
+  Final Λ(t)        = 9.100420e-05
+  Final ⟨ℒ⟩         = 2.492197e-04
+  Final entropy S   = 3.957182e-01
+
+Files:
+  - PAEV_TestG1_LambdaTrace.png
+  - PAEV_TestG1_EnergyEntropy.png
+  - PAEV_TestG1_LambdaHistogram.png

@@ -1,0 +1,66 @@
+{
+  "id": "test_container_001",
+  "container_id": "test_container_001",
+  "metadata": {
+    "type": "test",
+    "description": "CodexLang-style XOR test container"
+  },
+  "glyphs": [
+    {
+      "type": "variable",
+      "value": "a"
+    },
+    {
+      "type": "operator",
+      "value": "⊕"
+    },
+    {
+      "type": "variable",
+      "value": "b"
+    }
+  ],
+  "symbolic_tree": {
+    "nodes": [
+      {
+        "id": "n1",
+        "label": "a",
+        "glyph": {
+          "type": "variable",
+          "value": "a"
+        }
+      },
+      {
+        "id": "n2",
+        "label": "b",
+        "glyph": {
+          "type": "variable",
+          "value": "b"
+        }
+      },
+      {
+        "id": "n3",
+        "label": "a ⊕ b",
+        "glyph": {
+          "type": "expression",
+          "glyphs": [
+            {
+              "type": "variable",
+              "value": "a"
+            },
+            {
+              "type": "operator",
+              "value": "⊕"
+            },
+            {
+              "type": "variable",
+              "value": "b"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "tick": 0,
+  "patterns": [],
+  "cubes": {}
+}

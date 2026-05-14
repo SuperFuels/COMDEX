@@ -1,0 +1,9 @@
+=== ✅ Bridge Benchmark v18: Context/token crunch (template+delta vs naive) ===
+Model: k messages repeat a large template; only small deltas vary.
+
+depth | header_kv | k_msgs | naive_raw | naive_gz | glyph_raw | glyph_gz | gz_ratio(naive/glyph)
+-----:|----------:|------:|----------:|---------:|----------:|---------:|-------------------:
+    8 |        64 |    64 |    107185 |     1813 |      6197 |     1058 |                1.71
+   16 |        64 |   128 |    263341 |     3380 |     11247 |     1652 |                2.05
+   32 |       128 |   128 |    500909 |     5270 |     13103 |     2011 |                2.62
+   64 |       128 |   256 |   1395264 |    12675 |     24130 |     3175 |                3.99

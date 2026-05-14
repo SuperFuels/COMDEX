@@ -1,0 +1,11 @@
+{
+  "type": "hoberman_container",
+  "id": "hoberman_test",
+  "metadata": {
+    "author": "tester",
+    "origin": "lean_test"
+  },
+  "hoberman_glyphs": [],
+  "hoberman_logic": [],
+  "hoberman_tree": []
+}

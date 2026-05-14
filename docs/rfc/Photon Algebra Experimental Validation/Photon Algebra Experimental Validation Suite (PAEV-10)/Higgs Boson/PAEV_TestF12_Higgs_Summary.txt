@@ -1,0 +1,12 @@
+
+=== Test F12 — Higgs Analogue Collider-smash ===
+Parameters:
+  lambda_h = 0.12, v = 1, chi = 0.25
+  soliton_amp = 1.6, smash_step = 80
+Results (final):
+  <E> final = 1.096371e-02
+  <phi> final = 1.003734e+00
+  <kappa> final = 1.537783e-02
+  spectral entropy (final) = 1.204455e-02
+  mass proxy (final) = 3.521745e-02
+All output files saved in working directory.

@@ -1,0 +1,18 @@
+{
+  "id": "example_lean_theorem",
+  "metadata": {
+    "origin": "lean_import",
+    "description": "Simple transitivity theorem: A = B, B = C ⟹ A = C"
+  },
+  "gates": {
+    "traits": {
+      "logic": 0.6
+    }
+  },
+  "glyphs": {
+    "0,0": {
+      "value": "(A ↔ B) ⊕ (B ↔ C) → (A ↔ C)",
+      "type": "lean_theorem"
+    }
+  }
+}

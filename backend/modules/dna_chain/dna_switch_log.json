@@ -1,0 +1,684 @@
+{
+  "log": [
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": "unknown",
+        "to": "Fusion()",
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:13:08.632229"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": "unknown",
+        "to": "Fusion()",
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:13:08.704394"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": "unknown",
+        "to": "Fusion()",
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:13:09.566838"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:58:28.775757"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:58:28.849905"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T18:58:29.746173"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:06:00.500528"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:06:00.577632"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:06:01.451641"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:10:56.588994"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:10:56.665710"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:10:57.533771"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:13:17.566345"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:13:17.645134"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-28T19:13:18.534226"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-29T13:17:19.200411"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-29T13:17:19.407375"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-08-29T13:17:20.733427"
+      }
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable for forks",
+      "timestamp": "2025-09-12T14:38:58.290171Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "broaden search",
+      "timestamp": "2025-09-12T14:38:58.704166Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable self_growth",
+      "timestamp": "2025-09-12T15:11:06.703411Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "set growth_factor",
+      "timestamp": "2025-09-12T15:11:06.704700Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:15:21.495280Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:15:21.496520Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:15:21.503130Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:20:53.666975Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:20:53.668951Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:20:53.679427Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:22:30.190630Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:22:30.192138Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:22:30.201117Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:26:15.419675Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:26:15.421141Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:26:15.687162Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:30:20.728689Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:30:20.730122Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:30:20.751722Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:52:01.424699Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:52:01.426251Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:52:01.450043Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": true,
+      "actor": "unit_test",
+      "reason": "enable",
+      "timestamp": "2025-09-12T15:57:08.808691Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "growth_factor",
+      "value": 2,
+      "actor": "unit_test",
+      "reason": "double forks",
+      "timestamp": "2025-09-12T15:57:08.810272Z",
+      "env": "development"
+    },
+    {
+      "action": "set_flag",
+      "container_id": "test_container_001",
+      "flag": "self_growth",
+      "value": false,
+      "actor": "unit_test",
+      "reason": "disable",
+      "timestamp": "2025-09-12T15:57:08.835060Z",
+      "env": "development"
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-21T23:46:26.933454Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T00:19:34.479948Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T00:26:04.903940Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T00:31:18.663752Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T00:35:17.603461Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T09:38:43.721096Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T09:59:52.301537Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T10:04:04.198916Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T10:11:54.089856Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T10:18:28.812925Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T10:28:34.235649Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T10:35:18.625325Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T10:41:13.303540Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T10:53:50.517535Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T10:57:35.249282Z"
+      }
+    },
+    {
+      "action": "mutation",
+      "mutation": {
+        "from": {
+          "text": "unknown"
+        },
+        "to": {
+          "text": "Fusion()"
+        },
+        "reason": "symbolic fragment fusion",
+        "timestamp": "2025-11-22T11:04:07.565060Z"
+      }
+    }
+  ]
+}

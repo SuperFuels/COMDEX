@@ -1,0 +1,4 @@
+# file: /workspaces/COMDEX/sitecustomize.py
+# hypothesis_version: 6.139.2
+
+['1', 'PHOTON_SITE_INSTALL', 'true', 'yes']

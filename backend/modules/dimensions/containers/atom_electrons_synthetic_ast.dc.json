@@ -1,0 +1,112 @@
+{
+  "id": "atom_electrons_synthetic_ast",
+  "type": "atom",
+  "name": "ElectronShell Test Atom (Synthetic AST)",
+  "isAtom": true,
+  "position": [0, 0, 0],
+  "electronCount": 12,
+  "electrons": [
+    { "id": "e1", "angle": 0, "radius": 1.0 },
+    { "id": "e2", "angle": 30, "radius": 1.0 },
+    { "id": "e3", "angle": 60, "radius": 1.0 },
+    { "id": "e4", "angle": 90, "radius": 1.0 },
+    { "id": "e5", "angle": 120, "radius": 1.0 },
+    { "id": "e6", "angle": 150, "radius": 1.0 },
+    { "id": "e7", "angle": 180, "radius": 1.0 },
+    { "id": "e8", "angle": 210, "radius": 1.0 },
+    { "id": "e9", "angle": 240, "radius": 1.0 },
+    { "id": "e10", "angle": 270, "radius": 1.0 },
+    { "id": "e11", "angle": 300, "radius": 1.0 },
+    { "id": "e12", "angle": 330, "radius": 1.0 }
+  ],
+  "glyph_grid": [
+    {
+      "id": "g1",
+      "text": "∀e (Electron(e) → (Predicts(e, \"⚛ Path A\") ∨ Predicts(e, \"🧬 Mutation B\")))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g2",
+      "text": "∀e (Electron(e) → (Predicts(e, \"⚛ Path B\") ∨ Predicts(e, \"🧬 Mutation C\")))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g3",
+      "text": "∀e (Electron(e) → Predicts(e, \"⚛ Path C\"))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g4",
+      "text": "∀e (Electron(e) → (Predicts(e, \"⚛ Path D\") ∨ Predicts(e, \"🧬 Mutation D\")))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g5",
+      "text": "∀e (Electron(e) → Predicts(e, \"⚛ Path E\"))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g6",
+      "text": "∀e (Electron(e) → (Predicts(e, \"⚛ Path F\") ∨ Predicts(e, \"🧬 Mutation E\")))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g7",
+      "text": "∀e (Electron(e) → Predicts(e, \"⚛ Path G\"))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g8",
+      "text": "∀e (Electron(e) → (Predicts(e, \"⚛ Path H\") ∨ Predicts(e, \"🧬 Mutation F\")))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g9",
+      "text": "∀e (Electron(e) → Predicts(e, \"⚛ Path I\"))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g10",
+      "text": "∀e (Electron(e) → Predicts(e, \"⚛ Path J\"))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g11",
+      "text": "∀e (Electron(e) → (Predicts(e, \"⚛ Path K\") ∨ Predicts(e, \"🧬 Mutation G\")))",
+      "source": "synthetic"
+    },
+    {
+      "id": "g12",
+      "text": "∀e (Electron(e) → Predicts(e, \"⚛ Path L\"))",
+      "source": "synthetic"
+    }
+  ],
+  "ast": {
+    "type": "forall",
+    "variable": "e",
+    "body": {
+      "type": "implies",
+      "left": {
+        "type": "predicate",
+        "name": "Electron",
+        "args": ["e"]
+      },
+      "right": {
+        "type": "or",
+        "args": [
+          { "type": "predicate", "name": "Predicts", "args": ["e", "⚛ Path C"] },
+          { "type": "predicate", "name": "Predicts", "args": ["e", "🧬 Mutation D"] },
+          { "type": "predicate", "name": "Predicts", "args": ["e", "⚛ Path G"] }
+        ]
+      }
+    }
+  },
+  "metadata": {
+    "description": "Synthetic AST container with prediction logic",
+    "origin": "Auto-generated from atom_electrons_test"
+  },
+  "traceMetadata": {
+    "predictionInjected": true,
+    "sourceContainer": "atom_electrons_test"
+  }
+}

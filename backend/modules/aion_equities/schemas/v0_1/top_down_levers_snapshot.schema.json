@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aion://investing/schemas/top_down_levers_snapshot.schema.json",
+  "title": "AION Top Down Levers Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "snapshot_id",
+    "timestamp",
+    "regime_ref",
+    "regime_state",
+    "active_levers",
+    "cascade_implications",
+    "sector_posture",
+    "conviction_state",
+    "audit"
+  ],
+  "properties": {
+    "snapshot_id": { "type": "string", "minLength": 3 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "regime_ref": { "type": "string", "pattern": "^macro/" },
+    "regime_state": {
+      "type": "string",
+      "enum": ["risk_on", "risk_off", "rotating", "transitioning"]
+    },
+    "active_levers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lever", "direction", "materiality"],
+        "properties": {
+          "lever": {
+            "type": "string",
+            "enum": [
+              "fed_policy",
+              "ecb_policy",
+              "boe_policy",
+              "boj_policy",
+              "dollar",
+              "yen",
+              "gold",
+              "oil",
+              "real_yields",
+              "yield_curve",
+              "credit_spreads",
+              "sector_rotation",
+              "mag7_breadth",
+              "ai_leadership",
+              "vix",
+              "liquidity",
+              "geopolitics",
+              "regulation",
+              "fiscal_policy",
+              "global_event"
+            ]
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["up", "down", "tightening", "easing", "risk_on", "risk_off", "mixed", "shock"]
+          },
+          "materiality": { "type": "number", "minimum": 0, "maximum": 100 },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "cascade_implications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule_id", "summary", "affected_scope", "effect_direction", "confidence"],
+        "properties": {
+          "rule_id": { "type": "string" },
+          "summary": { "type": "string" },
+          "affected_scope": {
+            "type": "string",
+            "enum": ["macro", "sector", "company", "thesis", "cross_asset"]
+          },
+          "effect_direction": {
+            "type": "string",
+            "enum": ["tailwind", "headwind", "de_risk", "increase_conviction", "decrease_conviction", "uncertain"]
+          },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+          "target_refs": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "sector_posture": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sector_ref", "posture"],
+        "properties": {
+          "sector_ref": { "type": "string", "pattern": "^sector/" },
+          "posture": { "type": "string", "enum": ["green", "amber", "red"] },
+          "tailwind_score": { "type": "number", "minimum": 0, "maximum": 100 },
+          "headwind_score": { "type": "number", "minimum": 0, "maximum": 100 },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "watchlist_impacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entity_ref", "impact_direction", "impact_score"],
+        "properties": {
+          "entity_ref": { "type": "string" },
+          "impact_direction": { "type": "string", "enum": ["positive", "negative", "mixed"] },
+          "impact_score": { "type": "number", "minimum": 0, "maximum": 100 },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "conviction_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signal_coherence", "uncertainty_score"],
+      "properties": {
+        "signal_coherence": { "type": "number", "minimum": 0, "maximum": 100 },
+        "uncertainty_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "summary": { "type": "string" }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "created_by"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "created_by": { "type": "string" },
+        "updated_by": { "type": "string" }
+      }
+    }
+  }
+}

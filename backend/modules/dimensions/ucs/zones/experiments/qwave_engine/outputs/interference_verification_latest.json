@@ -1,0 +1,157 @@
+{
+  "input": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_capture_sweep_20260318T210302.272330Z.jsonl",
+  "point_count": 13,
+  "null_point": {
+    "phi": 3.141593,
+    "pickup_mean": 0.2781350193102805,
+    "pickup_norm": 0.0,
+    "distance_to_pi": 3.4641020674186507e-07
+  },
+  "metrics": {
+    "rmse_vs_cos2": 0.2975446097332089,
+    "symmetry_error": 0.0007328416143683291
+  },
+  "thresholds": {
+    "max_distance_to_pi": 0.35,
+    "max_rmse": 0.55,
+    "max_symmetry_error": 0.08
+  },
+  "passes": {
+    "null_near_pi": true,
+    "rmse_within_threshold": true,
+    "symmetry_within_threshold": true
+  },
+  "overall_pass": true,
+  "points": [
+    {
+      "phi": 0.0,
+      "n": 1,
+      "pickup_mean": 0.9905929563050174,
+      "pickup_std": 0.0,
+      "cos2_model": 1.0,
+      "pickup_norm": 0.9999883620340941,
+      "abs_err": 1.1637965905864078e-05,
+      "predicted_state": "S1_constructive"
+    },
+    {
+      "phi": 0.523599,
+      "n": 1,
+      "pickup_mean": 0.970582559047701,
+      "pickup_std": 0.0,
+      "cos2_model": 0.9330126457917832,
+      "pickup_norm": 0.9719022627179695,
+      "abs_err": 0.03888961692618631,
+      "predicted_state": "S2_intermediate"
+    },
+    {
+      "phi": 1.047198,
+      "n": 1,
+      "pickup_mean": 0.9134702785179624,
+      "pickup_std": 0.0,
+      "cos2_model": 0.7499998056624009,
+      "pickup_norm": 0.8917408764895123,
+      "abs_err": 0.1417410708271114,
+      "predicted_state": "S2_intermediate"
+    },
+    {
+      "phi": 1.570796,
+      "n": 1,
+      "pickup_mean": 0.8426358248550477,
+      "pickup_std": 0.0,
+      "cos2_model": 0.5000001633974483,
+      "pickup_norm": 0.7923193870009599,
+      "abs_err": 0.2923192236035116,
+      "predicted_state": "S2_intermediate"
+    },
+    {
+      "phi": 2.094395,
+      "n": 1,
+      "pickup_mean": 0.7790687271893034,
+      "pickup_std": 0.0,
+      "cos2_model": 0.25000004433755557,
+      "pickup_norm": 0.7030981788800116,
+      "abs_err": 0.453098134542456,
+      "predicted_state": "S2_intermediate"
+    },
+    {
+      "phi": 2.617994,
+      "n": 1,
+      "pickup_mean": 0.690320297023137,
+      "pickup_std": 0.0,
+      "cos2_model": 0.0669872676056575,
+      "pickup_norm": 0.5785330744623208,
+      "abs_err": 0.5115458068566633,
+      "predicted_state": "S2_intermediate"
+    },
+    {
+      "phi": 3.141593,
+      "n": 1,
+      "pickup_mean": 0.2781350193102805,
+      "pickup_std": 0.0,
+      "cos2_model": 3.000000781252362e-14,
+      "pickup_norm": 0.0,
+      "abs_err": 3.000000781252362e-14,
+      "predicted_state": "S4_destructive"
+    },
+    {
+      "phi": 3.665191,
+      "n": 1,
+      "pickup_mean": 0.704422339256672,
+      "pickup_std": 0.0,
+      "cos2_model": 0.06698719081079754,
+      "pickup_norm": 0.5983263526085819,
+      "abs_err": 0.5313391617977844,
+      "predicted_state": "S2_intermediate"
+    },
+    {
+      "phi": 4.18879,
+      "n": 1,
+      "pickup_mean": 0.7687273162477821,
+      "pickup_std": 0.0,
+      "cos2_model": 0.24999991132489677,
+      "pickup_norm": 0.6885832299243516,
+      "abs_err": 0.4385833185994549,
+      "predicted_state": "S2_intermediate"
+    },
+    {
+      "phi": 4.712389,
+      "n": 1,
+      "pickup_mean": 0.8369463441960279,
+      "pickup_std": 0.0,
+      "cos2_model": 0.500000009807655,
+      "pickup_norm": 0.7843337724830884,
+      "abs_err": 0.2843337626754334,
+      "predicted_state": "S2_intermediate"
+    },
+    {
+      "phi": 5.235988,
+      "n": 1,
+      "pickup_mean": 0.9131621428313704,
+      "pickup_std": 0.0,
+      "cos2_model": 0.7500001056624579,
+      "pickup_norm": 0.8913083848510317,
+      "abs_err": 0.1413082791885738,
+      "predicted_state": "S2_intermediate"
+    },
+    {
+      "phi": 5.759587,
+      "n": 1,
+      "pickup_mean": 0.9695853824813215,
+      "pickup_std": 0.0,
+      "cos2_model": 0.93301281899685,
+      "pickup_norm": 0.9705026503205293,
+      "abs_err": 0.037489831323679335,
+      "predicted_state": "S2_intermediate"
+    },
+    {
+      "phi": 6.283185,
+      "n": 1,
+      "pickup_mean": 0.9906012479626956,
+      "pickup_std": 0.0,
+      "cos2_model": 0.9999999999999765,
+      "pickup_norm": 1.0,
+      "abs_err": 2.353672812205332e-14,
+      "predicted_state": "S1_constructive"
+    }
+  ]
+}

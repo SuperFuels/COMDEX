@@ -1,0 +1,16 @@
+[
+  {
+    "symbol": "\u2295",
+    "flattened": "\u2295(A,B)",
+    "coherence": 0.9664427692730437,
+    "collapse_time_ms": 10.113,
+    "timestamp": 1760558502.8957431
+  },
+  {
+    "symbol": "\u2295",
+    "flattened": "\u2295(A,B)",
+    "coherence": 0.9057473549010514,
+    "collapse_time_ms": 10.102,
+    "timestamp": 1760558586.1023238
+  }
+]

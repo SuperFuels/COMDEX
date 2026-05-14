@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "timestamp": "2025-10-15T10:16:20.023453",
+  "verified_targets": [
+    "backend/modules/optics",
+    "backend/qwave",
+    "backend/core",
+    "backend/storage"
+  ],
+  "hashes": {
+    "backend/modules/optics": {},
+    "backend/qwave": {},
+    "backend/core": {},
+    "backend/storage": {}
+  }
+}

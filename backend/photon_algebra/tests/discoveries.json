@@ -1,0 +1,262 @@
+[
+  {
+    "id": "G\u2032_LOCK_20251010_092911",
+    "event": "G\u2032 Constants Locked",
+    "hash": "7c90606ae1b1e7311190e279b07f16a90ae82325ae326f92211d2ad15d7c6cb4",
+    "source": "backend/photon_algebra/constants/paev_constants.json",
+    "timestamp": "2025-10-10 09:29:11"
+  },
+  {
+    "timestamp": "2025-10-10 09:58:37",
+    "search": {
+      "best_gain": 0.9500000000000001,
+      "best_harmonic": 1
+    },
+    "locked_phases": {
+      "alpha": 0.0032707430007292825,
+      "hbar": 0.008718077889283487,
+      "m_e": 0.00026827759294328717,
+      "G": 0.0024469679412412438
+    },
+    "locked_deltas": {
+      "alpha": -0.0014844572097711273,
+      "hbar": 0.001068090823888618,
+      "m_e": -0.0007693850169667452,
+      "G": 0.0011685205119107457
+    },
+    "mean_phase": 0.003676016606049325,
+    "mean_delta": -4.307722734627189e-06,
+    "RCI": 76.27262978877216,
+    "TSI_inherit": 56.60607226796212,
+    "Unified_Stability_Index": 66.43935102836714
+  },
+  {
+    "timestamp": "2025-10-10 10:00:48",
+    "search": {
+      "best_gain": 0.8,
+      "best_harmonic": 1.25
+    },
+    "refined_phases": {
+      "alpha": 2.0027524733383626e-19,
+      "hbar": 5.338283090914167e-19,
+      "m_e": 1.642726477404766e-20,
+      "G": 1.498335728428639e-19
+    },
+    "refined_deltas": {
+      "alpha": -9.08967885208711e-20,
+      "hbar": 6.540170043369276e-20,
+      "m_e": -4.7111244917012826e-20,
+      "G": 7.155124523247607e-20
+    },
+    "RCI_fine": 100.0,
+    "TSI_prev": 56.60607226796212,
+    "UCI": 78.30303613398107
+  },
+  {
+    "id": "Hprime_LOCK_20251010_100351",
+    "event": "H\u2032 Constants Locked",
+    "hash": "90faa35a467b795a23cbe63d498c691de969ac236cfb12e5688d53f26f2c9871",
+    "source": "backend/photon_algebra/constants/paev_constants.json",
+    "timestamp": "2025-10-10 10:03:51"
+  },
+  {
+    "timestamp": "2025-10-10 10:40:48",
+    "series": "G9/G10",
+    "discoveries": [
+      {
+        "event": "RG-style fixed point (variance contraction)",
+        "metrics": {
+          "file": "backend/photon_algebra/tests/results_G10_regime_cycling_multiscale_stability.csv",
+          "contraction_score": 0.8319923920707009
+        }
+      }
+    ]
+  },
+  {
+    "id": "Gseries_LOCK_20251010_104917",
+    "event": "G-Series Constants Locked",
+    "files": [
+      {
+        "file": "backend/photon_algebra/constants/G9_emergent_gravity_coupling.json",
+        "hash": "a024fe63e526e6cbfed03bb2ab2a81155dff62a66ea8745b4df2866569612659"
+      },
+      {
+        "file": "backend/photon_algebra/constants/G10_regime_cycling_multiscale_stability.json",
+        "hash": "3263634fa03967e8c0f258eac4ac350dfddb40dd4769a39c4de035b75d2fbebc"
+      }
+    ],
+    "timestamp": "2025-10-10 10:49:17"
+  },
+  {
+    "id": "Gseries_LOCK_20251010_104922",
+    "event": "G-Series Constants Locked",
+    "files": [
+      {
+        "file": "backend/photon_algebra/constants/G9_emergent_gravity_coupling.json",
+        "hash": "a024fe63e526e6cbfed03bb2ab2a81155dff62a66ea8745b4df2866569612659"
+      },
+      {
+        "file": "backend/photon_algebra/constants/G10_regime_cycling_multiscale_stability.json",
+        "hash": "3263634fa03967e8c0f258eac4ac350dfddb40dd4769a39c4de035b75d2fbebc"
+      }
+    ],
+    "timestamp": "2025-10-10 10:49:22"
+  },
+  {
+    "id": "Eseries_LOCK_20251010_105430",
+    "event": "E-Series Constants Locked",
+    "timestamp": "2025-10-10 10:54:30",
+    "files": [
+      {
+        "file": "backend/modules/knowledge/E1_ensemble_repro.json",
+        "hash": "6e835c05738a0560ba7876b80cf2e1dbd9c3ca20cc8b59debb7e55b57ac91e93"
+      },
+      {
+        "file": "backend/modules/knowledge/E2_cv_entanglement.json",
+        "hash": "26e1719a513efa63c257d7e401a67ecc5cfd9a8a758ee88758bdcc1aa76c6d62"
+      },
+      {
+        "file": "backend/modules/knowledge/E2_discretization.json",
+        "hash": "5ca0b34913fdbd83ed8786def1799d92a5a41e963db6152413ae815f703a7770"
+      },
+      {
+        "file": "backend/modules/knowledge/E3_boundary_geometry.json",
+        "hash": "fbf81af060a5be9f27a296d472861b758f15de97327e0a176eda7593ab904df7"
+      },
+      {
+        "file": "backend/modules/knowledge/E3_epr_steering.json",
+        "hash": "f59efe06860398f1ee37b97246d11230d6c2f95f2d8705f284a1e7a9e3bd3816"
+      },
+      {
+        "file": "backend/modules/knowledge/E3b_boundary_geometry_refined.json",
+        "hash": "0adcd200b190200929841e4ed83045d428b8fbbf75823cc64b02ffff33b59b91"
+      },
+      {
+        "file": "backend/modules/knowledge/E3c_boundary_geometry_universal.json",
+        "hash": "99ef35148bfb5416a53c366ac6d164aa8f27c1c951b5226cf832cedf6699f086"
+      },
+      {
+        "file": "backend/modules/knowledge/E3d_boundary_geometry_final.json",
+        "hash": "f860e9a502ee85d099dee200b23d120122c645cd46a042124ab33679867bd07a"
+      },
+      {
+        "file": "backend/modules/knowledge/E4_chsh_surrogate.json",
+        "hash": "c6468183a0ce575f36715f317a6a20559dd4288fc70d38023168c9970ca0a5d6"
+      },
+      {
+        "file": "backend/modules/knowledge/E4_noise_greybody.json",
+        "hash": "f183c7076e50fbb587d043bac18466763104c33e5c2ec56eb982994532919215"
+      },
+      {
+        "file": "backend/modules/knowledge/E5_entropy_propagation.json",
+        "hash": "83fc6e2656a1d07f8bb4e442840fd9f0526aac848d4c56552f38ad3b29c9ab30"
+      },
+      {
+        "file": "backend/modules/knowledge/E5_information_shuffle_entanglement.json",
+        "hash": "8c6aa8e6a345368799492ee3357e4899af43b3c53718177a9227ed7d9aacf100"
+      },
+      {
+        "file": "backend/modules/knowledge/E5b_entropy_propagation_stable.json",
+        "hash": "3ae6399849fb459f6c424f6549a9b6fbf5f6f0e30a13a2cd4d9913164d1dcb07"
+      },
+      {
+        "file": "backend/modules/knowledge/E6Omega_v5_summary.json",
+        "hash": "ac297015b98db53f3089d5cd35b2284a72158d45aaa23334a3b30b67a88ae06f"
+      },
+      {
+        "file": "backend/modules/knowledge/E6Omega_v5b_summary.json",
+        "hash": "c0d28dc4f137a40bc46f467ecba64367dd8cf2bc062a93ab672b431e06e2b2a1"
+      },
+      {
+        "file": "backend/modules/knowledge/E6Omega_v5c_summary.json",
+        "hash": "85fe560b949a8ef934b45a08bf65b193cf4452098016e84214c76bf047966fc0"
+      },
+      {
+        "file": "backend/modules/knowledge/E6Omega_vS_trace.json",
+        "hash": "90fc5ebb06333e54ff8e98918dfd1303e2071a551e59b116e7f49b30080e9042"
+      },
+      {
+        "file": "backend/modules/knowledge/E6Omega_vS_trace_v5c.json",
+        "hash": "bc1b684b7f5757b687b1c7b31ab348a54fa9b78d4d9b5a6245da0dad9cff93b8"
+      },
+      {
+        "file": "backend/modules/knowledge/E6_bell_violation_feedback.json",
+        "hash": "a596db5ba82092fe872a9ac0e190c7d58e35b9b6ff34fd6e52472ae919640a78"
+      },
+      {
+        "file": "backend/modules/knowledge/E6_bell_violation_feedback_v2.json",
+        "hash": "3bd5a613922ad8e147824288fbc78c9035395ffdfb5959bd1cd3632ae1344987"
+      },
+      {
+        "file": "backend/modules/knowledge/E6_bell_violation_feedback_v3.json",
+        "hash": "d9e0b2319351b0ffe08dc9ed792d576516a88212d5454790a6f87ae9962231c7"
+      },
+      {
+        "file": "backend/modules/knowledge/E6_bell_violation_feedback_v3_extreme.json",
+        "hash": "1fd37954bf6d30d220f2817198f318e1a0eb1df6424e7e388a33dcc348cab80c"
+      },
+      {
+        "file": "backend/modules/knowledge/E6_boosted_CHSH_summary.json",
+        "hash": "06f54e8f2a851de4827a722597d11b0a027621ac606985d36c6c5a4314400faf"
+      },
+      {
+        "file": "backend/modules/knowledge/E6_initial_condition_sweep.json",
+        "hash": "3dbc955a26081c832a8be1a676f4572f815caab7aa48159a40908253ffd4bfb6"
+      },
+      {
+        "file": "backend/modules/knowledge/E6b_initial_condition_universal.json",
+        "hash": "808c38e8b40e020ab12333e1f68e19fd9552dad51dc799e490ffe49aec4ae063"
+      },
+      {
+        "file": "backend/modules/knowledge/E6c_entropy_locked_universality.json",
+        "hash": "e74ce8444bd2227aaa8e4934096d31fc7fe5720ccb4ed40f086946762ecd097c"
+      },
+      {
+        "file": "backend/modules/knowledge/E6d_curvature_adaptive_universality.json",
+        "hash": "97200b38d2ceff765838c86206d3041eb88b8e973a44629d5c6b5eb7ead4ca37"
+      },
+      {
+        "file": "backend/modules/knowledge/E6e_curvature_regularized_universality.json",
+        "hash": "f783a8871b2625944b7b0b6fdb897dd78a05eba7f4c6bb715f1f45b86330b78c"
+      },
+      {
+        "file": "backend/modules/knowledge/E6f_adaptive_curvature_gain.json",
+        "hash": "a5e6b46b6fb11fec95622cf844f3f0507f1db28d93693e95dcaca3f3744c924e"
+      },
+      {
+        "file": "backend/modules/knowledge/E6g_log_adaptive_universality.json",
+        "hash": "3604568bbf910a9eeeecd1dd2c364549ef0e28565aacbe0dda93cdb30ef10cd2"
+      },
+      {
+        "file": "backend/modules/knowledge/E6h_zero_mean_universality.json",
+        "hash": "f78e3045ac02ecf396a62746f0c41adf04b2294e73b06f8c8d722b2bc8a9522b"
+      }
+    ],
+    "discoveries": [
+      {
+        "id": "D-E1",
+        "event": "Spontaneous Ensemble Symmetry Breaking",
+        "file": "backend/modules/knowledge/E1_ensemble_repro.json",
+        "hash": "6e835c05738a0560ba7876b80cf2e1dbd9c3ca20cc8b59debb7e55b57ac91e93"
+      },
+      {
+        "id": "D-E4",
+        "event": "Noise\u2013Curvature Resilience Law",
+        "file": "backend/modules/knowledge/E4_chsh_surrogate.json",
+        "hash": "c6468183a0ce575f36715f317a6a20559dd4288fc70d38023168c9970ca0a5d6"
+      },
+      {
+        "id": "D-E4",
+        "event": "Noise\u2013Curvature Resilience Law",
+        "file": "backend/modules/knowledge/E4_noise_greybody.json",
+        "hash": "f183c7076e50fbb587d043bac18466763104c33e5c2ec56eb982994532919215"
+      },
+      {
+        "id": "D-E6h",
+        "event": "Geometry-Invariant Universality Phase",
+        "file": "backend/modules/knowledge/E6h_zero_mean_universality.json",
+        "hash": "f78e3045ac02ecf396a62746f0c41adf04b2294e73b06f8c8d722b2bc8a9522b"
+      }
+    ]
+  }
+]

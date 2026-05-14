@@ -1,0 +1,13 @@
+{
+  "name": "Photon Minimal",
+  "type": "dark",
+  "colors": {
+    "editor.foreground": "#D7D7D7",
+    "editor.background": "#0F1115"
+  },
+  "tokenColors": [
+    { "scope": "keyword.operator.symbol.photon", "settings": { "fontStyle": "bold" } },
+    { "scope": "punctuation.bracket.photon", "settings": { "fontStyle": "" } },
+    { "scope": "comment.line.number-sign.photon", "settings": { "foreground": "#6A737D" } }
+  ]
+}

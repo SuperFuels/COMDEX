@@ -1,0 +1,2 @@
+91f4a06bf51c35e4a9e2c7e3fed11c7267034d32e5bb7086d27eab4057f5d456  backend/modules/lean/workspace/SymaticsBridge/V42_IncrementalMerkleCommitment.lean
+b5b2ebc02176c13611229c8ff04e3f3d1e480e7d2277837b5ab95c5828bf009f  backend/tests/locks/v42_incremental_merkle_commitment_out.txt

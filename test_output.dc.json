@@ -1,0 +1,89 @@
+{
+  "type": "dc_container",
+  "id": "lean::test.lean",
+  "metadata": {
+    "origin": "lean_import",
+    "source_path": "backend/modules/lean/examples/test.lean",
+    "logic_type": "lean_math"
+  },
+  "glyphs": [
+    "⟦ Theorem ⟧",
+    "⟦ Theorem ⟧"
+  ],
+  "thought_tree": [
+    {
+      "name": "add_comm",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "add_comm",
+        "logic": "a + b = b + a",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "a + b = b + a"
+          },
+          {
+            "type": "Proof",
+            "value": "Nat.add_comm a b"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero_add",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "zero_add",
+        "logic": "0 + n = n",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "0 + n = n"
+          },
+          {
+            "type": "Proof",
+            "value": "Nat.zero_add n"
+          }
+        ]
+      }
+    }
+  ],
+  "symbolic_logic": [
+    {
+      "symbol": "⟦ Theorem ⟧",
+      "name": "add_comm",
+      "logic": "a + b = b + a",
+      "operator": "⊕",
+      "args": [
+        {
+          "type": "CodexLang",
+          "value": "a + b = b + a"
+        },
+        {
+          "type": "Proof",
+          "value": "Nat.add_comm a b"
+        }
+      ]
+    },
+    {
+      "symbol": "⟦ Theorem ⟧",
+      "name": "zero_add",
+      "logic": "0 + n = n",
+      "operator": "⊕",
+      "args": [
+        {
+          "type": "CodexLang",
+          "value": "0 + n = n"
+        },
+        {
+          "type": "Proof",
+          "value": "Nat.zero_add n"
+        }
+      ]
+    }
+  ]
+}

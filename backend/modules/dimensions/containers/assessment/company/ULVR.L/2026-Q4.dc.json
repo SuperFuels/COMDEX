@@ -1,0 +1,165 @@
+{
+  "id": "assessment/company/ULVR.L/2026-Q4",
+  "type": "container",
+  "kind": "fact",
+  "domain": "equities_assessment",
+  "meta": {
+    "created_by": "SQI",
+    "last_updated": "2026-03-01T22:00:04.160270+00:00",
+    "ghx": {
+      "hover": true,
+      "collapsed": true
+    },
+    "address": "ucs://knowledge/equities_assessment/assessment/company/ULVR.L/2026-Q4"
+  },
+  "atoms": {},
+  "wormholes": [
+    "ucs_hub"
+  ],
+  "nodes": [
+    {
+      "id": "assessment/company/ULVR.L/2026-Q4",
+      "label": "Assessment assessment/company/ULVR.L/2026-Q4",
+      "domain": "equities_assessment",
+      "kind": "fact",
+      "payload": {
+        "assessment_id": "assessment/company/ULVR.L/2026-Q4",
+        "entity_id": "company/ULVR.L",
+        "as_of": "2026-03-01T22:00:04Z",
+        "fiscal_period_ref": "2026-Q4",
+        "company_snapshot": {
+          "company_id": "company/ULVR.L",
+          "ticker": "ULVR.L",
+          "name": "Unilever PLC",
+          "sector": "consumer_staples",
+          "country": "GB",
+          "sector_template_ref": "sector/consumer_staples",
+          "fingerprint_ref": "company/ULVR.L/fingerprint/core",
+          "credit_profile_ref": "company/ULVR.L/credit",
+          "pair_context_ref": "pair_context/uk_europe_consumer"
+        },
+        "scores": {
+          "business_quality_score": 70.85,
+          "analytical_confidence_score": 83.0,
+          "automation_opportunity_score": 40.0
+        },
+        "dimensions": {
+          "margin_score": 77.9,
+          "cash_generation_score": 64.8,
+          "balance_sheet_strength": 78.55,
+          "guidance_score": 56.0,
+          "reporting_clarity": 20.0,
+          "narrative_clarity_bonus": 8.0
+        },
+        "predictability_context": {
+          "acs_band": "high",
+          "sector_confidence_tier": "tier_1"
+        },
+        "linked_refs": {
+          "company_ref": "company/ULVR.L",
+          "quarter_event_ref": "company/ULVR.L/quarter/2026-Q4",
+          "thesis_ref": "thesis/ULVR.L/long/medium_term",
+          "source_document_refs": [
+            "company/ULVR.L/document/2026-Q4-report"
+          ]
+        },
+        "source_snapshot": {
+          "event_type": "quarterly_results",
+          "as_reported_date": "2026-12-20",
+          "provider": null,
+          "document_refs": [
+            "company/ULVR.L/document/2026-Q4-report"
+          ],
+          "source_hashes": [
+            "sha256:testhash"
+          ]
+        },
+        "risk_flags": [],
+        "notes": {
+          "narrative_summary_present": true,
+          "assessment_refs_on_event": []
+        }
+      },
+      "tags": [
+        "aion_equities",
+        "equities_assessment",
+        "assessment"
+      ]
+    }
+  ],
+  "glyphs": [],
+  "glyph_grid": [
+    {
+      "type": "kg_node",
+      "metadata": {
+        "id": "assessment/company/ULVR.L/2026-Q4",
+        "label": "Assessment assessment/company/ULVR.L/2026-Q4",
+        "domain": "equities_assessment",
+        "kind": "fact",
+        "payload": {
+          "assessment_id": "assessment/company/ULVR.L/2026-Q4",
+          "entity_id": "company/ULVR.L",
+          "as_of": "2026-03-01T22:00:04Z",
+          "fiscal_period_ref": "2026-Q4",
+          "company_snapshot": {
+            "company_id": "company/ULVR.L",
+            "ticker": "ULVR.L",
+            "name": "Unilever PLC",
+            "sector": "consumer_staples",
+            "country": "GB",
+            "sector_template_ref": "sector/consumer_staples",
+            "fingerprint_ref": "company/ULVR.L/fingerprint/core",
+            "credit_profile_ref": "company/ULVR.L/credit",
+            "pair_context_ref": "pair_context/uk_europe_consumer"
+          },
+          "scores": {
+            "business_quality_score": 70.85,
+            "analytical_confidence_score": 83.0,
+            "automation_opportunity_score": 40.0
+          },
+          "dimensions": {
+            "margin_score": 77.9,
+            "cash_generation_score": 64.8,
+            "balance_sheet_strength": 78.55,
+            "guidance_score": 56.0,
+            "reporting_clarity": 20.0,
+            "narrative_clarity_bonus": 8.0
+          },
+          "predictability_context": {
+            "acs_band": "high",
+            "sector_confidence_tier": "tier_1"
+          },
+          "linked_refs": {
+            "company_ref": "company/ULVR.L",
+            "quarter_event_ref": "company/ULVR.L/quarter/2026-Q4",
+            "thesis_ref": "thesis/ULVR.L/long/medium_term",
+            "source_document_refs": [
+              "company/ULVR.L/document/2026-Q4-report"
+            ]
+          },
+          "source_snapshot": {
+            "event_type": "quarterly_results",
+            "as_reported_date": "2026-12-20",
+            "provider": null,
+            "document_refs": [
+              "company/ULVR.L/document/2026-Q4-report"
+            ],
+            "source_hashes": [
+              "sha256:testhash"
+            ]
+          },
+          "risk_flags": [],
+          "notes": {
+            "narrative_summary_present": true,
+            "assessment_refs_on_event": []
+          }
+        },
+        "tags": [
+          "aion_equities",
+          "equities_assessment",
+          "assessment"
+        ]
+      }
+    }
+  ]
+}

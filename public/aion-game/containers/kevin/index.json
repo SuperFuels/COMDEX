@@ -1,0 +1,10 @@
+{
+  "user": "kevin",
+  "wa": "Kevin@wave.tp",
+  "home": "kevin__home",
+  "personal": "kevin__kg_personal",
+  "work": "kevin__kg_work",
+  "shared": [
+    { "id": "shared__acme_hq", "label": "Acme HQ", "role": "member", "permissions": ["read", "post"] }
+  ]
+}

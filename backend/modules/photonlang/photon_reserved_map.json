@@ -1,0 +1,14 @@
+{
+  "ops": {
+    "photonlang": [],
+    "quantum": ["μ","π","→","↔","∇","⊕","⟲","⇒","⧖","≈"],
+    "symatics": ["→","↔","⊕","⊖","⊗","⟲","⇒","⧖","≈"],
+    "photon": ["μ","↔","∇","⊕","⟲","⇒","⧖","≈"],
+    "proof": ["→"]
+  },
+  "keywords": {
+    "lean": ["axiom","constant","def","lemma","theorem"]
+  },
+  "glyphs": ["💡","🌊","🧠","⚛","✦","🜁","🧭","ψ","Φ","φ","Ψ","μπ"],
+  "domains": ["photon","photonlang","proof","quantum","symatics"]
+}

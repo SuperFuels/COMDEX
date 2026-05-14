@@ -1,0 +1,67 @@
+# cloudbuild.yaml
+substitutions:
+  _SERVICE: comdex-api
+  _REGION: us-central1
+
+steps:
+  # 0) Print exactly what Cloud Build received (helps catch wrong Dockerfile / stray text)
+  - id: "print-sources"
+    name: "ubuntu:22.04"
+    entrypoint: "bash"
+    args:
+      - "-lc"
+      - |
+        set -e
+        echo "=== cloudbuild.yaml (first 120 lines) ==="
+        nl -ba cloudbuild.yaml | sed -n '1,120p' || true
+        echo
+        echo "=== Dockerfiles found ==="
+        find . -maxdepth 4 -name 'Dockerfile*' -print || true
+        echo
+        echo "=== ./Dockerfile (first 120 lines) ==="
+        nl -ba Dockerfile | sed -n '1,120p' || true
+        echo
+        echo "=== FROM lines ==="
+        grep -n '^FROM' Dockerfile || true
+
+  - id: "docker-build"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "--no-cache",
+        "-f", "Dockerfile",
+        "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID",
+        "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:latest",
+        "."
+      ]
+
+  - id: "docker-push-buildid"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"]
+
+  - id: "docker-push-latest"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/$PROJECT_ID/${_SERVICE}:latest"]
+
+  - id: "deploy-cloud-run"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      [
+        "run", "deploy", "${_SERVICE}",
+        "--image", "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID",
+        "--region", "${_REGION}",
+        "--platform", "managed",
+        "--allow-unauthenticated",
+        "--add-cloudsql-instances=swift-area-459514-d1:us-central1:comdex-db",
+        "--vpc-connector=comdex-connector",
+        "--vpc-egress=private-ranges-only",
+        "--env-vars-file=cloudrun-env.yaml",
+        "--timeout=300s",
+        "--port=8080"
+      ]
+
+images:
+  - "gcr.io/$PROJECT_ID/${_SERVICE}:$BUILD_ID"
+  - "gcr.io/$PROJECT_ID/${_SERVICE}:latest"

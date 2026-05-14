@@ -1,0 +1,5 @@
+🔁 Photon Reverse Expansion
+Source: sample.txt
+Glyphs: ['✦']
+
+✦ → allographic

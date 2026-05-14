@@ -1,0 +1,42 @@
+{
+  "id": "torus_test",
+  "name": "Torus Test",
+  "created_on": "2025-08-28T17:23:21.003623",
+  "dna_switch": {
+    "active": true,
+    "mutation_id": "initial_seed",
+    "created_by": "creative_core",
+    "origin": "manual_upload"
+  },
+  "symbol": {
+    "type": "symbol",
+    "label": "Torus",
+    "name": "torus"
+  },
+  "glyphs": [
+    {
+      "type": "symbol",
+      "label": "Torus",
+      "name": "torus"
+    }
+  ],
+  "geometry": "Torus Recycler ♾️",
+  "description": "A symbolic test container representing a torus structure for feedback stabilization.",
+  "cubes": {
+    "core": {
+      "type": "symbol",
+      "label": "Core Loop",
+      "name": "torus_core",
+      "metadata": {
+        "function": "energy_feedback",
+        "stability": "high"
+      }
+    }
+  },
+  "container_kind": "symbolic",
+  "electrons": [],
+  "entangled": [],
+  "predictions": [],
+  "isAtom": false,
+  "electronCount": 0
+}

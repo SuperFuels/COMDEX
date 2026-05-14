@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "title": "Test Sheet for Symbolic Execution",
+    "created_by": "test_suite",
+    "version": "1.0"
+  },
+  "cells": [
+    {
+      "id": "A1",
+      "logic": "x + 2",
+      "position": [0, 0],
+      "emotion": "inspired",
+      "prediction": "x is a positive integer",
+      "trace": ["created", "updated"],
+      "linked_cells": [[0, 1, 0, 0]],
+      "nested_logic": "if x > 0: return x + 3"
+    },
+    {
+      "id": "A2",
+      "logic": "sin(y)",
+      "position": [0, 1],
+      "emotion": "neutral",
+      "prediction": "y is an angle in radians",
+      "trace": ["created"],
+      "linked_cells": [[0, 0, 0, 0]],
+      "nested_logic": ""
+    },
+    {
+      "id": "B1",
+      "logic": "if x > 0: return x**2",
+      "position": [1, 0],
+      "emotion": "inspired",
+      "prediction": "x will grow quadratically",
+      "trace": ["executed"],
+      "linked_cells": [],
+      "nested_logic": "x ** 2 if x > 0 else 0"
+    },
+    {
+      "id": "B2",
+      "logic": "overwrite('memory')",
+      "position": [1, 1],
+      "emotion": "neutral",
+      "prediction": "memory should reset",
+      "trace": [],
+      "linked_cells": [],
+      "nested_logic": ""
+    },
+    {
+      "id": "C1",
+      "logic": "a ⊕ b",
+      "position": [2, 0],
+      "emotion": "curious",
+      "prediction": "exclusive or between a and b",
+      "trace": ["created"],
+      "linked_cells": [],
+      "nested_logic": "",
+      "glyphs": [
+        {"type": "variable"},
+        {"type": "operator", "value": "⊕"},
+        {"type": "variable"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+parent:
+  name: Kevin Robinson
+  public_key: kevin_parent_signature_key
+  override_enabled: true
+
+maturity:
+  level: 0
+  milestones:
+    - score: 10
+      name: Learns cause & effect
+    - score: 25
+      name: Understands moral consequences
+    - score: 50
+      name: Navigates real-world complexity
+    - score: 85
+      name: Ready for Council Voting
+    - score: 100
+      name: Achieves Soul Autonomy
+
+council_structure:
+  total_seats: 5
+  seats:
+    - name: Parent (Kevin)
+    - name: Lineage Trustee
+    - name: Ethical Guardian
+    - name: Public Rep
+    - name: AION (observer until 85%)

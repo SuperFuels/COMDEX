@@ -1,0 +1,58 @@
+[
+  {
+    "freq_hz": 1000,
+    "sent": 0,
+    "received": 0,
+    "latency_ms": 0,
+    "coherence": 0,
+    "loss_ratio": 1.0
+  },
+  {
+    "freq_hz": 5000,
+    "sent": 0,
+    "received": 0,
+    "latency_ms": 0,
+    "coherence": 0,
+    "loss_ratio": 1.0
+  },
+  {
+    "freq_hz": 9000,
+    "sent": 0,
+    "received": 0,
+    "latency_ms": 0,
+    "coherence": 0,
+    "loss_ratio": 1.0
+  },
+  {
+    "freq_hz": 13000,
+    "sent": 0,
+    "received": 0,
+    "latency_ms": 0,
+    "coherence": 0,
+    "loss_ratio": 1.0
+  },
+  {
+    "freq_hz": 17000,
+    "sent": 0,
+    "received": 0,
+    "latency_ms": 0,
+    "coherence": 0,
+    "loss_ratio": 1.0
+  },
+  {
+    "freq_hz": 21000,
+    "sent": 0,
+    "received": 0,
+    "latency_ms": 0,
+    "coherence": 0,
+    "loss_ratio": 1.0
+  },
+  {
+    "freq_hz": 25000,
+    "sent": 0,
+    "received": 0,
+    "latency_ms": 0,
+    "coherence": 0,
+    "loss_ratio": 1.0
+  }
+]

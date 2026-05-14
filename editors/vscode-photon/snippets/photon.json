@@ -1,0 +1,7 @@
+{
+  "op_plus": { "prefix": "⊕", "body": ["⊕($1, $2)"], "description": "Superposition / add" },
+  "op_mu":   { "prefix": "μ",  "body": ["μ($1)"], "description": "Measurement / collapse" },
+  "op_link": { "prefix": "↔", "body": ["↔($1, $2)"], "description": "Entanglement link" },
+  "op_res":  { "prefix": "⟲", "body": ["⟲($1)"], "description": "Resonance" },
+  "op_pi":   { "prefix": "π",  "body": ["π($1)"], "description": "Projection" }
+}

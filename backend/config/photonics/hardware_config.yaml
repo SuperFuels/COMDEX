@@ -1,0 +1,22 @@
+hardware:
+  DAC:
+    bit_depth: 14
+    max_voltage: 3.3
+    sample_rate: 5GS/s
+  FiberCoupler:
+    alignment_tolerance_deg: 0.5
+    split_ratio: '50:50'
+  MZM:
+    bias_voltage: 2.5
+    driver_model: MZM-X300
+    v_pi: 5.0
+  PD:
+    bandwidth: 10GHz
+    gain: 1.0
+safety:
+  laser_shutdown_threshold_mW: 10.0
+  temperature_limit_C: 45.0
+sync:
+  clock_domain: AION
+  sync_mode: resonant
+timestamp: '2025-10-19T17:20:56.298142+00:00'

@@ -1,0 +1,4 @@
+Electron:Muon ratio (known): 206.85
+Electron:Pion ratio (known): 273.19
+Simulated mass mode spacing ratio: 0.039
+Effective m_eff: 4.1949e-01

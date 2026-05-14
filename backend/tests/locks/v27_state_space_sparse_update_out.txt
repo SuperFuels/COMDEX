@@ -1,0 +1,10 @@
+v27_state_space_sparse_update
+seed=27027
+n_agents=4096 k_updates=1024 m_edits=1
+raw_snapshot_stream=21348663
+raw_delta_stream=74867
+raw_ratio(snapshot/delta)=285.154514
+gz_snapshot_stream=175357
+gz_delta_stream=18147
+gz_ratio(snapshot/delta)=9.663140
+drift_sha256=1061f430d169d0b7f0012f432f4618fc21a36047191f9ab1a9dc2dab9e01ff01

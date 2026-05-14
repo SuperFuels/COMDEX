@@ -1,0 +1,3 @@
+{'type': 'matchup', 'mode': 'synonym', 'prompt': 'happy', 'options': ['angry', 'sad', 'joyful', 'content'], 'answer': 'joyful', 'resonance': {'ρ': 0.825, 'I': 0.899, 'SQI': 0.857}, 'timestamp': 1761341669.887469}
+{'type': 'anagram', 'prompt': 'atpenl', 'answer': 'planet', 'resonance': {'ρ': 0.654, 'I': 0.876, 'SQI': 0.834}, 'timestamp': 1761341669.8874838}
+{'type': 'unjumble', 'prompt': 'resonance quantum wave', 'answer': 'quantum wave resonance', 'resonance': {'ρ': 0.847, 'I': 0.928, 'SQI': 0.823}, 'timestamp': 1761341669.8874946}

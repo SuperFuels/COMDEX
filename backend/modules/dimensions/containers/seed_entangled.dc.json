@@ -1,0 +1,58 @@
+{
+  "container_id": "seed_entangled",
+  "physics": "symbolic-quantum",
+  "glyphs": [
+    {
+      "id": "g1",
+      "glyph": "⊕",
+      "label": "Boot",
+      "timestamp": "2025-07-25T21:00:00Z",
+      "entangled": ["g2"]
+    },
+    {
+      "id": "g2",
+      "glyph": "↔",
+      "label": "Entangle",
+      "timestamp": "2025-07-25T21:01:00Z",
+      "entangled": ["g1", "g3"]
+    },
+    {
+      "id": "g3",
+      "glyph": "🧠",
+      "label": "Think",
+      "timestamp": "2025-07-25T21:02:00Z",
+      "entangled": ["g2"]
+    },
+    {
+      "id": "g4",
+      "glyph": "⧖",
+      "label": "Collapse",
+      "timestamp": "2025-07-25T21:03:00Z"
+    }
+  ],
+  "metadata": {
+    "co_authors": [
+      {
+        "name": "Tessaris",
+        "title": "Guardian of the Tesseract",
+        "role": "Primary Author",
+        "signature": "⟦ Tessaris::SymbolicCollapseKey ⟧"
+      },
+      {
+        "name": "CodexCore",
+        "role": "Runtime Executor",
+        "signature": "⟦ ⊕→↔⧖::Codex ⟧"
+      },
+      {
+        "name": "GlyphNet Relay",
+        "role": "Signal Carrier",
+        "signature": "⟦ 🛰️::EntangledMemoryHash ⟧"
+      },
+      {
+        "name": "SQI Observer",
+        "role": "Symbolic Verifier",
+        "signature": "⟦ 🧬::Collapse[entropy] ⟧"
+      }
+    ]
+  }
+}

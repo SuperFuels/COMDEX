@@ -1,0 +1,162 @@
+/* Aion workflow node editor modal */
+
+.operations-agents-surface .aion-node-editor-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 220 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 44px !important;
+  background: rgba(17, 17, 17, 0.18) !important;
+  backdrop-filter: blur(6px) !important;
+}
+
+.operations-agents-surface .aion-node-editor-modal {
+  width: min(1380px, calc(100vw - 120px)) !important;
+  height: min(820px, calc(100vh - 120px)) !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  border: 1px solid var(--train-line, rgba(17, 17, 17, 0.14)) !important;
+  background: rgba(255, 247, 239, 0.98) !important;
+  box-shadow: 0 34px 110px rgba(17, 17, 17, 0.26) !important;
+}
+
+.operations-agents-surface .aion-node-editor-header {
+  display: flex !important;
+  align-items: start !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  padding: 22px 24px !important;
+  border-bottom: 1px solid var(--train-line-soft, rgba(17, 17, 17, 0.09)) !important;
+}
+
+.operations-agents-surface .aion-node-editor-header h2 {
+  margin: 4px 0 0 !important;
+  font-size: 30px !important;
+  line-height: 1 !important;
+}
+
+.operations-agents-surface .aion-node-editor-header p {
+  margin: 8px 0 0 !important;
+  color: var(--train-muted, rgba(17, 17, 17, 0.58)) !important;
+  font-weight: 700 !important;
+}
+
+.operations-agents-surface .aion-node-editor-close {
+  width: 46px !important;
+  height: 46px !important;
+  border: 1px solid var(--train-line, rgba(17, 17, 17, 0.14)) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  color: var(--train-ink, #1b1b1b) !important;
+  font-size: 28px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+}
+
+.operations-agents-surface .aion-node-editor-grid {
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(420px, 1.2fr) minmax(260px, 0.9fr) !important;
+}
+
+.operations-agents-surface .aion-node-editor-panel {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+  padding: 18px !important;
+  border-right: 1px solid var(--train-line-soft, rgba(17, 17, 17, 0.09)) !important;
+}
+
+.operations-agents-surface .aion-node-editor-panel:last-child {
+  border-right: 0 !important;
+}
+
+.operations-agents-surface .aion-node-editor-panel-head {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  align-items: center !important;
+  margin-bottom: 14px !important;
+}
+
+.operations-agents-surface .aion-node-editor-panel-head strong {
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.14em !important;
+}
+
+.operations-agents-surface .aion-node-editor-panel-head span {
+  color: var(--train-muted, rgba(17, 17, 17, 0.58)) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+.operations-agents-surface .aion-node-editor-panel pre {
+  margin: 0 !important;
+  padding: 14px !important;
+  max-height: none !important;
+  border: 1px solid var(--train-line-soft, rgba(17, 17, 17, 0.09)) !important;
+  background: rgba(255, 255, 255, 0.44) !important;
+  font-size: 11px !important;
+  line-height: 1.45 !important;
+  white-space: pre-wrap !important;
+}
+
+.operations-agents-surface .aion-node-editor-form {
+  display: grid !important;
+  gap: 16px !important;
+}
+
+.operations-agents-surface .aion-node-editor-field {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.operations-agents-surface .aion-node-editor-field span {
+  color: var(--train-muted-strong, rgba(17, 17, 17, 0.7)) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+.operations-agents-surface .aion-node-editor-field input,
+.operations-agents-surface .aion-node-editor-field textarea {
+  width: 100% !important;
+  border: 1px solid var(--train-line, rgba(17, 17, 17, 0.14)) !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  color: var(--train-ink, #1b1b1b) !important;
+  padding: 12px 13px !important;
+  font: inherit !important;
+  font-size: 15px !important;
+  font-weight: 650 !important;
+}
+
+.operations-agents-surface .aion-node-editor-field textarea {
+  min-height: 120px !important;
+  resize: vertical !important;
+}
+
+.operations-agents-surface .aion-node-editor-field em,
+.operations-agents-surface .aion-node-editor-note {
+  color: var(--train-muted, rgba(17, 17, 17, 0.58)) !important;
+  font-size: 13px !important;
+  font-style: normal !important;
+}
+
+.operations-agents-surface .aion-node-editor-note {
+  padding: 14px !important;
+  border: 1px solid var(--train-line-soft, rgba(17, 17, 17, 0.09)) !important;
+  background: rgba(255, 255, 255, 0.34) !important;
+}
+
+.operations-agents-surface .aion-node-editor-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  margin-top: 22px !important;
+  padding-top: 18px !important;
+  border-top: 1px solid var(--train-line-soft, rgba(17, 17, 17, 0.09)) !important;
+}

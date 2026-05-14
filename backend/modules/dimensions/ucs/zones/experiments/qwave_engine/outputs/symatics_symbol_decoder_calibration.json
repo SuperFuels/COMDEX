@@ -1,0 +1,33 @@
+{
+  "reference_catalog": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_symbol_reference_catalog.json",
+  "trials_report": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_symbol_write_read_trials_report.json",
+  "symbol_ids": [
+    "S1",
+    "S2",
+    "S4"
+  ],
+  "decoder_weights": {
+    "W_PICKUP": 9e-06,
+    "W_STABILITY": 0.732191,
+    "W_DRIFT": 0.210923,
+    "W_VOLTAGE": 1.034237,
+    "W_PHI": 5.554103,
+    "W_HARM": 2.46849,
+    "W_AUX1": 9e-06,
+    "W_AUX2": 9e-06,
+    "W_MX": 9e-06,
+    "W_MY": 9e-06,
+    "W_MZ": 9e-06
+  },
+  "runtime_hints": {
+    "expected_mean_confidence": 0.378468,
+    "expected_mean_margin": 0.734369,
+    "trial_exact_accuracy": 1.0,
+    "trial_semantic_accuracy": 1.0
+  },
+  "notes": {
+    "profile": "operational_decoder_calibration_v1",
+    "basis": "reference_catalog_plus_repeated_trials",
+    "comment": "Derived after stable Tier-1 repeated trials. Use with reference catalog for operational decoding."
+  }
+}

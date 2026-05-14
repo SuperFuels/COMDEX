@@ -1,0 +1,25 @@
+=== ✅ Bridge Benchmark v25: Cross-format comparison harness (JSON/CBOR optional + WirePack modes) ===
+seed=25025 depth=96 headers=96 n_msgs=512 muts=3
+Assumption: mtu_payload=1200 bytes (used only to estimate packet counts)
+
+drift_sha256(json_stream)= 7d4fa1c251e850afa3b53f70c8897a65f5c4a2e5f186dd14ec2f3f890c7cd64d
+
+encoder | bytes | pkts
+-------:|------:|----:
+json_raw              | 10751999 | 8960
+json_gz               | 155078 |  130
+wp_stringdict_raw     | 6880638 | 5734
+wp_stringdict_gz      | 119469 |  100
+wp_template_delta_raw | 167899 |  140
+wp_template_delta_gz  | 64706 |   54
+
+cbor_encoder | bytes | pkts
+-----------:|------:|----:
+cbor_raw     | n/a   | n/a
+cbor_gz      | n/a   | n/a
+
+ratio_vs_json_gz
+--------------:
+json_gz              : 1.00x
+wp_stringdict_gz     : 1.30x
+wp_template_delta_gz : 2.40x

@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-10-10 10:36:38",
+  "mean_energy": 0.0034220802578384503,
+  "mean_stability": 0.24949724898213244,
+  "mean_entropy": 0.4480524649279037,
+  "steps": 1000,
+  "source_csv": "backend/photon_algebra/tests/results_G10_regime_cycling_multiscale_stability.csv"
+}

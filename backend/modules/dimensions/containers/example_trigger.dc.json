@@ -1,0 +1,42 @@
+{
+  "id": "example_trigger",
+  "name": "Trigger Test Container",
+  "description": "Contains memory and action glyphs with full metadata.",
+  "microgrid": {
+    "0,0,0": {
+      "glyph": "🜁",
+      "type": "Memory",
+      "tag": "note",
+      "value": "just a note",
+      "action": "store"
+    },
+    "1,0,0": {
+      "glyph": "✦",
+      "type": "Action",
+      "tag": "reflect",
+      "value": "initiate dream",
+      "action": "dream"
+    },
+    "0,1,0": {
+      "glyph": "⚛",
+      "type": "Ethics",
+      "tag": "truth",
+      "value": "SoulLaw check",
+      "action": "log"
+    },
+    "2,0,0": {
+      "glyph": "⌬",
+      "type": "Compression",
+      "tag": "shrink",
+      "value": "compress this cube",
+      "action": "compress"
+    },
+    "0,0,1": {
+      "glyph": "🧭",
+      "type": "Navigation",
+      "tag": "portal",
+      "value": "jump to X",
+      "action": "teleport"
+    }
+  }
+}

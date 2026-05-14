@@ -1,0 +1,17 @@
+EVIDENCE_BLOCK
+Claim: <short claim>
+Scope: <paper/series/module>
+Metric(s): <numerical thresholds + units>
+Result: <measured values>
+Artifact_ID: <e.g., TEST_REF_A3_OCT25>
+Code_Path: <repo-relative path>
+Data_Path: <repo-relative path to json/csv/log>
+Artifacts_SHA256: <sha256 of data file(s)>
+Run_Hash: <hash or run id>
+Commit_SHA: <git rev-parse HEAD>
+Env: <TUPS_Version + key env vars>
+Repro_Command: <exact command>
+Status: VERIFIED | PARTIAL | FAIL
+Verified_On: <YYYY-MM-DD>
+Notes: <1–2 lines max>
+/EVIDENCE_BLOCK

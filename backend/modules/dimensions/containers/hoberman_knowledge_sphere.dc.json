@@ -1,0 +1,17 @@
+{
+  "id": "hoberman_knowledge_sphere",
+  "name": "Hoberman Knowledge Sphere",
+  "type": "HobermanContainer",
+  "meta": {
+    "seed_atoms": [
+      "resonance",
+      "entangle",
+      "collapse",
+      "superposition",
+      "entanglement"
+    ],
+    "count": 5,
+    "geometry": "Knowledge Sphere",
+    "address": "ucs://aion/knowledge/hoberman_knowledge_sphere#container"
+  }
+}

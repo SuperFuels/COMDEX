@@ -1,0 +1,32 @@
+{
+  "affirmative": {
+    "\u03a6_load": 0.01,
+    "\u03a6_flux": 0.0,
+    "\u03a6_entropy": 0.1,
+    "\u03a6_coherence": 0.99
+  },
+  "negative": {
+    "\u03a6_load": -0.02,
+    "\u03a6_flux": 0.03,
+    "\u03a6_entropy": 0.5,
+    "\u03a6_coherence": 0.7
+  },
+  "ack": {
+    "\u03a6_load": 0.0,
+    "\u03a6_flux": 0.0,
+    "\u03a6_entropy": 0.2,
+    "\u03a6_coherence": 0.95
+  },
+  "error": {
+    "\u03a6_load": 0.0424,
+    "\u03a6_flux": 0.3395,
+    "\u03a6_entropy": 0.5742,
+    "\u03a6_coherence": 0.4907
+  },
+  "gratitude": {
+    "\u03a6_load": -0.0082,
+    "\u03a6_flux": 0.2288,
+    "\u03a6_entropy": 0.2074,
+    "\u03a6_coherence": 0.9028
+  }
+}

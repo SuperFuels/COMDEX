@@ -1,0 +1,218 @@
+{
+  "source": "backend/modules/dimensions/ucs/zones/experiments/qwave_engine/outputs/symatics_phase_map.csv",
+  "symbol_count": 5,
+  "symbols": [
+    {
+      "symbol_id": "S0",
+      "name": "S0_constructive_1",
+      "semantic_state": "constructive",
+      "phi": 0.0,
+      "phi_degrees": 0.0,
+      "harmonics": [
+        1
+      ],
+      "stability": 0.9791477884435397,
+      "lock_quality": 5.502474136160881,
+      "drift": 0.008261605925542703,
+      "mean_pickup": 0.93128251375786,
+      "pickup_std": 0.010423399070594025,
+      "ticks": 10,
+      "locked": false,
+      "rank_score": 10.844375819042455,
+      "notes": {
+        "harmonics_key": "1",
+        "source_fields": [
+          "aux_adc_1_mean",
+          "aux_adc_2_mean",
+          "drift",
+          "harmonics",
+          "locked",
+          "magnetometer_x_mean",
+          "magnetometer_y_mean",
+          "magnetometer_z_mean",
+          "phi",
+          "phi_deg",
+          "pickup_mean",
+          "pickup_std",
+          "quality",
+          "semantic_state",
+          "stability_mean",
+          "ticks",
+          "voltage_mean"
+        ],
+        "allow_unlocked_semantic_states": true,
+        "admission_profile": "semantic_region_catalog_v2"
+      }
+    },
+    {
+      "symbol_id": "S1",
+      "name": "S1_constructive_1_2",
+      "semantic_state": "constructive",
+      "phi": 0.0,
+      "phi_degrees": 0.0,
+      "harmonics": [
+        1,
+        2
+      ],
+      "stability": 0.9616280375750546,
+      "lock_quality": 5.389717728694813,
+      "drift": 0.012859850237451731,
+      "mean_pickup": 0.9350414650310848,
+      "pickup_std": 0.018159007525237025,
+      "ticks": 10,
+      "locked": false,
+      "rank_score": 10.606234965066028,
+      "notes": {
+        "harmonics_key": "1,2",
+        "source_fields": [
+          "aux_adc_1_mean",
+          "aux_adc_2_mean",
+          "drift",
+          "harmonics",
+          "locked",
+          "magnetometer_x_mean",
+          "magnetometer_y_mean",
+          "magnetometer_z_mean",
+          "phi",
+          "phi_deg",
+          "pickup_mean",
+          "pickup_std",
+          "quality",
+          "semantic_state",
+          "stability_mean",
+          "ticks",
+          "voltage_mean"
+        ],
+        "allow_unlocked_semantic_states": true,
+        "admission_profile": "semantic_region_catalog_v2"
+      }
+    },
+    {
+      "symbol_id": "S2",
+      "name": "S2_beyond_boolean_positive_1_2",
+      "semantic_state": "beyond_boolean_positive",
+      "phi": 1.5707963267948966,
+      "phi_degrees": 90.0,
+      "harmonics": [
+        1,
+        2
+      ],
+      "stability": 0.9658041924380051,
+      "lock_quality": 5.09142474161263,
+      "drift": 0.015718031515184805,
+      "mean_pickup": 0.7782736329144295,
+      "pickup_std": 0.013472399625754795,
+      "ticks": 10,
+      "locked": false,
+      "rank_score": 10.026706469859299,
+      "notes": {
+        "harmonics_key": "1,2",
+        "source_fields": [
+          "aux_adc_1_mean",
+          "aux_adc_2_mean",
+          "drift",
+          "harmonics",
+          "locked",
+          "magnetometer_x_mean",
+          "magnetometer_y_mean",
+          "magnetometer_z_mean",
+          "phi",
+          "phi_deg",
+          "pickup_mean",
+          "pickup_std",
+          "quality",
+          "semantic_state",
+          "stability_mean",
+          "ticks",
+          "voltage_mean"
+        ],
+        "allow_unlocked_semantic_states": true,
+        "admission_profile": "semantic_region_catalog_v2"
+      }
+    },
+    {
+      "symbol_id": "S3",
+      "name": "S3_beyond_boolean_positive_1",
+      "semantic_state": "beyond_boolean_positive",
+      "phi": 1.5707963267948966,
+      "phi_degrees": 90.0,
+      "harmonics": [
+        1
+      ],
+      "stability": 0.9695616419597322,
+      "lock_quality": 4.948357917207295,
+      "drift": 0.025734756063718223,
+      "mean_pickup": 0.783803994891469,
+      "pickup_std": 0.020473052568045425,
+      "ticks": 10,
+      "locked": false,
+      "rank_score": 9.743635107389261,
+      "notes": {
+        "harmonics_key": "1",
+        "source_fields": [
+          "aux_adc_1_mean",
+          "aux_adc_2_mean",
+          "drift",
+          "harmonics",
+          "locked",
+          "magnetometer_x_mean",
+          "magnetometer_y_mean",
+          "magnetometer_z_mean",
+          "phi",
+          "phi_deg",
+          "pickup_mean",
+          "pickup_std",
+          "quality",
+          "semantic_state",
+          "stability_mean",
+          "ticks",
+          "voltage_mean"
+        ],
+        "allow_unlocked_semantic_states": true,
+        "admission_profile": "semantic_region_catalog_v2"
+      }
+    },
+    {
+      "symbol_id": "S4",
+      "name": "S4_beyond_boolean_negative_1",
+      "semantic_state": "beyond_boolean_negative",
+      "phi": 4.71238898038469,
+      "phi_degrees": 270.0,
+      "harmonics": [
+        1
+      ],
+      "stability": 0.814499457585487,
+      "lock_quality": 4.573448437652853,
+      "drift": 0.028731018453074242,
+      "mean_pickup": 0.8409936466488304,
+      "pickup_std": 0.014737257911142528,
+      "ticks": 10,
+      "locked": false,
+      "rank_score": 8.890068659012282,
+      "notes": {
+        "harmonics_key": "1",
+        "source_fields": [
+          "aux_adc_1_mean",
+          "aux_adc_2_mean",
+          "drift",
+          "harmonics",
+          "locked",
+          "magnetometer_x_mean",
+          "magnetometer_y_mean",
+          "magnetometer_z_mean",
+          "phi",
+          "phi_deg",
+          "pickup_mean",
+          "pickup_std",
+          "quality",
+          "semantic_state",
+          "stability_mean",
+          "ticks",
+          "voltage_mean"
+        ],
+        "allow_unlocked_semantic_states": true,
+        "admission_profile": "semantic_region_catalog_v2"
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "dojo_001",
+  "name": "Training Dojo",
+  "description": "A peaceful wooden dojo designed for learning and simulation.",
+  "created_by": "system",
+  "created_on": "2025-07-07T14:25:00Z",
+  "teleport_gates": [
+    {
+      "direction": "north",
+      "destination": "jungle_001",
+      "type": "wormhole",
+      "requires_approval": false
+    },
+    {
+      "direction": "exit",
+      "destination": "cloud_core",
+      "type": "ejection",
+      "requires_approval": true
+    }
+  ],
+  "environment": {
+    "gravity": "normal",
+    "lighting": "soft",
+    "stimuli": ["focus_music", "ambient_wind"]
+  },
+  "dna_switch": true
+}

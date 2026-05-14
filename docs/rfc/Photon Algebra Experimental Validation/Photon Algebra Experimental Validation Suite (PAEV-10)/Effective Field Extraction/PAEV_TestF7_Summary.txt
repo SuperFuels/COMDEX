@@ -1,0 +1,12 @@
+
+=== Test F7 — Predictive Self-Tuning Phase Dynamics ===
+⟨ℒ⟩ final = -2.3837e-02
+⟨θ·κ⟩ final = 1.0187e-02
+Spectral entropy final = 2.2694e+00
+χ final = 1.1089e-01
+α final = 7.0000e-02
+Transition detected at step 0
+Mean forecast error = 1.5955e-02
+Perturbation mode: ON
+All output files saved in working directory.
+----------------------------------------------------------

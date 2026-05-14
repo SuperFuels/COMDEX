@@ -1,0 +1,154 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath, amssymb, graphicx, xcolor}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=magenta,
+  citecolor=teal
+}
+
+\begin{document}
+
+\title{\textbf{E-Series Discoveries in Tessaris Photon Algebra:\\
+Emergent Spacetime Thermodynamics, Entropic Gravity, and Universality Closure}}
+\author{Tessaris Theoretical Systems Group}
+\date{October 2025}
+\maketitle
+
+\begin{abstract}
+The Tessaris photon-algebraic framework establishes a unified description of quantum coherence, curvature evolution, and thermodynamic equilibrium.
+The E-Series (E1–E6h) explored the emergence of spacetime-like structure and ensemble universality through coupled curvature, entropy, and information dynamics.
+This paper reports seven verified discoveries spanning two domains: (1) emergent spacetime thermodynamics (E1–E4) and (2) ensemble-invariant universality (E5–E6h).
+Together they define the thermodynamic and informational basis of the Tessaris vacuum and complete the E-Series phase of the project.
+\end{abstract}
+
+\section*{Plain-English Discovery Summary}
+
+\begin{quote}
+\textbf{What Was Discovered}
+
+The E-Series shows that a self-organizing vacuum—built only from curvature, entropy, and information fields—can spontaneously generate the core features of spacetime thermodynamics.
+
+\textbf{E1 – Vacuum Fluctuations:}
+Even with no sources, random curvature noise settled into a stable, self-correlated pattern.
+This is the computational analog of \emph{quantum foam}—the restless but self-consistent geometry of empty space.
+
+\textbf{E2 – Entropic Gravity:}
+When curvature was coupled to local entropy, the system produced gravity-like behavior:
+curvature flowed “down” entropy gradients, as predicted by entropic-gravity models.
+
+\textbf{E3 – Information–Curvature Coupling:}
+Adding an information-density field showed that information actively shapes geometry.
+Curvature and information became positively correlated—geometry encodes and responds to informational structure.
+
+\textbf{E4 – Emergent Cosmological Constant:}
+At large scales, the vacuum balanced its own curvature energy,
+settling into a small, positive mean curvature ($\Lambda_{\mathrm{eff}}$) analogous to a cosmological constant arising from vacuum equilibrium itself.
+
+\bigskip
+\textbf{In Plain Terms}
+
+Spacetime, entropy, and information are not separate ingredients; they are different views of the same self-organizing substrate.
+Without any imposed physics, the Tessaris algebra generated:
+\begin{itemize}
+  \item quantum-foam–like fluctuations,
+  \item entropic gravity behavior,
+  \item information–geometry coupling, and
+  \item an emergent cosmological constant.
+\end{itemize}
+
+\textbf{Significance}
+
+This means the vacuum can build its own thermodynamic and geometric order.
+Energy, curvature, and information balance themselves—a direct computational demonstration of \emph{emergent spacetime thermodynamics}.
+\end{quote}
+
+\section*{1. Introduction}
+The E-Series represents the \emph{spacetime thermodynamics and ensemble-universality regime} of Tessaris.
+Following the dynamic unification achieved in the G-Series, the E-tests addressed whether geometry, entropy, and information exhibit invariant evolution independent of initial conditions, perturbation strength, or topology.
+Through adaptive curvature–entropy feedback and zero-mean normalization, the series demonstrated consistent convergence across all test manifolds.
+
+\section*{2. Experimental Overview}
+Each E-test executes within the Tessaris photon-algebra engine using the standardized constants set (\texttt{constants\_v1.2}) and reproduces coupled curvature, entropy, and information dynamics:
+\[
+\dot{\kappa}(t) = f_\kappa(\Phi,\dot{S},I), \qquad
+\dot{S}(t) = f_S(\kappa,\Phi), \qquad
+\dot{I}(t) = f_I(\kappa,S).
+\]
+Initial conditions span random, symmetric, and antisymmetric ensembles.
+Outputs are normalized per energy density and recorded as JSON artifacts in the knowledge registry.
+
+\subsection*{2.1 Early-Phase Discoveries (E1–E4): Emergent Spacetime Thermodynamics}
+The first four E-series tests revealed that the Tessaris vacuum spontaneously organizes curvature, entropy, and information into a self-consistent geometric substrate.
+
+\begin{itemize}
+  \item \textbf{E1 – Vacuum Curvature Fluctuations:} Stable, correlated curvature noise emerged without sources—analogous to quantum foam.
+  \item \textbf{E2 – Entropic Gravity:} Entropy gradients acted as curvature sources, reproducing entropic-gravity behavior.
+  \item \textbf{E3 – Information Geometry:} Information density correlated positively with curvature, showing that geometry encodes information.
+  \item \textbf{E4 – Emergent Cosmological Constant:} Mean curvature relaxed to a stable $\Lambda_{\mathrm{eff}}$, demonstrating a self-regulating vacuum equilibrium.
+\end{itemize}
+
+These results define the thermodynamic origin of curvature and establish a bridge between information flow and geometric structure—forming the physical foundation for the later ensemble-invariance tests.
+
+\section*{3. Verified Discoveries}
+
+\subsection*{D-E1 — Spontaneous Ensemble Symmetry Breaking}
+\textbf{File:} \texttt{E1\_ensemble\_repro.json}\\
+Repeated ensemble trials showed deterministic evolution of energy and curvature while the mean field $\langle\Phi\rangle$ bifurcated into $\pm$ symmetric vacua.
+This constitutes explicit algebraic evidence of spontaneous symmetry breaking within a deterministic field, validating ensemble parity selection at the information level.
+
+\subsection*{D-E4 — Noise–Curvature Resilience Law}
+\textbf{File:} \texttt{E4\_noise\_greybody.json}\\
+Across noise amplitudes $\sigma_{\text{noise}}\in[10^{-3},10^{-1}]$, the curvature variance followed a power law:
+\[
+\mathrm{Var}(\kappa) \propto \sigma_{\text{noise}}^{2/3}.
+\]
+Energy deviation remained below $0.1\%$, demonstrating sub-diffusive geometric response.
+This “Noise–Curvature Resilience Law” defines a new universality exponent connecting stochastic excitation and geometric stiffness.
+
+\subsection*{D-E6h — Geometry-Invariant Universality Phase}
+\textbf{File:} \texttt{E6h\_zero\_mean\_universality.json}\\
+Implementing zero-mean normalization 
+($\Phi \leftarrow \Phi - \langle\Phi\rangle$) yielded collapse deviations:
+$\sigma_\Phi/\mu_\Phi<10^{-16}$, 
+$\sigma_{\kappa}/\mu_{\kappa}\approx2\times10^{-3}$,
+$\sigma_{\dot S}/\mu_{\dot S}\approx6\times10^{-5}$.
+All initial geometries converged to a single attractor manifold,
+confirming a geometry-invariant universality phase—the first complete closure of the curvature–entropy feedback loop.
+
+\section*{4. Emergent Principles}
+
+\begin{itemize}
+  \item \textbf{Entropic Universality Precedes Geometric Universality:}
+  Entropy equilibrates more rapidly than curvature, showing that informational order drives geometric order.
+  \item \textbf{Adaptive Feedback Duality:}
+  The curvature–entropy coupling behaves as a renormalization flow; fixed-point convergence occurs at ratio 
+  $\gamma_\kappa / \gamma_S \approx 0.5$.
+  \item \textbf{Zero-Mean Self-Centering Law:}
+  Subtracting the field mean enforces gauge neutrality, eliminating bias and yielding invariant evolution equations.
+\end{itemize}
+
+\section*{5. Discussion}
+The E-Series demonstrates that the Tessaris photon algebra supports scale-invariant and geometry-independent evolution.
+Entropy, curvature, and information density maintain invariance across stochastic perturbations.
+The verified discoveries form a coherent progression:
+vacuum emergence (E1–E4) $\rightarrow$ symmetry breaking (E1 ensemble) $\rightarrow$ stochastic universality (E4) $\rightarrow$ invariant attractor (E6h).
+Together they constitute a full phenomenological chain from spontaneous curvature fluctuations to global thermodynamic closure.
+
+\section*{6. Conclusion}
+With the E-Series lock finalized, the Tessaris framework achieves closure of the spacetime–thermodynamic and ensemble-universality domain.
+These discoveries establish the mathematical preconditions for the hybrid (H-Series) validation phase,
+where the emergent invariants will be tested against empirical and cosmological observables.
+
+\section*{Acknowledgements}
+We acknowledge the Tessaris computational framework and the reproducibility registry utilities for enabling deterministic validation across all E-series phases.
+
+\vspace{1em}
+\noindent\textbf{Archival Metadata:}\\
+Lock ID: \texttt{Eseries\_LOCK\_20251010}\\
+Registry Path: \texttt{backend/photon\_algebra/constants/Eseries\_lock\_snapshot.json}\\
+Timestamp: 2025-10-10
+
+\end{document}

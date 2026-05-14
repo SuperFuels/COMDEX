@@ -1,0 +1,12 @@
+[P10.2] 1/4: K=3 sep=1024 seed=42
+[P10.2] 2/4: K=4 sep=1024 seed=42
+[P10.2] 3/4: K=6 sep=1024 seed=42
+[P10.2] 4/4: K=8 sep=1024 seed=42
+=== P10.2 — Capacity Scaling (K users) ===
+✅ JSON -> backend/modules/knowledge/P10_2_capacity_scaling.json
+✅ PNG  -> backend/modules/knowledge/PAEV_P10_2_Capacity_MainRho_vs_K.png
+✅ PNG  -> backend/modules/knowledge/PAEV_P10_2_Capacity_MaxCrosstalk_vs_K.png
+✅ PNG  -> backend/modules/knowledge/PAEV_P10_2_Capacity_CondA_vs_K.png
+RUN_ID  -> P10_220260101T231034Z_P10_2_CAPACITY
+MODE    -> fast=True jobs=1
+CHECKS  -> overall_pass=True | highest_passing_K=6

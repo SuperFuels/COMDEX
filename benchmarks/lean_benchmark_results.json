@@ -1,0 +1,16 @@
+[
+  {
+    "glyph": "(A \u2194 B) \u2295 (B \u2194 C) \u2192 (A \u2194 C)",
+    "classical_time": 2.6e-05,
+    "qglyph_time": 7.1e-05,
+    "depth_classical": 1,
+    "depth_qglyph": 1,
+    "compression_ratio": 1.0,
+    "speedup_ratio": 0.372,
+    "qglyph_id": "979243ec-9f93-42f6-acaa-e34d9c009517",
+    "ethics_risk": null,
+    "mutation_score": null,
+    "container": "example_lean_theorem.dc.json",
+    "coord": "0,0"
+  }
+]

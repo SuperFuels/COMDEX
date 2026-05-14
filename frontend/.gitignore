@@ -1,0 +1,200 @@
+#──────────────────────────────
+# 🌐 Tessaris Full-Stack GitIgnore
+#──────────────────────────────
+# Covers Next.js + Node + Yarn + Python + Symatics AI modules
+
+#──────────────────────────────
+# 📦 Dependencies
+#──────────────────────────────
+/node_modules
+/frontend/node_modules
+/backend/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+#──────────────────────────────
+# 🧪 Testing / Coverage
+#──────────────────────────────
+/coverage
+/coverage.json
+
+#──────────────────────────────
+# ⚙️ Next.js / Build
+#──────────────────────────────
+/.next
+/out
+/build
+
+#──────────────────────────────
+# 🌱 Environment & Config Files
+#──────────────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+env.yaml
+env_vars.env
+cors_env.yaml
+backend/.env
+backend/.env.local
+cloudrun-env.yaml
+
+#──────────────────────────────
+# 🐍 Python Virtual Environments / Cache
+#──────────────────────────────
+venv*/
+backend/venv*/
+backend/venv_test*/
+__pycache__/
+*.py[cod]
+*.so
+*.db
+*.log
+*.tmp
+*.bak
+COMDEX_restore/
+
+#──────────────────────────────
+# 🔥 Firebase / Vercel / GCP
+#──────────────────────────────
+.firebase/
+.vercel/
+google-cloud-sdk/
+*.tar.gz
+*.zip
+
+#──────────────────────────────
+# 🧠 Tessaris / Symatics Knowledge, Lexicons & Temporary Data
+#──────────────────────────────
+data/knowledge/
+data/wiki_seed/
+data/cache/
+data/tmp/
+tmp/
+*.wiki.phn
+*.qkg.json
+*.log.json
+backend/data/knowledge_index.jsonl
+
+#──────────────────────────────
+# 🧩 Miscellaneous & Debug Artifacts
+#──────────────────────────────
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.ipynb_checkpoints
+*.tar
+*.gz
+*.zip
+*.swp
+*.pid
+*.lock
+
+#──────────────────────────────
+# 💻 IDE / System Files
+#──────────────────────────────
+.idea/
+.vscode/
+Thumbs.db
+
+# AION runtime cache and locks
+data/memory/resonant_memory_cache.json
+data/memory/resonant_memory_cache.*bak
+data/memory/resonant_memory_cache.*lock
+
+#──────────────────────────────
+# 🧠 AION Runtime Outputs / Telemetry & Massive Data
+#──────────────────────────────
+data/aion/
+data/analysis/
+data/learning/
+data/control/
+data/telemetry/
+data/benchmarks/
+data/sources/
+data/tasks/
+logs/
+*.json.lock
+*.bak
+*.lexbak
+*.bak2
+*.bz2
+*.xml
+*.glyph
+
+# Individual heavy files to exclude (safety net)
+data/control/aqci_log.jsonl
+data/control/rqfs_feedback.jsonl
+data/learning/fusion_state.jsonl
+data/memory/cee_lex_memory.json
+data/memory/cee_lex_memory.lexbak
+data/memory/lex_memory.json
+data/memory/resonant_memory_cache.*
+data/sources/enwiktionary-pages-articles.xml.bz2
+data/sources/enwiktionary-sample.xml.bz2
+data/sources/gcide_full.xml
+data/symatics/symbolic_resonance_stream.glyph
+data/telemetry/meta_resonant_telemetry.jsonl
+backend/data/conceptnet/numberbatch-en-19.08.txt
+
+
+# perf harness outputs
+backend/tests/artifacts/*.json
+
+# runtime output (never commit)
+data/ledger/*.jsonl
+data/ledger/*.db
+data/photon_sci/*.photon
+data/photon_sci/*.jsonl
+data/logs/**
+exports/**
+
+# optional: if you never want ANY runtime data tracked
+# data/**
+
+# runtime / generated
+.runtime/
+**/.runtime/
+
+# deps
+node_modules/
+**/node_modules/
+
+# lean build outputs
+**/.lake/
+
+# (optional) python junk
+**/__pycache__/
+*.pyc
+
+
+# runtime / caches
+.runtime/
+
+# deps
+node_modules/
+**/node_modules/
+
+# lean workspace build output (keep sources, ignore build dir)
+backend/modules/lean/workspace/.lake/
+backend/modules/lean/workspace/lake-packages/
+
+# generated artifacts (these look like outputs)
+CONNECTIVITY/artifacts/
+ENERGY/artifacts/
+GRAVITY/artifacts/
+INERTIA/artifacts/
+MAGNETISM/artifacts/
+MATTER/artifacts/
+TUNNEL/artifacts/
+
+**/node_modules
+Glyph_Net_Browser/node_modules

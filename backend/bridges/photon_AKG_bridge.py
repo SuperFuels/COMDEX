@@ -1,0 +1,227 @@
+"""
+Photon ↔ AKG Bridge - Phase 36A-40C
+------------------------------------
+Maps Aion Knowledge Graph (AKG) concepts to Photon Language waveforms
+and serializes them for QQC resonance transmission.
+
+Each concept is represented as a photonic signature:
+Φ = (λ, φ, μ, π, ⊕, ↔)
+   wavelength | phase | measurement | projection | superposition | entanglement
+
+Phase 38B added resonance-field export for the Aion Language subsystem.
+Phase 40C extends the bridge with harmonic emission capability,
+allowing the Harmonic Stabilizer Engine (HSE) to send corrective packets
+back through the resonance channel.
+
+Author: Tessaris Research Group
+Date: Phases 36A-40C (October 2025)
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import os
+import time
+import hashlib
+from pathlib import Path
+from dataclasses import dataclass, asdict
+from typing import Optional
+
+logger = logging.getLogger(__name__)
+
+# ─────────────────────────────────────────────
+# Determinism / quiet gates
+# ─────────────────────────────────────────────
+def _deterministic_time_enabled() -> bool:
+    return os.getenv("TESSARIS_DETERMINISTIC_TIME") == "1"
+
+def _quiet_enabled() -> bool:
+    return os.getenv("TESSARIS_TEST_QUIET") == "1"
+
+def _now() -> float:
+    # Deterministic mode: no wall clock.
+    return 0.0 if _deterministic_time_enabled() else time.time()
+
+def _stable_int_from_text(text: str) -> int:
+    # Avoid Python's hash() (salted / process-dependent).
+    h = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    return int(h[:16], 16)  # stable 64-bit-ish slice
+
+
+# ─────────────────────────────────────────────
+# Data Model
+# ─────────────────────────────────────────────
+@dataclass
+class PhotonRecord:
+    """Encapsulates a photonic resonance signature for one AKG concept."""
+    concept_id: str
+    wavelength: float
+    phase: float
+    measurement: float
+    projection: float
+    superposition: float
+    entanglement: float
+    # Never evaluate time.time() at import time; set at creation time via _now().
+    timestamp: float = 0.0
+
+
+# ─────────────────────────────────────────────
+# Bridge Implementation
+# ─────────────────────────────────────────────
+class PhotonAKGBridge:
+    """
+    Converts AKG concept metadata into Photon Language resonance vectors,
+    manages serialization for QQC resonance transport, and now accepts
+    harmonic correction emissions from higher control layers.
+    """
+
+    def __init__(self, output_dir: str = "data/photon_records"):
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.emission_log = Path("data/feedback/photon_bridge_log.json")
+
+    # ─────────────────────────────────────────
+    # Phase 36A - Concept Encoding
+    # ─────────────────────────────────────────
+    def encode_concept(self, concept_name: str) -> PhotonRecord:
+        """Generate deterministic pseudo-photonic parameters from a concept name."""
+        h = _stable_int_from_text(concept_name) % 100000
+        return PhotonRecord(
+            concept_id=concept_name,
+            wavelength=(h % 997) / 997.0,
+            phase=((h // 7) % 360) / 360.0,
+            measurement=0.5,
+            projection=0.5,
+            superposition=0.7,
+            entanglement=0.6,
+            timestamp=_now(),
+        )
+
+    # ─────────────────────────────────────────
+    def serialize(self, record: PhotonRecord) -> Path:
+        """Write a .qphoto JSON file for a single photon record."""
+        fpath = self.output_dir / f"{record.concept_id}.qphoto"
+        with open(fpath, "w") as fp:
+            json.dump(asdict(record), fp, indent=2)
+        logger.info(f"[PAB] Serialized photon record -> {fpath}")
+        return fpath
+
+    # ─────────────────────────────────────────
+    def export_concept(self, concept_name: str) -> PhotonRecord:
+        """Public API - encodes and serializes a concept's photon record."""
+        rec = self.encode_concept(concept_name)
+        fpath = self.serialize(rec)
+        if not _quiet_enabled():
+            print(f"✨ Photon record exported -> {fpath}")
+        return rec
+
+    # ─────────────────────────────────────────
+    # Phase 38B-39A - Resonance Field Export
+    # ─────────────────────────────────────────
+    def export_resonance_field(self, field: dict, filename: str | None = None):
+        """Export semantic resonance field into Photon Language form (.qphoto)."""
+        base_dir = self.output_dir
+        base_dir.mkdir(parents=True, exist_ok=True)
+
+        if filename:
+            fname = filename
+        else:
+            if _deterministic_time_enabled():
+                # Deterministic filename (digest of stable-ish JSON)
+                blob = json.dumps(field, sort_keys=True, separators=(",", ":"))
+                fname = f"resonance_field_{hashlib.sha256(blob.encode('utf-8')).hexdigest()[:16]}.qphoto"
+            else:
+                fname = f"resonance_field_{int(time.time())}.qphoto"
+
+        fpath = base_dir / fname
+
+        # Support both clusters or atoms as source
+        sources = field.get("atoms") or field.get("clusters") or []
+        photons = []
+        for s in sources:
+            photons.append({
+                "λ": s.get("center", "unknown"),
+                "φ": s.get("emotion_bias", 0.5),
+                "μ": s.get("goal_alignment", 0.0),
+                "π": s.get("emotion_bias", 0.5),
+                "⊕": s.get("resonance", 0.8),
+                "↔": s.get("center", "unknown"),
+            })
+
+        photon_field = {
+            "timestamp": field.get("timestamp", _now()),
+            "semantic_coherence": field.get("semantic_coherence", 1.0),
+            "photons": photons,
+        }
+
+        with open(fpath, "w") as f:
+            json.dump(photon_field, f, indent=2)
+
+        logger.info(f"[PAB] Photon resonance field exported -> {fpath}")
+        return fpath
+
+    # ─────────────────────────────────────────
+    # Phase 40C - Harmonic Emission Interface
+    # ─────────────────────────────────────────
+    def emit(self, event_type=None, payload=None):
+        """
+        Unified emission interface for PhotonAKGBridge.
+        Supports:
+        * emit(packet_dict)
+        * emit("context_snapshot", payload_dict)
+        """
+        # Normalize and guarantee 'type' exists
+        if payload is None and isinstance(event_type, dict):
+            packet = event_type
+            packet.setdefault("type", packet.get("event_type", "unlabeled"))
+        else:
+            packet = payload or {}
+            packet["type"] = event_type or packet.get("type", "unlabeled")
+
+        # Safe defaults (deterministic time when enabled)
+        packet["timestamp"] = packet.get("timestamp", _now())
+        packet.setdefault("target", "unknown")
+        packet.setdefault("source", "ContextAKGBridge")
+
+        msg = f"[PAB] Emitting {packet.get('type', 'unlabeled')} -> {packet.get('target', 'unknown')}"
+        if not _quiet_enabled():
+            print(msg)
+        try:
+            logger.info(msg)
+        except Exception:
+            pass
+
+        # Persistent log
+        self.emission_log = getattr(self, "emission_log", Path("data/akg/photon_emissions.json"))
+        self.emission_log.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            existing = json.load(open(self.emission_log)) if self.emission_log.exists() else {"packets": []}
+        except Exception:
+            existing = {"packets": []}
+        existing["packets"].append(packet)
+        with open(self.emission_log, "w") as f:
+            json.dump(existing, f, indent=2)
+
+        return True
+
+
+# ─────────────────────────────────────────────
+# Lazy singleton (NO import-time runtime bring-up)
+# ─────────────────────────────────────────────
+_PAB: Optional[PhotonAKGBridge] = None
+
+def get_PAB() -> PhotonAKGBridge:
+    global _PAB
+    if _PAB is None:
+        _PAB = PhotonAKGBridge()
+        if not _quiet_enabled():
+            print("🔗 PhotonAKGBridge global instance initialized as PAB (lazy)")
+    return _PAB
+
+# Back-compat: allow `from ... import PAB` without triggering init.
+class _PABProxy:
+    def __getattr__(self, name):
+        return getattr(get_PAB(), name)
+
+PAB = _PABProxy()

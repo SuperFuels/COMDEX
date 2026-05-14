@@ -1,0 +1,21 @@
+{
+  "id": "atom_maxwell_bundle",
+  "type": "container",
+  "atoms": [
+    {
+      "id": "atom_maxwell",
+      "type": "atom",
+      "caps": ["lean.replay", "physics.maxwell"],
+      "nodes": ["maxwell_eqs", "em_field"],
+      "glyphs": [
+        "∇·E=ρ/ε₀",
+        "∇·B=0",
+        "∇×E=-∂B/∂t",
+        "∇×B=μ₀J+μ₀ε₀∂E/∂t"
+      ],
+      "meta": {
+        "address": "ucs://local/atom_maxwell#atom"
+      }
+    }
+  ]
+}

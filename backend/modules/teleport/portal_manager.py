@@ -1,0 +1,137 @@
+import time
+import uuid
+from typing import Dict, Optional
+import logging
+logger = logging.getLogger(__name__)
+# from backend.modules.glyphvault.vault_manager import VAULT
+
+# Lazy-loaded ContainerRuntime to avoid circular imports
+ContainerRuntimeClass = None
+
+
+def create_teleport_packet(portal_id: str, container_id: str, payload: dict):
+    """
+    Lazily import TeleportPacket to avoid circular import between teleport_packet and portal_manager.
+    """
+    from backend.modules.teleport.teleport_packet import TeleportPacket
+
+    # Lookup source + destination from the portal map
+    mapping = PORTALS.resolve(portal_id) or {}
+    source = mapping.get("source", "unknown")
+    destination = mapping.get("target", "unknown")
+
+    return TeleportPacket(
+        portal_id=portal_id,
+        container_id=container_id,
+        source=source,
+        destination=destination,
+        payload=payload
+    )
+
+
+class PortalManager:
+    """
+    Manages symbolic portals between containers. Each portal has a unique ID,
+    a source container, and a target destination.
+    """
+
+    def __init__(self):
+        self.portal_map: Dict[str, Dict[str, str]] = {}  # portal_id -> { source: container_id, target: container_id }
+
+    def register_portal(self, source: str, target: str) -> str:
+        portal_id = str(uuid.uuid4())
+        self.portal_map[portal_id] = {
+            "source": source,
+            "target": target
+        }
+        return portal_id
+
+    def resolve_target(self, portal_id: str) -> Optional[str]:
+        mapping = self.portal_map.get(portal_id)
+        return mapping.get("target") if mapping else None
+
+    def resolve(self, portal_id: str) -> Optional[Dict[str, str]]:
+        return self.portal_map.get(portal_id)
+
+    def teleport(self, packet) -> bool:
+        """
+        Teleport logic: saves current state, loads target container, injects symbolic payload,
+        then runs prediction on the new container state.
+        """
+        global ContainerRuntimeClass
+        if ContainerRuntimeClass is None:
+            from backend.modules.runtime.container_runtime import ContainerRuntime
+            from backend.modules.consciousness.state_manager import STATE
+            ContainerRuntimeClass = lambda: ContainerRuntime(state_manager=STATE)
+
+        from backend.modules.consciousness.prediction_engine import PredictionEngine
+
+        target_id = self.resolve_target(packet.portal_id)
+        if not target_id:
+            print(f"[PortalManager] Invalid portal_id: {packet.portal_id}")
+            return False
+
+        try:
+            # Save current container snapshot
+            filename = VAULT.save_snapshot(packet.container_id)
+
+            # Load snapshot into target container
+            success = VAULT.load_snapshot(filename, avatar_state=None)
+            if not success:
+                print(f"[PortalManager] Failed to load snapshot for {target_id}")
+                return False
+
+            # Inject payload (e.g. teleport reason, trigger)
+            ContainerRuntimeClass().inject_payload(packet.payload)
+            print(f"[PortalManager] Teleport successful to {target_id}")
+
+            # Run prediction after teleport
+            from backend.modules.dimension.dimension_engine import get_decrypted_current_container
+            container = get_decrypted_current_container()
+
+            # Optional: restrict to certain glyph types (can disable this block if not needed)
+            supported_types = {"atom", "electron"}
+            should_predict = any(glyph.get("type") in supported_types for glyph in container.get("glyphs", []))
+
+            if should_predict:
+                PredictionEngine().run_prediction_on_container(container, context="teleport")
+                print(f"[PortalManager] Prediction run on teleported container {target_id}")
+            else:
+                print(f"[PortalManager] No supported glyphs for prediction in {target_id}")
+
+            return True
+
+        except Exception as e:
+            print(f"[PortalManager] Teleport exception: {e}")
+            return False
+
+    def extract_state(self, container_id: str) -> dict:
+        """
+        Compatibility shim for QQC teleportation.
+        Returns a mock or active container state for transfer via WormholeManager.
+        """
+        try:
+            # Use your existing ContainerVaultManager or runtime if available
+            from backend.modules.vault.container_vault_manager import ContainerVaultManager
+            state = ContainerVaultManager.get_decrypted_container(container_id)
+            return state or {"id": container_id, "status": "mock_state"}
+        except Exception as e:
+            print(f"[PortalManager] ⚠️ extract_state() failed: {e}")
+            return {"id": container_id, "status": "error", "error": str(e)}
+
+    def sync_state(self, container_runtime):
+        """
+        Synchronize current portal state with active container runtime.
+        """
+        try:
+            state = container_runtime.extract_state()
+            self.current_state = state
+            logger.info("[PortalManager] Synced state with container runtime.")
+            return state
+        except Exception as e:
+            logger.warning(f"[PortalManager] ⚠️ sync_state() failed: {e}")
+            return None
+
+
+# ✅ Global portal registry instance
+PORTALS = PortalManager()

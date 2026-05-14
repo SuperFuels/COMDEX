@@ -1,0 +1,49 @@
+# Basic predicate logic
+∀x. P(x) → Q(x)
+¬P(a)
+P(a) ∧ Q(a)
+∃y. R(y) ∧ ¬S(y)
+
+# Chained implications and quantifiers
+∀x. (P(x) ∧ Q(x)) → R(x)
+∀x. ∃y. Loves(x, y) → Happy(x)
+∃z. (Smart(z) ∧ Hardworking(z)) → Successful(z)
+
+# Nested negation and conjunctions
+¬(P(b) ∨ Q(b))
+¬(P(b) ∧ Q(b))
+¬∀x. P(x)
+¬∃x. Q(x)
+
+# Equivalence and biconditional
+∀x. P(x) ↔ Q(x)
+P(c) ↔ ¬Q(c)
+
+# Functions and relations
+∀x. ∀y. Parent(x, y) → Ancestor(x, y)
+∀x. ∀y. Ancestor(x, y) → (∃z. Parent(x, z) ∧ Ancestor(z, y))
+
+# Equality and substitution
+a = b
+∀x. x = x
+∀x. ∃y. x = y → P(y)
+
+# More complex nesting
+∃x. (∀y. Follows(y, x) ∧ ∃z. Leads(x, z)) → Influencer(x)
+∀x. (¬P(x) ∨ (Q(x) ∧ R(x))) → S(x)
+
+# Mixed symbolic logic
+∀x ∈ Humans. Mortal(x)
+¬Mortal(Socrates)
+Human(Socrates)
+Human(Aristotle) ∧ Philosopher(Aristotle)
+
+# Identity reasoning
+∀x. Philosopher(x) → Thinker(x)
+∃x. Thinker(x) ∧ ¬Philosopher(x)
+
+# Contradictions to test
+P(d)
+¬P(d)
+Q(e)
+¬Q(e) ∧ Q(e)

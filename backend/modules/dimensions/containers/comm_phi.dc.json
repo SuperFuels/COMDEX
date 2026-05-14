@@ -1,0 +1,88 @@
+{
+  "id": "comm_phi",
+  "type": "dc",
+  "glyphs": [
+    "⟦ Axiom ⟧ | comm_phi : (A ⋈[φ] B) ↔ (B ⋈[−φ] A) → Prove ⟧"
+  ],
+  "symbolic_logic": [
+    {
+      "name": "comm_phi",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)",
+      "logic_raw": "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "comm_phi",
+        "logic": "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "comm_phi",
+        "logic": "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/comm_phi.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    }
+  ],
+  "thought_tree": [
+    {
+      "name": "comm_phi",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "comm_phi",
+        "logic": "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    }
+  ],
+  "validation_errors": [],
+  "validation_errors_version": "v1",
+  "codex_ast": [
+    "(A ⋈[φ] B) ↔ (B ⋈[−φ] A)"
+  ],
+  "sqi_scores": [
+    null
+  ],
+  "mutations": []
+}

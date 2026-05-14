@@ -1,0 +1,1 @@
+axiom foo : True

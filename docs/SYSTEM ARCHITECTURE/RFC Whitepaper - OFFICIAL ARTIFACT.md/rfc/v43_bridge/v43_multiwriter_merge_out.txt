@@ -1,0 +1,20 @@
+=== ✅ Bridge Benchmark v43: Multi-writer deterministic merge (CRDT-style) ===
+v43_multiwriter_merge_wirepack
+seed=43043
+n_agents=8 n_items=4096 k_updates=1024 m_edits=4
+canon_idempotent_ok=True
+canon_stable_ok=True
+merge_ok=True
+raw_template_bytes=16386
+raw_delta_stream_bytes=211996
+gz_template_bytes=53
+gz_delta_stream_bytes=180848
+final_state_sha256=2f50312129a3234903b579e9fa711e95ccbd740fed5e5d276e814f82846992b3
+drift_sha256=a12e3f615ba533298b180e4e0aa2439a48ff0ca2f39c92cd28da473925bd4711
+
+LEAN_OK=1
+
+SHA256 (v43)
+
+a8caeedc0b80d9baec914959e98582cc6961f251e99e81d0c747d46be5fa181c  /workspaces/COMDEX/backend/modules/lean/workspace/SymaticsBridge/V43_MultiWriterMergeNoMaterialization.lean
+738600a26196acaef97f3f0e5436546228e1dca618593c09db2dbe7b2b3bbb0c  /workspaces/COMDEX/backend/tests/glyphos_wirepack_v43_multiwriter_merge_benchmark.py

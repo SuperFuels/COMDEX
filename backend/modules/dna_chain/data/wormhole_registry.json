@@ -1,0 +1,352 @@
+{
+  "Math Core→ucs_hub": {
+    "from": "Math Core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "physics_core→ucs_hub": {
+    "from": "physics_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "control_systems→ucs_hub": {
+    "from": "control_systems",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "engineering_materials→ucs_hub": {
+    "from": "engineering_materials",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "biology_core→ucs_hub": {
+    "from": "biology_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "economics_core→ucs_hub": {
+    "from": "economics_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "Cross-Domain Links→ucs_hub": {
+    "from": "Cross-Domain Links",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "tesseract_hq→ucs_hub": {
+    "from": "tesseract_hq",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "lean_replay_core.dc→ucs_hub": {
+    "from": "lean_replay_core.dc",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "lean_replay_core→ucs_hub": {
+    "from": "lean_replay_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "math_core→ucs_hub": {
+    "from": "math_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "cross_links→ucs_hub": {
+    "from": "cross_links",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "problem_gauss.dc→ucs_hub": {
+    "from": "problem_gauss.dc",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "problem_gauss→ucs_hub": {
+    "from": "problem_gauss",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "atom_maxwell→ucs_hub": {
+    "from": "atom_maxwell",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "atom_maxwell_bundle→ucs_hub": {
+    "from": "atom_maxwell_bundle",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "maxwell_core→ucs_hub": {
+    "from": "maxwell_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "physics_kernel_facts→ucs_hub": {
+    "from": "physics_kernel_facts",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "atom_electrons_test→ucs_hub": {
+    "from": "atom_electrons_test",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "torus_test→ucs_hub": {
+    "from": "torus_test",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "kg_writer_test→ucs_hub": {
+    "from": "kg_writer_test",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "test_container→ucs_hub": {
+    "from": "test_container",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_morphic_field→ucs_hub": {
+    "from": "symatics_morphic_field",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_quantum_field→ucs_hub": {
+    "from": "symatics_quantum_field",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_consciousness_cycle→ucs_hub": {
+    "from": "symatics_consciousness_cycle",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_telemetry_stream→ucs_hub": {
+    "from": "symatics_telemetry_stream",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_resonance_feedback→ucs_hub": {
+    "from": "symatics_resonance_feedback",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_awareness→ucs_hub": {
+    "from": "symatics_awareness",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_phi_awareness_history→ucs_hub": {
+    "from": "symatics_phi_awareness_history",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_resonance_coupling→ucs_hub": {
+    "from": "symatics_resonance_coupling",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "photon_runtime→ucs_hub": {
+    "from": "photon_runtime",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "tesseract_hq->ucs_hub": {
+    "from": "tesseract_hq",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_morphic_field->ucs_hub": {
+    "from": "symatics_morphic_field",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "demo_entangle->ucs_hub": {
+    "from": "demo_entangle",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "dc_holo_test->ucs_hub": {
+    "from": "dc_holo_test",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "dc_aion_core->ucs_hub": {
+    "from": "dc_aion_core",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_quantum_field->ucs_hub": {
+    "from": "symatics_quantum_field",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "gx1:sqi:99daa98e8cfc:matched_key:job0->ucs_hub": {
+    "from": "gx1:sqi:99daa98e8cfc:matched_key:job0",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "gx1:sqi:99daa98e8cfc:mismatched_key:job0->ucs_hub": {
+    "from": "gx1:sqi:99daa98e8cfc:mismatched_key:job0",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "gx1:sqi:99daa98e8cfc:multiplex_k2:job0->ucs_hub": {
+    "from": "gx1:sqi:99daa98e8cfc:multiplex_k2:job0",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "gx1:sqi:99daa98e8cfc:mutation_ch0_sev512:job0->ucs_hub": {
+    "from": "gx1:sqi:99daa98e8cfc:mutation_ch0_sev512:job0",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "photon_runtime->ucs_hub": {
+    "from": "photon_runtime",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_phi_awareness_history->ucs_hub": {
+    "from": "symatics_phi_awareness_history",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "test->ucs_hub": {
+    "from": "test",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "aion_goals->ucs_hub": {
+    "from": "aion_goals",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_consciousness_cycle->ucs_hub": {
+    "from": "symatics_consciousness_cycle",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_control->ucs_hub": {
+    "from": "symatics_control",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_runtime_primary->ucs_hub": {
+    "from": "symatics_runtime_primary",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "aion_learning_decision_influence->ucs_hub": {
+    "from": "aion_learning_decision_influence",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  },
+  "symatics_actuation->ucs_hub": {
+    "from": "symatics_actuation",
+    "to": "ucs_hub",
+    "meta": {
+      "reason": "auto_hub"
+    }
+  }
+}

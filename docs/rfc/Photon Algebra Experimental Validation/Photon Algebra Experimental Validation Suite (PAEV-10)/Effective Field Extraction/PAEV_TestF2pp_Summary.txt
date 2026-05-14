@@ -1,0 +1,10 @@
+
+=== Test F2++ — Dual-Fourier + Entropy Map Complete ===
+⟨ℒ⟩ final = 2.0561e-04
+⟨θ·κ⟩ final = 7.5854e-03
+Spectral entropy final = 1.5869e+00
+🌀 Transition detected at step 0 (entropy surge).
+Perturbation mode: ON
+
+All output files saved in working directory.
+----------------------------------------------------------

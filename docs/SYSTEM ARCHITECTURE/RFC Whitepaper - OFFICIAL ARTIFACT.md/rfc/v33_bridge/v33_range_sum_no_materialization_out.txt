@@ -1,0 +1,13 @@
+v33_range_sum_no_materialization
+seed=33033
+n_agents=4096 k_updates=1024
+windows=[(0, 0), (0, 31), (64, 127), (1000, 1100), (2048, 3071), (3500, 4095)]
+raw_snapshot_stream=21026827
+raw_delta_stream=88075
+raw_ratio(snapshot/delta)=238.737746
+gz_snapshot_stream=172418
+gz_delta_stream=23508
+gz_ratio(snapshot/delta)=7.334439
+window_sums_ok=True
+window_sums=[5, 427376, 871446, 1892193, 16733074, 9533482]
+drift_sha256=06fbce1a1b07126b83e8bc4083472ccbcd603e22ca3d8a65f7c31aa9c463a2b5

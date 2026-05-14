@@ -1,0 +1,798 @@
+{
+  "id": "symatics_axioms_full",
+  "type": "dc",
+  "glyphs": [
+    "⟦ Axiom ⟧ | comm_phi : (A ⋈[φ] B) ↔ (B ⋈[-φ] A) → Prove ⟧",
+    "⟦ Axiom ⟧ | self_pi_bot : (A ⋈[π] A) ↔ ⊥ → Prove ⟧",
+    "⟦ Axiom ⟧ | self_zero_id : (A ⋈[0] A) ↔ A → Prove ⟧",
+    "⟦ Axiom ⟧ | non_idem : ∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A → Prove ⟧",
+    "⟦ Axiom ⟧ | neutral_phi : (A ⋈[φ] ⊥) ↔ A → Prove ⟧",
+    "⟦ Axiom ⟧ | no_distrib : ¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C))) → Prove ⟧",
+    "⟦ Theorem ⟧ | no_distrib_formal : ((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C)) → Prove ⟧",
+    "⟦ Axiom ⟧ | assoc_phase : (A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C) → Prove ⟧",
+    "⟦ Axiom ⟧ | inv_phase : A ⋈[φ] (A ⋈[-φ] B) ↔ B → Prove ⟧",
+    "⟦ Axiom ⟧ | fuse_phase_zero : (A ⋈[0] B) ↔ (A ⊕ B) → Prove ⟧",
+    "⟦ Axiom ⟧ | fuse_phase_pi : (A ⋈[π] B) ↔ (A ⊖ B) → Prove ⟧"
+  ],
+  "symbolic_logic": [
+    {
+      "name": "comm_phi",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)",
+      "logic_raw": "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "comm_phi",
+        "logic": "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "comm_phi",
+        "logic": "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    },
+    {
+      "name": "self_pi_bot",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⋈[π] A) ↔ ⊥",
+      "logic_raw": "(A ⋈[π] A) ↔ ⊥",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "self_pi_bot",
+        "logic": "(A ⋈[π] A) ↔ ⊥",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[π] A) ↔ ⊥"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⋈[π] A) ↔ ⊥"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "self_pi_bot",
+        "logic": "(A ⋈[π] A) ↔ ⊥",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[π] A) ↔ ⊥"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⋈[π] A) ↔ ⊥",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    },
+    {
+      "name": "self_zero_id",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⋈[0] A) ↔ A",
+      "logic_raw": "(A ⋈[0] A) ↔ A",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "self_zero_id",
+        "logic": "(A ⋈[0] A) ↔ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[0] A) ↔ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⋈[0] A) ↔ A"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "self_zero_id",
+        "logic": "(A ⋈[0] A) ↔ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[0] A) ↔ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⋈[0] A) ↔ A",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    },
+    {
+      "name": "non_idem",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A",
+      "logic_raw": "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "non_idem",
+        "logic": "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "non_idem",
+        "logic": "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    },
+    {
+      "name": "neutral_phi",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⋈[φ] ⊥) ↔ A",
+      "logic_raw": "(A ⋈[φ] ⊥) ↔ A",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "neutral_phi",
+        "logic": "(A ⋈[φ] ⊥) ↔ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] ⊥) ↔ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⋈[φ] ⊥) ↔ A"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "neutral_phi",
+        "logic": "(A ⋈[φ] ⊥) ↔ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] ⊥) ↔ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⋈[φ] ⊥) ↔ A",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    },
+    {
+      "name": "no_distrib",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+      "logic_raw": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "no_distrib",
+        "logic": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "no_distrib",
+        "logic": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    },
+    {
+      "name": "no_distrib_formal",
+      "symbol": "⟦ Theorem ⟧",
+      "logic": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+      "logic_raw": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+      "codexlang": {
+        "symbol": "⟦ Theorem ⟧",
+        "name": "no_distrib_formal",
+        "logic": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "no_distrib_formal",
+        "logic": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Theorem ⟧"
+      ]
+    },
+    {
+      "name": "assoc_phase",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)",
+      "logic_raw": "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "assoc_phase",
+        "logic": "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "assoc_phase",
+        "logic": "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    },
+    {
+      "name": "inv_phase",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "A ⋈[φ] (A ⋈[-φ] B) ↔ B",
+      "logic_raw": "A ⋈[φ] (A ⋈[-φ] B) ↔ B",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "inv_phase",
+        "logic": "A ⋈[φ] (A ⋈[-φ] B) ↔ B",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "A ⋈[φ] (A ⋈[-φ] B) ↔ B"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "A ⋈[φ] (A ⋈[-φ] B) ↔ B"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "inv_phase",
+        "logic": "A ⋈[φ] (A ⋈[-φ] B) ↔ B",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "A ⋈[φ] (A ⋈[-φ] B) ↔ B"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "A ⋈[φ] (A ⋈[-φ] B) ↔ B",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    },
+    {
+      "name": "fuse_phase_zero",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⋈[0] B) ↔ (A ⊕ B)",
+      "logic_raw": "(A ⋈[0] B) ↔ (A ⊕ B)",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "fuse_phase_zero",
+        "logic": "(A ⋈[0] B) ↔ (A ⊕ B)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[0] B) ↔ (A ⊕ B)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⋈[0] B) ↔ (A ⊕ B)"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "fuse_phase_zero",
+        "logic": "(A ⋈[0] B) ↔ (A ⊕ B)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[0] B) ↔ (A ⊕ B)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⋈[0] B) ↔ (A ⊕ B)",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    },
+    {
+      "name": "fuse_phase_pi",
+      "symbol": "⟦ Axiom ⟧",
+      "logic": "(A ⋈[π] B) ↔ (A ⊖ B)",
+      "logic_raw": "(A ⋈[π] B) ↔ (A ⊖ B)",
+      "codexlang": {
+        "symbol": "⟦ Axiom ⟧",
+        "name": "fuse_phase_pi",
+        "logic": "(A ⋈[π] B) ↔ (A ⊖ B)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[π] B) ↔ (A ⊖ B)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ],
+        "normalized": "(A ⋈[π] B) ↔ (A ⊖ B)"
+      },
+      "glyph_tree": {
+        "type": "LogicGlyph",
+        "name": "fuse_phase_pi",
+        "logic": "(A ⋈[π] B) ↔ (A ⊖ B)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[π] B) ↔ (A ⊖ B)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      },
+      "source": "tmp/lean_uploads/symatics_axioms_full.lean",
+      "body": "",
+      "leanProof": "",
+      "symbolicProof": "(A ⋈[π] B) ↔ (A ⊖ B)",
+      "proofExplanation": null,
+      "replay_tags": [
+        "📜 Lean Theorem",
+        "🧠 ⟦ Axiom ⟧"
+      ]
+    }
+  ],
+  "thought_tree": [
+    {
+      "name": "comm_phi",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "comm_phi",
+        "logic": "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "self_pi_bot",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "self_pi_bot",
+        "logic": "(A ⋈[π] A) ↔ ⊥",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[π] A) ↔ ⊥"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "self_zero_id",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "self_zero_id",
+        "logic": "(A ⋈[0] A) ↔ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[0] A) ↔ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "non_idem",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "non_idem",
+        "logic": "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "neutral_phi",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "neutral_phi",
+        "logic": "(A ⋈[φ] ⊥) ↔ A",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] ⊥) ↔ A"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "no_distrib",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "no_distrib",
+        "logic": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "no_distrib_formal",
+      "glyph": "⟦ Theorem ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "no_distrib_formal",
+        "logic": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "assoc_phase",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "assoc_phase",
+        "logic": "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "inv_phase",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "inv_phase",
+        "logic": "A ⋈[φ] (A ⋈[-φ] B) ↔ B",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "A ⋈[φ] (A ⋈[-φ] B) ↔ B"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "fuse_phase_zero",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "fuse_phase_zero",
+        "logic": "(A ⋈[0] B) ↔ (A ⊕ B)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[0] B) ↔ (A ⊕ B)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "fuse_phase_pi",
+      "glyph": "⟦ Axiom ⟧",
+      "node": {
+        "type": "LogicGlyph",
+        "name": "fuse_phase_pi",
+        "logic": "(A ⋈[π] B) ↔ (A ⊖ B)",
+        "operator": "⊕",
+        "args": [
+          {
+            "type": "CodexLang",
+            "value": "(A ⋈[π] B) ↔ (A ⊖ B)"
+          },
+          {
+            "type": "Proof",
+            "value": ""
+          }
+        ]
+      }
+    }
+  ],
+  "validation_errors": [],
+  "validation_errors_version": "v1",
+  "codex_ast": [
+    "(A ⋈[φ] B) ↔ (B ⋈[-φ] A)",
+    "(A ⋈[π] A) ↔ ⊥",
+    "(A ⋈[0] A) ↔ A",
+    "∀ φ, φ ≠ 0 ∧ φ ≠ π → (A ⋈[φ] A) ≠ A",
+    "(A ⋈[φ] ⊥) ↔ A",
+    "¬(((A ⋈[φ] B) ∧ C) ↔ ((A ∧ C) ⋈[φ] (B ∧ C)))",
+    "((A ⋈[φ] B) ∧ C) ≠ ((A ∧ C) ⋈[φ] (B ∧ C))",
+    "(A ⋈[φ] B) ⋈[ψ] C ↔ A ⋈[φ+ψ] (B ⋈[ψ] C)",
+    "A ⋈[φ] (A ⋈[-φ] B) ↔ B",
+    "(A ⋈[0] B) ↔ (A ⊕ B)",
+    "(A ⋈[π] B) ↔ (A ⊖ B)"
+  ],
+  "sqi_scores": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "mutations": []
+}
