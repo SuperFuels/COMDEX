@@ -8946,16 +8946,22 @@ function renderAionWorkflowGlyphDebugExecutionPanel() {
 
 
 function renderWorkflowArchitectNodeEditorModal() {
-  if (window.__aionWorkflowArchitectModalOpen !== true) return "";
-
-  const reviewState = getWorkflowArchitectReviewState();
   const result = reviewState.result || {};
-  const spec = getWorkflowArchitectResultSpec(result);
-  const review = getWorkflowArchitectResultReviewSummary(result);
-  const canvas = getWorkflowArchitectResultCanvas(result);
-  const provider = (window.__syncedArchitectInput || {})?.provider || getWorkflowArchitectSelectedProvider();
-  const providerCopy = getWorkflowArchitectProviderStatusCopy(provider);
-  reviewState.provider = provider;
+  const review = result.review || {};
+  const canvas = review.canvas || result.canvas || {};
+  const spec = review.workflow_spec || result.workflow_spec || {};
+  const provider = reviewState.provider || "mock";
+
+  const providerCopy = getWorkflowArchitectProviderCopy(provider);
+  const errors = getWorkflowArchitectResultErrors(result);
+  const warnings = getWorkflowArchitectResultWarnings(result);
+
+  const canLoadToCanvas =
+    result.ok === true ||
+    reviewState.ok === true ||
+    review.canvas_ready === true ||
+    result?.review?.canvas_ready === true ||
+    Boolean(canvas?.nodes?.length);
 
   const generatedSteps = Array.isArray(spec.steps)
     ? spec.steps
@@ -8985,119 +8991,122 @@ function renderWorkflowArchitectNodeEditorModal() {
       ? review.missing_connectors
       : [];
 
-  const errors = getWorkflowArchitectResultErrors(result);
-  const warnings = getWorkflowArchitectResultWarnings(result);
+  const actions = typeof getWorkflowArchitectConnectorActionCatalogue === "function"
+    ? getWorkflowArchitectConnectorActionCatalogue()
+    : [];
 
-  const canLoadToCanvas =
-    result.ok === true ||
-    reviewState.ok === true ||
-    review.canvas_ready === true ||
-    result?.review?.canvas_ready === true ||
-    Boolean(canvas?.nodes?.length);
+  const safeActions = actions.filter((action) => action && action.locked !== true).slice(0, 10);
+  const lockedActions = actions.filter((action) => action && action.locked === true).slice(0, 8);
+
+  const steps = generatedSteps.length
+    ? generatedSteps
+    : [
+        {
+          step_id: "trigger",
+          label: "Start with a trigger",
+          node_type: "trigger",
+          connector: "gmail",
+          risk_tier: "safe",
+          requires_approval: false,
+          config: { action_id: "gmail.watch_emails" },
+        },
+        {
+          step_id: "extract",
+          label: "Extract useful details",
+          node_type: "ai_extract",
+          connector: "aion",
+          risk_tier: "safe",
+          requires_approval: false,
+          config: { action_id: "aion.extract_fields" },
+        },
+        {
+          step_id: "draft",
+          label: "Draft the response",
+          node_type: "draft",
+          connector: "gmail",
+          risk_tier: "approval",
+          requires_approval: true,
+          config: { action_id: "gmail.create_draft" },
+        },
+      ];
 
   return `
-    <div class="aion-node-editor-backdrop" data-workflow-architect-node-editor-modal="true">
-      <div
-        class="aion-node-editor-modal aion-workflow-architect-node-editor"
-        style="
-          width:min(1320px, calc(100vw - 120px));
-          height:min(820px, calc(100vh - 110px));
-          max-height:calc(100vh - 110px);
-          overflow:hidden;
-          display:grid;
-          grid-template-rows:auto 1fr;
-          background:#fff8ef;
-        "
-      >
-        <button
-          class="aion-node-editor-close"
-          type="button"
-          data-workflow-architect-node-editor-close="true"
-          title="Close AI Workflow Architect"
-          style="z-index:20;"
-        >
-          ×
-        </button>
-
-        <div
-          class="aion-node-editor-head"
-          style="
-            padding:28px 34px 20px;
-            border-bottom:1px solid rgba(15,23,42,0.12);
-            display:flex;
-            align-items:flex-start;
-            justify-content:space-between;
-            gap:24px;
-          "
-        >
-          <div>
-            <div class="eyebrow">AI Workflow Architect</div>
-            <h2 style="margin:6px 0 0;font-size:32px;line-height:1.05;">Build automatic workflow</h2>
-            <p class="muted" style="margin:10px 0 0;max-width:760px;">
-              Describe the automation, choose a provider, generate a safe review, then load the validated graph onto the canvas.
-            </p>
-          </div>
-
-          <div style="display:flex;gap:10px;align-items:center;padding-right:56px;">
-            <span class="train-status-chip train-status-ok">Dry-run only</span>
-            <span class="train-status-chip ${canLoadToCanvas ? "train-status-ok" : ""}">
-              ${canLoadToCanvas ? "Valid review" : "Awaiting review"}
-            </span>
-          </div>
+    <div
+      class="aion-architect-canvas-shell"
+      data-workflow-architect-canvas-mode="true"
+      data-workflow-architect-node-canvas="true"
+    >
+      <div class="aion-architect-topbar">
+        <div>
+          <div class="eyebrow">AI Workflow Architect</div>
+          <h1>Build automatic workflow</h1>
+          <p>
+            Start with a trigger, then add each step. Aion keeps everything dry-run first,
+            blocks live send, and only loads a validated review onto the workflow canvas.
+          </p>
         </div>
 
-        <div
-          class="aion-workflow-architect-modal-body"
-          style="
-            min-height:0;
-            overflow:auto;
-            padding:26px 34px 34px;
-            display:grid;
-            grid-template-columns:minmax(340px, 430px) minmax(420px, 1fr) minmax(280px, 360px);
-            gap:22px;
-            align-items:start;
-          "
-        >
-          <section class="aion-node-editor-column">
-            <div class="eyebrow">Input</div>
+        <div class="aion-architect-topbar-actions">
+          <button
+            type="button"
+            class="secondary-btn"
+            data-workflow-architect-node-editor-close="true"
+          >
+            Back to canvas
+          </button>
+          <span class="train-status-chip train-status-ok">Dry-run only</span>
+          <span class="train-status-chip ${canLoadToCanvas ? "train-status-ok" : ""}">
+            ${canLoadToCanvas ? "Valid review" : "Awaiting review"}
+          </span>
+        </div>
+      </div>
 
-            <div class="aion-node-editor-panel" style="padding:20px;background:rgba(255,255,255,0.72);border:1px solid rgba(15,23,42,0.10);">
-              <label style="display:grid;gap:8px;">
-                <span class="eyebrow">Workflow goal</span>
-                <textarea
-                  class="aion-workflow-architect-goal"
-                  data-workflow-architect-goal-input="true"
-                  rows="8"
-                  style="width:100%;resize:vertical;min-height:170px;font-size:15px;line-height:1.45;"
-                  placeholder="Example: Create a Gmail customer reply workflow that extracts details, drafts a response, and asks for approval before sending."
-                >${escapeHtml(reviewState.workflowGoal || "")}</textarea>
-              </label>
+      <div class="aion-architect-node-builder-layout">
+        <aside class="aion-architect-left-panel">
+          <section class="aion-architect-card">
+            <div class="eyebrow">Build mode</div>
+            <div class="aion-architect-mode-switch">
+              <button type="button" class="active" data-workflow-architect-build-mode="steps">
+                Use this app
+              </button>
+              <button type="button" data-workflow-architect-build-mode="describe">
+                Describe workflow
+              </button>
+            </div>
+            <p class="muted">
+              Use this app → do this → then do this. Locked actions stay visible but cannot run.
+            </p>
+          </section>
 
-              <label style="display:grid;gap:8px;margin-top:18px;">
-                <span class="eyebrow">Provider</span>
-                <select
-                  data-workflow-architect-provider-select="true"
-                  style="width:100%;height:46px;font-weight:800;"
-                >
-                  <option value="mock" ${provider === "mock" ? "selected" : ""}>Mock deterministic</option>
-                  <option value="local_gemma" ${provider === "local_gemma" ? "selected" : ""}>Local Gemma / Ollama</option>
-                  <option value="openai" ${provider === "openai" ? "selected" : ""}>OpenAI</option>
-                  <option value="claude" ${provider === "claude" ? "selected" : ""}>Claude — fail-closed</option>
-                  <option value="gemini" ${provider === "gemini" ? "selected" : ""}>Gemini — fail-closed</option>
-                  <option value="grok" ${provider === "grok" ? "selected" : ""}>Grok — fail-closed</option>
-                </select>
-              </label>
+          <section class="aion-architect-card">
+            <div class="eyebrow">Workflow goal</div>
+            <textarea
+              class="aion-workflow-architect-goal"
+              data-workflow-architect-goal-input="true"
+              rows="7"
+              placeholder="Example: When a new Gmail enquiry arrives, extract the customer details, create a CRM contact, draft a reply, then ask me for approval."
+            >${escapeHtml(reviewState.workflowGoal || "")}</textarea>
 
-              <p class="muted" style="margin:10px 0 0;">
-                ${escapeHtml(providerCopy)}
-              </p>
+            <label class="aion-architect-field">
+              <span>Provider</span>
+              <select data-workflow-architect-provider-select="true">
+                <option value="mock" ${provider === "mock" ? "selected" : ""}>Mock deterministic</option>
+                <option value="local_gemma" ${provider === "local_gemma" ? "selected" : ""}>Local Gemma / Ollama</option>
+                <option value="openai" ${provider === "openai" ? "selected" : ""}>OpenAI</option>
+                <option value="claude" ${provider === "claude" ? "selected" : ""}>Claude — fail-closed</option>
+                <option value="gemini" ${provider === "gemini" ? "selected" : ""}>Gemini — fail-closed</option>
+                <option value="grok" ${provider === "grok" ? "selected" : ""}>Grok — fail-closed</option>
+              </select>
+            </label>
 
+            <p class="muted">${escapeHtml(providerCopy)}</p>
+
+            <div class="aion-architect-actions">
               <button
                 class="primary-btn"
                 type="button"
                 data-workflow-architect-build-review="true"
                 ${reviewState.loading ? "disabled" : ""}
-                style="margin-top:18px;width:100%;height:46px;"
               >
                 ${reviewState.loading ? "Building review..." : "Build review"}
               </button>
@@ -9107,881 +9116,122 @@ function renderWorkflowArchitectNodeEditorModal() {
                 type="button"
                 data-workflow-architect-load-valid-review="true"
                 ${canLoadToCanvas ? "" : "disabled"}
-                style="margin-top:10px;width:100%;height:46px;"
               >
                 Load valid review onto canvas
               </button>
-
-              <div style="margin-top:18px;">
-                ${renderWorkflowArchitectGuidedStepBuilder()}
-              </div>
             </div>
           </section>
 
-          <section class="aion-node-editor-column">
-            <div class="eyebrow">Generated workflow</div>
-
-            <div class="aion-node-editor-panel" style="padding:20px;background:rgba(255,255,255,0.72);border:1px solid rgba(15,23,42,0.10);">
-              ${
-                result.ok || reviewState.ok
-                  ? `
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;">
-                      <div>
-                        <h3 style="margin:0;font-size:20px;">${escapeHtml(spec.workflow_name || review.workflow_name || "Generated workflow")}</h3>
-                        <p class="muted" style="margin:8px 0 0;">${escapeHtml(spec.goal || review.goal || reviewState.workflowGoal || "")}</p>
-                      </div>
-                      <span class="train-status-chip train-status-ok">Valid review</span>
-                    </div>
-                  `
-                  : `
-                    <div class="empty-state" style="margin:0;">
-                      Enter a workflow goal and click Build review. Nothing is loaded onto the canvas until validation passes.
-                    </div>
-                  `
-              }
-
-              ${
-                generatedSteps.length
-                  ? `
-                    <div style="margin-top:22px;">
-                      <div class="eyebrow">Generated steps</div>
-                      <div style="display:grid;gap:10px;margin-top:10px;">
-                        ${generatedSteps
-                          .map((step, index) => {
-                            const needsApproval = step.requires_approval === true;
-                            const risk = String(step.risk_tier || "low");
-                            return `
-                              <div
-                                style="
-                                  padding:13px 14px;
-                                  border:1px solid rgba(15,23,42,0.10);
-                                  background:${needsApproval ? "rgba(255,237,213,0.72)" : "rgba(255,255,255,0.82)"};
-                                  display:grid;
-                                  gap:5px;
-                                "
-                              >
-                                <div style="display:flex;justify-content:space-between;gap:10px;">
-                                  <strong>${escapeHtml(String(index + 1))}. ${escapeHtml(step.label || step.title || step.step_id || "Step")}</strong>
-                                  <span class="badge">${escapeHtml(step.node_type || step.type || "node")}</span>
-                                </div>
-                                <small class="muted">
-                                  risk: ${escapeHtml(risk)}${needsApproval ? " · approval required" : " · no approval"}
-                                </small>
-                              </div>
-                            `;
-                          })
-                          .join("")}
-                      </div>
-                    </div>
-                  `
-                  : ""
-              }
-
-              ${
-                errors.length || warnings.length
-                  ? `
-                    <div style="margin-top:20px;">
-                      ${errors.length ? `<div class="train-result-box train-result-error"><strong>Errors</strong><pre>${escapeHtml(JSON.stringify(errors, null, 2))}</pre></div>` : ""}
-                      ${warnings.length ? `<div class="train-result-box train-result-warn"><strong>Warnings</strong><pre>${escapeHtml(JSON.stringify(warnings, null, 2))}</pre></div>` : ""}
-                    </div>
-                  `
-                  : ""
-              }
+          <section class="aion-architect-card">
+            <div class="eyebrow">Action picker</div>
+            <div class="aion-architect-action-list">
+              ${safeActions.map((action) => `
+                <button
+                  type="button"
+                  class="workflow-architect-action-option"
+                  data-workflow-architect-select-action="${escapeHtml(action.action_id)}"
+                >
+                  <strong>${escapeHtml(action.label || action.action_id)}</strong>
+                  <span>${escapeHtml(action.connector || "connector")} · ${escapeHtml(action.category || "action")}</span>
+                </button>
+              `).join("")}
             </div>
-          </section>
 
-          <section class="aion-node-editor-column">
-            <div class="eyebrow">Safety / connectors</div>
-
-            <div class="aion-node-editor-panel" style="padding:20px;background:rgba(255,255,255,0.72);border:1px solid rgba(15,23,42,0.10);">
-              <div class="aion-io-row"><strong>Execution:</strong> Dry-run only</div>
-              <div class="aion-io-row"><strong>Live send:</strong> Disabled</div>
-              <div class="aion-io-row"><strong>External writes:</strong> Approval gated</div>
-              <div class="aion-io-row"><strong>Canvas load:</strong> Valid review required</div>
-
-              <div style="margin-top:20px;">
-                <div class="eyebrow">Connectors required</div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-                  ${
-                    connectorsRequired.length
-                      ? connectorsRequired.map((item) => `<span class="badge">${escapeHtml(item)}</span>`).join("")
-                      : `<span class="muted">None declared yet.</span>`
-                  }
+            <details class="aion-architect-locked-actions">
+              <summary>Locked / future-only actions</summary>
+              ${lockedActions.map((action) => `
+                <div class="workflow-architect-action-option locked">
+                  <strong>${escapeHtml(action.label || action.action_id)}</strong>
+                  <span>${escapeHtml(action.status || "Locked / future-only")}</span>
                 </div>
-              </div>
+              `).join("")}
+            </details>
+          </section>
+        </aside>
 
-              <div style="margin-top:20px;">
-                <div class="eyebrow">Missing connectors</div>
-                ${
-                  missingConnectors.length
-                    ? `
-                      <div style="display:grid;gap:8px;margin-top:10px;">
-                        ${missingConnectors
-                          .map(
-                            (item) => `
-                              <div class="train-result-box train-result-warn" style="margin:0;">
-                                <strong>${escapeHtml(item.connector || "missing connector")}</strong>
-                                <span>${escapeHtml(item.reason || "Credential is not connected.")}</span>
-                              </div>
-                            `,
-                          )
-                          .join("")}
-                      </div>
-                    `
-                    : `<p class="muted">No missing connector warnings.</p>`
-                }
-              </div>
+        <main class="aion-architect-canvas-board">
+          <div class="aion-architect-board-header">
+            <div>
+              <div class="eyebrow">Visual workflow</div>
+              <h2>Canvas build</h2>
+            </div>
+            <button
+              type="button"
+              class="secondary-btn"
+              data-workflow-architect-preset-lead-pipeline="true"
+            >
+              Use Gmail lead preset
+            </button>
+          </div>
 
-              <details style="margin-top:20px;">
-                <summary class="eyebrow" style="cursor:pointer;">Debug review payload</summary>
-                <pre class="aion-parser-preview" style="max-height:260px;overflow:auto;margin-top:10px;">${escapeHtml(JSON.stringify(result || {}, null, 2))}</pre>
-              </details>
+          <div class="aion-architect-flow-lane">
+            ${steps.map((step, index) => `
+              <div class="workflow-architect-step-visual-row" data-workflow-architect-step-id="${escapeHtml(step.step_id || String(index + 1))}">
+                <div class="aion-architect-step-number">${index + 1}</div>
+                <div class="aion-architect-step-card">
+                  <div class="aion-architect-step-kicker">
+                    <span>${escapeHtml(step.connector || step.node_type || "aion")}</span>
+                    <span>${escapeHtml(step.risk_tier || "safe")}</span>
+                    ${step.requires_approval ? "<span>Approval</span>" : "<span>Dry-run</span>"}
+                  </div>
+                  <h3>${escapeHtml(step.label || step.action || step.step_id || `Step ${index + 1}`)}</h3>
+                  <p>${escapeHtml(step.node_type || "workflow_step")}</p>
+                </div>
+                ${index < steps.length - 1 ? `<div class="aion-architect-step-connector">↓</div>` : ""}
+              </div>
+            `).join("")}
+          </div>
+        </main>
+
+        <aside class="aion-architect-step-settings">
+          <section class="aion-architect-card">
+            <div class="eyebrow">Safety / connectors</div>
+            <div class="aion-architect-safety-grid">
+              <div><strong>Execution:</strong> Dry-run only</div>
+              <div><strong>Live send:</strong> Disabled</div>
+              <div><strong>External writes:</strong> Approval gated</div>
+              <div><strong>Canvas load:</strong> Valid review required</div>
             </div>
           </section>
-        </div>
+
+          <section class="aion-architect-card">
+            <div class="eyebrow">Connectors required</div>
+            ${
+              connectorsRequired.length
+                ? `<ul>${connectorsRequired.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+                : `<p class="muted">None declared yet.</p>`
+            }
+
+            <div class="eyebrow" style="margin-top:18px;">Missing connectors</div>
+            ${
+              missingConnectors.length
+                ? `<ul>${missingConnectors.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+                : `<p class="muted">No missing connector warnings.</p>`
+            }
+          </section>
+
+          <section class="aion-architect-card">
+            <div class="eyebrow">Review output</div>
+            ${
+              errors.length || warnings.length
+                ? `
+                  ${errors.map((item) => `<div class="alert error">${escapeHtml(item)}</div>`).join("")}
+                  ${warnings.map((item) => `<div class="alert warning">${escapeHtml(item)}</div>`).join("")}
+                `
+                : `<p class="muted">Enter a workflow goal and click Build review. Nothing is loaded until validation passes.</p>`
+            }
+
+            <details style="margin-top:14px;">
+              <summary>Debug review payload</summary>
+              <pre>${escapeHtml(JSON.stringify(result || {}, null, 2))}</pre>
+            </details>
+          </section>
+        </aside>
       </div>
     </div>
   `;
 }
 
-
-function renderAionWorkflowFloatingToolbar() {
-  return `
-    <div class="aion-workflow-floating-toolbar">
-      <button
-        class="aion-workflow-execute-btn"
-        type="button"
-        data-aion-workflow-dry-run="true"
-        title="Execute workflow safely"
-      >
-        <span>⚗</span>
-        <strong>Execute workflow</strong>
-      </button>
-
-      <div class="aion-workflow-floating-divider"></div>
-
-      <button type="button" data-aion-workflow-save="true" title="Save workflow">
-        <span>💾</span>
-      </button>
-
-      <button type="button" data-aion-workflow-save-capsule="true" title="Save as Workflow Capsule">
-        <span>⬢</span>
-      </button>
-
-      <button type="button" data-aion-workflow-notes="true" title="Notes">
-        <span>📝</span>
-      </button>
-
-      <button type="button" data-aion-workflow-glyph-debug="true" title="Compiled Glyph developer/debug">
-        <span>G</span>
-      </button>
-
-      <div class="aion-workflow-floating-divider"></div>
-
-      <button type="button" data-aion-workflow-open-flow-control="true" title="Flow control">
-        <span>⑂</span>
-      </button>
-
-      <button type="button" data-aion-workflow-open-tools="true" title="Tools">
-        <span>⚙</span>
-      </button>
-
-      <button
-        type="button"
-        data-aion-workflow-open-architect-modal="true"
-        data-aion-workflow-open-architect="true"
-        title="AI Workflow Architect"
-      >
-        <span>AI</span>
-      </button>
-
-      <button
-        class="aion-workflow-floating-add"
-        type="button"
-        data-aion-workflow-open-action-picker="true"
-        title="Add next step"
-      >
-        <span>+</span>
-      </button>
-    </div>
-  `;
-}
-
-
-function renderAionWorkflowDryRunTraceDock() {
-  const result = window.__aionWorkflowDryRunResult;
-  const trace = Array.isArray(result?.trace) ? result.trace : [];
-  const blocked = Array.isArray(result?.blocked_external_writes)
-    ? result.blocked_external_writes
-    : [];
-
-  if (!result) {
-    return `
-      <span>✓ Trigger schema valid</span>
-      <span>✓ CRM write blocked</span>
-      <span>⚠ Publish requires approval policy</span>
-    `;
-  }
-
-  const traceRows = trace
-    .map((step) => {
-      const status = String(step.status || "simulated");
-      const marker = status.includes("blocked") || status.includes("waiting") ? "⚠" : "✓";
-      const statusClass = status.includes("not_run")
-        ? "is-paused"
-        : status.includes("waiting_approval")
-          ? "is-waiting"
-          : status.includes("blocked")
-            ? "is-blocked"
-            : "is-ok";
-      return `
-        <div class="aion-dry-run-trace-row">
-          <span>${marker}</span>
-          <strong>${escapeHtml(step.title || step.node_id || "step")}</strong>
-          <em class="${escapeHtml(statusClass)}">${escapeHtml(status)}</em>
-        </div>
-      `;
-    })
-    .join("");
-
-  return `
-    <span>✓ Dry-run: ${escapeHtml(String(result.steps || trace.length || 0))} steps</span>
-    <span>${blocked.length ? "⚠" : "✓"} Blocked writes: ${escapeHtml(String(blocked.length))}</span>
-    <span>✓ Audit recorded</span>
-
-    <details class="aion-dry-run-trace-dock">
-      <summary>
-        <span>Trace</span>
-        <strong>${escapeHtml(String(trace.length))} steps</strong>
-      </summary>
-      <div class="aion-dry-run-trace-panel">
-        ${traceRows || "<div>No trace rows.</div>"}
-      </div>
-    </details>
-  `;
-}
-
-
-
-function renderAionWorkflowDryRunTraceFloatingDock() {
-  const result = window.__aionWorkflowDryRunResult;
-  const trace = Array.isArray(result?.trace) ? result.trace : [];
-  const approval = result?.approval_request || null;
-
-  if (!result || !window.__aionWorkflowDryRunTraceOpen) return "";
-
-  const blocked = Array.isArray(result?.blocked_external_writes)
-    ? result.blocked_external_writes
-    : [];
-
-  const approvalSteps = trace.filter((step) => {
-    const status = String(step.status || "");
-    const op = String(step.op || "");
-    return (
-      status.includes("waiting_approval") ||
-      op.includes("approval") ||
-      status.includes("blocked_external_write") ||
-      status.includes("approved_ready")
-    );
-  });
-
-  const safePreviewCount = trace.filter((step) => {
-    const status = String(step.status || "");
-    return (
-      status === "simulated" ||
-      status === "approved" ||
-      status === "approved_ready" ||
-      status === "already_completed_before_approval"
-    );
-  }).length;
-
-  function titleCaseStep(value) {
-    const raw = String(value || "Workflow step").replace(/[_-]+/g, " ").trim();
-    return raw
-      .split(" ")
-      .filter(Boolean)
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(" ");
-  }
-
-  function friendlyStatus(step) {
-    const status = String(step?.status || "");
-    const op = String(step?.op || "");
-
-    if (status.includes("approved_ready")) return "Ready after approval";
-    if (status === "approved") return "Approved";
-    if (status.includes("waiting_approval")) return "Waiting for approval";
-    if (status.includes("blocked_external_write")) return "Waiting for approval";
-    if (status.includes("not_run")) return "Paused";
-    if (op.includes("approval")) return "Approval checkpoint";
-    return "Previewed";
-  }
-
-  function statusClass(step) {
-    const status = String(step?.status || "");
-    if (status.includes("approved_ready")) return "is-ready";
-    if (status === "approved") return "is-ok";
-    if (status.includes("waiting_approval")) return "is-waiting";
-    if (status.includes("blocked_external_write")) return "is-waiting";
-    if (status.includes("blocked")) return "is-waiting";
-    if (status.includes("not_run")) return "is-paused";
-    return "is-ok";
-  }
-
-  function statusMarker(step) {
-    const status = String(step?.status || "");
-    if (status.includes("approved_ready")) return "✓";
-    if (status === "approved") return "✓";
-    if (status.includes("waiting_approval")) return "⏸";
-    if (status.includes("blocked_external_write")) return "⏸";
-    if (status.includes("blocked")) return "⏸";
-    return "✓";
-  }
-
-  const latestApproval = window.__aionWorkflowLastApproval || null;
-
-  const approvalStatus =
-    approval && latestApproval?.approval_id === approval?.approval_id
-      ? String(latestApproval?.status || approval?.status || "pending")
-      : String(approval?.status || "pending");
-
-  const approvalDecision =
-    approval && latestApproval?.approval_id === approval?.approval_id
-      ? String(latestApproval?.decision || approval?.decision || "")
-      : String(approval?.decision || "");
-
-  const approvalIsApproved = approvalStatus === "approved" || approvalDecision === "approved";
-  const approvalIsRejected = approvalStatus === "rejected" || approvalDecision === "rejected";
-
-  const approvalTitle = approvalIsApproved
-    ? "Approval granted"
-    : approvalIsRejected
-      ? "Approval rejected"
-      : "Approval required";
-
-  const approvalCopy = approvalIsApproved
-    ? "AION may now prepare this action, but live sending remains disabled."
-    : approvalIsRejected
-      ? "This workflow action will not continue unless approval is granted again."
-      : "Review the gated actions before AION prepares connector-ready steps.";
-
-  const approvalCard = approval?.approval_id
-    ? `
-      <section class="aion-exec-card aion-exec-approval-card">
-        <div class="aion-exec-card-head">
-          <div>
-            <div class="eyebrow">Human approval</div>
-            <h3>${escapeHtml(approvalTitle)}</h3>
-            <p>${escapeHtml(approvalCopy)}</p>
-            <code>${escapeHtml(approval.approval_id)}</code>
-          </div>
-          <span class="aion-exec-pill ${approvalIsApproved ? "is-ok" : approvalIsRejected ? "is-blocked" : "is-waiting"}">
-            ${escapeHtml(approvalStatus)}
-          </span>
-        </div>
-
-        <div class="aion-exec-approval-actions">
-          <button
-            type="button"
-            data-aion-workflow-approval-approve="${escapeHtml(approval.approval_id)}"
-            ${approvalIsApproved || approvalIsRejected ? "disabled" : ""}
-          >Approve</button>
-
-          <button
-            type="button"
-            data-aion-workflow-approval-reject="${escapeHtml(approval.approval_id)}"
-            ${approvalIsApproved || approvalIsRejected ? "disabled" : ""}
-          >Reject</button>
-
-          <button
-            type="button"
-            data-aion-workflow-approval-resume="${escapeHtml(approval.approval_id)}"
-            ${approvalIsApproved ? "" : "disabled"}
-            title="${approvalIsApproved ? "Prepare connector-ready actions" : "Approve first, then resume"}"
-          >Resume</button>
-        </div>
-      </section>
-    `
-    : "";
-
-  const needsApprovalRows = approvalSteps.length
-    ? approvalSteps
-        .filter((step, index, arr) => {
-          const id = String(step.node_id || step.title || index);
-          return arr.findIndex((item) => String(item.node_id || item.title || "") === id) === index;
-        })
-        .map((step, index) => `
-          <div class="aion-exec-approval-row">
-            <span>${escapeHtml(String(index + 1))}</span>
-            <strong>${escapeHtml(titleCaseStep(step.title || step.node_id || "Approval action"))}</strong>
-            <em>${escapeHtml(friendlyStatus(step))}</em>
-          </div>
-        `)
-        .join("")
-    : `<p class="muted">No actions currently require approval.</p>`;
-
-  const timelineRows = trace
-    .map((step) => {
-      const cls = statusClass(step);
-      const marker = statusMarker(step);
-      const label = friendlyStatus(step);
-      const title = titleCaseStep(step.title || step.node_id || "Workflow step");
-      const op = String(step.op || "workflow_step").replace(/^aion\.workflow:/, "");
-
-      return `
-        <div class="aion-exec-timeline-row ${escapeHtml(cls)}">
-          <span class="aion-exec-marker">${escapeHtml(marker)}</span>
-          <div>
-            <strong>${escapeHtml(title)}</strong>
-            <small>${escapeHtml(op)}</small>
-          </div>
-          <em>${escapeHtml(label)}</em>
-        </div>
-      `;
-    })
-    .join("");
-
-  return `
-    <div class="aion-workflow-execution-panel aion-exec-panel" data-aion-dry-run-panel="true">
-      <button
-        class="aion-dry-run-floating-close aion-exec-close"
-        type="button"
-        data-aion-dry-run-close="true"
-        title="Close execution preview"
-      >
-        ×
-      </button>
-
-      <header class="aion-exec-header">
-        <div>
-          <div class="eyebrow">Workflow execution preview</div>
-          <h2>Safe dry-run complete</h2>
-          <p>AION checked the workflow and stopped before live external actions.</p>
-        </div>
-        <span class="aion-exec-pill is-safe">No live emails sent</span>
-      </header>
-
-      <section class="aion-exec-summary-grid">
-        <div class="aion-exec-summary-card">
-          <span>✓</span>
-          <strong>${escapeHtml(String(trace.length || result.steps || 0))}</strong>
-          <small>steps checked</small>
-        </div>
-
-        <div class="aion-exec-summary-card">
-          <span>✓</span>
-          <strong>${escapeHtml(String(safePreviewCount))}</strong>
-          <small>safe previews completed</small>
-        </div>
-
-        <div class="aion-exec-summary-card ${blocked.length ? "is-waiting" : ""}">
-          <span>${blocked.length ? "⏸" : "✓"}</span>
-          <strong>${escapeHtml(String(blocked.length))}</strong>
-          <small>${blocked.length ? "waiting for approval" : "blocked writes"}</small>
-        </div>
-
-        <div class="aion-exec-summary-card">
-          <span>✓</span>
-          <strong>0</strong>
-          <small>live sends performed</small>
-        </div>
-      </section>
-
-      ${approvalCard}
-
-      <section class="aion-exec-card">
-        <div class="aion-exec-section-head">
-          <div>
-            <div class="eyebrow">Needs approval</div>
-            <h3>Actions that cannot continue automatically</h3>
-          </div>
-        </div>
-        <div class="aion-exec-approval-list">
-          ${needsApprovalRows}
-        </div>
-      </section>
-
-      <section class="aion-exec-card">
-        <div class="aion-exec-section-head">
-          <div>
-            <div class="eyebrow">Step timeline</div>
-            <h3>Business-readable execution path</h3>
-          </div>
-        </div>
-        <div class="aion-exec-timeline">
-          ${timelineRows || `<p class="muted">No execution steps were returned.</p>`}
-        </div>
-      </section>
-
-      <section class="aion-exec-card aion-exec-after-approval">
-        <div class="eyebrow">After approval</div>
-        <p>
-          AION will only prepare connector-ready actions. It will not send live emails,
-          send Gmail drafts, delete messages, or perform live external writes unless a future
-          live execution phase is explicitly enabled.
-        </p>
-      </section>
-
-      <details class="aion-exec-debug">
-        <summary>Advanced debug payload</summary>
-        <pre>${escapeHtml(JSON.stringify(result || {}, null, 2))}</pre>
-      </details>
-    </div>
-  `;
-}
-
-
-function renderAionWorkflowCompiledGlyphDock(graph) {
-  const safeGraph = graph || getAionWorkflowDraftState();
-  const compiled = safeGraph?.compiled_glyph || compileAionWorkflowGraphToGlyph(safeGraph);
-  const stepCount = Array.isArray(compiled?.steps) ? compiled.steps.length : 0;
-  const linkCount = Array.isArray(compiled?.flow_links) ? compiled.flow_links.length : 0;
-
-  return `
-    <details class="aion-compiled-glyph-dock">
-      <summary>
-        <span>⌁ Compiled Glyph</span>
-        <strong>${escapeHtml(compiled?.schema_version || AION_WORKFLOW_GLYPH_SCHEMA_VERSION)}</strong>
-        <em>${stepCount} steps · ${linkCount} links</em>
-      </summary>
-      <pre>${escapeHtml(JSON.stringify(compiled, null, 2))}</pre>
-    </details>
-  `;
-}
-
-function renderAionWorkflowCompiledGlyphDebugPanel(graph) {
-  const compiled = compileAionWorkflowGraphToGlyph(graph || getAionWorkflowDraftState());
-  const preview = JSON.stringify(compiled, null, 2);
-
-  return `
-    <details class="aion-workflow-glyph-debug">
-      <summary>
-        <span>
-          <strong>Compiled Glyph</strong>
-          <small>${escapeHtml(compiled.schema_version)} · ${escapeHtml(compiled.steps.length)} steps · ${escapeHtml(compiled.flow_links.length)} links</small>
-        </span>
-        <span class="badge">Debug</span>
-      </summary>
-
-      <pre>${escapeHtml(preview)}</pre>
-    </details>
-  `;
-}
-
-
-function getAionWorkflowLastTraceOutputForNode(nodeId) {
-  if (!nodeId) return null;
-
-  const result = window.__aionWorkflowDryRunResult;
-  const trace = Array.isArray(result?.trace) ? result.trace : [];
-
-  const row = [...trace]
-    .reverse()
-    .find((step) => String(step?.node_id || "") === String(nodeId));
-
-  if (!row) return null;
-
-  const outputs = Array.isArray(row.output_items_preview)
-    ? row.output_items_preview
-    : [];
-
-  return outputs[0] || null;
-}
-
-
-
-function getWorkflowArchitectSelectedProvider(nextProvider = null) {
-  const synced = window.__syncedArchitectInput || {};
-  const workflowArchitectProvider = String(
-    nextProvider || synced.provider || window.__workflowArchitectProvider || "mock",
-  );
-
-  return ["mock", "openai", "local_gemma", "claude", "gemini", "grok"].includes(workflowArchitectProvider)
-    ? workflowArchitectProvider
-    : "mock";
-}
-
-function setWorkflowArchitectSelectedProvider(provider) {
-  const workflowArchitectProvider = String(provider || "mock");
-  const safeProvider = ["mock", "openai", "local_gemma", "claude", "gemini", "grok"].includes(workflowArchitectProvider)
-    ? workflowArchitectProvider
-    : "mock";
-
-  window.__workflowArchitectProvider = safeProvider;
-  window.__syncedArchitectInput = {
-    ...(window.__syncedArchitectInput || {}),
-    provider: safeProvider,
-  };
-}
-
-function syncWorkflowArchitectModalInputsToState() {
-  const goalInput = document.querySelector("[data-workflow-architect-goal-input='true']");
-  const providerSelect = document.querySelector("[data-workflow-architect-provider-select='true']");
-
-  const existing = getWorkflowArchitectReviewState();
-  const synced = window.__syncedArchitectInput || {};
-
-  const workflowGoal = String(
-    goalInput?.value ||
-      synced.workflowGoal ||
-      existing.workflowGoal ||
-      ""
-  ).trim();
-
-  const provider = getWorkflowArchitectSelectedProvider(
-    String(
-      providerSelect?.value ||
-        synced.provider ||
-        existing.provider ||
-        window.__workflowArchitectProvider ||
-        "mock"
-    ),
-  );
-
-  setWorkflowArchitectSelectedProvider(provider);
-
-  window.__syncedArchitectInput = {
-    ...(window.__syncedArchitectInput || {}),
-    workflowGoal,
-    provider,
-  };
-
-  setWorkflowArchitectReviewState({
-    workflowGoal,
-    provider,
-  });
-
-  return {
-    workflowGoal,
-    provider,
-  };
-}
-
-
-function getWorkflowArchitectProviderStatusCopy(provider) {
-  const workflowArchitectProvider = String(provider || getWorkflowArchitectSelectedProvider());
-
-  if (workflowArchitectProvider === "openai") {
-    return "OpenAI cloud builder. Env-gated and fail-closed when not configured.";
-  }
-
-  if (workflowArchitectProvider === "local_gemma") {
-    return "Local Gemma/Ollama builder. Local-runtime gated and fail-closed when not configured.";
-  }
-
-  return "Mock deterministic local builder. Safe default for offline review.";
-}
-
-
-function getWorkflowArchitectResultSpec(result) {
-  return (
-    result?.provider?.spec ||
-    result?.spec ||
-    result?.builder_spec ||
-    {}
-  );
-}
-
-function getWorkflowArchitectResultReviewSummary(result) {
-  return (
-    result?.review?.review ||
-    result?.review ||
-    {}
-  );
-}
-
-function getWorkflowArchitectResultCanvas(result) {
-  return (
-    result?.review?.canvas ||
-    result?.canvas ||
-    {}
-  );
-}
-
-function getWorkflowArchitectResultWarnings(result) {
-  const warnings = [];
-
-  if (Array.isArray(result?.warnings)) warnings.push(...result.warnings);
-  if (Array.isArray(result?.provider?.warnings)) warnings.push(...result.provider.warnings);
-  if (Array.isArray(result?.review?.warnings)) warnings.push(...result.review.warnings);
-
-  return [...new Set(warnings.map((item) => String(item)))];
-}
-
-function getWorkflowArchitectResultErrors(result) {
-  const errors = [];
-
-  if (Array.isArray(result?.errors)) errors.push(...result.errors);
-  if (Array.isArray(result?.provider?.errors)) errors.push(...result.provider.errors);
-  if (Array.isArray(result?.review?.errors)) errors.push(...result.review.errors);
-
-  return [...new Set(errors.map((item) => String(item)))];
-}
-
-
-function getWorkflowArchitectReviewState() {
-  const synced = window.__syncedArchitectInput || {};
-  return window.__aionWorkflowArchitectReview || {
-    ok: false,
-    loading: false,
-    workflowGoal: String(synced.workflowGoal || ""),
-    provider: String(synced.provider || window.__workflowArchitectProvider || "mock"),
-    result: null,
-    errors: [],
-    warnings: [],
-  };
-}
-
-function setWorkflowArchitectReviewState(nextState) {
-  const current = getWorkflowArchitectReviewState();
-  const synced = window.__syncedArchitectInput || {};
-
-  const merged = {
-    ...current,
-    ...(nextState || {}),
-  };
-
-  merged.workflowGoal = String(
-    merged.workflowGoal ||
-      synced.workflowGoal ||
-      current.workflowGoal ||
-      ""
-  );
-
-  merged.provider = String(
-    merged.provider ||
-      synced.provider ||
-      window.__workflowArchitectProvider ||
-      current.provider ||
-      "mock"
-  );
-
-  window.__aionWorkflowArchitectReview = merged;
-
-  window.__syncedArchitectInput = {
-    ...(window.__syncedArchitectInput || {}),
-    workflowGoal: merged.workflowGoal,
-    provider: merged.provider,
-  };
-
-  window.__workflowArchitectProvider = merged.provider;
-}
-
-function getWorkflowArchitectApiBase() {
-  return String(state.apiBase || DEFAULT_API_BASE || "http://127.0.0.1:8080").replace(/\/+$/, "");
-}
-
-function getWorkflowArchitectReviewPayload() {
-  const current = getWorkflowArchitectReviewState();
-
-  return {
-    workflow_goal:
-      String(current.workflowGoal || "").trim() ||
-      "Create a safe customer reply workflow for Gmail. Read new customer emails, extract customer details, draft a reply, and require approval before any external write.",
-    provider: String(current.provider || "mock"),
-    user_steps: getWorkflowArchitectApprovedUserSteps().ok ? getWorkflowArchitectApprovedUserSteps().user_steps : [],
-    business_context: {
-      workspace_id: state.workspaceId || DEFAULT_WORKSPACE_ID || "costa_conexion",
-      node_id: state.nodeId || DEFAULT_NODE_ID || "node_mac_local_01",
-      source: "desktop_workflow_canvas",
-    },
-    connected_credentials: ["gmail"],
-    missing_credentials: [],
-    must_not_do: [
-      "Do not send live email.",
-      "Do not bypass approval gates.",
-      "Do not invent unsupported Aion node types.",
-    ],
-    inputs: {},
-  };
-}
-
-async function buildWorkflowArchitectReviewFromDesktop() {
-  const syncedInput = syncWorkflowArchitectModalInputsToState();
-  const payload = getWorkflowArchitectReviewPayload();
-
-  setWorkflowArchitectReviewState({
-    workflowGoal: syncedInput.workflowGoal,
-    provider: syncedInput.provider,
-    loading: true,
-    result: null,
-    errors: [],
-    warnings: [],
-  });
-  requestRender();
-
-  try {
-    const response = await fetch(`${getWorkflowArchitectApiBase()}/api/workflow-architect/build-review`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-
-    setWorkflowArchitectReviewState({
-      workflowGoal: syncedInput.workflowGoal,
-      provider: syncedInput.provider,
-      loading: false,
-      result: data,
-      errors: Array.isArray(data?.errors) ? data.errors : [],
-      warnings: Array.isArray(data?.warnings) ? data.warnings : [],
-    });
-
-    desktopStore.patch?.({
-      message: data?.ok
-        ? "Workflow Architect review ready"
-        : "Workflow Architect review needs attention",
-      messageTone: data?.ok ? "success" : "warning",
-    });
-  } catch (error) {
-    setWorkflowArchitectReviewState({
-      workflowGoal: syncedInput.workflowGoal,
-      provider: syncedInput.provider,
-      loading: false,
-      result: null,
-      errors: [error instanceof Error ? error.message : "workflow_architect_request_failed"],
-      warnings: [],
-    });
-
-    desktopStore.patch?.({
-      message: "Workflow Architect request failed",
-      messageTone: "error",
-    });
-  }
-
-  requestRender();
-}
-
-function getWorkflowArchitectReviewGraph(result) {
-  return (
-    result?.review?.canvas_graph ||
-    result?.review?.canvasGraph ||
-    result?.canvas_graph ||
-    null
-  );
-}
-
-function getWorkflowArchitectReviewSpec(result) {
-  return (
-    result?.review?.spec ||
-    result?.spec ||
-    result?.provider?.spec ||
-    result?.workflow_builder_spec ||
-    null
-  );
-}
-
-function isWorkflowArchitectReviewLoadable(result) {
-  return Boolean(result?.ok && getWorkflowArchitectReviewGraph(result));
-}
-
-function workflowArchitectSpecSteps(result) {
-  const spec = getWorkflowArchitectReviewSpec(result);
-  return Array.isArray(spec?.steps) ? spec.steps : [];
-}
 
 function renderWorkflowArchitectSidebarMount() {
   const reviewState = getWorkflowArchitectReviewState();
@@ -27270,3 +26520,315 @@ function aionWorkflowCapsuleSaveContractMarker(safeGraph) {
   return confirmAionWorkflowCapsuleSave(safeGraph);
 }
 
+
+
+
+(function installAionArchitectCanvasStyles() {
+  if (document.getElementById("aion-architect-canvas-style-v1")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-architect-canvas-style-v1";
+  style.textContent = `
+    .aion-architect-canvas-shell {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      min-height: 100vh;
+      background:
+        radial-gradient(900px 460px at 18% 8%, rgba(26, 138, 255, 0.08), transparent 58%),
+        radial-gradient(900px 520px at 86% 16%, rgba(244, 26, 255, 0.05), transparent 58%),
+        #f7f1e8;
+      color: #111827;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      overflow: hidden;
+    }
+
+    .aion-architect-topbar {
+      padding: 24px 34px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.10);
+      background: rgba(255,255,255,0.62);
+      backdrop-filter: blur(18px);
+    }
+
+    .aion-architect-topbar h1 {
+      margin: 4px 0 8px;
+      font-size: 34px;
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+    }
+
+    .aion-architect-topbar p {
+      margin: 0;
+      max-width: 820px;
+      color: rgba(15,23,42,0.68);
+      line-height: 1.45;
+    }
+
+    .aion-architect-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .aion-architect-node-builder-layout {
+      min-height: 0;
+      height: 100%;
+      display: grid;
+      grid-template-columns: minmax(300px, 390px) minmax(0, 1fr) minmax(320px, 420px);
+      gap: 18px;
+      padding: 18px 24px 24px;
+      overflow: hidden;
+    }
+
+    .aion-architect-left-panel,
+    .aion-architect-step-settings {
+      min-height: 0;
+      overflow: auto;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .aion-architect-card {
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(15,23,42,0.10);
+      box-shadow: 0 20px 70px rgba(15,23,42,0.08);
+      border-radius: 24px;
+      padding: 18px;
+    }
+
+    .aion-architect-card textarea,
+    .aion-architect-card select {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,0.12);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.86);
+      padding: 14px;
+      font: inherit;
+      color: #111827;
+      outline: none;
+    }
+
+    .aion-architect-card textarea {
+      resize: vertical;
+      min-height: 150px;
+      line-height: 1.45;
+    }
+
+    .aion-architect-field {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+      font-weight: 800;
+    }
+
+    .aion-architect-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .aion-architect-mode-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .aion-architect-mode-switch button {
+      border: 1px solid rgba(15,23,42,0.12);
+      background: rgba(255,255,255,0.72);
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .aion-architect-mode-switch button.active {
+      background: #0f172a;
+      color: #fff;
+    }
+
+    .aion-architect-action-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .workflow-architect-action-option {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,0.10);
+      background: rgba(255,255,255,0.76);
+      border-radius: 18px;
+      padding: 12px;
+      text-align: left;
+      display: grid;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .workflow-architect-action-option strong {
+      font-size: 13px;
+    }
+
+    .workflow-architect-action-option span {
+      font-size: 12px;
+      color: rgba(15,23,42,0.58);
+    }
+
+    .workflow-architect-action-option.locked {
+      opacity: 0.62;
+      cursor: not-allowed;
+    }
+
+    .aion-architect-locked-actions {
+      margin-top: 12px;
+    }
+
+    .aion-architect-canvas-board {
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 28px;
+      background:
+        linear-gradient(rgba(15,23,42,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,23,42,0.035) 1px, transparent 1px),
+        rgba(255,255,255,0.42);
+      background-size: 36px 36px;
+      border: 1px solid rgba(15,23,42,0.10);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.55), 0 30px 100px rgba(15,23,42,0.08);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .aion-architect-board-header {
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+      background: rgba(255,255,255,0.55);
+    }
+
+    .aion-architect-board-header h2 {
+      margin: 4px 0 0;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    .aion-architect-flow-lane {
+      min-height: 0;
+      overflow: auto;
+      padding: 36px;
+      display: grid;
+      gap: 10px;
+      align-content: center;
+      justify-items: center;
+    }
+
+    .workflow-architect-step-visual-row {
+      width: min(680px, 100%);
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .aion-architect-step-number {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: #0f172a;
+      color: white;
+      font-weight: 900;
+      box-shadow: 0 18px 50px rgba(15,23,42,0.16);
+    }
+
+    .aion-architect-step-card {
+      border-radius: 24px;
+      padding: 18px;
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(15,23,42,0.10);
+      box-shadow: 0 20px 70px rgba(15,23,42,0.10);
+    }
+
+    .aion-architect-step-kicker {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .aion-architect-step-kicker span {
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.06);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .aion-architect-step-card h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .aion-architect-step-card p {
+      margin: 6px 0 0;
+      color: rgba(15,23,42,0.58);
+    }
+
+    .aion-architect-step-connector {
+      grid-column: 2;
+      text-align: center;
+      color: rgba(15,23,42,0.42);
+      font-weight: 900;
+      font-size: 22px;
+    }
+
+    .aion-architect-safety-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .aion-architect-safety-grid div {
+      background: rgba(15,23,42,0.05);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+
+    .aion-architect-card pre {
+      max-height: 260px;
+      overflow: auto;
+      white-space: pre-wrap;
+      background: #0f172a;
+      color: white;
+      border-radius: 18px;
+      padding: 14px;
+      font-size: 12px;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+
+/* Execution preview advanced debug collapsed lock.
+   Required by desktop safe dry-run execution contract.
+   Keep advanced/debug payloads behind collapsed <details>. */
+const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
+  <summary>Advanced debug payload</summary>
+</details>`;
